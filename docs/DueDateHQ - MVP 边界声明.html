@@ -560,6 +560,8 @@
     <div class="doc-meta">
       <span class="doc-meta-tag urgent">2-Week MVP · Build Window</span>
       <span class="doc-meta-sep"></span>
+      <span>Cloud SaaS · Web App</span>
+      <span class="doc-meta-sep"></span>
       <span>v0.1 · Locked Scope</span>
       <span class="doc-meta-sep"></span>
       <span>Apr 2026</span>
@@ -567,14 +569,18 @@
 
     <h1 class="doc-title">MVP <em>边界声明</em></h1>
     <p class="doc-sub">
-      2 周内必须做出可行 MVP。这份文档是当前阶段的单一决策起点：把范围、用户、指标、成败判据全部写死，防止 build window 内的任何"再加一点"冲动。
+      2 周内必须做出一个云端 SaaS Web App 的可行 MVP。这份文档是当前阶段的单一决策起点：把范围、用户、指标、成败判据全部写死，防止 build window 内的任何"再加一点"冲动。
       原先的 <span class="link-doc">假设登记册</span> 从决策起点降级为"MVP 之后的长期验证计划参考"。
     </p>
 
     <div class="doc-info">
       <div class="doc-info-item">
         <div class="label">产品</div>
-        <div class="value">DueDateHQ</div>
+        <div class="value">DueDateHQ · Cloud SaaS</div>
+      </div>
+      <div class="doc-info-item">
+        <div class="label">产品形态</div>
+        <div class="value">单用户 Web App</div>
       </div>
       <div class="doc-info-item">
         <div class="label">Build Window</div>
@@ -604,7 +610,7 @@
         2 周后，10 位真实 CPA 用了两周，<em>几个会主动回来用第三周</em>？
       </p>
       <p class="note">
-        MVP 不是"产品上线"，也不是"验证所有假设"。它是一次<strong style="color:#fff;">压缩到极限的学习</strong>——把 BP/VPC 里最核心的几条假设（M02 问题真实性、P01 分诊效率、P02 首次价值）压进一个能用的产品里，然后让少量真实用户去给答案。
+        MVP 不是"产品上线"，也不是"验证所有假设"。它是一次<strong style="color:#fff;">压缩到极限的学习</strong>——把 BP/VPC 里最核心的几条假设（M02 问题真实性、P01 分诊效率、P02 首次价值）压进一个能用的云端 SaaS 账户产品里，然后让少量真实用户去给答案。
         假设登记册里那些需要 8 周 PoC、$2K 律师咨询、付费漏斗的验证路径，全部延后。
       </p>
     </div>
@@ -685,6 +691,7 @@
           <span class="sub">Must Ship</span>
         </div>
         <ul class="scope-list in">
+          <li><strong>SaaS 形态：</strong>云端 Web App，CPA 使用自己的账号登录，客户数据保存在云端；MVP 只做单用户账号，不做团队版</li>
           <li><strong>州覆盖：</strong>联邦 + 5 个州（CA / NY / TX / FL / WA），全部人工录入当年所有核心截止日</li>
           <li><strong>客户档案：</strong>手动表单添加，字段：姓名 / 州 / 实体类型 (LLC/S-Corp/Partnership) / 适用税种</li>
           <li><strong>主看板：</strong>三段分组（本周到期 / 本月预警 / 长期计划），支持按客户、州、税种筛选</li>
