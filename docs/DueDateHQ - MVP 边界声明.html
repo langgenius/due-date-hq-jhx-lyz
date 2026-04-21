@@ -622,7 +622,7 @@
       <h2 class="section-title">核心 Job-to-be-Done · 砍到一个</h2>
     </div>
     <p class="section-intro">
-      BP/VPC 里暗含三个可能的主场景。2 周 MVP 最痛的取舍是只能选一个做主场景，一个做最小版本，一个必须砍。
+      BP/VPC 里暗含三个可能的主场景。2 周 MVP 最痛的取舍是：主场景只选每周分诊，看板 setup 只做最小版，AI 只做解释和分诊增强，自动合规裁决必须砍掉。
     </p>
 
     <div class="jtbd-grid">
@@ -631,35 +631,35 @@
         <span class="jtbd-label chosen">A · 主场景</span>
         <div class="jtbd-title">每周分诊看板</div>
         <p class="jtbd-desc">
-          登录后 30 秒内看到"本周到期 / 本月预警 / 长期计划"三段分组，按客户/州/税种筛选，一键标状态。
+          登录后 30 秒内看到"本周到期 / 本月预警 / 长期计划"三段分组，按客户/州/税种筛选，一键标状态，并看到 AI 生成的本周风险摘要。
         </p>
         <div class="jtbd-why">
           <strong>为什么选它</strong>
-          这是 Daily/Weekly Active 的锚——MVP 想知道"有没有人回来用"，就必须提供一个值得回来的 recurring 行为。其他功能都是为它服务的。
+          这是 Daily/Weekly Active 的锚——MVP 想知道"有没有人回来用"，就必须提供一个值得回来的 recurring 行为。AI 的任务是把静态截止日变成可行动的本周分诊建议，其他功能都是为它服务的。
         </div>
       </div>
 
       <div class="jtbd-card partial">
         <span class="jtbd-label partial">B · 最小版</span>
-        <div class="jtbd-title">客户 + 日历自动生成</div>
+        <div class="jtbd-title">客户 + 日历 + AI Tips</div>
         <p class="jtbd-desc">
-          手动表单录入客户（姓名、州、实体类型、适用税种），系统基于后端静态规则生成该客户全年截止日。
+          手动表单录入客户（姓名、州、实体类型、适用税种），系统基于后端静态规则生成该客户全年截止日，并为每条截止日生成简短解释、准备事项和来源摘要。
         </p>
         <div class="jtbd-why">
           <strong>为什么只做最小版</strong>
-          没有 Setup 就没有分诊，所以必须做；但 CSV 导入、字段智能识别、EIN 校验全部砍掉——它们是 Phase 2 的事。
+          没有 Setup 就没有分诊，所以必须做；AI 只解释已经确认的数据，不生成或修改截止日。CSV 导入、字段智能识别、EIN 校验全部砍掉——它们是 Phase 2 的事。
         </div>
       </div>
 
       <div class="jtbd-card cut">
         <span class="jtbd-label cut">C · 砍掉</span>
-        <div class="jtbd-title">州税局公告 24h 响应</div>
+        <div class="jtbd-title">AI 自动监控州税局公告</div>
         <p class="jtbd-desc">
-          这是 BP 里最性感的叙事（用户故事 #3），但在 2 周内做不到"dependable" 水平。
+          这是 BP 里最性感的叙事（用户故事 #3），但在 2 周内做不到"dependable" 水平，不能让 AI 自动改规则或承诺 24h 响应。
         </p>
         <div class="jtbd-why">
           <strong>为什么砍</strong>
-          做半吊子版会产出错误公告或漏检——反而成为 CPA 对产品的负面一击。暂缓到 MVP 验证 A+B 之后。Phase 2 优先候选。
+          做半吊子版会产出错误公告或漏检——反而成为 CPA 对产品的负面一击。MVP 只验证 AI 解释层是否提升分诊效率与付费意愿；自动监控暂缓到 MVP 验证 A+B 之后。
         </div>
       </div>
 
@@ -688,6 +688,7 @@
           <li><strong>州覆盖：</strong>联邦 + 5 个州（CA / NY / TX / FL / WA），全部人工录入当年所有核心截止日</li>
           <li><strong>客户档案：</strong>手动表单添加，字段：姓名 / 州 / 实体类型 (LLC/S-Corp/Partnership) / 适用税种</li>
           <li><strong>主看板：</strong>三段分组（本周到期 / 本月预警 / 长期计划），支持按客户、州、税种筛选</li>
+          <li><strong>AI 分诊增强：</strong>基于已确认截止日生成每周 Brief、客户风险摘要、单条截止日 Tips；必须展示来源链接或人工确认状态</li>
           <li><strong>状态管理：</strong>每条截止日一键标"已完成 / 进行中 / 已延期"</li>
           <li><strong>提醒：</strong>应用内通知 + 邮件（30 / 7 / 1 天阶梯），使用托管邮件服务即可</li>
           <li><strong>登录：</strong>Email magic link 或最简账号体系，单用户</li>
@@ -704,7 +705,7 @@
         <ul class="scope-list out">
           <li>州覆盖扩展到 50 州（剩下 45 州）</li>
           <li>CSV 导入（TaxDome / Drake / Karbon / QuickBooks）与字段智能识别</li>
-          <li>AI / 自动化监控州税局公告</li>
+          <li>AI 自动监控州税局公告、自动改截止日规则、自动判断灾害延期适用性</li>
           <li>多用户、团队权限、Team 版</li>
           <li>短信提醒 · 移动端 App</li>
           <li>延期申请追踪（extension 状态机）</li>
@@ -727,7 +728,7 @@
           <li>客户门户（client portal）</li>
           <li>报税自动化 / 实际申报（Drake / UltraTax 领域）</li>
           <li>时间追踪与计费（Billing / Time tracking）</li>
-          <li>税务咨询内容 / 合规建议（律师/CPA 责任边界）</li>
+          <li>税务咨询内容 / 合规建议（律师/CPA 责任边界）；AI 只能做摘要和提示，不能给结论性税务意见</li>
           <li>开放 API 供他人集成（Phase 4 话题，现在不讨论）</li>
         </ul>
       </div>
@@ -738,7 +739,7 @@
       <strong>关于州覆盖：</strong>选 CA / NY / TX / FL / WA 这 5 个州不是随意——覆盖了"税复杂度高 (CA/NY)"、"无所得税但有其他税 (TX/FL/WA)"、"PTE 选举严苛 (NY)"、"灾害延期频繁 (CA/FL)"这几种 CPA 最常遇到的情境。目标是让 10 个种子用户中 ≥ 80% 至少有 2 个客户落在覆盖范围内——否则产品对用户"不可用"，MVP 数据失真。
     </div>
     <div class="scope-note" style="margin-top: 12px;">
-      <strong>关于数据维护：</strong>MVP 期间 100% 人工维护 5 州数据。不上 LLM，不上爬虫。原因：2 周 build window + 申报季前后任何自动化的错误都会被用户立刻发现。人工维护的可维护性不是这次要验证的——留给 MVP 之后 H-T01/T02 的 PoC。
+      <strong>关于数据维护：</strong>MVP 期间 100% 人工维护 5 州截止日，LLM 不作为数据源、不改规则、不自动判定适用性。AI 只基于已确认数据和来源链接生成摘要、Tips、每周 Brief。原因：2 周 build window + 申报季前后任何自动化的错误都会被用户立刻发现。人工维护的可维护性不是这次要验证的——留给 MVP 之后 H-T01/T02 的 PoC。
     </div>
   </section>
 
@@ -779,11 +780,11 @@
       </div>
       <div class="timeline-row">
         <div class="timeline-week">Week 1 · D4-D7</div>
-        <div class="timeline-activity"><strong>5 州数据人工录入（1-2 人 × 3 天）。</strong>开发继续三段分组、筛选、状态切换。第一轮候选用户确认名单（10 人承诺）。</div>
+        <div class="timeline-activity"><strong>5 州数据人工录入（1-2 人 × 3 天）。</strong>开发继续三段分组、筛选、状态切换，并为每条核心截止日补齐来源链接与 AI Tip 输入素材。第一轮候选用户确认名单（10 人承诺）。</div>
       </div>
       <div class="timeline-row">
         <div class="timeline-week">Week 2 · D8-D11</div>
-        <div class="timeline-activity"><strong>打通邮件提醒、付费意愿按钮、数据准确性自查。</strong>2-3 位 CPA 做第一轮 "friends &amp; family" 试用（非正式，只为暴露致命 bug）。</div>
+        <div class="timeline-activity"><strong>打通邮件提醒、AI 每周 Brief、付费意愿按钮、数据准确性自查。</strong>2-3 位 CPA 做第一轮 "friends &amp; family" 试用（非正式，只为暴露致命 bug）。</div>
       </div>
       <div class="timeline-row">
         <div class="timeline-week">Week 2 · D12-D14</div>
@@ -804,7 +805,7 @@
   <section>
     <div class="section-head">
       <span class="section-num">05</span>
-      <h2 class="section-title">要测量的指标 · 控制在 6 个以内</h2>
+      <h2 class="section-title">要测量的指标 · 控制在 7 个以内</h2>
     </div>
     <p class="section-intro">
       埋点越少越好。每个指标必须能直接喂进 §06 的成败判据；测不到的不上。
@@ -845,6 +846,11 @@
           <td class="target">&lt; 20%</td>
         </tr>
         <tr>
+          <td class="metric">AI Brief 有用率</td>
+          <td>退出访谈中明确表示"AI 周报 / Tips 帮我更快决定本周优先级"的人数；同时记录 Tip 展开率作为辅助信号</td>
+          <td class="target">≥ 5 / 10 人</td>
+        </tr>
+        <tr>
           <td class="metric">付费意愿按钮点击</td>
           <td>"I'd pay $49/mo" 按钮点击数 / 周活用户数</td>
           <td class="target">≥ 30% 点击 (弱信号)</td>
@@ -877,6 +883,7 @@
           <ul>
             <li>Week-2 回访人数 ≥ 5 人</li>
             <li>退出访谈中 ≥ 3 人明确表达"愿意付 $49/月试用"</li>
+            <li>≥ 5 人认为 AI Brief / Tips 明确提升每周分诊效率</li>
             <li>日历编辑率 &lt; 30%（信任度尚可）</li>
           </ul>
         </div>
@@ -899,7 +906,7 @@
         </div>
         <div class="verdict-action">
           <strong>下一步</strong>
-          产品方向对，定位/定价错。回头讨论：是否改 ICP（换成更大事务所？）、是否改定价（$19 或按客户数计费？）、是否必须捆绑 Phase 2 功能（公告响应/多州扩展）才能撑起价格。
+          产品方向对，定位/定价错。回头讨论：是否改 ICP（换成更大事务所？）、是否改定价（$19 或按客户数计费？）、是否必须强化 AI 分诊价值或捆绑 Phase 2 功能（公告响应/多州扩展）才能撑起价格。
         </div>
       </div>
 
@@ -911,6 +918,7 @@
           <ul>
             <li>Week-2 回访 &lt; 4 人</li>
             <li>≥ 50% 用户表达"不如我现在的 Excel"</li>
+            <li>≥ 50% 用户认为 AI 内容泛泛、不可用或增加核验负担</li>
             <li>日历编辑率 &gt; 40%（不信任系统）</li>
           </ul>
         </div>
@@ -945,9 +953,9 @@
         <tr>
           <td><span class="verdict-chip yes">MVP 会验证</span></td>
           <td>
-            <span class="hid">H-M02</span><span class="hid">H-M03</span><span class="hid">H-P01</span><span class="hid">H-P02</span><span class="hid">H-P04</span>
+            <span class="hid">H-M02</span><span class="hid">H-M03</span><span class="hid">H-P01</span><span class="hid">H-P02</span><span class="hid">H-P04</span><span class="hid">H-AI01 · 新增</span>
           </td>
-          <td>问题真实性、现状不满、分诊耗时、首次价值、日历信任度——这些是种子用户 2 周使用数据 + 退出访谈能直接给出信号的。</td>
+          <td>问题真实性、现状不满、分诊耗时、首次价值、日历信任度、AI 分诊价值——这些是种子用户 2 周使用数据 + 退出访谈能直接给出信号的。</td>
         </tr>
         <tr>
           <td><span class="verdict-chip weak">弱信号</span></td>
@@ -981,7 +989,8 @@
       <ul>
         <li><strong>Day 5 的"好像不难" 陷阱</strong>——开发前半程顺利时，产生"再加一个州吧" / "CSV 导入也不难" 的念头。不加。IN 列表是合约，加东西必须等量砍东西。</li>
         <li><strong>种子用户反馈驱动的功能膨胀</strong>——第一个 CPA 说 "要是能导入 CSV 就好了"，立刻想加。不加。种子用户反馈用来判 Proceed/Gray/Rethink，不用来临时加需求。记录进 Phase 2 候选池。</li>
-        <li><strong>AI 占位症</strong>——在 MVP 里加一个 "AI 正在监控 50 州公告" 的 banner，实际后端空转。不做。一旦 CPA 发现是假的，信任崩盘不可逆。</li>
+        <li><strong>AI 占位症</strong>——在 MVP 里加一个 "AI 正在监控 50 州公告" 的 banner，实际后端空转。不做。一旦 CPA 发现是假的，信任崩盘不可逆。AI 必须只做可核验的解释、Tips 和每周 Brief。</li>
+        <li><strong>AI 税务建议越界</strong>——AI 不能告诉用户"你适用 / 不适用某项延期"或"应该选择某项 PTE election"。所有输出必须停留在摘要、风险提示、待核验事项和来源链接。</li>
         <li><strong>过早定价验证</strong>——在 Build window 内同时跑定价页 A/B 测试或早鸟预售。不做。付费漏斗验证是 MVP 之后的 H-W01 轨道，现在插入只会污染两侧数据。</li>
         <li><strong>对种子用户做付费承诺</strong>——"给你们早鸟价 $9/月锁定 2 年！" 不说。这会让后续 $49 价位的真实验证失去信度，种子用户也无法作为普通付费漏斗的对照组。</li>
         <li><strong>"让 PoC 进生产" 的惯性</strong>——MVP 的 5 州数据 100% 人工录入，这是一个 throwaway 决策。Build 结束后如果进入 Proceed，必须按 H-T01/T02 正式路径重做自动化，不要把人工 PoC 直接扩展到 50 州。</li>
