@@ -1,23 +1,30 @@
-# DueDateHQ MVP 边界声明
+# DueDateHQ MVP v0.3 单一执行口径
 
-版本：v0.2  
+版本：v0.3
 产品形态：Cloud SaaS Web App  
 Build Window：14 天，不含后续观察  
 目标种子用户：10 位独立 CPA  
 观察窗口：Build 后 14 天
+文档状态：当前 MVP 执行口径。其他行业、竞品、Demo 报告均为研究输入，不直接扩展本范围。
 
 ## 1. 一句话说明
 
-DueDateHQ MVP 是一个面向独立 CPA 和小型会计事务所的云端 SaaS Web App。
+DueDateHQ MVP 是一个面向独立 CPA 和小型会计事务所的云端 SaaS Web App，产品形态是**每周 deadline 优先级分诊台**。
 
-它要做出来的是一个带 AI 分诊能力的税务截止日看板，帮助 CPA 每周快速判断：
+用户打开首页时，第一眼看到的不是月历、客户 CRM、普通任务列表或 AI chat，而是一张按风险排序的本周处理清单，帮助 CPA 每周快速判断：
 
 - 哪些客户本周要处理
 - 哪些截止日有风险
-- 哪些事项需要提前准备
+- 为什么有风险
+- 下一步要检查什么
+- 依据来自哪里
 - 哪些 deadline 已完成、进行中或延期
 
 MVP 不做完整税务合规平台，也不做自动报税、客户门户、工作流系统或税务咨询产品。
+
+内部一句话：
+
+> 把可信的税务 deadline 数据，整理成 CPA 每周可执行的优先级分诊清单。
 
 ## 2. MVP 的核心问题
 
@@ -74,13 +81,36 @@ MVP 覆盖范围：
 
 这些州的截止日必须人工录入、人工确认。AI 不能作为日期数据源，不能自动修改截止日规则。
 
-### 3.4 主看板
+### 3.4 主看板：优先级分诊台
 
-首页是三段式分诊看板：
+首页必须是优先级分诊台，不是普通日历首页。
 
-- 本周到期
-- 本月预警
-- 长期计划
+第一屏必须回答五个问题：
+
+- Who needs attention this week?
+- What is the deadline?
+- Why is it risky?
+- What should I check next?
+- Where is the source?
+
+首页按风险和时间组织，而不是只按日期平铺：
+
+- Critical
+- High Priority
+- Upcoming
+
+每条 deadline 必须显示：
+
+- 客户
+- 州
+- 实体类型
+- 税种 / filing / payment / extension 事项
+- due date
+- days remaining
+- risk reason
+- next check
+- source link
+- human verified 状态
 
 支持基础筛选：
 
@@ -90,9 +120,39 @@ MVP 覆盖范围：
 
 每条截止日支持状态管理：
 
-- 已完成
-- 进行中
-- 已延期
+- Not started
+- In progress
+- Completed
+- Extended
+
+MVP 可以加入最小 readiness 信号，用于表达真实税季中“客户材料是否卡住”的风险：
+
+- Ready
+- Waiting on client
+- Needs review
+
+允许用户可选填 `internal cutoff date`。这只是分诊信号，不是客户门户、文件收集、自动催客户或完整 workflow。
+
+首屏示例：
+
+```text
+This Week
+
+Critical
+- Acme LLC · CA Franchise Tax · due in 3 days
+  Waiting on client · Internal cutoff passed
+  Why: deadline close + client not ready
+  Next: confirm payment / decide whether extension workflow is needed
+  Source: CA FTB · human verified
+  [In progress] [Completed] [Extended]
+
+High Priority
+- Bright Studio S-Corp · Federal 1120-S extension · due in 7 days
+  Needs review
+  Why: extension changes filing timeline, not payment obligation
+  Next: estimate tax due / confirm client approval
+  Source: IRS Form 7004 · human verified
+```
 
 ### 3.5 AI 分诊增强
 
@@ -104,6 +164,7 @@ AI 要做：
 - 客户风险摘要：指出某个客户近期有哪些 deadline 风险
 - 单条截止日 Tips：解释这是什么、为什么重要、通常要准备什么
 - 来源摘要：把人工确认过的官方来源翻译成人话
+- 下一步检查建议：把风险转成 CPA 可以核验的 action
 
 AI 必须基于已确认的截止日数据和来源链接生成内容。
 
@@ -114,10 +175,12 @@ AI 不能做：
 - 自动判断灾害延期是否适用
 - 自动判断某个客户是否适用某项税务规则
 - 给结论性税务建议
+- 自动判断客户材料是否齐全
+- 自动发送客户催办
 
 AI 输出的定位是：
 
-> 摘要、提示、待核验事项、来源解释。
+> 摘要、提示、待核验事项、来源解释、下一步检查建议。
 
 不是：
 
@@ -159,6 +222,9 @@ MVP 不做：
 - AI 自动监控州税局公告
 - AI 自动维护税务数据库
 - CSV 导入
+- AI 字段映射
+- 规则变化 alert / 受影响客户自动匹配
+- 批量更新 deadline
 - TaxDome / Drake / QuickBooks 集成
 - Google Calendar / Outlook 集成
 - 多用户、团队权限、Team 版
@@ -167,6 +233,7 @@ MVP 不做：
 - 短信提醒
 - 移动 App
 - 延期申请状态机
+- 自动催客户 / client request / follow-up log
 - PDF 客户报告
 - CSV 导出
 - SEO 页面
@@ -219,13 +286,13 @@ MVP 不优先服务：
 - 并行启动招募和开发
 - PM 邀请 30+ 位 CPA
 - 目标筛出 12-15 位合格候选
-- 开发基础登录、客户录入、主看板
+- 开发基础登录、客户录入、优先级分诊首页
 
 ### Week 1, D4-D7
 
 - 人工录入 Federal + 5 州核心截止日
 - 补齐来源链接和人工确认状态
-- 继续开发筛选、状态切换
+- 继续开发筛选、状态切换、readiness / internal cutoff 最小字段
 - 准备 AI Tip 输入素材
 - 确认 10 位种子用户
 
@@ -263,7 +330,7 @@ MVP 不优先服务：
 
 | 指标 | 定义 | 目标 |
 | --- | --- | --- |
-| Setup 耗时 | 从完成登录到录入第 1 位客户并看到全年日历 | P50 ≤ 15 分钟 |
+| Setup 耗时 | 从完成登录到录入第 1 位客户并看到其本周/本月分诊清单 | P50 ≤ 15 分钟 |
 | Week-1 主动登录 | onboarding 后 1-7 天内自发登录次数 | ≥ 2 次 / 用户 |
 | Week-2 主动回访 | 第 8-14 天内至少登录 1 次的人数 | 10 人中 ≥ 5 人 |
 | 分诊 session 耗时 | 非首次登录的 session 时长中位数 | ≤ 10 分钟 |
@@ -325,9 +392,26 @@ Rethink 状态下不继续堆功能，先重新做发现期。
 
 因此，产品差异化不是“AI 自动替 CPA 做合规判断”，而是：
 
-> AI 把分散、难读、难排优先级的 deadline 信息，整理成 CPA 每周可执行的分诊情报。
+> AI 把分散、难读、难排优先级的 deadline 信息，整理成 CPA 每周可执行的优先级分诊情报。
 
 如果目标用户愿意每周回来用这个看板，说明方向值得继续。
 
 如果目标用户不愿意回来，先不要扩州、不要做集成、不要做 Stripe，也不要继续加 AI 花活。
 
+## 10. 研究输入与后续候选
+
+以下能力在其他报告中反复出现，方向正确，但不进入两周真实用户验证 MVP：
+
+| 能力 | 当前处理 |
+| --- | --- |
+| CSV 导入 / AI 字段映射 | Phase 2 候选。若 MVP 留存成立，再用于降低迁移摩擦。 |
+| File In Time 式 rollover | Phase 2 候选。先验证 weekly triage，再做周期滚转。 |
+| 规则变化 alert / 受影响客户匹配 | Demo/Pitch 可 mock；真实产品需单独验证数据和法律责任。 |
+| 团队负载看板 / assignee / RBAC | 小团队版候选。MVP 保持单用户。 |
+| 审计日志 / 规则版本管理 | 商业化必需，但两周 MVP 只保留 source 与 human verified。 |
+| CSV / PDF / ICS 导出 | Phase 2 候选。MVP 不做导出。 |
+| 公开 50-state tracker / SEO 内容 | 增长实验候选，不进入 MVP build window。 |
+
+当前执行原则：
+
+> 任何新增功能，必须能直接提升“用户打开首页后一眼看懂本周优先级”的能力；否则默认后置。

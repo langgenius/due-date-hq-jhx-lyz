@@ -1,5 +1,7 @@
 # DueDateHQ 深入调研报告
 
+> 文档状态：长期产品、合规与技术研究输入。当前两周真实用户验证范围以 [DueDateHQ MVP v0.3 单一执行口径](./DueDateHQ%20-%20MVP%20边界声明.md) 为准。本文中的导入、导出、审计、团队、规则监控等建议需进入 Phase 2/3 再评估。
+
 DueDateHQ 最可行的切入点，不是“做一套完整报税软件”，而是先做面向美国独立 CPA 与小型会计所的“税务截止日情报层 + 轻工作流”云端 SaaS：先把官方截止日、灾害延期、州税差异、客户分诊和提醒做深，再把电子申报放到后续合作或受控扩展阶段。这一路径既贴合内部材料中强调的独立 CPA、多州合规与快速可演示前端目标，也更符合 IRS 授权 e-file 的现实门槛。fileciteturn0file0 fileciteturn0file1 fileciteturn0file2 citeturn1view2turn18view1
 
 ## 行业背景与法规概览

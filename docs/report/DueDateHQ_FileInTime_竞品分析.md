@@ -1,5 +1,7 @@
 # DueDateHQ × File In Time 竞品分析：功能、技术与 MVP 优先级
 
+> 文档状态：竞品研究输入。当前两周真实用户验证范围以 [DueDateHQ MVP v0.3 单一执行口径](./DueDateHQ%20-%20MVP%20边界声明.md) 为准。本文用于学习 File In Time 的 deadline-first workflow，不代表 DueDateHQ 要做 feature parity。
+
 ## 结论先讲
 
 **你不需要、也不应该覆盖 File In Time 的所有功能。**  
