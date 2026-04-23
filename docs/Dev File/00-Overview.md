@@ -1,8 +1,9 @@
 # DueDateHQ 技术文档 · 00 项目总览
 
 > 文档类型：Technical Design Document Index
-> 版本：v1.0
+> 版本：v2.0（Cloudflare 全栈口径）
 > 对齐 PRD：`docs/PRD/DueDateHQ-PRD-v2.0-Unified.md`
+> 对齐设计：`docs/Design/DueDateHQ-DESIGN.md`
 > 目标：把 PRD 的"产品承诺"转译为"可实现、可运维、可演进"的技术方案
 > 语言约定：正文中文，代码 / 命名 / 注释全部英文
 
@@ -10,92 +11,105 @@
 
 ## 1. 文档一览
 
-| # | 文档 | 解决的问题 | 读者 |
-|---|---|---|---|
-| 00 | **Overview**（本文件） | 文档地图 + 阅读顺序 + 核心技术判断 | 所有人 |
-| 01 | [Tech Stack](./01-Tech-Stack.md) | 技术栈选型 + 版本锁定 + 选型依据 | Eng |
-| 02 | [System Architecture](./02-System-Architecture.md) | 模块边界 · 核心数据流 · 外部依赖 | Eng / PM |
-| 03 | [Data Model](./03-Data-Model.md) | Drizzle Schema · 索引 · 租户隔离 · 迁移 | Eng |
-| 04 | [AI Architecture](./04-AI-Architecture.md) | Glass-Box · RAG · Pulse · Prompt 管理 | Eng / AI |
-| 05 | [Frontend Architecture](./05-Frontend-Architecture.md) | App Router · UI System · 状态管理 · PWA | Frontend |
-| 06 | [Security & Compliance](./06-Security-Compliance.md) | Auth · RBAC · PII · 审计 · WISP | Eng / Compliance |
-| 07 | [DevOps & Testing](./07-DevOps-Testing.md) | 部署 · CI/CD · 可观测性 · 测试策略 | Eng / SRE |
-| 08 | [Project Structure](./08-Project-Structure.md) | 代码目录 · 模块划分 · 命名约定 | Eng |
-| 09 | [7-Day Sprint Playbook](./09-7-Day-Sprint-Playbook.md) | 2 人 7 天 Demo-Ready 冲刺手册 | Team |
-| 📐 | [Design System](../Design/DueDateHQ-DESIGN.md) | 视觉 token · 组件规格 · Agent Prompt Guide（**Ramp × Linear · Light Workbench**） | Designer / Frontend / AI agents |
+
+| #   | 文档                                                     | 解决的问题                                            | 读者                  |
+| --- | ------------------------------------------------------ | ------------------------------------------------ | ------------------- |
+| 00  | **Overview**（本文件）                                      | 文档地图 + 阅读顺序 + 核心技术判断                             | 所有人                 |
+| 01  | [Tech Stack](./01-Tech-Stack.md)                       | 技术栈选型 + 版本策略 + 环境变量                              | Eng                 |
+| 02  | [System Architecture](./02-System-Architecture.md)     | 分层 · 模块边界 · 请求流 · 外部依赖                           | Eng / PM            |
+| 03  | [Data Model](./03-Data-Model.md)                       | D1 Schema · 索引 · 租户隔离 · 迁移                       | Eng                 |
+| 04  | [AI Architecture](./04-AI-Architecture.md)             | Glass-Box · RAG · Pulse · Prompt 管理              | Eng / AI            |
+| 05  | [Frontend Architecture](./05-Frontend-Architecture.md) | Vite + React Router 7 · UI 系统 · PWA              | Frontend            |
+| 06  | [Security & Compliance](./06-Security-Compliance.md)   | Auth · RBAC · PII · 审计 · WISP                    | Eng / Compliance    |
+| 07  | [DevOps & Testing](./07-DevOps-Testing.md)             | 部署 · CI/CD · 可观测 · 测试                            | Eng / SRE           |
+| 08  | [Project Structure](./08-Project-Structure.md)         | 代码目录 · 模块划分 · 命名约定                               | Eng                 |
+| 09  | [7-Day Sprint Playbook](./09-7-Day-Sprint-Playbook.md) | 2 人 7 天 Demo-Ready 冲刺手册                          | Team                |
+| 📐  | [Design System](../Design/DueDateHQ-DESIGN.md)         | 视觉 token · 组件规格（Ramp × Linear · Light Workbench） | Designer / Frontend |
+
 
 ---
 
 ## 2. 核心技术判断（一图读懂）
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│                 DueDateHQ · Web-first SaaS (2026)                    │
-│                                                                      │
-│  ┌─────────────────┐   ┌──────────────────┐   ┌──────────────────┐   │
-│  │  Next.js 15     │   │  Server Actions  │   │  Inngest Workers │   │
-│  │  App Router     │◄──┤  + Route Handler │◄──┤  (Pulse / Email  │   │
-│  │  RSC + PWA      │   │  RBAC Guard      │   │   / AuditPkg)    │   │
-│  └────────┬────────┘   └────────┬─────────┘   └────────┬─────────┘   │
-│           │                     │                      │             │
-│           │                     ▼                      │             │
-│           │          ┌────────────────────┐            │             │
-│           │          │  Drizzle ORM       │            │             │
-│           │          │  (type-safe SQL)   │            │             │
-│           │          └──────────┬─────────┘            │             │
-│           │                     │                      │             │
-│  ┌────────┴───────┐   ┌─────────┴────────┐  ┌──────────┴──────────┐  │
-│  │  Web Push      │   │  Postgres + pgv  │  │  LiteLLM Gateway    │  │
-│  │  Service Worker│   │  (Neon Serverless│  │  GPT-4o / mini      │  │
-│  │  VAPID         │   │   + pgvector)    │  │  Claude fallback    │  │
-│  └────────────────┘   └──────────────────┘  └─────────────────────┘  │
-│                                                                      │
-│  Cache: Upstash Redis   ·   Files: Cloudflare R2   ·   Mail: Resend  │
-│  Obs:   Sentry + Langfuse + Vercel Analytics   ·   Auth: Auth.js v5  │
-└──────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│              DueDateHQ · Single-Worker Full-Stack on Cloudflare        │
+│                                                                        │
+│   Browser ──► https://app.duedatehq.com                                │
+│                         │                                              │
+│                         ▼                                              │
+│   ┌──────────────────────────────────────────────────────────────┐    │
+│   │                Cloudflare Worker (one binary)                │    │
+│   │                                                              │    │
+│   │   其他路径      ──► ASSETS.fetch()   → SPA dist (SPA fallback)│    │
+│   │   /rpc/*       ──► Hono ──► RPCHandler ──► procedures/*      │    │
+│   │                     （oRPC 专有协议；内部前端独占）           │    │
+│   │   /api/auth/*  ──► better-auth (Organization plugin)         │    │
+│   │   /api/webhook/* ──► narrow endpoints (Resend / Stripe)      │    │
+│   │   /api/health  ──► liveness probe                            │    │
+│   │   /api/v1/*（Phase 2）──► OpenAPIHandler（公网 REST，复用契约）│    │
+│   │                                                              │    │
+│   └─────┬──────────────┬────────────┬───────────┬────────────────┘    │
+│         │              │            │           │                     │
+│         ▼              ▼            ▼           ▼                     │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐              │
+│   │   D1     │  │Vectorize │  │    R2    │  │ Queues + │              │
+│   │ (SQLite) │  │ (RAG)    │  │ (files)  │  │  Cron    │              │
+│   └──────────┘  └──────────┘  └──────────┘  └──────────┘              │
+│                                                                        │
+│   KV: session hot data · rate-limit counters · AI day budgets          │
+│   External: Resend (email) · OpenAI/Anthropic via AI Gateway · Sentry  │
+└────────────────────────────────────────────────────────────────────────┘
 ```
+
+- **唯一可部署单元**：`apps/server`，`wrangler deploy` 一条命令全量发布
+- **前后端物理隔离 / 逻辑共契约**：`apps/web`（Vite SPA）静态化产物被同一 Worker 的 Assets binding 托管；`packages/contracts` 是前后端共享的 oRPC 契约
+- **路由分层遵循 oRPC 官方惯例**：`/rpc/`* 走 RPC Protocol（内部前端），`/api/`* 走 REST（auth / webhook / 未来公网 OpenAPI）；两者可共用同一份契约
+- **租户隔离通过 better-auth Organization + 仓库工厂（`scoped(db, firmId)`）双锁**，不依赖 DB 级 RLS（D1 无 RLS）
+- **后台任务不依赖第三方**：Cron Triggers + Queues + Workflows 原生足矣
 
 ---
 
 ## 3. 三条"技术铁律"（必须在代码里体现）
 
-呼应 PRD §0.3 的产品 SLA，工程层面对应：
+呼应 PRD §0.3 的产品 SLA：
 
 1. **30 秒看清风险**
-   - Dashboard 首屏 P95 TTI ≤ 1.5s（RSC streaming + 索引 §03-Data-Model#2）
-   - Penalty Radar 顶栏 **纯服务端预聚合**，不在前端跑求和
-   - 1000 obligations × 200 clients 下筛选 P95 < 1s（复合索引 + 服务端 pagination）
-
+  - Dashboard 首屏 Edge 冷响应 ≤ 200ms；热加载（PWA 缓存命中）≤ 50ms
+  - Penalty Radar 顶栏**必须服务端预聚合**，前端不在 render 阶段做累加
+  - 1000 obligations × 200 clients 规模下筛选 P95 < 1s（复合索引 + 服务端 pagination）
 2. **30 分钟完成导入**
-   - Migration 必须是**单事务 + 单行失败不阻塞**（§03 / §08 Migration 模块）
-   - AI Field Mapper 与 Normalizer 走**schema-first prompt + 后置正则校验**，禁止幻觉字段
-   - Live Genesis 的 4 秒动画靠**前端 CSS + 乐观 UI**，不依赖后端推送
-
-3. **24 小时 Pulse 闭环**
-   - 6 源独立 worker + DLQ + `last_checked_at` 诚实信号
-   - Batch Apply 与 Email Digest **共用同一事务**（Transactional Outbox 模式）
-   - 所有 Pulse 变更都落 `ExceptionRule` overlay，**不改 base rule**（§04 Pulse Pipeline）
+  - Migration 走 `d1.batch()` 事务；单行失败落 `migration_error` 不阻塞
+  - AI Field Mapper / Normalizer 输出经 Zod + 正则双校验，禁止幻觉字段
+  - Live Genesis 动画由前端驱动，不等后端推送
+3. **24 小时 Pulse 闭环**（PRD §0.3 · §6.3）
+  - Ingest 由 Cron Triggers 驱动，LLM 抽取交给 Queues 消费者
+  - Batch Apply 与 Email Outbox **共用同一 D1 事务**（Transactional Outbox）
+  - Pulse 产生的调整落 `ExceptionRule` overlay，**不改 base rule**（Phase 0 的 7 天 Demo Sprint 简化为直接 UPDATE + evidence_link；Phase 0 完整 MVP 和 Phase 1 使用 Overlay Engine）
 
 ---
 
-## 4. 工程优先级（与 PRD 的 Phase 对齐）
+## 4. 工程优先级（与 PRD Phase 对齐）
+
 
 | Phase | PRD 范围 | 技术里程碑 |
 |---|---|---|
-| **Phase 0 (MVP · 4 周)** | P0 全部 + P1 部分（Pulse / Ask / ICS / PWA 壳） | 核心闭环：Auth → Migration → Dashboard → Pulse → PWA |
-| **Phase 1 (5–12 周)** | Rules-as-Asset · Team RBAC · Client Readiness Portal · Onboarding Agent | 规则资产层 · 多席位 · Stripe · 公开 SEO 页 |
-| **Phase 2 (Q3 2026)** | macOS Menu Bar Widget · Audit Package · QBO/TaxDome 集成 | Tauri 壳 · RFC 3161 TSA · Compliance Calendar API 前置 |
+| **Phase 0 · MVP · ~4 周**（PRD §14.1） | P0-1 ~ P0-24 全部；P1 的 Pulse / Ask / Client PDF / ICS / PWA 壳（P1-36） | 核心闭环 + 6 辖区 rule pack（Federal + CA/NY/TX/FL/WA/MA）全 verified；单 Worker 部署 |
+| — **内嵌 · 7 天 Demo Sprint**（§09） | Phase 0 的 Demo-Ready 最小子集 | 简化为 3 辖区 seed（Federal + CA + NY）+ 单 Owner + Pulse 直接 UPDATE（替代 Overlay）；目的是集训路演，不等价 Phase 0 完整交付 |
+| **Phase 1 · 5–12 周**（PRD §14.2） | P1-1 ~ P1-37：Rules-as-Asset 全量 · 50 州 full coverage · Team RBAC 完整 · Stripe · Zapier · Readiness Portal · Onboarding Agent · SEO 公开页 | Overlay Engine 启用 · RBAC 强制校验开启 · **SEO 公开页（`/rules` `/watch` `/state/*` `/pulse`）拆到独立 Astro 子站**（主 Worker 保持 SPA） |
+| **Phase 2 · Q3 2026**（PRD §14.3） | macOS Menu Bar Widget · Audit-Ready Evidence Package · QBO/TaxDome/Drake 集成 · 电子签名 · SOC 2 预审 | Tauri 壳 · RFC 3161 TSA · 第三方集成 API |
+| **Phase 3 · Q4 2026+**（PRD §14.4） | Compliance Calendar API（给 TaxDome / Karbon 做 intelligence 层） | 开放 `/api/v1/*` OpenAPIHandler 路由（复用同一份 `packages/contracts` 契约） |
 
-> 本技术文档的 schema、索引、目录结构**一次性覆盖到 Phase 1**，避免 P1 来时被迫重构（特别是 Team / Membership / ExceptionRule 三张表）。
+Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Membership 三表在 Phase 0 已通过 better-auth Organization 就位；ExceptionRule 表结构在 Phase 0 末设计到位，Phase 1 启用 Overlay Engine 时零 schema 重构。
 
 ---
 
 ## 5. 阅读顺序建议
 
-**后端 Eng：** 01 → 02 → 03 → 06 → 04 → 07 → 08
-**前端 Eng：** 01 → 02 → 05 → 08 → 07
-**PM / TL：** 00 → 02 → 04（Glass-Box 部分）→ 06
-**SRE / DevOps：** 01 → 02 → 07 → 06
+- **后端 Eng**：01 → 08 → 02 → 03 → 06 → 04 → 07
+- **前端 Eng**：01 → 08 → 05 → Design → 07
+- **PM / TL**：00 → 02 → 04 → 06
+- **SRE / DevOps**：01 → 02 → 07 → 06
 
 ---
 
@@ -103,51 +117,86 @@
 
 - 所有架构变更必须先改本文档组再改代码
 - PRD 与 Dev File 出现歧义时：**产品语义以 PRD 为准，工程实现以 Dev File 为准**
-- UI / 视觉相关歧义时：**`docs/Design/DueDateHQ-DESIGN.md` 为准**（token / 组件规格 / 色彩语义）
-- 任何新引入的第三方依赖必须更新 `01-Tech-Stack.md` 的版本表
-- Schema 改动必须同步 `03-Data-Model.md` 并附 migration SQL
+- UI / 视觉相关歧义时：`**docs/Design/DueDateHQ-DESIGN.md` 为准**
+- 任何新增第三方依赖必须更新 `01-Tech-Stack.md` 的版本表
+- Schema 改动必须同步 `03-Data-Model.md` 并附 Drizzle 迁移文件名
+- 契约（`packages/contracts/src/`*）变更必须在 PR 标题加 `[contract]` 标签，前后端需同步 review
 
 ---
 
-## 7. 不做的技术选择（与 PRD §4.3 "明确不做"对齐）
+## 7. 被否决的技术选择
 
-| 拒绝的选择 | 理由 |
-|---|---|
-| ❌ 微服务 | 团队 < 5 人；Next.js Server Actions + 模块化 monorepo 已足够 |
-| ❌ GraphQL | Server Actions + 受约束的 DSL（§04 Ask）已覆盖查询需求 |
-| ❌ Electron 桌面 App | PWA + Tauri menu bar widget 覆盖 95% native 体验 |
-| ❌ 自建 Kubernetes | Vercel + Neon + Upstash 的 serverless 组合 zero-ops |
-| ❌ Prisma | Drizzle 类型更强、Edge 兼容、生成 SQL 更透明 |
-| ❌ Redux / MobX | Zustand + TanStack Query + URL state 已覆盖；避免样板代码 |
-| ❌ 独立 Auth 微服务 | Auth.js v5 直接集成到 Next.js，磁力链 + TOTP 够用 |
-| ❌ ElasticSearch | Postgres GIN + pgvector 覆盖搜索 + 向量两类需求 |
+
+| 否决的选择                     | 理由                                                                                        |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| ❌ Next.js / Vercel        | 需要单实例 Cloudflare 部署；SSR 与 Worker Assets 模型冲突；SPA + oRPC 契约对 2 人 AI 辅助团队更优                 |
+| ❌ Prisma                  | D1 需要裸 SQL 计算派生字段（Overlay Engine）；Drizzle 类型推导强 + Edge 兼容                                 |
+| ❌ Neon / Postgres / Hyperdrive  | DueDateHQ workload 是**小数据量 + 多租户 + 点查询 + 边缘延迟敏感**，D1 是正确选择不是权宜之计；Vectorize 覆盖 pgvector，FTS5 覆盖全文检索，`scoped(db, firmId)` 工厂等价 RLS；只有真正落到"跨租户复杂 OLAP + >10GB 单库 + 跨客户分析型 join"才会考虑切 Hyperdrive + Neon，MVP 可见未来不命中 |
+| ❌ Inngest / Trigger.dev   | Cron Triggers + Queues + Workflows 三原语已覆盖需求，零外部依赖                                         |
+| ❌ Auth.js                 | 需要 Organization / Membership / Invitation 开箱即用，better-auth 原生支持，数据自持                      |
+| ❌ LiteLLM 自托管             | Cloudflare AI Gateway 免运维，自带 cache / trace / rate limit                                   |
+| ❌ Pinecone / Weaviate     | Vectorize 与 Worker 同域，MVP 数据量完全够用                                                         |
+| ❌ 独立 Redis（Upstash）       | KV + Rate Limit binding 够用；真实需要 strong consistency 时用 Durable Objects                     |
+| ❌ GraphQL / REST 代码生成     | oRPC 契约模式 TS 端端强类型，零样板                                                                    |
+| ❌ Electron / Native App   | PWA + Web Push + Tauri menu bar widget（Phase 2）覆盖 95% 场景                                  |
+| ❌ 微服务                     | 2 人团队；单 Worker + 模块化 monorepo 足够                                                          |
+| ❌ Radix UI（shadcn 默认）     | Base UI 是 Radix 团队后续项目，体积更小 + Keyboard/RTL 更严格；`components.json` 设 `"style": "base-vega"` |
+| ❌ `.npmrc` 作配置源           | pnpm 10 推荐 `pnpm-workspace.yaml`，workspace 设置与 package 列表同源                               |
+
 
 ---
 
 ## 8. 关键性能 / 成本目标
 
+### 8.1 工程 SLO
+
 | 指标 | 目标 | 约束来源 |
 |---|---|---|
-| Dashboard TTI (P95) | ≤ 1.5s | PRD §5.1 · Story S1-AC1 |
-| Workboard 筛选响应 (P95) | < 1s @ 1000 obligations | PRD §5.2.3 · S1-AC3 |
-| Migration 完成 (P95 · 30 客户) | ≤ 30 min | PRD §12.2 · S2-AC5 |
+| Dashboard 首屏（PWA 热启动） | ≤ 300ms | PRD §5.1 · Story S1-AC1 |
+| Dashboard 首屏（冷启动 · SPA bundle） | ≤ 1.5s | 同上 |
+| Workboard 筛选响应 P95 | < 1s @ 1000 obligations | PRD §5.2.3 · S1-AC3 |
 | Pulse 抓取 → Dashboard Banner | ≤ 24h | PRD §6.3 · S3-AC1 |
-| LLM 平均成本 | < $0.02 / firm / day | PRD §6.2.5 · Cost Control |
-| AI Q&A 响应 (P95) | < 3s | PRD §6.6 |
-| Cold start（Edge / Serverless）| < 300ms | Vercel Edge Runtime 要求 |
-| DB 查询 (P95) | < 80ms | Neon + 索引 |
+| AI Q&A 响应 P95 | < 3s | PRD §6.6 |
+| Worker CPU / 单请求 | ≤ 30s（付费 5min 上限） | Cloudflare 平台约束 |
+| D1 查询 P95 | < 50ms（单 statement） | Cloudflare + 索引 |
+| D1 单库体量上限 | 10 GB | Cloudflare 平台约束；MVP 预期 < 500 MB |
+
+### 8.2 产品 KPI（对齐 PRD §12.2，工程必须埋点）
+
+| 指标 | 目标 | 埋点 |
+|---|---|---|
+| Migration Time-to-First-Value P50 | ≤ 10 min | signup → 首次看到 Penalty Radar `$` |
+| **Migration P95 完成时间（S2-AC5）** | ≤ 30 min | Signup → Import 完成（30 客户基准） |
+| Migration Completion Rate | ≥ 70% | Step 1 → Step 4 |
+| Migration Mapping Confidence | ≥ 85% | AI Mapper 平均 confidence |
+| Setup 耗时 P50 | ≤ 15 min | signup → first calendar generated |
+| Week-1 回访 | ≥ 2 次 / 用户 | unique login days |
+| Week-2 回访 | 10 人中 ≥ 5 人 | 第 8–14 天 ≥ 1 次 |
+| **分诊 session 耗时 P50（S1-AC5）** | ≤ 5 min（第 2+ 次） | session 时长 |
+| Evidence 点击率 | ≥ 30% 周活 | `E` 键 / chip 点击 |
+| Pulse Review 耗时 | ≤ 3 min | alert 打开 → apply |
+| Pulse Apply 次数 | ≥ 2 / firm | 真实 Apply |
+| 付费意愿点击率 | ≥ 30% | `$49` 按钮 |
+| 日历编辑率 | < 20% | 用户 override 系统日期 |
+| LLM 平均成本 | < $0.02 / firm / day | Langfuse 聚合 |
+
+### 8.3 Go / Gray / Rethink（PRD §12.4）
+
+- **Go**：Week-2 回访 ≥ 5 ∧ ≥ 3 位愿付费 ∧ ≥ 5 位觉 AI 有用 ∧ 编辑率 < 30% ∧ Pulse Apply ≥ 2 ∧ Migration 激活率 ≥ 7/10
+- **Gray**：回访 5–7 ∧ 付费 < 3 → 重新审视 ICP / 定价
+- **Rethink**：回访 < 4 ∨ > 50% 觉不如 Excel ∨ 编辑率 > 40% ∨ Migration 激活率 < 5/10
 
 ---
 
 ## 9. 术语简表（工程版）
 
-- **tenant key** = `firm_id`（所有业务表必须带）
-- **ORM middleware** = Drizzle 查询拦截层，强制注入 `WHERE firm_id = :current_firm`
-- **Server Action Guard** = 服务端 action 入口的 RBAC 装饰器
-- **Overlay Engine** = 运行时把 `ExceptionRule` 叠加到 `ObligationRule.base_due_date` 算出 `current_due_date`
-- **Pulse Pipeline** = Ingest → LLM Extract → Human Review → Match → Batch Apply 五段
-- **Glass-Box Guard** = LLM 输出后置校验（citation 正则 + 黑白名单 + PII 回填）
-- **Transactional Outbox** = Pulse Apply 与 Email Job 在同一 DB 事务写入，worker 消费
+- **tenant key**：`firmId` = better-auth `activeOrganizationId`；所有业务表必带
+- **scoped repo**：`packages/db/src/scoped.ts` 工厂；procedures 只能通过它访问 DB
+- **authed procedure**：oRPC middleware，要求 session 存在并把 `firmId / scoped` 注入 context
+- **Overlay Engine**（Phase 1）：运行时把 `ExceptionRule` 叠加到 `obligation_rule.base_due_date` 算出 `current_due_date`
+- **Pulse Pipeline**：Ingest（Cron）→ Extract（Queue + LLM）→ Review（人工）→ Match → Batch Apply（D1 事务）五段
+- **Glass-Box Guard**：LLM 输出后置校验（citation 正则 + 黑名单 + PII 回填）
+- **Transactional Outbox**：Pulse Apply 与 Email Job 在同一 D1 事务内写入 `email_outbox` 表，由 Queue 消费者异步 flush
 
 ---
 

@@ -14,12 +14,14 @@
 
 **一句话定位**：CPA 的专业工作台，不是金融 App，不是营销站，不是编辑刊物。
 
-| 借自 | 借什么 |
-| --- | --- |
-| **Ramp** | 首屏 Hero = 用户核心工作指标（风险 $），不是客户总数 / 进度条 |
-| **Linear** | 13px 紧凑排版 + LCH 色系 + 键盘优先 + zero decoration |
-| **Stripe Dashboard** | 深 navy 权威感 + tabular-nums 金融级数字表达 |
-| **Attio** | Progressive disclosure（hover 揭示 verbatim quote）|
+
+| 借自                   | 借什么                                             |
+| -------------------- | ----------------------------------------------- |
+| **Ramp**             | 首屏 Hero = 用户核心工作指标（风险 $），不是客户总数 / 进度条           |
+| **Linear**           | 13px 紧凑排版 + LCH 色系 + 键盘优先 + zero decoration     |
+| **Stripe Dashboard** | 深 navy 权威感 + tabular-nums 金融级数字表达               |
+| **Attio**            | Progressive disclosure（hover 揭示 verbatim quote） |
+
 
 **刻意避开的风格**
 
@@ -161,15 +163,56 @@
 
 ### 2.4 禁用色清单（防止风格漂移）
 
-| 禁用 | 理由 |
-| --- | --- |
-| 纯黑 `#000000` | OLED 屏边缘闪烁 + 白字 halation |
-| 纯白文字 `#FFFFFF` on dark | 对比度过高，刺眼 |
-| 鲜红 `#FF0000` / 鲜绿 `#00FF00` | 与 CPA 严肃语境冲突 |
-| 任何渐变色（linear / radial） | Stripe 抄袭陷阱 |
-| 霓虹色 `#00FFFF` / `#FF00FF` | 方向 B 专属，浅色模式禁用 |
-| 紫色做主色（非 accent） | 稀释 navy 权威感 |
-| 绿色表示 "OK / 安全" | 用灰色 `--severity-neutral` 代替 |
+
+| 禁用                          | 理由                          |
+| --------------------------- | --------------------------- |
+| 纯黑 `#000000`                | OLED 屏边缘闪烁 + 白字 halation    |
+| 纯白文字 `#FFFFFF` on dark      | 对比度过高，刺眼                    |
+| 鲜红 `#FF0000` / 鲜绿 `#00FF00` | 与 CPA 严肃语境冲突                |
+| 任何渐变色（linear / radial）      | Stripe 抄袭陷阱                 |
+| 霓虹色 `#00FFFF` / `#FF00FF`   | 方向 B 专属，浅色模式禁用              |
+| 紫色做主色（非 accent）             | 稀释 navy 权威感                 |
+| 绿色表示 "OK / 安全"              | 用灰色 `--severity-neutral` 代替 |
+
+
+### 2.5 Radius / Shadow Token（唯一合法来源）
+
+除下表以外，**所有其他圆角 / 阴影一律禁止**（包括业务组件里写 `rounded-lg` / `shadow-md` 等裸 Tailwind 类）。
+
+```css
+/* === Radius === */
+--radius-sm:   0.25rem;   /* 4px · Evidence Chip / Button / 小徽章                 */
+--radius:      0.375rem;  /* 6px · 主默认 · Banner / Input / Card / Dropdown       */
+--radius-lg:   0.75rem;   /* 12px · Drawer / Modal / 大容器（超过 320px 宽）          */
+/* 禁止 > 12px（避免 Notion 式圆润感）                                               */
+
+/* === Shadow（"禁止阴影"的三个例外） === */
+--shadow-subtle:  0 2px 8px rgba(0, 0, 0, 0.04);   /* Drawer / Popover 层 3         */
+--shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.08);  /* Modal / Command Palette 层 4  */
+/* 暗色模式同 rgba 不变，浏览器会自动调整感知（Cloudflare Workers SPA 不做单独 dark shadow） */
+/* 业务组件不可用 --shadow-overlay 之外的其他阴影                                    */
+```
+
+| Token            | 用途                                             | 禁用场景                         |
+| ---------------- | ---------------------------------------------- | ---------------------------- |
+| `--radius-sm`    | chip / 小按钮 / 徽章                                 | 卡片、容器                        |
+| `--radius`       | 输入框 / 默认按钮 / Banner / Card / Dropdown          | chip / 浮层                    |
+| `--radius-lg`    | Drawer / Modal / Command Palette                | 普通 Card（过大显得松散）              |
+| `--shadow-subtle`| Drawer 底部、Popover、Tooltip                       | 普通 Card（违反"禁止阴影"铁律）          |
+| `--shadow-overlay`| Command Palette / 重要 Modal                     | 其他浮层（用 subtle 即可）            |
+
+**Tailwind 4 `@theme` 映射**：
+
+```css
+@theme {
+  --radius-sm:      0.25rem;
+  --radius:         0.375rem;
+  --radius-lg:      0.75rem;
+  --shadow-subtle:  0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+```
+
 
 ---
 
@@ -189,19 +232,42 @@
 - Geist Mono：所有数字必须 `font-variant-numeric: tabular-nums`（防止列对不齐）
 - **禁止 serif 字体**（那是方向 C 的 Brief PDF 专属）
 
+**全局打开 feature-settings（约束，放在 `@layer base`）：**
+
+```css
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";   /* Inter 优化数字形态 */
+  }
+
+  /* 工具类：所有金额 / 天数 / 日期 / EIN / ID 加上 .tabular 或 .font-mono 强制 tabular-nums */
+  .tabular,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+```
+
+- `html` 层的 `font-feature-settings` 不可省略；否则 Inter 的 `cv11`（单层 l）和 `ss01`（替代 1）不会生效，设计还原度下降
+- 业务组件**不允许**在行内覆盖 `font-feature-settings`
+
 ### 3.2 字号与用途（紧凑但不过密）
 
-| Token | Size | Weight | Line-height | 用途 |
-| --- | --- | --- | --- | --- |
-| `text-2xs` | 10px | 500 | 1.3 | keyboard chip, badge 文字 |
-| `text-xs` | 11px | 500 | 1.4 | metadata（timestamp / source）, 表头 uppercase |
-| `text-sm` | 12px | 400 | 1.5 | 次级说明、tag、状态 label |
-| `text-base` | 13px | 400 | 1.5 | **正文默认** / 表格行内容 |
-| `text-md` | 14px | 500 | 1.5 | 客户名、可点击标题 |
-| `text-lg` | 16px | 500 | 1.4 | 页面标题、Drawer 标题 |
-| `text-xl` | 20px | 600 | 1.3 | Hero 副指标数字、Section heading |
-| `text-2xl` | 24px | 600 | 1.2 | Client Detail 顶部名称 |
-| `text-hero` | 56px | 700 | 1.0 | **Penalty Radar Hero 数字**（tabular-nums 必开）|
+
+| Token       | Size | Weight | Line-height | 用途                                         |
+| ----------- | ---- | ------ | ----------- | ------------------------------------------ |
+| `text-2xs`  | 10px | 500    | 1.3         | keyboard chip, badge 文字                    |
+| `text-xs`   | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase |
+| `text-sm`   | 12px | 400    | 1.5         | 次级说明、tag、状态 label                          |
+| `text-base` | 13px | 400    | 1.5         | **正文默认** / 表格行内容                           |
+| `text-md`   | 14px | 500    | 1.5         | 客户名、可点击标题                                  |
+| `text-lg`   | 16px | 500    | 1.4         | 页面标题、Drawer 标题                             |
+| `text-xl`   | 20px | 600    | 1.3         | Hero 副指标数字、Section heading                 |
+| `text-2xl`  | 24px | 600    | 1.2         | Client Detail 顶部名称                         |
+| `text-hero` | 56px | 700    | 1.0         | **Penalty Radar Hero 数字**（tabular-nums 必开） |
+
 
 ### 3.3 字母间距
 
@@ -347,13 +413,15 @@
 
 ### 4.8 Button 系统
 
-| 类型 | 规格 |
-| --- | --- |
+
+| 类型                                | 规格                                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------------------ |
 | **Primary**（Apply / Save / Start） | `bg: accent-default` + `text: white` + `radius: 4px` + padding `6px 12px` + 13px 500 |
-| **Secondary**（Cancel / Dismiss） | `bg: transparent` + `border: 1px border-default` + `text: primary` |
-| **Ghost**（row 内操作） | `text: accent-default` + no bg / border + hover underline |
-| **Destructive**（Delete） | `bg: severity-critical` + `text: white` |
-| **Icon-only** | 28x28，`radius: 4px`，hover `bg: bg-subtle` |
+| **Secondary**（Cancel / Dismiss）   | `bg: transparent` + `border: 1px border-default` + `text: primary`                   |
+| **Ghost**（row 内操作）                | `text: accent-default` + no bg / border + hover underline                            |
+| **Destructive**（Delete）           | `bg: severity-critical` + `text: white`                                              |
+| **Icon-only**                     | 28x28，`radius: 4px`，hover `bg: bg-subtle`                                            |
+
 
 **禁止**：圆形按钮、pill 按钮（radius > 8px）、带渐变的按钮。
 
@@ -394,11 +462,13 @@
 
 ### 5.3 Density 三档
 
-| Density | Row height | Table padding-y | 适用 |
-| --- | --- | --- | --- |
-| **Compact** | 32px | 6px | Workboard（File In Time 老用户）|
-| **Comfortable**（默认）| 36px | 8px | Dashboard / Client list |
-| **Spacious** | 40px | 10px | Demo / onboarding |
+
+| Density             | Row height | Table padding-y | 适用                          |
+| ------------------- | ---------- | --------------- | --------------------------- |
+| **Compact**         | 32px       | 6px             | Workboard（File In Time 老用户） |
+| **Comfortable**（默认） | 36px       | 8px             | Dashboard / Client list     |
+| **Spacious**        | 40px       | 10px            | Demo / onboarding           |
+
 
 切换：用户 Settings → 持久化到 `user.preferences.density` → CSS variable `--row-height`。
 
@@ -412,20 +482,23 @@
 
 ## 6. Depth & Elevation
 
-**铁律：能用 1px 线分层就不要用阴影。**
+**铁律：能用 1px 线分层就不要用阴影。**阴影 token 唯一来自 §2.5。
 
-| 层级 | 方案 |
-| --- | --- |
-| Level 0 · Canvas | `--bg-canvas`，无边框 |
-| Level 1 · Panel | `--bg-panel`，无边框；或 canvas + `border: 1px --border-default` |
-| Level 2 · Card | `--bg-elevated` + `border: 1px --border-default`，**无阴影** |
-| Level 3 · Drawer / Popover | `--bg-elevated` + `border: 1px --border-strong` + `shadow: 0 2px 8px rgba(0,0,0,0.04)` |
-| Level 4 · Modal / Command Palette | Level 3 规格 + `shadow: 0 8px 24px rgba(0,0,0,0.08)` |
+
+| 层级                                | 方案                                                                                                           |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Level 0 · Canvas                  | `--bg-canvas`，无边框                                                                                           |
+| Level 1 · Panel                   | `--bg-panel`，无边框；或 canvas + `border: 1px --border-default`                                                   |
+| Level 2 · Card                    | `--bg-elevated` + `border: 1px --border-default`，**无阴影**                                                     |
+| Level 3 · Drawer / Popover / Tooltip | `--bg-elevated` + `border: 1px --border-strong` + `box-shadow: var(--shadow-subtle)` · radius `--radius-lg` |
+| Level 4 · Modal / Command Palette | Level 3 规格 + `box-shadow: var(--shadow-overlay)` · radius `--radius-lg`                                        |
+
 
 **禁用**
-- `box-shadow: 0 10px 30px ...` 类的"悬浮卡片"视觉
+
+- 除 `--shadow-subtle` / `--shadow-overlay` 外的任何 `box-shadow`
 - 多层嵌套卡片（卡片里套卡片套卡片）
-- 超过 8px 的圆角
+- 超过 `--radius-lg`（12px）的圆角
 
 ---
 
@@ -433,12 +506,14 @@
 
 ### 7.1 四档严重度
 
-| Level | 条件 | 颜色 | 图标 |
-| --- | --- | --- | --- |
-| **Critical** | `days_left ≤ 2` 或 `exposure > $10,000` | `--severity-critical` | 无（行首文字徽章） |
-| **High** | `3 ≤ days_left ≤ 7` 或 `exposure > $3,000` | `--severity-high` | 同上 |
-| **Medium** | `8 ≤ days_left ≤ 30` | `--severity-medium` | 同上 |
-| **Neutral** | `days_left > 30` 或 `status = OK` | `--severity-neutral` | 同上 |
+
+| Level        | 条件                                        | 颜色                    | 图标        |
+| ------------ | ----------------------------------------- | --------------------- | --------- |
+| **Critical** | `days_left ≤ 2` 或 `exposure > $10,000`    | `--severity-critical` | 无（行首文字徽章） |
+| **High**     | `3 ≤ days_left ≤ 7` 或 `exposure > $3,000` | `--severity-high`     | 同上        |
+| **Medium**   | `8 ≤ days_left ≤ 30`                      | `--severity-medium`   | 同上        |
+| **Neutral**  | `days_left > 30` 或 `status = OK`          | `--severity-neutral`  | 同上        |
+
 
 ### 7.2 视觉呈现规则
 
@@ -459,12 +534,14 @@
 
 ### 8.1 四类 Evidence 标记
 
-| 场景 | 组件 | 视觉 |
-| --- | --- | --- |
-| AI 生成句子结尾 | Footnote chip `[1]` | mono 10px + 下划线，hover 弹 Popover |
-| 数据字段旁（金额 / 日期） | Evidence Chip `[IRS.GOV]` | 见 §4.4 |
-| 规则链接 | Source Badge `🔗 CA FTB · ✓ Verified · 2d ago` | 12px Inter + link icon |
-| 大段 AI 摘要 | Evidence Mode 全屏 overlay | 右抽屉，列所有源 + verbatim quote |
+
+| 场景             | 组件                                             | 视觉                              |
+| -------------- | ---------------------------------------------- | ------------------------------- |
+| AI 生成句子结尾      | Footnote chip `[1]`                            | mono 10px + 下划线，hover 弹 Popover |
+| 数据字段旁（金额 / 日期） | Evidence Chip `[IRS.GOV]`                      | 见 §4.4                          |
+| 规则链接           | Source Badge `🔗 CA FTB · ✓ Verified · 2d ago` | 12px Inter + link icon          |
+| 大段 AI 摘要       | Evidence Mode 全屏 overlay                       | 右抽屉，列所有源 + verbatim quote       |
+
 
 ### 8.2 Verbatim Quote Popover
 
@@ -539,12 +616,14 @@ AI 输出的任何内容，如果没有 `source_url + verified_at + verbatim_quo
 
 ### 10.2 降级策略
 
-| 断点 | Dashboard | Workboard | Sidebar |
-| --- | --- | --- | --- |
-| ≥ 1280px | 三栏 + 右 Pulse 面板 | 全 14 列 | 固定 220px |
-| 1024–1279 | 两栏，Pulse 下沉 | 默认 10 列 | 固定 220px |
-| 768–1023 | 单栏纵向 | 精简 6 列 | 折叠为 Drawer |
-| < 768 | 只读优先：Hero + Triage Tabs + Top 5 rows | 卡片化 | 底部 Tab Bar |
+
+| 断点        | Dashboard                            | Workboard | Sidebar    |
+| --------- | ------------------------------------ | --------- | ---------- |
+| ≥ 1280px  | 三栏 + 右 Pulse 面板                      | 全 14 列    | 固定 220px   |
+| 1024–1279 | 两栏，Pulse 下沉                          | 默认 10 列   | 固定 220px   |
+| 768–1023  | 单栏纵向                                 | 精简 6 列    | 折叠为 Drawer |
+| < 768     | 只读优先：Hero + Triage Tabs + Top 5 rows | 卡片化       | 底部 Tab Bar |
+
 
 ### 10.3 触控目标
 
@@ -602,17 +681,19 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 
 ## 12. 对应 PRD / Dev File 的落地映射
 
-| 本文件章节 | 对应 |
-| --- | --- |
-| §1 / §2 / §3 | PRD v2.0 §1.3（设计原则）+ §10.1（视觉语言） |
-| §4.1 Risk Row | PRD v2.0 §5.2 Workboard |
-| §4.2 Hero Metric | PRD v2.0 §5.1.1 Layer 1 Penalty Radar |
-| §4.3 Pulse Banner | PRD v2.0 §5.1.4 + §6.3 |
-| §4.4 Evidence Chip | PRD v2.0 §5.5 Evidence Mode + §6.2 Glass-Box |
-| §4.5 Command Palette | PRD v2.0 §10.3 + §6.6 Ask |
-| §7 Risk Severity | PRD v2.0 §5.1.2 三段颜色次级信号 |
-| §8 Evidence & Provenance | PRD v2.0 §6.2 + §5.5 |
-| §2 / §3 / §5 tokens | Dev File `05-Frontend-Architecture.md` §5 |
+
+| 本文件章节                    | 对应                                           |
+| ------------------------ | -------------------------------------------- |
+| §1 / §2 / §3             | PRD v2.0 §1.3（设计原则）+ §10.1（视觉语言）             |
+| §4.1 Risk Row            | PRD v2.0 §5.2 Workboard                      |
+| §4.2 Hero Metric         | PRD v2.0 §5.1.1 Layer 1 Penalty Radar        |
+| §4.3 Pulse Banner        | PRD v2.0 §5.1.4 + §6.3                       |
+| §4.4 Evidence Chip       | PRD v2.0 §5.5 Evidence Mode + §6.2 Glass-Box |
+| §4.5 Command Palette     | PRD v2.0 §10.3 + §6.6 Ask                    |
+| §7 Risk Severity         | PRD v2.0 §5.1.2 三段颜色次级信号                     |
+| §8 Evidence & Provenance | PRD v2.0 §6.2 + §5.5                         |
+| §2 / §3 / §5 tokens      | Dev File `05-Frontend-Architecture.md` §5    |
+
 
 ---
 
@@ -625,4 +706,4 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 
 ---
 
-_This document is a single source of truth. If in doubt, choose density over decoration, precision over friendliness._
+*This document is a single source of truth. If in doubt, choose density over decoration, precision over friendliness.*

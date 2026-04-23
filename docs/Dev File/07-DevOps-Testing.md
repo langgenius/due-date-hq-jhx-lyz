@@ -1,435 +1,266 @@
 # 07 · DevOps · Testing · Observability
 
-> 目标：**每一次 commit 5 分钟内部署到 PR 预览 · 每一次 deploy 可在 30 秒内回滚 · 每一次 AC 都有自动化测试守门**。
+> 目标：**一条 `wrangler deploy` 全量发布 · preview 自动化 · 测试金字塔清晰 · 可观测三件套（logs / errors / traces）全覆盖。**
 
 ---
 
 ## 1. 环境拓扑
 
-| 环境 | URL | DB | LLM | 用途 |
-|---|---|---|---|---|
-| **Dev** (本地) | `http://localhost:3000` | Neon branch `dev-<name>` | LiteLLM local + Mock | 日常开发 |
-| **Preview** (PR) | `pr-<n>.duedatehq-preview.vercel.app` | Neon branch `pr-<n>` | LiteLLM + ZDR | PR 审查 |
-| **Staging** | `staging.duedatehq.com` | Neon `staging` | LiteLLM + ZDR | Demo / QA |
-| **Production** | `app.duedatehq.com` | Neon `main` | LiteLLM + ZDR | 正式 |
-| **Demo** | `demo.duedatehq.com` | Neon `demo`（seed 固定数据） | Mock LLM | Demo Day |
+
+| 环境             | Worker                          | D1                         | KV / R2 / Vectorize | 触发                |
+| -------------- | ------------------------------- | -------------------------- | ------------------- | ----------------- |
+| **local**      | `wrangler dev`（miniflare）       | `--local` SQLite 文件        | miniflare 内置        | `pnpm dev`        |
+| **preview**    | Workers Preview URL（每 PR 一个）    | `duedatehq-preview-pr-<n>` | 独立                  | PR 打开 / 更新        |
+| **staging**    | `duedatehq-staging.workers.dev` | `duedatehq-staging`        | 独立                  | `main` 分支合并       |
+| **production** | `app.duedatehq.com`             | `duedatehq`                | 独立                  | release tag（`v`*） |
+
 
 ---
 
-## 2. CI/CD 流水线
+## 2. CI/CD 流水线（GitHub Actions）
 
-### 2.1 GitHub Actions workflows
+### 2.1 PR 管线（`.github/workflows/pr.yml`）
 
-```
-.github/workflows/
-├── ci.yml              # 每个 PR：lint + typecheck + unit + e2e
-├── preview.yml         # PR opened：创建 Neon branch + Vercel preview
-├── cleanup.yml         # PR merged/closed：销毁 Neon branch
-├── production.yml      # main 推送：迁移 + 部署 + 冒烟
-├── cron-health.yml     # 每 5min ping /api/health
-└── dependabot.yml
-```
 
-### 2.2 `ci.yml` 关键步骤
+| 步骤                                 | 工具                             | 失败影响  |
+| ---------------------------------- | ------------------------------ | ----- |
+| `pnpm install --frozen-lockfile`   | pnpm                           | block |
+| `pnpm lint`（oxlint）                | oxlint                         | block |
+| `pnpm format --check`（oxfmt）       | oxfmt                          | block |
+| `pnpm check-types`（turbo 并行）       | tsc                            | block |
+| `pnpm test`（Vitest + pool-workers） | vitest                         | block |
+| `pnpm build`（turbo）                | tsc / vite / wrangler          | block |
+| **Worker Preview 部署**              | `cloudflare/wrangler-action`   | warn  |
+| **D1 Preview 迁移**                  | `wrangler d1 migrations apply` | block |
+| E2E 烟测（关键路径 5 条）                   | Playwright                     | warn  |
 
-```yaml
-name: CI
-on: [pull_request]
 
-jobs:
-  lint-type-unit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: 'pnpm' }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test:unit
+### 2.2 Production 管线（`.github/workflows/production.yml`）
 
-  db-migration:
-    runs-on: ubuntu-latest
-    needs: lint-type-unit
-    steps:
-      - uses: actions/checkout@v4
-      - uses: neondatabase/create-branch-action@v5
-        id: create-branch
-        with:
-          api_key: ${{ secrets.NEON_API_KEY }}
-          parent: main
-          branch_name: pr-${{ github.event.pull_request.number }}
-      - run: pnpm drizzle-kit migrate
-        env:
-          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+- 触发：push to `main`（staging）+ tag `v*.*.`*（production）
+- 步骤：
+  1. 依赖装 + lint + test + build（同 PR 管线）
+  2. D1 迁移 `wrangler d1 migrations apply duedatehq[-staging] --remote`
+  3. better-auth 迁移（如有变化）
+  4. `wrangler deploy`
+  5. Sentry release 创建 + sourcemap 上传
+  6. Playwright smoke 打 staging 冒烟 20 条
+  7. 失败 → `wrangler rollback`
 
-  e2e:
-    runs-on: ubuntu-latest
-    needs: db-migration
-    steps:
-      - uses: actions/checkout@v4
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps
-      - run: pnpm test:e2e
-        env:
-          DATABASE_URL: ${{ needs.db-migration.outputs.db_url }}
-          LITELLM_MOCK: "true"
+### 2.3 Secret 注入
 
-  security-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: gitleaks/gitleaks-action@v2
-      - uses: github/codeql-action/init@v3
-      - uses: github/codeql-action/analyze@v3
-```
-
-### 2.3 生产部署
-
-```yaml
-# production.yml
-on:
-  push:
-    branches: [main]
-
-jobs:
-  migrate:
-    steps:
-      - run: pnpm drizzle-kit migrate
-        env: { DATABASE_URL: ${{ secrets.DATABASE_URL_MAIN }} }
-
-  deploy:
-    needs: migrate
-    steps:
-      - uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-
-  smoke:
-    needs: deploy
-    steps:
-      - run: curl -f https://app.duedatehq.com/api/health
-      - run: pnpm playwright test tests/smoke
-
-  rollback-on-fail:
-    needs: smoke
-    if: failure()
-    steps:
-      - run: vercel rollback --token=${{ secrets.VERCEL_TOKEN }}
-```
+- GitHub Secrets：`CLOUDFLARE_API_TOKEN` · `CLOUDFLARE_ACCOUNT_ID` · `SENTRY_AUTH_TOKEN` · `TURBO_TOKEN`（远程缓存）
+- Worker 运行时 secret：由 `wrangler secret put` 一次性写入，不走 GH Actions
 
 ---
 
-## 3. Branch / Release 策略
+## 3. 分支 / Release 策略
 
-- **Trunk-based**：单一 `main` 分支
-- Feature branches：`feat/xxx` / `fix/xxx` / `chore/xxx`
-- PR 最多 500 行 diff（超过必须拆），单 approver 即可 merge（集训节奏）
-- Release tag：`v0.1.0 → v1.0.0`（Semantic Versioning）
-- Hotfix：`hotfix/xxx` → 直接 PR 到 main + tag
+- 单一 `main` 分支
+- Feature branch：`feat/<slice>/<short>`（7 天 Demo Sprint 期简化：不强制 code review，merge squash；Phase 0 完整 MVP 起强制 1 人 review）
+- 版本标签：语义化 `v0.1.0`；tag 触发 production deploy
+- Hotfix：`hotfix/<issue>` → PR → squash → tag `v0.1.1`
 
 ---
 
 ## 4. 观测栈
 
-### 4.1 Sentry
+### 4.1 三件套
 
-- 前端 + 后端错误
-- Session Replay（付费，Phase 1）
-- 告警：P95 latency > SLA / 错误率 > 1% → Slack
 
-```typescript
-// sentry.server.config.ts
-import * as Sentry from "@sentry/nextjs";
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 0.1,
-  environment: process.env.NEXT_PUBLIC_ENV,
-  beforeSend(event) {
-    // 脱敏
-    redactPiiFromEvent(event);
-    return event;
-  },
-});
-```
+| 维度    | 工具                                                     | 接入点                                                                      |
+| ----- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| 错误    | **Sentry**（`@sentry/cloudflare`）                       | Worker `fetch` / `scheduled` / `queue` 入口 wrap；前端 SPA 入口 init            |
+| 日志    | **Workers Logs + Logpush**                             | 结构化 JSON `console.log({ level, msg, firmId, ... })`；Logpush 到 R2 保留 90 天 |
+| Trace | **Langfuse**（LLM 专用）+ Sentry Performance（HTTP / DB 抽样） | `packages/ai/trace.ts` 统一上报                                              |
+| 指标    | **Cloudflare Analytics Engine**                        | 关键业务事件（dashboard_view / pulse_apply / migration_import / rpc_latency）    |
+| 产品分析  | **PostHog**                                            | `web-vitals` + 关键埋点（`pay_intent_click` / `evidence_open` / ...）          |
 
-### 4.2 Langfuse（AI 专属）
 
-- 每次 LLM 调用 trace
-- Prompt 版本 A/B 对比
-- Cost per firm / day dashboard
+### 4.2 关键 SLO / 告警
 
-### 4.3 Vercel Analytics + PostHog
 
-- Web Vitals（LCP / FID / CLS）→ 对齐 §00 性能目标
-- Product events（`pay_intent_click` / `migration_completed` / `pulse_applied`）
-- 功能开关（Feature flags）
+| 指标                    | 阈值             | 告警                 |
+| --------------------- | -------------- | ------------------ |
+| Dashboard P95 latency | > 1.5s         | Sentry Slack       |
+| Worker error rate     | > 1% / 5min    | Sentry Slack       |
+| D1 query P95          | > 200ms        | Logpush 查询 + Slack |
+| LLM fail rate         | > 5% / hour    | Langfuse → Slack   |
+| Email outbox stuck    | 未 flush > 5min | Queue consumer 告警  |
+| Pulse ingest idle     | Cron 未运行 > 2h  | Cron health check  |
 
-### 4.4 结构化日志
-
-```typescript
-// lib/logger.ts
-import pino from "pino";
-export const logger = pino({
-  level: process.env.LOG_LEVEL ?? "info",
-  redact: ["*.email", "*.ein", "*.ssn"],
-  formatters: { level: (label) => ({ level: label }) },
-});
-```
-
-Vercel 自动聚合到 Logs Drain → 可配置到 Better Stack / Axiom。
-
-### 4.5 Health check
-
-```typescript
-// app/api/health/route.ts
-export const runtime = "edge";
-export async function GET() {
-  const checks = await Promise.allSettled([
-    db.execute(sql`SELECT 1`),
-    redis.ping(),
-    fetch(`${process.env.LITELLM_PROXY_URL}/health`),
-  ]);
-  const ok = checks.every(c => c.status === "fulfilled");
-  return Response.json({ ok, checks }, { status: ok ? 200 : 503 });
-}
-```
 
 ---
 
 ## 5. 测试金字塔
 
+### 5.1 结构
+
 ```
-                  ┌───────────────┐
-                  │  Demo Scripts │   3–5 scripted flows
-                  └───────────────┘   Playwright 录屏
-                 ┌─────────────────┐
-                 │  E2E (Playwright│   每个 AC Test ID 一条
-                 │   + mocked LLM) │
-                 └─────────────────┘
-                ┌───────────────────┐
-                │  Integration      │  Server Action + DB 实测
-                │  (Vitest + Neon)  │
-                └───────────────────┘
-               ┌─────────────────────┐
-               │  Unit (Vitest)       │  纯函数 · overlay · penalty
-               │  components (Storybk)│  priority score · guard
-               └─────────────────────┘
-```
-
-### 5.1 单元测试
-
-覆盖：
-- Penalty 公式（§7.5）
-- Smart Priority 打分（§6.4）
-- Overlay Engine `applyOverride`
-- Migration Normalizer 字典 / 正则
-- Glass-Box Guard（citation / blacklist / placeholder）
-- Pulse Match 四维组合
-
-```typescript
-// tests/unit/priority.test.ts
-describe("priorityScore", () => {
-  it("high exposure dominates", () => {
-    const high = priorityScore({ estimated_exposure_usd: 10_000, current_due_date: in(30) }, client);
-    const low  = priorityScore({ estimated_exposure_usd: 200,    current_due_date: in(2)  }, client);
-    expect(high.score).toBeGreaterThan(low.score);
-  });
-});
+          ┌───────────────┐
+          │  E2E (Playwright) · 10 条核心路径
+          └───────┬───────┘
+     ┌────────────┴────────────┐
+     │  Integration · Vitest
+     │  • oRPC procedure + scoped repo + D1（vitest-pool-workers）
+     │  • Pulse / Migration 完整管线
+     └────────────┬────────────┘
+   ┌──────────────┴──────────────┐
+   │  Unit · Vitest
+   │  • packages/core（penalty / priority / date-logic）
+   │  • packages/ai/guard（5 道闸）
+   │  • 合约 Zod schema
+   └─────────────────────────────┘
 ```
 
-### 5.2 集成测试
+### 5.2 单测（`packages/core` 尤其重要）
 
-```typescript
-// tests/integration/pulse-apply.test.ts
-it("pulse batch apply is atomic", async () => {
-  const { firmId, pulseId, obligationIds } = await seedPulseScenario();
-  await applyPulseBatch({ firmId, pulseId, actorUserId: OWNER, selectedObligationIds: obligationIds });
-  const affected = await db.select().from(obligationInstances).where(inArray(obligationInstances.id, obligationIds));
-  expect(affected.every(o => o.currentDueDate === expectedDate)).toBe(true);
-  const audit = await db.select().from(auditEvents).where(eq(auditEvents.action, "pulse.applied"));
-  expect(audit).toHaveLength(1);
-});
-```
+- 所有 `packages/core` 函数必须有单测，覆盖率 ≥ 90%
+- Glass-Box Guard 5 道闸每道 ≥ 3 条断言
+- `packages/contracts` Zod schema 边界用例
 
-### 5.3 E2E（Playwright · 按 Test ID 编排）
+### 5.3 集成测（`@cloudflare/vitest-pool-workers`）
 
-对齐 PRD §12.3 全部 Test ID：
+- 运行在真实 Workers runtime
+- 使用 miniflare 提供 D1 / KV / R2 / Vectorize mock
+- 每个 procedure 至少 1 条 happy path + 1 条权限拒绝 + 1 条 validation 失败
 
-```typescript
-// tests/e2e/s1-ac1-dashboard.spec.ts
-test("T-S1-01 · login lands on This Week tab", async ({ page }) => {
-  await login(page, "demo-owner");
-  await expect(page).toHaveURL(/\/dashboard/);
-  await expect(page.getByRole("tab", { name: /this week/i })).toHaveAttribute("aria-selected", "true");
-});
+### 5.4 E2E（Playwright）
 
-// tests/e2e/s3-ac3-pulse.spec.ts
-test("T-S3-03 · approved pulse triggers banner + email", async ({ page }) => {
-  await seedApprovedPulse();
-  await login(page, "demo-owner");
-  await expect(page.getByRole("status", { name: /storm relief/i })).toBeVisible();
-  const emailCount = await getOutboxEmailCountFor("sarah@firm.com", "pulse_digest");
-  expect(emailCount).toBeGreaterThan(0);
-});
-```
+对齐 PRD §12.3 Test ID，Phase 0 10 条核心路径：
 
-**Test ID 命名约定：** 与 PRD §12.3 一一对应（T-S1-01 ~ T-TM-12 ~ T-RP-10 ~ T-AE-10 ~ T-PWA-09 ~ T-MB-07 ~ T-RA-12）。
+| # | PRD Test ID / AC | 路径 |
+|---|---|---|
+| 1 | — | 新用户注册 magic link → 登录 → 看到空 Dashboard |
+| 2 | **T-S1-01 / S1-AC1** | 登录后默认 Dashboard，选中 `This Week` tab |
+| 3 | **T-S1-02 / S1-AC2** | 本周 obligations 左上 `[🔴 Nd]` 倒计时徽章 |
+| 4 | **T-S1-03 / S1-AC3** | 200 clients × 1000 obligations，三维筛选（CA + LLC + 1040）响应 < 1s |
+| 5 | **T-S1-04 / S1-AC4** | 行内 status 下拉改；500ms 内 + Undo toast |
+| 6 | **T-S2-02 / S2-AC2** + **T-S2-04 / S2-AC4** | 粘贴 30 行 CSV（含 `Tax ID` 列，无 `tax_types` 列）→ EIN 格式化 + Default Matrix 兜底 → Live Genesis |
+| 7 | **T-S2-03 / S2-AC3** | CSV 5 行缺 `state` → 非阻塞，其余 25 行正常导入 |
+| 8 | **T-S3-03 + T-S3-04 / S3-AC3 + S3-AC4** | Approved Pulse → Banner 打开 → Apply → 批量 UPDATE + Audit + 24h Undo + 邮件双渠道 |
+| 9 | **T-S3-05 / S3-AC5** | 任意 `[n]` citation → Evidence Drawer 展开 source + verbatim + `official_source_url` |
+| 10 | **T-PWA-*** | PWA Add-to-Home（移动端）→ 独立窗口启动；Pulse Apply 触发 Push 到达 |
 
-### 5.4 Visual regression
+附加的快速 smoke（不走完整 Test ID 流程）：
 
-- Chromatic（Storybook 集成）
-- 关键页面：Dashboard / Workboard / TriageCard / Pulse Drawer / Migration Wizard Step 2
+- 手动创建 1 个 LLC × CA 客户 → Workboard 出现 obligations
+- Cmd-K 搜索客户 → Enter 跳转
+- 点 `I'd pay $49/mo` → audit event 写入
+- 退出登录 → 重定向
 
-### 5.5 Load test（Phase 1）
+E2E 跑在 staging，每次 release 前必跑。所有 Test ID 覆盖率报告由 `scripts/ac-traceability.ts` 生成（见 §6）。
 
-k6 脚本，模拟 50 firm × 1000 obligations 并发：
+### 5.5 契约测
 
-```javascript
-import http from "k6/http";
-export const options = { vus: 50, duration: "3m" };
-export default function () {
-  http.get("https://staging.duedatehq.com/dashboard", { headers: { Cookie: SESSION } });
-}
-```
+- `packages/contracts` 导出的每个 procedure 必须有 Zod schema 单测（边界值、错误输入）
+- 契约改动必须 PR 打 `[contract]` 标签，前端 / 后端同步 approve
 
 ---
 
-## 6. AC Traceability Report
+## 6. AC Traceability 报告
 
-自动生成 HTML，列出每个 Test ID 的 pass/fail：
-
-```bash
-pnpm test:e2e --reporter=./scripts/ac-traceability.ts
-```
-
-输出 `docs/reports/ac-traceability-<commit>.html`，作为集训交付物（PRD §17）。
+- 每条 PRD AC（§3 矩阵 S1 / S2 / S3）对应 1 条 E2E 或 Integration 测试
+- 脚本 `scripts/ac-traceability.ts` 扫 `tests/**` 里的 `// AC: T-S1-01` 注释，输出覆盖报告
+- CI 跑一次，缺 AC 覆盖发 warning
 
 ---
 
 ## 7. Feature Flags
 
-```typescript
-// lib/flags.ts
-import { PostHog } from "posthog-node";
-const ph = new PostHog(process.env.POSTHOG_KEY);
-
-export async function flag(name: string, firmId: string, defaultValue = false) {
-  return await ph.isFeatureEnabled(name, firmId) ?? defaultValue;
-}
-```
-
-- P1 特性（Team RBAC / Onboarding Agent / Readiness Portal）灰度
-- A/B prompt 版本
-- 紧急 kill switch（"暂停所有 AI 调用"）
+- **PostHog Feature Flags**（前端）+ 环境变量（Worker）
+- 约定：`ff_<phase>_<name>`，如 `ff_p1_ask_dueedatehq`
+- Kill switch：Worker 内用 `env.FF_AI_ENABLED === 'true'` 一键关闭 AI 调用（LLM 成本失控时）
+- 移除时机：flag 开启 4 周稳定后移除代码
 
 ---
 
-## 8. Inngest Dev Loop
+## 8. Cron / Queues Dev Loop
 
-```bash
-# 终端 1
-pnpm dev                # Next.js
-# 终端 2
-pnpm inngest-cli dev    # http://localhost:8288 UI
 ```
+# 终端 1：Worker + miniflare
+pnpm --filter @duedatehq/server dev
 
-Inngest UI：
-- 查看事件流
-- 手动触发某 Pulse 抓取
-- DLQ 查看失败任务
-- 重放
+# 终端 2：手工触发 cron（miniflare）
+curl 'http://localhost:8787/__scheduled?cron=*%2F30+*+*+*+*'
+
+# 终端 3：手工投递 queue 消息
+wrangler queues producer send duedatehq-email '{"type":"test"}' --local
+```
 
 ---
 
 ## 9. 数据迁移演练（Phase 1）
 
-每次 migration 必须：
-1. 在 PR Neon branch 跑通
-2. Preview 部署测通
-3. `staging` 部署测通 2 小时
-4. Production 部署 + 冒烟
-5. 失败 → Vercel rollback + Neon branch revert（分钟级）
+- D1 → Postgres（如需要）：每季度跑一次演练，staging 数据集完整 dump → 新建 pg → import → 跑 E2E 回归
+- 记录时长 / 故障点 / 数据差异
+- 演练报告存 `docs/ops/db-migration-drill-<date>.md`
 
 ---
 
 ## 10. 性能监控 SLO
 
-| SLO | 目标 | 告警阈值 | 动作 |
-|---|---|---|---|
-| Dashboard TTI P95 | ≤ 1.5s | > 2.5s 持续 5min | Slack #eng-alerts |
-| Workboard filter P95 | ≤ 1s | > 2s | 同上 |
-| Pulse ingest freshness | ≤ 1h | > 3h | PagerDuty |
-| Server error rate | ≤ 0.5% | > 2% | PagerDuty |
-| LLM success rate | ≥ 99% | < 95% | Slack + on-call |
-| DB CPU | ≤ 70% | > 90% 持续 10min | Neon autoscale + alert |
+详见 §00 §8 "关键性能目标"。Sentry Performance 抽样 10%，重点 transaction：
+
+- `rpc.dashboard.load`
+- `rpc.workboard.query`
+- `rpc.migration.apply`
+- `rpc.pulse.batchApply`
 
 ---
 
 ## 11. 成本监控
 
-| 项 | 预算（MVP 阶段） | 报警 |
-|---|---|---|
-| Vercel | $20/mo | > $80 |
-| Neon | $20/mo | > $60 |
-| Upstash | $10/mo | > $30 |
-| R2 | $5/mo | > $15 |
-| OpenAI | $50/mo | > $150 |
-| Resend | $20/mo | > $60 |
-| Sentry / Langfuse | $0 免费额度 | 接近上限 |
-
-每日 cost summary 邮件发 ops（从 Langfuse + Vercel billing API 拉取）。
+- Cloudflare Dashboard：每日检查 Workers / D1 / R2 / AI Gateway 用量
+- 月预算硬顶：MVP $50 / month；超预算发 email 告警
+- LLM 成本：Langfuse Dashboard 按 firm 分组，超 $0.05/firm/day 告警
 
 ---
 
 ## 12. 备份与恢复演练
 
-- Neon 自动每日备份，保留 7 天
-- 每季度演练恢复：创建 Neon branch from `7 days ago` → 跑冒烟测试
-- R2：PDF / Migration raw / Audit ZIP 独立 lifecycle 策略（audit ZIP 永不过期）
-- `prompts/` 与 `docs/` 通过 git 天然备份
+- **D1**：Cloudflare time-travel（可恢复到过去 30 天任意点）；每月演练一次
+- **R2**：桶启用 object versioning；90 天 retention
+- **better-auth tables**：同 D1，由 time-travel 覆盖
+- **恢复演练**：每季度模拟"D1 误删 clients 表"，走恢复流程，计时；目标 RTO < 30 min
 
 ---
 
-## 13. 机密轮换（§06.12）
+## 13. 密钥轮换
 
-Runbook：
 
-```
-每 90 天：
-1. 生成新 secret
-2. 更新 Vercel env（双版本并存 1 周）
-3. 代码支持 "accept old+new"
-4. 切到新 secret
-5. 7 天后移除旧
-```
+| 密钥                   | 频率    | 流程                              |
+| -------------------- | ----- | ------------------------------- |
+| `AUTH_SECRET`        | 90 天  | 临时双 secret 并存 → 验证 → 下线旧 secret |
+| `VAPID_PRIVATE_KEY`  | 180 天 | 换后旧订阅失效，用户需重新 subscribe         |
+| Resend API key       | 180 天 | 直接切换                            |
+| Cloudflare API token | 90 天  | GH Actions 更新                   |
+| LLM API key          | 按合规要求 | 经 AI Gateway，切换时前端无感            |
+
 
 ---
 
 ## 14. 运维 Runbook
 
-| 场景 | 步骤 |
-|---|---|
-| **紧急回滚** | `vercel rollback` 或 Vercel UI 一键；数据层兼容时无需回 migrate |
-| **Pulse 错误推送** | Settings Ops → Pulse → Retract → worker 自动 Revert 所有 ExceptionApplication |
-| **某 firm 数据异常** | `pnpm cli firm-inspect <slug>` 导出 snapshot；走支持流程 |
-| **AI 费用超限** | Kill switch feature flag → 所有 AI 调用返回模板；通知 ops |
-| **Neon 主库挂** | 立即切 Replica；Vercel 挂 maintenance 静态页 |
+仓库 `docs/ops/runbooks/` 至少包含：
 
-CLI：`tools/cli/*.ts`，基于 `tsx` + `commander`。
+- `deploy-production.md`
+- `rollback-production.md`
+- `rotate-secret.md`
+- `d1-recover.md`
+- `pulse-ingest-stuck.md`
+- `email-outbox-flood.md`
+- `llm-cost-spike.md`
+
+每个 runbook 格式：触发条件 · 诊断命令 · 修复步骤 · 验证方法 · Post-mortem 模板。
 
 ---
 
 ## 15. 文档与交付
 
-每次生产部署自动：
-- 生成 CHANGELOG（基于 Conventional Commits）
-- 更新 `/status` 页状态（外部 status.duedatehq.com）
-- 发 `#release-log` Slack 通知
+- 架构文档变更与代码一起 PR（Doc-as-Code）
+- 每次 production release 自动生成 changelog（Conventional Commits → `changesets` 或手写）
+- 发布公告同步到 `/status`（Phase 1）
 
 ---
 

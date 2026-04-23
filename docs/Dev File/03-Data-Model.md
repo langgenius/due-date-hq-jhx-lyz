@@ -1,711 +1,430 @@
 # 03 · Data Model · 数据层设计
 
-> PRD §8 列出了 25+ 张表。本文件把它落地成可执行的 **Drizzle schema + 索引 + RLS 策略 + migration 流程**。
-> 核心纪律：**所有业务表必须带 `firm_id`；所有查询必须强制租户隔离；所有写操作必须留 audit。**
+> 目标：一次设计**覆盖 Phase 0 + Phase 1**，避免 Team / Overlay / Readiness 上线时回头重构。
+> 核心决策：**D1 + Drizzle + `scoped(db, firmId)` 工厂**；租户字段统一使用 `firmId`（= better-auth `organizationId`）。
 
 ---
 
 ## 1. Schema 组织
 
 ```
-db/
-├── schema/
-│   ├── _shared.ts            # 枚举 / 共用类型 / helpers
-│   ├── firm.ts               # Firm · User · Membership · Invitation
-│   ├── client.ts             # Client
-│   ├── rule.ts               # ObligationRule · RuleSource · CrossVerification · OpsCadence
-│   ├── exception.ts          # ExceptionRule · ObligationExceptionApplication
-│   ├── obligation.ts         # ObligationInstance
-│   ├── evidence.ts           # EvidenceLink
-│   ├── pulse.ts              # Pulse · PulseApplication
-│   ├── ai.ts                 # AiOutput · LlmLog · rule_chunks (vector)
-│   ├── migration.ts          # Batch · Mapping · Normalization · Error
-│   ├── audit.ts              # AuditEvent · AuditEvidencePackage
-│   ├── notification.ts       # Reminder · PushSubscription · EmailOutbox
-│   ├── team.ts               # SavedView
-│   ├── readiness.ts          # ClientReadinessRequest · Response
-│   └── index.ts              # re-export
-├── relations.ts              # Drizzle relations
-├── client.ts                 # Neon client factory (serverless + pool)
-├── scoped-query.ts           # firmContext + scopedDb()
-├── migrations/               # drizzle-kit output
-└── seed/                     # test / demo data
+packages/db/
+├── src/
+│   ├── schema/
+│   │   ├── auth.ts              ← better-auth 托管（user / session / account / verification
+│   │   │                            / organization / member / invitation）
+│   │   ├── clients.ts
+│   │   ├── obligations.ts       ← rule + instance + exception（Phase 1）
+│   │   ├── migration.ts
+│   │   ├── pulse.ts
+│   │   ├── ai.ts                ← ai_output + llm_log
+│   │   ├── audit.ts             ← audit_event + evidence_link
+│   │   ├── notifications.ts     ← in_app + email_outbox + push_subscription + reminder
+│   │   ├── readiness.ts         ← Phase 1
+│   │   └── index.ts             ← barrel
+│   ├── client.ts                ← drizzle(D1) factory
+│   ├── scoped.ts                ← ★ 业务模块的唯一入口
+│   ├── audit-writer.ts
+│   ├── evidence-writer.ts
+│   └── types.ts
+├── migrations/                   ← drizzle-kit 生成，wrangler d1 apply
+└── drizzle.config.ts
 ```
+
+**约束：**
+
+- `apps/server/src/procedures/**` **不允许**直接 import `@duedatehq/db/schema` 的业务表 symbol；只能通过 `context.scoped.xxx()`
+- `scoped.ts` 的每个 repo 入口都必须硬编码 `WHERE firm_id = :firmId`，`firmId` 只能从 middleware 注入，不能从 procedure `input` 接收
+- better-auth 接管的 7 张表由其 migrations 管理，不要手改；我们业务表统一用 `firm_id` 保持 DueDateHQ 术语（逻辑等同 `organization_id`）
 
 ---
 
-## 2. 核心实体（Drizzle 样板）
+## 2. 核心实体（按领域分组）
 
-### 2.1 Firm / User / Membership
+> 只列字段与约束；Drizzle 具体写法在 `packages/db/src/schema/*.ts`。不贴实现代码除非是**约束**。
 
-```typescript
-// db/schema/firm.ts
-import { pgTable, uuid, text, timestamp, pgEnum, integer, boolean, unique, index } from "drizzle-orm/pg-core";
+### 2.1 better-auth 托管表
 
-export const planEnum = pgEnum("plan", ["solo", "firm", "pro"]);
-export const roleEnum = pgEnum("role", ["owner", "manager", "preparer", "coordinator"]);
-export const memberStatusEnum = pgEnum("member_status", ["active", "invited", "suspended", "left"]);
+| 表 | 说明 | DueDateHQ 视角 |
+|---|---|---|
+| `user` | 全局唯一的人（邮箱唯一） | CPA 本人 |
+| `session` | 登录态 | 含 `activeOrganizationId` |
+| `account` | credentials / magic link | magic link 为主 |
+| `verification` | 邮箱 / 邀请 token | — |
+| `organization` | **Firm（租户）**；`metadata` 扩展业务字段 | `plan` / `seatLimit` / `timezone` / `coordinatorCanSeeDollars` |
+| `member` | **UserFirmMembership**；`role ∈ {owner, manager, preparer, coordinator}` | — |
+| `invitation` | **TeamInvitation** | token + 14d 过期 |
 
-export const firms = pgTable("firm", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  timezone: text("timezone").notNull().default("America/Los_Angeles"),
-  plan: planEnum("plan").notNull().default("solo"),
-  seatLimit: integer("seat_limit").notNull().default(1),
-  ownerUserId: uuid("owner_user_id").notNull(),
-  defaultAssigneeStrategy: text("default_assignee_strategy").notNull().default("owner"),
-  coordinatorCanSeeDollars: boolean("coordinator_can_see_dollars").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  deletedAt: timestamp("deleted_at", { withTimezone: true }),
-});
+`firmId`（业务表）严格 = `organization.id`。
 
-export const users = pgTable("user", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  email: text("email").notNull().unique(),
-  displayName: text("display_name"),
-  mfaEnabled: boolean("mfa_enabled").notNull().default(false),
-  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
-  defaultFirmId: uuid("default_firm_id"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  deletedAt: timestamp("deleted_at", { withTimezone: true }),
-});
+### 2.2 客户与义务
 
-export const userFirmMembership = pgTable("user_firm_membership", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id),
-  firmId: uuid("firm_id").notNull().references(() => firms.id),
-  role: roleEnum("role").notNull(),
-  status: memberStatusEnum("status").notNull().default("active"),
-  invitedByUserId: uuid("invited_by_user_id"),
-  invitedAt: timestamp("invited_at", { withTimezone: true }),
-  acceptedAt: timestamp("accepted_at", { withTimezone: true }),
-  suspendedAt: timestamp("suspended_at", { withTimezone: true }),
-  leftAt: timestamp("left_at", { withTimezone: true }),
-  lastActiveAt: timestamp("last_active_at", { withTimezone: true }),
-  notificationPrefs: jsonb("notification_prefs_json").$type<NotificationPrefs>(),
-}, (t) => ({
-  uqUserFirm: unique().on(t.userId, t.firmId),
-  ixFirmStatus: index().on(t.firmId, t.status),
-}));
-```
+**clients**
 
-> **设计决策（对齐 PRD §3.6.2）：** P0 的 Solo 租户也走 Membership 表（`user.default_firm_id = firm.id`），不搞 shortcut；这样 P1 引入 Team 时零迁移。
+| 字段 | 类型 | 备注 |
+|---|---|---|
+| `id` | `text PK` | UUID v4 |
+| `firm_id` | `text NOT NULL` | → `organization.id` |
+| `name` | `text NOT NULL` | |
+| `ein` | `text` | `##-#######`；正则校验；允许 NULL |
+| `state` | `text NOT NULL` | ISO 两位州码 |
+| `county` | `text` | Pulse 匹配用 |
+| `entity_type` | `text NOT NULL CHECK IN (llc, s_corp, partnership, c_corp, sole_prop, trust, other)` | |
+| `tax_types` | `text (JSON array)` | NULL 时走 Default Matrix 兜底 |
+| `importance` | `text CHECK IN (high, med, low) DEFAULT 'med'` | |
+| `num_partners` / `num_shareholders` | `integer` | Penalty per-partner 用 |
+| `estimated_annual_revenue_band` | `text CHECK IN (lt_250k, 250k_1m, 1m_10m, gt_10m) NULL` | PRD P0-7；Client CRM 视角的粗档收入；Penalty 归档用 |
+| `estimated_tax_liability_cents` | `integer` | PRD §8.1；Penalty Radar 精算输入（可选） |
+| `assignee_id` | `text → user.id` | Phase 1 Team 启用 |
+| `email` / `notes` | `text` | |
+| `migration_batch_id` | `text` | Revert 级联 |
+| `created_at` / `updated_at` / `deleted_at` | `integer (ms)` | 软删 |
 
-### 2.2 Client · ObligationInstance
+**obligation_rule**（Rules-as-Asset 核心实体）
 
-```typescript
-// db/schema/client.ts
-export const entityTypeEnum = pgEnum("entity_type", [
-  "individual", "llc", "s_corp", "c_corp", "partnership", "trust", "sole_prop", "nonprofit"
-]);
-export const importanceEnum = pgEnum("importance", ["high", "med", "low"]);
+| 字段 | 备注 |
+|---|---|
+| `id` / `version` | 同一规则多版本共存 |
+| `jurisdiction` | `federal` / `CA` / `NY` / ... |
+| `entity_applicability` | JSON string[] |
+| `tax_type` / `form_name` / `is_filing` / `is_payment` | |
+| `due_date_logic` | JSON DSL（§03.7） |
+| `extension_policy` / `penalty_formula` | |
+| `source_url` / `source_title` / `verbatim_quote` / `statutory_ref` | 证据铁律 |
+| `verified_by` / `verified_at` / `next_review_at` | |
+| `status ∈ (candidate, verified, deprecated)` | AI candidate vs human verified |
+| `rule_tier ∈ (basic, annual_rolling, exception, applicability_review)` | |
+| `risk_level ∈ (low, med, high)` | 高风险要求双人 sign-off |
+| `checklist_json` | 6 项 Quality Badge（§6D.4） |
+| `coverage_status ∈ (full, skeleton, manual)` | 50 州骨架 |
+| `active` | |
 
-export const clients = pgTable("client", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  firmId: uuid("firm_id").notNull().references(() => firms.id),
-  name: text("name").notNull(),
-  ein: text("ein"), // "##-#######" after normalization
-  entityType: entityTypeEnum("entity_type").notNull(),
-  state: text("state").notNull(), // "CA" / "NY" ...
-  county: text("county"),
-  taxTypes: text("tax_types").array(),
-  importance: importanceEnum("importance").notNull().default("med"),
-  numPartners: integer("num_partners"),
-  numShareholders: integer("num_shareholders"),
-  estimatedTaxLiability: integer("estimated_tax_liability"), // cents
-  assigneeId: uuid("assignee_id"),
-  email: text("email"),
-  notes: text("notes"),
-  migrationBatchId: uuid("migration_batch_id"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-  deletedAt: timestamp("deleted_at", { withTimezone: true }),
-});
+**obligation_instance**
 
-// db/schema/obligation.ts
-export const statusEnum = pgEnum("obligation_status", [
-  "not_started", "in_progress", "waiting_on_client", "needs_review",
-  "filed", "paid", "extended", "not_applicable"
-]);
-export const readinessEnum = pgEnum("readiness", ["ready", "waiting_on_client", "needs_review"]);
-export const extensionEnum = pgEnum("extension_decision", ["not_considered", "applied", "rejected"]);
+| 字段 | 备注 |
+|---|---|
+| `id` / `firm_id` / `client_id` / `rule_id` / `rule_version` | |
+| `tax_year` / `period` | |
+| `original_due_date` | 规则生成时的原始日期，**永不变** |
+| `base_due_date` | base rule 最新计算值 |
+| `current_due_date` | Phase 0 直接 = base；Phase 1 = base + apply(active overlays) |
+| `filing_due_date` / `payment_due_date` | |
+| `status ∈ (not_started, in_progress, waiting_on_client, needs_review, filed, paid, extended, not_applicable)` | |
+| `readiness ∈ (ready, waiting, needs_review)` | |
+| `extension_decision` | JSON |
+| `estimated_tax_due_cents` / `estimated_exposure_cents` | Penalty Radar 预聚合 |
+| `assignee_id` / `notes` | |
+| `migration_batch_id` | |
+| `last_changed_by` | |
+| `created_at` / `updated_at` | |
 
-export const obligationInstances = pgTable("obligation_instance", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  firmId: uuid("firm_id").notNull(),
-  clientId: uuid("client_id").notNull().references(() => clients.id),
-  ruleId: uuid("rule_id").notNull(),
-  ruleVersion: integer("rule_version").notNull(),
-  taxYear: integer("tax_year").notNull(),
-  period: text("period"), // Q1 / Q2 / annual / etc.
+**exception_rule**（Phase 1 · Overlay Engine）
 
-  originalDueDate: date("original_due_date").notNull(), // frozen at generation
-  baseDueDate: date("base_due_date").notNull(),         // rule's current compute
-  currentDueDate: date("current_due_date").notNull(),   // base + overlays (cached)
-  filingDueDate: date("filing_due_date"),
-  paymentDueDate: date("payment_due_date"),
+| 字段 | 备注 |
+|---|---|
+| `id` / `source_pulse_id` | 来源 Pulse（可 NULL） |
+| `jurisdiction` / `counties[]` / `affected_forms[]` / `affected_entity_types[]` | JSON |
+| `override_type ∈ (extend_due_date, waive_penalty, ...)` | |
+| `override_value_json` | |
+| `effective_from` / `effective_until` | |
+| `status ∈ (candidate, verified, applied, retracted, superseded)` | |
+| `source_url` / `verbatim_quote` | |
 
-  status: statusEnum("status").notNull().default("not_started"),
-  readiness: readinessEnum("readiness").notNull().default("ready"),
-  extensionDecision: extensionEnum("extension_decision").notNull().default("not_considered"),
+**obligation_exception_application**（多对多）
 
-  estimatedTaxDue: integer("estimated_tax_due"),
-  estimatedExposureUsd: integer("estimated_exposure_usd"), // cents
+| 字段 | |
+|---|---|
+| `obligation_instance_id` / `exception_rule_id`（PK） | |
+| `applied_at` / `applied_by_user_id` | |
+| `reverted_at` / `reverted_by_user_id` | |
 
-  assigneeId: uuid("assignee_id"),
-  notes: text("notes"),
-  migrationBatchId: uuid("migration_batch_id"),
+### 2.3 Pulse 链路
 
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-  lastChangedBy: uuid("last_changed_by"),
-}, (t) => ({
-  ixFirmDue: index().on(t.firmId, t.currentDueDate),
-  ixFirmStatusDue: index().on(t.firmId, t.status, t.currentDueDate),
-  ixFirmAssigneeDue: index().on(t.firmId, t.assigneeId, t.currentDueDate),
-}));
-```
+**pulse**
 
-> **Overlay 设计（对齐 PRD §6D.2）：** `current_due_date` 是**派生字段 + 缓存**。写入时由 Overlay Engine 计算（见 §04），读取时直接用。查询快，不需要每次 JOIN overlay 表。
+| 字段 | 备注 |
+|---|---|
+| `id` / `source` / `source_url` / `raw_r2_key` | 原文存 R2 |
+| `published_at` | |
+| `ai_summary` / `verbatim_quote` | |
+| `parsed_jurisdiction` / `parsed_counties[]` / `parsed_forms[]` / `parsed_entity_types[]` | JSON |
+| `parsed_original_due_date` / `parsed_new_due_date` / `parsed_effective_from` | |
+| `confidence` | 0–1 |
+| `status ∈ (pending_review, approved, applied, rejected)` | |
+| `reviewed_by` / `reviewed_at` / `requires_human_review` | |
 
-### 2.3 Rule-as-Asset 三件套
+**pulse_application**
 
-```typescript
-// db/schema/rule.ts
-export const ruleStatusEnum = pgEnum("rule_status", ["candidate", "verified", "deprecated"]);
-export const ruleTierEnum = pgEnum("rule_tier", [
-  "basic", "annual_rolling", "exception", "applicability_review"
-]);
-export const coverageStatusEnum = pgEnum("coverage_status", ["full", "skeleton", "manual"]);
+| 字段 | 备注 |
+|---|---|
+| `id` / `pulse_id` / `obligation_instance_id` / `client_id` / `firm_id` | |
+| `applied_by` / `applied_at` / `reverted_at` | |
+| `before_due_date` / `after_due_date` | 审计必备 |
 
-export const obligationRules = pgTable("obligation_rule", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  jurisdiction: text("jurisdiction").notNull(), // "federal" / "CA" / ...
-  entityApplicability: text("entity_applicability").array().notNull(),
-  taxType: text("tax_type").notNull(),
-  formName: text("form_name").notNull(),
+### 2.4 Migration
 
-  dueDateLogic: jsonb("due_date_logic").$type<DueDateDSL>().notNull(),
-  extensionPolicy: jsonb("extension_policy").$type<ExtensionPolicy>(),
-  isPayment: boolean("is_payment").notNull().default(false),
-  isFiling: boolean("is_filing").notNull().default(true),
-  penaltyFormula: jsonb("penalty_formula").$type<PenaltyFormula>(),
+**migration_batch**
 
-  defaultTip: text("default_tip"),
-  sourceUrl: text("source_url").notNull(),
-  sourceTitle: text("source_title").notNull(),
-  statutoryRef: text("statutory_ref"),
-  verbatimQuote: text("verbatim_quote").notNull(),
+| 字段 | 备注 |
+|---|---|
+| `id` / `firm_id` / `user_id` | |
+| `source ∈ (paste, csv, preset_name)` / `raw_input_r2_key` | |
+| `mapping_json` / `preset_used` | |
+| `row_count` / `success_count` / `skipped_count` | |
+| `ai_global_confidence` | |
+| `status ∈ (draft, mapping, reviewing, applied, reverted, failed)` | |
+| `revert_expires_at` = `applied_at + 24h` | |
 
-  verifiedBy: text("verified_by"),
-  verifiedAt: timestamp("verified_at", { withTimezone: true }),
-  nextReviewAt: timestamp("next_review_at", { withTimezone: true }),
+**migration_mapping** · **migration_normalization** · **migration_error**
 
-  version: integer("version").notNull().default(1),
-  coverageStatus: coverageStatusEnum("coverage_status").notNull().default("full"),
-  active: boolean("active").notNull().default(true),
+- `mapping.confidence` / `reasoning` / `user_overridden`
+- `normalization.field / raw_value / normalized_value / confidence / model / reasoning`
+- `error.row_index / raw_row_json / error_code / error_message`（供 UI 非阻塞展示）
 
-  status: ruleStatusEnum("status").notNull().default("candidate"),
-  ruleTier: ruleTierEnum("rule_tier").notNull().default("basic"),
-  applicableYear: integer("applicable_year"),
-  requiresApplicabilityReview: boolean("requires_applicability_review").notNull().default(false),
-  riskLevel: text("risk_level").notNull().default("low"),
+### 2.5 证据与审计
 
-  // 6-item Quality Badge
-  checklistJson: jsonb("checklist_json").$type<{
-    filing_payment_distinguished: boolean;
-    extension_handled: boolean;
-    calendar_fiscal_specified: boolean;
-    holiday_rollover_handled: boolean;
-    cross_verified: boolean;
-    exception_channel: boolean;
-  }>(),
-}, (t) => ({
-  ixStatusTier: index().on(t.status, t.ruleTier, t.jurisdiction),
-  ixNextReview: index().on(t.nextReviewAt),
-}));
+**evidence_link**（PRD §5.5 provenance 核心）
 
-export const ruleSources = pgTable("rule_source", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  jurisdiction: text("jurisdiction").notNull(),
-  name: text("name").notNull(),
-  url: text("url").notNull(),
-  sourceType: text("source_type").notNull(), // newsroom|publication|...
-  cadence: text("cadence").notNull(),        // 30m / 60m / daily ...
-  ownerUserId: uuid("owner_user_id"),
-  priority: text("priority").notNull().default("medium"),
-  isEarlyWarning: boolean("is_early_warning").notNull().default(false),
+| 字段 | 备注 |
+|---|---|
+| `id` | |
+| `obligation_instance_id` 或 `ai_output_id` | 二选一 |
+| `source_type` | 枚举（§06） |
+| `source_id` / `source_url` / `verbatim_quote` | |
+| `raw_value` / `normalized_value` | Migration 用 |
+| `confidence` / `model` / `matrix_version` | AI 决策用 |
+| `verified_at` / `verified_by` / `applied_at` / `applied_by` | |
 
-  lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }),
-  lastChangeDetectedAt: timestamp("last_change_detected_at", { withTimezone: true }),
-  healthStatus: text("health_status").notNull().default("healthy"),
-  consecutiveFailures: integer("consecutive_failures").notNull().default(0),
-  nextCheckAt: timestamp("next_check_at", { withTimezone: true }),
-});
+**audit_event**
 
-export const ruleCrossVerification = pgTable("rule_cross_verification", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  ruleId: uuid("rule_id").notNull().references(() => obligationRules.id),
-  primarySourceUrl: text("primary_source_url").notNull(),
-  primarySourceTitle: text("primary_source_title").notNull(),
-  primaryQuote: text("primary_quote").notNull(),
-  crossSourceUrl: text("cross_source_url").notNull(),
-  crossSourceTitle: text("cross_source_title").notNull(),
-  crossQuote: text("cross_quote").notNull(),
-  agreementStatus: text("agreement_status").notNull(), // agree | disagree | partial
-  checkedAt: timestamp("checked_at", { withTimezone: true }).notNull().defaultNow(),
-  checkedByUserId: uuid("checked_by_user_id"),
-  notes: text("notes"),
-});
-```
+| 字段 | 备注 |
+|---|---|
+| `id` / `firm_id` / `actor_id` | |
+| `entity_type` / `entity_id` | |
+| `action` | 枚举（§06.6） |
+| `before_json` / `after_json` / `reason` | |
+| `ip_hash` / `user_agent_hash` | 匿名化 |
+| `created_at` | |
 
-### 2.4 ExceptionRule（overlay 核心）
+**硬约束：`audit_event` 永不物理删除，也不允许软删标志位。**
 
-```typescript
-// db/schema/exception.ts
-export const exceptionStatusEnum = pgEnum("exception_status", [
-  "candidate", "verified", "applied", "retracted", "superseded"
-]);
+### 2.6 AI 观测
 
-export const exceptionRules = pgTable("exception_rule", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  sourcePulseId: uuid("source_pulse_id"),
-  jurisdiction: text("jurisdiction").notNull(),
-  counties: text("counties").array(),
-  affectedForms: text("affected_forms").array(),
-  affectedEntityTypes: text("affected_entity_types").array(),
+**ai_output**
 
-  overrideType: text("override_type").notNull(), // extend_due_date | waive_penalty | ...
-  overrideValueJson: jsonb("override_value_json").$type<OverrideValue>().notNull(),
+| 字段 | |
+|---|---|
+| `id` / `firm_id` / `user_id` / `kind ∈ (brief, tip, summary, ask_answer, pulse_extract, migration_map, migration_normalize)` | |
+| `prompt_version` / `model` / `input_context_ref` | |
+| `output_text` / `citations_json` | |
+| `generated_at` / `tokens_in` / `tokens_out` / `cost_usd` | |
 
-  effectiveFrom: date("effective_from").notNull(),
-  effectiveUntil: date("effective_until"),
+**llm_log**
 
-  status: exceptionStatusEnum("status").notNull().default("candidate"),
-  verifiedBy: text("verified_by"),
-  verifiedAt: timestamp("verified_at", { withTimezone: true }),
-  retractedAt: timestamp("retracted_at", { withTimezone: true }),
-  retractedReason: text("retracted_reason"),
-  supersededByExceptionId: uuid("superseded_by_exception_id"),
+| 字段 | |
+|---|---|
+| `id` / `firm_id` / `user_id` / `prompt_version` | |
+| `input_tokens` / `output_tokens` / `latency_ms` / `cost_usd` | |
+| `success` / `error_msg` / `created_at` | |
+| `input_hash` | sha256；**不存原文**（PII 合规） |
 
-  sourceUrl: text("source_url").notNull(),
-  verbatimQuote: text("verbatim_quote").notNull(),
-  needsReevaluation: boolean("needs_reevaluation").notNull().default(false),
+### 2.7 通知
 
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => ({
-  ixStatusEffective: index().on(t.status, t.effectiveFrom, t.effectiveUntil),
-  // GIN for array match
-}));
+**in_app_notification** · **email_outbox** · **push_subscription** · **reminder**
 
-export const obligationExceptionApplication = pgTable("obligation_exception_application", {
-  obligationInstanceId: uuid("obligation_instance_id").notNull(),
-  exceptionRuleId: uuid("exception_rule_id").notNull(),
-  appliedAt: timestamp("applied_at", { withTimezone: true }).notNull().defaultNow(),
-  appliedByUserId: uuid("applied_by_user_id"),
-  revertedAt: timestamp("reverted_at", { withTimezone: true }),
-  revertedByUserId: uuid("reverted_by_user_id"),
-}, (t) => ({
-  pk: primaryKey({ columns: [t.obligationInstanceId, t.exceptionRuleId] }),
-  ixOblig: index().on(t.obligationInstanceId),
-  ixException: index().on(t.exceptionRuleId),
-}));
-```
+- `email_outbox.external_id` 唯一约束（幂等）
+- `email_outbox.status ∈ (pending, sending, sent, failed)`
+- `push_subscription.endpoint` 唯一；`consecutive_failures` 累计 410/404 自动 `revoked_at`
+- `reminder.offset_days ∈ {30, 7, 1}`；`sent_at` / `clicked_at`
 
-### 2.5 EvidenceLink · AuditEvent · AiOutput
+### 2.8 其他
 
-```typescript
-// db/schema/evidence.ts
-export const evidenceLinks = pgTable("evidence_link", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  firmId: uuid("firm_id").notNull(),
-  obligationInstanceId: uuid("obligation_instance_id"),
-  aiOutputId: uuid("ai_output_id"),
-  sourceType: text("source_type").notNull(), // rule|pulse|human_note|ai_*|default_inference|...
-  sourceId: text("source_id"),
-  sourceUrl: text("source_url"),
-  verbatimQuote: text("verbatim_quote"),
-  rawValue: text("raw_value"),
-  normalizedValue: text("normalized_value"),
-  confidence: real("confidence"),
-  model: text("model"),
-  matrixVersion: text("matrix_version"),
-  verifiedAt: timestamp("verified_at", { withTimezone: true }),
-  verifiedBy: text("verified_by"),
-  appliedAt: timestamp("applied_at", { withTimezone: true }).notNull().defaultNow(),
-  appliedBy: uuid("applied_by"),
-}, (t) => ({
-  ixOblig: index().on(t.obligationInstanceId),
-  ixSource: index().on(t.sourceType, t.sourceId),
-}));
-
-// db/schema/audit.ts
-export const auditEvents = pgTable("audit_event", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  firmId: uuid("firm_id").notNull(),
-  actorId: uuid("actor_id"),
-  entityType: text("entity_type").notNull(),
-  entityId: uuid("entity_id"),
-  action: text("action").notNull(),
-  beforeJson: jsonb("before_json"),
-  afterJson: jsonb("after_json"),
-  reason: text("reason"),
-  ipHash: text("ip_hash"),
-  userAgentHash: text("user_agent_hash"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => ({
-  ixFirmCreated: index().on(t.firmId, t.createdAt),
-  ixFirmActorCreated: index().on(t.firmId, t.actorId, t.createdAt),
-  ixFirmActionCreated: index().on(t.firmId, t.action, t.createdAt),
-}));
-```
-
-### 2.6 Pulse + PulseApplication
-
-```typescript
-export const pulseStatusEnum = pgEnum("pulse_status", [
-  "pending_review", "approved", "applied", "rejected"
-]);
-
-export const pulses = pgTable("pulse", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  source: text("source").notNull(),
-  sourceUrl: text("source_url").notNull(),
-  rawContent: text("raw_content"),           // HTML snapshot
-  rawContentS3Key: text("raw_content_s3_key"),
-  publishedAt: timestamp("published_at", { withTimezone: true }),
-
-  aiSummary: text("ai_summary"),
-  verbatimQuote: text("verbatim_quote"),
-
-  parsedJurisdiction: text("parsed_jurisdiction"),
-  parsedCounties: text("parsed_counties").array(),
-  parsedForms: text("parsed_forms").array(),
-  parsedEntityTypes: text("parsed_entity_types").array(),
-  parsedOriginalDueDate: date("parsed_original_due_date"),
-  parsedNewDueDate: date("parsed_new_due_date"),
-  parsedEffectiveFrom: date("parsed_effective_from"),
-
-  confidence: real("confidence"),
-  status: pulseStatusEnum("status").notNull().default("pending_review"),
-  reviewedBy: uuid("reviewed_by"),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
-  requiresHumanReview: boolean("requires_human_review").notNull().default(true),
-}, (t) => ({
-  ixStatusPublished: index().on(t.status, t.publishedAt),
-}));
-```
-
-### 2.7 RAG 向量表
-
-```typescript
-// db/schema/ai.ts
-import { vector } from "drizzle-orm/pg-core";
-
-export const ruleChunks = pgTable("rule_chunks", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  ruleId: uuid("rule_id").notNull().references(() => obligationRules.id),
-  chunkText: text("chunk_text").notNull(),
-  embedding: vector("embedding", { dimensions: 1536 }).notNull(),
-  jurisdiction: text("jurisdiction").notNull(),
-  entityType: text("entity_type"),
-  taxType: text("tax_type"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => ({
-  ixEmbedding: index("ix_rule_chunks_embedding").using("ivfflat", t.embedding.op("vector_cosine_ops"))
-    .with({ lists: 100 }),
-  ixJurisdiction: index().on(t.jurisdiction, t.taxType),
-}));
-
-export const aiOutputs = pgTable("ai_output", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  firmId: uuid("firm_id").notNull(),
-  userId: uuid("user_id"),
-  kind: text("kind").notNull(), // brief | tip | summary | ask_answer
-  promptVersion: text("prompt_version").notNull(),
-  model: text("model").notNull(),
-  inputContextHash: text("input_context_hash"),
-  outputText: text("output_text").notNull(),
-  citations: jsonb("citations").$type<Citation[]>(),
-  generatedAt: timestamp("generated_at", { withTimezone: true }).notNull().defaultNow(),
-  tokensIn: integer("tokens_in"),
-  tokensOut: integer("tokens_out"),
-  costUsd: real("cost_usd"),
-});
-
-export const llmLogs = pgTable("llm_log", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  firmId: uuid("firm_id"),
-  userId: uuid("user_id"),
-  promptVersion: text("prompt_version"),
-  inputTokens: integer("input_tokens"),
-  outputTokens: integer("output_tokens"),
-  latencyMs: integer("latency_ms"),
-  costUsd: real("cost_usd"),
-  success: boolean("success"),
-  errorMsg: text("error_msg"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-```
-
-### 2.8 其他表（参考 §08 项目结构对应文件）
-
-- `migration_batch / migration_mapping / migration_normalization / migration_error`
-- `ics_token / push_subscription / email_outbox`
-- `reminder / saved_view`
-- `client_readiness_request / client_readiness_response`
-- `audit_evidence_package`
-- `event`（analytics）
-
-全部按 PRD §8.1 建表即可，字段命名保持 snake_case。
+- **saved_view**（P1-16）· **ics_token**（P1-11）· **analytics_event** · **audit_evidence_package**（Phase 1）
+- 详细字段参照 PRD §8.1，此处不重复
 
 ---
 
 ## 3. 关键索引（P95 性能保障）
 
-对齐 PRD §8.2 并补齐：
-
 ```sql
--- ===== Dashboard / Workboard =====
-CREATE INDEX idx_obligation_firm_due ON obligation_instance (firm_id, current_due_date);
-CREATE INDEX idx_obligation_firm_status_due ON obligation_instance (firm_id, status, current_due_date);
-CREATE INDEX idx_obligation_firm_tax_due ON obligation_instance (firm_id, tax_type, current_due_date);
-CREATE INDEX idx_obligation_firm_assignee_due ON obligation_instance (firm_id, assignee_id, current_due_date)
-  WHERE status NOT IN ('filed','paid','not_applicable');
+-- Dashboard / Workboard 核心
+CREATE INDEX idx_oi_firm_due          ON obligation_instance(firm_id, current_due_date);
+CREATE INDEX idx_oi_firm_status_due   ON obligation_instance(firm_id, status, current_due_date);
+CREATE INDEX idx_oi_firm_tax_due      ON obligation_instance(firm_id, tax_type, current_due_date);
+CREATE INDEX idx_oi_firm_assignee_due ON obligation_instance(firm_id, assignee_id, current_due_date);
 
--- ===== Penalty Radar 聚合（物化视图） =====
-CREATE MATERIALIZED VIEW mv_firm_weekly_exposure AS
-SELECT
-  firm_id,
-  date_trunc('week', current_due_date) AS week_start,
-  assignee_id,
-  SUM(estimated_exposure_usd) AS total_exposure_cents,
-  COUNT(*) AS obligation_count
-FROM obligation_instance
-WHERE status NOT IN ('filed','paid','not_applicable')
-GROUP BY firm_id, date_trunc('week', current_due_date), assignee_id;
+-- Pulse 匹配
+CREATE INDEX idx_client_firm_state        ON client(firm_id, state);
+CREATE INDEX idx_client_firm_state_county ON client(firm_id, state, county);
+CREATE INDEX idx_client_firm_entity       ON client(firm_id, entity_type);
 
-CREATE UNIQUE INDEX idx_mv_firm_week_assignee
-  ON mv_firm_weekly_exposure (firm_id, week_start, assignee_id);
+-- Migration Revert
+CREATE INDEX idx_client_batch ON client(migration_batch_id);
+CREATE INDEX idx_oi_batch     ON obligation_instance(migration_batch_id);
 
--- 每 15min 刷新（Inngest cron）
-REFRESH MATERIALIZED VIEW CONCURRENTLY mv_firm_weekly_exposure;
+-- Evidence
+CREATE INDEX idx_evidence_oi     ON evidence_link(obligation_instance_id);
+CREATE INDEX idx_evidence_source ON evidence_link(source_type, source_id);
 
--- ===== Pulse 匹配（GIN array 匹配） =====
-CREATE INDEX idx_client_firm_state ON client (firm_id, state);
-CREATE INDEX idx_client_firm_state_county ON client (firm_id, state, county);
-CREATE INDEX idx_client_firm_entity ON client (firm_id, entity_type);
-CREATE INDEX idx_exception_status_effective ON exception_rule (status, effective_from, effective_until);
-CREATE INDEX idx_exception_jurisdiction ON exception_rule (jurisdiction);
-CREATE INDEX idx_exception_counties_gin ON exception_rule USING GIN (counties);
-CREATE INDEX idx_exception_forms_gin ON exception_rule USING GIN (affected_forms);
+-- Pulse feed
+CREATE INDEX idx_pulse_status_pub ON pulse(status, published_at DESC);
 
--- ===== Evidence / Audit =====
-CREATE INDEX idx_evidence_obligation ON evidence_link (obligation_instance_id);
-CREATE INDEX idx_audit_firm_created ON audit_event (firm_id, created_at DESC);
+-- Audit（火热写）
+CREATE INDEX idx_audit_firm_time        ON audit_event(firm_id, created_at DESC);
+CREATE INDEX idx_audit_firm_actor_time  ON audit_event(firm_id, actor_id, created_at DESC);
+CREATE INDEX idx_audit_firm_action_time ON audit_event(firm_id, action, created_at DESC);
 
--- ===== Migration Revert =====
-CREATE INDEX idx_client_batch ON client (migration_batch_id);
-CREATE INDEX idx_obligation_batch ON obligation_instance (migration_batch_id);
-CREATE UNIQUE INDEX idx_one_draft_batch_per_firm
-  ON migration_batch (firm_id) WHERE status IN ('draft','mapping','reviewing');
+-- Penalty 周聚合（Scoreboard）
+CREATE INDEX idx_oi_firm_week_exposure ON obligation_instance(
+  firm_id, current_due_date, estimated_exposure_cents
+) WHERE status NOT IN ('filed', 'paid', 'not_applicable');
 
--- ===== RAG Vector =====
-CREATE INDEX idx_rule_chunks_embedding ON rule_chunks USING ivfflat (embedding vector_cosine_ops)
-  WITH (lists = 100);
+-- Exception overlay（Phase 1）
+CREATE INDEX idx_exc_status_effective ON exception_rule(status, effective_from, effective_until)
+  WHERE status IN ('applied', 'verified');
 
--- ===== Team / Membership =====
-CREATE UNIQUE INDEX idx_membership_user_firm ON user_firm_membership (user_id, firm_id);
-CREATE INDEX idx_membership_firm_status ON user_firm_membership (firm_id, status);
-CREATE UNIQUE INDEX idx_invitation_token
-  ON team_invitation (invite_token)
-  WHERE accepted_at IS NULL AND revoked_at IS NULL;
-
--- ===== Readiness Portal =====
-CREATE UNIQUE INDEX idx_readiness_token
-  ON client_readiness_request (magic_link_token)
-  WHERE revoked_at IS NULL AND status NOT IN ('expired');
-
--- ===== Push =====
-CREATE INDEX idx_push_user_active ON push_subscription (user_id) WHERE revoked_at IS NULL;
-CREATE UNIQUE INDEX idx_push_endpoint ON push_subscription (endpoint) WHERE revoked_at IS NULL;
+-- Notifications
+CREATE INDEX idx_outbox_status        ON email_outbox(status, created_at);
+CREATE INDEX idx_push_user            ON push_subscription(user_id) WHERE revoked_at IS NULL;
+CREATE UNIQUE INDEX idx_push_endpoint ON push_subscription(endpoint) WHERE revoked_at IS NULL;
 ```
+
+D1 无 GIN / ivfflat；向量检索走 Vectorize；需要数组 / JSON 过滤时反范式（如 `has_federal` boolean 辅助列）。
 
 ---
 
-## 4. Row-Level Security（RLS · 底线防御）
+## 4. 租户隔离（D1 无 RLS · 三道工程防线）
 
-Neon Postgres 原生支持 RLS。我们对**所有业务表**启用 RLS，作为"忘记 WHERE firm_id"的终极保险：
+1. **Middleware 层**：Hono middleware 从 better-auth session 读 `activeOrganizationId`，不存在直接 401
+2. **Repo 工厂层**：`scoped(db, firmId)` 是 `packages/db` 唯一对外导出；所有查询在工厂内部硬编码 `WHERE firm_id = :firmId`
+3. **oxlint 层**：`apps/server/src/procedures/**` 禁止直接 import `@duedatehq/db/schema` 的业务表 symbol（通过 `no-restricted-imports` 配置）；PR CI 自动 block
 
-```sql
--- 设置 session 变量（Drizzle client 每次获取连接时注入）
-CREATE OR REPLACE FUNCTION app_current_firm() RETURNS UUID AS $$
-BEGIN
-  RETURN current_setting('app.current_firm_id', true)::UUID;
-EXCEPTION WHEN OTHERS THEN RETURN NULL;
-END;
-$$ LANGUAGE plpgsql STABLE;
+`scoped.ts` 强制形态（**约束**）：
 
--- 每张业务表
-ALTER TABLE client ENABLE ROW LEVEL SECURITY;
-CREATE POLICY tenant_isolation ON client
-  USING (firm_id = app_current_firm());
-
-ALTER TABLE obligation_instance ENABLE ROW LEVEL SECURITY;
-CREATE POLICY tenant_isolation ON obligation_instance
-  USING (firm_id = app_current_firm());
-
--- 以此类推：evidence_link / audit_event / pulse_application / migration_batch /
---           saved_view / reminder / push_subscription / email_outbox / client_readiness_*
-
--- 规则 / Pulse 是全租户共享，不启 RLS
+```ts
+// packages/db/src/scoped.ts
+export const scoped = (db: DrizzleDB, firmId: string) => ({
+  clients: clientsRepo(db, firmId),
+  obligations: obligationsRepo(db, firmId),
+  pulse: pulseRepo(db, firmId),
+  migration: migrationRepo(db, firmId),
+  evidence: evidenceRepo(db, firmId),
+  audit: auditRepo(db, firmId),
+  // 每个业务 repo 都在此注入 firmId
+})
 ```
 
-Drizzle client wrapper：
-
-```typescript
-// db/client.ts
-export async function withFirmContext<T>(
-  firmId: string,
-  fn: (tx: DrizzleClient) => Promise<T>
-): Promise<T> {
-  return db.transaction(async (tx) => {
-    await tx.execute(sql`SELECT set_config('app.current_firm_id', ${firmId}, true)`);
-    return fn(tx);
-  });
-}
-```
+任何 repo 内部**不得**接受其他租户来源；`firmId` 只能从这里传入。
 
 ---
 
 ## 5. 软删除策略
 
-| 表 | 策略 | 理由 |
-|---|---|---|
-| `firm` | 软删 + 30 天 grace | 合规（GDPR 诉讼证据 + 恢复） |
-| `client` | 软删（`deleted_at`） | 7 年审计保留 |
-| `obligation_instance` | **不软删**，用 `status='not_applicable'` | 避免查询复杂度 |
-| `user` | 软删（GDPR 匿名化） | |
-| `user_firm_membership` | `status='left'` 不删 | 审计历史 |
-| `pulse / pulse_application` | 不删 | 法定级记录 |
-| `audit_event` | **永不删**，仅 7 年后归档 | 合规 |
-| `rule` | 永不删，`status='deprecated'` | 历史 obligation 指向版本 |
-
-所有"查当前数据"的 query 必须加 `WHERE deleted_at IS NULL`（在 ORM wrapper 层强制）。
+| 实体 | 策略 |
+|---|---|
+| `client` | `deleted_at` 软删；30 天后 Cron 硬删（级联 obligation） |
+| `obligation_instance` | 不软删；状态 `not_applicable` 代替 |
+| `audit_event` | **永不删**（硬约束） |
+| `migration_batch` | `reverted_at` 标记；原始数据 R2 保留 90 天 |
+| `pulse` | 不删；`status=rejected` 即过滤 |
+| `user` / `organization` / `member` | 由 better-auth 管理；GDPR 请求走其 `deleteUser` API |
 
 ---
 
-## 6. Migration 流程（drizzle-kit）
+## 6. Migration 流程（约束）
 
-```bash
-# 1. 修改 schema/*.ts
+```
+# 1. 改 packages/db/src/schema/*.ts
 # 2. 生成迁移
-pnpm drizzle-kit generate --name="add_exception_rule"
+pnpm --filter @duedatehq/db db:generate
 
-# 3. 本地预览
-pnpm drizzle-kit studio  # 打开 Drizzle Studio 查验
+# 3. 本地 D1 应用
+pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --local
 
-# 4. CI: 在 Neon preview branch 跑 migration
-NEON_BRANCH=pr-123 pnpm drizzle-kit migrate
+# 4. 本地 better-auth 迁移（首次 + 改 auth 配置时）
+pnpm --filter @duedatehq/server auth:migrate --local
 
-# 5. E2E 测试通过后 merge
-# 6. 生产：deploy pipeline 中 pre-deploy 跑 migrate
+# 5. PR 合并后 CI 对 staging D1 应用
+wrangler d1 migrations apply duedatehq-staging --remote
+
+# 6. 生产 deploy pipeline 先 apply prod D1
+wrangler d1 migrations apply duedatehq --remote
 ```
 
-**规则：**
-- 破坏性 migration（drop column / rename）必须分两步：
-  1. PR#1：双写 + 新字段上线
-  2. 观测 7 天 · PR#2：drop 旧字段
-- 所有 migration 必须 idempotent（`IF NOT EXISTS` / `IF EXISTS`）
-- 禁止手写 SQL 直连生产 DB；走 drizzle migration 的 CI 流水
+**纪律：**
+
+- 迁移**向前兼容**：新字段默认 NULL 或给默认值；删字段走两阶段（先停写 → 下次发布删列）
+- Seed 脚本分环境：`db:seed:demo`（幂等）/ `db:seed:rules`（Federal + CA + NY 核心规则）/ `db:seed:pulse`（2 条示例）
 
 ---
 
-## 7. Seed 数据
+## 7. `due_date_logic` DSL（约束）
 
-```
-db/seed/
-├── rules.federal.ts      # 11 rules
-├── rules.california.ts   # 8 rules
-├── rules.newyork.ts
-├── rules.texas.ts
-├── rules.florida.ts
-├── rules.washington.ts
-├── rules.massachusetts.ts
-├── default_tax_matrix.ts # §6A.5 matrix
-├── source_registry.ts    # 15 sources
-├── demo_firm.ts          # Demo firm + 30 clients + 2 Pulses
-└── index.ts
-```
+```ts
+// 枚举所有 MVP 支持的规则类型；不支持的类型不进 verified 池
+type DueDateLogic =
+  | { type: 'fixed_date'; month: number; day: number }
+  | { type: 'nth_day_after_event'; n: number; event: 'formation' | 'tax_year_end' }
+  | { type: 'calendar_anchor'; anchor: 'q1' | 'q2' | 'q3' | 'q4' | 'annual'; offset_days?: number }
+  | { type: 'nth_month_day'; month: number; weekday: 0|1|2|3|4|5|6; nth: 1|2|3|4|-1 }
 
-```bash
-pnpm seed:dev        # 本地
-pnpm seed:preview    # Vercel preview branch
-pnpm seed:demo       # Demo Day 数据
-```
-
----
-
-## 8. 查询样板（复杂度控制）
-
-**Dashboard Triage Tab 计数**（Server Action）：
-
-```typescript
-export async function getTriageTabCounts(
-  firmId: string,
-  scope: "firm" | "me",
-  userId: string
-) {
-  return withFirmContext(firmId, async (tx) => {
-    const base = tx
-      .select({
-        tab: sql<"week" | "month" | "longterm">`
-          CASE
-            WHEN current_due_date <= CURRENT_DATE + INTERVAL '7 days' THEN 'week'
-            WHEN current_due_date <= CURRENT_DATE + INTERVAL '30 days' THEN 'month'
-            ELSE 'longterm'
-          END
-        `,
-        count: count(),
-        exposure: sum(obligationInstances.estimatedExposureUsd),
-      })
-      .from(obligationInstances)
-      .where(
-        and(
-          sql`status NOT IN ('filed','paid','not_applicable')`,
-          sql`current_due_date <= CURRENT_DATE + INTERVAL '180 days'`,
-          scope === "me" ? eq(obligationInstances.assigneeId, userId) : undefined
-        )
-      )
-      .groupBy(sql`tab`);
-
-    return base;
-  });
+interface WeekendHolidayPolicy {
+  rollover: 'next_business_day' | 'preceding_business_day' | 'none'
+  holiday_calendar: 'us_federal' | 'us_federal_plus_state' | 'none'
 }
 ```
 
-> **圈复杂度约束：** 单个 query function ≤ 30 行；超过 → 拆成多个并在 service 层组合。
+日期计算由 `packages/core/date-logic.ts` 纯函数完成，零运行时依赖。未来加 fiscal year / 跨年滚转时，DSL 增加新 `type`，不破坏现有规则。
 
 ---
 
-## 9. 数据迁移到 50 州的预案
+## 8. D1 约束速查
 
-- `obligation_rule.coverage_status` 三档：`full | skeleton | manual`
-- P0：Federal + 6 州 = `full`
-- P1：新增州时，先进 `skeleton`（仅 Federal 默认），积累使用量再升级
-- `client` 表的 `state` 不做枚举（text），避免加州就要 migration
+| 约束 | 值 | 工程缓解 |
+|---|---|---|
+| 单库大小 | 10 GB | 分库（per-region）是 Phase 2 考虑 |
+| 单查询返回行数 | 10 万 | 所有列表强制分页（50 / 100 / 200） |
+| 单 batch 语句数 | ~1000 | Migration / Pulse batch 分批 commit |
+| 单请求 CPU | 30s（付费 5min） | 长计算拆 Queue / Workflow |
+| 无原生 vector | — | Vectorize |
+| 无原生 JSON 索引 | — | 反范式冗余 boolean / 拆表 |
+| 无 RLS | — | `scoped(db, firmId)` 工厂强制 |
+
+---
+
+## 9. 规则覆盖路线图 + Postgres 退路
+
+### 9.1 规则覆盖（对齐 PRD §4.1 P0-8 / §6.1.2）
+
+| 阶段 | 覆盖辖区 | 条目 |
+|---|---|---|
+| **7 天 Demo Sprint**（§09） | Federal + CA + NY | ~20 条 verified |
+| **Phase 0 MVP 完整**（PRD §14.1） | Federal + CA + NY + TX + FL + WA + MA | ~30 条全 verified；其他 44 州 `coverage_status='skeleton'` + Federal-only 回退 |
+| **Phase 1 完整**（PRD §14.2） | 50 州 full coverage | 逐州 sign-off 后 `active=true`；无 schema 变更 |
+
+### 9.2 Postgres 退路（极端场景，非预设路径）
+
+D1 不是权宜之计，是**架构正确选择**（见 §01.2.5）。仅在以下**不在当前路线图**的极端场景下考虑切 Hyperdrive + Neon：
+
+| 触发条件 | 处理 |
+|---|---|
+| 单库真实超 10 GB | 先评估按 firm 分库（D1 支持多库）；仍不够再切 |
+| 跨租户 OLAP 分析需求固化 | 先评估 Cloudflare Analytics Engine + 定时 Workflow 重算物化视图；仍不够再切 |
+| 合规要求物理租户隔离 | 按 firm 建独立 D1 实例（D1 支持多库）；仍不够再切 |
+
+**若真需要迁移**，路径（估算 1 天完成）：
+
+- Drizzle 方言切换：sqlite → pg（约 30% schema 语法变更：`integer (ms)` → `timestamptz`，JSON text → `jsonb`）
+- 查询层零感知：`scoped.ts` 是唯一修改点
+- 数据复制：`sqlite3 .dump` → 转 pg SQL → `pg_restore`
 
 ---
 
 ## 10. Dev 工具
 
-```bash
-pnpm db:studio         # Drizzle Studio
-pnpm db:reset          # drop + recreate + migrate + seed:dev
-pnpm db:branch <name>  # Neon branch 创建 shortcut
-pnpm db:explain "<sql>" # 运行 EXPLAIN ANALYZE
-```
+- `drizzle-kit studio` 可视化 schema + 查询
+- `wrangler d1 execute duedatehq --local --command "SELECT ..."` ad-hoc SQL
+- `pnpm db:seed:demo` 幂等 seed（Sprint Playbook Day 6 依赖）
 
 ---
 

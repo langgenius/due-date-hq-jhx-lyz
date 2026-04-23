@@ -1,192 +1,149 @@
 # 06 · Security & Compliance
 
 > 对齐 PRD §13 + §3.6.3（RBAC 矩阵）+ §6C（Audit Package）。
-> 核心纪律：**三层防御（Middleware / Server Action / RLS）· 最小必要数据 · 审计永不删。**
+> 核心纪律：**三层防御（Session / Scoped Repo / Lint）· 最小必要数据 · 审计永不删。**
+> Auth 基座：**better-auth + Organization plugin + Access Control plugin**。
 
 ---
 
 ## 1. 威胁模型（STRIDE 速览）
 
-| 威胁 | 场景 | 缓解 |
-|---|---|---|
-| **S**poofing | 伪冒 CPA 登录 | Magic link + 设备指纹 + TOTP MFA（Owner 必开） |
-| **T**ampering | 篡改 due_date / Pulse | 每条 overlay 独立留痕，不改 base；Audit 永不删 |
-| **R**epudiation | "不是我改的" | Audit 记录 actor + IP hash + UA hash |
-| **I**nfo disclosure | 跨 firm 数据泄露 | Middleware + ORM wrapper + RLS 三层 |
-| **D**oS | Ask 恶意构造 query | Rate limit + SQL parser + 超时 cancel |
-| **E**levation | Preparer 跑 Owner 操作 | Server Action RBAC 装饰器 + RLS policy |
+
+| 威胁                  | 场景                            | 缓解                                                                |
+| ------------------- | ----------------------------- | ----------------------------------------------------------------- |
+| **S**poofing        | 伪冒 CPA 登录                     | Magic link + device/IP fingerprint + TOTP MFA（Owner 必开 · Phase 1） |
+| **T**ampering       | 篡改 `current_due_date` / Pulse | Phase 1 Overlay 独立留痕不改 base；所有变更写 `audit_event`（永不删）              |
+| **R**epudiation     | "不是我改的"                       | `audit_event` 记 actor + ip_hash + ua_hash                         |
+| **I**nfo disclosure | 跨 firm 数据泄露                   | Middleware + `scoped(db, firmId)` + oxlint 三层                     |
+| **D**oS             | Ask 恶意构造 query                | Rate Limit binding + DSL 白名单 + 3s 超时                              |
+| **E**levation       | Preparer 跑 Owner 操作           | better-auth Access Control plugin 校验（Phase 1）                     |
+
 
 ---
 
-## 2. Auth 设计
+## 2. Auth 设计（better-auth）
 
-### 2.1 Magic Link + TOTP
+### 2.1 核心插件
 
-```typescript
-// auth/config.ts
-export const authConfig = {
-  adapter: DrizzleAdapter(db),
-  providers: [
-    EmailProvider({
-      server: process.env.EMAIL_SERVER,
-      from: process.env.EMAIL_FROM,
-      maxAge: 10 * 60, // 10 min
-    }),
-  ],
-  session: { strategy: "database", maxAge: 7 * 24 * 60 * 60 }, // 7d
-  callbacks: {
-    async signIn({ user, account }) {
-      return await ensureMembership(user.id);
-    },
-    async session({ session, user }) {
-      session.firmId = await resolveFirmFromRequest(user.id);
-      session.role = await resolveRole(user.id, session.firmId);
-      return session;
-    },
-  },
-  events: {
-    signIn: async ({ user }) => writeAudit({ action: "auth.login.success", actorId: user.id }),
-  },
-} satisfies NextAuthConfig;
-```
 
-### 2.2 TOTP MFA（Owner 必开）
+| 插件                                    | 用途                                               |
+| ------------------------------------- | ------------------------------------------------ |
+| `magicLink`                           | 邮箱 magic link 登录（无密码）                            |
+| `organization`                        | 多租户（= Firm）+ Member + Invitation + Active-org 切换 |
+| 自定义 Access Control（`organization.ac`） | 四角色权限矩阵                                          |
+| `twoFactor`（Phase 1）                  | TOTP MFA，Owner / Manager 强制开启                    |
 
-- 库：`otplib`
-- Setup 流程：扫 QR（otpauth://）→ 输入 6 位验证 → 生成 10 条 recovery codes
-- 数据库：`mfa_secret`（加密存储）+ `mfa_enabled` + `recovery_codes_hash[]`
-- Team 版：Manager 强制开启（登录时如 role ≥ manager 且未开 → 强制 setup）
 
-### 2.3 Session & Cookie
+### 2.2 Session & Cookie
 
-- Cookie: `httpOnly` + `secure` + `sameSite=lax`
-- 双 session（desktop / mobile）允许，但"设备 / IP 变"要求 step-up auth
-- Settings → Devices 列所有 session + "Sign out all"
+- Cookie：`httpOnly` · `secure` · `sameSite=lax`
+- Session 存 D1；默认有效期 7 天
+- `session.activeOrganizationId` = 当前 Firm；切换 Firm 走 `auth.api.setActiveOrganization`
+- 双设备会话允许；Settings → Devices 列所有 session + "Sign out all"
+- 新设备 / 新 IP → Phase 1 要求 step-up（TOTP 二次验证）
+
+### 2.3 Invitation 流
+
+- Owner 在 Settings → Team 发邀请 → better-auth 生成 token + 入 `invitation` 表
+- 邀请邮件由 `sendInvitationEmail` hook 经 Resend 发出
+- 接受：点链接 → `/api/auth/organization/accept-invitation/:token` → 自动加入并设为 active
+- 拒绝 / 撤销：`cancelInvitation` / `rejectInvitation`
+- 过期：默认 14 天
+
+### 2.4 MFA（Phase 1）
+
+- `twoFactor` plugin；TOTP + 10 条 recovery codes
+- Owner 登录时若未开启 → 强制 setup wall
+- `mfa_secret` AES-GCM 加密存储；key 来自 Worker secret
 
 ---
 
-## 3. RBAC 双层实现
+## 3. RBAC（Access Control · Phase 1 强制）
 
-### 3.1 Server Action 装饰器
+### 3.1 四角色 + 权限 statement（约束）
 
-```typescript
-// auth/rbac.ts
-import { requireSession } from "./session";
-
-export function withRbac<T>(
-  allowedRoles: Role[],
-  handler: (session: AuthedSession) => Promise<T>
-): Promise<T> {
-  return async () => {
-    const session = await requireSession();
-    if (!allowedRoles.includes(session.role)) {
-      await writeAudit({
-        firmId: session.firmId,
-        actorId: session.userId,
-        action: "auth.denied",
-        reason: `required=${allowedRoles.join(",")} actual=${session.role}`,
-      });
-      throw new ForbiddenError();
-    }
-    return handler(session);
-  };
-}
+```ts
+// packages/auth/permissions.ts（业务约束，不是示例）
+const statement = {
+  client:     ['create', 'read', 'update', 'delete'],
+  obligation: ['read', 'update:status', 'update:assignee'],
+  pulse:      ['read', 'approve', 'batch_apply', 'revert'],
+  migration:  ['run', 'revert'],
+  rule:       ['read', 'report_issue'],
+  member:     ['invite', 'suspend', 'remove', 'change_role'],
+  billing:    ['read', 'update'],
+  audit:      ['read', 'export'],
+  dollars:    ['read'],
+} as const
 ```
 
-用法：
+### 3.2 角色权限矩阵
 
-```typescript
-// app/(app)/[firmSlug]/settings/team/actions.ts
-"use server";
-export const inviteMember = async (formData: FormData) =>
-  withRbac(["owner"], async (session) => {
-    const input = InviteSchema.parse(Object.fromEntries(formData));
-    return teamService.invite(session.firmId, session.userId, input);
-  });
-```
 
-### 3.2 Row-level ownership
+| 资源 · 动作                      | owner | manager            | preparer        | coordinator       |
+| ---------------------------- | ----- | ------------------ | --------------- | ----------------- |
+| `client.*`                   | ✓     | create/read/update | read/update     | read              |
+| `obligation.update:status`   | ✓     | ✓                  | ✓（仅自己 assignee） | —                 |
+| `obligation.update:assignee` | ✓     | ✓                  | —               | —                 |
+| `pulse.approve`              | ✓     | ✓                  | —               | —                 |
+| `pulse.batch_apply`          | ✓     | ✓                  | —               | —                 |
+| `pulse.revert`               | ✓     | —                  | —               | —                 |
+| `migration.run`              | ✓     | ✓                  | —               | —                 |
+| `migration.revert`           | ✓     | —                  | —               | —                 |
+| `member.invite`              | ✓     | ✓（≤ preparer）      | —               | —                 |
+| `member.change_role`         | ✓     | —                  | —               | —                 |
+| `billing.*`                  | ✓     | —                  | —               | —                 |
+| `audit.export`               | ✓     | ✓                  | —               | —                 |
+| `dollars.read`               | ✓     | ✓                  | ✓               | 默认 ✗；firm 开关打开才 ✓ |
+| `export.evidence_package`    | ✓     | —                  | —               | —                 |
 
-Preparer 只能改自己 assignee 的任务：
 
-```typescript
-// modules/obligations/service.ts
-export async function changeStatus(input: { id: string; next: Status }, session: AuthedSession) {
-  return withFirmContext(session.firmId, (tx) =>
-    tx.update(obligationInstances)
-      .set({ status: input.next, lastChangedBy: session.userId, updatedAt: new Date() })
-      .where(and(
-        eq(obligationInstances.id, input.id),
-        // preparer limits
-        session.role === "preparer"
-          ? eq(obligationInstances.assigneeId, session.userId)
-          : undefined,
-      ))
-      .returning()
-  );
-}
-```
+### 3.3 权限检查（Phase 0 暂关，Phase 1 强制）
 
-### 3.3 RBAC 矩阵（对齐 PRD §3.6.3）
-
-权限矩阵直接作为 **单一数据源** 写入 `auth/rbac-matrix.ts`，Server Action 代码读这个文件，永不散落多处：
-
-```typescript
-export const RBAC_MATRIX: Record<Action, Role[]> = {
-  "team.invite":        ["owner"],
-  "team.suspend":       ["owner"],
-  "team.transfer":      ["owner"],
-  "client.create":      ["owner", "manager", "preparer"],
-  "client.delete":      ["owner", "manager"],
-  "obligation.reassign":["owner", "manager"],
-  "pulse.batch_apply":  ["owner", "manager"],
-  "pulse.revert":       ["owner"],
-  "migration.import":   ["owner", "manager"],
-  "migration.revert":   ["owner"],
-  "export.firm_audit":  ["owner", "manager"],
-  "export.evidence_package": ["owner"],
-  "priority.weights_edit":   ["owner"],  // Pro only
-  // ... 完整列表
-};
-```
+- Phase 0 单 Owner 账号，`member.role='owner'`，不做 permission check
+- Phase 1 在每个 oRPC procedure middleware 中加 `authed.use(requirePermission('client.delete'))`
+- 失败 → 写 `audit_event(action='auth.denied', reason=...)` + 返回 `ORPCError('FORBIDDEN')`
 
 ---
 
-## 4. 租户隔离（三层防御）
+## 4. 租户隔离（D1 无 RLS · 三道工程防线）
 
 ### 4.1 Middleware 层
 
-```typescript
-// middleware.ts
-export async function middleware(req: NextRequest) {
-  const session = await getToken({ req });
-  if (!session && isProtected(req)) return redirectToLogin();
+- Hono middleware 从 better-auth session 读 `activeOrganizationId`
+- 不存在 → 401；存在但 `member.status !== 'active'` → 403
+- 注入 `c.set('firmId', ...)` + `c.set('scoped', scoped(db, firmId))`
 
-  // Firm slug 校验
-  const firmSlug = extractFirmSlug(req.url);
-  if (firmSlug && !userHasFirmMembership(session.sub, firmSlug)) {
-    return new NextResponse("Forbidden", { status: 403 });
-  }
+### 4.2 Repo 工厂层（约束）
 
-  return NextResponse.next({
-    headers: { "x-firm-slug": firmSlug ?? "" },
-  });
+- `scoped(db, firmId)` 是 `packages/db` 唯一对外导出
+- 所有 repo 内部硬编码 `WHERE firm_id = :firmId`
+- `firmId` 只能从 middleware 注入，不能从 procedure `input` 接
+
+### 4.3 oxlint 层
+
+`oxlintrc.json`（**约束**）：
+
+```json
+{
+  "rules": {
+    "no-restricted-imports": ["error", {
+      "patterns": [
+        {
+          "group": ["@duedatehq/db/schema", "@duedatehq/db/schema/*"],
+          "message": "Use context.scoped instead of directly importing schema in procedures."
+        }
+      ]
+    }]
+  },
+  "overrides": [
+    {
+      "files": ["packages/db/**"],
+      "rules": { "no-restricted-imports": "off" }
+    }
+  ]
 }
 ```
-
-### 4.2 ORM 层（firmContext）
-
-见 §02 / §03：所有业务查询用 `withFirmContext(firmId, fn)` 包裹。
-
-```typescript
-// db/wrapper.ts · 开发期 lint 规则
-// eslint-plugin-custom: 禁止直接 import { db } 在 modules/* 里使用 select/insert/update/delete。
-// 只允许通过 withFirmContext(firmId, tx => tx.xxx) 调用。
-```
-
-### 4.3 RLS 层（§03.4）
-
-数据库级最后防线，即使 ORM 误用也挡住。
 
 ---
 
@@ -194,313 +151,175 @@ export async function middleware(req: NextRequest) {
 
 ### 5.1 最小必要数据（MVP）
 
-| 字段 | 收 | 备注 |
-|---|---|---|
-| 客户名 | ✓ | 仅业务名称 |
-| EIN | ✓ | "##-#######" 加密存储（`pgcrypto`）|
-| 客户邮箱 | ✓ | 发 Readiness 用 |
-| 州 / 县 / 实体 | ✓ | 匹配 Pulse 用 |
-| num_partners / shareholders | ✓ | Penalty 计算 |
-| estimated_tax_liability | 可选 | 用户手填 |
-| SSN | ✗ | 粘贴时前端正则拦截 |
-| 完整税额 / W-2 | ✗ | 不收 |
-| 银行账号 | ✗ | 不收 |
 
-### 5.2 加密
+| 字段         | 收？   | 备注                                     |
+| ---------- | ---- | -------------------------------------- |
+| 客户姓名       | ✓    | 必要；显示用                                 |
+| EIN        | ✓    | 必要；做去重                                 |
+| 客户邮箱       | ✓    | 用于 Reminder / Readiness                |
+| 客户地址       | ✗    | 不收；税务计算不依赖                             |
+| SSN / ITIN | ✗    | **严禁**，任何理由都不收                         |
+| 客户财务数据     | ✗    | 仅 `estimated_tax_liability` 可选输入（分级存储） |
+| IP / UA    | hash | `sha256(ip)` + `sha256(ua)`；不存明文       |
 
-- **At rest**：Neon 自带 AES-256；EIN 字段额外用 `pgcrypto` 列级加密
-- **In transit**：全站 TLS 1.2+（Vercel 强制）
-- **Backups**：Neon 每日备份，保留 7 天
-- **Keys**：env var 管理；生产走 Vercel env secrets；不进仓库
 
-### 5.3 LLM PII 保护
+### 5.2 进 LLM 之前的 PII 占位
 
-```typescript
-// modules/ai/pii.ts
-export function redactPii(text: string, clients: Client[]): { masked: string; map: Map<string, string> } {
-  const map = new Map<string, string>();
-  let masked = text;
-  clients.forEach((c, i) => {
-    const placeholder = `{{client_${i + 1}}}`;
-    map.set(placeholder, c.name);
-    masked = masked.replaceAll(c.name, placeholder);
-    if (c.ein) {
-      const einPh = `{{ein_${i + 1}}}`;
-      map.set(einPh, c.ein);
-      masked = masked.replaceAll(c.ein, einPh);
-    }
-  });
-  return { masked, map };
-}
-```
+- `client.name` / `client.ein` / `client.email` 在 prompt 中替换为 `{{client_N}}` / `{{ein_N}}` / `{{email_N}}`
+- 保留 `piiMap` 在服务端内存
+- LLM 返回后 Guard 回填
+- `llm_log.input_hash` 存 sha256，不存原文
+- 这是 IRC §7216 + FTC Safeguards Rule 的工程落地
 
-- Prompt 里只出现 `{{client_N}}` 占位符
-- LLM 返回后由 `glassBoxGuard` 用 `map` 回填
-- LLM 调用走 **ZDR endpoint**（OpenAI ZDR org / Azure OpenAI）
-- `llm_logs` 记录 input hash，不记录 raw input
+### 5.3 加密
 
-### 5.4 粘贴 SSN 拦截
-
-```typescript
-// modules/migration/pii-scrub.ts
-const SSN_REGEX = /\b\d{3}-\d{2}-\d{4}\b/g;
-
-export function detectSsn(rows: string[][]): Set<number> {
-  const cols = new Set<number>();
-  for (const row of rows) {
-    row.forEach((cell, idx) => {
-      if (SSN_REGEX.test(cell)) cols.add(idx);
-    });
-  }
-  return cols;
-}
-```
-
-命中 → 该列在 UI 强制 `IGNORE` + 红色警示 + 禁止用户手动改回。
+- At rest：D1 底层 encryption at rest 由 Cloudflare 提供
+- In transit：HTTPS / TLS 1.3
+- 应用层敏感字段（`mfa_secret`，Phase 1）：AES-GCM-256，key 来自 Worker secret
+- R2 对象默认加密；Audit ZIP（Phase 1）额外 AES-256 加客户提供的密码（可选）
 
 ---
 
 ## 6. Audit Event 规范
 
-### 6.1 统一写入接口
+### 6.1 Action 枚举（只增不删）
 
-```typescript
-// modules/audit/writer.ts
-export async function writeAudit(input: {
-  firmId: string;
-  actorId: string | null;
-  entityType: string;
-  entityId?: string;
-  action: AuditAction;
-  before?: unknown;
-  after?: unknown;
-  reason?: string;
-  ip?: string;
-  userAgent?: string;
-}, tx?: Transaction) {
-  const client = tx ?? db;
-  await client.insert(auditEvents).values({
-    firmId: input.firmId,
-    actorId: input.actorId,
-    entityType: input.entityType,
-    entityId: input.entityId,
-    action: input.action,
-    beforeJson: input.before ? sanitize(input.before) : null,
-    afterJson: input.after ? sanitize(input.after) : null,
-    reason: input.reason,
-    ipHash: input.ip ? hash(input.ip) : null,
-    userAgentHash: input.userAgent ? hash(input.userAgent) : null,
-  });
-}
+```
+auth.login.success / auth.login.failed / auth.denied / auth.mfa.setup
+client.create / client.update / client.delete / client.restore
+obligation.status.change / obligation.assignee.change
+pulse.ingest / pulse.extract / pulse.approve / pulse.reject / pulse.apply / pulse.revert
+migration.import / migration.revert
+exception.apply / exception.revert           ← Phase 1
+rule.updated / rule.verified                 ← Phase 1（Rules-as-Asset）
+member.invite / member.accept / member.suspend / member.remove / member.change_role
+billing.subscribe / billing.cancel           ← Phase 1
+export.evidence_package / export.firm_audit
+ai.refusal / ai.guard_failed
 ```
 
-### 6.2 Action 枚举（对齐 PRD §13.2.1）
+### 6.2 字段
 
-```typescript
-export type AuditAction =
-  // auth
-  | "auth.login.success" | "auth.login.failed" | "auth.mfa.enabled" | "auth.session.revoked" | "auth.denied"
-  // team
-  | "team.member.invited" | "team.member.joined" | "team.member.role_changed" | "team.member.suspended" | "team.member.left"
-  | "firm.owner.transferred"
-  // client
-  | "client.created" | "client.updated" | "client.deleted" | "client.reassigned"
-  // obligation
-  | "obligation.status_changed" | "obligation.readiness_changed" | "obligation.extension_decided"
-  | "obligation.reassigned" | "obligation.penalty_overridden"
-  // migration
-  | "migration.imported" | "migration.reverted" | "migration.single_undo"
-  // pulse
-  | "pulse.applied" | "pulse.reverted" | "pulse.dismissed" | "pulse.snoozed"
-  // rule
-  | "rule.report_issue" | "rule.updated"
-  // export
-  | "export.csv" | "export.pdf" | "export.ics.feed_rotated" | "evidence_package.exported"
-  // ask
-  | "ask.query_run";
-```
+- `firm_id` · `actor_id`（可为 NULL，系统任务）
+- `entity_type` · `entity_id`
+- `action`
+- `before_json` · `after_json`（完整快照；字段差异由前端展示层计算）
+- `reason`
+- `ip_hash` · `ua_hash`
+- `created_at`
 
-### 6.3 PII sanitize
+### 6.3 纪律
 
-`before_json` / `after_json` 在写入前对已知 PII 字段**hash 化**：
-
-```typescript
-function sanitize(obj: unknown): unknown {
-  return mapObject(obj, (value, key) => {
-    if (PII_FIELDS.has(key)) return hashPreserveLen(value as string);
-    return value;
-  });
-}
-const PII_FIELDS = new Set(["email", "ein", "ssn"]);
-```
-
-### 6.4 保留 + 匿名化
-
-- 活跃数据：7 年（IRS 推荐）
-- Firm 删除：`actor_id` 匿名化为 `deleted_user_<sha>`，事件保留
-- GDPR 用户删除：`User` 软删 + `User.email = 'deleted+<id>@anon'` 不可反推
+- `audit_event` **硬约束不删**；任何 migration / 运维脚本禁止 `DELETE FROM audit_event`
+- 写入永远走 `packages/db/audit-writer.ts` 的 `writeAudit(input, tx?)`，不允许其他入口
+- Pulse Apply / Migration Import 等批量操作必须在同一事务写 audit
 
 ---
 
-## 7. Client Readiness Portal 安全
+## 7. Client Readiness Portal 安全（Phase 1）
 
-（PRD §6B.4）
-
-| 威胁 | 防护 |
-|---|---|
-| Token 泄露 | 32 字节签名 + 14 天过期 + 单客户绑定 |
-| Token 枚举 | 长度 + rate limit（IP 10/min）+ Sentry 告警 |
-| XSS from client_note | 服务端 sanitize + React 自动 escape |
-| Bot submit | hCaptcha |
-| 发错客户 | 客户侧页面显示 CPA + Firm + Client 三项，提供 "this isn't me" 上报 |
-| PII 泄露 | 客户侧页面不显示 EIN / SSN / $ 金额 |
-
-```typescript
-// app/(embed)/readiness/[token]/page.tsx
-export default async function ReadinessPortalPage({ params }: { params: { token: string } }) {
-  const request = await readinessService.loadByToken(params.token);
-  if (!request || request.status === "expired") return <ExpiredPage />;
-  return <ReadinessForm request={request} />;  // 不传任何 firm / obligation internal id
-}
-```
+- Magic link token ≥ 32 bytes 随机
+- URL 形态：`/portal/:orgSlug/:requestId?t=<token>`
+- 过期默认 14 天；可撤销（`revoked_at`）
+- 客户响应不登录，仅凭 token；每次写 `audit_event(action='readiness.client_response')`
+- 速率限制：同一 token 每分钟 ≤ 10 次
+- CSP 严格：不允许客户响应页加载任何外部脚本
 
 ---
 
-## 8. Audit-Ready Evidence Package（§6C 工程落地）
+## 8. Audit-Ready Evidence Package（Phase 1）
 
-### 8.1 打包 worker
-
-```typescript
-// modules/evidence-package/worker.ts
-export const evidencePackageWorker = inngest.createFunction(
-  { id: "evidence-package", retries: 2 },
-  { event: "evidence-package.requested" },
-  async ({ event, step }) => {
-    const { firmId, scope, range, actorId } = event.data;
-    await enforceOwnerRole(actorId, firmId);
-
-    const s3Prefix = `audit/${firmId}/${Date.now()}-${crypto.randomUUID()}`;
-
-    const manifest = await step.run("build-manifest", async () => {
-      const m: Manifest = { files: [], sha256s: {} };
-      m.files.push(await writeObligations(firmId, scope, range, s3Prefix));
-      m.files.push(await writeAuditLog(firmId, range, s3Prefix));
-      m.files.push(await writeAiDecisions(firmId, range, s3Prefix));
-      m.files.push(await writePulseHistory(firmId, range, s3Prefix));
-      m.files.push(await writeMigration(firmId, range, s3Prefix));
-      m.files.push(await writeReadiness(firmId, range, s3Prefix));
-      m.files.push(await writeRulesSnapshot(s3Prefix));
-      m.files.push(await writeTeam(firmId, s3Prefix));
-      for (const f of m.files) m.sha256s[f.key] = await sha256Of(f.key);
-      return m;
-    });
-
-    const zipKey = await step.run("zip", () => streamZip(s3Prefix, manifest));
-    const signature = await step.run("sign", () => signManifest(manifest));
-    const row = await step.run("persist", () => writePackageRow({ firmId, actorId, scope, range, zipKey, sha256: signature }));
-    await step.run("email", () => sendPackageEmail(actorId, row));
-    await step.run("audit", () => writeAudit({ firmId, actorId, action: "evidence_package.exported", afterJson: { scope, range, sha256: signature } }));
-  }
-);
-```
-
-### 8.2 签名
-
-- Phase 0：SHA-256 of `manifest.json` + Ed25519 服务端私钥签名
-- Phase 1：公开校验脚本 `verify-duedatehq.py`
-- Phase 2：RFC 3161 TSA（FreeTSA）接入
-
-### 8.3 下载链接
-
-- R2 pre-signed URL，7 天过期
-- Single-use：下载后 flag `consumed=true`；二次访问 410
-- 邮件附带 **OTP 密码**（6 位，15 分钟过期，防邮箱劫持）
+- 一键导出 ZIP：包含 PDF 报告 + CSV audit trail + SHA-256 签名文件
+- 生成过程：Queue 触发 → Worker 拉数据 → 打包 → 上传 R2 → 返回 signed URL（7 天过期）
+- 签名：
+  - 文件清单 JSON + 每个文件 sha256 → 整体清单 sha256
+  - 预留 Phase 2 接 RFC 3161 TSA（可信时间戳）
+- 权限：仅 `owner` 可导出
 
 ---
 
-## 9. WISP（Written Information Security Plan）
+## 9. WISP（Written Information Security Plan · Phase 1）
 
-IRS Pub 5708 要求的 5 页 PDF，作为首发交付物。存 `docs/WISP-v1.0.pdf`。
+IRS Publication 4557 要求。MVP 阶段先写 1 页 PDF 模板，放仓库 `docs/compliance/WISP-v1.pdf`，内容要点：
 
-包含：
-
-1. 范围与数据分类
-2. 物理 / 逻辑访问控制
-3. 事件响应流程（含 Data Breach 72h 通知）
-4. 员工培训 + 背景调查要求
-5. 第三方供应商评估清单（Vercel / Neon / Resend / OpenAI ZDR / R2 ...）
-
-Ops 每季度复审 → `OpsCadence.event_type='wisp_review'`。
+- 数据分类（PII / 财务 / 审计）
+- 访问控制（better-auth RBAC）
+- 加密策略（TLS + at-rest）
+- 备份与恢复（D1 time-travel + R2 版本化）
+- 事故响应流程（§13）
+- 员工培训记录（Phase 1 团队扩张时启用）
+- 年度审查制度
 
 ---
 
 ## 10. 合规"红线"硬编码检查
 
-CI 跑 eslint 规则：
+在 `packages/ai/guard.ts` 的黑名单里固化：
 
-| 规则 | 触发 |
-|---|---|
-| `no-raw-db-in-modules` | modules/*/service.ts 直接 import `db` 而非 `withFirmContext` |
-| `no-ssn-in-schema` | schema 里出现 `ssn` / `social_security` 字段名 |
-| `no-pii-in-llm-prompts` | prompts/*.md 含 `{{client_name}}` 未转占位符 |
-| `audit-required-for-writes` | 所有 Server Action 必须 `writeAudit` |
-| `role-matrix-source-of-truth` | Server Action 硬编码 role array → 警告，必须从 RBAC_MATRIX 读 |
+
+| 红线                            | 触发     | 处理                           |
+| ----------------------------- | ------ | ---------------------------- |
+| "your client qualifies"       | AI 下结论 | refusal + audit `ai.refusal` |
+| "no penalty will apply"       | 承诺无罚款  | refusal                      |
+| "this is tax advice"          | 自称税务建议 | refusal                      |
+| "ai confirmed"                | 伪权威    | refusal                      |
+| "this deadline is guaranteed" | 绝对承诺   | refusal                      |
+| SSN 正则 `/\d{3}-\d{2}-\d{4}/`  | 用户误输入  | 前端拦截 + 后端二次校验拒绝              |
+| 信用卡号正则（Luhn）                  | 误输入    | 同上                           |
+
 
 ---
 
-## 11. Rate Limit
+## 11. Rate Limit（Cloudflare 原生 binding）
 
-```typescript
-// lib/rate-limit.ts
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 
-export const rl = {
-  login:       new Ratelimit({ redis: Redis.fromEnv(), limiter: Ratelimit.fixedWindow(5, "15 m") }),
-  readiness:   new Ratelimit({ redis: Redis.fromEnv(), limiter: Ratelimit.fixedWindow(10, "1 m") }),
-  ask:         new Ratelimit({ redis: Redis.fromEnv(), limiter: Ratelimit.fixedWindow(30, "1 m") }),
-  api:         new Ratelimit({ redis: Redis.fromEnv(), limiter: Ratelimit.fixedWindow(100, "1 m") }),
-};
-```
+| 场景                    | 限制                             |
+| --------------------- | ------------------------------ |
+| 登录 magic link 请求      | 同 IP 5/min · 同邮箱 3/min         |
+| Magic link 回调         | 同 token 1 次（消费即失效）             |
+| oRPC procedure（普通）    | 每 user 120/min                 |
+| oRPC procedure（AI 调用） | 每 user 20/min · 每 firm 200/day |
+| Pulse Approve         | 每 user 30/min                  |
+| Readiness Portal 响应   | 同 token 10/min                 |
+| Webhook 入站            | 按签名源 60/min                    |
 
-应用位置：
-- 登录 magic link 请求（IP + email）
-- Readiness Portal（IP）
-- Ask DueDateHQ（user）
-- Generic API（IP + user）
-- Push subscribe（user）
+
+超限返回 `429` + `Retry-After`。
 
 ---
 
 ## 12. Secret 管理
 
-- 生产：Vercel env（按环境隔离：Production / Preview / Development）
-- 轮换：VAPID 私钥 / OPENAI 密钥 / AUTH_SECRET / DB 密码每 90 天
-- 仓库：`gitleaks` 检查 pre-commit hook
-- CI：只读部署 token；永不在 actions 里 `echo $SECRET`
+- **本地**：`.env.local`（gitignore），1Password Shared Vault 同步给团队
+- **Staging / Production**：`wrangler secret put <KEY>`
+- **轮换**：季度轮换 `AUTH_SECRET` / `VAPID_PRIVATE_KEY`；轮换流程先新增 secondary → 验证 → 删除 primary
+- **扫描**：pre-commit hook 跑 `gitleaks` 扫明文 key；CI 阶段再扫一次
 
 ---
 
 ## 13. 事件响应（IR Playbook · 摘要）
 
-| 事件 | 响应 |
-|---|---|
-| **数据泄露** | 1h 内安全通道告警 → 封锁泄露 surface → 72h 内通知受影响 firm + 相关监管机构 |
-| **Pulse 错误推送** | 立即 Dismiss 该 Pulse → Retract ExceptionRule → 24h 内 Revert + 邮件 |
-| **LLM 输出违规（客户举报）** | 下架涉及 AiOutput → 禁用对应 prompt_version → ops 复盘 |
-| **第三方供应商 outage** | 走 §01 降级矩阵；状态页 status.duedatehq.com 实时更新 |
+
+| 级别  | 定义                              | 响应 SLA                       |
+| --- | ------------------------------- | ---------------------------- |
+| P0  | 数据泄露 / 账号被盗 / 全站宕机              | 15 分钟响应 · 4 小时缓解 · 24 小时 RCA |
+| P1  | 单租户数据错乱 / Auth 异常 / AI 发出合规红线内容 | 1 小时响应 · 24 小时缓解             |
+| P2  | 个别 feature 故障                   | 次工作日响应                       |
+
+
+响应步骤：Detect（Sentry 告警 / 用户上报）→ Contain（Wrangler rollback 或 feature flag off）→ Eradicate → Recover → Lessons（写 `docs/incidents/YYYYMMDD-<slug>.md`）。
 
 ---
 
-## 14. 合规目标路线图（对应 PRD §14）
+## 14. 合规目标路线图
 
-| 里程碑 | 时间 |
-|---|---|
-| WISP v1.0 + E&O $2M | Phase 0 MVP |
-| SOC 2 Type I 准备（控制项梳理） | Phase 1 末 |
-| SOC 2 Type II 审计 | Phase 2 末 |
-| RFC 3161 TSA 接入 | Phase 2 |
-| ISO 27001 评估（视企业客户需求） | Phase 3 |
+
+| Phase   | 目标                                                                                                |
+| ------- | ------------------------------------------------------------------------------------------------- |
+| Phase 0 | PII 最小化 · TLS · Audit 不删 · Glass-Box Guard · Secret 管理                                            |
+| Phase 1 | WISP v1 · MFA for Owner/Manager · Audit-Ready Evidence Package · CSP strict · Readiness Portal 安全 |
+| Phase 2 | RFC 3161 TSA 可信时间戳 · SOC 2 Type I 审计 · Pen-test                                                   |
+
 
 ---
 
