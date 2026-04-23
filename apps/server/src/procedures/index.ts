@@ -3,7 +3,7 @@ import { appContract } from '@duedatehq/contracts'
 
 // Root router — implements appContract.
 // Each slice (clients/obligations/…) lives under its own folder and is plugged in here.
-// Constraint (docs/Dev File/08 §4.1): procedures may NOT import `@duedatehq/db/schema`.
+// Constraint (docs/Dev File/08 §4.1): procedures may NOT import `@duedatehq/db/schema/*`.
 // They receive a scoped repo via `context.vars.scoped`, injected by tenant middleware.
 export const os = implement(appContract)
 

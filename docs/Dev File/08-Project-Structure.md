@@ -259,7 +259,7 @@ packages/db/
 
 **约束：**
 
-- `exports` 仅暴露 `scoped` / `client` / `audit-writer` / `evidence-writer` / `types` / schema 导入要显式 `@duedatehq/db/schema`（只给 migration / seed / writer 内部用）
+- `exports` 仅暴露 `scoped` / `client` / `audit-writer` / `evidence-writer` / `types` / schema 导入要显式 `@duedatehq/db/schema/<domain>`（只给 migration / seed / writer 内部用）
 - oxlint 限制：`apps/server/src/procedures/`\*\* 禁止 import `@duedatehq/db/schema`
 
 ### 4.5 `packages/core`

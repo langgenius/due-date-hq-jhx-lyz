@@ -1,5 +1,23 @@
 import { drizzle, type DrizzleD1Database } from 'drizzle-orm/d1'
-import * as schema from './schema/index'
+import * as aiSchema from './schema/ai'
+import * as auditSchema from './schema/audit'
+import * as authSchema from './schema/auth'
+import * as clientsSchema from './schema/clients'
+import * as migrationSchema from './schema/migration'
+import * as notificationsSchema from './schema/notifications'
+import * as obligationsSchema from './schema/obligations'
+import * as pulseSchema from './schema/pulse'
+
+const schema = {
+  ...aiSchema,
+  ...auditSchema,
+  ...authSchema,
+  ...clientsSchema,
+  ...migrationSchema,
+  ...notificationsSchema,
+  ...obligationsSchema,
+  ...pulseSchema,
+}
 
 export type Db = DrizzleD1Database<typeof schema>
 

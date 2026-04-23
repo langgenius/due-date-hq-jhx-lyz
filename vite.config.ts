@@ -45,6 +45,8 @@ export default defineConfig({
     },
     rules: {
       'no-console': 'off',
+      'oxc/no-barrel-file': ['error', { threshold: 0 }],
+      'typescript/no-explicit-any': 'error',
       // React 19's new JSX transform doesn't need React in scope.
       'react/react-in-jsx-scope': 'off',
       // `import './styles.css'` side-effect imports are intentional.
