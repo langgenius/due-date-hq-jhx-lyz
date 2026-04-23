@@ -1,14 +1,58 @@
-# Wrangler local dev secrets (read by `wrangler dev`).
-# Copy to `.dev.vars` (gitignored) and fill in.
-# Bindings themselves live in wrangler.toml; only runtime secrets belong here.
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  apps/server/.dev.vars  (copy from this file; gitignored)                ║
+# ╠══════════════════════════════════════════════════════════════════════════╣
+# ║  Scope · This file is read by `wrangler dev` ONLY, and injected into     ║
+# ║  the Worker's `env` object at runtime. Cloudflare bindings (D1, KV, R2,  ║
+# ║  Vectorize, Queues, Assets) are declared in wrangler.toml, not here —    ║
+# ║  this file is reserved for RUNTIME SECRETS and per-env config.           ║
+# ║                                                                          ║
+# ║  ⚠ NOT read in staging/production. Use `wrangler secret put <NAME>`      ║
+# ║    (or Cloudflare Dashboard → Worker → Settings → Variables).            ║
+# ║                                                                          ║
+# ║  ⚠ NOT the place for CLI credentials (CLOUDFLARE_ACCOUNT_ID,             ║
+# ║    CLOUDFLARE_API_TOKEN, NODE_ENV). Those live in root `.env`.           ║
+# ║                                                                          ║
+# ║  ⚠ NOT the place for browser-facing vars. Those go to                    ║
+# ║    apps/web/.env.local with a `VITE_` prefix.                            ║
+# ║                                                                          ║
+# ║  Schema validated by apps/server/src/env.ts (`validateServerEnv`).       ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
 
-AUTH_SECRET=
-AUTH_URL=http://localhost:8787
-APP_URL=http://localhost:8787
+
+# ═════════════════════════════════════════════════════════════════════════════
+# [Required] App · environment + URLs
+# ═════════════════════════════════════════════════════════════════════════════
+# ENV       · development | staging | production
+# AUTH_URL  · origin of THIS Worker (where /api/auth/* is served)
+# APP_URL   · origin of the browser-facing SPA; used for
+#              (a) Better Auth trustedOrigins whitelist
+#              (b) absolute links inside outbound emails
+#             In dev the SPA runs on Vite (5173); in prod it's the Worker itself.
 ENV=development
+AUTH_URL=http://localhost:8787
+APP_URL=http://localhost:5173
+
+# ═════════════════════════════════════════════════════════════════════════════
+# [Required] Better Auth · session secret + Google OAuth provider
+# ═════════════════════════════════════════════════════════════════════════════
+# AUTH_SECRET · `openssl rand -base64 32`   (min 32 chars — validated by Zod)
+# Google Console → Credentials → OAuth 2.0 Client IDs
+#   Redirect URI must include: {AUTH_URL}/api/auth/callback/google
+AUTH_SECRET=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
+# ═════════════════════════════════════════════════════════════════════════════
+# [Optional in dev] Mail · Resend
+# ═════════════════════════════════════════════════════════════════════════════
+# When ENV=development, RESEND_API_KEY may be blank — auth emails print to
+# console instead of sending. Required outside development.
+RESEND_API_KEY=
+EMAIL_FROM=noreply@duedatehq.com
+
+# ═════════════════════════════════════════════════════════════════════════════
+# [Optional] LLM via Cloudflare AI Gateway
+# ═════════════════════════════════════════════════════════════════════════════
 AI_GATEWAY_ACCOUNT_ID=
 AI_GATEWAY_SLUG=duedatehq
 OPENAI_API_KEY=
@@ -16,12 +60,15 @@ ANTHROPIC_API_KEY=
 LANGFUSE_PUBLIC_KEY=
 LANGFUSE_SECRET_KEY=
 
-RESEND_API_KEY=
-EMAIL_FROM=noreply@duedatehq.com
-
+# ═════════════════════════════════════════════════════════════════════════════
+# [Optional · Phase 1+] Web Push
+# ═════════════════════════════════════════════════════════════════════════════
 VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
 VAPID_SUBJECT=mailto:ops@duedatehq.com
 
+# ═════════════════════════════════════════════════════════════════════════════
+# [Optional] Observability
+# ═════════════════════════════════════════════════════════════════════════════
 SENTRY_DSN=
 POSTHOG_KEY=
