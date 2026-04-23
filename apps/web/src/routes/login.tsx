@@ -1,6 +1,7 @@
 import { useState, useTransition } from 'react'
 import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
+import { Trans, useLingui } from '@lingui/react/macro'
 import {
   CalendarClockIcon,
   GaugeIcon,
@@ -22,23 +23,26 @@ import { Separator } from '@/components/ui/separator'
 import { signInWithGoogle } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
-const highlights = [
-  {
-    icon: GaugeIcon,
-    title: 'Penalty-weighted triage',
-    detail: 'Dollar-first queues surface the obligations that matter before the clock runs out.',
-  },
-  {
-    icon: ShieldCheckIcon,
-    title: 'Glass-box evidence',
-    detail: 'Every AI recommendation ships with source, quote, and verification timestamp.',
-  },
-  {
-    icon: CalendarClockIcon,
-    title: 'Seven-day rhythm',
-    detail: 'Operating cadence tuned for CPA teams during peak filing windows.',
-  },
-]
+function useHighlights() {
+  const { t } = useLingui()
+  return [
+    {
+      icon: GaugeIcon,
+      title: t`Penalty-weighted triage`,
+      detail: t`Dollar-first queues surface the obligations that matter before the clock runs out.`,
+    },
+    {
+      icon: ShieldCheckIcon,
+      title: t`Glass-box evidence`,
+      detail: t`Every AI recommendation ships with source, quote, and verification timestamp.`,
+    },
+    {
+      icon: CalendarClockIcon,
+      title: t`Seven-day rhythm`,
+      detail: t`Operating cadence tuned for CPA teams during peak filing windows.`,
+    },
+  ]
+}
 
 const GoogleIcon = ({ className }: { className?: string }) => (
   <svg
@@ -68,6 +72,8 @@ export function LoginRoute() {
   // to the post-login target before render.
   const [search] = useSearchParams()
   const redirectTo = search.get('redirectTo') || '/'
+  const { t } = useLingui()
+  const highlights = useHighlights()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [, startTransition] = useTransition()
@@ -78,9 +84,9 @@ export function LoginRoute() {
       // better-auth performs the browser redirect itself; this promise typically does not resolve.
       await signInWithGoogle(redirectTo)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Please try again.'
+      const message = err instanceof Error ? err.message : t`Please try again.`
       if (!isUserCanceled(message)) {
-        toast.error('Unable to start Google sign-in', { description: message })
+        toast.error(t`Unable to start Google sign-in`, { description: message })
       }
       startTransition(() => setIsSubmitting(false))
     }
@@ -102,21 +108,25 @@ export function LoginRoute() {
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-base font-semibold text-text-primary">DueDateHQ</span>
-              <span className="text-xs text-muted-foreground">CPA deadline console</span>
+              <span className="text-xs text-muted-foreground">
+                <Trans>CPA deadline console</Trans>
+              </span>
             </div>
           </div>
 
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-3">
               <span className="w-fit rounded-full border border-border-default bg-background px-2.5 py-1 font-mono text-xs tracking-wide text-text-secondary">
-                Phase 0 · Demo workspace
+                <Trans>Phase 0 · Demo workspace</Trans>
               </span>
               <h1 className="text-2xl leading-tight font-semibold text-text-primary md:text-[28px]">
-                Verified risk, one deadline at a time.
+                <Trans>Verified risk, one deadline at a time.</Trans>
               </h1>
               <p className="max-w-md text-sm text-text-secondary">
-                Sign in to review penalty exposure, evidence checks, and the seven-day queue for
-                your firm&apos;s filing pipeline.
+                <Trans>
+                  Sign in to review penalty exposure, evidence checks, and the seven-day queue for
+                  your firm&apos;s filing pipeline.
+                </Trans>
               </p>
             </div>
 
@@ -143,7 +153,9 @@ export function LoginRoute() {
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span className="font-mono tabular-nums">© {new Date().getFullYear()} DueDateHQ</span>
-            <span>SOC 2 ready · SSO available</span>
+            <span>
+              <Trans>SOC 2 ready · SSO available</Trans>
+            </span>
           </div>
         </section>
 
@@ -155,15 +167,21 @@ export function LoginRoute() {
               </div>
               <div className="flex flex-col leading-tight">
                 <span className="text-base font-semibold">DueDateHQ</span>
-                <span className="text-xs text-muted-foreground">CPA deadline console</span>
+                <span className="text-xs text-muted-foreground">
+                  <Trans>CPA deadline console</Trans>
+                </span>
               </div>
             </div>
 
             <Card className="rounded-lg">
               <CardHeader>
-                <CardTitle className="text-xl">Sign in</CardTitle>
+                <CardTitle className="text-xl">
+                  <Trans>Sign in</Trans>
+                </CardTitle>
                 <CardDescription>
-                  Use your Google workspace account to access the risk queue and evidence tools.
+                  <Trans>
+                    Use your Google workspace account to access the risk queue and evidence tools.
+                  </Trans>
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
@@ -180,45 +198,60 @@ export function LoginRoute() {
                   ) : (
                     <GoogleIcon />
                   )}
-                  <span>{disabled ? 'Redirecting to Google…' : 'Continue with Google'}</span>
+                  <span>
+                    {disabled ? (
+                      <Trans>Redirecting to Google…</Trans>
+                    ) : (
+                      <Trans>Continue with Google</Trans>
+                    )}
+                  </span>
                 </Button>
 
                 <div className="relative py-1">
                   <Separator />
                   <span className="absolute inset-0 -top-1 mx-auto w-fit bg-card px-2 text-xs text-muted-foreground">
-                    Secure sign-in
+                    <Trans>Secure sign-in</Trans>
                   </span>
                 </div>
 
                 <p className="text-xs leading-relaxed text-text-secondary">
-                  You&apos;ll be redirected to Google and returned to your workspace. Sessions last
-                  seven days and respect the firm&apos;s SSO policy.
+                  <Trans>
+                    You&apos;ll be redirected to Google and returned to your workspace. Sessions
+                    last seven days and respect the firm&apos;s SSO policy.
+                  </Trans>
                 </p>
               </CardContent>
               <CardFooter className="flex-col items-start gap-2 border-t border-border-default pt-4 text-xs text-muted-foreground">
                 <span>
-                  By signing in you agree to the{' '}
-                  <a className="underline underline-offset-4 hover:text-text-primary" href="/terms">
-                    Terms of Service
-                  </a>{' '}
-                  and{' '}
-                  <a
-                    className="underline underline-offset-4 hover:text-text-primary"
-                    href="/privacy"
-                  >
-                    Privacy Policy
-                  </a>
-                  .
+                  <Trans>
+                    By signing in you agree to the{' '}
+                    <a
+                      className="underline underline-offset-4 hover:text-text-primary"
+                      href="/terms"
+                    >
+                      Terms of Service
+                    </a>{' '}
+                    and{' '}
+                    <a
+                      className="underline underline-offset-4 hover:text-text-primary"
+                      href="/privacy"
+                    >
+                      Privacy Policy
+                    </a>
+                    .
+                  </Trans>
                 </span>
                 <span>
-                  Trouble signing in? Contact{' '}
-                  <a
-                    className="underline underline-offset-4 hover:text-text-primary"
-                    href="mailto:support@duedatehq.com"
-                  >
-                    support@duedatehq.com
-                  </a>
-                  .
+                  <Trans>
+                    Trouble signing in? Contact{' '}
+                    <a
+                      className="underline underline-offset-4 hover:text-text-primary"
+                      href="mailto:support@duedatehq.com"
+                    >
+                      support@duedatehq.com
+                    </a>
+                    .
+                  </Trans>
                 </span>
               </CardFooter>
             </Card>

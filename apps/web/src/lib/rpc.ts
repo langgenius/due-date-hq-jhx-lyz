@@ -3,12 +3,20 @@ import { RPCLink } from '@orpc/client/fetch'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 import type { AppContract } from '@duedatehq/contracts'
 
+import { attachLocaleHeader } from '@/i18n/i18n'
+
 // CONSTRAINT (docs/dev-file/05 §4): apps/web may only reach the Worker via this module.
 // `fetch('/rpc/...')` or any other hand-rolled oRPC client is forbidden.
 
+function buildInit(init: RequestInit | undefined): RequestInit {
+  const headers = new Headers(init?.headers)
+  attachLocaleHeader(headers)
+  return { ...init, headers, credentials: 'include' }
+}
+
 const link = new RPCLink({
   url: `${window.location.origin}/rpc`,
-  fetch: (req, init) => fetch(req, { ...init, credentials: 'include' }),
+  fetch: (req, init) => fetch(req, buildInit(init)),
 })
 
 export const rpc = createORPCClient<AppContract>(link)

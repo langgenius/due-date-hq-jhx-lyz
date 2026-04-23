@@ -142,6 +142,18 @@ catalog:
   '@anthropic-ai/sdk': 0.90.0
   langfuse: 3.38.20
 
+  # ───────── i18n (Lingui v5) ─────────
+  # Macros import from @lingui/core/macro & @lingui/react/macro;
+  # the Babel plugin package transforms them at build time.
+  '@lingui/core': 5.9.3
+  '@lingui/react': 5.9.3
+  '@lingui/cli': 5.9.3
+  '@lingui/vite-plugin': 5.9.3
+  '@lingui/babel-plugin-lingui-macro': 5.9.3
+  # @vitejs/plugin-react v6 dropped Babel, so macro transformation runs through
+  # vite-plugin-babel with the Lingui macro plugin.
+  'vite-plugin-babel': 1.6.0
+
   # ───────── infra / transport ─────────
   resend: 6.12.2
   '@react-email/components': 1.0.12

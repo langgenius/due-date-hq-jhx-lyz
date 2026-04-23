@@ -11,7 +11,9 @@
     "dev": "vp dev",
     "build": "vp build",
     "preview": "vp preview",
-    "test": "vp test"
+    "test": "vp test",
+    "i18n:extract": "lingui extract",
+    "i18n:compile": "lingui compile"
   },
   "dependencies": {
     "@base-ui/react": "catalog:",
@@ -19,6 +21,8 @@
     "@duedatehq/contracts": "workspace:*",
     "@duedatehq/core": "workspace:*",
     "@hookform/resolvers": "catalog:",
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
     "@orpc/client": "catalog:",
     "@orpc/contract": "catalog:",
     "@orpc/tanstack-query": "catalog:",
@@ -46,6 +50,9 @@
   },
   "devDependencies": {
     "@duedatehq/typescript-config": "workspace:*",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@lingui/cli": "catalog:",
+    "@lingui/vite-plugin": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -55,6 +62,7 @@
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-babel": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },

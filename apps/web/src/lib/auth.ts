@@ -1,9 +1,17 @@
 import { createAuthClient } from 'better-auth/react'
 
+import { attachLocaleHeader } from '@/i18n/i18n'
+
 // Single better-auth client for the SPA. Google OAuth is the primary sign-in path.
 // All network calls are cookie-scoped to the Worker at /api/auth (see apps/server/src/routes/auth.ts).
+// The x-locale header is forwarded so the Worker can localize invitation emails etc.
 export const authClient = createAuthClient({
   baseURL: `${window.location.origin}/api/auth`,
+  fetchOptions: {
+    onRequest: (context) => {
+      attachLocaleHeader(context.headers)
+    },
+  },
 })
 
 export const { useSession, signOut } = authClient

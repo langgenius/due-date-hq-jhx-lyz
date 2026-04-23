@@ -1,0 +1,564 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-23 00:00+0000\n"
+"Mime-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: obligations.length
+#: src/routes/workboard.tsx:117
+msgid "{0, plural, one {# row} other {# rows}}"
+msgstr "{0, plural, one {# row} other {# rows}}"
+
+#: src/routes/workboard.tsx:117
+#~ msgid "{0} rows"
+#~ msgstr "{0} rows"
+
+#: src/routes/dashboard.tsx:45
+msgid "2 partner entities need review before the March 15 cutoff."
+msgstr "2 partner entities need review before the March 15 cutoff."
+
+#: src/routes/dashboard.tsx:40
+msgid "3 clients have estimated-tax deltas above the evidence threshold."
+msgstr "3 clients have estimated-tax deltas above the evidence threshold."
+
+#: src/routes/dashboard.tsx:50
+msgid "5 draft extensions are waiting on K-1 attachments."
+msgstr "5 draft extensions are waiting on K-1 attachments."
+
+#: src/routes/workboard.tsx:89
+msgid "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
+msgstr "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
+
+#. placeholder {0}: user.name || user.email
+#: src/routes/_layout.tsx:187
+msgid "Account menu for {0}"
+msgstr "Account menu for {0}"
+
+#: src/routes/dashboard.tsx:186
+msgid "Across 28 open obligations."
+msgstr "Across 28 open obligations."
+
+#: src/routes/dashboard.tsx:245
+msgid "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
+msgstr "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
+
+#: src/routes/workboard.tsx:65
+msgid "all"
+msgstr "all"
+
+#: src/routes/workboard.tsx:101
+msgid "Assign selected"
+msgstr "Assign selected"
+
+#: src/routes/workboard.tsx:148
+msgid "Assignee"
+msgstr "Assignee"
+
+#: src/routes/settings.tsx:38
+msgid "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
+msgstr "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
+
+#: src/routes/workboard.tsx:54
+#: src/routes/workboard.tsx:66
+msgid "blocked"
+msgstr "blocked"
+
+#: src/routes/dashboard.tsx:347
+msgid "Blocked"
+msgstr "Blocked"
+
+#: src/routes/login.tsx:229
+msgid "By signing in you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
+msgstr "By signing in you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
+
+#: src/routes/settings.tsx:107
+msgid "Channels"
+msgstr "Channels"
+
+#: src/routes/dashboard.tsx:283
+#: src/routes/workboard.tsx:143
+msgid "Client"
+msgstr "Client"
+
+#: src/routes/dashboard.tsx:273
+msgid "Client risk rows"
+msgstr "Client risk rows"
+
+#: src/routes/_layout.tsx:344
+msgid "Compliance risk operations"
+msgstr "Compliance risk operations"
+
+#: src/routes/login.tsx:208
+msgid "Continue with Google"
+msgstr "Continue with Google"
+
+#: src/routes/_layout.tsx:314
+#: src/routes/login.tsx:115
+#: src/routes/login.tsx:174
+msgid "CPA deadline console"
+msgstr "CPA deadline console"
+
+#: src/routes/dashboard.tsx:135
+msgid "critical"
+msgstr "critical"
+
+#: src/routes/settings.tsx:117
+msgid "Daily deadline and Pulse summary for owners."
+msgstr "Daily deadline and Pulse summary for owners."
+
+#: src/routes/_layout.tsx:38
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: src/routes/dashboard.tsx:285
+#: src/routes/workboard.tsx:145
+msgid "Deadline"
+msgstr "Deadline"
+
+#: src/routes/settings.tsx:64
+msgid "Default jurisdiction"
+msgstr "Default jurisdiction"
+
+#: src/routes/settings.tsx:139
+msgid "Deferred until the product has a real-time notification need."
+msgstr "Deferred until the product has a real-time notification need."
+
+#: src/routes/login.tsx:32
+msgid "Dollar-first queues surface the obligations that matter before the clock runs out."
+msgstr "Dollar-first queues surface the obligations that matter before the clock runs out."
+
+#: src/routes/dashboard.tsx:168
+msgid "Dollar-first triage for the next operating window."
+msgstr "Dollar-first triage for the next operating window."
+
+#: src/routes/workboard.tsx:56
+msgid "draft"
+msgstr "draft"
+
+#: src/routes/dashboard.tsx:127
+msgid "Due this week"
+msgstr "Due this week"
+
+#: src/routes/dashboard.tsx:276
+msgid "Eight rows are visible on first load for dense scanning."
+msgstr "Eight rows are visible on first load for dense scanning."
+
+#: src/routes/settings.tsx:111
+#: src/routes/settings.tsx:114
+msgid "Email digest"
+msgstr "Email digest"
+
+#: src/routes/settings.tsx:81
+msgid "Enable evidence gate"
+msgstr "Enable evidence gate"
+
+#: src/routes/login.tsx:37
+msgid "Every AI recommendation ships with source, quote, and verification timestamp."
+msgstr "Every AI recommendation ships with source, quote, and verification timestamp."
+
+#: src/routes/dashboard.tsx:266
+#: src/routes/dashboard.tsx:319
+msgid "Evidence checks"
+msgstr "Evidence checks"
+
+#: src/routes/settings.tsx:84
+msgid "Evidence gate"
+msgstr "Evidence gate"
+
+#: src/routes/dashboard.tsx:214
+msgid "Evidence mode"
+msgstr "Evidence mode"
+
+#: src/routes/dashboard.tsx:286
+#: src/routes/workboard.tsx:147
+msgid "Exposure"
+msgstr "Exposure"
+
+#: src/routes/dashboard.tsx:49
+msgid "Extension package hold"
+msgstr "Extension package hold"
+
+#: src/routes/workboard.tsx:58
+msgid "filed"
+msgstr "filed"
+
+#: src/routes/workboard.tsx:98
+msgid "Filters"
+msgstr "Filters"
+
+#: src/routes/settings.tsx:58
+msgid "Firm name"
+msgstr "Firm name"
+
+#: src/routes/settings.tsx:48
+msgid "Firm profile"
+msgstr "Firm profile"
+
+#: src/routes/login.tsx:36
+msgid "Glass-box evidence"
+msgstr "Glass-box evidence"
+
+#: src/routes/dashboard.tsx:242
+msgid "Glass-box threshold is active"
+msgstr "Glass-box threshold is active"
+
+#: src/routes/settings.tsx:87
+msgid "Hide recommendations that do not include source metadata."
+msgstr "Hide recommendations that do not include source metadata."
+
+#: src/routes/dashboard.tsx:136
+msgid "high"
+msgstr "high"
+
+#: src/routes/settings.tsx:128
+msgid "Immediate feedback for status changes and failed mutations."
+msgstr "Immediate feedback for status changes and failed mutations."
+
+#: src/routes/workboard.tsx:55
+#: src/routes/workboard.tsx:67
+msgid "in review"
+msgstr "in review"
+
+#: src/routes/settings.tsx:122
+#: src/routes/settings.tsx:125
+msgid "In-app toast"
+msgstr "In-app toast"
+
+#: src/routes/dashboard.tsx:39
+msgid "IRS transcript mismatch"
+msgstr "IRS transcript mismatch"
+
+#: src/routes/dashboard.tsx:332
+msgid "IRS transcript source was checked this morning."
+msgstr "IRS transcript source was checked this morning."
+
+#: src/routes/_layout.tsx:214
+#: src/routes/_layout.tsx:258
+msgid "Language"
+msgstr "Language"
+
+#: src/routes/_layout.tsx:48
+msgid "Local Time"
+msgstr "Local Time"
+
+#: src/routes/dashboard.tsx:137
+msgid "medium"
+msgstr "medium"
+
+#: src/routes/_layout.tsx:96
+msgid "Mobile navigation"
+msgstr "Mobile navigation"
+
+#: src/routes/settings.tsx:75
+msgid "Multi-state"
+msgstr "Multi-state"
+
+#: src/routes/dashboard.tsx:128
+msgid "Needs evidence"
+msgstr "Needs evidence"
+
+#: src/routes/dashboard.tsx:338
+msgid "Needs quote"
+msgstr "Needs quote"
+
+#: src/routes/dashboard.tsx:138
+msgid "neutral"
+msgstr "neutral"
+
+#: src/routes/_layout.tsx:353
+msgid "New obligation"
+msgstr "New obligation"
+
+#: src/routes/settings.tsx:98
+msgid "Notification routing"
+msgstr "Notification routing"
+
+#: src/routes/dashboard.tsx:44
+msgid "NY PTET election window"
+msgstr "NY PTET election window"
+
+#: src/routes/dashboard.tsx:284
+#: src/routes/workboard.tsx:144
+msgid "Obligation"
+msgstr "Obligation"
+
+#: src/routes/workboard.tsx:86
+msgid "Obligation queue"
+msgstr "Obligation queue"
+
+#: src/routes/dashboard.tsx:127
+msgid "obligations"
+msgstr "obligations"
+
+#: src/routes/dashboard.tsx:350
+msgid "One row lacks a usable source URL."
+msgstr "One row lacks a usable source URL."
+
+#: src/routes/dashboard.tsx:126
+msgid "Open risk"
+msgstr "Open risk"
+
+#: src/routes/login.tsx:42
+msgid "Operating cadence tuned for CPA teams during peak filing windows."
+msgstr "Operating cadence tuned for CPA teams during peak filing windows."
+
+#: src/routes/dashboard.tsx:225
+msgid "Operational pressure points for the team."
+msgstr "Operational pressure points for the team."
+
+#: src/routes/dashboard.tsx:288
+msgid "Owner"
+msgstr "Owner"
+
+#: src/routes/dashboard.tsx:180
+msgid "Penalty exposure"
+msgstr "Penalty exposure"
+
+#: src/routes/dashboard.tsx:126
+msgid "penalty-weighted"
+msgstr "penalty-weighted"
+
+#: src/routes/login.tsx:31
+msgid "Penalty-weighted triage"
+msgstr "Penalty-weighted triage"
+
+#: src/routes/login.tsx:123
+msgid "Phase 0 · Demo workspace"
+msgstr "Phase 0 · Demo workspace"
+
+#: src/routes/_layout.tsx:341
+msgid "Phase 0 demo workspace"
+msgstr "Phase 0 demo workspace"
+
+#: src/routes/settings.tsx:101
+msgid "Phase 0 uses email plus in-app toast instead of Web Push."
+msgstr "Phase 0 uses email plus in-app toast instead of Web Push."
+
+#: src/routes/_layout.tsx:181
+#: src/routes/login.tsx:90
+msgid "Please try again."
+msgstr "Please try again."
+
+#: src/routes/_layout.tsx:67
+msgid "Primary navigation"
+msgstr "Primary navigation"
+
+#: src/routes/_layout.tsx:350
+msgid "Pulse"
+msgstr "Pulse"
+
+#: src/routes/workboard.tsx:110
+msgid "Queue controls"
+msgstr "Queue controls"
+
+#: src/routes/_layout.tsx:47
+msgid "Queue SLA"
+msgstr "Queue SLA"
+
+#: src/routes/login.tsx:206
+msgid "Redirecting to Google…"
+msgstr "Redirecting to Google…"
+
+#: src/routes/dashboard.tsx:322
+msgid "Representative source states wired with existing components."
+msgstr "Representative source states wired with existing components."
+
+#: src/routes/error.tsx:40
+msgid "Return to dashboard"
+msgstr "Return to dashboard"
+
+#: src/routes/dashboard.tsx:209
+msgid "Review risk queue"
+msgstr "Review risk queue"
+
+#: src/routes/dashboard.tsx:165
+msgid "Risk pulse"
+msgstr "Risk pulse"
+
+#: src/routes/dashboard.tsx:263
+msgid "Risk table"
+msgstr "Risk table"
+
+#: src/routes/error.tsx:35
+msgid "Route failed"
+msgstr "Route failed"
+
+#: src/routes/workboard.tsx:128
+msgid "Search clients or obligations"
+msgstr "Search clients or obligations"
+
+#: src/routes/workboard.tsx:126
+msgid "Search obligations"
+msgstr "Search obligations"
+
+#: src/routes/login.tsx:216
+msgid "Secure sign-in"
+msgstr "Secure sign-in"
+
+#: src/routes/_layout.tsx:40
+#: src/routes/settings.tsx:32
+msgid "Settings"
+msgstr "Settings"
+
+#: src/routes/login.tsx:41
+msgid "Seven-day rhythm"
+msgstr "Seven-day rhythm"
+
+#: src/routes/dashboard.tsx:287
+msgid "Severity"
+msgstr "Severity"
+
+#: src/routes/login.tsx:182
+msgid "Sign in"
+msgstr "Sign in"
+
+#: src/routes/login.tsx:129
+msgid "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your firm's filing pipeline."
+msgstr "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your firm's filing pipeline."
+
+#: src/routes/_layout.tsx:188
+msgid "Sign out"
+msgstr "Sign out"
+
+#: src/routes/_layout.tsx:180
+msgid "Sign out failed"
+msgstr "Sign out failed"
+
+#: src/routes/_layout.tsx:186
+msgid "Signed in"
+msgstr "Signed in"
+
+#: src/routes/_layout.tsx:188
+msgid "Signing out…"
+msgstr "Signing out…"
+
+#: src/routes/login.tsx:160
+msgid "SOC 2 ready · SSO available"
+msgstr "SOC 2 ready · SSO available"
+
+#: src/lib/i18n-error.ts:18
+msgid "Something went wrong on our side. Please try again shortly."
+msgstr "Something went wrong on our side. Please try again shortly."
+
+#: src/routes/dashboard.tsx:128
+msgid "source gaps"
+msgstr "source gaps"
+
+#: src/routes/workboard.tsx:113
+msgid "Static UI now; URL-backed filters can replace this shell later."
+msgstr "Static UI now; URL-backed filters can replace this shell later."
+
+#: src/routes/workboard.tsx:146
+msgid "Status"
+msgstr "Status"
+
+#: src/lib/i18n-error.ts:14
+msgid "That resource belongs to a different workspace."
+msgstr "That resource belongs to a different workspace."
+
+#: src/lib/i18n-error.ts:16
+msgid "The request was invalid. Please review your input and try again."
+msgstr "The request was invalid. Please review your input and try again."
+
+#: src/routes/settings.tsx:51
+msgid "These demo fields are local-only until auth and organization data land."
+msgstr "These demo fields are local-only until auth and organization data land."
+
+#: src/lib/i18n-error.ts:17
+msgid "This action conflicts with the current state. Refresh and try again."
+msgstr "This action conflicts with the current state. Refresh and try again."
+
+#: src/routes/dashboard.tsx:222
+msgid "Today queue"
+msgstr "Today queue"
+
+#: src/lib/i18n-error.ts:12
+msgid "Too many requests. Please try again in a moment."
+msgstr "Too many requests. Please try again in a moment."
+
+#: src/routes/login.tsx:248
+msgid "Trouble signing in? Contact <0>support@duedatehq.com</0>."
+msgstr "Trouble signing in? Contact <0>support@duedatehq.com</0>."
+
+#: src/routes/dashboard.tsx:341
+msgid "Two recommendations are waiting on verbatim text."
+msgstr "Two recommendations are waiting on verbatim text."
+
+#: src/routes/login.tsx:92
+msgid "Unable to start Google sign-in"
+msgstr "Unable to start Google sign-in"
+
+#: src/routes/error.tsx:22
+msgid "Unexpected route error"
+msgstr "Unexpected route error"
+
+#: src/routes/login.tsx:185
+msgid "Use your Google workspace account to access the risk queue and evidence tools."
+msgstr "Use your Google workspace account to access the risk queue and evidence tools."
+
+#: src/routes/dashboard.tsx:329
+msgid "Verified"
+msgstr "Verified"
+
+#: src/routes/dashboard.tsx:172
+msgid "verified {verifiedAt}"
+msgstr "verified {verifiedAt}"
+
+#: src/routes/dashboard.tsx:167
+#~ msgid "verified 09:42"
+#~ msgstr "verified 09:42"
+
+#: src/routes/login.tsx:126
+msgid "Verified risk, one deadline at a time."
+msgstr "Verified risk, one deadline at a time."
+
+#: src/routes/workboard.tsx:57
+#: src/routes/workboard.tsx:68
+msgid "waiting"
+msgstr "waiting"
+
+#: src/lib/i18n-error.ts:15
+msgid "We couldn't find what you were looking for."
+msgstr "We couldn't find what you were looking for."
+
+#: src/routes/settings.tsx:136
+msgid "Web Push"
+msgstr "Web Push"
+
+#: src/routes/settings.tsx:133
+msgid "Web Push disabled"
+msgstr "Web Push disabled"
+
+#: src/routes/_layout.tsx:39
+#: src/routes/workboard.tsx:81
+msgid "Workboard"
+msgstr "Workboard"
+
+#: src/routes/settings.tsx:35
+msgid "Workspace defaults"
+msgstr "Workspace defaults"
+
+#: src/lib/i18n-error.ts:11
+msgid "You don't have permission to perform this action."
+msgstr "You don't have permission to perform this action."
+
+#: src/lib/i18n-error.ts:10
+msgid "You need to sign in to continue."
+msgstr "You need to sign in to continue."
+
+#: src/routes/login.tsx:221
+msgid "You'll be redirected to Google and returned to your workspace. Sessions last seven days and respect the firm's SSO policy."
+msgstr "You'll be redirected to Google and returned to your workspace. Sessions last seven days and respect the firm's SSO policy."
+
+#: src/lib/i18n-error.ts:13
+msgid "Your account isn't linked to a workspace yet."
+msgstr "Your account isn't linked to a workspace yet."

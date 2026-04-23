@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite-plus'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { lingui } from '@lingui/vite-plugin'
+import babel from 'vite-plugin-babel'
 import path from 'node:path'
 
 /**
@@ -16,7 +18,23 @@ import path from 'node:path'
  * runtime cache is handled by TanStack Query.
  */
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    // @vitejs/plugin-react v6 dropped Babel, so macro transformation runs through
+    // a dedicated `vite-plugin-babel` pass that covers every source file — both
+    // JSX and plain .ts modules that use `msg`/`t` (e.g. src/lib/i18n-error.ts).
+    react(),
+    babel({
+      filter: /\.[jt]sx?$/,
+      babelConfig: {
+        babelrc: false,
+        configFile: false,
+        parserOpts: { plugins: ['typescript', 'jsx'] },
+        plugins: ['@lingui/babel-plugin-lingui-macro'],
+      },
+    }),
+    tailwindcss(),
+    lingui(),
+  ],
 
   resolve: {
     alias: {

@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import type { Env, ContextVars } from './env'
+import { localeMiddleware } from './middleware/locale'
 import { requestIdMiddleware } from './middleware/logger'
 import { sessionMiddleware } from './middleware/session'
 import { tenantMiddleware } from './middleware/tenant'
@@ -30,6 +31,7 @@ export function createApp() {
   const app = new Hono<{ Bindings: Env; Variables: ContextVars }>()
 
   app.use('*', requestIdMiddleware)
+  app.use('*', localeMiddleware)
 
   // /api/health — public liveness probe (no auth, no tenant).
   app.route('/api/health', healthRoute)

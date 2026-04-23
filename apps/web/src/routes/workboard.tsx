@@ -1,4 +1,5 @@
 import { FilterIcon, SearchIcon } from 'lucide-react'
+import { Plural, Trans, useLingui } from '@lingui/react/macro'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -44,38 +45,76 @@ const statusClass = {
   filed: 'border-border-default bg-bg-subtle text-status-done',
 }
 
+type ObligationStatus = keyof typeof statusClass
+type FilterKey = 'all' | 'blocked' | 'in review' | 'waiting'
+
+function useStatusLabels(): Record<ObligationStatus, string> {
+  const { t } = useLingui()
+  return {
+    blocked: t`blocked`,
+    'in review': t`in review`,
+    draft: t`draft`,
+    waiting: t`waiting`,
+    filed: t`filed`,
+  }
+}
+
+function useFilterLabels(): Record<FilterKey, string> {
+  const { t } = useLingui()
+  return {
+    all: t`all`,
+    blocked: t`blocked`,
+    'in review': t`in review`,
+    waiting: t`waiting`,
+  }
+}
+
 export function WorkboardRoute() {
+  const { t } = useLingui()
+  const statusLabels = useStatusLabels()
+  const filterLabels = useFilterLabels()
+  const filters: FilterKey[] = ['all', 'blocked', 'in review', 'waiting']
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium text-muted-foreground">Workboard</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          <Trans>Workboard</Trans>
+        </span>
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold">Obligation queue</h1>
+            <h1 className="text-2xl font-semibold">
+              <Trans>Obligation queue</Trans>
+            </h1>
             <p className="max-w-[720px] text-sm text-text-secondary">
-              A first pass at the dense operational surface: filters, search, status and source
-              scanning are visible before API wiring.
+              <Trans>
+                A first pass at the dense operational surface: filters, search, status and source
+                scanning are visible before API wiring.
+              </Trans>
             </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
               <FilterIcon data-icon="inline-start" />
-              Filters
+              <Trans>Filters</Trans>
             </Button>
-            <Button size="sm">Assign selected</Button>
+            <Button size="sm">
+              <Trans>Assign selected</Trans>
+            </Button>
           </div>
         </div>
       </div>
 
       <Card className="rounded-md shadow-none">
         <CardHeader>
-          <CardTitle>Queue controls</CardTitle>
+          <CardTitle>
+            <Trans>Queue controls</Trans>
+          </CardTitle>
           <CardDescription>
-            Static UI now; URL-backed filters can replace this shell later.
+            <Trans>Static UI now; URL-backed filters can replace this shell later.</Trans>
           </CardDescription>
           <CardAction>
             <Badge variant="outline" className="font-mono tabular-nums">
-              {obligations.length} rows
+              <Plural value={obligations.length} one="# row" other="# rows" />
             </Badge>
           </CardAction>
         </CardHeader>
@@ -84,15 +123,15 @@ export function WorkboardRoute() {
             <div className="relative w-full md:max-w-[360px]">
               <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground" />
               <Input
-                aria-label="Search obligations"
+                aria-label={t`Search obligations`}
                 className="pl-8"
-                placeholder="Search clients or obligations"
+                placeholder={t`Search clients or obligations`}
               />
             </div>
             <div className="flex flex-wrap gap-2">
-              {['all', 'blocked', 'in review', 'waiting'].map((filter) => (
+              {filters.map((filter) => (
                 <Badge key={filter} variant={filter === 'all' ? 'default' : 'outline'}>
-                  {filter}
+                  {filterLabels[filter]}
                 </Badge>
               ))}
             </div>
@@ -101,12 +140,12 @@ export function WorkboardRoute() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Obligation</TableHead>
-                <TableHead>Deadline</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Exposure</TableHead>
-                <TableHead>Assignee</TableHead>
+                <TableHead>{t`Client`}</TableHead>
+                <TableHead>{t`Obligation`}</TableHead>
+                <TableHead>{t`Deadline`}</TableHead>
+                <TableHead>{t`Status`}</TableHead>
+                <TableHead>{t`Exposure`}</TableHead>
+                <TableHead>{t`Assignee`}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -117,7 +156,7 @@ export function WorkboardRoute() {
                   <TableCell className="font-mono tabular-nums">{formatDate(deadline)}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={statusClass[status]}>
-                      {status}
+                      {statusLabels[status]}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-mono tabular-nums">{formatCents(exposure)}</TableCell>

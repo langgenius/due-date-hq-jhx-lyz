@@ -1,33 +1,44 @@
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router'
 import { AlertTriangleIcon } from 'lucide-react'
+import { Trans, useLingui } from '@lingui/react/macro'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { translateServerErrorCode } from '@/lib/i18n-error'
 
-function getErrorMessage(error: unknown): string {
+function useErrorMessage(error: unknown): string {
+  const { t } = useLingui()
+
   if (isRouteErrorResponse(error)) {
-    return `${error.status} ${error.statusText}`
+    const translated = translateServerErrorCode(error.statusText)
+    return `${error.status} ${translated ?? error.statusText}`
   }
 
   if (error instanceof Error) {
-    return error.message
+    const translated = translateServerErrorCode(error.message)
+    return translated ?? error.message
   }
 
-  return 'Unexpected route error'
+  return t`Unexpected route error`
 }
 
 export function RouteErrorBoundary() {
   const error = useRouteError()
+  const message = useErrorMessage(error)
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-canvas p-6">
       <div className="flex w-full max-w-[560px] flex-col gap-4">
         <Alert variant="destructive">
           <AlertTriangleIcon />
-          <AlertTitle>Route failed</AlertTitle>
-          <AlertDescription>{getErrorMessage(error)}</AlertDescription>
+          <AlertTitle>
+            <Trans>Route failed</Trans>
+          </AlertTitle>
+          <AlertDescription>{message}</AlertDescription>
         </Alert>
-        <Button render={<Link to="/" />}>Return to dashboard</Button>
+        <Button render={<Link to="/" />}>
+          <Trans>Return to dashboard</Trans>
+        </Button>
       </div>
     </div>
   )

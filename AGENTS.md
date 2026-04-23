@@ -18,6 +18,7 @@ Use pnpm with Node `>=22.12.0`.
 - `pnpm ready`: run checks, tests, and builds before handoff.
 - `pnpm check:deps`: validate internal package dependency direction.
 - `pnpm db:generate`, `pnpm db:migrate:local`, `pnpm db:seed:demo`: manage local Drizzle/D1 schema and demo data.
+- `pnpm --filter @duedatehq/web i18n:extract`, `pnpm --filter @duedatehq/web i18n:compile`: refresh and compile Lingui message catalogs (`apps/web/src/i18n/locales/{locale}/messages.po`).
 
 ## Coding Style & Naming Conventions
 

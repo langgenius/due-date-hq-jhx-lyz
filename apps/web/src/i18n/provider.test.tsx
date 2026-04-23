@@ -1,0 +1,95 @@
+import { act } from 'react'
+import { createRoot } from 'react-dom/client'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+import { activateLocale } from './i18n'
+import { DEFAULT_LOCALE, type Locale } from './locales'
+import { AppI18nProvider, useLocaleSwitch } from './provider'
+
+// Vitest doesn't set this by default; without it React 19's act() prints
+// noisy warnings even though the test code itself is correct.
+declare global {
+  // eslint-disable-next-line no-var
+  var IS_REACT_ACT_ENVIRONMENT: boolean
+}
+globalThis.IS_REACT_ACT_ENVIRONMENT = true
+
+type HookValue = { locale: Locale; switchLocale: (next: Locale) => void }
+
+// Render the hook inside the real provider tree and expose the latest value
+// via a mutable ref so assertions always see the post-render snapshot.
+interface Harness {
+  ref: { current: HookValue }
+  unmount: () => void
+}
+
+function mount(): Harness {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  const root = createRoot(container)
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const ref: { current: HookValue } = {
+    current: { locale: DEFAULT_LOCALE, switchLocale: () => {} },
+  }
+
+  function Probe() {
+    ref.current = useLocaleSwitch()
+    return null
+  }
+
+  act(() => {
+    root.render(
+      <QueryClientProvider client={client}>
+        <AppI18nProvider>
+          <Probe />
+        </AppI18nProvider>
+      </QueryClientProvider>,
+    )
+  })
+
+  return {
+    ref,
+    unmount: () => {
+      act(() => root.unmount())
+      container.remove()
+    },
+  }
+}
+
+describe('AppI18nProvider', () => {
+  let harness: Harness | null = null
+
+  beforeEach(() => {
+    window.localStorage.clear()
+    document.documentElement.lang = ''
+  })
+
+  afterEach(() => {
+    harness?.unmount()
+    harness = null
+    activateLocale('en')
+  })
+
+  it('syncs <html lang> after bootstrap', () => {
+    harness = mount()
+    expect(document.documentElement.lang).toBe('en')
+  })
+
+  it('switches locale, persists the choice, and updates <html lang>', () => {
+    harness = mount()
+
+    act(() => harness!.ref.current.switchLocale('zh-CN'))
+
+    expect(harness.ref.current.locale).toBe('zh-CN')
+    expect(document.documentElement.lang).toBe('zh-CN')
+    expect(window.localStorage.getItem('lng')).toBe('zh-CN')
+  })
+
+  it('is a no-op when switching to the already-active locale', () => {
+    harness = mount()
+
+    act(() => harness!.ref.current.switchLocale('en'))
+    expect(window.localStorage.getItem('lng')).toBeNull()
+  })
+})

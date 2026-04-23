@@ -1,10 +1,13 @@
 import { useTransition } from 'react'
 import { NavLink, Outlet, useLoaderData, useNavigate, useNavigation } from 'react-router'
 import { toast } from 'sonner'
+import { Trans, useLingui } from '@lingui/react/macro'
 import {
   BellIcon,
   CalendarClockIcon,
+  CheckIcon,
   ChevronsUpDownIcon,
+  GlobeIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   SettingsIcon,
@@ -18,23 +21,34 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useLocaleSwitch } from '@/i18n/provider'
+import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from '@/i18n/locales'
 import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
-const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboardIcon, end: true },
-  { href: '/workboard', label: 'Workboard', icon: CalendarClockIcon, end: false },
-  { href: '/settings', label: 'Settings', icon: SettingsIcon, end: false },
-]
+function useNavItems() {
+  const { t } = useLingui()
+  return [
+    { href: '/', label: t`Dashboard`, icon: LayoutDashboardIcon, end: true },
+    { href: '/workboard', label: t`Workboard`, icon: CalendarClockIcon, end: false },
+    { href: '/settings', label: t`Settings`, icon: SettingsIcon, end: false },
+  ]
+}
 
-const shellMeta = [
-  ['Queue SLA', '04h 12m'],
-  ['Local Time', 'America/New_York'],
-]
+function useShellMeta(): Array<[string, string]> {
+  const { t } = useLingui()
+  return [
+    [t`Queue SLA`, '04h 12m'],
+    [t`Local Time`, 'America/New_York'],
+  ]
+}
 
 type ProtectedLoaderData = { user: AuthUser }
 
@@ -50,8 +64,10 @@ function PendingBar() {
 }
 
 function SideNav() {
+  const { t } = useLingui()
+  const navItems = useNavItems()
   return (
-    <nav aria-label="Primary navigation" className="flex flex-col gap-1">
+    <nav aria-label={t`Primary navigation`} className="flex flex-col gap-1">
       {navItems.map((item) => {
         const Icon = item.icon
 
@@ -77,8 +93,10 @@ function SideNav() {
 }
 
 function MobileNav() {
+  const { t } = useLingui()
+  const navItems = useNavItems()
   return (
-    <nav aria-label="Mobile navigation" className="flex gap-1 overflow-x-auto md:hidden">
+    <nav aria-label={t`Mobile navigation`} className="flex gap-1 overflow-x-auto md:hidden">
       {navItems.map((item) => (
         <NavLink
           key={item.href}
@@ -95,6 +113,30 @@ function MobileNav() {
         </NavLink>
       ))}
     </nav>
+  )
+}
+
+function LocaleMenuItems({
+  currentLocale,
+  onSelect,
+}: {
+  currentLocale: Locale
+  onSelect: (next: Locale) => void
+}) {
+  return (
+    <>
+      {SUPPORTED_LOCALES.map((code) => (
+        <DropdownMenuItem
+          key={code}
+          onClick={() => onSelect(code)}
+          aria-checked={currentLocale === code}
+          className="flex items-center justify-between"
+        >
+          <span>{LOCALE_LABELS[code]}</span>
+          {currentLocale === code ? <CheckIcon className="size-4" aria-hidden /> : null}
+        </DropdownMenuItem>
+      ))}
+    </>
   )
 }
 
@@ -125,6 +167,8 @@ function UserAvatar({ user, className }: { user: AuthUser; className?: string })
 
 function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'panel' | 'compact' }) {
   const navigate = useNavigate()
+  const { t } = useLingui()
+  const { locale, switchLocale } = useLocaleSwitch()
   // React 19 async transition: isPending stays true until the async body settles,
   // so we don't need a separate useState flag.
   const [isSigningOut, startSignOut] = useTransition()
@@ -139,12 +183,16 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
         // the session store anymore — so no flicker mid-navigation.
         await navigate('/login', { replace: true })
       } catch (err) {
-        toast.error('Sign out failed', {
-          description: err instanceof Error ? err.message : 'Please try again.',
+        toast.error(t`Sign out failed`, {
+          description: err instanceof Error ? err.message : t`Please try again.`,
         })
       }
     })
   }
+
+  const displayName = user.name || t`Signed in`
+  const accountLabel = t`Account menu for ${user.name || user.email}`
+  const signOutLabel = isSigningOut ? t`Signing out…` : t`Sign out`
 
   if (variant === 'compact') {
     return (
@@ -153,7 +201,7 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
           render={
             <button
               type="button"
-              aria-label={`Account menu for ${user.name || user.email}`}
+              aria-label={accountLabel}
               className="inline-flex size-9 items-center justify-center rounded-full outline-none ring-1 ring-border-default transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring md:hidden"
             />
           }
@@ -163,16 +211,26 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
         <DropdownMenuContent align="end" sideOffset={8} className="w-56">
           <DropdownMenuGroup>
             <DropdownMenuLabel className="flex flex-col gap-0.5 text-left">
-              <span className="text-sm font-medium text-text-primary">
-                {user.name || 'Signed in'}
-              </span>
+              <span className="text-sm font-medium text-text-primary">{displayName}</span>
               <span className="truncate text-xs text-muted-foreground">{user.email}</span>
             </DropdownMenuLabel>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <GlobeIcon />
+              <span>
+                <Trans>Language</Trans>
+              </span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="w-44">
+              <LocaleMenuItems currentLocale={locale} onSelect={switchLocale} />
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={handleSignOut} disabled={isSigningOut}>
             <LogOutIcon />
-            <span>{isSigningOut ? 'Signing out…' : 'Sign out'}</span>
+            <span>{signOutLabel}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -191,9 +249,7 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
       >
         <UserAvatar user={user} />
         <div className="flex min-w-0 flex-1 flex-col leading-tight">
-          <span className="truncate text-sm font-medium text-text-primary">
-            {user.name || 'Signed in'}
-          </span>
+          <span className="truncate text-sm font-medium text-text-primary">{displayName}</span>
           <span className="truncate text-xs text-muted-foreground">{user.email}</span>
         </div>
         <ChevronsUpDownIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
@@ -201,16 +257,26 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
       <DropdownMenuContent align="start" side="top" sideOffset={8} className="w-56">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex flex-col gap-0.5 text-left">
-            <span className="text-sm font-medium text-text-primary">
-              {user.name || 'Signed in'}
-            </span>
+            <span className="text-sm font-medium text-text-primary">{displayName}</span>
             <span className="truncate text-xs text-muted-foreground">{user.email}</span>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <GlobeIcon />
+            <span>
+              <Trans>Language</Trans>
+            </span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="w-44">
+            <LocaleMenuItems currentLocale={locale} onSelect={switchLocale} />
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleSignOut} disabled={isSigningOut}>
           <LogOutIcon />
-          <span>{isSigningOut ? 'Signing out…' : 'Sign out'}</span>
+          <span>{signOutLabel}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -235,6 +301,7 @@ export function RootLayout() {
   // User is guaranteed to exist here — the protected loader already redirected
   // to /login otherwise, so there's no isPending / null branch to render.
   const { user } = useLoaderData<ProtectedLoaderData>()
+  const shellMeta = useShellMeta()
 
   return (
     <div className="isolate min-h-screen bg-bg-canvas text-text-primary">
@@ -246,7 +313,9 @@ export function RootLayout() {
               <span className="text-base font-medium text-sidebar-accent-foreground">
                 DueDateHQ
               </span>
-              <span className="text-xs text-muted-foreground">CPA deadline console</span>
+              <span className="text-xs text-muted-foreground">
+                <Trans>CPA deadline console</Trans>
+              </span>
             </div>
           </div>
           <Separator />
@@ -272,16 +341,20 @@ export function RootLayout() {
           <header className="flex min-h-14 flex-col gap-3 border-b border-border-default bg-background px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6">
             <div className="flex min-w-0 flex-col gap-1">
               <span className="text-xs font-medium text-muted-foreground">
-                Phase 0 demo workspace
+                <Trans>Phase 0 demo workspace</Trans>
               </span>
-              <span className="truncate text-base font-medium">Compliance risk operations</span>
+              <span className="truncate text-base font-medium">
+                <Trans>Compliance risk operations</Trans>
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm">
                 <BellIcon data-icon="inline-start" />
-                Pulse
+                <Trans>Pulse</Trans>
               </Button>
-              <Button size="sm">New obligation</Button>
+              <Button size="sm">
+                <Trans>New obligation</Trans>
+              </Button>
               <UserMenu user={user} variant="compact" />
             </div>
             <MobileNav />

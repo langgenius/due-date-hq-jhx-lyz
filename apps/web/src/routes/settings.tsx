@@ -1,3 +1,5 @@
+import { Trans, useLingui } from '@lingui/react/macro'
+
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Field,
@@ -22,31 +24,45 @@ import {
 import { Switch } from '@/components/ui/switch'
 
 export function SettingsRoute() {
+  const { t } = useLingui()
   return (
     <div className="mx-auto flex w-full max-w-[880px] flex-col gap-5 p-4 md:p-6">
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-muted-foreground">Settings</span>
-        <h1 className="text-2xl font-semibold">Workspace defaults</h1>
+        <span className="text-xs font-medium text-muted-foreground">
+          <Trans>Settings</Trans>
+        </span>
+        <h1 className="text-2xl font-semibold">
+          <Trans>Workspace defaults</Trans>
+        </h1>
         <p className="text-sm text-text-secondary">
-          Basic controls are in place so form-heavy pages can be composed from the existing UI set.
+          <Trans>
+            Basic controls are in place so form-heavy pages can be composed from the existing UI
+            set.
+          </Trans>
         </p>
       </div>
 
       <Card className="rounded-md shadow-none">
         <CardHeader>
-          <CardTitle>Firm profile</CardTitle>
+          <CardTitle>
+            <Trans>Firm profile</Trans>
+          </CardTitle>
           <CardDescription>
-            These demo fields are local-only until auth and organization data land.
+            <Trans>These demo fields are local-only until auth and organization data land.</Trans>
           </CardDescription>
         </CardHeader>
         <CardContent>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="firm-name">Firm name</FieldLabel>
+              <FieldLabel htmlFor="firm-name">
+                <Trans>Firm name</Trans>
+              </FieldLabel>
               <Input id="firm-name" defaultValue="FileInTime Demo LLP" />
             </Field>
             <Field>
-              <FieldLabel htmlFor="region">Default jurisdiction</FieldLabel>
+              <FieldLabel htmlFor="region">
+                <Trans>Default jurisdiction</Trans>
+              </FieldLabel>
               <Select defaultValue="ny">
                 <SelectTrigger id="region" className="w-full">
                   <SelectValue />
@@ -56,17 +72,19 @@ export function SettingsRoute() {
                     <SelectItem value="ny">New York</SelectItem>
                     <SelectItem value="ca">California</SelectItem>
                     <SelectItem value="tx">Texas</SelectItem>
-                    <SelectItem value="multi">Multi-state</SelectItem>
+                    <SelectItem value="multi">{t`Multi-state`}</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </Field>
             <Field orientation="horizontal">
-              <Switch defaultChecked aria-label="Enable evidence gate" />
+              <Switch defaultChecked aria-label={t`Enable evidence gate`} />
               <FieldContent>
-                <FieldTitle>Evidence gate</FieldTitle>
+                <FieldTitle>
+                  <Trans>Evidence gate</Trans>
+                </FieldTitle>
                 <FieldDescription>
-                  Hide recommendations that do not include source metadata.
+                  <Trans>Hide recommendations that do not include source metadata.</Trans>
                 </FieldDescription>
               </FieldContent>
             </Field>
@@ -76,37 +94,49 @@ export function SettingsRoute() {
 
       <Card className="rounded-md shadow-none">
         <CardHeader>
-          <CardTitle>Notification routing</CardTitle>
+          <CardTitle>
+            <Trans>Notification routing</Trans>
+          </CardTitle>
           <CardDescription>
-            Phase 0 uses email plus in-app toast instead of Web Push.
+            <Trans>Phase 0 uses email plus in-app toast instead of Web Push.</Trans>
           </CardDescription>
         </CardHeader>
         <CardContent>
           <FieldSet>
-            <FieldLegend>Channels</FieldLegend>
+            <FieldLegend>
+              <Trans>Channels</Trans>
+            </FieldLegend>
             <FieldGroup data-slot="checkbox-group">
               <Field orientation="horizontal">
-                <Checkbox defaultChecked aria-label="Email digest" />
+                <Checkbox defaultChecked aria-label={t`Email digest`} />
                 <FieldContent>
-                  <FieldTitle>Email digest</FieldTitle>
-                  <FieldDescription>Daily deadline and Pulse summary for owners.</FieldDescription>
+                  <FieldTitle>
+                    <Trans>Email digest</Trans>
+                  </FieldTitle>
+                  <FieldDescription>
+                    <Trans>Daily deadline and Pulse summary for owners.</Trans>
+                  </FieldDescription>
                 </FieldContent>
               </Field>
               <Field orientation="horizontal">
-                <Checkbox defaultChecked aria-label="In-app toast" />
+                <Checkbox defaultChecked aria-label={t`In-app toast`} />
                 <FieldContent>
-                  <FieldTitle>In-app toast</FieldTitle>
+                  <FieldTitle>
+                    <Trans>In-app toast</Trans>
+                  </FieldTitle>
                   <FieldDescription>
-                    Immediate feedback for status changes and failed mutations.
+                    <Trans>Immediate feedback for status changes and failed mutations.</Trans>
                   </FieldDescription>
                 </FieldContent>
               </Field>
               <Field orientation="horizontal" data-disabled="true">
-                <Checkbox disabled aria-label="Web Push disabled" />
+                <Checkbox disabled aria-label={t`Web Push disabled`} />
                 <FieldContent>
-                  <FieldTitle>Web Push</FieldTitle>
+                  <FieldTitle>
+                    <Trans>Web Push</Trans>
+                  </FieldTitle>
                   <FieldDescription>
-                    Deferred until the product has a real-time notification need.
+                    <Trans>Deferred until the product has a real-time notification need.</Trans>
                   </FieldDescription>
                 </FieldContent>
               </Field>

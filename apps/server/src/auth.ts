@@ -3,6 +3,8 @@ import type { AuthEmailSender } from '@duedatehq/auth/email'
 import { authSchema, createDb } from '@duedatehq/db'
 import { Resend } from 'resend'
 import { validateServerEnv, type Env, type ServerEnv } from './env'
+import { getRequestLocale } from './i18n/resolve'
+import { translate } from './i18n/messages'
 
 function absoluteUrl(env: ServerEnv, pathOrUrl: string): string {
   return new URL(pathOrUrl, env.APP_URL).toString()
@@ -51,15 +53,22 @@ function createEmailSender(env: ServerEnv): AuthEmailSender {
   return {
     async sendInvitationEmail(message) {
       const url = absoluteUrl(env, message.url)
+      const locale = getRequestLocale()
+      const vars = {
+        organizationName: escapeHtml(message.organizationName),
+        inviterName: escapeHtml(message.inviterName),
+        role: escapeHtml(message.role),
+      }
+      const subject = translate(locale, 'invitation.subject', {
+        organizationName: message.organizationName,
+      })
+      const body = translate(locale, 'invitation.body', vars)
+      const cta = translate(locale, 'invitation.cta')
       await sendEmail({
         to: message.to,
-        subject: `Join ${message.organizationName} on DueDateHQ`,
+        subject,
         idempotencyKey: `auth-invitation/${message.invitationId}`,
-        html: `<p>${escapeHtml(message.inviterName)} invited you to join ${escapeHtml(
-          message.organizationName,
-        )} as ${escapeHtml(message.role)}.</p><p><a href="${escapeHtml(
-          url,
-        )}">Accept invitation</a></p>`,
+        html: `<p>${body}</p><p><a href="${escapeHtml(url)}">${cta}</a></p>`,
       })
     },
   }
