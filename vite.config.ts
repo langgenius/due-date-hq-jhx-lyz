@@ -183,7 +183,7 @@ export default defineConfig({
   // ──────────────────────────────────────────────────────────
   run: {
     cache: {
-      scripts: true,
+      scripts: false,
       tasks: true,
     },
     tasks: {
