@@ -10,11 +10,12 @@
 
 | 领域                | 选型                                                                                    | 为什么                                                                                           |
 | ----------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| **语言**            | TypeScript 5.x                                                                        | 前后端单语言 + 强类型                                                                                  |
+| **语言**            | TypeScript 6.x stable + `@typescript/native-preview` (`tsgo`)                         | TS 6 是稳定语义基线；`tsgo` 用作默认快速 typecheck，避免 `tsc --noEmit` 拖慢本地和 CI                                              |
 | **Monorepo**      | pnpm workspaces + Turborepo                                                           | pnpm 10 原生 workspace 配置；turbo 管构建缓存和并行                                                        |
 | **脚手架**           | `pnpm dlx create-turbo@latest`（`basic` 模板起步）                                          | 复用共享 `typescript-config` 包；删掉默认 Next.js 应用后接我们的结构                                             |
-| **Lint**          | **oxlint**（Oxc / Vite Plus 生态）                                                        | Rust 实现，比 ESLint 快 50–100×；零配置可用；对齐 Rolldown / Vite 工具链                                       |
+| **Lint**          | **oxlint**（Oxc / Vite Plus 生态）                                                        | Rust 实现，比 ESLint 快 50–100×；零配置可用；对齐 Rolldown / Vite 工具链；不启用 typed ESLint 作为默认门禁                       |
 | **Format**        | **oxfmt**（Oxc）                                                                        | Rust 实现；与 oxlint 同 AST；取代 Prettier                                                            |
+| **Git Hooks**     | **Lefthook**                                                                            | Go 实现、并行、支持 staged files；比 husky/simple-git-hooks 更适合当前"快反馈"目标                                    |
 | **前端框架**          | Vite 7 + React 19                                                                     | 纯 SPA，不走 SSR；Workers Assets 只托管静态产物                                                           |
 | **前端路由**          | React Router 7（library/data mode，非 framework mode）                                    | framework mode 会拖进 Node 依赖，与 Worker 冲突                                                        |
 | **UI 底座**         | shadcn/ui（`"style": "base-vega"`）+ Base UI                                            | Base UI 是 Radix 团队下一代；体积更小，键盘/RTL 更严                                                          |
@@ -32,7 +33,7 @@
 | **后端框架**          | Hono 4（`hono/cloudflare-workers` adapter）                                             | 中间件 + 路由；`/api/*` 全挂它；轻量、Worker 原生                                                            |
 | **Auth**          | **better-auth** + Organization plugin + Access Control plugin                         | 原生 Hono/Edge；Organization / Membership / Invitation / Active-org 开箱即用，PRD §3.6 Team 模型 1:1 对应 |
 | **ORM**           | Drizzle ORM（`drizzle-orm/d1`）                                                         | D1 一等支持；零 Node 依赖；类型推导强；支持裸 SQL + 参数化                                                         |
-| **数据库**           | **Cloudflare D1**（SQLite） + 全球读副本                                                   | Worker 原生 SQLite，进程内 < 1ms 查询；miniflare dev / prod 同引擎；Time-Travel 30 天；对我们的多租户点查询 workload 是**架构正确选择**（§2.5），非权宜之计 |
+| **数据库**           | **Cloudflare D1**（SQLite）                                                   | Workers 原生 binding + SQLite 语义；miniflare dev / prod 同 API；Time-Travel 30 天；对我们的多租户点查询 workload 是**架构正确选择**（§2.5），非权宜之计 |
 | **向量**            | **Cloudflare Vectorize**                                                              | 与 Worker 同域；RAG top-k 检索                                                                      |
 | **对象存储**          | **Cloudflare R2**                                                                     | 零出口流量费；S3 兼容 API（`@aws-sdk/client-s3` 可用）                                                     |
 | **缓存 / 限流**       | **Workers KV** + **Rate Limiting binding**                                            | KV 做热数据；Rate Limit 是 Cloudflare 原生 primitive                                                  |
@@ -42,7 +43,7 @@
 | **Embedding**     | OpenAI text-embedding-3-small                                                         | 成本 / 精度平衡；结果写入 Vectorize                                                                      |
 | **LLM tracing**   | Langfuse（fetch SDK）                                                                   | 云端托管；prompt 版本 / cost / latency                                                               |
 | **邮件**            | Resend（React Email 模板）                                                                | fetch API；Worker 可跑                                                                           |
-| **Push**          | web-push + VAPID（Workers 内直发）                                                         | 无第三方；Service Worker 里消费                                                                       |
+| **Push**          | VAPID Web Push（Workers-compatible Web Crypto 实现；不得默认依赖 Node-only API）                                                         | 无第三方；Service Worker 里消费；开工前用 spike 验证所选库在 Workers runtime 可运行                                                                       |
 | **监控**            | Sentry（Cloudflare Workers SDK）+ Workers Logs（Logpush）                                 | 错误 + 性能 + 日志                                                                                  |
 | **产品分析**          | PostHog Cloud（JS SDK）                                                                 | Web Vitals + 事件；Pay-intent 埋点                                                                 |
 | **测试**            | Vitest + `@cloudflare/vitest-pool-workers` + Playwright + msw                         | 单测跑在 Workers runtime；E2E 跨浏览器                                                                 |
@@ -94,30 +95,42 @@
 
 ### 2.5 为什么 D1（SQLite）是架构核心选择
 
-D1 是 Cloudflare Worker 的**原生 SQLite**：查询走 V8 isolate 进程内（< 1ms），同一个运行时 dev / prod 完全一致。对 DueDateHQ 的 workload（多租户 · 小数据量 · 点查询 · 边缘延迟敏感），它是**正确选择**而非 MVP 妥协：
+D1 是 Cloudflare Worker 的**原生绑定 + SQLite 语义**：同一个 API 在 miniflare 和线上使用，避免本地 Node DB 与线上 Edge DB 的漂移。对 DueDateHQ 的 workload（多租户 · 小数据量 · 点查询 · 边缘延迟敏感），它是**正确选择**而非 MVP 妥协：
 
 | 特性 | D1 |
 |---|---|
-| 数据规模契合 | 1000 家 firm × 10 年 × 3 万行/firm ≈ 3 亿单元 ≈ 数 GB，远低于 10 GB 硬顶 |
+| 数据规模契合 | 目标 ICP 单 firm 数据量小；4 周 MVP 预期 < 50 firms、每 firm 20–300 clients，远低于 10 GB。到 1000 firms 时必须用实际 `D1 storage_bytes` 监控决定是否按 firm/region 分库，不能假设单库长期承载所有租户 |
 | 查询模式契合 | 全部是 `WHERE firm_id = ?` 点查询 + 范围扫，无复杂 OLAP |
-| 读写复制 | 全球 read replica 已 GA，边缘读延迟 < 50ms |
+| 读写复制 | 可使用 D1 read replication / sessions 提升读延迟；一致性关键路径用 primary/session，不把 replica 当正确性边界 |
 | 灾备 | Time-Travel 30 天任意点恢复 |
 | Drizzle 一等支持 | `drizzle-orm/d1` |
-| 本地 / 线上一致 | miniflare 内置同一 SQLite 引擎，dev 代码无需改 |
+| 本地 / 线上一致 | miniflare 提供同一 D1 binding API，dev 代码无需改 |
 | 成本 | MVP 阶段免费额度覆盖 |
-| 事务 | `d1.batch()` ≈ 原子事务（单 batch ~1000 语句） |
+| 事务 | `d1.batch()` 是事务化批处理：语句顺序执行，任一失败则整批回滚；每条语句仍受 D1 限制（如 100 bound parameters / 100 KB SQL），整次 Worker invocation 也受查询数限制 |
 
 **工程纪律（约束而非限制）：**
 
 - 所有列表强制分页（单查询返回 ≤ 10 万行硬顶）
-- Migration / Pulse batch 分批 commit（单 batch ~1000 语句硬顶）
+- Migration / Pulse batch 分批 commit；每批优先控制在 100–200 prepared statements，并避免单 statement 绑定参数超过 100
 - 长计算拆 Queue / Workflow（单 request CPU 上限）
 - 无原生向量 → Vectorize
 - 无原生 JSON 索引 → 反范式冗余
 
-**Postgres 退路（极端情况，非默认路径）：** 如果后续真落到"跨租户 OLAP + 单库 > 10 GB + 深嵌套分析型 join"，走 Hyperdrive + Neon + Drizzle `neon-http` 方言切换。`packages/db` 是唯一 schema/query 入口，业务层零感知。可见未来不命中，**不做预设迁移规划**。
+**Postgres 退路（极端情况，非默认路径）：** 如果后续真落到"跨租户 OLAP + 单库 > 10 GB + 深嵌套分析型 join"，先评估 per-firm / per-region D1 分库；仍不满足时走 Hyperdrive + Neon + Drizzle `neon-http` 方言切换。`packages/db` 是唯一 schema/query 入口，业务层尽量零感知，但 schema 方言、JSON、时间字段和迁移脚本仍需要专项迁移验证。
 
-### 2.6 为什么 Base UI 作 shadcn 原语
+### 2.6 为什么 `tsgo` 作默认类型检查，而不是 `tsc --noEmit`
+
+TypeScript 6.x 是稳定编译器基线；TypeScript 7 的 Go 原生实现当前通过 `@typescript/native-preview` 提供 `tsgo` 入口。官方定位是先并行试用，最终会并入 `typescript` 包。DueDateHQ 的 monorepo 不使用 project references，也不依赖 `tsc --build` / declaration emit；内部包 JIT 输出 `.ts` 源码，实际转译由 Vite / Wrangler 完成，所以可以把 `tsgo --noEmit` 作为默认 typecheck。
+
+**约束：**
+
+- `pnpm check-types` 默认跑 `turbo run check-types`，各 package 内部执行 `tsgo --noEmit -p tsconfig.json`。
+- `typescript` 包仍保留在 devDependencies，因为 Vite、编辑器、部分生态工具仍读取 TS API / lib types。
+- `tsc --noEmit` 不进入默认本地/PR 路径；只保留 `check-types:stable` 作为手动诊断或 `tsgo` 与生态工具出现分歧时的 fallback。
+- 不启用 `tsgolint` 作为门禁。它仍是 experimental proof-of-concept；当前用 `oxlint + tsgo + Vitest + contract schemas` 覆盖质量底线。
+- 不启用 typed ESLint 默认门禁；官方 typed linting 会引入 TypeScript program 构建成本，与"快反馈"目标冲突。若以后确实需要 type-aware lint，只加 `lint:typed` 非阻塞试验。
+
+### 2.7 为什么 Base UI 作 shadcn 原语
 
 - Base UI 是 Radix 团队（与 MUI 合并后）的下一代产品
 - shadcn 4.x 官方一等支持：`components.json` 设 `"style": "base-vega"` 即可
@@ -174,7 +187,8 @@ onlyBuiltDependencies:
 # ============================================================
 catalog:
   # runtime core
-  typescript:          5.x.x
+  typescript:          6.x.x
+  "@typescript/native-preview": 7.x.x
   "@types/node":       22.x.x
 
   # frontend
@@ -238,7 +252,8 @@ catalog:
   # infra
   resend:                     4.x.x
   "@react-email/components":  0.x.x
-  "web-push":                 3.x.x
+  # choose a Workers-compatible Web Push/VAPID implementation after spike
+  # "web-push":               3.x.x  # only if verified under workerd
   "@sentry/cloudflare":       8.x.x
   "posthog-js":               1.x.x
 
@@ -250,6 +265,8 @@ catalog:
   turbo:                      2.x.x
   oxlint:                     0.x.x
   oxfmt:                      0.x.x
+  lefthook:                   1.x.x
+  gitleaks:                   8.x.x
   vitest:                     2.x.x
   "@cloudflare/vitest-pool-workers": 0.x.x
   "@playwright/test":         1.x.x
@@ -306,16 +323,24 @@ catalog:
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "check-types": "turbo run check-types",
+    "check-types:stable": "turbo run check-types:stable",
     "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "test": "turbo run test",
+    "secrets:scan": "gitleaks detect --source . --no-git --redact",
+    "prepare": "lefthook install",
     "deploy": "turbo run deploy --filter=@duedatehq/server"
   },
   "devDependencies": {
     "turbo": "catalog:",
     "typescript": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "oxlint": "catalog:",
-    "oxfmt": "catalog:"
+    "oxfmt": "catalog:",
+    "lefthook": "catalog:",
+    "gitleaks": "catalog:"
   }
 }
 ```
@@ -332,6 +357,7 @@ catalog:
       "outputs": ["dist/**", ".wrangler/**"]
     },
     "check-types": { "dependsOn": ["topo"] },
+    "check-types:stable": { "dependsOn": ["topo"] },
     "lint": { "dependsOn": ["topo"] },
     "test": { "dependsOn": ["topo"] },
     "dev": { "cache": false, "persistent": true },
@@ -402,7 +428,7 @@ CLOUDFLARE_API_TOKEN=
 
 | 依赖               | 挂了怎么办                                                    |
 | ---------------- | -------------------------------------------------------- |
-| D1 主区            | 读走 CF read replica；写降级为 Queue 缓冲 + 延迟 flush              |
+| D1 主区            | 读路径可用 D1 Session / read replica 降级；写路径停止关键变更并进入只读模式，必要时把用户意图写 Queue/R2 outbox 后人工确认重放 |
 | Vectorize        | RAG 降级为 D1 FTS5 全文检索兜底（精度下降但可用）                          |
 | AI Gateway / LLM | 内置 fallback 链：GPT-4o → Claude Sonnet → 缓存模板 → refusal 文案 |
 | Resend           | 写 `email_outbox` + Queue 重试；用户 in-app 通知兜底               |

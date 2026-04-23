@@ -80,7 +80,7 @@
 | **readiness**（Phase 1） | `apps/server/src/procedures/readiness` | §6B | CPA checklist | Magic link + Response |
 | **audit** | `apps/server/src/procedures/audit` + `packages/db/audit-writer` | §13.2 | write events | AuditEvent stream |
 | **evidence** | `packages/db/evidence-writer` | §5.5 · §6.2 | any source | EvidenceLink |
-| **ai** | `packages/ai` | §6.2 · §9 | retrieval + prompt | AiOutput with citations |
+| **ai** | `packages/ai` | §6.2 · §9 | retrieval + prompt + guard | `AiResult` + trace payload；`apps/server` 注入 writer 持久化 AiOutput / EvidenceLink / LlmLog |
 | **ask**（Phase 1） | `apps/server/src/procedures/ask` | §6.6 | NL query | DSL → SQL → table |
 | **reminders** | `jobs/reminders` | §7.1 | due obligations | Email / In-app |
 | **notifications** | `apps/server/src/procedures/notifications` | §7.1.3 | event | In-app bell + Push |
@@ -256,7 +256,7 @@ Fetch RSS / HTML ──► raw 存 R2 ──► 入 Queue { type: 'extract', pul
           前端 Live Genesis 动画 + 顶栏 $ 滚动（纯前端驱动）
 ```
 
-d1.batch 单次上限 ~1000 条语句；30 客户 × 平均 5 obligations = ~150 条，远低于上限。更大导入必须分批 commit。
+`d1.batch()` 是事务化批处理，但每条 statement 仍受 D1 限制（例如 100 bound parameters / 100 KB SQL），整个 Worker invocation 也受查询数限制。30 客户 × 平均 5 obligations 通常可单批提交；更大导入按 100–200 prepared statements 分批，并用 `migration_batch` 记录批次状态与可回滚边界。
 
 ---
 
@@ -289,11 +289,11 @@ d1.batch 单次上限 ~1000 条语句；30 客户 × 平均 5 obligations = ~150
 
 ## 7. 多租户隔离（纵深防御，详见 §06）
 
-三道防线，**每一道单独都能挡住跨租户访问**：
+三道防线共同构成纵深防御；其中 session 与 scoped repo 是运行时安全边界，lint 是防止绕过边界的开发期护栏：
 
 1. **better-auth session 层**：`activeOrganizationId` 必须存在于 session，否则 middleware 拒绝请求
-2. **repo 工厂层**：`scoped(db, firmId)` 是进入 `packages/db` 的唯一入口；所有 query 在工厂内部硬编码 `WHERE firm_id = :firmId`
-3. **Lint 静态层**：oxlint 自定义规则（`no-restricted-imports`）禁止 procedures 直接 import DB schema 表；PR 检查自动 block
+2. **repo 工厂层**：`scoped(db, firmId)` 是进入 `packages/db` 业务数据的唯一入口；所有 tenant-scoped query 在工厂内部硬编码 `WHERE firm_id = :firmId`
+3. **Lint 静态层**：oxlint 自定义规则（`no-restricted-imports`）禁止 procedures 直接 import DB schema 表；PR 检查自动 block，但不替代运行时权限检查
 
 D1 无 RLS 能力，不依赖 DB 级防护。
 

@@ -333,8 +333,8 @@ TeamInvitation
 
 **执行机制：**
 
-1. **ORM middleware 强制 `WHERE firm_id = :current_firm`**（现有）
-2. **Action-level RBAC** 在每个 Server Action 入口用装饰器 `@requireRole(['owner','manager'])` 校验
+1. **Scoped repository 强制 `WHERE firm_id = :current_firm`**（现有）
+2. **Procedure-level RBAC** 在每个 oRPC procedure middleware 入口用 `requirePermission(...)` 校验
 3. **Row-level ownership** 对 `assignee` 的"自己任务"限制用查询条件 `(assignee_id = :me OR role IN ['owner','manager'])`
 4. **Client-side UI** 根据 role 隐藏不可操作按钮（双层保险，但后端强制是底线）
 
@@ -518,7 +518,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | P0-21 | Email Reminders                                  | 30 / 7 / 1 天阶梯；模板带上下文 + source link                                                                                                                       | —              |
 | P0-22 | In-app Notifications                             | Top bar 铃铛 + 未读计数 + Preferences                                                                                                                           | —              |
 | P0-23 | Pay-intent Button                                | `I'd pay $49/mo` 点击埋点（不接 Stripe）                                                                                                                          | —              |
-| P0-24 | Security Baseline                                | HTTPS / TLS / AES-256 / MFA / RBAC / WISP v1.0 / `llm_logs`                                                                                               | —              |
+| P0-24 | Security Baseline                                | HTTPS / TLS / AES-256 at rest / tenant isolation / audit log / `llm_logs`；7 天 Demo 可交 WISP draft，真实试点 / 4 周 MVP 交 WISP v1.0；Owner MFA 在真实试点前启用，完整四角色 Team RBAC 属 P1（§3.6.3）                                                                                               | —              |
 
 
 ### 4.2 P1 — 差异化亮点（Story S3 + VPC Medium）
@@ -544,7 +544,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | P1-16     | Saved Views                             | 持久化筛选组合 + 分享                                                                                                          | S1-AC3 扩展      |
 | P1-17     | Public SEO Pages                        | `/state/california` / `/pulse` 公开页                                                                                    | GTM            |
 | P1-18     | **Team Seats & Invitations**            | Owner 邀请 / 撤销 / role 修改；席位受 plan 限制（§3.6.4）                                                                           | Team           |
-| P1-19     | **RBAC 四角色权限矩阵强制**                      | Server Action 装饰器 + ORM middleware 双层（§3.6.3）                                                                         | Team           |
+| P1-19     | **RBAC 四角色权限矩阵强制**                      | oRPC procedure middleware + scoped repo 双层（§3.6.3）；前端仅做可见性收敛，不作为安全边界                                                                         | Team           |
 | P1-20     | **View Scope Toggle**                   | Dashboard / Workboard / Alerts 三处 My work / Firm-wide 切换 + URL 持久化（§3.6.5）                                            | Team           |
 | P1-21     | **Manager Workload View**               | 成员负载表 + 30 天 heatmap + Bulk reassign（§3.6.7）                                                                          | Team           |
 | P1-22     | **Firm-wide Audit Log 页**               | 全 firm write 操作时间线 + 过滤 + 导出（§3.6 + §13）                                                                              | Team           |
@@ -1091,7 +1091,7 @@ Raw announcement
 
 #### 6.3.3 Match Engine（S3-AC2 + AC4 批量调整）
 
-四维 SQL 匹配：
+四维匹配：`state + county + entity_type + tax_type`。下例表达业务语义；D1 / SQLite 实现必须使用参数化 `IN (?, ?...)`、JSON1 `json_each()` 或反范式 helper 表/列，不使用 Postgres `ANY()`。
 
 ```sql
 SELECT c.id, c.name, o.id as obligation_id, o.current_due_date
@@ -1099,12 +1099,14 @@ FROM clients c
 JOIN obligation_instances o ON o.client_id = c.id
 WHERE c.firm_id = :firm_id
   AND c.state = :pulse_jurisdiction
-  AND (c.county IS NULL OR c.county = ANY(:pulse_counties))
-  AND c.entity_type = ANY(:pulse_entity_types)
-  AND o.tax_type = ANY(:pulse_affected_forms)
+  AND (:pulse_county_count = 0 OR c.county IN (:pulse_county_1, :pulse_county_2))
+  AND c.entity_type IN (:entity_type_1, :entity_type_2)
+  AND o.tax_type IN (:form_1, :form_2)
   AND o.status NOT IN ('filed', 'paid', 'not_applicable')
   AND o.current_due_date = :pulse_original_due_date;
 ```
+
+若客户 `county IS NULL` 且 Pulse 是县级 relief，不允许静默 Apply；该 obligation 进入 `needs_review` 区块，由 CPA 手动确认县适用性。
 
 **Batch Apply 原子事务：**
 
@@ -1951,7 +1953,7 @@ CPA 侧 Dashboard **实时变化**：
 ```
 ClientReadinessRequest
   id, firm_id, obligation_instance_id, client_id,
-  items (jsonb: [{ label, description, ai_explanation_url, status }]),
+  items_json (D1 JSON text: [{ label, description, ai_explanation_url, status }]),
   magic_link_token (signed, one-time rotatable),
   delivery_channel (email | sms_link | both),
   sent_to_email, sent_to_user_id (optional CPA-side recipient),
@@ -2686,7 +2688,7 @@ California (8 rules)
 | `applicable_year`               | int                                                         | Source 字符串里带 `(2026 edition)`                             |
 | `source_title`                  | string                                                      | "IRS Publication 509" 全名显示                                |
 | `requires_applicability_review` | bool                                                        | `⚠ Verify eligibility before relying on this deadline` 文案 |
-| `checklist_json`                | jsonb                                                       | 展开 6 项 Quality Badge（§6D.4）                               |
+| `checklist_json`                | D1 JSON text                                                | 展开 6 项 Quality Badge（§6D.4）                               |
 | `risk_level`                    | `low / med / high`                                          | 高风险要求双人 sign-off；UI 不直接显示                                 |
 
 
@@ -3205,7 +3207,7 @@ app/api/push/
   send/route.ts               # VAPID 签名 + 推送分发
 ```
 
-依赖：VAPID 密钥对（环境变量）+ `web-push` NPM 库 + Workbox CLI。无额外 infra。
+依赖：VAPID 密钥对（环境变量）+ Workers-compatible Web Push/VAPID 实现 + Workbox CLI。无额外 infra；不得默认选择依赖 Node-only API 的 push 库，除非已在 `workerd` 下验证。
 
 ##### 推送事件映射
 
@@ -3601,7 +3603,7 @@ AuditEvidencePackage (P1-28 · 合规 ZIP 导出)
   created_at
 
 Event (analytics)
-  id, firm_id, event_name, props (jsonb), created_at
+  id, firm_id, event_name, props_json, created_at
 ```
 
 ### 8.2 关键索引（S1-AC3 < 1s 响应保障）
@@ -3634,7 +3636,9 @@ CREATE INDEX idx_audit_firm_created ON audit_event (firm_id, created_at DESC);
 CREATE INDEX idx_migration_firm_created ON migration_batch (firm_id, created_at DESC);
 
 -- Vector search
-CREATE INDEX idx_rule_chunks_embedding ON rule_chunks USING ivfflat (embedding vector_cosine_ops);
+-- D1 does not own vector indexes. rule_chunks / pulse_chunks are mirrored into Cloudflare Vectorize.
+-- D1 keeps metadata only: chunk_id, source_type, source_id, jurisdiction, entity_type, tax_type, firm_id NULL.
+CREATE INDEX idx_rule_chunks_meta ON rule_chunks (jurisdiction, tax_type, entity_type);
 
 -- Team / Membership (P1)
 CREATE UNIQUE INDEX idx_membership_user_firm ON user_firm_membership (user_id, firm_id);
@@ -3661,8 +3665,9 @@ CREATE INDEX idx_audit_package_firm_created ON audit_evidence_package (firm_id, 
 CREATE INDEX idx_audit_package_expires ON audit_evidence_package (expires_at) WHERE expires_at > NOW();
 
 -- Penalty Scoreboard weekly aggregation (P0-18 + §7.5.6)
+-- week_start_date is a stored/generated helper column maintained by the app for D1-compatible weekly grouping.
 CREATE INDEX idx_obligation_firm_week_exposure ON obligation_instance 
-  (firm_id, date_trunc('week', current_due_date), estimated_exposure_usd)
+  (firm_id, week_start_date, estimated_exposure_usd)
   WHERE status NOT IN ('filed','paid','not_applicable');
 -- 支持 "This week $X at risk" 聚合 + Sparkline 8 周趋势
 
@@ -3677,8 +3682,8 @@ CREATE INDEX idx_rule_source_next_check ON rule_source (next_check_at)
 -- ExceptionRule overlay engine
 CREATE INDEX idx_exception_status_effective ON exception_rule (status, effective_from, effective_until) 
   WHERE status IN ('applied','verified');
-CREATE INDEX idx_exception_jurisdiction_forms ON exception_rule 
-  USING GIN (jurisdiction, affected_forms);  -- 匹配引擎用
+CREATE INDEX idx_exception_jurisdiction ON exception_rule (jurisdiction, status, effective_from);
+-- affected_forms / counties use JSON text in D1; matching uses json_each() or denormalized helper tables, not GIN.
 CREATE INDEX idx_obligation_exception_oblig ON obligation_exception_application 
   (obligation_instance_id) WHERE reverted_at IS NULL;
 CREATE INDEX idx_obligation_exception_exc ON obligation_exception_application 
@@ -3959,15 +3964,15 @@ Public 页面相互 cross-link，形成 Rule Library → Source Registry → Ver
 
 ### 13.2 必做
 
-- HTTPS 全站（Vercel 默认）
-- TLS 1.2+ / AES-256 at rest（Neon/Supabase 默认）
+- HTTPS 全站（Cloudflare Workers / custom domain）
+- TLS 1.2+ / encryption at rest（Cloudflare D1 / R2 / KV 平台能力；应用层敏感 secret 另行 AES-GCM）
 - Auth：Email magic link + 会话 7 天
-- MFA：Owner 必开（TOTP）；Team 版 Manager 强制开启，Preparer/Coordinator 建议开启
-- **RBAC 双层校验**（§3.6.3）：ORM middleware 强制 `firm_id` 隔离 + Server Action 装饰器强制 role 校验 + 前端按 role 渲染（三层防御）
+- MFA：7 天 Demo 不强制；真实试点 / 4 周 MVP 对 Owner 强制 TOTP；Team 版 Manager 在 P1 强制，Preparer/Coordinator 建议开启
+- **RBAC 双层校验**（§3.6.3）：P0 强制 tenant isolation + Owner-only 写路径；P1 启用 oRPC procedure permission middleware + scoped repo 双层校验；前端按 role 渲染只是体验层
 - Tenant 强隔离：所有 query 必须带 `firm_id` where
 - 审计日志：所有写操作
 - 备份：每日 + 保留 7 天
-- **WISP v1.0**：IRS Pub 5708 要求的 5-page 书面信息安全计划（交付物）
+- **WISP**：7 天 Demo 可交 1-page draft；真实试点 / 4 周 MVP 交 WISP v1.0（5-page）
 - 隐私声明：客户数据不训练任何外部 AI，仅用于 service delivery
 - **LLM PII 防泄**：客户姓名 / EIN / 邮箱在 prompt 中用占位符 `{{client_1}}`，生成后回填
 
@@ -4603,7 +4608,7 @@ Presenter: "Thank you."
 
 | 加分项           | 对应本章节                   | 关键交付                                     |
 | ------------- | ----------------------- | ---------------------------------------- |
-| **+1 部署**     | §11 技术架构 + 实际 Vercel 部署 | 公开 URL：`app.duedatehq.com`               |
+| **+1 部署**     | §11 技术架构 + 实际 Cloudflare Workers 部署 | 公开 URL：`app.duedatehq.com`               |
 | **+2 GTM 方案** | §15.2–15.6              | 6 页 Pitch PDF + Landing page 上线 + 14 天日历 |
 | **+3 提前交付**   | §15.2.5 Day 12 目标       | D13 前 commit frozen，D14 留给 Demo 排练       |
 
@@ -4642,7 +4647,7 @@ Presenter: "Thank you."
 | 种子数据                   | SQL dump      | 一键 restore（30 规则 + 30 demo 客户 + 2 Pulse） |
 | Demo 视频                | MP4 4K        | 6 分钟，字幕                                  |
 | Pitch deck             | PDF + Keynote | 10 页                                     |
-| **WISP v1.0**          | PDF           | 5 页                                      |
+| **WISP v1.0**          | PDF           | 真实试点 / 4 周 MVP：5 页；7 天 Demo 可提交 1-page draft                                      |
 | Public Pulse page      | URL           | 首批 ≥ 5 条真实 alert                         |
 | 试点反馈                   | Notion        | ≥ 3 位 CPA                                |
 | 付费意愿数据                 | CSV           | 点击率报表                                    |

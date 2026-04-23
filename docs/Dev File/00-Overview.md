@@ -79,7 +79,7 @@
   - Penalty Radar 顶栏**必须服务端预聚合**，前端不在 render 阶段做累加
   - 1000 obligations × 200 clients 规模下筛选 P95 < 1s（复合索引 + 服务端 pagination）
 2. **30 分钟完成导入**
-  - Migration 走 `d1.batch()` 事务；单行失败落 `migration_error` 不阻塞
+  - Migration 先逐行校验 / normalize；失败行落 `migration_error`，只把有效行放入最终 `d1.batch()` 原子提交
   - AI Field Mapper / Normalizer 输出经 Zod + 正则双校验，禁止幻觉字段
   - Live Genesis 动画由前端驱动，不等后端推送
 3. **24 小时 Pulse 闭环**（PRD §0.3 · §6.3）
@@ -95,12 +95,12 @@
 | Phase | PRD 范围 | 技术里程碑 |
 |---|---|---|
 | **Phase 0 · MVP · ~4 周**（PRD §14.1） | P0-1 ~ P0-24 全部；P1 的 Pulse / Ask / Client PDF / ICS / PWA 壳（P1-36） | 核心闭环 + 6 辖区 rule pack（Federal + CA/NY/TX/FL/WA/MA）全 verified；单 Worker 部署 |
-| — **内嵌 · 7 天 Demo Sprint**（§09） | Phase 0 的 Demo-Ready 最小子集 | 简化为 3 辖区 seed（Federal + CA + NY）+ 单 Owner + Pulse 直接 UPDATE（替代 Overlay）；目的是集训路演，不等价 Phase 0 完整交付 |
+| — **内嵌 · 7 天 Demo Sprint**（§09） | Phase 0 的 Demo-Ready 最小子集 | 简化为 3 辖区 seed（Federal + CA + NY）+ 单 Owner + Pulse 直接 UPDATE（替代 Overlay）+ WISP 1-page draft；目的是集训路演，不等价 Phase 0 完整交付 |
 | **Phase 1 · 5–12 周**（PRD §14.2） | P1-1 ~ P1-37：Rules-as-Asset 全量 · 50 州 full coverage · Team RBAC 完整 · Stripe · Zapier · Readiness Portal · Onboarding Agent · SEO 公开页 | Overlay Engine 启用 · RBAC 强制校验开启 · **SEO 公开页（`/rules` `/watch` `/state/*` `/pulse`）拆到独立 Astro 子站**（主 Worker 保持 SPA） |
 | **Phase 2 · Q3 2026**（PRD §14.3） | macOS Menu Bar Widget · Audit-Ready Evidence Package · QBO/TaxDome/Drake 集成 · 电子签名 · SOC 2 预审 | Tauri 壳 · RFC 3161 TSA · 第三方集成 API |
 | **Phase 3 · Q4 2026+**（PRD §14.4） | Compliance Calendar API（给 TaxDome / Karbon 做 intelligence 层） | 开放 `/api/v1/*` OpenAPIHandler 路由（复用同一份 `packages/contracts` 契约） |
 
-Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Membership 三表在 Phase 0 已通过 better-auth Organization 就位；ExceptionRule 表结构在 Phase 0 末设计到位，Phase 1 启用 Overlay Engine 时零 schema 重构。
+Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Membership 三表在 Phase 0 已通过 better-auth Organization 就位；ExceptionRule 表结构在 Phase 0 末设计到位，Phase 1 启用 Overlay Engine 时零 schema 重构。P0 的安全含义是 tenant isolation、Owner-only 写路径、审计与 AI 日志；完整四角色权限矩阵与 Manager MFA 属 P1，Owner MFA 在真实试点前启用。
 
 ---
 
@@ -131,7 +131,7 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 | ------------------------- | ----------------------------------------------------------------------------------------- |
 | ❌ Next.js / Vercel        | 需要单实例 Cloudflare 部署；SSR 与 Worker Assets 模型冲突；SPA + oRPC 契约对 2 人 AI 辅助团队更优                 |
 | ❌ Prisma                  | D1 需要裸 SQL 计算派生字段（Overlay Engine）；Drizzle 类型推导强 + Edge 兼容                                 |
-| ❌ Neon / Postgres / Hyperdrive  | DueDateHQ workload 是**小数据量 + 多租户 + 点查询 + 边缘延迟敏感**，D1 是正确选择不是权宜之计；Vectorize 覆盖 pgvector，FTS5 覆盖全文检索，`scoped(db, firmId)` 工厂等价 RLS；只有真正落到"跨租户复杂 OLAP + >10GB 单库 + 跨客户分析型 join"才会考虑切 Hyperdrive + Neon，MVP 可见未来不命中 |
+| ❌ Neon / Postgres / Hyperdrive  | DueDateHQ workload 的主路径是**小租户点查询 + 边缘延迟敏感**，D1 是正确选择不是权宜之计；Vectorize 覆盖 pgvector 主用途，FTS5 覆盖全文检索。`scoped(db, firmId)` 是应用层隔离，不等价于 DB RLS；若出现单库接近 10GB、跨租户 OLAP 或强物理隔离要求，先按 firm/region 拆 D1，再评估 Hyperdrive + Neon |
 | ❌ Inngest / Trigger.dev   | Cron Triggers + Queues + Workflows 三原语已覆盖需求，零外部依赖                                         |
 | ❌ Auth.js                 | 需要 Organization / Membership / Invitation 开箱即用，better-auth 原生支持，数据自持                      |
 | ❌ LiteLLM 自托管             | Cloudflare AI Gateway 免运维，自带 cache / trace / rate limit                                   |

@@ -77,10 +77,31 @@ rm -rf apps/web apps/docs packages/ui packages/eslint-config
 - 根目录**不放** `tsconfig.json`（只有 `tsconfig.base.json` 供 `scripts/` 用）
 - 每个 app / package 都 `extends: "@duedatehq/typescript-config/<variant>.json"`
 - Variants：
-  - `base.json`：strict + ES2022 + isolated modules
+  - `base.json`：strict + ES2022 + isolated modules + TS 6 defaults
   - `library.json`：JIT 包用（exports types from src）
   - `vite.json`：`apps/web` 用（DOM lib + React JSX）
   - `worker.json`：`apps/server` 用（`@cloudflare/workers-types` + no DOM）
+
+`base.json` 必须显式开启：
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "useUnknownInCatchVariables": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022"
+  }
+}
+```
 
 ### 3.3 Node.js Subpath Imports（取代 TS paths）
 
@@ -101,11 +122,12 @@ rm -rf apps/web apps/docs packages/ui packages/eslint-config
 ### 3.4 禁止 TypeScript Project References
 
 - 不使用 `tsconfig.json` 的 `references` 字段
-- 类型检查靠 turbo 并行跑 `tsc --noEmit`，缓存命中率更高
+- 类型检查靠 turbo 并行跑 `tsgo --noEmit -p tsconfig.json`，不走 `tsc --noEmit` 默认路径
+- 保留 `check-types:stable` 手动 fallback，用 `tsc --noEmit -p tsconfig.json` 诊断 tsgo preview 与 TS 6 生态工具的分歧
 
 ### 3.5 TypeScript 版本统一
 
-- 全 workspace 通过 catalog 用同一版本的 `typescript` 和 `@types/node`
+- 全 workspace 通过 catalog 用同一版本的 `typescript`、`@typescript/native-preview` 和 `@types/node`
 - 避免 tsserver 在多版本间跳跃
 
 ---
@@ -264,6 +286,7 @@ packages/core/
 packages/ai/
 ├── src/
 │   ├── index.ts                    # orchestrator 高阶 API（generateBrief / generateTip / ...）
+│   ├── ports.ts                    # 注入 Env / VectorStore / writers / tracer 的接口
 │   ├── gateway.ts                  # AI Gateway client（OpenAI / Anthropic）
 │   ├── router.ts                   # modelRoute 定义
 │   ├── retriever.ts                # Vectorize 查询
@@ -280,6 +303,12 @@ packages/ai/
 │       └── migration_normalizer.v1.md
 └── package.json
 ```
+
+**约束：**
+
+- `packages/ai` 不直接 import `@duedatehq/db`、Drizzle schema、Hono context 或 Cloudflare `env`。
+- `generateBrief` / `generateTip` / `extractPulse` 等高阶 API 返回 guarded result 与 trace payload；`apps/server` 负责用注入的 writer 写 `ai_output` / `evidence_link` / `llm_log`。
+- Vectorize / KV / Langfuse / AI Gateway client 通过 `ports.ts` 注入，便于 Workers integration test 和未来替换。
 
 ### 4.7 `packages/auth`
 
@@ -345,7 +374,7 @@ apps/web
         └─► packages/{core}
 
 packages/ai
-  └─► packages/{core}（only）
+  └─► packages/{core}（only，DB/KV/Vectorize/Langfuse 通过 ports 注入，不直接 import @duedatehq/db）
 
 packages/db
   └─► packages/{core}（only）
@@ -391,17 +420,31 @@ packages/core
     "dev":          "turbo run dev --parallel",
     "build":        "turbo run build",
     "check-types":  "turbo run check-types",
+    "check-types:stable": "turbo run check-types:stable",
     "lint":         "oxlint",
     "lint:fix":     "oxlint --fix",
     "format":       "oxfmt",
     "format:check": "oxfmt --check",
     "test":         "turbo run test",
     "test:e2e":     "playwright test",
+    "secrets:scan": "gitleaks detect --source . --no-git --redact",
+    "prepare":      "lefthook install",
     "db:generate":  "pnpm --filter @duedatehq/db db:generate",
     "db:migrate:local":  "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --local",
     "db:migrate:remote": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --remote",
     "db:seed:demo":      "pnpm --filter @duedatehq/db seed:demo",
     "deploy":       "pnpm --filter @duedatehq/server deploy"
+  }
+}
+```
+
+每个 app/package 的 `package.json` 必须提供：
+
+```json
+{
+  "scripts": {
+    "check-types": "tsgo --noEmit -p tsconfig.json",
+    "check-types:stable": "tsc --noEmit -p tsconfig.json"
   }
 }
 ```
@@ -452,12 +495,43 @@ proposed | accepted | deprecated | superseded by #NNN
 
 ## 11. 代码规范强制链
 
-1. oxlint：lint + 自定义 no-restricted-imports
-2. oxfmt：格式
-3. tsc --noEmit：类型
-4. Vitest：测试
-5. pre-commit hook（`simple-git-hooks` + `lint-staged`）跑 oxfmt + oxlint --fix + gitleaks 扫密钥
-6. CI 再跑一次完整三件套
+1. `oxfmt`：格式；pre-commit 只处理 staged files，CI 跑全量 `format:check`
+2. `oxlint`：lint + 自定义 no-restricted-imports；pre-commit 只处理 staged TS/TSX，CI 跑全量
+3. `tsgo --noEmit`：默认类型检查；本地和 PR CI 都用它，不跑 `tsc --noEmit`
+4. `Vitest`：单测 / integration
+5. `gitleaks`：pre-commit staged scan + CI full scan
+6. `check-types:stable`：手动 fallback，不作为默认门禁
+
+`tsgolint` / typed ESLint 不进默认链路。只有当 oxlint 缺少的 type-aware 规则真正挡住生产风险时，才新增非阻塞 `lint:typed` 试验任务。
+
+### 11.1 Lefthook（staged-first）
+
+`lefthook.yml` 约束形态：
+
+```yaml
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{ts,tsx,js,jsx,json,md,css}"
+      run: pnpm oxfmt --write {staged_files}
+      stage_fixed: true
+    lint:
+      glob: "*.{ts,tsx,js,jsx}"
+      run: pnpm oxlint {staged_files}
+    secrets:
+      run: pnpm gitleaks protect --staged --redact
+
+pre-push:
+  parallel: true
+  commands:
+    check-types:
+      run: pnpm check-types
+    test:
+      run: pnpm test
+```
+
+原则：pre-commit 必须 < 10s，不能跑全仓 typecheck；pre-push / CI 才跑 `tsgo` 全量类型检查。
 
 ---
 

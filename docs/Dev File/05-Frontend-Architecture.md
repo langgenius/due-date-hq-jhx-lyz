@@ -257,7 +257,7 @@ export const orpc = createTanstackQueryUtils(rpc)
 ### 8.3 Web Push（约束）
 
 - VAPID 密钥在 Worker secret；前端只用 `VAPID_PUBLIC_KEY`
-- `packages/push`（Phase 0 内联在 Worker）通过 `web-push` 库发送签名 payload
+- `packages/push`（Phase 0 内联在 Worker）通过 Workers-compatible VAPID/Web Crypto 实现发送签名 payload；不得默认使用依赖 Node `crypto` / `http` 的 `web-push` 路径，除非 spike 在 `workerd` 下验证通过
 - Service Worker 在 `push` 事件里解析 payload → `self.registration.showNotification(...)`
 - `notificationclick` 跳到 `/dashboard?banner=<pulseId>`
 - 订阅管理：Settings → Notifications 页面订阅 / 取消

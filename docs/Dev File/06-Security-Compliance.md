@@ -11,7 +11,7 @@
 
 | 威胁                  | 场景                            | 缓解                                                                |
 | ------------------- | ----------------------------- | ----------------------------------------------------------------- |
-| **S**poofing        | 伪冒 CPA 登录                     | Magic link + device/IP fingerprint + TOTP MFA（Owner 必开 · Phase 1） |
+| **S**poofing        | 伪冒 CPA 登录                     | Magic link + device/IP fingerprint；Owner TOTP 在真实试点前启用，Manager TOTP 随 Team Phase 1 强制 |
 | **T**ampering       | 篡改 `current_due_date` / Pulse | Phase 1 Overlay 独立留痕不改 base；所有变更写 `audit_event`（永不删）              |
 | **R**epudiation     | "不是我改的"                       | `audit_event` 记 actor + ip_hash + ua_hash                         |
 | **I**nfo disclosure | 跨 firm 数据泄露                   | Middleware + `scoped(db, firmId)` + oxlint 三层                     |
@@ -31,7 +31,7 @@
 | `magicLink`                           | 邮箱 magic link 登录（无密码）                            |
 | `organization`                        | 多租户（= Firm）+ Member + Invitation + Active-org 切换 |
 | 自定义 Access Control（`organization.ac`） | 四角色权限矩阵                                          |
-| `twoFactor`（Phase 1）                  | TOTP MFA，Owner / Manager 强制开启                    |
+| `twoFactor`（真实试点前 / Phase 1）      | TOTP MFA；Owner 在真实试点前强制，Manager 随 Team Phase 1 强制                    |
 
 
 ### 2.2 Session & Cookie
@@ -50,10 +50,10 @@
 - 拒绝 / 撤销：`cancelInvitation` / `rejectInvitation`
 - 过期：默认 14 天
 
-### 2.4 MFA（Phase 1）
+### 2.4 MFA（真实试点前 / Phase 1）
 
 - `twoFactor` plugin；TOTP + 10 条 recovery codes
-- Owner 登录时若未开启 → 强制 setup wall
+- 7 天 Demo 可跳过；真实 CPA 试点前 Owner 登录时若未开启 → 强制 setup wall
 - `mfa_secret` AES-GCM 加密存储；key 来自 Worker secret
 
 ---
@@ -98,10 +98,11 @@ const statement = {
 | `export.evidence_package`    | ✓     | —                  | —               | —                 |
 
 
-### 3.3 权限检查（Phase 0 暂关，Phase 1 强制）
+### 3.3 权限检查（P0 Owner-only，Phase 1 完整矩阵）
 
-- Phase 0 单 Owner 账号，`member.role='owner'`，不做 permission check
-- Phase 1 在每个 oRPC procedure middleware 中加 `authed.use(requirePermission('client.delete'))`
+- 7 天 Demo / P0 早期：单 Owner 账号，`member.role='owner'`；仍必须检查 session、active firm、tenant scope，且所有写操作写 audit
+- 真实试点前：Owner MFA 开启；危险写操作（migration revert / pulse apply / export）至少校验 owner role
+- Phase 1 在每个 oRPC procedure middleware 中加 `authed.use(requirePermission('client.delete'))`，启用四角色矩阵
 - 失败 → 写 `audit_event(action='auth.denied', reason=...)` + 返回 `ORPCError('FORBIDDEN')`
 
 ---
@@ -238,9 +239,9 @@ ai.refusal / ai.guard_failed
 
 ---
 
-## 9. WISP（Written Information Security Plan · Phase 1）
+## 9. WISP（Written Information Security Plan）
 
-IRS Publication 4557 要求。MVP 阶段先写 1 页 PDF 模板，放仓库 `docs/compliance/WISP-v1.pdf`，内容要点：
+IRS Publication 4557 要求。7 天 Demo 可以提交 1 页 draft；真实 CPA 试点 / 4 周 MVP 必须交 5 页 WISP v1.0，放仓库 `docs/compliance/WISP-v1.pdf`，内容要点：
 
 - 数据分类（PII / 财务 / 审计）
 - 访问控制（better-auth RBAC）
@@ -316,8 +317,9 @@ IRS Publication 4557 要求。MVP 阶段先写 1 页 PDF 模板，放仓库 `doc
 
 | Phase   | 目标                                                                                                |
 | ------- | ------------------------------------------------------------------------------------------------- |
-| Phase 0 | PII 最小化 · TLS · Audit 不删 · Glass-Box Guard · Secret 管理                                            |
-| Phase 1 | WISP v1 · MFA for Owner/Manager · Audit-Ready Evidence Package · CSP strict · Readiness Portal 安全 |
+| 7 天 Demo | PII 最小化 · TLS · Audit 不删 · Glass-Box Guard · Secret 管理 · WISP 1-page draft |
+| Phase 0 | Owner-only tenant isolation · Owner MFA before real pilot · WISP v1.0 · dangerous write role check · `llm_logs` |
+| Phase 1 | 完整四角色 RBAC · Manager MFA · Audit-Ready Evidence Package · CSP strict · Readiness Portal 安全 |
 | Phase 2 | RFC 3161 TSA 可信时间戳 · SOC 2 Type I 审计 · Pen-test                                                   |
 
 

@@ -36,7 +36,7 @@
         └─────────────────────────────┘
 ```
 
-`packages/ai` 是 AI 相关的唯一业务包。`apps/server` 的 procedure 只调 `packages/ai` 暴露的高阶函数（如 `generateBrief(firmId, userId)`），不碰 LLM SDK。
+`packages/ai` 是 AI 相关的唯一业务包。`apps/server` 的 procedure 只调 `packages/ai` 暴露的高阶函数（如 `generateBrief(input, ports)`），不碰 LLM SDK。`packages/ai` 不直接 import `@duedatehq/db`；持久化 `AiOutput` / `EvidenceLink` / `LlmLog` 由 `apps/server` 注入 writer ports 完成。
 
 ---
 
@@ -117,7 +117,8 @@ User event (dashboard load / Ask / Apply)
 │ 2. Retriever                       │
 │   Vectorize.query(embedding,       │
 │     { topK: 6, filter })           │
-│   → rule_chunks + pulse_chunks     │
+│   → global rule_chunks             │
+│   → firm pulse_chunks              │
 └──────────────────┬─────────────────┘
                    │
                    ▼
@@ -150,15 +151,17 @@ User event (dashboard load / Ask / Apply)
                    │
                    ▼
 ┌────────────────────────────────────┐
-│ 7. Persist AiOutput + EvidenceLink │
-│   写 llm_log / ai_output           │
+│ 7. Return guarded AiResult         │
+│   caller writes llm_log / ai_output│
+│   / evidence via injected writers  │
 └────────────────────────────────────┘
 ```
 
 **向量库选型**：Vectorize
 
-- `rule_chunks` 索引：每条 verified rule 切成 200 token 片段，向量化入库；`firm_id` 设为 `null`（全局）
-- `pulse_chunks` 索引：每条 approved pulse 的 `verbatim_quote + summary` 入库
+- `rule_chunks` 索引：每条 verified rule 切成 200 token 片段，向量化入库；`firm_id = null`（全局）
+- `pulse_chunks` 索引：每条 approved pulse 的 `verbatim_quote + summary` 入库；全局 Pulse chunk 可 `firm_id = null`，firm-specific 应用解释必须带 `firm_id`
+- 检索策略：不要用单个 `firmId` filter 排除全局规则。先查 global rule collection（`firm_id IS NULL`），再查 firm collection（`firm_id = currentFirmId`），合并 top-k 后按 jurisdiction / entity_type / tax_type rerank。
 - 未来 `client_memory_chunks`（Phase 2）：记录 CPA 对某客户的自由备注，供 AI 检索（PII 敏感，默认关闭）
 
 ---
@@ -202,20 +205,22 @@ User event (dashboard load / Ask / Apply)
 
 ### 6.3 Match（服务端）
 
-人工 Approve 触发 `modules/pulse/match.ts`：
+人工 Approve 触发 `modules/pulse/match.ts`。D1 / SQLite 不支持 Postgres `ANY($1)`；实现必须生成参数化 `IN (?, ?...)`，或使用 helper table。下例是 D1 可执行形态：
 
 ```sql
 SELECT c.id, c.name, oi.id AS obligation_id, oi.original_due_date
 FROM client c
 JOIN obligation_instance oi ON oi.client_id = c.id AND oi.firm_id = c.firm_id
-WHERE c.state = $1
-  AND ($2 = '[]' OR c.county = ANY($2))          -- counties
-  AND oi.tax_type = ANY($3)                       -- forms
-  AND c.entity_type = ANY($4)                     -- entity types
-  AND oi.original_due_date >= $5                  -- effective_from
+WHERE c.firm_id = ?
+  AND c.state = ?
+  AND (? = 0 OR c.county IN (?, ?, ?))             -- generated placeholders
+  AND oi.tax_type IN (?, ?, ?)                     -- generated placeholders
+  AND c.entity_type IN (?, ?, ?)                   -- generated placeholders
+  AND oi.original_due_date >= ?
+  AND oi.status NOT IN ('filed', 'paid', 'not_applicable')
 ```
 
-返回受影响客户 + obligations 列表，前端展示 Pulse Detail Drawer。
+返回受影响客户 + obligations 列表，前端展示 Pulse Detail Drawer。若 Pulse 是县级 relief 且客户 `county IS NULL`，不要进入默认 Apply 集合；放入 `needs_review` 分组，要求 CPA 手动确认。
 
 ### 6.4 Batch Apply（D1 事务）
 
@@ -278,7 +283,8 @@ d1.batch([
 
 - Weekly Brief / Ask 用 **Server-Sent Events**（Hono `streamSSE`）
 - 前端 TanStack Query + `useStream` 模式；UI 逐字显示
-- Citation 在流结束后一次性渲染（避免半句话误导）
+- Citation 在流结束并通过 `glassBoxGuard` 后一次性渲染（避免半句话误导）
+- 流式正文在 guard 完成前必须标记为 provisional，且不得触发 Evidence chip / Copy as Citation；guard 失败则整体替换为 refusal，不保留未验证文本
 
 ---
 

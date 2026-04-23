@@ -12,7 +12,7 @@
 
 ### 1.1 7 天必须做（Demo 闭环）
 
-对齐 PRD §15.3 Demo Script 的 6 分钟叙事链：
+这是 PRD §15.3 的 **7 天替代 Demo 链**，只演 Phase 0 的最小可信闭环；不演 Onboarding Agent、Readiness Portal、Audit Package 等 P1/Phase 2 叙事。Pitch 时必须明说这些是 Phase 1 roadmap，不得暗示已实现。
 
 | 叙事段 | 最小可演功能 | PRD 映射 |
 |---|---|---|
@@ -27,7 +27,7 @@
 
 | PRD 章节 | 7 天不做 | 为什么 |
 |---|---|---|
-| §3.6 Team / RBAC | ✂（数据层保留） | better-auth Organization 已就位，权限校验 Phase 1 再开 |
+| §3.6 Team / RBAC | ✂（数据层保留） | better-auth Organization 已就位；7 天只做 Owner-only，完整权限校验 Phase 1 再开 |
 | §6B Client Readiness Portal | ✂ | 独立路由 + magic link 系统 2 人日 |
 | §6C Audit-Ready Package | ✂ | ZIP 签名 Phase 1 做 |
 | §6D Rules-as-Asset 完整 overlay | ✂ 简化 | Pulse 直接 UPDATE `current_due_date` + evidence_link；不建 `exception_rule` 表 |
@@ -35,7 +35,7 @@
 | §6.6 Ask DueDateHQ | ✂ | Cmd-K 留占位 UI |
 | §7.8.2 macOS Menu Bar | ✂ | Phase 2 |
 | §P0-21 Email Reminders 阶梯 | ✂ | 仅做 Pulse Apply 触发一封摘要邮件 |
-| §Auth MFA | ✂ | 仅 magic link |
+| §Auth MFA | ✂ | 仅 magic link；真实试点前补 Owner TOTP |
 | §50 州骨架 | ✂ 简化 | **Federal + CA + NY** 3 辖区 seed |
 | §ICS 日历订阅 | ✂ | Phase 1 |
 | §Stripe | ✂ | 只做 `[I'd pay $49/mo]` 按钮 + PostHog 事件 |
@@ -106,8 +106,9 @@ export async function writeAudit(input: AuditInput, tx?: Tx): Promise<void>;
 export async function writeEvidence(input: EvidenceInput, tx?: Tx): Promise<string>;
 
 // packages/ai/src/index.ts （两人共用，Alice 维护）
-export async function runPromptJson<T>(opts: PromptOpts): Promise<T>;
-export async function runPromptStream(opts: PromptOpts): ReadableStream;
+// packages/ai returns guarded results; apps/server writes DB records via injected writers.
+export async function runPromptJson<T>(opts: PromptOpts, ports: AiPorts): Promise<T>;
+export async function runPromptStream(opts: PromptOpts, ports: AiPorts): ReadableStream;
 
 // packages/auth/src/index.ts + apps/server/src/middleware/tenant.ts （Alice 维护）
 // Hono middleware 注入 c.set('firmId', ...) + c.set('scoped', scoped(db, firmId))
@@ -170,7 +171,7 @@ export async function runPromptStream(opts: PromptOpts): ReadableStream;
 | Resend 账号 + 域名验证 | Bob | DNS 验证 24h，当晚先动 |
 | Sentry 账号（Cloudflare SDK） | Bob | |
 | PostHog 账号 | Bob | 产品事件 |
-| VAPID key（`web-push generate-vapid-keys`） | Alice | |
+| VAPID key | Alice | 用 Workers-compatible 工具生成；不要假设 Node `web-push` runtime 可直接部署 |
 | 域名（可选）或 `*.workers.dev` | 谁快谁来 | 可选 |
 
 ### 3.2 环境变量同步
@@ -242,7 +243,7 @@ export async function runPromptStream(opts: PromptOpts): ReadableStream;
 | 09:00–09:10 | Daily Sync |
 | 09:10–11:00 | better-auth + Organization plugin 真实配置（magic link sendEmail → Resend）· 登录后 `setActiveOrganization` · `/api/auth/*` 所有路由打通 |
 | 11:00–13:00 | `apps/server/src/middleware/tenant.ts`：读 session → 注入 `firmId` + `scoped` → 单测一条快乐路径 + 一条 401 |
-| 14:00–16:00 | `packages/ai/src/gateway.ts` AI Gateway fetch client · `runPromptJson`（Zod 输出校验）· `runPromptStream`（SSE）· `packages/ai/src/trace.ts` Langfuse 上报 · `llm_log` 落库 |
+| 14:00–16:00 | `packages/ai/src/gateway.ts` AI Gateway fetch client · `runPromptJson`（Zod 输出校验）· `runPromptStream`（SSE）· `packages/ai/src/trace.ts` Langfuse payload · server 注入 writer 后 `llm_log` 落库 |
 | 16:00–18:00 | `packages/ai/src/retriever.ts`（Vectorize top-k） · `packages/ai/src/guard.ts`（5 道闸） · `packages/ai/src/pii.ts`（PII redact） |
 | 18:00–19:00 | Daily Sync + demo |
 
@@ -353,7 +354,7 @@ export async function runPromptStream(opts: PromptOpts): ReadableStream;
 | 09:10–11:00 | `packages/core/penalty/` 纯函数（Federal + CA） · 单测 · Obligation 生成时写 `estimated_exposure_cents` |
 | 11:00–13:00 | `packages/core/priority/` 纯函数 + 因子分解 · 单测 · `apps/server/src/procedures/dashboard.triage` 使用 |
 | 14:00–15:00 | `packages/db/seed/rule_chunks.ts` embed + Vectorize 入库 · 通过 `packages/ai/retriever` 跑通 top-k |
-| 15:00–17:00 | `packages/ai/src/brief.ts` · `prompts/weekly_brief.v1.md` · `glassBoxGuard` 校验 · 流式 API（Hono `streamSSE`） · `ai_output` 落库 · KV 缓存每 firm/day 1 次 |
+| 15:00–17:00 | `packages/ai/src/brief.ts` · `prompts/weekly_brief.v1.md` · `glassBoxGuard` 校验 · 流式 API（Hono `streamSSE`） · server writer 写 `ai_output` · KV 缓存每 firm/day 1 次 |
 | 17:00–18:00 | `features/dashboard/penalty-radar-hero.tsx`（76px JetBrains Mono + Odometer + 趋势箭头 + Sparkline） · `triage-tabs.tsx` · `weekly-brief.tsx`（Suspense 流式） |
 | 18:00–19:00 | Daily Sync |
 | 19:00–21:00 | Obligation Detail Drawer 完成 · Evidence Mode 全局抽屉完成（任意 `[n]` 可点 → source + verbatim + verified_by） |
@@ -612,7 +613,7 @@ Day 4 晚 · Dashboard TTI > 3s？
 
 Day 5 晚 · Pulse 事务有 bug？
   ├─ 小 bug：修到通
-  └─ 大坑：拆成顺序写（UPDATE → evidence → audit → outbox），失去原子性但 Demo 看不出
+  └─ 大坑：禁用现场 Apply，改演预置 applied Pulse + audit/evidence；不要实现非原子写路径冒充生产方案
 
 Day 6 晚 · PWA 装不上？
   ├─ manifest 问题：修
@@ -634,7 +635,7 @@ Day 7 早 · 生产部署炸？
 
 - 单一 `main`
 - Feature branch：`feat/<slice>/<short>`（`feat/migration/wizard-step2`）
-- **PR 无需等 CI**：本地 `pnpm lint && pnpm check-types` 过即可 push
+- **PR 无需等 CI**：本地 `pnpm lint && pnpm check-types` 过即可 push；`check-types` 走 `tsgo`，不跑 `tsc`
 - Merge：squash
 - Commit：每自然任务一个 commit（Conventional Commits）
 - Hotfix：直接 push main（7 天特例）
@@ -679,7 +680,7 @@ Day 7 早 · 生产部署炸？
 | Pitch deck | PDF | ✅ 6 页 |
 | Plan B 录屏 | MP4 | ✅ |
 | 真实 CPA 口证 | 30s 视频 | 能拿最好；stand-in 可 |
-| WISP | 1 页 PDF | 可延 Phase 1 |
+| WISP | 1 页 PDF | ✅ Demo draft；5 页 v1.0 在真实试点 / 4 周 MVP 前补齐 |
 | 架构文档 | `docs/Dev File/` 组 | ✅ 已完成 |
 
 ---
