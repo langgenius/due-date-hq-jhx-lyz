@@ -12,9 +12,14 @@ export type AuthSessionData = ReturnType<typeof useSession>['data']
 export type AuthUser = NonNullable<AuthSessionData>['user']
 
 export function signInWithGoogle(callbackURL = '/') {
+  // Resolve against the CURRENT browser origin so the post-OAuth 302 lands the
+  // user back where they started (e.g. Vite :5173 in dev) instead of defaulting
+  // to AUTH_URL (the Worker origin, :8787). Cookies are hostname-scoped, so the
+  // session resolves on either port once it is set.
+  const absolute = new URL(callbackURL, window.location.origin).toString()
   return authClient.signIn.social({
     provider: 'google',
-    callbackURL,
+    callbackURL: absolute,
   })
 }
 
