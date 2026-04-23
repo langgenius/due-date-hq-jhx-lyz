@@ -64,27 +64,27 @@
 
 ## 2. 模块划分与职责
 
-| 模块                            | 路径                                                            | PRD 对应     | 输入                       | 输出                                                                                          |
-| ------------------------------- | --------------------------------------------------------------- | ------------ | -------------------------- | --------------------------------------------------------------------------------------------- |
-| **auth**                        | `packages/auth`                                                 | §13.2 · §3.6 | magic link / invitation    | Session · Organization · Member                                                               |
-| **clients**                     | `apps/server/src/procedures/clients` + repo                     | §5.6 · §8.1  | CRUD                       | Client 实体                                                                                   |
-| **rules**                       | `packages/db` + seed                                            | §6.1 · §6D   | rule draft                 | ObligationRule + Source Registry                                                              |
-| **obligations**                 | `apps/server/src/procedures/obligations`                        | §5.2 · §8.1  | rule + client              | ObligationInstance                                                                            |
-| **overlay**（Phase 1）          | `packages/core/overlay`                                         | §6D.2        | ExceptionRule              | 派生 `current_due_date`                                                                       |
-| **penalty**                     | `packages/core/penalty`                                         | §7.5         | obligation + assumptions   | ExposureReport                                                                                |
-| **priority**                    | `packages/core/priority`                                        | §6.4         | open obligations           | 打分 + 因子分解                                                                               |
-| **dashboard**                   | `apps/server/src/procedures/dashboard`                          | §5.1         | firm + scope               | Triage Tabs + Brief 上下文                                                                    |
-| **workboard**                   | `apps/server/src/procedures/workboard`                          | §5.2         | filter + sort + page       | Table rows                                                                                    |
-| **pulse**                       | `apps/server/src/procedures/pulse` + `jobs/pulse`               | §6.3         | RSS / HTML                 | Pulse + （Phase 1）ExceptionRule                                                              |
-| **migration**                   | `apps/server/src/procedures/migration`                          | §6A          | paste / CSV                | Client[] + Obligation[]                                                                       |
-| **readiness**（Phase 1）        | `apps/server/src/procedures/readiness`                          | §6B          | CPA checklist              | Magic link + Response                                                                         |
-| **audit**                       | `apps/server/src/procedures/audit` + `packages/db/audit-writer` | §13.2        | write events               | AuditEvent stream                                                                             |
-| **evidence**                    | `packages/db/evidence-writer`                                   | §5.5 · §6.2  | any source                 | EvidenceLink                                                                                  |
-| **ai**                          | `packages/ai`                                                   | §6.2 · §9    | retrieval + prompt + guard | `AiResult` + trace payload；`apps/server` 注入 writer 持久化 AiOutput / EvidenceLink / LlmLog |
-| **ask**（Phase 1）              | `apps/server/src/procedures/ask`                                | §6.6         | NL query                   | DSL → SQL → table                                                                             |
-| **reminders**                   | `jobs/reminders`                                                | §7.1         | due obligations            | Email / In-app（Web Push 在 Phase 0 已移除）                                                  |
-| **notifications**               | `apps/server/src/procedures/notifications`                      | §7.1.3       | event                      | In-app bell + Email                                                                           |
-| **evidence-package**（Phase 1） | `jobs/evidence-package`                                         | §6C          | scope + range              | ZIP + SHA-256                                                                                 |
+| 模块                            | 路径                                                                  | PRD 对应                                         | 输入                                 | 输出                                                                                          |
+| ------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------ | --------------------------------------------------------------------------------------------- |
+| **auth**                        | `packages/auth`                                                       | §13.2 · §3.6                                     | magic link / invitation              | Session · Organization · Member                                                               |
+| **clients**                     | `apps/server/src/procedures/clients` + repo                           | §5.6 · §8.1                                      | CRUD                                 | Client 实体                                                                                   |
+| **rules**                       | `packages/db` + seed                                                  | §6.1 · §6D                                       | rule draft                           | ObligationRule + Source Registry                                                              |
+| **obligations**                 | `apps/server/src/procedures/obligations`                              | §5.2 · §8.1                                      | rule + client                        | ObligationInstance                                                                            |
+| **overlay**（Phase 1）          | `packages/core/overlay`                                               | §6D.2                                            | ExceptionRule                        | 派生 `current_due_date`                                                                       |
+| **penalty**                     | `packages/core/penalty`                                               | §7.5                                             | obligation + assumptions             | ExposureReport                                                                                |
+| **priority**                    | `packages/core/priority`                                              | §6.4                                             | open obligations                     | 打分 + 因子分解                                                                               |
+| **dashboard**                   | `apps/server/src/procedures/dashboard`                                | §5.1                                             | firm + scope                         | Triage Tabs + Brief 上下文                                                                    |
+| **workboard**                   | `apps/server/src/procedures/workboard`                                | §5.2                                             | filter + sort + page                 | Table rows                                                                                    |
+| **pulse**                       | `apps/server/src/procedures/pulse` + `jobs/pulse` + `packages/ingest` | §6.3 · [11](./11-Pulse-Ingest-Source-Catalog.md) | RSS / HTML / JSON API（源清单见 11） | Pulse + （Phase 1）ExceptionRule                                                              |
+| **migration**                   | `apps/server/src/procedures/migration`                                | §6A                                              | paste / CSV                          | Client[] + Obligation[]                                                                       |
+| **readiness**（Phase 1）        | `apps/server/src/procedures/readiness`                                | §6B                                              | CPA checklist                        | Magic link + Response                                                                         |
+| **audit**                       | `apps/server/src/procedures/audit` + `packages/db/audit-writer`       | §13.2                                            | write events                         | AuditEvent stream                                                                             |
+| **evidence**                    | `packages/db/evidence-writer`                                         | §5.5 · §6.2                                      | any source                           | EvidenceLink                                                                                  |
+| **ai**                          | `packages/ai`                                                         | §6.2 · §9                                        | retrieval + prompt + guard           | `AiResult` + trace payload；`apps/server` 注入 writer 持久化 AiOutput / EvidenceLink / LlmLog |
+| **ask**（Phase 1）              | `apps/server/src/procedures/ask`                                      | §6.6                                             | NL query                             | DSL → SQL → table                                                                             |
+| **reminders**                   | `jobs/reminders`                                                      | §7.1                                             | due obligations                      | Email / In-app（Web Push 在 Phase 0 已移除）                                                  |
+| **notifications**               | `apps/server/src/procedures/notifications`                            | §7.1.3                                           | event                                | In-app bell + Email                                                                           |
+| **evidence-package**（Phase 1） | `jobs/evidence-package`                                               | §6C                                              | scope + range                        | ZIP + SHA-256                                                                                 |
 
 ### 2.1 模块依赖图
 
@@ -187,14 +187,17 @@ SPA 首屏 TTI 冷启动 ≤ 1.5s（bundle 加载）；回访热启动 ≤ 300ms
 
 ### 4.2 Pulse 24h 闭环
 
+> 本图展示**数据流抽象**；具体源清单 / 反爬策略 / SLA 风险 / Source Adapter 工程契约见 [11 Pulse Ingest Source Catalog](./11-Pulse-Ingest-Source-Catalog.md)。本图的 `Fetch` 节点对应 11 §6 的 `SourceAdapter.fetch()`，`raw 存 R2` 对应 `RawSnapshot.r2Key`。
+
 ```
-Cron Trigger（*/30 * * * *）
+Cron Trigger（*/30 * * * *，每源独立 interval 见 11 §3）
         │
         ▼
 scheduled(controller, env) → jobs/pulse/ingest
         │
         ▼
-Fetch RSS / HTML ──► raw 存 R2 ──► 入 Queue { type: 'extract', pulseId }
+SourceAdapter.fetch()  ──► raw 存 R2 ──► 入 Queue { type: 'extract', pulseId }
+（RSS / HTML / JSON API，选择与降级见 11 §4）
                                         │
                                         ▼
                                  Queue consumer

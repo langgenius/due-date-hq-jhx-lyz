@@ -2,7 +2,8 @@
 
 > 适用场景：2 位开发者 · 自然日 7 天 · 每天 4-6h · AI 辅助开发。
 > 本文是 [09 Demo Sprint Module Playbook](./09-Demo-Sprint-Module-Playbook.md) 的时间线落地，不重新定义模块边界。
-> 若本文与 00 ~ 09 冲突，以 00 ~ 09 为准。
+> Pulse 源与 Adapter 契约以 [11 Pulse Ingest Source Catalog](./11-Pulse-Ingest-Source-Catalog.md) 为准。
+> 若本文与 00 ~ 09 / 11 冲突，以 00 ~ 09 / 11 为准。
 
 ---
 
@@ -86,10 +87,10 @@ flowchart LR
 
 ### Day 5 · 叙事 2：Pulse
 
-| Owner | 任务                                                                                                                                                                                                         |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| JHX   | Pulse Pipeline——预置 source 数据、extraction、human-review 结构化结果、受影响客户匹配（D1 兼容的参数化查询）、batch apply（due date 更新 + evidence + audit + outbox + application record 同事务）+ revert。 |
-| LYZ   | Dashboard 上的 Pulse slot 消费端（只挂 slot 不改宿主）+ in-app toast / banner 的通知收口（替代原 PWA push）；Pulse 事件依赖解耦：先消费 fake Pulse event，Day 6 接真事件。                                   |
+| Owner | 任务                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JHX   | Pulse Pipeline——按 [11 §6 Adapter 契约](./11-Pulse-Ingest-Source-Catalog.md#6-source-adapter-工程契约) 搭 `SourceAdapter` 接口 + fixture loader（默认 Demo 用 fixture）；extraction、human-review 结构化结果、受影响客户匹配（D1 兼容的参数化查询）、batch apply（due date 更新 + evidence + audit + outbox + application record 同事务）+ revert。**Stretch**：接 [11 §7 Phase 0 Demo Sprint](./11-Pulse-Ingest-Source-Catalog.md#7-分期路线对齐-09-demo-sprint-playbook) 声明的 3 源（`irs.newsroom` + `irs.disaster` + `ny.dtf`）cron 真抓，但降级到 fixture 的开关必须在 Day 5 末可用。 |
+| LYZ   | Dashboard 上的 Pulse slot 消费端（只挂 slot 不改宿主）+ in-app toast / banner 的通知收口（替代原 PWA push）；Pulse 事件依赖解耦：先消费 fake Pulse event，Day 6 接真事件。                                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 ### Day 6 · 集成闭环
 
@@ -102,10 +103,10 @@ flowchart LR
 
 ### Day 7 · Polish + 演练
 
-| Owner | 任务                                                                                                                                                                                                                  |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| JHX   | 部署流水线最终化（Workers preview + production）、migration 安全检查、[09 §12](./09-Demo-Sprint-Module-Playbook.md#12-风险降级规则) 降级预案串讲（AI mapper / batch / push / Vectorize 都要有 Plan B）、录屏 Plan B。 |
-| LYZ   | Demo Data + Pay-intent + Polish——幂等 seed、`$49/mo` 点击事件、响应式断点打磨、Demo profile 隔离验证。                                                                                                                |
+| Owner | 任务                                                                                                                                                                                                                                                                                                                |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JHX   | 部署流水线最终化（Workers preview + production）、migration 安全检查、[09 §12](./09-Demo-Sprint-Module-Playbook.md#12-风险降级规则) + [11 §5 SLA 风险矩阵](./11-Pulse-Ingest-Source-Catalog.md#5-sla-风险矩阵) 降级预案串讲（AI mapper / batch / push / Vectorize / **Pulse 源反爬** 都要有 Plan B）、录屏 Plan B。 |
+| LYZ   | Demo Data + Pay-intent + Polish——幂等 seed、`$49/mo` 点击事件、响应式断点打磨、Demo profile 隔离验证。                                                                                                                                                                                                              |
 
 **最后 2h**：两人一起走一遍 [09 §11](./09-Demo-Sprint-Module-Playbook.md#11-demo-sanity) 的 7 条 + [09 §2.1](./09-Demo-Sprint-Module-Playbook.md#21-必须覆盖) 叙事全串。
 
@@ -139,12 +140,13 @@ flowchart LR
 
 对齐 [09 §12](./09-Demo-Sprint-Module-Playbook.md#12-风险降级规则)：
 
-| 触发点   | 风险                         | 降级方式                                                 |
-| -------- | ---------------------------- | -------------------------------------------------------- |
-| Day 3 末 | Migration AI mapper 不稳     | 切 preset profile + 手动 mapping，不让未校验 AI 字段入库 |
-| Day 5 末 | Pulse batch apply 事务有问题 | 禁用 apply，演"预置 applied state + audit/evidence"叙事  |
-| Day 6    | Pulse digest email 失败      | in-app banner + 下次登录补发，不阻塞主闭环               |
-| Day 7    | 部署异常                     | 用最近一次稳定 Worker + 录屏 Plan B                      |
+| 触发点   | 风险                                                       | 降级方式                                                                                                                                   |
+| -------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Day 3 末 | Migration AI mapper 不稳                                   | 切 preset profile + 手动 mapping，不让未校验 AI 字段入库                                                                                   |
+| Day 5 末 | Pulse 源真抓失败（反爬 / 结构变更 / Cloudflare IP 被挑战） | 关闭 Stretch 真抓，切回 fixture loader；按 [11 §5.1](./11-Pulse-Ingest-Source-Catalog.md#51-单源失败场景) 记录 `selector_drift` 事件备复盘 |
+| Day 5 末 | Pulse batch apply 事务有问题                               | 禁用 apply，演"预置 applied state + audit/evidence"叙事                                                                                    |
+| Day 6    | Pulse digest email 失败                                    | in-app banner + 下次登录补发，不阻塞主闭环                                                                                                 |
+| Day 7    | 部署异常                                                   | 用最近一次稳定 Worker + 录屏 Plan B                                                                                                        |
 
 ---
 
@@ -191,8 +193,10 @@ flowchart LR
 
 ### Day 5
 
-- [ ] JHX：Pulse 预置数据可通过 review → apply 改到客户 due date
+- [ ] JHX：`SourceAdapter` 接口 + fixture loader 按 [11 §6](./11-Pulse-Ingest-Source-Catalog.md#6-source-adapter-工程契约) 就位，fixture → fake source 切换开关可用
+- [ ] JHX：Pulse 预置数据（fixture）可通过 review → apply 改到客户 due date
 - [ ] JHX：Pulse apply 在一个事务内写齐 update / evidence / audit / outbox / application
+- [ ] JHX（Stretch）：`irs.newsroom` + `ny.dtf` RSS 真抓跑通一次 cron，落库 `pending_review`，失败自动回退 fixture
 - [ ] LYZ：Dashboard 出现 Pulse slot 内容，不改动 Dashboard 内部代码
 - [ ] LYZ：In-app toast / banner 在 fake Pulse event 下能正确展示与 dismiss
 
@@ -208,7 +212,7 @@ flowchart LR
 ### Day 7
 
 - [ ] JHX：Workers preview / production deploy 成功
-- [ ] JHX：4 个降级路径都有可执行 Plan B
+- [ ] JHX：5 个降级路径都有可执行 Plan B（AI mapper / batch / push / Vectorize / Pulse 源反爬）
 - [ ] LYZ：seed 幂等，重跑不污染其他 profile
 - [ ] LYZ：`$49/mo` 点击 pay-intent 事件进 PostHog
 - [ ] 最后演练：09 §11 全 7 条 + 09 §2.1 全叙事串完

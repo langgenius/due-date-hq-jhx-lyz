@@ -1,0 +1,342 @@
+# 11 · Pulse Ingest Source Catalog
+
+> 文档类型：Data Source Operations Handbook
+> 版本：v1.0
+> 对齐 PRD：`docs/PRD/DueDateHQ-PRD-v2.0-Unified-Part1.md` §6.3.1 Ingest
+> 对齐技术：`docs/Dev File/04-AI-Architecture.md` §6 Pulse Pipeline
+> 语言约定：正文中文，URL / 代码 / 命名 / 注释全部英文
+
+---
+
+## 1. 文档目的与边界
+
+| 本文覆盖                                                   | 本文不覆盖（见对应文档）                         |
+| ---------------------------------------------------------- | ------------------------------------------------ |
+| 权威源清单（URL / 协议 / 更新频率 / 官方证据强度）         | 抓取后的 LLM Extraction → 见 04 §6.2             |
+| 每个源的反爬策略（请求头、频率、代理、Cloudflare IP 风险） | Match Engine 四维匹配 → 见 04 §6.3 / PRD §6.3.3  |
+| 单源失败的降级与可观测（SLA 风险矩阵 + 应急预案）          | Batch Apply 事务 → 见 04 §6.4                    |
+| Source Adapter 工程契约（interface + 错误边界）            | Evidence Mode / 审计 → 见 06-Security-Compliance |
+| Phase 0 / Phase 1 / Phase 2 源扩展路线                     | UI 层 Pulse Banner / Drawer → 见 05-Frontend     |
+
+**一句话：** 本文是 Ops 和 Backend 扩源时的唯一源头事实（single source of truth for ingestion），避免每次加州都要重新翻 PRD。
+
+---
+
+## 2. 源分级模型（Tier）
+
+按**官方权威性 × 工程稳定性 × 法务风险**三轴分三级：
+
+| Tier   | 含义                                            | Evidence Mode 显示          | 默认 `confidence` 起点 | 示例                                   |
+| ------ | ----------------------------------------------- | --------------------------- | ---------------------- | -------------------------------------- |
+| **T1** | 政府官方主站，可作直接证据链引用                | `Official` badge + 原文链接 | 0.9                    | IRS Newsroom / CA FTB / NY DTF         |
+| **T2** | 政府官方衍生信号（API / 第三方转发 / 跨域联动） | `Signal` badge              | 0.7（需 T1 交叉验证）  | FEMA API / IRS Guidewire / GovDelivery |
+| **T3** | 商业聚合 / 行业协会 / 邮件订阅解析              | `Reference` badge（隐藏源） | 0.5（仅作触发器）      | FTA / AICPA / Checkpoint / Avalara     |
+
+**规则：** 只有 T1 可以直接进入 `pending_review → approved → banner`；T2/T3 仅能触发"去 T1 查验"的 worker 任务，自身不出现在 Evidence Chain。
+
+---
+
+## 3. 源目录（Canonical List）
+
+### 3.1 Federal（IRS · T1）
+
+| ID             | 名称                | URL                                                              | 协议            | 频率    | 结构稳定性 | 备注                                                              |
+| -------------- | ------------------- | ---------------------------------------------------------------- | --------------- | ------- | ---------- | ----------------------------------------------------------------- |
+| `irs.newsroom` | IRS Newsroom        | `https://www.irs.gov/newsroom`                                   | HTML + RSS 当月 | 30 min  | 高         | RSS 仅当月，历史要翻页；主源                                      |
+| `irs.disaster` | IRS Disaster Relief | `https://www.irs.gov/newsroom/tax-relief-in-disaster-situations` | HTML diff       | 60 min  | 高         | 无 RSS；抓 "Recent Tax Relief" 表格；灾害延期唯一官方入口         |
+| `irs.guidance` | IRS Guidewire       | `https://www.irs.gov/newsroom/irs-guidance`                      | HTML + RSS      | 120 min | 中         | Revenue Ruling / Procedure / Notice；比新闻稿更硬的 Evidence 引用 |
+| `irs.tips`     | IRS Tax Tips        | `https://www.irs.gov/newsroom/irs-tax-tips`                      | RSS             | 120 min | 高         | 补充信号，命中 Pulse 匹配的概率低，默认 `Signal` badge（T2）      |
+
+### 3.2 State Primary（DOR · T1，Phase 1 目标 5 州骨架）
+
+| ID         | State | 官方源                                                                             | 协议 | 频率    | 结构稳定性 | 反爬风险 |
+| ---------- | ----- | ---------------------------------------------------------------------------------- | ---- | ------- | ---------- | -------- |
+| `ca.ftb`   | CA    | `https://www.ftb.ca.gov/about-ftb/newsroom/news-releases/index.html`               | HTML | 60 min  | 中         | 低       |
+| `ca.cdtfa` | CA    | `https://www.cdtfa.ca.gov/news/`                                                   | HTML | 120 min | 中         | 低       |
+| `ny.dtf`   | NY    | `https://www.tax.ny.gov/press/`（RSS: `https://www.tax.ny.gov/rss/subscribe.htm`） | RSS  | 60 min  | 高         | 低       |
+| `tx.cpa`   | TX    | `https://comptroller.texas.gov/about/media-center/news/`                           | HTML | 60 min  | 中         | 中       |
+| `fl.dor`   | FL    | `https://floridarevenue.com/taxes/Pages/tips.aspx`                                 | HTML | 120 min | 中         | 中       |
+| `wa.dor`   | WA    | `https://dor.wa.gov/about/news-releases`                                           | HTML | 120 min | 中         | 低       |
+| `ma.dor`   | MA    | `https://www.mass.gov/news/dor-news`                                               | HTML | 120 min | 高         | 低       |
+
+**适用性提示：**
+
+- TX 无州所得税 → `irs.*` + `tx.cpa`（Franchise / Sales）足够
+- CA 所得税（FTB）与销售税（CDTFA）是**两个独立源**，不可合并
+- NY DTF 是 50 州里 RSS 最稳定的，推荐作为 `e2e 回归测试的金标 fixture`
+
+### 3.3 Disaster Signal（T2 预判层）
+
+| ID                  | 名称                           | URL                                                              | 协议     | 频率   | 用法                                                                                              |
+| ------------------- | ------------------------------ | ---------------------------------------------------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------- |
+| `fema.declarations` | FEMA Disaster Declarations API | `https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries` | JSON API | 30 min | IRS 灾害延期几乎 100% 跟随 FEMA；**先抓 FEMA → 标记 `anticipated_pulse` → 等 IRS 原文落地后交叉** |
+| `weather.alerts`    | NWS Active Alerts (optional)   | `https://api.weather.gov/alerts/active`                          | GeoJSON  | 60 min | Phase 2；仅在做"前置预警"功能时启用                                                               |
+
+**关键设计：** FEMA 信号**不独立生成 Pulse**，只在 `anticipated_pulse` 表登记一条"可能即将发生"的提示，等 `irs.disaster` worker 抓到原文后，按 `(state, county, declaration_date)` 自动 join 提升置信度。这是 PRD §6.3.1 没写但强烈推荐的增量设计。
+
+### 3.4 Aggregator & Association（T3 参考层）
+
+| ID              | 名称                                   | URL / 接入方式                           | 用途                                      |
+| --------------- | -------------------------------------- | ---------------------------------------- | ----------------------------------------- |
+| `fta.directory` | Federation of Tax Administrators       | `https://taxadmin.org/`                  | 50 州 DOR 目录，扩州时的源发现入口        |
+| `aicpa.chart`   | AICPA State Tax Filing Guidance Chart  | 会员 PDF                                 | 人工复核时的 cross-check 材料，不抓       |
+| `govdelivery.*` | GovDelivery 邮件订阅（MA/VA/NJ/IL 等） | Inbound Email → Cloudflare Email Routing | **免反爬、零工程成本的兜底渠道**；见 §5.3 |
+
+### 3.5 Commercial Fallback（T3 备选，Demo 后再评估）
+
+| ID                   | 供应商                     | 覆盖              | 商业状态         |
+| -------------------- | -------------------------- | ----------------- | ---------------- |
+| `checkpoint.reuters` | Thomson Reuters Checkpoint | 50 州全税种       | 贵 · 权威 · 备选 |
+| `bloomberg.tax`      | Bloomberg Tax              | 50 州 + 联邦      | 贵 · 备选        |
+| `avalara.api`        | Avalara                    | 销售税 / VAT 全球 | API 成熟         |
+| `taxjar.api`         | TaxJar                     | 销售税            | API 成熟         |
+
+**原则：** MVP 不采购，只在 §6 Source Adapter 里预留 `commercial.*` 适配槽位，供 Demo 后谈单时接入。
+
+---
+
+## 4. 反爬策略（Anti-Scraping Playbook）
+
+### 4.1 通用规范（所有 Source Adapter 必须遵守）
+
+```ts
+// packages/ingest/http.ts
+export const DEFAULT_HEADERS = {
+  'User-Agent': 'DueDateHQ-PulseBot/1.0 (+https://duedatehq.com/bot; ops@duedatehq.com)',
+  Accept: 'text/html,application/xhtml+xml,application/xml,application/rss+xml',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Cache-Control': 'no-cache',
+}
+
+// Politeness budget per source
+export const RATE_LIMIT = {
+  minIntervalMs: 30_000, // never request same host more than 2/min
+  maxConcurrent: 1, // serialize per host
+  backoffOn429Ms: 15 * 60_000, // cool down 15 min on HTTP 429
+}
+```
+
+**三条硬性底线：**
+
+1. **可识别的 UA**：`User-Agent` 必须声明 Bot 身份 + 联系邮箱（政府站点遇到可溯源的 UA 基本不封）
+2. **条件请求**：优先 `If-Modified-Since` / `If-None-Match`，命中 304 直接 return
+3. **遵守 robots.txt**：启动时拉取 `/robots.txt` 缓存 24h；命中 disallow 立即报警不抓
+
+### 4.2 按源分级的反爬预案
+
+| 源类型                         | 风险                        | 预案                                                                                         |
+| ------------------------------ | --------------------------- | -------------------------------------------------------------------------------------------- |
+| `irs.*`                        | 几乎不封，但偶发 WAF 503    | 403/503 时退避 15min；连续 3 次失败 → Sentry + 邮件 ops                                      |
+| `ca.ftb` / `ca.cdtfa`          | 偶尔触发 Akamai Bot Manager | 加 `Referer: https://www.ftb.ca.gov/`；失败降级到 `raw HTML fetch via Browserless (Phase 2)` |
+| `ny.dtf`（RSS）                | 稳定，历史 99.9% SLA        | RSS only，不抓 HTML                                                                          |
+| `tx.cpa` / `fl.dor` / `wa.dor` | 中风险，页面结构年度改版    | 每条 selector 必须附 **Cheerio fallback selector chain**（见 §6.2），失败 → 人工录入兜底     |
+| `fema.*` / `weather.*`         | 官方 API，稳定              | 标准 REST + 指数退避                                                                         |
+
+### 4.3 Cloudflare Worker 出口 IP 的风险
+
+**背景：** Worker 的 egress IP 是 Cloudflare 共享池。部分政府 WAF 会对 Cloudflare ASN 整体限流或挑战。
+
+**缓解：**
+
+- **Phase 0 Demo**：2 源（IRS + NY DTF），实测不受影响，直接从 Worker fetch
+- **Phase 1 5 州**：引入 `fetch` proxy 层，失败时 fallback 到 **Cloudflare Workers 官方的 egress 池 (`undici` + `fetcher` binding)**
+- **Phase 2 扩 15 源**：若仍被挑战，引入 **Browserless.io / ScrapingBee** 作为最后一跳（成本 ~$50/月，只对触发 WAF 的源走）
+
+**工程实现接口：**
+
+```ts
+// packages/ingest/fetcher.ts
+export interface Fetcher {
+  fetch(url: string, init?: RequestInit): Promise<Response>
+}
+
+export class CloudflareFetcher implements Fetcher {
+  /* default */
+}
+export class BrowserlessFetcher implements Fetcher {
+  /* Phase 2 fallback */
+}
+
+// Each source adapter declares which fetcher it needs; registry resolves at runtime
+export const SOURCE_FETCHER: Record<SourceId, FetcherId> = {
+  'irs.newsroom': 'cloudflare',
+  'ca.ftb': 'cloudflare',
+  'wa.dor': 'browserless', // Phase 2 only
+}
+```
+
+### 4.4 法务与合规边界
+
+- 所有源的 ToS 均允许**个人 / 研究性质**的自动化抓取；商用需确认
+- `GovDelivery` 订阅邮件转发受用户协议保护，**不可作为公开 API 对外暴露**，仅作内部信号
+- 抓到的原文（`raw_r2_key`）保留 90 天，用于 Evidence Mode 回看；超期自动归档
+- **严禁** 登录后抓取（no authenticated scraping），一律走公开页
+
+---
+
+## 5. SLA 风险矩阵
+
+### 5.1 单源失败场景
+
+| 失败类型                | 检测方式                                 | 响应                                                                          | 用户可见影响                                  |
+| ----------------------- | ---------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------- |
+| HTTP 5xx / timeout      | worker 直接 catch                        | 退避 + 重试 3 次；失败 → Sentry                                               | `Last checked X min ago` 显示真实时间（诚实） |
+| HTTP 403 / 429（反爬）  | status code                              | 退避 15min + 切 `browserless` fetcher（Phase 2）                              | 同上                                          |
+| 结构变更（selector 挂） | 解析后字段为空 / hash 长期不变           | worker 主动报 `selector-drift` 事件；降级 mock 数据（仅 Demo 环境）           | Banner 显示 `Source needs attention`          |
+| 内容污染（钓鱼页）      | LLM Extract `confidence < 0.3` 连续 3 次 | 该源打入 `quarantined` 状态，下次 cron 跳过，ops 人工复核                     | 源从 Feed 隐藏                                |
+| 法律下架（Takedown）    | ops 手动触发                             | 源 `disabled`，历史 Pulse 保留但打 `source_revoked` 标记，Evidence 链保留快照 | Evidence Drawer 显示 "Source no longer live"  |
+
+### 5.2 可观测指标（上报到 07-DevOps-Testing）
+
+```
+pulse.ingest.fetch_duration_ms    (histogram, label: source_id, status)
+pulse.ingest.fetch_result         (counter,   label: source_id, outcome ∈ {ok,304,4xx,5xx,timeout,selector_drift})
+pulse.ingest.last_success_ts      (gauge,     label: source_id)
+pulse.ingest.confidence_avg_24h   (gauge,     label: source_id)
+```
+
+**告警规则：**
+
+- `last_success_ts` 超过 4 小时（联邦源）/ 12 小时（州源）→ PagerDuty
+- `outcome=selector_drift` 任何一次 → Slack ops 频道
+- `confidence_avg_24h < 0.5` 连续 24h → 源 quarantine 自动触发
+
+### 5.3 GovDelivery 邮件兜底（反爬的终极降级）
+
+**场景：** 某州 DOR 页面持续反爬（如触发 Akamai 长期挑战），且该州未提供 RSS。
+
+**方案：**
+
+1. 运营用 `pulse-ingest@duedatehq.com` 订阅该州 DOR 的 GovDelivery 邮件列表
+2. Cloudflare Email Routing 把该邮箱路由到 Worker
+3. Worker 解析 email body → 等价于一次"HTTP 抓取"的结果 → 进入 `pending_review`
+
+**优点：** 完全合规（用户主动订阅）、零反爬、零工程维护成本。
+**缺点：** 延迟高（取决于 DOR 发信间隔，通常 1-24h），做**最后一道兜底**而非主路径。
+
+---
+
+## 6. Source Adapter 工程契约
+
+### 6.1 统一接口
+
+```ts
+// packages/ingest/types.ts
+export interface SourceAdapter {
+  readonly id: SourceId // e.g. 'irs.newsroom'
+  readonly tier: 'T1' | 'T2' | 'T3'
+  readonly cronIntervalMs: number
+  readonly jurisdiction: 'federal' | UsStateCode
+
+  fetch(ctx: IngestCtx): Promise<RawSnapshot[]>
+  parse(snapshot: RawSnapshot): Promise<ParsedItem[]>
+}
+
+export interface RawSnapshot {
+  sourceId: SourceId
+  fetchedAt: string
+  contentHash: string // sha256 of body, dedup key
+  r2Key: string // raw body archived in R2
+  etag?: string
+  lastModified?: string
+}
+
+export interface ParsedItem {
+  sourceId: SourceId
+  externalId: string // stable ID from source (url or guid)
+  title: string
+  publishedAt: string
+  officialSourceUrl: string
+  rawText: string // feeds LLM extraction downstream
+}
+```
+
+### 6.2 Selector Fallback Chain（对 HTML 源强制）
+
+```ts
+// Example: TX Comptroller news list
+export const TX_CPA_SELECTORS = [
+  'main .view-news-list .views-row', // primary (current DOM)
+  '#content .news-item', // observed 2024 layout
+  'article[data-type="news"]', // generic fallback
+]
+
+// Adapter picks the first selector that yields ≥1 node
+export function pickSelector($: CheerioAPI, chain: string[]) {
+  /* ... */
+}
+```
+
+**原因：** 政府站点年度改版概率约 30%，`selector-drift` 是 SLA 最常见的失败。三档 fallback 能把生产事故降级为"精度下降"而不是"完全拉不到数据"。
+
+### 6.3 目录约定（对齐 08-Project-Structure）
+
+```
+packages/ingest/
+├── types.ts                    # SourceAdapter, RawSnapshot, ParsedItem
+├── fetcher.ts                  # Cloudflare / Browserless / Inbound-Email fetchers
+├── http.ts                     # DEFAULT_HEADERS, RATE_LIMIT, retry helpers
+├── selectors/                  # Named selector chains per source
+└── adapters/
+    ├── federal/
+    │   ├── irs-newsroom.ts
+    │   ├── irs-disaster.ts
+    │   ├── irs-guidance.ts
+    │   └── fema-declarations.ts
+    ├── state/
+    │   ├── ca-ftb.ts
+    │   ├── ca-cdtfa.ts
+    │   ├── ny-dtf.ts
+    │   └── ...
+    └── fallback/
+        └── govdelivery-inbound.ts
+```
+
+---
+
+## 7. 分期路线（对齐 09 Demo Sprint Playbook）
+
+| 阶段                      | 源                                                             | 工程量   | 成功标准                            |
+| ------------------------- | -------------------------------------------------------------- | -------- | ----------------------------------- |
+| **Phase 0 · Demo Sprint** | `irs.newsroom` + `irs.disaster` + `ny.dtf`                     | 1 人 2d  | S3 场景能真实触发 + mock 兜底齐全   |
+| **Phase 0 · 完整 MVP**    | + `ca.ftb` + `tx.cpa` + `fema.declarations`                    | 1 人 3d  | PRD §6.3.1 5 源骨架 + FEMA 交叉验证 |
+| **Phase 1**               | + `ca.cdtfa` + `fl.dor` + `wa.dor` + `ma.dor` + `irs.guidance` | 1 人 5d  | 10 源 ≥ 99% SLA                     |
+| **Phase 2**               | + GovDelivery 兜底池（覆盖 20 州）+ Browserless fetcher        | 2 人周   | 15+ 源；反爬失败可自动切换          |
+| **Phase 3（商单触发）**   | Checkpoint / Bloomberg Tax / Avalara 商业 API                  | 谈单驱动 | 客户合同签字后再采购                |
+
+---
+
+## 8. Checklist：加一个新源要做的 8 件事
+
+1. 确定 **Tier**（T1/T2/T3）与 `jurisdiction`
+2. 查 **robots.txt** 与 **ToS**，确认自动化抓取合规
+3. 写 **Source Adapter**（`packages/ingest/adapters/...`），实现 `fetch + parse`
+4. 写 **Selector Fallback Chain**（HTML 源必做）
+5. 在 `SOURCE_FETCHER` 注册默认 fetcher（通常是 `cloudflare`）
+6. 加 **cron binding**（`apps/worker/wrangler.toml`）
+7. 补 **e2e fixture**（把源的一份真实快照放到 `packages/ingest/fixtures/<source-id>/`）
+8. 在 **§5.2 可观测指标** 中默认注册 4 个指标 + 告警规则
+
+---
+
+## 9. 风险登记（Known Risks）
+
+| 风险                                         | 可能性 | 影响 | 缓解                                                                                             |
+| -------------------------------------------- | ------ | ---- | ------------------------------------------------------------------------------------------------ |
+| 某州 DOR 整站改版导致 selector 全挂          | 中     | 中   | Selector Fallback Chain §6.2 + GovDelivery 兜底 §5.3                                             |
+| Cloudflare egress IP 被某个州 WAF 整体挑战   | 低     | 高   | Browserless fetcher Phase 2 预留；先验证 Phase 0 两源无问题                                      |
+| IRS RSS 当月 reset 导致漏抓月初公告          | 中     | 中   | 每月 1 号 00:10 UTC 额外触发一次 `irs.newsroom` 全量抓取（非 RSS 路径）                          |
+| FEMA API 字段变更（历史上 v1 → v2 改过一次） | 低     | 中   | 锁版本 `v2`，单元测试守字段契约                                                                  |
+| LLM 对 verbatim quote 做"礼貌性改写"导致失真 | 中     | 高   | 04 §6.2 的 Glass-Box Guard：LLM 输出的 `verbatim_quote` 必须 substring 于 `rawText`，否则 reject |
+| 法务 Takedown                                | 极低   | 高   | §5.1 `source_revoked` 流程；Evidence 快照保留                                                    |
+
+---
+
+## 10. 交叉引用
+
+- PRD §6.3.1 Ingest · §6.3.5 降级策略
+- 04-AI-Architecture §6.1 Ingest · §6.2 Extract
+- 06-Security-Compliance Evidence Mode / WISP
+- 07-DevOps-Testing 可观测 / CI fixture
+- 08-Project-Structure `packages/ingest/` 目录
+- 09-Demo-Sprint-Module-Playbook S3 模块拆分

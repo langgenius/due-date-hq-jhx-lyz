@@ -2,7 +2,7 @@
 
 > 文档类型：Technical Design Document Index
 > 版本：v2.0（Cloudflare 全栈口径）
-> 对齐 PRD：`docs/PRD/DueDateHQ-PRD-v2.0-Unified.md`
+> 对齐 PRD：`docs/PRD/DueDateHQ-PRD-v2.0-Unified-Part1.md`（§0–§6D） + `docs/PRD/DueDateHQ-PRD-v2.0-Unified-Part2.md`（§7–§19）
 > 对齐设计：`docs/Design/DueDateHQ-DESIGN.md`
 > 目标：把 PRD 的"产品承诺"转译为"可实现、可运维、可演进"的技术方案
 > 语言约定：正文中文，代码 / 命名 / 注释全部英文
@@ -24,6 +24,7 @@
 | 08  | [Project Structure](./08-Project-Structure.md)                     | 代码目录 · 模块划分 · 命名约定                           | Eng                 |
 | 09  | [Demo Sprint Module Playbook](./09-Demo-Sprint-Module-Playbook.md) | 2 人 Demo-Ready 模块拆分与协作边界手册                   | Team                |
 | 10  | [Demo Sprint 7-Day Rhythm](./10-Demo-Sprint-7Day-Rhythm.md)        | 2 人 7 天 × 4-6h/天 的 Demo 节奏与每日分工               | Team                |
+| 11  | [Pulse Ingest Source Catalog](./11-Pulse-Ingest-Source-Catalog.md) | Pulse 权威源清单 · 反爬策略 · SLA 风险 · Adapter 契约    | Eng / Ops           |
 | 📐  | [Design System](../Design/DueDateHQ-DESIGN.md)                     | 视觉 token · 组件规格（Ramp × Linear · Light Workbench） | Designer / Frontend |
 
 ---
