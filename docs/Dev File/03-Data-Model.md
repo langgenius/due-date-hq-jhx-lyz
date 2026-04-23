@@ -354,7 +354,7 @@ export const scoped = (db: DrizzleDB, firmId: string) => ({
 pnpm --filter @duedatehq/db db:generate
 
 # 3. 本地 D1 应用
-pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --local
+pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --local
 
 # 4. 本地 better-auth 迁移（首次 + 改 auth 配置时）
 pnpm --filter @duedatehq/server auth:migrate --local

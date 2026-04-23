@@ -425,8 +425,8 @@ packages/core
     "format": "vp fmt --check",
     "format:fix": "vp fmt --write",
     "db:generate": "pnpm --filter @duedatehq/db db:generate",
-    "db:migrate:local": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --local",
-    "db:migrate:remote": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --remote",
+    "db:migrate:local": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --local",
+    "db:migrate:remote": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --remote",
     "db:seed:demo": "pnpm --filter @duedatehq/db seed:demo",
     "deploy": "vp run workspace-deploy"
   }
@@ -440,7 +440,7 @@ packages/core
 {
   "scripts": {
     "dev": "node -e \"require('node:fs').mkdirSync('../web/dist',{recursive:true})\" && wrangler dev --local",
-    "dev:fullstack": "pnpm --filter @duedatehq/web build && wrangler dev --local",
+    "dev:fullstack": "pnpm --filter @duedatehq/web run build && wrangler dev --local",
     "build": "wrangler deploy --dry-run --outdir=dist --env=\"\"",
     "deploy": "wrangler deploy --env=\"\"",
     "test": "vp test"

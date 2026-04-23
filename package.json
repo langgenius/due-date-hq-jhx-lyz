@@ -18,8 +18,8 @@
     "secrets:scan": "gitleaks detect --source . --no-git --redact",
     "check:deps": "node scripts/check-dep-direction.mjs",
     "db:generate": "pnpm --filter @duedatehq/db db:generate",
-    "db:migrate:local": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --local",
-    "db:migrate:remote": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --remote",
+    "db:migrate:local": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --local",
+    "db:migrate:remote": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --remote",
     "db:seed:demo": "pnpm --filter @duedatehq/db seed:demo",
     "deploy": "vp run workspace-deploy"
   },
