@@ -32,8 +32,9 @@ jobs:
 
       - run: vp run ci
 
-      # Secret scan: same entry as local `pnpm secrets:scan` so CI and dev agree.
-      # Pinned version matches the one developers install locally (Day 1 rhythm §3).
+      # Secret scan: gitleaks version pinned to match what developers install
+      # locally (Day 1 rhythm §3); keep the CLI flags below aligned with the
+      # `secrets:scan` script in package.json so CI and dev agree.
       - name: Install gitleaks
         env:
           GITLEAKS_VERSION: '8.30.1'
@@ -43,5 +44,8 @@ jobs:
           sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
           gitleaks version
 
+      # Keep in sync with the `secrets:scan` script in package.json.
+      # We invoke gitleaks directly because `setup-vp` doesn't ship pnpm, and
+      # pulling pnpm in just to run a one-liner isn't worth the complexity.
       - name: Secret scan
-        run: pnpm secrets:scan
+        run: gitleaks detect --source . --no-git --redact
