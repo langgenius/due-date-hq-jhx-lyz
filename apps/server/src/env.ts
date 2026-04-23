@@ -1,8 +1,18 @@
-// Single source of truth for Worker bindings + secrets.
-// Every handler that touches env goes through this type (no `any` c.env anywhere).
+import { createEnv } from '@t3-oss/env-core'
+import { z } from 'zod'
 
-export interface Env {
-  // Cloudflare bindings (wrangler.toml)
+const serverEnvSchema = z.object({
+  AUTH_SECRET: z.string().min(32),
+  AUTH_URL: z.url(),
+  APP_URL: z.url(),
+  ENV: z.enum(['development', 'staging', 'production']).default('development'),
+  RESEND_API_KEY: z.string().min(1).optional(),
+  EMAIL_FROM: z.email(),
+})
+
+export type ServerEnv = z.infer<typeof serverEnvSchema>
+
+export interface WorkerBindings {
   DB: D1Database
   CACHE: KVNamespace
   RATE_LIMIT: RateLimit
@@ -12,32 +22,43 @@ export interface Env {
   VECTORS: VectorizeIndex
   EMAIL_QUEUE: Queue
   ASSETS: Fetcher
+}
 
-  // Secrets (wrangler secret put)
-  AUTH_SECRET: string
-  AUTH_URL: string
-  APP_URL: string
-  ENV: 'development' | 'staging' | 'production'
-
+export interface Env extends WorkerBindings, ServerEnv {
   AI_GATEWAY_ACCOUNT_ID: string
   AI_GATEWAY_SLUG: string
   OPENAI_API_KEY: string
   ANTHROPIC_API_KEY: string
   LANGFUSE_PUBLIC_KEY: string
   LANGFUSE_SECRET_KEY: string
-
-  RESEND_API_KEY: string
-  EMAIL_FROM: string
-
   VAPID_PUBLIC_KEY: string
   VAPID_PRIVATE_KEY: string
   VAPID_SUBJECT: string
-
   SENTRY_DSN: string
   POSTHOG_KEY: string
 }
 
-// Hono context variables populated by middleware.
+export function validateServerEnv(runtimeEnv: Env): ServerEnv {
+  const env = createEnv({
+    server: serverEnvSchema.shape,
+    runtimeEnv: {
+      AUTH_SECRET: runtimeEnv.AUTH_SECRET,
+      AUTH_URL: runtimeEnv.AUTH_URL,
+      APP_URL: runtimeEnv.APP_URL,
+      ENV: runtimeEnv.ENV,
+      RESEND_API_KEY: runtimeEnv.RESEND_API_KEY,
+      EMAIL_FROM: runtimeEnv.EMAIL_FROM,
+    },
+    emptyStringAsUndefined: true,
+  })
+
+  if (env.ENV !== 'development' && !env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is required outside development')
+  }
+
+  return env
+}
+
 export interface ContextVars {
   requestId: string
   firmId?: string

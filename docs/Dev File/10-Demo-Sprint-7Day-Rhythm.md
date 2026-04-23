@@ -164,8 +164,8 @@ flowchart LR
 - [x] JHX：Worker 在本地能返回 `/api/health` 200
 - [x] JHX：`vp check` / `vp run -r test` / `vp run -r build` 在空项目上全绿
 - [x] JHX：`vp` 安装的 staged git hook 在 staged file 上生效
-- [ ] LYZ：`vp run -r dev` 能打开 SPA 空壳
-- [ ] LYZ：Drizzle schema 能 `db:generate` 产出 migration SQL
+- [x] LYZ：`vp run -r dev` 能打开 SPA 空壳
+- [x] LYZ：Drizzle schema 能 `db:generate` 产出 migration SQL
 
 ### Day 2
 

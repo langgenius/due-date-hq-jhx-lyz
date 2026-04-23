@@ -1,7 +1,6 @@
-// Public surface of @duedatehq/db.
-// NOTE: Procedures may NOT import from `@duedatehq/db/schema/*`; oxlint blocks it.
-// They must go through `scoped(db, firmId)`.
+import * as authSchema from './schema/auth'
 
 export { createDb } from './client'
 export { scoped } from './scoped'
+export { authSchema }
 export type { Db, ScopedRepo } from './types'

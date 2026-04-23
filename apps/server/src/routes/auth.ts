@@ -1,14 +1,12 @@
 import { Hono } from 'hono'
+import { createWorkerAuth } from '../auth'
 import type { Env, ContextVars } from '../env'
 
-// /api/auth/* · better-auth handler mount point.
-// The actual handler is produced by @duedatehq/auth's createAuth factory and plugged in here.
-export const authRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().all(
+export const authRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().on(
+  ['GET', 'POST'],
   '*',
   async (c) => {
-    // TODO(phase-0):
-    //   const auth = createAuth({ db: createDb(c.env.DB), env: c.env })
-    //   return auth.handler(c.req.raw)
-    return c.json({ error: 'auth handler not wired yet' }, 501)
+    const auth = createWorkerAuth(c.env, c.executionCtx)
+    return auth.handler(c.req.raw)
   },
 )

@@ -129,6 +129,8 @@ catalog:
   '@orpc/openapi': 1.14.0
 
   # ───────── auth ─────────
+  '@better-auth/cli': 1.4.21
+  '@t3-oss/env-core': 0.13.11
   better-auth: 1.6.7
 
   # ───────── db ─────────

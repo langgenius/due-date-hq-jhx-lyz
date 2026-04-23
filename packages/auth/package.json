@@ -16,6 +16,7 @@
     "./types": "./src/types.ts"
   },
   "scripts": {
+    "auth:schema": "better-auth generate --config auth.cli.ts --output ../../packages/db/src/schema/auth.ts --yes",
     "test": "vp test"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
+    "@better-auth/cli": "catalog:",
     "@duedatehq/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
