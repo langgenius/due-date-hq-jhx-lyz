@@ -6,6 +6,16 @@ import { RouteHydrateFallback } from '@/routes/fallback'
 
 export const router = createBrowserRouter([
   {
+    path: '/login',
+    HydrateFallback: RouteHydrateFallback,
+    ErrorBoundary: RouteErrorBoundary,
+    lazy: async () => {
+      const { LoginRoute } = await import('@/routes/login')
+
+      return { Component: LoginRoute }
+    },
+  },
+  {
     path: '/',
     Component: RootLayout,
     ErrorBoundary: RouteErrorBoundary,
