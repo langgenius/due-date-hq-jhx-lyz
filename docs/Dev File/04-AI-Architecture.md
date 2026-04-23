@@ -244,7 +244,7 @@ d1.batch([
 
 ### 6.6 与 ExceptionRule Overlay 的关系
 
-- **Phase 0 · 7 天 Demo Sprint**（§09 简化口径）：直接 UPDATE `current_due_date` + evidence_link，不建 `exception_rule` 表
+- **Phase 0 · Demo Sprint**（§09 简化口径）：直接 UPDATE `current_due_date` + evidence_link，不建 `exception_rule` 表
 - **Phase 0 完整 MVP（4 周）+ Phase 1**：启用 Overlay Engine。每个 Pulse Apply 创建一条 `exception_rule` + N 条 `obligation_exception_application`，`current_due_date` 改为运行时 = base_due_date + apply(active overlays)
 - **Sprint → 完整 MVP 的数据迁移**：从 `pulse_application` 反推生成 `exception_rule`，一次性 script
 

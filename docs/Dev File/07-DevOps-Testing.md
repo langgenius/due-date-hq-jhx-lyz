@@ -67,7 +67,7 @@
 ## 3. 分支 / Release 策略
 
 - 单一 `main` 分支
-- Feature branch：`feat/<slice>/<short>`（7 天 Demo Sprint 期简化：不强制 code review，merge squash；Phase 0 完整 MVP 起强制 1 人 review）
+- Feature branch：`feat/<module>/<short>`（Demo Sprint 期简化：不强制 code review，merge squash；Phase 0 完整 MVP 起强制 1 人 review）
 - 版本标签：语义化 `v0.1.0`；tag 触发 production deploy
 - Hotfix：`hotfix/<issue>` → PR → squash → tag `v0.1.1`
 

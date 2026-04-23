@@ -23,7 +23,7 @@
 | 06  | [Security & Compliance](./06-Security-Compliance.md)   | Auth · RBAC · PII · 审计 · WISP                    | Eng / Compliance    |
 | 07  | [DevOps & Testing](./07-DevOps-Testing.md)             | 部署 · CI/CD · 可观测 · 测试                            | Eng / SRE           |
 | 08  | [Project Structure](./08-Project-Structure.md)         | 代码目录 · 模块划分 · 命名约定                               | Eng                 |
-| 09  | [7-Day Sprint Playbook](./09-7-Day-Sprint-Playbook.md) | 2 人 7 天 Demo-Ready 冲刺手册                          | Team                |
+| 09  | [Demo Sprint Module Playbook](./09-Demo-Sprint-Module-Playbook.md) | 2 人 Demo-Ready 模块拆分与协作边界手册                     | Team                |
 | 📐  | [Design System](../Design/DueDateHQ-DESIGN.md)         | 视觉 token · 组件规格（Ramp × Linear · Light Workbench） | Designer / Frontend |
 
 
@@ -85,7 +85,7 @@
 3. **24 小时 Pulse 闭环**（PRD §0.3 · §6.3）
   - Ingest 由 Cron Triggers 驱动，LLM 抽取交给 Queues 消费者
   - Batch Apply 与 Email Outbox **共用同一 D1 事务**（Transactional Outbox）
-  - Pulse 产生的调整落 `ExceptionRule` overlay，**不改 base rule**（Phase 0 的 7 天 Demo Sprint 简化为直接 UPDATE + evidence_link；Phase 0 完整 MVP 和 Phase 1 使用 Overlay Engine）
+  - Pulse 产生的调整落 `ExceptionRule` overlay，**不改 base rule**（Phase 0 的 Demo Sprint 简化为直接 UPDATE + evidence_link；Phase 0 完整 MVP 和 Phase 1 使用 Overlay Engine）
 
 ---
 
@@ -95,7 +95,7 @@
 | Phase | PRD 范围 | 技术里程碑 |
 |---|---|---|
 | **Phase 0 · MVP · ~4 周**（PRD §14.1） | P0-1 ~ P0-24 全部；P1 的 Pulse / Ask / Client PDF / ICS / PWA 壳（P1-36） | 核心闭环 + 6 辖区 rule pack（Federal + CA/NY/TX/FL/WA/MA）全 verified；单 Worker 部署 |
-| — **内嵌 · 7 天 Demo Sprint**（§09） | Phase 0 的 Demo-Ready 最小子集 | 简化为 3 辖区 seed（Federal + CA + NY）+ 单 Owner + Pulse 直接 UPDATE（替代 Overlay）+ WISP 1-page draft；目的是集训路演，不等价 Phase 0 完整交付 |
+| — **内嵌 · Demo Sprint**（§09） | Phase 0 的 Demo-Ready 最小子集 | 简化为 3 辖区 seed（Federal + CA + NY）+ 单 Owner + Pulse 直接 UPDATE（替代 Overlay）+ WISP 1-page draft；目的是集训路演，不等价 Phase 0 完整交付 |
 | **Phase 1 · 5–12 周**（PRD §14.2） | P1-1 ~ P1-37：Rules-as-Asset 全量 · 50 州 full coverage · Team RBAC 完整 · Stripe · Zapier · Readiness Portal · Onboarding Agent · SEO 公开页 | Overlay Engine 启用 · RBAC 强制校验开启 · **SEO 公开页（`/rules` `/watch` `/state/*` `/pulse`）拆到独立 Astro 子站**（主 Worker 保持 SPA） |
 | **Phase 2 · Q3 2026**（PRD §14.3） | macOS Menu Bar Widget · Audit-Ready Evidence Package · QBO/TaxDome/Drake 集成 · 电子签名 · SOC 2 预审 | Tauri 壳 · RFC 3161 TSA · 第三方集成 API |
 | **Phase 3 · Q4 2026+**（PRD §14.4） | Compliance Calendar API（给 TaxDome / Karbon 做 intelligence 层） | 开放 `/api/v1/*` OpenAPIHandler 路由（复用同一份 `packages/contracts` 契约） |
