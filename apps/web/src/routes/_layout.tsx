@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -154,12 +155,14 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
           <UserAvatar user={user} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" sideOffset={8} className="w-56">
-          <DropdownMenuLabel className="flex flex-col gap-0.5 text-left">
-            <span className="text-sm font-medium text-text-primary">
-              {user.name || 'Signed in'}
-            </span>
-            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-          </DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="flex flex-col gap-0.5 text-left">
+              <span className="text-sm font-medium text-text-primary">
+                {user.name || 'Signed in'}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            </DropdownMenuLabel>
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={handleSignOut} disabled={isSigningOut}>
             <LogOutIcon />
@@ -190,10 +193,14 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
         <ChevronsUpDownIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="top" sideOffset={8} className="w-56">
-        <DropdownMenuLabel className="flex flex-col gap-0.5 text-left">
-          <span className="text-sm font-medium text-text-primary">{user.name || 'Signed in'}</span>
-          <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="flex flex-col gap-0.5 text-left">
+            <span className="text-sm font-medium text-text-primary">
+              {user.name || 'Signed in'}
+            </span>
+            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleSignOut} disabled={isSigningOut}>
           <LogOutIcon />
