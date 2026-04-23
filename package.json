@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "ci": "vp check && vp run -r test && vp run @duedatehq/web#build && vp run @duedatehq/server#build",
-    "ready": "vp check && vp run -r test && vp run -r build",
+    "ci": "vp check && vp run -r test && vp run build",
+    "ready": "vp check && vp run -r test && vp run build",
     "dev": "vp run -r dev",
-    "build": "vp run -r build",
+    "build": "vp run @duedatehq/web#build && vp run @duedatehq/server#build",
     "test": "vp run -r test",
     "test:e2e": "playwright test",
     "check": "vp check",
