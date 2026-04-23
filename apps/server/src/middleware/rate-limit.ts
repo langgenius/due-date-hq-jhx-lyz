@@ -1,8 +1,8 @@
 import { createMiddleware } from 'hono/factory'
 import type { Env, ContextVars } from '../env'
 
-// Rate Limit binding (docs/Dev File/01 §1). KV-backed counter as a fallback lands with the
-// degradation matrix (docs/Dev File/01 §5).
+// Rate Limit binding (docs/dev-file/01 §1). KV-backed counter as a fallback lands with the
+// degradation matrix (docs/dev-file/01 §5).
 export const rateLimitMiddleware = createMiddleware<{ Bindings: Env; Variables: ContextVars }>(
   async (c, next) => {
     const key = c.get('userId') ?? c.req.header('cf-connecting-ip') ?? 'anon'

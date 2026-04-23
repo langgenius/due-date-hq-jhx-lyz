@@ -61,7 +61,7 @@ peerDependencyRules:
 # ============================================================
 # Catalog · single source of truth for every external version.
 #
-# Rules (docs/Dev File/01 §3):
+# Rules (docs/dev-file/01 §3):
 #   1. All apps/* and packages/* dependencies MUST use
 #      "catalog:" — never a literal version, never "^x.y.z",
 #      never "latest".

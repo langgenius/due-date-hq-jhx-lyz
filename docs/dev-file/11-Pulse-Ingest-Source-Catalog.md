@@ -3,7 +3,7 @@
 > 文档类型：Data Source Operations Handbook
 > 版本：v1.0
 > 对齐 PRD：`docs/PRD/DueDateHQ-PRD-v2.0-Unified-Part1.md` §6.3.1 Ingest
-> 对齐技术：`docs/Dev File/04-AI-Architecture.md` §6 Pulse Pipeline
+> 对齐技术：`docs/dev-file/04-AI-Architecture.md` §6 Pulse Pipeline
 > 语言约定：正文中文，URL / 代码 / 命名 / 注释全部英文
 
 ---

@@ -11,7 +11,7 @@ import path from 'node:path'
  * SPA build/dev-server specifics here.
  *
  * PWA / Service Worker / Web Push were removed from Phase 0
- * (docs/Dev File/05 §8). Static chunks are served by the
+ * (docs/dev-file/05 §8). Static chunks are served by the
  * Worker Assets binding with immutable cache headers, and
  * runtime cache is handled by TanStack Query.
  */

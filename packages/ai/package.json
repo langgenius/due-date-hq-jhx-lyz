@@ -38,5 +38,5 @@
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
-  "//": "AI orchestrator. MUST NOT import @duedatehq/db directly — Vectorize/KV/Langfuse/writers are injected via ports.ts (docs/Dev File/08 §4.6)."
+  "//": "AI orchestrator. MUST NOT import @duedatehq/db directly — Vectorize/KV/Langfuse/writers are injected via ports.ts (docs/dev-file/08 §4.6)."
 }

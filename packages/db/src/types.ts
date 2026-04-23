@@ -15,7 +15,7 @@ export interface ScopedRepo {
 }
 
 // Per-domain repo contracts are filled in Phase 0. Keep interfaces here so consumers
-// depend on shape, not implementation (docs/Dev File/02 §1 layering discipline).
+// depend on shape, not implementation (docs/dev-file/02 §1 layering discipline).
 export interface ClientsRepo {}
 export interface ObligationsRepo {}
 export interface PulseRepo {}

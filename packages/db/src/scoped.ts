@@ -4,7 +4,7 @@ import type { ScopedRepo } from './types'
 /**
  * Scoped repository factory — THE ONLY entry point procedures may use to reach D1.
  *
- * HARD CONSTRAINTS (docs/Dev File/06 §4 · docs/Dev File/02 §7):
+ * HARD CONSTRAINTS (docs/dev-file/06 §4 · docs/dev-file/02 §7):
  *   - Every repo method internally enforces `WHERE firm_id = :firmId`.
  *   - `firmId` is injected by middleware (from the better-auth session's `activeOrganizationId`);
  *     procedures must never take `firmId` from user input.

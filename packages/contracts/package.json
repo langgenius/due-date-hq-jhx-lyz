@@ -33,5 +33,5 @@
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
-  "//": "Shared oRPC contracts. Only `zod` and `@orpc/contract` are allowed as deps (docs/Dev File/08 §4.3)."
+  "//": "Shared oRPC contracts. Only `zod` and `@orpc/contract` are allowed as deps (docs/dev-file/08 §4.3)."
 }

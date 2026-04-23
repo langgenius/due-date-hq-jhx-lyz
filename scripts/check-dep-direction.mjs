@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Enforce the dependency-direction DAG (docs/Dev File/08 §6).
+// Enforce the dependency-direction DAG (docs/dev-file/08 §6).
 //
 //   apps/*                → packages/{contracts, auth, ui, core}
 //   apps/server (adds)    → packages/{db, ai}
@@ -87,7 +87,7 @@ for (const ws of listWorkspaces()) {
 if (violations.length) {
   console.error('\n✗ Dependency-direction violations:\n')
   for (const v of violations) console.error('  • ' + v)
-  console.error('\nSee docs/Dev File/08 §6 for the allowed DAG.\n')
+  console.error('\nSee docs/dev-file/08 §6 for the allowed DAG.\n')
   process.exit(1)
 }
 

@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-Any non-trivial architectural decision lives here (docs/Dev File/08 §9).
+Any non-trivial architectural decision lives here (docs/dev-file/08 §9).
 
 ## Template
 

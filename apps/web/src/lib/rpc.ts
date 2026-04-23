@@ -3,7 +3,7 @@ import { RPCLink } from '@orpc/client/fetch'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 import type { AppContract } from '@duedatehq/contracts'
 
-// CONSTRAINT (docs/Dev File/05 §4): apps/web may only reach the Worker via this module.
+// CONSTRAINT (docs/dev-file/05 §4): apps/web may only reach the Worker via this module.
 // `fetch('/rpc/...')` or any other hand-rolled oRPC client is forbidden.
 
 const link = new RPCLink({

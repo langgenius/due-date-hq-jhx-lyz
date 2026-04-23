@@ -18,7 +18,7 @@ function allowedAuthOrigin(origin: string, env: Env): string | null {
 /**
  * Hono app assembly.
  *
- * Route prefix discipline (docs/Dev File/02 §3 · ADR 0008):
+ * Route prefix discipline (docs/dev-file/02 §3 · ADR 0008):
  *   /rpc/*            → RPCHandler (internal frontend only)
  *   /api/auth/*       → better-auth
  *   /api/webhook/*    → narrow external callbacks

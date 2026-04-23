@@ -9,7 +9,7 @@ DueDateHQ is a 2-engineer AI-assisted monorepo. The PRD and Dev File set covers 
 We use [Architecture Decision Records](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) stored under `docs/adr/` with the numeric prefix convention `NNNN-<slug>.md`. Every non-trivial architectural change:
 
 1. Lands a new ADR first (or updates an existing one with `Superseded by #NNN`).
-2. Then modifies `docs/Dev File/*` to reflect the new state.
+2. Then modifies `docs/dev-file/*` to reflect the new state.
 3. Then merges the code.
 
 ## Consequences

@@ -5,7 +5,7 @@ import type { Env, ContextVars } from '../env'
 /**
  * Reads the better-auth session from the incoming cookie.
  *
- * Layering (docs/Dev File/06 §4.1):
+ * Layering (docs/dev-file/06 §4.1):
  *   - 401 if no session
  *   - Sets c.var.userId and c.var.firmId from activeOrganizationId
  *

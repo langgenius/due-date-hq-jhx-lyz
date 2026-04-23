@@ -5,7 +5,7 @@ import { authSchema, createDb, scoped } from '@duedatehq/db'
 import type { Env, ContextVars } from '../env'
 
 /**
- * Tenant isolation gate (docs/Dev File/06 §4.1, §4.2).
+ * Tenant isolation gate (docs/dev-file/06 §4.1, §4.2).
  *
  * HARD CONTRACT:
  *   - `firmId` MUST come from `session.activeOrganizationId`; NEVER from request input.

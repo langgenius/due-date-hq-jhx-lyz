@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs))
 }
 
-// Monetary cents → "$1,234.56". Always pair with `font-mono tabular-nums` (docs/Dev File/05 §5.2).
+// Monetary cents → "$1,234.56". Always pair with `font-mono tabular-nums` (docs/dev-file/05 §5.2).
 export function formatCents(cents: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

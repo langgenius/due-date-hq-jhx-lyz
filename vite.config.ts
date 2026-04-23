@@ -14,8 +14,8 @@ import { defineConfig } from 'vite-plus'
  * drives `vp` subcommands for the whole workspace, not bundling.
  *
  * Authoritative references:
- *   docs/Dev File/01-Tech-Stack.md §4.4
- *   docs/Dev File/08-Project-Structure.md §6  (dependency direction)
+ *   docs/dev-file/01-Tech-Stack.md §4.4
+ *   docs/dev-file/08-Project-Structure.md §6  (dependency direction)
  */
 export default defineConfig({
   // ──────────────────────────────────────────────────────────

@@ -30,4 +30,4 @@ createRoot(rootEl).render(
 )
 
 // PWA / Service Worker / Web Push intentionally omitted for Phase 0
-// (docs/Dev File/00 §7 · /05 §8).
+// (docs/dev-file/00 §7 · /05 §8).

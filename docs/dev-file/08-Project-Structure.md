@@ -22,7 +22,7 @@ duedatehq/
 ├── docs/
 │   ├── PRD/                       # 产品文档（不变）
 │   ├── Design/                    # 设计系统
-│   ├── Dev File/                  # 本目录 00~09
+│   ├── dev-file/                  # 本目录 00~09
 │   ├── compliance/                # WISP 等合规文档
 │   ├── ops/                       # Runbook / 演练报告
 │   └── adr/                       # Architecture Decision Records

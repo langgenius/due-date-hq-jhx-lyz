@@ -1,8 +1,8 @@
 # scripts/
 
-Operational CLI utilities (docs/Dev File/08 §1).
+Operational CLI utilities (docs/dev-file/08 §1).
 
-- `check-dep-direction.mjs` — enforces the dependency DAG in docs/Dev File/08 §6. Wired into `pnpm check:deps`.
+- `check-dep-direction.mjs` — enforces the dependency DAG in docs/dev-file/08 §6. Wired into `pnpm check:deps`.
 
 Planned (Phase 0 / Phase 1):
 
