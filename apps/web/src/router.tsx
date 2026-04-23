@@ -1,11 +1,42 @@
 import { createBrowserRouter } from 'react-router'
 
-// React Router 7 — library/data mode (NOT framework mode).
-// Route files land under src/routes/*.tsx in Phase 0. This empty skeleton keeps the
-// boot path valid so `pnpm dev` renders.
+import { RootLayout } from '@/routes/_layout'
+import { RouteErrorBoundary } from '@/routes/error'
+import { RouteHydrateFallback } from '@/routes/fallback'
+
 export const router = createBrowserRouter([
   {
     path: '/',
-    Component: () => null,
+    Component: RootLayout,
+    ErrorBoundary: RouteErrorBoundary,
+    children: [
+      {
+        index: true,
+        HydrateFallback: RouteHydrateFallback,
+        lazy: async () => {
+          const { DashboardRoute } = await import('@/routes/dashboard')
+
+          return { Component: DashboardRoute }
+        },
+      },
+      {
+        path: 'workboard',
+        HydrateFallback: RouteHydrateFallback,
+        lazy: async () => {
+          const { WorkboardRoute } = await import('@/routes/workboard')
+
+          return { Component: WorkboardRoute }
+        },
+      },
+      {
+        path: 'settings',
+        HydrateFallback: RouteHydrateFallback,
+        lazy: async () => {
+          const { SettingsRoute } = await import('@/routes/settings')
+
+          return { Component: SettingsRoute }
+        },
+      },
+    ],
   },
 ])
