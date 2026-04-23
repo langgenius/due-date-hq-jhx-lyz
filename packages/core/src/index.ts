@@ -6,3 +6,4 @@
 // Prefer importing from sub-entries (e.g. `@duedatehq/core/penalty`) to preserve tree-shaking.
 
 // intentional: no barrel re-exports (avoid tree-shake loss).
+export type NoBarrelExports = never

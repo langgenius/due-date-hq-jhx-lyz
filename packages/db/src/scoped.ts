@@ -17,7 +17,7 @@ import type { ScopedRepo } from './types'
  * Placeholder that throws if any method on an unimplemented repo is called.
  * Concrete repos will be wired up per-domain in Phase 0 (see `./repo/*`).
  */
-function unimplementedRepo<T>(name: string): T {
+function unimplementedRepo(name: string): object {
   return new Proxy(
     {},
     {
@@ -28,17 +28,17 @@ function unimplementedRepo<T>(name: string): T {
         )
       },
     },
-  ) as T
+  )
 }
 
 export function scoped(_db: Db, firmId: string): ScopedRepo {
   return {
     firmId,
-    clients: unimplementedRepo<ScopedRepo['clients']>('clients'),
-    obligations: unimplementedRepo<ScopedRepo['obligations']>('obligations'),
-    pulse: unimplementedRepo<ScopedRepo['pulse']>('pulse'),
-    migration: unimplementedRepo<ScopedRepo['migration']>('migration'),
-    evidence: unimplementedRepo<ScopedRepo['evidence']>('evidence'),
-    audit: unimplementedRepo<ScopedRepo['audit']>('audit'),
+    clients: unimplementedRepo('clients'),
+    obligations: unimplementedRepo('obligations'),
+    pulse: unimplementedRepo('pulse'),
+    migration: unimplementedRepo('migration'),
+    evidence: unimplementedRepo('evidence'),
+    audit: unimplementedRepo('audit'),
   }
 }

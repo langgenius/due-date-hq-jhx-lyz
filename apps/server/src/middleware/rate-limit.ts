@@ -10,6 +10,6 @@ export const rateLimitMiddleware = createMiddleware<{ Bindings: Env; Variables: 
     if (!success) {
       return c.json({ error: 'RATE_LIMITED' }, 429)
     }
-    await next()
+    return next()
   },
 )

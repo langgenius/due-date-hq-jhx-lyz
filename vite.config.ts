@@ -40,21 +40,8 @@ export default defineConfig({
       es2023: true,
     },
     options: {
-      // Phase 0 stance: keep type-aware linting OFF until the
-      // skeleton stubs (scoped repo, auth factory, ai orchestrator,
-      // empty Phase-0 placeholders) are replaced with real impls.
-      // tsgolint rules (no-unsafe-type-assertion, etc.) flag every
-      // `{} as never` placeholder; enabling them before the stubs
-      // are filled in would gate every commit on completing Phase 0.
-      //
-      // Type safety is still enforced by:
-      //   - Vite+ / Wrangler build-time TS compilation
-      //   - `pnpm exec tsgo --noEmit -p <pkg>/tsconfig.json` on demand
-      //   - editor tsserver
-      //
-      // Flip both back to `true` once Phase 0 implementations land.
-      typeAware: false,
-      typeCheck: false,
+      typeAware: true,
+      typeCheck: true,
     },
     rules: {
       'no-console': 'off',

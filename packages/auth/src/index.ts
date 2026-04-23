@@ -8,7 +8,9 @@ export type AuthEnv = {
   EMAIL_FROM: string
 }
 
-export function createAuth(_deps: { db: unknown; env: AuthEnv }) {
+export type AuthInstance = Record<string, never>
+
+export function createAuth(_deps: { db: unknown; env: AuthEnv }): AuthInstance {
   // betterAuth({ database: drizzleAdapter(deps.db, {...}), plugins: [...] })
-  return {} as never
+  return {}
 }
