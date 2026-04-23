@@ -1,4 +1,5 @@
 import { createEnv } from '@t3-oss/env-core'
+import type { ServerSession } from '@duedatehq/auth'
 import { z } from 'zod'
 
 const serverEnvSchema = z.object({
@@ -61,6 +62,8 @@ export function validateServerEnv(runtimeEnv: Env): ServerEnv {
 
 export interface ContextVars {
   requestId: string
+  session?: ServerSession['session']
+  user?: ServerSession['user']
   firmId?: string
   userId?: string
   scoped?: import('@duedatehq/db').ScopedRepo

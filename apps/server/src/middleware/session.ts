@@ -1,4 +1,5 @@
 import { createMiddleware } from 'hono/factory'
+import { createWorkerAuth } from '../auth'
 import type { Env, ContextVars } from '../env'
 
 /**
@@ -6,14 +7,33 @@ import type { Env, ContextVars } from '../env'
  *
  * Layering (docs/Dev File/06 §4.1):
  *   - 401 if no session
- *   - 403 if session exists but member.status !== 'active'
- *   - Sets c.var.userId (activeOrganizationId handled in tenant middleware)
+ *   - Sets c.var.userId and c.var.firmId from activeOrganizationId
  *
- * Placeholder: real wiring is added when @duedatehq/auth's createAuth factory is finalized.
  */
 export const sessionMiddleware = createMiddleware<{ Bindings: Env; Variables: ContextVars }>(
-  async (_c, next) => {
-    // TODO(phase-0): read session via `auth.api.getSession({ headers })`.
-    await next()
+  async (c, next) => {
+    let executionCtx: ExecutionContext | undefined
+    try {
+      executionCtx = c.executionCtx
+    } catch {
+      executionCtx = undefined
+    }
+
+    const auth = createWorkerAuth(c.env, executionCtx)
+    const sessionData = await auth.api.getSession({ headers: c.req.raw.headers })
+
+    if (!sessionData?.session || !sessionData.user) {
+      return c.json({ error: 'UNAUTHORIZED' }, 401)
+    }
+
+    c.set('session', sessionData.session)
+    c.set('user', sessionData.user)
+    c.set('userId', sessionData.user.id)
+
+    if (sessionData.session.activeOrganizationId) {
+      c.set('firmId', sessionData.session.activeOrganizationId)
+    }
+
+    return next()
   },
 )
