@@ -1,5 +1,5 @@
 import { useState, useTransition } from 'react'
-import { Navigate, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import {
   CalendarClockIcon,
@@ -19,7 +19,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { signInWithGoogle, useSession } from '@/lib/auth'
+import { signInWithGoogle } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 const highlights = [
@@ -64,16 +64,13 @@ function isUserCanceled(message: string): boolean {
 }
 
 export function LoginRoute() {
-  const { data, isPending } = useSession()
+  // Authed users never reach this component — the /login loader redirects them
+  // to the post-login target before render.
   const [search] = useSearchParams()
   const redirectTo = search.get('redirectTo') || '/'
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [, startTransition] = useTransition()
-
-  if (!isPending && data) {
-    return <Navigate to={redirectTo} replace />
-  }
 
   async function handleGoogleSignIn() {
     setIsSubmitting(true)
@@ -89,7 +86,7 @@ export function LoginRoute() {
     }
   }
 
-  const disabled = isSubmitting || isPending
+  const disabled = isSubmitting
 
   return (
     <div className="relative isolate min-h-screen bg-bg-canvas">

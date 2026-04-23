@@ -1,5 +1,5 @@
-import { useState, useTransition } from 'react'
-import { Navigate, NavLink, Outlet, useLocation, useNavigate, useNavigation } from 'react-router'
+import { useTransition } from 'react'
+import { NavLink, Outlet, useLoaderData, useNavigate, useNavigation } from 'react-router'
 import { toast } from 'sonner'
 import {
   BellIcon,
@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { initialsFromName, signOut, useSession, type AuthUser } from '@/lib/auth'
+import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -35,6 +35,8 @@ const shellMeta = [
   ['Queue SLA', '04h 12m'],
   ['Local Time', 'America/New_York'],
 ]
+
+type ProtectedLoaderData = { user: AuthUser }
 
 function PendingBar() {
   const navigation = useNavigation()
@@ -123,21 +125,25 @@ function UserAvatar({ user, className }: { user: AuthUser; className?: string })
 
 function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'panel' | 'compact' }) {
   const navigate = useNavigate()
-  const [isSigningOut, setIsSigningOut] = useState(false)
-  const [, startTransition] = useTransition()
+  // React 19 async transition: isPending stays true until the async body settles,
+  // so we don't need a separate useState flag.
+  const [isSigningOut, startSignOut] = useTransition()
 
-  async function handleSignOut() {
+  function handleSignOut() {
     if (isSigningOut) return
-    setIsSigningOut(true)
-    try {
-      await signOut()
-      startTransition(() => navigate('/login', { replace: true }))
-    } catch (err) {
-      setIsSigningOut(false)
-      toast.error('Sign out failed', {
-        description: err instanceof Error ? err.message : 'Please try again.',
-      })
-    }
+    startSignOut(async () => {
+      try {
+        await signOut()
+        // After signOut the protected layout's loader won't re-run (we're
+        // navigating away), and nothing in the protected tree subscribes to
+        // the session store anymore — so no flicker mid-navigation.
+        await navigate('/login', { replace: true })
+      } catch (err) {
+        toast.error('Sign out failed', {
+          description: err instanceof Error ? err.message : 'Please try again.',
+        })
+      }
+    })
   }
 
   if (variant === 'compact') {
@@ -211,7 +217,9 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
   )
 }
 
-function ShellSkeleton() {
+// Exported so the protected route can use it as HydrateFallback during the
+// initial session fetch (see router.tsx).
+export function ShellSkeleton() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-canvas p-6">
       <div className="flex w-full max-w-[480px] flex-col gap-3">
@@ -224,19 +232,9 @@ function ShellSkeleton() {
 }
 
 export function RootLayout() {
-  const { data, isPending } = useSession()
-  const location = useLocation()
-
-  if (isPending) return <ShellSkeleton />
-
-  if (!data) {
-    const redirectTo = `${location.pathname}${location.search}`
-    const param =
-      redirectTo && redirectTo !== '/' ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''
-    return <Navigate to={`/login${param}`} replace />
-  }
-
-  const user = data.user
+  // User is guaranteed to exist here — the protected loader already redirected
+  // to /login otherwise, so there's no isPending / null branch to render.
+  const { user } = useLoaderData<ProtectedLoaderData>()
 
   return (
     <div className="isolate min-h-screen bg-bg-canvas text-text-primary">
