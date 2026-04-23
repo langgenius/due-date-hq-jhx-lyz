@@ -21,17 +21,15 @@ apps/web/
 │   ├── main.tsx              ← ReactDOM.createRoot + router provider
 │   ├── router.tsx            ← createBrowserRouter + routes config
 │   ├── routes/               ← 每个路由一个 .tsx（RR7 data mode：loader / action / Component）
-│   │   ├── _layout.tsx
-│   │   ├── auth.login.tsx
-│   │   ├── auth.verify.tsx
-│   │   ├── _app._layout.tsx      ← 登录后 shell（侧栏 + 顶栏）
-│   │   ├── _app.dashboard.tsx
-│   │   ├── _app.workboard.tsx
-│   │   ├── _app.clients.$id.tsx
-│   │   ├── _app.alerts.tsx
-│   │   ├── _app.audit.tsx
-│   │   ├── _app.settings._layout.tsx
-│   │   └── _app.migration.tsx
+│   │   ├── _layout.tsx           ← 登录后 shell（侧栏 + 顶栏，path='/'，loader 做认证 gate）
+│   │   ├── login.tsx             ← 登录页（path='/login'，loader 把已登录用户跳走）
+│   │   ├── dashboard.tsx         ← index
+│   │   ├── workboard.tsx
+│   │   ├── settings.tsx
+│   │   ├── error.tsx             ← RouteErrorBoundary
+│   │   └── fallback.tsx          ← RouteHydrateFallback
+│   │   # 目标形态（Phase 0 MVP → Phase 1）：
+│   │   # clients.$id.tsx · alerts.tsx · audit.tsx · settings/*.tsx · migration.tsx
 │   ├── features/             ← 业务特性（跨页面复用）
 │   │   ├── migration/
 │   │   ├── dashboard/
@@ -63,16 +61,17 @@ apps/web/
 
 - 用 `createBrowserRouter` + 路由配置对象，**不走 framework mode**（framework mode 引入 Node 依赖，与 Worker 冲突）
 - Loader / action **可选使用**；数据获取主路径是 **TanStack Query**（统一 server state + 乐观 UI + 缓存）
-- Loader 仅用于必须 pre-resolve 的场景（如权限跳转）
-- 路由树通过 nested layout 组织：
-  - `_layout`（全站）
-  - `_app._layout`（登录后 shell；内嵌 `<AuthedGate>` 组件，检测 session）
-  - `_app.settings._layout`（Settings 子 shell）
+- Loader 仅用于必须 pre-resolve 的场景（**认证 gate / 权限跳转**）——这是目前 loader 的主要用法
+- 路由按认证状态分成两个顶级路由组：
+  - `/login` — 公开路由组，`guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去
+  - `/` — 受保护路由组（`id: 'protected'`，`Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `settings` 都作为它的 children
 
 **Auth flow**：
 
-- 未登录访问 `_app.*` → `_app._layout` loader 检测 `better-auth session` → 无则 `redirect('/auth/login')`
-- 登录成功 → `redirect('/dashboard')`
+- 认证 gate 放在 **layout route 的 loader** 里，不放进组件渲染（避免 `<Navigate>` 造成中间帧闪烁，详见 `docs/dev-log/2026-04-23-auth-gate-loader-refactor.md`）
+- 未登录访问 `/` 树 → `protectedLoader` → `throw redirect('/login?redirectTo=<当前路径>')`
+- 已登录访问 `/login` → `guestLoader` → `throw redirect(redirectTo || '/')`（`redirectTo` 只接受 `/` 开头的 in-app 路径，避免 open redirect）
+- 受保护页面通过 `useLoaderData<{ user }>()`（或子路由 `useRouteLoaderData('protected')`）读取 `user`，**禁止**在受保护组件里再订阅 `useSession`——否则 sign-out 清 session store 会触发中间态 re-render
 
 **URL state 约定：**
 

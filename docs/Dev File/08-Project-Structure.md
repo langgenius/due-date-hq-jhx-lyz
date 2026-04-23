@@ -594,8 +594,8 @@ vp run -r dev
 | §1.3 设计原则       | `docs/Design/DueDateHQ-DESIGN.md` + `apps/web/styles/globals.css`                 |
 | §3 Story S1/S2/S3   | E2E 10 条核心路径（§07.5.4）                                                      |
 | §3.6 Team           | `packages/auth` Organization plugin                                               |
-| §5.1 Dashboard      | `apps/web/routes/_app.dashboard.tsx` + `features/dashboard/`                      |
-| §5.2 Workboard      | `apps/web/routes/_app.workboard.tsx` + `features/workboard/`                      |
+| §5.1 Dashboard      | `apps/web/src/routes/dashboard.tsx` + `features/dashboard/`                       |
+| §5.2 Workboard      | `apps/web/src/routes/workboard.tsx` + `features/workboard/`                       |
 | §5.5 Evidence Mode  | `apps/web/components/patterns/evidence-drawer/` + `packages/db/evidence-writer`   |
 | §6.1 Rule Engine    | `packages/db/seed/rules.ts` + `packages/core/date-logic`                          |
 | §6.2 Glass-Box      | `packages/ai/guard.ts`                                                            |
