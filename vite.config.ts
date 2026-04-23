@@ -219,9 +219,9 @@ export default defineConfig({
   // Git hooks (replaces lefthook + lint-staged).
   // `vp install` (or `pnpm prepare` which runs `vp config`) sets
   // up the pre-commit hook that reads this block. Keep the
-  // glob tight — target < 3s hook runtime.
+  // `vp staged` only receives staged files; CI owns full-repo checks.
   // ──────────────────────────────────────────────────────────
   staged: {
-    '*.{ts,tsx,js,jsx,json,md,css}': 'vp check --fix',
+    '*': 'vp check --fix',
   },
 })
