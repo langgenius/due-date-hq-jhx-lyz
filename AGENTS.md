@@ -33,4 +33,4 @@ Follow Conventional Commits, as used in history: `chore: ...`, `docs: ...`, `fea
 
 ## Security & Configuration Tips
 
-Copy `.env.example` and `apps/server/.dev.vars.example` for local setup; never commit secrets. Run `pnpm secrets:scan` before sharing changes that touch configuration. Cloudflare deployment is server-owned through `pnpm deploy`; verify migrations locally before remote D1 changes.
+Env files are owned per-app, never at the repo root: copy `apps/server/.dev.vars.example` to `apps/server/.dev.vars` for the Worker runtime, and `apps/web/.env.example` to `apps/web/.env.local` for browser-facing `VITE_*` vars. Cloudflare CLI auth is handled by `wrangler login` (cached under `~/.wrangler/`) locally, or GitHub Actions secrets in CI — never placed in a repo file. Run `pnpm secrets:scan` before sharing changes that touch configuration. Cloudflare deployment is server-owned through `pnpm deploy`; verify migrations locally before remote D1 changes.
