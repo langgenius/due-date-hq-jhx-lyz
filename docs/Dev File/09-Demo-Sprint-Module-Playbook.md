@@ -90,16 +90,16 @@
 | 模块 | Owner | Owns | Exposes | Consumes | Does not own |
 |---|---|---|---|---|---|
 | Platform Foundation | Alice | Cloudflare 单 Worker 运行底座、routing、bindings、local runtime | Worker app shell、binding registry、runtime config | Tech stack、DevOps gates | 任何业务规则 |
-| Web Shell + UI System | Bob | App shell、navigation、layout slots、UI primitives、global interaction shell | Workbench shell、drawer stack、command shell、dashboard slots | Platform、oRPC client contract | 业务数据写入 |
+| Web Shell + UI System | Bob | App shell、navigation、layout slots、UI primitives、global interaction shell、install prompt UI slot | Workbench shell、drawer stack、command shell、dashboard slots、install prompt slot | Platform、oRPC client contract、PWA install state facade | 业务数据写入、service worker / manifest runtime |
 | Auth + Tenant Scope | Alice | session、active firm、Owner-only demo auth、tenant context | authenticated context、tenant scoped context、auth errors | DB Core、Security rules | 完整 Phase 1 RBAC UI |
 | DB Core + Scoped Repos | Bob | D1 schema semantics、tenant-scoped repo factory、audit/evidence writers | scoped domain repos、transaction-aware writers | Auth tenant context、D1 constraints | procedure orchestration、UI state |
 | AI Orchestrator | Alice | AI Gateway access、prompt execution、guard、trace、PII redaction、retrieval facade | structured AI result、streaming result、retrieval result、trace payload | Vectorize/KV/Langfuse ports | DB writes、business permission decisions |
 | Migration Copilot | Alice | CSV intake、mapping、normalization、batch apply/revert、Live Genesis story | imported clients/obligations event、migration audit/evidence | AI Orchestrator、DB Core、Client/Obligation facade | Workboard layout、Dashboard layout |
 | Client + Workboard | Bob | client CRUD、obligation generation、workboard operations、status workflow | client facade、obligation generation facade、workboard query result | DB Core、Audit/Evidence, UI System | Migration import UX、Pulse apply logic |
-| Dashboard + Brief | Bob | risk summary、triage tabs、penalty/priority explanation、weekly brief presentation | dashboard slots、risk query result、brief stream | Workboard data、AI Orchestrator、Evidence facade | Pulse matching/apply, Migration import |
+| Dashboard + Brief | Bob | risk summary、triage tabs、penalty/priority explanation、weekly brief render + citation routing | dashboard slots、risk query result、brief stream render | Workboard data、AI Orchestrator (brief stream + citation refs)、Evidence facade | Pulse matching/apply、Migration import、AI 语义解释、brief summary 自拼 |
 | Evidence + Audit Trail | Bob | evidence chain display、audit event integrity、before/after diff | write evidence/audit facade、open evidence action、audit query | DB Core、Auth actor context | AI extraction, business action decisions |
 | Pulse Pipeline | Alice | source ingest demo data、extraction, match, review, batch apply/revert, digest email | pulse event、affected clients result、apply result、dashboard extension | AI Orchestrator、DB Core、Evidence/Audit、Dashboard slot | Dashboard layout、Workboard table internals |
-| PWA + Push | Alice | installability、service worker behavior、push subscription/fanout、badge capability | push subscription facade、notification event | Pulse events、Platform bindings | Email digest, core Pulse matching |
+| PWA + Push | Alice | manifest、service worker、installability 判定、push subscription/fanout、badge capability | push subscription facade、notification event、install state facade (`canInstall` / `isInstalled` / `promptInstall()`) | Pulse events、Platform bindings | Email digest、core Pulse matching、install prompt 的 UI 形态与时机 |
 | Demo Data + Pay-intent + Polish | Bob | deterministic demo profile、seed idempotency、pay-intent event、demo polish | demo profile, pay-intent event, command palette entries | DB Core、Audit, Analytics | Real billing, SEO site |
 | DevOps + Quality Gates | Alice | CI, hooks, quality scripts, deploy discipline, migration safety | required checks, deploy pipeline, quality commands | All modules | Business acceptance decisions |
 
@@ -148,6 +148,7 @@
 - UI primitive 和 DueDateHQ domain primitive。
 - Drawer stack、command shell、toast、keyboard shell。
 - Dashboard slot contract。
+- Install prompt / Add-to-Dock CTA 的 UI 挂载点和显示时机（behavior 由 PWA 模块提供 facade，Web Shell 只决定"在哪、长什么样、什么时候提示"）。
 
 **Exposes**
 
@@ -155,18 +156,21 @@
 - Evidence drawer open action。
 - Command palette registration。
 - Reusable visual primitives。
+- Install prompt slot（由 PWA 模块的 install state facade 驱动）。
 
 **Consumes**
 
 - oRPC typed client。
 - Auth state。
 - Feature modules exported components。
+- PWA install state / install trigger facade（只调用 facade，不触碰 service worker 或 manifest）。
 
 **Does not own**
 
 - Business mutation logic。
 - Server state caching policy beyond TanStack Query usage。
 - Feature-specific data interpretation。
+- Service worker、manifest、push subscription 等 runtime 行为（由 PWA + Push 模块拥有）。
 
 **DoD**
 
@@ -475,23 +479,24 @@
 
 **Owns**
 
-- Installability。
-- Service worker behavior。
-- Runtime caching rules。
-- Push subscription。
-- Push fanout。
-- Badge capability detection。
+- Manifest 内容与 icons / theme / display 配置。
+- Service worker 生命周期与 runtime caching 规则。
+- Installability 判定（是否可装、是否已装、install 触发函数）。
+- Push subscription 注册 / 取消 / 持久化。
+- Push fanout（VAPID 签名、多设备去重、Quiet Hours）。
+- Badge capability 探测（Dock / Home 红点）。
 
 **Exposes**
 
+- Install state facade：`{ canInstall, isInstalled, promptInstall() }`（供 Web Shell 挂 UI）。
 - Push subscription action。
 - Notification event handling。
-- Install state。
+- 设备能力查询（badge / push / offline cache 是否可用）。
 
 **Consumes**
 
 - Pulse event。
-- Platform bindings。
+- Platform bindings（VAPID secret、KV push subscription、Queue push fanout）。
 - User/device permission state。
 
 **Does not own**
@@ -499,12 +504,15 @@
 - Email digest。
 - Pulse matching/apply。
 - Core notification business rules beyond push delivery。
+- Install prompt 在 app shell 里的**视觉位置、文案、触发时机**（挂在 Web Shell 的 install slot 上，Web Shell 决定 UX）。
+- Settings → Notifications 的业务面板（属于 Dashboard 或 Settings UI）。
 
 **DoD**
 
 - PWA install flow works on target browsers where supported。
-- Push implementation is Workers-compatible。
-- Unsupported capabilities degrade gracefully。
+- Push implementation is Workers-compatible；not依赖 Node-only API（对齐 PRD §7.8.1）。
+- Unsupported capabilities degrade gracefully（badge 不可用不阻塞 push；push 不可用不阻塞 in-app notification fallback）。
+- Web Shell 可以在不改 PWA 模块内部的前提下切换 install prompt 的 UI 形态。
 
 ### 5.12 Demo Data + Pay-intent + Polish
 
@@ -589,9 +597,11 @@
 | Obligation Domain Contract | Client + Workboard | Migration、Dashboard、Pulse、Evidence | due date 变更必须可审计 |
 | Tenant Context Contract | Auth + Tenant Scope | All server modules | `firmId` 来自 session，不来自 input |
 | AI Execution Contract | AI Orchestrator | Migration、Pulse、Brief | output 必须 schema-validated + guarded |
+| Brief Composition Contract | AI Orchestrator (stream + citation refs) · Dashboard + Brief (render + citation click) | — | Provider 保证 stream chunk schema 稳定、每个 citation ref 指向真实 evidence；Consumer 只渲染和 route，不改写 AI 语义、不自拼 summary；citation click 调 Evidence drawer facade，不自绘 source |
 | Audit/Evidence Contract | Evidence + Audit Trail | Migration、Pulse、Workboard、Pay-intent、AI | dangerous write 必须同事务写 audit/evidence |
 | Dashboard Slot Contract | Dashboard + Brief | Pulse、Pay-intent | consumer 只挂 slot，不改宿主布局 |
 | Push Event Contract | PWA + Push | Pulse | Push failure 不阻塞 Pulse apply |
+| Install Surface Contract | PWA + Push (install state / trigger) · Web Shell (install slot UI) | — | PWA 决定 "能不能装 / 触发函数 / 已装状态"；Web Shell 决定 "装的入口长什么样 / 什么时候提示"；两侧都不直接改对方内部 |
 | Demo Profile Contract | Demo Data | All demo modules | seed 幂等且按 profile 隔离 |
 
 ---
@@ -650,8 +660,29 @@ flowchart TD
 
 - Foundation modules 先冻结 exposes，再让 feature modules 并行消费。
 - Migration 和 Client + Workboard 可并行，通过 Client/Obligation contract 汇合。
-- Pulse 和 Dashboard 可并行，通过 Dashboard Slot contract 汇合。
+- Pulse 和 Dashboard 可并行，通过 Dashboard Slot contract + Brief Composition Contract 汇合。
 - PWA 可先消费 fake Pulse event，再接真实 Pulse event。
+
+### 7.1 Foundation Freeze Signatures（2 人 AI 辅助并行的必要前置）
+
+2 人 AI 辅助开发下最大的协作风险不是"人写慢"，而是**两侧 AI agent 基于各自看到的不同版本 contract 快速生成了互不兼容的代码**。下列 5 组 signature 必须在 feature 模块开始消费前**冻结在 `packages/contracts` / 类型导出面**内；内部实现可以先用 stub / fake 满足编译和测试。
+
+冻结后到"内部实现完成"之间这段时间，consumer 端 AI 只要对着类型签名生成调用代码就不会漂移；provider 端 AI 可以独立迭代内部实现而不破坏 consumer。
+
+| # | 模块 | Owner | 必须冻结的 signature |
+|---|---|---|---|
+| 1 | Platform Foundation | Alice | oRPC handler mount 在 `/rpc/*` 的入口；Worker `Env` / bindings registry 的 TypeScript 类型 |
+| 2 | Auth + Tenant Scope | Alice | `requireSession(ctx)` / `requireActiveFirm(ctx)` / `scoped(db, firmId)` 的输入输出签名；标准 auth error union |
+| 3 | DB Core + Scoped Repos | Bob | Client / Obligation / Pulse / Dashboard-read repo 的方法签名；Audit writer / Evidence writer facade 的调用签名（实现可 stub，返回 fixture） |
+| 4 | Web Shell + UI System | Bob | Drawer stack API、Dashboard slot contract、Command palette registration API、Evidence drawer `openEvidence(ref)` 签名、Install prompt slot props |
+| 5 | AI Orchestrator | Alice | `executeStructured<TSchema>` / `executeStream` / `retrieve` 的输入输出类型；Brief stream chunk schema；guard / refusal / pending-review 结果形态 |
+
+冻结规则：
+
+- 所有上述 signature 的真源都在 `packages/contracts`（或相应 typed export 面）。
+- 冻结后的任何修改是 `[contract]` PR，provider 和所有 consumer owner 都要 review（对齐 §3.2 / §13）。
+- Consumer 在 provider 内部实现未完成时，按 §3.3 用 fixture / fake contract 解除阻塞。
+- AI agent 在生成跨模块代码时，**只允许从 `packages/contracts` 导入**跨模块类型；禁止跨模块深路径 import（对齐 08 的 import 方向规则）。
 
 ---
 
@@ -847,3 +878,4 @@ Demo Sprint 结束后，优先把 demo 简化点迁回完整 MVP 路线：
 4. Audit/evidence 先于炫酷 UI。
 5. AI 只做辅助判断，不能绕过 schema、guard、review 和 audit。
 6. 默认质量链路必须快，但不能弱：oxfmt + oxlint + `tsgo` + Vitest + gitleaks。
+7. AI 辅助开发下，**两侧 AI agent 只允许从 `packages/contracts` 导入跨模块类型**；签名未冻结前不跨模块消费；冻结后的修改一律走 `[contract]` PR（见 §7.1）。
