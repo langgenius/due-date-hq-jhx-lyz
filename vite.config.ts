@@ -200,16 +200,16 @@ export default defineConfig({
     tasks: {
       // Build after lint/typecheck passes, so red-line errors
       // surface before we spend time on bundling.
-      build: {
+      'workspace-build': {
         command: 'vp run -r build',
-        dependsOn: ['check'],
+        dependsOn: ['workspace-check'],
         env: ['NODE_ENV'],
       },
-      check: {
+      'workspace-check': {
         command: 'vp check',
         env: ['NODE_ENV'],
       },
-      test: {
+      'workspace-test': {
         command: 'vp run -r test',
         env: ['NODE_ENV', 'CI'],
       },
@@ -218,10 +218,10 @@ export default defineConfig({
       // packages don't deploy. `cache: false` means no env
       // fingerprinting — Cloudflare credentials are simply
       // inherited from the shell at run time.
-      deploy: {
+      'workspace-deploy': {
         command: 'vp run @duedatehq/server#deploy',
         cache: false,
-        dependsOn: ['build', 'test'],
+        dependsOn: ['workspace-build', 'workspace-test'],
       },
     },
   },
