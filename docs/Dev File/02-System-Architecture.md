@@ -9,8 +9,8 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                       Client (Browser / PWA)                         │
-│   Vite SPA · React Router 7 · TanStack Query · oRPC client · SW      │
+│                          Client (Browser)                            │
+│   Vite+ SPA · React Router 7 · TanStack Query · oRPC client          │
 └──────────────────────────┬───────────────────────────────────────────┘
                            │  HTTPS
 ┌──────────────────────────▼───────────────────────────────────────────┐
@@ -64,28 +64,27 @@
 
 ## 2. 模块划分与职责
 
-| 模块 | 路径 | PRD 对应 | 输入 | 输出 |
-|---|---|---|---|---|
-| **auth** | `packages/auth` | §13.2 · §3.6 | magic link / invitation | Session · Organization · Member |
-| **clients** | `apps/server/src/procedures/clients` + repo | §5.6 · §8.1 | CRUD | Client 实体 |
-| **rules** | `packages/db` + seed | §6.1 · §6D | rule draft | ObligationRule + Source Registry |
-| **obligations** | `apps/server/src/procedures/obligations` | §5.2 · §8.1 | rule + client | ObligationInstance |
-| **overlay**（Phase 1） | `packages/core/overlay` | §6D.2 | ExceptionRule | 派生 `current_due_date` |
-| **penalty** | `packages/core/penalty` | §7.5 | obligation + assumptions | ExposureReport |
-| **priority** | `packages/core/priority` | §6.4 | open obligations | 打分 + 因子分解 |
-| **dashboard** | `apps/server/src/procedures/dashboard` | §5.1 | firm + scope | Triage Tabs + Brief 上下文 |
-| **workboard** | `apps/server/src/procedures/workboard` | §5.2 | filter + sort + page | Table rows |
-| **pulse** | `apps/server/src/procedures/pulse` + `jobs/pulse` | §6.3 | RSS / HTML | Pulse + （Phase 1）ExceptionRule |
-| **migration** | `apps/server/src/procedures/migration` | §6A | paste / CSV | Client[] + Obligation[] |
-| **readiness**（Phase 1） | `apps/server/src/procedures/readiness` | §6B | CPA checklist | Magic link + Response |
-| **audit** | `apps/server/src/procedures/audit` + `packages/db/audit-writer` | §13.2 | write events | AuditEvent stream |
-| **evidence** | `packages/db/evidence-writer` | §5.5 · §6.2 | any source | EvidenceLink |
-| **ai** | `packages/ai` | §6.2 · §9 | retrieval + prompt + guard | `AiResult` + trace payload；`apps/server` 注入 writer 持久化 AiOutput / EvidenceLink / LlmLog |
-| **ask**（Phase 1） | `apps/server/src/procedures/ask` | §6.6 | NL query | DSL → SQL → table |
-| **reminders** | `jobs/reminders` | §7.1 | due obligations | Email / In-app |
-| **notifications** | `apps/server/src/procedures/notifications` | §7.1.3 | event | In-app bell + Push |
-| **evidence-package**（Phase 1） | `jobs/evidence-package` | §6C | scope + range | ZIP + SHA-256 |
-| **push** | `packages/auth` + Worker | §7.8.1 | user + event | VAPID-signed payload |
+| 模块                            | 路径                                                            | PRD 对应     | 输入                       | 输出                                                                                          |
+| ------------------------------- | --------------------------------------------------------------- | ------------ | -------------------------- | --------------------------------------------------------------------------------------------- |
+| **auth**                        | `packages/auth`                                                 | §13.2 · §3.6 | magic link / invitation    | Session · Organization · Member                                                               |
+| **clients**                     | `apps/server/src/procedures/clients` + repo                     | §5.6 · §8.1  | CRUD                       | Client 实体                                                                                   |
+| **rules**                       | `packages/db` + seed                                            | §6.1 · §6D   | rule draft                 | ObligationRule + Source Registry                                                              |
+| **obligations**                 | `apps/server/src/procedures/obligations`                        | §5.2 · §8.1  | rule + client              | ObligationInstance                                                                            |
+| **overlay**（Phase 1）          | `packages/core/overlay`                                         | §6D.2        | ExceptionRule              | 派生 `current_due_date`                                                                       |
+| **penalty**                     | `packages/core/penalty`                                         | §7.5         | obligation + assumptions   | ExposureReport                                                                                |
+| **priority**                    | `packages/core/priority`                                        | §6.4         | open obligations           | 打分 + 因子分解                                                                               |
+| **dashboard**                   | `apps/server/src/procedures/dashboard`                          | §5.1         | firm + scope               | Triage Tabs + Brief 上下文                                                                    |
+| **workboard**                   | `apps/server/src/procedures/workboard`                          | §5.2         | filter + sort + page       | Table rows                                                                                    |
+| **pulse**                       | `apps/server/src/procedures/pulse` + `jobs/pulse`               | §6.3         | RSS / HTML                 | Pulse + （Phase 1）ExceptionRule                                                              |
+| **migration**                   | `apps/server/src/procedures/migration`                          | §6A          | paste / CSV                | Client[] + Obligation[]                                                                       |
+| **readiness**（Phase 1）        | `apps/server/src/procedures/readiness`                          | §6B          | CPA checklist              | Magic link + Response                                                                         |
+| **audit**                       | `apps/server/src/procedures/audit` + `packages/db/audit-writer` | §13.2        | write events               | AuditEvent stream                                                                             |
+| **evidence**                    | `packages/db/evidence-writer`                                   | §5.5 · §6.2  | any source                 | EvidenceLink                                                                                  |
+| **ai**                          | `packages/ai`                                                   | §6.2 · §9    | retrieval + prompt + guard | `AiResult` + trace payload；`apps/server` 注入 writer 持久化 AiOutput / EvidenceLink / LlmLog |
+| **ask**（Phase 1）              | `apps/server/src/procedures/ask`                                | §6.6         | NL query                   | DSL → SQL → table                                                                             |
+| **reminders**                   | `jobs/reminders`                                                | §7.1         | due obligations            | Email / In-app（Web Push 在 Phase 0 已移除）                                                  |
+| **notifications**               | `apps/server/src/procedures/notifications`                      | §7.1.3       | event                      | In-app bell + Email                                                                           |
+| **evidence-package**（Phase 1） | `jobs/evidence-package`                                         | §6C          | scope + range              | ZIP + SHA-256                                                                                 |
 
 ### 2.1 模块依赖图
 
@@ -121,15 +120,15 @@
 
 对齐 oRPC 官方惯例，Worker 路由按职责分层，**不可混用**：
 
-| 前缀 | 挂载的 handler | 职责 | 身份 / 调用方 |
-|---|---|---|---|
-| `/rpc/*` | `RPCHandler`（`@orpc/server/fetch`） | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型 | `apps/web` 独占；cookie session |
-| `/api/auth/*` | better-auth（Organization plugin） | 登录 / 注销 / magic link / 邀请接受 / session 管理 | 浏览器 + 第三方 OAuth 回调 |
-| `/api/webhook/*` | 手写 Hono route | Resend / Stripe（Phase 1）等外部回调 | 无用户身份；IP allowlist + 签名校验 |
-| `/api/ics/:token` | 手写 Hono route（Phase 1） | ICS 日历订阅 feed | token 鉴权 |
-| `/api/health` | 手写 Hono route | Cloudflare healthcheck / liveness | 公开 |
-| `/api/v1/*`（Phase 2） | `OpenAPIHandler`（`@orpc/openapi/fetch`） | 公网开放 REST；复用同一份 `packages/contracts` 契约；自动生成 OpenAPI spec | OAuth client credentials |
-| 其他所有路径 | ASSETS binding | SPA 静态产物 + `not_found_handling = "single-page-application"` 兜底 | 浏览器 |
+| 前缀                   | 挂载的 handler                            | 职责                                                                       | 身份 / 调用方                       |
+| ---------------------- | ----------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------- |
+| `/rpc/*`               | `RPCHandler`（`@orpc/server/fetch`）      | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型    | `apps/web` 独占；cookie session     |
+| `/api/auth/*`          | better-auth（Organization plugin）        | 登录 / 注销 / magic link / 邀请接受 / session 管理                         | 浏览器 + 第三方 OAuth 回调          |
+| `/api/webhook/*`       | 手写 Hono route                           | Resend / Stripe（Phase 1）等外部回调                                       | 无用户身份；IP allowlist + 签名校验 |
+| `/api/ics/:token`      | 手写 Hono route（Phase 1）                | ICS 日历订阅 feed                                                          | token 鉴权                          |
+| `/api/health`          | 手写 Hono route                           | Cloudflare healthcheck / liveness                                          | 公开                                |
+| `/api/v1/*`（Phase 2） | `OpenAPIHandler`（`@orpc/openapi/fetch`） | 公网开放 REST；复用同一份 `packages/contracts` 契约；自动生成 OpenAPI spec | OAuth client credentials            |
+| 其他所有路径           | ASSETS binding                            | SPA 静态产物 + `not_found_handling = "single-page-application"` 兜底       | 浏览器                              |
 
 **`wrangler.toml` 对应**：
 
@@ -151,7 +150,7 @@ run_worker_first = ["/rpc/*", "/api/*"]
 
 ## 4. 请求流（关键三类）
 
-### 4.1 首次访问 / PWA 冷启动
+### 4.1 首次访问 / SPA 冷启动
 
 ```
 Browser ── GET /dashboard ──► Worker
@@ -184,7 +183,7 @@ Worker ── POST /rpc/dashboard/load ──► Hono → RPCHandler
                                            响应 JSON 回前端
 ```
 
-SPA 首屏 TTI 冷启动 ≤ 1.5s（bundle 加载）；PWA 命中缓存热启动 ≤ 300ms（Service Worker precache + IndexedDB 残留数据）。
+SPA 首屏 TTI 冷启动 ≤ 1.5s（bundle 加载）；回访热启动 ≤ 300ms（chunk hash 长缓存命中 + TanStack Query 内存缓存）。PWA / SW 在 Phase 0 已移除（见 `05 §8` 与 `00 §7`）。
 
 ### 4.2 Pulse 24h 闭环
 
@@ -262,14 +261,14 @@ Fetch RSS / HTML ──► raw 存 R2 ──► 入 Queue { type: 'extract', pul
 
 ## 5. 外部依赖清单
 
-| 依赖 | 用途 | 故障降级见 |
-|---|---|---|
-| OpenAI（via AI Gateway） | LLM 主 | §01.5 |
-| Anthropic（via AI Gateway） | LLM fallback | §01.5 |
-| Resend | 邮件 | email_outbox 重试 |
-| Sentry | 错误上报 | 无降级（非关键路径） |
-| PostHog | 产品事件 | 失败吞掉不影响功能 |
-| Langfuse | LLM trace | 失败吞掉不影响功能 |
+| 依赖                        | 用途         | 故障降级见           |
+| --------------------------- | ------------ | -------------------- |
+| OpenAI（via AI Gateway）    | LLM 主       | §01.5                |
+| Anthropic（via AI Gateway） | LLM fallback | §01.5                |
+| Resend                      | 邮件         | email_outbox 重试    |
+| Sentry                      | 错误上报     | 无降级（非关键路径） |
+| PostHog                     | 产品事件     | 失败吞掉不影响功能   |
+| Langfuse                    | LLM trace    | 失败吞掉不影响功能   |
 
 所有 Cloudflare 原生服务（D1 / KV / R2 / Queues / Vectorize / AI Gateway）**不算外部依赖**，它们是 Worker 的 binding。
 
@@ -277,13 +276,13 @@ Fetch RSS / HTML ──► raw 存 R2 ──► 入 Queue { type: 'extract', pul
 
 ## 6. 并发与一致性策略
 
-| 场景 | 策略 |
-|---|---|
-| 同 firm 多设备并发改同一 obligation | Drizzle optimistic `updated_at` 比对；前端 toast "conflict" 提示重试 |
-| Pulse Batch Apply 期间同一 firm 禁止二次触发 | KV 做 advisory lock（30s TTL）+ 前端按钮 disable |
-| Migration 运行中禁止二次 import | `migration_batch.status=applying` 时拒绝新 batch |
-| 邮件 outbox 幂等 | `email_outbox.external_id` 唯一约束；consumer 处理前校验 |
-| Queue 消息幂等 | 消息体带 `idempotency_key`，消费者先查 D1 去重 |
+| 场景                                         | 策略                                                                 |
+| -------------------------------------------- | -------------------------------------------------------------------- |
+| 同 firm 多设备并发改同一 obligation          | Drizzle optimistic `updated_at` 比对；前端 toast "conflict" 提示重试 |
+| Pulse Batch Apply 期间同一 firm 禁止二次触发 | KV 做 advisory lock（30s TTL）+ 前端按钮 disable                     |
+| Migration 运行中禁止二次 import              | `migration_batch.status=applying` 时拒绝新 batch                     |
+| 邮件 outbox 幂等                             | `email_outbox.external_id` 唯一约束；consumer 处理前校验             |
+| Queue 消息幂等                               | 消息体带 `idempotency_key`，消费者先查 D1 去重                       |
 
 ---
 
@@ -311,26 +310,26 @@ D1 无 RLS 能力，不依赖 DB 级防护。
 
 ## 9. 故障域与回滚
 
-| 故障 | 回滚手段 |
-|---|---|
-| Worker 新版本线上异常 | `wrangler rollback`（立即回上一版） |
-| D1 migration 写坏 | 迁移走"可逆 migration"模式；写坏后 rollback migration + 从备份恢复 |
-| Pulse 批量误改 | 24h 内 `pulse.revert` 一键还原（写入 `reverted_at`，UI 不再展示） |
-| Migration 导入误操作 | 24h 内 `migration.revert` 按 `migration_batch_id` 级联删客户和 obligations |
-| Exception overlay 误应用（Phase 1） | 独立 `ObligationExceptionApplication` 表，`reverted_at` 立即失效 |
+| 故障                                | 回滚手段                                                                   |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| Worker 新版本线上异常               | `wrangler rollback`（立即回上一版）                                        |
+| D1 migration 写坏                   | 迁移走"可逆 migration"模式；写坏后 rollback migration + 从备份恢复         |
+| Pulse 批量误改                      | 24h 内 `pulse.revert` 一键还原（写入 `reverted_at`，UI 不再展示）          |
+| Migration 导入误操作                | 24h 内 `migration.revert` 按 `migration_batch_id` 级联删客户和 obligations |
+| Exception overlay 误应用（Phase 1） | 独立 `ObligationExceptionApplication` 表，`reverted_at` 立即失效           |
 
 ---
 
 ## 10. 演进路径预留
 
-| 演进方向 | 预留点 |
-|---|---|
-| D1 → Postgres（极端场景退路，非预设路径，见 §03.9.2） | `packages/db` 是唯一 schema/query 入口；切换只改该包；业务层零感知 |
-| Vectorize → Pinecone | `packages/ai/retriever.ts` 抽象 `VectorStore` 接口 |
-| AI Gateway → 自建 | `packages/ai/gateway.ts` 隔离所有外部 LLM 调用 |
-| 单 Worker → 多 Worker（承载量上来后）| Queue consumer 拆到独立 Worker；主 Worker 只处理交互请求 |
-| **SEO 公开页**（PRD P1-17 / P1-34 / §5.7A / §5.7B） | **独立 Astro 静态子站**（`apps/marketing`，挂 `duedatehq.com` / `docs.duedatehq.com`）承接 `/rules` `/watch` `/state/*` `/pulse`；通过 oRPC SDK 直连主 Worker 的 `/api/v1` OpenAPIHandler 读 verified 规则快照。PRD 语义不变，工程上与主 Worker（`app.duedatehq.com`）物理分离以避开 SPA 不利于 SEO 的限制 |
-| Phase 2 第三方 API 开放 | 主 Worker 增加 `/api/v1/*` 路由挂 `OpenAPIHandler(contract, { prefix: '/api/v1' })`，复用 `packages/contracts` |
+| 演进方向                                              | 预留点                                                                                                                                                                                                                                                                                                     |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1 → Postgres（极端场景退路，非预设路径，见 §03.9.2） | `packages/db` 是唯一 schema/query 入口；切换只改该包；业务层零感知                                                                                                                                                                                                                                         |
+| Vectorize → Pinecone                                  | `packages/ai/retriever.ts` 抽象 `VectorStore` 接口                                                                                                                                                                                                                                                         |
+| AI Gateway → 自建                                     | `packages/ai/gateway.ts` 隔离所有外部 LLM 调用                                                                                                                                                                                                                                                             |
+| 单 Worker → 多 Worker（承载量上来后）                 | Queue consumer 拆到独立 Worker；主 Worker 只处理交互请求                                                                                                                                                                                                                                                   |
+| **SEO 公开页**（PRD P1-17 / P1-34 / §5.7A / §5.7B）   | **独立 Astro 静态子站**（`apps/marketing`，挂 `duedatehq.com` / `docs.duedatehq.com`）承接 `/rules` `/watch` `/state/*` `/pulse`；通过 oRPC SDK 直连主 Worker 的 `/api/v1` OpenAPIHandler 读 verified 规则快照。PRD 语义不变，工程上与主 Worker（`app.duedatehq.com`）物理分离以避开 SPA 不利于 SEO 的限制 |
+| Phase 2 第三方 API 开放                               | 主 Worker 增加 `/api/v1/*` 路由挂 `OpenAPIHandler(contract, { prefix: '/api/v1' })`，复用 `packages/contracts`                                                                                                                                                                                             |
 
 ---
 

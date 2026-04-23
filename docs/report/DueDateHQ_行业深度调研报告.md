@@ -6,6 +6,7 @@
 基于内部材料与公开来源整理
 
 参考输入材料：
+
 - `工程师集训.html`（项目内未找到对应副本）
 - [DueDateHQ - 商业计划书.html](docs/DueDateHQ%20-%20商业计划书.html)
 - [DueDateHQ - 用户故事与价值主张画布.html](docs/DueDateHQ%20-%20用户故事与价值主张画布.html)

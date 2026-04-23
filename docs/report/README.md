@@ -14,16 +14,16 @@
 
 ## 文档分层
 
-| 文档 | 状态 | 使用方式 |
-| --- | --- | --- |
-| [DueDateHQ MVP v0.3 单一执行口径](./DueDateHQ%20-%20MVP%20边界声明.md) | 执行口径 | 决定两周内做什么、不做什么、怎么验收。 |
-| [DueDateHQ - ICP 痛点与两周 MVP 精准打击面](../DueDateHQ%20-%20ICP%20痛点与两周%20MVP%20精准打击面.md) | 产品北极星 / 调研解释 | 解释 ICP、痛点、为什么首页必须是 weekly triage。 |
-| [DueDateHQ_行业深度调研报告](./DueDateHQ_行业深度调研报告.md) | 行业研究输入 | 用于理解市场、法规、竞品和长期机会。不要直接转成两周需求。 |
-| [DueDateHQ 截止日与合规负载控制台行业与产品调研报告](./DueDateHQ%20截止日与合规负载控制台行业与产品调研报告.md) | 行业与产品研究输入 | 其中“负载、风险、规则中心”等是长期方向；MVP 只取 weekly triage。 |
-| [DueDateHQ MVP深度调研报告](./DueDateHQ%20MVP深度调研报告.md) | Demo / 扩展方案输入 | 包含 CSV、导出、审计、公开页等建议；这些不自动进入 v0.3 MVP。 |
-| [DueDateHQ 深入调研报告](./DueDateHQ%20深入调研报告.md) | 长期产品与技术输入 | 可用于 Phase 2/3 roadmap、合规、安全、技术架构讨论。 |
-| [DueDateHQ_FileInTime_竞品分析](./DueDateHQ_FileInTime_竞品分析.md) | 竞品研究输入 | 学习 File In Time 的 deadline-first workflow；不做 feature parity。 |
-| [File In Time 产品介绍与竞品分析研究报告](./%20File%20In%20Time%20产品介绍与竞品分析研究报告.md) | 竞品资料 | 用于确认 File In Time 的定位、能力和价格口径。 |
+| 文档                                                                                                            | 状态                  | 使用方式                                                            |
+| --------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------- |
+| [DueDateHQ MVP v0.3 单一执行口径](./DueDateHQ%20-%20MVP%20边界声明.md)                                          | 执行口径              | 决定两周内做什么、不做什么、怎么验收。                              |
+| [DueDateHQ - ICP 痛点与两周 MVP 精准打击面](../DueDateHQ%20-%20ICP%20痛点与两周%20MVP%20精准打击面.md)          | 产品北极星 / 调研解释 | 解释 ICP、痛点、为什么首页必须是 weekly triage。                    |
+| [DueDateHQ\_行业深度调研报告](./DueDateHQ_行业深度调研报告.md)                                                  | 行业研究输入          | 用于理解市场、法规、竞品和长期机会。不要直接转成两周需求。          |
+| [DueDateHQ 截止日与合规负载控制台行业与产品调研报告](./DueDateHQ%20截止日与合规负载控制台行业与产品调研报告.md) | 行业与产品研究输入    | 其中“负载、风险、规则中心”等是长期方向；MVP 只取 weekly triage。    |
+| [DueDateHQ MVP深度调研报告](./DueDateHQ%20MVP深度调研报告.md)                                                   | Demo / 扩展方案输入   | 包含 CSV、导出、审计、公开页等建议；这些不自动进入 v0.3 MVP。       |
+| [DueDateHQ 深入调研报告](./DueDateHQ%20深入调研报告.md)                                                         | 长期产品与技术输入    | 可用于 Phase 2/3 roadmap、合规、安全、技术架构讨论。                |
+| [DueDateHQ*FileInTime*竞品分析](./DueDateHQ_FileInTime_竞品分析.md)                                             | 竞品研究输入          | 学习 File In Time 的 deadline-first workflow；不做 feature parity。 |
+| [File In Time 产品介绍与竞品分析研究报告](./%20File%20In%20Time%20产品介绍与竞品分析研究报告.md)                | 竞品资料              | 用于确认 File In Time 的定位、能力和价格口径。                      |
 
 ## 范围收敛原则
 

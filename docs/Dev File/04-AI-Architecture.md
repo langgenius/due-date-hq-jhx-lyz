@@ -45,14 +45,14 @@
 ```ts
 // packages/ai/router.ts
 export const modelRoute = {
-  tip:          { primary: 'openai/gpt-4o-mini',     fallback: 'anthropic/claude-3-5-haiku' },
-  mapper:       { primary: 'openai/gpt-4o-mini',     fallback: 'anthropic/claude-3-5-haiku' },
-  normalizer:   { primary: 'openai/gpt-4o-mini',     fallback: 'anthropic/claude-3-5-haiku' },
-  brief:        { primary: 'openai/gpt-4o',          fallback: 'anthropic/claude-sonnet-4-5' },
-  pulseExtract: { primary: 'openai/gpt-4o',          fallback: 'anthropic/claude-sonnet-4-5' },
-  riskSummary:  { primary: 'openai/gpt-4o',          fallback: 'anthropic/claude-sonnet-4-5' },
-  ask:          { primary: 'openai/gpt-4o',          fallback: 'anthropic/claude-sonnet-4-5' },
-  embedding:    { primary: 'openai/text-embedding-3-small', fallback: null },
+  tip: { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
+  mapper: { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
+  normalizer: { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
+  brief: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
+  pulseExtract: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
+  riskSummary: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
+  ask: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
+  embedding: { primary: 'openai/text-embedding-3-small', fallback: null },
 }
 ```
 
@@ -79,7 +79,7 @@ export interface GuardResult {
 
 export async function glassBoxGuard(
   raw: string,
-  ctx: { retrievedChunks: Chunk[]; piiMap: Record<string, string>; kind: AiKind }
+  ctx: { retrievedChunks: Chunk[]; piiMap: Record<string, string>; kind: AiKind },
 ): Promise<GuardResult>
 ```
 
@@ -168,17 +168,17 @@ User event (dashboard load / Ask / Apply)
 
 ## 5. 能力矩阵（Phase 0 / 1 落地）
 
-| 能力 | 优先级 | 输入 | 输出 | 降级 |
-|---|---|---|---|---|
-| Weekly Brief | P0 | 本 firm Smart Priority top-N + 客户 summary | 3–5 句带 citation | 缓存上次版本 + 模板 `You have N items this week.` |
-| Client Risk Summary | P0 | 单客户 30 天 obligations + rule chunks | 一段话 + bullets | 纯 SQL 聚合 `3 upcoming, 1 critical` |
-| Deadline Tip | P0 | 单 obligation + rule chunk | 3 段 What/Why/Prepare | 从 `rule.default_tip` 兜底 |
-| Smart Priority | P0 | 全部 open obligations + client 字段 | 打分 + 因子分解 | **纯函数零 LLM**（`packages/core/priority`）；LLM 仅用于 `Why-hover` 解释 |
-| Pulse Source Translator | P0 | 官方公告原文 | 结构化 JSON + 人话 summary + verbatim quote | 置信度 < 0.7 标记 `pending_review` |
-| Ask DueDateHQ | P1 | 自然语言 query | 表格 + 一句话 + citations | 预设模板 5 条兜底（§6.6.5） |
-| AI Draft Client Email | P1 | Pulse + 受影响客户 | 英文邮件草稿 | 固定模板 |
-| Migration Field Mapper | P0 | 表头 + 前 5 行样本 | mapping JSON | Preset profile + 手动下拉 |
-| Migration Normalizer | P0 | 字段枚举值 | 归一值 + confidence | 字典 + fuzzy + 手动编辑 |
+| 能力                    | 优先级 | 输入                                        | 输出                                        | 降级                                                                      |
+| ----------------------- | ------ | ------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------- |
+| Weekly Brief            | P0     | 本 firm Smart Priority top-N + 客户 summary | 3–5 句带 citation                           | 缓存上次版本 + 模板 `You have N items this week.`                         |
+| Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks      | 一段话 + bullets                            | 纯 SQL 聚合 `3 upcoming, 1 critical`                                      |
+| Deadline Tip            | P0     | 单 obligation + rule chunk                  | 3 段 What/Why/Prepare                       | 从 `rule.default_tip` 兜底                                                |
+| Smart Priority          | P0     | 全部 open obligations + client 字段         | 打分 + 因子分解                             | **纯函数零 LLM**（`packages/core/priority`）；LLM 仅用于 `Why-hover` 解释 |
+| Pulse Source Translator | P0     | 官方公告原文                                | 结构化 JSON + 人话 summary + verbatim quote | 置信度 < 0.7 标记 `pending_review`                                        |
+| Ask DueDateHQ           | P1     | 自然语言 query                              | 表格 + 一句话 + citations                   | 预设模板 5 条兜底（§6.6.5）                                               |
+| AI Draft Client Email   | P1     | Pulse + 受影响客户                          | 英文邮件草稿                                | 固定模板                                                                  |
+| Migration Field Mapper  | P0     | 表头 + 前 5 行样本                          | mapping JSON                                | Preset profile + 手动下拉                                                 |
+| Migration Normalizer    | P0     | 字段枚举值                                  | 归一值 + confidence                         | 字典 + fuzzy + 手动编辑                                                   |
 
 **关键决策：Smart Priority 是纯函数**，不走 LLM。打分算法 + 因子权重写死在 `packages/core/priority/score.ts`；LLM 只在用户 hover `Why?` 时生成一句自然语言解释，且带 citation。
 
@@ -266,14 +266,14 @@ d1.batch([
 
 **每 firm / day** 的 LLM 配额（存 KV）：
 
-| 任务 | 每日 cap |
-|---|---|
-| Weekly Brief | 1（缓存 24h） |
-| Client Risk Summary | N 个客户 × 1 |
-| Deadline Tip | 50（缓存 per-rule 7d） |
-| Pulse Extract | 无 cap（管理员触发） |
-| Ask | 30（付费可升） |
-| Migration Mapper / Normalizer | 每 batch 有固定开销 |
+| 任务                          | 每日 cap               |
+| ----------------------------- | ---------------------- |
+| Weekly Brief                  | 1（缓存 24h）          |
+| Client Risk Summary           | N 个客户 × 1           |
+| Deadline Tip                  | 50（缓存 per-rule 7d） |
+| Pulse Extract                 | 无 cap（管理员触发）   |
+| Ask                           | 30（付费可升）         |
+| Migration Mapper / Normalizer | 每 batch 有固定开销    |
 
 超限返回 `rate_limited` + 明确 message。成本阈值：默认 $0.02 / firm / day，超过发告警。
 

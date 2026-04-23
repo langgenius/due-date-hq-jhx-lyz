@@ -1,0 +1,98 @@
+name = "duedatehq"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+# -------------------------------------------------------------
+# Static Assets · SPA dist from apps/web
+#   not_found_handling = "single-page-application" → SPA fallback
+#   run_worker_first  → Worker owns /rpc/* and /api/* first
+# -------------------------------------------------------------
+[assets]
+directory = "../web/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/rpc/*", "/api/*"]
+
+# -------------------------------------------------------------
+# Observability
+# -------------------------------------------------------------
+[observability]
+enabled = true
+
+# -------------------------------------------------------------
+# D1 · primary OLTP
+# -------------------------------------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "duedatehq"
+database_id = "TO_BE_PROVISIONED"
+migrations_dir = "../../packages/db/migrations"
+
+# -------------------------------------------------------------
+# KV · session hot data · rate-limit counters · AI day budgets
+# -------------------------------------------------------------
+[[kv_namespaces]]
+binding = "CACHE"
+id = "TO_BE_PROVISIONED"
+
+# -------------------------------------------------------------
+# R2 · migration raw / generated PDFs / audit zips
+# -------------------------------------------------------------
+[[r2_buckets]]
+binding = "R2_PDF"
+bucket_name = "duedatehq-pdf"
+
+[[r2_buckets]]
+binding = "R2_MIGRATION"
+bucket_name = "duedatehq-migration"
+
+[[r2_buckets]]
+binding = "R2_AUDIT"
+bucket_name = "duedatehq-audit"
+
+# -------------------------------------------------------------
+# Vectorize · RAG top-k retrieval
+# -------------------------------------------------------------
+[[vectorize]]
+binding = "VECTORS"
+index_name = "duedatehq-rules"
+
+# -------------------------------------------------------------
+# Rate Limiting binding
+# -------------------------------------------------------------
+[[unsafe.bindings]]
+name = "RATE_LIMIT"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 100, period = 60 }
+
+# -------------------------------------------------------------
+# Queues · email outbox + pulse extract
+# -------------------------------------------------------------
+[[queues.producers]]
+binding = "EMAIL_QUEUE"
+queue = "duedatehq-email"
+
+[[queues.consumers]]
+queue = "duedatehq-email"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "duedatehq-email-dlq"
+
+# -------------------------------------------------------------
+# Cron Triggers · pulse ingest + reminder dispatch
+# -------------------------------------------------------------
+[triggers]
+crons = ["*/30 * * * *"]
+
+# -------------------------------------------------------------
+# Environments
+# -------------------------------------------------------------
+[env.staging]
+name = "duedatehq-staging"
+
+[env.production]
+name = "duedatehq"
+route = { pattern = "app.duedatehq.com/*", zone_name = "duedatehq.com" }

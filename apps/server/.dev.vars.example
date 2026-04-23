@@ -1,0 +1,25 @@
+# Wrangler local dev secrets (read by `wrangler dev`).
+# Copy to `.dev.vars` (gitignored) and fill in.
+# Bindings themselves live in wrangler.toml; only runtime secrets belong here.
+
+AUTH_SECRET=
+AUTH_URL=http://localhost:8787
+APP_URL=http://localhost:8787
+ENV=development
+
+AI_GATEWAY_ACCOUNT_ID=
+AI_GATEWAY_SLUG=duedatehq
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+LANGFUSE_PUBLIC_KEY=
+LANGFUSE_SECRET_KEY=
+
+RESEND_API_KEY=
+EMAIL_FROM=noreply@duedatehq.com
+
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:ops@duedatehq.com
+
+SENTRY_DSN=
+POSTHOG_KEY=

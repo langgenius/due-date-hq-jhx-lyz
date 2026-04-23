@@ -19,7 +19,7 @@ packages/db/
 │   │   ├── pulse.ts
 │   │   ├── ai.ts                ← ai_output + llm_log
 │   │   ├── audit.ts             ← audit_event + evidence_link
-│   │   ├── notifications.ts     ← in_app + email_outbox + push_subscription + reminder
+│   │   ├── notifications.ts     ← in_app + email_outbox + reminder（push_subscription 已随 Phase 0 PWA 降级移除）
 │   │   ├── readiness.ts         ← Phase 1
 │   │   └── index.ts             ← barrel
 │   ├── client.ts                ← drizzle(D1) factory
@@ -45,26 +45,26 @@ packages/db/
 
 ### 2.1 better-auth 托管表
 
-| 表 | 说明 | DueDateHQ 视角 |
-|---|---|---|
-| `user` | 全局唯一的人（邮箱唯一） | CPA 本人 |
-| `session` | 登录态 | 含 `activeOrganizationId` |
-| `account` | credentials / magic link | magic link 为主 |
-| `verification` | 邮箱 / 邀请 token | — |
-| `organization` | **Firm（租户）**；`metadata` 扩展业务字段 | `plan` / `seatLimit` / `timezone` / `coordinatorCanSeeDollars` |
-| `member` | **UserFirmMembership**；`role ∈ {owner, manager, preparer, coordinator}` | — |
-| `invitation` | **TeamInvitation** | token + 14d 过期 |
+| 表             | 说明                                                                     | DueDateHQ 视角                                                 |
+| -------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| `user`         | 全局唯一的人（邮箱唯一）                                                 | CPA 本人                                                       |
+| `session`      | 登录态                                                                   | 含 `activeOrganizationId`                                      |
+| `account`      | credentials / magic link                                                 | magic link 为主                                                |
+| `verification` | 邮箱 / 邀请 token                                                        | —                                                              |
+| `organization` | **Firm（租户）**；`metadata` 扩展业务字段                                | `plan` / `seatLimit` / `timezone` / `coordinatorCanSeeDollars` |
+| `member`       | **UserFirmMembership**；`role ∈ {owner, manager, preparer, coordinator}` | —                                                              |
+| `invitation`   | **TeamInvitation**                                                       | token + 14d 过期                                               |
 
 `firmId`（业务表）严格 = `organization.id`。
 
 **Global vs tenant-scoped 边界（约束）：**
 
-| 类别 | 表 | `firm_id` 规则 | 访问方式 |
-|---|---|---|---|
-| 租户业务数据 | `client` / `obligation_instance` / `migration_*` / `audit_event` / `ai_output` / `llm_log` / `email_outbox` / `push_subscription` / `saved_view` | `firm_id NOT NULL` | 只能经 `scoped(db, firmId)` |
-| 全局规则资产 | `obligation_rule` / `rule_source` / `rule_chunk` | 不带 firm 或 `firm_id NULL` | 只读公开/ops 路径；业务查询必须通过 rule id join 到租户 obligation |
-| 混合 overlay | `exception_rule` | `firm_id NULL` 表示 ops verified 全局 exception；`firm_id NOT NULL` 表示 firm custom/manual exception | 全局只读；firm custom 经 `scoped` |
-| 应用记录 | `pulse_application` / `obligation_exception_application` / `evidence_link` | `firm_id NOT NULL`（即使可由 parent join 推导，也冗余存储） | 只能经 `scoped` |
+| 类别         | 表                                                                                                                         | `firm_id` 规则                                                                                        | 访问方式                                                           |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 租户业务数据 | `client` / `obligation_instance` / `migration_*` / `audit_event` / `ai_output` / `llm_log` / `email_outbox` / `saved_view` | `firm_id NOT NULL`                                                                                    | 只能经 `scoped(db, firmId)`                                        |
+| 全局规则资产 | `obligation_rule` / `rule_source` / `rule_chunk`                                                                           | 不带 firm 或 `firm_id NULL`                                                                           | 只读公开/ops 路径；业务查询必须通过 rule id join 到租户 obligation |
+| 混合 overlay | `exception_rule`                                                                                                           | `firm_id NULL` 表示 ops verified 全局 exception；`firm_id NOT NULL` 表示 firm custom/manual exception | 全局只读；firm custom 经 `scoped`                                  |
+| 应用记录     | `pulse_application` / `obligation_exception_application` / `evidence_link`                                                 | `firm_id NOT NULL`（即使可由 parent join 推导，也冗余存储）                                           | 只能经 `scoped`                                                    |
 
 任何可由用户直接打开详情页的记录，都必须能用自身 `firm_id` 或父实体 join 证明归属；不允许只靠前端传来的 id 查询。
 
@@ -72,119 +72,119 @@ packages/db/
 
 **clients**
 
-| 字段 | 类型 | 备注 |
-|---|---|---|
-| `id` | `text PK` | UUID v4 |
-| `firm_id` | `text NOT NULL` | → `organization.id` |
-| `name` | `text NOT NULL` | |
-| `ein` | `text` | `##-#######`；正则校验；允许 NULL |
-| `state` | `text NOT NULL` | ISO 两位州码 |
-| `county` | `text` | Pulse 匹配用 |
-| `entity_type` | `text NOT NULL CHECK IN (llc, s_corp, partnership, c_corp, sole_prop, trust, other)` | |
-| `tax_types` | `text (JSON array)` | NULL 时走 Default Matrix 兜底 |
-| `importance` | `text CHECK IN (high, med, low) DEFAULT 'med'` | |
-| `num_partners` / `num_shareholders` | `integer` | Penalty per-partner 用 |
-| `estimated_annual_revenue_band` | `text CHECK IN (lt_250k, 250k_1m, 1m_10m, gt_10m) NULL` | PRD P0-7；Client CRM 视角的粗档收入；Penalty 归档用 |
-| `estimated_tax_liability_cents` | `integer` | PRD §8.1；Penalty Radar 精算输入（可选） |
-| `assignee_id` | `text → user.id` | Phase 1 Team 启用 |
-| `email` / `notes` | `text` | |
-| `migration_batch_id` | `text` | Revert 级联 |
-| `created_at` / `updated_at` / `deleted_at` | `integer (ms)` | 软删 |
+| 字段                                       | 类型                                                                                 | 备注                                                |
+| ------------------------------------------ | ------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| `id`                                       | `text PK`                                                                            | UUID v4                                             |
+| `firm_id`                                  | `text NOT NULL`                                                                      | → `organization.id`                                 |
+| `name`                                     | `text NOT NULL`                                                                      |                                                     |
+| `ein`                                      | `text`                                                                               | `##-#######`；正则校验；允许 NULL                   |
+| `state`                                    | `text NOT NULL`                                                                      | ISO 两位州码                                        |
+| `county`                                   | `text`                                                                               | Pulse 匹配用                                        |
+| `entity_type`                              | `text NOT NULL CHECK IN (llc, s_corp, partnership, c_corp, sole_prop, trust, other)` |                                                     |
+| `tax_types`                                | `text (JSON array)`                                                                  | NULL 时走 Default Matrix 兜底                       |
+| `importance`                               | `text CHECK IN (high, med, low) DEFAULT 'med'`                                       |                                                     |
+| `num_partners` / `num_shareholders`        | `integer`                                                                            | Penalty per-partner 用                              |
+| `estimated_annual_revenue_band`            | `text CHECK IN (lt_250k, 250k_1m, 1m_10m, gt_10m) NULL`                              | PRD P0-7；Client CRM 视角的粗档收入；Penalty 归档用 |
+| `estimated_tax_liability_cents`            | `integer`                                                                            | PRD §8.1；Penalty Radar 精算输入（可选）            |
+| `assignee_id`                              | `text → user.id`                                                                     | Phase 1 Team 启用                                   |
+| `email` / `notes`                          | `text`                                                                               |                                                     |
+| `migration_batch_id`                       | `text`                                                                               | Revert 级联                                         |
+| `created_at` / `updated_at` / `deleted_at` | `integer (ms)`                                                                       | 软删                                                |
 
 **obligation_rule**（Rules-as-Asset 核心实体）
 
-| 字段 | 备注 |
-|---|---|
-| `id` / `version` | 同一规则多版本共存 |
-| `jurisdiction` | `federal` / `CA` / `NY` / ... |
-| `entity_applicability` | JSON string[] |
-| `tax_type` / `form_name` / `is_filing` / `is_payment` | |
-| `due_date_logic` | JSON DSL（§03.7） |
-| `extension_policy` / `penalty_formula` | |
-| `source_url` / `source_title` / `verbatim_quote` / `statutory_ref` | 证据铁律 |
-| `verified_by` / `verified_at` / `next_review_at` | |
-| `status ∈ (candidate, verified, deprecated)` | AI candidate vs human verified |
-| `rule_tier ∈ (basic, annual_rolling, exception, applicability_review)` | |
-| `risk_level ∈ (low, med, high)` | 高风险要求双人 sign-off |
-| `checklist_json` | 6 项 Quality Badge（§6D.4） |
-| `coverage_status ∈ (full, skeleton, manual)` | 50 州骨架 |
-| `active` | |
+| 字段                                                                   | 备注                           |
+| ---------------------------------------------------------------------- | ------------------------------ |
+| `id` / `version`                                                       | 同一规则多版本共存             |
+| `jurisdiction`                                                         | `federal` / `CA` / `NY` / ...  |
+| `entity_applicability`                                                 | JSON string[]                  |
+| `tax_type` / `form_name` / `is_filing` / `is_payment`                  |                                |
+| `due_date_logic`                                                       | JSON DSL（§03.7）              |
+| `extension_policy` / `penalty_formula`                                 |                                |
+| `source_url` / `source_title` / `verbatim_quote` / `statutory_ref`     | 证据铁律                       |
+| `verified_by` / `verified_at` / `next_review_at`                       |                                |
+| `status ∈ (candidate, verified, deprecated)`                           | AI candidate vs human verified |
+| `rule_tier ∈ (basic, annual_rolling, exception, applicability_review)` |                                |
+| `risk_level ∈ (low, med, high)`                                        | 高风险要求双人 sign-off        |
+| `checklist_json`                                                       | 6 项 Quality Badge（§6D.4）    |
+| `coverage_status ∈ (full, skeleton, manual)`                           | 50 州骨架                      |
+| `active`                                                               |                                |
 
 **obligation_instance**
 
-| 字段 | 备注 |
-|---|---|
-| `id` / `firm_id` / `client_id` / `rule_id` / `rule_version` | |
-| `tax_year` / `period` | |
-| `original_due_date` | 规则生成时的原始日期，**永不变** |
-| `base_due_date` | base rule 最新计算值 |
-| `current_due_date` | Phase 0 直接 = base；Phase 1 = base + apply(active overlays) |
-| `filing_due_date` / `payment_due_date` | |
-| `status ∈ (not_started, in_progress, waiting_on_client, needs_review, filed, paid, extended, not_applicable)` | |
-| `readiness ∈ (ready, waiting, needs_review)` | |
-| `extension_decision` | JSON |
-| `estimated_tax_due_cents` / `estimated_exposure_cents` | Penalty Radar 预聚合 |
-| `assignee_id` / `notes` | |
-| `migration_batch_id` | |
-| `last_changed_by` | |
-| `created_at` / `updated_at` | |
+| 字段                                                                                                          | 备注                                                         |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `id` / `firm_id` / `client_id` / `rule_id` / `rule_version`                                                   |                                                              |
+| `tax_year` / `period`                                                                                         |                                                              |
+| `original_due_date`                                                                                           | 规则生成时的原始日期，**永不变**                             |
+| `base_due_date`                                                                                               | base rule 最新计算值                                         |
+| `current_due_date`                                                                                            | Phase 0 直接 = base；Phase 1 = base + apply(active overlays) |
+| `filing_due_date` / `payment_due_date`                                                                        |                                                              |
+| `status ∈ (not_started, in_progress, waiting_on_client, needs_review, filed, paid, extended, not_applicable)` |                                                              |
+| `readiness ∈ (ready, waiting, needs_review)`                                                                  |                                                              |
+| `extension_decision`                                                                                          | JSON                                                         |
+| `estimated_tax_due_cents` / `estimated_exposure_cents`                                                        | Penalty Radar 预聚合                                         |
+| `assignee_id` / `notes`                                                                                       |                                                              |
+| `migration_batch_id`                                                                                          |                                                              |
+| `last_changed_by`                                                                                             |                                                              |
+| `created_at` / `updated_at`                                                                                   |                                                              |
 
 **exception_rule**（Phase 1 · Overlay Engine）
 
-| 字段 | 备注 |
-|---|---|
-| `id` / `firm_id` / `source_pulse_id` | `firm_id NULL` = 全局 ops verified；非 NULL = firm custom/manual；来源 Pulse 可 NULL |
-| `jurisdiction` / `counties[]` / `affected_forms[]` / `affected_entity_types[]` | JSON |
-| `override_type ∈ (extend_due_date, waive_penalty, ...)` | |
-| `override_value_json` | |
-| `effective_from` / `effective_until` | |
-| `status ∈ (candidate, verified, applied, retracted, superseded)` | |
-| `source_url` / `verbatim_quote` | |
+| 字段                                                                           | 备注                                                                                 |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| `id` / `firm_id` / `source_pulse_id`                                           | `firm_id NULL` = 全局 ops verified；非 NULL = firm custom/manual；来源 Pulse 可 NULL |
+| `jurisdiction` / `counties[]` / `affected_forms[]` / `affected_entity_types[]` | JSON                                                                                 |
+| `override_type ∈ (extend_due_date, waive_penalty, ...)`                        |                                                                                      |
+| `override_value_json`                                                          |                                                                                      |
+| `effective_from` / `effective_until`                                           |                                                                                      |
+| `status ∈ (candidate, verified, applied, retracted, superseded)`               |                                                                                      |
+| `source_url` / `verbatim_quote`                                                |                                                                                      |
 
 **obligation_exception_application**（多对多）
 
-| 字段 | |
-|---|---|
-| `obligation_instance_id` / `exception_rule_id`（PK） | |
-| `applied_at` / `applied_by_user_id` | |
-| `reverted_at` / `reverted_by_user_id` | |
+| 字段                                                 |     |
+| ---------------------------------------------------- | --- |
+| `obligation_instance_id` / `exception_rule_id`（PK） |     |
+| `applied_at` / `applied_by_user_id`                  |     |
+| `reverted_at` / `reverted_by_user_id`                |     |
 
 ### 2.3 Pulse 链路
 
 **pulse**
 
-| 字段 | 备注 |
-|---|---|
-| `id` / `source` / `source_url` / `raw_r2_key` | 原文存 R2 |
-| `published_at` | |
-| `ai_summary` / `verbatim_quote` | |
-| `parsed_jurisdiction` / `parsed_counties[]` / `parsed_forms[]` / `parsed_entity_types[]` | JSON |
-| `parsed_original_due_date` / `parsed_new_due_date` / `parsed_effective_from` | |
-| `confidence` | 0–1 |
-| `status ∈ (pending_review, approved, applied, rejected)` | |
-| `reviewed_by` / `reviewed_at` / `requires_human_review` | |
+| 字段                                                                                     | 备注      |
+| ---------------------------------------------------------------------------------------- | --------- |
+| `id` / `source` / `source_url` / `raw_r2_key`                                            | 原文存 R2 |
+| `published_at`                                                                           |           |
+| `ai_summary` / `verbatim_quote`                                                          |           |
+| `parsed_jurisdiction` / `parsed_counties[]` / `parsed_forms[]` / `parsed_entity_types[]` | JSON      |
+| `parsed_original_due_date` / `parsed_new_due_date` / `parsed_effective_from`             |           |
+| `confidence`                                                                             | 0–1       |
+| `status ∈ (pending_review, approved, applied, rejected)`                                 |           |
+| `reviewed_by` / `reviewed_at` / `requires_human_review`                                  |           |
 
 **pulse_application**
 
-| 字段 | 备注 |
-|---|---|
-| `id` / `pulse_id` / `obligation_instance_id` / `client_id` / `firm_id` | |
-| `applied_by` / `applied_at` / `reverted_at` | |
-| `before_due_date` / `after_due_date` | 审计必备 |
+| 字段                                                                   | 备注     |
+| ---------------------------------------------------------------------- | -------- |
+| `id` / `pulse_id` / `obligation_instance_id` / `client_id` / `firm_id` |          |
+| `applied_by` / `applied_at` / `reverted_at`                            |          |
+| `before_due_date` / `after_due_date`                                   | 审计必备 |
 
 ### 2.4 Migration
 
 **migration_batch**
 
-| 字段 | 备注 |
-|---|---|
-| `id` / `firm_id` / `user_id` | |
-| `source ∈ (paste, csv, preset_name)` / `raw_input_r2_key` | |
-| `mapping_json` / `preset_used` | |
-| `row_count` / `success_count` / `skipped_count` | |
-| `ai_global_confidence` | |
-| `status ∈ (draft, mapping, reviewing, applied, reverted, failed)` | |
-| `revert_expires_at` = `applied_at + 24h` | |
+| 字段                                                              | 备注 |
+| ----------------------------------------------------------------- | ---- |
+| `id` / `firm_id` / `user_id`                                      |      |
+| `source ∈ (paste, csv, preset_name)` / `raw_input_r2_key`         |      |
+| `mapping_json` / `preset_used`                                    |      |
+| `row_count` / `success_count` / `skipped_count`                   |      |
+| `ai_global_confidence`                                            |      |
+| `status ∈ (draft, mapping, reviewing, applied, reverted, failed)` |      |
+| `revert_expires_at` = `applied_at + 24h`                          |      |
 
 **migration_mapping** · **migration_normalization** · **migration_error**
 
@@ -196,27 +196,27 @@ packages/db/
 
 **evidence_link**（PRD §5.5 provenance 核心）
 
-| 字段 | 备注 |
-|---|---|
-| `id` | |
-| `firm_id` | tenant evidence 必填；全局 rule source 不直接作为 EvidenceLink 暴露 |
-| `obligation_instance_id` 或 `ai_output_id` | 二选一 |
-| `source_type` | 枚举（§06） |
-| `source_id` / `source_url` / `verbatim_quote` | |
-| `raw_value` / `normalized_value` | Migration 用 |
-| `confidence` / `model` / `matrix_version` | AI 决策用 |
-| `verified_at` / `verified_by` / `applied_at` / `applied_by` | |
+| 字段                                                        | 备注                                                                |
+| ----------------------------------------------------------- | ------------------------------------------------------------------- |
+| `id`                                                        |                                                                     |
+| `firm_id`                                                   | tenant evidence 必填；全局 rule source 不直接作为 EvidenceLink 暴露 |
+| `obligation_instance_id` 或 `ai_output_id`                  | 二选一                                                              |
+| `source_type`                                               | 枚举（§06）                                                         |
+| `source_id` / `source_url` / `verbatim_quote`               |                                                                     |
+| `raw_value` / `normalized_value`                            | Migration 用                                                        |
+| `confidence` / `model` / `matrix_version`                   | AI 决策用                                                           |
+| `verified_at` / `verified_by` / `applied_at` / `applied_by` |                                                                     |
 
 **audit_event**
 
-| 字段 | 备注 |
-|---|---|
-| `id` / `firm_id` / `actor_id` | |
-| `entity_type` / `entity_id` | |
-| `action` | 枚举（§06.6） |
-| `before_json` / `after_json` / `reason` | |
-| `ip_hash` / `user_agent_hash` | 匿名化 |
-| `created_at` | |
+| 字段                                    | 备注          |
+| --------------------------------------- | ------------- |
+| `id` / `firm_id` / `actor_id`           |               |
+| `entity_type` / `entity_id`             |               |
+| `action`                                | 枚举（§06.6） |
+| `before_json` / `after_json` / `reason` |               |
+| `ip_hash` / `user_agent_hash`           | 匿名化        |
+| `created_at`                            |               |
 
 **硬约束：`audit_event` 永不物理删除，也不允许软删标志位。**
 
@@ -224,30 +224,31 @@ packages/db/
 
 **ai_output**
 
-| 字段 | |
-|---|---|
-| `id` / `firm_id` / `user_id` / `kind ∈ (brief, tip, summary, ask_answer, pulse_extract, migration_map, migration_normalize)` | |
-| `prompt_version` / `model` / `input_context_ref` | |
-| `output_text` / `citations_json` | |
-| `generated_at` / `tokens_in` / `tokens_out` / `cost_usd` | |
+| 字段                                                                                                                         |     |
+| ---------------------------------------------------------------------------------------------------------------------------- | --- |
+| `id` / `firm_id` / `user_id` / `kind ∈ (brief, tip, summary, ask_answer, pulse_extract, migration_map, migration_normalize)` |     |
+| `prompt_version` / `model` / `input_context_ref`                                                                             |     |
+| `output_text` / `citations_json`                                                                                             |     |
+| `generated_at` / `tokens_in` / `tokens_out` / `cost_usd`                                                                     |     |
 
 **llm_log**
 
-| 字段 | |
-|---|---|
-| `id` / `firm_id` / `user_id` / `prompt_version` | |
-| `input_tokens` / `output_tokens` / `latency_ms` / `cost_usd` | |
-| `success` / `error_msg` / `created_at` | |
-| `input_hash` | sha256；**不存原文**（PII 合规） |
+| 字段                                                         |                                  |
+| ------------------------------------------------------------ | -------------------------------- |
+| `id` / `firm_id` / `user_id` / `prompt_version`              |                                  |
+| `input_tokens` / `output_tokens` / `latency_ms` / `cost_usd` |                                  |
+| `success` / `error_msg` / `created_at`                       |                                  |
+| `input_hash`                                                 | sha256；**不存原文**（PII 合规） |
 
 ### 2.7 通知
 
-**in_app_notification** · **email_outbox** · **push_subscription** · **reminder**
+**in_app_notification** · **email_outbox** · **reminder**
 
 - `email_outbox.external_id` 唯一约束（幂等）
 - `email_outbox.status ∈ (pending, sending, sent, failed)`
-- `push_subscription.endpoint` 唯一；`consecutive_failures` 累计 410/404 自动 `revoked_at`
 - `reminder.offset_days ∈ {30, 7, 1}`；`sent_at` / `clicked_at`
+
+> `push_subscription` 表已随 Phase 0 PWA/Web Push 降级整体移除（见 `00-Overview.md §7`、`05 §8`）。恢复时需同步 schema migration + `packages/db/schema/notifications.ts` + 两条 push 相关索引。
 
 ### 2.8 其他
 
@@ -300,8 +301,7 @@ CREATE INDEX idx_exc_firm_status ON exception_rule(firm_id, status, effective_fr
 
 -- Notifications
 CREATE INDEX idx_outbox_status        ON email_outbox(status, created_at);
-CREATE INDEX idx_push_user            ON push_subscription(user_id) WHERE revoked_at IS NULL;
-CREATE UNIQUE INDEX idx_push_endpoint ON push_subscription(endpoint) WHERE revoked_at IS NULL;
+-- push_subscription 索引已随 PWA/Web Push 降级移除（见 §2.7 末尾）
 ```
 
 D1 无 GIN / ivfflat；向量检索走 Vectorize；需要数组 / JSON 过滤时优先拆 helper table 或反范式（如 `has_federal` boolean、`client_tax_type`、`exception_affected_form`），临时 JSON 查询用 `json_each()` 但不得作为高频路径默认方案。
@@ -335,14 +335,14 @@ export const scoped = (db: DrizzleDB, firmId: string) => ({
 
 ## 5. 软删除策略
 
-| 实体 | 策略 |
-|---|---|
-| `client` | `deleted_at` 软删；30 天后 Cron 硬删（级联 obligation） |
-| `obligation_instance` | 不软删；状态 `not_applicable` 代替 |
-| `audit_event` | **永不删**（硬约束） |
-| `migration_batch` | `reverted_at` 标记；原始数据 R2 保留 90 天 |
-| `pulse` | 不删；`status=rejected` 即过滤 |
-| `user` / `organization` / `member` | 由 better-auth 管理；GDPR 请求走其 `deleteUser` API |
+| 实体                               | 策略                                                    |
+| ---------------------------------- | ------------------------------------------------------- |
+| `client`                           | `deleted_at` 软删；30 天后 Cron 硬删（级联 obligation） |
+| `obligation_instance`              | 不软删；状态 `not_applicable` 代替                      |
+| `audit_event`                      | **永不删**（硬约束）                                    |
+| `migration_batch`                  | `reverted_at` 标记；原始数据 R2 保留 90 天              |
+| `pulse`                            | 不删；`status=rejected` 即过滤                          |
+| `user` / `organization` / `member` | 由 better-auth 管理；GDPR 请求走其 `deleteUser` API     |
 
 ---
 
@@ -381,7 +381,12 @@ type DueDateLogic =
   | { type: 'fixed_date'; month: number; day: number }
   | { type: 'nth_day_after_event'; n: number; event: 'formation' | 'tax_year_end' }
   | { type: 'calendar_anchor'; anchor: 'q1' | 'q2' | 'q3' | 'q4' | 'annual'; offset_days?: number }
-  | { type: 'nth_month_day'; month: number; weekday: 0|1|2|3|4|5|6; nth: 1|2|3|4|-1 }
+  | {
+      type: 'nth_month_day'
+      month: number
+      weekday: 0 | 1 | 2 | 3 | 4 | 5 | 6
+      nth: 1 | 2 | 3 | 4 | -1
+    }
 
 interface WeekendHolidayPolicy {
   rollover: 'next_business_day' | 'preceding_business_day' | 'none'
@@ -395,16 +400,16 @@ interface WeekendHolidayPolicy {
 
 ## 8. D1 约束速查
 
-| 约束 | 值 | 工程缓解 |
-|---|---|---|
-| 单库大小 | 10 GB | 接近阈值前按 firm / region 分库；不要假设单库长期承载全部租户 |
-| 单查询返回行数 | 10 万 | 所有列表强制分页（50 / 100 / 200） |
-| 单 invocation 查询数 | Workers Paid 约 1000（Free 更低） | Migration / Pulse 分批；每批优先 100–200 prepared statements |
-| 单 SQL 绑定参数 | 100 | 大 `IN (...)` 拆批或写入临时/helper 表 |
-| 单请求 CPU | 30s（付费 5min） | 长计算拆 Queue / Workflow |
-| 无原生 vector | — | Vectorize |
-| 无原生 JSON 索引 | — | 反范式冗余 boolean / 拆表 |
-| 无 RLS | — | `scoped(db, firmId)` 工厂强制 |
+| 约束                 | 值                                | 工程缓解                                                      |
+| -------------------- | --------------------------------- | ------------------------------------------------------------- |
+| 单库大小             | 10 GB                             | 接近阈值前按 firm / region 分库；不要假设单库长期承载全部租户 |
+| 单查询返回行数       | 10 万                             | 所有列表强制分页（50 / 100 / 200）                            |
+| 单 invocation 查询数 | Workers Paid 约 1000（Free 更低） | Migration / Pulse 分批；每批优先 100–200 prepared statements  |
+| 单 SQL 绑定参数      | 100                               | 大 `IN (...)` 拆批或写入临时/helper 表                        |
+| 单请求 CPU           | 30s（付费 5min）                  | 长计算拆 Queue / Workflow                                     |
+| 无原生 vector        | —                                 | Vectorize                                                     |
+| 无原生 JSON 索引     | —                                 | 反范式冗余 boolean / 拆表                                     |
+| 无 RLS               | —                                 | `scoped(db, firmId)` 工厂强制                                 |
 
 ---
 
@@ -412,21 +417,21 @@ interface WeekendHolidayPolicy {
 
 ### 9.1 规则覆盖（对齐 PRD §4.1 P0-8 / §6.1.2）
 
-| 阶段 | 覆盖辖区 | 条目 |
-|---|---|---|
-| **Demo Sprint**（§09） | Federal + CA + NY | ~20 条 verified |
+| 阶段                              | 覆盖辖区                              | 条目                                                                           |
+| --------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------ |
+| **Demo Sprint**（§09）            | Federal + CA + NY                     | ~20 条 verified                                                                |
 | **Phase 0 MVP 完整**（PRD §14.1） | Federal + CA + NY + TX + FL + WA + MA | ~30 条全 verified；其他 44 州 `coverage_status='skeleton'` + Federal-only 回退 |
-| **Phase 1 完整**（PRD §14.2） | 50 州 full coverage | 逐州 sign-off 后 `active=true`；无 schema 变更 |
+| **Phase 1 完整**（PRD §14.2）     | 50 州 full coverage                   | 逐州 sign-off 后 `active=true`；无 schema 变更                                 |
 
 ### 9.2 Postgres 退路（极端场景，非预设路径）
 
 D1 不是权宜之计，是**架构正确选择**（见 §01.2.5）。仅在以下**不在当前路线图**的极端场景下考虑切 Hyperdrive + Neon：
 
-| 触发条件 | 处理 |
-|---|---|
-| 单库真实超 10 GB | 先评估按 firm 分库（D1 支持多库）；仍不够再切 |
+| 触发条件                 | 处理                                                                        |
+| ------------------------ | --------------------------------------------------------------------------- |
+| 单库真实超 10 GB         | 先评估按 firm 分库（D1 支持多库）；仍不够再切                               |
 | 跨租户 OLAP 分析需求固化 | 先评估 Cloudflare Analytics Engine + 定时 Workflow 重算物化视图；仍不够再切 |
-| 合规要求物理租户隔离 | 按 firm 建独立 D1 实例（D1 支持多库）；仍不够再切 |
+| 合规要求物理租户隔离     | 按 firm 建独立 D1 实例（D1 支持多库）；仍不够再切                           |
 
 **若真需要迁移**，路径（需要独立迁移计划，不按 1 天承诺）：
 

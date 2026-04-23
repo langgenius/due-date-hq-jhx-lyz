@@ -1,0 +1,158 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# ============================================================
+# pnpm 10 settings (single source of truth; do NOT create .npmrc)
+# ============================================================
+saveExact: true
+autoInstallPeers: true
+dedupePeerDependents: true
+strictPeerDependencies: false
+linkWorkspacePackages: true
+preferWorkspacePackages: true
+
+# Catalog adoption policy (vite-plus monorepo template default).
+# `prefer` means new `pnpm add` writes `catalog:` references when the
+# package already exists in the catalog below, but allows opt-out.
+catalogMode: prefer
+
+onlyBuiltDependencies:
+  - esbuild
+  - '@swc/core'
+  - sharp
+  - workerd
+
+# ============================================================
+# Vite+ ecosystem overrides (mandatory).
+#
+# vite-plus packages `@voidzero-dev/vite-plus-core` and
+# `@voidzero-dev/vite-plus-test` ARE the Vite+ flavored vite/vitest.
+# We redirect every transitive `vite` / `vitest` import to those
+# scoped packages via npm-alias syntax in the catalog, then apply
+# that alias workspace-wide with `overrides`. Plugins like
+# @vitejs/plugin-react, @tailwindcss/vite, and
+# @cloudflare/vitest-pool-workers all resolve through this pipe.
+#
+# Source: https://viteplus.dev (monorepo template)
+# ============================================================
+overrides:
+  vite: 'catalog:'
+  vitest: 'catalog:'
+  # drizzle-kit 0.31.10 still ships @esbuild-kit/* as a leftover
+  # fallback even though its primary loader is now `tsx`. The "-"
+  # value tells pnpm to omit the dependency entirely (pnpm 10+),
+  # which silences the deprecation warnings without breaking
+  # drizzle-kit since it no longer reads them on the happy path.
+  '@esbuild-kit/esm-loader': '-'
+  '@esbuild-kit/core-utils': '-'
+
+# Silence peer-range mismatches caused by the alias: the alias points
+# at a 0.1.x package while plugins declare peers like `vite: ^8`.
+# Functionality is identical; version numbers just don't match.
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: '*'
+    vitest: '*'
+
+# ============================================================
+# Catalog · single source of truth for every external version.
+#
+# Rules (docs/Dev File/01 §3):
+#   1. All apps/* and packages/* dependencies MUST use
+#      "catalog:" — never a literal version, never "^x.y.z",
+#      never "latest".
+#   2. Every entry here is PINNED (exact). `saveExact: true`
+#      enforces this for future `pnpm add` / `vp add`.
+#   3. Upgrades = edit this file + `vp install`.
+# ============================================================
+catalog:
+  # ───────── Vite+ unified toolchain ─────────
+  # These three move together; always bump as one set.
+  vite-plus: 0.1.19
+  vite: npm:@voidzero-dev/vite-plus-core@0.1.19
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.19
+
+  # ───────── runtime core ─────────
+  typescript: 6.0.3
+  '@typescript/native-preview': 7.0.0-dev.20260423.1
+  '@types/node': 25.6.0
+
+  # ───────── Vite plugin ecosystem ─────────
+  # These plugins consume the aliased `vite` from the overrides above;
+  # they never see the vanilla npm vite.
+  '@vitejs/plugin-react': 6.0.1
+  '@tailwindcss/vite': 4.2.4
+
+  # ───────── frontend ─────────
+  react: 19.2.5
+  react-dom: 19.2.5
+  '@types/react': 19.2.14
+  '@types/react-dom': 19.2.3
+  react-router: 7.14.2
+  tailwindcss: 4.2.4
+  lucide-react: 1.8.0
+  class-variance-authority: 0.7.1
+  tailwind-merge: 3.5.0
+  tw-animate-css: 1.4.0
+  clsx: 2.1.1
+
+  # ───────── state / form ─────────
+  '@tanstack/react-query': 5.99.2
+  '@tanstack/react-table': 8.21.3
+  '@tanstack/react-virtual': 3.13.24
+  zustand: 5.0.12
+  nuqs: 2.8.9
+  react-hook-form: 7.73.1
+  '@hookform/resolvers': 5.2.2
+  zod: 4.3.6
+
+  # ───────── animation ─────────
+  motion: 12.38.0
+  canvas-confetti: 1.9.4
+  react-odometerjs: 3.1.3
+
+  # ───────── backend ─────────
+  hono: 4.12.14
+  '@hono/zod-validator': 0.7.6
+
+  # ───────── oRPC ─────────
+  '@orpc/contract': 1.14.0
+  '@orpc/server': 1.14.0
+  '@orpc/client': 1.14.0
+  '@orpc/tanstack-query': 1.14.0
+  '@orpc/openapi': 1.14.0
+
+  # ───────── auth ─────────
+  better-auth: 1.6.7
+
+  # ───────── db ─────────
+  drizzle-orm: 0.45.2
+  drizzle-kit: 0.31.10
+
+  # ───────── ai ─────────
+  openai: 6.34.0
+  '@anthropic-ai/sdk': 0.90.0
+  langfuse: 3.38.20
+
+  # ───────── infra / transport ─────────
+  resend: 6.12.2
+  '@react-email/components': 1.0.12
+  '@sentry/cloudflare': 10.49.0
+  posthog-js: 1.371.1
+
+  # ───────── cloudflare ─────────
+  wrangler: 4.84.1
+  '@cloudflare/workers-types': 4.20260423.1
+
+  # ───────── test adapters / env / e2e ─────────
+  # The pool driver peers on `vitest: ^4.x`; because of the override
+  # above it resolves to `@voidzero-dev/vite-plus-test@0.1.19`, with
+  # peerDependencyRules.allowAny silencing the version mismatch.
+  '@cloudflare/vitest-pool-workers': 0.14.9
+  happy-dom: 20.9.0
+  '@playwright/test': 1.59.1
+  msw: 2.13.5

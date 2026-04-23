@@ -1,0 +1,40 @@
+{
+  "name": "@duedatehq/db",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./scoped": "./src/scoped.ts",
+    "./audit-writer": "./src/audit-writer.ts",
+    "./evidence-writer": "./src/evidence-writer.ts",
+    "./types": "./src/types.ts",
+    "./schema": "./src/schema/index.ts",
+    "./schema/*": "./src/schema/*.ts"
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "seed:demo": "node --experimental-strip-types seed/demo.ts",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@duedatehq/core": "workspace:*",
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@duedatehq/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "drizzle-kit": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "//": "Drizzle schema + scoped repo factory. `./schema` entries are intentionally exposed ONLY for migrations / seed / writers. Procedures must use `scoped()` (enforced by `vp check`)."
+}

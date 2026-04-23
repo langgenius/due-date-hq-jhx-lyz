@@ -1,0 +1,6 @@
+{
+  "//": "Root tsconfig is ONLY for scripts/. apps/* and packages/* each have their own tsconfig.json extending @duedatehq/typescript-config.",
+  "extends": "./packages/typescript-config/base.json",
+  "include": ["scripts/**/*.ts", "scripts/**/*.mts", "scripts/**/*.mjs"],
+  "exclude": ["node_modules", "dist", ".wrangler", ".turbo"]
+}

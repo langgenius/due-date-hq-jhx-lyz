@@ -1,0 +1,42 @@
+{
+  "name": "@duedatehq/ai",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./ports": "./src/ports.ts",
+    "./gateway": "./src/gateway.ts",
+    "./router": "./src/router.ts",
+    "./retriever": "./src/retriever.ts",
+    "./prompter": "./src/prompter.ts",
+    "./guard": "./src/guard.ts",
+    "./pii": "./src/pii.ts",
+    "./budget": "./src/budget.ts",
+    "./trace": "./src/trace.ts"
+  },
+  "scripts": {
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "catalog:",
+    "@duedatehq/core": "workspace:*",
+    "langfuse": "catalog:",
+    "openai": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@duedatehq/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "//": "AI orchestrator. MUST NOT import @duedatehq/db directly — Vectorize/KV/Langfuse/writers are injected via ports.ts (docs/Dev File/08 §4.6)."
+}

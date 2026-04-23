@@ -1,0 +1,30 @@
+{
+  "name": "@duedatehq/core",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./penalty": "./src/penalty/index.ts",
+    "./priority": "./src/priority/index.ts",
+    "./date-logic": "./src/date-logic/index.ts",
+    "./overlay": "./src/overlay/index.ts",
+    "./default-matrix": "./src/default-matrix/index.ts"
+  },
+  "scripts": {
+    "test": "vp test"
+  },
+  "devDependencies": {
+    "@duedatehq/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "//": "JIT package — consumers transpile .ts sources directly (apps/web via vite-plus, apps/server via wrangler esbuild)."
+}

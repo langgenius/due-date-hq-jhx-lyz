@@ -40,36 +40,38 @@ duedatehq/
 
 ---
 
-## 2. 脚手架初始化（create-turbo + 定制）
+## 2. 脚手架初始化（`vp create vite:monorepo` + 定制）
 
-Turborepo 官方脚手架复用其优势（共享 `typescript-config` 包 + JIT 内部包约定），再接我们的结构：
+Vite+ 官方 monorepo 模板自带 `typescript-config` 包 + 根 `vite.config.ts` + `pnpm-workspace.yaml`。前置条件：全局 `vp` 已装（`curl -fsSL https://vite.plus | bash`）。
 
 ```bash
-# 1. 用 create-turbo 起骨架（basic 模板）
-pnpm dlx create-turbo@latest duedatehq --package-manager pnpm --skip-install
+# 1. 用 vp 起 monorepo 骨架
+vp create vite:monorepo duedatehq --package-manager pnpm --skip-install
 cd duedatehq
 
-# 2. 删掉默认的 Next.js apps 和 eslint 配置包
-rm -rf apps/web apps/docs packages/ui packages/eslint-config
+# 2. 删掉模板默认应用与多余包，保留 packages/typescript-config 和根配置
+rm -rf apps/* packages/*
+# 保留：pnpm-workspace.yaml · vite.config.ts · packages/typescript-config
 
-# 3. 保留 packages/typescript-config + turbo.json，但按本文档修改
-#    （packages/typescript-config 改名为 @duedatehq/typescript-config；扩展 vite / worker / library 三个派生）
+# 3. 把 packages/typescript-config 改名 @duedatehq/typescript-config
+#    并派生出 base / library / vite / worker 四个 variant（见 §3.2）
 
 # 4. 手工新增我们的 apps/server · apps/web · packages/{contracts,db,core,ai,auth}
-# 5. 按 §01.4 写 pnpm-workspace.yaml（含 catalog）
-# 6. pnpm install
+# 5. 按 §01.4 把 pnpm-workspace.yaml 的 catalog 逐字对齐 01-Tech-Stack.md 的权威快照
+# 6. vp install      # 底层仍然调 pnpm
+# 7. vp check        # 全绿即脚手架完成
 ```
 
 ---
 
-## 3. Turborepo 约定（来自官方 TS Best Practices，**必须遵守**）
+## 3. 工具链约定（Vite+ 一统，**必须遵守**）
 
 ### 3.1 Just-in-Time (JIT) 内部包
 
 `packages/contracts / db / core / ai / auth` **不构建**：
 
-- 直接导出 `.ts` 源码（`package.json` 的 `exports` 指向 `src/`*）
-- 消费端（`apps/server` 的 wrangler esbuild · `apps/web` 的 Vite rollup）自行转译
+- 直接导出 `.ts` 源码（`package.json` 的 `exports` 指向 `src/`\*）
+- 消费端（`apps/server` 的 wrangler esbuild · `apps/web` 的 Vite+ / Rolldown）自行转译
 - 好处：dev 零构建延迟；go-to-definition 直达源码；无构建产物缓存冲突
 
 ### 3.2 每包独立 `tsconfig.json`
@@ -122,8 +124,8 @@ rm -rf apps/web apps/docs packages/ui packages/eslint-config
 ### 3.4 禁止 TypeScript Project References
 
 - 不使用 `tsconfig.json` 的 `references` 字段
-- 类型检查靠 turbo 并行跑 `tsgo --noEmit -p tsconfig.json`，不走 `tsc --noEmit` 默认路径
-- 保留 `check-types:stable` 手动 fallback，用 `tsc --noEmit -p tsconfig.json` 诊断 tsgo preview 与 TS 6 生态工具的分歧
+- 类型检查走 `vp check`，其中 `lint.options.typeCheck: true` 在全 monorepo 并行跑 tsgolint（`@typescript/native-preview`）
+- 需要稳定 `tsc --noEmit` 时临时 `pnpm -F <pkg> exec tsc --noEmit -p tsconfig.json` 单独跑，不进 CI 默认路径
 
 ### 3.5 TypeScript 版本统一
 
@@ -179,7 +181,7 @@ apps/server/
 
 **约束：**
 
-- `procedures/`** 不得 import `@duedatehq/db/schema/*`（用 `context.scoped`）
+- `procedures/`\*_ 不得 import `@duedatehq/db/schema/_`（用 `context.scoped`）
 - `jobs/**` 可以直接用 `scoped(db, firmId)`（系统任务，firmId 从消息体或 cron 规则推导）
 - 每个 procedure 文件只导出一个 procedure 定义
 
@@ -258,7 +260,7 @@ packages/db/
 **约束：**
 
 - `exports` 仅暴露 `scoped` / `client` / `audit-writer` / `evidence-writer` / `types` / schema 导入要显式 `@duedatehq/db/schema`（只给 migration / seed / writer 内部用）
-- oxlint 限制：`apps/server/src/procedures/`** 禁止 import `@duedatehq/db/schema`
+- oxlint 限制：`apps/server/src/procedures/`\*\* 禁止 import `@duedatehq/db/schema`
 
 ### 4.5 `packages/core`
 
@@ -338,24 +340,22 @@ packages/typescript-config/
 
 ## 5. 命名约定
 
-
-| 实体                 | 规则                                  | 示例                                   |
-| ------------------ | ----------------------------------- | ------------------------------------ |
-| 包名                 | `@duedatehq/<kebab>`                | `@duedatehq/contracts`               |
-| 目录                 | `kebab-case`                        | `migration-wizard/`                  |
-| 文件                 | `kebab-case.ts`；组件 `PascalCase.tsx` | `pulse-banner.ts` · `TriageCard.tsx` |
-| 类型                 | `PascalCase`                        | `ClientInput` · `AppContract`        |
-| 常量                 | `SCREAMING_SNAKE`                   | `MAX_CLIENTS_PER_IMPORT`             |
-| 函数                 | `camelCase`                         | `computePenalty()`                   |
-| Zod schema         | `PascalCaseSchema`                  | `ClientSchema`                       |
-| oRPC 契约            | `<domain>Contract`                  | `clientsContract`                    |
-| oRPC procedure     | 动词 `camelCase`                      | `clients.list` / `pulse.batchApply`  |
-| DB 表               | `snake_case` 单数                     | `client` · `obligation_instance`     |
-| DB 列               | `snake_case`                        | `firm_id` · `current_due_date`       |
-| URL                | `/kebab-case`                       | `/api/webhook/resend`                |
-| 环境变量               | `SCREAMING_SNAKE`                   | `AUTH_SECRET`                        |
-| Cloudflare binding | `SCREAMING_SNAKE`                   | `DB` · `R2_PDF` · `EMAIL_QUEUE`      |
-
+| 实体               | 规则                                   | 示例                                 |
+| ------------------ | -------------------------------------- | ------------------------------------ |
+| 包名               | `@duedatehq/<kebab>`                   | `@duedatehq/contracts`               |
+| 目录               | `kebab-case`                           | `migration-wizard/`                  |
+| 文件               | `kebab-case.ts`；组件 `PascalCase.tsx` | `pulse-banner.ts` · `TriageCard.tsx` |
+| 类型               | `PascalCase`                           | `ClientInput` · `AppContract`        |
+| 常量               | `SCREAMING_SNAKE`                      | `MAX_CLIENTS_PER_IMPORT`             |
+| 函数               | `camelCase`                            | `computePenalty()`                   |
+| Zod schema         | `PascalCaseSchema`                     | `ClientSchema`                       |
+| oRPC 契约          | `<domain>Contract`                     | `clientsContract`                    |
+| oRPC procedure     | 动词 `camelCase`                       | `clients.list` / `pulse.batchApply`  |
+| DB 表              | `snake_case` 单数                      | `client` · `obligation_instance`     |
+| DB 列              | `snake_case`                           | `firm_id` · `current_due_date`       |
+| URL                | `/kebab-case`                          | `/api/webhook/resend`                |
+| 环境变量           | `SCREAMING_SNAKE`                      | `AUTH_SECRET`                        |
+| Cloudflare binding | `SCREAMING_SNAKE`                      | `DB` · `R2_PDF` · `EMAIL_QUEUE`      |
 
 ---
 
@@ -417,34 +417,54 @@ packages/core
 ```json
 {
   "scripts": {
-    "dev":          "turbo run dev --parallel",
-    "build":        "turbo run build",
-    "check-types":  "turbo run check-types",
-    "check-types:stable": "turbo run check-types:stable",
-    "lint":         "oxlint",
-    "lint:fix":     "oxlint --fix",
-    "format":       "oxfmt",
-    "format:check": "oxfmt --check",
-    "test":         "turbo run test",
-    "test:e2e":     "playwright test",
-    "secrets:scan": "gitleaks detect --source . --no-git --redact",
-    "prepare":      "lefthook install",
-    "db:generate":  "pnpm --filter @duedatehq/db db:generate",
-    "db:migrate:local":  "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --local",
+    "dev": "vp run -r dev",
+    "build": "vp run -r build",
+    "check": "vp check",
+    "test": "vp run -r test",
+    "test:e2e": "playwright test",
+    "format": "vp fmt --check",
+    "format:fix": "vp fmt --write",
+    "db:generate": "pnpm --filter @duedatehq/db db:generate",
+    "db:migrate:local": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --local",
     "db:migrate:remote": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --remote",
-    "db:seed:demo":      "pnpm --filter @duedatehq/db seed:demo",
-    "deploy":       "pnpm --filter @duedatehq/server deploy"
+    "db:seed:demo": "pnpm --filter @duedatehq/db seed:demo",
+    "deploy": "vp run @duedatehq/server#deploy"
   }
 }
 ```
 
-每个 app/package 的 `package.json` 必须提供：
+每个 app/package 的 `package.json` 只需要场景化脚本；typecheck / lint / fmt 由根 `vp check` 一次跑完，不再要求每个包声明 `check-types`。示例：
+
+```json
+// apps/server
+{
+  "scripts": {
+    "dev": "wrangler dev --local",
+    "build": "wrangler deploy --dry-run --outdir=dist",
+    "deploy": "wrangler deploy",
+    "test": "vp test"
+  }
+}
+```
+
+```json
+// apps/web
+{
+  "scripts": {
+    "dev": "vp dev",
+    "build": "vp build",
+    "preview": "vp preview",
+    "test": "vp test"
+  }
+}
+```
+
+`packages/*` 只需要：
 
 ```json
 {
   "scripts": {
-    "check-types": "tsgo --noEmit -p tsconfig.json",
-    "check-types:stable": "tsc --noEmit -p tsconfig.json"
+    "test": "vp test"
   }
 }
 ```
@@ -476,16 +496,17 @@ proposed | accepted | deprecated | superseded by #NNN
 3. `0003-better-auth-organization.md`
 4. `0004-d1-as-mvp-database.md`
 5. `0005-shadcn-base-ui-vega.md`
-6. `0006-vite-plus-oxlint-oxfmt.md`
+6. `0006-vite-plus-unified-toolchain.md`（取代独立 turbo / oxlint / oxfmt / lefthook / vitest）
 7. `0007-pnpm-catalog-version-lock.md`
 8. `0008-route-prefix-rpc-vs-api.md`
+9. `0009-remove-pwa-from-phase-0.md`
 
 ---
 
 ## 10. README 必含段落
 
 - 项目一句话定位（抄 PRD §19）
-- 10 分钟 quickstart（装依赖 → 本地 D1 迁移 → seed → `pnpm dev` → 打开 localhost）
+- 10 分钟 quickstart（装全局 `vp` → `vp install` → 本地 D1 迁移 → seed → `vp run -r dev` → 打开 localhost）
 - 三条铁律（`00-Overview` §3）
 - 目录导航
 - 部署命令
@@ -495,29 +516,43 @@ proposed | accepted | deprecated | superseded by #NNN
 
 ## 11. 代码规范强制链
 
-1. `oxfmt`：格式；pre-commit 只处理 staged files，CI 跑全量 `format:check`
-2. `oxlint`：lint + 自定义 no-restricted-imports；pre-commit 只处理 staged TS/TSX，CI 跑全量
-3. `tsgo --noEmit`：默认类型检查；本地和 PR CI 都用它，不跑 `tsc --noEmit`
-4. `Vitest`：单测 / integration
-5. `gitleaks`：pre-commit staged scan + CI full scan
-6. `check-types:stable`：手动 fallback，不作为默认门禁
+1. `vp check`：**一条命令等同 oxfmt + oxlint + tsgolint**（由根 `vite.config.ts` 的 `lint.options.typeCheck: true` 启用）。本地 `vp` 安装的 staged git hook 用 `vp check --fix` 处理 staged files；CI 跑全量 `vp check`。
+2. `vp run -r test`：递归跑 Vitest（`apps/server` 走 `@cloudflare/vitest-pool-workers`）。
+3. `gitleaks`：本地 pre-commit staged scan + CI full scan（外部 CLI）。
+4. `pnpm -F <pkg> exec tsc --noEmit`：手动 fallback，不作为默认门禁。
 
-`tsgolint` / typed ESLint 不进默认链路。只有当 oxlint 缺少的 type-aware 规则真正挡住生产风险时，才新增非阻塞 `lint:typed` 试验任务。
+`tsgolint` 已经在 `vp check` 里默认启用，与 oxlint 的 type-aware 规则互补。不再引入独立 typed ESLint。
 
-### 11.1 Lefthook（staged-first）
+### 11.1 Vite+ `staged`（staged-first git hook）
 
-`lefthook.yml` 约束形态：
+根 `vite.config.ts` 的 `staged` 块等价于 lefthook + lint-staged：
+
+```ts
+import { defineConfig } from 'vite-plus'
+
+export default defineConfig({
+  staged: {
+    '*.{ts,tsx,js,jsx,json,md,css}': 'vp check --fix',
+  },
+  // ...（见 01-Tech-Stack.md §4.4 完整配置）
+})
+```
+
+首次 clone 后运行 `vp install` 时会自动注册 git hook（等价 `lefthook install`），不再单独维护 `lefthook.yml`。
+
+传统等价对照（仅供参考，不再作为约束）：
 
 ```yaml
+# 对照 lefthook 旧实现（已废弃，改由 vp `staged` 块）
 pre-commit:
   parallel: true
   commands:
     format:
-      glob: "*.{ts,tsx,js,jsx,json,md,css}"
+      glob: '*.{ts,tsx,js,jsx,json,md,css}'
       run: pnpm oxfmt --write {staged_files}
       stage_fixed: true
     lint:
-      glob: "*.{ts,tsx,js,jsx}"
+      glob: '*.{ts,tsx,js,jsx}'
       run: pnpm oxlint {staged_files}
     secrets:
       run: pnpm gitleaks protect --staged --redact
@@ -531,19 +566,19 @@ pre-push:
       run: pnpm test
 ```
 
-原则：pre-commit 必须 < 10s，不能跑全仓 typecheck；pre-push / CI 才跑 `tsgo` 全量类型检查。
+原则：staged hook 必须 < 3s（Vite+ 默认 staged 行为已满足），不能跑全仓 typecheck；CI 才跑 `vp check` 的全量（含 tsgolint）。
 
 ---
 
 ## 12. Monorepo "10 分钟能跑起来"清单（README 核心段）
 
 ```bash
-# 前置：Node 22 + pnpm 10 + wrangler（自动随依赖装）
+# 前置：Node 22 + 全局 vp（curl -fsSL https://vite.plus | bash）
 
-pnpm install
+vp install
 pnpm db:migrate:local
 pnpm db:seed:demo
-pnpm dev
+vp run -r dev
 
 # 打开 http://localhost:8787
 # 用任何邮箱走 magic link → 本地 dev 环境 magic link 会直接打印在控制台
@@ -553,24 +588,22 @@ pnpm dev
 
 ## 13. PRD 映射速查
 
-
-| PRD §               | 工程落地                                                                            |
-| ------------------- | ------------------------------------------------------------------------------- |
-| §1.3 设计原则           | `docs/Design/DueDateHQ-DESIGN.md` + `apps/web/styles/globals.css`               |
-| §3 Story S1/S2/S3   | E2E 10 条核心路径（§07.5.4）                                                           |
-| §3.6 Team           | `packages/auth` Organization plugin                                             |
-| §5.1 Dashboard      | `apps/web/routes/_app.dashboard.tsx` + `features/dashboard/`                    |
-| §5.2 Workboard      | `apps/web/routes/_app.workboard.tsx` + `features/workboard/`                    |
-| §5.5 Evidence Mode  | `apps/web/components/patterns/evidence-drawer/` + `packages/db/evidence-writer` |
-| §6.1 Rule Engine    | `packages/db/seed/rules.ts` + `packages/core/date-logic`                        |
-| §6.2 Glass-Box      | `packages/ai/guard.ts`                                                          |
-| §6.3 Pulse          | `apps/server/src/jobs/pulse/*` + `procedures/pulse/*`                           |
-| §6.4 Smart Priority | `packages/core/priority/`                                                       |
-| §6A Migration       | `apps/server/src/procedures/migration/*` + `features/migration/`                |
-| §7.5 Penalty Radar  | `packages/core/penalty/` + `features/dashboard/penalty-radar-hero.tsx`          |
-| §7.8.1 PWA          | `apps/web/vite.config.ts`（PWA plugin）+ `apps/web/src/sw.ts`                     |
-| §13 Security        | `06-Security-Compliance.md` + `packages/auth`                                   |
-
+| PRD §               | 工程落地                                                                          |
+| ------------------- | --------------------------------------------------------------------------------- |
+| §1.3 设计原则       | `docs/Design/DueDateHQ-DESIGN.md` + `apps/web/styles/globals.css`                 |
+| §3 Story S1/S2/S3   | E2E 10 条核心路径（§07.5.4）                                                      |
+| §3.6 Team           | `packages/auth` Organization plugin                                               |
+| §5.1 Dashboard      | `apps/web/routes/_app.dashboard.tsx` + `features/dashboard/`                      |
+| §5.2 Workboard      | `apps/web/routes/_app.workboard.tsx` + `features/workboard/`                      |
+| §5.5 Evidence Mode  | `apps/web/components/patterns/evidence-drawer/` + `packages/db/evidence-writer`   |
+| §6.1 Rule Engine    | `packages/db/seed/rules.ts` + `packages/core/date-logic`                          |
+| §6.2 Glass-Box      | `packages/ai/guard.ts`                                                            |
+| §6.3 Pulse          | `apps/server/src/jobs/pulse/*` + `procedures/pulse/*`                             |
+| §6.4 Smart Priority | `packages/core/priority/`                                                         |
+| §6A Migration       | `apps/server/src/procedures/migration/*` + `features/migration/`                  |
+| §7.5 Penalty Radar  | `packages/core/penalty/` + `features/dashboard/penalty-radar-hero.tsx`            |
+| §7.8.1 PWA          | Phase 0 不实现（见 `05 §8`）；Phase 2 Tauri menu bar widget 统一覆盖 install 体验 |
+| §13 Security        | `06-Security-Compliance.md` + `packages/auth`                                     |
 
 ---
 

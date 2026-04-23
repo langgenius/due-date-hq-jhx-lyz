@@ -14,14 +14,12 @@
 
 **一句话定位**：CPA 的专业工作台，不是金融 App，不是营销站，不是编辑刊物。
 
-
-| 借自                   | 借什么                                             |
-| -------------------- | ----------------------------------------------- |
-| **Ramp**             | 首屏 Hero = 用户核心工作指标（风险 $），不是客户总数 / 进度条           |
-| **Linear**           | 13px 紧凑排版 + LCH 色系 + 键盘优先 + zero decoration     |
-| **Stripe Dashboard** | 深 navy 权威感 + tabular-nums 金融级数字表达               |
-| **Attio**            | Progressive disclosure（hover 揭示 verbatim quote） |
-
+| 借自                 | 借什么                                                        |
+| -------------------- | ------------------------------------------------------------- |
+| **Ramp**             | 首屏 Hero = 用户核心工作指标（风险 $），不是客户总数 / 进度条 |
+| **Linear**           | 13px 紧凑排版 + LCH 色系 + 键盘优先 + zero decoration         |
+| **Stripe Dashboard** | 深 navy 权威感 + tabular-nums 金融级数字表达                  |
+| **Attio**            | Progressive disclosure（hover 揭示 verbatim quote）           |
 
 **刻意避开的风格**
 
@@ -65,115 +63,113 @@
 
 ```css
 /* === Surface === */
---bg-canvas:        #FFFFFF;   /* App 最底层 */
---bg-panel:         #FAFAFA;   /* Sidebar, sticky header */
---bg-elevated:      #FFFFFF;   /* Card, drawer, modal */
---bg-subtle:        #F4F4F5;   /* Disabled field, tag bg */
+--bg-canvas: #ffffff; /* App 最底层 */
+--bg-panel: #fafafa; /* Sidebar, sticky header */
+--bg-elevated: #ffffff; /* Card, drawer, modal */
+--bg-subtle: #f4f4f5; /* Disabled field, tag bg */
 
 /* === Border === */
---border-default:   #E5E7EB;   /* 主要分隔线，1px hairline */
---border-strong:    #D4D4D8;   /* 表头下边框，tab 下边框 */
---border-subtle:    #F1F5F9;   /* 表格行间线（更弱） */
+--border-default: #e5e7eb; /* 主要分隔线，1px hairline */
+--border-strong: #d4d4d8; /* 表头下边框，tab 下边框 */
+--border-subtle: #f1f5f9; /* 表格行间线（更弱） */
 
 /* === Text === */
---text-primary:     #0A2540;   /* Hero 数字、主标题、客户名 */
---text-secondary:   #475569;   /* 说明文字、表格内容 */
---text-muted:       #94A3B8;   /* Metadata、占位符、timestamp */
---text-disabled:    #CBD5E1;
+--text-primary: #0a2540; /* Hero 数字、主标题、客户名 */
+--text-secondary: #475569; /* 说明文字、表格内容 */
+--text-muted: #94a3b8; /* Metadata、占位符、timestamp */
+--text-disabled: #cbd5e1;
 
 /* === Accent (Indigo · 仅用于 CTA / focus / selected) === */
---accent-default:   #5B5BD6;   /* Linear indigo-600 */
---accent-hover:     #4F46E5;
---accent-active:    #4338CA;
---accent-tint:      rgba(91, 91, 214, 0.08);  /* selected nav bg */
---accent-text:      #4338CA;   /* indigo 文字（hover 态链接）*/
+--accent-default: #5b5bd6; /* Linear indigo-600 */
+--accent-hover: #4f46e5;
+--accent-active: #4338ca;
+--accent-tint: rgba(91, 91, 214, 0.08); /* selected nav bg */
+--accent-text: #4338ca; /* indigo 文字（hover 态链接）*/
 
 /* === Severity (风险色系 · 唯一可以鲜艳的地方) === */
---severity-critical:        #DC2626;   /* red-600 */
---severity-critical-tint:   rgba(220, 38, 38, 0.06);
---severity-critical-border: #FCA5A5;
+--severity-critical: #dc2626; /* red-600 */
+--severity-critical-tint: rgba(220, 38, 38, 0.06);
+--severity-critical-border: #fca5a5;
 
---severity-high:            #EA580C;   /* orange-600 */
---severity-high-tint:       rgba(234, 88, 12, 0.06);
---severity-high-border:     #FDBA74;
+--severity-high: #ea580c; /* orange-600 */
+--severity-high-tint: rgba(234, 88, 12, 0.06);
+--severity-high-border: #fdba74;
 
---severity-medium:          #CA8A04;   /* yellow-600 */
---severity-medium-tint:     rgba(202, 138, 4, 0.06);
---severity-medium-border:   #FDE68A;
+--severity-medium: #ca8a04; /* yellow-600 */
+--severity-medium-tint: rgba(202, 138, 4, 0.06);
+--severity-medium-border: #fde68a;
 
---severity-neutral:         #475569;   /* slate-600, 表示 OK / 不急 */
---severity-neutral-tint:    rgba(71, 85, 105, 0.04);
+--severity-neutral: #475569; /* slate-600, 表示 OK / 不急 */
+--severity-neutral-tint: rgba(71, 85, 105, 0.04);
 
 /* === Status (状态专用 · 不和 severity 混用) === */
---status-done:     #059669;    /* emerald-600 · 仅 Filed / Applied 时使用 */
---status-draft:    #64748B;    /* slate-500 */
---status-waiting:  #0284C7;    /* sky-600 · Waiting on client */
---status-review:   #7C3AED;    /* violet-600 · Needs review */
+--status-done: #059669; /* emerald-600 · 仅 Filed / Applied 时使用 */
+--status-draft: #64748b; /* slate-500 */
+--status-waiting: #0284c7; /* sky-600 · Waiting on client */
+--status-review: #7c3aed; /* violet-600 · Needs review */
 ```
 
 ### 2.3 Dark Mode（暗色镜像，不是 Bloomberg 终端）
 
 ```css
 /* === Surface === */
---bg-canvas:        #0D0E11;   /* 暖色近黑，禁止纯黑 #000 */
---bg-panel:         #101217;   /* Sidebar */
---bg-elevated:      #15171C;   /* Card, drawer, modal */
---bg-subtle:        #1A1D23;   /* Disabled field */
+--bg-canvas: #0d0e11; /* 暖色近黑，禁止纯黑 #000 */
+--bg-panel: #101217; /* Sidebar */
+--bg-elevated: #15171c; /* Card, drawer, modal */
+--bg-subtle: #1a1d23; /* Disabled field */
 
 /* === Border === */
---border-default:   rgba(255, 255, 255, 0.08);
---border-strong:    rgba(255, 255, 255, 0.14);
---border-subtle:    rgba(255, 255, 255, 0.04);
+--border-default: rgba(255, 255, 255, 0.08);
+--border-strong: rgba(255, 255, 255, 0.14);
+--border-subtle: rgba(255, 255, 255, 0.04);
 
 /* === Text === */
---text-primary:     rgba(255, 255, 255, 0.95);
---text-secondary:   rgba(255, 255, 255, 0.65);
---text-muted:       rgba(255, 255, 255, 0.45);
---text-disabled:    rgba(255, 255, 255, 0.25);
+--text-primary: rgba(255, 255, 255, 0.95);
+--text-secondary: rgba(255, 255, 255, 0.65);
+--text-muted: rgba(255, 255, 255, 0.45);
+--text-disabled: rgba(255, 255, 255, 0.25);
 
 /* === Accent (Indigo 提亮) === */
---accent-default:   #7C7BF5;
---accent-hover:     #9391F8;
---accent-active:    #A5A4FA;
---accent-tint:      rgba(124, 123, 245, 0.14);
---accent-text:      #A5A4FA;
+--accent-default: #7c7bf5;
+--accent-hover: #9391f8;
+--accent-active: #a5a4fa;
+--accent-tint: rgba(124, 123, 245, 0.14);
+--accent-text: #a5a4fa;
 
 /* === Severity（在暗色下降饱和 · tint 加厚） === */
---severity-critical:        #EF4444;   /* 暗色下红色提亮一档 */
---severity-critical-tint:   rgba(239, 68, 68, 0.12);
+--severity-critical: #ef4444; /* 暗色下红色提亮一档 */
+--severity-critical-tint: rgba(239, 68, 68, 0.12);
 --severity-critical-border: rgba(239, 68, 68, 0.4);
 
---severity-high:            #F97316;
---severity-high-tint:       rgba(249, 115, 22, 0.12);
---severity-high-border:     rgba(249, 115, 22, 0.4);
+--severity-high: #f97316;
+--severity-high-tint: rgba(249, 115, 22, 0.12);
+--severity-high-border: rgba(249, 115, 22, 0.4);
 
---severity-medium:          #EAB308;
---severity-medium-tint:     rgba(234, 179, 8, 0.12);
---severity-medium-border:   rgba(234, 179, 8, 0.4);
+--severity-medium: #eab308;
+--severity-medium-tint: rgba(234, 179, 8, 0.12);
+--severity-medium-border: rgba(234, 179, 8, 0.4);
 
---severity-neutral:         #64748B;
---severity-neutral-tint:    rgba(100, 116, 139, 0.08);
+--severity-neutral: #64748b;
+--severity-neutral-tint: rgba(100, 116, 139, 0.08);
 
 /* === Status === */
---status-done:     #10B981;
---status-draft:    #94A3B8;
---status-waiting:  #38BDF8;
---status-review:   #A78BFA;
+--status-done: #10b981;
+--status-draft: #94a3b8;
+--status-waiting: #38bdf8;
+--status-review: #a78bfa;
 ```
 
 ### 2.4 禁用色清单（防止风格漂移）
 
-
-| 禁用                          | 理由                          |
-| --------------------------- | --------------------------- |
-| 纯黑 `#000000`                | OLED 屏边缘闪烁 + 白字 halation    |
-| 纯白文字 `#FFFFFF` on dark      | 对比度过高，刺眼                    |
-| 鲜红 `#FF0000` / 鲜绿 `#00FF00` | 与 CPA 严肃语境冲突                |
-| 任何渐变色（linear / radial）      | Stripe 抄袭陷阱                 |
-| 霓虹色 `#00FFFF` / `#FF00FF`   | 方向 B 专属，浅色模式禁用              |
-| 紫色做主色（非 accent）             | 稀释 navy 权威感                 |
-| 绿色表示 "OK / 安全"              | 用灰色 `--severity-neutral` 代替 |
-
+| 禁用                            | 理由                             |
+| ------------------------------- | -------------------------------- |
+| 纯黑 `#000000`                  | OLED 屏边缘闪烁 + 白字 halation  |
+| 纯白文字 `#FFFFFF` on dark      | 对比度过高，刺眼                 |
+| 鲜红 `#FF0000` / 鲜绿 `#00FF00` | 与 CPA 严肃语境冲突              |
+| 任何渐变色（linear / radial）   | Stripe 抄袭陷阱                  |
+| 霓虹色 `#00FFFF` / `#FF00FF`    | 方向 B 专属，浅色模式禁用        |
+| 紫色做主色（非 accent）         | 稀释 navy 权威感                 |
+| 绿色表示 "OK / 安全"            | 用灰色 `--severity-neutral` 代替 |
 
 ### 2.5 Radius / Shadow Token（唯一合法来源）
 
@@ -181,38 +177,37 @@
 
 ```css
 /* === Radius === */
---radius-sm:   0.25rem;   /* 4px · Evidence Chip / Button / 小徽章                 */
---radius:      0.375rem;  /* 6px · 主默认 · Banner / Input / Card / Dropdown       */
---radius-lg:   0.75rem;   /* 12px · Drawer / Modal / 大容器（超过 320px 宽）          */
+--radius-sm: 0.25rem; /* 4px · Evidence Chip / Button / 小徽章                 */
+--radius: 0.375rem; /* 6px · 主默认 · Banner / Input / Card / Dropdown       */
+--radius-lg: 0.75rem; /* 12px · Drawer / Modal / 大容器（超过 320px 宽）          */
 /* 禁止 > 12px（避免 Notion 式圆润感）                                               */
 
 /* === Shadow（"禁止阴影"的三个例外） === */
---shadow-subtle:  0 2px 8px rgba(0, 0, 0, 0.04);   /* Drawer / Popover 层 3         */
---shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.08);  /* Modal / Command Palette 层 4  */
+--shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.04); /* Drawer / Popover 层 3         */
+--shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.08); /* Modal / Command Palette 层 4  */
 /* 暗色模式同 rgba 不变，浏览器会自动调整感知（Cloudflare Workers SPA 不做单独 dark shadow） */
 /* 业务组件不可用 --shadow-overlay 之外的其他阴影                                    */
 ```
 
-| Token            | 用途                                             | 禁用场景                         |
-| ---------------- | ---------------------------------------------- | ---------------------------- |
-| `--radius-sm`    | chip / 小按钮 / 徽章                                 | 卡片、容器                        |
-| `--radius`       | 输入框 / 默认按钮 / Banner / Card / Dropdown          | chip / 浮层                    |
-| `--radius-lg`    | Drawer / Modal / Command Palette                | 普通 Card（过大显得松散）              |
-| `--shadow-subtle`| Drawer 底部、Popover、Tooltip                       | 普通 Card（违反"禁止阴影"铁律）          |
-| `--shadow-overlay`| Command Palette / 重要 Modal                     | 其他浮层（用 subtle 即可）            |
+| Token              | 用途                                         | 禁用场景                        |
+| ------------------ | -------------------------------------------- | ------------------------------- |
+| `--radius-sm`      | chip / 小按钮 / 徽章                         | 卡片、容器                      |
+| `--radius`         | 输入框 / 默认按钮 / Banner / Card / Dropdown | chip / 浮层                     |
+| `--radius-lg`      | Drawer / Modal / Command Palette             | 普通 Card（过大显得松散）       |
+| `--shadow-subtle`  | Drawer 底部、Popover、Tooltip                | 普通 Card（违反"禁止阴影"铁律） |
+| `--shadow-overlay` | Command Palette / 重要 Modal                 | 其他浮层（用 subtle 即可）      |
 
 **Tailwind 4 `@theme` 映射**：
 
 ```css
 @theme {
-  --radius-sm:      0.25rem;
-  --radius:         0.375rem;
-  --radius-lg:      0.75rem;
-  --shadow-subtle:  0 2px 8px rgba(0, 0, 0, 0.04);
+  --radius-sm: 0.25rem;
+  --radius: 0.375rem;
+  --radius-lg: 0.75rem;
+  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.04);
   --shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 ```
-
 
 ---
 
@@ -222,10 +217,10 @@
 
 ```css
 /* 正文 + UI */
---font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+--font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
 /* 数字 / 金额 / 日期 / 规则 ID / 官方 URL / EIN */
---font-mono: "Geist Mono", "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+--font-mono: 'Geist Mono', 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
 ```
 
 - Inter：加载 weight `400 / 500 / 600`，开启 `font-feature-settings: "cv11", "ss01"`（更好的数字样式）
@@ -238,14 +233,14 @@
 @layer base {
   html {
     font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01";   /* Inter 优化数字形态 */
+    font-feature-settings: 'cv11', 'ss01'; /* Inter 优化数字形态 */
   }
 
   /* 工具类：所有金额 / 天数 / 日期 / EIN / ID 加上 .tabular 或 .font-mono 强制 tabular-nums */
   .tabular,
   .font-mono {
     font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
+    font-feature-settings: 'tnum';
   }
 }
 ```
@@ -255,19 +250,17 @@
 
 ### 3.2 字号与用途（紧凑但不过密）
 
-
-| Token       | Size | Weight | Line-height | 用途                                         |
-| ----------- | ---- | ------ | ----------- | ------------------------------------------ |
-| `text-2xs`  | 10px | 500    | 1.3         | keyboard chip, badge 文字                    |
-| `text-xs`   | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase |
-| `text-sm`   | 12px | 400    | 1.5         | 次级说明、tag、状态 label                          |
-| `text-base` | 13px | 400    | 1.5         | **正文默认** / 表格行内容                           |
-| `text-md`   | 14px | 500    | 1.5         | 客户名、可点击标题                                  |
-| `text-lg`   | 16px | 500    | 1.4         | 页面标题、Drawer 标题                             |
+| Token       | Size | Weight | Line-height | 用途                                             |
+| ----------- | ---- | ------ | ----------- | ------------------------------------------------ |
+| `text-2xs`  | 10px | 500    | 1.3         | keyboard chip, badge 文字                        |
+| `text-xs`   | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase   |
+| `text-sm`   | 12px | 400    | 1.5         | 次级说明、tag、状态 label                        |
+| `text-base` | 13px | 400    | 1.5         | **正文默认** / 表格行内容                        |
+| `text-md`   | 14px | 500    | 1.5         | 客户名、可点击标题                               |
+| `text-lg`   | 16px | 500    | 1.4         | 页面标题、Drawer 标题                            |
 | `text-xl`   | 20px | 600    | 1.3         | Hero 副指标数字、Section heading                 |
-| `text-2xl`  | 24px | 600    | 1.2         | Client Detail 顶部名称                         |
+| `text-2xl`  | 24px | 600    | 1.2         | Client Detail 顶部名称                           |
 | `text-hero` | 56px | 700    | 1.0         | **Penalty Radar Hero 数字**（tabular-nums 必开） |
-
 
 ### 3.3 字母间距
 
@@ -316,12 +309,8 @@
 <div className="flex items-baseline gap-8 py-6">
   {/* 主指标 */}
   <div>
-    <div className="text-xs uppercase tracking-wide text-muted">
-      AT RISK · NEXT 7 DAYS
-    </div>
-    <div className="text-hero font-mono font-bold tabular-nums text-primary">
-      $142,300
-    </div>
+    <div className="text-xs uppercase tracking-wide text-muted">AT RISK · NEXT 7 DAYS</div>
+    <div className="text-hero font-mono font-bold tabular-nums text-primary">$142,300</div>
   </div>
   {/* 副指标（重复 3 次） */}
   <div>
@@ -413,15 +402,13 @@
 
 ### 4.8 Button 系统
 
-
-| 类型                                | 规格                                                                                   |
-| --------------------------------- | ------------------------------------------------------------------------------------ |
+| 类型                                | 规格                                                                                 |
+| ----------------------------------- | ------------------------------------------------------------------------------------ |
 | **Primary**（Apply / Save / Start） | `bg: accent-default` + `text: white` + `radius: 4px` + padding `6px 12px` + 13px 500 |
 | **Secondary**（Cancel / Dismiss）   | `bg: transparent` + `border: 1px border-default` + `text: primary`                   |
-| **Ghost**（row 内操作）                | `text: accent-default` + no bg / border + hover underline                            |
+| **Ghost**（row 内操作）             | `text: accent-default` + no bg / border + hover underline                            |
 | **Destructive**（Delete）           | `bg: severity-critical` + `text: white`                                              |
-| **Icon-only**                     | 28x28，`radius: 4px`，hover `bg: bg-subtle`                                            |
-
+| **Icon-only**                       | 28x28，`radius: 4px`，hover `bg: bg-subtle`                                          |
 
 **禁止**：圆形按钮、pill 按钮（radius > 8px）、带渐变的按钮。
 
@@ -462,13 +449,11 @@
 
 ### 5.3 Density 三档
 
-
-| Density             | Row height | Table padding-y | 适用                          |
-| ------------------- | ---------- | --------------- | --------------------------- |
-| **Compact**         | 32px       | 6px             | Workboard（File In Time 老用户） |
-| **Comfortable**（默认） | 36px       | 8px             | Dashboard / Client list     |
-| **Spacious**        | 40px       | 10px            | Demo / onboarding           |
-
+| Density                 | Row height | Table padding-y | 适用                             |
+| ----------------------- | ---------- | --------------- | -------------------------------- |
+| **Compact**             | 32px       | 6px             | Workboard（File In Time 老用户） |
+| **Comfortable**（默认） | 36px       | 8px             | Dashboard / Client list          |
+| **Spacious**            | 40px       | 10px            | Demo / onboarding                |
 
 切换：用户 Settings → 持久化到 `user.preferences.density` → CSS variable `--row-height`。
 
@@ -484,15 +469,13 @@
 
 **铁律：能用 1px 线分层就不要用阴影。**阴影 token 唯一来自 §2.5。
 
-
-| 层级                                | 方案                                                                                                           |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Level 0 · Canvas                  | `--bg-canvas`，无边框                                                                                           |
-| Level 1 · Panel                   | `--bg-panel`，无边框；或 canvas + `border: 1px --border-default`                                                   |
-| Level 2 · Card                    | `--bg-elevated` + `border: 1px --border-default`，**无阴影**                                                     |
+| 层级                                 | 方案                                                                                                        |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Level 0 · Canvas                     | `--bg-canvas`，无边框                                                                                       |
+| Level 1 · Panel                      | `--bg-panel`，无边框；或 canvas + `border: 1px --border-default`                                            |
+| Level 2 · Card                       | `--bg-elevated` + `border: 1px --border-default`，**无阴影**                                                |
 | Level 3 · Drawer / Popover / Tooltip | `--bg-elevated` + `border: 1px --border-strong` + `box-shadow: var(--shadow-subtle)` · radius `--radius-lg` |
-| Level 4 · Modal / Command Palette | Level 3 规格 + `box-shadow: var(--shadow-overlay)` · radius `--radius-lg`                                        |
-
+| Level 4 · Modal / Command Palette    | Level 3 规格 + `box-shadow: var(--shadow-overlay)` · radius `--radius-lg`                                   |
 
 **禁用**
 
@@ -506,14 +489,12 @@
 
 ### 7.1 四档严重度
 
-
-| Level        | 条件                                        | 颜色                    | 图标        |
-| ------------ | ----------------------------------------- | --------------------- | --------- |
+| Level        | 条件                                       | 颜色                  | 图标               |
+| ------------ | ------------------------------------------ | --------------------- | ------------------ |
 | **Critical** | `days_left ≤ 2` 或 `exposure > $10,000`    | `--severity-critical` | 无（行首文字徽章） |
-| **High**     | `3 ≤ days_left ≤ 7` 或 `exposure > $3,000` | `--severity-high`     | 同上        |
-| **Medium**   | `8 ≤ days_left ≤ 30`                      | `--severity-medium`   | 同上        |
-| **Neutral**  | `days_left > 30` 或 `status = OK`          | `--severity-neutral`  | 同上        |
-
+| **High**     | `3 ≤ days_left ≤ 7` 或 `exposure > $3,000` | `--severity-high`     | 同上               |
+| **Medium**   | `8 ≤ days_left ≤ 30`                       | `--severity-medium`   | 同上               |
+| **Neutral**  | `days_left > 30` 或 `status = OK`          | `--severity-neutral`  | 同上               |
 
 ### 7.2 视觉呈现规则
 
@@ -534,14 +515,12 @@
 
 ### 8.1 四类 Evidence 标记
 
-
-| 场景             | 组件                                             | 视觉                              |
-| -------------- | ---------------------------------------------- | ------------------------------- |
-| AI 生成句子结尾      | Footnote chip `[1]`                            | mono 10px + 下划线，hover 弹 Popover |
-| 数据字段旁（金额 / 日期） | Evidence Chip `[IRS.GOV]`                      | 见 §4.4                          |
-| 规则链接           | Source Badge `🔗 CA FTB · ✓ Verified · 2d ago` | 12px Inter + link icon          |
-| 大段 AI 摘要       | Evidence Mode 全屏 overlay                       | 右抽屉，列所有源 + verbatim quote       |
-
+| 场景                      | 组件                                           | 视觉                                 |
+| ------------------------- | ---------------------------------------------- | ------------------------------------ |
+| AI 生成句子结尾           | Footnote chip `[1]`                            | mono 10px + 下划线，hover 弹 Popover |
+| 数据字段旁（金额 / 日期） | Evidence Chip `[IRS.GOV]`                      | 见 §4.4                              |
+| 规则链接                  | Source Badge `🔗 CA FTB · ✓ Verified · 2d ago` | 12px Inter + link icon               |
+| 大段 AI 摘要              | Evidence Mode 全屏 overlay                     | 右抽屉，列所有源 + verbatim quote    |
 
 ### 8.2 Verbatim Quote Popover
 
@@ -607,23 +586,21 @@ AI 输出的任何内容，如果没有 `source_url + verified_at + verbatim_quo
 ### 10.1 断点
 
 ```css
---bp-sm:  640px;    /* Mobile landscape */
---bp-md:  768px;    /* Tablet */
---bp-lg:  1024px;   /* Laptop */
---bp-xl:  1280px;   /* Desktop */
---bp-2xl: 1536px;   /* Wide desktop */
+--bp-sm: 640px; /* Mobile landscape */
+--bp-md: 768px; /* Tablet */
+--bp-lg: 1024px; /* Laptop */
+--bp-xl: 1280px; /* Desktop */
+--bp-2xl: 1536px; /* Wide desktop */
 ```
 
 ### 10.2 降级策略
 
-
-| 断点        | Dashboard                            | Workboard | Sidebar    |
-| --------- | ------------------------------------ | --------- | ---------- |
-| ≥ 1280px  | 三栏 + 右 Pulse 面板                      | 全 14 列    | 固定 220px   |
-| 1024–1279 | 两栏，Pulse 下沉                          | 默认 10 列   | 固定 220px   |
-| 768–1023  | 单栏纵向                                 | 精简 6 列    | 折叠为 Drawer |
-| < 768     | 只读优先：Hero + Triage Tabs + Top 5 rows | 卡片化       | 底部 Tab Bar |
-
+| 断点      | Dashboard                                 | Workboard  | Sidebar       |
+| --------- | ----------------------------------------- | ---------- | ------------- |
+| ≥ 1280px  | 三栏 + 右 Pulse 面板                      | 全 14 列   | 固定 220px    |
+| 1024–1279 | 两栏，Pulse 下沉                          | 默认 10 列 | 固定 220px    |
+| 768–1023  | 单栏纵向                                  | 精简 6 列  | 折叠为 Drawer |
+| < 768     | 只读优先：Hero + Triage Tabs + Top 5 rows | 卡片化     | 底部 Tab Bar  |
 
 ### 10.3 触控目标
 
@@ -681,19 +658,17 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 
 ## 12. 对应 PRD / Dev File 的落地映射
 
-
-| 本文件章节                    | 对应                                           |
+| 本文件章节               | 对应                                         |
 | ------------------------ | -------------------------------------------- |
-| §1 / §2 / §3             | PRD v2.0 §1.3（设计原则）+ §10.1（视觉语言）             |
+| §1 / §2 / §3             | PRD v2.0 §1.3（设计原则）+ §10.1（视觉语言） |
 | §4.1 Risk Row            | PRD v2.0 §5.2 Workboard                      |
 | §4.2 Hero Metric         | PRD v2.0 §5.1.1 Layer 1 Penalty Radar        |
 | §4.3 Pulse Banner        | PRD v2.0 §5.1.4 + §6.3                       |
 | §4.4 Evidence Chip       | PRD v2.0 §5.5 Evidence Mode + §6.2 Glass-Box |
 | §4.5 Command Palette     | PRD v2.0 §10.3 + §6.6 Ask                    |
-| §7 Risk Severity         | PRD v2.0 §5.1.2 三段颜色次级信号                     |
+| §7 Risk Severity         | PRD v2.0 §5.1.2 三段颜色次级信号             |
 | §8 Evidence & Provenance | PRD v2.0 §6.2 + §5.5                         |
 | §2 / §3 / §5 tokens      | Dev File `05-Frontend-Architecture.md` §5    |
-
 
 ---
 
@@ -706,4 +681,4 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 
 ---
 
-*This document is a single source of truth. If in doubt, choose density over decoration, precision over friendliness.*
+_This document is a single source of truth. If in doubt, choose density over decoration, precision over friendliness._

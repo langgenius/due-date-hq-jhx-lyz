@@ -6,14 +6,12 @@
 
 ## 1. 环境拓扑
 
-
-| 环境             | Worker                          | D1                         | KV / R2 / Vectorize | 触发                |
-| -------------- | ------------------------------- | -------------------------- | ------------------- | ----------------- |
-| **local**      | `wrangler dev`（miniflare）       | `--local` SQLite 文件        | miniflare 内置        | `pnpm dev`        |
-| **preview**    | Workers Preview URL（每 PR 一个）    | `duedatehq-preview-pr-<n>` | 独立                  | PR 打开 / 更新        |
-| **staging**    | `duedatehq-staging.workers.dev` | `duedatehq-staging`        | 独立                  | `main` 分支合并       |
-| **production** | `app.duedatehq.com`             | `duedatehq`                | 独立                  | release tag（`v`*） |
-
+| 环境           | Worker                            | D1                         | KV / R2 / Vectorize | 触发                             |
+| -------------- | --------------------------------- | -------------------------- | ------------------- | -------------------------------- |
+| **local**      | `wrangler dev`（miniflare）       | `--local` SQLite 文件      | miniflare 内置      | `vp run -r dev`（或 `pnpm dev`） |
+| **preview**    | Workers Preview URL（每 PR 一个） | `duedatehq-preview-pr-<n>` | 独立                | PR 打开 / 更新                   |
+| **staging**    | `duedatehq-staging.workers.dev`   | `duedatehq-staging`        | 独立                | `main` 分支合并                  |
+| **production** | `app.duedatehq.com`               | `duedatehq`                | 独立                | release tag（`v`\*）             |
 
 ---
 
@@ -21,22 +19,18 @@
 
 ### 2.1 PR 管线（`.github/workflows/pr.yml`）
 
+| 步骤                                        | 工具                           | 失败影响 |
+| ------------------------------------------- | ------------------------------ | -------- |
+| `vp install --frozen-lockfile`              | Vite+ (`vp`) 代理 pnpm         | block    |
+| `vp check`（fmt + lint + tsgolint）         | Oxfmt / Oxlint / tsgolint      | block    |
+| `gitleaks detect`                           | gitleaks                       | block    |
+| `vp run -r test`（Vitest + pool-workers）   | Vitest                         | block    |
+| `vp run -r build`（apps/web + apps/server） | Vite 8 / Rolldown / wrangler   | block    |
+| **Worker Preview 部署**                     | `cloudflare/wrangler-action`   | warn     |
+| **D1 Preview 迁移**                         | `wrangler d1 migrations apply` | block    |
+| E2E 烟测（关键路径 5 条）                   | Playwright                     | warn     |
 
-| 步骤                                 | 工具                             | 失败影响  |
-| ---------------------------------- | ------------------------------ | ----- |
-| `pnpm install --frozen-lockfile`   | pnpm                           | block |
-| `pnpm lint`（oxlint）                | oxlint                         | block |
-| `pnpm format:check`（oxfmt）          | oxfmt                          | block |
-| `pnpm secrets:scan`                 | gitleaks                       | block |
-| `pnpm check-types`（turbo 并行）       | `tsgo --noEmit`                | block |
-| `pnpm test`（Vitest + pool-workers） | vitest                         | block |
-| `pnpm build`（turbo）                | vite / wrangler                | block |
-| **Worker Preview 部署**              | `cloudflare/wrangler-action`   | warn  |
-| **D1 Preview 迁移**                  | `wrangler d1 migrations apply` | block |
-| E2E 烟测（关键路径 5 条）                   | Playwright                     | warn  |
-
-
-`check-types:stable`（`tsc --noEmit`）不在 PR 默认路径；仅在升级 TypeScript / native preview、排查 tsgo 差异、或 release candidate 冻结前手动运行。
+`vp check` 默认同时跑 oxfmt / oxlint / tsgolint（由 `vite.config.ts` 的 `lint.options.typeCheck: true` 启用）。需要稳定 `tsc --noEmit` 时临时 `pnpm -F <pkg> exec tsc --noEmit` 即可，不进 CI 默认路径。
 
 ### 2.2 Production 管线（`.github/workflows/production.yml`）
 
@@ -77,28 +71,24 @@
 
 ### 4.1 三件套
 
-
-| 维度    | 工具                                                     | 接入点                                                                      |
-| ----- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
-| 错误    | **Sentry**（`@sentry/cloudflare`）                       | Worker `fetch` / `scheduled` / `queue` 入口 wrap；前端 SPA 入口 init            |
-| 日志    | **Workers Logs + Logpush**                             | 结构化 JSON `console.log({ level, msg, firmId, ... })`；Logpush 到 R2 保留 90 天 |
-| Trace | **Langfuse**（LLM 专用）+ Sentry Performance（HTTP / DB 抽样） | `packages/ai/trace.ts` 统一上报                                              |
-| 指标    | **Cloudflare Analytics Engine**                        | 关键业务事件（dashboard_view / pulse_apply / migration_import / rpc_latency）    |
-| 产品分析  | **PostHog**                                            | `web-vitals` + 关键埋点（`pay_intent_click` / `evidence_open` / ...）          |
-
+| 维度     | 工具                                                           | 接入点                                                                           |
+| -------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| 错误     | **Sentry**（`@sentry/cloudflare`）                             | Worker `fetch` / `scheduled` / `queue` 入口 wrap；前端 SPA 入口 init             |
+| 日志     | **Workers Logs + Logpush**                                     | 结构化 JSON `console.log({ level, msg, firmId, ... })`；Logpush 到 R2 保留 90 天 |
+| Trace    | **Langfuse**（LLM 专用）+ Sentry Performance（HTTP / DB 抽样） | `packages/ai/trace.ts` 统一上报                                                  |
+| 指标     | **Cloudflare Analytics Engine**                                | 关键业务事件（dashboard_view / pulse_apply / migration_import / rpc_latency）    |
+| 产品分析 | **PostHog**                                                    | `web-vitals` + 关键埋点（`pay_intent_click` / `evidence_open` / ...）            |
 
 ### 4.2 关键 SLO / 告警
 
-
-| 指标                    | 阈值             | 告警                 |
-| --------------------- | -------------- | ------------------ |
-| Dashboard P95 latency | > 1.5s         | Sentry Slack       |
-| Worker error rate     | > 1% / 5min    | Sentry Slack       |
-| D1 query P95          | > 200ms        | Logpush 查询 + Slack |
-| LLM fail rate         | > 5% / hour    | Langfuse → Slack   |
-| Email outbox stuck    | 未 flush > 5min | Queue consumer 告警  |
-| Pulse ingest idle     | Cron 未运行 > 2h  | Cron health check  |
-
+| 指标                  | 阈值             | 告警                 |
+| --------------------- | ---------------- | -------------------- |
+| Dashboard P95 latency | > 1.5s           | Sentry Slack         |
+| Worker error rate     | > 1% / 5min      | Sentry Slack         |
+| D1 query P95          | > 200ms          | Logpush 查询 + Slack |
+| LLM fail rate         | > 5% / hour      | Langfuse → Slack     |
+| Email outbox stuck    | 未 flush > 5min  | Queue consumer 告警  |
+| Pulse ingest idle     | Cron 未运行 > 2h | Cron health check    |
 
 ---
 
@@ -139,28 +129,28 @@
 
 对齐 PRD §12.3 Test ID，Phase 0 10 条核心路径：
 
-| # | PRD Test ID / AC | 路径 |
-|---|---|---|
-| 1 | — | 新用户注册 magic link → 登录 → 看到空 Dashboard |
-| 2 | **T-S1-01 / S1-AC1** | 登录后默认 Dashboard，选中 `This Week` tab |
-| 3 | **T-S1-02 / S1-AC2** | 本周 obligations 左上 `[🔴 Nd]` 倒计时徽章 |
-| 4 | **T-S1-03 / S1-AC3** | 200 clients × 1000 obligations，三维筛选（CA + LLC + 1040）响应 < 1s |
-| 5 | **T-S1-04 / S1-AC4** | 行内 status 下拉改；500ms 内 + Undo toast |
-| 6 | **T-S2-02 / S2-AC2** + **T-S2-04 / S2-AC4** | 粘贴 30 行 CSV（含 `Tax ID` 列，无 `tax_types` 列）→ EIN 格式化 + Default Matrix 兜底 → Live Genesis |
-| 7 | **T-S2-03 / S2-AC3** | CSV 5 行缺 `state` → 非阻塞，其余 25 行正常导入 |
-| 8 | **T-S3-03 + T-S3-04 / S3-AC3 + S3-AC4** | Approved Pulse → Banner 打开 → Apply → 批量 UPDATE + Audit + 24h Undo + 邮件双渠道 |
-| 9 | **T-S3-05 / S3-AC5** | 任意 `[n]` citation → Evidence Drawer 展开 source + verbatim + `official_source_url` |
-| 10 | **T-PWA-*** | PWA Add-to-Home（移动端）→ 独立窗口启动；Pulse Apply 触发 Push 到达 |
+| #   | PRD Test ID / AC                            | 路径                                                                                                                                 |
+| --- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | —                                           | 新用户注册 magic link → 登录 → 看到空 Dashboard                                                                                      |
+| 2   | **T-S1-01 / S1-AC1**                        | 登录后默认 Dashboard，选中 `This Week` tab                                                                                           |
+| 3   | **T-S1-02 / S1-AC2**                        | 本周 obligations 左上 `[🔴 Nd]` 倒计时徽章                                                                                           |
+| 4   | **T-S1-03 / S1-AC3**                        | 200 clients × 1000 obligations，三维筛选（CA + LLC + 1040）响应 < 1s                                                                 |
+| 5   | **T-S1-04 / S1-AC4**                        | 行内 status 下拉改；500ms 内 + Undo toast                                                                                            |
+| 6   | **T-S2-02 / S2-AC2** + **T-S2-04 / S2-AC4** | 粘贴 30 行 CSV（含 `Tax ID` 列，无 `tax_types` 列）→ EIN 格式化 + Default Matrix 兜底 → Live Genesis                                 |
+| 7   | **T-S2-03 / S2-AC3**                        | CSV 5 行缺 `state` → 非阻塞，其余 25 行正常导入                                                                                      |
+| 8   | **T-S3-03 + T-S3-04 / S3-AC3 + S3-AC4**     | Approved Pulse → Banner 打开 → Apply → 批量 UPDATE + Audit + 24h Undo + 邮件双渠道                                                   |
+| 9   | **T-S3-05 / S3-AC5**                        | 任意 `[n]` citation → Evidence Drawer 展开 source + verbatim + `official_source_url`                                                 |
+| 10  | **T-NOTIFY-email**                          | Pulse Apply 触发 `email_outbox` → Resend 测试 key 回执；in-app toast 在下一次 Dashboard 加载命中 banner slot（替代原 Web Push 场景） |
 
 Phase 0 完整 MVP 追加覆盖（可用 integration test，不要求全部 E2E）：
 
-| # | PRD Test ID / AC | 路径 |
-|---|---|---|
-| 11 | **T-S1-05 / S1-AC5** | 85 客户 seed，记录完成 triage session 的引导路径与耗时埋点 |
-| 12 | **T-S2-01 / S2-AC1** | TaxDome preset CSV 命中 profile，字段映射 ≥ 95% |
-| 13 | **T-S2-05 / S2-AC5** | 30 客户 signup → import 完整链路，性能计时 P95 ≤ 30 min |
-| 14 | **T-S3-01 / S3-AC1** | mock 官方公告 T0 → ingest/extract/review feed 在 SLA 窗口内完成 |
-| 15 | **T-S3-02 / S3-AC2** | CA + LA + Individual + 1040 Pulse 精确匹配 12 个符合客户；county unknown 进入 needs_review |
+| #   | PRD Test ID / AC     | 路径                                                                                       |
+| --- | -------------------- | ------------------------------------------------------------------------------------------ |
+| 11  | **T-S1-05 / S1-AC5** | 85 客户 seed，记录完成 triage session 的引导路径与耗时埋点                                 |
+| 12  | **T-S2-01 / S2-AC1** | TaxDome preset CSV 命中 profile，字段映射 ≥ 95%                                            |
+| 13  | **T-S2-05 / S2-AC5** | 30 客户 signup → import 完整链路，性能计时 P95 ≤ 30 min                                    |
+| 14  | **T-S3-01 / S3-AC1** | mock 官方公告 T0 → ingest/extract/review feed 在 SLA 窗口内完成                            |
+| 15  | **T-S3-02 / S3-AC2** | CA + LA + Individual + 1040 Pulse 精确匹配 12 个符合客户；county unknown 进入 needs_review |
 
 附加的快速 smoke（不走完整 Test ID 流程）：
 
@@ -248,15 +238,12 @@ wrangler queues producer send duedatehq-email '{"type":"test"}' --local
 
 ## 13. 密钥轮换
 
-
-| 密钥                   | 频率    | 流程                              |
-| -------------------- | ----- | ------------------------------- |
-| `AUTH_SECRET`        | 90 天  | 临时双 secret 并存 → 验证 → 下线旧 secret |
-| `VAPID_PRIVATE_KEY`  | 180 天 | 换后旧订阅失效，用户需重新 subscribe         |
-| Resend API key       | 180 天 | 直接切换                            |
-| Cloudflare API token | 90 天  | GH Actions 更新                   |
-| LLM API key          | 按合规要求 | 经 AI Gateway，切换时前端无感            |
-
+| 密钥                 | 频率       | 流程                                      |
+| -------------------- | ---------- | ----------------------------------------- |
+| `AUTH_SECRET`        | 90 天      | 临时双 secret 并存 → 验证 → 下线旧 secret |
+| Resend API key       | 180 天     | 直接切换                                  |
+| Cloudflare API token | 90 天      | GH Actions 更新                           |
+| LLM API key          | 按合规要求 | 经 AI Gateway，切换时前端无感             |
 
 ---
 

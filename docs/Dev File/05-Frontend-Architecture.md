@@ -1,7 +1,9 @@
-# 05 · Frontend Architecture · Vite · React Router 7 · UI System · PWA
+# 05 · Frontend Architecture · Vite+ · React Router 7 · UI System
 
 > 对齐 PRD §5 / §10 + 设计系统 `docs/Design/DueDateHQ-DESIGN.md`。
-> 核心决策：**纯 SPA（不做 SSR） · React Router 7 library/data mode · shadcn Base UI（`base-vega`） · Vite PWA。**
+> 核心决策：**纯 SPA（不做 SSR） · React Router 7 library/data mode · shadcn Base UI（`base-vega`） · 工具链由 Vite+ (`vite-plus`) 统一驱动。**
+>
+> **PWA / Service Worker / Web Push 在 Phase 0 已移除**（见 `00-Overview.md §7` 的否决矩阵）。回头率靠 SPA chunk cache + in-app toast + Email 兜底；installable 体验推迟到 Phase 2 Tauri menu bar widget。
 
 ---
 
@@ -13,10 +15,10 @@ apps/web/
 ├── vite.config.ts
 ├── components.json           ← shadcn 配置（"style": "base-vega"）
 ├── public/
-│   ├── icons/                ← PWA 图标（192 / 512 / maskable）
+│   ├── icons/                ← 应用图标（favicon / 站点 logo）
 │   └── fonts/                ← Inter / Geist Mono 本地托管（可选）
 ├── src/
-│   ├── main.tsx              ← ReactDOM.createRoot + router provider + PWA register
+│   ├── main.tsx              ← ReactDOM.createRoot + router provider
 │   ├── router.tsx            ← createBrowserRouter + routes config
 │   ├── routes/               ← 每个路由一个 .tsx（RR7 data mode：loader / action / Component）
 │   │   ├── _layout.tsx
@@ -49,7 +51,7 @@ apps/web/
 │   ├── styles/
 │   │   ├── globals.css       ← Tailwind @theme + 设计系统 token（§05.5）
 │   │   └── fonts.css
-│   └── sw.ts                 ← Workbox（vite-plugin-pwa 编译入口）
+│   └── (sw.ts 已移除 · PWA 降级见本文档头部说明)
 └── tsconfig.json             ← extends @repo/typescript-config/vite.json
 ```
 
@@ -82,13 +84,13 @@ apps/web/
 
 ## 3. 状态管理分层（约束）
 
-| 层 | 工具 | 管什么 |
-|---|---|---|
-| Server state | **TanStack Query + `@orpc/tanstack-query`** | 所有 `rpc.*.query/mutation`；自动缓存 / 乐观 UI / invalidation |
-| URL state | **nuqs** + `react-router` params | 筛选 / 排序 / 分页 / 抽屉打开项 |
-| Form state | **react-hook-form** + Zod（复用契约 schema） | 所有表单 |
-| UI state | **Zustand** | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store** |
-| Feature flag | **PostHog JS SDK** | 运行时开关 |
+| 层           | 工具                                         | 管什么                                                             |
+| ------------ | -------------------------------------------- | ------------------------------------------------------------------ |
+| Server state | **TanStack Query + `@orpc/tanstack-query`**  | 所有 `rpc.*.query/mutation`；自动缓存 / 乐观 UI / invalidation     |
+| URL state    | **nuqs** + `react-router` params             | 筛选 / 排序 / 分页 / 抽屉打开项                                    |
+| Form state   | **react-hook-form** + Zod（复用契约 schema） | 所有表单                                                           |
+| UI state     | **Zustand**                                  | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store** |
+| Feature flag | **PostHog JS SDK**                           | 运行时开关                                                         |
 
 **禁止：** Redux、MobX、Recoil、自造 context 状态容器。
 
@@ -148,45 +150,47 @@ export const orpc = createTanstackQueryUtils(rpc)
 }
 ```
 
-添加组件命令：`pnpm dlx shadcn@latest add button input dialog ...`。每个 `src/components/ui/*.tsx` 会 import `@base-ui-components/react/*`，这是 Base UI 落地的确认点。
-
 ### 5.2 Tailwind 4 `@theme`（对齐 DESIGN.md）
 
 `src/styles/globals.css` 的 token 必须**与 DESIGN.md §2 完全一致**：
 
 ```css
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono", "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
 
-  --radius-sm: 0.25rem;   /* 4px · chip */
-  --radius:    0.375rem;  /* 6px · 主 · Banner / Button / Input */
-  --radius-lg: 0.75rem;   /* 12px · Drawer / Card 大容器 */
+  --radius-sm: 0.25rem; /* 4px · chip */
+  --radius: 0.375rem; /* 6px · 主 · Banner / Button / Input */
+  --radius-lg: 0.75rem; /* 12px · Drawer / Card 大容器 */
 
   --text-2xs: 10px;
-  --text-xs:  11px;
-  --text-sm:  12px;
-  --text-base:13px;
-  --text-md:  14px;
-  --text-lg:  16px;
-  --text-xl:  20px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
   --text-2xl: 24px;
-  --text-hero:56px;
+  --text-hero: 56px;
 
-  --shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.08);   /* 仅 Cmd-K / Drawer / Tooltip 等浮层例外 */
+  --shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.08); /* 仅 Cmd-K / Drawer / Tooltip 等浮层例外 */
 }
 
 /* Light / Dark 下的颜色 token 详见 DESIGN.md §2.2 / §2.3，逐项对齐；不在此重复 */
 
 /* Inter 数字特性全局打开 */
 @layer base {
-  html { font-feature-settings: "cv11", "ss01"; }
-  .tabular { font-variant-numeric: tabular-nums; }
+  html {
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 /* 扩展 token 注入 Tailwind utilities */
@@ -207,13 +211,13 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 ### 5.3 组件分层
 
-| 层 | 位置 | 职责 |
-|---|---|---|
-| `components/ui/*` | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务 |
-| `components/primitives/*` | 手写 | DueDateHQ 专有组件：TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown |
-| `components/patterns/*` | 手写 | 跨 feature 复用：evidence-drawer / cmdk / confirm-dialog |
-| `features/<slice>/*` | 手写 | 特性内部：migration-wizard / pulse-banner / workboard-table |
-| `routes/*` | 手写 | 路由级 page 组件，拼装 feature |
+| 层                        | 位置        | 职责                                                                                                                 |
+| ------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| `components/ui/*`         | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务                                                                  |
+| `components/primitives/*` | 手写        | DueDateHQ 专有组件：TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown |
+| `components/patterns/*`   | 手写        | 跨 feature 复用：evidence-drawer / cmdk / confirm-dialog                                                             |
+| `features/<slice>/*`      | 手写        | 特性内部：migration-wizard / pulse-banner / workboard-table                                                          |
+| `routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                                       |
 
 **依赖方向**：`routes → features → patterns → primitives → ui → lib`。下层**不得**依赖上层。
 
@@ -236,40 +240,16 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 ---
 
-## 8. PWA 实现（vite-plugin-pwa + Workbox）
+## 8. 客户端缓存与通知策略（替代原 PWA 方案）
 
-### 8.1 Manifest
+原先这里的 PWA + Service Worker + Web Push 方案在 Phase 0 已整体降级（见 `00-Overview.md §7`、`01-Tech-Stack.md §2.1`）。当前约束：
 
-`vite.config.ts` PWA 插件配置关键字段（**约束**）：
+- **HTTP 级缓存**：静态 asset 走 Cloudflare Worker Assets binding 的自带 immutable caching（hash 化 chunk 名 + `cache-control: public, max-age=31536000, immutable`）；`index.html` 不缓存。Vite+ `vp build` 输出已满足。
+- **SPA runtime cache**：TanStack Query 的 `staleTime` / `gcTime` + nuqs URL state 承担"秒开回访"；不引入 Service Worker。
+- **通知回路**：Pulse / Deadline 提醒全部走 Email Outbox（Resend）+ in-app toast（Sonner）。没有 Web Push、没有浏览器通知权限 prompt。
+- **Installable 体验**：推迟到 Phase 2 Tauri menu bar widget 统一覆盖 install / 后台驻留 / 系统通知。不再通过 manifest 走 PWA install。
 
-- `name: "DueDateHQ"` / `short_name: "DueDateHQ"`
-- `display: "standalone"`（Add-to-Dock / Home Screen 独立窗口）
-- `theme_color: "#0A2540"` / `background_color: "#FFFFFF"`
-- `icons`: 192 / 512 + maskable
-- `scope: "/"` / `start_url: "/dashboard"`
-
-### 8.2 Service Worker 缓存策略
-
-- **静态资源**（JS / CSS / fonts / icons）→ `CacheFirst` + 版本化
-- **SPA navigation**（`/dashboard`, `/workboard` 等）→ `NetworkFirst` + `index.html` fallback
-- **RPC / API 请求**（`/rpc/*` · `/api/*`）→ **不缓存**，`navigateFallbackDenylist: [/^\/rpc/, /^\/api/]`
-
-### 8.3 Web Push（约束）
-
-- VAPID 密钥在 Worker secret；前端只用 `VAPID_PUBLIC_KEY`
-- `packages/push`（Phase 0 内联在 Worker）通过 Workers-compatible VAPID/Web Crypto 实现发送签名 payload；不得默认使用依赖 Node `crypto` / `http` 的 `web-push` 路径，除非 spike 在 `workerd` 下验证通过
-- Service Worker 在 `push` 事件里解析 payload → `self.registration.showNotification(...)`
-- `notificationclick` 跳到 `/dashboard?banner=<pulseId>`
-- 订阅管理：Settings → Notifications 页面订阅 / 取消
-- `push_subscription` 表跟踪 `consecutive_failures`，410/404 自动 `revoked_at`
-
-### 8.4 App Badge
-
-```ts
-if ('setAppBadge' in navigator) {
-  navigator.setAppBadge(overdueCount)
-}
-```
+如未来重新开启 PWA，需要先满足两个前置：(1) vite-plus 生态有稳定的 vite 8 兼容 PWA 插件；(2) Pulse / Deadline 有真实"即时到达"需求（Phase 0 日常场景 email 足够）。重启时要在 `00-Overview.md §7` 把 PWA 从否决矩阵移除，并在本章补回 manifest / SW / push 三小节。
 
 ---
 
@@ -304,9 +284,9 @@ if ('setAppBadge' in navigator) {
 
 - 路由级 code-splitting（RR7 `lazy` 动态 import）
 - 图标 tree-shake（`lucide-react` 按需导入）
-- Tailwind 4 JIT + Vite Rollup minify
+- Tailwind 4 JIT + Vite 8 Rolldown minify（由 `vp build` 驱动）
 - Critical CSS inline（index.html）
-- `vite-plugin-pwa` precache 核心 chunks
+- 静态 chunk 走 Worker Assets binding 的长 cache（hash 化文件名 + `immutable`）
 - Chunk 大小 budget：单 chunk < 150 KB gz，总 bundle < 500 KB gz
 
 ---
