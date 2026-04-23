@@ -2,7 +2,7 @@
 
 ## Context
 
-`docs/Dev File/05-Frontend-Architecture.md §11` pre-committed `i18next + react-i18next` as the Phase 2
+`docs/dev-file/05-Frontend-Architecture.md §11` pre-committed `i18next + react-i18next` as the Phase 2
 i18n stack. Nothing has shipped yet — zero deps, zero catalog, zero wiring — so re-evaluating costs
 nothing. The decision needs to reconcile with constraints that were not fully weighted when §11 was
 written:
@@ -38,7 +38,7 @@ Hard rules:
 5. **Server-side usage** (Hono middleware + React Email): one `i18n.activate(locale)` call per
    request from `Accept-Language`; reuses the same compiled catalog as the SPA.
 
-Supersedes the `i18next + react-i18next` line in `docs/Dev File/05-Frontend-Architecture.md §11`.
+Supersedes the `i18next + react-i18next` line in `docs/dev-file/05-Frontend-Architecture.md §11`.
 
 ## Consequences
 
