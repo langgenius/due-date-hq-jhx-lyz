@@ -11,7 +11,7 @@
     "dev": "node -e \"require('node:fs').mkdirSync('../web/dist',{recursive:true})\" && wrangler dev --local",
     "dev:fullstack": "pnpm --filter @duedatehq/web build && wrangler dev --local",
     "build": "wrangler deploy --dry-run --outdir=dist --env=\"\"",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler deploy --env=\"\"",
     "test": "vp test"
   },
   "dependencies": {

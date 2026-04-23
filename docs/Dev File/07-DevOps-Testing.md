@@ -1,17 +1,18 @@
 # 07 · DevOps · Testing · Observability
 
-> 目标：**一条 `wrangler deploy` 全量发布 · preview 自动化 · 测试金字塔清晰 · 可观测三件套（logs / errors / traces）全覆盖。**
+> 目标：**当前阶段单实例一键发布到 Cloudflare · 测试金字塔清晰 · 可观测三件套（logs / errors / traces）全覆盖。**
 
 ---
 
 ## 1. 环境拓扑
 
-| 环境           | Worker                            | D1                         | KV / R2 / Vectorize | 触发                             |
-| -------------- | --------------------------------- | -------------------------- | ------------------- | -------------------------------- |
-| **local**      | `wrangler dev`（miniflare）       | `--local` SQLite 文件      | miniflare 内置      | `vp run -r dev`（或 `pnpm dev`） |
-| **preview**    | Workers Preview URL（每 PR 一个） | `duedatehq-preview-pr-<n>` | 独立                | PR 打开 / 更新                   |
-| **staging**    | `duedatehq-staging.workers.dev`   | `duedatehq-staging`        | 独立                | `main` 分支合并                  |
-| **production** | `app.duedatehq.com`               | `duedatehq`                | 独立                | release tag（`v`\*）             |
+| 环境           | Worker                      | D1                    | KV / R2 / Vectorize | 触发                             |
+| -------------- | --------------------------- | --------------------- | ------------------- | -------------------------------- |
+| **local**      | `wrangler dev`（miniflare） | `--local` SQLite 文件 | miniflare 内置      | `vp run -r dev`（或 `pnpm dev`） |
+| **production** | top-level `duedatehq`       | `duedatehq`           | top-level bindings  | `pnpm deploy`                    |
+
+当前阶段不维护 `[env.staging]` / `[env.production]`。Cloudflare bindings 不会从 top-level 继承到
+`[env.*]`，等需要 preview/staging 时再为每个环境完整声明 D1 / KV / R2 / Queue / Vectorize。
 
 ---
 
@@ -19,30 +20,30 @@
 
 ### 2.1 PR 管线（`.github/workflows/pr.yml`）
 
-| 步骤                                        | 工具                           | 失败影响 |
-| ------------------------------------------- | ------------------------------ | -------- |
-| `vp install --frozen-lockfile`              | Vite+ (`vp`) 代理 pnpm         | block    |
-| `vp check`（fmt + lint + tsgolint）         | Oxfmt / Oxlint / tsgolint      | block    |
-| `gitleaks detect`                           | gitleaks                       | block    |
-| `vp run -r test`（Vitest + pool-workers）   | Vitest                         | block    |
-| `vp run -r build`（apps/web + apps/server） | Vite 8 / Rolldown / wrangler   | block    |
-| **Worker Preview 部署**                     | `cloudflare/wrangler-action`   | warn     |
-| **D1 Preview 迁移**                         | `wrangler d1 migrations apply` | block    |
-| E2E 烟测（关键路径 5 条）                   | Playwright                     | warn     |
+| 步骤                                      | 工具                         | 失败影响 |
+| ----------------------------------------- | ---------------------------- | -------- |
+| `vp install --frozen-lockfile`            | Vite+ (`vp`) 代理 pnpm       | block    |
+| `vp check`（fmt + lint + tsgolint）       | Oxfmt / Oxlint / tsgolint    | block    |
+| `gitleaks detect`                         | gitleaks                     | block    |
+| `vp run -r test`（Vitest + pool-workers） | Vitest                       | block    |
+| `vp run build`（web 先于 server）         | Vite 8 / Rolldown / wrangler | block    |
+| E2E 烟测（关键路径 5 条）                 | Playwright                   | warn     |
 
 `vp check` 默认同时跑 oxfmt / oxlint / tsgolint（由 `vite.config.ts` 的 `lint.options.typeCheck: true` 启用）。需要稳定 `tsc --noEmit` 时临时 `pnpm -F <pkg> exec tsc --noEmit` 即可，不进 CI 默认路径。
 
-### 2.2 Production 管线（`.github/workflows/production.yml`）
+### 2.2 Production 管线（当前阶段：手动一键）
 
-- 触发：push to `main`（staging）+ tag `v*.*.*`（production）
+- 触发：维护者本地或 CI 环境执行 `pnpm deploy`
 - 步骤：
-  1. 依赖装 + lint + test + build（同 PR 管线）
-  2. D1 迁移 `wrangler d1 migrations apply duedatehq[-staging] --remote`（只允许 expand/forward-compatible migration）
-  3. better-auth 迁移（如有变化）
-  4. `wrangler deploy`
-  5. Sentry release 创建 + sourcemap 上传
-  6. Playwright smoke 打 staging 冒烟 20 条
-  7. Worker 失败 → `wrangler rollback`；若已应用 DB migration，只能回滚到仍兼容新 schema 的上一版 Worker，禁止依赖删列式 rollback
+  1. `vp run workspace-deploy`
+  2. `workspace-check` + `workspace-test`
+  3. `workspace-build`：显式 `apps/web` build 后再跑 `apps/server` Wrangler dry-run
+  4. D1 迁移 `wrangler d1 migrations apply duedatehq --remote`（只允许 expand/forward-compatible migration）
+  5. `wrangler deploy --env=""`
+
+后续自动化项：better-auth 迁移、Sentry release / sourcemap、生产只读 smoke、rollback runbook。
+Worker 失败时优先 `wrangler rollback`；若已应用 DB migration，只能回滚到仍兼容新 schema 的上一版
+Worker，禁止依赖删列式 rollback。
 
 **DB migration 纪律：**
 

@@ -21,7 +21,7 @@
     "db:migrate:local": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --local",
     "db:migrate:remote": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --remote",
     "db:seed:demo": "pnpm --filter @duedatehq/db seed:demo",
-    "deploy": "vp run @duedatehq/server#deploy"
+    "deploy": "vp run workspace-deploy"
   },
   "devDependencies": {
     "@types/node": "catalog:",

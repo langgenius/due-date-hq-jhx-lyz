@@ -418,7 +418,7 @@ packages/core
 {
   "scripts": {
     "dev": "vp run -r dev",
-    "build": "vp run -r build",
+    "build": "vp run @duedatehq/web#build && vp run @duedatehq/server#build",
     "check": "vp check",
     "test": "vp run -r test",
     "test:e2e": "playwright test",
@@ -428,7 +428,7 @@ packages/core
     "db:migrate:local": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --local",
     "db:migrate:remote": "pnpm --filter @duedatehq/server wrangler d1 migrations apply duedatehq --remote",
     "db:seed:demo": "pnpm --filter @duedatehq/db seed:demo",
-    "deploy": "vp run @duedatehq/server#deploy"
+    "deploy": "vp run workspace-deploy"
   }
 }
 ```
@@ -441,8 +441,8 @@ packages/core
   "scripts": {
     "dev": "node -e \"require('node:fs').mkdirSync('../web/dist',{recursive:true})\" && wrangler dev --local",
     "dev:fullstack": "pnpm --filter @duedatehq/web build && wrangler dev --local",
-    "build": "wrangler deploy --dry-run --outdir=dist",
-    "deploy": "wrangler deploy",
+    "build": "wrangler deploy --dry-run --outdir=dist --env=\"\"",
+    "deploy": "wrangler deploy --env=\"\"",
     "test": "vp test"
   }
 }

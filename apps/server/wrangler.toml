@@ -87,12 +87,6 @@ dead_letter_queue = "duedatehq-email-dlq"
 [triggers]
 crons = ["*/30 * * * *"]
 
-# -------------------------------------------------------------
-# Environments
-# -------------------------------------------------------------
-[env.staging]
-name = "duedatehq-staging"
-
-[env.production]
-name = "duedatehq"
-route = { pattern = "app.duedatehq.com/*", zone_name = "duedatehq.com" }
+# Current stage uses a single top-level Worker configuration.
+# Add named environments only when each env has its own complete bindings
+# because Cloudflare bindings are not inherited by [env.*] blocks.

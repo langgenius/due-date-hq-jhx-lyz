@@ -305,13 +305,15 @@ catalog:
   "packageManager": "pnpm@10.x",
   "engines": { "node": ">=22" },
   "scripts": {
+    "ci": "vp check && vp run -r test && vp run build",
+    "ready": "vp check && vp run -r test && vp run build",
     "dev": "vp run -r dev",
-    "build": "vp run -r build",
+    "build": "vp run @duedatehq/web#build && vp run @duedatehq/server#build",
     "check": "vp check",
     "test": "vp run -r test",
     "format": "vp fmt --check",
     "format:fix": "vp fmt --write",
-    "deploy": "vp run @duedatehq/server#deploy"
+    "deploy": "vp run workspace-deploy"
   },
   "devDependencies": {
     "vite-plus": "catalog:",
@@ -338,33 +340,34 @@ export default defineConfig({
     },
   },
   run: {
-    cache: { scripts: true, tasks: true },
+    cache: { scripts: false, tasks: true },
     tasks: {
-      build: {
-        command: 'vp run -r build',
-        dependsOn: ['check'],
+      'workspace-build': {
+        command: 'vp run build',
+        cache: false,
+        dependsOn: ['workspace-check'],
       },
-      test: {
+      'workspace-test': {
         command: 'vp run -r test',
       },
-      deploy: {
-        command: 'vp run @duedatehq/server#deploy',
+      'workspace-deploy': {
+        command: 'pnpm db:migrate:remote && vp run @duedatehq/server#deploy',
         cache: false,
-        dependsOn: ['build', 'test'],
+        dependsOn: ['workspace-build', 'workspace-test'],
       },
     },
   },
   // 取代 lefthook + lint-staged
   staged: {
-    '*.{ts,tsx,js,jsx,json,md,css}': 'vp check --fix',
+    '*': 'vp check --fix',
   },
 })
 ```
 
 **备注**：
 
-- `apps/server` 的 `wrangler deploy` 不走 vite-plus 的 build 管线；`vp run @duedatehq/server#deploy` 只是调度 `apps/server` 自己的 `deploy` 脚本。
-- `vp check` 缓存 scripts 输出，避免重复跑 lint / typecheck。
+- `apps/server` 的 `wrangler deploy` 不走 Vite+ bundling；root `deploy` 先跑有序 build + D1 迁移，再调度 server deploy。
+- `run.cache.scripts` 保持 Vite+ 默认 `false`，避免 build 缓存命中但 `apps/web/dist` 未真实存在。
 - Secrets 扫描仍用 `gitleaks`（外部 CLI，通过 GitHub Action 跑；本地不入 hook 以保持 pre-commit < 3s）。
 
 ### 4.5 `.env.example`（完整清单）

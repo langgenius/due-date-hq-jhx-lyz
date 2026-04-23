@@ -190,9 +190,9 @@ export default defineConfig({
       // Build after lint/typecheck passes, so red-line errors
       // surface before we spend time on bundling.
       'workspace-build': {
-        command: 'vp run -r build',
+        command: 'vp run build',
+        cache: false,
         dependsOn: ['workspace-check'],
-        env: ['NODE_ENV'],
       },
       'workspace-check': {
         command: 'vp check',
@@ -208,7 +208,7 @@ export default defineConfig({
       // fingerprinting — Cloudflare credentials are simply
       // inherited from the shell at run time.
       'workspace-deploy': {
-        command: 'vp run @duedatehq/server#deploy',
+        command: 'pnpm db:migrate:remote && vp run @duedatehq/server#deploy',
         cache: false,
         dependsOn: ['workspace-build', 'workspace-test'],
       },
@@ -218,7 +218,7 @@ export default defineConfig({
   // ──────────────────────────────────────────────────────────
   // Git hooks (replaces lefthook + lint-staged).
   // `vp install` (or `pnpm prepare` which runs `vp config`) sets
-  // up the pre-commit hook that reads this block. Keep the
+  // up the pre-commit hook that reads this block.
   // `vp staged` only receives staged files; CI owns full-repo checks.
   // ──────────────────────────────────────────────────────────
   staged: {
