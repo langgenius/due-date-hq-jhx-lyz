@@ -24,6 +24,7 @@
 | 07  | [DevOps & Testing](./07-DevOps-Testing.md)             | 部署 · CI/CD · 可观测 · 测试                            | Eng / SRE           |
 | 08  | [Project Structure](./08-Project-Structure.md)         | 代码目录 · 模块划分 · 命名约定                               | Eng                 |
 | 09  | [Demo Sprint Module Playbook](./09-Demo-Sprint-Module-Playbook.md) | 2 人 Demo-Ready 模块拆分与协作边界手册                     | Team                |
+| 10  | [Demo Sprint 7-Day Rhythm](./10-Demo-Sprint-7Day-Rhythm.md)        | 2 人 7 天 × 4-6h/天 的 Demo 节奏与每日分工                | Team                |
 | 📐  | [Design System](../Design/DueDateHQ-DESIGN.md)         | 视觉 token · 组件规格（Ramp × Linear · Light Workbench） | Designer / Frontend |
 
 
