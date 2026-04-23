@@ -66,7 +66,7 @@
 
 | 模块                            | 路径                                                                  | PRD 对应                                         | 输入                                 | 输出                                                                                          |
 | ------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------ | --------------------------------------------------------------------------------------------- |
-| **auth**                        | `packages/auth`                                                       | §13.2 · §3.6                                     | magic link / invitation              | Session · Organization · Member                                                               |
+| **auth**                        | `packages/auth`                                                       | §13.2 · §3.6                                     | Google OAuth / invitation            | Session · Organization · Member                                                               |
 | **clients**                     | `apps/server/src/procedures/clients` + repo                           | §5.6 · §8.1                                      | CRUD                                 | Client 实体                                                                                   |
 | **rules**                       | `packages/db` + seed                                                  | §6.1 · §6D                                       | rule draft                           | ObligationRule + Source Registry                                                              |
 | **obligations**                 | `apps/server/src/procedures/obligations`                              | §5.2 · §8.1                                      | rule + client                        | ObligationInstance                                                                            |
@@ -77,7 +77,7 @@
 | **workboard**                   | `apps/server/src/procedures/workboard`                                | §5.2                                             | filter + sort + page                 | Table rows                                                                                    |
 | **pulse**                       | `apps/server/src/procedures/pulse` + `jobs/pulse` + `packages/ingest` | §6.3 · [11](./11-Pulse-Ingest-Source-Catalog.md) | RSS / HTML / JSON API（源清单见 11） | Pulse + （Phase 1）ExceptionRule                                                              |
 | **migration**                   | `apps/server/src/procedures/migration`                                | §6A                                              | paste / CSV                          | Client[] + Obligation[]                                                                       |
-| **readiness**（Phase 1）        | `apps/server/src/procedures/readiness`                                | §6B                                              | CPA checklist                        | Magic link + Response                                                                         |
+| **readiness**（Phase 1）        | `apps/server/src/procedures/readiness`                                | §6B                                              | CPA checklist                        | Signed portal link + Response                                                                 |
 | **audit**                       | `apps/server/src/procedures/audit` + `packages/db/audit-writer`       | §13.2                                            | write events                         | AuditEvent stream                                                                             |
 | **evidence**                    | `packages/db/evidence-writer`                                         | §5.5 · §6.2                                      | any source                           | EvidenceLink                                                                                  |
 | **ai**                          | `packages/ai`                                                         | §6.2 · §9                                        | retrieval + prompt + guard           | `AiResult` + trace payload；`apps/server` 注入 writer 持久化 AiOutput / EvidenceLink / LlmLog |
@@ -120,15 +120,15 @@
 
 对齐 oRPC 官方惯例，Worker 路由按职责分层，**不可混用**：
 
-| 前缀                   | 挂载的 handler                            | 职责                                                                       | 身份 / 调用方                       |
-| ---------------------- | ----------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------- |
-| `/rpc/*`               | `RPCHandler`（`@orpc/server/fetch`）      | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型    | `apps/web` 独占；cookie session     |
-| `/api/auth/*`          | better-auth（Organization plugin）        | 登录 / 注销 / magic link / 邀请接受 / session 管理                         | 浏览器 + 第三方 OAuth 回调          |
-| `/api/webhook/*`       | 手写 Hono route                           | Resend / Stripe（Phase 1）等外部回调                                       | 无用户身份；IP allowlist + 签名校验 |
-| `/api/ics/:token`      | 手写 Hono route（Phase 1）                | ICS 日历订阅 feed                                                          | token 鉴权                          |
-| `/api/health`          | 手写 Hono route                           | Cloudflare healthcheck / liveness                                          | 公开                                |
-| `/api/v1/*`（Phase 2） | `OpenAPIHandler`（`@orpc/openapi/fetch`） | 公网开放 REST；复用同一份 `packages/contracts` 契约；自动生成 OpenAPI spec | OAuth client credentials            |
-| 其他所有路径           | ASSETS binding                            | SPA 静态产物 + `not_found_handling = "single-page-application"` 兜底       | 浏览器                              |
+| 前缀                   | 挂载的 handler                                    | 职责                                                                       | 身份 / 调用方                       |
+| ---------------------- | ------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------- |
+| `/rpc/*`               | `RPCHandler`（`@orpc/server/fetch`）              | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型    | `apps/web` 独占；cookie session     |
+| `/api/auth/*`          | better-auth（Google OAuth + Organization plugin） | 登录 / 注销 / Google OAuth callback / 邀请接受 / session 管理              | 浏览器 + Google OAuth 回调          |
+| `/api/webhook/*`       | 手写 Hono route                                   | Resend / Stripe（Phase 1）等外部回调                                       | 无用户身份；IP allowlist + 签名校验 |
+| `/api/ics/:token`      | 手写 Hono route（Phase 1）                        | ICS 日历订阅 feed                                                          | token 鉴权                          |
+| `/api/health`          | 手写 Hono route                                   | Cloudflare healthcheck / liveness                                          | 公开                                |
+| `/api/v1/*`（Phase 2） | `OpenAPIHandler`（`@orpc/openapi/fetch`）         | 公网开放 REST；复用同一份 `packages/contracts` 契约；自动生成 OpenAPI spec | OAuth client credentials            |
+| 其他所有路径           | ASSETS binding                                    | SPA 静态产物 + `not_found_handling = "single-page-application"` 兜底       | 浏览器                              |
 
 **`wrangler.toml` 对应**：
 

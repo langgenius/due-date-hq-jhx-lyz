@@ -1,2 +1,2 @@
-// better-auth plugin configuration — magicLink + organization + twoFactor (Phase 1).
+// better-auth plugin configuration — Google OAuth + organization + twoFactor (Phase 1).
 // Concrete wiring lands in Phase 0.

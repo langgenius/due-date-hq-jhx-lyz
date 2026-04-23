@@ -393,6 +393,8 @@ ENV=development
 # ───────── Auth ─────────
 AUTH_SECRET=        # openssl rand -base64 32
 AUTH_URL=http://localhost:8787
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 
 # ───────── LLM（经 AI Gateway）─────────
 AI_GATEWAY_ACCOUNT_ID=

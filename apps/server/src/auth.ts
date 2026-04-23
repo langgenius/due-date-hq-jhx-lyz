@@ -49,17 +49,6 @@ function createEmailSender(env: ServerEnv): AuthEmailSender {
   }
 
   return {
-    async sendMagicLinkEmail(message) {
-      await sendEmail({
-        to: message.to,
-        subject: 'Sign in to DueDateHQ',
-        idempotencyKey: `auth-magic-link/${message.token.slice(0, 96)}`,
-        html: `<p>Use this link to sign in to DueDateHQ:</p><p><a href="${escapeHtml(
-          message.url,
-        )}">Sign in</a></p><p>This link expires in 15 minutes.</p>`,
-      })
-    },
-
     async sendInvitationEmail(message) {
       const url = absoluteUrl(env, message.url)
       await sendEmail({

@@ -9,6 +9,8 @@ const serverEnvSchema = z.object({
   ENV: z.enum(['development', 'staging', 'production']).default('development'),
   RESEND_API_KEY: z.string().min(1).optional(),
   EMAIL_FROM: z.email(),
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
@@ -49,6 +51,8 @@ export function validateServerEnv(runtimeEnv: Env): ServerEnv {
       ENV: runtimeEnv.ENV,
       RESEND_API_KEY: runtimeEnv.RESEND_API_KEY,
       EMAIL_FROM: runtimeEnv.EMAIL_FROM,
+      GOOGLE_CLIENT_ID: runtimeEnv.GOOGLE_CLIENT_ID,
+      GOOGLE_CLIENT_SECRET: runtimeEnv.GOOGLE_CLIENT_SECRET,
     },
     emptyStringAsUndefined: true,
   })

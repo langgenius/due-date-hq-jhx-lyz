@@ -336,7 +336,7 @@ POST /api/team/invitations
   ↓
 Invitee clicks link (valid 7 days)
   → If user exists: accept + create Membership
-  → If new: complete signup (Auth.js magic link) → create User + Membership
+  → If new: complete signup with Google OAuth → create User + Membership
   ↓
 Membership.status = 'active', user lands on Firm dashboard
   ↓
@@ -469,7 +469,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 
 | #     | 模块                                             | 关键能力                                                                                                                                                                                                 | AC 绑定        |
 | ----- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| P0-1  | Auth & Tenant                                    | Email magic link 登录 + 单租户 + 租户强隔离                                                                                                                                                              | —              |
+| P0-1  | Auth & Tenant                                    | Google OAuth 登录 + 单租户 + 租户强隔离                                                                                                                                                                  | —              |
 | P0-2  | **Migration Copilot**                            | Paste-anywhere + CSV/Excel/Sheets + 5 个 Preset Profiles                                                                                                                                                 | S2-AC1         |
 | P0-3  | **AI Field Mapper**                              | LLM 读表头 + 前 5 行 → 字段映射 + 置信度 + 备选；显式识别 `name / ein / state / county / entity_type / tax_types / email / assignee / notes`                                                             | S2-AC2         |
 | P0-4  | **AI Normalizer + Smart Suggestions**            | entity/state/tax_type 归一；模糊字段非阻塞 "Needs review"                                                                                                                                                | S2-AC3         |
@@ -496,45 +496,45 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 
 ### 4.2 P1 — 差异化亮点（Story S3 + VPC Medium）
 
-| #         | 模块                                          | 关键能力                                                                                                                                   | AC 绑定             |
-| --------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
-| P1-1      | **Regulatory Pulse™ Ingest**                  | IRS + 5 州 RSS / 页面抓取；24h SLA                                                                                                         | S3-AC1              |
-| P1-2      | **Pulse LLM Extraction**                      | 结构化字段 + verbatim quote + confidence                                                                                                   | S3-AC1, S3-AC5      |
-| P1-3      | **Pulse Match Engine**                        | 四维匹配：state + county + entity_type + tax_type                                                                                          | S3-AC2              |
-| P1-4      | **Dashboard Pulse Banner**                    | 顶部 sticky Banner + 折叠历史 + Last-checked 指标                                                                                          | S3-AC3              |
-| P1-5      | **Pulse Email Digest**                        | Approved Pulse 触发时 **同一事务内** 推送邮件（含受影响客户清单 + 官方链接）                                                               | S3-AC3              |
-| P1-6      | **Pulse Detail Drawer**                       | AI summary + verbatim quote + Affected Clients Table + 快筛                                                                                | S3-AC4, S3-AC5      |
-| P1-7      | **Batch Apply 原子事务**                      | 批量调整截止日 + Evidence 追加 + 24h Undo                                                                                                  | S3-AC4              |
-| P1-8      | **AI Q&A Assistant (Ask DueDateHQ)**          | NL → DSL → SQL（只读白名单，tenant 强制）→ 表格 + 一句话 + citations                                                                       | VPC Medium ✦        |
-| P1-9      | Extension Decision Panel                      | Extension / payment decision helper + What-If Simulator                                                                                    | VPC 场景 C          |
-| P1-10     | **Client PDF Report**                         | 单客户 PDF 简报，内嵌 human-verified 规则 + Penalty + source                                                                               | VPC Medium          |
-| P1-11     | **ICS 单向订阅**                              | 每 firm 一条带 token 的 feed URL（Outlook / Google / Apple）                                                                               | VPC Low（日历场景） |
-| P1-12     | Q1 → Q2 Rollover                              | 季度申报完成后自动生成下季 instances                                                                                                       | —                   |
-| P1-13     | Smart sort toggle                             | `AI Smart / Due Date / $ At Risk / Status` 排序切换                                                                                        | S1-AC5 扩展         |
-| P1-14     | Command Palette (Cmd-K)                       | 搜索 + 跳转 + Ask 三合一                                                                                                                   | UX 铁律             |
-| P1-15     | Keyboard shortcuts                            | J/K/E/X/F/A/? 全覆盖 + `?` 快捷键帮助                                                                                                      | —                   |
-| P1-16     | Saved Views                                   | 持久化筛选组合 + 分享                                                                                                                      | S1-AC3 扩展         |
-| P1-17     | Public SEO Pages                              | `/state/california` / `/pulse` 公开页                                                                                                      | GTM                 |
-| P1-18     | **Team Seats & Invitations**                  | Owner 邀请 / 撤销 / role 修改；席位受 plan 限制（§3.6.4）                                                                                  | Team                |
-| P1-19     | **RBAC 四角色权限矩阵强制**                   | oRPC procedure middleware + scoped repo 双层（§3.6.3）；前端仅做可见性收敛，不作为安全边界                                                 | Team                |
-| P1-20     | **View Scope Toggle**                         | Dashboard / Workboard / Alerts 三处 My work / Firm-wide 切换 + URL 持久化（§3.6.5）                                                        | Team                |
-| P1-21     | **Manager Workload View**                     | 成员负载表 + 30 天 heatmap + Bulk reassign（§3.6.7）                                                                                       | Team                |
-| P1-22     | **Firm-wide Audit Log 页**                    | 全 firm write 操作时间线 + 过滤 + 导出（§3.6 + §13）                                                                                       | Team                |
-| P1-23     | **Concurrency & Conflict UX**                 | Last-write-wins + toast / Pulse advisory lock / Migration 串行（§3.6.6）                                                                   | Team                |
-| P1-24     | **Multi-firm Membership 切换**                | User 加入多 Firm，登录后 Firm Picker + `Cmd+Shift+O` 切换（§3.6.4）                                                                        | Team                |
-| P1-25     | **Owner Transfer / Plan 降级处理**            | ownership 转让流程 + 超席自动 suspend + 30d grace（§3.6.8）                                                                                | Team                |
-| **P1-26** | **★ Client Readiness Portal™**                | 客户免登录 magic link 页，自助勾资料是否就位 → CPA Dashboard 的 `readiness` 实时变 `ready`；AI Draft 解释邮件；集训差异化亮点（§6B）       | **差异化亮点**      |
-| **P1-27** | **★ Onboarding AI Agent**                     | 首次登录对话式 setup（替代传统向导），复用 Migration 管线，精准对标 产品受众 taste（§6A.11）                                               | **差异化亮点**      |
-| P1-28     | **Audit-Ready Evidence Package**              | 一键导出 ZIP（PDF + Audit CSV + SHA-256 签名），面向 IRS 调查 / 客户质询（§13.3 + §6.2 合流）                                              | 差异化              |
-| **P1-29** | **★ Rules-as-Asset 资产层**                   | 规则独立实体（非 UI 附属）+ API-ready 导出（§6D.1）                                                                                        | **Rules 核心**      |
-| **P1-30** | **★ Exception Rule Overlay**                  | 独立 exception 规则 + 可溯可撤 overlay；Obligation Detail 的 Deadline History tab（§6D.2）                                                 | Rules 核心          |
-| **P1-31** | **★ Source Registry + `/watch` 页**           | 官方来源注册表 + 健康监控 + 公开承诺（§6D.3）                                                                                              | Rules 核心          |
-| **P1-32** | **★ Rule Quality Badge**                      | 6 项 Checklist 可展开（filing/payment/extension/year/holiday/exception）（§6D.4）                                                          | Rules 核心          |
-| **P1-33** | **★ Cross-source Verification**               | 双源交叉验证 chip + 冲突 needs_review 流程（§6D.5）                                                                                        | Rules 核心          |
-| **P1-34** | **★ Rule Library `/rules` 公开页**            | 面向 CPA + SEO 的规则资产浏览页 + PDF/JSON 导出（§6D.7）                                                                                   | Rules 核心          |
-| **P1-35** | **★ Verification Rhythm**                     | 税季前 / 每周 / 每日 ops 节奏 + Dashboard Freshness Badge + 周一 Rhythm Report 邮件（§6D.6）                                               | Rules 核心          |
-| **P1-36** | **★ PWA 壳（跨平台 Add-to-Dock + Web Push）** | manifest + service worker + Web Push；用户 1 键"Add to Dock / Home Screen" → Dock / Home 图标 + 独立窗口 + 离线缓存 + 跨设备推送（§7.8.1） | Native 体验         |
-| P1-37     | macOS Menu Bar Widget（Phase 2）              | 常驻 menu bar 显示 `$ at risk · overdue count`；点击唤起主 Dashboard；Tauri/Swift ≈ 400KB 壳（§7.8.2）                                     | Phase 2 差异化      |
+| #         | 模块                                          | 关键能力                                                                                                                                     | AC 绑定             |
+| --------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| P1-1      | **Regulatory Pulse™ Ingest**                  | IRS + 5 州 RSS / 页面抓取；24h SLA                                                                                                           | S3-AC1              |
+| P1-2      | **Pulse LLM Extraction**                      | 结构化字段 + verbatim quote + confidence                                                                                                     | S3-AC1, S3-AC5      |
+| P1-3      | **Pulse Match Engine**                        | 四维匹配：state + county + entity_type + tax_type                                                                                            | S3-AC2              |
+| P1-4      | **Dashboard Pulse Banner**                    | 顶部 sticky Banner + 折叠历史 + Last-checked 指标                                                                                            | S3-AC3              |
+| P1-5      | **Pulse Email Digest**                        | Approved Pulse 触发时 **同一事务内** 推送邮件（含受影响客户清单 + 官方链接）                                                                 | S3-AC3              |
+| P1-6      | **Pulse Detail Drawer**                       | AI summary + verbatim quote + Affected Clients Table + 快筛                                                                                  | S3-AC4, S3-AC5      |
+| P1-7      | **Batch Apply 原子事务**                      | 批量调整截止日 + Evidence 追加 + 24h Undo                                                                                                    | S3-AC4              |
+| P1-8      | **AI Q&A Assistant (Ask DueDateHQ)**          | NL → DSL → SQL（只读白名单，tenant 强制）→ 表格 + 一句话 + citations                                                                         | VPC Medium ✦        |
+| P1-9      | Extension Decision Panel                      | Extension / payment decision helper + What-If Simulator                                                                                      | VPC 场景 C          |
+| P1-10     | **Client PDF Report**                         | 单客户 PDF 简报，内嵌 human-verified 规则 + Penalty + source                                                                                 | VPC Medium          |
+| P1-11     | **ICS 单向订阅**                              | 每 firm 一条带 token 的 feed URL（Outlook / Google / Apple）                                                                                 | VPC Low（日历场景） |
+| P1-12     | Q1 → Q2 Rollover                              | 季度申报完成后自动生成下季 instances                                                                                                         | —                   |
+| P1-13     | Smart sort toggle                             | `AI Smart / Due Date / $ At Risk / Status` 排序切换                                                                                          | S1-AC5 扩展         |
+| P1-14     | Command Palette (Cmd-K)                       | 搜索 + 跳转 + Ask 三合一                                                                                                                     | UX 铁律             |
+| P1-15     | Keyboard shortcuts                            | J/K/E/X/F/A/? 全覆盖 + `?` 快捷键帮助                                                                                                        | —                   |
+| P1-16     | Saved Views                                   | 持久化筛选组合 + 分享                                                                                                                        | S1-AC3 扩展         |
+| P1-17     | Public SEO Pages                              | `/state/california` / `/pulse` 公开页                                                                                                        | GTM                 |
+| P1-18     | **Team Seats & Invitations**                  | Owner 邀请 / 撤销 / role 修改；席位受 plan 限制（§3.6.4）                                                                                    | Team                |
+| P1-19     | **RBAC 四角色权限矩阵强制**                   | oRPC procedure middleware + scoped repo 双层（§3.6.3）；前端仅做可见性收敛，不作为安全边界                                                   | Team                |
+| P1-20     | **View Scope Toggle**                         | Dashboard / Workboard / Alerts 三处 My work / Firm-wide 切换 + URL 持久化（§3.6.5）                                                          | Team                |
+| P1-21     | **Manager Workload View**                     | 成员负载表 + 30 天 heatmap + Bulk reassign（§3.6.7）                                                                                         | Team                |
+| P1-22     | **Firm-wide Audit Log 页**                    | 全 firm write 操作时间线 + 过滤 + 导出（§3.6 + §13）                                                                                         | Team                |
+| P1-23     | **Concurrency & Conflict UX**                 | Last-write-wins + toast / Pulse advisory lock / Migration 串行（§3.6.6）                                                                     | Team                |
+| P1-24     | **Multi-firm Membership 切换**                | User 加入多 Firm，登录后 Firm Picker + `Cmd+Shift+O` 切换（§3.6.4）                                                                          | Team                |
+| P1-25     | **Owner Transfer / Plan 降级处理**            | ownership 转让流程 + 超席自动 suspend + 30d grace（§3.6.8）                                                                                  | Team                |
+| **P1-26** | **★ Client Readiness Portal™**                | 客户免登录 signed portal link 页，自助勾资料是否就位 → CPA Dashboard 的 `readiness` 实时变 `ready`；AI Draft 解释邮件；集训差异化亮点（§6B） | **差异化亮点**      |
+| **P1-27** | **★ Onboarding AI Agent**                     | 首次登录对话式 setup（替代传统向导），复用 Migration 管线，精准对标 产品受众 taste（§6A.11）                                                 | **差异化亮点**      |
+| P1-28     | **Audit-Ready Evidence Package**              | 一键导出 ZIP（PDF + Audit CSV + SHA-256 签名），面向 IRS 调查 / 客户质询（§13.3 + §6.2 合流）                                                | 差异化              |
+| **P1-29** | **★ Rules-as-Asset 资产层**                   | 规则独立实体（非 UI 附属）+ API-ready 导出（§6D.1）                                                                                          | **Rules 核心**      |
+| **P1-30** | **★ Exception Rule Overlay**                  | 独立 exception 规则 + 可溯可撤 overlay；Obligation Detail 的 Deadline History tab（§6D.2）                                                   | Rules 核心          |
+| **P1-31** | **★ Source Registry + `/watch` 页**           | 官方来源注册表 + 健康监控 + 公开承诺（§6D.3）                                                                                                | Rules 核心          |
+| **P1-32** | **★ Rule Quality Badge**                      | 6 项 Checklist 可展开（filing/payment/extension/year/holiday/exception）（§6D.4）                                                            | Rules 核心          |
+| **P1-33** | **★ Cross-source Verification**               | 双源交叉验证 chip + 冲突 needs_review 流程（§6D.5）                                                                                          | Rules 核心          |
+| **P1-34** | **★ Rule Library `/rules` 公开页**            | 面向 CPA + SEO 的规则资产浏览页 + PDF/JSON 导出（§6D.7）                                                                                     | Rules 核心          |
+| **P1-35** | **★ Verification Rhythm**                     | 税季前 / 每周 / 每日 ops 节奏 + Dashboard Freshness Badge + 周一 Rhythm Report 邮件（§6D.6）                                                 | Rules 核心          |
+| **P1-36** | **★ PWA 壳（跨平台 Add-to-Dock + Web Push）** | manifest + service worker + Web Push；用户 1 键"Add to Dock / Home Screen" → Dock / Home 图标 + 独立窗口 + 离线缓存 + 跨设备推送（§7.8.1）   | Native 体验         |
+| P1-37     | macOS Menu Bar Widget（Phase 2）              | 常驻 menu bar 显示 `$ at risk · overdue count`；点击唤起主 Dashboard；Tauri/Swift ≈ 400KB 壳（§7.8.2）                                       | Phase 2 差异化      |
 
 ### 4.3 P2 — 明确不做（v2.0 范围外）
 
@@ -1773,12 +1773,12 @@ Demo Day 现场可以这样演：
 
 ### 6B.1 为什么它能让你脱颖而出
 
-| 维度               | 现有产品                    | DueDateHQ Readiness Portal   |
-| ------------------ | --------------------------- | ---------------------------- |
-| Readiness 数据来源 | CPA 手动标                  | **客户自己勾**               |
-| 客户的 touchpoint  | CPA 邮件 + 电话             | **一个 magic link，30 秒**   |
-| 客户端门槛         | 下载 TaxDome app / 注册登录 | **免登录，移动端打开即可**   |
-| 产品亮点属性       | "更好的表格"                | **"反转数据源头"的产品原创** |
+| 维度               | 现有产品                    | DueDateHQ Readiness Portal         |
+| ------------------ | --------------------------- | ---------------------------------- |
+| Readiness 数据来源 | CPA 手动标                  | **客户自己勾**                     |
+| 客户的 touchpoint  | CPA 邮件 + 电话             | **一个 signed portal link，30 秒** |
+| 客户端门槛         | 下载 TaxDome app / 注册登录 | **免登录，移动端打开即可**         |
+| 产品亮点属性       | "更好的表格"                | **"反转数据源头"的产品原创**       |
 
 **这是 File In Time / TaxDome / Karbon 都没有想到的方向**，因为他们把"CPA 工具"和"客户门户"做成两个产品（门户复杂、沉重、需登录）。DueDateHQ 把 **客户输入极简化为 1 个 URL + 4 个 checkbox**。
 
@@ -1799,7 +1799,7 @@ Obligation Detail (§5.3) 抽屉 → Readiness 区块
   │  [📤 Send readiness check to client]    │
   └────────────────────────────────────────┘
       ↓ CPA click
-  Magic link generated, valid 14 days.
+  Signed portal link generated, valid 14 days.
   Choose delivery:
     ○ Email to client (john@acme.com)  — uses your Reminder template
     ○ Copy link (send via SMS / WeChat / etc)
@@ -1812,7 +1812,7 @@ Obligation Detail (§5.3) 抽屉 → Readiness 区块
 
 #### 客户侧（免登录 · 移动优先）
 
-打开 magic link：
+打开 signed portal link：
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -1927,7 +1927,7 @@ ClientReadinessResponse
 | 暴力枚举 token          | Token 长度 ≥ 32 bytes + rate limit（单 IP 10 req/min）+ Sentry alert                               |
 | 客户提交恶意内容（XSS） | `client_note` 服务端 sanitize + rendering 全用 `{text}` 非 `innerHTML`                             |
 | 客户机器人大量响应      | hCaptcha 作为 Submit 按钮门槛（默认开）                                                            |
-| CPA 误发给错误客户      | Magic link 页显示 CPA 姓名 + Firm 名 + 客户名三项，客户看到不对可点 `This isn't me` 上报           |
+| CPA 误发给错误客户      | Signed portal link 页显示 CPA 姓名 + Firm 名 + 客户名三项，客户看到不对可点 `This isn't me` 上报   |
 | PII 最小化              | 客户侧页面**不显示 EIN / SSN / 金额**；只显示 "1120-S filing" 级别的信息                           |
 | Readiness 数据合规      | 所有 response 写 `AuditEvent(action='readiness.client_response')`                                  |
 
@@ -1949,7 +1949,7 @@ ClientReadinessResponse
 
 | Test ID | 描述                                         | 预期                                                          |
 | ------- | -------------------------------------------- | ------------------------------------------------------------- |
-| T-RP-01 | CPA 点 `[Send readiness check]` → 客户收邮件 | Resend 送达，邮件含 magic link                                |
+| T-RP-01 | CPA 点 `[Send readiness check]` → 客户收邮件 | Resend 送达，邮件含 signed portal link                        |
 | T-RP-02 | 客户打开 link（移动端）                      | 页面正常渲染，无需登录，3s 内 LCP                             |
 | T-RP-03 | 客户勾 "I have it" 提交                      | CPA Dashboard 对应 obligation readiness 30s 内更新            |
 | T-RP-04 | 客户点 `[? What is this?]`                   | AI 生成的 2 句解释 + source URL 显示                          |
@@ -1965,7 +1965,7 @@ ClientReadinessResponse
 Demo Day 关键 10 秒：
 
 1. 演示者在 Obligation Detail 点 `[Send readiness check to client]`
-2. 邀请**现场观众拿出手机扫屏幕上的二维码**（实际是 magic link）
+2. 邀请**现场观众拿出手机扫屏幕上的二维码**（实际是 signed portal link）
 3. 现场观众打开页面 → 勾第一个框 → 点 Submit
 4. Demo 屏幕上 CPA Dashboard 的 `readiness` 徽章**实时变色**（`Waiting` → `Ready`）
 5. Audit Log 新行出现："Client responded from mobile 2s ago"
@@ -1975,7 +1975,7 @@ Demo Day 关键 10 秒：
 ### 6B.9 为什么 2 人天能落地（工程估算）
 
 - 客户侧单页面：1 React route + 1 hCaptcha + 4 个 UI 组件（checkbox / textarea / confirm / expired），复用已有 shadcn ≈ **0.5 人天**
-- Magic link 生成 + token 验证：复用 ICS token 逻辑 ≈ **0.3 人天**
+- Signed portal link 生成 + token 验证：复用 ICS token 逻辑 ≈ **0.3 人天**
 - 数据模型 + API：3 endpoints（create / get / submit）≈ **0.5 人天**
 - 邮件模板：复用 Reminder 模板框架 ≈ **0.2 人天**
 - AI `[? What is this?]` 解释：复用 Deadline Tip 管线，prompt 改 3 行 ≈ **0.3 人天**

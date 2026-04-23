@@ -1,9 +1,3 @@
-export interface MagicLinkEmail {
-  to: string
-  url: string
-  token: string
-}
-
 export interface InvitationEmail {
   to: string
   organizationName: string
@@ -14,6 +8,5 @@ export interface InvitationEmail {
 }
 
 export interface AuthEmailSender {
-  sendMagicLinkEmail(message: MagicLinkEmail): Promise<void>
   sendInvitationEmail(message: InvitationEmail): Promise<void>
 }

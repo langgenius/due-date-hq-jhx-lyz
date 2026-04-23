@@ -52,10 +52,10 @@ flowchart LR
 
 ### Day 2 · 共享契约冻结
 
-| Owner | 任务                                                                                                                                                                                        |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| JHX   | Auth + Tenant Scope（magic link、active firm、`scoped(db, firmId)` 上下文、auth 错误审计映射）→ AI Orchestrator facade（prompt 执行、JSON 校验、guard/citation 占位、trace payload 结构）。 |
-| LYZ   | DB Core + Scoped Repos（client / obligation / pulse / dashboard read repo + audit/evidence writer facade）。                                                                                |
+| Owner | 任务                                                                                                                                                                                          |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JHX   | Auth + Tenant Scope（Google OAuth、active firm、`scoped(db, firmId)` 上下文、auth 错误审计映射）→ AI Orchestrator facade（prompt 执行、JSON 校验、guard/citation 占位、trace payload 结构）。 |
+| LYZ   | DB Core + Scoped Repos（client / obligation / pulse / dashboard read repo + audit/evidence writer facade）。                                                                                  |
 
 **当日必须冻结的 Shared Contract**（见 [09 §6](./09-Demo-Sprint-Module-Playbook.md#6-shared-contract-surface)）：
 
@@ -171,7 +171,7 @@ flowchart LR
 
 ### Day 2
 
-- [ ] JHX：magic link 能拿到 session，`firmId` 正确进入 scoped context
+- [ ] JHX：Google OAuth 能拿到 session，`firmId` 正确进入 scoped context
 - [ ] JHX：AI facade 在无 API key 时返回 structured refusal，不抛裸异常
 - [ ] LYZ：`scoped(db, firmId)` 在单测里过闸，跨 firm 数据不可见
 - [ ] LYZ：audit / evidence writer 能同事务写入并返回 id

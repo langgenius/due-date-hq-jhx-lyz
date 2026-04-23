@@ -319,8 +319,8 @@ packages/auth/
 ├── src/
 │   ├── index.ts                    # createAuth(db, env) 工厂
 │   ├── permissions.ts              # Access Control statement + 四角色
-│   ├── plugins.ts                  # magicLink / organization / twoFactor 配置
-│   ├── email.ts                    # sendMagicLinkEmail / sendInvitationEmail
+│   ├── plugins.ts                  # Google OAuth / organization / twoFactor 配置
+│   ├── email.ts                    # sendInvitationEmail
 │   └── types.ts                    # Session / Member 扩展类型
 └── package.json
 ```
@@ -582,7 +582,7 @@ pnpm db:seed:demo
 vp run -r dev
 
 # 打开 http://localhost:8787
-# 用任何邮箱走 magic link → 本地 dev 环境 magic link 会直接打印在控制台
+# 使用 Google OAuth 登录；本地 Google Console redirect URI 配置为 http://localhost:8787/api/auth/callback/google
 ```
 
 ---

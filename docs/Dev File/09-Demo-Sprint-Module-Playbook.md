@@ -178,7 +178,7 @@
 
 **Owns**
 
-- Magic link auth。
+- Google OAuth auth。
 - Active firm resolution。
 - Owner-only demo permission baseline。
 - Tenant scoped context creation。

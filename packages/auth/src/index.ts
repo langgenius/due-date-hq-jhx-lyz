@@ -1,6 +1,5 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter, type DB as BetterAuthDrizzleDb } from 'better-auth/adapters/drizzle'
-import { magicLink } from 'better-auth/plugins/magic-link'
 import { organization } from 'better-auth/plugins/organization'
 import type { AuthEmailSender } from './email'
 import { accessControl, roles } from './permissions'
@@ -10,6 +9,8 @@ export type AuthEnv = {
   AUTH_URL: string
   APP_URL: string
   EMAIL_FROM: string
+  GOOGLE_CLIENT_ID: string
+  GOOGLE_CLIENT_SECRET: string
   ENV: 'development' | 'staging' | 'production'
 }
 
@@ -71,14 +72,6 @@ export function createAuthPlugins(email?: AuthEmailSender) {
         })
       },
     }),
-    magicLink({
-      expiresIn: 60 * 15,
-      allowedAttempts: 1,
-      storeToken: 'hashed',
-      sendMagicLink: async ({ email: to, token, url }) => {
-        await email?.sendMagicLinkEmail({ to, token, url })
-      },
-    }),
   ] as const
 }
 
@@ -92,6 +85,12 @@ export function createAuth(deps: CreateAuthDeps) {
       provider: 'sqlite',
       schema: deps.schema,
     }),
+    socialProviders: {
+      google: {
+        clientId: deps.env.GOOGLE_CLIENT_ID,
+        clientSecret: deps.env.GOOGLE_CLIENT_SECRET,
+      },
+    },
     plugins: [...createAuthPlugins(deps.email)],
     trustedOrigins: trustedOrigins(deps.env),
     rateLimit: {

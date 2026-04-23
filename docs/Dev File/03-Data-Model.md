@@ -49,7 +49,7 @@ packages/db/
 | -------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------- |
 | `user`         | 全局唯一的人（邮箱唯一）                                                 | CPA 本人                                                       |
 | `session`      | 登录态                                                                   | 含 `activeOrganizationId`                                      |
-| `account`      | credentials / magic link                                                 | magic link 为主                                                |
+| `account`      | OAuth account                                                            | Google OAuth 为主                                              |
 | `verification` | 邮箱 / 邀请 token                                                        | —                                                              |
 | `organization` | **Firm（租户）**；`metadata` 扩展业务字段                                | `plan` / `seatLimit` / `timezone` / `coordinatorCanSeeDollars` |
 | `member`       | **UserFirmMembership**；`role ∈ {owner, manager, preparer, coordinator}` | —                                                              |

@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import type { Env, ContextVars } from './env'
 import { requestIdMiddleware } from './middleware/logger'
 import { sessionMiddleware } from './middleware/session'
@@ -8,6 +9,11 @@ import { authRoute } from './routes/auth'
 import { healthRoute } from './routes/health'
 import { resendWebhook } from './webhooks/resend'
 import { rpcHandler } from './rpc'
+
+function allowedAuthOrigin(origin: string, env: Env): string | null {
+  const allowed = [env.APP_URL, env.AUTH_URL].map((value) => new URL(value).origin)
+  return allowed.includes(origin) ? origin : null
+}
 
 /**
  * Hono app assembly.
@@ -28,7 +34,19 @@ export function createApp() {
   // /api/health — public liveness probe (no auth, no tenant).
   app.route('/api/health', healthRoute)
 
-  // /api/auth/* — better-auth handler (Organization + Access Control + magicLink).
+  app.use(
+    '/api/auth/*',
+    cors({
+      origin: (origin, c) => allowedAuthOrigin(origin, c.env),
+      allowHeaders: ['Content-Type', 'Authorization'],
+      allowMethods: ['POST', 'GET', 'OPTIONS'],
+      exposeHeaders: ['Content-Length'],
+      maxAge: 600,
+      credentials: true,
+    }),
+  )
+
+  // /api/auth/* — better-auth handler (Google OAuth + Organization + Access Control).
   app.route('/api/auth', authRoute)
 
   // /api/webhook/* — external callbacks (IP allowlist + signature).

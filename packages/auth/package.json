@@ -33,5 +33,5 @@
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
-  "//": "better-auth configuration (Organization + Access Control + magicLink). Client-safe exports live under ./client."
+  "//": "better-auth configuration (Google OAuth + Organization + Access Control). Client-safe exports live under ./client."
 }
