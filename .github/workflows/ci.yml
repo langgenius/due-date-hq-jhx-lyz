@@ -31,3 +31,17 @@ jobs:
       - run: vp install
 
       - run: vp run ci
+
+      # Secret scan: same entry as local `pnpm secrets:scan` so CI and dev agree.
+      # Pinned version matches the one developers install locally (Day 1 rhythm §3).
+      - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: '8.30.1'
+        run: |
+          curl -sSLf "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /tmp gitleaks
+          sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Secret scan
+        run: pnpm secrets:scan

@@ -1,0 +1,8 @@
+# Allowlist false positives from docs / skill examples.
+# Format: <file>:<rule>:<line>
+# Mock token in Playwright skill documentation (example code)
+.agents/skills/playwright-best-practices/advanced/authentication-flows.md:generic-api-key:54
+# Session tokens embedded in exported HTML slide decks (not live secrets)
+docs/html/DueDateHQ - 用户故事与价值主张画布.html:generic-api-key:1231
+docs/html/工程师集训.html:generic-api-key:1539
+docs/html/DueDateHQ - 商业计划书.html:generic-api-key:1236
