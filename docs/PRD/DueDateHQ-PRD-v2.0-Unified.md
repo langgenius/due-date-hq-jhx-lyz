@@ -6,12 +6,10 @@
 > 目标：以 `docs/html/DueDateHQ - 用户故事与价值主张画布.html` 中 **P0 + P1 全部验收标准** 为强约束，重新定义 DueDateHQ 产品需求基线
 > 范围定位：**产品完整性优先**，不以 14 天工期裁剪范围。本 PRD 是"能卖、能审计、能放规模"的目标形态；工期分配放在 §14，但不再是范围决定器
 > 对外语言：English-first（产品 UI / 官网 / 邮件 / Demo），内部文档与代码注释使用英文
-> 平台：Web-first（响应式）+ ICS 单向订阅，不做原生 App
-> 阅读对象：PM / Design / Engineering / GTM / Compliance / 评委
+> 平台：Web-first（响应式）+ PWA 壳（必做 · Add-to-Dock / Home-Screen / Web Push）+ macOS Menu Bar Widget（Phase 2）+ ICS 单向订阅；**不做 native 功能复制 App**
+> 阅读对象：PM / Design / Engineering / GTM / Compliance / 产品决策人
 
 ---
-
-## 0. 为什么存在这第三份 PRD
 
 ### 0.1 两份前作的核心判断与差距
 
@@ -516,8 +514,17 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | P1-24 | **Multi-firm Membership 切换** | User 加入多 Firm，登录后 Firm Picker + `Cmd+Shift+O` 切换（§3.6.4）| Team |
 | P1-25 | **Owner Transfer / Plan 降级处理** | ownership 转让流程 + 超席自动 suspend + 30d grace（§3.6.8）| Team |
 | **P1-26** | **★ Client Readiness Portal™** | 客户免登录 magic link 页，自助勾资料是否就位 → CPA Dashboard 的 `readiness` 实时变 `ready`；AI Draft 解释邮件；集训差异化亮点（§6B）| **差异化亮点** |
-| **P1-27** | **★ Onboarding AI Agent** | 首次登录对话式 setup（替代传统向导），复用 Migration 管线，精准对标 Dify 评审员 taste（§6A.11）| **差异化亮点** |
+| **P1-27** | **★ Onboarding AI Agent** | 首次登录对话式 setup（替代传统向导），复用 Migration 管线，精准对标 产品受众 taste（§6A.11）| **差异化亮点** |
 | P1-28 | **Audit-Ready Evidence Package** | 一键导出 ZIP（PDF + Audit CSV + SHA-256 签名），面向 IRS 调查 / 客户质询（§13.3 + §6.2 合流）| 差异化 |
+| **P1-29** | **★ Rules-as-Asset 资产层** | 规则独立实体（非 UI 附属）+ API-ready 导出（§6D.1）| **Rules 核心** |
+| **P1-30** | **★ Exception Rule Overlay** | 独立 exception 规则 + 可溯可撤 overlay；Obligation Detail 的 Deadline History tab（§6D.2）| Rules 核心 |
+| **P1-31** | **★ Source Registry + `/watch` 页** | 官方来源注册表 + 健康监控 + 公开承诺（§6D.3）| Rules 核心 |
+| **P1-32** | **★ Rule Quality Badge** | 6 项 Checklist 可展开（filing/payment/extension/year/holiday/exception）（§6D.4）| Rules 核心 |
+| **P1-33** | **★ Cross-source Verification** | 双源交叉验证 chip + 冲突 needs_review 流程（§6D.5）| Rules 核心 |
+| **P1-34** | **★ Rule Library `/rules` 公开页** | 面向 CPA + SEO 的规则资产浏览页 + PDF/JSON 导出（§6D.7）| Rules 核心 |
+| **P1-35** | **★ Verification Rhythm** | 税季前 / 每周 / 每日 ops 节奏 + Dashboard Freshness Badge + 周一 Rhythm Report 邮件（§6D.6）| Rules 核心 |
+| **P1-36** | **★ PWA 壳（跨平台 Add-to-Dock + Web Push）** | manifest + service worker + Web Push；用户 1 键"Add to Dock / Home Screen" → Dock / Home 图标 + 独立窗口 + 离线缓存 + 跨设备推送（§7.8.1）| Native 体验 |
+| P1-37 | macOS Menu Bar Widget（Phase 2）| 常驻 menu bar 显示 `$ at risk · overdue count`；点击唤起主 Dashboard；Tauri/Swift ≈ 400KB 壳（§7.8.2）| Phase 2 差异化 |
 
 ### 4.3 P2 — 明确不做（v2.0 范围外）
 
@@ -822,13 +829,45 @@ Tabs 之上加一行 scope 切换（Solo Plan 下该行不渲染）：
   - Tab 4 · Documents（P1，文件链接引用，不做存储）
   - `[Export PDF]` → 生成 Client PDF Report（§7.6）
 
-### 5.7 Rules（规则中心，只读）
+### 5.7 Rules（规则中心，只读 · 登录用户视图）
 
-展示所有已 verified 规则：`jurisdiction · entity · tax type · due-date logic · penalty_formula · source_url · verbatim_quote · verified_by · verified_at · version`
+展示所有已 verified 规则，每条含：
+`jurisdiction · entity · tax type · due-date logic · penalty_formula · source_title · source_url · verbatim_quote · verified_by · verified_at · next_review_at · version · status · rule_tier · applicable_year · checklist(6/6) · cross_verified_sources[]`
 
 MVP 覆盖 6 辖区（Federal + CA/NY/TX/FL/WA/MA）约 30 条。  
+每条规则有 **Quality Badge（§6D.4）+ Cross-verified chip（§6D.5）**。  
 CPA 可以点 `Report issue` 触发人工复核流。  
 **不允许** CPA 编辑内置规则，但允许 `custom_deadline`（手动添加到某客户）。
+
+> 完整 Rules-as-Asset 架构（包括公开 `/rules` Library、`/watch` Source Registry、Deadline History overlay）见 §6D。
+
+### 5.7A `/rules` Rule Library 公开页（P1-34 · §6D.7）
+
+面向 CPA 的公开规则浏览页，**无需登录**（SEO + 获客）。
+
+**包含：**
+- Federal + 6 州分组的 verified rule 列表
+- 每条 rule 的 Source / Verified at / Quality Badge 6/6
+- Active Exception Overlay 高亮区（IRS CA storm relief 等）
+- 44 州 "not yet covered" 透明声明 + Request coverage 表单
+- PDF / JSON 导出按钮（API-ready）
+- Subscribe to changes 邮件订阅入口
+
+不展示客户数据。SEO 针对"2026 CA Franchise Tax calendar"等长尾关键词。
+
+### 5.7B `/watch` Source Registry 公开页（P1-31 · §6D.3）
+
+"What We Watch For You" 页：列出 15+ 官方来源、cadence、当前健康状态，公开承诺可见。
+
+### 5.7C Dashboard Freshness Badge（§6D.3 层 A）
+
+每次登录顶栏永久显示：
+
+```
+🟢 All watchers healthy · 15 sources · Last check 18 min ago
+```
+
+hover 展开逐源 health + 下周 / 下季度的 ops review 时间点。
 
 ### 5.8 Alerts（Pulse 历史）
 
@@ -1231,7 +1270,7 @@ Render
 
 ### 6A.1 战略价值
 
-- **First-run wow**：Demo Day 前 60 秒让评委看到产品"魔法"
+- **First-run wow**：Demo Day 前 60 秒让现场观众看到产品"魔法"
 - **激活杠杆**：trial-to-paid 转化从"我得录 80 客户"障碍解放
 - **Glass-Box 布道**：让 Glass-Box 不是抽象概念，而是第一次接触就感受到的（每一次 AI 映射 / 归一都进 Audit）
 - **Demo 戏剧性**：Live Deadline Genesis 动画 + Penalty Radar 数字实时跳动
@@ -1588,14 +1627,14 @@ You can undo this import for the next 24 hours.
 ### 6A.11 Onboarding AI Agent（★ 差异化亮点 · P1-27）
 
 > 这是 §6A.6 传统 4 步向导的**平行入口**：不是替代，而是增加一个"对话式 Setup"选项。
-> 战略意图：精准对标 LangGenius/Dify 评审员 taste — 让他们一眼看到"这是 AI Agent 在正确场景的正确姿势"。
+> 战略意图：精准对标 LangGenius/产品受众 taste — 让他们一眼看到"这是 AI Agent 在正确场景的正确姿势"。
 
 #### 6A.11.1 为什么必须做
 
 三条理由：
 
 1. **没人真正读 Onboarding 文档。** 传统空态页 `[+ Import] [+ Add client]` 的转化窗口只有 30 秒；CPA 走不过来就会关掉标签页。
-2. **Dify 评审员会精准 GET 到这个。** LangGenius 每天在做 LLM orchestration；看到"主动发问 → 按客户回答 → 调用工具链 → 产出具体价值"的 Agent，共鸣一次爆炸。
+2. **产品受众会精准 GET 到这个。** LangGenius 每天在做 LLM orchestration；看到"主动发问 → 按客户回答 → 调用工具链 → 产出具体价值"的 Agent，共鸣一次爆炸。
 3. **它复用你已经做过的 90% 管线**（Migration Mapper + Normalizer + Rule Engine + Live Genesis），增量成本 ≤ 2 人天。
 
 #### 6A.11.2 对话流程（脚本示例）
@@ -1689,16 +1728,16 @@ STATE: handoff               ← "Open Dashboard" / "Walk through triage"
 #### 6A.11.6 为什么是 P1 而非 P0
 
 - Story S2 验收不依赖它（4 步向导已能兑现 AC）
-- 但它是 **集训评分的关键差异化资产**——Dify 评审员第一次看到产品时，Agent 对话框的视觉冲击远强于传统向导
+- 但它是 **集训评分的关键差异化资产**——产品受众第一次看到产品时，Agent 对话框的视觉冲击远强于传统向导
 - 即使 P1 延后，前期也应做 **Agent 的对话脚本设计 + 视觉稿**，让 Pitch 可以展示 "this is what our onboarding will look like"
 
 #### 6A.11.7 Demo 钩子
 
 Demo Day 现场可以这样演：
-1. 评审员报一个数字 "42"，演示者在 Agent 对话里输入 `I have 42 clients`
-2. 评审员报一个州 "Texas"，演示者输入 `mostly in TX`
+1. 现场观众报一个数字 "42"，演示者在 Agent 对话里输入 `I have 42 clients`
+2. 现场观众报一个州 "Texas"，演示者输入 `mostly in TX`
 3. 演示者粘贴预置的 42 行 TX Excel
-4. **Agent 实时回应 + Live Genesis** → 评审员第一次看到"AI 读懂我说的话并产出一个能用的产品"
+4. **Agent 实时回应 + Live Genesis** → 现场观众第一次看到"AI 读懂我说的话并产出一个能用的产品"
 
 这是纯叙事层面的 jaw-drop moment。
 
@@ -1902,8 +1941,8 @@ ClientReadinessResponse
 Demo Day 关键 10 秒：
 
 1. 演示者在 Obligation Detail 点 `[Send readiness check to client]`
-2. 邀请**评审员拿出手机扫屏幕上的二维码**（实际是 magic link）
-3. 评审员打开页面 → 勾第一个框 → 点 Submit
+2. 邀请**现场观众拿出手机扫屏幕上的二维码**（实际是 magic link）
+3. 现场观众打开页面 → 勾第一个框 → 点 Submit
 4. Demo 屏幕上 CPA Dashboard 的 `readiness` 徽章**实时变色**（`Waiting` → `Ready`）
 5. Audit Log 新行出现："Client responded from mobile 2s ago"
 
@@ -1943,7 +1982,7 @@ Demo Day 关键 10 秒：
 **DueDateHQ 的独家承诺**：
 > "Every AI sentence, every deadline, every rule change is packaged into a single signed ZIP you can hand over to the IRS, a client, or your insurance adjuster in 90 seconds."
 
-这是 Dify 评审员会立刻 GET 的——**"AI for regulated industries"的正确姿势**。
+这是 产品受众会立刻 GET 的——**"AI for regulated industries"的正确姿势**。
 
 ### 6C.2 使用场景
 
@@ -2212,7 +2251,7 @@ when the IRS comes. We make it a button. That's why CPAs will
 switch."
 ```
 
-**为什么这一段无敌：** 这不是功能 demo，这是**产品哲学 demo**。评审官前面记住了"游戏化顶栏的 $31,400"，结尾记住了"审计级的信任"——两个记忆点串成了"从赚钱到保命"的完整叙事。
+**为什么这一段无敌：** 这不是功能 demo，这是**产品哲学 demo**。现场观众前面记住了"游戏化顶栏的 $31,400"，结尾记住了"审计级的信任"——两个记忆点串成了"从赚钱到保命"的完整叙事。
 
 ### 6C.11 工程估算
 
@@ -2223,11 +2262,415 @@ switch."
 - README.pdf 生成 + signature.sig 签名 ≈ **0.3 人天**
 - S3 pre-signed URL + 邮件 + 过期管理 ≈ **0.2 人天**
 
-**合计 ≈ 2 人天。** 对"AI for regulated industries"叙事的 ROI 极高，Dify 评审员精准击中。
+**合计 ≈ 2 人天。** 对"AI for regulated industries"叙事的 ROI 极高，产品受众精准击中。
 
 ### 6C.12 数据模型（已在 §8.1 声明）
 
 见 §8.1 `AuditEvidencePackage` 表。
+
+---
+
+## 6D. 亮点模块 — Rules-as-Asset™（规则资产层）
+
+> ★ 差异化亮点（P1-29 ~ P1-35）· **对 File In Time 的核心打击面**。
+> 源文档：`docs/DueDateHQ-MVP-Deadline-Rules-Plan.md`。本章节把 Plan 的 10 大段内外翻译为产品：**对内按 Plan 严格建模，对外翻译为 CPA 5 秒能读懂的 4 类信任信号。**
+
+### 6D.1 核心原则：Rules 是独立资产，产品只是第一消费方
+
+**三条产品纪律（Plan §1、§9 对齐）：**
+
+1. **Rule 独立于 UI**：规则资产可以被 DueDateHQ 消费，也可以被未来的 API、合规日历订阅服务、其他应用消费。UI 只负责呈现，不反向污染规则定义。
+2. **Rule 独立于任何页面**：不存在"某页面的规则"，只存在"规则被哪些页面消费"。这是未来 Phase 3 `Compliance Calendar API` 能卖出去的前提。
+3. **Rule 资产的"权威"问题永远有独立答案**：问一条 obligation "你的 due_date 依据什么规则"，数据层必须能回答 **base rule + active overlays**，不能靠 audit log 反推。
+
+**外显承诺（Landing page / 产品文案一致口径）：**
+
+> Rule Library is public, cross-verified, and versioned.
+> Every rule clicks back to its primary official source, a verbatim quote, and the date a human ops member last verified it.
+> This is not an AI-generated calendar. This is a rule asset.
+
+### 6D.2 Exception Rule Overlay（解决 Pulse 直接覆盖的审计歧义）
+
+**背景（为什么必要）：**
+
+v2.0 之前 Pulse 实现是"直接 UPDATE `obligation_instance.current_due_date`"。这导致以下歧义：
+
+1. **归属歧义**：`rule_id` 指 base rule，但 `current_due_date` 是 Pulse 改的 → 数据层无法直答"这条 obligation 当前适用哪些规则组合"
+2. **层级歧义**：多个 Pulse 叠加时，所有 evidence_link 都挂着但只有最后一个生效 → CPA 看不懂
+3. **版本歧义**：base rule 从 v3.2 升到 v3.3，原 exception overlay 是否仍适用？数据层无答案
+4. **撤销歧义**：IRS 撤销某条公告，过了 24h Revert 窗口后只能手动改 → 规则资产层丢失"撤销"事实
+5. **可审计歧义**：规则资产层无法独立回答"这条 obligation 适用哪些规则"，必须跨表反推
+
+**新模型（base + overlays，Plan §2.3 对齐）：**
+
+```
+┌──────────────────────────┐          ┌─────────────────────────────┐
+│  ObligationRule (base)   │          │  ExceptionRule (overlay)    │
+│  federal_1040_v3.2       │          │  irs_ca_storm_relief_2026   │
+│  due: Apr 15             │          │  override: Apr 15 → Oct 15  │
+└──────────┬───────────────┘          │  effective: Apr 22–Oct 15   │
+           │                          │  status: verified | applied │
+           │                          │         | retracted         │
+           │                          └────────────┬────────────────┘
+           │                                       │
+           ▼                                       │
+┌──────────────────────────────────────────────────┴────────────┐
+│  ObligationInstance                                            │
+│  base_due_date = rule.compute()                                │
+│  current_due_date = apply(base_due_date, active_overlays)     │← 派生
+│  overlays: [exception_rule_id_1, exception_rule_id_2, ...]    │
+└────────────────────────────────────────────────────────────────┘
+```
+
+- `current_due_date` 变为**派生字段**：每次读取时重算（或写时缓存）
+- `ExceptionRule.status` 变化 → 系统自动重算所有挂钩 obligation 的 `current_due_date`
+- IRS 撤销公告 → `status = 'retracted'`，全系统自动回退 + 邮件通知
+- Base rule 升级 → 系统标 `overlays[].needs_reevaluation = true`，ops 人工复核后重新启用
+
+**对外呈现 · Obligation Detail 新 Tab 'Deadline History'：**
+
+```
+Acme LLC · Form 1040 · 2026
+
+Current due:   Oct 15, 2026                           
+Original due:  Apr 15, 2026
+─────────────────────────────────────────────────────
+Timeline
+
+  Jan 01  ●  Deadline generated
+              Rule: Federal 1040 v3.2 · due Apr 15
+              [Source: IRS Pub 509]
+
+  Apr 22  ●  🌩 Relief overlay applied
+              IRS CA Storm Relief (LA County)
+              Extends due date: Apr 15 → Oct 15
+              [Source: irs.gov/newsroom/...]
+              [Verified by DueDateHQ ops · Apr 22 09:15]
+
+  (future)   If this relief is revoked, your deadline automatically
+             reverts to Apr 15, and you'll be notified.
+─────────────────────────────────────────────────────
+Active overlays: 1
+```
+
+**打 FIT 的点**：FIT 里 deadline 被改了你不知道；我们把"改"拆成 **base + 可溯可撤的 overlay**，CPA 第一次感受到"日历是有历史的，不是被黑盒改写的"。
+
+### 6D.3 Source Registry + `/watch` 公开页
+
+**内部（Plan §7.3 第一重防漏）：**
+
+`RuleSource` 表登记每一个必看官方来源：
+
+```
+RuleSource
+  id, jurisdiction (federal|CA|NY|TX|FL|FL|WA|MA|...),
+  name (e.g. "IRS Newsroom"),
+  url, source_type (newsroom|publication|due_dates|emergency_relief|fema),
+  cadence (30m|60m|120m|daily|weekly|quarterly),
+  owner_user_id,                     -- 哪位 ops 负责
+  priority (critical|high|medium|low), -- 低容错优先级
+  is_early_warning (bool),           -- FEMA 等只作预警不生规则
+  last_checked_at, last_change_detected_at,
+  health_status (healthy|degraded|failing|paused),
+  consecutive_failures, next_check_at,
+  created_at, updated_at
+```
+
+**首发注册（MVP）：** Federal 5 源 + 6 州各 1–2 源 + FEMA = 约 15 条。
+
+**对外三层呈现：**
+
+**层 1 · Dashboard 顶栏 Freshness Badge（每次登录可见）：**
+
+```
+🟢 All watchers healthy · 15 sources · Last check 18 min ago
+```
+
+hover 展开：
+
+```
+Today 14:32
+  ✓ IRS Newsroom         healthy · checked 2 min ago
+  ✓ IRS Disaster Relief  healthy · checked 18 min ago
+  ✓ CA FTB News          healthy · checked 22 min ago
+  ...
+  🟡 FEMA declarations   early-warning only · daily
+
+This week
+  Scheduled: base rule recheck · Friday 9am PT
+
+Upcoming
+  Quarterly full audit · 2026-06-15 by ops team
+```
+
+**层 2 · 公开 `/watch` Landing Page（SEO + 获客）：**
+
+```
+What We Watch For You
+
+IRS sources                                  Cadence    Health
+  ✓ IRS Newsroom                             30 min     🟢
+  ✓ IRS Disaster Relief                      60 min     🟢
+  ✓ IRS Publication 509                      weekly     🟢
+  ✓ IRS Form 7004 Instructions               quarterly  🟢
+  ✓ FEMA Emergency Declarations              daily      🟡 early warning
+
+State sources (6 of 50 jurisdictions)
+  ✓ California FTB · News + Emergency        60 min     🟢
+  ✓ California FTB · Due Dates page          weekly     🟢
+  ✓ New York DTF · Tax News                  60 min     🟢
+  ...
+
+Not yet covered: 44 states
+  If you have clients in these states, you can request priority 
+  coverage. We don't pretend to watch what we don't watch.
+  [Request a state ▾]
+
+How we verify
+  Each rule is cross-verified against 2+ official sources,
+  reviewed by a human ops team, and re-audited quarterly.
+  [Learn more about our verification process →]
+```
+
+**层 3 · 公开 `/rules` Landing Page（见 §6D.7）**。
+
+**打 FIT 的点**：FIT 你**不知道它盯着什么**（桌面软件，年度维护包）。我们三连透明：**盯什么 + 多频繁 + 现在健康吗**。
+
+### 6D.4 Rule Quality Badge（Plan §7.3 第二重防漏）
+
+每条 verified rule 内嵌 6 项 checklist，在 UI 上以可展开徽章呈现：
+
+```
+[ ✓ Quality Tier 6/6 ]  ← 绿色，verified rules 的默认状态
+  ↓ click / hover
+  ☑ Filing vs payment distinguished
+  ☑ Extension rule handled (7004: extends filing, not payment)
+  ☑ Calendar / fiscal year applicability specified
+  ☑ Weekend / holiday rollover handled
+  ☑ Cross-verified with 2+ official sources
+  ☑ Disaster exception channel established
+  
+  Verified by DueDateHQ ops · Apr 12, 2026
+  Next review: Jul 12, 2026
+```
+
+**未满 6/6 时：**
+
+- `[ ⚠ Quality Tier 5/6 — Applicability review needed ]` 黄色
+- 点开告知 CPA"此规则需你根据客户情况判断是否适用"
+- 对应 Plan §2.4 的 `requires_applicability_review` 标记
+
+**数据层：** `ObligationRule.checklist_json`（6 字段 boolean + 注解）。
+
+**打 FIT 的点**：FIT 给你一条 deadline，你不知道它有没有想过 "extension 延 filing 但不延 payment" 这种致命陷阱。我们把 ops 验证时的 6 个关键问题**显式答给 CPA 看**。
+
+### 6D.5 Cross-source Verification（Plan §7.3 第三重防漏）
+
+每条 verified rule 必须在 2+ 官方来源间交叉验证。UI 呈现：
+
+**一致情况：**
+
+```
+Source: CA FTB Pub 3556 · [ ✓ Verified across 2 sources ] · verified Apr 12
+         ↓ click
+Primary:         CA FTB Publication 3556
+                 ftb.ca.gov/forms/misc/3556.html
+Cross-verified:  CA Revenue & Taxation Code §17941
+                 leginfo.legislature.ca.gov/faces/codes_displaySection...
+
+Both sources agree: "The $800 minimum franchise tax is due 
+by the 15th day of the 4th month after formation."
+
+Last cross-check: Apr 12, 2026 by DueDateHQ ops
+```
+
+**冲突情况（透明警示）：**
+
+```
+Source: NY PTET (Form IT-204-IP) · [ ⚠ Sources disagree · under review ]
+         ↓ click
+  Source A says: Due March 15
+  Source B says: Due April 15
+  
+  DueDateHQ action: Not yet published to rule library.
+  Please verify with your NY DTF contact before relying on this 
+  deadline. We will update this page once sources align.
+```
+
+**数据层：** `RuleCrossVerification` 表（见 §8.1）。
+
+**打 FIT 的点**：FIT 单源录入（有啥用啥）。我们双源交叉，**冲突不静默**，直接告诉 CPA 哪里有不确定性——这是**把不确定性也透明化**，CPA 会非常尊重。
+
+### 6D.6 Verification Rhythm（Plan §6 对外翻译）
+
+**内部配置：** `OpsCadence` 表定义"谁在什么频率做什么"。
+
+**对外三层呈现：**
+
+**层 A · `/security` 页新增一段**
+
+```
+Our Verification Rhythm
+
+Every 30 minutes     IRS + CA FTB Newsroom scraping
+Every 60 minutes     NY / TX / FL / WA / MA tax news
+Daily                FEMA declarations (early warning only)
+Weekly (Fri 9am PT)  Base rule re-check against source
+Quarterly            Full rule pack audit by ops team
+Before tax season    Comprehensive manual review + double sign-off
+
+Last quarterly audit:  Jan 15, 2026
+Next quarterly audit:  Jun 15, 2026
+```
+
+**层 B · 每周一 8am Weekly Rhythm Report 邮件（所有 firm owner）**
+
+```
+Subject: [DueDateHQ] Weekly rule freshness · all systems green
+
+Hi Sarah,
+
+Here's what happened this week on the rules you depend on:
+
+  ✓ 32 base rules re-checked · 0 changes needed
+  ✓ 15 regulatory sources monitored · all healthy
+  🌩 3 active relief overlays · all still in effect
+  ⚠ 0 rules needing your applicability review
+
+Coming up: quarterly full audit on Jun 15, 2026.
+
+Trust, but verify. Open any rule to see its sources:
+  [Open Rule Library →]
+```
+
+**层 C · Dashboard Freshness Badge（§6D.3 已述）**
+
+**打 FIT 的点**：FIT 一年更新一次规则包，**中间 365 天你不知道它在不在活着**。我们每天 30 分钟扫一次、每周一份 report、每季度一次全量、每税季前一轮复核——**节奏公开书面承诺**。从 "trust me" 变成 "trust the rhythm"。
+
+### 6D.7 Rule Library（`/rules` 公开 + 内部管理双面）
+
+**公开面 · `/rules` Landing Page（SEO + 获客）：**
+
+```
+Rule Library · Federal + 6 states · 32 verified rules
+
+Federal (11 rules)
+  ✓ 1040 · Individual filing        Pub 509 · Verified Apr 12
+  ✓ 1065 · Partnership filing       Pub 509 · Verified Apr 12
+  ✓ 1120-S · S-Corp filing          Pub 509 · Verified Apr 12
+  ✓ Form 7004 · Extension           Instructions · Verified Apr 12
+  ...
+
+California (8 rules)
+  ✓ Form 3522 · LLC Annual Tax      FTB Pub 3556 · Verified Apr 12
+  ✓ PTET Election (Form 3804)       FTB · ⚠ Annual update due
+  ...
+
+🌩 Active Relief Overlays (3)
+  IRS CA storm relief (LA County) · Apr 22–Oct 15 · 12 clients protected
+
+44 states not yet fully covered · [Request priority coverage]
+
+[Download as PDF]  [Download as JSON (API-ready)]  [Subscribe to changes]
+```
+
+**内部面 · Ops Dashboard（仅 DueDateHQ ops 团队，非 firm）：**
+
+- Coverage Matrix：`jurisdiction × entity_type × tax_type` 网格，绿格已覆盖、灰格待办
+- Source Health Dashboard：逐源 last_checked_at / consecutive_failures / next_check_at
+- Rule Lifecycle：`candidate → verified → deprecated`，双人 sign-off 队列
+- Cadence Audit：本周 / 本月 / 本季应执行的 review 任务清单
+- Exception Rule 人工发布队列（Pulse approved → exception rule draft → 审核 → 发布）
+
+### 6D.8 ObligationRule 字段补齐（Plan §4 / §10 对齐）
+
+在现有 `ObligationRule` 基础上补充 5 字段（见 §8.1 完整定义）：
+
+| 字段 | 值域 | CPA-facing 呈现 |
+|---|---|---|
+| `status` | `candidate / verified / deprecated` | 🌀 Draft / ✓ (默认无标) / 🕳 Retired |
+| `rule_tier` | `basic / annual_rolling / exception / applicability_review` | 颜色 + 图标系统（🌩 / ⚠ / 无）|
+| `applicable_year` | int | Source 字符串里带 `(2026 edition)` |
+| `source_title` | string | "IRS Publication 509" 全名显示 |
+| `requires_applicability_review` | bool | `⚠ Verify eligibility before relying on this deadline` 文案 |
+| `checklist_json` | jsonb | 展开 6 项 Quality Badge（§6D.4）|
+| `risk_level` | `low / med / high` | 高风险要求双人 sign-off；UI 不直接显示 |
+
+### 6D.9 规则表述白 / 黑名单（Plan §8 字面对齐）
+
+内部 style guide + LLM prompt 硬约束：
+
+**允许的措辞：**
+- "Source indicates..."
+- "This may affect..."
+- "Verify eligibility before relying on this deadline."
+- "Human verified on 2026-04-12."
+
+**禁止的措辞（LLM 生成 + UI 文案均不允许）：**
+- "Your client qualifies for this relief."
+- "No penalty will apply."
+- "This deadline is guaranteed."
+- "AI confirmed this rule."
+
+已接入 §6.2.1 Glass-Box AI 的输出后处理正则校验。
+
+### 6D.10 对 File In Time 的 8 维打击总表
+
+| 维度 | File In Time | DueDateHQ v2.0 + Rules-as-Asset |
+|---|---|---|
+| 规则交付形式 | 年度维护包（一次性）| **持续流水** + 每条 freshness 信号 |
+| 规则来源可见性 | 不透明（黑箱）| `/rules` Library + `/watch` 公开 |
+| 规则变更留痕 | 无 | 每 rule 有 version + ExceptionRule overlay history |
+| Exception 处理 | 没这个概念 | **独立实体** · 可溯可撤 · 撤销时自动重算 |
+| 验证质量证明 | "请相信我们" | **Quality Badge 6 项** + **Cross-verified chip** |
+| 错误责任 | 用户自负 | E&O $2M + Verification Rhythm 书面承诺 |
+| 活跃度信号 | 桌面应用 · 没法知道 | Freshness Badge 24/7 + Weekly Rhythm Report 邮件 |
+| **Native 体验 / 平台覆盖** | **Windows exe only · 本地 + 网络盘 · 无移动端** | **Web + PWA（全平台 Add-to-Dock + Home-Screen）+ Web Push + macOS Menu Bar Widget（Phase 2）**（§7.8）|
+
+### 6D.11 验收标准（T-RA-*）
+
+| Test ID | 描述 | 预期 |
+|---|---|---|
+| T-RA-01 | 新建一条 rule 并填 6 项 checklist | Quality Badge 显示 6/6 绿色 |
+| T-RA-02 | 两条 source 冲突录入 | Rule 状态 `needs_review`，不进入 published pool |
+| T-RA-03 | Pulse approved → 发布为 ExceptionRule | Obligation Detail 的 Deadline History 显示 overlay |
+| T-RA-04 | ExceptionRule 撤销 (`status='retracted'`) | 所有关联 obligation 的 `current_due_date` 重算 + 邮件推送 |
+| T-RA-05 | Base rule v3.2 → v3.3 升级 | 关联 overlay 标 `needs_reevaluation`，ops 复核前不自动启用 |
+| T-RA-06 | Source Registry 某源连续失败 3 次 | Dashboard Freshness Badge 变 🟡 + Sentry 告警 |
+| T-RA-07 | `/rules` 页未登录访问 | 200 OK，不含客户数据 |
+| T-RA-08 | `/watch` 页公开访问 | 200 OK，显示 15 源 + 最近 check 时间 |
+| T-RA-09 | Weekly Rhythm Report 发送 | 周一 8am 所有 Owner 收到 |
+| T-RA-10 | 规则包 JSON 导出 | Schema 完整，可被外部系统消费 |
+| T-RA-11 | "禁止措辞"出现在 AI 输出 | 正则拦截 + refusal fallback |
+| T-RA-12 | 2 个 overlay 叠加同一 obligation | Deadline History 显示两条 + current_due_date 为最新 overlay 的值 |
+
+### 6D.12 工程估算
+
+| 子项 | 工时 |
+|---|---|
+| 数据库迁移（3 新表 + ObligationRule 5 字段）| 0.5 人天 |
+| Overlay 计算引擎（base + overlays → current_due_date）| 1 人天 |
+| Source Registry 管理 + Freshness Badge | 0.6 人天 |
+| Rule Quality Badge + Cross-verified chip | 0.5 人天 |
+| Deadline History tab | 0.4 人天 |
+| `/rules` 公开页 + PDF/JSON 导出 | 0.8 人天 |
+| `/watch` 公开页 + 健康监控 worker | 0.5 人天 |
+| Weekly Rhythm Report 邮件 | 0.3 人天 |
+| Pulse → ExceptionRule 适配层（改 §6.3.3 Batch Apply）| 0.4 人天 |
+| 验收测试用例 | 0.3 人天 |
+
+**合计 ≈ 5.3 人天。** 推荐作为 P1 第一批优先级落地，或集训后 Phase 1 前两周集中处理。
+
+### 6D.13 为什么是 P1 而非 P0
+
+- Plan 的严格要求（Source Registry + Checklist + Cross-source）是**中长期 ops 管理** 基础设施，不是 MVP Demo 必需
+- P0 只做 Rule Engine v1（6 辖区 × 32 规则手工录入）已能通 Story S1–S3 的 AC
+- 但 **P1 必须做 Rules-as-Asset**——这是 v2.0 相对 File In Time 最核心的护城河
+- 短期 Demo 可在 `/rules` 和 `/watch` 以**静态页面 + mock 数据**展示承诺；真实后端监控 + overlay 引擎可在 Phase 1 4 周内落地
+
+### 6D.14 数据模型索引（§8.1 / §8.2 已声明）
+
+见 §8.1 `RuleSource / ExceptionRule / RuleCrossVerification / OpsCadence` 表 + ObligationRule 5 新字段。
 
 ---
 
@@ -2437,7 +2880,7 @@ CPA 可手动覆盖某条 obligation 的 `estimated_tax_liability`，写 `audit_
 
 #### 7.5.6 ★ Scoreboard 游戏化规格（集训记忆钩子）
 
-> 所有组都会做美元敞口数字。本节规定**怎么把它做成"赌场分数面板级别"**的视觉体验——让评审官 2 小时看 20 组 Demo 后仍记得这一个数字。
+> 所有组都会做美元敞口数字。本节规定**怎么把它做成"赌场分数面板级别"**的视觉体验——让现场观众 2 小时看 20 组 Demo 后仍记得这一个数字。
 
 ##### 7.5.6.1 顶栏 Hero 视觉规格
 
@@ -2559,7 +3002,7 @@ Total this week: −$15,150
 ##### 7.5.6.9 Demo Day 的使用（与 §15.3 联动）
 
 - **90–180s 段** Live Genesis：粒子飞入是"入场秀"
-- **Mark Filed 那一下**：-$4,200 + 绿色 pulse = 评审官脑内的"多巴胺瞬间"
+- **Mark Filed 那一下**：-$4,200 + 绿色 pulse = 现场观众脑内的"多巴胺瞬间"
 - **Pulse Batch Apply 那一下**：-$6,500 + 琥珀脉冲 = "这个工具是有魔力的"感知
 
 这三下组合在一起，就是"赌场分数面板"的叙事闭环。
@@ -2608,6 +3051,167 @@ Total this week: −$15,150
 | `G then C` | 跳 Clients | 全局 |
 | `G then A` | 跳 Alerts | 全局 |
 
+### 7.8 PWA 壳 与 Native Wrappers（交付形态补强）
+
+> 本节明确 DueDateHQ 的"跨设备交付战略"：**坚持 Web-first，但通过 PWA + macOS Menu Bar Widget 两层壳补齐 native 体验**，在保留 cloud-native 优势的同时消除"浏览器 tab 迷失 / 推送不及时 / 与桌面体验脱节"的痛点。
+> 
+> 战略意图：在对 File In Time 的竞品叙事里补足最后一维 —— **"FIT 是一个桌面软件；DueDateHQ 是一个无处不在的税务副驾"**。
+
+#### 7.8.1 PWA 壳（P1-36 · 必做）
+
+##### 能力清单
+
+| 能力 | 覆盖平台 | 用户体感 |
+|---|---|---|
+| **Add to Dock / Home Screen** | macOS Safari+Chrome · Windows Chrome+Edge · iOS 16.4+ · Android | Dock / Home 独立图标；点击启动独立窗口，无浏览器 UI；开机自启（macOS） |
+| **独立窗口** | 所有桌面平台 | 不再被隐藏在 100 个 Chrome tab 里；alt-tab 可见 |
+| **Web Push Notification** | macOS 16+ / Windows 10+ / iOS 16.4+ / Android | IRS Pulse / Overdue / Client Readiness 实时推送到设备通知中心 |
+| **Offline Cache（最近数据）** | 所有平台 | 飞机上或地铁隧道仍能看 Dashboard 近 24h 数据，恢复网络自动同步 |
+| **App Badge（未读数）** | macOS Dock / Android Home | Dock 图标右上角红点显示 overdue count（等同原生 iMessage）|
+| **Install Prompt 时机** | Chrome/Edge 自动触发 | 用户第 3 次访问 + 完成 Migration 后 inline 提示 `Add DueDateHQ to your Dock?` |
+
+##### 工程交付（≈ 0.5 人天）
+
+```
+public/manifest.json          # PWA manifest（name / icons / theme_color / display=standalone）
+public/sw.js                  # Service worker (Workbox 生成)
+src/lib/push/
+  subscribe.ts                # 前端请求权限 + 注册 subscription
+  register-sw.ts              # SW 注册 + 更新提示
+  handlers/                   # Push / fetch / sync handlers
+app/api/push/
+  subscribe/route.ts          # 后端存储 PushSubscription
+  send/route.ts               # VAPID 签名 + 推送分发
+```
+
+依赖：VAPID 密钥对（环境变量）+ `web-push` NPM 库 + Workbox CLI。无额外 infra。
+
+##### 推送事件映射
+
+| 事件类型 | 推送条件 | 默认开关 | Setting 路径 |
+|---|---|---|---|
+| **Pulse Applied** | 新 Pulse approved 且匹配到受影响客户 | **强制开启**（法定级）| — |
+| **Obligation Overdue** | 任意 obligation 超过 due_date 未 Filed | 默认开 | Settings → Notifications |
+| **Client Readiness Response** | 客户在 Readiness Portal 提交 | 默认开 | Settings → Notifications |
+| **Quiet Hours 尊重** | 23:00–06:00 本地时间 | 默认开 | Settings → Notifications |
+| **Weekly Rhythm Report** | 周一 8am（同 §6D.6）| 默认关 | Settings → Notifications |
+
+##### 验收（T-PWA-*）
+
+| Test ID | 描述 | 预期 |
+|---|---|---|
+| T-PWA-01 | macOS Safari 首访 | 地址栏右侧显示 Install 图标 |
+| T-PWA-02 | 点 Install → 出现 Dock 图标 | 独立窗口启动，无 Safari UI |
+| T-PWA-03 | iPhone 添加到主屏 | 全屏启动 + Status bar 匹配主题 |
+| T-PWA-04 | Pulse Approved | 桌面 + 手机 2s 内 native 通知到达 |
+| T-PWA-05 | 离线打开 app | Dashboard 加载缓存数据 + 顶部 banner `Offline — showing last sync 2h ago` |
+| T-PWA-06 | 点击通知跳转 | 唤起独立窗口 + 直接跳 Pulse Detail |
+| T-PWA-07 | Quiet Hours 内推送 | 仅系统 silent 投递，不弹声响 |
+| T-PWA-08 | 一用户多设备订阅 | 同一事件在所有设备送达（去重按 endpoint）|
+| T-PWA-09 | 取消订阅 | 从 Settings 关闭 + 立即失效 |
+
+##### 与 Penalty Radar Scoreboard 联动
+
+PWA 壳内**Dock / Home 图标的 App Badge 实时显示 overdue count**：
+
+```
+Dock icon:  [DueDateHQ] · 🔴 3   ← 3 overdue obligations
+```
+
+这是 FIT 绝对做不到的 OS 级集成信号。
+
+#### 7.8.2 macOS Menu Bar Widget（P1-37 · Phase 2 · 可选差异化）
+
+##### 目标与边界
+
+**只做一件事**：在 macOS menu bar 永久显示一行：
+
+```
+◎ DueDateHQ · $31,400 at risk · 3 overdue
+```
+
+- 点击 → 小下拉面板（最紧急 3 条 + `Open Dashboard`）
+- 不复制主 App 功能，是 **Web 的"瞭望塔"**
+- 与 §7.5.6 Penalty Scoreboard 游戏化叙事一致 —— "你的分数 24/7 在 menu bar 跳动"
+
+##### 技术选型
+
+| 方案 | 权衡 |
+|---|---|
+| **Tauri + Rust**（推荐）| 体积 ≈ 1 MB，跨平台未来可扩 Windows；学习曲线低 |
+| SwiftUI menu bar app | 体积 ≈ 400 KB，macOS 最 native；但只覆盖 macOS |
+| Electron menubar | 体积 > 100 MB，不考虑 |
+
+Phase 2 先做 Tauri 版（跨平台 future-proof），SwiftUI 视 GTM 需求决定。
+
+##### 工程估算（≈ 2 人天）
+
+- Tauri 壳 + menu bar icon + 下拉面板 UI ≈ 1 人天
+- 轮询 API `/api/v1/me/radar-summary`（30s 间隔）+ auth token 同步 ≈ 0.5 人天
+- 点击唤起浏览器主 Dashboard（深链 URL handler）≈ 0.3 人天
+- 签名 + 打包 + Sparkle auto-update ≈ 0.2 人天
+
+##### 验收（T-MB-*）
+
+| Test ID | 描述 | 预期 |
+|---|---|---|
+| T-MB-01 | 安装后首次启动 | menu bar 图标 + 默认 hover 提示 `Sign in to DueDateHQ` |
+| T-MB-02 | 登录后 30s 内 | menu bar 显示 `$ at risk + overdue count` |
+| T-MB-03 | Dashboard 改变状态 | 30s 内 menu bar 数字同步 |
+| T-MB-04 | 点击 menu bar | 下拉面板显示 top 3 urgent + `Open Dashboard` |
+| T-MB-05 | 点击 `Open Dashboard` | 唤起浏览器/PWA 到 Dashboard，已登录态 |
+| T-MB-06 | 退出账号 | menu bar 降级为 `DueDateHQ · Sign in` |
+| T-MB-07 | 自动更新 | Sparkle 检查到新版 → 无感更新 |
+
+#### 7.8.3 明确不做的 Native 选项
+
+| 选项 | 不做原因 |
+|---|---|
+| ❌ 独立 Electron 桌面 App | PWA 已覆盖 95% 体验，Electron 启动慢、内存大、双份维护 |
+| ❌ 独立 iOS / Android Native App | PWA + Web Push 已够；native 复制功能违背 web-first 战略 |
+| ❌ 独立 Windows exe | File In Time 就是走这条路，**主动走它的弱点无意义** |
+| ❌ iPad 专用 App | 响应式 Web + PWA 已覆盖 95% |
+| ❌ iOS / Android Share Extension | 产品决策排除（不进入 Phase 计划）|
+
+#### 7.8.4 Landing Page `/get` 展示页
+
+公开页说明三层交付形态（P1-36 / P1-37），配截图：
+
+```
+Get DueDateHQ on every device
+
+🌐 Browser       Any modern browser        Sign in →
+
+📱 Add to Home   iOS / Android             Instructions →
+                 (PWA · offline + push)
+
+💻 Add to Dock   macOS / Windows           Instructions →
+                 (PWA · independent window + badge)
+
+🎛 Menu Bar     macOS only (Phase 2)       Download →
+                 ($ at risk glanceable 24/7)
+
+All devices stay in sync. One account, one source of truth.
+No app stores, no installers — DueDateHQ runs everywhere 
+the web does.
+```
+
+#### 7.8.5 对 File In Time 的 Native 差异化叙事
+
+| 维度 | File In Time | DueDateHQ (Web + PWA + Menu Bar) |
+|---|---|---|
+| 安装摩擦 | 下载 .exe → 安装 → 授权 → 重启 | Web 访问即用；Add to Dock 2 下完成 |
+| 平台覆盖 | Windows only | macOS / Windows / iOS / Android / Linux 全覆盖 |
+| 跨设备 | ❌ | ✓ Push / Badge / 同步状态 |
+| 更新方式 | 下发 CD / 年度维护包 | Web 秒级、PWA 自动更新、Menu Bar Sparkle 后台更新 |
+| OS 集成信号 | 仅 Windows tray | macOS Dock badge + menu bar + iOS Home + Android badge |
+| 离线能力 | 本机数据库 | Service Worker 缓存近 24h 数据 |
+| 通知 | 无（桌面软件靠弹窗）| 系统级 push 跨设备到达 |
+
+这条与 §6D.10 的 Rules-as-Asset 打击表合并，就是对 FIT 的**双面合围叙事**：
+- **规则资产层**（§6D.10）：从"年度维护包"打到"持续 freshness 流水"
+- **交付形态层**（本节）：从"Windows 独占"打到"无处不在"
+
 ---
 
 ## 8. 数据模型
@@ -2653,26 +3257,95 @@ Client
   assignee_id, email, notes,
   migration_batch_id                 -- nullable, for Revert
 
-ObligationRule
+ObligationRule (base rule · Rules-as-Asset 核心实体 · §6D)
   id, jurisdiction, entity_applicability[], tax_type, form_name,
   due_date_logic (DSL/json),
   extension_policy, is_payment, is_filing,
-  penalty_formula,                   -- NEW: for Penalty Radar
+  penalty_formula,                   -- for Penalty Radar
   default_tip,                       -- fallback for Deadline Tip
-  source_url, statutory_ref, verbatim_quote,
+  source_url, source_title,          -- NEW (§6D.8): 官方文档全名
+  statutory_ref, verbatim_quote,
   verified_by, verified_at, next_review_at,
-  version, coverage_status (full/skeleton/manual), active
+  version,
+  coverage_status (full|skeleton|manual), active,
+  -- Rules-as-Asset 新增字段 (§6D.8) ---
+  status (candidate|verified|deprecated),         -- AI candidate vs human verified
+  rule_tier (basic|annual_rolling|exception|applicability_review),
+  applicable_year,                                -- 规则级年份（2026 edition 等）
+  requires_applicability_review (bool),           -- Plan §2.4
+  risk_level (low|med|high),                      -- 高风险要求双人 sign-off
+  checklist_json                                  -- §6D.4 六项 Quality Badge:
+                                                  -- { filing_payment_distinguished,
+                                                  --   extension_handled,
+                                                  --   calendar_fiscal_specified,
+                                                  --   holiday_rollover_handled,
+                                                  --   cross_verified,
+                                                  --   exception_channel }
+
+RuleSource (Source Registry · P1-31 · §6D.3)
+  id, jurisdiction,
+  name,                              -- e.g. "IRS Newsroom"
+  url, source_type,                  -- newsroom|publication|due_dates|emergency_relief|fema
+  cadence,                           -- 30m|60m|120m|daily|weekly|quarterly
+  owner_user_id,                     -- 负责 ops 成员
+  priority,                          -- critical|high|medium|low（低容错优先级）
+  is_early_warning (bool),           -- FEMA 等只作预警不生规则
+  last_checked_at, last_change_detected_at,
+  health_status,                     -- healthy|degraded|failing|paused
+  consecutive_failures, next_check_at,
+  created_at, updated_at
+
+ExceptionRule (overlay 独立实体 · P1-30 · §6D.2)
+  id, source_pulse_id,               -- 来源 Pulse（可为空：手工录入 exception）
+  jurisdiction, counties[],
+  affected_forms[], affected_entity_types[],
+  override_type,                     -- extend_due_date|waive_penalty|...
+  override_value_json,               -- { new_due_date, reason, ... }
+  effective_from, effective_until,
+  status,                            -- candidate|verified|applied|retracted|superseded
+  verified_by, verified_at,
+  retracted_at, retracted_reason,
+  superseded_by_exception_id,        -- 被哪条新 exception 覆盖
+  source_url, verbatim_quote,
+  needs_reevaluation (bool),         -- base rule 升级时自动置 true
+  created_at
+
+ObligationExceptionApplication (obligation × exception 多对多 · §6D.2)
+  obligation_instance_id, exception_rule_id,
+  applied_at, applied_by_user_id,
+  reverted_at, reverted_by_user_id,
+  PRIMARY KEY (obligation_instance_id, exception_rule_id)
+
+RuleCrossVerification (双源交叉引用 · P1-33 · §6D.5)
+  id, rule_id,
+  primary_source_url, primary_source_title, primary_quote,
+  cross_source_url, cross_source_title, cross_quote,
+  agreement_status,                  -- agree|disagree|partial
+  checked_at, checked_by_user_id,
+  notes
+
+OpsCadence (节奏表 · P1-35 · §6D.6)
+  id, event_type,                    -- source_check|base_rule_recheck|quarterly_audit|pre_season_review|rhythm_report_email
+  frequency,                         -- cron / iso interval
+  owner_user_id,
+  last_run_at, next_run_at,
+  last_status (success|failed|skipped),
+  last_report_s3_key,                -- 每次 run 的报告存档
+  active
 
 ObligationInstance
   id, firm_id, client_id, rule_id, rule_version,
   tax_year, period,
-  original_due_date, current_due_date,
+  original_due_date,                  -- rule 生成时的原始日期（固定不变）
+  base_due_date,                      -- NEW (§6D.2): base rule 当前计算值（rule 升版会变）
+  current_due_date,                   -- 派生字段 = base + apply(active overlays)
   filing_due_date, payment_due_date,
   status, readiness, extension_decision,
   estimated_tax_due, estimated_exposure_usd,
   assignee_id, notes,
   migration_batch_id,
   created_at, updated_at, last_changed_by
+  -- overlays 通过 ObligationExceptionApplication 多对多获取
 
 EvidenceLink (核心 provenance 表)
   id, 
@@ -2744,6 +3417,18 @@ MigrationError
 
 IcsToken  -- P1-11
   id, firm_id, token, created_at, revoked_at
+
+PushSubscription (Web Push · P1-36 · §7.8.1)
+  id, user_id, firm_id,
+  endpoint,                           -- 浏览器 push service endpoint (VAPID)
+  keys_p256dh, keys_auth,             -- 加密公钥 + auth secret
+  device_label,                       -- "Sarah's MacBook" / "iPhone 15" (user-editable)
+  platform,                           -- macos|windows|ios|android|linux|unknown
+  user_agent_hash,                    -- 去重 + 识别设备但不存原始 UA
+  created_at, last_used_at, 
+  last_delivery_success_at,
+  consecutive_failures,               -- 410/404 累计时自动 revoke
+  revoked_at, revoke_reason
 
 LlmLog
   id, firm_id, user_id, prompt_version, input_tokens, output_tokens,
@@ -2846,6 +3531,34 @@ CREATE INDEX idx_obligation_firm_week_exposure ON obligation_instance
   (firm_id, date_trunc('week', current_due_date), estimated_exposure_usd)
   WHERE status NOT IN ('filed','paid','not_applicable');
 -- 支持 "This week $X at risk" 聚合 + Sparkline 8 周趋势
+
+-- Rules-as-Asset (P1-29 ~ P1-35 · §6D)
+CREATE INDEX idx_rule_status_tier ON obligation_rule (status, rule_tier, jurisdiction);
+CREATE INDEX idx_rule_next_review ON obligation_rule (next_review_at) 
+  WHERE status = 'verified';
+CREATE INDEX idx_rule_source_juris_priority ON rule_source (jurisdiction, priority, health_status);
+CREATE INDEX idx_rule_source_next_check ON rule_source (next_check_at) 
+  WHERE health_status IN ('healthy','degraded');
+
+-- ExceptionRule overlay engine
+CREATE INDEX idx_exception_status_effective ON exception_rule (status, effective_from, effective_until) 
+  WHERE status IN ('applied','verified');
+CREATE INDEX idx_exception_jurisdiction_forms ON exception_rule 
+  USING GIN (jurisdiction, affected_forms);  -- 匹配引擎用
+CREATE INDEX idx_obligation_exception_oblig ON obligation_exception_application 
+  (obligation_instance_id) WHERE reverted_at IS NULL;
+CREATE INDEX idx_obligation_exception_exc ON obligation_exception_application 
+  (exception_rule_id) WHERE reverted_at IS NULL;
+
+-- Cross-verification
+CREATE INDEX idx_cross_verification_rule ON rule_cross_verification (rule_id, agreement_status);
+
+-- Ops cadence scheduler
+CREATE INDEX idx_ops_cadence_next_run ON ops_cadence (next_run_at) WHERE active = true;
+
+-- Web Push subscription (P1-36 · §7.8.1)
+CREATE INDEX idx_push_user_active ON push_subscription (user_id) WHERE revoked_at IS NULL;
+CREATE UNIQUE INDEX idx_push_endpoint ON push_subscription (endpoint) WHERE revoked_at IS NULL;
 ```
 
 ---
@@ -2949,7 +3662,7 @@ App (after login)
  │       ├─ Documents (P1)
  │       └─ [Export PDF]                     ← Client PDF Report
  ├─ Alerts (Regulatory Pulse)                ← Story S3
- ├─ Rules (read-only + penalty_formula)
+ ├─ Rules (read-only + Quality Badge + Cross-verified)  ← §5.7 + §6D
  ├─ Team Workload (P1 · Owner/Manager only)  ← §3.6.7
  ├─ Audit Log (P1 · Firm-wide, Owner/Manager)← §3.6 + §13.2
  ├─ Reports (P1)
@@ -2978,6 +3691,25 @@ App (after login)
 一级导航 P0（Solo）：Dashboard / Workboard / Clients / Alerts / Rules / Settings — 6 项。
 一级导航 P1（Team）增加：**Team Workload**（Owner/Manager 可见）+ **Audit Log**（Owner/Manager 可见）= 最多 8 项。
 不建 Intake / Review / Extension 独立导航——它们是 obligation 的状态层。
+
+**公开页面（无需登录，SEO + 获客 + Rules-as-Asset 公开承诺）：**
+
+```
+/                           产品营销首页
+/rules                      Rule Library 公开浏览（§5.7A + §6D.7）
+/rules/federal              Federal 11 rules 细分页（SEO）
+/rules/california           州级 rules（SEO 长尾，每州一页）
+/rules/[state]              ...
+/watch                      Source Registry 公开页（§5.7B + §6D.3）
+/pulse                      Regulatory Pulse 实时 feed（SEO）
+/security                   WISP 摘要 + 数据边界 + Verification Rhythm（§6D.6）+ E&O 声明
+/pricing                    定价页
+/evidence                   Glass-Box 纪律说明页
+/get                        交付形态（Browser / Add-to-Home / Add-to-Dock / Menu Bar · §7.8.4）
+/privacy                    隐私政策（含 Web Push 7 类事件声明 · §13.7A）
+```
+
+Public 页面相互 cross-link，形成 Rule Library → Source Registry → Verification Rhythm 的信任叙事闭环。
 
 ---
 
@@ -3128,6 +3860,75 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 - 数据准确度 SLA：99.5% verified rules 准确（基于 ops QA）
 - 错误赔偿条款：若因 DueDateHQ rule 错误导致客户罚款，最高赔偿当月订阅费 × 10 + 实际罚款（见 TOS）
 
+### 13.5 Verification Rhythm 承诺（与 §6D.6 对齐）
+
+对外公开的规则运营节奏承诺（`/security` 页公示）：
+
+| 频率 | 动作 | 对象 | 责任 |
+|---|---|---|---|
+| **Every 30 min** | IRS + CA FTB Newsroom scraping | Source Registry 高优先级源 | 自动 worker |
+| **Every 60 min** | NY / TX / FL / WA / MA tax news | 中优先级源 | 自动 worker |
+| **Daily** | FEMA declarations | Early warning（不生规则）| 自动 worker |
+| **Weekly (Fri 9am PT)** | Base rule re-check vs. source | 所有 verified base rules | ops 人工 |
+| **Quarterly** | Full rule pack audit | 全 rule library | ops 团队全员 |
+| **Before tax season** | Comprehensive manual review | 全 verified rules + 双人 sign-off | 高风险 rule 双人 |
+
+所有 run 结果存档 `OpsCadence.last_report_s3_key`，可在 `/security` 页滚动显示最近 3 次 run 时间 + 结果。
+
+### 13.6 明确不能承诺的事（Plan §7.5 对齐）
+
+**DueDateHQ 不承诺：**
+
+- ❌ 零遗漏
+- ❌ 全自动实时更新
+- ❌ 覆盖所有特殊适用条件
+- ❌ AI 已确认税务结论
+- ❌ 代替 CPA 做税务判断
+
+**DueDateHQ 承诺：**
+
+- ✅ 核心规则来自官方来源
+- ✅ 每条 verified rule 经过人工验证（高风险双人）
+- ✅ 高风险官方来源有持续健康监控
+- ✅ 临时变更先进入复核，不静默发布为 verified rule
+- ✅ 规则变更保留完整 audit（谁何时依据哪个来源）
+- ✅ Verification Rhythm 可公开审阅
+
+这套承诺写入 `/security` 页、TOS、Marketing FAQ 一致口径。
+
+### 13.7A Web Push 与 PWA 隐私（P1-36 · §7.8.1）
+
+- **订阅许可**：首次登录**不主动弹权限**；在用户首次创建 Pulse Banner 后、或主动访问 Settings → Notifications 时才请求
+- **VAPID 密钥**：服务端私钥存 env var（不进仓库），定期轮换
+- **endpoint 存储**：`PushSubscription.endpoint` 视同 PII，TLS + at-rest 加密（同客户 PII 级别）
+- **去识别化**：`user_agent_hash` 使用 SHA-256 + salt，保留设备级识别但不可反推原始 UA
+- **清理策略**：`consecutive_failures ≥ 3`（410/404 返回）自动 revoke，防止死链堆积
+- **用户控制**：Settings → Notifications 页显示所有订阅设备（device_label / platform / last_used_at），支持单台注销
+- **跨租户隔离**：同一 endpoint 可在多 Firm 订阅（`UserFirmMembership` 多对多），推送时按 `firm_id + user_id` 查订阅
+- **Quiet Hours**：默认尊重设备本地 23:00–06:00 静默，push payload 带 `TTL` 和 `urgency=low`，关键事件（Pulse 法定级）用 `urgency=high` 覆盖
+- **合规声明**：`/security` 页明确 "We do not send marketing push notifications"；`/privacy` 页列出可能推送的 7 类事件
+- **Web Push 不训练任何 AI**：同全站 AI 策略一致
+
+### 13.7B Menu Bar Widget 安全（P1-37 · §7.8.2）
+
+- **Auth token**：menu bar 使用 Keychain 存储 OAuth refresh token；macOS Keychain ACL 限定本 app bundle
+- **最小权限 API**：menu bar 只调 `/api/v1/me/radar-summary` 和 `/api/v1/me/top-urgent`；**不调任何写 API**
+- **Auto-update**：Sparkle 框架 + HTTPS + EdDSA 签名验证（防中间人替换 app）
+- **Notarization**：Apple notarization 发布（macOS Gatekeeper 兼容）
+- **离线缓存**：最近一次 summary 最多缓存 24h + 标记"Offline · last sync 2h ago"，超时灰化显示
+
+### 13.7 官方来源黑名单（Plan §3 对齐）
+
+以下来源**不可作为 verified rule 的最终依据**：
+
+- CPA 博客
+- 新闻媒体转述
+- Reddit / 论坛
+- AI 直接回答（未经人工复核）
+- 未注明官方出处的第三方 calendar
+
+上述来源可**作为发现线索**（进入 Source Registry 的 `source_type=discovery_hint`，仅触发 ops review 入口），但不会自动产出 rule。
+
 ---
 
 ## 14. 路线图（不是工期承诺）
@@ -3138,18 +3939,24 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 
 - P0 全部（§4.1）
 - P1 的 Pulse + Ask + Client PDF + ICS（优先度由工程实际决定）
+- **P1-36 PWA 壳**（manifest + service worker + Web Push · §7.8.1）— 低成本高 ROI，强烈建议提前到 Phase 0 尾部
 
 ### 14.2 Phase 1 (Weeks 5–12)
 
+- Rules-as-Asset 全量落地（P1-29 ~ P1-35 · §6D）
 - 50 州规则 full coverage（逐州签字 + 发布）
-- 团队多席位 + assignee 完整 RBAC
+- 团队多席位 + assignee 完整 RBAC（P1-18 ~ P1-25 · §3.6）
 - Stripe 计费
 - Google / Outlook 日历**单向写入**（不做双向同步）
 - Zapier App
 - 公共 SEO tracker 扩到全 50 州
+- Client Readiness Portal（P1-26 · §6B）
+- Onboarding AI Agent（P1-27 · §6A.11）
 
 ### 14.3 Phase 2 (Q3 2026)
 
+- **P1-37 macOS Menu Bar Widget**（§7.8.2）— 游戏化 Scoreboard 24/7 常驻，Tauri ≈ 2 人天
+- Audit-Ready Evidence Package（P1-28 · §6C）
 - QBO / TaxDome / Drake 深度集成
 - 文档链接引用（不做存储）
 - 电子签名对接
@@ -3160,9 +3967,11 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 ### 14.4 Phase 3 (Q4 2026+)
 
 - Compliance Calendar API（卖给 TaxDome / Karbon 做 intelligence 层）
-- 移动端
+- Windows Menu Bar / System Tray Widget（视 GTM 需求决定）
 - AI Agent 可生成客户沟通全套（CPA 只审批）
 - 成为"官方 deadline intelligence layer"事实标准
+
+> **Native App 不在路线图**。如 GTM 数据出现真实需求（≥ 30% 用户请求独立原生 app），再评估。目前 PWA + Menu Bar Widget 覆盖 ≥ 95% native 体验（§7.8.3）。
 
 ---
 
@@ -3326,7 +4135,7 @@ PDF 本身由 §7.6 Client PDF Report 引擎生成，含 DueDateHQ 水印 + foot
 
 ### 15.3 Demo Script（6 分钟 · 集训优化版）
 
-> 关键原则：**前 30 秒决定评审官是否记住你。** 其他组会从"产品介绍"开场；你要从"真实用户口证"开场。
+> 关键原则：**前 30 秒决定现场观众是否记住你。** 其他组会从"产品介绍"开场；你要从"真实用户口证"开场。
 
 #### 15.3.1 开场 · 0–30s · 真实 CPA 口证（致命武器）
 
@@ -3353,17 +4162,46 @@ understands how a small CPA practice works."
 Presenter: "That's Sarah. Here's what she used."
 ```
 
-**为什么这 30 秒击败 59 组竞品：** 所有其他组开场都是"我做了一个产品"。你开场是"一个真实用户说'这是第一个真正懂我的工具'"。评审官前 30 秒就在心里给你打了 top 5。
+**为什么这 30 秒击败 59 组竞品：** 所有其他组开场都是"我做了一个产品"。你开场是"一个真实用户说'这是第一个真正懂我的工具'"。现场观众前 30 秒就在心里给你打了 top 5。
 
-#### 15.3.2 30–90s · Onboarding AI Agent + Live Genesis（评审员亲手互动）
+##### 15.3.1b 录屏后 5 秒 · PWA "Add to Dock" 收尾（Native 体验第一击）
 
-**把评审员拉进来：**
+```
+[Cut 回到现场演示屏幕 · macOS Safari 打开 app.duedatehq.com]
+[地址栏右侧 Install 图标闪烁]
+
+Presenter: "Sarah uses this from her Mac. She added it to her Dock 
+like this —"
+
+[Click Install 图标 → 1 秒对话框 → 点 'Install']
+[Dock 上瞬间出现 DueDateHQ 图标 + Dock badge 显示 🔴 3 overdue]
+
+Presenter: "— and now it lives in her Dock like any other app. 
+Independent window, system notifications, red badge when things 
+go overdue. No app stores, no installers."
+
+[Switch to 主屏幕 · 手机 (另一设备) 也显示 Home Screen 图标]
+
+Presenter: "Same app, same account, on her phone. When an IRS 
+bulletin comes in —"
+
+[触发一条 push · 手机屏幕弹出 iOS 通知 "IRS: CA storm relief 
+affects 12 of your clients"]
+
+Presenter: "— she knows in 2 seconds, not 2 days."
+```
+
+**为什么加这 5 秒：** 现场观众前 30 秒听了真实用户口证建立**信任**，这 5 秒给他们看到"这不是一个 Chrome tab 里的原型 — 它住在你的 Dock 里"——瞬间建立**产品真实感**，让后续所有功能演示更"像一个真 app"。
+
+#### 15.3.2 30–90s · Onboarding AI Agent + Live Genesis（现场观众亲手互动）
+
+**把现场观众拉进来：**
 
 ```
 Presenter: "Before I demo, can I get a number from you? How many 
 clients does a typical small CPA firm handle?"
 
-(wait for GM to respond, e.g., "around 50")
+(wait for audience to respond, e.g., "around 50")
 
 Presenter: "Perfect. Watch this."
 
@@ -3373,7 +4211,7 @@ Agent: "Hi! Are you solo or in a small firm?"
 Presenter types: "solo"
 
 Agent: "Roughly how many active clients?"
-Presenter types: "around 50"  ← 评审员报的数字
+Presenter types: "around 50"  ← 现场观众报的数字
 
 Agent: "Got it. Most of them US-based?"
 Presenter types: "all in CA, mostly LLCs"
@@ -3395,7 +4233,7 @@ Presenter: "go"
 ```
 
 **记忆钩子：**
-- 评审员报的"50"数字真的变成了 Agent 对话内容 → **"这不是演过 100 遍的脚本"**
+- 现场观众报的"50"数字真的变成了 Agent 对话内容 → **"这不是演过 100 遍的脚本"**
 - Live Genesis 粒子动画是整场 Demo 唯一的视觉高潮
 
 #### 15.3.3 90–180s · Monday Triage（游戏化 Penalty 顶栏）
@@ -3446,7 +4284,7 @@ spends 20 minutes calling. Instead, watch."
 
 Presenter: "Can anyone in the room pull out your phone?"
 
-(GM or audience member scans QR)
+(audience member scans QR)
 
 [Audience member's phone shows the Client Portal page — 免登录]
 
@@ -3464,7 +4302,7 @@ in the audit log."
 [Scroll Audit Log → 新行 "Client responded from mobile 2s ago"]
 ```
 
-**记忆钩子：** 跨设备实时同步是**全场最震撼的 5 秒**。评审员会把这个画面带回去说给同事听。
+**记忆钩子：** 跨设备实时同步是**全场最震撼的 5 秒**。现场观众会把这个画面带回去说给同事听。
 
 #### 15.3.5 240–300s · Regulatory Pulse（主动性叙事）
 
@@ -3527,7 +4365,7 @@ Presenter: "Thank you."
 | 现场 Wi-Fi 挂 | 4K 录屏版 + 解说音轨准备好，无缝切换 |
 | LLM API 超时 | Onboarding Agent 所有回复预录缓存，本地 sw fallback |
 | Live Genesis 卡顿 | CSS 动画独立运行，不依赖 API |
-| 评审员不愿扫码 | 预准备一部备用手机，自己扫 |
+| 现场观众不愿扫码 | 预准备一部备用手机，自己扫 |
 | Pulse 现场抓不到 | 1 条 approved Demo Pulse 预置，脚本化触发 |
 | 邮件到达延迟 | 现场放提前录好的邮件通知音效 + 手机屏录 |
 
@@ -3592,7 +4430,7 @@ Presenter: "Thank you."
 | 粘贴含 SSN | 中 | 中 | 前端正则拦截 + 该列强制 IGNORE + 红色警示 |
 | 数据泄露 | 低 | 高 | 最小必要数据 + TLS + 加密 + WISP + E&O 保险 |
 | IRC §7216 违规 | 低 | 高 | PII 占位符化 + 只发 schema + ZDR endpoint |
-| 评委 Demo 60s 内记不住 | 中 | 致命 | Clarity Engine 叙事 + Live Genesis 戏剧性 + Penalty $ 数字 |
+| 现场观众 Demo 60s 内记不住 | 中 | 致命 | Clarity Engine 叙事 + Live Genesis 戏剧性 + Penalty $ 数字 |
 | 同期竞品同质 | 高 | 中 | Glass-Box 纪律（others won't）+ Migration Copilot 端到端 + 50 州骨架 |
 | Pulse Apply 把不该改的改了 | 低 | 高 | 默认 `requires_human_review` + Ops Approve + 24h Undo + Audit |
 
@@ -3689,7 +4527,7 @@ Presenter: "Thank you."
 
 ---
 
-## 19. 对评委的一句话
+## 19. 产品一句话定位
 
 > **Most tax tools make CPAs earn their value. DueDateHQ earns it back in the first 10 minutes.**
 >
