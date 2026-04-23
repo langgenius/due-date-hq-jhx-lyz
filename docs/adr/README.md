@@ -28,3 +28,7 @@ proposed | accepted | deprecated | superseded by #NNN
 6. 0006-vite-plus-oxlint-oxfmt.md
 7. 0007-pnpm-catalog-version-lock.md
 8. 0008-route-prefix-rpc-vs-api.md
+
+## Accepted
+
+- 0009-lingui-for-i18n.md — Lingui v5 for Phase 2 i18n (supersedes `05 §11` react-i18next line)
