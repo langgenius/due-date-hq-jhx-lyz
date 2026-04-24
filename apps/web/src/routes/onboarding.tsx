@@ -5,7 +5,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { Loader2Icon, SparklesIcon } from 'lucide-react'
 
 import { derivePracticeName, slugifyPracticeName } from '@duedatehq/core/practice-name'
-import { Button } from '@/components/ui/button'
+import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Card,
   CardContent,
@@ -13,9 +13,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+} from '@duedatehq/ui/components/ui/card'
+import { Field, FieldDescription, FieldGroup, FieldLabel } from '@duedatehq/ui/components/ui/field'
+import { Input } from '@duedatehq/ui/components/ui/input'
 import { authClient, type AuthUser } from '@/lib/auth'
 
 const MIN_NAME_LENGTH = 2

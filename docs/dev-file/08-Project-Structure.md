@@ -17,7 +17,7 @@ duedatehq/
 │   ├── core/                      # 纯领域逻辑（penalty / priority / overlay / date-logic）
 │   ├── ai/                        # RAG + prompts + guard + LLM gateway
 │   ├── auth/                      # better-auth 配置（Organization + AC）
-│   ├── ui/                        # 可选：跨 app 共享 UI primitives（Phase 0 可暂放 apps/web）
+│   ├── ui/                        # 跨 app 共享 UI primitives、brand token、cn()
 │   └── typescript-config/         # 共享 tsconfig（base / vite / worker / library）
 ├── docs/
 │   ├── PRD/                       # 产品文档（不变）
@@ -56,7 +56,7 @@ rm -rf apps/* packages/*
 # 3. 把 packages/typescript-config 改名 @duedatehq/typescript-config
 #    并派生出 base / library / vite / worker 四个 variant（见 §3.2）
 
-# 4. 手工新增我们的 apps/server · apps/web · packages/{contracts,db,core,ai,auth}
+# 4. 手工新增我们的 apps/server · apps/web · packages/{ui,contracts,db,core,ai,auth}
 # 5. 按 §01.4 把 pnpm-workspace.yaml 的 catalog 逐字对齐 01-Tech-Stack.md 的权威快照
 # 6. vp install      # 底层仍然调 pnpm
 # 7. vp check        # 全绿即脚手架完成
@@ -68,7 +68,7 @@ rm -rf apps/* packages/*
 
 ### 3.1 Just-in-Time (JIT) 内部包
 
-`packages/contracts / db / core / ai / auth` **不构建**：
+`packages/ui / contracts / db / core / ai / auth` **不构建**：
 
 - 直接导出 `.ts` 源码（`package.json` 的 `exports` 指向 `src/`\*）
 - 消费端（`apps/server` 的 wrangler esbuild · `apps/web` 的 Vite+ / Rolldown）自行转译
@@ -191,9 +191,28 @@ apps/server/
 
 - `src/routes/*`：RR7 data mode 路由
 - `src/features/*`：跨页面业务组合
-- `src/components/{ui,primitives,patterns}`：三层 UI
+- `src/components/{primitives,patterns}`：app 专属 UI 组合；基础 UI 从 `@duedatehq/ui/components/ui/*` 引入
 - `src/lib/rpc.ts`：唯一 oRPC client 实例
 - `src/lib/auth.ts`：better-auth client
+
+### 4.2.1 `packages/ui`
+
+```
+packages/ui/
+├── components.json                 # shadcn base-vega 配置
+├── src/
+│   ├── components/ui/              # Button / Input / Dialog / Table 等基础 primitives
+│   ├── lib/utils.ts                # cn()
+│   └── styles/preset.css           # Tailwind token preset；不 import tailwindcss
+└── package.json
+```
+
+**约束：**
+
+- 只放纯 UI、品牌视觉、基础 layout primitive 和稳定 design token
+- 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属 dashboard/workboard/settings 组件
+- app 通过 `@duedatehq/ui/components/ui/*`、`@duedatehq/ui/lib/utils`、`@duedatehq/ui/styles/preset.css` 消费
+- 每个消费 app 的 Tailwind 入口必须 `@source` 扫描 `packages/ui/src`，否则 shadcn 组件内部 utilities 不会生成
 
 ### 4.3 `packages/contracts`
 
@@ -589,22 +608,22 @@ vp run -r dev
 
 ## 13. PRD 映射速查
 
-| PRD §               | 工程落地                                                                          |
-| ------------------- | --------------------------------------------------------------------------------- |
-| §1.3 设计原则       | `docs/Design/DueDateHQ-DESIGN.md` + `apps/web/styles/globals.css`                 |
-| §3 Story S1/S2/S3   | E2E 10 条核心路径（§07.5.4）                                                      |
-| §3.6 Team           | `packages/auth` Organization plugin                                               |
-| §5.1 Dashboard      | `apps/web/src/routes/dashboard.tsx` + `features/dashboard/`                       |
-| §5.2 Workboard      | `apps/web/src/routes/workboard.tsx` + `features/workboard/`                       |
-| §5.5 Evidence Mode  | `apps/web/components/patterns/evidence-drawer/` + `packages/db/evidence-writer`   |
-| §6.1 Rule Engine    | `packages/db/seed/rules.ts` + `packages/core/date-logic`                          |
-| §6.2 Glass-Box      | `packages/ai/guard.ts`                                                            |
-| §6.3 Pulse          | `apps/server/src/jobs/pulse/*` + `procedures/pulse/*`                             |
-| §6.4 Smart Priority | `packages/core/priority/`                                                         |
-| §6A Migration       | `apps/server/src/procedures/migration/*` + `features/migration/`                  |
-| §7.5 Penalty Radar  | `packages/core/penalty/` + `features/dashboard/penalty-radar-hero.tsx`            |
-| §7.8.1 PWA          | Phase 0 不实现（见 `05 §8`）；Phase 2 Tauri menu bar widget 统一覆盖 install 体验 |
-| §13 Security        | `06-Security-Compliance.md` + `packages/auth`                                     |
+| PRD §               | 工程落地                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| §1.3 设计原则       | `docs/Design/DueDateHQ-DESIGN.md` + `packages/ui/src/styles/preset.css`             |
+| §3 Story S1/S2/S3   | E2E 10 条核心路径（§07.5.4）                                                        |
+| §3.6 Team           | `packages/auth` Organization plugin                                                 |
+| §5.1 Dashboard      | `apps/web/src/routes/dashboard.tsx` + `features/dashboard/`                         |
+| §5.2 Workboard      | `apps/web/src/routes/workboard.tsx` + `features/workboard/`                         |
+| §5.5 Evidence Mode  | `apps/web/src/components/patterns/evidence-drawer/` + `packages/db/evidence-writer` |
+| §6.1 Rule Engine    | `packages/db/seed/rules.ts` + `packages/core/date-logic`                            |
+| §6.2 Glass-Box      | `packages/ai/guard.ts`                                                              |
+| §6.3 Pulse          | `apps/server/src/jobs/pulse/*` + `procedures/pulse/*`                               |
+| §6.4 Smart Priority | `packages/core/priority/`                                                           |
+| §6A Migration       | `apps/server/src/procedures/migration/*` + `features/migration/`                    |
+| §7.5 Penalty Radar  | `packages/core/penalty/` + `features/dashboard/penalty-radar-hero.tsx`              |
+| §7.8.1 PWA          | Phase 0 不实现（见 `05 §8`）；Phase 2 Tauri menu bar widget 统一覆盖 install 体验   |
+| §13 Security        | `06-Security-Compliance.md` + `packages/auth`                                       |
 
 ---
 

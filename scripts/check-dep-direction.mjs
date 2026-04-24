@@ -17,6 +17,7 @@ const ROOT = new URL('..', import.meta.url).pathname
 
 const ALLOWED = {
   'packages/core': new Set([]),
+  'packages/ui': new Set([]),
   'packages/contracts': new Set(['zod', '@orpc/contract']),
   'packages/db': new Set(['@duedatehq/core']),
   'packages/ai': new Set(['@duedatehq/core']),

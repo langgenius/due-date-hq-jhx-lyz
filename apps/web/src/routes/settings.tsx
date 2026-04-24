@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 
-import { Checkbox } from '@/components/ui/checkbox'
+import { Checkbox } from '@duedatehq/ui/components/ui/checkbox'
 import {
   Field,
   FieldContent,
@@ -10,9 +10,15 @@ import {
   FieldLegend,
   FieldSet,
   FieldTitle,
-} from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+} from '@duedatehq/ui/components/ui/field'
+import { Input } from '@duedatehq/ui/components/ui/input'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@duedatehq/ui/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -20,8 +26,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
+} from '@duedatehq/ui/components/ui/select'
+import { Switch } from '@duedatehq/ui/components/ui/switch'
 
 export function SettingsRoute() {
   const { t } = useLingui()

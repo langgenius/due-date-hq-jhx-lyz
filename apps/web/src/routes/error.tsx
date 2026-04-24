@@ -2,8 +2,8 @@ import { isRouteErrorResponse, Link, useRouteError } from 'react-router'
 import { AlertTriangleIcon } from 'lucide-react'
 import { Trans, useLingui } from '@lingui/react/macro'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
+import { Button } from '@duedatehq/ui/components/ui/button'
 import { translateServerErrorCode } from '@/lib/i18n-error'
 
 function useErrorMessage(error: unknown): string {

@@ -13,7 +13,7 @@ import {
   SettingsIcon,
 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,13 +25,13 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
+} from '@duedatehq/ui/components/ui/dropdown-menu'
+import { Separator } from '@duedatehq/ui/components/ui/separator'
+import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { useLocaleSwitch } from '@/i18n/provider'
 import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from '@/i18n/locales'
 import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
-import { cn } from '@/lib/utils'
+import { cn } from '@duedatehq/ui/lib/utils'
 
 function useNavItems() {
   const { t } = useLingui()

@@ -10,7 +10,7 @@ import {
   SparklesIcon,
 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Card,
   CardContent,
@@ -18,10 +18,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+} from '@duedatehq/ui/components/ui/card'
+import { Separator } from '@duedatehq/ui/components/ui/separator'
 import { signInWithGoogle } from '@/lib/auth'
-import { cn } from '@/lib/utils'
+import { cn } from '@duedatehq/ui/lib/utils'
 
 function useHighlights() {
   const { t } = useLingui()

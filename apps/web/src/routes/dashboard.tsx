@@ -7,9 +7,9 @@ import {
 } from 'lucide-react'
 import { Trans, useLingui } from '@lingui/react/macro'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
+import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Card,
   CardAction,
@@ -18,9 +18,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
+} from '@duedatehq/ui/components/ui/card'
+import { Separator } from '@duedatehq/ui/components/ui/separator'
+import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -28,8 +28,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from '@duedatehq/ui/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
 import { formatCents, formatDate } from '@/lib/utils'
 
 function usePulseItems() {

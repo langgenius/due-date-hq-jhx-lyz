@@ -16,10 +16,10 @@
     "i18n:compile": "lingui compile"
   },
   "dependencies": {
-    "@base-ui/react": "catalog:",
     "@duedatehq/auth": "workspace:*",
     "@duedatehq/contracts": "workspace:*",
     "@duedatehq/core": "workspace:*",
+    "@duedatehq/ui": "workspace:*",
     "@hookform/resolvers": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
@@ -31,8 +31,6 @@
     "@tanstack/react-virtual": "catalog:",
     "better-auth": "catalog:",
     "canvas-confetti": "catalog:",
-    "class-variance-authority": "catalog:",
-    "clsx": "catalog:",
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "nuqs": "catalog:",
@@ -43,7 +41,6 @@
     "react-odometerjs": "catalog:",
     "react-router": "catalog:",
     "sonner": "catalog:",
-    "tailwind-merge": "catalog:",
     "tw-animate-css": "catalog:",
     "zod": "catalog:",
     "zustand": "catalog:"

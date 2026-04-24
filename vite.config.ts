@@ -169,7 +169,7 @@ export default defineConfig({
       '**/node_modules/**',
       '**/coverage/**',
       '**/drizzle/**',
-      'apps/web/src/components/ui/**',
+      'packages/ui/src/components/ui/**',
       '.agents/**',
       '.claude/**',
       '.cursor/**',

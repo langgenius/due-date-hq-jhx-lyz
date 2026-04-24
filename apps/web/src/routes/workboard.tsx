@@ -1,8 +1,8 @@
 import { FilterIcon, SearchIcon } from 'lucide-react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Card,
   CardAction,
@@ -10,8 +10,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+} from '@duedatehq/ui/components/ui/card'
+import { Input } from '@duedatehq/ui/components/ui/input'
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@duedatehq/ui/components/ui/table'
 import { formatCents, formatDate } from '@/lib/utils'
 
 const obligations = [

@@ -13,7 +13,6 @@
 apps/web/
 ├── index.html
 ├── vite.config.ts
-├── components.json           ← shadcn 配置（"style": "base-vega"）
 ├── public/
 │   ├── icons/                ← 应用图标（favicon / 站点 logo）
 │   └── fonts/                ← Inter / Geist Mono 本地托管（可选）
@@ -37,7 +36,6 @@ apps/web/
 │   │   ├── workboard/
 │   │   └── evidence/
 │   ├── components/
-│   │   ├── ui/               ← shadcn 生成（base-vega）
 │   │   ├── primitives/       ← 自建（TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown）
 │   │   └── patterns/         ← 跨 feature 的复合组件（evidence-drawer / cmdk / confirm-dialog）
 │   ├── lib/
@@ -47,10 +45,16 @@ apps/web/
 │   │   └── env.ts            ← import.meta.env 类型收敛
 │   ├── hooks/
 │   ├── styles/
-│   │   ├── globals.css       ← Tailwind @theme + 设计系统 token（§05.5）
-│   │   └── fonts.css
+│   │   └── globals.css       ← Tailwind 编译入口 + @duedatehq/ui preset + @source
 │   └── (sw.ts 已移除 · PWA 降级见本文档头部说明)
 └── tsconfig.json             ← extends @repo/typescript-config/vite.json
+
+packages/ui/
+├── components.json           ← shadcn 配置（"style": "base-vega"）
+└── src/
+    ├── components/ui/        ← shadcn/Base UI primitives，不含业务
+    ├── lib/utils.ts          ← cn()
+    └── styles/preset.css     ← design tokens / @theme inline / base layer
 ```
 
 ---
@@ -123,7 +127,7 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 ### 5.1 shadcn Base UI 配置
 
-`apps/web/components.json`（**约束**）：
+`packages/ui/components.json`（**约束**）：
 
 ```json
 {
@@ -133,30 +137,39 @@ export const orpc = createTanstackQueryUtils(rpc)
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/styles/globals.css",
+    "css": "src/styles/preset.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
+    "components": "@duedatehq/ui/components",
+    "utils": "@duedatehq/ui/lib/utils",
+    "ui": "@duedatehq/ui/components/ui",
+    "lib": "@duedatehq/ui/lib",
+    "hooks": "@duedatehq/ui/hooks"
   }
 }
 ```
 
 ### 5.2 Tailwind 4 `@theme`（对齐 DESIGN.md）
 
-`src/styles/globals.css` 的 token 必须**与 DESIGN.md §2 完全一致**：
+`packages/ui/src/styles/preset.css` 的 token 必须**与 DESIGN.md §2 完全一致**。`apps/web/src/styles/globals.css` 只是消费端 Tailwind 编译入口：
 
 ```css
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import '@duedatehq/ui/styles/preset.css';
 
+@source '../../../../packages/ui/src';
+```
+
+`@source` 必须存在；它让 Tailwind 扫描 shared UI 源码并生成 shadcn 组件内部使用的 `bg-popover`、`text-card-foreground`、`border-input`、`data-open:animate-in` 等 utilities。
+
+共享 preset 文件形态：
+
+```css
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -210,15 +223,15 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 ### 5.3 组件分层
 
-| 层                        | 位置        | 职责                                                                                                                 |
-| ------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
-| `components/ui/*`         | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务                                                                  |
-| `components/primitives/*` | 手写        | DueDateHQ 专有组件：TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown |
-| `components/patterns/*`   | 手写        | 跨 feature 复用：evidence-drawer / cmdk / confirm-dialog                                                             |
-| `features/<slice>/*`      | 手写        | 特性内部：migration-wizard / pulse-banner / workboard-table                                                          |
-| `routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                                       |
+| 层                                     | 位置        | 职责                                                                                                                 |
+| -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| `@duedatehq/ui/components/ui/*`        | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务、路由、session、oRPC                                             |
+| `apps/web/src/components/primitives/*` | 手写        | DueDateHQ 专有组件：TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown |
+| `apps/web/src/components/patterns/*`   | 手写        | 跨 feature 复用：evidence-drawer / cmdk / confirm-dialog                                                             |
+| `apps/web/src/features/<slice>/*`      | 手写        | 特性内部：migration-wizard / pulse-banner / workboard-table                                                          |
+| `apps/web/src/routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                                       |
 
-**依赖方向**：`routes → features → patterns → primitives → ui → lib`。下层**不得**依赖上层。
+**依赖方向**：`routes → features → patterns → primitives → @duedatehq/ui → @duedatehq/ui/lib`。下层**不得**依赖上层。`packages/ui` 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属业务组件。
 
 ---
 
@@ -320,7 +333,7 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 ## 13. Storybook（Phase 1 可选）
 
-- 组件库（`components/ui` + `components/primitives`）走 Storybook
+- 组件库（`packages/ui/src/components/ui` + `apps/web/src/components/primitives`）走 Storybook
 - Story 每个组件至少：default / hover / disabled / dark / error 5 个
 - Visual regression 用 Chromatic（免费层够用）
 

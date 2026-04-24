@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
 export function RouteHydrateFallback() {
   return (
