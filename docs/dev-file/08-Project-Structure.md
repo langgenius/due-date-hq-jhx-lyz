@@ -181,7 +181,7 @@ apps/server/
 
 **约束：**
 
-- `procedures/`\*_ 不得 import `@duedatehq/db/schema/_`（用 `context.scoped`）
+- `procedures/**` 不得 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`（用 `context.vars.scoped`）
 - `jobs/**` 可以直接用 `scoped(db, firmId)`（系统任务，firmId 从消息体或 cron 规则推导）
 - 每个 procedure 文件只导出一个 procedure 定义
 
@@ -260,7 +260,7 @@ packages/db/
 **约束：**
 
 - `exports` 仅暴露 `scoped` / `client` / `audit-writer` / `evidence-writer` / `types` / schema 导入要显式 `@duedatehq/db/schema/<domain>`（只给 migration / seed / writer 内部用）
-- oxlint 限制：`apps/server/src/procedures/`\*\* 禁止 import `@duedatehq/db/schema`
+- oxlint 限制：`apps/server/src/procedures/**` 禁止 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`
 
 ### 4.5 `packages/core`
 

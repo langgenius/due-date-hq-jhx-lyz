@@ -132,7 +132,7 @@ lint: {
         patterns: [
           {
             group: ['@duedatehq/db/schema', '@duedatehq/db/schema/*'],
-            message: 'Use context.scoped instead of directly importing schema in procedures.',
+            message: 'Use context.vars.scoped instead of directly importing schema in procedures.',
           },
         ],
       },
@@ -145,6 +145,23 @@ lint: {
       files: ['apps/server/src/jobs/**', 'apps/server/src/webhooks/**', 'packages/db/seed/**'],
       rules: { 'no-restricted-imports': 'off' },
     },
+    {
+      files: ['apps/server/src/procedures/**'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['@duedatehq/db', '@duedatehq/db/*'],
+                message:
+                  'Procedures must use context.vars.scoped / tenantContext instead of importing @duedatehq/db directly.',
+              },
+            ],
+          },
+        ],
+      },
+    },
     // packages/core 额外禁用 drizzle / hono / @duedatehq/db 任意子路径，
     // packages/contracts 额外只允许 zod + @orpc/contract，
     // packages/ai 禁 @duedatehq/db —— 全部写在同一块 overrides 里。
@@ -153,11 +170,12 @@ lint: {
 ```
 
 **运行时双闸门**（4.1/4.2）+ **静态层 lint 闸门**（4.3）= 三层 tenant isolation
-（§4 开头的措辞与此对齐）。任何 procedure 里的 `import '@duedatehq/db/schema/xxx'`
-会被 `vp check` 直接 block，不依赖独立的 `oxlintrc.json` 文件。
+（§4 开头的措辞与此对齐）。任何 procedure 里的 `import '@duedatehq/db'`
+或 `import '@duedatehq/db/schema/xxx'` 会被 `vp check` 直接 block，不依赖独立的
+`oxlintrc.json` 文件。
 
-> **注意**：`packages/auth` 不在 override 里，所以它也不能 import
-> `@duedatehq/db`。hook 闭包因此必须在 server 层组装（见 ADR 0010 §Decision），
+> **注意**：`packages/auth` 不能依赖 `@duedatehq/db` 由
+> `scripts/check-dep-direction.mjs` 复校。hook 闭包因此必须在 server 层组装（见 ADR 0010 §Decision），
 > [`apps/server/src/organization-hooks.ts`](/apps/server/src/organization-hooks.ts) /
 > [`apps/server/src/session-hooks.ts`](/apps/server/src/session-hooks.ts) 是唯二
 > 的写入面。`scripts/check-dep-direction.mjs` 以 workspace 粒度复校这条边界

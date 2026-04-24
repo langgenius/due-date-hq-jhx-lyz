@@ -171,11 +171,13 @@ flowchart LR
 
 ### Day 2
 
-- [ ] JHX：Google OAuth 能拿到 session，`firmId` 正确进入 scoped context
+- [x] JHX：Google OAuth 能拿到 session，`firmId` 正确进入 scoped context（`tenantMiddleware` + `firm_profile` lazy create + session hook 已就位，见 [2026-04-24 auth tenant review followups](../dev-log/2026-04-24-auth-tenant-review-followups.md) 与 [first login practice onboarding](../dev-log/2026-04-24-first-login-practice-onboarding.md)）
 - [ ] JHX：AI facade 在无 API key 时返回 structured refusal，不抛裸异常
-- [ ] LYZ：`scoped(db, firmId)` 在单测里过闸，跨 firm 数据不可见
+- [x] LYZ：`scoped(db, firmId)` factory 单测过闸（firmId 正确穿过 repo 边界；"跨 firm 数据不可见"的端到端 acceptance 挪到 Day 3 首个真实 domain repo 落地时验证）
 - [ ] LYZ：audit / evidence writer 能同事务写入并返回 id
-- [ ] 三份契约 freeze 并合并到 main
+- [x] `Tenant Context Contract` freeze 并合并到 main（ADR 0010 + `TenantContext` 类型 + `TENANT_SUSPENDED` 错误码）
+- [ ] `AI Execution Contract` freeze 并合并到 main
+- [ ] `Audit / Evidence Contract` freeze 并合并到 main
 
 ### Day 3
 
@@ -196,7 +198,7 @@ flowchart LR
 - [ ] JHX：`SourceAdapter` 接口 + fixture loader 按 [11 §6](./11-Pulse-Ingest-Source-Catalog.md#6-source-adapter-工程契约) 就位，fixture → fake source 切换开关可用
 - [ ] JHX：Pulse 预置数据（fixture）可通过 review → apply 改到客户 due date
 - [ ] JHX：Pulse apply 在一个事务内写齐 update / evidence / audit / outbox / application
-- [ ] JHX（Stretch）：`irs.newsroom` + `ny.dtf` RSS 真抓跑通一次 cron，落库 `pending_review`，失败自动回退 fixture
+- [ ] JHX（Stretch）：[11 §7](./11-Pulse-Ingest-Source-Catalog.md#7-分期路线对齐-09-demo-sprint-playbook) 声明的 3 源真抓跑通一次 cron —— `irs.newsroom` / `ny.dtf`（RSS）+ `irs.disaster`（HTML diff，无 RSS），落库 `pending_review`，失败自动回退 fixture
 - [ ] LYZ：Dashboard 出现 Pulse slot 内容，不改动 Dashboard 内部代码
 - [ ] LYZ：In-app toast / banner 在 fake Pulse event 下能正确展示与 dismiss
 

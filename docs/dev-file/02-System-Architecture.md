@@ -58,7 +58,7 @@
 
 - 上层只依赖下层**接口**，不依赖实现；Infrastructure 可替换（R2 换 S3、D1 换 Postgres 都只动 `packages/db`）
 - **Domain Layer（`packages/core`）绝不引入运行时依赖**：不碰 `c.env`、不碰 DB、不发 fetch；纯函数让 Vitest 单测零成本
-- Procedures 永不直接 import DB schema，只通过 `context.scoped` 访问（见 §03 / §06）
+- Procedures 永不直接 import `@duedatehq/db` 或 DB schema，只通过 `context.vars.scoped` 访问（见 §03 / §06）
 
 ---
 
@@ -295,7 +295,7 @@ SourceAdapter.fetch()  ──► raw 存 R2 ──► 入 Queue { type: 'extract
 
 1. **better-auth session 层**：`activeOrganizationId` 必须存在于 session，否则 middleware 拒绝请求
 2. **repo 工厂层**：`scoped(db, firmId)` 是进入 `packages/db` 业务数据的唯一入口；所有 tenant-scoped query 在工厂内部硬编码 `WHERE firm_id = :firmId`
-3. **Lint 静态层**：oxlint 自定义规则（`no-restricted-imports`）禁止 procedures 直接 import DB schema 表；PR 检查自动 block，但不替代运行时权限检查
+3. **Lint 静态层**：oxlint 自定义规则（`no-restricted-imports`）禁止 procedures 直接 import `@duedatehq/db` 或 DB schema 表；PR 检查自动 block，但不替代运行时权限检查
 
 D1 无 RLS 能力，不依赖 DB 级防护。
 

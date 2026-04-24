@@ -22,7 +22,7 @@ export default defineConfig({
   // Linting (oxlint + tsgolint via `vp check`)
   //
   // `overrides` enforces the monorepo's dep-direction rules
-  // (08 §6): procedures cannot import db/schema directly,
+  // (08 §6): procedures cannot import @duedatehq/db directly,
   // packages/core is pure TS, packages/contracts is zod-only,
   // packages/ai must not touch @duedatehq/db.
   // ──────────────────────────────────────────────────────────
@@ -59,7 +59,8 @@ export default defineConfig({
           patterns: [
             {
               group: ['@duedatehq/db/schema', '@duedatehq/db/schema/*'],
-              message: 'Use context.scoped instead of directly importing schema in procedures.',
+              message:
+                'Use context.vars.scoped instead of directly importing schema in procedures.',
             },
           ],
         },
@@ -73,6 +74,23 @@ export default defineConfig({
       {
         files: ['apps/server/src/jobs/**', 'apps/server/src/webhooks/**', 'packages/db/seed/**'],
         rules: { 'no-restricted-imports': 'off' },
+      },
+      {
+        files: ['apps/server/src/procedures/**'],
+        rules: {
+          'no-restricted-imports': [
+            'error',
+            {
+              patterns: [
+                {
+                  group: ['@duedatehq/db', '@duedatehq/db/*'],
+                  message:
+                    'Procedures must use context.vars.scoped / tenantContext instead of importing @duedatehq/db directly.',
+                },
+              ],
+            },
+          ],
+        },
       },
       {
         files: ['packages/core/**'],
