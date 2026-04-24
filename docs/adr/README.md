@@ -32,3 +32,4 @@ proposed | accepted | deprecated | superseded by #NNN
 ## Accepted
 
 - 0009-lingui-for-i18n.md — Lingui v5 for Phase 2 i18n (supersedes `05 §11` react-i18next line)
+- 0010-firm-profile-vs-organization.md — Firm profile as first-class business tenant table, PK reuses organization.id (closes the `organization.metadata` antipattern)

@@ -117,7 +117,7 @@ export function LoginRoute() {
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-3">
               <span className="w-fit rounded-full border border-border-default bg-background px-2.5 py-1 font-mono text-xs tracking-wide text-text-secondary">
-                <Trans>Phase 0 · Demo workspace</Trans>
+                <Trans>Phase 0 · Demo practice</Trans>
               </span>
               <h1 className="text-2xl leading-tight font-semibold text-text-primary md:text-[28px]">
                 <Trans>Verified risk, one deadline at a time.</Trans>
@@ -125,7 +125,7 @@ export function LoginRoute() {
               <p className="max-w-md text-sm text-text-secondary">
                 <Trans>
                   Sign in to review penalty exposure, evidence checks, and the seven-day queue for
-                  your firm&apos;s filing pipeline.
+                  your practice&apos;s filing pipeline.
                 </Trans>
               </p>
             </div>
@@ -180,7 +180,7 @@ export function LoginRoute() {
                 </CardTitle>
                 <CardDescription>
                   <Trans>
-                    Use your Google workspace account to access the risk queue and evidence tools.
+                    Sign in with your Google account to access the risk queue and evidence tools.
                   </Trans>
                 </CardDescription>
               </CardHeader>
@@ -216,8 +216,8 @@ export function LoginRoute() {
 
                 <p className="text-xs leading-relaxed text-text-secondary">
                   <Trans>
-                    You&apos;ll be redirected to Google and returned to your workspace. Sessions
-                    last seven days and respect the firm&apos;s SSO policy.
+                    You&apos;ll be redirected to Google and returned to your practice. Sessions last
+                    seven days and respect your firm&apos;s SSO policy.
                   </Trans>
                 </p>
               </CardContent>

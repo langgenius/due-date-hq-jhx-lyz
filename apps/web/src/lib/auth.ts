@@ -1,12 +1,19 @@
 import { createAuthClient } from 'better-auth/react'
+import { organizationClient } from 'better-auth/client/plugins'
 
 import { attachLocaleHeader } from '@/i18n/i18n'
 
 // Single better-auth client for the SPA. Google OAuth is the primary sign-in path.
 // All network calls are cookie-scoped to the Worker at /api/auth (see apps/server/src/routes/auth.ts).
 // The x-locale header is forwarded so the Worker can localize invitation emails etc.
+//
+// `organizationClient()` exposes `authClient.organization.create` /
+// `setActive` for the first-login onboarding flow (see routes/onboarding.tsx).
+// It must mirror the server-side `organization()` plugin or the typed
+// shape of `session.activeOrganizationId` will go missing.
 export const authClient = createAuthClient({
   baseURL: `${window.location.origin}/api/auth`,
+  plugins: [organizationClient()],
   fetchOptions: {
     onRequest: (context) => {
       attachLocaleHeader(context.headers)

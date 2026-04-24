@@ -230,6 +230,27 @@
 > 本节是 v2.0 新增章节，专门回答"Firm Plan / Pro Plan 下，一家事务所多个 CPA 员工怎么协作"。
 > 这是对 Story S1–S3 的**横向扩展**（不改变核心 AC），但必须前置，否则数据模型和权限设计会在 P1 到来时被迫重构。
 
+### 3.6.1.0 命名规范（Naming）
+
+> 本节为本 PRD 行文与产品 UI 之间的术语映射。**正文一律使用 `Firm` 与代码标识对齐**，但用户可见 UI 按"语境"分两层。详见 ADR
+> [`docs/adr/0010-firm-profile-vs-organization.md`](../adr/0010-firm-profile-vs-organization.md) 与
+> dev-file
+> [`00-Overview.md §9 术语简表`](../dev-file/00-Overview.md) /
+> [`03-Data-Model.md §2.1 firm_profile`](../dev-file/03-Data-Model.md)。
+
+| 层                    | 标识                                                                  | 备注                                                                                      |
+| --------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Better Auth DB / SDK  | `organization` / `member` / `invitation` / `activeOrganizationId`     | 不动；身份容器                                                                            |
+| 业务租户表            | `firm_profile`                                                        | PK = `organization.id`；承载 `plan` / `seatLimit` / `timezone` / `ownerUserId` / `status` |
+| 业务表 tenant 列      | `firm_id`                                                             | 沿用既有约定，FK → `firm_profile.id`                                                      |
+| 代码标识              | `firmId` / `tenant` / `scoped(db, firmId)`                            | 不动                                                                                      |
+| Hono context          | `c.var.tenantContext`（plan/seatLimit/...）/ `c.var.firmId`（保留）   | 见 dev-file/02 §middleware                                                                |
+| PRD / dev-file 行文   | `Firm`                                                                | 与代码对齐；不替换历史 134 处                                                             |
+| 用户可见 EN（默认）   | `Practice`                                                            | onboarding 标题/字段、错误信息、空态、营销文案                                            |
+| 用户可见 EN（管理类） | `Firm`                                                                | Settings 顶层 H1、权限、计费、SSO policy                                                  |
+| 用户可见 ZH（统一）   | 事务所                                                                | 不区分 Practice/Firm                                                                      |
+| 不动的专名            | `Google Workspace` / `pnpm "workspace:*"` / 类 `Slack workspace` 类比 | 保持原样                                                                                  |
+
 ### 3.6.1 定位与前置约束
 
 | 层级                                          | P0（Solo · Firm Plan $39）                      | P1（Firm Plan $99 / Pro Plan $199）   |
@@ -271,6 +292,8 @@ TeamInvitation
   invite_token, expires_at,
   invited_by_user_id, accepted_at, revoked_at
 ```
+
+**⚠ Deprecated as of 2026-04-24** — `User.firm_id` shortcut 字段从未在代码中启用：当前实现走 Better Auth `member` 多对多 + `firmId == session.activeOrganizationId == firm_profile.id`（见 ADR 0010）。本段保留为历史口径，不要在新代码里依赖。
 
 **P0 简化：** 未启用 UserFirmMembership 时，`User.firm_id` 作为 shortcut 列直接查询（向前兼容）。P1 启用后，`User.firm_id` 降级为"默认登录 Firm"字段，真正的权限查询走 Membership 表。
 

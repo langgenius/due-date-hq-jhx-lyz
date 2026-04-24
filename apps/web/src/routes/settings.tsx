@@ -32,7 +32,7 @@ export function SettingsRoute() {
           <Trans>Settings</Trans>
         </span>
         <h1 className="text-2xl font-semibold">
-          <Trans>Workspace defaults</Trans>
+          <Trans>Firm settings</Trans>
         </h1>
         <p className="text-sm text-text-secondary">
           <Trans>
@@ -45,7 +45,7 @@ export function SettingsRoute() {
       <Card className="rounded-md shadow-none">
         <CardHeader>
           <CardTitle>
-            <Trans>Firm profile</Trans>
+            <Trans>Practice profile</Trans>
           </CardTitle>
           <CardDescription>
             <Trans>These demo fields are local-only until auth and organization data land.</Trans>
@@ -54,10 +54,11 @@ export function SettingsRoute() {
         <CardContent>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="firm-name">
-                <Trans>Firm name</Trans>
+              <FieldLabel htmlFor="practice-name">
+                <Trans>Practice name</Trans>
               </FieldLabel>
-              <Input id="firm-name" defaultValue="FileInTime Demo LLP" />
+              {/* TODO: wire to organization.update + firm_profile read; see plan §6 / §10.1 */}
+              <Input id="practice-name" defaultValue="FileInTime Demo LLP" />
             </Field>
             <Field>
               <FieldLabel htmlFor="region">

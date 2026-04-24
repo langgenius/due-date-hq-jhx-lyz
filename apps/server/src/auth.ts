@@ -5,6 +5,7 @@ import { Resend } from 'resend'
 import { validateServerEnv, type Env, type ServerEnv } from './env'
 import { getRequestLocale } from './i18n/resolve'
 import { translate } from './i18n/messages'
+import { buildOrganizationHooks } from './organization-hooks'
 
 function absoluteUrl(env: ServerEnv, pathOrUrl: string): string {
   return new URL(pathOrUrl, env.APP_URL).toString()
@@ -76,19 +77,20 @@ function createEmailSender(env: ServerEnv): AuthEmailSender {
 
 export function createWorkerAuth(runtimeEnv: Env, ctx?: ExecutionContext) {
   const env = validateServerEnv(runtimeEnv)
-  const deps = {
-    db: createDb(runtimeEnv.DB),
+  const db = createDb(runtimeEnv.DB)
+  const email = createEmailSender(env)
+
+  // Hook closures live in apps/server (not in packages/auth) because they
+  // import the firm_profile schema. See organization-hooks.ts and the
+  // dep-direction DAG in scripts/check-dep-direction.mjs.
+  const organizationHooks = buildOrganizationHooks(db)
+
+  return createAuth({
+    db,
     schema: authSchema,
     env,
-    email: createEmailSender(env),
-  }
-
-  if (ctx) {
-    return createAuth({
-      ...deps,
-      waitUntil: (promise) => ctx.waitUntil(promise),
-    })
-  }
-
-  return createAuth(deps)
+    email,
+    organizationHooks,
+    ...(ctx ? { waitUntil: (promise) => ctx.waitUntil(promise) } : {}),
+  })
 }

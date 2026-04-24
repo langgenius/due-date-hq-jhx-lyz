@@ -192,9 +192,13 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 
 ## 9. 术语简表（工程版）
 
-- **tenant key**：`firmId` = better-auth `activeOrganizationId`；所有业务表必带
+- **tenant key**：`firmId` = better-auth `activeOrganizationId` = `firm_profile.id`（PK 复用，三个 id 永远同值；ADR 0010）
+- **firm_profile**：业务租户表（`packages/db/src/schema/firm.ts`），承载 `plan / seatLimit / timezone / ownerUserId / status`；与 `organization` 分层（身份层 vs 业务层），不再把业务字段塞 `organization.metadata`
+- **tenantContext**：`apps/server/src/middleware/tenant.ts` 注入到 `c.var.tenantContext`，procedures 通过它读 `plan / seatLimit / status / ownerUserId`，不需要再查表
+- **lazy create 自愈**：`tenantMiddleware` 发现 org 存在但 firm_profile 缺失时（hook 失败 / 历史孤儿）自动 INSERT 一条；`ownerUserId` 取 `member.role='owner'` 最早一条
+- **Practice / Firm / 事务所**：用户可见层方言（PRD §3.6.1.0）—— EN 默认 Practice、管理类 Firm，ZH 统一事务所；工程层永远 `firmId / organization / firm_profile`
 - **scoped repo**：`packages/db/src/scoped.ts` 工厂；procedures 只能通过它访问 DB
-- **authed procedure**：oRPC middleware，要求 session 存在并把 `firmId / scoped` 注入 context
+- **authed procedure**：oRPC middleware，要求 session 存在并把 `firmId / tenantContext / scoped` 注入 context
 - **Overlay Engine**（Phase 1）：运行时把 `ExceptionRule` 叠加到 `obligation_rule.base_due_date` 算出 `current_due_date`
 - **Pulse Pipeline**：Ingest（Cron）→ Extract（Queue + LLM）→ Review（人工）→ Match → Batch Apply（D1 事务）五段
 - **Glass-Box Guard**：LLM 输出后置校验（citation 正则 + 黑名单 + PII 回填）

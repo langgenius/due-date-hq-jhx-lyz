@@ -341,7 +341,7 @@ export function RootLayout() {
           <header className="flex min-h-14 flex-col gap-3 border-b border-border-default bg-background px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6">
             <div className="flex min-w-0 flex-col gap-1">
               <span className="text-xs font-medium text-muted-foreground">
-                <Trans>Phase 0 demo workspace</Trans>
+                <Trans>Phase 0 demo practice</Trans>
               </span>
               <span className="truncate text-base font-medium">
                 <Trans>Compliance risk operations</Trans>

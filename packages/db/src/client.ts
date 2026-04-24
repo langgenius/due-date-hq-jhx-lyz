@@ -3,6 +3,7 @@ import * as aiSchema from './schema/ai'
 import * as auditSchema from './schema/audit'
 import * as authSchema from './schema/auth'
 import * as clientsSchema from './schema/clients'
+import * as firmSchema from './schema/firm'
 import * as migrationSchema from './schema/migration'
 import * as notificationsSchema from './schema/notifications'
 import * as obligationsSchema from './schema/obligations'
@@ -13,6 +14,7 @@ const schema = {
   ...auditSchema,
   ...authSchema,
   ...clientsSchema,
+  ...firmSchema,
   ...migrationSchema,
   ...notificationsSchema,
   ...obligationsSchema,

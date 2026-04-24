@@ -71,4 +71,11 @@ export interface ContextVars {
   firmId?: string
   userId?: string
   scoped?: import('@duedatehq/db').ScopedRepo
+  /**
+   * Resolved business-tenant view for the request. Composed by
+   * `middleware/tenant.ts` from `firm_profile` (read or lazy-created).
+   * Procedures gate on `plan` / `seatLimit` / `status` via this object
+   * instead of re-querying. See ADR 0010.
+   */
+  tenantContext?: import('@duedatehq/db').TenantContext
 }

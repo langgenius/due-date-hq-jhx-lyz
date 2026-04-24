@@ -45,17 +45,19 @@ packages/db/
 
 ### 2.1 better-auth 托管表
 
-| 表             | 说明                                                                     | DueDateHQ 视角                                                 |
-| -------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| `user`         | 全局唯一的人（邮箱唯一）                                                 | CPA 本人                                                       |
-| `session`      | 登录态                                                                   | 含 `activeOrganizationId`                                      |
-| `account`      | OAuth account                                                            | Google OAuth 为主                                              |
-| `verification` | 邮箱 / 邀请 token                                                        | —                                                              |
-| `organization` | **Firm（租户）**；`metadata` 扩展业务字段                                | `plan` / `seatLimit` / `timezone` / `coordinatorCanSeeDollars` |
-| `member`       | **UserFirmMembership**；`role ∈ {owner, manager, preparer, coordinator}` | —                                                              |
-| `invitation`   | **TeamInvitation**                                                       | token + 14d 过期                                               |
+| 表             | 说明                                                                     | DueDateHQ 视角                                           |
+| -------------- | ------------------------------------------------------------------------ | -------------------------------------------------------- |
+| `user`         | 全局唯一的人（邮箱唯一）                                                 | CPA 本人                                                 |
+| `session`      | 登录态                                                                   | 含 `activeOrganizationId`                                |
+| `account`      | OAuth account                                                            | Google OAuth 为主                                        |
+| `verification` | 邮箱 / 邀请 token                                                        | —                                                        |
+| `organization` | **Firm（租户）身份容器**；业务字段在 `firm_profile`（§2.1.b）            | 仅 `id / name / slug / logo / metadata`（metadata 留空） |
+| `member`       | **UserFirmMembership**；`role ∈ {owner, manager, preparer, coordinator}` | —                                                        |
+| `invitation`   | **TeamInvitation**                                                       | token + 14d 过期                                         |
 
-`firmId`（业务表）严格 = `organization.id`。
+`firmId`（业务表）严格 = `organization.id` = `firm_profile.id`（三层共用同一个 id；见 §2.1.b 与 ADR 0010）。
+
+> **2026-04-24 修订**：`organization.metadata` 不再承载业务语义（plan / seatLimit / timezone / ownerUserId / status），这些字段已迁到独立的 `firm_profile` 表（见下一小节）。`organization.metadata` 当前不写、未来仅用于身份层附加属性。
 
 **Global vs tenant-scoped 边界（约束）：**
 
@@ -67,6 +69,41 @@ packages/db/
 | 应用记录     | `pulse_application` / `obligation_exception_application` / `evidence_link`                                                 | `firm_id NOT NULL`（即使可由 parent join 推导，也冗余存储）                                           | 只能经 `scoped`                                                    |
 
 任何可由用户直接打开详情页的记录，都必须能用自身 `firm_id` 或父实体 join 证明归属；不允许只靠前端传来的 id 查询。
+
+### 2.1.b firm_profile（业务租户表）
+
+> 来源：ADR [`0010-firm-profile-vs-organization.md`](../adr/0010-firm-profile-vs-organization.md)。
+> Schema：`packages/db/src/schema/firm.ts`；migration `0001_tidy_shiva.sql`。
+
+| 字段            | 类型                                                                   | 备注                                                  |
+| --------------- | ---------------------------------------------------------------------- | ----------------------------------------------------- |
+| `id`            | `text PK · FK → organization.id ON DELETE CASCADE`                     | PK 复用 organization.id；删 org → 级联删 firm_profile |
+| `name`          | `text NOT NULL`                                                        | 镜像 organization.name；P1 可分离 legal/display       |
+| `plan`          | `text NOT NULL CHECK IN (solo, firm, pro) DEFAULT 'solo'`              | PRD §3.6.1                                            |
+| `seat_limit`    | `integer NOT NULL DEFAULT 1`                                           | UI affordance；写时由 plan 决定（P1）                 |
+| `timezone`      | `text NOT NULL DEFAULT 'America/New_York'`                             | P0 ICP 假设（PRD §2.1）；P1 onboarding 让用户选       |
+| `owner_user_id` | `text NOT NULL · FK → user.id ON DELETE RESTRICT`                      | 删 user 前必须先转 owner 或软删 firm                  |
+| `status`        | `text NOT NULL CHECK IN (active, suspended, deleted) DEFAULT 'active'` | tenantMiddleware 拒 non-active，返 `TENANT_SUSPENDED` |
+| `created_at`    | `integer (ms) NOT NULL`                                                |                                                       |
+| `updated_at`    | `integer (ms) NOT NULL`                                                | drizzle `$onUpdate` 触发                              |
+| `deleted_at`    | `integer (ms) NULL`                                                    | PRD §3.6.8 软删 30d grace                             |
+
+**与 `organization` 的关系**：
+
+- `firmId == organization.id == firm_profile.id` —— 三个 id 永远同值（PK 复用）
+- `organization` 仍由 better-auth 托管（身份层）；`firm_profile` 由我们写入（业务层）
+- 业务表 `firm_id` FK 指向 `firm_profile.id`（语义清晰）；底层值与 `organization.id` 一致，老查询不需要改
+
+**写入时机**：
+
+1. **正常路径**：`apps/server/src/auth.ts` 注入的 `organizationHooks.afterCreateOrganization`（在 `apps/server/src/organization-hooks.ts` 工厂里），`organization.create` 完成后同请求 INSERT 一行 firm_profile
+2. **自愈路径**：`apps/server/src/middleware/tenant.ts` 在缺失时 lazy create —— 读 `organization` 行 + 找 `member.role='owner'` 最早一条 → INSERT。代价：缺失场景的请求多 1 次 select + 1 次 insert，下次起回正常路径
+
+**加列原则**：
+
+- D1 加列零成本，按需 ALTER
+- billing 字段（`billingCustomerId / billingSubscriptionId`）等 P0-23 Pay-intent 立项时再加，不预占
+- `coordinatorCanSeeDollars`（PRD §3.6 RBAC）/ `defaultAssigneeUserId`（PRD §3.6.8）等 P1 字段同样不预占
 
 ### 2.2 客户与义务
 

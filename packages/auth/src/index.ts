@@ -1,6 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter, type DB as BetterAuthDrizzleDb } from 'better-auth/adapters/drizzle'
 import { organization } from 'better-auth/plugins/organization'
+import { APIError } from 'better-auth/api'
 import type { AuthEmailSender } from './email'
 import { accessControl, roles } from './permissions'
 
@@ -14,11 +15,41 @@ export type AuthEnv = {
   ENV: 'development' | 'staging' | 'production'
 }
 
+/**
+ * Organization plugin hooks shape. Derived via Parameters<> so we never have
+ * to chase a named export across better-auth minor versions; the inferred
+ * type stays correct as long as the organization() signature is stable.
+ */
+export type OrganizationHooks = NonNullable<
+  NonNullable<Parameters<typeof organization>[0]>['organizationHooks']
+>
+
+export interface CreateAuthPluginsOptions {
+  email?: AuthEmailSender
+  /**
+   * Hook closures are owned by the server layer (apps/server/src/auth.ts) so
+   * that packages/auth never has to import @duedatehq/db (the dep-direction
+   * DAG in scripts/check-dep-direction.mjs forbids it). When omitted, the
+   * organization plugin runs without lifecycle side effects — useful for
+   * tests that don't care about firm_profile bookkeeping.
+   */
+  organizationHooks?: OrganizationHooks
+}
+
 export interface CreateAuthDeps {
   db: BetterAuthDrizzleDb
   schema: Record<string, unknown>
   env: AuthEnv
   email?: AuthEmailSender
+  /**
+   * Hook closures injected by the server layer; forwarded to
+   * `createAuthPlugins`. We expose this as a deps field instead of letting
+   * callers replace the entire plugin array, because the organization
+   * plugin's strongly-typed return is what gives `session.activeOrganizationId`
+   * its type — losing that inference (e.g. via `readonly AuthPlugin[]`) would
+   * cascade into every downstream `auth.api.getSession()` call.
+   */
+  organizationHooks?: OrganizationHooks
   waitUntil?: (promise: Promise<unknown>) => void
 }
 
@@ -38,17 +69,45 @@ function trustedOrigins(env: AuthEnv): string[] {
   return Array.from(new Set([toOrigin(env.AUTH_URL), toOrigin(env.APP_URL)].filter(isString)))
 }
 
-export function createAuthPlugins(email?: AuthEmailSender) {
+export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}) {
+  const { email, organizationHooks } = opts
   return [
     organization({
       ac: accessControl,
       roles,
       creatorRole: 'owner',
       allowUserToCreateOrganization: true,
-      organizationLimit: 5,
-      membershipLimit: 100,
+      // PRD §3.6.1: 一邮箱一 Firm. P0 single tenant.
+      organizationLimit: 1,
+      // P0 soft ceiling matches PRD §3.6.1 Firm Plan seat_limit. The hard
+      // "P0 single Owner" semantic is enforced by invitationLimit:0 +
+      // beforeAddMember below — this number is only the upper safety net.
+      // P1 should switch to a function: (user, org) => planSeatLimit(org.plan).
+      membershipLimit: 5,
+      // P0 does not expose invitations. invitationLimit:0 prevents the org
+      // plugin from accepting any invite create call; beforeAddMember is the
+      // belt-and-braces guard for direct member creation paths.
+      invitationLimit: 0,
+      // org soft-delete is governed by firm_profile.status / deletedAt
+      // (PRD §3.6.8 30d grace). Hard delete via the better-auth API would
+      // bypass that flow, so it stays disabled.
+      disableOrganizationDeletion: true,
       invitationExpiresIn: 60 * 60 * 24 * 7,
       cancelPendingInvitationsOnReInvite: true,
+      organizationHooks: {
+        // Default beforeAddMember guard ensures only the creator owner is
+        // ever added during P0 — caller-supplied hooks can extend this.
+        ...organizationHooks,
+        beforeAddMember:
+          organizationHooks?.beforeAddMember ??
+          (async ({ member }) => {
+            if (member.role !== 'owner') {
+              throw new APIError('FORBIDDEN', {
+                message: 'P0 only allows the creator owner.',
+              })
+            }
+          }),
+      },
       schema: {
         member: {
           additionalFields: {
@@ -76,6 +135,14 @@ export function createAuthPlugins(email?: AuthEmailSender) {
 }
 
 export function createAuth(deps: CreateAuthDeps) {
+  // Build the plugin options conditionally so we don't pass explicit
+  // `undefined` into optional fields — tsconfig has
+  // exactOptionalPropertyTypes turned on.
+  const pluginOpts: CreateAuthPluginsOptions = {}
+  if (deps.email) pluginOpts.email = deps.email
+  if (deps.organizationHooks) pluginOpts.organizationHooks = deps.organizationHooks
+  const plugins = createAuthPlugins(pluginOpts)
+
   return betterAuth({
     appName: 'DueDateHQ',
     baseURL: deps.env.AUTH_URL,
@@ -91,7 +158,7 @@ export function createAuth(deps: CreateAuthDeps) {
         clientSecret: deps.env.GOOGLE_CLIENT_SECRET,
       },
     },
-    plugins: [...createAuthPlugins(deps.email)],
+    plugins: [...plugins],
     trustedOrigins: trustedOrigins(deps.env),
     rateLimit: {
       enabled: true,
