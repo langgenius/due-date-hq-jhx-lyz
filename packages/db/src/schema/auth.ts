@@ -114,6 +114,15 @@ export const member = sqliteTable(
     status: text('status').default('active').notNull(),
   },
   (table) => [
+    // Unique at the DB level so concurrent INSERT from better-auth internals,
+    // future member-sync migrations, or direct writes can never produce a
+    // duplicate (organizationId, userId) pair. Without this,
+    // tenantMiddleware's `.limit(1)` read of member.status becomes
+    // nondeterministic between active / suspended for the same firm-user
+    // pair. Note: if anyone re-runs `pnpm --filter @duedatehq/auth auth:schema`
+    // this manual constraint will be clobbered — do NOT run that script; the
+    // schema is maintained manually going forward.
+    uniqueIndex('member_organization_user_unique').on(table.organizationId, table.userId),
     index('member_organizationId_idx').on(table.organizationId),
     index('member_userId_idx').on(table.userId),
   ],

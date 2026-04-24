@@ -45,11 +45,15 @@ export const tenantMiddleware = createMiddleware<{
 
   const db = createDb(c.env.DB)
 
-  // 1) Active membership check (existing invariant).
+  // 1) Active membership check (existing invariant). DB has a UNIQUE
+  //    (organization_id, user_id) index so exactly one row is expected; we
+  //    still ORDER BY createdAt ASC + LIMIT 1 as defense in depth against
+  //    future schema drift / manual writes that could sneak duplicates in.
   const [membership] = await db
     .select({ status: authSchema.member.status })
     .from(authSchema.member)
     .where(and(eq(authSchema.member.organizationId, firmId), eq(authSchema.member.userId, userId)))
+    .orderBy(asc(authSchema.member.createdAt))
     .limit(1)
 
   if (!membership) {

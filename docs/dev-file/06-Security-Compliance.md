@@ -115,33 +115,53 @@ const statement = {
 - 所有 repo 内部硬编码 `WHERE firm_id = :firmId`
 - `firmId` 只能从 middleware 注入，不能从 procedure `input` 接
 
-### 4.3 oxlint 层
+### 4.3 Lint 层（静态隔离）
 
-`oxlintrc.json`（**约束**）：
+运行位置不是独立的 `oxlintrc.json`，而是 `vp check` 执行流里的 ESLint plugin
+配置 —— 真实落点在 **[`vite.config.ts`](/vite.config.ts) 根配置的 `lint` 块**
+（`plugins: ['oxc', 'typescript', 'react', 'import', 'unicorn']`），规则与既有
+overrides 一并声明：
 
-```json
-{
-  "rules": {
-    "no-restricted-imports": [
-      "error",
+```ts
+// vite.config.ts（摘录）
+lint: {
+  rules: {
+    'no-restricted-imports': [
+      'error',
       {
-        "patterns": [
+        patterns: [
           {
-            "group": ["@duedatehq/db/schema", "@duedatehq/db/schema/*"],
-            "message": "Use context.scoped instead of directly importing schema in procedures."
-          }
-        ]
-      }
-    ]
+            group: ['@duedatehq/db/schema', '@duedatehq/db/schema/*'],
+            message: 'Use context.scoped instead of directly importing schema in procedures.',
+          },
+        ],
+      },
+    ],
   },
-  "overrides": [
+  overrides: [
+    // 允许 db 内部、jobs、webhooks、seed 直接访问 schema。
+    { files: ['packages/db/**'], rules: { 'no-restricted-imports': 'off' } },
     {
-      "files": ["packages/db/**"],
-      "rules": { "no-restricted-imports": "off" }
-    }
-  ]
-}
+      files: ['apps/server/src/jobs/**', 'apps/server/src/webhooks/**', 'packages/db/seed/**'],
+      rules: { 'no-restricted-imports': 'off' },
+    },
+    // packages/core 额外禁用 drizzle / hono / @duedatehq/db 任意子路径，
+    // packages/contracts 额外只允许 zod + @orpc/contract，
+    // packages/ai 禁 @duedatehq/db —— 全部写在同一块 overrides 里。
+  ],
+},
 ```
+
+**运行时双闸门**（4.1/4.2）+ **静态层 lint 闸门**（4.3）= 三层 tenant isolation
+（§4 开头的措辞与此对齐）。任何 procedure 里的 `import '@duedatehq/db/schema/xxx'`
+会被 `vp check` 直接 block，不依赖独立的 `oxlintrc.json` 文件。
+
+> **注意**：`packages/auth` 不在 override 里，所以它也不能 import
+> `@duedatehq/db`。hook 闭包因此必须在 server 层组装（见 ADR 0010 §Decision），
+> [`apps/server/src/organization-hooks.ts`](/apps/server/src/organization-hooks.ts) /
+> [`apps/server/src/session-hooks.ts`](/apps/server/src/session-hooks.ts) 是唯二
+> 的写入面。`scripts/check-dep-direction.mjs` 以 workspace 粒度复校这条边界
+> （PR CI 跑 `pnpm check:deps`）。
 
 ---
 

@@ -1,4 +1,4 @@
-import { betterAuth } from 'better-auth'
+import { betterAuth, type BetterAuthOptions } from 'better-auth'
 import { drizzleAdapter, type DB as BetterAuthDrizzleDb } from 'better-auth/adapters/drizzle'
 import { organization } from 'better-auth/plugins/organization'
 import { APIError } from 'better-auth/api'
@@ -36,6 +36,13 @@ export interface CreateAuthPluginsOptions {
   organizationHooks?: OrganizationHooks
 }
 
+/**
+ * Core `databaseHooks` shape (user / session / account lifecycle). Derived
+ * via better-auth's exported options type so it stays correct across minor
+ * versions without us chasing a named re-export.
+ */
+export type DatabaseHooks = NonNullable<BetterAuthOptions['databaseHooks']>
+
 export interface CreateAuthDeps {
   db: BetterAuthDrizzleDb
   schema: Record<string, unknown>
@@ -50,6 +57,13 @@ export interface CreateAuthDeps {
    * cascade into every downstream `auth.api.getSession()` call.
    */
   organizationHooks?: OrganizationHooks
+  /**
+   * `databaseHooks` escape hatch. Server uses `session.create.before` to
+   * auto-restore `activeOrganizationId` on new sessions for returning users
+   * (organizationLimit:1 + onboarding-only-creates-orgs would otherwise
+   * trap them). See ADR 0010 FU and apps/server/src/auth.ts.
+   */
+  databaseHooks?: DatabaseHooks
   waitUntil?: (promise: Promise<unknown>) => void
 }
 
@@ -158,6 +172,7 @@ export function createAuth(deps: CreateAuthDeps) {
         clientSecret: deps.env.GOOGLE_CLIENT_SECRET,
       },
     },
+    ...(deps.databaseHooks ? { databaseHooks: deps.databaseHooks } : {}),
     plugins: [...plugins],
     trustedOrigins: trustedOrigins(deps.env),
     rateLimit: {

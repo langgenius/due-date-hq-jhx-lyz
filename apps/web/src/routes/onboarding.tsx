@@ -74,6 +74,27 @@ export function OnboardingRoute() {
     }
 
     startSubmit(async () => {
+      // Defense-in-depth for returning users: if the server-side
+      // databaseHooks.session.create.before hook didn't populate
+      // activeOrganizationId (db blip / race / schema-less edge case), the
+      // user is still here even though their org already exists.
+      // organizationLimit:1 would otherwise reject a fresh create; list
+      // existing ones first and setActive the earliest instead.
+      const existing = await loadExistingOrganizationId()
+      if (existing) {
+        const { error: reuseErr } = await authClient.organization.setActive({
+          organizationId: existing,
+        })
+        if (reuseErr) {
+          const message = reuseErr.message ?? t`Please try again.`
+          setError(message)
+          toast.error(t`Could not activate your practice`, { description: message })
+          return
+        }
+        await navigate(redirectTo, { replace: true })
+        return
+      }
+
       const result = await createOrgWithRetry(trimmed)
       if (!result.ok) {
         setError(result.message)
@@ -186,6 +207,22 @@ export function OnboardingRoute() {
       </div>
     </div>
   )
+}
+
+/**
+ * Returns the first existing organization id for the current user, or null
+ * if they have none. Used by the onboarding submit to prefer setActive over
+ * create when the server-side session hook didn't restore activeOrgId for
+ * some reason. Errors are swallowed — the caller falls through to the
+ * create path, which will then itself surface a toast on failure.
+ */
+async function loadExistingOrganizationId(): Promise<string | null> {
+  const { data } = await authClient.organization.list()
+  if (!data || data.length === 0) return null
+  const sorted = [...data].toSorted(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  )
+  return sorted[0]?.id ?? null
 }
 
 type CreateResult = { ok: true; organizationId: string } | { ok: false; message: string }

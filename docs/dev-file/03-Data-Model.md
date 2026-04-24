@@ -75,18 +75,18 @@ packages/db/
 > 来源：ADR [`0010-firm-profile-vs-organization.md`](../adr/0010-firm-profile-vs-organization.md)。
 > Schema：`packages/db/src/schema/firm.ts`；migration `0001_tidy_shiva.sql`。
 
-| 字段            | 类型                                                                   | 备注                                                  |
-| --------------- | ---------------------------------------------------------------------- | ----------------------------------------------------- |
-| `id`            | `text PK · FK → organization.id ON DELETE CASCADE`                     | PK 复用 organization.id；删 org → 级联删 firm_profile |
-| `name`          | `text NOT NULL`                                                        | 镜像 organization.name；P1 可分离 legal/display       |
-| `plan`          | `text NOT NULL CHECK IN (solo, firm, pro) DEFAULT 'solo'`              | PRD §3.6.1                                            |
-| `seat_limit`    | `integer NOT NULL DEFAULT 1`                                           | UI affordance；写时由 plan 决定（P1）                 |
-| `timezone`      | `text NOT NULL DEFAULT 'America/New_York'`                             | P0 ICP 假设（PRD §2.1）；P1 onboarding 让用户选       |
-| `owner_user_id` | `text NOT NULL · FK → user.id ON DELETE RESTRICT`                      | 删 user 前必须先转 owner 或软删 firm                  |
-| `status`        | `text NOT NULL CHECK IN (active, suspended, deleted) DEFAULT 'active'` | tenantMiddleware 拒 non-active，返 `TENANT_SUSPENDED` |
-| `created_at`    | `integer (ms) NOT NULL`                                                |                                                       |
-| `updated_at`    | `integer (ms) NOT NULL`                                                | drizzle `$onUpdate` 触发                              |
-| `deleted_at`    | `integer (ms) NULL`                                                    | PRD §3.6.8 软删 30d grace                             |
+| 字段            | 类型                                               | 备注                                                                                                      |
+| --------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `id`            | `text PK · FK → organization.id ON DELETE CASCADE` | PK 复用 organization.id；删 org → 级联删 firm_profile                                                     |
+| `name`          | `text NOT NULL`                                    | 镜像 organization.name；P1 可分离 legal/display                                                           |
+| `plan`          | `text NOT NULL DEFAULT 'solo'`                     | PRD §3.6.1；enum `solo / firm / pro` 在 drizzle schema + TS 层校验（见下）                                |
+| `seat_limit`    | `integer NOT NULL DEFAULT 1`                       | UI affordance；写时由 plan 决定（P1）                                                                     |
+| `timezone`      | `text NOT NULL DEFAULT 'America/New_York'`         | P0 ICP 假设（PRD §2.1）；P1 onboarding 让用户选                                                           |
+| `owner_user_id` | `text NOT NULL · FK → user.id ON DELETE RESTRICT`  | 删 user 前必须先转 owner 或软删 firm                                                                      |
+| `status`        | `text NOT NULL DEFAULT 'active'`                   | enum `active / suspended / deleted`（drizzle+TS 层）；tenantMiddleware 拒 non-active → `TENANT_SUSPENDED` |
+| `created_at`    | `integer (ms) NOT NULL`                            |                                                                                                           |
+| `updated_at`    | `integer (ms) NOT NULL`                            | drizzle `$onUpdate` 触发                                                                                  |
+| `deleted_at`    | `integer (ms) NULL`                                | PRD §3.6.8 软删 30d grace                                                                                 |
 
 **与 `organization` 的关系**：
 
@@ -105,28 +105,49 @@ packages/db/
 - billing 字段（`billingCustomerId / billingSubscriptionId`）等 P0-23 Pay-intent 立项时再加，不预占
 - `coordinatorCanSeeDollars`（PRD §3.6 RBAC）/ `defaultAssigneeUserId`（PRD §3.6.8）等 P1 字段同样不预占
 
+**关于 enum / CHECK**：
+
+drizzle 的 `text({ enum: [...] })` **只在 TypeScript + drizzle 运行时层做 enum**
+（编译期拒绝越界字面量；运行时 drizzle 不替你生成 `CHECK (...)`）。
+D1 层当前**无 CHECK 约束** —— 生成的 migration SQL 里只有 `DEFAULT 'solo'` /
+`DEFAULT 'active'`，没有 `CHECK (plan IN (...))`。
+
+**为什么先这样**：
+
+- SQLite 不支持 `ALTER TABLE ... ADD CONSTRAINT CHECK`；后加 CHECK 必须做
+  "CREATE new + INSERT SELECT + DROP + RENAME" 的表重建迁移，对已承载数据的
+  表成本过高。
+- 写入路径 100% 经 TS 应用层（procedures + hooks），drizzle 已在编译期拦
+  住越界；攻击面是"SQL 直接执行" / "未来新迁移脚本写错"等运维类风险。
+- 验收这套约束的真实收益要等业务表实现后重新评估；届时把要求 CHECK 的表
+  一起在一条重建迁移里补齐。
+
+如果未来业务表真的需要 CHECK（例如状态机敏感的 `obligation.status`），用
+drizzle 的 `check('<name>', sql\`...\`)` + 手写迁移。现阶段 schema 只保证
+**drizzle-层 enum 安全**，不保证 **DB-层 CHECK**。
+
 ### 2.2 客户与义务
 
 **clients**
 
-| 字段                                       | 类型                                                                                 | 备注                                                |
-| ------------------------------------------ | ------------------------------------------------------------------------------------ | --------------------------------------------------- |
-| `id`                                       | `text PK`                                                                            | UUID v4                                             |
-| `firm_id`                                  | `text NOT NULL`                                                                      | → `organization.id`                                 |
-| `name`                                     | `text NOT NULL`                                                                      |                                                     |
-| `ein`                                      | `text`                                                                               | `##-#######`；正则校验；允许 NULL                   |
-| `state`                                    | `text NOT NULL`                                                                      | ISO 两位州码                                        |
-| `county`                                   | `text`                                                                               | Pulse 匹配用                                        |
-| `entity_type`                              | `text NOT NULL CHECK IN (llc, s_corp, partnership, c_corp, sole_prop, trust, other)` |                                                     |
-| `tax_types`                                | `text (JSON array)`                                                                  | NULL 时走 Default Matrix 兜底                       |
-| `importance`                               | `text CHECK IN (high, med, low) DEFAULT 'med'`                                       |                                                     |
-| `num_partners` / `num_shareholders`        | `integer`                                                                            | Penalty per-partner 用                              |
-| `estimated_annual_revenue_band`            | `text CHECK IN (lt_250k, 250k_1m, 1m_10m, gt_10m) NULL`                              | PRD P0-7；Client CRM 视角的粗档收入；Penalty 归档用 |
-| `estimated_tax_liability_cents`            | `integer`                                                                            | PRD §8.1；Penalty Radar 精算输入（可选）            |
-| `assignee_id`                              | `text → user.id`                                                                     | Phase 1 Team 启用                                   |
-| `email` / `notes`                          | `text`                                                                               |                                                     |
-| `migration_batch_id`                       | `text`                                                                               | Revert 级联                                         |
-| `created_at` / `updated_at` / `deleted_at` | `integer (ms)`                                                                       | 软删                                                |
+| 字段                                       | 类型                                                                                                                                       | 备注                                                |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| `id`                                       | `text PK`                                                                                                                                  | UUID v4                                             |
+| `firm_id`                                  | `text NOT NULL`                                                                                                                            | → `organization.id`                                 |
+| `name`                                     | `text NOT NULL`                                                                                                                            |                                                     |
+| `ein`                                      | `text`                                                                                                                                     | `##-#######`；正则校验；允许 NULL                   |
+| `state`                                    | `text NOT NULL`                                                                                                                            | ISO 两位州码                                        |
+| `county`                                   | `text`                                                                                                                                     | Pulse 匹配用                                        |
+| `entity_type`                              | `text NOT NULL` · enum `llc / s_corp / partnership / c_corp / sole_prop / trust / other`（drizzle+TS 层校验，见 §2.1.b 关于 enum / CHECK） |                                                     |
+| `tax_types`                                | `text (JSON array)`                                                                                                                        | NULL 时走 Default Matrix 兜底                       |
+| `importance`                               | `text DEFAULT 'med'` · enum `high / med / low`（drizzle+TS 层）                                                                            |                                                     |
+| `num_partners` / `num_shareholders`        | `integer`                                                                                                                                  | Penalty per-partner 用                              |
+| `estimated_annual_revenue_band`            | `text NULL` · enum `lt_250k / 250k_1m / 1m_10m / gt_10m`（drizzle+TS 层）                                                                  | PRD P0-7；Client CRM 视角的粗档收入；Penalty 归档用 |
+| `estimated_tax_liability_cents`            | `integer`                                                                                                                                  | PRD §8.1；Penalty Radar 精算输入（可选）            |
+| `assignee_id`                              | `text → user.id`                                                                                                                           | Phase 1 Team 启用                                   |
+| `email` / `notes`                          | `text`                                                                                                                                     |                                                     |
+| `migration_batch_id`                       | `text`                                                                                                                                     | Revert 级联                                         |
+| `created_at` / `updated_at` / `deleted_at` | `integer (ms)`                                                                                                                             | 软删                                                |
 
 **obligation_rule**（Rules-as-Asset 核心实体）
 
