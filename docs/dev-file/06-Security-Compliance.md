@@ -105,15 +105,18 @@ const statement = {
 
 ### 4.1 Middleware 层
 
-- Hono middleware 从 better-auth session 读 `activeOrganizationId`
-- 不存在 → 401；存在但 `member.status !== 'active'` → 403
-- 注入 `c.set('firmId', ...)` + `c.set('scoped', scoped(db, firmId))`
+- `sessionMiddleware` 从 better-auth session 读 `activeOrganizationId`，写入 `c.var.firmId`
+- `tenantMiddleware` 拒绝缺 active firm（401）、非成员（403）、`member.status !== 'active'`（403）
+- `tenantMiddleware` 读取 `firm_profile`；若 org + active membership 存在但 profile 缺失，则 lazy create 自愈
+- `firm_profile.status !== 'active'` → `TENANT_SUSPENDED`
+- 注入 `c.set('tenantContext', ...)` + `c.set('scoped', scoped(db, firmId))`
 
 ### 4.2 Repo 工厂层（约束）
 
 - `scoped(db, firmId)` 是 `packages/db` 唯一对外导出
 - 所有 repo 内部硬编码 `WHERE firm_id = :firmId`
 - `firmId` 只能从 middleware 注入，不能从 procedure `input` 接
+- 若 tenant-scoped row 同时引用另一张 tenant-scoped 表（例如 obligation → client、evidence → obligation），repo 必须在写入前验证 parent row 属于同一个 `firmId`，避免只靠单列 FK 产生跨租户错连
 
 ### 4.3 Lint 层（静态隔离）
 

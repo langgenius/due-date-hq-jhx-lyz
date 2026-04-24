@@ -1,5 +1,6 @@
 import { and, asc, eq, inArray } from 'drizzle-orm'
 import type { Db } from '../client'
+import { client } from '../schema/clients'
 import {
   obligationInstance,
   type ObligationInstance,
@@ -8,6 +9,7 @@ import {
 
 const COLS_PER_OI_ROW = 11
 const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 9
+const CLIENT_ASSERT_BATCH_SIZE = 90
 
 export interface ObligationCreateInput {
   id?: string
@@ -21,11 +23,41 @@ export interface ObligationCreateInput {
 }
 
 export function makeObligationsRepo(db: Db, firmId: string) {
+  async function assertClientsInFirm(clientIds: string[]): Promise<void> {
+    const uniqueIds = Array.from(new Set(clientIds))
+    if (uniqueIds.length === 0) return
+
+    const checks = []
+    for (let i = 0; i < uniqueIds.length; i += CLIENT_ASSERT_BATCH_SIZE) {
+      const chunk = uniqueIds.slice(i, i + CLIENT_ASSERT_BATCH_SIZE)
+      checks.push(
+        db
+          .select({ id: client.id })
+          .from(client)
+          .where(and(eq(client.firmId, firmId), inArray(client.id, chunk))),
+      )
+    }
+
+    const resultSets = await Promise.all(checks)
+    const found = new Set<string>()
+    for (const rows of resultSets) {
+      for (const row of rows) found.add(row.id)
+    }
+
+    const missing = uniqueIds.filter((id) => !found.has(id))
+    if (missing.length > 0) {
+      throw new Error(
+        `Cannot create obligations for clients outside the current firm: ${missing.join(', ')}`,
+      )
+    }
+  }
+
   return {
     firmId,
 
     async createBatch(inputs: ObligationCreateInput[]): Promise<{ ids: string[] }> {
       if (inputs.length === 0) return { ids: [] }
+      await assertClientsInFirm(inputs.map((input) => input.clientId))
       const rows = inputs.map((i) => ({
         id: i.id ?? crypto.randomUUID(),
         firmId,

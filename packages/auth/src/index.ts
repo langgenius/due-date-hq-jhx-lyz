@@ -109,8 +109,9 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}) {
       invitationExpiresIn: 60 * 60 * 24 * 7,
       cancelPendingInvitationsOnReInvite: true,
       organizationHooks: {
-        // Default beforeAddMember guard ensures only the creator owner is
-        // ever added during P0 — caller-supplied hooks can extend this.
+        // Default guard allows Better Auth's owner bootstrap and rejects
+        // non-owner member additions. P0 still remains creator-only because
+        // organizationLimit:1 + invitationLimit:0 close normal expansion paths.
         ...organizationHooks,
         beforeAddMember:
           organizationHooks?.beforeAddMember ??

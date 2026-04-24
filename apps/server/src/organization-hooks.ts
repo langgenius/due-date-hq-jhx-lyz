@@ -18,8 +18,9 @@ import type { OrganizationHooks } from '@duedatehq/auth'
  *     throws — throwing only surfaces an opaque error to the user. The
  *     real safety net is `tenantMiddleware` lazy-creating the firm_profile
  *     on the next request, so the worst-case is one extra round-trip.
- *   - `beforeAddMember` throws APIError('FORBIDDEN') when role!=='owner';
- *     this is the P0 single-Owner enforcement (PRD §3.6.1).
+ *   - `beforeAddMember` throws APIError('FORBIDDEN') when role!=='owner'.
+ *     Together with organizationLimit:1 and invitationLimit:0, this keeps P0
+ *     on the creator-only path while allowing Better Auth's owner bootstrap.
  */
 export function buildOrganizationHooks(db: Db): OrganizationHooks {
   return {
