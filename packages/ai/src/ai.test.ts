@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { z } from 'zod'
+import { createAI } from './index'
 import type { AiPorts, VectorMatch } from './ports'
 
 describe('@duedatehq/ai', () => {
@@ -32,5 +34,13 @@ describe('@duedatehq/ai', () => {
     }
 
     await expect(ports.vectors.query([], { topK: 1 })).resolves.toEqual([match])
+  })
+
+  it('returns a structured refusal when the AI provider is not configured', async () => {
+    const ai = createAI({})
+    const result = await ai.runPrompt('mapper@v1', { header: [], sample_rows: [] }, z.object({}))
+
+    expect(result.result).toBeNull()
+    expect(result.refusal?.code).toBe('AI_UNAVAILABLE')
   })
 })

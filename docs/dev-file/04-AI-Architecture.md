@@ -46,8 +46,12 @@
 // packages/ai/router.ts
 export const modelRoute = {
   tip: { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
-  mapper: { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
-  normalizer: { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
+  'mapper@v1': { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
+  'normalizer-entity@v1': { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
+  'normalizer-tax-types@v1': {
+    primary: 'openai/gpt-4o-mini',
+    fallback: 'anthropic/claude-3-5-haiku',
+  },
   brief: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
   pulseExtract: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
   riskSummary: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
@@ -55,6 +59,12 @@ export const modelRoute = {
   embedding: { primary: 'openai/text-embedding-3-small', fallback: null },
 }
 ```
+
+Prompt registry:
+
+- `mapper@v1` → `packages/ai/src/prompts/mapper@v1.md`，ZDR route，JSON object，temperature 0；无 API key 时返回 structured refusal，不抛裸异常。
+- `normalizer-entity@v1` → `packages/ai/src/prompts/normalizer-entity@v1.md`，同模型档位，用于 entity_type 字典未命中项。
+- `normalizer-tax-types@v1` → `packages/ai/src/prompts/normalizer-tax-types@v1.md`，同模型档位，用于 tax_types 字典未命中项。
 
 **所有 LLM 调用强制经 Cloudflare AI Gateway**：
 
@@ -266,14 +276,14 @@ d1.batch([
 
 **每 firm / day** 的 LLM 配额（存 KV）：
 
-| 任务                          | 每日 cap               |
-| ----------------------------- | ---------------------- |
-| Weekly Brief                  | 1（缓存 24h）          |
-| Client Risk Summary           | N 个客户 × 1           |
-| Deadline Tip                  | 50（缓存 per-rule 7d） |
-| Pulse Extract                 | 无 cap（管理员触发）   |
-| Ask                           | 30（付费可升）         |
-| Migration Mapper / Normalizer | 每 batch 有固定开销    |
+| 任务                          | 每日 cap                                          |
+| ----------------------------- | ------------------------------------------------- |
+| Weekly Brief                  | 1（缓存 24h）                                     |
+| Client Risk Summary           | N 个客户 × 1                                      |
+| Deadline Tip                  | 50（缓存 per-rule 7d）                            |
+| Pulse Extract                 | 无 cap（管理员触发）                              |
+| Ask                           | 30（付费可升）                                    |
+| Migration Mapper / Normalizer | 20 req / firm / day（FU-2 hook；每 batch 1–2 次） |
 
 超限返回 `rate_limited` + 明确 message。成本阈值：默认 $0.02 / firm / day，超过发告警。
 
@@ -292,7 +302,7 @@ d1.batch([
 
 - 所有 LLM 调用在 `packages/ai/trace.ts` 自动上报
 - 字段：`prompt_version` / `model` / `firm_id (hash)` / `latency` / `tokens` / `cost` / `guard_result`
-- Prompt 版本管理在 `packages/ai/prompts/*.md`，每次改动 `prompt_version++`
+- Prompt 版本管理在 `packages/ai/src/prompts/*.md`，每次改动 `prompt_version++`
 - A/B 实验：路由里按 `firm_id` hash 分桶 → 不同 prompt_version
 
 ---

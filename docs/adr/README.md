@@ -33,3 +33,4 @@ proposed | accepted | deprecated | superseded by #NNN
 
 - 0009-lingui-for-i18n.md — Lingui v5 for Phase 2 i18n (supersedes `05 §11` react-i18next line)
 - 0010-firm-profile-vs-organization.md — Firm profile as first-class business tenant table, PK reuses organization.id (closes the `organization.metadata` antipattern)
+- 0011-migration-copilot-demo-sprint-scope.md — Migration Copilot Demo Sprint 产品形态锁定（6 条冲突裁定 + 9 条设计系统增量 + Onboarding Agent 设计锁定不实现）

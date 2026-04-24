@@ -2,13 +2,14 @@ import { z } from 'zod'
 
 // Entity type (PRD §6A · Default Matrix keys).
 export const EntityTypeSchema = z.enum([
-  'individual',
-  'sole_prop',
   'llc',
   's_corp',
-  'c_corp',
   'partnership',
+  'c_corp',
+  'sole_prop',
   'trust',
+  'individual',
+  'other',
 ])
 export type EntityType = z.infer<typeof EntityTypeSchema>
 
@@ -17,5 +18,12 @@ export const StateCodeSchema = z.string().regex(/^[A-Z]{2}$/, 'Expected 2-letter
 export type StateCode = z.infer<typeof StateCodeSchema>
 
 // Obligation status (PRD §5.2).
-export const ObligationStatusSchema = z.enum(['open', 'in_progress', 'filed', 'extended', 'waived'])
+export const ObligationStatusSchema = z.enum([
+  'pending',
+  'in_progress',
+  'done',
+  'waiting_on_client',
+  'review',
+  'not_applicable',
+])
 export type ObligationStatus = z.infer<typeof ObligationStatusSchema>

@@ -23,11 +23,16 @@ describe('@duedatehq/db', () => {
     expect(repo.firmId).toBe('firm_123')
   })
 
-  it('throws when an unimplemented scoped repo is used', () => {
+  it('wires concrete migration copilot repos and leaves pulse deferred', () => {
     const repo = scoped(testDb, 'firm_123')
 
-    expect(() => Reflect.get(repo.clients, 'findMany')).toThrow(
-      'ScopedRepo.clients.findMany not implemented yet',
+    expect(typeof repo.clients.create).toBe('function')
+    expect(typeof repo.obligations.createBatch).toBe('function')
+    expect(typeof repo.migration.createBatch).toBe('function')
+    expect(typeof repo.audit.write).toBe('function')
+    expect(typeof repo.evidence.write).toBe('function')
+    expect(() => Reflect.get(repo.pulse, 'findMany')).toThrow(
+      'ScopedRepo.pulse.findMany not implemented yet',
     )
   })
 })

@@ -1,4 +1,9 @@
 import type { Db } from './client'
+import type { AuditRepo as RealAuditRepo } from './repo/audit'
+import type { ClientsRepo as RealClientsRepo } from './repo/clients'
+import type { EvidenceRepo as RealEvidenceRepo } from './repo/evidence'
+import type { MigrationRepo as RealMigrationRepo } from './repo/migration'
+import type { ObligationsRepo as RealObligationsRepo } from './repo/obligations'
 import type { FirmProfile } from './schema/firm'
 
 export type { Db }
@@ -38,11 +43,9 @@ export interface ScopedRepo {
   readonly audit: AuditRepo
 }
 
-// Per-domain repo contracts are filled in Phase 0. Keep interfaces here so consumers
-// depend on shape, not implementation (docs/dev-file/02 §1 layering discipline).
-export interface ClientsRepo {}
-export interface ObligationsRepo {}
+export type ClientsRepo = RealClientsRepo
+export type ObligationsRepo = RealObligationsRepo
 export interface PulseRepo {}
-export interface MigrationRepo {}
-export interface EvidenceRepo {}
-export interface AuditRepo {}
+export type MigrationRepo = RealMigrationRepo
+export type EvidenceRepo = RealEvidenceRepo
+export type AuditRepo = RealAuditRepo

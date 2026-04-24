@@ -216,7 +216,7 @@ export type MapperOutput = z.infer<typeof MapperOutput>
 4. **写库**（`apps/server` 注入 writer ports，`packages/ai` 不直接碰 DB；对齐 `dev-file/04` §1）：
    - `migration_mapping`（每列一行）：`source / target / confidence / reasoning / user_overridden / model / prompt_version`
    - `ai_output`（kind = `migration_map`）：`prompt_version / model / input_context_ref / latency_ms / tokens / cost`
-   - `evidence_link`（`source_type='ai_migration_map'`）：`model / confidence / verified_by=null / applied_by=user_id / applied_at`
+   - `evidence_link`（`source_type='ai_mapper'`）：`model / confidence / verified_by=null / applied_by=user_id / applied_at`
 5. **PostHog 埋点**：emit `migration.mapper.run.completed`，字段：
    - `batch_id`
    - `preset_used` (`taxdome | drake | karbon | quickbooks | file_in_time | null`)
@@ -442,7 +442,7 @@ export const NormalizerTaxTypesOutput = z.record(
 2. **写库**：
    - `migration_normalization`（每条归一一行）：`field / raw_value / normalized_value / confidence / model / prompt_version / reasoning / user_overridden`
    - `ai_output`（kind = `migration_normalize`）
-   - `evidence_link`（`source_type='ai_migration_normalize'`）
+   - `evidence_link`（`source_type='ai_normalizer'`）
 3. **置信度 < 0.8**：UI 黄色 `Needs review`（非阻塞，对齐 PRD §6A.3）
 4. **置信度 < 0.5**：UI `[Fix now or skip]`；不强制（对齐 PRD §6A.3）
 5. **PostHog**：emit `migration.normalize.reviewed`，字段：
@@ -507,10 +507,10 @@ We couldn't normalize these values automatically. You can fix them inline or ski
 
 ## 6. 版本控制
 
-- Prompt 原文将来落仓：
-  - `packages/ai/prompts/mapper@v1.md`
-  - `packages/ai/prompts/normalizer-entity@v1.md`
-  - `packages/ai/prompts/normalizer-tax-types@v1.md`
+- Prompt 原文落仓：
+  - `packages/ai/src/prompts/mapper@v1.md`
+  - `packages/ai/src/prompts/normalizer-entity@v1.md`
+  - `packages/ai/src/prompts/normalizer-tax-types@v1.md`
 - 改动必须 `prompt_version++`（`mapper@v1` → `mapper@v2`），并在对应 [`../../adr/`](../../adr/) 下登记决策 ADR
 - 新旧 prompt 可并存（Langfuse A/B by `firm_id` hash 分桶；对齐 `dev-file/04` §10）
 

@@ -1,4 +1,9 @@
 import type { Db } from './client'
+import { makeAuditRepo } from './repo/audit'
+import { makeClientsRepo } from './repo/clients'
+import { makeEvidenceRepo } from './repo/evidence'
+import { makeMigrationRepo } from './repo/migration'
+import { makeObligationsRepo } from './repo/obligations'
 import type { ScopedRepo } from './types'
 
 /**
@@ -31,14 +36,14 @@ function unimplementedRepo(name: string): object {
   )
 }
 
-export function scoped(_db: Db, firmId: string): ScopedRepo {
+export function scoped(db: Db, firmId: string): ScopedRepo {
   return {
     firmId,
-    clients: unimplementedRepo('clients'),
-    obligations: unimplementedRepo('obligations'),
+    clients: makeClientsRepo(db, firmId),
+    obligations: makeObligationsRepo(db, firmId),
     pulse: unimplementedRepo('pulse'),
-    migration: unimplementedRepo('migration'),
-    evidence: unimplementedRepo('evidence'),
-    audit: unimplementedRepo('audit'),
+    migration: makeMigrationRepo(db, firmId),
+    evidence: makeEvidenceRepo(db, firmId),
+    audit: makeAuditRepo(db, firmId),
   }
 }

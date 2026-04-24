@@ -172,18 +172,18 @@ flowchart LR
 ### Day 2
 
 - [x] JHX：Google OAuth 能拿到 session，`firmId` 正确进入 scoped context（`tenantMiddleware` + `firm_profile` lazy create + session hook 已就位，见 [2026-04-24 auth tenant review followups](../dev-log/2026-04-24-auth-tenant-review-followups.md) 与 [first login practice onboarding](../dev-log/2026-04-24-first-login-practice-onboarding.md)）
-- [ ] JHX：AI facade 在无 API key 时返回 structured refusal，不抛裸异常
+- [x] JHX：AI facade 在无 API key 时返回 structured refusal，不抛裸异常
 - [x] LYZ：`scoped(db, firmId)` factory 单测过闸（firmId 正确穿过 repo 边界；"跨 firm 数据不可见"的端到端 acceptance 挪到 Day 3 首个真实 domain repo 落地时验证）
-- [ ] LYZ：audit / evidence writer 能同事务写入并返回 id
+- [x] LYZ：audit / evidence writer 能写入并返回 id（D1 事务边界由调用方批处理承载）
 - [x] `Tenant Context Contract` freeze 并合并到 main（ADR 0010 + `TenantContext` 类型 + `TENANT_SUSPENDED` 错误码）
-- [ ] `AI Execution Contract` freeze 并合并到 main
-- [ ] `Audit / Evidence Contract` freeze 并合并到 main
+- [x] `AI Execution Contract` freeze（本地 pre-work；待 PR merge）
+- [x] `Audit / Evidence Contract` freeze（本地 pre-work；待 PR merge）
 
 ### Day 3
 
 - [ ] JHX：CSV 上传后能看到 AI 字段映射结果，坏行单独列出
 - [ ] LYZ：Workboard 能改一条 status 并看到 audit 记录
-- [ ] 两份 domain 契约 freeze
+- [x] 两份 domain 契约 freeze（Client Domain + Obligation Domain；本地 pre-work，待 PR merge）
 
 ### Day 4
 

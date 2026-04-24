@@ -248,7 +248,7 @@ No provenance means no render. If an AI output lacks `source_url`, `verified_at`
 
 ### Migration Copilot 向导扩展 token
 
-Demo Sprint 期间新增的 Migration Copilot 相关 token 已追加到 front-matter `components:` 段；详细使用说明 + 可达性规格见 `docs/Design/DueDateHQ-DESIGN.md` §9 Migration Copilot 向导 与 `docs/product-design/migration-copilot/09-design-system-deltas.md`。
+Demo Sprint 期间新增的 Migration Copilot 相关 token 已追加到 front-matter `components:` 段；详细使用说明 + 可达性规格见 `docs/Design/DueDateHQ-DESIGN.md` §14 Migration Copilot 向导 与 `docs/product-design/migration-copilot/09-design-system-deltas.md`。
 
 - `stepper` · 4 步向导步骤条；5 状态（current / completed / upcoming / error / disabled）；`Enter` 与数字键 1-4 **不**跳步
 - `confidence-badge` · 3 档置信度（high ≥ 0.95 / med 0.80–0.94 / low < 0.80）；色系与 severity / status 解耦；**数据质量类 needs_review 走 severity-medium 黄，工作流 Review 走 status-review 紫**（ADR 0011 Decision III 裁定）

@@ -1,5 +1,6 @@
 import { createORPCClient } from '@orpc/client'
 import { RPCLink } from '@orpc/client/fetch'
+import type { ContractRouterClient } from '@orpc/contract'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 import type { AppContract } from '@duedatehq/contracts'
 
@@ -19,5 +20,5 @@ const link = new RPCLink({
   fetch: (req, init) => fetch(req, buildInit(init)),
 })
 
-export const rpc = createORPCClient<AppContract>(link)
+export const rpc: ContractRouterClient<AppContract> = createORPCClient(link)
 export const orpc = createTanstackQueryUtils(rpc)

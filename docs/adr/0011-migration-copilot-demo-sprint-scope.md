@@ -54,7 +54,7 @@ Demo Sprint Migration Copilot 以下述边界交付（权威来源：[`../produc
 | 5   | Placeholder 策略             | Part2B §9.3 ZDR + §13.2 + Part1B §6A.9 + §6A.2               | **分场景两档**：Mapper / Normalizer 只发字段名 + 5 行样本（不走 `{{client_N}}`）；Onboarding Agent / Pulse / Brief 走占位符 + 后端回填          | [10 §5](../product-design/migration-copilot/10-conflict-resolutions.md#5-placeholder-策略)                |
 | 6   | Audit action 命名 vs UI 文案 | Part2B §13.2.1 + Part1B §6A.6 / §6A.8 + Part2B §13.2         | **分两层**：`migration.*` 工程 log + PostHog 事件名（不进 Lingui）；UI / 邮件 / Toast 文案走 Lingui catalog（两套字符串，同源不混用）           | [10 §6](../product-design/migration-copilot/10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层) |
 
-### III. 设计系统增量（9 条 token / 组件 · 双文件回灌）
+### III. 设计系统增量（9 条 delta：8 个 YAML token + 1 条 Keyboard 裁定 · 双文件回灌）
 
 完整规格见 [`../product-design/migration-copilot/09-design-system-deltas.md`](../product-design/migration-copilot/09-design-system-deltas.md)；本 ADR 仅列决策项。
 
@@ -65,16 +65,16 @@ Demo Sprint Migration Copilot 以下述边界交付（权威来源：[`../produc
 5. **`risk-row-upcoming`**：补漏 severity-medium 行（同上）
 6. **`genesis-odometer`**：`{typography.hero-metric}` + tabular-nums + `cubic-bezier(0.4, 0, 0.2, 1)`；`prefers-reduced-motion` 降级 = 200ms fade-in
 7. **`genesis-particle`**：6px canvas 粒子 + 10% glow + 4 点三次贝塞尔 + 同屏上限 30 颗
-8. **`email-shell`**：600px table 布局 + Geist Mono tabular num for 金额 / 日期
-9. **键盘裁定**：`A` 键**仅** Step 3 Apply-all 生效，全局 `A` 本轮不占用保留位 `reserved: false`；`Enter` = Continue 仅在焦点不在 textarea / contenteditable / select 时生效（解决 Subagent B NEEDS REVIEW 1 / 2）
+8. **`email-shell`**：640px table 布局 + Geist Mono tabular num for 金额 / 日期
+9. **键盘裁定**：`A` 键**仅** Step 3 Apply-all 生效，全局 `A` 本轮不占用保留位 `reserved: false`；`Enter` = Continue 仅在焦点不在 textarea / contenteditable / select 时生效（解决 Subagent B NEEDS REVIEW 1 / 2；非 YAML token）
 
 **权威裁定（needs_review 用色）**：
 
 - **数据质量类 needs_review**（Mapper 低置信 / Normalizer 冲突 / Default Matrix 非种子辖区）→ `{colors.severity-medium}`（黄）
 - **工作流态 Review**（Workboard Needs review / Client Detail review 抽屉）→ `{colors.status-review}`（紫）
-- 两者绝不混用；此裁定同步写入 [`../product-design/migration-copilot/09-design-system-deltas.md`](../product-design/migration-copilot/09-design-system-deltas.md) §3.4 + `../Design/DueDateHQ-DESIGN.md` §9.7。
+- 两者绝不混用；此裁定同步写入 [`../product-design/migration-copilot/09-design-system-deltas.md`](../product-design/migration-copilot/09-design-system-deltas.md) §3.4 + `../Design/DueDateHQ-DESIGN.md` §14.7。
 
-**双文件回灌**：所有 9 条增量同时落 `DESIGN.md` YAML（token 原子定义）+ `docs/Design/DueDateHQ-DESIGN.md` §9 Migration Copilot 向导（使用说明 + 可达性规格）。回灌清单见 09-design-system-deltas §10。
+**双文件回灌**：8 个组件 token 落 `DESIGN.md` YAML；9 条 delta 的使用说明 / 可达性 / 降级规格落 `docs/Design/DueDateHQ-DESIGN.md` §14 Migration Copilot 向导（原 §9 已被 Do's and Don'ts 占用）。回灌清单见 09-design-system-deltas §10。
 
 ### IV. Onboarding AI Agent（PRD §6A.11）设计锁定不实现
 

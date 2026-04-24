@@ -202,7 +202,9 @@ packages/contracts/
 ├── src/
 │   ├── index.ts                    # 导出 appContract
 │   ├── shared/                     # 共享 Zod schema（ClientSchema / ObligationSchema）
+│   │   ├── audit-actions.ts
 │   │   ├── client.ts
+│   │   ├── evidence-source-types.ts
 │   │   ├── obligation.ts
 │   │   └── enums.ts
 │   ├── clients.ts                  # clients 域契约
@@ -231,7 +233,7 @@ packages/db/
 │   │   ├── clients.ts
 │   │   ├── obligations.ts
 │   │   ├── migration.ts
-│   │   ├── pulse.ts
+│   │   ├── pulse.ts                # Phase 1；Demo Sprint 仍为 proxy/stub
 │   │   ├── ai.ts
 │   │   ├── audit.ts
 │   │   ├── notifications.ts
@@ -260,7 +262,7 @@ packages/db/
 **约束：**
 
 - `exports` 仅暴露 `scoped` / `client` / `audit-writer` / `evidence-writer` / `types` / schema 导入要显式 `@duedatehq/db/schema/<domain>`（只给 migration / seed / writer 内部用）
-- oxlint 限制：`apps/server/src/procedures/**` 禁止 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`
+- oxlint 限制：`apps/server/src/procedures/**` 禁止 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`；规则在 `vite.config.ts` 的 `lint.rules.no-restricted-imports` override 中维护。
 
 ### 4.5 `packages/core`
 
@@ -298,11 +300,9 @@ packages/ai/
 │   ├── budget.ts                   # per-firm/day 配额（KV）
 │   ├── trace.ts                    # Langfuse 上报
 │   └── prompts/                    # *.md 版本化
-│       ├── weekly_brief.v1.md
-│       ├── deadline_tip.v1.md
-│       ├── pulse_extract.v1.md
-│       ├── migration_mapper.v1.md
-│       └── migration_normalizer.v1.md
+│       ├── mapper@v1.md
+│       ├── normalizer-entity@v1.md
+│       └── normalizer-tax-types@v1.md
 └── package.json
 ```
 

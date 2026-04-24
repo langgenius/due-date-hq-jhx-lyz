@@ -17,7 +17,7 @@
   3. 本文件中的 YAML 示例是**建议稿**，权威 YAML 以 [`../../../DESIGN.md`](../../../DESIGN.md) `components:` 段实际追加为准；两者必须字符串级一致。
 - 范围外（本轮不动）：
   - `DESIGN.md` 已有 token（button-primary / risk-row-critical / hero-metric / pulse-banner / evidence-chip / command-palette / sidebar 等）
-  - 完整 DueDateHQ-DESIGN 已有章节 §1 ~ §8 / §10 ~ §13（不修改，仅追加新顶层 §9）
+  - 完整 DueDateHQ-DESIGN 已有章节 §1 ~ §13（不修改，仅追加新顶层 §14，避免占用既有 §9 Do's and Don'ts）
   - Onboarding Agent 真实对话气泡（PRD §6A.11，本轮只标 "preview" disabled 卡片，不写完整 token）
 
 ---
@@ -104,7 +104,7 @@ confidence-badge:
 
 ### 3.4 权威语义裁定：needs_review 用色
 
-这是本文件的**硬裁定**（回灌到 DueDateHQ-DESIGN §9.7 与 ADR 0011 Decision III）：
+这是本文件的**硬裁定**（回灌到 DueDateHQ-DESIGN §14.7 与 ADR 0011 Decision III）：
 
 - **数据质量类 `needs_review`**（Mapper 低置信 / Normalizer 冲突 / Default Matrix 非种子辖区）→ `{colors.severity-medium}`（黄 · severity-medium），使用 `confidence-badge.tone.low` 的色系
 - **工作流态 Review**（Workboard "Needs review" 状态列 / Client Detail 的 review 抽屉）→ `{colors.status-review}`（紫 · violet-600）
@@ -323,19 +323,19 @@ email-shell:
 
 每一条 delta 必须同时写入以下两处。
 
-| 组件 / Token                | `DESIGN.md` YAML 段落位置                                                                  | `DueDateHQ-DESIGN.md` §                                                                 |
-| --------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| `stepper`                   | 追加到 `components:` 尾（`sidebar:` 之后、`genesis-odometer:` 之前的区块中 `stepper:` 位） | 新增 §9.1 Stepper（4 步向导步骤条）                                                     |
-| `confidence-badge`          | 同上，紧随 `stepper:`                                                                      | 新增 §9.2 Confidence Badge（置信度徽章） + §9.7 needs_review 用色语义                   |
-| `toast`                     | 同上，紧随 `confidence-badge:`                                                             | 新增 §9.3 Toast（3 tone + 2 variant）                                                   |
-| `risk-row-high`             | 补齐到 `risk-row-critical:` 之后                                                           | 追加到 §9.3 规格段落的"对齐 §4.1 Risk Row"引用处（不新拆章节；指向 §4.1 Risk Row 表格） |
-| `risk-row-upcoming`         | 紧随 `risk-row-high:`                                                                      | 同上                                                                                    |
-| `genesis-odometer`          | 追加到 `sidebar:` 之后（新 block 首位）                                                    | 新增 §9.4 Genesis Odometer & Particles（含 `prefers-reduced-motion` 降级，对齐 §7.3）   |
-| `genesis-particle`          | 紧随 `genesis-odometer:`                                                                   | 同上                                                                                    |
-| `email-shell`               | 紧随 `genesis-particle:`，`stepper:` 之前                                                  | 新增 §9.5 Email Shell（HTML table 布局、hex 展开说明）                                  |
-| Keyboard 裁定 `A` / `Enter` | —（非 token，YAML 不新增；裁定仅在本文件 + DueDateHQ-DESIGN §9.6）                         | 新增 §9.6 Keyboard                                                                      |
+| 组件 / Token                | `DESIGN.md` YAML 段落位置                                                                  | `DueDateHQ-DESIGN.md` §                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `stepper`                   | 追加到 `components:` 尾（`sidebar:` 之后、`genesis-odometer:` 之前的区块中 `stepper:` 位） | 新增 §14.1 Stepper（4 步向导步骤条）                                                     |
+| `confidence-badge`          | 同上，紧随 `stepper:`                                                                      | 新增 §14.2 Confidence Badge（置信度徽章） + §14.7 needs_review 用色语义                  |
+| `toast`                     | 同上，紧随 `confidence-badge:`                                                             | 新增 §14.3 Toast（3 tone + 2 variant）                                                   |
+| `risk-row-high`             | 补齐到 `risk-row-critical:` 之后                                                           | 追加到 §14.3 规格段落的"对齐 §4.1 Risk Row"引用处（不新拆章节；指向 §4.1 Risk Row 表格） |
+| `risk-row-upcoming`         | 紧随 `risk-row-high:`                                                                      | 同上                                                                                     |
+| `genesis-odometer`          | 追加到 `sidebar:` 之后（新 block 首位）                                                    | 新增 §14.4 Genesis Odometer & Particles（含 `prefers-reduced-motion` 降级，对齐 §7.3）   |
+| `genesis-particle`          | 紧随 `genesis-odometer:`                                                                   | 同上                                                                                     |
+| `email-shell`               | 紧随 `genesis-particle:`，`stepper:` 之前                                                  | 新增 §14.5 Email Shell（HTML table 布局、hex 展开说明）                                  |
+| Keyboard 裁定 `A` / `Enter` | —（非 token，YAML 不新增；裁定仅在本文件 + DueDateHQ-DESIGN §14.6）                        | 新增 §14.6 Keyboard                                                                      |
 
-> 说明：`DESIGN.md` 正文 `## Components` 段末尾追加一小段 `### Migration Copilot 向导扩展 token` bullets 索引，指向本文件 + DueDateHQ-DESIGN §9。
+> 说明：`DESIGN.md` 正文 `## Components` 段末尾追加一小段 `### Migration Copilot 向导扩展 token` bullets 索引，指向本文件 + DueDateHQ-DESIGN §14。
 
 ---
 
