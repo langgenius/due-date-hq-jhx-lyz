@@ -28,7 +28,7 @@ findings（2 P1 + 2 P2 + 1 P3）。本次一次性收敛。
   `BetterAuthOptions` 推导，避免版本漂移）；`createAuth` 按需透传
 - [`apps/server/src/auth.ts`](../../apps/server/src/auth.ts) `createWorkerAuth`
   组装 `buildDatabaseHooks(db)` 传入
-- Belt-and-braces：[`apps/web/src/routes/onboarding.tsx`](../../apps/web/src/routes/onboarding.tsx)
+- Belt-and-braces：[`apps/app/src/routes/onboarding.tsx`](../../apps/app/src/routes/onboarding.tsx)
   `handleSubmit` 先 `authClient.organization.list()`，若已有 org 就 `setActive`
   第一个而**不**调 create。即使 hook 因任何原因没跑，用户也能自救出来
 - 测试：[`apps/server/src/session-hooks.test.ts`](../../apps/server/src/session-hooks.test.ts)
@@ -141,7 +141,7 @@ estimated_annual_revenue_band`）
 | @duedatehq/db        | 10     | 10     | —                        |
 | @duedatehq/auth      | 1      | 5      | +4（权限 shape 锁定）    |
 | @duedatehq/server    | 25     | 28     | +3（session-hooks.test） |
-| @duedatehq/web       | 26     | 26     | —                        |
+| @duedatehq/app       | 26     | 26     | —                        |
 | @duedatehq/contracts | 2      | 2      | —                        |
 | @duedatehq/ai        | 1      | 1      | —                        |
 | **合计**             | **83** | **90** | **+7**                   |
@@ -166,6 +166,6 @@ pnpm ready             # 全绿
   [`2026-04-24-close-auth-schema-script.md`](./2026-04-24-close-auth-schema-script.md)
 - Settings 里的 "Practice profile" input 写库 + `organization.update` 调用：
   下个 plan；现在权限已经就位，wire 一下就行
-- `apps/web/src/routes/onboarding.tsx` 的 list+setActive 兜底没有单测覆盖
+- `apps/app/src/routes/onboarding.tsx` 的 list+setActive 兜底没有单测覆盖
   （onboarding 整体没有 happy-path UI 测试），等 Playwright E2E 落地时一起
   补

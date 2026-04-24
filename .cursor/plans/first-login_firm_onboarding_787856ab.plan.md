@@ -18,19 +18,19 @@ todos:
     content: 新增 packages/core/src/practice-name.ts —— derivePracticeName(input, fallback) 永远返回非空可提交字符串（fallback 为 i18n 占位串由 caller 注入）+ slugifyPracticeName 用 base32 子集 + 6char 后缀；不做提交前 unique pre-check（依赖 DB unique 约束 + 客户端单次重试）
     status: completed
   - id: client-org-plugin
-    content: 在 apps/web/src/lib/auth.ts 注册 organizationClient() plugin
+    content: 在 apps/app/src/lib/auth.ts 注册 organizationClient() plugin
     status: completed
   - id: router-onboarding-gate
-    content: 扩展 apps/web/src/router.tsx 的 protectedLoader 缺 activeOrganizationId 时跳 /onboarding；新增 /onboarding 顶层路由 + onboardingLoader（对称 guestLoader，复用 pickSafeRedirect 防 open redirect）
+    content: 扩展 apps/app/src/router.tsx 的 protectedLoader 缺 activeOrganizationId 时跳 /onboarding；新增 /onboarding 顶层路由 + onboardingLoader（对称 guestLoader，复用 pickSafeRedirect 防 open redirect）
     status: completed
   - id: onboarding-page
-    content: 新建 apps/web/src/routes/onboarding.tsx —— 单卡片 Confirm your practice profile 表单（name input 加 required + trim>=2 校验），loader 通过 t`My Practice` / t`我的事务所` 注入 fallback 给 derivePracticeName；提交 organization.create → catch unique slug 一次重试 → setActive → navigate(redirectTo)
+    content: 新建 apps/app/src/routes/onboarding.tsx —— 单卡片 Confirm your practice profile 表单（name input 加 required + trim>=2 校验），loader 通过 t`My Practice` / t`我的事务所` 注入 fallback 给 derivePracticeName；提交 organization.create → catch unique slug 一次重试 → setActive → navigate(redirectTo)
     status: completed
   - id: terminology-cleanup
     content: 按 Practice/Firm 双层命名清理 UI 文案：settings.tsx / _layout.tsx / login.tsx / i18n-error.ts
     status: completed
   - id: i18n-catalogs
-    content: pnpm --filter @duedatehq/web i18n:extract；按命名表更新 zh-CN msgstr（含 onboarding 占位串）；pnpm --filter @duedatehq/web i18n:compile
+    content: pnpm --filter @duedatehq/app i18n:extract；按命名表更新 zh-CN msgstr（含 onboarding 占位串）；pnpm --filter @duedatehq/app i18n:compile
     status: completed
   - id: test-practice-name
     content: packages/core/src/practice-name.test.ts 表驱动覆盖派生函数（含 fallback 注入）+ slugify 同名两次得不同 slug
@@ -42,7 +42,7 @@ todos:
     content: 扩展 apps/server/src/middleware/tenant.test.ts —— lazy create + ownerUserId 优先取 member.role='owner' 最早一条 + status=suspended 返 403 + active 路径回归（c.var.tenantContext 字段齐全）
     status: completed
   - id: test-router-loader
-    content: 新增 apps/web/src/router.test.ts —— mock authClient.getSession 覆盖 protectedLoader / onboardingLoader 各三态 + pickSafeRedirect 防外站 redirect
+    content: 新增 apps/app/src/router.test.ts —— mock authClient.getSession 覆盖 protectedLoader / onboardingLoader 各三态 + pickSafeRedirect 防外站 redirect
     status: completed
   - id: test-auth-hook
     content: 把 server 层 organizationHooks 工厂抽成 buildOrganizationHooks(db) 可独立 import；扩展 packages/auth/src/auth.test.ts 做纯函数级测试（mock db.insert 断言入参；beforeAddMember 非 owner 抛 APIError FORBIDDEN）
@@ -438,13 +438,13 @@ export function slugifyPracticeName(name: string): string { /* impl 见 single-f
 
 去掉 `'s Firm/Practice` 后缀，避免 solo 用户读到 "Alex Chen's Firm" 的系统硬凑感；i18n 占位串比空字符串更友好且永远是合法默认。
 
-[apps/web/src/routes/onboarding.tsx](apps/web/src/routes/onboarding.tsx) 表单 input 同步加 `required` + 提交前 `name.trim().length >= 2` 客户端校验，呼应 `organization.name notNull`。
+[apps/app/src/routes/onboarding.tsx](apps/app/src/routes/onboarding.tsx) 表单 input 同步加 `required` + 提交前 `name.trim().length >= 2` 客户端校验，呼应 `organization.name notNull`。
 
 单测 `packages/core/src/practice-name.test.ts` 表驱动覆盖：自定义邮箱 / gmail / 缩写词 / 缺名兜底（断言注入的 fallback 被使用）；slugify 测"同一 name 两次提交得到不同 slug"。
 
 ### 6. 前端 SDK 注册 organizationClient
 
-[apps/web/src/lib/auth.ts](apps/web/src/lib/auth.ts)：
+[apps/app/src/lib/auth.ts](apps/app/src/lib/auth.ts)：
 
 ```ts
 import { organizationClient } from 'better-auth/client/plugins'
@@ -458,7 +458,7 @@ export const authClient = createAuthClient({
 
 ### 7. Router gate
 
-[apps/web/src/router.tsx](apps/web/src/router.tsx) `protectedLoader` 扩展：
+[apps/app/src/router.tsx](apps/app/src/router.tsx) `protectedLoader` 扩展：
 
 ```ts
 async function protectedLoader(args: LoaderFunctionArgs) {
@@ -496,9 +496,9 @@ async function onboardingLoader(args: LoaderFunctionArgs) {
 
 ### 8. Onboarding 页面
 
-新建 [apps/web/src/routes/onboarding.tsx](apps/web/src/routes/onboarding.tsx)：
+新建 [apps/app/src/routes/onboarding.tsx](apps/app/src/routes/onboarding.tsx)：
 
-- 居中单 Card，视觉沿用 [apps/web/src/routes/login.tsx](apps/web/src/routes/login.tsx) 右栏调性
+- 居中单 Card，视觉沿用 [apps/app/src/routes/login.tsx](apps/app/src/routes/login.tsx) 右栏调性
 - **EN copy**：
   - 标题：`Confirm your practice profile`
   - 帮助：`We pre-filled this from your Google profile. You can change it anytime in Firm settings.`
@@ -519,20 +519,20 @@ async function onboardingLoader(args: LoaderFunctionArgs) {
 
 | 文件                                                                       | 当前                                             | 改为                                              | 语境                               |
 | ------------------------------------------------------------------------ | ---------------------------------------------- | ----------------------------------------------- | -------------------------------- |
-| [apps/web/src/routes/settings.tsx](apps/web/src/routes/settings.tsx) L35 | `Workspace defaults`                           | `Firm settings`                                 | 管理类 → Firm                       |
-| [apps/web/src/routes/settings.tsx](apps/web/src/routes/settings.tsx) L48 | `Firm profile`（card）                           | `Practice profile`                              | section 是日常感知 → Practice         |
-| [apps/web/src/routes/settings.tsx](apps/web/src/routes/settings.tsx) L58 | `Firm name`                                    | `Practice name`                                 | label 跟 onboarding 对齐 → Practice |
-| [apps/web/src/routes/settings.tsx](apps/web/src/routes/settings.tsx) L60 | `defaultValue="FileInTime Demo LLP"`           | 暂留 + TODO 注释                                    | 等 organization.update 接活，下个 plan |
-| [apps/web/src/lib/i18n-error.ts](apps/web/src/lib/i18n-error.ts) L13     | `... linked to a workspace yet.`               | `... linked to a practice yet.`                 | 错误日常感知 → Practice                |
-| [apps/web/src/lib/i18n-error.ts](apps/web/src/lib/i18n-error.ts) L14     | `... different workspace.`                     | `... different practice.`                       | 同上 → Practice                    |
-| [apps/web/src/routes/_layout.tsx](apps/web/src/routes/_layout.tsx) L344  | `Phase 0 demo workspace`                       | `Phase 0 demo practice`                         | 品牌副标 → Practice                  |
-| [apps/web/src/routes/login.tsx](apps/web/src/routes/login.tsx) L120      | `Phase 0 · Demo workspace`                     | `Phase 0 · Demo practice`                       | 同上 → Practice                    |
-| [apps/web/src/routes/login.tsx](apps/web/src/routes/login.tsx) L128      | `your firm's filing pipeline`                  | `your practice's filing pipeline`               | 营销 → Practice                    |
-| [apps/web/src/routes/login.tsx](apps/web/src/routes/login.tsx) L183      | `Use your Google workspace account...`         | `Sign in with your Google account to access...` | 去工程腔                             |
-| [apps/web/src/routes/login.tsx](apps/web/src/routes/login.tsx) L219-220  | `... your workspace ... the firm's SSO policy` | `... your practice ... your firm's SSO policy`  | 前 Practice 后 Firm                |
+| [apps/app/src/routes/settings.tsx](apps/app/src/routes/settings.tsx) L35 | `Workspace defaults`                           | `Firm settings`                                 | 管理类 → Firm                       |
+| [apps/app/src/routes/settings.tsx](apps/app/src/routes/settings.tsx) L48 | `Firm profile`（card）                           | `Practice profile`                              | section 是日常感知 → Practice         |
+| [apps/app/src/routes/settings.tsx](apps/app/src/routes/settings.tsx) L58 | `Firm name`                                    | `Practice name`                                 | label 跟 onboarding 对齐 → Practice |
+| [apps/app/src/routes/settings.tsx](apps/app/src/routes/settings.tsx) L60 | `defaultValue="FileInTime Demo LLP"`           | 暂留 + TODO 注释                                    | 等 organization.update 接活，下个 plan |
+| [apps/app/src/lib/i18n-error.ts](apps/app/src/lib/i18n-error.ts) L13     | `... linked to a workspace yet.`               | `... linked to a practice yet.`                 | 错误日常感知 → Practice                |
+| [apps/app/src/lib/i18n-error.ts](apps/app/src/lib/i18n-error.ts) L14     | `... different workspace.`                     | `... different practice.`                       | 同上 → Practice                    |
+| [apps/app/src/routes/_layout.tsx](apps/app/src/routes/_layout.tsx) L344  | `Phase 0 demo workspace`                       | `Phase 0 demo practice`                         | 品牌副标 → Practice                  |
+| [apps/app/src/routes/login.tsx](apps/app/src/routes/login.tsx) L120      | `Phase 0 · Demo workspace`                     | `Phase 0 · Demo practice`                       | 同上 → Practice                    |
+| [apps/app/src/routes/login.tsx](apps/app/src/routes/login.tsx) L128      | `your firm's filing pipeline`                  | `your practice's filing pipeline`               | 营销 → Practice                    |
+| [apps/app/src/routes/login.tsx](apps/app/src/routes/login.tsx) L183      | `Use your Google workspace account...`         | `Sign in with your Google account to access...` | 去工程腔                             |
+| [apps/app/src/routes/login.tsx](apps/app/src/routes/login.tsx) L219-220  | `... your workspace ... the firm's SSO policy` | `... your practice ... your firm's SSO policy`  | 前 Practice 后 Firm                |
 
 
-中文 catalog：跑 `pnpm --filter @duedatehq/web i18n:extract`，编辑 [apps/web/src/i18n/locales/zh-CN/messages.po](apps/web/src/i18n/locales/zh-CN/messages.po) 把 firm/practice 字样统一翻成"事务所"，再 `pnpm --filter @duedatehq/web i18n:compile`。
+中文 catalog：跑 `pnpm --filter @duedatehq/app i18n:extract`，编辑 [apps/app/src/i18n/locales/zh-CN/messages.po](apps/app/src/i18n/locales/zh-CN/messages.po) 把 firm/practice 字样统一翻成"事务所"，再 `pnpm --filter @duedatehq/app i18n:compile`。
 
 ### 10. 文档同步更新
 
@@ -586,7 +586,7 @@ async function onboardingLoader(args: LoaderFunctionArgs) {
   - lazy create 时 ownerUserId 从 member.role='owner' 最早一条派生（注入两条 member 验证 ORDER BY createdAt）
   - firm_profile.status='suspended' → 403 TENANT_SUSPENDED
   - 既有路径回归（status='active'）—— `c.var.scoped.firmId` + `c.var.tenantContext.firmId` 都正确
-- `test-router-loader` — 新增 `apps/web/src/router.test.ts`：
+- `test-router-loader` — 新增 `apps/app/src/router.test.ts`：
   - mock `authClient.getSession`，断言 `protectedLoader` 三态跳转（无 session → /login？redirectTo / 有 session 无 activeOrg → /onboarding?redirectTo / 有 session 有 activeOrg → 透传）
   - `onboardingLoader` 三态对称（无 session → /login / 有 session + activeOrg → 跳 redirectTo / 有 session 无 activeOrg → 渲染）
   - `pickSafeRedirect` 防 open redirect（外站 url 被 fallback 为 `/`）
@@ -604,8 +604,8 @@ pnpm --filter @duedatehq/core test
 pnpm --filter @duedatehq/db test
 pnpm --filter @duedatehq/auth test
 pnpm --filter @duedatehq/server test
-pnpm --filter @duedatehq/web test
-pnpm --filter @duedatehq/web i18n:extract && pnpm --filter @duedatehq/web i18n:compile
+pnpm --filter @duedatehq/app test
+pnpm --filter @duedatehq/app i18n:extract && pnpm --filter @duedatehq/app i18n:compile
 pnpm check
 pnpm check:deps      # 防 packages/auth 误引入 db 依赖（本次修订核心 invariant）
 pnpm secrets:scan    # AGENTS.md 安全规范要求
@@ -654,7 +654,7 @@ pnpm ready           # = vp check && vp run -r test && vp run build；AGENTS.md 
 1. **代码自检**（手工 checklist）：
    - [ ] 受影响文件每处都有理由（无"顺手改"）；与 plan §"文件级改动" 1:1 对得上
    - [ ] 新增/修改 SQL 字段都进了 [packages/db/migrations/](packages/db/migrations/) 且 `pnpm db:generate` 二次跑 diff 为空（无悬空 schema）
-   - [ ] 新增 i18n 文案都跑过 `i18n:extract`/`i18n:compile`，[apps/web/src/i18n/locales/zh-CN/messages.po](apps/web/src/i18n/locales/zh-CN/messages.po) 无 `#, fuzzy` 标记
+   - [ ] 新增 i18n 文案都跑过 `i18n:extract`/`i18n:compile`，[apps/app/src/i18n/locales/zh-CN/messages.po](apps/app/src/i18n/locales/zh-CN/messages.po) 无 `#, fuzzy` 标记
    - [ ] hook 里 `db.insert(firmProfile)` 的 try/catch 行为已经做了二选一并写进 dev-log：
      - 选项 A：`throw` → 让 better-auth 把 org 创建本身视为失败（要确认 1.6.7 是否会回滚 org 行；不回滚则同 B）
      - 选项 B：`swallow + log` → 让 lazy create 兜底（默认推荐，行为最确定）

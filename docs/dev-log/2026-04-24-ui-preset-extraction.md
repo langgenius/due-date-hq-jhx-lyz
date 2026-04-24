@@ -2,16 +2,16 @@
 
 ## Context
 
-`apps/web` previously owned both shadcn primitives and the design token stylesheet. That works for a single SPA, but it becomes the wrong boundary once a separate Astro marketing app exists.
+`apps/app` previously owned both shadcn primitives and the design token stylesheet. That works for a single SPA, but it becomes the wrong boundary once a separate Astro marketing app exists.
 
-This change extracts the shared UI surface from `apps/web` into `packages/ui` so the SaaS app and future marketing app consume one source of truth for React primitives, brand tokens, and low-level styling helpers.
+This change extracts the shared UI surface from `apps/app` into `packages/ui` so the SaaS app and future marketing app consume one source of truth for React primitives, brand tokens, and low-level styling helpers.
 
 ## Final Boundary
 
 - `packages/ui/src/components/ui/*`: shadcn/Base UI primitives only
 - `packages/ui/src/lib/utils.ts`: `cn()`
 - `packages/ui/src/styles/preset.css`: all shared design tokens, `@theme inline`, dark tokens, and base layer
-- `apps/web/src/styles/globals.css`: consumer Tailwind entry point
+- `apps/app/src/styles/globals.css`: consumer Tailwind entry point
 
 Consumer apps must import the preset and explicitly source the shared UI package:
 

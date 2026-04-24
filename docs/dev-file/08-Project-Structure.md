@@ -9,7 +9,7 @@
 ```
 duedatehq/
 ├── apps/
-│   ├── web/                       # Vite SPA（Phase 0 唯一前端）
+│   ├── app/                       # Vite React SPA（登录后的 SaaS 产品）
 │   └── server/                    # Cloudflare Worker（唯一可部署单元）
 ├── packages/
 │   ├── contracts/                 # oRPC 契约（前后端唯一共享源）
@@ -56,7 +56,7 @@ rm -rf apps/* packages/*
 # 3. 把 packages/typescript-config 改名 @duedatehq/typescript-config
 #    并派生出 base / library / vite / worker 四个 variant（见 §3.2）
 
-# 4. 手工新增我们的 apps/server · apps/web · packages/{ui,contracts,db,core,ai,auth}
+# 4. 手工新增我们的 apps/server · apps/app · packages/{ui,contracts,db,core,ai,auth}
 # 5. 按 §01.4 把 pnpm-workspace.yaml 的 catalog 逐字对齐 01-Tech-Stack.md 的权威快照
 # 6. vp install      # 底层仍然调 pnpm
 # 7. vp check        # 全绿即脚手架完成
@@ -71,7 +71,7 @@ rm -rf apps/* packages/*
 `packages/ui / contracts / db / core / ai / auth` **不构建**：
 
 - 直接导出 `.ts` 源码（`package.json` 的 `exports` 指向 `src/`\*）
-- 消费端（`apps/server` 的 wrangler esbuild · `apps/web` 的 Vite+ / Rolldown）自行转译
+- 消费端（`apps/server` 的 wrangler esbuild · `apps/app` 的 Vite+ / Rolldown）自行转译
 - 好处：dev 零构建延迟；go-to-definition 直达源码；无构建产物缓存冲突
 
 ### 3.2 每包独立 `tsconfig.json`
@@ -81,7 +81,7 @@ rm -rf apps/* packages/*
 - Variants：
   - `base.json`：strict + ES2022 + isolated modules + TS 6 defaults
   - `library.json`：JIT 包用（exports types from src）
-  - `vite.json`：`apps/web` 用（DOM lib + React JSX）
+  - `vite.json`：`apps/app` 用（DOM lib + React JSX）
   - `worker.json`：`apps/server` 用（`@cloudflare/workers-types` + no DOM）
 
 `base.json` 必须显式开启：
@@ -185,7 +185,7 @@ apps/server/
 - `jobs/**` 可以直接用 `scoped(db, firmId)`（系统任务，firmId 从消息体或 cron 规则推导）
 - 每个 procedure 文件只导出一个 procedure 定义
 
-### 4.2 `apps/web`
+### 4.2 `apps/app`
 
 详见 §05。核心：
 
@@ -350,7 +350,7 @@ packages/auth/
 packages/typescript-config/
 ├── base.json
 ├── library.json                    # JIT 内部包
-├── vite.json                       # apps/web
+├── vite.json                       # apps/app
 ├── worker.json                     # apps/server
 └── package.json                    # name: @duedatehq/typescript-config
 ```
@@ -388,7 +388,7 @@ apps/*
 apps/server
   └─► packages/{db, ai, contracts, auth, core}
 
-apps/web
+apps/app
   └─► packages/{contracts, auth(client-only exports), ui}
         └─► packages/{core}
 
@@ -437,7 +437,7 @@ packages/core
 {
   "scripts": {
     "dev": "vp run -r dev",
-    "build": "vp run @duedatehq/web#build && vp run @duedatehq/server#build",
+    "build": "vp run @duedatehq/app#build && vp run @duedatehq/server#build",
     "check": "vp check",
     "test": "vp run -r test",
     "test:e2e": "playwright test",
@@ -458,8 +458,8 @@ packages/core
 // apps/server
 {
   "scripts": {
-    "dev": "node -e \"require('node:fs').mkdirSync('../web/dist',{recursive:true})\" && wrangler dev --local",
-    "dev:fullstack": "pnpm --filter @duedatehq/web run build && wrangler dev --local",
+    "dev": "node -e \"require('node:fs').mkdirSync('../app/dist',{recursive:true})\" && wrangler dev --local",
+    "dev:fullstack": "pnpm --filter @duedatehq/app run build && wrangler dev --local",
     "build": "wrangler deploy --dry-run --outdir=dist --env=\"\"",
     "deploy": "wrangler deploy --env=\"\"",
     "test": "vp test"
@@ -468,7 +468,7 @@ packages/core
 ```
 
 ```json
-// apps/web
+// apps/app
 {
   "scripts": {
     "dev": "vp dev",
@@ -613,9 +613,9 @@ vp run -r dev
 | §1.3 设计原则       | `docs/Design/DueDateHQ-DESIGN.md` + `packages/ui/src/styles/preset.css`             |
 | §3 Story S1/S2/S3   | E2E 10 条核心路径（§07.5.4）                                                        |
 | §3.6 Team           | `packages/auth` Organization plugin                                                 |
-| §5.1 Dashboard      | `apps/web/src/routes/dashboard.tsx` + `features/dashboard/`                         |
-| §5.2 Workboard      | `apps/web/src/routes/workboard.tsx` + `features/workboard/`                         |
-| §5.5 Evidence Mode  | `apps/web/src/components/patterns/evidence-drawer/` + `packages/db/evidence-writer` |
+| §5.1 Dashboard      | `apps/app/src/routes/dashboard.tsx` + `features/dashboard/`                         |
+| §5.2 Workboard      | `apps/app/src/routes/workboard.tsx` + `features/workboard/`                         |
+| §5.5 Evidence Mode  | `apps/app/src/components/patterns/evidence-drawer/` + `packages/db/evidence-writer` |
 | §6.1 Rule Engine    | `packages/db/seed/rules.ts` + `packages/core/date-logic`                            |
 | §6.2 Glass-Box      | `packages/ai/guard.ts`                                                              |
 | §6.3 Pulse          | `apps/server/src/jobs/pulse/*` + `procedures/pulse/*`                               |

@@ -26,7 +26,7 @@
 | `vp check`（fmt + lint + tsgolint）       | Oxfmt / Oxlint / tsgolint    | block    |
 | `gitleaks detect`                         | gitleaks                     | block    |
 | `vp run -r test`（Vitest + pool-workers） | Vitest                       | block    |
-| `vp run build`（web 先于 server）         | Vite 8 / Rolldown / wrangler | block    |
+| `vp run build`（app 先于 server）         | Vite 8 / Rolldown / wrangler | block    |
 | E2E 烟测（关键路径 5 条）                 | Playwright                   | warn     |
 
 `vp check` 默认同时跑 oxfmt / oxlint / tsgolint（由 `vite.config.ts` 的 `lint.options.typeCheck: true` 启用）。需要稳定 `tsc --noEmit` 时临时 `pnpm -F <pkg> exec tsc --noEmit` 即可，不进 CI 默认路径。
@@ -37,7 +37,7 @@
 - 步骤：
   1. `vp run workspace-deploy`
   2. `workspace-check` + `workspace-test`
-  3. `workspace-build`：显式 `apps/web` build 后再跑 `apps/server` Wrangler dry-run
+  3. `workspace-build`：显式 `apps/app` build 后再跑 `apps/server` Wrangler dry-run
   4. D1 迁移 `wrangler d1 migrations apply duedatehq --remote`（只允许 expand/forward-compatible migration）
   5. `wrangler deploy --env=""`
 

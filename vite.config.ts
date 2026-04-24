@@ -10,7 +10,7 @@ import { defineConfig } from 'vite-plus'
  *   - lefthook.yml / lint-staged   → `staged`
  *
  * Per-app build config (React plugin, Tailwind plugin, dev proxy,
- * aliases) still lives in `apps/web/vite.config.ts`. This root file
+ * aliases) still lives in `apps/app/vite.config.ts`. This root file
  * drives `vp` subcommands for the whole workspace, not bundling.
  *
  * Authoritative references:

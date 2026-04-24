@@ -46,7 +46,7 @@
 | **测试**                | Vitest + `@cloudflare/vitest-pool-workers` + Playwright + msw                           | 单测跑在 Workers runtime；E2E 跨浏览器                                                                                                                                               |
 | **菜单栏壳（Phase 2）** | Tauri 2 + Rust                                                                          | 跨平台；~1 MB 体积                                                                                                                                                                   |
 
-> 所有前端 `apps/web` 依赖不进 `apps/server`；所有后端 Worker 依赖不进 `apps/web`。两者通过 `packages/contracts` 共享类型。
+> 所有前端 `apps/app` 依赖不进 `apps/server`；所有后端 Worker 依赖不进 `apps/app`。两者通过 `packages/contracts` 共享类型。
 
 ---
 
@@ -308,7 +308,7 @@ catalog:
     "ci": "vp check && vp run -r test && vp run build",
     "ready": "vp check && vp run -r test && vp run build",
     "dev": "vp run -r dev",
-    "build": "vp run @duedatehq/web#build && vp run @duedatehq/server#build",
+    "build": "vp run @duedatehq/app#build && vp run @duedatehq/server#build",
     "check": "vp check",
     "test": "vp run -r test",
     "format": "vp fmt --check",
@@ -367,7 +367,7 @@ export default defineConfig({
 **备注**：
 
 - `apps/server` 的 `wrangler deploy` 不走 Vite+ bundling；root `deploy` 先跑有序 build + D1 迁移，再调度 server deploy。
-- `run.cache.scripts` 保持 Vite+ 默认 `false`，避免 build 缓存命中但 `apps/web/dist` 未真实存在。
+- `run.cache.scripts` 保持 Vite+ 默认 `false`，避免 build 缓存命中但 `apps/app/dist` 未真实存在。
 - Secrets 扫描仍用 `gitleaks`（外部 CLI，通过 GitHub Action 跑；本地不入 hook 以保持 pre-commit < 3s）。
 
 ### 4.5 `.env.example`（完整清单）

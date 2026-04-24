@@ -1,4 +1,4 @@
-// @duedatehq/contracts — single source of truth shared by apps/web and apps/server.
+// @duedatehq/contracts — single source of truth shared by apps/app and apps/server.
 // HARD CONSTRAINTS (docs/dev-file/08 §4.3):
 //   - Only `zod` and `@orpc/contract` imports are allowed.
 //   - Schemas must be usable as both input and output validators (no field drift).

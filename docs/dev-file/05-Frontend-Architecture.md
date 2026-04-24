@@ -10,7 +10,7 @@
 ## 1. 目录结构（约束）
 
 ```
-apps/web/
+apps/app/
 ├── index.html
 ├── vite.config.ts
 ├── public/
@@ -101,7 +101,7 @@ packages/ui/
 
 ## 4. oRPC 客户端（约束）
 
-`apps/web/src/lib/rpc.ts`（唯一形态）：
+`apps/app/src/lib/rpc.ts`（唯一形态）：
 
 ```ts
 // 约束
@@ -155,7 +155,7 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 ### 5.2 Tailwind 4 `@theme`（对齐 DESIGN.md）
 
-`packages/ui/src/styles/preset.css` 的 token 必须**与 DESIGN.md §2 完全一致**。`apps/web/src/styles/globals.css` 只是消费端 Tailwind 编译入口：
+`packages/ui/src/styles/preset.css` 的 token 必须**与 DESIGN.md §2 完全一致**。`apps/app/src/styles/globals.css` 只是消费端 Tailwind 编译入口：
 
 ```css
 @import 'tailwindcss';
@@ -226,10 +226,10 @@ export const orpc = createTanstackQueryUtils(rpc)
 | 层                                     | 位置        | 职责                                                                                                                 |
 | -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
 | `@duedatehq/ui/components/ui/*`        | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务、路由、session、oRPC                                             |
-| `apps/web/src/components/primitives/*` | 手写        | DueDateHQ 专有组件：TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown |
-| `apps/web/src/components/patterns/*`   | 手写        | 跨 feature 复用：evidence-drawer / cmdk / confirm-dialog                                                             |
-| `apps/web/src/features/<slice>/*`      | 手写        | 特性内部：migration-wizard / pulse-banner / workboard-table                                                          |
-| `apps/web/src/routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                                       |
+| `apps/app/src/components/primitives/*` | 手写        | DueDateHQ 专有组件：TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown |
+| `apps/app/src/components/patterns/*`   | 手写        | 跨 feature 复用：evidence-drawer / cmdk / confirm-dialog                                                             |
+| `apps/app/src/features/<slice>/*`      | 手写        | 特性内部：migration-wizard / pulse-banner / workboard-table                                                          |
+| `apps/app/src/routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                                       |
 
 **依赖方向**：`routes → features → patterns → primitives → @duedatehq/ui → @duedatehq/ui/lib`。下层**不得**依赖上层。`packages/ui` 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属业务组件。
 
@@ -296,14 +296,14 @@ export const orpc = createTanstackQueryUtils(rpc)
   ；模块级惰性文案使用 `msg` + `i18n._(MessageDescriptor)`，只允许已抽取的 descriptor
 - **Zod 保持 locale-free**：`packages/contracts` schemas 只返回结构化错误 `{ code, path }`，不含文案；
   前端 RHF 的错误 UI 用 `<Trans>` 按 `code` 分支渲染
-- **Catalog 布局**：`apps/web/src/i18n/locales/{locale}/messages.po`（源）→ `lingui compile`
+- **Catalog 布局**：`apps/app/src/i18n/locales/{locale}/messages.po`（源）→ `lingui compile`
   出 `.ts`（产物）；当前 `en` + `zh-CN` 体积可忽略，先静态 import，新增第三种语言时再改
   `dynamicActivate`
 - **服务端**（Hono 中间件 + React Email 模板）：Worker 不加载 Lingui runtime；`x-locale` >
   `Accept-Language` > `en` 解析后走 `apps/server/src/i18n/messages.ts` 类型化薄字典
 - **Node / Vite 约束**：Lingui v6 是 ESM-only，要求 Node `>=22.19`；`@lingui/vite-plugin`
   要求 Vite `^6.3.0 || ^7 || ^8`，由 Vite+ 工具链统一承载
-- **Macro transform**：`apps/web/vite.config.ts` 使用
+- **Macro transform**：`apps/app/vite.config.ts` 使用
   `@rolldown/plugin-babel + linguiTransformerBabelPreset()`；若收窄 `include`，必须用能匹配
   绝对 module id 的正则，不能用 `src/**/*.{ts,tsx}` 这类 picomatch brace glob
 - **富文本占位符**：`lingui.config.ts` 启用 `data-t` 与常见 tag 默认 placeholder 名，避免
@@ -313,8 +313,8 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 ### 11.1 操作命令
 
-1. `pnpm --filter @duedatehq/web i18n:extract`：扫描源码并更新 `.po`
-2. `pnpm --filter @duedatehq/web i18n:compile`：编译 catalog 到 `.ts`
+1. `pnpm --filter @duedatehq/app i18n:extract`：扫描源码并更新 `.po`
+2. `pnpm --filter @duedatehq/app i18n:compile`：编译 catalog 到 `.ts`
 3. `pnpm ready`：覆盖 check、test、build；Vite 插件会在 build 中再次编译 `.po`
 4. 排查 CLI 并行问题时可临时加 `--workers 1`
 
@@ -333,7 +333,7 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 ## 13. Storybook（Phase 1 可选）
 
-- 组件库（`packages/ui/src/components/ui` + `apps/web/src/components/primitives`）走 Storybook
+- 组件库（`packages/ui/src/components/ui` + `apps/app/src/components/primitives`）走 Storybook
 - Story 每个组件至少：default / hover / disabled / dark / error 5 个
 - Visual regression 用 Chromatic（免费层够用）
 
@@ -343,7 +343,7 @@ Phase 0 不做 Storybook，优先跑 Demo。
 
 ## 14. TODO
 
-- ~~接入 auth 时：登录态检查必须放在 app layout route 的 `loader` 或统一组件 gate 中，不要散落在各页面组件里。~~ 已在 `apps/web/src/router.tsx` 里用 `protectedLoader` / `guestLoader` 两个 loader 落地（`protected` 路由组 + 独立 `/login` 路由组），`RootLayout` 通过 `useLoaderData` 读取 `user`，不再订阅 `useSession`。
+- ~~接入 auth 时：登录态检查必须放在 app layout route 的 `loader` 或统一组件 gate 中，不要散落在各页面组件里。~~ 已在 `apps/app/src/router.tsx` 里用 `protectedLoader` / `guestLoader` 两个 loader 落地（`protected` 路由组 + 独立 `/login` 路由组），`RootLayout` 通过 `useLoaderData` 读取 `user`，不再订阅 `useSession`。
 - Workboard 接真实筛选 / 分页时：筛选、排序、分页和选中项必须通过 React Router search params 或 `nuqs` 管 URL state，不要放进普通组件 state。
 
 ---

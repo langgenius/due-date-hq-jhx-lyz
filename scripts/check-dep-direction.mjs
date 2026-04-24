@@ -23,7 +23,7 @@ const ALLOWED = {
   'packages/ai': new Set(['@duedatehq/core']),
   'packages/auth': new Set(['@duedatehq/core']),
   // apps are free to depend on any internal package.
-  'apps/web': null,
+  'apps/app': null,
   'apps/server': null,
 }
 

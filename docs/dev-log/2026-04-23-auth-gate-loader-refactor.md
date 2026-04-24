@@ -4,7 +4,7 @@
 
 ## 背景
 
-用户反馈点击 Sign out 时页面会闪一下。定位后发现 `apps/web/src/routes/_layout.tsx` 里有两个问题叠加：
+用户反馈点击 Sign out 时页面会闪一下。定位后发现 `apps/app/src/routes/_layout.tsx` 里有两个问题叠加：
 
 1. **认证 gate 写在组件渲染里**：`RootLayout` 通过 `useSession()` + `<Navigate>` 做保护。
 2. **Sign-out 时双重导航**：`handleSignOut` 在 `await signOut()` 之后又 `startTransition(() => navigate('/login', { replace: true }))`。
@@ -27,9 +27,9 @@
 
 改动文件：
 
-- `apps/web/src/router.tsx`
-- `apps/web/src/routes/_layout.tsx`
-- `apps/web/src/routes/login.tsx`
+- `apps/app/src/router.tsx`
+- `apps/app/src/routes/_layout.tsx`
+- `apps/app/src/routes/login.tsx`
 - `docs/dev-file/05-Frontend-Architecture.md`（标记 §14 TODO 完成）
 
 关键设计：
@@ -82,10 +82,10 @@
 
 ```
 pnpm check:fix             # format + lint + type-check all green
-pnpm --filter @duedatehq/web exec vp test --run   # 既有单测全绿
+pnpm --filter @duedatehq/app exec vp test --run   # 既有单测全绿
 ```
 
-手工验证路径（需本地跑 `apps/server` + `apps/web`）：
+手工验证路径（需本地跑 `apps/server` + `apps/app`）：
 
 - 未登录访问 `/`、`/workboard`、`/settings` → 自动跳 `/login?redirectTo=<路径>`
 - 未登录访问 `/` → 跳 `/login`（不带 `redirectTo`）
@@ -96,7 +96,7 @@ pnpm --filter @duedatehq/web exec vp test --run   # 既有单测全绿
 
 ## 后续 / 未闭环
 
-- `apps/web/src/lib/auth.ts` 仍然 export 了 `useSession`。当前没人用，但保留供未来"session 过期 toast""实时登录状态"之类的功能。如果后续一直没用到，可以收紧 export 面。
+- `apps/app/src/lib/auth.ts` 仍然 export 了 `useSession`。当前没人用，但保留供未来"session 过期 toast""实时登录状态"之类的功能。如果后续一直没用到，可以收紧 export 面。
 - `docs/dev-file/05-Frontend-Architecture.md §1` 的目录树仍保留了 `_app.*` 前缀的目标形态；Phase 0 实际代码是扁平的，已在该章节加了备注。等 Phase 0 → Phase 1 路由扩张时再决定是否实际采用 `_app.*` 约定，还是沿用扁平风格。
 - `RootLayout` 里还有 `PendingBar` 组件通过 `useNavigation()` 渲染顶部进度条。路由切换时会短暂显示，这是好事（配合 `HydrateFallback` 覆盖了全部加载态），先保留。
-- `apps/web/src/main.tsx` 里的 `QueryClient` 目前没跟 router loader 联动。未来如果 loader 需要读 TanStack Query 缓存，参考官方 `dehydrate` / `queryClient.ensureQueryData` 模式，再建议从一个共享 `queryClient` 导出。
+- `apps/app/src/main.tsx` 里的 `QueryClient` 目前没跟 router loader 联动。未来如果 loader 需要读 TanStack Query 缓存，参考官方 `dehydrate` / `queryClient.ensureQueryData` 模式，再建议从一个共享 `queryClient` 导出。

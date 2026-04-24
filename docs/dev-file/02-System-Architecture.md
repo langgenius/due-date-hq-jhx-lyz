@@ -122,7 +122,7 @@
 
 | 前缀                   | 挂载的 handler                                    | 职责                                                                       | 身份 / 调用方                       |
 | ---------------------- | ------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------- |
-| `/rpc/*`               | `RPCHandler`（`@orpc/server/fetch`）              | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型    | `apps/web` 独占；cookie session     |
+| `/rpc/*`               | `RPCHandler`（`@orpc/server/fetch`）              | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型    | `apps/app` 独占；cookie session     |
 | `/api/auth/*`          | better-auth（Google OAuth + Organization plugin） | 登录 / 注销 / Google OAuth callback / 邀请接受 / session 管理              | 浏览器 + Google OAuth 回调          |
 | `/api/webhook/*`       | 手写 Hono route                                   | Resend / Stripe（Phase 1）等外部回调                                       | 无用户身份；IP allowlist + 签名校验 |
 | `/api/ics/:token`      | 手写 Hono route（Phase 1）                        | ICS 日历订阅 feed                                                          | token 鉴权                          |
@@ -134,7 +134,7 @@
 
 ```toml
 [assets]
-directory = "../web/dist"
+directory = "../app/dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
 run_worker_first = ["/rpc/*", "/api/*"]

@@ -102,13 +102,13 @@ organizationHooks: buildOrganizationHooks(db) })`。
 
 ### 6. 前端
 
-- [`apps/web/src/lib/auth.ts`](../../apps/web/src/lib/auth.ts) 注册
+- [`apps/app/src/lib/auth.ts`](../../apps/app/src/lib/auth.ts) 注册
   `organizationClient()` plugin
-- [`apps/web/src/router.tsx`](../../apps/web/src/router.tsx) `protectedLoader` 缺
+- [`apps/app/src/router.tsx`](../../apps/app/src/router.tsx) `protectedLoader` 缺
   `activeOrganizationId` 时跳 `/onboarding?redirectTo=...`；新增 `/onboarding`
   顶层路由 + `onboardingLoader`（对称 `guestLoader`，复用 `pickSafeRedirect` 防
   open redirect）
-- 新建 [`apps/web/src/routes/onboarding.tsx`](../../apps/web/src/routes/onboarding.tsx) ——
+- 新建 [`apps/app/src/routes/onboarding.tsx`](../../apps/app/src/routes/onboarding.tsx) ——
   单卡片 Confirm your practice profile 表单：
   - input 加 `required + minLength=2 + trim>=2` 客户端校验
   - fallback 在组件层注入（`t\`My Practice\``）—— 不在 loader 注入（loader 跑在
@@ -122,11 +122,11 @@ organizationHooks: buildOrganizationHooks(db) })`。
 
 | 文件                                      | 改                                                                                 | 语境                           |
 | ----------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------ |
-| `apps/web/src/routes/settings.tsx` L35    | `Workspace defaults` → `Firm settings`                                             | 管理类 → Firm                  |
-| `apps/web/src/routes/settings.tsx` L48/58 | `Firm profile` / `Firm name` → `Practice profile` / `Practice name`                | section 是日常感知 → Practice  |
-| `apps/web/src/lib/i18n-error.ts`          | `TENANT_MISSING` / `TENANT_MISMATCH` workspace → practice；新增 `TENANT_SUSPENDED` | 错误日常感知 → Practice        |
-| `apps/web/src/routes/_layout.tsx` L344    | `Phase 0 demo workspace` → `Phase 0 demo practice`                                 | 品牌副标 → Practice            |
-| `apps/web/src/routes/login.tsx` 多处      | workspace → practice；保留 SSO policy 的 `firm`                                    | 营销 → Practice，policy → Firm |
+| `apps/app/src/routes/settings.tsx` L35    | `Workspace defaults` → `Firm settings`                                             | 管理类 → Firm                  |
+| `apps/app/src/routes/settings.tsx` L48/58 | `Firm profile` / `Firm name` → `Practice profile` / `Practice name`                | section 是日常感知 → Practice  |
+| `apps/app/src/lib/i18n-error.ts`          | `TENANT_MISSING` / `TENANT_MISMATCH` workspace → practice；新增 `TENANT_SUSPENDED` | 错误日常感知 → Practice        |
+| `apps/app/src/routes/_layout.tsx` L344    | `Phase 0 demo workspace` → `Phase 0 demo practice`                                 | 品牌副标 → Practice            |
+| `apps/app/src/routes/login.tsx` 多处      | workspace → practice；保留 SSO policy 的 `firm`                                    | 营销 → Practice，policy → Firm |
 
 中文 catalog 22 条新词全部翻成"事务所"（不区分 Practice/Firm —— 中文里硬造
 "执业"作名词比"事务所"生硬）。
@@ -139,10 +139,10 @@ organizationHooks: buildOrganizationHooks(db) })`。
 | `packages/db/src/schema/firm.test.ts`        | drizzle `getTableConfig` 反射：表名 / 列 / 默认值 / enum / FK + cascade/restrict                                                                                                                                 |
 | `apps/server/src/middleware/tenant.test.ts`  | 8 场景：缺 firmId / 缺 userId / membership 不存在 / membership suspended / firm_profile suspended / 正常路径 / **lazy create + ownerUserId 取 owner 最早** / **缺所有 owner 回退 userId + warn** / 删 org orphan |
 | `apps/server/src/organization-hooks.test.ts` | hook factory 纯单测：`afterCreateOrganization` 写 firm_profile 入参形状 / swallow + log on insert error / `beforeAddMember` 非 owner 抛 APIError                                                                 |
-| `apps/web/src/router.test.ts`                | `pickSafeRedirect` 防外站 + `protectedLoader` / `onboardingLoader` / `guestLoader` 各三态                                                                                                                        |
+| `apps/app/src/router.test.ts`                | `pickSafeRedirect` 防外站 + `protectedLoader` / `onboardingLoader` / `guestLoader` 各三态                                                                                                                        |
 
 汇总：`@duedatehq/core` 18 + `@duedatehq/db` 10 + `@duedatehq/server` 25 +
-`@duedatehq/web` 26 + `@duedatehq/auth` 1 + `@duedatehq/contracts` 2 +
+`@duedatehq/app` 26 + `@duedatehq/auth` 1 + `@duedatehq/contracts` 2 +
 `@duedatehq/ai` 1 = 83 个测试全绿。
 
 ### 9. 文档
@@ -253,8 +253,8 @@ pnpm --filter @duedatehq/core test                # 18 passed
 pnpm --filter @duedatehq/db test                  # 10 passed
 pnpm --filter @duedatehq/auth test                # 1 passed
 pnpm --filter @duedatehq/server test              # 25 passed
-pnpm --filter @duedatehq/web test                 # 26 passed
-pnpm --filter @duedatehq/web i18n:extract && pnpm --filter @duedatehq/web i18n:compile  # 0 missing
+pnpm --filter @duedatehq/app test                 # 26 passed
+pnpm --filter @duedatehq/app i18n:extract && pnpm --filter @duedatehq/app i18n:compile  # 0 missing
 pnpm check                                        # 全绿
 pnpm check:deps                                   # ✓ Dependency direction OK
 ```

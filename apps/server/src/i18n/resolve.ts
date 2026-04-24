@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 
-// Keep this list in sync with apps/web/src/i18n/locales.ts.
+// Keep this list in sync with apps/app/src/i18n/locales.ts.
 export const SUPPORTED_LOCALES = ['en', 'zh-CN'] as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
 export const DEFAULT_LOCALE: Locale = 'en'

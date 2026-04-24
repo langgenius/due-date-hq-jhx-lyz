@@ -13,7 +13,7 @@
 # ║    CLOUDFLARE_API_TOKEN, NODE_ENV). Those live in root `.env`.           ║
 # ║                                                                          ║
 # ║  ⚠ NOT the place for browser-facing vars. Those go to                    ║
-# ║    apps/web/.env.local with a `VITE_` prefix.                            ║
+# ║    apps/app/.env.local with a `VITE_` prefix.                            ║
 # ║                                                                          ║
 # ║  Schema validated by apps/server/src/env.ts (`validateServerEnv`).       ║
 # ╚══════════════════════════════════════════════════════════════════════════╝

@@ -27,5 +27,5 @@
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
-  "//": "JIT package — consumers transpile .ts sources directly (apps/web via vite-plus, apps/server via wrangler esbuild)."
+  "//": "JIT package — consumers transpile .ts sources directly (apps/app via vite-plus, apps/server via wrangler esbuild)."
 }

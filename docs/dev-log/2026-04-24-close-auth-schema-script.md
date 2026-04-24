@@ -83,7 +83,7 @@ schema 是唯一真理"的工作流。DueDateHQ 的 schema 已经不满足这个
 @duedatehq/auth      5 tests (权限 shape 锁定，来自上一条 P1)
 @duedatehq/db       10 tests
 @duedatehq/server   28 tests
-@duedatehq/web      26 tests
+@duedatehq/app      26 tests
 @duedatehq/core     18 tests
 @duedatehq/contracts 2 tests
 @duedatehq/ai        1 test

@@ -64,7 +64,7 @@
 ```
 
 - **唯一可部署单元**：`apps/server`，`wrangler deploy` 一条命令全量发布
-- **前后端物理隔离 / 逻辑共契约**：`apps/web`（Vite SPA）静态化产物被同一 Worker 的 Assets binding 托管；`packages/contracts` 是前后端共享的 oRPC 契约
+- **前后端物理隔离 / 逻辑共契约**：`apps/app`（Vite SPA）静态化产物被同一 Worker 的 Assets binding 托管；`packages/contracts` 是前后端共享的 oRPC 契约
 - **路由分层遵循 oRPC 官方惯例**：`/rpc/`_ 走 RPC Protocol（内部前端），`/api/`_ 走 REST（auth / webhook / 未来公网 OpenAPI）；两者可共用同一份契约
 - **租户隔离通过 better-auth Organization + 仓库工厂（`scoped(db, firmId)`）双锁**，不依赖 DB 级 RLS（D1 无 RLS）
 - **后台任务不依赖第三方**：Cron Triggers + Queues + Workflows 原生足矣

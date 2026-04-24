@@ -6,7 +6,7 @@ import babel from '@rolldown/plugin-babel'
 import path from 'node:path'
 
 /**
- * Per-app Vite+ config for apps/web.
+ * Per-app Vite+ config for apps/app.
  *
  * Inherits the root lint / fmt / staged / run blocks
  * (see ../../vite.config.ts); overrides only the
