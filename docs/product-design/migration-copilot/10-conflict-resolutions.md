@@ -105,7 +105,7 @@
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part2B.md` §13.2 最后一项（LLM 本地化约束）
 - **裁定**：分两层。
   1. **Audit action 名 + PostHog 事件名**：走 `migration.*` 英文工程 log，**不**进 Lingui。命名固定为 `migration.imported / .reverted / .single_undo / .mapper.run.completed / .mapper.confirmed / .normalizer.confirmed / .matrix.applied / .wizard.step{1..4}.opened`。
-  2. **UI 文案 + 邮件 subject / body + Toast**：走 Lingui message catalog（对齐项目 `.claude/skills/lingui-best-practices/SKILL.md` 与 `../../adr/0009-lingui-for-i18n.md`），包括 Step 4 成功 toast、Revert 提示、战报邮件。文案与 audit action 同源但两套字符串，文案变化不回溯 audit。
+  2. **用户可见文案**：SaaS UI + Toast 走 `apps/app` Lingui catalog；战报邮件 subject / body 走 `apps/server` 类型化薄字典；公开站文案走 `apps/marketing` catalog/dictionary。三者共享 locale contract，但不共享同一个 catalog（对齐 `../../adr/0009-lingui-for-i18n.md`）。文案与 audit action 同源但两套字符串，文案变化不回溯 audit。
 - **理由**：audit log 是合规证据（Part2B §13.2.1 "7 年保留 + PII hash 化"），必须稳定、可索引、可 grep、不随翻译变化；UI 文案属于产品体验，要本地化、要 A/B、要营销微调。两层混用会让 audit 字段被翻译覆盖，违反 Part2B §13.2 附录"审计不改写"精神。
 - **工程落地影响**：`../../dev-file/03-Data-Model.md` §2.4 / §2.5 定义 `migration_*` 表与 `audit_event` 的工程字段；`./02-ux-4step-wizard.md` 所有用户可见字符串走 `<Trans />` / `t\`...\`` 宏；本表 §6.2 明确 PostHog 事件名与 audit action 同源同名但不加入 Lingui extract。
 

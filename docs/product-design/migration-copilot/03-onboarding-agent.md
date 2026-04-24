@@ -109,7 +109,7 @@
 
 ## 3. 对话脚本完整原文（§6A.11.2 照录 + 右侧中文注解）
 
-> **重要约束**：本节左列每一 turn 的文字**原文来自 PRD Part1B §6A.11.2 行 390–442**，不删减、不改写、不翻译；每个 turn 的英文气泡文案在工程实现时都会走 `<Trans>...</Trans>`（JSX）或 `` t`...` ``（字符串）宏（ADR 0009 · [`../../adr/0009-lingui-for-i18n.md`](../../adr/0009-lingui-for-i18n.md)），zh-CN 副本跟 Lingui catalog 抽取（`apps/app/src/i18n/locales/zh-CN/messages.po`，见 `../../AGENTS.md`）。右列是本册新加的中文注解，**不进 PRD，不进工程代码**。
+> **重要约束**：本节左列每一 turn 的文字**原文来自 PRD Part1B §6A.11.2 行 390–442**，不删减、不改写、不翻译；每个 turn 的英文气泡文案在 SaaS app 工程实现时都会走 `<Trans>...</Trans>`（JSX）或 `` t`...` ``（字符串）宏（ADR 0009 · [`../../adr/0009-lingui-for-i18n.md`](../../adr/0009-lingui-for-i18n.md)），zh-CN 副本跟 `apps/app` 的 Lingui catalog 抽取（`apps/app/src/i18n/locales/zh-CN/messages.po`，见 `../../AGENTS.md`）。公开 marketing 站文案不进入 app catalog。右列是本册新加的中文注解，**不进 PRD，不进工程代码**。
 
 ### 3.1 完整脚本（原文 + 注解）
 

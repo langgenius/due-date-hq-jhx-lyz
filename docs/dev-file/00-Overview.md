@@ -25,6 +25,7 @@
 | 09  | [Demo Sprint Module Playbook](./09-Demo-Sprint-Module-Playbook.md)                | 2 人 Demo-Ready 模块拆分与协作边界手册                                                            | Team                |
 | 10  | [Demo Sprint 7-Day Rhythm](./10-Demo-Sprint-7Day-Rhythm.md)                       | 2 人 7 天 × 4-6h/天 的 Demo 节奏与每日分工                                                        | Team                |
 | 11  | [Pulse Ingest Source Catalog](./11-Pulse-Ingest-Source-Catalog.md)                | Pulse 权威源清单 · 反爬策略 · SLA 风险 · Adapter 契约                                             | Eng / Ops           |
+| 12  | [Marketing Architecture](./12-Marketing-Architecture.md)                          | Astro 公开站 · Landing PRD · SEO · i18n 共享 contract · 部署边界                                  | PM / Design / Eng   |
 | 📐  | [Design System](../Design/DueDateHQ-DESIGN.md)                                    | 视觉 token · 组件规格（Ramp × Linear · Light Workbench）                                          | Designer / Frontend |
 | 📐  | [Migration Copilot Product Design](../product-design/migration-copilot/README.md) | 本册入口：Demo Sprint 口径下 Migration Copilot 产品 UX / Prompt / Matrix / Fixture / 设计系统增量 | PM / Design / Eng   |
 
@@ -34,15 +35,22 @@
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│              DueDateHQ · Single-Worker Full-Stack on Cloudflare        │
+│              DueDateHQ · Marketing + SaaS on Cloudflare                │
 │                                                                        │
-│   Browser ──► https://app.duedatehq.com                                │
+│   Visitor ──► https://duedatehq.com                                    │
+│                 │                                                      │
+│                 ▼                                                      │
+│          apps/marketing · Astro static site                            │
+│          Landing / SEO / OG / future content pages                     │
+│                 │ CTA                                                  │
+│                 ▼                                                      │
+│   User ─────► https://app.duedatehq.com                                │
 │                         │                                              │
 │                         ▼                                              │
 │   ┌──────────────────────────────────────────────────────────────┐    │
 │   │                Cloudflare Worker (one binary)                │    │
 │   │                                                              │    │
-│   │   其他路径      ──► ASSETS.fetch()   → SPA dist (SPA fallback)│    │
+│   │   app 子域其他路径 ─► ASSETS.fetch() → SPA dist (SPA fallback)│    │
 │   │   /rpc/*       ──► Hono ──► RPCHandler ──► procedures/*      │    │
 │   │                     （oRPC 专有协议；内部前端独占）           │    │
 │   │   /api/auth/*  ──► better-auth (Organization plugin)         │    │
@@ -63,8 +71,9 @@
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **唯一可部署单元**：`apps/server`，`wrangler deploy` 一条命令全量发布
-- **前后端物理隔离 / 逻辑共契约**：`apps/app`（Vite SPA）静态化产物被同一 Worker 的 Assets binding 托管；`packages/contracts` 是前后端共享的 oRPC 契约
+- **两个部署单元，一个产品入口**：`apps/marketing` 部署到 `duedatehq.com`；`apps/server` + `apps/app` 部署到 `app.duedatehq.com`
+- **前后端物理隔离 / 逻辑共契约**：`apps/app`（Vite SPA）静态化产物被 SaaS Worker 的 Assets binding 托管；`packages/contracts` 是 app/server 共享的 oRPC 契约
+- **公开站不复用内部 RPC**：marketing 首版只输出静态 HTML；后续公开规则页通过静态 snapshot 或 `/api/v1/*` 读 verified 规则，不调用内部 `/rpc`
 - **路由分层遵循 oRPC 官方惯例**：`/rpc/`_ 走 RPC Protocol（内部前端），`/api/`_ 走 REST（auth / webhook / 未来公网 OpenAPI）；两者可共用同一份契约
 - **租户隔离通过 better-auth Organization + 仓库工厂（`scoped(db, firmId)`）双锁**，不依赖 DB 级 RLS（D1 无 RLS）
 - **后台任务不依赖第三方**：Cron Triggers + Queues + Workflows 原生足矣
@@ -97,13 +106,13 @@
 
 ## 4. 工程优先级（与 PRD Phase 对齐）
 
-| Phase                                  | PRD 范围                                                                                                                                      | 技术里程碑                                                                                                                                        |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Phase 0 · MVP · ~4 周**（PRD §14.1） | P0-1 ~ P0-24 全部；P1 的 Pulse / Ask / Client PDF / ICS（P1-36 的 PWA 壳已从 Phase 0 移除，见 §7）                                            | 核心闭环 + 6 辖区 rule pack（Federal + CA/NY/TX/FL/WA/MA）全 verified；单 Worker 部署                                                             |
-| — **内嵌 · Demo Sprint**（§09）        | Phase 0 的 Demo-Ready 最小子集                                                                                                                | 简化为 3 辖区 seed（Federal + CA + NY）+ 单 Owner + Pulse 直接 UPDATE（替代 Overlay）+ WISP 1-page draft；目的是集训路演，不等价 Phase 0 完整交付 |
-| **Phase 1 · 5–12 周**（PRD §14.2）     | P1-1 ~ P1-37：Rules-as-Asset 全量 · 50 州 full coverage · Team RBAC 完整 · Stripe · Zapier · Readiness Portal · Onboarding Agent · SEO 公开页 | Overlay Engine 启用 · RBAC 强制校验开启 · **SEO 公开页（`/rules` `/watch` `/state/*` `/pulse`）拆到独立 Astro 子站**（主 Worker 保持 SPA）        |
-| **Phase 2 · Q3 2026**（PRD §14.3）     | macOS Menu Bar Widget · Audit-Ready Evidence Package · QBO/TaxDome/Drake 集成 · 电子签名 · SOC 2 预审                                         | Tauri 壳 · RFC 3161 TSA · 第三方集成 API                                                                                                          |
-| **Phase 3 · Q4 2026+**（PRD §14.4）    | Compliance Calendar API（给 TaxDome / Karbon 做 intelligence 层）                                                                             | 开放 `/api/v1/*` OpenAPIHandler 路由（复用同一份 `packages/contracts` 契约）                                                                      |
+| Phase                                  | PRD 范围                                                                                                                                      | 技术里程碑                                                                                                                                            |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Phase 0 · MVP · ~4 周**（PRD §14.1） | P0-1 ~ P0-24 全部；P1 的 Pulse / Ask / Client PDF / ICS（P1-36 的 PWA 壳已从 Phase 0 移除，见 §7）；公开首页从 SaaS app 中拆出                | 核心闭环 + 6 辖区 rule pack（Federal + CA/NY/TX/FL/WA/MA）全 verified；SaaS Worker + Astro marketing 双部署单元                                       |
+| — **内嵌 · Demo Sprint**（§09）        | Phase 0 的 Demo-Ready 最小子集                                                                                                                | 简化为 3 辖区 seed（Federal + CA + NY）+ 单 Owner + Pulse 直接 UPDATE（替代 Overlay）+ WISP 1-page draft；目的是集训路演，不等价 Phase 0 完整交付     |
+| **Phase 1 · 5–12 周**（PRD §14.2）     | P1-1 ~ P1-37：Rules-as-Asset 全量 · 50 州 full coverage · Team RBAC 完整 · Stripe · Zapier · Readiness Portal · Onboarding Agent · SEO 公开页 | Overlay Engine 启用 · RBAC 强制校验开启 · **SEO 公开页（`/rules` `/watch` `/state/*` `/pulse`）继续由 `apps/marketing` 承载**（SaaS Worker 保持 SPA） |
+| **Phase 2 · Q3 2026**（PRD §14.3）     | macOS Menu Bar Widget · Audit-Ready Evidence Package · QBO/TaxDome/Drake 集成 · 电子签名 · SOC 2 预审                                         | Tauri 壳 · RFC 3161 TSA · 第三方集成 API                                                                                                              |
+| **Phase 3 · Q4 2026+**（PRD §14.4）    | Compliance Calendar API（给 TaxDome / Karbon 做 intelligence 层）                                                                             | 开放 `/api/v1/*` OpenAPIHandler 路由（复用同一份 `packages/contracts` 契约）                                                                          |
 
 Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Membership 三表在 Phase 0 已通过 better-auth Organization 就位；ExceptionRule 表结构在 Phase 0 末设计到位，Phase 1 启用 Overlay Engine 时零 schema 重构。P0 的安全含义是 tenant isolation、Owner-only 写路径、审计与 AI 日志；完整四角色权限矩阵与 Manager MFA 属 P1，Owner MFA 在真实试点前启用。
 
@@ -112,7 +121,7 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 ## 5. 阅读顺序建议
 
 - **后端 Eng**：01 → 08 → 02 → 03 → 06 → 04 → 07
-- **前端 Eng**：01 → 08 → 05 → Design → 07
+- **前端 Eng**：01 → 08 → 05 → 12 → Design → 07
 - **PM / TL**：00 → 02 → 04 → 06
 - **SRE / DevOps**：01 → 02 → 07 → 06
 
@@ -133,7 +142,7 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 
 | 否决的选择                      | 理由                                                                                                                                                                                                                                                                                                |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ❌ Next.js / Vercel             | 需要单实例 Cloudflare 部署；SSR 与 Worker Assets 模型冲突；SPA + oRPC 契约对 2 人 AI 辅助团队更优                                                                                                                                                                                                   |
+| ❌ Next.js / Vercel             | 登录后 SaaS app 不需要 SSR-first 框架；公开 SEO 由 `apps/marketing` Astro 处理，避免把 app 迁到 React Router SSR 或 Next.js                                                                                                                                                                         |
 | ❌ Prisma                       | D1 需要裸 SQL 计算派生字段（Overlay Engine）；Drizzle 类型推导强 + Edge 兼容                                                                                                                                                                                                                        |
 | ❌ Neon / Postgres / Hyperdrive | DueDateHQ workload 的主路径是**小租户点查询 + 边缘延迟敏感**，D1 是正确选择不是权宜之计；Vectorize 覆盖 pgvector 主用途，FTS5 覆盖全文检索。`scoped(db, firmId)` 是应用层隔离，不等价于 DB RLS；若出现单库接近 10GB、跨租户 OLAP 或强物理隔离要求，先按 firm/region 拆 D1，再评估 Hyperdrive + Neon |
 | ❌ Inngest / Trigger.dev        | Cron Triggers + Queues + Workflows 三原语已覆盖需求，零外部依赖                                                                                                                                                                                                                                     |

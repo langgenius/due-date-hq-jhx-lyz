@@ -42,5 +42,5 @@
     "vitest": "catalog:",
     "wrangler": "catalog:"
   },
-  "//": "Cloudflare Worker — the only deployable unit. Wrangler drives dev/build/deploy; `vp test` runs Vitest in the workers pool."
+  "//": "Cloudflare Worker for the SaaS app domain. Wrangler drives dev/build/deploy; `vp test` runs Vitest in the workers pool."
 }

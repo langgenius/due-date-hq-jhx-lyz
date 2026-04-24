@@ -1112,6 +1112,8 @@ Active overlays: 1
 
 ### 6D.3 Source Registry + `/watch` 公开页
 
+工程归属：公开 `/watch` 属于 `apps/marketing` / `duedatehq.com`，不由 `app.duedatehq.com` 的 SaaS SPA fallback 承载。
+
 **内部（Plan §7.3 第一重防漏）：**
 
 `RuleSource` 表登记每一个必看官方来源：
@@ -1303,6 +1305,8 @@ Trust, but verify. Open any rule to see its sources:
 **打 FIT 的点**：FIT 一年更新一次规则包，**中间 365 天你不知道它在不在活着**。我们每天 30 分钟扫一次、每周一份 report、每季度一次全量、每税季前一轮复核——**节奏公开书面承诺**。从 "trust me" 变成 "trust the rhythm"。
 
 ### 6D.7 Rule Library（`/rules` 公开 + 内部管理双面）
+
+工程归属：公开 `/rules` 属于 `apps/marketing` / `duedatehq.com`；内部 rules 管理面属于登录后 `apps/app`。
 
 **公开面 · `/rules` Landing Page（SEO + 获客）：**
 

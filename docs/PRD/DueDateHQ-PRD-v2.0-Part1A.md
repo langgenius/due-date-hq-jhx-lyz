@@ -876,11 +876,13 @@ MVP 覆盖 6 辖区（Federal + CA/NY/TX/FL/WA/MA）约 30 条。
 CPA 可以点 `Report issue` 触发人工复核流。  
 **不允许** CPA 编辑内置规则，但允许 `custom_deadline`（手动添加到某客户）。
 
-> 完整 Rules-as-Asset 架构（包括公开 `/rules` Library、`/watch` Source Registry、Deadline History overlay）见 §6D。
+> 完整 Rules-as-Asset 架构（包括公开 `/rules` Library、`/watch` Source Registry、Deadline History overlay）见 §6D。工程归属：公开 SEO 页属于 `apps/marketing` / `duedatehq.com`，不是 `app.duedatehq.com` 的 SaaS SPA fallback。
 
 ### 5.7A `/rules` Rule Library 公开页（P1-34 · §6D.7）
 
 面向 CPA 的公开规则浏览页，**无需登录**（SEO + 获客）。
+
+工程归属：`apps/marketing` Astro static site；首版可用静态/mock verified rules，后续通过静态 snapshot 或公开 `/api/v1/*` 读取规则快照，不调用内部 `/rpc`。
 
 **包含：**
 
@@ -896,6 +898,8 @@ CPA 可以点 `Report issue` 触发人工复核流。
 ### 5.7B `/watch` Source Registry 公开页（P1-31 · §6D.3）
 
 "What We Watch For You" 页：列出 15+ 官方来源、cadence、当前健康状态，公开承诺可见。
+
+工程归属同 `/rules`：`apps/marketing` / `duedatehq.com`。
 
 ### 5.7C Dashboard Freshness Badge（§6D.3 层 A）
 

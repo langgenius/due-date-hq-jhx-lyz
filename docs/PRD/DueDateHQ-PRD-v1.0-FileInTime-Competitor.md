@@ -1,5 +1,7 @@
 # DueDateHQ PRD v1.0 — File In Time 的 AI-Native 云端替代品
 
+> 历史归档：本文保留早期竞品/产品构想，技术栈中的 Next.js / Vercel / Postgres / Upstash 不是当前工程决策。当前工程权威口径以 `docs/dev-file/*` 为准：`apps/marketing` Astro 公开站 + `apps/app` Vite SPA + `apps/server` Cloudflare Worker。
+
 > 文档类型：产品需求文档（PRD）
 > 版本：v1.0（14 天 MVP 冲刺版）
 > 作者：Product

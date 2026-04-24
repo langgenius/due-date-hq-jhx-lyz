@@ -524,6 +524,8 @@ Phase 2 先做 Tauri 版（跨平台 future-proof），SwiftUI 视 GTM 需求决
 
 公开页说明三层交付形态（P1-36 / P1-37），配截图：
 
+工程归属：`/get` 属于 `apps/marketing` / `duedatehq.com`，不是登录后 SaaS app 的 route。
+
 ```
 Get DueDateHQ on every device
 

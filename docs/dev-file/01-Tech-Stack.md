@@ -1,6 +1,6 @@
 # 01 · Tech Stack · 技术栈选型
 
-> 原则：**单实例全栈部署到 Cloudflare · 前后端物理隔离但共享类型契约 · 零 vendor lock-in 的可替换单元 · 类型安全到底。**
+> 原则：**公开站与 SaaS app 分离部署到 Cloudflare · 前后端物理隔离但共享类型契约 · 零 vendor lock-in 的可替换单元 · 类型安全到底。**
 > 每一项选择都必须能回答："为什么不是 X？"
 
 ---
@@ -14,7 +14,8 @@
 | **脚手架**              | `vp create vite:monorepo` 起骨架                                                        | Vite+ 官方 monorepo 模板，自带 `vite-plus` 根配置 + 共享 typescript-config                                                                                                           |
 | **统一工具链**          | **Vite+ (`vite-plus` + 全局 `vp`)**                                                     | 一个 dep 吞下 Vite 8 + Vitest + Oxlint + Oxfmt + Rolldown + tsdown + Vite Task；`vp check / test / build / run -r` 是全仓唯一入口，取代独立的 oxlint / oxfmt / vitest / turbo 调用链 |
 | **Git Hooks**           | Vite+ `staged` 块（vite.config.ts）                                                     | 由 `vp` 安装的 git hook 调度，等价于 lefthook + lint-staged；单一配置源                                                                                                              |
-| **前端框架**            | Vite 8（由 vite-plus 提供）+ React 19                                                   | 纯 SPA，不走 SSR；Workers Assets 只托管静态产物                                                                                                                                      |
+| **SaaS 前端框架**       | Vite 8（由 vite-plus 提供）+ React 19                                                   | `apps/app` 是纯 SPA，不走 SSR；Workers Assets 只托管登录后产品静态产物                                                                                                               |
+| **Marketing 框架**      | Astro static site + `@astrojs/react` islands                                            | `apps/marketing` 承载 `duedatehq.com` landing / SEO / OG；默认零 JS，只有交互 island 才加载 React                                                                                    |
 | **前端路由**            | React Router 7（library/data mode，非 framework mode）                                  | framework mode 会拖进 Node 依赖，与 Worker 冲突                                                                                                                                      |
 | **UI 底座**             | shadcn/ui（`"style": "base-vega"`）+ Base UI                                            | Base UI 是 Radix 团队下一代；体积更小，键盘/RTL 更严                                                                                                                                 |
 | **样式**                | Tailwind 4（`@theme` directive）                                                        | 密度 + 暗色 token 切换；对齐 DESIGN.md                                                                                                                                               |
@@ -46,24 +47,31 @@
 | **测试**                | Vitest + `@cloudflare/vitest-pool-workers` + Playwright + msw                           | 单测跑在 Workers runtime；E2E 跨浏览器                                                                                                                                               |
 | **菜单栏壳（Phase 2）** | Tauri 2 + Rust                                                                          | 跨平台；~1 MB 体积                                                                                                                                                                   |
 
-> 所有前端 `apps/app` 依赖不进 `apps/server`；所有后端 Worker 依赖不进 `apps/app`。两者通过 `packages/contracts` 共享类型。
+> 所有前端 `apps/app` 依赖不进 `apps/server`；所有后端 Worker 依赖不进 `apps/app`。两者通过 `packages/contracts` 共享类型。`apps/marketing` 只共享 `packages/ui` 与 locale contract，不调用内部 `/rpc`。
 
 ---
 
 ## 2. 关键选型的深度理由
 
-### 2.1 为什么 Cloudflare 单 Worker 而非 Vercel + Next.js
+### 2.1 为什么 Cloudflare SaaS Worker + Astro Marketing，而非 Vercel + Next.js
 
-| 维度                        | 现方案（CF 单 Worker）                                                                             | 旧方案（Vercel + Next.js）                                          |
+| 维度                        | 现方案（CF SaaS Worker + Astro marketing）                                                         | 旧方案（Vercel + Next.js）                                          |
 | --------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | 部署供应商                  | Cloudflare（Workers + D1 + KV + R2 + Queues + Vectorize + AI Gateway）+ Resend + Sentry = **3 家** | Vercel + Neon + Upstash + Inngest + R2 + Resend + Sentry = **7 家** |
 | dev / prod runtime 一致     | miniflare = Workers 完全一致                                                                       | Vercel Edge vs Node local 经常踩坑                                  |
 | 全球 PoP                    | 300+                                                                                               | 北美为主                                                            |
 | 成本（MVP）                 | ~$5–10/mo                                                                                          | ~$70/mo                                                             |
 | SPA 回访体验（chunk cache） | 秒开                                                                                               | 同级                                                                |
-| SEO 公开页                  | 弱（需单独 Astro 静态子站）                                                                        | 强                                                                  |
+| SEO 公开页                  | 强：`apps/marketing` Astro 静态 HTML / OG / sitemap                                                | 强                                                                  |
 
-结论：**对回头率驱动的目标用户**，CF 方案体验与成本双优；SEO 短板留待 Phase 1 单独处理。Install 体验（原 PWA 场景）推迟到 Phase 2 的 Tauri menu bar widget 统一覆盖。
+结论：**对回头率驱动的目标用户**，CF Worker + SPA 方案在产品 app 上体验与成本双优；公开 SEO 不塞进 app，而由 Astro 静态站承接。Install 体验（原 PWA 场景）推迟到 Phase 2 的 Tauri menu bar widget 统一覆盖。
+
+### 2.1A 为什么 Astro 做 marketing，而非把 landing 放进 `apps/app`
+
+- `apps/app` 是登录后工作台，根路由默认做 auth gate；把公开 landing 放进去会让 app 路由同时承担获客与产品两种职责。
+- SPA fallback 返回同一个 `index.html`，对登录后体验正确，但对 SEO、OG、无 JS 访问和 sitemap 不理想。
+- Astro 默认输出静态 HTML，符合 landing / pricing / content 的 SEO 需求；React 只作为局部 island 使用，能继续复用 `packages/ui`。
+- 两个部署单元可以通过 root `pnpm deploy` 串行编排，不需要牺牲域名、缓存和 auth 边界。
 
 ### 2.2 为什么 oRPC 而非 tRPC / REST
 
@@ -196,6 +204,8 @@ catalog:
   '@types/react-dom': 19.2.3
   react-router: 7.14.2
   '@vitejs/plugin-react': 6.0.1 # vite-plus 内部使用 vite 8 + rolldown
+  astro: 6.1.9
+  '@astrojs/react': 5.0.4
   tailwindcss: 4.2.4
   '@tailwindcss/vite': 4.2.4
   lucide-react: 1.8.0
@@ -308,7 +318,7 @@ catalog:
     "ci": "vp check && vp run -r test && vp run build",
     "ready": "vp check && vp run -r test && vp run build",
     "dev": "vp run -r dev",
-    "build": "vp run @duedatehq/app#build && vp run @duedatehq/server#build",
+    "build": "vp run @duedatehq/marketing#build && vp run @duedatehq/app#build && vp run @duedatehq/server#build",
     "check": "vp check",
     "test": "vp run -r test",
     "format": "vp fmt --check",
@@ -351,7 +361,8 @@ export default defineConfig({
         command: 'vp run -r test',
       },
       'workspace-deploy': {
-        command: 'pnpm db:migrate:remote && vp run @duedatehq/server#deploy',
+        command:
+          'vp run @duedatehq/marketing#deploy && pnpm db:migrate:remote && vp run @duedatehq/server#deploy',
         cache: false,
         dependsOn: ['workspace-build', 'workspace-test'],
       },
@@ -366,6 +377,7 @@ export default defineConfig({
 
 **备注**：
 
+- `apps/marketing` 是公开站部署单元；可以用 Cloudflare Pages direct upload 或 static Worker。root `deploy` 负责把它和 SaaS Worker 串起来。
 - `apps/server` 的 `wrangler deploy` 不走 Vite+ bundling；root `deploy` 先跑有序 build + D1 迁移，再调度 server deploy。
 - `run.cache.scripts` 保持 Vite+ 默认 `false`，避免 build 缓存命中但 `apps/app/dist` 未真实存在。
 - Secrets 扫描仍用 `gitleaks`（外部 CLI，通过 GitHub Action 跑；本地不入 hook 以保持 pre-commit < 3s）。
@@ -376,6 +388,8 @@ export default defineConfig({
 # ───────── App ─────────
 NODE_ENV=development
 APP_URL=http://localhost:8787
+MARKETING_URL=http://localhost:4321
+PUBLIC_APP_URL=http://localhost:8787
 ENV=development
 
 # ───────── Cloudflare Bindings（由 wrangler.toml 注入到 Worker）─────────

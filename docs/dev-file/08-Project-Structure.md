@@ -9,9 +9,11 @@
 ```
 duedatehq/
 ├── apps/
+│   ├── marketing/                 # Astro 公开站（landing / SEO / OG）
 │   ├── app/                       # Vite React SPA（登录后的 SaaS 产品）
-│   └── server/                    # Cloudflare Worker（唯一可部署单元）
+│   └── server/                    # Cloudflare Worker（SaaS API/RPC + app assets）
 ├── packages/
+│   ├── i18n/                      # 共享 locale contract（常量/headers/Intl 映射）
 │   ├── contracts/                 # oRPC 契约（前后端唯一共享源）
 │   ├── db/                        # Drizzle schema + scoped repo 工厂 + writers
 │   ├── core/                      # 纯领域逻辑（penalty / priority / overlay / date-logic）
@@ -30,10 +32,7 @@ duedatehq/
 ├── .github/
 │   └── workflows/
 ├── pnpm-workspace.yaml
-├── turbo.json
-├── tsconfig.base.json（顶层仅用于 scripts/）
-├── oxlintrc.json
-├── oxfmt.toml
+├── vite.config.ts                  # Vite+ task graph / lint / fmt / staged
 ├── package.json
 └── README.md
 ```
@@ -56,7 +55,7 @@ rm -rf apps/* packages/*
 # 3. 把 packages/typescript-config 改名 @duedatehq/typescript-config
 #    并派生出 base / library / vite / worker 四个 variant（见 §3.2）
 
-# 4. 手工新增我们的 apps/server · apps/app · packages/{ui,contracts,db,core,ai,auth}
+# 4. 手工新增我们的 apps/marketing · apps/server · apps/app · packages/{i18n,ui,contracts,db,core,ai,auth}
 # 5. 按 §01.4 把 pnpm-workspace.yaml 的 catalog 逐字对齐 01-Tech-Stack.md 的权威快照
 # 6. vp install      # 底层仍然调 pnpm
 # 7. vp check        # 全绿即脚手架完成
@@ -195,7 +194,24 @@ apps/server/
 - `src/lib/rpc.ts`：唯一 oRPC client 实例
 - `src/lib/auth.ts`：better-auth client
 
-### 4.2.1 `packages/ui`
+### 4.2.1 `apps/marketing`
+
+详见 §12。核心：
+
+- `src/pages/*`：Astro static pages；`/` 是公开首页，后续 `/rules` / `/watch` / `/state/*` / `/pulse` 也在这里
+- `src/components/*`：marketing 专属 Astro section，不放入 `packages/ui`
+- `src/islands/*`：少量需要交互的 React island，可使用 `@duedatehq/ui`
+- `src/i18n/*`：marketing copy dictionary；共享 locale 常量从 `packages/i18n` 引入
+- `src/styles/globals.css`：Tailwind 入口，导入 `@duedatehq/ui/styles/preset.css` 并 `@source` 扫描 `packages/ui/src`
+
+**约束：**
+
+- 不导入 `apps/app/src/*`
+- 不调用内部 `/rpc`
+- 不复用 app 的 Lingui catalog
+- 不读取 Better Auth session
+
+### 4.2.2 `packages/ui`
 
 ```
 packages/ui/
@@ -213,6 +229,22 @@ packages/ui/
 - 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属 dashboard/workboard/settings 组件
 - app 通过 `@duedatehq/ui/components/ui/*`、`@duedatehq/ui/lib/utils`、`@duedatehq/ui/styles/preset.css` 消费
 - 每个消费 app 的 Tailwind 入口必须 `@source` 扫描 `packages/ui/src`，否则 shadcn 组件内部 utilities 不会生成
+
+### 4.2.3 `packages/i18n`
+
+```
+packages/i18n/
+├── src/
+│   ├── locales.ts                 # Locale / SUPPORTED_LOCALES / DEFAULT_LOCALE / INTL_LOCALE
+│   ├── headers.ts                 # LOCALE_HEADER = 'x-locale'
+│   └── index.ts
+└── package.json
+```
+
+**约束：**
+
+- 只放纯 TypeScript 常量和 helper，不引入 Lingui、Astro、React 或 Worker runtime
+- `apps/app`、`apps/server`、`apps/marketing` 共享 locale contract，但各自维护自己的文案 catalog/dictionary
 
 ### 4.3 `packages/contracts`
 
@@ -382,15 +414,18 @@ packages/typescript-config/
 
 ```
 apps/*
-  └─► packages/{contracts, auth, ui}
+  └─► packages/{contracts, auth, ui, i18n}
         └─► packages/{core}
 
 apps/server
   └─► packages/{db, ai, contracts, auth, core}
 
 apps/app
-  └─► packages/{contracts, auth(client-only exports), ui}
+  └─► packages/{contracts, auth(client-only exports), ui, i18n}
         └─► packages/{core}
+
+apps/marketing
+  └─► packages/{ui, i18n}
 
 packages/ai
   └─► packages/{core}（only，DB/KV/Vectorize/Langfuse 通过 ports 注入，不直接 import @duedatehq/db）

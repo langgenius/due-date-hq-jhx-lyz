@@ -163,6 +163,8 @@ App (after login)
 
 **公开页面（无需登录，SEO + 获客 + Rules-as-Asset 公开承诺）：**
 
+工程归属：以下公开页面均属于 `apps/marketing` / `duedatehq.com`。登录后 SaaS app 继续部署在 `app.duedatehq.com`，不通过 SPA fallback 承载公开 SEO 页面。
+
 ```
 /                           产品营销首页
 /rules                      Rule Library 公开浏览（§5.7A + §6D.7）
@@ -861,6 +863,8 @@ Presenter: "Thank you."
 6. **Page 6 · Ask**：$39/mo × 1% 渗透 = ARR $3M 规模 + 集训 Ask（不确定 ask 什么，可写"希望与真实 CPA 用户继续深聊"）
 
 ### 15.5 落地页（SEO + 信任锚点）
+
+工程归属：本节页面由 `apps/marketing` Astro static site 实现；CTA 跳转 `app.duedatehq.com`。
 
 - `/` — Hero + Demo video loop（15.3 录屏剪辑版）
 - `/pulse` — 实时 Pulse feed（SEO 爆款，Google 会常驻收录）

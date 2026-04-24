@@ -4,6 +4,8 @@
 > 核心决策：**纯 SPA（不做 SSR） · React Router 7 library/data mode · shadcn Base UI（`base-vega`） · 工具链由 Vite+ (`vite-plus`) 统一驱动。**
 >
 > **PWA / Service Worker / Web Push 在 Phase 0 已移除**（见 `00-Overview.md §7` 的否决矩阵）。回头率靠 SPA chunk cache + in-app toast + Email 兜底；installable 体验推迟到 Phase 2 Tauri menu bar widget。
+>
+> 公开 marketing 站不属于本 SPA。`apps/marketing` 使用 Astro，详见 [12 Marketing Architecture](./12-Marketing-Architecture.md)。
 
 ---
 
@@ -56,6 +58,29 @@ packages/ui/
     ├── lib/utils.ts          ← cn()
     └── styles/preset.css     ← design tokens / @theme inline / base layer
 ```
+
+## 1.1 多前端应用边界
+
+| 应用      | 路径             | 域名                | 渲染模型                                    | 共享                                                 |
+| --------- | ---------------- | ------------------- | ------------------------------------------- | ---------------------------------------------------- |
+| SaaS app  | `apps/app`       | `app.duedatehq.com` | Vite SPA + React Router data mode           | `packages/contracts`、`packages/ui`、locale contract |
+| Marketing | `apps/marketing` | `duedatehq.com`     | Astro static HTML + selective React islands | `packages/ui`、locale contract                       |
+
+`apps/marketing` 不导入 `apps/app/src/*`，不调用内部 `/rpc`，不复用 app 的 Lingui catalog。它可以通过 `@astrojs/react` 在需要交互的局部 island 中使用 `@duedatehq/ui/components/ui/*`。静态 landing section 优先写 `.astro`，避免把公开站做成第二个 SPA。
+
+Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
+
+```css
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@duedatehq/ui/styles/preset.css';
+
+@source '../../../packages/ui/src';
+@source '../components';
+@source '../islands';
+```
+
+公开页 SEO、metadata、canonical、hreflang、sitemap、robots 和 OG 图由 Astro 负责；`apps/app/index.html` 只负责 SaaS SPA shell。
 
 ---
 
@@ -299,6 +324,8 @@ export const orpc = createTanstackQueryUtils(rpc)
 - **Catalog 布局**：`apps/app/src/i18n/locales/{locale}/messages.po`（源）→ `lingui compile`
   出 `.ts`（产物）；当前 `en` + `zh-CN` 体积可忽略，先静态 import，新增第三种语言时再改
   `dynamicActivate`
+- **共享 contract**：`SUPPORTED_LOCALES`、`DEFAULT_LOCALE`、`INTL_LOCALE`、`LOCALE_HEADER` 后续下沉到 `packages/i18n`；app、server、marketing 共享这些常量，但 catalog 分离
+- **Marketing i18n**：`apps/marketing` 使用 Astro i18n routing + 静态 copy dictionary；不把 landing 文案写进 app 的 Lingui PO
 - **服务端**（Hono 中间件 + React Email 模板）：Worker 不加载 Lingui runtime；`x-locale` >
   `Accept-Language` > `en` 解析后走 `apps/server/src/i18n/messages.ts` 类型化薄字典
 - **Node / Vite 约束**：Lingui v6 是 ESM-only，要求 Node `>=22.19`；`@lingui/vite-plugin`

@@ -4,9 +4,10 @@ compatibility_date = "2025-04-01"
 compatibility_flags = ["nodejs_compat"]
 
 # -------------------------------------------------------------
-# Static Assets · SPA dist from apps/app
+# Static Assets · SaaS SPA dist from apps/app
 #   not_found_handling = "single-page-application" → SPA fallback
 #   run_worker_first  → Worker owns /rpc/* and /api/* first
+#   Marketing pages are deployed separately from apps/marketing.
 # -------------------------------------------------------------
 [assets]
 directory = "../app/dist"

@@ -1,5 +1,7 @@
 # DueDateHQ PRD v1.0 — The Glass-Box Deadline Copilot for US Tax Pros
 
+> 历史归档：本文保留 2026-04-22 的 14 天 MVP 旧技术口径，包含 Next.js / Vercel / Postgres / Upstash 等已废弃方案。当前工程权威口径以 `docs/dev-file/*` 为准：`apps/marketing` Astro 公开站 + `apps/app` Vite SPA + `apps/server` Cloudflare Worker。
+
 - 版本：v1.0
 - 日期：2026-04-22
 - 状态：Competition / 14-day MVP PRD（Build-ready）

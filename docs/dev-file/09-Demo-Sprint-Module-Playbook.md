@@ -10,17 +10,17 @@
 
 本文是 00 ~ 08 的执行拆分，不重新定义架构。若本文与 00 ~ 08 冲突，以 00 ~ 08 为准。
 
-| 来源                     | 必须遵守                                                                                                              | 对模块拆分的影响                                                                          |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| 00 Overview              | Single-Worker Full-Stack on Cloudflare；Migration 原子导入；Pulse 闭环；Demo 可简化 Overlay                           | 所有模块都服务于同一个 Worker 产品闭环；Demo 可直接更新 due date，但必须写 evidence/audit |
-| 01 Tech Stack            | Vite SPA、Hono Worker、oRPC、D1/R2/KV/Queues/Vectorize、TS 6 + `tsgo`                                                 | 不引入 Next.js、Postgres、外部队列、typed ESLint 默认门禁                                 |
-| 02 System Architecture   | `/rpc` 给内部 oRPC；`/api` 给 auth/webhook/future REST；D1 batch 受 SQLite/D1 限制                                    | 模块之间只通过 contract/facade 交互；批量写要分批、幂等、可回滚                           |
-| 03 Data Model            | D1 无 RLS；`scoped(db, firmId)` 是租户业务数据唯一入口；audit 永不删                                                  | 所有租户写入必须经过 scoped repo 和 audit/evidence writer                                 |
-| 04 AI Architecture       | AI Orchestrator 是唯一 LLM 出入口；AI 不直接写 DB；必须 guard/citation/trace                                          | Migration、Pulse、Brief 都只消费 AI facade，不各自接 LLM SDK                              |
-| 05 Frontend Architecture | SPA workbench；React Router；TanStack Query/Table；Zustand 不超过 3 个 store；Vite+ 作为工具链（PWA 在 Phase 0 不做） | 前端模块以业务能力隔离，server state 不进 Zustand                                         |
-| 06 Security Compliance   | Owner-only 不等于无安全；session、active firm、tenant scope、audit 必须在                                             | Demo 也要防跨租户、写审计、保护 secret、避免 AI 法律结论                                  |
-| 07 DevOps Testing        | CI 跑 format/lint/secrets/`tsgo`/test/build；migration 不靠破坏性 rollback                                            | 每个模块都必须有可自动执行的质量门禁                                                      |
-| 08 Project Structure     | monorepo、导入方向、package exports、strict tsconfig、Lefthook staged-first                                           | 本文只定义模块边界；落地位置按 08 执行                                                    |
+| 来源                     | 必须遵守                                                                                                              | 对模块拆分的影响                                                                                                   |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 00 Overview              | Cloudflare SaaS Worker + Astro marketing；Migration 原子导入；Pulse 闭环；Demo 可简化 Overlay                         | 登录后产品模块服务于同一个 Worker 闭环；公开站由 marketing 承载；Demo 可直接更新 due date，但必须写 evidence/audit |
+| 01 Tech Stack            | Vite SPA、Hono Worker、oRPC、D1/R2/KV/Queues/Vectorize、TS 6 + `tsgo`                                                 | 不引入 Next.js、Postgres、外部队列、typed ESLint 默认门禁                                                          |
+| 02 System Architecture   | `/rpc` 给内部 oRPC；`/api` 给 auth/webhook/future REST；D1 batch 受 SQLite/D1 限制                                    | 模块之间只通过 contract/facade 交互；批量写要分批、幂等、可回滚                                                    |
+| 03 Data Model            | D1 无 RLS；`scoped(db, firmId)` 是租户业务数据唯一入口；audit 永不删                                                  | 所有租户写入必须经过 scoped repo 和 audit/evidence writer                                                          |
+| 04 AI Architecture       | AI Orchestrator 是唯一 LLM 出入口；AI 不直接写 DB；必须 guard/citation/trace                                          | Migration、Pulse、Brief 都只消费 AI facade，不各自接 LLM SDK                                                       |
+| 05 Frontend Architecture | SPA workbench；React Router；TanStack Query/Table；Zustand 不超过 3 个 store；Vite+ 作为工具链（PWA 在 Phase 0 不做） | 前端模块以业务能力隔离，server state 不进 Zustand                                                                  |
+| 06 Security Compliance   | Owner-only 不等于无安全；session、active firm、tenant scope、audit 必须在                                             | Demo 也要防跨租户、写审计、保护 secret、避免 AI 法律结论                                                           |
+| 07 DevOps Testing        | CI 跑 format/lint/secrets/`tsgo`/test/build；migration 不靠破坏性 rollback                                            | 每个模块都必须有可自动执行的质量门禁                                                                               |
+| 08 Project Structure     | monorepo、导入方向、package exports、strict tsconfig、Lefthook staged-first                                           | 本文只定义模块边界；落地位置按 08 执行                                                                             |
 
 ---
 
@@ -836,7 +836,7 @@ Demo Sprint 结束后，优先把 demo 简化点迁回完整 MVP 路线：
 2. Team RBAC：启用 better-auth Access Control plugin 和四角色权限矩阵。
 3. Client Readiness Portal：独立客户入口与 token 安全模型。
 4. Audit-Ready Evidence Package：Queue 生成 ZIP、R2 signed URL、SHA-256 manifest。
-5. Stripe / ICS / 独立 Astro SEO 公开站。
+5. Stripe / ICS / Phase 1 规则内容页扩展。
 
 ---
 

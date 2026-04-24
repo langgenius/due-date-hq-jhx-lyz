@@ -1,7 +1,7 @@
 # 02 · System Architecture · 系统架构
 
 > 目标：把 PRD 的模块在工程上"干净地切开"，保证每个模块都有清晰的输入、输出、依赖与测试边界。
-> 核心决策：**一个 Worker = 部署单元；前后端物理隔离、通过 oRPC 契约同步类型；所有基础设施是 Cloudflare 原生 binding。**
+> 核心决策：**公开站与 SaaS app 分离部署；SaaS 前后端物理隔离、通过 oRPC 契约同步类型；所有基础设施是 Cloudflare 原生 binding。**
 
 ---
 
@@ -9,8 +9,13 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                          Client (Browser)                            │
-│   Vite+ SPA · React Router 7 · TanStack Query · oRPC client          │
+│                      Public Visitor (Browser)                        │
+│   duedatehq.com · Astro static site · SEO / OG / future content      │
+└──────────────────────────┬───────────────────────────────────────────┘
+                           │ CTA to app.duedatehq.com
+┌──────────────────────────▼───────────────────────────────────────────┐
+│                          App Client (Browser)                        │
+│   app.duedatehq.com · Vite+ SPA · React Router 7 · oRPC client       │
 └──────────────────────────┬───────────────────────────────────────────┘
                            │  HTTPS
 ┌──────────────────────────▼───────────────────────────────────────────┐
@@ -18,7 +23,7 @@
 │                                                                      │
 │  ┌───────────────────────────────────────────────────────────────┐   │
 │  │  Presentation Layer                                           │   │
-│  │  • Static Assets serving (SPA dist · not_found = SPA fallback)│   │
+│  │  • app subdomain static assets (SPA dist · SPA fallback)      │   │
 │  │  • /rpc/*        → Hono + RPCHandler（oRPC Protocol，前端）   │   │
 │  │  • /api/auth/*   → better-auth                                │   │
 │  │  • /api/webhook/*→ Resend / Stripe 入站                       │   │
@@ -120,15 +125,17 @@
 
 对齐 oRPC 官方惯例，Worker 路由按职责分层，**不可混用**：
 
-| 前缀                   | 挂载的 handler                                    | 职责                                                                       | 身份 / 调用方                       |
-| ---------------------- | ------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------- |
-| `/rpc/*`               | `RPCHandler`（`@orpc/server/fetch`）              | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型    | `apps/app` 独占；cookie session     |
-| `/api/auth/*`          | better-auth（Google OAuth + Organization plugin） | 登录 / 注销 / Google OAuth callback / 邀请接受 / session 管理              | 浏览器 + Google OAuth 回调          |
-| `/api/webhook/*`       | 手写 Hono route                                   | Resend / Stripe（Phase 1）等外部回调                                       | 无用户身份；IP allowlist + 签名校验 |
-| `/api/ics/:token`      | 手写 Hono route（Phase 1）                        | ICS 日历订阅 feed                                                          | token 鉴权                          |
-| `/api/health`          | 手写 Hono route                                   | Cloudflare healthcheck / liveness                                          | 公开                                |
-| `/api/v1/*`（Phase 2） | `OpenAPIHandler`（`@orpc/openapi/fetch`）         | 公网开放 REST；复用同一份 `packages/contracts` 契约；自动生成 OpenAPI spec | OAuth client credentials            |
-| 其他所有路径           | ASSETS binding                                    | SPA 静态产物 + `not_found_handling = "single-page-application"` 兜底       | 浏览器                              |
+| 前缀                   | 挂载的 handler                                    | 职责                                                                            | 身份 / 调用方                       |
+| ---------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------- |
+| `/rpc/*`               | `RPCHandler`（`@orpc/server/fetch`）              | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型         | `apps/app` 独占；cookie session     |
+| `/api/auth/*`          | better-auth（Google OAuth + Organization plugin） | 登录 / 注销 / Google OAuth callback / 邀请接受 / session 管理                   | 浏览器 + Google OAuth 回调          |
+| `/api/webhook/*`       | 手写 Hono route                                   | Resend / Stripe（Phase 1）等外部回调                                            | 无用户身份；IP allowlist + 签名校验 |
+| `/api/ics/:token`      | 手写 Hono route（Phase 1）                        | ICS 日历订阅 feed                                                               | token 鉴权                          |
+| `/api/health`          | 手写 Hono route                                   | Cloudflare healthcheck / liveness                                               | 公开                                |
+| `/api/v1/*`（Phase 2） | `OpenAPIHandler`（`@orpc/openapi/fetch`）         | 公网开放 REST；复用同一份 `packages/contracts` 契约；自动生成 OpenAPI spec      | OAuth client credentials            |
+| app 子域其他所有路径   | ASSETS binding                                    | `apps/app` SPA 静态产物 + `not_found_handling = "single-page-application"` 兜底 | 浏览器                              |
+
+`duedatehq.com` 的公开首页、后续 `/rules`、`/watch`、`/state/*`、`/pulse` 不走上表的 SaaS Worker fallback；它们属于 `apps/marketing`（见 [12 Marketing Architecture](./12-Marketing-Architecture.md)）。
 
 **`wrangler.toml` 对应**：
 
@@ -325,14 +332,14 @@ D1 无 RLS 能力，不依赖 DB 级防护。
 
 ## 10. 演进路径预留
 
-| 演进方向                                              | 预留点                                                                                                                                                                                                                                                                                                     |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D1 → Postgres（极端场景退路，非预设路径，见 §03.9.2） | `packages/db` 是唯一 schema/query 入口；切换只改该包；业务层零感知                                                                                                                                                                                                                                         |
-| Vectorize → Pinecone                                  | `packages/ai/retriever.ts` 抽象 `VectorStore` 接口                                                                                                                                                                                                                                                         |
-| AI Gateway → 自建                                     | `packages/ai/gateway.ts` 隔离所有外部 LLM 调用                                                                                                                                                                                                                                                             |
-| 单 Worker → 多 Worker（承载量上来后）                 | Queue consumer 拆到独立 Worker；主 Worker 只处理交互请求                                                                                                                                                                                                                                                   |
-| **SEO 公开页**（PRD P1-17 / P1-34 / §5.7A / §5.7B）   | **独立 Astro 静态子站**（`apps/marketing`，挂 `duedatehq.com` / `docs.duedatehq.com`）承接 `/rules` `/watch` `/state/*` `/pulse`；通过 oRPC SDK 直连主 Worker 的 `/api/v1` OpenAPIHandler 读 verified 规则快照。PRD 语义不变，工程上与主 Worker（`app.duedatehq.com`）物理分离以避开 SPA 不利于 SEO 的限制 |
-| Phase 2 第三方 API 开放                               | 主 Worker 增加 `/api/v1/*` 路由挂 `OpenAPIHandler(contract, { prefix: '/api/v1' })`，复用 `packages/contracts`                                                                                                                                                                                             |
+| 演进方向                                              | 预留点                                                                                                                                                                                                                                                                                                          |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1 → Postgres（极端场景退路，非预设路径，见 §03.9.2） | `packages/db` 是唯一 schema/query 入口；切换只改该包；业务层零感知                                                                                                                                                                                                                                              |
+| Vectorize → Pinecone                                  | `packages/ai/retriever.ts` 抽象 `VectorStore` 接口                                                                                                                                                                                                                                                              |
+| AI Gateway → 自建                                     | `packages/ai/gateway.ts` 隔离所有外部 LLM 调用                                                                                                                                                                                                                                                                  |
+| 单 Worker → 多 Worker（承载量上来后）                 | Queue consumer 拆到独立 Worker；主 Worker 只处理交互请求                                                                                                                                                                                                                                                        |
+| **SEO 公开页**（PRD P1-17 / P1-34 / §5.7A / §5.7B）   | **独立 Astro 静态子站**（`apps/marketing`，挂 `duedatehq.com`）承接首页、`/rules` `/watch` `/state/*` `/pulse`；首版静态输出，后续通过静态 snapshot 或主 Worker 的 `/api/v1` OpenAPIHandler 读 verified 规则快照。PRD 语义不变，工程上与 SaaS Worker（`app.duedatehq.com`）物理分离以避开 SPA 不利于 SEO 的限制 |
+| Phase 2 第三方 API 开放                               | 主 Worker 增加 `/api/v1/*` 路由挂 `OpenAPIHandler(contract, { prefix: '/api/v1' })`，复用 `packages/contracts`                                                                                                                                                                                                  |
 
 ---
 
