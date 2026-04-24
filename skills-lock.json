@@ -16,10 +16,20 @@
       "sourceType": "github",
       "computedHash": "e92b42eb30475d7c146fe73668ee5f644fa1982fcf4793905ece5035f33d7250"
     },
+    "enhanced-message-context": {
+      "source": "lingui/skills",
+      "sourceType": "github",
+      "computedHash": "edc11060f1d6ad004d3db5e750bb1ccc1ddebdbf147ea1386e53ee57171f1dcf"
+    },
     "hono": {
       "source": "yusukebe/hono-skill",
       "sourceType": "github",
       "computedHash": "220e5e1b12bbaeec49ec362b6e2262d77632d0536e9758bba9acbbc323fef990"
+    },
+    "lingui-best-practices": {
+      "source": "lingui/skills",
+      "sourceType": "github",
+      "computedHash": "2ebeb243fa39ca3b233d7fe618cfaea89f618b619ceea6a33b708faeca7efc94"
     },
     "organization-best-practices": {
       "source": "better-auth/skills",
@@ -60,6 +70,11 @@
       "source": "shadcn/ui",
       "sourceType": "github",
       "computedHash": "2bc6cf38ec7b4a5778a43fabb3e87642c9897ad45e9eb42438b57fd2def6cca8"
+    },
+    "swc-plugin-compatibility": {
+      "source": "lingui/skills",
+      "sourceType": "github",
+      "computedHash": "4579c7fc20e7963697991e329567161a3a4cfa66ec41c8363bd606bbadfd4049"
     },
     "tanstack-query-best-practices": {
       "source": "deckardger/tanstack-agent-skills",
