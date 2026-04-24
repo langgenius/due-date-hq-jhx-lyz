@@ -119,9 +119,15 @@ export const member = sqliteTable(
     // duplicate (organizationId, userId) pair. Without this,
     // tenantMiddleware's `.limit(1)` read of member.status becomes
     // nondeterministic between active / suspended for the same firm-user
-    // pair. Note: if anyone re-runs `pnpm --filter @duedatehq/auth auth:schema`
-    // this manual constraint will be clobbered — do NOT run that script; the
-    // schema is maintained manually going forward.
+    // pair.
+    //
+    // This file is MANUALLY CURATED — we deliberately diverge from
+    // better-auth's generated shape here (this uniqueIndex + the `member.status`
+    // additionalField + firm_profile coupling in schema/firm.ts). The
+    // `auth:schema` / `@better-auth/cli generate` workflow is intentionally
+    // NOT wired in package.json so nobody can regenerate this file and
+    // silently clobber these constraints. See
+    // docs/dev-log/2026-04-24-close-auth-schema-script.md.
     uniqueIndex('member_organization_user_unique').on(table.organizationId, table.userId),
     index('member_organizationId_idx').on(table.organizationId),
     index('member_userId_idx').on(table.userId),

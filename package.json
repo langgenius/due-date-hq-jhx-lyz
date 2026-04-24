@@ -18,7 +18,6 @@
     "secrets:scan": "gitleaks detect --source . --no-git --redact",
     "check:deps": "node scripts/check-dep-direction.mjs",
     "db:generate": "pnpm --filter @duedatehq/db db:generate",
-    "auth:schema": "pnpm --filter @duedatehq/auth auth:schema",
     "db:migrate:local": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --local",
     "db:migrate:remote": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --remote",
     "db:seed:demo": "pnpm --filter @duedatehq/db seed:demo",

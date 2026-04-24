@@ -35,7 +35,8 @@ packages/db/
 
 - `apps/server/src/procedures/**` **不允许**直接 import `@duedatehq/db/schema` 的业务表 symbol；只能通过 `context.scoped.xxx()`
 - `scoped.ts` 的每个 repo 入口都必须硬编码 `WHERE firm_id = :firmId`，`firmId` 只能从 middleware 注入，不能从 procedure `input` 接收
-- better-auth 接管的 7 张表由其 migrations 管理，不要手改；我们业务表统一用 `firm_id` 保持 DueDateHQ 术语（逻辑等同 `organization_id`）
+- `schema/auth.ts`（better-auth 身份层 7 张表）**手工维护**：已在 `member` 表加 `(organization_id, user_id)` unique index、加 `member.status` 业务字段，且 `firm_profile` 通过 PK FK 挂到 `organization.id`。不跑 `@better-auth/cli generate`（package.json 已无 `auth:schema` 脚本，避免误重跑覆盖这些约束）；后续 schema 变更一律走 `pnpm db:generate` + 人工 review
+- 业务表统一用 `firm_id` 保持 DueDateHQ 术语（逻辑等同 `organization_id`）
 
 ---
 

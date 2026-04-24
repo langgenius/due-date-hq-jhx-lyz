@@ -16,7 +16,6 @@
     "./types": "./src/types.ts"
   },
   "scripts": {
-    "auth:schema": "better-auth generate --config auth.cli.ts --output ../../packages/db/src/schema/auth.ts --yes",
     "test": "vp test"
   },
   "dependencies": {
@@ -25,7 +24,6 @@
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
-    "@better-auth/cli": "catalog:",
     "@duedatehq/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
@@ -33,5 +31,5 @@
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
-  "//": "better-auth configuration (Google OAuth + Organization + Access Control). Client-safe exports live under ./client."
+  "//": "better-auth configuration (Google OAuth + Organization + Access Control). Client-safe exports live under ./client. `@better-auth/cli generate` is deliberately NOT wired — packages/db/src/schema/auth.ts is manually curated (adds member unique index, firm_profile coupling). See docs/dev-log/2026-04-24-close-auth-schema-script.md."
 }

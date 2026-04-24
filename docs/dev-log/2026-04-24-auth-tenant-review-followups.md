@@ -160,9 +160,10 @@ pnpm ready             # 全绿
 
 - ADR 0010 Follow-ups 保留（仍然 7 条，尤其 FU-1 membershipLimit 函数式在
   P1 接邀请流时要做 —— 权限 statement 已经准备好，闸门开一下就生效）
-- `auth:schema` 脚本是个隐患：如果有人误跑它会覆盖 `member` 表的 unique
+- ~~`auth:schema` 脚本是个隐患：如果有人误跑它会覆盖 `member` 表的 unique
   index 和 `firmProfile` 的存在。下个 plan（业务表实现）同时把 `auth:schema`
-  从 package.json 移除或改成 check-only 模式
+  从 package.json 移除或改成 check-only 模式~~ → **2026-04-24 同日关闭**，见
+  [`2026-04-24-close-auth-schema-script.md`](./2026-04-24-close-auth-schema-script.md)
 - Settings 里的 "Practice profile" input 写库 + `organization.update` 调用：
   下个 plan；现在权限已经就位，wire 一下就行
 - `apps/web/src/routes/onboarding.tsx` 的 list+setActive 兜底没有单测覆盖
