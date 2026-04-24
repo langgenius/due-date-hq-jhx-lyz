@@ -1,6 +1,5 @@
 import { defineConfig } from '@lingui/cli'
 
-// Lingui v5 message catalog config.
 // Source locale is English; Chinese catalog lives alongside it.
 // The Vite plugin watches these .po files and recompiles on change.
 export default defineConfig({
@@ -12,6 +11,15 @@ export default defineConfig({
       include: ['<rootDir>/src'],
     },
   ],
-  format: 'po',
   compileNamespace: 'ts',
+  macro: {
+    jsxPlaceholderAttribute: 'data-t',
+    jsxPlaceholderDefaults: {
+      a: 'link',
+      button: 'button',
+      code: 'code',
+      em: 'emphasis',
+      strong: 'strong',
+    },
+  },
 })

@@ -18,10 +18,6 @@ msgstr ""
 msgid "{0, plural, one {# row} other {# rows}}"
 msgstr "{0, plural, other {# 行}}"
 
-#: src/routes/workboard.tsx:117
-#~ msgid "{0} rows"
-#~ msgstr "{0} 行"
-
 #: src/routes/dashboard.tsx:45
 msgid "2 partner entities need review before the March 15 cutoff."
 msgstr "2 家合伙企业需在 3 月 15 日截止前完成复核。"
@@ -77,8 +73,8 @@ msgid "Blocked"
 msgstr "已阻塞"
 
 #: src/routes/login.tsx:226
-msgid "By signing in you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
-msgstr "登录即表示您同意 <0>服务条款</0> 和 <1>隐私政策</1>。"
+msgid "By signing in you agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
+msgstr "登录即表示您同意 <termsLink>服务条款</termsLink> 和 <privacyLink>隐私政策</privacyLink>。"
 
 #: src/routes/settings.tsx:108
 msgid "Channels"
@@ -97,11 +93,11 @@ msgstr "客户风险行"
 msgid "Compliance risk operations"
 msgstr "合规风险运营"
 
-#: src/routes/onboarding.tsx:120
+#: src/routes/onboarding.tsx:141
 msgid "Confirm your practice profile"
 msgstr "确认你的事务所资料"
 
-#: src/routes/onboarding.tsx:176
+#: src/routes/onboarding.tsx:197
 msgid "Continue"
 msgstr "继续"
 
@@ -109,18 +105,19 @@ msgstr "继续"
 msgid "Continue with Google"
 msgstr "使用 Google 继续"
 
-#: src/routes/onboarding.tsx:90
+#: src/routes/onboarding.tsx:91
+#: src/routes/onboarding.tsx:111
 msgid "Could not activate your practice"
 msgstr "无法激活你的事务所"
 
-#: src/routes/onboarding.tsx:80
+#: src/routes/onboarding.tsx:101
 msgid "Could not create your practice"
 msgstr "无法创建你的事务所"
 
 #: src/routes/_layout.tsx:317
 #: src/routes/login.tsx:112
 #: src/routes/login.tsx:171
-#: src/routes/onboarding.tsx:112
+#: src/routes/onboarding.tsx:133
 msgid "CPA deadline console"
 msgstr "注册会计师截止日期工作台"
 
@@ -165,7 +162,7 @@ msgstr "草稿"
 msgid "Due this week"
 msgstr "本周到期"
 
-#: src/routes/onboarding.tsx:145
+#: src/routes/onboarding.tsx:166
 msgid "e.g. Bright CPA Practice"
 msgstr "例如：Bright CPA Practice"
 
@@ -215,14 +212,6 @@ msgstr "已提交"
 #: src/routes/workboard.tsx:98
 msgid "Filters"
 msgstr "筛选器"
-
-#: src/routes/settings.tsx:58
-#~ msgid "Firm name"
-#~ msgstr "事务所名称"
-
-#: src/routes/settings.tsx:48
-#~ msgid "Firm profile"
-#~ msgstr "事务所资料"
 
 #: src/routes/settings.tsx:35
 msgid "Firm settings"
@@ -364,17 +353,9 @@ msgstr "按罚款金额分级"
 msgid "Phase 0 · Demo practice"
 msgstr "阶段 0 · 演示事务所"
 
-#: src/routes/login.tsx:123
-#~ msgid "Phase 0 · Demo workspace"
-#~ msgstr "阶段 0 · 演示工作区"
-
 #: src/routes/_layout.tsx:344
 msgid "Phase 0 demo practice"
 msgstr "阶段 0 演示事务所"
-
-#: src/routes/_layout.tsx:341
-#~ msgid "Phase 0 demo workspace"
-#~ msgstr "阶段 0 演示工作区"
 
 #: src/routes/settings.tsx:102
 msgid "Phase 0 uses email plus in-app toast instead of Web Push."
@@ -386,11 +367,12 @@ msgstr "请至少输入 2 个字符。"
 
 #: src/routes/_layout.tsx:187
 #: src/routes/login.tsx:87
-#: src/routes/onboarding.tsx:88
+#: src/routes/onboarding.tsx:89
+#: src/routes/onboarding.tsx:109
 msgid "Please try again."
 msgstr "请稍后重试。"
 
-#: src/routes/onboarding.tsx:134
+#: src/routes/onboarding.tsx:155
 #: src/routes/settings.tsx:58
 msgid "Practice name"
 msgstr "事务所名称"
@@ -455,7 +437,7 @@ msgstr "搜索义务"
 msgid "Secure sign-in"
 msgstr "安全登录"
 
-#: src/routes/onboarding.tsx:171
+#: src/routes/onboarding.tsx:192
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
@@ -475,10 +457,6 @@ msgstr "严重程度"
 #: src/routes/login.tsx:179
 msgid "Sign in"
 msgstr "登录"
-
-#: src/routes/login.tsx:129
-#~ msgid "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your firm's filing pipeline."
-#~ msgstr "登录后查看事务所申报流水线的罚款敞口、证据核查与七日队列。"
 
 #: src/routes/login.tsx:126
 msgid "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your practice's filing pipeline."
@@ -528,10 +506,6 @@ msgstr "状态"
 msgid "That resource belongs to a different practice."
 msgstr "该资源属于其他事务所。"
 
-#: src/lib/i18n-error.ts:14
-#~ msgid "That resource belongs to a different workspace."
-#~ msgstr "该资源属于其他工作区。"
-
 #: src/lib/i18n-error.ts:17
 msgid "The request was invalid. Please review your input and try again."
 msgstr "请求无效，请检查输入后重试。"
@@ -544,7 +518,7 @@ msgstr "在账户与组织数据接入前，这些演示字段仅保存在本地
 msgid "This action conflicts with the current state. Refresh and try again."
 msgstr "该操作与当前状态冲突，请刷新后重试。"
 
-#: src/routes/onboarding.tsx:159
+#: src/routes/onboarding.tsx:180
 msgid "This is what your team and clients will see."
 msgstr "你的团队和客户都会看到这个名字。"
 
@@ -556,9 +530,9 @@ msgstr "今日队列"
 msgid "Too many requests. Please try again in a moment."
 msgstr "请求过于频繁，请稍后再试。"
 
-#: src/routes/login.tsx:245
-msgid "Trouble signing in? Contact <0>support@duedatehq.com</0>."
-msgstr "登录遇到问题？请联系 <0>support@duedatehq.com</0>。"
+#: src/routes/login.tsx:247
+msgid "Trouble signing in? Contact <supportLink>support@duedatehq.com</supportLink>."
+msgstr "登录遇到问题？请联系 <supportLink>support@duedatehq.com</supportLink>。"
 
 #: src/routes/dashboard.tsx:341
 msgid "Two recommendations are waiting on verbatim text."
@@ -572,10 +546,6 @@ msgstr "无法启动 Google 登录"
 msgid "Unexpected route error"
 msgstr "路由出现意外错误"
 
-#: src/routes/login.tsx:185
-#~ msgid "Use your Google workspace account to access the risk queue and evidence tools."
-#~ msgstr "使用您的 Google Workspace 账户访问风险队列与证据工具。"
-
 #: src/routes/dashboard.tsx:329
 msgid "Verified"
 msgstr "已核验"
@@ -583,10 +553,6 @@ msgstr "已核验"
 #: src/routes/dashboard.tsx:172
 msgid "verified {verifiedAt}"
 msgstr "{verifiedAt} 已核验"
-
-#: src/routes/dashboard.tsx:167
-#~ msgid "verified 09:42"
-#~ msgstr "09:42 已核验"
 
 #: src/routes/login.tsx:123
 msgid "Verified risk, one deadline at a time."
@@ -601,7 +567,7 @@ msgstr "等待中"
 msgid "We couldn't find what you were looking for."
 msgstr "未找到您要查找的内容。"
 
-#: src/routes/onboarding.tsx:123
+#: src/routes/onboarding.tsx:144
 msgid "We pre-filled a name from your Google profile. You can change it now or anytime in Firm settings."
 msgstr "我们已根据你的 Google 资料预填了一个名字，你可以现在修改，也可以稍后在事务所设置里修改。"
 
@@ -618,11 +584,7 @@ msgstr "Web 推送已禁用"
 msgid "Workboard"
 msgstr "工作台"
 
-#: src/routes/settings.tsx:35
-#~ msgid "Workspace defaults"
-#~ msgstr "工作区默认设置"
-
-#: src/routes/onboarding.tsx:181
+#: src/routes/onboarding.tsx:202
 msgid "You can rename or invite teammates later."
 msgstr "你可以稍后重命名或邀请团队成员。"
 
@@ -638,17 +600,9 @@ msgstr "请先登录后继续。"
 msgid "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
 msgstr "你将被跳转至 Google 完成登录并返回事务所。会话有效期为 7 天，并遵循事务所的 SSO 策略。"
 
-#: src/routes/login.tsx:221
-#~ msgid "You'll be redirected to Google and returned to your workspace. Sessions last seven days and respect the firm's SSO policy."
-#~ msgstr "您将被跳转至 Google 完成登录并返回工作区。会话有效期为 7 天，并遵循事务所的 SSO 策略。"
-
 #: src/lib/i18n-error.ts:13
 msgid "Your account isn't linked to a practice yet."
 msgstr "你的账户尚未关联任何事务所。"
-
-#: src/lib/i18n-error.ts:13
-#~ msgid "Your account isn't linked to a workspace yet."
-#~ msgstr "您的账户尚未关联任何工作区。"
 
 #: src/lib/i18n-error.ts:15
 msgid "Your practice is suspended. Contact support to restore access."

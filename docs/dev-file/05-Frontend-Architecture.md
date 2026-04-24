@@ -271,35 +271,39 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 ---
 
-## 11. i18n（Phase 2）
+## 11. i18n
 
 > 选型依据：[ADR 0009 · Lingui as the i18n library](../adr/0009-lingui-for-i18n.md)。原 `i18next + react-i18next`
 > 线已废止。
 
-- **库**：Lingui v5 —— `@lingui/core` + `@lingui/react` + `@lingui/macro`（dep），`@lingui/cli` +
-  `@lingui/swc-plugin`（devDep），版本全部入 `pnpm-workspace.yaml` catalog 精确锁
+- **库**：Lingui v6 —— `@lingui/core` + `@lingui/react`（runtime），`@lingui/cli` +
+  `@lingui/vite-plugin` + `@lingui/babel-plugin-lingui-macro` + `@rolldown/plugin-babel`（dev），
+  版本全部入 `pnpm-workspace.yaml` catalog 精确锁
 - **书写**：所有用户可见文案走宏 `<Trans>…</Trans>` / ``t`…` ``，**禁止**运行时 `i18n._(dynamicStr)`
-  ——由 `eslint-plugin-lingui` 兜底
+  ；模块级惰性文案使用 `msg` + `i18n._(MessageDescriptor)`，只允许已抽取的 descriptor
 - **Zod 保持 locale-free**：`packages/contracts` schemas 只返回结构化错误 `{ code, path }`，不含文案；
   前端 RHF 的错误 UI 用 `<Trans>` 按 `code` 分支渲染
-- **Catalog 布局**：`apps/web/src/locales/{locale}/messages.po`（源）→ `lingui compile` 出 `.ts`（产物）；
-  按路由 `import()` 懒加载，天然走 Vite code-splitting
-- **服务端**（Hono 中间件 + React Email 模板）：`Accept-Language` → `i18n.activate(locale)` 一次，复用同一份
-  编译后 catalog；邮件模板直接用 `<Trans>`
-- **MVP 仍只有 `en`**，Phase 0 不接 extract/compile 流水线；Phase 2 启动时一次性落地（见 §11.1 checklist）
+- **Catalog 布局**：`apps/web/src/i18n/locales/{locale}/messages.po`（源）→ `lingui compile`
+  出 `.ts`（产物）；当前 `en` + `zh-CN` 体积可忽略，先静态 import，新增第三种语言时再改
+  `dynamicActivate`
+- **服务端**（Hono 中间件 + React Email 模板）：Worker 不加载 Lingui runtime；`x-locale` >
+  `Accept-Language` > `en` 解析后走 `apps/server/src/i18n/messages.ts` 类型化薄字典
+- **Node / Vite 约束**：Lingui v6 是 ESM-only，要求 Node `>=22.19`；`@lingui/vite-plugin`
+  要求 Vite `^6.3.0 || ^7 || ^8`，由 Vite+ 工具链统一承载
+- **Macro transform**：`apps/web/vite.config.ts` 使用
+  `@rolldown/plugin-babel + linguiTransformerBabelPreset()`；若收窄 `include`，必须用能匹配
+  绝对 module id 的正则，不能用 `src/**/*.{ts,tsx}` 这类 picomatch brace glob
+- **富文本占位符**：`lingui.config.ts` 启用 `data-t` 与常见 tag 默认 placeholder 名，避免
+  `<0>` / `<1>` 这类对译者不友好的占位符
 - **日期 / 金额** 用 `Intl.DateTimeFormat` / `Intl.NumberFormat`，不引 moment / dayjs
 - **复数 / 选择**用 Lingui 原生 `<Plural>` / `<Select>`（ICU MessageFormat），不额外装 `i18next-icu`
 
-### 11.1 Phase 2 启用 checklist
+### 11.1 操作命令
 
-1. catalog 入口 `pnpm-workspace.yaml`，5 个 Lingui 包同一 release train 精确锁
-2. `apps/web/vite.config.ts` 接 `@lingui/swc-plugin`，顺序在 `@vitejs/plugin-react` 之前
-3. `apps/web/lingui.config.ts`：`format: 'po'`、`sourceLocale: 'en'`、`locales: ['en']`（加一个就改一个）
-4. 加 scripts：`lingui:extract`、`lingui:compile`；CI 在 `vp build` 前强制跑 `lingui compile`
-5. `apps/web/src/lib/i18n/` 封：`loadCatalog(locale)` 做 dynamic import + `i18n.load` + `i18n.activate`
-6. Hono 中间件（`apps/server/src/middleware/i18n.ts`）：解析 `Accept-Language`、绑到 `c.var.i18n`
-7. React Email 模板验证：`apps/server` bundle 实测 tree-shake 效果，超标就改成按 locale 拆 import
-8. 文档回填：翻译贡献指南（PO 文件如何交付、漏翻如何 fail CI）
+1. `pnpm --filter @duedatehq/web i18n:extract`：扫描源码并更新 `.po`
+2. `pnpm --filter @duedatehq/web i18n:compile`：编译 catalog 到 `.ts`
+3. `pnpm ready`：覆盖 check、test、build；Vite 插件会在 build 中再次编译 `.po`
+4. 排查 CLI 并行问题时可临时加 `--workers 1`
 
 ---
 

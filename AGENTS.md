@@ -6,7 +6,7 @@ DueDateHQ is a pnpm monorepo. Deployable apps live in `apps/`: `apps/web` is the
 
 ## Build, Test, and Development Commands
 
-Use pnpm with Node `>=22.12.0`.
+Use pnpm with Node `>=22.19.0`.
 
 - `pnpm dev`: run all workspace dev tasks.
 - `pnpm build`: build every package/app that declares `build`.

@@ -226,6 +226,7 @@ export function LoginRoute() {
                   <Trans>
                     By signing in you agree to the{' '}
                     <a
+                      data-t="termsLink"
                       className="underline underline-offset-4 hover:text-text-primary"
                       href="/terms"
                     >
@@ -233,6 +234,7 @@ export function LoginRoute() {
                     </a>{' '}
                     and{' '}
                     <a
+                      data-t="privacyLink"
                       className="underline underline-offset-4 hover:text-text-primary"
                       href="/privacy"
                     >
@@ -245,6 +247,7 @@ export function LoginRoute() {
                   <Trans>
                     Trouble signing in? Contact{' '}
                     <a
+                      data-t="supportLink"
                       className="underline underline-offset-4 hover:text-text-primary"
                       href="mailto:support@duedatehq.com"
                     >
