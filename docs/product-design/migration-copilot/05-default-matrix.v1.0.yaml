@@ -261,7 +261,7 @@ rules:
       ops_verified_by: pending
       ops_verified_at: pending
       source_urls:
-        - TBD-ops-verification
+        - pending-ops-verification
     confidence: 0.5
     needs_review: true
 
@@ -276,7 +276,7 @@ rules:
       ops_verified_by: pending
       ops_verified_at: pending
       source_urls:
-        - TBD-ops-verification
+        - pending-ops-verification
     confidence: 0.5
     needs_review: true
 

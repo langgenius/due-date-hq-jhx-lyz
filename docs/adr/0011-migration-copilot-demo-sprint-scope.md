@@ -108,20 +108,25 @@ Demo Sprint Migration Copilot 以下述边界交付（权威来源：[`../produc
 - Dashboard 跳转 URL 参数 `?tab=this-week&focus=top-1` 需 Dashboard owner 对齐（**FU-5**）
 - Onboarding Agent 的 `onboardingDraft` 与 wizard 的 `wizardDraft` 契约合并要在 P1 做（**FU-6**）
 - 本册与 PRD 的任何产品语义冲突必须先改 PRD 或本册裁定表；**禁止**在代码里沉淀第 3 份真理来源（**FU-7**）
+- Agent-shaped setup 增强已写入 `../product-design/migration-copilot/11-agentic-enhancements.md`；它不改变 Demo Sprint hard commitment，但定义 Phase 0 的近最终 Agent 形态、allowed tools 与 coverage transparency（**FU-8 ~ FU-11**）
 
 ### Follow-ups
 
 > 这些是本期为了维持 Demo Sprint 范围而**有意识推迟**的决策点。下次接相关功能时直接读这一段。
 
-| ID   | 触发时点                                          | 内容                                                                                                                                                  | Owner（角色占位）                                |
-| ---- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| FU-1 | Day 3 Client Domain 契约冻结前（`[contract]` PR） | 把 `clients.entity_type` enum 从 7 项扩到 8 项（追加 `individual`），更新 `../dev-file/03-Data-Model.md` §2.2 + 写 Drizzle migration                  | Client + Workboard owner（Bob）                  |
-| FU-2 | Day 6 Demo Dry-run 前 / Phase 0 真实上线前        | 调参 Migration 专属 LLM 配额；更新 `../dev-file/04-AI-Architecture.md` §8 Budget 段，落 PostHog alert threshold                                       | AI Orchestrator owner（Alice）                   |
-| FU-3 | Phase 0 MVP 正式启动前                            | Rules Ops 签字把 `federal` 虚拟辖区 tax_type 兜底 ID 写入词表（对齐 05-default-matrix `fallback.strategy`）                                           | Rules Ops lead                                   |
-| FU-4 | Day 3 Audit/Evidence 契约冻结前                   | 决定 `/api/migration/{batch_id}/revert` vs `/rpc/migration.revert` 路由归属；不会同时存在两条路径                                                     | Backend owner / Audit + Evidence owner           |
-| FU-5 | Day 4 Migration → Dashboard 联调前                | Dashboard 跳转 URL 参数 `?tab=this-week&focus=top-1` schema 对齐；确认 focus key 用 obligation id 还是 row index                                      | Dashboard + Pulse + Brief owner（Alice）         |
-| FU-6 | Phase 0 Week 3 Onboarding Agent 实装前            | `onboardingDraft`（[`./03-onboarding-agent.md`](../product-design/migration-copilot/03-onboarding-agent.md) §4.3）与 `wizardDraft` 契约合并；避免双写 | Client + Workboard owner + AI Orchestrator owner |
-| FU-7 | 本册或 PRD 任一处产品语义被改动时                 | 先改 PRD 或本册 `10-conflict-resolutions.md` 裁定表 + 同步 ADR 0011 Status；**禁止**在代码 / SQL / Prompt 里沉淀第 3 份真理来源                       | 修改方（自担同步责任）                           |
+| ID    | 触发时点                                          | 内容                                                                                                                                                  | Owner（角色占位）                                |
+| ----- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| FU-1  | Day 3 Client Domain 契约冻结前（`[contract]` PR） | 把 `clients.entity_type` enum 从 7 项扩到 8 项（追加 `individual`），更新 `../dev-file/03-Data-Model.md` §2.2 + 写 Drizzle migration                  | Client + Workboard owner（Bob）                  |
+| FU-2  | Day 6 Demo Dry-run 前 / Phase 0 真实上线前        | 调参 Migration 专属 LLM 配额；更新 `../dev-file/04-AI-Architecture.md` §8 Budget 段，落 PostHog alert threshold                                       | AI Orchestrator owner（Alice）                   |
+| FU-3  | Phase 0 MVP 正式启动前                            | Rules Ops 签字把 `federal` 虚拟辖区 tax_type 兜底 ID 写入词表（对齐 05-default-matrix `fallback.strategy`）                                           | Rules Ops lead                                   |
+| FU-4  | Day 3 Audit/Evidence 契约冻结前                   | 决定 `/api/migration/{batch_id}/revert` vs `/rpc/migration.revert` 路由归属；不会同时存在两条路径                                                     | Backend owner / Audit + Evidence owner           |
+| FU-5  | Day 4 Migration → Dashboard 联调前                | Dashboard 跳转 URL 参数 `?tab=this-week&focus=top-1` schema 对齐；确认 focus key 用 obligation id 还是 row index                                      | Dashboard + Pulse + Brief owner（Alice）         |
+| FU-6  | Phase 0 Week 3 Onboarding Agent 实装前            | `onboardingDraft`（[`./03-onboarding-agent.md`](../product-design/migration-copilot/03-onboarding-agent.md) §4.3）与 `wizardDraft` 契约合并；避免双写 | Client + Workboard owner + AI Orchestrator owner |
+| FU-7  | 本册或 PRD 任一处产品语义被改动时                 | 先改 PRD 或本册 `10-conflict-resolutions.md` 裁定表 + 同步 ADR 0011 Status；**禁止**在代码 / SQL / Prompt 里沉淀第 3 份真理来源                       | 修改方（自担同步责任）                           |
+| FU-8  | Phase 0 Agent shell 接入前                        | 定义 `MigrationOrchestrationEnvelope` contract DTO；Agent / Wizard / Dashboard 共用 `batch_id` 事务边界                                               | Migration owner + AI Orchestrator owner          |
+| FU-9  | Phase 0 rule pack 扩容前                          | 为 Default Matrix 增加 `coverage_status` 字段；CA / NY 从 `demo_seed` 升级到 `verified`，TX / FL / WA / MA 至少进入 `skeleton`                        | Rules Ops lead                                   |
+| FU-10 | Day 5 Dashboard Slot / Phase 0 Pulse 联调前       | 落 `dashboard.first_week_operating_loop.ready` slot；Demo Sprint fixture Pulse 必须标 demo/sample，Phase 0 改真实 Pulse match                         | Dashboard + Pulse owner                          |
+| FU-11 | Step 4 Dry-Run 强化前                             | 增加 evidence preview 抽屉；明确 dry-run preview 不是正式 audit record，commit 成功后才写正式 audit                                                   | Migration owner + Audit/Evidence owner           |
 
 ## 状态（Status）
 

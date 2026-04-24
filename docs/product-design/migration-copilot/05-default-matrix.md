@@ -13,6 +13,7 @@
 - **兑现 S2-AC4**：导入后立即生成全年日历，**无需额外配置**（PRD Part1A §3.2 / Part1B §6A.10）
 - **不是 AI**：这是 ops 人工签字的**静态查表**（`./05-default-matrix.v1.0.yaml`），**纯函数**，**零幻觉**（PRD Part1B §6A.5）
 - **触发时机**：AI Mapper 未识别 `client.tax_types` 列（常见于 QuickBooks / Karbon 的元数据导出），Rule Engine 以 `(entity_type, state)` 为键查本矩阵，写 `evidence_link(source_type='default_inference_by_entity_state', matrix_version='v1.0')`
+- **增强约束**：对外体验必须展示 coverage 状态，不能把 `ops_verified_by=pending` 的 Demo seed 包装成正式 verified。状态模型见 [`./11-agentic-enhancements.md#3-增强点-b--6-辖区信任路线coverage-transparency`](./11-agentic-enhancements.md#3-增强点-b--6-辖区信任路线coverage-transparency)。
 
 ---
 
@@ -74,6 +75,17 @@ function infer(entity_type, state):
 
 - Phase 0 MVP（4 周全量）：补 MA / TX / FL / WA 共 **6 辖区 × 8 实体 = 48 格**（本矩阵 v1.1）
 - Phase 1：扩 **50 州骨架 × 8 实体 = 400 格**，`coverage_status=skeleton` 的格未经 ops 签字前标 `needs_review`
+
+### 3.1 Coverage 状态裁定
+
+| 状态          | 使用时机                                                     | UI 行为                                    | `confidence` 口径      |
+| ------------- | ------------------------------------------------------------ | ------------------------------------------ | ---------------------- |
+| `verified`    | ops 已签字，source_urls / verified_by / verified_at 完整     | 可显示 `Verified coverage`                 | 查表项可为 1.0         |
+| `demo_seed`   | Demo Sprint CA / NY 种子，有来源但 `ops_verified_by=pending` | 显示 `Demo coverage · verify before pilot` | UI 不宣称正式 verified |
+| `skeleton`    | TX / FL / WA / MA 等 Phase 0 计划州，结构就位但未签字        | federal-only + `State review needed`       | 不生成州级 obligations |
+| `unsupported` | 未计划或无足够规则来源                                       | 不生成州级 obligations                     | 不适用                 |
+
+Demo Sprint 的 CA / NY 允许在演示路径作为 `demo_seed` 默认生效；真实 pilot 前必须升为 `verified` 或降为 `skeleton`。TX / FL / WA / MA 在本 Sprint 至少应在产品文案中被识别为 Phase 0 target coverage，避免主 ICP 误解为产品不考虑这些州。
 
 ---
 
@@ -180,6 +192,7 @@ Suggested tax types (inferred from entity × state)
 
 ## 变更记录
 
-| 版本 | 日期       | 作者       | 摘要                                                                                                     |
-| ---- | ---------- | ---------- | -------------------------------------------------------------------------------------------------------- |
-| v1.0 | 2026-04-24 | Subagent D | 初稿：Federal + CA + NY × 8 实体 = 16 rules + federal_overlay + fallback；24 格语义口径 · YAML seed 对齐 |
+| 版本 | 日期       | 作者       | 摘要                                                                                                           |
+| ---- | ---------- | ---------- | -------------------------------------------------------------------------------------------------------------- |
+| v1.0 | 2026-04-24 | Subagent D | 初稿：Federal + CA + NY × 8 实体 = 16 rules + federal_overlay + fallback；24 格语义口径 · YAML seed 对齐       |
+| v1.1 | 2026-04-24 | Codex      | 增补 coverage 状态裁定：verified / demo_seed / skeleton / unsupported，避免 pending seed 被包装成正式 verified |

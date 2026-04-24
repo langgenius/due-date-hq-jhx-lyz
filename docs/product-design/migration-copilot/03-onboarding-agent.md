@@ -26,7 +26,7 @@
 ### 1.3 Demo Sprint 定位（本 Sprint 真正渲染的）
 
 - 空态首页**默认走传统 4 步向导**，即 `./02-ux-4step-wizard.md` Step 1。
-- Agent 入口**以 preview 卡片形式保留视觉位**：`[Try AI Setup Copilot (preview)]`，DESIGN token 为 `{colors.surface-subtle}` + `{colors.text-muted}`（disabled 状态），点击落到 Toast **Coming soon** 并自动跳传统向导 Step 1（见 §11 降级路径）。
+- Agent 入口从单纯 disabled 卡片升级为 **Agent-shaped setup shell 的产品入口位**：Demo Sprint 可以只展示确定性 shell / preview 状态并自动跳传统向导；完整多轮 Agent 不在本 Sprint 承诺内。增强边界见 [`./11-agentic-enhancements.md`](./11-agentic-enhancements.md)。
 - **不是 404**：preview 卡片必须能点、能回落；入口矩阵（`./01-mvp-and-journeys.md` §5）保持"首登强制 + 三处非强制"不变。
 - 埋点：`onboarding.agent.preview_card.clicked`（工程 log，口径同 [`./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层`](./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层)），用来看 Pitch 现场有多少人对 AI 路径感兴趣 → 反哺 Phase 0 rollout 判断。
 
@@ -38,6 +38,8 @@
 | Phase 0（4 周 MVP） | Agent 真实 LLM 接线（`intake` → `normalize_confirm`）；`onboardingDraft` 跨标签页持久化 | 复用 `./04-ai-prompts.md#field-mapper-v1` + `#normalizer-v1`；增量 = Agent 脚本 prompt `agent@v1`                                       | AI Execution Contract（`../../dev-file/09-Demo-Sprint-Module-Playbook.md` §6） |
 | Phase 0 末          | Agent 走通完整 7 state 链路 + Live Genesis 接入                                         | 复用 [`./05-default-matrix.md`](./05-default-matrix.md) + [`./07-live-genesis.md`](./07-live-genesis.md)；增量 = 多轮记忆 session store | Obligation Domain Contract                                                     |
 | P1                  | 多轮记忆（"我上次说的 42 个客户"）+ 跨 firm 切换时的 Setup History 可见性               | 复用 §6A.11.5 Setup History                                                                                                             | Audit/Evidence Contract                                                        |
+
+> 关键约束：Agent 可以预填 draft、调用 Mapper / Normalizer / Dry-Run，但 `commitMigration` 只能由用户在 Wizard Step 4 或 Agent 的同构 dry-run commit screen 上显式点击触发。禁止 Agent 自动导入、自动撤销、自动 Apply Pulse。
 
 > Phase 0 扩展位：Agent 真实 LLM 调用接线；`onboardingDraft` 跨标签页持久化（localStorage + Worker 端 draft 同步）；多轮记忆；跨 firm 切换时的 Setup History 可见性；Agent 转化率 vs Wizard 转化率的 A/B funnel。
 
@@ -577,8 +579,21 @@ render wizard Step 1 Intake
 
 ---
 
-## 12. 变更记录
+## 12. 近最终 Agent 形态增强引用
+
+近最终 Agent 形态不再理解为“开放聊天”，而是 **Agent-shaped setup + deterministic wizard commit**。完整增强设计见 [`./11-agentic-enhancements.md`](./11-agentic-enhancements.md)，本文件只保留 Onboarding Agent 的对话与 state machine 规格。
+
+本文件与 11 的关系：
+
+- 本文件定义 Agent 的 conversational UX、state machine、fallback、PII 分治。
+- 11 定义围绕 PRD 用户画像的增强点、架构边界、allowed tools、coverage transparency、first-week operating loop、Agent Orchestration Envelope。
+- 两者冲突时：危险写入边界、allowed tools、coverage 状态以 11 为准；对话脚本文案以本文件为准。
+
+---
+
+## 13. 变更记录
 
 | 版本 | 日期       | 作者       | 摘要                                                                                                                                                                                                                                                                                                                         |
 | ---- | ---------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | v1.0 | 2026-04-24 | Subagent C | 初稿：战略与定位 · Demo Sprint 两卡形态 · §6A.11.2 脚本原文照录 + 右侧 state 注解 · 7 state 四列表 · `onboardingDraft` 契约 · Placeholder 分治 · 8 条 fallback · Glass-Box `onboarding.agent.*` + `migration.*` 双写 · Demo 钩子 · Agent vs Wizard 对比 · 组件 token 规格 · 降级埋点 `onboarding.agent.preview_card.clicked` |
+| v1.1 | 2026-04-24 | Codex      | 接入 Agent-shaped setup 增强口径：Agent 可引导与预填，但所有危险写入仍回 Wizard / dry-run commit screen 显式确认                                                                                                                                                                                                             |
