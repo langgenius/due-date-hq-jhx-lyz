@@ -11,21 +11,22 @@
 
 ## 1. 文档一览
 
-| #   | 文档                                                               | 解决的问题                                               | 读者                |
-| --- | ------------------------------------------------------------------ | -------------------------------------------------------- | ------------------- |
-| 00  | **Overview**（本文件）                                             | 文档地图 + 阅读顺序 + 核心技术判断                       | 所有人              |
-| 01  | [Tech Stack](./01-Tech-Stack.md)                                   | 技术栈选型 + 版本策略 + 环境变量                         | Eng                 |
-| 02  | [System Architecture](./02-System-Architecture.md)                 | 分层 · 模块边界 · 请求流 · 外部依赖                      | Eng / PM            |
-| 03  | [Data Model](./03-Data-Model.md)                                   | D1 Schema · 索引 · 租户隔离 · 迁移                       | Eng                 |
-| 04  | [AI Architecture](./04-AI-Architecture.md)                         | Glass-Box · RAG · Pulse · Prompt 管理                    | Eng / AI            |
-| 05  | [Frontend Architecture](./05-Frontend-Architecture.md)             | Vite+ · React Router 7 · UI 系统                         | Frontend            |
-| 06  | [Security & Compliance](./06-Security-Compliance.md)               | Auth · RBAC · PII · 审计 · WISP                          | Eng / Compliance    |
-| 07  | [DevOps & Testing](./07-DevOps-Testing.md)                         | 部署 · CI/CD · 可观测 · 测试                             | Eng / SRE           |
-| 08  | [Project Structure](./08-Project-Structure.md)                     | 代码目录 · 模块划分 · 命名约定                           | Eng                 |
-| 09  | [Demo Sprint Module Playbook](./09-Demo-Sprint-Module-Playbook.md) | 2 人 Demo-Ready 模块拆分与协作边界手册                   | Team                |
-| 10  | [Demo Sprint 7-Day Rhythm](./10-Demo-Sprint-7Day-Rhythm.md)        | 2 人 7 天 × 4-6h/天 的 Demo 节奏与每日分工               | Team                |
-| 11  | [Pulse Ingest Source Catalog](./11-Pulse-Ingest-Source-Catalog.md) | Pulse 权威源清单 · 反爬策略 · SLA 风险 · Adapter 契约    | Eng / Ops           |
-| 📐  | [Design System](../Design/DueDateHQ-DESIGN.md)                     | 视觉 token · 组件规格（Ramp × Linear · Light Workbench） | Designer / Frontend |
+| #   | 文档                                                                              | 解决的问题                                                                                        | 读者                |
+| --- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------- |
+| 00  | **Overview**（本文件）                                                            | 文档地图 + 阅读顺序 + 核心技术判断                                                                | 所有人              |
+| 01  | [Tech Stack](./01-Tech-Stack.md)                                                  | 技术栈选型 + 版本策略 + 环境变量                                                                  | Eng                 |
+| 02  | [System Architecture](./02-System-Architecture.md)                                | 分层 · 模块边界 · 请求流 · 外部依赖                                                               | Eng / PM            |
+| 03  | [Data Model](./03-Data-Model.md)                                                  | D1 Schema · 索引 · 租户隔离 · 迁移                                                                | Eng                 |
+| 04  | [AI Architecture](./04-AI-Architecture.md)                                        | Glass-Box · RAG · Pulse · Prompt 管理                                                             | Eng / AI            |
+| 05  | [Frontend Architecture](./05-Frontend-Architecture.md)                            | Vite+ · React Router 7 · UI 系统                                                                  | Frontend            |
+| 06  | [Security & Compliance](./06-Security-Compliance.md)                              | Auth · RBAC · PII · 审计 · WISP                                                                   | Eng / Compliance    |
+| 07  | [DevOps & Testing](./07-DevOps-Testing.md)                                        | 部署 · CI/CD · 可观测 · 测试                                                                      | Eng / SRE           |
+| 08  | [Project Structure](./08-Project-Structure.md)                                    | 代码目录 · 模块划分 · 命名约定                                                                    | Eng                 |
+| 09  | [Demo Sprint Module Playbook](./09-Demo-Sprint-Module-Playbook.md)                | 2 人 Demo-Ready 模块拆分与协作边界手册                                                            | Team                |
+| 10  | [Demo Sprint 7-Day Rhythm](./10-Demo-Sprint-7Day-Rhythm.md)                       | 2 人 7 天 × 4-6h/天 的 Demo 节奏与每日分工                                                        | Team                |
+| 11  | [Pulse Ingest Source Catalog](./11-Pulse-Ingest-Source-Catalog.md)                | Pulse 权威源清单 · 反爬策略 · SLA 风险 · Adapter 契约                                             | Eng / Ops           |
+| 📐  | [Design System](../Design/DueDateHQ-DESIGN.md)                                    | 视觉 token · 组件规格（Ramp × Linear · Light Workbench）                                          | Designer / Frontend |
+| 📐  | [Migration Copilot Product Design](../product-design/migration-copilot/README.md) | 本册入口：Demo Sprint 口径下 Migration Copilot 产品 UX / Prompt / Matrix / Fixture / 设计系统增量 | PM / Design / Eng   |
 
 ---
 
@@ -203,6 +204,10 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 - **Pulse Pipeline**：Ingest（Cron）→ Extract（Queue + LLM）→ Review（人工）→ Match → Batch Apply（D1 事务）五段
 - **Glass-Box Guard**：LLM 输出后置校验（citation 正则 + 黑名单 + PII 回填）
 - **Transactional Outbox**：Pulse Apply 与 Email Job 在同一 D1 事务内写入 `email_outbox` 表，由 Queue 消费者异步 flush
+- **migration_batch**：单次 Import 的事务边界；PK = `id`；挂载 `migration_mapping` / `migration_normalization` / `migration_error` / 生成的 `client[].migration_batch_id`；24h revert 窗口以 `applied_at + 24h` 表示（对齐 `../product-design/migration-copilot/01-mvp-and-journeys.md` §4 · ADR 0011 Decision I）
+- **Default Matrix**：`(entity_type × state) → tax_types[]` 的 ops 签字静态查表；Demo Sprint v1.0 覆盖 Federal + CA + NY × 8 实体 = 24 格；定义在 `../product-design/migration-copilot/05-default-matrix.v1.0.yaml`；运行期由 Rule Engine 读取并写 `evidence_link(source_type='default_inference_by_entity_state', matrix_version='v1.0')`
+- **Live Genesis**：Import 完成后 4–6 秒的前端驱动动画，粒子弧线飞入 Penalty Radar + odometer 数字滚动；`prefers-reduced-motion` 降级为 200ms fade-in；规格详见 `../product-design/migration-copilot/07-live-genesis.md`
+- **confidence-badge**：Migration AI Mapper / Normalizer 输出的 3 档置信度徽章（≥ 0.95 / 0.80–0.94 / < 0.80）；与 severity / status 语义解耦——**数据质量类 `needs_review` 用 `severity-medium` 黄，工作流 Review 用 `status-review` 紫**（ADR 0011 Decision III 权威裁定；token 见 `../../DESIGN.md` `confidence-badge:`）
 
 ---
 

@@ -1,0 +1,313 @@
+matrix_version: v1.0
+generated_at: 2026-04-24
+scope: demo_sprint
+jurisdictions_covered:
+  - federal
+  - CA
+  - NY
+entity_types_covered:
+  - llc
+  - s_corp
+  - partnership
+  - c_corp
+  - sole_prop
+  - trust
+  - individual
+  - other
+notes:
+  - Pure lookup table; no LLM; zero hallucination.
+  - Ops sign-off required before matrix is promoted from pending to verified.
+  - When tax_types is missing on a client row, the Rule Engine reads (entity_type, state) to infer tax_types.
+  - Every applied rule writes evidence_link with source_type=default_inference_by_entity_state and matrix_version.
+rules:
+  - key:
+      entity_type: llc
+      state: CA
+    tax_types:
+      - federal_1065_or_1040
+      - ca_llc_franchise_min_800
+      - ca_llc_fee_gross_receipts
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.ftb.ca.gov/file/business/types/limited-liability-company.html
+        - https://www.irs.gov/businesses/small-businesses-self-employed/limited-liability-company-llc
+    confidence: 1.0
+
+  - key:
+      entity_type: llc
+      state: NY
+    tax_types:
+      - federal_1065_or_1040
+      - ny_llc_filing_fee
+      - ny_ptet_optional
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.tax.ny.gov/bus/ptet/
+        - https://www.tax.ny.gov/pdf/current_forms/it/it204lli.pdf
+    confidence: 1.0
+
+  - key:
+      entity_type: s_corp
+      state: CA
+    tax_types:
+      - federal_1120s
+      - ca_100s_franchise
+      - ca_ptet_optional
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.ftb.ca.gov/file/business/types/corporations/s-corporations.html
+        - https://www.irs.gov/forms-pubs/about-form-1120-s
+    confidence: 1.0
+
+  - key:
+      entity_type: s_corp
+      state: NY
+    tax_types:
+      - federal_1120s
+      - ny_ct3s
+      - ny_ptet_optional
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.tax.ny.gov/bus/ct/s_corporation.htm
+        - https://www.irs.gov/forms-pubs/about-form-1120-s
+    confidence: 1.0
+
+  - key:
+      entity_type: partnership
+      state: CA
+    tax_types:
+      - federal_1065
+      - ca_565_partnership
+      - ca_ptet_optional
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.ftb.ca.gov/file/business/types/partnership.html
+        - https://www.irs.gov/forms-pubs/about-form-1065
+    confidence: 1.0
+
+  - key:
+      entity_type: partnership
+      state: NY
+    tax_types:
+      - federal_1065
+      - ny_it204
+      - ny_ptet_optional
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.tax.ny.gov/forms/current_forms/it/it204i.htm
+        - https://www.irs.gov/forms-pubs/about-form-1065
+    confidence: 1.0
+
+  - key:
+      entity_type: c_corp
+      state: CA
+    tax_types:
+      - federal_1120
+      - ca_100_franchise
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.ftb.ca.gov/file/business/types/corporations/index.html
+        - https://www.irs.gov/forms-pubs/about-form-1120
+    confidence: 1.0
+
+  - key:
+      entity_type: c_corp
+      state: NY
+    tax_types:
+      - federal_1120
+      - ny_ct3
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.tax.ny.gov/bus/ct/article9a.htm
+        - https://www.irs.gov/forms-pubs/about-form-1120
+    confidence: 1.0
+
+  - key:
+      entity_type: sole_prop
+      state: CA
+    tax_types:
+      - federal_1040_sch_c
+      - ca_540
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.ftb.ca.gov/file/personal/filing-situations/sole-proprietor.html
+        - https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+    confidence: 1.0
+
+  - key:
+      entity_type: sole_prop
+      state: NY
+    tax_types:
+      - federal_1040_sch_c
+      - ny_it201
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.tax.ny.gov/pit/file/it201.htm
+        - https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+    confidence: 1.0
+
+  - key:
+      entity_type: trust
+      state: CA
+    tax_types:
+      - federal_1041
+      - ca_541
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.ftb.ca.gov/forms/2023/2023-541.pdf
+        - https://www.irs.gov/forms-pubs/about-form-1041
+    confidence: 1.0
+
+  - key:
+      entity_type: trust
+      state: NY
+    tax_types:
+      - federal_1041
+      - ny_it205
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.tax.ny.gov/forms/current_forms/it/it205i.htm
+        - https://www.irs.gov/forms-pubs/about-form-1041
+    confidence: 1.0
+
+  - key:
+      entity_type: individual
+      state: CA
+    tax_types:
+      - federal_1040
+      - ca_540
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.ftb.ca.gov/forms/2023/2023-540.pdf
+        - https://www.irs.gov/forms-pubs/about-form-1040
+    confidence: 1.0
+
+  - key:
+      entity_type: individual
+      state: NY
+    tax_types:
+      - federal_1040
+      - ny_it201
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - https://www.tax.ny.gov/pit/file/it201.htm
+        - https://www.irs.gov/forms-pubs/about-form-1040
+    confidence: 1.0
+
+  - key:
+      entity_type: other
+      state: CA
+    tax_types:
+      - federal
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - TBD-ops-verification
+    confidence: 0.5
+    needs_review: true
+
+  - key:
+      entity_type: other
+      state: NY
+    tax_types:
+      - federal
+    evidence:
+      source_type: default_inference_by_entity_state
+      matrix_version: v1.0
+      ops_verified_by: pending
+      ops_verified_at: pending
+      source_urls:
+        - TBD-ops-verification
+    confidence: 0.5
+    needs_review: true
+
+federal_overlay:
+  description: Federal items to always append when the (entity_type, state) lookup succeeds; duplicates deduped by the Rule Engine.
+  by_entity_type:
+    llc: [federal_1065_or_1040]
+    s_corp: [federal_1120s]
+    partnership: [federal_1065]
+    c_corp: [federal_1120]
+    sole_prop: [federal_1040_sch_c]
+    trust: [federal_1041]
+    individual: [federal_1040]
+    other: [federal]
+
+fallback:
+  strategy: federal_only_with_needs_review
+  description: When (entity_type, state) is not in rules, emit federal overlay only and mark the client as needs_review.
+  applies_to_states:
+    - MA
+    - TX
+    - FL
+    - WA
+    - '*'
+  evidence:
+    source_type: default_inference_by_entity_state
+    matrix_version: v1.0
+    needs_review_reason: state_not_in_demo_sprint_seed
+
+phase0_expansion_hooks:
+  - description: Add 6 jurisdictions (MA, TX, FL, WA, plus any two) × 8 entity types = 48 cells in v1.1.
+    owner: rules_ops
+  - description: Add 50-state skeleton (coverage_status=skeleton) in v2.0 with placeholder tax_types + mandatory ops verification before activation.
+    owner: rules_ops

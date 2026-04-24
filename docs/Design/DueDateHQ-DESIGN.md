@@ -681,4 +681,176 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 
 ---
 
+## 14. Migration Copilot 向导（Demo Sprint）
+
+> 来源：`../product-design/migration-copilot/09-design-system-deltas.md`
+> 权威 token：`../../DESIGN.md` YAML `components:` 段；本节承担具体使用说明与可达性规格。
+> 裁定 ADR：[`../adr/0011-migration-copilot-demo-sprint-scope.md`](../adr/0011-migration-copilot-demo-sprint-scope.md) Decision III
+> 编号说明：本 section 排在已有 §9 ~ §13 之后，避免与现有编号冲突；子目录按 `14.x` 组织。
+
+### 14.1 Stepper（4 步向导步骤条）
+
+- **来源**：`../product-design/migration-copilot/02-ux-4step-wizard.md` §2.2 · `../product-design/migration-copilot/03-onboarding-agent.md` 首页 disabled 版本
+- **Token（`../../DESIGN.md` 组件名）**：`stepper`
+
+**规格**
+
+- 4 步水平；整栏高 32px；每格之间间距 `{spacing.3}`（12px）
+- 字号 `{typography.label}`（11px Inter 500 uppercase tracking 0.08em）
+- 圆角 `{rounded.sm}`（4px，chip 级）
+- 仅展示不可点击（防止跨步数据污染），步骤推进通过底栏 `[Back]` / `[Continue]` 完成
+
+**状态色**
+
+| 状态      | 前景色 `{colors.*}` | 背景色 `{colors.*}` | 图标 | 触发条件                                       |
+| --------- | ------------------- | ------------------- | ---- | ---------------------------------------------- |
+| current   | `accent-default`    | `accent-tint`       | —    | Step 当前焦点                                  |
+| completed | `status-done`       | `surface-canvas`    | ✓    | Step 已 Continue 提交                          |
+| upcoming  | `text-muted`        | `surface-canvas`    | —    | Step 尚未到达                                  |
+| error     | `severity-critical` | `surface-canvas`    | !    | 当前 Step 校验失败（非阻塞 warnings 不走本态） |
+| disabled  | `text-disabled`     | `surface-canvas`    | —    | Agent preview 卡片态 / Step 4 动画期间         |
+
+**可达性**
+
+- 容器 `role="navigation"` + `aria-label="Migration wizard step indicator"`
+- 当前步骤文字额外带 `aria-current="step"`
+- 步骤标签文字不截断（Tab key 不把 focus 落到 stepper，仅做视觉指示）
+
+### 14.2 Confidence Badge（置信度徽章）
+
+- **来源**：`../product-design/migration-copilot/02-ux-4step-wizard.md` §5 Step 2 Mapping + §6 Step 3 Normalize · `../product-design/migration-copilot/04-ai-prompts.md` §2.5 后处理输出
+- **Token**：`confidence-badge`
+
+**规格**
+
+- 3 档：`high` (≥ 0.95) / `med` (0.80–0.94) / `low` (< 0.80)
+- 形态：inline chip；高 18px；padding `0 6px`；圆角 `{rounded.sm}`
+- 字号：`{typography.numeric}`（13px Geist Mono tabular-nums）
+- 文案：`95%` / `87%` / `72%`（百分整数，不带小数）
+
+**语义与色系（与 severity / status 解耦）**
+
+| 档位 | 背景色                           | 文字色                    | 语义                             |
+| ---- | -------------------------------- | ------------------------- | -------------------------------- |
+| high | `{colors.accent-tint}`           | `{colors.accent-text}`    | 强先验命中 / Preset + EIN 全识别 |
+| med  | `{colors.severity-neutral-tint}` | `{colors.text-secondary}` | 一般置信，可直接采纳             |
+| low  | `{colors.severity-medium-tint}`  | `{colors.text-primary}`   | 需人工 review（非阻塞）          |
+
+### 14.3 Toast（3 tone + 2 variant）
+
+- **来源**：`../product-design/migration-copilot/02-ux-4step-wizard.md` §7.4 Step 4 导入成功 · `../product-design/migration-copilot/07-live-genesis.md` §2 动画收尾 · `../product-design/migration-copilot/08-migration-report-email.md`（Revert 链接同源 24h toast 文案）
+- **Token**：`toast`
+
+**规格**
+
+- 形态：右下 stack；宽 360px；padding 12px；圆角 `{rounded.md}`
+- 字号：`{typography.body}`
+- 层级：Level 3（对齐 §6 Depth & Elevation）；`box-shadow: var(--shadow-subtle)`
+- 关闭：右上 icon-only `×` + `Esc`（焦点在 toast 时）
+
+**Tone × Variant 表**
+
+| tone    | 背景                            | 文字                    | 用途                                                         |
+| ------- | ------------------------------- | ----------------------- | ------------------------------------------------------------ |
+| info    | `{colors.surface-elevated}`     | `{colors.text-primary}` | 一般信息（"Draft saved"）                                    |
+| success | `{colors.surface-elevated}`     | `{colors.status-done}`  | 导入成功 / Revert 成功 / Undo 成功（绿文字 + 白背景 · flat） |
+| warning | `{colors.severity-medium-tint}` | `{colors.text-primary}` | 数据质量类非阻塞提示（"3 rows skipped"、"Needs review"）     |
+
+| variant    | timeoutMs                                        | 辅助 UI                                                 |
+| ---------- | ------------------------------------------------ | ------------------------------------------------------- |
+| default    | 3000（自动消失）；含 500ms undo 计时窗口         | 行内 `[Undo]` 按钮（对齐 §9 Do's 第 8 条 "500ms undo"） |
+| persistent | null（不自动消失，直到 `revertible_until` 过期） | Migration Report toast：右下 sticky，24h 窗口           |
+
+**权威裁定：Persistent toast 时钟源**
+
+- **以服务端 `rpc.migration.apply` 返回的 `revertible_until` ISO-8601 字段为准**
+- **前端只渲染、不本地倒计时**：toast 挂载 / 焦点返回时比较 `Date.now() < revertible_until` 决定是否显示
+- 依据：ADR 0011 Decision III · 解决 Subagent B NEEDS REVIEW 4（时钟源分歧）；实现细节见 `../product-design/migration-copilot/09-design-system-deltas.md` §4.5
+
+### 14.4 Genesis Odometer & Particles
+
+- **来源**：`../product-design/migration-copilot/07-live-genesis.md` §3 粒子参数 + §4 Odometer + §5 `prefers-reduced-motion` 降级
+- **Token**：`genesis-odometer` · `genesis-particle`
+
+**Odometer 规格**
+
+- 字号 / 行高 / 字距：`{typography.hero-metric}`（56px · Geist Mono 700 · letter-spacing -0.02em · fontFeature `'tnum'`）
+- 色：`{colors.text-primary}`（navy）
+- 缓动：`cubic-bezier(0.4, 0, 0.2, 1)`；每位数字独立 linear-interpolate；货币符 `$` 与千分位 `,` 固定不滚动
+- 舞台与顶栏间距：`{spacing.12}`（避免粒子终点与卡片区挤压）
+- 可达性：容器 `role="status"` + `aria-live="polite"`；结束广播 `"{formattedAmount} at risk this quarter"`（zh-CN 同源不同字符串 via Lingui）
+
+**Particle 规格**
+
+- 6px 圆（`arc(0, 0, 3, 0, 2π)`）
+- 色 `{colors.accent-default}` + 10% alpha glow（`shadowBlur: 8`，`shadowColor` 同色）
+- 运动：4 点三次贝塞尔 `[startPos, startPos + (0, -200), radarPos + (0, -100), radarPos]`
+- 时间：1200–1800ms / 粒子；stagger 60ms；同屏上限 30 颗
+- 载体：单一 `<canvas>`，`position: absolute`，`z-index: 50`，`pointer-events: none`
+
+**`prefers-reduced-motion` 降级（对齐 §7.3 OVERDUE 闪烁同原则）**
+
+- 触发：CSS media `prefers-reduced-motion: reduce` OR 运行时 5 帧 > 33ms OR URL `?reducedMotion=1`
+- 行为：粒子不渲染；Odometer 一次性显示 final 值 + 200ms fade-in；总时长 ≤ 800ms
+- 埋点：`migration.genesis.played { mode: 'reduced' }`
+
+### 14.5 Email Shell
+
+- **来源**：`../product-design/migration-copilot/08-migration-report-email.md` §3.2 HTML 模板 + §4 布局 token
+- **Token**：`email-shell`
+
+**规格**
+
+- 宽度：640px（对齐 08 §3.2 HTML 模板 `<table width="640">`；Gmail / Outlook / Apple Mail 三端主流兼容宽度）
+- 外层：`<table>` 布局（非 flex / grid；邮件生态兼容性要求）
+- 背景：`{colors.surface-canvas}`；文字 `{colors.text-primary}`；正文 `{typography.body}`
+- 数字（金额 / 日期 / EIN）：Geist Mono tabular-nums；hex 展开在 Worker 薄字典模板渲染时替换占位符（对齐 `../adr/0009-lingui-for-i18n.md` Worker 薄字典约束）
+- 页脚（"Sent by DueDateHQ on behalf of {firm_name}" + Unsub）：`{typography.label}` + `{colors.text-muted}`
+
+**hex 展开说明**
+
+- YAML `{colors.*}` token 在 Worker Email Compose 阶段展开为 hex 字符串直接写入 `<table bgcolor="...">` / `<td style="color: #...">`（邮件客户端对 CSS 变量支持参差）
+- 展开映射表见 `../product-design/migration-copilot/08-migration-report-email.md` §4
+
+### 14.6 Keyboard
+
+- **来源**：`../product-design/migration-copilot/01-mvp-and-journeys.md` §7 · `../product-design/migration-copilot/09-design-system-deltas.md` §9 Keyboard Rules
+- **裁定依据**：ADR 0011 Decision III · 解决 Subagent B NEEDS REVIEW 1 / 2
+
+**`A` 键（Apply-all）**
+
+- **生效位**：**仅** Step 3 Normalize 的 "Apply to all similar" 确认按钮焦点区域
+- **全局 `A`**：本轮**不占用**（PRD §7.7 暂未列入全局 shortcut 表）；保留位给未来可能的 Ask 快捷，标 `reserved: false`
+- Demo Sprint 期间任何组件**禁止**全局监听 `A` 键
+
+**`Enter` 键（Continue）**
+
+- **生效位**：Wizard 底栏 `[Continue →]` 等价快捷
+- **不生效位**：焦点在 `<textarea>`、`[contenteditable="true"]`、`<select>` 控件时（保留控件自身默认行为，例如 textarea 换行）
+- **Step 4 动画期间**：Enter 不生效（对齐 §2.1 "动画中 Esc 失效"同原则）
+
+**其他全局（沿用 §10.2 / §10.3 Responsive + 全局约定）**
+
+- `?` 快捷键帮助浮层
+- `Esc` 打开关闭确认（非 destructive；动画期间失效）
+- `Cmd + K` 命令面板入口
+- `Cmd + Shift + D` 暗色切换
+- 数字键 `1` - `4` 在向导内**不跳步**
+
+### 14.7 needs_review 用色语义（权威裁定）
+
+这是本册的**硬裁定**（写入 ADR 0011 Decision III · 详见 `../product-design/migration-copilot/09-design-system-deltas.md` §3.4）：
+
+| 场景                          | 色 token                   | 解释                                                                                                          |
+| ----------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **数据质量类 `needs_review`** | `{colors.severity-medium}` | Mapper 低置信 / Normalizer 冲突 / Default Matrix 非种子辖区；属风险域 → 走 severity-medium 黄                 |
+| **工作流态 Review**           | `{colors.status-review}`   | Workboard "Needs review" 状态列 / Client Detail review 抽屉；属状态域 → 走 status-review 紫（已在 §2.2 定义） |
+
+**两者绝不混用**。依据：
+
+- `{colors.status-review}` 已在本文件 §2.2 Light Mode 定义为工作流状态色（"Status = 工作流状态，Severity = 风险等级，两套 token 独立"的铁律，见 §7.2 第 4 条）
+- Migration / Onboarding 阶段的"数据质量弱信号"属风险域 → 走 severity-medium，便于 CPA 在 Dry-Run 预览与 Dashboard 保持一致的视觉语言
+
+---
+
 _This document is a single source of truth. If in doubt, choose density over decoration, precision over friendliness._

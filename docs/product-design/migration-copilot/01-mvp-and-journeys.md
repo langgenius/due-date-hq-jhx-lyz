@@ -1,0 +1,216 @@
+# Migration Copilot · MVP 范围与用户旅程
+
+> 版本：v1.0（Demo Sprint · 2026-04-24）
+> 上游：PRD Part1A §3.2 / §4.1 · Part1B §6A.1–§6A.10 · Part2B §12.2 / §12.3 · `dev-file/09` §2 / `dev-file/10` §3
+> 入册位置：[`./README.md`](./README.md) §2 第 01 份
+
+本文件把 Migration Copilot 的"Demo Sprint 必做 / 不做"、每条 AC 的三维映射、KPI 起止点、Story S2 端到端旅程、产品入口、权限与可达性基线写死，作为 UX（`./02-ux-4step-wizard.md`）与 Prompt（`./04-ai-prompts.md`）/ Default Matrix（`./05-default-matrix.md`）的上层锚点。
+
+---
+
+## 1. Demo Sprint MVP 范围一览
+
+对照 `../../dev-file/09-Demo-Sprint-Module-Playbook.md` §2.1 / §2.2 与 PRD Part1A §4.1 P0-2 ~ P0-6。
+
+| 在 Demo Sprint 范围内（必做）                                                                                                                                | 不在 Demo Sprint 范围内（本轮留 hook）                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Paste / CSV / XLSX 入口（Part1A P0-2 · Part1B §6A.6 Step 1）                                                                                                 | Onboarding AI Agent 真实实现（PRD §6A.11；设计就位见 [`./03-onboarding-agent.md`](./03-onboarding-agent.md)） |
+| 5 个 Preset Profile 含 File In Time（Part1B §6A.4）                                                                                                          | MA / TX / FL / WA 其他 4 辖区 seed（本 Sprint 仅 Federal + CA + NY）                                          |
+| AI Field Mapper 识别 9 字段 `name / ein / state / county / entity_type / tax_types / email / assignee / notes`（Part1A P0-3 · Part1B §6A.2）                 | Team RBAC 四角色（PRD §3.6.3 · P1-19）                                                                        |
+| AI Normalizer + 智能建议非阻塞（Part1A P0-4 · Part1B §6A.3）                                                                                                 | Pulse apply 联动 Migration 产生的 obligations（Demo Sprint 用静态 seed；`dev-file/09` §2.2）                  |
+| Default Tax Types Inference Matrix Demo 子集 = Federal + CA + NY × 8 实体（Part1A P0-5 · Part1B §6A.5 · [`./05-default-matrix.md`](./05-default-matrix.md)） | Migration 触发 PWA install prompt（PWA 整体 Phase 2；`dev-file/09` §5.11）                                    |
+| Dry-Run 预览 + 原子 Import + Live Genesis 动画（Part1A P0-6 · Part1B §6A.6 Step 4）                                                                          | Tauri macOS menu bar 联动（PRD P1-37 · Phase 2）                                                              |
+| 24h 全量 Revert（Owner-only，见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)）         | 真实 WISP v1.0（Demo Sprint 交 1-page draft；PRD Part1A P0-24 · Part2B §13.2）                                |
+| Migration 专属 evidence_link + audit_event `migration.imported / .reverted / .single_undo`（Part2B §13.2.1）                                                 | Rules Overlay runtime engine（Demo 直接 UPDATE；`dev-file/09` §2.2 + `dev-file/00` §3）                       |
+| 5 套 Preset sample fixture + 坏行 fixture（Part2B §17 · [`./06-fixtures/README.md`](./06-fixtures/README.md)）                                               | Audit-Ready Evidence Package（ZIP + SHA-256；PRD P1-28 · `dev-file/09` §14）                                  |
+
+> Phase 0 扩展位：本 §1 的右列在 Phase 0 MVP（4 周全量）阶段逐项上线时，需要回头在本 README §2 / `./10-conflict-resolutions.md` 补对应决策。本轮不展开。
+
+---
+
+## 2. AC × Test × P0 三维映射表
+
+数据来源：PRD Part1A §3.2 S2-AC1..AC5 · §4.1 P0-2 ~ P0-6 · Part2B §12.3 T-S2-01..05 · Part1B §6A.10 验收清单。
+
+| Story AC | 验收原文                                             | 测试用例（Part2B §12.3） | P0 模块（Part1A §4.1）                        | 本册兑现位置                                                                                                                                                                              |
+| -------- | ---------------------------------------------------- | ------------------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| S2-AC1   | 支持 TaxDome / Drake / Karbon / QuickBooks 导出 CSV  | T-S2-01                  | P0-2 Migration Copilot（入口 + Preset）       | [`./02-ux-4step-wizard.md#step-1-intake`](./02-ux-4step-wizard.md#step-1-intake) · [`./06-fixtures/README.md`](./06-fixtures/README.md)                                                   |
+| S2-AC2   | 系统自动识别字段映射（客户名 / EIN / 州 / 实体类型） | T-S2-02                  | P0-3 AI Field Mapper                          | [`./02-ux-4step-wizard.md#step-2-mapping`](./02-ux-4step-wizard.md#step-2-mapping) · [`./04-ai-prompts.md#field-mapper-v1`](./04-ai-prompts.md#field-mapper-v1)                           |
+| S2-AC3   | 对模糊或缺失字段提供智能建议而非阻塞性错误           | T-S2-03                  | P0-4 AI Normalizer + Smart Suggestions        | [`./02-ux-4step-wizard.md#step-3-normalize`](./02-ux-4step-wizard.md#step-3-normalize) · [`./04-ai-prompts.md#normalizer-v1`](./04-ai-prompts.md#normalizer-v1)                           |
+| S2-AC4   | 导入后立即生成每个客户的全年截止日历，无需额外配置   | T-S2-04                  | P0-5 Default Tax Types Inference Matrix       | [`./05-default-matrix.md#demo-sprint-matrix-v10`](./05-default-matrix.md#demo-sprint-matrix-v10) · [`./02-ux-4step-wizard.md#step-3-normalize`](./02-ux-4step-wizard.md#step-3-normalize) |
+| S2-AC5   | P95 完成时间 ≤ 30 分钟（30 客户基准）                | T-S2-05                  | P0-6 Dry-Run + Import + Live Genesis + Revert | [`./02-ux-4step-wizard.md#step-4-dry-run-and-genesis`](./02-ux-4step-wizard.md#step-4-dry-run-and-genesis) · 本文 §3 KPI 埋点表                                                           |
+
+> 说明：T-S2-01 同时对 Preset 命中率与 EIN 识别率施加双指标，口径见 [`./10-conflict-resolutions.md#3-t-s2-01-双指标口径`](./10-conflict-resolutions.md#3-t-s2-01-双指标口径)。
+
+---
+
+## 3. KPI 埋点表
+
+数据来源：PRD Part2B §12.2 Activation（Migration）。两条起止点重合的"Time-to-First-Value"与"P95 完成"在本册里明确**拆成两个独立指标**，见 [`./10-conflict-resolutions.md#4-kpi-起点与终点口径`](./10-conflict-resolutions.md#4-kpi-起点与终点口径)。
+
+| KPI                                  | 目标值       | 起点事件                         | 终点事件                                    | 埋点位置                                                                                                                            | 备注                                                  |
+| ------------------------------------ | ------------ | -------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Migration Time-to-First-Value        | P50 ≤ 10 min | `signup.completed`               | `dashboard.penalty_radar.first_rendered`    | Auth 回调 → Dashboard first paint（PostHog 事件由 Dashboard 模块 emit，见 `../../dev-file/09-Demo-Sprint-Module-Playbook.md` §5.8） | 对齐 PRD Part2B §12.2 Activation 第 1 行              |
+| Migration P95 完成（S2-AC5）         | ≤ 30 min     | `signup.completed`               | `migration.imported`                        | 同上 → Migration 提交成功                                                                                                           | 对齐 PRD Part2B §12.2 第 2 行 · Part2B §12.3 T-S2-05  |
+| Migration Completion Rate            | ≥ 70%        | `migration.wizard.step1.opened`  | `migration.imported`                        | 向导 Step 1 打开 → Import 成功                                                                                                      | 对齐 PRD Part2B §12.2 第 3 行                         |
+| Migration Mapping Confidence（平均） | ≥ 85%        | `migration.mapper.run.completed` | 同事件（聚合字段 `avg_confidence`）         | AI Mapper 输出后，聚合 per-batch / per-firm 平均                                                                                    | 对齐 PRD Part2B §12.2 第 4 行 · Part1B §6A.2          |
+| Migration Revert Rate                | ≤ 10%        | `migration.imported`             | `migration.reverted`（24h 内）              | 分子 `migration.reverted` / 分母 `migration.imported`                                                                               | 对齐 PRD Part2B §12.2 第 5 行 · Part2B §13.2.1        |
+| Week-2 激活率                        | ≥ 7 / 10     | 种子用户名单（离线定义）         | `migration.imported` 在 Day-0 ~ Day-14 命中 | 对齐 PRD Part2B §12.4 Go 信号；Demo Sprint 用手工口径                                                                               | Demo Sprint 不做自动看板；Phase 0 起补 PostHog funnel |
+
+> 说明：KPI 原始目标来自 PRD Part2B §12.2；本表是 Demo Sprint 的唯一埋点口径来源。`migration.imported / .reverted / .single_undo` 同时是 audit action（PRD Part2B §13.2.1）与 PostHog 事件名，见 [`./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层`](./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层)。
+
+> Phase 0 扩展位：Funnel dashboard 自动化（PostHog Insights）+ Migration-to-Pulse 相关性分析 + 周度自动告警。
+
+---
+
+## 4. Story S2 用户旅程
+
+### 4.1 主 Persona 简述
+
+对齐 PRD Part1A §2.1 主 ICP 与 §2.2 Owner 角色、§2.3 场景 B。Demo Sprint 收紧到 Owner-only 单账号（`../../dev-file/09-Demo-Sprint-Module-Playbook.md` §2.2 · Part1A §4.1 P0-24），Manager / Preparer / Coordinator 不在本 Sprint 渲染。
+
+- 姓名占位：**David**（CPA · 独立事务所 owner · 1-10 人 · 服务 30–80 business clients）
+- 上一套工具：TaxDome / Drake / QuickBooks 其中之一（导出 CSV 在手）
+- 目标：**30 分钟** 内完成 30 客户导入 + 看到全年 deadline + Penalty Radar 第一次跳出美元敞口（PRD Part1A §0.3 第 2 条铁律）
+- 焦虑点：不想重输一天 / 不想录到一半崩溃 / 不想没审计就 Go Live
+
+### 4.2 端到端时序（P95 ≤ 30 min 的预算分解）
+
+时间预算严格对齐 PRD Part1B §6A.10 T-S2-AC5 备注：**粘贴 5min + mapping review 10min + normalize 5min + import + buffer 10min**。下图每条消息右侧标"耗时预算（elapsed / budget）"。
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor David as "David (CPA)"
+  participant Wizard as "Migration Wizard"
+  participant Mapper as "AI Field Mapper"
+  participant Normalizer as "AI Normalizer"
+  participant Matrix as "Default Matrix"
+  participant Genesis as "Live Genesis"
+  participant Dashboard as "Dashboard"
+
+  David->>Wizard: signup.completed 首登空态强制进入 [0 / 30 min]
+  David->>Wizard: 粘贴 30 行 Step 1 Intake [+5 / 30 min]
+  Wizard->>Mapper: 表头 + 前 5 行样本 不走占位符
+  Mapper-->>Wizard: 字段映射 JSON + 置信度 response 3s
+  David->>Wizard: review mapping Step 2 [+10 / 30 min]
+  Wizard->>Normalizer: 枚举归一 + tax_year 正则
+  Normalizer-->>Wizard: entity / state / tax_types 归一结果 3s
+  Wizard->>Matrix: 缺 tax_types 的客户 lookup entity x state
+  Matrix-->>Wizard: 推断 tax_types + evidence source_type
+  David->>Wizard: 确认 Step 3 Normalize [+5 / 30 min]
+  Wizard-->>David: Dry-Run 预览 152 obligations 19200 USD at risk
+  David->>Wizard: 点 Import and Generate Step 4
+  Wizard->>Genesis: migration.imported + 批量 evidence_link + audit_event
+  Genesis-->>Dashboard: dashboard.penalty_radar.first_rendered [+10 buffer]
+  Dashboard-->>David: This Week tab 选中第 1 条 [<= 30 / 30 min]
+```
+
+### 4.3 关键节点注释
+
+| 节点                  | 写入 evidence_link                                                                                                         | 写入 audit_event                                           |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Step 2 Mapping 确认   | 每一列的 `source=header + sample → target=DueDateHQ field` + confidence + model（Part1B §6A.2 后处理）                     | `migration.mapper.confirmed`（工程 log；非 audit.\* 命名） |
+| Step 3 Normalize 确认 | 每一条归一（entity / state / tax_types）含 reasoning / model / confidence（Part1B §6A.3 "所有归一决策写 `evidence_link`"） | `migration.normalizer.confirmed`                           |
+| Step 3 Matrix 应用    | Default Matrix 命中：`source_type=default_inference_by_entity_state` + `matrix_version`（Part1B §6A.5 JSON）               | `migration.matrix.applied`                                 |
+| Step 4 Import 提交    | 批量 evidence_link（每条 obligation 都挂）+ migration_batch 记录                                                           | `migration.imported`（对齐 Part2B §13.2.1）                |
+| Dashboard 首次渲染    | —                                                                                                                          | `analytics.dashboard.penalty_radar.first_rendered`         |
+| 24h 内 Revert         | 每条 revert 落 evidence_link `source_type=migration_revert`                                                                | `migration.reverted`（对齐 Part2B §13.2.1）                |
+| 单客户 7d Undo        | 同上                                                                                                                       | `migration.single_undo`（对齐 Part2B §13.2.1）             |
+
+> 说明：audit_event 命名走 `migration.*` 工程 log 口径；UI / 邮件的人类可读文案走 Lingui 本地化（见 [`./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层`](./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层)）。
+
+---
+
+## 5. 入口矩阵
+
+| 入口                         | 触发条件                                                           | 跳转路径                                | 是否强制 |
+| ---------------------------- | ------------------------------------------------------------------ | --------------------------------------- | -------- |
+| 首登空态                     | 首次 session 且 `clients.count = 0 AND obligations.count = 0`      | `/migration/new?source=empty`           | 强制     |
+| Clients 页 `+ Add clients ▾` | 已有客户的事务所新增时                                             | `/migration/new?source=clients-page`    | 否       |
+| Cmd-K 命令面板 `> import`    | 任何已登录页面按 `Cmd + K` 并输入 `import`（对齐 PRD Part2A §7.6） | `/migration/new?source=cmdk`            | 否       |
+| Settings → Imports History   | 回访查历史 / 触发 24h Revert（PRD Part1A §5.10）                   | `/settings/imports` 列表 → batch detail | 否       |
+
+> 说明：`/migration/*` URL 路径是产品设计建议，实现阶段允许前端按 React Router 约定做微调（`../../dev-file/05-Frontend-Architecture.md` 路由约定）；但**入口语义 = 首登强制 + 三处非强制**不能变。Onboarding AI Agent 作为平行入口的设计见 [`./03-onboarding-agent.md`](./03-onboarding-agent.md)（Demo Sprint 不渲染）。
+
+---
+
+## 6. 权限与并发
+
+### 6.1 Demo Sprint 权限（Owner-only）
+
+对齐 `../../dev-file/09-Demo-Sprint-Module-Playbook.md` §2.2 与 PRD Part1A §4.1 P0-24：
+
+- 唯一 Owner；本向导仅对 Owner 可见
+- 四角色 RBAC 矩阵是 P1（PRD §3.6.3），Demo Sprint 不渲染
+- 后端仍走 `scoped(db, firmId)` 与 Owner-only 写路径校验（`../../dev-file/09-Demo-Sprint-Module-Playbook.md` §5.3）
+
+### 6.2 Phase 0 权限矩阵预告（对齐 PRD Part1A §3.6.3）
+
+| 操作                  | Owner | Manager | Preparer | Coordinator |
+| --------------------- | ----- | ------- | -------- | ----------- |
+| Migration Import      | ✓     | ✓       | —        | —           |
+| Revert 24h 全量 batch | ✓     | —       | —        | —           |
+| Revert 单客户（7 天） | ✓     | ✓       | —        | —           |
+
+24h 全量 Revert 的裁定理由见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)。
+
+### 6.3 并发串行（对齐 PRD Part1A §3.6.6）
+
+同一 firm **最多 1 个 draft batch**。第二位 Owner / Manager 进入时向导不直接报错，而是展示友好锁定提示（Demo Sprint 单 Owner 下触发概率低，但契约上必须就位，便于 Phase 0 扩展）：
+
+```
+Another import is currently in progress (Step 2 of 4).
+[View] [Cancel theirs — Owner only]
+```
+
+DB 层靠 `migration_batch.status='draft'` 的唯一性约束（全 firm 维度）保障（`../../dev-file/03-Data-Model.md` Migration 相关章节）。
+
+---
+
+## 7. 键盘与可达性基线
+
+对齐 PRD Part2A §7.7 / Part2B §10.4 与 `Design/DueDateHQ-DESIGN.md` 无障碍章节。
+
+### 7.1 全局
+
+- `?` 打开快捷键帮助浮层
+- `Esc` 关闭当前弹层 / 抽屉 / modal（非 destructive）
+- `Cmd + K` 命令面板入口
+- `Cmd + Shift + D` 暗色模式切换
+
+### 7.2 向导内
+
+- `Tab` / `Shift + Tab` 焦点切换（仅在向导内循环，不逃出）
+- `Enter` 提交当前步骤（Step N → Step N+1）
+- `数字键 1-4` **不**直跳步骤，避免误触
+- `Cmd + Z` 不劫持（浏览器默认行为，粘贴区内 Undo 生效）
+
+### 7.3 Focus Trap
+
+- 每一步全屏 wizard 渲染为 `role="dialog"` + `aria-modal="true"`
+- Tab 在当前步骤的可聚焦元素之间循环，不逃到宿主页面
+- `aria-labelledby` 指向步骤标题（`Step 1 of 4 · Import clients`）
+- `aria-describedby` 指向该步骤顶部说明（例如 Step 1 的"Where is your data coming from?"）
+
+### 7.4 屏幕阅读器
+
+- 每一步切换时 `aria-live="polite"` 广播 `Step N of 4 · <step title>`
+- 主要状态变化（"30 rows ready to import"、"3 conflicts detected"、"Mapping complete with 92% average confidence"）都走同一 live region
+- Error / Warning 走 `aria-live="assertive"`
+
+### 7.5 对比度
+
+- 遵循 `../../Design/DueDateHQ-DESIGN.md` 已有的 semantic token，不使用 raw hex 颜色
+- Confidence 徽章（< 80% 黄 / ≥ 80% 绿 / < 50% 橙）对齐 DESIGN.md 风险色系
+- 键盘焦点环 `:focus-visible` 使用 indigo `#5B5BD6`（DESIGN.md §2）
+
+> Phase 0 扩展位：MA / TX / FL / WA 辖区扩 seed（扩展 `./05-default-matrix.md`）；Manager / Preparer 入口可见性开关；Pulse apply 事件到达时在向导 Step 4 Genesis 后显示 `1 rule updated recently` banner 与 Migration 产生的 obligations 联动。
+
+---
+
+## 变更记录
+
+| 版本 | 日期       | 作者       | 摘要                                                                                      |
+| ---- | ---------- | ---------- | ----------------------------------------------------------------------------------------- |
+| v1.0 | 2026-04-24 | Subagent A | 初稿：Demo Sprint 范围表 · AC 三维映射 · KPI 埋点 · S2 旅程 · 入口矩阵 · 权限与可达性基线 |

@@ -1,0 +1,53 @@
+Client,Federal ID,Org Type,State/Juris,County/Region,Tax Forms,Contact,Email,Industry,Year Revenue,Notes
+Acme LLC (TEST),99-0000501,LLC,CA,Los Angeles,Form 1065,David Owner,test+201@example.com,Consulting,$250k-1M,
+Beacon Consulting Inc (TEST),99-0000502,S-Corp,California,Orange,1120-S,Jordan Park,test+202@example.com,Consulting,$1M-10M,Key client
+Cedar Capital LLC (TEST),99 0000 503,L.L.C.,Calif,San Diego,Fed 1065 Partnership,Riley Chen,test+203@example.com,Real Estate,>$10M,
+Dune Logistics LLC (TEST),99.0000504,Ltd Liability Co,CA,San Francisco,IRS 1065,Morgan Lee,test+204@example.com,Transportation,$1M-10M,
+Ember Retail Inc (TEST),99-0000505,C-Corp,New York,Queens,Form 1120,Taylor Kim,test+205@example.com,Retail,,
+Flux Labs LLC (TEST),990000506,Limited Liability Company,NY,Manhattan,IRS 1065,Parker Vu,test+206@example.com,Tech,<$250k,
+Granite Partners (TEST),99-0000507,General Partnership,CA,Alameda,Partnership 1065,Sam Rivera,test+207@example.com,Legal,$250k-1M,
+Harbor Bakery LLC (TEST),,LLC,CA,Santa Clara,,David Owner,test+208@example.com,Restaurants,<$250k,EIN missing
+Ivy Dental PC (TEST),99-0000509,PC,NY,Nassau,Form 1065,Jordan Park,test+209@example.com,Healthcare,$250k-1M,
+Juno Films Inc (TEST),99-0000510,S Corporation,C.A.,Los Angeles,IRS 1120-S,Riley Chen,test+210@example.com,Entertainment,$1M-10M,
+Kite Coffee LLC (TEST),99 0000 511,LLC,NY,Suffolk,Form 1065,Morgan Lee,test+211@example.com,Restaurants,<$250k,
+Lumen Studios Inc (TEST),99.0000512,S-Corporation,N.Y.,Kings,NY CT-3-S,Taylor Kim,test+212@example.com,Media,$1M-10M,
+Meridian Advisors (TEST),99-0000513,LP,CA,Sacramento,Form 1065,Parker Vu,test+213@example.com,"Financial, Advisory",$1M-10M,"Quoted industry, with comma"
+North Star Cleaning LLC (TEST),99-0000514,LLC,Calif,Riverside,,Sam Rivera,test+214@example.com,Services,$250k-1M,No tax form listed
+Orbit Robotics Inc (TEST),99-0000515,Corp,California,Santa Clara,Form 1120,David Owner,test+215@example.com,Tech,>$10M,
+Palette Design LLC (TEST),99-0000516,L.L.C.,NY,Westchester,Form 1065,Jordan Park,test+216@example.com,Design,$250k-1M,
+Quartz Auto Body LLC (TEST),990000517,LLC,New York,Erie,IRS Form 1065,Riley Chen,test+217@example.com,Automotive,<$250k,
+Relay Tech Inc (TEST),99-0000518,Inc.,CA,San Mateo,1120-S,Morgan Lee,test+218@example.com,Tech,$1M-10M,
+Sable Media LLC (TEST),99-0000519,LLC,NY,Monroe,Form 1065,Taylor Kim,test+219@example.com,Media,$250k-1M,
+Tidewater Marine Inc (TEST),99-0000520,Inc,NY,Nassau,1120,Parker Vu,test+220@example.com,Transportation,$1M-10M,
+Umbra Lighting Inc (TEST),99-0000521,C-Corp,N.Y.,Queens,Form 1120,Sam Rivera,test+221@example.com,Retail,$250k-1M,
+Vesta Bakery Inc (TEST),99-0000522,S-Corp,New York,Kings,Form 1120-S,David Owner,test+222@example.com,Restaurants,<$250k,
+Willow Creek Inc (TEST),99.0000523,S Corporation,NY,Bronx,1120S,Jordan Park,test+223@example.com,Real Estate,$1M-10M,
+Xenon Capital Inc (TEST),99 0000 524,Corp,California,Contra Costa,1120,Riley Chen,test+224@example.com,Financial,>$10M,
+Yarrow Farms (TEST),99-0000525,Partnership,NY,Albany,Form 1065,Morgan Lee,test+225@example.com,Agriculture,$250k-1M,
+Zephyr Marketing LLC (TEST),99-0000526,LLC,C.A.,Sacramento,IRS 1065,Taylor Kim,test+226@example.com,Marketing,$250k-1M,
+Anchor Consulting (TEST),99-0000527,Partnership,CA,Alameda,1065,Parker Vu,test+227@example.com,Consulting,$250k-1M,
+Morgan Lee Trust (TEST),99-0000528,Trust,CA,Los Angeles,Form 1041,Sam Rivera,test+228@example.com,Estate,,
+Parker Family Trust (TEST),99-0000529,Irrevocable Trust,NY,Nassau,1041,David Owner,test+229@example.com,Estate,,
+Riley Chen (TEST),99-0000530,Sched C,NY,Kings,Fed 1040 Sch C,Jordan Park,test+230@example.com,Freelance,<$250k,
+Taylor Nguyen (TEST),99-0000531,Individual,CA,Orange,Form 1040,Riley Chen,test+231@example.com,Freelance,<$250k,
+Jordan Smith (TEST),99-0000532,Personal,NY,Kings,1040,Morgan Lee,test+232@example.com,,,
+Alex Kim (TEST),99-0000533,Schedule C Filer,CA,Los Angeles,Form 1040 Sch C,Taylor Kim,test+233@example.com,Freelance,,
+Bluebird LLC (TEST),99-0000534,LLC,TX,Harris,Form 1065,Parker Vu,test+234@example.com,Consulting,$250k-1M,TX fallback needs_review
+Copper Creek Inc (TEST),99-0000535,S-Corp,Texas,Dallas,1120S,Sam Rivera,test+235@example.com,Retail,$1M-10M,
+Dewdrop LLC (TEST),99-0000536,LLC,FL,Miami-Dade,Form 1065,David Owner,test+236@example.com,Real Estate,$250k-1M,FL no state income tax
+Evergreen Holdings (TEST),99-0000537,C-Corp,Florida,Broward,Form 1120,Jordan Park,test+237@example.com,Real Estate,>$10M,
+Fogline Inc (TEST),99-0000538,C-Corp,WA,King,1120,Riley Chen,test+238@example.com,Tech,$1M-10M,WA BO tax
+Goldrush LLC (TEST),99-0000539,LLC,Washington,Pierce,Form 1065,Morgan Lee,test+239@example.com,Logistics,$250k-1M,
+Haven Partners (TEST),99-0000540,Partnership,TX,Travis,Form 1065,Taylor Kim,test+240@example.com,Legal,$250k-1M,
+Indigo Bakery LLC (TEST),99-0000541,LLC,CA,Los Angeles,Form 1065,Parker Vu,test+241@example.com,Restaurants,<$250k,
+Junction LLC (TEST),,,,,,Sam Rivera,test+242@example.com,,,"Mostly empty row, partial data"
+Knoll Capital Inc (TEST),99-0000543,Non-profit,NY,New York,Form 990,David Owner,test+243@example.com,Non-profit,<$250k,Non-profit so other + needs_review
+Laurel Tax Prep (TEST),99-0000544,LLC,CA,Alameda,Form 1065,Jordan Park,test+244@example.com,Professional Services,$250k-1M,
+Maple Studios LLC (TEST),99-0000545,L.L.C.,NY,Kings,Form 1065,Riley Chen,test+245@example.com,Media,$250k-1M,
+Nimbus Transit LLC (TEST),99-0000546,LLC,CA,San Francisco,Form 1065,Morgan Lee,test+246@example.com,Transportation,$1M-10M,
+Onyx Retail Inc (TEST),99-0000547,Corp (S),NY,Queens,1120-S,Taylor Kim,test+247@example.com,Retail,$1M-10M,
+Peridot Coffee LLC (TEST),99-0000548,LLC,CA,Los Angeles,Form 1065,Parker Vu,test+248@example.com,Restaurants,<$250k,
+Quince Advisors (TEST),99-0000549,LP,NY,New York,Form 1065,Sam Rivera,test+249@example.com,Financial,$1M-10M,
+Rowan Films Inc (TEST),99-0000550,S-Corp,CA,Los Angeles,Form 1120-S,David Owner,test+250@example.com,Entertainment,$1M-10M,
+Sable Trust (TEST),99-0000551,Trust,CA,Orange,Form 1041,Jordan Park,test+251@example.com,Estate,,Sable family estate
+Thistle Consulting (TEST),99-0000552,Partnership,NY,Westchester,Form 1065,Riley Chen,test+252@example.com,Consulting,$250k-1M,
