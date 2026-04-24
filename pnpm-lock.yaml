@@ -201,82 +201,6 @@ importers:
         specifier: npm:@voidzero-dev/vite-plus-test@0.1.19
         version: '@voidzero-dev/vite-plus-test@0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))'
 
-  apps/server:
-    dependencies:
-      '@duedatehq/ai':
-        specifier: workspace:*
-        version: link:../../packages/ai
-      '@duedatehq/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
-      '@duedatehq/contracts':
-        specifier: workspace:*
-        version: link:../../packages/contracts
-      '@duedatehq/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@duedatehq/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@orpc/contract':
-        specifier: 'catalog:'
-        version: 1.14.0(@opentelemetry/api@1.9.1)
-      '@orpc/server':
-        specifier: 'catalog:'
-        version: 1.14.0(@opentelemetry/api@1.9.1)(ws@8.20.0)
-      '@sentry/cloudflare':
-        specifier: 'catalog:'
-        version: 10.49.0(@cloudflare/workers-types@4.20260423.1)
-      '@t3-oss/env-core':
-        specifier: 'catalog:'
-        version: 0.13.11(typescript@6.0.3)(zod@4.3.6)
-      better-auth:
-        specifier: 'catalog:'
-        version: 1.6.7(@cloudflare/workers-types@4.20260423.1)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@voidzero-dev/vite-plus-test@0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)))(better-sqlite3@12.9.0)(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260423.1)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.9.0)(kysely@0.28.16)(pg@8.20.0))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      drizzle-orm:
-        specifier: 'catalog:'
-        version: 0.45.2(@cloudflare/workers-types@4.20260423.1)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.9.0)(kysely@0.28.16)(pg@8.20.0)
-      hono:
-        specifier: 'catalog:'
-        version: 4.12.14
-      resend:
-        specifier: 'catalog:'
-        version: 6.12.2
-      zod:
-        specifier: 'catalog:'
-        version: 4.3.6
-    devDependencies:
-      '@cloudflare/vitest-pool-workers':
-        specifier: 'catalog:'
-        version: 0.14.9(@cloudflare/workers-types@4.20260423.1)(@vitest/runner@4.1.5)(@vitest/snapshot@4.1.5)(@voidzero-dev/vite-plus-test@0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@voidzero-dev/vite-plus-core@0.1.19(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3))(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3))
-      '@cloudflare/workers-types':
-        specifier: 'catalog:'
-        version: 4.20260423.1
-      '@duedatehq/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
-      '@types/node':
-        specifier: 'catalog:'
-        version: 25.6.0
-      '@typescript/native-preview':
-        specifier: 'catalog:'
-        version: 7.0.0-dev.20260423.1
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vite:
-        specifier: npm:@voidzero-dev/vite-plus-core@0.1.19
-        version: '@voidzero-dev/vite-plus-core@0.1.19(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)'
-      vite-plus:
-        specifier: 'catalog:'
-        version: 0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))
-      vitest:
-        specifier: npm:@voidzero-dev/vite-plus-test@0.1.19
-        version: '@voidzero-dev/vite-plus-test@0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))'
-      wrangler:
-        specifier: 'catalog:'
-        version: 4.84.1(@cloudflare/workers-types@4.20260423.1)
-
   apps/app:
     dependencies:
       '@duedatehq/auth':
@@ -288,6 +212,9 @@ importers:
       '@duedatehq/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@duedatehq/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@duedatehq/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -412,6 +339,85 @@ importers:
       vitest:
         specifier: npm:@voidzero-dev/vite-plus-test@0.1.19
         version: '@voidzero-dev/vite-plus-test@0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))'
+
+  apps/server:
+    dependencies:
+      '@duedatehq/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
+      '@duedatehq/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@duedatehq/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@duedatehq/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@duedatehq/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@duedatehq/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@orpc/contract':
+        specifier: 'catalog:'
+        version: 1.14.0(@opentelemetry/api@1.9.1)
+      '@orpc/server':
+        specifier: 'catalog:'
+        version: 1.14.0(@opentelemetry/api@1.9.1)(ws@8.20.0)
+      '@sentry/cloudflare':
+        specifier: 'catalog:'
+        version: 10.49.0(@cloudflare/workers-types@4.20260423.1)
+      '@t3-oss/env-core':
+        specifier: 'catalog:'
+        version: 0.13.11(typescript@6.0.3)(zod@4.3.6)
+      better-auth:
+        specifier: 'catalog:'
+        version: 1.6.7(@cloudflare/workers-types@4.20260423.1)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@voidzero-dev/vite-plus-test@0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)))(better-sqlite3@12.9.0)(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260423.1)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.9.0)(kysely@0.28.16)(pg@8.20.0))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@cloudflare/workers-types@4.20260423.1)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.9.0)(kysely@0.28.16)(pg@8.20.0)
+      hono:
+        specifier: 'catalog:'
+        version: 4.12.14
+      resend:
+        specifier: 'catalog:'
+        version: 6.12.2
+      zod:
+        specifier: 'catalog:'
+        version: 4.3.6
+    devDependencies:
+      '@cloudflare/vitest-pool-workers':
+        specifier: 'catalog:'
+        version: 0.14.9(@cloudflare/workers-types@4.20260423.1)(@vitest/runner@4.1.5)(@vitest/snapshot@4.1.5)(@voidzero-dev/vite-plus-test@0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@voidzero-dev/vite-plus-core@0.1.19(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3))(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3))
+      '@cloudflare/workers-types':
+        specifier: 'catalog:'
+        version: 4.20260423.1
+      '@duedatehq/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260423.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vite:
+        specifier: npm:@voidzero-dev/vite-plus-core@0.1.19
+        version: '@voidzero-dev/vite-plus-core@0.1.19(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))
+      vitest:
+        specifier: npm:@voidzero-dev/vite-plus-test@0.1.19
+        version: '@voidzero-dev/vite-plus-test@0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))'
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.84.1(@cloudflare/workers-types@4.20260423.1)
 
   packages/ai:
     dependencies:
@@ -557,6 +563,27 @@ importers:
       drizzle-kit:
         specifier: 'catalog:'
         version: 0.31.10
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))
+      vitest:
+        specifier: npm:@voidzero-dev/vite-plus-test@0.1.19
+        version: '@voidzero-dev/vite-plus-test@0.1.19(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.7)(happy-dom@20.9.0)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))'
+
+  packages/i18n:
+    devDependencies:
+      '@duedatehq/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260423.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

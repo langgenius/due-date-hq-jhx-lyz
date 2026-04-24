@@ -2,9 +2,9 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { DEFAULT_LOCALE, type Locale } from '@duedatehq/i18n'
 
 import { activateLocale } from './i18n'
-import { DEFAULT_LOCALE, type Locale } from './locales'
 import { AppI18nProvider, useLocaleSwitch } from './provider'
 
 // Vitest doesn't set this by default; without it React 19's act() prints

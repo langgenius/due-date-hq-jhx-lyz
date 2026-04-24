@@ -1,24 +1,23 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 
-// Keep this list in sync with apps/app/src/i18n/locales.ts.
-export const SUPPORTED_LOCALES = ['en', 'zh-CN'] as const
-export type Locale = (typeof SUPPORTED_LOCALES)[number]
-export const DEFAULT_LOCALE: Locale = 'en'
-
-function isSupported(value: string | null | undefined): value is Locale {
-  return !!value && (SUPPORTED_LOCALES as readonly string[]).includes(value)
-}
+import {
+  DEFAULT_LOCALE,
+  LOCALE_HEADER,
+  isLocale,
+  localeFromLanguageSignal,
+  type Locale,
+} from '@duedatehq/i18n'
 
 // Resolve locale from an incoming request's headers. The explicit `x-locale`
 // header — sent by our SPA — wins over `Accept-Language`. Unknown values fall
 // back to the default.
 export function resolveLocale(headers: Headers): Locale {
-  const explicit = headers.get('x-locale')
-  if (isSupported(explicit)) return explicit
+  const explicit = headers.get(LOCALE_HEADER)
+  if (isLocale(explicit)) return explicit
 
   const accept = headers.get('accept-language') ?? ''
-  // Treat any zh-* variant as Simplified Chinese for now.
-  if (/\bzh\b/i.test(accept)) return 'zh-CN'
+  const detected = localeFromLanguageSignal(accept)
+  if (detected) return detected
   return DEFAULT_LOCALE
 }
 

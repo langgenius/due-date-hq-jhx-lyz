@@ -27,7 +27,7 @@
 DueDateHQ import complete — {client_count} clients, ${total_exposure_usd} at risk
 ```
 
-- 数字字段全部走 `Intl.NumberFormat(INTL_LOCALE[locale], ...)` 格式化；`INTL_LOCALE` 来自共享 locale contract（目标路径 `packages/i18n`，见 `adr/0009-lingui-for-i18n.md`），Worker 的 `src/i18n/messages.ts` 薄字典在插值前调用同一格式化函数
+- 数字字段全部走 `Intl.NumberFormat(INTL_LOCALE[locale], ...)` 格式化；`INTL_LOCALE` 来自共享 locale contract（`packages/i18n`，见 `adr/0009-lingui-for-i18n.md`），Worker 的 `src/i18n/messages.ts` 薄字典在插值前调用同一格式化函数
 - 货币符 `$` 在 `en-US` / `zh-CN` 两版 subject 中**保留固定**（SaaS 主流做法；Demo Sprint 不做 `¥` 换算）
 - Subject 不含 emoji（邮件客户端兼容 + 避免 Gmail spam）
 

@@ -1,7 +1,14 @@
 import { i18n } from '@lingui/core'
 import type { Messages } from '@lingui/core'
 
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES, persistLocale, type Locale } from './locales'
+import {
+  LOCALE_HEADER,
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  isLocale,
+  type Locale,
+} from '@duedatehq/i18n'
+import { persistLocale } from './locales'
 
 // The Vite plugin compiles every `.po` into a JS module with a `messages`
 // export at build-time. Import them eagerly — only two locales, negligible cost.
@@ -23,10 +30,6 @@ function loadCatalogs(): void {
   loaded = true
 }
 
-function isLocale(value: string | undefined): value is Locale {
-  return !!value && (SUPPORTED_LOCALES as readonly string[]).includes(value)
-}
-
 // Activate a locale, syncing <html lang> and persisting the user choice.
 export function activateLocale(locale: Locale, options: { persist?: boolean } = {}): void {
   loadCatalogs()
@@ -45,10 +48,6 @@ export { i18n }
 export function currentLocale(): Locale {
   return isLocale(i18n.locale) ? i18n.locale : DEFAULT_LOCALE
 }
-
-// Shared header key between SPA (rpc.ts, auth.ts) and the Worker
-// (apps/server/src/i18n/resolve.ts). Do not inline the literal elsewhere.
-export const LOCALE_HEADER = 'x-locale'
 
 // Mutates `headers` in place so callers can pipe it through any fetch-like API
 // without rebuilding a new Headers object.

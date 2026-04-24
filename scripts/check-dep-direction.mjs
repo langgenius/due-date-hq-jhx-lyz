@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Enforce the dependency-direction DAG (docs/dev-file/08 §6).
 //
-//   apps/*                → packages/{contracts, auth, ui, core}
+//   apps/*                → packages/{contracts, auth, ui, i18n, core}
 //   apps/server (adds)    → packages/{db, ai}
 //   packages/ai           → packages/core (only; DB/KV/Vectorize/Langfuse via ports)
 //   packages/db           → packages/core (only)
@@ -17,6 +17,7 @@ const ROOT = new URL('..', import.meta.url).pathname
 
 const ALLOWED = {
   'packages/core': new Set([]),
+  'packages/i18n': new Set([]),
   'packages/ui': new Set([]),
   'packages/contracts': new Set(['zod', '@orpc/contract']),
   'packages/db': new Set(['@duedatehq/core']),

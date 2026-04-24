@@ -28,8 +28,8 @@ import {
 } from '@duedatehq/ui/components/ui/dropdown-menu'
 import { Separator } from '@duedatehq/ui/components/ui/separator'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from '@duedatehq/i18n'
 import { useLocaleSwitch } from '@/i18n/provider'
-import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from '@/i18n/locales'
 import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
 import { cn } from '@duedatehq/ui/lib/utils'
 

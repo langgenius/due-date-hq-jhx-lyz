@@ -1,7 +1,7 @@
 export { cn } from '@duedatehq/ui/lib/utils'
 
+import { INTL_LOCALE } from '@duedatehq/i18n'
 import { currentLocale } from '@/i18n/i18n'
-import { INTL_LOCALE } from '@/i18n/locales'
 
 function intlLocale(): string {
   return INTL_LOCALE[currentLocale()]

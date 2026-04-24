@@ -19,6 +19,7 @@
     "@duedatehq/auth": "workspace:*",
     "@duedatehq/contracts": "workspace:*",
     "@duedatehq/core": "workspace:*",
+    "@duedatehq/i18n": "workspace:*",
     "@duedatehq/ui": "workspace:*",
     "@hookform/resolvers": "catalog:",
     "@lingui/core": "catalog:",

@@ -155,7 +155,7 @@ sequenceDiagram
 - 容器 `role="status"` + `aria-live="polite"`
 - Phase 4 结束时 `aria-label` 广播英文 `"{formattedAmount} at risk this quarter"`（zh-CN 广播 `"本季度 {formattedAmount} 美元敞口"`）
 - 遵 [`./01-mvp-and-journeys.md` §7.4 屏幕阅读器](./01-mvp-and-journeys.md#74-屏幕阅读器)：状态变化用 `polite` 不用 `assertive`
-- 数字格式化走 `Intl.NumberFormat(INTL_LOCALE[locale], { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })`，`INTL_LOCALE` 来自共享 locale contract（目标路径 `packages/i18n`），对齐 `0009-lingui-for-i18n.md`
+- 数字格式化走 `Intl.NumberFormat(INTL_LOCALE[locale], { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })`，`INTL_LOCALE` 来自共享 locale contract（`packages/i18n`），对齐 `0009-lingui-for-i18n.md`
 
 ---
 

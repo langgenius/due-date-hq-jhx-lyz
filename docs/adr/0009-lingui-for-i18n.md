@@ -34,7 +34,7 @@ locale contract，但不共享同一个文案 catalog：
   Lingui 依赖。
 - `apps/marketing`：Astro static pages；页面文案放在 marketing 自己的静态
   dictionary / content files，不进入 app 的 `.po` catalog，也不引入 Worker 字典。
-- `packages/i18n`（后续实施）：`Locale`、`SUPPORTED_LOCALES`、`DEFAULT_LOCALE`、
+- `packages/i18n`：`Locale`、`SUPPORTED_LOCALES`、`DEFAULT_LOCALE`、
   `INTL_LOCALE`、`LOCALE_HEADER` 的单一来源。它只包含纯 TS 常量和 helper，不依赖
   Lingui / Astro / React / Worker runtime。
 
@@ -87,9 +87,9 @@ locale contract，但不共享同一个文案 catalog：
 src/i18n/
   i18n.ts               # @lingui/core 全局单例、locale 辅助函数、
                         #   attachLocaleHeader() 供 rpc.ts + auth.ts 复用
-  locales.ts            # SUPPORTED_LOCALES、DEFAULT_LOCALE、INTL_LOCALE 映射、
-                        #   detectLocale()（localStorage → navigator → en）、
-                        #   persistLocale()
+  locales.ts            # app 浏览器偏好层：detectLocale()
+                        #   （localStorage → navigator → en）与 persistLocale()
+                        #   共享常量来自 packages/i18n
   provider.tsx          # AppI18nProvider 包裹 @lingui/react 的 I18nProvider，
                         #   通过 useState 懒初始化在首次挂载时执行 bootstrap
                         #   ——模块导入无副作用；
@@ -102,15 +102,13 @@ src/i18n/
 
 横切辅助：
 
-- `src/lib/utils.ts` —— `formatCents` / `formatDate` 通过
-  `INTL_LOCALE['en'] = 'en-US'` / `INTL_LOCALE['zh-CN'] = 'zh-CN'`
-  读取当前 locale，让 `Intl.NumberFormat` / `Intl.DateTimeFormat`
-  自动选择合适的千分位与日期样式。
+- `src/lib/utils.ts` —— `formatCents` / `formatDate` 通过 `@duedatehq/i18n`
+  的 `INTL_LOCALE['en'] = 'en-US'` / `INTL_LOCALE['zh-CN'] = 'zh-CN'`
+  读取当前 locale，让 `Intl.NumberFormat` / `Intl.DateTimeFormat` 自动选择合适的千分位与日期样式。
 - `src/lib/i18n-error.ts` —— 使用 `i18n._(MessageDescriptor)` 做惰性查表，
   locale 切换无需预译，直接触发重渲染。
-- `src/lib/rpc.ts` + `src/lib/auth.ts` —— 两处都通过
-  `attachLocaleHeader(headers)` 注入共享的 `x-locale` header，避免字面量
-  散落在多处。
+- `src/lib/rpc.ts` + `src/lib/auth.ts` —— 两处都通过 `attachLocaleHeader(headers)`
+  注入来自 `@duedatehq/i18n` 的 `LOCALE_HEADER`，避免字面量散落在多处。
 
 已替换所有硬编码文案的路由：`_layout`、`login`、`dashboard`、`workboard`、
 `settings`、`error`。语言切换器位于 `UserMenu` 下的 `DropdownMenuSub`，在

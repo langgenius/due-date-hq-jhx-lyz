@@ -1,4 +1,4 @@
-import type { Locale } from './resolve'
+import type { Locale } from '@duedatehq/i18n'
 
 // Minimal per-locale message catalogue for server-rendered content (currently
 // just transactional emails). Keep values free of HTML so callers can escape

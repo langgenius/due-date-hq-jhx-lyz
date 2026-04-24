@@ -1,9 +1,10 @@
 import { useCallback, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { I18nProvider } from '@lingui/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { DEFAULT_LOCALE, type Locale } from '@duedatehq/i18n'
 
 import { activateLocale, currentLocale, i18n } from './i18n'
-import { DEFAULT_LOCALE, detectLocale, type Locale } from './locales'
+import { detectLocale } from './locales'
 
 // Activate the detected locale before the first render so users with a Chinese
 // browser never flash English. Kept idempotent — safe to call repeatedly from
