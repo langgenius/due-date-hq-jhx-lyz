@@ -12,7 +12,19 @@ import { resendWebhook } from './webhooks/resend'
 import { rpcHandler } from './rpc'
 
 function allowedAuthOrigin(origin: string, env: Env): string | null {
-  const allowed = [env.APP_URL, env.AUTH_URL].map((value) => new URL(value).origin)
+  // Tolerate missing/blank APP_URL or AUTH_URL so a misconfigured .dev.vars
+  // surfaces as a clear 403 from CORS rather than crashing every /api/auth/*
+  // request with `TypeError: Invalid URL string`.
+  const allowed = [env.APP_URL, env.AUTH_URL]
+    .filter((value): value is string => typeof value === 'string' && value.length > 0)
+    .map((value) => {
+      try {
+        return new URL(value).origin
+      } catch {
+        return null
+      }
+    })
+    .filter((value): value is string => value !== null)
   return allowed.includes(origin) ? origin : null
 }
 
