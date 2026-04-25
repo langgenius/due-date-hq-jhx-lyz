@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import TopNav from '../components/TopNav.astro'
+import Hero from '../components/Hero.astro'
+import SlaStrip from '../components/SlaStrip.astro'
+import Problem from '../components/Problem.astro'
+import Workflow from '../components/Workflow.astro'
+import Proof from '../components/Proof.astro'
+import Security from '../components/Security.astro'
+import FinalCta from '../components/FinalCta.astro'
+import Footer from '../components/Footer.astro'
+import en from '../i18n/en'
+
+const APP_URL = import.meta.env.PUBLIC_APP_URL ?? 'https://app.duedatehq.com'
+const ctaHref = `${APP_URL}/login`
+const t = en
+---
+
+<BaseLayout
+  lang="en"
+  pathname="/"
+  title={t.meta.title}
+  description={t.meta.description}
+  ogImage={t.meta.ogImage}
+>
+  <TopNav t={t.nav} ctaHref={ctaHref} />
+  <main>
+    <Hero t={t.hero} ctaHref={ctaHref} workflowAnchor="#workflow" />
+    <SlaStrip t={t.sla} />
+    <Problem t={t.problem} />
+    <Workflow t={t.workflow} />
+    <Proof t={t.proof} />
+    <Security t={t.security} />
+    <FinalCta t={t.finalCta} ctaHref={ctaHref} />
+  </main>
+  <Footer t={t.footer} enHref="/" zhHref="/zh-CN" currentLocale="en" />
+</BaseLayout>

@@ -1,0 +1,462 @@
+import type { LandingCopy } from './types'
+
+const en: LandingCopy = {
+  meta: {
+    title: 'DueDateHQ — See deadline risk before it becomes a penalty',
+    description:
+      'Glass-box deadline intelligence for US CPA practices. Every dollar at risk, every IRS rule, every state-level alert traces back to its official source.',
+    ogImage: '/og/home.en.png',
+  },
+  nav: {
+    brand: 'DueDateHQ',
+    audience: 'For US CPA practices',
+    links: [
+      { label: 'Product', href: '#hero' },
+      { label: 'Workflow', href: '#workflow' },
+      { label: 'Evidence', href: '#proof' },
+      { label: 'Security', href: '#security' },
+      { label: 'Pricing', href: '#pricing' },
+      { label: 'Docs', href: '#docs' },
+    ],
+    statusPill: 'Live in CA · NY · TX · FL · IL',
+    signIn: 'Sign in',
+    cta: 'Open app',
+  },
+  hero: {
+    eyebrow: 'GLASS-BOX DEADLINE INTELLIGENCE',
+    title: 'See deadline risk before it becomes a penalty.',
+    description:
+      'DueDateHQ is the deadline intelligence workbench for US CPA practices. Every dollar at risk, every IRS rule, every state-level alert traces back to its official source — in one keyboard-first console built for the Monday 5-minute triage.',
+    primaryCta: 'Open the workbench',
+    secondaryCta: 'See the workflow',
+    trust: [
+      { label: 'No black-box AI' },
+      { label: 'Cites every number' },
+      { label: 'Keyboard-first' },
+      { label: '24h Pulse SLA' },
+    ],
+    surface: {
+      breadcrumb: { workbench: 'Workbench', dashboard: 'Dashboard', week: 'This week' },
+      kbdCommand: 'Command',
+      pulse: {
+        tag: 'PULSE',
+        text: 'CA-FTB extends Form 540 + 540-ES to Oct 15 · Affects 12 of your clients.',
+        source: 'ftb.ca.gov · 2026-04-25',
+        cta: 'Review',
+      },
+      metric: {
+        eyebrow: 'PENALTY RADAR · THIS WEEK',
+        range: 'Apr 25 — May 01',
+        value: '$187,420',
+        delta: '+ $24,180 vs last Mon',
+        stats: [
+          { label: 'CRITICAL CLIENTS', value: '5' },
+          { label: 'AT RISK FORMS', value: '12' },
+          { label: 'PULSE EVENTS (24h)', value: '3' },
+          { label: 'FILED THIS WEEK', value: '11' },
+        ],
+      },
+      table: {
+        headers: {
+          client: 'CLIENT',
+          form: 'FORM',
+          due: 'DUE',
+          days: 'DAYS',
+          exposure: 'EXPOSURE',
+          evidence: 'EVIDENCE',
+        },
+        rows: [
+          {
+            client: 'Acme LLC',
+            ein: '87-1234567',
+            form: '1120-S',
+            due: 'Apr 28',
+            daysLeft: 'in 3d',
+            exposure: '$48,200',
+            evidence: 'IRS Pub 509',
+            severity: 'critical',
+          },
+          {
+            client: 'Birchwood Co',
+            ein: '87-9988776',
+            form: '1065',
+            due: 'Apr 29',
+            daysLeft: 'in 4d',
+            exposure: '$32,850',
+            evidence: 'IRS §6072(b)',
+            severity: 'critical',
+          },
+          {
+            client: 'Crestmont Inc',
+            ein: '88-2233445',
+            form: '1120',
+            due: 'May 02',
+            daysLeft: 'in 7d',
+            exposure: '$24,180',
+            evidence: 'IRS Pub 509',
+            severity: 'high',
+          },
+          {
+            client: 'Delta Group',
+            ein: '88-7654321',
+            form: '540-ES',
+            due: 'May 10',
+            daysLeft: 'in 15d',
+            exposure: '$18,900',
+            evidence: 'CA-FTB FR-31',
+            severity: 'medium',
+          },
+          {
+            client: 'Evergreen LLC',
+            ein: '87-1100221',
+            form: '1065',
+            due: 'May 14',
+            daysLeft: 'in 19d',
+            exposure: '$12,450',
+            evidence: 'IRS §6072(b)',
+            severity: 'medium',
+          },
+        ],
+      },
+      hints: [
+        { keys: 'E', label: 'Evidence' },
+        { keys: 'J / K', label: 'Move row' },
+        { keys: '⌘K', label: 'Command' },
+        { keys: '?', label: 'Shortcuts' },
+      ],
+      liveLabel: 'live preview · not your data',
+    },
+  },
+  sla: {
+    items: [
+      {
+        ruleNumber: 'RULE 00',
+        ruleLabel: '01 TRIAGE',
+        value: '30',
+        unit: 'sec',
+        description:
+          'See this week’s riskiest 5 clients on the Monday console. Penalty Radar is server-pre-aggregated, so the dollar appears before the page even paints.',
+      },
+      {
+        ruleNumber: 'RULE 00',
+        ruleLabel: '02 MIGRATE',
+        value: '30',
+        unit: 'min',
+        description:
+          'Paste, map, normalize, generate. 30 clients to a verified annual calendar in one sitting — no per-client setup wizards.',
+      },
+      {
+        ruleNumber: 'RULE 00',
+        ruleLabel: '03 PULSE',
+        value: '24',
+        unit: 'hrs',
+        description:
+          'Every state filing notice and IRS update reaches Dashboard + email within 24 hours, with the verbatim quote and an apply-to-12-clients button.',
+      },
+    ],
+  },
+  problem: {
+    eyebrow: 'THE PROBLEM WITH TODAY’S STACK',
+    index: '01',
+    title: 'Excel + Outlook + 50 state websites — priced in penalties.',
+    paragraph:
+      '1–10-person CPA practices stitch together legacy desktop trackers, regulatory PDFs, and spreadsheet calendars. The result is foreseeable and expensive: missed deadlines, compounded penalties, and Monday triage that takes a full morning.',
+    footnote: 'IRS § 6651 · failure-to-file penalty → 5%/mo, capped at 25%',
+    cards: [
+      {
+        tag: 'STATE WATCH',
+        severity: 'critical',
+        cadence: 'avg / firm / yr',
+        headline:
+          '14 rule changes ship in a 30-day window. You need to know which 4 hit your clients.',
+        body: 'Pulse condenses every IRS notice and 50-state filing change into a single dashboard banner with `verbatim_quote`, `source_url`, and a one-click apply path.',
+        listTitle: 'Rule changes, last 30 days',
+        listSummary: '14 changes · 5 states',
+        rows: [
+          { pill: 'CA-FTB', text: 'Form 540 deadline change', date: 'Apr 25' },
+          { pill: 'NY-DTF', text: 'MTA-305 surcharge update', date: 'Apr 22' },
+          { pill: 'IRS', text: 'Pub 509 calendar revision', date: 'Apr 18' },
+        ],
+      },
+      {
+        tag: 'NOTICE TRIAGE',
+        severity: 'high',
+        cadence: 'avg / firm / yr',
+        headline: '312 inbox items per week, 4 of which can fine your clients.',
+        body: 'Email digests + dashboard banners replace inbox archeology. Owner is the only signer; no notice slips into a junior’s drafts.',
+        listTitle: 'Inbox · unread',
+        listSummary: '312 unread · 4 critical',
+        rows: [
+          { pill: 'CA-FTB', text: 'Disaster relief postponement — LA county', date: '9:42' },
+          { pill: 'IRS', text: 'Quarterly publication update for tax year 2026', date: 'Wed' },
+          { pill: 'Drake', text: 'Software update notice — needs your action', date: 'Mon' },
+          { pill: 'QuickBooks', text: '8 client documents await classification', date: 'Sun' },
+        ],
+      },
+      {
+        tag: 'MIGRATION DRAG',
+        severity: 'medium',
+        cadence: 'avg / firm / yr',
+        headline: '4 hours of typing to move 30 clients from File-In-Time to anywhere.',
+        body: 'Migration Copilot maps, normalizes and generates the year’s calendar in 30 minutes. Every imported client carries an evidence link to its source row.',
+        listTitle: 'File-In-Time export → spreadsheet',
+        listSummary: '30 clients · 4 hrs typing',
+        rows: [
+          { pill: 'Acme LLC', text: '— missing EIN', date: 'LOW 0.62' },
+          { pill: 'Birchwood Co', text: '— unclear state', date: 'LOW 0.62' },
+          { pill: 'Crestmont Inc', text: '— wrong entity type', date: 'LOW 0.62' },
+          { pill: 'Delta Group', text: '— deadline format ?', date: 'LOW 0.62' },
+        ],
+      },
+    ],
+  },
+  workflow: {
+    eyebrow: 'THE WORKFLOW',
+    index: '02',
+    title: 'Triage. Migrate. Verify. Three surfaces, one console.',
+    paragraph:
+      'DueDateHQ is built around three product rules: every action lives on the keyboard, every number is mono-tabular, every AI output cites its source. Below: three slices of the actual workbench.',
+    steps: [
+      {
+        index: '01',
+        tag: 'TRIAGE · 30 SECONDS',
+        headline: 'The Monday console.',
+        body: 'Owner opens the laptop, sees five at-risk clients, the dollar exposure, and the first action keystroke. Smart Priority is a pure-function sort — no LLM in the dashboard hot path.',
+        hints: [
+          { keys: '⌘K', label: 'Command' },
+          { keys: 'E', label: 'Evidence' },
+        ],
+        surface: {
+          kind: 'dashboard',
+          header: { title: 'Dashboard · Monday triage', timestamp: '2026-04-25 08:14' },
+          ranges: ['This week', 'This month', 'Long term'],
+          pulse: {
+            tag: 'PULSE',
+            text: 'IRS extends Form 1040 to Oct 15 · 18 of your clients now in the new window.',
+            cta: 'Apply to 18',
+          },
+          rows: [
+            {
+              client: 'Acme LLC',
+              form: '1120-S',
+              due: 'Apr 28',
+              daysLeft: 'in 3d',
+              exposure: '$48,200',
+            },
+            {
+              client: 'Birchwood Co',
+              form: '1065',
+              due: 'Apr 29',
+              daysLeft: 'in 4d',
+              exposure: '$32,850',
+            },
+            {
+              client: 'Crestmont Inc',
+              form: '1120',
+              due: 'May 02',
+              daysLeft: 'in 7d',
+              exposure: '$24,180',
+            },
+          ],
+        },
+      },
+      {
+        index: '02',
+        tag: 'MIGRATE · 30 MINUTES',
+        headline: 'Paste, map, normalize, generate.',
+        body: 'Migration Copilot maps 30 fields per client with confidence-graded suggestions. Anything below 0.80 is non-blocking; the operator nudges, doesn’t retype.',
+        hints: [
+          { keys: '⌘V', label: 'Paste' },
+          { keys: 'Tab', label: 'Next field' },
+        ],
+        surface: {
+          kind: 'mapping',
+          step: 'Migration Copilot · Step 2 of 4',
+          steps: [
+            { label: 'Intake' },
+            { label: 'AI Mapping' },
+            { label: 'Normalize' },
+            { label: 'Genesis' },
+          ],
+          headers: {
+            source: 'FIT EXPORT COLUMN',
+            target: 'DUEDATEHQ FIELD',
+            sample: 'SAMPLE',
+            confidence: 'CONFIDENCE',
+          },
+          rows: [
+            {
+              source: 'ClientName',
+              sample: 'Acme Holdings LLC',
+              target: 'client.legal_name',
+              confidenceLabel: 'HIGH 0.97',
+              confidence: 'HIGH',
+            },
+            {
+              source: 'EIN_TIN',
+              sample: '87-1234567',
+              target: 'client.ein',
+              confidenceLabel: 'HIGH 0.99',
+              confidence: 'HIGH',
+            },
+            {
+              source: 'Entity',
+              sample: 'LLC (S-corp election)',
+              target: 'client.entity_type · entity.s_election=true',
+              confidenceLabel: 'HIGH 0.96',
+              confidence: 'HIGH',
+            },
+            {
+              source: 'Filing State',
+              sample: 'CA, NY',
+              target: 'client.states[]',
+              confidenceLabel: 'MED 0.84',
+              confidence: 'MED',
+            },
+            {
+              source: 'Notes',
+              sample: 'Quarterly review needed',
+              target: 'migration.notes',
+              confidenceLabel: 'LOW 0.71',
+              confidence: 'LOW',
+            },
+          ],
+          footer: { summary: '30 rows · AI mapper avg conf 0.91', cta: 'Apply mapping' },
+        },
+      },
+      {
+        index: '03',
+        tag: 'VERIFY · EVERY CLAIM',
+        headline: 'No provenance, no render.',
+        body: 'Every AI sentence and every rule citation links back to a `source_url`, a `verbatim_quote`, and a `verified_at`. If those three fields are missing, DueDateHQ shows a verification-needed state instead of a recommendation.',
+        hints: [
+          { keys: 'E', label: 'Open evidence' },
+          { keys: 'Esc', label: 'Close' },
+        ],
+        surface: {
+          kind: 'evidence',
+          drawerTitle: 'Evidence drawer · Acme LLC · 1120-S due Apr 28',
+          confidence: 'HIGH 0.97',
+          closeHint: 'ESC · close',
+          fields: [
+            { label: 'CLIENT', value: 'Acme Holdings LLC' },
+            { label: 'EIN', value: '87-1234567' },
+            { label: 'FORM', value: '1120-S' },
+            { label: 'DUE DATE', value: '2026-04-28' },
+            { label: 'DAYS LEFT', value: '3 days' },
+            { label: 'EXPOSURE', value: '$48,200.00' },
+            { label: 'PENALTY RULE', value: 'IRC § 6651(a)(1)' },
+          ],
+          source: {
+            label: 'SOURCE',
+            value: 'irs.gov / pub / 509 · §3 · v17',
+            verified: 'verified 2026-04-25T08:14:03Z by pulse-ingest-3.2',
+            quoteLabel: 'VERBATIM QUOTE',
+            quote:
+              '"If an S corporation election was made and the corporation files Form 1120-S on the basis of a calendar year, the return is due on or before March 15. If the corporation operates on a fiscal year, the return is due on or before the 15th day of the third month after the close of the tax year."',
+          },
+          meta: {
+            source: 'irs.gov · v17',
+            verifiedBy: 'pulse-ingest-3.2',
+            reviewed: 'sarah@firmname',
+            status: 'done',
+          },
+        },
+      },
+    ],
+  },
+  proof: {
+    eyebrow: 'THE GLASS-BOX GUARANTEE',
+    index: '03',
+    title: 'Every number on the dashboard clicks back to its source.',
+    paragraph:
+      'AI is allowed to summarize, suggest, and draft. It is never allowed to render a recommendation without a verifiable source URL, the verbatim quote, and a server-side timestamp. The interface fails closed: missing provenance → verification-needed state.',
+    footnote: 'Glass-Box Guard · every AI claim is validated against its source',
+    stats: [
+      {
+        label: 'VERIFIED CITATIONS',
+        value: '100',
+        unit: '%',
+        body: 'Every AI sentence and every rule citation carries source_url + verbatim_quote + verified_at, or is suppressed.',
+      },
+      {
+        label: 'OFFICIAL SOURCES',
+        value: '48',
+        unit: '+',
+        body: 'IRS, FTB, DTF · 50-state filing authorities, mapped to a single rule schema.',
+      },
+      {
+        label: 'PULSE SLA',
+        value: '24',
+        unit: 'h',
+        body: 'From source publication to dashboard banner + email digest, with the affected client list pre-computed.',
+      },
+      {
+        label: 'BLACK-BOX SUGGESTIONS',
+        value: '0',
+        unit: '',
+        body: 'AI never auto-applies a rule. Apply is always a keyboard action by a human in the loop.',
+      },
+    ],
+  },
+  security: {
+    title: 'WHY CPAs TRUST IT',
+    items: [
+      { pill: 'Per-firm', body: 'your data never crosses tenants' },
+      { pill: 'Evidence', body: 'every claim · source + verbatim' },
+      { pill: 'Audit log', body: 'apply · undo · revert recorded' },
+      { pill: 'Email-first', body: 'no client portal vault required' },
+    ],
+  },
+  finalCta: {
+    pill: 'AVG $54k / yr / practice',
+    pillCaption: 'AVOIDABLE PENALTY EXPOSURE IN A CALENDAR YEAR',
+    title: 'Open the workbench. Let the dollars speak.',
+    body: 'Free 14-day trial of every workbench surface. No credit card. No native app. Sign in with Google and the first dollar of risk appears within ten minutes of your first paste.',
+    primaryCta: 'Open the workbench',
+    secondaryCta: 'Talk to the founders',
+    trust: 'no credit card · cancel anytime',
+  },
+  footer: {
+    brand: 'DueDateHQ',
+    tagline: 'Glass-box deadline intelligence for US CPA practices.',
+    audience: 'For US CPA practices · Audit-ready · 5 states live',
+    columns: [
+      {
+        title: 'PRODUCT',
+        links: [
+          { label: 'Workbench', href: '#' },
+          { label: 'Pulse', href: '#' },
+          { label: 'Migration Copilot', href: '#' },
+          { label: 'Evidence drawer', href: '#' },
+          { label: 'Pricing', href: '#' },
+        ],
+      },
+      {
+        title: 'RESOURCES',
+        links: [
+          { label: 'Rule library', href: '#' },
+          { label: 'State coverage', href: '#' },
+          { label: 'Changelog', href: '#' },
+          { label: 'API', href: '#' },
+          { label: 'Status', href: '#' },
+        ],
+      },
+      {
+        title: 'COMPANY',
+        links: [
+          { label: 'About', href: '#' },
+          { label: 'Security', href: '#' },
+          { label: 'Privacy', href: '#' },
+          { label: 'Terms', href: '#' },
+          { label: 'Contact', href: '#' },
+        ],
+      },
+    ],
+    copyright: '© 2026 DueDateHQ Inc. · duedatehq.com',
+    language: 'English / 中文',
+    status: 'all systems operational',
+  },
+}
+
+export default en

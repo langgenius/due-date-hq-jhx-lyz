@@ -1,0 +1,44 @@
+---
+import type { NavCopy } from '../i18n/types'
+
+interface Props {
+  t: NavCopy
+  ctaHref: string
+}
+
+const { t, ctaHref } = Astro.props
+---
+
+<header class="sticky top-0 z-30 border-b border-border-default bg-bg-canvas/90 backdrop-blur">
+  <div class="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-20">
+    <!-- Brand + nav cluster: 32px gap matches Figma NavLeft (Brand 238w + 32 gap + NavLinks 412w). -->
+    <div class="flex items-center gap-8">
+      <a href="/" class="flex items-center gap-2 text-[13px]">
+        <span class="block h-2 w-2 rounded-full bg-accent-default"></span>
+        <span class="font-semibold text-text-primary">{t.brand}</span>
+        <span class="text-text-muted">/</span>
+        <span class="text-text-secondary">{t.audience}</span>
+      </a>
+      <nav class="flex items-center gap-6 text-[13px] text-text-secondary">
+        {t.links.map((link) => (
+          <a href={link.href} class="transition-colors hover:text-text-primary">{link.label}</a>
+        ))}
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="inline-flex items-center gap-2 rounded-full border border-border-default bg-bg-elevated px-2.5 py-1 text-[12px] text-text-secondary">
+        <span class="block h-1.5 w-1.5 rounded-full bg-status-done"></span>
+        {t.statusPill}
+      </span>
+      <a href={ctaHref} class="text-[13px] text-text-secondary transition-colors hover:text-text-primary" data-event="marketing.nav.signin">{t.signIn}</a>
+      <a
+        href={ctaHref}
+        class="inline-flex h-8 items-center gap-1.5 rounded-md bg-accent-default px-3 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-accent-hover"
+        data-event="marketing.nav.cta"
+      >
+        <span>{t.cta}</span>
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,15 @@
+---
+interface Props {
+  severity: 'critical' | 'high' | 'medium'
+}
+
+const { severity } = Astro.props
+
+const colorClass = {
+  critical: 'bg-severity-critical',
+  high: 'bg-severity-high',
+  medium: 'bg-severity-medium',
+}[severity]
+---
+
+<span class={`block h-5 w-[3px] rounded-full ${colorClass}`}></span>

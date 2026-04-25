@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@duedatehq/ui/styles/preset.css';
+
+/* Tailwind 4 source globs — keep in sync with the marketing src layout. */
+@source '../../../../packages/ui/src';
+@source '../components';
+@source '../layouts';
+@source '../pages';
+
+/* Marketing-only base tweaks. Section spacing and hero typography are
+   handled inline by tokens; this layer only enforces global text rendering. */
+@layer base {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}

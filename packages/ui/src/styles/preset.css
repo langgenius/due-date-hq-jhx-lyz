@@ -21,10 +21,18 @@
   --text-lg: 16px;
   --text-xl: 20px;
   --text-2xl: 24px;
+  /* Display sizes (marketing landing only). Paired line-height ships with each
+     token so `text-display-hero` / `text-display-large` apply both at once.
+     Authoritative values live in /DESIGN.md `typography:` and mirror Figma. */
   --text-section-title: 32px;
-  --text-display-large: 40px;
+  --text-section-title--line-height: 1.1875;
+  --text-display-large: 36px;
+  --text-display-large--line-height: 1.167;
+  --text-display-hero: 54px;
+  --text-display-hero--line-height: 1.074;
+  /* Workbench dashboard hero metric ($ value) — Geist Mono Bold 56 / lh 1. */
   --text-hero: 56px;
-  --text-display-hero: 60px;
+  --text-hero--line-height: 1;
 
   --space-0: 0px;
   --space-1: 4px;

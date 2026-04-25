@@ -166,6 +166,7 @@ export default defineConfig({
     ignorePatterns: [
       '**/dist/**',
       '**/.wrangler/**',
+      '**/.astro/**',
       '**/node_modules/**',
       '**/coverage/**',
       '**/drizzle/**',
@@ -225,13 +226,17 @@ export default defineConfig({
         command: 'vp run -r test',
         env: ['NODE_ENV', 'CI'],
       },
-      // Deploy is the only Cloudflare-control-plane task. It is
-      // explicitly targeted at @duedatehq/server because the JIT
-      // packages don't deploy. `cache: false` means no env
-      // fingerprinting — Cloudflare credentials are simply
-      // inherited from the shell at run time.
+      // Deploy is the only Cloudflare-control-plane task. The order is
+      // locked by docs/dev-file/12-Marketing-Architecture.md §7:
+      //   1. D1 migrate           (schema first)
+      //   2. server Worker        (back-end + SaaS SPA assets)
+      //   3. marketing Worker     (last; CTA targets the now-ready app)
+      // Any failure aborts subsequent steps because `&&` short-circuits.
+      // `cache: false` means no env fingerprinting — Cloudflare creds
+      // are inherited from the shell at run time.
       'workspace-deploy': {
-        command: 'pnpm db:migrate:remote && vp run @duedatehq/server#deploy',
+        command:
+          'pnpm db:migrate:remote && vp run @duedatehq/server#deploy && vp run @duedatehq/marketing#deploy',
         cache: false,
         dependsOn: ['workspace-build', 'workspace-test'],
       },

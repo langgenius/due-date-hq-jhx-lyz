@@ -1,0 +1,28 @@
+---
+import type { SlaStripCopy } from '../i18n/types'
+
+interface Props {
+  t: SlaStripCopy
+}
+
+const { t } = Astro.props
+---
+
+<section class="border-b border-border-default bg-bg-panel">
+  <div class="mx-auto grid max-w-[1440px] grid-cols-3 px-20 py-12">
+    {t.items.map((item, idx) => (
+      <div class={`px-6 ${idx > 0 ? 'border-l border-border-default' : ''}`}>
+        <div class="flex items-center gap-3 font-mono text-[12px] tracking-[0.18em] text-text-muted">
+          <span>{item.ruleNumber}</span>
+          <span class="h-px w-5 bg-border-default"></span>
+          <span class="text-text-secondary">{item.ruleLabel}</span>
+        </div>
+        <div class="mt-4 flex items-end gap-2">
+          <span class="font-mono tabular text-[64px] font-semibold leading-none text-text-primary">{item.value}</span>
+          <span class="pb-3 font-mono text-[16px] text-text-muted">{item.unit}</span>
+        </div>
+        <p class="mt-6 max-w-[372px] text-[13px] leading-relaxed text-text-secondary">{item.description}</p>
+      </div>
+    ))}
+  </div>
+</section>

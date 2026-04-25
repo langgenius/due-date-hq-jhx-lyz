@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import TopNav from '../../components/TopNav.astro'
+import Hero from '../../components/Hero.astro'
+import SlaStrip from '../../components/SlaStrip.astro'
+import Problem from '../../components/Problem.astro'
+import Workflow from '../../components/Workflow.astro'
+import Proof from '../../components/Proof.astro'
+import Security from '../../components/Security.astro'
+import FinalCta from '../../components/FinalCta.astro'
+import Footer from '../../components/Footer.astro'
+import zhCN from '../../i18n/zh-CN'
+
+// Cross-subdomain locale handoff (§6.3): pass `lng=zh-CN` so apps/app can
+// merge the marketing locale into its own locale store on first hit.
+const APP_URL = import.meta.env.PUBLIC_APP_URL ?? 'https://app.duedatehq.com'
+const ctaHref = `${APP_URL}/login?lng=zh-CN`
+const t = zhCN
+---
+
+<BaseLayout
+  lang="zh-CN"
+  pathname="/zh-CN"
+  title={t.meta.title}
+  description={t.meta.description}
+  ogImage={t.meta.ogImage}
+>
+  <TopNav t={t.nav} ctaHref={ctaHref} />
+  <main>
+    <Hero t={t.hero} ctaHref={ctaHref} workflowAnchor="#workflow" />
+    <SlaStrip t={t.sla} />
+    <Problem t={t.problem} />
+    <Workflow t={t.workflow} />
+    <Proof t={t.proof} />
+    <Security t={t.security} />
+    <FinalCta t={t.finalCta} ctaHref={ctaHref} />
+  </main>
+  <Footer t={t.footer} enHref="/" zhHref="/zh-CN" currentLocale="zh-CN" />
+</BaseLayout>

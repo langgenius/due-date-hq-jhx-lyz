@@ -50,13 +50,20 @@ overrides:
 # Silence peer-range mismatches caused by the alias: the alias points
 # at a 0.1.x package while plugins declare peers like `vite: ^8`.
 # Functionality is identical; version numbers just don't match.
+#
+# `typescript` is also listed because the catalog pins TS 6.x, but several
+# packages (e.g. @astrojs/check, tsconfck) still declare `typescript: ^5.0.0`
+# in their peerDependencies. TS 6.x is API-compatible for these consumers;
+# allow the mismatch instead of holding the workspace back to TS 5.
 peerDependencyRules:
   allowAny:
     - vite
     - vitest
+    - typescript
   allowedVersions:
     vite: '*'
     vitest: '*'
+    typescript: '*'
 
 # ============================================================
 # Catalog · single source of truth for every external version.
@@ -163,6 +170,16 @@ catalog:
   # ───────── cloudflare ─────────
   wrangler: 4.84.1
   '@cloudflare/workers-types': 4.20260423.1
+
+  # ───────── marketing (Astro static site) ─────────
+  # Used only by apps/marketing. Astro 6 internally uses Vite 7; the
+  # workspace `vite` override aliases it to vite-plus-core, with peer
+  # mismatches silenced via `peerDependencyRules.allowAny: [vite]`.
+  # `@astrojs/react` will be added back once a real React island is
+  # introduced; the v1 landing is HTML-only to keep JS budget < 50 KB gz.
+  astro: 6.1.8
+  '@astrojs/sitemap': 3.7.2
+  '@astrojs/check': 0.9.8
 
   # ───────── test adapters / env / e2e ─────────
   # The pool driver peers on `vitest: ^4.x`; because of the override

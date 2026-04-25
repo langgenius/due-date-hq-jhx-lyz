@@ -1,0 +1,183 @@
+---
+import type { WorkflowStepCopy, WorkflowDashboardCopy, WorkflowMappingCopy, WorkflowEvidenceCopy } from '../i18n/types'
+import KbdHint from './primitives/KbdHint.astro'
+
+interface Props {
+  t: WorkflowStepCopy
+}
+
+const { t } = Astro.props
+const surface = t.surface
+
+const confidenceClass = {
+  HIGH: 'bg-status-done/15 text-status-done',
+  MED: 'bg-severity-medium-tint text-severity-medium',
+  LOW: 'bg-severity-critical-tint text-severity-critical',
+}
+---
+
+<article class="grid grid-cols-12 gap-12">
+  <!-- Left: copy -->
+  <div class="col-span-12 lg:col-span-4">
+    <div class="flex items-baseline gap-4">
+      <span class="font-mono text-[48px] font-bold leading-none text-accent-default">{t.index}</span>
+      <span class="pb-1 font-mono text-[12px] tracking-[0.18em] text-text-muted">{t.tag}</span>
+    </div>
+    <h3 class="mt-8 text-[28px] font-semibold leading-snug text-text-primary">{t.headline}</h3>
+    <p class="mt-6 text-[14px] leading-relaxed text-text-secondary">{t.body}</p>
+    <div class="mt-8 flex items-center gap-3">
+      {t.hints.map((hint) => (
+        <KbdHint keys={hint.keys} label={hint.label} />
+      ))}
+    </div>
+  </div>
+
+  <!-- Right: surface -->
+  <div class="col-span-12 lg:col-span-8">
+    <div class="overflow-hidden rounded-xl border border-border-default bg-bg-elevated shadow-overlay">
+      {surface.kind === 'dashboard' && (() => {
+        const s = surface as WorkflowDashboardCopy
+        return (
+          <Fragment>
+            <div class="flex items-center justify-between border-b border-border-subtle px-4 py-3">
+              <div class="flex items-center gap-2 text-[13px]">
+                <span class="font-medium text-text-primary">{s.header.title}</span>
+                <span class="text-text-muted">·</span>
+                <span class="font-mono text-[12px] text-text-muted">{s.header.timestamp}</span>
+              </div>
+              <div class="flex items-center gap-1 rounded-md border border-border-default bg-bg-canvas p-0.5 text-[12px]">
+                {s.ranges.map((range, idx) => (
+                  <span class={`rounded-sm px-2 py-1 ${idx === 0 ? 'bg-accent-tint text-accent-text' : 'text-text-secondary'}`}>{range}</span>
+                ))}
+              </div>
+            </div>
+            <div class="flex items-center gap-3 border-b border-border-subtle bg-accent-tint/40 px-4 py-2.5">
+              <span class="inline-flex items-center rounded-sm bg-accent-default px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-primary-foreground">
+                {s.pulse.tag}
+              </span>
+              <p class="flex-1 text-[12px] text-accent-text">{s.pulse.text}</p>
+              <span class="font-mono text-[12px] text-accent-default">{s.pulse.cta} →</span>
+            </div>
+            {s.rows.map((row) => (
+              <div class="grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr] items-center gap-3 border-b border-border-subtle px-4 py-2.5 last:border-b-0">
+                <div class="flex items-center gap-3">
+                  <span class="block h-5 w-[3px] rounded-full bg-severity-critical"></span>
+                  <span class="text-[13px] font-medium text-text-primary">{row.client}</span>
+                </div>
+                <span class="font-mono text-[12px] text-text-secondary">{row.form}</span>
+                <span class="font-mono text-[12px] text-text-secondary">{row.due}</span>
+                <span class="font-mono text-[12px] text-text-muted">{row.daysLeft}</span>
+                <span class="text-right font-mono tabular text-[13px] font-medium text-text-primary">{row.exposure}</span>
+              </div>
+            ))}
+          </Fragment>
+        )
+      })()}
+
+      {surface.kind === 'mapping' && (() => {
+        const s = surface as WorkflowMappingCopy
+        return (
+          <Fragment>
+            <div class="flex items-center justify-between border-b border-border-subtle px-4 py-3 text-[13px]">
+              <span class="font-medium text-text-primary">{s.step}</span>
+              <div class="flex items-center gap-2 text-[12px]">
+                {s.steps.map((step, idx) => (
+                  <Fragment>
+                    {idx > 0 && <span class="text-text-muted">→</span>}
+                    <span class={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono ${idx === 1 ? 'bg-accent-tint text-accent-text' : 'text-text-secondary'}`}>
+                      <span class={`block h-1.5 w-1.5 rounded-full ${idx === 1 ? 'bg-accent-default' : 'bg-border-strong'}`}></span>
+                      {step.label}
+                    </span>
+                  </Fragment>
+                ))}
+              </div>
+            </div>
+            <div class="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-4 border-b border-border-subtle px-4 py-2 font-mono text-[10px] tracking-wider text-text-muted">
+              <span>{s.headers.source}</span>
+              <span>{s.headers.target}</span>
+              <span>{s.headers.sample}</span>
+              <span class="text-right">{s.headers.confidence}</span>
+            </div>
+            {s.rows.map((row) => (
+              <div class="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-4 border-b border-border-subtle px-4 py-2.5 last:border-b-0">
+                <span class="font-mono text-[13px] text-text-primary">{row.source}</span>
+                <span class="font-mono text-[12px] text-text-secondary">{row.target}</span>
+                <span class="font-mono text-[12px] text-text-muted">{row.sample}</span>
+                <span class={`inline-flex items-center rounded-md px-2 py-1 font-mono text-[11px] font-medium ${confidenceClass[row.confidence]}`}>
+                  {row.confidenceLabel}
+                </span>
+              </div>
+            ))}
+            <div class="flex items-center justify-between border-t border-border-subtle px-4 py-3">
+              <span class="font-mono text-[12px] text-text-muted">{s.footer.summary}</span>
+              <a href="#" class="inline-flex h-8 items-center gap-2 rounded-md bg-accent-default px-3 text-[13px] font-medium text-primary-foreground">
+                <span>{s.footer.cta}</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </Fragment>
+        )
+      })()}
+
+      {surface.kind === 'evidence' && (() => {
+        const s = surface as WorkflowEvidenceCopy
+        return (
+          <Fragment>
+            <div class="flex items-center justify-between border-b border-border-subtle px-4 py-3">
+              <div class="flex items-center gap-2 text-[13px]">
+                <span class="block h-2 w-2 rounded-full bg-status-done"></span>
+                <span class="font-medium text-text-primary">{s.drawerTitle}</span>
+              </div>
+              <div class="flex items-center gap-3 font-mono text-[12px]">
+                <span class="rounded-md bg-status-done/15 px-2 py-0.5 text-status-done">{s.confidence}</span>
+                <span class="text-text-muted">{s.closeHint}</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-[280px_1fr] gap-0">
+              <div class="border-r border-border-subtle p-4">
+                {s.fields.map((field) => (
+                  <div class="border-b border-border-subtle py-3 last:border-b-0">
+                    <div class="font-mono text-[10px] tracking-wider text-text-muted">{field.label}</div>
+                    <div class="mt-1 text-[13px] font-medium text-text-primary">{field.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div class="p-4">
+                <div class="flex items-center gap-3">
+                  <span class="font-mono text-[10px] tracking-wider text-text-muted">{s.source.label}</span>
+                  <span class="inline-flex items-center gap-1.5 rounded-md border border-border-default bg-bg-canvas px-2 py-1 font-mono text-[12px] text-text-secondary">
+                    <span class="block h-1.5 w-1.5 rounded-full bg-accent-default"></span>
+                    {s.source.value}
+                  </span>
+                  <span class="font-mono text-[11px] text-text-muted">{s.source.verified}</span>
+                </div>
+                <div class="mt-6 rounded-lg border border-border-subtle bg-bg-canvas p-4">
+                  <div class="font-mono text-[10px] tracking-wider text-text-muted">{s.source.quoteLabel}</div>
+                  <p class="mt-2 text-[13px] leading-relaxed text-text-primary">{s.source.quote}</p>
+                </div>
+                <div class="mt-6 grid grid-cols-4 gap-3 text-[12px]">
+                  <div>
+                    <div class="font-mono text-[10px] tracking-wider text-text-muted">SOURCE</div>
+                    <div class="mt-1 font-mono text-text-secondary">{s.meta.source}</div>
+                  </div>
+                  <div>
+                    <div class="font-mono text-[10px] tracking-wider text-text-muted">VERIFIED BY</div>
+                    <div class="mt-1 font-mono text-text-secondary">{s.meta.verifiedBy}</div>
+                  </div>
+                  <div>
+                    <div class="font-mono text-[10px] tracking-wider text-text-muted">REVIEWED</div>
+                    <div class="mt-1 font-mono text-text-secondary">{s.meta.reviewed}</div>
+                  </div>
+                  <div>
+                    <div class="font-mono text-[10px] tracking-wider text-text-muted">STATUS</div>
+                    <div class="mt-1 font-mono text-status-done">{s.meta.status}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Fragment>
+        )
+      })()}
+    </div>
+  </div>
+</article>

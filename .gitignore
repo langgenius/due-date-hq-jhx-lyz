@@ -40,6 +40,9 @@ test-results/
 .miniflare/
 wrangler.toml.bak
 
+# ─────────── Astro (auto-generated types) ───────────
+.astro/
+
 # ─────────── Drizzle / D1 local ───────────
 packages/db/.drizzle/
 packages/db/local.db*

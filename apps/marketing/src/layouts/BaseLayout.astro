@@ -1,0 +1,72 @@
+---
+import { THEME_INIT_SCRIPT } from '@duedatehq/ui/theme/no-flash-script'
+import type { Locale } from '@duedatehq/i18n/locales'
+import '../styles/globals.css'
+
+interface Props {
+  /** BCP-47 tag rendered into <html lang>. */
+  lang: Locale
+  /** Path on the marketing site (e.g. "/" or "/zh-CN") used for canonical + OG. */
+  pathname: '/' | '/zh-CN'
+  title: string
+  description: string
+  /** Path of the locale-specific OG image under /public, e.g. "/og/home.en.png". */
+  ogImage: string
+}
+
+const SITE = 'https://duedatehq.com'
+const OG_LOCALE: Record<Locale, string> = {
+  en: 'en_US',
+  'zh-CN': 'zh_CN',
+}
+const ALTERNATE_OG_LOCALE: Record<Locale, readonly string[]> = {
+  en: ['zh_CN'],
+  'zh-CN': ['en_US'],
+}
+
+const { lang, pathname, title, description, ogImage } = Astro.props
+const canonical = `${SITE}${pathname === '/' ? '' : pathname}`
+const ogImageUrl = `${SITE}${ogImage}`
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0A2540" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={`${SITE}/`} />
+    <link rel="alternate" hreflang="zh-CN" href={`${SITE}/zh-CN`} />
+    <link rel="alternate" hreflang="x-default" href={`${SITE}/`} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="DueDateHQ" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={OG_LOCALE[lang]} />
+    {ALTERNATE_OG_LOCALE[lang].map((alt) => (
+      <meta property="og:locale:alternate" content={alt} />
+    ))}
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <script is:inline set:html={THEME_INIT_SCRIPT}></script>
+  </head>
+  <body class="min-h-screen bg-bg-canvas text-text-primary antialiased">
+    <slot />
+  </body>
+</html>

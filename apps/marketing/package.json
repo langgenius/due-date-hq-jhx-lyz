@@ -1,0 +1,30 @@
+{
+  "name": "@duedatehq/marketing",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "catalog:",
+    "@duedatehq/i18n": "workspace:*",
+    "@duedatehq/ui": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "astro": "catalog:",
+    "tailwindcss": "catalog:",
+    "tw-animate-css": "catalog:"
+  },
+  "devDependencies": {
+    "@astrojs/check": "catalog:",
+    "@duedatehq/typescript-config": "workspace:*",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  },
+  "//": "Astro static marketing site (duedatehq.com). Shares @duedatehq/ui design tokens and @duedatehq/i18n locale contract; deployed separately as Cloudflare Workers + Static Assets."
+}
