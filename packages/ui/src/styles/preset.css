@@ -21,7 +21,20 @@
   --text-lg: 16px;
   --text-xl: 20px;
   --text-2xl: 24px;
+  --text-section-title: 32px;
+  --text-display-large: 40px;
   --text-hero: 56px;
+  --text-display-hero: 60px;
+
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 48px;
+  --space-12: 80px;
 
   --shadow-xs: none;
   --shadow-sm: none;
@@ -45,7 +58,7 @@
   --secondary-foreground: #0a2540;
   --muted: #f4f4f5;
   --muted-foreground: #94a3b8;
-  --accent: rgba(91, 91, 214, 0.08);
+  --accent: #f1f1fd;
   --accent-foreground: #4338ca;
   --destructive: #dc2626;
   --border: #e5e7eb;
@@ -55,7 +68,7 @@
   --sidebar-foreground: #475569;
   --sidebar-primary: #5b5bd6;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(91, 91, 214, 0.08);
+  --sidebar-accent: #f1f1fd;
   --sidebar-accent-foreground: #0a2540;
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #5b5bd6;
@@ -81,21 +94,26 @@
   --accent-text: var(--accent-foreground);
 
   --severity-critical: var(--destructive);
-  --severity-critical-tint: rgba(220, 38, 38, 0.06);
+  --severity-critical-tint: #fef2f2;
   --severity-critical-border: #fca5a5;
   --severity-high: #ea580c;
-  --severity-high-tint: rgba(234, 88, 12, 0.06);
+  --severity-high-tint: #fff7ed;
   --severity-high-border: #fdba74;
   --severity-medium: #ca8a04;
-  --severity-medium-tint: rgba(202, 138, 4, 0.06);
+  --severity-medium-tint: #fefce8;
   --severity-medium-border: #fde68a;
   --severity-neutral: #475569;
-  --severity-neutral-tint: rgba(71, 85, 105, 0.04);
+  --severity-neutral-tint: #f8fafc;
 
   --status-done: #059669;
   --status-draft: #64748b;
   --status-waiting: #0284c7;
   --status-review: #7c3aed;
+
+  --brand-primary: var(--text-primary);
+  --brand-secondary: var(--text-secondary);
+  --brand-tertiary: var(--accent-default);
+  --brand-neutral: var(--bg-canvas);
 }
 
 .dark {
@@ -162,6 +180,11 @@
   --status-draft: #94a3b8;
   --status-waiting: #38bdf8;
   --status-review: #a78bfa;
+
+  --brand-primary: var(--text-primary);
+  --brand-secondary: var(--text-secondary);
+  --brand-tertiary: var(--accent-default);
+  --brand-neutral: var(--bg-canvas);
 }
 
 @theme inline {
@@ -228,6 +251,11 @@
   --color-status-draft: var(--status-draft);
   --color-status-waiting: var(--status-waiting);
   --color-status-review: var(--status-review);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-tertiary: var(--brand-tertiary);
+  --color-brand-neutral: var(--brand-neutral);
 }
 
 @layer base {

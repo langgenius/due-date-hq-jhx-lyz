@@ -38,11 +38,78 @@ colors:
   status-draft: '#64748B'
   status-waiting: '#0284C7'
   status-review: '#7C3AED'
+colorsDark:
+  primary: 'rgba(255, 255, 255, 0.95)'
+  secondary: 'rgba(255, 255, 255, 0.65)'
+  tertiary: '#7C7BF5'
+  neutral: '#0D0E11'
+  surface-canvas: '#0D0E11'
+  surface-panel: '#101217'
+  surface-elevated: '#15171C'
+  surface-subtle: '#1A1D23'
+  border-default: 'rgba(255, 255, 255, 0.08)'
+  border-strong: 'rgba(255, 255, 255, 0.14)'
+  border-subtle: 'rgba(255, 255, 255, 0.04)'
+  text-primary: 'rgba(255, 255, 255, 0.95)'
+  text-secondary: 'rgba(255, 255, 255, 0.65)'
+  text-muted: 'rgba(255, 255, 255, 0.45)'
+  text-disabled: 'rgba(255, 255, 255, 0.25)'
+  accent-default: '#7C7BF5'
+  accent-hover: '#9391F8'
+  accent-active: '#A5A4FA'
+  accent-text: '#A5A4FA'
+  accent-tint: 'rgba(124, 123, 245, 0.14)'
+  severity-critical: '#EF4444'
+  severity-critical-tint: 'rgba(239, 68, 68, 0.12)'
+  severity-critical-border: 'rgba(239, 68, 68, 0.4)'
+  severity-high: '#F97316'
+  severity-high-tint: 'rgba(249, 115, 22, 0.12)'
+  severity-high-border: 'rgba(249, 115, 22, 0.4)'
+  severity-medium: '#EAB308'
+  severity-medium-tint: 'rgba(234, 179, 8, 0.12)'
+  severity-medium-border: 'rgba(234, 179, 8, 0.4)'
+  severity-neutral: '#64748B'
+  severity-neutral-tint: 'rgba(100, 116, 139, 0.08)'
+  status-done: '#10B981'
+  status-draft: '#94A3B8'
+  status-waiting: '#38BDF8'
+  status-review: '#A78BFA'
 typography:
+  display-hero:
+    fontFamily: Inter
+    fontSize: 60px
+    fontWeight: 600
+    lineHeight: 1.067
+    letterSpacing: -0.02em
+  display-large:
+    fontFamily: Inter
+    fontSize: 40px
+    fontWeight: 600
+    lineHeight: 1.15
+    letterSpacing: -0.02em
+  section-title:
+    fontFamily: Inter
+    fontSize: 32px
+    fontWeight: 600
+    lineHeight: 1.1875
+    letterSpacing: -0.01em
+  title:
+    fontFamily: Inter
+    fontSize: 16px
+    fontWeight: 500
+    lineHeight: 1.4
+    letterSpacing: 0px
   body:
     fontFamily: Inter
     fontSize: 13px
     fontWeight: 400
+    lineHeight: 1.5
+    letterSpacing: 0px
+    fontFeature: "'cv11', 'ss01'"
+  body-medium:
+    fontFamily: Inter
+    fontSize: 13px
+    fontWeight: 500
     lineHeight: 1.5
     letterSpacing: 0px
     fontFeature: "'cv11', 'ss01'"
@@ -52,12 +119,6 @@ typography:
     fontWeight: 500
     lineHeight: 1.4
     letterSpacing: 0.08em
-  title:
-    fontFamily: Inter
-    fontSize: 16px
-    fontWeight: 500
-    lineHeight: 1.4
-    letterSpacing: 0px
   hero-metric:
     fontFamily: Geist Mono
     fontSize: 56px
@@ -72,10 +133,20 @@ typography:
     lineHeight: 1.4
     letterSpacing: 0px
     fontFeature: "'tnum'"
+  numeric-small:
+    fontFamily: Geist Mono
+    fontSize: 11px
+    fontWeight: 500
+    lineHeight: 1.4
+    letterSpacing: 0px
+    fontFeature: "'tnum'"
 rounded:
   sm: 4px
   md: 6px
   lg: 12px
+shadows:
+  subtle: '0 2px 8px rgba(0, 0, 0, 0.04)'
+  overlay: '0 8px 24px rgba(0, 0, 0, 0.08)'
 spacing:
   0: 0px
   1: 4px
@@ -104,14 +175,20 @@ components:
     backgroundColor: '{colors.severity-critical-tint}'
     textColor: '{colors.text-primary}'
     height: 36px
+    severityBarWidth: 2px
+    severityBarColor: '{colors.severity-critical}'
   risk-row-high:
     backgroundColor: '{colors.severity-high-tint}'
     textColor: '{colors.text-primary}'
     height: 36px
+    severityBarWidth: 2px
+    severityBarColor: '{colors.severity-high}'
   risk-row-upcoming:
     backgroundColor: '{colors.severity-medium-tint}'
     textColor: '{colors.text-primary}'
     height: 36px
+    severityBarWidth: 2px
+    severityBarColor: '{colors.severity-medium}'
   hero-metric:
     backgroundColor: '{colors.surface-canvas}'
     textColor: '{colors.text-primary}'
@@ -179,7 +256,7 @@ components:
     padding: 12px
     rounded: '{rounded.md}'
     typography: '{typography.body}'
-    shadow: subtle
+    shadow: '{shadows.subtle}'
     tone:
       info: { background: '{colors.surface-elevated}', text: '{colors.text-primary}' }
       success: { background: '{colors.surface-elevated}', text: '{colors.status-done}' }
@@ -232,11 +309,11 @@ Avoid nested cards and decorative depth. Depth exists to preserve focus and laye
 
 Radii are intentionally restrained:
 
-- 4px for chips, small controls, and compact buttons.
-- 6px for default buttons, inputs, cards, banners, and dropdowns.
-- 12px only for drawers, modals, and the command palette.
+- 4px (`rounded.sm`) for buttons (primary / secondary / icon-only), chips, evidence chips, confidence badges, small badges, and compact controls.
+- 6px (`rounded.md`) for inputs, cards, banners, dropdowns, toasts, and the pulse banner.
+- 12px (`rounded.lg`) for drawers, modals, and the command palette only.
 
-Do not use pill buttons, circular decorative controls, or radius above 12px.
+Do not use pill buttons, circular decorative controls, or radius above 12px. The button radius is 4px (`rounded.sm`) — this is the canonical value across `components.button-{primary,secondary}.rounded`, `docs/Design/DueDateHQ-DESIGN.md` §2.5 / §4.8, and the Figma Token Spec Sheet §05.
 
 ## Components
 
@@ -246,6 +323,16 @@ Primary buttons use indigo and are reserved for the most important action on a s
 
 No provenance means no render. If an AI output lacks `source_url`, `verified_at`, and `verbatim_quote`, show a verification-needed state instead of a recommendation.
 
+### Token segment index（front-matter `colors / typography / rounded / shadows / spacing / colorsDark / components` 的速查）
+
+- `colors` · Light 模式 35 个语义色，是 Figma Token Spec Sheet §01 Color 的权威源。
+- `colorsDark` · 暗色镜像，键集合与 `colors` 同名；详细规则见 `docs/Design/DueDateHQ-DESIGN.md` §2.3。
+- `typography` · 10 个 text style：3 档 display（`display-hero` 60 / `display-large` 40 / `section-title` 32，仅 marketing landing 使用）+ `title` 16 + `body` / `body-medium` 13 + `label` 11 + `hero-metric` 56 mono + `numeric` 13 mono + `numeric-small` 11 mono。
+- `rounded` · 3 档圆角（`sm` 4 / `md` 6 / `lg` 12）；按钮统一走 `sm`（4px）。
+- `shadows` · 2 档（`subtle` Drawer/Popover/Tooltip · `overlay` Modal/Command Palette）；其余阴影一律禁止。
+- `spacing` · 4px scale 9 档（0 / 4 / 8 / 12 / 16 / 24 / 32 / 48 / 80）。
+- `components` · 18 个组件级 token，引用前 6 段 atom，禁止再写裸值。
+
 ### Migration Copilot 向导扩展 token
 
 Demo Sprint 期间新增的 Migration Copilot 相关 token 已追加到 front-matter `components:` 段；详细使用说明 + 可达性规格见 `docs/Design/DueDateHQ-DESIGN.md` §14 Migration Copilot 向导 与 `docs/product-design/migration-copilot/09-design-system-deltas.md`。
@@ -253,7 +340,7 @@ Demo Sprint 期间新增的 Migration Copilot 相关 token 已追加到 front-ma
 - `stepper` · 4 步向导步骤条；5 状态（current / completed / upcoming / error / disabled）；`Enter` 与数字键 1-4 **不**跳步
 - `confidence-badge` · 3 档置信度（high ≥ 0.95 / med 0.80–0.94 / low < 0.80）；色系与 severity / status 解耦；**数据质量类 needs_review 走 severity-medium 黄，工作流 Review 走 status-review 紫**（ADR 0011 Decision III 裁定）
 - `toast` · 3 tone（info / success / warning）× 2 variant（default 3s + 500ms undo / persistent 至服务端返回的 `revertible_until` 过期，前端不本地倒计时）
-- `risk-row-high` / `risk-row-upcoming` · 补齐 severity-high / severity-medium 两档行视觉，与 `risk-row-critical` 组成 Dashboard / Dry-run 三档表格行
+- `risk-row-high` / `risk-row-upcoming` · 补齐 severity-high / severity-medium 两档行视觉，与 `risk-row-critical` 组成 Dashboard / Dry-run 三档表格行；三档 row 现在都带 `severityBarWidth: 2px` + 同色 severity bar 字段
 - `genesis-odometer` / `genesis-particle` · Live Genesis 顶栏数字滚动 + 粒子弧线；`prefers-reduced-motion` 降级为 200ms fade-in
 - `email-shell` · Migration Report 邮件外壳（640px table 布局 + Geist Mono tabular num）
 

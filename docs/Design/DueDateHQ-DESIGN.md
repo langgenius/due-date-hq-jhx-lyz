@@ -113,6 +113,8 @@
 
 ### 2.3 Dark Mode（暗色镜像，不是 Bloomberg 终端）
 
+> **权威值在 `/DESIGN.md` `colorsDark:` YAML 段**，本节是工程实现镜像。任何 dark 调整必须先改 YAML 再回灌 `packages/ui/src/styles/preset.css .dark` 与 Figma `Dark` mode，禁止单点修改。
+
 ```css
 /* === Surface === */
 --bg-canvas: #0d0e11; /* 暖色近黑，禁止纯黑 #000 */
@@ -175,13 +177,13 @@
 
 ### 2.5 Radius / Shadow Token（唯一合法来源）
 
-除下表以外，**所有其他圆角 / 阴影一律禁止**（包括业务组件里写 `rounded-lg` / `shadow-md` 等裸 Tailwind 类）。
+除下表以外，**所有其他圆角 / 阴影一律禁止**（包括业务组件里写 `rounded-lg` / `shadow-md` 等裸 Tailwind 类）。**唯一权威值在 `/DESIGN.md` `rounded:` / `shadows:` YAML 段**；本节仅展示工程实现镜像，禁止本节与 `/DESIGN.md` 出现数值分歧。
 
 ```css
 /* === Radius === */
---radius-sm: 0.25rem; /* 4px · Evidence Chip / Button / 小徽章                 */
---radius: 0.375rem; /* 6px · 主默认 · Banner / Input / Card / Dropdown       */
---radius-lg: 0.75rem; /* 12px · Drawer / Modal / 大容器（超过 320px 宽）          */
+--radius-sm: 0.25rem; /* 4px · Button (primary/secondary/icon-only) / Chip / Evidence / Confidence Badge */
+--radius: 0.375rem; /* 6px · Input / Card / Banner / Dropdown / Toast / Pulse Banner                  */
+--radius-lg: 0.75rem; /* 12px · Drawer / Modal / Command Palette                                       */
 /* 禁止 > 12px（避免 Notion 式圆润感）                                               */
 
 /* === Shadow（"禁止阴影"的三个例外） === */
@@ -191,13 +193,13 @@
 /* 业务组件不可用 --shadow-overlay 之外的其他阴影                                    */
 ```
 
-| Token              | 用途                                         | 禁用场景                        |
-| ------------------ | -------------------------------------------- | ------------------------------- |
-| `--radius-sm`      | chip / 小按钮 / 徽章                         | 卡片、容器                      |
-| `--radius`         | 输入框 / 默认按钮 / Banner / Card / Dropdown | chip / 浮层                     |
-| `--radius-lg`      | Drawer / Modal / Command Palette             | 普通 Card（过大显得松散）       |
-| `--shadow-subtle`  | Drawer 底部、Popover、Tooltip                | 普通 Card（违反"禁止阴影"铁律） |
-| `--shadow-overlay` | Command Palette / 重要 Modal                 | 其他浮层（用 subtle 即可）      |
+| Token              | 用途                                                                                               | 禁用场景                        |
+| ------------------ | -------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `--radius-sm`      | **所有按钮（Primary / Secondary / Icon-only）** · chip · evidence chip · confidence badge · 小徽章 | 卡片、容器、Banner（过紧凑）    |
+| `--radius`         | 输入框 · Banner · Card · Dropdown · Toast · Pulse Banner                                           | 按钮（应走 `--radius-sm`）·浮层 |
+| `--radius-lg`      | Drawer / Modal / Command Palette                                                                   | 普通 Card（过大显得松散）       |
+| `--shadow-subtle`  | Drawer 底部、Popover、Tooltip                                                                      | 普通 Card（违反"禁止阴影"铁律） |
+| `--shadow-overlay` | Command Palette / 重要 Modal                                                                       | 其他浮层（用 subtle 即可）      |
 
 **Tailwind 4 `@theme` 映射**：
 
@@ -252,17 +254,22 @@
 
 ### 3.2 字号与用途（紧凑但不过密）
 
-| Token       | Size | Weight | Line-height | 用途                                             |
-| ----------- | ---- | ------ | ----------- | ------------------------------------------------ |
-| `text-2xs`  | 10px | 500    | 1.3         | keyboard chip, badge 文字                        |
-| `text-xs`   | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase   |
-| `text-sm`   | 12px | 400    | 1.5         | 次级说明、tag、状态 label                        |
-| `text-base` | 13px | 400    | 1.5         | **正文默认** / 表格行内容                        |
-| `text-md`   | 14px | 500    | 1.5         | 客户名、可点击标题                               |
-| `text-lg`   | 16px | 500    | 1.4         | 页面标题、Drawer 标题                            |
-| `text-xl`   | 20px | 600    | 1.3         | Hero 副指标数字、Section heading                 |
-| `text-2xl`  | 24px | 600    | 1.2         | Client Detail 顶部名称                           |
-| `text-hero` | 56px | 700    | 1.0         | **Penalty Radar Hero 数字**（tabular-nums 必开） |
+| Token                | Size | Weight | Line-height | 用途                                                                          |
+| -------------------- | ---- | ------ | ----------- | ----------------------------------------------------------------------------- |
+| `text-2xs`           | 10px | 500    | 1.3         | keyboard chip, badge 文字                                                     |
+| `text-xs`            | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase（即 `typography.label`）       |
+| `text-sm`            | 12px | 400    | 1.5         | 次级说明、tag、状态 label                                                     |
+| `text-base`          | 13px | 400    | 1.5         | **正文默认** / 表格行内容（即 `typography.body` / `body-medium`）             |
+| `text-md`            | 14px | 500    | 1.5         | 客户名、可点击标题                                                            |
+| `text-lg`            | 16px | 500    | 1.4         | 页面标题、Drawer 标题（即 `typography.title`）                                |
+| `text-xl`            | 20px | 600    | 1.3         | Hero 副指标数字、Section heading                                              |
+| `text-2xl`           | 24px | 600    | 1.2         | Client Detail 顶部名称                                                        |
+| `text-section-title` | 32px | 600    | 1.1875      | Marketing landing 段标题（即 `typography.section-title`，仅 marketing 使用）  |
+| `text-display-large` | 40px | 600    | 1.15        | Marketing landing 二级 hero（即 `typography.display-large`，仅 marketing）    |
+| `text-hero`          | 56px | 700    | 1.0         | **Penalty Radar Hero 数字**（即 `typography.hero-metric`，tabular-nums 必开） |
+| `text-display-hero`  | 60px | 600    | 1.067       | Marketing landing h1（即 `typography.display-hero`，**禁用**于 workbench）    |
+
+> **铁律**：`text-section-title` / `text-display-large` / `text-display-hero` 仅限 marketing landing（`apps/app/src/routes/landing.*` 之类）使用，**禁止**进入 dashboard / workboard / drawer / modal 等 workbench 表面。
 
 ### 3.3 字母间距
 
@@ -299,11 +306,18 @@
 **规格**
 
 - 高度：36px（默认）/ 32px（Compact）/ 40px（Spacious）
-- Critical / High 行：`border-left: 2px solid var(--severity-*)` + `background: var(--severity-*-tint)`
+- Critical / High / Upcoming 行：`border-left: 2px solid var(--severity-*)` + `background: var(--severity-*-tint)`，对应 `/DESIGN.md` `components.risk-row-{critical,high,upcoming}.severityBarWidth: 2px` + `severityBarColor`
 - Neutral 行：无 tint，仅靠 `--border-subtle` 1px 底线分隔
 - Hover：叠加 `background: rgba(0,0,0,0.02)`（light）/ `rgba(255,255,255,0.04)`（dark）
 - Selected：`background: var(--accent-tint)` + 2px 左 `--accent-default`
 - **行内操作区** `[Apply]` `[Start]` 用 `text-accent-default`，hover underline
+
+| Row kind            | Severity bar (left)                  | Background                      | 触发条件                                   |
+| ------------------- | ------------------------------------ | ------------------------------- | ------------------------------------------ |
+| `risk-row-critical` | `2px solid var(--severity-critical)` | `var(--severity-critical-tint)` | `days_left ≤ 2` 或 `exposure > $10,000`    |
+| `risk-row-high`     | `2px solid var(--severity-high)`     | `var(--severity-high-tint)`     | `3 ≤ days_left ≤ 7` 或 `exposure > $3,000` |
+| `risk-row-upcoming` | `2px solid var(--severity-medium)`   | `var(--severity-medium-tint)`   | `8 ≤ days_left ≤ 30`                       |
+| Neutral row         | —（仅 `--border-subtle` 1px 底线）   | 透明                            | `days_left > 30` 或 `status = OK`          |
 
 ### 4.2 Hero Metric（Dashboard 顶部 $ 风险聚合）
 
