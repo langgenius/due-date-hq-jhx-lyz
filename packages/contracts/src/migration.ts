@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract'
 import { z } from 'zod'
+import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 export const MigrationSourceSchema = z.enum([
   'paste',
@@ -22,9 +23,9 @@ export const MigrationBatchStatusSchema = z.enum([
 ])
 
 export const MigrationBatchSchema = z.object({
-  id: z.string().uuid(),
-  firmId: z.string().uuid(),
-  userId: z.string().uuid(),
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  userId: TenantIdSchema,
   source: MigrationSourceSchema,
   rawInputR2Key: z.string().nullable(),
   mappingJson: z.unknown().nullable(),
@@ -53,10 +54,11 @@ export const MappingTargetSchema = z.enum([
   'client.notes',
   'IGNORE',
 ])
+export type MappingTarget = z.infer<typeof MappingTargetSchema>
 
 export const MappingRowSchema = z.object({
-  id: z.string().uuid(),
-  batchId: z.string().uuid(),
+  id: EntityIdSchema,
+  batchId: EntityIdSchema,
   sourceHeader: z.string().min(1),
   targetField: MappingTargetSchema,
   confidence: z.number().min(0).max(1).nullable(),
@@ -68,8 +70,8 @@ export const MappingRowSchema = z.object({
 })
 
 export const NormalizationRowSchema = z.object({
-  id: z.string().uuid(),
-  batchId: z.string().uuid(),
+  id: EntityIdSchema,
+  batchId: EntityIdSchema,
   field: z.string().min(1),
   rawValue: z.string(),
   normalizedValue: z.string().nullable(),
@@ -82,8 +84,8 @@ export const NormalizationRowSchema = z.object({
 })
 
 export const MigrationErrorSchema = z.object({
-  id: z.string().uuid(),
-  batchId: z.string().uuid(),
+  id: EntityIdSchema,
+  batchId: EntityIdSchema,
   rowIndex: z.number().int().min(0),
   rawRowJson: z.unknown().nullable(),
   errorCode: z.string().min(1),
@@ -92,22 +94,48 @@ export const MigrationErrorSchema = z.object({
 })
 
 export const DryRunSummarySchema = z.object({
-  batchId: z.string().uuid(),
+  batchId: EntityIdSchema,
   clientsToCreate: z.number().int().min(0),
   obligationsToCreate: z.number().int().min(0),
   skippedRows: z.number().int().min(0),
   errors: z.array(MigrationErrorSchema),
 })
 
+/**
+ * Mapper fallback channel marker.
+ * - `null` → AI returned a structured response, mappings reflect AI output.
+ * - `'preset'` → AI was unavailable but the user picked a Preset Profile;
+ *   mappings come from the preset template (no AI cost incurred).
+ * - `'all_ignore'` → AI was unavailable and no Preset was picked;
+ *   every column defaults to IGNORE, the user must override manually
+ *   before Step 2 will accept Continue.
+ *
+ * Surfaced on `runMapper` / `confirmMapping` outputs so the UI fallback
+ * banner ([02-ux §5.4]) and PostHog cost dashboards can react without
+ * inspecting trace data.
+ */
+export const MapperFallbackSchema = z.enum(['preset', 'all_ignore']).nullable().optional()
+export type MapperFallback = z.infer<typeof MapperFallbackSchema>
+
+export const MapperRunOutputSchema = z.object({
+  mappings: z.array(MappingRowSchema),
+  meta: z
+    .object({
+      fallback: MapperFallbackSchema,
+    })
+    .optional(),
+})
+export type MapperRunOutput = z.infer<typeof MapperRunOutputSchema>
+
 export const ApplyResultSchema = z.object({
-  batchId: z.string().uuid(),
+  batchId: EntityIdSchema,
   clientCount: z.number().int().min(0),
   obligationCount: z.number().int().min(0),
   skippedCount: z.number().int().min(0),
   revertibleUntil: z.string().datetime(),
 })
 
-const BatchIdInput = z.object({ batchId: z.string().uuid() })
+const BatchIdInput = z.object({ batchId: EntityIdSchema })
 
 export const migrationContract = oc.router({
   createBatch: oc
@@ -123,36 +151,54 @@ export const migrationContract = oc.router({
   uploadRaw: oc
     .input(
       z.object({
-        batchId: z.string().uuid(),
+        batchId: EntityIdSchema,
         fileName: z.string().min(1),
         contentType: z.string().min(1),
         sizeBytes: z.number().int().min(0),
+        /**
+         * Optional inline payload — Demo Sprint takes the paste / file body
+         * directly through RPC (text or base64) and stashes it in
+         * `migration_batch.mapping_json.rawInput`. Phase 0 swaps to a real
+         * R2 signed PUT URL; the contract surface stays compatible because
+         * `inline.kind` is the only required addition.
+         *
+         * When `inline` is omitted the server is expected to return a
+         * pre-signed URL the client uploads to directly (not implemented in
+         * Demo Sprint — see docs/dev-file/10 §H).
+         */
+        inline: z
+          .object({
+            kind: z.enum(['csv', 'tsv', 'paste', 'xlsx']),
+            text: z.string().optional(),
+            base64: z.string().optional(),
+          })
+          .optional(),
       }),
     )
     .output(z.object({ rawInputR2Key: z.string() })),
-  runMapper: oc.input(BatchIdInput).output(z.object({ mappings: z.array(MappingRowSchema) })),
+  runMapper: oc.input(BatchIdInput).output(MapperRunOutputSchema),
   confirmMapping: oc
-    .input(z.object({ batchId: z.string().uuid(), mappings: z.array(MappingRowSchema) }))
-    .output(z.object({ mappings: z.array(MappingRowSchema) })),
+    .input(z.object({ batchId: EntityIdSchema, mappings: z.array(MappingRowSchema) }))
+    .output(MapperRunOutputSchema),
   runNormalizer: oc
     .input(BatchIdInput)
     .output(z.object({ normalizations: z.array(NormalizationRowSchema) })),
   confirmNormalization: oc
-    .input(
-      z.object({ batchId: z.string().uuid(), normalizations: z.array(NormalizationRowSchema) }),
-    )
+    .input(z.object({ batchId: EntityIdSchema, normalizations: z.array(NormalizationRowSchema) }))
     .output(z.object({ normalizations: z.array(NormalizationRowSchema) })),
   applyDefaultMatrix: oc.input(BatchIdInput).output(DryRunSummarySchema),
   dryRun: oc.input(BatchIdInput).output(DryRunSummarySchema),
   apply: oc.input(BatchIdInput).output(ApplyResultSchema),
   revert: oc.input(BatchIdInput).output(z.object({ revertedAt: z.string().datetime() })),
   singleUndo: oc
-    .input(z.object({ batchId: z.string().uuid(), clientId: z.string().uuid() }))
+    .input(z.object({ batchId: EntityIdSchema, clientId: EntityIdSchema }))
     .output(z.object({ revertedAt: z.string().datetime() })),
   getBatch: oc.input(BatchIdInput).output(MigrationBatchSchema.nullable()),
 })
 
 export type MigrationBatch = z.infer<typeof MigrationBatchSchema>
+export type MigrationSource = z.infer<typeof MigrationSourceSchema>
+export type MigrationBatchStatus = z.infer<typeof MigrationBatchStatusSchema>
 export type MappingRow = z.infer<typeof MappingRowSchema>
 export type NormalizationRow = z.infer<typeof NormalizationRowSchema>
 export type MigrationError = z.infer<typeof MigrationErrorSchema>

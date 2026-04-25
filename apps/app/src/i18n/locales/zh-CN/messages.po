@@ -13,10 +13,54 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: cell.appliedClientCount
+#. placeholder {1}: cell.entityType.toUpperCase()
+#. placeholder {2}: cell.state
+#. placeholder {3}: cell.entityType.toUpperCase()
+#. placeholder {4}: cell.state
+#: src/features/migration/Step3Normalize.tsx
+msgid "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
+msgstr "{0, plural, other {# 个 {3} × {4} 客户}}"
+
+#. placeholder {0}: summary.errors.length
+#: src/features/migration/Step4Preview.tsx
+msgid "{0, plural, one {# row needs attention} other {# rows need attention}}"
+msgstr "{0, plural, other {# 行需要关注}}"
+
+#. placeholder {0}: intake.rowCount
+#: src/features/migration/Step1Intake.tsx
+msgid "{0, plural, one {# row ready to import} other {# rows ready to import}}"
+msgstr "{0, plural, other {# 行已准备就绪可以导入}}"
+
 #. placeholder {0}: obligations.length
 #: src/routes/workboard.tsx
 msgid "{0, plural, one {# row} other {# rows}}"
 msgstr "{0, plural, other {# 行}}"
+
+#. placeholder {0}: intake.rowCount
+#: src/features/migration/Step1Intake.tsx
+msgid "{0, plural, one {We imported the first 1000 of # row. Split your file to import more.} other {We imported the first 1000 of # rows. Split your file to import more.}}"
+msgstr "{0, plural, other {共 # 行，我们仅读取了前 1000 行。请拆分文件后再次导入。}}"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "{clientCount, plural, one {# client} other {# clients}}"
+msgstr "{clientCount, plural, other {# 个客户}}"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
+msgstr "{lowConfCount, plural, other {# 列需要你复核}}"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "{needsReviewCount, plural, one {# value needs human review} other {# values need human review}}"
+msgstr "{needsReviewCount, plural, other {# 个值需要人工复核}}"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "{obligationCount, plural, one {# obligation (full tax year)} other {# obligations (full tax year)}}"
+msgstr "{obligationCount, plural, other {# 条义务（全年）}}"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
+msgstr "{skipped, plural, other {# 行将被跳过（见错误明细）}}"
 
 #: src/routes/dashboard.tsx
 msgid "2 partner entities need review before the March 15 cutoff."
@@ -43,6 +87,14 @@ msgstr "{0} 的账户菜单"
 msgid "Across 28 open obligations."
 msgstr "覆盖 28 项未完成义务。"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "AI mapped your columns — review and confirm"
+msgstr "AI 已识别你的列 —— 请审阅并确认"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "AI Mapper unavailable — using fallback"
+msgstr "AI 映射器不可用 —— 已使用降级方案"
+
 #: src/routes/dashboard.tsx
 msgid "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
 msgstr "仅当具备来源、引文与核验时间时，AI 生成的建议才会显示。"
@@ -51,6 +103,10 @@ msgstr "仅当具备来源、引文与核验时间时，AI 生成的建议才会
 msgid "all"
 msgstr "全部"
 
+#: src/features/migration/Step3Normalize.tsx
+msgid "Apply to all"
+msgstr "全部应用"
+
 #: src/routes/workboard.tsx
 msgid "Assign selected"
 msgstr "分配所选"
@@ -58,6 +114,19 @@ msgstr "分配所选"
 #: src/routes/workboard.tsx
 msgid "Assignee"
 msgstr "负责人"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Audit log captures every AI decision"
+msgstr "审计日志记录每一次 AI 决策"
+
+#. placeholder {0}: einDetected ? '100%' : '0%'
+#: src/features/migration/Step2Mapping.tsx
+msgid "Average confidence <0>{avgConfidence}%</0> · EIN detected <1>{0}</1>"
+msgstr "平均置信度 <0>{avgConfidence}%</0> · EIN 识别率 <1>{0}</1>"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Back"
+msgstr "返回"
 
 #: src/routes/settings.tsx
 msgid "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
@@ -88,14 +157,27 @@ msgstr "客户"
 msgid "Client risk rows"
 msgstr "客户风险行"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Close wizard"
+msgstr "关闭向导"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
+msgstr "正在从 File In Time 迁移？我们将一次性把全年日历迁过来。"
+
 #: src/routes/_layout.tsx
 msgid "Compliance risk operations"
 msgstr "合规风险运营"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Confidence"
+msgstr "置信度"
 
 #: src/routes/onboarding.tsx
 msgid "Confirm your practice profile"
 msgstr "确认你的事务所资料"
 
+#: src/features/migration/WizardShell.tsx
 #: src/routes/onboarding.tsx
 msgid "Continue"
 msgstr "继续"
@@ -111,6 +193,22 @@ msgstr "无法激活你的事务所"
 #: src/routes/onboarding.tsx
 msgid "Could not create your practice"
 msgstr "无法创建你的事务所"
+
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't apply Default Matrix"
+msgstr "应用默认税种矩阵失败"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Couldn't parse the input"
+msgstr "无法解析输入内容"
+
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't save mapping"
+msgstr "保存字段映射失败"
+
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't start the import"
+msgstr "无法启动导入流程"
 
 #: src/routes/_layout.tsx
 #: src/routes/login.tsx
@@ -159,13 +257,29 @@ msgstr "面向下一个运营窗口，按金额优先进行分级。"
 msgid "draft"
 msgstr "草稿"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
+msgstr "将 CSV / TSV 拖到这里或点击上传 · 最多 1000 行 · 2 MB"
+
+#: src/features/migration/Stepper.tsx
+msgid "Dry-Run"
+msgstr "试运行"
+
 #: src/routes/dashboard.tsx
 msgid "Due this week"
 msgstr "本周到期"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "DueDateHQ field"
+msgstr "DueDateHQ 字段"
+
 #: src/routes/onboarding.tsx
 msgid "e.g. Bright CPA Practice"
 msgstr "例如：Bright CPA Practice"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Edit"
+msgstr "编辑"
 
 #: src/routes/dashboard.tsx
 msgid "Eight rows are visible on first load for dense scanning."
@@ -178,6 +292,10 @@ msgstr "邮件摘要"
 #: src/routes/settings.tsx
 msgid "Enable evidence gate"
 msgstr "启用证据门槛"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "Entity types"
+msgstr "实体类型"
 
 #: src/routes/login.tsx
 msgid "Every AI recommendation ships with source, quote, and verification timestamp."
@@ -203,6 +321,10 @@ msgstr "风险敞口"
 #: src/routes/dashboard.tsx
 msgid "Extension package hold"
 msgstr "延期申请包搁置"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "File is larger than 2 MB. Please trim or split the export."
+msgstr "文件大于 2 MB，请精简或拆分后再上传。"
 
 #: src/routes/workboard.tsx
 msgid "filed"
@@ -232,9 +354,21 @@ msgstr "隐藏不含来源信息的建议。"
 msgid "high"
 msgstr "高"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "I'm coming from… (optional)"
+msgstr "我正在从…迁移过来（可选）"
+
 #: src/routes/settings.tsx
 msgid "Immediate feedback for status changes and failed mutations."
 msgstr "状态变化或操作失败时立即反馈。"
+
+#: src/features/migration/Wizard.tsx
+msgid "Import & Generate (Day 4)"
+msgstr "导入并生成（第 4 天上线）"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Import clients · Step {step} of 4"
+msgstr "导入客户 · 第 {step} 步 / 共 4 步"
 
 #: src/routes/workboard.tsx
 msgid "in review"
@@ -244,6 +378,10 @@ msgstr "审核中"
 msgid "In-app toast"
 msgstr "应用内提示"
 
+#: src/features/migration/Stepper.tsx
+msgid "Intake"
+msgstr "入料"
+
 #: src/routes/dashboard.tsx
 msgid "IRS transcript mismatch"
 msgstr "IRS 账户记录不一致"
@@ -252,9 +390,21 @@ msgstr "IRS 账户记录不一致"
 msgid "IRS transcript source was checked this morning."
 msgstr "IRS 账户记录来源已于今早核验。"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Keep editing"
+msgstr "继续编辑"
+
 #: src/routes/_layout.tsx
 msgid "Language"
 msgstr "语言"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Leave & save draft"
+msgstr "离开并保存草稿"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Leave wizard?"
+msgstr "要离开向导吗？"
 
 #: src/routes/_layout.tsx
 msgid "Light"
@@ -264,9 +414,21 @@ msgstr "浅色"
 msgid "Local Time"
 msgstr "本地时间"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Map \"{sourceHeader}\" to…"
+msgstr "把 \"{sourceHeader}\" 映射到…"
+
+#: src/features/migration/Stepper.tsx
+msgid "Mapping"
+msgstr "字段映射"
+
 #: src/routes/dashboard.tsx
 msgid "medium"
 msgstr "中"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
+msgstr "迁移助手向导 —— 粘贴或上传客户名单，审阅 AI 映射，规范化数据，并在提交前预览导入结果。"
 
 #: src/routes/_layout.tsx
 msgid "Mobile navigation"
@@ -288,6 +450,10 @@ msgstr "需补证据"
 msgid "Needs quote"
 msgstr "需补引文"
 
+#: src/features/migration/Step3Normalize.tsx
+msgid "Needs review"
+msgstr "需复核"
+
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "常规"
@@ -295,6 +461,18 @@ msgstr "常规"
 #: src/routes/_layout.tsx
 msgid "New obligation"
 msgstr "新建义务"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "No emails will be sent automatically"
+msgstr "不会自动发送任何邮件"
+
+#: src/features/migration/Stepper.tsx
+msgid "Normalize"
+msgstr "规范化"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "Normalizer warning"
+msgstr "规范化警告"
 
 #: src/routes/settings.tsx
 msgid "Notification routing"
@@ -321,6 +499,10 @@ msgstr "义务"
 msgid "One row lacks a usable source URL."
 msgstr "有一行缺少可用的来源 URL。"
 
+#: src/features/migration/Step4Preview.tsx
+msgid "One-click revert available for 24 hours"
+msgstr "24 小时内可一键撤销"
+
 #: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "待处理风险"
@@ -333,9 +515,25 @@ msgstr "为 CPA 团队高峰申报期定制的运营节奏。"
 msgid "Operational pressure points for the team."
 msgstr "团队当前的运营压力点。"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "or"
+msgstr "或"
+
 #: src/routes/dashboard.tsx
 msgid "Owner"
 msgstr "负责人"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste client data"
+msgstr "粘贴客户数据"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste here — any shape, we'll figure it out. Include the header row if you have one."
+msgstr "粘贴到这里 —— 任何格式都行，我们会自动识别。如果有表头也请一并粘贴。"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste rows"
+msgstr "粘贴行数据"
 
 #: src/routes/dashboard.tsx
 msgid "Penalty exposure"
@@ -365,6 +563,7 @@ msgstr "阶段 0 使用邮件加应用内提示，暂不启用 Web Push。"
 msgid "Please enter at least 2 characters."
 msgstr "请至少输入 2 个字符。"
 
+#: src/features/migration/Wizard.tsx
 #: src/routes/_layout.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
@@ -379,6 +578,10 @@ msgstr "事务所名称"
 #: src/routes/settings.tsx
 msgid "Practice profile"
 msgstr "事务所资料"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Preview only — commit lands in Day 4"
+msgstr "仅预览 —— 提交将在第 4 天上线"
 
 #: src/routes/_layout.tsx
 msgid "Primary navigation"
@@ -395,6 +598,22 @@ msgstr "队列控制"
 #: src/routes/_layout.tsx
 msgid "Queue SLA"
 msgstr "队列 SLA"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Re-run AI"
+msgstr "重新运行 AI"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Re-run AI with my overrides"
+msgstr "带上我的修改重跑 AI"
+
+#: src/features/migration/Wizard.tsx
+msgid "Re-run failed."
+msgstr "重新运行失败。"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Ready to import"
+msgstr "准备就绪，开始导入"
 
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
@@ -423,6 +642,22 @@ msgstr "风险列表"
 #: src/routes/error.tsx
 msgid "Route failed"
 msgstr "路由加载失败"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Row limit hit"
+msgstr "已达行数上限"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Run the mapper to see confidence stats."
+msgstr "运行映射器以查看置信度统计。"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Safety"
+msgstr "安全保障"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Sample"
+msgstr "样例"
 
 #: src/routes/workboard.tsx
 msgid "Search clients or obligations"
@@ -485,6 +720,10 @@ msgstr "正在退出…"
 msgid "SOC 2 ready · SSO available"
 msgstr "SOC 2 就绪 · 支持 SSO"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Something went wrong"
+msgstr "出现了一些问题"
+
 #: src/lib/i18n-error.ts
 msgid "Something went wrong on our side. Please try again shortly."
 msgstr "我们这边出了点问题，请稍后重试。"
@@ -492,6 +731,14 @@ msgstr "我们这边出了点问题，请稍后重试。"
 #: src/routes/dashboard.tsx
 msgid "source gaps"
 msgstr "来源缺失"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "SSN-like columns blocked"
+msgstr "已拦截疑似 SSN 列"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "States"
+msgstr "州"
 
 #: src/routes/workboard.tsx
 msgid "Static UI now; URL-backed filters can replace this shell later."
@@ -501,6 +748,10 @@ msgstr "当前为静态 UI；后续可由 URL 驱动的筛选替换此外壳。"
 msgid "Status"
 msgstr "状态"
 
+#: src/features/migration/Step3Normalize.tsx
+msgid "Suggested tax types (from entity × state matrix)"
+msgstr "建议税种（来自实体 × 州矩阵）"
+
 #: src/routes/_layout.tsx
 msgid "System"
 msgstr "跟随系统"
@@ -508,6 +759,10 @@ msgstr "跟随系统"
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
 msgstr "该资源属于其他事务所。"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "The numbers above are computed from your confirmed mappings + Default Matrix. The actual Import & Generate step is wired up next; for now you can review, then close the wizard to keep the draft for later."
+msgstr "以上数字根据你确认的字段映射 + 默认矩阵计算得出。真正的「导入并生成」将在下一阶段上线；当前你可以审阅，关闭向导后草稿会保留供稍后继续。"
 
 #: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."
@@ -569,13 +824,43 @@ msgstr "每一次截止，都有可核验的风险。"
 msgid "waiting"
 msgstr "等待中"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "We block SSN-like patterns before sending anything to the AI."
+msgstr "在向 AI 发送任何内容前，我们会先拦截疑似 SSN 的模式。"
+
+#. placeholder {0}: ssnBlockedHeaders.join(', ')
+#: src/features/migration/Step1Intake.tsx
+msgid "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
+msgstr "为保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。被拦截的列：{0} → 强制忽略。"
+
 #: src/lib/i18n-error.ts
 msgid "We couldn't find what you were looking for."
 msgstr "未找到您要查找的内容。"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "We couldn't reach AI and no preset was selected. Please map columns manually before continuing."
+msgstr "无法连接 AI 且未选择预设。请在继续前手动完成字段映射。"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "We couldn't reach AI. Using your preset default mapping — review and edit as needed."
+msgstr "无法连接 AI，已使用预设默认映射 —— 请按需修改。"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "We couldn't read that file. Try exporting as CSV."
+msgstr "无法读取该文件。请先导出为 CSV 再试。"
+
+#. placeholder {0}: normalize.rows.length
+#: src/features/migration/Step3Normalize.tsx
+msgid "We normalized {0} values — review if needed"
+msgstr "我们已规范化 {0} 个值 —— 需要的话请复核"
+
 #: src/routes/onboarding.tsx
 msgid "We pre-filled a name from your Google profile. You can change it now or anytime in Firm settings."
 msgstr "我们已根据你的 Google 资料预填了一个名字，你可以现在修改，也可以稍后在事务所设置里修改。"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "We'll figure out the shape — paste or upload, your call."
+msgstr "粘贴或上传都行 —— 我们会自动识别格式。"
 
 #: src/routes/settings.tsx
 msgid "Web Push"
@@ -585,10 +870,18 @@ msgstr "Web 推送"
 msgid "Web Push disabled"
 msgstr "Web 推送已禁用"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Where is your data coming from?"
+msgstr "你的数据从哪里来？"
+
 #: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "工作台"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "XLSX uploads land in Phase 0 — please export as CSV for now."
+msgstr "XLSX 上传将在 Phase 0 上线 —— 现在请先导出为 CSV。"
 
 #: src/routes/onboarding.tsx
 msgid "You can rename or invite teammates later."
@@ -606,9 +899,21 @@ msgstr "请先登录后继续。"
 msgid "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
 msgstr "你将被跳转至 Google 完成登录并返回事务所。会话有效期为 7 天，并遵循事务所的 SSO 策略。"
 
+#: src/features/migration/Step4Preview.tsx
+msgid "You're about to create"
+msgstr "你即将创建"
+
 #: src/lib/i18n-error.ts
 msgid "Your account isn't linked to a practice yet."
 msgstr "你的账户尚未关联任何事务所。"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Your column"
+msgstr "你的列"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Your draft is saved — you can resume from Settings › Imports history."
+msgstr "草稿已保存 —— 你可以在「设置 › 导入历史」中继续。"
 
 #: src/lib/i18n-error.ts
 msgid "Your practice is suspended. Contact support to restore access."

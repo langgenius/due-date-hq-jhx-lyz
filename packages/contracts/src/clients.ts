@@ -1,9 +1,10 @@
 import { oc } from '@orpc/contract'
 import { z } from 'zod'
 import { EntityTypeSchema, StateCodeSchema } from './shared/enums'
+import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 export const ClientIdentitySchema = z.object({
-  id: z.string().uuid(),
+  id: EntityIdSchema,
   name: z.string().min(1),
   ein: z
     .string()
@@ -27,15 +28,15 @@ export const ClientCreateInputSchema = z.object({
   email: z.string().email().nullable().optional(),
   notes: z.string().max(5000).nullable().optional(),
   assigneeName: z.string().max(200).nullable().optional(),
-  migrationBatchId: z.string().uuid().nullable().optional(),
+  migrationBatchId: EntityIdSchema.nullable().optional(),
 })
 
 export const ClientPublicSchema = ClientIdentitySchema.extend({
-  firmId: z.string().uuid(),
+  firmId: TenantIdSchema,
   email: z.string().email().nullable(),
   notes: z.string().nullable(),
   assigneeName: z.string().nullable(),
-  migrationBatchId: z.string().uuid().nullable(),
+  migrationBatchId: EntityIdSchema.nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   deletedAt: z.string().datetime().nullable(),
@@ -46,7 +47,7 @@ export const clientsContract = oc.router({
   createBatch: oc
     .input(z.object({ clients: z.array(ClientCreateInputSchema).min(1).max(500) }))
     .output(z.object({ clients: z.array(ClientPublicSchema) })),
-  get: oc.input(z.object({ id: z.string().uuid() })).output(ClientPublicSchema.nullable()),
+  get: oc.input(z.object({ id: EntityIdSchema })).output(ClientPublicSchema.nullable()),
   listByFirm: oc
     .input(z.object({ limit: z.number().int().min(1).max(500).optional() }).optional())
     .output(z.array(ClientPublicSchema)),

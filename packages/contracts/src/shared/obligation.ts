@@ -1,15 +1,16 @@
 import { z } from 'zod'
 import { ObligationStatusSchema } from './enums'
+import { EntityIdSchema, TenantIdSchema } from './ids'
 
 export const ObligationSchema = z.object({
-  id: z.string().uuid(),
-  firmId: z.string().uuid(),
-  clientId: z.string().uuid(),
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  clientId: EntityIdSchema,
   ruleId: z.string(),
   baseDueDate: z.string().date(),
   currentDueDate: z.string().date(),
   status: ObligationStatusSchema,
-  assigneeId: z.string().uuid().nullable(),
+  assigneeId: TenantIdSchema.nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 })

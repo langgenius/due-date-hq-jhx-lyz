@@ -1,11 +1,22 @@
-import { implement, ORPCError } from '@orpc/server'
-import { appContract } from '@duedatehq/contracts'
+import { ORPCError } from '@orpc/server'
+import { clientsHandlers } from './clients'
+import { migrationHandlers } from './migration'
+import { obligationsHandlers } from './obligations'
+import { os } from './_root'
 
-// Root router — implements appContract.
-// Each slice (clients/obligations/…) lives under its own folder and is plugged in here.
-// Constraint (docs/dev-file/08 §4.1): procedures may NOT import `@duedatehq/db` or subpaths.
-// They receive a scoped repo via `context.vars.scoped`, injected by tenant middleware.
-export const os = implement(appContract)
+/**
+ * Root oRPC router.
+ *
+ * Each domain has its own folder under `procedures/`. Per-domain `*Handlers`
+ * objects fan out into the contract router shape here. Domains that haven't
+ * landed yet keep `notImplemented` stubs so the contract surface stays
+ * complete for typed client codegen.
+ *
+ * Constraint (docs/dev-file/08 §4.1):
+ *   - procedures may NOT import @duedatehq/db / its subpaths.
+ *   - they receive the scoped repo via `context.vars.scoped` (tenant
+ *     middleware injects it before this handler runs).
+ */
 
 function notImplemented(): never {
   throw new ORPCError('ORPC_NOT_IMPLEMENTED', {
@@ -15,31 +26,31 @@ function notImplemented(): never {
 
 export const router = os.router({
   clients: {
-    create: os.clients.create.handler(notImplemented),
-    createBatch: os.clients.createBatch.handler(notImplemented),
-    get: os.clients.get.handler(notImplemented),
-    listByFirm: os.clients.listByFirm.handler(notImplemented),
+    create: clientsHandlers.create,
+    createBatch: clientsHandlers.createBatch,
+    get: clientsHandlers.get,
+    listByFirm: clientsHandlers.listByFirm,
   },
   obligations: {
-    createBatch: os.obligations.createBatch.handler(notImplemented),
+    createBatch: obligationsHandlers.createBatch,
     updateDueDate: os.obligations.updateDueDate.handler(notImplemented),
-    listByClient: os.obligations.listByClient.handler(notImplemented),
+    listByClient: obligationsHandlers.listByClient,
   },
   dashboard: {},
   workboard: {},
   pulse: {},
   migration: {
-    createBatch: os.migration.createBatch.handler(notImplemented),
-    uploadRaw: os.migration.uploadRaw.handler(notImplemented),
-    runMapper: os.migration.runMapper.handler(notImplemented),
-    confirmMapping: os.migration.confirmMapping.handler(notImplemented),
-    runNormalizer: os.migration.runNormalizer.handler(notImplemented),
-    confirmNormalization: os.migration.confirmNormalization.handler(notImplemented),
-    applyDefaultMatrix: os.migration.applyDefaultMatrix.handler(notImplemented),
-    dryRun: os.migration.dryRun.handler(notImplemented),
-    apply: os.migration.apply.handler(notImplemented),
-    revert: os.migration.revert.handler(notImplemented),
-    singleUndo: os.migration.singleUndo.handler(notImplemented),
-    getBatch: os.migration.getBatch.handler(notImplemented),
+    createBatch: migrationHandlers.createBatch,
+    uploadRaw: migrationHandlers.uploadRaw,
+    runMapper: migrationHandlers.runMapper,
+    confirmMapping: migrationHandlers.confirmMapping,
+    runNormalizer: migrationHandlers.runNormalizer,
+    confirmNormalization: migrationHandlers.confirmNormalization,
+    applyDefaultMatrix: migrationHandlers.applyDefaultMatrix,
+    dryRun: migrationHandlers.dryRun,
+    apply: migrationHandlers.apply,
+    revert: migrationHandlers.revert,
+    singleUndo: migrationHandlers.singleUndo,
+    getBatch: migrationHandlers.getBatch,
   },
 })

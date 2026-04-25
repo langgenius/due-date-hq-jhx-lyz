@@ -1,1 +1,266 @@
-// entity × state → tax_types default matrix (PRD §6A; docs/dev-file/02 §2).
+/**
+ * Default Tax Types Inference Matrix v1.0 — Demo Sprint subset.
+ *
+ * Authority:
+ *   - docs/product-design/migration-copilot/05-default-matrix.md §2 (24 cells)
+ *   - docs/product-design/migration-copilot/05-default-matrix.v1.0.yaml (data)
+ *   - PRD Part1B §6A.5 (trigger rule + evidence_link contract)
+ *
+ * Pure lookup table; no LLM; zero hallucination.
+ * Triggered when the AI Mapper does NOT identify a `client.tax_types` column.
+ * Every applied rule writes evidence_link with
+ *   source_type='default_inference_by_entity_state' + matrix_version='v1.0'.
+ */
+
+export type EntityType =
+  | 'llc'
+  | 's_corp'
+  | 'partnership'
+  | 'c_corp'
+  | 'sole_prop'
+  | 'trust'
+  | 'individual'
+  | 'other'
+
+export const MATRIX_VERSION = 'v1.0' as const
+export type MatrixVersion = typeof MATRIX_VERSION
+
+export interface InferTaxTypesResult {
+  taxTypes: string[]
+  needsReview: boolean
+  /** Reason code when needsReview = true; absent on happy path. */
+  reason?: 'state_not_in_demo_sprint_seed' | 'entity_type_other'
+  matrixVersion: MatrixVersion
+  /** Source URLs from ops sign-off; empty for fallback cells. */
+  sourceUrls: readonly string[]
+  /** Per-cell static confidence (0..1). Fallback cells fall to 0.5. */
+  confidence: number
+}
+
+interface MatrixCell {
+  taxTypes: readonly string[]
+  needsReview: boolean
+  sourceUrls: readonly string[]
+  confidence: number
+}
+
+/**
+ * 16 explicit (entity_type, state) cells. Federal items appear in the cell
+ * tax_types AND in `FEDERAL_OVERLAY` so we de-dupe at lookup time. Keeping
+ * both shapes here matches the YAML literal so a tax tech reviewer can diff
+ * the table 1:1 with 05-default-matrix.v1.0.yaml.
+ */
+const RULES: Record<string, Record<string, MatrixCell>> = {
+  llc: {
+    CA: {
+      taxTypes: ['federal_1065_or_1040', 'ca_llc_franchise_min_800', 'ca_llc_fee_gross_receipts'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.ftb.ca.gov/file/business/types/limited-liability-company.html',
+        'https://www.irs.gov/businesses/small-businesses-self-employed/limited-liability-company-llc',
+      ],
+      confidence: 1.0,
+    },
+    NY: {
+      taxTypes: ['federal_1065_or_1040', 'ny_llc_filing_fee', 'ny_ptet_optional'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.tax.ny.gov/bus/ptet/',
+        'https://www.tax.ny.gov/pdf/current_forms/it/it204lli.pdf',
+      ],
+      confidence: 1.0,
+    },
+  },
+  s_corp: {
+    CA: {
+      taxTypes: ['federal_1120s', 'ca_100s_franchise', 'ca_ptet_optional'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.ftb.ca.gov/file/business/types/corporations/s-corporations.html',
+        'https://www.irs.gov/forms-pubs/about-form-1120-s',
+      ],
+      confidence: 1.0,
+    },
+    NY: {
+      taxTypes: ['federal_1120s', 'ny_ct3s', 'ny_ptet_optional'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.tax.ny.gov/bus/ct/s_corporation.htm',
+        'https://www.irs.gov/forms-pubs/about-form-1120-s',
+      ],
+      confidence: 1.0,
+    },
+  },
+  partnership: {
+    CA: {
+      taxTypes: ['federal_1065', 'ca_565_partnership', 'ca_ptet_optional'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.ftb.ca.gov/file/business/types/partnership.html',
+        'https://www.irs.gov/forms-pubs/about-form-1065',
+      ],
+      confidence: 1.0,
+    },
+    NY: {
+      taxTypes: ['federal_1065', 'ny_it204', 'ny_ptet_optional'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.tax.ny.gov/forms/current_forms/it/it204i.htm',
+        'https://www.irs.gov/forms-pubs/about-form-1065',
+      ],
+      confidence: 1.0,
+    },
+  },
+  c_corp: {
+    CA: {
+      taxTypes: ['federal_1120', 'ca_100_franchise'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.ftb.ca.gov/file/business/types/corporations/index.html',
+        'https://www.irs.gov/forms-pubs/about-form-1120',
+      ],
+      confidence: 1.0,
+    },
+    NY: {
+      taxTypes: ['federal_1120', 'ny_ct3'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.tax.ny.gov/bus/ct/article9a.htm',
+        'https://www.irs.gov/forms-pubs/about-form-1120',
+      ],
+      confidence: 1.0,
+    },
+  },
+  sole_prop: {
+    CA: {
+      taxTypes: ['federal_1040_sch_c', 'ca_540'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.ftb.ca.gov/file/personal/filing-situations/sole-proprietor.html',
+        'https://www.irs.gov/forms-pubs/about-schedule-c-form-1040',
+      ],
+      confidence: 1.0,
+    },
+    NY: {
+      taxTypes: ['federal_1040_sch_c', 'ny_it201'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.tax.ny.gov/pit/file/it201.htm',
+        'https://www.irs.gov/forms-pubs/about-schedule-c-form-1040',
+      ],
+      confidence: 1.0,
+    },
+  },
+  trust: {
+    CA: {
+      taxTypes: ['federal_1041', 'ca_541'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.ftb.ca.gov/forms/2023/2023-541.pdf',
+        'https://www.irs.gov/forms-pubs/about-form-1041',
+      ],
+      confidence: 1.0,
+    },
+    NY: {
+      taxTypes: ['federal_1041', 'ny_it205'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.tax.ny.gov/forms/current_forms/it/it205i.htm',
+        'https://www.irs.gov/forms-pubs/about-form-1041',
+      ],
+      confidence: 1.0,
+    },
+  },
+  individual: {
+    CA: {
+      taxTypes: ['federal_1040', 'ca_540'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.ftb.ca.gov/forms/2023/2023-540.pdf',
+        'https://www.irs.gov/forms-pubs/about-form-1040',
+      ],
+      confidence: 1.0,
+    },
+    NY: {
+      taxTypes: ['federal_1040', 'ny_it201'],
+      needsReview: false,
+      sourceUrls: [
+        'https://www.tax.ny.gov/pit/file/it201.htm',
+        'https://www.irs.gov/forms-pubs/about-form-1040',
+      ],
+      confidence: 1.0,
+    },
+  },
+  other: {
+    CA: {
+      taxTypes: ['federal'],
+      needsReview: true,
+      sourceUrls: [],
+      confidence: 0.5,
+    },
+    NY: {
+      taxTypes: ['federal'],
+      needsReview: true,
+      sourceUrls: [],
+      confidence: 0.5,
+    },
+  },
+}
+
+const FEDERAL_OVERLAY: Record<EntityType, readonly string[]> = {
+  llc: ['federal_1065_or_1040'],
+  s_corp: ['federal_1120s'],
+  partnership: ['federal_1065'],
+  c_corp: ['federal_1120'],
+  sole_prop: ['federal_1040_sch_c'],
+  trust: ['federal_1041'],
+  individual: ['federal_1040'],
+  other: ['federal'],
+}
+
+function dedup(items: readonly string[]): string[] {
+  return Array.from(new Set(items))
+}
+
+/**
+ * Look up the tax_types for a (entity_type, state) pair.
+ *
+ * Behavior:
+ *   - Hit cell → return cell.taxTypes ∪ federal_overlay (de-duped).
+ *   - State outside Demo Sprint seed (anything other than CA/NY) →
+ *     federal_overlay only + needsReview = true.
+ *   - entity_type='other' (with or without state) → federal + needsReview.
+ */
+export function inferTaxTypes(entityType: EntityType, state: string): InferTaxTypesResult {
+  const fed = FEDERAL_OVERLAY[entityType]
+  const stateCell = RULES[entityType]?.[state]
+
+  if (!stateCell) {
+    return {
+      taxTypes: dedup(fed),
+      needsReview: true,
+      reason: entityType === 'other' ? 'entity_type_other' : 'state_not_in_demo_sprint_seed',
+      matrixVersion: MATRIX_VERSION,
+      sourceUrls: [],
+      confidence: entityType === 'other' ? 0.5 : 0.7,
+    }
+  }
+
+  const result: InferTaxTypesResult = {
+    taxTypes: dedup([...stateCell.taxTypes, ...fed]),
+    needsReview: stateCell.needsReview,
+    matrixVersion: MATRIX_VERSION,
+    sourceUrls: stateCell.sourceUrls,
+    confidence: stateCell.confidence,
+  }
+  if (stateCell.needsReview && entityType === 'other') {
+    result.reason = 'entity_type_other'
+  }
+  return result
+}
+
+/** Whether (entity_type, state) is a verified Demo Sprint cell. */
+export function isCoveredCell(entityType: EntityType, state: string): boolean {
+  const cell = RULES[entityType]?.[state]
+  return Boolean(cell) && !cell!.needsReview
+}

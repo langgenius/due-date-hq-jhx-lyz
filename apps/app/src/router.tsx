@@ -136,6 +136,15 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: 'migration/new',
+        HydrateFallback: RouteHydrateFallback,
+        lazy: async () => {
+          const { MigrationNewRoute } = await import('@/routes/migration.new')
+
+          return { Component: MigrationNewRoute }
+        },
+      },
+      {
         path: 'settings',
         HydrateFallback: RouteHydrateFallback,
         lazy: async () => {

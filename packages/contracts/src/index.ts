@@ -22,3 +22,64 @@ export const appContract = oc.router({
 })
 
 export type AppContract = typeof appContract
+
+// Re-export domain types so consumers can `import type { ... } from '@duedatehq/contracts'`
+// without reaching into subpaths. Keeps the public surface stable + tree-shake-friendly.
+export type { ClientCreateInput, ClientIdentity, ClientPublic, ClientsContract } from './clients'
+export {
+  ClientCreateInputSchema,
+  ClientIdentitySchema,
+  ClientPublicSchema,
+  clientsContract,
+} from './clients'
+
+export type {
+  DueDateUpdateInput,
+  ObligationCreateInput,
+  ObligationInstancePublic,
+  ObligationsContract,
+} from './obligations'
+export {
+  DueDateUpdateInputSchema,
+  ObligationCreateInputSchema,
+  ObligationInstancePublicSchema,
+  obligationsContract,
+} from './obligations'
+
+export type {
+  ApplyResult,
+  DryRunSummary,
+  MapperFallback,
+  MapperRunOutput,
+  MappingRow,
+  MappingTarget,
+  MigrationBatch,
+  MigrationBatchStatus,
+  MigrationContract,
+  MigrationError,
+  MigrationSource,
+  NormalizationRow,
+} from './migration'
+export {
+  ApplyResultSchema,
+  DryRunSummarySchema,
+  MapperFallbackSchema,
+  MapperRunOutputSchema,
+  MappingRowSchema,
+  MappingTargetSchema,
+  MigrationBatchSchema,
+  MigrationBatchStatusSchema,
+  MigrationErrorSchema,
+  MigrationSourceSchema,
+  NormalizationRowSchema,
+  migrationContract,
+} from './migration'
+
+export { MigrationAuditActions, MigrationAuditActionSchema } from './shared/audit-actions'
+export type { MigrationAuditAction } from './shared/audit-actions'
+export { EvidenceSourceTypes, EvidenceSourceTypeSchema } from './shared/evidence-source-types'
+export type { EvidenceSourceType } from './shared/evidence-source-types'
+export { EntityIdSchema, TenantIdSchema } from './shared/ids'
+export type { EntityId, TenantId } from './shared/ids'
+export { ErrorCodes } from './errors'
+export type { ErrorCode } from './errors'

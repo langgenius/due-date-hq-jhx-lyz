@@ -1,9 +1,10 @@
 import { z } from 'zod'
 import { EntityTypeSchema, StateCodeSchema } from './enums'
+import { EntityIdSchema, TenantIdSchema } from './ids'
 
 export const ClientSchema = z.object({
-  id: z.string().uuid(),
-  firmId: z.string().uuid(),
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
   name: z.string().min(1),
   entityType: EntityTypeSchema,
   state: StateCodeSchema,

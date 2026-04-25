@@ -13,10 +13,54 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: cell.appliedClientCount
+#. placeholder {1}: cell.entityType.toUpperCase()
+#. placeholder {2}: cell.state
+#. placeholder {3}: cell.entityType.toUpperCase()
+#. placeholder {4}: cell.state
+#: src/features/migration/Step3Normalize.tsx
+msgid "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
+msgstr "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
+
+#. placeholder {0}: summary.errors.length
+#: src/features/migration/Step4Preview.tsx
+msgid "{0, plural, one {# row needs attention} other {# rows need attention}}"
+msgstr "{0, plural, one {# row needs attention} other {# rows need attention}}"
+
+#. placeholder {0}: intake.rowCount
+#: src/features/migration/Step1Intake.tsx
+msgid "{0, plural, one {# row ready to import} other {# rows ready to import}}"
+msgstr "{0, plural, one {# row ready to import} other {# rows ready to import}}"
+
 #. placeholder {0}: obligations.length
 #: src/routes/workboard.tsx
 msgid "{0, plural, one {# row} other {# rows}}"
 msgstr "{0, plural, one {# row} other {# rows}}"
+
+#. placeholder {0}: intake.rowCount
+#: src/features/migration/Step1Intake.tsx
+msgid "{0, plural, one {We imported the first 1000 of # row. Split your file to import more.} other {We imported the first 1000 of # rows. Split your file to import more.}}"
+msgstr "{0, plural, one {We imported the first 1000 of # row. Split your file to import more.} other {We imported the first 1000 of # rows. Split your file to import more.}}"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "{clientCount, plural, one {# client} other {# clients}}"
+msgstr "{clientCount, plural, one {# client} other {# clients}}"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
+msgstr "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "{needsReviewCount, plural, one {# value needs human review} other {# values need human review}}"
+msgstr "{needsReviewCount, plural, one {# value needs human review} other {# values need human review}}"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "{obligationCount, plural, one {# obligation (full tax year)} other {# obligations (full tax year)}}"
+msgstr "{obligationCount, plural, one {# obligation (full tax year)} other {# obligations (full tax year)}}"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
+msgstr "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 
 #: src/routes/dashboard.tsx
 msgid "2 partner entities need review before the March 15 cutoff."
@@ -43,6 +87,14 @@ msgstr "Account menu for {0}"
 msgid "Across 28 open obligations."
 msgstr "Across 28 open obligations."
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "AI mapped your columns — review and confirm"
+msgstr "AI mapped your columns — review and confirm"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "AI Mapper unavailable — using fallback"
+msgstr "AI Mapper unavailable — using fallback"
+
 #: src/routes/dashboard.tsx
 msgid "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
 msgstr "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
@@ -51,6 +103,10 @@ msgstr "AI-facing recommendations remain hidden unless source, quote, and verifi
 msgid "all"
 msgstr "all"
 
+#: src/features/migration/Step3Normalize.tsx
+msgid "Apply to all"
+msgstr "Apply to all"
+
 #: src/routes/workboard.tsx
 msgid "Assign selected"
 msgstr "Assign selected"
@@ -58,6 +114,19 @@ msgstr "Assign selected"
 #: src/routes/workboard.tsx
 msgid "Assignee"
 msgstr "Assignee"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Audit log captures every AI decision"
+msgstr "Audit log captures every AI decision"
+
+#. placeholder {0}: einDetected ? '100%' : '0%'
+#: src/features/migration/Step2Mapping.tsx
+msgid "Average confidence <0>{avgConfidence}%</0> · EIN detected <1>{0}</1>"
+msgstr "Average confidence <0>{avgConfidence}%</0> · EIN detected <1>{0}</1>"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Back"
+msgstr "Back"
 
 #: src/routes/settings.tsx
 msgid "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
@@ -88,14 +157,27 @@ msgstr "Client"
 msgid "Client risk rows"
 msgstr "Client risk rows"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Close wizard"
+msgstr "Close wizard"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
+msgstr "Coming from File In Time? We'll migrate your full-year calendar in one shot."
+
 #: src/routes/_layout.tsx
 msgid "Compliance risk operations"
 msgstr "Compliance risk operations"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Confidence"
+msgstr "Confidence"
 
 #: src/routes/onboarding.tsx
 msgid "Confirm your practice profile"
 msgstr "Confirm your practice profile"
 
+#: src/features/migration/WizardShell.tsx
 #: src/routes/onboarding.tsx
 msgid "Continue"
 msgstr "Continue"
@@ -111,6 +193,22 @@ msgstr "Could not activate your practice"
 #: src/routes/onboarding.tsx
 msgid "Could not create your practice"
 msgstr "Could not create your practice"
+
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't apply Default Matrix"
+msgstr "Couldn't apply Default Matrix"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Couldn't parse the input"
+msgstr "Couldn't parse the input"
+
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't save mapping"
+msgstr "Couldn't save mapping"
+
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't start the import"
+msgstr "Couldn't start the import"
 
 #: src/routes/_layout.tsx
 #: src/routes/login.tsx
@@ -159,13 +257,29 @@ msgstr "Dollar-first triage for the next operating window."
 msgid "draft"
 msgstr "draft"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
+msgstr "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
+
+#: src/features/migration/Stepper.tsx
+msgid "Dry-Run"
+msgstr "Dry-Run"
+
 #: src/routes/dashboard.tsx
 msgid "Due this week"
 msgstr "Due this week"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "DueDateHQ field"
+msgstr "DueDateHQ field"
+
 #: src/routes/onboarding.tsx
 msgid "e.g. Bright CPA Practice"
 msgstr "e.g. Bright CPA Practice"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Edit"
+msgstr "Edit"
 
 #: src/routes/dashboard.tsx
 msgid "Eight rows are visible on first load for dense scanning."
@@ -178,6 +292,10 @@ msgstr "Email digest"
 #: src/routes/settings.tsx
 msgid "Enable evidence gate"
 msgstr "Enable evidence gate"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "Entity types"
+msgstr "Entity types"
 
 #: src/routes/login.tsx
 msgid "Every AI recommendation ships with source, quote, and verification timestamp."
@@ -203,6 +321,10 @@ msgstr "Exposure"
 #: src/routes/dashboard.tsx
 msgid "Extension package hold"
 msgstr "Extension package hold"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "File is larger than 2 MB. Please trim or split the export."
+msgstr "File is larger than 2 MB. Please trim or split the export."
 
 #: src/routes/workboard.tsx
 msgid "filed"
@@ -232,9 +354,21 @@ msgstr "Hide recommendations that do not include source metadata."
 msgid "high"
 msgstr "high"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "I'm coming from… (optional)"
+msgstr "I'm coming from… (optional)"
+
 #: src/routes/settings.tsx
 msgid "Immediate feedback for status changes and failed mutations."
 msgstr "Immediate feedback for status changes and failed mutations."
+
+#: src/features/migration/Wizard.tsx
+msgid "Import & Generate (Day 4)"
+msgstr "Import & Generate (Day 4)"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Import clients · Step {step} of 4"
+msgstr "Import clients · Step {step} of 4"
 
 #: src/routes/workboard.tsx
 msgid "in review"
@@ -244,6 +378,10 @@ msgstr "in review"
 msgid "In-app toast"
 msgstr "In-app toast"
 
+#: src/features/migration/Stepper.tsx
+msgid "Intake"
+msgstr "Intake"
+
 #: src/routes/dashboard.tsx
 msgid "IRS transcript mismatch"
 msgstr "IRS transcript mismatch"
@@ -252,9 +390,21 @@ msgstr "IRS transcript mismatch"
 msgid "IRS transcript source was checked this morning."
 msgstr "IRS transcript source was checked this morning."
 
+#: src/features/migration/WizardShell.tsx
+msgid "Keep editing"
+msgstr "Keep editing"
+
 #: src/routes/_layout.tsx
 msgid "Language"
 msgstr "Language"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Leave & save draft"
+msgstr "Leave & save draft"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Leave wizard?"
+msgstr "Leave wizard?"
 
 #: src/routes/_layout.tsx
 msgid "Light"
@@ -264,9 +414,21 @@ msgstr "Light"
 msgid "Local Time"
 msgstr "Local Time"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Map \"{sourceHeader}\" to…"
+msgstr "Map \"{sourceHeader}\" to…"
+
+#: src/features/migration/Stepper.tsx
+msgid "Mapping"
+msgstr "Mapping"
+
 #: src/routes/dashboard.tsx
 msgid "medium"
 msgstr "medium"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
+msgstr "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 
 #: src/routes/_layout.tsx
 msgid "Mobile navigation"
@@ -288,6 +450,10 @@ msgstr "Needs evidence"
 msgid "Needs quote"
 msgstr "Needs quote"
 
+#: src/features/migration/Step3Normalize.tsx
+msgid "Needs review"
+msgstr "Needs review"
+
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "neutral"
@@ -295,6 +461,18 @@ msgstr "neutral"
 #: src/routes/_layout.tsx
 msgid "New obligation"
 msgstr "New obligation"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "No emails will be sent automatically"
+msgstr "No emails will be sent automatically"
+
+#: src/features/migration/Stepper.tsx
+msgid "Normalize"
+msgstr "Normalize"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "Normalizer warning"
+msgstr "Normalizer warning"
 
 #: src/routes/settings.tsx
 msgid "Notification routing"
@@ -321,6 +499,10 @@ msgstr "obligations"
 msgid "One row lacks a usable source URL."
 msgstr "One row lacks a usable source URL."
 
+#: src/features/migration/Step4Preview.tsx
+msgid "One-click revert available for 24 hours"
+msgstr "One-click revert available for 24 hours"
+
 #: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "Open risk"
@@ -333,9 +515,25 @@ msgstr "Operating cadence tuned for CPA teams during peak filing windows."
 msgid "Operational pressure points for the team."
 msgstr "Operational pressure points for the team."
 
+#: src/features/migration/Step1Intake.tsx
+msgid "or"
+msgstr "or"
+
 #: src/routes/dashboard.tsx
 msgid "Owner"
 msgstr "Owner"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste client data"
+msgstr "Paste client data"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste here — any shape, we'll figure it out. Include the header row if you have one."
+msgstr "Paste here — any shape, we'll figure it out. Include the header row if you have one."
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste rows"
+msgstr "Paste rows"
 
 #: src/routes/dashboard.tsx
 msgid "Penalty exposure"
@@ -365,6 +563,7 @@ msgstr "Phase 0 uses email plus in-app toast instead of Web Push."
 msgid "Please enter at least 2 characters."
 msgstr "Please enter at least 2 characters."
 
+#: src/features/migration/Wizard.tsx
 #: src/routes/_layout.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
@@ -379,6 +578,10 @@ msgstr "Practice name"
 #: src/routes/settings.tsx
 msgid "Practice profile"
 msgstr "Practice profile"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Preview only — commit lands in Day 4"
+msgstr "Preview only — commit lands in Day 4"
 
 #: src/routes/_layout.tsx
 msgid "Primary navigation"
@@ -395,6 +598,22 @@ msgstr "Queue controls"
 #: src/routes/_layout.tsx
 msgid "Queue SLA"
 msgstr "Queue SLA"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Re-run AI"
+msgstr "Re-run AI"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Re-run AI with my overrides"
+msgstr "Re-run AI with my overrides"
+
+#: src/features/migration/Wizard.tsx
+msgid "Re-run failed."
+msgstr "Re-run failed."
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Ready to import"
+msgstr "Ready to import"
 
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
@@ -423,6 +642,22 @@ msgstr "Risk table"
 #: src/routes/error.tsx
 msgid "Route failed"
 msgstr "Route failed"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Row limit hit"
+msgstr "Row limit hit"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Run the mapper to see confidence stats."
+msgstr "Run the mapper to see confidence stats."
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Safety"
+msgstr "Safety"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Sample"
+msgstr "Sample"
 
 #: src/routes/workboard.tsx
 msgid "Search clients or obligations"
@@ -485,6 +720,10 @@ msgstr "Signing out…"
 msgid "SOC 2 ready · SSO available"
 msgstr "SOC 2 ready · SSO available"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
 #: src/lib/i18n-error.ts
 msgid "Something went wrong on our side. Please try again shortly."
 msgstr "Something went wrong on our side. Please try again shortly."
@@ -492,6 +731,14 @@ msgstr "Something went wrong on our side. Please try again shortly."
 #: src/routes/dashboard.tsx
 msgid "source gaps"
 msgstr "source gaps"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "SSN-like columns blocked"
+msgstr "SSN-like columns blocked"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "States"
+msgstr "States"
 
 #: src/routes/workboard.tsx
 msgid "Static UI now; URL-backed filters can replace this shell later."
@@ -501,6 +748,10 @@ msgstr "Static UI now; URL-backed filters can replace this shell later."
 msgid "Status"
 msgstr "Status"
 
+#: src/features/migration/Step3Normalize.tsx
+msgid "Suggested tax types (from entity × state matrix)"
+msgstr "Suggested tax types (from entity × state matrix)"
+
 #: src/routes/_layout.tsx
 msgid "System"
 msgstr "System"
@@ -508,6 +759,10 @@ msgstr "System"
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
 msgstr "That resource belongs to a different practice."
+
+#: src/features/migration/Step4Preview.tsx
+msgid "The numbers above are computed from your confirmed mappings + Default Matrix. The actual Import & Generate step is wired up next; for now you can review, then close the wizard to keep the draft for later."
+msgstr "The numbers above are computed from your confirmed mappings + Default Matrix. The actual Import & Generate step is wired up next; for now you can review, then close the wizard to keep the draft for later."
 
 #: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."
@@ -569,13 +824,43 @@ msgstr "Verified risk, one deadline at a time."
 msgid "waiting"
 msgstr "waiting"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "We block SSN-like patterns before sending anything to the AI."
+msgstr "We block SSN-like patterns before sending anything to the AI."
+
+#. placeholder {0}: ssnBlockedHeaders.join(', ')
+#: src/features/migration/Step1Intake.tsx
+msgid "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
+msgstr "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
+
 #: src/lib/i18n-error.ts
 msgid "We couldn't find what you were looking for."
 msgstr "We couldn't find what you were looking for."
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "We couldn't reach AI and no preset was selected. Please map columns manually before continuing."
+msgstr "We couldn't reach AI and no preset was selected. Please map columns manually before continuing."
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "We couldn't reach AI. Using your preset default mapping — review and edit as needed."
+msgstr "We couldn't reach AI. Using your preset default mapping — review and edit as needed."
+
+#: src/features/migration/Step1Intake.tsx
+msgid "We couldn't read that file. Try exporting as CSV."
+msgstr "We couldn't read that file. Try exporting as CSV."
+
+#. placeholder {0}: normalize.rows.length
+#: src/features/migration/Step3Normalize.tsx
+msgid "We normalized {0} values — review if needed"
+msgstr "We normalized {0} values — review if needed"
+
 #: src/routes/onboarding.tsx
 msgid "We pre-filled a name from your Google profile. You can change it now or anytime in Firm settings."
 msgstr "We pre-filled a name from your Google profile. You can change it now or anytime in Firm settings."
+
+#: src/features/migration/Step1Intake.tsx
+msgid "We'll figure out the shape — paste or upload, your call."
+msgstr "We'll figure out the shape — paste or upload, your call."
 
 #: src/routes/settings.tsx
 msgid "Web Push"
@@ -585,10 +870,18 @@ msgstr "Web Push"
 msgid "Web Push disabled"
 msgstr "Web Push disabled"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Where is your data coming from?"
+msgstr "Where is your data coming from?"
+
 #: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "Workboard"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "XLSX uploads land in Phase 0 — please export as CSV for now."
+msgstr "XLSX uploads land in Phase 0 — please export as CSV for now."
 
 #: src/routes/onboarding.tsx
 msgid "You can rename or invite teammates later."
@@ -606,9 +899,21 @@ msgstr "You need to sign in to continue."
 msgid "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
 msgstr "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
 
+#: src/features/migration/Step4Preview.tsx
+msgid "You're about to create"
+msgstr "You're about to create"
+
 #: src/lib/i18n-error.ts
 msgid "Your account isn't linked to a practice yet."
 msgstr "Your account isn't linked to a practice yet."
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Your column"
+msgstr "Your column"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Your draft is saved — you can resume from Settings › Imports history."
+msgstr "Your draft is saved — you can resume from Settings › Imports history."
 
 #: src/lib/i18n-error.ts
 msgid "Your practice is suspended. Contact support to restore access."

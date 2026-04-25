@@ -1,33 +1,34 @@
 import { oc } from '@orpc/contract'
 import { z } from 'zod'
 import { ObligationStatusSchema } from './shared/enums'
+import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 export const ObligationInstancePublicSchema = z.object({
-  id: z.string().uuid(),
-  firmId: z.string().uuid(),
-  clientId: z.string().uuid(),
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  clientId: EntityIdSchema,
   taxType: z.string().min(1),
   taxYear: z.number().int().min(1900).max(2100).nullable(),
   baseDueDate: z.string().date(),
   currentDueDate: z.string().date(),
   status: ObligationStatusSchema,
-  migrationBatchId: z.string().uuid().nullable(),
+  migrationBatchId: EntityIdSchema.nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 })
 
 export const ObligationCreateInputSchema = z.object({
-  clientId: z.string().uuid(),
+  clientId: EntityIdSchema,
   taxType: z.string().min(1),
   taxYear: z.number().int().min(1900).max(2100).nullable().optional(),
   baseDueDate: z.string().date(),
   currentDueDate: z.string().date().optional(),
   status: ObligationStatusSchema.optional(),
-  migrationBatchId: z.string().uuid().nullable().optional(),
+  migrationBatchId: EntityIdSchema.nullable().optional(),
 })
 
 export const DueDateUpdateInputSchema = z.object({
-  id: z.string().uuid(),
+  id: EntityIdSchema,
   currentDueDate: z.string().date(),
 })
 
@@ -37,7 +38,7 @@ export const obligationsContract = oc.router({
     .output(z.object({ obligations: z.array(ObligationInstancePublicSchema) })),
   updateDueDate: oc.input(DueDateUpdateInputSchema).output(ObligationInstancePublicSchema),
   listByClient: oc
-    .input(z.object({ clientId: z.string().uuid() }))
+    .input(z.object({ clientId: EntityIdSchema }))
     .output(z.array(ObligationInstancePublicSchema)),
 })
 
