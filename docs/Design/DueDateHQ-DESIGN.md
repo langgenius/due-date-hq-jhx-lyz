@@ -181,8 +181,8 @@
 
 ```css
 /* === Radius === */
---radius-sm: 0.25rem; /* 4px · Button (primary/secondary/icon-only) / Chip / Evidence / Confidence Badge */
---radius: 0.375rem; /* 6px · Input / Card / Banner / Dropdown / Toast / Pulse Banner                  */
+--radius-sm: 0.25rem; /* 4px · Chip / Evidence / Confidence Badge / 小内联 token             */
+--radius: 0.375rem; /* 6px · Button (shadcn) / Input / Card / Banner / Dropdown / Toast / Pulse Banner */
 --radius-lg: 0.75rem; /* 12px · Drawer / Modal / Command Palette                                       */
 /* 禁止 > 12px（避免 Notion 式圆润感）                                               */
 
@@ -193,13 +193,13 @@
 /* 业务组件不可用 --shadow-overlay 之外的其他阴影                                    */
 ```
 
-| Token              | 用途                                                                                               | 禁用场景                        |
-| ------------------ | -------------------------------------------------------------------------------------------------- | ------------------------------- |
-| `--radius-sm`      | **所有按钮（Primary / Secondary / Icon-only）** · chip · evidence chip · confidence badge · 小徽章 | 卡片、容器、Banner（过紧凑）    |
-| `--radius`         | 输入框 · Banner · Card · Dropdown · Toast · Pulse Banner                                           | 按钮（应走 `--radius-sm`）·浮层 |
-| `--radius-lg`      | Drawer / Modal / Command Palette                                                                   | 普通 Card（过大显得松散）       |
-| `--shadow-subtle`  | Drawer 底部、Popover、Tooltip                                                                      | 普通 Card（违反"禁止阴影"铁律） |
-| `--shadow-overlay` | Command Palette / 重要 Modal                                                                       | 其他浮层（用 subtle 即可）      |
+| Token              | 用途                                                                                                                            | 禁用场景                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `--radius-sm`      | chip · evidence chip · confidence badge · 小内联 token                                                                          | 按钮 / 卡片 / 容器              |
+| `--radius`         | **所有 shadcn 按钮（Primary / Secondary / Outline / Ghost / Icon）** · 输入框 · Banner · Card · Dropdown · Toast · Pulse Banner | chip / 浮层                     |
+| `--radius-lg`      | Drawer / Modal / Command Palette                                                                                                | 普通 Card（过大显得松散）       |
+| `--shadow-subtle`  | Drawer 底部、Popover、Tooltip                                                                                                   | 普通 Card（违反"禁止阴影"铁律） |
+| `--shadow-overlay` | Command Palette / 重要 Modal                                                                                                    | 其他浮层（用 subtle 即可）      |
 
 **Tailwind 4 `@theme` 映射**：
 
@@ -418,13 +418,15 @@
 
 ### 4.8 Button 系统
 
-| 类型                                | 规格                                                                                 |
-| ----------------------------------- | ------------------------------------------------------------------------------------ |
-| **Primary**（Apply / Save / Start） | `bg: accent-default` + `text: white` + `radius: 4px` + padding `6px 12px` + 13px 500 |
-| **Secondary**（Cancel / Dismiss）   | `bg: transparent` + `border: 1px border-default` + `text: primary`                   |
-| **Ghost**（row 内操作）             | `text: accent-default` + no bg / border + hover underline                            |
-| **Destructive**（Delete）           | `bg: severity-critical` + `text: white`                                              |
-| **Icon-only**                       | 28x28，`radius: 4px`，hover `bg: bg-subtle`                                          |
+> **来源声明**：本节按钮规格 = `pnpm dlx shadcn add button` 在 `base-vega` style 下产出的默认值；DESIGN.md `components.button-{primary,secondary,primary-hover,primary-active}` token 段落是这些值的镜像。修改任一处需三方同步。
+
+| 类型                                | 规格                                                                                                                                          |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Primary**（Apply / Save / Start） | `bg: accent-default` + `text: white` + `radius: 6px` (`rounded-md`) + `h-9` 36px + `px-2.5` 10px + `text-sm` 12px / 500 (`typography.button`) |
+| **Secondary**（Cancel / Dismiss）   | `bg: transparent` + `border: 1px border-default` + `text: primary` + 同 Primary 的 radius / height / padding / typography                     |
+| **Ghost**（row 内操作）             | `text: accent-default` + no bg / border + hover underline                                                                                     |
+| **Destructive**（Delete）           | `bg: severity-critical` + `text: white` + 同 Primary 的 radius / height / padding / typography                                                |
+| **Icon-only**                       | `size-8` 32x32 (`size: sm` variant) / `size-9` 36x36 (`size: default`)，`radius: 6px`，hover `bg: bg-subtle`                                  |
 
 **禁止**：圆形按钮、pill 按钮（radius > 8px）、带渐变的按钮。
 

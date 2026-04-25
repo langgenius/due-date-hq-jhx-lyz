@@ -106,6 +106,12 @@ typography:
     lineHeight: 1.5
     letterSpacing: 0px
     fontFeature: "'cv11', 'ss01'"
+  button:
+    fontFamily: Inter
+    fontSize: 12px
+    fontWeight: 500
+    lineHeight: 1.333
+    letterSpacing: 0px
   body-medium:
     fontFamily: Inter
     fontSize: 13px
@@ -161,30 +167,31 @@ components:
   button-primary:
     backgroundColor: '{colors.accent-default}'
     textColor: '#FFFFFF'
-    typography: '{typography.body}'
-    rounded: '{rounded.sm}'
-    padding: 12px
-    height: 32px
+    typography: '{typography.button}'
+    rounded: '{rounded.md}'
+    padding: 10px
+    height: 36px
   button-secondary:
     backgroundColor: '{colors.surface-elevated}'
     textColor: '{colors.text-primary}'
-    rounded: '{rounded.sm}'
-    padding: 12px
-    height: 32px
+    typography: '{typography.button}'
+    rounded: '{rounded.md}'
+    padding: 10px
+    height: 36px
   button-primary-hover:
     backgroundColor: '{colors.accent-hover}'
     textColor: '#FFFFFF'
-    typography: '{typography.body}'
-    rounded: '{rounded.sm}'
-    padding: 12px
-    height: 32px
+    typography: '{typography.button}'
+    rounded: '{rounded.md}'
+    padding: 10px
+    height: 36px
   button-primary-active:
     backgroundColor: '{colors.accent-active}'
     textColor: '#FFFFFF'
-    typography: '{typography.body}'
-    rounded: '{rounded.sm}'
-    padding: 12px
-    height: 32px
+    typography: '{typography.button}'
+    rounded: '{rounded.md}'
+    padding: 10px
+    height: 36px
   risk-row-critical:
     backgroundColor: '{colors.severity-critical-tint}'
     textColor: '{colors.text-primary}'
@@ -478,11 +485,11 @@ Avoid nested cards and decorative depth. Depth exists to preserve focus and laye
 
 Radii are intentionally restrained:
 
-- 4px (`rounded.sm`) for buttons (primary / secondary / icon-only), chips, evidence chips, confidence badges, small badges, and compact controls.
-- 6px (`rounded.md`) for inputs, cards, banners, dropdowns, toasts, and the pulse banner.
+- 4px (`rounded.sm`) for chips, evidence chips, confidence badges, and other small inline tokens.
+- 6px (`rounded.md`) for **buttons (shadcn `base-vega` primitive)**, inputs, cards, banners, dropdowns, toasts, and the pulse banner.
 - 12px (`rounded.lg`) for drawers, modals, and the command palette only.
 
-Do not use pill buttons, circular decorative controls, or radius above 12px. The button radius is 4px (`rounded.sm`) — this is the canonical value across `components.button-{primary,secondary}.rounded`, `docs/Design/DueDateHQ-DESIGN.md` §2.5 / §4.8, and the Figma Token Spec Sheet §05.
+Do not use pill buttons, circular decorative controls, or radius above 12px. **Button radius / height / padding mirror shadcn `base-vega` defaults verbatim** (`rounded-md` 6px · `h-9` 36px · `px-2.5` 10px · `text-sm` 12px / 500) — the tokens in `components.button-{primary,secondary,primary-hover,primary-active}` document the runtime values produced by `pnpm dlx shadcn add`, so importing a fresh shadcn component requires zero manual patching. Non-shadcn business components (risk-row, evidence-chip, hero-metric, command-palette, sidebar, stepper, toast, confidence-badge, pulse-banner, genesis-\*, email-shell) keep DESIGN.md as the authoritative source.
 
 ## Components
 
@@ -498,8 +505,8 @@ front-matter 9 个顶层段：`colors / colorsDark / typography / rounded / shad
 
 - `colors` · Light 模式 35 个语义色，是 Figma Token Spec Sheet §01 Color 的权威源。
 - `colorsDark` · 暗色镜像，键集合与 `colors` 同名；详细规则见 `docs/Design/DueDateHQ-DESIGN.md` §2.3。
-- `typography` · 10 个 text style：3 档 display（`display-hero` 60 / `display-large` 40 / `section-title` 32，仅 marketing landing 使用）+ `title` 16 + `body` / `body-medium` 13 + `label` 11 + `hero-metric` 56 mono + `numeric` 13 mono + `numeric-small` 11 mono。
-- `rounded` · 3 档圆角（`sm` 4 / `md` 6 / `lg` 12）；按钮统一走 `sm`（4px）。
+- `typography` · 11 个 text style：3 档 display（`display-hero` 60 / `display-large` 40 / `section-title` 32，仅 marketing landing 使用）+ `title` 16 + `body` / `body-medium` 13 + `button` 12（shadcn `text-sm` 镜像）+ `label` 11 + `hero-metric` 56 mono + `numeric` 13 mono + `numeric-small` 11 mono。
+- `rounded` · 3 档圆角（`sm` 4 / `md` 6 / `lg` 12）；按钮走 `md`（6px）以匹配 shadcn `base-vega` 默认。
 - `shadows` · 2 档（`subtle` Drawer/Popover/Tooltip · `overlay` Modal/Command Palette）；其余阴影一律禁止。
 - `spacing` · 4px scale 9 档（0 / 4 / 8 / 12 / 16 / 24 / 32 / 48 / 80）。
 - `components` · **必须 `@google/design.md` spec compliant**：每个 entry 仅允许 `backgroundColor / textColor / typography / rounded / padding / size / height / width` 8 个标量属性；变体（hover / active / tone / state）拍平为独立 entry（如 `button-primary-hover`、`risk-row-critical-bar`、`confidence-badge-high`、`toast-info`、`stepper-current`、`status-pill-draft`、`hairline-default`、`brand-mark-primary`）。
