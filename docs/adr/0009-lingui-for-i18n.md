@@ -27,8 +27,8 @@ locale contract，但不共享同一个文案 catalog：
 
 - `apps/app`：`@lingui/core` + `@lingui/react`（运行时约 4 KB gz），
   `@lingui/cli` + `@lingui/babel-plugin-lingui-macro` + `@lingui/vite-plugin` +
-  `@rolldown/plugin-babel`（仅 dev 依赖）。版本全部在根 `pnpm-workspace.yaml` 的
-  catalog 中 pin 住。
+  `@lingui/format-po` + `@rolldown/plugin-babel`（仅 dev 依赖）。版本全部在根
+  `pnpm-workspace.yaml` 的 catalog 中 pin 住。
 - `apps/server`：约 40 行的类型化字典（`src/i18n/messages.ts`）+ 一个
   `resolveLocale(headers) → 'en' | 'zh-CN'` 辅助函数。Worker 产物里没有任何
   Lingui 依赖。
@@ -72,9 +72,12 @@ locale contract，但不共享同一个文案 catalog：
    `macro.jsxPlaceholderAttribute = 'data-t'` 与常见 JSX tag 默认名。这样 `<Trans>`
    中的链接、强调、代码等标签会抽取成 `<link>` / `<strong>` / `<code>` 等
    稳定占位符，而不是 `<0>` / `<1>`，降低翻译上下文丢失和无意义 catalog diff。
-9. **公开站 catalog 分离。** Marketing 文案生命周期属于获客与 SEO，不和 app 的
-   交互文案、server 的事务邮件混用。共享的只有 locale 列表、`Intl` 映射、header 名称和
-   “所有用户可见文案必须可本地化”的工程纪律。
+9. **PO origin 去行号。** `@lingui/format-po` 配置为 `origins: true` +
+   `lineNumbers: false`。Catalog 仍保留文件级来源，便于定位上下文；但纯代码移动不会因为
+   `#: file.tsx:line` 改变而制造 `.po` diff churn。
+10. **公开站 catalog 分离。** Marketing 文案生命周期属于获客与 SEO，不和 app 的
+    交互文案、server 的事务邮件混用。共享的只有 locale 列表、`Intl` 映射、header 名称和
+    “所有用户可见文案必须可本地化”的工程纪律。
 
 本决策取代 `docs/dev-file/05-Frontend-Architecture.md §11` 中的
 `i18next + react-i18next` 条目。
@@ -187,6 +190,9 @@ flowchart LR
 - `pnpm --filter @duedatehq/app i18n:compile` —— 输出编译后的 catalog。
   Vite 插件在 `dev` / `build` 阶段会自动执行；保留脚本是为了在 CI 中单独
   校验一次。
+- CI catalog drift check：执行 `i18n:extract` + `i18n:compile` 后，对
+  `apps/app/src/i18n/locales` 跑 `git diff --exit-code`。如果源码文案、PO catalog 或编译产物
+  未同步提交，CI 应失败。
 - Lingui v6 CLI 默认会并行处理抽取与编译任务；需要排查非确定性问题时可临时
   追加 `--workers 1` 关闭并行。
 

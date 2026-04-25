@@ -1,0 +1,53 @@
+name: Lingui Catalog Drift
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/i18n-catalog-drift.yml'
+      - 'apps/app/lingui.config.ts'
+      - 'apps/app/package.json'
+      - 'apps/app/src/**'
+      - 'packages/i18n/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/i18n-catalog-drift.yml'
+      - 'apps/app/lingui.config.ts'
+      - 'apps/app/package.json'
+      - 'apps/app/src/**'
+      - 'packages/i18n/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: i18n-catalog-drift-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  catalog-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version: '22'
+          cache: true
+
+      - run: vp install
+
+      - name: Sync Lingui catalogs
+        run: |
+          vp run @duedatehq/app#i18n:extract
+          vp run @duedatehq/app#i18n:compile
+
+      - name: Check committed catalog output
+        run: git diff --exit-code -- apps/app/src/i18n/locales

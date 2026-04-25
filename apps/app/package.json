@@ -50,6 +50,7 @@
     "@duedatehq/typescript-config": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/cli": "catalog:",
+    "@lingui/format-po": "catalog:",
     "@lingui/vite-plugin": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
     "@tailwindcss/vite": "catalog:",

@@ -30,6 +30,9 @@ catalogs:
     '@lingui/core':
       specifier: 6.0.0
       version: 6.0.0
+    '@lingui/format-po':
+      specifier: 6.0.0
+      version: 6.0.0
     '@lingui/react':
       specifier: 6.0.0
       version: 6.0.0
@@ -298,6 +301,9 @@ importers:
         specifier: 'catalog:'
         version: 6.0.0
       '@lingui/cli':
+        specifier: 'catalog:'
+        version: 6.0.0
+      '@lingui/format-po':
         specifier: 'catalog:'
         version: 6.0.0
       '@lingui/vite-plugin':

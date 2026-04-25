@@ -14,613 +14,602 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: obligations.length
-#: src/routes/workboard.tsx:117
+#: src/routes/workboard.tsx
 msgid "{0, plural, one {# row} other {# rows}}"
 msgstr "{0, plural, other {# 行}}"
 
-#: src/routes/dashboard.tsx:45
+#: src/routes/dashboard.tsx
 msgid "2 partner entities need review before the March 15 cutoff."
 msgstr "2 家合伙企业需在 3 月 15 日截止前完成复核。"
 
-#: src/routes/dashboard.tsx:40
+#: src/routes/dashboard.tsx
 msgid "3 clients have estimated-tax deltas above the evidence threshold."
 msgstr "3 家客户的预估税差额已超过证据阈值。"
 
-#: src/routes/dashboard.tsx:50
+#: src/routes/dashboard.tsx
 msgid "5 draft extensions are waiting on K-1 attachments."
 msgstr "5 份延期申请草稿正在等待 K-1 附件。"
 
-#: src/routes/workboard.tsx:89
+#: src/routes/workboard.tsx
 msgid "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
 msgstr "高密度操作界面的初版：筛选、搜索、状态与来源扫描在接入 API 前已可见。"
 
 #. placeholder {0}: user.name || user.email
-#: src/routes/_layout.tsx:314
+#: src/routes/_layout.tsx
 msgid "Account menu for {0}"
 msgstr "{0} 的账户菜单"
 
-#: src/routes/dashboard.tsx:186
+#: src/routes/dashboard.tsx
 msgid "Across 28 open obligations."
 msgstr "覆盖 28 项未完成义务。"
 
-#: src/routes/dashboard.tsx:245
+#: src/routes/dashboard.tsx
 msgid "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
 msgstr "仅当具备来源、引文与核验时间时，AI 生成的建议才会显示。"
 
-#: src/routes/workboard.tsx:65
+#: src/routes/workboard.tsx
 msgid "all"
 msgstr "全部"
 
-#: src/routes/workboard.tsx:101
+#: src/routes/workboard.tsx
 msgid "Assign selected"
 msgstr "分配所选"
 
-#: src/routes/workboard.tsx:148
+#: src/routes/workboard.tsx
 msgid "Assignee"
 msgstr "负责人"
 
-#: src/routes/settings.tsx:44
+#: src/routes/settings.tsx
 msgid "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
 msgstr "已预置基础控件，重表单页面可直接基于现有 UI 组合。"
 
-#: src/routes/workboard.tsx:54
-#: src/routes/workboard.tsx:66
+#: src/routes/workboard.tsx
 msgid "blocked"
 msgstr "已阻塞"
 
-#: src/routes/dashboard.tsx:347
+#: src/routes/dashboard.tsx
 msgid "Blocked"
 msgstr "已阻塞"
 
-#: src/routes/login.tsx:226
+#: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
 msgstr "登录即表示您同意 <termsLink>服务条款</termsLink> 和 <privacyLink>隐私政策</privacyLink>。"
 
-#: src/routes/settings.tsx:114
+#: src/routes/settings.tsx
 msgid "Channels"
 msgstr "通知渠道"
 
-#: src/routes/dashboard.tsx:283
-#: src/routes/workboard.tsx:143
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Client"
 msgstr "客户"
 
-#: src/routes/dashboard.tsx:273
+#: src/routes/dashboard.tsx
 msgid "Client risk rows"
 msgstr "客户风险行"
 
-#: src/routes/_layout.tsx:494
+#: src/routes/_layout.tsx
 msgid "Compliance risk operations"
 msgstr "合规风险运营"
 
-#: src/routes/onboarding.tsx:141
+#: src/routes/onboarding.tsx
 msgid "Confirm your practice profile"
 msgstr "确认你的事务所资料"
 
-#: src/routes/onboarding.tsx:197
+#: src/routes/onboarding.tsx
 msgid "Continue"
 msgstr "继续"
 
-#: src/routes/login.tsx:205
+#: src/routes/login.tsx
 msgid "Continue with Google"
 msgstr "使用 Google 继续"
 
-#: src/routes/onboarding.tsx:91
-#: src/routes/onboarding.tsx:111
+#: src/routes/onboarding.tsx
 msgid "Could not activate your practice"
 msgstr "无法激活你的事务所"
 
-#: src/routes/onboarding.tsx:101
+#: src/routes/onboarding.tsx
 msgid "Could not create your practice"
 msgstr "无法创建你的事务所"
 
-#: src/routes/_layout.tsx:460
-#: src/routes/login.tsx:112
-#: src/routes/login.tsx:171
-#: src/routes/onboarding.tsx:133
+#: src/routes/_layout.tsx
+#: src/routes/login.tsx
+#: src/routes/onboarding.tsx
 msgid "CPA deadline console"
 msgstr "注册会计师截止日期工作台"
 
-#: src/routes/dashboard.tsx:135
+#: src/routes/dashboard.tsx
 msgid "critical"
 msgstr "紧急"
 
-#: src/routes/settings.tsx:124
+#: src/routes/settings.tsx
 msgid "Daily deadline and Pulse summary for owners."
 msgstr "向负责人发送每日截止日期与动态摘要。"
 
-#: src/routes/_layout.tsx:227
+#: src/routes/_layout.tsx
 msgid "Dark"
 msgstr "深色"
 
-#: src/routes/_layout.tsx:54
+#: src/routes/_layout.tsx
 msgid "Dashboard"
 msgstr "仪表盘"
 
-#: src/routes/dashboard.tsx:285
-#: src/routes/workboard.tsx:145
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Deadline"
 msgstr "截止日期"
 
-#: src/routes/settings.tsx:71
+#: src/routes/settings.tsx
 msgid "Default jurisdiction"
 msgstr "默认司法辖区"
 
-#: src/routes/settings.tsx:146
+#: src/routes/settings.tsx
 msgid "Deferred until the product has a real-time notification need."
 msgstr "在产品出现实时通知需求前暂缓启用。"
 
-#: src/routes/login.tsx:32
+#: src/routes/login.tsx
 msgid "Dollar-first queues surface the obligations that matter before the clock runs out."
 msgstr "按金额优先的队列，在倒计时归零前突出最重要的义务。"
 
-#: src/routes/dashboard.tsx:168
+#: src/routes/dashboard.tsx
 msgid "Dollar-first triage for the next operating window."
 msgstr "面向下一个运营窗口，按金额优先进行分级。"
 
-#: src/routes/workboard.tsx:56
+#: src/routes/workboard.tsx
 msgid "draft"
 msgstr "草稿"
 
-#: src/routes/dashboard.tsx:127
+#: src/routes/dashboard.tsx
 msgid "Due this week"
 msgstr "本周到期"
 
-#: src/routes/onboarding.tsx:166
+#: src/routes/onboarding.tsx
 msgid "e.g. Bright CPA Practice"
 msgstr "例如：Bright CPA Practice"
 
-#: src/routes/dashboard.tsx:276
+#: src/routes/dashboard.tsx
 msgid "Eight rows are visible on first load for dense scanning."
 msgstr "首次加载默认展示 8 行，便于高密度浏览。"
 
-#: src/routes/settings.tsx:118
-#: src/routes/settings.tsx:121
+#: src/routes/settings.tsx
 msgid "Email digest"
 msgstr "邮件摘要"
 
-#: src/routes/settings.tsx:88
+#: src/routes/settings.tsx
 msgid "Enable evidence gate"
 msgstr "启用证据门槛"
 
-#: src/routes/login.tsx:37
+#: src/routes/login.tsx
 msgid "Every AI recommendation ships with source, quote, and verification timestamp."
 msgstr "每条 AI 建议都附带来源、引文与核验时间戳。"
 
-#: src/routes/dashboard.tsx:266
-#: src/routes/dashboard.tsx:319
+#: src/routes/dashboard.tsx
 msgid "Evidence checks"
 msgstr "证据核查"
 
-#: src/routes/settings.tsx:91
+#: src/routes/settings.tsx
 msgid "Evidence gate"
 msgstr "证据门槛"
 
-#: src/routes/dashboard.tsx:214
+#: src/routes/dashboard.tsx
 msgid "Evidence mode"
 msgstr "证据模式"
 
-#: src/routes/dashboard.tsx:286
-#: src/routes/workboard.tsx:147
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Exposure"
 msgstr "风险敞口"
 
-#: src/routes/dashboard.tsx:49
+#: src/routes/dashboard.tsx
 msgid "Extension package hold"
 msgstr "延期申请包搁置"
 
-#: src/routes/workboard.tsx:58
+#: src/routes/workboard.tsx
 msgid "filed"
 msgstr "已提交"
 
-#: src/routes/workboard.tsx:98
+#: src/routes/workboard.tsx
 msgid "Filters"
 msgstr "筛选器"
 
-#: src/routes/settings.tsx:41
+#: src/routes/settings.tsx
 msgid "Firm settings"
 msgstr "事务所设置"
 
-#: src/routes/login.tsx:36
+#: src/routes/login.tsx
 msgid "Glass-box evidence"
 msgstr "透明化证据"
 
-#: src/routes/dashboard.tsx:242
+#: src/routes/dashboard.tsx
 msgid "Glass-box threshold is active"
 msgstr "透明化门槛已启用"
 
-#: src/routes/settings.tsx:94
+#: src/routes/settings.tsx
 msgid "Hide recommendations that do not include source metadata."
 msgstr "隐藏不含来源信息的建议。"
 
-#: src/routes/dashboard.tsx:136
+#: src/routes/dashboard.tsx
 msgid "high"
 msgstr "高"
 
-#: src/routes/settings.tsx:135
+#: src/routes/settings.tsx
 msgid "Immediate feedback for status changes and failed mutations."
 msgstr "状态变化或操作失败时立即反馈。"
 
-#: src/routes/workboard.tsx:55
-#: src/routes/workboard.tsx:67
+#: src/routes/workboard.tsx
 msgid "in review"
 msgstr "审核中"
 
-#: src/routes/settings.tsx:129
-#: src/routes/settings.tsx:132
+#: src/routes/settings.tsx
 msgid "In-app toast"
 msgstr "应用内提示"
 
-#: src/routes/dashboard.tsx:39
+#: src/routes/dashboard.tsx
 msgid "IRS transcript mismatch"
 msgstr "IRS 账户记录不一致"
 
-#: src/routes/dashboard.tsx:332
+#: src/routes/dashboard.tsx
 msgid "IRS transcript source was checked this morning."
 msgstr "IRS 账户记录来源已于今早核验。"
 
-#: src/routes/_layout.tsx:343
-#: src/routes/_layout.tsx:400
+#: src/routes/_layout.tsx
 msgid "Language"
 msgstr "语言"
 
-#: src/routes/_layout.tsx:226
+#: src/routes/_layout.tsx
 msgid "Light"
 msgstr "浅色"
 
-#: src/routes/_layout.tsx:64
+#: src/routes/_layout.tsx
 msgid "Local Time"
 msgstr "本地时间"
 
-#: src/routes/dashboard.tsx:137
+#: src/routes/dashboard.tsx
 msgid "medium"
 msgstr "中"
 
-#: src/routes/_layout.tsx:172
+#: src/routes/_layout.tsx
 msgid "Mobile navigation"
 msgstr "移动端导航"
 
-#: src/routes/settings.tsx:82
+#: src/routes/settings.tsx
 msgid "Multi-state"
 msgstr "多州"
 
-#: src/routes/onboarding.tsx:55
+#: src/routes/onboarding.tsx
 msgid "My Practice"
 msgstr "我的事务所"
 
-#: src/routes/dashboard.tsx:128
+#: src/routes/dashboard.tsx
 msgid "Needs evidence"
 msgstr "需补证据"
 
-#: src/routes/dashboard.tsx:338
+#: src/routes/dashboard.tsx
 msgid "Needs quote"
 msgstr "需补引文"
 
-#: src/routes/dashboard.tsx:138
+#: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "常规"
 
-#: src/routes/_layout.tsx:503
+#: src/routes/_layout.tsx
 msgid "New obligation"
 msgstr "新建义务"
 
-#: src/routes/settings.tsx:105
+#: src/routes/settings.tsx
 msgid "Notification routing"
 msgstr "通知路由"
 
-#: src/routes/dashboard.tsx:44
+#: src/routes/dashboard.tsx
 msgid "NY PTET election window"
 msgstr "纽约州 PTET 选择窗口"
 
-#: src/routes/dashboard.tsx:284
-#: src/routes/workboard.tsx:144
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Obligation"
 msgstr "义务"
 
-#: src/routes/workboard.tsx:86
+#: src/routes/workboard.tsx
 msgid "Obligation queue"
 msgstr "义务队列"
 
-#: src/routes/dashboard.tsx:127
+#: src/routes/dashboard.tsx
 msgid "obligations"
 msgstr "义务"
 
-#: src/routes/dashboard.tsx:350
+#: src/routes/dashboard.tsx
 msgid "One row lacks a usable source URL."
 msgstr "有一行缺少可用的来源 URL。"
 
-#: src/routes/dashboard.tsx:126
+#: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "待处理风险"
 
-#: src/routes/login.tsx:42
+#: src/routes/login.tsx
 msgid "Operating cadence tuned for CPA teams during peak filing windows."
 msgstr "为 CPA 团队高峰申报期定制的运营节奏。"
 
-#: src/routes/dashboard.tsx:225
+#: src/routes/dashboard.tsx
 msgid "Operational pressure points for the team."
 msgstr "团队当前的运营压力点。"
 
-#: src/routes/dashboard.tsx:288
+#: src/routes/dashboard.tsx
 msgid "Owner"
 msgstr "负责人"
 
-#: src/routes/dashboard.tsx:180
+#: src/routes/dashboard.tsx
 msgid "Penalty exposure"
 msgstr "罚款敞口"
 
-#: src/routes/dashboard.tsx:126
+#: src/routes/dashboard.tsx
 msgid "penalty-weighted"
 msgstr "按罚款金额加权"
 
-#: src/routes/login.tsx:31
+#: src/routes/login.tsx
 msgid "Penalty-weighted triage"
 msgstr "按罚款金额分级"
 
-#: src/routes/login.tsx:120
+#: src/routes/login.tsx
 msgid "Phase 0 · Demo practice"
 msgstr "阶段 0 · 演示事务所"
 
-#: src/routes/_layout.tsx:491
+#: src/routes/_layout.tsx
 msgid "Phase 0 demo practice"
 msgstr "阶段 0 演示事务所"
 
-#: src/routes/settings.tsx:108
+#: src/routes/settings.tsx
 msgid "Phase 0 uses email plus in-app toast instead of Web Push."
 msgstr "阶段 0 使用邮件加应用内提示，暂不启用 Web Push。"
 
-#: src/routes/onboarding.tsx:72
+#: src/routes/onboarding.tsx
 msgid "Please enter at least 2 characters."
 msgstr "请至少输入 2 个字符。"
 
-#: src/routes/_layout.tsx:307
-#: src/routes/login.tsx:87
-#: src/routes/onboarding.tsx:89
-#: src/routes/onboarding.tsx:109
+#: src/routes/_layout.tsx
+#: src/routes/login.tsx
+#: src/routes/onboarding.tsx
 msgid "Please try again."
 msgstr "请稍后重试。"
 
-#: src/routes/onboarding.tsx:155
-#: src/routes/settings.tsx:64
+#: src/routes/onboarding.tsx
+#: src/routes/settings.tsx
 msgid "Practice name"
 msgstr "事务所名称"
 
-#: src/routes/settings.tsx:54
+#: src/routes/settings.tsx
 msgid "Practice profile"
 msgstr "事务所资料"
 
-#: src/routes/_layout.tsx:143
+#: src/routes/_layout.tsx
 msgid "Primary navigation"
 msgstr "主导航"
 
-#: src/routes/_layout.tsx:500
+#: src/routes/_layout.tsx
 msgid "Pulse"
 msgstr "动态"
 
-#: src/routes/workboard.tsx:110
+#: src/routes/workboard.tsx
 msgid "Queue controls"
 msgstr "队列控制"
 
-#: src/routes/_layout.tsx:63
+#: src/routes/_layout.tsx
 msgid "Queue SLA"
 msgstr "队列 SLA"
 
-#: src/routes/login.tsx:203
+#: src/routes/login.tsx
 msgid "Redirecting to Google…"
 msgstr "正在跳转到 Google…"
 
-#: src/routes/dashboard.tsx:322
+#: src/routes/dashboard.tsx
 msgid "Representative source states wired with existing components."
 msgstr "使用现有组件展示的典型来源状态。"
 
-#: src/routes/error.tsx:40
+#: src/routes/error.tsx
 msgid "Return to dashboard"
 msgstr "返回仪表盘"
 
-#: src/routes/dashboard.tsx:209
+#: src/routes/dashboard.tsx
 msgid "Review risk queue"
 msgstr "查看风险队列"
 
-#: src/routes/dashboard.tsx:165
+#: src/routes/dashboard.tsx
 msgid "Risk pulse"
 msgstr "风险脉动"
 
-#: src/routes/dashboard.tsx:263
+#: src/routes/dashboard.tsx
 msgid "Risk table"
 msgstr "风险列表"
 
-#: src/routes/error.tsx:35
+#: src/routes/error.tsx
 msgid "Route failed"
 msgstr "路由加载失败"
 
-#: src/routes/workboard.tsx:128
+#: src/routes/workboard.tsx
 msgid "Search clients or obligations"
 msgstr "搜索客户或义务"
 
-#: src/routes/workboard.tsx:126
+#: src/routes/workboard.tsx
 msgid "Search obligations"
 msgstr "搜索义务"
 
-#: src/routes/login.tsx:213
+#: src/routes/login.tsx
 msgid "Secure sign-in"
 msgstr "安全登录"
 
-#: src/routes/onboarding.tsx:192
+#: src/routes/onboarding.tsx
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
-#: src/routes/_layout.tsx:56
-#: src/routes/settings.tsx:38
+#: src/routes/_layout.tsx
+#: src/routes/settings.tsx
 msgid "Settings"
 msgstr "设置"
 
-#: src/routes/login.tsx:41
+#: src/routes/login.tsx
 msgid "Seven-day rhythm"
 msgstr "七日节奏"
 
-#: src/routes/dashboard.tsx:287
+#: src/routes/dashboard.tsx
 msgid "Severity"
 msgstr "严重程度"
 
-#: src/routes/login.tsx:179
+#: src/routes/login.tsx
 msgid "Sign in"
 msgstr "登录"
 
-#: src/routes/login.tsx:126
+#: src/routes/login.tsx
 msgid "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your practice's filing pipeline."
 msgstr "登录后查看事务所申报流水线的罚款敞口、证据核查与七日队列。"
 
-#: src/routes/login.tsx:182
+#: src/routes/login.tsx
 msgid "Sign in with your Google account to access the risk queue and evidence tools."
 msgstr "使用 Google 账户登录以访问风险队列和证据工具。"
 
-#: src/routes/_layout.tsx:315
+#: src/routes/_layout.tsx
 msgid "Sign out"
 msgstr "退出登录"
 
-#: src/routes/_layout.tsx:306
+#: src/routes/_layout.tsx
 msgid "Sign out failed"
 msgstr "退出登录失败"
 
-#: src/routes/_layout.tsx:313
+#: src/routes/_layout.tsx
 msgid "Signed in"
 msgstr "已登录"
 
-#: src/routes/_layout.tsx:315
+#: src/routes/_layout.tsx
 msgid "Signing out…"
 msgstr "正在退出…"
 
-#: src/routes/login.tsx:157
+#: src/routes/login.tsx
 msgid "SOC 2 ready · SSO available"
 msgstr "SOC 2 就绪 · 支持 SSO"
 
-#: src/lib/i18n-error.ts:19
+#: src/lib/i18n-error.ts
 msgid "Something went wrong on our side. Please try again shortly."
 msgstr "我们这边出了点问题，请稍后重试。"
 
-#: src/routes/dashboard.tsx:128
+#: src/routes/dashboard.tsx
 msgid "source gaps"
 msgstr "来源缺失"
 
-#: src/routes/workboard.tsx:113
+#: src/routes/workboard.tsx
 msgid "Static UI now; URL-backed filters can replace this shell later."
 msgstr "当前为静态 UI；后续可由 URL 驱动的筛选替换此外壳。"
 
-#: src/routes/workboard.tsx:146
+#: src/routes/workboard.tsx
 msgid "Status"
 msgstr "状态"
 
-#: src/routes/_layout.tsx:225
+#: src/routes/_layout.tsx
 msgid "System"
 msgstr "跟随系统"
 
-#: src/lib/i18n-error.ts:14
+#: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
 msgstr "该资源属于其他事务所。"
 
-#: src/lib/i18n-error.ts:17
+#: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."
 msgstr "请求无效，请检查输入后重试。"
 
-#: src/routes/_layout.tsx:354
-#: src/routes/_layout.tsx:411
+#: src/routes/_layout.tsx
 msgid "Theme"
 msgstr "主题"
 
-#: src/routes/settings.tsx:57
+#: src/routes/settings.tsx
 msgid "These demo fields are local-only until auth and organization data land."
 msgstr "在账户与组织数据接入前，这些演示字段仅保存在本地。"
 
-#: src/lib/i18n-error.ts:18
+#: src/lib/i18n-error.ts
 msgid "This action conflicts with the current state. Refresh and try again."
 msgstr "该操作与当前状态冲突，请刷新后重试。"
 
-#: src/routes/onboarding.tsx:180
+#: src/routes/onboarding.tsx
 msgid "This is what your team and clients will see."
 msgstr "你的团队和客户都会看到这个名字。"
 
-#: src/routes/dashboard.tsx:222
+#: src/routes/dashboard.tsx
 msgid "Today queue"
 msgstr "今日队列"
 
-#: src/lib/i18n-error.ts:12
+#: src/lib/i18n-error.ts
 msgid "Too many requests. Please try again in a moment."
 msgstr "请求过于频繁，请稍后再试。"
 
-#: src/routes/login.tsx:247
+#: src/routes/login.tsx
 msgid "Trouble signing in? Contact <supportLink>support@duedatehq.com</supportLink>."
 msgstr "登录遇到问题？请联系 <supportLink>support@duedatehq.com</supportLink>。"
 
-#: src/routes/dashboard.tsx:341
+#: src/routes/dashboard.tsx
 msgid "Two recommendations are waiting on verbatim text."
 msgstr "两条建议正在等待原文引文。"
 
-#: src/routes/login.tsx:89
+#: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
 msgstr "无法启动 Google 登录"
 
-#: src/routes/error.tsx:22
+#: src/routes/error.tsx
 msgid "Unexpected route error"
 msgstr "路由出现意外错误"
 
-#: src/routes/dashboard.tsx:329
+#: src/routes/dashboard.tsx
 msgid "Verified"
 msgstr "已核验"
 
-#: src/routes/dashboard.tsx:172
+#: src/routes/dashboard.tsx
 msgid "verified {verifiedAt}"
 msgstr "{verifiedAt} 已核验"
 
-#: src/routes/login.tsx:123
+#: src/routes/login.tsx
 msgid "Verified risk, one deadline at a time."
 msgstr "每一次截止，都有可核验的风险。"
 
-#: src/routes/workboard.tsx:57
-#: src/routes/workboard.tsx:68
+#: src/routes/workboard.tsx
 msgid "waiting"
 msgstr "等待中"
 
-#: src/lib/i18n-error.ts:16
+#: src/lib/i18n-error.ts
 msgid "We couldn't find what you were looking for."
 msgstr "未找到您要查找的内容。"
 
-#: src/routes/onboarding.tsx:144
+#: src/routes/onboarding.tsx
 msgid "We pre-filled a name from your Google profile. You can change it now or anytime in Firm settings."
 msgstr "我们已根据你的 Google 资料预填了一个名字，你可以现在修改，也可以稍后在事务所设置里修改。"
 
-#: src/routes/settings.tsx:143
+#: src/routes/settings.tsx
 msgid "Web Push"
 msgstr "Web 推送"
 
-#: src/routes/settings.tsx:140
+#: src/routes/settings.tsx
 msgid "Web Push disabled"
 msgstr "Web 推送已禁用"
 
-#: src/routes/_layout.tsx:55
-#: src/routes/workboard.tsx:81
+#: src/routes/_layout.tsx
+#: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "工作台"
 
-#: src/routes/onboarding.tsx:202
+#: src/routes/onboarding.tsx
 msgid "You can rename or invite teammates later."
 msgstr "你可以稍后重命名或邀请团队成员。"
 
-#: src/lib/i18n-error.ts:11
+#: src/lib/i18n-error.ts
 msgid "You don't have permission to perform this action."
 msgstr "您没有执行该操作的权限。"
 
-#: src/lib/i18n-error.ts:10
+#: src/lib/i18n-error.ts
 msgid "You need to sign in to continue."
 msgstr "请先登录后继续。"
 
-#: src/routes/login.tsx:218
+#: src/routes/login.tsx
 msgid "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
 msgstr "你将被跳转至 Google 完成登录并返回事务所。会话有效期为 7 天，并遵循事务所的 SSO 策略。"
 
-#: src/lib/i18n-error.ts:13
+#: src/lib/i18n-error.ts
 msgid "Your account isn't linked to a practice yet."
 msgstr "你的账户尚未关联任何事务所。"
 
-#: src/lib/i18n-error.ts:15
+#: src/lib/i18n-error.ts
 msgid "Your practice is suspended. Contact support to restore access."
 msgstr "你的事务所已被停用，请联系支持团队恢复访问。"

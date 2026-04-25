@@ -344,6 +344,8 @@ Theme runtime 同样由 `packages/ui` 持有：
 - **Catalog 布局**：`apps/app/src/i18n/locales/{locale}/messages.po`（源）→ `lingui compile`
   出 `.ts`（产物）；当前 `en` + `zh-CN` 体积可忽略，先静态 import，新增第三种语言时再改
   `dynamicActivate`
+- **PO formatter**：`@lingui/format-po` 保留 file-level origins，但关闭 line numbers，避免纯代码移动
+  造成 `.po` diff churn
 - **共享 contract**：`SUPPORTED_LOCALES`、`DEFAULT_LOCALE`、`INTL_LOCALE`、`LOCALE_HEADER` 位于 `packages/i18n`；app、server、marketing 共享这些常量，但 catalog 分离
 - **Marketing i18n**：`apps/marketing` 使用 Astro i18n routing + 静态 copy dictionary；不把 landing 文案写进 app 的 Lingui PO
 - **服务端**（Hono 中间件 + React Email 模板）：Worker 不加载 Lingui runtime；`x-locale` >
@@ -362,8 +364,10 @@ Theme runtime 同样由 `packages/ui` 持有：
 
 1. `pnpm --filter @duedatehq/app i18n:extract`：扫描源码并更新 `.po`
 2. `pnpm --filter @duedatehq/app i18n:compile`：编译 catalog 到 `.ts`
-3. `pnpm ready`：覆盖 check、test、build；Vite 插件会在 build 中再次编译 `.po`
-4. 排查 CLI 并行问题时可临时加 `--workers 1`
+3. CI drift check：执行 extract + compile 后，对 `apps/app/src/i18n/locales` 跑
+   `git diff --exit-code`，防止源码文案和 catalog 脱节
+4. `pnpm ready`：覆盖 check、test、build；Vite 插件会在 build 中再次编译 `.po`
+5. 排查 CLI 并行问题时可临时加 `--workers 1`
 
 ---
 
