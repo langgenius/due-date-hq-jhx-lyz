@@ -77,15 +77,15 @@ colorsDark:
 typography:
   display-hero:
     fontFamily: Inter
-    fontSize: 60px
+    fontSize: 54px
     fontWeight: 600
-    lineHeight: 1.067
+    lineHeight: 1.074
     letterSpacing: -0.02em
   display-large:
     fontFamily: Inter
-    fontSize: 40px
+    fontSize: 36px
     fontWeight: 600
-    lineHeight: 1.15
+    lineHeight: 1.167
     letterSpacing: -0.02em
   section-title:
     fontFamily: Inter
@@ -505,7 +505,7 @@ front-matter 9 个顶层段：`colors / colorsDark / typography / rounded / shad
 
 - `colors` · Light 模式 35 个语义色，是 Figma Token Spec Sheet §01 Color 的权威源。
 - `colorsDark` · 暗色镜像，键集合与 `colors` 同名；详细规则见 `docs/Design/DueDateHQ-DESIGN.md` §2.3。
-- `typography` · 11 个 text style：3 档 display（`display-hero` 60 / `display-large` 40 / `section-title` 32，仅 marketing landing 使用）+ `title` 16 + `body` / `body-medium` 13 + `button` 12（shadcn `text-sm` 镜像）+ `label` 11 + `hero-metric` 56 mono + `numeric` 13 mono + `numeric-small` 11 mono。
+- `typography` · 11 个 text style：3 档 display（`display-hero` 54 / `display-large` 36 / `section-title` 32，仅 marketing landing 使用，权威值与 Figma 同步）+ `title` 16 + `body` / `body-medium` 13 + `button` 12（shadcn `text-sm` 镜像）+ `label` 11 + `hero-metric` 56 mono + `numeric` 13 mono + `numeric-small` 11 mono。
 - `rounded` · 3 档圆角（`sm` 4 / `md` 6 / `lg` 12）；按钮走 `md`（6px）以匹配 shadcn `base-vega` 默认。
 - `shadows` · 2 档（`subtle` Drawer/Popover/Tooltip · `overlay` Modal/Command Palette）；其余阴影一律禁止。
 - `spacing` · 4px scale 9 档（0 / 4 / 8 / 12 / 16 / 24 / 32 / 48 / 80）。

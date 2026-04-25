@@ -85,24 +85,26 @@
 --accent-default: #5b5bd6; /* Linear indigo-600 */
 --accent-hover: #4f46e5;
 --accent-active: #4338ca;
---accent-tint: rgba(91, 91, 214, 0.08); /* selected nav bg */
+--accent-tint: #f1f1fd; /* selected nav bg · 与 Figma `accent/tint` token 同源 */
 --accent-text: #4338ca; /* indigo 文字（hover 态链接）*/
 
 /* === Severity (风险色系 · 唯一可以鲜艳的地方) === */
+/* tint 全部走实色 hex，与 Figma 与 /DESIGN.md `colors:` 段同源；
+   不再使用 rgba(0.06) 透明叠加 (会随父背景漂移)。 */
 --severity-critical: #dc2626; /* red-600 */
---severity-critical-tint: rgba(220, 38, 38, 0.06);
+--severity-critical-tint: #fef2f2;
 --severity-critical-border: #fca5a5;
 
 --severity-high: #ea580c; /* orange-600 */
---severity-high-tint: rgba(234, 88, 12, 0.06);
+--severity-high-tint: #fff7ed;
 --severity-high-border: #fdba74;
 
 --severity-medium: #ca8a04; /* yellow-600 */
---severity-medium-tint: rgba(202, 138, 4, 0.06);
+--severity-medium-tint: #fefce8;
 --severity-medium-border: #fde68a;
 
 --severity-neutral: #475569; /* slate-600, 表示 OK / 不急 */
---severity-neutral-tint: rgba(71, 85, 105, 0.04);
+--severity-neutral-tint: #f8fafc;
 
 /* === Status (状态专用 · 不和 severity 混用) === */
 --status-done: #059669; /* emerald-600 · 仅 Filed / Applied 时使用 */
@@ -254,20 +256,20 @@
 
 ### 3.2 字号与用途（紧凑但不过密）
 
-| Token                | Size | Weight | Line-height | 用途                                                                          |
-| -------------------- | ---- | ------ | ----------- | ----------------------------------------------------------------------------- |
-| `text-2xs`           | 10px | 500    | 1.3         | keyboard chip, badge 文字                                                     |
-| `text-xs`            | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase（即 `typography.label`）       |
-| `text-sm`            | 12px | 400    | 1.5         | 次级说明、tag、状态 label                                                     |
-| `text-base`          | 13px | 400    | 1.5         | **正文默认** / 表格行内容（即 `typography.body` / `body-medium`）             |
-| `text-md`            | 14px | 500    | 1.5         | 客户名、可点击标题                                                            |
-| `text-lg`            | 16px | 500    | 1.4         | 页面标题、Drawer 标题（即 `typography.title`）                                |
-| `text-xl`            | 20px | 600    | 1.3         | Hero 副指标数字、Section heading                                              |
-| `text-2xl`           | 24px | 600    | 1.2         | Client Detail 顶部名称                                                        |
-| `text-section-title` | 32px | 600    | 1.1875      | Marketing landing 段标题（即 `typography.section-title`，仅 marketing 使用）  |
-| `text-display-large` | 40px | 600    | 1.15        | Marketing landing 二级 hero（即 `typography.display-large`，仅 marketing）    |
-| `text-hero`          | 56px | 700    | 1.0         | **Penalty Radar Hero 数字**（即 `typography.hero-metric`，tabular-nums 必开） |
-| `text-display-hero`  | 60px | 600    | 1.067       | Marketing landing h1（即 `typography.display-hero`，**禁用**于 workbench）    |
+| Token                | Size | Weight | Line-height | 用途                                                                                            |
+| -------------------- | ---- | ------ | ----------- | ----------------------------------------------------------------------------------------------- |
+| `text-2xs`           | 10px | 500    | 1.3         | keyboard chip, badge 文字                                                                       |
+| `text-xs`            | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase（即 `typography.label`）                         |
+| `text-sm`            | 12px | 400    | 1.5         | 次级说明、tag、状态 label                                                                       |
+| `text-base`          | 13px | 400    | 1.5         | **正文默认** / 表格行内容（即 `typography.body` / `body-medium`）                               |
+| `text-md`            | 14px | 500    | 1.5         | 客户名、可点击标题                                                                              |
+| `text-lg`            | 16px | 500    | 1.4         | 页面标题、Drawer 标题（即 `typography.title`）                                                  |
+| `text-xl`            | 20px | 600    | 1.3         | Hero 副指标数字、Section heading                                                                |
+| `text-2xl`           | 24px | 600    | 1.2         | Client Detail 顶部名称                                                                          |
+| `text-section-title` | 32px | 600    | 1.1875      | Marketing landing 段标题（即 `typography.section-title`，仅 marketing 使用）                    |
+| `text-display-large` | 36px | 600    | 1.167       | Marketing landing 二级 hero（即 `typography.display-large`，仅 marketing；权威值与 Figma 同步） |
+| `text-hero`          | 56px | 700    | 1.0         | **Penalty Radar Hero 数字**（即 `typography.hero-metric`，tabular-nums 必开）                   |
+| `text-display-hero`  | 54px | 600    | 1.074       | Marketing landing h1（即 `typography.display-hero`，**禁用**于 workbench；权威值与 Figma 同步） |
 
 > **铁律**：`text-section-title` / `text-display-large` / `text-display-hero` 仅限 marketing landing（`apps/app/src/routes/landing.*` 之类）使用，**禁止**进入 dashboard / workboard / drawer / modal 等 workbench 表面。
 
