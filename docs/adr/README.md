@@ -34,3 +34,4 @@ proposed | accepted | deprecated | superseded by #NNN
 - 0009-lingui-for-i18n.md — Lingui v6 for i18n (supersedes `05 §11` react-i18next line)
 - 0010-firm-profile-vs-organization.md — Firm profile as first-class business tenant table, PK reuses organization.id (closes the `organization.metadata` antipattern)
 - 0011-migration-copilot-demo-sprint-scope.md — Migration Copilot Demo Sprint 产品形态锁定（6 条冲突裁定 + 9 条设计系统增量 + Onboarding Agent 设计锁定不实现）
+- 0012-marketing-astro-landing.md — Marketing landing 接入 Astro 公开站（`apps/marketing` Astro 6 静态站 + Cloudflare Workers Static Assets + 设计 token 三方对齐 Figma + 8 条 follow-ups）
