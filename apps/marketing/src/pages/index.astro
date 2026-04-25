@@ -10,9 +10,9 @@ import Security from '../components/Security.astro'
 import FinalCta from '../components/FinalCta.astro'
 import Footer from '../components/Footer.astro'
 import en from '../i18n/en'
+import { getCtaHref } from '../lib/app-url'
 
-const APP_URL = import.meta.env.PUBLIC_APP_URL ?? 'https://app.duedatehq.com'
-const ctaHref = `${APP_URL}/login`
+const ctaHref = getCtaHref()
 const t = en
 ---
 

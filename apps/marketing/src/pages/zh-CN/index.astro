@@ -10,11 +10,11 @@ import Security from '../../components/Security.astro'
 import FinalCta from '../../components/FinalCta.astro'
 import Footer from '../../components/Footer.astro'
 import zhCN from '../../i18n/zh-CN'
+import { getCtaHref } from '../../lib/app-url'
 
 // Cross-subdomain locale handoff (§6.3): pass `lng=zh-CN` so apps/app can
 // merge the marketing locale into its own locale store on first hit.
-const APP_URL = import.meta.env.PUBLIC_APP_URL ?? 'https://app.duedatehq.com'
-const ctaHref = `${APP_URL}/login?lng=zh-CN`
+const ctaHref = getCtaHref('zh-CN')
 const t = zhCN
 ---
 
