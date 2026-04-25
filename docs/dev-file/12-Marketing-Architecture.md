@@ -64,14 +64,16 @@ Homepage 只讲一个 offer：
 
 首版 landing 限制为 6 个模块，避免 marketing 站变成散文页：
 
-| 模块      | 目的             | 内容要求                                                          |
-| --------- | ---------------- | ----------------------------------------------------------------- |
-| Hero      | 说明 offer + CTA | 产品名、风险金额 mock、deadline queue 截图或复刻 UI               |
-| Problem   | 触发 ICP 共鸣    | 高峰季错过州税变更、K-1 资料缺口、客户 deadline 分散              |
-| Workflow  | 展示产品如何工作 | 7-day queue、evidence gate、Pulse update 三步                     |
-| Proof     | 建立可信度       | verified source、audit trail、no black-box AI                     |
-| Security  | 降低顾虑         | Google sign-in、organization isolation、email-first notifications |
-| Final CTA | 转化             | Open app / request demo；不增加第三个 CTA                         |
+| 模块      | 目的                 | 内容要求                                                                                                          |
+| --------- | -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Hero      | 说明 offer + CTA     | 产品名、风险金额 mock、deadline queue 截图或复刻 UI                                                               |
+| Problem   | 触发 ICP 共鸣        | 高峰季错过州税变更、K-1 资料缺口、客户 deadline 分散                                                              |
+| Workflow  | 展示产品如何工作     | 7-day queue、evidence gate、Pulse update 三步                                                                     |
+| Proof     | 建立可信度           | verified source、audit trail、no black-box AI                                                                     |
+| Trust     | 降低顾虑（CPA 视角） | Per-firm 数据隔离、Evidence-first AI（每条声明带 source + verbatim）、Audit log 可导出、Email-first（无客户门户） |
+| Final CTA | 转化                 | Open app / request demo；不增加第三个 CTA                                                                         |
+
+> **Marketing copy 铁律**：landing 文案禁止出现具体技术栈或框架名（"Better Auth"、"Cloudflare D1"、"Resend"、"WISP"、"PII back-fill" 等）。CPA 决策人不识别也不在乎技术栈；要用业务语言（per-firm 隔离、evidence-first AI、audit log 可导出）替代。架构边界仍由 §11 非目标约束代码侧不依赖 Better Auth session — 但**不外露 token 名**。
 
 后续可以追加 `/pricing`、`/rules`、`/state/[state]`、`/blog`，但首版不为不存在的内容搭复杂 CMS。
 
