@@ -90,6 +90,8 @@ Marketing 只埋公开站事件，不读取 app session。
 
 事件命名不进 Lingui catalog。若 PostHog 尚未接入 marketing，先保留 data attribute 和文档契约。
 
+> **跨子域身份缝合**：`duedatehq.com` 与 `app.duedatehq.com` 是不同 origin，PostHog 默认会生成两个独立 `distinct_id`，导致 `marketing.*_cta.clicked → app 注册` 漏斗断裂。接入 PostHog 时必须做一件事：marketing 侧在 CTA `href` 拼接 `?ph_did={posthog.get_distinct_id()}`，app 侧首屏读取 `ph_did` 后调用 `posthog.identify(ph_did)` 合并身份。在 PostHog 真正接入前，本节只承诺事件契约不承诺漏斗闭环。
+
 ---
 
 ## 3. 架构
@@ -159,22 +161,47 @@ Astro 默认不向页面发送 JS。React 组件只有在需要交互时作为 i
 ```js
 import { defineConfig } from 'astro/config'
 import react from '@astrojs/react'
+import sitemap from '@astrojs/sitemap'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  integrations: [react()],
+  // Required for canonical URLs, hreflang, and @astrojs/sitemap output.
+  site: 'https://duedatehq.com',
+  // Single canonical form. Avoids /zh-CN/ vs /zh-CN duplicate URLs.
+  trailingSlash: 'never',
+  build: { format: 'file' },
+  integrations: [react(), sitemap()],
+  // Tailwind 4 ships as a Vite plugin; Astro consumes it via vite.plugins.
+  // The CSS-only `@import 'tailwindcss'` form does NOT work without this.
+  vite: { plugins: [tailwindcss()] },
   i18n: {
     locales: ['en', 'zh-CN'],
     defaultLocale: 'en',
+    // fallback + fallbackType together handle missing zh-CN pages by
+    // serving the English version. Without `fallback`, fallbackType is a no-op.
+    fallback: { 'zh-CN': 'en' },
     routing: {
       prefixDefaultLocale: false,
-      redirectToDefaultLocale: true,
       fallbackType: 'redirect',
     },
   },
 })
 ```
 
+> **i18n routing 选项注意**：`redirectToDefaultLocale` 仅在 `prefixDefaultLocale: true` 时有效（让 `/` 跳到 `/en/`），与本项目"默认英文不加前缀"策略冲突，故不启用。
+
 如果首版只发布英文首页，仍要把 locale contract 先接到共享包，页面内容可以只实现 `en`。
+
+依赖准备（在实现前先一次性写入 `pnpm-workspace.yaml` catalog，遵守 §3 of `01-Tech-Stack.md` 钉版政策）：
+
+```yaml
+# catalog: 中追加（版本以发布时最新稳定版为准，写入后 saveExact 自动锁定）
+astro: <pinned>
+'@astrojs/react': <pinned>
+'@astrojs/sitemap': <pinned>
+```
+
+`apps/marketing/package.json` 引用必须写 `catalog:`，不允许字面量版本。
 
 ---
 
@@ -234,6 +261,22 @@ import { THEME_INIT_SCRIPT } from '@duedatehq/ui/theme/no-flash-script'
 
 Landing 的产品截图优先来自真实 `apps/app` 状态；若用 mock，必须标明为 illustrative product state，不展示不存在的客户或真实 PII。
 
+### 5.1 Islands JS 预算硬约束
+
+§8 的 "JS transferred < 50 KB gz 首版" 极易被 `@duedatehq/ui` 的 base-ui/Radix primitive（Select / DropdownMenu / Dialog / Sheet / Popover / Tooltip 等）单组件吃光。规则如下：
+
+- Astro `.astro` 静态片段中：**可以**使用 `@duedatehq/ui` 的样式 token、`cn()` 与简单 primitive（Button、Badge、Card）渲染为静态 HTML。
+- Astro islands（`client:*`）中：**不允许**导入 `@duedatehq/ui` 的复杂 primitive。LocaleSwitcher 这类轻交互改用原生 `<select>` 或 30 行手写组件。
+- 若某个 island 必须使用复杂交互（极少见），必须在 PR 描述里给出 bundle size 报告并显式增加预算。
+
+### 5.2 主题选择跨子域不同步（已知行为）
+
+`THEME_INIT_SCRIPT` 通过 `localStorage` 持久化 `light/dark/system`，但 `localStorage` 按 origin 隔离，`duedatehq.com` 与 `app.duedatehq.com` 互不可见。本架构**不做**跨子域同步：
+
+- Marketing 与 app 的主题选择独立持久化，各自首屏均无 FOUC（因为各自都注入 `THEME_INIT_SCRIPT`）。
+- 不通过 CTA URL 透传 `theme=`，避免 marketing 受 app 主题状态污染（marketing 默认 light 视觉策略由 §5 设计边界决定）。
+- 后续若做跨域同步，应使用一次性 query 参数 + app 侧合并写入，不引入 cookie 共享或 OAuth 风格的 cross-domain storage。
+
 ---
 
 ## 6. i18n 共享策略
@@ -274,10 +317,10 @@ App 文案、server 邮件文案、marketing 文案的生命周期不同：
 
 ```text
 /           -> en
-/zh-CN/     -> zh-CN
+/zh-CN      -> zh-CN
 ```
 
-不为默认英文加 `/en` 前缀，减少主域 canonical 分裂。每个 localized page 必须输出：
+不为默认英文加 `/en` 前缀，减少主域 canonical 分裂。统一使用**无尾斜杠**形式（由 `astro.config.mjs` 的 `trailingSlash: 'never'` + `build.format: 'file'` 强制），避免 `/zh-CN` 与 `/zh-CN/` 被搜索引擎当作两个 URL。每个 localized page 必须输出：
 
 - `<html lang>`
 - canonical URL
@@ -297,30 +340,58 @@ https://app.duedatehq.com/login?lng=zh-CN
 
 ## 7. 部署
 
-部署单元从一个变成两个，但根命令仍保持一键：
+部署单元从一个变成两个，但根命令仍保持一键。**关键：marketing 必须最后部署**，因为 marketing 首屏的 CTA 直接指向 app 子域；先发 marketing 再迁库或部署 app，任何一步失败都会让访客点击新 CTA 进到坏版本：
 
 ```text
 pnpm deploy
   -> check / test / build
-  -> deploy marketing
-  -> migrate remote D1
-  -> deploy app Worker
+  -> migrate remote D1          # 1. schema 先就绪
+  -> deploy app Worker          # 2. 后端与 SaaS SPA 就绪
+  -> deploy marketing           # 3. marketing 最后发布，CTA 指向已就绪的 app
 ```
 
-建议目标：
+任一步失败立即中止后续步骤；marketing 在 D1/app 部署成功前不会暴露新 CTA 给访客。
 
-| Workspace              | 部署产品                          | 域名                | Build                                              | Output                    |
-| ---------------------- | --------------------------------- | ------------------- | -------------------------------------------------- | ------------------------- |
-| `@duedatehq/marketing` | Cloudflare Pages 或 static Worker | `duedatehq.com`     | `pnpm --filter @duedatehq/marketing build`         | `apps/marketing/dist`     |
-| `@duedatehq/server`    | Cloudflare Worker + Assets        | `app.duedatehq.com` | `pnpm --filter @duedatehq/app build` then Wrangler | `apps/app/dist` as Assets |
+平台选择：marketing 与 server 统一走 **Cloudflare Workers + Static Assets**，不使用 Cloudflare Pages。理由：
 
-Cloudflare Pages 对 Astro 的默认构建目录是 `dist`。若采用 static Worker，Wrangler assets directory 也指向 `./dist`。首版 landing 无 SSR，不需要 `@astrojs/cloudflare` adapter。
+- `apps/server/wrangler.toml` 已经是 Workers + Static Assets 模型（`[assets] directory = "../app/dist"`），marketing 走同一模型可复用 Wrangler 工具链、CI 凭据与日志/metric 视图。
+- Cloudflare 自 2025 起官方推荐新项目用 Workers Static Assets，Pages 只做存量维护。
+
+| Workspace              | 部署产品                           | 域名                | Build                                                        | Output / 部署方式                                   |
+| ---------------------- | ---------------------------------- | ------------------- | ------------------------------------------------------------ | --------------------------------------------------- |
+| `@duedatehq/marketing` | Cloudflare Workers + Static Assets | `duedatehq.com`     | `pnpm --filter @duedatehq/marketing build`                   | `apps/marketing/dist` 通过独立 `wrangler.toml` 部署 |
+| `@duedatehq/server`    | Cloudflare Workers + Static Assets | `app.duedatehq.com` | `pnpm --filter @duedatehq/app build` 后由 server Worker 打包 | `apps/app/dist` 作为 server Worker 的 Assets        |
+
+Marketing 的 `wrangler.toml` 形态（首版无 SSR，不需要 `@astrojs/cloudflare` adapter）：
+
+```toml
+name = "duedatehq-marketing"
+compatibility_date = "2025-04-01"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "404-page"
+```
 
 环境变量：
 
-- Marketing 不读取 Worker secrets。
-- Marketing 只允许 `PUBLIC_*` / `ASTRO_*` 类公开变量，例如 `PUBLIC_APP_URL=https://app.duedatehq.com`。
+- Marketing 不读取 Worker secrets，也不持有任何后端凭据。
+- Marketing 只允许 `PUBLIC_*` 前缀的变量（Astro 唯一的客户端可见前缀，通过 `import.meta.env.PUBLIC_*` 暴露），例如 `PUBLIC_APP_URL=https://app.duedatehq.com`。
 - Auth/OAuth callback 仍属于 `app.duedatehq.com`，不要绑定到 marketing 主域。
+
+安全响应头通过 `apps/marketing/public/_headers`（Workers Static Assets 兼容 Pages `_headers` 语法）声明，作为 §8 Lighthouse Best Practices 95+ 的硬条件：
+
+```text
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://app.duedatehq.com; frame-ancestors 'none'
+```
+
+CSP 中 `connect-src` 仅在 marketing 真的需要向 app 子域发请求（例如未来嵌入 demo 视频或健康探针）时才放行；首版若不发请求可收紧到 `'self'`。
 
 ---
 
@@ -329,11 +400,12 @@ Cloudflare Pages 对 Astro 的默认构建目录是 `dist`。若采用 static Wo
 首版上线门槛：
 
 - HTML 中有完整 H1、title、description、canonical、OG title/description/image。
-- Lighthouse SEO / Accessibility / Best Practices 目标 95+。
+- Lighthouse SEO / Accessibility / Best Practices 目标 95+（依赖 §7 `_headers` 安全头）。
 - 无 JS 时仍能阅读完整 landing 和点击 CTA。
-- 首屏图片使用明确尺寸或 aspect-ratio，避免 CLS。
-- OG 图存在于 `public/og/home.png` 或构建产物等价位置。
-- `robots.txt` 和 `sitemap.xml` 在 marketing 站生成；app 子域默认不进入 marketing sitemap。
+- 首屏图片使用 `astro:assets` 的 `<Image />` 组件（自动 AVIF/WebP、显式 `width`/`height` 防 CLS、`loading="eager"` 仅用于首屏 LCP 图，其余 `lazy`）。禁止直接 `<img src="/foo.png">` 处理产品截图。
+- OG 图存在于 `public/og/home.png`（每个 locale 一张：`og/home.en.png`、`og/home.zh-CN.png`），文档化在 §6.3 hreflang 旁。
+- `sitemap.xml` 由 `@astrojs/sitemap` 自动生成（依赖 §4 `astro.config.mjs` 的 `site` + `i18n` 字段，自动输出 hreflang alternates）；app 子域不进入 marketing sitemap。
+- `robots.txt` 在 `public/robots.txt` 显式声明，指向 `https://duedatehq.com/sitemap-index.xml`。
 
 性能预算：
 
@@ -351,21 +423,25 @@ Cloudflare Pages 对 Astro 的默认构建目录是 `dist`。若采用 static Wo
 实现 `apps/marketing` 时必须补：
 
 - Build：`pnpm --filter @duedatehq/marketing build`
+- Type-check：`pnpm --filter @duedatehq/marketing astro check`（Astro 模板的类型错误不会被根 `pnpm check` 的 Vite+ pipeline 覆盖，必须显式跑）
 - Links：CTA 指向 `PUBLIC_APP_URL`，无硬编码 localhost
 - HTML smoke：检查 title、meta description、canonical、hreflang、OG
+- Headers smoke：`curl -I` 验证 §7 `_headers` 中的 CSP、HSTS、Referrer-Policy 实际下发
 - Accessibility：Playwright + axe 或 Lighthouse smoke
 - Visual：desktop 1440、tablet 768、mobile 390 截图检查，无文字重叠
 - i18n：每个 locale 页面都有对应 route、`html lang` 和 canonical
+- Bundle budget：`dist/` 内单页 JS 总量 < 50 KB gz（CI 加 size-limit 或自写脚本，超出 fail）
 
 ---
 
 ## 10. 实施顺序
 
-1. 新增 `apps/marketing` Astro static app，接入 `@astrojs/react` 和 `@duedatehq/ui` preset。
-2. 实现英文 landing，CTA 指向 `PUBLIC_APP_URL`。
-3. 加入 Astro i18n routing；按需要实现 `zh-CN` 首页。
-4. 更新 root Vite Task：`workspace-build` 包含 marketing，`workspace-deploy` 串行部署 marketing 与 app Worker。
-5. 配置 Cloudflare Pages / static Worker 域名：`duedatehq.com` 和 `app.duedatehq.com` 分离。
+1. 在 `pnpm-workspace.yaml` catalog 钉版加入 `astro` / `@astrojs/react` / `@astrojs/sitemap`（遵守 §3 of `01-Tech-Stack.md`，禁止字面量版本进入 `apps/marketing/package.json`）。
+2. 新增 `apps/marketing` Astro static app，`astro.config.mjs` 完整声明 §4 中的 `site` / `trailingSlash` / `vite.plugins[tailwindcss()]` / i18n `fallback`，接入 `@astrojs/react` 和 `@duedatehq/ui` preset。
+3. 实现英文 landing，CTA 指向 `PUBLIC_APP_URL`；添加 `public/_headers`（§7 安全头）和 `public/robots.txt`。
+4. 加入 Astro i18n routing；按需要实现 `zh-CN` 首页，hreflang 与 sitemap 自动跟随。
+5. 更新 root Vite Task：`workspace-build` 包含 marketing；`workspace-deploy` 严格按 §7 顺序串行执行（D1 → app → marketing），任一步失败立即中止。
+6. 配置 Cloudflare Workers + Static Assets 路由：marketing 绑定 `duedatehq.com`，server 绑定 `app.duedatehq.com`，两者不共享 Worker。
 
 ---
 
@@ -382,5 +458,8 @@ Cloudflare Pages 对 Astro 的默认构建目录是 `dist`。若采用 static Wo
 ## 12. 官方参考
 
 - Astro React integration：`@astrojs/react` 在 `astro.config.mjs` 的 `integrations` 中注册。
-- Astro i18n routing：`i18n.locales` / `defaultLocale` / `routing.prefixDefaultLocale` 控制 locale URL。
-- Astro Cloudflare deployment：static output 使用 `dist` 作为部署目录；首版 landing 不需要 SSR adapter。
+- Astro Tailwind 4：通过 `vite.plugins[tailwindcss()]` 注入 `@tailwindcss/vite`，纯 CSS `@import 'tailwindcss'` 不会自动启用。
+- Astro i18n routing：`i18n.locales` / `defaultLocale` / `routing.prefixDefaultLocale` / `fallback` + `fallbackType` 控制 locale URL；`redirectToDefaultLocale` 仅在默认 locale 带前缀时有效。
+- Astro Sitemap：`@astrojs/sitemap` 依赖 `astro.config.mjs.site`，自动按 `i18n` 配置输出 hreflang alternates。
+- Astro Image：`astro:assets` 的 `<Image />` 自动产出 AVIF/WebP，并强制 `width`/`height` 防 CLS。
+- Astro Cloudflare deployment：static output 使用 `dist` 作为部署目录；首版 landing 不需要 SSR adapter，统一走 Cloudflare Workers + Static Assets。
