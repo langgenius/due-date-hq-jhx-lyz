@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "check": "vp check",
     "check:fix": "vp check --fix",
+    "design:lint": "npx --yes @google/design.md lint DESIGN.md",
     "format": "vp fmt --check",
     "format:fix": "vp fmt --write",
     "prepare": "vp config",

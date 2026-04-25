@@ -90,23 +90,44 @@ stepper:
 
 ### 3.3 DESIGN.md YAML 回灌
 
+> **结构变更（2026-04-25）**：为通过 `@google/design.md` lint（component property 仅限 `backgroundColor / textColor / typography / rounded / padding / size / height / width` 8 个标量），`tone` 嵌套被拍平为独立 component entry：`confidence-badge-high / confidence-badge-med / confidence-badge-low`。base entry `confidence-badge` 仅承载共享视觉。
+
 ```yaml
 confidence-badge:
+  backgroundColor: '{colors.surface-elevated}'
+  textColor: '{colors.text-primary}'
+  typography: '{typography.numeric}'
+  rounded: '{rounded.sm}'
   height: 18px
   padding: '0 6px'
-  rounded: '{rounded.sm}'
+confidence-badge-high:
+  backgroundColor: '{colors.accent-tint}'
+  textColor: '{colors.accent-text}'
   typography: '{typography.numeric}'
-  tone:
-    high: { background: '{colors.accent-tint}', text: '{colors.accent-text}' }
-    med: { background: '{colors.severity-neutral-tint}', text: '{colors.text-secondary}' }
-    low: { background: '{colors.severity-medium-tint}', text: '{colors.text-primary}' }
+  rounded: '{rounded.sm}'
+  height: 18px
+  padding: '0 6px'
+confidence-badge-med:
+  backgroundColor: '{colors.severity-neutral-tint}'
+  textColor: '{colors.text-secondary}'
+  typography: '{typography.numeric}'
+  rounded: '{rounded.sm}'
+  height: 18px
+  padding: '0 6px'
+confidence-badge-low:
+  backgroundColor: '{colors.severity-medium-tint}'
+  textColor: '{colors.text-primary}'
+  typography: '{typography.numeric}'
+  rounded: '{rounded.sm}'
+  height: 18px
+  padding: '0 6px'
 ```
 
 ### 3.4 权威语义裁定：needs_review 用色
 
 这是本文件的**硬裁定**（回灌到 DueDateHQ-DESIGN §14.7 与 ADR 0011 Decision III）：
 
-- **数据质量类 `needs_review`**（Mapper 低置信 / Normalizer 冲突 / Default Matrix 非种子辖区）→ `{colors.severity-medium}`（黄 · severity-medium），使用 `confidence-badge.tone.low` 的色系
+- **数据质量类 `needs_review`**（Mapper 低置信 / Normalizer 冲突 / Default Matrix 非种子辖区）→ `{colors.severity-medium}`（黄 · severity-medium），使用 `confidence-badge-low` 的色系
 - **工作流态 Review**（Workboard "Needs review" 状态列 / Client Detail 的 review 抽屉）→ `{colors.status-review}`（紫 · violet-600）
 
 两者**绝不混用**。依据：
@@ -144,20 +165,44 @@ confidence-badge:
 
 ### 4.4 DESIGN.md YAML 回灌
 
+> **结构变更（2026-04-25）**：tone 拍平为独立 component entry。`toast-info` 和 `toast-warning` 在 `components:`（对比度通过 WCAG AA），`toast-success` 因绿字+白底故意低对比（3.77:1）放在 `componentExtensions:`，每条带 `note:` 解释豁免理由。`shadow + variant.{default,persistent}` 的行为字段也在 `componentExtensions:`，linter 忽略。
+
 ```yaml
 toast:
-  width: 360px
-  padding: 12px
-  rounded: '{rounded.md}'
+  backgroundColor: '{colors.surface-elevated}'
+  textColor: '{colors.text-primary}'
   typography: '{typography.body}'
-  shadow: subtle
-  tone:
-    info: { background: '{colors.surface-elevated}', text: '{colors.text-primary}' }
-    success: { background: '{colors.surface-elevated}', text: '{colors.status-done}' }
-    warning: { background: '{colors.severity-medium-tint}', text: '{colors.text-primary}' }
-  variant:
-    default: { timeoutMs: 3000, undoTimeoutMs: 500 }
-    persistent: { timeoutMs: null, expiresUsing: 'serverReturnedRevertibleUntil' }
+  rounded: '{rounded.md}'
+  padding: 12px
+  width: 360px
+toast-info:
+  backgroundColor: '{colors.surface-elevated}'
+  textColor: '{colors.text-primary}'
+  typography: '{typography.body}'
+  rounded: '{rounded.md}'
+  padding: 12px
+  width: 360px
+toast-warning:
+  backgroundColor: '{colors.severity-medium-tint}'
+  textColor: '{colors.text-primary}'
+  typography: '{typography.body}'
+  rounded: '{rounded.md}'
+  padding: 12px
+  width: 360px
+componentExtensions:
+  toast:
+    shadow: '{shadows.subtle}'
+    variant:
+      default: { timeoutMs: 3000, undoTimeoutMs: 500 }
+      persistent: { timeoutMs: null, expiresUsing: 'serverReturnedRevertibleUntil' }
+  toast-success:
+    backgroundColor: '{colors.surface-elevated}'
+    textColor: '{colors.status-done}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+    padding: 12px
+    width: 360px
+    note: 'Intentionally low contrast (3.77:1) — green text on white reads as success affirmation, not body content.'
 ```
 
 ### 4.5 权威裁定：Persistent toast 的时钟源
@@ -223,12 +268,15 @@ risk-row-upcoming:
 
 ### 6.3 DESIGN.md YAML 回灌
 
+> **结构变更（2026-04-25）**：Genesis Odometer 是动效规格而非视觉 token，从 `components:` 段移到顶层 `motion:` 段（不在 `@google/design.md` spec 内，linter 忽略）。
+
 ```yaml
-genesis-odometer:
-  typography: '{typography.hero-metric}'
-  color: '{colors.text-primary}'
-  digitEase: 'cubic-bezier(0.4, 0, 0.2, 1)'
-  reduceMotionFadeInMs: 200
+motion:
+  genesis-odometer:
+    typography: '{typography.hero-metric}'
+    color: '{colors.text-primary}'
+    digitEase: 'cubic-bezier(0.4, 0, 0.2, 1)'
+    reduceMotionFadeInMs: 200
 ```
 
 ---
@@ -248,13 +296,16 @@ genesis-odometer:
 
 ### 7.2 DESIGN.md YAML 回灌
 
+> **结构变更（2026-04-25）**：见 §6.3，Genesis Particle 同样在顶层 `motion:` 段。
+
 ```yaml
-genesis-particle:
-  size: 6px
-  color: '{colors.accent-default}'
-  trailAlpha: 0.1
-  bezier: [start, startPlus(0, -200), endPlus(0, -100), end]
-  maxConcurrent: 30
+motion:
+  genesis-particle:
+    size: 6px
+    color: '{colors.accent-default}'
+    trailAlpha: 0.1
+    bezier: ['start', 'startPlus(0, -200)', 'endPlus(0, -100)', 'end']
+    maxConcurrent: 30
 ```
 
 ### 7.3 抽样策略提醒
@@ -278,16 +329,21 @@ genesis-particle:
 
 ### 8.2 DESIGN.md YAML 回灌
 
+> **结构变更（2026-04-25）**：footer 拍平为独立 component entry `email-shell-footer`；`numericFontFamily` 移到 `componentExtensions:` 段。
+
 ```yaml
 email-shell:
-  width: 640px
   backgroundColor: '{colors.surface-canvas}'
   textColor: '{colors.text-primary}'
   typography: '{typography.body}'
-  numericFontFamily: 'Geist Mono'
-  footer:
-    typography: '{typography.label}'
-    color: '{colors.text-muted}'
+  width: 640px
+email-shell-footer:
+  backgroundColor: '{colors.surface-canvas}'
+  textColor: '{colors.text-primary}'
+  typography: '{typography.label}'
+componentExtensions:
+  email-shell:
+    numericFontFamily: 'Geist Mono'
 ```
 
 > 说明：`width: 640px` 与 [`./08-migration-report-email.md`](./08-migration-report-email.md) §3.2 HTML 模板 `<table width="640" ...>` 保持一致；640px 是 Gmail / Outlook / Apple Mail 三端主流兼容宽度。

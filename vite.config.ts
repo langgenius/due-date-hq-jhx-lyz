@@ -241,5 +241,6 @@ export default defineConfig({
   // ──────────────────────────────────────────────────────────
   staged: {
     '*': 'vp check --fix',
+    'DESIGN.md': 'npx --yes @google/design.md lint',
   },
 })

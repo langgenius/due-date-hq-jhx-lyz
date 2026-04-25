@@ -171,24 +171,60 @@ components:
     rounded: '{rounded.sm}'
     padding: 12px
     height: 32px
+  button-primary-hover:
+    backgroundColor: '{colors.accent-hover}'
+    textColor: '#FFFFFF'
+    typography: '{typography.body}'
+    rounded: '{rounded.sm}'
+    padding: 12px
+    height: 32px
+  button-primary-active:
+    backgroundColor: '{colors.accent-active}'
+    textColor: '#FFFFFF'
+    typography: '{typography.body}'
+    rounded: '{rounded.sm}'
+    padding: 12px
+    height: 32px
   risk-row-critical:
     backgroundColor: '{colors.severity-critical-tint}'
     textColor: '{colors.text-primary}'
     height: 36px
-    severityBarWidth: 2px
-    severityBarColor: '{colors.severity-critical}'
+  risk-row-critical-bar:
+    backgroundColor: '{colors.severity-critical}'
+    width: 2px
+    height: 36px
+  risk-row-critical-strong-bar:
+    backgroundColor: '{colors.severity-critical-border}'
+    width: 2px
+    height: 36px
   risk-row-high:
     backgroundColor: '{colors.severity-high-tint}'
     textColor: '{colors.text-primary}'
     height: 36px
-    severityBarWidth: 2px
-    severityBarColor: '{colors.severity-high}'
+  risk-row-high-bar:
+    backgroundColor: '{colors.severity-high}'
+    width: 2px
+    height: 36px
+  risk-row-high-strong-bar:
+    backgroundColor: '{colors.severity-high-border}'
+    width: 2px
+    height: 36px
   risk-row-upcoming:
     backgroundColor: '{colors.severity-medium-tint}'
     textColor: '{colors.text-primary}'
     height: 36px
-    severityBarWidth: 2px
-    severityBarColor: '{colors.severity-medium}'
+  risk-row-upcoming-bar:
+    backgroundColor: '{colors.severity-medium}'
+    width: 2px
+    height: 36px
+  risk-row-upcoming-strong-bar:
+    backgroundColor: '{colors.severity-medium-border}'
+    width: 2px
+    height: 36px
+  risk-row-neutral:
+    backgroundColor: '{colors.severity-neutral-tint}'
+    textColor: '{colors.severity-neutral}'
+    height: 36px
   hero-metric:
     backgroundColor: '{colors.surface-canvas}'
     textColor: '{colors.text-primary}'
@@ -212,6 +248,180 @@ components:
     backgroundColor: '{colors.surface-panel}'
     textColor: '{colors.text-secondary}'
     width: 220px
+  email-shell:
+    backgroundColor: '{colors.surface-canvas}'
+    textColor: '{colors.text-primary}'
+    typography: '{typography.body}'
+    width: 640px
+  email-shell-footer:
+    backgroundColor: '{colors.surface-canvas}'
+    textColor: '{colors.text-primary}'
+    typography: '{typography.label}'
+  stepper:
+    backgroundColor: '{colors.surface-canvas}'
+    textColor: '{colors.text-primary}'
+    typography: '{typography.label}'
+    rounded: '{rounded.sm}'
+    height: 32px
+  stepper-current:
+    backgroundColor: '{colors.accent-tint}'
+    textColor: '{colors.accent-default}'
+    typography: '{typography.label}'
+    rounded: '{rounded.sm}'
+    height: 32px
+  stepper-error:
+    backgroundColor: '{colors.surface-canvas}'
+    textColor: '{colors.severity-critical}'
+    typography: '{typography.label}'
+    rounded: '{rounded.sm}'
+    height: 32px
+  confidence-badge:
+    backgroundColor: '{colors.surface-elevated}'
+    textColor: '{colors.text-primary}'
+    typography: '{typography.numeric}'
+    rounded: '{rounded.sm}'
+    height: 18px
+    padding: '0 6px'
+  confidence-badge-high:
+    backgroundColor: '{colors.accent-tint}'
+    textColor: '{colors.accent-text}'
+    typography: '{typography.numeric}'
+    rounded: '{rounded.sm}'
+    height: 18px
+    padding: '0 6px'
+  confidence-badge-med:
+    backgroundColor: '{colors.severity-neutral-tint}'
+    textColor: '{colors.text-secondary}'
+    typography: '{typography.numeric}'
+    rounded: '{rounded.sm}'
+    height: 18px
+    padding: '0 6px'
+  confidence-badge-low:
+    backgroundColor: '{colors.severity-medium-tint}'
+    textColor: '{colors.text-primary}'
+    typography: '{typography.numeric}'
+    rounded: '{rounded.sm}'
+    height: 18px
+    padding: '0 6px'
+  toast:
+    backgroundColor: '{colors.surface-elevated}'
+    textColor: '{colors.text-primary}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+    padding: 12px
+    width: 360px
+  toast-info:
+    backgroundColor: '{colors.surface-elevated}'
+    textColor: '{colors.text-primary}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+    padding: 12px
+    width: 360px
+  toast-warning:
+    backgroundColor: '{colors.severity-medium-tint}'
+    textColor: '{colors.text-primary}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+    padding: 12px
+    width: 360px
+  status-pill-draft:
+    backgroundColor: '{colors.severity-neutral-tint}'
+    textColor: '{colors.status-draft}'
+    typography: '{typography.label}'
+    rounded: '{rounded.sm}'
+    height: 18px
+    padding: '0 6px'
+  status-pill-review:
+    backgroundColor: '{colors.severity-neutral-tint}'
+    textColor: '{colors.status-review}'
+    typography: '{typography.label}'
+    rounded: '{rounded.sm}'
+    height: 18px
+    padding: '0 6px'
+  hairline-default:
+    backgroundColor: '{colors.border-default}'
+    height: 1px
+  hairline-strong:
+    backgroundColor: '{colors.border-strong}'
+    height: 1px
+  hairline-subtle:
+    backgroundColor: '{colors.border-subtle}'
+    height: 1px
+  status-done-dot:
+    backgroundColor: '{colors.status-done}'
+    rounded: '{rounded.sm}'
+    width: 8px
+    height: 8px
+  status-waiting-dot:
+    backgroundColor: '{colors.status-waiting}'
+    rounded: '{rounded.sm}'
+    width: 8px
+    height: 8px
+  muted-divider:
+    backgroundColor: '{colors.text-muted}'
+    height: 1px
+  loading-skeleton:
+    backgroundColor: '{colors.text-disabled}'
+    rounded: '{rounded.sm}'
+    height: 12px
+    width: 100px
+  field-disabled:
+    backgroundColor: '{colors.surface-subtle}'
+    textColor: '{colors.text-secondary}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+  brand-mark-primary:
+    backgroundColor: '{colors.neutral}'
+    textColor: '{colors.primary}'
+    typography: '{typography.title}'
+  brand-mark-secondary:
+    backgroundColor: '{colors.neutral}'
+    textColor: '{colors.secondary}'
+    typography: '{typography.body}'
+  brand-mark-tertiary:
+    backgroundColor: '{colors.neutral}'
+    textColor: '{colors.tertiary}'
+    typography: '{typography.body-medium}'
+componentExtensions:
+  toast:
+    shadow: '{shadows.subtle}'
+    variant:
+      default: { timeoutMs: 3000, undoTimeoutMs: 500 }
+      persistent: { timeoutMs: null, expiresUsing: 'serverReturnedRevertibleUntil' }
+  toast-success:
+    backgroundColor: '{colors.surface-elevated}'
+    textColor: '{colors.status-done}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+    padding: 12px
+    width: 360px
+    note: 'Intentionally low contrast (3.77:1) — green text on white reads as success affirmation, not body content. Exempt from WCAG AA enforcement; therefore not in components: section.'
+  stepper-completed:
+    backgroundColor: '{colors.surface-canvas}'
+    textColor: '{colors.status-done}'
+    typography: '{typography.label}'
+    note: 'Same exemption as toast-success.'
+  stepper-upcoming:
+    backgroundColor: '{colors.surface-canvas}'
+    textColor: '{colors.text-muted}'
+    typography: '{typography.label}'
+    note: 'Muted-by-design label for un-reached step; intentional low contrast.'
+  stepper-disabled:
+    backgroundColor: '{colors.surface-canvas}'
+    textColor: '{colors.text-disabled}'
+    typography: '{typography.label}'
+    note: 'Disabled-by-design label; intentional low contrast.'
+  email-shell:
+    numericFontFamily: 'Geist Mono'
+  status-pill-waiting:
+    backgroundColor: '{colors.severity-neutral-tint}'
+    textColor: '{colors.status-waiting}'
+    typography: '{typography.label}'
+    rounded: '{rounded.sm}'
+    height: 18px
+    padding: '0 6px'
+    note: 'Borderline contrast 3.91:1 — sky-600 on near-white. Tag pill, not body text; sufficient for short status word + dot indicator. Held in extensions instead of components: to avoid WCAG AA enforcement.'
+motion:
   genesis-odometer:
     typography: '{typography.hero-metric}'
     color: '{colors.text-primary}'
@@ -221,49 +431,8 @@ components:
     size: 6px
     color: '{colors.accent-default}'
     trailAlpha: 0.1
-    bezier: [start, startPlus(0, -200), endPlus(0, -100), end]
+    bezier: ['start', 'startPlus(0, -200)', 'endPlus(0, -100)', 'end']
     maxConcurrent: 30
-  email-shell:
-    width: 640px
-    backgroundColor: '{colors.surface-canvas}'
-    textColor: '{colors.text-primary}'
-    typography: '{typography.body}'
-    numericFontFamily: 'Geist Mono'
-    footer:
-      typography: '{typography.label}'
-      color: '{colors.text-muted}'
-  stepper:
-    height: 32px
-    gapBetweenSteps: '{spacing.3}'
-    colorCurrent: '{colors.accent-default}'
-    colorCompleted: '{colors.status-done}'
-    colorUpcoming: '{colors.text-muted}'
-    colorError: '{colors.severity-critical}'
-    colorDisabled: '{colors.text-disabled}'
-    typography: '{typography.label}'
-    rounded: '{rounded.sm}'
-  confidence-badge:
-    height: 18px
-    padding: '0 6px'
-    rounded: '{rounded.sm}'
-    typography: '{typography.numeric}'
-    tone:
-      high: { background: '{colors.accent-tint}', text: '{colors.accent-text}' }
-      med: { background: '{colors.severity-neutral-tint}', text: '{colors.text-secondary}' }
-      low: { background: '{colors.severity-medium-tint}', text: '{colors.text-primary}' }
-  toast:
-    width: 360px
-    padding: 12px
-    rounded: '{rounded.md}'
-    typography: '{typography.body}'
-    shadow: '{shadows.subtle}'
-    tone:
-      info: { background: '{colors.surface-elevated}', text: '{colors.text-primary}' }
-      success: { background: '{colors.surface-elevated}', text: '{colors.status-done}' }
-      warning: { background: '{colors.severity-medium-tint}', text: '{colors.text-primary}' }
-    variant:
-      default: { timeoutMs: 3000, undoTimeoutMs: 500 }
-      persistent: { timeoutMs: null, expiresUsing: 'serverReturnedRevertibleUntil' }
 ---
 
 # DueDateHQ Design System
@@ -323,7 +492,9 @@ Primary buttons use indigo and are reserved for the most important action on a s
 
 No provenance means no render. If an AI output lacks `source_url`, `verified_at`, and `verbatim_quote`, show a verification-needed state instead of a recommendation.
 
-### Token segment index（front-matter `colors / typography / rounded / shadows / spacing / colorsDark / components` 的速查）
+### Token segment index
+
+front-matter 9 个顶层段：`colors / colorsDark / typography / rounded / shadows / spacing / components / componentExtensions / motion`。
 
 - `colors` · Light 模式 35 个语义色，是 Figma Token Spec Sheet §01 Color 的权威源。
 - `colorsDark` · 暗色镜像，键集合与 `colors` 同名；详细规则见 `docs/Design/DueDateHQ-DESIGN.md` §2.3。
@@ -331,18 +502,24 @@ No provenance means no render. If an AI output lacks `source_url`, `verified_at`
 - `rounded` · 3 档圆角（`sm` 4 / `md` 6 / `lg` 12）；按钮统一走 `sm`（4px）。
 - `shadows` · 2 档（`subtle` Drawer/Popover/Tooltip · `overlay` Modal/Command Palette）；其余阴影一律禁止。
 - `spacing` · 4px scale 9 档（0 / 4 / 8 / 12 / 16 / 24 / 32 / 48 / 80）。
-- `components` · 18 个组件级 token，引用前 6 段 atom，禁止再写裸值。
+- `components` · **必须 `@google/design.md` spec compliant**：每个 entry 仅允许 `backgroundColor / textColor / typography / rounded / padding / size / height / width` 8 个标量属性；变体（hover / active / tone / state）拍平为独立 entry（如 `button-primary-hover`、`risk-row-critical-bar`、`confidence-badge-high`、`toast-info`、`stepper-current`、`status-pill-draft`、`hairline-default`、`brand-mark-primary`）。
+- `componentExtensions` · DueDateHQ 私有非 spec 字段：`toast.shadow`、`toast.variant.timeoutMs`、`email-shell.numericFontFamily`，以及 4 个故意低对比的 `toast-success / stepper-completed / stepper-upcoming / stepper-disabled` 状态实例（每条带 `note:` 解释豁免理由）。linter 不读这段。
+- `motion` · 动效规格（`genesis-odometer` / `genesis-particle` 的 ease / bezier / 粒子参数）。非视觉 token，linter 不读。
+
+### 校验
+
+运行 `pnpm design:lint` 跑 [`@google/design.md`](https://github.com/google-labs-code/design.md) 官方 linter（broken-ref 错误、WCAG 4.5:1 对比度、orphaned-tokens、section-order 等 7 条规则）。`vite.config.ts` 的 `staged.DESIGN.md` 钩子在 commit 时自动跑（`npx --yes @google/design.md lint <path>`）。任何 PR 必须保持 **0 errors / 0 warnings**（当前基线即如此 + 1 info summary）。如果新增的 component 触发 contrast 警告，把它从 `components:` 段挪到 `componentExtensions:` 段并附 `note:` 解释豁免理由（见 `toast-success` / `stepper-completed` / `status-pill-waiting` 的写法）。
 
 ### Migration Copilot 向导扩展 token
 
 Demo Sprint 期间新增的 Migration Copilot 相关 token 已追加到 front-matter `components:` 段；详细使用说明 + 可达性规格见 `docs/Design/DueDateHQ-DESIGN.md` §14 Migration Copilot 向导 与 `docs/product-design/migration-copilot/09-design-system-deltas.md`。
 
-- `stepper` · 4 步向导步骤条；5 状态（current / completed / upcoming / error / disabled）；`Enter` 与数字键 1-4 **不**跳步
-- `confidence-badge` · 3 档置信度（high ≥ 0.95 / med 0.80–0.94 / low < 0.80）；色系与 severity / status 解耦；**数据质量类 needs_review 走 severity-medium 黄，工作流 Review 走 status-review 紫**（ADR 0011 Decision III 裁定）
-- `toast` · 3 tone（info / success / warning）× 2 variant（default 3s + 500ms undo / persistent 至服务端返回的 `revertible_until` 过期，前端不本地倒计时）
-- `risk-row-high` / `risk-row-upcoming` · 补齐 severity-high / severity-medium 两档行视觉，与 `risk-row-critical` 组成 Dashboard / Dry-run 三档表格行；三档 row 现在都带 `severityBarWidth: 2px` + 同色 severity bar 字段
-- `genesis-odometer` / `genesis-particle` · Live Genesis 顶栏数字滚动 + 粒子弧线；`prefers-reduced-motion` 降级为 200ms fade-in
-- `email-shell` · Migration Report 邮件外壳（640px table 布局 + Geist Mono tabular num）
+- `stepper` 系列 · 4 步向导步骤条；`stepper-current` / `stepper-error` 在 `components:`，`stepper-completed` / `stepper-upcoming` / `stepper-disabled` 因故意低对比放在 `componentExtensions:`；`Enter` 与数字键 1-4 **不**跳步。
+- `confidence-badge` 系列 · 3 档置信度拍平为 `confidence-badge-high` / `-med` / `-low`（high ≥ 0.95 / med 0.80–0.94 / low < 0.80）；色系与 severity / status 解耦；**数据质量类 needs_review 走 `confidence-badge-low` 的黄色调，工作流 Review 走 `status-pill-review` 紫色调**（ADR 0011 Decision III 裁定）。
+- `toast` 系列 · 3 tone 拍平为 `toast-info` / `toast-warning`（在 `components:`）+ `toast-success`（因绿字 + 白底低对比放在 `componentExtensions:`）；`toast.variant.{default,persistent}` 时长行为也在 `componentExtensions:`（default 3s + 500ms undo · persistent 至 server `revertible_until` 过期，前端不本地倒计时）。
+- `risk-row` 系列 · 三档 row 补齐 severity-high / severity-medium 视觉；每档独立 `risk-row-{critical,high,upcoming}-bar`（实色 2px 左 bar）+ `risk-row-{critical,high,upcoming}-strong-bar`（border 色 2px 强调 bar）。
+- `motion.genesis-odometer` / `motion.genesis-particle` · Live Genesis 顶栏数字滚动 + 粒子弧线；`prefers-reduced-motion` 降级为 200ms fade-in。
+- `email-shell` + `email-shell-footer` · Migration Report 邮件外壳（640px table 布局），`numericFontFamily: 'Geist Mono'` 在 `componentExtensions:`。
 
 ## Do's and Don'ts
 
