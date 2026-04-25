@@ -1,9 +1,27 @@
 import { defineConfig } from 'vite-plus'
+import type { PluginOption } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin'
 import babel from '@rolldown/plugin-babel'
 import path from 'node:path'
+import { THEME_INIT_SCRIPT } from '@duedatehq/ui/theme/no-flash-script'
+
+function dueDateThemeNoFlash(): PluginOption {
+  return {
+    name: 'duedatehq-theme-no-flash',
+    transformIndexHtml() {
+      return [
+        {
+          tag: 'script',
+          attrs: { 'data-duedatehq-theme': 'init' },
+          children: THEME_INIT_SCRIPT,
+          injectTo: 'head',
+        },
+      ]
+    },
+  }
+}
 
 /**
  * Per-app Vite+ config for apps/app.
@@ -19,6 +37,7 @@ import path from 'node:path'
  */
 export default defineConfig({
   plugins: [
+    dueDateThemeNoFlash(),
     react(),
     babel({
       include: /\/src\/.*\.[jt]sx?$/,

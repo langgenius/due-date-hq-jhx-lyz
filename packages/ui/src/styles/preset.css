@@ -114,6 +114,8 @@
   --brand-secondary: var(--text-secondary);
   --brand-tertiary: var(--accent-default);
   --brand-neutral: var(--bg-canvas);
+
+  color-scheme: light;
 }
 
 .dark {
@@ -185,6 +187,8 @@
   --brand-secondary: var(--text-secondary);
   --brand-tertiary: var(--accent-default);
   --brand-neutral: var(--bg-canvas);
+
+  color-scheme: dark;
 }
 
 @theme inline {

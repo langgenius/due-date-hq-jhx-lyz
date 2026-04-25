@@ -10,7 +10,9 @@
   "exports": {
     "./components/ui/*": "./src/components/ui/*.tsx",
     "./lib/utils": "./src/lib/utils.ts",
-    "./styles/preset.css": "./src/styles/preset.css"
+    "./styles/preset.css": "./src/styles/preset.css",
+    "./theme": "./src/theme/theme.ts",
+    "./theme/no-flash-script": "./src/theme/no-flash-script.ts"
   },
   "dependencies": {
     "@base-ui/react": "catalog:",

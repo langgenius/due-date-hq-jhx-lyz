@@ -1,4 +1,4 @@
-import { useTransition } from 'react'
+import { useCallback, useEffect, useState, useTransition } from 'react'
 import { NavLink, Outlet, useLoaderData, useNavigate, useNavigation } from 'react-router'
 import { toast } from 'sonner'
 import { Trans, useLingui } from '@lingui/react/macro'
@@ -9,8 +9,11 @@ import {
   ChevronsUpDownIcon,
   GlobeIcon,
   LayoutDashboardIcon,
+  MonitorIcon,
+  MoonIcon,
   LogOutIcon,
   SettingsIcon,
+  SunIcon,
 } from 'lucide-react'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -20,6 +23,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
@@ -28,6 +33,16 @@ import {
 } from '@duedatehq/ui/components/ui/dropdown-menu'
 import { Separator } from '@duedatehq/ui/components/ui/separator'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import {
+  applyResolvedTheme,
+  readStoredThemePreference,
+  resolveThemePreference,
+  THEME_STORAGE_KEY,
+  updateThemeColor,
+  isThemePreference,
+  disableThemeTransitions,
+  type ThemePreference,
+} from '@duedatehq/ui/theme'
 import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from '@duedatehq/i18n'
 import { useLocaleSwitch } from '@/i18n/provider'
 import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
@@ -51,6 +66,64 @@ function useShellMeta(): Array<[string, string]> {
 }
 
 type ProtectedLoaderData = { user: AuthUser }
+
+function getStoredThemePreference(): ThemePreference {
+  try {
+    return readStoredThemePreference(window.localStorage)
+  } catch {
+    return 'system'
+  }
+}
+
+function getPrefersDark(): boolean {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+}
+
+function applyThemePreference(preference: ThemePreference): void {
+  const resolvedTheme = resolveThemePreference(preference, getPrefersDark())
+  const enableTransitions = disableThemeTransitions()
+
+  applyResolvedTheme(document.documentElement, resolvedTheme)
+  updateThemeColor(document, resolvedTheme)
+  enableTransitions()
+}
+
+function useThemeSwitch(): {
+  themePreference: ThemePreference
+  switchThemePreference: (next: ThemePreference) => void
+} {
+  const [themePreference, setThemePreference] = useState(getStoredThemePreference)
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+
+    function syncThemePreference() {
+      const next = getStoredThemePreference()
+
+      setThemePreference(next)
+      applyThemePreference(next)
+    }
+
+    media.addEventListener('change', syncThemePreference)
+    window.addEventListener('storage', syncThemePreference)
+
+    return () => {
+      media.removeEventListener('change', syncThemePreference)
+      window.removeEventListener('storage', syncThemePreference)
+    }
+  }, [])
+
+  const switchThemePreference = useCallback((next: ThemePreference) => {
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, next)
+    } catch {}
+
+    setThemePreference(next)
+    applyThemePreference(next)
+  }, [])
+
+  return { themePreference, switchThemePreference }
+}
 
 function PendingBar() {
   const navigation = useNavigation()
@@ -140,6 +213,43 @@ function LocaleMenuItems({
   )
 }
 
+function ThemeMenuItems({
+  currentTheme,
+  onSelect,
+}: {
+  currentTheme: ThemePreference
+  onSelect: (next: ThemePreference) => void
+}) {
+  const { t } = useLingui()
+  const items = [
+    { value: 'system', label: t`System`, icon: MonitorIcon },
+    { value: 'light', label: t`Light`, icon: SunIcon },
+    { value: 'dark', label: t`Dark`, icon: MoonIcon },
+  ] satisfies Array<{ value: ThemePreference; label: string; icon: typeof MonitorIcon }>
+
+  return (
+    <DropdownMenuRadioGroup
+      value={currentTheme}
+      onValueChange={(next) => {
+        if (isThemePreference(next)) {
+          onSelect(next)
+        }
+      }}
+    >
+      {items.map((item) => {
+        const Icon = item.icon
+
+        return (
+          <DropdownMenuRadioItem key={item.value} value={item.value}>
+            <Icon />
+            <span>{item.label}</span>
+          </DropdownMenuRadioItem>
+        )
+      })}
+    </DropdownMenuRadioGroup>
+  )
+}
+
 function UserAvatar({ user, className }: { user: AuthUser; className?: string }) {
   if (user.image) {
     return (
@@ -165,7 +275,17 @@ function UserAvatar({ user, className }: { user: AuthUser; className?: string })
   )
 }
 
-function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'panel' | 'compact' }) {
+function UserMenu({
+  user,
+  themePreference,
+  switchThemePreference,
+  variant = 'panel',
+}: {
+  user: AuthUser
+  themePreference: ThemePreference
+  switchThemePreference: (next: ThemePreference) => void
+  variant?: 'panel' | 'compact'
+}) {
   const navigate = useNavigate()
   const { t } = useLingui()
   const { locale, switchLocale } = useLocaleSwitch()
@@ -227,6 +347,17 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
               <LocaleMenuItems currentLocale={locale} onSelect={switchLocale} />
             </DropdownMenuSubContent>
           </DropdownMenuSub>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <MonitorIcon />
+              <span>
+                <Trans>Theme</Trans>
+              </span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="w-44">
+              <ThemeMenuItems currentTheme={themePreference} onSelect={switchThemePreference} />
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={handleSignOut} disabled={isSigningOut}>
             <LogOutIcon />
@@ -273,6 +404,17 @@ function UserMenu({ user, variant = 'panel' }: { user: AuthUser; variant?: 'pane
             <LocaleMenuItems currentLocale={locale} onSelect={switchLocale} />
           </DropdownMenuSubContent>
         </DropdownMenuSub>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <MonitorIcon />
+            <span>
+              <Trans>Theme</Trans>
+            </span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="w-44">
+            <ThemeMenuItems currentTheme={themePreference} onSelect={switchThemePreference} />
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleSignOut} disabled={isSigningOut}>
           <LogOutIcon />
@@ -302,6 +444,7 @@ export function RootLayout() {
   // to /login otherwise, so there's no isPending / null branch to render.
   const { user } = useLoaderData<ProtectedLoaderData>()
   const shellMeta = useShellMeta()
+  const { themePreference, switchThemePreference } = useThemeSwitch()
 
   return (
     <div className="isolate min-h-screen bg-bg-canvas text-text-primary">
@@ -332,7 +475,11 @@ export function RootLayout() {
                   </div>
                 ))}
               </div>
-              <UserMenu user={user} />
+              <UserMenu
+                user={user}
+                themePreference={themePreference}
+                switchThemePreference={switchThemePreference}
+              />
             </div>
           </div>
         </aside>
@@ -355,7 +502,12 @@ export function RootLayout() {
               <Button size="sm">
                 <Trans>New obligation</Trans>
               </Button>
-              <UserMenu user={user} variant="compact" />
+              <UserMenu
+                user={user}
+                themePreference={themePreference}
+                switchThemePreference={switchThemePreference}
+                variant="compact"
+              />
             </div>
             <MobileNav />
           </header>

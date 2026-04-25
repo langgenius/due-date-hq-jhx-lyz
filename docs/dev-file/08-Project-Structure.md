@@ -203,6 +203,8 @@ apps/server/
 - `src/islands/*`：少量需要交互的 React island，可使用 `@duedatehq/ui`
 - `src/i18n/*`：marketing copy dictionary；共享 locale 常量从 `packages/i18n` 引入
 - `src/styles/globals.css`：Tailwind 入口，导入 `@duedatehq/ui/styles/preset.css` 并 `@source` 扫描 `packages/ui/src`
+- 基础 layout：在 `<head>` 内内联 `@duedatehq/ui/theme/no-flash-script` 的
+  `THEME_INIT_SCRIPT`，不得复制脚本正文或自建 theme storage key
 
 **约束：**
 
@@ -219,7 +221,8 @@ packages/ui/
 ├── src/
 │   ├── components/ui/              # Button / Input / Dialog / Table 等基础 primitives
 │   ├── lib/utils.ts                # cn()
-│   └── styles/preset.css           # Tailwind token preset；不 import tailwindcss
+│   ├── styles/preset.css           # Tailwind token preset；不 import tailwindcss
+│   └── theme/                      # shared light/dark/system runtime + no-flash script
 └── package.json
 ```
 
@@ -227,7 +230,7 @@ packages/ui/
 
 - 只放纯 UI、品牌视觉、基础 layout primitive 和稳定 design token
 - 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属 dashboard/workboard/settings 组件
-- app 通过 `@duedatehq/ui/components/ui/*`、`@duedatehq/ui/lib/utils`、`@duedatehq/ui/styles/preset.css` 消费
+- app 通过 `@duedatehq/ui/components/ui/*`、`@duedatehq/ui/lib/utils`、`@duedatehq/ui/styles/preset.css`、`@duedatehq/ui/theme*` 消费
 - 每个消费 app 的 Tailwind 入口必须 `@source` 扫描 `packages/ui/src`，否则 shadcn 组件内部 utilities 不会生成
 
 ### 4.2.3 `packages/i18n`

@@ -192,6 +192,26 @@ export const orpc = createTanstackQueryUtils(rpc)
 
 `@source` 必须存在；它让 Tailwind 扫描 shared UI 源码并生成 shadcn 组件内部使用的 `bg-popover`、`text-card-foreground`、`border-input`、`data-open:animate-in` 等 utilities。
 
+Theme runtime 同样由 `packages/ui` 持有：
+
+- `@duedatehq/ui/theme`：storage key、`light | dark | system` contract、解析与应用 helper。
+- `@duedatehq/ui/theme/no-flash-script`：首屏主题初始化脚本字符串。
+- `disableThemeTransitions()`：theme 切换瞬间临时禁用 CSS transitions，避免 token 大面积变更时
+  各组件颜色、背景、边框以不同 duration 交错动画；做法对齐 `next-themes`
+  `disableTransitionOnChange`。
+
+`apps/app` 不在 React component / effect 中决定初始主题；Vite `transformIndexHtml` 会把
+`THEME_INIT_SCRIPT` 注入 `<head>`，在 React 入口脚本执行前同步设置：
+
+- `html.dark`
+- `html[data-theme="light" | "dark"]`
+- `html { color-scheme }`
+- `<meta name="theme-color">`
+
+这样 light/dark token 在 CSS 首次应用前已经选定，避免 hydration 后再切 class 造成闪烁。
+后续 UI 层的 theme switcher 只更新 `localStorage["duedatehq.theme"]` 并复用
+`@duedatehq/ui/theme` helper。
+
 共享 preset 文件形态：
 
 ```css

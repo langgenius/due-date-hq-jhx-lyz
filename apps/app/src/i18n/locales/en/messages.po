@@ -35,7 +35,7 @@ msgid "A first pass at the dense operational surface: filters, search, status an
 msgstr "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
 
 #. placeholder {0}: user.name || user.email
-#: src/routes/_layout.tsx:194
+#: src/routes/_layout.tsx:314
 msgid "Account menu for {0}"
 msgstr "Account menu for {0}"
 
@@ -59,7 +59,7 @@ msgstr "Assign selected"
 msgid "Assignee"
 msgstr "Assignee"
 
-#: src/routes/settings.tsx:38
+#: src/routes/settings.tsx:44
 msgid "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
 msgstr "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
 
@@ -76,7 +76,7 @@ msgstr "Blocked"
 msgid "By signing in you agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
 msgstr "By signing in you agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
 
-#: src/routes/settings.tsx:108
+#: src/routes/settings.tsx:114
 msgid "Channels"
 msgstr "Channels"
 
@@ -89,7 +89,7 @@ msgstr "Client"
 msgid "Client risk rows"
 msgstr "Client risk rows"
 
-#: src/routes/_layout.tsx:347
+#: src/routes/_layout.tsx:494
 msgid "Compliance risk operations"
 msgstr "Compliance risk operations"
 
@@ -114,7 +114,7 @@ msgstr "Could not activate your practice"
 msgid "Could not create your practice"
 msgstr "Could not create your practice"
 
-#: src/routes/_layout.tsx:317
+#: src/routes/_layout.tsx:460
 #: src/routes/login.tsx:112
 #: src/routes/login.tsx:171
 #: src/routes/onboarding.tsx:133
@@ -125,11 +125,15 @@ msgstr "CPA deadline console"
 msgid "critical"
 msgstr "critical"
 
-#: src/routes/settings.tsx:118
+#: src/routes/settings.tsx:124
 msgid "Daily deadline and Pulse summary for owners."
 msgstr "Daily deadline and Pulse summary for owners."
 
-#: src/routes/_layout.tsx:39
+#: src/routes/_layout.tsx:227
+msgid "Dark"
+msgstr "Dark"
+
+#: src/routes/_layout.tsx:54
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -138,11 +142,11 @@ msgstr "Dashboard"
 msgid "Deadline"
 msgstr "Deadline"
 
-#: src/routes/settings.tsx:65
+#: src/routes/settings.tsx:71
 msgid "Default jurisdiction"
 msgstr "Default jurisdiction"
 
-#: src/routes/settings.tsx:140
+#: src/routes/settings.tsx:146
 msgid "Deferred until the product has a real-time notification need."
 msgstr "Deferred until the product has a real-time notification need."
 
@@ -170,12 +174,12 @@ msgstr "e.g. Bright CPA Practice"
 msgid "Eight rows are visible on first load for dense scanning."
 msgstr "Eight rows are visible on first load for dense scanning."
 
-#: src/routes/settings.tsx:112
-#: src/routes/settings.tsx:115
+#: src/routes/settings.tsx:118
+#: src/routes/settings.tsx:121
 msgid "Email digest"
 msgstr "Email digest"
 
-#: src/routes/settings.tsx:82
+#: src/routes/settings.tsx:88
 msgid "Enable evidence gate"
 msgstr "Enable evidence gate"
 
@@ -188,7 +192,7 @@ msgstr "Every AI recommendation ships with source, quote, and verification times
 msgid "Evidence checks"
 msgstr "Evidence checks"
 
-#: src/routes/settings.tsx:85
+#: src/routes/settings.tsx:91
 msgid "Evidence gate"
 msgstr "Evidence gate"
 
@@ -213,7 +217,7 @@ msgstr "filed"
 msgid "Filters"
 msgstr "Filters"
 
-#: src/routes/settings.tsx:35
+#: src/routes/settings.tsx:41
 msgid "Firm settings"
 msgstr "Firm settings"
 
@@ -225,7 +229,7 @@ msgstr "Glass-box evidence"
 msgid "Glass-box threshold is active"
 msgstr "Glass-box threshold is active"
 
-#: src/routes/settings.tsx:88
+#: src/routes/settings.tsx:94
 msgid "Hide recommendations that do not include source metadata."
 msgstr "Hide recommendations that do not include source metadata."
 
@@ -233,7 +237,7 @@ msgstr "Hide recommendations that do not include source metadata."
 msgid "high"
 msgstr "high"
 
-#: src/routes/settings.tsx:129
+#: src/routes/settings.tsx:135
 msgid "Immediate feedback for status changes and failed mutations."
 msgstr "Immediate feedback for status changes and failed mutations."
 
@@ -242,8 +246,8 @@ msgstr "Immediate feedback for status changes and failed mutations."
 msgid "in review"
 msgstr "in review"
 
-#: src/routes/settings.tsx:123
-#: src/routes/settings.tsx:126
+#: src/routes/settings.tsx:129
+#: src/routes/settings.tsx:132
 msgid "In-app toast"
 msgstr "In-app toast"
 
@@ -255,12 +259,16 @@ msgstr "IRS transcript mismatch"
 msgid "IRS transcript source was checked this morning."
 msgstr "IRS transcript source was checked this morning."
 
-#: src/routes/_layout.tsx:223
-#: src/routes/_layout.tsx:269
+#: src/routes/_layout.tsx:343
+#: src/routes/_layout.tsx:400
 msgid "Language"
 msgstr "Language"
 
-#: src/routes/_layout.tsx:49
+#: src/routes/_layout.tsx:226
+msgid "Light"
+msgstr "Light"
+
+#: src/routes/_layout.tsx:64
 msgid "Local Time"
 msgstr "Local Time"
 
@@ -268,11 +276,11 @@ msgstr "Local Time"
 msgid "medium"
 msgstr "medium"
 
-#: src/routes/_layout.tsx:99
+#: src/routes/_layout.tsx:172
 msgid "Mobile navigation"
 msgstr "Mobile navigation"
 
-#: src/routes/settings.tsx:76
+#: src/routes/settings.tsx:82
 msgid "Multi-state"
 msgstr "Multi-state"
 
@@ -292,11 +300,11 @@ msgstr "Needs quote"
 msgid "neutral"
 msgstr "neutral"
 
-#: src/routes/_layout.tsx:356
+#: src/routes/_layout.tsx:503
 msgid "New obligation"
 msgstr "New obligation"
 
-#: src/routes/settings.tsx:99
+#: src/routes/settings.tsx:105
 msgid "Notification routing"
 msgstr "Notification routing"
 
@@ -353,11 +361,11 @@ msgstr "Penalty-weighted triage"
 msgid "Phase 0 · Demo practice"
 msgstr "Phase 0 · Demo practice"
 
-#: src/routes/_layout.tsx:344
+#: src/routes/_layout.tsx:491
 msgid "Phase 0 demo practice"
 msgstr "Phase 0 demo practice"
 
-#: src/routes/settings.tsx:102
+#: src/routes/settings.tsx:108
 msgid "Phase 0 uses email plus in-app toast instead of Web Push."
 msgstr "Phase 0 uses email plus in-app toast instead of Web Push."
 
@@ -365,7 +373,7 @@ msgstr "Phase 0 uses email plus in-app toast instead of Web Push."
 msgid "Please enter at least 2 characters."
 msgstr "Please enter at least 2 characters."
 
-#: src/routes/_layout.tsx:187
+#: src/routes/_layout.tsx:307
 #: src/routes/login.tsx:87
 #: src/routes/onboarding.tsx:89
 #: src/routes/onboarding.tsx:109
@@ -373,19 +381,19 @@ msgid "Please try again."
 msgstr "Please try again."
 
 #: src/routes/onboarding.tsx:155
-#: src/routes/settings.tsx:58
+#: src/routes/settings.tsx:64
 msgid "Practice name"
 msgstr "Practice name"
 
-#: src/routes/settings.tsx:48
+#: src/routes/settings.tsx:54
 msgid "Practice profile"
 msgstr "Practice profile"
 
-#: src/routes/_layout.tsx:70
+#: src/routes/_layout.tsx:143
 msgid "Primary navigation"
 msgstr "Primary navigation"
 
-#: src/routes/_layout.tsx:353
+#: src/routes/_layout.tsx:500
 msgid "Pulse"
 msgstr "Pulse"
 
@@ -393,7 +401,7 @@ msgstr "Pulse"
 msgid "Queue controls"
 msgstr "Queue controls"
 
-#: src/routes/_layout.tsx:48
+#: src/routes/_layout.tsx:63
 msgid "Queue SLA"
 msgstr "Queue SLA"
 
@@ -441,8 +449,8 @@ msgstr "Secure sign-in"
 msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
 
-#: src/routes/_layout.tsx:41
-#: src/routes/settings.tsx:32
+#: src/routes/_layout.tsx:56
+#: src/routes/settings.tsx:38
 msgid "Settings"
 msgstr "Settings"
 
@@ -466,19 +474,19 @@ msgstr "Sign in to review penalty exposure, evidence checks, and the seven-day q
 msgid "Sign in with your Google account to access the risk queue and evidence tools."
 msgstr "Sign in with your Google account to access the risk queue and evidence tools."
 
-#: src/routes/_layout.tsx:195
+#: src/routes/_layout.tsx:315
 msgid "Sign out"
 msgstr "Sign out"
 
-#: src/routes/_layout.tsx:186
+#: src/routes/_layout.tsx:306
 msgid "Sign out failed"
 msgstr "Sign out failed"
 
-#: src/routes/_layout.tsx:193
+#: src/routes/_layout.tsx:313
 msgid "Signed in"
 msgstr "Signed in"
 
-#: src/routes/_layout.tsx:195
+#: src/routes/_layout.tsx:315
 msgid "Signing out…"
 msgstr "Signing out…"
 
@@ -502,6 +510,10 @@ msgstr "Static UI now; URL-backed filters can replace this shell later."
 msgid "Status"
 msgstr "Status"
 
+#: src/routes/_layout.tsx:225
+msgid "System"
+msgstr "System"
+
 #: src/lib/i18n-error.ts:14
 msgid "That resource belongs to a different practice."
 msgstr "That resource belongs to a different practice."
@@ -510,7 +522,12 @@ msgstr "That resource belongs to a different practice."
 msgid "The request was invalid. Please review your input and try again."
 msgstr "The request was invalid. Please review your input and try again."
 
-#: src/routes/settings.tsx:51
+#: src/routes/_layout.tsx:354
+#: src/routes/_layout.tsx:411
+msgid "Theme"
+msgstr "Theme"
+
+#: src/routes/settings.tsx:57
 msgid "These demo fields are local-only until auth and organization data land."
 msgstr "These demo fields are local-only until auth and organization data land."
 
@@ -571,15 +588,15 @@ msgstr "We couldn't find what you were looking for."
 msgid "We pre-filled a name from your Google profile. You can change it now or anytime in Firm settings."
 msgstr "We pre-filled a name from your Google profile. You can change it now or anytime in Firm settings."
 
-#: src/routes/settings.tsx:137
+#: src/routes/settings.tsx:143
 msgid "Web Push"
 msgstr "Web Push"
 
-#: src/routes/settings.tsx:134
+#: src/routes/settings.tsx:140
 msgid "Web Push disabled"
 msgstr "Web Push disabled"
 
-#: src/routes/_layout.tsx:40
+#: src/routes/_layout.tsx:55
 #: src/routes/workboard.tsx:81
 msgid "Workboard"
 msgstr "Workboard"

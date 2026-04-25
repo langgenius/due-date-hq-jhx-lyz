@@ -196,6 +196,33 @@ Marketing 的 `src/styles/globals.css` 必须消费同一 preset：
 @source '../islands';
 ```
 
+Astro theme 初始化必须复用 app 同一套 runtime，而不是在 marketing app 私有脚本里重写逻辑。
+推荐在基础 layout 中最早导入全局 CSS，并在 `<head>` 内内联共享脚本：
+
+```astro
+---
+import '@duedatehq/ui/styles/preset.css'
+import { THEME_INIT_SCRIPT } from '@duedatehq/ui/theme/no-flash-script'
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="theme-color" content="#0A2540" />
+    <script is:inline set:html={THEME_INIT_SCRIPT}></script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+```
+
+依据 Astro 官方 styling 文档，global CSS 通常放在 Layout 里导入，且从 npm package
+导入带 `.css` 扩展的样式可由 Astro/Vite 打包优化。`@duedatehq/ui/styles/preset.css`
+已经按这个模式通过 package `exports` 暴露。依据 Astro client-side scripts 行为，layout
+中的普通脚本会作为客户端脚本输出；此处使用 `is:inline` 是为了让主题 class 在首屏绘制前同步
+落到 `html`，避免 dark/system 用户先看到 light token 再切换。
+
 设计风格继承 `docs/Design/DueDateHQ-DESIGN.md` 的专业、克制、证据优先方向，但 landing 可以使用更大的标题和更宽的叙事节奏。边界如下：
 
 - 可以：真实产品 UI 截图 / 产品状态复刻、navy 文本、indigo CTA、风险色只用于业务信号。
