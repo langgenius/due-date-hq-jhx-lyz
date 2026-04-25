@@ -202,10 +202,20 @@ const en: LandingCopy = {
         listTitle: 'File-In-Time export → spreadsheet',
         listSummary: '30 clients · 4 hrs typing',
         rows: [
-          { pill: 'Acme LLC', text: '— missing EIN', date: 'LOW 0.62' },
-          { pill: 'Birchwood Co', text: '— unclear state', date: 'LOW 0.62' },
-          { pill: 'Crestmont Inc', text: '— wrong entity type', date: 'LOW 0.62' },
-          { pill: 'Delta Group', text: '— deadline format ?', date: 'LOW 0.62' },
+          { pill: 'Acme LLC', text: '— missing EIN', date: 'LOW 0.62', severity: 'critical' },
+          { pill: 'Birchwood Co', text: '— unclear state', date: 'LOW 0.62', severity: 'medium' },
+          {
+            pill: 'Crestmont Inc',
+            text: '— wrong entity type',
+            date: 'LOW 0.62',
+            severity: 'critical',
+          },
+          {
+            pill: 'Delta Group',
+            text: '— deadline format ?',
+            date: 'LOW 0.62',
+            severity: 'medium',
+          },
         ],
       },
     ],
@@ -242,6 +252,7 @@ const en: LandingCopy = {
               due: 'Apr 28',
               daysLeft: 'in 3d',
               exposure: '$48,200',
+              severity: 'critical',
             },
             {
               client: 'Birchwood Co',
@@ -249,6 +260,7 @@ const en: LandingCopy = {
               due: 'Apr 29',
               daysLeft: 'in 4d',
               exposure: '$32,850',
+              severity: 'critical',
             },
             {
               client: 'Crestmont Inc',
@@ -256,6 +268,7 @@ const en: LandingCopy = {
               due: 'May 02',
               daysLeft: 'in 7d',
               exposure: '$24,180',
+              severity: 'medium',
             },
           ],
         },

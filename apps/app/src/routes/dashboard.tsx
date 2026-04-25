@@ -30,6 +30,8 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
+import { PulseBanner } from '@/components/primitives/pulse-banner'
+import { severityRowClass } from '@/components/primitives/severity-row'
 import { formatCents, formatDate } from '@/lib/utils'
 
 function usePulseItems() {
@@ -188,18 +190,16 @@ export function DashboardRoute() {
               </div>
               <div className="grid gap-3">
                 {pulseItems.map((item) => (
-                  <div
+                  <PulseBanner
                     key={item.title}
-                    className="grid gap-1 rounded-md border border-border-default bg-bg-panel p-3"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="font-medium">{item.title}</span>
-                      <Badge variant="secondary" className="font-mono tabular-nums">
+                    title={item.title}
+                    detail={item.detail}
+                    source={
+                      <Badge variant="outline" className="font-mono tabular-nums">
                         {item.source}
                       </Badge>
-                    </div>
-                    <span className="text-sm text-text-secondary">{item.detail}</span>
-                  </div>
+                    }
+                  />
                 ))}
               </div>
             </div>
@@ -290,7 +290,10 @@ export function DashboardRoute() {
                   </TableHeader>
                   <TableBody>
                     {riskRows.map((row) => (
-                      <TableRow key={`${row.client}-${row.obligation}`}>
+                      <TableRow
+                        key={`${row.client}-${row.obligation}`}
+                        className={severityRowClass(row.severity)}
+                      >
                         <TableCell className="font-medium">{row.client}</TableCell>
                         <TableCell className="text-text-secondary">{row.obligation}</TableCell>
                         <TableCell className="font-mono tabular-nums">

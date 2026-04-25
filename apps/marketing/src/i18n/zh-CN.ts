@@ -201,10 +201,10 @@ const zhCN: LandingCopy = {
         listTitle: 'File-In-Time 导出 → 电子表格',
         listSummary: '30 位客户 · 4 小时打字',
         rows: [
-          { pill: 'Acme LLC', text: '— 缺失 EIN', date: 'LOW 0.62' },
-          { pill: 'Birchwood Co', text: '— 州不明确', date: 'LOW 0.62' },
-          { pill: 'Crestmont Inc', text: '— 实体类型错误', date: 'LOW 0.62' },
-          { pill: 'Delta Group', text: '— 截止日格式 ?', date: 'LOW 0.62' },
+          { pill: 'Acme LLC', text: '— 缺失 EIN', date: 'LOW 0.62', severity: 'critical' },
+          { pill: 'Birchwood Co', text: '— 州不明确', date: 'LOW 0.62', severity: 'medium' },
+          { pill: 'Crestmont Inc', text: '— 实体类型错误', date: 'LOW 0.62', severity: 'critical' },
+          { pill: 'Delta Group', text: '— 截止日格式 ?', date: 'LOW 0.62', severity: 'medium' },
         ],
       },
     ],
@@ -241,6 +241,7 @@ const zhCN: LandingCopy = {
               due: 'Apr 28',
               daysLeft: '3 天',
               exposure: '$48,200',
+              severity: 'critical',
             },
             {
               client: 'Birchwood Co',
@@ -248,6 +249,7 @@ const zhCN: LandingCopy = {
               due: 'Apr 29',
               daysLeft: '4 天',
               exposure: '$32,850',
+              severity: 'critical',
             },
             {
               client: 'Crestmont Inc',
@@ -255,6 +257,7 @@ const zhCN: LandingCopy = {
               due: 'May 02',
               daysLeft: '7 天',
               exposure: '$24,180',
+              severity: 'medium',
             },
           ],
         },

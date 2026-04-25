@@ -13,9 +13,11 @@ const { t, ctaHref, workflowAnchor } = Astro.props
 
 <section id="hero" class="border-b border-border-default bg-bg-canvas">
   <!-- Section pt 108 = Hero/RightSurface y in Figma; pb 108 mirrors bottom inset. -->
-  <div class="mx-auto grid max-w-[1440px] grid-cols-12 gap-12 px-20 pb-[108px] pt-[108px]">
+  <!-- Flex (not 12-col grid) so left copy = 560 and right surface = 640 match Figma exactly; -->
+  <!-- the 80px slack at 1440 viewport falls naturally between them via justify-between. -->
+  <div class="mx-auto flex max-w-[1440px] flex-col gap-12 px-20 pb-[108px] pt-[108px] lg:flex-row lg:items-start lg:justify-between">
     <!-- Left: copy. Sits ~21px below surface top (matches Figma Hero/Left vs Hero/RightSurface offset). -->
-    <div class="col-span-12 lg:col-span-6 lg:col-start-1 lg:pt-[21px]">
+    <div class="lg:w-[560px] lg:shrink-0 lg:pt-[21px]">
       <span class="inline-flex items-center gap-2 rounded-full bg-accent-tint px-3 py-1 font-mono text-[12px] tracking-[0.16em] text-accent-text">
         <span class="block h-1.5 w-1.5 rounded-full bg-accent-default"></span>
         {t.eyebrow}
@@ -54,8 +56,8 @@ const { t, ctaHref, workflowAnchor } = Astro.props
       </div>
     </div>
 
-    <!-- Right: surface -->
-    <div class="col-span-12 lg:col-span-6 lg:col-start-7">
+    <!-- Right: surface — Figma Hero/RightSurface fixed width = 640. -->
+    <div class="lg:w-[640px] lg:shrink-0">
       <HeroSurface t={t.surface} />
     </div>
   </div>

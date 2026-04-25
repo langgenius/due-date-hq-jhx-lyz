@@ -13,6 +13,14 @@ const severityPillClass: Record<'critical' | 'high' | 'medium', string> = {
   high: 'bg-severity-high-tint text-severity-high',
   medium: 'bg-severity-medium-tint text-severity-medium',
 }
+
+// Optional row tint per DESIGN.md `risk-row-{critical,high,upcoming}` tokens.
+// Only cards whose rows declare `severity` (e.g. Migration Drag) get tinted.
+const rowTint: Record<'critical' | 'high' | 'medium', string> = {
+  critical: 'bg-severity-critical-tint',
+  high: 'bg-severity-high-tint',
+  medium: 'bg-severity-medium-tint',
+}
 ---
 
 <section class="border-b border-border-default bg-bg-canvas">
@@ -49,7 +57,7 @@ const severityPillClass: Record<'critical' | 'high' | 'medium', string> = {
               <span class="font-mono text-[12px] text-text-muted">{card.listSummary}</span>
             </div>
             {card.rows.map((row) => (
-              <div class="flex items-center gap-3 border-b border-border-subtle px-3 py-2 text-[13px] last:border-b-0">
+              <div class:list={['flex items-center gap-3 border-b border-border-subtle px-3 py-2 text-[13px] last:border-b-0', row.severity && rowTint[row.severity]]}>
                 <span class="block h-1.5 w-1.5 shrink-0 rounded-full bg-accent-default"></span>
                 <span class="font-mono text-[12px] text-text-secondary">{row.pill}</span>
                 <span class="flex-1 truncate text-text-secondary">{row.text}</span>

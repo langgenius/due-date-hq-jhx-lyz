@@ -14,6 +14,14 @@ const confidenceClass = {
   MED: 'bg-severity-medium-tint text-severity-medium',
   LOW: 'bg-severity-critical-tint text-severity-critical',
 }
+
+// Per DESIGN.md `risk-row-{critical,high,upcoming}` + `risk-row-*-bar` tokens.
+// Drives row tint, left-bar color, and severity-aware days/exposure text.
+const severityRow: Record<'critical' | 'high' | 'medium', { tint: string; bar: string; text: string }> = {
+  critical: { tint: 'bg-severity-critical-tint', bar: 'bg-severity-critical', text: 'text-severity-critical' },
+  high: { tint: 'bg-severity-high-tint', bar: 'bg-severity-high', text: 'text-severity-high' },
+  medium: { tint: 'bg-severity-medium-tint', bar: 'bg-severity-medium', text: 'text-severity-medium' },
+}
 ---
 
 <article class="grid grid-cols-12 gap-12">
@@ -58,18 +66,21 @@ const confidenceClass = {
               <p class="flex-1 text-[12px] text-accent-text">{s.pulse.text}</p>
               <span class="font-mono text-[12px] text-accent-default">{s.pulse.cta} →</span>
             </div>
-            {s.rows.map((row) => (
-              <div class="grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr] items-center gap-3 border-b border-border-subtle px-4 py-2.5 last:border-b-0">
-                <div class="flex items-center gap-3">
-                  <span class="block h-5 w-[3px] rounded-full bg-severity-critical"></span>
-                  <span class="text-[13px] font-medium text-text-primary">{row.client}</span>
+            {s.rows.map((row) => {
+              const sev = severityRow[row.severity]
+              return (
+                <div class:list={['grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr] items-center gap-3 border-b border-border-subtle px-4 py-2.5 last:border-b-0', sev.tint]}>
+                  <div class="flex items-center gap-3">
+                    <span class:list={['block h-5 w-[3px] rounded-full', sev.bar]}></span>
+                    <span class="text-[13px] font-medium text-text-primary">{row.client}</span>
+                  </div>
+                  <span class="font-mono text-[12px] text-text-secondary">{row.form}</span>
+                  <span class="font-mono text-[12px] text-text-secondary">{row.due}</span>
+                  <span class:list={['font-mono text-[12px]', sev.text]}>{row.daysLeft}</span>
+                  <span class:list={['text-right font-mono tabular text-[13px] font-medium', sev.text]}>{row.exposure}</span>
                 </div>
-                <span class="font-mono text-[12px] text-text-secondary">{row.form}</span>
-                <span class="font-mono text-[12px] text-text-secondary">{row.due}</span>
-                <span class="font-mono text-[12px] text-text-muted">{row.daysLeft}</span>
-                <span class="text-right font-mono tabular text-[13px] font-medium text-text-primary">{row.exposure}</span>
-              </div>
-            ))}
+              )
+            })}
           </Fragment>
         )
       })()}

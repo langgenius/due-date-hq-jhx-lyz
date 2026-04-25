@@ -8,6 +8,14 @@ interface Props {
 }
 
 const { t } = Astro.props
+
+// Row tint per DESIGN.md `risk-row-{critical,high,upcoming}` tokens.
+// `medium` maps to `risk-row-upcoming` (yellow).
+const rowTint: Record<'critical' | 'high' | 'medium', string> = {
+  critical: 'bg-severity-critical-tint',
+  high: 'bg-severity-high-tint',
+  medium: 'bg-severity-medium-tint',
+}
 ---
 
 <div class="relative overflow-hidden rounded-xl border border-border-default bg-bg-elevated shadow-overlay">
@@ -31,13 +39,13 @@ const { t } = Astro.props
     <KbdHint keys="⌘K" label={t.kbdCommand} />
   </div>
 
-  <!-- Pulse banner -->
-  <div class="flex items-center gap-3 border-b border-border-subtle bg-accent-tint/60 px-4 py-2.5">
-    <span class="inline-flex items-center rounded-sm bg-accent-default px-1.5 py-0.5 font-mono text-2xs font-bold tracking-wider text-primary-foreground">
+  <!-- Pulse banner: per DESIGN.md `pulse-banner` token = severity-medium-tint (yellow) -->
+  <div class="flex items-center gap-3 border-b border-severity-medium-border bg-severity-medium-tint px-4 py-2.5">
+    <span class="inline-flex items-center rounded-sm bg-severity-medium px-1.5 py-0.5 font-mono text-2xs font-bold tracking-wider text-primary-foreground">
       {t.pulse.tag}
     </span>
-    <p class="flex-1 text-[12px] text-accent-text">{t.pulse.text}</p>
-    <span class="rounded border border-accent-default/40 bg-bg-elevated px-2 py-0.5 font-mono text-2xs text-text-secondary">
+    <p class="flex-1 text-[12px] text-text-primary">{t.pulse.text}</p>
+    <span class="rounded border border-border-default bg-bg-elevated px-2 py-0.5 font-mono text-2xs text-text-secondary">
       {t.pulse.source}
     </span>
     <span class="font-mono text-[12px] text-accent-default">{t.pulse.cta} →</span>
@@ -83,7 +91,7 @@ const { t } = Astro.props
       <span>{t.table.headers.evidence}</span>
     </div>
     {t.table.rows.map((row) => (
-      <div class="grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr_1.3fr] items-center gap-3 border-b border-border-subtle px-4 py-2 last:border-b-0">
+      <div class:list={['grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr_1.3fr] items-center gap-3 border-b border-border-subtle px-4 py-2 last:border-b-0', rowTint[row.severity]]}>
         <div class="flex items-center gap-3">
           <SeverityBar severity={row.severity} />
           <div class="leading-tight">

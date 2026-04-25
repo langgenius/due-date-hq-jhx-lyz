@@ -89,6 +89,8 @@ export interface ProblemRow {
   pill: string
   text: string
   date: string
+  /** Optional row tint per DESIGN.md `risk-row-{critical,high,upcoming}` tokens. */
+  severity?: 'critical' | 'high' | 'medium'
 }
 
 export interface ProblemCard {
@@ -123,6 +125,8 @@ export interface WorkflowDashboardRow {
   due: string
   daysLeft: string
   exposure: string
+  /** Drives row tint, left bar, and days/exposure text color. */
+  severity: 'critical' | 'high' | 'medium'
 }
 
 export interface WorkflowDashboardCopy {
