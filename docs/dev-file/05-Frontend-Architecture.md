@@ -24,7 +24,9 @@ apps/app/
 │   ├── routes/               ← 每个路由一个 .tsx（RR7 data mode：loader / action / Component）
 │   │   ├── error.tsx             ← root route 全局 RouteErrorBoundary
 │   │   ├── _layout.tsx           ← 登录后 shell（侧栏 + 顶栏，path='/'，loader 做认证 gate）
-│   │   ├── login.tsx             ← 登录页（path='/login'，loader 把已登录用户跳走）
+│   │   ├── _entry-layout.tsx     ← entry shell（顶栏 + 底栏，pathless layout route，包 /login + /onboarding；命名避开 "auth" 因为 onboarding 已在 post-auth 状态）
+│   │   ├── login.tsx             ← 登录页（path='/login'，loader 把已登录用户跳走，渲染在 EntryShell 内）
+│   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
 │   │   ├── workboard.tsx
 │   │   ├── settings.tsx
@@ -96,8 +98,10 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
   子 route 默认不重复挂同一个 boundary；React Router 会把 loader / lazy / render 错误冒泡到最近的
   boundary。只有未来需要“保留 app shell、内容区局部失败”这类不同 UX 时，才在更深层加专用
   boundary。
-- 业务路由按认证状态分成两个顶级 route group，并额外保留一个 public catch-all：
-  - `/login` — 公开路由组，`guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去
+- 业务路由按 session/org 状态分成三个顶级 route group，并额外保留一个 public catch-all：
+  - **EntryShell（pathless layout route，`Component: EntryShell`）** — 包 `/login` + `/onboarding` 共享同一套 header / footer / locale switcher chrome。子路由各自挂自己的 loader（`guestLoader` / `onboardingLoader`），EntryShell 自身不带 loader 也不带 path，详见 `apps/app/src/routes/_entry-layout.tsx`。**命名避开 "auth"：** `/login` 是 pre-auth、`/onboarding` 是 post-auth/pre-active-org，两者唯一共性是「在用户进 dashboard shell 之前要走完的过渡 surface」 → "entry"
+    - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去
+    - `/onboarding` — `onboardingLoader` 要求有 session 且无 `activeOrganizationId`；已有 active org 直接 `redirect(redirectTo)`，无 session 跳 `/login?redirectTo=/onboarding`
   - `/` — 受保护路由组（`id: 'protected'`，`Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `settings` 都作为它的 children
   - `*` — 公开 catch-all route，loader 主动抛 404 `Response`，由 root `RouteErrorBoundary`
     渲染统一 not found UI；未知 URL 不进入认证 gate，也不显示 React Router 默认开发错误页

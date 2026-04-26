@@ -9,6 +9,16 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   'zh-CN': '简体中文',
 }
 
+// Two-character codes for tight workbench triggers (header pills, segmented
+// controls). Marketing TopNav uses the same `EN` / `中` pair — see
+// `apps/marketing/src/i18n/{en,zh-CN}.ts` `language.{enShort,zhShort}`.
+// Long labels remain in `LOCALE_LABELS` for dropdown menu items so users can
+// still see the full language name when picking.
+export const LOCALE_SHORT_LABELS: Record<Locale, string> = {
+  en: 'EN',
+  'zh-CN': '中',
+}
+
 export const INTL_LOCALE: Record<Locale, string> = {
   en: 'en-US',
   'zh-CN': 'zh-CN',

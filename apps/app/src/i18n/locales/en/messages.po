@@ -63,7 +63,7 @@ msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows 
 msgstr "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 
 #. placeholder {0}: new Date().getFullYear()
-#: src/routes/login.tsx
+#: src/routes/_entry-layout.tsx
 msgid "© {0} DueDateHQ Inc."
 msgstr "© {0} DueDateHQ Inc."
 
@@ -120,7 +120,7 @@ msgstr "AI-facing recommendations remain hidden unless source, quote, and verifi
 msgid "all"
 msgstr "all"
 
-#: src/routes/login.tsx
+#: src/routes/_entry-layout.tsx
 msgid "All systems operational"
 msgstr "All systems operational"
 
@@ -219,8 +219,8 @@ msgid "Confidence"
 msgstr "Confidence"
 
 #: src/routes/onboarding.tsx
-msgid "Confirm your practice profile"
-msgstr "Confirm your practice profile"
+#~ msgid "Confirm your practice profile"
+#~ msgstr "Confirm your practice profile"
 
 #: src/features/migration/WizardShell.tsx
 #: src/routes/onboarding.tsx
@@ -257,7 +257,6 @@ msgid "Couldn't start the import"
 msgstr "Couldn't start the import"
 
 #: src/routes/_layout.tsx
-#: src/routes/onboarding.tsx
 msgid "CPA deadline console"
 msgstr "CPA deadline console"
 
@@ -354,6 +353,10 @@ msgstr "Enable evidence gate"
 msgid "Encrypted · 7-day session · SSO respected"
 msgstr "Encrypted · 7-day session · SSO respected"
 
+#: src/routes/onboarding.tsx
+msgid "Encrypted · Auto-saves · Renamable later"
+msgstr "Encrypted · Auto-saves · Renamable later"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
 msgstr "Entity types"
@@ -407,7 +410,7 @@ msgstr "Filters"
 msgid "Firm settings"
 msgstr "Firm settings"
 
-#: src/routes/login.tsx
+#: src/routes/_entry-layout.tsx
 msgid "For US CPA practices"
 msgstr "For US CPA practices"
 
@@ -802,6 +805,10 @@ msgstr "Search obligations"
 #~ msgstr "Secure sign-in"
 
 #: src/routes/onboarding.tsx
+msgid "Set up your practice."
+msgstr "Set up your practice."
+
+#: src/routes/onboarding.tsx
 msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
 
@@ -905,6 +912,10 @@ msgstr "Status"
 #: src/features/migration/WizardShell.tsx
 msgid "Step {step} / 4"
 msgstr "Step {step} / 4"
+
+#: src/routes/onboarding.tsx
+msgid "STEP 01 · PRACTICE PROFILE"
+msgstr "STEP 01 · PRACTICE PROFILE"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
@@ -1067,8 +1078,8 @@ msgid "XLSX uploads land in Phase 0 — please export as CSV for now."
 msgstr "XLSX uploads land in Phase 0 — please export as CSV for now."
 
 #: src/routes/onboarding.tsx
-msgid "You can rename or invite teammates later."
-msgstr "You can rename or invite teammates later."
+#~ msgid "You can rename or invite teammates later."
+#~ msgstr "You can rename or invite teammates later."
 
 #: src/lib/i18n-error.ts
 msgid "You don't have permission to perform this action."

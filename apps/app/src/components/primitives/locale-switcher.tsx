@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@duedatehq/ui/components/ui/dropdown-menu'
-import { LOCALE_LABELS, SUPPORTED_LOCALES } from '@duedatehq/i18n'
+import { LOCALE_LABELS, LOCALE_SHORT_LABELS, SUPPORTED_LOCALES } from '@duedatehq/i18n/locales'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { useLocaleSwitch } from '@/i18n/provider'
@@ -24,8 +24,12 @@ interface LocaleSwitcherProps {
 }
 
 // Self-contained language picker: globe button → menu of supported locales with
-// a check on the active one. Uses the shared `useLocaleSwitch` hook so the
-// choice persists and active queries refetch in the new language.
+// a check on the active one. The trigger renders the two-char code
+// (`LOCALE_SHORT_LABELS`) to stay dense in workbench/auth headers; the menu
+// items keep the full localized name (`LOCALE_LABELS`) so users can still
+// recognise their target language when picking. Uses the shared
+// `useLocaleSwitch` hook so the choice persists and active queries refetch in
+// the new language.
 export function LocaleSwitcher({
   className,
   variant = 'outline',
@@ -52,7 +56,7 @@ export function LocaleSwitcher({
         }
       >
         <GlobeIcon data-icon={iconOnly ? undefined : 'inline-start'} />
-        {iconOnly ? null : <span>{LOCALE_LABELS[locale]}</span>}
+        {iconOnly ? null : <span>{LOCALE_SHORT_LABELS[locale]}</span>}
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} sideOffset={8} className="w-44">
         {SUPPORTED_LOCALES.map((code) => (

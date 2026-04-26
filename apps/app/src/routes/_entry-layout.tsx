@@ -1,0 +1,64 @@
+import { Outlet } from 'react-router'
+import { Trans } from '@lingui/react/macro'
+
+import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
+
+// React Router v7 pathless layout route shared by every "entry" surface — the
+// pages users see between landing on the app and reaching the dashboard shell.
+// Today that means `/login` (pre-auth, `guestLoader`) and `/onboarding`
+// (post-auth, pre-active-org, `onboardingLoader`); future entries (magic link
+// landing, SSO consent, email verification, password reset) belong here too.
+//
+// We deliberately don't call this "_auth-layout" — `/onboarding` runs *after*
+// authentication and only blocks until the user provisions a firm, so an
+// "auth" framing would be misleading. The shared chrome justification is
+// visual + semantic: header + footer carry no user metadata, no nav, no firm
+// switcher; both surfaces are single-column, decoration-free, and meant to
+// finish quickly so the user can leave them.
+//
+// Each child route runs its own loader independently — `EntryShell` itself has
+// no loader, so the differing session-state gates of `/login` vs `/onboarding`
+// stay isolated. See `apps/app/src/router.tsx`.
+export function EntryShell() {
+  return (
+    <div className="flex min-h-screen flex-col bg-bg-canvas text-text-primary">
+      <EntryShellHeader />
+      <main className="flex flex-1 flex-col items-center justify-center px-6 py-12 lg:px-10">
+        <Outlet />
+      </main>
+      <EntryShellFooter />
+    </div>
+  )
+}
+
+function EntryShellHeader() {
+  return (
+    <header className="flex h-14 items-center justify-between border-b border-border-default px-6 lg:px-10">
+      <div className="flex items-center gap-2 text-[13px]">
+        <span aria-hidden className="block h-2 w-2 rounded-full bg-accent-default" />
+        <span className="font-semibold tracking-tight text-text-primary">DueDateHQ</span>
+        <span aria-hidden className="text-text-muted">
+          /
+        </span>
+        <span className="text-text-secondary">
+          <Trans>For US CPA practices</Trans>
+        </span>
+      </div>
+      <LocaleSwitcher variant="ghost" />
+    </header>
+  )
+}
+
+function EntryShellFooter() {
+  return (
+    <footer className="flex h-12 items-center justify-between border-t border-border-default px-6 font-mono text-[11px] text-text-muted lg:px-10">
+      <span className="tabular-nums">
+        <Trans>© {new Date().getFullYear()} DueDateHQ Inc.</Trans>
+      </span>
+      <span className="inline-flex items-center gap-1.5">
+        <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-status-done" />
+        <Trans>All systems operational</Trans>
+      </span>
+    </footer>
+  )
+}

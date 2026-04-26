@@ -11,6 +11,7 @@ import { activateLocale } from '@/i18n/i18n'
 import { persistLocaleHandoffFromUrl } from '@/i18n/locales'
 import { authClient } from '@/lib/auth'
 import { removeLocaleFromPath } from '@/i18n/query'
+import { EntryShell } from '@/routes/_entry-layout'
 import { RootLayout, ShellSkeleton } from '@/routes/_layout'
 import { RouteErrorBoundary } from '@/routes/error'
 import { RouteHydrateFallback } from '@/routes/fallback'
@@ -124,24 +125,35 @@ export function createAppRouter() {
       ErrorBoundary: RouteErrorBoundary,
       children: [
         {
-          path: '/login',
-          loader: guestLoader,
-          HydrateFallback: RouteHydrateFallback,
-          lazy: async () => {
-            const { LoginRoute } = await import('@/routes/login')
+          // Pathless layout route — renders the shared "entry" chrome
+          // (header / footer / locale switcher) once for every page users
+          // see *before* reaching the dashboard shell: `/login` (pre-auth)
+          // and `/onboarding` (post-auth, pre-active-org). Each child runs
+          // its own loader independently. See `docs/dev-log/
+          // 2026-04-26-entry-shell-extraction.md` for the naming rationale.
+          Component: EntryShell,
+          children: [
+            {
+              path: '/login',
+              loader: guestLoader,
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { LoginRoute } = await import('@/routes/login')
 
-            return { Component: LoginRoute }
-          },
-        },
-        {
-          path: '/onboarding',
-          loader: onboardingLoader,
-          HydrateFallback: RouteHydrateFallback,
-          lazy: async () => {
-            const { OnboardingRoute } = await import('@/routes/onboarding')
+                return { Component: LoginRoute }
+              },
+            },
+            {
+              path: '/onboarding',
+              loader: onboardingLoader,
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { OnboardingRoute } = await import('@/routes/onboarding')
 
-            return { Component: OnboardingRoute }
-          },
+                return { Component: OnboardingRoute }
+              },
+            },
+          ],
         },
         {
           id: PROTECTED_ROUTE_ID,

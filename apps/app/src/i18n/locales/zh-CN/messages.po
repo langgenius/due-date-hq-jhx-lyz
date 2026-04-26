@@ -63,7 +63,7 @@ msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows 
 msgstr "{skipped, plural, other {# 行将被跳过（见错误明细）}}"
 
 #. placeholder {0}: new Date().getFullYear()
-#: src/routes/login.tsx
+#: src/routes/_entry-layout.tsx
 msgid "© {0} DueDateHQ Inc."
 msgstr "© {0} DueDateHQ Inc."
 
@@ -120,7 +120,7 @@ msgstr "仅当具备来源、引文与核验时间时，AI 生成的建议才会
 msgid "all"
 msgstr "全部"
 
-#: src/routes/login.tsx
+#: src/routes/_entry-layout.tsx
 msgid "All systems operational"
 msgstr "所有系统运行正常"
 
@@ -219,8 +219,8 @@ msgid "Confidence"
 msgstr "置信度"
 
 #: src/routes/onboarding.tsx
-msgid "Confirm your practice profile"
-msgstr "确认你的事务所资料"
+#~ msgid "Confirm your practice profile"
+#~ msgstr "确认你的事务所资料"
 
 #: src/features/migration/WizardShell.tsx
 #: src/routes/onboarding.tsx
@@ -257,7 +257,6 @@ msgid "Couldn't start the import"
 msgstr "无法启动导入流程"
 
 #: src/routes/_layout.tsx
-#: src/routes/onboarding.tsx
 msgid "CPA deadline console"
 msgstr "注册会计师截止日期工作台"
 
@@ -354,6 +353,10 @@ msgstr "启用证据门槛"
 msgid "Encrypted · 7-day session · SSO respected"
 msgstr "已加密 · 会话 7 天有效 · 遵循 SSO 策略"
 
+#: src/routes/onboarding.tsx
+msgid "Encrypted · Auto-saves · Renamable later"
+msgstr "全程加密 · 自动保存 · 可随时重命名"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
 msgstr "实体类型"
@@ -407,7 +410,7 @@ msgstr "筛选器"
 msgid "Firm settings"
 msgstr "事务所设置"
 
-#: src/routes/login.tsx
+#: src/routes/_entry-layout.tsx
 msgid "For US CPA practices"
 msgstr "面向美国注册会计师事务所"
 
@@ -802,6 +805,10 @@ msgstr "搜索义务"
 #~ msgstr "安全登录"
 
 #: src/routes/onboarding.tsx
+msgid "Set up your practice."
+msgstr "设置你的事务所。"
+
+#: src/routes/onboarding.tsx
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
@@ -905,6 +912,10 @@ msgstr "状态"
 #: src/features/migration/WizardShell.tsx
 msgid "Step {step} / 4"
 msgstr "第 {step} 步 / 共 4 步"
+
+#: src/routes/onboarding.tsx
+msgid "STEP 01 · PRACTICE PROFILE"
+msgstr "第一步 · 事务所资料"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
@@ -1039,7 +1050,9 @@ msgstr "Web 推送已禁用"
 
 #: src/routes/login.tsx
 msgid "Welcome back to the workbench."
-msgstr "欢迎回到工作台。"
+msgstr ""
+"欢迎回来。\n"
+"事务所工作台已就绪。"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Where is your data coming from?"
@@ -1067,8 +1080,8 @@ msgid "XLSX uploads land in Phase 0 — please export as CSV for now."
 msgstr "XLSX 上传将在 Phase 0 上线 —— 现在请先导出为 CSV。"
 
 #: src/routes/onboarding.tsx
-msgid "You can rename or invite teammates later."
-msgstr "你可以稍后重命名或邀请团队成员。"
+#~ msgid "You can rename or invite teammates later."
+#~ msgstr "你可以稍后重命名或邀请团队成员。"
 
 #: src/lib/i18n-error.ts
 msgid "You don't have permission to perform this action."

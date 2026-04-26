@@ -6,7 +6,6 @@ import { Loader2Icon } from 'lucide-react'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { signInWithGoogle } from '@/lib/auth'
-import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -35,9 +34,7 @@ const GoogleIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-function isUserCanceled(message: string): boolean {
-  return /cancel|popup|closed/i.test(message)
-}
+const USER_CANCELED = /cancel|popup|closed/i
 
 export function LoginRoute() {
   // Authed users never reach this component — the /login loader redirects them
@@ -56,117 +53,91 @@ export function LoginRoute() {
       await signInWithGoogle(redirectTo)
     } catch (err) {
       const message = err instanceof Error ? err.message : t`Please try again.`
-      if (!isUserCanceled(message)) {
+      if (!USER_CANCELED.test(message)) {
         toast.error(t`Unable to start Google sign-in`, { description: message })
       }
       startTransition(() => setIsSubmitting(false))
     }
   }
 
-  const disabled = isSubmitting
-
   return (
-    <div className="flex min-h-screen flex-col bg-bg-canvas text-text-primary">
-      <header className="flex h-14 items-center justify-between border-b border-border-default px-6 lg:px-10">
-        <div className="flex items-center gap-2 text-[13px]">
-          <span aria-hidden className="block h-2 w-2 rounded-full bg-accent-default" />
-          <span className="font-semibold tracking-tight text-text-primary">DueDateHQ</span>
-          <span aria-hidden className="text-text-muted">
-            /
-          </span>
-          <span className="text-text-secondary">
-            <Trans>For US CPA practices</Trans>
-          </span>
-        </div>
-        <LocaleSwitcher variant="ghost" />
-      </header>
+    <div className="flex w-full max-w-[400px] flex-col">
+      <span className="inline-flex w-fit items-center gap-2 rounded-full bg-accent-tint px-2.5 py-1 font-mono text-[11px] tracking-[0.16em] text-accent-text">
+        <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-accent-default" />
+        <Trans>SIGN IN</Trans>
+      </span>
 
-      <main className="flex flex-1 items-center justify-center px-6 py-12">
-        <div className="flex w-full max-w-[400px] flex-col">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-accent-tint px-2.5 py-1 font-mono text-[11px] tracking-[0.16em] text-accent-text">
-            <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-accent-default" />
-            <Trans>SIGN IN</Trans>
-          </span>
+      {/* min-h reserves the English 2-line height so the button below stays
+          pinned regardless of locale. `whitespace-pre-line` lets locale catalogs
+          inject a soft `\n` at a natural break point (zh-CN does this; en lets
+          the browser wrap on its own). */}
+      <h1 className="mt-5 min-h-[2lh] whitespace-pre-line text-[28px] font-semibold leading-[1.15] tracking-tight text-text-primary">
+        <Trans>Welcome back to the workbench.</Trans>
+      </h1>
 
-          <h1 className="mt-5 text-[28px] font-semibold leading-[1.15] tracking-tight text-text-primary">
-            <Trans>Welcome back to the workbench.</Trans>
-          </h1>
+      <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">
+        <Trans>
+          Sign in with Google to access your firm&apos;s deadline queue and evidence-backed
+          recommendations.
+        </Trans>
+      </p>
 
-          <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">
-            <Trans>
-              Sign in with Google to access your firm&apos;s deadline queue and evidence-backed
-              recommendations.
-            </Trans>
-          </p>
+      <Button
+        variant="outline"
+        size="lg"
+        className="mt-8 h-11 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel"
+        onClick={handleGoogleSignIn}
+        disabled={isSubmitting}
+        aria-busy={isSubmitting}
+      >
+        {isSubmitting ? (
+          <Loader2Icon className="size-4 animate-spin" aria-hidden />
+        ) : (
+          <GoogleIcon />
+        )}
+        <span>
+          {isSubmitting ? (
+            <Trans>Redirecting to Google…</Trans>
+          ) : (
+            <Trans>Continue with Google</Trans>
+          )}
+        </span>
+      </Button>
 
-          <Button
-            variant="outline"
-            size="lg"
-            className="mt-8 h-11 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel"
-            onClick={handleGoogleSignIn}
-            disabled={disabled}
-            aria-busy={disabled}
+      <p className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] text-text-muted">
+        <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-status-done" />
+        <Trans>Encrypted · 7-day session · SSO respected</Trans>
+      </p>
+
+      <p className="mt-8 text-[12px] leading-relaxed text-text-muted">
+        <Trans>
+          By signing in you agree to the{' '}
+          <a
+            data-t="termsLink"
+            className="text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
+            href="/terms"
           >
-            {disabled ? (
-              <Loader2Icon className="size-4 animate-spin" aria-hidden />
-            ) : (
-              <GoogleIcon />
-            )}
-            <span>
-              {disabled ? (
-                <Trans>Redirecting to Google…</Trans>
-              ) : (
-                <Trans>Continue with Google</Trans>
-              )}
-            </span>
-          </Button>
-
-          <p className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] text-text-muted">
-            <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-status-done" />
-            <Trans>Encrypted · 7-day session · SSO respected</Trans>
-          </p>
-
-          <p className="mt-8 text-[12px] leading-relaxed text-text-muted">
-            <Trans>
-              By signing in you agree to the{' '}
-              <a
-                data-t="termsLink"
-                className="text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
-                href="/terms"
-              >
-                Terms
-              </a>{' '}
-              and{' '}
-              <a
-                data-t="privacyLink"
-                className="text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
-                href="/privacy"
-              >
-                Privacy Policy
-              </a>
-              . Trouble signing in? Email{' '}
-              <a
-                data-t="supportLink"
-                className="font-mono text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
-                href="mailto:support@duedatehq.com"
-              >
-                support@duedatehq.com
-              </a>
-              .
-            </Trans>
-          </p>
-        </div>
-      </main>
-
-      <footer className="flex h-12 items-center justify-between border-t border-border-default px-6 font-mono text-[11px] text-text-muted lg:px-10">
-        <span className="tabular-nums">
-          <Trans>© {new Date().getFullYear()} DueDateHQ Inc.</Trans>
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-status-done" />
-          <Trans>All systems operational</Trans>
-        </span>
-      </footer>
+            Terms
+          </a>{' '}
+          and{' '}
+          <a
+            data-t="privacyLink"
+            className="text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
+            href="/privacy"
+          >
+            Privacy Policy
+          </a>
+          . Trouble signing in? Email{' '}
+          <a
+            data-t="supportLink"
+            className="font-mono text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
+            href="mailto:support@duedatehq.com"
+          >
+            support@duedatehq.com
+          </a>
+          .
+        </Trans>
+      </p>
     </div>
   )
 }

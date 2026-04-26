@@ -2,25 +2,18 @@ import { useMemo, useState, useTransition, type FormEvent } from 'react'
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { Loader2Icon, SparklesIcon } from 'lucide-react'
+import { ChevronRightIcon, Loader2Icon } from 'lucide-react'
 
 import { derivePracticeName, slugifyPracticeName } from '@duedatehq/core/practice-name'
 import { Button } from '@duedatehq/ui/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@duedatehq/ui/components/ui/card'
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@duedatehq/ui/components/ui/field'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import { authClient, type AuthUser } from '@/lib/auth'
-import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 
 const MIN_NAME_LENGTH = 2
 const MAX_RETRIES_ON_SLUG_COLLISION = 1
+// Hoisted out of `isSlugConflict` so we don't re-allocate the regex on every
+// failed signup attempt (Vercel `js-hoist-regexp`).
+const SLUG_CONFLICT_PATTERN = /unique|already exists|slug/i
 
 type OnboardingLoaderData = { user: AuthUser }
 
@@ -42,7 +35,7 @@ function isSlugConflict(error: unknown): boolean {
     (error as { message?: string }).message ??
     (error as { error?: { message?: string } }).error?.message ??
     ''
-  return /unique|already exists|slug/i.test(message)
+  return SLUG_CONFLICT_PATTERN.test(message)
 }
 
 export function OnboardingRoute() {
@@ -123,97 +116,87 @@ export function OnboardingRoute() {
   }
 
   return (
-    <div className="relative isolate flex min-h-screen items-center justify-center bg-background-body p-6">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_0%,color-mix(in_oklab,var(--primary)_10%,transparent),transparent_60%)]"
-      />
-      <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
-        <LocaleSwitcher />
-      </div>
-      <div className="flex w-full max-w-[480px] flex-col gap-6">
-        <div className="flex items-center gap-2">
-          <div className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
-            <SparklesIcon className="size-4" />
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-base font-semibold text-text-primary">DueDateHQ</span>
-            <span className="text-xs text-text-tertiary">
-              <Trans>CPA deadline console</Trans>
-            </span>
-          </div>
+    <div className="flex w-full max-w-[400px] flex-col">
+      <span className="inline-flex w-fit items-center gap-2 rounded-full bg-accent-tint px-2.5 py-1 font-mono text-[11px] tracking-[0.16em] text-accent-text">
+        <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-accent-default" />
+        <Trans>STEP 01 · PRACTICE PROFILE</Trans>
+      </span>
+
+      <h1 className="mt-5 text-[28px] font-semibold leading-[1.15] tracking-tight text-text-primary">
+        <Trans>Set up your practice.</Trans>
+      </h1>
+
+      <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">
+        <Trans>
+          We pre-filled a name from your Google profile. You can change it now or anytime in Firm
+          settings.
+        </Trans>
+      </p>
+
+      <form onSubmit={handleSubmit} noValidate className="contents">
+        <div className="mt-8 flex flex-col gap-1.5">
+          <label
+            htmlFor="practice-name"
+            className="text-[11px] font-medium uppercase tracking-[0.08em] text-text-secondary"
+          >
+            <Trans>Practice name</Trans>
+          </label>
+          <Input
+            id="practice-name"
+            name="name"
+            autoFocus
+            autoComplete="organization"
+            required
+            minLength={MIN_NAME_LENGTH}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder={t`e.g. Bright CPA Practice`}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? 'practice-name-error' : 'practice-name-helper'}
+          />
+          {error ? (
+            <p
+              id="practice-name-error"
+              role="alert"
+              className="text-[12px] leading-relaxed text-destructive"
+            >
+              {error}
+            </p>
+          ) : (
+            <p id="practice-name-helper" className="text-[12px] leading-relaxed text-text-muted">
+              <Trans>This is what your team and clients will see.</Trans>
+            </p>
+          )}
         </div>
 
-        <Card className="rounded-lg">
-          <CardHeader>
-            <CardTitle className="text-xl">
-              <Trans>Confirm your practice profile</Trans>
-            </CardTitle>
-            <CardDescription>
-              <Trans>
-                We pre-filled a name from your Google profile. You can change it now or anytime in
-                Firm settings.
-              </Trans>
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit} noValidate>
-            <CardContent>
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="practice-name">
-                    <Trans>Practice name</Trans>
-                  </FieldLabel>
-                  <Input
-                    id="practice-name"
-                    name="name"
-                    autoFocus
-                    autoComplete="organization"
-                    required
-                    minLength={MIN_NAME_LENGTH}
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    placeholder={t`e.g. Bright CPA Practice`}
-                    aria-invalid={error ? true : undefined}
-                    aria-describedby={error ? 'practice-name-error' : undefined}
-                  />
-                  {error ? (
-                    <FieldDescription
-                      id="practice-name-error"
-                      className="text-destructive"
-                      role="alert"
-                    >
-                      {error}
-                    </FieldDescription>
-                  ) : (
-                    <FieldDescription>
-                      <Trans>This is what your team and clients will see.</Trans>
-                    </FieldDescription>
-                  )}
-                </Field>
-              </FieldGroup>
-            </CardContent>
-            <CardFooter className="flex-col items-stretch gap-2 border-t border-divider-regular pt-4">
-              <Button type="submit" size="lg" disabled={isSubmitting} aria-busy={isSubmitting}>
-                {isSubmitting ? (
-                  <>
-                    <Loader2Icon className="size-4 animate-spin" aria-hidden />
-                    <span>
-                      <Trans>Setting up your practice…</Trans>
-                    </span>
-                  </>
-                ) : (
-                  <span>
-                    <Trans>Continue</Trans>
-                  </span>
-                )}
-              </Button>
-              <p className="text-xs text-text-tertiary">
-                <Trans>You can rename or invite teammates later.</Trans>
-              </p>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
+        <Button
+          type="submit"
+          className="mt-5 w-full justify-center gap-2"
+          disabled={isSubmitting}
+          aria-busy={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2Icon className="size-4 animate-spin" aria-hidden />
+              <span>
+                <Trans>Setting up your practice…</Trans>
+              </span>
+            </>
+          ) : (
+            <>
+              <span>
+                <Trans>Continue</Trans>
+              </span>
+              <ChevronRightIcon className="size-4" aria-hidden />
+            </>
+          )}
+        </Button>
+      </form>
+
+      <p className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] text-text-muted">
+        <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-status-done" />
+        <Trans>Encrypted · Auto-saves · Renamable later</Trans>
+      </p>
     </div>
   )
 }
