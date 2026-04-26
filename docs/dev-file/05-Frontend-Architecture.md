@@ -409,8 +409,10 @@ Theme runtime 同样由 `packages/ui` 持有：
 
 1. `pnpm --filter @duedatehq/app i18n:extract`：扫描源码并更新 `.po`
 2. `pnpm --filter @duedatehq/app i18n:compile`：编译 catalog 到 `.ts`
-3. CI drift check：执行 extract + compile 后，对 `apps/app/src/i18n/locales` 跑
-   `git diff --exit-code`，防止源码文案和 catalog 脱节
+3. CI drift check：在每次 `main` push 与 PR 上执行 extract + compile 后，对
+   `apps/app/src/i18n/locales` 跑 `git diff --exit-code`，防止源码文案和 catalog 脱节；
+   Lingui CLI 没有只检查不写入的官方 `--check` / dry-run 模式，所以 `git diff` 是外层
+   generated-artifact 同步断言；该 workflow 不使用 `paths` 过滤，因为 catalog drift 是仓库状态检查
 4. `pnpm ready`：覆盖 check、test、build；Vite 插件会在 build 中再次编译 `.po`
 5. 排查 CLI 并行问题时可临时加 `--workers 1`
 

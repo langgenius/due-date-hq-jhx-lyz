@@ -199,9 +199,12 @@ flowchart LR
 - `pnpm --filter @duedatehq/app i18n:compile` —— 输出编译后的 catalog。
   Vite 插件在 `dev` / `build` 阶段会自动执行；保留脚本是为了在 CI 中单独
   校验一次。
-- CI catalog drift check：执行 `i18n:extract` + `i18n:compile` 后，对
-  `apps/app/src/i18n/locales` 跑 `git diff --exit-code`。如果源码文案、PO catalog 或编译产物
-  未同步提交，CI 应失败。
+- CI catalog drift check：每次 `main` push 与 PR 都执行 `i18n:extract` +
+  `i18n:compile`，再对 `apps/app/src/i18n/locales` 跑 `git diff --exit-code`。如果源码文案、
+  PO catalog 或编译产物未同步提交，CI 应失败。Lingui CLI 没有只检查不写入的官方
+  `--check` / dry-run 模式，`compile --strict` 只检查 missing translations；React testing
+  guide 只覆盖 `I18nProvider` 包裹与渲染断言，不能替代 generated-artifact drift check。该
+  workflow 不使用 `paths` 过滤，因为 drift 是当前仓库状态问题，不应被后续 docs-only 提交掩盖。
 - Lingui v6 CLI 默认会并行处理抽取与编译任务；需要排查非确定性问题时可临时
   追加 `--workers 1` 关闭并行。
 

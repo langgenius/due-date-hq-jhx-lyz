@@ -4,25 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '.github/workflows/i18n-catalog-drift.yml'
-      - 'apps/app/lingui.config.ts'
-      - 'apps/app/package.json'
-      - 'apps/app/src/**'
-      - 'packages/i18n/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
   pull_request:
     branches:
       - main
-    paths:
-      - '.github/workflows/i18n-catalog-drift.yml'
-      - 'apps/app/lingui.config.ts'
-      - 'apps/app/package.json'
-      - 'apps/app/src/**'
-      - 'packages/i18n/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
 
 permissions:
   contents: read
