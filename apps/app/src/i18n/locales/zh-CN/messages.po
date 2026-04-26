@@ -626,7 +626,7 @@ msgstr "团队当前的运营压力点。"
 
 #: src/routes/dashboard.tsx
 msgid "Operations"
-msgstr ""
+msgstr "运营"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "or"
