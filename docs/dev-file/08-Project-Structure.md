@@ -283,7 +283,8 @@ packages/contracts/
 packages/db/
 ├── src/
 │   ├── schema/
-│   │   ├── auth.ts                 # better-auth 托管（自动生成）
+│   │   ├── auth.ts                 # better-auth 身份层 schema（手工维护）
+│   │   ├── firm.ts                 # firm_profile 业务租户表；PK = organization.id
 │   │   ├── clients.ts
 │   │   ├── obligations.ts
 │   │   ├── migration.ts
@@ -316,6 +317,8 @@ packages/db/
 **约束：**
 
 - `exports` 仅暴露 `scoped` / `client` / `audit-writer` / `evidence-writer` / `types` / schema 导入要显式 `@duedatehq/db/schema/<domain>`（只给 migration / seed / writer 内部用）
+- `schema/auth.ts` 不再通过 `@better-auth/cli generate` 自动覆盖；它包含手工维护的 `(organization_id, user_id)` unique index、`member.status` 附加字段，以及与 `firm_profile` 配套的身份层约束。后续 schema 变更走 `pnpm db:generate` 并人工 review migration。
+- `schema/firm.ts` 是业务租户层；`firm_profile.id` 复用 `organization.id`，业务表统一用 `firm_id -> firm_profile.id`。
 - oxlint 限制：`apps/server/src/procedures/**` 禁止 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`；规则在 `vite.config.ts` 的 `lint.rules.no-restricted-imports` override 中维护。
 
 ### 4.5 `packages/core`
