@@ -2,64 +2,35 @@ import { useState, useTransition } from 'react'
 import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { Trans, useLingui } from '@lingui/react/macro'
-import {
-  CalendarClockIcon,
-  GaugeIcon,
-  Loader2Icon,
-  ShieldCheckIcon,
-  SparklesIcon,
-} from 'lucide-react'
+import { Loader2Icon } from 'lucide-react'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@duedatehq/ui/components/ui/card'
-import { Separator } from '@duedatehq/ui/components/ui/separator'
 import { signInWithGoogle } from '@/lib/auth'
 import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 import { cn } from '@duedatehq/ui/lib/utils'
 
-function useHighlights() {
-  const { t } = useLingui()
-  return [
-    {
-      icon: GaugeIcon,
-      title: t`Penalty-weighted triage`,
-      detail: t`Dollar-first queues surface the obligations that matter before the clock runs out.`,
-    },
-    {
-      icon: ShieldCheckIcon,
-      title: t`Glass-box evidence`,
-      detail: t`Every AI recommendation ships with source, quote, and verification timestamp.`,
-    },
-    {
-      icon: CalendarClockIcon,
-      title: t`Seven-day rhythm`,
-      detail: t`Operating cadence tuned for CPA teams during peak filing windows.`,
-    },
-  ]
-}
-
 const GoogleIcon = ({ className }: { className?: string }) => (
   <svg
-    viewBox="0 0 24 24"
+    viewBox="0 0 48 48"
     aria-hidden="true"
     className={cn('size-4', className)}
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      d="M21.35 11.1H12v3.2h5.35c-.23 1.4-1.64 4.1-5.35 4.1-3.22 0-5.85-2.67-5.85-5.9s2.63-5.9 5.85-5.9c1.83 0 3.06.78 3.76 1.45l2.56-2.47C16.72 4.1 14.56 3 12 3 6.98 3 3 6.98 3 12s3.98 9 9 9c5.2 0 8.64-3.65 8.64-8.79 0-.59-.07-1.04-.29-1.11Z"
-      fill="#4285F4"
+      fill="#FFC107"
+      d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 3l5.7-5.7C33.6 6.1 29 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5Z"
     />
     <path
-      d="M3 12c0-1.07.19-2.09.5-3.05l3.05 2.36C6.41 11.74 6.3 12.36 6.3 13s.11 1.26.25 1.85L3.5 17.2C3.19 16.24 3 15.22 3 14.14Z"
-      fill="#34A853"
-      opacity="0"
+      fill="#FF3D00"
+      d="m6.3 14.7 6.6 4.8C14.7 16 19 13 24 13c3 0 5.7 1.1 7.8 3l5.7-5.7C33.6 6.1 29 4 24 4 16.3 4 9.7 8.3 6.3 14.7Z"
+    />
+    <path
+      fill="#4CAF50"
+      d="M24 44c4.9 0 9.4-1.9 12.8-5l-5.9-5c-2 1.4-4.5 2.2-7 2.2-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.1 44 24 44Z"
+    />
+    <path
+      fill="#1976D2"
+      d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4 5.5l5.9 5c-.4.4 6.4-4.7 6.4-14.5 0-1.3-.1-2.4-.4-3.5Z"
     />
   </svg>
 )
@@ -74,7 +45,6 @@ export function LoginRoute() {
   const [search] = useSearchParams()
   const redirectTo = search.get('redirectTo') || '/'
   const { t } = useLingui()
-  const highlights = useHighlights()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [, startTransition] = useTransition()
@@ -96,175 +66,107 @@ export function LoginRoute() {
   const disabled = isSubmitting
 
   return (
-    <div className="relative isolate min-h-screen bg-bg-canvas">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_0%,color-mix(in_oklab,var(--primary)_12%,transparent),transparent_60%),radial-gradient(40%_40%_at_100%_100%,color-mix(in_oklab,var(--primary)_8%,transparent),transparent_60%)]"
-      />
-      <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
-        <LocaleSwitcher />
-      </div>
-      <div className="mx-auto grid min-h-screen w-full max-w-[1200px] grid-cols-1 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="hidden flex-col justify-between border-r border-border-default bg-bg-panel p-8 lg:flex lg:p-12">
-          <div className="flex items-center gap-2">
-            <div className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
-              <SparklesIcon className="size-4" />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-base font-semibold text-text-primary">DueDateHQ</span>
-              <span className="text-xs text-muted-foreground">
-                <Trans>CPA deadline console</Trans>
-              </span>
-            </div>
-          </div>
+    <div className="flex min-h-screen flex-col bg-bg-canvas text-text-primary">
+      <header className="flex h-14 items-center justify-between border-b border-border-default px-6 lg:px-10">
+        <div className="flex items-center gap-2 text-[13px]">
+          <span aria-hidden className="block h-2 w-2 rounded-full bg-accent-default" />
+          <span className="font-semibold tracking-tight text-text-primary">DueDateHQ</span>
+          <span aria-hidden className="text-text-muted">
+            /
+          </span>
+          <span className="text-text-secondary">
+            <Trans>For US CPA practices</Trans>
+          </span>
+        </div>
+        <LocaleSwitcher variant="ghost" />
+      </header>
 
-          <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-3">
-              <span className="w-fit rounded-full border border-border-default bg-background px-2.5 py-1 font-mono text-xs tracking-wide text-text-secondary">
-                <Trans>Phase 0 · Demo practice</Trans>
-              </span>
-              <h1 className="text-2xl leading-tight font-semibold text-text-primary md:text-[28px]">
-                <Trans>Verified risk, one deadline at a time.</Trans>
-              </h1>
-              <p className="max-w-md text-sm text-text-secondary">
-                <Trans>
-                  Sign in to review penalty exposure, evidence checks, and the seven-day queue for
-                  your practice&apos;s filing pipeline.
-                </Trans>
-              </p>
-            </div>
+      <main className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="flex w-full max-w-[400px] flex-col">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-accent-tint px-2.5 py-1 font-mono text-[11px] tracking-[0.16em] text-accent-text">
+            <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-accent-default" />
+            <Trans>SIGN IN</Trans>
+          </span>
 
-            <ul className="flex flex-col gap-3">
-              {highlights.map((item) => {
-                const Icon = item.icon
-                return (
-                  <li
-                    key={item.title}
-                    className="flex items-start gap-3 rounded-md border border-border-default bg-background p-3"
-                  >
-                    <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-md bg-accent-tint text-accent-text">
-                      <Icon className="size-4" />
-                    </span>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium text-text-primary">{item.title}</span>
-                      <span className="text-sm text-text-secondary">{item.detail}</span>
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
+          <h1 className="mt-5 text-[28px] font-semibold leading-[1.15] tracking-tight text-text-primary">
+            <Trans>Welcome back to the workbench.</Trans>
+          </h1>
 
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-mono tabular-nums">© {new Date().getFullYear()} DueDateHQ</span>
+          <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">
+            <Trans>
+              Sign in with Google to access your firm&apos;s deadline queue and evidence-backed
+              recommendations.
+            </Trans>
+          </p>
+
+          <Button
+            variant="outline"
+            size="lg"
+            className="mt-8 h-11 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel"
+            onClick={handleGoogleSignIn}
+            disabled={disabled}
+            aria-busy={disabled}
+          >
+            {disabled ? (
+              <Loader2Icon className="size-4 animate-spin" aria-hidden />
+            ) : (
+              <GoogleIcon />
+            )}
             <span>
-              <Trans>SOC 2 ready · SSO available</Trans>
+              {disabled ? (
+                <Trans>Redirecting to Google…</Trans>
+              ) : (
+                <Trans>Continue with Google</Trans>
+              )}
             </span>
-          </div>
-        </section>
+          </Button>
 
-        <section className="flex items-center justify-center p-6 sm:p-10">
-          <div className="flex w-full max-w-[420px] flex-col gap-6">
-            <div className="flex items-center gap-2 lg:hidden">
-              <div className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
-                <SparklesIcon className="size-4" />
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-base font-semibold">DueDateHQ</span>
-                <span className="text-xs text-muted-foreground">
-                  <Trans>CPA deadline console</Trans>
-                </span>
-              </div>
-            </div>
+          <p className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] text-text-muted">
+            <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-status-done" />
+            <Trans>Encrypted · 7-day session · SSO respected</Trans>
+          </p>
 
-            <Card className="rounded-lg">
-              <CardHeader>
-                <CardTitle className="text-xl">
-                  <Trans>Sign in</Trans>
-                </CardTitle>
-                <CardDescription>
-                  <Trans>
-                    Sign in with your Google account to access the risk queue and evidence tools.
-                  </Trans>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-3">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="h-11 w-full justify-center gap-2 text-sm"
-                  onClick={handleGoogleSignIn}
-                  disabled={disabled}
-                  aria-busy={disabled}
-                >
-                  {disabled ? (
-                    <Loader2Icon className="size-4 animate-spin" aria-hidden />
-                  ) : (
-                    <GoogleIcon />
-                  )}
-                  <span>
-                    {disabled ? (
-                      <Trans>Redirecting to Google…</Trans>
-                    ) : (
-                      <Trans>Continue with Google</Trans>
-                    )}
-                  </span>
-                </Button>
+          <p className="mt-8 text-[12px] leading-relaxed text-text-muted">
+            <Trans>
+              By signing in you agree to the{' '}
+              <a
+                data-t="termsLink"
+                className="text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
+                href="/terms"
+              >
+                Terms
+              </a>{' '}
+              and{' '}
+              <a
+                data-t="privacyLink"
+                className="text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
+                href="/privacy"
+              >
+                Privacy Policy
+              </a>
+              . Trouble signing in? Email{' '}
+              <a
+                data-t="supportLink"
+                className="font-mono text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
+                href="mailto:support@duedatehq.com"
+              >
+                support@duedatehq.com
+              </a>
+              .
+            </Trans>
+          </p>
+        </div>
+      </main>
 
-                <div className="relative py-1">
-                  <Separator />
-                  <span className="absolute inset-0 -top-1 mx-auto w-fit bg-card px-2 text-xs text-muted-foreground">
-                    <Trans>Secure sign-in</Trans>
-                  </span>
-                </div>
-
-                <p className="text-xs leading-relaxed text-text-secondary">
-                  <Trans>
-                    You&apos;ll be redirected to Google and returned to your practice. Sessions last
-                    seven days and respect your firm&apos;s SSO policy.
-                  </Trans>
-                </p>
-              </CardContent>
-              <CardFooter className="flex-col items-start gap-2 border-t border-border-default pt-4 text-xs text-muted-foreground">
-                <span>
-                  <Trans>
-                    By signing in you agree to the{' '}
-                    <a
-                      data-t="termsLink"
-                      className="underline underline-offset-4 hover:text-text-primary"
-                      href="/terms"
-                    >
-                      Terms of Service
-                    </a>{' '}
-                    and{' '}
-                    <a
-                      data-t="privacyLink"
-                      className="underline underline-offset-4 hover:text-text-primary"
-                      href="/privacy"
-                    >
-                      Privacy Policy
-                    </a>
-                    .
-                  </Trans>
-                </span>
-                <span>
-                  <Trans>
-                    Trouble signing in? Contact{' '}
-                    <a
-                      data-t="supportLink"
-                      className="underline underline-offset-4 hover:text-text-primary"
-                      href="mailto:support@duedatehq.com"
-                    >
-                      support@duedatehq.com
-                    </a>
-                    .
-                  </Trans>
-                </span>
-              </CardFooter>
-            </Card>
-          </div>
-        </section>
-      </div>
+      <footer className="flex h-12 items-center justify-between border-t border-border-default px-6 font-mono text-[11px] text-text-muted lg:px-10">
+        <span className="tabular-nums">
+          <Trans>© {new Date().getFullYear()} DueDateHQ Inc.</Trans>
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-status-done" />
+          <Trans>All systems operational</Trans>
+        </span>
+      </footer>
     </div>
   )
 }

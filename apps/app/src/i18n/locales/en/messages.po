@@ -62,6 +62,11 @@ msgstr "{obligationCount, plural, one {# obligation (full tax year)} other {# ob
 msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 msgstr "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 
+#. placeholder {0}: new Date().getFullYear()
+#: src/routes/login.tsx
+msgid "© {0} DueDateHQ Inc."
+msgstr "© {0} DueDateHQ Inc."
+
 #: src/routes/dashboard.tsx
 msgid "2 partner entities need review before the March 15 cutoff."
 msgstr "2 partner entities need review before the March 15 cutoff."
@@ -74,9 +79,17 @@ msgstr "3 clients have estimated-tax deltas above the evidence threshold."
 msgid "5 draft extensions are waiting on K-1 attachments."
 msgstr "5 draft extensions are waiting on K-1 attachments."
 
+#: src/routes/login.tsx
+#~ msgid "7-day session"
+#~ msgstr "7-day session"
+
 #: src/routes/workboard.tsx
 msgid "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
 msgstr "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
+
+#: src/routes/login.tsx
+#~ msgid "A live snapshot of the workbench you're signing into — every dollar, deadline, and citation traceable to its IRS or state-level source."
+#~ msgstr "A live snapshot of the workbench you're signing into — every dollar, deadline, and citation traceable to its IRS or state-level source."
 
 #. placeholder {0}: user.name || user.email
 #: src/routes/_layout.tsx
@@ -99,9 +112,17 @@ msgstr "AI Mapper unavailable — using fallback"
 msgid "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
 msgstr "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
 
+#: src/routes/login.tsx
+#~ msgid "Aligned with weekly triage cadence"
+#~ msgstr "Aligned with weekly triage cadence"
+
 #: src/routes/workboard.tsx
 msgid "all"
 msgstr "all"
+
+#: src/routes/login.tsx
+msgid "All systems operational"
+msgstr "All systems operational"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
@@ -115,9 +136,17 @@ msgstr "Assign selected"
 msgid "Assignee"
 msgstr "Assignee"
 
+#: src/routes/login.tsx
+#~ msgid "AT RISK"
+#~ msgstr "AT RISK"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Audit log captures every AI decision"
 msgstr "Audit log captures every AI decision"
+
+#: src/routes/login.tsx
+#~ msgid "Audit-ready evidence chain"
+#~ msgstr "Audit-ready evidence chain"
 
 #. placeholder {0}: einDetected ? '100%' : '0%'
 #: src/features/migration/Step2Mapping.tsx
@@ -141,8 +170,16 @@ msgid "Blocked"
 msgstr "Blocked"
 
 #: src/routes/login.tsx
-msgid "By signing in you agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
-msgstr "By signing in you agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
+#~ msgid "By signing in you agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
+#~ msgstr "By signing in you agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
+
+#: src/routes/login.tsx
+msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
+msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
+
+#: src/routes/login.tsx
+#~ msgid "CA-FTB extends Form 540 + 540-ES to Oct 15 · 12 clients affected."
+#~ msgstr "CA-FTB extends Form 540 + 540-ES to Oct 15 · 12 clients affected."
 
 #: src/routes/settings.tsx
 msgid "Channels"
@@ -152,6 +189,10 @@ msgstr "Channels"
 #: src/routes/workboard.tsx
 msgid "Client"
 msgstr "Client"
+
+#: src/routes/login.tsx
+#~ msgid "CLIENT"
+#~ msgstr "CLIENT"
 
 #: src/routes/dashboard.tsx
 msgid "Client risk rows"
@@ -164,6 +205,10 @@ msgstr "Close wizard"
 #: src/features/migration/Step1Intake.tsx
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
 msgstr "Coming from File In Time? We'll migrate your full-year calendar in one shot."
+
+#: src/routes/login.tsx
+#~ msgid "Command"
+#~ msgstr "Command"
 
 #: src/routes/_layout.tsx
 msgid "Compliance risk operations"
@@ -212,7 +257,6 @@ msgid "Couldn't start the import"
 msgstr "Couldn't start the import"
 
 #: src/routes/_layout.tsx
-#: src/routes/login.tsx
 #: src/routes/onboarding.tsx
 msgid "CPA deadline console"
 msgstr "CPA deadline console"
@@ -220,6 +264,10 @@ msgstr "CPA deadline console"
 #: src/routes/dashboard.tsx
 msgid "critical"
 msgstr "critical"
+
+#: src/routes/login.tsx
+#~ msgid "CRITICAL"
+#~ msgstr "CRITICAL"
 
 #: src/routes/settings.tsx
 msgid "Daily deadline and Pulse summary for owners."
@@ -247,8 +295,8 @@ msgid "Deferred until the product has a real-time notification need."
 msgstr "Deferred until the product has a real-time notification need."
 
 #: src/routes/login.tsx
-msgid "Dollar-first queues surface the obligations that matter before the clock runs out."
-msgstr "Dollar-first queues surface the obligations that matter before the clock runs out."
+#~ msgid "Dollar-first queues surface the obligations that matter before the clock runs out."
+#~ msgstr "Dollar-first queues surface the obligations that matter before the clock runs out."
 
 #: src/routes/dashboard.tsx
 msgid "Dollar-first triage for the next operating window."
@@ -265,6 +313,10 @@ msgstr "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
 #: src/features/migration/Stepper.tsx
 msgid "Dry-Run"
 msgstr "Dry-Run"
+
+#: src/routes/login.tsx
+#~ msgid "DUE"
+#~ msgstr "DUE"
 
 #: src/routes/dashboard.tsx
 msgid "Due this week"
@@ -294,13 +346,21 @@ msgstr "Email digest"
 msgid "Enable evidence gate"
 msgstr "Enable evidence gate"
 
+#: src/routes/login.tsx
+#~ msgid "Encrypted"
+#~ msgstr "Encrypted"
+
+#: src/routes/login.tsx
+msgid "Encrypted · 7-day session · SSO respected"
+msgstr "Encrypted · 7-day session · SSO respected"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
 msgstr "Entity types"
 
 #: src/routes/login.tsx
-msgid "Every AI recommendation ships with source, quote, and verification timestamp."
-msgstr "Every AI recommendation ships with source, quote, and verification timestamp."
+#~ msgid "Every AI recommendation ships with source, quote, and verification timestamp."
+#~ msgstr "Every AI recommendation ships with source, quote, and verification timestamp."
 
 #: src/routes/dashboard.tsx
 msgid "Evidence checks"
@@ -319,6 +379,10 @@ msgstr "Evidence mode"
 msgid "Exposure"
 msgstr "Exposure"
 
+#: src/routes/login.tsx
+#~ msgid "EXPOSURE"
+#~ msgstr "EXPOSURE"
+
 #: src/routes/dashboard.tsx
 msgid "Extension package hold"
 msgstr "Extension package hold"
@@ -331,6 +395,10 @@ msgstr "File is larger than 2 MB. Please trim or split the export."
 msgid "filed"
 msgstr "filed"
 
+#: src/routes/login.tsx
+#~ msgid "FILED"
+#~ msgstr "FILED"
+
 #: src/routes/workboard.tsx
 msgid "Filters"
 msgstr "Filters"
@@ -340,8 +408,16 @@ msgid "Firm settings"
 msgstr "Firm settings"
 
 #: src/routes/login.tsx
-msgid "Glass-box evidence"
-msgstr "Glass-box evidence"
+msgid "For US CPA practices"
+msgstr "For US CPA practices"
+
+#: src/routes/login.tsx
+#~ msgid "FORM"
+#~ msgstr "FORM"
+
+#: src/routes/login.tsx
+#~ msgid "Glass-box evidence"
+#~ msgstr "Glass-box evidence"
 
 #: src/routes/dashboard.tsx
 msgid "Glass-box threshold is active"
@@ -403,6 +479,7 @@ msgstr "IRS transcript source was checked this morning."
 msgid "Keep editing"
 msgstr "Keep editing"
 
+#: src/components/primitives/locale-switcher.tsx
 #: src/routes/_layout.tsx
 msgid "Language"
 msgstr "Language"
@@ -419,6 +496,10 @@ msgstr "Leave wizard?"
 msgid "Light"
 msgstr "Light"
 
+#: src/routes/login.tsx
+#~ msgid "Live · synced 12s ago"
+#~ msgstr "Live · synced 12s ago"
+
 #: src/routes/_layout.tsx
 msgid "Local Time"
 msgstr "Local Time"
@@ -430,6 +511,10 @@ msgstr "Map \"{sourceHeader}\" to…"
 #: src/features/migration/Stepper.tsx
 msgid "Mapping"
 msgstr "Mapping"
+
+#: src/routes/login.tsx
+#~ msgid "Marketing site"
+#~ msgstr "Marketing site"
 
 #: src/routes/dashboard.tsx
 msgid "medium"
@@ -452,8 +537,8 @@ msgid "My Practice"
 msgstr "My Practice"
 
 #: src/features/migration/WizardShell.tsx
-msgid "navigate steps"
-msgstr "navigate steps"
+#~ msgid "navigate steps"
+#~ msgstr "navigate steps"
 
 #: src/routes/dashboard.tsx
 msgid "Needs evidence"
@@ -474,6 +559,10 @@ msgstr "neutral"
 #: src/routes/_layout.tsx
 #~ msgid "New obligation"
 #~ msgstr "New obligation"
+
+#: src/routes/login.tsx
+#~ msgid "Next row"
+#~ msgstr "Next row"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
@@ -516,13 +605,17 @@ msgstr "One row lacks a usable source URL."
 msgid "One-click revert available for 24 hours"
 msgstr "One-click revert available for 24 hours"
 
+#: src/routes/login.tsx
+#~ msgid "Open evidence"
+#~ msgstr "Open evidence"
+
 #: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "Open risk"
 
 #: src/routes/login.tsx
-msgid "Operating cadence tuned for CPA teams during peak filing windows."
-msgstr "Operating cadence tuned for CPA teams during peak filing windows."
+#~ msgid "Operating cadence tuned for CPA teams during peak filing windows."
+#~ msgstr "Operating cadence tuned for CPA teams during peak filing windows."
 
 #: src/routes/dashboard.tsx
 msgid "Operational pressure points for the team."
@@ -552,17 +645,21 @@ msgstr "Paste rows"
 msgid "Penalty exposure"
 msgstr "Penalty exposure"
 
+#: src/routes/login.tsx
+#~ msgid "PENALTY RADAR · THIS WEEK"
+#~ msgstr "PENALTY RADAR · THIS WEEK"
+
 #: src/routes/dashboard.tsx
 msgid "penalty-weighted"
 msgstr "penalty-weighted"
 
 #: src/routes/login.tsx
-msgid "Penalty-weighted triage"
-msgstr "Penalty-weighted triage"
+#~ msgid "Penalty-weighted triage"
+#~ msgstr "Penalty-weighted triage"
 
 #: src/routes/login.tsx
-msgid "Phase 0 · Demo practice"
-msgstr "Phase 0 · Demo practice"
+#~ msgid "Phase 0 · Demo practice"
+#~ msgstr "Phase 0 · Demo practice"
 
 #: src/routes/_layout.tsx
 msgid "Phase 0 demo practice"
@@ -600,9 +697,21 @@ msgstr "Preview only — commit lands in Day 4"
 msgid "Primary navigation"
 msgstr "Primary navigation"
 
+#: src/routes/login.tsx
+#~ msgid "Privacy"
+#~ msgstr "Privacy"
+
 #: src/routes/_layout.tsx
 msgid "Pulse"
 msgstr "Pulse"
+
+#: src/routes/login.tsx
+#~ msgid "PULSE"
+#~ msgstr "PULSE"
+
+#: src/routes/login.tsx
+#~ msgid "PULSE 24H"
+#~ msgstr "PULSE 24H"
 
 #: src/routes/workboard.tsx
 msgid "Queue controls"
@@ -685,8 +794,8 @@ msgid "Search obligations"
 msgstr "Search obligations"
 
 #: src/routes/login.tsx
-msgid "Secure sign-in"
-msgstr "Secure sign-in"
+#~ msgid "Secure sign-in"
+#~ msgstr "Secure sign-in"
 
 #: src/routes/onboarding.tsx
 msgid "Setting up your practice…"
@@ -698,24 +807,40 @@ msgid "Settings"
 msgstr "Settings"
 
 #: src/routes/login.tsx
-msgid "Seven-day rhythm"
-msgstr "Seven-day rhythm"
+#~ msgid "Seven-day rhythm"
+#~ msgstr "Seven-day rhythm"
 
 #: src/routes/dashboard.tsx
 msgid "Severity"
 msgstr "Severity"
 
 #: src/routes/login.tsx
-msgid "Sign in"
-msgstr "Sign in"
+#~ msgid "Sign in"
+#~ msgstr "Sign in"
 
 #: src/routes/login.tsx
-msgid "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your practice's filing pipeline."
-msgstr "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your practice's filing pipeline."
+msgid "SIGN IN"
+msgstr "SIGN IN"
 
 #: src/routes/login.tsx
-msgid "Sign in with your Google account to access the risk queue and evidence tools."
-msgstr "Sign in with your Google account to access the risk queue and evidence tools."
+#~ msgid "SIGN IN · GLASS-BOX WORKBENCH"
+#~ msgstr "SIGN IN · GLASS-BOX WORKBENCH"
+
+#: src/routes/login.tsx
+#~ msgid "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your practice's filing pipeline."
+#~ msgstr "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your practice's filing pipeline."
+
+#: src/routes/login.tsx
+#~ msgid "Sign in to your firm's workbench to triage penalty exposure, walk the seven-day queue, and review every AI recommendation against its IRS or state-level source."
+#~ msgstr "Sign in to your firm's workbench to triage penalty exposure, walk the seven-day queue, and review every AI recommendation against its IRS or state-level source."
+
+#: src/routes/login.tsx
+msgid "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
+msgstr "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
+
+#: src/routes/login.tsx
+#~ msgid "Sign in with your Google account to access the risk queue and evidence tools."
+#~ msgstr "Sign in with your Google account to access the risk queue and evidence tools."
 
 #: src/routes/_layout.tsx
 msgid "Sign out"
@@ -734,8 +859,12 @@ msgid "Signing out…"
 msgstr "Signing out…"
 
 #: src/routes/login.tsx
-msgid "SOC 2 ready · SSO available"
-msgstr "SOC 2 ready · SSO available"
+#~ msgid "SOC 2"
+#~ msgstr "SOC 2"
+
+#: src/routes/login.tsx
+#~ msgid "SOC 2 ready · SSO available"
+#~ msgstr "SOC 2 ready · SSO available"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Something went wrong"
@@ -752,6 +881,10 @@ msgstr "source gaps"
 #: src/features/migration/Step1Intake.tsx
 msgid "SSN-like columns blocked"
 msgstr "SSN-like columns blocked"
+
+#: src/routes/login.tsx
+#~ msgid "SSO"
+#~ msgstr "SSO"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "States"
@@ -776,6 +909,10 @@ msgstr "Suggested tax types (from entity × state matrix)"
 #: src/routes/_layout.tsx
 msgid "System"
 msgstr "System"
+
+#: src/routes/login.tsx
+#~ msgid "Terms"
+#~ msgstr "Terms"
 
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
@@ -805,6 +942,10 @@ msgstr "This action conflicts with the current state. Refresh and try again."
 msgid "This is what your team and clients will see."
 msgstr "This is what your team and clients will see."
 
+#: src/routes/login.tsx
+#~ msgid "This week"
+#~ msgstr "This week"
+
 #: src/routes/dashboard.tsx
 msgid "Today queue"
 msgstr "Today queue"
@@ -814,8 +955,8 @@ msgid "Too many requests. Please try again in a moment."
 msgstr "Too many requests. Please try again in a moment."
 
 #: src/routes/login.tsx
-msgid "Trouble signing in? Contact <supportLink>support@duedatehq.com</supportLink>."
-msgstr "Trouble signing in? Contact <supportLink>support@duedatehq.com</supportLink>."
+#~ msgid "Trouble signing in? Contact <supportLink>support@duedatehq.com</supportLink>."
+#~ msgstr "Trouble signing in? Contact <supportLink>support@duedatehq.com</supportLink>."
 
 #: src/routes/dashboard.tsx
 msgid "Two recommendations are waiting on verbatim text."
@@ -838,8 +979,8 @@ msgid "verified {verifiedAt}"
 msgstr "verified {verifiedAt}"
 
 #: src/routes/login.tsx
-msgid "Verified risk, one deadline at a time."
-msgstr "Verified risk, one deadline at a time."
+#~ msgid "Verified risk, one deadline at a time."
+#~ msgstr "Verified risk, one deadline at a time."
 
 #: src/routes/workboard.tsx
 msgid "waiting"
@@ -891,6 +1032,10 @@ msgstr "Web Push"
 msgid "Web Push disabled"
 msgstr "Web Push disabled"
 
+#: src/routes/login.tsx
+msgid "Welcome back to the workbench."
+msgstr "Welcome back to the workbench."
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Where is your data coming from?"
 msgstr "Where is your data coming from?"
@@ -903,6 +1048,14 @@ msgstr "Workbench"
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "Workboard"
+
+#: src/routes/login.tsx
+#~ msgid "Workspace + firm-level policy"
+#~ msgstr "Workspace + firm-level policy"
+
+#: src/routes/login.tsx
+#~ msgid "WORKSPACE ACCESS"
+#~ msgstr "WORKSPACE ACCESS"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "XLSX uploads land in Phase 0 — please export as CSV for now."
@@ -921,8 +1074,12 @@ msgid "You need to sign in to continue."
 msgstr "You need to sign in to continue."
 
 #: src/routes/login.tsx
-msgid "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
-msgstr "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
+#~ msgid "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
+#~ msgstr "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
+
+#: src/routes/login.tsx
+#~ msgid "You'll be returned to your workbench after Google completes verification. Sessions last seven days and respect your firm's SSO policy."
+#~ msgstr "You'll be returned to your workbench after Google completes verification. Sessions last seven days and respect your firm's SSO policy."
 
 #: src/features/migration/Step4Preview.tsx
 msgid "You're about to create"
