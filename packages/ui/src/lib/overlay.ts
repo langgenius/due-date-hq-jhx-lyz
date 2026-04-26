@@ -37,6 +37,7 @@ export const overlayPopupBaseClassName =
 export const overlayPopupAnimationClassName =
   'origin-(--transform-origin) transition-[transform,scale,opacity] data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 motion-reduce:transition-none'
 
-/* Backdrop for blocking overlays (alert-dialog, dialog, sheet). */
+/* Backdrop for blocking overlays (alert-dialog, dialog, sheet). Picks up the
+ * Dify-style background-overlay tint plus a soft blur where supported. */
 export const overlayBackdropClassName =
-  'fixed inset-0 z-50 bg-background-overlay transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none'
+  'fixed inset-0 z-50 bg-background-overlay transition-opacity duration-150 supports-backdrop-filter:backdrop-blur-xs data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none'

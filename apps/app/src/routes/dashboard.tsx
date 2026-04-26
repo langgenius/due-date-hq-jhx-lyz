@@ -170,7 +170,22 @@ export function DashboardRoute() {
   const queueStats = useQueueStats()
   const severityLabels = useSeverityLabels()
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
+      <header className="flex flex-col gap-2">
+        <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+          <Trans>Operations</Trans>
+        </span>
+        {/* <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold leading-tight text-text-primary">
+            <Trans>Risk pulse overview</Trans>
+          </h1>
+          <p className="max-w-[720px] text-md text-text-secondary">
+            <Trans>
+              Penalty-weighted triage and evidence checks for the next operating window.
+            </Trans>
+          </p>
+        </div> */}
+      </header>
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <Card>
           <CardHeader>
@@ -189,13 +204,13 @@ export function DashboardRoute() {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-[220px_1fr]">
               <div className="flex flex-col gap-2">
-                <span className="text-xs font-medium text-text-tertiary">
+                <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
                   <Trans>Penalty exposure</Trans>
                 </span>
-                <span className="font-mono text-hero leading-none font-bold tabular-nums">
+                <span className="font-mono text-hero leading-none font-semibold tabular-nums">
                   $49.3K
                 </span>
-                <span className="text-sm text-text-secondary">
+                <span className="text-md text-text-secondary">
                   <Trans>Across 28 open obligations.</Trans>
                 </span>
               </div>
@@ -240,10 +255,10 @@ export function DashboardRoute() {
             {queueStats.map((stat) => (
               <div key={stat.label} className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-sm font-medium">{stat.label}</span>
-                  <span className="text-xs text-text-tertiary">{stat.detail}</span>
+                  <span className="text-md font-medium">{stat.label}</span>
+                  <span className="text-sm text-text-tertiary">{stat.detail}</span>
                 </div>
-                <span className="font-mono text-xl font-semibold tabular-nums">{stat.value}</span>
+                <span className="font-mono text-2xl font-semibold tabular-nums">{stat.value}</span>
               </div>
             ))}
             <Separator />
@@ -314,7 +329,10 @@ export function DashboardRoute() {
                           {formatCents(row.exposure)}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={severityVariant[row.severity]}>
+                          <Badge
+                            variant={severityVariant[row.severity]}
+                            className="h-7 px-2.5 text-md uppercase tracking-wide"
+                          >
                             <BadgeStatusDot tone={severityDot[row.severity]} />
                             {severityLabels[row.severity]}
                           </Badge>

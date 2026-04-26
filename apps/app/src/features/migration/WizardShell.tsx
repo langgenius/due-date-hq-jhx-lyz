@@ -90,13 +90,11 @@ export function WizardShell({
         {/* Window chrome — mirrors HeroSurface traffic-light + mono breadcrumb. */}
         <header className="flex h-10 shrink-0 items-center justify-between gap-3 border-b border-divider-subtle bg-background-body px-3">
           <div className="flex items-center gap-3">
-            <div aria-hidden className="flex items-center gap-1.5">
-              <span className="block size-2 rounded-full bg-components-badge-status-light-error-bg" />
-              <span className="block size-2 rounded-full bg-components-badge-status-light-warning-bg" />
-              <span className="block size-2 rounded-full bg-components-badge-status-light-success-bg" />
-            </div>
             <div className="flex items-center gap-1.5 font-mono text-sm text-text-tertiary">
-              <span className="block size-2.5 rounded-sm bg-background-subtle" aria-hidden />
+              <span
+                className="block size-2.5 rounded-sm bg-components-badge-status-light-success-bg"
+                aria-hidden
+              />
               <span>
                 <Trans>Workbench</Trans>
               </span>
@@ -111,8 +109,8 @@ export function WizardShell({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="hidden items-center gap-1 font-mono text-[11px] text-text-tertiary sm:inline-flex">
-              <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-divider-regular bg-components-panel-bg px-1.5 text-[11px] text-text-primary">
+            <span className="hidden items-center gap-1 font-mono text-xs text-text-tertiary sm:inline-flex">
+              <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-divider-regular bg-components-panel-bg px-1.5 text-xs text-text-primary">
                 Esc
               </kbd>
               <span className="text-text-tertiary">
@@ -132,9 +130,9 @@ export function WizardShell({
 
         <Stepper current={step} />
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-background-section px-6">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-6">{children}</div>
 
-        <footer className="flex h-12 shrink-0 items-center justify-end gap-4 border-t border-divider-subtle bg-background-body px-4">
+        <footer className="flex h-12 shrink-0 items-center justify-end gap-4 border-divider-subtle bg-background-body px-4">
           <Button
             variant="outline"
             size="lg"
@@ -163,10 +161,10 @@ export function WizardShell({
             role="alertdialog"
             className="w-[min(480px,calc(100%-2rem))] rounded-xl border border-divider-regular bg-components-panel-bg shadow-overlay"
           >
-            <DialogTitle className="text-2xl">
+            <DialogTitle>
               <Trans>Leave wizard?</Trans>
             </DialogTitle>
-            <DialogDescription className="text-base">
+            <DialogDescription className="text-md">
               <Trans>Your draft is saved — you can resume from Settings › Imports history.</Trans>
             </DialogDescription>
             <DialogFooter>

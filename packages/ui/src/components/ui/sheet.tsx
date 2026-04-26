@@ -3,6 +3,7 @@ import { Dialog as SheetPrimitive } from '@base-ui/react/dialog'
 import { XIcon } from 'lucide-react'
 
 import { cn } from '@duedatehq/ui/lib/utils'
+import { overlayBackdropClassName } from '@duedatehq/ui/lib/overlay'
 import { Button } from '@duedatehq/ui/components/ui/button'
 
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
@@ -25,11 +26,7 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
   return (
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
-      className={cn(
-        'fixed inset-0 z-50 bg-background-overlay transition-opacity duration-150 supports-backdrop-filter:backdrop-blur-xs',
-        'data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none',
-        className,
-      )}
+      className={cn(overlayBackdropClassName, className)}
       {...props}
     />
   )

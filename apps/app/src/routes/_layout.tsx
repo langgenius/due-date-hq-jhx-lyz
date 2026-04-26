@@ -132,7 +132,7 @@ function SideNav() {
             end={item.end}
             className={({ isActive }) =>
               cn(
-                'flex h-9 items-center gap-2 rounded-md px-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-state-base-hover hover:text-text-primary',
+                'flex h-9 items-center gap-2 rounded-md px-2.5 text-base font-medium text-text-secondary transition-colors hover:bg-state-base-hover hover:text-text-primary',
                 isActive && 'bg-state-accent-hover-alt text-text-accent',
               )
             }
@@ -247,7 +247,7 @@ function UserAvatar({ user, className }: { user: AuthUser; className?: string })
     <span
       aria-hidden
       className={cn(
-        'grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary',
+        'grid size-8 shrink-0 place-items-center rounded-full bg-state-accent-hover-alt text-lg font-semibold text-text-accent',
         className,
       )}
     >
@@ -303,7 +303,7 @@ function UserMenu({
             <button
               type="button"
               aria-label={accountLabel}
-              className="inline-flex size-9 items-center justify-center rounded-full outline-none ring-1 ring-border-default transition-colors hover:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+              className="inline-flex size-9 items-center justify-center rounded-full outline-none ring-1 ring-divider-regular transition-colors hover:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-solid md:hidden"
             />
           }
         >
@@ -355,7 +355,7 @@ function UserMenu({
         render={
           <button
             type="button"
-            className="group/user-menu flex w-full items-center gap-2 rounded-md border border-divider-regular bg-background p-2 text-left outline-none transition-colors hover:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-ring"
+            className="group/user-menu flex w-full items-center gap-2 rounded-md border border-divider-regular bg-background-body p-2 text-left outline-none transition-colors hover:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-solid"
           />
         }
       >
@@ -414,7 +414,7 @@ export function ShellSkeleton() {
       <div className="flex w-full max-w-[480px] flex-col gap-3">
         <Skeleton className="h-6 w-40" />
         <Skeleton className="h-4 w-64" />
-        <Skeleton className="h-40 w-full rounded-md" />
+        <Skeleton className="h-40 w-full rounded-lg" />
       </div>
     </div>
   )
@@ -488,7 +488,7 @@ function RootLayoutShell({
         <aside className="hidden w-[220px] shrink-0 border-r border-divider-regular bg-background-section md:flex md:flex-col">
           <div className="flex h-14 items-center px-4">
             <div className="flex flex-col">
-              <span className="text-base font-medium text-sidebar-accent-foreground">
+              <span className="text-md font-semibold text-sidebar-accent-foreground">
                 DueDateHQ
               </span>
               <span className="text-xs text-text-tertiary">
@@ -500,7 +500,7 @@ function RootLayoutShell({
           <div className="flex flex-1 flex-col gap-6 p-3">
             <SideNav />
             <div className="mt-auto flex flex-col gap-3">
-              <div className="flex flex-col gap-3 rounded-md border border-divider-regular bg-background p-3">
+              <div className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-background p-3">
                 {shellMeta.map(([label, value]) => (
                   <div key={label} className="flex flex-col gap-1">
                     <span className="text-xs font-medium text-text-tertiary">{label}</span>
@@ -522,10 +522,10 @@ function RootLayoutShell({
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex min-h-14 flex-col gap-3 border-b border-divider-regular bg-background px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6">
             <div className="flex min-w-0 flex-col gap-1">
-              <span className="text-xs font-medium text-text-tertiary">
+              <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
                 <Trans>Phase 0 demo practice</Trans>
               </span>
-              <span className="truncate text-base font-medium">
+              <span className="truncate text-md font-semibold text-text-primary">
                 <Trans>Compliance risk operations</Trans>
               </span>
             </div>

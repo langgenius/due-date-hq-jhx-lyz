@@ -49,7 +49,7 @@ export function Step3Normalize({ normalize, matrix, onUserEdit, onToggleApplyToA
   return (
     <div className="flex flex-col gap-5 py-5">
       <div className="flex flex-col gap-1">
-        <h2 className="text-base font-medium text-text-primary">
+        <h2 className="text-lg font-semibold text-text-primary">
           <Trans>We normalized {normalize.rows.length} values — review if needed</Trans>
         </h2>
         {needsReviewCount > 0 ? (
@@ -123,7 +123,7 @@ function Section({ title, rows, all, onUserEdit }: SectionProps) {
     <section
       role="group"
       aria-label={title}
-      className="flex flex-col gap-2 rounded-md border border-divider-regular bg-background-section p-3"
+      className="flex flex-col gap-2 rounded-lg border border-divider-regular bg-background-section p-3"
     >
       <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
         {title}
@@ -162,7 +162,7 @@ function Section({ title, rows, all, onUserEdit }: SectionProps) {
               />
               {needsReview ? (
                 <span
-                  className="ml-auto inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-components-badge-bg-warning-soft px-1.5 text-[10px] text-text-primary"
+                  className="ml-auto inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-components-badge-bg-warning-soft px-1.5 text-xs text-text-primary"
                   role="status"
                 >
                   <AlertTriangleIcon className="size-3" aria-hidden />
@@ -189,7 +189,7 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
     <section
       role="group"
       aria-label="Suggested tax types"
-      className="flex flex-col gap-3 rounded-md border border-divider-regular bg-background-section p-3"
+      className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-background-section p-3"
     >
       <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
         <Trans>Suggested tax types (from entity × state matrix)</Trans>
@@ -201,7 +201,7 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
           return (
             <li key={key} className="flex flex-col gap-2 py-3">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm text-text-primary">
+                <span className="text-md text-text-primary">
                   <Plural
                     value={cell.appliedClientCount}
                     one={`# ${cell.entityType.toUpperCase()} × ${cell.state} client`}
@@ -217,7 +217,7 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
                 {cell.taxTypes.map((tt) => (
                   <span
                     key={tt}
-                    className="inline-flex h-5 items-center rounded-sm border border-divider-regular bg-components-panel-bg px-1.5 font-mono tabular-nums text-text-secondary"
+                    className="inline-flex h-5 items-center rounded-md border border-divider-regular bg-components-panel-bg px-1.5 font-mono tabular-nums text-text-secondary"
                   >
                     {tt}
                   </span>
@@ -228,13 +228,13 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
                   promptVersion={`matrix@${cell.matrixVersion}`}
                 />
                 {cell.needsReview ? (
-                  <span className="inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-components-badge-bg-warning-soft px-1.5 text-[10px] text-text-primary">
+                  <span className="inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-components-badge-bg-warning-soft px-1.5 text-xs text-text-primary">
                     <AlertTriangleIcon className="size-3" aria-hidden />
                     <Trans>Needs review</Trans>
                   </span>
                 ) : (
                   <span
-                    className="inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-background-subtle px-1.5 text-[10px] text-text-success"
+                    className="inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-background-subtle px-1.5 text-xs text-text-success"
                     aria-hidden
                   >
                     <ShieldCheckIcon className="size-3" />
@@ -264,7 +264,7 @@ function EvidenceChip({
   const label = model ?? promptVersion ?? 'evidence'
   return (
     <span
-      className="inline-flex h-5 items-center gap-1 rounded-sm border border-divider-regular bg-transparent px-1.5 font-mono text-[10px] tabular-nums text-text-secondary"
+      className="inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-transparent px-1.5 font-mono text-xs tabular-nums text-text-secondary"
       title={`${label} · ${conf}`}
     >
       <span>AI</span>

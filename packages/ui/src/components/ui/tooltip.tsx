@@ -3,6 +3,7 @@
 import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip'
 
 import { cn } from '@duedatehq/ui/lib/utils'
+import { overlayPopupAnimationClassName } from '@duedatehq/ui/lib/overlay'
 
 function TooltipProvider({ delay = 0, ...props }: TooltipPrimitive.Provider.Props) {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" delay={delay} {...props} />
@@ -44,8 +45,8 @@ function TooltipContent({
         <TooltipPrimitive.Popup
           data-slot="tooltip-content"
           className={cn(
-            'inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-md border border-components-panel-border-subtle bg-components-tooltip-bg px-2 py-1 text-xs text-components-tooltip-text shadow-md backdrop-blur-[5px] transition-[transform,scale,opacity]',
-            'data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 motion-reduce:transition-none',
+            'inline-flex w-fit max-w-xs items-center gap-1.5 rounded-md border border-components-panel-border-subtle bg-components-tooltip-bg px-2 py-1 text-xs text-components-tooltip-text shadow-md backdrop-blur-[5px]',
+            overlayPopupAnimationClassName,
             'has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm',
             className,
           )}

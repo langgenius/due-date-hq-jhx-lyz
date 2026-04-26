@@ -1,11 +1,19 @@
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { ChevronDownIcon, RefreshCwIcon, StarIcon } from 'lucide-react'
 
-import type { MappingRow, MappingTarget } from '@duedatehq/contracts'
+import { MappingTargetSchema, type MappingRow, type MappingTarget } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
-import { Popover, PopoverContent, PopoverTrigger } from '@duedatehq/ui/components/ui/popover'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@duedatehq/ui/components/ui/dropdown-menu'
 import {
   Table,
   TableBody,
@@ -18,7 +26,10 @@ import { cn } from '@duedatehq/ui/lib/utils'
 
 import type { MapperState } from './state'
 
-const TARGETS: ReadonlyArray<{ value: MappingTarget; label: string }> = [
+type TargetEntry = { value: MappingTarget; label: string }
+
+// Selectable mapping fields, rendered as a single-select radio group.
+const SELECTABLE_TARGETS: ReadonlyArray<TargetEntry> = [
   { value: 'client.name', label: 'client.name' },
   { value: 'client.ein', label: 'client.ein' },
   { value: 'client.state', label: 'state' },
@@ -28,8 +39,10 @@ const TARGETS: ReadonlyArray<{ value: MappingTarget; label: string }> = [
   { value: 'client.email', label: 'client.email' },
   { value: 'client.assignee_name', label: 'assignee_name' },
   { value: 'client.notes', label: 'notes' },
-  { value: 'IGNORE', label: 'Ignore this column' },
 ]
+
+// Rendered last, after a separator, to opt out of mapping for a column.
+const IGNORE_TARGET: TargetEntry = { value: 'IGNORE', label: 'Ignore this column' }
 
 interface Step2Props {
   mapping: MapperState
@@ -79,11 +92,11 @@ export function Step2Mapping({ mapping, sampleByHeader, onUserEdit, onRerun }: S
   return (
     <div className="flex flex-col gap-4 py-5">
       <div className="flex flex-col gap-1">
-        <h2 className="text-base font-medium text-text-primary">
+        <h2 className="text-lg font-semibold text-text-primary">
           <Trans>AI mapped your columns — review and confirm</Trans>
         </h2>
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-text-secondary">
+          <p className="text-md text-text-secondary">
             {avgConfidence !== null ? (
               <Trans>
                 Average confidence <span className="font-mono tabular-nums">{avgConfidence}%</span>{' '}
@@ -159,7 +172,7 @@ export function Step2Mapping({ mapping, sampleByHeader, onUserEdit, onRerun }: S
           <Skeleton className="h-9 w-3/4" />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-md border border-divider-regular">
+        <div className="overflow-hidden rounded-lg border border-divider-regular">
           <Table>
             <TableHeader>
               <TableRow>
@@ -252,7 +265,7 @@ function ConfidenceBadge({ tier, confidence }: { tier: Tier; confidence: number 
   return (
     <span
       className={cn(
-        'inline-flex h-5 items-center gap-1 rounded-sm border px-1.5 font-mono text-[10px] tabular-nums',
+        'inline-flex h-5 items-center gap-1 rounded-md border px-1.5 font-mono text-xs tabular-nums',
         styles[tier],
       )}
     >
@@ -269,9 +282,16 @@ interface EditPopoverProps {
 }
 
 function EditPopover({ current, sourceHeader, onChange }: EditPopoverProps) {
+  // Base UI types `onValueChange` as `(value: any) => void`; validate the
+  // payload at runtime to keep the public API strictly typed.
+  function handleValueChange(next: unknown) {
+    const parsed = MappingTargetSchema.safeParse(next)
+    if (parsed.success) onChange(parsed.data)
+  }
+
   return (
-    <Popover>
-      <PopoverTrigger
+    <DropdownMenu>
+      <DropdownMenuTrigger
         render={
           <Button variant="ghost" size="xs">
             <Trans>Edit</Trans>
@@ -279,39 +299,29 @@ function EditPopover({ current, sourceHeader, onChange }: EditPopoverProps) {
           </Button>
         }
       />
-      <PopoverContent className="w-60 gap-2 p-2">
-        <div className="px-2 pt-1 pb-2 text-xs text-text-secondary">
+      <DropdownMenuContent className="w-60" align="end">
+        <DropdownMenuLabel>
           <Trans>Map &quot;{sourceHeader}&quot; to…</Trans>
-        </div>
-        <ul role="listbox" className="flex flex-col gap-0.5">
-          {TARGETS.map((target, i) => {
-            const isSelected = current === target.value
-            const isDivider = i === TARGETS.length - 1
-            return (
-              <li
-                key={target.value}
-                role={isDivider ? undefined : 'option'}
-                aria-selected={isDivider ? undefined : isSelected}
-                className={isDivider ? 'mt-1 border-t border-divider-regular pt-1' : undefined}
-              >
-                <button
-                  type="button"
-                  onClick={() => onChange(target.value)}
-                  className={cn(
-                    'flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs',
-                    isSelected
-                      ? 'bg-state-accent-hover-alt text-text-accent'
-                      : 'hover:bg-state-base-hover text-text-primary',
-                  )}
-                >
-                  <span className="font-mono tabular-nums">{target.label}</span>
-                  {isSelected ? <span aria-hidden>●</span> : null}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      </PopoverContent>
-    </Popover>
+        </DropdownMenuLabel>
+        <DropdownMenuRadioGroup value={current} onValueChange={handleValueChange}>
+          {SELECTABLE_TARGETS.map((target) => (
+            <DropdownMenuRadioItem
+              key={target.value}
+              value={target.value}
+              className="font-mono text-xs tabular-nums"
+            >
+              {target.label}
+            </DropdownMenuRadioItem>
+          ))}
+          <DropdownMenuSeparator />
+          <DropdownMenuRadioItem
+            value={IGNORE_TARGET.value}
+            className="font-mono text-xs tabular-nums"
+          >
+            {IGNORE_TARGET.label}
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

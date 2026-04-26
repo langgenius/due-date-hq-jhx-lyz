@@ -13,7 +13,9 @@ import { cn } from '@duedatehq/ui/lib/utils'
  * Backward-compat keys (callers prior to migration): default → primary,
  * outline → secondary, destructive → destructive-secondary.
  *
- * Sizes: xs (24) / sm (28) / default (32) / lg (40) plus matching icon-*.
+ * Sizes (heights match Dify three-tier scale): xs (24, small) /
+ * default & sm (32, medium) / lg (36, large) plus matching icon-*.
+ * `sm` is kept as an alias of medium for backward compatibility with call-sites.
  */
 const buttonVariants = cva(
   cn(
@@ -97,16 +99,20 @@ const buttonVariants = cva(
         ),
       },
       size: {
+        // Dify medium: h-8 / px-3.5 / rounded-lg / 13px / font-medium
         default:
-          'h-8 gap-1.5 px-3 text-sm in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+          'h-8 gap-1.5 rounded-lg px-3.5 text-base in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5',
+        // Dify small: h-6 / px-2 / rounded-md / 12px (project text-xs is 11px; keep current xs token)
         xs: "h-6 gap-1 rounded-md px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: 'h-7 gap-1 rounded-md px-2.5 text-sm in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5',
-        lg: 'h-10 gap-1.5 px-4 text-md font-semibold has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',
-        icon: 'size-8',
+        // sm is a legacy alias merged into Dify medium so call-sites stay valid.
+        sm: 'h-8 gap-1.5 rounded-lg px-3.5 text-base in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5',
+        // Dify large: h-9 / px-4 / rounded-[10px] / 14px / font-semibold
+        lg: 'h-9 gap-1.5 rounded-[10px] px-4 text-md font-semibold has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',
+        icon: 'size-8 rounded-lg in-data-[slot=button-group]:rounded-lg',
         'icon-xs':
           "size-6 rounded-md in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3",
         'icon-sm': 'size-7 rounded-md in-data-[slot=button-group]:rounded-md',
-        'icon-lg': 'size-10',
+        'icon-lg': 'size-10 rounded-[10px] in-data-[slot=button-group]:rounded-[10px]',
       },
     },
     defaultVariants: {

@@ -32,21 +32,23 @@ import { Switch } from '@duedatehq/ui/components/ui/switch'
 export function SettingsRoute() {
   const { t } = useLingui()
   return (
-    <div className="mx-auto flex w-full max-w-[880px] flex-col gap-5 p-4 md:p-6">
-      <div className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-text-tertiary">
+    <div className="mx-auto flex w-full max-w-[880px] flex-col gap-6 p-4 md:p-6">
+      <header className="flex flex-col gap-2">
+        <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
           <Trans>Settings</Trans>
         </span>
-        <h1 className="text-2xl font-semibold">
-          <Trans>Firm settings</Trans>
-        </h1>
-        <p className="text-sm text-text-secondary">
-          <Trans>
-            Basic controls are in place so form-heavy pages can be composed from the existing UI
-            set.
-          </Trans>
-        </p>
-      </div>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold leading-tight text-text-primary">
+            <Trans>Firm settings</Trans>
+          </h1>
+          <p className="max-w-[720px] text-md text-text-secondary">
+            <Trans>
+              Basic controls are in place so form-heavy pages can be composed from the existing UI
+              set.
+            </Trans>
+          </p>
+        </div>
+      </header>
 
       <Card>
         <CardHeader>

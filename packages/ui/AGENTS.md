@@ -52,6 +52,81 @@ Legacy aliases (`bg-primary`, `text-foreground`, `bg-card`, `border-border`,
 and resolve onto the new token tree, so pre-migration call-sites keep
 working without value changes.
 
+## Page Typography & Spacing (App Routes)
+
+The token tree (font sizes, spacing, radius) is Dify-aligned, but consumers
+need a stable contract for **how to compose** those tokens at the page level.
+The recipe below is the single source of truth for new routes; existing pages
+were aligned to it in the Day-style rollout.
+
+### Page shell
+
+- Outer container: `flex flex-col gap-6 p-4 md:p-6`
+- Page header sits at the top of the route container with this structure:
+
+```tsx
+<header className="flex flex-col gap-2">
+  <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">{eyebrow}</span>
+  <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
+    <div className="flex flex-col gap-1">
+      <h1 className="text-2xl font-semibold leading-tight text-text-primary">{title}</h1>
+      <p className="max-w-[720px] text-md text-text-secondary">{description}</p>
+    </div>
+    <div className="flex gap-2">{actions}</div>
+  </div>
+</header>
+```
+
+### Card layer
+
+- Default Card: `rounded-xl` + `py-5 px-5` + `gap-5` (provided by `Card`).
+- `CardTitle` defaults to `text-md font-semibold` (14px) — matches Dify's
+  `system-md-semibold`, the most common card title size in data-dense
+  surfaces (dashboards, app lists, list-of-cards). Don't override per
+  call-site; Card's `size="sm"` variant already drops to `text-sm`.
+- For prominent / settings-module section cards where 16px reads better,
+  override the title with `className="text-lg"`. Reserve this for cards
+  that are the focal point of their page section.
+- `CardDescription` is `text-sm text-text-tertiary`.
+
+### Section titles inside a card / wizard step
+
+- Major section heading (h2): `text-lg font-semibold text-text-primary`
+- Minor uppercase label (h3 / fieldset legend):
+  `text-xs font-medium uppercase tracking-[0.08em] text-text-tertiary`
+
+### Body text
+
+Dify body is **14px**, not 12px. `text-sm` (12px) is description / metadata,
+not body. The default `Card` and `Table` body inherits `text-md` (14px) so
+most call-sites should not need to set a size at all.
+
+| Use                                | Class                                   | px  |
+| ---------------------------------- | --------------------------------------- | --- |
+| Default body (forms, prose, lists) | `text-md text-text-primary`             | 14  |
+| Compact body (dense tables, rows)  | `text-base text-text-primary`           | 13  |
+| Description / supporting text      | `text-sm text-text-secondary`           | 12  |
+| Caption / footnote / eyebrow       | `text-xs text-text-tertiary`            | 11  |
+| Form label                         | `text-sm font-medium text-text-primary` | 12  |
+
+Rule of thumb: if a string is the user's primary signal in a row / card /
+section, it's body — start with `text-md`. Reach for `text-sm` only when the
+content is supporting (helper text, hint, description, secondary stat).
+
+### Border radius hierarchy
+
+| Layer                                    | Class          |
+| ---------------------------------------- | -------------- |
+| Outer card / page-level surface          | `rounded-xl`   |
+| Mid container (inline box, step, alert)  | `rounded-lg`   |
+| Controls (button, input, badge bg frame) | `rounded-md`   |
+| Small chip / step number                 | `rounded-md`   |
+| Pill / dot / avatar                      | `rounded-full` |
+
+The `rounded-sm` (4px) bucket is intentionally avoided in app routes — it
+flattens the visual hierarchy. Reserve it for table cells / decorative
+separators where 6px would feel too soft.
+
 ## Border Radius: Figma Token → Tailwind Class
 
 Tailwind v4 defaults are not overridden. Match Figma tokens like so:

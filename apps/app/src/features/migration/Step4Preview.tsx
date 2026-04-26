@@ -23,7 +23,7 @@ export function Step4Preview({ summary }: Step4Props) {
   return (
     <div className="flex flex-col gap-5 py-5">
       <div className="flex flex-col gap-1">
-        <h2 className="text-base font-medium text-text-primary">
+        <h2 className="text-lg font-semibold text-text-primary">
           <Trans>Ready to import</Trans>
         </h2>
         <p className="text-sm text-text-secondary">
@@ -31,7 +31,7 @@ export function Step4Preview({ summary }: Step4Props) {
         </p>
       </div>
 
-      <ul className="flex flex-col gap-1.5 text-sm">
+      <ul className="flex flex-col gap-1.5 text-md">
         <li className="flex items-center gap-2 font-mono tabular-nums">
           <PlayIcon className="size-3 text-text-accent" aria-hidden />
           <Plural value={clientCount} one="# client" other="# clients" />
@@ -58,12 +58,12 @@ export function Step4Preview({ summary }: Step4Props) {
 
       <section
         aria-label="Safety"
-        className="flex flex-col gap-2 rounded-md border border-divider-regular bg-background-section p-3"
+        className="flex flex-col gap-2 rounded-lg border border-divider-regular bg-background-section p-3"
       >
         <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
           <Trans>Safety</Trans>
         </h3>
-        <ul className="flex flex-col gap-1.5 text-sm text-text-primary">
+        <ul className="flex flex-col gap-1.5 text-md text-text-primary">
           <li className="flex items-center gap-2">
             <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
             <Trans>One-click revert available for 24 hours</Trans>
@@ -94,7 +94,7 @@ export function Step4Preview({ summary }: Step4Props) {
       </Alert>
 
       {summary && summary.errors.length > 0 ? (
-        <section className="flex flex-col gap-2 rounded-md border border-divider-regular bg-components-badge-bg-red-soft p-3">
+        <section className="flex flex-col gap-2 rounded-lg border border-divider-regular bg-components-badge-bg-red-soft p-3">
           <h3 className="text-xs font-medium tracking-[0.08em] text-text-destructive uppercase">
             <Plural
               value={summary.errors.length}
@@ -102,7 +102,7 @@ export function Step4Preview({ summary }: Step4Props) {
               other="# rows need attention"
             />
           </h3>
-          <ul className="flex flex-col gap-1 text-sm text-text-primary">
+          <ul className="flex flex-col gap-1 text-md text-text-primary">
             {summary.errors.slice(0, 5).map((err) => (
               <li key={err.id} className="flex items-center gap-2">
                 <span className="font-mono text-xs tabular-nums text-text-secondary">
@@ -111,7 +111,7 @@ export function Step4Preview({ summary }: Step4Props) {
                 <span className="font-mono text-xs tabular-nums text-text-tertiary">
                   {err.errorCode}
                 </span>
-                <span className="text-xs">{err.errorMessage}</span>
+                <span className="text-sm">{err.errorMessage}</span>
               </li>
             ))}
           </ul>

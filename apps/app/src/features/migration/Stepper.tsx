@@ -42,7 +42,7 @@ export function Stepper({ current }: { current: StepIndex }) {
           >
             <div
               className={cn(
-                'flex h-8 items-center gap-1.5 rounded-sm border px-2.5 font-mono text-base tracking-[0.12em] uppercase transition-colors',
+                'flex h-8 items-center gap-1.5 rounded-md border px-2.5 font-mono text-xs tracking-[0.08em] uppercase transition-colors',
                 tone,
               )}
             >

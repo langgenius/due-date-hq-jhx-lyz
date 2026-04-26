@@ -116,10 +116,10 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
   return (
     <div className="flex flex-col gap-5 pt-5 pb-5" id="wizard-step1-body">
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary">
+        <h2 className="text-lg font-semibold text-text-primary">
           <Trans>Where is your data coming from?</Trans>
         </h2>
-        <p className="text-base text-text-secondary">
+        <p className="text-md text-text-secondary">
           <Trans>We&apos;ll figure out the shape — paste or upload, your call.</Trans>
         </p>
       </div>
@@ -127,11 +127,11 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       <div className="flex flex-col gap-2">
         <label
           htmlFor={pasteId}
-          className="font-mono text-[11px] tracking-[0.16em] text-text-tertiary uppercase"
+          className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase"
         >
           <Trans>Paste rows</Trans>
         </label>
-        <div className="rounded-md border border-divider-regular bg-components-panel-bg p-1 shadow-subtle">
+        <div className="rounded-lg border border-divider-regular bg-components-panel-bg p-1 shadow-subtle">
           <Textarea
             id={pasteId}
             aria-label={t`Paste client data`}
@@ -146,7 +146,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
 
       <div className="flex items-center gap-3">
         <span aria-hidden className="h-px flex-1 bg-divider-regular" />
-        <span className="font-mono text-[11px] tracking-[0.16em] text-text-tertiary uppercase">
+        <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
           <Trans>or</Trans>
         </span>
         <span aria-hidden className="h-px flex-1 bg-divider-regular" />
@@ -164,14 +164,14 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
             fileInputRef.current?.click()
           }
         }}
-        className="flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-divider-deep bg-components-panel-bg text-base text-text-secondary transition-colors hover:border-state-accent-solid hover:bg-state-accent-hover-alt focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className="flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-divider-deep bg-components-panel-bg text-md text-text-secondary transition-colors hover:border-state-accent-solid hover:bg-state-accent-hover-alt focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <UploadCloudIcon className="size-5 text-text-tertiary" aria-hidden />
         <span>
           <Trans>Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB</Trans>
         </span>
         {intake.fileName ? (
-          <span className="font-mono text-base text-text-secondary tabular-nums">
+          <span className="font-mono text-md text-text-secondary tabular-nums">
             {intake.fileName}
           </span>
         ) : null}
@@ -185,7 +185,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="font-mono text-[11px] tracking-[0.16em] text-text-tertiary uppercase">
+        <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
           <Trans>I&apos;m coming from… (optional)</Trans>
         </span>
         <div className="flex flex-wrap gap-2">
@@ -201,7 +201,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         </div>
       </div>
 
-      <p id="paste-hint" className="flex items-center gap-1.5 text-base text-text-tertiary">
+      <p id="paste-hint" className="flex items-center gap-1.5 text-sm text-text-tertiary">
         <LockIcon className="size-4" aria-hidden />
         <Trans>We block SSN-like patterns before sending anything to the AI.</Trans>
       </p>
@@ -254,7 +254,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       ) : null}
 
       {intake.rowCount > 0 && intake.parseError === null ? (
-        <p className="text-base text-text-success">
+        <p className="text-md text-text-success">
           <Plural
             value={intake.rowCount}
             one="# row ready to import"
@@ -280,7 +280,7 @@ function PresetChip({ id, label, selected, onToggle }: PresetChipProps) {
       onClick={onToggle}
       aria-pressed={selected}
       className={cn(
-        'inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-base font-medium transition-colors',
+        'inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-md font-medium transition-colors',
         selected
           ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
           : 'border-divider-regular bg-background-body text-text-secondary hover:border-state-accent-solid hover:text-text-accent',

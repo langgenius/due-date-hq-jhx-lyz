@@ -17,15 +17,15 @@ export function PulseBanner({ title, detail, source, action, className }: PulseB
   return (
     <div
       className={cn(
-        'grid gap-1 rounded-md border border-divider-regular bg-components-badge-bg-warning-soft p-3 text-text-primary',
+        'grid gap-1 rounded-lg border border-divider-regular bg-components-badge-bg-warning-soft p-4 text-text-primary',
         className,
       )}
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="font-medium">{title}</span>
+        <span className="text-md font-medium">{title}</span>
         {source ? <span className="shrink-0">{source}</span> : null}
       </div>
-      {detail ? <span className="text-sm text-text-secondary">{detail}</span> : null}
+      {detail ? <span className="text-md text-text-secondary">{detail}</span> : null}
       {action ? <div className="flex justify-end">{action}</div> : null}
     </div>
   )

@@ -5,6 +5,7 @@ import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { XIcon } from 'lucide-react'
 
 import { cn } from '@duedatehq/ui/lib/utils'
+import { overlayBackdropClassName, overlayPopupAnimationClassName } from '@duedatehq/ui/lib/overlay'
 import { Button } from '@duedatehq/ui/components/ui/button'
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
@@ -27,11 +28,8 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
-      className={cn(
-        'fixed inset-0 isolate z-50 bg-background-overlay transition-opacity duration-150 supports-backdrop-filter:backdrop-blur-xs',
-        'data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none',
-        className,
-      )}
+      // `isolate` keeps the close-button button-shadow stack above the backdrop.
+      className={cn(overlayBackdropClassName, 'isolate', className)}
       {...props}
     />
   )
@@ -51,8 +49,8 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-5 rounded-xl border border-components-panel-border bg-components-panel-bg p-6 text-sm text-text-primary shadow-2xl outline-none transition-[transform,scale,opacity] sm:max-w-md',
-          'data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 motion-reduce:transition-none',
+          'fixed top-1/2 left-1/2 z-50 grid w-[480px] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 gap-5 rounded-2xl border border-components-panel-border bg-components-panel-bg p-6 text-sm text-text-primary shadow-2xl outline-none',
+          overlayPopupAnimationClassName,
           className,
         )}
         {...props}
@@ -61,7 +59,7 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            render={<Button variant="ghost" className="absolute top-4 right-4" size="icon-sm" />}
+            render={<Button variant="ghost" className="absolute top-6 right-6" size="icon-sm" />}
           >
             <XIcon />
             <span className="sr-only">Close</span>

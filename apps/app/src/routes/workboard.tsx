@@ -88,17 +88,17 @@ export function WorkboardRoute() {
   const filterLabels = useFilterLabels()
   const filters: FilterKey[] = ['all', 'blocked', 'in review', 'waiting']
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-6">
-      <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium text-text-tertiary">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
+      <header className="flex flex-col gap-2">
+        <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
           <Trans>Workboard</Trans>
         </span>
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold">
+            <h1 className="text-2xl font-semibold leading-tight text-text-primary">
               <Trans>Obligation queue</Trans>
             </h1>
-            <p className="max-w-[720px] text-sm text-text-secondary">
+            <p className="max-w-[720px] text-md text-text-secondary">
               <Trans>
                 A first pass at the dense operational surface: filters, search, status and source
                 scanning are visible before API wiring.
@@ -115,7 +115,7 @@ export function WorkboardRoute() {
             </Button>
           </div>
         </div>
-      </div>
+      </header>
 
       <Card>
         <CardHeader>
