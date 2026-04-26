@@ -1,5 +1,9 @@
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
+export function EntryRouteHydrateFallback() {
+  return <div aria-hidden className="h-[240px] w-full max-w-[400px]" />
+}
+
 export function RouteHydrateFallback() {
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">

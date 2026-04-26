@@ -14,7 +14,7 @@ import { removeLocaleFromPath } from '@/i18n/query'
 import { EntryShell } from '@/routes/_entry-layout'
 import { RootLayout, ShellSkeleton } from '@/routes/_layout'
 import { RouteErrorBoundary } from '@/routes/error'
-import { RouteHydrateFallback } from '@/routes/fallback'
+import { EntryRouteHydrateFallback, RouteHydrateFallback } from '@/routes/fallback'
 
 // Route id used by children to reach into the layout loader via useRouteLoaderData.
 export const PROTECTED_ROUTE_ID = 'protected'
@@ -136,7 +136,7 @@ export function createAppRouter() {
             {
               path: '/login',
               loader: guestLoader,
-              HydrateFallback: RouteHydrateFallback,
+              HydrateFallback: EntryRouteHydrateFallback,
               lazy: async () => {
                 const { LoginRoute } = await import('@/routes/login')
 
@@ -146,7 +146,7 @@ export function createAppRouter() {
             {
               path: '/onboarding',
               loader: onboardingLoader,
-              HydrateFallback: RouteHydrateFallback,
+              HydrateFallback: EntryRouteHydrateFallback,
               lazy: async () => {
                 const { OnboardingRoute } = await import('@/routes/onboarding')
 

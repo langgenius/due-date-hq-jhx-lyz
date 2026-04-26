@@ -98,6 +98,10 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
   子 route 默认不重复挂同一个 boundary；React Router 会把 loader / lazy / render 错误冒泡到最近的
   boundary。只有未来需要“保留 app shell、内容区局部失败”这类不同 UX 时，才在更深层加专用
   boundary。
+- Hydrate fallback 按 route group 定义，不像 error boundary 一样 root-only 收敛：
+  entry route 使用 `EntryRouteHydrateFallback`（空白占位，保留 entry shell 的静态 header /
+  footer，不显示 skeleton）；protected shell 初始认证 gate 使用 `ShellSkeleton`；dashboard /
+  workboard / settings 等内容 route 使用 `RouteHydrateFallback`。
 - 业务路由按 session/org 状态分成三个顶级 route group，并额外保留一个 public catch-all：
   - **EntryShell（pathless layout route，`Component: EntryShell`）** — 包 `/login` + `/onboarding` 共享同一套 header / footer / locale switcher chrome。子路由各自挂自己的 loader（`guestLoader` / `onboardingLoader`），EntryShell 自身不带 loader 也不带 path，详见 `apps/app/src/routes/_entry-layout.tsx`。**命名避开 "auth"：** `/login` 是 pre-auth、`/onboarding` 是 post-auth/pre-active-org，两者唯一共性是「在用户进 dashboard shell 之前要走完的过渡 surface」 → "entry"
     - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去
