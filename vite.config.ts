@@ -93,6 +93,32 @@ export default defineConfig({
         },
       },
       {
+        files: ['apps/app/src/**'],
+        rules: {
+          'no-restricted-imports': [
+            'error',
+            {
+              patterns: [
+                {
+                  group: ['@duedatehq/db/schema', '@duedatehq/db/schema/*'],
+                  message:
+                    'Use app RPC/contracts instead of importing database schema in the browser app.',
+                },
+                {
+                  group: ['@orpc/client', '@orpc/client/*'],
+                  message:
+                    'Business code must consume orpc.*.queryOptions()/mutationOptions() from @/lib/rpc; raw oRPC client APIs stay centralized.',
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        files: ['apps/app/src/lib/rpc.ts'],
+        rules: { 'no-restricted-imports': 'off' },
+      },
+      {
         files: ['packages/core/**'],
         rules: {
           'no-restricted-imports': [

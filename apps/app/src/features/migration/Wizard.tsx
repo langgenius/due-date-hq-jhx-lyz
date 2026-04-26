@@ -1,13 +1,20 @@
-import { useCallback, useMemo, useReducer, useTransition } from 'react'
+import { useCallback, useMemo, useReducer } from 'react'
 import { useNavigate } from 'react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { toast } from 'sonner'
 
 import { parseTabular } from '@duedatehq/core/csv-parser'
 import { inferTaxTypes, type EntityType } from '@duedatehq/core/default-matrix'
-import type { MappingRow, NormalizationRow, MigrationSource } from '@duedatehq/contracts'
+import type {
+  MappingRow,
+  MigrationBatch,
+  MigrationSource,
+  NormalizationRow,
+} from '@duedatehq/contracts'
 
-import { rpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
+import { orpc } from '@/lib/rpc'
 
 import { Step1Intake } from './Step1Intake'
 import { Step2Mapping } from './Step2Mapping'
@@ -26,114 +33,220 @@ import type { MatrixApplicationView } from './matrix-view'
 /**
  * Migration Copilot Wizard — entry point at /migration/new.
  *
- * The reducer holds UI state; side effects live here as React 19 transitions.
- * Each step's Continue handler runs the relevant migration.* RPC and then
- * updates the reducer with the server's authoritative payload.
+ * The reducer holds UI state; server mutations go through oRPC TanStack Query
+ * mutationOptions so loading, errors, and cache invalidation use one project pattern.
  */
 export function Wizard() {
   const { t } = useLingui()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [state, dispatch] = useReducer(wizardReducer, INITIAL_STATE)
-  const [isPending, startTransition] = useTransition()
+
+  const invalidateMigration = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: orpc.migration.key() })
+  }, [queryClient])
+
+  const cacheBatch = useCallback(
+    (batch: MigrationBatch) => {
+      queryClient.setQueryData(
+        orpc.migration.getBatch.queryKey({ input: { batchId: batch.id } }),
+        batch,
+      )
+      invalidateMigration()
+    },
+    [invalidateMigration, queryClient],
+  )
+
+  const createBatchMutation = useMutation(
+    orpc.migration.createBatch.mutationOptions({
+      onSuccess: cacheBatch,
+    }),
+  )
+  const uploadRawMutation = useMutation(
+    orpc.migration.uploadRaw.mutationOptions({
+      onSuccess: invalidateMigration,
+    }),
+  )
+  const runMapperMutation = useMutation(
+    orpc.migration.runMapper.mutationOptions({
+      onSuccess: invalidateMigration,
+    }),
+  )
+  const confirmMappingMutation = useMutation(
+    orpc.migration.confirmMapping.mutationOptions({
+      onSuccess: invalidateMigration,
+    }),
+  )
+  const runNormalizerMutation = useMutation(
+    orpc.migration.runNormalizer.mutationOptions({
+      onSuccess: invalidateMigration,
+    }),
+  )
+  const confirmNormalizationMutation = useMutation(
+    orpc.migration.confirmNormalization.mutationOptions({
+      onSuccess: invalidateMigration,
+    }),
+  )
+  const applyDefaultMatrixMutation = useMutation(
+    orpc.migration.applyDefaultMatrix.mutationOptions({
+      onSuccess: invalidateMigration,
+    }),
+  )
 
   const handleStep1Continue = useCallback(() => {
-    if (!state.intake.rawText.trim() || state.intake.rowCount === 0) return
+    const intake = state.intake
+    if (!intake.rawText.trim() || intake.rowCount === 0) return
 
     dispatch({ type: 'INTAKE_SUBMIT_ERROR', error: null })
-    startTransition(async () => {
-      try {
-        const source: MigrationSource = state.intake.preset
-          ? PRESET_TO_SOURCE[state.intake.preset]
-          : 'paste'
-        const batch = await rpc.migration.createBatch({
-          source,
-          presetUsed: state.intake.preset ?? null,
-          rowCount: state.intake.rowCount,
-        })
-        dispatch({ type: 'BATCH_CREATED', batch })
-        await rpc.migration.uploadRaw({
-          batchId: batch.id,
-          fileName: state.intake.fileName ?? 'paste.txt',
-          contentType: state.intake.fileName?.endsWith('.tsv')
-            ? 'text/tab-separated-values'
-            : 'text/csv',
-          sizeBytes: state.intake.rawText.length,
-          inline: { kind: 'paste', text: state.intake.rawText },
-        })
+    const source: MigrationSource = intake.preset ? PRESET_TO_SOURCE[intake.preset] : 'paste'
+    const handleError = (err: unknown) => {
+      const description = rpcErrorMessage(err) ?? t`Please try again.`
+      dispatch({ type: 'INTAKE_SUBMIT_ERROR', error: description })
+      toast.error(t`Couldn't start the import`, { description })
+    }
 
-        const result = await rpc.migration.runMapper({ batchId: batch.id })
-        dispatch({
-          type: 'MAPPER_RESULT',
-          rows: result.mappings,
-          fallback: result.meta?.fallback ?? null,
-        })
-        dispatch({ type: 'GO_TO_STEP', step: 2 })
-      } catch (err) {
-        const description = errorMessage(err) ?? t`Please try again.`
-        dispatch({ type: 'INTAKE_SUBMIT_ERROR', error: description })
-        toast.error(t`Couldn't start the import`, { description })
-      }
-    })
-  }, [state.intake, t])
+    createBatchMutation.mutate(
+      {
+        source,
+        presetUsed: intake.preset ?? null,
+        rowCount: intake.rowCount,
+      },
+      {
+        onError: handleError,
+        onSuccess: (batch) => {
+          dispatch({ type: 'BATCH_CREATED', batch })
+          uploadRawMutation.mutate(
+            {
+              batchId: batch.id,
+              fileName: intake.fileName ?? 'paste.txt',
+              contentType: intake.fileName?.endsWith('.tsv')
+                ? 'text/tab-separated-values'
+                : 'text/csv',
+              sizeBytes: intake.rawText.length,
+              inline: { kind: 'paste', text: intake.rawText },
+            },
+            {
+              onError: handleError,
+              onSuccess: () => {
+                runMapperMutation.mutate(
+                  { batchId: batch.id },
+                  {
+                    onError: handleError,
+                    onSuccess: (result) => {
+                      dispatch({
+                        type: 'MAPPER_RESULT',
+                        rows: result.mappings,
+                        fallback: result.meta?.fallback ?? null,
+                      })
+                      dispatch({ type: 'GO_TO_STEP', step: 2 })
+                    },
+                  },
+                )
+              },
+            },
+          )
+        },
+      },
+    )
+  }, [createBatchMutation, runMapperMutation, state.intake, t, uploadRawMutation])
 
   const handleStep2Continue = useCallback(() => {
-    if (!state.batchId) return
-    startTransition(async () => {
-      try {
-        await rpc.migration.confirmMapping({
-          batchId: state.batchId!,
-          mappings: state.mapping.rows,
-        })
-        dispatch({ type: 'NORMALIZE_LOADING' })
-        const normalized = await rpc.migration.runNormalizer({ batchId: state.batchId! })
-        dispatch({ type: 'NORMALIZE_RESULT', rows: normalized.normalizations })
-        dispatch({ type: 'GO_TO_STEP', step: 3 })
-      } catch (err) {
-        toast.error(t`Couldn't save mapping`, {
-          description: errorMessage(err) ?? t`Please try again.`,
-        })
-      }
-    })
-  }, [state.batchId, state.mapping.rows, t])
+    const batchId = state.batchId
+    if (!batchId) return
+
+    const handleError = (err: unknown) => {
+      toast.error(t`Couldn't save mapping`, {
+        description: rpcErrorMessage(err) ?? t`Please try again.`,
+      })
+    }
+
+    confirmMappingMutation.mutate(
+      {
+        batchId,
+        mappings: state.mapping.rows,
+      },
+      {
+        onError: handleError,
+        onSuccess: () => {
+          dispatch({ type: 'NORMALIZE_LOADING' })
+          runNormalizerMutation.mutate(
+            { batchId },
+            {
+              onError: handleError,
+              onSuccess: (normalized) => {
+                dispatch({ type: 'NORMALIZE_RESULT', rows: normalized.normalizations })
+                dispatch({ type: 'GO_TO_STEP', step: 3 })
+              },
+            },
+          )
+        },
+      },
+    )
+  }, [confirmMappingMutation, runNormalizerMutation, state.batchId, state.mapping.rows, t])
 
   const handleStep2Rerun = useCallback(() => {
-    if (!state.batchId) return
-    startTransition(async () => {
-      dispatch({ type: 'MAPPER_LOADING' })
-      try {
-        const result = await rpc.migration.runMapper({ batchId: state.batchId! })
-        dispatch({
-          type: 'MAPPER_RESULT',
-          rows: result.mappings,
-          fallback: result.meta?.fallback ?? null,
-        })
-      } catch (err) {
-        dispatch({
-          type: 'MAPPER_ERROR',
-          message: errorMessage(err) ?? t`Re-run failed.`,
-        })
-      }
-    })
-  }, [state.batchId, t])
+    const batchId = state.batchId
+    if (!batchId) return
+
+    dispatch({ type: 'MAPPER_LOADING' })
+    runMapperMutation.mutate(
+      { batchId },
+      {
+        onError: (err) => {
+          dispatch({
+            type: 'MAPPER_ERROR',
+            message: rpcErrorMessage(err) ?? t`Re-run failed.`,
+          })
+        },
+        onSuccess: (result) => {
+          dispatch({
+            type: 'MAPPER_RESULT',
+            rows: result.mappings,
+            fallback: result.meta?.fallback ?? null,
+          })
+        },
+      },
+    )
+  }, [runMapperMutation, state.batchId, t])
 
   const handleStep3Continue = useCallback(() => {
-    if (!state.batchId) return
-    startTransition(async () => {
-      try {
-        await rpc.migration.confirmNormalization({
-          batchId: state.batchId!,
-          normalizations: state.normalize.rows,
-        })
-        const summary = await rpc.migration.applyDefaultMatrix({ batchId: state.batchId! })
-        dispatch({ type: 'DRY_RUN_RESULT', summary })
-        dispatch({ type: 'GO_TO_STEP', step: 4 })
-      } catch (err) {
-        toast.error(t`Couldn't apply Default Matrix`, {
-          description: errorMessage(err) ?? t`Please try again.`,
-        })
-      }
-    })
-  }, [state.batchId, state.normalize.rows, t])
+    const batchId = state.batchId
+    if (!batchId) return
+
+    const handleError = (err: unknown) => {
+      toast.error(t`Couldn't apply Default Matrix`, {
+        description: rpcErrorMessage(err) ?? t`Please try again.`,
+      })
+    }
+
+    confirmNormalizationMutation.mutate(
+      {
+        batchId,
+        normalizations: state.normalize.rows,
+      },
+      {
+        onError: handleError,
+        onSuccess: () => {
+          applyDefaultMatrixMutation.mutate(
+            { batchId },
+            {
+              onError: handleError,
+              onSuccess: (summary) => {
+                dispatch({ type: 'DRY_RUN_RESULT', summary })
+                dispatch({ type: 'GO_TO_STEP', step: 4 })
+              },
+            },
+          )
+        },
+      },
+    )
+  }, [
+    applyDefaultMatrixMutation,
+    confirmNormalizationMutation,
+    state.batchId,
+    state.normalize.rows,
+    t,
+  ])
 
   const handleClose = useCallback(() => {
     void navigate('/')
@@ -172,11 +285,19 @@ export function Wizard() {
           : () => {}
   const onBack =
     state.step > 1 ? () => dispatch({ type: 'GO_TO_STEP', step: prevStep(state.step) }) : undefined
+  const isMutating =
+    createBatchMutation.isPending ||
+    uploadRawMutation.isPending ||
+    runMapperMutation.isPending ||
+    confirmMappingMutation.isPending ||
+    runNormalizerMutation.isPending ||
+    confirmNormalizationMutation.isPending ||
+    applyDefaultMatrixMutation.isPending
 
   return (
     <WizardShell
       step={state.step}
-      busy={isPending || state.isBusy}
+      busy={isMutating || state.isBusy}
       canContinue={canContinue && state.step !== 4}
       continueLabel={continueLabel}
       onContinue={onContinue}
@@ -192,6 +313,7 @@ export function Wizard() {
           onParseError={(error) => dispatch({ type: 'INTAKE_PARSE_ERROR', error })}
         />
       ) : null}
+
       {state.step === 2 ? (
         <Step2Mapping
           mapping={state.mapping}
@@ -200,6 +322,7 @@ export function Wizard() {
           onRerun={handleStep2Rerun}
         />
       ) : null}
+
       {state.step === 3 ? (
         <Step3Normalize
           normalize={state.normalize}
@@ -210,6 +333,7 @@ export function Wizard() {
           }
         />
       ) : null}
+
       {state.step === 4 ? <Step4Preview summary={state.dryRun.summary} /> : null}
     </WizardShell>
   )
@@ -308,13 +432,4 @@ function prevStep(step: StepIndex): StepIndex {
   if (step === 4) return 3
   if (step === 3) return 2
   return 1
-}
-
-function errorMessage(err: unknown): string | null {
-  if (err instanceof Error) return err.message
-  if (typeof err === 'object' && err !== null && 'message' in err) {
-    const message = (err as { message: unknown }).message
-    if (typeof message === 'string') return message
-  }
-  return null
 }

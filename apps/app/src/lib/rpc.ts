@@ -7,7 +7,8 @@ import type { AppContract } from '@duedatehq/contracts'
 import { attachLocaleHeader } from '@/i18n/i18n'
 
 // CONSTRAINT (docs/dev-file/05 §4): apps/app may only reach the Worker via this module.
-// `fetch('/rpc/...')` or any other hand-rolled oRPC client is forbidden.
+// Business code consumes `orpc.*.queryOptions()` / `mutationOptions()` only.
+// `fetch('/rpc/...')`, hand-rolled oRPC clients, and direct `rpc.*` calls are forbidden.
 
 function buildInit(init: RequestInit | undefined): RequestInit {
   const headers = new Headers(init?.headers)
@@ -20,5 +21,5 @@ const link = new RPCLink({
   fetch: (req, init) => fetch(req, buildInit(init)),
 })
 
-export const rpc: ContractRouterClient<AppContract> = createORPCClient(link)
+const rpc: ContractRouterClient<AppContract> = createORPCClient(link)
 export const orpc = createTanstackQueryUtils(rpc)

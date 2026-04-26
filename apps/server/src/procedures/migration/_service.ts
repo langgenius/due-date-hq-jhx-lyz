@@ -541,7 +541,7 @@ export class MigrationService {
   }
 
   private composeDryRun(batchId: string, payload: MappingJsonPayload): DryRunSummary {
-    const stats = computeDryRunStats(payload)
+    const stats = computeDryRunStats(batchId, payload)
     const summary: DryRunSummary = {
       batchId,
       clientsToCreate: stats.clientsToCreate,
@@ -721,7 +721,7 @@ interface DryRunStats {
   errors: DryRunSummary['errors']
 }
 
-function computeDryRunStats(payload: MappingJsonPayload): DryRunStats {
+function computeDryRunStats(batchId: string, payload: MappingJsonPayload): DryRunStats {
   if (!payload.rawInput || !payload.confirmedMappings) {
     return { clientsToCreate: 0, obligationsToCreate: 0, skippedRows: 0, errors: [] }
   }
@@ -755,7 +755,7 @@ function computeDryRunStats(payload: MappingJsonPayload): DryRunStats {
     skippedRows: skippedSet.size,
     errors: all.map((e) => ({
       id: crypto.randomUUID(),
-      batchId: '',
+      batchId,
       rowIndex: e.rowIndex,
       rawRowJson: e.rawRow,
       errorCode: e.errorCode,

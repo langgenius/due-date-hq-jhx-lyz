@@ -112,13 +112,13 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 
 ## 3. 状态管理分层（约束）
 
-| 层           | 工具                                         | 管什么                                                             |
-| ------------ | -------------------------------------------- | ------------------------------------------------------------------ |
-| Server state | **TanStack Query + `@orpc/tanstack-query`**  | 所有 `rpc.*.query/mutation`；自动缓存 / 乐观 UI / invalidation     |
-| URL state    | **nuqs** + `react-router` params             | 筛选 / 排序 / 分页 / 抽屉打开项                                    |
-| Form state   | **react-hook-form** + Zod（复用契约 schema） | 所有表单                                                           |
-| UI state     | **Zustand**                                  | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store** |
-| Feature flag | **PostHog JS SDK**                           | 运行时开关                                                         |
+| 层           | 工具                                         | 管什么                                                                                                   |
+| ------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Server state | **TanStack Query + `@orpc/tanstack-query`**  | 所有内部 RPC 消费必须走 `orpc.*.queryOptions()` / `mutationOptions()`；自动缓存 / 乐观 UI / invalidation |
+| URL state    | **nuqs** + `react-router` params             | 筛选 / 排序 / 分页 / 抽屉打开项                                                                          |
+| Form state   | **react-hook-form** + Zod（复用契约 schema） | 所有表单                                                                                                 |
+| UI state     | **Zustand**                                  | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store**                                       |
+| Feature flag | **PostHog JS SDK**                           | 运行时开关                                                                                               |
 
 **禁止：** Redux、MobX、Recoil、自造 context 状态容器。
 
@@ -126,12 +126,13 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 
 ## 4. oRPC 客户端（约束）
 
-`apps/app/src/lib/rpc.ts`（唯一形态）：
+`apps/app/src/lib/rpc.ts`（唯一 oRPC client 初始化位置）：
 
 ```ts
 // 约束
 import { createORPCClient } from '@orpc/client'
 import { RPCLink } from '@orpc/client/fetch'
+import type { ContractRouterClient } from '@orpc/contract'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 import type { AppContract } from '@duedatehq/contracts'
 
@@ -140,11 +141,40 @@ const link = new RPCLink({
   fetch: (req, init) => fetch(req, { ...init, credentials: 'include' }), // 带 better-auth cookie
 })
 
-export const rpc = createORPCClient<AppContract>(link)
+const rpc: ContractRouterClient<AppContract> = createORPCClient(link)
 export const orpc = createTanstackQueryUtils(rpc)
 ```
 
-业务代码只 import `rpc` 和 `orpc`；不允许任何地方出现 `fetch('/rpc/...')` 裸调用。
+业务代码只 import `orpc`，并把官方 `queryOptions()` / `mutationOptions()` 直接传给 TanStack Query hooks：
+
+```ts
+const mutation = useMutation(orpc.migration.createBatch.mutationOptions())
+const query = useQuery(orpc.migration.getBatch.queryOptions({ input: { batchId } }))
+```
+
+**禁止：**
+
+- 业务代码 import 或调用 raw `rpc.*` client。
+- 业务代码 import `@orpc/client` / `@orpc/client/*`。
+- 任何地方出现 `fetch('/rpc/...')` 裸调用。
+
+读取型 RPC 优先 `useQuery`；需要由 route/section fallback 接管 loading 时用
+`useSuspenseQuery` 并放在明确的 Suspense 边界内。用户动作触发的写流程用
+`useMutation(...mutationOptions())`，事件 handler 内优先调用 `mutate(input, callbacks)`。
+`mutateAsync` 只允许在确实需要 promise composition 且同一作用域有完整
+`try/catch/finally` 的底层工具代码里使用。
+
+```ts
+// ✅ mutation lifecycle stays with TanStack Query callbacks.
+mutation.mutate(data, {
+  onSuccess: (result) => router.push(result.url),
+  onError: showError,
+})
+
+// ❌ Avoid async event handlers that await mutations.
+const result = await mutation.mutateAsync(data)
+router.push(result.url)
+```
 
 ---
 

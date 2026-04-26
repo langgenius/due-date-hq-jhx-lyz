@@ -376,6 +376,28 @@ describe('MigrationService.confirmMapping deterministic checks', () => {
     expect(einErrors).toHaveLength(1)
     expect(einErrors[0]!.rowIndex).toBe(1)
   })
+
+  it('returns schema-valid dryRun errors with the batch id', async () => {
+    const { repo } = buildScopedRepo(FIRM)
+    const ai = buildAi({
+      mappings: [
+        { source: 'Client Name', target: 'client.name', confidence: 0.99 },
+        { source: 'Tax ID', target: 'client.ein', confidence: 0.96 },
+      ],
+    })
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'paste' })
+    const csv = `Client Name,Tax ID\nAcme LLC,12-3456789\nBad Row,not-an-ein`
+    await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: csv })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+
+    const summary = await service.dryRun(batch.id)
+    expect(
+      summary.errors.some((e) => e.batchId === batch.id && e.errorCode === 'EIN_INVALID'),
+    ).toBe(true)
+  })
 })
 
 describe('MigrationService cross-firm isolation', () => {
