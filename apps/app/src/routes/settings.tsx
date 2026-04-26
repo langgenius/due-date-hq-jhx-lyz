@@ -34,7 +34,7 @@ export function SettingsRoute() {
   return (
     <div className="mx-auto flex w-full max-w-[880px] flex-col gap-5 p-4 md:p-6">
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-text-tertiary">
           <Trans>Settings</Trans>
         </span>
         <h1 className="text-2xl font-semibold">
@@ -48,7 +48,7 @@ export function SettingsRoute() {
         </p>
       </div>
 
-      <Card className="rounded-md shadow-none">
+      <Card>
         <CardHeader>
           <CardTitle>
             <Trans>Practice profile</Trans>
@@ -99,7 +99,7 @@ export function SettingsRoute() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-md shadow-none">
+      <Card>
         <CardHeader>
           <CardTitle>
             <Trans>Notification routing</Trans>

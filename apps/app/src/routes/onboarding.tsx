@@ -123,7 +123,7 @@ export function OnboardingRoute() {
   }
 
   return (
-    <div className="relative isolate flex min-h-screen items-center justify-center bg-bg-canvas p-6">
+    <div className="relative isolate flex min-h-screen items-center justify-center bg-background-body p-6">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_0%,color-mix(in_oklab,var(--primary)_10%,transparent),transparent_60%)]"
@@ -138,7 +138,7 @@ export function OnboardingRoute() {
           </div>
           <div className="flex flex-col leading-tight">
             <span className="text-base font-semibold text-text-primary">DueDateHQ</span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-text-tertiary">
               <Trans>CPA deadline console</Trans>
             </span>
           </div>
@@ -192,7 +192,7 @@ export function OnboardingRoute() {
                 </Field>
               </FieldGroup>
             </CardContent>
-            <CardFooter className="flex-col items-stretch gap-2 border-t border-border-default pt-4">
+            <CardFooter className="flex-col items-stretch gap-2 border-t border-divider-regular pt-4">
               <Button type="submit" size="lg" disabled={isSubmitting} aria-busy={isSubmitting}>
                 {isSubmitting ? (
                   <>
@@ -207,7 +207,7 @@ export function OnboardingRoute() {
                   </span>
                 )}
               </Button>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-text-tertiary">
                 <Trans>You can rename or invite teammates later.</Trans>
               </p>
             </CardFooter>

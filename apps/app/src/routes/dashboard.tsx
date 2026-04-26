@@ -8,7 +8,7 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro'
 
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
-import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Card,
@@ -131,7 +131,9 @@ function useQueueStats() {
   ]
 }
 
-function useSeverityLabels(): Record<'critical' | 'high' | 'medium' | 'neutral', string> {
+type Severity = 'critical' | 'high' | 'medium' | 'neutral'
+
+function useSeverityLabels(): Record<Severity, string> {
   const { t } = useLingui()
   return {
     critical: t`critical`,
@@ -141,11 +143,20 @@ function useSeverityLabels(): Record<'critical' | 'high' | 'medium' | 'neutral',
   }
 }
 
-const severityBadgeClass = {
-  critical: 'border-severity-critical-border bg-severity-critical-tint text-severity-critical',
-  high: 'border-severity-high-border bg-severity-high-tint text-severity-high',
-  medium: 'border-severity-medium-border bg-severity-medium-tint text-severity-medium',
-  neutral: 'border-border-default bg-severity-neutral-tint text-severity-neutral',
+// Severity → Badge variant + dot tone. Centralised so all severity chips share
+// the Dify-style soft chip + halo dot, replacing the old hand-rolled tint
+// classes.
+const severityVariant: Record<Severity, 'destructive' | 'warning' | 'secondary' | 'outline'> = {
+  critical: 'destructive',
+  high: 'warning',
+  medium: 'secondary',
+  neutral: 'outline',
+}
+const severityDot: Record<Severity, 'error' | 'warning' | 'disabled' | 'normal'> = {
+  critical: 'error',
+  high: 'warning',
+  medium: 'disabled',
+  neutral: 'normal',
 }
 
 // Placeholder until the real pulse verification timestamp lands. Keeping it
@@ -161,7 +172,7 @@ export function DashboardRoute() {
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card className="rounded-md shadow-none">
+        <Card>
           <CardHeader>
             <CardTitle>
               <Trans>Risk pulse</Trans>
@@ -178,7 +189,7 @@ export function DashboardRoute() {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-[220px_1fr]">
               <div className="flex flex-col gap-2">
-                <span className="text-xs font-medium text-muted-foreground">
+                <span className="text-xs font-medium text-text-tertiary">
                   <Trans>Penalty exposure</Trans>
                 </span>
                 <span className="font-mono text-hero leading-none font-bold tabular-nums">
@@ -204,7 +215,7 @@ export function DashboardRoute() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="gap-2 border-t border-border-default">
+          <CardFooter className="gap-2 border-t border-divider-regular">
             <Button size="sm">
               <Trans>Review risk queue</Trans>
               <ArrowUpRightIcon data-icon="inline-end" />
@@ -216,7 +227,7 @@ export function DashboardRoute() {
           </CardFooter>
         </Card>
 
-        <Card className="rounded-md shadow-none">
+        <Card>
           <CardHeader>
             <CardTitle>
               <Trans>Today queue</Trans>
@@ -230,7 +241,7 @@ export function DashboardRoute() {
               <div key={stat.label} className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <span className="text-sm font-medium">{stat.label}</span>
-                  <span className="text-xs text-muted-foreground">{stat.detail}</span>
+                  <span className="text-xs text-text-tertiary">{stat.detail}</span>
                 </div>
                 <span className="font-mono text-xl font-semibold tabular-nums">{stat.value}</span>
               </div>
@@ -267,7 +278,7 @@ export function DashboardRoute() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="risk">
-            <Card className="rounded-md shadow-none">
+            <Card>
               <CardHeader>
                 <CardTitle>
                   <Trans>Client risk rows</Trans>
@@ -303,7 +314,8 @@ export function DashboardRoute() {
                           {formatCents(row.exposure)}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={severityBadgeClass[row.severity]}>
+                          <Badge variant={severityVariant[row.severity]}>
+                            <BadgeStatusDot tone={severityDot[row.severity]} />
                             {severityLabels[row.severity]}
                           </Badge>
                         </TableCell>
@@ -316,7 +328,7 @@ export function DashboardRoute() {
             </Card>
           </TabsContent>
           <TabsContent value="evidence">
-            <Card className="rounded-md shadow-none">
+            <Card>
               <CardHeader>
                 <CardTitle>
                   <Trans>Evidence checks</Trans>

@@ -10,14 +10,14 @@ export interface PulseBannerProps {
   className?: string
 }
 
-// Pulse banner shell per DESIGN.md `pulse-banner` token: yellow tint
-// (severity-medium-tint) + matching border + 6px radius. Layout slots are
-// kept open so callers can compose existing primitives (Badge, Button, etc.).
+// Pulse banner shell. Aligns with the new Dify soft-chip palette: warning soft
+// background + regular divider, primary/secondary text. Layout slots stay open
+// so callers can compose existing primitives (Badge, Button, etc.).
 export function PulseBanner({ title, detail, source, action, className }: PulseBannerProps) {
   return (
     <div
       className={cn(
-        'grid gap-1 rounded-md border border-severity-medium-border bg-severity-medium-tint p-3 text-text-primary',
+        'grid gap-1 rounded-md border border-divider-regular bg-components-badge-bg-warning-soft p-3 text-text-primary',
         className,
       )}
     >

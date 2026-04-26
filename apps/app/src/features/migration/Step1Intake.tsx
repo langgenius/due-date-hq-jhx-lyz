@@ -127,11 +127,11 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       <div className="flex flex-col gap-2">
         <label
           htmlFor={pasteId}
-          className="font-mono text-[11px] tracking-[0.16em] text-text-muted uppercase"
+          className="font-mono text-[11px] tracking-[0.16em] text-text-tertiary uppercase"
         >
           <Trans>Paste rows</Trans>
         </label>
-        <div className="rounded-md border border-border-default bg-bg-elevated p-1 shadow-subtle">
+        <div className="rounded-md border border-divider-regular bg-components-panel-bg p-1 shadow-subtle">
           <Textarea
             id={pasteId}
             aria-label={t`Paste client data`}
@@ -145,11 +145,11 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       </div>
 
       <div className="flex items-center gap-3">
-        <span aria-hidden className="h-px flex-1 bg-border-default" />
-        <span className="font-mono text-[11px] tracking-[0.16em] text-text-muted uppercase">
+        <span aria-hidden className="h-px flex-1 bg-divider-regular" />
+        <span className="font-mono text-[11px] tracking-[0.16em] text-text-tertiary uppercase">
           <Trans>or</Trans>
         </span>
-        <span aria-hidden className="h-px flex-1 bg-border-default" />
+        <span aria-hidden className="h-px flex-1 bg-divider-regular" />
       </div>
 
       <div
@@ -164,9 +164,9 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
             fileInputRef.current?.click()
           }
         }}
-        className="flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border-strong bg-bg-elevated text-base text-text-secondary transition-colors hover:border-accent-default/40 hover:bg-accent-tint/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className="flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-divider-deep bg-components-panel-bg text-base text-text-secondary transition-colors hover:border-state-accent-solid hover:bg-state-accent-hover-alt focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
-        <UploadCloudIcon className="size-5 text-text-muted" aria-hidden />
+        <UploadCloudIcon className="size-5 text-text-tertiary" aria-hidden />
         <span>
           <Trans>Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB</Trans>
         </span>
@@ -185,7 +185,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="font-mono text-[11px] tracking-[0.16em] text-text-muted uppercase">
+        <span className="font-mono text-[11px] tracking-[0.16em] text-text-tertiary uppercase">
           <Trans>I&apos;m coming from… (optional)</Trans>
         </span>
         <div className="flex flex-wrap gap-2">
@@ -201,7 +201,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         </div>
       </div>
 
-      <p id="paste-hint" className="flex items-center gap-1.5 text-base text-text-muted">
+      <p id="paste-hint" className="flex items-center gap-1.5 text-base text-text-tertiary">
         <LockIcon className="size-4" aria-hidden />
         <Trans>We block SSN-like patterns before sending anything to the AI.</Trans>
       </p>
@@ -254,7 +254,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       ) : null}
 
       {intake.rowCount > 0 && intake.parseError === null ? (
-        <p className="text-base text-status-done">
+        <p className="text-base text-text-success">
           <Plural
             value={intake.rowCount}
             one="# row ready to import"
@@ -282,15 +282,15 @@ function PresetChip({ id, label, selected, onToggle }: PresetChipProps) {
       className={cn(
         'inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-base font-medium transition-colors',
         selected
-          ? 'border-accent-default bg-accent-tint text-accent-default'
-          : 'border-border-default bg-bg-canvas text-text-secondary hover:border-accent-default hover:text-accent-default',
+          ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
+          : 'border-divider-regular bg-background-body text-text-secondary hover:border-state-accent-solid hover:text-text-accent',
       )}
     >
       <span
         aria-hidden
         className={cn(
           'block size-1.5 rounded-full transition-colors',
-          selected ? 'bg-accent-default' : 'bg-accent-default/60',
+          selected ? 'bg-state-accent-solid' : 'bg-state-accent-solid/60',
         )}
       />
       {label}

@@ -33,11 +33,11 @@ export function Step4Preview({ summary }: Step4Props) {
 
       <ul className="flex flex-col gap-1.5 text-sm">
         <li className="flex items-center gap-2 font-mono tabular-nums">
-          <PlayIcon className="size-3 text-accent-default" aria-hidden />
+          <PlayIcon className="size-3 text-text-accent" aria-hidden />
           <Plural value={clientCount} one="# client" other="# clients" />
         </li>
         <li className="flex items-center gap-2 font-mono tabular-nums">
-          <PlayIcon className="size-3 text-accent-default" aria-hidden />
+          <PlayIcon className="size-3 text-text-accent" aria-hidden />
           <Plural
             value={obligationCount}
             one="# obligation (full tax year)"
@@ -45,7 +45,7 @@ export function Step4Preview({ summary }: Step4Props) {
           />
         </li>
         {skipped > 0 ? (
-          <li className="flex items-center gap-2 text-text-muted">
+          <li className="flex items-center gap-2 text-text-tertiary">
             <PlayIcon className="size-3" aria-hidden />
             <Plural
               value={skipped}
@@ -58,22 +58,22 @@ export function Step4Preview({ summary }: Step4Props) {
 
       <section
         aria-label="Safety"
-        className="flex flex-col gap-2 rounded-md border border-border-default bg-bg-panel p-3"
+        className="flex flex-col gap-2 rounded-md border border-divider-regular bg-background-section p-3"
       >
         <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
           <Trans>Safety</Trans>
         </h3>
         <ul className="flex flex-col gap-1.5 text-sm text-text-primary">
           <li className="flex items-center gap-2">
-            <CheckCircle2Icon className="size-4 text-status-done" aria-hidden />
+            <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
             <Trans>One-click revert available for 24 hours</Trans>
           </li>
           <li className="flex items-center gap-2">
-            <CheckCircle2Icon className="size-4 text-status-done" aria-hidden />
+            <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
             <Trans>Audit log captures every AI decision</Trans>
           </li>
           <li className="flex items-center gap-2">
-            <CheckCircle2Icon className="size-4 text-status-done" aria-hidden />
+            <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
             <Trans>No emails will be sent automatically</Trans>
           </li>
         </ul>
@@ -94,8 +94,8 @@ export function Step4Preview({ summary }: Step4Props) {
       </Alert>
 
       {summary && summary.errors.length > 0 ? (
-        <section className="flex flex-col gap-2 rounded-md border border-severity-critical-border bg-severity-critical-tint/40 p-3">
-          <h3 className="text-xs font-medium tracking-[0.08em] text-severity-critical uppercase">
+        <section className="flex flex-col gap-2 rounded-md border border-divider-regular bg-components-badge-bg-red-soft p-3">
+          <h3 className="text-xs font-medium tracking-[0.08em] text-text-destructive uppercase">
             <Plural
               value={summary.errors.length}
               one="# row needs attention"
@@ -108,7 +108,7 @@ export function Step4Preview({ summary }: Step4Props) {
                 <span className="font-mono text-xs tabular-nums text-text-secondary">
                   row {err.rowIndex + 1}
                 </span>
-                <span className="font-mono text-xs tabular-nums text-text-muted">
+                <span className="font-mono text-xs tabular-nums text-text-tertiary">
                   {err.errorCode}
                 </span>
                 <span className="text-xs">{err.errorMessage}</span>

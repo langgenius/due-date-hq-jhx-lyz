@@ -159,7 +159,7 @@ export function Step2Mapping({ mapping, sampleByHeader, onUserEdit, onRerun }: S
           <Skeleton className="h-9 w-3/4" />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-md border border-border-default">
+        <div className="overflow-hidden rounded-md border border-divider-regular">
           <Table>
             <TableHeader>
               <TableRow>
@@ -180,21 +180,21 @@ export function Step2Mapping({ mapping, sampleByHeader, onUserEdit, onRerun }: S
                 return (
                   <TableRow
                     key={row.sourceHeader}
-                    className={cn('h-9', tier === 'low' && 'bg-severity-medium-tint/40')}
+                    className={cn('h-9', tier === 'low' && 'bg-components-badge-bg-warning-soft')}
                   >
                     <TableCell className="font-medium">{row.sourceHeader}</TableCell>
-                    <TableCell aria-hidden className="text-text-muted">
+                    <TableCell aria-hidden className="text-text-tertiary">
                       →
                     </TableCell>
                     <TableCell className="font-mono text-xs tabular-nums text-text-primary">
                       <span className="inline-flex items-center gap-1">
                         {row.targetField === 'IGNORE' ? (
-                          <span className="italic text-text-muted">⚠ IGNORED</span>
+                          <span className="italic text-text-tertiary">⚠ IGNORED</span>
                         ) : (
                           <>
                             {row.targetField}
                             {row.targetField === 'client.ein' ? (
-                              <StarIcon className="size-3 text-accent-default" aria-label="EIN" />
+                              <StarIcon className="size-3 text-text-accent" aria-label="EIN" />
                             ) : null}
                           </>
                         )}
@@ -236,13 +236,13 @@ function confidenceTier(c: number | null, target: MappingTarget): Tier {
 
 function ConfidenceBadge({ tier, confidence }: { tier: Tier; confidence: number | null }) {
   if (tier === 'none' || confidence === null) {
-    return <span className="text-xs text-text-muted">—</span>
+    return <span className="text-xs text-text-tertiary">—</span>
   }
   const pct = Math.round(confidence * 100)
   const styles: Record<Exclude<Tier, 'none'>, string> = {
-    high: 'bg-accent-tint text-accent-default border-accent-default',
-    medium: 'bg-bg-subtle text-text-secondary border-border-default',
-    low: 'bg-severity-medium-tint text-text-primary border-severity-medium-border',
+    high: 'bg-state-accent-hover-alt text-text-accent border-state-accent-active',
+    medium: 'bg-background-subtle text-text-secondary border-divider-regular',
+    low: 'bg-components-badge-bg-warning-soft text-text-primary border-divider-regular',
   }
   const label: Record<Exclude<Tier, 'none'>, string> = {
     high: 'H',
@@ -292,7 +292,7 @@ function EditPopover({ current, sourceHeader, onChange }: EditPopoverProps) {
                 key={target.value}
                 role={isDivider ? undefined : 'option'}
                 aria-selected={isDivider ? undefined : isSelected}
-                className={isDivider ? 'mt-1 border-t border-border-default pt-1' : undefined}
+                className={isDivider ? 'mt-1 border-t border-divider-regular pt-1' : undefined}
               >
                 <button
                   type="button"
@@ -300,8 +300,8 @@ function EditPopover({ current, sourceHeader, onChange }: EditPopoverProps) {
                   className={cn(
                     'flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs',
                     isSelected
-                      ? 'bg-accent-tint text-accent-default'
-                      : 'hover:bg-bg-subtle text-text-primary',
+                      ? 'bg-state-accent-hover-alt text-text-accent'
+                      : 'hover:bg-state-base-hover text-text-primary',
                   )}
                 >
                   <span className="font-mono tabular-nums">{target.label}</span>

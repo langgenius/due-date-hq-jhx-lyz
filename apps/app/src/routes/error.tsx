@@ -27,7 +27,7 @@ export function RouteErrorBoundary() {
   const message = useErrorMessage(error)
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg-canvas p-6">
+    <div className="flex min-h-screen items-center justify-center bg-background-body p-6">
       <div className="flex w-full max-w-[560px] flex-col gap-4">
         <Alert variant="destructive">
           <AlertTriangleIcon />

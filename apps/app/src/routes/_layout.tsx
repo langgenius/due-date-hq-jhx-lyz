@@ -111,8 +111,8 @@ function PendingBar() {
   const isPending = navigation.state !== 'idle'
 
   return (
-    <div className="h-1 w-full bg-bg-subtle">
-      {isPending ? <div className="h-full w-1/3 bg-accent-default" /> : null}
+    <div className="h-1 w-full bg-background-subtle">
+      {isPending ? <div className="h-full w-1/3 bg-state-accent-solid" /> : null}
     </div>
   )
 }
@@ -132,8 +132,8 @@ function SideNav() {
             end={item.end}
             className={({ isActive }) =>
               cn(
-                'flex h-9 items-center gap-2 rounded-md px-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                isActive && 'bg-sidebar-accent text-sidebar-accent-foreground',
+                'flex h-9 items-center gap-2 rounded-md px-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-state-base-hover hover:text-text-primary',
+                isActive && 'bg-state-accent-hover-alt text-text-accent',
               )
             }
           >
@@ -158,8 +158,8 @@ function MobileNav() {
           end={item.end}
           className={({ isActive }) =>
             cn(
-              'flex h-8 shrink-0 items-center rounded-md px-2.5 text-sm font-medium text-text-secondary hover:bg-accent hover:text-accent-foreground',
-              isActive && 'bg-accent text-accent-foreground',
+              'flex h-8 shrink-0 items-center rounded-md px-2.5 text-sm font-medium text-text-secondary hover:bg-state-base-hover hover:text-text-primary',
+              isActive && 'bg-state-accent-hover-alt text-text-accent',
             )
           }
         >
@@ -303,7 +303,7 @@ function UserMenu({
             <button
               type="button"
               aria-label={accountLabel}
-              className="inline-flex size-9 items-center justify-center rounded-full outline-none ring-1 ring-border-default transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+              className="inline-flex size-9 items-center justify-center rounded-full outline-none ring-1 ring-border-default transition-colors hover:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-ring md:hidden"
             />
           }
         >
@@ -313,7 +313,7 @@ function UserMenu({
           <DropdownMenuGroup>
             <DropdownMenuLabel className="flex flex-col gap-0.5 text-left">
               <span className="text-sm font-medium text-text-primary">{displayName}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              <span className="truncate text-xs text-text-tertiary">{user.email}</span>
             </DropdownMenuLabel>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
@@ -355,22 +355,22 @@ function UserMenu({
         render={
           <button
             type="button"
-            className="group/user-menu flex w-full items-center gap-2 rounded-md border border-sidebar-border bg-background p-2 text-left outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+            className="group/user-menu flex w-full items-center gap-2 rounded-md border border-divider-regular bg-background p-2 text-left outline-none transition-colors hover:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-ring"
           />
         }
       >
         <UserAvatar user={user} />
         <div className="flex min-w-0 flex-1 flex-col leading-tight">
           <span className="truncate text-sm font-medium text-text-primary">{displayName}</span>
-          <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+          <span className="truncate text-xs text-text-tertiary">{user.email}</span>
         </div>
-        <ChevronsUpDownIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+        <ChevronsUpDownIcon className="size-4 shrink-0 text-text-tertiary" aria-hidden />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="top" sideOffset={8} className="w-56">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex flex-col gap-0.5 text-left">
             <span className="text-sm font-medium text-text-primary">{displayName}</span>
-            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            <span className="truncate text-xs text-text-tertiary">{user.email}</span>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -410,7 +410,7 @@ function UserMenu({
 // initial session fetch (see router.tsx).
 export function ShellSkeleton() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg-canvas p-6">
+    <div className="flex min-h-screen items-center justify-center bg-background-body p-6">
       <div className="flex w-full max-w-[480px] flex-col gap-3">
         <Skeleton className="h-6 w-40" />
         <Skeleton className="h-4 w-64" />
@@ -482,16 +482,16 @@ function RootLayoutShell({
   switchThemePreference: (next: ThemePreference) => void
 }) {
   return (
-    <div className="isolate min-h-screen bg-bg-canvas text-text-primary">
+    <div className="isolate min-h-screen bg-background-body text-text-primary">
       <PendingBar />
       <div className="flex min-h-[calc(100vh-4px)]">
-        <aside className="hidden w-[220px] shrink-0 border-r border-border-default bg-sidebar md:flex md:flex-col">
+        <aside className="hidden w-[220px] shrink-0 border-r border-divider-regular bg-background-section md:flex md:flex-col">
           <div className="flex h-14 items-center px-4">
             <div className="flex flex-col">
               <span className="text-base font-medium text-sidebar-accent-foreground">
                 DueDateHQ
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-text-tertiary">
                 <Trans>CPA deadline console</Trans>
               </span>
             </div>
@@ -500,10 +500,10 @@ function RootLayoutShell({
           <div className="flex flex-1 flex-col gap-6 p-3">
             <SideNav />
             <div className="mt-auto flex flex-col gap-3">
-              <div className="flex flex-col gap-3 rounded-md border border-sidebar-border bg-background p-3">
+              <div className="flex flex-col gap-3 rounded-md border border-divider-regular bg-background p-3">
                 {shellMeta.map(([label, value]) => (
                   <div key={label} className="flex flex-col gap-1">
-                    <span className="text-xs font-medium text-muted-foreground">{label}</span>
+                    <span className="text-xs font-medium text-text-tertiary">{label}</span>
                     <span className="font-mono text-xs tabular-nums text-text-primary">
                       {value}
                     </span>
@@ -520,9 +520,9 @@ function RootLayoutShell({
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex min-h-14 flex-col gap-3 border-b border-border-default bg-background px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6">
+          <header className="flex min-h-14 flex-col gap-3 border-b border-divider-regular bg-background px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6">
             <div className="flex min-w-0 flex-col gap-1">
-              <span className="text-xs font-medium text-muted-foreground">
+              <span className="text-xs font-medium text-text-tertiary">
                 <Trans>Phase 0 demo practice</Trans>
               </span>
               <span className="truncate text-base font-medium">

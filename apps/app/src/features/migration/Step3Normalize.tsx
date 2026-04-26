@@ -123,12 +123,12 @@ function Section({ title, rows, all, onUserEdit }: SectionProps) {
     <section
       role="group"
       aria-label={title}
-      className="flex flex-col gap-2 rounded-md border border-border-default bg-bg-panel p-3"
+      className="flex flex-col gap-2 rounded-md border border-divider-regular bg-background-section p-3"
     >
       <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
         {title}
       </h3>
-      <ul className="flex flex-col divide-y divide-border-default text-sm">
+      <ul className="flex flex-col divide-y divide-divider-regular text-sm">
         {rows.map((row) => {
           const needsReview =
             row.normalizedValue === null ||
@@ -138,20 +138,20 @@ function Section({ title, rows, all, onUserEdit }: SectionProps) {
               key={row.id}
               className={cn(
                 'flex items-center gap-3 py-2',
-                needsReview && 'bg-severity-medium-tint/40 -mx-3 px-3',
+                needsReview && 'bg-components-badge-bg-warning-soft -mx-3 px-3',
               )}
             >
               <span className="font-mono text-xs tabular-nums text-text-primary">
                 &quot;{row.rawValue}&quot;
               </span>
-              <span aria-hidden className="text-text-muted">
+              <span aria-hidden className="text-text-tertiary">
                 →
               </span>
               <input
                 type="text"
                 value={row.normalizedValue ?? ''}
                 onChange={(e) => updateRow(row, e.target.value)}
-                className="flex h-7 max-w-[160px] rounded-md border border-border-default bg-bg-canvas px-2 font-mono text-xs tabular-nums text-text-primary focus-visible:border-accent-default focus-visible:outline-none"
+                className="flex h-7 max-w-[160px] rounded-md border border-divider-regular bg-background-body px-2 font-mono text-xs tabular-nums text-text-primary focus-visible:border-state-accent-solid focus-visible:outline-none"
                 placeholder="—"
                 aria-label={`Normalized value for ${row.rawValue}`}
               />
@@ -162,7 +162,7 @@ function Section({ title, rows, all, onUserEdit }: SectionProps) {
               />
               {needsReview ? (
                 <span
-                  className="ml-auto inline-flex h-5 items-center gap-1 rounded-md border border-severity-medium-border bg-severity-medium-tint px-1.5 text-[10px] text-text-primary"
+                  className="ml-auto inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-components-badge-bg-warning-soft px-1.5 text-[10px] text-text-primary"
                   role="status"
                 >
                   <AlertTriangleIcon className="size-3" aria-hidden />
@@ -189,12 +189,12 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
     <section
       role="group"
       aria-label="Suggested tax types"
-      className="flex flex-col gap-3 rounded-md border border-border-default bg-bg-panel p-3"
+      className="flex flex-col gap-3 rounded-md border border-divider-regular bg-background-section p-3"
     >
       <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
         <Trans>Suggested tax types (from entity × state matrix)</Trans>
       </h3>
-      <ul className="flex flex-col divide-y divide-border-default">
+      <ul className="flex flex-col divide-y divide-divider-regular">
         {matrix.map((cell) => {
           const key = `${cell.entityType}::${cell.state}`
           const checked = applyToAll[key] ?? true
@@ -217,7 +217,7 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
                 {cell.taxTypes.map((tt) => (
                   <span
                     key={tt}
-                    className="inline-flex h-5 items-center rounded-sm border border-border-default bg-bg-elevated px-1.5 font-mono tabular-nums text-text-secondary"
+                    className="inline-flex h-5 items-center rounded-sm border border-divider-regular bg-components-panel-bg px-1.5 font-mono tabular-nums text-text-secondary"
                   >
                     {tt}
                   </span>
@@ -228,13 +228,13 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
                   promptVersion={`matrix@${cell.matrixVersion}`}
                 />
                 {cell.needsReview ? (
-                  <span className="inline-flex h-5 items-center gap-1 rounded-md border border-severity-medium-border bg-severity-medium-tint px-1.5 text-[10px] text-text-primary">
+                  <span className="inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-components-badge-bg-warning-soft px-1.5 text-[10px] text-text-primary">
                     <AlertTriangleIcon className="size-3" aria-hidden />
                     <Trans>Needs review</Trans>
                   </span>
                 ) : (
                   <span
-                    className="inline-flex h-5 items-center gap-1 rounded-md border border-border-default bg-bg-subtle px-1.5 text-[10px] text-status-done"
+                    className="inline-flex h-5 items-center gap-1 rounded-md border border-divider-regular bg-background-subtle px-1.5 text-[10px] text-text-success"
                     aria-hidden
                   >
                     <ShieldCheckIcon className="size-3" />
@@ -264,7 +264,7 @@ function EvidenceChip({
   const label = model ?? promptVersion ?? 'evidence'
   return (
     <span
-      className="inline-flex h-5 items-center gap-1 rounded-sm border border-border-default bg-transparent px-1.5 font-mono text-[10px] tabular-nums text-text-secondary"
+      className="inline-flex h-5 items-center gap-1 rounded-sm border border-divider-regular bg-transparent px-1.5 font-mono text-[10px] tabular-nums text-text-secondary"
       title={`${label} · ${conf}`}
     >
       <span>AI</span>

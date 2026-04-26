@@ -10,6 +10,8 @@
   "exports": {
     "./components/ui/*": "./src/components/ui/*.tsx",
     "./lib/utils": "./src/lib/utils.ts",
+    "./lib/overlay": "./src/lib/overlay.ts",
+    "./lib/placement": "./src/lib/placement.ts",
     "./styles/preset.css": "./src/styles/preset.css",
     "./theme": "./src/theme/theme.ts",
     "./theme/no-flash-script": "./src/theme/no-flash-script.ts"

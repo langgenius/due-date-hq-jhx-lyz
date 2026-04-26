@@ -1,0 +1,228 @@
+/* -----------------------------------------------------------------------------
+ * Primitives layer (Tailwind v4 @theme)
+ *
+ * Theme-invariant design primitives: util-colors palettes, fonts, font sizes,
+ * spacing, radius, shadows, breakpoints, animations.
+ *
+ * Util-colors are 25/50/100..900 scales adapted from Dify's design system,
+ * plus a custom `primary` palette anchored on DueDateHQ brand purple #5b5bd6.
+ *
+ * Semantic tokens (text-*, background-*, components-*) live in
+ * semantic-light.css / semantic-dark.css and are exposed to Tailwind via the
+ * @theme inline block in preset.css.
+ * -------------------------------------------------------------------------- */
+
+@theme {
+  /* ===== Fonts =========================================================== */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+
+  /* ===== Font sizes ====================================================== */
+  --text-2xs: 0.625rem; /* 10px */
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-section-title: 32px;
+  --text-section-title--line-height: 1.1875;
+  --text-display-large: 36px;
+  --text-display-large--line-height: 1.167;
+  --text-display-hero: 54px;
+  --text-display-hero--line-height: 1.074;
+  --text-hero: 56px;
+  --text-hero--line-height: 1;
+
+  /* ===== Spacing ========================================================= */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 48px;
+  --space-12: 80px;
+
+  /* ===== Border radius ===================================================
+   * Tailwind v4 defaults are kept verbatim (xs=2 / sm=4 / md=6 / lg=8 /
+   * xl=12 / 2xl=16 / 3xl=24). This is what Dify's Figma-to-Tailwind mapping
+   * table assumes; do not override.
+   * ===================================================================== */
+
+  /* ===== Box shadow (Dify scale) ========================================= */
+  --shadow-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+  --shadow-sm: 0px 1px 2px 0px rgba(16, 24, 40, 0.06), 0px 1px 3px 0px rgba(16, 24, 40, 0.1);
+  --shadow-md: 0px 2px 4px -2px rgba(16, 24, 40, 0.06), 0px 4px 8px -2px rgba(16, 24, 40, 0.1);
+  --shadow-lg: 0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08);
+  --shadow-xl: 0px 8px 8px -4px rgba(16, 24, 40, 0.03), 0px 20px 24px -4px rgba(16, 24, 40, 0.08);
+  --shadow-2xl: 0px 24px 48px -12px rgba(16, 24, 40, 0.18);
+  --shadow-3xl: 0px 32px 64px -12px rgba(16, 24, 40, 0.14);
+  /* Legacy aliases preserved for marketing surfaces / migration screens */
+  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  /* ===== Opacity ========================================================= */
+  --opacity-2: 0.02;
+  --opacity-8: 0.08;
+
+  /* ===== Breakpoints (Dify naming) ======================================= */
+  --breakpoint-mobile: 100px;
+  --breakpoint-tablet: 640px;
+  --breakpoint-pc: 769px;
+  --breakpoint-2k: 2560px;
+
+  /* ===== Animations ====================================================== */
+  --animate-spin-slow: spin 2s linear infinite;
+
+  /* ===== Util-colors: gray =============================================== */
+  --color-util-colors-gray-25: #fcfcfd;
+  --color-util-colors-gray-50: #f9fafb;
+  --color-util-colors-gray-100: #f2f4f7;
+  --color-util-colors-gray-200: #eaecf0;
+  --color-util-colors-gray-300: #d0d5dd;
+  --color-util-colors-gray-400: #98a2b3;
+  --color-util-colors-gray-500: #667085;
+  --color-util-colors-gray-600: #475467;
+  --color-util-colors-gray-700: #344054;
+  --color-util-colors-gray-800: #1d2939;
+  --color-util-colors-gray-900: #101828;
+
+  /* ===== Util-colors: primary (DueDateHQ brand purple) ===================
+   * Anchored on the brand seed #5b5bd6 (current --primary). Hover/active
+   * map to existing #4f46e5 / #4338ca for continuity with old aliases.
+   * ===================================================================== */
+  --color-util-colors-primary-25: #f7f7fd;
+  --color-util-colors-primary-50: #eeeefa;
+  --color-util-colors-primary-100: #d6d6f1;
+  --color-util-colors-primary-200: #b8b7e8;
+  --color-util-colors-primary-300: #9391f8;
+  --color-util-colors-primary-400: #7c7bf5;
+  --color-util-colors-primary-500: #5b5bd6;
+  --color-util-colors-primary-600: #4f46e5;
+  --color-util-colors-primary-700: #4338ca;
+  --color-util-colors-primary-800: #3730a3;
+  --color-util-colors-primary-900: #312e81;
+
+  /* ===== Util-colors: red ================================================ */
+  --color-util-colors-red-50: #fef3f2;
+  --color-util-colors-red-100: #fee4e2;
+  --color-util-colors-red-200: #fecdca;
+  --color-util-colors-red-300: #fda29b;
+  --color-util-colors-red-400: #f97066;
+  --color-util-colors-red-500: #f04438;
+  --color-util-colors-red-600: #d92d20;
+  --color-util-colors-red-700: #b42318;
+
+  /* ===== Util-colors: green ============================================== */
+  --color-util-colors-green-50: #ecfdf3;
+  --color-util-colors-green-100: #dcfae6;
+  --color-util-colors-green-200: #abefc6;
+  --color-util-colors-green-300: #75e0a7;
+  --color-util-colors-green-400: #47cd89;
+  --color-util-colors-green-500: #17b26a;
+  --color-util-colors-green-600: #079455;
+  --color-util-colors-green-700: #067647;
+
+  /* ===== Util-colors: yellow ============================================= */
+  --color-util-colors-yellow-50: #fefbe8;
+  --color-util-colors-yellow-100: #fef7c3;
+  --color-util-colors-yellow-200: #feee95;
+  --color-util-colors-yellow-300: #fde272;
+  --color-util-colors-yellow-400: #fac515;
+  --color-util-colors-yellow-500: #eaaa08;
+  --color-util-colors-yellow-600: #ca8504;
+  --color-util-colors-yellow-700: #a15c07;
+
+  /* ===== Util-colors: orange ============================================= */
+  --color-util-colors-orange-50: #fef6ee;
+  --color-util-colors-orange-100: #fdead7;
+  --color-util-colors-orange-200: #f9dbaf;
+  --color-util-colors-orange-300: #f7b27a;
+  --color-util-colors-orange-400: #f38744;
+  --color-util-colors-orange-500: #ef6820;
+  --color-util-colors-orange-600: #e04f16;
+  --color-util-colors-orange-700: #b93815;
+
+  /* ===== Util-colors: warning (amber) ==================================== */
+  --color-util-colors-warning-50: #fffaeb;
+  --color-util-colors-warning-100: #fef0c7;
+  --color-util-colors-warning-200: #fedf89;
+  --color-util-colors-warning-300: #fec84b;
+  --color-util-colors-warning-400: #fdb022;
+  --color-util-colors-warning-500: #f79009;
+  --color-util-colors-warning-600: #dc6803;
+  --color-util-colors-warning-700: #b54708;
+
+  /* ===== Util-colors: blue =============================================== */
+  --color-util-colors-blue-50: #eff6ff;
+  --color-util-colors-blue-100: #dbeafe;
+  --color-util-colors-blue-200: #bfdbfe;
+  --color-util-colors-blue-300: #93c5fd;
+  --color-util-colors-blue-400: #60a5fa;
+  --color-util-colors-blue-500: #3b82f6;
+  --color-util-colors-blue-600: #2563eb;
+  --color-util-colors-blue-700: #1d4ed8;
+
+  /* ===== Util-colors: blue-light (sky) =================================== */
+  --color-util-colors-blue-light-50: #f0f9ff;
+  --color-util-colors-blue-light-100: #e0f2fe;
+  --color-util-colors-blue-light-200: #b9e6fe;
+  --color-util-colors-blue-light-300: #7cd4fd;
+  --color-util-colors-blue-light-400: #36bffa;
+  --color-util-colors-blue-light-500: #0ba5ec;
+  --color-util-colors-blue-light-600: #0086c9;
+  --color-util-colors-blue-light-700: #026aa2;
+
+  /* ===== Util-colors: indigo ============================================= */
+  --color-util-colors-indigo-50: #eef4ff;
+  --color-util-colors-indigo-100: #e0eaff;
+  --color-util-colors-indigo-200: #c7d7fe;
+  --color-util-colors-indigo-300: #a4bcfd;
+  --color-util-colors-indigo-400: #8098f9;
+  --color-util-colors-indigo-500: #6172f3;
+  --color-util-colors-indigo-600: #444ce7;
+  --color-util-colors-indigo-700: #3538cd;
+
+  /* ===== Util-colors: violet ============================================= */
+  --color-util-colors-violet-50: #f5f3ff;
+  --color-util-colors-violet-100: #ece9fe;
+  --color-util-colors-violet-200: #ddd6fe;
+  --color-util-colors-violet-300: #c3b5fd;
+  --color-util-colors-violet-400: #a48afb;
+  --color-util-colors-violet-500: #875bf7;
+  --color-util-colors-violet-600: #7839ee;
+  --color-util-colors-violet-700: #6927da;
+
+  /* ===== Util-colors: teal =============================================== */
+  --color-util-colors-teal-50: #f0fdf9;
+  --color-util-colors-teal-100: #ccfbef;
+  --color-util-colors-teal-200: #99f6e0;
+  --color-util-colors-teal-300: #5fe9d0;
+  --color-util-colors-teal-400: #2ed3b7;
+  --color-util-colors-teal-500: #15b79e;
+  --color-util-colors-teal-600: #0e9384;
+  --color-util-colors-teal-700: #107569;
+
+  /* ===== Util-colors: pink =============================================== */
+  --color-util-colors-pink-50: #fdf2fa;
+  --color-util-colors-pink-100: #fce7f6;
+  --color-util-colors-pink-200: #fcceee;
+  --color-util-colors-pink-300: #faa7e0;
+  --color-util-colors-pink-400: #f670c7;
+  --color-util-colors-pink-500: #ee46bc;
+  --color-util-colors-pink-600: #dd2590;
+  --color-util-colors-pink-700: #c11574;
+
+  /* ===== Util-colors: rose =============================================== */
+  --color-util-colors-rose-50: #fff1f3;
+  --color-util-colors-rose-100: #ffe4e8;
+  --color-util-colors-rose-200: #fecdd6;
+  --color-util-colors-rose-300: #fea3b4;
+  --color-util-colors-rose-400: #fd6f8e;
+  --color-util-colors-rose-500: #f63d68;
+  --color-util-colors-rose-600: #e31b54;
+  --color-util-colors-rose-700: #c01048;
+}

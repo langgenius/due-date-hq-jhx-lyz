@@ -1,0 +1,357 @@
+/* -----------------------------------------------------------------------------
+ * Semantic layer — dark mode
+ *
+ * Mirrors every variable from semantic-light.css under the `.dark` selector.
+ * Brand purple shifts to util-colors-primary-{300,400} for better contrast
+ * on dark surfaces; neutrals and surfaces use white-on-dark alpha steps.
+ * -------------------------------------------------------------------------- */
+
+.dark {
+  /* ===== Text =========================================================== */
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+  --text-quaternary: rgba(255, 255, 255, 0.3);
+  --text-muted: rgba(255, 255, 255, 0.45);
+  --text-placeholder: rgba(255, 255, 255, 0.4);
+  --text-disabled: rgba(255, 255, 255, 0.25);
+  --text-destructive: var(--color-util-colors-red-400);
+  --text-destructive-secondary: var(--color-util-colors-red-300);
+  --text-success: var(--color-util-colors-green-400);
+  --text-success-secondary: var(--color-util-colors-green-300);
+  --text-warning: var(--color-util-colors-warning-400);
+  --text-warning-secondary: var(--color-util-colors-warning-300);
+  --text-accent: var(--color-util-colors-primary-400);
+  --text-accent-secondary: var(--color-util-colors-primary-300);
+  --text-primary-on-surface: #0d0e11;
+  --text-secondary-on-surface: rgba(13, 14, 17, 0.9);
+  --text-inverted: #0d0e11;
+
+  /* ===== Background ===================================================== */
+  --background-body: #0d0e11;
+  --background-default: #15171c;
+  --background-default-subtle: #101217;
+  --background-default-hover: #1a1d23;
+  --background-default-dimmed: var(--state-base-hover-alt);
+  --background-section: #101217;
+  --background-section-burn: var(--state-base-hover);
+  --background-soft: var(--state-base-hover);
+  --background-subtle: #101217;
+  --background-neutral-subtle: #15171c;
+  --background-overlay: rgb(0 0 0 / 0.7);
+  --background-overlay-alt: rgb(0 0 0 / 0.55);
+  --background-overlay-backdrop: rgb(13 14 17 / 0.95);
+  --background-overlay-fullscreen: rgb(13 14 17 / 0.95);
+  --background-sidenav-bg: rgb(16 18 23 / 0.85);
+  --background-surface-white: rgb(21 23 28 / 0.95);
+
+  /* ===== Divider ======================================================== */
+  --divider-subtle: rgba(255, 255, 255, 0.04);
+  --divider-regular: rgba(255, 255, 255, 0.08);
+  --divider-deep: rgba(255, 255, 255, 0.14);
+  --divider-burn: rgba(255, 255, 255, 0.04);
+  --divider-intense: rgba(255, 255, 255, 0.3);
+  --divider-solid: rgba(255, 255, 255, 0.18);
+  --divider-solid-alt: rgba(255, 255, 255, 0.3);
+  --divider-accent: rgba(124, 123, 245, 0.35);
+
+  /* ===== State ==========================================================
+   * Brand-tinted neutral hovers (dark mode counterpart) — primary-400 alphas
+   * so dropdown-menu rows, select options, table hover, ghost buttons keep
+   * a purple affordance instead of plain white wash.
+   * ===================================================================== */
+  --state-base-hover: rgba(124, 123, 245, 0.14);
+  --state-base-hover-alt: rgba(124, 123, 245, 0.22);
+  --state-base-hover-subtle: rgba(124, 123, 245, 0.06);
+  --state-base-active: rgba(124, 123, 245, 0.24);
+  --state-base-handle: rgba(255, 255, 255, 0.2);
+  --state-base-handle-hover: rgba(255, 255, 255, 0.3);
+
+  --state-accent-hover: rgba(124, 123, 245, 0.14);
+  --state-accent-hover-alt: rgba(124, 123, 245, 0.22);
+  --state-accent-active: rgba(124, 123, 245, 0.18);
+  --state-accent-active-alt: rgba(124, 123, 245, 0.28);
+  --state-accent-solid: var(--color-util-colors-primary-400);
+
+  --state-destructive-hover: rgba(240, 68, 56, 0.14);
+  --state-destructive-hover-alt: rgba(240, 68, 56, 0.22);
+  --state-destructive-active: rgba(240, 68, 56, 0.3);
+  --state-destructive-solid: var(--color-util-colors-red-500);
+  --state-destructive-border: rgba(240, 68, 56, 0.4);
+
+  --state-success-hover: rgba(23, 178, 106, 0.14);
+  --state-success-hover-alt: rgba(23, 178, 106, 0.22);
+  --state-success-active: rgba(23, 178, 106, 0.3);
+  --state-success-solid: var(--color-util-colors-green-500);
+
+  --state-warning-hover: rgba(247, 144, 9, 0.14);
+  --state-warning-hover-alt: rgba(247, 144, 9, 0.22);
+  --state-warning-active: rgba(247, 144, 9, 0.3);
+  --state-warning-solid: var(--color-util-colors-warning-500);
+
+  /* ===== Shadow alpha steps ============================================= */
+  --shadow-shadow-1: rgba(0, 0, 0, 0.2);
+  --shadow-shadow-2: rgba(0, 0, 0, 0.25);
+  --shadow-shadow-3: rgba(0, 0, 0, 0.3);
+  --shadow-shadow-4: rgba(0, 0, 0, 0.35);
+  --shadow-shadow-5: rgba(0, 0, 0, 0.4);
+  --shadow-shadow-6: rgba(0, 0, 0, 0.45);
+  --shadow-shadow-7: rgba(0, 0, 0, 0.5);
+  --shadow-shadow-8: rgba(0, 0, 0, 0.55);
+  --shadow-shadow-9: rgba(0, 0, 0, 0.6);
+  --shadow-shadow-10: rgba(0, 0, 0, 0.7);
+
+  /* ===== Effects ======================================================== */
+  --effects-highlight: rgba(255, 255, 255, 0.08);
+  --effects-highlight-subtle: rgba(255, 255, 255, 0.04);
+  --effects-image-frame: rgba(255, 255, 255, 0.08);
+  --effects-icon-border: rgba(255, 255, 255, 0.1);
+
+  /* ===== Components: button ============================================= */
+  --components-button-primary-text: #ffffff;
+  --components-button-primary-text-disabled: rgba(255, 255, 255, 0.5);
+  --components-button-primary-bg: var(--color-util-colors-primary-400);
+  --components-button-primary-bg-hover: var(--color-util-colors-primary-300);
+  --components-button-primary-bg-disabled: rgba(124, 123, 245, 0.18);
+  --components-button-primary-border: rgba(255, 255, 255, 0.04);
+  --components-button-primary-border-hover: rgba(255, 255, 255, 0.08);
+  --components-button-primary-border-disabled: rgba(255, 255, 255, 0);
+
+  --components-button-secondary-text: rgba(255, 255, 255, 0.85);
+  --components-button-secondary-text-disabled: rgba(255, 255, 255, 0.25);
+  --components-button-secondary-bg: rgba(255, 255, 255, 0.04);
+  --components-button-secondary-bg-hover: var(--state-base-hover);
+  --components-button-secondary-bg-disabled: rgba(255, 255, 255, 0.02);
+  --components-button-secondary-border: rgba(255, 255, 255, 0.14);
+  --components-button-secondary-border-hover: rgba(255, 255, 255, 0.22);
+  --components-button-secondary-border-disabled: rgba(255, 255, 255, 0.04);
+
+  --components-button-tertiary-text: rgba(255, 255, 255, 0.85);
+  --components-button-tertiary-text-disabled: rgba(255, 255, 255, 0.25);
+  --components-button-tertiary-bg: var(--state-base-hover);
+  --components-button-tertiary-bg-hover: var(--state-base-hover-alt);
+  --components-button-tertiary-bg-disabled: rgba(255, 255, 255, 0.02);
+
+  --components-button-ghost-text: rgba(255, 255, 255, 0.85);
+  --components-button-ghost-text-disabled: rgba(255, 255, 255, 0.25);
+  --components-button-ghost-bg-hover: var(--state-base-hover);
+
+  --components-button-destructive-primary-text: #ffffff;
+  --components-button-destructive-primary-text-disabled: rgba(255, 255, 255, 0.5);
+  --components-button-destructive-primary-bg: var(--color-util-colors-red-500);
+  --components-button-destructive-primary-bg-hover: var(--color-util-colors-red-400);
+  --components-button-destructive-primary-bg-disabled: rgba(240, 68, 56, 0.18);
+  --components-button-destructive-primary-border: rgba(255, 255, 255, 0.04);
+  --components-button-destructive-primary-border-hover: rgba(255, 255, 255, 0.08);
+
+  --components-button-destructive-secondary-text: var(--color-util-colors-red-400);
+  --components-button-destructive-secondary-text-disabled: rgba(240, 68, 56, 0.3);
+  --components-button-destructive-secondary-bg: rgba(255, 255, 255, 0.04);
+  --components-button-destructive-secondary-bg-hover: rgba(240, 68, 56, 0.12);
+  --components-button-destructive-secondary-bg-disabled: rgba(240, 68, 56, 0.04);
+  --components-button-destructive-secondary-border: rgba(255, 255, 255, 0.14);
+  --components-button-destructive-secondary-border-hover: rgba(240, 68, 56, 0.4);
+
+  --components-button-destructive-tertiary-text: var(--color-util-colors-red-400);
+  --components-button-destructive-tertiary-text-disabled: rgba(240, 68, 56, 0.3);
+  --components-button-destructive-tertiary-bg: rgba(240, 68, 56, 0.14);
+  --components-button-destructive-tertiary-bg-hover: rgba(240, 68, 56, 0.22);
+
+  --components-button-destructive-ghost-text: var(--color-util-colors-red-400);
+  --components-button-destructive-ghost-bg-hover: rgba(240, 68, 56, 0.14);
+
+  --components-button-accent-text: var(--color-util-colors-primary-300);
+  --components-button-accent-text-disabled: rgba(124, 123, 245, 0.3);
+  --components-button-accent-bg: rgba(255, 255, 255, 0.04);
+  --components-button-accent-bg-hover: var(--state-base-hover);
+  --components-button-accent-bg-disabled: rgba(255, 255, 255, 0.02);
+  --components-button-accent-border: rgba(255, 255, 255, 0.14);
+
+  /* ===== Components: input ============================================== */
+  --components-input-bg-normal: rgba(255, 255, 255, 0.04);
+  --components-input-bg-hover: rgba(255, 255, 255, 0.06);
+  --components-input-bg-active: rgba(255, 255, 255, 0.08);
+  --components-input-bg-disabled: rgba(255, 255, 255, 0.02);
+  --components-input-bg-destructive: rgba(255, 255, 255, 0.04);
+  --components-input-text-placeholder: rgba(255, 255, 255, 0.4);
+  --components-input-text-filled: rgba(255, 255, 255, 0.95);
+  --components-input-text-filled-disabled: rgba(255, 255, 255, 0.45);
+  --components-input-text-disabled: rgba(255, 255, 255, 0.25);
+  --components-input-border-hover: rgba(255, 255, 255, 0.18);
+  --components-input-border-active: rgba(255, 255, 255, 0.22);
+  --components-input-border-destructive: rgba(240, 68, 56, 0.5);
+
+  /* ===== Components: checkbox =========================================== */
+  --components-checkbox-icon: #ffffff;
+  --components-checkbox-icon-disabled: rgba(255, 255, 255, 0.5);
+  --components-checkbox-bg: var(--color-util-colors-primary-400);
+  --components-checkbox-bg-hover: var(--color-util-colors-primary-300);
+  --components-checkbox-bg-disabled: rgba(255, 255, 255, 0.04);
+  --components-checkbox-bg-disabled-checked: rgba(124, 123, 245, 0.3);
+  --components-checkbox-bg-unchecked: rgba(255, 255, 255, 0.02);
+  --components-checkbox-bg-unchecked-hover: rgba(255, 255, 255, 0.06);
+  --components-checkbox-border: rgba(255, 255, 255, 0.18);
+  --components-checkbox-border-hover: rgba(255, 255, 255, 0.3);
+  --components-checkbox-border-disabled: rgba(255, 255, 255, 0.04);
+
+  /* ===== Components: radio ============================================== */
+  --components-radio-bg-disabled: rgba(255, 255, 255, 0);
+  --components-radio-border: rgba(255, 255, 255, 0.18);
+  --components-radio-border-hover: rgba(255, 255, 255, 0.3);
+  --components-radio-border-checked: var(--color-util-colors-primary-400);
+  --components-radio-border-checked-hover: var(--color-util-colors-primary-300);
+  --components-radio-border-checked-disabled: rgba(124, 123, 245, 0.3);
+
+  /* ===== Components: toggle ============================================= */
+  --components-toggle-bg: rgba(255, 255, 255, 0.18);
+  --components-toggle-bg-hover: rgba(255, 255, 255, 0.28);
+  --components-toggle-bg-disabled: rgba(255, 255, 255, 0.06);
+  --components-toggle-bg-checked: var(--color-util-colors-primary-400);
+  --components-toggle-bg-checked-hover: var(--color-util-colors-primary-300);
+  --components-toggle-bg-checked-disabled: rgba(124, 123, 245, 0.3);
+  --components-toggle-knob: #ffffff;
+  --components-toggle-knob-disabled: rgba(255, 255, 255, 0.85);
+
+  /* ===== Components: segmented ========================================== */
+  --components-segmented-bg: var(--state-base-hover);
+  --components-segmented-item-bg-active: rgba(255, 255, 255, 0.08);
+  --components-segmented-item-bg-hover: rgba(255, 255, 255, 0.06);
+  --components-segmented-text: rgba(255, 255, 255, 0.65);
+  --components-segmented-text-active: rgba(255, 255, 255, 0.95);
+
+  /* ===== Components: panel ============================================== */
+  --components-panel-bg: #15171c;
+  --components-panel-bg-blur: rgba(21, 23, 28, 0.95);
+  --components-panel-bg-alt: #101217;
+  --components-panel-border: rgba(255, 255, 255, 0.08);
+  --components-panel-border-subtle: rgba(255, 255, 255, 0.04);
+  --components-panel-divider: rgba(255, 255, 255, 0.08);
+
+  /* ===== Components: tooltip ============================================ */
+  --components-tooltip-bg: rgba(21, 23, 28, 0.95);
+  --components-tooltip-text: rgba(255, 255, 255, 0.95);
+
+  /* ===== Components: menu =============================================== */
+  --components-menu-bg: #15171c;
+  --components-menu-item-bg-hover: var(--state-base-hover);
+  --components-menu-item-bg-active: var(--state-base-active);
+  --components-menu-item-text: rgba(255, 255, 255, 0.85);
+  --components-menu-item-text-disabled: rgba(255, 255, 255, 0.3);
+  --components-menu-separator: rgba(255, 255, 255, 0.08);
+
+  /* ===== Components: card =============================================== */
+  --components-card-bg: #15171c;
+  --components-card-bg-alt: #101217;
+  --components-card-border: rgba(255, 255, 255, 0.08);
+
+  /* ===== Components: actionbar ========================================== */
+  --components-actionbar-bg: rgba(21, 23, 28, 0.95);
+  --components-actionbar-border: rgba(255, 255, 255, 0.04);
+
+  /* ===== Components: badge ============================================== */
+  --components-badge-status-light-border-outer: #15171c;
+  --components-badge-status-light-success-bg: var(--color-util-colors-green-400);
+  --components-badge-status-light-success-border-inner: var(--color-util-colors-green-500);
+  --components-badge-status-light-success-halo: rgba(23, 178, 106, 0.4);
+  --components-badge-status-light-warning-bg: var(--color-util-colors-warning-400);
+  --components-badge-status-light-warning-border-inner: var(--color-util-colors-warning-500);
+  --components-badge-status-light-warning-halo: rgba(247, 144, 9, 0.4);
+  --components-badge-status-light-error-bg: var(--color-util-colors-red-400);
+  --components-badge-status-light-error-border-inner: var(--color-util-colors-red-500);
+  --components-badge-status-light-error-halo: rgba(240, 68, 56, 0.4);
+  --components-badge-status-light-normal-bg: var(--color-util-colors-blue-light-400);
+  --components-badge-status-light-normal-border-inner: var(--color-util-colors-blue-light-500);
+  --components-badge-status-light-normal-halo: rgba(11, 165, 236, 0.4);
+  --components-badge-status-light-disabled-bg: var(--color-util-colors-gray-500);
+  --components-badge-status-light-disabled-border-inner: var(--color-util-colors-gray-600);
+  --components-badge-status-light-disabled-halo: rgba(255, 255, 255, 0.06);
+  --components-badge-bg-gray-soft: var(--state-base-hover-alt);
+  --components-badge-bg-green-soft: rgba(23, 178, 106, 0.14);
+  --components-badge-bg-red-soft: rgba(240, 68, 56, 0.14);
+  --components-badge-bg-warning-soft: rgba(247, 144, 9, 0.14);
+  --components-badge-bg-blue-soft: rgba(11, 165, 236, 0.14);
+
+  /* Status-indicator shadows recompose using the dark halos / outer border */
+  --shadow-status-indicator-green:
+    0px 2px 6px 0px var(--components-badge-status-light-success-halo),
+    0px 0px 0px 1px var(--components-badge-status-light-border-outer);
+  --shadow-status-indicator-warning:
+    0px 2px 6px 0px var(--components-badge-status-light-warning-halo),
+    0px 0px 0px 1px var(--components-badge-status-light-border-outer);
+  --shadow-status-indicator-red:
+    0px 2px 6px 0px var(--components-badge-status-light-error-halo),
+    0px 0px 0px 1px var(--components-badge-status-light-border-outer);
+  --shadow-status-indicator-blue:
+    0px 2px 6px 0px var(--components-badge-status-light-normal-halo),
+    0px 0px 0px 1px var(--components-badge-status-light-border-outer);
+  --shadow-status-indicator-gray:
+    0px 1px 2px 0px var(--components-badge-status-light-disabled-halo),
+    0px 0px 0px 1px var(--components-badge-status-light-border-outer);
+
+  /* ===== Legacy aliases ================================================= */
+  --background: var(--background-body);
+  --foreground: var(--text-primary);
+  --card: var(--components-card-bg);
+  --card-foreground: var(--text-primary);
+  --popover: var(--components-panel-bg);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--color-util-colors-primary-400);
+  --primary-foreground: #0d0e11;
+  --secondary: var(--state-base-hover);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--state-base-hover);
+  --muted-foreground: var(--text-muted);
+  --accent: rgba(124, 123, 245, 0.14);
+  --accent-foreground: var(--color-util-colors-primary-300);
+  --destructive: var(--color-util-colors-red-500);
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: var(--color-util-colors-primary-400);
+  --sidebar: #101217;
+  --sidebar-foreground: var(--text-secondary);
+  --sidebar-primary: var(--color-util-colors-primary-400);
+  --sidebar-primary-foreground: #0d0e11;
+  --sidebar-accent: rgba(124, 123, 245, 0.14);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: var(--color-util-colors-primary-400);
+
+  --bg-canvas: var(--background);
+  --bg-panel: var(--sidebar);
+  --bg-elevated: var(--card);
+  --bg-subtle: var(--muted);
+
+  --border-default: var(--border);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+
+  --accent-default: var(--primary);
+  --accent-hover: var(--color-util-colors-primary-300);
+  --accent-active: rgba(165, 164, 250, 1);
+  --accent-tint: var(--accent);
+  --accent-text: var(--accent-foreground);
+
+  --severity-critical: var(--destructive);
+  --severity-critical-tint: rgba(239, 68, 68, 0.12);
+  --severity-critical-border: rgba(239, 68, 68, 0.4);
+  --severity-high: #f97316;
+  --severity-high-tint: rgba(249, 115, 22, 0.12);
+  --severity-high-border: rgba(249, 115, 22, 0.4);
+  --severity-medium: #eab308;
+  --severity-medium-tint: rgba(234, 179, 8, 0.12);
+  --severity-medium-border: rgba(234, 179, 8, 0.4);
+  --severity-neutral: #64748b;
+  --severity-neutral-tint: rgba(100, 116, 139, 0.08);
+
+  --status-done: #10b981;
+  --status-draft: #94a3b8;
+  --status-waiting: #38bdf8;
+  --status-review: #a78bfa;
+
+  --brand-primary: var(--text-primary);
+  --brand-secondary: var(--text-secondary);
+  --brand-tertiary: var(--accent-default);
+  --brand-neutral: var(--bg-canvas);
+
+  color-scheme: dark;
+}

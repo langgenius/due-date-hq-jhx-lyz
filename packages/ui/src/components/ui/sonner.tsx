@@ -9,6 +9,11 @@ import {
   Loader2Icon,
 } from 'lucide-react'
 
+/**
+ * Toast surface — uses `--components-panel-bg-blur` so it picks up the right
+ * blur/shadow in both light and dark modes (instead of the bare `--popover`
+ * alias that doesn't carry blur).
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
@@ -23,10 +28,22 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          '--normal-bg': 'var(--popover)',
-          '--normal-text': 'var(--popover-foreground)',
-          '--normal-border': 'var(--border)',
-          '--border-radius': 'var(--radius)',
+          '--normal-bg': 'var(--components-panel-bg-blur)',
+          '--normal-text': 'var(--text-primary)',
+          '--normal-border': 'var(--components-panel-border)',
+          '--border-radius': 'var(--radius-lg)',
+          '--success-bg': 'var(--state-success-hover)',
+          '--success-text': 'var(--text-success)',
+          '--success-border': 'var(--state-success-hover-alt)',
+          '--warning-bg': 'var(--state-warning-hover)',
+          '--warning-text': 'var(--text-warning)',
+          '--warning-border': 'var(--state-warning-hover-alt)',
+          '--error-bg': 'var(--state-destructive-hover)',
+          '--error-text': 'var(--text-destructive)',
+          '--error-border': 'var(--state-destructive-hover-alt)',
+          '--info-bg': 'var(--state-accent-hover)',
+          '--info-text': 'var(--text-accent)',
+          '--info-border': 'var(--state-accent-hover-alt)',
         } as React.CSSProperties
       }
       toastOptions={{

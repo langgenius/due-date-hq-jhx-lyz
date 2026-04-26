@@ -1,7 +1,7 @@
 import { FilterIcon, SearchIcon } from 'lucide-react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 
-import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Card,
@@ -37,16 +37,29 @@ const obligations = [
   ['Union Park Labs', 'Credit memo', '2026-04-12', 'filed', 0, 'M. Chen'],
 ] as const
 
-const statusClass = {
-  blocked: 'border-severity-critical-border bg-severity-critical-tint text-severity-critical',
-  'in review': 'border-border-default bg-accent text-accent-foreground',
-  draft: 'border-border-default bg-secondary text-secondary-foreground',
-  waiting: 'border-border-default bg-bg-panel text-text-secondary',
-  filed: 'border-border-default bg-bg-subtle text-status-done',
-}
-
-type ObligationStatus = keyof typeof statusClass
+type ObligationStatus = 'blocked' | 'in review' | 'draft' | 'waiting' | 'filed'
 type FilterKey = 'all' | 'blocked' | 'in review' | 'waiting'
+
+// Status → Badge variant + dot tone. Centralised so all status chips share the
+// same Dify-style soft chip + halo dot, instead of hand-rolled tint classes.
+const statusVariant: Record<
+  ObligationStatus,
+  'destructive' | 'info' | 'secondary' | 'outline' | 'success'
+> = {
+  blocked: 'destructive',
+  'in review': 'info',
+  draft: 'secondary',
+  waiting: 'outline',
+  filed: 'success',
+}
+const statusDot: Record<ObligationStatus, 'error' | 'normal' | 'disabled' | 'warning' | 'success'> =
+  {
+    blocked: 'error',
+    'in review': 'normal',
+    draft: 'disabled',
+    waiting: 'warning',
+    filed: 'success',
+  }
 
 function useStatusLabels(): Record<ObligationStatus, string> {
   const { t } = useLingui()
@@ -77,7 +90,7 @@ export function WorkboardRoute() {
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-text-tertiary">
           <Trans>Workboard</Trans>
         </span>
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -104,7 +117,7 @@ export function WorkboardRoute() {
         </div>
       </div>
 
-      <Card className="rounded-md shadow-none">
+      <Card>
         <CardHeader>
           <CardTitle>
             <Trans>Queue controls</Trans>
@@ -121,7 +134,7 @@ export function WorkboardRoute() {
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div className="relative w-full md:max-w-[360px]">
-              <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground" />
+              <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-text-tertiary" />
               <Input
                 aria-label={t`Search obligations`}
                 className="pl-8"
@@ -130,7 +143,7 @@ export function WorkboardRoute() {
             </div>
             <div className="flex flex-wrap gap-2">
               {filters.map((filter) => (
-                <Badge key={filter} variant={filter === 'all' ? 'default' : 'outline'}>
+                <Badge key={filter} variant={filter === 'all' ? 'default' : 'ghost'}>
                   {filterLabels[filter]}
                 </Badge>
               ))}
@@ -155,7 +168,8 @@ export function WorkboardRoute() {
                   <TableCell className="text-text-secondary">{obligation}</TableCell>
                   <TableCell className="font-mono tabular-nums">{formatDate(deadline)}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={statusClass[status]}>
+                    <Badge variant={statusVariant[status]}>
+                      <BadgeStatusDot tone={statusDot[status]} />
                       {statusLabels[status]}
                     </Badge>
                   </TableCell>

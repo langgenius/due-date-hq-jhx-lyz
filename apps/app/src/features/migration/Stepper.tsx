@@ -23,16 +23,16 @@ export function Stepper({ current }: { current: StepIndex }) {
     <ol
       role="list"
       aria-label="Wizard steps"
-      className="flex h-12 items-center gap-2 border-b border-border-subtle bg-bg-canvas px-4"
+      className="flex h-12 items-center gap-2 border-b border-divider-subtle bg-background-body px-4"
     >
       {STEP_LABELS.map((step, idx) => {
         const isDone = step.index < current
         const isActive = step.index === current
         const tone = isActive
-          ? 'border-accent-default/30 bg-accent-tint text-accent-text'
+          ? 'border-state-accent-active bg-state-accent-hover-alt text-text-accent'
           : isDone
-            ? 'border-transparent bg-transparent text-status-done'
-            : 'border-transparent bg-transparent text-text-muted'
+            ? 'border-transparent bg-transparent text-text-success'
+            : 'border-transparent bg-transparent text-text-tertiary'
 
         return (
           <li
@@ -51,7 +51,7 @@ export function Stepper({ current }: { current: StepIndex }) {
               <span>{step.label}</span>
             </div>
             {idx < STEP_LABELS.length - 1 ? (
-              <span aria-hidden className="h-px w-6 bg-border-default" />
+              <span aria-hidden className="h-px w-6 bg-divider-regular" />
             ) : null}
           </li>
         )

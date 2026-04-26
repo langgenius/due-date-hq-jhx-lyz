@@ -2,12 +2,20 @@ import * as React from 'react'
 
 import { cn } from '@duedatehq/ui/lib/utils'
 
+/**
+ * Multi-line text input. Same token surface as Input but auto-sizing.
+ */
 function Textarea({ className, ...props }: React.ComponentProps<'textarea'>) {
   return (
     <textarea
       data-slot="textarea"
       className={cn(
-        'flex field-sizing-content min-h-16 w-full rounded-md border border-input bg-transparent px-2.5 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40',
+        'field-sizing-content flex min-h-16 w-full rounded-lg border border-transparent bg-components-input-bg-normal px-3 py-2 text-sm text-components-input-text-filled outline-none transition-colors',
+        'placeholder:text-components-input-text-placeholder',
+        'hover:bg-components-input-bg-hover',
+        'focus-visible:border-components-input-border-active focus-visible:bg-components-input-bg-active focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
+        'disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-components-input-bg-disabled disabled:text-components-input-text-filled-disabled',
+        'aria-invalid:border-components-input-border-destructive aria-invalid:bg-components-input-bg-destructive aria-invalid:ring-2 aria-invalid:ring-state-destructive-active',
         className,
       )}
       {...props}
