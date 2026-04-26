@@ -88,14 +88,14 @@ locale contract，但不共享同一个文案 catalog：
 
 ```
 src/i18n/
+  bootstrap.ts           # 同步消费一次性 locale handoff，并激活 Lingui
   i18n.ts               # @lingui/core 全局单例、locale 辅助函数、
                         #   attachLocaleHeader() 供 rpc.ts + auth.ts 复用
   locales.ts            # app 浏览器偏好层：detectLocale()
-                        #   （localStorage → navigator → en）与 persistLocale()
+                        #   （?lng → localStorage → navigator → en）与 persistLocale()
+  query.ts              # nuqs parser + serializer：parseAsStringLiteral(SUPPORTED_LOCALES)
                         #   共享常量来自 packages/i18n
   provider.tsx          # AppI18nProvider 包裹 @lingui/react 的 I18nProvider，
-                        #   通过 useState 懒初始化在首次挂载时执行 bootstrap
-                        #   ——模块导入无副作用；
                         #   useLocaleSwitch() 基于 useSyncExternalStore
                         #   以避免并发渲染下的 tearing，切换 locale 时同步
                         #   失效 TanStack Query 缓存
@@ -166,9 +166,18 @@ src/
 
 ```mermaid
 flowchart LR
-  Boot[main.tsx] --> Provider[AppI18nProvider 挂载]
-  Provider --> Detect[detectLocale: localStorage → navigator → en]
+  Boot[main.tsx] --> Bootstrap[bootstrapI18n before createAppRouter]
+  Bootstrap --> Consume[consumeLocaleHandoff: 有效 ?lng]
+  Consume --> PersistHandoff[持久化到 localStorage]
+  Consume --> Cleanup[nuqs serializer + replaceState 清理 lng]
+  Consume --> Activate
+  Bootstrap --> Detect[detectLocale: localStorage → navigator → en]
   Detect --> Activate[i18n.activate + html lang 同步]
+  Bootstrap --> Router[createAppRouter + RouterProvider]
+  Router --> Provider[AppI18nProvider 挂载]
+  Loaders[React Router loaders] --> LoaderConsume[有效 lng 只消费不透传]
+  LoaderConsume --> PersistHandoff
+  LoaderConsume --> Activate
   Activate --> Routes[路由组件渲染 t / Trans / Plural]
   User[用户在 UserMenu 切语言] --> Switch[useLocaleSwitch.switchLocale]
   Switch --> Persist[localStorage.lng]

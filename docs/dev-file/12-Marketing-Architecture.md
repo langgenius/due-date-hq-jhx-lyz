@@ -21,7 +21,7 @@
 ```text
 duedatehq.com
   -> Landing CTA
-  -> app.duedatehq.com/login 或 app.duedatehq.com/
+  -> app.duedatehq.com/
   -> SaaS SPA auth gate
 ```
 
@@ -55,7 +55,7 @@ Homepage 只讲一个 offer：
 
 首屏 H1 使用产品名或直接 offer，不写抽象口号。主 CTA：
 
-- Primary：`Open app` / `Start with Google` -> `https://app.duedatehq.com/login`
+- Primary：`Open app` -> `https://app.duedatehq.com`
 - Secondary：`See the workflow` -> 页面内锚点
 
 首屏视觉必须直接展示产品工作台状态：风险金额、截止日队列、证据来源、Pulse 变更。禁止纯装饰渐变、抽象插画、漂浮卡片堆叠。
@@ -311,7 +311,7 @@ App 文案、server 邮件文案、marketing 文案的生命周期不同：
 
 共享 catalog 会造成 key 漂移、翻译上下文混杂和不必要的 runtime 依赖。共享 locale contract 能保证语言列表、`html lang`、`Intl` locale、`x-locale` header 一致。
 
-### 6.3 URL 策略
+### 6.3 URL 策略与 locale handoff
 
 首选：
 
@@ -328,13 +328,24 @@ App 文案、server 邮件文案、marketing 文案的生命周期不同：
 - `hreflang="zh-CN"`
 - `hreflang="x-default"`
 
-CTA 跳转 app 时带上 locale：
+CTA 跳转 app 时带上 locale handoff 参数：
 
 ```text
-https://app.duedatehq.com/login?lng=zh-CN
+https://app.duedatehq.com/?lng=zh-CN
 ```
 
-`apps/app` 后续可读取 `lng` 并持久化到现有 locale store；没有实现前，app 仍按浏览器/本地存储检测。
+`apps/app` 使用 nuqs 管理这个 URL 状态：React Router v7 root route 通过
+`nuqs/adapters/react-router/v7` 提供 adapter，`lng` 由
+`parseAsStringLiteral(SUPPORTED_LOCALES)` 校验。app 会在 `createBrowserRouter()` 创建前先同步
+消费有效值，写入 Lingui runtime、`<html lang>` 和 `localStorage["lng"]`，随后用 nuqs
+serializer 生成去掉 `lng` 的 URL，并通过 `history.replaceState` 清理。React Router loaders
+若再遇到有效 `lng`，只消费、不透传，redirect 到 `/login` / `/onboarding` 时不会继续保留该参数。
+
+`lng` 只表示一次性 marketing → app handoff，不是长期 app state。app 内语言切换仍通过用户菜单写入
+`localStorage["lng"]`。无效值（例如 `?lng=fr-FR`）解析为空，不覆盖用户已有偏好。
+
+Marketing CTA 不链接 `/login`，因为登录、onboarding 和已登录落点都属于 app auth gate 的职责。
+公开站只表达用户意图：打开 app。Top nav 也只保留一个 primary CTA，不再同时展示“登录”和“打开 App”。
 
 ---
 

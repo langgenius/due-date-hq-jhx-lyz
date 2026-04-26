@@ -13,7 +13,6 @@ export interface NavCopy {
   audience: string
   links: { label: string; href: string }[]
   statusPill: string
-  signIn: string
   cta: string
 }
 

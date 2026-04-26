@@ -14,5 +14,5 @@ function resolveBase(): string {
 
 export function getCtaHref(locale?: string): string {
   const base = resolveBase()
-  return locale ? `${base}/login?lng=${locale}` : `${base}/login`
+  return locale ? `${base}/?lng=${locale}` : base
 }

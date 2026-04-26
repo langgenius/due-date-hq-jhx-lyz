@@ -19,7 +19,6 @@ const en: LandingCopy = {
       { label: 'Docs', href: '#docs' },
     ],
     statusPill: 'Live in CA · NY · TX · FL · IL',
-    signIn: 'Sign in',
     cta: 'Open app',
   },
   hero: {

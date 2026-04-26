@@ -17,6 +17,7 @@ vi.mock('@/lib/auth', () => ({
 // Import after the mock so the loaders pick up the stubbed authClient.
 const { guestLoader, onboardingLoader, protectedLoader, pickSafeRedirect } =
   await import('@/router')
+const { activateLocale, currentLocale } = await import('@/i18n/i18n')
 
 type SessionShape = {
   user: { id: string; name?: string; email?: string }
@@ -46,6 +47,26 @@ async function expectRedirectTo(promise: Promise<unknown>, expected: string): Pr
   expect(res.status).toBe(302)
   expect(res.headers.get('Location')).toBe(expected)
 }
+
+async function expectReplaceTo(promise: Promise<unknown>, expected: string): Promise<void> {
+  let thrown: unknown
+  try {
+    await promise
+  } catch (err) {
+    thrown = err
+  }
+  expect(thrown).toBeInstanceOf(Response)
+  const res = thrown as Response
+  expect(res.status).toBe(302)
+  expect(res.headers.get('Location')).toBe(expected)
+  expect(res.headers.get('X-Remix-Replace')).toBe('true')
+}
+
+beforeEach(() => {
+  window.localStorage.clear()
+  document.documentElement.lang = ''
+  activateLocale('en')
+})
 
 describe('pickSafeRedirect', () => {
   it('returns the fallback for empty / null / undefined input', () => {
@@ -83,9 +104,26 @@ describe('protectedLoader', () => {
     )
   })
 
+  it('consumes and drops a valid locale handoff when redirecting unauthenticated users', async () => {
+    getSession.mockResolvedValueOnce({ data: null })
+    await expectRedirectTo(
+      protectedLoader(makeArgs('http://localhost/workboard?scope=me&lng=zh-CN')),
+      '/login?redirectTo=%2Fworkboard%3Fscope%3Dme',
+    )
+    expect(window.localStorage.getItem('lng')).toBe('zh-CN')
+    expect(currentLocale()).toBe('zh-CN')
+  })
+
   it('redirects to /login (no redirectTo) when the originating path is /', async () => {
     getSession.mockResolvedValueOnce({ data: null })
     await expectRedirectTo(protectedLoader(makeArgs('http://localhost/')), '/login')
+  })
+
+  it('consumes the marketing root locale handoff before redirecting to login', async () => {
+    getSession.mockResolvedValueOnce({ data: null })
+    await expectRedirectTo(protectedLoader(makeArgs('http://localhost/?lng=zh-CN')), '/login')
+    expect(window.localStorage.getItem('lng')).toBe('zh-CN')
+    expect(currentLocale()).toBe('zh-CN')
   })
 
   it('redirects to /onboarding when session has no activeOrganizationId', async () => {
@@ -114,6 +152,16 @@ describe('onboardingLoader', () => {
       onboardingLoader(makeArgs('http://localhost/onboarding')),
       '/login?redirectTo=/onboarding',
     )
+  })
+
+  it('consumes and drops a valid locale handoff when bouncing onboarding to login', async () => {
+    getSession.mockResolvedValueOnce({ data: null })
+    await expectRedirectTo(
+      onboardingLoader(makeArgs('http://localhost/onboarding?lng=zh-CN')),
+      '/login?redirectTo=/onboarding',
+    )
+    expect(window.localStorage.getItem('lng')).toBe('zh-CN')
+    expect(currentLocale()).toBe('zh-CN')
   })
 
   it('redirects to redirectTo (or /) when an active firm already exists', async () => {
@@ -159,6 +207,20 @@ describe('guestLoader', () => {
       guestLoader(makeArgs('http://localhost/login?redirectTo=/dashboard')),
       '/dashboard',
     )
+  })
+
+  it('consumes and drops a valid locale handoff when redirecting authed users away from login', async () => {
+    getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
+    await expectRedirectTo(guestLoader(makeArgs('http://localhost/login?lng=zh-CN')), '/')
+    expect(window.localStorage.getItem('lng')).toBe('zh-CN')
+    expect(currentLocale()).toBe('zh-CN')
+  })
+
+  it('replaces the login URL after consuming lng for unauthenticated users', async () => {
+    getSession.mockResolvedValueOnce({ data: null })
+    await expectReplaceTo(guestLoader(makeArgs('http://localhost/login?lng=zh-CN')), '/login')
+    expect(window.localStorage.getItem('lng')).toBe('zh-CN')
+    expect(currentLocale()).toBe('zh-CN')
   })
 
   it('falls back to / when redirectTo is external', async () => {

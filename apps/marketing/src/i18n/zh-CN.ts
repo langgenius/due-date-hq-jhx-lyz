@@ -19,7 +19,6 @@ const zhCN: LandingCopy = {
       { label: '文档', href: '#docs' },
     ],
     statusPill: '已上线 CA · NY · TX · FL · IL',
-    signIn: '登录',
     cta: '打开 App',
   },
   hero: {

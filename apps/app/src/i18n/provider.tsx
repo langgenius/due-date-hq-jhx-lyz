@@ -1,32 +1,15 @@
-import { useCallback, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { useCallback, useSyncExternalStore, type ReactNode } from 'react'
 import { I18nProvider } from '@lingui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { DEFAULT_LOCALE, type Locale } from '@duedatehq/i18n'
 
 import { activateLocale, currentLocale, i18n } from './i18n'
-import { detectLocale } from './locales'
-
-// Activate the detected locale before the first render so users with a Chinese
-// browser never flash English. Kept idempotent — safe to call repeatedly from
-// tests that reset between cases.
-let bootstrapped = false
-function ensureBootstrap(): void {
-  if (bootstrapped) return
-  activateLocale(detectLocale(), { persist: false })
-  bootstrapped = true
-}
 
 interface AppI18nProviderProps {
   children: ReactNode
 }
 
 export function AppI18nProvider({ children }: AppI18nProviderProps) {
-  // Lazy useState initializer runs exactly once per mount and keeps the
-  // bootstrap side-effect out of module import.
-  useState(() => {
-    ensureBootstrap()
-    return null
-  })
   return <I18nProvider i18n={i18n}>{children}</I18nProvider>
 }
 
