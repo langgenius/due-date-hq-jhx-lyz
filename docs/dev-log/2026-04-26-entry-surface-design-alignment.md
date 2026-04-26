@@ -1,7 +1,6 @@
 ---
 title: 'Entry surface 视觉一致性整理：root error boundary + onboarding eyebrow'
 date: 2026-04-26
-commit: '7279584'
 author: 'Codex'
 ---
 

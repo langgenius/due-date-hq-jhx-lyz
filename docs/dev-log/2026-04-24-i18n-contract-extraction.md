@@ -1,7 +1,6 @@
 ---
 title: '2026-04-24 · i18n Contract Extraction'
 date: 2026-04-24
-commit: '9292d5c'
 ---
 
 # 2026-04-24 · i18n Contract Extraction

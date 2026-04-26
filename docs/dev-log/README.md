@@ -16,11 +16,9 @@
 ---
 title: '<标题>'
 date: YYYY-MM-DD
-commit: '<short-sha>'
 author: '<name>'
 updates:
-  - commit: '<short-sha>'
-    note: '<why this log changed after the primary commit>'
+  - note: '<why this log changed after the primary entry>'
 ---
 
 # <标题>
@@ -46,8 +44,8 @@ updates:
 （遗留 TODO、埋点、需要写回规格文档的部分）
 ```
 
-`updates` 只在日志被后续 commit 修正时填写，例如路径重命名、同主题 follow-up、关闭
-上一条未闭环项。大多数 dev-log 只需要 `title / date / commit` 三个字段。
+`updates` 只在日志被后续提交修正时填写，例如路径重命名、同主题 follow-up、关闭
+上一条未闭环项。大多数 dev-log 只需要 `title / date / author` 三个字段。
 
 ## 什么时候写
 

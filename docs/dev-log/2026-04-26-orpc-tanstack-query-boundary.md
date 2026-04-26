@@ -1,7 +1,6 @@
 ---
 title: 'oRPC TanStack Query Boundary'
 date: 2026-04-26
-commit: '6498797'
 author: 'Codex'
 ---
 

@@ -1,7 +1,6 @@
 ---
 title: 'Root route error boundary'
 date: 2026-04-26
-commit: 'db53af0'
 author: 'Codex'
 ---
 

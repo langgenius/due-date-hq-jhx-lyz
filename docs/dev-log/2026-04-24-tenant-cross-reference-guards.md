@@ -1,7 +1,6 @@
 ---
 title: 'Tenant cross-reference guards'
 date: 2026-04-24
-commit: 'e78487d'
 author: 'Codex'
 ---
 

@@ -1,7 +1,6 @@
 ---
 title: 'Rename SaaS SPA from web to app'
 date: 2026-04-24
-commit: '47d44f3'
 author: 'Codex'
 ---
 

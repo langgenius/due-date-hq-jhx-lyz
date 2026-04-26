@@ -1,7 +1,6 @@
 ---
 title: 'Design Tokens · Figma + DESIGN.md + UI Preset Closure'
 date: 2026-04-25
-commit: '5b3c3fa'
 author: 'Cursor'
 ---
 

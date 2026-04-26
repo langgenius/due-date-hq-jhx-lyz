@@ -1,12 +1,9 @@
 ---
 title: 'Auth / tenant review follow-ups'
 date: 2026-04-24
-commit: '7e5cb97'
 updates:
-  - commit: 'c914e48'
-    note: 'Closed the auth:schema follow-up and linked the dedicated dev-log.'
-  - commit: '47d44f3'
-    note: 'Updated apps/app workspace references.'
+  - note: 'Closed the auth:schema follow-up and linked the dedicated dev-log.'
+  - note: 'Updated apps/app workspace references.'
 ---
 
 # Auth / tenant review follow-ups

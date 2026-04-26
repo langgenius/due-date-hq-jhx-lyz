@@ -1,7 +1,6 @@
 ---
 title: 'Marketing Locale Handoff with nuqs'
 date: 2026-04-26
-commit: '7b37fa6'
 author: 'Codex'
 ---
 

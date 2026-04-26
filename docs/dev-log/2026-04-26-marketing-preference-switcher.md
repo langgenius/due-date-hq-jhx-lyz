@@ -1,7 +1,6 @@
 ---
 title: 'Marketing Preference Switcher · Footer-grouped Theme & Language'
 date: 2026-04-26
-commit: 'ad803c3'
 author: 'Codex'
 figma: 'ssejugriUJkW9vbcBzmRgd: 5:16 TopNav / 30:53 Footer cluster'
 ---

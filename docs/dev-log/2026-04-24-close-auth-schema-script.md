@@ -1,10 +1,8 @@
 ---
 title: '关闭 `auth:schema` 脚本后门'
 date: 2026-04-24
-commit: 'c914e48'
 updates:
-  - commit: '47d44f3'
-    note: 'Updated @duedatehq/app workspace references.'
+  - note: 'Updated @duedatehq/app workspace references.'
 ---
 
 # 关闭 `auth:schema` 脚本后门

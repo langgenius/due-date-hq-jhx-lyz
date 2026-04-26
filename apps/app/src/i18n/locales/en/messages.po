@@ -624,6 +624,10 @@ msgstr "Open risk"
 msgid "Operational pressure points for the team."
 msgstr "Operational pressure points for the team."
 
+#: src/routes/dashboard.tsx
+msgid "Operations"
+msgstr "Operations"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "or"
 msgstr "or"

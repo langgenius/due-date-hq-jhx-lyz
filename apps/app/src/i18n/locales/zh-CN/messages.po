@@ -624,6 +624,10 @@ msgstr "待处理风险"
 msgid "Operational pressure points for the team."
 msgstr "团队当前的运营压力点。"
 
+#: src/routes/dashboard.tsx
+msgid "Operations"
+msgstr ""
+
 #: src/features/migration/Step1Intake.tsx
 msgid "or"
 msgstr "或"
