@@ -15,7 +15,7 @@ vi.mock('@/lib/auth', () => ({
 }))
 
 // Import after the mock so the loaders pick up the stubbed authClient.
-const { guestLoader, onboardingLoader, protectedLoader, pickSafeRedirect } =
+const { guestLoader, onboardingLoader, protectedLoader, pickSafeRedirect, notFoundLoader } =
   await import('@/router')
 const { activateLocale, currentLocale } = await import('@/i18n/i18n')
 
@@ -88,6 +88,22 @@ describe('pickSafeRedirect', () => {
 
   it('honours a custom fallback', () => {
     expect(pickSafeRedirect('https://evil.com', '/safe')).toBe('/safe')
+  })
+})
+
+describe('notFoundLoader', () => {
+  it('throws a 404 response for unmatched public routes', () => {
+    let thrown: unknown
+    try {
+      notFoundLoader()
+    } catch (err) {
+      thrown = err
+    }
+
+    expect(thrown).toBeInstanceOf(Response)
+    const res = thrown as Response
+    expect(res.status).toBe(404)
+    expect(res.statusText).toBe('Not Found')
   })
 })
 

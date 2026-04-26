@@ -629,6 +629,10 @@ msgstr "或"
 msgid "Owner"
 msgstr "负责人"
 
+#: src/routes/error.tsx
+msgid "Page not found"
+msgstr "未找到页面"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste client data"
 msgstr "粘贴客户数据"
@@ -996,6 +1000,7 @@ msgid "We blocked SSN-like patterns to protect your clients. Those columns won't
 msgstr "为保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。被拦截的列：{0} → 强制忽略。"
 
 #: src/lib/i18n-error.ts
+#: src/routes/error.tsx
 msgid "We couldn't find what you were looking for."
 msgstr "未找到您要查找的内容。"
 

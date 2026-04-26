@@ -22,12 +22,12 @@ apps/app/
 │   ├── main.tsx              ← ReactDOM.createRoot + router provider
 │   ├── router.tsx            ← createBrowserRouter + routes config
 │   ├── routes/               ← 每个路由一个 .tsx（RR7 data mode：loader / action / Component）
+│   │   ├── error.tsx             ← root route 全局 RouteErrorBoundary
 │   │   ├── _layout.tsx           ← 登录后 shell（侧栏 + 顶栏，path='/'，loader 做认证 gate）
 │   │   ├── login.tsx             ← 登录页（path='/login'，loader 把已登录用户跳走）
 │   │   ├── dashboard.tsx         ← index
 │   │   ├── workboard.tsx
 │   │   ├── settings.tsx
-│   │   ├── error.tsx             ← RouteErrorBoundary
 │   │   └── fallback.tsx          ← RouteHydrateFallback
 │   │   # 目标形态（Phase 0 MVP → Phase 1）：
 │   │   # clients.$id.tsx · alerts.tsx · audit.tsx · settings/*.tsx · migration.tsx
@@ -91,9 +91,16 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 - 用 `createBrowserRouter` + 路由配置对象，**不走 framework mode**（framework mode 引入 Node 依赖，与 Worker 冲突）
 - Loader / action **可选使用**；数据获取主路径是 **TanStack Query**（统一 server state + 乐观 UI + 缓存）
 - Loader 仅用于必须 pre-resolve 的场景（**认证 gate / 权限跳转**）——这是目前 loader 的主要用法
-- 路由按认证状态分成两个顶级路由组：
+- 全局错误处理只挂在 React Router root route：`AppRoot` 同时包裹
+  `<NuqsAdapter><Outlet /></NuqsAdapter>` 并声明 `ErrorBoundary: RouteErrorBoundary`。
+  子 route 默认不重复挂同一个 boundary；React Router 会把 loader / lazy / render 错误冒泡到最近的
+  boundary。只有未来需要“保留 app shell、内容区局部失败”这类不同 UX 时，才在更深层加专用
+  boundary。
+- 业务路由按认证状态分成两个顶级 route group，并额外保留一个 public catch-all：
   - `/login` — 公开路由组，`guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去
   - `/` — 受保护路由组（`id: 'protected'`，`Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `settings` 都作为它的 children
+  - `*` — 公开 catch-all route，loader 主动抛 404 `Response`，由 root `RouteErrorBoundary`
+    渲染统一 not found UI；未知 URL 不进入认证 gate，也不显示 React Router 默认开发错误页
 
 **Auth flow**：
 

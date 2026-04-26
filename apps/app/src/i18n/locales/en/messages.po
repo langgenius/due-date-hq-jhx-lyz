@@ -629,6 +629,10 @@ msgstr "or"
 msgid "Owner"
 msgstr "Owner"
 
+#: src/routes/error.tsx
+msgid "Page not found"
+msgstr "Page not found"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste client data"
 msgstr "Paste client data"
@@ -996,6 +1000,7 @@ msgid "We blocked SSN-like patterns to protect your clients. Those columns won't
 msgstr "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
 
 #: src/lib/i18n-error.ts
+#: src/routes/error.tsx
 msgid "We couldn't find what you were looking for."
 msgstr "We couldn't find what you were looking for."
 

@@ -6,34 +6,48 @@ import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { translateServerErrorCode } from '@/lib/i18n-error'
 
-function useErrorMessage(error: unknown): string {
+function useErrorCopy(error: unknown): { title: string; message: string } {
   const { t } = useLingui()
 
   if (isRouteErrorResponse(error)) {
+    if (error.status === 404) {
+      return {
+        title: t`Page not found`,
+        message: t`We couldn't find what you were looking for.`,
+      }
+    }
+
     const translated = translateServerErrorCode(error.statusText)
-    return `${error.status} ${translated ?? error.statusText}`
+    return {
+      title: t`Route failed`,
+      message: `${error.status} ${translated ?? error.statusText}`,
+    }
   }
 
   if (error instanceof Error) {
     const translated = translateServerErrorCode(error.message)
-    return translated ?? error.message
+    return {
+      title: t`Route failed`,
+      message: translated ?? error.message,
+    }
   }
 
-  return t`Unexpected route error`
+  return {
+    title: t`Route failed`,
+    message: t`Unexpected route error`,
+  }
 }
 
 export function RouteErrorBoundary() {
   const error = useRouteError()
-  const message = useErrorMessage(error)
+  const { title, message } = useErrorCopy(error)
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background-body p-6">
       <div className="flex w-full max-w-[560px] flex-col gap-4">
         <Alert variant="destructive">
           <AlertTriangleIcon />
-          <AlertTitle>
-            <Trans>Route failed</Trans>
-          </AlertTitle>
+          <AlertTitle>{title}</AlertTitle>
           <AlertDescription>{message}</AlertDescription>
         </Alert>
         <Button render={<Link to="/" />}>

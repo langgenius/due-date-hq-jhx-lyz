@@ -54,6 +54,10 @@ function AppRoot() {
   )
 }
 
+function notFoundLoader() {
+  throw new Response('Page not found', { status: 404, statusText: 'Not Found' })
+}
+
 // Only reachable when unauthenticated. If the session resolves, bounce to the
 // post-login target (honouring ?redirectTo=... but only for in-app paths).
 async function guestLoader(args: LoaderFunctionArgs) {
@@ -117,12 +121,12 @@ export function createAppRouter() {
   return createBrowserRouter([
     {
       Component: AppRoot,
+      ErrorBoundary: RouteErrorBoundary,
       children: [
         {
           path: '/login',
           loader: guestLoader,
           HydrateFallback: RouteHydrateFallback,
-          ErrorBoundary: RouteErrorBoundary,
           lazy: async () => {
             const { LoginRoute } = await import('@/routes/login')
 
@@ -133,7 +137,6 @@ export function createAppRouter() {
           path: '/onboarding',
           loader: onboardingLoader,
           HydrateFallback: RouteHydrateFallback,
-          ErrorBoundary: RouteErrorBoundary,
           lazy: async () => {
             const { OnboardingRoute } = await import('@/routes/onboarding')
 
@@ -154,7 +157,6 @@ export function createAppRouter() {
           },
           Component: RootLayout,
           HydrateFallback: ShellSkeleton,
-          ErrorBoundary: RouteErrorBoundary,
           children: [
             {
               index: true,
@@ -185,10 +187,14 @@ export function createAppRouter() {
             },
           ],
         },
+        {
+          path: '*',
+          loader: notFoundLoader,
+        },
       ],
     },
   ])
 }
 
 // Exported for unit tests.
-export { guestLoader, onboardingLoader, protectedLoader, pickSafeRedirect }
+export { guestLoader, onboardingLoader, protectedLoader, pickSafeRedirect, notFoundLoader }
