@@ -232,29 +232,31 @@ function computeCanContinue(state: WizardState): boolean {
   return false
 }
 
-function buildMatrixPreview(state: WizardState): MatrixApplicationView[] {
-  if (!state.intake.rawText || state.normalize.rows.length === 0) return []
+function buildMatrixPreview(wizardState: WizardState): MatrixApplicationView[] {
+  if (!wizardState.intake.rawText || wizardState.normalize.rows.length === 0) return []
 
   // Re-parse the paste so we can group rows by (entity, state) pair.
   let parsed
   try {
-    parsed = parseTabular(state.intake.rawText, { kind: 'paste' })
+    parsed = parseTabular(wizardState.intake.rawText, { kind: 'paste' })
   } catch {
     return []
   }
 
   const headerToIndex = new Map<string, number>()
   parsed.headers.forEach((h, i) => headerToIndex.set(h, i))
-  const entityHeader = state.mapping.rows.find(
+  const entityHeader = wizardState.mapping.rows.find(
     (r) => r.targetField === 'client.entity_type',
   )?.sourceHeader
-  const stateHeader = state.mapping.rows.find((r) => r.targetField === 'client.state')?.sourceHeader
+  const stateHeader = wizardState.mapping.rows.find(
+    (r) => r.targetField === 'client.state',
+  )?.sourceHeader
   const entityIdx = entityHeader ? headerToIndex.get(entityHeader) : undefined
   const stateIdx = stateHeader ? headerToIndex.get(stateHeader) : undefined
 
   const entityMap = new Map<string, string | null>()
   const stateMap = new Map<string, string | null>()
-  for (const r of state.normalize.rows) {
+  for (const r of wizardState.normalize.rows) {
     if (r.field === 'entity_type') entityMap.set(r.rawValue, r.normalizedValue)
     else if (r.field === 'state') stateMap.set(r.rawValue, r.normalizedValue)
   }
@@ -264,12 +266,12 @@ function buildMatrixPreview(state: WizardState): MatrixApplicationView[] {
     const rawEntity = entityIdx !== undefined ? (row[entityIdx] ?? '').trim() : ''
     const rawState = stateIdx !== undefined ? (row[stateIdx] ?? '').trim() : ''
     const entity = entityMap.get(rawEntity) ?? rawEntity.toLowerCase()
-    const state = stateMap.get(rawState) ?? rawState.toUpperCase()
+    const normalizedState = stateMap.get(rawState) ?? rawState.toUpperCase()
     if (!entity) continue
-    const key = `${entity}::${state}`
+    const key = `${entity}::${normalizedState}`
     const existing = counts.get(key)
     if (existing) existing.count += 1
-    else counts.set(key, { entity, state, count: 1 })
+    else counts.set(key, { entity, state: normalizedState, count: 1 })
   }
 
   const out: MatrixApplicationView[] = []

@@ -21,6 +21,10 @@ const PRESET_LABELS: Record<PresetId, string> = {
   file_in_time: 'File In Time',
 }
 
+function handleDragOver(event: DragEvent<HTMLDivElement>) {
+  event.preventDefault()
+}
+
 interface Step1Props {
   intake: IntakeState
   onText: (text: string, fileName: string | null) => void
@@ -87,10 +91,6 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
     event.preventDefault()
     const file = event.dataTransfer.files?.[0]
     if (file) loadFile(file)
-  }
-
-  function handleDragOver(event: DragEvent<HTMLDivElement>) {
-    event.preventDefault()
   }
 
   function handleFilePicked(event: ChangeEvent<HTMLInputElement>) {

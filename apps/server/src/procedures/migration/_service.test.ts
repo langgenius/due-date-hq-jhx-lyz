@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { AI } from '@duedatehq/ai'
-import { MigrationService } from './_service'
+import { MigrationService, type MigrationDeps } from './_service'
 
 /**
  * MigrationService tests — exercise the orchestration (Step 1 → Step 3 →
@@ -43,6 +43,13 @@ interface MigrationBatchRow {
   updatedAt: Date
 }
 
+type ScopedRepo = MigrationDeps['scoped']
+type MigrationRepo = ScopedRepo['migration']
+
+function unexpectedRepoCall(name: string): never {
+  throw new Error(`Unexpected test repo call: ${name}`)
+}
+
 function buildScopedRepo(firmId: string) {
   const batches = new Map<string, MigrationBatchRow>()
   const audits: Array<{ action: string; firmId: string; entityId: string }> = []
@@ -51,176 +58,220 @@ function buildScopedRepo(firmId: string) {
   const normalizations: Array<{ batchId: string; field: string; rawValue: string }> = []
   const errors: Array<{ batchId: string; rowIndex: number; errorCode: string }> = []
 
+  const clients: ScopedRepo['clients'] = {
+    firmId,
+    async create() {
+      return unexpectedRepoCall('clients.create')
+    },
+    async createBatch() {
+      return unexpectedRepoCall('clients.createBatch')
+    },
+    async findById() {
+      return undefined
+    },
+    async listByFirm() {
+      return []
+    },
+    async listByBatch() {
+      return []
+    },
+    async softDelete() {},
+    async deleteByBatch() {
+      return 0
+    },
+  }
+
+  const obligations: ScopedRepo['obligations'] = {
+    firmId,
+    async createBatch() {
+      return unexpectedRepoCall('obligations.createBatch')
+    },
+    async listByClient() {
+      return []
+    },
+    async listByBatch() {
+      return []
+    },
+    async updateDueDate() {},
+    async updateStatus() {},
+    async deleteByBatch() {
+      return 0
+    },
+  }
+
+  const migration: ScopedRepo['migration'] = {
+    firmId,
+    async createBatch(input) {
+      const id = input.id ?? crypto.randomUUID()
+      const now = new Date()
+      const row: MigrationBatchRow = {
+        id,
+        firmId,
+        userId: input.userId,
+        source: input.source,
+        rawInputR2Key: input.rawInputR2Key ?? null,
+        mappingJson: null,
+        presetUsed: input.presetUsed ?? null,
+        rowCount: input.rowCount ?? 0,
+        successCount: 0,
+        skippedCount: 0,
+        aiGlobalConfidence: null,
+        status: 'draft',
+        appliedAt: null,
+        revertExpiresAt: null,
+        revertedAt: null,
+        createdAt: now,
+        updatedAt: now,
+      }
+      batches.set(id, row)
+      return { id }
+    },
+    async getActiveDraftBatch() {
+      for (const b of batches.values()) {
+        if (b.firmId === firmId && b.status === 'draft') return b
+      }
+      return undefined
+    },
+    async getBatch(id: string) {
+      const b = batches.get(id)
+      return b && b.firmId === firmId ? b : undefined
+    },
+    async updateBatch(id: string, patch: Partial<MigrationBatchRow>) {
+      const b = batches.get(id)
+      if (!b || b.firmId !== firmId) {
+        throw new Error(`batch ${id} not in firm`)
+      }
+      batches.set(id, { ...b, ...patch, updatedAt: new Date() })
+    },
+    async createMappings(batchId: string, rows: Parameters<MigrationRepo['createMappings']>[1]) {
+      const b = batches.get(batchId)
+      if (!b || b.firmId !== firmId) {
+        throw new Error(`Migration batch ${batchId} not found for current firm`)
+      }
+      for (const row of rows) {
+        mappings.push({ batchId, sourceHeader: row.sourceHeader, targetField: row.targetField })
+      }
+      return rows.length
+    },
+    async createNormalizations(
+      batchId: string,
+      rows: Parameters<MigrationRepo['createNormalizations']>[1],
+    ) {
+      const b = batches.get(batchId)
+      if (!b || b.firmId !== firmId) throw new Error('cross firm')
+      for (const row of rows)
+        normalizations.push({ batchId, field: row.field, rawValue: row.rawValue })
+      return rows.length
+    },
+    async createErrors(batchId: string, rows: Parameters<MigrationRepo['createErrors']>[1]) {
+      const b = batches.get(batchId)
+      if (!b || b.firmId !== firmId) throw new Error('cross firm')
+      for (const row of rows)
+        errors.push({ batchId, rowIndex: row.rowIndex, errorCode: row.errorCode })
+      return rows.length
+    },
+    async listMappings() {
+      return []
+    },
+    async listNormalizations() {
+      return []
+    },
+    async listErrors() {
+      return []
+    },
+    async listByFirm() {
+      return Array.from(batches.values()).filter((b) => b.firmId === firmId)
+    },
+  }
+
+  const evidence: ScopedRepo['evidence'] = {
+    firmId,
+    async write(input) {
+      evidences.push({ sourceType: input.sourceType, firmId })
+      return { id: 'evidence-' + evidences.length }
+    },
+    async writeBatch(inputs) {
+      const ids: string[] = []
+      for (const i of inputs) {
+        evidences.push({ sourceType: i.sourceType, firmId })
+        ids.push('evidence-' + evidences.length)
+      }
+      return { ids }
+    },
+    async listByObligation() {
+      return []
+    },
+  }
+
+  const audit: ScopedRepo['audit'] = {
+    firmId,
+    async write(event) {
+      audits.push({ action: event.action, firmId, entityId: event.entityId })
+      return { id: 'audit-' + audits.length }
+    },
+    async writeBatch(events) {
+      const ids: string[] = []
+      for (const e of events) {
+        audits.push({ action: e.action, firmId, entityId: e.entityId })
+        ids.push('audit-' + audits.length)
+      }
+      return { ids }
+    },
+    async listByFirm() {
+      return []
+    },
+  }
+
+  const repo: ScopedRepo = {
+    firmId,
+    clients,
+    obligations,
+    pulse: {},
+    migration,
+    evidence,
+    audit,
+  }
+
   return {
     state: { batches, audits, evidences, mappings, normalizations, errors },
-    repo: {
-      firmId,
-      clients: {} as never,
-      obligations: {} as never,
-      pulse: {},
-      migration: {
-        firmId,
-        async createBatch(input: {
-          id?: string
-          userId: string
-          source: MigrationBatchRow['source']
-          presetUsed?: string | null
-        }) {
-          const id = input.id ?? crypto.randomUUID()
-          const now = new Date()
-          const row: MigrationBatchRow = {
-            id,
-            firmId,
-            userId: input.userId,
-            source: input.source,
-            rawInputR2Key: null,
-            mappingJson: null,
-            presetUsed: input.presetUsed ?? null,
-            rowCount: 0,
-            successCount: 0,
-            skippedCount: 0,
-            aiGlobalConfidence: null,
-            status: 'draft',
-            appliedAt: null,
-            revertExpiresAt: null,
-            revertedAt: null,
-            createdAt: now,
-            updatedAt: now,
-          }
-          batches.set(id, row)
-          return { id }
-        },
-        async getActiveDraftBatch() {
-          for (const b of batches.values()) {
-            if (b.firmId === firmId && b.status === 'draft') return b
-          }
-          return undefined
-        },
-        async getBatch(id: string) {
-          const b = batches.get(id)
-          return b && b.firmId === firmId ? b : undefined
-        },
-        async updateBatch(id: string, patch: Partial<MigrationBatchRow>) {
-          const b = batches.get(id)
-          if (!b || b.firmId !== firmId) {
-            throw new Error(`batch ${id} not in firm`)
-          }
-          batches.set(id, { ...b, ...patch, updatedAt: new Date() })
-        },
-        async createMappings(
-          batchId: string,
-          rows: Array<{ sourceHeader: string; targetField: string }>,
-        ) {
-          const b = batches.get(batchId)
-          if (!b || b.firmId !== firmId) {
-            throw new Error(`Migration batch ${batchId} not found for current firm`)
-          }
-          for (const row of rows) {
-            mappings.push({ batchId, sourceHeader: row.sourceHeader, targetField: row.targetField })
-          }
-          return rows.length
-        },
-        async createNormalizations(
-          batchId: string,
-          rows: Array<{ field: string; rawValue: string }>,
-        ) {
-          const b = batches.get(batchId)
-          if (!b || b.firmId !== firmId) throw new Error('cross firm')
-          for (const row of rows)
-            normalizations.push({ batchId, field: row.field, rawValue: row.rawValue })
-          return rows.length
-        },
-        async createErrors(batchId: string, rows: Array<{ rowIndex: number; errorCode: string }>) {
-          const b = batches.get(batchId)
-          if (!b || b.firmId !== firmId) throw new Error('cross firm')
-          for (const row of rows)
-            errors.push({ batchId, rowIndex: row.rowIndex, errorCode: row.errorCode })
-          return rows.length
-        },
-        async listMappings() {
-          return []
-        },
-        async listNormalizations() {
-          return []
-        },
-        async listErrors() {
-          return []
-        },
-        async listByFirm() {
-          return Array.from(batches.values()).filter((b) => b.firmId === firmId)
-        },
-      } as never,
-      evidence: {
-        firmId,
-        async write(input: { sourceType: string }) {
-          evidences.push({ sourceType: input.sourceType, firmId })
-          return { id: 'evidence-' + evidences.length }
-        },
-        async writeBatch(inputs: Array<{ sourceType: string }>) {
-          const ids: string[] = []
-          for (const i of inputs) {
-            evidences.push({ sourceType: i.sourceType, firmId })
-            ids.push('evidence-' + evidences.length)
-          }
-          return { ids }
-        },
-        async listByObligation() {
-          return []
-        },
-      } as never,
-      audit: {
-        firmId,
-        async write(event: { action: string; entityId: string }) {
-          audits.push({ action: event.action, firmId, entityId: event.entityId })
-          return { id: 'audit-' + audits.length }
-        },
-        async writeBatch(events: Array<{ action: string; entityId: string }>) {
-          const ids: string[] = []
-          for (const e of events) {
-            audits.push({ action: e.action, firmId, entityId: e.entityId })
-            ids.push('audit-' + audits.length)
-          }
-          return { ids }
-        },
-        async listByFirm() {
-          return []
-        },
-      } as never,
-    } as never,
+    repo,
   }
 }
 
-function buildAi(overrides?: Partial<AI>): AI {
-  const ai: AI = {
-    runPrompt: vi.fn(async () => ({
-      result: null,
-      refusal: { code: 'AI_UNAVAILABLE', message: 'no key' },
+function buildAi(rawResult?: unknown): AI {
+  const runPrompt: AI['runPrompt'] = async (name, _input, schema) => {
+    if (rawResult === undefined) {
+      return {
+        result: null,
+        refusal: { code: 'AI_UNAVAILABLE', message: 'no key' },
+        trace: {
+          promptVersion: name,
+          model: 'unknown',
+          latencyMs: 0,
+          guardResult: 'ai_unavailable',
+        },
+        model: null,
+        confidence: null,
+        cost: null,
+      }
+    }
+
+    return {
+      result: schema.parse(rawResult),
+      refusal: null,
       trace: {
-        promptVersion: 'mapper@v1',
-        model: 'unknown',
-        latencyMs: 0,
-        guardResult: 'ai_unavailable',
+        promptVersion: name,
+        model: 'gpt-4o-mini',
+        latencyMs: 5,
+        guardResult: 'ok',
       },
-      model: null,
-      confidence: null,
-      cost: null,
-    })),
-    runStreaming: vi.fn(async () => ({
-      result: null,
-      refusal: { code: 'AI_UNAVAILABLE', message: 'no key' },
-      trace: {
-        promptVersion: 'mapper@v1',
-        model: 'unknown',
-        latencyMs: 0,
-        guardResult: 'ai_unavailable',
-      },
-      model: null,
-      confidence: null,
-      cost: null,
-    })),
-    ...overrides,
-  } as never
-  return ai
+      model: 'gpt-4o-mini',
+      confidence: 0.97,
+      cost: 0.0001,
+    }
+  }
+
+  return { runPrompt, runStreaming: runPrompt }
 }
 
 const SAMPLE_CSV = `Client Name,Tax ID,State,Entity Type,Email
@@ -287,24 +338,10 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
   it('forces SSN-flagged columns to IGNORE even on the AI happy path', async () => {
     const { repo } = buildScopedRepo(FIRM)
     const ai = buildAi({
-      runPrompt: vi.fn(async () => ({
-        result: {
-          mappings: [
-            { source: 'Client Name', target: 'client.name', confidence: 0.99 },
-            { source: 'SSN', target: 'client.ein', confidence: 0.9 },
-          ],
-        },
-        refusal: null,
-        trace: {
-          promptVersion: 'mapper@v1',
-          model: 'gpt-4o-mini',
-          latencyMs: 5,
-          guardResult: 'ok',
-        },
-        model: 'gpt-4o-mini',
-        confidence: 0.95,
-        cost: 0.0001,
-      })) as never,
+      mappings: [
+        { source: 'Client Name', target: 'client.name', confidence: 0.99 },
+        { source: 'SSN', target: 'client.ein', confidence: 0.9 },
+      ],
     })
     const service = new MigrationService({ scoped: repo, ai, userId: USER })
 
@@ -322,24 +359,10 @@ describe('MigrationService.confirmMapping deterministic checks', () => {
   it('records EIN_INVALID errors but keeps good rows', async () => {
     const { repo, state } = buildScopedRepo(FIRM)
     const ai = buildAi({
-      runPrompt: vi.fn(async () => ({
-        result: {
-          mappings: [
-            { source: 'Client Name', target: 'client.name', confidence: 0.99 },
-            { source: 'Tax ID', target: 'client.ein', confidence: 0.96 },
-          ],
-        },
-        refusal: null,
-        trace: {
-          promptVersion: 'mapper@v1',
-          model: 'gpt-4o-mini',
-          latencyMs: 5,
-          guardResult: 'ok',
-        },
-        model: 'gpt-4o-mini',
-        confidence: 0.97,
-        cost: 0.0001,
-      })) as never,
+      mappings: [
+        { source: 'Client Name', target: 'client.name', confidence: 0.99 },
+        { source: 'Tax ID', target: 'client.ein', confidence: 0.96 },
+      ],
     })
     const service = new MigrationService({ scoped: repo, ai, userId: USER })
 
@@ -380,26 +403,12 @@ describe('MigrationService.dryRun with Default Matrix', () => {
   it('produces non-zero clientsToCreate even before applyDefaultMatrix', async () => {
     const { repo } = buildScopedRepo(FIRM)
     const ai = buildAi({
-      runPrompt: vi.fn(async () => ({
-        result: {
-          mappings: [
-            { source: 'Client Name', target: 'client.name', confidence: 0.99 },
-            { source: 'Tax ID', target: 'client.ein', confidence: 0.96 },
-            { source: 'State', target: 'client.state', confidence: 0.97 },
-            { source: 'Entity Type', target: 'client.entity_type', confidence: 0.94 },
-          ],
-        },
-        refusal: null,
-        trace: {
-          promptVersion: 'mapper@v1',
-          model: 'gpt-4o-mini',
-          latencyMs: 5,
-          guardResult: 'ok',
-        },
-        model: 'gpt-4o-mini',
-        confidence: 0.97,
-        cost: 0.0001,
-      })) as never,
+      mappings: [
+        { source: 'Client Name', target: 'client.name', confidence: 0.99 },
+        { source: 'Tax ID', target: 'client.ein', confidence: 0.96 },
+        { source: 'State', target: 'client.state', confidence: 0.97 },
+        { source: 'Entity Type', target: 'client.entity_type', confidence: 0.94 },
+      ],
     })
     const service = new MigrationService({ scoped: repo, ai, userId: USER })
 
@@ -413,8 +422,4 @@ describe('MigrationService.dryRun with Default Matrix', () => {
     expect(summary.clientsToCreate).toBe(2)
     expect(summary.obligationsToCreate).toBeGreaterThan(0)
   })
-})
-
-beforeEach(() => {
-  vi.clearAllMocks()
 })

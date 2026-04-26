@@ -3,6 +3,10 @@ import { defineConfig } from 'astro/config'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 
+const viteConfig = {
+  plugins: tailwindcss(),
+}
+
 // Marketing static site (duedatehq.com). Per docs/dev-file/12-Marketing-Architecture.md §4.
 // - `site` is required by @astrojs/sitemap and for canonical URLs.
 // - `trailingSlash: 'never'` + `build.format: 'file'` collapses /zh-CN/ vs /zh-CN duplicates.
@@ -16,6 +20,7 @@ import tailwindcss from '@tailwindcss/vite'
 //   to emit a ~190 KB orphan React client bundle into `dist/_astro/`. When a real
 //   React island is needed later (e.g. interactive LocaleSwitcher), add `react()`
 //   back here and ensure §5.1 JS-budget rules apply.
+// @ts-expect-error Astro 6 + workspace Vite alias recurses while comparing plugin types.
 export default defineConfig({
   site: 'https://duedatehq.com',
   trailingSlash: 'never',
@@ -29,11 +34,7 @@ export default defineConfig({
       filter: (page) => !/\/zh-CN\/zh-cn\/?$/i.test(page),
     }),
   ],
-  // The workspace `vite` alias (-> @voidzero-dev/vite-plus-core via
-  // pnpm overrides) yields slightly divergent `Plugin` types from the
-  // ones Astro bundles. Functionality is identical; cast to silence the
-  // structural mismatch in `astro check`.
-  vite: /** @type {any} */ ({ plugins: [tailwindcss()] }),
+  vite: viteConfig,
   i18n: {
     locales: ['en', 'zh-CN'],
     defaultLocale: 'en',
