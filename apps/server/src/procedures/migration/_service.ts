@@ -17,6 +17,7 @@ import {
   type MapperRunOutput,
   type MappingRow,
   type MigrationBatch,
+  type MigrationError,
   type MigrationSource,
   type NormalizationRow,
 } from '@duedatehq/contracts'
@@ -506,6 +507,27 @@ export class MigrationService {
     return row ? toMigrationBatch(row) : null
   }
 
+  /**
+   * Read-only list of migration_error rows for a batch, optionally filtered
+   * by stage. Stage classification is heuristic on `errorCode` until each
+   * deterministic check tags its origin explicitly:
+   *   - mapping  : EIN_INVALID, EMPTY_NAME (Step 2 confirmMapping)
+   *   - normalize: STATE_*, ENTITY_*, *_INVALID raised in normalize step
+   *   - matrix   : reserved for Default Matrix application errors
+   *   - all      : no filter
+   */
+  async listErrors(
+    batchId: string,
+    stage: 'mapping' | 'normalize' | 'matrix' | 'all' = 'all',
+  ): Promise<MigrationError[]> {
+    // requireBatch enforces firm ownership before we read anything.
+    await this.requireBatch(batchId)
+    const rows = await this.deps.scoped.migration.listErrors(batchId)
+    const filtered =
+      stage === 'all' ? rows : rows.filter((r) => classifyErrorStage(r.errorCode) === stage)
+    return filtered.map((row) => toMigrationError(row))
+  }
+
   // ---------------------------------------------------------------------
   // Internals
   // ---------------------------------------------------------------------
@@ -888,6 +910,38 @@ function isEntityType(value: string): value is EntityType {
     value === 'individual' ||
     value === 'other'
   )
+}
+
+function toMigrationError(row: {
+  id: string
+  batchId: string
+  rowIndex: number
+  rawRowJson: unknown
+  errorCode: string
+  errorMessage: string
+  createdAt: Date
+}): MigrationError {
+  return {
+    id: row.id,
+    batchId: row.batchId,
+    rowIndex: row.rowIndex,
+    rawRowJson: row.rawRowJson ?? null,
+    errorCode: row.errorCode,
+    errorMessage: row.errorMessage,
+    createdAt: row.createdAt.toISOString(),
+  }
+}
+
+// Heuristic stage classification — mirrors the deterministic checks in
+// _deterministic.ts. Until each check tags its origin explicitly, the prefix
+// match is the cheapest correct way to split mapping vs normalize errors so
+// the wizard can show step-relevant rows without re-querying.
+function classifyErrorStage(errorCode: string): 'mapping' | 'normalize' | 'matrix' | 'all' {
+  const code = errorCode.toUpperCase()
+  if (code === 'EIN_INVALID' || code === 'EMPTY_NAME') return 'mapping'
+  if (code.startsWith('STATE_') || code.startsWith('ENTITY_')) return 'normalize'
+  if (code.startsWith('MATRIX_')) return 'matrix'
+  return 'all'
 }
 
 function toMigrationBatch(row: {

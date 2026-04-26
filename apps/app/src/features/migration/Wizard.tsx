@@ -102,6 +102,17 @@ export function Wizard({ open, onClose }: WizardProps) {
       onSuccess: invalidateMigration,
     }),
   )
+  const listErrorsMutation = useMutation(
+    orpc.migration.listErrors.mutationOptions({
+      // Best-effort population of state.errors so Step 2 can show
+      // mapping-stage rows immediately and Step 4 can show all rows
+      // without re-fetching. Failures are silent — the dryRun summary
+      // already carries the same data as a fallback.
+      onSuccess: (out) => {
+        dispatch({ type: 'ERRORS_SET', errors: out.errors })
+      },
+    }),
+  )
 
   const handleStep1Continue = useCallback(() => {
     const intake = state.intake
@@ -149,6 +160,10 @@ export function Wizard({ open, onClose }: WizardProps) {
                         fallback: result.meta?.fallback ?? null,
                       })
                       dispatch({ type: 'GO_TO_STEP', step: 2 })
+                      // Best-effort fetch of mapping-stage bad rows so Step 2 can
+                      // show them inline (Day 3 acceptance). Failures here do not
+                      // block the wizard.
+                      listErrorsMutation.mutate({ batchId: batch.id, stage: 'mapping' })
                     },
                   },
                 )
@@ -158,7 +173,14 @@ export function Wizard({ open, onClose }: WizardProps) {
         },
       },
     )
-  }, [createBatchMutation, runMapperMutation, state.intake, t, uploadRawMutation])
+  }, [
+    createBatchMutation,
+    listErrorsMutation,
+    runMapperMutation,
+    state.intake,
+    t,
+    uploadRawMutation,
+  ])
 
   const handleStep2Continue = useCallback(() => {
     const batchId = state.batchId
@@ -214,10 +236,11 @@ export function Wizard({ open, onClose }: WizardProps) {
             rows: result.mappings,
             fallback: result.meta?.fallback ?? null,
           })
+          listErrorsMutation.mutate({ batchId, stage: 'mapping' })
         },
       },
     )
-  }, [runMapperMutation, state.batchId, t])
+  }, [listErrorsMutation, runMapperMutation, state.batchId, t])
 
   const handleStep3Continue = useCallback(() => {
     const batchId = state.batchId
@@ -244,6 +267,7 @@ export function Wizard({ open, onClose }: WizardProps) {
               onSuccess: (summary) => {
                 dispatch({ type: 'DRY_RUN_RESULT', summary })
                 dispatch({ type: 'GO_TO_STEP', step: 4 })
+                listErrorsMutation.mutate({ batchId, stage: 'all' })
               },
             },
           )
@@ -253,6 +277,7 @@ export function Wizard({ open, onClose }: WizardProps) {
   }, [
     applyDefaultMatrixMutation,
     confirmNormalizationMutation,
+    listErrorsMutation,
     state.batchId,
     state.normalize.rows,
     t,
@@ -329,6 +354,7 @@ export function Wizard({ open, onClose }: WizardProps) {
         <Step2Mapping
           mapping={state.mapping}
           sampleByHeader={sampleByHeader}
+          errors={state.errors}
           onUserEdit={(rows: MappingRow[]) => dispatch({ type: 'MAPPER_USER_EDIT', rows })}
           onRerun={handleStep2Rerun}
         />

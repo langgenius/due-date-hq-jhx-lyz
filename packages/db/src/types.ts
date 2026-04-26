@@ -4,6 +4,7 @@ import type { ClientsRepo as RealClientsRepo } from './repo/clients'
 import type { EvidenceRepo as RealEvidenceRepo } from './repo/evidence'
 import type { MigrationRepo as RealMigrationRepo } from './repo/migration'
 import type { ObligationsRepo as RealObligationsRepo } from './repo/obligations'
+import type { WorkboardRepo as RealWorkboardRepo } from './repo/workboard'
 import type { FirmProfile } from './schema/firm'
 
 export type { Db }
@@ -37,6 +38,7 @@ export interface ScopedRepo {
   readonly firmId: string
   readonly clients: ClientsRepo
   readonly obligations: ObligationsRepo
+  readonly workboard: WorkboardRepo
   readonly pulse: PulseRepo
   readonly migration: MigrationRepo
   readonly evidence: EvidenceRepo
@@ -45,6 +47,7 @@ export interface ScopedRepo {
 
 export type ClientsRepo = RealClientsRepo
 export type ObligationsRepo = RealObligationsRepo
+export type WorkboardRepo = RealWorkboardRepo
 export interface PulseRepo {}
 export type MigrationRepo = RealMigrationRepo
 export type EvidenceRepo = RealEvidenceRepo

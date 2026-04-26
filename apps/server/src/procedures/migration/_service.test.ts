@@ -56,7 +56,13 @@ function buildScopedRepo(firmId: string) {
   const evidences: Array<{ sourceType: string; firmId: string }> = []
   const mappings: Array<{ batchId: string; sourceHeader: string; targetField: string }> = []
   const normalizations: Array<{ batchId: string; field: string; rawValue: string }> = []
-  const errors: Array<{ batchId: string; rowIndex: number; errorCode: string }> = []
+  const errors: Array<{
+    batchId: string
+    rowIndex: number
+    errorCode: string
+    errorMessage?: string
+    rawRowJson?: unknown
+  }> = []
 
   const clients: ScopedRepo['clients'] = {
     firmId,
@@ -85,6 +91,9 @@ function buildScopedRepo(firmId: string) {
     firmId,
     async createBatch() {
       return unexpectedRepoCall('obligations.createBatch')
+    },
+    async findById() {
+      return undefined
     },
     async listByClient() {
       return []
@@ -167,7 +176,13 @@ function buildScopedRepo(firmId: string) {
       const b = batches.get(batchId)
       if (!b || b.firmId !== firmId) throw new Error('cross firm')
       for (const row of rows)
-        errors.push({ batchId, rowIndex: row.rowIndex, errorCode: row.errorCode })
+        errors.push({
+          batchId,
+          rowIndex: row.rowIndex,
+          errorCode: row.errorCode,
+          errorMessage: row.errorMessage,
+          rawRowJson: row.rawRowJson ?? null,
+        })
       return rows.length
     },
     async listMappings() {
@@ -176,8 +191,22 @@ function buildScopedRepo(firmId: string) {
     async listNormalizations() {
       return []
     },
-    async listErrors() {
-      return []
+    async listErrors(batchId: string) {
+      const b = batches.get(batchId)
+      if (!b || b.firmId !== firmId) return []
+      const now = new Date()
+      return errors
+        .filter((e) => e.batchId === batchId)
+        .map((e) => ({
+          id: 'err-' + e.rowIndex,
+          batchId: e.batchId,
+          rowIndex: e.rowIndex,
+          rawRowJson: (e as { rawRowJson?: unknown }).rawRowJson ?? null,
+          errorCode: e.errorCode,
+          errorMessage:
+            (e as { errorMessage?: string }).errorMessage ?? `${e.errorCode} on row ${e.rowIndex}`,
+          createdAt: now,
+        }))
     },
     async listByFirm() {
       return Array.from(batches.values()).filter((b) => b.firmId === firmId)
@@ -222,10 +251,18 @@ function buildScopedRepo(firmId: string) {
     },
   }
 
+  const workboard: ScopedRepo['workboard'] = {
+    firmId,
+    async list() {
+      return { rows: [], nextCursor: null }
+    },
+  }
+
   const repo: ScopedRepo = {
     firmId,
     clients,
     obligations,
+    workboard,
     pulse: {},
     migration,
     evidence,
@@ -443,5 +480,49 @@ describe('MigrationService.dryRun with Default Matrix', () => {
     const summary = await service.dryRun(batch.id)
     expect(summary.clientsToCreate).toBe(2)
     expect(summary.obligationsToCreate).toBeGreaterThan(0)
+  })
+})
+
+describe('MigrationService.listErrors', () => {
+  it('returns mapping-stage errors when EIN/EMPTY_NAME rows are persisted', async () => {
+    const { repo } = buildScopedRepo(FIRM)
+    const ai = buildAi({
+      mappings: [
+        { source: 'Client Name', target: 'client.name', confidence: 0.99 },
+        { source: 'Tax ID', target: 'client.ein', confidence: 0.96 },
+      ],
+    })
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'paste' })
+    // Two rows: one bad EIN, one empty name. Mapper persists deterministic errors.
+    const csv = `Client Name,Tax ID\nAcme LLC,not-an-ein\n,99-9999999`
+    await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: csv })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+
+    const all = await service.listErrors(batch.id, 'all')
+    expect(all.length).toBeGreaterThanOrEqual(2)
+
+    const mapping = await service.listErrors(batch.id, 'mapping')
+    expect(
+      mapping.every((e) => e.errorCode === 'EIN_INVALID' || e.errorCode === 'EMPTY_NAME'),
+    ).toBe(true)
+
+    const normalize = await service.listErrors(batch.id, 'normalize')
+    expect(normalize.every((e) => !['EIN_INVALID', 'EMPTY_NAME'].includes(e.errorCode))).toBe(true)
+  })
+
+  it('refuses cross-firm batch access with NOT_FOUND', async () => {
+    const a = buildScopedRepo(FIRM)
+    const aiA = buildAi()
+    const serviceA = new MigrationService({ scoped: a.repo, ai: aiA, userId: USER })
+    const batch = await serviceA.createBatch({ source: 'paste' })
+
+    const b = buildScopedRepo(OTHER_FIRM)
+    const aiB = buildAi()
+    const serviceB = new MigrationService({ scoped: b.repo, ai: aiB, userId: 'user-2' })
+
+    await expect(serviceB.listErrors(batch.id, 'all')).rejects.toMatchObject({ code: 'NOT_FOUND' })
   })
 })

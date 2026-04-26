@@ -1,7 +1,12 @@
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { ChevronDownIcon, RefreshCwIcon, StarIcon } from 'lucide-react'
 
-import { MappingTargetSchema, type MappingRow, type MappingTarget } from '@duedatehq/contracts'
+import {
+  MappingTargetSchema,
+  type MappingRow,
+  type MappingTarget,
+  type MigrationError,
+} from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
@@ -48,6 +53,12 @@ interface Step2Props {
   mapping: MapperState
   /** Sample row data → header → first cell content for the Sample column. */
   sampleByHeader: Record<string, string>
+  /**
+   * Mapping-stage bad rows (EIN_INVALID / EMPTY_NAME / etc). Surfaced in a
+   * collapsible panel so the user can see "good rows still flow through" at
+   * the moment the AI mapper finishes (Day 3 acceptance).
+   */
+  errors?: MigrationError[]
   onUserEdit: (rows: MappingRow[]) => void
   onRerun: () => void
 }
@@ -59,7 +70,7 @@ interface Step2Props {
  * EIN star is permanent, confidence three tiers (H/M/L), low-confidence rows
  * tinted, fallback banner up top.
  */
-export function Step2Mapping({ mapping, sampleByHeader, onUserEdit, onRerun }: Step2Props) {
+export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRerun }: Step2Props) {
   const { t } = useLingui()
 
   const lowConfCount = mapping.rows.filter(
@@ -164,6 +175,8 @@ export function Step2Mapping({ mapping, sampleByHeader, onUserEdit, onRerun }: S
           </AlertTitle>
         </Alert>
       ) : null}
+
+      {errors && errors.length > 0 ? <BadRowsPanel errors={errors} /> : null}
 
       {mapping.status === 'loading' ? (
         <div className="grid gap-2">
@@ -279,6 +292,60 @@ interface EditPopoverProps {
   current: MappingTarget
   sourceHeader: string
   onChange: (next: MappingTarget) => void
+}
+
+/**
+ * Bad-rows panel for Step 2.
+ *
+ * Reads the `migration_error` rows the server already persists for the
+ * deterministic checks (EIN_INVALID, EMPTY_NAME). Surfacing them here
+ * makes the "bad rows do not block good rows" invariant visible at the
+ * mapping step instead of hiding it until Step 4.
+ */
+function BadRowsPanel({ errors }: { errors: MigrationError[] }) {
+  return (
+    <details
+      className="overflow-hidden rounded-lg border border-divider-regular bg-background-section"
+      data-slot="step2-bad-rows"
+    >
+      <summary className="flex cursor-pointer items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-text-primary">
+        <span className="flex items-center gap-2">
+          <Plural value={errors.length} one="# row needs attention" other="# rows need attention" />
+        </span>
+        <span className="text-xs text-text-tertiary">
+          <Trans>Open</Trans>
+        </span>
+      </summary>
+      <div className="max-h-[280px] overflow-y-auto border-t border-divider-subtle">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[80px]">
+                <Trans>Row</Trans>
+              </TableHead>
+              <TableHead className="w-[160px]">
+                <Trans>Code</Trans>
+              </TableHead>
+              <TableHead>
+                <Trans>Reason</Trans>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {errors.map((err) => (
+              <TableRow key={err.id}>
+                <TableCell className="font-mono text-xs tabular-nums">{err.rowIndex + 1}</TableCell>
+                <TableCell className="font-mono text-xs uppercase tracking-wide text-text-warning">
+                  {err.errorCode}
+                </TableCell>
+                <TableCell className="text-text-secondary">{err.errorMessage}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </details>
+  )
 }
 
 function EditPopover({ current, sourceHeader, onChange }: EditPopoverProps) {

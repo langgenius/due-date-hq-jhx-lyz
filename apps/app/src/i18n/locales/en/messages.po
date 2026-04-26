@@ -22,7 +22,9 @@ msgstr ""
 msgid "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
 msgstr "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
 
+#. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
+#: src/features/migration/Step2Mapping.tsx
 #: src/features/migration/Step4Preview.tsx
 msgid "{0, plural, one {# row needs attention} other {# rows need attention}}"
 msgstr "{0, plural, one {# row needs attention} other {# rows need attention}}"
@@ -31,11 +33,6 @@ msgstr "{0, plural, one {# row needs attention} other {# rows need attention}}"
 #: src/features/migration/Step1Intake.tsx
 msgid "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 msgstr "{0, plural, one {# row ready to import} other {# rows ready to import}}"
-
-#. placeholder {0}: obligations.length
-#: src/routes/workboard.tsx
-msgid "{0, plural, one {# row} other {# rows}}"
-msgstr "{0, plural, one {# row} other {# rows}}"
 
 #. placeholder {0}: intake.rowCount
 #: src/features/migration/Step1Intake.tsx
@@ -62,6 +59,14 @@ msgstr "{obligationCount, plural, one {# obligation (full tax year)} other {# ob
 msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 msgstr "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 
+#: src/routes/workboard.tsx
+msgid "{totalShown, plural, one {# obligation} other {# obligations}}"
+msgstr "{totalShown, plural, one {# obligation} other {# obligations}}"
+
+#: src/routes/workboard.tsx
+msgid "{totalShown, plural, one {# row} other {# rows}}"
+msgstr "{totalShown, plural, one {# row} other {# rows}}"
+
 #. placeholder {0}: new Date().getFullYear()
 #: src/routes/_entry-layout.tsx
 msgid "© {0} DueDateHQ Inc."
@@ -78,10 +83,6 @@ msgstr "3 clients have estimated-tax deltas above the evidence threshold."
 #: src/routes/dashboard.tsx
 msgid "5 draft extensions are waiting on K-1 attachments."
 msgstr "5 draft extensions are waiting on K-1 attachments."
-
-#: src/routes/workboard.tsx
-msgid "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
-msgstr "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
 
 #. placeholder {0}: user.name || user.email
 #: src/routes/_layout.tsx
@@ -105,8 +106,8 @@ msgid "AI-facing recommendations remain hidden unless source, quote, and verific
 msgstr "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
 
 #: src/routes/workboard.tsx
-msgid "all"
-msgstr "all"
+msgid "All"
+msgstr "All"
 
 #: src/routes/_entry-layout.tsx
 msgid "All systems operational"
@@ -116,13 +117,10 @@ msgstr "All systems operational"
 msgid "Apply to all"
 msgstr "Apply to all"
 
+#. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/workboard.tsx
-msgid "Assign selected"
-msgstr "Assign selected"
-
-#: src/routes/workboard.tsx
-msgid "Assignee"
-msgstr "Assignee"
+msgid "Audit {0}"
+msgstr "Audit {0}"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Audit log captures every AI decision"
@@ -141,10 +139,6 @@ msgstr "Back"
 msgid "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
 msgstr "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
 
-#: src/routes/workboard.tsx
-msgid "blocked"
-msgstr "blocked"
-
 #: src/routes/dashboard.tsx
 msgid "Blocked"
 msgstr "Blocked"
@@ -152,6 +146,11 @@ msgstr "Blocked"
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
+
+#. placeholder {0}: row.clientName
+#: src/routes/workboard.tsx
+msgid "Change status for {0}"
+msgstr "Change status for {0}"
 
 #: src/routes/settings.tsx
 msgid "Channels"
@@ -169,6 +168,10 @@ msgstr "Client risk rows"
 #: src/features/migration/WizardShell.tsx
 msgid "Close wizard"
 msgstr "Close wizard"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Code"
+msgstr "Code"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
@@ -203,6 +206,10 @@ msgstr "Could not create your practice"
 msgid "Couldn't apply Default Matrix"
 msgstr "Couldn't apply Default Matrix"
 
+#: src/routes/workboard.tsx
+msgid "Couldn't load the queue."
+msgstr "Couldn't load the queue."
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Couldn't parse the input"
 msgstr "Couldn't parse the input"
@@ -215,6 +222,10 @@ msgstr "Couldn't save mapping"
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't start the import"
 msgstr "Couldn't start the import"
+
+#: src/routes/workboard.tsx
+msgid "Couldn't update status"
+msgstr "Couldn't update status"
 
 #: src/routes/_layout.tsx
 msgid "CPA deadline console"
@@ -237,7 +248,6 @@ msgid "Dashboard"
 msgstr "Dashboard"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Deadline"
 msgstr "Deadline"
 
@@ -254,8 +264,8 @@ msgid "Dollar-first triage for the next operating window."
 msgstr "Dollar-first triage for the next operating window."
 
 #: src/routes/workboard.tsx
-msgid "draft"
-msgstr "draft"
+msgid "Done"
+msgstr "Done"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
@@ -264,6 +274,18 @@ msgstr "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
 #: src/features/migration/Stepper.tsx
 msgid "Dry-Run"
 msgstr "Dry-Run"
+
+#: src/routes/workboard.tsx
+msgid "Due date"
+msgstr "Due date"
+
+#: src/routes/workboard.tsx
+msgid "Due date — earliest first"
+msgstr "Due date — earliest first"
+
+#: src/routes/workboard.tsx
+msgid "Due date — latest first"
+msgstr "Due date — latest first"
 
 #: src/routes/dashboard.tsx
 msgid "Due this week"
@@ -318,7 +340,6 @@ msgid "Evidence mode"
 msgstr "Evidence mode"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Exposure"
 msgstr "Exposure"
 
@@ -331,12 +352,8 @@ msgid "File is larger than 2 MB. Please trim or split the export."
 msgstr "File is larger than 2 MB. Please trim or split the export."
 
 #: src/routes/workboard.tsx
-msgid "filed"
-msgstr "filed"
-
-#: src/routes/workboard.tsx
-msgid "Filters"
-msgstr "Filters"
+msgid "Filter by status, search clients, and sort by due date."
+msgstr "Filter by status, search clients, and sort by due date."
 
 #: src/routes/settings.tsx
 msgid "Firm settings"
@@ -383,8 +400,12 @@ msgid "Import clients · Step {step} of 4"
 msgstr "Import clients · Step {step} of 4"
 
 #: src/routes/workboard.tsx
-msgid "in review"
-msgstr "in review"
+msgid "In progress"
+msgstr "In progress"
+
+#: src/routes/workboard.tsx
+msgid "In review"
+msgstr "In review"
 
 #: src/routes/settings.tsx
 msgid "In-app toast"
@@ -422,6 +443,18 @@ msgstr "Leave wizard?"
 #: src/routes/_layout.tsx
 msgid "Light"
 msgstr "Light"
+
+#: src/routes/workboard.tsx
+msgid "Load more"
+msgstr "Load more"
+
+#: src/routes/workboard.tsx
+msgid "Loading queue…"
+msgstr "Loading queue…"
+
+#: src/routes/workboard.tsx
+msgid "Loading…"
+msgstr "Loading…"
 
 #: src/routes/_layout.tsx
 msgid "Local Time"
@@ -475,6 +508,10 @@ msgstr "neutral"
 msgid "No emails will be sent automatically"
 msgstr "No emails will be sent automatically"
 
+#: src/routes/workboard.tsx
+msgid "No obligations match these filters."
+msgstr "No obligations match these filters."
+
 #: src/features/migration/Stepper.tsx
 msgid "Normalize"
 msgstr "Normalize"
@@ -482,6 +519,10 @@ msgstr "Normalize"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Normalizer warning"
 msgstr "Normalizer warning"
+
+#: src/routes/workboard.tsx
+msgid "Not applicable"
+msgstr "Not applicable"
 
 #: src/routes/settings.tsx
 msgid "Notification routing"
@@ -492,7 +533,6 @@ msgid "NY PTET election window"
 msgstr "NY PTET election window"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Obligation"
 msgstr "Obligation"
 
@@ -511,6 +551,10 @@ msgstr "One row lacks a usable source URL."
 #: src/features/migration/Step4Preview.tsx
 msgid "One-click revert available for 24 hours"
 msgstr "One-click revert available for 24 hours"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Open"
+msgstr "Open"
 
 #: src/routes/dashboard.tsx
 msgid "Open risk"
@@ -556,6 +600,10 @@ msgstr "Penalty exposure"
 msgid "penalty-weighted"
 msgstr "penalty-weighted"
 
+#: src/routes/workboard.tsx
+msgid "Pending"
+msgstr "Pending"
+
 #: src/routes/_layout.tsx
 msgid "Phase 0 demo practice"
 msgstr "Phase 0 demo practice"
@@ -572,6 +620,7 @@ msgstr "Please enter at least 2 characters."
 #: src/routes/_layout.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
+#: src/routes/workboard.tsx
 msgid "Please try again."
 msgstr "Please try again."
 
@@ -624,6 +673,14 @@ msgstr "Re-run failed."
 msgid "Ready to import"
 msgstr "Ready to import"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Reason"
+msgstr "Reason"
+
+#: src/routes/workboard.tsx
+msgid "Recently updated"
+msgstr "Recently updated"
+
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
 msgstr "Redirecting to Google…"
@@ -631,6 +688,14 @@ msgstr "Redirecting to Google…"
 #: src/routes/dashboard.tsx
 msgid "Representative source states wired with existing components."
 msgstr "Representative source states wired with existing components."
+
+#: src/routes/workboard.tsx
+msgid "Reset"
+msgstr "Reset"
+
+#: src/routes/workboard.tsx
+msgid "Retry"
+msgstr "Retry"
 
 #: src/routes/error.tsx
 msgid "Return home"
@@ -652,13 +717,25 @@ msgstr "Risk table"
 msgid "Route failed"
 msgstr "Route failed"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Row"
+msgstr "Row"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Row limit hit"
 msgstr "Row limit hit"
 
+#: src/routes/workboard.tsx
+msgid "Run migration"
+msgstr "Run migration"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Run the mapper to see confidence stats."
 msgstr "Run the mapper to see confidence stats."
+
+#: src/routes/workboard.tsx
+msgid "Run the migration wizard to import a CSV of clients, or change the filters above."
+msgstr "Run the migration wizard to import a CSV of clients, or change the filters above."
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Safety"
@@ -673,8 +750,8 @@ msgid "Save draft"
 msgstr "Save draft"
 
 #: src/routes/workboard.tsx
-msgid "Search clients or obligations"
-msgstr "Search clients or obligations"
+msgid "Search clients"
+msgstr "Search clients"
 
 #: src/routes/workboard.tsx
 msgid "Search obligations"
@@ -729,6 +806,10 @@ msgstr "Something went wrong"
 msgid "Something went wrong on our side. Please try again shortly."
 msgstr "Something went wrong on our side. Please try again shortly."
 
+#: src/routes/workboard.tsx
+msgid "Sort"
+msgstr "Sort"
+
 #: src/routes/dashboard.tsx
 msgid "source gaps"
 msgstr "source gaps"
@@ -742,12 +823,16 @@ msgid "States"
 msgstr "States"
 
 #: src/routes/workboard.tsx
-msgid "Static UI now; URL-backed filters can replace this shell later."
-msgstr "Static UI now; URL-backed filters can replace this shell later."
-
-#: src/routes/workboard.tsx
 msgid "Status"
 msgstr "Status"
+
+#: src/routes/workboard.tsx
+msgid "Status changes write an audit row in the same call so the trail stays trustworthy."
+msgstr "Status changes write an audit row in the same call so the trail stays trustworthy."
+
+#: src/routes/workboard.tsx
+msgid "Status updated"
+msgstr "Status updated"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Step {step} / 4"
@@ -760,6 +845,10 @@ msgstr "Suggested tax types (from entity × state matrix)"
 #: src/routes/_layout.tsx
 msgid "System"
 msgstr "System"
+
+#: src/routes/workboard.tsx
+msgid "Tax type"
+msgstr "Tax type"
 
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
@@ -818,8 +907,8 @@ msgid "verified {verifiedAt}"
 msgstr "verified {verifiedAt}"
 
 #: src/routes/workboard.tsx
-msgid "waiting"
-msgstr "waiting"
+msgid "Waiting on client"
+msgstr "Waiting on client"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "We block SSN-like patterns before sending anything to the AI."

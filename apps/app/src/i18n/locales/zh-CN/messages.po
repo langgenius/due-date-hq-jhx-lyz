@@ -22,7 +22,9 @@ msgstr ""
 msgid "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
 msgstr "{0, plural, other {# 个 {3} × {4} 客户}}"
 
+#. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
+#: src/features/migration/Step2Mapping.tsx
 #: src/features/migration/Step4Preview.tsx
 msgid "{0, plural, one {# row needs attention} other {# rows need attention}}"
 msgstr "{0, plural, other {# 行需要关注}}"
@@ -31,11 +33,6 @@ msgstr "{0, plural, other {# 行需要关注}}"
 #: src/features/migration/Step1Intake.tsx
 msgid "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 msgstr "{0, plural, other {# 行已准备就绪可以导入}}"
-
-#. placeholder {0}: obligations.length
-#: src/routes/workboard.tsx
-msgid "{0, plural, one {# row} other {# rows}}"
-msgstr "{0, plural, other {# 行}}"
 
 #. placeholder {0}: intake.rowCount
 #: src/features/migration/Step1Intake.tsx
@@ -62,6 +59,14 @@ msgstr "{obligationCount, plural, other {# 条义务（全年）}}"
 msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 msgstr "{skipped, plural, other {# 行将被跳过（见错误明细）}}"
 
+#: src/routes/workboard.tsx
+msgid "{totalShown, plural, one {# obligation} other {# obligations}}"
+msgstr "{totalShown, plural, other {# 条义务}}"
+
+#: src/routes/workboard.tsx
+msgid "{totalShown, plural, one {# row} other {# rows}}"
+msgstr "{totalShown, plural, other {# 行}}"
+
 #. placeholder {0}: new Date().getFullYear()
 #: src/routes/_entry-layout.tsx
 msgid "© {0} DueDateHQ Inc."
@@ -78,10 +83,6 @@ msgstr "3 家客户的预估税差额已超过证据阈值。"
 #: src/routes/dashboard.tsx
 msgid "5 draft extensions are waiting on K-1 attachments."
 msgstr "5 份延期申请草稿正在等待 K-1 附件。"
-
-#: src/routes/workboard.tsx
-msgid "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
-msgstr "高密度操作界面的初版：筛选、搜索、状态与来源扫描在接入 API 前已可见。"
 
 #. placeholder {0}: user.name || user.email
 #: src/routes/_layout.tsx
@@ -105,7 +106,7 @@ msgid "AI-facing recommendations remain hidden unless source, quote, and verific
 msgstr "仅当具备来源、引文与核验时间时，AI 生成的建议才会显示。"
 
 #: src/routes/workboard.tsx
-msgid "all"
+msgid "All"
 msgstr "全部"
 
 #: src/routes/_entry-layout.tsx
@@ -116,13 +117,10 @@ msgstr "所有系统运行正常"
 msgid "Apply to all"
 msgstr "全部应用"
 
+#. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/workboard.tsx
-msgid "Assign selected"
-msgstr "分配所选"
-
-#: src/routes/workboard.tsx
-msgid "Assignee"
-msgstr "负责人"
+msgid "Audit {0}"
+msgstr "审计 {0}"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Audit log captures every AI decision"
@@ -141,10 +139,6 @@ msgstr "返回"
 msgid "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
 msgstr "已预置基础控件，重表单页面可直接基于现有 UI 组合。"
 
-#: src/routes/workboard.tsx
-msgid "blocked"
-msgstr "已阻塞"
-
 #: src/routes/dashboard.tsx
 msgid "Blocked"
 msgstr "已阻塞"
@@ -152,6 +146,11 @@ msgstr "已阻塞"
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "登录即表示你同意 <termsLink>服务条款</termsLink> 与 <privacyLink>隐私政策</privacyLink>。登录遇到问题？请联系 <supportLink>support@duedatehq.com</supportLink>。"
+
+#. placeholder {0}: row.clientName
+#: src/routes/workboard.tsx
+msgid "Change status for {0}"
+msgstr "修改 {0} 的状态"
 
 #: src/routes/settings.tsx
 msgid "Channels"
@@ -169,6 +168,10 @@ msgstr "客户风险行"
 #: src/features/migration/WizardShell.tsx
 msgid "Close wizard"
 msgstr "关闭向导"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Code"
+msgstr "错误代码"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
@@ -203,6 +206,10 @@ msgstr "无法创建你的事务所"
 msgid "Couldn't apply Default Matrix"
 msgstr "应用默认税种矩阵失败"
 
+#: src/routes/workboard.tsx
+msgid "Couldn't load the queue."
+msgstr "无法加载队列。"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Couldn't parse the input"
 msgstr "无法解析输入内容"
@@ -215,6 +222,10 @@ msgstr "保存字段映射失败"
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't start the import"
 msgstr "无法启动导入流程"
+
+#: src/routes/workboard.tsx
+msgid "Couldn't update status"
+msgstr "状态更新失败"
 
 #: src/routes/_layout.tsx
 msgid "CPA deadline console"
@@ -237,7 +248,6 @@ msgid "Dashboard"
 msgstr "仪表盘"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Deadline"
 msgstr "截止日期"
 
@@ -254,8 +264,8 @@ msgid "Dollar-first triage for the next operating window."
 msgstr "面向下一个运营窗口，按金额优先进行分级。"
 
 #: src/routes/workboard.tsx
-msgid "draft"
-msgstr "草稿"
+msgid "Done"
+msgstr "已完成"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
@@ -264,6 +274,18 @@ msgstr "将 CSV / TSV 拖到这里或点击上传 · 最多 1000 行 · 2 MB"
 #: src/features/migration/Stepper.tsx
 msgid "Dry-Run"
 msgstr "试运行"
+
+#: src/routes/workboard.tsx
+msgid "Due date"
+msgstr "到期日"
+
+#: src/routes/workboard.tsx
+msgid "Due date — earliest first"
+msgstr "到期日 — 最早优先"
+
+#: src/routes/workboard.tsx
+msgid "Due date — latest first"
+msgstr "到期日 — 最晚优先"
 
 #: src/routes/dashboard.tsx
 msgid "Due this week"
@@ -318,7 +340,6 @@ msgid "Evidence mode"
 msgstr "证据模式"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Exposure"
 msgstr "风险敞口"
 
@@ -331,12 +352,8 @@ msgid "File is larger than 2 MB. Please trim or split the export."
 msgstr "文件大于 2 MB，请精简或拆分后再上传。"
 
 #: src/routes/workboard.tsx
-msgid "filed"
-msgstr "已提交"
-
-#: src/routes/workboard.tsx
-msgid "Filters"
-msgstr "筛选器"
+msgid "Filter by status, search clients, and sort by due date."
+msgstr "按状态筛选，按客户搜索，并按到期日排序。"
 
 #: src/routes/settings.tsx
 msgid "Firm settings"
@@ -383,8 +400,12 @@ msgid "Import clients · Step {step} of 4"
 msgstr "导入客户 · 第 {step} 步 / 共 4 步"
 
 #: src/routes/workboard.tsx
-msgid "in review"
-msgstr "审核中"
+msgid "In progress"
+msgstr "进行中"
+
+#: src/routes/workboard.tsx
+msgid "In review"
+msgstr "复核中"
 
 #: src/routes/settings.tsx
 msgid "In-app toast"
@@ -422,6 +443,18 @@ msgstr "要离开向导吗？"
 #: src/routes/_layout.tsx
 msgid "Light"
 msgstr "浅色"
+
+#: src/routes/workboard.tsx
+msgid "Load more"
+msgstr "加载更多"
+
+#: src/routes/workboard.tsx
+msgid "Loading queue…"
+msgstr "队列加载中…"
+
+#: src/routes/workboard.tsx
+msgid "Loading…"
+msgstr "加载中…"
 
 #: src/routes/_layout.tsx
 msgid "Local Time"
@@ -475,6 +508,10 @@ msgstr "常规"
 msgid "No emails will be sent automatically"
 msgstr "不会自动发送任何邮件"
 
+#: src/routes/workboard.tsx
+msgid "No obligations match these filters."
+msgstr "没有义务符合当前筛选。"
+
 #: src/features/migration/Stepper.tsx
 msgid "Normalize"
 msgstr "规范化"
@@ -482,6 +519,10 @@ msgstr "规范化"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Normalizer warning"
 msgstr "规范化警告"
+
+#: src/routes/workboard.tsx
+msgid "Not applicable"
+msgstr "不适用"
 
 #: src/routes/settings.tsx
 msgid "Notification routing"
@@ -492,7 +533,6 @@ msgid "NY PTET election window"
 msgstr "纽约州 PTET 选择窗口"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Obligation"
 msgstr "义务"
 
@@ -511,6 +551,10 @@ msgstr "有一行缺少可用的来源 URL。"
 #: src/features/migration/Step4Preview.tsx
 msgid "One-click revert available for 24 hours"
 msgstr "24 小时内可一键撤销"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Open"
+msgstr "展开"
 
 #: src/routes/dashboard.tsx
 msgid "Open risk"
@@ -556,6 +600,10 @@ msgstr "罚款敞口"
 msgid "penalty-weighted"
 msgstr "按罚款金额加权"
 
+#: src/routes/workboard.tsx
+msgid "Pending"
+msgstr "待处理"
+
 #: src/routes/_layout.tsx
 msgid "Phase 0 demo practice"
 msgstr "阶段 0 演示事务所"
@@ -572,6 +620,7 @@ msgstr "请至少输入 2 个字符。"
 #: src/routes/_layout.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
+#: src/routes/workboard.tsx
 msgid "Please try again."
 msgstr "请稍后重试。"
 
@@ -624,6 +673,14 @@ msgstr "重新运行失败。"
 msgid "Ready to import"
 msgstr "准备就绪，开始导入"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Reason"
+msgstr "原因"
+
+#: src/routes/workboard.tsx
+msgid "Recently updated"
+msgstr "最近更新"
+
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
 msgstr "正在跳转到 Google…"
@@ -631,6 +688,14 @@ msgstr "正在跳转到 Google…"
 #: src/routes/dashboard.tsx
 msgid "Representative source states wired with existing components."
 msgstr "使用现有组件展示的典型来源状态。"
+
+#: src/routes/workboard.tsx
+msgid "Reset"
+msgstr "重置"
+
+#: src/routes/workboard.tsx
+msgid "Retry"
+msgstr "重试"
 
 #: src/routes/error.tsx
 msgid "Return home"
@@ -652,13 +717,25 @@ msgstr "风险列表"
 msgid "Route failed"
 msgstr "路由加载失败"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Row"
+msgstr "行"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Row limit hit"
 msgstr "已达行数上限"
 
+#: src/routes/workboard.tsx
+msgid "Run migration"
+msgstr "运行迁移"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Run the mapper to see confidence stats."
 msgstr "运行映射器以查看置信度统计。"
+
+#: src/routes/workboard.tsx
+msgid "Run the migration wizard to import a CSV of clients, or change the filters above."
+msgstr "运行迁移向导导入客户 CSV，或调整上方筛选条件。"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Safety"
@@ -673,8 +750,8 @@ msgid "Save draft"
 msgstr "保存草稿"
 
 #: src/routes/workboard.tsx
-msgid "Search clients or obligations"
-msgstr "搜索客户或义务"
+msgid "Search clients"
+msgstr "搜索客户"
 
 #: src/routes/workboard.tsx
 msgid "Search obligations"
@@ -729,6 +806,10 @@ msgstr "出现了一些问题"
 msgid "Something went wrong on our side. Please try again shortly."
 msgstr "我们这边出了点问题，请稍后重试。"
 
+#: src/routes/workboard.tsx
+msgid "Sort"
+msgstr "排序"
+
 #: src/routes/dashboard.tsx
 msgid "source gaps"
 msgstr "来源缺失"
@@ -742,12 +823,16 @@ msgid "States"
 msgstr "州"
 
 #: src/routes/workboard.tsx
-msgid "Static UI now; URL-backed filters can replace this shell later."
-msgstr "当前为静态 UI；后续可由 URL 驱动的筛选替换此外壳。"
-
-#: src/routes/workboard.tsx
 msgid "Status"
 msgstr "状态"
+
+#: src/routes/workboard.tsx
+msgid "Status changes write an audit row in the same call so the trail stays trustworthy."
+msgstr "状态变更会在同一次调用中写入审计记录，确保审计链可信。"
+
+#: src/routes/workboard.tsx
+msgid "Status updated"
+msgstr "状态已更新"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Step {step} / 4"
@@ -760,6 +845,10 @@ msgstr "建议税种（来自实体 × 州矩阵）"
 #: src/routes/_layout.tsx
 msgid "System"
 msgstr "跟随系统"
+
+#: src/routes/workboard.tsx
+msgid "Tax type"
+msgstr "税种"
 
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
@@ -818,8 +907,8 @@ msgid "verified {verifiedAt}"
 msgstr "{verifiedAt} 已核验"
 
 #: src/routes/workboard.tsx
-msgid "waiting"
-msgstr "等待中"
+msgid "Waiting on client"
+msgstr "等待客户回复"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "We block SSN-like patterns before sending anything to the AI."
@@ -871,7 +960,7 @@ msgstr "Web 推送已禁用"
 #: src/routes/login.tsx
 msgid "Welcome back to the workbench."
 msgstr ""
-"欢迎回来。\n"
+"欢迎回到工作台。欢迎回来。\n"
 "事务所工作台已就绪。"
 
 #: src/features/migration/Step1Intake.tsx

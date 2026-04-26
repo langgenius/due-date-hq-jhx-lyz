@@ -2,6 +2,7 @@ import { ORPCError } from '@orpc/server'
 import { clientsHandlers } from './clients'
 import { migrationHandlers } from './migration'
 import { obligationsHandlers } from './obligations'
+import { workboardHandlers } from './workboard'
 import { os } from './_root'
 
 /**
@@ -34,10 +35,13 @@ export const router = os.router({
   obligations: {
     createBatch: obligationsHandlers.createBatch,
     updateDueDate: os.obligations.updateDueDate.handler(notImplemented),
+    updateStatus: obligationsHandlers.updateStatus,
     listByClient: obligationsHandlers.listByClient,
   },
   dashboard: {},
-  workboard: {},
+  workboard: {
+    list: workboardHandlers.list,
+  },
   pulse: {},
   migration: {
     createBatch: migrationHandlers.createBatch,
@@ -52,5 +56,6 @@ export const router = os.router({
     revert: migrationHandlers.revert,
     singleUndo: migrationHandlers.singleUndo,
     getBatch: migrationHandlers.getBatch,
+    listErrors: migrationHandlers.listErrors,
   },
 })

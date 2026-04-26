@@ -37,14 +37,33 @@ export type {
   DueDateUpdateInput,
   ObligationCreateInput,
   ObligationInstancePublic,
+  ObligationStatusUpdateInput,
+  ObligationStatusUpdateOutput,
   ObligationsContract,
 } from './obligations'
 export {
   DueDateUpdateInputSchema,
   ObligationCreateInputSchema,
   ObligationInstancePublicSchema,
+  ObligationStatusUpdateInputSchema,
+  ObligationStatusUpdateOutputSchema,
   obligationsContract,
 } from './obligations'
+
+export type {
+  WorkboardContract,
+  WorkboardListInput,
+  WorkboardListOutput,
+  WorkboardRow,
+  WorkboardSort,
+} from './workboard'
+export {
+  WorkboardListInputSchema,
+  WorkboardListOutputSchema,
+  WorkboardRowSchema,
+  WorkboardSortSchema,
+  workboardContract,
+} from './workboard'
 
 export type {
   ApplyResult,
@@ -57,6 +76,8 @@ export type {
   MigrationBatchStatus,
   MigrationContract,
   MigrationError,
+  MigrationErrorStage,
+  MigrationListErrorsInput,
   MigrationSource,
   NormalizationRow,
 } from './migration'
@@ -70,6 +91,8 @@ export {
   MigrationBatchSchema,
   MigrationBatchStatusSchema,
   MigrationErrorSchema,
+  MigrationErrorStageSchema,
+  MigrationListErrorsInputSchema,
   MigrationSourceSchema,
   NormalizationRowSchema,
   migrationContract,

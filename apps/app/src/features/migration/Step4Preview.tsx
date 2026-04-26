@@ -94,7 +94,10 @@ export function Step4Preview({ summary }: Step4Props) {
       </Alert>
 
       {summary && summary.errors.length > 0 ? (
-        <section className="flex flex-col gap-2 rounded-lg border border-divider-regular bg-components-badge-bg-red-soft p-3">
+        <section
+          className="flex flex-col gap-2 rounded-lg border border-divider-regular bg-components-badge-bg-red-soft p-3"
+          data-slot="step4-bad-rows"
+        >
           <h3 className="text-xs font-medium tracking-[0.08em] text-text-destructive uppercase">
             <Plural
               value={summary.errors.length}
@@ -102,8 +105,13 @@ export function Step4Preview({ summary }: Step4Props) {
               other="# rows need attention"
             />
           </h3>
-          <ul className="flex flex-col gap-1 text-md text-text-primary">
-            {summary.errors.slice(0, 5).map((err) => (
+          {/*
+            Day-3 acceptance: bad rows are listed in full so the user can
+            audit "good rows still flow through" without leaving the wizard.
+            Cap with max-height + scroll so 1000-row imports stay usable.
+          */}
+          <ul className="flex max-h-[320px] flex-col gap-1 overflow-y-auto pr-1 text-md text-text-primary">
+            {summary.errors.map((err) => (
               <li key={err.id} className="flex items-center gap-2">
                 <span className="font-mono text-xs tabular-nums text-text-secondary">
                   row {err.rowIndex + 1}

@@ -2,6 +2,7 @@ import { ORPCError } from '@orpc/server'
 import type { ObligationInstancePublic } from '@duedatehq/contracts'
 import { requireTenant } from '../_context'
 import { os } from '../_root'
+import { toObligationPublic, updateObligationStatus } from './_service'
 
 /**
  * obligations.* — Demo Sprint subset of the Obligation Domain Contract.
@@ -10,9 +11,9 @@ import { os } from '../_root'
  *   - packages/contracts/src/obligations.ts (frozen contract)
  *   - docs/dev-file/06 §4.1 (procedures call scoped repo only)
  *
- * Scope (Day 3): unblock Migration Step 4 commit. We expose createBatch
- * and listByClient. `updateDueDate` belongs to the LYZ workboard /
- * pulse-apply path and stays a stub.
+ * Scope (Day 3): unblock Migration Step 4 commit. We expose createBatch,
+ * listByClient, and updateStatus (LYZ workboard). `updateDueDate` belongs
+ * to the pulse-apply path (Day 5+) and stays a stub.
  */
 
 interface ObligationRow {
@@ -27,27 +28,6 @@ interface ObligationRow {
   migrationBatchId: string | null
   createdAt: Date
   updatedAt: Date
-}
-
-function toIsoDate(d: Date): string {
-  // contract uses .date() (YYYY-MM-DD), not full datetime — slice the ISO.
-  return d.toISOString().slice(0, 10)
-}
-
-function toPublic(row: ObligationRow): ObligationInstancePublic {
-  return {
-    id: row.id,
-    firmId: row.firmId,
-    clientId: row.clientId,
-    taxType: row.taxType,
-    taxYear: row.taxYear,
-    baseDueDate: toIsoDate(row.baseDueDate),
-    currentDueDate: toIsoDate(row.currentDueDate),
-    status: row.status,
-    migrationBatchId: row.migrationBatchId,
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString(),
-  }
 }
 
 const createBatch = os.obligations.createBatch.handler(async ({ input, context }) => {
@@ -101,16 +81,22 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
     })
   }
 
-  return { obligations: allRows.map(toPublic) }
+  return { obligations: allRows.map(toObligationPublic) }
 })
 
 const listByClient = os.obligations.listByClient.handler(async ({ input, context }) => {
   const { scoped } = requireTenant(context)
   const rows = await scoped.obligations.listByClient(input.clientId)
-  return rows.map(toPublic)
+  return rows.map(toObligationPublic)
+})
+
+const updateStatus = os.obligations.updateStatus.handler(async ({ input, context }) => {
+  const { scoped, userId } = requireTenant(context)
+  return updateObligationStatus(scoped, userId, input)
 })
 
 export const obligationsHandlers = {
   createBatch,
   listByClient,
+  updateStatus,
 }

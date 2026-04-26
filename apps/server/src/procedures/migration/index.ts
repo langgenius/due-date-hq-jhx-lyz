@@ -89,6 +89,12 @@ const getBatch = os.migration.getBatch.handler(async ({ input, context }) => {
   return service.getBatch(input.batchId)
 })
 
+const listErrors = os.migration.listErrors.handler(async ({ input, context }) => {
+  const service = buildService(context)
+  const errors = await service.listErrors(input.batchId, input.stage ?? 'all')
+  return { errors }
+})
+
 // Day 4 stubs — keep contracts implemented; throw a typed NOT_IMPLEMENTED.
 function notImplemented(): never {
   throw new ORPCError('ORPC_NOT_IMPLEMENTED', {
@@ -113,4 +119,5 @@ export const migrationHandlers = {
   revert,
   singleUndo,
   getBatch,
+  listErrors,
 }

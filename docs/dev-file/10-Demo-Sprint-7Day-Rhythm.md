@@ -181,9 +181,9 @@ flowchart LR
 
 ### Day 3
 
-- [ ] JHX：CSV 上传后能看到 AI 字段映射结果，坏行单独列出
-- [ ] LYZ：Workboard 能改一条 status 并看到 audit 记录
-- [x] 两份 domain 契约 freeze（Client Domain + Obligation Domain；本地 pre-work，待 PR merge）
+- [x] JHX：CSV 上传后能看到 AI 字段映射结果，坏行单独列出（Step 2 折叠面板内联展示 mapping 阶段坏行；Step 4 dry-run 摘要去掉 5 条上限改可滚动列表；坏行通过新 `migration.listErrors` RPC 从 `migration_error` 表取数，见 [2026-04-26 day3 closeout](../dev-log/2026-04-26-day3-closeout.md)）
+- [x] LYZ：Workboard 能改一条 status 并看到 audit 记录（contracts 新增 `obligations.updateStatus` + `workboard.list`，handler 走 read-before → update → audit-write，前端把 audit id toast 出来供肉眼回溯，跨 firm 隔离 + before/after audit 单测过闸）
+- [x] 两份 domain 契约 freeze（Client Domain + Obligation Domain）+ 新增 `Workboard` 列表契约 + `obligations.updateStatus` mutation 契约
 
 ### Day 4
 

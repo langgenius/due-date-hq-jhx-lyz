@@ -77,6 +77,15 @@ export function makeObligationsRepo(db: Db, firmId: string) {
       return { ids: rows.map((r) => r.id) }
     },
 
+    async findById(id: string): Promise<ObligationInstance | undefined> {
+      const rows = await db
+        .select()
+        .from(obligationInstance)
+        .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
+        .limit(1)
+      return rows[0]
+    },
+
     async listByClient(clientId: string): Promise<ObligationInstance[]> {
       return db
         .select()

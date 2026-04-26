@@ -101,6 +101,15 @@ export const DryRunSummarySchema = z.object({
   errors: z.array(MigrationErrorSchema),
 })
 
+export const MigrationErrorStageSchema = z.enum(['mapping', 'normalize', 'matrix', 'all'])
+export type MigrationErrorStage = z.infer<typeof MigrationErrorStageSchema>
+
+export const MigrationListErrorsInputSchema = z.object({
+  batchId: EntityIdSchema,
+  stage: MigrationErrorStageSchema.default('all').optional(),
+})
+export type MigrationListErrorsInput = z.infer<typeof MigrationListErrorsInputSchema>
+
 /**
  * Mapper fallback channel marker.
  * - `null` → AI returned a structured response, mappings reflect AI output.
@@ -194,6 +203,15 @@ export const migrationContract = oc.router({
     .input(z.object({ batchId: EntityIdSchema, clientId: EntityIdSchema }))
     .output(z.object({ revertedAt: z.string().datetime() })),
   getBatch: oc.input(BatchIdInput).output(MigrationBatchSchema.nullable()),
+  /**
+   * Read-only list of `migration_error` rows for a batch.
+   * `stage` lets the wizard surface only the errors relevant to the
+   * current step (Step 2 mapping vs Step 4 dry-run summary). Stage
+   * mapping is by errorCode prefix until per-stage tagging is added.
+   */
+  listErrors: oc
+    .input(MigrationListErrorsInputSchema)
+    .output(z.object({ errors: z.array(MigrationErrorSchema) })),
 })
 
 export type MigrationBatch = z.infer<typeof MigrationBatchSchema>

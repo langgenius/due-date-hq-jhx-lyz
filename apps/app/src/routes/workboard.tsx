@@ -1,6 +1,10 @@
-import { FilterIcon, SearchIcon } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { FilterIcon, SearchIcon } from 'lucide-react'
+import { toast } from 'sonner'
 
+import type { ObligationInstancePublic, WorkboardSort } from '@duedatehq/contracts'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -13,6 +17,13 @@ import {
 } from '@duedatehq/ui/components/ui/card'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@duedatehq/ui/components/ui/select'
+import {
   Table,
   TableBody,
   TableCell,
@@ -20,73 +31,169 @@ import {
   TableHeader,
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
-import { formatCents, formatDate } from '@/lib/utils'
 
-const obligations = [
-  ['Arbor & Vale LLC', '1065 extension', '2026-03-15', 'blocked', 1840000, 'M. Chen'],
-  ['Northstar Dental Group', 'Payroll deposit', '2026-03-18', 'in review', 912500, 'A. Rivera'],
-  ['Copperline Studios', 'Sales tax', '2026-03-20', 'draft', 238900, 'K. Patel'],
-  ['Lake Union Foods', '1099 correction', '2026-03-22', 'waiting', 94000, 'D. Brooks'],
-  ['Westbridge GP', 'Basis workpaper', '2026-03-25', 'in review', 620000, 'M. Chen'],
-  ['Hale Robotics Inc.', 'R&D support', '2026-03-28', 'draft', 305000, 'S. Imani'],
-  ['Summit Care Partners', 'ACA review', '2026-03-31', 'waiting', 172000, 'K. Patel'],
-  ['Bluegrain Imports', 'Duty accrual', '2026-04-02', 'in review', 746000, 'A. Rivera'],
-  ['Juniper Advisory', 'State composite return', '2026-04-04', 'draft', 141000, 'S. Imani'],
-  ['Redwood Clinics', 'Extension consent', '2026-04-07', 'waiting', 86000, 'D. Brooks'],
-  ['Beacon Supply Co.', 'Nexus review', '2026-04-10', 'draft', 412000, 'K. Patel'],
-  ['Union Park Labs', 'Credit memo', '2026-04-12', 'filed', 0, 'M. Chen'],
-] as const
+import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
+import { formatDate } from '@/lib/utils'
 
-type ObligationStatus = 'blocked' | 'in review' | 'draft' | 'waiting' | 'filed'
-type FilterKey = 'all' | 'blocked' | 'in review' | 'waiting'
+type ObligationStatus = ObligationInstancePublic['status']
 
-// Status → Badge variant + dot tone. Centralised so all status chips share the
-// same Dify-style soft chip + halo dot, instead of hand-rolled tint classes.
-const statusVariant: Record<
-  ObligationStatus,
-  'destructive' | 'info' | 'secondary' | 'outline' | 'success'
-> = {
-  blocked: 'destructive',
-  'in review': 'info',
-  draft: 'secondary',
-  waiting: 'outline',
-  filed: 'success',
+const ALL_STATUSES: ObligationStatus[] = [
+  'pending',
+  'in_progress',
+  'review',
+  'waiting_on_client',
+  'done',
+  'not_applicable',
+]
+
+const ALL_SORTS: WorkboardSort[] = ['due_asc', 'due_desc', 'updated_desc']
+
+function isObligationStatus(value: string): value is ObligationStatus {
+  return (ALL_STATUSES as string[]).includes(value)
 }
-const statusDot: Record<ObligationStatus, 'error' | 'normal' | 'disabled' | 'warning' | 'success'> =
-  {
-    blocked: 'error',
-    'in review': 'normal',
-    draft: 'disabled',
-    waiting: 'warning',
-    filed: 'success',
-  }
+
+function isWorkboardSort(value: string): value is WorkboardSort {
+  return (ALL_SORTS as string[]).includes(value)
+}
+
+// Status → soft chip variant + halo dot tone. One central map keeps the
+// Workboard, Dashboard, and Audit drawers visually consistent.
+const STATUS_VARIANT: Record<
+  ObligationStatus,
+  'destructive' | 'info' | 'secondary' | 'outline' | 'success' | 'warning'
+> = {
+  pending: 'secondary',
+  in_progress: 'info',
+  review: 'warning',
+  waiting_on_client: 'outline',
+  done: 'success',
+  not_applicable: 'outline',
+}
+
+const STATUS_DOT: Record<
+  ObligationStatus,
+  'error' | 'normal' | 'disabled' | 'warning' | 'success'
+> = {
+  pending: 'disabled',
+  in_progress: 'normal',
+  review: 'warning',
+  waiting_on_client: 'warning',
+  done: 'success',
+  not_applicable: 'disabled',
+}
 
 function useStatusLabels(): Record<ObligationStatus, string> {
   const { t } = useLingui()
   return {
-    blocked: t`blocked`,
-    'in review': t`in review`,
-    draft: t`draft`,
-    waiting: t`waiting`,
-    filed: t`filed`,
+    pending: t`Pending`,
+    in_progress: t`In progress`,
+    review: t`In review`,
+    waiting_on_client: t`Waiting on client`,
+    done: t`Done`,
+    not_applicable: t`Not applicable`,
   }
 }
 
-function useFilterLabels(): Record<FilterKey, string> {
+function useSortLabels(): Record<WorkboardSort, string> {
   const { t } = useLingui()
   return {
-    all: t`all`,
-    blocked: t`blocked`,
-    'in review': t`in review`,
-    waiting: t`waiting`,
+    due_asc: t`Due date — earliest first`,
+    due_desc: t`Due date — latest first`,
+    updated_desc: t`Recently updated`,
   }
+}
+
+/**
+ * Tiny debounce hook — kept inline because the only consumer is the search
+ * input. Pulls in no new deps; resets on unmount.
+ */
+function useDebounced<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value)
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delayMs)
+    return () => clearTimeout(id)
+  }, [value, delayMs])
+  return debounced
 }
 
 export function WorkboardRoute() {
   const { t } = useLingui()
+  const queryClient = useQueryClient()
+  const { openWizard } = useMigrationWizard()
   const statusLabels = useStatusLabels()
-  const filterLabels = useFilterLabels()
-  const filters: FilterKey[] = ['all', 'blocked', 'in review', 'waiting']
+  const sortLabels = useSortLabels()
+
+  const [statusFilter, setStatusFilter] = useState<ObligationStatus[]>([])
+  const [searchInput, setSearchInput] = useState('')
+  const [sort, setSort] = useState<WorkboardSort>('due_asc')
+  const [cursors, setCursors] = useState<Array<string | null>>([null]) // one slot per page
+
+  const debouncedSearch = useDebounced(searchInput.trim(), 300)
+
+  // Reset to page 1 whenever a filter / sort / search input changes; keeps the
+  // cursor stack honest. We compare with the previous values via useEffect
+  // because router state isn't involved.
+  useEffect(() => {
+    setCursors([null])
+  }, [debouncedSearch, sort, statusFilter])
+
+  const currentCursor = cursors[cursors.length - 1] ?? null
+
+  const queryInput = useMemo(
+    () => ({
+      ...(statusFilter.length > 0 ? { status: statusFilter } : {}),
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      sort,
+      cursor: currentCursor,
+      limit: 50,
+    }),
+    [statusFilter, debouncedSearch, sort, currentCursor],
+  )
+
+  const listQuery = useQuery(orpc.workboard.list.queryOptions({ input: queryInput }))
+
+  const updateStatusMutation = useMutation(
+    orpc.obligations.updateStatus.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        // Show a short audit reference so the user has an immediately
+        // checkable "did this write to audit?" answer (Day 3 acceptance).
+        toast.success(t`Status updated`, {
+          description: t`Audit ${result.auditId.slice(0, 8)}`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't update status`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+
+  const rows = listQuery.data?.rows ?? []
+  const nextCursor = listQuery.data?.nextCursor ?? null
+  const isInitialLoading = listQuery.isLoading
+  const isError = listQuery.isError
+
+  const totalShown = rows.length
+
+  function toggleStatus(status: ObligationStatus) {
+    setStatusFilter((prev) =>
+      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status],
+    )
+  }
+
+  function loadMore() {
+    if (!nextCursor) return
+    setCursors((prev) => [...prev, nextCursor])
+  }
+
+  function resetPagination() {
+    setCursors([null])
+  }
+
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <header className="flex flex-col gap-2">
@@ -100,18 +207,14 @@ export function WorkboardRoute() {
             </h1>
             <p className="max-w-[720px] text-md text-text-secondary">
               <Trans>
-                A first pass at the dense operational surface: filters, search, status and source
-                scanning are visible before API wiring.
+                Status changes write an audit row in the same call so the trail stays trustworthy.
               </Trans>
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={resetPagination}>
               <FilterIcon data-icon="inline-start" />
-              <Trans>Filters</Trans>
-            </Button>
-            <Button size="sm">
-              <Trans>Assign selected</Trans>
+              <Trans>Reset</Trans>
             </Button>
           </div>
         </div>
@@ -123,64 +226,180 @@ export function WorkboardRoute() {
             <Trans>Queue controls</Trans>
           </CardTitle>
           <CardDescription>
-            <Trans>Static UI now; URL-backed filters can replace this shell later.</Trans>
+            <Trans>Filter by status, search clients, and sort by due date.</Trans>
           </CardDescription>
           <CardAction>
             <Badge variant="outline" className="font-mono tabular-nums">
-              <Plural value={obligations.length} one="# row" other="# rows" />
+              <Plural value={totalShown} one="# row" other="# rows" />
             </Badge>
           </CardAction>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="relative w-full md:max-w-[360px]">
-              <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-text-tertiary" />
+              <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-text-tertiary" />
               <Input
                 aria-label={t`Search obligations`}
                 className="pl-8"
-                placeholder={t`Search clients or obligations`}
+                placeholder={t`Search clients`}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
-            <div className="flex flex-wrap gap-2">
-              {filters.map((filter) => (
-                <Badge key={filter} variant={filter === 'all' ? 'default' : 'ghost'}>
-                  {filterLabels[filter]}
-                </Badge>
-              ))}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-text-secondary">
+                <Trans>Sort</Trans>
+              </span>
+              <Select
+                value={sort}
+                onValueChange={(v) => {
+                  if (typeof v === 'string' && isWorkboardSort(v)) setSort(v)
+                }}
+              >
+                <SelectTrigger size="sm" className="min-w-[200px]">
+                  <SelectValue placeholder={sortLabels[sort]} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="due_asc">{sortLabels.due_asc}</SelectItem>
+                  <SelectItem value="due_desc">{sortLabels.due_desc}</SelectItem>
+                  <SelectItem value="updated_desc">{sortLabels.updated_desc}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t`Client`}</TableHead>
-                <TableHead>{t`Obligation`}</TableHead>
-                <TableHead>{t`Deadline`}</TableHead>
-                <TableHead>{t`Status`}</TableHead>
-                <TableHead>{t`Exposure`}</TableHead>
-                <TableHead>{t`Assignee`}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {obligations.map(([client, obligation, deadline, status, exposure, assignee]) => (
-                <TableRow key={`${client}-${obligation}`}>
-                  <TableCell className="font-medium">{client}</TableCell>
-                  <TableCell className="text-text-secondary">{obligation}</TableCell>
-                  <TableCell className="font-mono tabular-nums">{formatDate(deadline)}</TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariant[status]}>
-                      <BadgeStatusDot tone={statusDot[status]} />
-                      {statusLabels[status]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-mono tabular-nums">{formatCents(exposure)}</TableCell>
-                  <TableCell>{assignee}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="cursor-pointer focus-visible:outline-none"
+              onClick={() => setStatusFilter([])}
+            >
+              <Badge variant={statusFilter.length === 0 ? 'default' : 'ghost'}>
+                <Trans>All</Trans>
+              </Badge>
+            </button>
+            {ALL_STATUSES.map((status) => {
+              const active = statusFilter.includes(status)
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  className="cursor-pointer focus-visible:outline-none"
+                  onClick={() => toggleStatus(status)}
+                  aria-pressed={active}
+                >
+                  <Badge variant={active ? 'default' : 'ghost'}>{statusLabels[status]}</Badge>
+                </button>
+              )
+            })}
+          </div>
+
+          {isInitialLoading ? (
+            <div className="rounded-lg border border-dashed border-divider-regular py-8 text-center text-sm text-text-tertiary">
+              <Trans>Loading queue…</Trans>
+            </div>
+          ) : isError ? (
+            <div className="rounded-lg border border-state-destructive-border bg-state-destructive-hover p-4 text-sm text-text-destructive">
+              <Trans>Couldn't load the queue.</Trans>{' '}
+              <button type="button" className="underline" onClick={() => void listQuery.refetch()}>
+                <Trans>Retry</Trans>
+              </button>
+            </div>
+          ) : rows.length === 0 ? (
+            <EmptyState onOpenWizard={openWizard} />
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t`Client`}</TableHead>
+                    <TableHead>{t`Tax type`}</TableHead>
+                    <TableHead>{t`Due date`}</TableHead>
+                    <TableHead>{t`Status`}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell className="font-medium text-text-primary">
+                        {row.clientName}
+                      </TableCell>
+                      <TableCell className="text-text-secondary">{row.taxType}</TableCell>
+                      <TableCell className="font-mono tabular-nums">
+                        {formatDate(row.currentDueDate)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Badge variant={STATUS_VARIANT[row.status]}>
+                            <BadgeStatusDot tone={STATUS_DOT[row.status]} />
+                            {statusLabels[row.status]}
+                          </Badge>
+                          <Select
+                            value={row.status}
+                            onValueChange={(v) => {
+                              if (typeof v !== 'string' || !isObligationStatus(v)) return
+                              if (v === row.status) return
+                              updateStatusMutation.mutate({ id: row.id, status: v })
+                            }}
+                            disabled={updateStatusMutation.isPending}
+                          >
+                            <SelectTrigger
+                              size="sm"
+                              className="min-w-[160px]"
+                              aria-label={t`Change status for ${row.clientName}`}
+                            >
+                              <SelectValue placeholder={statusLabels[row.status]} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ALL_STATUSES.map((status) => (
+                                <SelectItem key={status} value={status}>
+                                  {statusLabels[status]}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-tertiary">
+                  <Plural value={totalShown} one="# obligation" other="# obligations" />
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!nextCursor || listQuery.isFetching}
+                  onClick={loadMore}
+                >
+                  {listQuery.isFetching ? <Trans>Loading…</Trans> : <Trans>Load more</Trans>}
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
+    </div>
+  )
+}
+
+function EmptyState({ onOpenWizard }: { onOpenWizard: () => void }) {
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-divider-regular py-10 px-6 text-center">
+      <span className="text-md font-semibold text-text-primary">
+        <Trans>No obligations match these filters.</Trans>
+      </span>
+      <p className="max-w-[420px] text-sm text-text-secondary">
+        <Trans>
+          Run the migration wizard to import a CSV of clients, or change the filters above.
+        </Trans>
+      </p>
+      <Button size="sm" onClick={onOpenWizard}>
+        <Trans>Run migration</Trans>
+      </Button>
     </div>
   )
 }

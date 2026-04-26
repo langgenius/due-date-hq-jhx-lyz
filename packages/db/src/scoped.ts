@@ -4,6 +4,7 @@ import { makeClientsRepo } from './repo/clients'
 import { makeEvidenceRepo } from './repo/evidence'
 import { makeMigrationRepo } from './repo/migration'
 import { makeObligationsRepo } from './repo/obligations'
+import { makeWorkboardRepo } from './repo/workboard'
 import type { ScopedRepo } from './types'
 
 /**
@@ -41,6 +42,7 @@ export function scoped(db: Db, firmId: string): ScopedRepo {
     firmId,
     clients: makeClientsRepo(db, firmId),
     obligations: makeObligationsRepo(db, firmId),
+    workboard: makeWorkboardRepo(db, firmId),
     pulse: unimplementedRepo('pulse'),
     migration: makeMigrationRepo(db, firmId),
     evidence: makeEvidenceRepo(db, firmId),
