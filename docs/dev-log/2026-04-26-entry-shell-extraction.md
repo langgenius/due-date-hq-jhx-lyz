@@ -1,3 +1,12 @@
+---
+title: '2026-04-26 · 抽 EntryShell layout，对齐 onboarding 到 marketing 设计语汇'
+date: 2026-04-26
+commit: '67fa718'
+updates:
+  - commit: 'cf16e8f'
+    note: 'Added entry route hydration fallback follow-up.'
+---
+
 # 2026-04-26 · 抽 EntryShell layout，对齐 onboarding 到 marketing 设计语汇
 
 ## 背景

@@ -1,6 +1,11 @@
-# Migration Copilot Pre-Work
+---
+title: 'Migration Copilot Pre-Work'
+date: 2026-04-24
+commit: '15ad692'
+author: 'Codex'
+---
 
-日期：2026-04-24 · 作者：Codex · 相关 commit：pending
+# Migration Copilot Pre-Work
 
 ## 背景
 

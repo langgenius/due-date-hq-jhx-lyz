@@ -1,6 +1,11 @@
-# Design Tokens · Figma + DESIGN.md + UI Preset Closure
+---
+title: 'Design Tokens · Figma + DESIGN.md + UI Preset Closure'
+date: 2026-04-25
+commit: '5b3c3fa'
+author: 'Cursor'
+---
 
-日期：2026-04-25 · 作者：Cursor · 相关 commit：pending
+# Design Tokens · Figma + DESIGN.md + UI Preset Closure
 
 ## 背景
 

@@ -1,7 +1,12 @@
-# Marketing Preference Switcher · Footer-grouped Theme & Language
+---
+title: 'Marketing Preference Switcher · Footer-grouped Theme & Language'
+date: 2026-04-26
+commit: 'ad803c3'
+author: 'Codex'
+figma: 'ssejugriUJkW9vbcBzmRgd: 5:16 TopNav / 30:53 Footer cluster'
+---
 
-日期：2026-04-26 · 作者：Codex · 相关 Figma：file `ssejugriUJkW9vbcBzmRgd`（节点
-`5:16` TopNav / `30:53` Footer cluster）
+# Marketing Preference Switcher · Footer-grouped Theme & Language
 
 ## 背景
 

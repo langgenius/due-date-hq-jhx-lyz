@@ -13,9 +13,17 @@
 ## 模板（建议）
 
 ```md
-# <标题>
+---
+title: '<标题>'
+date: YYYY-MM-DD
+commit: '<short-sha>'
+author: '<name>'
+updates:
+  - commit: '<short-sha>'
+    note: '<why this log changed after the primary commit>'
+---
 
-日期：YYYY-MM-DD · 作者：<name> · 相关 commit：<short-sha>
+# <标题>
 
 ## 背景
 
@@ -37,6 +45,9 @@
 
 （遗留 TODO、埋点、需要写回规格文档的部分）
 ```
+
+`updates` 只在日志被后续 commit 修正时填写，例如路径重命名、同主题 follow-up、关闭
+上一条未闭环项。大多数 dev-log 只需要 `title / date / commit` 三个字段。
 
 ## 什么时候写
 

@@ -1,3 +1,12 @@
+---
+title: '2026-04-25 · Shared Theme Runtime'
+date: 2026-04-25
+commit: '0bb0c64'
+updates:
+  - commit: '3f00b16'
+    note: 'Added follow-up for shared switchThemePreference extraction.'
+---
+
 # 2026-04-25 · Shared Theme Runtime
 
 ## Context

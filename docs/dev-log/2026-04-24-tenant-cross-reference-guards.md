@@ -1,6 +1,11 @@
-# Tenant cross-reference guards
+---
+title: 'Tenant cross-reference guards'
+date: 2026-04-24
+commit: 'e78487d'
+author: 'Codex'
+---
 
-日期：2026-04-24 · 作者：Codex · 相关 commit：待提交
+# Tenant cross-reference guards
 
 ## 背景
 

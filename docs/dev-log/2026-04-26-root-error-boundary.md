@@ -1,6 +1,11 @@
-# Root route error boundary
+---
+title: 'Root route error boundary'
+date: 2026-04-26
+commit: 'db53af0'
+author: 'Codex'
+---
 
-日期：2026-04-26 · 作者：Codex · 相关 commit：本提交
+# Root route error boundary
 
 ## 背景
 

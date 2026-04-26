@@ -1,6 +1,11 @@
-# Marketing Locale Handoff with nuqs
+---
+title: 'Marketing Locale Handoff with nuqs'
+date: 2026-04-26
+commit: '7b37fa6'
+author: 'Codex'
+---
 
-日期：2026-04-26 · 作者：Codex · 相关 commit：同本变更提交
+# Marketing Locale Handoff with nuqs
 
 ## 背景
 

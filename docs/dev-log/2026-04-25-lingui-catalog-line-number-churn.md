@@ -1,3 +1,9 @@
+---
+title: '2026-04-25 · Lingui Catalog Line Number Churn'
+date: 2026-04-25
+commit: 'd96ba09'
+---
+
 # 2026-04-25 · Lingui Catalog Line Number Churn
 
 ## Context

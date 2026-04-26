@@ -1,6 +1,15 @@
-# Auth gate 下沉到 React Router loader，顺带干掉 sign-out 闪烁
+---
+title: 'Auth gate 下沉到 React Router loader，顺带干掉 sign-out 闪烁'
+date: 2026-04-23
+commit: '0c813b3'
+updates:
+  - commit: '8842322'
+    note: 'Updated docs/dev-file path references.'
+  - commit: '47d44f3'
+    note: 'Updated apps/app workspace references.'
+---
 
-日期：2026-04-23 · 相关 commit：`0c813b3`
+# Auth gate 下沉到 React Router loader，顺带干掉 sign-out 闪烁
 
 ## 背景
 

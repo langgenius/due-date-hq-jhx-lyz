@@ -1,6 +1,11 @@
-# Rename SaaS SPA from web to app
+---
+title: 'Rename SaaS SPA from web to app'
+date: 2026-04-24
+commit: '47d44f3'
+author: 'Codex'
+---
 
-日期：2026-04-24 · 作者：Codex · 相关 commit：待提交
+# Rename SaaS SPA from web to app
 
 ## 背景
 

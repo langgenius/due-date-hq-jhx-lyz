@@ -1,6 +1,11 @@
-# Add @google/design.md staged-hook + DESIGN.md spec compliance
+---
+title: 'Add @google/design.md staged-hook + DESIGN.md spec compliance'
+date: 2026-04-25
+commit: '3bb20b1'
+author: 'Cursor'
+---
 
-日期：2026-04-25 · 作者：Cursor · 相关 commit：pending
+# Add @google/design.md staged-hook + DESIGN.md spec compliance
 
 ## 背景
 

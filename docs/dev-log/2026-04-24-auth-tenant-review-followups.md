@@ -1,6 +1,15 @@
-# Auth / tenant review follow-ups
+---
+title: 'Auth / tenant review follow-ups'
+date: 2026-04-24
+commit: '7e5cb97'
+updates:
+  - commit: 'c914e48'
+    note: 'Closed the auth:schema follow-up and linked the dedicated dev-log.'
+  - commit: '47d44f3'
+    note: 'Updated apps/app workspace references.'
+---
 
-日期：2026-04-24（同日 · 首登 onboarding commit `e74db86` 之后）
+# Auth / tenant review follow-ups
 
 ## 背景
 

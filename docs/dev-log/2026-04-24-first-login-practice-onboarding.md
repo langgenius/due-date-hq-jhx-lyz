@@ -1,6 +1,14 @@
-# 首次登录 Practice onboarding + 业务租户层闭环
+---
+title: '首次登录 Practice onboarding + 业务租户层闭环'
+date: 2026-04-24
+commit: 'e74db86'
+plan: '/.cursor/plans/first-login_firm_onboarding_787856ab.plan.md'
+updates:
+  - commit: '47d44f3'
+    note: 'Updated apps/app workspace references.'
+---
 
-日期：2026-04-24 · plan：[`/.cursor/plans/first-login_firm_onboarding_787856ab.plan.md`](../../.cursor/plans/first-login_firm_onboarding_787856ab.plan.md)
+# 首次登录 Practice onboarding + 业务租户层闭环
 
 ## 背景
 

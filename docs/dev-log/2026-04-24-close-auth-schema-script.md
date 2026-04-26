@@ -1,6 +1,13 @@
-# 关闭 `auth:schema` 脚本后门
+---
+title: '关闭 `auth:schema` 脚本后门'
+date: 2026-04-24
+commit: 'c914e48'
+updates:
+  - commit: '47d44f3'
+    note: 'Updated @duedatehq/app workspace references.'
+---
 
-日期：2026-04-24（承接同日 `2026-04-24-auth-tenant-review-followups.md` "后续 / 未闭环" 第 2 条）
+# 关闭 `auth:schema` 脚本后门
 
 ## 背景
 

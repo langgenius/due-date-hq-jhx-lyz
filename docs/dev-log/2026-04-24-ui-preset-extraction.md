@@ -1,3 +1,12 @@
+---
+title: '2026-04-24 · UI Preset Extraction'
+date: 2026-04-24
+commit: 'fe158d4'
+updates:
+  - commit: '47d44f3'
+    note: 'Updated apps/app workspace references.'
+---
+
 # 2026-04-24 · UI Preset Extraction
 
 ## Context
