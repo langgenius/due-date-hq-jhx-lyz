@@ -450,7 +450,19 @@ const zhCN: LandingCopy = {
       },
     ],
     copyright: '© 2026 DueDateHQ Inc. · duedatehq.com',
-    language: 'English / 中文',
+    theme: {
+      label: '主题',
+      system: '跟随系统',
+      light: '浅色',
+      dark: '深色',
+    },
+    language: {
+      label: '语言',
+      enShort: 'EN',
+      zhShort: '中',
+      enLong: 'English',
+      zhLong: '简体中文',
+    },
     status: 'all systems operational',
   },
 }

@@ -228,13 +228,34 @@ export interface FooterColumn {
   links: { label: string; href: string }[]
 }
 
+export interface ThemeSwitcherCopy {
+  /** Aria-label for the theme `radiogroup` cluster. */
+  label: string
+  /** Per-option labels (used as `aria-label` on each icon button). */
+  system: string
+  light: string
+  dark: string
+}
+
+export interface LanguageSwitcherCopy {
+  /** Aria-label for the language cluster. */
+  label: string
+  /** Short labels rendered inside the buttons (segmented control). */
+  enShort: string
+  zhShort: string
+  /** Verbose labels used as `aria-label` for screen readers. */
+  enLong: string
+  zhLong: string
+}
+
 export interface FooterCopy {
   brand: string
   tagline: string
   audience: string
   columns: FooterColumn[]
   copyright: string
-  language: string
+  theme: ThemeSwitcherCopy
+  language: LanguageSwitcherCopy
   status: string
 }
 

@@ -466,7 +466,19 @@ const en: LandingCopy = {
       },
     ],
     copyright: '© 2026 DueDateHQ Inc. · duedatehq.com',
-    language: 'English / 中文',
+    theme: {
+      label: 'Theme',
+      system: 'Match system',
+      light: 'Light',
+      dark: 'Dark',
+    },
+    language: {
+      label: 'Language',
+      enShort: 'EN',
+      zhShort: '中',
+      enLong: 'English',
+      zhLong: '简体中文',
+    },
     status: 'all systems operational',
   },
 }

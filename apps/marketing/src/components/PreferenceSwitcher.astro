@@ -1,0 +1,232 @@
+---
+import type { LanguageSwitcherCopy, ThemeSwitcherCopy } from '../i18n/types'
+
+interface Props {
+  theme: ThemeSwitcherCopy
+  language: LanguageSwitcherCopy
+  status: string
+  enHref: string
+  zhHref: string
+  currentLocale: 'en' | 'zh-CN'
+}
+
+const { theme, language, status, enHref, zhHref, currentLocale } = Astro.props
+
+const segmentedClass =
+  'inline-flex h-7 items-center rounded-md border border-border-default bg-bg-elevated p-0.5'
+const segItemBase =
+  'inline-flex items-center justify-center rounded-[4px] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-bg-panel'
+const themeOptions = [
+  { value: 'system', label: theme.system },
+  { value: 'light', label: theme.light },
+  { value: 'dark', label: theme.dark },
+] as const
+---
+
+<div class="flex flex-wrap items-center gap-3 font-mono text-[12px] text-text-muted">
+  <div role="radiogroup" aria-label={theme.label} class={segmentedClass} data-theme-switcher>
+    {
+      themeOptions.map((option) => (
+        <button
+          type="button"
+          role="radio"
+          aria-checked="false"
+          aria-label={option.label}
+          tabindex={option.value === 'system' ? 0 : -1}
+          data-theme-value={option.value}
+          class={`${segItemBase} size-6 text-text-muted hover:text-text-primary`}
+        >
+          {option.value === 'system' ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect width="20" height="14" x="2" y="3" rx="2" />
+              <line x1="8" x2="16" y1="21" y2="21" />
+              <line x1="12" x2="12" y1="17" y2="21" />
+            </svg>
+          ) : option.value === 'light' ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2" />
+              <path d="M12 20v2" />
+              <path d="m4.93 4.93 1.41 1.41" />
+              <path d="m17.66 17.66 1.41 1.41" />
+              <path d="M2 12h2" />
+              <path d="M20 12h2" />
+              <path d="m6.34 17.66-1.41 1.41" />
+              <path d="m19.07 4.93-1.41 1.41" />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+            </svg>
+          )}
+        </button>
+      ))
+    }
+  </div>
+
+  <span class="block h-3 w-px bg-border-subtle" aria-hidden="true"></span>
+
+  <div role="group" aria-label={language.label} class={segmentedClass}>
+    <a
+      href={enHref}
+      hreflang="en"
+      aria-current={currentLocale === 'en' ? 'page' : undefined}
+      aria-label={language.enLong}
+      class={`${segItemBase} h-6 min-w-7 px-2 ${
+        currentLocale === 'en'
+          ? 'bg-bg-subtle text-text-primary font-medium'
+          : 'text-text-muted hover:text-text-primary'
+      }`}
+      data-event="marketing.footer.lang"
+      data-locale="en"
+    >
+      {language.enShort}
+    </a>
+    <a
+      href={zhHref}
+      hreflang="zh-CN"
+      aria-current={currentLocale === 'zh-CN' ? 'page' : undefined}
+      aria-label={language.zhLong}
+      class={`${segItemBase} h-6 min-w-7 px-2 ${
+        currentLocale === 'zh-CN'
+          ? 'bg-bg-subtle text-text-primary font-medium'
+          : 'text-text-muted hover:text-text-primary'
+      }`}
+      data-event="marketing.footer.lang"
+      data-locale="zh-CN"
+    >
+      {language.zhShort}
+    </a>
+  </div>
+
+  <span class="inline-flex h-7 items-center gap-2 px-2.5 text-text-muted">
+    <span class="block h-1.5 w-1.5 rounded-full bg-status-done" aria-hidden="true"></span>
+    {status}
+  </span>
+</div>
+
+<script>
+  import {
+    THEME_STORAGE_KEY,
+    isThemePreference,
+    readStoredThemePreference,
+    switchThemePreference,
+    type ThemePreference,
+  } from '@duedatehq/ui/theme'
+
+  // Read preference defensively — `localStorage` may throw under strict
+  // privacy modes; default to `'system'` so the switcher still renders.
+  function readPref(): ThemePreference {
+    try {
+      return readStoredThemePreference(window.localStorage)
+    } catch {
+      return 'system'
+    }
+  }
+
+  function paint(buttons: HTMLButtonElement[], active: ThemePreference): void {
+    for (const button of buttons) {
+      const value = button.dataset.themeValue
+      const isActive = value === active
+
+      button.setAttribute('aria-checked', String(isActive))
+      button.tabIndex = isActive ? 0 : -1
+      button.classList.toggle('bg-bg-subtle', isActive)
+      button.classList.toggle('text-text-primary', isActive)
+      button.classList.toggle('text-text-muted', !isActive)
+    }
+  }
+
+  function init(): void {
+    // Cache the cluster → button[] mapping once so click / storage / keydown
+    // handlers don't re-query the DOM on every interaction.
+    const buttonsByGroup = new Map<HTMLElement, HTMLButtonElement[]>()
+    for (const group of document.querySelectorAll<HTMLElement>('[data-theme-switcher]')) {
+      const buttons = Array.from(
+        group.querySelectorAll<HTMLButtonElement>('button[data-theme-value]'),
+      )
+      if (buttons.length > 0) buttonsByGroup.set(group, buttons)
+    }
+    if (buttonsByGroup.size === 0) return
+
+    function paintAll(active: ThemePreference): void {
+      for (const buttons of buttonsByGroup.values()) paint(buttons, active)
+    }
+
+    paintAll(readPref())
+
+    for (const buttons of buttonsByGroup.values()) {
+      for (const button of buttons) {
+        button.addEventListener('click', () => {
+          const value = button.dataset.themeValue
+          if (!isThemePreference(value ?? '')) return
+          switchThemePreference(value as ThemePreference)
+          paintAll(value as ThemePreference)
+        })
+        button.addEventListener('keydown', (event) => {
+          if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+          event.preventDefault()
+          const index = buttons.indexOf(button)
+          const next =
+            event.key === 'ArrowRight'
+              ? buttons[(index + 1) % buttons.length]
+              : buttons[(index - 1 + buttons.length) % buttons.length]
+          next?.focus()
+        })
+      }
+    }
+
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+    media.addEventListener('change', () => {
+      // Only re-resolve when "system" is the active preference; explicit
+      // light/dark choices ignore OS-level changes.
+      if (readPref() === 'system') switchThemePreference('system')
+    })
+
+    window.addEventListener('storage', (event) => {
+      if (event.key !== THEME_STORAGE_KEY) return
+      const next = readPref()
+      switchThemePreference(next)
+      paintAll(next)
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true })
+  } else {
+    init()
+  }
+</script>

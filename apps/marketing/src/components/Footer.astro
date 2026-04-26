@@ -1,5 +1,6 @@
 ---
 import type { FooterCopy } from '../i18n/types'
+import PreferenceSwitcher from './PreferenceSwitcher.astro'
 
 interface Props {
   t: FooterCopy
@@ -25,39 +26,41 @@ const { t, enHref, zhHref, currentLocale } = Astro.props
       </div>
       <!-- Columns -->
       <div class="col-span-12 grid grid-cols-3 gap-8 lg:col-span-8">
-        {t.columns.map((column) => (
-          <div>
-            <div class="font-mono text-[12px] tracking-[0.16em] text-text-muted">{column.title}</div>
-            <ul class="mt-6 flex flex-col gap-3 text-[14px]">
-              {column.links.map((link) => (
-                <li>
-                  <a href={link.href} class="text-text-secondary transition-colors hover:text-text-primary">{link.label}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        {
+          t.columns.map((column) => (
+            <div>
+              <div class="font-mono text-[12px] tracking-[0.16em] text-text-muted">
+                {column.title}
+              </div>
+              <ul class="mt-6 flex flex-col gap-3 text-[14px]">
+                {column.links.map((link) => (
+                  <li>
+                    <a
+                      href={link.href}
+                      class="text-text-secondary transition-colors hover:text-text-primary"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
       </div>
     </div>
-    <div class="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border-subtle pt-8 text-[13px] lg:flex-row lg:items-center">
+    <div
+      class="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border-subtle pt-8 text-[13px] lg:flex-row lg:items-center"
+    >
       <span class="font-mono text-text-muted">{t.copyright}</span>
-      <div class="flex items-center gap-6 font-mono text-text-secondary">
-        <span class="flex items-center gap-3">
-          <a
-            href={enHref}
-            class={`transition-colors hover:text-text-primary ${currentLocale === 'en' ? 'text-text-primary' : ''}`}
-          >English</a>
-          <span class="text-text-muted">/</span>
-          <a
-            href={zhHref}
-            class={`transition-colors hover:text-text-primary ${currentLocale === 'zh-CN' ? 'text-text-primary' : ''}`}
-          >中文</a>
-        </span>
-        <span class="inline-flex items-center gap-2 text-text-muted">
-          <span class="block h-1.5 w-1.5 rounded-full bg-status-done"></span>
-          {t.status}
-        </span>
-      </div>
+      <PreferenceSwitcher
+        theme={t.theme}
+        language={t.language}
+        status={t.status}
+        enHref={enHref}
+        zhHref={zhHref}
+        currentLocale={currentLocale}
+      />
     </div>
   </div>
 </footer>
