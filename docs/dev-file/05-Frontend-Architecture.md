@@ -386,9 +386,12 @@ Theme runtime 同样由 `packages/ui` 持有：
   ；模块级惰性文案使用 `msg` + `i18n._(MessageDescriptor)`，只允许已抽取的 descriptor
 - **Zod 保持 locale-free**：`packages/contracts` schemas 只返回结构化错误 `{ code, path }`，不含文案；
   前端 RHF 的错误 UI 用 `<Trans>` 按 `code` 分支渲染
-- **Catalog 布局**：`apps/app/src/i18n/locales/{locale}/messages.po`（源）→ `lingui compile`
+- **Catalog 布局**：`apps/app/src/i18n/locales/{locale}/messages.po`（源）→ `lingui compile --strict`
   出 `.ts`（产物）；当前 `en` + `zh-CN` 体积可忽略，先静态 import，新增第三种语言时再改
   `dynamicActivate`
+- **Catalog 完整性**：`i18n:extract` 固定使用 `lingui extract --clean`，删除源码已移除的 obsolete
+  entries；`i18n:compile` 固定使用官方 `lingui compile --strict`，任何活跃 catalog 的 missing
+  translation 都直接失败，不再维护 missing baseline
 - **PO formatter**：`@lingui/format-po` 保留 file-level origins，但关闭 line numbers，避免纯代码移动
   造成 `.po` diff churn
 - **共享 contract**：`SUPPORTED_LOCALES`、`DEFAULT_LOCALE`、`INTL_LOCALE`、`LOCALE_HEADER` 位于 `packages/i18n`；app、server、marketing 共享这些常量，但 catalog 分离
@@ -407,13 +410,16 @@ Theme runtime 同样由 `packages/ui` 持有：
 
 ### 11.1 操作命令
 
-1. `pnpm --filter @duedatehq/app i18n:extract`：扫描源码并更新 `.po`
-2. `pnpm --filter @duedatehq/app i18n:compile`：编译 catalog 到 `.ts`
+1. `pnpm --filter @duedatehq/app i18n:extract`：扫描源码、更新 `.po`，并清理 obsolete entries
+2. `pnpm --filter @duedatehq/app i18n:compile`：用 `lingui compile --strict` 编译 catalog 到 `.ts`；
+   任意 missing translation 都让本地命令和 CI 失败
 3. CI drift check：在每次 `main` push 与 PR 上执行 extract + compile 后，对
-   `apps/app/src/i18n/locales` 跑 `git diff --exit-code`，防止源码文案和 catalog 脱节；
-   Lingui CLI 没有只检查不写入的官方 `--check` / dry-run 模式，所以 `git diff` 是外层
-   generated-artifact 同步断言；该 workflow 不使用 `paths` 过滤，因为 catalog drift 是仓库状态检查
-4. `pnpm ready`：覆盖 check、test、build；Vite 插件会在 build 中再次编译 `.po`
+   `apps/app/src/i18n/locales` 跑 `git diff --exit-code`，同时阻止 missing translation 与
+   源码文案 / catalog / 编译产物脱节；Lingui CLI 没有只检查不写入的官方 `--check` /
+   dry-run 模式，所以 `git diff` 是外层 generated-artifact 同步断言；该 workflow 不使用
+   `paths` 过滤，因为 catalog drift 是仓库状态检查
+4. `pnpm ready`：覆盖 check、test、build；Vite 插件会在 build 中再次编译 `.po`，但
+   不替代 extract + strict compile + diff 这一独立 catalog gate
 5. 排查 CLI 并行问题时可临时加 `--workers 1`
 
 ---

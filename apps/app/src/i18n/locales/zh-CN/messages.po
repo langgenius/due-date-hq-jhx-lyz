@@ -79,17 +79,9 @@ msgstr "3 家客户的预估税差额已超过证据阈值。"
 msgid "5 draft extensions are waiting on K-1 attachments."
 msgstr "5 份延期申请草稿正在等待 K-1 附件。"
 
-#: src/routes/login.tsx
-#~ msgid "7-day session"
-#~ msgstr ""
-
 #: src/routes/workboard.tsx
 msgid "A first pass at the dense operational surface: filters, search, status and source scanning are visible before API wiring."
 msgstr "高密度操作界面的初版：筛选、搜索、状态与来源扫描在接入 API 前已可见。"
-
-#: src/routes/login.tsx
-#~ msgid "A live snapshot of the workbench you're signing into — every dollar, deadline, and citation traceable to its IRS or state-level source."
-#~ msgstr ""
 
 #. placeholder {0}: user.name || user.email
 #: src/routes/_layout.tsx
@@ -112,10 +104,6 @@ msgstr "AI 映射器不可用 —— 已使用降级方案"
 msgid "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
 msgstr "仅当具备来源、引文与核验时间时，AI 生成的建议才会显示。"
 
-#: src/routes/login.tsx
-#~ msgid "Aligned with weekly triage cadence"
-#~ msgstr ""
-
 #: src/routes/workboard.tsx
 msgid "all"
 msgstr "全部"
@@ -136,17 +124,9 @@ msgstr "分配所选"
 msgid "Assignee"
 msgstr "负责人"
 
-#: src/routes/login.tsx
-#~ msgid "AT RISK"
-#~ msgstr ""
-
 #: src/features/migration/Step4Preview.tsx
 msgid "Audit log captures every AI decision"
 msgstr "审计日志记录每一次 AI 决策"
-
-#: src/routes/login.tsx
-#~ msgid "Audit-ready evidence chain"
-#~ msgstr ""
 
 #. placeholder {0}: einDetected ? '100%' : '0%'
 #: src/features/migration/Step2Mapping.tsx
@@ -170,16 +150,8 @@ msgid "Blocked"
 msgstr "已阻塞"
 
 #: src/routes/login.tsx
-#~ msgid "By signing in you agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
-#~ msgstr "登录即表示您同意 <termsLink>服务条款</termsLink> 和 <privacyLink>隐私政策</privacyLink>。"
-
-#: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "登录即表示你同意 <termsLink>服务条款</termsLink> 与 <privacyLink>隐私政策</privacyLink>。登录遇到问题？请联系 <supportLink>support@duedatehq.com</supportLink>。"
-
-#: src/routes/login.tsx
-#~ msgid "CA-FTB extends Form 540 + 540-ES to Oct 15 · 12 clients affected."
-#~ msgstr ""
 
 #: src/routes/settings.tsx
 msgid "Channels"
@@ -189,10 +161,6 @@ msgstr "通知渠道"
 #: src/routes/workboard.tsx
 msgid "Client"
 msgstr "客户"
-
-#: src/routes/login.tsx
-#~ msgid "CLIENT"
-#~ msgstr ""
 
 #: src/routes/dashboard.tsx
 msgid "Client risk rows"
@@ -206,10 +174,6 @@ msgstr "关闭向导"
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
 msgstr "正在从 File In Time 迁移？我们将一次性把全年日历迁过来。"
 
-#: src/routes/login.tsx
-#~ msgid "Command"
-#~ msgstr ""
-
 #: src/routes/_layout.tsx
 msgid "Compliance risk operations"
 msgstr "合规风险运营"
@@ -217,10 +181,6 @@ msgstr "合规风险运营"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Confidence"
 msgstr "置信度"
-
-#: src/routes/onboarding.tsx
-#~ msgid "Confirm your practice profile"
-#~ msgstr "确认你的事务所资料"
 
 #: src/features/migration/WizardShell.tsx
 #: src/routes/onboarding.tsx
@@ -264,10 +224,6 @@ msgstr "注册会计师截止日期工作台"
 msgid "critical"
 msgstr "紧急"
 
-#: src/routes/login.tsx
-#~ msgid "CRITICAL"
-#~ msgstr ""
-
 #: src/routes/settings.tsx
 msgid "Daily deadline and Pulse summary for owners."
 msgstr "向负责人发送每日截止日期与动态摘要。"
@@ -293,10 +249,6 @@ msgstr "默认司法辖区"
 msgid "Deferred until the product has a real-time notification need."
 msgstr "在产品出现实时通知需求前暂缓启用。"
 
-#: src/routes/login.tsx
-#~ msgid "Dollar-first queues surface the obligations that matter before the clock runs out."
-#~ msgstr "按金额优先的队列，在倒计时归零前突出最重要的义务。"
-
 #: src/routes/dashboard.tsx
 msgid "Dollar-first triage for the next operating window."
 msgstr "面向下一个运营窗口，按金额优先进行分级。"
@@ -312,10 +264,6 @@ msgstr "将 CSV / TSV 拖到这里或点击上传 · 最多 1000 行 · 2 MB"
 #: src/features/migration/Stepper.tsx
 msgid "Dry-Run"
 msgstr "试运行"
-
-#: src/routes/login.tsx
-#~ msgid "DUE"
-#~ msgstr ""
 
 #: src/routes/dashboard.tsx
 msgid "Due this week"
@@ -346,10 +294,6 @@ msgid "Enable evidence gate"
 msgstr "启用证据门槛"
 
 #: src/routes/login.tsx
-#~ msgid "Encrypted"
-#~ msgstr ""
-
-#: src/routes/login.tsx
 msgid "Encrypted · 7-day session · SSO respected"
 msgstr "已加密 · 会话 7 天有效 · 遵循 SSO 策略"
 
@@ -360,10 +304,6 @@ msgstr "全程加密 · 自动保存 · 可随时重命名"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
 msgstr "实体类型"
-
-#: src/routes/login.tsx
-#~ msgid "Every AI recommendation ships with source, quote, and verification timestamp."
-#~ msgstr "每条 AI 建议都附带来源、引文与核验时间戳。"
 
 #: src/routes/dashboard.tsx
 msgid "Evidence checks"
@@ -382,10 +322,6 @@ msgstr "证据模式"
 msgid "Exposure"
 msgstr "风险敞口"
 
-#: src/routes/login.tsx
-#~ msgid "EXPOSURE"
-#~ msgstr ""
-
 #: src/routes/dashboard.tsx
 msgid "Extension package hold"
 msgstr "延期申请包搁置"
@@ -398,10 +334,6 @@ msgstr "文件大于 2 MB，请精简或拆分后再上传。"
 msgid "filed"
 msgstr "已提交"
 
-#: src/routes/login.tsx
-#~ msgid "FILED"
-#~ msgstr ""
-
 #: src/routes/workboard.tsx
 msgid "Filters"
 msgstr "筛选器"
@@ -413,14 +345,6 @@ msgstr "事务所设置"
 #: src/routes/_entry-layout.tsx
 msgid "For US CPA practices"
 msgstr "面向美国注册会计师事务所"
-
-#: src/routes/login.tsx
-#~ msgid "FORM"
-#~ msgstr ""
-
-#: src/routes/login.tsx
-#~ msgid "Glass-box evidence"
-#~ msgstr "透明化证据"
 
 #: src/routes/dashboard.tsx
 msgid "Glass-box threshold is active"
@@ -499,10 +423,6 @@ msgstr "要离开向导吗？"
 msgid "Light"
 msgstr "浅色"
 
-#: src/routes/login.tsx
-#~ msgid "Live · synced 12s ago"
-#~ msgstr ""
-
 #: src/routes/_layout.tsx
 msgid "Local Time"
 msgstr "本地时间"
@@ -514,10 +434,6 @@ msgstr "把 \"{sourceHeader}\" 映射到…"
 #: src/features/migration/Stepper.tsx
 msgid "Mapping"
 msgstr "字段映射"
-
-#: src/routes/login.tsx
-#~ msgid "Marketing site"
-#~ msgstr ""
 
 #: src/routes/dashboard.tsx
 msgid "medium"
@@ -539,10 +455,6 @@ msgstr "多州"
 msgid "My Practice"
 msgstr "我的事务所"
 
-#: src/features/migration/WizardShell.tsx
-#~ msgid "navigate steps"
-#~ msgstr "切换步骤"
-
 #: src/routes/dashboard.tsx
 msgid "Needs evidence"
 msgstr "需补证据"
@@ -558,14 +470,6 @@ msgstr "需复核"
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "常规"
-
-#: src/routes/_layout.tsx
-#~ msgid "New obligation"
-#~ msgstr "新建义务"
-
-#: src/routes/login.tsx
-#~ msgid "Next row"
-#~ msgstr ""
 
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
@@ -608,17 +512,9 @@ msgstr "有一行缺少可用的来源 URL。"
 msgid "One-click revert available for 24 hours"
 msgstr "24 小时内可一键撤销"
 
-#: src/routes/login.tsx
-#~ msgid "Open evidence"
-#~ msgstr ""
-
 #: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "待处理风险"
-
-#: src/routes/login.tsx
-#~ msgid "Operating cadence tuned for CPA teams during peak filing windows."
-#~ msgstr "为 CPA 团队高峰申报期定制的运营节奏。"
 
 #: src/routes/dashboard.tsx
 msgid "Operational pressure points for the team."
@@ -656,21 +552,9 @@ msgstr "粘贴行数据"
 msgid "Penalty exposure"
 msgstr "罚款敞口"
 
-#: src/routes/login.tsx
-#~ msgid "PENALTY RADAR · THIS WEEK"
-#~ msgstr ""
-
 #: src/routes/dashboard.tsx
 msgid "penalty-weighted"
 msgstr "按罚款金额加权"
-
-#: src/routes/login.tsx
-#~ msgid "Penalty-weighted triage"
-#~ msgstr "按罚款金额分级"
-
-#: src/routes/login.tsx
-#~ msgid "Phase 0 · Demo practice"
-#~ msgstr "阶段 0 · 演示事务所"
 
 #: src/routes/_layout.tsx
 msgid "Phase 0 demo practice"
@@ -712,21 +596,9 @@ msgstr "仅预览 —— 提交将在第 4 天上线"
 msgid "Primary navigation"
 msgstr "主导航"
 
-#: src/routes/login.tsx
-#~ msgid "Privacy"
-#~ msgstr ""
-
 #: src/routes/_layout.tsx
 msgid "Pulse"
 msgstr "动态"
-
-#: src/routes/login.tsx
-#~ msgid "PULSE"
-#~ msgstr ""
-
-#: src/routes/login.tsx
-#~ msgid "PULSE 24H"
-#~ msgstr ""
 
 #: src/routes/workboard.tsx
 msgid "Queue controls"
@@ -763,10 +635,6 @@ msgstr "使用现有组件展示的典型来源状态。"
 #: src/routes/error.tsx
 msgid "Return home"
 msgstr "返回首页"
-
-#: src/routes/error.tsx
-#~ msgid "Return to dashboard"
-#~ msgstr "返回仪表盘"
 
 #: src/routes/dashboard.tsx
 msgid "Review risk queue"
@@ -812,10 +680,6 @@ msgstr "搜索客户或义务"
 msgid "Search obligations"
 msgstr "搜索义务"
 
-#: src/routes/login.tsx
-#~ msgid "Secure sign-in"
-#~ msgstr "安全登录"
-
 #: src/routes/onboarding.tsx
 msgid "Set up your practice."
 msgstr "设置你的事务所。"
@@ -829,41 +693,17 @@ msgstr "正在设置你的事务所…"
 msgid "Settings"
 msgstr "设置"
 
-#: src/routes/login.tsx
-#~ msgid "Seven-day rhythm"
-#~ msgstr "七日节奏"
-
 #: src/routes/dashboard.tsx
 msgid "Severity"
 msgstr "严重程度"
-
-#: src/routes/login.tsx
-#~ msgid "Sign in"
-#~ msgstr "登录"
 
 #: src/routes/login.tsx
 msgid "SIGN IN"
 msgstr "登录"
 
 #: src/routes/login.tsx
-#~ msgid "SIGN IN · GLASS-BOX WORKBENCH"
-#~ msgstr ""
-
-#: src/routes/login.tsx
-#~ msgid "Sign in to review penalty exposure, evidence checks, and the seven-day queue for your practice's filing pipeline."
-#~ msgstr "登录后查看事务所申报流水线的罚款敞口、证据核查与七日队列。"
-
-#: src/routes/login.tsx
-#~ msgid "Sign in to your firm's workbench to triage penalty exposure, walk the seven-day queue, and review every AI recommendation against its IRS or state-level source."
-#~ msgstr ""
-
-#: src/routes/login.tsx
 msgid "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
 msgstr "使用 Google 登录，进入事务所的截止日期队列与可溯源的建议。"
-
-#: src/routes/login.tsx
-#~ msgid "Sign in with your Google account to access the risk queue and evidence tools."
-#~ msgstr "使用 Google 账户登录以访问风险队列和证据工具。"
 
 #: src/routes/_layout.tsx
 msgid "Sign out"
@@ -881,14 +721,6 @@ msgstr "已登录"
 msgid "Signing out…"
 msgstr "正在退出…"
 
-#: src/routes/login.tsx
-#~ msgid "SOC 2"
-#~ msgstr ""
-
-#: src/routes/login.tsx
-#~ msgid "SOC 2 ready · SSO available"
-#~ msgstr "SOC 2 就绪 · 支持 SSO"
-
 #: src/features/migration/Step2Mapping.tsx
 msgid "Something went wrong"
 msgstr "出现了一些问题"
@@ -904,10 +736,6 @@ msgstr "来源缺失"
 #: src/features/migration/Step1Intake.tsx
 msgid "SSN-like columns blocked"
 msgstr "已拦截疑似 SSN 列"
-
-#: src/routes/login.tsx
-#~ msgid "SSO"
-#~ msgstr ""
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "States"
@@ -925,10 +753,6 @@ msgstr "状态"
 msgid "Step {step} / 4"
 msgstr "第 {step} 步 / 共 4 步"
 
-#: src/routes/onboarding.tsx
-#~ msgid "STEP 01 · PRACTICE PROFILE"
-#~ msgstr "第一步 · 事务所资料"
-
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "建议税种（来自实体 × 州矩阵）"
@@ -936,10 +760,6 @@ msgstr "建议税种（来自实体 × 州矩阵）"
 #: src/routes/_layout.tsx
 msgid "System"
 msgstr "跟随系统"
-
-#: src/routes/login.tsx
-#~ msgid "Terms"
-#~ msgstr ""
 
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
@@ -969,10 +789,6 @@ msgstr "该操作与当前状态冲突，请刷新后重试。"
 msgid "This is what your team and clients will see."
 msgstr "你的团队和客户都会看到这个名字。"
 
-#: src/routes/login.tsx
-#~ msgid "This week"
-#~ msgstr ""
-
 #: src/routes/dashboard.tsx
 msgid "Today queue"
 msgstr "今日队列"
@@ -980,10 +796,6 @@ msgstr "今日队列"
 #: src/lib/i18n-error.ts
 msgid "Too many requests. Please try again in a moment."
 msgstr "请求过于频繁，请稍后再试。"
-
-#: src/routes/login.tsx
-#~ msgid "Trouble signing in? Contact <supportLink>support@duedatehq.com</supportLink>."
-#~ msgstr "登录遇到问题？请联系 <supportLink>support@duedatehq.com</supportLink>。"
 
 #: src/routes/dashboard.tsx
 msgid "Two recommendations are waiting on verbatim text."
@@ -1004,10 +816,6 @@ msgstr "已核验"
 #: src/routes/dashboard.tsx
 msgid "verified {verifiedAt}"
 msgstr "{verifiedAt} 已核验"
-
-#: src/routes/login.tsx
-#~ msgid "Verified risk, one deadline at a time."
-#~ msgstr "每一次截止，都有可核验的风险。"
 
 #: src/routes/workboard.tsx
 msgid "waiting"
@@ -1079,21 +887,9 @@ msgstr "工作台"
 msgid "Workboard"
 msgstr "工作台"
 
-#: src/routes/login.tsx
-#~ msgid "Workspace + firm-level policy"
-#~ msgstr ""
-
-#: src/routes/login.tsx
-#~ msgid "WORKSPACE ACCESS"
-#~ msgstr ""
-
 #: src/features/migration/Step1Intake.tsx
 msgid "XLSX uploads land in Phase 0 — please export as CSV for now."
 msgstr "XLSX 上传将在 Phase 0 上线 —— 现在请先导出为 CSV。"
-
-#: src/routes/onboarding.tsx
-#~ msgid "You can rename or invite teammates later."
-#~ msgstr "你可以稍后重命名或邀请团队成员。"
 
 #: src/lib/i18n-error.ts
 msgid "You don't have permission to perform this action."
@@ -1102,14 +898,6 @@ msgstr "您没有执行该操作的权限。"
 #: src/lib/i18n-error.ts
 msgid "You need to sign in to continue."
 msgstr "请先登录后继续。"
-
-#: src/routes/login.tsx
-#~ msgid "You'll be redirected to Google and returned to your practice. Sessions last seven days and respect your firm's SSO policy."
-#~ msgstr "你将被跳转至 Google 完成登录并返回事务所。会话有效期为 7 天，并遵循事务所的 SSO 策略。"
-
-#: src/routes/login.tsx
-#~ msgid "You'll be returned to your workbench after Google completes verification. Sessions last seven days and respect your firm's SSO policy."
-#~ msgstr ""
 
 #: src/features/migration/Step4Preview.tsx
 msgid "You're about to create"

@@ -195,21 +195,26 @@ flowchart LR
 
 `apps/app/package.json` 新增：
 
-- `pnpm --filter @duedatehq/app i18n:extract` —— 扫描源码并更新 `.po`。
-- `pnpm --filter @duedatehq/app i18n:compile` —— 输出编译后的 catalog。
+- `pnpm --filter @duedatehq/app i18n:extract` —— 扫描源码、更新 `.po`，并通过官方
+  `lingui extract --clean` 清理源码已移除的 obsolete entries。
+- `pnpm --filter @duedatehq/app i18n:compile` —— 通过官方 `lingui compile --strict`
+  输出编译后的 catalog；任意活跃 catalog 有 missing translation 时命令必须失败。
   Vite 插件在 `dev` / `build` 阶段会自动执行；保留脚本是为了在 CI 中单独
   校验一次。
 - CI catalog drift check：每次 `main` push 与 PR 都执行 `i18n:extract` +
   `i18n:compile`，再对 `apps/app/src/i18n/locales` 跑 `git diff --exit-code`。如果源码文案、
-  PO catalog 或编译产物未同步提交，CI 应失败。Lingui CLI 没有只检查不写入的官方
-  `--check` / dry-run 模式，`compile --strict` 只检查 missing translations；React testing
-  guide 只覆盖 `I18nProvider` 包裹与渲染断言，不能替代 generated-artifact drift check。该
-  workflow 不使用 `paths` 过滤，因为 drift 是当前仓库状态问题，不应被后续 docs-only 提交掩盖。
+  PO catalog 或编译产物未同步提交，或任何 catalog 有 missing translation，CI 应失败。
+  Lingui CLI 没有只检查不写入的官方 `--check` / dry-run 模式；`compile --strict` 负责
+  missing translation，`git diff` 负责 generated-artifact drift。React testing guide 只覆盖
+  `I18nProvider` 包裹与渲染断言，不能替代 catalog gate。该 workflow 不使用 `paths` 过滤，
+  因为 drift 是当前仓库状态问题，不应被后续 docs-only 提交掩盖。
 - Lingui v6 CLI 默认会并行处理抽取与编译任务；需要排查非确定性问题时可临时
   追加 `--workers 1` 关闭并行。
 
 两条命令也记录在 `AGENTS.md → Build, Test, and Development Commands`。
-`pnpm ready`（check + test + build）覆盖整条链路。
+`pnpm ready`（check + test + build）覆盖类型、单测与构建；本地交付 i18n 改动时仍需单独
+跑 `i18n:extract` + `i18n:compile`，独立 GitHub Actions workflow 会在 PR / `main` push 上
+执行同一组 catalog gate。
 
 ## 测试（Tests）
 
@@ -232,8 +237,8 @@ flowchart LR
 - SPA 运行时占用约 4 KB gz（对比 i18next 的 ~40 KB gz），单 chunk 预算释放
   约 8%。
 - 源码自然语言化（`<Trans>Client {name} has {count} overdue tasks</Trans>`），
-  AI 生成代码无需发明 string key。`lingui extract` 会自动把删除的条目标记为
-  obsolete。
+  AI 生成代码无需发明 string key。`lingui extract --clean` 会删除源码中已不存在的
+  obsolete 条目，避免历史消息继续参与严格编译。
 - ICU 语法与占位符一致性在 `pnpm build` 阶段校验，出错在 CI 就暴露而非
   运行时在浏览器中才发现。
 - `useSyncExternalStore` 支撑的 `useLocaleSwitch` 避免了 Lingui 自身变更

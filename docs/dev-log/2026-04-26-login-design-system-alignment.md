@@ -1,6 +1,8 @@
 ---
 title: '2026-04-26 · Login 页面对齐 marketing 设计语言'
 date: 2026-04-26
+updates:
+  - note: '2026-04-27 strict-catalog follow-up removed obsolete Lingui entries and cleared the 31-missing baseline.'
 ---
 
 # 2026-04-26 · Login 页面对齐 marketing 设计语言
@@ -68,11 +70,15 @@ recommendations.`
 - `All systems operational`
 
 `apps/app/src/i18n/locales/zh-CN/messages.po` 的 8 条对应 msgstr 一并填上。原本 39
-missing 缩到 31（剩下 31 条是历史欠账，不在本次范围）。
+missing 缩到 31（当时判断为历史欠账，不在本次范围）。
 
 跑了 `pnpm --filter @duedatehq/app i18n:extract` + `i18n:compile` 校准 catalog；
 路径形如 `#~ msgid "SIGN IN · GLASS-BOX WORKBENCH"` 的 obsolete 项是上一稿过度设计
-留下的，按 lingui 默认行为带 `#~` 前缀注释保留，下次 extract 自动清。
+留下的，按当时默认行为带 `#~` 前缀注释保留。
+
+2026-04-27 勘误：这 31 条后来确认是 obsolete 历史项，不是活跃 UI 文案。当前
+`i18n:extract` 使用 `lingui extract --clean` 删除 obsolete entries，`i18n:compile` 使用
+`lingui compile --strict`，`zh-CN` 当前为 0 missing。
 
 ### 3. 没改的地方 + 为什么
 
@@ -133,7 +139,7 @@ i18n 段没规划，留作 follow-up）。
 ```bash
 vp check                                                              # 0 errors / 0 warnings (190 files)
 pnpm --filter @duedatehq/app exec tsc --noEmit                        # exit 0
-pnpm --filter @duedatehq/app i18n:extract                             # en 265 / zh-CN 31 missing（- 8）
+pnpm --filter @duedatehq/app i18n:extract                             # 当时输出：en 265 / zh-CN 31 missing；2026-04-27 已确认并清理为 obsolete entries
 pnpm --filter @duedatehq/app i18n:compile                             # ok
 ```
 
@@ -147,8 +153,8 @@ pnpm --filter @duedatehq/app i18n:compile                             # ok
 
 ## 后续 / 未闭环
 
-- 31 条 zh-CN 历史欠账（与本次无关）：等下次走专项翻译梳理或接 LLM 翻译 step 时
-  统一清。
+- 2026-04-27 已关闭：31 条 zh-CN 历史欠账实际为 obsolete entries，已通过
+  `lingui extract --clean` 清理；后续不再维护 missing baseline。
 - 如果未来登录页要做 SSO / Magic Link / SAML 等多种登录方式，目前的 400px 单列
   布局可以横向放 2-3 个按钮；继续走 marketing 风格的 button 而不是引入登录专用
   设计语言。

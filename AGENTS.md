@@ -18,7 +18,7 @@ Use pnpm with Node `>=22.19.0`.
 - `pnpm ready`: run checks, tests, and builds before handoff.
 - `pnpm check:deps`: validate internal package dependency direction.
 - `pnpm db:generate`, `pnpm db:migrate:local`, `pnpm db:seed:demo`: manage local Drizzle/D1 schema and demo data.
-- `pnpm --filter @duedatehq/app i18n:extract`, `pnpm --filter @duedatehq/app i18n:compile`: refresh and compile Lingui message catalogs (`apps/app/src/i18n/locales/{locale}/messages.po`); CI should fail on uncommitted catalog drift after these commands.
+- `pnpm --filter @duedatehq/app i18n:extract`, `pnpm --filter @duedatehq/app i18n:compile`: clean obsolete Lingui entries, refresh catalogs, and compile with `--strict` so any missing translation fails; CI should fail on missing translations or uncommitted catalog drift after these commands.
 
 ## Coding Style & Naming Conventions
 

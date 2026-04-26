@@ -19,10 +19,11 @@ the check answers whether the current repository state is clean after extraction
 
 Checked Lingui's official CLI and testing docs before keeping the existing drift assertion. The CLI
 documents `extract` as an updating command that merges, saves catalogs, and prints statistics; it
-does not expose a `--check` or dry-run mode for "would this change files?". `compile --strict` only
-fails on missing translations, which would not catch stale extracted catalogs and would also fail the
-current `zh-CN` missing-translation baseline. The React testing guide covers wrapping components with
-`I18nProvider` and asserting rendered translated text, not catalog generation drift.
+does not expose a `--check` or dry-run mode for "would this change files?". The later strict-catalog
+follow-up cleared the `zh-CN` baseline by removing obsolete entries with `extract --clean` and now
+uses `compile --strict` for missing translations, while `git diff` still catches stale extracted or
+compiled catalog files. The React testing guide covers wrapping components with `I18nProvider` and
+asserting rendered translated text, not catalog generation drift.
 
 ## Change
 

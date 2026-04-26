@@ -27,8 +27,9 @@ corresponding source entry.
 - Ran `pnpm --filter @duedatehq/app i18n:compile`.
 - Committed the generated catalog updates for `Operations` in both `en` and `zh-CN`.
 
-The `zh-CN` catalog keeps this entry untranslated for now, matching the existing Lingui missing
-translation behavior for untranslated source strings.
+The follow-up strict-catalog pass now removes obsolete entries and compiles with `--strict`, so this
+old note no longer describes the current policy: new or active `zh-CN` entries must be translated
+before the catalog gate can pass.
 
 ## Validation
 

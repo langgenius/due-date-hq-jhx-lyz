@@ -2,6 +2,8 @@
 title: 'Entry surface 视觉一致性整理：root error boundary + onboarding eyebrow'
 date: 2026-04-26
 author: 'Codex'
+updates:
+  - note: '2026-04-27 strict-catalog follow-up now removes obsolete Lingui entries with extract --clean.'
 ---
 
 # Entry surface 视觉一致性整理：root error boundary + onboarding eyebrow
@@ -47,7 +49,8 @@ Phase 0 的 entry surface 一共三屏（`/login` · `/onboarding` · root error
   - `<Trans>Return to dashboard</Trans>` → `<Trans>Return home</Trans>`
 - `apps/app/src/i18n/locales/{en,zh-CN}/messages.po`
   - 新 message `Return home`，zh-CN 翻成「返回首页」
-  - 旧 `Return to dashboard` 自动标记为 `#~` obsolete
+  - 当时旧 `Return to dashboard` 被标记为 `#~` obsolete；2026-04-27 后
+    `i18n:extract` 使用 `lingui extract --clean`，obsolete entries 会被清理出 catalog
 
 ### 2. Onboarding eyebrow 从 step counter 降级为 label
 
@@ -57,7 +60,8 @@ Phase 0 的 entry surface 一共三屏（`/login` · `/onboarding` · root error
     一个虚假的多步流程
 - `apps/app/src/i18n/locales/{en,zh-CN}/messages.po`
   - 新 message `PRACTICE PROFILE`，zh-CN 翻成「事务所资料」
-  - 旧 `STEP 01 · PRACTICE PROFILE` 自动标记 obsolete
+  - 当时旧 `STEP 01 · PRACTICE PROFILE` 被标记 obsolete；2026-04-27 后
+    `i18n:extract` 使用 `lingui extract --clean`，obsolete entries 会被清理出 catalog
 - `pnpm --filter @duedatehq/app i18n:compile` 重新产出 `messages.ts`
 
 ### 3. Figma 设计稿对齐

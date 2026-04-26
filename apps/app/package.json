@@ -12,8 +12,8 @@
     "build": "vp build",
     "preview": "vp preview",
     "test": "vp test",
-    "i18n:extract": "lingui extract",
-    "i18n:compile": "lingui compile"
+    "i18n:extract": "lingui extract --clean",
+    "i18n:compile": "lingui compile --strict"
   },
   "dependencies": {
     "@duedatehq/auth": "workspace:*",
