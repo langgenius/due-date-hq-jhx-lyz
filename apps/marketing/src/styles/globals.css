@@ -11,6 +11,20 @@
 /* Marketing-only base tweaks. Section spacing and hero typography are
    handled inline by tokens; this layer only enforces global text rendering. */
 @layer base {
+  /* In-page anchor navigation (TopNav links → #hero / #workflow / …) needs
+     to scroll smoothly and clear the 72px sticky TopNav. CSS-only solution;
+     respects WCAG 2.3.3 reduced-motion preference. */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 72px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
