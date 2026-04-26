@@ -51,7 +51,7 @@ apps/app/
 │   ├── styles/
 │   │   └── globals.css       ← Tailwind 编译入口 + @duedatehq/ui preset + @source
 │   └── (sw.ts 已移除 · PWA 降级见本文档头部说明)
-└── tsconfig.json             ← extends @repo/typescript-config/vite.json
+└── tsconfig.json             ← extends @duedatehq/typescript-config/vite.json
 
 packages/ui/
 ├── components.json           ← shadcn 配置（"style": "base-vega"）

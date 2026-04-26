@@ -48,7 +48,7 @@ Vite+ 官方 monorepo 模板自带 `typescript-config` 包 + 根 `vite.config.ts
 vp create vite:monorepo duedatehq --package-manager pnpm --skip-install
 cd duedatehq
 
-# 2. 删掉模板默认应用与多余包，保留 packages/typescript-config 和根配置
+# 2. 删掉模板默认应用与多余包，保留 packages/typescript-config 和根 Vite+ 配置
 rm -rf apps/* packages/*
 # 保留：pnpm-workspace.yaml · vite.config.ts · packages/typescript-config
 
@@ -75,8 +75,9 @@ rm -rf apps/* packages/*
 
 ### 3.2 每包独立 `tsconfig.json`
 
-- 根目录**不放** `tsconfig.json`（只有 `tsconfig.base.json` 供 `scripts/` 用）
+- 根目录**不放** TypeScript project 配置，共享 TypeScript 配置只放在 `packages/typescript-config`
 - 每个 app / package 都 `extends: "@duedatehq/typescript-config/<variant>.json"`
+- 根目录 `scripts/` 使用 `.mjs` 运维脚本；如果未来新增 `.ts` 脚本，应优先放入合适的 workspace package，只有确实需要根级脚本类型检查时才新增专用 `tsconfig.scripts.json`
 - Variants：
   - `base.json`：strict + ES2022 + isolated modules + TS 6 defaults
   - `library.json`：JIT 包用（exports types from src）
