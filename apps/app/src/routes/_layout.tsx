@@ -35,13 +35,9 @@ import {
 import { Separator } from '@duedatehq/ui/components/ui/separator'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import {
-  applyResolvedTheme,
-  readStoredThemePreference,
-  resolveThemePreference,
-  THEME_STORAGE_KEY,
-  updateThemeColor,
   isThemePreference,
-  disableThemeTransitions,
+  readStoredThemePreference,
+  switchThemePreference as applyAndPersistTheme,
   type ThemePreference,
 } from '@duedatehq/ui/theme'
 import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from '@duedatehq/i18n'
@@ -77,19 +73,6 @@ function getStoredThemePreference(): ThemePreference {
   }
 }
 
-function getPrefersDark(): boolean {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-}
-
-function applyThemePreference(preference: ThemePreference): void {
-  const resolvedTheme = resolveThemePreference(preference, getPrefersDark())
-  const enableTransitions = disableThemeTransitions()
-
-  applyResolvedTheme(document.documentElement, resolvedTheme)
-  updateThemeColor(document, resolvedTheme)
-  enableTransitions()
-}
-
 function useThemeSwitch(): {
   themePreference: ThemePreference
   switchThemePreference: (next: ThemePreference) => void
@@ -99,29 +82,25 @@ function useThemeSwitch(): {
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
 
-    function syncThemePreference() {
+    function syncFromExternalChange() {
       const next = getStoredThemePreference()
 
       setThemePreference(next)
-      applyThemePreference(next)
+      applyAndPersistTheme(next)
     }
 
-    media.addEventListener('change', syncThemePreference)
-    window.addEventListener('storage', syncThemePreference)
+    media.addEventListener('change', syncFromExternalChange)
+    window.addEventListener('storage', syncFromExternalChange)
 
     return () => {
-      media.removeEventListener('change', syncThemePreference)
-      window.removeEventListener('storage', syncThemePreference)
+      media.removeEventListener('change', syncFromExternalChange)
+      window.removeEventListener('storage', syncFromExternalChange)
     }
   }, [])
 
   const switchThemePreference = useCallback((next: ThemePreference) => {
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, next)
-    } catch {}
-
     setThemePreference(next)
-    applyThemePreference(next)
+    applyAndPersistTheme(next)
   }, [])
 
   return { themePreference, switchThemePreference }

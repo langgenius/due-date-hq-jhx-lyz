@@ -75,6 +75,42 @@ function disableThemeTransitions(nonce?: string): () => void {
   }
 }
 
+interface SwitchThemePreferenceOptions {
+  /** Override storage. Defaults to `window.localStorage`. */
+  storage?: Pick<Storage, 'setItem'>
+  /** Override `prefers-color-scheme: dark` query result. Defaults to `matchMedia(...)`. */
+  prefersDark?: boolean
+}
+
+// Single entrypoint both apps use to switch theme at runtime. Encapsulates the
+// 4 ordered side effects so the SaaS shell and the Astro marketing footer can
+// stay in lock-step (no drift in transition handling, attribute writes, or
+// storage key). The no-flash `<head>` script in `THEME_INIT_SCRIPT` covers the
+// initial paint; this function only handles user-driven changes.
+function switchThemePreference(
+  preference: ThemePreference,
+  options?: SwitchThemePreferenceOptions,
+): ResolvedTheme {
+  const prefersDark =
+    options?.prefersDark ?? window.matchMedia('(prefers-color-scheme: dark)').matches
+  const resolvedTheme = resolveThemePreference(preference, prefersDark)
+  const enableTransitions = disableThemeTransitions()
+
+  applyResolvedTheme(document.documentElement, resolvedTheme)
+  updateThemeColor(document, resolvedTheme)
+  enableTransitions()
+
+  const storage = options?.storage ?? window.localStorage
+  try {
+    storage.setItem(THEME_STORAGE_KEY, preference)
+  } catch {
+    // localStorage may be unavailable (private mode, security policy). Theme
+    // is still applied for the current session — just won't persist.
+  }
+
+  return resolvedTheme
+}
+
 export {
   THEME_ATTRIBUTE,
   THEME_COLOR_DARK,
@@ -87,8 +123,10 @@ export {
   isThemePreference,
   readStoredThemePreference,
   resolveThemePreference,
+  switchThemePreference,
   themeColorFor,
   updateThemeColor,
   type ResolvedTheme,
+  type SwitchThemePreferenceOptions,
   type ThemePreference,
 }

@@ -47,3 +47,14 @@ The Astro app must not copy the script body or invent a second storage key. If i
 ## Closure
 
 Architecture docs now describe the app and Astro consumption paths. Runtime code, package exports, CSS token behavior, and docs all point to `packages/ui` as the single source for theme behavior.
+
+## Follow-up · 2026-04-26
+
+The interactive switch path was extracted into `switchThemePreference()` in
+`packages/ui/src/theme/theme.ts`. Both `apps/app` (`useThemeSwitch` in
+`_layout.tsx`) and the new `apps/marketing` `PreferenceSwitcher.astro`
+consume that single function so the four-step side effect chain
+(`disableThemeTransitions → applyResolvedTheme → updateThemeColor →
+localStorage.setItem`) can never drift between products. See
+`docs/dev-log/2026-04-26-marketing-preference-switcher.md` for the marketing
+landing piece.
