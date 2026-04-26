@@ -17,6 +17,7 @@ import {
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@duedatehq/ui/components/ui/field'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import { authClient, type AuthUser } from '@/lib/auth'
+import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 
 const MIN_NAME_LENGTH = 2
 const MAX_RETRIES_ON_SLUG_COLLISION = 1
@@ -91,6 +92,8 @@ export function OnboardingRoute() {
           toast.error(t`Could not activate your practice`, { description: message })
           return
         }
+        // Returning users with an existing firm skip the import hand-off —
+        // they likely already imported once.
         await navigate(redirectTo, { replace: true })
         return
       }
@@ -112,7 +115,10 @@ export function OnboardingRoute() {
         return
       }
 
-      await navigate(redirectTo, { replace: true })
+      // Brand-new firm: hand the user straight into Migration Copilot so the
+      // dashboard doesn't show empty-state placeholders. The flag is consumed
+      // and stripped by MigrationWizardProvider after the wizard opens.
+      await navigate(redirectTo, { replace: true, state: { autoOpenMigration: true } })
     })
   }
 
@@ -122,6 +128,9 @@ export function OnboardingRoute() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_0%,color-mix(in_oklab,var(--primary)_10%,transparent),transparent_60%)]"
       />
+      <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
+        <LocaleSwitcher />
+      </div>
       <div className="flex w-full max-w-[480px] flex-col gap-6">
         <div className="flex items-center gap-2">
           <div className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">

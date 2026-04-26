@@ -206,6 +206,7 @@ msgstr "无法解析输入内容"
 msgid "Couldn't save mapping"
 msgstr "保存字段映射失败"
 
+#: src/features/migration/Step1Intake.tsx
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't start the import"
 msgstr "无法启动导入流程"
@@ -362,9 +363,17 @@ msgstr "我正在从…迁移过来（可选）"
 msgid "Immediate feedback for status changes and failed mutations."
 msgstr "状态变化或操作失败时立即反馈。"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Import"
+msgstr "导入"
+
 #: src/features/migration/Wizard.tsx
 msgid "Import & Generate (Day 4)"
 msgstr "导入并生成（第 4 天上线）"
+
+#: src/routes/_layout.tsx
+msgid "Import clients"
+msgstr "导入客户"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Import clients · Step {step} of 4"
@@ -442,6 +451,10 @@ msgstr "多州"
 msgid "My Practice"
 msgstr "我的事务所"
 
+#: src/features/migration/WizardShell.tsx
+msgid "navigate steps"
+msgstr "切换步骤"
+
 #: src/routes/dashboard.tsx
 msgid "Needs evidence"
 msgstr "需补证据"
@@ -459,8 +472,8 @@ msgid "neutral"
 msgstr "常规"
 
 #: src/routes/_layout.tsx
-msgid "New obligation"
-msgstr "新建义务"
+#~ msgid "New obligation"
+#~ msgstr "新建义务"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
@@ -659,6 +672,10 @@ msgstr "安全保障"
 msgid "Sample"
 msgstr "样例"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Save draft"
+msgstr "保存草稿"
+
 #: src/routes/workboard.tsx
 msgid "Search clients or obligations"
 msgstr "搜索客户或义务"
@@ -747,6 +764,10 @@ msgstr "当前为静态 UI；后续可由 URL 驱动的筛选替换此外壳。"
 #: src/routes/workboard.tsx
 msgid "Status"
 msgstr "状态"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Step {step} / 4"
+msgstr "第 {step} 步 / 共 4 步"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
@@ -873,6 +894,10 @@ msgstr "Web 推送已禁用"
 #: src/features/migration/Step1Intake.tsx
 msgid "Where is your data coming from?"
 msgstr "你的数据从哪里来？"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Workbench"
+msgstr "工作台"
 
 #: src/routes/_layout.tsx
 #: src/routes/workboard.tsx

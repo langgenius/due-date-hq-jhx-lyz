@@ -114,34 +114,39 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
   }
 
   return (
-    <div className="flex flex-col gap-5 py-5" id="wizard-step1-body">
+    <div className="flex flex-col gap-5 pt-5 pb-5" id="wizard-step1-body">
       <div className="flex flex-col gap-1">
-        <h2 className="text-base font-medium text-text-primary">
+        <h2 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary">
           <Trans>Where is your data coming from?</Trans>
         </h2>
-        <p className="text-sm text-text-secondary">
+        <p className="text-base text-text-secondary">
           <Trans>We&apos;ll figure out the shape — paste or upload, your call.</Trans>
         </p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor={pasteId} className="text-xs font-medium text-text-muted uppercase">
+        <label
+          htmlFor={pasteId}
+          className="font-mono text-[11px] tracking-[0.16em] text-text-muted uppercase"
+        >
           <Trans>Paste rows</Trans>
         </label>
-        <Textarea
-          id={pasteId}
-          aria-label={t`Paste client data`}
-          aria-describedby="paste-hint"
-          value={intake.rawText}
-          onChange={(e) => onText(e.target.value, null)}
-          placeholder={t`Paste here — any shape, we'll figure it out. Include the header row if you have one.`}
-          className="h-[240px] resize-y rounded-md border border-border-default bg-bg-elevated p-3 font-mono text-xs tabular-nums"
-        />
+        <div className="rounded-md border border-border-default bg-bg-elevated p-1 shadow-subtle">
+          <Textarea
+            id={pasteId}
+            aria-label={t`Paste client data`}
+            aria-describedby="paste-hint"
+            value={intake.rawText}
+            onChange={(e) => onText(e.target.value, null)}
+            placeholder={t`Paste here — any shape, we'll figure it out. Include the header row if you have one.`}
+            className="h-[220px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
+          />
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
         <span aria-hidden className="h-px flex-1 bg-border-default" />
-        <span className="text-xs font-medium text-text-muted uppercase">
+        <span className="font-mono text-[11px] tracking-[0.16em] text-text-muted uppercase">
           <Trans>or</Trans>
         </span>
         <span aria-hidden className="h-px flex-1 bg-border-default" />
@@ -159,14 +164,14 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
             fileInputRef.current?.click()
           }
         }}
-        className="flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border-strong bg-bg-subtle text-sm text-text-secondary transition-colors hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className="flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border-strong bg-bg-elevated text-base text-text-secondary transition-colors hover:border-accent-default/40 hover:bg-accent-tint/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <UploadCloudIcon className="size-5 text-text-muted" aria-hidden />
         <span>
           <Trans>Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB</Trans>
         </span>
         {intake.fileName ? (
-          <span className="font-mono text-xs text-text-secondary tabular-nums">
+          <span className="font-mono text-base text-text-secondary tabular-nums">
             {intake.fileName}
           </span>
         ) : null}
@@ -180,7 +185,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium text-text-muted uppercase">
+        <span className="font-mono text-[11px] tracking-[0.16em] text-text-muted uppercase">
           <Trans>I&apos;m coming from… (optional)</Trans>
         </span>
         <div className="flex flex-wrap gap-2">
@@ -196,8 +201,8 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         </div>
       </div>
 
-      <p id="paste-hint" className="flex items-center gap-1.5 text-xs text-text-muted">
-        <LockIcon className="size-3" aria-hidden />
+      <p id="paste-hint" className="flex items-center gap-1.5 text-base text-text-muted">
+        <LockIcon className="size-4" aria-hidden />
         <Trans>We block SSN-like patterns before sending anything to the AI.</Trans>
       </p>
 
@@ -249,7 +254,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       ) : null}
 
       {intake.rowCount > 0 && intake.parseError === null ? (
-        <p className="text-sm text-status-done">
+        <p className="text-base text-status-done">
           <Plural
             value={intake.rowCount}
             one="# row ready to import"
@@ -275,12 +280,19 @@ function PresetChip({ id, label, selected, onToggle }: PresetChipProps) {
       onClick={onToggle}
       aria-pressed={selected}
       className={cn(
-        'inline-flex h-6 cursor-pointer items-center rounded-md border px-2.5 text-xs font-medium transition-colors',
+        'inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-base font-medium transition-colors',
         selected
           ? 'border-accent-default bg-accent-tint text-accent-default'
           : 'border-border-default bg-bg-canvas text-text-secondary hover:border-accent-default hover:text-accent-default',
       )}
     >
+      <span
+        aria-hidden
+        className={cn(
+          'block size-1.5 rounded-full transition-colors',
+          selected ? 'bg-accent-default' : 'bg-accent-default/60',
+        )}
+      />
       {label}
     </button>
   )

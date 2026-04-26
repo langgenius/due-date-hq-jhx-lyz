@@ -17,6 +17,8 @@ import { Stepper } from './Stepper'
 import type { StepIndex } from './state'
 
 interface WizardShellProps {
+  /** Controlled visibility — provider toggles this in response to user intent. */
+  open: boolean
   step: StepIndex
   /** Disables the [Continue →] button and shows a spinner inside it. */
   busy: boolean
@@ -33,14 +35,17 @@ interface WizardShellProps {
 }
 
 /**
- * Wizard outer chrome — full-screen modal + Stepper + sticky footer.
+ * Wizard outer chrome — workbench-style modal with traffic-light dots,
+ * mono breadcrumb, hairline Stepper, and keyboard-hint footer.
  *
- * Authority: docs/product-design/migration-copilot/02-ux-4step-wizard.md §2.
+ * Visual authority: DESIGN.md §Layout/Components + apps/marketing HeroSurface.
+ * Behavior authority: docs/product-design/migration-copilot/02-ux-4step-wizard.md §2.
  *
- * Focus trap is handled by Base-UI Dialog; we lock the close to a
- * confirmation modal so accidental Esc does not blow away the draft.
+ * Esc / overlay click bounces through a "leave & save draft" confirmation so
+ * accidental dismissals don't blow away the user's paste.
  */
 export function WizardShell({
+  open,
   step,
   busy,
   canContinue,
@@ -54,39 +59,85 @@ export function WizardShell({
   const { t } = useLingui()
   const [confirming, setConfirming] = useState(false)
 
+  function handleOpenChange(next: boolean) {
+    if (next) return
+    setConfirming(true)
+  }
+
+  function handleLeave() {
+    setConfirming(false)
+    onClose()
+  }
+
   return (
-    <Dialog open onOpenChange={(open) => !open && setConfirming(true)}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         showCloseButton={false}
         className={cn(
-          'flex max-h-[calc(100vh-4rem)] w-[min(960px,calc(100%-3rem))] max-w-none flex-col gap-0 overflow-hidden rounded-lg p-0',
+          'flex max-h-[calc(100vh-4rem)] w-[960px] max-w-[calc(100%-3rem)] flex-col gap-0 overflow-hidden rounded-xl border border-border-default bg-bg-elevated p-3 shadow-overlay sm:max-w-[calc(100%-3rem)]',
         )}
       >
-        <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border-default bg-bg-canvas px-5">
-          <DialogTitle className="text-base font-medium text-text-primary">
-            <Trans>Import clients · Step {step} of 4</Trans>
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            <Trans>
-              Migration Copilot wizard — paste or upload your client roster, review the AI mapping,
-              normalize values, and preview the import before committing.
-            </Trans>
-          </DialogDescription>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t`Close wizard`}
-            onClick={() => setConfirming(true)}
-          >
-            <XIcon />
-          </Button>
+        <DialogTitle className="sr-only">
+          <Trans>Import clients · Step {step} of 4</Trans>
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          <Trans>
+            Migration Copilot wizard — paste or upload your client roster, review the AI mapping,
+            normalize values, and preview the import before committing.
+          </Trans>
+        </DialogDescription>
+
+        {/* Window chrome — mirrors HeroSurface traffic-light + mono breadcrumb. */}
+        <header className="flex h-10 shrink-0 items-center justify-between gap-3 border-b border-border-subtle bg-bg-canvas px-3">
+          <div className="flex items-center gap-3">
+            <div aria-hidden className="flex items-center gap-1.5">
+              <span className="block size-2 rounded-full bg-severity-critical/70" />
+              <span className="block size-2 rounded-full bg-severity-medium/70" />
+              <span className="block size-2 rounded-full bg-status-done/70" />
+            </div>
+            <div className="flex items-center gap-1.5 font-mono text-sm text-text-muted">
+              <span className="block size-2.5 rounded-sm bg-bg-subtle" aria-hidden />
+              <span>
+                <Trans>Workbench</Trans>
+              </span>
+              <span aria-hidden>/</span>
+              <span>
+                <Trans>Import</Trans>
+              </span>
+              <span aria-hidden>/</span>
+              <span className="text-text-secondary">
+                <Trans>Step {step} / 4</Trans>
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="hidden items-center gap-1 font-mono text-[11px] text-text-muted sm:inline-flex">
+              <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border-default bg-bg-elevated px-1.5 text-[11px] text-text-primary">
+                Esc
+              </kbd>
+              <span className="text-text-muted">
+                <Trans>Save draft</Trans>
+              </span>
+            </span>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t`Close wizard`}
+              onClick={() => setConfirming(true)}
+            >
+              <XIcon />
+            </Button>
+          </div>
         </header>
+
         <Stepper current={step} />
-        <div className="min-h-0 flex-1 overflow-y-auto bg-bg-canvas px-5 pb-5">{children}</div>
-        <footer className="flex h-14 shrink-0 items-center justify-between border-t border-border-default bg-bg-panel px-5">
+
+        <div className="min-h-0 flex-1 overflow-y-auto bg-bg-panel px-6">{children}</div>
+
+        <footer className="flex h-12 shrink-0 items-center justify-end gap-4 border-t border-border-subtle bg-bg-canvas px-4">
           <Button
             variant="outline"
-            size="sm"
+            size="lg"
             onClick={onBack}
             disabled={busy || backDisabled || step === 1 || !onBack}
           >
@@ -94,7 +145,7 @@ export function WizardShell({
             <Trans>Back</Trans>
           </Button>
           <Button
-            size="sm"
+            size="lg"
             onClick={onContinue}
             disabled={busy || !canContinue}
             aria-busy={busy || undefined}
@@ -110,12 +161,12 @@ export function WizardShell({
           <DialogContent
             showCloseButton={false}
             role="alertdialog"
-            className="w-[min(480px,calc(100%-2rem))]"
+            className="w-[min(480px,calc(100%-2rem))] rounded-xl border border-border-default bg-bg-elevated shadow-overlay"
           >
-            <DialogTitle>
+            <DialogTitle className="text-2xl">
               <Trans>Leave wizard?</Trans>
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-base">
               <Trans>Your draft is saved — you can resume from Settings › Imports history.</Trans>
             </DialogDescription>
             <DialogFooter>
@@ -124,7 +175,7 @@ export function WizardShell({
               >
                 <Trans>Keep editing</Trans>
               </DialogClose>
-              <Button size="sm" onClick={onClose}>
+              <Button size="sm" onClick={handleLeave}>
                 <Trans>Leave & save draft</Trans>
               </Button>
             </DialogFooter>

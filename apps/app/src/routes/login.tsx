@@ -21,6 +21,7 @@ import {
 } from '@duedatehq/ui/components/ui/card'
 import { Separator } from '@duedatehq/ui/components/ui/separator'
 import { signInWithGoogle } from '@/lib/auth'
+import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 function useHighlights() {
@@ -100,6 +101,9 @@ export function LoginRoute() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_0%,color-mix(in_oklab,var(--primary)_12%,transparent),transparent_60%),radial-gradient(40%_40%_at_100%_100%,color-mix(in_oklab,var(--primary)_8%,transparent),transparent_60%)]"
       />
+      <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
+        <LocaleSwitcher />
+      </div>
       <div className="mx-auto grid min-h-screen w-full max-w-[1200px] grid-cols-1 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="hidden flex-col justify-between border-r border-border-default bg-bg-panel p-8 lg:flex lg:p-12">
           <div className="flex items-center gap-2">

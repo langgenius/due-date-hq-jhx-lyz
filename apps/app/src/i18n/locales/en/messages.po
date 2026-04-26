@@ -206,6 +206,7 @@ msgstr "Couldn't parse the input"
 msgid "Couldn't save mapping"
 msgstr "Couldn't save mapping"
 
+#: src/features/migration/Step1Intake.tsx
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't start the import"
 msgstr "Couldn't start the import"
@@ -362,9 +363,17 @@ msgstr "I'm coming from… (optional)"
 msgid "Immediate feedback for status changes and failed mutations."
 msgstr "Immediate feedback for status changes and failed mutations."
 
+#: src/features/migration/WizardShell.tsx
+msgid "Import"
+msgstr "Import"
+
 #: src/features/migration/Wizard.tsx
 msgid "Import & Generate (Day 4)"
 msgstr "Import & Generate (Day 4)"
+
+#: src/routes/_layout.tsx
+msgid "Import clients"
+msgstr "Import clients"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Import clients · Step {step} of 4"
@@ -442,6 +451,10 @@ msgstr "Multi-state"
 msgid "My Practice"
 msgstr "My Practice"
 
+#: src/features/migration/WizardShell.tsx
+msgid "navigate steps"
+msgstr "navigate steps"
+
 #: src/routes/dashboard.tsx
 msgid "Needs evidence"
 msgstr "Needs evidence"
@@ -459,8 +472,8 @@ msgid "neutral"
 msgstr "neutral"
 
 #: src/routes/_layout.tsx
-msgid "New obligation"
-msgstr "New obligation"
+#~ msgid "New obligation"
+#~ msgstr "New obligation"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
@@ -659,6 +672,10 @@ msgstr "Safety"
 msgid "Sample"
 msgstr "Sample"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Save draft"
+msgstr "Save draft"
+
 #: src/routes/workboard.tsx
 msgid "Search clients or obligations"
 msgstr "Search clients or obligations"
@@ -747,6 +764,10 @@ msgstr "Static UI now; URL-backed filters can replace this shell later."
 #: src/routes/workboard.tsx
 msgid "Status"
 msgstr "Status"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Step {step} / 4"
+msgstr "Step {step} / 4"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
@@ -873,6 +894,10 @@ msgstr "Web Push disabled"
 #: src/features/migration/Step1Intake.tsx
 msgid "Where is your data coming from?"
 msgstr "Where is your data coming from?"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Workbench"
+msgstr "Workbench"
 
 #: src/routes/_layout.tsx
 #: src/routes/workboard.tsx

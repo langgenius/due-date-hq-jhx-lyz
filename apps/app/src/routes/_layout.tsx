@@ -14,6 +14,7 @@ import {
   LogOutIcon,
   SettingsIcon,
   SunIcon,
+  UploadCloudIcon,
 } from 'lucide-react'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -45,6 +46,7 @@ import {
 } from '@duedatehq/ui/theme'
 import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from '@duedatehq/i18n'
 import { useLocaleSwitch } from '@/i18n/provider'
+import { MigrationWizardProvider, useMigrationWizard } from '@/features/migration/WizardProvider'
 import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
 import { cn } from '@duedatehq/ui/lib/utils'
 
@@ -439,6 +441,37 @@ export function ShellSkeleton() {
   )
 }
 
+function HeaderActions({
+  user,
+  themePreference,
+  switchThemePreference,
+}: {
+  user: AuthUser
+  themePreference: ThemePreference
+  switchThemePreference: (next: ThemePreference) => void
+}) {
+  const { openWizard } = useMigrationWizard()
+
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="sm">
+        <BellIcon data-icon="inline-start" />
+        <Trans>Pulse</Trans>
+      </Button>
+      <Button size="sm" onClick={openWizard}>
+        <UploadCloudIcon data-icon="inline-start" />
+        <Trans>Import clients</Trans>
+      </Button>
+      <UserMenu
+        user={user}
+        themePreference={themePreference}
+        switchThemePreference={switchThemePreference}
+        variant="compact"
+      />
+    </div>
+  )
+}
+
 export function RootLayout() {
   // User is guaranteed to exist here — the protected loader already redirected
   // to /login otherwise, so there's no isPending / null branch to render.
@@ -446,6 +479,29 @@ export function RootLayout() {
   const shellMeta = useShellMeta()
   const { themePreference, switchThemePreference } = useThemeSwitch()
 
+  return (
+    <MigrationWizardProvider>
+      <RootLayoutShell
+        user={user}
+        shellMeta={shellMeta}
+        themePreference={themePreference}
+        switchThemePreference={switchThemePreference}
+      />
+    </MigrationWizardProvider>
+  )
+}
+
+function RootLayoutShell({
+  user,
+  shellMeta,
+  themePreference,
+  switchThemePreference,
+}: {
+  user: AuthUser
+  shellMeta: Array<[string, string]>
+  themePreference: ThemePreference
+  switchThemePreference: (next: ThemePreference) => void
+}) {
   return (
     <div className="isolate min-h-screen bg-bg-canvas text-text-primary">
       <PendingBar />
@@ -494,21 +550,11 @@ export function RootLayout() {
                 <Trans>Compliance risk operations</Trans>
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <BellIcon data-icon="inline-start" />
-                <Trans>Pulse</Trans>
-              </Button>
-              <Button size="sm">
-                <Trans>New obligation</Trans>
-              </Button>
-              <UserMenu
-                user={user}
-                themePreference={themePreference}
-                switchThemePreference={switchThemePreference}
-                variant="compact"
-              />
-            </div>
+            <HeaderActions
+              user={user}
+              themePreference={themePreference}
+              switchThemePreference={switchThemePreference}
+            />
             <MobileNav />
           </header>
           <main className="min-w-0 flex-1">

@@ -1,5 +1,4 @@
-import { useCallback, useMemo, useReducer } from 'react'
-import { useNavigate } from 'react-router'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { toast } from 'sonner'
@@ -30,17 +29,28 @@ import {
 } from './state'
 import type { MatrixApplicationView } from './matrix-view'
 
+interface WizardProps {
+  open: boolean
+  onClose: () => void
+}
+
 /**
- * Migration Copilot Wizard — entry point at /migration/new.
+ * Migration Copilot Wizard — controlled modal mounted once at the app shell.
  *
  * The reducer holds UI state; server mutations go through oRPC TanStack Query
  * mutationOptions so loading, errors, and cache invalidation use one project pattern.
+ *
+ * The wizard auto-resets when `open` flips to false so the next entry starts
+ * from a clean Step 1 instead of resuming a half-finished draft.
  */
-export function Wizard() {
+export function Wizard({ open, onClose }: WizardProps) {
   const { t } = useLingui()
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [state, dispatch] = useReducer(wizardReducer, INITIAL_STATE)
+
+  useEffect(() => {
+    if (!open) dispatch({ type: 'RESET' })
+  }, [open])
 
   const invalidateMigration = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: orpc.migration.key() })
@@ -249,8 +259,8 @@ export function Wizard() {
   ])
 
   const handleClose = useCallback(() => {
-    void navigate('/')
-  }, [navigate])
+    onClose()
+  }, [onClose])
 
   const matrixPreview = useMemo<MatrixApplicationView[]>(() => buildMatrixPreview(state), [state])
 
@@ -296,6 +306,7 @@ export function Wizard() {
 
   return (
     <WizardShell
+      open={open}
       step={state.step}
       busy={isMutating || state.isBusy}
       canContinue={canContinue && state.step !== 4}
