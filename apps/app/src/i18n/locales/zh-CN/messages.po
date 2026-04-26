@@ -696,6 +696,10 @@ msgstr "事务所名称"
 msgid "Practice profile"
 msgstr "事务所资料"
 
+#: src/routes/onboarding.tsx
+msgid "PRACTICE PROFILE"
+msgstr "事务所资料"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Preview only — commit lands in Day 4"
 msgstr "仅预览 —— 提交将在第 4 天上线"
@@ -753,8 +757,12 @@ msgid "Representative source states wired with existing components."
 msgstr "使用现有组件展示的典型来源状态。"
 
 #: src/routes/error.tsx
-msgid "Return to dashboard"
-msgstr "返回仪表盘"
+msgid "Return home"
+msgstr "返回首页"
+
+#: src/routes/error.tsx
+#~ msgid "Return to dashboard"
+#~ msgstr "返回仪表盘"
 
 #: src/routes/dashboard.tsx
 msgid "Review risk queue"
@@ -914,8 +922,8 @@ msgid "Step {step} / 4"
 msgstr "第 {step} 步 / 共 4 步"
 
 #: src/routes/onboarding.tsx
-msgid "STEP 01 · PRACTICE PROFILE"
-msgstr "第一步 · 事务所资料"
+#~ msgid "STEP 01 · PRACTICE PROFILE"
+#~ msgstr "第一步 · 事务所资料"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"

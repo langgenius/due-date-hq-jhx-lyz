@@ -119,7 +119,7 @@ export function OnboardingRoute() {
     <div className="flex w-full max-w-[400px] flex-col">
       <span className="inline-flex w-fit items-center gap-2 rounded-full bg-accent-tint px-2.5 py-1 font-mono text-[11px] tracking-[0.16em] text-accent-text">
         <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-accent-default" />
-        <Trans>STEP 01 · PRACTICE PROFILE</Trans>
+        <Trans>PRACTICE PROFILE</Trans>
       </span>
 
       <h1 className="mt-5 text-[28px] font-semibold leading-[1.15] tracking-tight text-text-primary">

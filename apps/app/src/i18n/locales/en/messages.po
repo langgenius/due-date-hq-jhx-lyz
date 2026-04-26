@@ -696,6 +696,10 @@ msgstr "Practice name"
 msgid "Practice profile"
 msgstr "Practice profile"
 
+#: src/routes/onboarding.tsx
+msgid "PRACTICE PROFILE"
+msgstr "PRACTICE PROFILE"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Preview only — commit lands in Day 4"
 msgstr "Preview only — commit lands in Day 4"
@@ -753,8 +757,12 @@ msgid "Representative source states wired with existing components."
 msgstr "Representative source states wired with existing components."
 
 #: src/routes/error.tsx
-msgid "Return to dashboard"
-msgstr "Return to dashboard"
+msgid "Return home"
+msgstr "Return home"
+
+#: src/routes/error.tsx
+#~ msgid "Return to dashboard"
+#~ msgstr "Return to dashboard"
 
 #: src/routes/dashboard.tsx
 msgid "Review risk queue"
@@ -914,8 +922,8 @@ msgid "Step {step} / 4"
 msgstr "Step {step} / 4"
 
 #: src/routes/onboarding.tsx
-msgid "STEP 01 · PRACTICE PROFILE"
-msgstr "STEP 01 · PRACTICE PROFILE"
+#~ msgid "STEP 01 · PRACTICE PROFILE"
+#~ msgstr "STEP 01 · PRACTICE PROFILE"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"

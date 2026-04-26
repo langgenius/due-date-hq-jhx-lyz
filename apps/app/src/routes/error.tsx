@@ -43,7 +43,7 @@ export function RouteErrorBoundary() {
   const { title, message } = useErrorCopy(error)
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-body p-6">
+    <div className="flex min-h-screen items-center justify-center bg-bg-canvas p-6">
       <div className="flex w-full max-w-[560px] flex-col gap-4">
         <Alert variant="destructive">
           <AlertTriangleIcon />
@@ -51,7 +51,7 @@ export function RouteErrorBoundary() {
           <AlertDescription>{message}</AlertDescription>
         </Alert>
         <Button render={<Link to="/" />}>
-          <Trans>Return to dashboard</Trans>
+          <Trans>Return home</Trans>
         </Button>
       </div>
     </div>
