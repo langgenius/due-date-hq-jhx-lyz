@@ -1,8 +1,11 @@
 import { oc } from '@orpc/contract'
 import { z } from 'zod'
+import { EntityTypeSchema } from './shared/enums'
 
 export const RuleJurisdictionSchema = z.enum(['FED', 'CA', 'NY', 'TX', 'FL', 'WA'])
 export type RuleJurisdiction = z.infer<typeof RuleJurisdictionSchema>
+export const RuleGenerationStateSchema = z.enum(['CA', 'NY', 'TX', 'FL', 'WA'])
+export type RuleGenerationState = z.infer<typeof RuleGenerationStateSchema>
 
 export const RuleSourceTypeSchema = z.enum([
   'publication',
@@ -13,6 +16,7 @@ export const RuleSourceTypeSchema = z.enum([
   'news',
   'form',
   'early_warning',
+  'subscription',
 ])
 
 export const AcquisitionMethodSchema = z.enum([
@@ -61,6 +65,8 @@ export const EntityApplicabilitySchema = z.enum([
   'individual',
   'any_business',
 ])
+
+export const RuleGenerationEntitySchema = EntityTypeSchema
 
 export const ObligationEventTypeSchema = z.enum([
   'filing',
@@ -178,6 +184,53 @@ export const RuleCoverageRowSchema = z.object({
 })
 export type RuleCoverageRow = z.infer<typeof RuleCoverageRowSchema>
 
+export const RuleGenerationClientFactsSchema = z.object({
+  id: z.string().min(1),
+  entityType: RuleGenerationEntitySchema,
+  state: RuleGenerationStateSchema,
+  taxTypes: z.array(z.string().min(1)),
+  taxYearStart: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  taxYearEnd: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+})
+export type RuleGenerationClientFacts = z.infer<typeof RuleGenerationClientFactsSchema>
+
+export const RuleGenerationPreviewInputSchema = z.object({
+  client: RuleGenerationClientFactsSchema,
+  holidays: z.array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+})
+export type RuleGenerationPreviewInput = z.infer<typeof RuleGenerationPreviewInputSchema>
+
+export const ObligationGenerationPreviewSchema = z.object({
+  clientId: z.string().min(1),
+  ruleId: z.string().min(1),
+  ruleVersion: z.number().int().positive(),
+  ruleTitle: z.string().min(1),
+  jurisdiction: RuleJurisdictionSchema,
+  taxType: z.string().min(1),
+  matchedTaxType: z.string().min(1),
+  period: z.string().min(1),
+  dueDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .nullable(),
+  eventType: ObligationEventTypeSchema,
+  isFiling: z.boolean(),
+  isPayment: z.boolean(),
+  formName: z.string().min(1),
+  sourceIds: z.array(z.string().min(1)),
+  evidence: z.array(RuleEvidenceSchema),
+  requiresReview: z.boolean(),
+  reminderReady: z.boolean(),
+  reviewReasons: z.array(z.string().min(1)),
+})
+export type ObligationGenerationPreview = z.infer<typeof ObligationGenerationPreviewSchema>
+
 export const RulesListInputSchema = z
   .object({
     jurisdiction: RuleJurisdictionSchema.optional(),
@@ -198,5 +251,8 @@ export const rulesContract = oc.router({
   listSources: oc.input(RuleSourcesListInputSchema).output(z.array(RuleSourceSchema)),
   listRules: oc.input(RulesListInputSchema).output(z.array(ObligationRuleSchema)),
   coverage: oc.input(z.undefined()).output(z.array(RuleCoverageRowSchema)),
+  previewObligations: oc
+    .input(RuleGenerationPreviewInputSchema)
+    .output(z.array(ObligationGenerationPreviewSchema)),
 })
 export type RulesContract = typeof rulesContract

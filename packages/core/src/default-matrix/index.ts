@@ -56,7 +56,7 @@ const RULES: Record<string, Record<string, MatrixCell>> = {
       taxTypes: ['federal_1065_or_1040', 'ca_llc_franchise_min_800', 'ca_llc_fee_gross_receipts'],
       needsReview: false,
       sourceUrls: [
-        'https://www.ftb.ca.gov/file/business/types/limited-liability-company.html',
+        'https://www.ftb.ca.gov/file/business/types/limited-liability-company/index.html',
         'https://www.irs.gov/businesses/small-businesses-self-employed/limited-liability-company-llc',
       ],
       confidence: 1.0,

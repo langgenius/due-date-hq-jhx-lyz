@@ -63,5 +63,6 @@ export const router = os.router({
     listSources: rulesHandlers.listSources,
     listRules: rulesHandlers.listRules,
     coverage: rulesHandlers.coverage,
+    previewObligations: rulesHandlers.previewObligations,
   },
 })

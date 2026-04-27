@@ -12,6 +12,8 @@ import { WorkboardListInputSchema, WorkboardSortSchema, workboardContract } from
 import { MigrationErrorStageSchema, migrationContract } from './migration'
 import {
   ObligationRuleSchema,
+  ObligationGenerationPreviewSchema,
+  RuleGenerationPreviewInputSchema,
   RuleCoverageRowSchema,
   RuleSourceSchema,
   rulesContract,
@@ -103,7 +105,12 @@ describe('@duedatehq/contracts', () => {
   })
 
   it('freezes rules read contracts', () => {
-    expect(Object.keys(rulesContract)).toEqual(['listSources', 'listRules', 'coverage'])
+    expect(Object.keys(rulesContract)).toEqual([
+      'listSources',
+      'listRules',
+      'coverage',
+      'previewObligations',
+    ])
 
     const source = RuleSourceSchema.parse({
       id: 'fed.irs_pub_509_2026',
@@ -120,6 +127,17 @@ describe('@duedatehq/contracts', () => {
       lastReviewedOn: '2026-04-27',
     })
     expect(source.jurisdiction).toBe('FED')
+    expect(
+      RuleSourceSchema.parse({
+        ...source,
+        id: 'ny.email_services',
+        jurisdiction: 'NY',
+        title: 'New York Tax Department Email Services',
+        url: 'https://www.tax.ny.gov/help/subscribe.htm',
+        sourceType: 'subscription',
+        acquisitionMethod: 'email_subscription',
+      }).sourceType,
+    ).toBe('subscription')
 
     const rule = ObligationRuleSchema.parse({
       id: 'fed.1065.return.2025',
@@ -174,6 +192,91 @@ describe('@duedatehq/contracts', () => {
       version: 1,
     })
     expect(rule.status).toBe('verified')
+
+    const previewInput = RuleGenerationPreviewInputSchema.parse({
+      client: {
+        id: 'client_ca_llc',
+        entityType: 'llc',
+        state: 'CA',
+        taxTypes: ['ca_llc_franchise_min_800'],
+        taxYearStart: '2026-01-01',
+        taxYearEnd: '2025-12-31',
+      },
+      holidays: ['2026-01-01'],
+    })
+    expect(previewInput.client.taxTypes).toEqual(['ca_llc_franchise_min_800'])
+
+    expect(() =>
+      RuleGenerationPreviewInputSchema.parse({
+        client: {
+          id: 'client_any_business',
+          entityType: 'any_business',
+          state: 'WA',
+          taxTypes: ['wa_combined_excise'],
+        },
+      }),
+    ).toThrow()
+
+    expect(() =>
+      RuleGenerationPreviewInputSchema.parse({
+        client: {
+          id: 'client_lowercase_state',
+          entityType: 'llc',
+          state: 'ca',
+          taxTypes: ['ca_llc_franchise_min_800'],
+        },
+      }),
+    ).toThrow()
+
+    expect(() =>
+      RuleGenerationPreviewInputSchema.parse({
+        client: {
+          id: 'client_unsupported_state',
+          entityType: 'llc',
+          state: 'MA',
+          taxTypes: ['federal_1065_or_1040'],
+        },
+      }),
+    ).toThrow()
+
+    expect(() =>
+      RuleGenerationPreviewInputSchema.parse({
+        client: {
+          id: 'client_fed_state',
+          entityType: 'llc',
+          state: 'FED',
+          taxTypes: ['federal_1065_or_1040'],
+        },
+      }),
+    ).toThrow()
+
+    const preview = ObligationGenerationPreviewSchema.parse({
+      clientId: 'client_ca_llc',
+      ruleId: 'ca.llc.annual_tax.2026',
+      ruleVersion: 1,
+      ruleTitle: 'California LLC annual tax payment',
+      jurisdiction: 'CA',
+      taxType: 'ca_llc_annual_tax',
+      matchedTaxType: 'ca_llc_franchise_min_800',
+      period: 'tax_year',
+      dueDate: '2026-04-15',
+      eventType: 'payment',
+      isFiling: false,
+      isPayment: true,
+      formName: 'FTB 3522',
+      sourceIds: ['ca.ftb_business_due_dates'],
+      evidence: [
+        {
+          sourceId: 'ca.ftb_business_due_dates',
+          locator: 'Annual LLC tax',
+          summary: 'Due on the 15th day of the 4th month.',
+        },
+      ],
+      requiresReview: false,
+      reminderReady: true,
+      reviewReasons: [],
+    })
+    expect(preview.reminderReady).toBe(true)
 
     expect(
       RuleCoverageRowSchema.parse({

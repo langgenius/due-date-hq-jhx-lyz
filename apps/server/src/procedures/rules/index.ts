@@ -1,8 +1,9 @@
-import type { ObligationRule, RuleSource } from '@duedatehq/contracts'
+import type { ObligationGenerationPreview, ObligationRule, RuleSource } from '@duedatehq/contracts'
 import {
   getMvpRuleCoverage,
   listObligationRules,
   listRuleSources,
+  previewObligationsFromRules,
   type DueDateLogic,
   type RuleJurisdiction,
   type RuleStatus,
@@ -39,6 +40,17 @@ function toRule(rule: ReturnType<typeof listObligationRules>[number]): Obligatio
   }
 }
 
+function toPreview(
+  preview: ReturnType<typeof previewObligationsFromRules>[number],
+): ObligationGenerationPreview {
+  return {
+    ...preview,
+    sourceIds: [...preview.sourceIds],
+    evidence: preview.evidence.map((item) => ({ ...item })),
+    reviewReasons: [...preview.reviewReasons],
+  }
+}
+
 const listSources = os.rules.listSources.handler(async ({ input }) => {
   return listRuleSources(input?.jurisdiction).map(toSource)
 })
@@ -61,8 +73,32 @@ const coverage = os.rules.coverage.handler(async () => {
   return [...getMvpRuleCoverage()]
 })
 
+const previewObligations = os.rules.previewObligations.handler(async ({ input }) => {
+  const generationInput: Parameters<typeof previewObligationsFromRules>[0] = {
+    client: {
+      id: input.client.id,
+      entityType: input.client.entityType,
+      state: input.client.state,
+      taxTypes: input.client.taxTypes,
+    },
+  }
+
+  if (input.client.taxYearStart !== undefined) {
+    generationInput.client.taxYearStart = input.client.taxYearStart
+  }
+  if (input.client.taxYearEnd !== undefined) {
+    generationInput.client.taxYearEnd = input.client.taxYearEnd
+  }
+  if (input.holidays !== undefined) {
+    generationInput.holidays = input.holidays
+  }
+
+  return previewObligationsFromRules(generationInput).map(toPreview)
+})
+
 export const rulesHandlers = {
   listSources,
   listRules,
   coverage,
+  previewObligations,
 }

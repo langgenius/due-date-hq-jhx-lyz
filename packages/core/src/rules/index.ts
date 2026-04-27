@@ -1,3 +1,5 @@
+import { expandDueDateLogic } from '../date-logic'
+
 export const MVP_RULE_JURISDICTIONS = ['FED', 'CA', 'NY', 'TX', 'FL', 'WA'] as const
 
 export type RuleJurisdiction = (typeof MVP_RULE_JURISDICTIONS)[number]
@@ -11,6 +13,7 @@ export type RuleSourceType =
   | 'news'
   | 'form'
   | 'early_warning'
+  | 'subscription'
 
 export type AcquisitionMethod =
   | 'html_watch'
@@ -147,6 +150,52 @@ export interface ObligationRule {
   version: number
 }
 
+export type RuleGenerationEntity = Exclude<EntityApplicability, 'any_business'> | 'other'
+export type RuleGenerationState = Exclude<RuleJurisdiction, 'FED'>
+
+export interface RuleGenerationClientFacts {
+  id: string
+  entityType: RuleGenerationEntity
+  state: RuleGenerationState
+  taxTypes: readonly string[]
+  taxYearStart?: string
+  taxYearEnd?: string
+}
+
+export interface RuleGenerationInput {
+  client: RuleGenerationClientFacts
+  rules?: readonly ObligationRule[]
+  holidays?: readonly string[]
+}
+
+export interface RuleTaxTypeCandidate {
+  inputTaxType: string
+  taxType: string
+  requiresReview: boolean
+  reviewReason: string | null
+}
+
+export interface ObligationGenerationPreview {
+  clientId: string
+  ruleId: string
+  ruleVersion: number
+  ruleTitle: string
+  jurisdiction: RuleJurisdiction
+  taxType: string
+  matchedTaxType: string
+  period: string
+  dueDate: string | null
+  eventType: ObligationEventType
+  isFiling: boolean
+  isPayment: boolean
+  formName: string
+  sourceIds: readonly string[]
+  evidence: readonly RuleEvidence[]
+  requiresReview: boolean
+  reminderReady: boolean
+  reviewReasons: readonly string[]
+}
+
 const VERIFIED_QUALITY: RuleQualityChecklist = {
   filingPaymentDistinguished: true,
   extensionHandled: true,
@@ -158,6 +207,82 @@ const VERIFIED_QUALITY: RuleQualityChecklist = {
 
 const VERIFIED_AT = '2026-04-27'
 const NEXT_PRE_SEASON_REVIEW = '2026-11-15'
+
+const RULE_TAX_TYPE_ALIASES: Record<
+  string,
+  readonly { taxType: string; requiresReview?: boolean; reason?: string }[]
+> = {
+  ca_100_franchise: [{ taxType: 'ca_100' }],
+  ca_100s_franchise: [{ taxType: 'ca_100s' }],
+  ca_llc_fee_gross_receipts: [
+    {
+      taxType: 'ca_llc_estimated_fee',
+      requiresReview: true,
+      reason: 'ca_llc_fee_depends_on_california_source_income',
+    },
+  ],
+  ca_llc_franchise_min_800: [{ taxType: 'ca_llc_annual_tax' }],
+  federal_1065_or_1040: [
+    {
+      taxType: 'federal_1065',
+      requiresReview: true,
+      reason: 'llc_federal_classification_required',
+    },
+  ],
+  ny_llc_filing_fee: [
+    {
+      taxType: 'ny_it204ll',
+      requiresReview: true,
+      reason: 'ny_it204ll_applicability_required',
+    },
+  ],
+  ny_ptet_optional: [
+    {
+      taxType: 'ny_ptet_election',
+      requiresReview: true,
+      reason: 'ny_ptet_election_required',
+    },
+    {
+      taxType: 'ny_ptet_estimated_tax',
+      requiresReview: true,
+      reason: 'ny_ptet_election_required',
+    },
+    {
+      taxType: 'ny_ptet',
+      requiresReview: true,
+      reason: 'ny_ptet_election_required',
+    },
+  ],
+  tx_franchise_tax: [
+    {
+      taxType: 'tx_franchise_report',
+      requiresReview: true,
+      reason: 'tx_franchise_taxability_required',
+    },
+    {
+      taxType: 'tx_pir_oir',
+      requiresReview: true,
+      reason: 'tx_information_report_type_required',
+    },
+  ],
+  wa_combined_excise: [
+    {
+      taxType: 'wa_combined_excise_monthly',
+      requiresReview: true,
+      reason: 'wa_filing_frequency_required',
+    },
+    {
+      taxType: 'wa_combined_excise_quarterly',
+      requiresReview: true,
+      reason: 'wa_filing_frequency_required',
+    },
+    {
+      taxType: 'wa_combined_excise_annual',
+      requiresReview: true,
+      reason: 'wa_filing_frequency_required',
+    },
+  ],
+}
 
 export const RULE_SOURCES = [
   {
@@ -234,7 +359,7 @@ export const RULE_SOURCES = [
     id: 'ca.ftb_llc',
     jurisdiction: 'CA',
     title: 'California FTB Limited Liability Company',
-    url: 'https://www.ftb.ca.gov/file/business/types/limited-liability-company.html',
+    url: 'https://www.ftb.ca.gov/file/business/types/limited-liability-company/index.html',
     sourceType: 'instructions',
     acquisitionMethod: 'html_watch',
     cadence: 'monthly',
@@ -287,13 +412,13 @@ export const RULE_SOURCES = [
     lastReviewedOn: VERIFIED_AT,
   },
   {
-    id: 'ny.tax_calendar_2026',
+    id: 'ny.tax_calendar.2026',
     jurisdiction: 'NY',
     title: 'New York 2026 Tax Filing Dates',
     url: 'https://www.tax.ny.gov/help/calendar/2026.htm',
     sourceType: 'calendar',
     acquisitionMethod: 'html_watch',
-    cadence: 'pre_season',
+    cadence: 'weekly',
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
@@ -317,15 +442,43 @@ export const RULE_SOURCES = [
   {
     id: 'ny.it204ll',
     jurisdiction: 'NY',
-    title: 'New York Form IT-204-LL Instructions',
-    url: 'https://www.tax.ny.gov/pdf/current_forms/it/it204lli.pdf',
+    title: 'New York Partnership, LLC, and LLP Annual Filing Fee',
+    url: 'https://www.tax.ny.gov/pit/efile/annual_filing_fee.htm',
     sourceType: 'instructions',
-    acquisitionMethod: 'pdf_watch',
-    cadence: 'pre_season',
+    acquisitionMethod: 'html_watch',
+    cadence: 'quarterly',
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
     notificationChannels: ['ops_source_change', 'publish_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'ny.partnerships',
+    jurisdiction: 'NY',
+    title: 'New York Partnerships',
+    url: 'https://www.tax.ny.gov/pit/efile/partneridx.htm',
+    sourceType: 'instructions',
+    acquisitionMethod: 'html_watch',
+    cadence: 'quarterly',
+    priority: 'high',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['ops_source_change', 'publish_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'ny.email_services',
+    jurisdiction: 'NY',
+    title: 'New York Tax Department Email Services',
+    url: 'https://www.tax.ny.gov/help/subscribe.htm',
+    sourceType: 'subscription',
+    acquisitionMethod: 'email_subscription',
+    cadence: 'weekly',
+    priority: 'medium',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['ops_source_change', 'candidate_review'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -347,7 +500,7 @@ export const RULE_SOURCES = [
     jurisdiction: 'TX',
     title: 'Texas Comptroller Franchise Tax Overview',
     url: 'https://comptroller.texas.gov/taxes/publications/98-806.php',
-    sourceType: 'instructions',
+    sourceType: 'publication',
     acquisitionMethod: 'html_watch',
     cadence: 'quarterly',
     priority: 'critical',
@@ -357,7 +510,21 @@ export const RULE_SOURCES = [
     lastReviewedOn: VERIFIED_AT,
   },
   {
-    id: 'tx.annual_report',
+    id: 'tx.franchise_home',
+    jurisdiction: 'TX',
+    title: 'Texas Comptroller Franchise Tax',
+    url: 'https://comptroller.texas.gov/taxes/franchise/index.php/taxes/franchise/questionnaire.php',
+    sourceType: 'due_dates',
+    acquisitionMethod: 'html_watch',
+    cadence: 'weekly',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['ops_source_change', 'publish_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'tx.franchise_annual_report',
     jurisdiction: 'TX',
     title: 'Texas Annual Report Instructions',
     url: 'https://comptroller.texas.gov/help/franchise/information-report.php?category=taxes',
@@ -368,6 +535,34 @@ export const RULE_SOURCES = [
     healthStatus: 'healthy',
     isEarlyWarning: false,
     notificationChannels: ['ops_source_change', 'publish_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'tx.franchise_extensions',
+    jurisdiction: 'TX',
+    title: 'Texas Franchise Tax Extensions',
+    url: 'https://comptroller.texas.gov/taxes/franchise/filing-extensions.php/1000',
+    sourceType: 'instructions',
+    acquisitionMethod: 'html_watch',
+    cadence: 'quarterly',
+    priority: 'high',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['ops_source_change', 'publish_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'tx.franchise_forms_2026',
+    jurisdiction: 'TX',
+    title: 'Texas Franchise Tax Report Forms for 2026',
+    url: 'https://comptroller.texas.gov/taxes/franchise/forms/2026-franchise.php',
+    sourceType: 'form',
+    acquisitionMethod: 'html_watch',
+    cadence: 'weekly',
+    priority: 'high',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -431,11 +626,11 @@ export const RULE_SOURCES = [
     jurisdiction: 'WA',
     title: 'Washington DOR 2026 Excise Tax Return Due Dates',
     url: 'https://dor.wa.gov/file-pay-taxes/filing-frequencies-due-dates/2026-excise-tax-return-due-dates',
-    sourceType: 'due_dates',
-    acquisitionMethod: 'html_watch',
-    cadence: 'pre_season',
+    sourceType: 'calendar',
+    acquisitionMethod: 'manual_review',
+    cadence: 'weekly',
     priority: 'critical',
-    healthStatus: 'healthy',
+    healthStatus: 'degraded',
     isEarlyWarning: false,
     notificationChannels: ['ops_source_change', 'publish_preview'],
     lastReviewedOn: VERIFIED_AT,
@@ -446,10 +641,10 @@ export const RULE_SOURCES = [
     title: 'Washington DOR Business and Occupation Tax',
     url: 'https://dor.wa.gov/taxes-rates/business-occupation-tax',
     sourceType: 'instructions',
-    acquisitionMethod: 'html_watch',
+    acquisitionMethod: 'manual_review',
     cadence: 'quarterly',
     priority: 'high',
-    healthStatus: 'healthy',
+    healthStatus: 'degraded',
     isEarlyWarning: false,
     notificationChannels: ['ops_source_change', 'publish_preview'],
     lastReviewedOn: VERIFIED_AT,
@@ -460,24 +655,24 @@ export const RULE_SOURCES = [
     title: 'Washington DOR News Releases',
     url: 'https://dor.wa.gov/about/news-releases',
     sourceType: 'news',
-    acquisitionMethod: 'html_watch',
+    acquisitionMethod: 'manual_review',
     cadence: 'weekly',
     priority: 'high',
-    healthStatus: 'healthy',
+    healthStatus: 'degraded',
     isEarlyWarning: false,
     notificationChannels: ['ops_source_change', 'candidate_review'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
-    id: 'wa.capital_gains_due_date_2026',
+    id: 'wa.capital_gains_exception_2026',
     jurisdiction: 'WA',
     title: 'Washington Capital Gains Excise Tax Due Date Moved to May 1, 2026',
     url: 'https://dor.wa.gov/about/news-releases/2026/capital-gains-excise-tax-returns-due-date-moved-may-1-2026',
     sourceType: 'news',
-    acquisitionMethod: 'html_watch',
+    acquisitionMethod: 'manual_review',
     cadence: 'weekly',
     priority: 'medium',
-    healthStatus: 'healthy',
+    healthStatus: 'degraded',
     isEarlyWarning: false,
     notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
     lastReviewedOn: VERIFIED_AT,
@@ -505,7 +700,7 @@ export const OBLIGATION_RULES = [
     status: 'verified',
     coverageStatus: 'manual',
     riskLevel: 'med',
-    requiresApplicabilityReview: false,
+    requiresApplicabilityReview: true,
     dueDateLogic: {
       kind: 'nth_day_after_tax_year_end',
       monthOffset: 3,
@@ -604,9 +799,9 @@ export const OBLIGATION_RULES = [
     applicableYear: 2026,
     ruleTier: 'basic',
     status: 'verified',
-    coverageStatus: 'full',
+    coverageStatus: 'manual',
     riskLevel: 'med',
-    requiresApplicabilityReview: false,
+    requiresApplicabilityReview: true,
     dueDateLogic: {
       kind: 'nth_day_after_tax_year_end',
       monthOffset: 4,
@@ -743,9 +938,9 @@ export const OBLIGATION_RULES = [
     isPayment: false,
     taxYear: 2025,
     applicableYear: 2026,
-    ruleTier: 'basic',
+    ruleTier: 'applicability_review',
     status: 'verified',
-    coverageStatus: 'full',
+    coverageStatus: 'manual',
     riskLevel: 'med',
     requiresApplicabilityReview: true,
     dueDateLogic: {
@@ -973,9 +1168,10 @@ export const OBLIGATION_RULES = [
     riskLevel: 'med',
     requiresApplicabilityReview: false,
     dueDateLogic: {
-      kind: 'fixed_date',
-      date: '2026-03-16',
-      holidayRollover: 'source_adjusted',
+      kind: 'nth_day_after_tax_year_end',
+      monthOffset: 3,
+      day: 15,
+      holidayRollover: 'next_business_day',
     },
     extensionPolicy: {
       available: true,
@@ -984,17 +1180,17 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'Extension must be filed by the return due date.',
     },
-    sourceIds: ['ny.tax_calendar_2026', 'ny.it204ll'],
+    sourceIds: ['ny.partnerships', 'ny.tax_calendar.2026'],
     evidence: [
       sourceEvidence(
-        'ny.tax_calendar_2026',
+        'ny.tax_calendar.2026',
         'March 16 entries',
         'NY calendar lists partnership tax return due for calendar-year filers.',
       ),
       sourceEvidence(
-        'ny.it204ll',
-        'When to file',
-        'IT-204-LL instructions cross-reference the partnership return due date.',
+        'ny.partnerships',
+        'Partnership filing guidance',
+        'NY partnership return due dates follow the partnership tax year close.',
       ),
     ],
     defaultTip: 'NY calendar-year partnership returns for 2025 are due March 16, 2026.',
@@ -1032,10 +1228,10 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'NY instructions state there is no extension for Form IT-204-LL or the annual fee.',
     },
-    sourceIds: ['ny.tax_calendar_2026', 'ny.it204ll'],
+    sourceIds: ['ny.tax_calendar.2026', 'ny.it204ll'],
     evidence: [
       sourceEvidence(
-        'ny.tax_calendar_2026',
+        'ny.tax_calendar.2026',
         'March 16 entries',
         'NY calendar lists partnership, LLC, and LLP filing fee due.',
       ),
@@ -1064,15 +1260,16 @@ export const OBLIGATION_RULES = [
     isPayment: false,
     taxYear: 2025,
     applicableYear: 2026,
-    ruleTier: 'basic',
+    ruleTier: 'annual_rolling',
     status: 'verified',
     coverageStatus: 'full',
     riskLevel: 'med',
     requiresApplicabilityReview: false,
     dueDateLogic: {
-      kind: 'fixed_date',
-      date: '2026-04-15',
-      holidayRollover: 'source_adjusted',
+      kind: 'nth_day_after_tax_year_end',
+      monthOffset: 4,
+      day: 15,
+      holidayRollover: 'next_business_day',
     },
     extensionPolicy: {
       available: true,
@@ -1080,10 +1277,10 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'Calendar-year return due date is from NY calendar and Article 9-A guidance.',
     },
-    sourceIds: ['ny.tax_calendar_2026', 'ny.article_9a'],
+    sourceIds: ['ny.tax_calendar.2026', 'ny.article_9a'],
     evidence: [
       sourceEvidence(
-        'ny.tax_calendar_2026',
+        'ny.tax_calendar.2026',
         'April 15 entries',
         'NY calendar lists C corporation return due for calendar-year filers.',
       ),
@@ -1101,13 +1298,162 @@ export const OBLIGATION_RULES = [
     version: 1,
   },
   {
+    id: 'ny.ct3s.return.2025',
+    title: 'New York S corporation franchise tax return',
+    jurisdiction: 'NY',
+    entityApplicability: ['s_corp'],
+    taxType: 'ny_ct3s',
+    formName: 'Form CT-3-S',
+    eventType: 'filing',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2025,
+    applicableYear: 2026,
+    ruleTier: 'annual_rolling',
+    status: 'verified',
+    coverageStatus: 'full',
+    riskLevel: 'med',
+    requiresApplicabilityReview: false,
+    dueDateLogic: {
+      kind: 'nth_day_after_tax_year_end',
+      monthOffset: 3,
+      day: 15,
+      holidayRollover: 'next_business_day',
+    },
+    extensionPolicy: {
+      available: true,
+      durationMonths: 6,
+      paymentExtended: false,
+      notes: 'Calendar-year S corporation returns are listed on the NY filing calendar.',
+    },
+    sourceIds: ['ny.tax_calendar.2026', 'ny.article_9a'],
+    evidence: [
+      sourceEvidence(
+        'ny.tax_calendar.2026',
+        'March 16 entries',
+        'NY calendar lists S corporation tax return due for calendar-year filers.',
+      ),
+      sourceEvidence(
+        'ny.article_9a',
+        'S corporation guidance',
+        'NY Article 9-A resources distinguish S corporation return filing from C corporation filing.',
+      ),
+    ],
+    defaultTip: 'Calendar-year NY S corporation returns for 2025 are due March 16, 2026.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'ops.rules.manual',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'ny.ptet.election.2026',
+    title: 'New York PTET election',
+    jurisdiction: 'NY',
+    entityApplicability: ['partnership', 's_corp'],
+    taxType: 'ny_ptet_election',
+    formName: 'PTET election',
+    eventType: 'election',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2026,
+    applicableYear: 2026,
+    ruleTier: 'applicability_review',
+    status: 'verified',
+    coverageStatus: 'manual',
+    riskLevel: 'high',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'fixed_date',
+      date: '2026-03-16',
+      holidayRollover: 'source_adjusted',
+    },
+    extensionPolicy: {
+      available: false,
+      paymentExtended: false,
+      notes: 'The annual PTET election must be made by an authorized person.',
+    },
+    sourceIds: ['ny.ptet', 'ny.tax_calendar.2026'],
+    evidence: [
+      sourceEvidence(
+        'ny.ptet',
+        'Annual election',
+        'NY PTET election requires entity-level authorization and applicability review.',
+      ),
+      sourceEvidence(
+        'ny.tax_calendar.2026',
+        'March 16 entries',
+        'NY calendar lists the PTET election deadline for the 2026 tax year.',
+      ),
+    ],
+    defaultTip: 'Confirm the client wants to make a PTET election before treating this as work.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'ops.rules.manual',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'ny.ptet.estimated_payments.2026',
+    title: 'New York PTET estimated payments',
+    jurisdiction: 'NY',
+    entityApplicability: ['partnership', 's_corp'],
+    taxType: 'ny_ptet_estimated_tax',
+    formName: 'PTET estimated payments',
+    eventType: 'payment',
+    isFiling: false,
+    isPayment: true,
+    taxYear: 2026,
+    applicableYear: 2026,
+    ruleTier: 'applicability_review',
+    status: 'verified',
+    coverageStatus: 'manual',
+    riskLevel: 'high',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'period_table',
+      frequency: 'quarterly',
+      periods: [
+        { period: '2026-Q1', dueDate: '2026-03-16' },
+        { period: '2026-Q2', dueDate: '2026-06-15' },
+        { period: '2026-Q3', dueDate: '2026-09-15' },
+        { period: '2026-Q4', dueDate: '2026-12-15' },
+      ],
+      holidayRollover: 'source_adjusted',
+    },
+    extensionPolicy: {
+      available: false,
+      paymentExtended: false,
+      notes: 'PTET estimated payments are payment-only and depend on election status.',
+    },
+    sourceIds: ['ny.ptet', 'ny.tax_calendar.2026'],
+    evidence: [
+      sourceEvidence(
+        'ny.ptet',
+        'Estimated payments',
+        'NY PTET estimated payments apply only to electing entities.',
+      ),
+      sourceEvidence(
+        'ny.tax_calendar.2026',
+        'PTET estimated payments',
+        'NY calendar lists 2026 PTET estimated payment dates.',
+      ),
+    ],
+    defaultTip: 'Generate only after confirming the entity elected into PTET.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'ops.rules.manual',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
     id: 'ny.ptet.return_extension.2025',
     title: 'New York PTET annual return or extension',
     jurisdiction: 'NY',
     entityApplicability: ['partnership', 's_corp'],
     taxType: 'ny_ptet',
     formName: 'PTET annual return',
-    eventType: 'extension',
+    eventType: 'filing',
     isFiling: true,
     isPayment: true,
     taxYear: 2025,
@@ -1128,10 +1474,10 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'PTET extension is filing-only; tax must be paid by original due date.',
     },
-    sourceIds: ['ny.tax_calendar_2026', 'ny.ptet'],
+    sourceIds: ['ny.tax_calendar.2026', 'ny.ptet'],
     evidence: [
       sourceEvidence(
-        'ny.tax_calendar_2026',
+        'ny.tax_calendar.2026',
         'March 16 entries',
         'NY calendar lists PTET return or automatic extension request due.',
       ),
@@ -1149,7 +1495,7 @@ export const OBLIGATION_RULES = [
     title: 'Texas annual franchise tax report',
     jurisdiction: 'TX',
     entityApplicability: ['llc', 'partnership', 's_corp', 'c_corp'],
-    taxType: 'tx_franchise_tax',
+    taxType: 'tx_franchise_report',
     formName: 'Texas franchise tax report',
     eventType: 'filing',
     isFiling: true,
@@ -1171,7 +1517,7 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'Timely extension request must be received or postmarked by the original due date.',
     },
-    sourceIds: ['tx.franchise_overview', 'tx.annual_report'],
+    sourceIds: ['tx.franchise_home', 'tx.franchise_overview'],
     evidence: [
       sourceEvidence(
         'tx.franchise_overview',
@@ -1179,9 +1525,9 @@ export const OBLIGATION_RULES = [
         'Texas lists franchise tax reports as due May 15 each year.',
       ),
       sourceEvidence(
-        'tx.annual_report',
-        'Annual Report Instructions',
-        'Annual reports are due May 15 of each year.',
+        'tx.franchise_home',
+        'Franchise Tax 2026 Reports',
+        'Texas lists 2026 franchise tax reports as due May 15, 2026.',
       ),
     ],
     defaultTip:
@@ -1197,14 +1543,14 @@ export const OBLIGATION_RULES = [
     title: 'Texas PIR or OIR information report',
     jurisdiction: 'TX',
     entityApplicability: ['llc', 'partnership', 's_corp', 'c_corp'],
-    taxType: 'tx_franchise_information_report',
+    taxType: 'tx_pir_oir',
     formName: 'PIR/OIR',
     eventType: 'information_report',
     isFiling: true,
     isPayment: false,
     taxYear: 2026,
     applicableYear: 2026,
-    ruleTier: 'basic',
+    ruleTier: 'annual_rolling',
     status: 'verified',
     coverageStatus: 'full',
     riskLevel: 'med',
@@ -1219,7 +1565,7 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'Information report follows annual franchise tax report due date.',
     },
-    sourceIds: ['tx.annual_report', 'tx.pir_oir'],
+    sourceIds: ['tx.franchise_annual_report', 'tx.pir_oir'],
     evidence: [
       sourceEvidence(
         'tx.pir_oir',
@@ -1227,12 +1573,107 @@ export const OBLIGATION_RULES = [
         'PIR is due on the annual franchise tax report due date.',
       ),
       sourceEvidence(
-        'tx.annual_report',
+        'tx.franchise_annual_report',
         'Information Report',
         'Instructions distinguish PIR and OIR by entity type.',
       ),
     ],
     defaultTip: 'Use entity type to decide PIR vs OIR before showing client-facing language.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'ops.rules.manual',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'tx.franchise.extension.2026',
+    title: 'Texas franchise tax extension request',
+    jurisdiction: 'TX',
+    entityApplicability: ['llc', 'partnership', 's_corp', 'c_corp'],
+    taxType: 'tx_franchise_extension',
+    formName: 'Texas franchise tax extension',
+    eventType: 'extension',
+    isFiling: true,
+    isPayment: true,
+    taxYear: 2026,
+    applicableYear: 2026,
+    ruleTier: 'applicability_review',
+    status: 'verified',
+    coverageStatus: 'manual',
+    riskLevel: 'high',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'fixed_date',
+      date: '2026-05-15',
+      holidayRollover: 'next_business_day',
+    },
+    extensionPolicy: {
+      available: true,
+      paymentExtended: false,
+      notes:
+        'Extension payment and request requirements depend on prior-year and current-year tax.',
+    },
+    sourceIds: ['tx.franchise_extensions', 'tx.franchise_overview'],
+    evidence: [
+      sourceEvidence(
+        'tx.franchise_extensions',
+        'Franchise tax extensions',
+        'Texas extension request and payment requirements are due by the original report due date.',
+      ),
+      sourceEvidence(
+        'tx.franchise_overview',
+        'Due Dates, Extensions and Filing Methods',
+        'Texas franchise tax reports are due May 15 each year.',
+      ),
+    ],
+    defaultTip: 'Confirm extension payment requirements before treating the report as extended.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'ops.rules.manual',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'tx.franchise.no_tax_due_threshold.2026',
+    title: 'Texas franchise no-tax-due threshold review',
+    jurisdiction: 'TX',
+    entityApplicability: ['llc', 'partnership', 's_corp', 'c_corp'],
+    taxType: 'tx_no_tax_due_threshold',
+    formName: 'No tax due review',
+    eventType: 'information_report',
+    isFiling: false,
+    isPayment: false,
+    taxYear: 2026,
+    applicableYear: 2026,
+    ruleTier: 'applicability_review',
+    status: 'verified',
+    coverageStatus: 'manual',
+    riskLevel: 'med',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'source_defined_calendar',
+      description: 'No-tax-due treatment depends on report year forms and revenue threshold.',
+      holidayRollover: 'source_adjusted',
+    },
+    extensionPolicy: {
+      available: false,
+      paymentExtended: false,
+      notes: 'This is a review flag, not a filing conclusion or payment deadline.',
+    },
+    sourceIds: ['tx.franchise_forms_2026', 'tx.franchise_overview'],
+    evidence: [
+      sourceEvidence(
+        'tx.franchise_forms_2026',
+        '2026 franchise forms',
+        'Texas report-year forms define no-tax-due availability and reporting changes.',
+      ),
+      sourceEvidence(
+        'tx.franchise_overview',
+        'No Tax Due Reporting',
+        'Texas no-tax-due rules require threshold review before conclusion.',
+      ),
+    ],
+    defaultTip: 'Use this as a CPA review prompt, not as an automatic deadline.',
     quality: VERIFIED_QUALITY,
     verifiedBy: 'ops.rules.manual',
     verifiedAt: VERIFIED_AT,
@@ -1359,15 +1800,15 @@ export const OBLIGATION_RULES = [
       periods: [
         { period: '2026-01', dueDate: '2026-02-25' },
         { period: '2026-02', dueDate: '2026-03-25' },
-        { period: '2026-03', dueDate: '2026-04-25' },
-        { period: '2026-04', dueDate: '2026-05-25' },
+        { period: '2026-03', dueDate: '2026-04-27' },
+        { period: '2026-04', dueDate: '2026-05-26' },
         { period: '2026-05', dueDate: '2026-06-25' },
-        { period: '2026-06', dueDate: '2026-07-25' },
+        { period: '2026-06', dueDate: '2026-07-27' },
         { period: '2026-07', dueDate: '2026-08-25' },
         { period: '2026-08', dueDate: '2026-09-25' },
-        { period: '2026-09', dueDate: '2026-10-25' },
+        { period: '2026-09', dueDate: '2026-10-26' },
         { period: '2026-10', dueDate: '2026-11-25' },
-        { period: '2026-11', dueDate: '2026-12-25' },
+        { period: '2026-11', dueDate: '2026-12-28' },
         { period: '2026-12', dueDate: '2027-01-25' },
       ],
       holidayRollover: 'source_adjusted',
@@ -1421,8 +1862,8 @@ export const OBLIGATION_RULES = [
       periods: [
         { period: '2026-Q1', dueDate: '2026-04-30' },
         { period: '2026-Q2', dueDate: '2026-07-31' },
-        { period: '2026-Q3', dueDate: '2026-10-31' },
-        { period: '2026-Q4', dueDate: '2027-01-31' },
+        { period: '2026-Q3', dueDate: '2026-11-02' },
+        { period: '2026-Q4', dueDate: '2027-02-01' },
       ],
       holidayRollover: 'source_adjusted',
     },
@@ -1515,6 +1956,135 @@ export function listObligationRules(
 
 export function findRuleById(id: string): ObligationRule | undefined {
   return OBLIGATION_RULES.find((rule) => rule.id === id)
+}
+
+export function normalizeRuleTaxTypeCandidates(taxType: string): readonly RuleTaxTypeCandidate[] {
+  const candidates: RuleTaxTypeCandidate[] = [
+    {
+      inputTaxType: taxType,
+      taxType,
+      requiresReview: false,
+      reviewReason: null,
+    },
+  ]
+
+  for (const alias of RULE_TAX_TYPE_ALIASES[taxType] ?? []) {
+    if (candidates.some((candidate) => candidate.taxType === alias.taxType)) continue
+
+    candidates.push({
+      inputTaxType: taxType,
+      taxType: alias.taxType,
+      requiresReview: alias.requiresReview ?? false,
+      reviewReason: alias.reason ?? null,
+    })
+  }
+
+  return candidates
+}
+
+function ruleMatchesJurisdiction(rule: ObligationRule, client: RuleGenerationClientFacts): boolean {
+  return rule.jurisdiction === 'FED' || rule.jurisdiction === client.state
+}
+
+function ruleMatchesEntity(rule: ObligationRule, entityType: RuleGenerationEntity): boolean {
+  if (entityType !== 'other' && rule.entityApplicability.includes(entityType)) return true
+  if (!rule.entityApplicability.includes('any_business')) return false
+
+  return entityType !== 'individual' && entityType !== 'trust'
+}
+
+function getTaxTypeMatches(client: RuleGenerationClientFacts): readonly RuleTaxTypeCandidate[] {
+  const matches = new Map<string, RuleTaxTypeCandidate>()
+
+  for (const taxType of client.taxTypes) {
+    for (const candidate of normalizeRuleTaxTypeCandidates(taxType)) {
+      const existing = matches.get(candidate.taxType)
+      if (existing && !existing.requiresReview) continue
+      matches.set(candidate.taxType, candidate)
+    }
+  }
+
+  return [...matches.values()]
+}
+
+function reviewReasonsForRule(
+  rule: ObligationRule,
+  match: RuleTaxTypeCandidate,
+  expandedRequiresReview: boolean,
+  expandedReason: string | null,
+): string[] {
+  const reasons: string[] = []
+
+  if (match.requiresReview && match.reviewReason) reasons.push(match.reviewReason)
+  if (rule.requiresApplicabilityReview) reasons.push('rule_requires_applicability_review')
+  if (rule.ruleTier === 'applicability_review') reasons.push('rule_tier_applicability_review')
+  if (rule.coverageStatus !== 'full') reasons.push(`coverage_${rule.coverageStatus}`)
+  if (expandedRequiresReview) reasons.push('due_date_requires_review')
+  if (expandedReason) reasons.push(expandedReason)
+
+  return Array.from(new Set(reasons))
+}
+
+export function previewObligationsFromRules(
+  input: RuleGenerationInput,
+): readonly ObligationGenerationPreview[] {
+  const rules = input.rules ?? OBLIGATION_RULES
+  const taxTypeMatches = getTaxTypeMatches(input.client)
+  const previews: ObligationGenerationPreview[] = []
+
+  for (const rule of rules) {
+    if (rule.status !== 'verified') continue
+    if (!ruleMatchesJurisdiction(rule, input.client)) continue
+    if (!ruleMatchesEntity(rule, input.client.entityType)) continue
+
+    const match = taxTypeMatches.find((candidate) => candidate.taxType === rule.taxType)
+    if (!match) continue
+
+    const expandInput: {
+      taxYearStart?: string
+      taxYearEnd?: string
+      holidays?: readonly string[]
+    } = {}
+    if (input.client.taxYearStart !== undefined)
+      expandInput.taxYearStart = input.client.taxYearStart
+    if (input.client.taxYearEnd !== undefined) expandInput.taxYearEnd = input.client.taxYearEnd
+    if (input.holidays !== undefined) expandInput.holidays = input.holidays
+
+    const expandedDates = expandDueDateLogic(rule.dueDateLogic, expandInput)
+
+    for (const expanded of expandedDates) {
+      const reviewReasons = reviewReasonsForRule(
+        rule,
+        match,
+        expanded.requiresReview,
+        expanded.reason,
+      )
+      const requiresReview = reviewReasons.length > 0
+
+      previews.push({
+        clientId: input.client.id,
+        ruleId: rule.id,
+        ruleVersion: rule.version,
+        ruleTitle: rule.title,
+        jurisdiction: rule.jurisdiction,
+        taxType: rule.taxType,
+        matchedTaxType: match.inputTaxType,
+        period: expanded.period,
+        dueDate: expanded.dueDate,
+        eventType: rule.eventType,
+        isFiling: rule.isFiling,
+        isPayment: rule.isPayment,
+        formName: rule.formName,
+        sourceIds: rule.sourceIds,
+        evidence: rule.evidence,
+        requiresReview,
+        reminderReady: !requiresReview && expanded.dueDate !== null,
+        reviewReasons,
+      })
+    }
+  }
+
+  return previews
 }
 
 export function listSourcesByNotificationChannel(
