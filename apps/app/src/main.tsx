@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { lazy, StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -23,6 +23,24 @@ if (!rootEl) {
 bootstrapI18n()
 const router = createAppRouter()
 
+const AgentationDevtools = import.meta.env.DEV
+  ? lazy(async () => {
+      const { Agentation } = await import('agentation')
+
+      return { default: Agentation }
+    })
+  : null
+
+function AppDevtools() {
+  if (!AgentationDevtools) return null
+
+  return (
+    <Suspense fallback={null}>
+      <AgentationDevtools />
+    </Suspense>
+  )
+}
+
 createRoot(rootEl).render(
   <StrictMode>
     <AppI18nProvider>
@@ -30,6 +48,7 @@ createRoot(rootEl).render(
         <TooltipProvider>
           <RouterProvider router={router} />
           <Toaster />
+          <AppDevtools />
         </TooltipProvider>
       </QueryClientProvider>
     </AppI18nProvider>

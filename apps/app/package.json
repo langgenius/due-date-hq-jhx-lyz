@@ -59,6 +59,7 @@
     "@types/react-dom": "catalog:",
     "@typescript/native-preview": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "agentation": "catalog:",
     "happy-dom": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
