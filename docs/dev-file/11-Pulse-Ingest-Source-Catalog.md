@@ -59,6 +59,9 @@
 | `wa.dor`   | WA    | `https://dor.wa.gov/about/news-releases`                                           | HTML | 120 min | 中         | 低       |
 | `ma.dor`   | MA    | `https://www.mass.gov/news/dor-news`                                               | HTML | 120 min | 高         | 低       |
 
+> Scope note: 当前 MVP rules coverage 是 Federal + CA/NY/TX/FL/WA。`ma.dor`
+> 只保留为后续扩州候选 source，不得在产品、marketing 或 Rules Console 中表达为当前覆盖。
+
 **适用性提示：**
 
 - TX 无州所得税 → `irs.*` + `tx.cpa`（Franchise / Sales）足够
@@ -76,11 +79,11 @@
 
 ### 3.4 Aggregator & Association（T3 参考层）
 
-| ID              | 名称                                   | URL / 接入方式                           | 用途                                      |
-| --------------- | -------------------------------------- | ---------------------------------------- | ----------------------------------------- |
-| `fta.directory` | Federation of Tax Administrators       | `https://taxadmin.org/`                  | 50 州 DOR 目录，扩州时的源发现入口        |
-| `aicpa.chart`   | AICPA State Tax Filing Guidance Chart  | 会员 PDF                                 | 人工复核时的 cross-check 材料，不抓       |
-| `govdelivery.*` | GovDelivery 邮件订阅（MA/VA/NJ/IL 等） | Inbound Email → Cloudflare Email Routing | **免反爬、零工程成本的兜底渠道**；见 §5.3 |
+| ID              | 名称                                            | URL / 接入方式                           | 用途                                      |
+| --------------- | ----------------------------------------------- | ---------------------------------------- | ----------------------------------------- |
+| `fta.directory` | Federation of Tax Administrators                | `https://taxadmin.org/`                  | 50 州 DOR 目录，扩州时的源发现入口        |
+| `aicpa.chart`   | AICPA State Tax Filing Guidance Chart           | 会员 PDF                                 | 人工复核时的 cross-check 材料，不抓       |
+| `govdelivery.*` | GovDelivery 邮件订阅（MA/VA/NJ 等未来扩州候选） | Inbound Email → Cloudflare Email Routing | **免反爬、零工程成本的兜底渠道**；见 §5.3 |
 
 ### 3.5 Commercial Fallback（T3 备选，Demo 后再评估）
 
@@ -321,14 +324,14 @@ packages/ingest/
 
 ## 9. 风险登记（Known Risks）
 
-| 风险                                         | 可能性 | 影响 | 缓解                                                                                             |
-| -------------------------------------------- | ------ | ---- | ------------------------------------------------------------------------------------------------ |
-| 某州 DOR 整站改版导致 selector 全挂          | 中     | 中   | Selector Fallback Chain §6.2 + GovDelivery 兜底 §5.3                                             |
-| Cloudflare egress IP 被某个州 WAF 整体挑战   | 低     | 高   | Browserless fetcher Phase 2 预留；先验证 Phase 0 两源无问题                                      |
-| IRS RSS 当月 reset 导致漏抓月初公告          | 中     | 中   | 每月 1 号 00:10 UTC 额外触发一次 `irs.newsroom` 全量抓取（非 RSS 路径）                          |
-| FEMA API 字段变更（历史上 v1 → v2 改过一次） | 低     | 中   | 锁版本 `v2`，单元测试守字段契约                                                                  |
-| LLM 对 verbatim quote 做"礼貌性改写"导致失真 | 中     | 高   | 04 §6.2 的 Glass-Box Guard：LLM 输出的 `verbatim_quote` 必须 substring 于 `rawText`，否则 reject |
-| 法务 Takedown                                | 极低   | 高   | §5.1 `source_revoked` 流程；Evidence 快照保留                                                    |
+| 风险                                         | 可能性 | 影响 | 缓解                                                                               |
+| -------------------------------------------- | ------ | ---- | ---------------------------------------------------------------------------------- |
+| 某州 DOR 整站改版导致 selector 全挂          | 中     | 中   | Selector Fallback Chain §6.2 + GovDelivery 兜底 §5.3                               |
+| Cloudflare egress IP 被某个州 WAF 整体挑战   | 低     | 高   | Browserless fetcher Phase 2 预留；先验证 Phase 0 两源无问题                        |
+| IRS RSS 当月 reset 导致漏抓月初公告          | 中     | 中   | 每月 1 号 00:10 UTC 额外触发一次 `irs.newsroom` 全量抓取（非 RSS 路径）            |
+| FEMA API 字段变更（历史上 v1 → v2 改过一次） | 低     | 中   | 锁版本 `v2`，单元测试守字段契约                                                    |
+| LLM 对 source excerpt 做"礼貌性改写"导致失真 | 中     | 高   | 04 §6.2 的 Glass-Box Guard：LLM 输出的 excerpt 必须可定位回 `rawText`，否则 reject |
+| 法务 Takedown                                | 极低   | 高   | §5.1 `source_revoked` 流程；Evidence 快照保留                                      |
 
 ---
 

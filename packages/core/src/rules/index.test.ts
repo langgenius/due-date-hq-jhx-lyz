@@ -63,6 +63,31 @@ describe('@duedatehq/core/rules', () => {
         expect(sourceIds.has(evidence.sourceId), `${rule.id} has missing evidence source`).toBe(
           true,
         )
+        expect(rule.sourceIds, `${rule.id} evidence source is not on rule.sourceIds`).toContain(
+          evidence.sourceId,
+        )
+        expect(evidence.authorityRole, `${rule.id} evidence missing authority role`).toMatch(
+          /^(basis|cross_check|watch|early_warning)$/,
+        )
+        expect(
+          ['html', 'pdf', 'table', 'api', 'email_subscription'],
+          `${rule.id} evidence missing locator kind`,
+        ).toContain(evidence.locator.kind)
+        expect(evidence.summary, `${rule.id} evidence missing summary`).not.toHaveLength(0)
+        expect(
+          evidence.sourceExcerpt,
+          `${rule.id} evidence missing source excerpt`,
+        ).not.toHaveLength(0)
+        expect(evidence.retrievedAt, `${rule.id} evidence missing retrieval date`).toMatch(
+          /^\d{4}-\d{2}-\d{2}$/,
+        )
+      }
+
+      if (rule.status === 'verified') {
+        expect(
+          rule.evidence.some((evidence) => evidence.authorityRole === 'basis'),
+          `${rule.id} has no basis evidence`,
+        ).toBe(true)
       }
     }
   })

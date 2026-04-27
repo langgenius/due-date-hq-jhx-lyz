@@ -18,11 +18,11 @@
 
 - Demo Sprint（7 天集训）Migration Copilot 叙事闭环（`dev-file/09` §2.1）
 - Demo Sprint KPI 与降级预案（`dev-file/09` §12 / `dev-file/10` §6）
-- Demo Sprint 期间 Federal + CA + NY 三辖区 seed，Owner-only 单账号（`dev-file/09` §2.2）
+- Demo Sprint 期间 Federal + CA + NY 三辖区 seed，Owner-only 单账号（`dev-file/09` §2.2）。当前 Rules MVP coverage 已扩展为 Federal + CA/NY/TX/FL/WA，Migration Copilot v1.0 matrix 仍是历史 Demo 子集。
 
 **不适用范围（本册只留 hook，不展开）：**
 
-- 完整 4 周 Phase 0 MVP 范围（例如扩展到 CA / NY / TX / FL / WA / MA 六辖区、Manager 权限开闸、真实 RBAC 落地）
+- 完整 4 周 Phase 0 MVP 范围（当前 rules coverage 固定为 Federal + CA / NY / TX / FL / WA；MA/IL 不属于当前 MVP）、Manager 权限开闸、真实 RBAC 落地
 - P1 Overlay Engine（Pulse 改 due date 走 exception rule overlay；Demo Sprint 直接 UPDATE）
 - P1 Onboarding AI Agent 真实实现（PRD §6A.11 产品形态在本册锁死，但 Demo Sprint 路径仍是传统 4 步向导）
 - P1 Team RBAC 四角色权限矩阵（PRD §3.6.3）
@@ -34,20 +34,20 @@
 
 本册共 11 份子文档（01 ~ 11），路径全部相对于 `docs/product-design/migration-copilot/`。本 README 是总入口；任何实现 / 文案 / 数据定义分歧先读 `./10-conflict-resolutions.md`；任何“增强到更接近最终 AI Agent 形态”的问题先读 `./11-agentic-enhancements.md`。
 
-| #   | 路径                                                               | 一句话用途                                                                                      | 主要读者                  |
-| --- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------- |
-| 00  | [`./README.md`](./README.md)                                       | 本册入口、前置阻塞门、裁定速查与维护约定                                                        | PM / Eng / Design         |
-| 01  | [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md)             | Demo Sprint MVP 范围 · AC × Test × P0 映射 · KPI 埋点 · S2 用户旅程 · 入口矩阵 · 权限与键盘基线 | PM / Eng / Design         |
-| 02  | [`./02-ux-4step-wizard.md`](./02-ux-4step-wizard.md)               | 4 步向导（Intake / Mapping / Normalize / Dry-Run + Live Genesis）的像素级 UX 规格               | Design / Frontend         |
-| 03  | [`./03-onboarding-agent.md`](./03-onboarding-agent.md)             | PRD §6A.11 Onboarding AI Agent 产品形态锁定（Demo Sprint 不实现，仅设计就位）                   | PM / Design / AI          |
-| 04  | [`./04-ai-prompts.md`](./04-ai-prompts.md)                         | Field Mapper / Normalizer Prompt 定稿 · 模型档位 · 占位符策略 · 成本控制                        | AI / Eng                  |
-| 05  | [`./05-default-matrix.md`](./05-default-matrix.md)                 | Default Tax Types Inference Matrix（Federal + CA + NY × 8 实体）Demo Sprint 子集 v1.0           | AI / Rules Ops / Eng      |
-| 06  | [`./06-fixtures/README.md`](./06-fixtures/README.md)               | 5 套 Preset fixture + Agent demo fixture + 期望 mapping JSON（脱敏）                            | Eng / QA                  |
-| 07  | [`./07-live-genesis.md`](./07-live-genesis.md)                     | Live Genesis 动效规格（时序 · 粒子参数 · `prefers-reduced-motion` 降级）                        | Design / Frontend         |
-| 08  | [`./08-migration-report-email.md`](./08-migration-report-email.md) | Import 完成邮件模板（Subject + Body + Unsub）· Worker 薄字典口径 · 发送时机                     | Design / Eng / Compliance |
-| 09  | [`./09-design-system-deltas.md`](./09-design-system-deltas.md)     | Migration Copilot 对 `DESIGN.md` / `DueDateHQ-DESIGN.md` 的增量 token / 组件规格 + 回灌清单     | Design / Frontend         |
-| 10  | [`./10-conflict-resolutions.md`](./10-conflict-resolutions.md)     | **本册唯一的产品裁定权威来源**（6 条冲突详细理由 + ADR 交叉引用）                               | 所有人（冲突时必读）      |
-| 11  | [`./11-agentic-enhancements.md`](./11-agentic-enhancements.md)     | 围绕 PRD 用户画像的增强点：Agent-shaped setup、6 辖区信任、Migration→Pulse 首周闭环、约束边界   | PM / Design / Eng / AI    |
+| #   | 路径                                                               | 一句话用途                                                                                           | 主要读者                  |
+| --- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- | ------------------------- |
+| 00  | [`./README.md`](./README.md)                                       | 本册入口、前置阻塞门、裁定速查与维护约定                                                             | PM / Eng / Design         |
+| 01  | [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md)             | Demo Sprint MVP 范围 · AC × Test × P0 映射 · KPI 埋点 · S2 用户旅程 · 入口矩阵 · 权限与键盘基线      | PM / Eng / Design         |
+| 02  | [`./02-ux-4step-wizard.md`](./02-ux-4step-wizard.md)               | 4 步向导（Intake / Mapping / Normalize / Dry-Run + Live Genesis）的像素级 UX 规格                    | Design / Frontend         |
+| 03  | [`./03-onboarding-agent.md`](./03-onboarding-agent.md)             | PRD §6A.11 Onboarding AI Agent 产品形态锁定（Demo Sprint 不实现，仅设计就位）                        | PM / Design / AI          |
+| 04  | [`./04-ai-prompts.md`](./04-ai-prompts.md)                         | Field Mapper / Normalizer Prompt 定稿 · 模型档位 · 占位符策略 · 成本控制                             | AI / Eng                  |
+| 05  | [`./05-default-matrix.md`](./05-default-matrix.md)                 | Default Tax Types Inference Matrix（Federal + CA + NY × 8 实体）Demo Sprint 子集 v1.0                | AI / Rules Ops / Eng      |
+| 06  | [`./06-fixtures/README.md`](./06-fixtures/README.md)               | 5 套 Preset fixture + Agent demo fixture + 期望 mapping JSON（脱敏）                                 | Eng / QA                  |
+| 07  | [`./07-live-genesis.md`](./07-live-genesis.md)                     | Live Genesis 动效规格（时序 · 粒子参数 · `prefers-reduced-motion` 降级）                             | Design / Frontend         |
+| 08  | [`./08-migration-report-email.md`](./08-migration-report-email.md) | Import 完成邮件模板（Subject + Body + Unsub）· Worker 薄字典口径 · 发送时机                          | Design / Eng / Compliance |
+| 09  | [`./09-design-system-deltas.md`](./09-design-system-deltas.md)     | Migration Copilot 对 `DESIGN.md` / `DueDateHQ-DESIGN.md` 的增量 token / 组件规格 + 回灌清单          | Design / Frontend         |
+| 10  | [`./10-conflict-resolutions.md`](./10-conflict-resolutions.md)     | **本册唯一的产品裁定权威来源**（6 条冲突详细理由 + ADR 交叉引用）                                    | 所有人（冲突时必读）      |
+| 11  | [`./11-agentic-enhancements.md`](./11-agentic-enhancements.md)     | 围绕 PRD 用户画像的增强点：Agent-shaped setup、5 MVP states 信任、Migration→Pulse 首周闭环、约束边界 | PM / Design / Eng / AI    |
 
 > 说明：02 ~ 09 与 ADR 0011 由其他 subagent 产出；11 为本轮基于 PRD 用户画像新增的增强设计入口。任何子文档新增 / 拆分 / 合并必须先改本 README §2 的清单再改子文档（见 §6 维护约定）。
 
@@ -102,7 +102,7 @@ ADR 样式参照 [`../../adr/0010-firm-profile-vs-organization.md`](../../adr/00
 3. **ADR 双向同步**：本 README §4 或 `./10-conflict-resolutions.md` 任意一条裁定修改，必须同步更新 `../../adr/0011-migration-copilot-demo-sprint-scope.md`；反之亦然。由修改方承担同步责任。
 4. **版本标记**：每份子文档首行 `# 标题` 下第 2 行必须是 `> 版本：vX.Y（Demo Sprint · YYYY-MM-DD）`；末尾必须有"变更记录"表。
 
-> Phase 0 扩展位：当 Demo Sprint 结束、进入 4 周 Phase 0 MVP 时，本 README 需要增补：辖区扩 seed 清单（MA / TX / FL / WA）、Manager 权限开闸表、Overlay Engine 迁移路径、Onboarding AI Agent 真实化 rollout 计划。上述 hook 的产品化表达已集中到 `./11-agentic-enhancements.md`；实现仍受 `../../dev-file/09-Demo-Sprint-Module-Playbook.md` §14 与契约冻结节奏约束。
+> Phase 0 扩展位：当 Demo Sprint 结束、进入 4 周 Phase 0 MVP 时，本 README 需要增补：TX / FL / WA matrix 扩展清单、Manager 权限开闸表、Overlay Engine 迁移路径、Onboarding AI Agent 真实化 rollout 计划。当前 rules coverage 已是 Federal + CA/NY/TX/FL/WA；MA/IL 不属于当前 MVP。上述 hook 的产品化表达已集中到 `./11-agentic-enhancements.md`；实现仍受 `../../dev-file/09-Demo-Sprint-Module-Playbook.md` §14 与契约冻结节奏约束。
 
 ---
 

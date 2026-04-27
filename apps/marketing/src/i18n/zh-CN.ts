@@ -18,7 +18,7 @@ const zhCN: LandingCopy = {
       { label: '价格', href: '#pricing' },
       { label: '文档', href: '#docs' },
     ],
-    statusPill: '已上线 CA · NY · TX · FL · IL',
+    statusPill: '已上线 CA · NY · TX · FL · WA',
     cta: '打开 App',
   },
   hero: {
@@ -150,7 +150,7 @@ const zhCN: LandingCopy = {
         value: '24',
         unit: '小时',
         description:
-          '所有州的申报通知和 IRS 更新在 24 小时内进入 Dashboard 与邮件摘要，附原文引用与一键应用至 12 位客户。',
+          '所有州的申报通知和 IRS 更新在 24 小时内进入 Dashboard 与邮件摘要，附来源摘录与一键应用至 12 位客户。',
       },
     ],
   },
@@ -167,7 +167,7 @@ const zhCN: LandingCopy = {
         severity: 'critical',
         cadence: '平均 / 每家 / 每年',
         headline: '一个 30 天窗口内会发布 14 条规则变更。你需要知道命中你客户的是哪 4 条。',
-        body: 'Pulse 把每条 IRS 通知和 50 州申报变更压缩成一条仪表盘横幅，附 `verbatim_quote`、`source_url` 和一键应用入口。',
+        body: 'Pulse 把每条 IRS 通知和 50 州申报变更压缩成一条仪表盘横幅，附 `source_excerpt`、`source_url` 和一键应用入口。',
         listTitle: '近 30 天规则变更',
         listSummary: '14 条 · 5 个州',
         rows: [
@@ -324,7 +324,7 @@ const zhCN: LandingCopy = {
         index: '03',
         tag: 'VERIFY · EVERY CLAIM',
         headline: '没有出处，就不渲染。',
-        body: '每一句 AI 文案、每一条规则引用都链回 `source_url`、`verbatim_quote` 与 `verified_at`。三者缺一，DueDateHQ 渲染"待校验"状态而非建议。',
+        body: '每一句 AI 文案、每一条规则引用都链回 `source_url`、`source_excerpt` 与 `verified_at`。三者缺一，DueDateHQ 渲染"待校验"状态而非建议。',
         hints: [
           { keys: 'E', label: '打开证据' },
           { keys: 'Esc', label: '关闭' },
@@ -347,7 +347,7 @@ const zhCN: LandingCopy = {
             label: 'SOURCE',
             value: 'irs.gov / pub / 509 · §3 · v17',
             verified: '2026-04-25T08:14:03Z 由 pulse-ingest-3.2 校验',
-            quoteLabel: 'VERBATIM QUOTE',
+            quoteLabel: 'SOURCE EXCERPT',
             quote:
               '"If an S corporation election was made and the corporation files Form 1120-S on the basis of a calendar year, the return is due on or before March 15. If the corporation operates on a fiscal year, the return is due on or before the 15th day of the third month after the close of the tax year."',
           },
@@ -366,14 +366,14 @@ const zhCN: LandingCopy = {
     index: '03',
     title: '仪表盘上的每个数字都能点回它的出处。',
     paragraph:
-      'AI 可以总结、建议、起草。但只要缺少可验证的 source URL、原文引用与服务端时间戳，它就不被允许渲染推荐。界面优雅失败：缺出处 → 待校验状态。',
+      'AI 可以总结、建议、起草。但只要缺少可验证的 source URL、来源摘录与服务端时间戳，它就不被允许渲染推荐。界面优雅失败：缺出处 → 待校验状态。',
     footnote: 'Glass-Box Guard · 每条 AI 主张都对照来源校验',
     stats: [
       {
         label: 'VERIFIED CITATIONS',
         value: '100',
         unit: '%',
-        body: '每一句 AI 文案、每一条规则引用都附 source_url + verbatim_quote + verified_at，否则不予渲染。',
+        body: '每一句 AI 文案、每一条规则引用都附 source_url + source_excerpt + verified_at，否则不予渲染。',
       },
       {
         label: 'OFFICIAL SOURCES',
@@ -399,7 +399,7 @@ const zhCN: LandingCopy = {
     title: 'WHY CPAs TRUST IT',
     items: [
       { pill: 'Per-firm', body: '数据从不跨租户' },
-      { pill: 'Evidence', body: '每条主张 · 源 + 原文' },
+      { pill: 'Evidence', body: '每条主张 · 来源 + 摘录' },
       { pill: 'Audit log', body: '应用 · 撤销 · 回滚均留痕' },
       { pill: 'Email-first', body: '无需客户门户库' },
     ],

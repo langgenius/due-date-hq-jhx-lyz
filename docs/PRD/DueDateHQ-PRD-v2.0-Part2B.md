@@ -84,7 +84,7 @@
 5. **Dark mode 跟随系统 + 手动可切**（`⇧⌘D`）
 6. **空状态有价值**：空 Radar 写 "We're watching IRS + 5 state authorities for you. Last check 3 min ago."
 7. **Copy as citation block**：复制"内容 + 来源 + 验证时间戳"（CPA 杀手锏）
-8. **No Provenance = No Render**：AI 输出无 `source_url + verified_at + verbatim_quote` 不得渲染
+8. **No Provenance = No Render**：AI 输出无 `source_url + verified_at + source_excerpt` 不得渲染
 
 ### 10.3 交互原则
 
@@ -242,7 +242,7 @@ Public 页面相互 cross-link，形成 Rule Library → Source Registry → Ver
 | T-S3-02 | S3-AC2 | Pulse: CA + LA + Individual + 1040；firm 有 12 客户符合          | Match 精确返回 12                                        |
 | T-S3-03 | S3-AC3 | Approved Pulse 触发                                              | Dashboard Banner + Email Digest 双到达（同一事务）       |
 | T-S3-04 | S3-AC4 | Banner 点 Review → Apply                                         | 12 条 obligation 批量更新 + Audit 12 条 + 24h Undo 可用  |
-| T-S3-05 | S3-AC5 | 每条 Pulse 详情                                                  | `official_source_url` + `verbatim_quote` 可点击 + 可复制 |
+| T-S3-05 | S3-AC5 | 每条 Pulse 详情                                                  | `official_source_url` + `source_excerpt` 可点击 + 可复制 |
 
 ### 12.4 Go / Gray / Rethink
 
@@ -338,14 +338,14 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 
 对外公开的规则运营节奏承诺（`/security` 页公示）：
 
-| 频率                    | 动作                            | 对象                              | 责任             |
-| ----------------------- | ------------------------------- | --------------------------------- | ---------------- |
-| **Every 30 min**        | IRS + CA FTB Newsroom scraping  | Source Registry 高优先级源        | 自动 worker      |
-| **Every 60 min**        | NY / TX / FL / WA / MA tax news | 中优先级源                        | 自动 worker      |
-| **Daily**               | FEMA declarations               | Early warning（不生规则）         | 自动 worker      |
-| **Weekly (Fri 9am PT)** | Base rule re-check vs. source   | 所有 verified base rules          | ops 人工         |
-| **Quarterly**           | Full rule pack audit            | 全 rule library                   | ops 团队全员     |
-| **Before tax season**   | Comprehensive manual review     | 全 verified rules + 双人 sign-off | 高风险 rule 双人 |
+| 频率                    | 动作                           | 对象                              | 责任             |
+| ----------------------- | ------------------------------ | --------------------------------- | ---------------- |
+| **Every 30 min**        | IRS + CA FTB Newsroom scraping | Source Registry 高优先级源        | 自动 worker      |
+| **Every 60 min**        | NY / TX / FL / WA tax news     | 中优先级源                        | 自动 worker      |
+| **Daily**               | FEMA declarations              | Early warning（不生规则）         | 自动 worker      |
+| **Weekly (Fri 9am PT)** | Base rule re-check vs. source  | 所有 verified base rules          | ops 人工         |
+| **Quarterly**           | Full rule pack audit           | 全 rule library                   | ops 团队全员     |
+| **Before tax season**   | Comprehensive manual review    | 全 verified rules + 双人 sign-off | 高风险 rule 双人 |
 
 所有 run 结果存档 `OpsCadence.last_report_s3_key`，可在 `/security` 页滚动显示最近 3 次 run 时间 + 结果。
 
@@ -747,7 +747,7 @@ state source. Let me show you."
 [Click E key → Evidence Mode drawer]
 
 Presenter: "This is why CPAs bet their license on us — every
-rule has a verbatim quote and human-verified timestamp."
+rule has a source excerpt and human-verified timestamp."
 ```
 
 **记忆钩子：** 顶栏数字滚动 + 绿色闪光是**唯二的视觉高潮**。

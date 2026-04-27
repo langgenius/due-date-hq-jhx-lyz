@@ -520,7 +520,7 @@ We couldn't normalize these values automatically. You can fix them inline or ski
 
 | 扩展项                            | 时机        | 做法                                                                                                         |
 | --------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
-| Default Matrix 扩到 6 辖区        | Phase 0 MVP | `normalizer-tax-types@v1` 的 `jurisdiction` 入参扩到 `CA \| NY \| TX \| FL \| WA \| MA`；词表扩容            |
+| Default Matrix 对齐 5 MVP states  | Phase 0 MVP | `normalizer-tax-types@v1` 的 `jurisdiction` 入参扩到 `CA \| NY \| TX \| FL \| WA`；词表扩容                  |
 | Pulse 场景复用 Mapper             | Phase 0 起  | 同一 mapper prompt，不同 target schema（Pulse 是 `pulse_chunks`，目标是 `{ jurisdiction, tax_type, form }`） |
 | Migration Mapper v2               | Phase 1     | 支持多表头（多 sheet）+ 列类型推断（金额 / 日期）                                                            |
 | `firm:day:migration_llm` cap 分层 | Phase 0 MVP | Free tier 20 / day、Pro 100 / day、Enterprise 无 cap                                                         |

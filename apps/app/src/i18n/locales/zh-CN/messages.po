@@ -80,10 +80,6 @@ msgstr "2 家合伙企业需在 3 月 15 日截止前完成复核。"
 msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Warning flag = rule needs CPA applicability review at generation time. Candidate rows never trigger user reminders."
 msgstr "26 条 obligation 规则 —— 25 已核验、1 候选（FED 灾害救济观察）。⚠ 标记表示该规则在生成时需要 CPA 做适用性核验；候选行不会触发用户提醒。"
 
-#: src/features/rules/rules-console.tsx
-msgid "28 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
-msgstr "我们监控规则变更的 28 个官方来源 —— 每个来源的健康度、频率与采集方式。失败或降级的来源不会静默更新已核验规则；ops 通过 candidate 流程复核后再发布。"
-
 #: src/features/rules/coverage-tab.tsx
 msgid "3 basic · 2 review"
 msgstr "3 基础 · 2 复核"
@@ -95,6 +91,10 @@ msgstr "3 基础 · 4 复核"
 #: src/routes/dashboard.tsx
 msgid "3 clients have estimated-tax deltas above the evidence threshold."
 msgstr "3 家客户的预估税差额已超过证据阈值。"
+
+#: src/features/rules/rules-console.tsx
+msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+msgstr "我们监控规则变更的 31 个官方来源 —— 每个来源都有健康度、频率与采集方式。失败或降级的来源不会静默更新已核验规则；ops 通过 candidate 流程复核后再发布。"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "4 verified · 1 candidate watch"
@@ -138,8 +138,8 @@ msgid "AI Mapper unavailable — using fallback"
 msgstr "AI 映射器不可用 —— 已使用降级方案"
 
 #: src/routes/dashboard.tsx
-msgid "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
-msgstr "仅当具备来源、引文与核验时间时，AI 生成的建议才会显示。"
+msgid "AI-facing recommendations remain hidden unless source, excerpt, and verification time are present."
+msgstr "面向 AI 的建议必须同时具备来源、摘录和核验时间才会显示。"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -358,6 +358,7 @@ msgstr "深色"
 
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/_layout.tsx
 msgid "Dashboard"
 msgstr "仪表盘"
 
@@ -522,6 +523,7 @@ msgstr "申报频率复核"
 msgid "Filter by status, search clients, and sort by due date."
 msgstr "按状态筛选，按客户搜索，并按到期日排序。"
 
+#: src/routes/_layout.tsx
 #: src/routes/settings.tsx
 msgid "Firm settings"
 msgstr "事务所设置"
@@ -721,8 +723,8 @@ msgid "Needs evidence"
 msgstr "需补证据"
 
 #: src/routes/dashboard.tsx
-msgid "Needs quote"
-msgstr "需补引文"
+msgid "Needs excerpt"
+msgstr "需补摘录"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Needs review"
@@ -842,6 +844,7 @@ msgstr "打开义务队列。"
 msgid "Operational pressure points for the team."
 msgstr "团队当前的运营压力点。"
 
+#: src/routes/_layout.tsx
 #: src/routes/dashboard.tsx
 msgid "Operations"
 msgstr "运营"
@@ -1055,6 +1058,7 @@ msgid "Rule Library"
 msgstr "规则库"
 
 #: src/components/patterns/app-shell.tsx
+#: src/routes/_layout.tsx
 msgid "Rules"
 msgstr "规则"
 
@@ -1121,6 +1125,7 @@ msgstr "正在设置你的事务所…"
 
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/_layout.tsx
 #: src/routes/settings.tsx
 msgid "Settings"
 msgstr "设置"
@@ -1303,8 +1308,8 @@ msgid "Too many requests. Please try again in a moment."
 msgstr "请求过于频繁，请稍后再试。"
 
 #: src/routes/dashboard.tsx
-msgid "Two recommendations are waiting on verbatim text."
-msgstr "两条建议正在等待原文引文。"
+msgid "Two recommendations are waiting on source excerpts."
+msgstr "2 条建议正在等待 source excerpt。"
 
 #: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
@@ -1399,11 +1404,13 @@ msgid "Where is your data coming from?"
 msgstr "你的数据从哪里来？"
 
 #: src/features/migration/WizardShell.tsx
+#: src/routes/_layout.tsx
 msgid "Workbench"
 msgstr "工作台"
 
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "工作台"

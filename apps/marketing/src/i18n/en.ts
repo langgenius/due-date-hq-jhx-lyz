@@ -18,7 +18,7 @@ const en: LandingCopy = {
       { label: 'Pricing', href: '#pricing' },
       { label: 'Docs', href: '#docs' },
     ],
-    statusPill: 'Live in CA · NY · TX · FL · IL',
+    statusPill: 'Live in CA · NY · TX · FL · WA',
     cta: 'Open app',
   },
   hero: {
@@ -150,7 +150,7 @@ const en: LandingCopy = {
         value: '24',
         unit: 'hrs',
         description:
-          'Every state filing notice and IRS update reaches Dashboard + email within 24 hours, with the verbatim quote and an apply-to-12-clients button.',
+          'Every state filing notice and IRS update reaches Dashboard + email within 24 hours, with a source excerpt and an apply-to-12-clients button.',
       },
     ],
   },
@@ -168,7 +168,7 @@ const en: LandingCopy = {
         cadence: 'avg / firm / yr',
         headline:
           '14 rule changes ship in a 30-day window. You need to know which 4 hit your clients.',
-        body: 'Pulse condenses every IRS notice and 50-state filing change into a single dashboard banner with `verbatim_quote`, `source_url`, and a one-click apply path.',
+        body: 'Pulse condenses every IRS notice and 50-state filing change into a single dashboard banner with `source_excerpt`, `source_url`, and a one-click apply path.',
         listTitle: 'Rule changes, last 30 days',
         listSummary: '14 changes · 5 states',
         rows: [
@@ -340,7 +340,7 @@ const en: LandingCopy = {
         index: '03',
         tag: 'VERIFY · EVERY CLAIM',
         headline: 'No provenance, no render.',
-        body: 'Every AI sentence and every rule citation links back to a `source_url`, a `verbatim_quote`, and a `verified_at`. If those three fields are missing, DueDateHQ shows a verification-needed state instead of a recommendation.',
+        body: 'Every AI sentence and every rule citation links back to a `source_url`, a `source_excerpt`, and a `verified_at`. If those three fields are missing, DueDateHQ shows a verification-needed state instead of a recommendation.',
         hints: [
           { keys: 'E', label: 'Open evidence' },
           { keys: 'Esc', label: 'Close' },
@@ -363,7 +363,7 @@ const en: LandingCopy = {
             label: 'SOURCE',
             value: 'irs.gov / pub / 509 · §3 · v17',
             verified: 'verified 2026-04-25T08:14:03Z by pulse-ingest-3.2',
-            quoteLabel: 'VERBATIM QUOTE',
+            quoteLabel: 'SOURCE EXCERPT',
             quote:
               '"If an S corporation election was made and the corporation files Form 1120-S on the basis of a calendar year, the return is due on or before March 15. If the corporation operates on a fiscal year, the return is due on or before the 15th day of the third month after the close of the tax year."',
           },
@@ -382,14 +382,14 @@ const en: LandingCopy = {
     index: '03',
     title: 'Every number on the dashboard clicks back to its source.',
     paragraph:
-      'AI is allowed to summarize, suggest, and draft. It is never allowed to render a recommendation without a verifiable source URL, the verbatim quote, and a server-side timestamp. The interface fails closed: missing provenance → verification-needed state.',
+      'AI is allowed to summarize, suggest, and draft. It is never allowed to render a recommendation without a verifiable source URL, a source excerpt, and a server-side timestamp. The interface fails closed: missing provenance → verification-needed state.',
     footnote: 'Glass-Box Guard · every AI claim is validated against its source',
     stats: [
       {
         label: 'VERIFIED CITATIONS',
         value: '100',
         unit: '%',
-        body: 'Every AI sentence and every rule citation carries source_url + verbatim_quote + verified_at, or is suppressed.',
+        body: 'Every AI sentence and every rule citation carries source_url + source_excerpt + verified_at, or is suppressed.',
       },
       {
         label: 'OFFICIAL SOURCES',
@@ -415,7 +415,7 @@ const en: LandingCopy = {
     title: 'WHY CPAs TRUST IT',
     items: [
       { pill: 'Per-firm', body: 'your data never crosses tenants' },
-      { pill: 'Evidence', body: 'every claim · source + verbatim' },
+      { pill: 'Evidence', body: 'every claim · source + excerpt' },
       { pill: 'Audit log', body: 'apply · undo · revert recorded' },
       { pill: 'Email-first', body: 'no client portal vault required' },
     ],

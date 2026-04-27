@@ -55,7 +55,7 @@ export function RulesConsole() {
   const tabDescriptions = useMemo<Record<RulesTab, string>>(
     () => ({
       coverage: t`Aggregate verifiability per (jurisdiction, entity) pair across Federal + 5 MVP states. Drill into Rule Library for specific rules; Generation Preview to dry-run a client.`,
-      sources: t`28 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion.`,
+      sources: t`31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion.`,
       library: t`26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Warning flag = rule needs CPA applicability review at generation time. Candidate rows never trigger user reminders.`,
       preview: t`Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded.`,
     }),

@@ -184,7 +184,7 @@ User event (dashboard load / Ask / Apply)
 | Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks      | 一段话 + bullets                            | 纯 SQL 聚合 `3 upcoming, 1 critical`                                      |
 | Deadline Tip            | P0     | 单 obligation + rule chunk                  | 3 段 What/Why/Prepare                       | 从 `rule.default_tip` 兜底                                                |
 | Smart Priority          | P0     | 全部 open obligations + client 字段         | 打分 + 因子分解                             | **纯函数零 LLM**（`packages/core/priority`）；LLM 仅用于 `Why-hover` 解释 |
-| Pulse Source Translator | P0     | 官方公告原文                                | 结构化 JSON + 人话 summary + verbatim quote | 置信度 < 0.7 标记 `pending_review`                                        |
+| Pulse Source Translator | P0     | 官方公告原文                                | 结构化 JSON + 人话 summary + source excerpt | 置信度 < 0.7 标记 `pending_review`                                        |
 | Ask DueDateHQ           | P1     | 自然语言 query                              | 表格 + 一句话 + citations                   | 预设模板 5 条兜底（§6.6.5）                                               |
 | AI Draft Client Email   | P1     | Pulse + 受影响客户                          | 英文邮件草稿                                | 固定模板                                                                  |
 | Migration Field Mapper  | P0     | 表头 + 前 5 行样本                          | mapping JSON                                | Preset profile + 手动下拉                                                 |

@@ -26,7 +26,7 @@ MVP 的风险边界是：**AI 可以加速抽取，不能替代核验；candidat
 
 | Jurisdiction | Sources | Verified rules | Candidates | 当前重点                                                                                |
 | ------------ | ------- | -------------- | ---------- | --------------------------------------------------------------------------------------- |
-| `FED`        | 4       | 4              | 1          | 1065、1120-S、1120、corporate estimated tax、disaster relief candidate watch            |
+| `FED`        | 7       | 4              | 1          | 1065、1120-S、1120、corporate estimated tax、disaster relief candidate watch            |
 | `CA`         | 5       | 5              | 0          | LLC Form 568、LLC annual tax、LLC estimated fee、100S、100                              |
 | `NY`         | 6       | 7              | 0          | IT-204、IT-204-LL、CT-3、CT-3-S、PTET election / estimates / return-extension           |
 | `TX`         | 6       | 4              | 0          | franchise annual report、PIR/OIR、extension、no-tax-due threshold review                |
@@ -36,6 +36,11 @@ MVP 的风险边界是：**AI 可以加速抽取，不能替代核验；candidat
 本文件下方的完整 source registry 与 rule pack 仍保留产品目标口径；代码里的
 seed 先覆盖 14 天 MVP 能生成、解释和提醒的最小 verified subset。后续新增
 规则时，以 `packages/core/src/rules/index.ts` 为结构化数据源，并同步更新本表。
+
+当前代码 registry 合计 31 个官方 source。Federal source 已从单一 Pub 509 + 7004
+扩展为 Pub 509、Form 1065 instructions、Form 1120-S instructions、Form 1120
+instructions、Form 7004 instructions、IRS disaster relief、FEMA early warning，避免
+只用综合日历解释具体表单 deadline。
 
 本轮核验后的降级规则：
 
@@ -257,27 +262,58 @@ type RuleCandidate = {
 ```ts
 type ObligationRule = {
   id: string
-  version: string
-  jurisdiction: 'federal' | 'CA' | 'NY' | 'TX' | 'FL' | 'WA'
-  taxYear: number | null
+  version: number
+  jurisdiction: 'FED' | 'CA' | 'NY' | 'TX' | 'FL' | 'WA'
+  taxYear: number
+  applicableYear: number
   entityApplicability: string[]
   taxType: string
-  formName: string | null
+  formName: string
   ruleTier: 'basic' | 'annual_rolling' | 'exception' | 'applicability_review'
   eventType: 'filing' | 'payment' | 'extension' | 'election' | 'information_report'
+  isFiling: boolean
+  isPayment: boolean
   dueDateLogic: DueDateLogic
-  extensionPolicy: ExtensionPolicy | null
-  sourceLinks: RuleSourceLink[]
-  qualityChecklist: RuleQualityChecklist
+  extensionPolicy: ExtensionPolicy
+  sourceIds: string[]
+  evidence: RuleEvidence[]
+  quality: RuleQualityChecklist
   coverageStatus: 'full' | 'skeleton' | 'manual'
   status: 'candidate' | 'verified' | 'deprecated'
-  verifiedBy: string | null
-  verifiedAt: string | null
-  nextReviewAt: string | null
+  verifiedBy: string
+  verifiedAt: string
+  nextReviewOn: string
 }
 ```
 
-### 4.4 DueDateLogic
+### 4.4 RuleEvidence
+
+`RuleEvidence` 是每条 rule 的最小可审阅证据包。它不只是一个 URL，也不把候选
+AI 输出当成事实；必须能说明该 evidence 在官方来源中的角色、位置和核验日期。
+
+```ts
+type RuleEvidence = {
+  sourceId: string
+  authorityRole: 'basis' | 'cross_check' | 'watch' | 'early_warning'
+  locator: {
+    kind: 'html' | 'pdf' | 'table' | 'api' | 'email_subscription'
+    heading?: string
+    selector?: string
+    pdfPage?: number
+    tableLabel?: string
+    rowLabel?: string
+  }
+  summary: string
+  sourceExcerpt: string
+  retrievedAt: string
+  sourceUpdatedOn?: string
+}
+```
+
+Verified rule 至少要有一条 `authorityRole='basis'` 的 evidence。`watch` 和
+`early_warning` 只能推动 candidate review，不能单独发布 verified deadline。
+
+### 4.5 DueDateLogic
 
 MVP 不允许任意代码执行，使用可审阅 JSON DSL：
 
@@ -324,7 +360,7 @@ type DueDateLogic =
 }
 ```
 
-### 4.5 RuleQualityChecklist
+### 4.6 RuleQualityChecklist
 
 ```ts
 type RuleQualityChecklist = {
@@ -339,7 +375,7 @@ type RuleQualityChecklist = {
 
 Verified rule 默认要达到 6/6。允许 5/6 的唯一情况是 `ruleTier='applicability_review'`，并且用户侧必须显示 “Confirm applicability before acting”。
 
-### 4.6 ObligationGenerationPreview
+### 4.7 ObligationGenerationPreview
 
 `ObligationGenerationPreview` 是 rule pack 与 `obligation_instance` 之间的安全缓冲层。
 MVP 先返回 preview，不直接写 D1，避免把 applicability review 误发布成客户 deadline。
@@ -381,7 +417,7 @@ type ObligationGenerationPreview = {
 
 1. Watcher 拉取 source HTML/PDF/API，并保存 snapshot hash。
 2. Parser 提取表格、标题、日期、原文段落。
-3. AI 可把长文转成 candidate payload，但输出必须带 source line / quote。
+3. AI 可把长文转成 candidate payload，但输出必须带 locator 与 source excerpt。
 4. Ops 在 Rules Console 审核 candidate。
 5. Verified 后发布 `ObligationRule(version)`。
 6. Rule pack 发布后触发 obligation generation preview。
@@ -389,7 +425,7 @@ type ObligationGenerationPreview = {
 ### 5.2 Exception 采集
 
 1. IRS disaster / state emergency / FEMA source 变化生成 exception candidate。
-2. Candidate 必须包含 affected jurisdiction、counties、effective dates、affected forms、new due date、source quote。
+2. Candidate 必须包含 affected jurisdiction、counties、effective dates、affected forms、new due date、source excerpt。
 3. 没有 IRS 或州税局税务 relief 页面支撑时，只能保留 early warning，不能发布 overlay。
 4. 发布 overlay 前显示 impacted obligations preview。
 5. 发布后才允许生成用户通知。
@@ -414,21 +450,21 @@ pending_review -> needs_more_source
 
 ## 6. 通知消费边界
 
-| 通知类型                  | 触发源                                              | 接收者                      | 是否面向用户 | 是否改变 deadline     |
-| ------------------------- | --------------------------------------------------- | --------------------------- | ------------ | --------------------- |
-| `rules.source.changed`    | source snapshot hash 变化                           | 内部 ops                    | 否           | 否                    |
-| `rules.candidate.created` | parser/AI 生成 candidate                            | 内部 ops                    | 否           | 否                    |
-| `rules.review.required`   | candidate 缺少 quote / cross-source / applicability | 内部 ops                    | 否           | 否                    |
-| `rules.published`         | verified rule 发布                                  | 内部 ops，可选用户侧 banner | 可选         | 触发 preview 后才改变 |
-| `obligations.previewed`   | verified rule pack 应用于客户事实                   | 用户/内部 review 页面       | 是           | 否                    |
-| `obligations.generated`   | `reminderReady=true` preview 写入 obligation        | 用户                        | 是           | 是                    |
-| `reminder.scheduled`      | obligation due in 30/7/1 days                       | 用户                        | 是           | 否                    |
+| 通知类型                  | 触发源                                                | 接收者                      | 是否面向用户 | 是否改变 deadline     |
+| ------------------------- | ----------------------------------------------------- | --------------------------- | ------------ | --------------------- |
+| `rules.source.changed`    | source snapshot hash 变化                             | 内部 ops                    | 否           | 否                    |
+| `rules.candidate.created` | parser/AI 生成 candidate                              | 内部 ops                    | 否           | 否                    |
+| `rules.review.required`   | candidate 缺少 excerpt / cross-source / applicability | 内部 ops                    | 否           | 否                    |
+| `rules.published`         | verified rule 发布                                    | 内部 ops，可选用户侧 banner | 可选         | 触发 preview 后才改变 |
+| `obligations.previewed`   | verified rule pack 应用于客户事实                     | 用户/内部 review 页面       | 是           | 否                    |
+| `obligations.generated`   | `reminderReady=true` preview 写入 obligation          | 用户                        | 是           | 是                    |
+| `reminder.scheduled`      | obligation due in 30/7/1 days                         | 用户                        | 是           | 否                    |
 
 MVP 的用户提醒只消费 `obligation_instance`，不直接消费 `RuleCandidate`。
 
 ## 7. 验收标准
 
-- Source Registry 当前代码覆盖 Federal 4 源、CA 5 源、NY 6 源、TX 6 源、FL 3 源、WA 4 源；扩到完整 registry 前不能把未登记来源显示为 covered。
+- Source Registry 当前代码覆盖 Federal 7 源、CA 5 源、NY 6 源、TX 6 源、FL 3 源、WA 4 源；扩到完整 registry 前不能把未登记来源显示为 covered。
 - 初始 Rule Pack 至少包含本文件 §3 的 rule IDs。
 - 每条 verified rule 至少有 1 个 primary official source；高风险/extension/payment rule 需要 2 个 source 或明确 cross-check note。
 - 每条 rule 都有 `dueDateLogic`、`eventType`、`ruleTier`、`qualityChecklist`。

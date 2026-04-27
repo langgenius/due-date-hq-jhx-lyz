@@ -226,7 +226,7 @@ Verification
 ```text
 v2026.1 -> v2026.2
 dueDateLogic changed: none
-source quote changed: yes
+source excerpt changed: yes
 coverage changed: no
 impact: 0 existing obligations
 ```
@@ -337,7 +337,7 @@ AI Tip 只能使用 verified rule 和 source summary：
 ## 11. MVP 验收
 
 - `/settings/rules` 的产品设计能覆盖 Coverage / Sources / Candidates / Rule Library / Publish Preview 五个 tab。
-- 每条 rule 能追溯 source、quote、quality checklist、verification metadata。
+- 每条 rule 能追溯 source、source excerpt、quality checklist、verification metadata。
 - Candidate 不会直接影响用户 deadline。
 - Publish Preview 明确显示 impacted obligations 和 reminder effect。
 - 用户侧 deadline row 能展示 source / human verified / next check。

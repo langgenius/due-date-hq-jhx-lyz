@@ -25,7 +25,7 @@ export type CoverageCellState = 'verified' | 'review' | 'none'
 // pay re-extraction cost for non-React modules).
 export const RULES_TABS: Array<{ value: RulesTab; count?: number }> = [
   { value: 'coverage' },
-  { value: 'sources', count: 28 },
+  { value: 'sources', count: 31 },
   { value: 'library', count: 26 },
   { value: 'preview' },
 ]

@@ -139,11 +139,36 @@ export const RuleQualityChecklistSchema = z.object({
   exceptionChannel: z.boolean(),
 })
 
+export const RuleEvidenceAuthorityRoleSchema = z.enum([
+  'basis',
+  'cross_check',
+  'watch',
+  'early_warning',
+])
+export type RuleEvidenceAuthorityRole = z.infer<typeof RuleEvidenceAuthorityRoleSchema>
+export const RuleEvidenceLocatorSchema = z.object({
+  kind: z.enum(['html', 'pdf', 'table', 'api', 'email_subscription']),
+  heading: z.string().min(1).optional(),
+  selector: z.string().min(1).optional(),
+  pdfPage: z.number().int().positive().optional(),
+  tableLabel: z.string().min(1).optional(),
+  rowLabel: z.string().min(1).optional(),
+})
+export type RuleEvidenceLocator = z.infer<typeof RuleEvidenceLocatorSchema>
+
 export const RuleEvidenceSchema = z.object({
   sourceId: z.string().min(1),
-  locator: z.string().min(1),
+  authorityRole: RuleEvidenceAuthorityRoleSchema,
+  locator: RuleEvidenceLocatorSchema,
   summary: z.string().min(1),
+  sourceExcerpt: z.string().min(1),
+  retrievedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  sourceUpdatedOn: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
 })
+export type RuleEvidence = z.infer<typeof RuleEvidenceSchema>
 
 export const ObligationRuleSchema = z.object({
   id: z.string().min(1),

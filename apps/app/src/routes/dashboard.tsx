@@ -269,7 +269,7 @@ export function DashboardRoute() {
               </AlertTitle>
               <AlertDescription>
                 <Trans>
-                  AI-facing recommendations remain hidden unless source, quote, and verification
+                  AI-facing recommendations remain hidden unless source, excerpt, and verification
                   time are present.
                 </Trans>
               </AlertDescription>
@@ -368,10 +368,10 @@ export function DashboardRoute() {
                 <Alert>
                   <AlertCircleIcon />
                   <AlertTitle>
-                    <Trans>Needs quote</Trans>
+                    <Trans>Needs excerpt</Trans>
                   </AlertTitle>
                   <AlertDescription>
-                    <Trans>Two recommendations are waiting on verbatim text.</Trans>
+                    <Trans>Two recommendations are waiting on source excerpts.</Trans>
                   </AlertDescription>
                 </Alert>
                 <Alert variant="destructive">

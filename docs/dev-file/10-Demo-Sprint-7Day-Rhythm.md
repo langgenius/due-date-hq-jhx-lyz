@@ -97,7 +97,7 @@ flowchart LR
 | Owner | 任务                                                                                                                                                                    |
 | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | JHX   | Pulse digest email outbox（Resend）的 server 端；接 AI Orchestrator 的 guard 把 county-unknown 路由到 review；跑通 Migration → Workboard → Dashboard → Pulse 的端到端。 |
-| LYZ   | Pulse 真事件接入 Dashboard banner slot；Evidence drawer 最终打磨（source URL / quote / verifier / timestamp）；Command palette 注册各模块入口。                         |
+| LYZ   | Pulse 真事件接入 Dashboard banner slot；Evidence drawer 最终打磨（source URL / excerpt / verifier / timestamp）；Command palette 注册各模块入口。                       |
 
 **验收**：[09 §11 Demo Sanity](./09-Demo-Sprint-Module-Playbook.md#11-demo-sanity) 前 6 条全绿。
 
@@ -207,7 +207,7 @@ flowchart LR
 - [ ] JHX：Pulse digest email 进 outbox，Resend 测试 key 有回执
 - [ ] JHX：county-unknown 走 review 而不是默认 apply
 - [ ] LYZ：Dashboard banner slot 由真实 Pulse event 驱动
-- [ ] LYZ：Evidence drawer 展示 source URL / quote / verifier / timestamp
+- [ ] LYZ：Evidence drawer 展示 source URL / excerpt / verifier / timestamp
 - [x] LYZ：Command palette 能跳到 Migration / Workboard / Dashboard / Pulse 入口；`?` 能展示已注册快捷键 + reserved slots；`G then D/W` 导航序列在 Wizard 打开时禁用（见 [2026-04-27 command palette cmdk polish](../dev-log/2026-04-27-command-palette-cmdk-polish.md)）
 - [ ] 09 §11 Demo Sanity 前 6 条全绿
 

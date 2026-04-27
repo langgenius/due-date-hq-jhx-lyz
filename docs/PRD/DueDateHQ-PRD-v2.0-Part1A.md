@@ -28,7 +28,7 @@
 | Penalty 引擎           | Penalty Radar™（顶栏 $ 聚合 + What-If）                            | F-18 Penalty Forecaster（硬编码表 + `needs input` 降级） | **融合**：Radar 的 UX + Forecaster 的计算表（§7.5）                                          |
 | AI Smart Priority      | §6.4 纯函数打分（权重固定）                                        | F-5b 段内 LLM 排序 + 硬排 fallback                       | **采纳 v1.0 纯函数版**（可解释、零幻觉），**但允许用户在 Settings 里切 LLM 模式**（§7.4）    |
 | AI Q&A                 | §6.5 DSL 中间层（安全）                                            | F-19 直接 NL→SQL + parser 校验                           | **融合**：DSL 外层 + SQL 白名单内层，双保险（§7.7）                                          |
-| 证据链纪律             | Evidence Mode + `EvidenceLink` 表                                  | SourceBadge + verbatim quote                             | **采纳 v1.0 Evidence Mode**，并强制每条 Pulse 结构化字段附 verbatim quote（Competitor 做法） |
+| 证据链纪律             | Evidence Mode + `EvidenceLink` 表                                  | SourceBadge + source excerpt                             | **采纳 v1.0 Evidence Mode**，并强制每条 Pulse 结构化字段附 source excerpt（Competitor 做法） |
 | EIN 字段               | 未显式                                                             | 未显式                                                   | **新增**：客户模型加 `ein`，Migration AI Mapper 显式识别（Story S2 AC#2）                    |
 | 县筛选                 | 仅 Pulse 匹配用                                                    | 未列                                                     | **新增**：Workboard 与 Ask 均支持 county 维度                                                |
 | Pulse 通知             | Banner + email 分散                                                | Banner + email 分散                                      | **显式耦合**：每条 approved Pulse 触发同一事务内发 Banner + Email Digest（§6.3.4）           |
@@ -94,7 +94,7 @@
 4. **Explainable by default.** AI 无 provenance = 不渲染。
 5. **Human-in-the-loop.** AI 永不自动改 deadline 规则；Apply 必须人工点。
 6. **Dollar-aware.** 风险表达单位优先用美元，其次才是天数。
-7. **Source-anchored.** 每条规则、每个日期都有 `source_url` + `verified_by` + `verified_at` + `verbatim_quote`。
+7. **Source-anchored.** 每条规则、每个日期都有 `source_url` + `verified_by` + `verified_at` + `source_excerpt`。
 8. **Keyboard-first.** 所有高频操作必须有键盘快捷键。
 9. **Ramp × Linear · Light Workbench.** 视觉方向为"CPA 专业工作台"——浅色为主 / 深 navy `#0A2540` + indigo `#5B5BD6` accent / Inter + Geist Mono tabular-nums / 1px 发丝线分层 / zero shadow / 风险只用灰-黄-橙-红四档（不用绿表示 OK）。**UI 单一事实源 = `[docs/Design/DueDateHQ-DESIGN.md](../Design/DueDateHQ-DESIGN.md)`**；所有组件与 token 以该文档为准，本 PRD 的 UI 描述仅表达功能语义。
 
@@ -179,7 +179,7 @@
 | S3-AC2 | 自动判定哪些客户受影响（基于**州 + 县 + 实体类型 + 税种**） | Pulse Match Engine（§6.3.3，四维 SQL 匹配）                          | T-S3-02     |
 | S3-AC3 | 主看板顶部 Banner 推送 **+ 邮件通知**（双渠道，同一事务）   | Dashboard Pulse Banner（§5.1.1）+ Email Digest（§6.3.4）             | T-S3-03     |
 | S3-AC4 | 提供"一键查看受影响客户"+"**批量调整截止日**"操作           | Pulse Detail 抽屉 + Batch Apply 原子事务（§6.3.3）                   | T-S3-04     |
-| S3-AC5 | 每条公告附"官方来源链接"用于人工核验                        | `official_source_url` + `verbatim_quote` 显式展示（§6.3.1 / §6.3.2） | T-S3-05     |
+| S3-AC5 | 每条公告附"官方来源链接"用于人工核验                        | `official_source_url` + `source_excerpt` 显式展示（§6.3.1 / §6.3.2） | T-S3-05     |
 
 ### 3.4 VPC ✦ AI 杠杆点映射（画布 9 项）
 
@@ -501,7 +501,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | P0-5  | **Default Tax Types Inference**                  | 50 州骨架矩阵 × 8 实体类型（首发 6 州已签字，其余回退 Federal-only + `needs_review` 徽章）                                                                                                               | S2-AC4         |
 | P0-6  | **Dry-Run + Import + Live Genesis + 24h Revert** | 事务化导入 + 动画 + 原子回滚                                                                                                                                                                             | S2-AC5         |
 | P0-7  | Client CRUD + 手动添加                           | 字段 `name / ein / state / county / entity_type / tax_types / importance / estimated_annual_revenue / assignee / notes`                                                                                  | —              |
-| P0-8  | **Rule Engine v1（50 州骨架）**                  | Federal + CA/NY/TX/FL/WA/MA（首发 6 辖区 × ~30 条规则全 verified）；其他 44 州 schema 占位 + 默认 Federal                                                                                                | —              |
+| P0-8  | **Rule Engine v1（50 州骨架）**                  | Federal + CA/NY/TX/FL/WA（首发 5 MVP states × ~30 条规则 verified）；MA/IL 不在当前 MVP coverage；其他州 schema 占位 + 默认 Federal                                                                      | —              |
 | P0-9  | Obligation Instances                             | `state × entity_type × tax_types` 生成全年 instances                                                                                                                                                     | S2-AC4         |
 | P0-10 | **Dashboard（Story S1 主屏）**                   | 顶栏 Penalty Radar + Pulse Banner + **三段时间 Tabs（This Week / This Month / Long-term）**                                                                                                              | S1-AC1, S3-AC3 |
 | P0-11 | 倒计时徽章 + Days 列                             | 每个 obligation 显示精确到天的倒计时                                                                                                                                                                     | S1-AC2         |
@@ -524,11 +524,11 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | #         | 模块                                          | 关键能力                                                                                                                                     | AC 绑定             |
 | --------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | P1-1      | **Regulatory Pulse™ Ingest**                  | IRS + 5 州 RSS / 页面抓取；24h SLA                                                                                                           | S3-AC1              |
-| P1-2      | **Pulse LLM Extraction**                      | 结构化字段 + verbatim quote + confidence                                                                                                     | S3-AC1, S3-AC5      |
+| P1-2      | **Pulse LLM Extraction**                      | 结构化字段 + source excerpt + confidence                                                                                                     | S3-AC1, S3-AC5      |
 | P1-3      | **Pulse Match Engine**                        | 四维匹配：state + county + entity_type + tax_type                                                                                            | S3-AC2              |
 | P1-4      | **Dashboard Pulse Banner**                    | 顶部 sticky Banner + 折叠历史 + Last-checked 指标                                                                                            | S3-AC3              |
 | P1-5      | **Pulse Email Digest**                        | Approved Pulse 触发时 **同一事务内** 推送邮件（含受影响客户清单 + 官方链接）                                                                 | S3-AC3              |
-| P1-6      | **Pulse Detail Drawer**                       | AI summary + verbatim quote + Affected Clients Table + 快筛                                                                                  | S3-AC4, S3-AC5      |
+| P1-6      | **Pulse Detail Drawer**                       | AI summary + source excerpt + Affected Clients Table + 快筛                                                                                  | S3-AC4, S3-AC5      |
 | P1-7      | **Batch Apply 原子事务**                      | 批量调整截止日 + Evidence 追加 + 24h Undo                                                                                                    | S3-AC4              |
 | P1-8      | **AI Q&A Assistant (Ask DueDateHQ)**          | NL → DSL → SQL（只读白名单，tenant 强制）→ 表格 + 一句话 + citations                                                                         | VPC Medium ✦        |
 | P1-9      | Extension Decision Panel                      | Extension / payment decision helper + What-If Simulator                                                                                      | VPC 场景 C          |
@@ -563,7 +563,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 
 ### 4.3 P2 — 明确不做（v2.0 范围外）
 
-完整 e-file 提交 / 税额计算 / 客户门户 / 文档存储 / eSignature / 支付 / Stripe 计费 / 短信 / Google/Outlook 日历双向同步 / 完整团队 RBAC / 多租户组织层级 / 50 州完整真规则（只做 6 辖区首发）/ 原生移动 App / Drake / QuickBooks / TaxDome 深度集成 / 25+ 报告中心。
+完整 e-file 提交 / 税额计算 / 客户门户 / 文档存储 / eSignature / 支付 / Stripe 计费 / 短信 / Google/Outlook 日历双向同步 / 完整团队 RBAC / 多租户组织层级 / 50 州完整真规则（当前只做 Federal + CA/NY/TX/FL/WA 首发）/ 原生移动 App / Drake / QuickBooks / TaxDome 深度集成 / 25+ 报告中心。
 
 > **为什么日历只做单向订阅？** ICS 单向订阅 1 人天落地，在 Outlook / Google / Apple 里 0 配置显示所有 deadline（含 Pulse 改动）。双向同步会违反 §1.3 "Deadline-first, not calendar-first" 原则——外部日历改的日期会覆盖 Pulse 官方解读，Evidence / Audit 失真。战略上我们要用户周一 8 点回到 DueDateHQ 分诊，而不是停留在 Outlook。
 
@@ -777,7 +777,7 @@ Tabs 之上加一行 scope 切换（Solo Plan 下该行不渲染）：
 │   County to October 15, 2026, covering Form 1040,    │
 │   1120-S, 1065 for affected taxpayers [1]."          │
 │                                                      │
-│  [Verbatim quote from source ▾]                      │
+│  [Source excerpt ▾]                                  │
 │    "Individuals and businesses in Los Angeles County │
 │     have until October 15, 2026 to file various      │
 │     federal individual and business tax returns..."  │
@@ -833,7 +833,7 @@ Tabs 之上加一行 scope 切换（Solo Plan 下该行不渲染）：
 │   CA FTB Publication 3556                          │
 │   ftb.ca.gov/forms/misc/3556.html ↗                │
 │                                                    │
-│   Verbatim quote                                   │
+│   Source excerpt                                   │
 │   ──────────────                                   │
 │   "Every LLC doing business in California is       │
 │    subject to the $800 annual minimum franchise    │
@@ -869,9 +869,9 @@ Tabs 之上加一行 scope 切换（Solo Plan 下该行不渲染）：
 ### 5.7 Rules（规则中心，只读 · 登录用户视图）
 
 展示所有已 verified 规则，每条含：
-`jurisdiction · entity · tax type · due-date logic · penalty_formula · source_title · source_url · verbatim_quote · verified_by · verified_at · next_review_at · version · status · rule_tier · applicable_year · checklist(6/6) · cross_verified_sources[]`
+`jurisdiction · entity · tax type · due-date logic · penalty_formula · source_title · source_url · source_excerpt · verified_by · verified_at · next_review_at · version · status · rule_tier · applicable_year · checklist(6/6) · cross_verified_sources[]`
 
-MVP 覆盖 6 辖区（Federal + CA/NY/TX/FL/WA/MA）约 30 条。  
+MVP 覆盖 Federal + 5 states（CA/NY/TX/FL/WA）约 30 条；MA/IL 不属于当前 MVP coverage。  
 每条规则有 **Quality Badge（§6D.4）+ Cross-verified chip（§6D.5）**。  
 CPA 可以点 `Report issue` 触发人工复核流。  
 **不允许** CPA 编辑内置规则，但允许 `custom_deadline`（手动添加到某客户）。
@@ -951,7 +951,7 @@ hover 展开逐源 health + 下周 / 下季度的 ops review 时间点。
 - **WA**：B&O Tax
 - **MA**（新增覆盖）：Form 1 / Form 2 / Form 3 / Corporate Excise
 
-约 30 条核心规则，每条带 `source_url + verbatim_quote + verified_by + verified_at + next_review_at`。
+约 30 条核心规则，每条带 `source_url + source_excerpt + verified_by + verified_at + next_review_at`。
 
 #### 6.1.3 其他 44 州
 
@@ -995,7 +995,7 @@ Ops/Tax expert edits rule draft
 | Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks           | 一段话 + bullets                            | 纯 SQL 聚合 "3 upcoming, 1 critical"                   |
 | Deadline Tip            | P0     | 单 obligation + rule chunk                       | 3 段 What/Why/Prepare                       | 从 `rule.default_tip` 兜底                             |
 | Smart Priority          | P0     | 全部 open obligations + client 字段              | 打分 + 因子分解                             | 纯函数（零 LLM 调用，§6.4），LLM 仅用于 Why-hover 解释 |
-| Pulse Source Translator | P0     | 官方公告原文                                     | 结构化 JSON + 人话 summary + verbatim quote | 置信度 < 0.7 标记 pending review                       |
+| Pulse Source Translator | P0     | 官方公告原文                                     | 结构化 JSON + 人话 summary + source excerpt | 置信度 < 0.7 标记 pending review                       |
 | Ask DueDateHQ (Q&A)     | P1     | 自然语言 query                                   | 表格 + 总结 + citations                     | 预设模板 5 条兜底（§6.6.5）                            |
 | AI Draft Client Email   | P1     | Alert + 受影响客户                               | 英文邮件草稿                                | 固定模板                                               |
 | Migration Field Mapper  | P0     | 表头 + 5 行样本                                  | mapping JSON                                | Preset profile + 手动下拉                              |
@@ -1073,7 +1073,7 @@ Raw announcement
   "new_due_date": "2026-10-15",
   "effective_from": "2026-04-22",
   "official_source_url": "https://irs.gov/newsroom/...",
-  "verbatim_quote": "Individuals and businesses in Los Angeles...",
+  "source_excerpt": "Individuals and businesses in Los Angeles...",
   "confidence": 0.94,
   "requires_human_review": true
 }

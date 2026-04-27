@@ -488,11 +488,11 @@ interface WeekendHolidayPolicy {
 
 ### 9.1 规则覆盖（对齐 PRD §4.1 P0-8 / §6.1.2）
 
-| 阶段                              | 覆盖辖区                              | 条目                                                                           |
-| --------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------ |
-| **Demo Sprint**（§09）            | Federal + CA + NY                     | ~20 条 verified                                                                |
-| **Phase 0 MVP 完整**（PRD §14.1） | Federal + CA + NY + TX + FL + WA + MA | ~30 条全 verified；其他 44 州 `coverage_status='skeleton'` + Federal-only 回退 |
-| **Phase 1 完整**（PRD §14.2）     | 50 州 full coverage                   | 逐州 sign-off 后 `active=true`；无 schema 变更                                 |
+| 阶段                                  | 覆盖辖区                         | 条目                                                                                                                                                           |
+| ------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Demo Sprint**（§09）                | Federal + CA + NY                | ~20 条 verified                                                                                                                                                |
+| **Phase 0 MVP 当前口径**（PRD §14.1） | Federal + CA + NY + TX + FL + WA | 当前 rule pack 已落地 25 条 verified + 1 条 Federal disaster candidate；MA/IL 不进入当前 MVP coverage，其他州 `coverage_status='skeleton'` + Federal-only 回退 |
+| **Phase 1 完整**（PRD §14.2）         | 50 州 full coverage              | 逐州 sign-off 后 `active=true`；无 schema 变更                                                                                                                 |
 
 ### 9.2 Postgres 退路（极端场景，非预设路径）
 

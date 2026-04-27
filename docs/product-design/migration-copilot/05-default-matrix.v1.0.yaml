@@ -296,7 +296,6 @@ fallback:
   strategy: federal_only_with_needs_review
   description: When (entity_type, state) is not in rules, emit federal overlay only and mark the client as needs_review.
   applies_to_states:
-    - MA
     - TX
     - FL
     - WA
@@ -307,7 +306,7 @@ fallback:
     needs_review_reason: state_not_in_demo_sprint_seed
 
 phase0_expansion_hooks:
-  - description: Add 6 jurisdictions (MA, TX, FL, WA, plus any two) × 8 entity types = 48 cells in v1.1.
+  - description: Add TX, FL, and WA × 8 entity types = 24 cells in v1.1, aligning Default Matrix with current Rules MVP coverage.
     owner: rules_ops
   - description: Add 50-state skeleton (coverage_status=skeleton) in v2.0 with placeholder tax_types + mandatory ops verification before activation.
     owner: rules_ops

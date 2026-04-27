@@ -173,8 +173,15 @@ describe('@duedatehq/contracts', () => {
       evidence: [
         {
           sourceId: 'fed.irs_pub_509_2026',
-          locator: 'Partnerships / Form 1065',
+          authorityRole: 'basis',
+          locator: {
+            kind: 'table',
+            heading: 'Partnerships / Form 1065',
+          },
           summary: 'Due on the 15th day of the 3rd month after tax year end.',
+          sourceExcerpt: 'If any due date falls on a Saturday, Sunday, or legal holiday',
+          retrievedAt: '2026-04-27',
+          sourceUpdatedOn: '2026-04-27',
         },
       ],
       defaultTip: 'Calendar-year partnership returns for tax year 2025 roll to March 16, 2026.',
@@ -268,8 +275,15 @@ describe('@duedatehq/contracts', () => {
       evidence: [
         {
           sourceId: 'ca.ftb_business_due_dates',
-          locator: 'Annual LLC tax',
+          authorityRole: 'basis',
+          locator: {
+            kind: 'table',
+            heading: 'Annual LLC tax',
+          },
           summary: 'Due on the 15th day of the 4th month.',
+          sourceExcerpt: 'Business due dates',
+          retrievedAt: '2026-04-27',
+          sourceUpdatedOn: '2026-04-27',
         },
       ],
       requiresReview: false,

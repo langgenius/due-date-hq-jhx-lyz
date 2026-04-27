@@ -427,7 +427,7 @@
 **DoD**
 
 - Every dangerous write can be explained after the fact。
-- Evidence includes source URL, quote, verifier and verification timestamp when applicable。
+- Evidence includes source URL, source excerpt, verifier and verification timestamp when applicable。
 - No module deletes audit history。
 
 ### 5.10 Pulse Pipeline

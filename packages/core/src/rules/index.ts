@@ -115,10 +115,25 @@ export interface RuleQualityChecklist {
   exceptionChannel: boolean
 }
 
+export type RuleEvidenceAuthorityRole = 'basis' | 'cross_check' | 'watch' | 'early_warning'
+
+export interface RuleEvidenceLocator {
+  kind: 'html' | 'pdf' | 'table' | 'api' | 'email_subscription'
+  heading?: string
+  selector?: string
+  pdfPage?: number
+  tableLabel?: string
+  rowLabel?: string
+}
+
 export interface RuleEvidence {
   sourceId: string
-  locator: string
+  authorityRole: RuleEvidenceAuthorityRole
+  locator: RuleEvidenceLocator
   summary: string
+  sourceExcerpt: string
+  retrievedAt: string
+  sourceUpdatedOn?: string
 }
 
 export interface ObligationRule {
@@ -304,6 +319,48 @@ export const RULE_SOURCES = [
     jurisdiction: 'FED',
     title: 'IRS Instructions for Form 7004 (12/2025)',
     url: 'https://www.irs.gov/instructions/i7004',
+    sourceType: 'instructions',
+    acquisitionMethod: 'html_watch',
+    cadence: 'pre_season',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['ops_source_change', 'publish_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.irs_i1065_2025',
+    jurisdiction: 'FED',
+    title: 'IRS Instructions for Form 1065 (2025)',
+    url: 'https://www.irs.gov/instructions/i1065',
+    sourceType: 'instructions',
+    acquisitionMethod: 'html_watch',
+    cadence: 'pre_season',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['ops_source_change', 'publish_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.irs_i1120s_2025',
+    jurisdiction: 'FED',
+    title: 'IRS Instructions for Form 1120-S (2025)',
+    url: 'https://www.irs.gov/instructions/i1120s',
+    sourceType: 'instructions',
+    acquisitionMethod: 'html_watch',
+    cadence: 'pre_season',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['ops_source_change', 'publish_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.irs_i1120_2025',
+    jurisdiction: 'FED',
+    title: 'IRS Instructions for Form 1120 (2025)',
+    url: 'https://www.irs.gov/instructions/i1120',
     sourceType: 'instructions',
     acquisitionMethod: 'html_watch',
     cadence: 'pre_season',
@@ -679,8 +736,92 @@ export const RULE_SOURCES = [
   },
 ] as const satisfies readonly RuleSource[]
 
-function sourceEvidence(sourceId: string, locator: string, summary: string): RuleEvidence {
-  return { sourceId, locator, summary }
+const SOURCE_EXCERPTS: Record<string, string> = {
+  'fed.irs_pub_509_2026': 'If any due date falls on a Saturday, Sunday, or legal holiday',
+  'fed.irs_i7004_2025': 'Form 7004 does not extend the time for payment of tax',
+  'fed.irs_i1065_2025': 'File Form 1065 by the 15th day of the 3rd month',
+  'fed.irs_i1120s_2025': 'File Form 1120-S by the 15th day of the 3rd month',
+  'fed.irs_i1120_2025': '15th day of the 4th month after the end of its tax year',
+  'fed.irs_disaster_relief': 'Tax relief in disaster situations',
+  'fed.fema_disaster_declarations': 'Disaster Declarations Summaries',
+  'ca.ftb_business_due_dates': 'Business due dates',
+  'ca.ftb_llc': 'Limited liability company',
+  'ca.ftb_568_booklet_2025': '2025 Limited Liability Company Tax Booklet',
+  'ca.ftb_emergency_tax_relief': 'Emergency tax relief',
+  'ca.ftb_tax_news': 'Tax News',
+  'ny.tax_calendar.2026': '2026 tax filing dates',
+  'ny.ptet': 'Pass-through entity tax',
+  'ny.it204ll': 'Partnership, LLC, and LLP annual filing fee',
+  'ny.partnerships': 'Partnerships',
+  'ny.email_services': 'Email services',
+  'ny.article_9a': 'Article 9-A franchise tax',
+  'tx.franchise_overview': 'Franchise tax report forms should be mailed to the Comptroller',
+  'tx.franchise_home': 'Franchise Tax',
+  'tx.franchise_annual_report': 'Annual Report Instructions',
+  'tx.franchise_extensions': 'Franchise Tax Extensions',
+  'tx.franchise_forms_2026': '2026 Franchise Tax Report Information and Instructions',
+  'tx.pir_oir': 'PIR and OIR filing requirements',
+  'fl.cit': 'Corporate Income Tax',
+  'fl.cit_due_dates_2026': 'Corporate Income Tax Due Dates',
+  'fl.tips': 'Tax Information Publications',
+  'wa.excise_due_dates_2026': '2026 excise tax return due dates',
+  'wa.bo': 'Business and occupation tax',
+  'wa.news': 'News releases',
+  'wa.capital_gains_exception_2026': 'Capital gains excise tax returns due date moved',
+}
+
+function locatorKindForSource(source: RuleSource | undefined): RuleEvidenceLocator['kind'] {
+  if (!source) return 'html'
+  if (source.acquisitionMethod === 'api_watch') return 'api'
+  if (source.acquisitionMethod === 'pdf_watch') return 'pdf'
+  if (source.acquisitionMethod === 'email_subscription') return 'email_subscription'
+  if (source.sourceType === 'calendar' || source.sourceType === 'due_dates') return 'table'
+  return 'html'
+}
+
+function authorityRoleForSource(source: RuleSource | undefined): RuleEvidenceAuthorityRole {
+  if (source?.isEarlyWarning) return 'early_warning'
+  if (source?.sourceType === 'news' || source?.sourceType === 'emergency_relief') return 'watch'
+  return 'basis'
+}
+
+function sourceEvidence(
+  sourceId: string,
+  heading: string,
+  summary: string,
+  options: {
+    authorityRole?: RuleEvidenceAuthorityRole
+    locatorKind?: RuleEvidenceLocator['kind']
+    sourceExcerpt?: string
+    sourceUpdatedOn?: string
+    pdfPage?: number
+    tableLabel?: string
+    rowLabel?: string
+  } = {},
+): RuleEvidence {
+  const source = RULE_SOURCES.find((item) => item.id === sourceId)
+  const locator: RuleEvidenceLocator = {
+    kind: options.locatorKind ?? locatorKindForSource(source),
+    heading,
+  }
+
+  if (options.pdfPage !== undefined) locator.pdfPage = options.pdfPage
+  if (options.tableLabel !== undefined) locator.tableLabel = options.tableLabel
+  if (options.rowLabel !== undefined) locator.rowLabel = options.rowLabel
+
+  const evidence: RuleEvidence = {
+    sourceId,
+    authorityRole: options.authorityRole ?? authorityRoleForSource(source),
+    locator,
+    summary,
+    sourceExcerpt: options.sourceExcerpt ?? SOURCE_EXCERPTS[sourceId] ?? summary,
+    retrievedAt: VERIFIED_AT,
+  }
+
+  const sourceUpdatedOn = options.sourceUpdatedOn ?? source?.lastReviewedOn
+  if (sourceUpdatedOn !== undefined) evidence.sourceUpdatedOn = sourceUpdatedOn
+
+  return evidence
 }
 
 export const OBLIGATION_RULES = [
@@ -714,8 +855,13 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'Form 7004 extends filing time only; payment obligations must be reviewed separately.',
     },
-    sourceIds: ['fed.irs_pub_509_2026', 'fed.irs_i7004_2025'],
+    sourceIds: ['fed.irs_pub_509_2026', 'fed.irs_i1065_2025', 'fed.irs_i7004_2025'],
     evidence: [
+      sourceEvidence(
+        'fed.irs_i1065_2025',
+        'When To File',
+        'Form 1065 instructions provide the form-specific partnership filing deadline.',
+      ),
       sourceEvidence(
         'fed.irs_pub_509_2026',
         'Partnerships / Form 1065',
@@ -765,8 +911,13 @@ export const OBLIGATION_RULES = [
       notes:
         'Extension applies to filing; any tax due should be paid by the original return due date.',
     },
-    sourceIds: ['fed.irs_pub_509_2026', 'fed.irs_i7004_2025'],
+    sourceIds: ['fed.irs_pub_509_2026', 'fed.irs_i1120s_2025', 'fed.irs_i7004_2025'],
     evidence: [
+      sourceEvidence(
+        'fed.irs_i1120s_2025',
+        'When To File',
+        'Form 1120-S instructions provide the form-specific S corporation filing deadline.',
+      ),
       sourceEvidence(
         'fed.irs_pub_509_2026',
         'Corporations and S Corporations / Form 1120-S',
@@ -815,8 +966,13 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'June year-end C corporation exceptions remain applicability-review cases.',
     },
-    sourceIds: ['fed.irs_pub_509_2026', 'fed.irs_i7004_2025'],
+    sourceIds: ['fed.irs_pub_509_2026', 'fed.irs_i1120_2025', 'fed.irs_i7004_2025'],
     evidence: [
+      sourceEvidence(
+        'fed.irs_i1120_2025',
+        'When To File',
+        'Form 1120 instructions provide the form-specific C corporation filing deadline.',
+      ),
       sourceEvidence(
         'fed.irs_pub_509_2026',
         'Corporations and S Corporations / Form 1120',
@@ -862,8 +1018,13 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'Estimated tax payments are payment obligations, not filing extensions.',
     },
-    sourceIds: ['fed.irs_pub_509_2026'],
+    sourceIds: ['fed.irs_pub_509_2026', 'fed.irs_i1120_2025'],
     evidence: [
+      sourceEvidence(
+        'fed.irs_i1120_2025',
+        'Estimated Tax Payments',
+        'Form 1120 instructions identify estimated tax as a corporation payment obligation.',
+      ),
       sourceEvidence(
         'fed.irs_pub_509_2026',
         'Corporations and S Corporations / Estimated tax payments',

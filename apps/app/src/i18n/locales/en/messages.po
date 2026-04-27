@@ -80,10 +80,6 @@ msgstr "2 partner entities need review before the March 15 cutoff."
 msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Warning flag = rule needs CPA applicability review at generation time. Candidate rows never trigger user reminders."
 msgstr "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Warning flag = rule needs CPA applicability review at generation time. Candidate rows never trigger user reminders."
 
-#: src/features/rules/rules-console.tsx
-msgid "28 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
-msgstr "28 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
-
 #: src/features/rules/coverage-tab.tsx
 msgid "3 basic · 2 review"
 msgstr "3 basic · 2 review"
@@ -95,6 +91,10 @@ msgstr "3 basic · 4 review"
 #: src/routes/dashboard.tsx
 msgid "3 clients have estimated-tax deltas above the evidence threshold."
 msgstr "3 clients have estimated-tax deltas above the evidence threshold."
+
+#: src/features/rules/rules-console.tsx
+msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+msgstr "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "4 verified · 1 candidate watch"
@@ -138,8 +138,8 @@ msgid "AI Mapper unavailable — using fallback"
 msgstr "AI Mapper unavailable — using fallback"
 
 #: src/routes/dashboard.tsx
-msgid "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
-msgstr "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
+msgid "AI-facing recommendations remain hidden unless source, excerpt, and verification time are present."
+msgstr "AI-facing recommendations remain hidden unless source, excerpt, and verification time are present."
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -358,6 +358,7 @@ msgstr "Dark"
 
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/_layout.tsx
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -522,6 +523,7 @@ msgstr "Filing-frequency review"
 msgid "Filter by status, search clients, and sort by due date."
 msgstr "Filter by status, search clients, and sort by due date."
 
+#: src/routes/_layout.tsx
 #: src/routes/settings.tsx
 msgid "Firm settings"
 msgstr "Firm settings"
@@ -721,8 +723,8 @@ msgid "Needs evidence"
 msgstr "Needs evidence"
 
 #: src/routes/dashboard.tsx
-msgid "Needs quote"
-msgstr "Needs quote"
+msgid "Needs excerpt"
+msgstr "Needs excerpt"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Needs review"
@@ -842,6 +844,7 @@ msgstr "Open the obligation queue."
 msgid "Operational pressure points for the team."
 msgstr "Operational pressure points for the team."
 
+#: src/routes/_layout.tsx
 #: src/routes/dashboard.tsx
 msgid "Operations"
 msgstr "Operations"
@@ -1055,6 +1058,7 @@ msgid "Rule Library"
 msgstr "Rule Library"
 
 #: src/components/patterns/app-shell.tsx
+#: src/routes/_layout.tsx
 msgid "Rules"
 msgstr "Rules"
 
@@ -1121,6 +1125,7 @@ msgstr "Setting up your practice…"
 
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/_layout.tsx
 #: src/routes/settings.tsx
 msgid "Settings"
 msgstr "Settings"
@@ -1303,8 +1308,8 @@ msgid "Too many requests. Please try again in a moment."
 msgstr "Too many requests. Please try again in a moment."
 
 #: src/routes/dashboard.tsx
-msgid "Two recommendations are waiting on verbatim text."
-msgstr "Two recommendations are waiting on verbatim text."
+msgid "Two recommendations are waiting on source excerpts."
+msgstr "Two recommendations are waiting on source excerpts."
 
 #: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
@@ -1397,11 +1402,13 @@ msgid "Where is your data coming from?"
 msgstr "Where is your data coming from?"
 
 #: src/features/migration/WizardShell.tsx
+#: src/routes/_layout.tsx
 msgid "Workbench"
 msgstr "Workbench"
 
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "Workboard"
