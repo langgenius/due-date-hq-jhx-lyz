@@ -1,23 +1,8 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
 import { Wizard } from './Wizard'
-
-interface MigrationWizardContextValue {
-  open: boolean
-  openWizard: () => void
-  closeWizard: () => void
-}
-
-const MigrationWizardContext = createContext<MigrationWizardContextValue | null>(null)
+import { MigrationWizardContext, type MigrationWizardContextValue } from './WizardContext'
 
 interface MigrationWizardProviderProps {
   children: ReactNode
@@ -28,6 +13,10 @@ interface MigrationWizardProviderProps {
  * imperative open / close hooks. Listens to `location.state.autoOpenMigration`
  * so the onboarding flow can hand the user straight into "Import clients"
  * without exposing a dedicated URL.
+ *
+ * Note: the actual `MigrationWizardContext` instance lives in `WizardContext.ts`
+ * — keeping it in a non-component module guarantees stable identity across
+ * Fast Refresh cycles.
  */
 export function MigrationWizardProvider({ children }: MigrationWizardProviderProps) {
   const [open, setOpen] = useState(false)
