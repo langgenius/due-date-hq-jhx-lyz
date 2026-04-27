@@ -244,7 +244,7 @@ export function SidebarMenuItem({ className, ...props }: React.ComponentProps<'l
 
 const sidebarMenuButtonVariants = cva(
   cn(
-    'group/menu-button peer/menu-button relative flex h-8 w-full cursor-pointer touch-manipulation items-center gap-2.5 overflow-hidden rounded-md px-3 text-base font-medium text-text-secondary outline-none transition-colors',
+    'group/menu-button peer/menu-button relative flex h-8 w-full cursor-pointer touch-manipulation items-center gap-2.5 overflow-hidden rounded-md px-3 text-left text-base font-medium text-text-secondary outline-none transition-colors',
     // Hover/active backgrounds use *neutral* surface tokens, not the
     // `state-base-hover-*` tokens which are 8–14 % indigo washes — keeping
     // accent indigo reserved exclusively for CTAs / focus / risk callouts
