@@ -13,6 +13,7 @@ import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -367,9 +368,11 @@ function EditPopover({ current, sourceHeader, onChange }: EditPopoverProps) {
         }
       />
       <DropdownMenuContent className="w-60" align="end">
-        <DropdownMenuLabel>
-          <Trans>Map &quot;{sourceHeader}&quot; to…</Trans>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <Trans>Map &quot;{sourceHeader}&quot; to…</Trans>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuRadioGroup value={current} onValueChange={handleValueChange}>
           {SELECTABLE_TARGETS.map((target) => (
             <DropdownMenuRadioItem
