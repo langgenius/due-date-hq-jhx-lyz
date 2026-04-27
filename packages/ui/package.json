@@ -8,6 +8,7 @@
     "#*": "./src/*"
   },
   "exports": {
+    "./assets/brand/*": "./src/assets/brand/*",
     "./components/ui/*": "./src/components/ui/*.tsx",
     "./hooks/*": "./src/hooks/*.ts",
     "./lib/utils": "./src/lib/utils.ts",

@@ -1,4 +1,7 @@
 ---
+import brandMarkDark from '@duedatehq/ui/assets/brand/brand-favicon-dark.svg?url'
+import brandMarkLight from '@duedatehq/ui/assets/brand/brand-favicon.svg?url'
+
 import type { NavCopy } from '../i18n/types'
 
 interface Props {
@@ -14,7 +17,22 @@ const { t, ctaHref } = Astro.props
     <!-- Brand + nav cluster: 32px gap matches Figma NavLeft (Brand 238w + 32 gap + NavLinks 412w). -->
     <div class="flex items-center gap-8">
       <a href="/" class="flex items-center gap-2 text-[13px]">
-        <span class="block h-2 w-2 rounded-full bg-accent-default"></span>
+        <img
+          src={brandMarkLight}
+          alt=""
+          aria-hidden="true"
+          width="16"
+          height="16"
+          class="size-4 shrink-0 dark:hidden"
+        />
+        <img
+          src={brandMarkDark}
+          alt=""
+          aria-hidden="true"
+          width="16"
+          height="16"
+          class="hidden size-4 shrink-0 dark:block"
+        />
         <span class="font-semibold text-text-primary">{t.brand}</span>
         <span class="text-text-muted">/</span>
         <span class="text-text-secondary">{t.audience}</span>

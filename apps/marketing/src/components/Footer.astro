@@ -1,4 +1,7 @@
 ---
+import brandMarkDark from '@duedatehq/ui/assets/brand/brand-favicon-dark.svg?url'
+import brandMarkLight from '@duedatehq/ui/assets/brand/brand-favicon.svg?url'
+
 import type { FooterCopy } from '../i18n/types'
 import PreferenceSwitcher from './PreferenceSwitcher.astro'
 
@@ -18,7 +21,22 @@ const { t, enHref, zhHref, currentLocale } = Astro.props
       <!-- Brand block -->
       <div class="col-span-12 lg:col-span-4">
         <div class="flex items-center gap-2">
-          <span class="block h-2.5 w-2.5 rounded-full bg-accent-default"></span>
+          <img
+            src={brandMarkLight}
+            alt=""
+            aria-hidden="true"
+            width="16"
+            height="16"
+            class="size-4 shrink-0 dark:hidden"
+          />
+          <img
+            src={brandMarkDark}
+            alt=""
+            aria-hidden="true"
+            width="16"
+            height="16"
+            class="hidden size-4 shrink-0 dark:block"
+          />
           <span class="text-[15px] font-semibold text-text-primary">{t.brand}</span>
         </div>
         <p class="mt-7 text-[14px] text-text-secondary">{t.tagline}</p>

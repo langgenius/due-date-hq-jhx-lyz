@@ -16,7 +16,8 @@ apps/app/
 ├── index.html
 ├── vite.config.ts
 ├── public/
-│   ├── icons/                ← 应用图标（favicon / 站点 logo）
+│   ├── favicon.svg           ← brand mark（镜像 packages/ui/src/assets/brand/brand-favicon.svg；同步纪律见 DESIGN.md §15）
+│   ├── icons/                ← PWA / Apple touch / Maskable PNG 图标集（由 sharp 脚本生成；P1 待补）
 │   └── fonts/                ← Inter / Geist Mono 本地托管（可选）
 ├── src/
 │   ├── main.tsx              ← ReactDOM.createRoot + router provider
