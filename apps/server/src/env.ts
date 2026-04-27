@@ -57,10 +57,6 @@ export function validateServerEnv(runtimeEnv: Env): ServerEnv {
     emptyStringAsUndefined: true,
   })
 
-  if (env.ENV !== 'development' && !env.RESEND_API_KEY) {
-    throw new Error('RESEND_API_KEY is required outside development')
-  }
-
   return env
 }
 

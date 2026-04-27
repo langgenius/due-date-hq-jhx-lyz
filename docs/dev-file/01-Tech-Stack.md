@@ -421,6 +421,7 @@ LANGFUSE_PUBLIC_KEY=
 LANGFUSE_SECRET_KEY=
 
 # ───────── Mail ─────────
+# Optional until a runtime path actually sends auth or product email.
 RESEND_API_KEY=
 EMAIL_FROM=noreply@duedatehq.com
 
@@ -444,7 +445,7 @@ CLOUDFLARE_API_TOKEN=
 | D1 主区          | 读路径可用 D1 Session / read replica 降级；写路径停止关键变更并进入只读模式，必要时把用户意图写 Queue/R2 outbox 后人工确认重放 |
 | Vectorize        | RAG 降级为 D1 FTS5 全文检索兜底（精度下降但可用）                                                                              |
 | AI Gateway / LLM | 内置 fallback 链：GPT-4o → Claude Sonnet → 缓存模板 → refusal 文案                                                             |
-| Resend           | 写 `email_outbox` + Queue 重试；用户 in-app 通知兜底                                                                           |
+| Resend           | 写 `email_outbox` + Queue 重试；用户 in-app 通知兜底。`RESEND_API_KEY` 可先不配，但实际发邮件路径必须配置。                    |
 | KV               | 限流退化为 DB 计数（~200ms 成本）；缓存退化为直查                                                                              |
 | Queues           | 紧急降级为 `scheduled()` 里直接处理，牺牲并行度                                                                                |
 | R2               | PDF 降级为同步生成 + stream 返回                                                                                               |

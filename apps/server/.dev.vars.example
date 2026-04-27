@@ -43,10 +43,10 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
 # ═════════════════════════════════════════════════════════════════════════════
-# [Optional in dev] Mail · Resend
+# [Optional until email send] Mail · Resend
 # ═════════════════════════════════════════════════════════════════════════════
-# When ENV=development, RESEND_API_KEY may be blank — auth emails print to
-# console instead of sending. Required outside development.
+# RESEND_API_KEY may be blank for login + organization bootstrap. Auth email
+# sending still requires it outside development; development prints to console.
 RESEND_API_KEY=
 EMAIL_FROM=noreply@duedatehq.com
 

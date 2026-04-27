@@ -40,8 +40,12 @@
 
 ### 2.3 Invitation 流
 
+- P0 正常产品路径不开放邀请：`invitationLimit: 0`，Google 登录 + 创建组织 + 进入
+  app 不依赖 Resend key
 - Owner 在 Settings → Team 发邀请 → better-auth 生成 token + 入 `invitation` 表
 - 邀请邮件由 `sendInvitationEmail` hook 经 Resend 发出
+- `RESEND_API_KEY` 仅在实际发送 auth email 时必需；development 缺 key 时打印到
+  console，非 development 的发送路径会失败
 - 接受：点链接 → `/api/auth/organization/accept-invitation/:token` → 自动加入并设为 active
 - 拒绝 / 撤销：`cancelInvitation` / `rejectInvitation`
 - 过期：默认 14 天
