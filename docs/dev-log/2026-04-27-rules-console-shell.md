@@ -144,6 +144,29 @@ referentially stable until the active locale changes.
 `zh-CN` carries 0 missing translations after this change (`pnpm --filter
 @duedatehq/app i18n:extract` reports 341 / 341 across both locales).
 
+### 2026-04-27 follow-up: route header i18n + tab rail scroll contract
+
+Two implementation issues surfaced during visual verification against Figma
+frame `214:2`:
+
+1. AppShell route titles (`Settings` / `Rules`) were declared as
+   `t\`...\``calls inside a helper that accepted`t`as an argument. Lingui's
+macro transform did not rewrite that indirection into message descriptors,
+so runtime DOM rendered empty`<span>` nodes in the route header.
+2. The `/settings/rules` tab rail participated in the same `main` scroll
+   container as the page content, so the second-level navigation could scroll
+   away from the route chrome.
+
+Fixes:
+
+- `apps/app/src/routes/_layout.tsx` now keeps route summary copy as lazy
+  `msg` descriptors (`@lingui/core/macro`) and resolves them with `i18n._(...)`
+  inside `RootLayoutShell`. This matches Lingui best practice for messages
+  selected by non-JSX helpers and keeps extraction/compile strictness intact.
+- `apps/app/src/features/rules/rules-console.tsx` now makes the `<Tabs>` shell
+  `h-full min-h-0 overflow-hidden`; the 40 px tab rail is `shrink-0`, and only
+  the content column below it owns `overflow-y-auto overscroll-contain`.
+
 ## Sidebar IA Decision (Settings as a container, not a flat peer)
 
 The four-tab Figma frames render the sidebar with `Settings` highlighted in

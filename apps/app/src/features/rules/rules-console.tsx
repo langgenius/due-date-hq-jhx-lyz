@@ -22,9 +22,11 @@ import { isRulesTab, RULES_TABS, type RulesTab } from './rules-console-model'
  *    24 px outer padding so the math `viewport - sidebar - 880 → / 2` lands
  *    the content at left = 170 px on the 1440 px Figma frame, exactly where
  *    every tab puts the `Rules Console` title and tables.
+ *  - The wrapping `<Tabs>` owns the route viewport height. The tab nav is a
+ *    non-scrolling top rail; only the content column below it scrolls.
  *  - The wrapping `<Tabs>` defaults to `flex gap-2 data-horizontal:flex-col`
- *    via `@duedatehq/ui`. We override `gap-0` so the tab nav and panel sit
- *    flush against the route header rib at y = 56 + 1.
+ *    via `@duedatehq/ui`. We override `gap-0` so the tab nav and scroll region
+ *    sit flush against the route header rib at y = 56 + 1.
  *  - All user-facing copy is i18n-routed through Lingui (`useLingui` macros);
  *    the underlying `RULES_TABS` table only carries values + counts.
  */
@@ -68,7 +70,7 @@ export function RulesConsole() {
       onValueChange={(value) => {
         if (isRulesTab(value)) setActiveTab(value)
       }}
-      className="flex flex-col gap-0"
+      className="flex h-full min-h-0 flex-col gap-0 overflow-hidden"
     >
       {/*
         Tab nav rib + underline accent.
@@ -104,9 +106,11 @@ export function RulesConsole() {
           ))}
         </TabsList>
       </div>
-      <div className="mx-auto flex w-full max-w-[928px] flex-col gap-6 px-6 py-6">
-        <RulesPageHeader description={description} />
-        <RulesTabPanel activeTab={activeTab} />
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="mx-auto flex w-full max-w-[928px] flex-col gap-6 px-6 py-6">
+          <RulesPageHeader description={description} />
+          <RulesTabPanel activeTab={activeTab} />
+        </div>
       </div>
     </Tabs>
   )

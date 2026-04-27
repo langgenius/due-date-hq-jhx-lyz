@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useLoaderData, useLocation } from 'react-router'
+import type { MessageDescriptor } from '@lingui/core'
+import { msg } from '@lingui/core/macro'
+import { useLingui } from '@lingui/react/macro'
 
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import {
@@ -8,7 +11,6 @@ import {
   switchThemePreference as applyAndPersistTheme,
   type ThemePreference,
 } from '@duedatehq/ui/theme'
-import { useLingui } from '@lingui/react/macro'
 
 import { AppShell } from '@/components/patterns/app-shell'
 import { KeyboardProvider } from '@/components/patterns/keyboard-shell'
@@ -16,9 +18,9 @@ import { MigrationWizardProvider, useMigrationWizard } from '@/features/migratio
 import { initialsFromName, type AuthUser } from '@/lib/auth'
 
 type ProtectedLoaderData = { user: AuthUser }
-type RouteSummary = {
-  eyebrow: string
-  title: string
+type RouteSummaryMessages = {
+  eyebrow: MessageDescriptor
+  title: MessageDescriptor
 }
 
 function getStoredThemePreference(): ThemePreference {
@@ -114,11 +116,15 @@ function RootLayoutShell({
   themePreference: ThemePreference
   switchThemePreference: (next: ThemePreference) => void
 }) {
-  const { t } = useLingui()
+  const { i18n } = useLingui()
   const location = useLocation()
   const { openWizard } = useMigrationWizard()
   const firm = useFirmSummary(user)
-  const route = getRouteSummary(location.pathname, t)
+  const routeMessages = getRouteSummaryMessages(location.pathname)
+  const route = {
+    eyebrow: i18n._(routeMessages.eyebrow),
+    title: i18n._(routeMessages.title),
+  }
 
   return (
     <AppShell
@@ -132,17 +138,17 @@ function RootLayoutShell({
   )
 }
 
-function getRouteSummary(pathname: string, t: ReturnType<typeof useLingui>['t']): RouteSummary {
+function getRouteSummaryMessages(pathname: string): RouteSummaryMessages {
   if (pathname === '/settings/rules') {
-    return { eyebrow: t`Settings`, title: t`Rules` }
+    return { eyebrow: msg`Settings`, title: msg`Rules` }
   }
   if (pathname === '/settings') {
-    return { eyebrow: t`Settings`, title: t`Firm settings` }
+    return { eyebrow: msg`Settings`, title: msg`Firm settings` }
   }
   if (pathname.startsWith('/workboard')) {
-    return { eyebrow: t`Workbench`, title: t`Workboard` }
+    return { eyebrow: msg`Workbench`, title: msg`Workboard` }
   }
-  return { eyebrow: t`Operations`, title: t`Dashboard` }
+  return { eyebrow: msg`Operations`, title: msg`Dashboard` }
 }
 
 /**
