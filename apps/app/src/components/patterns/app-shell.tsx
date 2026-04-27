@@ -1,11 +1,12 @@
-import { useCallback, useMemo, useTransition } from 'react'
-import { NavLink, Outlet, useNavigate, useNavigation } from 'react-router'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate, useNavigation } from 'react-router'
 import { toast } from 'sonner'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
   BellIcon,
   CalendarClockIcon,
   CheckIcon,
+  ChevronRightIcon,
   ChevronsUpDownIcon,
   ClipboardListIcon,
   GlobeIcon,
@@ -280,6 +281,14 @@ type NavItem = {
   end?: boolean
   badge?: string
   tag?: string
+  subItems?: NavSubItem[]
+  defaultSubItemHref?: string
+}
+
+type NavSubItem = {
+  href?: string
+  label: string
+  end?: boolean
 }
 
 type NavConfig = {
@@ -302,7 +311,20 @@ function useNavItems(): NavConfig {
           badge: '34',
         },
       ],
-      manage: [{ href: '/settings', label: t`Settings`, icon: SettingsIcon, end: false }],
+      manage: [
+        {
+          href: '/settings',
+          label: t`Settings`,
+          icon: SettingsIcon,
+          end: false,
+          defaultSubItemHref: '/settings/rules',
+          subItems: [
+            { href: '/settings/rules', label: t`Rules`, end: true },
+            { label: t`Members` },
+            { label: t`Profile` },
+          ],
+        },
+      ],
       admin: [
         { href: '/clients', label: t`Clients`, icon: UsersIcon, end: false, tag: 'P1' },
         { href: '/audit', label: t`Audit log`, icon: ScaleIcon, end: false, tag: 'P1' },
@@ -363,6 +385,10 @@ function NavGroupSection({
 }
 
 function NavMenuItem({ item, disabled = false }: { item: NavItem; disabled?: boolean }) {
+  if (item.subItems?.length) {
+    return <ExpandableNavMenuItem item={item} />
+  }
+
   const Icon = item.icon
   return (
     <SidebarMenuItem>
@@ -388,6 +414,100 @@ function NavMenuItem({ item, disabled = false }: { item: NavItem; disabled?: boo
           <span className="ml-auto font-mono text-xs tabular-nums text-text-muted">{item.tag}</span>
         ) : null}
       </SidebarMenuButton>
+    </SidebarMenuItem>
+  )
+}
+
+function ExpandableNavMenuItem({ item }: { item: NavItem }) {
+  const { t } = useLingui()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const Icon = item.icon
+  const isSectionActive =
+    location.pathname === item.href || location.pathname.startsWith(`${item.href}/`)
+  const [open, setOpen] = useState(() => isSectionActive)
+
+  // Auto-expand when a sub-route becomes active (deep link, programmatic
+  // navigation). We still let the user collapse manually afterwards — the
+  // effect only fires on `isSectionActive` transitions, not on every render,
+  // so collapsing once is sticky until a different sub-route is entered.
+  useEffect(() => {
+    if (isSectionActive) setOpen(true)
+  }, [isSectionActive])
+
+  const handleTriggerClick = useCallback(() => {
+    // Three-state click: (1) collapsed + section not yet active → navigate to
+    // default sub-item AND expand; (2) collapsed + already on a sub-route →
+    // expand without navigating; (3) expanded → collapse without navigating.
+    if (!open && !isSectionActive && item.defaultSubItemHref) {
+      void navigate(item.defaultSubItemHref)
+    }
+    setOpen((current) => !current)
+  }, [isSectionActive, item.defaultSubItemHref, navigate, open])
+
+  return (
+    <>
+      <SidebarMenuItem>
+        {/*
+          Parent rows intentionally render as a NEUTRAL container — no
+          aria-current, no isActive, no `text-text-primary` override. The
+          accent-tint highlight belongs to the *selected* sub-item only, so
+          the sidebar reads like Linear / Notion / GitHub: "you are inside
+          Settings → Rules" with the visual weight on Rules. Hover still
+          reveals the standard neutral hover token via SidebarMenuButton's
+          base cva.
+        */}
+        <SidebarMenuButton
+          type="button"
+          aria-expanded={open}
+          aria-label={open ? t`Collapse ${item.label}` : t`Expand ${item.label}`}
+          onClick={handleTriggerClick}
+        >
+          <Icon aria-hidden />
+          <span>{item.label}</span>
+          <ChevronRightIcon
+            aria-hidden
+            className={cn(
+              'ml-auto size-3.5 text-text-tertiary transition-transform',
+              open && 'rotate-90',
+            )}
+          />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      {open
+        ? item.subItems?.map((subItem) => (
+            <SidebarSubMenuItem key={subItem.href ?? subItem.label} item={subItem} />
+          ))
+        : null}
+    </>
+  )
+}
+
+function SidebarSubMenuItem({ item }: { item: NavSubItem }) {
+  return (
+    <SidebarMenuItem>
+      {item.href ? (
+        <NavLink
+          to={item.href}
+          end={item.end ?? false}
+          className={cn(
+            'group/sub-menu ml-5 flex h-7 w-[calc(100%-1.25rem)] items-center gap-2.5 rounded-md pl-[18px] text-base text-text-secondary outline-none transition-colors',
+            'hover:bg-background-default-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
+            'aria-[current=page]:bg-accent-tint aria-[current=page]:font-semibold aria-[current=page]:text-text-primary',
+          )}
+        >
+          <span
+            aria-hidden
+            className="size-1 shrink-0 rounded-full bg-text-tertiary group-aria-[current=page]/sub-menu:bg-text-accent"
+          />
+          <span className="truncate">{item.label}</span>
+        </NavLink>
+      ) : (
+        <span className="ml-5 flex h-7 w-[calc(100%-1.25rem)] items-center gap-2.5 rounded-md pl-[18px] text-base text-text-secondary">
+          <span aria-hidden className="size-1 shrink-0 rounded-full bg-text-tertiary" />
+          <span className="truncate">{item.label}</span>
+        </span>
+      )}
     </SidebarMenuItem>
   )
 }

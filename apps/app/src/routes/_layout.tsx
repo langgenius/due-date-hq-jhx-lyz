@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useLoaderData } from 'react-router'
+import { useLoaderData, useLocation } from 'react-router'
 
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import {
@@ -16,6 +16,10 @@ import { MigrationWizardProvider, useMigrationWizard } from '@/features/migratio
 import { initialsFromName, type AuthUser } from '@/lib/auth'
 
 type ProtectedLoaderData = { user: AuthUser }
+type RouteSummary = {
+  eyebrow: string
+  title: string
+}
 
 function getStoredThemePreference(): ThemePreference {
   try {
@@ -111,25 +115,34 @@ function RootLayoutShell({
   switchThemePreference: (next: ThemePreference) => void
 }) {
   const { t } = useLingui()
+  const location = useLocation()
   const { openWizard } = useMigrationWizard()
   const firm = useFirmSummary(user)
+  const route = getRouteSummary(location.pathname, t)
 
   return (
     <AppShell
       user={user}
       firm={firm}
-      route={{
-        // TODO(P1): Move eyebrow/title to per-route ownership. v0 keeps a
-        // generic AppShell-provided pair so the chrome is consistent until
-        // each route component renders its own.
-        eyebrow: t`Phase 0 demo practice`,
-        title: t`Compliance risk operations`,
-      }}
+      route={route}
       themePreference={themePreference}
       switchThemePreference={switchThemePreference}
       onImportClients={openWizard}
     />
   )
+}
+
+function getRouteSummary(pathname: string, t: ReturnType<typeof useLingui>['t']): RouteSummary {
+  if (pathname === '/settings/rules') {
+    return { eyebrow: t`Settings`, title: t`Rules` }
+  }
+  if (pathname === '/settings') {
+    return { eyebrow: t`Settings`, title: t`Firm settings` }
+  }
+  if (pathname.startsWith('/workboard')) {
+    return { eyebrow: t`Workbench`, title: t`Workboard` }
+  }
+  return { eyebrow: t`Operations`, title: t`Dashboard` }
 }
 
 /**

@@ -76,9 +76,29 @@ msgstr "© {0} DueDateHQ Inc."
 msgid "2 partner entities need review before the March 15 cutoff."
 msgstr "2 partner entities need review before the March 15 cutoff."
 
+#: src/features/rules/rules-console.tsx
+msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Warning flag = rule needs CPA applicability review at generation time. Candidate rows never trigger user reminders."
+msgstr "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Warning flag = rule needs CPA applicability review at generation time. Candidate rows never trigger user reminders."
+
+#: src/features/rules/rules-console.tsx
+msgid "28 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+msgstr "28 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+
+#: src/features/rules/coverage-tab.tsx
+msgid "3 basic · 2 review"
+msgstr "3 basic · 2 review"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "3 basic · 4 review"
+msgstr "3 basic · 4 review"
+
 #: src/routes/dashboard.tsx
 msgid "3 clients have estimated-tax deltas above the evidence threshold."
 msgstr "3 clients have estimated-tax deltas above the evidence threshold."
+
+#: src/features/rules/coverage-tab.tsx
+msgid "4 verified · 1 candidate watch"
+msgstr "4 verified · 1 candidate watch"
 
 #: src/routes/dashboard.tsx
 msgid "5 draft extensions are waiting on K-1 attachments."
@@ -105,6 +125,10 @@ msgstr "Add firm"
 msgid "Admin · P1"
 msgstr "Admin · P1"
 
+#: src/features/rules/rules-console.tsx
+msgid "Aggregate verifiability per (jurisdiction, entity) pair across Federal + 5 MVP states. Drill into Rule Library for specific rules; Generation Preview to dry-run a client."
+msgstr "Aggregate verifiability per (jurisdiction, entity) pair across Federal + 5 MVP states. Drill into Rule Library for specific rules; Generation Preview to dry-run a client."
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
 msgstr "AI mapped your columns — review and confirm"
@@ -117,13 +141,27 @@ msgstr "AI Mapper unavailable — using fallback"
 msgid "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
 msgstr "AI-facing recommendations remain hidden unless source, quote, and verification time are present."
 
+#: src/features/rules/rule-library-tab.tsx
+#: src/features/rules/sources-tab.tsx
 #: src/routes/workboard.tsx
 msgid "All"
 msgstr "All"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "All review-flagged"
+msgstr "All review-flagged"
+
 #: src/routes/_entry-layout.tsx
 msgid "All systems operational"
 msgstr "All systems operational"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Annual rolling"
+msgstr "Annual rolling"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Applicability review"
+msgstr "Applicability review"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
@@ -159,6 +197,10 @@ msgstr "Average confidence <0>{avgConfidence}%</0> · EIN detected <1>{0}</1>"
 msgid "Back"
 msgstr "Back"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Basic"
+msgstr "Basic"
+
 #: src/routes/settings.tsx
 msgid "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
 msgstr "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
@@ -170,6 +212,16 @@ msgstr "Blocked"
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
+
+#: src/features/rules/coverage-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "California"
+msgstr "California"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Candidate"
+msgstr "Candidate"
 
 #. placeholder {0}: row.clientName
 #: src/routes/workboard.tsx
@@ -184,6 +236,10 @@ msgstr "Channels"
 #: src/routes/workboard.tsx
 msgid "Client"
 msgstr "Client"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "CLIENT ID"
+msgstr "CLIENT ID"
 
 #: src/routes/dashboard.tsx
 msgid "Client risk rows"
@@ -201,6 +257,11 @@ msgstr "Close wizard"
 msgid "Code"
 msgstr "Code"
 
+#. placeholder {0}: item.label
+#: src/components/patterns/app-shell.tsx
+msgid "Collapse {0}"
+msgstr "Collapse {0}"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
 msgstr "Coming from File In Time? We'll migrate your full-year calendar in one shot."
@@ -212,10 +273,6 @@ msgstr "Coming soon"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Command palette"
 msgstr "Command palette"
-
-#: src/routes/_layout.tsx
-msgid "Compliance risk operations"
-msgstr "Compliance risk operations"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Confidence"
@@ -237,6 +294,22 @@ msgstr "Could not activate your practice"
 #: src/routes/onboarding.tsx
 msgid "Could not create your practice"
 msgstr "Could not create your practice"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Could not load rule library."
+msgstr "Could not load rule library."
+
+#: src/features/rules/sources-tab.tsx
+msgid "Could not load rule sources."
+msgstr "Could not load rule sources."
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Could not load rules coverage."
+msgstr "Could not load rules coverage."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Could not run generation preview."
+msgstr "Could not run generation preview."
 
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't apply Default Matrix"
@@ -262,6 +335,10 @@ msgstr "Couldn't start the import"
 #: src/routes/workboard.tsx
 msgid "Couldn't update status"
 msgstr "Couldn't update status"
+
+#: src/features/rules/rules-console.tsx
+msgid "Coverage"
+msgstr "Coverage"
 
 #: src/routes/dashboard.tsx
 msgid "critical"
@@ -296,9 +373,18 @@ msgstr "Default jurisdiction"
 msgid "Deferred until the product has a real-time notification need."
 msgstr "Deferred until the product has a real-time notification need."
 
+#: src/features/rules/rules-console-primitives.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Degraded"
+msgstr "Degraded"
+
 #: src/routes/_layout.tsx
 msgid "Demo workspace"
 msgstr "Demo workspace"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Deprecated"
+msgstr "Deprecated"
 
 #: src/routes/workboard.tsx
 msgid "Detail drawer is coming soon"
@@ -372,6 +458,10 @@ msgstr "Encrypted · Auto-saves · Renamable later"
 msgid "Enter execute · Esc close · {commandShortcut} toggle"
 msgstr "Enter execute · Esc close · {commandShortcut} toggle"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "ENTITY"
+msgstr "ENTITY"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
 msgstr "Entity types"
@@ -392,6 +482,15 @@ msgstr "Evidence gate"
 msgid "Evidence mode"
 msgstr "Evidence mode"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Exception"
+msgstr "Exception"
+
+#. placeholder {0}: item.label
+#: src/components/patterns/app-shell.tsx
+msgid "Expand {0}"
+msgstr "Expand {0}"
+
 #: src/routes/dashboard.tsx
 msgid "Exposure"
 msgstr "Exposure"
@@ -400,9 +499,24 @@ msgstr "Exposure"
 msgid "Extension package hold"
 msgstr "Extension package hold"
 
+#: src/features/rules/rules-console-primitives.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Failing"
+msgstr "Failing"
+
+#: src/features/rules/coverage-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Federal"
+msgstr "Federal"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "File is larger than 2 MB. Please trim or split the export."
 msgstr "File is larger than 2 MB. Please trim or split the export."
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Filing-frequency review"
+msgstr "Filing-frequency review"
 
 #: src/routes/workboard.tsx
 msgid "Filter by status, search clients, and sort by due date."
@@ -412,13 +526,28 @@ msgstr "Filter by status, search clients, and sort by due date."
 msgid "Firm settings"
 msgstr "Firm settings"
 
+#: src/features/rules/coverage-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Florida"
+msgstr "Florida"
+
 #: src/routes/_entry-layout.tsx
 msgid "For US CPA practices"
 msgstr "For US CPA practices"
 
+#: src/features/rules/rules-console.tsx
+msgid "Generation Preview"
+msgstr "Generation Preview"
+
 #: src/routes/dashboard.tsx
 msgid "Glass-box threshold is active"
 msgstr "Glass-box threshold is active"
+
+#: src/features/rules/rules-console-primitives.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Healthy"
+msgstr "Healthy"
 
 #: src/routes/settings.tsx
 msgid "Hide recommendations that do not include source metadata."
@@ -465,6 +594,10 @@ msgstr "In review"
 msgid "In-app toast"
 msgstr "In-app toast"
 
+#: src/features/rules/rules-console.tsx
+msgid "Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded."
+msgstr "Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded."
+
 #: src/features/migration/Stepper.tsx
 msgid "Intake"
 msgstr "Intake"
@@ -476,6 +609,15 @@ msgstr "IRS transcript mismatch"
 #: src/routes/dashboard.tsx
 msgid "IRS transcript source was checked this morning."
 msgstr "IRS transcript source was checked this morning."
+
+#: src/features/rules/coverage-tab.tsx
+msgid "JURISDICTION × ENTITY · what is verifiable per (jurisdiction, entity) pair"
+msgstr "JURISDICTION × ENTITY · what is verifiable per (jurisdiction, entity) pair"
+
+#: src/features/rules/rule-library-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Jurisdiction:"
+msgstr "Jurisdiction:"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Keep editing"
@@ -506,9 +648,25 @@ msgstr "Light"
 msgid "Load more"
 msgstr "Load more"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Loading generation preview."
+msgstr "Loading generation preview."
+
 #: src/routes/workboard.tsx
 msgid "Loading queue…"
 msgstr "Loading queue…"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Loading rule library."
+msgstr "Loading rule library."
+
+#: src/features/rules/sources-tab.tsx
+msgid "Loading rule sources."
+msgstr "Loading rule sources."
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Loading rules coverage."
+msgstr "Loading rules coverage."
 
 #: src/routes/workboard.tsx
 msgid "Loading…"
@@ -533,6 +691,10 @@ msgstr "Mapping"
 #: src/routes/dashboard.tsx
 msgid "medium"
 msgstr "medium"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Members"
+msgstr "Members"
 
 #: src/components/patterns/app-shell.tsx
 msgid "Migration"
@@ -570,6 +732,12 @@ msgstr "Needs review"
 msgid "neutral"
 msgstr "neutral"
 
+#: src/features/rules/coverage-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "New York"
+msgstr "New York"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "No commands found."
 msgstr "No commands found."
@@ -581,6 +749,22 @@ msgstr "No emails will be sent automatically"
 #: src/routes/workboard.tsx
 msgid "No obligations match these filters."
 msgstr "No obligations match these filters."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "no reminder"
+msgstr "no reminder"
+
+#: src/features/rules/rules-console-primitives.tsx
+msgid "no rule"
+msgstr "no rule"
+
+#: src/features/rules/rules-console-primitives.tsx
+msgid "no rule — not in MVP scope"
+msgstr "no rule — not in MVP scope"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "No tax types selected."
+msgstr "No tax types selected."
 
 #: src/features/migration/Stepper.tsx
 msgid "Normalize"
@@ -694,6 +878,11 @@ msgstr "Paste here — any shape, we'll figure it out. Include the header row if
 msgid "Paste rows"
 msgstr "Paste rows"
 
+#: src/features/rules/rules-console-primitives.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Paused"
+msgstr "Paused"
+
 #: src/routes/dashboard.tsx
 msgid "Penalty exposure"
 msgstr "Penalty exposure"
@@ -705,10 +894,6 @@ msgstr "penalty-weighted"
 #: src/routes/workboard.tsx
 msgid "Pending"
 msgstr "Pending"
-
-#: src/routes/_layout.tsx
-msgid "Phase 0 demo practice"
-msgstr "Phase 0 demo practice"
 
 #: src/routes/settings.tsx
 msgid "Phase 0 uses email plus in-app toast instead of Web Push."
@@ -747,6 +932,10 @@ msgstr "Preview only — commit lands in Day 4"
 msgid "Primary navigation"
 msgstr "Primary navigation"
 
+#: src/components/patterns/app-shell.tsx
+msgid "Profile"
+msgstr "Profile"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Pulse"
 msgstr "Pulse"
@@ -767,6 +956,10 @@ msgstr "Re-run AI with my overrides"
 msgid "Re-run failed."
 msgstr "Re-run failed."
 
+#: src/features/rules/rules-console-primitives.tsx
+msgid "READ-ONLY"
+msgstr "READ-ONLY"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Ready to import"
 msgstr "Ready to import"
@@ -783,9 +976,23 @@ msgstr "Recently updated"
 msgid "Redirecting to Google…"
 msgstr "Redirecting to Google…"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "reminder ready"
+msgstr "reminder ready"
+
+#. placeholder {0}: reminderReady.length
+#: src/features/rules/generation-preview-tab.tsx
+msgid "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
+msgstr "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
+
 #: src/routes/dashboard.tsx
 msgid "Representative source states wired with existing components."
 msgstr "Representative source states wired with existing components."
+
+#. placeholder {0}: requiresReview.length
+#: src/features/rules/generation-preview-tab.tsx
+msgid "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
+msgstr "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
 
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "Reserved"
@@ -803,6 +1010,14 @@ msgstr "Retry"
 msgid "Return home"
 msgstr "Return home"
 
+#: src/features/rules/rules-console-primitives.tsx
+msgid "review"
+msgstr "review"
+
+#: src/features/rules/rules-console-primitives.tsx
+msgid "review — needs CPA confirmation"
+msgstr "review — needs CPA confirmation"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review risk and operating pressure."
 msgstr "Review risk and operating pressure."
@@ -810,6 +1025,10 @@ msgstr "Review risk and operating pressure."
 #: src/routes/dashboard.tsx
 msgid "Review risk queue"
 msgstr "Review risk queue"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review source coverage, rule inventory, and generation preview."
+msgstr "Review source coverage, rule inventory, and generation preview."
 
 #: src/routes/dashboard.tsx
 msgid "Risk pulse"
@@ -831,9 +1050,26 @@ msgstr "Row"
 msgid "Row limit hit"
 msgstr "Row limit hit"
 
+#: src/features/rules/rules-console.tsx
+msgid "Rule Library"
+msgstr "Rule Library"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Rules"
+msgstr "Rules"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/rules/rules-console-primitives.tsx
+msgid "Rules Console"
+msgstr "Rules Console"
+
 #: src/routes/workboard.tsx
 msgid "Run migration"
 msgstr "Run migration"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Run preview"
+msgstr "Run preview"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Run the mapper to see confidence stats."
@@ -842,6 +1078,10 @@ msgstr "Run the mapper to see confidence stats."
 #: src/routes/workboard.tsx
 msgid "Run the migration wizard to import a CSV of clients, or change the filters above."
 msgstr "Run the migration wizard to import a CSV of clients, or change the filters above."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Running…"
+msgstr "Running…"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Safety"
@@ -889,6 +1129,24 @@ msgstr "Settings"
 msgid "Severity"
 msgstr "Severity"
 
+#. placeholder {0}: filteredRows.length
+#: src/features/rules/rule-library-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Show all {0} →"
+msgstr "Show all {0} →"
+
+#. placeholder {0}: visibleRows.length
+#. placeholder {1}: filteredRows.length
+#: src/features/rules/rule-library-tab.tsx
+msgid "Showing {0} of {1} · candidate rows do not generate user reminders · warning flag = needs applicability review"
+msgstr "Showing {0} of {1} · candidate rows do not generate user reminders · warning flag = needs applicability review"
+
+#. placeholder {0}: visibleRows.length
+#. placeholder {1}: filteredRows.length
+#: src/features/rules/sources-tab.tsx
+msgid "Showing {0} of {1} · click any row to open source detail drawer"
+msgstr "Showing {0} of {1} · click any row to open source detail drawer"
+
 #: src/routes/login.tsx
 msgid "SIGN IN"
 msgstr "SIGN IN"
@@ -925,13 +1183,33 @@ msgstr "Something went wrong on our side. Please try again shortly."
 msgid "Sort"
 msgstr "Sort"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "source"
+msgstr "source"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Source"
+msgstr "Source"
+
 #: src/routes/dashboard.tsx
 msgid "source gaps"
 msgstr "source gaps"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "Source-defined cal"
+msgstr "Source-defined cal"
+
+#: src/features/rules/rules-console.tsx
+msgid "Sources"
+msgstr "Sources"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "SSN-like columns blocked"
 msgstr "SSN-like columns blocked"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "STATE"
+msgstr "STATE"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "States"
@@ -970,9 +1248,23 @@ msgstr "System"
 msgid "Tax type"
 msgstr "Tax type"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "TAX TYPES"
+msgstr "TAX TYPES"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "TAX YEAR"
+msgstr "TAX YEAR"
+
 #: src/components/patterns/app-shell.tsx
 msgid "Team workload"
 msgstr "Team workload"
+
+#: src/features/rules/coverage-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Texas"
+msgstr "Texas"
 
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
@@ -1022,9 +1314,18 @@ msgstr "Unable to start Google sign-in"
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
 
+#: src/features/rules/rules-console-primitives.tsx
+msgid "verified"
+msgstr "verified"
+
+#: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
 msgid "Verified"
 msgstr "Verified"
+
+#: src/features/rules/rules-console-primitives.tsx
+msgid "verified — reminder will fire"
+msgstr "verified — reminder will fire"
 
 #: src/routes/dashboard.tsx
 msgid "verified {verifiedAt}"
@@ -1033,6 +1334,12 @@ msgstr "verified {verifiedAt}"
 #: src/routes/workboard.tsx
 msgid "Waiting on client"
 msgstr "Waiting on client"
+
+#: src/features/rules/coverage-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Washington"
+msgstr "Washington"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "We block SSN-like patterns before sending anything to the AI."

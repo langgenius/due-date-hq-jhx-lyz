@@ -59,6 +59,10 @@ function notFoundLoader() {
   throw new Response('Page not found', { status: 404, statusText: 'Not Found' })
 }
 
+function settingsLoader() {
+  throw redirect('/settings/rules')
+}
+
 // Only reachable when unauthenticated. If the session resolves, bounce to the
 // post-login target (honouring ?redirectTo=... but only for in-app paths).
 async function guestLoader(args: LoaderFunctionArgs) {
@@ -190,11 +194,16 @@ export function createAppRouter() {
             },
             {
               path: 'settings',
+              loader: settingsLoader,
+              HydrateFallback: RouteHydrateFallback,
+            },
+            {
+              path: 'settings/rules',
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
-                const { SettingsRoute } = await import('@/routes/settings')
+                const { SettingsRulesRoute } = await import('@/routes/settings.rules')
 
-                return { Component: SettingsRoute }
+                return { Component: SettingsRulesRoute }
               },
             },
           ],

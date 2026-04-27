@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
   BotIcon,
+  FileSearchIcon,
   GaugeIcon,
   LayoutDashboardIcon,
   SettingsIcon,
@@ -78,6 +79,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         group: 'navigate',
         icon: SettingsIcon,
         onSelect: () => navigate('/settings'),
+      },
+      {
+        id: 'settings-rules',
+        label: t`Rules Console`,
+        description: t`Review source coverage, rule inventory, and generation preview.`,
+        group: 'navigate',
+        icon: FileSearchIcon,
+        onSelect: () => navigate('/settings/rules'),
       },
       {
         id: 'migration',

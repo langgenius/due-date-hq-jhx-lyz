@@ -2,6 +2,7 @@
 
 > 版本：v0.1（14 天 MVP · 2026-04-27）
 > 上游：`01-source-registry-and-rule-pack.md`
+> 下游：[`docs/dev-log/2026-04-27-rules-console-shell.md`](../../dev-log/2026-04-27-rules-console-shell.md) 已把本册第 3 节 IA 收敛为 4-tab 只读 P0 壳（Coverage / Sources / Rule Library / Generation Preview）并在 Figma 定稿。Candidates / Publish Preview 两 tab 留给 P1。
 > 目标：定义 rules 如何沉淀成真实页面，让内部团队完成 source watch、candidate review、rule publish，并把 verified rules 安全地交给产品消费
 
 ## 1. 页面定位
@@ -343,6 +344,7 @@ AI Tip 只能使用 verified rule 和 source summary：
 
 ## 12. 变更记录
 
-| 版本 | 日期       | 作者  | 摘要                                                        |
-| ---- | ---------- | ----- | ----------------------------------------------------------- |
-| v0.1 | 2026-04-27 | Codex | 新增 Rules Console 页面设计、审核发布流程和用户侧消费设计。 |
+| 版本 | 日期       | 作者  | 摘要                                                                                                                                                                                                                         |
+| ---- | ---------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v0.2 | 2026-04-27 | Codex | 实现侧 IA 收敛：保留 `Settings` 作为侧栏容器（路由仍为 `/settings/rules`），紫色高亮只落在 Rules / Members / Profile 子项，父项保持中性可点击；详见 `docs/dev-log/2026-04-27-rules-console-shell.md` § Sidebar IA Decision。 |
+| v0.1 | 2026-04-27 | Codex | 新增 Rules Console 页面设计、审核发布流程和用户侧消费设计。                                                                                                                                                                  |
