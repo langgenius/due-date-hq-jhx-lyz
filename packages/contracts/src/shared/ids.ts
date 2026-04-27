@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 
 /**
  * ID format conventions (docs/dev-file/03-Data-Model.md §1.1):
@@ -16,5 +16,5 @@ import { z } from 'zod'
 export const TenantIdSchema = z.string().min(1)
 export type TenantId = z.infer<typeof TenantIdSchema>
 
-export const EntityIdSchema = z.string().uuid()
+export const EntityIdSchema = z.uuid()
 export type EntityId = z.infer<typeof EntityIdSchema>

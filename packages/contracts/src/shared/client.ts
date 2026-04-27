@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 import { EntityTypeSchema, StateCodeSchema } from './enums'
 import { EntityIdSchema, TenantIdSchema } from './ids'
 
@@ -9,8 +9,8 @@ export const ClientSchema = z.object({
   entityType: EntityTypeSchema,
   state: StateCodeSchema,
   ein: z.string().nullable(),
-  email: z.string().email().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  email: z.email().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 })
 export type Client = z.infer<typeof ClientSchema>

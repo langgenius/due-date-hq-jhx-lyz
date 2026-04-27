@@ -97,7 +97,7 @@ PII handling: field names and 5-row sample only — no placeholders used.
 ### 2.4 输出 JSON Schema（Zod 伪码）
 
 ```ts
-import { z } from 'zod'
+import * as z from 'zod'
 
 export const MapperTarget = z.enum([
   'client.name',

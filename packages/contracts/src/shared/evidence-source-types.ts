@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 
 export const EvidenceSourceTypes = [
   'default_inference_by_entity_state',

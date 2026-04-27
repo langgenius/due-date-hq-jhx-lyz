@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { z } from 'zod'
+import * as z from 'zod'
 import { createAI } from './index'
 import type { AiPorts, VectorMatch } from './ports'
 

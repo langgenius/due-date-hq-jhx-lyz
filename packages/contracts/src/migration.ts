@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract'
-import { z } from 'zod'
+import * as z from 'zod'
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 export const MigrationSourceSchema = z.enum([
@@ -35,11 +35,11 @@ export const MigrationBatchSchema = z.object({
   skippedCount: z.number().int().min(0),
   aiGlobalConfidence: z.number().min(0).max(1).nullable(),
   status: MigrationBatchStatusSchema,
-  appliedAt: z.string().datetime().nullable(),
-  revertExpiresAt: z.string().datetime().nullable(),
-  revertedAt: z.string().datetime().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  appliedAt: z.iso.datetime().nullable(),
+  revertExpiresAt: z.iso.datetime().nullable(),
+  revertedAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 })
 
 export const MappingTargetSchema = z.enum([
@@ -66,7 +66,7 @@ export const MappingRowSchema = z.object({
   userOverridden: z.boolean(),
   model: z.string().nullable(),
   promptVersion: z.string().nullable(),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 })
 
 export const NormalizationRowSchema = z.object({
@@ -80,7 +80,7 @@ export const NormalizationRowSchema = z.object({
   promptVersion: z.string().nullable(),
   reasoning: z.string().nullable(),
   userOverridden: z.boolean(),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 })
 
 export const MigrationErrorSchema = z.object({
@@ -90,7 +90,7 @@ export const MigrationErrorSchema = z.object({
   rawRowJson: z.unknown().nullable(),
   errorCode: z.string().min(1),
   errorMessage: z.string().min(1),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 })
 
 export const DryRunSummarySchema = z.object({
@@ -141,7 +141,7 @@ export const ApplyResultSchema = z.object({
   clientCount: z.number().int().min(0),
   obligationCount: z.number().int().min(0),
   skippedCount: z.number().int().min(0),
-  revertibleUntil: z.string().datetime(),
+  revertibleUntil: z.iso.datetime(),
 })
 
 const BatchIdInput = z.object({ batchId: EntityIdSchema })
@@ -198,10 +198,10 @@ export const migrationContract = oc.router({
   applyDefaultMatrix: oc.input(BatchIdInput).output(DryRunSummarySchema),
   dryRun: oc.input(BatchIdInput).output(DryRunSummarySchema),
   apply: oc.input(BatchIdInput).output(ApplyResultSchema),
-  revert: oc.input(BatchIdInput).output(z.object({ revertedAt: z.string().datetime() })),
+  revert: oc.input(BatchIdInput).output(z.object({ revertedAt: z.iso.datetime() })),
   singleUndo: oc
     .input(z.object({ batchId: EntityIdSchema, clientId: EntityIdSchema }))
-    .output(z.object({ revertedAt: z.string().datetime() })),
+    .output(z.object({ revertedAt: z.iso.datetime() })),
   getBatch: oc.input(BatchIdInput).output(MigrationBatchSchema.nullable()),
   /**
    * Read-only list of `migration_error` rows for a batch.

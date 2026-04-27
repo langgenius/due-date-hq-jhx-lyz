@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract'
-import { z } from 'zod'
+import * as z from 'zod'
 import { ObligationStatusSchema } from './shared/enums'
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
@@ -9,27 +9,27 @@ export const ObligationInstancePublicSchema = z.object({
   clientId: EntityIdSchema,
   taxType: z.string().min(1),
   taxYear: z.number().int().min(1900).max(2100).nullable(),
-  baseDueDate: z.string().date(),
-  currentDueDate: z.string().date(),
+  baseDueDate: z.iso.date(),
+  currentDueDate: z.iso.date(),
   status: ObligationStatusSchema,
   migrationBatchId: EntityIdSchema.nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 })
 
 export const ObligationCreateInputSchema = z.object({
   clientId: EntityIdSchema,
   taxType: z.string().min(1),
   taxYear: z.number().int().min(1900).max(2100).nullable().optional(),
-  baseDueDate: z.string().date(),
-  currentDueDate: z.string().date().optional(),
+  baseDueDate: z.iso.date(),
+  currentDueDate: z.iso.date().optional(),
   status: ObligationStatusSchema.optional(),
   migrationBatchId: EntityIdSchema.nullable().optional(),
 })
 
 export const DueDateUpdateInputSchema = z.object({
   id: EntityIdSchema,
-  currentDueDate: z.string().date(),
+  currentDueDate: z.iso.date(),
 })
 
 export const ObligationStatusUpdateInputSchema = z.object({

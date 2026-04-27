@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 
 // Entity type (PRD §6A · Default Matrix keys).
 export const EntityTypeSchema = z.enum([
@@ -14,7 +14,9 @@ export const EntityTypeSchema = z.enum([
 export type EntityType = z.infer<typeof EntityTypeSchema>
 
 // US state code whitelist lives in packages/core/default-matrix.
-export const StateCodeSchema = z.string().regex(/^[A-Z]{2}$/, 'Expected 2-letter state code')
+export const StateCodeSchema = z.string().regex(/^[A-Z]{2}$/, {
+  error: 'Expected 2-letter state code',
+})
 export type StateCode = z.infer<typeof StateCodeSchema>
 
 // Obligation status (PRD §5.2).

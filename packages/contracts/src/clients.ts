@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract'
-import { z } from 'zod'
+import * as z from 'zod'
 import { EntityTypeSchema, StateCodeSchema } from './shared/enums'
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
@@ -25,7 +25,7 @@ export const ClientCreateInputSchema = z.object({
   state: StateCodeSchema.nullable().optional(),
   county: z.string().nullable().optional(),
   entityType: EntityTypeSchema,
-  email: z.string().email().nullable().optional(),
+  email: z.email().nullable().optional(),
   notes: z.string().max(5000).nullable().optional(),
   assigneeName: z.string().max(200).nullable().optional(),
   migrationBatchId: EntityIdSchema.nullable().optional(),
@@ -33,13 +33,13 @@ export const ClientCreateInputSchema = z.object({
 
 export const ClientPublicSchema = ClientIdentitySchema.extend({
   firmId: TenantIdSchema,
-  email: z.string().email().nullable(),
+  email: z.email().nullable(),
   notes: z.string().nullable(),
   assigneeName: z.string().nullable(),
   migrationBatchId: EntityIdSchema.nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-  deletedAt: z.string().datetime().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  deletedAt: z.iso.datetime().nullable(),
 })
 
 export const clientsContract = oc.router({

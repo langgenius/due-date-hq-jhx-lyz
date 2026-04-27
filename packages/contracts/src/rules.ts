@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract'
-import { z } from 'zod'
+import * as z from 'zod'
 import { EntityTypeSchema } from './shared/enums'
 
 export const RuleJurisdictionSchema = z.enum(['FED', 'CA', 'NY', 'TX', 'FL', 'WA'])
@@ -43,7 +43,7 @@ export const RuleSourceSchema = z.object({
   id: z.string().min(1),
   jurisdiction: RuleJurisdictionSchema,
   title: z.string().min(1),
-  url: z.string().url(),
+  url: z.url(),
   sourceType: RuleSourceTypeSchema,
   acquisitionMethod: AcquisitionMethodSchema,
   cadence: SourceCadenceSchema,
