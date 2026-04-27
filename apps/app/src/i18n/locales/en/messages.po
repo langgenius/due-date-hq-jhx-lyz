@@ -43,6 +43,10 @@ msgstr "{0, plural, one {We imported the first 1000 of # row. Split your file to
 msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, one {# client} other {# clients}}"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "{durationMonths} months"
+msgstr "{durationMonths} months"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
 msgstr "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
@@ -77,8 +81,8 @@ msgid "2 partner entities need review before the March 15 cutoff."
 msgstr "2 partner entities need review before the March 15 cutoff."
 
 #: src/features/rules/rules-console.tsx
-msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Warning flag = rule needs CPA applicability review at generation time. Candidate rows never trigger user reminders."
-msgstr "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Warning flag = rule needs CPA applicability review at generation time. Candidate rows never trigger user reminders."
+msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
+msgstr "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "3 basic · 2 review"
@@ -93,8 +97,8 @@ msgid "3 clients have estimated-tax deltas above the evidence threshold."
 msgstr "3 clients have estimated-tax deltas above the evidence threshold."
 
 #: src/features/rules/rules-console.tsx
-msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
-msgstr "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+msgstr "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "4 verified · 1 candidate watch"
@@ -124,10 +128,6 @@ msgstr "Add firm"
 #: src/components/patterns/app-shell.tsx
 msgid "Admin · P1"
 msgstr "Admin · P1"
-
-#: src/features/rules/rules-console.tsx
-msgid "Aggregate verifiability per (jurisdiction, entity) pair across Federal + 5 MVP states. Drill into Rule Library for specific rules; Generation Preview to dry-run a client."
-msgstr "Aggregate verifiability per (jurisdiction, entity) pair across Federal + 5 MVP states. Drill into Rule Library for specific rules; Generation Preview to dry-run a client."
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
@@ -159,9 +159,17 @@ msgstr "All systems operational"
 msgid "Annual rolling"
 msgstr "Annual rolling"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Applicability"
+msgstr "Applicability"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Applicability review"
 msgstr "Applicability review"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Applicability review · needs CPA confirmation at generation time."
+msgstr "Applicability review · needs CPA confirmation at generation time."
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
@@ -215,9 +223,14 @@ msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacy
 msgid "California"
 msgstr "California"
 
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 msgid "Candidate"
 msgstr "Candidate"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Candidate · never generates user reminders."
+msgstr "Candidate · never generates user reminders."
 
 #. placeholder {0}: row.clientName
 #: src/routes/workboard.tsx
@@ -358,6 +371,7 @@ msgstr "Degraded"
 msgid "Demo workspace"
 msgstr "Demo workspace"
 
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 msgid "Deprecated"
 msgstr "Deprecated"
@@ -393,6 +407,10 @@ msgstr "Due date — earliest first"
 #: src/routes/workboard.tsx
 msgid "Due date — latest first"
 msgstr "Due date — latest first"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Due date logic"
+msgstr "Due date logic"
 
 #: src/routes/dashboard.tsx
 msgid "Due this week"
@@ -434,6 +452,14 @@ msgstr "ENTITY"
 msgid "Entity types"
 msgstr "Entity types"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Event"
+msgstr "Event"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Evidence"
+msgstr "Evidence"
+
 #: src/routes/dashboard.tsx
 msgid "Evidence checks"
 msgstr "Evidence checks"
@@ -454,6 +480,10 @@ msgstr "Exception"
 msgid "Exposure"
 msgstr "Exposure"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Extension"
+msgstr "Extension"
+
 #: src/routes/dashboard.tsx
 msgid "Extension package hold"
 msgstr "Extension package hold"
@@ -473,6 +503,10 @@ msgstr "Federal"
 msgid "File is larger than 2 MB. Please trim or split the export."
 msgstr "File is larger than 2 MB. Please trim or split the export."
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Filing only — payment NOT extended."
+msgstr "Filing only — payment NOT extended."
+
 #: src/features/rules/coverage-tab.tsx
 msgid "Filing-frequency review"
 msgstr "Filing-frequency review"
@@ -490,6 +524,10 @@ msgstr "Florida"
 #: src/routes/_entry-layout.tsx
 msgid "For US CPA practices"
 msgstr "For US CPA practices"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Form"
+msgstr "Form"
 
 #: src/features/rules/rules-console.tsx
 msgid "Generation Preview"
@@ -623,6 +661,10 @@ msgstr "Main"
 msgid "Manage"
 msgstr "Manage"
 
+#: src/features/rules/sources-tab.tsx
+msgid "Manual review source · click to open the official page"
+msgstr "Manual review source · click to open the official page"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Map \"{sourceHeader}\" to…"
 msgstr "Map \"{sourceHeader}\" to…"
@@ -677,6 +719,10 @@ msgstr "neutral"
 msgid "New York"
 msgstr "New York"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Next review"
+msgstr "Next review"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "No commands found."
 msgstr "No commands found."
@@ -684,6 +730,10 @@ msgstr "No commands found."
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
 msgstr "No emails will be sent automatically"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "No extension available."
+msgstr "No extension available."
 
 #: src/routes/workboard.tsx
 msgid "No obligations match these filters."
@@ -753,6 +803,13 @@ msgstr "One-click revert available for 24 hours"
 msgid "Open"
 msgstr "Open"
 
+#. placeholder {0}: evidenceSource.title
+#. placeholder {0}: source.title
+#: src/features/rules/generation-preview-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Open official source: {0}"
+msgstr "Open official source: {0}"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open practice settings."
 msgstr "Open practice settings."
@@ -760,6 +817,11 @@ msgstr "Open practice settings."
 #: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "Open risk"
+
+#. placeholder {0}: rule.title
+#: src/features/rules/rule-library-tab.tsx
+msgid "Open rule detail: {0}"
+msgstr "Open rule detail: {0}"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the dashboard Pulse banner."
@@ -818,6 +880,10 @@ msgstr "Paste rows"
 #: src/features/rules/sources-tab.tsx
 msgid "Paused"
 msgstr "Paused"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Payment is extended along with filing."
+msgstr "Payment is extended along with filing."
 
 #: src/routes/dashboard.tsx
 msgid "Penalty exposure"
@@ -977,6 +1043,10 @@ msgstr "Row"
 msgid "Row limit hit"
 msgstr "Row limit hit"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Rule detail and evidence"
+msgstr "Rule detail and evidence"
+
 #: src/features/rules/rules-console.tsx
 msgid "Rule Library"
 msgstr "Rule Library"
@@ -1063,17 +1133,21 @@ msgstr "Severity"
 msgid "Show all {0} →"
 msgstr "Show all {0} →"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Show raw value"
+msgstr "Show raw value"
+
 #. placeholder {0}: visibleRows.length
 #. placeholder {1}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
-msgid "Showing {0} of {1} · candidate rows do not generate user reminders · warning flag = needs applicability review"
-msgstr "Showing {0} of {1} · candidate rows do not generate user reminders · warning flag = needs applicability review"
+msgid "Showing {0} of {1} · click any row to open rule detail · candidate rows do not generate user reminders"
+msgstr "Showing {0} of {1} · click any row to open rule detail · candidate rows do not generate user reminders"
 
 #. placeholder {0}: visibleRows.length
 #. placeholder {1}: filteredRows.length
 #: src/features/rules/sources-tab.tsx
-msgid "Showing {0} of {1} · click any row to open source detail drawer"
-msgstr "Showing {0} of {1} · click any row to open source detail drawer"
+msgid "Showing {0} of {1} · click any row to open the official source ↗"
+msgstr "Showing {0} of {1} · click any row to open the official source ↗"
 
 #: src/routes/login.tsx
 msgid "SIGN IN"
@@ -1131,6 +1205,10 @@ msgstr "Source-defined cal"
 msgid "Sources"
 msgstr "Sources"
 
+#: src/features/rules/rules-console.tsx
+msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
+msgstr "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
+
 #: src/features/migration/Step1Intake.tsx
 msgid "SSN-like columns blocked"
 msgstr "SSN-like columns blocked"
@@ -1172,6 +1250,7 @@ msgstr "Switch firm — current {0}"
 msgid "System"
 msgstr "System"
 
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/workboard.tsx
 msgid "Tax type"
 msgstr "Tax type"
@@ -1179,6 +1258,10 @@ msgstr "Tax type"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "TAX TYPES"
 msgstr "TAX TYPES"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Tax year"
+msgstr "Tax year"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "TAX YEAR"
@@ -1238,10 +1321,15 @@ msgstr "Unable to start Google sign-in"
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Verification"
+msgstr "Verification"
+
 #: src/features/rules/rules-console-primitives.tsx
 msgid "verified"
 msgstr "verified"
 
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
 msgid "Verified"
@@ -1254,6 +1342,14 @@ msgstr "verified — reminder will fire"
 #: src/routes/dashboard.tsx
 msgid "verified {verifiedAt}"
 msgstr "verified {verifiedAt}"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Verified at"
+msgstr "Verified at"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Verified by"
+msgstr "Verified by"
 
 #: src/routes/workboard.tsx
 msgid "Waiting on client"

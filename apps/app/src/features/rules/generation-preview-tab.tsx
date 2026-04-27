@@ -5,7 +5,11 @@ import { useForm } from 'react-hook-form'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { CornerDownLeftIcon } from 'lucide-react'
 
-import type { ObligationGenerationPreview, RuleGenerationPreviewInput } from '@duedatehq/contracts'
+import type {
+  ObligationGenerationPreview,
+  RuleGenerationPreviewInput,
+  RuleSource,
+} from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import {
@@ -31,6 +35,8 @@ import {
   type PreviewFormValues,
 } from './rules-console-model'
 import { QueryPanelState, SectionFrame, ToneDot } from './rules-console-primitives'
+import { SourceExternalLink } from './source-external-link'
+import { useSourceLookup } from './use-source-lookup'
 
 const ENTITY_OPTIONS = ['llc', 'partnership', 's_corp', 'c_corp'] as const
 
@@ -275,6 +281,7 @@ function PreviewResultsCard({
   requiresReview: ObligationGenerationPreview[]
 }) {
   const { t } = useLingui()
+  const sourceLookup = useSourceLookup()
   return (
     <SectionFrame>
       <PreviewGroupHeader
@@ -282,14 +289,22 @@ function PreviewResultsCard({
         label={t`REMINDER READY — ${reminderReady.length} obligation, will fire 30 / 7 / 1-day reminders`}
       />
       {reminderReady.map((row) => (
-        <PreviewResultRow key={`${row.ruleId}-${row.ruleVersion}-${row.period}`} row={row} />
+        <PreviewResultRow
+          key={`${row.ruleId}-${row.ruleVersion}-${row.period}`}
+          row={row}
+          sourceLookup={sourceLookup}
+        />
       ))}
       <PreviewGroupHeader
         tone="review"
         label={t`REQUIRES REVIEW — ${requiresReview.length} items for CPA confirmation, never auto-reminded`}
       />
       {requiresReview.map((row) => (
-        <PreviewResultRow key={`${row.ruleId}-${row.ruleVersion}-${row.period}`} row={row} />
+        <PreviewResultRow
+          key={`${row.ruleId}-${row.ruleVersion}-${row.period}`}
+          row={row}
+          sourceLookup={sourceLookup}
+        />
       ))}
     </SectionFrame>
   )
@@ -311,9 +326,17 @@ function PreviewGroupHeader({ tone, label }: { tone: 'success' | 'review'; label
   )
 }
 
-function PreviewResultRow({ row }: { row: ObligationGenerationPreview }) {
+function PreviewResultRow({
+  row,
+  sourceLookup,
+}: {
+  row: ObligationGenerationPreview
+  sourceLookup: ReadonlyMap<string, RuleSource>
+}) {
   const { t } = useLingui()
   const evidence = row.evidence[0]
+  const evidenceSource = evidence ? sourceLookup.get(evidence.sourceId) : undefined
+  const linkLabel = evidence?.summary ?? row.sourceIds[0] ?? t`Source`
   return (
     <div className="grid min-h-16 grid-cols-[128px_1fr_160px] gap-4 border-b border-divider-subtle px-4 py-3 last:border-b-0">
       <div className="flex flex-col gap-1">
@@ -355,13 +378,17 @@ function PreviewResultRow({ row }: { row: ObligationGenerationPreview }) {
         ) : null}
       </div>
       <div className="flex items-start justify-end pt-1">
-        <a
-          href="#"
-          className="truncate text-right text-[11px] text-text-accent outline-none hover:underline focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
-          onClick={(event) => event.preventDefault()}
+        <SourceExternalLink
+          source={evidenceSource}
+          ariaLabel={evidenceSource ? t`Open official source: ${evidenceSource.title}` : undefined}
+          showIcon={false}
+          className="max-w-full truncate text-right text-[11px] text-text-accent"
         >
-          {evidence?.summary ?? row.sourceIds[0] ?? t`Source`} ↗
-        </a>
+          <span className="truncate">{linkLabel}</span>
+          <span aria-hidden className="ml-1 shrink-0">
+            ↗
+          </span>
+        </SourceExternalLink>
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 
@@ -23,6 +23,7 @@ import { cn } from '@duedatehq/ui/lib/utils'
 
 import { orpc } from '@/lib/rpc'
 
+import { RuleDetailDrawer } from './rule-detail-drawer'
 import {
   countRulesByFilter,
   filterRules,
@@ -50,6 +51,7 @@ export function RuleLibraryTab() {
   const [libraryFilter, setLibraryFilter] = useState<RuleLibraryFilter>('all')
   const [jurisdictionFilter, setJurisdictionFilter] = useState<JurisdictionFilter>('ALL')
   const [showAll, setShowAll] = useState(false)
+  const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null)
 
   const queryInput = {
     includeCandidates: true,
@@ -61,6 +63,15 @@ export function RuleLibraryTab() {
   const counts = useMemo(() => countRulesByFilter(rows), [rows])
   const filteredRows = useMemo(() => filterRules(rows, libraryFilter), [libraryFilter, rows])
   const visibleRows = showAll ? filteredRows : filteredRows.slice(0, DEFAULT_VISIBLE_RULE_ROWS)
+  const selectedRule = useMemo(
+    () => (selectedRuleId ? (rows.find((rule) => rule.id === selectedRuleId) ?? null) : null),
+    [rows, selectedRuleId],
+  )
+
+  const handleRuleSelect = useCallback((rule: ObligationRule) => setSelectedRuleId(rule.id), [])
+  const handleDrawerOpenChange = useCallback((open: boolean) => {
+    if (!open) setSelectedRuleId(null)
+  }, [])
 
   const filterOptions = useMemo(
     () => [
@@ -85,7 +96,7 @@ export function RuleLibraryTab() {
     return <QueryPanelState state="error" message={t`Could not load rule library.`} />
   }
 
-  const footerNote = t`Showing ${visibleRows.length} of ${filteredRows.length} · candidate rows do not generate user reminders · warning flag = needs applicability review`
+  const footerNote = t`Showing ${visibleRows.length} of ${filteredRows.length} · click any row to open rule detail · candidate rows do not generate user reminders`
   const showAllAction = t`Show all ${filteredRows.length} →`
 
   return (
@@ -118,30 +129,7 @@ export function RuleLibraryTab() {
           </TableHeader>
           <TableBody>
             {visibleRows.map((rule) => (
-              <TableRow
-                key={`${rule.id}-${rule.version}`}
-                className={cn(
-                  'h-9 hover:bg-transparent',
-                  rule.status === 'candidate' && 'bg-accent-tint',
-                )}
-              >
-                <TableCell className="py-2">
-                  <JurisdictionCode code={rule.jurisdiction} />
-                </TableCell>
-                <TableCell className="max-w-[300px] py-2 font-mono text-sm font-medium">
-                  <span className="block truncate">{rule.id}</span>
-                </TableCell>
-                <TableCell className="max-w-[168px] py-2 text-sm text-text-secondary">
-                  <span className="block truncate">{rule.entityApplicability.join(', ')}</span>
-                </TableCell>
-                <TableCell className="py-2">
-                  <TierBadge tier={rule.ruleTier} needsReview={rule.requiresApplicabilityReview} />
-                </TableCell>
-                <TableCell className="py-2">
-                  <StatusCell status={rule.status} />
-                </TableCell>
-                <TableCell className="py-2 text-right text-sm text-text-disabled">›</TableCell>
-              </TableRow>
+              <RuleRow key={`${rule.id}-${rule.version}`} rule={rule} onSelect={handleRuleSelect} />
             ))}
           </TableBody>
         </Table>
@@ -155,7 +143,60 @@ export function RuleLibraryTab() {
           <TableFooterBar note={footerNote} />
         )}
       </SectionFrame>
+      <RuleDetailDrawer
+        rule={selectedRule}
+        open={selectedRule !== null}
+        onOpenChange={handleDrawerOpenChange}
+      />
     </div>
+  )
+}
+
+function RuleRow({
+  rule,
+  onSelect,
+}: {
+  rule: ObligationRule
+  onSelect: (rule: ObligationRule) => void
+}) {
+  const { t } = useLingui()
+  const handleClick = useCallback(() => onSelect(rule), [onSelect, rule])
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTableRowElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        onSelect(rule)
+      }
+    },
+    [onSelect, rule],
+  )
+
+  return (
+    <TableRow
+      role="button"
+      tabIndex={0}
+      aria-label={t`Open rule detail: ${rule.title}`}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      className="h-9 cursor-pointer outline-none hover:bg-state-base-hover focus-visible:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt focus-visible:ring-inset"
+    >
+      <TableCell className="py-2">
+        <JurisdictionCode code={rule.jurisdiction} />
+      </TableCell>
+      <TableCell className="max-w-[300px] py-2 font-mono text-sm font-medium">
+        <span className="block truncate">{rule.id}</span>
+      </TableCell>
+      <TableCell className="max-w-[168px] py-2 text-sm text-text-secondary">
+        <span className="block truncate">{rule.entityApplicability.join(', ')}</span>
+      </TableCell>
+      <TableCell className="py-2">
+        <TierBadge tier={rule.ruleTier} needsReview={rule.requiresApplicabilityReview} />
+      </TableCell>
+      <TableCell className="py-2">
+        <StatusCell status={rule.status} />
+      </TableCell>
+      <TableCell className="py-2 text-right text-sm text-text-tertiary">›</TableCell>
+    </TableRow>
   )
 }
 

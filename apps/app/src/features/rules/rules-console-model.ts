@@ -2,8 +2,10 @@ import * as z from 'zod'
 
 import {
   RuleGenerationPreviewInputSchema,
+  type DueDateLogic,
   type ObligationGenerationPreview,
   type ObligationRule,
+  type RuleEvidenceAuthorityRole,
   type RuleGenerationPreviewInput,
   type RuleGenerationState,
   type RuleJurisdiction,
@@ -160,4 +162,48 @@ export function groupPreviewRows<T extends PreviewReadyOnly>(rows: readonly T[])
     reminderReady: rows.filter((row) => row.reminderReady),
     requiresReview: rows.filter((row) => !row.reminderReady),
   }
+}
+
+const ORDINAL_SUFFIX_BY_TENS = ['th', 'st', 'nd', 'rd'] as const
+
+function ordinal(n: number): string {
+  const lastTwo = n % 100
+  const lastOne = n % 10
+  if (lastTwo >= 11 && lastTwo <= 13) return `${n}th`
+  return `${n}${ORDINAL_SUFFIX_BY_TENS[lastOne] ?? 'th'}`
+}
+
+function rolloverLabel(rollover: 'source_adjusted' | 'next_business_day'): string {
+  return rollover === 'next_business_day' ? 'next business day' : 'source-adjusted'
+}
+
+/**
+ * Renders a `DueDateLogic` discriminated union into a single human-readable
+ * sentence for the Rule Detail drawer.
+ *
+ * Kept English-only on purpose: rule IDs, tax type slugs, and form names in
+ * the surrounding UI are also un-localized internal terminology, and the
+ * union shape is fixed by the contract (no localization fan-out risk).
+ */
+export function humanizeDueDateLogic(logic: DueDateLogic): string {
+  if (logic.kind === 'fixed_date') {
+    return `Fixed: ${logic.date} · ${rolloverLabel(logic.holidayRollover)} rollover`
+  }
+  if (logic.kind === 'nth_day_after_tax_year_end') {
+    return `${ordinal(logic.day)} day of the ${ordinal(logic.monthOffset)} month after tax year end · ${rolloverLabel(logic.holidayRollover)} rollover`
+  }
+  if (logic.kind === 'nth_day_after_tax_year_begin') {
+    return `${ordinal(logic.day)} day of the ${ordinal(logic.monthOffset)} month after tax year begin · ${rolloverLabel(logic.holidayRollover)} rollover`
+  }
+  if (logic.kind === 'period_table') {
+    return `${logic.frequency} schedule · ${logic.periods.length} periods · ${rolloverLabel(logic.holidayRollover)} rollover`
+  }
+  return logic.description
+}
+
+export const RULE_AUTHORITY_ROLE_LABEL: Record<RuleEvidenceAuthorityRole, string> = {
+  basis: 'Basis',
+  cross_check: 'Cross-check',
+  watch: 'Watch',
+  early_warning: 'Early warn',
 }

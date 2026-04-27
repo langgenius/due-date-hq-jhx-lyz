@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
+import { ExternalLinkIcon } from 'lucide-react'
 
 import type { RuleJurisdiction, RuleSource } from '@duedatehq/contracts'
 import {
@@ -19,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
+import { cn } from '@duedatehq/ui/lib/utils'
 
 import { orpc } from '@/lib/rpc'
 
@@ -77,7 +79,7 @@ export function SourcesTab() {
     return <QueryPanelState state="error" message={t`Could not load rule sources.`} />
   }
 
-  const footerNote = t`Showing ${visibleRows.length} of ${filteredRows.length} · click any row to open source detail drawer`
+  const footerNote = t`Showing ${visibleRows.length} of ${filteredRows.length} · click any row to open the official source ↗`
   const showAllAction = t`Show all ${filteredRows.length} →`
 
   return (
@@ -106,37 +108,12 @@ export function SourcesTab() {
               <TableHead className="w-[92px]">CADENCE</TableHead>
               <TableHead className="w-[80px]">METHOD</TableHead>
               <TableHead className="w-[98px]">HEALTH</TableHead>
+              <TableHead className="w-8" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {visibleRows.map((source) => (
-              <TableRow key={source.id} className="h-10 hover:bg-transparent">
-                <TableCell className="max-w-[440px] py-1.5">
-                  <div className="flex min-w-0 flex-col">
-                    <span className="truncate text-sm font-medium text-text-primary">
-                      {source.title}
-                    </span>
-                    <span className="truncate font-mono text-xs text-text-tertiary">
-                      {source.id}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell className="py-1.5">
-                  <JurisdictionCode code={source.jurisdiction} />
-                </TableCell>
-                <TableCell className="py-1.5 text-sm text-text-secondary">
-                  {compactSourceType(source.sourceType)}
-                </TableCell>
-                <TableCell className="py-1.5 text-sm text-text-secondary">
-                  {source.cadence.replace('_', '-')}
-                </TableCell>
-                <TableCell className="py-1.5 text-sm text-text-secondary">
-                  {compactAcquisitionMethod(source.acquisitionMethod)}
-                </TableCell>
-                <TableCell className="py-1.5">
-                  <HealthBadge health={source.healthStatus} />
-                </TableCell>
-              </TableRow>
+              <SourceRow key={source.id} source={source} />
             ))}
           </TableBody>
         </Table>
@@ -209,4 +186,83 @@ function isJurisdictionFilter(value: string | null): value is JurisdictionFilter
   if (value === 'ALL') return true
   if (typeof value !== 'string') return false
   return (RULE_JURISDICTIONS as readonly string[]).includes(value)
+}
+
+function SourceRow({ source }: { source: RuleSource }) {
+  const { t } = useLingui()
+
+  // The whole row is a click target for mouse users — opens the official
+  // page in a new tab. Keyboard / screen-reader users tab to the trailing
+  // <a> instead, which carries the canonical aria-label and href.
+  const openSource = useCallback(() => {
+    if (typeof window === 'undefined') return
+    window.open(source.url, '_blank', 'noopener,noreferrer')
+  }, [source.url])
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTableRowElement>) => {
+      // Only handle Enter / Space when focus is on the row itself; trailing
+      // anchor handles its own activation.
+      if (event.target !== event.currentTarget) return
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        openSource()
+      }
+    },
+    [openSource],
+  )
+
+  const isManualReview = source.acquisitionMethod === 'manual_review'
+
+  return (
+    <TableRow
+      role="link"
+      tabIndex={-1}
+      onClick={openSource}
+      onKeyDown={handleKeyDown}
+      className="h-10 cursor-pointer hover:bg-state-base-hover"
+    >
+      <TableCell className="max-w-[440px] py-1.5">
+        <div className="flex min-w-0 flex-col">
+          <span className="truncate text-sm font-medium text-text-primary">{source.title}</span>
+          <span className="truncate font-mono text-xs text-text-tertiary">{source.id}</span>
+        </div>
+      </TableCell>
+      <TableCell className="py-1.5">
+        <JurisdictionCode code={source.jurisdiction} />
+      </TableCell>
+      <TableCell className="py-1.5 text-sm text-text-secondary">
+        {compactSourceType(source.sourceType)}
+      </TableCell>
+      <TableCell className="py-1.5 text-sm text-text-secondary">
+        {source.cadence.replace('_', '-')}
+      </TableCell>
+      <TableCell
+        className={cn(
+          'py-1.5 text-sm',
+          isManualReview ? 'text-severity-medium' : 'text-text-secondary',
+        )}
+        title={
+          isManualReview ? t`Manual review source · click to open the official page` : undefined
+        }
+      >
+        {compactAcquisitionMethod(source.acquisitionMethod)}
+      </TableCell>
+      <TableCell className="py-1.5">
+        <HealthBadge health={source.healthStatus} />
+      </TableCell>
+      <TableCell className="py-1.5 text-right">
+        <a
+          href={source.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={t`Open official source: ${source.title}`}
+          onClick={(event) => event.stopPropagation()}
+          className="inline-flex size-7 items-center justify-center rounded-md text-text-tertiary outline-none hover:bg-state-base-hover-alt hover:text-text-secondary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
+        >
+          <ExternalLinkIcon className="size-3.5" aria-hidden />
+        </a>
+      </TableCell>
+    </TableRow>
+  )
 }

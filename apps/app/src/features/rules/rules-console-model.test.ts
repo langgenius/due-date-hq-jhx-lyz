@@ -7,6 +7,7 @@ import {
   filterRules,
   filterSources,
   groupPreviewRows,
+  humanizeDueDateLogic,
   isRulesTab,
   previewFormToInput,
 } from './rules-console-model'
@@ -60,6 +61,54 @@ describe('rules console model', () => {
     })
     expect(filterRules(rules, 'candidate')).toHaveLength(1)
     expect(filterRules(rules, 'applicability_review')).toHaveLength(1)
+  })
+
+  it('humanizes the five DueDateLogic kinds for the rule detail drawer', () => {
+    expect(
+      humanizeDueDateLogic({
+        kind: 'fixed_date',
+        date: '2026-05-15',
+        holidayRollover: 'next_business_day',
+      }),
+    ).toBe('Fixed: 2026-05-15 · next business day rollover')
+
+    expect(
+      humanizeDueDateLogic({
+        kind: 'nth_day_after_tax_year_end',
+        monthOffset: 3,
+        day: 15,
+        holidayRollover: 'next_business_day',
+      }),
+    ).toBe('15th day of the 3rd month after tax year end · next business day rollover')
+
+    expect(
+      humanizeDueDateLogic({
+        kind: 'nth_day_after_tax_year_begin',
+        monthOffset: 4,
+        day: 15,
+        holidayRollover: 'next_business_day',
+      }),
+    ).toBe('15th day of the 4th month after tax year begin · next business day rollover')
+
+    expect(
+      humanizeDueDateLogic({
+        kind: 'period_table',
+        frequency: 'quarterly',
+        periods: [
+          { period: '2026-Q1', dueDate: '2026-04-30' },
+          { period: '2026-Q2', dueDate: '2026-07-31' },
+        ],
+        holidayRollover: 'source_adjusted',
+      }),
+    ).toBe('quarterly schedule · 2 periods · source-adjusted rollover')
+
+    expect(
+      humanizeDueDateLogic({
+        kind: 'source_defined_calendar',
+        description: 'Notice-specific localities and postponed due dates.',
+        holidayRollover: 'source_adjusted',
+      }),
+    ).toBe('Notice-specific localities and postponed due dates.')
   })
 
   it('groups preview rows by reminder readiness', () => {

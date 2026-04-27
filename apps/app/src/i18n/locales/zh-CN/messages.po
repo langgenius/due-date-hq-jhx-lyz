@@ -43,6 +43,10 @@ msgstr "{0, plural, other {共 # 行，我们仅读取了前 1000 行。请拆�
 msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, other {# 个客户}}"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "{durationMonths} months"
+msgstr "{durationMonths} 个月"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
 msgstr "{lowConfCount, plural, other {# 列需要你复核}}"
@@ -77,8 +81,8 @@ msgid "2 partner entities need review before the March 15 cutoff."
 msgstr "2 家合伙企业需在 3 月 15 日截止前完成复核。"
 
 #: src/features/rules/rules-console.tsx
-msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Warning flag = rule needs CPA applicability review at generation time. Candidate rows never trigger user reminders."
-msgstr "26 条 obligation 规则 —— 25 已核验、1 候选（FED 灾害救济观察）。⚠ 标记表示该规则在生成时需要 CPA 做适用性核验；候选行不会触发用户提醒。"
+msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
+msgstr "26 条 obligation 规则 — 25 条已核验、1 条候选（联邦灾害救济观察）。点击任意行打开规则详情，包含截止日逻辑、延期政策，以及指向官方来源的证据。候选行从不触发用户提醒。"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "3 basic · 2 review"
@@ -93,8 +97,8 @@ msgid "3 clients have estimated-tax deltas above the evidence threshold."
 msgstr "3 家客户的预估税差额已超过证据阈值。"
 
 #: src/features/rules/rules-console.tsx
-msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
-msgstr "我们监控规则变更的 31 个官方来源 —— 每个来源都有健康度、频率与采集方式。失败或降级的来源不会静默更新已核验规则；ops 通过 candidate 流程复核后再发布。"
+msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+msgstr "我们监控规则变更的 31 个官方渠道 — 每个来源都附带健康度、巡检频率与采集方式。点击任意行在新标签页打开官方页面。失败或降级的来源不会静默更新已核验规则；运营在 candidate 流程中复核变更后才会发布。"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "4 verified · 1 candidate watch"
@@ -124,10 +128,6 @@ msgstr "添加事务所"
 #: src/components/patterns/app-shell.tsx
 msgid "Admin · P1"
 msgstr "管理 · P1"
-
-#: src/features/rules/rules-console.tsx
-msgid "Aggregate verifiability per (jurisdiction, entity) pair across Federal + 5 MVP states. Drill into Rule Library for specific rules; Generation Preview to dry-run a client."
-msgstr "在 Federal + 5 个 MVP 州内、按 (辖区，实体) 配对汇总可核验状态。在 Rule Library 查看具体规则；用 Generation Preview 干运行一位客户。"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
@@ -159,9 +159,17 @@ msgstr "所有系统运行正常"
 msgid "Annual rolling"
 msgstr "年度滚动"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Applicability"
+msgstr "适用范围"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Applicability review"
 msgstr "适用性复核"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Applicability review · needs CPA confirmation at generation time."
+msgstr "适用性复核 · 在生成 obligation 时需要 CPA 确认。"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
@@ -215,9 +223,14 @@ msgstr "登录即表示你同意 <termsLink>服务条款</termsLink> 与 <privac
 msgid "California"
 msgstr "加利福尼亚"
 
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 msgid "Candidate"
 msgstr "候选"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Candidate · never generates user reminders."
+msgstr "候选规则 · 从不生成用户提醒。"
 
 #. placeholder {0}: row.clientName
 #: src/routes/workboard.tsx
@@ -358,6 +371,7 @@ msgstr "降级"
 msgid "Demo workspace"
 msgstr "演示工作区"
 
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 msgid "Deprecated"
 msgstr "已弃用"
@@ -393,6 +407,10 @@ msgstr "到期日 — 最早优先"
 #: src/routes/workboard.tsx
 msgid "Due date — latest first"
 msgstr "到期日 — 最晚优先"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Due date logic"
+msgstr "截止日逻辑"
 
 #: src/routes/dashboard.tsx
 msgid "Due this week"
@@ -434,6 +452,14 @@ msgstr "实体"
 msgid "Entity types"
 msgstr "实体类型"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Event"
+msgstr "事项"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Evidence"
+msgstr "证据"
+
 #: src/routes/dashboard.tsx
 msgid "Evidence checks"
 msgstr "证据核查"
@@ -454,6 +480,10 @@ msgstr "例外"
 msgid "Exposure"
 msgstr "风险敞口"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Extension"
+msgstr "延期"
+
 #: src/routes/dashboard.tsx
 msgid "Extension package hold"
 msgstr "延期申请包搁置"
@@ -473,6 +503,10 @@ msgstr "联邦"
 msgid "File is larger than 2 MB. Please trim or split the export."
 msgstr "文件大于 2 MB，请精简或拆分后再上传。"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Filing only — payment NOT extended."
+msgstr "仅申报延期 — 缴款不延期。"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "Filing-frequency review"
 msgstr "申报频率复核"
@@ -490,6 +524,10 @@ msgstr "佛罗里达"
 #: src/routes/_entry-layout.tsx
 msgid "For US CPA practices"
 msgstr "面向美国注册会计师事务所"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Form"
+msgstr "表单"
 
 #: src/features/rules/rules-console.tsx
 msgid "Generation Preview"
@@ -623,6 +661,10 @@ msgstr "主导航"
 msgid "Manage"
 msgstr "管理"
 
+#: src/features/rules/sources-tab.tsx
+msgid "Manual review source · click to open the official page"
+msgstr "人工巡检来源 · 点击打开官方页面"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Map \"{sourceHeader}\" to…"
 msgstr "把 \"{sourceHeader}\" 映射到…"
@@ -677,6 +719,10 @@ msgstr "常规"
 msgid "New York"
 msgstr "纽约"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Next review"
+msgstr "下次复核"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "No commands found."
 msgstr "未找到命令。"
@@ -684,6 +730,10 @@ msgstr "未找到命令。"
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
 msgstr "不会自动发送任何邮件"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "No extension available."
+msgstr "无可用延期。"
 
 #: src/routes/workboard.tsx
 msgid "No obligations match these filters."
@@ -753,6 +803,13 @@ msgstr "24 小时内可一键撤销"
 msgid "Open"
 msgstr "展开"
 
+#. placeholder {0}: evidenceSource.title
+#. placeholder {0}: source.title
+#: src/features/rules/generation-preview-tab.tsx
+#: src/features/rules/sources-tab.tsx
+msgid "Open official source: {0}"
+msgstr "打开官方来源：{0}"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open practice settings."
 msgstr "打开事务所设置。"
@@ -760,6 +817,11 @@ msgstr "打开事务所设置。"
 #: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "待处理风险"
+
+#. placeholder {0}: rule.title
+#: src/features/rules/rule-library-tab.tsx
+msgid "Open rule detail: {0}"
+msgstr "打开规则详情：{0}"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the dashboard Pulse banner."
@@ -818,6 +880,10 @@ msgstr "粘贴行数据"
 #: src/features/rules/sources-tab.tsx
 msgid "Paused"
 msgstr "已暂停"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Payment is extended along with filing."
+msgstr "缴款随申报一同延期。"
 
 #: src/routes/dashboard.tsx
 msgid "Penalty exposure"
@@ -977,6 +1043,10 @@ msgstr "行"
 msgid "Row limit hit"
 msgstr "已达行数上限"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Rule detail and evidence"
+msgstr "规则详情与证据"
+
 #: src/features/rules/rules-console.tsx
 msgid "Rule Library"
 msgstr "规则库"
@@ -1063,17 +1133,21 @@ msgstr "严重程度"
 msgid "Show all {0} →"
 msgstr "显示全部 {0} →"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Show raw value"
+msgstr "查看原始值"
+
 #. placeholder {0}: visibleRows.length
 #. placeholder {1}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
-msgid "Showing {0} of {1} · candidate rows do not generate user reminders · warning flag = needs applicability review"
-msgstr "显示 {0} / {1} 条 · candidate 行不生成用户提醒 · ⚠ 标记表示需要适用性复核"
+msgid "Showing {0} of {1} · click any row to open rule detail · candidate rows do not generate user reminders"
+msgstr "显示 {0} / {1} · 点击任意行打开规则详情 · 候选行不生成用户提醒"
 
 #. placeholder {0}: visibleRows.length
 #. placeholder {1}: filteredRows.length
 #: src/features/rules/sources-tab.tsx
-msgid "Showing {0} of {1} · click any row to open source detail drawer"
-msgstr "显示 {0} / {1} 条 · 点击任意行打开来源详情抽屉"
+msgid "Showing {0} of {1} · click any row to open the official source ↗"
+msgstr "显示 {0} / {1} · 点击任意行打开官方来源 ↗"
 
 #: src/routes/login.tsx
 msgid "SIGN IN"
@@ -1131,6 +1205,10 @@ msgstr "来源定义日历"
 msgid "Sources"
 msgstr "来源"
 
+#: src/features/rules/rules-console.tsx
+msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
+msgstr "Sources 是我们监控的官方原料（31 个）。Rules 是我们加工出的截止日模板（26 条 · 25 已核验 · 1 候选）。Preview 展示规则会为某个客户生成什么 obligation —— 可提醒的 obligation 只来自已核验规则。"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "SSN-like columns blocked"
 msgstr "已拦截疑似 SSN 列"
@@ -1172,6 +1250,7 @@ msgstr "切换事务所 · 当前 {0}"
 msgid "System"
 msgstr "跟随系统"
 
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/workboard.tsx
 msgid "Tax type"
 msgstr "税种"
@@ -1179,6 +1258,10 @@ msgstr "税种"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "TAX TYPES"
 msgstr "税种"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Tax year"
+msgstr "税年"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "TAX YEAR"
@@ -1238,10 +1321,15 @@ msgstr "无法启动 Google 登录"
 msgid "Unexpected route error"
 msgstr "路由出现意外错误"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Verification"
+msgstr "核验"
+
 #: src/features/rules/rules-console-primitives.tsx
 msgid "verified"
 msgstr "已核验"
 
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
 msgid "Verified"
@@ -1254,6 +1342,14 @@ msgstr "已核验 —— 将触发提醒"
 #: src/routes/dashboard.tsx
 msgid "verified {verifiedAt}"
 msgstr "{verifiedAt} 已核验"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Verified at"
+msgstr "核验于"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Verified by"
+msgstr "核验人"
 
 #: src/routes/workboard.tsx
 msgid "Waiting on client"
