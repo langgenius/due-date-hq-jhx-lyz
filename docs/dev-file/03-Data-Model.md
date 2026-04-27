@@ -421,21 +421,25 @@ export const scoped = (db: DrizzleDB, firmId: string) => ({
 pnpm --filter @duedatehq/db db:generate
 
 # 3. 本地 D1 应用
-pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --local
+pnpm db:migrate:local
 
 # 4. 本地 better-auth 迁移（首次 + 改 auth 配置时）
 pnpm --filter @duedatehq/server auth:migrate --local
 
 # 5. PR 合并后 CI 对 staging D1 应用
-wrangler d1 migrations apply duedatehq-staging --remote
+pnpm db:migrate:remote
 
 # 6. 生产 deploy pipeline 先 apply prod D1
-wrangler d1 migrations apply duedatehq --remote
+pnpm --dir apps/server exec wrangler d1 migrations apply DB --remote --config wrangler.toml
 ```
 
 **纪律：**
 
 - 迁移**向前兼容**：新字段默认 NULL 或给默认值；删字段走两阶段（先停写 → 下次发布删列）
+- Root migration scripts run Wrangler from `apps/server` so the monorepo
+  `migrations_dir` resolves consistently. They target the `DB` binding; the
+  explicit `--local` / `--remote` flag selects Miniflare SQLite or Cloudflare
+  D1.
 - Seed 脚本分环境：`db:seed:demo`（幂等）/ `db:seed:rules`（Federal + CA + NY 核心规则）/ `db:seed:pulse`（2 条示例）
 
 ---

@@ -17,6 +17,9 @@ the remote staging D1 database.
 - Updated root migration scripts to run Wrangler from `apps/server` with the
   explicit `wrangler.toml` config, so the D1 binding can resolve
   `migrations_dir = "../../packages/db/migrations"`.
+- Migration scripts target the stable Worker binding `DB`; the mode flag
+  decides whether Wrangler uses local Miniflare storage or the configured
+  remote D1 database.
 - Replaced the stale `duedatehq` migration command comment in
   `packages/db/drizzle.config.ts` with the root package scripts.
 
@@ -24,4 +27,8 @@ the remote staging D1 database.
 
 `wrangler dev --local` still prints the configured database name
 `due-date-hq-staging`, but the binding mode is local. Remote staging is only
-affected when using `--remote`.
+affected when using `pnpm db:migrate:remote`.
+
+Do not run multiple local D1 migration/list/execute commands against the same
+Wrangler state directory concurrently; the local SQLite store can return
+`SQLITE_BUSY`.

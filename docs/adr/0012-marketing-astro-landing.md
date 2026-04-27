@@ -72,6 +72,10 @@ pnpm db:migrate:remote \
 
 任何前段失败 `&&` 短路，marketing 不会上线指向半坏的 server。`cache: false` 让 Cloudflare 凭据从 shell 实时继承，不做 env fingerprint。
 
+`main` push 的部署 run 不允许被新的 push 中途 cancel，只在同一 concurrency group 排队；
+PR run 仍会 cancel stale run。原因是 D1 migration 和 Workers deploy 都是 Cloudflare 控制面的
+有副作用操作，取消中的 job 可能已完成部分远端写入。
+
 `@duedatehq/server` peer 升 TS 6.x，但 `@astrojs/check` / `tsconfck` 仍声明 `typescript: ^5.0.0`；`pnpm-workspace.yaml` 的 `peerDependencyRules.allowAny` 加上 `typescript`（兼容性 API 一致，仅版本号不匹配），避免 install 报警阻塞 CI。
 
 ## 备选方案（Alternatives）

@@ -487,8 +487,8 @@ packages/core
     "format": "vp fmt --check",
     "format:fix": "vp fmt --write",
     "db:generate": "pnpm --filter @duedatehq/db db:generate",
-    "db:migrate:local": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --local",
-    "db:migrate:remote": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --remote",
+    "db:migrate:local": "pnpm --dir apps/server exec wrangler d1 migrations apply DB --local --config wrangler.toml",
+    "db:migrate:remote": "pnpm --dir apps/server exec wrangler d1 migrations apply DB --remote --config wrangler.toml",
     "db:seed:demo": "pnpm --filter @duedatehq/db seed:demo",
     "deploy": "vp run workspace-deploy"
   }
