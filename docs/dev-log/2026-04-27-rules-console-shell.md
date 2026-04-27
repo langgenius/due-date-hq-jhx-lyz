@@ -169,18 +169,24 @@ Fixes:
 
 ## Sidebar IA Decision (Settings as a container, not a flat peer)
 
+> **2026-04-27 update:** the three-state click + collapsible parent described
+> below was simplified to a non-interactive section header in
+> `docs/dev-log/2026-04-27-sidebar-settings-flatten.md`. The "Settings as a
+> container, not a flat peer" decision (i.e. preserving the `Settings` group
+>
+> - sub-items rather than promoting `Rules / Members / Profile` to top-level
+>   peers) **still stands**; only the parent's interactive surface changed.
+
 The four-tab Figma frames render the sidebar with `Settings` highlighted in
 `accent/tint` and the `Rules` sub-item also highlighted. We deliberately
 deviate from that exact rendering: parent rows in the `MANAGE` group are
 **neutral containers** — no `aria-current`, no `isActive`, no `text-text-primary`
-override on expand. The `accent-tint` selected highlight belongs to the sub-item
-only, so the sidebar reads "you are inside Settings → Rules" with the visual
-weight on Rules. Parent click behaviour is three-state:
-
-1. Collapsed + section not active → navigate to `defaultSubItemHref`
-   (`/settings/rules`) and expand.
-2. Collapsed + already on a sub-route → expand without navigating.
-3. Expanded → collapse without navigating.
+override. The `accent-tint` selected highlight belongs to the sub-item only,
+so the sidebar reads "you are inside Settings → Rules" with the visual
+weight on Rules. As of the follow-up the parent is fully non-interactive
+(no click target, no hover bg) and the sub-items are always rendered below
+it; `/settings` deep-links are handled by a router loader redirect to
+`/settings/rules`.
 
 We considered flattening `Rules / Members / Profile` to top-level peers and
 deleting the `Settings` container. Rejected because:
@@ -213,7 +219,9 @@ Completed:
   — 4/4 passing
 - `pnpm --filter @duedatehq/app i18n:extract` then `i18n:compile --strict` —
   catalogs are zero-missing (the renamed `Collapse {0}` / `Expand {0}` aria
-  labels carry `zh-CN` translations in the same change).
+  labels carried `zh-CN` translations in the same change; both keys were
+  later removed when the parent became non-interactive — see
+  `docs/dev-log/2026-04-27-sidebar-settings-flatten.md`).
 
 Pending final gate before merge:
 

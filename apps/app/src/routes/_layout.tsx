@@ -139,11 +139,11 @@ function RootLayoutShell({
 }
 
 function getRouteSummaryMessages(pathname: string): RouteSummaryMessages {
+  // `/settings` is intentionally absent — the router-level `settingsLoader`
+  // redirects bare `/settings` straight to `/settings/rules`, so this layout
+  // never sees that pathname.
   if (pathname === '/settings/rules') {
     return { eyebrow: msg`Settings`, title: msg`Rules` }
-  }
-  if (pathname === '/settings') {
-    return { eyebrow: msg`Settings`, title: msg`Firm settings` }
   }
   if (pathname.startsWith('/workboard')) {
     return { eyebrow: msg`Workbench`, title: msg`Workboard` }

@@ -6,6 +6,8 @@ date: 2026-04-27
 # 2026-04-27 · AppShell pattern + 自建 sidebar primitives
 
 > 当前状态：**设计 + 代码落地完成**。本次提交包含 `@duedatehq/ui` 自建 sidebar primitives + `useIsMobile` hook + `apps/app/src/components/patterns/app-shell.tsx` + `_layout.tsx` 重构。`vp check` / `vp test` / `lingui compile --strict` / `vp build` / `pnpm design:lint` 全部 0 errors。Figma 设计在 [App Page · App Shell — Layout](https://www.figma.com/design/ssejugriUJkW9vbcBzmRgd/due-date-hq-jhx-lyz?node-id=145-2)。
+>
+> **2026-04-27 follow-up：** Settings 父项的 collapsible 交互在落地后被简化为非交互 section header（无 hover bg、静态 chevron-down、子项常驻），相关代码（`ExpandableNavMenuItem` / `defaultSubItemHref` / `Collapse {0}` / `Expand {0}`）已删除。详见 `docs/dev-log/2026-04-27-sidebar-settings-flatten.md`。本文件 §5 关于 "Expandable parent 左对齐" 的条目仅作历史保留——`SidebarMenuButton` 的 `text-left` 默认在其他 trigger 上仍然生效，但 Settings 父项不再走 `<button>` 路径。
 
 ## 背景
 

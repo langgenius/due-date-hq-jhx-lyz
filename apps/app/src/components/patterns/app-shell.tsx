@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate, useNavigation } from 'react-router'
+import { useCallback, useMemo, useTransition } from 'react'
+import { NavLink, Outlet, useNavigate, useNavigation } from 'react-router'
 import { toast } from 'sonner'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
   BellIcon,
   CalendarClockIcon,
   CheckIcon,
-  ChevronRightIcon,
+  ChevronDownIcon,
   ChevronsUpDownIcon,
   ClipboardListIcon,
   GlobeIcon,
@@ -282,13 +282,13 @@ type NavItem = {
   badge?: string
   tag?: string
   subItems?: NavSubItem[]
-  defaultSubItemHref?: string
 }
 
 type NavSubItem = {
   href?: string
   label: string
   end?: boolean
+  tag?: string
 }
 
 type NavConfig = {
@@ -317,11 +317,10 @@ function useNavItems(): NavConfig {
           label: t`Settings`,
           icon: SettingsIcon,
           end: false,
-          defaultSubItemHref: '/settings/rules',
           subItems: [
             { href: '/settings/rules', label: t`Rules`, end: true },
-            { label: t`Members` },
-            { label: t`Profile` },
+            { label: t`Members`, tag: 'P1' },
+            { label: t`Profile`, tag: 'P1' },
           ],
         },
       ],
@@ -386,7 +385,7 @@ function NavGroupSection({
 
 function NavMenuItem({ item, disabled = false }: { item: NavItem; disabled?: boolean }) {
   if (item.subItems?.length) {
-    return <ExpandableNavMenuItem item={item} />
+    return <SectionGroupNavItem item={item} />
   }
 
   const Icon = item.icon
@@ -418,67 +417,35 @@ function NavMenuItem({ item, disabled = false }: { item: NavItem; disabled?: boo
   )
 }
 
-function ExpandableNavMenuItem({ item }: { item: NavItem }) {
-  const { t } = useLingui()
-  const location = useLocation()
-  const navigate = useNavigate()
+/**
+ * Settings-style nav items render as a non-interactive section header
+ * (icon + label + static chevron-down) above always-visible sub-items.
+ *
+ * Why no toggle: with auto-expand on active route, the collapsed state was
+ * effectively only reachable while on a sub-route — a vanishingly small
+ * "I want to hide three rows" scenario that didn't justify the three-state
+ * click + ChevronRight rotation + aria-expanded plumbing. The chevron-down
+ * stays as a passive cue that the rows below belong to this section.
+ *
+ * Why non-interactive: removing the click target removes the "hovering shows
+ * a bg highlight but click does nothing useful" ambiguity. Direct deep-links
+ * still work — `/settings` redirects to `/settings/rules` in the router
+ * loader (see `apps/app/src/router.tsx`).
+ */
+function SectionGroupNavItem({ item }: { item: NavItem }) {
   const Icon = item.icon
-  const isSectionActive =
-    location.pathname === item.href || location.pathname.startsWith(`${item.href}/`)
-  const [open, setOpen] = useState(() => isSectionActive)
-
-  // Auto-expand when a sub-route becomes active (deep link, programmatic
-  // navigation). We still let the user collapse manually afterwards — the
-  // effect only fires on `isSectionActive` transitions, not on every render,
-  // so collapsing once is sticky until a different sub-route is entered.
-  useEffect(() => {
-    if (isSectionActive) setOpen(true)
-  }, [isSectionActive])
-
-  const handleTriggerClick = useCallback(() => {
-    // Three-state click: (1) collapsed + section not yet active → navigate to
-    // default sub-item AND expand; (2) collapsed + already on a sub-route →
-    // expand without navigating; (3) expanded → collapse without navigating.
-    if (!open && !isSectionActive && item.defaultSubItemHref) {
-      void navigate(item.defaultSubItemHref)
-    }
-    setOpen((current) => !current)
-  }, [isSectionActive, item.defaultSubItemHref, navigate, open])
-
   return (
     <>
       <SidebarMenuItem>
-        {/*
-          Parent rows intentionally render as a NEUTRAL container — no
-          aria-current, no isActive, no `text-text-primary` override. The
-          accent-tint highlight belongs to the *selected* sub-item only, so
-          the sidebar reads like Linear / Notion / GitHub: "you are inside
-          Settings → Rules" with the visual weight on Rules. Hover still
-          reveals the standard neutral hover token via SidebarMenuButton's
-          base cva.
-        */}
-        <SidebarMenuButton
-          type="button"
-          aria-expanded={open}
-          aria-label={open ? t`Collapse ${item.label}` : t`Expand ${item.label}`}
-          onClick={handleTriggerClick}
-        >
-          <Icon aria-hidden />
-          <span>{item.label}</span>
-          <ChevronRightIcon
-            aria-hidden
-            className={cn(
-              'ml-auto size-3.5 text-text-tertiary transition-transform',
-              open && 'rotate-90',
-            )}
-          />
-        </SidebarMenuButton>
+        <div className="flex h-8 w-full items-center gap-2.5 rounded-md px-3 text-base font-medium text-text-secondary">
+          <Icon aria-hidden className="size-4 shrink-0 text-text-tertiary" />
+          <span className="flex-1 truncate">{item.label}</span>
+          <ChevronDownIcon aria-hidden className="size-3.5 shrink-0 text-text-tertiary" />
+        </div>
       </SidebarMenuItem>
-      {open
-        ? item.subItems?.map((subItem) => (
-            <SidebarSubMenuItem key={subItem.href ?? subItem.label} item={subItem} />
-          ))
-        : null}
+      {item.subItems?.map((subItem) => (
+        <SidebarSubMenuItem key={subItem.href ?? subItem.label} item={subItem} />
+      ))}
     </>
   )
 }
@@ -491,7 +458,7 @@ function SidebarSubMenuItem({ item }: { item: NavSubItem }) {
           to={item.href}
           end={item.end ?? false}
           className={cn(
-            'group/sub-menu ml-5 flex h-7 w-[calc(100%-1.25rem)] items-center gap-2.5 rounded-md pl-[18px] text-base text-text-secondary outline-none transition-colors',
+            'group/sub-menu ml-5 flex h-7 w-[calc(100%-1.25rem)] items-center gap-2.5 rounded-md pr-3 pl-[18px] text-base text-text-secondary outline-none transition-colors',
             'hover:bg-background-default-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
             'aria-[current=page]:bg-accent-tint aria-[current=page]:font-semibold aria-[current=page]:text-text-primary',
           )}
@@ -500,12 +467,21 @@ function SidebarSubMenuItem({ item }: { item: NavSubItem }) {
             aria-hidden
             className="size-1 shrink-0 rounded-full bg-text-tertiary group-aria-[current=page]/sub-menu:bg-text-accent"
           />
-          <span className="truncate">{item.label}</span>
+          <span className="flex-1 truncate">{item.label}</span>
+          {item.tag ? (
+            <span className="font-mono text-xs tabular-nums text-text-muted">{item.tag}</span>
+          ) : null}
         </NavLink>
       ) : (
-        <span className="ml-5 flex h-7 w-[calc(100%-1.25rem)] items-center gap-2.5 rounded-md pl-[18px] text-base text-text-secondary">
+        <span
+          aria-disabled="true"
+          className="ml-5 flex h-7 w-[calc(100%-1.25rem)] items-center gap-2.5 rounded-md pr-3 pl-[18px] text-base text-text-secondary opacity-55"
+        >
           <span aria-hidden className="size-1 shrink-0 rounded-full bg-text-tertiary" />
-          <span className="truncate">{item.label}</span>
+          <span className="flex-1 truncate">{item.label}</span>
+          {item.tag ? (
+            <span className="font-mono text-xs tabular-nums text-text-muted">{item.tag}</span>
+          ) : null}
         </span>
       )}
     </SidebarMenuItem>

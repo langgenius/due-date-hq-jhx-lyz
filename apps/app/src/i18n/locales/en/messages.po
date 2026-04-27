@@ -201,10 +201,6 @@ msgstr "Back"
 msgid "Basic"
 msgstr "Basic"
 
-#: src/routes/settings.tsx
-msgid "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
-msgstr "Basic controls are in place so form-heavy pages can be composed from the existing UI set."
-
 #: src/routes/dashboard.tsx
 msgid "Blocked"
 msgstr "Blocked"
@@ -227,10 +223,6 @@ msgstr "Candidate"
 #: src/routes/workboard.tsx
 msgid "Change status for {0}"
 msgstr "Change status for {0}"
-
-#: src/routes/settings.tsx
-msgid "Channels"
-msgstr "Channels"
 
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -256,11 +248,6 @@ msgstr "Close wizard"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Code"
 msgstr "Code"
-
-#. placeholder {0}: item.label
-#: src/components/patterns/app-shell.tsx
-msgid "Collapse {0}"
-msgstr "Collapse {0}"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
@@ -348,10 +335,6 @@ msgstr "critical"
 msgid "Currently available shortcuts and reserved keyboard slots."
 msgstr "Currently available shortcuts and reserved keyboard slots."
 
-#: src/routes/settings.tsx
-msgid "Daily deadline and Pulse summary for owners."
-msgstr "Daily deadline and Pulse summary for owners."
-
 #: src/components/patterns/app-shell.tsx
 msgid "Dark"
 msgstr "Dark"
@@ -365,14 +348,6 @@ msgstr "Dashboard"
 #: src/routes/dashboard.tsx
 msgid "Deadline"
 msgstr "Deadline"
-
-#: src/routes/settings.tsx
-msgid "Default jurisdiction"
-msgstr "Default jurisdiction"
-
-#: src/routes/settings.tsx
-msgid "Deferred until the product has a real-time notification need."
-msgstr "Deferred until the product has a real-time notification need."
 
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
@@ -439,14 +414,6 @@ msgstr "Edit"
 msgid "Eight rows are visible on first load for dense scanning."
 msgstr "Eight rows are visible on first load for dense scanning."
 
-#: src/routes/settings.tsx
-msgid "Email digest"
-msgstr "Email digest"
-
-#: src/routes/settings.tsx
-msgid "Enable evidence gate"
-msgstr "Enable evidence gate"
-
 #: src/routes/login.tsx
 msgid "Encrypted · 7-day session · SSO respected"
 msgstr "Encrypted · 7-day session · SSO respected"
@@ -475,10 +442,6 @@ msgstr "Evidence checks"
 msgid "Evidence drawer is coming soon"
 msgstr "Evidence drawer is coming soon"
 
-#: src/routes/settings.tsx
-msgid "Evidence gate"
-msgstr "Evidence gate"
-
 #: src/routes/dashboard.tsx
 msgid "Evidence mode"
 msgstr "Evidence mode"
@@ -486,11 +449,6 @@ msgstr "Evidence mode"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Exception"
 msgstr "Exception"
-
-#. placeholder {0}: item.label
-#: src/components/patterns/app-shell.tsx
-msgid "Expand {0}"
-msgstr "Expand {0}"
 
 #: src/routes/dashboard.tsx
 msgid "Exposure"
@@ -523,11 +481,6 @@ msgstr "Filing-frequency review"
 msgid "Filter by status, search clients, and sort by due date."
 msgstr "Filter by status, search clients, and sort by due date."
 
-#: src/routes/_layout.tsx
-#: src/routes/settings.tsx
-msgid "Firm settings"
-msgstr "Firm settings"
-
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -551,10 +504,6 @@ msgstr "Glass-box threshold is active"
 msgid "Healthy"
 msgstr "Healthy"
 
-#: src/routes/settings.tsx
-msgid "Hide recommendations that do not include source metadata."
-msgstr "Hide recommendations that do not include source metadata."
-
 #: src/routes/dashboard.tsx
 msgid "high"
 msgstr "high"
@@ -562,10 +511,6 @@ msgstr "high"
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
 msgstr "I'm coming from… (optional)"
-
-#: src/routes/settings.tsx
-msgid "Immediate feedback for status changes and failed mutations."
-msgstr "Immediate feedback for status changes and failed mutations."
 
 #: src/features/migration/WizardShell.tsx
 msgid "Import"
@@ -591,10 +536,6 @@ msgstr "In progress"
 #: src/routes/workboard.tsx
 msgid "In review"
 msgstr "In review"
-
-#: src/routes/settings.tsx
-msgid "In-app toast"
-msgstr "In-app toast"
 
 #: src/features/rules/rules-console.tsx
 msgid "Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded."
@@ -706,10 +647,6 @@ msgstr "Migration"
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 
-#: src/routes/settings.tsx
-msgid "Multi-state"
-msgstr "Multi-state"
-
 #: src/routes/onboarding.tsx
 msgid "My Practice"
 msgstr "My Practice"
@@ -779,10 +716,6 @@ msgstr "Normalizer warning"
 #: src/routes/workboard.tsx
 msgid "Not applicable"
 msgstr "Not applicable"
-
-#: src/routes/settings.tsx
-msgid "Notification routing"
-msgstr "Notification routing"
 
 #: src/components/patterns/app-shell.tsx
 msgid "Notifications"
@@ -898,10 +831,6 @@ msgstr "penalty-weighted"
 msgid "Pending"
 msgstr "Pending"
 
-#: src/routes/settings.tsx
-msgid "Phase 0 uses email plus in-app toast instead of Web Push."
-msgstr "Phase 0 uses email plus in-app toast instead of Web Push."
-
 #: src/routes/onboarding.tsx
 msgid "Please enter at least 2 characters."
 msgstr "Please enter at least 2 characters."
@@ -915,13 +844,8 @@ msgid "Please try again."
 msgstr "Please try again."
 
 #: src/routes/onboarding.tsx
-#: src/routes/settings.tsx
 msgid "Practice name"
 msgstr "Practice name"
-
-#: src/routes/settings.tsx
-msgid "Practice profile"
-msgstr "Practice profile"
 
 #: src/routes/onboarding.tsx
 msgid "PRACTICE PROFILE"
@@ -1126,7 +1050,6 @@ msgstr "Setting up your practice…"
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
-#: src/routes/settings.tsx
 msgid "Settings"
 msgstr "Settings"
 
@@ -1287,10 +1210,6 @@ msgstr "The request was invalid. Please review your input and try again."
 msgid "Theme"
 msgstr "Theme"
 
-#: src/routes/settings.tsx
-msgid "These demo fields are local-only until auth and organization data land."
-msgstr "These demo fields are local-only until auth and organization data land."
-
 #: src/lib/i18n-error.ts
 msgid "This action conflicts with the current state. Refresh and try again."
 msgstr "This action conflicts with the current state. Refresh and try again."
@@ -1384,14 +1303,6 @@ msgstr "We pre-filled a name from your Google profile. You can change it now or 
 #: src/features/migration/Step1Intake.tsx
 msgid "We'll figure out the shape — paste or upload, your call."
 msgstr "We'll figure out the shape — paste or upload, your call."
-
-#: src/routes/settings.tsx
-msgid "Web Push"
-msgstr "Web Push"
-
-#: src/routes/settings.tsx
-msgid "Web Push disabled"
-msgstr "Web Push disabled"
 
 #: src/routes/login.tsx
 msgid "Welcome back to the workbench."
