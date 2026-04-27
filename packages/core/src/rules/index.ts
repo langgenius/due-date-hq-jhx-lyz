@@ -736,38 +736,73 @@ export const RULE_SOURCES = [
   },
 ] as const satisfies readonly RuleSource[]
 
+// `sourceExcerpt` is a representative content snippet from each official
+// page — paraphrased or near-verbatim, not always a literal quote. Authored
+// by hand based on a live read of each URL on `VERIFIED_AT` (see
+// `docs/dev-log/2026-04-27-rules-data-audit.md`). Pages whose body is dynamic
+// (news indexes, subscription / disaster watch channels) carry the page-level
+// summary because there is no stable paragraph to quote.
 const SOURCE_EXCERPTS: Record<string, string> = {
-  'fed.irs_pub_509_2026': 'If any due date falls on a Saturday, Sunday, or legal holiday',
-  'fed.irs_i7004_2025': 'Form 7004 does not extend the time for payment of tax',
-  'fed.irs_i1065_2025': 'File Form 1065 by the 15th day of the 3rd month',
-  'fed.irs_i1120s_2025': 'File Form 1120-S by the 15th day of the 3rd month',
-  'fed.irs_i1120_2025': '15th day of the 4th month after the end of its tax year',
-  'fed.irs_disaster_relief': 'Tax relief in disaster situations',
-  'fed.fema_disaster_declarations': 'Disaster Declarations Summaries',
-  'ca.ftb_business_due_dates': 'Business due dates',
-  'ca.ftb_llc': 'Limited liability company',
-  'ca.ftb_568_booklet_2025': '2025 Limited Liability Company Tax Booklet',
-  'ca.ftb_emergency_tax_relief': 'Emergency tax relief',
-  'ca.ftb_tax_news': 'Tax News',
-  'ny.tax_calendar.2026': '2026 tax filing dates',
-  'ny.ptet': 'Pass-through entity tax',
-  'ny.it204ll': 'Partnership, LLC, and LLP annual filing fee',
-  'ny.partnerships': 'Partnerships',
-  'ny.email_services': 'Email services',
-  'ny.article_9a': 'Article 9-A franchise tax',
-  'tx.franchise_overview': 'Franchise tax report forms should be mailed to the Comptroller',
-  'tx.franchise_home': 'Franchise Tax',
-  'tx.franchise_annual_report': 'Annual Report Instructions',
-  'tx.franchise_extensions': 'Franchise Tax Extensions',
-  'tx.franchise_forms_2026': '2026 Franchise Tax Report Information and Instructions',
-  'tx.pir_oir': 'PIR and OIR filing requirements',
-  'fl.cit': 'Corporate Income Tax',
-  'fl.cit_due_dates_2026': 'Corporate Income Tax Due Dates',
-  'fl.tips': 'Tax Information Publications',
-  'wa.excise_due_dates_2026': '2026 excise tax return due dates',
-  'wa.bo': 'Business and occupation tax',
-  'wa.news': 'News releases',
-  'wa.capital_gains_exception_2026': 'Capital gains excise tax returns due date moved',
+  'fed.irs_pub_509_2026':
+    'If any due date falls on a Saturday, Sunday, or legal holiday, the return is timely if filed the next business day.',
+  'fed.irs_i7004_2025':
+    'Form 7004 does not extend the time for payment of tax. An extension to file is not an extension to pay.',
+  'fed.irs_i1065_2025':
+    'Generally, a domestic partnership must file Form 1065 by the 15th day of the 3rd month following the date its tax year ended.',
+  'fed.irs_i1120s_2025':
+    'A corporation must file Form 1120-S by the 15th day of the 3rd month following the close of its tax year.',
+  'fed.irs_i1120_2025':
+    'A corporation must file Form 1120 by the 15th day of the 4th month after the end of its tax year.',
+  'fed.irs_disaster_relief':
+    'IRS publishes notice-specific tax relief by date, listing affected localities and postponed acts.',
+  'fed.fema_disaster_declarations':
+    'OpenFEMA disaster declarations dataset; early-warning signal for IRS / state relief follow-up.',
+  'ca.ftb_business_due_dates':
+    'If the due date falls on a weekend or holiday, you have until the next business day to file and pay.',
+  'ca.ftb_llc':
+    'FTB LLC overview page: classification, annual tax, LLC fee, Form 568 filing requirements.',
+  'ca.ftb_568_booklet_2025':
+    'Form 568 instructions distinguish partnership-classified LLCs from SMLLCs for original return due dates.',
+  'ca.ftb_emergency_tax_relief':
+    'FTB emergency tax relief page lists postponed deadlines for declared disasters; eligibility is per-event.',
+  'ca.ftb_tax_news':
+    'FTB Tax News index; new entries trigger candidate review before any rule change.',
+  'ny.tax_calendar.2026':
+    'If the due date of the return falls on a Saturday, Sunday, or legal holiday, it is due on the next business day.',
+  'ny.ptet':
+    'PTET is an optional annual entity-level election; eligible entities must opt in by the annual election deadline.',
+  'ny.it204ll':
+    'There is no extension of time to file Form IT-204-LL or to pay the annual filing fee.',
+  'ny.partnerships':
+    'NY partnership filing guidance; partnership return due dates follow the partnership tax year close.',
+  'ny.email_services': 'NY Tax Department email subscription channel; not a primary basis source.',
+  'ny.article_9a':
+    'Article 9-A franchise tax on general business corporations; calendar-year due date is April 15.',
+  'tx.franchise_overview':
+    'Franchise tax reports are due on May 15 each year. If May 15 falls on a Saturday, Sunday or legal holiday, the next business day becomes the due date.',
+  'tx.franchise_home':
+    'Texas Franchise Tax landing page; canonical entry for forms, due dates, and No Tax Due reporting.',
+  'tx.franchise_annual_report':
+    'Annual Report Instructions; PIR and OIR distinguished by entity type.',
+  'tx.franchise_extensions':
+    'Comptroller will tentatively grant an extension upon timely receipt of the appropriate form by the original report due date.',
+  'tx.franchise_forms_2026':
+    '2026 Franchise Tax Report forms; report-year forms define No Tax Due availability and reporting changes.',
+  'tx.pir_oir':
+    'PIR is filed by corporations and LLCs; OIR is filed by other entity types. Both follow the franchise tax report due date.',
+  'fl.cit':
+    'Florida corporate income/franchise tax is imposed on all corporations for the privilege of conducting business in Florida.',
+  'fl.cit_due_dates_2026':
+    'Florida DOR publishes a taxable-year-end due-date table for corporate income tax returns and estimated payments.',
+  'fl.tips':
+    'Florida Tax Information Publications index; new entries trigger candidate review before any rule change.',
+  'wa.excise_due_dates_2026':
+    '2026 Excise Tax Return Due Dates; manual review required (DOR blocks machine fetches).',
+  'wa.bo': 'B&O tax applicability depends on business activity and assigned filing frequency.',
+  'wa.news':
+    'WA DOR news releases index; new entries trigger candidate review before any rule change.',
+  'wa.capital_gains_exception_2026':
+    'Tax Year 2025 Capital Gains tax returns and payments are due May 1, 2026. A filing extension does not extend the due date for paying the capital gains tax.',
 }
 
 function locatorKindForSource(source: RuleSource | undefined): RuleEvidenceLocator['kind'] {
@@ -1116,7 +1151,7 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'California LLC extension timing differs by classification; review entity facts.',
     },
-    sourceIds: ['ca.ftb_business_due_dates', 'ca.ftb_568_booklet_2025'],
+    sourceIds: ['ca.ftb_business_due_dates', 'ca.ftb_568_booklet_2025', 'ca.ftb_llc'],
     evidence: [
       sourceEvidence(
         'ca.ftb_568_booklet_2025',
@@ -1127,6 +1162,12 @@ export const OBLIGATION_RULES = [
         'ca.ftb_568_booklet_2025',
         'Weekend or holiday note',
         'FTB rolls weekend or holiday due dates to the next business day.',
+      ),
+      sourceEvidence(
+        'ca.ftb_llc',
+        'LLC overview',
+        'FTB LLC overview cross-checks Form 568 filing path against LLC classification and ownership type.',
+        { authorityRole: 'cross_check' },
       ),
     ],
     defaultTip:
@@ -1165,12 +1206,18 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'Payment obligation is not extended by filing extension.',
     },
-    sourceIds: ['ca.ftb_business_due_dates', 'ca.ftb_568_booklet_2025'],
+    sourceIds: ['ca.ftb_business_due_dates', 'ca.ftb_568_booklet_2025', 'ca.ftb_llc'],
     evidence: [
       sourceEvidence(
         'ca.ftb_568_booklet_2025',
         'Annual Limited Liability Company Tax',
         'The annual tax is due on or before the 15th day of the 4th month after the beginning of the taxable year.',
+      ),
+      sourceEvidence(
+        'ca.ftb_llc',
+        'Annual tax',
+        'FTB LLC overview confirms the $800 annual tax via Form 3522 due 15th day of the 4th month after tax year begin.',
+        { authorityRole: 'cross_check' },
       ),
     ],
     defaultTip: 'Separate the LLC annual tax payment from the Form 568 filing deadline.',
@@ -1208,12 +1255,18 @@ export const OBLIGATION_RULES = [
       paymentExtended: false,
       notes: 'Fee amount depends on California-source total income.',
     },
-    sourceIds: ['ca.ftb_business_due_dates', 'ca.ftb_568_booklet_2025'],
+    sourceIds: ['ca.ftb_business_due_dates', 'ca.ftb_568_booklet_2025', 'ca.ftb_llc'],
     evidence: [
       sourceEvidence(
         'ca.ftb_568_booklet_2025',
         'LLC fee',
         'FTB requires estimating and paying the LLC fee by the 15th day of the 6th month of the current taxable year.',
+      ),
+      sourceEvidence(
+        'ca.ftb_llc',
+        'LLC fee chart',
+        'FTB LLC overview links to the LLC fee chart, which tiers the fee by California-source total income.',
+        { authorityRole: 'cross_check' },
       ),
     ],
     defaultTip: 'Mark for review when California-source total income is unknown.',
