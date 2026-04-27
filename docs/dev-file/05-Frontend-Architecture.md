@@ -41,7 +41,7 @@ apps/app/
 │   │   └── evidence/
 │   ├── components/
 │   │   ├── primitives/       ← 自建（TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown）
-│   │   └── patterns/         ← 跨 feature 的复合组件（evidence-drawer / cmdk / confirm-dialog）
+│   │   └── patterns/         ← 跨 feature 的复合组件（app-shell / evidence-drawer / cmdk / confirm-dialog）
 │   ├── lib/
 │   │   ├── rpc.ts            ← oRPC client + TanStack Query utils
 │   │   ├── auth.ts           ← better-auth client（`createAuthClient`）
@@ -317,11 +317,59 @@ Theme runtime 同样由 `packages/ui` 持有：
 | -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
 | `@duedatehq/ui/components/ui/*`        | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务、路由、session、oRPC                                             |
 | `apps/app/src/components/primitives/*` | 手写        | DueDateHQ 专有组件：TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown |
-| `apps/app/src/components/patterns/*`   | 手写        | 跨 feature 复用：evidence-drawer / cmdk / confirm-dialog                                                             |
+| `apps/app/src/components/patterns/*`   | 手写        | 跨 feature 复用：app-shell / evidence-drawer / cmdk / confirm-dialog                                                 |
 | `apps/app/src/features/<slice>/*`      | 手写        | 特性内部：migration-wizard / pulse-banner / workboard-table                                                          |
 | `apps/app/src/routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                                       |
 
 **依赖方向**：`routes → features → patterns → primitives → @duedatehq/ui → @duedatehq/ui/lib`。下层**不得**依赖上层。`packages/ui` 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属业务组件。
+
+### 5.4 AppShell（layout 级 sidebar + content shell）
+
+[`apps/app/src/components/patterns/app-shell.tsx`](../../apps/app/src/components/patterns/app-shell.tsx) 是所有 protected layout 共享的「侧栏 + 顶栏 + content inset」骨架。它消费 `@duedatehq/ui` 的**自建 sidebar primitives**（**不是 shadcn `Sidebar` 注册组件**），把 navigation items / user / firm / themePreference 等业务数据作为 props 传入；shell 本身不引入路由数据获取与 session 订阅。
+
+**为什么不用 shadcn Sidebar**
+
+shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `icon` / `none`）+ `SidebarRail` + cookie 持久化 + `Cmd+B` 全局快捷键 + `floating` / `inset` chrome variant；这些**全部不在我们用例里**：DESIGN §5.4「侧栏不折叠」、`⌘K` + `⌘⇧O` 已占用键盘 vocabulary、§6「borders before shadows」反对 floating/inset。**自建 ~200 行 vs 引入 730 行未用 API**。详见 `docs/dev-log/2026-04-27-app-shell-sidebar.md` 的决策矩阵。
+
+**自建的 sidebar primitives（在 `@duedatehq/ui/components/ui/sidebar`）**
+
+| primitive                                                    | 角色               | 关键行为                                                                                                                          |
+| ------------------------------------------------------------ | ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `Sidebar`                                                    | `<aside>` root     | 220px 固定宽，`<md` 自动切换到 `Sheet` drawer                                                                                     |
+| `SidebarHeader` / `SidebarContent` / `SidebarFooter`         | 三段式槽           | 纯 `<div data-slot="sidebar-{header,content,footer}">`                                                                            |
+| `SidebarGroup` / `SidebarGroupLabel` / `SidebarGroupContent` | 组                 | label 自带 11/16 mono uppercase 8% letter-spacing                                                                                 |
+| `SidebarMenu` / `SidebarMenuItem`                            | `<ul>` / `<li>`    | 语义保留                                                                                                                          |
+| `SidebarMenuButton`                                          | 行内可点击         | `cva({ variant, isActive })` + `data-active` + 接受 `render` prop（让 react-router 的 `<NavLink>` 通过 base-ui `useRender` 注入） |
+| `SidebarMenuBadge`                                           | mono 计数胶囊      | Numeric/Small + tabular-nums                                                                                                      |
+| `SidebarTrigger`                                             | mobile-only toggle | `md:hidden`，调用 `useSidebar()` `setOpen(o => !o)`                                                                               |
+| `SidebarProvider` + `useSidebar()`                           | mobile sheet 状态  | 仅在 `<md` 时有意义；desktop 永远 expanded，`isOpen` 在 desktop 路径上是 noop                                                     |
+| `useIsMobile()` hook (`@duedatehq/ui/hooks/use-mobile`)      | 768px 断点匹配     | `matchMedia` + cleanup；server-safe 默认 `false`                                                                                  |
+
+**纪律**
+
+- **EntryShell（`/login` / `/onboarding`）不挂 AppShell** —— entry surface 是单列、无导航的过渡页
+- **每一个 protected layout（当前的 RootLayout，未来的 Owner-only Audit Console / Workload Console 等）通过 `<AppShell>` 拼装**，不要在 layout 文件里直接拷贝 `SidebarProvider + Sidebar + SidebarInset` 三件套
+- **Sidebar 不暴露 `collapsible` prop**：desktop 永远 220px，`<md` 自动 Sheet 折叠；这是产品决定不是配置项
+- **selected nav 视觉是 bg-only**（`bg-state-base-hover-alt` + `text-text-primary` + Inter Semi Bold）—— 严禁 accent border 或 accent-tint 出现在 selected 态，否则与 DESIGN §1.2「颜色只为风险服务」冲突。`SidebarMenuButton` 的 cva variants 里**根本不提供** `accent` 变体，把约束写进类型
+- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, status?: 'p1' | 'beta' }`。Owner / Manager 专属入口（Workload View / Audit Log）走同一个 hook + 角色 gate，**不**拆 AppShell 的两个版本
+- **Firm switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上
+- **顶栏右侧仅承载 AppShell-owned utility**（`⌘K` kbd hint + 通知 bell），路由动作放在 body 内或 body 顶部 toolbar，**不**塞到 shell header 右侧
+
+**vercel-react-best-practices 红线（自建时一定要踩稳）**
+
+- `rerender-no-inline-components` — `SidebarMenuButton` / `SidebarHeader` / 等所有 sidebar primitive 都是模块级组件；**严禁**在 `AppShell` render 里 inline 定义子组件
+- `rerender-derived-state-no-effect` — active nav state **完全派生自 URL**（react-router `<NavLink>` 内部派生），不存 React state、不开 `useEffect` 同步
+- `rerender-functional-setstate` — mobile sheet open 状态用 `setOpen(o => !o)` 而非 `setOpen(!isOpen)`，`toggleSidebar` 才能用 `useCallback([setOpen])` 稳定引用
+- `rerender-memo-with-default-value` — `navItems` 数组在 `useNavItems` 内 `useMemo` + 深 i18n 依赖（`t` 的 lingui locale）；不在 render 里 inline 数组字面量
+- `rerender-dependencies` — `useEffect` 依赖只用 primitive（`isMobile` 是布尔，安全）；不要把 `setOpen` 之外的非 stable function 作为 effect dep
+- `bundle-analyzable-paths` — `@duedatehq/ui/components/ui/sidebar` 直接导出每个 named primitive；app 端用 `import { Sidebar, SidebarHeader, … } from '@duedatehq/ui/components/ui/sidebar'`，不走 barrel
+- `client-event-listeners` — `useIsMobile` 的 `matchMedia` 监听在 `useEffect` cleanup 里 `removeEventListener`，且**整个 app 只挂一个**（hook 单例化，多次调用复用同一个 listener 不可行——但每个组件实例独立监听是可接受的成本）
+- `advanced-init-once` — `SidebarProvider` context value 走 `useMemo`，`toggleSidebar` 走 `useCallback`，避免每次 render 把新引用塞进 context 触发整个子树重渲染
+
+**依赖方向澄清**
+
+- `@duedatehq/ui/components/ui/sidebar` 不依赖 react-router、Lingui、Better Auth；它只输出 unstyled-but-tokenised 槽位组件 + `SidebarProvider` / `useSidebar()` context + `SidebarMenuButton` 的 `render` prop
+- `apps/app/src/components/patterns/app-shell.tsx` 把 `react-router` 的 `<NavLink>` 通过 base-ui `useRender` 注入 `SidebarMenuButton` 的 `render` prop —— ui 包里**永远没有**对路由库的 import
 
 ---
 

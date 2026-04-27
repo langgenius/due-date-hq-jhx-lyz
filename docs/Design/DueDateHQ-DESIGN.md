@@ -432,13 +432,57 @@
 
 **禁止**：圆形按钮、pill 按钮（radius > 8px）、带渐变的按钮。
 
-### 4.9 Sidebar Navigation
+### 4.9 Sidebar Navigation（AppShell sidebar）
 
-- 宽度：220px，`bg: var(--bg-panel)`
-- 每项：36px 高，13px Inter 500，左 padding 16px
-- Selected：2px 左边框 `--accent-default` + `background: var(--accent-tint)` + `text: primary`
-- Icon：16x16 lucide，`color: text-secondary`（unselected）→ `text-primary`（selected）
-- 底部固定用户行：40px，avatar + 名字 + firm
+> **权威实现**：`@duedatehq/ui/components/ui/sidebar` 是项目自建的 thin primitives（**不是 shadcn `Sidebar` 注册组件**）。app 端在 [`apps/app/src/components/patterns/app-shell.tsx`](../../apps/app/src/components/patterns/app-shell.tsx) 复用，所有 protected layout 共享同一个 `<AppShell>`，entry shell（`/login` / `/onboarding`）不挂侧栏。
+
+#### 为什么不是 shadcn
+
+shadcn `Sidebar`（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `icon` / `none`）+ `SidebarRail` + cookie 持久化 + `Cmd+B` 全局快捷键 + `floating` / `inset` chrome variant。我们所有这些**都不用**：
+
+- **§5.4「侧栏不折叠」是硬约束**——desktop 不会出现 `data-state="collapsed"`，rail 拖拽与 icon-only 模式没有业务对位
+- 我们的全局快捷键是 `⌘K`（command palette）+ `⌘⇧O`（firm switcher）；`Cmd+B` 不在词汇表
+- `floating` / `inset` variant 与 §6「borders before shadows · no decorative depth」相反
+
+引入 700+ 行未用 API + `bg-sidebar-*` 一整套 token alias 只会让后面看代码的人多踩坑。所以走 thin primitives：仅 `Sidebar` / `SidebarHeader` / `SidebarContent` / `SidebarFooter` / `SidebarGroup` / `SidebarGroupLabel` / `SidebarMenu` / `SidebarMenuItem` / `SidebarMenuButton` / `SidebarMenuBadge` / `SidebarTrigger` 共 11 个语义槽 + `useIsMobile()` hook，复用现有 `@duedatehq/ui/components/ui/sheet` 做 mobile drawer。
+
+#### 视觉规格（200px 宽度版本，与 components.sidebar 220px token 收敛后保留 220px）
+
+- **总宽**：220px，CSS 变量 `--sidebar-width: 13.75rem`
+- **背景**：`bg: var(--bg-panel)`，右侧 1px 发丝线分隔（`border-right: 1px solid --border-default`），无阴影、无 rail
+- **Brand tile（firm avatar）**：24×24 圆角 sm，**fill: `colors.primary` (navy `#0A2540`)，white 12px Inter Semi Bold 字母 monogram**——和 `brand-mark-primary` token 统一，不用 accent indigo
+- **每个 nav item**：32px 高（dense workbench；compact 模式可降到 28px），13px Inter 500，左 padding 12px、右 padding 8px、`gap-2`、圆角 md (6px)
+- **Idle**：`text: text-secondary`，icon `text-text-tertiary`
+- **Hover**：`bg: background-default-hover`（`#F9FAFB`，**真中性灰**）+ `text: text-primary`
+- **Selected（最终版）**：**`bg: accent-tint`（DESIGN.md 自家 token——`#F1F1FD` light · 14% indigo dark）+ `text: text-primary` + 字重 `Inter Semi Bold`**。**没有 2px 左 accent border**（视觉噪音）、**没有 accent-text label**（饱和度溢出）。只在背景留一道 calm 的淡紫 wash 用作 wayfinding 信号
+- **设计取舍说明**：`accent-tint` token 在 DESIGN front-matter 里就是为 selected 态准备的（与 confidence-badge-high / stepper-current 等共用）。早期 spec 的 "2px accent border + accent-tint + accent-text" 三件套太响；落地中尝试过的 "纯中性 background-subtle" 在 `#FAFAFA` 的 panel 背景上只有 1-2% 亮度差，视觉上几乎不可见。**`accent-tint` 单层 wash 是这两端之间的正解**——既给 selected 一个清晰可识的视觉锚，又不召唤饱和 indigo（saturated `accent-default` 仍专属 CTA / focus / 风险）。**Hover 不用 accent-tint**，保持中性 `bg-background-default-hover` 让 hover 与 selected 分得开
+- **Group label**：11px 8% letter-spacing 大写，`text: text-tertiary`，左 padding 12px、上下各 4px
+- **Group spacing**：组之间 16px gap，组内 item 之间 2px gap，**不**加 hairline 分组（保持 calm）
+- **Mono badge**（`12` / `34` 这类 pending 计数）：18h 圆角 sm 小药丸，`bg: surface-subtle / surface-canvas`（selected 时用 surface-canvas 反差出来），`border: 1px border-default`，Numeric/Small mono `text: text-muted`
+
+#### 三段式结构（顶到底）
+
+| Slot                                   | 高              | 内容                                                                                                                                                                                                           |
+| -------------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **PendingBar**（route-owned）          | 2               | idle 几乎不可见；导航中 accent-default 段从左滑出                                                                                                                                                              |
+| **FirmSwitcher**（trigger）            | 56              | 24px navy brand tile + Firm name (Body·Medium) + role/seat eyebrow (Numeric/Small) + ChevronsUpDown 堆叠图标                                                                                                   |
+| Hairline `border/default`              | 1               | 与右侧 route header 底边在同一 Y 处 collinear                                                                                                                                                                  |
+| **SidebarContent**（nav body, flex 1） | —               | 三个 group：`MAIN`（Dashboard / Workboard，带 mono badge）`MANAGE`（Settings）`ADMIN · P1`（Clients / Audit log / Team workload，整组 opacity 0.55，每行末尾 `P1` mono tag）                                   |
+| **+ Import clients** ghost CTA         | 32 + 16 padding | 灰底 (`surface-subtle`) + 14×14 plus icon + Inter Medium label + 右侧 `Migration` Numeric/Small 暗示。**不用 accent**——CTA 强调由"位置 + 行动语义"承担，不是颜色。履约 PRD §1213「侧栏底部常驻 + Import 按钮」 |
+| Hairline `border/default`              | 1               |                                                                                                                                                                                                                |
+| **User row**                           | 56              | 28px 头像 + 右下 6px `status-done` 绿点（包 surface-panel 环 = ring 效果） + Body·Medium name + Numeric/Small email + 右端 chevron。点击展开 popover 含 sign-out / theme / locale                              |
+
+#### Mobile（< 768px）
+
+桌面态在 `<md` 断点折叠成右侧 Sheet drawer（沿用 `@duedatehq/ui/components/ui/sheet`）；route header 左端的 `SidebarTrigger` 按钮（`PanelLeftIcon`）唤起。`SidebarTrigger` 在 `md+` 自动隐藏（Tailwind `md:hidden`）。
+
+#### Token 收敛
+
+视觉系统**不引入** shadcn 自带的 `--sidebar-*` 簇，统一走业务语义：`bg-components-panel-bg`（panel 背景）、`bg-background-default-hover`（hover · 真中性 `#F9FAFB`）、**`bg-accent-tint`（selected · DESIGN 自家 wayfinding token，`#F1F1FD`）**、`text-text-{primary,secondary,tertiary,muted}`、`border-divider-regular` / `border-divider-subtle`。**避开 `--state-base-hover-*` 簇**——那是为 button 的 tertiary / hover 准备的，名字里有 "base" 但实测带 indigo wash，把它当中性灰用就把 accent 偷渡进 shell。这些都已经在 `packages/ui/src/styles/preset.css` 暴露为 Tailwind utility，与 Dify-aligned token tree 同源。`components.sidebar`（DESIGN.md front-matter）保留 spec source（width: 220px、`backgroundColor: surface-panel`、`textColor: text-secondary`），本段补充视觉细节与 selected 态 spec。
+
+#### Firm switcher 位置（PRD §3.2.6 偏离）
+
+PRD §3.2.6 原来规定 firm switcher 是「**右上角 dropdown** + `⌘⇧O`」（Slack workspace picker 风格）。本设计把**可见 trigger 移到 sidebar 顶部**（Linear / Notion / Vercel 流派——firm 身份是工作台核心持久信号，应该常在视野内），右上角空间留给 AppShell-owned utility（通知 bell + `⌘K` hint）。`⌘⇧O` 全局快捷键**保留不变**，依然唤起 firm picker popover；只是 popover 现在锚定在 sidebar 顶部 trigger 上而非右上角。这条偏离已在 `docs/dev-log/2026-04-27-app-shell-sidebar.md` 记录，PRD §3.2.6 的同步更新留到下一个 PRD revise 窗口。
 
 ---
 

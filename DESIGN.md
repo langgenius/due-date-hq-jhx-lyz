@@ -439,7 +439,7 @@ motion:
     color: '{colors.accent-default}'
     trailAlpha: 0.1
     bezier: ['start', 'startPlus(0, -200)', 'endPlus(0, -100)', 'end']
-    maxConcurrent: 30
+maxConcurrent: 30
 ---
 
 # DueDateHQ Design System
@@ -489,13 +489,21 @@ Radii are intentionally restrained:
 - 6px (`rounded.md`) for **buttons (shadcn `base-vega` primitive)**, inputs, cards, banners, dropdowns, toasts, and the pulse banner.
 - 12px (`rounded.lg`) for drawers, modals, and the command palette only.
 
-Do not use pill buttons, circular decorative controls, or radius above 12px. **Button radius / height / padding mirror shadcn `base-vega` defaults verbatim** (`rounded-md` 6px · `h-9` 36px · `px-2.5` 10px · `text-sm` 12px / 500) — the tokens in `components.button-{primary,secondary,primary-hover,primary-active}` document the runtime values produced by `pnpm dlx shadcn add`, so importing a fresh shadcn component requires zero manual patching. Non-shadcn business components (risk-row, evidence-chip, hero-metric, command-palette, sidebar, stepper, toast, confidence-badge, pulse-banner, genesis-\*, email-shell) keep DESIGN.md as the authoritative source.
+Do not use pill buttons, circular decorative controls, or radius above 12px. **Button radius / height / padding mirror shadcn `base-vega` defaults verbatim** (`rounded-md` 6px · `h-9` 36px · `px-2.5` 10px · `text-sm` 12px / 500) — the tokens in `components.button-{primary,secondary,primary-hover,primary-active}` document the runtime values produced by `pnpm dlx shadcn add`, so importing a fresh shadcn component requires zero manual patching. Non-shadcn business components (risk-row, evidence-chip, hero-metric, command-palette, sidebar, stepper, toast, confidence-badge, pulse-banner, genesis-, email-shell) keep DESIGN.md as the authoritative source.
 
 ## Components
 
 Use shadcn Base UI `base-vega` primitives as the foundation. Project-specific components belong above them in this order: `routes -> features -> patterns -> primitives -> ui -> lib`.
 
 Primary buttons use indigo and are reserved for the most important action on a surface. Risk rows encode severity with both label and color. Evidence chips are mandatory for AI output, rules, Pulse entries, and cited numeric claims. Command palette, drawer, and toast behavior must remain keyboard-friendly.
+
+The app shell — sidebar + content inset — is **hand-rolled in `@duedatehq/ui`**, not the shadcn `Sidebar` registry component. The reasoning is that shadcn's primitive bundles three collapse modes (`offcanvas` / `icon` / `none`), a `SidebarRail`, cookie-based open state, `Cmd+B` global hotkey, and `floating` / `inset` chrome variants — none of which we use, because DESIGN §5.4 fixes the desktop sidebar at 220 px (no collapse) and our keyboard hotkeys are owned by the command palette (`⌘K`) and firm switcher (`⌘⇧O`). Importing 700+ lines of unused API surface plus the `bg-sidebar-foreground` token sprawl that shadcn assumes would only make later refactors louder. Instead, `apps/app/src/components/patterns/app-shell.tsx` composes thin semantic primitives from `@duedatehq/ui/components/ui/sidebar` (`Sidebar`, `SidebarHeader`, `SidebarContent`, `SidebarFooter`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuBadge`, `SidebarTrigger`) plus a `useIsMobile()` hook and the existing `@duedatehq/ui/components/ui/sheet` for the mobile drawer.
+
+The shell is selectively chromed: the sidebar carries the firm switcher (Slack-style at the top — see deviation note below) plus a navy `brand-mark-primary` tile, three nav groups, a single `+ Import clients` ghost CTA above the user row, and a status dot folded into the user avatar. The route header carries a route-owned eyebrow + title on the left and AppShell-owned utility on the right (a `⌘K` keyboard hint and the global notifications bell — _not_ a per-route action cluster). The body is intentionally austere: a single Numeric/Small ownership tag in the top-left and the rest of the surface reserved for the route's `<Outlet />`.
+
+Selected-nav visual is **bg-only, calm-lavender accent**: `bg-accent-tint` (the dedicated DESIGN.md `accent-tint` token — `#F1F1FD` light, 14 % indigo dark) + `text-primary` + Inter Semi Bold weight bump. **No** 2 px accent border (visual noise) and **no** `accent-text` label color (saturation creep). Hover stays neutral with `bg-background-default-hover` so hover ≠ selected; the lavender-tinted bg is reserved exclusively for the active route. This compromise honors DESIGN §1.2 ("color only serves risk") in spirit — the only way to read it stricter is to claim that wayfinding signals must be colorless, which would force pure-neutral `#F8FAFC` selected on `#FAFAFA` panel = a 1–2 % lightness diff that's visually invisible at every plausible viewport. The `accent-tint` token exists precisely to give selected state a calm-but-visible identity without summoning the saturated `accent-default` indigo (which stays reserved for CTAs, focus rings, and risk callouts). The `brand-mark-primary` token (navy, `colors.primary`) is the canonical fill for the firm avatar tile.
+
+Firm switcher placement deviates from PRD §3.2.6 (which originally specified a top-right dropdown with `⌘⇧O`). The visible trigger lives at the top of the sidebar (Linear / Notion / Vercel pattern) so the firm identity is always-visible on a workbench surface rather than crammed alongside utility chrome. The `⌘⇧O` global hotkey is preserved and continues to open the firm picker popover; the visible top-right cluster is now reserved for the AppShell-owned notifications bell and the `⌘K` command-palette hint. See `docs/Design/DueDateHQ-DESIGN.md` §4.9 for the full sidebar spec, the `app-shell.tsx` pattern card, and the deviation rationale.
 
 No provenance means no render. If an AI output lacks `source_url`, `verified_at`, and `verbatim_quote`, show a verification-needed state instead of a recommendation.
 
@@ -515,7 +523,7 @@ front-matter 9 个顶层段：`colors / colorsDark / typography / rounded / shad
 
 ### 校验
 
-运行 `pnpm design:lint` 跑 [`@google/design.md`](https://github.com/google-labs-code/design.md) 官方 linter（broken-ref 错误、WCAG 4.5:1 对比度、orphaned-tokens、section-order 等 7 条规则）。`vite.config.ts` 的 `staged.DESIGN.md` 钩子在 commit 时自动跑（`npx --yes @google/design.md lint <path>`）。任何 PR 必须保持 **0 errors / 0 warnings**（当前基线即如此 + 1 info summary）。如果新增的 component 触发 contrast 警告，把它从 `components:` 段挪到 `componentExtensions:` 段并附 `note:` 解释豁免理由（见 `toast-success` / `stepper-completed` / `status-pill-waiting` 的写法）。
+运行 `pnpm design:lint` 跑 `[@google/design.md](https://github.com/google-labs-code/design.md)` 官方 linter（broken-ref 错误、WCAG 4.5:1 对比度、orphaned-tokens、section-order 等 7 条规则）。`vite.config.ts` 的 `staged.DESIGN.md` 钩子在 commit 时自动跑（`npx --yes @google/design.md lint <path>`）。任何 PR 必须保持 **0 errors / 0 warnings**（当前基线即如此 + 1 info summary）。如果新增的 component 触发 contrast 警告，把它从 `components:` 段挪到 `componentExtensions:` 段并附 `note:` 解释豁免理由（见 `toast-success` / `stepper-completed` / `status-pill-waiting` 的写法）。
 
 ### Migration Copilot 向导扩展 token
 

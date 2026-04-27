@@ -9,6 +9,7 @@
   },
   "exports": {
     "./components/ui/*": "./src/components/ui/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
     "./lib/utils": "./src/lib/utils.ts",
     "./lib/overlay": "./src/lib/overlay.ts",
     "./lib/placement": "./src/lib/placement.ts",

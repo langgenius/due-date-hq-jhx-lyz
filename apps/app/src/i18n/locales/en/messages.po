@@ -85,7 +85,7 @@ msgid "5 draft extensions are waiting on K-1 attachments."
 msgstr "5 draft extensions are waiting on K-1 attachments."
 
 #. placeholder {0}: user.name || user.email
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Account menu for {0}"
 msgstr "Account menu for {0}"
 
@@ -96,6 +96,14 @@ msgstr "Across 28 open obligations."
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Actions"
 msgstr "Actions"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Add firm"
+msgstr "Add firm"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Admin · P1"
+msgstr "Admin · P1"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
@@ -133,6 +141,10 @@ msgstr "Ask DueDateHQ"
 #: src/routes/workboard.tsx
 msgid "Audit {0}"
 msgstr "Audit {0}"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Audit log"
+msgstr "Audit log"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Audit log captures every AI decision"
@@ -176,6 +188,10 @@ msgstr "Client"
 #: src/routes/dashboard.tsx
 msgid "Client risk rows"
 msgstr "Client risk rows"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Clients"
+msgstr "Clients"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Close wizard"
@@ -247,10 +263,6 @@ msgstr "Couldn't start the import"
 msgid "Couldn't update status"
 msgstr "Couldn't update status"
 
-#: src/routes/_layout.tsx
-msgid "CPA deadline console"
-msgstr "CPA deadline console"
-
 #: src/routes/dashboard.tsx
 msgid "critical"
 msgstr "critical"
@@ -263,12 +275,12 @@ msgstr "Currently available shortcuts and reserved keyboard slots."
 msgid "Daily deadline and Pulse summary for owners."
 msgstr "Daily deadline and Pulse summary for owners."
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Dark"
 msgstr "Dark"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -283,6 +295,10 @@ msgstr "Default jurisdiction"
 #: src/routes/settings.tsx
 msgid "Deferred until the product has a real-time notification need."
 msgstr "Deferred until the product has a real-time notification need."
+
+#: src/routes/_layout.tsx
+msgid "Demo workspace"
+msgstr "Demo workspace"
 
 #: src/routes/workboard.tsx
 msgid "Detail drawer is coming soon"
@@ -428,8 +444,8 @@ msgstr "Import"
 msgid "Import & Generate (Day 4)"
 msgstr "Import & Generate (Day 4)"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 msgid "Import clients"
 msgstr "Import clients"
 
@@ -469,8 +485,8 @@ msgstr "Keep editing"
 msgid "Keyboard shortcuts"
 msgstr "Keyboard shortcuts"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/primitives/locale-switcher.tsx
-#: src/routes/_layout.tsx
 msgid "Language"
 msgstr "Language"
 
@@ -482,7 +498,7 @@ msgstr "Leave & save draft"
 msgid "Leave wizard?"
 msgstr "Leave wizard?"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Light"
 msgstr "Light"
 
@@ -498,9 +514,13 @@ msgstr "Loading queue…"
 msgid "Loading…"
 msgstr "Loading…"
 
-#: src/routes/_layout.tsx
-msgid "Local Time"
-msgstr "Local Time"
+#: src/components/patterns/app-shell.tsx
+msgid "Main"
+msgstr "Main"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Manage"
+msgstr "Manage"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Map \"{sourceHeader}\" to…"
@@ -514,13 +534,13 @@ msgstr "Mapping"
 msgid "medium"
 msgstr "medium"
 
+#: src/components/patterns/app-shell.tsx
+msgid "Migration"
+msgstr "Migration"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
-
-#: src/routes/_layout.tsx
-msgid "Mobile navigation"
-msgstr "Mobile navigation"
 
 #: src/routes/settings.tsx
 msgid "Multi-state"
@@ -577,6 +597,14 @@ msgstr "Not applicable"
 #: src/routes/settings.tsx
 msgid "Notification routing"
 msgstr "Notification routing"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Notifications"
+msgstr "Notifications"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Notifications, {unreadCount} unread"
+msgstr "Notifications, {unreadCount} unread"
 
 #: src/routes/dashboard.tsx
 msgid "NY PTET election window"
@@ -638,6 +666,14 @@ msgstr "or"
 msgid "Owner"
 msgstr "Owner"
 
+#: src/routes/_layout.tsx
+msgid "Owner · demo seat"
+msgstr "Owner · demo seat"
+
+#: src/components/patterns/app-shell.tsx
+msgid "P1"
+msgstr "P1"
+
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "Page not found"
@@ -678,8 +714,8 @@ msgstr "Phase 0 uses email plus in-app toast instead of Web Push."
 msgid "Please enter at least 2 characters."
 msgstr "Please enter at least 2 characters."
 
+#: src/components/patterns/app-shell.tsx
 #: src/features/migration/Wizard.tsx
-#: src/routes/_layout.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
 #: src/routes/workboard.tsx
@@ -703,12 +739,11 @@ msgstr "PRACTICE PROFILE"
 msgid "Preview only — commit lands in Day 4"
 msgstr "Preview only — commit lands in Day 4"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Primary navigation"
 msgstr "Primary navigation"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 msgid "Pulse"
 msgstr "Pulse"
 
@@ -719,10 +754,6 @@ msgstr "Pulse detail is wired in Day 6."
 #: src/routes/workboard.tsx
 msgid "Queue controls"
 msgstr "Queue controls"
-
-#: src/routes/_layout.tsx
-msgid "Queue SLA"
-msgstr "Queue SLA"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Re-run AI"
@@ -848,8 +879,8 @@ msgstr "Set up your practice."
 msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 #: src/routes/settings.tsx
 msgid "Settings"
 msgstr "Settings"
@@ -866,19 +897,19 @@ msgstr "SIGN IN"
 msgid "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
 msgstr "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Sign out"
 msgstr "Sign out"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Sign out failed"
 msgstr "Sign out failed"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Signed in"
 msgstr "Signed in"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
 
@@ -926,13 +957,22 @@ msgstr "Step {step} / 4"
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "Suggested tax types (from entity × state matrix)"
 
-#: src/routes/_layout.tsx
+#. placeholder {0}: firm.name
+#: src/components/patterns/app-shell.tsx
+msgid "Switch firm — current {0}"
+msgstr "Switch firm — current {0}"
+
+#: src/components/patterns/app-shell.tsx
 msgid "System"
 msgstr "System"
 
 #: src/routes/workboard.tsx
 msgid "Tax type"
 msgstr "Tax type"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Team workload"
+msgstr "Team workload"
 
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
@@ -946,7 +986,7 @@ msgstr "The numbers above are computed from your confirmed mappings + Default Ma
 msgid "The request was invalid. Please review your input and try again."
 msgstr "The request was invalid. Please review your input and try again."
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Theme"
 msgstr "Theme"
 
@@ -1053,11 +1093,15 @@ msgstr "Where is your data coming from?"
 msgid "Workbench"
 msgstr "Workbench"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "Workboard"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Workspaces"
+msgstr "Workspaces"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "XLSX uploads land in Phase 0 — please export as CSV for now."

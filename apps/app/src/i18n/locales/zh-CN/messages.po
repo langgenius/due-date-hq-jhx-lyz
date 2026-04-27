@@ -85,7 +85,7 @@ msgid "5 draft extensions are waiting on K-1 attachments."
 msgstr "5 份延期申请草稿正在等待 K-1 附件。"
 
 #. placeholder {0}: user.name || user.email
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Account menu for {0}"
 msgstr "{0} 的账户菜单"
 
@@ -96,6 +96,14 @@ msgstr "覆盖 28 项未完成义务。"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Actions"
 msgstr "操作"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Add firm"
+msgstr "添加事务所"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Admin · P1"
+msgstr "管理 · P1"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
@@ -133,6 +141,10 @@ msgstr "询问 DueDateHQ"
 #: src/routes/workboard.tsx
 msgid "Audit {0}"
 msgstr "审计 {0}"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Audit log"
+msgstr "审计日志"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Audit log captures every AI decision"
@@ -176,6 +188,10 @@ msgstr "客户"
 #: src/routes/dashboard.tsx
 msgid "Client risk rows"
 msgstr "客户风险行"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Clients"
+msgstr "客户"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Close wizard"
@@ -247,10 +263,6 @@ msgstr "无法启动导入流程"
 msgid "Couldn't update status"
 msgstr "状态更新失败"
 
-#: src/routes/_layout.tsx
-msgid "CPA deadline console"
-msgstr "注册会计师截止日期工作台"
-
 #: src/routes/dashboard.tsx
 msgid "critical"
 msgstr "紧急"
@@ -263,12 +275,12 @@ msgstr "当前可用的快捷键与已预留的键盘位。"
 msgid "Daily deadline and Pulse summary for owners."
 msgstr "向负责人发送每日截止日期与动态摘要。"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Dark"
 msgstr "深色"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 msgid "Dashboard"
 msgstr "仪表盘"
 
@@ -283,6 +295,10 @@ msgstr "默认司法辖区"
 #: src/routes/settings.tsx
 msgid "Deferred until the product has a real-time notification need."
 msgstr "在产品出现实时通知需求前暂缓启用。"
+
+#: src/routes/_layout.tsx
+msgid "Demo workspace"
+msgstr "演示工作区"
 
 #: src/routes/workboard.tsx
 msgid "Detail drawer is coming soon"
@@ -428,8 +444,8 @@ msgstr "导入"
 msgid "Import & Generate (Day 4)"
 msgstr "导入并生成（第 4 天上线）"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 msgid "Import clients"
 msgstr "导入客户"
 
@@ -469,8 +485,8 @@ msgstr "继续编辑"
 msgid "Keyboard shortcuts"
 msgstr "快捷键"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/primitives/locale-switcher.tsx
-#: src/routes/_layout.tsx
 msgid "Language"
 msgstr "语言"
 
@@ -482,7 +498,7 @@ msgstr "离开并保存草稿"
 msgid "Leave wizard?"
 msgstr "要离开向导吗？"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Light"
 msgstr "浅色"
 
@@ -498,9 +514,13 @@ msgstr "队列加载中…"
 msgid "Loading…"
 msgstr "加载中…"
 
-#: src/routes/_layout.tsx
-msgid "Local Time"
-msgstr "本地时间"
+#: src/components/patterns/app-shell.tsx
+msgid "Main"
+msgstr "主导航"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Manage"
+msgstr "管理"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Map \"{sourceHeader}\" to…"
@@ -514,13 +534,13 @@ msgstr "字段映射"
 msgid "medium"
 msgstr "中"
 
+#: src/components/patterns/app-shell.tsx
+msgid "Migration"
+msgstr "迁移"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "迁移助手向导 —— 粘贴或上传客户名单，审阅 AI 映射，规范化数据，并在提交前预览导入结果。"
-
-#: src/routes/_layout.tsx
-msgid "Mobile navigation"
-msgstr "移动端导航"
 
 #: src/routes/settings.tsx
 msgid "Multi-state"
@@ -577,6 +597,14 @@ msgstr "不适用"
 #: src/routes/settings.tsx
 msgid "Notification routing"
 msgstr "通知路由"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Notifications"
+msgstr "通知"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Notifications, {unreadCount} unread"
+msgstr "通知 · {unreadCount} 条未读"
 
 #: src/routes/dashboard.tsx
 msgid "NY PTET election window"
@@ -638,6 +666,14 @@ msgstr "或"
 msgid "Owner"
 msgstr "负责人"
 
+#: src/routes/_layout.tsx
+msgid "Owner · demo seat"
+msgstr "所有者 · 演示席位"
+
+#: src/components/patterns/app-shell.tsx
+msgid "P1"
+msgstr "P1"
+
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "未找到页面"
@@ -678,8 +714,8 @@ msgstr "阶段 0 使用邮件加应用内提示，暂不启用 Web Push。"
 msgid "Please enter at least 2 characters."
 msgstr "请至少输入 2 个字符。"
 
+#: src/components/patterns/app-shell.tsx
 #: src/features/migration/Wizard.tsx
-#: src/routes/_layout.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
 #: src/routes/workboard.tsx
@@ -703,12 +739,11 @@ msgstr "事务所资料"
 msgid "Preview only — commit lands in Day 4"
 msgstr "仅预览 —— 提交将在第 4 天上线"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Primary navigation"
 msgstr "主导航"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 msgid "Pulse"
 msgstr "动态"
 
@@ -719,10 +754,6 @@ msgstr "Pulse 详情将在第 6 天接入。"
 #: src/routes/workboard.tsx
 msgid "Queue controls"
 msgstr "队列控制"
-
-#: src/routes/_layout.tsx
-msgid "Queue SLA"
-msgstr "队列 SLA"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Re-run AI"
@@ -848,8 +879,8 @@ msgstr "设置你的事务所。"
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 #: src/routes/settings.tsx
 msgid "Settings"
 msgstr "设置"
@@ -866,19 +897,19 @@ msgstr "登录"
 msgid "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
 msgstr "使用 Google 登录，进入事务所的截止日期队列与可溯源的建议。"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Sign out"
 msgstr "退出登录"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Sign out failed"
 msgstr "退出登录失败"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Signed in"
 msgstr "已登录"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Signing out…"
 msgstr "正在退出…"
 
@@ -926,13 +957,22 @@ msgstr "第 {step} 步 / 共 4 步"
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "建议税种（来自实体 × 州矩阵）"
 
-#: src/routes/_layout.tsx
+#. placeholder {0}: firm.name
+#: src/components/patterns/app-shell.tsx
+msgid "Switch firm — current {0}"
+msgstr "切换事务所 · 当前 {0}"
+
+#: src/components/patterns/app-shell.tsx
 msgid "System"
 msgstr "跟随系统"
 
 #: src/routes/workboard.tsx
 msgid "Tax type"
 msgstr "税种"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Team workload"
+msgstr "团队工作负载"
 
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
@@ -946,7 +986,7 @@ msgstr "以上数字根据你确认的字段映射 + 默认矩阵计算得出。
 msgid "The request was invalid. Please review your input and try again."
 msgstr "请求无效，请检查输入后重试。"
 
-#: src/routes/_layout.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Theme"
 msgstr "主题"
 
@@ -1055,11 +1095,15 @@ msgstr "你的数据从哪里来？"
 msgid "Workbench"
 msgstr "工作台"
 
+#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "工作台"
+
+#: src/components/patterns/app-shell.tsx
+msgid "Workspaces"
+msgstr "工作空间"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "XLSX uploads land in Phase 0 — please export as CSV for now."
