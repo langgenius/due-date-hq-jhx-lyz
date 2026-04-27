@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { FilterIcon, SearchIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
-import type { ObligationInstancePublic, WorkboardSort } from '@duedatehq/contracts'
+import type { ObligationInstancePublic, WorkboardRow, WorkboardSort } from '@duedatehq/contracts'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -32,6 +32,11 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 
+import {
+  isInteractiveEventTarget,
+  useAppHotkey,
+  useKeyboardShortcutsBlocked,
+} from '@/components/patterns/keyboard-shell'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -49,6 +54,7 @@ const ALL_STATUSES: ObligationStatus[] = [
 ]
 
 const ALL_SORTS: WorkboardSort[] = ['due_asc', 'due_desc', 'updated_desc']
+const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
 
 function isObligationStatus(value: string): value is ObligationStatus {
   return (ALL_STATUSES as string[]).includes(value)
@@ -122,6 +128,7 @@ export function WorkboardRoute() {
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
+  const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const statusLabels = useStatusLabels()
   const sortLabels = useSortLabels()
 
@@ -129,6 +136,7 @@ export function WorkboardRoute() {
   const [searchInput, setSearchInput] = useState('')
   const [sort, setSort] = useState<WorkboardSort>('due_asc')
   const [cursors, setCursors] = useState<Array<string | null>>([null]) // one slot per page
+  const [activeRowId, setActiveRowId] = useState<string | null>(null)
 
   const debouncedSearch = useDebounced(searchInput.trim(), 300)
 
@@ -172,12 +180,167 @@ export function WorkboardRoute() {
     }),
   )
 
-  const rows = listQuery.data?.rows ?? []
+  const rows = useMemo(() => listQuery.data?.rows ?? EMPTY_WORKBOARD_ROWS, [listQuery.data?.rows])
   const nextCursor = listQuery.data?.nextCursor ?? null
   const isInitialLoading = listQuery.isLoading
   const isError = listQuery.isError
+  const keyboardEnabled = rows.length > 0 && !shortcutsBlocked
 
   const totalShown = rows.length
+
+  useEffect(() => {
+    if (rows.length === 0) {
+      setActiveRowId(null)
+      return
+    }
+    setActiveRowId((current) =>
+      current && rows.some((row) => row.id === current) ? current : (rows[0]?.id ?? null),
+    )
+  }, [rows])
+
+  const moveActiveRow = useCallback(
+    (direction: 1 | -1) => {
+      if (rows.length === 0) return
+      const currentIndex = rows.findIndex((row) => row.id === activeRowId)
+      const nextIndex =
+        currentIndex === -1 ? 0 : Math.min(rows.length - 1, Math.max(0, currentIndex + direction))
+      setActiveRowId(rows[nextIndex]?.id ?? null)
+    },
+    [activeRowId, rows],
+  )
+
+  const activeRow = rows.find((row) => row.id === activeRowId) ?? rows[0] ?? null
+
+  const updateActiveRowStatus = useCallback(
+    (status: ObligationStatus, target?: EventTarget | null) => {
+      if (
+        isInteractiveEventTarget(target ?? null) ||
+        !activeRow ||
+        activeRow.status === status ||
+        updateStatusMutation.isPending
+      ) {
+        return
+      }
+      updateStatusMutation.mutate({ id: activeRow.id, status })
+    },
+    [activeRow, updateStatusMutation],
+  )
+
+  useAppHotkey('J', () => moveActiveRow(1), {
+    enabled: keyboardEnabled,
+    requireReset: true,
+    meta: {
+      id: 'workboard.next-row',
+      name: 'Next row',
+      description: 'Move the active Workboard row down.',
+      category: 'workboard',
+      scope: 'route',
+    },
+  })
+
+  useAppHotkey('K', () => moveActiveRow(-1), {
+    enabled: keyboardEnabled,
+    requireReset: true,
+    meta: {
+      id: 'workboard.previous-row',
+      name: 'Previous row',
+      description: 'Move the active Workboard row up.',
+      category: 'workboard',
+      scope: 'route',
+    },
+  })
+
+  useAppHotkey(
+    'Enter',
+    (event) => {
+      if (isInteractiveEventTarget(event.target)) return
+      if (!activeRow) return
+      toast.message(t`Detail drawer is coming soon`, {
+        description: activeRow.clientName,
+      })
+    },
+    {
+      enabled: keyboardEnabled,
+      requireReset: true,
+      meta: {
+        id: 'workboard.open-detail',
+        name: 'Open detail',
+        description: 'Open the active obligation detail drawer.',
+        category: 'workboard',
+        scope: 'route',
+      },
+    },
+  )
+
+  useAppHotkey(
+    'E',
+    (event) => {
+      if (isInteractiveEventTarget(event.target)) return
+      if (!activeRow) return
+      toast.message(t`Evidence drawer is coming soon`, {
+        description: activeRow.clientName,
+      })
+    },
+    {
+      enabled: keyboardEnabled,
+      requireReset: true,
+      meta: {
+        id: 'workboard.open-evidence',
+        name: 'Open evidence',
+        description: 'Open evidence for the active row.',
+        category: 'workboard',
+        scope: 'route',
+      },
+    },
+  )
+
+  useAppHotkey('F', (event) => updateActiveRowStatus('done', event.target), {
+    enabled: keyboardEnabled,
+    requireReset: true,
+    meta: {
+      id: 'workboard.mark-filed',
+      name: 'Mark filed',
+      description: 'Mark the active row as done.',
+      category: 'workboard',
+      scope: 'route',
+    },
+  })
+
+  useAppHotkey('X', (event) => updateActiveRowStatus('review', event.target), {
+    enabled: keyboardEnabled,
+    requireReset: true,
+    meta: {
+      id: 'workboard.mark-extended',
+      name: 'Mark extended',
+      description: 'Move the active row into review until extension status lands.',
+      category: 'workboard',
+      scope: 'route',
+    },
+  })
+
+  useAppHotkey('I', (event) => updateActiveRowStatus('in_progress', event.target), {
+    enabled: keyboardEnabled,
+    requireReset: true,
+    meta: {
+      id: 'workboard.mark-in-progress',
+      name: 'Mark in progress',
+      description: 'Mark the active row as in progress.',
+      category: 'workboard',
+      scope: 'route',
+    },
+  })
+
+  useAppHotkey('W', (event) => updateActiveRowStatus('waiting_on_client', event.target), {
+    enabled: keyboardEnabled,
+    requireReset: true,
+    meta: {
+      id: 'workboard.mark-waiting',
+      name: 'Mark waiting on client',
+      description: 'Mark the active row as waiting on client.',
+      category: 'workboard',
+      scope: 'route',
+    },
+  })
 
   function toggleStatus(status: ObligationStatus) {
     setStatusFilter((prev) =>
@@ -320,7 +483,12 @@ export function WorkboardRoute() {
                 </TableHeader>
                 <TableBody>
                   {rows.map((row) => (
-                    <TableRow key={row.id}>
+                    <TableRow
+                      key={row.id}
+                      aria-selected={row.id === activeRowId}
+                      className={row.id === activeRowId ? 'bg-state-accent-hover-alt' : undefined}
+                      onClick={() => setActiveRowId(row.id)}
+                    >
                       <TableCell className="font-medium text-text-primary">
                         {row.clientName}
                       </TableCell>

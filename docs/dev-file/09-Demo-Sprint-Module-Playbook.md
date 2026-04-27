@@ -146,7 +146,7 @@
 
 - App shell、navigation、responsive workbench layout。
 - UI primitive 和 DueDateHQ domain primitive。
-- Drawer stack、command shell、toast、keyboard shell。
+- Drawer stack、command shell、toast、keyboard shell（TanStack Hotkeys provider + shortcut registry + `?` help）。
 - Dashboard slot contract。
 
 **Exposes**

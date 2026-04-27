@@ -42,6 +42,7 @@ import {
 } from '@duedatehq/ui/theme'
 import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from '@duedatehq/i18n'
 import { useLocaleSwitch } from '@/i18n/provider'
+import { KeyboardProvider } from '@/components/patterns/keyboard-shell'
 import { MigrationWizardProvider, useMigrationWizard } from '@/features/migration/WizardProvider'
 import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
 import { cn } from '@duedatehq/ui/lib/utils'
@@ -460,12 +461,17 @@ export function RootLayout() {
 
   return (
     <MigrationWizardProvider>
-      <RootLayoutShell
-        user={user}
-        shellMeta={shellMeta}
+      <KeyboardProvider
         themePreference={themePreference}
         switchThemePreference={switchThemePreference}
-      />
+      >
+        <RootLayoutShell
+          user={user}
+          shellMeta={shellMeta}
+          themePreference={themePreference}
+          switchThemePreference={switchThemePreference}
+        />
+      </KeyboardProvider>
     </MigrationWizardProvider>
   )
 }

@@ -192,6 +192,7 @@ apps/server/
 - `src/routes/*`：RR7 data mode 路由
 - `src/features/*`：跨页面业务组合
 - `src/components/{primitives,patterns}`：app 专属 UI 组合；基础 UI 从 `@duedatehq/ui/components/ui/*` 引入
+- `src/components/patterns/keyboard-shell/*`：唯一 app 级快捷键 provider、Command Palette、`?` 帮助浮层；允许依赖 React Router / Lingui / feature providers，不得下沉到 `packages/ui`
 - `src/lib/rpc.ts`：唯一 oRPC client 实例
 - `src/lib/auth.ts`：better-auth client
 

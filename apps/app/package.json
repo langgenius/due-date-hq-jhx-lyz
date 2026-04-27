@@ -27,6 +27,7 @@
     "@orpc/client": "catalog:",
     "@orpc/contract": "catalog:",
     "@orpc/tanstack-query": "catalog:",
+    "@tanstack/react-hotkeys": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-table": "catalog:",
     "@tanstack/react-virtual": "catalog:",

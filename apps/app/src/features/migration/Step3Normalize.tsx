@@ -8,6 +8,8 @@ import { Checkbox } from '@duedatehq/ui/components/ui/checkbox'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { useAppHotkey } from '@/components/patterns/keyboard-shell'
+
 import type { NormalizeState } from './state'
 import type { MatrixApplicationView } from './matrix-view'
 
@@ -184,6 +186,29 @@ interface MatrixSectionProps {
 }
 
 function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
+  useAppHotkey(
+    'A',
+    () => {
+      const active = document.activeElement
+      if (!(active instanceof HTMLElement)) return
+      const target = active.closest<HTMLElement>('[data-apply-to-all-key]')
+      const key = target?.dataset.applyToAllKey
+      if (!key) return
+      onToggle(key, !(applyToAll[key] ?? true))
+    },
+    {
+      requireReset: true,
+      ignoreInputs: true,
+      meta: {
+        id: 'wizard.apply-to-all',
+        name: 'Toggle apply to all',
+        description: 'Toggle the focused Apply to all row in Step 3.',
+        category: 'wizard',
+        scope: 'overlay',
+      },
+    },
+  )
+
   if (matrix.length === 0) return null
   return (
     <section
@@ -208,7 +233,10 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
                     other={`# ${cell.entityType.toUpperCase()} × ${cell.state} clients`}
                   />
                 </span>
-                <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-text-secondary">
+                <label
+                  className="inline-flex cursor-pointer items-center gap-2 text-xs text-text-secondary"
+                  data-apply-to-all-key={key}
+                >
                   <Checkbox checked={checked} onCheckedChange={(v) => onToggle(key, v)} />
                   <Trans>Apply to all</Trans>
                 </label>

@@ -36,3 +36,5 @@ proposed | accepted | deprecated | superseded by #NNN
 - 0011-migration-copilot-demo-sprint-scope.md — Migration Copilot Demo Sprint 产品形态锁定（6 条冲突裁定 + 9 条设计系统增量 + Onboarding Agent 设计锁定不实现）
 - 0012-marketing-astro-landing.md — Marketing landing 接入 Astro 公开站（`apps/marketing` Astro 6 静态站 + Cloudflare Workers Static Assets + 设计 token 三方对齐 Figma + 8 条 follow-ups）
 - 0013-marketing-locale-handoff-with-nuqs.md — Marketing `?lng=` locale handoff 由 nuqs + React Router v7 adapter 消费、持久化并清理
+- 0014-dify-token-tree-adoption.md — Adopt Dify Token Tree as the canonical design token source while implementation remains governed by Tailwind v4 CSS variables in `packages/ui`
+- 0015-tanstack-hotkeys-keyboard-shell.md — TanStack Hotkeys keyboard shell for global, sequence, route, and overlay shortcuts

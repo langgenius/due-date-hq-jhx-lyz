@@ -857,6 +857,13 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 - `Cmd + Shift + D` 暗色切换
 - 数字键 `1` - `4` 在向导内**不跳步**
 
+**Keyboard Shell 层级**
+
+- App 只允许一个 keyboard shell：`apps/app/src/components/patterns/keyboard-shell`，基于 TanStack Hotkeys 注册全局、导航序列、route/list、overlay 四层快捷键
+- `?` 帮助浮层从注册表生成，并追加 reserved slots；不得手写第二份静态快捷键表
+- Wizard / Dialog / Command Palette 打开时压住导航序列和 Workboard 裸字母键
+- **全局 `A` 不占用**；`A` 仅 Step 3 Normalize 的 Apply-to-all 聚焦区域生效
+
 ### 14.7 needs_review 用色语义（权威裁定）
 
 这是本册的**硬裁定**（写入 ADR 0011 Decision III · 详见 `../product-design/migration-copilot/09-design-system-deltas.md` §3.4）：

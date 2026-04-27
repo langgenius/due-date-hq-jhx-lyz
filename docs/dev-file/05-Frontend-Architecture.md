@@ -359,8 +359,10 @@ Theme runtime 同样由 `packages/ui` 持有：
 
 - **Optimistic UI**：所有改状态 / 改 assignee 的 mutation 先改 cache，失败回滚 + toast
 - **Loading skeleton**：每页至少一张 skeleton；冷启动避免白屏
-- **Command Palette (Cmd-K)**：全局快捷键，三段（Search / Ask / Navigate），Ask 在 Phase 1 前留占位 `Coming soon`
-- **Evidence Mode**：全局按 `E` 或点 source chip → 打开 `evidence-drawer`，Zustand 存 target
+- **Keyboard Shell**：`apps/app/src/components/patterns/keyboard-shell` 是唯一 app 级快捷键入口，基于 `@tanstack/react-hotkeys`。全局层注册 `?` / `Cmd/Ctrl+K` / `Cmd/Ctrl+Shift+D`，导航序列层注册 `G then D/W/C/A`，Workboard route 层注册 `J/K/Enter/E/F/X/I/W`，Wizard/Overlay 层压住 route/navigation 快捷键。裸字母键保留 TanStack 的 input ignore 行为，`Enter` 只在明确声明 `ignoreInputs: false` 且手动排除 textarea/contenteditable/select 时使用。
+- **Command Palette (Cmd-K)**：全局快捷键，三段（Search / Ask / Navigate），Ask 在 Phase 1 前留占位 `Coming soon`。Palette 使用 lazy import，第一次 `Cmd/Ctrl+K` 后加载，避免进入首屏 bundle 热路径。
+- **Shortcut Help (?)**：帮助浮层从 TanStack `useHotkeyRegistrations()` 读取当前已 mount 快捷键，再合并 reserved slots（Ask `/`、Firm switch、Evidence selected），避免文档与实现分叉。
+- **Evidence Mode**：当前 Workboard `E` 和全局 `Cmd/Ctrl+E` 先作为 reserved / placeholder 展示；真实 selection → `evidence-drawer` wiring 在 Day 6 接入。
 
 ---
 

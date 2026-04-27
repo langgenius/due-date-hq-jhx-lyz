@@ -63,6 +63,7 @@ stepper:
 - `Enter` **不跳步**：步骤推进只允许 `[Continue]` / `[Back]` 按钮；数字键 `1-4` 亦不跳步（对齐 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §7.2）
 - `Tab` / `Shift+Tab`：焦点顺序固定为 `[Back]` → Step body 可聚焦元素 → `[Continue]`，在 modal 内循环不逃出
 - `Enter` = Continue 的生效范围：**仅** 在焦点不在 `<textarea>` / `[contenteditable="true"]` / `<select>` 时生效；否则走控件自身默认行为（例如 textarea 里 Enter = 换行）
+- 实现归属：Wizard 快捷键由 app keyboard shell 的 overlay scope 注册；组件不得各自散落 `document.addEventListener('keydown')`
 
 ---
 

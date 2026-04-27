@@ -13,6 +13,8 @@ import {
 } from '@duedatehq/ui/components/ui/dialog'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { useAppHotkey, isEditableEventTarget } from '@/components/patterns/keyboard-shell'
+
 import { Stepper } from './Stepper'
 import type { StepIndex } from './state'
 
@@ -68,6 +70,38 @@ export function WizardShell({
     setConfirming(false)
     onClose()
   }
+
+  useAppHotkey('Escape', () => setConfirming(true), {
+    enabled: open && !confirming,
+    requireReset: true,
+    meta: {
+      id: 'wizard.escape',
+      name: 'Close wizard',
+      description: 'Open the leave and save draft confirmation.',
+      category: 'wizard',
+      scope: 'overlay',
+    },
+  })
+
+  useAppHotkey(
+    'Enter',
+    (event) => {
+      if (isEditableEventTarget(event.target)) return
+      onContinue()
+    },
+    {
+      enabled: open && !confirming && canContinue && !busy,
+      requireReset: true,
+      ignoreInputs: false,
+      meta: {
+        id: 'wizard.continue',
+        name: 'Continue wizard',
+        description: 'Advance the current migration step.',
+        category: 'wizard',
+        scope: 'overlay',
+      },
+    },
+  )
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

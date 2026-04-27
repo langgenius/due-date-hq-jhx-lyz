@@ -93,6 +93,10 @@ msgstr "{0} 的账户菜单"
 msgid "Across 28 open obligations."
 msgstr "覆盖 28 项未完成义务。"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Actions"
+msgstr "操作"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
 msgstr "AI 已识别你的列 —— 请审阅并确认"
@@ -116,6 +120,14 @@ msgstr "所有系统运行正常"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
 msgstr "全部应用"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Ask"
+msgstr "提问"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Ask DueDateHQ"
+msgstr "询问 DueDateHQ"
 
 #. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/workboard.tsx
@@ -177,6 +189,14 @@ msgstr "错误代码"
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
 msgstr "正在从 File In Time 迁移？我们将一次性把全年日历迁过来。"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Coming soon"
+msgstr "即将推出"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Command palette"
+msgstr "命令面板"
+
 #: src/routes/_layout.tsx
 msgid "Compliance risk operations"
 msgstr "合规风险运营"
@@ -235,6 +255,10 @@ msgstr "注册会计师截止日期工作台"
 msgid "critical"
 msgstr "紧急"
 
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "Currently available shortcuts and reserved keyboard slots."
+msgstr "当前可用的快捷键与已预留的键盘位。"
+
 #: src/routes/settings.tsx
 msgid "Daily deadline and Pulse summary for owners."
 msgstr "向负责人发送每日截止日期与动态摘要。"
@@ -243,6 +267,7 @@ msgstr "向负责人发送每日截止日期与动态摘要。"
 msgid "Dark"
 msgstr "深色"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Dashboard"
 msgstr "仪表盘"
@@ -258,6 +283,10 @@ msgstr "默认司法辖区"
 #: src/routes/settings.tsx
 msgid "Deferred until the product has a real-time notification need."
 msgstr "在产品出现实时通知需求前暂缓启用。"
+
+#: src/routes/workboard.tsx
+msgid "Detail drawer is coming soon"
+msgstr "详情抽屉即将推出"
 
 #: src/routes/dashboard.tsx
 msgid "Dollar-first triage for the next operating window."
@@ -323,6 +352,10 @@ msgstr "已加密 · 会话 7 天有效 · 遵循 SSO 策略"
 msgid "Encrypted · Auto-saves · Renamable later"
 msgstr "全程加密 · 自动保存 · 可随时重命名"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Enter execute · Esc close · Mod+K toggle"
+msgstr "Enter 执行 · Esc 关闭 · Mod+K 切换"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
 msgstr "实体类型"
@@ -330,6 +363,10 @@ msgstr "实体类型"
 #: src/routes/dashboard.tsx
 msgid "Evidence checks"
 msgstr "证据核查"
+
+#: src/routes/workboard.tsx
+msgid "Evidence drawer is coming soon"
+msgstr "证据抽屉即将推出"
 
 #: src/routes/settings.tsx
 msgid "Evidence gate"
@@ -391,6 +428,7 @@ msgstr "导入"
 msgid "Import & Generate (Day 4)"
 msgstr "导入并生成（第 4 天上线）"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Import clients"
 msgstr "导入客户"
@@ -426,6 +464,10 @@ msgstr "IRS 账户记录来源已于今早核验。"
 #: src/features/migration/WizardShell.tsx
 msgid "Keep editing"
 msgstr "继续编辑"
+
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "Keyboard shortcuts"
+msgstr "快捷键"
 
 #: src/components/primitives/locale-switcher.tsx
 #: src/routes/_layout.tsx
@@ -488,6 +530,10 @@ msgstr "多州"
 msgid "My Practice"
 msgstr "我的事务所"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Navigate"
+msgstr "导航"
+
 #: src/routes/dashboard.tsx
 msgid "Needs evidence"
 msgstr "需补证据"
@@ -503,6 +549,10 @@ msgstr "需复核"
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "常规"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "No commands found."
+msgstr "未找到命令。"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
@@ -556,9 +606,21 @@ msgstr "24 小时内可一键撤销"
 msgid "Open"
 msgstr "展开"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open practice settings."
+msgstr "打开事务所设置。"
+
 #: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "待处理风险"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open the Migration Copilot wizard."
+msgstr "打开 Migration Copilot 向导。"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open the obligation queue."
+msgstr "打开义务队列。"
 
 #: src/routes/dashboard.tsx
 msgid "Operational pressure points for the team."
@@ -645,9 +707,14 @@ msgstr "仅预览 —— 提交将在第 4 天上线"
 msgid "Primary navigation"
 msgstr "主导航"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Pulse"
 msgstr "动态"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Pulse detail is wired in Day 6."
+msgstr "Pulse 详情将在第 6 天接入。"
 
 #: src/routes/workboard.tsx
 msgid "Queue controls"
@@ -689,6 +756,10 @@ msgstr "正在跳转到 Google…"
 msgid "Representative source states wired with existing components."
 msgstr "使用现有组件展示的典型来源状态。"
 
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "Reserved"
+msgstr "已预留"
+
 #: src/routes/workboard.tsx
 msgid "Reset"
 msgstr "重置"
@@ -700,6 +771,10 @@ msgstr "重试"
 #: src/routes/error.tsx
 msgid "Return home"
 msgstr "返回首页"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review risk and operating pressure."
+msgstr "查看风险与运营压力。"
 
 #: src/routes/dashboard.tsx
 msgid "Review risk queue"
@@ -757,6 +832,14 @@ msgstr "搜索客户"
 msgid "Search obligations"
 msgstr "搜索义务"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Search, ask, or navigate."
+msgstr "搜索、提问或导航。"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Search, ask, or navigate..."
+msgstr "搜索、提问或导航..."
+
 #: src/routes/onboarding.tsx
 msgid "Set up your practice."
 msgstr "设置你的事务所。"
@@ -765,6 +848,7 @@ msgstr "设置你的事务所。"
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 #: src/routes/settings.tsx
 msgid "Settings"
@@ -971,6 +1055,7 @@ msgstr "你的数据从哪里来？"
 msgid "Workbench"
 msgstr "工作台"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
 msgid "Workboard"

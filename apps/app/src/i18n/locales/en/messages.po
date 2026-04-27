@@ -93,6 +93,10 @@ msgstr "Account menu for {0}"
 msgid "Across 28 open obligations."
 msgstr "Across 28 open obligations."
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Actions"
+msgstr "Actions"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
 msgstr "AI mapped your columns — review and confirm"
@@ -116,6 +120,14 @@ msgstr "All systems operational"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
 msgstr "Apply to all"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Ask"
+msgstr "Ask"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Ask DueDateHQ"
+msgstr "Ask DueDateHQ"
 
 #. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/workboard.tsx
@@ -177,6 +189,14 @@ msgstr "Code"
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
 msgstr "Coming from File In Time? We'll migrate your full-year calendar in one shot."
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Coming soon"
+msgstr "Coming soon"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Command palette"
+msgstr "Command palette"
+
 #: src/routes/_layout.tsx
 msgid "Compliance risk operations"
 msgstr "Compliance risk operations"
@@ -235,6 +255,10 @@ msgstr "CPA deadline console"
 msgid "critical"
 msgstr "critical"
 
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "Currently available shortcuts and reserved keyboard slots."
+msgstr "Currently available shortcuts and reserved keyboard slots."
+
 #: src/routes/settings.tsx
 msgid "Daily deadline and Pulse summary for owners."
 msgstr "Daily deadline and Pulse summary for owners."
@@ -243,6 +267,7 @@ msgstr "Daily deadline and Pulse summary for owners."
 msgid "Dark"
 msgstr "Dark"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Dashboard"
 msgstr "Dashboard"
@@ -258,6 +283,10 @@ msgstr "Default jurisdiction"
 #: src/routes/settings.tsx
 msgid "Deferred until the product has a real-time notification need."
 msgstr "Deferred until the product has a real-time notification need."
+
+#: src/routes/workboard.tsx
+msgid "Detail drawer is coming soon"
+msgstr "Detail drawer is coming soon"
 
 #: src/routes/dashboard.tsx
 msgid "Dollar-first triage for the next operating window."
@@ -323,6 +352,10 @@ msgstr "Encrypted · 7-day session · SSO respected"
 msgid "Encrypted · Auto-saves · Renamable later"
 msgstr "Encrypted · Auto-saves · Renamable later"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Enter execute · Esc close · Mod+K toggle"
+msgstr "Enter execute · Esc close · Mod+K toggle"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
 msgstr "Entity types"
@@ -330,6 +363,10 @@ msgstr "Entity types"
 #: src/routes/dashboard.tsx
 msgid "Evidence checks"
 msgstr "Evidence checks"
+
+#: src/routes/workboard.tsx
+msgid "Evidence drawer is coming soon"
+msgstr "Evidence drawer is coming soon"
 
 #: src/routes/settings.tsx
 msgid "Evidence gate"
@@ -391,6 +428,7 @@ msgstr "Import"
 msgid "Import & Generate (Day 4)"
 msgstr "Import & Generate (Day 4)"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Import clients"
 msgstr "Import clients"
@@ -426,6 +464,10 @@ msgstr "IRS transcript source was checked this morning."
 #: src/features/migration/WizardShell.tsx
 msgid "Keep editing"
 msgstr "Keep editing"
+
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "Keyboard shortcuts"
+msgstr "Keyboard shortcuts"
 
 #: src/components/primitives/locale-switcher.tsx
 #: src/routes/_layout.tsx
@@ -488,6 +530,10 @@ msgstr "Multi-state"
 msgid "My Practice"
 msgstr "My Practice"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Navigate"
+msgstr "Navigate"
+
 #: src/routes/dashboard.tsx
 msgid "Needs evidence"
 msgstr "Needs evidence"
@@ -503,6 +549,10 @@ msgstr "Needs review"
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "neutral"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "No commands found."
+msgstr "No commands found."
 
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
@@ -556,9 +606,21 @@ msgstr "One-click revert available for 24 hours"
 msgid "Open"
 msgstr "Open"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open practice settings."
+msgstr "Open practice settings."
+
 #: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "Open risk"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open the Migration Copilot wizard."
+msgstr "Open the Migration Copilot wizard."
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open the obligation queue."
+msgstr "Open the obligation queue."
 
 #: src/routes/dashboard.tsx
 msgid "Operational pressure points for the team."
@@ -645,9 +707,14 @@ msgstr "Preview only — commit lands in Day 4"
 msgid "Primary navigation"
 msgstr "Primary navigation"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Pulse"
 msgstr "Pulse"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Pulse detail is wired in Day 6."
+msgstr "Pulse detail is wired in Day 6."
 
 #: src/routes/workboard.tsx
 msgid "Queue controls"
@@ -689,6 +756,10 @@ msgstr "Redirecting to Google…"
 msgid "Representative source states wired with existing components."
 msgstr "Representative source states wired with existing components."
 
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "Reserved"
+msgstr "Reserved"
+
 #: src/routes/workboard.tsx
 msgid "Reset"
 msgstr "Reset"
@@ -700,6 +771,10 @@ msgstr "Retry"
 #: src/routes/error.tsx
 msgid "Return home"
 msgstr "Return home"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review risk and operating pressure."
+msgstr "Review risk and operating pressure."
 
 #: src/routes/dashboard.tsx
 msgid "Review risk queue"
@@ -757,6 +832,14 @@ msgstr "Search clients"
 msgid "Search obligations"
 msgstr "Search obligations"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Search, ask, or navigate."
+msgstr "Search, ask, or navigate."
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Search, ask, or navigate..."
+msgstr "Search, ask, or navigate..."
+
 #: src/routes/onboarding.tsx
 msgid "Set up your practice."
 msgstr "Set up your practice."
@@ -765,6 +848,7 @@ msgstr "Set up your practice."
 msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 #: src/routes/settings.tsx
 msgid "Settings"
@@ -969,6 +1053,7 @@ msgstr "Where is your data coming from?"
 msgid "Workbench"
 msgstr "Workbench"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
 msgid "Workboard"
