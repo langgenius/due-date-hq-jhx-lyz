@@ -1,4 +1,4 @@
-name = "duedatehq-marketing"
+name = "due-date-hq-marketing-staging"
 compatibility_date = "2025-04-01"
 
 # -------------------------------------------------------------
@@ -10,7 +10,6 @@ compatibility_date = "2025-04-01"
 # -------------------------------------------------------------
 [assets]
 directory = "./dist"
-binding = "ASSETS"
 not_found_handling = "404-page"
 
 # -------------------------------------------------------------
@@ -18,7 +17,7 @@ not_found_handling = "404-page"
 # Marketing never holds backend secrets; only PUBLIC_* are allowed.
 # -------------------------------------------------------------
 [vars]
-PUBLIC_APP_URL = "https://app.duedatehq.com"
+PUBLIC_APP_URL = "https://app.due.langgenius.app"
 
 [observability]
 enabled = true

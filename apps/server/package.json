@@ -11,7 +11,7 @@
     "dev": "node -e \"require('node:fs').mkdirSync('../app/dist',{recursive:true})\" && wrangler dev --local",
     "dev:fullstack": "pnpm --filter @duedatehq/app run build && wrangler dev --local",
     "build": "wrangler deploy --dry-run --outdir=dist --env=\"\"",
-    "deploy": "wrangler deploy --env=\"\"",
+    "deploy": "wrangler deploy --env=\"\" ${WRANGLER_SECRETS_FILE:+--secrets-file \"$WRANGLER_SECRETS_FILE\"}",
     "test": "vp test"
   },
   "dependencies": {

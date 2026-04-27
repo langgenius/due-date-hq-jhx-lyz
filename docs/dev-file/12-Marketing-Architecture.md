@@ -387,28 +387,27 @@ pnpm deploy
 - `apps/server/wrangler.toml` 已经是 Workers + Static Assets 模型（`[assets] directory = "../app/dist"`），marketing 走同一模型可复用 Wrangler 工具链、CI 凭据与日志/metric 视图。
 - Cloudflare 自 2025 起官方推荐新项目用 Workers Static Assets，Pages 只做存量维护。
 
-| Workspace              | 部署产品                           | 域名                | Build                                                        | Output / 部署方式                                   |
-| ---------------------- | ---------------------------------- | ------------------- | ------------------------------------------------------------ | --------------------------------------------------- |
-| `@duedatehq/marketing` | Cloudflare Workers + Static Assets | `duedatehq.com`     | `pnpm --filter @duedatehq/marketing build`                   | `apps/marketing/dist` 通过独立 `wrangler.toml` 部署 |
-| `@duedatehq/server`    | Cloudflare Workers + Static Assets | `app.duedatehq.com` | `pnpm --filter @duedatehq/app build` 后由 server Worker 打包 | `apps/app/dist` 作为 server Worker 的 Assets        |
+| Workspace              | 部署产品                           | 域名                     | Build                                                        | Output / 部署方式                                   |
+| ---------------------- | ---------------------------------- | ------------------------ | ------------------------------------------------------------ | --------------------------------------------------- |
+| `@duedatehq/marketing` | Cloudflare Workers + Static Assets | `due.langgenius.app`     | `pnpm --filter @duedatehq/marketing build`                   | `apps/marketing/dist` 通过独立 `wrangler.toml` 部署 |
+| `@duedatehq/server`    | Cloudflare Workers + Static Assets | `app.due.langgenius.app` | `pnpm --filter @duedatehq/app build` 后由 server Worker 打包 | `apps/app/dist` 作为 server Worker 的 Assets        |
 
 Marketing 的 `wrangler.toml` 形态（首版无 SSR，不需要 `@astrojs/cloudflare` adapter）：
 
 ```toml
-name = "duedatehq-marketing"
+name = "due-date-hq-marketing-staging"
 compatibility_date = "2025-04-01"
 
 [assets]
 directory = "./dist"
-binding = "ASSETS"
 not_found_handling = "404-page"
 ```
 
 环境变量：
 
 - Marketing 不读取 Worker secrets，也不持有任何后端凭据。
-- Marketing 只允许 `PUBLIC_*` 前缀的变量（Astro 唯一的客户端可见前缀，通过 `import.meta.env.PUBLIC_*` 暴露），例如 `PUBLIC_APP_URL=https://app.duedatehq.com`。
-- Auth/OAuth callback 仍属于 `app.duedatehq.com`，不要绑定到 marketing 主域。
+- Marketing 只允许 `PUBLIC_*` 前缀的变量（Astro 唯一的客户端可见前缀，通过 `import.meta.env.PUBLIC_*` 暴露），例如 `PUBLIC_APP_URL=https://app.due.langgenius.app`。
+- Auth/OAuth callback 仍属于 `app.due.langgenius.app`，不要绑定到 marketing 主域。
 
 安全响应头通过 `apps/marketing/public/_headers`（Workers Static Assets 兼容 Pages `_headers` 语法）声明，作为 §8 Lighthouse Best Practices 95+ 的硬条件：
 

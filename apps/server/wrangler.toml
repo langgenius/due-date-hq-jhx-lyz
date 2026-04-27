@@ -1,4 +1,4 @@
-name = "duedatehq"
+name = "due-date-hq-app-staging"
 main = "src/index.ts"
 compatibility_date = "2025-04-01"
 compatibility_flags = ["nodejs_compat"]
@@ -26,8 +26,8 @@ enabled = true
 # -------------------------------------------------------------
 [[d1_databases]]
 binding = "DB"
-database_name = "duedatehq"
-database_id = "TO_BE_PROVISIONED"
+database_name = "due-date-hq-staging"
+database_id = "5d58a4e6-a5f0-483b-970d-9f0fcdee08e9"
 migrations_dir = "../../packages/db/migrations"
 
 # -------------------------------------------------------------
@@ -35,29 +35,29 @@ migrations_dir = "../../packages/db/migrations"
 # -------------------------------------------------------------
 [[kv_namespaces]]
 binding = "CACHE"
-id = "TO_BE_PROVISIONED"
+id = "cfa19528b52b4e8dad0723f3051dd4c8"
 
 # -------------------------------------------------------------
 # R2 · migration raw / generated PDFs / audit zips
 # -------------------------------------------------------------
 [[r2_buckets]]
 binding = "R2_PDF"
-bucket_name = "duedatehq-pdf"
+bucket_name = "due-date-hq-pdf-staging"
 
 [[r2_buckets]]
 binding = "R2_MIGRATION"
-bucket_name = "duedatehq-migration"
+bucket_name = "due-date-hq-migration-staging"
 
 [[r2_buckets]]
 binding = "R2_AUDIT"
-bucket_name = "duedatehq-audit"
+bucket_name = "due-date-hq-audit-staging"
 
 # -------------------------------------------------------------
 # Vectorize · RAG top-k retrieval
 # -------------------------------------------------------------
 [[vectorize]]
 binding = "VECTORS"
-index_name = "duedatehq-rules"
+index_name = "due-date-hq-rules-staging"
 
 # -------------------------------------------------------------
 # Rate Limiting binding
@@ -73,20 +73,27 @@ simple = { limit = 100, period = 60 }
 # -------------------------------------------------------------
 [[queues.producers]]
 binding = "EMAIL_QUEUE"
-queue = "duedatehq-email"
+queue = "due-date-hq-email-staging"
 
 [[queues.consumers]]
-queue = "duedatehq-email"
+queue = "due-date-hq-email-staging"
 max_batch_size = 10
 max_batch_timeout = 5
 max_retries = 5
-dead_letter_queue = "duedatehq-email-dlq"
+dead_letter_queue = "due-date-hq-email-dlq-staging"
 
 # -------------------------------------------------------------
 # Cron Triggers · pulse ingest + reminder dispatch
 # -------------------------------------------------------------
 [triggers]
 crons = ["*/30 * * * *"]
+
+[vars]
+ENV = "staging"
+AUTH_URL = "https://app.due.langgenius.app"
+APP_URL = "https://app.due.langgenius.app"
+EMAIL_FROM = "noreply@langgenius.app"
+GOOGLE_CLIENT_ID = "921927048644-ub9la8vt77v4p1fftn1tc3b1naeemh9h.apps.googleusercontent.com"
 
 # Current stage uses a single top-level Worker configuration.
 # Add named environments only when each env has its own complete bindings

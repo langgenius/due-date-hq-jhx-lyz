@@ -7,7 +7,7 @@
     "ci": "vp check && vp run -r test && vp run build",
     "ready": "vp check && vp run -r test && vp run build",
     "dev": "vp run -r dev",
-    "build": "vp run @duedatehq/app#build && vp run @duedatehq/server#build",
+    "build": "vp run @duedatehq/app#build && vp run @duedatehq/server#build && vp run @duedatehq/marketing#build",
     "test": "vp run -r test",
     "test:e2e": "playwright test",
     "check": "vp check",
@@ -21,7 +21,7 @@
     "rules:check-sources": "tsx scripts/check-rule-sources.ts",
     "db:generate": "pnpm --filter @duedatehq/db db:generate",
     "db:migrate:local": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --local",
-    "db:migrate:remote": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply duedatehq --remote",
+    "db:migrate:remote": "pnpm --filter @duedatehq/server exec wrangler d1 migrations apply due-date-hq-staging --remote",
     "db:seed:demo": "pnpm --filter @duedatehq/db seed:demo",
     "deploy": "vp run workspace-deploy"
   },
