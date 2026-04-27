@@ -369,8 +369,8 @@ msgid "Encrypted · Auto-saves · Renamable later"
 msgstr "Encrypted · Auto-saves · Renamable later"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Enter execute · Esc close · Mod+K toggle"
-msgstr "Enter execute · Esc close · Mod+K toggle"
+msgid "Enter execute · Esc close · {commandShortcut} toggle"
+msgstr "Enter execute · Esc close · {commandShortcut} toggle"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
@@ -643,6 +643,10 @@ msgid "Open risk"
 msgstr "Open risk"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open the dashboard Pulse banner."
+msgstr "Open the dashboard Pulse banner."
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
 msgstr "Open the Migration Copilot wizard."
 
@@ -746,10 +750,6 @@ msgstr "Primary navigation"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Pulse"
 msgstr "Pulse"
-
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Pulse detail is wired in Day 6."
-msgstr "Pulse detail is wired in Day 6."
 
 #: src/routes/workboard.tsx
 msgid "Queue controls"

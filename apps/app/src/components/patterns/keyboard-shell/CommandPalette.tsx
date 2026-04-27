@@ -1,25 +1,27 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
   BotIcon,
   GaugeIcon,
   LayoutDashboardIcon,
-  SearchIcon,
   SettingsIcon,
   UploadCloudIcon,
   WavesIcon,
 } from 'lucide-react'
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '@duedatehq/ui/components/ui/dialog'
-import { Input } from '@duedatehq/ui/components/ui/input'
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from '@duedatehq/ui/components/ui/command'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
-import { cn } from '@duedatehq/ui/lib/utils'
 
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 
@@ -32,17 +34,24 @@ type CommandEntry = {
   id: string
   label: string
   description: string
-  section: string
+  group: 'navigate' | 'actions' | 'ask'
   disabled?: boolean
   onSelect: () => void
   icon: typeof LayoutDashboardIcon
+}
+
+type CommandGroupId = CommandEntry['group']
+
+function getCommandShortcutLabel(): string {
+  if (typeof navigator === 'undefined') return 'Cmd/Ctrl+K'
+  return /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'
 }
 
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const { t } = useLingui()
   const navigate = useNavigate()
   const { openWizard } = useMigrationWizard()
-  const [query, setQuery] = useState('')
+  const commandShortcut = getCommandShortcutLabel()
 
   const entries = useMemo<CommandEntry[]>(
     () => [
@@ -50,7 +59,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         id: 'dashboard',
         label: t`Dashboard`,
         description: t`Review risk and operating pressure.`,
-        section: t`Navigate`,
+        group: 'navigate',
         icon: LayoutDashboardIcon,
         onSelect: () => navigate('/'),
       },
@@ -58,7 +67,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         id: 'workboard',
         label: t`Workboard`,
         description: t`Open the obligation queue.`,
-        section: t`Navigate`,
+        group: 'navigate',
         icon: GaugeIcon,
         onSelect: () => navigate('/workboard'),
       },
@@ -66,7 +75,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         id: 'settings',
         label: t`Settings`,
         description: t`Open practice settings.`,
-        section: t`Navigate`,
+        group: 'navigate',
         icon: SettingsIcon,
         onSelect: () => navigate('/settings'),
       },
@@ -74,24 +83,23 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         id: 'migration',
         label: t`Import clients`,
         description: t`Open the Migration Copilot wizard.`,
-        section: t`Actions`,
+        group: 'actions',
         icon: UploadCloudIcon,
         onSelect: openWizard,
       },
       {
         id: 'pulse',
         label: t`Pulse`,
-        description: t`Pulse detail is wired in Day 6.`,
-        section: t`Navigate`,
+        description: t`Open the dashboard Pulse banner.`,
+        group: 'navigate',
         icon: WavesIcon,
-        disabled: true,
-        onSelect: () => undefined,
+        onSelect: () => navigate('/#pulse'),
       },
       {
         id: 'ask',
         label: t`Ask DueDateHQ`,
         description: t`Coming soon`,
-        section: t`Ask`,
+        group: 'ask',
         icon: BotIcon,
         disabled: true,
         onSelect: () => undefined,
@@ -100,13 +108,15 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     [navigate, openWizard, t],
   )
 
-  const filteredEntries = useMemo(() => {
-    const normalized = query.trim().toLowerCase()
-    if (!normalized) return entries
-    return entries.filter((entry) =>
-      `${entry.label} ${entry.description} ${entry.section}`.toLowerCase().includes(normalized),
-    )
-  }, [entries, query])
+  const groups = useMemo(
+    () =>
+      [
+        { id: 'navigate', heading: t`Navigate` },
+        { id: 'actions', heading: t`Actions` },
+        { id: 'ask', heading: t`Ask` },
+      ] satisfies Array<{ id: CommandGroupId; heading: string }>,
+    [t],
+  )
 
   function selectEntry(entry: CommandEntry) {
     if (entry.disabled) return
@@ -115,68 +125,60 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[min(640px,calc(100vh-2rem))] w-170 overflow-hidden rounded-xl p-0">
-        <DialogTitle className="sr-only">
-          <Trans>Command palette</Trans>
-        </DialogTitle>
-        <DialogDescription className="sr-only">
-          <Trans>Search, ask, or navigate.</Trans>
-        </DialogDescription>
-        <div className="border-b border-divider-regular p-3">
-          <div className="relative">
-            <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-text-tertiary" />
-            <Input
-              autoFocus
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              className="h-11 border-0 bg-transparent pl-9 shadow-none focus-visible:ring-0"
-              placeholder={t`Search, ask, or navigate...`}
-            />
-          </div>
-        </div>
-        <div className="min-h-0 overflow-y-auto p-2">
-          {filteredEntries.length === 0 ? (
-            <p className="px-3 py-8 text-center text-sm text-text-tertiary">
-              <Trans>No commands found.</Trans>
-            </p>
-          ) : (
-            <div className="grid gap-1">
-              {filteredEntries.map((entry) => {
-                const Icon = entry.icon
-                return (
-                  <button
-                    key={entry.id}
-                    type="button"
-                    disabled={entry.disabled}
-                    className={cn(
-                      'grid grid-cols-[32px_1fr_auto] items-center gap-3 rounded-md p-2 text-left outline-none transition-colors hover:bg-state-base-hover focus-visible:bg-state-base-hover',
-                      entry.disabled && 'cursor-not-allowed opacity-60 hover:bg-transparent',
-                    )}
-                    onClick={() => selectEntry(entry)}
-                  >
-                    <span className="grid size-8 place-items-center rounded-md bg-background-subtle text-text-secondary">
-                      <Icon className="size-4" aria-hidden />
-                    </span>
-                    <span className="grid gap-0.5">
-                      <span className="text-sm font-medium text-text-primary">{entry.label}</span>
-                      <span className="text-xs text-text-tertiary">{entry.description}</span>
-                    </span>
-                    <Badge variant={entry.disabled ? 'outline' : 'secondary'}>
-                      {entry.disabled ? <Trans>Coming soon</Trans> : entry.section}
-                    </Badge>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
+    <CommandDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t`Command palette`}
+      description={t`Search, ask, or navigate.`}
+    >
+      <Command loop disablePointerSelection>
+        <CommandInput autoFocus placeholder={t`Search, ask, or navigate...`} />
+        <CommandList>
+          <CommandEmpty>
+            <Trans>No commands found.</Trans>
+          </CommandEmpty>
+          {groups.map((group, index) => {
+            const groupEntries = entries.filter((entry) => entry.group === group.id)
+            if (groupEntries.length === 0) return null
+            return (
+              <CommandGroup key={group.id} heading={group.heading}>
+                {groupEntries.map((entry) => {
+                  const Icon = entry.icon
+                  return (
+                    <CommandItem
+                      key={entry.id}
+                      value={`${entry.label} ${entry.description} ${group.heading}`}
+                      onSelect={() => selectEntry(entry)}
+                      {...(entry.disabled ? { disabled: true } : {})}
+                    >
+                      <span className="grid size-8 place-items-center rounded-md bg-background-subtle text-text-secondary group-data-[selected=true]/command-item:text-text-primary">
+                        <Icon aria-hidden />
+                      </span>
+                      <span className="grid gap-0.5">
+                        <span className="text-sm font-medium text-text-primary">{entry.label}</span>
+                        <span className="text-xs text-text-tertiary">{entry.description}</span>
+                      </span>
+                      {entry.disabled ? (
+                        <Badge variant="outline">
+                          <Trans>Coming soon</Trans>
+                        </Badge>
+                      ) : (
+                        <CommandShortcut>{group.heading}</CommandShortcut>
+                      )}
+                    </CommandItem>
+                  )
+                })}
+                {index < groups.length - 1 ? <CommandSeparator /> : null}
+              </CommandGroup>
+            )
+          })}
+        </CommandList>
         <div className="flex items-center justify-between border-t border-divider-subtle px-4 py-2 text-xs text-text-tertiary">
           <span>
-            <Trans>Enter execute · Esc close · Mod+K toggle</Trans>
+            <Trans>Enter execute · Esc close · {commandShortcut} toggle</Trans>
           </span>
         </div>
-      </DialogContent>
-    </Dialog>
+      </Command>
+    </CommandDialog>
   )
 }

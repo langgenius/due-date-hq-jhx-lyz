@@ -20,6 +20,10 @@ Use pnpm with Node `>=22.19.0`.
 - `pnpm db:generate`, `pnpm db:migrate:local`, `pnpm db:seed:demo`: manage local Drizzle/D1 schema and demo data.
 - `pnpm --filter @duedatehq/app i18n:extract`, `pnpm --filter @duedatehq/app i18n:compile`: clean obsolete Lingui entries, refresh catalogs, and compile with `--strict` so any missing translation fails; CI should fail on missing translations or uncommitted catalog drift after these commands.
 
+## Workflow
+
+After each development task, update the relevant dev log and verify DESIGN.md/docs stay aligned with the implementation.
+
 ## Coding Style & Naming Conventions
 
 Write TypeScript ESM with two-space indentation, single quotes, no semicolons, trailing commas, and 100-column formatting. Use `#*` imports inside apps and package exports for cross-package usage. React components use PascalCase, hooks use `useX`, utility files use kebab or descriptive lowercase names, and tests mirror the subject file name. Keep `packages/core` infrastructure-free and keep `packages/contracts` limited to contract/schema concerns.

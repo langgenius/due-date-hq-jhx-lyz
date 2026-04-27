@@ -2,6 +2,8 @@
 title: 'TanStack Hotkeys keyboard shell design and implementation'
 date: 2026-04-27
 author: 'Codex'
+updates:
+  - note: 'Command Palette follow-up moved the list implementation to shadcn Command/cmdk; see 2026-04-27-command-palette-cmdk-polish.md.'
 ---
 
 # TanStack Hotkeys keyboard shell design and implementation
@@ -53,4 +55,6 @@ pnpm check
 - Replace Workboard `Enter` / `E` placeholders with real detail and Evidence drawer APIs when Day 6
   evidence wiring lands.
 - Enable `G then C` and `G then A` when dedicated Clients and Alerts/Pulse routes exist.
+- Command Palette already links Pulse through the Dashboard `#pulse` anchor; the disabled `G then A`
+  navigation sequence remains reserved until an Alerts/Pulse route exists.
 - Enable `/` when Ask DueDateHQ leaves placeholder state.

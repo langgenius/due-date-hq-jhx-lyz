@@ -187,7 +187,7 @@ export function DashboardRoute() {
         </div> */}
       </header>
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card>
+        <Card id="pulse">
           <CardHeader>
             <CardTitle>
               <Trans>Risk pulse</Trans>

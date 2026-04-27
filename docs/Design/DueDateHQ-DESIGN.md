@@ -400,6 +400,8 @@
 - 居中浮层 560px 宽，`background: var(--bg-elevated)` + `border: 1px solid border-default` + `shadow: 0 8px 24px rgba(0,0,0,0.08)`
 - 输入框 mono 14px，光标是 `--accent-default`
 - 三类结果分段，section header 11px uppercase muted
+- 交互使用 shadcn `Command` / `cmdk`：ArrowUp/ArrowDown 移动 active item，Enter 执行；全局 palette 开启 `disablePointerSelection`，鼠标 hover 不改变键盘 active item
+- 鼠标 hover 是浅层中性反馈 `bg-background-subtle`；键盘 active item 使用更深的 `bg-state-base-hover`，不加左侧指示条
 - 快捷键提示用 `<kbd>` 小胶囊，`background: bg-subtle` + 1px border
 
 ### 4.6 Penalty Radar Strip（首屏顶栏）

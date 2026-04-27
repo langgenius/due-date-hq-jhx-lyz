@@ -369,8 +369,8 @@ msgid "Encrypted · Auto-saves · Renamable later"
 msgstr "全程加密 · 自动保存 · 可随时重命名"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Enter execute · Esc close · Mod+K toggle"
-msgstr "Enter 执行 · Esc 关闭 · Mod+K 切换"
+msgid "Enter execute · Esc close · {commandShortcut} toggle"
+msgstr "Enter 执行 · Esc 关闭 · {commandShortcut} 切换"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
@@ -643,6 +643,10 @@ msgid "Open risk"
 msgstr "待处理风险"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open the dashboard Pulse banner."
+msgstr "打开仪表盘动态提醒。"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
 msgstr "打开 Migration Copilot 向导。"
 
@@ -746,10 +750,6 @@ msgstr "主导航"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Pulse"
 msgstr "动态"
-
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Pulse detail is wired in Day 6."
-msgstr "Pulse 详情将在第 6 天接入。"
 
 #: src/routes/workboard.tsx
 msgid "Queue controls"
