@@ -1391,7 +1391,7 @@ msgstr "Web 推送已禁用"
 #: src/routes/login.tsx
 msgid "Welcome back to the workbench."
 msgstr ""
-"欢迎回到工作台。欢迎回到工作台。欢迎回来。\n"
+"欢迎回到工作台。欢迎回来。\n"
 "事务所工作台已就绪。"
 
 #: src/features/migration/Step1Intake.tsx
