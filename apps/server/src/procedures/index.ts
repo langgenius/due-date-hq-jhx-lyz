@@ -2,6 +2,7 @@ import { ORPCError } from '@orpc/server'
 import { clientsHandlers } from './clients'
 import { migrationHandlers } from './migration'
 import { obligationsHandlers } from './obligations'
+import { rulesHandlers } from './rules'
 import { workboardHandlers } from './workboard'
 import { os } from './_root'
 
@@ -57,5 +58,10 @@ export const router = os.router({
     singleUndo: migrationHandlers.singleUndo,
     getBatch: migrationHandlers.getBatch,
     listErrors: migrationHandlers.listErrors,
+  },
+  rules: {
+    listSources: rulesHandlers.listSources,
+    listRules: rulesHandlers.listRules,
+    coverage: rulesHandlers.coverage,
   },
 })

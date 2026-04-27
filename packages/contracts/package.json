@@ -15,6 +15,7 @@
     "./dashboard": "./src/dashboard.ts",
     "./workboard": "./src/workboard.ts",
     "./pulse": "./src/pulse.ts",
+    "./rules": "./src/rules.ts",
     "./migration": "./src/migration.ts",
     "./errors": "./src/errors.ts"
   },

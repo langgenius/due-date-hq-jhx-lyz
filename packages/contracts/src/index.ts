@@ -11,6 +11,7 @@ import { dashboardContract } from './dashboard'
 import { workboardContract } from './workboard'
 import { pulseContract } from './pulse'
 import { migrationContract } from './migration'
+import { rulesContract } from './rules'
 
 export const appContract = oc.router({
   clients: clientsContract,
@@ -19,6 +20,7 @@ export const appContract = oc.router({
   workboard: workboardContract,
   pulse: pulseContract,
   migration: migrationContract,
+  rules: rulesContract,
 })
 
 export type AppContract = typeof appContract
@@ -64,6 +66,42 @@ export {
   WorkboardSortSchema,
   workboardContract,
 } from './workboard'
+
+export type {
+  DueDateLogic,
+  ObligationRule,
+  RuleCoverageRow,
+  RuleJurisdiction,
+  RuleSource,
+  RulesContract,
+  RulesListInput,
+  RuleSourcesListInput,
+} from './rules'
+export {
+  AcquisitionMethodSchema,
+  CoverageStatusSchema,
+  DueDateLogicSchema,
+  EntityApplicabilitySchema,
+  ExtensionPolicySchema,
+  ObligationEventTypeSchema,
+  ObligationRuleSchema,
+  RuleCoverageRowSchema,
+  RuleEvidenceSchema,
+  RuleJurisdictionSchema,
+  RuleNotificationChannelSchema,
+  RuleQualityChecklistSchema,
+  RuleRiskLevelSchema,
+  RuleSourceSchema,
+  RuleSourcesListInputSchema,
+  RuleSourceTypeSchema,
+  RuleStatusSchema,
+  RulesListInputSchema,
+  rulesContract,
+  RuleTierSchema,
+  SourceCadenceSchema,
+  SourceHealthStatusSchema,
+  SourcePrioritySchema,
+} from './rules'
 
 export type {
   ApplyResult,

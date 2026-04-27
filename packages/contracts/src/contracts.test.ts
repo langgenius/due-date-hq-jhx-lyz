@@ -10,6 +10,12 @@ import { ObligationStatusSchema } from './shared/enums'
 import { ClientSchema } from './shared/client'
 import { WorkboardListInputSchema, WorkboardSortSchema, workboardContract } from './workboard'
 import { MigrationErrorStageSchema, migrationContract } from './migration'
+import {
+  ObligationRuleSchema,
+  RuleCoverageRowSchema,
+  RuleSourceSchema,
+  rulesContract,
+} from './rules'
 
 describe('@duedatehq/contracts', () => {
   it('keeps shared error codes stable', () => {
@@ -96,6 +102,90 @@ describe('@duedatehq/contracts', () => {
     )
   })
 
+  it('freezes rules read contracts', () => {
+    expect(Object.keys(rulesContract)).toEqual(['listSources', 'listRules', 'coverage'])
+
+    const source = RuleSourceSchema.parse({
+      id: 'fed.irs_pub_509_2026',
+      jurisdiction: 'FED',
+      title: 'IRS Publication 509 (2026), Tax Calendars',
+      url: 'https://www.irs.gov/publications/p509',
+      sourceType: 'publication',
+      acquisitionMethod: 'html_watch',
+      cadence: 'pre_season',
+      priority: 'critical',
+      healthStatus: 'healthy',
+      isEarlyWarning: false,
+      notificationChannels: ['ops_source_change', 'publish_preview'],
+      lastReviewedOn: '2026-04-27',
+    })
+    expect(source.jurisdiction).toBe('FED')
+
+    const rule = ObligationRuleSchema.parse({
+      id: 'fed.1065.return.2025',
+      title: 'Federal Form 1065 return for partnerships',
+      jurisdiction: 'FED',
+      entityApplicability: ['partnership', 'llc'],
+      taxType: 'federal_1065',
+      formName: 'Form 1065',
+      eventType: 'filing',
+      isFiling: true,
+      isPayment: false,
+      taxYear: 2025,
+      applicableYear: 2026,
+      ruleTier: 'basic',
+      status: 'verified',
+      coverageStatus: 'full',
+      riskLevel: 'med',
+      requiresApplicabilityReview: false,
+      dueDateLogic: {
+        kind: 'nth_day_after_tax_year_end',
+        monthOffset: 3,
+        day: 15,
+        holidayRollover: 'next_business_day',
+      },
+      extensionPolicy: {
+        available: true,
+        formName: 'Form 7004',
+        durationMonths: 6,
+        paymentExtended: false,
+        notes: 'Filing extension only.',
+      },
+      sourceIds: ['fed.irs_pub_509_2026'],
+      evidence: [
+        {
+          sourceId: 'fed.irs_pub_509_2026',
+          locator: 'Partnerships / Form 1065',
+          summary: 'Due on the 15th day of the 3rd month after tax year end.',
+        },
+      ],
+      defaultTip: 'Calendar-year partnership returns for tax year 2025 roll to March 16, 2026.',
+      quality: {
+        filingPaymentDistinguished: true,
+        extensionHandled: true,
+        calendarFiscalSpecified: true,
+        holidayRolloverHandled: true,
+        crossVerified: true,
+        exceptionChannel: true,
+      },
+      verifiedBy: 'ops.rules.manual',
+      verifiedAt: '2026-04-27',
+      nextReviewOn: '2026-11-15',
+      version: 1,
+    })
+    expect(rule.status).toBe('verified')
+
+    expect(
+      RuleCoverageRowSchema.parse({
+        jurisdiction: 'CA',
+        sourceCount: 5,
+        verifiedRuleCount: 5,
+        candidateCount: 0,
+        highPrioritySourceCount: 5,
+      }).jurisdiction,
+    ).toBe('CA')
+  })
+
   it('mounts every domain on appContract', () => {
     expect(Object.keys(appContract)).toEqual(
       expect.arrayContaining([
@@ -105,6 +195,7 @@ describe('@duedatehq/contracts', () => {
         'workboard',
         'pulse',
         'migration',
+        'rules',
       ]),
     )
   })

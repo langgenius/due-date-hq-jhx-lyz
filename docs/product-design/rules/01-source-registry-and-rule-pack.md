@@ -1,6 +1,6 @@
 # 01 · Source Registry 与 MVP Rule Pack
 
-> 版本：v0.1（14 天 MVP · 2026-04-27）
+> 版本：v0.2（14 天 MVP · 2026-04-27）
 > 上游：`README.md` §2 / §4、`docs/report/DueDateHQ-MVP-Deadline-Rules-Plan.md` §3-§10
 > 目标：定义 rules 如何从官方来源采集、进入候选、人工核验、发布为结构化数据，并被 obligation / reminder / AI brief 消费
 
@@ -18,6 +18,31 @@ Official source
 ```
 
 MVP 的风险边界是：**AI 可以加速抽取，不能替代核验；candidate 可以提醒内部，不影响用户 deadline；verified rule 才能生成 obligation。**
+
+## 1.1 当前代码实现
+
+第一版结构化数据已经落到 `packages/core/src/rules/index.ts`，以
+`@duedatehq/core/rules` 暴露，并通过 `rules.*` oRPC contract 接入 server。当前代码实现是本文件的 MVP seed subset：
+
+| Jurisdiction | Sources | Verified rules | Candidates | 当前重点                                                                     |
+| ------------ | ------- | -------------- | ---------- | ---------------------------------------------------------------------------- |
+| `FED`        | 4       | 4              | 1          | 1065、1120-S、1120、corporate estimated tax、disaster relief candidate watch |
+| `CA`         | 5       | 5              | 0          | LLC Form 568、LLC annual tax、LLC estimated fee、100S、100                   |
+| `NY`         | 3       | 4              | 0          | IT-204、IT-204-LL、CT-3、PTET return/extension                               |
+| `TX`         | 3       | 2              | 0          | franchise annual report、PIR/OIR                                             |
+| `FL`         | 3       | 2              | 0          | F-1120、corporate estimated tax                                              |
+| `WA`         | 4       | 3              | 0          | combined excise monthly / quarterly / annual                                 |
+
+本文件下方的完整 source registry 与 rule pack 仍保留产品目标口径；代码里的
+seed 先覆盖 14 天 MVP 能生成、解释和提醒的最小 verified subset。后续新增
+规则时，以 `packages/core/src/rules/index.ts` 为结构化数据源，并同步更新本表。
+
+本轮核验后的降级规则：
+
+- CA Form 568：官方 booklet 明确 LLC return due date 依赖 federal classification 与 owner type，因此代码中标为 `applicability_review` + `manual`，不作为全 LLC 的无条件日期。
+- FL F-1120：DOR PDF 是按 taxable year end 提供日期表，因此代码中保留 `source_defined_calendar`，不硬编码为单一 calendar-year 规则。
+- TX PIR/OIR：官方页面说明 PIR/OIR due on annual franchise report due date，但 entity 类型决定 PIR vs OIR，因此保留 `requiresApplicabilityReview`。
+- FEMA：只作为 IRS disaster relief early warning，不作为 tax deadline source。
 
 ## 2. Source Registry
 
