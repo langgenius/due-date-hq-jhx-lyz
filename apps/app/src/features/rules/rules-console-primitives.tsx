@@ -27,7 +27,7 @@ export function RulesPageHeader({ description }: { description: string }) {
           <Trans>READ-ONLY</Trans>
         </Badge>
       </div>
-      <p className="max-w-[720px] text-[13px] leading-5 text-text-secondary">{description}</p>
+      <p className="max-w-[1080px] text-[13px] leading-5 text-text-secondary">{description}</p>
     </header>
   )
 }

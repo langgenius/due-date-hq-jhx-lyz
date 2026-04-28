@@ -2,7 +2,11 @@
 
 > 版本：v0.1（14 天 MVP · 2026-04-27）
 > 上游：`01-source-registry-and-rule-pack.md`
-> 下游：[`docs/dev-log/2026-04-27-rules-console-shell.md`](../../dev-log/2026-04-27-rules-console-shell.md) 已把本册第 3 节 IA 收敛为 4-tab 只读 P0 壳（Coverage / Sources / Rule Library / Generation Preview）并在 Figma 定稿。Candidates / Publish Preview 两 tab 留给 P1。
+> 下游：
+>
+> - [`docs/dev-log/2026-04-27-rules-console-shell.md`](../../dev-log/2026-04-27-rules-console-shell.md) 已把本册第 3 节 IA 收敛为 4-tab 只读 P0 壳（Coverage / Sources / Rule Library / Generation Preview）并在 Figma 定稿。Candidates / Publish Preview 两 tab 留给 P1。
+> - [`docs/dev-log/2026-04-28-rules-console-fullwidth-coverage.md`](../../dev-log/2026-04-28-rules-console-fullwidth-coverage.md) 把页面布局从"居中 880px settings 列"改成"全宽 ops workbench"，Coverage tab 重做为 KPI 条 + 左 7/12 汇总表 + 右 5/12 矩阵；header 段落 max-w 放宽到 1080。
+>
 > 目标：定义 rules 如何沉淀成真实页面，让内部团队完成 source watch、candidate review、rule publish，并把 verified rules 安全地交给产品消费
 
 ## 1. 页面定位
@@ -54,7 +58,27 @@ MVP 可先放在受保护 app 内：
 
 给内部团队一个一眼可见的 coverage map，避免“以为覆盖了，其实只是 federal fallback”。
 
-### 4.2 布局
+### 4.2 布局（v0.5 · 2026-04-28，全宽 ops workbench）
+
+> 取代了 v0.1 的"居中 880px 单列上下叠两表"。判定依据：Coverage tab 内容 100% 是表格 + 矩阵 + KPI，是 ops 数据界面而不是 settings form——按 `DESIGN.md` §5.2 新规则走 Workboard 同源的全宽布局。详见 [`2026-04-28-rules-console-fullwidth-coverage.md`](../../dev-log/2026-04-28-rules-console-fullwidth-coverage.md)。
+
+自上而下三块，全部锚 `left=24`（与 tab nav 同列）：
+
+1. **KPI 条**（`SectionFrame` + 4 格 grid，`sm:grid-cols-4` divide-x）
+   - Verified rules · sum(verifiedRuleCount)
+   - Candidates · sum(candidateCount)（>0 时数字走 `text-status-review` 紫色，0 时不强调）
+   - Sources watched · sum(sourceCount)
+   - Jurisdictions · rows.length，caption 动态："N fully covered · M with open candidates"
+2. **Jurisdiction summary**（`xl:col-span-7`）
+   - JUR · NAME · VERIFIED · CANDIDATE · SOURCES · STATUS（数字列右对齐，金融报表惯例）
+   - STATUS pill 颜色规则不变：FED candidate watch 用 `accent`，TX/FL/WA review 用 `severity-medium`，CA/NY basic+review 用 `background-subtle`
+3. **Jurisdiction × Entity 矩阵**（`xl:col-span-5`）
+   - 6 jurisdictions × 4 entity（LLC / PARTNERSHIP / S-CORP / C-CORP），每格 `text-center`，dot + label
+   - 下方挂 `CoverageLegend`（verified / review / no rule）
+
+`< xl` 断点下 2、3 自动 stack 回单列，阅读顺序与 v0.1 一致。
+
+### 4.2.1 旧布局（v0.1，2026-04-27 → 2026-04-28，已 superseded）
 
 ```text
 Rules Coverage
@@ -344,9 +368,10 @@ AI Tip 只能使用 verified rule 和 source summary：
 
 ## 12. 变更记录
 
-| 版本 | 日期       | 作者  | 摘要                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| ---- | ---------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| v0.4 | 2026-04-27 | Codex | P0.5 落地：Rule Library 行可点 → 右侧 Sheet drawer（Applicability / Due-date logic / Extension / Review reasons / Evidence / Verification 6 节）；Sources 行整行 + ↗ icon 跳官方页；Generation Preview 假链接换成真链接；Coverage 头部描述讲清 Sources / Rules / Preview 三层关系。Figma `Settings · Rules` section 增加 5/4 状态稿（drawer 打开态）作为对齐基准。EvidenceCard 修复 inline-flex items-center 继承 + truncate 链断裂导致的「文字居中、长 title 把 badge 挤出 card」layout bug。详见 `docs/dev-log/2026-04-27-rules-console-detail-drawer.md`。 |
-| v0.3 | 2026-04-27 | Codex | 侧栏 Settings 容器再收敛为非交互 section header（icon + label + 静态 chevron-down，无 hover bg、不可点击），子项始终展开；`/settings` 由 router loader 直接重定向到 `/settings/rules`；详见 `docs/dev-log/2026-04-27-sidebar-settings-flatten.md`。                                                                                                                                                                                                                                                                                                           |
-| v0.2 | 2026-04-27 | Codex | 实现侧 IA 收敛：保留 `Settings` 作为侧栏容器（路由仍为 `/settings/rules`），紫色高亮只落在 Rules / Members / Profile 子项，父项保持中性可点击；详见 `docs/dev-log/2026-04-27-rules-console-shell.md` § Sidebar IA Decision（已被 v0.3 取代，保留作历史）。                                                                                                                                                                                                                                                                                                    |
-| v0.1 | 2026-04-27 | Codex | 新增 Rules Console 页面设计、审核发布流程和用户侧消费设计。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 版本 | 日期       | 作者  | 摘要                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ---- | ---------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v0.5 | 2026-04-28 | Codex | 布局判定从 URL（`/settings`）切换到内容形态：Rules Console 是 ops data surface，全宽展开（去掉 `mx-auto max-w-[928px]`），与 tab nav / Workboard 共锚 `left=24`。Coverage tab 重做为 KPI 条 + 左 7/12 jurisdiction summary + 右 5/12 jurisdiction × entity 矩阵；KPI 数字走 `font-mono text-2xl tabular-nums`，candidate>0 时数字 tone 走 `text-status-review`。`RulesPageHeader` 段落 max-w 从 720 → 1080，避免在 1512 视口下挤成 3 行。`DESIGN.md` §5.2 同步增订 settings forms vs settings data surfaces 的判定规则。详见 `docs/dev-log/2026-04-28-rules-console-fullwidth-coverage.md`。 |
+| v0.4 | 2026-04-27 | Codex | P0.5 落地：Rule Library 行可点 → 右侧 Sheet drawer（Applicability / Due-date logic / Extension / Review reasons / Evidence / Verification 6 节）；Sources 行整行 + ↗ icon 跳官方页；Generation Preview 假链接换成真链接；Coverage 头部描述讲清 Sources / Rules / Preview 三层关系。Figma `Settings · Rules` section 增加 5/4 状态稿（drawer 打开态）作为对齐基准。EvidenceCard 修复 inline-flex items-center 继承 + truncate 链断裂导致的「文字居中、长 title 把 badge 挤出 card」layout bug。详见 `docs/dev-log/2026-04-27-rules-console-detail-drawer.md`。                                |
+| v0.3 | 2026-04-27 | Codex | 侧栏 Settings 容器再收敛为非交互 section header（icon + label + 静态 chevron-down，无 hover bg、不可点击），子项始终展开；`/settings` 由 router loader 直接重定向到 `/settings/rules`；详见 `docs/dev-log/2026-04-27-sidebar-settings-flatten.md`。                                                                                                                                                                                                                                                                                                                                          |
+| v0.2 | 2026-04-27 | Codex | 实现侧 IA 收敛：保留 `Settings` 作为侧栏容器（路由仍为 `/settings/rules`），紫色高亮只落在 Rules / Members / Profile 子项，父项保持中性可点击；详见 `docs/dev-log/2026-04-27-rules-console-shell.md` § Sidebar IA Decision（已被 v0.3 取代，保留作历史）。                                                                                                                                                                                                                                                                                                                                   |
+| v0.1 | 2026-04-27 | Codex | 新增 Rules Console 页面设计、审核发布流程和用户侧消费设计。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |

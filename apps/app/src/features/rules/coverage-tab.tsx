@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 
-import type { RuleJurisdiction } from '@duedatehq/contracts'
+import type { RuleCoverageRow, RuleJurisdiction } from '@duedatehq/contracts'
 import {
   Table,
   TableBody,
@@ -58,6 +58,46 @@ function CoverageStatusPill({
   )
 }
 
+function StatCell({
+  label,
+  value,
+  caption,
+  emphasis,
+}: {
+  label: string
+  value: number
+  caption: string
+  emphasis?: 'accent' | 'warning'
+}) {
+  const valueClass =
+    emphasis === 'accent'
+      ? 'text-status-review'
+      : emphasis === 'warning'
+        ? 'text-severity-medium'
+        : 'text-text-primary'
+  return (
+    <div className="flex flex-col gap-2 px-5 py-4">
+      <span className="text-[11px] font-medium tracking-[0.08em] text-text-tertiary uppercase">
+        {label}
+      </span>
+      <span
+        className={cn('font-mono text-2xl leading-none font-semibold tabular-nums', valueClass)}
+      >
+        {value}
+      </span>
+      <span className="text-xs text-text-tertiary">{caption}</span>
+    </div>
+  )
+}
+
+function aggregateCoverage(rows: readonly RuleCoverageRow[]) {
+  const verified = rows.reduce((sum, row) => sum + row.verifiedRuleCount, 0)
+  const candidates = rows.reduce((sum, row) => sum + row.candidateCount, 0)
+  const sources = rows.reduce((sum, row) => sum + row.sourceCount, 0)
+  const fullyCovered = rows.filter((row) => row.candidateCount === 0).length
+  return { verified, candidates, sources, fullyCovered, jurisdictions: rows.length }
+}
+
 export function CoverageTab() {
   const { t } = useLingui()
   const coverageQuery = useQuery(orpc.rules.coverage.queryOptions({ input: undefined }))
@@ -98,90 +138,154 @@ export function CoverageTab() {
   }
 
   const rows = coverageQuery.data ?? []
+  const stats = aggregateCoverage(rows)
 
   return (
     <div className="flex flex-col gap-6">
+      {/*
+        KPI strip — flat panel anchored to the same `left=24` as the tab nav.
+        Four cells separated by 1 px hairlines (Level 1 surface, no shadow per
+        DESIGN.md §6). Numbers are tabular-nums Geist Mono so the row reads as
+        a financial scoreboard, not a marketing block.
+      */}
       <SectionFrame>
-        <Table>
-          <TableHeader className="bg-background-subtle">
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[62px]">JUR</TableHead>
-              <TableHead>NAME</TableHead>
-              <TableHead className="w-[104px]">VERIFIED</TableHead>
-              <TableHead className="w-[104px]">CANDIDATE</TableHead>
-              <TableHead className="w-[100px]">SOURCES</TableHead>
-              <TableHead className="w-[340px]">STATUS</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.jurisdiction} className="h-11 hover:bg-transparent">
-                <TableCell className="py-2">
-                  <JurisdictionCode code={row.jurisdiction} />
-                </TableCell>
-                <TableCell className="py-2 text-sm font-medium">
-                  {jurisdictionLabels[row.jurisdiction]}
-                </TableCell>
-                <TableCell className="py-2 font-mono text-sm tabular-nums">
-                  {row.verifiedRuleCount}
-                </TableCell>
-                <TableCell
-                  className={cn(
-                    'py-2 font-mono text-sm tabular-nums',
-                    // Candidate count tones the column purple only when there
-                    // is at least one candidate (Figma 218:24); zero values
-                    // stay muted to avoid drawing the eye to "nothing here".
-                    row.candidateCount > 0 ? 'text-status-review' : 'text-text-muted',
-                  )}
-                >
-                  {row.candidateCount}
-                </TableCell>
-                <TableCell className="py-2 font-mono text-sm tabular-nums text-text-secondary">
-                  {row.sourceCount}
-                </TableCell>
-                <TableCell className="py-2">
-                  <CoverageStatusPill
-                    jurisdiction={row.jurisdiction}
-                    label={coverageStatusLabels[row.jurisdiction]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="grid grid-cols-2 divide-y divide-divider-regular sm:grid-cols-4 sm:divide-x sm:divide-y-0">
+          <StatCell
+            label={t`Verified rules`}
+            value={stats.verified}
+            caption={t`reminder-ready across MVP scope`}
+          />
+          <StatCell
+            label={t`Candidates`}
+            value={stats.candidates}
+            caption={t`pending ops review`}
+            {...(stats.candidates > 0 ? { emphasis: 'accent' as const } : {})}
+          />
+          <StatCell
+            label={t`Sources watched`}
+            value={stats.sources}
+            caption={t`official channels under monitor`}
+          />
+          <StatCell
+            label={t`Jurisdictions`}
+            value={stats.jurisdictions}
+            caption={t`${stats.fullyCovered} fully covered · ${stats.jurisdictions - stats.fullyCovered} with open candidates`}
+          />
+        </div>
       </SectionFrame>
 
-      <div className="flex flex-col gap-2">
-        <SectionLabel>
-          <Trans>JURISDICTION × ENTITY · what is verifiable per (jurisdiction, entity) pair</Trans>
-        </SectionLabel>
-        <SectionFrame>
-          <Table>
-            <TableHeader className="bg-background-subtle">
-              <TableRow className="hover:bg-transparent">
-                <TableHead>JURISDICTION</TableHead>
-                {ENTITY_COLUMNS.map((entity) => (
-                  <TableHead key={entity}>{entity.replaceAll('_', '-').toUpperCase()}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {RULE_JURISDICTIONS.map((jurisdiction) => (
-                <TableRow key={jurisdiction} className="h-9 hover:bg-transparent">
-                  <TableCell className="py-2 text-sm font-medium">
-                    {jurisdictionLabels[jurisdiction]}
-                  </TableCell>
-                  {ENTITY_COLUMNS.map((entity) => (
-                    <TableCell key={entity} className="py-2">
-                      <CoverageCell state={COVERAGE_MATRIX[jurisdiction][entity]} />
+      {/*
+        Two-column ops layout:
+        - Left (col-span-7): per-jurisdiction summary — the substantive table
+          where each row carries V/C/SRC counts plus the human-readable STATUS
+          pill. This is the primary "what is the state per jurisdiction"
+          answer the page exists to surface.
+        - Right (col-span-5): jurisdiction × entity matrix — a denser
+          "scanner" view that confirms which (jurisdiction, entity) pairs
+          actually generate verifiable obligations vs. fall back to review.
+        On viewports narrower than the `xl` breakpoint they stack with the
+        summary on top — same reading order as the original 880 px column.
+      */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+        <section className="flex flex-col gap-2 xl:col-span-7">
+          <div className="flex items-baseline justify-between">
+            <SectionLabel>
+              <Trans>JURISDICTION SUMMARY</Trans>
+            </SectionLabel>
+            <span className="text-xs text-text-tertiary">
+              <Trans>verified · candidate · sources · current state</Trans>
+            </span>
+          </div>
+          <SectionFrame>
+            <Table>
+              <TableHeader className="bg-background-subtle">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[64px]">JUR</TableHead>
+                  <TableHead>NAME</TableHead>
+                  <TableHead className="w-[88px] text-right">VERIFIED</TableHead>
+                  <TableHead className="w-[96px] text-right">CANDIDATE</TableHead>
+                  <TableHead className="w-[88px] text-right">SOURCES</TableHead>
+                  <TableHead className="w-[260px]">STATUS</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.jurisdiction} className="h-11 hover:bg-transparent">
+                    <TableCell className="py-2">
+                      <JurisdictionCode code={row.jurisdiction} />
                     </TableCell>
+                    <TableCell className="py-2 text-sm font-medium">
+                      {jurisdictionLabels[row.jurisdiction]}
+                    </TableCell>
+                    <TableCell className="py-2 text-right font-mono text-sm tabular-nums">
+                      {row.verifiedRuleCount}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        'py-2 text-right font-mono text-sm tabular-nums',
+                        // Candidate count tones the column purple only when there
+                        // is at least one candidate (Figma 218:24); zero values
+                        // stay muted to avoid drawing the eye to "nothing here".
+                        row.candidateCount > 0 ? 'text-status-review' : 'text-text-muted',
+                      )}
+                    >
+                      {row.candidateCount}
+                    </TableCell>
+                    <TableCell className="py-2 text-right font-mono text-sm tabular-nums text-text-secondary">
+                      {row.sourceCount}
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <CoverageStatusPill
+                        jurisdiction={row.jurisdiction}
+                        label={coverageStatusLabels[row.jurisdiction]}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </SectionFrame>
+        </section>
+
+        <section className="flex flex-col gap-2 xl:col-span-5">
+          <div className="flex items-baseline justify-between">
+            <SectionLabel>
+              <Trans>JURISDICTION × ENTITY</Trans>
+            </SectionLabel>
+            <span className="text-xs text-text-tertiary">
+              <Trans>verifiable per (jurisdiction, entity) pair</Trans>
+            </span>
+          </div>
+          <SectionFrame>
+            <Table>
+              <TableHeader className="bg-background-subtle">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>JURISDICTION</TableHead>
+                  {ENTITY_COLUMNS.map((entity) => (
+                    <TableHead key={entity} className="text-center">
+                      {entity.replaceAll('_', '-').toUpperCase()}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </SectionFrame>
-        <CoverageLegend />
+              </TableHeader>
+              <TableBody>
+                {RULE_JURISDICTIONS.map((jurisdiction) => (
+                  <TableRow key={jurisdiction} className="h-11 hover:bg-transparent">
+                    <TableCell className="py-2 text-sm font-medium">
+                      {jurisdictionLabels[jurisdiction]}
+                    </TableCell>
+                    {ENTITY_COLUMNS.map((entity) => (
+                      <TableCell key={entity} className="py-2 text-center">
+                        <CoverageCell state={COVERAGE_MATRIX[jurisdiction][entity]} />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </SectionFrame>
+          <CoverageLegend />
+        </section>
       </div>
     </div>
   )

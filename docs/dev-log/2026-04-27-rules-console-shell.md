@@ -1,5 +1,14 @@
 # 2026-04-27 · Rules Console Shell (`/settings/rules`)
 
+> **2026-04-28 update — Layout decisions superseded:** the "centered 880 px
+> settings column" decision in this dev-log (the `mx-auto max-w-[928px]`
+> wrapper, the Sources tab `table-fixed` + `compactAcquisitionMethod` /
+> `compactSourceType` workarounds, the 720 px description max-width) has
+> been replaced by the full-width ops workbench layout in
+> [`2026-04-28-rules-console-fullwidth-coverage.md`](./2026-04-28-rules-console-fullwidth-coverage.md).
+> The IA / data-wiring / token-discipline / sidebar decisions in this
+> dev-log **still stand**.
+
 ## Context
 
 `docs/product-design/rules/02-rules-console-product-design.md` defines the

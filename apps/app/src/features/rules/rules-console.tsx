@@ -12,16 +12,24 @@ import { SourcesTab } from './sources-tab'
 import { isRulesTab, RULES_TABS, type RulesTab } from './rules-console-model'
 
 /**
- * Rules Console — 4-tab read-only shell.
+ * Rules Console — 4-tab read-only ops workbench.
  *
- * Layout invariants (Figma 214:2 / 219:2 / 224:2 / 225:2):
+ * Layout invariants (revised 2026-04-28, supersedes the centered 880 px column
+ * shipped in the original Figma 214:2 / 219:2 / 224:2 / 225:2 frames):
  *  - SidebarInset is a 100% wide flex column. The tab nav is full width with
  *    24 px left padding so it visually anchors to the same vertical line as
  *    the sidebar's interior content.
- *  - Page content (header + panel) lives in a centered 880 px column with
- *    24 px outer padding so the math `viewport - sidebar - 880 → / 2` lands
- *    the content at left = 170 px on the 1440 px Figma frame, exactly where
- *    every tab puts the `Rules Console` title and tables.
+ *  - Page content (header + panel) lives in a full-width column with the same
+ *    24 px outer padding as the tab nav, so header + tables + tabs all share
+ *    a single left anchor at `left = 24` from the SidebarInset edge.
+ *    Rationale: Rules Console is an internal ops workbench (per
+ *    `docs/product-design/rules/02-rules-console-product-design.md` §1) where
+ *    every tab is a data table or matrix, not a settings form. The original
+ *    "Settings page → max-w 880" rule from `DESIGN.md` §5.2 was tuned for
+ *    forms (Profile / Members) and starves the tables here — see the Sources
+ *    tab `Show all` horizontal-scroll bug in
+ *    `docs/dev-log/2026-04-27-rules-console-shell.md` (§ Sources tab table
+ *    widened on Show all).
  *  - The wrapping `<Tabs>` owns the route viewport height. The tab nav is a
  *    non-scrolling top rail; only the content column below it scrolls.
  *  - The wrapping `<Tabs>` defaults to `flex gap-2 data-horizontal:flex-col`
@@ -107,7 +115,7 @@ export function RulesConsole() {
         </TabsList>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <div className="mx-auto flex w-full max-w-[928px] flex-col gap-6 px-6 py-6">
+        <div className="flex w-full flex-col gap-6 px-6 py-6">
           <RulesPageHeader description={description} />
           <RulesTabPanel activeTab={activeTab} />
         </div>

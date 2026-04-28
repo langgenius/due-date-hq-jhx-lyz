@@ -39,6 +39,12 @@ msgstr "{0, plural, other {# 行已准备就绪可以导入}}"
 msgid "{0, plural, one {We imported the first 1000 of # row. Split your file to import more.} other {We imported the first 1000 of # rows. Split your file to import more.}}"
 msgstr "{0, plural, other {共 # 行，我们仅读取了前 1000 行。请拆分文件后再次导入。}}"
 
+#. placeholder {0}: stats.fullyCovered
+#. placeholder {1}: stats.jurisdictions - stats.fullyCovered
+#: src/features/rules/coverage-tab.tsx
+msgid "{0} fully covered · {1} with open candidates"
+msgstr "{0} 已完整覆盖 · {1} 有待审 candidate"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, other {# 个客户}}"
@@ -231,6 +237,10 @@ msgstr "候选"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Candidate · never generates user reminders."
 msgstr "候选规则 · 从不生成用户提醒。"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Candidates"
+msgstr "Candidate"
 
 #. placeholder {0}: row.clientName
 #: src/routes/workboard.tsx
@@ -592,13 +602,21 @@ msgid "IRS transcript source was checked this morning."
 msgstr "IRS 账户记录来源已于今早核验。"
 
 #: src/features/rules/coverage-tab.tsx
-msgid "JURISDICTION × ENTITY · what is verifiable per (jurisdiction, entity) pair"
-msgstr "辖区 × 实体 · 按 (辖区，实体) 配对的可核验状态"
+msgid "JURISDICTION × ENTITY"
+msgstr "辖区 × 实体类型"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "JURISDICTION SUMMARY"
+msgstr "辖区汇总"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Jurisdiction:"
 msgstr "辖区："
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Jurisdictions"
+msgstr "辖区"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Keep editing"
@@ -791,6 +809,10 @@ msgstr "义务队列"
 msgid "obligations"
 msgstr "义务"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "official channels under monitor"
+msgstr "正在监听的官方渠道"
+
 #: src/routes/dashboard.tsx
 msgid "One row lacks a usable source URL."
 msgstr "有一行缺少可用的来源 URL。"
@@ -897,6 +919,10 @@ msgstr "按罚款金额加权"
 msgid "Pending"
 msgstr "待处理"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "pending ops review"
+msgstr "等待 ops 复核"
+
 #: src/routes/onboarding.tsx
 msgid "Please enter at least 2 characters."
 msgstr "请至少输入 2 个字符。"
@@ -977,6 +1003,10 @@ msgstr "提醒就绪"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgstr "提醒就绪 — {0} 项义务，将触发 30 / 7 / 1 天提醒"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "reminder-ready across MVP scope"
+msgstr "MVP 范围内可触发提醒"
 
 #: src/routes/dashboard.tsx
 msgid "Representative source states wired with existing components."
@@ -1209,6 +1239,10 @@ msgstr "来源"
 msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
 msgstr "Sources 是我们监控的官方原料（31 个）。Rules 是我们加工出的截止日模板（26 条 · 25 已核验 · 1 候选）。Preview 展示规则会为某个客户生成什么 obligation —— 可提醒的 obligation 只来自已核验规则。"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "Sources watched"
+msgstr "监听中的来源"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "SSN-like columns blocked"
 msgstr "已拦截疑似 SSN 列"
@@ -1321,6 +1355,10 @@ msgstr "无法启动 Google 登录"
 msgid "Unexpected route error"
 msgstr "路由出现意外错误"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "verifiable per (jurisdiction, entity) pair"
+msgstr "每个 (辖区, 实体类型) 组合是否可验证"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Verification"
 msgstr "核验"
@@ -1339,6 +1377,10 @@ msgstr "已核验"
 msgid "verified — reminder will fire"
 msgstr "已核验 —— 将触发提醒"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "verified · candidate · sources · current state"
+msgstr "verified · candidate · sources · 当前状态"
+
 #: src/routes/dashboard.tsx
 msgid "verified {verifiedAt}"
 msgstr "{verifiedAt} 已核验"
@@ -1350,6 +1392,10 @@ msgstr "核验于"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Verified by"
 msgstr "核验人"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Verified rules"
+msgstr "Verified 规则"
 
 #: src/routes/workboard.tsx
 msgid "Waiting on client"

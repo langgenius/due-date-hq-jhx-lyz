@@ -39,6 +39,12 @@ msgstr "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 msgid "{0, plural, one {We imported the first 1000 of # row. Split your file to import more.} other {We imported the first 1000 of # rows. Split your file to import more.}}"
 msgstr "{0, plural, one {We imported the first 1000 of # row. Split your file to import more.} other {We imported the first 1000 of # rows. Split your file to import more.}}"
 
+#. placeholder {0}: stats.fullyCovered
+#. placeholder {1}: stats.jurisdictions - stats.fullyCovered
+#: src/features/rules/coverage-tab.tsx
+msgid "{0} fully covered · {1} with open candidates"
+msgstr "{0} fully covered · {1} with open candidates"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, one {# client} other {# clients}}"
@@ -231,6 +237,10 @@ msgstr "Candidate"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Candidate · never generates user reminders."
 msgstr "Candidate · never generates user reminders."
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Candidates"
+msgstr "Candidates"
 
 #. placeholder {0}: row.clientName
 #: src/routes/workboard.tsx
@@ -592,13 +602,21 @@ msgid "IRS transcript source was checked this morning."
 msgstr "IRS transcript source was checked this morning."
 
 #: src/features/rules/coverage-tab.tsx
-msgid "JURISDICTION × ENTITY · what is verifiable per (jurisdiction, entity) pair"
-msgstr "JURISDICTION × ENTITY · what is verifiable per (jurisdiction, entity) pair"
+msgid "JURISDICTION × ENTITY"
+msgstr "JURISDICTION × ENTITY"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "JURISDICTION SUMMARY"
+msgstr "JURISDICTION SUMMARY"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Jurisdiction:"
 msgstr "Jurisdiction:"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Jurisdictions"
+msgstr "Jurisdictions"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Keep editing"
@@ -791,6 +809,10 @@ msgstr "Obligation queue"
 msgid "obligations"
 msgstr "obligations"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "official channels under monitor"
+msgstr "official channels under monitor"
+
 #: src/routes/dashboard.tsx
 msgid "One row lacks a usable source URL."
 msgstr "One row lacks a usable source URL."
@@ -897,6 +919,10 @@ msgstr "penalty-weighted"
 msgid "Pending"
 msgstr "Pending"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "pending ops review"
+msgstr "pending ops review"
+
 #: src/routes/onboarding.tsx
 msgid "Please enter at least 2 characters."
 msgstr "Please enter at least 2 characters."
@@ -977,6 +1003,10 @@ msgstr "reminder ready"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgstr "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "reminder-ready across MVP scope"
+msgstr "reminder-ready across MVP scope"
 
 #: src/routes/dashboard.tsx
 msgid "Representative source states wired with existing components."
@@ -1209,6 +1239,10 @@ msgstr "Sources"
 msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
 msgstr "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
 
+#: src/features/rules/coverage-tab.tsx
+msgid "Sources watched"
+msgstr "Sources watched"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "SSN-like columns blocked"
 msgstr "SSN-like columns blocked"
@@ -1321,6 +1355,10 @@ msgstr "Unable to start Google sign-in"
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "verifiable per (jurisdiction, entity) pair"
+msgstr "verifiable per (jurisdiction, entity) pair"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Verification"
 msgstr "Verification"
@@ -1339,6 +1377,10 @@ msgstr "Verified"
 msgid "verified — reminder will fire"
 msgstr "verified — reminder will fire"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "verified · candidate · sources · current state"
+msgstr "verified · candidate · sources · current state"
+
 #: src/routes/dashboard.tsx
 msgid "verified {verifiedAt}"
 msgstr "verified {verifiedAt}"
@@ -1350,6 +1392,10 @@ msgstr "Verified at"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Verified by"
 msgstr "Verified by"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Verified rules"
+msgstr "Verified rules"
 
 #: src/routes/workboard.tsx
 msgid "Waiting on client"
