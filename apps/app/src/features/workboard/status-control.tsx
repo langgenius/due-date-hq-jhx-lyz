@@ -98,7 +98,7 @@ function WorkboardStatusControl({
           className="min-w-40"
           aria-label={t`Change status for ${row.clientName}`}
         >
-          <SelectValue placeholder={labels[row.status]} />
+          <SelectValue>{labels[row.status]}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {ALL_STATUSES.map((status) => (

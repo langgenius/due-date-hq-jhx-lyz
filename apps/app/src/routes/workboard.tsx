@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import {
   flexRender,
@@ -62,6 +62,7 @@ import {
   useStatusLabels,
   type ObligationStatus,
 } from '@/features/workboard/status-control'
+import { searchQueryUrlUpdateRateLimit, useDebouncedSearchQuery } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { formatDate } from '@/lib/utils'
@@ -136,18 +137,18 @@ export function WorkboardRoute() {
     workboardSearchParamsParsers,
   )
 
-  const deferredSearch = useDeferredValue(searchInput.trim())
+  const debouncedSearch = useDebouncedSearchQuery(searchInput)
   const sorting = useMemo(() => getSortingState(sort), [sort])
   const statusQuery = useMemo(() => [...statusFilter], [statusFilter])
 
   const queryInputWithoutCursor = useMemo<WorkboardListInputWithoutCursor>(
     () => ({
       ...(statusQuery.length > 0 ? { status: statusQuery } : {}),
-      ...(deferredSearch ? { search: deferredSearch } : {}),
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
       sort,
       limit: PAGE_SIZE,
     }),
-    [statusQuery, deferredSearch, sort],
+    [statusQuery, debouncedSearch, sort],
   )
 
   const listQuery = useInfiniteQuery(
@@ -482,10 +483,16 @@ export function WorkboardRoute() {
                 placeholder={t`Search clients`}
                 value={searchInput}
                 onChange={(event) => {
-                  void setWorkboardQuery({
-                    q: event.target.value || null,
-                    row: null,
-                  })
+                  const nextSearch = event.target.value
+                  void setWorkboardQuery(
+                    {
+                      q: nextSearch || null,
+                      row: null,
+                    },
+                    nextSearch === ''
+                      ? undefined
+                      : { limitUrlUpdates: searchQueryUrlUpdateRateLimit },
+                  )
                 }}
               />
             </div>
@@ -504,7 +511,7 @@ export function WorkboardRoute() {
                 }}
               >
                 <SelectTrigger size="sm" className="min-w-50">
-                  <SelectValue placeholder={sortLabels[sort]} />
+                  <SelectValue>{sortLabels[sort]}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="due_asc">{sortLabels.due_asc}</SelectItem>

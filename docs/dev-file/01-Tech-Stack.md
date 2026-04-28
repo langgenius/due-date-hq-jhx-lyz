@@ -216,6 +216,7 @@ catalog:
   tailwind-merge: 3.5.0
   tw-animate-css: 1.4.0
   clsx: 2.1.1
+  foxact: 0.3.0
 
   # ── state / form ──
   '@tanstack/react-query': 5.99.2

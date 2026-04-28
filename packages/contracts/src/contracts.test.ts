@@ -8,7 +8,12 @@ import {
 } from './obligations'
 import { ObligationStatusSchema } from './shared/enums'
 import { ClientSchema } from './shared/client'
-import { WorkboardListInputSchema, WorkboardSortSchema, workboardContract } from './workboard'
+import {
+  WORKBOARD_SEARCH_MAX_LENGTH,
+  WorkboardListInputSchema,
+  WorkboardSortSchema,
+  workboardContract,
+} from './workboard'
 import { MatrixSelectionSchema, MigrationErrorStageSchema, migrationContract } from './migration'
 import { EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 import {
@@ -96,6 +101,9 @@ describe('@duedatehq/contracts', () => {
       limit: 50,
     })
     expect(parsed.limit).toBe(50)
+    expect(() =>
+      WorkboardListInputSchema.parse({ search: 'x'.repeat(WORKBOARD_SEARCH_MAX_LENGTH + 1) }),
+    ).toThrow()
   })
 
   it('freezes migration.listErrors stages', () => {

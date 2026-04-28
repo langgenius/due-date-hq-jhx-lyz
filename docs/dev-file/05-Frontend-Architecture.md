@@ -141,6 +141,7 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 | URL state    | **nuqs** + `react-router` params             | 筛选 / 排序 / 可分享页码 / tab/subview / 抽屉打开项                                                      |
 | Form state   | **react-hook-form** + Zod（复用契约 schema） | 所有表单                                                                                                 |
 | UI state     | **Zustand**                                  | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store**                                       |
+| Hook helpers | **foxact**                                   | 只在 app 层用 deep import 引入明确收益的 hook，例如客户端 search debounce；不下沉到 `packages/ui`        |
 | Feature flag | **PostHog JS SDK**                           | 运行时开关                                                                                               |
 
 **禁止：** Redux、MobX、Recoil、自造 context 状态容器。
@@ -390,6 +391,14 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   `workboardSearchParamsParsers` 是模块级 query contract，`WorkboardSearchParams`
   由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空 active
   row，避免用 effect 追踪派生状态。
+- **搜索防抖**：Workboard 搜索是客户端 TanStack Query fetching，不是 React Router
+  loader/RSC fetching。`nuqs` 负责即时 URL state 和 URL 写入降频；实际
+  `workboard.list` input 使用 `apps/app/src/lib/query-rate-limit.ts` 中的
+  `useDebouncedSearchQuery()`，底层 deep import `foxact/use-debounced-value`。这符合
+  nuqs 对 client-side fetching 的建议：debounce hook 返回的 state，而不是把
+  `limitUrlUpdates` 当作请求防抖。搜索长度由 contract 限制为 64 字符；DB repo
+  在进入 D1 `LIKE` 前会 normalize 并 escape pattern，避免用户输入触发 SQLite
+  pattern 编译错误。
 - **分页形态**：当前后端是 cursor pagination（50 行 / 页）。前端通过
   `useInfiniteQuery(orpc.workboard.list.infiniteOptions(...))` 消费 contract：
   `pageParam` 注入 `cursor`，`getNextPageParam` 读取后端 `nextCursor`，并把

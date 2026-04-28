@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, inArray, like, lt, or } from 'drizzle-orm'
+import { and, asc, desc, eq, gt, inArray, lt, or, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import type { Db } from '../client'
 import { client } from '../schema/clients'
@@ -51,6 +51,26 @@ export interface WorkboardListResult {
 
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
+const MAX_SEARCH_LENGTH = 64
+const LIKE_WILDCARD_RE = /[\\%_]/g
+const UNSAFE_SEARCH_CHARS_RE = /[^\p{L}\p{N}\s&'.-]+/gu
+
+export function normalizeWorkboardSearch(search: string | undefined): string | null {
+  const normalized = (search ?? '')
+    .normalize('NFKC')
+    .trim()
+    .toLowerCase()
+    .replace(UNSAFE_SEARCH_CHARS_RE, ' ')
+    .replace(/\s+/g, ' ')
+    .slice(0, MAX_SEARCH_LENGTH)
+    .trim()
+
+  return normalized.length > 0 ? normalized : null
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replace(LIKE_WILDCARD_RE, '\\$&')
+}
 
 function encodeCursor(row: { currentDueDate: Date; id: string }): string {
   const iso = row.currentDueDate.toISOString()
@@ -84,9 +104,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         filters.push(inArray(obligationInstance.status, input.status))
       }
 
-      if (input.search && input.search.trim().length > 0) {
-        const needle = `%${input.search.trim().toLowerCase()}%`
-        filters.push(like(client.name, needle))
+      const search = normalizeWorkboardSearch(input.search)
+      if (search) {
+        const needle = `%${escapeLikePattern(search)}%`
+        filters.push(sql`${client.name} like ${needle} escape '\\'`)
       }
 
       // Cursor only applies to due-date sorts; updated_desc returns a single

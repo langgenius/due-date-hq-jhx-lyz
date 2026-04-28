@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Db } from '../client'
-import { makeWorkboardRepo } from './workboard'
+import { makeWorkboardRepo, normalizeWorkboardSearch } from './workboard'
 
 interface FakeRow {
   id: string
@@ -59,6 +59,14 @@ function makeRow(over: Partial<FakeRow> = {}): FakeRow {
 }
 
 describe('makeWorkboardRepo.list', () => {
+  it('normalizes client search before building a LIKE query', () => {
+    expect(normalizeWorkboardSearch('  dddjkfjjjkfjksalj;flaslfkafsadfj;laksjf  ')).toBe(
+      'dddjkfjjjkfjksalj flaslfkafsadfj laksjf',
+    )
+    expect(normalizeWorkboardSearch('%_Acme\\LLC_'.repeat(8))?.length).toBeLessThanOrEqual(64)
+    expect(normalizeWorkboardSearch(';;;')).toBeNull()
+  })
+
   it('returns rows with no nextCursor when limit is not exceeded', async () => {
     const fake = createFakeDb([makeRow({ id: 'a' }), makeRow({ id: 'b' })])
     const repo = makeWorkboardRepo(fake.db, 'firm_a')

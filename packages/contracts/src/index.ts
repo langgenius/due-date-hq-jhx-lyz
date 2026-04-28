@@ -60,6 +60,7 @@ export type {
   WorkboardSort,
 } from './workboard'
 export {
+  WORKBOARD_SEARCH_MAX_LENGTH,
   WorkboardListInputSchema,
   WorkboardListOutputSchema,
   WorkboardRowSchema,

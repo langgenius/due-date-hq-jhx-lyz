@@ -14,10 +14,11 @@ import { ObligationStatusSchema } from './shared/enums'
 
 export const WorkboardSortSchema = z.enum(['due_asc', 'due_desc', 'updated_desc'])
 export type WorkboardSort = z.infer<typeof WorkboardSortSchema>
+export const WORKBOARD_SEARCH_MAX_LENGTH = 64
 
 export const WorkboardListInputSchema = z.object({
   status: z.array(ObligationStatusSchema).max(6).optional(),
-  search: z.string().max(120).optional(),
+  search: z.string().max(WORKBOARD_SEARCH_MAX_LENGTH).optional(),
   sort: WorkboardSortSchema.default('due_asc').optional(),
   cursor: z.string().nullable().optional(),
   limit: z.number().int().min(1).max(100).default(50).optional(),

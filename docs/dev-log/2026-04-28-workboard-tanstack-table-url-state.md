@@ -28,7 +28,14 @@ inferParserType<typeof workboardSearchParamsParsers>`；`history: 'replace'`
   - 2026-04-28 follow-up：移除 URL `cursor`。`workboard.list` 分页仍由后端
     contract 负责；前端改为 `useInfiniteQuery(orpc.workboard.list.infiniteOptions(...))`
     消费 `pageParam` / `nextCursor`，`Load more` 追加 `data.pages[].rows`，不再把下一页替换当前页。
-  - 搜索查询使用 `useDeferredValue(searchInput.trim())` 参与 React Query input，保留输入响应优先级。
+  - 2026-04-28 follow-up：搜索是客户端 TanStack Query fetching，不再用
+    `useDeferredValue` 当作请求防抖。输入框继续读 `nuqs` 即时 state；实际
+    `workboard.list` input 读 `foxact/use-debounced-value` 产出的 debounced state。
+    `nuqs/debounce` 只用于 URL 写入降频。
+  - 2026-04-28 follow-up：Workboard sort/status 的 Base UI Select trigger 显式渲染
+    Lingui label，避免触发器回退展示 `due_asc` 这类 raw value。
+  - 2026-04-28 follow-up：Workboard 搜索 contract 上限收紧为 64 字符；DB repo
+    在进入 D1 `LIKE` 前 normalize 并 escape pattern，避免复杂用户输入冒成 500。
   - 使用 TanStack row selection state 表达 active row，`J/K` 快捷键和点击行都会写回 URL 中的 `row`。
 
 - `docs/dev-file/05-Frontend-Architecture.md`

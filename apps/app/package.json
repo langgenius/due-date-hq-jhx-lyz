@@ -33,6 +33,7 @@
     "@tanstack/react-virtual": "catalog:",
     "better-auth": "catalog:",
     "canvas-confetti": "catalog:",
+    "foxact": "catalog:",
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "nuqs": "catalog:",
