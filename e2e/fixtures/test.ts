@@ -7,6 +7,7 @@ import {
 } from '@playwright/test'
 
 import { AppShellPage } from '../pages/app-shell-page'
+import { BillingPage } from '../pages/billing-page'
 import { ClientsPage } from '../pages/clients-page'
 import { LoginPage } from '../pages/login-page'
 import { MigrationWizardPage } from '../pages/migration-wizard-page'
@@ -14,6 +15,7 @@ import { RulesConsolePage } from '../pages/rules-console-page'
 import { WorkboardPage } from '../pages/workboard-page'
 
 type AuthSeedMode = 'empty' | 'workboard'
+type AuthRole = 'owner' | 'coordinator'
 
 type E2EAuthSession = {
   user: {
@@ -22,6 +24,7 @@ type E2EAuthSession = {
     email: string
   }
   firmId: string
+  role: AuthRole
   cookie: Cookie
   seeded: {
     workboardRows: Array<{
@@ -34,9 +37,11 @@ type E2EAuthSession = {
 type DueDateFixtures = {
   loginPage: LoginPage
   authSeed: AuthSeedMode
+  authRole: AuthRole
   authSession: E2EAuthSession
   authenticatedPage: Page
   appShellPage: AppShellPage
+  billingPage: BillingPage
   clientsPage: ClientsPage
   migrationWizardPage: MigrationWizardPage
   rulesConsolePage: RulesConsolePage
@@ -45,6 +50,7 @@ type DueDateFixtures = {
 
 export const test = base.extend<DueDateFixtures>({
   authSeed: ['empty', { option: true }],
+  authRole: ['owner', { option: true }],
 
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page))
@@ -52,6 +58,10 @@ export const test = base.extend<DueDateFixtures>({
 
   appShellPage: async ({ authenticatedPage }, use) => {
     await use(new AppShellPage(authenticatedPage))
+  },
+
+  billingPage: async ({ authenticatedPage }, use) => {
+    await use(new BillingPage(authenticatedPage))
   },
 
   clientsPage: async ({ authenticatedPage }, use) => {
@@ -70,7 +80,7 @@ export const test = base.extend<DueDateFixtures>({
     await use(new WorkboardPage(authenticatedPage))
   },
 
-  authSession: async ({ request, authSeed }, use, testInfo) => {
+  authSession: async ({ request, authSeed, authRole }, use, testInfo) => {
     if (process.env.E2E_BASE_URL) {
       throw new Error('authenticatedPage only supports the local development e2e target.')
     }
@@ -78,6 +88,7 @@ export const test = base.extend<DueDateFixtures>({
     await use(
       await createAuthSession(request, {
         seed: authSeed,
+        role: authRole,
         testId: testInfo.titlePath.join(' '),
       }),
     )
@@ -104,6 +115,7 @@ function parseAuthSession(value: unknown): E2EAuthSession {
     typeof user.name !== 'string' ||
     typeof user.email !== 'string' ||
     typeof value.firmId !== 'string' ||
+    !isAuthRole(value.role) ||
     typeof cookie.name !== 'string' ||
     typeof cookie.value !== 'string' ||
     typeof cookie.domain !== 'string' ||
@@ -124,6 +136,7 @@ function parseAuthSession(value: unknown): E2EAuthSession {
       email: user.email,
     },
     firmId: value.firmId,
+    role: value.role,
     cookie: {
       name: cookie.name,
       value: cookie.value,
@@ -142,14 +155,14 @@ function parseAuthSession(value: unknown): E2EAuthSession {
 
 async function createAuthSession(
   request: APIRequestContext,
-  data: { seed: AuthSeedMode; testId: string },
+  data: { seed: AuthSeedMode; role: AuthRole; testId: string },
 ): Promise<E2EAuthSession> {
   return tryCreateAuthSession(request, data, 0)
 }
 
 async function tryCreateAuthSession(
   request: APIRequestContext,
-  data: { seed: AuthSeedMode; testId: string },
+  data: { seed: AuthSeedMode; role: AuthRole; testId: string },
   attempt: number,
 ): Promise<E2EAuthSession> {
   const response = await request.post('/api/e2e/session', { data })
@@ -174,4 +187,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isWorkboardSeedRow(value: unknown): value is { clientName: string; status: string } {
   return isRecord(value) && typeof value.clientName === 'string' && typeof value.status === 'string'
+}
+
+function isAuthRole(value: unknown): value is AuthRole {
+  return value === 'owner' || value === 'coordinator'
 }

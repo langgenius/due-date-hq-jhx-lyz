@@ -138,6 +138,9 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 - Billing 例外约束：`plan` / `interval` 保持在 URL query 以支持 marketing deep link、登录回跳、
   Stripe success/cancel 和 E2E；主 checkout 必须是 route，不用 URL dialog 承载支付链路。
   `/settings/billing?changePlan=...` 可作为轻量确认 dialog，但确认后仍跳 `/billing/checkout?...`。
+- Billing e2e 断言流程状态而不是 Stripe 页面 DOM：常规 suite 拦截 Checkout / Billing Portal
+  请求并检查 payload；webhook 后状态通过 development-only `/api/e2e/billing/subscription`
+  写入 `subscription` + `firm_profile` 后再由 UI 读取。
 - **不要**把分页 / 筛选塞进 Zustand
 
 ---

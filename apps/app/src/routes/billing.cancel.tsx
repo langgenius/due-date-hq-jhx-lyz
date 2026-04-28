@@ -24,7 +24,7 @@ export function BillingCancelRoute() {
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <Card className="max-w-3xl">
         <CardHeader>
-          <CardTitle>
+          <CardTitle role="heading" aria-level={1}>
             <Trans>Checkout canceled</Trans>
           </CardTitle>
           <CardDescription>

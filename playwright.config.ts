@@ -1,13 +1,27 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:8787'
+const marketingBaseURL = process.env.E2E_MARKETING_BASE_URL ?? 'http://127.0.0.1:4321'
+const marketingPort = new URL(marketingBaseURL).port || '4321'
 const usesExternalTarget = Boolean(process.env.E2E_BASE_URL)
 const reuseExistingServer = Boolean(process.env.E2E_REUSE_EXISTING_SERVER)
 
 const localWorkerCommand = [
   'pnpm --filter @duedatehq/app build',
   'pnpm --dir apps/server exec wrangler d1 migrations apply DB --local --config wrangler.toml',
-  'pnpm --dir apps/server exec wrangler dev --local --ip 127.0.0.1 --port 8787 --var AI_GATEWAY_PROVIDER_API_KEY: --var AI_GATEWAY_API_KEY:',
+  [
+    'pnpm --dir apps/server exec wrangler dev --local --ip 127.0.0.1 --port 8787',
+    '--var AI_GATEWAY_PROVIDER_API_KEY:',
+    '--var AI_GATEWAY_API_KEY:',
+    '--var STRIPE_SECRET_KEY:stripe_e2e_secret',
+    '--var STRIPE_WEBHOOK_SECRET:stripe_e2e_webhook_secret',
+    '--var STRIPE_PRICE_FIRM_MONTHLY:price_firm_monthly_e2e',
+  ].join(' '),
+].join(' && ')
+
+const localMarketingCommand = [
+  `PUBLIC_APP_URL=${baseURL} pnpm --filter @duedatehq/marketing build`,
+  `pnpm --filter @duedatehq/marketing preview --host 127.0.0.1 --port ${marketingPort}`,
 ].join(' && ')
 
 export default defineConfig({
@@ -39,14 +53,24 @@ export default defineConfig({
   ...(usesExternalTarget
     ? {}
     : {
-        webServer: {
-          command: localWorkerCommand,
-          url: `${baseURL}/api/health`,
-          reuseExistingServer,
-          timeout: 120_000,
-          stdout: 'pipe',
-          stderr: 'pipe',
-        },
+        webServer: [
+          {
+            command: localWorkerCommand,
+            url: `${baseURL}/api/health`,
+            reuseExistingServer,
+            timeout: 120_000,
+            stdout: 'pipe',
+            stderr: 'pipe',
+          },
+          {
+            command: localMarketingCommand,
+            url: marketingBaseURL,
+            reuseExistingServer,
+            timeout: 120_000,
+            stdout: 'pipe',
+            stderr: 'pipe',
+          },
+        ],
       }),
   projects: [
     {

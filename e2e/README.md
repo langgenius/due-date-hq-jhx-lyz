@@ -6,8 +6,9 @@ Cloudflare Worker Assets, Hono routes, and oRPC HTTP boundary.
 ## Commands
 
 - `pnpm test:e2e`: build the SPA, apply local D1 migrations, start `wrangler dev --local`, and run Playwright.
-- `pnpm test:e2e -- --ui`: run Playwright UI mode.
+- `pnpm test:e2e --ui`: run Playwright UI mode.
 - `E2E_BASE_URL=https://staging.example.com pnpm test:e2e`: run against an already deployed target.
+- `E2E_MARKETING_BASE_URL=https://duedatehq.com pnpm test:e2e --grep E2E-BILLING-PRICING`: run marketing pricing handoff coverage against a deployed marketing target.
 
 ## Layout
 
@@ -47,3 +48,21 @@ Current specs intentionally cover shipped behavior only:
 - entry-page locale switching
 - SPA 404 rendering
 - protected Dashboard / Clients / Workboard / Rules Console / Migration Step 1 surfaces with local seeded auth
+- pricing-to-billing handoff, protected billing checkout payloads, owner-only checkout, cancel recovery,
+  webhook-backed success state, and Stripe Billing Portal request contracts
+
+## Billing And Stripe
+
+Billing e2e uses two layers:
+
+- **Default deterministic flow tests** run in normal `pnpm test:e2e`. Local Playwright starts the app Worker
+  with fake Stripe test env keys so Better Auth Stripe subscription-list routes exist, but specs intercept
+  outbound Checkout / Billing Portal calls before they can reach Stripe. Assertions cover URL/query state,
+  owner permissions, Better Auth payload contracts, and app-visible subscription state.
+- **Webhook state simulation** uses the development-only `/api/e2e/billing/subscription` helper. It inserts a
+  Better Auth `subscription` row and updates the `firm_profile` billing cache, matching the post-webhook facts
+  the app depends on. Staging/production return 404 for all `/api/e2e/*` routes.
+
+Do not assert Stripe-hosted Checkout DOM in the default suite. A future real Stripe test should be tagged
+separately, require explicit Stripe test credentials, and assert DueDateHQ's final subscription state rather
+than third-party page copy.

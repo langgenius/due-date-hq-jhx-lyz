@@ -1,12 +1,18 @@
 import { Hono } from 'hono'
 import { makeSignature } from 'better-auth/crypto'
+import { eq } from 'drizzle-orm'
 import { authSchema, createDb, firmSchema, scoped } from '@duedatehq/db'
 import type { ContextVars, Env } from '../env'
 
 type SeedMode = 'empty' | 'workboard'
+type SeedRole = 'owner' | 'coordinator'
+type BillingPlan = 'firm' | 'pro'
+type BillingStatus = 'active' | 'trialing' | 'past_due' | 'paused'
+type BillingInterval = 'month' | 'year'
 
 interface E2ESeedRequest {
   seed?: SeedMode
+  role?: SeedRole
   testId?: string
 }
 
@@ -22,6 +28,7 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
 
     const input = await readSeedRequest(c.req.raw)
     const seed = input.seed ?? 'empty'
+    const role = input.role ?? 'owner'
     const suffix = buildStableSuffix(input.testId)
     const now = new Date()
     const expiresAt = new Date(now.getTime() + SESSION_MAX_AGE_SECONDS * 1000)
@@ -54,7 +61,7 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
       id: `e2e_member_${suffix}`,
       organizationId: firmId,
       userId,
-      role: 'owner',
+      role,
       createdAt: now,
       status: 'active',
     })
@@ -102,25 +109,137 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
     return c.json({
       user: { id: userId, name: 'E2E Owner', email: `${suffix}@e2e.duedatehq.test` },
       firmId,
+      role,
       cookie,
       seeded,
     })
   },
 )
 
+e2eRoute.post('/billing/subscription', async (c) => {
+  if (c.env.ENV !== 'development') {
+    return c.notFound()
+  }
+
+  const input = await readBillingRequest(c.req.raw)
+  if (!input.firmId) {
+    return c.json({ error: 'firmId is required' }, 400)
+  }
+
+  const db = createDb(c.env.DB)
+  const now = new Date()
+  const periodEnd =
+    input.interval === 'year'
+      ? new Date(now.getTime() + 366 * 24 * 60 * 60 * 1000)
+      : new Date(now.getTime() + 31 * 24 * 60 * 60 * 1000)
+  const seatLimit = input.plan === 'pro' ? 10 : 5
+  const customerId = `cus_e2e_${input.firmId.replace(/[^a-zA-Z0-9_]/g, '_')}`
+  const stripeSubscriptionId = `sub_e2e_${crypto.randomUUID().replaceAll('-', '')}`
+
+  await db
+    .update(authSchema.organization)
+    .set({ stripeCustomerId: customerId })
+    .where(eq(authSchema.organization.id, input.firmId))
+
+  await db
+    .update(firmSchema.firmProfile)
+    .set({
+      plan: input.plan,
+      seatLimit,
+      billingCustomerId: customerId,
+      billingSubscriptionId: stripeSubscriptionId,
+      updatedAt: now,
+    })
+    .where(eq(firmSchema.firmProfile.id, input.firmId))
+
+  const subscription = {
+    id: `e2e_subscription_${crypto.randomUUID().replaceAll('-', '')}`,
+    plan: input.plan,
+    referenceId: input.firmId,
+    stripeCustomerId: customerId,
+    stripeSubscriptionId,
+    status: input.status,
+    periodStart: now,
+    periodEnd,
+    seats: seatLimit,
+    billingInterval: input.interval,
+    trialStart: null,
+    trialEnd: null,
+    cancelAtPeriodEnd: false,
+    cancelAt: null,
+    canceledAt: null,
+    endedAt: null,
+    stripeScheduleId: null,
+    createdAt: now,
+    updatedAt: now,
+  }
+  await db.insert(authSchema.subscription).values(subscription)
+
+  return c.json({
+    subscription: {
+      ...subscription,
+      periodStart: subscription.periodStart.toISOString(),
+      periodEnd: subscription.periodEnd.toISOString(),
+      createdAt: subscription.createdAt.toISOString(),
+      updatedAt: subscription.updatedAt.toISOString(),
+    },
+    firm: {
+      id: input.firmId,
+      plan: input.plan,
+      seatLimit,
+      billingCustomerId: customerId,
+      billingSubscriptionId: stripeSubscriptionId,
+    },
+  })
+})
+
 async function readSeedRequest(request: Request): Promise<E2ESeedRequest> {
   try {
     const raw = await request.json()
     if (!raw || typeof raw !== 'object') return {}
     const seed = (raw as { seed?: unknown }).seed
+    const role = (raw as { role?: unknown }).role
     const testId = (raw as { testId?: unknown }).testId
     return {
       seed: seed === 'workboard' ? 'workboard' : 'empty',
+      role: role === 'coordinator' ? 'coordinator' : 'owner',
       ...(typeof testId === 'string' ? { testId } : {}),
     }
   } catch {
     return {}
   }
+}
+
+async function readBillingRequest(request: Request): Promise<{
+  firmId: string | null
+  plan: BillingPlan
+  status: BillingStatus
+  interval: BillingInterval
+}> {
+  try {
+    const raw: unknown = await request.json()
+    if (!raw || typeof raw !== 'object') {
+      return { firmId: null, plan: 'firm', status: 'active', interval: 'month' }
+    }
+    const input = raw as {
+      firmId?: unknown
+      plan?: unknown
+      status?: unknown
+      interval?: unknown
+    }
+    return {
+      firmId: typeof input.firmId === 'string' ? input.firmId : null,
+      plan: input.plan === 'pro' ? 'pro' : 'firm',
+      status: isBillingStatus(input.status) ? input.status : 'active',
+      interval: input.interval === 'year' ? 'year' : 'month',
+    }
+  } catch {
+    return { firmId: null, plan: 'firm', status: 'active', interval: 'month' }
+  }
+}
+
+function isBillingStatus(value: unknown): value is BillingStatus {
+  return value === 'active' || value === 'trialing' || value === 'past_due' || value === 'paused'
 }
 
 function buildStableSuffix(value: string | undefined): string {

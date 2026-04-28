@@ -81,6 +81,10 @@ SaaS app 的 `/billing/checkout?plan=firm&interval=monthly`；未登录用户由
 自己的 auth/onboarding loader 接管后再回到 checkout。后续可以追加 `/rules`、
 `/state/[state]`、`/blog`，但不为不存在的内容搭复杂 CMS。
 
+Pricing handoff 由 Playwright 覆盖：本地 e2e 会单独启动 Astro preview，并用
+`PUBLIC_APP_URL` 指向 app Worker；测试只验证 CTA href、登录回跳和 locale handoff，
+不把 marketing 页面视觉文案作为支付链路断言。
+
 ### 2.5 转化事件
 
 Marketing 只埋公开站事件，不读取 app session。

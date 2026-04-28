@@ -44,7 +44,7 @@ export function BillingSuccessRoute() {
 
       <Card className="max-w-3xl">
         <CardHeader>
-          <CardTitle>
+          <CardTitle role="heading" aria-level={2}>
             {activated ? (
               <Trans>Subscription active</Trans>
             ) : (

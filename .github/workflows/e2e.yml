@@ -53,6 +53,12 @@ jobs:
           VAPID_SUBJECT=mailto:ops@duedatehq.test
           SENTRY_DSN=
           POSTHOG_KEY=
+          STRIPE_SECRET_KEY=stripe_e2e_secret
+          STRIPE_WEBHOOK_SECRET=stripe_e2e_webhook_secret
+          STRIPE_PRICE_FIRM_MONTHLY=price_firm_monthly_e2e
+          STRIPE_PRICE_FIRM_YEARLY=
+          STRIPE_PRICE_PRO_MONTHLY=
+          STRIPE_PRICE_PRO_YEARLY=
           EOF
 
       - name: Install Playwright browser
