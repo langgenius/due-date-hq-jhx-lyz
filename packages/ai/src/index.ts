@@ -10,6 +10,8 @@ export interface AiEnv {
   AI_GATEWAY_SLUG?: string
   AI_GATEWAY_API_KEY?: string
   AI_GATEWAY_MODEL?: string
+  AI_GATEWAY_PROVIDER?: string
+  AI_GATEWAY_PROVIDER_API_KEY?: string
 }
 
 export interface AiRefusal {
@@ -67,6 +69,18 @@ function averageConfidence(value: unknown): number | null {
   return confidences.reduce((sum, item) => sum + item, 0) / confidences.length
 }
 
+async function hashInput(value: unknown): Promise<string> {
+  const data = new TextEncoder().encode(JSON.stringify(value))
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+function gatewayProvider(env: AiEnv): GatewayRequest<unknown>['provider'] {
+  return env.AI_GATEWAY_PROVIDER === 'openrouter' ? 'openrouter' : 'unified'
+}
+
 export function createAI(env: AiEnv = {}) {
   async function runPrompt<TOut>(
     name: PromptName,
@@ -75,35 +89,44 @@ export function createAI(env: AiEnv = {}) {
   ): Promise<AiRunResult<TOut>> {
     const prompt = loadPrompt(name)
     const startedAt = Date.now()
+    const redacted = redactMigrationInput(input)
+    const inputHash = await hashInput(redacted.input)
 
     if (
       !env.AI_GATEWAY_ACCOUNT_ID ||
       !env.AI_GATEWAY_SLUG ||
-      !env.AI_GATEWAY_API_KEY ||
-      !env.AI_GATEWAY_MODEL
+      !env.AI_GATEWAY_MODEL ||
+      (gatewayProvider(env) === 'openrouter' && !env.AI_GATEWAY_PROVIDER_API_KEY) ||
+      (gatewayProvider(env) === 'unified' && !env.AI_GATEWAY_API_KEY)
     ) {
       return refusal(
         'AI_UNAVAILABLE',
-        'Cloudflare AI Gateway is not configured for this environment.',
+        'Cloudflare AI Gateway provider is not configured for this environment.',
         createTrace({
           promptVersion: name,
           model: prompt.modelTier,
           latencyMs: 0,
           guardResult: 'ai_unavailable',
+          inputHash,
+          refusalCode: 'AI_UNAVAILABLE',
         }),
       )
     }
 
-    const redacted = redactMigrationInput(input)
     try {
+      const provider = gatewayProvider(env)
       const gatewayRequest = {
         accountId: env.AI_GATEWAY_ACCOUNT_ID,
         slug: env.AI_GATEWAY_SLUG,
-        apiKey: env.AI_GATEWAY_API_KEY,
         model: env.AI_GATEWAY_MODEL,
         prompt: prompt.text,
         input: redacted.input,
         schema,
+        provider,
+        ...(env.AI_GATEWAY_API_KEY ? { gatewayApiKey: env.AI_GATEWAY_API_KEY } : {}),
+        ...(provider === 'openrouter' && env.AI_GATEWAY_PROVIDER_API_KEY
+          ? { providerApiKey: env.AI_GATEWAY_PROVIDER_API_KEY }
+          : {}),
       } satisfies GatewayRequest<TOut>
       const gateway = await callGateway(gatewayRequest)
       const parsed = schema.safeParse(gateway.output)
@@ -117,6 +140,8 @@ export function createAI(env: AiEnv = {}) {
             model: gateway.model,
             latencyMs: Date.now() - startedAt,
             guardResult: 'schema_fail',
+            inputHash,
+            refusalCode: 'SCHEMA_INVALID',
             ...(gateway.tokens ? { tokens: gateway.tokens } : {}),
             ...(gateway.costUsd !== undefined ? { costUsd: gateway.costUsd } : {}),
           }),
@@ -131,6 +156,7 @@ export function createAI(env: AiEnv = {}) {
         model: gateway.model,
         latencyMs: Date.now() - startedAt,
         guardResult: 'ok',
+        inputHash,
         ...(gateway.tokens ? { tokens: gateway.tokens } : {}),
         ...(gateway.costUsd !== undefined ? { costUsd: gateway.costUsd } : {}),
       })
@@ -153,6 +179,8 @@ export function createAI(env: AiEnv = {}) {
             model: env.AI_GATEWAY_MODEL ?? prompt.modelTier,
             latencyMs: Date.now() - startedAt,
             guardResult: 'guard_rejected',
+            inputHash,
+            refusalCode: 'GUARD_REJECTED',
           }),
           env.AI_GATEWAY_MODEL ?? prompt.modelTier,
         )
@@ -166,6 +194,8 @@ export function createAI(env: AiEnv = {}) {
           model: env.AI_GATEWAY_MODEL ?? prompt.modelTier,
           latencyMs: Date.now() - startedAt,
           guardResult: 'schema_fail',
+          inputHash,
+          refusalCode: 'AI_GATEWAY_ERROR',
         }),
         env.AI_GATEWAY_MODEL ?? prompt.modelTier,
       )

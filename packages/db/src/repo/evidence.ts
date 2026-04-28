@@ -37,7 +37,7 @@ export function makeEvidenceRepo(db: Db, firmId: string) {
     const missing = uniqueIds.filter((id) => !found.has(id))
     if (missing.length > 0) {
       throw new Error(
-        `Cannot write evidence for obligations outside the current firm: ${missing.join(', ')}`,
+        `Cannot access evidence for obligations outside the current firm: ${missing.join(', ')}`,
       )
     }
   }
@@ -56,6 +56,7 @@ export function makeEvidenceRepo(db: Db, firmId: string) {
     },
 
     async listByObligation(obligationInstanceId: string): Promise<EvidenceLink[]> {
+      await assertObligationsInFirm([obligationInstanceId])
       return db
         .select()
         .from(evidenceLink)

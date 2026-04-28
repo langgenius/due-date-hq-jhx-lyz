@@ -71,7 +71,7 @@ describe('tenant-scoped repo cross-reference guards', () => {
         obligationInstanceId: 'oi_other',
         sourceType: 'user_override',
       }),
-    ).rejects.toThrow('Cannot write evidence for obligations outside the current firm: oi_other')
+    ).rejects.toThrow('Cannot access evidence for obligations outside the current firm: oi_other')
     expect(fake.insert).not.toHaveBeenCalled()
   })
 
@@ -94,5 +94,14 @@ describe('tenant-scoped repo cross-reference guards', () => {
 
     expect(fake.select).toHaveBeenCalledTimes(1)
     expect(fake.insertValues).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects evidence reads for obligations outside the current firm', async () => {
+    const fake = createFakeDb([[]])
+    const repo = makeEvidenceRepo(fake.db, 'firm_current')
+
+    await expect(repo.listByObligation('oi_other')).rejects.toThrow(
+      'Cannot access evidence for obligations outside the current firm: oi_other',
+    )
   })
 })

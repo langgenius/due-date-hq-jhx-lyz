@@ -44,6 +44,15 @@ describe('detectSsnColumns', () => {
     const result = detectSsnColumns(['Social Security Number', 'social_security'], [['', '']])
     expect(result.blockedColumnIndexes).toEqual([0, 1])
   })
+
+  it('matches ITIN and taxpayer identification headers', () => {
+    const result = detectSsnColumns(
+      ['Client Name', 'ITIN', 'Taxpayer Identification Number', 'Tax ID'],
+      [['Acme', '', '', '12-3456789']],
+    )
+    expect(result.blockedColumnIndexes).toEqual([1, 2])
+    expect(result.blockedHeaders).toEqual(['ITIN', 'Taxpayer Identification Number'])
+  })
 })
 
 describe('validateEin', () => {

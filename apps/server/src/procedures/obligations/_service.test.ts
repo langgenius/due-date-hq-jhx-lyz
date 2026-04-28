@@ -187,7 +187,19 @@ function buildScoped(firmId: string, rows: Row[]) {
 
   const repo: ScopedRepo = {
     firmId,
+    ai: {
+      firmId,
+      async recordRun() {
+        return unused('ai.recordRun')
+      },
+    },
     clients,
+    dashboard: {
+      firmId,
+      async load() {
+        return unused('dashboard.load')
+      },
+    },
     obligations,
     workboard,
     pulse: {},

@@ -8,6 +8,7 @@ import { oc } from '@orpc/contract'
 import { clientsContract } from './clients'
 import { obligationsContract } from './obligations'
 import { dashboardContract } from './dashboard'
+import { evidenceContract } from './evidence'
 import { workboardContract } from './workboard'
 import { pulseContract } from './pulse'
 import { migrationContract } from './migration'
@@ -17,6 +18,7 @@ export const appContract = oc.router({
   clients: clientsContract,
   obligations: obligationsContract,
   dashboard: dashboardContract,
+  evidence: evidenceContract,
   workboard: workboardContract,
   pulse: pulseContract,
   migration: migrationContract,
@@ -51,6 +53,26 @@ export {
   ObligationStatusUpdateOutputSchema,
   obligationsContract,
 } from './obligations'
+
+export type {
+  DashboardContract,
+  DashboardLoadInput,
+  DashboardLoadOutput,
+  DashboardSeverity,
+  DashboardSummary,
+  DashboardTopRow,
+} from './dashboard'
+export {
+  DashboardLoadInputSchema,
+  DashboardLoadOutputSchema,
+  DashboardSeveritySchema,
+  DashboardSummarySchema,
+  DashboardTopRowSchema,
+  dashboardContract,
+} from './dashboard'
+
+export type { EvidenceContract, EvidencePublic } from './evidence'
+export { EvidencePublicSchema, evidenceContract } from './evidence'
 
 export type {
   WorkboardContract,

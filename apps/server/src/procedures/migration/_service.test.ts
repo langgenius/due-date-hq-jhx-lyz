@@ -53,7 +53,8 @@ function unexpectedRepoCall(name: string): never {
 function buildScopedRepo(firmId: string) {
   const batches = new Map<string, MigrationBatchRow>()
   const audits: Array<{ action: string; firmId: string; entityId: string }> = []
-  const evidences: Array<{ sourceType: string; firmId: string }> = []
+  const evidences: Array<{ sourceType: string; firmId: string; aiOutputId?: string | null }> = []
+  const aiRuns: Array<{ kind: string; aiOutputId: string }> = []
   const importedClients: Array<{ id: string; migrationBatchId: string | null | undefined }> = []
   const importedObligations: Array<{
     id: string
@@ -234,7 +235,11 @@ function buildScopedRepo(firmId: string) {
         })),
       )
       for (const item of input.evidence) {
-        evidences.push({ sourceType: item.sourceType, firmId })
+        evidences.push({
+          sourceType: item.sourceType,
+          firmId,
+          ...(item.aiOutputId !== undefined ? { aiOutputId: item.aiOutputId } : {}),
+        })
       }
       for (const item of input.audits) {
         audits.push({ action: item.action, firmId, entityId: item.entityId })
@@ -299,13 +304,21 @@ function buildScopedRepo(firmId: string) {
   const evidence: ScopedRepo['evidence'] = {
     firmId,
     async write(input) {
-      evidences.push({ sourceType: input.sourceType, firmId })
+      evidences.push({
+        sourceType: input.sourceType,
+        firmId,
+        ...(input.aiOutputId !== undefined ? { aiOutputId: input.aiOutputId } : {}),
+      })
       return { id: 'evidence-' + evidences.length }
     },
     async writeBatch(inputs) {
       const ids: string[] = []
       for (const i of inputs) {
-        evidences.push({ sourceType: i.sourceType, firmId })
+        evidences.push({
+          sourceType: i.sourceType,
+          firmId,
+          ...(i.aiOutputId !== undefined ? { aiOutputId: i.aiOutputId } : {}),
+        })
         ids.push('evidence-' + evidences.length)
       }
       return { ids }
@@ -343,7 +356,21 @@ function buildScopedRepo(firmId: string) {
 
   const repo: ScopedRepo = {
     firmId,
+    ai: {
+      firmId,
+      async recordRun(input) {
+        const aiOutputId = `ai-output-${aiRuns.length + 1}`
+        aiRuns.push({ kind: input.kind, aiOutputId })
+        return { aiOutputId, llmLogId: `llm-log-${aiRuns.length}` }
+      },
+    },
     clients,
+    dashboard: {
+      firmId,
+      async load() {
+        return unexpectedRepoCall('dashboard.load')
+      },
+    },
     obligations,
     workboard,
     pulse: {},
@@ -362,6 +389,7 @@ function buildScopedRepo(firmId: string) {
       errors,
       importedClients,
       importedObligations,
+      aiRuns,
     },
     repo,
   }
@@ -371,6 +399,21 @@ function removeWhere<T>(items: T[], predicate: (item: T) => boolean): void {
   for (let i = items.length - 1; i >= 0; i -= 1) {
     if (predicate(items[i]!)) items.splice(i, 1)
   }
+}
+
+function withRequiredReasoning(value: unknown): unknown {
+  if (typeof value !== 'object' || value === null) return value
+  if ('mappings' in value && Array.isArray(value.mappings)) {
+    return {
+      ...value,
+      mappings: value.mappings.map((item) =>
+        typeof item === 'object' && item !== null && !('reasoning' in item)
+          ? { ...item, reasoning: 'test reasoning' }
+          : item,
+      ),
+    }
+  }
+  return value
 }
 
 function buildAi(rawResult?: unknown): AI {
@@ -384,6 +427,8 @@ function buildAi(rawResult?: unknown): AI {
           model: 'unknown',
           latencyMs: 0,
           guardResult: 'ai_unavailable',
+          inputHash: 'test-hash',
+          refusalCode: 'AI_UNAVAILABLE',
         },
         model: null,
         confidence: null,
@@ -392,13 +437,14 @@ function buildAi(rawResult?: unknown): AI {
     }
 
     return {
-      result: schema.parse(rawResult),
+      result: schema.parse(withRequiredReasoning(rawResult)),
       refusal: null,
       trace: {
         promptVersion: name,
         model: 'fast-json-test-model',
         latencyMs: 5,
         guardResult: 'ok',
+        inputHash: 'test-hash',
       },
       model: 'fast-json-test-model',
       confidence: 0.97,
@@ -455,6 +501,12 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
     const nameMap = result.mappings.find((m) => m.sourceHeader === 'Client Name')
     expect(nameMap?.targetField).toBe('client.name')
     expect(state.evidences.some((e) => e.sourceType === 'ai_mapper')).toBe(true)
+    expect(state.aiRuns.some((run) => run.kind === 'migration_map')).toBe(true)
+    expect(
+      state.evidences
+        .filter((e) => e.sourceType === 'ai_mapper')
+        .every((e) => e.aiOutputId?.startsWith('ai-output-')),
+    ).toBe(true)
   })
 
   it('falls back to all_ignore when AI is unavailable and no preset is selected', async () => {
@@ -473,20 +525,24 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
   it('forces SSN-flagged columns to IGNORE even on the AI happy path', async () => {
     const { repo } = buildScopedRepo(FIRM)
     const ai = buildAi({
-      mappings: [
-        { source: 'Client Name', target: 'client.name', confidence: 0.99 },
-        { source: 'SSN', target: 'client.ein', confidence: 0.9 },
-      ],
+      mappings: [{ source: 'Client Name', target: 'client.name', confidence: 0.99 }],
     })
     const service = new MigrationService({ scoped: repo, ai, userId: USER })
 
     const batch = await service.createBatch({ source: 'paste' })
-    const csv = `Client Name,SSN\nAcme LLC,123-45-6789\nBright Studio,987-65-4321`
+    const csv = `Client Name,SSN,ITIN\nAcme LLC,123-45-6789,999-88-7777\nBright Studio,987-65-4321,`
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: csv })
 
     const result = await service.runMapper(batch.id)
     const ssnMapping = result.mappings.find((m) => m.sourceHeader === 'SSN')
+    const itinMapping = result.mappings.find((m) => m.sourceHeader === 'ITIN')
     expect(ssnMapping?.targetField).toBe('IGNORE')
+    expect(itinMapping?.targetField).toBe('IGNORE')
+    expect(ssnMapping?.promptVersion).toBe('pii_guard@v1')
+    expect(itinMapping?.promptVersion).toBe('pii_guard@v1')
+
+    const updated = await service.getBatch(batch.id)
+    expect(updated?.mappingJson).toEqual(expect.objectContaining({ ssnBlockedColumns: [1, 2] }))
   })
 })
 
@@ -604,6 +660,12 @@ describe('MigrationService.dryRun with Default Matrix', () => {
     expect(result.obligationCount).toBe(0)
     expect(state.importedClients).toHaveLength(1)
     expect(state.importedObligations).toHaveLength(0)
+    expect(state.aiRuns.some((run) => run.kind === 'migration_normalize')).toBe(true)
+    expect(
+      state.evidences
+        .filter((e) => e.sourceType === 'ai_normalizer')
+        .some((e) => e.aiOutputId?.startsWith('ai-output-')),
+    ).toBe(true)
   })
 })
 

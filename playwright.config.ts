@@ -2,11 +2,12 @@ import { defineConfig, devices } from '@playwright/test'
 
 const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:8787'
 const usesExternalTarget = Boolean(process.env.E2E_BASE_URL)
+const reuseExistingServer = Boolean(process.env.E2E_REUSE_EXISTING_SERVER)
 
 const localWorkerCommand = [
   'pnpm --filter @duedatehq/app build',
   'pnpm --dir apps/server exec wrangler d1 migrations apply DB --local --config wrangler.toml',
-  'pnpm --dir apps/server exec wrangler dev --local --ip 127.0.0.1 --port 8787',
+  'pnpm --dir apps/server exec wrangler dev --local --ip 127.0.0.1 --port 8787 --var AI_GATEWAY_PROVIDER_API_KEY: --var AI_GATEWAY_API_KEY:',
 ].join(' && ')
 
 export default defineConfig({
@@ -41,7 +42,7 @@ export default defineConfig({
         webServer: {
           command: localWorkerCommand,
           url: `${baseURL}/api/health`,
-          reuseExistingServer: !process.env.CI,
+          reuseExistingServer,
           timeout: 120_000,
           stdout: 'pipe',
           stderr: 'pipe',

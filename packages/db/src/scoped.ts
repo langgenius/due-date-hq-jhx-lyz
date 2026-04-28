@@ -1,6 +1,8 @@
 import type { Db } from './client'
+import { makeAiRepo } from './repo/ai'
 import { makeAuditRepo } from './repo/audit'
 import { makeClientsRepo } from './repo/clients'
+import { makeDashboardRepo } from './repo/dashboard'
 import { makeEvidenceRepo } from './repo/evidence'
 import { makeMigrationRepo } from './repo/migration'
 import { makeObligationsRepo } from './repo/obligations'
@@ -40,7 +42,9 @@ function unimplementedRepo(name: string): object {
 export function scoped(db: Db, firmId: string): ScopedRepo {
   return {
     firmId,
+    ai: makeAiRepo(db, firmId),
     clients: makeClientsRepo(db, firmId),
+    dashboard: makeDashboardRepo(db, firmId),
     obligations: makeObligationsRepo(db, firmId),
     workboard: makeWorkboardRepo(db, firmId),
     pulse: unimplementedRepo('pulse'),

@@ -17,14 +17,17 @@ ca_llc_fee_gross_receipts, ca_ptet_optional,
 ny_it201, ny_it204, ny_it205, ny_ct3, ny_ct3s,
 ny_llc_filing_fee, ny_ptet_optional
 
-Output strict JSON only, keyed by the raw value:
+Output strict JSON only:
 
 {
-"<raw>": {
+"normalizations": [
+{
+"raw": "<raw value exactly as provided>",
 "normalized": ["<id1>", "<id2>"],
 "confidence": 0.0-1.0,
 "reasoning": "<one sentence, <= 20 words>"
 }
+]
 }
 
 Rules:
@@ -33,7 +36,7 @@ Rules:
   and confidence below 0.5 — do not invent IDs.
 - Prefer the narrowest match; if jurisdiction is provided, prefer that jurisdiction.
 - Case-insensitive; ignore punctuation and common prefixes ("Form", "IRS", "#").
-- Do not emit any keys other than the raw values provided.
+- Return one normalizations item for each raw value provided, and no extra items.
 
 Retention: Do not retain any data seen for training.
 PII handling: enumerated field values only — no placeholders used.

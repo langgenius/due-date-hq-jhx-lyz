@@ -16,6 +16,8 @@ import {
 } from './workboard'
 import { MatrixSelectionSchema, MigrationErrorStageSchema, migrationContract } from './migration'
 import { EvidenceSourceTypeSchema } from './shared/evidence-source-types'
+import { DashboardLoadOutputSchema, DashboardSeveritySchema, dashboardContract } from './dashboard'
+import { EvidencePublicSchema, evidenceContract } from './evidence'
 import {
   ObligationRuleSchema,
   ObligationGenerationPreviewSchema,
@@ -121,6 +123,69 @@ describe('@duedatehq/contracts', () => {
 
   it('allows verified rule evidence for generated obligations', () => {
     expect(EvidenceSourceTypeSchema.parse('verified_rule')).toBe('verified_rule')
+  })
+
+  it('freezes evidence.listByObligation public shape', () => {
+    expect(Object.keys(evidenceContract)).toEqual(['listByObligation'])
+
+    const row = EvidencePublicSchema.parse({
+      id: '33333333-3333-4333-8333-333333333333',
+      obligationInstanceId: '11111111-1111-4111-8111-111111111111',
+      aiOutputId: null,
+      sourceType: 'verified_rule',
+      sourceId: 'ca.llc.annual_tax.2026',
+      sourceUrl: 'https://www.ftb.ca.gov/file/business/types/limited-liability-company/',
+      verbatimQuote: 'Annual tax is due by the 15th day of the 4th month.',
+      rawValue: 'ca_llc_franchise_min_800',
+      normalizedValue: 'ca_llc_annual_tax',
+      confidence: 1,
+      model: null,
+      appliedAt: '2026-04-28T00:00:00.000Z',
+    })
+    expect(row.sourceType).toBe('verified_rule')
+  })
+
+  it('freezes dashboard.load activation slice shape', () => {
+    expect(Object.keys(dashboardContract)).toEqual(['load'])
+    expect(DashboardSeveritySchema.options).toEqual(['critical', 'high', 'medium', 'neutral'])
+
+    const output = DashboardLoadOutputSchema.parse({
+      asOfDate: '2026-04-28',
+      windowDays: 7,
+      summary: {
+        openObligationCount: 1,
+        dueThisWeekCount: 1,
+        needsReviewCount: 0,
+        evidenceGapCount: 0,
+      },
+      topRows: [
+        {
+          obligationId: '11111111-1111-4111-8111-111111111111',
+          clientId: '22222222-2222-4222-8222-222222222222',
+          clientName: 'Acme LLC',
+          taxType: 'ca_llc_annual_tax',
+          currentDueDate: '2026-04-30',
+          status: 'pending',
+          severity: 'critical',
+          evidenceCount: 1,
+          primaryEvidence: {
+            id: '33333333-3333-4333-8333-333333333333',
+            obligationInstanceId: '11111111-1111-4111-8111-111111111111',
+            aiOutputId: null,
+            sourceType: 'verified_rule',
+            sourceId: 'ca.llc.annual_tax.2026',
+            sourceUrl: null,
+            verbatimQuote: null,
+            rawValue: null,
+            normalizedValue: null,
+            confidence: 1,
+            model: null,
+            appliedAt: '2026-04-28T00:00:00.000Z',
+          },
+        },
+      ],
+    })
+    expect(output.topRows[0]!.severity).toBe('critical')
   })
 
   it('freezes rules read contracts', () => {
@@ -328,6 +393,7 @@ describe('@duedatehq/contracts', () => {
         'clients',
         'obligations',
         'dashboard',
+        'evidence',
         'workboard',
         'pulse',
         'migration',

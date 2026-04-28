@@ -10,21 +10,24 @@ raw value to exactly one of these 8 canonical values:
 
 llc, s_corp, partnership, c_corp, sole_prop, trust, individual, other
 
-Output strict JSON only, keyed by the raw value:
+Output strict JSON only:
 
 {
-"<raw>": {
+"normalizations": [
+{
+"raw": "<raw value exactly as provided>",
 "normalized": "<canonical>",
 "confidence": 0.0-1.0,
 "reasoning": "<one sentence, <= 20 words>"
 }
+]
 }
 
 Rules:
 
 - If the raw value is ambiguous, set normalized="other" and confidence below 0.5.
 - Never invent a canonical value outside the 8 listed above.
-- Do not emit any keys other than the raw values provided.
+- Return one normalizations item for each raw value provided, and no extra items.
 - Case-insensitive; ignore surrounding whitespace and punctuation.
 
 Retention: Do not retain any data seen for training.

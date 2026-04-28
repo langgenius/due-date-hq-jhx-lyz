@@ -1,9 +1,39 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import * as z from 'zod'
 import { createAI } from './index'
+import { redactMigrationInput } from './pii'
 import type { AiPorts, VectorMatch } from './ports'
 
+const callGatewayMock = vi.hoisted(() => vi.fn())
+
+vi.mock('./gateway', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./gateway')>()
+  return {
+    ...actual,
+    callGateway: callGatewayMock,
+  }
+})
+
+const CONFIGURED_ENV = {
+  AI_GATEWAY_ACCOUNT_ID: 'test-account',
+  AI_GATEWAY_SLUG: 'duedatehq',
+  AI_GATEWAY_API_KEY: 'test-key',
+  AI_GATEWAY_MODEL: 'test-model',
+}
+
+const OPENROUTER_ENV = {
+  AI_GATEWAY_ACCOUNT_ID: 'test-account',
+  AI_GATEWAY_SLUG: 'duedatehq',
+  AI_GATEWAY_PROVIDER: 'openrouter',
+  AI_GATEWAY_PROVIDER_API_KEY: 'test-openrouter-key',
+  AI_GATEWAY_MODEL: 'openai/gpt-5-mini',
+}
+
 describe('@duedatehq/ai', () => {
+  beforeEach(() => {
+    callGatewayMock.mockReset()
+  })
+
   it('keeps AI dependencies injectable through ports', async () => {
     const match: VectorMatch = { id: 'notice-2026-14', score: 0.9, metadata: { source: 'irs.gov' } }
     const ports: AiPorts = {
@@ -43,5 +73,119 @@ describe('@duedatehq/ai', () => {
 
     expect(result.result).toBeNull()
     expect(result.refusal?.code).toBe('AI_UNAVAILABLE')
+    expect(result.trace.inputHash).toMatch(/^[a-f0-9]{64}$/)
+    expect(result.trace.refusalCode).toBe('AI_UNAVAILABLE')
+  })
+
+  it('redacts SSN-like columns without mutating the original input', () => {
+    const input = {
+      header: ['Client Name', 'SSN', 'Tax ID', 'Social Security Number', 'ITIN'],
+      sample_rows: [
+        ['Acme LLC', '123-45-6789', '12-3456789', '987-65-4321', '999-88-7777'],
+        ['Bright Studio', '111-22-3333', '98-7654321', '222-33-4444', ''],
+      ],
+      preset: 'taxdome',
+    }
+
+    const result = redactMigrationInput(input)
+
+    expect(result.blockedColumns).toEqual([1, 3, 4])
+    expect(result.input).toEqual({
+      header: ['Client Name', 'Tax ID'],
+      sample_rows: [
+        ['Acme LLC', '12-3456789'],
+        ['Bright Studio', '98-7654321'],
+      ],
+      preset: 'taxdome',
+    })
+    expect(input.header).toEqual(['Client Name', 'SSN', 'Tax ID', 'Social Security Number', 'ITIN'])
+    expect(input.sample_rows[0]).toEqual([
+      'Acme LLC',
+      '123-45-6789',
+      '12-3456789',
+      '987-65-4321',
+      '999-88-7777',
+    ])
+  })
+
+  it('returns SCHEMA_INVALID with trace metadata when output does not match schema', async () => {
+    callGatewayMock.mockResolvedValueOnce({
+      output: { nope: true },
+      model: 'test-model',
+      tokens: { input: 10, output: 5 },
+    })
+    const ai = createAI(CONFIGURED_ENV)
+
+    const result = await ai.runPrompt(
+      'normalizer-entity@v1',
+      { values: ['LLC'] },
+      z.object({ ok: z.boolean() }),
+    )
+
+    expect(result.result).toBeNull()
+    expect(result.refusal?.code).toBe('SCHEMA_INVALID')
+    expect(result.trace.guardResult).toBe('schema_fail')
+    expect(result.trace.tokens).toEqual({ input: 10, output: 5 })
+  })
+
+  it('uses the OpenRouter provider key without requiring a gateway auth key', async () => {
+    callGatewayMock.mockResolvedValueOnce({
+      output: { ok: true },
+      model: 'openai/gpt-5-mini',
+    })
+    const ai = createAI(OPENROUTER_ENV)
+
+    const result = await ai.runPrompt(
+      'normalizer-entity@v1',
+      { values: ['LLC'] },
+      z.object({ ok: z.boolean() }),
+    )
+
+    expect(result.result).toEqual({ ok: true })
+    const request = callGatewayMock.mock.calls[0]?.[0]
+    expect(request).toMatchObject({
+      provider: 'openrouter',
+      providerApiKey: 'test-openrouter-key',
+    })
+    expect(request).not.toHaveProperty('gatewayApiKey')
+  })
+
+  it('returns GUARD_REJECTED when mapper EIN hit rate fails', async () => {
+    callGatewayMock.mockResolvedValueOnce({
+      output: {
+        mappings: [{ source: 'Tax ID', target: 'client.ein', confidence: 0.95 }],
+      },
+      model: 'test-model',
+    })
+    const ai = createAI(CONFIGURED_ENV)
+
+    const result = await ai.runPrompt(
+      'mapper@v1',
+      { header: ['Tax ID'], sample_rows: [['not-an-ein'], ['12-3456789']] },
+      z.object({
+        mappings: z.array(
+          z.object({
+            source: z.string(),
+            target: z.literal('client.ein'),
+            confidence: z.number(),
+          }),
+        ),
+      }),
+    )
+
+    expect(result.result).toBeNull()
+    expect(result.refusal?.code).toBe('GUARD_REJECTED')
+    expect(result.trace.guardResult).toBe('guard_rejected')
+  })
+
+  it('returns AI_GATEWAY_ERROR with stable trace when the gateway throws', async () => {
+    callGatewayMock.mockRejectedValueOnce(new Error('upstream failed'))
+    const ai = createAI(CONFIGURED_ENV)
+
+    const result = await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, z.object({}))
+
+    expect(result.result).toBeNull()
+    expect(result.refusal?.code).toBe('AI_GATEWAY_ERROR')
+    expect(result.trace.refusalCode).toBe('AI_GATEWAY_ERROR')
   })
 })

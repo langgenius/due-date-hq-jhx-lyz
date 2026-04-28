@@ -42,6 +42,8 @@ export interface Env extends WorkerBindings, ServerEnv {
   AI_GATEWAY_ACCOUNT_ID: string
   AI_GATEWAY_SLUG: string
   AI_GATEWAY_API_KEY: string
+  AI_GATEWAY_PROVIDER: string
+  AI_GATEWAY_PROVIDER_API_KEY: string
   AI_GATEWAY_MODEL: string
   VAPID_PUBLIC_KEY: string
   VAPID_PRIVATE_KEY: string

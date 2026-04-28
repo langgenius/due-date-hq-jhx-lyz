@@ -1,5 +1,7 @@
 import { ORPCError } from '@orpc/server'
 import { clientsHandlers } from './clients'
+import { dashboardHandlers } from './dashboard'
+import { evidenceHandlers } from './evidence'
 import { migrationHandlers } from './migration'
 import { obligationsHandlers } from './obligations'
 import { rulesHandlers } from './rules'
@@ -39,7 +41,12 @@ export const router = os.router({
     updateStatus: obligationsHandlers.updateStatus,
     listByClient: obligationsHandlers.listByClient,
   },
-  dashboard: {},
+  dashboard: {
+    load: dashboardHandlers.load,
+  },
+  evidence: {
+    listByObligation: evidenceHandlers.listByObligation,
+  },
   workboard: {
     list: workboardHandlers.list,
   },

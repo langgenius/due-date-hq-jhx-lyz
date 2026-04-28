@@ -24,7 +24,7 @@ export interface MappingJsonPayload {
     rowCount: number
     truncated: boolean
   }
-  /** Pre-AI redaction record (column indexes flagged as SSN). */
+  /** Pre-AI redaction record (column indexes flagged as SSN/ITIN-like). */
   ssnBlockedColumns?: number[]
   /** Last AI Mapper output, kept verbatim for the Re-run flow. */
   aiMappings?: MappingRow[]

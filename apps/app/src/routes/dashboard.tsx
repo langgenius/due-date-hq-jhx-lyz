@@ -5,8 +5,11 @@ import {
   FileSearchIcon,
   ShieldCheckIcon,
 } from 'lucide-react'
-import { Trans, useLingui } from '@lingui/react/macro'
+import { useQuery } from '@tanstack/react-query'
+import { Plural, Trans, useLingui } from '@lingui/react/macro'
+import { useNavigate } from 'react-router'
 
+import type { DashboardSeverity, DashboardTopRow } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -32,108 +35,34 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
 import { PulseBanner } from '@/components/primitives/pulse-banner'
 import { severityRowClass } from '@/components/primitives/severity-row'
-import { formatCents, formatDate } from '@/lib/utils'
+import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
+import { formatDate } from '@/lib/utils'
 
-function usePulseItems() {
-  const { t } = useLingui()
-  return [
-    {
-      title: t`IRS transcript mismatch`,
-      detail: t`3 clients have estimated-tax deltas above the evidence threshold.`,
-      source: 'IRS-2026-Q1',
-    },
-    {
-      title: t`NY PTET election window`,
-      detail: t`2 partner entities need review before the March 15 cutoff.`,
-      source: 'NY-PTET-2026',
-    },
-    {
-      title: t`Extension package hold`,
-      detail: t`5 draft extensions are waiting on K-1 attachments.`,
-      source: 'Firm-Outbox',
-    },
-  ]
+type QueueStat = {
+  label: string
+  value: string
+  detail: string
 }
 
-const riskRows = [
-  {
-    client: 'Arbor & Vale LLC',
-    obligation: 'Federal 1065 extension',
-    deadline: '2026-03-15',
-    exposure: 1840000,
-    severity: 'critical',
-    owner: 'M. Chen',
-  },
-  {
-    client: 'Northstar Dental Group',
-    obligation: 'State payroll deposit',
-    deadline: '2026-03-18',
-    exposure: 912500,
-    severity: 'high',
-    owner: 'A. Rivera',
-  },
-  {
-    client: 'Copperline Studios',
-    obligation: 'Sales tax reconciliation',
-    deadline: '2026-03-20',
-    exposure: 238900,
-    severity: 'medium',
-    owner: 'K. Patel',
-  },
-  {
-    client: 'Lake Union Foods',
-    obligation: '1099 correction batch',
-    deadline: '2026-03-22',
-    exposure: 94000,
-    severity: 'neutral',
-    owner: 'D. Brooks',
-  },
-  {
-    client: 'Westbridge GP',
-    obligation: 'Partner basis workpaper',
-    deadline: '2026-03-25',
-    exposure: 620000,
-    severity: 'high',
-    owner: 'M. Chen',
-  },
-  {
-    client: 'Hale Robotics Inc.',
-    obligation: 'R&D credit support',
-    deadline: '2026-03-28',
-    exposure: 305000,
-    severity: 'medium',
-    owner: 'S. Imani',
-  },
-  {
-    client: 'Summit Care Partners',
-    obligation: 'ACA filing review',
-    deadline: '2026-03-31',
-    exposure: 172000,
-    severity: 'neutral',
-    owner: 'K. Patel',
-  },
-  {
-    client: 'Bluegrain Imports',
-    obligation: 'Customs duty accrual',
-    deadline: '2026-04-02',
-    exposure: 746000,
-    severity: 'high',
-    owner: 'A. Rivera',
-  },
-] as const
-
-function useQueueStats() {
-  const { t } = useLingui()
-  return [
-    { label: t`Open risk`, value: '$49.3K', detail: t`penalty-weighted` },
-    { label: t`Due this week`, value: '28', detail: t`obligations` },
-    { label: t`Needs evidence`, value: '14', detail: t`source gaps` },
-  ]
+const severityVariant: Record<
+  DashboardSeverity,
+  'destructive' | 'warning' | 'secondary' | 'outline'
+> = {
+  critical: 'destructive',
+  high: 'warning',
+  medium: 'secondary',
+  neutral: 'outline',
+}
+const severityDot: Record<DashboardSeverity, 'error' | 'warning' | 'disabled' | 'normal'> = {
+  critical: 'error',
+  high: 'warning',
+  medium: 'disabled',
+  neutral: 'normal',
 }
 
-type Severity = 'critical' | 'high' | 'medium' | 'neutral'
-
-function useSeverityLabels(): Record<Severity, string> {
+function useSeverityLabels(): Record<DashboardSeverity, string> {
   const { t } = useLingui()
   return {
     critical: t`critical`,
@@ -143,49 +72,68 @@ function useSeverityLabels(): Record<Severity, string> {
   }
 }
 
-// Severity → Badge variant + dot tone. Centralised so all severity chips share
-// the Dify-style soft chip + halo dot, replacing the old hand-rolled tint
-// classes.
-const severityVariant: Record<Severity, 'destructive' | 'warning' | 'secondary' | 'outline'> = {
-  critical: 'destructive',
-  high: 'warning',
-  medium: 'secondary',
-  neutral: 'outline',
+function formatEvidence(row: DashboardTopRow, t: ReturnType<typeof useLingui>['t']): string {
+  if (row.evidenceCount === 0) return t`Needs evidence`
+  return row.primaryEvidence?.sourceType ?? t`Evidence linked`
 }
-const severityDot: Record<Severity, 'error' | 'warning' | 'disabled' | 'normal'> = {
-  critical: 'error',
-  high: 'warning',
-  medium: 'disabled',
-  neutral: 'normal',
-}
-
-// Placeholder until the real pulse verification timestamp lands. Keeping it
-// as a constant here means `<Trans>verified {verifiedAt}</Trans>` extracts a
-// stable msgid instead of baking the time into the catalog.
-const verifiedAt = '09:42'
 
 export function DashboardRoute() {
   const { t } = useLingui()
-  const pulseItems = usePulseItems()
-  const queueStats = useQueueStats()
+  const navigate = useNavigate()
+  const { openWizard } = useMigrationWizard()
   const severityLabels = useSeverityLabels()
+  const dashboardQuery = useQuery(orpc.dashboard.load.queryOptions({ input: {} }))
+  const data = dashboardQuery.data
+
+  const queueStats: QueueStat[] = data
+    ? [
+        {
+          label: t`Open risk`,
+          value: String(data.summary.openObligationCount),
+          detail: t`open obligations`,
+        },
+        {
+          label: t`Due this week`,
+          value: String(data.summary.dueThisWeekCount),
+          detail: t`obligations`,
+        },
+        {
+          label: t`Needs evidence`,
+          value: String(data.summary.evidenceGapCount),
+          detail: t`source gaps`,
+        },
+      ]
+    : []
+  const topRows = data?.topRows ?? []
+  const visibleBanners = topRows.slice(0, 3)
+
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <header className="flex flex-col gap-2">
         <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
           <Trans>Operations</Trans>
         </span>
-        {/* <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold leading-tight text-text-primary">
-            <Trans>Risk pulse overview</Trans>
-          </h1>
-          <p className="max-w-[720px] text-md text-text-secondary">
-            <Trans>
-              Penalty-weighted triage and evidence checks for the next operating window.
-            </Trans>
-          </p>
-        </div> */}
       </header>
+
+      {dashboardQuery.isError ? (
+        <Alert variant="destructive">
+          <AlertCircleIcon />
+          <AlertTitle>
+            <Trans>Couldn't load dashboard</Trans>
+          </AlertTitle>
+          <AlertDescription>
+            {rpcErrorMessage(dashboardQuery.error) ?? t`Please try again.`}{' '}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => void dashboardQuery.refetch()}
+            >
+              <Trans>Retry</Trans>
+            </button>
+          </AlertDescription>
+        </Alert>
+      ) : null}
+
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <Card id="pulse">
           <CardHeader>
@@ -193,11 +141,11 @@ export function DashboardRoute() {
               <Trans>Risk pulse</Trans>
             </CardTitle>
             <CardDescription>
-              <Trans>Dollar-first triage for the next operating window.</Trans>
+              <Trans>Server-computed obligation risk for the next operating window.</Trans>
             </CardDescription>
             <CardAction>
               <Badge variant="outline" className="font-mono tabular-nums">
-                <Trans>verified {verifiedAt}</Trans>
+                {dashboardQuery.isLoading ? <Trans>Loading…</Trans> : data?.asOfDate}
               </Badge>
             </CardAction>
           </CardHeader>
@@ -205,39 +153,59 @@ export function DashboardRoute() {
             <div className="grid gap-4 md:grid-cols-[220px_1fr]">
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-                  <Trans>Penalty exposure</Trans>
+                  <Trans>Open obligations</Trans>
                 </span>
-                <span className="font-mono text-hero leading-none font-semibold tabular-nums">
-                  $49.3K
-                </span>
+                {dashboardQuery.isLoading ? (
+                  <Skeleton className="h-14 w-28" />
+                ) : (
+                  <span className="font-mono text-hero leading-none font-semibold tabular-nums">
+                    {data?.summary.openObligationCount ?? 0}
+                  </span>
+                )}
                 <span className="text-md text-text-secondary">
-                  <Trans>Across 28 open obligations.</Trans>
+                  {data ? (
+                    <Trans>Across {data.summary.dueThisWeekCount} due this week.</Trans>
+                  ) : (
+                    <Trans>Loading real deadline risk.</Trans>
+                  )}
                 </span>
               </div>
               <div className="grid gap-3">
-                {pulseItems.map((item) => (
-                  <PulseBanner
-                    key={item.title}
-                    title={item.title}
-                    detail={item.detail}
-                    source={
-                      <Badge variant="outline" className="font-mono tabular-nums">
-                        {item.source}
-                      </Badge>
-                    }
-                  />
-                ))}
+                {dashboardQuery.isLoading ? (
+                  <>
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                  </>
+                ) : visibleBanners.length > 0 ? (
+                  visibleBanners.map((row) => (
+                    <PulseBanner
+                      key={row.obligationId}
+                      title={row.clientName}
+                      detail={t`${row.taxType} due ${formatDate(row.currentDueDate)}`}
+                      source={
+                        <Badge variant={row.evidenceCount > 0 ? 'outline' : 'warning'}>
+                          {formatEvidence(row, t)}
+                        </Badge>
+                      }
+                    />
+                  ))
+                ) : (
+                  <div className="rounded-lg border border-dashed border-divider-regular p-4 text-sm text-text-secondary">
+                    <Trans>Import clients to generate real obligation risk.</Trans>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
           <CardFooter className="gap-2 border-t border-divider-regular">
-            <Button size="sm">
+            <Button size="sm" onClick={() => void navigate('/workboard')}>
               <Trans>Review risk queue</Trans>
               <ArrowUpRightIcon data-icon="inline-end" />
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={openWizard}>
               <FileSearchIcon data-icon="inline-start" />
-              <Trans>Evidence mode</Trans>
+              <Trans>Run migration</Trans>
             </Button>
           </CardFooter>
         </Card>
@@ -248,19 +216,23 @@ export function DashboardRoute() {
               <Trans>Today queue</Trans>
             </CardTitle>
             <CardDescription>
-              <Trans>Operational pressure points for the team.</Trans>
+              <Trans>Operational pressure points from server aggregation.</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3">
-            {queueStats.map((stat) => (
-              <div key={stat.label} className="flex items-center justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-md font-medium">{stat.label}</span>
-                  <span className="text-sm text-text-tertiary">{stat.detail}</span>
-                </div>
-                <span className="font-mono text-2xl font-semibold tabular-nums">{stat.value}</span>
-              </div>
-            ))}
+            {dashboardQuery.isLoading
+              ? [0, 1, 2].map((item) => <Skeleton key={item} className="h-12 w-full" />)
+              : queueStats.map((stat) => (
+                  <div key={stat.label} className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-md font-medium">{stat.label}</span>
+                      <span className="text-sm text-text-tertiary">{stat.detail}</span>
+                    </div>
+                    <span className="font-mono text-2xl font-semibold tabular-nums">
+                      {stat.value}
+                    </span>
+                  </div>
+                ))}
             <Separator />
             <Alert>
               <ShieldCheckIcon />
@@ -269,8 +241,7 @@ export function DashboardRoute() {
               </AlertTitle>
               <AlertDescription>
                 <Trans>
-                  AI-facing recommendations remain hidden unless source, excerpt, and verification
-                  time are present.
+                  Dashboard rows are sourced from obligations and evidence links, not demo arrays.
                 </Trans>
               </AlertDescription>
             </Alert>
@@ -299,49 +270,66 @@ export function DashboardRoute() {
                   <Trans>Client risk rows</Trans>
                 </CardTitle>
                 <CardDescription>
-                  <Trans>Eight rows are visible on first load for dense scanning.</Trans>
+                  <Trans>Top obligations are sorted by deterministic due-date severity.</Trans>
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t`Client`}</TableHead>
-                      <TableHead>{t`Obligation`}</TableHead>
-                      <TableHead>{t`Deadline`}</TableHead>
-                      <TableHead>{t`Exposure`}</TableHead>
-                      <TableHead>{t`Severity`}</TableHead>
-                      <TableHead>{t`Owner`}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {riskRows.map((row) => (
-                      <TableRow
-                        key={`${row.client}-${row.obligation}`}
-                        className={severityRowClass(row.severity)}
-                      >
-                        <TableCell className="font-medium">{row.client}</TableCell>
-                        <TableCell className="text-text-secondary">{row.obligation}</TableCell>
-                        <TableCell className="font-mono tabular-nums">
-                          {formatDate(row.deadline)}
-                        </TableCell>
-                        <TableCell className="font-mono tabular-nums">
-                          {formatCents(row.exposure)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={severityVariant[row.severity]}
-                            className="h-7 px-2.5 text-md uppercase tracking-wide"
-                          >
-                            <BadgeStatusDot tone={severityDot[row.severity]} />
-                            {severityLabels[row.severity]}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{row.owner}</TableCell>
+                {dashboardQuery.isLoading ? (
+                  <div className="grid gap-2">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ) : topRows.length === 0 ? (
+                  <EmptyDashboard onOpenWizard={openWizard} />
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t`Client`}</TableHead>
+                        <TableHead>{t`Tax type`}</TableHead>
+                        <TableHead>{t`Deadline`}</TableHead>
+                        <TableHead>{t`Status`}</TableHead>
+                        <TableHead>{t`Severity`}</TableHead>
+                        <TableHead>{t`Evidence`}</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {topRows.map((row) => (
+                        <TableRow key={row.obligationId} className={severityRowClass(row.severity)}>
+                          <TableCell className="font-medium">{row.clientName}</TableCell>
+                          <TableCell className="text-text-secondary">{row.taxType}</TableCell>
+                          <TableCell className="font-mono tabular-nums">
+                            {formatDate(row.currentDueDate)}
+                          </TableCell>
+                          <TableCell>{row.status}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={severityVariant[row.severity]}
+                              className="h-7 px-2.5 text-md uppercase tracking-wide"
+                            >
+                              <BadgeStatusDot tone={severityDot[row.severity]} />
+                              {severityLabels[row.severity]}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={row.evidenceCount > 0 ? 'outline' : 'warning'}>
+                              {row.evidenceCount > 0 ? (
+                                <Plural
+                                  value={row.evidenceCount}
+                                  one="# source"
+                                  other="# sources"
+                                />
+                              ) : (
+                                t`Needs evidence`
+                              )}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -352,35 +340,44 @@ export function DashboardRoute() {
                   <Trans>Evidence checks</Trans>
                 </CardTitle>
                 <CardDescription>
-                  <Trans>Representative source states wired with existing components.</Trans>
+                  <Trans>Coverage state for the same obligations shown on the dashboard.</Trans>
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 md:grid-cols-3">
                 <Alert>
                   <CheckCircle2Icon />
                   <AlertTitle>
-                    <Trans>Verified</Trans>
+                    <Trans>Linked</Trans>
                   </AlertTitle>
                   <AlertDescription>
-                    <Trans>IRS transcript source was checked this morning.</Trans>
+                    <Trans>
+                      {topRows.filter((row) => row.evidenceCount > 0).length} top rows have
+                      evidence.
+                    </Trans>
                   </AlertDescription>
                 </Alert>
                 <Alert>
                   <AlertCircleIcon />
                   <AlertTitle>
-                    <Trans>Needs excerpt</Trans>
+                    <Trans>Needs evidence</Trans>
                   </AlertTitle>
                   <AlertDescription>
-                    <Trans>Two recommendations are waiting on source excerpts.</Trans>
+                    <Trans>
+                      {data?.summary.evidenceGapCount ?? 0} open obligations have no evidence link.
+                    </Trans>
                   </AlertDescription>
                 </Alert>
-                <Alert variant="destructive">
+                <Alert
+                  variant={data && data.summary.needsReviewCount > 0 ? 'destructive' : 'default'}
+                >
                   <AlertCircleIcon />
                   <AlertTitle>
-                    <Trans>Blocked</Trans>
+                    <Trans>Needs review</Trans>
                   </AlertTitle>
                   <AlertDescription>
-                    <Trans>One row lacks a usable source URL.</Trans>
+                    <Trans>
+                      {data?.summary.needsReviewCount ?? 0} obligations require CPA confirmation.
+                    </Trans>
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -388,6 +385,23 @@ export function DashboardRoute() {
           </TabsContent>
         </Tabs>
       </section>
+    </div>
+  )
+}
+
+function EmptyDashboard({ onOpenWizard }: { onOpenWizard: () => void }) {
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-divider-regular px-6 py-10 text-center">
+      <span className="text-md font-semibold text-text-primary">
+        <Trans>No generated obligations yet.</Trans>
+      </span>
+      <p className="max-w-105 text-sm text-text-secondary">
+        <Trans>Run Migration Copilot to import clients and generate real deadlines.</Trans>
+      </p>
+      <Button size="sm" onClick={onOpenWizard}>
+        <FileSearchIcon data-icon="inline-start" />
+        <Trans>Run migration</Trans>
+      </Button>
     </div>
   )
 }

@@ -13,7 +13,8 @@
  */
 
 const SSN_VALUE = /^\s*\d{3}-\d{2}-\d{4}\s*$/
-const SSN_HEADER = /\b(ssn|social[\s_-]*security|taxpayer[\s_-]*#)\b/i
+const SSN_HEADER =
+  /\b(ssn|social[\s_-]*security|itin|individual[\s_-]*taxpayer|taxpayer[\s_-]*identification|taxpayer[\s_-]*#)\b/i
 const EIN_VALUE = /^\d{2}-\d{7}$/
 
 export interface SsnDetection {

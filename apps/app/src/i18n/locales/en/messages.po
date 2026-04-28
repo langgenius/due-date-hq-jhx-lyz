@@ -34,6 +34,11 @@ msgstr "{0, plural, one {# row needs attention} other {# rows need attention}}"
 msgid "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 msgstr "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 
+#. placeholder {0}: row.evidenceCount
+#: src/routes/dashboard.tsx
+msgid "{0, plural, one {# source} other {# sources}}"
+msgstr "{0, plural, one {# source} other {# sources}}"
+
 #. placeholder {0}: intake.rowCount
 #: src/features/migration/Step1Intake.tsx
 msgid "{0, plural, one {We imported the first 1000 of # row. Split your file to import more.} other {We imported the first 1000 of # rows. Split your file to import more.}}"
@@ -51,11 +56,32 @@ msgstr "{0} clients · {1} obligations"
 msgid "{0} clients · {1} obligations removed"
 msgstr "{0} clients · {1} obligations removed"
 
+#. placeholder {0}: row.taxType
+#. placeholder {1}: formatDate(row.currentDueDate)
+#: src/routes/dashboard.tsx
+msgid "{0} due {1}"
+msgstr "{0} due {1}"
+
 #. placeholder {0}: stats.fullyCovered
 #. placeholder {1}: stats.jurisdictions - stats.fullyCovered
 #: src/features/rules/coverage-tab.tsx
 msgid "{0} fully covered · {1} with open candidates"
 msgstr "{0} fully covered · {1} with open candidates"
+
+#. placeholder {0}: data?.summary.needsReviewCount ?? 0
+#: src/routes/dashboard.tsx
+msgid "{0} obligations require CPA confirmation."
+msgstr "{0} obligations require CPA confirmation."
+
+#. placeholder {0}: data?.summary.evidenceGapCount ?? 0
+#: src/routes/dashboard.tsx
+msgid "{0} open obligations have no evidence link."
+msgstr "{0} open obligations have no evidence link."
+
+#. placeholder {0}: topRows.filter((row) => row.evidenceCount > 0).length
+#: src/routes/dashboard.tsx
+msgid "{0} top rows have evidence."
+msgstr "{0} top rows have evidence."
 
 #: src/features/migration/Step4Preview.tsx
 msgid "{clientCount, plural, one {# client} other {# clients}}"
@@ -64,6 +90,10 @@ msgstr "{clientCount, plural, one {# client} other {# clients}}"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "{durationMonths} months"
 msgstr "{durationMonths} months"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "{ignoredCount, plural, one {# column is currently ignored.} other {# columns are currently ignored.}}"
+msgstr "{ignoredCount, plural, one {# column is currently ignored.} other {# columns are currently ignored.}}"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
@@ -94,10 +124,6 @@ msgstr "{totalShown, plural, one {# row} other {# rows}}"
 msgid "© {0} DueDateHQ Inc."
 msgstr "© {0} DueDateHQ Inc."
 
-#: src/routes/dashboard.tsx
-msgid "2 partner entities need review before the March 15 cutoff."
-msgstr "2 partner entities need review before the March 15 cutoff."
-
 #: src/features/rules/rules-console.tsx
 msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
 msgstr "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
@@ -110,10 +136,6 @@ msgstr "3 basic · 2 review"
 msgid "3 basic · 4 review"
 msgstr "3 basic · 4 review"
 
-#: src/routes/dashboard.tsx
-msgid "3 clients have estimated-tax deltas above the evidence threshold."
-msgstr "3 clients have estimated-tax deltas above the evidence threshold."
-
 #: src/features/rules/rules-console.tsx
 msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
 msgstr "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
@@ -122,18 +144,15 @@ msgstr "31 official channels we watch for rule changes — health, cadence, and 
 msgid "4 verified · 1 candidate watch"
 msgstr "4 verified · 1 candidate watch"
 
-#: src/routes/dashboard.tsx
-msgid "5 draft extensions are waiting on K-1 attachments."
-msgstr "5 draft extensions are waiting on K-1 attachments."
-
 #. placeholder {0}: user.name || user.email
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Account menu for {0}"
 msgstr "Account menu for {0}"
 
+#. placeholder {0}: data.summary.dueThisWeekCount
 #: src/routes/dashboard.tsx
-msgid "Across 28 open obligations."
-msgstr "Across 28 open obligations."
+msgid "Across {0} due this week."
+msgstr "Across {0} due this week."
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Actions"
@@ -154,10 +173,6 @@ msgstr "AI mapped your columns — review and confirm"
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI Mapper unavailable — using fallback"
-
-#: src/routes/dashboard.tsx
-msgid "AI-facing recommendations remain hidden unless source, excerpt, and verification time are present."
-msgstr "AI-facing recommendations remain hidden unless source, excerpt, and verification time are present."
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -230,10 +245,6 @@ msgstr "Basic"
 #: src/features/migration/Step4Preview.tsx
 msgid "Batch rollback trace retained for 24 hours"
 msgstr "Batch rollback trace retained for 24 hours"
-
-#: src/routes/dashboard.tsx
-msgid "Blocked"
-msgstr "Blocked"
 
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -349,6 +360,10 @@ msgstr "Couldn't apply Default Matrix"
 msgid "Couldn't import clients"
 msgstr "Couldn't import clients"
 
+#: src/routes/dashboard.tsx
+msgid "Couldn't load dashboard"
+msgstr "Couldn't load dashboard"
+
 #: src/routes/workboard.tsx
 msgid "Couldn't load the queue."
 msgstr "Couldn't load the queue."
@@ -379,6 +394,10 @@ msgid "Coverage"
 msgstr "Coverage"
 
 #: src/routes/dashboard.tsx
+msgid "Coverage state for the same obligations shown on the dashboard."
+msgstr "Coverage state for the same obligations shown on the dashboard."
+
+#: src/routes/dashboard.tsx
 msgid "critical"
 msgstr "critical"
 
@@ -395,6 +414,10 @@ msgstr "Dark"
 #: src/routes/_layout.tsx
 msgid "Dashboard"
 msgstr "Dashboard"
+
+#: src/routes/dashboard.tsx
+msgid "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
+msgstr "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
 
 #: src/routes/dashboard.tsx
 msgid "Deadline"
@@ -429,10 +452,6 @@ msgstr "Discard import"
 #: src/features/migration/WizardShell.tsx
 msgid "Discard import?"
 msgstr "Discard import?"
-
-#: src/routes/dashboard.tsx
-msgid "Dollar-first triage for the next operating window."
-msgstr "Dollar-first triage for the next operating window."
 
 #: src/features/workboard/status-control.tsx
 msgid "Done"
@@ -478,10 +497,6 @@ msgstr "e.g. Bright CPA Practice"
 msgid "Edit"
 msgstr "Edit"
 
-#: src/routes/dashboard.tsx
-msgid "Eight rows are visible on first load for dense scanning."
-msgstr "Eight rows are visible on first load for dense scanning."
-
 #: src/routes/login.tsx
 msgid "Encrypted · 7-day session · SSO respected"
 msgstr "Encrypted · 7-day session · SSO respected"
@@ -507,6 +522,7 @@ msgid "Event"
 msgstr "Event"
 
 #: src/features/rules/rule-detail-drawer.tsx
+#: src/routes/dashboard.tsx
 msgid "Evidence"
 msgstr "Evidence"
 
@@ -518,25 +534,13 @@ msgstr "Evidence checks"
 msgid "Evidence drawer is coming soon"
 msgstr "Evidence drawer is coming soon"
 
-#: src/routes/dashboard.tsx
-msgid "Evidence mode"
-msgstr "Evidence mode"
-
 #: src/features/rules/rule-library-tab.tsx
 msgid "Exception"
 msgstr "Exception"
 
-#: src/routes/dashboard.tsx
-msgid "Exposure"
-msgstr "Exposure"
-
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Extension"
 msgstr "Extension"
-
-#: src/routes/dashboard.tsx
-msgid "Extension package hold"
-msgstr "Extension package hold"
 
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
@@ -617,6 +621,10 @@ msgstr "Import clients"
 msgid "Import clients · Step {step} of 4"
 msgstr "Import clients · Step {step} of 4"
 
+#: src/routes/dashboard.tsx
+msgid "Import clients to generate real obligation risk."
+msgstr "Import clients to generate real obligation risk."
+
 #: src/features/migration/Wizard.tsx
 msgid "Import complete"
 msgstr "Import complete"
@@ -644,14 +652,6 @@ msgstr "Input client facts → dry-run rules engine → see which obligations wo
 #: src/features/migration/Stepper.tsx
 msgid "Intake"
 msgstr "Intake"
-
-#: src/routes/dashboard.tsx
-msgid "IRS transcript mismatch"
-msgstr "IRS transcript mismatch"
-
-#: src/routes/dashboard.tsx
-msgid "IRS transcript source was checked this morning."
-msgstr "IRS transcript source was checked this morning."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION × ENTITY"
@@ -691,6 +691,10 @@ msgstr "Language"
 msgid "Light"
 msgstr "Light"
 
+#: src/routes/dashboard.tsx
+msgid "Linked"
+msgstr "Linked"
+
 #: src/routes/workboard.tsx
 msgid "Load more"
 msgstr "Load more"
@@ -702,6 +706,10 @@ msgstr "Loading generation preview."
 #: src/routes/workboard.tsx
 msgid "Loading queue…"
 msgstr "Loading queue…"
+
+#: src/routes/dashboard.tsx
+msgid "Loading real deadline risk."
+msgstr "Loading real deadline risk."
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Loading rule library."
@@ -715,6 +723,7 @@ msgstr "Loading rule sources."
 msgid "Loading rules coverage."
 msgstr "Loading rules coverage."
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Loading…"
 msgstr "Loading…"
@@ -767,11 +776,8 @@ msgstr "Navigate"
 msgid "Needs evidence"
 msgstr "Needs evidence"
 
-#: src/routes/dashboard.tsx
-msgid "Needs excerpt"
-msgstr "Needs excerpt"
-
 #: src/features/migration/Step3Normalize.tsx
+#: src/routes/dashboard.tsx
 msgid "Needs review"
 msgstr "Needs review"
 
@@ -800,6 +806,10 @@ msgstr "No emails will be sent automatically"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "No extension available."
 msgstr "No extension available."
+
+#: src/routes/dashboard.tsx
+msgid "No generated obligations yet."
+msgstr "No generated obligations yet."
 
 #: src/routes/workboard.tsx
 msgid "No obligations match these filters."
@@ -841,14 +851,6 @@ msgstr "Notifications"
 msgid "Notifications, {unreadCount} unread"
 msgstr "Notifications, {unreadCount} unread"
 
-#: src/routes/dashboard.tsx
-msgid "NY PTET election window"
-msgstr "NY PTET election window"
-
-#: src/routes/dashboard.tsx
-msgid "Obligation"
-msgstr "Obligation"
-
 #: src/routes/workboard.tsx
 msgid "Obligation queue"
 msgstr "Obligation queue"
@@ -861,13 +863,17 @@ msgstr "obligations"
 msgid "official channels under monitor"
 msgstr "official channels under monitor"
 
-#: src/routes/dashboard.tsx
-msgid "One row lacks a usable source URL."
-msgstr "One row lacks a usable source URL."
-
 #: src/features/migration/Step2Mapping.tsx
 msgid "Open"
 msgstr "Open"
+
+#: src/routes/dashboard.tsx
+msgid "open obligations"
+msgstr "open obligations"
+
+#: src/routes/dashboard.tsx
+msgid "Open obligations"
+msgstr "Open obligations"
 
 #. placeholder {0}: evidenceSource.title
 #. placeholder {0}: source.title
@@ -902,8 +908,8 @@ msgid "Open the obligation queue."
 msgstr "Open the obligation queue."
 
 #: src/routes/dashboard.tsx
-msgid "Operational pressure points for the team."
-msgstr "Operational pressure points for the team."
+msgid "Operational pressure points from server aggregation."
+msgstr "Operational pressure points from server aggregation."
 
 #: src/routes/_layout.tsx
 #: src/routes/dashboard.tsx
@@ -913,10 +919,6 @@ msgstr "Operations"
 #: src/features/migration/Step1Intake.tsx
 msgid "or"
 msgstr "or"
-
-#: src/routes/dashboard.tsx
-msgid "Owner"
-msgstr "Owner"
 
 #: src/routes/_layout.tsx
 msgid "Owner · demo seat"
@@ -951,14 +953,6 @@ msgstr "Paused"
 msgid "Payment is extended along with filing."
 msgstr "Payment is extended along with filing."
 
-#: src/routes/dashboard.tsx
-msgid "Penalty exposure"
-msgstr "Penalty exposure"
-
-#: src/routes/dashboard.tsx
-msgid "penalty-weighted"
-msgstr "penalty-weighted"
-
 #: src/features/workboard/status-control.tsx
 msgid "Pending"
 msgstr "Pending"
@@ -973,6 +967,7 @@ msgstr "Please enter at least 2 characters."
 
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/migration/Wizard.tsx
+#: src/routes/dashboard.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
 #: src/routes/workboard.tsx
@@ -1052,10 +1047,6 @@ msgstr "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgid "reminder-ready across MVP scope"
 msgstr "reminder-ready across MVP scope"
 
-#: src/routes/dashboard.tsx
-msgid "Representative source states wired with existing components."
-msgstr "Representative source states wired with existing components."
-
 #. placeholder {0}: requiresReview.length
 #: src/features/rules/generation-preview-tab.tsx
 msgid "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
@@ -1069,6 +1060,7 @@ msgstr "Reserved"
 msgid "Reset"
 msgstr "Reset"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Retry"
 msgstr "Retry"
@@ -1135,9 +1127,14 @@ msgstr "Rules"
 msgid "Rules Console"
 msgstr "Rules Console"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Run migration"
 msgstr "Run migration"
+
+#: src/routes/dashboard.tsx
+msgid "Run Migration Copilot to import clients and generate real deadlines."
+msgstr "Run Migration Copilot to import clients and generate real deadlines."
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Run preview"
@@ -1178,6 +1175,10 @@ msgstr "Search, ask, or navigate."
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Search, ask, or navigate..."
 msgstr "Search, ask, or navigate..."
+
+#: src/routes/dashboard.tsx
+msgid "Server-computed obligation risk for the next operating window."
+msgstr "Server-computed obligation risk for the next operating window."
 
 #: src/routes/onboarding.tsx
 msgid "Set up your practice."
@@ -1295,6 +1296,7 @@ msgstr "STATE"
 msgid "States"
 msgstr "States"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Status"
 msgstr "Status"
@@ -1325,6 +1327,7 @@ msgid "System"
 msgstr "System"
 
 #: src/features/rules/rule-detail-drawer.tsx
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Tax type"
 msgstr "Tax type"
@@ -1388,8 +1391,8 @@ msgid "Too many requests. Please try again in a moment."
 msgstr "Too many requests. Please try again in a moment."
 
 #: src/routes/dashboard.tsx
-msgid "Two recommendations are waiting on source excerpts."
-msgstr "Two recommendations are waiting on source excerpts."
+msgid "Top obligations are sorted by deterministic due-date severity."
+msgstr "Top obligations are sorted by deterministic due-date severity."
 
 #: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
@@ -1422,7 +1425,6 @@ msgstr "verified"
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
-#: src/routes/dashboard.tsx
 msgid "Verified"
 msgstr "Verified"
 
@@ -1433,10 +1435,6 @@ msgstr "verified — reminder will fire"
 #: src/features/rules/coverage-tab.tsx
 msgid "verified · candidate · sources · current state"
 msgstr "verified · candidate · sources · current state"
-
-#: src/routes/dashboard.tsx
-msgid "verified {verifiedAt}"
-msgstr "verified {verifiedAt}"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Verified at"

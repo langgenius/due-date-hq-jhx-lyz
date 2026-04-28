@@ -1,4 +1,5 @@
 import { createAiGateway } from 'ai-gateway-provider'
+import { createOpenRouter } from 'ai-gateway-provider/providers/openrouter'
 import { createUnified } from 'ai-gateway-provider/providers/unified'
 import { generateText, Output } from 'ai'
 import * as z from 'zod'
@@ -6,7 +7,9 @@ import * as z from 'zod'
 export interface GatewayRequest<TOut> {
   accountId: string
   slug: string
-  apiKey: string
+  gatewayApiKey?: string
+  provider: 'openrouter' | 'unified'
+  providerApiKey?: string
   model: string
   prompt: string
   input: unknown
@@ -50,18 +53,25 @@ function readUsage(value: unknown): GatewayResponse<unknown>['tokens'] {
   return tokens
 }
 
+function modelForOpenRouter(model: string): string {
+  return model.startsWith('openrouter/') ? model.slice('openrouter/'.length) : model
+}
+
 export async function callGateway<TOut>(
   request: GatewayRequest<TOut>,
 ): Promise<GatewayResponse<TOut>> {
   const aiGateway = createAiGateway({
     accountId: request.accountId,
     gateway: request.slug,
-    apiKey: request.apiKey,
+    ...(request.gatewayApiKey ? { apiKey: request.gatewayApiKey } : {}),
   })
-  const unified = createUnified()
+  const model =
+    request.provider === 'openrouter' && request.providerApiKey
+      ? createOpenRouter({ apiKey: request.providerApiKey }).chat(modelForOpenRouter(request.model))
+      : createUnified()(request.model)
 
   const result = await generateText({
-    model: aiGateway(unified(request.model)),
+    model: aiGateway(model),
     system: request.prompt,
     prompt: JSON.stringify(request.input),
     output: Output.object({ schema: request.schema }),

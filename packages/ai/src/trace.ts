@@ -3,6 +3,8 @@ export interface AiTrace {
   model: string
   latencyMs: number
   guardResult: 'ok' | 'schema_fail' | 'guard_rejected' | 'ai_unavailable'
+  inputHash: string
+  refusalCode?: string
   tokens?: { input?: number; output?: number }
   costUsd?: number
 }

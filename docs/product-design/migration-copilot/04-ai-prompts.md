@@ -12,11 +12,13 @@
 
 **裁定 5（Placeholder 策略）再强调**（权威出处 [`./10-conflict-resolutions.md#5-placeholder-策略`](./10-conflict-resolutions.md#5-placeholder-策略)）：Migration Mapper / Normalizer 只通过 `packages/ai` + AI SDK 发送"字段名 + 5 行原始样本"，**不**使用 `{{client_1}}` 占位符——因为字段名 + 样本值本身不含跨行 PII 结构，而 EIN 模式识别（`^\d{2}-\d{7}$`）**必须**依赖原样字符才能生效；Onboarding Agent 对话则走占位符 + 后端回填路径。
 
-PII 防护改由以下三道闸守住（对齐 PRD Part1B §6A.9 / Part2B §9.3 / §13.2）：
+PII 防护改由以下四道闸守住（对齐 PRD Part1B §6A.9 / Part2B §9.3 / §13.2）：
 
 1. 前端 SSN 正则拦截 + 该列强制 `IGNORE` + 红色警示（Step 1 Intake，见 [`./02-ux-4step-wizard.md#step-1-intake`](./02-ux-4step-wizard.md#step-1-intake)）
-2. 走 Vercel AI SDK Core + Cloudflare AI Gateway provider（`dev-file/04` §1 / §2）
-3. Prompt 明示 `"Do not retain any data seen for training"` + `"5-row sample only, no placeholders"` 两类契约字符串；retention 能力由 Cloudflare AI Gateway 上游配置和 provider 合同保障（本文 §2.3 / §3.3）
+2. 后端 `redactMigrationInput` 在调用 AI Gateway 前再次剔除 SSN / ITIN-like header 与 sample cell；
+   trace 只保存 redacted input hash，不保存 prompt 原文
+3. 走 Vercel AI SDK Core + Cloudflare AI Gateway provider（`dev-file/04` §1 / §2）
+4. Prompt 明示 `"Do not retain any data seen for training"` + `"5-row sample only, no placeholders"` 两类契约字符串；retention 能力由 Cloudflare AI Gateway 上游配置和 provider 合同保障（本文 §2.3 / §3.3）
 
 ---
 
@@ -217,8 +219,9 @@ export type MapperOutput = z.infer<typeof MapperOutput>
    - `confidence < 0.5` → UI 强制用户手动选字段（PRD Part2B §9.2）
 4. **写库**（`apps/server` 注入 writer ports，`packages/ai` 不直接碰 DB；对齐 `dev-file/04` §1）：
    - `migration_mapping`（每列一行）：`source / target / confidence / reasoning / user_overridden / model / prompt_version`
-   - `ai_output`（kind = `migration_map`）：`prompt_version / model / input_context_ref / latency_ms / tokens / cost`
-   - `evidence_link`（`source_type='ai_mapper'`）：`model / confidence / verified_by=null / applied_by=user_id / applied_at`
+   - `ai_output`（kind = `migration_map`）：`prompt_version / model / input_context_ref / input_hash / latency_ms / tokens / cost / guard_result / refusal_code`
+   - `llm_log`：每次模型尝试或 fallback 的 prompt / model / input hash / latency / tokens / guard result
+   - `evidence_link`（`source_type='ai_mapper'`）：`ai_output_id / model / confidence / verified_by=null / applied_by=user_id / applied_at`
 5. **PostHog 埋点**：emit `migration.mapper.run.completed`，字段：
    - `batch_id`
    - `preset_used` (`taxdome | drake | karbon | quickbooks | file_in_time | null`)
@@ -283,20 +286,23 @@ raw value to exactly one of these 8 canonical values:
 
   llc, s_corp, partnership, c_corp, sole_prop, trust, individual, other
 
-Output strict JSON only, keyed by the raw value:
+Output strict JSON only:
 
   {
-    "<raw>": {
-      "normalized": "<canonical>",
-      "confidence": 0.0-1.0,
-      "reasoning": "<one sentence, ≤ 20 words>"
-    }
+    "normalizations": [
+      {
+        "raw": "<raw value exactly as provided>",
+        "normalized": "<canonical>",
+        "confidence": 0.0-1.0,
+        "reasoning": "<one sentence, ≤ 20 words>"
+      }
+    ]
   }
 
 Rules:
   - If the raw value is ambiguous, set normalized="other" and confidence below 0.5.
   - Never invent a canonical value outside the 8 listed above.
-  - Do not emit any keys other than the raw values provided.
+  - Return one normalizations item for each raw value provided, and no extra items.
   - Case-insensitive; ignore surrounding whitespace and punctuation.
 
 Retention: Do not retain any data seen for training.
@@ -324,14 +330,17 @@ or more canonical tax_type IDs from DueDateHQ's Default Matrix vocabulary:
   ny_it201, ny_it204, ny_it205, ny_ct3, ny_ct3s,
   ny_llc_filing_fee, ny_ptet_optional
 
-Output strict JSON only, keyed by the raw value:
+Output strict JSON only:
 
   {
-    "<raw>": {
-      "normalized": ["<id1>", "<id2>"],
-      "confidence": 0.0-1.0,
-      "reasoning": "<one sentence, ≤ 20 words>"
-    }
+    "normalizations": [
+      {
+        "raw": "<raw value exactly as provided>",
+        "normalized": ["<id1>", "<id2>"],
+        "confidence": 0.0-1.0,
+        "reasoning": "<one sentence, ≤ 20 words>"
+      }
+    ]
   }
 
 Rules:
@@ -339,7 +348,7 @@ Rules:
     and confidence below 0.5 — do not invent IDs.
   - Prefer the narrowest match; if jurisdiction is provided, prefer that jurisdiction.
   - Case-insensitive; ignore punctuation and common prefixes ("Form", "IRS", "#").
-  - Do not emit any keys other than the raw values provided.
+  - Return one normalizations item for each raw value provided, and no extra items.
 
 Retention: Do not retain any data seen for training.
 PII handling: enumerated field values only — no placeholders used.
@@ -348,66 +357,62 @@ PII handling: enumerated field values only — no placeholders used.
 ### 3.4 输出 JSON Schema + 示例
 
 ```ts
-export const NormalizerEntityOutput = z.record(
-  z.string(),
-  z.object({
-    normalized: z.enum([
-      'llc',
-      's_corp',
-      'partnership',
-      'c_corp',
-      'sole_prop',
-      'trust',
-      'individual',
-      'other',
-    ]),
-    confidence: z.number().min(0).max(1),
-    reasoning: z.string().max(100),
-  }),
-)
+export const NormalizerEntityOutput = z.object({
+  normalizations: z.array(
+    z.object({
+      raw: z.string(),
+      normalized: z.enum([
+        'llc',
+        's_corp',
+        'partnership',
+        'c_corp',
+        'sole_prop',
+        'trust',
+        'individual',
+        'other',
+      ]),
+      confidence: z.number().min(0).max(1),
+      reasoning: z.string().max(100),
+    }),
+  ),
+})
 
-export const NormalizerTaxTypesOutput = z.record(
-  z.string(),
-  z.object({
-    normalized: z.array(z.string()).max(10),
-    confidence: z.number().min(0).max(1),
-    reasoning: z.string().max(100),
-  }),
-)
+export const NormalizerTaxTypesOutput = z.object({
+  normalizations: z.array(
+    z.object({
+      raw: z.string(),
+      normalized: z.array(z.string()).max(10),
+      confidence: z.number().min(0).max(1),
+      reasoning: z.string().max(100),
+    }),
+  ),
+})
 ```
 
 **`normalizer-entity@v1` 示例**：
 
 ```json
 {
-  "L.L.C.": { "normalized": "llc", "confidence": 0.99, "reasoning": "Dotted abbreviation of LLC." },
-  "Corp (S)": {
-    "normalized": "s_corp",
-    "confidence": 0.97,
-    "reasoning": "Parenthetical S indicates S corporation."
-  },
-  "Limited Partnership": {
-    "normalized": "partnership",
-    "confidence": 0.96,
-    "reasoning": "Partnership variant."
-  },
-  "Inc.": {
-    "normalized": "c_corp",
-    "confidence": 0.88,
-    "reasoning": "Default corporation filing absent S election."
-  },
-  "Schedule C Filer": {
-    "normalized": "sole_prop",
-    "confidence": 0.93,
-    "reasoning": "1040 Schedule C is sole prop."
-  },
-  "Ind.": { "normalized": "individual", "confidence": 0.9, "reasoning": "Abbrev. for individual." },
-  "Irrevocable Trust": { "normalized": "trust", "confidence": 0.98, "reasoning": "Trust type." },
-  "Non-profit": {
-    "normalized": "other",
-    "confidence": 0.4,
-    "reasoning": "Outside 8-enum scope; flag for review."
-  }
+  "normalizations": [
+    {
+      "raw": "L.L.C.",
+      "normalized": "llc",
+      "confidence": 0.99,
+      "reasoning": "Dotted abbreviation of LLC."
+    },
+    {
+      "raw": "Corp (S)",
+      "normalized": "s_corp",
+      "confidence": 0.97,
+      "reasoning": "Parenthetical S indicates S corporation."
+    },
+    {
+      "raw": "Limited Partnership",
+      "normalized": "partnership",
+      "confidence": 0.96,
+      "reasoning": "Partnership variant."
+    }
+  ]
 }
 ```
 
@@ -415,28 +420,21 @@ export const NormalizerTaxTypesOutput = z.record(
 
 ```json
 {
-  "Fed 1065": {
-    "normalized": ["federal_1065"],
-    "confidence": 0.97,
-    "reasoning": "Federal partnership return."
-  },
-  "CA Franchise": {
-    "normalized": ["ca_100_franchise"],
-    "confidence": 0.84,
-    "reasoning": "Ambiguous: defaulting to C-corp 100."
-  },
-  "1120-S": {
-    "normalized": ["federal_1120s"],
-    "confidence": 0.98,
-    "reasoning": "S-corp federal return."
-  },
-  "NY CT-3-S": { "normalized": ["ny_ct3s"], "confidence": 0.99, "reasoning": "Exact match." },
-  "LLC $800": {
-    "normalized": ["ca_llc_franchise_min_800"],
-    "confidence": 0.95,
-    "reasoning": "CA LLC minimum franchise tax."
-  },
-  "Mystery": { "normalized": [], "confidence": 0.2, "reasoning": "Cannot map." }
+  "normalizations": [
+    {
+      "raw": "Fed 1065",
+      "normalized": ["federal_1065"],
+      "confidence": 0.97,
+      "reasoning": "Federal partnership return."
+    },
+    {
+      "raw": "CA Franchise",
+      "normalized": ["ca_100_franchise"],
+      "confidence": 0.84,
+      "reasoning": "Ambiguous: defaulting to C-corp 100."
+    },
+    { "raw": "Mystery", "normalized": [], "confidence": 0.2, "reasoning": "Cannot map." }
+  ]
 }
 ```
 
@@ -445,8 +443,8 @@ export const NormalizerTaxTypesOutput = z.record(
 1. **字典优先合并**：AI SDK 输出与本地字典合并；冲突 → 取本地字典（字典是 ops-verified）
 2. **写库**：
    - `migration_normalization`（每条归一一行）：`field / raw_value / normalized_value / confidence / model / prompt_version / reasoning / user_overridden`
-   - `ai_output`（kind = `migration_normalize`）
-   - `evidence_link`（`source_type='ai_normalizer'`）
+   - `ai_output`（kind = `migration_normalize`）+ `llm_log`
+   - `evidence_link`（`source_type='ai_normalizer'`，绑定 `ai_output_id`）
 3. **置信度 < 0.8**：UI 黄色 `Needs review`（非阻塞，对齐 PRD §6A.3）
 4. **置信度 < 0.5**：UI `[Fix now or skip]`；不强制（对齐 PRD §6A.3）
 5. **PostHog**：emit `migration.normalize.reviewed`，字段：

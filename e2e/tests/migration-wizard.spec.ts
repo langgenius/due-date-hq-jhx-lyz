@@ -1,5 +1,7 @@
 import { expect, test } from '../fixtures/test'
 
+const AI_STEP_TIMEOUT = 20_000
+
 // Feature: Migration Copilot Step 1
 // PRD: S2 import intake
 // AC: E2E-MIGRATION-INTAKE, E2E-MIGRATION-SSN-BLOCK, E2E-MIGRATION-DISCARD,
@@ -51,18 +53,21 @@ test('AC: E2E-MIGRATION-IMPORT-UNDO imports from the wizard and reverts from toa
   await expect(migrationWizardPage.dialog).toBeVisible()
   await migrationWizardPage.presetButton('TaxDome').click()
   await migrationWizardPage.pasteRows(
-    ['Client Name,EIN,State,Entity Type', `${importedClient},12-3456789,CA,LLC`].join('\n'),
+    [
+      'Client Name,EIN,State,Entity Type,Tax Types',
+      `${importedClient},12-3456789,CA,C Corp,federal_1120; ca_100_franchise`,
+    ].join('\n'),
   )
 
   await migrationWizardPage.continue()
   await expect(
     authenticatedPage.getByRole('heading', { name: 'AI mapped your columns — review and confirm' }),
-  ).toBeVisible()
+  ).toBeVisible({ timeout: AI_STEP_TIMEOUT })
 
   await migrationWizardPage.continue()
   await expect(
     authenticatedPage.getByRole('heading', { name: /We normalized \d+ values/ }),
-  ).toBeVisible()
+  ).toBeVisible({ timeout: AI_STEP_TIMEOUT })
 
   await migrationWizardPage.continue()
   await expect(authenticatedPage.getByRole('heading', { name: 'Ready to import' })).toBeVisible()

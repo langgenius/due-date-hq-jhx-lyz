@@ -1,6 +1,6 @@
 import { ORPCError } from '@orpc/server'
 import * as z from 'zod'
-import type { AI } from '@duedatehq/ai'
+import type { AI, AiRunResult } from '@duedatehq/ai'
 import {
   inferTaxTypes,
   type EntityType,
@@ -82,37 +82,44 @@ const MapperOutputSchema = z.object({
         'IGNORE',
       ]),
       confidence: z.number().min(0).max(1),
-      reasoning: z.string().optional(),
+      reasoning: z.string(),
     }),
   ),
 })
 
-const EntityNormalizerSchema = z.record(
-  z.string(),
-  z.object({
-    normalized: z.enum([
-      'llc',
-      's_corp',
-      'partnership',
-      'c_corp',
-      'sole_prop',
-      'trust',
-      'individual',
-      'other',
-    ]),
-    confidence: z.number().min(0).max(1),
-    reasoning: z.string().optional(),
-  }),
-)
+const EntityNormalizerSchema = z.object({
+  normalizations: z.array(
+    z.object({
+      raw: z.string(),
+      normalized: z.enum([
+        'llc',
+        's_corp',
+        'partnership',
+        'c_corp',
+        'sole_prop',
+        'trust',
+        'individual',
+        'other',
+      ]),
+      confidence: z.number().min(0).max(1),
+      reasoning: z.string(),
+    }),
+  ),
+})
 
-const TaxTypesNormalizerSchema = z.record(
-  z.string(),
-  z.object({
-    normalized: z.array(z.string()),
-    confidence: z.number().min(0).max(1),
-    reasoning: z.string().optional(),
-  }),
-)
+const TaxTypesNormalizerSchema = z.object({
+  normalizations: z.array(
+    z.object({
+      raw: z.string(),
+      normalized: z.array(z.string()),
+      confidence: z.number().min(0).max(1),
+      reasoning: z.string(),
+    }),
+  ),
+})
+
+type EntityNormalizerResult = z.infer<typeof EntityNormalizerSchema>['normalizations'][number]
+type TaxTypesNormalizerResult = z.infer<typeof TaxTypesNormalizerSchema>['normalizations'][number]
 
 export interface MigrationDeps {
   scoped: ScopedRepo
@@ -238,6 +245,7 @@ export class MigrationService {
       },
       MapperOutputSchema,
     )
+    const { aiOutputId } = await this.recordAiRun('migration_map', batchId, aiResult)
 
     if (aiResult.result) {
       model = aiResult.model
@@ -268,6 +276,7 @@ export class MigrationService {
       aiMappings,
       headers,
       sampleRows,
+      { batchId },
     )
 
     // Persist the raw AI run (or preset fallback) for audit trail.
@@ -289,7 +298,7 @@ export class MigrationService {
     if (sanitizedMappings.length > 0) {
       await this.deps.scoped.evidence.writeBatch(
         sanitizedMappings.map((m) => ({
-          aiOutputId: m.id,
+          aiOutputId,
           sourceType: 'ai_mapper',
           sourceId: batchId,
           rawValue: m.sourceHeader,
@@ -336,6 +345,7 @@ export class MigrationService {
       validated,
       payload.rawInput.headers,
       payload.rawInput.rows.slice(0, MAX_SAMPLE_ROWS),
+      { batchId },
     )
 
     payload.confirmedMappings = sanitizedMappings
@@ -390,18 +400,32 @@ export class MigrationService {
     )
 
     const out: NormalizationRow[] = []
+    const aiOutputByNormalizationId = new Map<string, string>()
 
     if (valuesByField.entityValues.length > 0) {
-      const entityRows = await this.runEntityNormalizer(batchId, valuesByField.entityValues)
-      out.push(...entityRows)
+      const entityResult = await this.runEntityNormalizer(batchId, valuesByField.entityValues)
+      out.push(...entityResult.rows)
+      for (const row of entityResult.rows) {
+        aiOutputByNormalizationId.set(row.id, entityResult.aiOutputId)
+      }
     }
     if (valuesByField.taxTypeValues.length > 0) {
-      const taxRows = await this.runTaxTypeNormalizer(batchId, valuesByField.taxTypeValues)
-      out.push(...taxRows)
+      const taxResult = await this.runTaxTypeNormalizer(batchId, valuesByField.taxTypeValues)
+      out.push(...taxResult.rows)
+      for (const row of taxResult.rows) {
+        aiOutputByNormalizationId.set(row.id, taxResult.aiOutputId)
+      }
     }
     if (valuesByField.stateValues.length > 0) {
       const stateRows = this.runStateNormalizer(batchId, valuesByField.stateValues)
       out.push(...stateRows)
+      const { aiOutputId } = await this.recordLocalNormalizerRun(batchId, {
+        field: 'state',
+        values: valuesByField.stateValues,
+      })
+      for (const row of stateRows) {
+        aiOutputByNormalizationId.set(row.id, aiOutputId)
+      }
     }
 
     if (out.length > 0) {
@@ -419,16 +443,22 @@ export class MigrationService {
         })),
       )
       await this.deps.scoped.evidence.writeBatch(
-        out.map((n) => ({
-          aiOutputId: n.id,
-          sourceType: 'ai_normalizer',
-          sourceId: batchId,
-          rawValue: n.rawValue,
-          normalizedValue: n.normalizedValue,
-          confidence: n.confidence,
-          model: n.model,
-          appliedBy: this.deps.userId,
-        })),
+        out.map((n) => {
+          const aiOutputId = aiOutputByNormalizationId.get(n.id)
+          if (!aiOutputId) {
+            throw new Error(`Missing AI output trace for normalization ${n.id}`)
+          }
+          return {
+            aiOutputId,
+            sourceType: 'ai_normalizer',
+            sourceId: batchId,
+            rawValue: n.rawValue,
+            normalizedValue: n.normalizedValue,
+            confidence: n.confidence,
+            model: n.model,
+            appliedBy: this.deps.userId,
+          }
+        }),
       )
     }
 
@@ -690,20 +720,86 @@ export class MigrationService {
     return DryRunSummarySchema.parse(summary)
   }
 
+  private async recordAiRun<TOut>(
+    kind: 'migration_map' | 'migration_normalize',
+    batchId: string,
+    aiResult: AiRunResult<TOut>,
+  ): Promise<{ aiOutputId: string; llmLogId: string }> {
+    return this.deps.scoped.ai.recordRun({
+      userId: this.deps.userId,
+      kind,
+      inputContextRef: batchId,
+      trace: {
+        ...aiResult.trace,
+        model: aiResult.model ?? aiResult.trace.model,
+      },
+      outputText: aiResult.result ? JSON.stringify(aiResult.result) : null,
+      errorMsg: aiResult.refusal?.message ?? null,
+    })
+  }
+
+  private async recordLocalNormalizerRun(
+    batchId: string,
+    input: { field: string; values: readonly string[] },
+  ): Promise<{ aiOutputId: string; llmLogId: string }> {
+    return this.deps.scoped.ai.recordRun({
+      userId: this.deps.userId,
+      kind: 'migration_normalize',
+      inputContextRef: batchId,
+      trace: {
+        promptVersion: PRESET_VERSION,
+        model: null,
+        latencyMs: 0,
+        guardResult: 'ok',
+        inputHash: await hashValue(input),
+      },
+      outputText: JSON.stringify(input),
+      errorMsg: null,
+    })
+  }
+
   private async runEntityNormalizer(
     batchId: string,
     rawValues: string[],
-  ): Promise<NormalizationRow[]> {
+  ): Promise<{ rows: NormalizationRow[]; aiOutputId: string }> {
     const aiResult = await this.deps.ai.runPrompt(
       'normalizer-entity@v1',
       { values: rawValues },
       EntityNormalizerSchema,
     )
+    const { aiOutputId } = await this.recordAiRun('migration_normalize', batchId, aiResult)
 
     const now = new Date().toISOString()
     if (aiResult.result) {
-      return rawValues.map((raw) => {
-        const hit = aiResult.result[raw]
+      const hits = new Map<string, EntityNormalizerResult>(
+        aiResult.result.normalizations.map((hit) => [hit.raw, hit]),
+      )
+      return {
+        aiOutputId,
+        rows: rawValues.map((raw) => {
+          const hit = hits.get(raw)
+          return {
+            id: crypto.randomUUID(),
+            batchId,
+            field: 'entity_type',
+            rawValue: raw,
+            normalizedValue: hit?.normalized ?? null,
+            confidence: hit?.confidence ?? null,
+            model: aiResult.model,
+            promptVersion: 'normalizer-entity@v1',
+            reasoning: hit?.reasoning ?? null,
+            userOverridden: false,
+            createdAt: now,
+          } satisfies NormalizationRow
+        }),
+      }
+    }
+
+    // Dictionary fallback when AI is unavailable.
+    return {
+      aiOutputId,
+      rows: rawValues.map((raw) => {
+        const hit = normalizeEntityType(raw)
         return {
           id: crypto.randomUUID(),
           batchId,
@@ -711,78 +807,70 @@ export class MigrationService {
           rawValue: raw,
           normalizedValue: hit?.normalized ?? null,
           confidence: hit?.confidence ?? null,
-          model: aiResult.model,
-          promptVersion: 'normalizer-entity@v1',
-          reasoning: hit?.reasoning ?? null,
+          model: null,
+          promptVersion: hit?.promptVersion ?? PRESET_VERSION,
+          reasoning: hit ? 'Local dictionary fallback (AI unavailable).' : 'No dictionary match.',
           userOverridden: false,
           createdAt: now,
         } satisfies NormalizationRow
-      })
+      }),
     }
-
-    // Dictionary fallback when AI is unavailable.
-    return rawValues.map((raw) => {
-      const hit = normalizeEntityType(raw)
-      return {
-        id: crypto.randomUUID(),
-        batchId,
-        field: 'entity_type',
-        rawValue: raw,
-        normalizedValue: hit?.normalized ?? null,
-        confidence: hit?.confidence ?? null,
-        model: null,
-        promptVersion: hit?.promptVersion ?? PRESET_VERSION,
-        reasoning: hit ? 'Local dictionary fallback (AI unavailable).' : 'No dictionary match.',
-        userOverridden: false,
-        createdAt: now,
-      } satisfies NormalizationRow
-    })
   }
 
   private async runTaxTypeNormalizer(
     batchId: string,
     rawValues: string[],
-  ): Promise<NormalizationRow[]> {
+  ): Promise<{ rows: NormalizationRow[]; aiOutputId: string }> {
     const aiResult = await this.deps.ai.runPrompt(
       'normalizer-tax-types@v1',
       { values: rawValues },
       TaxTypesNormalizerSchema,
     )
+    const { aiOutputId } = await this.recordAiRun('migration_normalize', batchId, aiResult)
 
     const now = new Date().toISOString()
     if (aiResult.result) {
-      return rawValues.map((raw) => {
-        const hit = aiResult.result[raw]
-        return {
-          id: crypto.randomUUID(),
-          batchId,
-          field: 'tax_types',
-          rawValue: raw,
-          normalizedValue: hit?.normalized ? JSON.stringify(hit.normalized) : null,
-          confidence: hit?.confidence ?? null,
-          model: aiResult.model,
-          promptVersion: 'normalizer-tax-types@v1',
-          reasoning: hit?.reasoning ?? null,
-          userOverridden: false,
-          createdAt: now,
-        } satisfies NormalizationRow
-      })
+      const hits = new Map<string, TaxTypesNormalizerResult>(
+        aiResult.result.normalizations.map((hit) => [hit.raw, hit]),
+      )
+      return {
+        aiOutputId,
+        rows: rawValues.map((raw) => {
+          const hit = hits.get(raw)
+          return {
+            id: crypto.randomUUID(),
+            batchId,
+            field: 'tax_types',
+            rawValue: raw,
+            normalizedValue: hit?.normalized ? JSON.stringify(hit.normalized) : null,
+            confidence: hit?.confidence ?? null,
+            model: aiResult.model,
+            promptVersion: 'normalizer-tax-types@v1',
+            reasoning: hit?.reasoning ?? null,
+            userOverridden: false,
+            createdAt: now,
+          } satisfies NormalizationRow
+        }),
+      }
     }
 
     // No dictionary fallback for tax_types — Default Matrix takes over.
-    return rawValues.map((raw) => ({
-      id: crypto.randomUUID(),
-      batchId,
-      field: 'tax_types',
-      rawValue: raw,
-      normalizedValue: null,
-      confidence: null,
-      model: null,
-      promptVersion: PRESET_VERSION,
-      reasoning: 'AI unavailable — Default Matrix will infer tax_types from (entity, state).',
-      userOverridden: false,
-      createdAt: now,
-    }))
+    return {
+      aiOutputId,
+      rows: rawValues.map((raw) => ({
+        id: crypto.randomUUID(),
+        batchId,
+        field: 'tax_types',
+        rawValue: raw,
+        normalizedValue: null,
+        confidence: null,
+        model: null,
+        promptVersion: PRESET_VERSION,
+        reasoning: 'AI unavailable — Default Matrix will infer tax_types from (entity, state).',
+        userOverridden: false,
+        createdAt: now,
+      })),
+    }
   }
 
   private runStateNormalizer(batchId: string, rawValues: string[]): NormalizationRow[] {
@@ -850,6 +938,14 @@ function base64ToBytes(b64: string): Uint8Array {
   const out = new Uint8Array(bin.length)
   for (let i = 0; i < bin.length; i += 1) out[i] = bin.charCodeAt(i)
   return out
+}
+
+async function hashValue(value: unknown): Promise<string> {
+  const data = new TextEncoder().encode(JSON.stringify(value))
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 interface DryRunStats {

@@ -1,6 +1,8 @@
 import type { Db } from './client'
+import type { AiRepo as RealAiRepo } from './repo/ai'
 import type { AuditRepo as RealAuditRepo } from './repo/audit'
 import type { ClientsRepo as RealClientsRepo } from './repo/clients'
+import type { DashboardRepo as RealDashboardRepo } from './repo/dashboard'
 import type { EvidenceRepo as RealEvidenceRepo } from './repo/evidence'
 import type { MigrationRepo as RealMigrationRepo } from './repo/migration'
 import type { ObligationsRepo as RealObligationsRepo } from './repo/obligations'
@@ -36,7 +38,9 @@ export interface TenantContext {
 // inside the factory hard-codes `WHERE firm_id = :firmId`; see `scoped.ts`.
 export interface ScopedRepo {
   readonly firmId: string
+  readonly ai: AiRepo
   readonly clients: ClientsRepo
+  readonly dashboard: DashboardRepo
   readonly obligations: ObligationsRepo
   readonly workboard: WorkboardRepo
   readonly pulse: PulseRepo
@@ -45,7 +49,9 @@ export interface ScopedRepo {
   readonly audit: AuditRepo
 }
 
+export type AiRepo = RealAiRepo
 export type ClientsRepo = RealClientsRepo
+export type DashboardRepo = RealDashboardRepo
 export type ObligationsRepo = RealObligationsRepo
 export type WorkboardRepo = RealWorkboardRepo
 export interface PulseRepo {}

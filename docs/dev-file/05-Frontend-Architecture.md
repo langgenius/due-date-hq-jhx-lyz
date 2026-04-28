@@ -144,6 +144,12 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 | Hook helpers | **foxact**                                   | 只在 app 层用 deep import 引入明确收益的 hook，例如客户端 search debounce；不下沉到 `packages/ui`        |
 | Feature flag | **PostHog JS SDK**                           | 运行时开关                                                                                               |
 
+Activation Slice v1 约束：Dashboard 不再维护本地 fake risk rows / queue stats / pulse items。
+`apps/app/src/routes/dashboard.tsx` 直接消费
+`useQuery(orpc.dashboard.load.queryOptions({ input: {} }))`，只负责 loading / error / empty /
+real-data 呈现；open risk、due window、needs review、evidence gap 和 severity 都由 server
+aggregation 统一计算。
+
 **禁止：** Redux、MobX、Recoil、自造 context 状态容器。
 
 ---

@@ -13,6 +13,7 @@
     "./clients": "./src/clients.ts",
     "./obligations": "./src/obligations.ts",
     "./dashboard": "./src/dashboard.ts",
+    "./evidence": "./src/evidence.ts",
     "./workboard": "./src/workboard.ts",
     "./pulse": "./src/pulse.ts",
     "./rules": "./src/rules.ts",

@@ -93,6 +93,9 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
     (r) =>
       r.targetField === 'client.ein' && typeof r.confidence === 'number' && r.confidence >= 0.8,
   )
+  const ignoredCount = mapping.rows.filter((r) => r.targetField === 'IGNORE').length
+  const allIgnoreFallback =
+    mapping.status === 'fallback' && mapping.fallback === 'all_ignore' && ignoredCount > 0
 
   function updateRow(idx: number, patch: Partial<MappingRow>) {
     const next = mapping.rows.map((row, i) =>
@@ -152,6 +155,15 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
                 before continuing.
               </Trans>
             )}
+            {allIgnoreFallback ? (
+              <span className="mt-2 block font-medium text-text-primary">
+                <Plural
+                  value={ignoredCount}
+                  one="# column is currently ignored."
+                  other="# columns are currently ignored."
+                />
+              </span>
+            ) : null}
           </AlertDescription>
         </Alert>
       ) : null}

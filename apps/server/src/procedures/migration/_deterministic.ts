@@ -39,6 +39,10 @@ export interface MappingSanitizeResult {
   ssnBlockedHeaders: string[]
 }
 
+interface MappingSanitizeOptions {
+  batchId: string
+}
+
 /**
  * Step 2 sanitizer: applied AFTER the mapper returns. Forces every SSN-
  * flagged column to IGNORE regardless of what the AI suggested. We never
@@ -48,25 +52,53 @@ export function sanitizeMapperOutput(
   mappings: MappingRow[],
   headers: readonly string[],
   sampleRows: readonly (readonly string[])[],
+  options: MappingSanitizeOptions,
 ): MappingSanitizeResult {
   const ssn = detectSsnColumns(headers, sampleRows)
   const blockedSet = new Set(ssn.blockedColumnIndexes)
   const headerToIndex = new Map<string, number>()
   headers.forEach((h, i) => headerToIndex.set(h, i))
 
+  const now = new Date().toISOString()
   const sanitized = mappings.map((m) => {
     const idx = headerToIndex.get(m.sourceHeader)
-    if (idx !== undefined && blockedSet.has(idx) && m.targetField !== 'IGNORE') {
+    if (idx !== undefined && blockedSet.has(idx)) {
       return {
         ...m,
         targetField: 'IGNORE' as MappingTarget,
         confidence: null,
-        reasoning: 'Forced IGNORE — column matched SSN pattern.',
+        reasoning: 'Forced IGNORE — column matched SSN/ITIN pattern.',
         userOverridden: false,
+        model: null,
+        promptVersion: 'pii_guard@v1',
       } satisfies MappingRow
     }
     return m
   })
+
+  const mappedHeaders = new Set(sanitized.map((m) => m.sourceHeader))
+  for (const idx of ssn.blockedColumnIndexes) {
+    const sourceHeader = headers[idx]
+    if (!sourceHeader || mappedHeaders.has(sourceHeader)) continue
+    sanitized.push({
+      id: crypto.randomUUID(),
+      batchId: options.batchId,
+      sourceHeader,
+      targetField: 'IGNORE',
+      confidence: null,
+      reasoning: 'Forced IGNORE — column matched SSN/ITIN pattern.',
+      userOverridden: false,
+      model: null,
+      promptVersion: 'pii_guard@v1',
+      createdAt: now,
+    })
+  }
+
+  sanitized.sort(
+    (a, b) =>
+      (headerToIndex.get(a.sourceHeader) ?? Number.MAX_SAFE_INTEGER) -
+      (headerToIndex.get(b.sourceHeader) ?? Number.MAX_SAFE_INTEGER),
+  )
 
   return { sanitizedMappings: sanitized, ssnBlockedHeaders: ssn.blockedHeaders }
 }

@@ -41,7 +41,7 @@
 | **后台任务**            | **Cron Triggers** + **Queues** + **Workflows**                                          | Pulse ingest / Email outbox / 长任务编排；零外部依赖                                                                                                                                 |
 | **AI SDK**              | Vercel AI SDK Core（`ai`）                                                              | Worker 后端唯一模型执行层；统一 structured output / streaming / tool calling / usage metadata，业务模块不直接碰 provider SDK                                                         |
 | **AI 网关**             | Cloudflare AI Gateway via AI SDK provider                                               | 上游 provider 代理；自带 cache / retry / rate limit / provider-level observability                                                                                                   |
-| **AI Gateway provider** | `ai-gateway-provider`                                                                   | Cloudflare 官方 Vercel AI SDK 集成包；仅在 `packages/ai` 内部组合 Gateway + Unified provider；不允许业务模块直接 import                                                              |
+| **AI Gateway provider** | `ai-gateway-provider`                                                                   | Cloudflare 官方 Vercel AI SDK 集成包；仅在 `packages/ai` 内部组合 Gateway + OpenRouter / Unified provider；不允许业务模块直接 import                                                 |
 | **Embedding**           | AI SDK embedding provider + Cloudflare Vectorize                                        | 模型由 `packages/ai` 路由确认；结果写入 Vectorize                                                                                                                                    |
 | **AI tracing**          | AI SDK usage/telemetry + Cloudflare AI Gateway Dashboard + internal `ai_output` trace   | 不再引入第三方 tracing SDK；prompt 版本 / token / latency / guard result 写入内部 trace payload                                                                                      |
 | **邮件**                | Resend（React Email 模板）                                                              | fetch API；Worker 可跑；Phase 0 的用户通知完全走 email + in-app toast（不做 Web Push）                                                                                               |
@@ -385,7 +385,12 @@ export default defineConfig({
 - `run.cache.scripts` 保持 Vite+ 默认 `false`，避免 build 缓存命中但 `apps/app/dist` 未真实存在。
 - Secrets 扫描仍用 `gitleaks`（外部 CLI，通过 GitHub Action 跑；本地不入 hook 以保持 pre-commit < 3s）。
 
-### 4.5 `.env.example`（完整清单）
+### 4.5 Runtime env / secrets（完整清单）
+
+本仓没有 root `.env.example` 作为 Worker 运行时来源。开发环境复制
+`apps/server/.dev.vars.example` 到 `apps/server/.dev.vars`；该文件只被 `wrangler dev`
+读取，且已 gitignore。GitHub Actions / Cloudflare staging 使用 GitHub environment secrets
+经 Wrangler `--secrets-file` 注入 Worker，不从仓库文件读取 secret。
 
 ```bash
 # ───────── App ─────────
@@ -416,8 +421,10 @@ GOOGLE_CLIENT_SECRET=
 # ───────── AI SDK（经 Cloudflare AI Gateway）─────────
 AI_GATEWAY_ACCOUNT_ID=
 AI_GATEWAY_SLUG=duedatehq
-AI_GATEWAY_API_KEY=
-AI_GATEWAY_MODEL=
+AI_GATEWAY_PROVIDER=openrouter
+AI_GATEWAY_PROVIDER_API_KEY=  # OpenRouter token；OpenRouter Provider Native 路径唯一必需 AI secret
+AI_GATEWAY_MODEL=openai/gpt-5-mini
+AI_GATEWAY_API_KEY=           # 仅 Authenticated Gateway / Unified provider 需要
 
 # ───────── Mail ─────────
 # Optional until a runtime path actually sends auth or product email.
@@ -433,22 +440,24 @@ CLOUDFLARE_ACCOUNT_ID=
 CLOUDFLARE_API_TOKEN=
 ```
 
-机密**永不进仓库**；`.env.local` 给本地开发；线上通过 `wrangler secret put` 写入 Worker secrets。
+机密**永不进仓库**；`apps/server/.dev.vars` 给本地 Worker 开发；线上通过 GitHub
+environment secrets 或 `wrangler secret put` 写入 Worker secrets。前端 SPA 目前没有 AI 相关
+`VITE_*` 配置。
 
 ---
 
 ## 5. 风险与降级矩阵
 
-| 依赖                | 挂了怎么办                                                                                                                     |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| D1 主区             | 读路径可用 D1 Session / read replica 降级；写路径停止关键变更并进入只读模式，必要时把用户意图写 Queue/R2 outbox 后人工确认重放 |
-| Vectorize           | RAG 降级为 D1 FTS5 全文检索兜底（精度下降但可用）                                                                              |
-| AI SDK / AI Gateway | `packages/ai` 内置 fallback 链：primary model → fallback model → 缓存模板 → refusal 文案；业务模块不感知 provider 切换         |
-| Resend              | 写 `email_outbox` + Queue 重试；用户 in-app 通知兜底。`RESEND_API_KEY` 可先不配，但实际发邮件路径必须配置。                    |
-| KV                  | 限流退化为 DB 计数（~200ms 成本）；缓存退化为直查                                                                              |
-| Queues              | 紧急降级为 `scheduled()` 里直接处理，牺牲并行度                                                                                |
-| R2                  | PDF 降级为同步生成 + stream 返回                                                                                               |
-| Worker 单区故障     | Cloudflare 全球自动路由；无需人工介入                                                                                          |
+| 依赖                | 挂了怎么办                                                                                                                                           |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1 主区             | 读路径可用 D1 Session / read replica 降级；写路径停止关键变更并进入只读模式，必要时把用户意图写 Queue/R2 outbox 后人工确认重放                       |
+| Vectorize           | RAG 降级为 D1 FTS5 全文检索兜底（精度下降但可用）                                                                                                    |
+| AI SDK / AI Gateway | `packages/ai` 返回 structured refusal；Migration mapper 无 AI 时降级到 preset / all-ignore，normalizer 走本地字典兜底，业务模块不直接碰 provider key |
+| Resend              | 写 `email_outbox` + Queue 重试；用户 in-app 通知兜底。`RESEND_API_KEY` 可先不配，但实际发邮件路径必须配置。                                          |
+| KV                  | 限流退化为 DB 计数（~200ms 成本）；缓存退化为直查                                                                                                    |
+| Queues              | 紧急降级为 `scheduled()` 里直接处理，牺牲并行度                                                                                                      |
+| R2                  | PDF 降级为同步生成 + stream 返回                                                                                                                     |
+| Worker 单区故障     | Cloudflare 全球自动路由；无需人工介入                                                                                                                |
 
 ---
 

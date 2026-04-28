@@ -274,6 +274,11 @@ Drizzle schema: `packages/db/src/schema/migration.ts`。
 | `confidence` / `model` / `matrix_version`                   | AI 决策用                                                           |
 | `verified_at` / `verified_by` / `applied_at` / `applied_by` |                                                                     |
 
+Activation Slice v1 读取面：`evidence.listByObligation({ obligationId })` 只暴露 drawer/detail
+需要的最小 public shape，并且先验证 `obligation_instance.firm_id = scoped.firmId` 再读
+`evidence_link`，防止跨 firm 猜 id。Dashboard top rows 内联 `evidenceCount` 和
+`primaryEvidence`，但不在首屏展开完整 evidence drawer。
+
 **audit_event**
 
 | 字段                                    | 备注          |
@@ -294,9 +299,10 @@ Drizzle schema: `packages/db/src/schema/migration.ts`。
 | 字段                                                                                                                         |     |
 | ---------------------------------------------------------------------------------------------------------------------------- | --- |
 | `id` / `firm_id` / `user_id` / `kind ∈ (brief, tip, summary, ask_answer, pulse_extract, migration_map, migration_normalize)` |     |
-| `prompt_version` / `model` / `input_context_ref`                                                                             |     |
+| `prompt_version` / `model` / `input_context_ref` / `input_hash`                                                              |     |
 | `output_text` / `citations_json`                                                                                             |     |
-| `generated_at` / `tokens_in` / `tokens_out` / `cost_usd`                                                                     |     |
+| `guard_result` / `refusal_code`                                                                                              |     |
+| `generated_at` / `tokens_in` / `tokens_out` / `latency_ms` / `cost_usd`                                                      |     |
 
 **llm_log**
 
@@ -304,8 +310,31 @@ Drizzle schema: `packages/db/src/schema/migration.ts`。
 | ------------------------------------------------------------ | -------------------------------- |
 | `id` / `firm_id` / `user_id` / `prompt_version`              |                                  |
 | `input_tokens` / `output_tokens` / `latency_ms` / `cost_usd` |                                  |
+| `guard_result` / `refusal_code`                              |                                  |
 | `success` / `error_msg` / `created_at`                       |                                  |
 | `input_hash`                                                 | sha256；**不存原文**（PII 合规） |
+
+2026-04-28 Activation Slice v1 已落最小实现：Migration mapper / normalizer
+会写 `ai_output` + `llm_log`，并把 `evidence_link.ai_output_id` 指向可追溯的
+AI / fallback output。`input_hash` 来自 redacted prompt input；不保存 prompt 原文。
+Fallback 也会写 `ai_output`，但 `model=null`、`guard_result` / `refusal_code` 明确标记
+preset / dictionary / unavailable，不伪装成模型结论。
+
+### 2.6.b Dashboard read model
+
+Activation Slice v1 新增 tenant-scoped `dashboard` repo，服务 `dashboard.load` contract。
+它从 `obligation_instance` + `client` + `evidence_link` 聚合首屏风险：
+
+- open obligations：排除 `done` / `not_applicable`，当前实现读取
+  `pending` / `in_progress` / `waiting_on_client` / `review`
+- due window：默认 `asOfDate` 来自 firm timezone，`windowDays=7`，含第 7 天边界
+- needs review：`status='review'`
+- evidence gap：open obligation 且没有 evidence
+- top rows：按 deterministic severity 排序；overdue / 0-2 天 `critical`，3-7 天 `high`，
+  `review` 或 8-14 天 `medium`，其他 open `neutral`
+
+当前 schema 尚未有稳定 dollar exposure 输入，Dashboard v1 使用真实 obligation count 风险；
+Penalty / dollar exposure 仍属于后续 read model，不在本 slice 伪造金额。
 
 ### 2.7 通知
 
@@ -346,6 +375,12 @@ CREATE INDEX idx_oi_batch     ON obligation_instance(migration_batch_id);
 CREATE INDEX idx_evidence_firm_time ON evidence_link(firm_id, applied_at DESC);
 CREATE INDEX idx_evidence_oi     ON evidence_link(obligation_instance_id);
 CREATE INDEX idx_evidence_source ON evidence_link(source_type, source_id);
+
+-- AI trace
+CREATE INDEX idx_ai_output_firm_time ON ai_output(firm_id, generated_at);
+CREATE INDEX idx_ai_output_context   ON ai_output(kind, input_context_ref);
+CREATE INDEX idx_llm_log_firm_time   ON llm_log(firm_id, created_at);
+CREATE INDEX idx_llm_log_prompt_time ON llm_log(prompt_version, created_at);
 
 -- Pulse feed
 CREATE INDEX idx_pulse_status_pub ON pulse(status, published_at DESC);
