@@ -14,4 +14,11 @@ describe('@duedatehq/server app', () => {
       requestId: expect.any(String),
     })
   })
+
+  it('does not expose the e2e session route outside development', async () => {
+    const app = createApp()
+    const response = await app.request('/api/e2e/session', { method: 'POST' }, { ENV: 'staging' })
+
+    expect(response.status).toBe(404)
+  })
 })

@@ -26,3 +26,17 @@ test('AC: E2E-SMOKE-I18N consumes the marketing locale handoff query', async ({
   await expect(page).toHaveURL(/\/login$/)
   await expect(page.evaluate(() => window.localStorage.getItem('lng'))).resolves.toBe('zh-CN')
 })
+
+test('AC: E2E-SMOKE-I18N consumes locale before protected-route redirects', async ({
+  loginPage,
+  page,
+}) => {
+  await loginPage.goto('/workboard?lng=zh-CN&status=review')
+
+  await expect(loginPage.googleButton).toHaveText(/使用 Google 继续/)
+
+  const url = new URL(page.url())
+  expect(url.pathname).toBe('/login')
+  expect(url.searchParams.get('redirectTo')).toBe('/workboard?status=review')
+  await expect(page.evaluate(() => window.localStorage.getItem('lng'))).resolves.toBe('zh-CN')
+})

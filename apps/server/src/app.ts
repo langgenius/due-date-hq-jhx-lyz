@@ -8,6 +8,7 @@ import { sessionMiddleware } from './middleware/session'
 import { tenantMiddleware } from './middleware/tenant'
 import { rateLimitMiddleware } from './middleware/rate-limit'
 import { authRoute } from './routes/auth'
+import { e2eRoute } from './routes/e2e'
 import { healthRoute } from './routes/health'
 import { resendWebhook } from './webhooks/resend'
 import { rpcHandler } from './rpc'
@@ -84,6 +85,11 @@ export function createApp() {
 
   // /api/auth/* — better-auth handler (Google OAuth + Organization + Access Control).
   app.route('/api/auth', authRoute)
+
+  // /api/e2e/* — local Playwright bootstrap only. The route itself returns
+  // 404 outside ENV=development so staging/production never expose a test
+  // session minting surface.
+  app.route('/api/e2e', e2eRoute)
 
   // /api/webhook/* — external callbacks. Provider signature verification is required
   // before side effects; IP allowlists are defense-in-depth when supported.

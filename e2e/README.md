@@ -34,9 +34,10 @@ Prefer accessible locators in this order:
 
 ## Auth And Data
 
-Current smoke coverage stays unauthenticated because real Google OAuth is intentionally outside CI.
-Authenticated business flows should add a dedicated auth fixture that seeds a local Better Auth session
-and tenant in D1 before navigating to protected routes.
+Real Google OAuth stays outside CI. Authenticated specs use the local-only `/api/e2e/session`
+bootstrap route to create a Better Auth user/session/firm in D1 and inject the returned signed cookie
+through the `authenticatedPage` fixture. That route returns 404 unless `ENV=development`, so these
+specs are skipped when `E2E_BASE_URL` points at staging or production.
 
 Current specs intentionally cover shipped behavior only:
 
@@ -45,3 +46,4 @@ Current specs intentionally cover shipped behavior only:
 - marketing-to-app locale handoff
 - entry-page locale switching
 - SPA 404 rendering
+- protected Dashboard / Workboard / Rules Console / Migration Step 1 surfaces with local seeded auth
