@@ -22,6 +22,11 @@ msgstr ""
 msgid "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
 msgstr "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
 
+#. placeholder {0}: alerts.length
+#: src/features/pulse/AlertsListPage.tsx
+msgid "{0, plural, one {# active} other {# active}}"
+msgstr "{0, plural, one {# active} other {# active}}"
+
 #. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
 #: src/features/migration/Step2Mapping.tsx
@@ -38,6 +43,11 @@ msgstr "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 #: src/routes/dashboard.tsx
 msgid "{0, plural, one {# source} other {# sources}}"
 msgstr "{0, plural, one {# source} other {# sources}}"
+
+#. placeholder {0}: rest.length
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "{0, plural, one {+ # more} other {+ # more}}"
+msgstr "{0, plural, one {+ # more} other {+ # more}}"
 
 #. placeholder {0}: intake.rowCount
 #: src/features/migration/Step1Intake.tsx
@@ -73,6 +83,11 @@ msgstr "{0} fully covered · {1} with open candidates"
 msgid "{0} is on {expectedPlan}"
 msgstr "{0} is on {expectedPlan}"
 
+#. placeholder {0}: alert.needsReviewCount
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "{0} need review"
+msgstr "{0} need review"
+
 #. placeholder {0}: data?.summary.needsReviewCount ?? 0
 #: src/routes/dashboard.tsx
 msgid "{0} obligations require CPA confirmation."
@@ -82,6 +97,13 @@ msgstr "{0} obligations require CPA confirmation."
 #: src/routes/dashboard.tsx
 msgid "{0} open obligations have no evidence link."
 msgstr "{0} open obligations have no evidence link."
+
+#. placeholder {0}: stats.selectedCount
+#. placeholder {1}: stats.selectableCount
+#. placeholder {2}: stats.needsReviewCount
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "{0} selected · {1} eligible · {2} need review"
+msgstr "{0} selected · {1} eligible · {2} need review"
 
 #. placeholder {0}: topRows.filter((row) => row.evidenceCount > 0).length
 #: src/routes/dashboard.tsx
@@ -100,9 +122,17 @@ msgstr "{durationMonths} months"
 msgid "{ignoredCount, plural, one {# column is currently ignored.} other {# columns are currently ignored.}}"
 msgstr "{ignoredCount, plural, one {# column is currently ignored.} other {# columns are currently ignored.}}"
 
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "{impacted, plural, one {# client} other {# clients}}"
+msgstr "{impacted, plural, one {# client} other {# clients}}"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
 msgstr "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "{minutes, plural, one {# min ago} other {# min ago}}"
+msgstr "{minutes, plural, one {# min ago} other {# min ago}}"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "{needsReviewCount, plural, one {# value needs human review} other {# values need human review}}"
@@ -112,9 +142,17 @@ msgstr "{needsReviewCount, plural, one {# value needs human review} other {# val
 msgid "{obligationCount, plural, one {# obligation (full tax year)} other {# obligations (full tax year)}}"
 msgstr "{obligationCount, plural, one {# obligation (full tax year)} other {# obligations (full tax year)}}"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
+msgstr "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 msgstr "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "{totalImpact, plural, one {# client} other {# clients}}"
+msgstr "{totalImpact, plural, one {# client} other {# clients}}"
 
 #: src/routes/workboard.tsx
 msgid "{totalShown, plural, one {# obligation} other {# obligations}}"
@@ -136,6 +174,10 @@ msgstr "$0"
 #: src/routes/settings.billing.tsx
 msgid "$99 / mo"
 msgstr "$99 / mo"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "0 active"
+msgstr "0 active"
 
 #: src/routes/settings.billing.tsx
 msgid "1 seat"
@@ -221,6 +263,10 @@ msgstr "Add firm"
 msgid "Admin"
 msgstr "Admin"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Affected clients"
+msgstr "Affected clients"
+
 #: src/features/audit/audit-event-drawer.tsx
 msgid "After"
 msgstr "After"
@@ -229,6 +275,10 @@ msgstr "After"
 msgid "AI"
 msgstr "AI"
 
+#: src/features/pulse/components/PulseConfidenceBadge.tsx
+msgid "AI {percent}%"
+msgstr "AI {percent}%"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
 msgstr "AI mapped your columns — review and confirm"
@@ -236,6 +286,17 @@ msgstr "AI mapped your columns — review and confirm"
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI Mapper unavailable — using fallback"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Alert dismissed"
+msgstr "Alert dismissed"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/features/pulse/AlertsListPage.tsx
+#: src/routes/_layout.tsx
+msgid "Alerts"
+msgstr "Alerts"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -246,6 +307,14 @@ msgstr "All"
 #: src/features/audit/audit-log-page.tsx
 msgid "All categories"
 msgstr "All categories"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "All clear · Watching IRS + CA / NY / TX / FL / WA / MA"
+msgstr "All clear · Watching IRS + CA / NY / TX / FL / WA / MA"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All clear. We're watching IRS + CA / NY / TX / FL / WA / MA — new signals will appear here as soon as they match your clients."
+msgstr "All clear. We're watching IRS + CA / NY / TX / FL / WA / MA — new signals will appear here as soon as they match your clients."
 
 #: src/routes/clients.tsx
 msgid "All entities"
@@ -271,6 +340,10 @@ msgstr "All time"
 msgid "Already active"
 msgstr "Already active"
 
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Already applied"
+msgstr "Already applied"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Annual rolling"
 msgstr "Annual rolling"
@@ -286,6 +359,15 @@ msgstr "Applicability review"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Applicability review · needs CPA confirmation at generation time."
 msgstr "Applicability review · needs CPA confirmation at generation time."
+
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Applied"
+msgstr "Applied"
+
+#. placeholder {0}: result.appliedCount
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Applied to {0} clients"
+msgstr "Applied to {0} clients"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
@@ -307,6 +389,10 @@ msgstr "Assigned"
 #: src/routes/workboard.tsx
 msgid "Audit {0}"
 msgstr "Audit {0}"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Audit + evidence written. Undo within 24h."
+msgstr "Audit + evidence written. Undo within 24h."
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Audit detail"
@@ -430,6 +516,11 @@ msgstr "Change"
 msgid "Change status for {0}"
 msgstr "Change status for {0}"
 
+#: src/features/pulse/AlertsListPage.tsx
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Checking IRS + state sources…"
+msgstr "Checking IRS + state sources…"
+
 #: src/routes/_layout.tsx
 msgid "Checkout"
 msgstr "Checkout"
@@ -455,6 +546,7 @@ msgid "Clear search or filters to return to the full firm directory."
 msgstr "Clear search or filters to return to the full firm directory."
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -596,13 +688,26 @@ msgstr "Could not update firm."
 msgid "Couldn't apply Default Matrix"
 msgstr "Couldn't apply Default Matrix"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't apply Pulse"
+msgstr "Couldn't apply Pulse"
+
 #: src/routes/clients.tsx
 msgid "Couldn't create client"
 msgstr "Couldn't create client"
 
+#: src/features/pulse/PulseAlertsBanner.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't dismiss alert"
+msgstr "Couldn't dismiss alert"
+
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't import clients"
 msgstr "Couldn't import clients"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Couldn't load alerts"
+msgstr "Couldn't load alerts"
 
 #: src/routes/clients.tsx
 msgid "Couldn't load clients"
@@ -615,6 +720,10 @@ msgstr "Couldn't load dashboard"
 #: src/routes/workboard.tsx
 msgid "Couldn't load the queue."
 msgstr "Couldn't load the queue."
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't load this alert"
+msgstr "Couldn't load this alert"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Couldn't parse the input"
@@ -633,9 +742,17 @@ msgstr "Couldn't start the import"
 msgid "Couldn't undo import"
 msgstr "Couldn't undo import"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't undo Pulse"
+msgstr "Couldn't undo Pulse"
+
 #: src/routes/workboard.tsx
 msgid "Couldn't update status"
 msgstr "Couldn't update status"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Counties"
+msgstr "Counties"
 
 #: src/routes/clients.tsx
 msgid "County"
@@ -763,6 +880,16 @@ msgstr "Discard import"
 msgid "Discard import?"
 msgstr "Discard import?"
 
+#: src/features/pulse/components/PulseAlertCard.tsx
+#: src/features/pulse/PulseAlertsBanner.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Dismiss"
+msgstr "Dismiss"
+
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Dismissed"
+msgstr "Dismissed"
+
 #: src/features/workboard/status-control.tsx
 msgid "Done"
 msgstr "Done"
@@ -775,6 +902,7 @@ msgstr "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
 msgid "Dry-Run"
 msgstr "Dry-Run"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/routes/workboard.tsx
 msgid "Due date"
 msgstr "Due date"
@@ -786,6 +914,10 @@ msgstr "Due date — earliest first"
 #: src/routes/workboard.tsx
 msgid "Due date — latest first"
 msgstr "Due date — latest first"
+
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Due date change"
+msgstr "Due date change"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Due date logic"
@@ -808,9 +940,17 @@ msgstr "e.g. Bright CPA Practice"
 msgid "Edit"
 msgstr "Edit"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Effective from"
+msgstr "Effective from"
+
 #: src/routes/clients.tsx
 msgid "EIN"
 msgstr "EIN"
+
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Eligible"
+msgstr "Eligible"
 
 #: src/routes/clients.tsx
 msgid "Email"
@@ -853,6 +993,7 @@ msgid "Entity type"
 msgstr "Entity type"
 
 #: src/features/migration/Step3Normalize.tsx
+#: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Entity types"
 msgstr "Entity types"
 
@@ -981,9 +1122,14 @@ msgstr "For evaluating the deadline workbench with one owner."
 msgid "For US CPA practices"
 msgstr "For US CPA practices"
 
+#: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Form"
 msgstr "Form"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Forms"
+msgstr "Forms"
 
 #: src/routes/clients.tsx
 msgid "Free-text for now; Team members wire in Phase 1."
@@ -1084,6 +1230,10 @@ msgstr "Intake"
 msgid "IP hash"
 msgstr "IP hash"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Jurisdiction"
+msgstr "Jurisdiction"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION × ENTITY"
 msgstr "JURISDICTION × ENTITY"
@@ -1138,6 +1288,10 @@ msgstr "Light"
 msgid "Linked"
 msgstr "Linked"
 
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Live"
+msgstr "Live"
+
 #: src/routes/clients.tsx
 msgid "LLC"
 msgstr "LLC"
@@ -1146,6 +1300,10 @@ msgstr "LLC"
 #: src/routes/workboard.tsx
 msgid "Load more"
 msgstr "Load more"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Loading alerts…"
+msgstr "Loading alerts…"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Loading generation preview."
@@ -1188,6 +1346,10 @@ msgstr "Local time"
 msgid "Location"
 msgstr "Location"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Logged to audit trail"
+msgstr "Logged to audit trail"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Main"
 msgstr "Main"
@@ -1228,6 +1390,14 @@ msgstr "Map \"{sourceHeader}\" to…"
 msgid "Mapping"
 msgstr "Mapping"
 
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Match"
+msgstr "Match"
+
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "may be affected."
+msgstr "may be affected."
+
 #: src/routes/dashboard.tsx
 msgid "medium"
 msgstr "medium"
@@ -1262,6 +1432,7 @@ msgid "Needs evidence"
 msgstr "Needs evidence"
 
 #: src/features/migration/Step3Normalize.tsx
+#: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/dashboard.tsx
 msgid "Needs review"
 msgstr "Needs review"
@@ -1269,6 +1440,10 @@ msgstr "Needs review"
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "neutral"
+
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "New"
+msgstr "New"
 
 #: src/routes/clients.tsx
 msgid "New client"
@@ -1322,6 +1497,10 @@ msgstr "No clients yet"
 msgid "No commands found."
 msgstr "No commands found."
 
+#: src/features/pulse/lib/error-mapping.ts
+msgid "No eligible obligations are selected."
+msgstr "No eligible obligations are selected."
+
 #: src/routes/clients.tsx
 msgid "No email"
 msgstr "No email"
@@ -1346,6 +1525,10 @@ msgstr "No firm selected"
 #: src/routes/dashboard.tsx
 msgid "No generated obligations yet."
 msgstr "No generated obligations yet."
+
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "No matching clients in this firm."
+msgstr "No matching clients in this firm."
 
 #: src/routes/clients.tsx
 msgid "No notes."
@@ -1428,6 +1611,11 @@ msgstr "obligations"
 msgid "official channels under monitor"
 msgstr "official channels under monitor"
 
+#: src/features/pulse/lib/error-mapping.ts
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Only Owners and Managers can apply Pulse changes."
+msgstr "Only Owners and Managers can apply Pulse changes."
+
 #: src/routes/settings.billing.tsx
 msgid "Only owners can manage billing."
 msgstr "Only owners can manage billing."
@@ -1496,6 +1684,7 @@ msgstr "Opening…"
 msgid "Operational pressure points from server aggregation."
 msgstr "Operational pressure points from server aggregation."
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/routes/_layout.tsx
 #: src/routes/dashboard.tsx
 msgid "Operations"
@@ -1521,6 +1710,10 @@ msgstr "Owner permission required"
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "Page not found"
+
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Partially applied"
+msgstr "Partially applied"
 
 #: src/routes/clients.tsx
 msgid "Partnership"
@@ -1577,6 +1770,7 @@ msgstr "Please enter at least 2 characters."
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-page.tsx
 #: src/features/migration/Wizard.tsx
+#: src/features/pulse/AlertsListPage.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/login.tsx
@@ -1620,6 +1814,15 @@ msgstr "Profile"
 msgid "Pulse"
 msgstr "Pulse"
 
+#. placeholder {0}: alert.title
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "Pulse alert: {0}"
+msgstr "Pulse alert: {0}"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Pulse evidence linked to each obligation"
+msgstr "Pulse evidence linked to each obligation"
+
 #: src/routes/workboard.tsx
 msgid "Queue controls"
 msgstr "Queue controls"
@@ -1644,6 +1847,10 @@ msgstr "READ-ONLY"
 msgid "Read-only v1 snapshot from clients.get/listByFirm data."
 msgstr "Read-only v1 snapshot from clients.get/listByFirm data."
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Read-only view"
+msgstr "Read-only view"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Ready to generate your deadline queue"
 msgstr "Ready to generate your deadline queue"
@@ -1664,6 +1871,14 @@ msgstr "Recently updated"
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
 msgstr "Redirecting to Google…"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Refresh"
+msgstr "Refresh"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, or dismiss to keep the queue clean."
+msgstr "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, or dismiss to keep the queue clean."
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "reminder ready"
@@ -1704,6 +1919,8 @@ msgstr "Reset filters to return to the latest firm-wide events."
 msgid "Restart checkout"
 msgstr "Restart checkout"
 
+#: src/features/pulse/AlertsListPage.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -1714,9 +1931,24 @@ msgstr "Retry"
 msgid "Return home"
 msgstr "Return home"
 
+#: src/features/pulse/components/AffectedClientsTable.tsx
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Reverted"
+msgstr "Reverted"
+
+#. placeholder {0}: result.revertedCount
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Reverted {0} clients"
+msgstr "Reverted {0} clients"
+
 #: src/features/rules/rules-console-primitives.tsx
 msgid "review"
 msgstr "review"
+
+#: src/features/pulse/components/PulseAlertCard.tsx
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Review"
+msgstr "Review"
 
 #: src/features/rules/rules-console-primitives.tsx
 msgid "review — needs CPA confirmation"
@@ -1864,9 +2096,22 @@ msgstr "Search, segment, and inspect active tenant client records."
 msgid "Seat limit"
 msgstr "Seat limit"
 
+#. placeholder {0}: row.clientName
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Select {0}"
+msgstr "Select {0}"
+
 #: src/routes/clients.tsx
 msgid "Select a client to inspect the record."
 msgstr "Select a client to inspect the record."
+
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Select all eligible obligations"
+msgstr "Select all eligible obligations"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Select clients to apply"
+msgstr "Select clients to apply"
 
 #: src/routes/dashboard.tsx
 msgid "Server-computed obligation risk for the next operating window."
@@ -1942,6 +2187,10 @@ msgstr "Signed in"
 msgid "Signing out…"
 msgstr "Signing out…"
 
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Snoozed"
+msgstr "Snoozed"
+
 #: src/routes/clients.tsx
 msgid "Sole prop"
 msgstr "Sole prop"
@@ -1951,6 +2200,10 @@ msgstr "Sole prop"
 msgid "Solo"
 msgstr "Solo"
 
+#: src/features/pulse/lib/error-mapping.ts
+msgid "Some obligations have changed since you opened this alert. Refresh to load the latest list."
+msgstr "Some obligations have changed since you opened this alert. Refresh to load the latest list."
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Something went wrong"
 msgstr "Something went wrong"
@@ -1958,6 +2211,10 @@ msgstr "Something went wrong"
 #: src/lib/i18n-error.ts
 msgid "Something went wrong on our side. Please try again shortly."
 msgstr "Something went wrong on our side. Please try again shortly."
+
+#: src/features/pulse/lib/error-mapping.ts
+msgid "Something went wrong. Please try again."
+msgstr "Something went wrong. Please try again."
 
 #: src/routes/workboard.tsx
 msgid "Sort"
@@ -1971,6 +2228,10 @@ msgstr "source"
 #: src/routes/clients.tsx
 msgid "Source"
 msgstr "Source"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Source excerpt"
+msgstr "Source excerpt"
 
 #: src/routes/dashboard.tsx
 msgid "source gaps"
@@ -2054,6 +2315,10 @@ msgstr "Success pages wait for webhook confirmation before showing activation."
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "Suggested tax types (from entity × state matrix)"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Summary queued to assignees"
+msgstr "Summary queued to assignees"
+
 #. placeholder {0}: firm.name
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Switch firm — current {0}"
@@ -2110,6 +2375,10 @@ msgstr "Texas"
 msgid "That resource belongs to a different practice."
 msgstr "That resource belongs to a different practice."
 
+#: src/features/pulse/lib/error-mapping.ts
+msgid "The 24h undo window has expired for this alert."
+msgstr "The 24h undo window has expired for this alert."
+
 #: src/routes/billing.success.tsx
 msgid "The billing cache and subscription status now agree."
 msgstr "The billing cache and subscription status now agree."
@@ -2141,6 +2410,10 @@ msgstr "Theme"
 #: src/lib/i18n-error.ts
 msgid "This action conflicts with the current state. Refresh and try again."
 msgstr "This action conflicts with the current state. Refresh and try again."
+
+#: src/features/pulse/lib/error-mapping.ts
+msgid "This alert is no longer available."
+msgstr "This alert is no longer available."
 
 #: src/routes/billing.checkout.tsx
 msgid "This firm already has the selected plan."
@@ -2194,6 +2467,18 @@ msgstr "Unable to start Google sign-in"
 #: src/routes/clients.tsx
 msgid "Unassigned"
 msgstr "Unassigned"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Undo"
+msgstr "Undo"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Undo (24h)"
+msgstr "Undo (24h)"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Undo available for 24 hours"
+msgstr "Undo available for 24 hours"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo import"

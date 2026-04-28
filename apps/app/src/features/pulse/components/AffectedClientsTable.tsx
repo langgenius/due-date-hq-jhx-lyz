@@ -1,0 +1,157 @@
+import { Trans, useLingui } from '@lingui/react/macro'
+import { ArrowRightIcon } from 'lucide-react'
+
+import type { PulseAffectedClient } from '@duedatehq/contracts'
+import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Checkbox } from '@duedatehq/ui/components/ui/checkbox'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@duedatehq/ui/components/ui/table'
+import { cn } from '@duedatehq/ui/lib/utils'
+
+import { formatDate } from '@/lib/utils'
+
+import { isSelectable, toggleSelection, setAllSelection } from '../lib/selection'
+
+interface AffectedClientsTableProps {
+  rows: readonly PulseAffectedClient[]
+  selection: ReadonlySet<string>
+  onChangeSelection: (next: Set<string>) => void
+  /** When true, all controls are read-only (e.g. RBAC denies apply). */
+  readOnly?: boolean
+}
+
+// Affected clients table inside the Drawer body. One row per obligation; only
+// `eligible` rows are interactive. Other matchStatus values are surfaced with
+// a badge so CPAs see why a row isn't part of the apply set.
+export function AffectedClientsTable({
+  rows,
+  selection,
+  onChangeSelection,
+  readOnly = false,
+}: AffectedClientsTableProps) {
+  const { t } = useLingui()
+  const selectableCount = rows.filter(isSelectable).length
+  const selectedCount = countSelected(rows, selection)
+  const allSelectableChecked = selectableCount > 0 && selectedCount === selectableCount
+
+  const handleToggleAll = (checked: boolean) => {
+    onChangeSelection(setAllSelection(rows, checked))
+  }
+
+  const handleToggleRow = (row: PulseAffectedClient) => {
+    if (!isSelectable(row)) return
+    onChangeSelection(toggleSelection(selection, row.obligationId))
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-8">
+            <Checkbox
+              aria-label={t`Select all eligible obligations`}
+              checked={allSelectableChecked}
+              disabled={readOnly || selectableCount === 0}
+              onCheckedChange={(checked) => handleToggleAll(checked)}
+            />
+          </TableHead>
+          <TableHead>{t`Client`}</TableHead>
+          <TableHead>{t`Form`}</TableHead>
+          <TableHead className="text-right">{t`Due date change`}</TableHead>
+          <TableHead>{t`Match`}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row) => {
+          const checked = selection.has(row.obligationId)
+          const selectable = isSelectable(row) && !readOnly
+          return (
+            <TableRow
+              key={row.obligationId}
+              data-status={row.matchStatus}
+              className={cn(!selectable && 'opacity-80')}
+            >
+              <TableCell>
+                <Checkbox
+                  aria-label={t`Select ${row.clientName}`}
+                  checked={checked}
+                  disabled={!selectable}
+                  onCheckedChange={() => handleToggleRow(row)}
+                />
+              </TableCell>
+              <TableCell className="font-medium text-text-primary">
+                <div className="flex flex-col leading-tight">
+                  <span>{row.clientName}</span>
+                  <span className="font-mono text-xs text-text-tertiary tabular-nums">
+                    {[row.state, row.county].filter(Boolean).join(' · ')}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell className="font-mono tabular-nums text-text-secondary">
+                {row.taxType}
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex items-center justify-end gap-1.5 font-mono text-base tabular-nums text-text-primary">
+                  <span className="text-text-tertiary line-through">
+                    {formatDate(row.currentDueDate)}
+                  </span>
+                  <ArrowRightIcon className="size-3 text-text-tertiary" aria-hidden />
+                  <span>{formatDate(row.newDueDate)}</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <MatchStatusBadge row={row} />
+              </TableCell>
+            </TableRow>
+          )
+        })}
+      </TableBody>
+    </Table>
+  )
+}
+
+function MatchStatusBadge({ row }: { row: PulseAffectedClient }) {
+  if (row.matchStatus === 'eligible') {
+    return (
+      <Badge variant="success">
+        <Trans>Eligible</Trans>
+      </Badge>
+    )
+  }
+  if (row.matchStatus === 'needs_review') {
+    return (
+      <Badge variant="warning" title={row.reason ?? undefined}>
+        <Trans>Needs review</Trans>
+      </Badge>
+    )
+  }
+  if (row.matchStatus === 'already_applied') {
+    return (
+      <Badge variant="secondary">
+        <Trans>Already applied</Trans>
+      </Badge>
+    )
+  }
+  return (
+    <Badge variant="outline">
+      <Trans>Reverted</Trans>
+    </Badge>
+  )
+}
+
+function countSelected(
+  rows: readonly PulseAffectedClient[],
+  selection: ReadonlySet<string>,
+): number {
+  let count = 0
+  for (const row of rows) {
+    if (isSelectable(row) && selection.has(row.obligationId)) count += 1
+  }
+  return count
+}

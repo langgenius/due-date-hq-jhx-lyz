@@ -12,6 +12,7 @@ import type { ThemePreference } from '@duedatehq/ui/theme'
 import { AppShell } from '@/components/patterns/app-shell'
 import { KeyboardProvider } from '@/components/patterns/keyboard-shell'
 import { MigrationWizardProvider, useMigrationWizard } from '@/features/migration/WizardProvider'
+import { PulseDrawerProvider } from '@/features/pulse/DrawerProvider'
 import type { AuthUser } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
 import {
@@ -67,16 +68,22 @@ export function RootLayout() {
         is open. AppShell sits inside KeyboardProvider so the command-palette
         / shortcut-help dialogs the keyboard shell mounts can portal over the
         whole shell.
+
+        PulseDrawerProvider lives inside KeyboardProvider so the drawer's Sheet
+        can portal cleanly over the whole layout. It exposes `usePulseDrawer`
+        to the dashboard banner and the /alerts route.
       */}
       <KeyboardProvider
         themePreference={themePreference}
         switchThemePreference={switchThemePreference}
       >
-        <RootLayoutShell
-          user={user}
-          themePreference={themePreference}
-          switchThemePreference={switchThemePreference}
-        />
+        <PulseDrawerProvider>
+          <RootLayoutShell
+            user={user}
+            themePreference={themePreference}
+            switchThemePreference={switchThemePreference}
+          />
+        </PulseDrawerProvider>
       </KeyboardProvider>
     </MigrationWizardProvider>
   )
@@ -133,6 +140,9 @@ function getRouteSummaryMessages(pathname: string): RouteSummaryMessages {
   }
   if (pathname.startsWith('/workboard')) {
     return { eyebrow: msg`Workbench`, title: msg`Workboard` }
+  }
+  if (pathname.startsWith('/alerts')) {
+    return { eyebrow: msg`Operations`, title: msg`Alerts` }
   }
   if (pathname.startsWith('/clients')) {
     return { eyebrow: msg`Admin`, title: msg`Clients` }

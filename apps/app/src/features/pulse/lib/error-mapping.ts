@@ -1,0 +1,41 @@
+import { msg } from '@lingui/core/macro'
+import type { MessageDescriptor } from '@lingui/core'
+
+import { ErrorCodes, type ErrorCode } from '@duedatehq/contracts'
+import { rpcErrorMessage } from '@/lib/rpc-error'
+
+// Stable Lingui message descriptors keyed by Pulse-specific ORPCError codes.
+// Resolve at render time with `i18n._(...)` so callers don't have to repeat
+// the catalog wiring.
+const MESSAGE_BY_CODE: Partial<Record<ErrorCode, MessageDescriptor>> = {
+  [ErrorCodes.PULSE_NOT_FOUND]: msg`This alert is no longer available.`,
+  [ErrorCodes.PULSE_APPLY_CONFLICT]: msg`Some obligations have changed since you opened this alert. Refresh to load the latest list.`,
+  [ErrorCodes.PULSE_REVERT_EXPIRED]: msg`The 24h undo window has expired for this alert.`,
+  [ErrorCodes.PULSE_NO_ELIGIBLE_OBLIGATIONS]: msg`No eligible obligations are selected.`,
+  [ErrorCodes.FIRM_FORBIDDEN]: msg`Only Owners and Managers can apply Pulse changes.`,
+}
+
+const FALLBACK = msg`Something went wrong. Please try again.`
+
+function isErrorCode(value: string): value is ErrorCode {
+  return (Object.values(ErrorCodes) as string[]).includes(value)
+}
+
+export function pulseErrorDescriptor(error: unknown): MessageDescriptor {
+  const raw = rpcErrorMessage(error)
+  if (raw && isErrorCode(raw)) {
+    return MESSAGE_BY_CODE[raw] ?? FALLBACK
+  }
+  return FALLBACK
+}
+
+// Some flows want a "is this conflict-class" branch to render a Refresh CTA.
+export function isPulseConflict(error: unknown): boolean {
+  const raw = rpcErrorMessage(error)
+  return raw === ErrorCodes.PULSE_APPLY_CONFLICT
+}
+
+export function isPulseNotFound(error: unknown): boolean {
+  const raw = rpcErrorMessage(error)
+  return raw === ErrorCodes.PULSE_NOT_FOUND
+}

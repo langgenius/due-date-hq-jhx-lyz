@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '@duedatehq/ui/lib/utils'
 
-export interface PulseBannerProps {
+export interface RiskBannerProps {
   title: ReactNode
   detail?: ReactNode
   source?: ReactNode
@@ -10,10 +10,11 @@ export interface PulseBannerProps {
   className?: string
 }
 
-// Pulse banner shell. Aligns with the new Dify soft-chip palette: warning soft
-// background + regular divider, primary/secondary text. Layout slots stay open
-// so callers can compose existing primitives (Badge, Button, etc.).
-export function PulseBanner({ title, detail, source, action, className }: PulseBannerProps) {
+// Soft warning row used by the dashboard to surface obligation risk rows.
+// Layout slots stay open so callers can compose primitives (Badge, Button, etc.).
+// NOTE: this is the dashboard "risk row" banner — not the regulatory Pulse alert
+// banner. The Pulse alert banner lives under `features/pulse/`.
+export function RiskBanner({ title, detail, source, action, className }: RiskBannerProps) {
   return (
     <div
       className={cn(

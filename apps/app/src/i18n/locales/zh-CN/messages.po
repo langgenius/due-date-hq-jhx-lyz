@@ -22,6 +22,11 @@ msgstr ""
 msgid "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
 msgstr "{0, plural, other {# 个 {3} × {4} 客户}}"
 
+#. placeholder {0}: alerts.length
+#: src/features/pulse/AlertsListPage.tsx
+msgid "{0, plural, one {# active} other {# active}}"
+msgstr "{0, plural, other {# 条活跃}}"
+
 #. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
 #: src/features/migration/Step2Mapping.tsx
@@ -38,6 +43,11 @@ msgstr "{0, plural, other {# 行已准备就绪可以导入}}"
 #: src/routes/dashboard.tsx
 msgid "{0, plural, one {# source} other {# sources}}"
 msgstr "{0, plural, other {# 个来源}}"
+
+#. placeholder {0}: rest.length
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "{0, plural, one {+ # more} other {+ # more}}"
+msgstr "{0, plural, other {+# 条}}"
 
 #. placeholder {0}: intake.rowCount
 #: src/features/migration/Step1Intake.tsx
@@ -73,6 +83,11 @@ msgstr "{0} 已完整覆盖 · {1} 有待审 candidate"
 msgid "{0} is on {expectedPlan}"
 msgstr "{0} 已启用 {expectedPlan}"
 
+#. placeholder {0}: alert.needsReviewCount
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "{0} need review"
+msgstr "{0} 个需要确认"
+
 #. placeholder {0}: data?.summary.needsReviewCount ?? 0
 #: src/routes/dashboard.tsx
 msgid "{0} obligations require CPA confirmation."
@@ -82,6 +97,13 @@ msgstr "{0} 条义务需要 CPA 确认。"
 #: src/routes/dashboard.tsx
 msgid "{0} open obligations have no evidence link."
 msgstr "{0} 条未关闭义务没有 evidence 链接。"
+
+#. placeholder {0}: stats.selectedCount
+#. placeholder {1}: stats.selectableCount
+#. placeholder {2}: stats.needsReviewCount
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "{0} selected · {1} eligible · {2} need review"
+msgstr "已选 {0} · 可应用 {1} · 待确认 {2}"
 
 #. placeholder {0}: topRows.filter((row) => row.evidenceCount > 0).length
 #: src/routes/dashboard.tsx
@@ -100,9 +122,17 @@ msgstr "{durationMonths} 个月"
 msgid "{ignoredCount, plural, one {# column is currently ignored.} other {# columns are currently ignored.}}"
 msgstr "{ignoredCount, plural, other {# 列当前被忽略。}}"
 
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "{impacted, plural, one {# client} other {# clients}}"
+msgstr "{impacted, plural, other {# 个客户}}"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
 msgstr "{lowConfCount, plural, other {# 列需要你复核}}"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "{minutes, plural, one {# min ago} other {# min ago}}"
+msgstr "{minutes, plural, other {# 分钟前}}"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "{needsReviewCount, plural, one {# value needs human review} other {# values need human review}}"
@@ -112,9 +142,17 @@ msgstr "{needsReviewCount, plural, other {# 个值需要人工复核}}"
 msgid "{obligationCount, plural, one {# obligation (full tax year)} other {# obligations (full tax year)}}"
 msgstr "{obligationCount, plural, other {# 条义务（全年）}}"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
+msgstr "{selectionCount, plural, other {应用到 # 个客户}}"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 msgstr "{skipped, plural, other {# 行将被跳过（见错误明细）}}"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "{totalImpact, plural, one {# client} other {# clients}}"
+msgstr "{totalImpact, plural, other {# 个客户}}"
 
 #: src/routes/workboard.tsx
 msgid "{totalShown, plural, one {# obligation} other {# obligations}}"
@@ -136,6 +174,10 @@ msgstr "$0"
 #: src/routes/settings.billing.tsx
 msgid "$99 / mo"
 msgstr "$99 / 月"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "0 active"
+msgstr "0 条活跃"
 
 #: src/routes/settings.billing.tsx
 msgid "1 seat"
@@ -221,6 +263,10 @@ msgstr "添加事务所"
 msgid "Admin"
 msgstr "管理"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Affected clients"
+msgstr "受影响客户"
+
 #: src/features/audit/audit-event-drawer.tsx
 msgid "After"
 msgstr "变更后"
@@ -229,6 +275,10 @@ msgstr "变更后"
 msgid "AI"
 msgstr "AI"
 
+#: src/features/pulse/components/PulseConfidenceBadge.tsx
+msgid "AI {percent}%"
+msgstr "AI {percent}%"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
 msgstr "AI 已识别你的列 —— 请审阅并确认"
@@ -236,6 +286,17 @@ msgstr "AI 已识别你的列 —— 请审阅并确认"
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI 映射器不可用 —— 已使用降级方案"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Alert dismissed"
+msgstr "已忽略提醒"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/features/pulse/AlertsListPage.tsx
+#: src/routes/_layout.tsx
+msgid "Alerts"
+msgstr "提醒"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -246,6 +307,14 @@ msgstr "全部"
 #: src/features/audit/audit-log-page.tsx
 msgid "All categories"
 msgstr "所有分类"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "All clear · Watching IRS + CA / NY / TX / FL / WA / MA"
+msgstr "一切正常 · 监控 IRS 与 CA / NY / TX / FL / WA / MA"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All clear. We're watching IRS + CA / NY / TX / FL / WA / MA — new signals will appear here as soon as they match your clients."
+msgstr "一切正常。我们正在监控 IRS 与 CA / NY / TX / FL / WA / MA，一旦匹配到你的客户，新的信号会立即出现在这里。"
 
 #: src/routes/clients.tsx
 msgid "All entities"
@@ -271,6 +340,10 @@ msgstr "全部时间"
 msgid "Already active"
 msgstr "已激活"
 
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Already applied"
+msgstr "已应用"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Annual rolling"
 msgstr "年度滚动"
@@ -286,6 +359,15 @@ msgstr "适用性复核"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Applicability review · needs CPA confirmation at generation time."
 msgstr "适用性复核 · 在生成 obligation 时需要 CPA 确认。"
+
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Applied"
+msgstr "已应用"
+
+#. placeholder {0}: result.appliedCount
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Applied to {0} clients"
+msgstr "已应用至 {0} 个客户"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
@@ -307,6 +389,10 @@ msgstr "已分配"
 #: src/routes/workboard.tsx
 msgid "Audit {0}"
 msgstr "审计 {0}"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Audit + evidence written. Undo within 24h."
+msgstr "审计与证据已记录，24 小时内可撤销。"
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Audit detail"
@@ -430,6 +516,11 @@ msgstr "变更"
 msgid "Change status for {0}"
 msgstr "修改 {0} 的状态"
 
+#: src/features/pulse/AlertsListPage.tsx
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Checking IRS + state sources…"
+msgstr "正在检查 IRS 与各州来源…"
+
 #: src/routes/_layout.tsx
 msgid "Checkout"
 msgstr "支付"
@@ -455,6 +546,7 @@ msgid "Clear search or filters to return to the full firm directory."
 msgstr "清除搜索或筛选以返回完整事务所目录。"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -596,13 +688,26 @@ msgstr "无法更新事务所。"
 msgid "Couldn't apply Default Matrix"
 msgstr "应用默认税种矩阵失败"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't apply Pulse"
+msgstr "无法应用监管提醒"
+
 #: src/routes/clients.tsx
 msgid "Couldn't create client"
 msgstr "无法创建客户"
 
+#: src/features/pulse/PulseAlertsBanner.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't dismiss alert"
+msgstr "无法忽略该提醒"
+
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't import clients"
 msgstr "导入客户失败"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Couldn't load alerts"
+msgstr "无法加载提醒列表"
 
 #: src/routes/clients.tsx
 msgid "Couldn't load clients"
@@ -615,6 +720,10 @@ msgstr "无法加载仪表盘"
 #: src/routes/workboard.tsx
 msgid "Couldn't load the queue."
 msgstr "无法加载队列。"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't load this alert"
+msgstr "无法加载该提醒"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Couldn't parse the input"
@@ -633,9 +742,17 @@ msgstr "无法启动导入流程"
 msgid "Couldn't undo import"
 msgstr "无法撤销导入"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't undo Pulse"
+msgstr "无法撤销该应用"
+
 #: src/routes/workboard.tsx
 msgid "Couldn't update status"
 msgstr "状态更新失败"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Counties"
+msgstr "县"
 
 #: src/routes/clients.tsx
 msgid "County"
@@ -763,6 +880,16 @@ msgstr "丢弃导入"
 msgid "Discard import?"
 msgstr "要丢弃此次导入吗？"
 
+#: src/features/pulse/components/PulseAlertCard.tsx
+#: src/features/pulse/PulseAlertsBanner.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Dismiss"
+msgstr "忽略"
+
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Dismissed"
+msgstr "已忽略"
+
 #: src/features/workboard/status-control.tsx
 msgid "Done"
 msgstr "已完成"
@@ -775,6 +902,7 @@ msgstr "将 CSV / TSV 拖到这里或点击上传 · 最多 1000 行 · 2 MB"
 msgid "Dry-Run"
 msgstr "试运行"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/routes/workboard.tsx
 msgid "Due date"
 msgstr "到期日"
@@ -786,6 +914,10 @@ msgstr "到期日 — 最早优先"
 #: src/routes/workboard.tsx
 msgid "Due date — latest first"
 msgstr "到期日 — 最晚优先"
+
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Due date change"
+msgstr "截止日变更"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Due date logic"
@@ -808,9 +940,17 @@ msgstr "例如：Bright CPA Practice"
 msgid "Edit"
 msgstr "编辑"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Effective from"
+msgstr "生效日期"
+
 #: src/routes/clients.tsx
 msgid "EIN"
 msgstr "EIN"
+
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Eligible"
+msgstr "可应用"
 
 #: src/routes/clients.tsx
 msgid "Email"
@@ -853,6 +993,7 @@ msgid "Entity type"
 msgstr "实体类型"
 
 #: src/features/migration/Step3Normalize.tsx
+#: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Entity types"
 msgstr "实体类型"
 
@@ -981,9 +1122,14 @@ msgstr "适合一位 Owner 评估截止日工作台。"
 msgid "For US CPA practices"
 msgstr "面向美国注册会计师事务所"
 
+#: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Form"
 msgstr "表单"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Forms"
+msgstr "表格"
 
 #: src/routes/clients.tsx
 msgid "Free-text for now; Team members wire in Phase 1."
@@ -1084,6 +1230,10 @@ msgstr "入料"
 msgid "IP hash"
 msgstr "IP 哈希"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Jurisdiction"
+msgstr "管辖范围"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION × ENTITY"
 msgstr "辖区 × 实体类型"
@@ -1138,6 +1288,10 @@ msgstr "浅色"
 msgid "Linked"
 msgstr "已链接"
 
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Live"
+msgstr "实时"
+
 #: src/routes/clients.tsx
 msgid "LLC"
 msgstr "LLC"
@@ -1146,6 +1300,10 @@ msgstr "LLC"
 #: src/routes/workboard.tsx
 msgid "Load more"
 msgstr "加载更多"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Loading alerts…"
+msgstr "正在加载提醒…"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Loading generation preview."
@@ -1188,6 +1346,10 @@ msgstr "本地时间"
 msgid "Location"
 msgstr "地点"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Logged to audit trail"
+msgstr "已写入审计日志"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Main"
 msgstr "主导航"
@@ -1228,6 +1390,14 @@ msgstr "把 \"{sourceHeader}\" 映射到…"
 msgid "Mapping"
 msgstr "字段映射"
 
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Match"
+msgstr "匹配"
+
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "may be affected."
+msgstr "可能受影响。"
+
 #: src/routes/dashboard.tsx
 msgid "medium"
 msgstr "中"
@@ -1262,6 +1432,7 @@ msgid "Needs evidence"
 msgstr "需补证据"
 
 #: src/features/migration/Step3Normalize.tsx
+#: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/dashboard.tsx
 msgid "Needs review"
 msgstr "需复核"
@@ -1269,6 +1440,10 @@ msgstr "需复核"
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "常规"
+
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "New"
+msgstr "新"
 
 #: src/routes/clients.tsx
 msgid "New client"
@@ -1322,6 +1497,10 @@ msgstr "还没有客户"
 msgid "No commands found."
 msgstr "未找到命令。"
 
+#: src/features/pulse/lib/error-mapping.ts
+msgid "No eligible obligations are selected."
+msgstr "没有选中可应用的义务。"
+
 #: src/routes/clients.tsx
 msgid "No email"
 msgstr "无邮箱"
@@ -1346,6 +1525,10 @@ msgstr "未选择事务所"
 #: src/routes/dashboard.tsx
 msgid "No generated obligations yet."
 msgstr "尚未生成义务。"
+
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "No matching clients in this firm."
+msgstr "当前事务所没有匹配的客户。"
 
 #: src/routes/clients.tsx
 msgid "No notes."
@@ -1428,6 +1611,11 @@ msgstr "义务"
 msgid "official channels under monitor"
 msgstr "正在监听的官方渠道"
 
+#: src/features/pulse/lib/error-mapping.ts
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Only Owners and Managers can apply Pulse changes."
+msgstr "仅 Owner 与 Manager 可应用监管提醒。"
+
 #: src/routes/settings.billing.tsx
 msgid "Only owners can manage billing."
 msgstr "只有 Owner 可以管理账单。"
@@ -1496,6 +1684,7 @@ msgstr "正在打开…"
 msgid "Operational pressure points from server aggregation."
 msgstr "来自服务端聚合的运营压力点。"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/routes/_layout.tsx
 #: src/routes/dashboard.tsx
 msgid "Operations"
@@ -1521,6 +1710,10 @@ msgstr "需要 Owner 权限"
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "未找到页面"
+
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Partially applied"
+msgstr "部分已应用"
 
 #: src/routes/clients.tsx
 msgid "Partnership"
@@ -1577,6 +1770,7 @@ msgstr "请至少输入 2 个字符。"
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-page.tsx
 #: src/features/migration/Wizard.tsx
+#: src/features/pulse/AlertsListPage.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/login.tsx
@@ -1620,6 +1814,15 @@ msgstr "个人资料"
 msgid "Pulse"
 msgstr "动态"
 
+#. placeholder {0}: alert.title
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "Pulse alert: {0}"
+msgstr "监管提醒：{0}"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Pulse evidence linked to each obligation"
+msgstr "为每条义务关联监管证据"
+
 #: src/routes/workboard.tsx
 msgid "Queue controls"
 msgstr "队列控制"
@@ -1644,6 +1847,10 @@ msgstr "只读"
 msgid "Read-only v1 snapshot from clients.get/listByFirm data."
 msgstr "来自 clients.get/listByFirm 数据的只读 v1 快照。"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Read-only view"
+msgstr "只读视图"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Ready to generate your deadline queue"
 msgstr "准备生成你的截止日队列"
@@ -1664,6 +1871,14 @@ msgstr "最近更新"
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
 msgstr "正在跳转到 Google…"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Refresh"
+msgstr "刷新"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, or dismiss to keep the queue clean."
+msgstr "与你事务所客户匹配的监管脉搏信号。可复核、批量调整截止日，或忽略以保持队列整洁。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "reminder ready"
@@ -1704,6 +1919,8 @@ msgstr "重置筛选以返回最新的事务所事件。"
 msgid "Restart checkout"
 msgstr "重新开始支付"
 
+#: src/features/pulse/AlertsListPage.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -1714,9 +1931,24 @@ msgstr "重试"
 msgid "Return home"
 msgstr "返回首页"
 
+#: src/features/pulse/components/AffectedClientsTable.tsx
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Reverted"
+msgstr "已撤销"
+
+#. placeholder {0}: result.revertedCount
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Reverted {0} clients"
+msgstr "已撤销 {0} 个客户"
+
 #: src/features/rules/rules-console-primitives.tsx
 msgid "review"
 msgstr "复核"
+
+#: src/features/pulse/components/PulseAlertCard.tsx
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Review"
+msgstr "查看"
 
 #: src/features/rules/rules-console-primitives.tsx
 msgid "review — needs CPA confirmation"
@@ -1864,9 +2096,22 @@ msgstr "搜索、分组并查看有效租户客户记录。"
 msgid "Seat limit"
 msgstr "席位上限"
 
+#. placeholder {0}: row.clientName
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Select {0}"
+msgstr "选择 {0}"
+
 #: src/routes/clients.tsx
 msgid "Select a client to inspect the record."
 msgstr "选择一个客户以查看记录。"
+
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Select all eligible obligations"
+msgstr "选择全部可应用义务"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Select clients to apply"
+msgstr "请选择客户后再应用"
 
 #: src/routes/dashboard.tsx
 msgid "Server-computed obligation risk for the next operating window."
@@ -1942,6 +2187,10 @@ msgstr "已登录"
 msgid "Signing out…"
 msgstr "正在退出…"
 
+#: src/features/pulse/components/PulseStatusBadge.tsx
+msgid "Snoozed"
+msgstr "已暂缓"
+
 #: src/routes/clients.tsx
 msgid "Sole prop"
 msgstr "个体经营"
@@ -1951,6 +2200,10 @@ msgstr "个体经营"
 msgid "Solo"
 msgstr "Solo"
 
+#: src/features/pulse/lib/error-mapping.ts
+msgid "Some obligations have changed since you opened this alert. Refresh to load the latest list."
+msgstr "部分义务自打开提醒后已变更，请刷新加载最新列表。"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Something went wrong"
 msgstr "出现了一些问题"
@@ -1958,6 +2211,10 @@ msgstr "出现了一些问题"
 #: src/lib/i18n-error.ts
 msgid "Something went wrong on our side. Please try again shortly."
 msgstr "我们这边出了点问题，请稍后重试。"
+
+#: src/features/pulse/lib/error-mapping.ts
+msgid "Something went wrong. Please try again."
+msgstr "出现异常，请重试。"
 
 #: src/routes/workboard.tsx
 msgid "Sort"
@@ -1971,6 +2228,10 @@ msgstr "来源"
 #: src/routes/clients.tsx
 msgid "Source"
 msgstr "来源"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Source excerpt"
+msgstr "原文摘录"
 
 #: src/routes/dashboard.tsx
 msgid "source gaps"
@@ -2054,6 +2315,10 @@ msgstr "成功页会等待 webhook 确认后再显示激活状态。"
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "建议税种（来自实体 × 州矩阵）"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Summary queued to assignees"
+msgstr "已为负责人排队发送摘要邮件"
+
 #. placeholder {0}: firm.name
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Switch firm — current {0}"
@@ -2110,6 +2375,10 @@ msgstr "德克萨斯"
 msgid "That resource belongs to a different practice."
 msgstr "该资源属于其他事务所。"
 
+#: src/features/pulse/lib/error-mapping.ts
+msgid "The 24h undo window has expired for this alert."
+msgstr "该提醒的 24 小时撤销窗口已过期。"
+
 #: src/routes/billing.success.tsx
 msgid "The billing cache and subscription status now agree."
 msgstr "账单缓存和订阅状态现在一致。"
@@ -2141,6 +2410,10 @@ msgstr "主题"
 #: src/lib/i18n-error.ts
 msgid "This action conflicts with the current state. Refresh and try again."
 msgstr "该操作与当前状态冲突，请刷新后重试。"
+
+#: src/features/pulse/lib/error-mapping.ts
+msgid "This alert is no longer available."
+msgstr "该提醒已不可用。"
 
 #: src/routes/billing.checkout.tsx
 msgid "This firm already has the selected plan."
@@ -2194,6 +2467,18 @@ msgstr "无法启动 Google 登录"
 #: src/routes/clients.tsx
 msgid "Unassigned"
 msgstr "未分配"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Undo"
+msgstr "撤销"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Undo (24h)"
+msgstr "撤销 (24h)"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Undo available for 24 hours"
+msgstr "24 小时内可撤销"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo import"

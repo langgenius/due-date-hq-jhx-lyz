@@ -1,21 +1,17 @@
-import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+// Route-level HydrateFallback shown while a lazy route chunk is loading.
+//
+// We intentionally keep this surface VERY quiet — large pulsing skeleton
+// blocks read as flashing purple panels (Skeleton uses the indigo-accent
+// `state-base-hover-alt` token), which fights the rest of the workbench
+// design. Per DESIGN.md "calm, hairline-first": no animation, no tinted
+// panels — just an empty page-shaped slot that gets replaced once the route
+// chunk renders. The page header is owned by `AppShell` so we don't render a
+// title placeholder here either.
 
 export function EntryRouteHydrateFallback() {
   return <div aria-hidden className="h-[240px] w-full max-w-[400px]" />
 }
 
 export function RouteHydrateFallback() {
-  return (
-    <div className="flex flex-col gap-6 p-4 md:p-6">
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-4 w-28" />
-        <Skeleton className="h-8 w-64" />
-      </div>
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <Skeleton className="h-64 w-full rounded-xl" />
-        <Skeleton className="h-64 w-full rounded-xl" />
-      </div>
-      <Skeleton className="h-80 w-full rounded-xl" />
-    </div>
-  )
+  return <div aria-hidden className="flex flex-col gap-6 p-4 md:p-6" data-route-fallback />
 }

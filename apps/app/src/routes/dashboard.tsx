@@ -33,9 +33,10 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
-import { PulseBanner } from '@/components/primitives/pulse-banner'
+import { RiskBanner } from '@/components/primitives/risk-banner'
 import { severityRowClass } from '@/components/primitives/severity-row'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { formatDate } from '@/lib/utils'
@@ -134,6 +135,8 @@ export function DashboardRoute() {
         </Alert>
       ) : null}
 
+      <PulseAlertsBanner />
+
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <Card id="pulse">
           <CardHeader>
@@ -179,7 +182,7 @@ export function DashboardRoute() {
                   </>
                 ) : visibleBanners.length > 0 ? (
                   visibleBanners.map((row) => (
-                    <PulseBanner
+                    <RiskBanner
                       key={row.obligationId}
                       title={row.clientName}
                       detail={t`${row.taxType} due ${formatDate(row.currentDueDate)}`}

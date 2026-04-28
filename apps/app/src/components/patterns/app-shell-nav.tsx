@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { NavLink } from 'react-router'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
+  BellIcon,
   CalendarClockIcon,
   CheckIcon,
   ChevronDownIcon,
@@ -309,8 +310,19 @@ function AddFirmDialog({
   )
 }
 
+function usePulseAlertCount(): number {
+  // Surface the real Pulse alert count next to the nav entry. Uses the
+  // shared cache primed by the dashboard banner so we don't double-fetch.
+  const query = useQuery({
+    ...orpc.pulse.listAlerts.queryOptions({ input: { limit: 5 } }),
+  })
+  return query.data?.alerts.length ?? 0
+}
+
 function useNavItems(): NavConfig {
   const { t } = useLingui()
+  const pulseCount = usePulseAlertCount()
+  const pulseBadge = pulseCount > 0 ? String(pulseCount) : undefined
   return useMemo<NavConfig>(
     () => ({
       main: [
@@ -321,6 +333,13 @@ function useNavItems(): NavConfig {
           icon: CalendarClockIcon,
           end: false,
           badge: '34',
+        },
+        {
+          href: '/alerts',
+          label: t`Alerts`,
+          icon: BellIcon,
+          end: false,
+          ...(pulseBadge !== undefined ? { badge: pulseBadge } : {}),
         },
       ],
       manage: [
@@ -349,7 +368,7 @@ function useNavItems(): NavConfig {
         },
       ],
     }),
-    [t],
+    [t, pulseBadge],
   )
 }
 
