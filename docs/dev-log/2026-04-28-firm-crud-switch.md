@@ -38,6 +38,8 @@ This slice opens the independent Firm path without opening Team/Members yet.
 - `pnpm test` passed.
 - `pnpm --filter @duedatehq/app i18n:extract`
 - `pnpm --filter @duedatehq/app i18n:compile`
+- `pnpm exec playwright test e2e/tests/firm-switch.spec.ts` covers creating a second firm,
+  switching active context, loading the new profile, and keeping the internal slug out of the UI.
 
 ## Follow-ups
 
