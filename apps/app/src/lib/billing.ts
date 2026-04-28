@@ -1,4 +1,4 @@
-import { createSerializer, parseAsStringLiteral, type inferParserType } from 'nuqs'
+import { parseAsStringLiteral, type inferParserType } from 'nuqs'
 import type { FirmPublic } from '@duedatehq/contracts'
 
 export const BILLING_PLANS = ['firm', 'pro'] as const
@@ -11,8 +11,6 @@ export const billingSearchParamsParsers = {
   plan: parseAsStringLiteral(BILLING_PLANS).withDefault('firm'),
   interval: parseAsStringLiteral(BILLING_INTERVALS).withDefault('monthly'),
 } as const
-
-export const serializeBillingQuery = createSerializer(billingSearchParamsParsers)
 
 export type BillingSearchParams = inferParserType<typeof billingSearchParamsParsers>
 
@@ -42,6 +40,16 @@ export function parseBillingPlan(value: string | null): BillingPlan {
 
 export function parseBillingInterval(value: string | null): BillingInterval {
   return isBillingInterval(value) ? value : 'monthly'
+}
+
+export function serializeBillingQuery(
+  path: string,
+  params: Pick<BillingSearchParams, 'plan' | 'interval'>,
+): string {
+  const url = new URL(path, 'https://duedatehq.local')
+  url.searchParams.set('plan', params.plan)
+  url.searchParams.set('interval', params.interval)
+  return `${url.pathname}${url.search}${url.hash}`
 }
 
 export function billingPlanHref(plan: BillingPlan, interval: BillingInterval): string {
