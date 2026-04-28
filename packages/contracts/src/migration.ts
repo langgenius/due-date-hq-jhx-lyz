@@ -101,6 +101,13 @@ export const DryRunSummarySchema = z.object({
   errors: z.array(MigrationErrorSchema),
 })
 
+export const MatrixSelectionSchema = z.object({
+  entityType: z.string().min(1),
+  state: z.string().min(1),
+  enabled: z.boolean(),
+})
+export type MatrixSelection = z.infer<typeof MatrixSelectionSchema>
+
 export const MigrationErrorStageSchema = z.enum(['mapping', 'normalize', 'matrix', 'all'])
 export type MigrationErrorStage = z.infer<typeof MigrationErrorStageSchema>
 
@@ -145,6 +152,9 @@ export const ApplyResultSchema = z.object({
 })
 
 const BatchIdInput = z.object({ batchId: EntityIdSchema })
+const ApplyDefaultMatrixInput = BatchIdInput.extend({
+  matrixSelections: z.array(MatrixSelectionSchema).optional(),
+})
 
 export const migrationContract = oc.router({
   createBatch: oc
@@ -195,7 +205,7 @@ export const migrationContract = oc.router({
   confirmNormalization: oc
     .input(z.object({ batchId: EntityIdSchema, normalizations: z.array(NormalizationRowSchema) }))
     .output(z.object({ normalizations: z.array(NormalizationRowSchema) })),
-  applyDefaultMatrix: oc.input(BatchIdInput).output(DryRunSummarySchema),
+  applyDefaultMatrix: oc.input(ApplyDefaultMatrixInput).output(DryRunSummarySchema),
   dryRun: oc.input(BatchIdInput).output(DryRunSummarySchema),
   apply: oc.input(BatchIdInput).output(ApplyResultSchema),
   revert: oc.input(BatchIdInput).output(z.object({ revertedAt: z.iso.datetime() })),

@@ -1024,12 +1024,12 @@ Rules:
 
 - 若命中默认矩阵，Step 3 `Normalize & Resolve` 面板显示：
   ```
-  Suggested tax types (inferred from entity × state)
-    Acme LLC (LLC · CA) → CA Franchise Tax, CA LLC Fee, Federal 1065
-    Bright Inc (S-Corp · NY) → NY CT-3-S, NY PTET, Federal 1120-S
-    [✓ Apply to all · keep checked to auto-generate deadlines]
+    Suggested tax types (inferred from entity × state)
+      Acme LLC (LLC · CA) → CA Franchise Tax, CA LLC Fee, Federal 1065
+      Bright Inc (S-Corp · NY) → NY CT-3-S, NY PTET, Federal 1120-S
+      [✓ Apply to all] applies where imported rows do not already include tax types.
   ```
-- 默认**全勾 + 默认生效**（"无需额外配置"的直接体现）；用户可逐条取消 / 追加
+- 默认生效（"无需额外配置"的直接体现）；用户可按 `(entity_type, state)` cell 取消 `Apply to all`，取消后该 cell 下缺 `tax_types` 的客户不由 Default Matrix 自动补全，也不会据此生成 obligations
 - 未覆盖格（如 `Trust × OR`）显示黄色 `Needs review`，要求用户点一下确认后再生成
 
 #### Glass-Box 审计

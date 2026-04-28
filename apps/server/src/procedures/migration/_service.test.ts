@@ -513,6 +513,32 @@ describe('MigrationService.dryRun with Default Matrix', () => {
     expect(summary.clientsToCreate).toBe(2)
     expect(summary.obligationsToCreate).toBeGreaterThan(0)
   })
+
+  it('honors disabled matrix selections in dryRun and apply', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    const csv = `Client Name,Tax ID,State,Entity Type,Email\nAcme LLC,12-3456789,CA,LLC,acme@example.com`
+    await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: csv })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+
+    const summary = await service.applyDefaultMatrix(batch.id, [
+      { entityType: 'llc', state: 'CA', enabled: false },
+    ])
+    expect(summary.clientsToCreate).toBe(1)
+    expect(summary.obligationsToCreate).toBe(0)
+
+    const result = await service.apply(batch.id)
+    expect(result.clientCount).toBe(1)
+    expect(result.obligationCount).toBe(0)
+    expect(state.importedClients).toHaveLength(1)
+    expect(state.importedObligations).toHaveLength(0)
+  })
 })
 
 describe('MigrationService.apply', () => {

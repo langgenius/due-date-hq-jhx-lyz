@@ -55,7 +55,7 @@ export interface MapperState {
 export interface NormalizeState {
   status: 'idle' | 'loading' | 'success' | 'fallback' | 'error'
   rows: NormalizationRow[]
-  /** Toggle map for the matrix `Apply to all` checkboxes; key = `${entity}::${state}`. */
+  /** Toggle map for Default Matrix cell application; key = `${entity}::${state}`. */
   applyToAll: Record<string, boolean>
   errorBanner: string | null
 }

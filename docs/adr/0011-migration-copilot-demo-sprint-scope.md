@@ -66,7 +66,7 @@ Demo Sprint Migration Copilot 以下述边界交付（权威来源：[`../produc
 6. **`genesis-odometer`**：`{typography.hero-metric}` + tabular-nums + `cubic-bezier(0.4, 0, 0.2, 1)`；`prefers-reduced-motion` 降级 = 200ms fade-in
 7. **`genesis-particle`**：6px canvas 粒子 + 10% glow + 4 点三次贝塞尔 + 同屏上限 30 颗
 8. **`email-shell`**：640px table 布局 + Geist Mono tabular num for 金额 / 日期
-9. **键盘裁定**：`A` 键**仅** Step 3 Apply-all 生效，全局 `A` 本轮不占用保留位 `reserved: false`；`Enter` = Continue 仅在焦点不在 textarea / contenteditable / select 时生效（解决 Subagent B NEEDS REVIEW 1 / 2；非 YAML token）
+9. **键盘裁定**：`A` 键仅在 Step 3 Suggested tax types 的 `Apply to all` cell 内生效，用于切换当前聚焦 cell；不注册全局 `A`，`Enter` = Continue 仅在焦点不在 textarea / contenteditable / select 时生效（解决 Subagent B NEEDS REVIEW 1 / 2；非 YAML token）
 
 **权威裁定（needs_review 用色）**：
 

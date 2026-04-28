@@ -72,7 +72,7 @@ const confirmNormalization = os.migration.confirmNormalization.handler(
 
 const applyDefaultMatrix = os.migration.applyDefaultMatrix.handler(async ({ input, context }) => {
   const service = buildService(context)
-  return service.applyDefaultMatrix(input.batchId)
+  return service.applyDefaultMatrix(input.batchId, input.matrixSelections ?? [])
 })
 
 const dryRun = os.migration.dryRun.handler(async ({ input, context }) => {

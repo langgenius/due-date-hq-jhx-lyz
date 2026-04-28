@@ -25,6 +25,7 @@ import {
   type MapperRunOutput,
   type MappingRow,
   type MappingTarget,
+  type MatrixSelection,
   type MigrationBatch,
   type MigrationError,
   type MigrationSource,
@@ -479,7 +480,10 @@ export class MigrationService {
     return { normalizations: validated }
   }
 
-  async applyDefaultMatrix(batchId: string): Promise<DryRunSummary> {
+  async applyDefaultMatrix(
+    batchId: string,
+    matrixSelections: readonly MatrixSelection[] = [],
+  ): Promise<DryRunSummary> {
     const batch = await this.requireBatch(batchId)
     const payload = (batch.mappingJson ?? {}) as MappingJsonPayload
     if (!payload.rawInput || !payload.confirmedMappings) {
@@ -488,7 +492,8 @@ export class MigrationService {
       })
     }
 
-    const matrix = computeMatrixApplication(payload)
+    const matrix = computeMatrixApplication(payload, matrixSelections)
+    payload.matrixSelections = [...matrixSelections]
     payload.matrixApplied = matrix
 
     await this.deps.scoped.migration.updateBatch(batchId, { mappingJson: payload })
@@ -500,7 +505,12 @@ export class MigrationService {
       action: 'migration.matrix.applied',
       after: {
         cells: matrix.length,
-        clientsAffected: matrix.reduce((sum, e) => sum + e.appliedClientCount, 0),
+        enabledCells: matrix.filter((e) => e.enabled).length,
+        disabledCells: matrix.filter((e) => !e.enabled).length,
+        clientsAffected: matrix.reduce(
+          (sum, e) => (e.enabled ? sum + e.appliedClientCount : sum),
+          0,
+        ),
       },
     })
 
@@ -903,7 +913,10 @@ function estimateObligationCount(payload: MappingJsonPayload, clientCount: numbe
     // zero. Two obligations per client matches the smallest CA × LLC cell.
     return clientCount * 2
   }
-  return payload.matrixApplied.reduce((sum, e) => sum + e.taxTypes.length * e.appliedClientCount, 0)
+  return payload.matrixApplied.reduce(
+    (sum, e) => (e.enabled ? sum + e.taxTypes.length * e.appliedClientCount : sum),
+    0,
+  )
 }
 
 interface BuildCommitPlanInput {
@@ -928,6 +941,7 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
   for (const cell of payload.matrixApplied ?? []) {
     matrixByCell.set(`${cell.entityType}::${cell.state}`, cell)
   }
+  const hasMatrixApplication = (payload.matrixApplied ?? []).length > 0
 
   const clients: CommitClient[] = []
   const obligations: CommitObligation[] = []
@@ -953,6 +967,7 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
       mappings: payload.confirmedMappings,
       normalizations,
       matrixByCell,
+      hasMatrixApplication,
     })
     if (!facts.name) {
       skippedRows.add(rowIndex)
@@ -1093,6 +1108,7 @@ interface RowToClientFactsInput {
   mappings: readonly MappingRow[]
   normalizations: readonly NormalizationRow[]
   matrixByCell: ReadonlyMap<string, MatrixApplicationEntry>
+  hasMatrixApplication: boolean
 }
 
 interface ClientImportFacts {
@@ -1121,8 +1137,11 @@ function rowToClientFacts(input: RowToClientFactsInput): ClientImportFacts {
 
   if (taxTypes.length === 0 && state) {
     const matrix = input.matrixByCell.get(`${entityType}::${state}`)
-    if (matrix) taxTypes.push(...matrix.taxTypes)
-    else taxTypes.push(...inferTaxTypes(entityType, state).taxTypes)
+    if (matrix) {
+      if (matrix.enabled) taxTypes.push(...matrix.taxTypes)
+    } else if (!input.hasMatrixApplication) {
+      taxTypes.push(...inferTaxTypes(entityType, state).taxTypes)
+    }
   }
 
   return {
@@ -1205,18 +1224,30 @@ function uniqueConcretePreviews(
   return out
 }
 
-function computeMatrixApplication(payload: MappingJsonPayload): MatrixApplicationEntry[] {
+function computeMatrixApplication(
+  payload: MappingJsonPayload,
+  matrixSelections: readonly MatrixSelection[] = [],
+): MatrixApplicationEntry[] {
   if (!payload.rawInput || !payload.confirmedMappings) return []
   const { headers, rows } = payload.rawInput
   const mappings = payload.confirmedMappings
   const headerToIndex = new Map<string, number>()
   headers.forEach((h, i) => headerToIndex.set(h, i))
+  const selectionByCell = new Map(
+    matrixSelections.map((selection) => [
+      `${selection.entityType}::${selection.state}`,
+      selection.enabled,
+    ]),
+  )
 
   const entityIdx = headerToIndex.get(
     mappings.find((m) => m.targetField === 'client.entity_type')?.sourceHeader ?? '',
   )
   const stateIdx = headerToIndex.get(
     mappings.find((m) => m.targetField === 'client.state')?.sourceHeader ?? '',
+  )
+  const taxIdx = headerToIndex.get(
+    mappings.find((m) => m.targetField === 'client.tax_types')?.sourceHeader ?? '',
   )
 
   // Apply normalization first (dictionary or AI confirmed).
@@ -1230,6 +1261,9 @@ function computeMatrixApplication(payload: MappingJsonPayload): MatrixApplicatio
   // Group rows by (entity, state) cell to count appliedClientCount.
   const cellCounts = new Map<string, { entityType: string; state: string; count: number }>()
   for (const row of rows) {
+    const rawTaxTypes = taxIdx !== undefined ? (row[taxIdx] ?? '').trim() : ''
+    if (rawTaxTypes) continue
+
     const rawEntity = entityIdx !== undefined ? (row[entityIdx] ?? '').trim() : ''
     const rawState = stateIdx !== undefined ? (row[stateIdx] ?? '').trim() : ''
     const entity = entityMap.get(rawEntity) ?? rawEntity.toLowerCase()
@@ -1245,6 +1279,7 @@ function computeMatrixApplication(payload: MappingJsonPayload): MatrixApplicatio
   for (const cell of cellCounts.values()) {
     if (!isEntityType(cell.entityType)) continue
     const result: InferTaxTypesResult = inferTaxTypes(cell.entityType, cell.state)
+    const key = `${cell.entityType}::${cell.state}`
     out.push({
       entityType: cell.entityType,
       state: cell.state,
@@ -1252,6 +1287,7 @@ function computeMatrixApplication(payload: MappingJsonPayload): MatrixApplicatio
       needsReview: result.needsReview,
       confidence: result.confidence,
       matrixVersion: result.matrixVersion,
+      enabled: selectionByCell.get(key) ?? true,
       appliedClientCount: cell.count,
     })
   }

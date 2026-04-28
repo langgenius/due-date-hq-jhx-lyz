@@ -355,10 +355,11 @@ componentExtensions:
 
 本节对齐 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §7 键盘基线，补漏 **Subagent B NEEDS REVIEW 1 / 2**。
 
-### 9.1 `A` 键（Apply-all）
+### 9.1 `A` 键（Step 3 Apply to all）
 
-- **生效位**：**仅** Step 3 Normalize 的"Apply to all similar"确认按钮焦点区域
-- **全局 `A`**：本轮**不占用**（PRD §7.7 暂未列入全局 shortcut 表）；保留位给未来可能的 Ask 快捷，标 `reserved: false`。Demo Sprint 期间任何组件**禁止**全局监听 `A` 键
+- **本轮状态**：Step 3 Normalize 的 Suggested tax types cell 内使用 `A` 切换当前聚焦 cell 的 `Apply to all`
+- **全局 `A`**：不注册。快捷仅在 Wizard overlay + focus 位于 `[data-apply-to-all-key]` 内时生效，避免和未来 Ask 快捷冲突
+- Checkbox label 必须声明 `aria-keyshortcuts="A"`，并消费 `components.checkbox-*` token
 
 ### 9.2 `Enter` 键（Continue）
 

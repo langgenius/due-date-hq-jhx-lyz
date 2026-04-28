@@ -219,6 +219,12 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
       <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
         <Trans>Suggested tax types (from entity × state matrix)</Trans>
       </h3>
+      <p className="text-sm text-text-secondary">
+        <Trans>
+          Default Matrix applies these suggestions only where imported rows do not already include
+          tax types.
+        </Trans>
+      </p>
       <ul className="flex flex-col divide-y divide-divider-regular">
         {matrix.map((cell) => {
           const key = `${cell.entityType}::${cell.state}`
@@ -236,8 +242,9 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
                 <label
                   className="inline-flex cursor-pointer items-center gap-2 text-xs text-text-secondary"
                   data-apply-to-all-key={key}
+                  aria-keyshortcuts="A"
                 >
-                  <Checkbox checked={checked} onCheckedChange={(v) => onToggle(key, v)} />
+                  <Checkbox checked={checked} onCheckedChange={(value) => onToggle(key, value)} />
                   <Trans>Apply to all</Trans>
                 </label>
               </div>
@@ -266,7 +273,7 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
                     aria-hidden
                   >
                     <ShieldCheckIcon className="size-3" />
-                    Verified
+                    <Trans>Verified</Trans>
                   </span>
                 )}
               </div>

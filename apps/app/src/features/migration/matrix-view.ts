@@ -11,5 +11,6 @@ export interface MatrixApplicationView {
   needsReview: boolean
   confidence: number
   matrixVersion: string
+  enabled: boolean
   appliedClientCount: number
 }

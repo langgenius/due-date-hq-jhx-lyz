@@ -275,6 +275,10 @@ msgid "Clients"
 msgstr "客户"
 
 #: src/features/migration/WizardShell.tsx
+msgid "Close"
+msgstr "关闭"
+
+#: src/features/migration/WizardShell.tsx
 msgid "Close wizard"
 msgstr "关闭向导"
 
@@ -386,6 +390,10 @@ msgstr "仪表盘"
 msgid "Deadline"
 msgstr "截止日期"
 
+#: src/features/migration/Step3Normalize.tsx
+msgid "Default Matrix applies these suggestions only where imported rows do not already include tax types."
+msgstr "Default Matrix 仅在导入行未包含税种时应用这些建议。"
+
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Degraded"
@@ -403,6 +411,14 @@ msgstr "已弃用"
 #: src/routes/workboard.tsx
 msgid "Detail drawer is coming soon"
 msgstr "详情抽屉即将推出"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Discard import"
+msgstr "丢弃导入"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Discard import?"
+msgstr "要丢弃此次导入吗？"
 
 #: src/routes/dashboard.tsx
 msgid "Dollar-first triage for the next operating window."
@@ -595,6 +611,10 @@ msgstr "导入客户 · 第 {step} 步 / 共 4 步"
 msgid "Import complete"
 msgstr "导入完成"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Importing…"
+msgstr "正在导入…"
+
 #: src/routes/workboard.tsx
 msgid "In progress"
 msgstr "进行中"
@@ -648,14 +668,6 @@ msgstr "快捷键"
 #: src/components/primitives/locale-switcher.tsx
 msgid "Language"
 msgstr "语言"
-
-#: src/features/migration/WizardShell.tsx
-msgid "Leave & save draft"
-msgstr "离开并保存草稿"
-
-#: src/features/migration/WizardShell.tsx
-msgid "Leave wizard?"
-msgstr "要离开向导吗？"
 
 #: src/components/patterns/app-shell.tsx
 msgid "Light"
@@ -1133,10 +1145,6 @@ msgstr "安全保障"
 msgid "Sample"
 msgstr "样例"
 
-#: src/features/migration/WizardShell.tsx
-msgid "Save draft"
-msgstr "保存草稿"
-
 #: src/routes/workboard.tsx
 msgid "Search clients"
 msgstr "搜索客户"
@@ -1381,6 +1389,7 @@ msgstr "核验"
 msgid "verified"
 msgstr "已核验"
 
+#: src/features/migration/Step3Normalize.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
@@ -1482,6 +1491,10 @@ msgstr "工作台"
 msgid "Workboard"
 msgstr "工作台"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Working…"
+msgstr "处理中…"
+
 #: src/components/patterns/app-shell.tsx
 msgid "Workspaces"
 msgstr "工作空间"
@@ -1511,8 +1524,8 @@ msgid "Your column"
 msgstr "你的列"
 
 #: src/features/migration/WizardShell.tsx
-msgid "Your draft is saved — you can resume from Settings › Imports history."
-msgstr "草稿已保存 —— 你可以在「设置 › 导入历史」中继续。"
+msgid "Your pasted data and unsaved edits in this wizard will be lost."
+msgstr "你粘贴的数据和向导中未保存的修改将会丢失。"
 
 #: src/lib/i18n-error.ts
 msgid "Your practice is suspended. Contact support to restore access."

@@ -885,11 +885,11 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 - **来源**：`../product-design/migration-copilot/01-mvp-and-journeys.md` §7 · `../product-design/migration-copilot/09-design-system-deltas.md` §9 Keyboard Rules
 - **裁定依据**：ADR 0011 Decision III · 解决 Subagent B NEEDS REVIEW 1 / 2
 
-**`A` 键（Apply-all）**
+**`A` 键（Step 3 Apply to all）**
 
-- **生效位**：**仅** Step 3 Normalize 的 "Apply to all similar" 确认按钮焦点区域
-- **全局 `A`**：本轮**不占用**（PRD §7.7 暂未列入全局 shortcut 表）；保留位给未来可能的 Ask 快捷，标 `reserved: false`
-- Demo Sprint 期间任何组件**禁止**全局监听 `A` 键
+- **本轮状态**：仅 Wizard Step 3 Suggested tax types cell 内使用，用于切换当前聚焦 cell 的 `Apply to all`
+- **全局 `A`**：不注册；未来 Ask 快捷若占用 `A`，必须先迁移本局部快捷
+- Checkbox label 必须声明 `aria-keyshortcuts="A"`，并消费 `components.checkbox-*` token
 
 **`Enter` 键（Continue）**
 
@@ -910,7 +910,7 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 - App 只允许一个 keyboard shell：`apps/app/src/components/patterns/keyboard-shell`，基于 TanStack Hotkeys 注册全局、导航序列、route/list、overlay 四层快捷键
 - `?` 帮助浮层从注册表生成，并追加 reserved slots；不得手写第二份静态快捷键表
 - Wizard / Dialog / Command Palette 打开时压住导航序列和 Workboard 裸字母键
-- **全局 `A` 不占用**；`A` 仅 Step 3 Normalize 的 Apply-to-all 聚焦区域生效
+- **全局 `A` 不占用**；Step 3 仅在 Suggested tax types cell 焦点内注册局部 `A`
 
 ### 14.7 needs_review 用色语义（权威裁定）
 

@@ -4,11 +4,19 @@ import { ArrowLeftIcon, ArrowRightIcon, XIcon } from 'lucide-react'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@duedatehq/ui/components/ui/alert-dialog'
+import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogTitle,
 } from '@duedatehq/ui/components/ui/dialog'
 import { cn } from '@duedatehq/ui/lib/utils'
@@ -43,8 +51,8 @@ interface WizardShellProps {
  * Visual authority: DESIGN.md §Layout/Components + apps/marketing HeroSurface.
  * Behavior authority: docs/product-design/migration-copilot/02-ux-4step-wizard.md §2.
  *
- * Esc / overlay click bounces through a "leave & save draft" confirmation so
- * accidental dismissals don't blow away the user's paste.
+ * Esc / overlay click bounces through a discard confirmation so accidental
+ * dismissals don't silently drop the user's paste or unsaved edits.
  */
 export function WizardShell({
   open,
@@ -63,21 +71,22 @@ export function WizardShell({
 
   function handleOpenChange(next: boolean) {
     if (next) return
+    if (busy) return
     setConfirming(true)
   }
 
-  function handleLeave() {
+  function handleDiscard() {
     setConfirming(false)
     onClose()
   }
 
   useAppHotkey('Escape', () => setConfirming(true), {
-    enabled: open && !confirming,
+    enabled: open && !confirming && !busy,
     requireReset: true,
     meta: {
       id: 'wizard.escape',
       name: 'Close wizard',
-      description: 'Open the leave and save draft confirmation.',
+      description: 'Open the discard import confirmation.',
       category: 'wizard',
       scope: 'overlay',
     },
@@ -148,13 +157,14 @@ export function WizardShell({
                 Esc
               </kbd>
               <span className="text-text-tertiary">
-                <Trans>Save draft</Trans>
+                {busy ? <Trans>Working…</Trans> : <Trans>Close</Trans>}
               </span>
             </span>
             <Button
               variant="ghost"
               size="icon-sm"
               aria-label={t`Close wizard`}
+              disabled={busy}
               onClick={() => setConfirming(true)}
             >
               <XIcon />
@@ -182,37 +192,41 @@ export function WizardShell({
             disabled={busy || !canContinue}
             aria-busy={busy || undefined}
           >
-            {continueLabel ?? <Trans>Continue</Trans>}
-            <ArrowRightIcon data-icon="inline-end" />
+            {busy ? (
+              step === 4 ? (
+                <Trans>Importing…</Trans>
+              ) : (
+                <Trans>Working…</Trans>
+              )
+            ) : (
+              (continueLabel ?? <Trans>Continue</Trans>)
+            )}
+            {busy ? null : <ArrowRightIcon data-icon="inline-end" />}
           </Button>
         </footer>
       </DialogContent>
 
       {confirming ? (
-        <Dialog open={confirming} onOpenChange={setConfirming}>
-          <DialogContent
-            showCloseButton={false}
-            role="alertdialog"
-            className="w-[min(480px,calc(100%-2rem))] rounded-xl border border-divider-regular bg-components-panel-bg shadow-overlay"
-          >
-            <DialogTitle>
-              <Trans>Leave wizard?</Trans>
-            </DialogTitle>
-            <DialogDescription className="text-md">
-              <Trans>Your draft is saved — you can resume from Settings › Imports history.</Trans>
-            </DialogDescription>
-            <DialogFooter>
-              <DialogClose
-                render={<Button variant="outline" size="sm" onClick={() => setConfirming(false)} />}
-              >
+        <AlertDialog open={confirming} onOpenChange={setConfirming}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                <Trans>Discard import?</Trans>
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-md">
+                <Trans>Your pasted data and unsaved edits in this wizard will be lost.</Trans>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel size="sm">
                 <Trans>Keep editing</Trans>
-              </DialogClose>
-              <Button size="sm" onClick={handleLeave}>
-                <Trans>Leave & save draft</Trans>
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              </AlertDialogCancel>
+              <AlertDialogAction variant="destructive-primary" size="sm" onClick={handleDiscard}>
+                <Trans>Discard import</Trans>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       ) : null}
     </Dialog>
   )

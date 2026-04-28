@@ -275,6 +275,10 @@ msgid "Clients"
 msgstr "Clients"
 
 #: src/features/migration/WizardShell.tsx
+msgid "Close"
+msgstr "Close"
+
+#: src/features/migration/WizardShell.tsx
 msgid "Close wizard"
 msgstr "Close wizard"
 
@@ -386,6 +390,10 @@ msgstr "Dashboard"
 msgid "Deadline"
 msgstr "Deadline"
 
+#: src/features/migration/Step3Normalize.tsx
+msgid "Default Matrix applies these suggestions only where imported rows do not already include tax types."
+msgstr "Default Matrix applies these suggestions only where imported rows do not already include tax types."
+
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Degraded"
@@ -403,6 +411,14 @@ msgstr "Deprecated"
 #: src/routes/workboard.tsx
 msgid "Detail drawer is coming soon"
 msgstr "Detail drawer is coming soon"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Discard import"
+msgstr "Discard import"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Discard import?"
+msgstr "Discard import?"
 
 #: src/routes/dashboard.tsx
 msgid "Dollar-first triage for the next operating window."
@@ -595,6 +611,10 @@ msgstr "Import clients · Step {step} of 4"
 msgid "Import complete"
 msgstr "Import complete"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Importing…"
+msgstr "Importing…"
+
 #: src/routes/workboard.tsx
 msgid "In progress"
 msgstr "In progress"
@@ -648,14 +668,6 @@ msgstr "Keyboard shortcuts"
 #: src/components/primitives/locale-switcher.tsx
 msgid "Language"
 msgstr "Language"
-
-#: src/features/migration/WizardShell.tsx
-msgid "Leave & save draft"
-msgstr "Leave & save draft"
-
-#: src/features/migration/WizardShell.tsx
-msgid "Leave wizard?"
-msgstr "Leave wizard?"
 
 #: src/components/patterns/app-shell.tsx
 msgid "Light"
@@ -1133,10 +1145,6 @@ msgstr "Safety"
 msgid "Sample"
 msgstr "Sample"
 
-#: src/features/migration/WizardShell.tsx
-msgid "Save draft"
-msgstr "Save draft"
-
 #: src/routes/workboard.tsx
 msgid "Search clients"
 msgstr "Search clients"
@@ -1381,6 +1389,7 @@ msgstr "Verification"
 msgid "verified"
 msgstr "verified"
 
+#: src/features/migration/Step3Normalize.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
@@ -1480,6 +1489,10 @@ msgstr "Workbench"
 msgid "Workboard"
 msgstr "Workboard"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Working…"
+msgstr "Working…"
+
 #: src/components/patterns/app-shell.tsx
 msgid "Workspaces"
 msgstr "Workspaces"
@@ -1509,8 +1522,8 @@ msgid "Your column"
 msgstr "Your column"
 
 #: src/features/migration/WizardShell.tsx
-msgid "Your draft is saved — you can resume from Settings › Imports history."
-msgstr "Your draft is saved — you can resume from Settings › Imports history."
+msgid "Your pasted data and unsaved edits in this wizard will be lost."
+msgstr "Your pasted data and unsaved edits in this wizard will be lost."
 
 #: src/lib/i18n-error.ts
 msgid "Your practice is suspended. Contact support to restore access."

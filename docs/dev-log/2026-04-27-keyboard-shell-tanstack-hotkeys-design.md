@@ -25,7 +25,7 @@ implementation step needed an app-level registry before adding more route-specif
 - Wired overlay behavior into Migration Wizard:
   - `Enter` continues only when not focused in textarea/contenteditable/select
   - `Esc` opens leave confirmation
-  - `A` only toggles focused Step 3 Apply-to-all rows
+  - `A` is reserved for Step 3 Apply-to-all rows and only fires when focus is inside a matrix suggestion cell
 - Wired Workboard route shortcuts:
   - `J/K` active row movement
   - `Enter` and `E` placeholder drawers

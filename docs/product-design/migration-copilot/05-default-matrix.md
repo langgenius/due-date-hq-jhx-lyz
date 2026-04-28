@@ -161,7 +161,7 @@ fallback:
 
 ## 6. UI 联动（Step 3 Normalize · 引用 02）
 
-Step 3 Normalize 的 **"Suggested tax types"** 区块消费本矩阵；默认**全勾 + 默认生效**（兑现 PRD Part1B §6A.5 "无需额外配置"）。详细 UX 规格见 [`./02-ux-4step-wizard.md#step-3-normalize`](./02-ux-4step-wizard.md#step-3-normalize)。
+Step 3 Normalize 的 **"Suggested tax types"** 区块消费本矩阵；DDL cut 中该区块默认应用 Default Matrix 来补全缺失的 `client.tax_types`（兑现 PRD Part1B §6A.5 "无需额外配置"），并允许按 `(entity_type, state)` cell 取消自动补全。详细 UX 规格见 [`./02-ux-4step-wizard.md#step-3-normalize`](./02-ux-4step-wizard.md#step-3-normalize)。
 
 语义摘要（非像素规格）：
 
@@ -170,11 +170,12 @@ Suggested tax types (inferred from entity × state)
   Acme LLC (TEST) (LLC · CA)          → CA Franchise Tax, CA LLC Fee, Federal 1065
   Bright Inc (TEST) (S-Corp · NY)     → NY CT-3-S, NY PTET, Federal 1120-S
   Zen Holdings (TEST) (LLC · TX) ⚠️    → Federal 1065 (needs review — TX not in demo seed)
-  [✓ Apply to all — keep checked to auto-generate deadlines]
+  [✓ Apply to all] applies only where imported rows do not already include tax types.
 ```
 
 - ⚠️ 徽章 = `needs_review`，客户仍可导入，但 Workboard 上该客户带黄色标记（对齐 PRD §6A.3 "非阻塞"原则）
-- 每一行有 `[Edit]` 入口，CPA 可追加 / 取消某条 tax_type；修改会同时写 `migration_normalization` + `evidence_link(source_type='ai_migration_normalize' 或 'user_override')`
+- `Apply to all` 取消后，后端将该 cell 写入 `mapping_json.matrixApplied[].enabled=false`；`dryRun` 和 `apply` 都不得为该 cell 缺 `tax_types` 的客户 fallback 自动推断
+- Phase 0 可追加完整逐行 tax type override；DDL cut 先提供逐 cell 取消，避免对每个 client 暴露过重表格编辑面
 
 ---
 

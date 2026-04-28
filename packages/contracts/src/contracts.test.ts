@@ -9,7 +9,7 @@ import {
 import { ObligationStatusSchema } from './shared/enums'
 import { ClientSchema } from './shared/client'
 import { WorkboardListInputSchema, WorkboardSortSchema, workboardContract } from './workboard'
-import { MigrationErrorStageSchema, migrationContract } from './migration'
+import { MatrixSelectionSchema, MigrationErrorStageSchema, migrationContract } from './migration'
 import { EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 import {
   ObligationRuleSchema,
@@ -102,6 +102,12 @@ describe('@duedatehq/contracts', () => {
     expect(MigrationErrorStageSchema.options).toEqual(['mapping', 'normalize', 'matrix', 'all'])
     expect(Object.keys(migrationContract)).toEqual(
       expect.arrayContaining(['runMapper', 'applyDefaultMatrix', 'listErrors']),
+    )
+  })
+
+  it('accepts explicit Default Matrix cell selections', () => {
+    expect(MatrixSelectionSchema.parse({ entityType: 'llc', state: 'CA', enabled: false })).toEqual(
+      { entityType: 'llc', state: 'CA', enabled: false },
     )
   })
 

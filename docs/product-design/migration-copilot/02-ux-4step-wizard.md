@@ -32,12 +32,12 @@ stateDiagram-v2
   Step4_DryRunGenesis --> Entry : [Close]（动画前可关；动画中 Esc 失效）
 ```
 
-| 步骤                     | 目标                                                                    | 退出条件                                           | AC 映射         | 本册锚点 |
-| ------------------------ | ----------------------------------------------------------------------- | -------------------------------------------------- | --------------- | -------- |
-| Step 1 Intake            | 选择数据入口（粘贴 / 上传 / Preset）；SSN 拦截；≤ 1000 行               | 粘贴或上传文件解析成功 + 至少 1 条非空行           | S2-AC1          | §4 本文  |
-| Step 2 Mapping           | AI Mapper 输出 9 字段映射 + 置信度；EIN `★`；可手动 override            | 所有非 IGNORE 列有目标字段；EIN 识别率 = 100%      | S2-AC1 / S2-AC2 | §5 本文  |
-| Step 3 Normalize         | 归一 entity / state / tax_year；冲突解决；Default Matrix "Apply to all" | 冲突全部选择处置；needs_review 可非阻塞带入 Step 4 | S2-AC3 / S2-AC4 | §6 本文  |
-| Step 4 Dry-Run + Genesis | 展示 counts + 风险预览 + Safety；触发原子导入 + Live Genesis 动画       | `migration.imported` 成功 + Dashboard 落地         | S2-AC5          | §7 本文  |
+| 步骤                     | 目标                                                                     | 退出条件                                           | AC 映射         | 本册锚点 |
+| ------------------------ | ------------------------------------------------------------------------ | -------------------------------------------------- | --------------- | -------- |
+| Step 1 Intake            | 选择数据入口（粘贴 / 上传 / Preset）；SSN 拦截；≤ 1000 行                | 粘贴或上传文件解析成功 + 至少 1 条非空行           | S2-AC1          | §4 本文  |
+| Step 2 Mapping           | AI Mapper 输出 9 字段映射 + 置信度；EIN `★`；可手动 override             | 所有非 IGNORE 列有目标字段；EIN 识别率 = 100%      | S2-AC1 / S2-AC2 | §5 本文  |
+| Step 3 Normalize         | 归一 entity / state / tax_year；冲突解决；确认或取消 Default Matrix cell | 冲突全部选择处置；needs_review 可非阻塞带入 Step 4 | S2-AC3 / S2-AC4 | §6 本文  |
+| Step 4 Dry-Run + Genesis | 展示 counts + 风险预览 + Safety；触发原子导入 + Live Genesis 动画        | `migration.imported` 成功 + Dashboard 落地         | S2-AC5          | §7 本文  |
 
 > 数字键 `1-4` **不** 跳步骤（避免误触）；步骤推进只允许 `Continue` / `Back`。来源于 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §7.2 键盘基线。
 
@@ -93,6 +93,7 @@ stateDiagram-v2
 | `Tab` / `Shift+Tab` | 焦点循环                                                           | 不逃出 modal                                                        |
 | `Enter`             | 提交当前步（焦点在非 textarea / non-editable 区时等价于 Continue） | 对齐 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §7.2    |
 | `Esc`               | 打开关闭确认（非 destructive）                                     | Step 4 动画期间 `Esc` **失效**                                      |
+| `A`                 | 切换当前聚焦的 Step 3 `Apply to all`                               | 仅 Suggested tax types cell 内生效                                  |
 | `1` - `4` 数字键    | 不跳步骤                                                           | 避免误触；通过 `[Back]` 逐级回退                                    |
 | `Cmd/Ctrl + V`      | 粘贴                                                               | Step 1 textarea 默认生效                                            |
 | `?`                 | 快捷键帮助浮层                                                     | 全局（[`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §7.1） |
@@ -107,20 +108,21 @@ stateDiagram-v2
 - Step 2 / 3 的 AI 调用结果写入 `evidence_link`（[`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §4.3）；失败不阻塞 UI 本地缓存
 - `[Back]` **不** 清除下游已采集的用户输入；Step 3 override 回 Step 2 时可重跑 AI Mapper（按钮文案切换为 `[Re-run AI with my overrides]`）
 
-### 3.2 关闭确认弹层
+### 3.2 关闭确认 AlertDialog
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Leave wizard?                                       │   ← 标题：{typography.title} + {colors.text-primary}
+│  Discard import?                                     │   ← 标题：{typography.title} + {colors.text-primary}
 │                                                      │
-│  Your draft is saved — you can resume from           │   ← 正文：{typography.body} + {colors.text-secondary}
-│  Settings › Imports history.                         │
+│  Your pasted data and unsaved edits in this wizard   │   ← 正文：{typography.body} + {colors.text-secondary}
+│  will be lost.                                       │
 │                                                      │
-│         [Keep editing]    [Leave & save draft]       │   ← button-secondary + button-primary；不是 destructive
+│              [Keep editing]    [Discard import]      │   ← button-secondary + destructive-primary
 └─────────────────────────────────────────────────────┘
 ```
 
-- 外壳 Level 4 Modal（宽 ≤ 480px）；`role="alertdialog"` + `aria-labelledby`
+- 外壳使用 `@duedatehq/ui/components/ui/alert-dialog`（shadcn Alert Dialog 结构 + Base UI primitive）；Level 4 Modal（宽 ≤ 480px）；`role="alertdialog"` + `aria-labelledby`
+- DDL cut 不承诺完整 Import History / resume UI；关闭只表示丢弃当前向导内未完成信息
 - 文案走 Lingui `<Trans />`（见 §8 全局文案表第 1~3 行）
 
 ### 3.3 并发串行提示（PRD §3.6.6 行 420）
@@ -242,9 +244,9 @@ stateDiagram-v2
 | Secondary CTA             | `← Back`                                                                                       | `← 返回`                                                               | `<Trans>`                                     |
 | Error banner (parse fail) | `We couldn't read that file. Try exporting as CSV.`                                            | `无法读取该文件。请先导出为 CSV 再试。`                                | `<Trans>`                                     |
 | Empty state               | `Paste or upload to continue.`                                                                 | `请粘贴或上传数据以继续。`                                             | `<Trans>`                                     |
-| Close confirm title       | `Leave wizard?`                                                                                | `要离开向导吗？`                                                       | `<Trans>`                                     |
-| Close confirm body        | `Your draft is saved — you can resume from Settings › Imports history.`                        | `草稿已保存 —— 你可以在"设置 › 导入历史"中继续。`                      | `<Trans>`                                     |
-| Close confirm CTAs        | `Keep editing` / `Leave & save draft`                                                          | `继续编辑` / `离开并保存草稿`                                          | `<Trans>`                                     |
+| Close confirm title       | `Discard import?`                                                                              | `要丢弃此次导入吗？`                                                   | `<Trans>`                                     |
+| Close confirm body        | `Your pasted data and unsaved edits in this wizard will be lost.`                              | `你粘贴的数据和向导中未保存的修改将会丢失。`                           | `<Trans>`                                     |
+| Close confirm CTAs        | `Keep editing` / `Discard import`                                                              | `继续编辑` / `丢弃导入`                                                | `<Trans>`                                     |
 
 ### 4.5 键盘 / a11y
 
@@ -450,7 +452,7 @@ stateDiagram-v2
 
 ### 6.1 目标与状态机
 
-- **目标**：展示归一 summary（entity_types / states / tax_years）；冲突解决；Default Matrix `Apply to all`
+- **目标**：展示归一 summary（entity_types / states / tax_years）；冲突解决；确认或取消 Default Matrix 将自动补全的 tax types
 - **状态机**：`idle → saving → ready`（Normalize 出错降级见 §6.5）
 
 ### 6.2 线框
@@ -478,13 +480,13 @@ stateDiagram-v2
 │                                                                      │
 │  Suggested tax types (from entity × state matrix)                    │   ← {typography.label}
 │  ┌──────────────────────────────────────────────────────────────┐    │
+│  │ Default Matrix applies these suggestions only where imported   │
+│  │ rows do not already include tax types.                        │
 │  │ 12 LLC × CA clients                                          │    │
-│  │   → CA Franchise · CA LLC Fee · Fed 1065           [e]       │    │   ← tax type chips（高 18px）
-│  │   [✓ Apply to all]   (keyboard: A)                           │    │   ← 默认勾选；可逐条取消
+│  │   → CA Franchise · CA LLC Fee · Fed 1065  [✓ Apply to all] [e]│    │   ← tax type chips（高 18px）
 │  │                                                              │    │
 │  │  5 S-Corp × NY clients                                       │    │
-│  │   → NY CT-3-S · NY PTET · Fed 1120-S               [e]       │    │
-│  │   [✓ Apply to all]                                           │    │
+│  │   → NY CT-3-S · NY PTET · Fed 1120-S [✓ Apply to all] [e]    │    │
 │  └──────────────────────────────────────────────────────────────┘    │
 │                                                                      │
 │  Conflicts (3)                                                       │   ← {typography.label}
@@ -532,8 +534,11 @@ stateDiagram-v2
 
 ### 6.4 Default Matrix `Apply to all`
 
-- 默认勾选（兑现 §6A.5 "无需额外配置"）；可逐条取消或追加
-- 键盘快捷键 `A` = 对当前聚焦的 suggestion 区块切换 `Apply to all`（为避免与 `?` 帮助冲突，`?` 保持全局，`A` 仅在 Step 3 生效 + `aria-keyshortcuts="A"` 显式声明）
+- 默认勾选（兑现 §6A.5 "无需额外配置"）：Default Matrix 只对导入行中缺失 `client.tax_types` 的客户补全税种
+- 可逐 cell 取消：取消 `Apply to all` 表示该 `(entity_type, state)` cell 下缺 `tax_types` 的客户不使用 Default Matrix 自动补全，也不会在 Step 4 生成对应 obligations
+- 用户 CSV / paste 已明确提供 `client.tax_types` 的行不受该开关影响
+- 前端选择通过 `applyDefaultMatrix({ matrixSelections })` 写入 `migration_batch.mapping_json.matrixApplied[].enabled`；`dryRun` 与最终 `apply` 必须消费同一份 enabled 状态，禁止前端本地假状态
+- 键盘快捷键 `A` = 对当前聚焦的 suggestion cell 切换 `Apply to all`（`aria-keyshortcuts="A"`）
 - 冲突解决按钮组默认 **`Skip`**（最安全）；Owner 可在 Settings 修改默认为 `Create as new`（Phase 0 扩展位，Demo Sprint 不渲染 Settings 面板）
 
 ### 6.5 错误 / 降级
@@ -543,30 +548,31 @@ stateDiagram-v2
 
 ### 6.6 文案表（EN + zh-CN + Lingui 宏）
 
-| 字段                         | EN 原文                                                                            | zh-CN 对照                                      | 宏                     |
-| ---------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------- | ---------------------- |
-| Title                        | `We normalized {count} values — review if needed`                                  | `我们已归一 {count} 个值 —— 需要的话请复核`     | `<Trans>` + `<Plural>` |
-| Section: Entity types        | `Entity types`                                                                     | `实体类型`                                      | `<Trans>`              |
-| Section: States              | `States`                                                                           | `州`                                            | `<Trans>`              |
-| Section: Suggested tax types | `Suggested tax types (from entity × state matrix)`                                 | `建议的税种（由实体 × 州矩阵推断）`             | `<Trans>`              |
-| Section: Conflicts           | `Conflicts ({count})`                                                              | `冲突（{count}）`                               | `<Plural>`             |
-| Needs review pill            | `Needs review`                                                                     | `待复核`                                        | `<Trans>`              |
-| Apply to all toggle          | `Apply to all`                                                                     | `全部应用`                                      | `<Trans>`              |
-| Conflict CTA: Merge          | `Merge` (tooltip `Append new fields without overwriting`)                          | `合并` / `将新字段补齐到现有客户，不覆盖已有值` | `<Trans>`              |
-| Conflict CTA: Overwrite      | `Overwrite` (tooltip `Replace existing values with new ones`)                      | `覆盖` / `用新值替换已有字段`                   | `<Trans>`              |
-| Conflict CTA: Skip           | `Skip` (tooltip `Leave existing client untouched`)                                 | `跳过` / `保留现有客户不变`                     | `<Trans>`              |
-| Conflict CTA: Create as new  | `Create as new` (tooltip `Create a new client; existing one stays`)                | `另存为新客户` / `新建客户，不影响现有客户`     | `<Trans>`              |
-| Fallback banner              | `We couldn't reach AI for some values. Using dictionary fallback — please review.` | `部分值无法调用 AI，已使用字典降级 —— 请复核。` | `<Trans>`              |
-| Verification needed          | `Verification needed`                                                              | `需要人工验证`                                  | `<Trans>`              |
-| Primary CTA                  | `Continue →`                                                                       | `下一步 →`                                      | `<Trans>`              |
-| Secondary CTA                | `← Back`                                                                           | `← 返回`                                        | `<Trans>`              |
+| 字段                         | EN 原文                                                                                               | zh-CN 对照                                          | 宏                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ---------------------- |
+| Title                        | `We normalized {count} values — review if needed`                                                     | `我们已归一 {count} 个值 —— 需要的话请复核`         | `<Trans>` + `<Plural>` |
+| Section: Entity types        | `Entity types`                                                                                        | `实体类型`                                          | `<Trans>`              |
+| Section: States              | `States`                                                                                              | `州`                                                | `<Trans>`              |
+| Section: Suggested tax types | `Suggested tax types (from entity × state matrix)`                                                    | `建议的税种（由实体 × 州矩阵推断）`                 | `<Trans>`              |
+| Default Matrix note          | `Default Matrix applies these suggestions only where imported rows do not already include tax types.` | `Default Matrix 仅在导入行没有税种时应用这些建议。` | `<Trans>`              |
+| Apply to all toggle          | `Apply to all`                                                                                        | `全部应用`                                          | `<Trans>`              |
+| Section: Conflicts           | `Conflicts ({count})`                                                                                 | `冲突（{count}）`                                   | `<Plural>`             |
+| Needs review pill            | `Needs review`                                                                                        | `待复核`                                            | `<Trans>`              |
+| Conflict CTA: Merge          | `Merge` (tooltip `Append new fields without overwriting`)                                             | `合并` / `将新字段补齐到现有客户，不覆盖已有值`     | `<Trans>`              |
+| Conflict CTA: Overwrite      | `Overwrite` (tooltip `Replace existing values with new ones`)                                         | `覆盖` / `用新值替换已有字段`                       | `<Trans>`              |
+| Conflict CTA: Skip           | `Skip` (tooltip `Leave existing client untouched`)                                                    | `跳过` / `保留现有客户不变`                         | `<Trans>`              |
+| Conflict CTA: Create as new  | `Create as new` (tooltip `Create a new client; existing one stays`)                                   | `另存为新客户` / `新建客户，不影响现有客户`         | `<Trans>`              |
+| Fallback banner              | `We couldn't reach AI for some values. Using dictionary fallback — please review.`                    | `部分值无法调用 AI，已使用字典降级 —— 请复核。`     | `<Trans>`              |
+| Verification needed          | `Verification needed`                                                                                 | `需要人工验证`                                      | `<Trans>`              |
+| Primary CTA                  | `Continue →`                                                                                          | `下一步 →`                                          | `<Trans>`              |
+| Secondary CTA                | `← Back`                                                                                              | `← 返回`                                            | `<Trans>`              |
 
 ### 6.7 键盘 / a11y
 
-- 每个 `Apply to all` 区块 `role="group"` + `aria-labelledby`
+- Suggested tax types 区块 `role="group"` + `aria-labelledby`；tax type chip 不进入 tab order
+- `Apply to all` checkbox 使用项目 `Checkbox` primitive，label 暴露 `aria-keyshortcuts="A"`
 - 冲突按钮组 `role="radiogroup"`；默认选中 `Skip` 带 `aria-checked="true"`
 - needs_review pill hover Popover：`role="tooltip"`；键盘用 Enter / Space 打开；`Esc` 关闭
-- `A` 键：`aria-keyshortcuts="A"` on 最近聚焦区块；SR 广播 "Apply to all toggled {on|off}"
 
 ### 6.8 Token 映射表
 
@@ -577,8 +583,8 @@ stateDiagram-v2
 | needs_review pill 背景 / 文字             | medium tint                   | `{colors.severity-medium-tint}` / `{colors.text-primary}`                 |
 | Evidence chip 样式                        | 遵 `evidence-chip` 组件 token | `evidence-chip`（[`../../../DESIGN.md`](../../../DESIGN.md) 行 115）      |
 | Verification-needed 降级                  | pill + 次级按钮               | `{colors.severity-medium-tint}` + `button-secondary`                      |
-| Apply-to-all checkbox                     | 默认 accent                   | `{colors.accent-default}`                                                 |
 | Conflict Merge/Overwrite/Skip/CreateAsNew | 按钮组 radio                  | `button-secondary` + 选中 `{colors.accent-tint}` 背景                     |
+| Apply to all checkbox                     | 16px checkbox + label         | `components.checkbox-*` + `{colors.text-secondary}`                       |
 | tax type chip                             | 18px 高 mono                  | `{typography.numeric}` + `{rounded.sm}` + `{colors.surface-elevated}`     |
 
 ### 6.9 埋点
@@ -587,7 +593,7 @@ stateDiagram-v2
 - `migration.wizard.step3.continued`
 - `migration.normalize.reviewed` · 字段：`override_count`, `needs_review_count`, `dictionary_fallback_used: boolean`
 - `migration.normalize.conflicts_resolved` · 字段：`merge`, `overwrite`, `skip`, `create_as_new`（四类计数）
-- `migration.matrix.applied` · 对齐 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §4.3
+- `migration.matrix.applied` · 字段：`enabled_cells`, `disabled_cells`, `clients_affected`；对齐 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §4.3
 - `migration.normalizer.confirmed`
 
 ---
@@ -836,12 +842,11 @@ Toast 持久态  ──24h──>  Expired（Undo all 灰化）
 | `?`                 | 快捷键帮助浮层                                                                                        | 全部（非 textarea 焦点时） | PRD Part2A §7.7 行 384                                                                     |
 | `Cmd/Ctrl + V`      | 粘贴（textarea 默认）                                                                                 | Step 1                     | PRD Part1B §6A.6 Step 1                                                                    |
 | `1` - `4`           | 不跳步骤（禁用）；若按下 → 广播 "Use Back to return."                                                 | 全部                       | 本文 §2.3                                                                                  |
-| `A`                 | 切换当前聚焦区块的 `Apply to all`                                                                     | Step 3                     | 本文 §6.4 + `aria-keyshortcuts="A"`                                                        |
 | `↑` / `↓`           | 在 Edit 下拉选项间移动                                                                                | Step 2 / Step 3            | 本文 §5.2                                                                                  |
 | `Enter` / `Space`   | 选中 Edit 下拉当前项 / 触发 needs_review Popover                                                      | Step 2 / Step 3            | 本文 §5.7 / §6.7                                                                           |
 
 > 与 `G then D` / `G then W` 等全局导航快捷键（PRD Part2A §7.7 行 396–399）在 Wizard 内**禁用**，避免导出向导意外导航。
-> 实现归属：Wizard 的 `Enter` / `Esc` / `A` 由 app keyboard shell 的 overlay scope 统一注册；禁止在子组件里直接挂全局 `keydown` listener。
+> 实现归属：Wizard 的 `Enter` / `Esc` 由 app keyboard shell 的 overlay scope 统一注册；禁止在子组件里直接挂全局 `keydown` listener。
 
 ---
 

@@ -1,6 +1,7 @@
 import type {
   MapperFallback,
   MappingRow,
+  MatrixSelection,
   MigrationError,
   NormalizationRow,
 } from '@duedatehq/contracts'
@@ -35,6 +36,8 @@ export interface MappingJsonPayload {
   confirmedNormalizations?: NormalizationRow[]
   /** Default Matrix application result keyed by hashed (entity, state). */
   matrixApplied?: MatrixApplicationEntry[]
+  /** User selections for matrix cells; default is enabled. */
+  matrixSelections?: MatrixSelection[]
   /** Fallback channel marker for runMapper / confirmMapping outputs. */
   mapperFallback?: MapperFallback
 }
@@ -46,6 +49,8 @@ export interface MatrixApplicationEntry {
   needsReview: boolean
   confidence: number
   matrixVersion: string
+  /** False means the user opted this matrix cell out for rows missing tax_types. */
+  enabled: boolean
   /** Demo client count this entry applies to (post-normalize). */
   appliedClientCount: number
 }

@@ -8,6 +8,7 @@ import { parseTabular } from '@duedatehq/core/csv-parser'
 import { inferTaxTypes, type EntityType } from '@duedatehq/core/default-matrix'
 import type {
   MappingRow,
+  MatrixSelection,
   MigrationBatch,
   MigrationSource,
   NormalizationRow,
@@ -253,6 +254,17 @@ export function Wizard({ open, onClose }: WizardProps) {
     )
   }, [listErrorsMutation, runMapperMutation, state.batchId, t])
 
+  const matrixPreview = useMemo<MatrixApplicationView[]>(
+    () =>
+      buildMatrixPreview({
+        rawText: state.intake.rawText,
+        mappings: state.mapping.rows,
+        normalizations: state.normalize.rows,
+        applyToAll: state.normalize.applyToAll,
+      }),
+    [state.intake.rawText, state.mapping.rows, state.normalize.applyToAll, state.normalize.rows],
+  )
+
   const handleStep3Continue = useCallback(() => {
     const batchId = state.batchId
     if (!batchId) return
@@ -272,7 +284,10 @@ export function Wizard({ open, onClose }: WizardProps) {
         onError: handleError,
         onSuccess: () => {
           applyDefaultMatrixMutation.mutate(
-            { batchId },
+            {
+              batchId,
+              matrixSelections: buildMatrixSelections(matrixPreview, state.normalize.applyToAll),
+            },
             {
               onError: handleError,
               onSuccess: (summary) => {
@@ -289,7 +304,9 @@ export function Wizard({ open, onClose }: WizardProps) {
     applyDefaultMatrixMutation,
     confirmNormalizationMutation,
     listErrorsMutation,
+    matrixPreview,
     state.batchId,
+    state.normalize.applyToAll,
     state.normalize.rows,
     t,
   ])
@@ -320,8 +337,6 @@ export function Wizard({ open, onClose }: WizardProps) {
   const handleClose = useCallback(() => {
     onClose()
   }, [onClose])
-
-  const matrixPreview = useMemo<MatrixApplicationView[]>(() => buildMatrixPreview(state), [state])
 
   const sampleByHeader = useMemo(() => {
     if (!state.intake.rawText) return {}
@@ -428,37 +443,47 @@ function computeCanContinue(state: WizardState): boolean {
   return false
 }
 
-function buildMatrixPreview(wizardState: WizardState): MatrixApplicationView[] {
-  if (!wizardState.intake.rawText || wizardState.normalize.rows.length === 0) return []
+interface BuildMatrixPreviewInput {
+  rawText: string
+  mappings: readonly MappingRow[]
+  normalizations: readonly NormalizationRow[]
+  applyToAll: Readonly<Record<string, boolean>>
+}
+
+function buildMatrixPreview(input: BuildMatrixPreviewInput): MatrixApplicationView[] {
+  if (!input.rawText || input.normalizations.length === 0) return []
 
   // Re-parse the paste so we can group rows by (entity, state) pair.
   let parsed
   try {
-    parsed = parseTabular(wizardState.intake.rawText, { kind: 'paste' })
+    parsed = parseTabular(input.rawText, { kind: 'paste' })
   } catch {
     return []
   }
 
   const headerToIndex = new Map<string, number>()
   parsed.headers.forEach((h, i) => headerToIndex.set(h, i))
-  const entityHeader = wizardState.mapping.rows.find(
+  const entityHeader = input.mappings.find(
     (r) => r.targetField === 'client.entity_type',
   )?.sourceHeader
-  const stateHeader = wizardState.mapping.rows.find(
-    (r) => r.targetField === 'client.state',
-  )?.sourceHeader
+  const stateHeader = input.mappings.find((r) => r.targetField === 'client.state')?.sourceHeader
   const entityIdx = entityHeader ? headerToIndex.get(entityHeader) : undefined
   const stateIdx = stateHeader ? headerToIndex.get(stateHeader) : undefined
+  const taxHeader = input.mappings.find((r) => r.targetField === 'client.tax_types')?.sourceHeader
+  const taxIdx = taxHeader ? headerToIndex.get(taxHeader) : undefined
 
   const entityMap = new Map<string, string | null>()
   const stateMap = new Map<string, string | null>()
-  for (const r of wizardState.normalize.rows) {
+  for (const r of input.normalizations) {
     if (r.field === 'entity_type') entityMap.set(r.rawValue, r.normalizedValue)
     else if (r.field === 'state') stateMap.set(r.rawValue, r.normalizedValue)
   }
 
   const counts = new Map<string, { entity: string; state: string; count: number }>()
   for (const row of parsed.rows) {
+    const rawTaxTypes = taxIdx !== undefined ? (row[taxIdx] ?? '').trim() : ''
+    if (rawTaxTypes) continue
+
     const rawEntity = entityIdx !== undefined ? (row[entityIdx] ?? '').trim() : ''
     const rawState = stateIdx !== undefined ? (row[stateIdx] ?? '').trim() : ''
     const entity = entityMap.get(rawEntity) ?? rawEntity.toLowerCase()
@@ -481,10 +506,22 @@ function buildMatrixPreview(wizardState: WizardState): MatrixApplicationView[] {
       needsReview: result.needsReview,
       confidence: result.confidence,
       matrixVersion: result.matrixVersion,
+      enabled: input.applyToAll[`${cell.entity}::${cell.state}`] ?? true,
       appliedClientCount: cell.count,
     })
   }
   return out
+}
+
+function buildMatrixSelections(
+  matrix: readonly MatrixApplicationView[],
+  applyToAll: Readonly<Record<string, boolean>>,
+): MatrixSelection[] {
+  return matrix.map((cell) => ({
+    entityType: cell.entityType,
+    state: cell.state,
+    enabled: applyToAll[`${cell.entityType}::${cell.state}`] ?? true,
+  }))
 }
 
 function isEntityType(value: string): value is EntityType {
