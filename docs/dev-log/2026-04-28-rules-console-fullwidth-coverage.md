@@ -148,17 +148,21 @@ apps/app/src/features/rules/rules-console.tsx` — clean (formatting + lint
 | Frame                              | Node ID | 状态                                                                                               |
 | ---------------------------------- | ------- | -------------------------------------------------------------------------------------------------- |
 | Coverage tab (1/4)                 | `214:2` | 全新布局：KPI 条 + 7/12 summary + 5/12 matrix + legend，列宽 / pill 配色 / 数字字体 1:1 对齐代码   |
-| Sources tab (2/4)                  | `219:2` | 页头 + 描述 + 内容块从 `x=170` 移到 `x=24`，描述宽度 720→1080；表格内部仍 880 宽（pending v0.5.1） |
-| Rule Library tab (3/4)             | `224:2` | 同上                                                                                               |
-| Generation Preview tab (4/4)       | `225:2` | 同上                                                                                               |
-| Rule Library + Detail drawer (5/4) | `256:2` | 同上；右侧 drawer overlay 维持原位（其本身宽度独立于页面布局）                                     |
+| Sources tab (2/4)                  | `219:2` | 页头 / 描述 / filter chips / 表格全部 1172；SOURCE 列自动撑大到 ~764，其余 6 列右移 292 紧贴右边缘 |
+| Rule Library tab (3/4)             | `224:2` | 同上：RULE ID 列撑大到 ~600，ENTITY / TIER / STATUS / chevron 右移                                 |
+| Generation Preview tab (4/4)       | `225:2` | 表单 SectionFrame + TAX TYPES 区 + 结果 card 全部 1172；结果行 source link 右移到紧贴右边缘        |
+| Rule Library + Detail drawer (5/4) | `256:2` | 后景 library 表与 (3/4) 同步；drawer overlay 位置不变（开启时遮住表格右半部分，与代码行为一致）    |
 
 变量绑定全部走文件已有的 `surface/canvas` / `border/default` / `border/subtle` / `surface/subtle` / `text/primary` / `text/secondary` / `text/muted` / `status/done` / `status/review` / `accent/tint` / `severity/medium` / `severity/medium-tint` 这套 design token，没有引入新 hex。
 
 ## Out of Scope (next)
 
-- Sources / Rule Library / Generation Preview 三个 tab 内部表格 / 表单按全宽基准重做
-  （Sources 的 `table-fixed` + compact 字典可以一并撤回；Rule Library RULE ID 列可以收紧让 ENTITY / TIER 列拿回呼吸感；Generation Preview 表单 + 结果可考虑左右并置）。配套需要回填 Figma 后续帧的内部内容。
+Figma 已和当前代码 1:1 对齐——但代码本身的列宽 / 表单分配仍按"880 时代"调的，在 1172 容器下出现了一些不健康的分配，下一轮**代码侧重做**：
+
+- **Sources tab**：撤掉 `table-fixed` + `compactAcquisitionMethod` / `compactSourceType` 字典，让 SOURCE 列不再独吞 ~65% 宽度；TYPE / METHOD / CADENCE 拿回呼吸感。
+- **Rule Library tab**：RULE ID 列收紧（rule id 自身才 ~22 字符，~600 px 是浪费），ENTITY 列扩出来容纳长 entity list（如 `partnership, llc, individual`），TIER pill 也可以变宽显示完整文案。
+- **Generation Preview tab**：表单和结果 card 可考虑左右并置（Stripe Dashboard "input → output" 模式），避免现在表单后右侧大量留白。
+- 上述代码改完后回 Figma 再做一次同步。
 - Members / Profile（仍走 880px form 列）的实际页面，等 P1 落地时再确认布局走向。
 
 ## References
