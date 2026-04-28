@@ -10,6 +10,7 @@ import { ObligationStatusSchema } from './shared/enums'
 import { ClientSchema } from './shared/client'
 import { WorkboardListInputSchema, WorkboardSortSchema, workboardContract } from './workboard'
 import { MigrationErrorStageSchema, migrationContract } from './migration'
+import { EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 import {
   ObligationRuleSchema,
   ObligationGenerationPreviewSchema,
@@ -102,6 +103,10 @@ describe('@duedatehq/contracts', () => {
     expect(Object.keys(migrationContract)).toEqual(
       expect.arrayContaining(['runMapper', 'applyDefaultMatrix', 'listErrors']),
     )
+  })
+
+  it('allows verified rule evidence for generated obligations', () => {
+    expect(EvidenceSourceTypeSchema.parse('verified_rule')).toBe('verified_rule')
   })
 
   it('freezes rules read contracts', () => {

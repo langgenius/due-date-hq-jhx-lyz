@@ -9,11 +9,10 @@ interface Step4Props {
 }
 
 /**
- * Step 4 Dry-Run preview — preview-only per [02-ux §7].
+ * Step 4 Dry-Run preview per [02-ux §7].
  *
- * The Import CTA is disabled and rendered in the WizardShell footer; here
- * we only own the preview body (counts + Safety three-liner). Day 4 swaps
- * the disabled state and wires `migration.apply` + Live Genesis.
+ * The Import CTA is rendered in the WizardShell footer; this body owns the
+ * counts, skipped-row visibility, and safety checks before `migration.apply`.
  */
 export function Step4Preview({ summary }: Step4Props) {
   const clientCount = summary?.clientsToCreate ?? 0
@@ -66,7 +65,7 @@ export function Step4Preview({ summary }: Step4Props) {
         <ul className="flex flex-col gap-1.5 text-md text-text-primary">
           <li className="flex items-center gap-2">
             <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
-            <Trans>One-click revert available for 24 hours</Trans>
+            <Trans>Batch rollback trace retained for 24 hours</Trans>
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
@@ -82,13 +81,13 @@ export function Step4Preview({ summary }: Step4Props) {
       <Alert role="status" aria-live="polite">
         <AlertTitle className="flex items-center gap-2">
           <ShieldCheckIcon className="size-4" aria-hidden />
-          <Trans>Preview only — commit lands in Day 4</Trans>
+          <Trans>Ready to generate your deadline queue</Trans>
         </AlertTitle>
         <AlertDescription>
           <Trans>
-            The numbers above are computed from your confirmed mappings + Default Matrix. The actual
-            Import &amp; Generate step is wired up next; for now you can review, then close the
-            wizard to keep the draft for later.
+            The numbers above are computed from your confirmed mappings, Default Matrix, and
+            verified rules. Import &amp; Generate will create clients, deadlines, evidence, and
+            audit records.
           </Trans>
         </AlertDescription>
       </Alert>

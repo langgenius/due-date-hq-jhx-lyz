@@ -39,6 +39,12 @@ msgstr "{0, plural, other {# 行已准备就绪可以导入}}"
 msgid "{0, plural, one {We imported the first 1000 of # row. Split your file to import more.} other {We imported the first 1000 of # rows. Split your file to import more.}}"
 msgstr "{0, plural, other {共 # 行，我们仅读取了前 1000 行。请拆分文件后再次导入。}}"
 
+#. placeholder {0}: result.clientCount
+#. placeholder {1}: result.obligationCount
+#: src/features/migration/Wizard.tsx
+msgid "{0} clients · {1} obligations"
+msgstr "{0} 个客户 · {1} 条截止日"
+
 #. placeholder {0}: stats.fullyCovered
 #. placeholder {1}: stats.jurisdictions - stats.fullyCovered
 #: src/features/rules/coverage-tab.tsx
@@ -215,6 +221,10 @@ msgstr "返回"
 msgid "Basic"
 msgstr "基础"
 
+#: src/features/migration/Step4Preview.tsx
+msgid "Batch rollback trace retained for 24 hours"
+msgstr "保留 24 小时批次回滚追踪"
+
 #: src/routes/dashboard.tsx
 msgid "Blocked"
 msgstr "已阻塞"
@@ -324,6 +334,10 @@ msgstr "无法运行生成预览。"
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't apply Default Matrix"
 msgstr "应用默认税种矩阵失败"
+
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't import clients"
+msgstr "导入客户失败"
 
 #: src/routes/workboard.tsx
 msgid "Couldn't load the queue."
@@ -565,8 +579,8 @@ msgid "Import"
 msgstr "导入"
 
 #: src/features/migration/Wizard.tsx
-msgid "Import & Generate (Day 4)"
-msgstr "导入并生成（第 4 天上线）"
+msgid "Import & Generate"
+msgstr "导入并生成"
 
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
@@ -576,6 +590,10 @@ msgstr "导入客户"
 #: src/features/migration/WizardShell.tsx
 msgid "Import clients · Step {step} of 4"
 msgstr "导入客户 · 第 {step} 步 / 共 4 步"
+
+#: src/features/migration/Wizard.tsx
+msgid "Import complete"
+msgstr "导入完成"
 
 #: src/routes/workboard.tsx
 msgid "In progress"
@@ -817,10 +835,6 @@ msgstr "正在监听的官方渠道"
 msgid "One row lacks a usable source URL."
 msgstr "有一行缺少可用的来源 URL。"
 
-#: src/features/migration/Step4Preview.tsx
-msgid "One-click revert available for 24 hours"
-msgstr "24 小时内可一键撤销"
-
 #: src/features/migration/Step2Mapping.tsx
 msgid "Open"
 msgstr "展开"
@@ -943,10 +957,6 @@ msgstr "事务所名称"
 msgid "PRACTICE PROFILE"
 msgstr "事务所资料"
 
-#: src/features/migration/Step4Preview.tsx
-msgid "Preview only — commit lands in Day 4"
-msgstr "仅预览 —— 提交将在第 4 天上线"
-
 #: src/components/patterns/app-shell.tsx
 msgid "Primary navigation"
 msgstr "主导航"
@@ -978,6 +988,10 @@ msgstr "重新运行失败。"
 #: src/features/rules/rules-console-primitives.tsx
 msgid "READ-ONLY"
 msgstr "只读"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Ready to generate your deadline queue"
+msgstr "准备生成你的截止日队列"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Ready to import"
@@ -1316,8 +1330,8 @@ msgid "That resource belongs to a different practice."
 msgstr "该资源属于其他事务所。"
 
 #: src/features/migration/Step4Preview.tsx
-msgid "The numbers above are computed from your confirmed mappings + Default Matrix. The actual Import & Generate step is wired up next; for now you can review, then close the wizard to keep the draft for later."
-msgstr "以上数字根据你确认的字段映射 + 默认矩阵计算得出。真正的「导入并生成」将在下一阶段上线；当前你可以审阅，关闭向导后草稿会保留供稍后继续。"
+msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
+msgstr "以上数字根据你确认的字段映射、默认税种矩阵和已验证规则计算。导入并生成会创建客户、截止日、证据和审计记录。"
 
 #: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."

@@ -54,6 +54,8 @@ function buildScopedRepo(firmId: string) {
   const batches = new Map<string, MigrationBatchRow>()
   const audits: Array<{ action: string; firmId: string; entityId: string }> = []
   const evidences: Array<{ sourceType: string; firmId: string }> = []
+  const importedClients: unknown[] = []
+  const importedObligations: unknown[] = []
   const mappings: Array<{ batchId: string; sourceHeader: string; targetField: string }> = []
   const normalizations: Array<{ batchId: string; field: string; rawValue: string }> = []
   const errors: Array<{
@@ -211,6 +213,27 @@ function buildScopedRepo(firmId: string) {
     async listByFirm() {
       return Array.from(batches.values()).filter((b) => b.firmId === firmId)
     },
+    async commitImport(input) {
+      const b = batches.get(input.batchId)
+      if (!b || b.firmId !== firmId) throw new Error('cross firm')
+      importedClients.push(...input.clients)
+      importedObligations.push(...input.obligations)
+      for (const item of input.evidence) {
+        evidences.push({ sourceType: item.sourceType, firmId })
+      }
+      for (const item of input.audits) {
+        audits.push({ action: item.action, firmId, entityId: item.entityId })
+      }
+      batches.set(input.batchId, {
+        ...b,
+        status: 'applied',
+        successCount: input.successCount,
+        skippedCount: input.skippedCount,
+        appliedAt: input.appliedAt,
+        revertExpiresAt: input.revertExpiresAt,
+        updatedAt: new Date(),
+      })
+    },
   }
 
   const evidence: ScopedRepo['evidence'] = {
@@ -270,7 +293,16 @@ function buildScopedRepo(firmId: string) {
   }
 
   return {
-    state: { batches, audits, evidences, mappings, normalizations, errors },
+    state: {
+      batches,
+      audits,
+      evidences,
+      mappings,
+      normalizations,
+      errors,
+      importedClients,
+      importedObligations,
+    },
     repo,
   }
 }
@@ -480,6 +512,81 @@ describe('MigrationService.dryRun with Default Matrix', () => {
     const summary = await service.dryRun(batch.id)
     expect(summary.clientsToCreate).toBe(2)
     expect(summary.obligationsToCreate).toBeGreaterThan(0)
+  })
+})
+
+describe('MigrationService.apply', () => {
+  it('commits clients, obligations, verified rule evidence, audits, and batch status', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({
+      batchId: batch.id,
+      kind: 'paste',
+      text: SAMPLE_CSV,
+    })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+    await service.applyDefaultMatrix(batch.id)
+
+    const result = await service.apply(batch.id)
+    const appliedBatch = state.batches.get(batch.id)
+
+    expect(result.clientCount).toBe(3)
+    expect(result.obligationCount).toBeGreaterThan(0)
+    expect(state.importedClients).toHaveLength(3)
+    expect(state.importedObligations.length).toBeGreaterThan(0)
+    expect(state.evidences.some((item) => item.sourceType === 'verified_rule')).toBe(true)
+    expect(state.audits.some((item) => item.action === 'migration.imported')).toBe(true)
+    expect(appliedBatch?.status).toBe('applied')
+    expect(appliedBatch?.successCount).toBe(3)
+  })
+
+  it('skips empty-name rows without blocking valid rows', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({
+      batchId: batch.id,
+      kind: 'paste',
+      text: `Client Name,Tax ID,State,Entity Type,Email
+Acme LLC,12-3456789,CA,LLC,acme@example.com
+,98-7654321,NY,S-Corp,blank@example.com`,
+    })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+    await service.applyDefaultMatrix(batch.id)
+
+    const result = await service.apply(batch.id)
+
+    expect(result.clientCount).toBe(1)
+    expect(result.skippedCount).toBe(1)
+    expect(state.importedClients).toHaveLength(1)
+  })
+
+  it('rejects re-applying an already applied batch', async () => {
+    const { repo } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+    await service.applyDefaultMatrix(batch.id)
+    await service.apply(batch.id)
+
+    await expect(service.apply(batch.id)).rejects.toMatchObject({ code: 'CONFLICT' })
   })
 })
 

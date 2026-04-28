@@ -1,5 +1,8 @@
 import { and, desc, eq } from 'drizzle-orm'
+import type { BatchItem } from 'drizzle-orm/batch'
 import type { Db } from '../client'
+import { auditEvent, evidenceLink, type NewAuditEvent, type NewEvidenceLink } from '../schema/audit'
+import { client, type NewClient } from '../schema/clients'
 import {
   migrationBatch,
   migrationError,
@@ -15,6 +18,7 @@ import {
   type NewMigrationMapping,
   type NewMigrationNormalization,
 } from '../schema/migration'
+import { obligationInstance, type NewObligationInstance } from '../schema/obligations'
 
 // migration_batch has 17 columns → 5/batch.
 const BATCH_COLS = 17
@@ -26,6 +30,14 @@ const MAPPING_BATCH_SIZE = Math.floor(100 / MAPPING_COLS) // = 11
 const NORM_BATCH_SIZE = Math.floor(100 / 9) // = 11
 // migration_error has 7 columns → 14/batch.
 const ERROR_BATCH_SIZE = Math.floor(100 / 7) // = 14
+// client has 14 columns → 7/batch.
+const CLIENT_BATCH_SIZE = Math.floor(100 / 14)
+// obligation_instance has 11 columns → 9/batch.
+const OBLIGATION_BATCH_SIZE = Math.floor(100 / 11)
+// evidence_link has 17 columns → 5/batch.
+const EVIDENCE_BATCH_SIZE = Math.floor(100 / 17)
+// audit_event has 12 columns → 8/batch.
+const AUDIT_BATCH_SIZE = Math.floor(100 / 12)
 
 export interface CreateBatchInput {
   id?: string
@@ -47,6 +59,18 @@ export interface UpdateBatchPatch {
   appliedAt?: Date
   revertExpiresAt?: Date
   revertedAt?: Date
+}
+
+export interface CommitImportInput {
+  batchId: string
+  clients: NewClient[]
+  obligations: NewObligationInstance[]
+  evidence: NewEvidenceLink[]
+  audits: NewAuditEvent[]
+  successCount: number
+  skippedCount: number
+  appliedAt: Date
+  revertExpiresAt: Date
 }
 
 export function makeMigrationRepo(db: Db, firmId: string) {
@@ -206,7 +230,63 @@ export function makeMigrationRepo(db: Db, firmId: string) {
       await Promise.all(writes)
       return rows.length
     },
+
+    async commitImport(input: CommitImportInput): Promise<void> {
+      await assertBatchInFirm(input.batchId)
+      const queries: BatchItem<'sqlite'>[] = []
+
+      for (let i = 0; i < input.clients.length; i += CLIENT_BATCH_SIZE) {
+        queries.push(db.insert(client).values(input.clients.slice(i, i + CLIENT_BATCH_SIZE)))
+      }
+
+      for (let i = 0; i < input.obligations.length; i += OBLIGATION_BATCH_SIZE) {
+        queries.push(
+          db
+            .insert(obligationInstance)
+            .values(input.obligations.slice(i, i + OBLIGATION_BATCH_SIZE)),
+        )
+      }
+
+      for (let i = 0; i < input.evidence.length; i += EVIDENCE_BATCH_SIZE) {
+        queries.push(
+          db.insert(evidenceLink).values(input.evidence.slice(i, i + EVIDENCE_BATCH_SIZE)),
+        )
+      }
+
+      for (let i = 0; i < input.audits.length; i += AUDIT_BATCH_SIZE) {
+        queries.push(db.insert(auditEvent).values(input.audits.slice(i, i + AUDIT_BATCH_SIZE)))
+      }
+
+      queries.push(
+        db
+          .update(migrationBatch)
+          .set({
+            status: 'applied',
+            successCount: input.successCount,
+            skippedCount: input.skippedCount,
+            appliedAt: input.appliedAt,
+            revertExpiresAt: input.revertExpiresAt,
+          })
+          .where(
+            and(
+              eq(migrationBatch.firmId, firmId),
+              eq(migrationBatch.id, input.batchId),
+              eq(migrationBatch.status, 'reviewing'),
+            ),
+          ),
+      )
+
+      await db.batch(toNonEmptyBatch(queries))
+    },
   }
+}
+
+function toNonEmptyBatch<T>(items: T[]): [T, ...T[]] {
+  const [first, ...rest] = items
+  if (first === undefined) {
+    throw new Error('Expected at least one D1 batch statement')
+  }
+  return [first, ...rest]
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

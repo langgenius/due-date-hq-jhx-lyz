@@ -170,6 +170,7 @@ export const EVIDENCE_SOURCE_TYPES = [
   'migration_revert',
   'ai_mapper',
   'ai_normalizer',
+  'verified_rule',
   'user_override',
 ] as const
 export type EvidenceSourceType = (typeof EVIDENCE_SOURCE_TYPES)[number]

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import { parseTabular } from '@duedatehq/core/csv-parser'
@@ -45,6 +46,7 @@ interface WizardProps {
  */
 export function Wizard({ open, onClose }: WizardProps) {
   const { t } = useLingui()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [state, dispatch] = useReducer(wizardReducer, INITIAL_STATE)
 
@@ -100,6 +102,14 @@ export function Wizard({ open, onClose }: WizardProps) {
   const applyDefaultMatrixMutation = useMutation(
     orpc.migration.applyDefaultMatrix.mutationOptions({
       onSuccess: invalidateMigration,
+    }),
+  )
+  const applyMutation = useMutation(
+    orpc.migration.apply.mutationOptions({
+      onSuccess: () => {
+        invalidateMigration()
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+      },
     }),
   )
   const listErrorsMutation = useMutation(
@@ -283,6 +293,29 @@ export function Wizard({ open, onClose }: WizardProps) {
     t,
   ])
 
+  const handleStep4Apply = useCallback(() => {
+    const batchId = state.batchId
+    if (!batchId) return
+
+    applyMutation.mutate(
+      { batchId },
+      {
+        onError: (err) => {
+          toast.error(t`Couldn't import clients`, {
+            description: rpcErrorMessage(err) ?? t`Please try again.`,
+          })
+        },
+        onSuccess: (result) => {
+          toast.success(t`Import complete`, {
+            description: t`${result.clientCount} clients · ${result.obligationCount} obligations`,
+          })
+          onClose()
+          void navigate('/dashboard')
+        },
+      },
+    )
+  }, [applyMutation, navigate, onClose, state.batchId, t])
+
   const handleClose = useCallback(() => {
     onClose()
   }, [onClose])
@@ -306,7 +339,7 @@ export function Wizard({ open, onClose }: WizardProps) {
 
   const continueLabel = useMemo(() => {
     if (state.step !== 4) return undefined
-    return <Trans>Import &amp; Generate (Day 4)</Trans>
+    return <Trans>Import &amp; Generate</Trans>
   }, [state.step])
 
   const canContinue = computeCanContinue(state)
@@ -317,7 +350,7 @@ export function Wizard({ open, onClose }: WizardProps) {
         ? handleStep2Continue
         : state.step === 3
           ? handleStep3Continue
-          : () => {}
+          : handleStep4Apply
   const onBack =
     state.step > 1 ? () => dispatch({ type: 'GO_TO_STEP', step: prevStep(state.step) }) : undefined
   const isMutating =
@@ -327,14 +360,15 @@ export function Wizard({ open, onClose }: WizardProps) {
     confirmMappingMutation.isPending ||
     runNormalizerMutation.isPending ||
     confirmNormalizationMutation.isPending ||
-    applyDefaultMatrixMutation.isPending
+    applyDefaultMatrixMutation.isPending ||
+    applyMutation.isPending
 
   return (
     <WizardShell
       open={open}
       step={state.step}
       busy={isMutating || state.isBusy}
-      canContinue={canContinue && state.step !== 4}
+      canContinue={canContinue}
       continueLabel={continueLabel}
       onContinue={onContinue}
       onBack={onBack}
@@ -389,6 +423,9 @@ function computeCanContinue(state: WizardState): boolean {
     return state.normalize.rows.every(
       (r) => r.normalizedValue !== null && r.normalizedValue.length > 0,
     )
+  }
+  if (state.step === 4) {
+    return state.dryRun.summary !== null && state.dryRun.summary.clientsToCreate > 0
   }
   return false
 }

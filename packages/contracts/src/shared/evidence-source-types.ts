@@ -5,6 +5,7 @@ export const EvidenceSourceTypes = [
   'migration_revert',
   'ai_mapper',
   'ai_normalizer',
+  'verified_rule',
   'user_override',
 ] as const
 

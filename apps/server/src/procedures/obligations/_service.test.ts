@@ -161,6 +161,9 @@ function buildScoped(firmId: string, rows: Row[]) {
     async createErrors() {
       return 0
     },
+    async commitImport() {
+      return unused('migration.commitImport')
+    },
   } satisfies ScopedRepo['migration']
 
   const evidence: ScopedRepo['evidence'] = {

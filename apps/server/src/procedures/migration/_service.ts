@@ -9,6 +9,14 @@ import {
 import { parseTabular, type ParsedTabular, type TabularKind } from '@duedatehq/core/csv-parser'
 import { normalizeEntityType, normalizeState } from '@duedatehq/core/normalize-dict'
 import {
+  findRuleById,
+  listRuleSources,
+  previewObligationsFromRules,
+  type ObligationGenerationPreview,
+  type RuleGenerationState,
+} from '@duedatehq/core/rules'
+import { validateEin } from '@duedatehq/core/pii'
+import {
   DryRunSummarySchema,
   MappingRowSchema,
   NormalizationRowSchema,
@@ -16,6 +24,7 @@ import {
   type MapperFallback,
   type MapperRunOutput,
   type MappingRow,
+  type MappingTarget,
   type MigrationBatch,
   type MigrationError,
   type MigrationSource,
@@ -35,7 +44,7 @@ import { sanitizeMapperOutput, validateNormalizedRows, validateRows } from './_d
 import type { DeterministicError, MappingJsonPayload, MatrixApplicationEntry } from './_types'
 
 /**
- * MigrationService — orchestrates Migration Copilot Steps 1-3.
+ * MigrationService — orchestrates Migration Copilot's 4-step import flow.
  *
  * Authority:
  *   - docs/dev-file/10-Demo-Sprint-7Day-Rhythm.md §3 Day 3
@@ -50,13 +59,13 @@ import type { DeterministicError, MappingJsonPayload, MatrixApplicationEntry } f
  * What the service owns:
  *   - createBatch / uploadRaw / runMapper / confirmMapping / runNormalizer /
  *     confirmNormalization / applyDefaultMatrix / dryRun / getBatch
+ *   - apply (real client + obligation + evidence + audit insert)
  *   - Persisting `mapping_json` (the user-confirmed payload Step 4 reads)
  *   - Writing per-decision evidence_link rows (ai_mapper / ai_normalizer /
  *     default_inference_by_entity_state)
  *   - Writing audit rows for every confirmation step
  *
- * What the service does NOT own (Day 4 / LYZ workboard):
- *   - migration.apply (real client + obligation insert)
+ * What the service does NOT own yet:
  *   - migration.revert / singleUndo
  *   - obligations.updateDueDate
  */
@@ -111,6 +120,12 @@ const TaxTypesNormalizerSchema = z.record(
     reasoning: z.string().optional(),
   }),
 )
+
+type CommitImportInput = Parameters<ScopedRepo['migration']['commitImport']>[0]
+type CommitClient = CommitImportInput['clients'][number]
+type CommitObligation = CommitImportInput['obligations'][number]
+type CommitEvidence = CommitImportInput['evidence'][number]
+type CommitAudit = CommitImportInput['audits'][number]
 
 export interface MigrationDeps {
   scoped: ScopedRepo
@@ -493,13 +508,58 @@ export class MigrationService {
   }
 
   // ---------------------------------------------------------------------
-  // Step 4 — Dry-Run preview (read-only; commit lands Day 4)
+  // Step 4 — Dry-Run preview and apply
   // ---------------------------------------------------------------------
 
   async dryRun(batchId: string): Promise<DryRunSummary> {
     const batch = await this.requireBatch(batchId)
     const payload = (batch.mappingJson ?? {}) as MappingJsonPayload
     return this.composeDryRun(batchId, payload)
+  }
+
+  async apply(batchId: string): Promise<{
+    batchId: string
+    clientCount: number
+    obligationCount: number
+    skippedCount: number
+    revertibleUntil: string
+  }> {
+    const batch = await this.requireBatch(batchId)
+    if (batch.status === 'applied') {
+      throw new ORPCError('CONFLICT', { message: 'This import has already been applied.' })
+    }
+    if (batch.status === 'reverted') {
+      throw new ORPCError('CONFLICT', { message: 'This import has already been reverted.' })
+    }
+    if (batch.status !== 'reviewing') {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'Confirm mapping and normalization before importing.',
+      })
+    }
+
+    const payload = (batch.mappingJson ?? {}) as MappingJsonPayload
+    const plan = buildCommitPlan({
+      batchId,
+      firmId: this.deps.scoped.firmId,
+      userId: this.deps.userId,
+      payload,
+    })
+
+    if (plan.clients.length === 0) {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'No valid client rows are ready to import.',
+      })
+    }
+
+    await this.deps.scoped.migration.commitImport(plan)
+
+    return {
+      batchId,
+      clientCount: plan.clients.length,
+      obligationCount: plan.obligations.length,
+      skippedCount: plan.skippedCount,
+      revertibleUntil: plan.revertExpiresAt.toISOString(),
+    }
   }
 
   async getBatch(batchId: string): Promise<MigrationBatch | null> {
@@ -844,6 +904,305 @@ function estimateObligationCount(payload: MappingJsonPayload, clientCount: numbe
     return clientCount * 2
   }
   return payload.matrixApplied.reduce((sum, e) => sum + e.taxTypes.length * e.appliedClientCount, 0)
+}
+
+interface BuildCommitPlanInput {
+  batchId: string
+  firmId: string
+  userId: string
+  payload: MappingJsonPayload
+}
+
+function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
+  const { batchId, firmId, userId, payload } = input
+  if (!payload.rawInput || !payload.confirmedMappings) {
+    throw new ORPCError('BAD_REQUEST', {
+      message: 'Import payload is missing confirmed mappings.',
+    })
+  }
+
+  const appliedAt = new Date()
+  const revertExpiresAt = new Date(appliedAt.getTime() + 24 * 60 * 60 * 1000)
+  const normalizations = payload.confirmedNormalizations ?? []
+  const matrixByCell = new Map<string, MatrixApplicationEntry>()
+  for (const cell of payload.matrixApplied ?? []) {
+    matrixByCell.set(`${cell.entityType}::${cell.state}`, cell)
+  }
+
+  const clients: CommitClient[] = []
+  const obligations: CommitObligation[] = []
+  const evidence: CommitEvidence[] = []
+  const sourceById = new Map(listRuleSources().map((source) => [source.id, source]))
+
+  const skippedRows = new Set<number>()
+  const rowErrors = validateRows(
+    payload.rawInput.headers,
+    payload.rawInput.rows,
+    payload.confirmedMappings,
+  )
+  for (const error of rowErrors) {
+    if (error.errorCode === 'EMPTY_NAME') skippedRows.add(error.rowIndex)
+  }
+
+  for (const [rowIndex, row] of payload.rawInput.rows.entries()) {
+    if (skippedRows.has(rowIndex)) continue
+
+    const facts = rowToClientFacts({
+      headers: payload.rawInput.headers,
+      row,
+      mappings: payload.confirmedMappings,
+      normalizations,
+      matrixByCell,
+    })
+    if (!facts.name) {
+      skippedRows.add(rowIndex)
+      continue
+    }
+
+    const clientId = crypto.randomUUID()
+    const clientRow: CommitClient = {
+      id: clientId,
+      firmId,
+      name: facts.name,
+      ein: facts.ein,
+      state: facts.state,
+      county: facts.county,
+      entityType: facts.entityType,
+      email: facts.email,
+      notes: facts.notes,
+      assigneeName: facts.assigneeName,
+      migrationBatchId: batchId,
+    }
+    clients.push(clientRow)
+
+    if (!isRuleGenerationState(facts.state) || facts.taxTypes.length === 0) continue
+
+    const previews = previewObligationsFromRules({
+      client: {
+        id: clientId,
+        entityType: facts.entityType,
+        state: facts.state,
+        taxTypes: facts.taxTypes,
+        taxYearStart: '2026-01-01',
+        taxYearEnd: '2025-12-31',
+      },
+    })
+
+    for (const preview of uniqueConcretePreviews(previews)) {
+      const obligationId = crypto.randomUUID()
+      const dueDate = new Date(`${preview.dueDate}T00:00:00.000Z`)
+      obligations.push({
+        id: obligationId,
+        firmId,
+        clientId,
+        taxType: preview.taxType,
+        taxYear: findRuleById(preview.ruleId)?.taxYear ?? 2026,
+        baseDueDate: dueDate,
+        currentDueDate: dueDate,
+        status: preview.requiresReview ? 'review' : 'pending',
+        migrationBatchId: batchId,
+      })
+
+      const primaryEvidence = preview.evidence[0]
+      const sourceId = primaryEvidence?.sourceId ?? preview.sourceIds[0] ?? preview.ruleId
+      const source = sourceById.get(sourceId)
+      evidence.push({
+        id: crypto.randomUUID(),
+        firmId,
+        obligationInstanceId: obligationId,
+        aiOutputId: null,
+        sourceType: 'verified_rule',
+        sourceId: preview.ruleId,
+        sourceUrl: source?.url ?? null,
+        verbatimQuote: primaryEvidence?.sourceExcerpt ?? null,
+        rawValue: preview.matchedTaxType,
+        normalizedValue: preview.taxType,
+        confidence: preview.reminderReady ? 1 : 0.7,
+        model: null,
+        matrixVersion: null,
+        verifiedAt: null,
+        verifiedBy: null,
+        appliedAt,
+        appliedBy: userId,
+      })
+    }
+  }
+
+  const audits: CommitAudit[] = [
+    {
+      id: crypto.randomUUID(),
+      firmId,
+      actorId: userId,
+      entityType: 'migration_batch',
+      entityId: batchId,
+      action: 'migration.imported',
+      beforeJson: { status: 'reviewing' },
+      afterJson: {
+        clientCount: clients.length,
+        obligationCount: obligations.length,
+        skippedCount: skippedRows.size,
+      },
+      reason: null,
+      ipHash: null,
+      userAgentHash: null,
+    },
+    {
+      id: crypto.randomUUID(),
+      firmId,
+      actorId: userId,
+      entityType: 'client_batch',
+      entityId: clients[0]?.id ?? batchId,
+      action: 'client.batch_created',
+      beforeJson: null,
+      afterJson: { count: clients.length, migrationBatchId: batchId },
+      reason: null,
+      ipHash: null,
+      userAgentHash: null,
+    },
+    {
+      id: crypto.randomUUID(),
+      firmId,
+      actorId: userId,
+      entityType: 'obligation_batch',
+      entityId: obligations[0]?.id ?? batchId,
+      action: 'obligation.batch_created',
+      beforeJson: null,
+      afterJson: { count: obligations.length, migrationBatchId: batchId },
+      reason: null,
+      ipHash: null,
+      userAgentHash: null,
+    },
+  ]
+
+  return {
+    batchId,
+    clients,
+    obligations,
+    evidence,
+    audits,
+    successCount: clients.length,
+    skippedCount: skippedRows.size,
+    appliedAt,
+    revertExpiresAt,
+  }
+}
+
+interface RowToClientFactsInput {
+  headers: readonly string[]
+  row: readonly string[]
+  mappings: readonly MappingRow[]
+  normalizations: readonly NormalizationRow[]
+  matrixByCell: ReadonlyMap<string, MatrixApplicationEntry>
+}
+
+interface ClientImportFacts {
+  name: string | null
+  ein: string | null
+  state: string | null
+  county: string | null
+  entityType: EntityType
+  email: string | null
+  notes: string | null
+  assigneeName: string | null
+  taxTypes: string[]
+}
+
+function rowToClientFacts(input: RowToClientFactsInput): ClientImportFacts {
+  const name = readMappedValue(input, 'client.name')
+  const rawEin = readMappedValue(input, 'client.ein')
+  const rawState = readMappedValue(input, 'client.state')
+  const rawEntity = readMappedValue(input, 'client.entity_type')
+  const rawTaxTypes = readMappedValue(input, 'client.tax_types')
+  const state = normalizeMappedValue(input.normalizations, 'state', rawState)
+  const entity = normalizeMappedValue(input.normalizations, 'entity_type', rawEntity)
+  const entityCandidate = entity ?? ''
+  const entityType: EntityType = isEntityType(entityCandidate) ? entityCandidate : 'other'
+  const taxTypes = normalizeTaxTypes(input.normalizations, rawTaxTypes)
+
+  if (taxTypes.length === 0 && state) {
+    const matrix = input.matrixByCell.get(`${entityType}::${state}`)
+    if (matrix) taxTypes.push(...matrix.taxTypes)
+    else taxTypes.push(...inferTaxTypes(entityType, state).taxTypes)
+  }
+
+  return {
+    name,
+    ein: rawEin && validateEin(rawEin) ? rawEin : null,
+    state: state && /^[A-Z]{2}$/.test(state) ? state : null,
+    county: readMappedValue(input, 'client.county'),
+    entityType,
+    email: normalizeEmail(readMappedValue(input, 'client.email')),
+    notes: readMappedValue(input, 'client.notes'),
+    assigneeName: readMappedValue(input, 'client.assignee_name'),
+    taxTypes: Array.from(new Set(taxTypes.filter((value) => value.length > 0))),
+  }
+}
+
+function readMappedValue(input: RowToClientFactsInput, target: MappingTarget): string | null {
+  const mapping = input.mappings.find((item) => item.targetField === target)
+  if (!mapping) return null
+  const index = input.headers.findIndex((header) => header === mapping.sourceHeader)
+  if (index < 0) return null
+  const value = input.row[index]?.trim()
+  return value ? value : null
+}
+
+function normalizeMappedValue(
+  normalizations: readonly NormalizationRow[],
+  field: string,
+  raw: string | null,
+): string | null {
+  if (!raw) return null
+  const hit = normalizations.find((item) => item.field === field && item.rawValue === raw)
+  return hit?.normalizedValue ?? raw
+}
+
+function normalizeTaxTypes(
+  normalizations: readonly NormalizationRow[],
+  raw: string | null,
+): string[] {
+  if (!raw) return []
+  const hit = normalizations.find((item) => item.field === 'tax_types' && item.rawValue === raw)
+  const normalized = hit?.normalizedValue
+  if (normalized) {
+    try {
+      const parsed = JSON.parse(normalized)
+      if (Array.isArray(parsed)) {
+        return parsed.filter((item): item is string => typeof item === 'string')
+      }
+    } catch {
+      return [normalized]
+    }
+    return [normalized]
+  }
+  return raw
+    .split(/[;,|]/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function normalizeEmail(value: string | null): string | null {
+  if (!value) return null
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : null
+}
+
+function isRuleGenerationState(value: string | null): value is RuleGenerationState {
+  return value === 'CA' || value === 'NY' || value === 'TX' || value === 'FL' || value === 'WA'
+}
+
+function uniqueConcretePreviews(
+  previews: readonly ObligationGenerationPreview[],
+): ObligationGenerationPreview[] {
+  const out: ObligationGenerationPreview[] = []
+  const seen = new Set<string>()
+  for (const preview of previews) {
+    if (!preview.dueDate) continue
+    const key = `${preview.ruleId}::${preview.period}::${preview.dueDate}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push(preview)
+  }
+  return out
 }
 
 function computeMatrixApplication(payload: MappingJsonPayload): MatrixApplicationEntry[] {

@@ -7,13 +7,9 @@ import { MigrationService } from './_service'
 /**
  * migration.* — Demo Sprint subset of the Migration Copilot contract.
  *
- * Day 3 (this commit): createBatch / uploadRaw / runMapper / confirmMapping /
+ * Current DDL cut: createBatch / uploadRaw / runMapper / confirmMapping /
  * runNormalizer / confirmNormalization / applyDefaultMatrix / dryRun /
- * getBatch.
- *
- * Day 4 (deferred to feat/migration/step4-commit): apply / revert /
- * singleUndo. They stay as `notImplemented` here and the wizard's Step 4
- * CTA is disabled accordingly.
+ * apply / getBatch / listErrors. Revert and singleUndo remain deferred.
  */
 
 function buildService(ctx: RpcContext): MigrationService {
@@ -84,6 +80,11 @@ const dryRun = os.migration.dryRun.handler(async ({ input, context }) => {
   return service.dryRun(input.batchId)
 })
 
+const apply = os.migration.apply.handler(async ({ input, context }) => {
+  const service = buildService(context)
+  return service.apply(input.batchId)
+})
+
 const getBatch = os.migration.getBatch.handler(async ({ input, context }) => {
   const service = buildService(context)
   return service.getBatch(input.batchId)
@@ -102,7 +103,6 @@ function notImplemented(): never {
   })
 }
 
-const apply = os.migration.apply.handler(notImplemented)
 const revert = os.migration.revert.handler(notImplemented)
 const singleUndo = os.migration.singleUndo.handler(notImplemented)
 
