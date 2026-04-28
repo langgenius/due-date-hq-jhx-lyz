@@ -141,11 +141,24 @@ apps/app/src/features/rules/rules-console.tsx` — clean (formatting + lint
 - `pnpm --filter @duedatehq/app i18n:extract` → 353 / 353，0 missing
 - `pnpm --filter @duedatehq/app i18n:compile --strict` — clean
 
+## Figma sync
+
+`Figma 234:3` Settings · Rules section（5 帧）已同步至本次代码状态：
+
+| Frame                              | Node ID | 状态                                                                                               |
+| ---------------------------------- | ------- | -------------------------------------------------------------------------------------------------- |
+| Coverage tab (1/4)                 | `214:2` | 全新布局：KPI 条 + 7/12 summary + 5/12 matrix + legend，列宽 / pill 配色 / 数字字体 1:1 对齐代码   |
+| Sources tab (2/4)                  | `219:2` | 页头 + 描述 + 内容块从 `x=170` 移到 `x=24`，描述宽度 720→1080；表格内部仍 880 宽（pending v0.5.1） |
+| Rule Library tab (3/4)             | `224:2` | 同上                                                                                               |
+| Generation Preview tab (4/4)       | `225:2` | 同上                                                                                               |
+| Rule Library + Detail drawer (5/4) | `256:2` | 同上；右侧 drawer overlay 维持原位（其本身宽度独立于页面布局）                                     |
+
+变量绑定全部走文件已有的 `surface/canvas` / `border/default` / `border/subtle` / `surface/subtle` / `text/primary` / `text/secondary` / `text/muted` / `status/done` / `status/review` / `accent/tint` / `severity/medium` / `severity/medium-tint` 这套 design token，没有引入新 hex。
+
 ## Out of Scope (next)
 
-- Sources / Rule Library / Generation Preview 三个 tab 也按全宽基准重做
-  （Sources 的 `table-fixed` + compact 字典可以一并撤回）。
-- `Figma 234:3` Settings · Rules section 4 帧的 1:1 重做（独立 PR / 设计协作）。
+- Sources / Rule Library / Generation Preview 三个 tab 内部表格 / 表单按全宽基准重做
+  （Sources 的 `table-fixed` + compact 字典可以一并撤回；Rule Library RULE ID 列可以收紧让 ENTITY / TIER 列拿回呼吸感；Generation Preview 表单 + 结果可考虑左右并置）。配套需要回填 Figma 后续帧的内部内容。
 - Members / Profile（仍走 880px form 列）的实际页面，等 P1 落地时再确认布局走向。
 
 ## References
