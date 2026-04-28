@@ -242,7 +242,7 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
                     <TableCell>
                       <ConfidenceBadge tier={tier} confidence={row.confidence} />
                     </TableCell>
-                    <TableCell className="font-mono text-xs tabular-nums text-text-secondary">
+                    <TableCell className="max-w-[120px] font-mono text-xs tabular-nums wrap-break-word whitespace-normal text-text-secondary">
                       {sample}
                     </TableCell>
                     <TableCell>

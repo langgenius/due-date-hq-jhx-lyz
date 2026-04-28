@@ -200,6 +200,11 @@ function DropdownMenuRadioItem({
   className,
   children,
   inset,
+  // Base UI defaults `closeOnClick` to false on radio items; flip it so the
+  // dropdown matches the shadcn/Radix convention of closing once the user
+  // commits a selection. Callers can still pass `closeOnClick={false}` for
+  // multi-pick scenarios.
+  closeOnClick = true,
   ...props
 }: MenuPrimitive.RadioItem.Props & {
   inset?: boolean
@@ -208,6 +213,7 @@ function DropdownMenuRadioItem({
     <MenuPrimitive.RadioItem
       data-slot="dropdown-menu-radio-item"
       data-inset={inset}
+      closeOnClick={closeOnClick}
       className={cn(
         overlayRowClassName,
         'pr-8 pl-2 data-inset:pl-8',
