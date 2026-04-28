@@ -1,243 +1,241 @@
-# 10 · Demo Sprint 7 天节奏方案（2 人 · 每天 4-6h）
+# 10 · Demo Sprint 进度同步（Post-Activation）
 
-> 适用场景：2 位开发者 · 自然日 7 天 · 每天 4-6h · AI 辅助开发。
-> 本文是 [09 Demo Sprint Module Playbook](./09-Demo-Sprint-Module-Playbook.md) 的时间线落地，不重新定义模块边界。
-> Pulse 源与 Adapter 契约以 [11 Pulse Ingest Source Catalog](./11-Pulse-Ingest-Source-Catalog.md) 为准。
-> 若本文与 00 ~ 09 / 11 冲突，以 00 ~ 09 / 11 为准。
-
----
-
-## 1. 重新平衡 Owner 分配
-
-对比 [09 §4](./09-Demo-Sprint-Module-Playbook.md) 原配，做 1 处轻调整让关键路径拉平：
-
-- **DevOps + Quality Gates 拆成两段**：JHX 在 Day 1 一次性搭 CI 骨架（`vp check` 跑 Oxfmt/Oxlint/tsgolint + `vp run -r test` + `gitleaks` + deploy pipeline 骨架），之后的 required checks 维护由两人共同负责，不再占单人关键路径。
-- **PWA + Push 已整体移除**：Phase 0 不做 installable / Service Worker / Web Push（见 `09 §2.2 / §5.11` 与 `05 §8`）。原本预留给它的 Day 5 / Day 6 时段回流给 Demo Polish 和 Pulse 集成闭环。
-
-调整后：
-
-| Owner | 模块数 | 关键路径工时 | 模块清单                                                                                   |
-| ----- | ------ | ------------ | ------------------------------------------------------------------------------------------ |
-| JHX   | 6      | ~30h         | Platform · Auth · AI Orchestrator · Migration · Pulse · DevOps (day-1)                     |
-| LYZ   | 6      | ~28h         | Web Shell+UI · DB Core · Evidence+Audit · Client+Workboard · Dashboard+Brief · Demo Polish |
+> 适用场景：给搭档快速同步 Demo Sprint 当前进度、最近几天完成内容、剩余缺口和下一步优先级。
+> 本文是 [09 Demo Sprint Module Playbook](./09-Demo-Sprint-Module-Playbook.md) 的执行状态更新，不重新定义模块边界。
+> Migration Copilot 产品口径以
+> [Migration Copilot 设计册](../product-design/migration-copilot/README.md) 和
+> [12 Import to Weekly Triage](../product-design/migration-copilot/12-import-to-weekly-triage.md)
+> 为准。
+> Pulse 源与 Adapter 契约以
+> [11 Pulse Ingest Source Catalog](./11-Pulse-Ingest-Source-Catalog.md) 为准。
 
 ---
 
-## 2. 7 天节奏总览
+## 1. 一句话状态
 
-按"基础 → 共享契约冻结 → 业务并行 → 叙事闭环 → 打磨"推进。每天末尾 15min 同步 contract 变更与阻塞。
+当前主线已经从“搭底座”推进到 **Activation Slice v1 已合并**：
 
-```mermaid
-flowchart LR
-  D1[Day 1<br/>Foundation] --> D2[Day 2<br/>Contract Freeze]
-  D2 --> D3[Day 3<br/>Business Parallel]
-  D3 --> D4[Day 4<br/>Narrative 1]
-  D4 --> D5[Day 5<br/>Narrative 2]
-  D5 --> D6[Day 6<br/>Integration]
-  D6 --> D7[Day 7<br/>Polish and Rehearsal]
+```text
+Paste / CSV
+  -> AI / preset mapper + normalizer
+  -> Import & Generate
+  -> Workboard 出现真实 obligations
+  -> Dashboard 读取 server aggregation 的真实风险摘要
+  -> evidence / audit / ai trace 可追溯
+  -> E2E 覆盖 import + undo 主闭环
 ```
 
----
-
-## 3. 每日分工
-
-### Day 1 · 地基
-
-| Owner | 任务                                                                                                                                                                                                                                                                                    |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| JHX   | Platform + DevOps day-1：起单 Worker app shell，接 `/rpc`、`/api/auth`、`/api/health` 路由；配全量 bindings（D1/R2/KV/Queues/Vectorize）；搭 CI（`vp check` + `vp run -r test` + `vp run -r build` + `gitleaks`）+ `vp` 安装的 staged git hook；拉通 local ↔ preview runtime 命名一致。 |
-| LYZ   | Web Shell + UI System + DB Core scaffold：workbench layout、navigation、drawer stack、command shell 占位、dashboard slot 骨架；D1 schema DDL 和 migration 骨架（先建表，暂不写 repo 逻辑）。                                                                                            |
-
-**当日产出**：两人都能在本地跑通空壳 Worker；`vp check` 全绿。
-
-### Day 2 · 共享契约冻结
-
-| Owner | 任务                                                                                                                                                                                          |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| JHX   | Auth + Tenant Scope（Google OAuth、active firm、`scoped(db, firmId)` 上下文、auth 错误审计映射）→ AI Orchestrator facade（prompt 执行、JSON 校验、guard/citation 占位、trace payload 结构）。 |
-| LYZ   | DB Core + Scoped Repos（client / obligation / pulse / dashboard read repo + audit/evidence writer facade）。                                                                                  |
-
-**当日必须冻结的 Shared Contract**（见 [09 §6](./09-Demo-Sprint-Module-Playbook.md#6-shared-contract-surface)）：
-
-- `Tenant Context Contract`
-- `AI Execution Contract`
-- `Audit/Evidence Contract`
-
-之后改动一律 `[contract]` PR。
-
-### Day 3 · 业务并行
-
-| Owner | 任务                                                                                                                                          |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| JHX   | Migration Copilot 前半段——CSV intake + AI 字段映射 + 反向确定性校验 + Default Matrix 触发；先支持 happy path，坏行不阻塞好行。                |
-| LYZ   | Client + Workboard——client CRUD、obligation generation、workboard 查询/筛选/排序/分页、status workflow（全部经 scoped repo + audit writer）。 |
-
-**冻结契约**：`Client Domain Contract` · `Obligation Domain Contract`。
-
-**边界约束**：JHX 的 Migration 消费 LYZ 的 client facade，不自建 client identity。
-
-### Day 4 · 叙事 1：Migration + Dashboard
-
-| Owner | 任务                                                                                                                                                     |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| JHX   | Migration 后半段——D1 batch 原子导入 + revert + Live Genesis 演示路径（exposure 变化动画所需事件点）；完成 Migration 专属 evidence/audit。                |
-| LYZ   | Dashboard + Brief——risk summary（server-side 聚合）、triage tabs、penalty/priority 解释（可单测）、Weekly Brief streaming + citation 点击打开 Evidence。 |
-
-**冻结契约**：`Dashboard Slot Contract`，为 Day 5 的 Pulse 挂槽做好准备。
-
-### Day 5 · 叙事 2：Pulse
-
-| Owner | 任务                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| JHX   | Pulse Pipeline——按 [11 §6 Adapter 契约](./11-Pulse-Ingest-Source-Catalog.md#6-source-adapter-工程契约) 搭 `SourceAdapter` 接口 + fixture loader（默认 Demo 用 fixture）；extraction、human-review 结构化结果、受影响客户匹配（D1 兼容的参数化查询）、batch apply（due date 更新 + evidence + audit + outbox + application record 同事务）+ revert。**Stretch**：接 [11 §7 Phase 0 Demo Sprint](./11-Pulse-Ingest-Source-Catalog.md#7-分期路线对齐-09-demo-sprint-playbook) 声明的 3 源（`irs.newsroom` + `irs.disaster` + `ny.dtf`）cron 真抓，但降级到 fixture 的开关必须在 Day 5 末可用。 |
-| LYZ   | Dashboard 上的 Pulse slot 消费端（只挂 slot 不改宿主）+ in-app toast / banner 的通知收口（替代原 PWA push）；Pulse 事件依赖解耦：先消费 fake Pulse event，Day 6 接真事件。                                                                                                                                                                                                                                                                                                                                                                                                                  |
-
-### Day 6 · 集成闭环
-
-| Owner | 任务                                                                                                                                                                    |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| JHX   | Pulse digest email outbox（Resend）的 server 端；接 AI Orchestrator 的 guard 把 county-unknown 路由到 review；跑通 Migration → Workboard → Dashboard → Pulse 的端到端。 |
-| LYZ   | Pulse 真事件接入 Dashboard banner slot；Evidence drawer 最终打磨（source URL / excerpt / verifier / timestamp）；Command palette 注册各模块入口。                       |
-
-**验收**：[09 §11 Demo Sanity](./09-Demo-Sprint-Module-Playbook.md#11-demo-sanity) 前 6 条全绿。
-
-### Day 7 · Polish + 演练
-
-| Owner | 任务                                                                                                                                                                                                                                                                                                                |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| JHX   | 部署流水线最终化（Workers preview + production）、migration 安全检查、[09 §12](./09-Demo-Sprint-Module-Playbook.md#12-风险降级规则) + [11 §5 SLA 风险矩阵](./11-Pulse-Ingest-Source-Catalog.md#5-sla-风险矩阵) 降级预案串讲（AI mapper / batch / push / Vectorize / **Pulse 源反爬** 都要有 Plan B）、录屏 Plan B。 |
-| LYZ   | Demo Data + Pay-intent + Polish——幂等 seed、`$49/mo` 点击事件、响应式断点打磨、Demo profile 隔离验证。                                                                                                                                                                                                              |
-
-**最后 2h**：两人一起走一遍 [09 §11](./09-Demo-Sprint-Module-Playbook.md#11-demo-sanity) 的 7 条 + [09 §2.1](./09-Demo-Sprint-Module-Playbook.md#21-必须覆盖) 叙事全串。
+现在最重要的不是继续开 Ask DueDateHQ、完整 Agent 或真抓 Pulse，而是把这条主闭环做得更可信、更好解释、更适合 demo / 试用。
 
 ---
 
-## 4. 契约冻结时间表（必须守住）
+## 2. 最近几天完成了什么
 
-| 节点     | 冻结契约                                       |
-| -------- | ---------------------------------------------- |
-| Day 2 末 | Tenant Context · AI Execution · Audit+Evidence |
-| Day 3 末 | Client Domain · Obligation Domain              |
-| Day 4 末 | Dashboard Slot                                 |
-| Day 5 末 | Demo Profile                                   |
+按 git 历史和当前实现看，最近主线集中在 4 件事：
 
-任何契约变更走 `[contract]` PR，provider + consumer 双 review（[09 §3.2](./09-Demo-Sprint-Module-Playbook.md#32-两人协作规则) · [09 §13](./09-Demo-Sprint-Module-Playbook.md#13-合并纪律)）。
+| 方向                   | 已完成内容                                                                                                                                     |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Migration 主链路       | 4 步 Wizard、CSV / paste intake、preset / AI mapping、normalization、Default Matrix、dry-run、apply、revert、toast undo、bad-row errors 已跑通 |
+| Workboard              | `workboard.list` server read model、筛选/排序/分页、status update、audit toast、相关 E2E 已就位                                                |
+| Dashboard              | 从本地 fake rows / fake metrics 改为 `dashboard.load` server aggregation；summary/top rows 来自 obligations / clients / evidence               |
+| AI / evidence 安全底座 | OpenRouter Provider Native 收敛；`ai_output` / `llm_log` 落库；SSN / ITIN-like 列进 AI 前剔除，Step 2 补回 forced `IGNORE`；fallback 稳定      |
 
----
+关键提交脉络：
 
-## 5. 并行与阻塞兜底
-
-对齐 [09 §7](./09-Demo-Sprint-Module-Playbook.md#7-模块依赖图) · [09 §8](./09-Demo-Sprint-Module-Playbook.md#8-debug-isolation)：
-
-- LYZ 的 Workboard 在 Day 3 可以先用 JHX 的 fake tenant context fixture 跑单测，不等 Auth 完成。
-- JHX 的 Migration 在 Day 3 可以用 LYZ 的 fake client facade，先把 AI mapping 调通。
-- Dashboard 的 Pulse slot 在 Day 5 先用 fake Pulse event 对齐 UI；JHX 的真实 Pulse 在 Day 5 晚接入。
-- 每人使用独立 demo firm + object prefix，不共享 staging 做探索。
-
----
-
-## 6. 风险与降级触发点
-
-对齐 [09 §12](./09-Demo-Sprint-Module-Playbook.md#12-风险降级规则)：
-
-| 触发点   | 风险                                                       | 降级方式                                                                                                                                   |
-| -------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Day 3 末 | Migration AI mapper 不稳                                   | 切 preset profile + 手动 mapping，不让未校验 AI 字段入库                                                                                   |
-| Day 5 末 | Pulse 源真抓失败（反爬 / 结构变更 / Cloudflare IP 被挑战） | 关闭 Stretch 真抓，切回 fixture loader；按 [11 §5.1](./11-Pulse-Ingest-Source-Catalog.md#51-单源失败场景) 记录 `selector_drift` 事件备复盘 |
-| Day 5 末 | Pulse batch apply 事务有问题                               | 禁用 apply，演"预置 applied state + audit/evidence"叙事                                                                                    |
-| Day 6    | Pulse digest email 失败                                    | in-app banner + 下次登录补发，不阻塞主闭环                                                                                                 |
-| Day 7    | 部署异常                                                   | 用最近一次稳定 Worker + 录屏 Plan B                                                                                                        |
+| Commit                                                     | 作用                                                                                  |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `414a69b feat: add migration import undo`                  | Migration apply / revert / undo toast 主流程                                          |
+| `3328bda test: cover migration import undo e2e`            | 用 Playwright 覆盖导入和撤销                                                          |
+| `5408ab1 fix: use infinite query for workboard pagination` | Workboard 分页和 query 结构稳定                                                       |
+| `a5a17c2 fix: debounce workboard search [contract]`        | Workboard 搜索体验和 contract 调整                                                    |
+| `cef20d1 feat: add activation slice v1`                    | AI trace / redaction、Dashboard server aggregation、evidence read、E2E 隔离、文档同步 |
 
 ---
 
-## 7. Demo 范围守则
+## 3. 当前模块进度
 
-- 严格按 [09 §2.2](./09-Demo-Sprint-Module-Playbook.md#22-明确不做) 不做：Team/RBAC、Client Portal、完整 Rules Overlay、Onboarding Agent、Ask DueDateHQ、完整 Email Reminder、ICS/Stripe/Menu Bar、50 州 pack。
-- 若某天发现要越界，先打 `priority/p1-stretch` 排到 Phase 1（[09 §14](./09-Demo-Sprint-Module-Playbook.md#14-phase-1-接续)），不塞进 7 天。
-
----
-
-## 8. 每日产出检查表
-
-每天末尾两人对照下表各自确认：
-
-### Day 1
-
-- [x] JHX：Worker 在本地能返回 `/api/health` 200
-- [x] JHX：`vp check` / `vp run -r test` / `vp run -r build` 在空项目上全绿
-- [x] JHX：`vp` 安装的 staged git hook 在 staged file 上生效
-- [x] LYZ：`vp run -r dev` 能打开 SPA 空壳
-- [x] LYZ：Drizzle schema 能 `db:generate` 产出 migration SQL
-
-### Day 2
-
-- [x] JHX：Google OAuth 能拿到 session，`firmId` 正确进入 scoped context（`tenantMiddleware` + `firm_profile` lazy create + session hook 已就位，见 [2026-04-24 auth tenant review followups](../dev-log/2026-04-24-auth-tenant-review-followups.md) 与 [first login practice onboarding](../dev-log/2026-04-24-first-login-practice-onboarding.md)）
-- [x] JHX：AI facade 在无 API key 时返回 structured refusal，不抛裸异常
-- [x] LYZ：`scoped(db, firmId)` factory 单测过闸（firmId 正确穿过 repo 边界；"跨 firm 数据不可见"的端到端 acceptance 挪到 Day 3 首个真实 domain repo 落地时验证）
-- [x] LYZ：audit / evidence writer 能写入并返回 id（D1 事务边界由调用方批处理承载）
-- [x] `Tenant Context Contract` freeze 并合并到 main（ADR 0010 + `TenantContext` 类型 + `TENANT_SUSPENDED` 错误码）
-- [x] `AI Execution Contract` freeze（本地 pre-work；待 PR merge）
-- [x] `Audit / Evidence Contract` freeze（本地 pre-work；待 PR merge）
-
-### Day 3
-
-- [x] JHX：CSV 上传后能看到 AI 字段映射结果，坏行单独列出（Step 2 折叠面板内联展示 mapping 阶段坏行；Step 4 dry-run 摘要去掉 5 条上限改可滚动列表；坏行通过新 `migration.listErrors` RPC 从 `migration_error` 表取数，见 [2026-04-26 day3 closeout](../dev-log/2026-04-26-day3-closeout.md)）
-- [x] LYZ：Workboard 能改一条 status 并看到 audit 记录（contracts 新增 `obligations.updateStatus` + `workboard.list`，handler 走 read-before → update → audit-write，前端把 audit id toast 出来供肉眼回溯，跨 firm 隔离 + before/after audit 单测过闸）
-- [x] 两份 domain 契约 freeze（Client Domain + Obligation Domain）+ 新增 `Workboard` 列表契约 + `obligations.updateStatus` mutation 契约
-
-### Day 4
-
-- [x] JHX：Migration 批量导入后能 revert，两次操作都有 evidence/audit（`migration.apply` + `migration.revert` 已落库；front-end 通过 import success toast 接 `Undo import`，见 [2026-04-28 migration revert and undo import](../dev-log/2026-04-28-migration-revert-undo.md)）
-- [ ] JHX：Live Genesis 演示路径串通（exposure 数字能动）
-- [x] LYZ：Dashboard 首屏由 server aggregation 提供，不由客户端扫表（`dashboard.load`
-      contract + tenant-scoped dashboard repo + Dashboard real query，见
-      [2026-04-28 Activation Slice v1](../dev-log/2026-04-28-activation-slice-v1.md)）
-- [ ] LYZ：Weekly Brief citation 能点击打开 Evidence drawer
-- [ ] Dashboard Slot 契约 freeze
-
-### Day 5
-
-- [ ] JHX：`SourceAdapter` 接口 + fixture loader 按 [11 §6](./11-Pulse-Ingest-Source-Catalog.md#6-source-adapter-工程契约) 就位，fixture → fake source 切换开关可用
-- [ ] JHX：Pulse 预置数据（fixture）可通过 review → apply 改到客户 due date
-- [ ] JHX：Pulse apply 在一个事务内写齐 update / evidence / audit / outbox / application
-- [ ] JHX（Stretch）：[11 §7](./11-Pulse-Ingest-Source-Catalog.md#7-分期路线对齐-09-demo-sprint-playbook) 声明的 3 源真抓跑通一次 cron —— `irs.newsroom` / `ny.dtf`（RSS）+ `irs.disaster`（HTML diff，无 RSS），落库 `pending_review`，失败自动回退 fixture
-- [ ] LYZ：Dashboard 出现 Pulse slot 内容，不改动 Dashboard 内部代码
-- [ ] LYZ：In-app toast / banner 在 fake Pulse event 下能正确展示与 dismiss
-
-### Day 6
-
-- [ ] JHX：Pulse digest email 进 outbox，Resend 测试 key 有回执
-- [ ] JHX：county-unknown 走 review 而不是默认 apply
-- [ ] LYZ：Dashboard banner slot 由真实 Pulse event 驱动
-- [ ] LYZ：Evidence drawer 展示 source URL / excerpt / verifier / timestamp
-- [x] LYZ：Command palette 能跳到 Migration / Workboard / Dashboard / Pulse 入口；`?` 能展示已注册快捷键 + reserved slots；`G then D/W` 导航序列在 Wizard 打开时禁用（见 [2026-04-27 command palette cmdk polish](../dev-log/2026-04-27-command-palette-cmdk-polish.md)）
-- [ ] 09 §11 Demo Sanity 前 6 条全绿
-
-### Day 7
-
-- [ ] JHX：Workers preview / production deploy 成功
-- [ ] JHX：5 个降级路径都有可执行 Plan B（AI mapper / batch / push / Vectorize / Pulse 源反爬）
-- [ ] LYZ：seed 幂等，重跑不污染其他 profile
-- [ ] LYZ：`$49/mo` 点击 pay-intent 事件进 PostHog
-- [ ] 最后演练：09 §11 全 7 条 + 09 §2.1 全叙事串完
+| 模块                     | 状态             | 说明                                                                                                               |
+| ------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Platform / Worker / oRPC | 基本完成         | 单 Worker app shell、`/rpc`、`/api/health`、Cloudflare bindings、dry-run deploy 路径已就位                         |
+| Auth + Tenant Scope      | 基本完成         | Better Auth、active firm、scoped repo、跨 firm 隔离测试已成为业务 repo 基线                                        |
+| DB Core + Scoped Repos   | 基本完成         | clients / obligations / migration / workboard / dashboard / evidence / ai trace repo 已有主路径                    |
+| AI Orchestrator          | v1 可用          | OpenRouter provider path 可用；无 key / schema fail / guard reject 有 stable refusal；暂未做 RAG / Agent tool loop |
+| Migration Copilot        | v1 主闭环完成    | 还需要 UX polish、fixture golden tests、import report / history 等产品细节                                         |
+| Workboard                | v1 可用          | 真实 rows、status update、audit toast、E2E 已有；还需要 evidence drawer 和 triage polish                           |
+| Dashboard                | v1 主数据完成    | 已不再 mock；仍缺 evidence-backed Brief、Pulse slot、Penalty / exposure 真实口径                                   |
+| Evidence / Audit         | 后端最小闭环完成 | evidence write + read contract 已有；缺用户可见 Evidence drawer / audit timeline                                   |
+| Pulse Pipeline           | 尚未进入主线     | 目前应先做 fixture-backed review/apply；真抓 cron 只作为 stretch                                                   |
+| Demo Data / Pay-intent   | 部分完成         | 需要幂等 seed、demo profile 隔离、`$49/mo` pay-intent event 收口                                                   |
+| E2E / Quality            | 主路径可用       | Import undo、Workboard、Rules console、auth shell 已覆盖；本地 E2E 默认不复用开发者手动 server                     |
 
 ---
 
-## 9. 合并纪律（对齐 09 §13）
+## 4. 对 PRD / Demo 叙事的进度
+
+| Demo 叙事                | 当前状态                                            | 缺口                                                                              |
+| ------------------------ | --------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Migration + Live Genesis | 核心导入闭环已完成                                  | Live Genesis dollar/exposure 动画暂不做，当前没有可靠 exposure 数据，不能伪造金额 |
+| Triage Workbench         | Workboard + Dashboard 真实 obligations 已完成第一版 | Evidence drawer、Dashboard Brief、triage polish 还缺                              |
+| Glass-Box Brief          | 后端 evidence/ai trace 底座已打好                   | 尚未实现 source-backed brief；这是下一批 AI 增强优先级                            |
+| Pulse Apply              | 设计和边界明确                                      | 尚未实现 fixture pipeline / apply / revert；真抓不应先做                          |
+| Pay-intent               | 入口还未收口                                        | 需要 `$49/mo` event、demo path、analytics / audit 口径                            |
+| Demo Readiness           | 主链路可演                                          | seed、部署 checklist、Plan B、录屏脚本还要补                                      |
+
+---
+
+## 5. Activation Slice v1 的重要实现裁定
+
+### Server-first dashboard
+
+Dashboard 现在通过 `dashboard.load` 读取 server aggregation：
+
+- open obligations 排除 `done` / `not_applicable`
+- due-this-week 使用 server window
+- needs-review 来自 obligation status
+- evidence-gap 来自 open obligation 是否缺 evidence
+- severity 由 deterministic due-date function 计算
+
+前端不再维护本地 `riskRows` / `useQueueStats` / `usePulseItems` 假数据。
+
+### AI 只在 Migration 主链路内使用
+
+当前用户能用到 AI 的位置：
+
+- Migration Step 2：Field Mapper
+- Migration Step 3：Entity / tax type Normalizer
+
+AI 还没有出现在：
+
+- Ask DueDateHQ
+- Weekly Brief
+- Pulse extraction
+- Agent onboarding
+
+这是刻意的：先让 AI 降低导入摩擦并留下 trace，而不是把 AI 作为产品入口。
+
+### AI env 配置收敛
+
+当前推荐路径是 OpenRouter Provider Native：
+
+```text
+AI_GATEWAY_ACCOUNT_ID=8f7d...
+AI_GATEWAY_SLUG=duedatehq
+AI_GATEWAY_PROVIDER=openrouter
+AI_GATEWAY_MODEL=openai/gpt-5-mini
+AI_GATEWAY_PROVIDER_API_KEY=<OpenRouter key>
+AI_GATEWAY_API_KEY=
+```
+
+- `AI_GATEWAY_PROVIDER_API_KEY` 是唯一必需 secret。
+- `AI_GATEWAY_API_KEY` 只在 Cloudflare Authenticated Gateway / legacy path 需要，默认空。
+- 前端不需要任何 `VITE_*` AI key。
+- 本地 E2E 会在 Worker 子进程里用 Wrangler `--var` 覆盖 AI key 为空，不写 `.dev.vars`，不消耗真实 key。
+
+### PII / evidence / trace
+
+- SSN / ITIN-like 列会在进 AI 前从 prompt payload 剔除。
+- 服务端 Step 2 仍会补回这些 header 的 forced `IGNORE` mapping，保证审阅和 evidence 可见。
+- Mapper / Normalizer 的模型尝试和 fallback 都写 `ai_output` / `llm_log`。
+- `evidence_link.ai_output_id` 可指向 AI / preset / dictionary 输出。
+- Verified due date 仍只来自 rules preview，不来自 AI。
+
+---
+
+## 6. 下一步优先级
+
+### P0 · 先做
+
+| 优先级 | 任务                                       | 原因                                                                                           |
+| ------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| 1      | Evidence drawer v1                         | 数据已经写入和可读，但用户还看不到完整证据链；这是“可信”闭环的最大缺口                         |
+| 2      | Migration UX polish + fixture golden tests | 当前能跑，但 Step 2/3/4 review 体验还偏工程化；需要用真实 preset fixture 稳定质量              |
+| 3      | Dashboard Brief v1.1                       | AI 下一步最适合做 source-backed brief，而不是开放 Ask；可直接复用 `dashboard.load` 和 evidence |
+| 4      | Workboard / Dashboard triage polish        | 让导入后的 daily workflow 更像 CPA 真正会用的首屏                                              |
+| 5      | Demo seed + deployment checklist           | 让搭档和外部试用能稳定复现，而不是只在开发机上跑通                                             |
+
+### P1 · 再做
+
+| 优先级 | 任务                              | 原因                                                                 |
+| ------ | --------------------------------- | -------------------------------------------------------------------- |
+| 6      | Pulse fixture review/apply/revert | PRD 重要，但要先用 fixture 闭环证明 apply/audit/evidence，不先赌真抓 |
+| 7      | Pulse Dashboard slot              | 连接 Migration 后的 first-week operating loop                        |
+| 8      | Pay-intent event                  | Demo / landing conversion 需要，但不应压过可信导入                   |
+| 9      | Import report / history           | 对试用有帮助，但 toast undo 已覆盖 v1 最小撤销                       |
+
+### 暂不做
+
+- Ask DueDateHQ。
+- 完整 Onboarding Agent。
+- 复杂 RAG。
+- 真实 Pulse cron 真抓作为主线。
+- Dollar exposure / Penalty Radar 金额展示，除非先有真实 exposure / penalty 输入。
+- XLSX 真解析、R2 signed upload、完整 Import History resume。
+
+---
+
+## 7. 给搭档的接手重点
+
+如果搭档今天接进来，先看这 5 个点：
+
+1. **主闭环已经能跑**：从 Migration paste 到 Dashboard / Workboard 真实 obligation，再到 Undo import。
+2. **AI 现在只在 Migration 用**：配置 OpenRouter key 后 mapper/normalizer 会走模型；无 key 时稳定 fallback。
+3. **Dashboard 已不是 mock**：首屏数据来自 server aggregation，但产品解释层还薄。
+4. **Evidence 后端已就位，前端 drawer 未完成**：这是下一步最高价值切入点。
+5. **E2E 默认隔离 AI key**：不要为了测试去改 `.dev.vars`；需要复用已有 server 才显式设置 `E2E_REUSE_EXISTING_SERVER=1`。
+
+---
+
+## 8. 当前验收状态
+
+已验证过：
+
+- `pnpm --filter @duedatehq/core test`
+- `pnpm --filter @duedatehq/ai test`
+- `pnpm --filter @duedatehq/contracts test`
+- `pnpm --filter @duedatehq/db test`
+- `pnpm --filter @duedatehq/server test`
+- `pnpm --filter @duedatehq/app test`
+- `pnpm --filter @duedatehq/app i18n:compile`
+- `pnpm check`
+- `pnpm test:e2e`：20 passed
+- `pnpm ready`
+- `git diff --check`
+
+已知注意事项：
+
+- `pnpm secrets:scan` 需要本机或 CI 有 `gitleaks`；之前本机缺二进制导致命令启动前失败。
+- `pnpm check` 当前只有既有 warning：`packages/ui/src/lib/placement.ts` 的 tuple assertion。
+- E2E logs 仍会显示 “Using secrets defined in .dev.vars”，这是 Wrangler 读取文件的提示；实际 AI key 会被测试 Worker 子进程的 `--var` 覆盖为空。
+
+---
+
+## 9. 合并纪律（保持不变）
 
 - `main` 必须保持可 demo。
-- Branch：`feat/<module>/<short>`，例如 `feat/migration/csv-intake`。
 - Commit 使用 Conventional Commits。
-- Merge 使用 squash。
 - `[contract]` PR 必须 provider 和 consumer 都 review。
+- 文档和 devlog 与实现同 PR 更新。
+- 涉及 env / deploy / AI provider 的改动必须同步
+  `01-Tech-Stack`、`04-AI-Architecture`、`07-DevOps-Testing`。
 
 ---
 
 ## 10. 最后原则
 
-1. **Owner 端到端负责**：前后端不分人，每个模块 Owner 对自己的 Owns/Exposes/Consumes/Does not own 负责。
-2. **契约优先于实现**：先冻 contract 再写代码，consumer 用 fake 解阻塞。
-3. **本地隔离优先**：每人独立 demo firm + object prefix，不共享 staging 做探索。
-4. **Audit/evidence 优先于炫酷 UI**：dangerous write 必须同事务写 audit。
-5. **AI 只做辅助**：不能绕过 schema、guard、review、audit。
-6. **不加塞 Phase 1 能力**：越界一律打 `priority/p1-stretch`。
+1. **先巩固 Activation，不扩散入口**：当前核心价值是“导入即看到真实 deadline 风险”。
+2. **AI 只增强可信链路**：AI 负责降低导入摩擦和解释证据，不直接生成 due date，不替用户做危险写入。
+3. **Server-first 风险口径**：Dashboard / Workboard 共享 server aggregation，不在前端重复业务计算。
+4. **Evidence 优先于文案**：Brief、Tip、Pulse 都必须 source-backed；没有 citation 就降级。
+5. **不伪造金额**：没有可靠 penalty/exposure 数据前，不显示 fake dollar exposure。
+6. **Pulse 先 fixture 后真抓**：真抓是 stretch，不阻塞 Demo 主线。
+7. **可回滚、可审计、可演示**：每个 dangerous write 都要有 audit，关键 demo path 都要有 Plan B。
+
+---
+
+## 变更记录
+
+| 版本 | 日期       | 作者  | 摘要                                                                        |
+| ---- | ---------- | ----- | --------------------------------------------------------------------------- |
+| v0.3 | 2026-04-28 | Codex | 改为 Post-Activation 进度同步：总结最近完成内容、当前模块进度和下一步优先级 |
+| v0.2 | 2026-04-28 | Codex | Activation Slice v1 后重排：从模块搭建计划改为产品化 7 天收口计划           |
+| v0.1 | 2026-04-24 | Codex | 初版：2 人 Demo Sprint 7 天节奏，覆盖 Foundation → Pulse → Polish           |
