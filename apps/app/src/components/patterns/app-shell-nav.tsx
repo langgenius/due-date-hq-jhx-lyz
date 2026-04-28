@@ -78,12 +78,25 @@ function firmMonogram(name: string): string {
   return initialsFromName(name).slice(0, 2).toUpperCase() || 'DD'
 }
 
-function roleLabel(role: FirmPublic['role']): string {
-  return role.charAt(0).toUpperCase() + role.slice(1)
+function roleLabel(role: FirmPublic['role'], t: ReturnType<typeof useLingui>['t']): string {
+  if (role === 'owner') return t`Owner`
+  if (role === 'manager') return t`Manager`
+  if (role === 'preparer') return t`Preparer`
+  return t`Coordinator`
 }
 
-function firmMeta(firm: FirmPublic): string {
-  return `${roleLabel(firm.role)} · ${firm.plan} · ${firm.seatLimit} seat${firm.seatLimit === 1 ? '' : 's'}`
+function planLabel(plan: FirmPublic['plan'], t: ReturnType<typeof useLingui>['t']): string {
+  if (plan === 'firm') return t`Firm`
+  if (plan === 'pro') return t`Pro`
+  return t`Solo`
+}
+
+function firmMeta(firm: FirmPublic, t: ReturnType<typeof useLingui>['t']): string {
+  const role = roleLabel(firm.role, t)
+  const plan = planLabel(firm.plan, t)
+  return firm.seatLimit === 1
+    ? t`${role} · ${plan} · ${firm.seatLimit} seat`
+    : t`${role} · ${plan} · ${firm.seatLimit} seats`
 }
 
 function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPublic[] }) {
@@ -98,7 +111,7 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
     }),
   )
   const currentMonogram = firmMonogram(firm.name)
-  const currentMeta = firmMeta(firm)
+  const currentMeta = firmMeta(firm, t)
 
   const handleSwitch = useCallback(
     (firmId: string) => {
@@ -166,7 +179,9 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
                       >
                         {item.name}
                       </span>
-                      <span className="truncate text-xs text-text-tertiary">{firmMeta(item)}</span>
+                      <span className="truncate text-xs text-text-tertiary">
+                        {firmMeta(item, t)}
+                      </span>
                     </span>
                   </span>
                   {selected ? (
@@ -432,12 +447,12 @@ function SidebarSubMenuItem({ item }: { item: NavSubItem }) {
           className={cn(
             'group/sub-menu ml-5 flex h-7 w-[calc(100%-1.25rem)] items-center gap-2.5 rounded-md pr-3 pl-[18px] text-base text-text-secondary outline-none transition-colors',
             'hover:bg-background-default-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
-            'aria-[current=page]:bg-accent-tint aria-[current=page]:font-semibold aria-[current=page]:text-text-primary',
+            'aria-[current=page]:bg-state-base-hover-alt aria-[current=page]:font-semibold aria-[current=page]:text-text-primary',
           )}
         >
           <span
             aria-hidden
-            className="size-1 shrink-0 rounded-full bg-text-tertiary group-aria-[current=page]/sub-menu:bg-text-accent"
+            className="size-1 shrink-0 rounded-full bg-text-tertiary group-aria-[current=page]/sub-menu:bg-text-primary"
           />
           <span className="flex-1 truncate">{item.label}</span>
           {item.tag ? (

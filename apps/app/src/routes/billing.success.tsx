@@ -1,6 +1,7 @@
-import { Link, useSearchParams } from 'react-router'
+import { Link } from 'react-router'
 import { Trans } from '@lingui/react/macro'
 import { ArrowRightIcon, CheckCircle2Icon, ClockIcon } from 'lucide-react'
+import { useQueryStates } from 'nuqs'
 
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
@@ -16,11 +17,10 @@ import {
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
 import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
-import { parseBillingPlan } from '@/lib/billing'
+import { billingSearchParamsParsers } from '@/lib/billing'
 
 export function BillingSuccessRoute() {
-  const [searchParams] = useSearchParams()
-  const expectedPlan = parseBillingPlan(searchParams.get('plan'))
+  const [{ plan: expectedPlan }] = useQueryStates(billingSearchParamsParsers)
   const { firmsQuery, currentFirm } = useCurrentFirm({ poll: true })
   const subscriptionsQuery = useBillingSubscriptions(currentFirm, true)
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>

@@ -1,6 +1,7 @@
-import { Link, useSearchParams } from 'react-router'
+import { Link } from 'react-router'
 import { Trans } from '@lingui/react/macro'
 import { ArrowLeftIcon, CreditCardIcon } from 'lucide-react'
+import { useQueryStates } from 'nuqs'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -12,13 +13,11 @@ import {
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
 
-import { parseBillingInterval, parseBillingPlan } from '@/lib/billing'
+import { billingSearchParamsParsers, serializeBillingQuery } from '@/lib/billing'
 
 export function BillingCancelRoute() {
-  const [searchParams] = useSearchParams()
-  const plan = parseBillingPlan(searchParams.get('plan'))
-  const interval = parseBillingInterval(searchParams.get('interval'))
-  const checkoutHref = `/billing/checkout?plan=${plan}&interval=${interval}`
+  const [{ plan, interval }] = useQueryStates(billingSearchParamsParsers)
+  const checkoutHref = serializeBillingQuery('/billing/checkout', { plan, interval })
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">

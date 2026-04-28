@@ -22,8 +22,13 @@ import {
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
+import { parseAsString, parseAsStringLiteral, useQueryStates, type inferParserType } from 'nuqs'
 
-import type { ClientCreateInput, ClientPublic } from '@duedatehq/contracts'
+import {
+  ClientCreateInputSchema,
+  type ClientCreateInput,
+  type ClientPublic,
+} from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -100,8 +105,10 @@ const CLIENT_ENTITY_TYPES = [
 ] as const satisfies readonly ClientCreateInput['entityType'][]
 const EMPTY_CLIENTS: ClientPublic[] = []
 const ALL_ENTITIES = 'all'
+const CLIENT_ENTITY_FILTERS = [ALL_ENTITIES, ...CLIENT_ENTITY_TYPES] as const
 const STATE_FILTER_ALL = 'all'
 const CLIENT_LIST_LIMIT = 500
+const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 
 type ClientEntityType = ClientCreateInput['entityType']
 type ClientFormValues = {
@@ -114,12 +121,24 @@ type ClientFormValues = {
   assigneeName: string
   notes: string
 }
+type ClientFormField = keyof ClientFormValues
 type ClientMetric = {
   label: string
   value: string
   detail: string
   icon: LucideIcon
 }
+
+export const clientsSearchParamsParsers = {
+  q: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
+  entity: parseAsStringLiteral(CLIENT_ENTITY_FILTERS)
+    .withDefault(ALL_ENTITIES)
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  state: parseAsString.withDefault(STATE_FILTER_ALL).withOptions(REPLACE_HISTORY_OPTIONS),
+  client: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
+} as const
+
+export type ClientsSearchParams = inferParserType<typeof clientsSearchParamsParsers>
 
 const defaultClientFormValues: ClientFormValues = {
   name: '',
@@ -194,6 +213,23 @@ function formValuesToInput(values: ClientFormValues): ClientCreateInput {
   }
 }
 
+function contractPathToFormField(path: PropertyKey[]): ClientFormField | null {
+  const [field] = path
+  switch (field) {
+    case 'name':
+    case 'entityType':
+    case 'ein':
+    case 'state':
+    case 'county':
+    case 'email':
+    case 'assigneeName':
+    case 'notes':
+      return field
+    default:
+      return null
+  }
+}
+
 function getClientSearchHaystack(client: ClientPublic): string {
   return [
     client.name,
@@ -231,12 +267,11 @@ export function ClientsRoute() {
   const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
   const entityLabels = useEntityLabels()
-  const [search, setSearch] = useState('')
-  const [entityFilter, setEntityFilter] = useState<ClientEntityType | typeof ALL_ENTITIES>(
-    ALL_ENTITIES,
-  )
-  const [stateFilter, setStateFilter] = useState(STATE_FILTER_ALL)
-  const [activeClientId, setActiveClientId] = useState<string | null>(null)
+  const [
+    { q: search, entity: entityFilter, state: stateFilter, client: selectedClientId },
+    setClientsQuery,
+  ] = useQueryStates(clientsSearchParamsParsers)
+  const activeClientId = selectedClientId
 
   const clientsQuery = useQuery(
     orpc.clients.listByFirm.queryOptions({ input: { limit: CLIENT_LIST_LIMIT } }),
@@ -247,7 +282,7 @@ export function ClientsRoute() {
     orpc.clients.create.mutationOptions({
       onSuccess: (client) => {
         void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
-        setActiveClientId(client.id)
+        void setClientsQuery({ client: client.id })
         toast.success(t`Client created`, { description: client.name })
       },
       onError: (err) => {
@@ -405,7 +440,7 @@ export function ClientsRoute() {
           <CreateClientDialog
             entityLabels={entityLabels}
             isPending={createMutation.isPending}
-            onCreate={(input) => createMutation.mutateAsync(input)}
+            onCreate={(input, callbacks) => createMutation.mutate(input, callbacks)}
           />
         </div>
       </header>
@@ -456,7 +491,9 @@ export function ClientsRoute() {
                 </InputGroupAddon>
                 <InputGroupInput
                   value={search}
-                  onChange={(event) => setSearch(event.target.value)}
+                  onChange={(event) => {
+                    void setClientsQuery({ q: event.target.value || null, client: null })
+                  }}
                   placeholder={t`Search clients`}
                 />
               </InputGroup>
@@ -464,7 +501,10 @@ export function ClientsRoute() {
                 value={entityFilter}
                 onValueChange={(value) => {
                   if (value && (value === ALL_ENTITIES || isClientEntityType(value))) {
-                    setEntityFilter(value)
+                    void setClientsQuery({
+                      entity: value === ALL_ENTITIES ? null : value,
+                      client: null,
+                    })
                   }
                 }}
               >
@@ -487,7 +527,12 @@ export function ClientsRoute() {
               <Select
                 value={stateFilter}
                 onValueChange={(value) => {
-                  if (value) setStateFilter(value)
+                  if (value) {
+                    void setClientsQuery({
+                      state: value === STATE_FILTER_ALL ? null : value,
+                      client: null,
+                    })
+                  }
                 }}
               >
                 <SelectTrigger className="w-full">
@@ -536,7 +581,7 @@ export function ClientsRoute() {
                         key={row.id}
                         data-state={activeClient?.id === row.original.id ? 'selected' : undefined}
                         className="cursor-pointer"
-                        onClick={() => setActiveClientId(row.original.id)}
+                        onClick={() => void setClientsQuery({ client: row.original.id })}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <TableCell
@@ -717,7 +762,7 @@ function CreateClientDialog({
 }: {
   entityLabels: Record<ClientEntityType, string>
   isPending: boolean
-  onCreate: (input: ClientCreateInput) => Promise<ClientPublic>
+  onCreate: (input: ClientCreateInput, callbacks: { onSuccess: () => void }) => void
 }) {
   const { t } = useLingui()
   const [open, setOpen] = useState(false)
@@ -745,10 +790,22 @@ function CreateClientDialog({
         </DialogHeader>
         <form
           className="contents"
-          onSubmit={form.handleSubmit(async (values) => {
-            await onCreate(formValuesToInput(values))
-            form.reset(defaultClientFormValues)
-            setOpen(false)
+          onSubmit={form.handleSubmit((values) => {
+            const parsed = ClientCreateInputSchema.safeParse(formValuesToInput(values))
+            if (!parsed.success) {
+              parsed.error.issues.forEach((issue) => {
+                const field = contractPathToFormField(issue.path)
+                if (field) form.setError(field, { message: issue.message, type: 'validate' })
+              })
+              return
+            }
+
+            onCreate(parsed.data, {
+              onSuccess: () => {
+                form.reset(defaultClientFormValues)
+                setOpen(false)
+              },
+            })
           })}
         >
           <FieldGroup className="gap-4">

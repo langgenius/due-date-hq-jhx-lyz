@@ -1,5 +1,5 @@
 import { and, asc, eq } from 'drizzle-orm'
-import { authSchema, type Db } from '@duedatehq/db'
+import { authSchema, firmSchema, type Db } from '@duedatehq/db'
 import type { DatabaseHooks } from '@duedatehq/auth'
 
 /**
@@ -35,10 +35,15 @@ export function buildDatabaseHooks(db: Db): DatabaseHooks {
           const [earliestMembership] = await db
             .select({ organizationId: authSchema.member.organizationId })
             .from(authSchema.member)
+            .innerJoin(
+              firmSchema.firmProfile,
+              eq(firmSchema.firmProfile.id, authSchema.member.organizationId),
+            )
             .where(
               and(
                 eq(authSchema.member.userId, session.userId),
                 eq(authSchema.member.status, 'active'),
+                eq(firmSchema.firmProfile.status, 'active'),
               ),
             )
             .orderBy(asc(authSchema.member.createdAt))

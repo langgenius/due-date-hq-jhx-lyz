@@ -1,5 +1,6 @@
 import type { AuditEventPublic } from '@duedatehq/contracts'
 import { requireTenant } from '../_context'
+import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
 
 interface AuditRow {
@@ -37,6 +38,7 @@ export function toAuditEventPublic(row: AuditRow): AuditEventPublic {
 }
 
 const list = os.audit.list.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer'])
   const { scoped } = requireTenant(context)
 
   const repoInput: NonNullable<Parameters<typeof scoped.audit.list>[0]> = {}

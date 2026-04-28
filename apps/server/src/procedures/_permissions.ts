@@ -1,4 +1,5 @@
 import { ORPCError } from '@orpc/server'
+import type { Role } from '@duedatehq/auth/permissions'
 import { ErrorCodes } from '@duedatehq/contracts'
 import type { ContextVars } from '../env'
 import { requireTenant, type RpcContext } from './_context'
@@ -9,7 +10,10 @@ export interface CurrentFirmOwnerContext {
   userId: string
 }
 
-export async function requireCurrentFirmOwner(ctx: RpcContext): Promise<CurrentFirmOwnerContext> {
+export async function requireCurrentFirmRole(
+  ctx: RpcContext,
+  allowedRoles: readonly Role[],
+): Promise<CurrentFirmOwnerContext> {
   const { tenant, userId } = requireTenant(ctx)
   const { members } = ctx.vars
   if (!members) {
@@ -17,9 +21,13 @@ export async function requireCurrentFirmOwner(ctx: RpcContext): Promise<CurrentF
   }
 
   const actor = await members.findMembership(tenant.firmId, userId)
-  if (!actor || actor.status !== 'active' || actor.role !== 'owner') {
+  if (!actor || actor.status !== 'active' || !allowedRoles.includes(actor.role)) {
     throw new ORPCError('FORBIDDEN', { message: ErrorCodes.MEMBER_FORBIDDEN })
   }
 
   return { members, tenant, userId }
+}
+
+export async function requireCurrentFirmOwner(ctx: RpcContext): Promise<CurrentFirmOwnerContext> {
+  return requireCurrentFirmRole(ctx, ['owner'])
 }

@@ -1,6 +1,7 @@
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useMutation } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
+import { useQueryStates } from 'nuqs'
 import {
   AlertCircleIcon,
   ArrowLeftIcon,
@@ -28,8 +29,8 @@ import { createCheckout } from '@/features/billing/api'
 import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
 import {
   isFirmOwner,
-  parseBillingInterval,
-  parseBillingPlan,
+  billingSearchParamsParsers,
+  serializeBillingQuery,
   type BillingInterval,
   type BillingPlan,
 } from '@/lib/billing'
@@ -66,18 +67,13 @@ function planView(
 }
 
 function checkoutUrl(path: string, plan: BillingPlan, interval: BillingInterval): string {
-  const url = new URL(path, window.location.origin)
-  url.searchParams.set('plan', plan)
-  url.searchParams.set('interval', interval)
-  return url.toString()
+  return new URL(serializeBillingQuery(path, { plan, interval }), window.location.origin).toString()
 }
 
 export function BillingCheckoutRoute() {
   const { t } = useLingui()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const plan = parseBillingPlan(searchParams.get('plan'))
-  const interval = parseBillingInterval(searchParams.get('interval'))
+  const [{ plan, interval }] = useQueryStates(billingSearchParamsParsers)
   const view = planView(plan, interval, t)
   const { firmsQuery, currentFirm } = useCurrentFirm()
   const subscriptionsQuery = useBillingSubscriptions(currentFirm)

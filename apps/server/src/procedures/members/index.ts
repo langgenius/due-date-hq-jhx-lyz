@@ -14,6 +14,7 @@ import { os } from '../_root'
 type MembersRepo = NonNullable<ContextVars['members']>
 type MemberRow = NonNullable<Awaited<ReturnType<MembersRepo['findMember']>>>
 type InvitationRow = NonNullable<Awaited<ReturnType<MembersRepo['findInvitation']>>>
+type OrpcAuthErrorCode = 'BAD_REQUEST' | 'UNAUTHORIZED' | 'FORBIDDEN' | 'NOT_FOUND' | 'CONFLICT'
 
 function toIso(value: Date): string {
   return value.toISOString()
@@ -135,6 +136,40 @@ async function ensureSeatForResend(input: {
   }
 }
 
+function authErrorStatus(err: unknown): number | null {
+  if (!err || typeof err !== 'object') return null
+  const status = 'status' in err ? err.status : undefined
+  const statusCode = 'statusCode' in err ? err.statusCode : undefined
+  if (typeof status === 'number') return status
+  if (typeof statusCode === 'number') return statusCode
+  return null
+}
+
+function authErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : ErrorCodes.MEMBER_FORBIDDEN
+}
+
+function mapAuthErrorCode(status: number | null): OrpcAuthErrorCode {
+  if (status === 400) return 'BAD_REQUEST'
+  if (status === 401) return 'UNAUTHORIZED'
+  if (status === 404) return 'NOT_FOUND'
+  if (status === 409) return 'CONFLICT'
+  return 'FORBIDDEN'
+}
+
+async function callAuthApi<T>(promise: Promise<T>): Promise<T> {
+  try {
+    return await promise
+  } catch (err) {
+    if (err instanceof ORPCError) throw err
+    const status = authErrorStatus(err)
+    if (status && status < 500) {
+      throw new ORPCError(mapAuthErrorCode(status), { message: authErrorMessage(err) })
+    }
+    throw err
+  }
+}
+
 const listCurrent = os.members.listCurrent.handler(async ({ context }) => {
   const { members, tenant, userId } = await requireCurrentFirmOwner(context)
   return listOutput({ members, firmId: tenant.firmId, userId })
@@ -145,14 +180,16 @@ const invite = os.members.invite.handler(async ({ input, context }) => {
   await ensureInviteAvailable({ members, firmId: tenant.firmId, email: input.email })
 
   const auth = createWorkerAuth(context.env)
-  const invitation = await auth.api.createInvitation({
-    body: {
-      email: input.email,
-      role: input.role,
-      organizationId: tenant.firmId,
-    },
-    headers: context.request.headers,
-  })
+  const invitation = await callAuthApi(
+    auth.api.createInvitation({
+      body: {
+        email: input.email,
+        role: input.role,
+        organizationId: tenant.firmId,
+      },
+      headers: context.request.headers,
+    }),
+  )
 
   await members.writeAudit({
     firmId: tenant.firmId,
@@ -174,10 +211,12 @@ const cancelInvitation = os.members.cancelInvitation.handler(async ({ input, con
     invitationId: input.invitationId,
   })
   const auth = createWorkerAuth(context.env)
-  await auth.api.cancelInvitation({
-    body: { invitationId: input.invitationId },
-    headers: context.request.headers,
-  })
+  await callAuthApi(
+    auth.api.cancelInvitation({
+      body: { invitationId: input.invitationId },
+      headers: context.request.headers,
+    }),
+  )
 
   await members.writeAudit({
     firmId: tenant.firmId,
@@ -201,15 +240,17 @@ const resendInvitation = os.members.resendInvitation.handler(async ({ input, con
   await ensureSeatForResend({ members, firmId: tenant.firmId, invitation })
 
   const auth = createWorkerAuth(context.env)
-  const next = await auth.api.createInvitation({
-    body: {
-      email: invitation.email,
-      role: invitation.role,
-      organizationId: tenant.firmId,
-      resend: true,
-    },
-    headers: context.request.headers,
-  })
+  const next = await callAuthApi(
+    auth.api.createInvitation({
+      body: {
+        email: invitation.email,
+        role: invitation.role,
+        organizationId: tenant.firmId,
+        resend: true,
+      },
+      headers: context.request.headers,
+    }),
+  )
 
   await members.writeAudit({
     firmId: tenant.firmId,
@@ -234,14 +275,16 @@ const updateRole = os.members.updateRole.handler(async ({ input, context }) => {
   requireMutableTarget(target, userId)
 
   const auth = createWorkerAuth(context.env)
-  await auth.api.updateMemberRole({
-    body: {
-      memberId: input.memberId,
-      role: input.role,
-      organizationId: tenant.firmId,
-    },
-    headers: context.request.headers,
-  })
+  await callAuthApi(
+    auth.api.updateMemberRole({
+      body: {
+        memberId: input.memberId,
+        role: input.role,
+        organizationId: tenant.firmId,
+      },
+      headers: context.request.headers,
+    }),
+  )
 
   await members.writeAudit({
     firmId: tenant.firmId,
@@ -270,7 +313,7 @@ async function setStatus(input: {
   })
   requireMutableTarget(target, userId)
 
-  await members.setMemberStatus(input.memberId, input.status)
+  await members.setMemberStatus(tenant.firmId, input.memberId, input.status)
   await members.writeAudit({
     firmId: tenant.firmId,
     actorId: userId,
@@ -312,13 +355,15 @@ const remove = os.members.remove.handler(async ({ input, context }) => {
   requireMutableTarget(target, userId)
 
   const auth = createWorkerAuth(context.env)
-  await auth.api.removeMember({
-    body: {
-      memberIdOrEmail: input.memberId,
-      organizationId: tenant.firmId,
-    },
-    headers: context.request.headers,
-  })
+  await callAuthApi(
+    auth.api.removeMember({
+      body: {
+        memberIdOrEmail: input.memberId,
+        organizationId: tenant.firmId,
+      },
+      headers: context.request.headers,
+    }),
+  )
 
   await members.writeAudit({
     firmId: tenant.firmId,

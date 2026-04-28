@@ -255,12 +255,22 @@ export function makeMembersRepo(db: Db) {
       }
     },
 
-    async updateRole(memberId: string, role: Exclude<FirmRole, 'owner'>): Promise<void> {
-      await db.update(member).set({ role }).where(eq(member.id, memberId))
+    async updateRole(
+      firmId: string,
+      memberId: string,
+      role: Exclude<FirmRole, 'owner'>,
+    ): Promise<void> {
+      await db
+        .update(member)
+        .set({ role })
+        .where(and(eq(member.organizationId, firmId), eq(member.id, memberId)))
     },
 
-    async setMemberStatus(memberId: string, status: MemberStatus): Promise<void> {
-      await db.update(member).set({ status }).where(eq(member.id, memberId))
+    async setMemberStatus(firmId: string, memberId: string, status: MemberStatus): Promise<void> {
+      await db
+        .update(member)
+        .set({ status })
+        .where(and(eq(member.organizationId, firmId), eq(member.id, memberId)))
     },
 
     async writeAudit(event: AuditEventInput): Promise<{ id: string }> {
