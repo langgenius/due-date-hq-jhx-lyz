@@ -188,11 +188,14 @@ msgstr "Action"
 msgid "Actions"
 msgstr "Actions"
 
-#. placeholder {0}: firm.plan
-#. placeholder {1}: firm.seatLimit
+#. placeholder {0}: firm.seatLimit
 #: src/routes/settings.profile.tsx
-msgid "Active firm · {0} plan · {1} seat limit"
-msgstr "Active firm · {0} plan · {1} seat limit"
+msgid "Active firm · {currentPlan} plan · {0} seat limit"
+msgstr "Active firm · {currentPlan} plan · {0} seat limit"
+
+#: src/routes/settings.profile.tsx
+msgid "Active firm summary"
+msgstr "Active firm summary"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-table.tsx
@@ -541,6 +544,10 @@ msgstr "Continue to Stripe"
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
+#: src/routes/settings.profile.tsx
+msgid "Coordinator"
+msgstr "Coordinator"
+
 #: src/routes/onboarding.tsx
 msgid "Could not activate your practice"
 msgstr "Could not activate your practice"
@@ -576,6 +583,10 @@ msgstr "Could not load rules coverage."
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Could not run generation preview."
 msgstr "Could not run generation preview."
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Could not switch firm."
+msgstr "Could not switch firm."
 
 #: src/routes/settings.profile.tsx
 msgid "Could not update firm."
@@ -919,6 +930,7 @@ msgstr "Filter by time range, action category, actor, or entity."
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
+#: src/routes/settings.profile.tsx
 msgid "Firm"
 msgstr "Firm"
 
@@ -1195,6 +1207,10 @@ msgstr "Manage the firm client directory that powers migration, rules preview, d
 #: src/routes/settings.billing.tsx
 msgid "Manage the subscription attached to the active firm."
 msgstr "Manage the subscription attached to the active firm."
+
+#: src/routes/settings.profile.tsx
+msgid "Manager"
+msgstr "Manager"
 
 #: src/routes/clients.tsx
 msgid "Manual"
@@ -1494,6 +1510,7 @@ msgid "Other"
 msgstr "Other"
 
 #: src/routes/clients.tsx
+#: src/routes/settings.profile.tsx
 msgid "Owner"
 msgstr "Owner"
 
@@ -1556,6 +1573,7 @@ msgstr "Plan"
 msgid "Please enter at least 2 characters."
 msgstr "Please enter at least 2 characters."
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-page.tsx
 #: src/features/migration/Wizard.tsx
@@ -1575,6 +1593,10 @@ msgstr "Practice name"
 msgid "PRACTICE PROFILE"
 msgstr "PRACTICE PROFILE"
 
+#: src/routes/settings.profile.tsx
+msgid "Preparer"
+msgstr "Preparer"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
 msgstr "Primary navigation"
@@ -1584,6 +1606,7 @@ msgid "Priority onboarding, audit exports, and higher coverage needs."
 msgstr "Priority onboarding, audit exports, and higher coverage needs."
 
 #: src/routes/settings.billing.tsx
+#: src/routes/settings.profile.tsx
 msgid "Pro"
 msgstr "Pro"
 
@@ -1924,6 +1947,7 @@ msgid "Sole prop"
 msgstr "Sole prop"
 
 #: src/routes/settings.billing.tsx
+#: src/routes/settings.profile.tsx
 msgid "Solo"
 msgstr "Solo"
 

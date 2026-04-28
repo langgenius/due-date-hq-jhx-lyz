@@ -79,6 +79,26 @@ export function buildOrganizationHooks(db: Db): OrganizationHooks {
       assertManagedRole(invitation.role)
       await assertFirmCanInvite(db, invitation.organizationId)
     },
+    afterCreateInvitation: async ({ invitation, inviter }) => {
+      await audit.write({
+        firmId: invitation.organizationId,
+        actorId: inviter.id,
+        entityType: 'member_invitation',
+        entityId: invitation.id,
+        action: 'member.invited',
+        after: { email: invitation.email, role: invitation.role },
+      })
+    },
+    afterCancelInvitation: async ({ invitation, cancelledBy }) => {
+      await audit.write({
+        firmId: invitation.organizationId,
+        actorId: cancelledBy.id,
+        entityType: 'member_invitation',
+        entityId: invitation.id,
+        action: 'member.invitation.canceled',
+        before: { email: invitation.email, role: invitation.role },
+      })
+    },
     beforeAcceptInvitation: async ({ invitation, organization }) => {
       assertManagedRole(invitation.role)
       await assertFirmCanAddSeat(db, organization.id)
@@ -91,6 +111,29 @@ export function buildOrganizationHooks(db: Db): OrganizationHooks {
         entityId: member.id,
         action: 'member.accepted',
         after: { email: invitation.email, role: member.role },
+      })
+    },
+    afterUpdateMemberRole: async ({ member, previousRole }) => {
+      await audit.write({
+        firmId: member.organizationId,
+        actorId: null,
+        entityType: 'member',
+        entityId: member.id,
+        action: 'member.role.updated',
+        before: { role: previousRole },
+        after: { role: member.role },
+        reason: 'better-auth direct member role update',
+      })
+    },
+    afterRemoveMember: async ({ member }) => {
+      await audit.write({
+        firmId: member.organizationId,
+        actorId: null,
+        entityType: 'member',
+        entityId: member.id,
+        action: 'member.removed',
+        before: { role: member.role, userId: member.userId },
+        reason: 'better-auth direct member removal',
       })
     },
   }

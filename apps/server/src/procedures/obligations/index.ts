@@ -1,6 +1,11 @@
 import { ORPCError } from '@orpc/server'
 import type { ObligationInstancePublic } from '@duedatehq/contracts'
 import { requireTenant } from '../_context'
+import {
+  MIGRATION_RUN_ROLES,
+  OBLIGATION_STATUS_WRITE_ROLES,
+  requireCurrentFirmRole,
+} from '../_permissions'
 import { os } from '../_root'
 import { toObligationPublic, updateObligationStatus } from './_service'
 
@@ -31,6 +36,7 @@ interface ObligationRow {
 }
 
 const createBatch = os.obligations.createBatch.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, MIGRATION_RUN_ROLES)
   const { scoped, userId } = requireTenant(context)
 
   const repoInputs = input.obligations.map((o) => {
@@ -91,6 +97,7 @@ const listByClient = os.obligations.listByClient.handler(async ({ input, context
 })
 
 const updateStatus = os.obligations.updateStatus.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
   const { scoped, userId } = requireTenant(context)
   return updateObligationStatus(scoped, userId, input)
 })

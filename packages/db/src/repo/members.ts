@@ -6,7 +6,7 @@ import { firmProfile } from '../schema/firm'
 import type { FirmRole } from './firms'
 
 export type MemberStatus = 'active' | 'suspended'
-export type InvitationStatus = 'pending' | 'expired'
+export type InvitationStatus = 'pending' | 'expired' | 'canceled'
 
 export interface MemberRow {
   id: string
@@ -64,6 +64,7 @@ function normalizeEmail(value: string): string {
 }
 
 function invitationStatus(row: { status: string; expiresAt: Date }, now: Date): InvitationStatus {
+  if (row.status === 'canceled') return 'canceled'
   if (row.status === 'pending' && row.expiresAt <= now) return 'expired'
   return 'pending'
 }

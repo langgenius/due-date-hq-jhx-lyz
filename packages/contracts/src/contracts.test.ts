@@ -144,7 +144,7 @@ describe('@duedatehq/contracts', () => {
           id: 'invitation_1',
           email: 'maya@example.com',
           role: 'preparer',
-          status: 'pending',
+          status: 'canceled',
           inviterId: 'user_1',
           expiresAt: '2026-05-05T00:00:00.000Z',
           createdAt: '2026-04-28T00:00:00.000Z',

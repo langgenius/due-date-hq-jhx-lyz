@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test'
 import { expect, test } from '../fixtures/test'
 
 // Feature: Firm creation and switching
@@ -23,7 +24,7 @@ test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm and switches context', 
     authenticatedPage.getByRole('heading', { name: 'Firm profile', level: 1 }),
   ).toBeVisible()
   await expect(authenticatedPage.getByLabel('Firm name')).toHaveValue('E2E Practice')
-  await expect(authenticatedPage.getByText('Active firm · solo plan · 1 seat limit')).toBeVisible()
+  await expectActiveFirmSummary(authenticatedPage, { plan: 'Solo', seatLimit: 1 })
 
   await authenticatedPage.getByRole('button', { name: /Switch firm/ }).click()
   await authenticatedPage.getByRole('menuitem', { name: 'Add firm' }).click()
@@ -45,11 +46,20 @@ test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm and switches context', 
 
   await expect(authenticatedPage.getByLabel('Firm name')).toHaveValue(firmName)
   await expect(authenticatedPage.getByLabel('Timezone')).toHaveValue(timezone)
-  await expect(authenticatedPage.getByText('Active firm · solo plan · 1 seat limit')).toBeVisible()
+  await expectActiveFirmSummary(authenticatedPage, { plan: 'Solo', seatLimit: 1 })
   await expect(authenticatedPage.locator('body')).not.toContainText(
     new RegExp(`${escapeRegExp(slugPrefix)}-[a-z2-9]{6}`),
   )
 })
+
+async function expectActiveFirmSummary(
+  page: Page,
+  expected: { plan: string; seatLimit: number },
+): Promise<void> {
+  const summary = page.getByRole('note', { name: 'Active firm summary' })
+  await expect(summary).toContainText(new RegExp(`\\b${escapeRegExp(expected.plan)}\\b`))
+  await expect(summary).toContainText(new RegExp(`\\b${expected.seatLimit}\\b`))
+}
 
 function slugBody(value: string): string {
   return (

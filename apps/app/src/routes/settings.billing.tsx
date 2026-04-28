@@ -72,7 +72,7 @@ export function SettingsBillingRoute() {
   const { firmsQuery, currentFirm } = useCurrentFirm()
   const subscriptionsQuery = useBillingSubscriptions(currentFirm)
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
-    ['active', 'trialing', 'past_due'].includes(subscription.status),
+    ['active', 'trialing', 'past_due', 'paused'].includes(subscription.status),
   )
   const owner = isFirmOwner(currentFirm)
   const portalMutation = useMutation({

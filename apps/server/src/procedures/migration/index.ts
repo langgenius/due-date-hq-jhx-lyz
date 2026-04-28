@@ -1,6 +1,12 @@
 import { ORPCError } from '@orpc/server'
+import type { Role } from '@duedatehq/auth/permissions'
 import { createAI } from '@duedatehq/ai'
 import { requireTenant, type RpcContext } from '../_context'
+import {
+  MIGRATION_REVERT_ROLES,
+  MIGRATION_RUN_ROLES,
+  requireCurrentFirmRole,
+} from '../_permissions'
 import { os } from '../_root'
 import { MigrationService } from './_service'
 
@@ -12,7 +18,11 @@ import { MigrationService } from './_service'
  * apply / revert / singleUndo / getBatch / listErrors.
  */
 
-function buildService(ctx: RpcContext): MigrationService {
+async function buildService(
+  ctx: RpcContext,
+  allowedRoles: readonly Role[],
+): Promise<MigrationService> {
+  await requireCurrentFirmRole(ctx, allowedRoles)
   const { scoped, userId } = requireTenant(ctx)
   return new MigrationService({
     scoped,
@@ -22,7 +32,7 @@ function buildService(ctx: RpcContext): MigrationService {
 }
 
 const createBatch = os.migration.createBatch.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   const args: Parameters<MigrationService['createBatch']>[0] = {
     source: input.source,
     presetUsed: input.presetUsed ?? null,
@@ -32,7 +42,7 @@ const createBatch = os.migration.createBatch.handler(async ({ input, context }) 
 })
 
 const uploadRaw = os.migration.uploadRaw.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   if (!input.inline) {
     throw new ORPCError('NOT_IMPLEMENTED', {
       message:
@@ -49,60 +59,60 @@ const uploadRaw = os.migration.uploadRaw.handler(async ({ input, context }) => {
 })
 
 const runMapper = os.migration.runMapper.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   return service.runMapper(input.batchId)
 })
 
 const confirmMapping = os.migration.confirmMapping.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   return service.confirmMapping(input.batchId, input.mappings)
 })
 
 const runNormalizer = os.migration.runNormalizer.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   return service.runNormalizer(input.batchId)
 })
 
 const confirmNormalization = os.migration.confirmNormalization.handler(
   async ({ input, context }) => {
-    const service = buildService(context)
+    const service = await buildService(context, MIGRATION_RUN_ROLES)
     return service.confirmNormalization(input.batchId, input.normalizations)
   },
 )
 
 const applyDefaultMatrix = os.migration.applyDefaultMatrix.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   return service.applyDefaultMatrix(input.batchId, input.matrixSelections ?? [])
 })
 
 const dryRun = os.migration.dryRun.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   return service.dryRun(input.batchId)
 })
 
 const apply = os.migration.apply.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   return service.apply(input.batchId)
 })
 
 const getBatch = os.migration.getBatch.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   return service.getBatch(input.batchId)
 })
 
 const listErrors = os.migration.listErrors.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
   const errors = await service.listErrors(input.batchId, input.stage ?? 'all')
   return { errors }
 })
 
 const revert = os.migration.revert.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_REVERT_ROLES)
   return service.revert(input.batchId)
 })
 
 const singleUndo = os.migration.singleUndo.handler(async ({ input, context }) => {
-  const service = buildService(context)
+  const service = await buildService(context, MIGRATION_REVERT_ROLES)
   return service.singleUndo(input.batchId, input.clientId)
 })
 

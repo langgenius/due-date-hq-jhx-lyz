@@ -15,6 +15,7 @@ import {
   UsersIcon,
   type LucideIcon,
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 import type { FirmPublic } from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -50,6 +51,7 @@ import { Label } from '@duedatehq/ui/components/ui/label'
 import { cn } from '@duedatehq/ui/lib/utils'
 import { initialsFromName } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
 
 type NavItem = {
   href: string
@@ -107,6 +109,11 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
     orpc.firms.switchActive.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries()
+      },
+      onError: (err) => {
+        toast.error(t`Could not switch firm.`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
       },
     }),
   )

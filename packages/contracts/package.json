@@ -10,6 +10,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./shared/*": "./src/shared/*.ts",
+    "./audit": "./src/audit.ts",
     "./clients": "./src/clients.ts",
     "./obligations": "./src/obligations.ts",
     "./dashboard": "./src/dashboard.ts",
@@ -19,6 +20,7 @@
     "./pulse": "./src/pulse.ts",
     "./rules": "./src/rules.ts",
     "./migration": "./src/migration.ts",
+    "./members": "./src/members.ts",
     "./errors": "./src/errors.ts"
   },
   "scripts": {

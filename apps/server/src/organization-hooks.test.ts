@@ -182,5 +182,49 @@ describe('buildOrganizationHooks', () => {
         }),
       ).rejects.toBeInstanceOf(APIError)
     })
+
+    it('audits direct Better Auth invitation lifecycle hooks', async () => {
+      const { db, valuesSpy } = makeFakeDb()
+      const hooks = buildOrganizationHooks(db)
+
+      await hooks.afterCreateInvitation!({
+        invitation: {
+          id: 'invitation_1',
+          organizationId: 'org_y',
+          email: 'maya@example.com',
+          role: 'preparer',
+        } as never,
+        inviter: { id: 'user_owner' } as never,
+        organization: { id: 'org_y', name: 'Y' } as never,
+      })
+
+      await hooks.afterCancelInvitation!({
+        invitation: {
+          id: 'invitation_1',
+          organizationId: 'org_y',
+          email: 'maya@example.com',
+          role: 'preparer',
+        } as never,
+        cancelledBy: { id: 'user_owner' } as never,
+        organization: { id: 'org_y', name: 'Y' } as never,
+      })
+
+      expect(valuesSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          firmId: 'org_y',
+          actorId: 'user_owner',
+          entityType: 'member_invitation',
+          action: 'member.invited',
+        }),
+      )
+      expect(valuesSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          firmId: 'org_y',
+          actorId: 'user_owner',
+          entityType: 'member_invitation',
+          action: 'member.invitation.canceled',
+        }),
+      )
+    })
   })
 })

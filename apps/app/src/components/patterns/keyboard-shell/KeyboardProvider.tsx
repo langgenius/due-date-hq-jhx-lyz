@@ -186,16 +186,15 @@ function GlobalKeyboardBindings({
     },
   })
 
-  useAppHotkeySequence(['G', 'C'], () => undefined, {
-    enabled: false,
+  useAppHotkeySequence(['G', 'C'], () => void navigate('/clients'), {
+    enabled: !shortcutsBlocked,
     meta: {
       id: 'nav.clients',
       name: 'Go to Clients',
-      description: 'Clients route is not split yet; opens Settings for now.',
+      description: 'Navigate to the client directory.',
       category: 'navigate',
       scope: 'global',
       displayKeys: 'G then C',
-      disabledReason: 'Dedicated Clients route lands after the Demo Sprint.',
     },
   })
 

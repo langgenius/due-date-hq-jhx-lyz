@@ -11,6 +11,6 @@ Audit Log is the firm-wide read surface for append-only audit events.
 
 ## Status
 
-Planned as of 2026-04-28. The repository already has audit writes and a scoped
-DB repo foundation; the page, contract, server procedure, and front-end route are
-not implemented yet.
+Implemented as of 2026-04-29 for the read-only Audit Log page, contract, server
+procedure, and protected `/audit` front-end route. CSV export, Team workload, and
+Audit-Ready Evidence Package remain P1 follow-ups.

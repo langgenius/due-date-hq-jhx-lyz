@@ -4,7 +4,7 @@ import { FirmRoleSchema } from './firms'
 
 export const MemberManagedRoleSchema = z.enum(['manager', 'preparer', 'coordinator'])
 export const MemberStatusSchema = z.enum(['active', 'suspended'])
-export const MemberInvitationStatusSchema = z.enum(['pending', 'expired'])
+export const MemberInvitationStatusSchema = z.enum(['pending', 'expired', 'canceled'])
 
 export const MemberPublicSchema = z.object({
   id: z.string().min(1),

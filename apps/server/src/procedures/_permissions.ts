@@ -10,6 +10,23 @@ export interface CurrentFirmOwnerContext {
   userId: string
 }
 
+export const CLIENT_WRITE_ROLES = [
+  'owner',
+  'manager',
+  'preparer',
+] as const satisfies readonly Role[]
+export const MIGRATION_RUN_ROLES = [
+  'owner',
+  'manager',
+  'preparer',
+] as const satisfies readonly Role[]
+export const MIGRATION_REVERT_ROLES = ['owner', 'manager'] as const satisfies readonly Role[]
+export const OBLIGATION_STATUS_WRITE_ROLES = [
+  'owner',
+  'manager',
+  'preparer',
+] as const satisfies readonly Role[]
+
 export async function requireCurrentFirmRole(
   ctx: RpcContext,
   allowedRoles: readonly Role[],

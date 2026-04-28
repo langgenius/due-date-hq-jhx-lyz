@@ -116,6 +116,17 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
 
   const dirty =
     name.trim() !== firm.name || (timezone.trim() || 'America/New_York') !== firm.timezone
+  const currentPlan = firm.plan === 'firm' ? t`Firm` : firm.plan === 'pro' ? t`Pro` : t`Solo`
+  const currentRole =
+    firm.role === 'owner'
+      ? t`Owner`
+      : firm.role === 'manager'
+        ? t`Manager`
+        : firm.role === 'preparer'
+          ? t`Preparer`
+          : t`Coordinator`
+  const firmSummary = t`Active firm · ${{ currentPlan }} plan · ${firm.seatLimit} seat limit`
+  const firmSummaryLabel = t`Active firm summary`
 
   return (
     <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-4 py-6 md:px-6">
@@ -132,15 +143,17 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
               <h1 className="truncate text-2xl font-semibold leading-tight text-text-primary">
                 <Trans>Firm profile</Trans>
               </h1>
-              <p className="truncate text-sm text-text-secondary">
-                <Trans>
-                  Active firm · {firm.plan} plan · {firm.seatLimit} seat limit
-                </Trans>
+              <p
+                role="note"
+                aria-label={firmSummaryLabel}
+                className="truncate text-sm text-text-secondary"
+              >
+                {firmSummary}
               </p>
             </div>
           </div>
           <Badge variant="outline" className="font-mono tabular-nums">
-            {firm.role}
+            {currentRole}
           </Badge>
         </div>
       </section>

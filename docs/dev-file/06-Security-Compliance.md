@@ -79,28 +79,31 @@ const statement = {
 
 ### 3.2 角色权限矩阵
 
-| 资源 · 动作                  | owner | manager            | preparer             | coordinator               |
-| ---------------------------- | ----- | ------------------ | -------------------- | ------------------------- |
-| `client.*`                   | ✓     | create/read/update | read/update          | read                      |
-| `obligation.update:status`   | ✓     | ✓                  | ✓（仅自己 assignee） | —                         |
-| `obligation.update:assignee` | ✓     | ✓                  | —                    | —                         |
-| `pulse.approve`              | ✓     | ✓                  | —                    | —                         |
-| `pulse.batch_apply`          | ✓     | ✓                  | —                    | —                         |
-| `pulse.revert`               | ✓     | ✓                  | —                    | —                         |
-| `migration.run`              | ✓     | ✓                  | —                    | —                         |
-| `migration.revert`           | ✓     | ✓                  | —                    | —                         |
-| `member.invite`              | ✓     | ✓（≤ preparer）    | —                    | —                         |
-| `member.change_role`         | ✓     | —                  | —                    | —                         |
-| `billing.*`                  | ✓     | —                  | —                    | —                         |
-| `audit.export`               | ✓     | ✓                  | —                    | —                         |
-| `dollars.read`               | ✓     | ✓                  | ✓                    | 默认 ✗；firm 开关打开才 ✓ |
-| `export.evidence_package`    | ✓     | —                  | —                    | —                         |
+| 资源 · 动作                  | owner | manager | preparer             | coordinator               |
+| ---------------------------- | ----- | ------- | -------------------- | ------------------------- |
+| `client.create`              | ✓     | ✓       | ✓                    | —                         |
+| `client.read`                | ✓     | ✓       | ✓                    | ✓                         |
+| `obligation.update:status`   | ✓     | ✓       | ✓（仅自己 assignee） | —                         |
+| `obligation.update:assignee` | ✓     | ✓       | —                    | —                         |
+| `pulse.approve`              | ✓     | ✓       | —                    | —                         |
+| `pulse.batch_apply`          | ✓     | ✓       | —                    | —                         |
+| `pulse.revert`               | ✓     | ✓       | —                    | —                         |
+| `migration.run`              | ✓     | ✓       | ✓                    | —                         |
+| `migration.revert`           | ✓     | ✓       | —                    | —                         |
+| `member.invite`              | ✓     | —       | —                    | —                         |
+| `member.change_role`         | ✓     | —       | —                    | —                         |
+| `billing.read`               | ✓     | ✓       | —                    | —                         |
+| `billing.update`             | ✓     | —       | —                    | —                         |
+| `audit.read`                 | ✓     | ✓       | ✓                    | —                         |
+| `audit.export`               | ✓     | ✓       | —                    | —                         |
+| `dollars.read`               | ✓     | ✓       | ✓                    | 默认 ✗；firm 开关打开才 ✓ |
+| `export.evidence_package`    | ✓     | —       | —                    | —                         |
 
-**边界原则：** Revert 是补救能力，Owner + Manager 都可执行；Owner-only 只用于所有权 / 账户级能力，包括 Firm 删除、Owner 转让、billing/pay-intent、role 修改和全 firm export。
+**边界原则：** Revert 是补救能力，Owner + Manager 都可执行；Owner-only 只用于所有权 / 账户级能力，包括 Firm 删除、Owner 转让、billing/pay-intent、member 管理和全 firm export。Members v1 mutation 网关当前只允许 Owner；Manager 成员管理可在 P1 重新评估。
 
 ### 3.3 权限检查（P0 Owner-only，Phase 1 完整矩阵）
 
-- 7 天 Demo / P0 早期：单 Owner 账号，`member.role='owner'`；仍必须检查 session、active firm、tenant scope，且所有写操作写 audit
+- 7 天 Demo / P0 早期：必须检查 session、active firm、tenant scope；client / migration / obligation 写入口已在服务端按 role gate 收口，且所有写操作写 audit
 - 真实试点前：Owner MFA 开启；危险写操作按 RBAC 矩阵校验（migration/pulse revert = Owner + Manager，export / billing / ownership = Owner）
 - Phase 1 在每个 oRPC procedure middleware 中加 `authed.use(requirePermission('client.delete'))`，启用四角色矩阵
 - 失败 → 写 `audit_event(action='auth.denied', reason=...)` + 返回 `ORPCError('FORBIDDEN')`
@@ -239,7 +242,8 @@ migration.batch.created / migration.mapper.confirmed / migration.normalizer.conf
 migration.matrix.applied / migration.imported / migration.reverted / migration.single_undo
 exception.apply / exception.revert           ← Phase 1
 rule.updated / rule.verified                 ← Phase 1（Rules-as-Asset）
-member.invite / member.accept / member.suspend / member.remove / member.change_role
+member.invited / member.accepted / member.suspended / member.removed / member.role.updated
+member.invitation.canceled / member.invitation.resent
 billing.subscribe / billing.cancel           ← Phase 1
 export.evidence_package / export.firm_audit
 ai.refusal / ai.guard_failed

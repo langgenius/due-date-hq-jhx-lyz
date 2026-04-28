@@ -282,7 +282,12 @@ export function ClientsRoute() {
     orpc.clients.create.mutationOptions({
       onSuccess: (client) => {
         void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
-        void setClientsQuery({ client: client.id })
+        void setClientsQuery({
+          q: null,
+          entity: ALL_ENTITIES,
+          state: STATE_FILTER_ALL,
+          client: client.id,
+        })
         toast.success(t`Client created`, { description: client.name })
       },
       onError: (err) => {

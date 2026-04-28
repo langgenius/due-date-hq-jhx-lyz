@@ -11,7 +11,7 @@
 - `docs/product-design/rules/02-rules-console-product-design.md` §1 明确 Rules Console
   是**内部 ops workbench**，不是 CPA settings form。四个 tab 的实际载体都是 6/26/28
   行的数据表 + drawer。
-- `docs/design/DueDateHQ-DESIGN.md` §5.2 旧规则把 "Settings / Rules" 一并锁定为
+- `docs/Design/DueDateHQ-DESIGN.md` §5.2 旧规则把 "Settings / Rules" 一并锁定为
   880px，把 IA 路径错当成内容形态。
 - 副作用物证：`docs/dev-log/2026-04-27-rules-console-shell.md` 里的 Sources tab
   `Show all` 横向滚动 bug，根因就是 880px 容不下 7 列内容，被迫上 `table-fixed`
@@ -107,7 +107,7 @@ tab，因为它们共用同一 header。
 
 ## Docs
 
-- `docs/design/DueDateHQ-DESIGN.md` §5.2 增订三条新规则：
+- `docs/Design/DueDateHQ-DESIGN.md` §5.2 增订三条新规则：
   - Settings **forms**（Profile / Members / Org general）：880px
   - Settings **data surfaces / ops workbench**（Rules Console、未来的
     Audit log / Team workload）：全宽，与 Workboard 同源
@@ -175,6 +175,6 @@ Figma 已和当前代码 1:1 对齐——但代码本身的列宽 / 表单分配
 - `apps/app/src/features/rules/rules-console.tsx`
 - `apps/app/src/features/rules/coverage-tab.tsx`
 - `apps/app/src/features/rules/rules-console-primitives.tsx`
-- `docs/design/DueDateHQ-DESIGN.md` §5.2
+- `docs/Design/DueDateHQ-DESIGN.md` §5.2
 - `docs/product-design/rules/02-rules-console-product-design.md` §4.2 / §12
 - `docs/dev-log/2026-04-27-rules-console-shell.md`

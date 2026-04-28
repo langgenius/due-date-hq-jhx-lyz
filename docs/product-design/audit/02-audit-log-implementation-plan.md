@@ -1,7 +1,7 @@
 ---
 title: 'Audit Log Implementation Plan'
 date: 2026-04-28
-status: planned
+status: implemented
 owner: LYZ
 ---
 
@@ -10,6 +10,8 @@ owner: LYZ
 This plan implements the read-only Audit Log management page from
 [`01-audit-log-management-page.md`](./01-audit-log-management-page.md). It intentionally
 does not include CSV export, Team RBAC enforcement, or Audit-Ready Evidence Package.
+Implementation landed on 2026-04-28; Audit-specific Playwright coverage remains deferred until
+the local E2E seed creates stable audit rows.
 
 ## Phase 0. Preflight
 
@@ -29,13 +31,13 @@ Acceptance:
 
 ## Phase 1. Contract Surface
 
-Files:
+Deferred files:
 
 - `packages/contracts/src/audit.ts`
 - `packages/contracts/src/index.ts`
 - `packages/contracts/src/contracts.test.ts`
 
-Tasks:
+Deferred tasks:
 
 1. Add `AuditActionCategorySchema`.
 2. Add `AuditListInputSchema` with capped `search` and `limit`.
@@ -242,7 +244,7 @@ Files:
 - `docs/dev-file/05-Frontend-Architecture.md`
 - `docs/dev-file/06-Security-Compliance.md`
 - `DESIGN.md`
-- `docs/design/DueDateHQ-DESIGN.md`
+- `docs/Design/DueDateHQ-DESIGN.md`
 - `docs/dev-log/2026-04-28-audit-log-management-page.md`
 
 Tasks:

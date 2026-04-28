@@ -62,7 +62,7 @@ Slice 范围实现：只读 firm-wide Audit Log，不做 CSV/PDF 导出、不做
 
 - 同步 `docs/dev-file/02-System-Architecture.md`、`03-Data-Model.md`、
   `05-Frontend-Architecture.md`、`06-Security-Compliance.md`。
-- 同步 `DESIGN.md` 和 `docs/design/DueDateHQ-DESIGN.md` 的 sidebar/Admin 描述。
+- 同步 `DESIGN.md` 和 `docs/Design/DueDateHQ-DESIGN.md` 的 sidebar/Admin 描述。
 - 将 Audit 产品设计文档状态从 planned 更新为 implemented。
 
 ## 为什么这样做

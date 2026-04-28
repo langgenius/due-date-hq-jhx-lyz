@@ -1,5 +1,6 @@
 import { ORPCError } from '@orpc/server'
 import { requireTenant } from '../_context'
+import { CLIENT_WRITE_ROLES, requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
 import { toClientPublic, type ClientCreateInputForRepo, type ClientRow } from './_serializers'
 
@@ -18,6 +19,7 @@ import { toClientPublic, type ClientCreateInputForRepo, type ClientRow } from '.
  */
 
 const create = os.clients.create.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
   const { scoped, userId } = requireTenant(context)
   const repoInput: ClientCreateInputForRepo = {
     name: input.name,
@@ -50,6 +52,7 @@ const create = os.clients.create.handler(async ({ input, context }) => {
 })
 
 const createBatch = os.clients.createBatch.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
   const { scoped, userId } = requireTenant(context)
 
   const repoInputs: ClientCreateInputForRepo[] = input.clients.map((c) => ({

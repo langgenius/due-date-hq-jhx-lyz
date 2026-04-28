@@ -487,7 +487,7 @@ packages/core
 {
   "scripts": {
     "dev": "vp run -r dev",
-    "build": "vp run @duedatehq/app#build && vp run @duedatehq/server#build",
+    "build": "vp run @duedatehq/app#build && vp run @duedatehq/server#build && vp run @duedatehq/marketing#build",
     "check": "vp check",
     "test": "vp run -r test",
     "test:e2e": "playwright test",

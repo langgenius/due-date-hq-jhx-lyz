@@ -5,7 +5,13 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { ContextVars, Env } from '../env'
 import type { RpcContext } from './_context'
-import { requireCurrentFirmRole } from './_permissions'
+import {
+  CLIENT_WRITE_ROLES,
+  MIGRATION_REVERT_ROLES,
+  MIGRATION_RUN_ROLES,
+  OBLIGATION_STATUS_WRITE_ROLES,
+  requireCurrentFirmRole,
+} from './_permissions'
 
 function contextFor(role: string, status = 'active'): RpcContext {
   return {
@@ -64,5 +70,12 @@ describe('requireCurrentFirmRole', () => {
     ).rejects.toMatchObject({
       code: 'FORBIDDEN',
     })
+  })
+
+  it('keeps write-role gates aligned with the current RBAC surface', () => {
+    expect(CLIENT_WRITE_ROLES).toEqual(['owner', 'manager', 'preparer'])
+    expect(MIGRATION_RUN_ROLES).toEqual(['owner', 'manager', 'preparer'])
+    expect(MIGRATION_REVERT_ROLES).toEqual(['owner', 'manager'])
+    expect(OBLIGATION_STATUS_WRITE_ROLES).toEqual(['owner', 'manager', 'preparer'])
   })
 })

@@ -188,11 +188,14 @@ msgstr "操作"
 msgid "Actions"
 msgstr "操作"
 
-#. placeholder {0}: firm.plan
-#. placeholder {1}: firm.seatLimit
+#. placeholder {0}: firm.seatLimit
 #: src/routes/settings.profile.tsx
-msgid "Active firm · {0} plan · {1} seat limit"
-msgstr "当前事务所 · {0} 计划 · {1} 个席位上限"
+msgid "Active firm · {currentPlan} plan · {0} seat limit"
+msgstr "当前事务所 · {currentPlan} 计划 · {0} 个席位上限"
+
+#: src/routes/settings.profile.tsx
+msgid "Active firm summary"
+msgstr "当前事务所摘要"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-table.tsx
@@ -541,6 +544,10 @@ msgstr "继续前往 Stripe"
 msgid "Continue with Google"
 msgstr "使用 Google 继续"
 
+#: src/routes/settings.profile.tsx
+msgid "Coordinator"
+msgstr "协调员"
+
 #: src/routes/onboarding.tsx
 msgid "Could not activate your practice"
 msgstr "无法激活你的事务所"
@@ -576,6 +583,10 @@ msgstr "无法加载规则覆盖。"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Could not run generation preview."
 msgstr "无法运行生成预览。"
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Could not switch firm."
+msgstr "无法切换事务所。"
 
 #: src/routes/settings.profile.tsx
 msgid "Could not update firm."
@@ -919,6 +930,7 @@ msgstr "按时间范围、操作分类、执行人或实体筛选。"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
+#: src/routes/settings.profile.tsx
 msgid "Firm"
 msgstr "Firm"
 
@@ -1195,6 +1207,10 @@ msgstr "管理事务所客户目录，它会驱动迁移、规则预览、仪表
 #: src/routes/settings.billing.tsx
 msgid "Manage the subscription attached to the active firm."
 msgstr "管理绑定到当前事务所的订阅。"
+
+#: src/routes/settings.profile.tsx
+msgid "Manager"
+msgstr "管理员"
 
 #: src/routes/clients.tsx
 msgid "Manual"
@@ -1494,6 +1510,7 @@ msgid "Other"
 msgstr "其他"
 
 #: src/routes/clients.tsx
+#: src/routes/settings.profile.tsx
 msgid "Owner"
 msgstr "负责人"
 
@@ -1556,6 +1573,7 @@ msgstr "计划"
 msgid "Please enter at least 2 characters."
 msgstr "请至少输入 2 个字符。"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-page.tsx
 #: src/features/migration/Wizard.tsx
@@ -1575,6 +1593,10 @@ msgstr "事务所名称"
 msgid "PRACTICE PROFILE"
 msgstr "事务所资料"
 
+#: src/routes/settings.profile.tsx
+msgid "Preparer"
+msgstr "经办人"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
 msgstr "主导航"
@@ -1584,6 +1606,7 @@ msgid "Priority onboarding, audit exports, and higher coverage needs."
 msgstr "适合需要优先 onboarding、审计导出和更高覆盖的团队。"
 
 #: src/routes/settings.billing.tsx
+#: src/routes/settings.profile.tsx
 msgid "Pro"
 msgstr "Pro"
 
@@ -1924,6 +1947,7 @@ msgid "Sole prop"
 msgstr "个体经营"
 
 #: src/routes/settings.billing.tsx
+#: src/routes/settings.profile.tsx
 msgid "Solo"
 msgstr "Solo"
 

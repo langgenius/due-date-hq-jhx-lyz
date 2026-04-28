@@ -70,7 +70,8 @@ Navigation:
 
 - Sidebar group: `Admin`.
 - Enabled item: `Audit log`.
-- Still-disabled items: `Clients`, `Team workload`.
+- Enabled sibling item: `Clients`.
+- Still-disabled item: `Team workload`.
 - Command Palette may include `Audit log` as a navigation command.
 
 Route:
@@ -313,7 +314,7 @@ Implementation must update:
 - `docs/dev-file/05-Frontend-Architecture.md`
 - `docs/dev-file/06-Security-Compliance.md`
 - `DESIGN.md`
-- `docs/design/DueDateHQ-DESIGN.md`
+- `docs/Design/DueDateHQ-DESIGN.md`
 - `docs/dev-log/YYYY-MM-DD-audit-log-management-page.md`
 
 Stable architecture docs should describe what is implemented. Future export/RBAC work
