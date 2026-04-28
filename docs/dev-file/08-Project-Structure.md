@@ -73,13 +73,17 @@ rm -rf apps/* packages/*
 - 消费端（`apps/server` 的 wrangler esbuild · `apps/app` 的 Vite+ / Rolldown）自行转译
 - 好处：dev 零构建延迟；go-to-definition 直达源码；无构建产物缓存冲突
 
-### 3.2 每包独立 `tsconfig.json`
+### 3.2 TypeScript project 边界
 
-- 根目录**不放** TypeScript project 配置，共享 TypeScript 配置只放在 `packages/typescript-config`
+- 根目录 `tsconfig.json` 只覆盖 Node tooling：`playwright.config.ts`、根 `vite.config.ts`、
+  `scripts/**/*.ts`、`e2e/**/*.ts`、`apps/*/vite.config.ts`
+- app / package 的运行时代码仍各自拥有独立 `tsconfig.json`
 - 每个 app / package 都 `extends: "@duedatehq/typescript-config/<variant>.json"`
-- 根目录 `scripts/` 使用 `.mjs` 运维脚本；如果未来新增 `.ts` 脚本，应优先放入合适的 workspace package，只有确实需要根级脚本类型检查时才新增专用 `tsconfig.scripts.json`
+- 根级 TypeScript tooling 统一继承 `@duedatehq/typescript-config/node.json`，不在文件内写
+  `/// <reference types="node" />`
 - Variants：
   - `base.json`：strict + ES2022 + isolated modules + TS 6 defaults
+  - `node.json`：Node.js tooling/runtime globals（显式包含 `@types/node`）
   - `library.json`：JIT 包用（exports types from src）
   - `vite.json`：`apps/app` 用（DOM lib + React JSX）
   - `worker.json`：`apps/server` 用（`@cloudflare/workers-types` + no DOM）
@@ -390,6 +394,7 @@ packages/auth/
 packages/typescript-config/
 ├── base.json
 ├── library.json                    # JIT 内部包
+├── node.json                       # 根级 tooling / Node runtime globals
 ├── vite.json                       # apps/app
 ├── worker.json                     # apps/server
 └── package.json                    # name: @duedatehq/typescript-config

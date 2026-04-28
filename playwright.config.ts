@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 import { defineConfig, devices } from '@playwright/test'
 
 const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:8787'
@@ -21,7 +19,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  ...(process.env.CI ? { workers: 1 } : {}),
   reporter: process.env.CI
     ? [
         ['github'],
@@ -37,16 +35,18 @@ export default defineConfig({
     trace: 'on-first-retry',
     video: 'retain-on-failure',
   },
-  webServer: usesExternalTarget
-    ? undefined
+  ...(usesExternalTarget
+    ? {}
     : {
-        command: localWorkerCommand,
-        url: `${baseURL}/api/health`,
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
-        stdout: 'pipe',
-        stderr: 'pipe',
-      },
+        webServer: {
+          command: localWorkerCommand,
+          url: `${baseURL}/api/health`,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+          stdout: 'pipe',
+          stderr: 'pipe',
+        },
+      }),
   projects: [
     {
       name: 'chromium',

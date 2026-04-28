@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/// <reference types="node" />
 import { execFile } from 'node:child_process'
 import { RULE_SOURCES, type RuleSource } from '../packages/core/src/rules/index.ts'
 

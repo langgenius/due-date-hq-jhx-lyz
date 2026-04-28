@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Root Node tooling",
+  "extends": "./packages/typescript-config/node.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "lib": ["ES2023", "DOM", "DOM.Iterable"]
+  },
+  "include": [
+    "playwright.config.ts",
+    "vite.config.ts",
+    "scripts/**/*.ts",
+    "e2e/**/*.ts",
+    "apps/*/vite.config.ts"
+  ],
+  "exclude": ["node_modules", "dist", "**/dist", ".wrangler", "**/.wrangler", ".turbo", "coverage"]
+}
