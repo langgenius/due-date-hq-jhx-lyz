@@ -50,8 +50,6 @@ test.describe('seeded workboard', () => {
 
     await expect(authenticatedPage.getByText('Status updated')).toBeVisible()
     await expect(authenticatedPage.getByText(/Audit [a-f0-9-]{8}/)).toBeVisible()
-    await expect(
-      workboardPage.rowFor('Arbor & Vale LLC').getByText('Done', { exact: true }),
-    ).toBeVisible()
+    await expect(workboardPage.statusSelectFor('Arbor & Vale LLC')).toContainText('Done')
   })
 })

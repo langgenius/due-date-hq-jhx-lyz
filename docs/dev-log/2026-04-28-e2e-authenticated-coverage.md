@@ -38,6 +38,10 @@ next useful coverage needed a deterministic local session fixture instead of tes
   - protected-route locale handoff before login redirect;
   - localized SPA 404.
 
+2026-04-28 follow-up: narrowed the Workboard status mutation assertion to the labeled status
+combobox. The row intentionally renders both a read-only status badge and an editable select value,
+so row-scoped text matching can hit duplicate `Done` labels under Playwright strict mode.
+
 ## Boundaries
 
 The new authenticated specs are local-only and skip external `E2E_BASE_URL` targets because the
