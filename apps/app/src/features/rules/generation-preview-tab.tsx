@@ -173,11 +173,11 @@ export function GenerationPreviewTab() {
             <Button
               type="submit"
               variant="accent"
-              className="h-8 self-end rounded-md text-xs"
+              className="self-end"
               disabled={previewQuery.isFetching}
             >
               {previewQuery.isFetching ? <Trans>Running…</Trans> : <Trans>Run preview</Trans>}
-              <CornerDownLeftIcon aria-hidden className="size-3.5" />
+              <CornerDownLeftIcon data-icon="inline-end" aria-hidden />
             </Button>
           </div>
 
