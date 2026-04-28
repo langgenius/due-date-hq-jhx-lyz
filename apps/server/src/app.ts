@@ -1,8 +1,9 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { HTTPException } from 'hono/http-exception'
 import type { Env, ContextVars } from './env'
 import { localeMiddleware } from './middleware/locale'
-import { requestIdMiddleware } from './middleware/logger'
+import { logServerError, requestIdMiddleware } from './middleware/logger'
 import { sessionMiddleware } from './middleware/session'
 import { tenantMiddleware } from './middleware/tenant'
 import { rateLimitMiddleware } from './middleware/rate-limit'
@@ -41,6 +42,27 @@ function allowedAuthOrigin(origin: string, env: Env): string | null {
  */
 export function createApp() {
   const app = new Hono<{ Bindings: Env; Variables: ContextVars }>()
+
+  app.onError((err, c) => {
+    const status = err instanceof HTTPException ? err.status : 500
+
+    logServerError({
+      boundary: 'hono',
+      error: err,
+      requestId: c.get('requestId'),
+      method: c.req.method,
+      path: c.req.path,
+      status,
+      firmId: c.get('firmId'),
+      userId: c.get('userId'),
+    })
+
+    if (err instanceof HTTPException) {
+      return err.getResponse()
+    }
+
+    return c.text('Internal Server Error', 500)
+  })
 
   app.use('*', requestIdMiddleware)
   app.use('*', localeMiddleware)

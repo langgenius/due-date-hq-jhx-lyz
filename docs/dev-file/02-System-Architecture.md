@@ -153,6 +153,21 @@ run_worker_first = ["/rpc/*", "/api/*"]
 - RPC Protocol ≠ REST：二进制-ish 协议不应该被放进 `/api/*` 的 REST 命名空间里，避免误解
 - 为 Phase 2 的 `OpenAPIHandler(contract, { prefix: '/api/v1' })` 留出干净的命名空间，两者同时存在且零命名冲突
 
+### 3.1 Hono / oRPC 错误边界纪律
+
+`apps/server/src/app.ts` 拥有 Hono app 组装：全局 request id、locale、普通 Hono route、
+`/rpc/*` middleware 顺序和 Hono `app.onError` 兜底都在这里维护。Hono `app.onError` 只负责
+Hono middleware、手写 route、以及 `rpcHandler` 外层意外抛出的异常。
+
+`apps/server/src/rpc.ts` 拥有 oRPC `RPCHandler` 组装。Procedure 内部抛出的异常会先被
+`RPCHandler` 捕获并编码成 RPC error response；因此 RPC procedure 的 5xx 日志必须通过 oRPC
+interceptor 接入，不能依赖 Hono `app.onError`。预期内的业务失败应显式转为 `ORPCError` 或写入
+领域错误表（例如 `migration_error`），只有真正未预期的异常保留为 500。
+
+`apps/server/src/middleware/logger.ts` 是 Worker request id 与 server error log serializer 的共享
+位置。禁止在 procedure 里散落裸 `console.error` 作为长期方案；需要更多上下文时，优先扩展统一日志
+字段或在业务层转换为结构化领域错误。
+
 ---
 
 ## 4. 请求流（关键三类）
