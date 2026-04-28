@@ -10,10 +10,10 @@
  */
 
 const MAPPER_V1 = `prompt_version: mapper@v1
-model: openai/gpt-4o-mini (fallback: anthropic/claude-3-5-haiku)
+model_tier: fast-json
 temperature: 0
 response_format: json_object
-route: via Cloudflare AI Gateway + OpenAI ZDR endpoint
+route: via Vercel AI SDK Core + Cloudflare AI Gateway
 
 You are a data mapping assistant for a US tax deadline tool.
 Given a spreadsheet's header and a 5-row sample, map each column to
@@ -40,16 +40,15 @@ Rules:
 - Explain every decision in <= 20 words.
 - PII note: you only see this 5-row sample, not the full dataset.
 
-ZDR: Do not retain any data seen for training.
-This request is routed through a Zero Data Retention endpoint.
+Retention: Do not retain any data seen for training.
 PII handling: field names and 5-row sample only — no placeholders used.
 `
 
 const NORMALIZER_ENTITY_V1 = `prompt_version: normalizer-entity@v1
-model: openai/gpt-4o-mini (fallback: anthropic/claude-3-5-haiku)
+model_tier: fast-json
 temperature: 0
 response_format: json_object
-route: via Cloudflare AI Gateway + OpenAI ZDR endpoint
+route: via Vercel AI SDK Core + Cloudflare AI Gateway
 
 You are a data normalization assistant for a US tax deadline tool.
 Given a list of raw entity-type strings (from a CSV column), map each
@@ -74,16 +73,15 @@ Rules:
 - Do not emit any keys other than the raw values provided.
 - Case-insensitive; ignore surrounding whitespace and punctuation.
 
-ZDR: Do not retain any data seen for training.
-This request is routed through a Zero Data Retention endpoint.
+Retention: Do not retain any data seen for training.
 PII handling: enumerated field values only — no placeholders used.
 `
 
 const NORMALIZER_TAX_TYPES_V1 = `prompt_version: normalizer-tax-types@v1
-model: openai/gpt-4o-mini (fallback: anthropic/claude-3-5-haiku)
+model_tier: fast-json
 temperature: 0
 response_format: json_object
-route: via Cloudflare AI Gateway + OpenAI ZDR endpoint
+route: via Vercel AI SDK Core + Cloudflare AI Gateway
 
 You are a data normalization assistant for a US tax deadline tool.
 Given a list of raw tax-type / tax-return strings and an optional
@@ -116,16 +114,14 @@ Rules:
 - Case-insensitive; ignore punctuation and common prefixes ("Form", "IRS", "#").
 - Do not emit any keys other than the raw values provided.
 
-ZDR: Do not retain any data seen for training.
-This request is routed through a Zero Data Retention endpoint.
+Retention: Do not retain any data seen for training.
 PII handling: enumerated field values only — no placeholders used.
 `
 
 export interface PromptDefinition {
   name: string
   text: string
-  model: string
-  fallbackModel: string | null
+  modelTier: string
   temperature: number
   responseFormat: 'json_object'
   route: string
@@ -141,17 +137,14 @@ export type PromptName = keyof typeof prompts
 
 export function loadPrompt(name: PromptName): PromptDefinition {
   const text = prompts[name]
-  const modelLine = /^model:\s*(.+)$/m.exec(text)?.[1] ?? 'openai/gpt-4o-mini'
-  const fallbackMatch = /\(fallback:\s*([^)]+)\)/.exec(modelLine)
-  const model = modelLine.replace(/\s*\(fallback:[^)]+\)/, '').trim()
+  const modelTier = /^model_tier:\s*(.+)$/m.exec(text)?.[1]?.trim() ?? 'fast-json'
 
   return {
     name,
     text,
-    model,
-    fallbackModel: fallbackMatch?.[1]?.trim() ?? null,
+    modelTier,
     temperature: 0,
     responseFormat: 'json_object',
-    route: 'via Cloudflare AI Gateway + OpenAI ZDR endpoint',
+    route: 'via Vercel AI SDK Core + Cloudflare AI Gateway',
   }
 }

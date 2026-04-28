@@ -12,7 +12,7 @@
 
 | 本文覆盖                                                   | 本文不覆盖（见对应文档）                         |
 | ---------------------------------------------------------- | ------------------------------------------------ |
-| 权威源清单（URL / 协议 / 更新频率 / 官方证据强度）         | 抓取后的 LLM Extraction → 见 04 §6.2             |
+| 权威源清单（URL / 协议 / 更新频率 / 官方证据强度）         | 抓取后的 AI SDK Extraction → 见 04 §6.2          |
 | 每个源的反爬策略（请求头、频率、代理、Cloudflare IP 风险） | Match Engine 四维匹配 → 见 04 §6.3 / PRD §6.3.3  |
 | 单源失败的降级与可观测（SLA 风险矩阵 + 应急预案）          | Batch Apply 事务 → 见 04 §6.4                    |
 | Source Adapter 工程契约（interface + 错误边界）            | Evidence Mode / 审计 → 见 06-Security-Compliance |
@@ -181,13 +181,13 @@ export const SOURCE_FETCHER: Record<SourceId, FetcherId> = {
 
 ### 5.1 单源失败场景
 
-| 失败类型                | 检测方式                                 | 响应                                                                          | 用户可见影响                                  |
-| ----------------------- | ---------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------- |
-| HTTP 5xx / timeout      | worker 直接 catch                        | 退避 + 重试 3 次；失败 → Sentry                                               | `Last checked X min ago` 显示真实时间（诚实） |
-| HTTP 403 / 429（反爬）  | status code                              | 退避 15min + 切 `browserless` fetcher（Phase 2）                              | 同上                                          |
-| 结构变更（selector 挂） | 解析后字段为空 / hash 长期不变           | worker 主动报 `selector-drift` 事件；降级 mock 数据（仅 Demo 环境）           | Banner 显示 `Source needs attention`          |
-| 内容污染（钓鱼页）      | LLM Extract `confidence < 0.3` 连续 3 次 | 该源打入 `quarantined` 状态，下次 cron 跳过，ops 人工复核                     | 源从 Feed 隐藏                                |
-| 法律下架（Takedown）    | ops 手动触发                             | 源 `disabled`，历史 Pulse 保留但打 `source_revoked` 标记，Evidence 链保留快照 | Evidence Drawer 显示 "Source no longer live"  |
+| 失败类型                | 检测方式                                    | 响应                                                                          | 用户可见影响                                  |
+| ----------------------- | ------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------- |
+| HTTP 5xx / timeout      | worker 直接 catch                           | 退避 + 重试 3 次；失败 → Sentry                                               | `Last checked X min ago` 显示真实时间（诚实） |
+| HTTP 403 / 429（反爬）  | status code                                 | 退避 15min + 切 `browserless` fetcher（Phase 2）                              | 同上                                          |
+| 结构变更（selector 挂） | 解析后字段为空 / hash 长期不变              | worker 主动报 `selector-drift` 事件；降级 mock 数据（仅 Demo 环境）           | Banner 显示 `Source needs attention`          |
+| 内容污染（钓鱼页）      | AI SDK Extract `confidence < 0.3` 连续 3 次 | 该源打入 `quarantined` 状态，下次 cron 跳过，ops 人工复核                     | 源从 Feed 隐藏                                |
+| 法律下架（Takedown）    | ops 手动触发                                | 源 `disabled`，历史 Pulse 保留但打 `source_revoked` 标记，Evidence 链保留快照 | Evidence Drawer 显示 "Source no longer live"  |
 
 ### 5.2 可观测指标（上报到 07-DevOps-Testing）
 
@@ -250,7 +250,7 @@ export interface ParsedItem {
   title: string
   publishedAt: string
   officialSourceUrl: string
-  rawText: string // feeds LLM extraction downstream
+  rawText: string // feeds AI SDK extraction downstream
 }
 ```
 
@@ -324,14 +324,14 @@ packages/ingest/
 
 ## 9. 风险登记（Known Risks）
 
-| 风险                                         | 可能性 | 影响 | 缓解                                                                               |
-| -------------------------------------------- | ------ | ---- | ---------------------------------------------------------------------------------- |
-| 某州 DOR 整站改版导致 selector 全挂          | 中     | 中   | Selector Fallback Chain §6.2 + GovDelivery 兜底 §5.3                               |
-| Cloudflare egress IP 被某个州 WAF 整体挑战   | 低     | 高   | Browserless fetcher Phase 2 预留；先验证 Phase 0 两源无问题                        |
-| IRS RSS 当月 reset 导致漏抓月初公告          | 中     | 中   | 每月 1 号 00:10 UTC 额外触发一次 `irs.newsroom` 全量抓取（非 RSS 路径）            |
-| FEMA API 字段变更（历史上 v1 → v2 改过一次） | 低     | 中   | 锁版本 `v2`，单元测试守字段契约                                                    |
-| LLM 对 source excerpt 做"礼貌性改写"导致失真 | 中     | 高   | 04 §6.2 的 Glass-Box Guard：LLM 输出的 excerpt 必须可定位回 `rawText`，否则 reject |
-| 法务 Takedown                                | 极低   | 高   | §5.1 `source_revoked` 流程；Evidence 快照保留                                      |
+| 风险                                            | 可能性 | 影响 | 缓解                                                                                  |
+| ----------------------------------------------- | ------ | ---- | ------------------------------------------------------------------------------------- |
+| 某州 DOR 整站改版导致 selector 全挂             | 中     | 中   | Selector Fallback Chain §6.2 + GovDelivery 兜底 §5.3                                  |
+| Cloudflare egress IP 被某个州 WAF 整体挑战      | 低     | 高   | Browserless fetcher Phase 2 预留；先验证 Phase 0 两源无问题                           |
+| IRS RSS 当月 reset 导致漏抓月初公告             | 中     | 中   | 每月 1 号 00:10 UTC 额外触发一次 `irs.newsroom` 全量抓取（非 RSS 路径）               |
+| FEMA API 字段变更（历史上 v1 → v2 改过一次）    | 低     | 中   | 锁版本 `v2`，单元测试守字段契约                                                       |
+| AI SDK 对 source excerpt 做"礼貌性改写"导致失真 | 中     | 高   | 04 §6.2 的 Glass-Box Guard：AI SDK 输出的 excerpt 必须可定位回 `rawText`，否则 reject |
+| 法务 Takedown                                   | 极低   | 高   | §5.1 `source_revoked` 流程；Evidence 快照保留                                         |
 
 ---
 

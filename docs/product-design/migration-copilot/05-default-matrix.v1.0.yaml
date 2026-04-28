@@ -15,7 +15,7 @@ entity_types_covered:
   - individual
   - other
 notes:
-  - Pure lookup table; no LLM; zero hallucination.
+  - Pure lookup table; no model call; zero hallucination.
   - Ops sign-off required before matrix is promoted from pending to verified.
   - When tax_types is missing on a client row, the Rule Engine reads (entity_type, state) to infer tax_types.
   - Every applied rule writes evidence_link with source_type=default_inference_by_entity_state and matrix_version.

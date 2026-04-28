@@ -1,67 +1,78 @@
+import { createAiGateway } from 'ai-gateway-provider'
+import { createUnified } from 'ai-gateway-provider/providers/unified'
+import { generateText, Output } from 'ai'
 import * as z from 'zod'
 
-export interface GatewayRequest {
-  gatewayBaseUrl?: string
-  openaiApiKey: string
+export interface GatewayRequest<TOut> {
+  accountId: string
+  slug: string
+  apiKey: string
   model: string
   prompt: string
   input: unknown
+  schema: z.ZodType<TOut>
 }
 
-export interface GatewayResponse {
-  content: string
+export interface GatewayResponse<TOut> {
+  output: TOut
   model: string
   tokens?: { input?: number; output?: number }
   costUsd?: number
 }
 
-const GatewayJsonSchema = z.object({
-  choices: z
-    .array(z.object({ message: z.object({ content: z.string().optional() }).optional() }))
-    .optional(),
-  model: z.string().optional(),
-  usage: z
-    .object({
-      prompt_tokens: z.number().optional(),
-      completion_tokens: z.number().optional(),
-    })
-    .optional(),
-})
+function optionalNumber(value: unknown): number | undefined {
+  return typeof value === 'number' ? value : undefined
+}
 
-export async function callGateway(request: GatewayRequest): Promise<GatewayResponse> {
-  const endpoint = request.gatewayBaseUrl
-    ? `${request.gatewayBaseUrl.replace(/\/$/, '')}/chat/completions`
-    : 'https://api.openai.com/v1/chat/completions'
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${request.openaiApiKey}`,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: request.model.replace(/^openai\//, ''),
-      temperature: 0,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: request.prompt },
-        { role: 'user', content: JSON.stringify(request.input) },
-      ],
-    }),
+function readUsage(value: unknown): GatewayResponse<unknown>['tokens'] {
+  if (!isRecord(value)) return undefined
+
+  const input =
+    optionalNumber(value.inputTokens) ??
+    optionalNumber(value.promptTokens) ??
+    optionalNumber(value.input) ??
+    optionalNumber(value.prompt_tokens)
+  const output =
+    optionalNumber(value.outputTokens) ??
+    optionalNumber(value.completionTokens) ??
+    optionalNumber(value.output) ??
+    optionalNumber(value.completion_tokens)
+
+  if (input === undefined && output === undefined) return undefined
+
+  const tokens: NonNullable<GatewayResponse<unknown>['tokens']> = {}
+  if (input !== undefined) tokens.input = input
+  if (output !== undefined) tokens.output = output
+  return tokens
+}
+
+export async function callGateway<TOut>(
+  request: GatewayRequest<TOut>,
+): Promise<GatewayResponse<TOut>> {
+  const aiGateway = createAiGateway({
+    accountId: request.accountId,
+    gateway: request.slug,
+    apiKey: request.apiKey,
+  })
+  const unified = createUnified()
+
+  const result = await generateText({
+    model: aiGateway(unified(request.model)),
+    system: request.prompt,
+    prompt: JSON.stringify(request.input),
+    output: Output.object({ schema: request.schema }),
+    temperature: 0,
   })
 
-  if (!response.ok) {
-    throw new Error(`AI gateway request failed: ${response.status}`)
+  const response: GatewayResponse<TOut> = {
+    output: request.schema.parse(result.output),
+    model: request.model,
   }
-
-  const json = GatewayJsonSchema.parse(await response.json())
-  const tokens: GatewayResponse['tokens'] = {}
-  if (json.usage?.prompt_tokens !== undefined) tokens.input = json.usage.prompt_tokens
-  if (json.usage?.completion_tokens !== undefined) tokens.output = json.usage.completion_tokens
-
-  return {
-    content: json.choices?.[0]?.message?.content ?? '{}',
-    model: json.model ?? request.model,
-    tokens,
-  }
+  const tokens = readUsage(result.usage)
+  if (tokens) response.tokens = tokens
+  return response
 }

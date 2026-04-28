@@ -83,21 +83,21 @@ Rules:
 
 ### 6A.3 AI Normalizer（S2-AC3 · 智能建议而非阻塞）
 
-策略：**枚举型走 LLM，自由字段走 fuzzy + 字典。**
+策略：**枚举型走 AI SDK structured output，自由字段走 fuzzy + 字典。**
 
-| 字段          | 归一方式                                     | 示例                                    |
-| ------------- | -------------------------------------------- | --------------------------------------- |
-| `entity_type` | LLM 映射到 8 枚举之一；未知标 "Needs review" | `L.L.C.` → `LLC`，`Corp (S)` → `S-Corp` |
-| `state`       | 字典 2-letter + full name；失败 → LLM        | `California` → `CA`，`Calif` → `CA`     |
-| `county`      | 保留原始（州内 county 太大），异常字符告警   | `Los Angeles` / `LA` 不归一             |
-| `tax_types`   | 字典 + LLM；缺失走 Default Matrix（§6A.5）   | `Fed 1065` → `federal_1065_partnership` |
-| `tax_year`    | 正则 `(19                                    | 20)\d{2}` + LLM 兜底                    |
-| `importance`  | 字典                                         | `A / VIP / Priority / top` → `high`     |
-| `ein`         | 正则校验 + "##-#######" 归一                 | `12.3456789` → `12-3456789`             |
+| 字段          | 归一方式                                                        | 示例                                    |
+| ------------- | --------------------------------------------------------------- | --------------------------------------- |
+| `entity_type` | AI SDK 映射到 8 枚举之一；未知标 "Needs review"                 | `L.L.C.` → `LLC`，`Corp (S)` → `S-Corp` |
+| `state`       | 字典 2-letter + full name；失败 → Needs review                  | `California` → `CA`，`Calif` → `CA`     |
+| `county`      | 保留原始（州内 county 太大），异常字符告警                      | `Los Angeles` / `LA` 不归一             |
+| `tax_types`   | 字典 + AI SDK structured output；缺失走 Default Matrix（§6A.5） | `Fed 1065` → `federal_1065_partnership` |
+| `tax_year`    | 正则 `(19                                                       | 20)\d{2}`，失败标 Needs review          |
+| `importance`  | 字典                                                            | `A / VIP / Priority / top` → `high`     |
+| `ein`         | 正则校验 + "##-#######" 归一                                    | `12.3456789` → `12-3456789`             |
 
 **所有归一决策写 `evidence_link`**，CPA 在 Client Detail → Audit 看到：
 
-> "此客户 entity=LLC 由 AI 从原始 'L.L.C.' 归一，置信度 97%，模型 gpt-4o-mini"
+> "此客户 entity=LLC 由 AI 从原始 'L.L.C.' 归一，置信度 97%，模型档位 fast-json"
 
 **Smart Suggestions 非阻塞原则：**
 
@@ -360,9 +360,9 @@ You can undo this import for the next 24 hours.
 
 - MVP 不收 SSN / 完整税额（§13.1）
 - 粘贴内容含 SSN 模式 → 前端拦截 + 该列强制 IGNORE + 红色警示
-- AI mapping / normalize **在客户端 redact PII** → 仅发字段名 + 5 行样本到 LLM，不发全表
-- Prompt 明示 `"Do not retain any data seen for training"`；采用 OpenAI `zero data retention` endpoint 或 Azure OpenAI
-- 所有 LLM 调用入 `llm_logs`
+- AI mapping / normalize **在客户端 redact PII** → 仅发字段名 + 5 行样本到 `packages/ai`，不发全表
+- Prompt 明示 `"Do not retain any data seen for training"`；运行时走 Vercel AI SDK Core + Cloudflare AI Gateway provider，retention 由网关上游配置和 provider 合同保障
+- 所有 AI SDK 调用写内部 `ai_output` trace（prompt version / usage / latency / guard result），不存原文
 
 ### 6A.10 验收清单（S2 全覆盖）
 
@@ -384,7 +384,7 @@ You can undo this import for the next 24 hours.
 三条理由：
 
 1. **没人真正读 Onboarding 文档。** 传统空态页 `[+ Import] [+ Add client]` 的转化窗口只有 30 秒；CPA 走不过来就会关掉标签页。
-2. **产品受众会精准 GET 到这个。** LangGenius 每天在做 LLM orchestration；看到"主动发问 → 按客户回答 → 调用工具链 → 产出具体价值"的 Agent，共鸣一次爆炸。
+2. **产品受众会精准 GET 到这个。** LangGenius 每天在做 AI orchestration；看到"主动发问 → 按客户回答 → 调用工具链 → 产出具体价值"的 Agent，共鸣一次爆炸。
 3. **它复用你已经做过的 90% 管线**（Migration Mapper + Normalizer + Rule Engine + Live Genesis），增量成本 ≤ 2 人天。
 
 #### 6A.11.2 对话流程（脚本示例）
@@ -465,9 +465,9 @@ STATE: handoff               ← "Open Dashboard" / "Walk through triage"
 
 | 异常                                   | 降级                                                                         |
 | -------------------------------------- | ---------------------------------------------------------------------------- |
-| LLM 响应超时                           | 对话气泡显示 `[Fallback] Switching to the guided wizard...`，跳 §6A.6 Step 1 |
+| AI SDK 调用超时                        | 对话气泡显示 `[Fallback] Switching to the guided wizard...`，跳 §6A.6 Step 1 |
 | 对话绕圈（用户问了 3 次非 setup 问题） | Agent 说 `Let me get you to the wizard — we can chat later.`                 |
-| 用户粘贴内容 LLM 识别不出              | 回到 intake，提示"Try pasting a cleaner table, or [Upload a CSV instead]"    |
+| 用户粘贴内容 AI Mapper 识别不出        | 回到 intake，提示"Try pasting a cleaner table, or [Upload a CSV instead]"    |
 
 #### 6A.11.5 Glass-Box 一致性
 
@@ -722,7 +722,7 @@ Demo Day 关键 10 秒：
 
 现有税务工具的共同缺陷：**AI 决策不可审计**。
 
-- TaxDome / Karbon：有 audit log 但无 AI 决策追溯；LLM 写的客户邮件不知道来自哪个 prompt 版本
+- TaxDome / Karbon：有 audit log 但无 AI 决策追溯；AI 生成的客户邮件不知道来自哪个 prompt 版本
 - File In Time：桌面软件，无 provenance 概念
 - Excel + Outlook：完全没有
 
@@ -1357,7 +1357,7 @@ California (8 rules)
 
 ### 6D.9 规则表述白 / 黑名单（Plan §8 字面对齐）
 
-内部 style guide + LLM prompt 硬约束：
+内部 style guide + AI prompt 硬约束：
 
 **允许的措辞：**
 
@@ -1366,7 +1366,7 @@ California (8 rules)
 - "Verify eligibility before relying on this deadline."
 - "Human verified on 2026-04-12."
 
-**禁止的措辞（LLM 生成 + UI 文案均不允许）：**
+**禁止的措辞（AI 生成 + UI 文案均不允许）：**
 
 - "Your client qualifies for this relief."
 - "No penalty will apply."

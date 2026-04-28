@@ -7,5 +7,5 @@ Operational CLI utilities (docs/dev-file/08 §1).
 Planned (Phase 0 / Phase 1):
 
 - `ac-traceability.ts` — PRD Test ID → E2E coverage report.
-- `cost-report.ts` — Langfuse + Cloudflare cost aggregator per firm.
+- `cost-report.ts` — Cloudflare AI Gateway + internal trace cost aggregator per firm.
 - `firm-inspect.ts` — admin read-only dump of a firm's obligations / pulses / audits.

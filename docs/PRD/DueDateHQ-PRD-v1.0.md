@@ -987,7 +987,7 @@ Rules:
   raw_value: 'L.L.C.',
   normalized_value: 'LLC',
   confidence: 0.97,
-  model: 'gpt-4o-mini',
+  model_tier: 'fast-json',
   applied_at: ...,
   applied_by: user_id,
 }

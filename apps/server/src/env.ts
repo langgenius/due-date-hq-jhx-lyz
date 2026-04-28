@@ -30,10 +30,8 @@ export interface WorkerBindings {
 export interface Env extends WorkerBindings, ServerEnv {
   AI_GATEWAY_ACCOUNT_ID: string
   AI_GATEWAY_SLUG: string
-  OPENAI_API_KEY: string
-  ANTHROPIC_API_KEY: string
-  LANGFUSE_PUBLIC_KEY: string
-  LANGFUSE_SECRET_KEY: string
+  AI_GATEWAY_API_KEY: string
+  AI_GATEWAY_MODEL: string
   VAPID_PUBLIC_KEY: string
   VAPID_PRIVATE_KEY: string
   VAPID_SUBJECT: string

@@ -3,7 +3,7 @@
 //
 //   apps/*                → packages/{contracts, auth, ui, i18n, core}
 //   apps/server (adds)    → packages/{db, ai}
-//   packages/ai           → packages/core (only; DB/KV/Vectorize/Langfuse via ports)
+//   packages/ai           → packages/core (only; DB/KV/Vectorize/writers/tracing via ports)
 //   packages/db           → packages/core (only)
 //   packages/core         → ∅
 //   packages/contracts    → zod + @orpc/contract only

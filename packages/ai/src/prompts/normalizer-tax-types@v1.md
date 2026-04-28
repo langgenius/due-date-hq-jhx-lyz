@@ -1,8 +1,8 @@
 prompt_version: normalizer-tax-types@v1
-model: openai/gpt-4o-mini (fallback: anthropic/claude-3-5-haiku)
+model_tier: fast-json
 temperature: 0
 response_format: json_object
-route: via Cloudflare AI Gateway + OpenAI ZDR endpoint
+route: via Vercel AI SDK Core + Cloudflare AI Gateway
 
 You are a data normalization assistant for a US tax deadline tool.
 Given a list of raw tax-type / tax-return strings and an optional
@@ -35,6 +35,5 @@ Rules:
 - Case-insensitive; ignore punctuation and common prefixes ("Form", "IRS", "#").
 - Do not emit any keys other than the raw values provided.
 
-ZDR: Do not retain any data seen for training.
-This request is routed through a Zero Data Retention endpoint.
+Retention: Do not retain any data seen for training.
 PII handling: enumerated field values only — no placeholders used.

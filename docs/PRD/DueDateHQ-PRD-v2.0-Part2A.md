@@ -145,7 +145,7 @@ Verified by DueDateHQ Glass-Box engine as of 2026-04-23.
 
 - 入口：Client Detail → `Export PDF`；Workboard bulk `Export selected as PDF`
 - 技术：`@react-pdf/renderer`，S3 存储，邮件链接 24h 过期
-- 不嵌入 AI narrative；只嵌入 **已 human-verified 的 rule + penalty 数字**（避免把 LLM 幻觉送客户）
+- 不嵌入 AI narrative；只嵌入 **已 human-verified 的 rule + penalty 数字**（避免把模型幻觉送客户）
 - 每条 obligation 右下 QR 码回链到在线 Evidence Mode
 
 ### 7.5 Penalty Radar™（P0-18 · 跨页面）

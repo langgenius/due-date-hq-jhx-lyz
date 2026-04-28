@@ -17,31 +17,36 @@
 
 见 §6.2 完整描述。本节补充：
 
-### 9.1 模型选型
+### 9.1 AI SDK 运行口径
 
-| 任务                            | 首选模型                        | 备选              | 理由        |
-| ------------------------------- | ------------------------------- | ----------------- | ----------- |
-| Embedding                       | OpenAI `text-embedding-3-small` | Anthropic Voyage  | 成本 / 够用 |
-| 快速任务（Tip / Mapper）        | GPT-4o-mini                     | Claude Haiku      | 延迟 + 成本 |
-| 高质量（Brief / Pulse Extract） | GPT-4o                          | Claude Sonnet 4.5 | 准确度      |
-| 模型网关                        | LiteLLM                         | —                 | 方便切换    |
+DueDateHQ 的模型执行层只依赖 **Vercel AI SDK Core**，运行在 Cloudflare Worker 内，
+通过 **Cloudflare AI Gateway provider** 调上游模型。业务模块只调用 `packages/ai` facade，
+不直接 import AI SDK、provider SDK、observability SDK 或 provider HTTP endpoint。
+
+| 任务                            | AI SDK 档位           | 路由策略                                 | 理由                                  |
+| ------------------------------- | --------------------- | ---------------------------------------- | ------------------------------------- |
+| Embedding                       | `embedding`           | AI SDK embedding provider → Vectorize    | 成本 / 够用                           |
+| 快速任务（Tip / Mapper）        | `fast-json/text`      | Cloudflare AI Gateway primary + fallback | 延迟 + 成本                           |
+| 高质量（Brief / Pulse Extract） | `quality-json/text`   | Cloudflare AI Gateway primary + fallback | 准确度                                |
+| 模型网关                        | Cloudflare AI Gateway | AI SDK provider abstraction              | CF 原生运行、cache、retry、rate limit |
 
 ### 9.2 Fallback 矩阵
 
 | 失败场景              | 降级行为                                           |
 | --------------------- | -------------------------------------------------- |
-| LLM API 超时          | 显示上次缓存 + 警示条 `AI temporarily unavailable` |
+| AI SDK / Gateway 超时 | 显示上次缓存 + 警示条 `AI temporarily unavailable` |
 | Citation 校验失败     | 重试 1 次；仍失败 → 显示 refusal template          |
 | Retrieval 为空        | refusal：`I don't have a verified source for this` |
 | 置信度 < 0.5（Pulse） | 保持 `pending_review`，不进 Feed                   |
 | Mapping 置信度 < 0.5  | UI 强制用户手动选字段                              |
 
-### 9.3 Zero Data Retention
+### 9.3 数据保留与调用记录
 
-- 采用 OpenAI ZDR endpoint 或 Azure OpenAI
+- 采用 AI SDK Core + Cloudflare AI Gateway；上游 provider 必须满足合同层面的训练禁用 / retention 要求
 - Prompt 明示 `"Do not retain any data seen for training"`
-- PII 占位符替换后才进 LLM，post-processing 回填
-- 所有 LLM 调用入 `llm_logs`（含 input hash 但不含 raw input）
+- Agent / Brief / Pulse 路径：PII 占位符替换后才进 AI，post-processing 回填
+- Migration Mapper / Normalizer 路径：只发送字段名 + 前 5 行样本；SSN-like pattern 必须拦截，不发送全表
+- 所有 AI 调用入内部 `ai_output` / `llm_log` 等价记录（含 input hash、prompt_version、model、usage、latency、guard_result；不含 raw input）
 
 ---
 
@@ -273,7 +278,7 @@ Public 页面相互 cross-link，形成 Rule Library → Source Registry → Ver
 - 备份：每日 + 保留 7 天
 - **WISP**：7 天 Demo 可交 1-page draft；真实试点 / 4 周 MVP 交 WISP v1.0（5-page）
 - 隐私声明：客户数据不训练任何外部 AI，仅用于 service delivery
-- **LLM PII 防泄**：客户姓名 / EIN / 邮箱在 prompt 中用占位符 `{{client_1}}`，生成后回填
+- **AI PII 防泄**：客户姓名 / EIN / 邮箱在 Agent / Brief / Pulse prompt 中用占位符 `{{client_1}}`，生成后回填；Migration Mapper 仅发送 5 行样本
 
 #### 13.2.1 Firm-wide Audit Log 页（Team 版合规核心 · P1-22）
 
@@ -796,7 +801,7 @@ We interrupt you when something changes."
 [Banner: "IRS CA storm relief → 12 of your clients affected"]
 
 Presenter: "Sarah didn't ask for this. 8 minutes ago, IRS
-published a relief bulletin. Our worker caught it, the LLM
+published a relief bulletin. Our worker caught it, the AI SDK pipeline
 extracted the affected counties and forms, and the match
 engine found the 12 of her clients in LA County with
 1040 or 1120-S due on March 15."
@@ -845,7 +850,7 @@ Presenter: "Thank you."
 | 故障              | 降级                                                |
 | ----------------- | --------------------------------------------------- |
 | 现场 Wi-Fi 挂     | 4K 录屏版 + 解说音轨准备好，无缝切换                |
-| LLM API 超时      | Onboarding Agent 所有回复预录缓存，本地 sw fallback |
+| AI SDK 调用超时   | Onboarding Agent 所有回复预录缓存，本地 sw fallback |
 | Live Genesis 卡顿 | CSS 动画独立运行，不依赖 API                        |
 | 现场观众不愿扫码  | 预准备一部备用手机，自己扫                          |
 | Pulse 现场抓不到  | 1 条 approved Demo Pulse 预置，脚本化触发           |
@@ -904,19 +909,19 @@ Presenter: "Thank you."
 
 ## 16. 风险与对策
 
-| 风险                         | 概率 | 影响 | 对策                                                                    |
-| ---------------------------- | ---- | ---- | ----------------------------------------------------------------------- |
-| AI 幻觉导致错误税务内容      | 中   | 高   | 强 RAG + citation 校验 + 黑白名单 + 显著 "Not tax advice" 声明          |
-| Pulse RSS 抓取不稳           | 高   | 中   | 6 源冗余 + 失败降级 mock + 1 条预置 + "Last checked X min ago" 诚实显示 |
-| 规则录入错误                 | 中   | 高   | 双人复核签字 + `verified_by` 留痕 + Report issue 回路                   |
-| Migration AI Mapper 置信度低 | 中   | 高   | 5 个 Preset + 低置信度 UI 强制确认 + 所有映射可后悔                     |
-| Migration 原子事务失败       | 低   | 高   | 单行失败不阻塞 + 失败行导 CSV + 24h Revert                              |
-| 粘贴含 SSN                   | 中   | 中   | 前端正则拦截 + 该列强制 IGNORE + 红色警示                               |
-| 数据泄露                     | 低   | 高   | 最小必要数据 + TLS + 加密 + WISP + E&O 保险                             |
-| IRC §7216 违规               | 低   | 高   | PII 占位符化 + 只发 schema + ZDR endpoint                               |
-| 现场观众 Demo 60s 内记不住   | 中   | 致命 | Clarity Engine 叙事 + Live Genesis 戏剧性 + Penalty $ 数字              |
-| 同期竞品同质                 | 高   | 中   | Glass-Box 纪律（others won't）+ Migration Copilot 端到端 + 50 州骨架    |
-| Pulse Apply 把不该改的改了   | 低   | 高   | 默认 `requires_human_review` + Ops Approve + 24h Undo + Audit           |
+| 风险                         | 概率 | 影响 | 对策                                                                           |
+| ---------------------------- | ---- | ---- | ------------------------------------------------------------------------------ |
+| AI 幻觉导致错误税务内容      | 中   | 高   | 强 RAG + citation 校验 + 黑白名单 + 显著 "Not tax advice" 声明                 |
+| Pulse RSS 抓取不稳           | 高   | 中   | 6 源冗余 + 失败降级 mock + 1 条预置 + "Last checked X min ago" 诚实显示        |
+| 规则录入错误                 | 中   | 高   | 双人复核签字 + `verified_by` 留痕 + Report issue 回路                          |
+| Migration AI Mapper 置信度低 | 中   | 高   | 5 个 Preset + 低置信度 UI 强制确认 + 所有映射可后悔                            |
+| Migration 原子事务失败       | 低   | 高   | 单行失败不阻塞 + 失败行导 CSV + 24h Revert                                     |
+| 粘贴含 SSN                   | 中   | 中   | 前端正则拦截 + 该列强制 IGNORE + 红色警示                                      |
+| 数据泄露                     | 低   | 高   | 最小必要数据 + TLS + 加密 + WISP + E&O 保险                                    |
+| IRC §7216 违规               | 低   | 高   | PII 占位符化 + 最小样本 + AI SDK facade + Cloudflare AI Gateway retention 控制 |
+| 现场观众 Demo 60s 内记不住   | 中   | 致命 | Clarity Engine 叙事 + Live Genesis 戏剧性 + Penalty $ 数字                     |
+| 同期竞品同质                 | 高   | 中   | Glass-Box 纪律（others won't）+ Migration Copilot 端到端 + 50 州骨架           |
+| Pulse Apply 把不该改的改了   | 低   | 高   | 默认 `requires_human_review` + Ops Approve + 24h Undo + Audit                  |
 
 ---
 
@@ -987,7 +992,7 @@ Presenter: "Thank you."
 | Penalty Radar 计算                   | v1.0 §6.3 + Competitor F-18      | §7.5            |
 | Default Tax Types Matrix             | v1.0 §6A.3A                      | §6A.5           |
 | Smart Priority 纯函数                | v1.0 §6.4                        | §6.4            |
-| LLM-mode tie-breaking                | Competitor F-5b 思路 + v1.0 约束 | §6.4.5          |
+| AI tie-breaking                      | Competitor F-5b 思路 + v1.0 约束 | §6.4.5          |
 | Ask Assistant DSL 双保险             | v1.0 §6.5 + Competitor F-19      | §6.6            |
 | Client PDF Report                    | v1.0 §6.6                        | §7.4            |
 | ICS 单向订阅                         | v1.0 §4.2 脚注                   | §4.2 P1-11      |

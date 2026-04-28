@@ -1,22 +1,22 @@
 # Migration Copilot · AI Prompts 定稿
 
 > 版本：v1.0（Demo Sprint · 2026-04-24）
-> 上游：PRD Part1B §6A.2 / §6A.3 / §6A.4 / §6A.5 / §6A.9 · Part2B §9.2 / §9.3 / §13.1 / §13.2 · `dev-file/04-AI-Architecture.md` §1 / §2 / §3 / §7 / §8 / §10 · `dev-file/03-Data-Model.md` §2.2 / §2.4 / §2.6
+> 上游：PRD Part1B §6A.2 / §6A.3 / §6A.4 / §6A.5 / §6A.9 · Part2B §9.2 / §9.3 / §13.1 / §13.2 · `dev-file/04-AI-Architecture.md` §1 / §2 / §3 / §7 / §10 · `dev-file/03-Data-Model.md` §2.2 / §2.4 / §2.6
 > 入册位置：[`./README.md`](./README.md) §2 第 04 份
 
 ---
 
 ## 1. 范围与裁定回顾
 
-本文件是 **Migration Copilot Field Mapper + Normalizer** 的 Prompt 定稿 + 模型档位 + 成本边界 + PII 策略；同时与 Onboarding AI Agent 的对话路径（见 [`./03-onboarding-agent.md`](./03-onboarding-agent.md)）区分。
+本文件是 **Migration Copilot Field Mapper + Normalizer** 的 Prompt 定稿 + AI SDK 模型档位 + 成本边界 + PII 策略；同时与 Onboarding AI Agent 的对话路径（见 [`./03-onboarding-agent.md`](./03-onboarding-agent.md)）区分。
 
-**裁定 5（Placeholder 策略）再强调**（权威出处 [`./10-conflict-resolutions.md#5-placeholder-策略`](./10-conflict-resolutions.md#5-placeholder-策略)）：Migration Mapper / Normalizer 只发"字段名 + 5 行原始样本"到 LLM，**不**使用 `{{client_1}}` 占位符——因为字段名 + 样本值本身不含跨行 PII 结构，而 EIN 模式识别（`^\d{2}-\d{7}$`）**必须**依赖原样字符才能生效；Onboarding Agent 对话则走占位符 + 后端回填路径。
+**裁定 5（Placeholder 策略）再强调**（权威出处 [`./10-conflict-resolutions.md#5-placeholder-策略`](./10-conflict-resolutions.md#5-placeholder-策略)）：Migration Mapper / Normalizer 只通过 `packages/ai` + AI SDK 发送"字段名 + 5 行原始样本"，**不**使用 `{{client_1}}` 占位符——因为字段名 + 样本值本身不含跨行 PII 结构，而 EIN 模式识别（`^\d{2}-\d{7}$`）**必须**依赖原样字符才能生效；Onboarding Agent 对话则走占位符 + 后端回填路径。
 
 PII 防护改由以下三道闸守住（对齐 PRD Part1B §6A.9 / Part2B §9.3 / §13.2）：
 
 1. 前端 SSN 正则拦截 + 该列强制 `IGNORE` + 红色警示（Step 1 Intake，见 [`./02-ux-4step-wizard.md#step-1-intake`](./02-ux-4step-wizard.md#step-1-intake)）
-2. 走 OpenAI Zero Data Retention endpoint / Cloudflare AI Gateway（`dev-file/04` §1 / §2）
-3. Prompt 明示 `"Do not retain any data seen for training"` + `"ZDR endpoint"` + `"5-row sample only, no placeholders"` 三行契约字符串（本文 §2.3 / §3.3）
+2. 走 Vercel AI SDK Core + Cloudflare AI Gateway provider（`dev-file/04` §1 / §2）
+3. Prompt 明示 `"Do not retain any data seen for training"` + `"5-row sample only, no placeholders"` 两类契约字符串；retention 能力由 Cloudflare AI Gateway 上游配置和 provider 合同保障（本文 §2.3 / §3.3）
 
 ---
 
@@ -29,7 +29,7 @@ PII 防护改由以下三道闸守住（对齐 PRD Part1B §6A.9 / Part2B §9.3 
 | `header`       | `string[]`                                                           | 是   | 原始表头（CSV 第 1 行）；允许空字符串元素（空白列）；前端先去首尾空白                                                     |
 | `sample_rows`  | `string[][]`                                                         | 是   | 前 5 行数据样本；每行数组长度必须 = `header.length`；单元格全为 `string`                                                  |
 | `preset`       | `'taxdome' \| 'drake' \| 'karbon' \| 'quickbooks' \| 'file_in_time'` | 否   | 可选强先验；命中时 Prompt 在 system 段追加 Preset 模板的典型列映射提示，置信度从 ~75% 跳到 ≥ 95%（对齐 PRD Part1B §6A.4） |
-| `firm_id_hash` | `string`                                                             | 是   | 供 Langfuse trace / rate limit 计数；不落 prompt 原文                                                                     |
+| `firm_id_hash` | `string`                                                             | 是   | 供 AI SDK telemetry / internal trace / rate limit 计数；不落 prompt 原文                                                  |
 
 ### 2.2 目标字段 Schema（严格 9 字段 + `IGNORE`）
 
@@ -55,14 +55,17 @@ PII 防护改由以下三道闸守住（对齐 PRD Part1B §6A.9 / Part2B §9.3 
 **Prompt 头部契约**：
 
 - `prompt_version: mapper@v1`
-- `model: openai/gpt-4o-mini (fallback: anthropic/claude-3-5-haiku)`（对齐 `dev-file/04` §2）
+- `model_tier: fast-json`（具体模型 id 在实现时从 AI SDK / Cloudflare AI Gateway 当前模型清单确认）
 - `temperature: 0`
-- `response_format: json_object`
-- `route: via Cloudflare AI Gateway + OpenAI ZDR endpoint`
+- `output: object`
+- `runtime: ai-sdk-core`
+- `gateway: cloudflare-ai-gateway`
 
 ```text
 prompt_version: mapper@v1
-model: openai/gpt-4o-mini (fallback: anthropic/claude-3-5-haiku)
+model_tier: fast-json
+runtime: ai-sdk-core
+gateway: cloudflare-ai-gateway
 
 You are a data mapping assistant for a US tax deadline tool.
 Given a spreadsheet's header and a 5-row sample, map each column to
@@ -87,12 +90,11 @@ Rules:
   - Explain every decision in ≤ 20 words.
   - PII note: you only see this 5-row sample, not the full dataset.
 
-ZDR: Do not retain any data seen for training.
-This request is routed through a Zero Data Retention endpoint.
+Retention: Do not retain any data seen for training.
 PII handling: field names and 5-row sample only — no placeholders used.
 ```
 
-> 上述 `Rules:` 块与 PRD Part1B §6A.2 一字不差；末尾追加的 3 行 ZDR / PII 契约属于本文件在 PRD 基础上的增量（对齐 Part2B §9.3 / §13.2）。
+> 上述 `Rules:` 块与 PRD Part1B §6A.2 一字不差；末尾追加的 retention / PII 契约属于本文件在 PRD 基础上的增量（对齐 Part2B §9.3 / §13.2）。
 
 ### 2.4 输出 JSON Schema（Zod 伪码）
 
@@ -231,7 +233,7 @@ export type MapperOutput = z.infer<typeof MapperOutput>
 对齐 `dev-file/04` §3 Glass-Box Guard：Mapper 不需要 `[n]` citation（无 retrieval），因此只执行 **Schema 校验 + PII 回填白名单**两道闸：
 
 1. **Schema 校验闸**：Zod parse 失败 → 重试 1 次（same prompt + same inputs，temperature=0）→ 再失败 → 降级到 Preset 默认 mapping（若有 preset 参数）或**纯手动下拉**（对齐 PRD Part2B §9.2"Mapping 置信度 < 0.5 → UI 强制用户手动选字段"）
-2. **PII 回填闸**：若 LLM 意外输出 `{{client_N}}` / `{{ein_N}}` 占位符（本 prompt 不应出现）→ 标记 `pii_mismatch`，直接降级到手动
+2. **PII 回填闸**：若 AI SDK structured output 意外输出 `{{client_N}}` / `{{ein_N}}` 占位符（本 prompt 不应出现）→ 标记 `pii_mismatch`，直接降级到手动
 
 **Refusal 文案**（Lingui key `migration.mapper.refusal`）：
 
@@ -251,19 +253,19 @@ We couldn't map your columns automatically. Use your preset or set the mapping m
 | `raw_values`   | `string[]`                                                                       | 是   | 去重后的原始值集合；上限 200 项 |
 | `preset`       | 同 Mapper                                                                        | 否   | 先验提示                        |
 | `jurisdiction` | `'federal' \| 'CA' \| 'NY'`                                                      | 否   | 仅 `tax_types` 归一需要         |
-| `firm_id_hash` | `string`                                                                         | 是   | Langfuse / rate limit           |
+| `firm_id_hash` | `string`                                                                         | 是   | AI SDK telemetry / rate limit   |
 
 ### 3.2 归一策略（对齐 PRD Part1B §6A.3）
 
-| 字段          | 归一路径                                                                                                                                           | 是否走 LLM                                    | 备注                                                                  |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------- | --- |
-| `entity_type` | 本地字典先过（`L.L.C. → llc` / `Corp (S) → s_corp` / …）；未命中再送 LLM                                                                           | 是（`normalizer-entity@v1`）                  | 枚举 8 项，未知走 `other` + `needs_review`                            |
-| `state`       | 字典：2-letter + full name（`California → CA`）；失败再试 fuzzy                                                                                    | 否                                            | 纯字典；省成本；失败 → UI 手动                                        |
-| `county`      | 保留原始                                                                                                                                           | 否                                            | 州内 county 太细，不归一；仅对异常字符（非 ASCII / `/\\` / `<>`）告警 |
-| `tax_types`   | 字典 + 正则（`Fed 1065 → federal_1065` / `1120-S → federal_1120s` / `CA Franchise → ca_100_franchise`）；缺失 → Default Matrix；字典未命中再送 LLM | 视情况（`normalizer-tax-types@v1`）           | 字典命中即跳过 LLM（省成本）                                          |
-| `importance`  | 字典（`A / VIP / Priority / top → high`；`B / normal → med`；`C / low → low`）                                                                     | 否                                            |                                                                       |
-| `ein`         | 正则 `^\d{2}-\d{7}$`；归一去除空格 / 点 / 下划线                                                                                                   | 否                                            |                                                                       |
-| `tax_year`    | 正则 `(19                                                                                                                                          | 20)\d{2}`；找不到 → 最近 filing_year fallback | 否                                                                    |     |
+| 字段          | 归一路径                                                                                                                                              | 是否走 AI SDK                                 | 备注                                                                  |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------- | --- |
+| `entity_type` | 本地字典先过（`L.L.C. → llc` / `Corp (S) → s_corp` / …）；未命中再走 AI SDK structured output                                                         | 是（`normalizer-entity@v1`）                  | 枚举 8 项，未知走 `other` + `needs_review`                            |
+| `state`       | 字典：2-letter + full name（`California → CA`）；失败再试 fuzzy                                                                                       | 否                                            | 纯字典；省成本；失败 → UI 手动                                        |
+| `county`      | 保留原始                                                                                                                                              | 否                                            | 州内 county 太细，不归一；仅对异常字符（非 ASCII / `/\\` / `<>`）告警 |
+| `tax_types`   | 字典 + 正则（`Fed 1065 → federal_1065` / `1120-S → federal_1120s` / `CA Franchise → ca_100_franchise`）；缺失 → Default Matrix；字典未命中再走 AI SDK | 视情况（`normalizer-tax-types@v1`）           | 字典命中即跳过 AI 调用（省成本）                                      |
+| `importance`  | 字典（`A / VIP / Priority / top → high`；`B / normal → med`；`C / low → low`）                                                                        | 否                                            |                                                                       |
+| `ein`         | 正则 `^\d{2}-\d{7}$`；归一去除空格 / 点 / 下划线                                                                                                      | 否                                            |                                                                       |
+| `tax_year`    | 正则 `(19                                                                                                                                             | 20)\d{2}`；找不到 → 最近 filing_year fallback | 否                                                                    |     |
 
 ### 3.3 Prompt 原文（2 个子 prompt）
 
@@ -271,7 +273,9 @@ We couldn't map your columns automatically. Use your preset or set the mapping m
 
 ```text
 prompt_version: normalizer-entity@v1
-model: openai/gpt-4o-mini (fallback: anthropic/claude-3-5-haiku)
+model_tier: fast-json
+runtime: ai-sdk-core
+gateway: cloudflare-ai-gateway
 
 You are a data normalization assistant for a US tax deadline tool.
 Given a list of raw entity-type strings (from a CSV column), map each
@@ -295,8 +299,7 @@ Rules:
   - Do not emit any keys other than the raw values provided.
   - Case-insensitive; ignore surrounding whitespace and punctuation.
 
-ZDR: Do not retain any data seen for training.
-This request is routed through a Zero Data Retention endpoint.
+Retention: Do not retain any data seen for training.
 PII handling: enumerated field values only — no placeholders used.
 ```
 
@@ -304,7 +307,9 @@ PII handling: enumerated field values only — no placeholders used.
 
 ```text
 prompt_version: normalizer-tax-types@v1
-model: openai/gpt-4o-mini (fallback: anthropic/claude-3-5-haiku)
+model_tier: fast-json
+runtime: ai-sdk-core
+gateway: cloudflare-ai-gateway
 
 You are a data normalization assistant for a US tax deadline tool.
 Given a list of raw tax-type / tax-return strings and an optional
@@ -336,8 +341,7 @@ Rules:
   - Case-insensitive; ignore punctuation and common prefixes ("Form", "IRS", "#").
   - Do not emit any keys other than the raw values provided.
 
-ZDR: Do not retain any data seen for training.
-This request is routed through a Zero Data Retention endpoint.
+Retention: Do not retain any data seen for training.
 PII handling: enumerated field values only — no placeholders used.
 ```
 
@@ -438,7 +442,7 @@ export const NormalizerTaxTypesOutput = z.record(
 
 ### 3.5 后处理 + PostHog
 
-1. **字典优先合并**：LLM 输出与本地字典合并；冲突 → 取本地字典（字典是 ops-verified）
+1. **字典优先合并**：AI SDK 输出与本地字典合并；冲突 → 取本地字典（字典是 ops-verified）
 2. **写库**：
    - `migration_normalization`（每条归一一行）：`field / raw_value / normalized_value / confidence / model / prompt_version / reasoning / user_overridden`
    - `ai_output`（kind = `migration_normalize`）
@@ -449,13 +453,13 @@ export const NormalizerTaxTypesOutput = z.record(
    - `batch_id`
    - `field` (string)
    - `total_values`
-   - `llm_hit_count`（字典未命中走 LLM 的数量）
+   - `ai_hit_count`（字典未命中走 AI SDK 的数量）
    - `avg_confidence`
    - `needs_review_count` / `user_overridden_count`
 
 ### 3.6 Guard / Refusal
 
-- **Schema 校验闸**：Zod parse 失败 → 重试 1 次 → 再失败 → 降级到**纯字典**（LLM 未命中的条目标 `needs_review`，但不阻塞）
+- **Schema 校验闸**：Zod parse 失败 → 重试 1 次 → 再失败 → 降级到**纯字典**（AI 未命中的条目标 `needs_review`，但不阻塞）
 - **Refusal 文案**（Lingui key `migration.normalizer.refusal`）：
 
 ```text
@@ -471,37 +475,38 @@ We couldn't normalize these values automatically. You can fix them inline or ski
 - **1 次** Mapper 调用（1 batch = 1 次粘贴 / 上传 + 5 preset 可选）
 - **最多 1 次** `normalizer-entity@v1`（字典命中即跳过）
 - **最多 1 次** `normalizer-tax-types@v1`（字典命中即跳过）
-- **硬上限**：每 batch **≤ 2 次付费 LLM 调用**（Mapper 强制 + Normalizer 二选一走 LLM；典型 batch 为 1–2 次）
-- `state` / `importance` / `ein` / `tax_year` **零 LLM 调用**
+- **硬上限**：每 batch **≤ 2 次付费 AI SDK 调用**（Mapper 强制 + Normalizer 二选一走 AI；典型 batch 为 1–2 次）
+- `state` / `importance` / `ein` / `tax_year` **零 AI 调用**
 
 ### 4.2 独立的 firm 配额
 
-- Migration 有**独立计数器** `firm:day:migration_llm`，**与** Ask / Tip / Brief / Pulse 的 200 次/天 firm 日配额**互不干涉**（对齐 `dev-file/04` §8 "每 batch 有固定开销"的精神；`dev-file/04` §8 未明示 Migration 的具体 cap，本文件在此固化）
+- Migration 有**独立计数器** `firm:day:migration_ai`，**与** Ask / Tip / Brief / Pulse 的 firm 日配额**互不干涉**（对齐 `dev-file/04` §10 "每 batch 有固定开销"的精神；本文件在此固化）
 - **初值 = 20 次 / firm / day** = 10 batch × 2 次；足够 Demo Sprint + 早期 Phase 0；超限返回 `rate_limited` + 明确 message（对齐 `dev-file/04` §8）
 - Phase 0 起按 paying tier 升档（见 §7 扩展位）
 
 ### 4.3 成本预算
 
-- **≤ $0.02 / batch** 目标（gpt-4o-mini 定价 / 输入 5 列 × 5 行 ≈ 2–4KB prompt）
-- 与 `dev-file/04` §8 `$0.02 / firm / day` 日总预算兼容（Migration 一天 1 batch 在预算内；多 batch 超限会触发 AI Gateway 侧的 cost budget 告警，不阻塞）
+- **≤ $0.02 / batch** 目标（fast-json 档位 / 输入 5 列 × 5 行 ≈ 2–4KB prompt）
+- 与 `dev-file/04` §10 `$0.02 / firm / day` 日总预算兼容（Migration 一天 1 batch 在预算内；多 batch 超限会触发 Cloudflare AI Gateway 侧 usage 告警，不阻塞）
 
 ---
 
-## 5. Langfuse Trace 字段
+## 5. AI SDK Trace 字段
 
-对齐 `dev-file/04` §10：所有 Mapper / Normalizer 调用经 `packages/ai/trace.ts` 自动上报 Langfuse，trace 字段：
+对齐 `dev-file/04` §10：所有 Mapper / Normalizer 调用经 `packages/ai` 生成内部 trace payload，并可打开 AI SDK telemetry：
 
-| 字段             | 值                                                                                    | 说明                          |
-| ---------------- | ------------------------------------------------------------------------------------- | ----------------------------- |
-| `prompt_version` | `mapper@v1` / `normalizer-entity@v1` / `normalizer-tax-types@v1`                      | 一 Prompt 一版本              |
-| `model`          | `openai/gpt-4o-mini` 或 fallback                                                      | 经 Cloudflare AI Gateway      |
-| `firm_id`        | `sha256(firm_id)` 前 8 位 hex                                                         | 不落明文（隐私）              |
-| `latency_ms`     | number                                                                                | Gateway 视角延迟              |
-| `tokens`         | `{ input, output }`                                                                   | AI Gateway 回传               |
-| `cost_usd`       | number                                                                                | AI Gateway 回传               |
-| `guard_result`   | `'ok' \| 'schema_fail' \| 'schema_retry_ok' \| 'schema_retry_fail' \| 'pii_mismatch'` | Glass-Box Guard 结果          |
-| `batch_id`       | string                                                                                | 便于与 `migration_batch` join |
-| `preset`         | string \| null                                                                        | Preset 标签                   |
+| 字段             | 值                                                                                    | 说明                               |
+| ---------------- | ------------------------------------------------------------------------------------- | ---------------------------------- |
+| `prompt_version` | `mapper@v1` / `normalizer-entity@v1` / `normalizer-tax-types@v1`                      | 一 Prompt 一版本                   |
+| `model_tier`     | `fast-json`                                                                           | 具体模型由 `packages/ai/router.ts` |
+| `model`          | provider 返回的实际 model id                                                          | 经 Cloudflare AI Gateway           |
+| `firm_id`        | `sha256(firm_id)` 前 8 位 hex                                                         | 不落明文（隐私）                   |
+| `latency_ms`     | number                                                                                | `packages/ai` 计时                 |
+| `tokens`         | `{ input, output }`                                                                   | AI SDK usage                       |
+| `cost_usd`       | number \| null                                                                        | Gateway 可用则写入                 |
+| `guard_result`   | `'ok' \| 'schema_fail' \| 'schema_retry_ok' \| 'schema_retry_fail' \| 'pii_mismatch'` | Glass-Box Guard 结果               |
+| `batch_id`       | string                                                                                | 便于与 `migration_batch` join      |
+| `preset`         | string \| null                                                                        | Preset 标签                        |
 
 ---
 
@@ -512,19 +517,19 @@ We couldn't normalize these values automatically. You can fix them inline or ski
   - `packages/ai/src/prompts/normalizer-entity@v1.md`
   - `packages/ai/src/prompts/normalizer-tax-types@v1.md`
 - 改动必须 `prompt_version++`（`mapper@v1` → `mapper@v2`），并在对应 [`../../adr/`](../../adr/) 下登记决策 ADR
-- 新旧 prompt 可并存（Langfuse A/B by `firm_id` hash 分桶；对齐 `dev-file/04` §10）
+- 新旧 prompt 可并存（`packages/ai` by `firm_id` hash 分桶；对齐 `dev-file/04` §10）
 
 ---
 
 ## 7. Phase 0 扩展位
 
-| 扩展项                            | 时机        | 做法                                                                                                         |
-| --------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
-| Default Matrix 对齐 5 MVP states  | Phase 0 MVP | `normalizer-tax-types@v1` 的 `jurisdiction` 入参扩到 `CA \| NY \| TX \| FL \| WA`；词表扩容                  |
-| Pulse 场景复用 Mapper             | Phase 0 起  | 同一 mapper prompt，不同 target schema（Pulse 是 `pulse_chunks`，目标是 `{ jurisdiction, tax_type, form }`） |
-| Migration Mapper v2               | Phase 1     | 支持多表头（多 sheet）+ 列类型推断（金额 / 日期）                                                            |
-| `firm:day:migration_llm` cap 分层 | Phase 0 MVP | Free tier 20 / day、Pro 100 / day、Enterprise 无 cap                                                         |
-| ZDR 升级到 Azure OpenAI           | Phase 1     | 备选 provider，保障 ZDR 合规（对齐 PRD Part2B §9.3）                                                         |
+| 扩展项                              | 时机        | 做法                                                                                                         |
+| ----------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
+| Default Matrix 对齐 5 MVP states    | Phase 0 MVP | `normalizer-tax-types@v1` 的 `jurisdiction` 入参扩到 `CA \| NY \| TX \| FL \| WA`；词表扩容                  |
+| Pulse 场景复用 Mapper               | Phase 0 起  | 同一 mapper prompt，不同 target schema（Pulse 是 `pulse_chunks`，目标是 `{ jurisdiction, tax_type, form }`） |
+| Migration Mapper v2                 | Phase 1     | 支持多表头（多 sheet）+ 列类型推断（金额 / 日期）                                                            |
+| `firm:day:migration_ai` cap 分层    | Phase 0 MVP | Free tier 20 / day、Pro 100 / day、Enterprise 无 cap                                                         |
+| Cloudflare AI Gateway provider 调优 | Phase 1     | 按 retention、成本和可用性选择上游 provider；业务层仍只依赖 AI SDK facade                                    |
 
 ---
 
@@ -532,4 +537,5 @@ We couldn't normalize these values automatically. You can fix them inline or ski
 
 | 版本 | 日期       | 作者       | 摘要                                                                                                    |
 | ---- | ---------- | ---------- | ------------------------------------------------------------------------------------------------------- |
-| v1.0 | 2026-04-24 | Subagent D | 初稿：Field Mapper @ v1 + Normalizer-entity/tax-types @ v1 · 成本边界 · Langfuse trace · Phase 0 扩展位 |
+| v1.0 | 2026-04-24 | Subagent D | 初稿：Field Mapper @ v1 + Normalizer-entity/tax-types @ v1 · 成本边界 · trace · Phase 0 扩展位          |
+| v1.1 | 2026-04-28 | Codex      | 将运行时口径切到 Vercel AI SDK Core + Cloudflare AI Gateway，移除第三方 tracing / provider SDK 直连依赖 |

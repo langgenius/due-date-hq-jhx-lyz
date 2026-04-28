@@ -39,10 +39,11 @@
 | **对象存储**            | **Cloudflare R2**                                                                       | 零出口流量费；S3 兼容 API（`@aws-sdk/client-s3` 可用）                                                                                                                               |
 | **缓存 / 限流**         | **Workers KV** + **Rate Limiting binding**                                              | KV 做热数据；Rate Limit 是 Cloudflare 原生 primitive                                                                                                                                 |
 | **后台任务**            | **Cron Triggers** + **Queues** + **Workflows**                                          | Pulse ingest / Email outbox / 长任务编排；零外部依赖                                                                                                                                 |
-| **AI 网关**             | **Cloudflare AI Gateway**                                                               | OpenAI / Anthropic 上游代理；自带 cache / trace / rate limit                                                                                                                         |
-| **LLM**                 | OpenAI GPT-4o / 4o-mini（主） + Anthropic Claude Sonnet / Haiku（fallback）             | 经 AI Gateway 统一调度                                                                                                                                                               |
-| **Embedding**           | OpenAI text-embedding-3-small                                                           | 成本 / 精度平衡；结果写入 Vectorize                                                                                                                                                  |
-| **LLM tracing**         | Langfuse（fetch SDK）                                                                   | 云端托管；prompt 版本 / cost / latency                                                                                                                                               |
+| **AI SDK**              | Vercel AI SDK Core（`ai`）                                                              | Worker 后端唯一模型执行层；统一 structured output / streaming / tool calling / usage metadata，业务模块不直接碰 provider SDK                                                         |
+| **AI 网关**             | Cloudflare AI Gateway via AI SDK provider                                               | 上游 provider 代理；自带 cache / retry / rate limit / provider-level observability                                                                                                   |
+| **AI Gateway provider** | `ai-gateway-provider`                                                                   | Cloudflare 官方 Vercel AI SDK 集成包；仅在 `packages/ai` 内部组合 Gateway + Unified provider；不允许业务模块直接 import                                                              |
+| **Embedding**           | AI SDK embedding provider + Cloudflare Vectorize                                        | 模型由 `packages/ai` 路由确认；结果写入 Vectorize                                                                                                                                    |
+| **AI tracing**          | AI SDK usage/telemetry + Cloudflare AI Gateway Dashboard + internal `ai_output` trace   | 不再引入第三方 tracing SDK；prompt 版本 / token / latency / guard result 写入内部 trace payload                                                                                      |
 | **邮件**                | Resend（React Email 模板）                                                              | fetch API；Worker 可跑；Phase 0 的用户通知完全走 email + in-app toast（不做 Web Push）                                                                                               |
 | **监控**                | Sentry（Cloudflare Workers SDK）+ Workers Logs（Logpush）                               | 错误 + 性能 + 日志                                                                                                                                                                   |
 | **产品分析**            | PostHog Cloud（JS SDK）                                                                 | Web Vitals + 事件；Pay-intent 埋点                                                                                                                                                   |
@@ -250,9 +251,8 @@ catalog:
   drizzle-kit: 0.31.10
 
   # ── ai ──
-  openai: 6.34.0
-  '@anthropic-ai/sdk': 0.90.0
-  langfuse: 3.38.20
+  ai: 6.0.168
+  ai-gateway-provider: 3.1.3
 
   # ── infra / transport ──
   resend: 6.12.2
@@ -412,13 +412,11 @@ AUTH_URL=http://localhost:8787
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
-# ───────── LLM（经 AI Gateway）─────────
+# ───────── AI SDK（经 Cloudflare AI Gateway）─────────
 AI_GATEWAY_ACCOUNT_ID=
 AI_GATEWAY_SLUG=duedatehq
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-LANGFUSE_PUBLIC_KEY=
-LANGFUSE_SECRET_KEY=
+AI_GATEWAY_API_KEY=
+AI_GATEWAY_MODEL=
 
 # ───────── Mail ─────────
 # Optional until a runtime path actually sends auth or product email.
@@ -440,16 +438,16 @@ CLOUDFLARE_API_TOKEN=
 
 ## 5. 风险与降级矩阵
 
-| 依赖             | 挂了怎么办                                                                                                                     |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| D1 主区          | 读路径可用 D1 Session / read replica 降级；写路径停止关键变更并进入只读模式，必要时把用户意图写 Queue/R2 outbox 后人工确认重放 |
-| Vectorize        | RAG 降级为 D1 FTS5 全文检索兜底（精度下降但可用）                                                                              |
-| AI Gateway / LLM | 内置 fallback 链：GPT-4o → Claude Sonnet → 缓存模板 → refusal 文案                                                             |
-| Resend           | 写 `email_outbox` + Queue 重试；用户 in-app 通知兜底。`RESEND_API_KEY` 可先不配，但实际发邮件路径必须配置。                    |
-| KV               | 限流退化为 DB 计数（~200ms 成本）；缓存退化为直查                                                                              |
-| Queues           | 紧急降级为 `scheduled()` 里直接处理，牺牲并行度                                                                                |
-| R2               | PDF 降级为同步生成 + stream 返回                                                                                               |
-| Worker 单区故障  | Cloudflare 全球自动路由；无需人工介入                                                                                          |
+| 依赖                | 挂了怎么办                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| D1 主区             | 读路径可用 D1 Session / read replica 降级；写路径停止关键变更并进入只读模式，必要时把用户意图写 Queue/R2 outbox 后人工确认重放 |
+| Vectorize           | RAG 降级为 D1 FTS5 全文检索兜底（精度下降但可用）                                                                              |
+| AI SDK / AI Gateway | `packages/ai` 内置 fallback 链：primary model → fallback model → 缓存模板 → refusal 文案；业务模块不感知 provider 切换         |
+| Resend              | 写 `email_outbox` + Queue 重试；用户 in-app 通知兜底。`RESEND_API_KEY` 可先不配，但实际发邮件路径必须配置。                    |
+| KV                  | 限流退化为 DB 计数（~200ms 成本）；缓存退化为直查                                                                              |
+| Queues              | 紧急降级为 `scheduled()` 里直接处理，牺牲并行度                                                                                |
+| R2                  | PDF 降级为同步生成 + stream 返回                                                                                               |
+| Worker 单区故障     | Cloudflare 全球自动路由；无需人工介入                                                                                          |
 
 ---
 

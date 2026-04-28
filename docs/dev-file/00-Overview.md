@@ -67,7 +67,7 @@
 │   └──────────┘  └──────────┘  └──────────┘  └──────────┘              │
 │                                                                        │
 │   KV: session hot data · rate-limit counters · AI day budgets          │
-│   External: Resend (email) · OpenAI/Anthropic via AI Gateway · Sentry  │
+│   External: Resend (email) · AI SDK via Cloudflare AI Gateway · Sentry │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -98,7 +98,7 @@
 
 3. **24 小时 Pulse 闭环**（PRD §0.3 · §6.3）
 
-- Ingest 由 Cron Triggers 驱动，LLM 抽取交给 Queues 消费者
+- Ingest 由 Cron Triggers 驱动，AI SDK 抽取交给 Queues 消费者
 - Batch Apply 与 Email Outbox **共用同一 D1 事务**（Transactional Outbox）
 - Pulse 产生的调整落 `ExceptionRule` overlay，**不改 base rule**（Phase 0 的 Demo Sprint 简化为直接 UPDATE + evidence_link；Phase 0 完整 MVP 和 Phase 1 使用 Overlay Engine）
 
@@ -147,7 +147,7 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 | ❌ Neon / Postgres / Hyperdrive | DueDateHQ workload 的主路径是**小租户点查询 + 边缘延迟敏感**，D1 是正确选择不是权宜之计；Vectorize 覆盖 pgvector 主用途，FTS5 覆盖全文检索。`scoped(db, firmId)` 是应用层隔离，不等价于 DB RLS；若出现单库接近 10GB、跨租户 OLAP 或强物理隔离要求，先按 firm/region 拆 D1，再评估 Hyperdrive + Neon |
 | ❌ Inngest / Trigger.dev        | Cron Triggers + Queues + Workflows 三原语已覆盖需求，零外部依赖                                                                                                                                                                                                                                     |
 | ❌ Auth.js                      | 需要 Organization / Membership / Invitation 开箱即用，better-auth 原生支持，数据自持                                                                                                                                                                                                                |
-| ❌ LiteLLM 自托管               | Cloudflare AI Gateway 免运维，自带 cache / trace / rate limit                                                                                                                                                                                                                                       |
+| ❌ LiteLLM 自托管               | Vercel AI SDK Core + Cloudflare AI Gateway 已覆盖 provider abstraction、structured output、streaming、cache、retry、rate limit；自托管 LiteLLM 会增加运维面                                                                                                                                         |
 | ❌ Pinecone / Weaviate          | Vectorize 与 Worker 同域，MVP 数据量完全够用                                                                                                                                                                                                                                                        |
 | ❌ 独立 Redis（Upstash）        | KV + Rate Limit binding 够用；真实需要 strong consistency 时用 Durable Objects                                                                                                                                                                                                                      |
 | ❌ GraphQL / REST 代码生成      | oRPC 契约模式 TS 端端强类型，零样板                                                                                                                                                                                                                                                                 |
@@ -175,22 +175,22 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 
 ### 8.2 产品 KPI（对齐 PRD §12.2，工程必须埋点）
 
-| 指标                                 | 目标                 | 埋点                                |
-| ------------------------------------ | -------------------- | ----------------------------------- |
-| Migration Time-to-First-Value P50    | ≤ 10 min             | signup → 首次看到 Penalty Radar `$` |
-| **Migration P95 完成时间（S2-AC5）** | ≤ 30 min             | Signup → Import 完成（30 客户基准） |
-| Migration Completion Rate            | ≥ 70%                | Step 1 → Step 4                     |
-| Migration Mapping Confidence         | ≥ 85%                | AI Mapper 平均 confidence           |
-| Setup 耗时 P50                       | ≤ 15 min             | signup → first calendar generated   |
-| Week-1 回访                          | ≥ 2 次 / 用户        | unique login days                   |
-| Week-2 回访                          | 10 人中 ≥ 5 人       | 第 8–14 天 ≥ 1 次                   |
-| **分诊 session 耗时 P50（S1-AC5）**  | ≤ 5 min（第 2+ 次）  | session 时长                        |
-| Evidence 点击率                      | ≥ 30% 周活           | `E` 键 / chip 点击                  |
-| Pulse Review 耗时                    | ≤ 3 min              | alert 打开 → apply                  |
-| Pulse Apply 次数                     | ≥ 2 / firm           | 真实 Apply                          |
-| 付费意愿点击率                       | ≥ 30%                | `$49` 按钮                          |
-| 日历编辑率                           | < 20%                | 用户 override 系统日期              |
-| LLM 平均成本                         | < $0.02 / firm / day | Langfuse 聚合                       |
+| 指标                                 | 目标                 | 埋点                                   |
+| ------------------------------------ | -------------------- | -------------------------------------- |
+| Migration Time-to-First-Value P50    | ≤ 10 min             | signup → 首次看到 Penalty Radar `$`    |
+| **Migration P95 完成时间（S2-AC5）** | ≤ 30 min             | Signup → Import 完成（30 客户基准）    |
+| Migration Completion Rate            | ≥ 70%                | Step 1 → Step 4                        |
+| Migration Mapping Confidence         | ≥ 85%                | AI Mapper 平均 confidence              |
+| Setup 耗时 P50                       | ≤ 15 min             | signup → first calendar generated      |
+| Week-1 回访                          | ≥ 2 次 / 用户        | unique login days                      |
+| Week-2 回访                          | 10 人中 ≥ 5 人       | 第 8–14 天 ≥ 1 次                      |
+| **分诊 session 耗时 P50（S1-AC5）**  | ≤ 5 min（第 2+ 次）  | session 时长                           |
+| Evidence 点击率                      | ≥ 30% 周活           | `E` 键 / chip 点击                     |
+| Pulse Review 耗时                    | ≤ 3 min              | alert 打开 → apply                     |
+| Pulse Apply 次数                     | ≥ 2 / firm           | 真实 Apply                             |
+| 付费意愿点击率                       | ≥ 30%                | `$49` 按钮                             |
+| 日历编辑率                           | < 20%                | 用户 override 系统日期                 |
+| AI 平均成本                          | < $0.02 / firm / day | Cloudflare AI Gateway + internal trace |
 
 ### 8.3 Go / Gray / Rethink（PRD §12.4）
 
@@ -210,8 +210,8 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 - **scoped repo**：`packages/db/src/scoped.ts` 工厂；procedures 只能通过它访问 DB
 - **authed procedure**：oRPC middleware，要求 session 存在并把 `firmId / tenantContext / scoped` 注入 context
 - **Overlay Engine**（Phase 1）：运行时把 `ExceptionRule` 叠加到 `obligation_rule.base_due_date` 算出 `current_due_date`
-- **Pulse Pipeline**：Ingest（Cron）→ Extract（Queue + LLM）→ Review（人工）→ Match → Batch Apply（D1 事务）五段
-- **Glass-Box Guard**：LLM 输出后置校验（citation 正则 + 黑名单 + PII 回填）
+- **Pulse Pipeline**：Ingest（Cron）→ Extract（Queue + AI SDK）→ Review（人工）→ Match → Batch Apply（D1 事务）五段
+- **Glass-Box Guard**：AI SDK 输出后置校验（citation 正则 + 黑名单 + PII 回填）
 - **Transactional Outbox**：Pulse Apply 与 Email Job 在同一 D1 事务内写入 `email_outbox` 表，由 Queue 消费者异步 flush
 - **migration_batch**：单次 Import 的事务边界；PK = `id`；挂载 `migration_mapping` / `migration_normalization` / `migration_error` / 生成的 `client[].migration_batch_id`；24h revert 窗口以 `applied_at + 24h` 表示（对齐 `../product-design/migration-copilot/01-mvp-and-journeys.md` §4 · ADR 0011 Decision I）
 - **Default Matrix**：`(entity_type × state) → tax_types[]` 的 ops 签字静态查表；Demo Sprint v1.0 覆盖 Federal + CA + NY × 8 实体 = 24 格；定义在 `../product-design/migration-copilot/05-default-matrix.v1.0.yaml`；运行期由 Rule Engine 读取并写 `evidence_link(source_type='default_inference_by_entity_state', matrix_version='v1.0')`

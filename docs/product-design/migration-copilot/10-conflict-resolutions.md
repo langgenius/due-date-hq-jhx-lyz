@@ -77,20 +77,20 @@
 
 ## 5. Placeholder 策略
 
-- **冲突点**：PRD Part2B §13.2 必做最后一项写的是"LLM PII 防泄：客户姓名 / EIN / 邮箱在 prompt 中用占位符 `{{client_1}}`，生成后回填"，呈现为全局规则；但 Part1B §6A.9 Migration 安全护栏却写"AI mapping / normalize 在客户端 redact PII → **仅发字段名 + 5 行样本**到 LLM，不发全表"；Part2B §9.3 Zero Data Retention 又写"PII 占位符替换后才进 LLM，post-processing 回填"。Mapper / Normalizer 的 5 行样本里本身就带原值（CSV 的前 5 行）；走占位符反而会让 LLM 识别不了 EIN 格式（`^\d{2}-\d{7}$`）。
+- **冲突点**：PRD Part2B §13.2 必做最后一项写的是"AI PII 防泄：客户姓名 / EIN / 邮箱在 prompt 中用占位符 `{{client_1}}`，生成后回填"，呈现为全局规则；但 Part1B §6A.9 Migration 安全护栏却写"AI mapping / normalize 在客户端 redact PII → **仅发字段名 + 5 行样本**到 `packages/ai`，不发全表"；Part2B §9.3 数据保留与调用记录又写"PII 占位符替换后才进 AI，post-processing 回填"。Mapper / Normalizer 的 5 行样本里本身就带原值（CSV 的前 5 行）；走占位符反而会让 AI Mapper 识别不了 EIN 格式（`^\d{2}-\d{7}$`）。
 - **PRD 引用位置**：
-  - `docs/PRD/DueDateHQ-PRD-v2.0-Part2B.md` §9.3 Zero Data Retention
+  - `docs/PRD/DueDateHQ-PRD-v2.0-Part2B.md` §9.3 数据保留与调用记录
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part2B.md` §13.2 必做（最后一项 `{{client_1}}`）
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part1B.md` §6A.9 Migration 安全与合规护栏
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part1B.md` §6A.2 AI Field Mapper Prompt（含"PII note: you only see this 5-row sample, not the full dataset"）
 - **裁定**：按场景分两档。
   1. **Migration Field Mapper / Normalizer**：只发**字段名 + 5 行原始样本**，不走 `{{client_N}}` 占位符（否则 EIN 识别失效）。PII 风险通过：
      - 前端 SSN 正则拦截 + 强制 IGNORE（Part1B §6A.9 / Step 1 Intake）
-     - OpenAI Zero Data Retention endpoint（Part2B §9.3）
+     - Vercel AI SDK Core + Cloudflare AI Gateway provider（Part2B §9.3）
      - Prompt 明示 "Do not retain any data seen for training"（Part2B §13.2）
-     - 入 `llm_logs`（Part1B §6A.9 · Part2B §13.2）
+     - 写内部 `ai_output` trace，不存原文（Part1B §6A.9 · Part2B §13.2）
   2. **Onboarding AI Agent 对话 / Pulse 语义解读 / Brief 生成**：使用 `{{client_1}}` 等占位符，客户端 redact，后端回填（对齐 Part2B §13.2 + §9.3）。
-- **理由**：Mapper 的工作正是"识别原始值的模式"，占位符会把可识别性洗掉（`12-3456789` → `{{ein_1}}` 后模式丢失）；而 Agent 对话 / Brief / Pulse 的 LLM 只需要语义，不需要原值。两档分治既保留识别能力又守住 PRD §13.2 的最小必要原则。Part1B §6A.9 "仅发字段名 + 5 行样本"本身已经是"取样 + ZDR"的强护栏。
+- **理由**：Mapper 的工作正是"识别原始值的模式"，占位符会把可识别性洗掉（`12-3456789` → `{{ein_1}}` 后模式丢失）；而 Agent 对话 / Brief / Pulse 的 AI SDK 调用只需要语义，不需要原值。两档分治既保留识别能力又守住 PRD §13.2 的最小必要原则。Part1B §6A.9 "仅发字段名 + 5 行样本"本身已经是"取样 + retention 契约"的强护栏。
 - **工程落地影响**：`./04-ai-prompts.md` 的 Field Mapper / Normalizer prompt 显式声明"5-row sample + no placeholder"；Onboarding Agent 设计（`./03-onboarding-agent.md`）与 Pulse / Brief 相关 prompt 必须走占位符回填；`../../dev-file/06-Security-Compliance.md` PII 章节需要反映这两档差异（本 Sprint 不改 dev-file；Phase 0 起由 Subagent F 在 ADR 0011 里留 follow-up）。
 
 ---
@@ -102,7 +102,7 @@
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part2B.md` §13.2.1 Firm-wide Audit Log（Migration 行）
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part1B.md` §6A.6 Step 4（toast 文案）
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part1B.md` §6A.8 Migration Report 邮件文案
-  - `docs/PRD/DueDateHQ-PRD-v2.0-Part2B.md` §13.2 最后一项（LLM 本地化约束）
+  - `docs/PRD/DueDateHQ-PRD-v2.0-Part2B.md` §13.2 最后一项（AI 本地化约束）
 - **裁定**：分两层。
   1. **Audit action 名 + PostHog 事件名**：走 `migration.*` 英文工程 log，**不**进 Lingui。命名固定为 `migration.imported / .reverted / .single_undo / .mapper.run.completed / .mapper.confirmed / .normalizer.confirmed / .matrix.applied / .wizard.step{1..4}.opened`。
   2. **用户可见文案**：SaaS UI + Toast 走 `apps/app` Lingui catalog；战报邮件 subject / body 走 `apps/server` 类型化薄字典；公开站文案走 `apps/marketing` catalog/dictionary。三者共享 locale contract，但不共享同一个 catalog（对齐 `../../adr/0009-lingui-for-i18n.md`）。文案与 audit action 同源但两套字符串，文案变化不回溯 audit。

@@ -1,7 +1,7 @@
 # Migration Copilot · 03 · Onboarding AI Agent 产品形态锁定
 
 > 版本：v1.0（Demo Sprint · 2026-04-24）
-> 上游：PRD Part1B §6A.11 全节（行 377–493）· Part1B §6A.1–§6A.9（复用管线）· Part1A §5.9 入口 / §6.2.1 Glass-Box 纪律 · Part2B §9.3 ZDR / §13.2 placeholder · `dev-file/04-AI-Architecture.md` §1–§3 / §5
+> 上游：PRD Part1B §6A.11 全节（行 377–493）· Part1B §6A.1–§6A.9（复用管线）· Part1A §5.9 入口 / §6.2.1 Glass-Box 纪律 · Part2B §9.3 数据保留与调用记录 / §13.2 placeholder · `dev-file/04-AI-Architecture.md` §1–§3 / §5
 > 入册位置：[`./README.md`](./README.md) §2 第 03 份
 > 权威口径：本 Sprint 产出**产品形态 + 对话脚本 + 降级 + Demo 钩子**锁定文档；**Demo Sprint 不实现**，Agent 入口位以 disabled preview 卡片呈现，点击自动降级跳传统 4 步向导（[`./02-ux-4step-wizard.md`](./02-ux-4step-wizard.md)）Step 1
 
@@ -14,14 +14,14 @@
 ### 1.1 为什么必须做（对齐 PRD §6A.11.1）
 
 1. **没人真正读 Onboarding 文档。** 传统空态页 `[+ Import] [+ Add client]` 的转化窗口只有 30 秒；CPA 走不过来就会关掉标签页。
-2. **产品受众会精准 GET 到这个。** LangGenius 每天在做 LLM orchestration；看到"主动发问 → 按客户回答 → 调用工具链 → 产出具体价值"的 Agent，共鸣一次爆炸。
+2. **产品受众会精准 GET 到这个。** LangGenius 每天在做 AI orchestration；看到"主动发问 → 按客户回答 → 调用工具链 → 产出具体价值"的 Agent，共鸣一次爆炸。
 3. **它复用你已经做过的 90% 管线**（Migration Mapper + Normalizer + Default Matrix + Live Genesis），增量成本 ≤ 2 人天。
 
 ### 1.2 为什么 P1 不 P0（对齐 PRD §6A.11.6）
 
 - **Story S2 验收不依赖它**：`./01-mvp-and-journeys.md` §2 AC × Test × P0 映射表的 5 条 AC 全部由传统 4 步向导兑现（[`./02-ux-4step-wizard.md`](./02-ux-4step-wizard.md)）；Agent 对话路径**不进入**本 Sprint 的自动化测试基线。
 - **它是集训评分的关键差异化资产**：产品受众第一次看到产品时，Agent 对话框的视觉冲击远强于传统向导，直接决定"这是 AI Agent 在正确场景的正确姿势"的 Pitch 叙事分（`../../dev-file/10-Demo-Sprint-7Day-Rhythm.md` §6 Pitch 彩排表）。
-- **风险对称**：Demo Sprint 不跑真实 LLM 连接 Agent 路径，等价于把 KPI 起止点（`./01-mvp-and-journeys.md` §3）全部绑到 4 步向导，Agent 只承担叙事价值。
+- **风险对称**：Demo Sprint 不跑真实 AI SDK 连接 Agent 路径，等价于把 KPI 起止点（`./01-mvp-and-journeys.md` §3）全部绑到 4 步向导，Agent 只承担叙事价值。
 
 ### 1.3 Demo Sprint 定位（本 Sprint 真正渲染的）
 
@@ -32,16 +32,16 @@
 
 ### 1.4 Phase 0 / P1 扩展路线
 
-| 阶段                | 里程碑                                                                                  | 复用 / 增量                                                                                                                             | 需要冻结的契约                                                                 |
-| ------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Demo Sprint（本轮） | 产品形态锁定 + preview 卡片 + 降级走 wizard                                             | 0 AI 调用；仅埋点                                                                                                                       | —                                                                              |
-| Phase 0（4 周 MVP） | Agent 真实 LLM 接线（`intake` → `normalize_confirm`）；`onboardingDraft` 跨标签页持久化 | 复用 `./04-ai-prompts.md#field-mapper-v1` + `#normalizer-v1`；增量 = Agent 脚本 prompt `agent@v1`                                       | AI Execution Contract（`../../dev-file/09-Demo-Sprint-Module-Playbook.md` §6） |
-| Phase 0 末          | Agent 走通完整 7 state 链路 + Live Genesis 接入                                         | 复用 [`./05-default-matrix.md`](./05-default-matrix.md) + [`./07-live-genesis.md`](./07-live-genesis.md)；增量 = 多轮记忆 session store | Obligation Domain Contract                                                     |
-| P1                  | 多轮记忆（"我上次说的 42 个客户"）+ 跨 firm 切换时的 Setup History 可见性               | 复用 §6A.11.5 Setup History                                                                                                             | Audit/Evidence Contract                                                        |
+| 阶段                | 里程碑                                                                                     | 复用 / 增量                                                                                                                             | 需要冻结的契约                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Demo Sprint（本轮） | 产品形态锁定 + preview 卡片 + 降级走 wizard                                                | 0 AI 调用；仅埋点                                                                                                                       | —                                                                              |
+| Phase 0（4 周 MVP） | Agent 真实 AI SDK 接线（`intake` → `normalize_confirm`）；`onboardingDraft` 跨标签页持久化 | 复用 `./04-ai-prompts.md#field-mapper-v1` + `#normalizer-v1`；增量 = Agent 脚本 prompt `agent@v1`                                       | AI Execution Contract（`../../dev-file/09-Demo-Sprint-Module-Playbook.md` §6） |
+| Phase 0 末          | Agent 走通完整 7 state 链路 + Live Genesis 接入                                            | 复用 [`./05-default-matrix.md`](./05-default-matrix.md) + [`./07-live-genesis.md`](./07-live-genesis.md)；增量 = 多轮记忆 session store | Obligation Domain Contract                                                     |
+| P1                  | 多轮记忆（"我上次说的 42 个客户"）+ 跨 firm 切换时的 Setup History 可见性                  | 复用 §6A.11.5 Setup History                                                                                                             | Audit/Evidence Contract                                                        |
 
 > 关键约束：Agent 可以预填 draft、调用 Mapper / Normalizer / Dry-Run，但 `commitMigration` 只能由用户在 Wizard Step 4 或 Agent 的同构 dry-run commit screen 上显式点击触发。禁止 Agent 自动导入、自动撤销、自动 Apply Pulse。
 
-> Phase 0 扩展位：Agent 真实 LLM 调用接线；`onboardingDraft` 跨标签页持久化（localStorage + Worker 端 draft 同步）；多轮记忆；跨 firm 切换时的 Setup History 可见性；Agent 转化率 vs Wizard 转化率的 A/B funnel。
+> Phase 0 扩展位：Agent 真实 AI SDK 调用接线；`onboardingDraft` 跨标签页持久化（localStorage + Worker 端 draft 同步）；多轮记忆；跨 firm 切换时的 Setup History 可见性；Agent 转化率 vs Wizard 转化率的 A/B funnel。
 
 ---
 
@@ -118,7 +118,7 @@
 
 ✦ DueDateHQ Setup Copilot
    Hi! I'm here to get you running in under 5 minutes.                                ← state 进入 = scope_detection（§4 state #1）
-   Quick question: are you solo, or do you have a team?                               ← prompt_version = agent@v1 · model = gpt-4o-mini（`dev-file/04-AI-Architecture.md` §2 router 档位 tip）
+   Quick question: are you solo, or do you have a team?                               ← prompt_version = agent@v1 · model_tier = fast-json（`dev-file/04-AI-Architecture.md` §2 router 档位）
                                                                                         ← audit_event = onboarding.agent.turn.opened
                                                                                         ← evidence_link = source_type: `ai_migration_map`（本 turn 不涉，仅挂 turn open）
 > solo                                                                                ← 用户输入。onboardingDraft.scope = 'solo'
@@ -189,7 +189,7 @@
 | Turn 7 done        | `Done. Your Dashboard is ready — top 3 urgent items are ...`                                                           | `搞定。Dashboard 已就绪——最急的 3 条是……`                                    |
 | Turn 7 handoff     | `Want me to walk you through the weekly triage workflow? Or jump to the Dashboard?`                                    | `要不要我带你走一遍每周分诊流程？还是直接去 Dashboard？`                     |
 
-> 约定：**所有** Agent 对 user 显示的文本字符串**必须**走 `<Trans />`（JSX 模板）或 `` t`...` `` 宏（工具函数字符串）；LLM prompt 本身**不走** Lingui（prompt 是英文工程常量，见 [`./04-ai-prompts.md`](./04-ai-prompts.md)）。这条规则与 `migration.*` audit action 命名不走 Lingui 对称（[`./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层`](./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层)）。
+> 约定：**所有** Agent 对 user 显示的文本字符串**必须**走 `<Trans />`（JSX 模板）或 `` t`...` `` 宏（工具函数字符串）；AI prompt 本身**不走** Lingui（prompt 是英文工程常量，见 [`./04-ai-prompts.md`](./04-ai-prompts.md)）。这条规则与 `migration.*` audit action 命名不走 Lingui 对称（[`./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层`](./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层)）。
 
 ---
 
@@ -217,9 +217,9 @@ stateDiagram-v2
 
 #### State 1 · `scope_detection`
 
-| 退出条件                                           | 复用管线              | Evidence / Audit 写入                                                                                                                                 | Skip / Back / Switch to wizard 可达                                                                         |
-| -------------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `onboardingDraft.scope ∈ {'solo', 'team', 'skip'}` | 无（纯 Agent prompt） | `audit_event = onboarding.agent.state.advanced (to=scale_detection)`；`ai_output(prompt_version=agent@v1, model=gpt-4o-mini, input_context_ref=hash)` | Skip：`scope='skip'` 跳下一 state · Back：不可（首 state，Back 灰化）· Switch：跳 wizard Step 1，保留 draft |
+| 退出条件                                           | 复用管线              | Evidence / Audit 写入                                                                                                                                    | Skip / Back / Switch to wizard 可达                                                                         |
+| -------------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `onboardingDraft.scope ∈ {'solo', 'team', 'skip'}` | 无（纯 Agent prompt） | `audit_event = onboarding.agent.state.advanced (to=scale_detection)`；`ai_output(prompt_version=agent@v1, model_tier=fast-json, input_context_ref=hash)` | Skip：`scope='skip'` 跳下一 state · Back：不可（首 state，Back 灰化）· Switch：跳 wizard Step 1，保留 draft |
 
 #### State 2 · `scale_detection`
 
@@ -290,9 +290,9 @@ export interface OnboardingDraft {
 
 | 场景                                                 | 是否走 `{{client_N}}` / `{{ein_N}}` / `{{email_N}}` 占位符                                        | 理由                                                                              |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| **Agent 对话气泡**（本文）                           | **是**：客户名 / EIN / 邮箱发到 LLM 前**必须替换**为 `{{client_N}}` 等占位符                      | Agent 只需要语义，不需要原值识别能力                                              |
+| **Agent 对话气泡**（本文）                           | **是**：客户名 / EIN / 邮箱发到 AI SDK 前**必须替换**为 `{{client_N}}` 等占位符                   | Agent 只需要语义，不需要原值识别能力                                              |
 | Migration Field Mapper（§6A.2）                      | **否**：只发字段名 + 5 行原始样本                                                                 | Mapper 的工作正是"识别原始值模式"（如 EIN `^\d{2}-\d{7}$`），占位符会洗掉可识别性 |
-| Migration Normalizer（§6A.3）                        | **否**：同上，归一枚举需要看原值                                                                  | `L.L.C.` / `Corp (S)` 这类模糊值必须原文进 LLM                                    |
+| Migration Normalizer（§6A.3）                        | **否**：同上，归一枚举需要看原值                                                                  | `L.L.C.` / `Corp (S)` 这类模糊值必须原文进 AI SDK                                 |
 | Onboarding Agent 调 Field Mapper / Normalizer 子管线 | **否**（委托给子管线）：占位符仅作用于 Agent 对话气泡层，子管线仍按 §6A.2 / §6A.3 规则发 5 行原值 | 分层护栏：Agent 气泡 ↔ Mapper/Normalizer 之间有 piiMap 边界                       |
 
 ### 5.2 piiMap 生命周期
@@ -306,27 +306,27 @@ piiMap (Worker 内存 + ai_output.input_context_ref = hash):
     "{{client_2}}": "Bright Studio",
     // EIN、email 同理按 {{ein_N}} / {{email_N}} 编号
   }
-         ↓ redact 后发 LLM
+         ↓ redact 后发 AI SDK
 Prompt to agent@v1: "I have 42 clients, mostly {{client_1}}, {{client_2}} in CA/NV"
-         ↓ LLM 响应
+         ↓ AI SDK 响应
 Raw completion: "Got it — I've pre-loaded rules for {{client_1}} / {{client_2}}..."
          ↓ Glass-Box Guard（dev-file/04-AI-Architecture.md §3 第 4 道闸 PII 回填）
 Final bubble to user: "Got it — I've pre-loaded rules for Acme LLC / Bright Studio..."
 ```
 
-- **piiMap 存储位置**：Worker 内存（单 request 作用域）+ `ai_output.input_context_ref` 存 **hash**（SHA-256），**不存原文**；对齐 PRD Part2B §9.3 ZDR + `dev-file/04-AI-Architecture.md` §3。
-- **未声明占位符 = 禁止渲染**：若 LLM 回复里出现未在 piiMap 声明的 `{{xxx_N}}`，Glass-Box Guard 第 4 道闸抛 `pii_mismatch`，重试 1 次失败后走 refusal（见 §6）。
-- **ZDR endpoint**：走 OpenAI ZDR 组织级开关或 Azure OpenAI；prompt 明示 `Do not retain any data seen for training`（Part2B §13.2）；`llm_logs` 表只存 input hash 不存原文（Part2B §9.3 + §6A.9）。
+- **piiMap 存储位置**：Worker 内存（单 request 作用域）+ `ai_output.input_context_ref` 存 **hash**（SHA-256），**不存原文**；对齐 PRD Part2B §9.3 数据保留与调用记录 + `dev-file/04-AI-Architecture.md` §3。
+- **未声明占位符 = 禁止渲染**：若 AI SDK 输出里出现未在 piiMap 声明的 `{{xxx_N}}`，Glass-Box Guard 第 4 道闸抛 `pii_mismatch`，重试 1 次失败后走 refusal（见 §6）。
+- **Retention 契约**：运行时走 Vercel AI SDK Core + Cloudflare AI Gateway provider；prompt 明示 `Do not retain any data seen for training`；`ai_output` trace 只存 input hash 不存原文（Part2B §9.3 + §6A.9）。
 
 ### 5.3 对比 Mapper / Normalizer 的 PII 策略
 
-| 维度                | Agent 对话（本文）                                | Field Mapper（§6A.2）   | Normalizer（§6A.3）                          |
-| ------------------- | ------------------------------------------------- | ----------------------- | -------------------------------------------- |
-| 发到 LLM 的数据     | 用户对话文本（含客户名 / EIN / 邮箱被占位符替换） | 表头 + 5 行样本（原值） | 字段枚举值（原值，如 `L.L.C.` / `Corp (S)`） |
-| Placeholder         | 走 `{{client_N}}` / `{{ein_N}}` / `{{email_N}}`   | 不走                    | 不走                                         |
-| ZDR endpoint        | 必须                                              | 必须                    | 必须                                         |
-| `llm_logs` 记录原文 | 否（仅 input hash）                               | 否                      | 否                                           |
-| 前端 SSN 正则拦截   | 是（见 §6 第 5 行）                               | 是（§6A.9）             | 是（§6A.9）                                  |
+| 维度                 | Agent 对话（本文）                                | Field Mapper（§6A.2）   | Normalizer（§6A.3）                          |
+| -------------------- | ------------------------------------------------- | ----------------------- | -------------------------------------------- |
+| 发到 AI SDK 的数据   | 用户对话文本（含客户名 / EIN / 邮箱被占位符替换） | 表头 + 5 行样本（原值） | 字段枚举值（原值，如 `L.L.C.` / `Corp (S)`） |
+| Placeholder          | 走 `{{client_N}}` / `{{ein_N}}` / `{{email_N}}`   | 不走                    | 不走                                         |
+| Retention 契约       | 必须                                              | 必须                    | 必须                                         |
+| `ai_output` 记录原文 | 否（仅 input hash）                               | 否                      | 否                                           |
+| 前端 SSN 正则拦截    | 是（见 §6 第 5 行）                               | 是（§6A.9）             | 是（§6A.9）                                  |
 
 > 文档归属：Mapper / Normalizer 的占位符口径由 [`./04-ai-prompts.md`](./04-ai-prompts.md) 主述；本文只锁 Agent 路径。两边冲突时以 [`./10-conflict-resolutions.md#5-placeholder-策略`](./10-conflict-resolutions.md#5-placeholder-策略) 为准。
 
@@ -336,16 +336,16 @@ Final bubble to user: "Got it — I've pre-loaded rules for Acme LLC / Bright St
 
 | 异常场景                                                                                             | 降级行为                                                            | 文案（EN 主 / zh-CN 副，走 `<Trans />`）                                                                                                                                                         | 状态机跳转                                      |
 | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
-| **LLM 响应超时**（> 8s）                                                                             | 气泡显示降级提示 → 自动跳传统 wizard Step 1，`onboardingDraft` 保留 | EN: `[Fallback] Switching to the guided wizard...` / zh-CN: `[降级] 我们切到引导向导……`                                                                                                          | 任意 state → wizard Step 1                      |
+| **AI SDK 响应超时**（> 8s）                                                                          | 气泡显示降级提示 → 自动跳传统 wizard Step 1，`onboardingDraft` 保留 | EN: `[Fallback] Switching to the guided wizard...` / zh-CN: `[降级] 我们切到引导向导……`                                                                                                          | 任意 state → wizard Step 1                      |
 | **对话绕圈**（用户连续问 3 次非 setup 问题）                                                         | Agent 主动投降 → 跳 wizard Step 1                                   | EN: `Let me get you to the wizard — we can chat later.` / zh-CN: `先让我带你走一遍向导吧——咱们回头再聊。`                                                                                        | 任意 state → wizard Step 1                      |
-| **用户粘贴内容 LLM 识别不出**（Mapper 置信度 < 0.5 或 EIN 命中率 < 80% 且存在 EIN 列）               | 回到 `intake` state，提示重贴或上传 CSV                             | EN: `Try pasting a cleaner table, or [Upload a CSV instead].` / zh-CN: `试试重新贴一份干净点的表格，或者 [直接传个 CSV]。`                                                                       | 回 `intake`（不退出 Agent 路径）                |
-| **ZDR endpoint 不可用**（OpenAI 组织级开关脱落 / Azure OpenAI 超时）                                 | **禁用 Agent 路径**，降级到 preset profile 路径（不再调 LLM）       | EN: `AI Copilot is temporarily unavailable. Let's use the guided wizard.` / zh-CN: `AI Copilot 暂时不可用，咱们走引导向导。`                                                                     | 任意 state → wizard Step 1                      |
-| **对话中 SSN 模式被捕获**（正则 `\d{3}-\d{2}-\d{4}` 命中）                                           | Agent **主动声明**已拦截 + redact，继续原 state；**不**发到 LLM     | EN: `I saw a Social Security number pattern. Let me strip that before we continue — I don't need it for deadlines.` / zh-CN: `我看到了一段 SSN 样式的数字，我先把它去掉——算 deadline 用不上它。` | 保持当前 state；客户端 redact 后继续            |
-| **Glass-Box Guard `pii_mismatch`**（LLM 回复出现未声明占位符）                                       | 重试 1 次；仍失败 → 显示固定 refusal                                | EN: `I don't have a verified source for this. [Ask a human]` / zh-CN: `我这边没有可靠出处，[请转人工]。`                                                                                         | 任意 state → 等待用户下一步（可 Back / Switch） |
+| **用户粘贴内容 AI Mapper 识别不出**（Mapper 置信度 < 0.5 或 EIN 命中率 < 80% 且存在 EIN 列）         | 回到 `intake` state，提示重贴或上传 CSV                             | EN: `Try pasting a cleaner table, or [Upload a CSV instead].` / zh-CN: `试试重新贴一份干净点的表格，或者 [直接传个 CSV]。`                                                                       | 回 `intake`（不退出 Agent 路径）                |
+| **Cloudflare AI Gateway / retention policy 不可用**                                                  | **禁用 Agent 路径**，降级到 preset profile 路径（不再调 AI SDK）    | EN: `AI Copilot is temporarily unavailable. Let's use the guided wizard.` / zh-CN: `AI Copilot 暂时不可用，咱们走引导向导。`                                                                     | 任意 state → wizard Step 1                      |
+| **对话中 SSN 模式被捕获**（正则 `\d{3}-\d{2}-\d{4}` 命中）                                           | Agent **主动声明**已拦截 + redact，继续原 state；**不**发到 AI SDK  | EN: `I saw a Social Security number pattern. Let me strip that before we continue — I don't need it for deadlines.` / zh-CN: `我看到了一段 SSN 样式的数字，我先把它去掉——算 deadline 用不上它。` | 保持当前 state；客户端 redact 后继续            |
+| **Glass-Box Guard `pii_mismatch`**（AI SDK 输出出现未声明占位符）                                    | 重试 1 次；仍失败 → 显示固定 refusal                                | EN: `I don't have a verified source for this. [Ask a human]` / zh-CN: `我这边没有可靠出处，[请转人工]。`                                                                                         | 任意 state → 等待用户下一步（可 Back / Switch） |
 | **Glass-Box Guard `no_citation` / `banned_phrase`**（Agent 路径不强制 citation，但黑名单短语必须拦） | 同上，走 refusal 模板                                               | 同上                                                                                                                                                                                             | 同上                                            |
 | **onboardingDraft 丢失**（跨标签页 / 浏览器崩溃）                                                    | Demo Sprint 不支持持久化，直接回空态首页（§2.2）                    | EN: `Your setup session reset. Let's start again.` / zh-CN: `Setup 会话丢了，咱们重新来。`                                                                                                       | 回空态首页                                      |
 
-> 降级优先级：**静默降级 > 用户可见提示 > 阻塞**。PRD §6A.11.4 三条 + 本表扩展的 5 条共 8 条 fallback，覆盖 LLM / 网络 / PII / 状态丢失四类故障。所有降级**必须**写 `audit_event = onboarding.agent.fallback.triggered`（带 `reason` 字段）+ `ai_output.verify_status = 'refused'`（对齐 `dev-file/04-AI-Architecture.md` §3）。
+> 降级优先级：**静默降级 > 用户可见提示 > 阻塞**。PRD §6A.11.4 三条 + 本表扩展的 5 条共 8 条 fallback，覆盖 AI SDK / 网络 / PII / 状态丢失四类故障。所有降级**必须**写 `audit_event = onboarding.agent.fallback.triggered`（带 `reason` 字段）+ `ai_output.verify_status = 'refused'`（对齐 `dev-file/04-AI-Architecture.md` §3）。
 
 ---
 
@@ -379,7 +379,7 @@ onboarding.agent.dry_run.previewed
 onboarding.agent.import.committed
 onboarding.agent.handoff.offered
 onboarding.agent.handoff.chosen                 ← 带 target: dashboard | walkthrough
-onboarding.agent.fallback.triggered             ← 带 reason: timeout | loop | parse_fail | zdr_down | pii | guard_refuse
+onboarding.agent.fallback.triggered             ← 带 reason: timeout | loop | parse_fail | gateway_down | pii | guard_refuse
 ```
 
 ### 7.3 Agent 路径与 4 步向导的 Audit 分层（关键）
@@ -393,12 +393,14 @@ onboarding.agent.fallback.triggered             ← 带 reason: timeout | loop |
 
 ### 7.4 `ai_output` 表写入字段
 
-每次 Agent 调 LLM（Phase 0 起）都在 `ai_output` 记录：
+每次 Agent 调 AI SDK（Phase 0 起）都在 `ai_output` 记录：
 
 ```json
 {
   "prompt_version": "agent@v1",
-  "model": "openai/gpt-4o-mini",
+  "model_tier": "fast-json",
+  "runtime": "ai-sdk-core",
+  "gateway": "cloudflare-ai-gateway",
   "input_context_ref": "sha256:xxxxxxx",
   "piiMap_hash": "sha256:yyyyyyy",
   "verify_status": "verified | refused | pending_review",
@@ -412,7 +414,7 @@ onboarding.agent.fallback.triggered             ← 带 reason: timeout | loop |
 
 `/settings/setup-history` 页展示：
 
-- 每次 onboarding 会话的**完整对话记录**（回填后的气泡，**不是** redact 后的 LLM 输入）
+- 每次 onboarding 会话的**完整对话记录**（回填后的气泡，**不是** redact 后的 AI SDK 输入）
 - 每个气泡 hover → Evidence Drawer Level 3（`../../docs/Design/DueDateHQ-DESIGN.md` 无障碍章节规范）展示 `prompt_version` / `model` / `confidence` / `guard_flags`
 - 与 `/settings/imports` 的 batch detail 页**互相引用**：`imports` 页的 batch 详情可跳 `setup-history` 看"这个 batch 是通过 Agent 对话还是 Wizard 创建的"
 
@@ -437,8 +439,8 @@ onboarding.agent.fallback.triggered             ← 带 reason: timeout | loop |
 | 风险项                                 | 彩排动作                                                                                      | 回退方案                  |
 | -------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------- |
 | Agent 预置回复不触发                   | 换成 §2.2 wizard 截图叙事                                                                     | 直接走 4 步向导 live demo |
-| 网络异常导致 LLM 超时                  | 走 fallback 第 1 行：`[Fallback] Switching to the guided wizard...`                           | 观众看不见差异            |
-| ZDR endpoint 不可用                    | 走 fallback 第 4 行：`AI Copilot is temporarily unavailable`                                  | 展示 preset profile 路径  |
+| 网络异常导致 AI SDK 超时               | 走 fallback 第 1 行：`[Fallback] Switching to the guided wizard...`                           | 观众看不见差异            |
+| Cloudflare AI Gateway 不可用           | 走 fallback 第 4 行：`AI Copilot is temporarily unavailable`                                  | 展示 preset profile 路径  |
 | TX 不在 Default Matrix v1.0 demo seed  | Pitch 口播"Rules MVP 已覆盖 TX / FL / WA，Default Matrix 自动推断仍需 review"；现场用 CA 演示 | 无                        |
 | 观众报超出范围的数字（"5000 clients"） | Agent 继续正常响应（Mapper 5 行样本策略下规模无关）                                           | 无                        |
 | 观众试图跳过 preview 卡                | 卡片点击自动降级（§11）                                                                       | 无                        |
@@ -569,7 +571,7 @@ render wizard Step 1 Intake
 
 ### 11.4 不做项清单（Demo Sprint 显式 NOT DO）
 
-- Agent 真实 LLM 调用（任何 state 都不发真实 LLM 请求）
+- Agent 真实 AI SDK 调用（任何 state 都不发真实 AI SDK 请求）
 - `agent@v1` prompt 定稿（留 placeholder 在 [`./04-ai-prompts.md`](./04-ai-prompts.md) Phase 0 接入位）
 - `onboardingDraft` 持久化（localStorage / Worker session store 都不做）
 - `/settings/setup-history` 页面渲染（留空）

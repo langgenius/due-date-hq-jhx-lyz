@@ -16,7 +16,7 @@
 | 01 Tech Stack            | Vite SPA、Hono Worker、oRPC、D1/R2/KV/Queues/Vectorize、TS 6 + `tsgo`                                                 | 不引入 Next.js、Postgres、外部队列、typed ESLint 默认门禁                                                          |
 | 02 System Architecture   | `/rpc` 给内部 oRPC；`/api` 给 auth/webhook/future REST；D1 batch 受 SQLite/D1 限制                                    | 模块之间只通过 contract/facade 交互；批量写要分批、幂等、可回滚                                                    |
 | 03 Data Model            | D1 无 RLS；`scoped(db, firmId)` 是租户业务数据唯一入口；audit 永不删                                                  | 所有租户写入必须经过 scoped repo 和 audit/evidence writer                                                          |
-| 04 AI Architecture       | AI Orchestrator 是唯一 LLM 出入口；AI 不直接写 DB；必须 guard/citation/trace                                          | Migration、Pulse、Brief 都只消费 AI facade，不各自接 LLM SDK                                                       |
+| 04 AI Architecture       | AI Orchestrator 是唯一 AI SDK 出入口；AI 不直接写 DB；必须 guard/citation/trace                                       | Migration、Pulse、Brief 都只消费 AI facade，不各自接模型 SDK                                                       |
 | 05 Frontend Architecture | SPA workbench；React Router；TanStack Query/Table；Zustand 不超过 3 个 store；Vite+ 作为工具链（PWA 在 Phase 0 不做） | 前端模块以业务能力隔离，server state 不进 Zustand                                                                  |
 | 06 Security Compliance   | Owner-only 不等于无安全；session、active firm、tenant scope、audit 必须在                                             | Demo 也要防跨租户、写审计、保护 secret、避免 AI 法律结论                                                           |
 | 07 DevOps Testing        | CI 跑 format/lint/secrets/`tsgo`/test/build；migration 不靠破坏性 rollback                                            | 每个模块都必须有可自动执行的质量门禁                                                                               |
@@ -88,20 +88,20 @@
 
 ## 4. 模块总览
 
-| 模块                            | Owner | Owns                                                                                            | Exposes                                                                 | Consumes                                                                        | Does not own                                                            |
-| ------------------------------- | ----- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Platform Foundation             | Alice | Cloudflare 单 Worker 运行底座、routing、bindings、local runtime                                 | Worker app shell、binding registry、runtime config                      | Tech stack、DevOps gates                                                        | 任何业务规则                                                            |
-| Web Shell + UI System           | Bob   | App shell、navigation、layout slots、UI primitives、global interaction shell                    | Workbench shell、drawer stack、command shell、dashboard slots           | Platform、oRPC client contract                                                  | 业务数据写入                                                            |
-| Auth + Tenant Scope             | Alice | session、active firm、Owner-only demo auth、tenant context                                      | authenticated context、tenant scoped context、auth errors               | DB Core、Security rules                                                         | 完整 Phase 1 RBAC UI                                                    |
-| DB Core + Scoped Repos          | Bob   | D1 schema semantics、tenant-scoped repo factory、audit/evidence writers                         | scoped domain repos、transaction-aware writers                          | Auth tenant context、D1 constraints                                             | procedure orchestration、UI state                                       |
-| AI Orchestrator                 | Alice | AI Gateway access、prompt execution、guard、trace、PII redaction、retrieval facade              | structured AI result、streaming result、retrieval result、trace payload | Vectorize/KV/Langfuse ports                                                     | DB writes、business permission decisions                                |
-| Migration Copilot               | Alice | CSV intake、mapping、normalization、batch apply/revert、Live Genesis story                      | imported clients/obligations event、migration audit/evidence            | AI Orchestrator、DB Core、Client/Obligation facade                              | Workboard layout、Dashboard layout                                      |
-| Client + Workboard              | Bob   | client CRUD、obligation generation、workboard operations、status workflow                       | client facade、obligation generation facade、workboard query result     | DB Core、Audit/Evidence, UI System                                              | Migration import UX、Pulse apply logic                                  |
-| Dashboard + Brief               | Bob   | risk summary、triage tabs、penalty/priority explanation、weekly brief render + citation routing | dashboard slots、risk query result、brief stream render                 | Workboard data、AI Orchestrator (brief stream + citation refs)、Evidence facade | Pulse matching/apply、Migration import、AI 语义解释、brief summary 自拼 |
-| Evidence + Audit Trail          | Bob   | evidence chain display、audit event integrity、before/after diff                                | write evidence/audit facade、open evidence action、audit query          | DB Core、Auth actor context                                                     | AI extraction, business action decisions                                |
-| Pulse Pipeline                  | Alice | source ingest demo data、extraction, match, review, batch apply/revert, digest email            | pulse event、affected clients result、apply result、dashboard extension | AI Orchestrator、DB Core、Evidence/Audit、Dashboard slot                        | Dashboard layout、Workboard table internals                             |
-| Demo Data + Pay-intent + Polish | Bob   | deterministic demo profile、seed idempotency、pay-intent event、demo polish                     | demo profile, pay-intent event, command palette entries                 | DB Core、Audit, Analytics                                                       | Real billing, SEO site                                                  |
-| DevOps + Quality Gates          | Alice | CI, hooks, quality scripts, deploy discipline, migration safety                                 | required checks, deploy pipeline, quality commands                      | All modules                                                                     | Business acceptance decisions                                           |
+| 模块                            | Owner | Owns                                                                                                        | Exposes                                                                 | Consumes                                                                        | Does not own                                                            |
+| ------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Platform Foundation             | Alice | Cloudflare 单 Worker 运行底座、routing、bindings、local runtime                                             | Worker app shell、binding registry、runtime config                      | Tech stack、DevOps gates                                                        | 任何业务规则                                                            |
+| Web Shell + UI System           | Bob   | App shell、navigation、layout slots、UI primitives、global interaction shell                                | Workbench shell、drawer stack、command shell、dashboard slots           | Platform、oRPC client contract                                                  | 业务数据写入                                                            |
+| Auth + Tenant Scope             | Alice | session、active firm、Owner-only demo auth、tenant context                                                  | authenticated context、tenant scoped context、auth errors               | DB Core、Security rules                                                         | 完整 Phase 1 RBAC UI                                                    |
+| DB Core + Scoped Repos          | Bob   | D1 schema semantics、tenant-scoped repo factory、audit/evidence writers                                     | scoped domain repos、transaction-aware writers                          | Auth tenant context、D1 constraints                                             | procedure orchestration、UI state                                       |
+| AI Orchestrator                 | Alice | AI SDK execution via Cloudflare AI Gateway、prompt execution、guard、trace、PII redaction、retrieval facade | structured AI result、streaming result、retrieval result、trace payload | Vectorize/KV/writer/tracer ports                                                | DB writes、business permission decisions                                |
+| Migration Copilot               | Alice | CSV intake、mapping、normalization、batch apply/revert、Live Genesis story                                  | imported clients/obligations event、migration audit/evidence            | AI Orchestrator、DB Core、Client/Obligation facade                              | Workboard layout、Dashboard layout                                      |
+| Client + Workboard              | Bob   | client CRUD、obligation generation、workboard operations、status workflow                                   | client facade、obligation generation facade、workboard query result     | DB Core、Audit/Evidence, UI System                                              | Migration import UX、Pulse apply logic                                  |
+| Dashboard + Brief               | Bob   | risk summary、triage tabs、penalty/priority explanation、weekly brief render + citation routing             | dashboard slots、risk query result、brief stream render                 | Workboard data、AI Orchestrator (brief stream + citation refs)、Evidence facade | Pulse matching/apply、Migration import、AI 语义解释、brief summary 自拼 |
+| Evidence + Audit Trail          | Bob   | evidence chain display、audit event integrity、before/after diff                                            | write evidence/audit facade、open evidence action、audit query          | DB Core、Auth actor context                                                     | AI extraction, business action decisions                                |
+| Pulse Pipeline                  | Alice | source ingest demo data、extraction, match, review, batch apply/revert, digest email                        | pulse event、affected clients result、apply result、dashboard extension | AI Orchestrator、DB Core、Evidence/Audit、Dashboard slot                        | Dashboard layout、Workboard table internals                             |
+| Demo Data + Pay-intent + Polish | Bob   | deterministic demo profile、seed idempotency、pay-intent event、demo polish                                 | demo profile, pay-intent event, command palette entries                 | DB Core、Audit, Analytics                                                       | Real billing, SEO site                                                  |
+| DevOps + Quality Gates          | Alice | CI, hooks, quality scripts, deploy discipline, migration safety                                             | required checks, deploy pipeline, quality commands                      | All modules                                                                     | Business acceptance decisions                                           |
 
 ---
 
@@ -248,14 +248,15 @@
 
 **Owns**
 
-- AI Gateway access。
+- AI SDK Core execution facade。
+- Cloudflare AI Gateway provider configuration。
 - Prompt execution facade。
 - JSON validation。
 - Streaming guard。
 - Citation guard。
 - PII redaction。
 - Retrieval abstraction。
-- LLM trace/cost metadata。
+- AI SDK usage / latency / guard trace metadata。
 
 **Exposes**
 
@@ -266,10 +267,10 @@
 
 **Consumes**
 
-- AI Gateway。
+- Cloudflare AI Gateway through AI SDK provider。
 - Vectorize。
 - KV budget/cache ports。
-- Langfuse tracing port。
+- Writer/tracer ports for internal `ai_output` / audit metadata。
 
 **Does not own**
 
@@ -279,7 +280,7 @@
 
 **DoD**
 
-- Business modules never call LLM SDKs directly。
+- Business modules never call model SDKs directly。
 - AI output cannot become source of truth without schema validation and guard result。
 - Trace metadata is available for observability。
 

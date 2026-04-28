@@ -1,13 +1,15 @@
 import type * as z from 'zod'
-import { callGateway } from './gateway'
+import { callGateway, type GatewayRequest } from './gateway'
 import { GuardRejection, verifyMapperEinHitRate } from './guard'
 import { redactMigrationInput } from './pii'
 import { loadPrompt, type PromptName } from './prompter'
 import { createTrace, type AiTrace } from './trace'
 
 export interface AiEnv {
-  OPENAI_API_KEY?: string
-  AI_GATEWAY_BASE_URL?: string
+  AI_GATEWAY_ACCOUNT_ID?: string
+  AI_GATEWAY_SLUG?: string
+  AI_GATEWAY_API_KEY?: string
+  AI_GATEWAY_MODEL?: string
 }
 
 export interface AiRefusal {
@@ -74,13 +76,18 @@ export function createAI(env: AiEnv = {}) {
     const prompt = loadPrompt(name)
     const startedAt = Date.now()
 
-    if (!env.OPENAI_API_KEY) {
+    if (
+      !env.AI_GATEWAY_ACCOUNT_ID ||
+      !env.AI_GATEWAY_SLUG ||
+      !env.AI_GATEWAY_API_KEY ||
+      !env.AI_GATEWAY_MODEL
+    ) {
       return refusal(
         'AI_UNAVAILABLE',
-        'AI provider is not configured for this environment.',
+        'Cloudflare AI Gateway is not configured for this environment.',
         createTrace({
           promptVersion: name,
-          model: prompt.model,
+          model: prompt.modelTier,
           latencyMs: 0,
           guardResult: 'ai_unavailable',
         }),
@@ -90,18 +97,16 @@ export function createAI(env: AiEnv = {}) {
     const redacted = redactMigrationInput(input)
     try {
       const gatewayRequest = {
-        openaiApiKey: env.OPENAI_API_KEY,
-        model: prompt.model,
+        accountId: env.AI_GATEWAY_ACCOUNT_ID,
+        slug: env.AI_GATEWAY_SLUG,
+        apiKey: env.AI_GATEWAY_API_KEY,
+        model: env.AI_GATEWAY_MODEL,
         prompt: prompt.text,
         input: redacted.input,
-      }
-      const gateway = await callGateway(
-        env.AI_GATEWAY_BASE_URL
-          ? { ...gatewayRequest, gatewayBaseUrl: env.AI_GATEWAY_BASE_URL }
-          : gatewayRequest,
-      )
-      const parsedJson = JSON.parse(gateway.content) as unknown
-      const parsed = schema.safeParse(parsedJson)
+        schema,
+      } satisfies GatewayRequest<TOut>
+      const gateway = await callGateway(gatewayRequest)
+      const parsed = schema.safeParse(gateway.output)
 
       if (!parsed.success) {
         return refusal(
@@ -145,11 +150,11 @@ export function createAI(env: AiEnv = {}) {
           error.message,
           createTrace({
             promptVersion: name,
-            model: prompt.model,
+            model: env.AI_GATEWAY_MODEL ?? prompt.modelTier,
             latencyMs: Date.now() - startedAt,
             guardResult: 'guard_rejected',
           }),
-          prompt.model,
+          env.AI_GATEWAY_MODEL ?? prompt.modelTier,
         )
       }
 
@@ -158,11 +163,11 @@ export function createAI(env: AiEnv = {}) {
         error instanceof Error ? error.message : 'AI gateway request failed.',
         createTrace({
           promptVersion: name,
-          model: prompt.model,
+          model: env.AI_GATEWAY_MODEL ?? prompt.modelTier,
           latencyMs: Date.now() - startedAt,
           guardResult: 'schema_fail',
         }),
-        prompt.model,
+        env.AI_GATEWAY_MODEL ?? prompt.modelTier,
       )
     }
   }

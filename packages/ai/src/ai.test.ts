@@ -28,9 +28,10 @@ describe('@duedatehq/ai', () => {
           return { end() {} }
         },
       },
-      gatewayBaseUrl: 'https://gateway.ai.cloudflare.com',
-      openaiApiKey: 'test-openai-key',
-      anthropicApiKey: 'test-anthropic-key',
+      aiGatewayAccountId: 'test-account',
+      aiGatewaySlug: 'duedatehq',
+      aiGatewayApiKey: 'test-gateway-key',
+      aiGatewayModel: 'test-model',
     }
 
     await expect(ports.vectors.query([], { topK: 1 })).resolves.toEqual([match])

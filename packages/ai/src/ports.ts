@@ -33,7 +33,8 @@ export interface AiPorts {
   kv: KvStore
   writers: AiWriters
   tracer: Tracer
-  gatewayBaseUrl: string
-  openaiApiKey: string
-  anthropicApiKey: string
+  aiGatewayAccountId: string
+  aiGatewaySlug: string
+  aiGatewayApiKey: string
+  aiGatewayModel: string
 }

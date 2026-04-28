@@ -50,7 +50,7 @@
 │  ┌─────────────────────────▼─────────────────────────────────────┐   │
 │  │  Infrastructure Layer (Adapters)                              │   │
 │  │  packages/db（Drizzle + D1）· packages/auth（better-auth）     │   │
-│  │  packages/ai（AI Gateway + Vectorize + prompts）              │   │
+│  │  packages/ai（AI SDK + CF AI Gateway + Vectorize + prompts）  │   │
 │  │  email · push · storage · queues                              │   │
 │  └───────────────────────────────────────────────────────────────┘   │
 │                                                                      │
@@ -210,7 +210,7 @@ SourceAdapter.fetch()  ──► raw 存 R2 ──► 入 Queue { type: 'extract
                                  Queue consumer
                                         │
                                         ▼
-                                 LLM Extract（经 AI Gateway）
+                                 AI SDK Extract（经 CF AI Gateway）
                                         │
                                         ▼
                                  Glass-Box Guard 校验
@@ -250,7 +250,7 @@ SourceAdapter.fetch()  ──► raw 存 R2 ──► 入 Queue { type: 'extract
           for each row:
             Zod.safeParse → 失败 → 写 migration_error，continue
             ↓
-            normalize（core 纯函数 + LLM 兜底）
+            normalize（core 纯函数 + AI SDK 兜底）
             ↓
           d1.batch([
             INSERT clients × N,
@@ -271,14 +271,12 @@ SourceAdapter.fetch()  ──► raw 存 R2 ──► 入 Queue { type: 'extract
 
 ## 5. 外部依赖清单
 
-| 依赖                        | 用途         | 故障降级见           |
-| --------------------------- | ------------ | -------------------- |
-| OpenAI（via AI Gateway）    | LLM 主       | §01.5                |
-| Anthropic（via AI Gateway） | LLM fallback | §01.5                |
-| Resend                      | 邮件         | email_outbox 重试    |
-| Sentry                      | 错误上报     | 无降级（非关键路径） |
-| PostHog                     | 产品事件     | 失败吞掉不影响功能   |
-| Langfuse                    | LLM trace    | 失败吞掉不影响功能   |
+| 依赖                                          | 用途                | 故障降级见           |
+| --------------------------------------------- | ------------------- | -------------------- |
+| AI SDK providers（via Cloudflare AI Gateway） | 模型执行 / fallback | §01.5                |
+| Resend                                        | 邮件                | email_outbox 重试    |
+| Sentry                                        | 错误上报            | 无降级（非关键路径） |
+| PostHog                                       | 产品事件            | 失败吞掉不影响功能   |
 
 所有 Cloudflare 原生服务（D1 / KV / R2 / Queues / Vectorize / AI Gateway）**不算外部依赖**，它们是 Worker 的 binding。
 
@@ -336,7 +334,7 @@ D1 无 RLS 能力，不依赖 DB 级防护。
 | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | D1 → Postgres（极端场景退路，非预设路径，见 §03.9.2） | `packages/db` 是唯一 schema/query 入口；切换只改该包；业务层零感知                                                                                                                                                                                                                                              |
 | Vectorize → Pinecone                                  | `packages/ai/retriever.ts` 抽象 `VectorStore` 接口                                                                                                                                                                                                                                                              |
-| AI Gateway → 自建                                     | `packages/ai/gateway.ts` 隔离所有外部 LLM 调用                                                                                                                                                                                                                                                                  |
+| Cloudflare AI Gateway → 其他网关                      | `packages/ai` 隔离 AI SDK provider 组合；业务模块只消费 DueDateHQ AI facade                                                                                                                                                                                                                                     |
 | 单 Worker → 多 Worker（承载量上来后）                 | Queue consumer 拆到独立 Worker；主 Worker 只处理交互请求                                                                                                                                                                                                                                                        |
 | **SEO 公开页**（PRD P1-17 / P1-34 / §5.7A / §5.7B）   | **独立 Astro 静态子站**（`apps/marketing`，挂 `duedatehq.com`）承接首页、`/rules` `/watch` `/state/*` `/pulse`；首版静态输出，后续通过静态 snapshot 或主 Worker 的 `/api/v1` OpenAPIHandler 读 verified 规则快照。PRD 语义不变，工程上与 SaaS Worker（`app.duedatehq.com`）物理分离以避开 SPA 不利于 SEO 的限制 |
 | Phase 2 第三方 API 开放                               | 主 Worker 增加 `/api/v1/*` 路由挂 `OpenAPIHandler(contract, { prefix: '/api/v1' })`，复用 `packages/contracts`                                                                                                                                                                                                  |

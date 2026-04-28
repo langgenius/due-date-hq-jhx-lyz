@@ -1,6 +1,6 @@
 /**
  * Local fallback dictionary for the Migration Copilot Step 3 Normalize
- * stage. Used when the AI Normalizer is unavailable (no OPENAI_API_KEY,
+ * stage. Used when the AI Normalizer is unavailable (gateway not configured,
  * gateway error, schema fail) so the wizard can still finish.
  *
  * Authority:

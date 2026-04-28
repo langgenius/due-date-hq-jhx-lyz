@@ -360,7 +360,7 @@ stateDiagram-v2
 ┌─ Popover · 0.5s hover delay · 宽 320px ───────┐
 │  Why this mapping?                            │
 │  "Column values match ##-####### EIN pattern  │
-│   in 5/5 rows" — gpt-4o · conf 0.96           │   ← {typography.numeric}
+│   in 5/5 rows" — fast-json · conf 0.96        │   ← {typography.numeric}
 │                                               │
 │  Sample after transform                       │
 │   12-3456789 → ein=12-3456789 (normalized)    │
@@ -509,7 +509,7 @@ stateDiagram-v2
 **Evidence Chip `[e]`（每条归一决策右侧）**：
 
 - 严格遵循 DueDateHQ-DESIGN §4.4 行 344–363：高 18px；font `{typography.numeric}` 10px；1px 边框 + 无背景
-- 示例 chip 文本：`AI · gpt-4o · 0.93`
+- 示例 chip 文本：`AI · fast-json · 0.93`
 - 缺 `source_url + verified_at + verbatim_quote` 的场景 → **按 DueDateHQ-DESIGN §8.3（No Provenance = No Render）降级**为：
 
   ```
@@ -525,7 +525,7 @@ stateDiagram-v2
 │  "LP" matches 0.93 similarity to enum                 │
 │   'Limited Partnership' (dictionary v2)               │
 │                                                       │
-│  gpt-4o · 2026-04-24T10:12:00Z                        │   ← {typography.numeric}
+│  fast-json · 2026-04-24T10:12:00Z                      │   ← {typography.numeric}
 │  [Copy as evidence]                                   │
 └───────────────────────────────────────────────────────┘
 ```

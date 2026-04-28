@@ -17,7 +17,7 @@ duedatehq/
 │   ├── contracts/                 # oRPC 契约（前后端唯一共享源）
 │   ├── db/                        # Drizzle schema + scoped repo 工厂 + writers
 │   ├── core/                      # 纯领域逻辑（penalty / priority / overlay / date-logic）
-│   ├── ai/                        # RAG + prompts + guard + LLM gateway
+│   ├── ai/                        # RAG + prompts + guard + AI SDK gateway
 │   ├── auth/                      # better-auth 配置（Organization + AC）
 │   ├── ui/                        # 跨 app 共享 UI primitives、brand token、cn()
 │   └── typescript-config/         # 共享 tsconfig（base / vite / worker / library）
@@ -349,15 +349,15 @@ packages/core/
 packages/ai/
 ├── src/
 │   ├── index.ts                    # orchestrator 高阶 API（generateBrief / generateTip / ...）
-│   ├── ports.ts                    # 注入 Env / VectorStore / writers / tracer 的接口
-│   ├── gateway.ts                  # AI Gateway client（OpenAI / Anthropic）
-│   ├── router.ts                   # modelRoute 定义
+│   ├── ports.ts                    # 注入 VectorStore / KV / writers / tracer 的接口
+│   ├── gateway.ts                  # AI SDK + Cloudflare AI Gateway provider 组合
+│   ├── router.ts                   # model tier / fallback route 定义
 │   ├── retriever.ts                # Vectorize 查询
 │   ├── prompter.ts                 # prompt 加载 + 版本号
 │   ├── guard.ts                    # Glass-Box Guard 5 道闸
 │   ├── pii.ts                      # PII redact + fill
 │   ├── budget.ts                   # per-firm/day 配额（KV）
-│   ├── trace.ts                    # Langfuse 上报
+│   ├── trace.ts                    # AI SDK usage / latency / guard trace payload
 │   └── prompts/                    # *.md 版本化
 │       ├── mapper@v1.md
 │       ├── normalizer-entity@v1.md
@@ -369,7 +369,7 @@ packages/ai/
 
 - `packages/ai` 不直接 import `@duedatehq/db`、Drizzle schema、Hono context 或 Cloudflare `env`。
 - `generateBrief` / `generateTip` / `extractPulse` 等高阶 API 返回 guarded result 与 trace payload；`apps/server` 负责用注入的 writer 写 `ai_output` / `evidence_link` / `llm_log`。
-- Vectorize / KV / Langfuse / AI Gateway client 通过 `ports.ts` 注入，便于 Workers integration test 和未来替换。
+- Vectorize / KV / writer / tracer ports 通过 `ports.ts` 注入；AI SDK provider 组合封装在 `packages/ai` 内部，便于 Workers integration test 和未来替换。
 
 ### 4.7 `packages/auth`
 
@@ -436,7 +436,7 @@ apps/marketing
   └─► packages/{ui, i18n}
 
 packages/ai
-  └─► packages/{core}（only，DB/KV/Vectorize/Langfuse 通过 ports 注入，不直接 import @duedatehq/db）
+  └─► packages/{core}（only，DB/KV/Vectorize/writers 通过 ports 注入，不直接 import @duedatehq/db）
 
 packages/db
   └─► packages/{core}（only）

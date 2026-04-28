@@ -23,10 +23,9 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "catalog:",
     "@duedatehq/core": "workspace:*",
-    "langfuse": "catalog:",
-    "openai": "catalog:",
+    "ai": "catalog:",
+    "ai-gateway-provider": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -38,5 +37,5 @@
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
-  "//": "AI orchestrator. MUST NOT import @duedatehq/db directly — Vectorize/KV/Langfuse/writers are injected via ports.ts (docs/dev-file/08 §4.6)."
+  "//": "AI orchestrator. MUST NOT import @duedatehq/db directly. Model execution goes through Vercel AI SDK Core + Cloudflare AI Gateway inside this package only (docs/dev-file/04)."
 }

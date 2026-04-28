@@ -298,11 +298,11 @@ function buildAi(rawResult?: unknown): AI {
       refusal: null,
       trace: {
         promptVersion: name,
-        model: 'gpt-4o-mini',
+        model: 'fast-json-test-model',
         latencyMs: 5,
         guardResult: 'ok',
       },
-      model: 'gpt-4o-mini',
+      model: 'fast-json-test-model',
       confidence: 0.97,
       cost: 0.0001,
     }

@@ -51,14 +51,12 @@ RESEND_API_KEY=
 EMAIL_FROM=noreply@duedatehq.com
 
 # ═════════════════════════════════════════════════════════════════════════════
-# [Optional] LLM via Cloudflare AI Gateway
+# [Optional] AI SDK via Cloudflare AI Gateway
 # ═════════════════════════════════════════════════════════════════════════════
 AI_GATEWAY_ACCOUNT_ID=
 AI_GATEWAY_SLUG=duedatehq
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-LANGFUSE_PUBLIC_KEY=
-LANGFUSE_SECRET_KEY=
+AI_GATEWAY_API_KEY=
+AI_GATEWAY_MODEL=
 
 # ═════════════════════════════════════════════════════════════════════════════
 # [Optional · Phase 1+] Web Push

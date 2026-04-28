@@ -1,115 +1,261 @@
-# 04 · AI Architecture · Glass-Box · RAG · Pulse Pipeline
+# 04 · AI Architecture · AI SDK · Glass-Box · RAG · Pulse Pipeline
 
 > 对齐 PRD §6.2 / §6.3 / §6.6 / §9 / §6D。
+> 本文件是 DueDateHQ 的 AI 接入口径权威：**只通过 Vercel AI SDK Core 调模型，结合 Cloudflare AI Gateway 运行在 Cloudflare Worker 内**。
+>
 > 代码层必须体现的五条纪律：
 >
-> 1. **No citation, no render** — 无 `[n]` → 降级 refusal
-> 2. **Retrieval before generation** — prompt 只能引用已传入的 chunk
-> 3. **PII never leaves** — 占位符进 LLM，输出后回填
-> 4. **Never conclude** — 白名单措辞，黑名单正则拦截
-> 5. **Zero Data Retention** — 仅通过 AI Gateway 路由到 ZDR endpoint
+> 1. **AI SDK only** — 模型执行只走 `ai` / AI SDK provider，不直接使用上游模型 SDK 或第三方 tracing SDK
+> 2. **No citation, no render** — 无 `[n]` → 降级 refusal
+> 3. **Retrieval before generation** — prompt 只能引用已传入的 chunk
+> 4. **PII never leaves unnecessarily** — Agent / Brief / Pulse 走占位符；Migration Mapper 仅发送字段名 + 5 行样本
+> 5. **Human-controlled writes** — AI 只产出结构化建议；危险写入必须由服务端确定性流程 + 用户确认触发
 
 ---
 
 ## 1. AI 层总图
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                   AI Orchestrator (packages/ai)              │
-│   唯一 LLM 出入口；业务模块不直接碰 OpenAI / Anthropic SDK    │
-└───────┬──────────────┬──────────────┬─────────────┬──────────┘
-        │              │              │             │
-        ▼              ▼              ▼             ▼
-┌──────────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────┐
-│  Retriever   │ │ Prompter │ │  Guard       │ │  Tracer  │
-│  Vectorize   │ │ registry │ │ citation     │ │ Langfuse │
-│  top-k 6     │ │ versioned│ │ PII / banned │ │ llm_log  │
-└──────┬───────┘ └─────┬────┘ └──────┬───────┘ └────┬─────┘
-       │               │             │              │
-       └───────────────▼─────────────┘              │
-                       │                            │
-                       ▼                            ▼
-        ┌─────────────────────────────┐    ┌──────────────┐
-        │  Cloudflare AI Gateway      │◄───┤ Budget (KV)  │
-        │  OpenAI (ZDR) / Anthropic   │    │ per-firm/day │
-        │  缓存 / 重试 / 限流 / trace  │    └──────────────┘
-        └─────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+│                    packages/ai · DueDateHQ AI Facade               │
+│  唯一 AI 出入口；业务模块不直接 import `ai` 或任何 provider package │
+└──────────────┬──────────────┬──────────────┬──────────────┬────────┘
+               │              │              │              │
+               ▼              ▼              ▼              ▼
+┌────────────────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────────┐
+│ AI SDK Core         │ │ Prompter │ │ Glass-Box    │ │ Trace Payload │
+│ generateText        │ │ registry │ │ Guard        │ │ internal log  │
+│ streamText          │ │ versioned│ │ citation/PII │ │ usage/latency │
+│ Output.object       │ │ prompts  │ │ banned terms │ │ guard result  │
+└──────────┬─────────┘ └─────┬────┘ └──────┬───────┘ └──────┬───────┘
+           │                 │             │                │
+           ▼                 ▼             ▼                ▼
+┌────────────────────────────────────────────────────────────────────┐
+│ Cloudflare AI Gateway provider via AI SDK                          │
+│ - cache / retry / rate-limit / provider routing at Cloudflare edge  │
+│ - upstream keys stay in Worker secrets                             │
+│ - no business module sees provider credentials                     │
+└──────────────────────┬─────────────────────────────────────────────┘
+                       │
+                       ▼
+┌────────────────────────────────────────────────────────────────────┐
+│ Cloudflare native services                                         │
+│ Vectorize retrieval · KV daily budget · D1 ai_output/evidence/audit│
+└────────────────────────────────────────────────────────────────────┘
 ```
 
-`packages/ai` 是 AI 相关的唯一业务包。`apps/server` 的 procedure 只调 `packages/ai` 暴露的高阶函数（如 `generateBrief(input, ports)`），不碰 LLM SDK。`packages/ai` 不直接 import `@duedatehq/db`；持久化 `AiOutput` / `EvidenceLink` / `LlmLog` 由 `apps/server` 注入 writer ports 完成。
+`packages/ai` 仍是 AI 相关的唯一业务包。`apps/server` 的 procedure 只调用
+`packages/ai` 暴露的高阶函数，例如 `runPrompt`、`generateBrief`、`extractPulse`；
+不直接调用 AI SDK、provider package 或 provider HTTP endpoint。
+
+AI SDK 负责模型执行、结构化输出、流式输出、usage metadata 和 provider abstraction。
+DueDateHQ 仍然自己负责 PII redaction、retrieval、citation guard、budget、audit/evidence
+writer port 和 refusal 语义。SDK 不替代这些产品安全边界。
 
 ---
 
-## 2. 模型路由（约束）
+## 2. 运行时依赖与环境变量
 
-```ts
-// packages/ai/router.ts
-export const modelRoute = {
-  tip: { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
-  'mapper@v1': { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
-  'normalizer-entity@v1': { primary: 'openai/gpt-4o-mini', fallback: 'anthropic/claude-3-5-haiku' },
-  'normalizer-tax-types@v1': {
-    primary: 'openai/gpt-4o-mini',
-    fallback: 'anthropic/claude-3-5-haiku',
-  },
-  brief: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
-  pulseExtract: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
-  riskSummary: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
-  ask: { primary: 'openai/gpt-4o', fallback: 'anthropic/claude-sonnet-4-5' },
-  embedding: { primary: 'openai/text-embedding-3-small', fallback: null },
+### 2.1 依赖
+
+`packages/ai` 的运行时依赖只保留 AI SDK 体系：
+
+```json
+{
+  "dependencies": {
+    "ai": "catalog:",
+    "ai-gateway-provider": "catalog:",
+    "zod": "catalog:"
+  }
 }
 ```
 
-Prompt registry:
+禁止新增：
 
-- `mapper@v1` → `packages/ai/src/prompts/mapper@v1.md`，ZDR route，JSON object，temperature 0；无 API key 时返回 structured refusal，不抛裸异常。
-- `normalizer-entity@v1` → `packages/ai/src/prompts/normalizer-entity@v1.md`，同模型档位，用于 entity_type 字典未命中项。
-- `normalizer-tax-types@v1` → `packages/ai/src/prompts/normalizer-tax-types@v1.md`，同模型档位，用于 tax_types 字典未命中项。
+- provider native SDKs
+- third-party tracing SDKs
+- 自建 LiteLLM client
+- 业务模块内的 provider-specific SDK
 
-**所有 LLM 调用强制经 Cloudflare AI Gateway**：
+`ai-gateway-provider` 是 Cloudflare 官方 Vercel AI SDK 集成包，不等价于直接使用上游 provider
+SDK。它只能在 `packages/ai` 内部和 Unified provider 组合使用。
 
-- URL 形态：`https://gateway.ai.cloudflare.com/v1/{account}/{gateway}/openai/...`
-- 好处：自动缓存（幂等 query）、自动重试、自动 rate limit、自动 trace、所有调用的 cost / latency 在 Cloudflare Dashboard 可见
-- ZDR 在 OpenAI 组织级启用（AI Gateway 不存 prompt / completion 原文）
+### 2.2 Worker secrets
+
+```env
+AI_GATEWAY_ACCOUNT_ID=
+AI_GATEWAY_SLUG=duedatehq
+AI_GATEWAY_API_KEY=
+AI_GATEWAY_MODEL=
+```
+
+- `AI_GATEWAY_ACCOUNT_ID` / `AI_GATEWAY_SLUG` / `AI_GATEWAY_API_KEY`：Cloudflare AI Gateway
+  provider 使用。
+- `AI_GATEWAY_MODEL`：经 Cloudflare AI Gateway 调用的模型 id；由部署环境配置，不写死在 prompt。
+- 不再配置第三方 tracing SDK keys。
+
+### 2.3 模型选择
+
+模型 id 不在文档中写死成“永远最新”。实现时必须从 AI SDK / Gateway 当前可用模型清单确认，
+再写入 `packages/ai/src/router.ts`。
+
+当前策略：
+
+| 能力                          | 档位         | 说明                                    |
+| ----------------------------- | ------------ | --------------------------------------- |
+| Migration Mapper / Normalizer | fast-json    | 低温、结构化输出、低成本                |
+| Deadline Tip / Why-hover      | fast-text    | 短文本、必须带 citation                 |
+| Weekly Brief                  | quality      | 3-5 句、带 citation、可缓存 24h         |
+| Pulse Extract                 | quality-json | 官方公告结构化抽取，低置信进人工 review |
+| Ask DueDateHQ                 | quality-json | NL → DSL，禁止直接 SQL                  |
+| Embedding                     | embedding    | 规则 chunk / pulse chunk 写入 Vectorize |
 
 ---
 
-## 3. Glass-Box Guard（输出后置校验）
+## 3. AI SDK 调用模式
 
-每次 LLM 返回必过 5 道闸（实现在 `packages/ai/guard.ts`）：
+### 3.1 结构化输出
+
+结构化任务使用 AI SDK 的 `generateText` + `Output.object({ schema })`，或当前版本官方推荐的等价
+structured output API。调用方必须传入 Zod schema；schema parse 失败返回 structured refusal。
 
 ```ts
-// 约束形态
+import { generateText, Output } from 'ai'
+import * as z from 'zod'
+
+const MapperOutputSchema = z.object({
+  mappings: z.array(
+    z.object({
+      source: z.string(),
+      target: z.string(),
+      confidence: z.number().min(0).max(1),
+      reasoning: z.string().optional(),
+    }),
+  ),
+})
+
+const result = await generateText({
+  model: modelFor('mapper@v1'),
+  system: prompt.text,
+  prompt: JSON.stringify(redactedInput),
+  output: Output.object({ schema: MapperOutputSchema }),
+  temperature: 0,
+  experimental_telemetry: {
+    isEnabled: true,
+    functionId: 'mapper@v1',
+    metadata: traceMetadata,
+  },
+})
+```
+
+> 说明：AI SDK 的 API 会随版本演进；实现前必须按本仓 `ai` 版本查 `node_modules/ai/docs`
+> 或 ai-sdk.dev 当前文档。文档语义固定为“AI SDK structured output + Zod schema”，不固定到某个
+> 过时函数名。
+
+### 3.2 流式输出
+
+Weekly Brief / Ask 可以使用 `streamText`，但 UI 在 guard 完成前必须标记为 provisional：
+
+- 流式正文可以先显示为草稿状态。
+- Citation chip、Copy as Citation、Evidence click 只能在最终文本通过 `glassBoxGuard` 后出现。
+- guard 失败时整体替换为 refusal，不保留未验证文本。
+
+### 3.3 Cloudflare AI Gateway provider
+
+Cloudflare AI Gateway 通过 AI SDK provider 接入。实现可以使用 account/gateway/apiKey 形式，
+也可以在 Worker 后续启用 Cloudflare AI binding 后改为 binding 形式；`packages/ai` facade
+对业务调用保持不变。
+
+```ts
+import { generateText, Output } from 'ai'
+import { createAiGateway } from 'ai-gateway-provider'
+import { createUnified } from 'ai-gateway-provider/providers/unified'
+
+const aiGateway = createAiGateway({
+  accountId: env.AI_GATEWAY_ACCOUNT_ID,
+  gateway: env.AI_GATEWAY_SLUG,
+  apiKey: env.AI_GATEWAY_API_KEY,
+})
+const unified = createUnified()
+
+const result = await generateText({
+  model: aiGateway(unified(env.AI_GATEWAY_MODEL)),
+  output: Output.object({ schema }),
+  system: prompt.text,
+  prompt: JSON.stringify(redactedInput),
+})
+```
+
+Cloudflare AI Gateway 负责 provider routing、cache、retry、rate limit 和 gateway-side
+observability。DueDateHQ 仍把 input hash、usage、latency、guard result 写入内部
+`ai_output` / `llm_log` 等价表，方便 audit/evidence join。
+
+---
+
+## 4. Prompt Registry
+
+Prompt 原文落仓，`prompt_version` 是产品审计字段：
+
+- `mapper@v1` → `packages/ai/src/prompts/mapper@v1.md`
+- `normalizer-entity@v1` → `packages/ai/src/prompts/normalizer-entity@v1.md`
+- `normalizer-tax-types@v1` → `packages/ai/src/prompts/normalizer-tax-types@v1.md`
+- `brief@v1` → Phase 0 新增
+- `pulse-extract@v1` → Phase 0 新增
+- `deadline-tip@v1` → Phase 0 新增
+
+Prompt metadata 只描述任务档位，不写 provider SDK：
+
+```yaml
+prompt_version: mapper@v1
+model_tier: fast-json
+temperature: 0
+output: object
+runtime: ai-sdk-core
+gateway: cloudflare-ai-gateway
+```
+
+改 prompt 必须新增版本，例如 `mapper@v1` → `mapper@v2`。新旧版本可并存；A/B 分桶由
+`packages/ai` 根据 `firm_id` hash 决定，并写入内部 trace payload。
+
+---
+
+## 5. Glass-Box Guard
+
+每次 AI 返回必须过后置 guard。AI SDK 只保证输出 transport 和 schema，不保证 DueDateHQ 的
+业务安全。
+
+```ts
 export interface GuardResult {
   ok: boolean
   text?: string
   citations?: number[]
   reason?: 'no_citation' | 'citation_oob' | 'banned_phrase' | 'pii_mismatch' | 'empty_retrieval'
 }
-
-export async function glassBoxGuard(
-  raw: string,
-  ctx: { retrievedChunks: Chunk[]; piiMap: Record<string, string>; kind: AiKind },
-): Promise<GuardResult>
 ```
 
-五道闸的职责：
+五道闸：
 
-1. **Citation 正则校验**：`/\[(\d+)\]/g` 至少匹配 1 次，否则 `no_citation`
-2. **Citation 越界校验**：每个 `[n]` 对应的 index 必须存在于 `retrievedChunks`，否则 `citation_oob`
-3. **黑名单短语**：`/your client qualifies/i` · `/no penalty will apply/i` · `/this is tax advice/i` · `/ai confirmed/i` · `/this deadline is guaranteed/i` 命中任一即 `banned_phrase`
-4. **PII 回填**：将 `{{client_N}}` / `{{ein_N}}` 占位符替换回真实值；若出现未声明占位符即 `pii_mismatch`
-5. **White-list tone scoring**：软提示，不阻塞（收集指标）
+1. **Citation 正则校验**：需要 source-backed narrative 的输出必须有 `[n]`。
+2. **Citation 越界校验**：每个 `[n]` 对应已检索 chunk。
+3. **黑名单短语**：禁止 “your client qualifies”、“no penalty will apply”、“this is tax advice”、
+   “AI confirmed”、“this deadline is guaranteed” 等措辞。
+4. **PII 回填**：Agent / Brief / Pulse 使用 `{{client_N}}` / `{{ein_N}}` 等占位符；未声明占位符
+   触发 `pii_mismatch`。
+5. **White-list tone scoring**：软提示，不阻塞，但写指标。
 
-**失败处理**：重试 1 次 → 仍失败返回固定 refusal：
+失败处理：重试 1 次；仍失败返回固定 refusal：
 
+```text
+I don't have a verified source for this. [Ask a human]
 ```
-"I don't have a verified source for this. [Ask a human]"
-```
+
+Migration Mapper / Normalizer 是例外场景：为识别 EIN / entity / tax type 模式，允许发送字段名
+
+- 前 5 行样本，不走 `{{client_N}}` 占位符；但必须拦截 SSN-like pattern，只发送最小样本，不发送全表。
 
 ---
 
-## 4. RAG Pipeline
+## 6. RAG Pipeline
 
 ```
 User event (dashboard load / Ask / Apply)
@@ -117,210 +263,178 @@ User event (dashboard load / Ask / Apply)
        ▼
 ┌────────────────────────────────────┐
 │ 1. Query builder                   │
-│   embedding = openai.embed(query)  │
-│   filter = { firmId, jurisdiction, │
-│              entity_type, tax_type}│
+│   embedding via AI SDK             │
+│   filters from firm / jurisdiction │
 └──────────────────┬─────────────────┘
                    │
                    ▼
 ┌────────────────────────────────────┐
 │ 2. Retriever                       │
-│   Vectorize.query(embedding,       │
-│     { topK: 6, filter })           │
-│   → global rule_chunks             │
-│   → firm pulse_chunks              │
+│   Vectorize.query(topK: 6)         │
+│   global rule chunks + firm chunks │
 └──────────────────┬─────────────────┘
                    │
                    ▼
 ┌────────────────────────────────────┐
-│ 3. PII redact                      │
-│   client.name → {{client_1}}       │
-│   client.ein  → {{ein_1}}          │
-│   保存 piiMap                       │
+│ 3. PII redact / sample minimize    │
+│   Agent/Brief/Pulse placeholders   │
+│   Migration: 5-row sample only     │
 └──────────────────┬─────────────────┘
                    │
                    ▼
 ┌────────────────────────────────────┐
 │ 4. Prompt assembly                 │
-│   system: glass-box persona        │
-│   retrieved chunks with [1]..[n]   │
-│   user ctx (redacted)              │
+│   versioned prompt + chunks [1..n] │
 └──────────────────┬─────────────────┘
                    │
                    ▼
 ┌────────────────────────────────────┐
-│ 5. LLM call via AI Gateway         │
-│   stream or one-shot               │
+│ 5. AI SDK call via CF AI Gateway   │
+│   generateText / streamText        │
+│   Output.object for JSON tasks     │
 └──────────────────┬─────────────────┘
                    │
                    ▼
 ┌────────────────────────────────────┐
-│ 6. glassBoxGuard                   │
-│   (citation + banned + PII refill) │
+│ 6. glassBoxGuard + schema guard    │
 └──────────────────┬─────────────────┘
                    │
                    ▼
 ┌────────────────────────────────────┐
 │ 7. Return guarded AiResult         │
-│   caller writes llm_log / ai_output│
-│   / evidence via injected writers  │
+│   caller writes ai_output/evidence │
 └────────────────────────────────────┘
 ```
 
-**向量库选型**：Vectorize
+Vectorize 仍是检索层：
 
-- `rule_chunks` 索引：每条 verified rule 切成 200 token 片段，向量化入库；`firm_id = null`（全局）
-- `pulse_chunks` 索引：每条 approved pulse 的 `verbatim_quote + summary` 入库；全局 Pulse chunk 可 `firm_id = null`，firm-specific 应用解释必须带 `firm_id`
-- 检索策略：不要用单个 `firmId` filter 排除全局规则。先查 global rule collection（`firm_id IS NULL`），再查 firm collection（`firm_id = currentFirmId`），合并 top-k 后按 jurisdiction / entity_type / tax_type rerank。
-- 未来 `client_memory_chunks`（Phase 2）：记录 CPA 对某客户的自由备注，供 AI 检索（PII 敏感，默认关闭）
-
----
-
-## 5. 能力矩阵（Phase 0 / 1 落地）
-
-| 能力                    | 优先级 | 输入                                        | 输出                                        | 降级                                                                      |
-| ----------------------- | ------ | ------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------- |
-| Weekly Brief            | P0     | 本 firm Smart Priority top-N + 客户 summary | 3–5 句带 citation                           | 缓存上次版本 + 模板 `You have N items this week.`                         |
-| Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks      | 一段话 + bullets                            | 纯 SQL 聚合 `3 upcoming, 1 critical`                                      |
-| Deadline Tip            | P0     | 单 obligation + rule chunk                  | 3 段 What/Why/Prepare                       | 从 `rule.default_tip` 兜底                                                |
-| Smart Priority          | P0     | 全部 open obligations + client 字段         | 打分 + 因子分解                             | **纯函数零 LLM**（`packages/core/priority`）；LLM 仅用于 `Why-hover` 解释 |
-| Pulse Source Translator | P0     | 官方公告原文                                | 结构化 JSON + 人话 summary + source excerpt | 置信度 < 0.7 标记 `pending_review`                                        |
-| Ask DueDateHQ           | P1     | 自然语言 query                              | 表格 + 一句话 + citations                   | 预设模板 5 条兜底（§6.6.5）                                               |
-| AI Draft Client Email   | P1     | Pulse + 受影响客户                          | 英文邮件草稿                                | 固定模板                                                                  |
-| Migration Field Mapper  | P0     | 表头 + 前 5 行样本                          | mapping JSON                                | Preset profile + 手动下拉                                                 |
-| Migration Normalizer    | P0     | 字段枚举值                                  | 归一值 + confidence                         | 字典 + fuzzy + 手动编辑                                                   |
-
-**关键决策：Smart Priority 是纯函数**，不走 LLM。打分算法 + 因子权重写死在 `packages/core/priority/score.ts`；LLM 只在用户 hover `Why?` 时生成一句自然语言解释，且带 citation。
+- `rule_chunks`：verified rule 的官方来源切片；`firm_id = null`。
+- `pulse_chunks`：approved pulse 的 `verbatim_quote + summary`；firm-specific 应用解释带
+  `firm_id`。
+- 检索时先取 global rule collection，再取 firm collection，合并 rerank；不要用 `firmId`
+  filter 排除全局规则。
 
 ---
 
-## 6. Pulse Pipeline（Story S3 完整实现）
+## 7. 能力矩阵（Phase 0 / 1 落地）
 
-### 6.1 Ingest（Cron Trigger）
+| 能力                    | 优先级 | 输入                                   | 输出                                   | 降级                                                 |
+| ----------------------- | ------ | -------------------------------------- | -------------------------------------- | ---------------------------------------------------- |
+| Weekly Brief            | P0     | Smart Priority top-N + rule chunks     | 3-5 句带 citation                      | 缓存上次版本 + 模板 `You have N items this week.`    |
+| Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks | 一段话 + bullets                       | 纯 SQL 聚合 `3 upcoming, 1 critical`                 |
+| Deadline Tip            | P0     | 单 obligation + rule chunk             | What / Why / Prepare                   | `rule.default_tip`                                   |
+| Smart Priority          | P0     | open obligations + client 字段         | 打分 + 因子分解                        | **纯函数零 AI SDK 调用**；AI 仅用于 `Why-hover` 解释 |
+| Pulse Source Translator | P0     | 官方公告原文                           | 结构化 JSON + summary + source excerpt | 置信度 < 0.7 标记 `pending_review`                   |
+| Ask DueDateHQ           | P1     | 自然语言 query                         | DSL + 表格 + 一句话 + citations        | 预设模板 5 条兜底                                    |
+| AI Draft Client Email   | P1     | Pulse + 受影响客户                     | 邮件草稿                               | 固定模板                                             |
+| Migration Field Mapper  | P0     | 表头 + 前 5 行样本                     | mapping JSON                           | Preset profile + 手动下拉                            |
+| Migration Normalizer    | P0     | 字段枚举值                             | 归一值 + confidence                    | 字典 + fuzzy + 手动编辑                              |
+
+Smart Priority 必须保持纯函数。AI 只解释排序结果，不决定排序本身。
+
+---
+
+## 8. Pulse Pipeline（Story S3 完整实现）
+
+### 8.1 Ingest（Cron Trigger）
 
 - 每 30 分钟运行 `jobs/pulse/ingest.ts`
-- 抓取源（Phase 0 仅 2 个示例；Phase 1 扩到 15 个）：
-  - IRS Newsroom RSS
-  - CA FTB Emergency Tax Relief
-  - NY DTF Tax News
-- 策略：抓取 → 与 `raw_r2_key` hash 比对 → 新内容入库 `pulse(status=pending_review)` → 投递 Queue 消息 `{ type: 'extract', pulseId }`
+- 抓取源：IRS Newsroom RSS、CA FTB Emergency Tax Relief、NY DTF Tax News 等
+- 抓取 → hash 比对 → 新内容入库 `pulse(status=pending_review)` → 投递 Queue
 
-### 6.2 Extract（Queue Consumer）
+### 8.2 Extract（Queue Consumer）
 
-- 消费者从 `pulse_extract_queue` 取消息
-- 调 `packages/ai/pulse-extract.ts`，走 Glass-Box Guard
-- 更新 `pulse.parsed_*` 字段 + `confidence`
-- `confidence < 0.7` 保持 `pending_review`，不进 banner
-- `confidence ≥ 0.7` 转 `requires_human_review=false` 但仍等人工点 Approve
+- Queue 消费者调用 `packages/ai/extractPulse`
+- AI SDK structured output 产出受限 JSON
+- 后置 guard 校验 source excerpt 必须能定位回 raw text
+- `confidence < 0.7` 保持 `pending_review`
+- `confidence ≥ 0.7` 仍需 ops approve 才进入用户 banner
 
-### 6.3 Match（服务端）
+### 8.3 Match（服务端确定性）
 
-人工 Approve 触发 `modules/pulse/match.ts`。D1 / SQLite 不支持 Postgres `ANY($1)`；实现必须生成参数化 `IN (?, ?...)`，或使用 helper table。下例是 D1 可执行形态：
+人工 approve 后触发 SQL match。AI 不直接匹配客户，不写 SQL，不更新 deadline。
 
-```sql
-SELECT c.id, c.name, oi.id AS obligation_id, oi.original_due_date
-FROM client c
-JOIN obligation_instance oi ON oi.client_id = c.id AND oi.firm_id = c.firm_id
-WHERE c.firm_id = ?
-  AND c.state = ?
-  AND (? = 0 OR c.county IN (?, ?, ?))             -- generated placeholders
-  AND oi.tax_type IN (?, ?, ?)                     -- generated placeholders
-  AND c.entity_type IN (?, ?, ?)                   -- generated placeholders
-  AND oi.original_due_date >= ?
-  AND oi.status NOT IN ('filed', 'paid', 'not_applicable')
-```
+### 8.4 Batch Apply（用户确认）
 
-返回受影响客户 + obligations 列表，前端展示 Pulse Detail Drawer。若 Pulse 是县级 relief 且客户 `county IS NULL`，不要进入默认 Apply 集合；放入 `needs_review` 分组，要求 CPA 手动确认。
-
-### 6.4 Batch Apply（D1 事务）
-
-前端 `Apply` → 后端一个原子事务完成：
-
-```
-d1.batch([
-  UPDATE obligation_instance SET current_due_date = $newDue, updated_at = now() WHERE id IN (...),
-  INSERT INTO evidence_link (source_type='pulse_apply', source_id, source_url, verbatim_quote, applied_by, applied_at) VALUES ...,
-  INSERT INTO audit_event (action='pulse.apply', before_json, after_json, ...),
-  INSERT INTO email_outbox (external_id, to, subject, body_json, ...),    ← Transactional Outbox
-  INSERT INTO pulse_application (pulse_id, obligation_instance_id, ...) VALUES ...,
-])
-```
-
-**Email Outbox Consumer**（独立 Queue）每分钟 flush 一次，调 Resend 发邮件。
-
-### 6.5 Revert（24h 内）
-
-`pulse.revert` 按 `pulse_application.id` 反向一次事务：恢复 `current_due_date`，写 `reverted_at`，追加 `audit_event(action='pulse.revert')`。
-
-### 6.6 与 ExceptionRule Overlay 的关系
-
-- **Phase 0 · Demo Sprint**（§09 简化口径）：直接 UPDATE `current_due_date` + evidence_link，不建 `exception_rule` 表
-- **Phase 0 完整 MVP（4 周）+ Phase 1**：启用 Overlay Engine。每个 Pulse Apply 创建一条 `exception_rule` + N 条 `obligation_exception_application`，`current_due_date` 改为运行时 = base_due_date + apply(active overlays)
-- **Sprint → 完整 MVP 的数据迁移**：从 `pulse_application` 反推生成 `exception_rule`，一次性 script
+前端 `Apply` → 后端事务写入 due date update、evidence、audit、email outbox、
+pulse application。Phase 0 Demo 可直接 UPDATE `current_due_date`；完整 MVP / Phase 1
+走 Overlay Engine。
 
 ---
 
-## 7. Ask DueDateHQ 的三层防护（Phase 1）
+## 9. Ask DueDateHQ 的三层防护（Phase 1）
 
-自然语言问答走 **NL → DSL → SQL** 三层，绝不允许 LLM 直接生成 SQL：
+自然语言问答走 **NL → DSL → SQL** 三层，绝不允许 AI SDK 输出直接成为 SQL：
 
-1. **NL → DSL**：LLM 产出受限 JSON DSL（`{ intent, filters, aggregations }`），Zod 校验
-2. **DSL → SQL**：服务端确定性映射到白名单 SQL 模板，参数化，租户 `firm_id` 强制注入
-3. **SQL 执行**：查询超时 3s；返回行数 > 1000 截断 + 提示
+1. **NL → DSL**：AI SDK structured output 产出受限 JSON DSL，Zod 校验。
+2. **DSL → SQL**：服务端确定性映射到白名单 SQL 模板，参数化，强制注入 `firm_id`。
+3. **SQL 执行**：查询超时 3s；返回行数 > 1000 截断。
 
-禁止：`DROP` / `UPDATE` / `DELETE` / `INSERT` / 多 statement / 子查询未授权表。
-
----
-
-## 8. 成本与限流
-
-**每 firm / day** 的 LLM 配额（存 KV）：
-
-| 任务                          | 每日 cap                                          |
-| ----------------------------- | ------------------------------------------------- |
-| Weekly Brief                  | 1（缓存 24h）                                     |
-| Client Risk Summary           | N 个客户 × 1                                      |
-| Deadline Tip                  | 50（缓存 per-rule 7d）                            |
-| Pulse Extract                 | 无 cap（管理员触发）                              |
-| Ask                           | 30（付费可升）                                    |
-| Migration Mapper / Normalizer | 20 req / firm / day（FU-2 hook；每 batch 1–2 次） |
-
-超限返回 `rate_limited` + 明确 message。成本阈值：默认 $0.02 / firm / day，超过发告警。
+禁止：`DROP` / `UPDATE` / `DELETE` / `INSERT` / 多 statement / 未授权表。
 
 ---
 
-## 9. 流式输出
+## 10. 成本、限流与观测
 
-- Weekly Brief / Ask 用 **Server-Sent Events**（Hono `streamSSE`）
-- 前端 TanStack Query + `useStream` 模式；UI 逐字显示
-- Citation 在流结束并通过 `glassBoxGuard` 后一次性渲染（避免半句话误导）
-- 流式正文在 guard 完成前必须标记为 provisional，且不得触发 Evidence chip / Copy as Citation；guard 失败则整体替换为 refusal，不保留未验证文本
+### 10.1 每 firm / day 配额
 
----
+| 任务                          | 每日 cap                         |
+| ----------------------------- | -------------------------------- |
+| Weekly Brief                  | 1（缓存 24h）                    |
+| Client Risk Summary           | N 个客户 × 1                     |
+| Deadline Tip                  | 50（缓存 per-rule 7d）           |
+| Pulse Extract                 | ops/admin 触发，不计普通用户 cap |
+| Ask                           | 30（付费可升）                   |
+| Migration Mapper / Normalizer | 20 req / firm / day              |
 
-## 10. Langfuse 集成
+KV 保存预算计数。超限返回 `rate_limited` + 明确 message。
 
-- 所有 LLM 调用在 `packages/ai/trace.ts` 自动上报
-- 字段：`prompt_version` / `model` / `firm_id (hash)` / `latency` / `tokens` / `cost` / `guard_result`
-- Prompt 版本管理在 `packages/ai/src/prompts/*.md`，每次改动 `prompt_version++`
-- A/B 实验：路由里按 `firm_id` hash 分桶 → 不同 prompt_version
+### 10.2 Trace payload
+
+不再使用第三方 tracing SDK 作为必选架构件。每次 AI SDK 调用都生成内部 trace payload：
+
+| 字段             | 来源                                       |
+| ---------------- | ------------------------------------------ |
+| `prompt_version` | Prompt registry                            |
+| `model`          | AI SDK result / provider metadata          |
+| `model_tier`     | `packages/ai/router.ts`                    |
+| `firm_id_hash`   | server 注入                                |
+| `latency_ms`     | `packages/ai` 计时                         |
+| `tokens`         | AI SDK `usage`                             |
+| `cost_usd`       | Gateway metadata 可用则写入，否则 nullable |
+| `guard_result`   | Glass-Box Guard                            |
+| `refusal_code`   | structured refusal                         |
+| `gateway`        | `cloudflare-ai-gateway`                    |
+
+这些字段写入 `ai_output` / `llm_log` 等价表，并可同步到 Cloudflare Logs / Analytics
+Engine。Cloudflare AI Gateway Dashboard 用于 provider-level usage、latency、cache 和 cost
+观察；Sentry/Workers Logs 用于应用错误。
+
+### 10.3 AI SDK telemetry
+
+AI SDK 的 `experimental_telemetry` 可以打开，用于 OpenTelemetry-compatible span metadata。
+它是辅助观测，不是唯一审计来源。内部 audit/evidence 仍以 D1 表为准。
 
 ---
 
 ## 11. 测试策略
 
-- **Guard 单测**：5 道闸每道 3 条断言（Vitest）
-- **Prompt snapshot 测试**：固定输入 → LLM 响应用 Langfuse 回放；输出文本不比对，只比 citation 数量和黑名单
-- **Pulse extract 集成测**：mock fetch RSS → 跑完整管线 → 断言 DB 状态
-- **RAG 端到端**：seed 10 条 rule_chunks → 构造 query → 断言 top-k 召回率
+- **Facade 单测**：AI SDK 调用 mock，验证 schema success / schema fail / provider error / rate limit。
+- **Guard 单测**：citation、citation_oob、banned phrase、PII mismatch、empty retrieval。
+- **Prompt contract 测试**：固定输入 + mocked AI SDK output，只断言 schema、citation、黑名单，不依赖真实模型。
+- **Pulse extract 集成测**：mock source fetch + mock AI SDK structured output → 断言 DB 状态。
+- **RAG 端到端**：seed 10 条 rule chunks → Vectorize mock/top-k → guard 通过。
 
 ---
 
 ## 12. 未来演进
 
-- **多语言支持**：prompts 按 locale 切换；glass-box guard 黑名单本地化
-- **自建 RAG 工具链**：若 Vectorize 不够用，退路是 D1 + FTS5 brute-force cosine，再退到外部 Pinecone
-- **Agentic 能力**：ReAct / tool-use 仅限 Ask，且工具全走 DSL 白名单
+- **AI SDK Agents**：只用于 Agent-shaped setup / Ask，且工具白名单固定；不允许开放 ReAct 自行选工具。
+- **Cloudflare AI binding**：如果后续启用 Worker AI binding，可把 Cloudflare AI Gateway provider 从
+  account/apiKey 形式切到 binding 形式；业务 contract 不变。
+- **多语言输出**：prompts 按 locale 切换；guard 黑名单本地化。
+- **替换 gateway**：若 Cloudflare AI Gateway 不满足 retention / cost / availability，可在 `packages/ai`
+  内替换 provider 实现；业务模块仍只依赖 DueDateHQ AI facade。
 
 ---
 

@@ -20,22 +20,22 @@
 
 ### 0.1 两份前作的核心判断与差距
 
-| 维度                   | v1.0 主 PRD（Glass-Box Copilot）                                   | v1.0 Competitor PRD（FileInTime Replacement）            | v2.0 的处理                                                                                  |
-| ---------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| 核心叙事               | Clarity Engine™（Glass-Box + Pulse + Penalty）+ Migration Copilot™ | Autopilot Regulatory Radar + AI Migration Copilot        | **继承 v1.0 叙事**（更利于 Demo 记忆），融入 Competitor 的工程细节                           |
-| AC 可追溯性            | §3.4 有矩阵，但偏章节映射                                          | §14.1 对比 v0.3 边界，AC 散落 §5                         | **前置 AC Traceability Matrix**（§3.5），每条 AC → 功能 + 验收测试编号                       |
-| 时间分组命名           | This Week / This Month / Long-term（对齐 Story S1 AC#1）           | Critical / High / Upcoming（需语义映射）                 | **采用 v1.0 命名**，并叠加风险色条（Critical/High）作为段内次级视觉                          |
-| Penalty 引擎           | Penalty Radar™（顶栏 $ 聚合 + What-If）                            | F-18 Penalty Forecaster（硬编码表 + `needs input` 降级） | **融合**：Radar 的 UX + Forecaster 的计算表（§7.5）                                          |
-| AI Smart Priority      | §6.4 纯函数打分（权重固定）                                        | F-5b 段内 LLM 排序 + 硬排 fallback                       | **采纳 v1.0 纯函数版**（可解释、零幻觉），**但允许用户在 Settings 里切 LLM 模式**（§7.4）    |
-| AI Q&A                 | §6.5 DSL 中间层（安全）                                            | F-19 直接 NL→SQL + parser 校验                           | **融合**：DSL 外层 + SQL 白名单内层，双保险（§7.7）                                          |
-| 证据链纪律             | Evidence Mode + `EvidenceLink` 表                                  | SourceBadge + source excerpt                             | **采纳 v1.0 Evidence Mode**，并强制每条 Pulse 结构化字段附 source excerpt（Competitor 做法） |
-| EIN 字段               | 未显式                                                             | 未显式                                                   | **新增**：客户模型加 `ein`，Migration AI Mapper 显式识别（Story S2 AC#2）                    |
-| 县筛选                 | 仅 Pulse 匹配用                                                    | 未列                                                     | **新增**：Workboard 与 Ask 均支持 county 维度                                                |
-| Pulse 通知             | Banner + email 分散                                                | Banner + email 分散                                      | **显式耦合**：每条 approved Pulse 触发同一事务内发 Banner + Email Digest（§6.3.4）           |
-| 日历能力               | ICS 单向订阅（P1）                                                 | 未做                                                     | **采纳 ICS 订阅，提升到 P1 首发**                                                            |
-| Default Tax Types 兜底 | §6A.3A 矩阵（优秀）                                                | 无                                                       | **保留并扩展到 50 州骨架**（§6A.5）                                                          |
-| Undo 时限              | 24h                                                                | 7 天                                                     | **融合**：全量 Revert 24h；单客户级 Undo 7 天（§6A.7）                                       |
-| 50 州覆盖策略          | MVP 只 5 州，其他黑名单                                            | 同                                                       | **保留 MVP 5 州**，但**规则表结构必须能承接 50 州**（§6.1.6）                                |
+| 维度                   | v1.0 主 PRD（Glass-Box Copilot）                                   | v1.0 Competitor PRD（FileInTime Replacement）            | v2.0 的处理                                                                                     |
+| ---------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 核心叙事               | Clarity Engine™（Glass-Box + Pulse + Penalty）+ Migration Copilot™ | Autopilot Regulatory Radar + AI Migration Copilot        | **继承 v1.0 叙事**（更利于 Demo 记忆），融入 Competitor 的工程细节                              |
+| AC 可追溯性            | §3.4 有矩阵，但偏章节映射                                          | §14.1 对比 v0.3 边界，AC 散落 §5                         | **前置 AC Traceability Matrix**（§3.5），每条 AC → 功能 + 验收测试编号                          |
+| 时间分组命名           | This Week / This Month / Long-term（对齐 Story S1 AC#1）           | Critical / High / Upcoming（需语义映射）                 | **采用 v1.0 命名**，并叠加风险色条（Critical/High）作为段内次级视觉                             |
+| Penalty 引擎           | Penalty Radar™（顶栏 $ 聚合 + What-If）                            | F-18 Penalty Forecaster（硬编码表 + `needs input` 降级） | **融合**：Radar 的 UX + Forecaster 的计算表（§7.5）                                             |
+| AI Smart Priority      | §6.4 纯函数打分（权重固定）                                        | F-5b 段内 AI 排序 + 硬排 fallback                        | **采纳 v1.0 纯函数版**（可解释、零幻觉），**但允许用户在 Settings 里切 AI tie-breaker**（§7.4） |
+| AI Q&A                 | §6.5 DSL 中间层（安全）                                            | F-19 直接 NL→SQL + parser 校验                           | **融合**：DSL 外层 + SQL 白名单内层，双保险（§7.7）                                             |
+| 证据链纪律             | Evidence Mode + `EvidenceLink` 表                                  | SourceBadge + source excerpt                             | **采纳 v1.0 Evidence Mode**，并强制每条 Pulse 结构化字段附 source excerpt（Competitor 做法）    |
+| EIN 字段               | 未显式                                                             | 未显式                                                   | **新增**：客户模型加 `ein`，Migration AI Mapper 显式识别（Story S2 AC#2）                       |
+| 县筛选                 | 仅 Pulse 匹配用                                                    | 未列                                                     | **新增**：Workboard 与 Ask 均支持 county 维度                                                   |
+| Pulse 通知             | Banner + email 分散                                                | Banner + email 分散                                      | **显式耦合**：每条 approved Pulse 触发同一事务内发 Banner + Email Digest（§6.3.4）              |
+| 日历能力               | ICS 单向订阅（P1）                                                 | 未做                                                     | **采纳 ICS 订阅，提升到 P1 首发**                                                               |
+| Default Tax Types 兜底 | §6A.3A 矩阵（优秀）                                                | 无                                                       | **保留并扩展到 50 州骨架**（§6A.5）                                                             |
+| Undo 时限              | 24h                                                                | 7 天                                                     | **融合**：全量 Revert 24h；单客户级 Undo 7 天（§6A.7）                                          |
+| 50 州覆盖策略          | MVP 只 5 州，其他黑名单                                            | 同                                                       | **保留 MVP 5 州**，但**规则表结构必须能承接 50 州**（§6.1.6）                                   |
 
 ### 0.2 v2.0 的产品一句话
 
@@ -186,7 +186,7 @@
 | #   | ✦ 条目                                 | 对应 AI 能力模块         | v2.0 章节       |
 | --- | -------------------------------------- | ------------------------ | --------------- |
 | 1   | 公告自动监控                           | Pulse Ingest Worker      | §6.3.1          |
-| 2   | 公告语义解读                           | Pulse LLM Extraction     | §6.3.2          |
+| 2   | 公告语义解读                           | Pulse AI Extraction      | §6.3.2          |
 | 3   | 影响范围识别                           | Pulse Extraction + Match | §6.3.2 / §6.3.3 |
 | 4   | 受影响客户匹配                         | Pulse Match Engine       | §6.3.3          |
 | 5   | CSV 字段智能映射                       | Migration AI Mapper      | §6A.2           |
@@ -203,7 +203,7 @@
 | ------------------------------------- | ------ | --- | ------------------------------------------------------ |
 | Excel 无法应对 50 州 × 多税种         | 高     | —   | §6.1 Rule Engine + §6A.5 Default Matrix                |
 | 各州税局公告分散，需人工每日浏览      | 高     | ✦   | §6.3.1 Pulse Ingest                                    |
-| 政府公告语言晦涩                      | 高     | ✦   | §6.3.2 LLM Extraction                                  |
+| 政府公告语言晦涩                      | 高     | ✦   | §6.3.2 AI Extraction                                   |
 | 客户跨州后需手工查 PTE / Franchise    | 高     | —   | §6.1 Rule Engine 50 州骨架 + §7.5 Penalty              |
 | 错过截止日罚款责任由 CPA 承担，无保障 | 高     | —   | §7.5 Penalty Radar + §5.5 Evidence Mode + §13 合规 SLA |
 | 现有专业工具定价不友好                | 中     | —   | §11.1 Pricing                                          |
@@ -492,39 +492,39 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 
 ### 4.1 P0 — 首发必须（Story S1 / S2 + Glass-Box 纪律）
 
-| #     | 模块                                             | 关键能力                                                                                                                                                                                                 | AC 绑定        |
-| ----- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| P0-1  | Auth & Tenant                                    | Google OAuth 登录 + 单租户 + 租户强隔离                                                                                                                                                                  | —              |
-| P0-2  | **Migration Copilot**                            | Paste-anywhere + CSV/Excel/Sheets + 5 个 Preset Profiles                                                                                                                                                 | S2-AC1         |
-| P0-3  | **AI Field Mapper**                              | LLM 读表头 + 前 5 行 → 字段映射 + 置信度 + 备选；显式识别 `name / ein / state / county / entity_type / tax_types / email / assignee / notes`                                                             | S2-AC2         |
-| P0-4  | **AI Normalizer + Smart Suggestions**            | entity/state/tax_type 归一；模糊字段非阻塞 "Needs review"                                                                                                                                                | S2-AC3         |
-| P0-5  | **Default Tax Types Inference**                  | 50 州骨架矩阵 × 8 实体类型（首发 6 州已签字，其余回退 Federal-only + `needs_review` 徽章）                                                                                                               | S2-AC4         |
-| P0-6  | **Dry-Run + Import + Live Genesis + 24h Revert** | 事务化导入 + 动画 + 原子回滚                                                                                                                                                                             | S2-AC5         |
-| P0-7  | Client CRUD + 手动添加                           | 字段 `name / ein / state / county / entity_type / tax_types / importance / estimated_annual_revenue / assignee / notes`                                                                                  | —              |
-| P0-8  | **Rule Engine v1（50 州骨架）**                  | Federal + CA/NY/TX/FL/WA（首发 5 MVP states × ~30 条规则 verified）；MA/IL 不在当前 MVP coverage；其他州 schema 占位 + 默认 Federal                                                                      | —              |
-| P0-9  | Obligation Instances                             | `state × entity_type × tax_types` 生成全年 instances                                                                                                                                                     | S2-AC4         |
-| P0-10 | **Dashboard（Story S1 主屏）**                   | 顶栏 Penalty Radar + Pulse Banner + **三段时间 Tabs（This Week / This Month / Long-term）**                                                                                                              | S1-AC1, S3-AC3 |
-| P0-11 | 倒计时徽章 + Days 列                             | 每个 obligation 显示精确到天的倒计时                                                                                                                                                                     | S1-AC2         |
-| P0-12 | **Workboard（表格视图）**                        | 多列可见 + Saved Views + 批量操作 + 密度切换                                                                                                                                                             | —              |
-| P0-13 | **筛选器（< 1s 响应）**                          | Client / State / **County** / **Form/Tax Type** / Status / Readiness / Assignee / $ At Risk / Days                                                                                                       | S1-AC3         |
-| P0-14 | **行内一键标状态**                               | 每行 `[status ▾]` 下拉 + 键盘 F/X/I                                                                                                                                                                      | S1-AC4         |
-| P0-15 | Obligation Detail 抽屉                           | readiness / extension / risk / evidence / audit 五标签                                                                                                                                                   | —              |
-| P0-16 | Status & Readiness 状态机                        | Status: Not started / In progress / Waiting on client / Needs review / Filed / Paid / Extended / Not applicable；Readiness: Ready / Waiting / Needs review                                               | —              |
-| P0-17 | **Glass-Box AI Layer**                           | Weekly Brief / Client Risk Summary / Deadline Tip / Smart Priority，全部 citation + source chip                                                                                                          | S1-AC5         |
-| P0-18 | **Penalty Radar™**                               | 美元敞口实时计算 + 顶栏聚合 + 每条 obligation 徽章                                                                                                                                                       | S1-AC5         |
-| P0-19 | Evidence Mode                                    | 任意 AI 句子 / 数字 / risk score 可点开 provenance 抽屉                                                                                                                                                  | S3-AC5         |
-| P0-20 | Audit Log                                        | 状态变更 / Pulse Apply / 批量操作 / Migration / Revert 全留痕                                                                                                                                            | —              |
-| P0-21 | Email Reminders                                  | 30 / 7 / 1 天阶梯；模板带上下文 + source link                                                                                                                                                            | —              |
-| P0-22 | In-app Notifications                             | Top bar 铃铛 + 未读计数 + Preferences                                                                                                                                                                    | —              |
-| P0-23 | Pay-intent Button                                | `I'd pay $49/mo` 点击埋点（不接 Stripe）                                                                                                                                                                 | —              |
-| P0-24 | Security Baseline                                | HTTPS / TLS / AES-256 at rest / tenant isolation / audit log / `llm_logs`；7 天 Demo 可交 WISP draft，真实试点 / 4 周 MVP 交 WISP v1.0；Owner MFA 在真实试点前启用，完整四角色 Team RBAC 属 P1（§3.6.3） | —              |
+| #     | 模块                                             | 关键能力                                                                                                                                                                                                        | AC 绑定        |
+| ----- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| P0-1  | Auth & Tenant                                    | Google OAuth 登录 + 单租户 + 租户强隔离                                                                                                                                                                         | —              |
+| P0-2  | **Migration Copilot**                            | Paste-anywhere + CSV/Excel/Sheets + 5 个 Preset Profiles                                                                                                                                                        | S2-AC1         |
+| P0-3  | **AI Field Mapper**                              | AI SDK 读表头 + 前 5 行 → 字段映射 + 置信度 + 备选；显式识别 `name / ein / state / county / entity_type / tax_types / email / assignee / notes`                                                                 | S2-AC2         |
+| P0-4  | **AI Normalizer + Smart Suggestions**            | entity/state/tax_type 归一；模糊字段非阻塞 "Needs review"                                                                                                                                                       | S2-AC3         |
+| P0-5  | **Default Tax Types Inference**                  | 50 州骨架矩阵 × 8 实体类型（首发 6 州已签字，其余回退 Federal-only + `needs_review` 徽章）                                                                                                                      | S2-AC4         |
+| P0-6  | **Dry-Run + Import + Live Genesis + 24h Revert** | 事务化导入 + 动画 + 原子回滚                                                                                                                                                                                    | S2-AC5         |
+| P0-7  | Client CRUD + 手动添加                           | 字段 `name / ein / state / county / entity_type / tax_types / importance / estimated_annual_revenue / assignee / notes`                                                                                         | —              |
+| P0-8  | **Rule Engine v1（50 州骨架）**                  | Federal + CA/NY/TX/FL/WA（首发 5 MVP states × ~30 条规则 verified）；MA/IL 不在当前 MVP coverage；其他州 schema 占位 + 默认 Federal                                                                             | —              |
+| P0-9  | Obligation Instances                             | `state × entity_type × tax_types` 生成全年 instances                                                                                                                                                            | S2-AC4         |
+| P0-10 | **Dashboard（Story S1 主屏）**                   | 顶栏 Penalty Radar + Pulse Banner + **三段时间 Tabs（This Week / This Month / Long-term）**                                                                                                                     | S1-AC1, S3-AC3 |
+| P0-11 | 倒计时徽章 + Days 列                             | 每个 obligation 显示精确到天的倒计时                                                                                                                                                                            | S1-AC2         |
+| P0-12 | **Workboard（表格视图）**                        | 多列可见 + Saved Views + 批量操作 + 密度切换                                                                                                                                                                    | —              |
+| P0-13 | **筛选器（< 1s 响应）**                          | Client / State / **County** / **Form/Tax Type** / Status / Readiness / Assignee / $ At Risk / Days                                                                                                              | S1-AC3         |
+| P0-14 | **行内一键标状态**                               | 每行 `[status ▾]` 下拉 + 键盘 F/X/I                                                                                                                                                                             | S1-AC4         |
+| P0-15 | Obligation Detail 抽屉                           | readiness / extension / risk / evidence / audit 五标签                                                                                                                                                          | —              |
+| P0-16 | Status & Readiness 状态机                        | Status: Not started / In progress / Waiting on client / Needs review / Filed / Paid / Extended / Not applicable；Readiness: Ready / Waiting / Needs review                                                      | —              |
+| P0-17 | **Glass-Box AI Layer**                           | Weekly Brief / Client Risk Summary / Deadline Tip / Smart Priority，全部 citation + source chip                                                                                                                 | S1-AC5         |
+| P0-18 | **Penalty Radar™**                               | 美元敞口实时计算 + 顶栏聚合 + 每条 obligation 徽章                                                                                                                                                              | S1-AC5         |
+| P0-19 | Evidence Mode                                    | 任意 AI 句子 / 数字 / risk score 可点开 provenance 抽屉                                                                                                                                                         | S3-AC5         |
+| P0-20 | Audit Log                                        | 状态变更 / Pulse Apply / 批量操作 / Migration / Revert 全留痕                                                                                                                                                   | —              |
+| P0-21 | Email Reminders                                  | 30 / 7 / 1 天阶梯；模板带上下文 + source link                                                                                                                                                                   | —              |
+| P0-22 | In-app Notifications                             | Top bar 铃铛 + 未读计数 + Preferences                                                                                                                                                                           | —              |
+| P0-23 | Pay-intent Button                                | `I'd pay $49/mo` 点击埋点（不接 Stripe）                                                                                                                                                                        | —              |
+| P0-24 | Security Baseline                                | HTTPS / TLS / AES-256 at rest / tenant isolation / audit log / `ai_output` trace；7 天 Demo 可交 WISP draft，真实试点 / 4 周 MVP 交 WISP v1.0；Owner MFA 在真实试点前启用，完整四角色 Team RBAC 属 P1（§3.6.3） | —              |
 
 ### 4.2 P1 — 差异化亮点（Story S3 + VPC Medium）
 
 | #         | 模块                                          | 关键能力                                                                                                                                     | AC 绑定             |
 | --------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | P1-1      | **Regulatory Pulse™ Ingest**                  | IRS + 5 州 RSS / 页面抓取；24h SLA                                                                                                           | S3-AC1              |
-| P1-2      | **Pulse LLM Extraction**                      | 结构化字段 + source excerpt + confidence                                                                                                     | S3-AC1, S3-AC5      |
+| P1-2      | **Pulse AI Extraction**                       | 结构化字段 + source excerpt + confidence                                                                                                     | S3-AC1, S3-AC5      |
 | P1-3      | **Pulse Match Engine**                        | 四维匹配：state + county + entity_type + tax_type                                                                                            | S3-AC2              |
 | P1-4      | **Dashboard Pulse Banner**                    | 顶部 sticky Banner + 折叠历史 + Last-checked 指标                                                                                            | S3-AC3              |
 | P1-5      | **Pulse Email Digest**                        | Approved Pulse 触发时 **同一事务内** 推送邮件（含受影响客户清单 + 官方链接）                                                                 | S3-AC3              |
@@ -982,24 +982,24 @@ Ops/Tax expert edits rule draft
 #### 6.2.1 纪律
 
 - **No citation, no output.** 任何 AI 生成的句子必须带 `[n]` 索引；否则不渲染，降级为 refusal 文案。
-- **Retrieval-before-generation.** 所有 prompt 必须先从 `rule_chunks` + `pulse_chunks` 取 top-k；LLM 只能引用传入的 chunk。
+- **Retrieval-before-generation.** 所有 prompt 必须先从 `rule_chunks` + `pulse_chunks` 取 top-k；AI SDK 输出只能引用传入的 chunk。
 - **Refuse gracefully.** 如果 retrieval 为空或置信度 < 0.5 → `"I don't have a verified source for this. [Ask a human]"`.
 - **Never conclude.** 白名单：`Confirm... / Check whether... / Source indicates...`；黑名单：`Your client qualifies... / No penalty will apply... / This is valid tax advice...`
 - **PII never leaves.** 客户姓名 / EIN / 邮箱在 prompt 中使用占位符 `{{client_1}}`，生成后在后端回填。符合 IRC §7216 + FTC Safeguards Rule。
 
 #### 6.2.2 AI 能力矩阵
 
-| 能力                    | 优先级 | 输入                                             | 输出                                        | 降级策略                                               |
-| ----------------------- | ------ | ------------------------------------------------ | ------------------------------------------- | ------------------------------------------------------ |
-| Weekly Brief            | P0     | 本 firm Smart Priority top-N 候选 + 客户 summary | 3–5 句带 citation                           | 缓存上次版本 + 模板兜底 "You have N items this week."  |
-| Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks           | 一段话 + bullets                            | 纯 SQL 聚合 "3 upcoming, 1 critical"                   |
-| Deadline Tip            | P0     | 单 obligation + rule chunk                       | 3 段 What/Why/Prepare                       | 从 `rule.default_tip` 兜底                             |
-| Smart Priority          | P0     | 全部 open obligations + client 字段              | 打分 + 因子分解                             | 纯函数（零 LLM 调用，§6.4），LLM 仅用于 Why-hover 解释 |
-| Pulse Source Translator | P0     | 官方公告原文                                     | 结构化 JSON + 人话 summary + source excerpt | 置信度 < 0.7 标记 pending review                       |
-| Ask DueDateHQ (Q&A)     | P1     | 自然语言 query                                   | 表格 + 总结 + citations                     | 预设模板 5 条兜底（§6.6.5）                            |
-| AI Draft Client Email   | P1     | Alert + 受影响客户                               | 英文邮件草稿                                | 固定模板                                               |
-| Migration Field Mapper  | P0     | 表头 + 5 行样本                                  | mapping JSON                                | Preset profile + 手动下拉                              |
-| Migration Normalizer    | P0     | 字段枚举值                                       | 归一值 + confidence                         | 字典 + fuzzy + 手动编辑                                |
+| 能力                    | 优先级 | 输入                                             | 输出                                        | 降级策略                                              |
+| ----------------------- | ------ | ------------------------------------------------ | ------------------------------------------- | ----------------------------------------------------- |
+| Weekly Brief            | P0     | 本 firm Smart Priority top-N 候选 + 客户 summary | 3–5 句带 citation                           | 缓存上次版本 + 模板兜底 "You have N items this week." |
+| Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks           | 一段话 + bullets                            | 纯 SQL 聚合 "3 upcoming, 1 critical"                  |
+| Deadline Tip            | P0     | 单 obligation + rule chunk                       | 3 段 What/Why/Prepare                       | 从 `rule.default_tip` 兜底                            |
+| Smart Priority          | P0     | 全部 open obligations + client 字段              | 打分 + 因子分解                             | 纯函数（零模型调用，§6.4），AI 仅用于 Why-hover 解释  |
+| Pulse Source Translator | P0     | 官方公告原文                                     | 结构化 JSON + 人话 summary + source excerpt | 置信度 < 0.7 标记 pending review                      |
+| Ask DueDateHQ (Q&A)     | P1     | 自然语言 query                                   | 表格 + 总结 + citations                     | 预设模板 5 条兜底（§6.6.5）                           |
+| AI Draft Client Email   | P1     | Alert + 受影响客户                               | 英文邮件草稿                                | 固定模板                                              |
+| Migration Field Mapper  | P0     | 表头 + 5 行样本                                  | mapping JSON                                | Preset profile + 手动下拉                             |
+| Migration Normalizer    | P0     | 字段枚举值                                       | 归一值 + confidence                         | 字典 + fuzzy + 手动编辑                               |
 
 #### 6.2.3 RAG 管线
 
@@ -1015,9 +1015,9 @@ Prompt Assembly
   - Retrieved chunks with [n] IDs
   - User context (client summary with PII placeholders, today, role)
   ↓
-LLM call
-  - Tier 1 (fast, cheap): GPT-4o-mini / Claude Haiku — Deadline Tip / Mapper
-  - Tier 2 (slow, quality): GPT-4o / Claude Sonnet — Weekly Brief / Pulse Extraction
+AI SDK call
+  - fast-json / fast-text — Deadline Tip / Mapper
+  - quality-json / quality-text — Weekly Brief / Pulse Extraction
   ↓
 Post-processing
   - Regex validate citations [n]
@@ -1058,11 +1058,11 @@ Render
 
 冗余设计：任何单源失败 → 日志 + Sentry 告警 + 降级为 mock（UI 侧 `Last checked X min ago` 仍诚实显示）。
 
-#### 6.3.2 LLM Extraction（S3-AC1 / AC5）
+#### 6.3.2 AI Extraction（S3-AC1 / AC5）
 
 ```
 Raw announcement
-  ↓  LLM extraction (schema-first)
+  ↓  AI SDK extraction (schema-first)
 {
   "title": "IRS announces tax relief for California storm victims",
   "jurisdiction": "CA",
@@ -1169,7 +1169,7 @@ AI-assisted. Verify with official sources.
 **配送规则：**
 
 - 同一人多条 obligation → **合并为一封邮件**（按 obligation 列表 bullets）
-- 模板渲染：服务端（Resend），不使用 LLM
+- 模板渲染：服务端（Resend），不使用 AI 生成
 - 每封邮件 footer 显示 `You received this because you are the assignee on 3 obligations.` + `[Notification preferences]`
 - 切换到 Daily Digest：Settings → Notifications → `Pulse email cadence: Immediate / Daily digest 8am / Weekly digest Monday 8am`（默认 Immediate）
 - **Coordinator 邮件版本不含 `$ at risk` 字段**（与 §3.6.3 RBAC 一致，commercial-sensitive 隐藏）
@@ -1231,9 +1231,9 @@ Rank #1 — Acme LLC · CA Franchise
 排序切换（P1-13）：`AI Smart ✨ / Due Date / $ At Risk / Status`  
 权重调整：P1+（仅 Pro plan，含审计日志）
 
-#### 6.4.5 可选 LLM Mode（P1）
+#### 6.4.5 可选 AI Tie-breaker（P1）
 
-Settings 中开关：`Use LLM for tie-breaking` → 仅当 top-5 打分相差 < 5% 时调用 LLM 给出排序理由（不改变打分）。这让 Weekly Brief 的"Top 3 to touch first"和 Dashboard 列表 100% 一致，避免割裂感。
+Settings 中开关：`Use AI for tie-breaking` → 仅当 top-5 打分相差 < 5% 时调用 AI SDK 给出排序理由（不改变打分）。这让 Weekly Brief 的"Top 3 to touch first"和 Dashboard 列表 100% 一致，避免割裂感。
 
 ### 6.5 Penalty Radar™（美元敞口引擎）
 
@@ -1265,10 +1265,10 @@ Settings 中开关：`Use LLM for tie-breaking` → 仅当 top-5 打分相差 < 
 ```
 User question
   ↓
-LLM Layer 1 · Intent classifier (retrieval / advice / out-of-scope)
+AI SDK Layer 1 · Intent classifier (retrieval / advice / out-of-scope)
   ↓  if not retrieval → refusal template
   ↓
-LLM Layer 2 · DSL generator (constrained, schema-aware)
+AI SDK Layer 2 · DSL generator (constrained, schema-aware)
   e.g. {
     entity: "obligation",
     filters: [
@@ -1286,8 +1286,8 @@ Executor · DSL → parameterized SQL
   ↓
 Execute SQL → result rows
   ↓
-LLM Layer 3 · Summarize in one sentence with [source] chips
-  - PII re-filled post-LLM
+AI SDK Layer 3 · Summarize in one sentence with [source] chips
+  - PII re-filled after AI output
   ↓
 Render
   - Table preview (first 10 rows + "Open all in Workboard" deep link)
@@ -1298,13 +1298,13 @@ Render
 #### 6.6.4 合规与安全
 
 - 只读白名单 + tenant 强制隔离（两层）
-- LLM 只看 schema + 用户问题 + 5 行 anonymized sample，不看全量 PII
-- 所有调用入 `llm_logs` 表（成本 / 延迟 / token 可审计）
+- AI SDK 只看 schema + 用户问题 + 5 行 anonymized sample，不看全量 PII
+- 所有调用写内部 `ai_output` trace（成本 / 延迟 / token usage 可审计）
 - Ask 历史在 Settings → Ask History（用户可删除）
 
 #### 6.6.5 降级
 
-若 LLM 不可用，Ask 降级为预设 5 条模板问答（固定 DSL + SQL）：
+若 AI SDK 不可用，Ask 降级为预设 5 条模板问答（固定 DSL + SQL）：
 
 - `How many deadlines do I have this week?`
 - `Which clients are waiting on documents?`
