@@ -15,6 +15,7 @@ Sidebar P1 `Clients` already had the lower-layer data path: `client` Drizzle sch
   - manual client creation dialog using the existing `clients.create` procedure
 - Added the lazy `/clients` route.
 - Confirmed the sidebar `Clients` nav item is enabled while the remaining Admin P1 items stay disabled.
+- Added Playwright coverage for shell navigation into `/clients` and manual client creation through the real oRPC path.
 - Updated `docs/dev-file/05-Frontend-Architecture.md` so the route map reflects the implemented page.
 
 ## Notes

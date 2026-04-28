@@ -7,6 +7,7 @@ import {
 } from '@playwright/test'
 
 import { AppShellPage } from '../pages/app-shell-page'
+import { ClientsPage } from '../pages/clients-page'
 import { LoginPage } from '../pages/login-page'
 import { MigrationWizardPage } from '../pages/migration-wizard-page'
 import { RulesConsolePage } from '../pages/rules-console-page'
@@ -36,6 +37,7 @@ type DueDateFixtures = {
   authSession: E2EAuthSession
   authenticatedPage: Page
   appShellPage: AppShellPage
+  clientsPage: ClientsPage
   migrationWizardPage: MigrationWizardPage
   rulesConsolePage: RulesConsolePage
   workboardPage: WorkboardPage
@@ -50,6 +52,10 @@ export const test = base.extend<DueDateFixtures>({
 
   appShellPage: async ({ authenticatedPage }, use) => {
     await use(new AppShellPage(authenticatedPage))
+  },
+
+  clientsPage: async ({ authenticatedPage }, use) => {
+    await use(new ClientsPage(authenticatedPage))
   },
 
   migrationWizardPage: async ({ authenticatedPage }, use) => {

@@ -46,4 +46,4 @@ Current specs intentionally cover shipped behavior only:
 - marketing-to-app locale handoff
 - entry-page locale switching
 - SPA 404 rendering
-- protected Dashboard / Workboard / Rules Console / Migration Step 1 surfaces with local seeded auth
+- protected Dashboard / Clients / Workboard / Rules Console / Migration Step 1 surfaces with local seeded auth

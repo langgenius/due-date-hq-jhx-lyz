@@ -4,6 +4,7 @@ export class AppShellPage {
   readonly primaryNavigation: Locator
   readonly dashboardLink: Locator
   readonly workboardLink: Locator
+  readonly clientsLink: Locator
   readonly rulesLink: Locator
   readonly importClientsButton: Locator
   readonly commandDialog: Locator
@@ -13,6 +14,7 @@ export class AppShellPage {
     this.primaryNavigation = page.getByRole('navigation', { name: 'Primary navigation' })
     this.dashboardLink = page.getByRole('link', { name: /Dashboard/ })
     this.workboardLink = page.getByRole('link', { name: /Workboard/ })
+    this.clientsLink = page.getByRole('link', { name: 'Clients' })
     this.rulesLink = page.getByRole('link', { name: 'Rules' })
     this.importClientsButton = page.getByRole('button', { name: 'Import clients' })
     this.commandDialog = page.getByRole('dialog', { name: 'Command palette' })
