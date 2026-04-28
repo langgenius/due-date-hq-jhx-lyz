@@ -94,6 +94,9 @@ function buildScoped(firmId: string, rows: Row[]) {
     async listByFirm() {
       return []
     },
+    async list() {
+      return { rows: [], nextCursor: null }
+    },
   }
 
   const clients: ScopedRepo['clients'] = {

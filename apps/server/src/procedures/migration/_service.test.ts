@@ -345,6 +345,9 @@ function buildScopedRepo(firmId: string) {
     async listByFirm() {
       return []
     },
+    async list() {
+      return { rows: [], nextCursor: null }
+    },
   }
 
   const workboard: ScopedRepo['workboard'] = {

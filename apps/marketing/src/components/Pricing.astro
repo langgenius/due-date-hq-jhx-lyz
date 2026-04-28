@@ -1,0 +1,96 @@
+---
+import type { PricingCopy, PricingPlanCopy } from '../i18n/types'
+
+interface Props {
+  t: PricingCopy
+  appHref: string
+  checkoutHref: string
+}
+
+const { t, appHref, checkoutHref } = Astro.props
+
+function hrefFor(plan: PricingPlanCopy): string {
+  if (plan.hrefKind === 'checkout') return checkoutHref
+  if (plan.hrefKind === 'app') return appHref
+  return 'mailto:founders@duedatehq.com?subject=DueDateHQ%20Pro'
+}
+---
+
+<section class="bg-bg-canvas">
+  <div class="mx-auto max-w-[1440px] px-20 py-20">
+    <div class="max-w-[840px]">
+      <span class="font-mono text-[12px] tracking-[0.18em] text-text-accent">{t.hero.eyebrow}</span>
+      <h1 class="mt-5 text-display-large font-semibold tracking-tight text-text-primary">
+        {t.hero.title}
+      </h1>
+      <p class="mt-5 max-w-[760px] text-lg leading-relaxed text-text-secondary">
+        {t.hero.description}
+      </p>
+      <p class="mt-4 font-mono text-[12px] text-text-muted">{t.hero.note}</p>
+    </div>
+
+    <div class="mt-12 grid gap-4 lg:grid-cols-3">
+      {t.plans.map((plan) => (
+        <article
+          class:list={[
+            'flex min-h-[430px] flex-col rounded-lg border bg-bg-panel p-6',
+            plan.badge ? 'border-accent-default shadow-lg shadow-black/5' : 'border-border-default',
+          ]}
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h2 class="text-xl font-semibold text-text-primary">{plan.name}</h2>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">{plan.description}</p>
+            </div>
+            {plan.badge ? (
+              <span class="rounded-full bg-accent-default px-2.5 py-1 text-[12px] font-medium text-primary-foreground">
+                {plan.badge}
+              </span>
+            ) : null}
+          </div>
+
+          <div class="mt-8">
+            <span class="font-mono text-4xl font-semibold tracking-normal text-text-primary">
+              {plan.price}
+            </span>
+            <span class="ml-2 text-sm text-text-secondary">{plan.cadence}</span>
+            <p class="mt-2 font-mono text-[12px] text-text-muted">{plan.seats}</p>
+          </div>
+
+          <ul class="mt-8 grid gap-3 text-sm text-text-secondary">
+            {plan.features.map((feature) => (
+              <li class="flex items-center gap-2">
+                <span class="grid size-5 shrink-0 place-items-center rounded-full bg-status-done/15 text-status-done">
+                  <span aria-hidden="true">✓</span>
+                </span>
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+
+          <a
+            href={hrefFor(plan)}
+            class:list={[
+              'mt-auto inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium transition-colors',
+              plan.badge
+                ? 'bg-accent-default text-primary-foreground hover:bg-accent-hover'
+                : 'border border-border-default bg-bg-elevated text-text-primary hover:border-border-strong',
+            ]}
+            data-event={`marketing.pricing.${plan.hrefKind}`}
+          >
+            {plan.cta}
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <div class="mt-12 grid gap-4 lg:grid-cols-3">
+      {t.faq.map((item) => (
+        <section class="rounded-lg border border-border-default bg-bg-panel p-5">
+          <h2 class="text-md font-semibold text-text-primary">{item.question}</h2>
+          <p class="mt-3 text-sm leading-relaxed text-text-secondary">{item.answer}</p>
+        </section>
+      ))}
+    </div>
+  </div>
+</section>

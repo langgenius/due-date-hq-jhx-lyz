@@ -12,6 +12,12 @@ const serverEnvSchema = z.object({
   EMAIL_FROM: z.email(),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
+  STRIPE_SECRET_KEY: z.string().min(1).optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  STRIPE_PRICE_FIRM_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_FIRM_YEARLY: z.string().min(1).optional(),
+  STRIPE_PRICE_PRO_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_PRO_YEARLY: z.string().min(1).optional(),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
@@ -65,6 +71,12 @@ export function validateServerEnv(runtimeEnv: ServerEnvInput): ServerEnv {
       EMAIL_FROM: runtimeEnv.EMAIL_FROM,
       GOOGLE_CLIENT_ID: runtimeEnv.GOOGLE_CLIENT_ID,
       GOOGLE_CLIENT_SECRET: runtimeEnv.GOOGLE_CLIENT_SECRET,
+      STRIPE_SECRET_KEY: runtimeEnv.STRIPE_SECRET_KEY,
+      STRIPE_WEBHOOK_SECRET: runtimeEnv.STRIPE_WEBHOOK_SECRET,
+      STRIPE_PRICE_FIRM_MONTHLY: runtimeEnv.STRIPE_PRICE_FIRM_MONTHLY,
+      STRIPE_PRICE_FIRM_YEARLY: runtimeEnv.STRIPE_PRICE_FIRM_YEARLY,
+      STRIPE_PRICE_PRO_MONTHLY: runtimeEnv.STRIPE_PRICE_PRO_MONTHLY,
+      STRIPE_PRICE_PRO_YEARLY: runtimeEnv.STRIPE_PRICE_PRO_YEARLY,
     },
     emptyStringAsUndefined: true,
   })

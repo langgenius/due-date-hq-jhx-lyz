@@ -7,6 +7,7 @@ export const user = sqliteTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: integer('email_verified', { mode: 'boolean' }).default(false).notNull(),
   image: text('image'),
+  stripeCustomerId: text('stripe_customer_id'),
   createdAt: integer('created_at', { mode: 'timestamp_ms' })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),
@@ -93,6 +94,7 @@ export const organization = sqliteTable(
     name: text('name').notNull(),
     slug: text('slug').notNull().unique(),
     logo: text('logo'),
+    stripeCustomerId: text('stripe_customer_id'),
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
     metadata: text('metadata'),
   },
@@ -165,6 +167,43 @@ export const rateLimit = sqliteTable('rate_limit', {
   lastRequest: integer('last_request').notNull(),
 })
 
+export const subscription = sqliteTable(
+  'subscription',
+  {
+    id: text('id').primaryKey(),
+    plan: text('plan').notNull(),
+    referenceId: text('reference_id').notNull(),
+    stripeCustomerId: text('stripe_customer_id'),
+    stripeSubscriptionId: text('stripe_subscription_id').unique(),
+    status: text('status').default('incomplete').notNull(),
+    periodStart: integer('period_start', { mode: 'timestamp_ms' }),
+    periodEnd: integer('period_end', { mode: 'timestamp_ms' }),
+    trialStart: integer('trial_start', { mode: 'timestamp_ms' }),
+    trialEnd: integer('trial_end', { mode: 'timestamp_ms' }),
+    cancelAtPeriodEnd: integer('cancel_at_period_end', { mode: 'boolean' })
+      .default(false)
+      .notNull(),
+    cancelAt: integer('cancel_at', { mode: 'timestamp_ms' }),
+    canceledAt: integer('canceled_at', { mode: 'timestamp_ms' }),
+    endedAt: integer('ended_at', { mode: 'timestamp_ms' }),
+    seats: integer('seats'),
+    billingInterval: text('billing_interval'),
+    stripeScheduleId: text('stripe_schedule_id'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('subscription_reference_id_idx').on(table.referenceId),
+    index('subscription_customer_idx').on(table.stripeCustomerId),
+    index('subscription_status_idx').on(table.status),
+  ],
+)
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
@@ -189,6 +228,7 @@ export const accountRelations = relations(account, ({ one }) => ({
 export const organizationRelations = relations(organization, ({ many }) => ({
   members: many(member),
   invitations: many(invitation),
+  subscriptions: many(subscription),
 }))
 
 export const memberRelations = relations(member, ({ one }) => ({
@@ -210,5 +250,12 @@ export const invitationRelations = relations(invitation, ({ one }) => ({
   user: one(user, {
     fields: [invitation.inviterId],
     references: [user.id],
+  }),
+}))
+
+export const subscriptionRelations = relations(subscription, ({ one }) => ({
+  organization: one(organization, {
+    fields: [subscription.referenceId],
+    references: [organization.id],
   }),
 }))

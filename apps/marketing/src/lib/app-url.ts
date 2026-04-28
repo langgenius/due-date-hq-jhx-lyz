@@ -16,3 +16,9 @@ export function getCtaHref(locale?: string): string {
   const base = resolveBase()
   return locale ? `${base}/?lng=${locale}` : base
 }
+
+export function getAppHref(path = '/', locale?: string): string {
+  const url = new URL(path, resolveBase())
+  if (locale) url.searchParams.set('lng', locale)
+  return url.toString()
+}

@@ -52,6 +52,19 @@ RESEND_WEBHOOK_SECRET=
 EMAIL_FROM=noreply@duedatehq.com
 
 # ═════════════════════════════════════════════════════════════════════════════
+# [Optional until billing test] Stripe · Better Auth subscription checkout
+# ═════════════════════════════════════════════════════════════════════════════
+# Local webhook test:
+#   stripe listen --forward-to localhost:8787/api/auth/stripe/webhook
+# Then copy the printed whsec_* value into STRIPE_WEBHOOK_SECRET.
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRICE_FIRM_MONTHLY=
+STRIPE_PRICE_FIRM_YEARLY=
+STRIPE_PRICE_PRO_MONTHLY=
+STRIPE_PRICE_PRO_YEARLY=
+
+# ═════════════════════════════════════════════════════════════════════════════
 # [Optional] AI SDK via Cloudflare AI Gateway
 # ═════════════════════════════════════════════════════════════════════════════
 # Default local/staging path uses Cloudflare AI Gateway Provider Native for

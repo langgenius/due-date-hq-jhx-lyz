@@ -1,7 +1,14 @@
 import { betterAuth, type BetterAuthOptions } from 'better-auth'
 import { drizzleAdapter, type DB as BetterAuthDrizzleDb } from 'better-auth/adapters/drizzle'
+import {
+  stripe,
+  type AuthorizeReferenceAction,
+  type StripePlan,
+  type Subscription,
+} from '@better-auth/stripe'
 import { organization } from 'better-auth/plugins/organization'
 import { APIError } from 'better-auth/api'
+import StripeClient from 'stripe'
 import type { AuthEmailSender } from './email'
 import { accessControl, roles } from './permissions'
 
@@ -12,6 +19,12 @@ export type AuthEnv = {
   EMAIL_FROM: string
   GOOGLE_CLIENT_ID: string
   GOOGLE_CLIENT_SECRET: string
+  STRIPE_SECRET_KEY?: string | undefined
+  STRIPE_WEBHOOK_SECRET?: string | undefined
+  STRIPE_PRICE_FIRM_MONTHLY?: string | undefined
+  STRIPE_PRICE_FIRM_YEARLY?: string | undefined
+  STRIPE_PRICE_PRO_MONTHLY?: string | undefined
+  STRIPE_PRICE_PRO_YEARLY?: string | undefined
   ENV: 'development' | 'staging' | 'production'
 }
 
@@ -34,6 +47,7 @@ export interface CreateAuthPluginsOptions {
    * tests that don't care about firm_profile bookkeeping.
    */
   organizationHooks?: OrganizationHooks
+  stripeBilling?: StripeBillingOptions
 }
 
 /**
@@ -42,6 +56,32 @@ export interface CreateAuthPluginsOptions {
  * versions without us chasing a named re-export.
  */
 export type DatabaseHooks = NonNullable<BetterAuthOptions['databaseHooks']>
+
+export type BillingPlan = 'solo' | 'firm' | 'pro'
+
+export interface StripeSubscriptionSyncInput {
+  referenceId: string
+  plan: BillingPlan
+  seatLimit: number
+  stripeCustomerId: string | undefined
+  stripeSubscriptionId: string | undefined
+  status: Subscription['status']
+}
+
+export interface StripeBillingHooks {
+  authorizeReference(input: {
+    userId: string
+    sessionId: string
+    activeOrganizationId?: string
+    referenceId: string
+    action: AuthorizeReferenceAction
+  }): Promise<boolean>
+  syncSubscription(input: StripeSubscriptionSyncInput): Promise<void>
+}
+
+export interface StripeBillingOptions {
+  hooks: StripeBillingHooks
+}
 
 export interface CreateAuthDeps {
   db: BetterAuthDrizzleDb
@@ -57,6 +97,7 @@ export interface CreateAuthDeps {
    * cascade into every downstream `auth.api.getSession()` call.
    */
   organizationHooks?: OrganizationHooks
+  stripeBilling?: StripeBillingOptions
   /**
    * `databaseHooks` escape hatch. Server uses `session.create.before` to
    * auto-restore `activeOrganizationId` on new sessions for returning users
@@ -83,70 +124,173 @@ function trustedOrigins(env: AuthEnv): string[] {
   return Array.from(new Set([toOrigin(env.AUTH_URL), toOrigin(env.APP_URL)].filter(isString)))
 }
 
-export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}) {
+function isStripeConfigured(env: AuthEnv): env is AuthEnv & {
+  STRIPE_SECRET_KEY: string
+  STRIPE_WEBHOOK_SECRET: string
+  STRIPE_PRICE_FIRM_MONTHLY: string
+} {
+  return Boolean(
+    env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET && env.STRIPE_PRICE_FIRM_MONTHLY,
+  )
+}
+
+function stripePlans(env: AuthEnv): StripePlan[] {
+  const plans: StripePlan[] = [
+    {
+      name: 'firm',
+      priceId: env.STRIPE_PRICE_FIRM_MONTHLY,
+      annualDiscountPriceId: env.STRIPE_PRICE_FIRM_YEARLY,
+      limits: { seats: 5 },
+      freeTrial: { days: 14 },
+    },
+  ]
+
+  if (env.STRIPE_PRICE_PRO_MONTHLY || env.STRIPE_PRICE_PRO_YEARLY) {
+    plans.push({
+      name: 'pro',
+      priceId: env.STRIPE_PRICE_PRO_MONTHLY,
+      annualDiscountPriceId: env.STRIPE_PRICE_PRO_YEARLY,
+      limits: { seats: 10 },
+    })
+  }
+
+  return plans
+}
+
+function planSeatLimit(plan: BillingPlan): number {
+  if (plan === 'pro') return 10
+  if (plan === 'firm') return 5
+  return 1
+}
+
+function activeBillingPlan(subscription: Subscription): BillingPlan {
+  if (
+    subscription.status === 'active' ||
+    subscription.status === 'trialing' ||
+    subscription.status === 'past_due' ||
+    subscription.status === 'paused'
+  ) {
+    return subscription.plan === 'pro' ? 'pro' : 'firm'
+  }
+  return 'solo'
+}
+
+function syncInput(subscription: Subscription): StripeSubscriptionSyncInput {
+  const plan = activeBillingPlan(subscription)
+  return {
+    referenceId: subscription.referenceId,
+    plan,
+    seatLimit: planSeatLimit(plan),
+    stripeCustomerId: subscription.stripeCustomerId,
+    stripeSubscriptionId: subscription.stripeSubscriptionId,
+    status: subscription.status,
+  }
+}
+
+export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: AuthEnv) {
   const { email, organizationHooks } = opts
-  return [
-    organization({
-      ac: accessControl,
-      roles,
-      creatorRole: 'owner',
-      allowUserToCreateOrganization: true,
-      // Multi-firm foundation: users can create more than one Firm. Team
-      // expansion still stays closed below until Members/RBAC lands.
-      // P0 soft ceiling matches PRD §3.6.1 Firm Plan seat_limit. The hard
-      // "P0 single Owner" semantic is enforced by invitationLimit:0 +
-      // beforeAddMember below — this number is only the upper safety net.
-      // P1 should switch to a function: (user, org) => planSeatLimit(org.plan).
-      membershipLimit: 5,
-      // P0 does not expose invitations. invitationLimit:0 prevents the org
-      // plugin from accepting any invite create call; beforeAddMember is the
-      // belt-and-braces guard for direct member creation paths.
-      invitationLimit: 0,
-      // org soft-delete is governed by firm_profile.status / deletedAt
-      // (PRD §3.6.8 30d grace). Hard delete via the better-auth API would
-      // bypass that flow, so it stays disabled.
-      disableOrganizationDeletion: true,
-      invitationExpiresIn: 60 * 60 * 24 * 7,
-      cancelPendingInvitationsOnReInvite: true,
-      organizationHooks: {
-        // Default guard allows Better Auth's owner bootstrap and rejects
-        // non-owner member additions. Multi-firm creation is open, but Team
-        // expansion remains closed until the Members/RBAC slice lands.
-        ...organizationHooks,
-        beforeAddMember:
-          organizationHooks?.beforeAddMember ??
-          (async ({ member }) => {
-            if (member.role !== 'owner') {
-              throw new APIError('FORBIDDEN', {
-                message: 'P0 only allows the creator owner.',
-              })
-            }
-          }),
-      },
-      schema: {
-        member: {
-          additionalFields: {
-            status: {
-              type: 'string',
-              required: true,
-              defaultValue: 'active',
-              input: false,
-            },
+  const organizationPlugin = organization({
+    ac: accessControl,
+    roles,
+    creatorRole: 'owner',
+    allowUserToCreateOrganization: true,
+    // Multi-firm foundation: users can create more than one Firm. Team
+    // expansion still stays closed below until Members/RBAC lands.
+    // P0 soft ceiling matches PRD §3.6.1 Firm Plan seat_limit. The hard
+    // "P0 single Owner" semantic is enforced by invitationLimit:0 +
+    // beforeAddMember below — this number is only the upper safety net.
+    // P1 should switch to a function: (user, org) => planSeatLimit(org.plan).
+    membershipLimit: 5,
+    // P0 does not expose invitations. invitationLimit:0 prevents the org
+    // plugin from accepting any invite create call; beforeAddMember is the
+    // belt-and-braces guard for direct member creation paths.
+    invitationLimit: 0,
+    // org soft-delete is governed by firm_profile.status / deletedAt
+    // (PRD §3.6.8 30d grace). Hard delete via the better-auth API would
+    // bypass that flow, so it stays disabled.
+    disableOrganizationDeletion: true,
+    invitationExpiresIn: 60 * 60 * 24 * 7,
+    cancelPendingInvitationsOnReInvite: true,
+    organizationHooks: {
+      // Default guard allows Better Auth's owner bootstrap and rejects
+      // non-owner member additions. Multi-firm creation is open, but Team
+      // expansion remains closed until the Members/RBAC slice lands.
+      ...organizationHooks,
+      beforeAddMember:
+        organizationHooks?.beforeAddMember ??
+        (async ({ member }) => {
+          if (member.role !== 'owner') {
+            throw new APIError('FORBIDDEN', {
+              message: 'P0 only allows the creator owner.',
+            })
+          }
+        }),
+    },
+    schema: {
+      member: {
+        additionalFields: {
+          status: {
+            type: 'string',
+            required: true,
+            defaultValue: 'active',
+            input: false,
           },
         },
       },
-      sendInvitationEmail: async (data) => {
-        await email?.sendInvitationEmail({
-          to: data.email,
-          organizationName: data.organization.name,
-          inviterName: data.inviter.user.name,
-          invitationId: data.id,
-          role: data.role,
-          url: `/accept-invite?id=${encodeURIComponent(data.id)}`,
-        })
+    },
+    sendInvitationEmail: async (data) => {
+      await email?.sendInvitationEmail({
+        to: data.email,
+        organizationName: data.organization.name,
+        inviterName: data.inviter.user.name,
+        invitationId: data.id,
+        role: data.role,
+        url: `/accept-invite?id=${encodeURIComponent(data.id)}`,
+      })
+    },
+  })
+
+  if (env && opts.stripeBilling && isStripeConfigured(env)) {
+    const stripeSecret = env.STRIPE_SECRET_KEY
+    const stripeWebhookSecret = env.STRIPE_WEBHOOK_SECRET
+    const stripeClient = new StripeClient(stripeSecret)
+    const stripePlugin = stripe({
+      stripeClient,
+      stripeWebhookSecret,
+      subscription: {
+        enabled: true,
+        plans: stripePlans(env),
+        authorizeReference: async ({ user, session, referenceId, action }) =>
+          opts.stripeBilling?.hooks.authorizeReference({
+            userId: user.id,
+            sessionId: session.id,
+            activeOrganizationId: session.activeOrganizationId,
+            referenceId,
+            action,
+          }) ?? false,
+        onSubscriptionComplete: async ({ subscription }) => {
+          await opts.stripeBilling?.hooks.syncSubscription(syncInput(subscription))
+        },
+        onSubscriptionCreated: async ({ subscription }) => {
+          await opts.stripeBilling?.hooks.syncSubscription(syncInput(subscription))
+        },
+        onSubscriptionUpdate: async ({ subscription }) => {
+          await opts.stripeBilling?.hooks.syncSubscription(syncInput(subscription))
+        },
+        onSubscriptionDeleted: async ({ subscription }) => {
+          await opts.stripeBilling?.hooks.syncSubscription({
+            ...syncInput(subscription),
+            plan: 'solo',
+            seatLimit: 1,
+          })
+        },
       },
-    }),
-  ] as const
+      organization: { enabled: true },
+    })
+    return [organizationPlugin, stripePlugin] as const
+  }
+
+  return [organizationPlugin] as const
 }
 
 export function createAuth(deps: CreateAuthDeps) {
@@ -156,7 +300,8 @@ export function createAuth(deps: CreateAuthDeps) {
   const pluginOpts: CreateAuthPluginsOptions = {}
   if (deps.email) pluginOpts.email = deps.email
   if (deps.organizationHooks) pluginOpts.organizationHooks = deps.organizationHooks
-  const plugins = createAuthPlugins(pluginOpts)
+  if (deps.stripeBilling) pluginOpts.stripeBilling = deps.stripeBilling
+  const plugins = createAuthPlugins(pluginOpts, deps.env)
 
   return betterAuth({
     appName: 'DueDateHQ',

@@ -242,6 +242,42 @@ export function createAppRouter() {
                 return { Component: SettingsProfileRoute }
               },
             },
+            {
+              path: 'settings/billing',
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { SettingsBillingRoute } = await import('@/routes/settings.billing')
+
+                return { Component: SettingsBillingRoute }
+              },
+            },
+            {
+              path: 'billing/checkout',
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { BillingCheckoutRoute } = await import('@/routes/billing.checkout')
+
+                return { Component: BillingCheckoutRoute }
+              },
+            },
+            {
+              path: 'billing/success',
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { BillingSuccessRoute } = await import('@/routes/billing.success')
+
+                return { Component: BillingSuccessRoute }
+              },
+            },
+            {
+              path: 'billing/cancel',
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { BillingCancelRoute } = await import('@/routes/billing.cancel')
+
+                return { Component: BillingCancelRoute }
+              },
+            },
           ],
         },
         {

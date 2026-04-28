@@ -15,7 +15,7 @@ const zhCN: LandingCopy = {
       { label: '工作流', href: '#workflow' },
       { label: '证据', href: '#proof' },
       { label: '安全', href: '#security' },
-      { label: '价格', href: '#pricing' },
+      { label: '价格', href: '/zh-CN/pricing' },
       { label: '文档', href: '#docs' },
     ],
     statusPill: '已上线 CA · NY · TX · FL · WA',
@@ -412,6 +412,71 @@ const zhCN: LandingCopy = {
     primaryCta: '进入工作台',
     secondaryCta: '与创始人聊聊',
     trust: '无需信用卡 · 随时取消',
+  },
+  pricing: {
+    meta: {
+      title: 'DueDateHQ 价格 — 面向 CPA 团队的截止日智能',
+      description:
+        '为美国 CPA 团队设计的简洁订阅方案：截止日风险、可追溯规则和 Stripe 托管支付闭环。',
+      ogImage: '/og/home.zh-CN.png',
+    },
+    navPricingHref: '/zh-CN/pricing',
+    hero: {
+      eyebrow: 'PRICING',
+      title: '只为你能看清的截止日风险付费。',
+      description:
+        '从 Solo 开始评估；当截止日运营需要多人协作时升级到 Firm；需要审计导出和更高覆盖时再与我们定制 Pro。',
+      note: 'Stripe 托管支付 · Firm 14 天试用 · DueDateHQ 不保存卡号',
+    },
+    plans: [
+      {
+        name: 'Solo',
+        price: '$0',
+        cadence: '永久免费',
+        description: '适合一位 Owner 用示例或第一方数据评估工作台。',
+        seats: '1 个席位',
+        cta: '打开 App',
+        hrefKind: 'app',
+        features: ['Penalty Radar 预览', 'Migration Copilot', '带来源的证据抽屉'],
+      },
+      {
+        name: 'Firm',
+        badge: '推荐',
+        price: '$99',
+        cadence: '每月',
+        description: '适合需要共享运营队列和明确席位上限的小型 CPA 团队。',
+        seats: '5 个席位',
+        cta: '开始 Firm 试用',
+        hrefKind: 'checkout',
+        features: ['共享工作台', '24 小时 Pulse 监控', '包含 5 个席位', '14 天试用'],
+      },
+      {
+        name: 'Pro',
+        price: '定制',
+        cadence: '年度协议',
+        description: '适合需要审计导出流程、优先 onboarding 和覆盖扩展的团队。',
+        seats: '10+ 个席位',
+        cta: '与创始人聊聊',
+        hrefKind: 'contact',
+        features: ['优先 onboarding', '审计导出规划', '覆盖扩展评估'],
+      },
+    ],
+    faq: [
+      {
+        question: '在哪里完成支付？',
+        answer:
+          'DueDateHQ 会把已登录的事务所 Owner 送到 Stripe Checkout。卡号由 Stripe 收集，App 不处理卡号。',
+      },
+      {
+        question: 'Firm 试用会启用什么？',
+        answer:
+          '测试模式的 Firm checkout 在 webhook 确认后激活 Firm 计划，并把工作区席位上限提升到 5。',
+      },
+      {
+        question: '可以继续使用 Solo 吗？',
+        answer: '可以。Solo 适合单 Owner 事务所继续评估工作台。',
+      },
+    ],
   },
   footer: {
     brand: 'DueDateHQ',

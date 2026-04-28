@@ -3,6 +3,7 @@ import type { AuthEmailSender } from '@duedatehq/auth/email'
 import { authSchema, createDb } from '@duedatehq/db'
 import { Resend } from 'resend'
 import { validateServerEnv, type Env, type ServerEnv } from './env'
+import { buildBillingHooks } from './billing-hooks'
 import { getRequestLocale } from './i18n/resolve'
 import { translate } from './i18n/messages'
 import { buildOrganizationHooks } from './organization-hooks'
@@ -87,6 +88,7 @@ export function createWorkerAuth(runtimeEnv: Env, ctx?: ExecutionContext) {
   // scripts/check-dep-direction.mjs.
   const organizationHooks = buildOrganizationHooks(db)
   const databaseHooks = buildDatabaseHooks(db)
+  const stripeBilling = { hooks: buildBillingHooks(db) }
 
   return createAuth({
     db,
@@ -95,6 +97,7 @@ export function createWorkerAuth(runtimeEnv: Env, ctx?: ExecutionContext) {
     email,
     organizationHooks,
     databaseHooks,
+    stripeBilling,
     ...(ctx ? { waitUntil: (promise) => ctx.waitUntil(promise) } : {}),
   })
 }

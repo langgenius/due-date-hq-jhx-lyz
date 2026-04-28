@@ -1,5 +1,6 @@
 import { createAuthClient } from 'better-auth/react'
 import { organizationClient } from 'better-auth/client/plugins'
+import { stripeClient } from '@better-auth/stripe/client'
 
 import { attachLocaleHeader } from '@/i18n/i18n'
 
@@ -13,7 +14,7 @@ import { attachLocaleHeader } from '@/i18n/i18n'
 // shape of `session.activeOrganizationId` will go missing.
 export const authClient = createAuthClient({
   baseURL: `${window.location.origin}/api/auth`,
-  plugins: [organizationClient()],
+  plugins: [organizationClient(), stripeClient({ subscription: true })],
   fetchOptions: {
     onRequest: (context) => {
       attachLocaleHeader(context.headers)

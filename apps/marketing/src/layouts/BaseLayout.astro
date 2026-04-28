@@ -6,8 +6,8 @@ import '../styles/globals.css'
 interface Props {
   /** BCP-47 tag rendered into <html lang>. */
   lang: Locale
-  /** Path on the marketing site (e.g. "/" or "/zh-CN") used for canonical + OG. */
-  pathname: '/' | '/zh-CN'
+  /** Path on the marketing site (e.g. "/" or "/pricing") used for canonical + OG. */
+  pathname: '/' | '/zh-CN' | '/pricing' | '/zh-CN/pricing'
   title: string
   description: string
   /** Path of the locale-specific OG image under /public, e.g. "/og/home.en.png". */
@@ -40,9 +40,13 @@ const ogImageUrl = `${SITE}${ogImage}`
     <meta name="description" content={description} />
 
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="en" href={`${SITE}/`} />
-    <link rel="alternate" hreflang="zh-CN" href={`${SITE}/zh-CN`} />
-    <link rel="alternate" hreflang="x-default" href={`${SITE}/`} />
+    <link rel="alternate" hreflang="en" href={`${SITE}${pathname.endsWith('/pricing') ? '/pricing' : '/'}`} />
+    <link
+      rel="alternate"
+      hreflang="zh-CN"
+      href={`${SITE}${pathname.endsWith('/pricing') ? '/zh-CN/pricing' : '/zh-CN'}`}
+    />
+    <link rel="alternate" hreflang="x-default" href={`${SITE}${pathname.endsWith('/pricing') ? '/pricing' : '/'}`} />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DueDateHQ" />

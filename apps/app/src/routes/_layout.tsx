@@ -125,6 +125,12 @@ function getRouteSummaryMessages(pathname: string): RouteSummaryMessages {
   if (pathname === '/settings/rules') {
     return { eyebrow: msg`Settings`, title: msg`Rules` }
   }
+  if (pathname === '/settings/billing') {
+    return { eyebrow: msg`Settings`, title: msg`Billing` }
+  }
+  if (pathname.startsWith('/billing')) {
+    return { eyebrow: msg`Billing`, title: msg`Checkout` }
+  }
   if (pathname.startsWith('/workboard')) {
     return { eyebrow: msg`Workbench`, title: msg`Workboard` }
   }

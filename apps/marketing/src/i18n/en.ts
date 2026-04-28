@@ -15,7 +15,7 @@ const en: LandingCopy = {
       { label: 'Workflow', href: '#workflow' },
       { label: 'Evidence', href: '#proof' },
       { label: 'Security', href: '#security' },
-      { label: 'Pricing', href: '#pricing' },
+      { label: 'Pricing', href: '/pricing' },
       { label: 'Docs', href: '#docs' },
     ],
     statusPill: 'Live in CA · NY · TX · FL · WA',
@@ -428,6 +428,74 @@ const en: LandingCopy = {
     primaryCta: 'Open the workbench',
     secondaryCta: 'Talk to the founders',
     trust: 'no credit card · cancel anytime',
+  },
+  pricing: {
+    meta: {
+      title: 'DueDateHQ Pricing — Deadline intelligence for CPA practices',
+      description:
+        'Simple plans for US CPA practices that need deadline risk, source-backed rules, and Stripe-hosted subscription checkout.',
+      ogImage: '/og/home.en.png',
+    },
+    navPricingHref: '/pricing',
+    hero: {
+      eyebrow: 'PRICING',
+      title: 'Pay for the deadline risk you can actually see.',
+      description:
+        'Start on Solo, move to Firm when deadline operations need a shared workspace, and talk to us when audit exports and higher coverage become operational requirements.',
+      note: 'Stripe-hosted checkout · 14-day Firm trial · no card data stored by DueDateHQ',
+    },
+    plans: [
+      {
+        name: 'Solo',
+        price: '$0',
+        cadence: 'forever',
+        description: 'For one owner evaluating the workbench with sample or first-party data.',
+        seats: '1 seat',
+        cta: 'Open the app',
+        hrefKind: 'app',
+        features: ['Penalty Radar preview', 'Migration Copilot', 'Source-backed evidence drawer'],
+      },
+      {
+        name: 'Firm',
+        badge: 'Recommended',
+        price: '$99',
+        cadence: 'per month',
+        description:
+          'For small CPA teams that need a shared operating queue and billing-ready seat limit.',
+        seats: '5 seats',
+        cta: 'Start Firm trial',
+        hrefKind: 'checkout',
+        features: ['Shared workbench', '24h Pulse monitoring', '5 seats included', '14-day trial'],
+      },
+      {
+        name: 'Pro',
+        price: 'Custom',
+        cadence: 'annual agreement',
+        description:
+          'For practices that need audit export workflows, priority onboarding, and coverage expansion.',
+        seats: '10+ seats',
+        cta: 'Talk to founders',
+        hrefKind: 'contact',
+        features: ['Priority onboarding', 'Audit export planning', 'Coverage expansion review'],
+      },
+    ],
+    faq: [
+      {
+        question: 'Where does payment happen?',
+        answer:
+          'DueDateHQ sends authenticated firm owners to Stripe Checkout. Card details are collected by Stripe, not by the app.',
+      },
+      {
+        question: 'What does the Firm trial enable?',
+        answer:
+          'The test-mode Firm checkout activates the firm plan after webhook confirmation and raises the workspace seat limit to five.',
+      },
+      {
+        question: 'Can I keep using Solo?',
+        answer:
+          'Yes. Solo remains available for a single-owner practice while you evaluate the workbench.',
+      },
+    ],
   },
   footer: {
     brand: 'DueDateHQ',

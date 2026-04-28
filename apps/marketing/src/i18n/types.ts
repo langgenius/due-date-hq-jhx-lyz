@@ -223,6 +223,31 @@ export interface FinalCtaCopy {
   trust: string
 }
 
+export interface PricingPlanCopy {
+  name: string
+  badge?: string
+  price: string
+  cadence: string
+  description: string
+  seats: string
+  cta: string
+  hrefKind: 'checkout' | 'app' | 'contact'
+  features: string[]
+}
+
+export interface PricingCopy {
+  meta: MetaCopy
+  navPricingHref: string
+  hero: {
+    eyebrow: string
+    title: string
+    description: string
+    note: string
+  }
+  plans: PricingPlanCopy[]
+  faq: { question: string; answer: string }[]
+}
+
 export interface FooterColumn {
   title: string
   links: { label: string; href: string }[]
@@ -269,5 +294,6 @@ export interface LandingCopy {
   proof: ProofCopy
   security: SecurityCopy
   finalCta: FinalCtaCopy
+  pricing: PricingCopy
   footer: FooterCopy
 }

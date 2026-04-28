@@ -10,11 +10,11 @@
 
 `apps/marketing` 只服务未登录访客，不承担 SaaS 工作台能力。
 
-| 站点       | 域名                                         | 用户心智                     | 主要任务                                   |
-| ---------- | -------------------------------------------- | ---------------------------- | ------------------------------------------ |
-| Marketing  | `https://duedatehq.com`                      | 了解产品、建立信任、点击试用 | 首页、SEO meta、OG、后续 pricing / content |
-| SaaS App   | `https://app.duedatehq.com`                  | 登录后处理截止日风险         | Login、onboarding、dashboard、workboard    |
-| Worker API | `https://app.duedatehq.com/api/*` / `/rpc/*` | 产品后端                     | Better Auth、oRPC、webhook、health         |
+| 站点       | 域名                                         | 用户心智                     | 主要任务                                  |
+| ---------- | -------------------------------------------- | ---------------------------- | ----------------------------------------- |
+| Marketing  | `https://duedatehq.com`                      | 了解产品、建立信任、点击试用 | 首页、pricing、SEO meta、OG、后续 content |
+| SaaS App   | `https://app.duedatehq.com`                  | 登录后处理截止日风险         | Login、onboarding、dashboard、workboard   |
+| Worker API | `https://app.duedatehq.com/api/*` / `/rpc/*` | 产品后端                     | Better Auth、oRPC、webhook、health        |
 
 用户路径：
 
@@ -75,7 +75,11 @@ Homepage 只讲一个 offer：
 
 > **Marketing copy 铁律**：landing 文案禁止出现具体技术栈或框架名（"Better Auth"、"Cloudflare D1"、"Resend"、"WISP"、"PII back-fill" 等）。CPA 决策人不识别也不在乎技术栈；要用业务语言（per-firm 隔离、evidence-first AI、audit log 可导出）替代。架构边界仍由 §11 非目标约束代码侧不依赖 Better Auth session — 但**不外露 token 名**。
 
-后续可以追加 `/pricing`、`/rules`、`/state/[state]`、`/blog`，但首版不为不存在的内容搭复杂 CMS。
+`/pricing` 已作为静态 Astro 页面进入首版支付闭环：公开页只负责转化和 SEO，
+不读取 app session、不发起 Stripe API、不保存任何支付状态。付费 CTA deep link 到
+SaaS app 的 `/billing/checkout?plan=firm&interval=monthly`；未登录用户由 app
+自己的 auth/onboarding loader 接管后再回到 checkout。后续可以追加 `/rules`、
+`/state/[state]`、`/blog`，但不为不存在的内容搭复杂 CMS。
 
 ### 2.5 转化事件
 
@@ -87,6 +91,9 @@ Marketing 只埋公开站事件，不读取 app session。
 | `marketing.secondary_cta.clicked`   | Hero secondary CTA |
 | `marketing.workflow_section.viewed` | Workflow 进入视口  |
 | `marketing.final_cta.clicked`       | 页尾 CTA           |
+| `marketing.pricing.checkout`        | Pricing Firm CTA   |
+| `marketing.pricing.app`             | Pricing Solo CTA   |
+| `marketing.pricing.contact`         | Pricing Pro CTA    |
 
 事件命名不进 Lingui catalog。若 PostHog 尚未接入 marketing，先保留 data attribute 和文档契约。
 
@@ -177,12 +184,8 @@ export default defineConfig({
   i18n: {
     locales: ['en', 'zh-CN'],
     defaultLocale: 'en',
-    // fallback + fallbackType together handle missing zh-CN pages by
-    // serving the English version. Without `fallback`, fallbackType is a no-op.
-    fallback: { 'zh-CN': 'en' },
     routing: {
       prefixDefaultLocale: false,
-      fallbackType: 'redirect',
     },
   },
 })
@@ -408,6 +411,7 @@ not_found_handling = "404-page"
 
 - Marketing 不读取 Worker secrets，也不持有任何后端凭据。
 - Marketing 只允许 `PUBLIC_*` 前缀的变量（Astro 唯一的客户端可见前缀，通过 `import.meta.env.PUBLIC_*` 暴露），例如 `PUBLIC_APP_URL=https://app.due.langgenius.app`。
+- Pricing 页只拼接 app URL；Stripe secret、webhook secret、price id 都属于 `apps/server` runtime env。
 - Auth/OAuth callback 仍属于 `app.due.langgenius.app`，不要绑定到 marketing 主域。
 
 安全响应头通过 `apps/marketing/public/_headers`（Workers Static Assets 兼容 Pages `_headers` 语法）声明，作为 §8 Lighthouse Best Practices 95+ 的硬条件：
@@ -467,7 +471,7 @@ CSP 中 `connect-src` 仅在 marketing 真的需要向 app 子域发请求（例
 ## 10. 实施顺序
 
 1. 在 `pnpm-workspace.yaml` catalog 钉版加入 `astro` / `@astrojs/react` / `@astrojs/sitemap`（遵守 §3 of `01-Tech-Stack.md`，禁止字面量版本进入 `apps/marketing/package.json`）。
-2. 新增 `apps/marketing` Astro static app，`astro.config.mjs` 完整声明 §4 中的 `site` / `trailingSlash` / `vite.plugins[tailwindcss()]` / i18n `fallback`，接入 `@astrojs/react` 和 `@duedatehq/ui` preset。
+2. 新增 `apps/marketing` Astro static app，`astro.config.mjs` 完整声明 §4 中的 `site` / `trailingSlash` / `vite.plugins[tailwindcss()]` / i18n routing，接入 `@astrojs/react` 和 `@duedatehq/ui` preset。
 3. 实现英文 landing，CTA 指向 `PUBLIC_APP_URL`；添加 `public/_headers`（§7 安全头）和 `public/robots.txt`。
 4. 加入 Astro i18n routing；按需要实现 `zh-CN` 首页，hreflang 与 sitemap 自动跟随。
 5. 更新 root Vite Task：`workspace-build` 包含 marketing；`workspace-deploy` 严格按 §7 顺序串行执行（D1 → app → marketing），任一步失败立即中止。
@@ -489,7 +493,7 @@ CSP 中 `connect-src` 仅在 marketing 真的需要向 app 子域发请求（例
 
 - Astro React integration：`@astrojs/react` 在 `astro.config.mjs` 的 `integrations` 中注册。
 - Astro Tailwind 4：通过 `vite.plugins[tailwindcss()]` 注入 `@tailwindcss/vite`，纯 CSS `@import 'tailwindcss'` 不会自动启用。
-- Astro i18n routing：`i18n.locales` / `defaultLocale` / `routing.prefixDefaultLocale` / `fallback` + `fallbackType` 控制 locale URL；`redirectToDefaultLocale` 仅在默认 locale 带前缀时有效。
+- Astro i18n routing：`i18n.locales` / `defaultLocale` / `routing.prefixDefaultLocale` 控制 locale URL；本项目每个公开页面显式提供 locale route，避免 fallback redirects 生成隐藏 `/zh-CN/zh-cn/*` URL。
 - Astro Sitemap：`@astrojs/sitemap` 依赖 `astro.config.mjs.site`，自动按 `i18n` 配置输出 hreflang alternates。
 - Astro Image：`astro:assets` 的 `<Image />` 自动产出 AVIF/WebP，并强制 `width`/`height` 防 CLS。
 - Astro Cloudflare deployment：static output 使用 `dist` 作为部署目录；首版 landing 不需要 SSR adapter，统一走 Cloudflare Workers + Static Assets。

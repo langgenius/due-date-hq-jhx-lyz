@@ -143,6 +143,8 @@ catalog:
   # ───────── auth ─────────
   '@t3-oss/env-core': 0.13.11
   better-auth: 1.6.7
+  '@better-auth/stripe': 1.6.7
+  stripe: 22.1.0
 
   # ───────── db ─────────
   drizzle-orm: 0.45.2

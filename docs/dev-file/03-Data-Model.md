@@ -78,18 +78,20 @@ packages/db/
 > 来源：ADR [`0010-firm-profile-vs-organization.md`](../adr/0010-firm-profile-vs-organization.md)。
 > Schema：`packages/db/src/schema/firm.ts`；migration `0001_tidy_shiva.sql`。
 
-| 字段            | 类型                                               | 备注                                                                                                      |
-| --------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `id`            | `text PK · FK → organization.id ON DELETE CASCADE` | PK 复用 organization.id；删 org → 级联删 firm_profile                                                     |
-| `name`          | `text NOT NULL`                                    | 镜像 organization.name；P1 可分离 legal/display                                                           |
-| `plan`          | `text NOT NULL DEFAULT 'solo'`                     | PRD §3.6.1；enum `solo / firm / pro` 在 drizzle schema + TS 层校验（见下）                                |
-| `seat_limit`    | `integer NOT NULL DEFAULT 1`                       | UI affordance；写时由 plan 决定（P1）                                                                     |
-| `timezone`      | `text NOT NULL DEFAULT 'America/New_York'`         | P0 ICP 假设（PRD §2.1）；P1 onboarding 让用户选                                                           |
-| `owner_user_id` | `text NOT NULL · FK → user.id ON DELETE RESTRICT`  | 删 user 前必须先转 owner 或软删 firm                                                                      |
-| `status`        | `text NOT NULL DEFAULT 'active'`                   | enum `active / suspended / deleted`（drizzle+TS 层）；tenantMiddleware 拒 non-active → `TENANT_SUSPENDED` |
-| `created_at`    | `integer (ms) NOT NULL`                            |                                                                                                           |
-| `updated_at`    | `integer (ms) NOT NULL`                            | drizzle `$onUpdate` 触发                                                                                  |
-| `deleted_at`    | `integer (ms) NULL`                                | PRD §3.6.8 软删 30d grace                                                                                 |
+| 字段                      | 类型                                               | 备注                                                                                                      |
+| ------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `id`                      | `text PK · FK → organization.id ON DELETE CASCADE` | PK 复用 organization.id；删 org → 级联删 firm_profile                                                     |
+| `name`                    | `text NOT NULL`                                    | 镜像 organization.name；P1 可分离 legal/display                                                           |
+| `plan`                    | `text NOT NULL DEFAULT 'solo'`                     | PRD §3.6.1；enum `solo / firm / pro` 在 drizzle schema + TS 层校验（见下）                                |
+| `seat_limit`              | `integer NOT NULL DEFAULT 1`                       | UI affordance；写时由 plan 决定（P1）                                                                     |
+| `timezone`                | `text NOT NULL DEFAULT 'America/New_York'`         | P0 ICP 假设（PRD §2.1）；P1 onboarding 让用户选                                                           |
+| `owner_user_id`           | `text NOT NULL · FK → user.id ON DELETE RESTRICT`  | 删 user 前必须先转 owner 或软删 firm                                                                      |
+| `status`                  | `text NOT NULL DEFAULT 'active'`                   | enum `active / suspended / deleted`（drizzle+TS 层）；tenantMiddleware 拒 non-active → `TENANT_SUSPENDED` |
+| `billing_customer_id`     | `text NULL`                                        | Stripe customer cache；Better Auth `subscription` / Stripe webhook 仍是事实来源                           |
+| `billing_subscription_id` | `text NULL`                                        | Stripe subscription cache；用于业务 plan/seat 快读，不替代 subscription 表                                |
+| `created_at`              | `integer (ms) NOT NULL`                            |                                                                                                           |
+| `updated_at`              | `integer (ms) NOT NULL`                            | drizzle `$onUpdate` 触发                                                                                  |
+| `deleted_at`              | `integer (ms) NULL`                                | PRD §3.6.8 软删 30d grace                                                                                 |
 
 **与 `organization` 的关系**：
 
@@ -112,7 +114,9 @@ packages/db/
 **加列原则**：
 
 - D1 加列零成本，按需 ALTER
-- billing 字段（`billingCustomerId / billingSubscriptionId`）等 P0-23 Pay-intent 立项时再加，不预占
+- Billing 已接入 Better Auth Stripe plugin：`subscription` 表保存 Stripe 订阅事实，
+  `firm_profile.plan / seat_limit / billing_*` 只作为 app 业务缓存，由 webhook callback 同步。
+  业务代码不得直接把 checkout redirect 视为订阅成功。
 - `coordinatorCanSeeDollars`（PRD §3.6 RBAC）/ `defaultAssigneeUserId`（PRD §3.6.8）等 P1 字段同样不预占
 
 **关于 enum / CHECK**：
