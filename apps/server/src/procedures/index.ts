@@ -2,6 +2,7 @@ import { ORPCError } from '@orpc/server'
 import { clientsHandlers } from './clients'
 import { dashboardHandlers } from './dashboard'
 import { evidenceHandlers } from './evidence'
+import { firmsHandlers } from './firms'
 import { migrationHandlers } from './migration'
 import { obligationsHandlers } from './obligations'
 import { rulesHandlers } from './rules'
@@ -29,6 +30,14 @@ function notImplemented(): never {
 }
 
 export const router = os.router({
+  firms: {
+    listMine: firmsHandlers.listMine,
+    getCurrent: firmsHandlers.getCurrent,
+    create: firmsHandlers.create,
+    switchActive: firmsHandlers.switchActive,
+    updateCurrent: firmsHandlers.updateCurrent,
+    softDeleteCurrent: firmsHandlers.softDeleteCurrent,
+  },
   clients: {
     create: clientsHandlers.create,
     createBatch: clientsHandlers.createBatch,

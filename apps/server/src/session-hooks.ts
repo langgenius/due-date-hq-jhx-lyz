@@ -11,12 +11,8 @@ import type { DatabaseHooks } from '@duedatehq/auth'
  * Why this exists:
  *   The protected loader treats `session.activeOrganizationId == null` as
  *   "first-time onboarding" and redirects to /onboarding, where the user is
- *   asked to create a Firm. But `organizationLimit: 1` means a returning
- *   user (any session reconstructed without an active org — e.g. they had
- *   an org but signed out across devices, or better-auth's cookie cache
- *   was invalidated) can't create a second org AND the onboarding page
- *   never tries to set-active an existing one. Without this hook they are
- *   literally stuck.
+ *   asked to create a Firm. Returning users with existing memberships should
+ *   land in one of their firms instead of the first-login setup route.
  *
  *   The fix per the better-auth organization docs: on session create, if
  *   the user already has an active membership, auto-populate

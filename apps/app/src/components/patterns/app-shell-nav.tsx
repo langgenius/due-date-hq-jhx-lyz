@@ -1,5 +1,6 @@
-import { useMemo, type ReactNode } from 'react'
+import { useCallback, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { NavLink } from 'react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
   CalendarClockIcon,
@@ -15,6 +16,16 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
+import type { FirmPublic } from '@duedatehq/contracts'
+import { Button } from '@duedatehq/ui/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@duedatehq/ui/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,13 +45,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@duedatehq/ui/components/ui/sidebar'
+import { Input } from '@duedatehq/ui/components/ui/input'
+import { Label } from '@duedatehq/ui/components/ui/label'
 import { cn } from '@duedatehq/ui/lib/utils'
-
-type FirmSummary = {
-  name: string
-  meta: string
-  monogram: string
-}
+import { initialsFromName } from '@/lib/auth'
+import { orpc } from '@/lib/rpc'
 
 type NavItem = {
   href: string
@@ -65,8 +74,40 @@ type NavConfig = {
   admin: NavItem[]
 }
 
-function FirmSwitcherTrigger({ firm }: { firm: FirmSummary }) {
+function firmMonogram(name: string): string {
+  return initialsFromName(name).slice(0, 2).toUpperCase() || 'DD'
+}
+
+function roleLabel(role: FirmPublic['role']): string {
+  return role.charAt(0).toUpperCase() + role.slice(1)
+}
+
+function firmMeta(firm: FirmPublic): string {
+  return `${roleLabel(firm.role)} · ${firm.plan} · ${firm.seatLimit} seat${firm.seatLimit === 1 ? '' : 's'}`
+}
+
+function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPublic[] }) {
   const { t } = useLingui()
+  const queryClient = useQueryClient()
+  const [addOpen, setAddOpen] = useState(false)
+  const switchMutation = useMutation(
+    orpc.firms.switchActive.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries()
+      },
+    }),
+  )
+  const currentMonogram = firmMonogram(firm.name)
+  const currentMeta = firmMeta(firm)
+
+  const handleSwitch = useCallback(
+    (firmId: string) => {
+      if (firmId === firm.id || switchMutation.isPending) return
+      switchMutation.mutate({ firmId })
+    },
+    [firm.id, switchMutation],
+  )
+
   return (
     <SidebarHeader>
       <DropdownMenu>
@@ -84,57 +125,165 @@ function FirmSwitcherTrigger({ firm }: { firm: FirmSummary }) {
             className="grid size-6 shrink-0 place-items-center rounded-md bg-brand-primary text-xs font-semibold text-text-inverted"
             translate="no"
           >
-            {firm.monogram}
+            {currentMonogram}
           </span>
           <span className="flex min-w-0 flex-1 flex-col leading-tight">
             <span className="truncate text-sm font-medium text-text-primary" translate="no">
               {firm.name}
             </span>
-            <span className="truncate text-xs text-text-muted">{firm.meta}</span>
+            <span className="truncate text-xs text-text-muted">{currentMeta}</span>
           </span>
           <ChevronsUpDownIcon className="size-3 shrink-0 text-text-muted" aria-hidden />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" side="bottom" sideOffset={6} className="w-56">
+        <DropdownMenuContent align="start" side="bottom" sideOffset={6} className="w-64">
           <DropdownMenuGroup>
             <DropdownMenuLabel className="text-left">
               <span className="text-xs font-medium uppercase tracking-[0.08em] text-text-tertiary">
                 <Trans>Workspaces</Trans>
               </span>
             </DropdownMenuLabel>
-            <DropdownMenuItem aria-checked={true} className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <span
-                  aria-hidden
-                  className="grid size-5 shrink-0 place-items-center rounded-sm bg-brand-primary text-[10px] font-semibold text-text-inverted"
-                  translate="no"
+            {firms.map((item) => {
+              const selected = item.id === firm.id
+              return (
+                <DropdownMenuItem
+                  key={item.id}
+                  aria-checked={selected}
+                  className="flex items-center justify-between"
+                  onClick={() => handleSwitch(item.id)}
                 >
-                  {firm.monogram}
-                </span>
-                <span className="flex flex-col leading-tight">
-                  <span className="text-sm font-medium text-text-primary" translate="no">
-                    {firm.name}
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span
+                      aria-hidden
+                      className="grid size-5 shrink-0 place-items-center rounded-sm bg-brand-primary text-[10px] font-semibold text-text-inverted"
+                      translate="no"
+                    >
+                      {firmMonogram(item.name)}
+                    </span>
+                    <span className="flex min-w-0 flex-col leading-tight">
+                      <span
+                        className="truncate text-sm font-medium text-text-primary"
+                        translate="no"
+                      >
+                        {item.name}
+                      </span>
+                      <span className="truncate text-xs text-text-tertiary">{firmMeta(item)}</span>
+                    </span>
                   </span>
-                  <span className="text-xs text-text-tertiary">{firm.meta}</span>
-                </span>
-              </span>
-              <CheckIcon className="size-4 shrink-0 text-text-accent" aria-hidden />
-            </DropdownMenuItem>
+                  {selected ? (
+                    <CheckIcon className="size-4 shrink-0 text-text-accent" aria-hidden />
+                  ) : null}
+                </DropdownMenuItem>
+              )
+            })}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem disabled>
+            <DropdownMenuItem onClick={() => setAddOpen(true)}>
               <PlusIcon />
               <span>
                 <Trans>Add firm</Trans>
-              </span>
-              <span className="ml-auto text-xs text-text-tertiary">
-                <Trans>P1</Trans>
               </span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      <AddFirmDialog open={addOpen} onOpenChange={setAddOpen} />
     </SidebarHeader>
+  )
+}
+
+function AddFirmDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  const { t } = useLingui()
+  const queryClient = useQueryClient()
+  const [name, setName] = useState('')
+  const [timezone, setTimezone] = useState('America/New_York')
+  const [error, setError] = useState<string | null>(null)
+  const createMutation = useMutation(
+    orpc.firms.create.mutationOptions({
+      onSuccess: () => {
+        setName('')
+        setTimezone('America/New_York')
+        setError(null)
+        onOpenChange(false)
+        void queryClient.invalidateQueries()
+      },
+      onError: (err) => {
+        setError(err.message || t`Could not create firm.`)
+      },
+    }),
+  )
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const trimmed = name.trim()
+    if (trimmed.length < 2) {
+      setError(t`Please enter at least 2 characters.`)
+      return
+    }
+    setError(null)
+    createMutation.mutate({ name: trimmed, timezone: timezone.trim() || 'America/New_York' })
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            <Trans>Add firm</Trans>
+          </DialogTitle>
+          <DialogDescription>
+            <Trans>
+              Create a separate tenant with its own clients, deadlines, audit trail, and settings.
+            </Trans>
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <div className="grid gap-1.5">
+            <Label htmlFor="add-firm-name">
+              <Trans>Firm name</Trans>
+            </Label>
+            <Input
+              id="add-firm-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              autoComplete="organization"
+              aria-invalid={error ? true : undefined}
+              placeholder={t`e.g. Bright CPA Practice`}
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="add-firm-timezone">
+              <Trans>Timezone</Trans>
+            </Label>
+            <Input
+              id="add-firm-timezone"
+              value={timezone}
+              onChange={(event) => setTimezone(event.target.value)}
+              autoComplete="off"
+            />
+          </div>
+          {error ? (
+            <p role="alert" className="text-sm text-text-destructive">
+              {error}
+            </p>
+          ) : null}
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Trans>Cancel</Trans>
+            </Button>
+            <Button type="submit" disabled={createMutation.isPending}>
+              {createMutation.isPending ? <Trans>Creating…</Trans> : <Trans>Create firm</Trans>}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -159,14 +308,14 @@ function useNavItems(): NavConfig {
           icon: SettingsIcon,
           end: false,
           subItems: [
+            { href: '/settings/profile', label: t`Profile`, end: true },
             { href: '/settings/rules', label: t`Rules`, end: true },
             { label: t`Members`, tag: 'P1' },
-            { label: t`Profile`, tag: 'P1' },
           ],
         },
       ],
       admin: [
-        { href: '/clients', label: t`Clients`, icon: UsersIcon, end: false, tag: 'P1' },
+        { href: '/clients', label: t`Clients`, icon: UsersIcon, end: false },
         { href: '/audit', label: t`Audit log`, icon: ScaleIcon, end: false, tag: 'P1' },
         {
           href: '/workload',
@@ -196,9 +345,9 @@ function NavGroups() {
           <NavMenuItem key={item.href} item={item} />
         ))}
       </NavGroupSection>
-      <NavGroupSection label={t`Admin · P1`} muted>
+      <NavGroupSection label={t`Admin`}>
         {items.admin.map((item) => (
-          <NavMenuItem key={item.href} item={item} disabled />
+          <NavMenuItem key={item.href} item={item} disabled={item.href !== '/clients'} />
         ))}
       </NavGroupSection>
     </nav>
@@ -310,4 +459,4 @@ function SidebarSubMenuItem({ item }: { item: NavSubItem }) {
   )
 }
 
-export { FirmSwitcherTrigger, NavGroups, type FirmSummary }
+export { FirmSwitcherTrigger, NavGroups }

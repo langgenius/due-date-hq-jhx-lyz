@@ -215,6 +215,15 @@ export function createAppRouter() {
                 return { Component: SettingsRulesRoute }
               },
             },
+            {
+              path: 'settings/profile',
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { SettingsProfileRoute } = await import('@/routes/settings.profile')
+
+                return { Component: SettingsProfileRoute }
+              },
+            },
           ],
         },
         {

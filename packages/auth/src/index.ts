@@ -60,8 +60,8 @@ export interface CreateAuthDeps {
   /**
    * `databaseHooks` escape hatch. Server uses `session.create.before` to
    * auto-restore `activeOrganizationId` on new sessions for returning users
-   * (organizationLimit:1 + onboarding-only-creates-orgs would otherwise
-   * trap them). See ADR 0010 FU and apps/server/src/auth.ts.
+   * whose session is missing an active firm. See ADR 0010 FU and
+   * apps/server/src/auth.ts.
    */
   databaseHooks?: DatabaseHooks
   waitUntil?: (promise: Promise<unknown>) => void
@@ -91,8 +91,8 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}) {
       roles,
       creatorRole: 'owner',
       allowUserToCreateOrganization: true,
-      // PRD §3.6.1: 一邮箱一 Firm. P0 single tenant.
-      organizationLimit: 1,
+      // Multi-firm foundation: users can create more than one Firm. Team
+      // expansion still stays closed below until Members/RBAC lands.
       // P0 soft ceiling matches PRD §3.6.1 Firm Plan seat_limit. The hard
       // "P0 single Owner" semantic is enforced by invitationLimit:0 +
       // beforeAddMember below — this number is only the upper safety net.
@@ -110,8 +110,8 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}) {
       cancelPendingInvitationsOnReInvite: true,
       organizationHooks: {
         // Default guard allows Better Auth's owner bootstrap and rejects
-        // non-owner member additions. P0 still remains creator-only because
-        // organizationLimit:1 + invitationLimit:0 close normal expansion paths.
+        // non-owner member additions. Multi-firm creation is open, but Team
+        // expansion remains closed until the Members/RBAC slice lands.
         ...organizationHooks,
         beforeAddMember:
           organizationHooks?.beforeAddMember ??

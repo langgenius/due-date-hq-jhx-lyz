@@ -1,5 +1,6 @@
 import * as authSchema from './schema/auth'
 import * as firmSchema from './schema/firm'
+import { makeFirmsRepo } from './repo/firms'
 
 export { createDb } from './client'
 export { scoped } from './scoped'
@@ -11,4 +12,13 @@ export { authSchema }
 // through `scoped()`; firm_profile is composed into the tenantContext by
 // middleware, never read by procedures.
 export { firmSchema }
-export type { Db, ScopedRepo, TenantContext, FirmProfile, NewFirmProfile } from './types'
+export { makeFirmsRepo }
+export type {
+  Db,
+  ScopedRepo,
+  TenantContext,
+  FirmProfile,
+  NewFirmProfile,
+  FirmsRepo,
+  FirmMembershipRow,
+} from './types'

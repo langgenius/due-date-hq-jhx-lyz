@@ -1,8 +1,10 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { useLoaderData, useLocation } from 'react-router'
+import { useQuery } from '@tanstack/react-query'
 import type { MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
 import { useLingui } from '@lingui/react/macro'
+import type { FirmPublic } from '@duedatehq/contracts'
 
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import type { ThemePreference } from '@duedatehq/ui/theme'
@@ -10,7 +12,8 @@ import type { ThemePreference } from '@duedatehq/ui/theme'
 import { AppShell } from '@/components/patterns/app-shell'
 import { KeyboardProvider } from '@/components/patterns/keyboard-shell'
 import { MigrationWizardProvider, useMigrationWizard } from '@/features/migration/WizardProvider'
-import { initialsFromName, type AuthUser } from '@/lib/auth'
+import type { AuthUser } from '@/lib/auth'
+import { orpc } from '@/lib/rpc'
 import {
   getServerThemePreference,
   getStoredThemePreference,
@@ -91,7 +94,8 @@ function RootLayoutShell({
   const { i18n } = useLingui()
   const location = useLocation()
   const { openWizard } = useMigrationWizard()
-  const firm = useFirmSummary(user)
+  const firmsQuery = useQuery(orpc.firms.listMine.queryOptions({ input: undefined }))
+  const firm = pickCurrentFirm(firmsQuery.data, user)
   const routeMessages = getRouteSummaryMessages(location.pathname)
   const route = {
     eyebrow: i18n._(routeMessages.eyebrow),
@@ -102,6 +106,7 @@ function RootLayoutShell({
     <AppShell
       user={user}
       firm={firm}
+      firms={firmsQuery.data ?? [firm]}
       route={route}
       themePreference={themePreference}
       switchThemePreference={switchThemePreference}
@@ -114,37 +119,40 @@ function getRouteSummaryMessages(pathname: string): RouteSummaryMessages {
   // `/settings` is intentionally absent — the router-level `settingsLoader`
   // redirects bare `/settings` straight to `/settings/rules`, so this layout
   // never sees that pathname.
+  if (pathname === '/settings/profile') {
+    return { eyebrow: msg`Settings`, title: msg`Profile` }
+  }
   if (pathname === '/settings/rules') {
     return { eyebrow: msg`Settings`, title: msg`Rules` }
   }
   if (pathname.startsWith('/workboard')) {
     return { eyebrow: msg`Workbench`, title: msg`Workboard` }
   }
+  if (pathname.startsWith('/clients')) {
+    return { eyebrow: msg`Admin`, title: msg`Clients` }
+  }
   return { eyebrow: msg`Operations`, title: msg`Dashboard` }
 }
 
-/**
- * v0 firm summary — Better Auth gives us `session.activeOrganizationId` but
- * not the org name without an extra fetch. Until the Settings → Firm page
- * wires the `authClient.organization.getFullOrganization()` query through
- * TanStack Query, we synthesise a humane label from the user identity so
- * the AppShell sidebar still shows something meaningful in dev / demo.
- *
- * TODO(P1): replace with `useQuery(orpc.firm.getCurrent.queryOptions())`
- * once the firm-profile contract is exposed through oRPC.
- */
-function useFirmSummary(user: AuthUser): {
-  name: string
-  meta: string
-  monogram: string
-} {
-  const { t } = useLingui()
-  const fallbackName = user.name || t`Demo workspace`
-  const monogram = initialsFromName(fallbackName).slice(0, 2).toUpperCase() || 'DD'
+function pickCurrentFirm(firms: FirmPublic[] | undefined, user: AuthUser): FirmPublic {
+  const current = firms?.find((item) => item.isCurrent) ?? firms?.[0]
+  if (current) return current
+
+  const fallbackName = user.name || 'DueDateHQ'
   return {
+    id: 'pending',
     name: fallbackName,
-    meta: t`Owner · demo seat`,
-    monogram,
+    slug: 'pending',
+    plan: 'solo',
+    seatLimit: 1,
+    timezone: 'America/New_York',
+    status: 'active',
+    role: 'owner',
+    ownerUserId: user.id,
+    isCurrent: true,
+    createdAt: new Date(0).toISOString(),
+    updatedAt: new Date(0).toISOString(),
+    deletedAt: null,
   }
 }
 

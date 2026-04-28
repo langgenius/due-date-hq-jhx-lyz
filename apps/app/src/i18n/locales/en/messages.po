@@ -158,13 +158,25 @@ msgstr "Across {0} due this week."
 msgid "Actions"
 msgstr "Actions"
 
+#. placeholder {0}: firm.plan
+#. placeholder {1}: firm.seatLimit
+#: src/routes/settings.profile.tsx
+msgid "Active firm · {0} plan · {1} seat limit"
+msgstr "Active firm · {0} plan · {1} seat limit"
+
+#: src/routes/clients.tsx
+msgid "Add a manual client record to the active firm directory."
+msgstr "Add a manual client record to the active firm directory."
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Add firm"
 msgstr "Add firm"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Admin · P1"
-msgstr "Admin · P1"
+#: src/routes/_layout.tsx
+#: src/routes/clients.tsx
+msgid "Admin"
+msgstr "Admin"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
@@ -180,9 +192,17 @@ msgstr "AI Mapper unavailable — using fallback"
 msgid "All"
 msgstr "All"
 
+#: src/routes/clients.tsx
+msgid "All entities"
+msgstr "All entities"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "All review-flagged"
 msgstr "All review-flagged"
+
+#: src/routes/clients.tsx
+msgid "All states"
+msgstr "All states"
 
 #: src/routes/_entry-layout.tsx
 msgid "All systems operational"
@@ -215,6 +235,10 @@ msgstr "Ask"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask DueDateHQ"
 msgstr "Ask DueDateHQ"
+
+#: src/routes/clients.tsx
+msgid "Assigned"
+msgstr "Assigned"
 
 #. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/workboard.tsx
@@ -250,11 +274,21 @@ msgstr "Batch rollback trace retained for 24 hours"
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 
+#: src/routes/clients.tsx
+msgid "C corp"
+msgstr "C corp"
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "California"
 msgstr "California"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/routes/clients.tsx
+#: src/routes/settings.profile.tsx
+msgid "Cancel"
+msgstr "Cancel"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -274,20 +308,43 @@ msgstr "Candidates"
 msgid "Change status for {0}"
 msgstr "Change status for {0}"
 
+#: src/routes/clients.tsx
+msgid "Clear search or filters to return to the full firm directory."
+msgstr "Clear search or filters to return to the full firm directory."
+
+#: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Client"
 msgstr "Client"
 
+#: src/routes/clients.tsx
+msgid "Client created"
+msgstr "Client created"
+
+#: src/routes/clients.tsx
+msgid "Client detail"
+msgstr "Client detail"
+
+#: src/routes/clients.tsx
+msgid "Client directory"
+msgstr "Client directory"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT ID"
 msgstr "CLIENT ID"
+
+#: src/routes/clients.tsx
+msgid "Client name"
+msgstr "Client name"
 
 #: src/routes/dashboard.tsx
 msgid "Client risk rows"
 msgstr "Client risk rows"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/routes/_layout.tsx
+#: src/routes/clients.tsx
 msgid "Clients"
 msgstr "Clients"
 
@@ -332,9 +389,17 @@ msgstr "Continue with Google"
 msgid "Could not activate your practice"
 msgstr "Could not activate your practice"
 
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Could not create firm."
+msgstr "Could not create firm."
+
 #: src/routes/onboarding.tsx
 msgid "Could not create your practice"
 msgstr "Could not create your practice"
+
+#: src/routes/settings.profile.tsx
+msgid "Could not delete firm."
+msgstr "Could not delete firm."
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Could not load rule library."
@@ -352,13 +417,25 @@ msgstr "Could not load rules coverage."
 msgid "Could not run generation preview."
 msgstr "Could not run generation preview."
 
+#: src/routes/settings.profile.tsx
+msgid "Could not update firm."
+msgstr "Could not update firm."
+
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't apply Default Matrix"
 msgstr "Couldn't apply Default Matrix"
 
+#: src/routes/clients.tsx
+msgid "Couldn't create client"
+msgstr "Couldn't create client"
+
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't import clients"
 msgstr "Couldn't import clients"
+
+#: src/routes/clients.tsx
+msgid "Couldn't load clients"
+msgstr "Couldn't load clients"
 
 #: src/routes/dashboard.tsx
 msgid "Couldn't load dashboard"
@@ -389,6 +466,10 @@ msgstr "Couldn't undo import"
 msgid "Couldn't update status"
 msgstr "Couldn't update status"
 
+#: src/routes/clients.tsx
+msgid "County"
+msgstr "County"
+
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "Coverage"
@@ -396,6 +477,30 @@ msgstr "Coverage"
 #: src/routes/dashboard.tsx
 msgid "Coverage state for the same obligations shown on the dashboard."
 msgstr "Coverage state for the same obligations shown on the dashboard."
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
+msgstr "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
+
+#: src/routes/clients.tsx
+msgid "Create client"
+msgstr "Create client"
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Create firm"
+msgstr "Create firm"
+
+#: src/routes/clients.tsx
+msgid "Created"
+msgstr "Created"
+
+#: src/routes/clients.tsx
+msgid "Creating..."
+msgstr "Creating..."
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Creating…"
+msgstr "Creating…"
 
 #: src/routes/dashboard.tsx
 msgid "critical"
@@ -432,9 +537,13 @@ msgstr "Default Matrix applies these suggestions only where imported rows do not
 msgid "Degraded"
 msgstr "Degraded"
 
-#: src/routes/_layout.tsx
-msgid "Demo workspace"
-msgstr "Demo workspace"
+#: src/routes/settings.profile.tsx
+msgid "Delete firm"
+msgstr "Delete firm"
+
+#: src/routes/settings.profile.tsx
+msgid "Delete this firm?"
+msgstr "Delete this firm?"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -489,6 +598,7 @@ msgstr "Due this week"
 msgid "DueDateHQ field"
 msgstr "DueDateHQ field"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
 msgid "e.g. Bright CPA Practice"
 msgstr "e.g. Bright CPA Practice"
@@ -496,6 +606,14 @@ msgstr "e.g. Bright CPA Practice"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Edit"
 msgstr "Edit"
+
+#: src/routes/clients.tsx
+msgid "EIN"
+msgstr "EIN"
+
+#: src/routes/clients.tsx
+msgid "Email"
+msgstr "Email"
 
 #: src/routes/login.tsx
 msgid "Encrypted · 7-day session · SSO respected"
@@ -509,9 +627,17 @@ msgstr "Encrypted · Auto-saves · Renamable later"
 msgid "Enter execute · Esc close · {commandShortcut} toggle"
 msgstr "Enter execute · Esc close · {commandShortcut} toggle"
 
+#: src/routes/clients.tsx
+msgid "Entity"
+msgstr "Entity"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "ENTITY"
 msgstr "ENTITY"
+
+#: src/routes/clients.tsx
+msgid "Entity type"
+msgstr "Entity type"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
@@ -569,6 +695,19 @@ msgstr "Filing-frequency review"
 msgid "Filter by status, search clients, and sort by due date."
 msgstr "Filter by status, search clients, and sort by due date."
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/routes/settings.profile.tsx
+msgid "Firm name"
+msgstr "Firm name"
+
+#: src/routes/settings.profile.tsx
+msgid "Firm profile"
+msgstr "Firm profile"
+
+#: src/routes/settings.profile.tsx
+msgid "Firm settings apply only to the active tenant."
+msgstr "Firm settings apply only to the active tenant."
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -582,6 +721,14 @@ msgstr "For US CPA practices"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Form"
 msgstr "Form"
+
+#: src/routes/clients.tsx
+msgid "Free-text for now; Team members wire in Phase 1."
+msgstr "Free-text for now; Team members wire in Phase 1."
+
+#: src/routes/settings.profile.tsx
+msgid "General"
+msgstr "General"
 
 #: src/features/rules/rules-console.tsx
 msgid "Generation Preview"
@@ -612,8 +759,13 @@ msgstr "Import"
 msgid "Import & Generate"
 msgstr "Import & Generate"
 
+#: src/routes/clients.tsx
+msgid "Import a CSV or create the first manual client record."
+msgstr "Import a CSV or create the first manual client record."
+
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/clients.tsx
 msgid "Import clients"
 msgstr "Import clients"
 
@@ -633,6 +785,10 @@ msgstr "Import complete"
 msgid "Import undone"
 msgstr "Import undone"
 
+#: src/routes/clients.tsx
+msgid "Imported"
+msgstr "Imported"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Importing…"
 msgstr "Importing…"
@@ -644,6 +800,10 @@ msgstr "In progress"
 #: src/features/workboard/status-control.tsx
 msgid "In review"
 msgstr "In review"
+
+#: src/routes/clients.tsx
+msgid "Individual"
+msgstr "Individual"
 
 #: src/features/rules/rules-console.tsx
 msgid "Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded."
@@ -695,6 +855,10 @@ msgstr "Light"
 msgid "Linked"
 msgstr "Linked"
 
+#: src/routes/clients.tsx
+msgid "LLC"
+msgstr "LLC"
+
 #: src/routes/workboard.tsx
 msgid "Load more"
 msgstr "Load more"
@@ -728,6 +892,10 @@ msgstr "Loading rules coverage."
 msgid "Loading…"
 msgstr "Loading…"
 
+#: src/routes/clients.tsx
+msgid "Location"
+msgstr "Location"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Main"
 msgstr "Main"
@@ -735,6 +903,14 @@ msgstr "Main"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Manage"
 msgstr "Manage"
+
+#: src/routes/clients.tsx
+msgid "Manage the firm client directory that powers migration, rules preview, dashboard risk, and workboard obligations."
+msgstr "Manage the firm client directory that powers migration, rules preview, dashboard risk, and workboard obligations."
+
+#: src/routes/clients.tsx
+msgid "Manual"
+msgstr "Manual"
 
 #: src/features/rules/sources-tab.tsx
 msgid "Manual review source · click to open the official page"
@@ -785,6 +961,10 @@ msgstr "Needs review"
 msgid "neutral"
 msgstr "neutral"
 
+#: src/routes/clients.tsx
+msgid "New client"
+msgstr "New client"
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -795,9 +975,25 @@ msgstr "New York"
 msgid "Next review"
 msgstr "Next review"
 
+#: src/routes/settings.profile.tsx
+msgid "No active firm is selected."
+msgstr "No active firm is selected."
+
+#: src/routes/clients.tsx
+msgid "No clients match these filters"
+msgstr "No clients match these filters"
+
+#: src/routes/clients.tsx
+msgid "No clients yet"
+msgstr "No clients yet"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "No commands found."
 msgstr "No commands found."
+
+#: src/routes/clients.tsx
+msgid "No email"
+msgstr "No email"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
@@ -810,6 +1006,10 @@ msgstr "No extension available."
 #: src/routes/dashboard.tsx
 msgid "No generated obligations yet."
 msgstr "No generated obligations yet."
+
+#: src/routes/clients.tsx
+msgid "No notes."
+msgstr "No notes."
 
 #: src/routes/workboard.tsx
 msgid "No obligations match these filters."
@@ -842,6 +1042,10 @@ msgstr "Normalizer warning"
 #: src/features/workboard/status-control.tsx
 msgid "Not applicable"
 msgstr "Not applicable"
+
+#: src/routes/clients.tsx
+msgid "Notes"
+msgstr "Notes"
 
 #: src/components/patterns/app-shell.tsx
 msgid "Notifications"
@@ -920,17 +1124,21 @@ msgstr "Operations"
 msgid "or"
 msgstr "or"
 
-#: src/routes/_layout.tsx
-msgid "Owner · demo seat"
-msgstr "Owner · demo seat"
+#: src/routes/clients.tsx
+msgid "Other"
+msgstr "Other"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "P1"
-msgstr "P1"
+#: src/routes/clients.tsx
+msgid "Owner"
+msgstr "Owner"
 
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "Page not found"
+
+#: src/routes/clients.tsx
+msgid "Partnership"
+msgstr "Partnership"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste client data"
@@ -961,12 +1169,15 @@ msgstr "Pending"
 msgid "pending ops review"
 msgstr "pending ops review"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
+#: src/routes/settings.profile.tsx
 msgid "Please enter at least 2 characters."
 msgstr "Please enter at least 2 characters."
 
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/migration/Wizard.tsx
+#: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
@@ -987,6 +1198,7 @@ msgid "Primary navigation"
 msgstr "Primary navigation"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/routes/_layout.tsx
 msgid "Profile"
 msgstr "Profile"
 
@@ -1013,6 +1225,10 @@ msgstr "Re-run failed."
 #: src/features/rules/rules-console-primitives.tsx
 msgid "READ-ONLY"
 msgstr "READ-ONLY"
+
+#: src/routes/clients.tsx
+msgid "Read-only v1 snapshot from clients.get/listByFirm data."
+msgstr "Read-only v1 snapshot from clients.get/listByFirm data."
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Ready to generate your deadline queue"
@@ -1047,6 +1263,10 @@ msgstr "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgid "reminder-ready across MVP scope"
 msgstr "reminder-ready across MVP scope"
 
+#: src/routes/clients.tsx
+msgid "represented in directory"
+msgstr "represented in directory"
+
 #. placeholder {0}: requiresReview.length
 #: src/features/rules/generation-preview-tab.tsx
 msgid "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
@@ -1060,6 +1280,7 @@ msgstr "Reserved"
 msgid "Reset"
 msgstr "Reset"
 
+#: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Retry"
@@ -1127,6 +1348,7 @@ msgstr "Rules"
 msgid "Rules Console"
 msgstr "Rules Console"
 
+#: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Run migration"
@@ -1152,6 +1374,10 @@ msgstr "Run the migration wizard to import a CSV of clients, or change the filte
 msgid "Running…"
 msgstr "Running…"
 
+#: src/routes/clients.tsx
+msgid "S corp"
+msgstr "S corp"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Safety"
 msgstr "Safety"
@@ -1160,6 +1386,15 @@ msgstr "Safety"
 msgid "Sample"
 msgstr "Sample"
 
+#: src/routes/settings.profile.tsx
+msgid "Save changes"
+msgstr "Save changes"
+
+#: src/routes/settings.profile.tsx
+msgid "Saving…"
+msgstr "Saving…"
+
+#: src/routes/clients.tsx
 #: src/routes/workboard.tsx
 msgid "Search clients"
 msgstr "Search clients"
@@ -1176,6 +1411,14 @@ msgstr "Search, ask, or navigate."
 msgid "Search, ask, or navigate..."
 msgstr "Search, ask, or navigate..."
 
+#: src/routes/clients.tsx
+msgid "Search, segment, and inspect active tenant client records."
+msgstr "Search, segment, and inspect active tenant client records."
+
+#: src/routes/clients.tsx
+msgid "Select a client to inspect the record."
+msgstr "Select a client to inspect the record."
+
 #: src/routes/dashboard.tsx
 msgid "Server-computed obligation risk for the next operating window."
 msgstr "Server-computed obligation risk for the next operating window."
@@ -1191,6 +1434,7 @@ msgstr "Setting up your practice…"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
+#: src/routes/settings.profile.tsx
 msgid "Settings"
 msgstr "Settings"
 
@@ -1244,6 +1488,10 @@ msgstr "Signed in"
 msgid "Signing out…"
 msgstr "Signing out…"
 
+#: src/routes/clients.tsx
+msgid "Sole prop"
+msgstr "Sole prop"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Something went wrong"
 msgstr "Something went wrong"
@@ -1261,6 +1509,7 @@ msgid "source"
 msgstr "source"
 
 #: src/features/rules/generation-preview-tab.tsx
+#: src/routes/clients.tsx
 msgid "Source"
 msgstr "Source"
 
@@ -1288,11 +1537,16 @@ msgstr "Sources watched"
 msgid "SSN-like columns blocked"
 msgstr "SSN-like columns blocked"
 
+#: src/routes/clients.tsx
+msgid "State"
+msgstr "State"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "STATE"
 msgstr "STATE"
 
 #: src/features/migration/Step3Normalize.tsx
+#: src/routes/clients.tsx
 msgid "States"
 msgstr "States"
 
@@ -1348,6 +1602,10 @@ msgstr "TAX YEAR"
 msgid "Team workload"
 msgstr "Team workload"
 
+#: src/routes/clients.tsx
+msgid "tenant-scoped records"
+msgstr "tenant-scoped records"
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -1357,6 +1615,10 @@ msgstr "Texas"
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
 msgstr "That resource belongs to a different practice."
+
+#: src/routes/settings.profile.tsx
+msgid "The firm will be removed from the picker. Audit history stays retained for compliance."
+msgstr "The firm will be removed from the picker. Audit history stays retained for compliance."
 
 #: src/features/migration/Step4Preview.tsx
 msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
@@ -1382,6 +1644,15 @@ msgstr "This is what your team and clients will see."
 msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 msgstr "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 
+#: src/routes/settings.profile.tsx
+msgid "This soft-deletes the active firm and moves you to another available firm."
+msgstr "This soft-deletes the active firm and moves you to another available firm."
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/routes/settings.profile.tsx
+msgid "Timezone"
+msgstr "Timezone"
+
 #: src/routes/dashboard.tsx
 msgid "Today queue"
 msgstr "Today queue"
@@ -1394,9 +1665,17 @@ msgstr "Too many requests. Please try again in a moment."
 msgid "Top obligations are sorted by deterministic due-date severity."
 msgstr "Top obligations are sorted by deterministic due-date severity."
 
+#: src/routes/clients.tsx
+msgid "Trust"
+msgstr "Trust"
+
 #: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
 msgstr "Unable to start Google sign-in"
+
+#: src/routes/clients.tsx
+msgid "Unassigned"
+msgstr "Unassigned"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo import"
@@ -1409,6 +1688,10 @@ msgstr "Undo this import?"
 #: src/routes/error.tsx
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
+
+#: src/routes/clients.tsx
+msgid "Updated"
+msgstr "Updated"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "verifiable per (jurisdiction, entity) pair"
@@ -1504,6 +1787,10 @@ msgstr "Welcome back to the workbench."
 #: src/features/migration/Step1Intake.tsx
 msgid "Where is your data coming from?"
 msgstr "Where is your data coming from?"
+
+#: src/routes/clients.tsx
+msgid "with owner names"
+msgstr "with owner names"
 
 #: src/features/migration/WizardShell.tsx
 #: src/routes/_layout.tsx

@@ -158,13 +158,25 @@ msgstr "本周到期 {0} 项。"
 msgid "Actions"
 msgstr "操作"
 
+#. placeholder {0}: firm.plan
+#. placeholder {1}: firm.seatLimit
+#: src/routes/settings.profile.tsx
+msgid "Active firm · {0} plan · {1} seat limit"
+msgstr "当前事务所 · {0} 计划 · {1} 个席位上限"
+
+#: src/routes/clients.tsx
+msgid "Add a manual client record to the active firm directory."
+msgstr "添加手动客户记录到当前事务所目录。"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Add firm"
 msgstr "添加事务所"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Admin · P1"
-msgstr "管理 · P1"
+#: src/routes/_layout.tsx
+#: src/routes/clients.tsx
+msgid "Admin"
+msgstr "管理"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
@@ -180,9 +192,17 @@ msgstr "AI 映射器不可用 —— 已使用降级方案"
 msgid "All"
 msgstr "全部"
 
+#: src/routes/clients.tsx
+msgid "All entities"
+msgstr "全部实体"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "All review-flagged"
 msgstr "全部复核"
+
+#: src/routes/clients.tsx
+msgid "All states"
+msgstr "全部州"
 
 #: src/routes/_entry-layout.tsx
 msgid "All systems operational"
@@ -215,6 +235,10 @@ msgstr "提问"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask DueDateHQ"
 msgstr "询问 DueDateHQ"
+
+#: src/routes/clients.tsx
+msgid "Assigned"
+msgstr "已分配"
 
 #. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/workboard.tsx
@@ -250,11 +274,21 @@ msgstr "保留 24 小时批次回滚追踪"
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "登录即表示你同意 <termsLink>服务条款</termsLink> 与 <privacyLink>隐私政策</privacyLink>。登录遇到问题？请联系 <supportLink>support@duedatehq.com</supportLink>。"
 
+#: src/routes/clients.tsx
+msgid "C corp"
+msgstr "C 公司"
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "California"
 msgstr "加利福尼亚"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/routes/clients.tsx
+#: src/routes/settings.profile.tsx
+msgid "Cancel"
+msgstr "取消"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -274,20 +308,43 @@ msgstr "Candidate"
 msgid "Change status for {0}"
 msgstr "修改 {0} 的状态"
 
+#: src/routes/clients.tsx
+msgid "Clear search or filters to return to the full firm directory."
+msgstr "清除搜索或筛选以返回完整事务所目录。"
+
+#: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Client"
 msgstr "客户"
 
+#: src/routes/clients.tsx
+msgid "Client created"
+msgstr "客户已创建"
+
+#: src/routes/clients.tsx
+msgid "Client detail"
+msgstr "客户详情"
+
+#: src/routes/clients.tsx
+msgid "Client directory"
+msgstr "客户目录"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT ID"
 msgstr "客户 ID"
+
+#: src/routes/clients.tsx
+msgid "Client name"
+msgstr "客户名称"
 
 #: src/routes/dashboard.tsx
 msgid "Client risk rows"
 msgstr "客户风险行"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/routes/_layout.tsx
+#: src/routes/clients.tsx
 msgid "Clients"
 msgstr "客户"
 
@@ -332,9 +389,17 @@ msgstr "使用 Google 继续"
 msgid "Could not activate your practice"
 msgstr "无法激活你的事务所"
 
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Could not create firm."
+msgstr "无法创建事务所。"
+
 #: src/routes/onboarding.tsx
 msgid "Could not create your practice"
 msgstr "无法创建你的事务所"
+
+#: src/routes/settings.profile.tsx
+msgid "Could not delete firm."
+msgstr "无法删除事务所。"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Could not load rule library."
@@ -352,13 +417,25 @@ msgstr "无法加载规则覆盖。"
 msgid "Could not run generation preview."
 msgstr "无法运行生成预览。"
 
+#: src/routes/settings.profile.tsx
+msgid "Could not update firm."
+msgstr "无法更新事务所。"
+
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't apply Default Matrix"
 msgstr "应用默认税种矩阵失败"
 
+#: src/routes/clients.tsx
+msgid "Couldn't create client"
+msgstr "无法创建客户"
+
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't import clients"
 msgstr "导入客户失败"
+
+#: src/routes/clients.tsx
+msgid "Couldn't load clients"
+msgstr "无法加载客户"
 
 #: src/routes/dashboard.tsx
 msgid "Couldn't load dashboard"
@@ -389,6 +466,10 @@ msgstr "无法撤销导入"
 msgid "Couldn't update status"
 msgstr "状态更新失败"
 
+#: src/routes/clients.tsx
+msgid "County"
+msgstr "县"
+
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "覆盖"
@@ -396,6 +477,30 @@ msgstr "覆盖"
 #: src/routes/dashboard.tsx
 msgid "Coverage state for the same obligations shown on the dashboard."
 msgstr "当前仪表盘义务的 evidence 覆盖状态。"
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
+msgstr "创建一个独立租户，拥有独立的客户、截止日、审计轨迹和设置。"
+
+#: src/routes/clients.tsx
+msgid "Create client"
+msgstr "创建客户"
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Create firm"
+msgstr "创建事务所"
+
+#: src/routes/clients.tsx
+msgid "Created"
+msgstr "创建时间"
+
+#: src/routes/clients.tsx
+msgid "Creating..."
+msgstr "正在创建..."
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Creating…"
+msgstr "正在创建…"
 
 #: src/routes/dashboard.tsx
 msgid "critical"
@@ -432,9 +537,13 @@ msgstr "Default Matrix 仅在导入行未包含税种时应用这些建议。"
 msgid "Degraded"
 msgstr "降级"
 
-#: src/routes/_layout.tsx
-msgid "Demo workspace"
-msgstr "演示工作区"
+#: src/routes/settings.profile.tsx
+msgid "Delete firm"
+msgstr "删除事务所"
+
+#: src/routes/settings.profile.tsx
+msgid "Delete this firm?"
+msgstr "删除这个事务所？"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -489,6 +598,7 @@ msgstr "本周到期"
 msgid "DueDateHQ field"
 msgstr "DueDateHQ 字段"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
 msgid "e.g. Bright CPA Practice"
 msgstr "例如：Bright CPA Practice"
@@ -496,6 +606,14 @@ msgstr "例如：Bright CPA Practice"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Edit"
 msgstr "编辑"
+
+#: src/routes/clients.tsx
+msgid "EIN"
+msgstr "EIN"
+
+#: src/routes/clients.tsx
+msgid "Email"
+msgstr "邮箱"
 
 #: src/routes/login.tsx
 msgid "Encrypted · 7-day session · SSO respected"
@@ -509,9 +627,17 @@ msgstr "全程加密 · 自动保存 · 可随时重命名"
 msgid "Enter execute · Esc close · {commandShortcut} toggle"
 msgstr "Enter 执行 · Esc 关闭 · {commandShortcut} 切换"
 
+#: src/routes/clients.tsx
+msgid "Entity"
+msgstr "实体"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "ENTITY"
 msgstr "实体"
+
+#: src/routes/clients.tsx
+msgid "Entity type"
+msgstr "实体类型"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Entity types"
@@ -569,6 +695,19 @@ msgstr "申报频率复核"
 msgid "Filter by status, search clients, and sort by due date."
 msgstr "按状态筛选，按客户搜索，并按到期日排序。"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/routes/settings.profile.tsx
+msgid "Firm name"
+msgstr "事务所名称"
+
+#: src/routes/settings.profile.tsx
+msgid "Firm profile"
+msgstr "事务所资料"
+
+#: src/routes/settings.profile.tsx
+msgid "Firm settings apply only to the active tenant."
+msgstr "事务所设置只作用于当前激活的租户。"
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -582,6 +721,14 @@ msgstr "面向美国注册会计师事务所"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Form"
 msgstr "表单"
+
+#: src/routes/clients.tsx
+msgid "Free-text for now; Team members wire in Phase 1."
+msgstr "暂为自由文本；团队成员将在 Phase 1 接入。"
+
+#: src/routes/settings.profile.tsx
+msgid "General"
+msgstr "常规"
 
 #: src/features/rules/rules-console.tsx
 msgid "Generation Preview"
@@ -612,8 +759,13 @@ msgstr "导入"
 msgid "Import & Generate"
 msgstr "导入并生成"
 
+#: src/routes/clients.tsx
+msgid "Import a CSV or create the first manual client record."
+msgstr "导入 CSV，或创建第一条手动客户记录。"
+
 #: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/clients.tsx
 msgid "Import clients"
 msgstr "导入客户"
 
@@ -633,6 +785,10 @@ msgstr "导入完成"
 msgid "Import undone"
 msgstr "导入已撤销"
 
+#: src/routes/clients.tsx
+msgid "Imported"
+msgstr "已导入"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Importing…"
 msgstr "正在导入…"
@@ -644,6 +800,10 @@ msgstr "进行中"
 #: src/features/workboard/status-control.tsx
 msgid "In review"
 msgstr "复核中"
+
+#: src/routes/clients.tsx
+msgid "Individual"
+msgstr "个人"
 
 #: src/features/rules/rules-console.tsx
 msgid "Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded."
@@ -695,6 +855,10 @@ msgstr "浅色"
 msgid "Linked"
 msgstr "已链接"
 
+#: src/routes/clients.tsx
+msgid "LLC"
+msgstr "LLC"
+
 #: src/routes/workboard.tsx
 msgid "Load more"
 msgstr "加载更多"
@@ -728,6 +892,10 @@ msgstr "正在加载规则覆盖。"
 msgid "Loading…"
 msgstr "加载中…"
 
+#: src/routes/clients.tsx
+msgid "Location"
+msgstr "地点"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Main"
 msgstr "主导航"
@@ -735,6 +903,14 @@ msgstr "主导航"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Manage"
 msgstr "管理"
+
+#: src/routes/clients.tsx
+msgid "Manage the firm client directory that powers migration, rules preview, dashboard risk, and workboard obligations."
+msgstr "管理事务所客户目录，它会驱动迁移、规则预览、仪表盘风险和 Workboard 义务。"
+
+#: src/routes/clients.tsx
+msgid "Manual"
+msgstr "手动"
 
 #: src/features/rules/sources-tab.tsx
 msgid "Manual review source · click to open the official page"
@@ -785,6 +961,10 @@ msgstr "需复核"
 msgid "neutral"
 msgstr "常规"
 
+#: src/routes/clients.tsx
+msgid "New client"
+msgstr "新客户"
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -795,9 +975,25 @@ msgstr "纽约"
 msgid "Next review"
 msgstr "下次复核"
 
+#: src/routes/settings.profile.tsx
+msgid "No active firm is selected."
+msgstr "当前未选择事务所。"
+
+#: src/routes/clients.tsx
+msgid "No clients match these filters"
+msgstr "没有客户匹配这些筛选条件"
+
+#: src/routes/clients.tsx
+msgid "No clients yet"
+msgstr "还没有客户"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "No commands found."
 msgstr "未找到命令。"
+
+#: src/routes/clients.tsx
+msgid "No email"
+msgstr "无邮箱"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "No emails will be sent automatically"
@@ -810,6 +1006,10 @@ msgstr "无可用延期。"
 #: src/routes/dashboard.tsx
 msgid "No generated obligations yet."
 msgstr "尚未生成义务。"
+
+#: src/routes/clients.tsx
+msgid "No notes."
+msgstr "无备注。"
 
 #: src/routes/workboard.tsx
 msgid "No obligations match these filters."
@@ -842,6 +1042,10 @@ msgstr "规范化警告"
 #: src/features/workboard/status-control.tsx
 msgid "Not applicable"
 msgstr "不适用"
+
+#: src/routes/clients.tsx
+msgid "Notes"
+msgstr "备注"
 
 #: src/components/patterns/app-shell.tsx
 msgid "Notifications"
@@ -920,17 +1124,21 @@ msgstr "运营"
 msgid "or"
 msgstr "或"
 
-#: src/routes/_layout.tsx
-msgid "Owner · demo seat"
-msgstr "所有者 · 演示席位"
+#: src/routes/clients.tsx
+msgid "Other"
+msgstr "其他"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "P1"
-msgstr "P1"
+#: src/routes/clients.tsx
+msgid "Owner"
+msgstr "负责人"
 
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "未找到页面"
+
+#: src/routes/clients.tsx
+msgid "Partnership"
+msgstr "合伙企业"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste client data"
@@ -961,12 +1169,15 @@ msgstr "待处理"
 msgid "pending ops review"
 msgstr "等待 ops 复核"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
+#: src/routes/settings.profile.tsx
 msgid "Please enter at least 2 characters."
 msgstr "请至少输入 2 个字符。"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/migration/Wizard.tsx
+#: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
@@ -987,6 +1198,7 @@ msgid "Primary navigation"
 msgstr "主导航"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/routes/_layout.tsx
 msgid "Profile"
 msgstr "个人资料"
 
@@ -1013,6 +1225,10 @@ msgstr "重新运行失败。"
 #: src/features/rules/rules-console-primitives.tsx
 msgid "READ-ONLY"
 msgstr "只读"
+
+#: src/routes/clients.tsx
+msgid "Read-only v1 snapshot from clients.get/listByFirm data."
+msgstr "来自 clients.get/listByFirm 数据的只读 v1 快照。"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Ready to generate your deadline queue"
@@ -1047,6 +1263,10 @@ msgstr "提醒就绪 — {0} 项义务，将触发 30 / 7 / 1 天提醒"
 msgid "reminder-ready across MVP scope"
 msgstr "MVP 范围内可触发提醒"
 
+#: src/routes/clients.tsx
+msgid "represented in directory"
+msgstr "目录中覆盖的州"
+
 #. placeholder {0}: requiresReview.length
 #: src/features/rules/generation-preview-tab.tsx
 msgid "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
@@ -1060,6 +1280,7 @@ msgstr "已预留"
 msgid "Reset"
 msgstr "重置"
 
+#: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Retry"
@@ -1127,6 +1348,7 @@ msgstr "规则"
 msgid "Rules Console"
 msgstr "规则控制台"
 
+#: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Run migration"
@@ -1152,6 +1374,10 @@ msgstr "运行迁移向导导入客户 CSV，或调整上方筛选条件。"
 msgid "Running…"
 msgstr "运行中…"
 
+#: src/routes/clients.tsx
+msgid "S corp"
+msgstr "S 公司"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Safety"
 msgstr "安全保障"
@@ -1160,6 +1386,15 @@ msgstr "安全保障"
 msgid "Sample"
 msgstr "样例"
 
+#: src/routes/settings.profile.tsx
+msgid "Save changes"
+msgstr "保存更改"
+
+#: src/routes/settings.profile.tsx
+msgid "Saving…"
+msgstr "正在保存…"
+
+#: src/routes/clients.tsx
 #: src/routes/workboard.tsx
 msgid "Search clients"
 msgstr "搜索客户"
@@ -1176,6 +1411,14 @@ msgstr "搜索、提问或导航。"
 msgid "Search, ask, or navigate..."
 msgstr "搜索、提问或导航..."
 
+#: src/routes/clients.tsx
+msgid "Search, segment, and inspect active tenant client records."
+msgstr "搜索、分组并查看有效租户客户记录。"
+
+#: src/routes/clients.tsx
+msgid "Select a client to inspect the record."
+msgstr "选择一个客户以查看记录。"
+
 #: src/routes/dashboard.tsx
 msgid "Server-computed obligation risk for the next operating window."
 msgstr "由服务端计算的下一工作窗口义务风险。"
@@ -1191,6 +1434,7 @@ msgstr "正在设置你的事务所…"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
+#: src/routes/settings.profile.tsx
 msgid "Settings"
 msgstr "设置"
 
@@ -1244,6 +1488,10 @@ msgstr "已登录"
 msgid "Signing out…"
 msgstr "正在退出…"
 
+#: src/routes/clients.tsx
+msgid "Sole prop"
+msgstr "个体经营"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Something went wrong"
 msgstr "出现了一些问题"
@@ -1261,6 +1509,7 @@ msgid "source"
 msgstr "来源"
 
 #: src/features/rules/generation-preview-tab.tsx
+#: src/routes/clients.tsx
 msgid "Source"
 msgstr "来源"
 
@@ -1288,11 +1537,16 @@ msgstr "监听中的来源"
 msgid "SSN-like columns blocked"
 msgstr "已拦截疑似 SSN 列"
 
+#: src/routes/clients.tsx
+msgid "State"
+msgstr "州"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "STATE"
 msgstr "州"
 
 #: src/features/migration/Step3Normalize.tsx
+#: src/routes/clients.tsx
 msgid "States"
 msgstr "州"
 
@@ -1348,6 +1602,10 @@ msgstr "税务年度"
 msgid "Team workload"
 msgstr "团队工作负载"
 
+#: src/routes/clients.tsx
+msgid "tenant-scoped records"
+msgstr "租户范围记录"
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -1357,6 +1615,10 @@ msgstr "德克萨斯"
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
 msgstr "该资源属于其他事务所。"
+
+#: src/routes/settings.profile.tsx
+msgid "The firm will be removed from the picker. Audit history stays retained for compliance."
+msgstr "该事务所会从切换器中移除。审计历史会继续保留以满足合规要求。"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
@@ -1382,6 +1644,15 @@ msgstr "你的团队和客户都会看到这个名字。"
 msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 msgstr "这会移除此导入创建的客户和截止日。其他事务所数据不会被更改。"
 
+#: src/routes/settings.profile.tsx
+msgid "This soft-deletes the active firm and moves you to another available firm."
+msgstr "这会软删除当前事务所，并将你切换到另一个可用事务所。"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/routes/settings.profile.tsx
+msgid "Timezone"
+msgstr "时区"
+
 #: src/routes/dashboard.tsx
 msgid "Today queue"
 msgstr "今日队列"
@@ -1394,9 +1665,17 @@ msgstr "请求过于频繁，请稍后再试。"
 msgid "Top obligations are sorted by deterministic due-date severity."
 msgstr "首屏义务按确定性的到期严重度排序。"
 
+#: src/routes/clients.tsx
+msgid "Trust"
+msgstr "信托"
+
 #: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
 msgstr "无法启动 Google 登录"
+
+#: src/routes/clients.tsx
+msgid "Unassigned"
+msgstr "未分配"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo import"
@@ -1409,6 +1688,10 @@ msgstr "撤销这次导入？"
 #: src/routes/error.tsx
 msgid "Unexpected route error"
 msgstr "路由出现意外错误"
+
+#: src/routes/clients.tsx
+msgid "Updated"
+msgstr "更新时间"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "verifiable per (jurisdiction, entity) pair"
@@ -1506,6 +1789,10 @@ msgstr ""
 #: src/features/migration/Step1Intake.tsx
 msgid "Where is your data coming from?"
 msgstr "你的数据从哪里来？"
+
+#: src/routes/clients.tsx
+msgid "with owner names"
+msgstr "有负责人姓名"
 
 #: src/features/migration/WizardShell.tsx
 #: src/routes/_layout.tsx

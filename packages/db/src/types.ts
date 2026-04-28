@@ -4,6 +4,10 @@ import type { AuditRepo as RealAuditRepo } from './repo/audit'
 import type { ClientsRepo as RealClientsRepo } from './repo/clients'
 import type { DashboardRepo as RealDashboardRepo } from './repo/dashboard'
 import type { EvidenceRepo as RealEvidenceRepo } from './repo/evidence'
+import type {
+  FirmMembershipRow as RealFirmMembershipRow,
+  FirmsRepo as RealFirmsRepo,
+} from './repo/firms'
 import type { MigrationRepo as RealMigrationRepo } from './repo/migration'
 import type { ObligationsRepo as RealObligationsRepo } from './repo/obligations'
 import type { WorkboardRepo as RealWorkboardRepo } from './repo/workboard'
@@ -11,6 +15,8 @@ import type { FirmProfile } from './schema/firm'
 
 export type { Db }
 export type { FirmProfile, NewFirmProfile } from './schema/firm'
+export type FirmsRepo = RealFirmsRepo
+export type FirmMembershipRow = RealFirmMembershipRow
 
 /**
  * TenantContext — the resolved business-tenant view for the current request.

@@ -1,0 +1,242 @@
+import { useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Trans, useLingui } from '@lingui/react/macro'
+import { Building2Icon, Trash2Icon } from 'lucide-react'
+import type { FirmPublic } from '@duedatehq/contracts'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@duedatehq/ui/components/ui/alert-dialog'
+import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Button } from '@duedatehq/ui/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@duedatehq/ui/components/ui/card'
+import { Input } from '@duedatehq/ui/components/ui/input'
+import { Label } from '@duedatehq/ui/components/ui/label'
+import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { orpc } from '@/lib/rpc'
+
+export function SettingsProfileRoute() {
+  const currentQuery = useQuery(orpc.firms.getCurrent.queryOptions({ input: undefined }))
+
+  if (currentQuery.isLoading) {
+    return <ProfileSkeleton />
+  }
+
+  if (!currentQuery.data) {
+    return (
+      <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-4 py-6 md:px-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Trans>Firm profile</Trans>
+            </CardTitle>
+            <CardDescription>
+              <Trans>No active firm is selected.</Trans>
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
+
+  return <FirmProfileForm key={currentQuery.data.id} firm={currentQuery.data} />
+}
+
+function FirmProfileForm({ firm }: { firm: FirmPublic }) {
+  const { t } = useLingui()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const [name, setName] = useState(firm.name)
+  const [timezone, setTimezone] = useState(firm.timezone)
+  const [error, setError] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const updateMutation = useMutation(
+    orpc.firms.updateCurrent.mutationOptions({
+      onSuccess: () => {
+        setError(null)
+        void queryClient.invalidateQueries({ queryKey: orpc.firms.key() })
+      },
+      onError: (err) => {
+        setError(err.message || t`Could not update firm.`)
+      },
+    }),
+  )
+
+  const deleteMutation = useMutation(
+    orpc.firms.softDeleteCurrent.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries()
+        void navigate(result.nextFirmId ? '/' : '/onboarding', { replace: true })
+      },
+      onError: (err) => {
+        setError(err.message || t`Could not delete firm.`)
+      },
+    }),
+  )
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const trimmed = name.trim()
+    const nextTimezone = timezone.trim() || 'America/New_York'
+    if (trimmed.length < 2) {
+      setError(t`Please enter at least 2 characters.`)
+      return
+    }
+    updateMutation.mutate({ name: trimmed, timezone: nextTimezone })
+  }
+
+  const dirty =
+    name.trim() !== firm.name || (timezone.trim() || 'America/New_York') !== firm.timezone
+
+  return (
+    <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-4 py-6 md:px-6">
+      <section className="flex flex-col gap-2">
+        <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+          <Trans>Settings</Trans>
+        </span>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-md bg-brand-primary text-text-inverted">
+              <Building2Icon className="size-4" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <h1 className="truncate text-2xl font-semibold leading-tight text-text-primary">
+                <Trans>Firm profile</Trans>
+              </h1>
+              <p className="truncate text-sm text-text-secondary">
+                <Trans>
+                  Active firm · {firm.plan} plan · {firm.seatLimit} seat limit
+                </Trans>
+              </p>
+            </div>
+          </div>
+          <Badge variant="outline" className="font-mono tabular-nums">
+            {firm.role}
+          </Badge>
+        </div>
+      </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Trans>General</Trans>
+          </CardTitle>
+          <CardDescription>
+            <Trans>Firm settings apply only to the active tenant.</Trans>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="grid gap-5">
+            <div className="grid gap-1.5">
+              <Label htmlFor="firm-name">
+                <Trans>Firm name</Trans>
+              </Label>
+              <Input
+                id="firm-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                autoComplete="organization"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="firm-timezone">
+                <Trans>Timezone</Trans>
+              </Label>
+              <Input
+                id="firm-timezone"
+                value={timezone}
+                onChange={(event) => setTimezone(event.target.value)}
+                autoComplete="off"
+              />
+            </div>
+            {error ? (
+              <p role="alert" className="text-sm text-text-destructive">
+                {error}
+              </p>
+            ) : null}
+            <div className="flex justify-end">
+              <Button type="submit" disabled={!dirty || updateMutation.isPending}>
+                {updateMutation.isPending ? <Trans>Saving…</Trans> : <Trans>Save changes</Trans>}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Trans>Delete firm</Trans>
+          </CardTitle>
+          <CardDescription>
+            <Trans>
+              This soft-deletes the active firm and moves you to another available firm.
+            </Trans>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-end">
+          <Button
+            type="button"
+            variant="destructive-secondary"
+            onClick={() => setConfirmDelete(true)}
+            disabled={deleteMutation.isPending}
+          >
+            <Trash2Icon className="size-4" aria-hidden />
+            <Trans>Delete firm</Trans>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              <Trans>Delete this firm?</Trans>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <Trans>
+                The firm will be removed from the picker. Audit history stays retained for
+                compliance.
+              </Trans>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              <Trans>Cancel</Trans>
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive-primary"
+              onClick={() => deleteMutation.mutate(undefined)}
+            >
+              <Trans>Delete firm</Trans>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
+
+function ProfileSkeleton() {
+  return (
+    <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-4 py-6 md:px-6">
+      <Skeleton className="h-10 w-56" />
+      <Skeleton className="h-52 w-full rounded-lg" />
+      <Skeleton className="h-40 w-full rounded-lg" />
+    </div>
+  )
+}

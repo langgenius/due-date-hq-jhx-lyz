@@ -114,12 +114,14 @@ const statement = {
 - `tenantMiddleware` 读取 `firm_profile`；若 org + active membership 存在但 profile 缺失，则 lazy create 自愈
 - `firm_profile.status !== 'active'` → `TENANT_SUSPENDED`
 - 注入 `c.set('tenantContext', ...)` + `c.set('scoped', scoped(db, firmId))`
+- `firms.*` RPC 是租户选择层例外：`listMine / create / switchActive / updateCurrent / softDeleteCurrent` 只要求 authenticated session + active membership 校验，不要求当前 `tenantContext`。这些 procedure 不读取业务表，只管理 `organization / member / firm_profile / session.activeOrganizationId`。
 
 ### 4.2 Repo 工厂层（约束）
 
 - `scoped(db, firmId)` 是 `packages/db` 唯一对外导出
 - 所有 repo 内部硬编码 `WHERE firm_id = :firmId`
 - `firmId` 只能从 middleware 注入，不能从 procedure `input` 接
+- 跨 firm 的 `makeFirmsRepo(db)` 只能用于租户选择和 firm profile 管理；不得复用为业务数据后门。
 - 若 tenant-scoped row 同时引用另一张 tenant-scoped 表（例如 obligation → client、evidence → obligation），repo 必须在写入前验证 parent row 属于同一个 `firmId`，避免只靠单列 FK 产生跨租户错连
 
 ### 4.3 Lint 层（静态隔离）

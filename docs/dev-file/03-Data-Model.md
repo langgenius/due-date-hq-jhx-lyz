@@ -102,6 +102,13 @@ packages/db/
 1. **正常路径**：`apps/server/src/auth.ts` 注入的 `organizationHooks.afterCreateOrganization`（在 `apps/server/src/organization-hooks.ts` 工厂里），`organization.create` 完成后同请求 INSERT 一行 firm_profile
 2. **自愈路径**：`apps/server/src/middleware/tenant.ts` 在缺失时 lazy create —— 读 `organization` 行 + 找 `member.role='owner'` 最早一条 → INSERT。代价：缺失场景的请求多 1 次 select + 1 次 insert，下次起回正常路径
 
+**2026-04-28 multi-firm foundation**：
+
+- `packages/db/src/repo/firms.ts` 是跨 firm 的只读/管理入口，用于 `listMine / getCurrent / switchActive / create / update / softDelete`。它只按 `userId + active member` 查询用户可访问 firm，不暴露任意 `firmId` 读取。
+- 普通业务数据仍必须走 `scoped(db, firmId)`；firm 管理 repo 是身份/租户选择层的例外，不允许业务 procedure 用它读取 tenant-scoped rows。
+- `organizationLimit` 已放开以支持一个用户创建多个 firm；`invitationLimit:0` 和 `beforeAddMember(role!='owner')` 仍然关闭 Team/Members 扩展，直到 P1-18/P1-19。
+- `firm_profile.status='deleted'` 是当前 firm 删除路径；不会调用 Better Auth hard delete，避免 `organization -> firm_profile -> business data` 级联物理删除。
+
 **加列原则**：
 
 - D1 加列零成本，按需 ALTER

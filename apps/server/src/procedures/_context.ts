@@ -13,6 +13,7 @@ import type { Env, ContextVars } from '../env'
  */
 export interface RpcContext {
   env: Env
+  request: Request
   vars: ContextVars
 }
 
@@ -32,4 +33,17 @@ export function requireTenant(ctx: RpcContext): {
     throw new Error('Tenant middleware did not run before this procedure.')
   }
   return { scoped, tenant: tenantContext, userId }
+}
+
+export function requireSession(ctx: RpcContext): {
+  firms: NonNullable<ContextVars['firms']>
+  session: NonNullable<ContextVars['session']>
+  user: NonNullable<ContextVars['user']>
+  userId: string
+} {
+  const { firms, session, user, userId } = ctx.vars
+  if (!firms || !session || !user || !userId) {
+    throw new Error('Session middleware did not run before this procedure.')
+  }
+  return { firms, session, user, userId }
 }

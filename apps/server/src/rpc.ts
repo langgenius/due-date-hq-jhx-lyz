@@ -29,7 +29,7 @@ export async function rpcHandler(
 ): Promise<Response> {
   const { matched, response } = await handler.handle(request, {
     prefix: '/rpc',
-    context: { env, vars: meta.vars },
+    context: { env, request, vars: meta.vars },
   })
 
   if (!matched) {

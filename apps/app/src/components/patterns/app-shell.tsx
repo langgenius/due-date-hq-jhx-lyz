@@ -13,8 +13,9 @@ import {
   SidebarTrigger,
 } from '@duedatehq/ui/components/ui/sidebar'
 import type { ThemePreference } from '@duedatehq/ui/theme'
-import { FirmSwitcherTrigger, NavGroups, type FirmSummary } from './app-shell-nav'
+import { FirmSwitcherTrigger, NavGroups } from './app-shell-nav'
 import { UserMenuTrigger } from './app-shell-user-menu'
+import type { FirmPublic } from '@duedatehq/contracts'
 import type { AuthUser } from '@/lib/auth'
 
 /**
@@ -42,7 +43,8 @@ type RouteSummary = {
 
 export type AppShellProps = {
   user: AuthUser
-  firm: FirmSummary
+  firm: FirmPublic
+  firms: FirmPublic[]
   route: RouteSummary
   themePreference: ThemePreference
   switchThemePreference: (next: ThemePreference) => void
@@ -63,7 +65,7 @@ export function AppShell(props: AppShellProps) {
       <div className="relative isolate flex h-svh w-full overflow-hidden bg-background-body text-text-primary">
         <PendingBar />
         <Sidebar>
-          <FirmSwitcherTrigger firm={props.firm} />
+          <FirmSwitcherTrigger firm={props.firm} firms={props.firms} />
           {/*
             Sibling 1px rib — identical technique to the rib below the route
             header (see SidebarInset), so both ribs sit at exactly y =

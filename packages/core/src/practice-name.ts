@@ -114,8 +114,7 @@ export function derivePracticeName(input: DerivePracticeNameInput, fallback: str
  * Suffix uses a base-32 subset stripped of visually ambiguous chars
  * (0/O/1/I/L) so support copy-paste stays unambiguous.
  *
- * Collision math: 28^6 ≈ 4.8e8 — safe given organizationLimit:1 (one slug
- * per user per family). The onboarding submit catches the rare slug-clash
+ * Collision math: 28^6 ≈ 4.8e8. The caller catches the rare slug-clash
  * (DB unique violation) and retries once with a fresh suffix.
  */
 const SUFFIX_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789' // 31 chars, sans 0/o/1/i/l

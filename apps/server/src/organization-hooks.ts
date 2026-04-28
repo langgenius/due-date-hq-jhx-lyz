@@ -19,8 +19,8 @@ import type { OrganizationHooks } from '@duedatehq/auth'
  *     real safety net is `tenantMiddleware` lazy-creating the firm_profile
  *     on the next request, so the worst-case is one extra round-trip.
  *   - `beforeAddMember` throws APIError('FORBIDDEN') when role!=='owner'.
- *     Together with organizationLimit:1 and invitationLimit:0, this keeps P0
- *     on the creator-only path while allowing Better Auth's owner bootstrap.
+ *     Together with invitationLimit:0, this keeps Team expansion closed while
+ *     allowing multi-firm owner bootstrap.
  */
 export function buildOrganizationHooks(db: Db): OrganizationHooks {
   return {

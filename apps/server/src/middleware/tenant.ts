@@ -33,6 +33,10 @@ export const tenantMiddleware = createMiddleware<{
   Bindings: Pick<Env, 'DB'>
   Variables: ContextVars
 }>(async (c, next) => {
+  if (c.req.path.startsWith('/rpc/firms/')) {
+    return next()
+  }
+
   const firmId = c.get('firmId')
   if (!firmId) {
     return c.json({ error: ErrorCodes.TENANT_MISSING }, 401)

@@ -72,8 +72,8 @@ export function OnboardingRoute() {
       // databaseHooks.session.create.before hook didn't populate
       // activeOrganizationId (db blip / race / schema-less edge case), the
       // user is still here even though their org already exists.
-      // organizationLimit:1 would otherwise reject a fresh create; list
-      // existing ones first and setActive the earliest instead.
+      // The first-login route should not create another firm when the user
+      // already has one; list existing ones first and setActive the earliest.
       const existing = await loadExistingOrganizationId()
       if (existing) {
         const { error: reuseErr } = await authClient.organization.setActive({

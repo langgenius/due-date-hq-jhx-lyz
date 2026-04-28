@@ -78,6 +78,7 @@ export interface ContextVars {
   user?: ServerSession['user']
   firmId?: string
   userId?: string
+  firms?: import('@duedatehq/db').FirmsRepo
   scoped?: import('@duedatehq/db').ScopedRepo
   /**
    * Resolved business-tenant view for the request. Composed by

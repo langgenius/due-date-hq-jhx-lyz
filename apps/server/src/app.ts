@@ -4,6 +4,7 @@ import { HTTPException } from 'hono/http-exception'
 import type { Env, ContextVars } from './env'
 import { localeMiddleware } from './middleware/locale'
 import { logServerError, requestIdMiddleware } from './middleware/logger'
+import { firmAccessMiddleware } from './middleware/firm-access'
 import { sessionMiddleware } from './middleware/session'
 import { tenantMiddleware } from './middleware/tenant'
 import { rateLimitMiddleware } from './middleware/rate-limit'
@@ -98,7 +99,7 @@ export function createApp() {
   // /rpc/* — oRPC RPCHandler.
   // Order is load-bearing: session MUST run before tenant (tenant needs firmId from session)
   // and before rate-limit (rate-limit keys off userId when present, falls back to IP).
-  app.use('/rpc/*', sessionMiddleware, tenantMiddleware, rateLimitMiddleware)
+  app.use('/rpc/*', sessionMiddleware, firmAccessMiddleware, tenantMiddleware, rateLimitMiddleware)
   app.all('/rpc/*', async (c) => rpcHandler(c.req.raw, c.env, { vars: c.var }))
 
   // Reserved for Phase 2 — public OpenAPIHandler routes. Do not mount a default

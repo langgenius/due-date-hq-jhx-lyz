@@ -9,12 +9,14 @@ import { clientsContract } from './clients'
 import { obligationsContract } from './obligations'
 import { dashboardContract } from './dashboard'
 import { evidenceContract } from './evidence'
+import { firmsContract } from './firms'
 import { workboardContract } from './workboard'
 import { pulseContract } from './pulse'
 import { migrationContract } from './migration'
 import { rulesContract } from './rules'
 
 export const appContract = oc.router({
+  firms: firmsContract,
   clients: clientsContract,
   obligations: obligationsContract,
   dashboard: dashboardContract,
@@ -26,6 +28,25 @@ export const appContract = oc.router({
 })
 
 export type AppContract = typeof appContract
+
+export type {
+  FirmCreateInput,
+  FirmPlan,
+  FirmPublic,
+  FirmRole,
+  FirmsContract,
+  FirmStatus,
+  FirmUpdateInput,
+} from './firms'
+export {
+  FirmCreateInputSchema,
+  FirmPlanSchema,
+  FirmPublicSchema,
+  FirmRoleSchema,
+  firmsContract,
+  FirmStatusSchema,
+  FirmUpdateInputSchema,
+} from './firms'
 
 // Re-export domain types so consumers can `import type { ... } from '@duedatehq/contracts'`
 // without reaching into subpaths. Keeps the public surface stable + tree-shake-friendly.
