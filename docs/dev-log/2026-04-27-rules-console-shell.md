@@ -144,6 +144,57 @@ referentially stable until the active locale changes.
 `zh-CN` carries 0 missing translations after this change (`pnpm --filter
 @duedatehq/app i18n:extract` reports 341 / 341 across both locales).
 
+### 2026-04-28 follow-up: Sources tab table widened on Show all
+
+`SourcesTab` was using shadcn `Table`'s default `table-layout: auto`. The
+`SOURCE` column had no `<TableHead>` width and relied on `max-w-[440px]` on
+each `<TableCell>` plus inner `truncate` spans to clamp the title/id pair. In
+auto-layout, `max-width` on a `<td>` is treated as a soft hint and
+`TableCell` defaults to `whitespace-nowrap`. The first 12 rows happened to
+have short titles and short `acquisitionMethod` codes, so the column widths
+all landed inside their declared widths and the table fit inside the 880 px
+SectionFrame. When **Show all** revealed the rest of the 28 sources, three
+columns simultaneously wanted to grow:
+
+- SOURCE: long titles like `New York Article 9-A Franchise Tax on General
+Business Corporations` (67 chars) and `California FTB 2025 Limited Liability
+Company Tax Booklet` (56 chars).
+- METHOD: `email_subscription` (the NY Tax Department row), 18 chars — the
+  pre-existing `compactAcquisitionMethod` only mapped `manual_review → manual`
+  and `api_watch → api`, this case slipped through.
+- TYPE: `early_warning` (the FEMA row), 13 chars — `compactSourceType` only
+  mapped `publication → pub` and `emergency_relief → emergency`.
+
+Together those pushed the table past 880 px and the table-container's
+`overflow-x-auto` rendered a horizontal scrollbar — the "table widened with
+no extra columns" the user reported. `RuleLibraryTab` was unaffected because
+its only width-less column (`RULE ID`) holds short ids like
+`ca.llc.annual_tax.2026` that never reach the `max-w-[300px]` cap.
+
+Fix (aligned 1:1 to Figma 219:2):
+
+- `apps/app/src/features/rules/sources-tab.tsx`: `<Table className="table-fixed">`
+  with the six right-hand columns at the Figma widths (JUR 50, TYPE 78,
+  CADENCE 78, METHOD 78, HEALTH 82, ↗ 42 — sum 408 px). SOURCE has no
+  explicit width so it auto-fills the remaining ~470 px (Figma 472) and is
+  the column that shrinks first on narrower viewports. Body cells override
+  the default `px-3` (`px-4` for SOURCE, `px-0` for the other six) so badges
+  and text sit flush at the Figma x-coordinates instead of being inset by
+  table-cell padding. The trailing icon cell switched from `text-right` to
+  `text-center` to match Figma. Inner SOURCE content collapsed to two
+  `block truncate` spans (the same idiom Rule Library already uses) — with
+  `table-fixed` enforcing column width, no inner `min-w-0` / `max-w` wrapper
+  is needed.
+- `apps/app/src/features/rules/rules-console-model.ts`:
+  `compactAcquisitionMethod` now strips `_(watch|review|subscription)$`
+  generically (covers the missing `email_subscription → email`), and
+  `compactSourceType` adds `early_warning → early-warn` to match Figma's
+  TYPE column for the FEMA row.
+
+Rule Library was not touched — its current behaviour is correct under
+`table-layout: auto` because no row content currently exceeds the declared
+column widths.
+
 ### 2026-04-27 follow-up: route header i18n + tab rail scroll contract
 
 Two implementation issues surfaced during visual verification against Figma

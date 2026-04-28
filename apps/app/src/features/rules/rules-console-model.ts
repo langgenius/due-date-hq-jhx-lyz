@@ -105,12 +105,13 @@ export function formatEnumLabel(value: string): string {
 }
 
 export function compactAcquisitionMethod(method: RuleSource['acquisitionMethod']): string {
-  return method.replace('_watch', '').replace('manual_review', 'manual').replace('api_watch', 'api')
+  return method.replace(/_(watch|review|subscription)$/, '')
 }
 
 export function compactSourceType(sourceType: RuleSource['sourceType']): string {
   if (sourceType === 'publication') return 'pub'
   if (sourceType === 'emergency_relief') return 'emergency'
+  if (sourceType === 'early_warning') return 'early-warn'
   return sourceType
 }
 

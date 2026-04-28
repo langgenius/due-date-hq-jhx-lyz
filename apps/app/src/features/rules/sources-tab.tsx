@@ -99,16 +99,28 @@ export function SourcesTab() {
         />
       </div>
       <SectionFrame>
-        <Table>
+        {/*
+          Column widths mirror Figma 219:2 (Sources table) 1:1 — the six
+          right-hand columns sum to 408 px (50+78+78+78+82+42); SOURCE has no
+          explicit width so it auto-fills the remaining ~470 px on the 880 px
+          settings content column (Figma value = 472 px) and shrinks first on
+          narrower viewports. `table-fixed` is what makes the column widths
+          authoritative — without it `table-layout: auto` lets long values
+          like "email_subscription" or NY Article 9-A titles widen the table
+          past the SectionFrame after **Show all**. Body cells override the
+          default `px-3` so badges and text sit flush at the Figma
+          x-coordinates instead of being inset by cell padding.
+        */}
+        <Table className="table-fixed">
           <TableHeader className="bg-background-subtle">
             <TableRow className="hover:bg-transparent">
-              <TableHead>SOURCE</TableHead>
-              <TableHead className="w-[52px]">JUR</TableHead>
-              <TableHead className="w-[84px]">TYPE</TableHead>
-              <TableHead className="w-[92px]">CADENCE</TableHead>
-              <TableHead className="w-[80px]">METHOD</TableHead>
-              <TableHead className="w-[98px]">HEALTH</TableHead>
-              <TableHead className="w-8" />
+              <TableHead className="px-4">SOURCE</TableHead>
+              <TableHead className="w-[50px] px-0">JUR</TableHead>
+              <TableHead className="w-[78px] px-0">TYPE</TableHead>
+              <TableHead className="w-[78px] px-0">CADENCE</TableHead>
+              <TableHead className="w-[78px] px-0">METHOD</TableHead>
+              <TableHead className="w-[82px] px-0">HEALTH</TableHead>
+              <TableHead className="w-[42px] px-0" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -222,24 +234,22 @@ function SourceRow({ source }: { source: RuleSource }) {
       onKeyDown={handleKeyDown}
       className="h-10 cursor-pointer hover:bg-state-base-hover"
     >
-      <TableCell className="max-w-[440px] py-1.5">
-        <div className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-medium text-text-primary">{source.title}</span>
-          <span className="truncate font-mono text-xs text-text-tertiary">{source.id}</span>
-        </div>
+      <TableCell className="px-4 py-1.5">
+        <span className="block truncate text-sm font-medium text-text-primary">{source.title}</span>
+        <span className="block truncate font-mono text-xs text-text-tertiary">{source.id}</span>
       </TableCell>
-      <TableCell className="py-1.5">
+      <TableCell className="px-0 py-1.5">
         <JurisdictionCode code={source.jurisdiction} />
       </TableCell>
-      <TableCell className="py-1.5 text-sm text-text-secondary">
+      <TableCell className="px-0 py-1.5 text-sm text-text-secondary">
         {compactSourceType(source.sourceType)}
       </TableCell>
-      <TableCell className="py-1.5 text-sm text-text-secondary">
+      <TableCell className="px-0 py-1.5 text-sm text-text-secondary">
         {source.cadence.replace('_', '-')}
       </TableCell>
       <TableCell
         className={cn(
-          'py-1.5 text-sm',
+          'px-0 py-1.5 text-sm',
           isManualReview ? 'text-severity-medium' : 'text-text-secondary',
         )}
         title={
@@ -248,10 +258,10 @@ function SourceRow({ source }: { source: RuleSource }) {
       >
         {compactAcquisitionMethod(source.acquisitionMethod)}
       </TableCell>
-      <TableCell className="py-1.5">
+      <TableCell className="px-0 py-1.5">
         <HealthBadge health={source.healthStatus} />
       </TableCell>
-      <TableCell className="py-1.5 text-right">
+      <TableCell className="px-0 py-1.5 text-center">
         <a
           href={source.url}
           target="_blank"
