@@ -188,6 +188,28 @@ function buildScoped(firmId: string, rows: Row[]) {
     },
   }
 
+  const pulse: ScopedRepo['pulse'] = {
+    firmId,
+    async createSeedAlert() {
+      return unused('pulse.createSeedAlert')
+    },
+    async listAlerts() {
+      return unused('pulse.listAlerts')
+    },
+    async getDetail() {
+      return unused('pulse.getDetail')
+    },
+    async apply() {
+      return unused('pulse.apply')
+    },
+    async dismiss() {
+      return unused('pulse.dismiss')
+    },
+    async revert() {
+      return unused('pulse.revert')
+    },
+  }
+
   const repo: ScopedRepo = {
     firmId,
     ai: {
@@ -205,7 +227,7 @@ function buildScoped(firmId: string, rows: Row[]) {
     },
     obligations,
     workboard,
-    pulse: {},
+    pulse,
     migration,
     evidence,
     audit,

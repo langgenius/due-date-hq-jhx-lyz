@@ -16,6 +16,7 @@ import type {
   SeatUsage as RealSeatUsage,
 } from './repo/members'
 import type { ObligationsRepo as RealObligationsRepo } from './repo/obligations'
+import type { PulseRepo as RealPulseRepo } from './repo/pulse'
 import type { WorkboardRepo as RealWorkboardRepo } from './repo/workboard'
 import type { FirmProfile } from './schema/firm'
 
@@ -70,7 +71,7 @@ export type ClientsRepo = RealClientsRepo
 export type DashboardRepo = RealDashboardRepo
 export type ObligationsRepo = RealObligationsRepo
 export type WorkboardRepo = RealWorkboardRepo
-export interface PulseRepo {}
+export type PulseRepo = RealPulseRepo
 export type MigrationRepo = RealMigrationRepo
 export type EvidenceRepo = RealEvidenceRepo
 export type AuditRepo = RealAuditRepo

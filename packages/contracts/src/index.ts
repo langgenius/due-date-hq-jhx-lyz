@@ -135,6 +135,36 @@ export {
 } from './workboard'
 
 export type {
+  PulseAffectedClient,
+  PulseAffectedClientStatus,
+  PulseAlertPublic,
+  PulseApplyInput,
+  PulseApplyOutput,
+  PulseContract,
+  PulseDetail,
+  PulseDismissOutput,
+  PulseFirmAlertStatus,
+  PulseListAlertsInput,
+  PulseRevertOutput,
+  PulseStatus,
+} from './pulse'
+export {
+  PulseAffectedClientSchema,
+  PulseAffectedClientStatusSchema,
+  PulseAlertIdInputSchema,
+  PulseAlertPublicSchema,
+  PulseApplyInputSchema,
+  PulseApplyOutputSchema,
+  pulseContract,
+  PulseDetailSchema,
+  PulseDismissOutputSchema,
+  PulseFirmAlertStatusSchema,
+  PulseListAlertsInputSchema,
+  PulseRevertOutputSchema,
+  PulseStatusSchema,
+} from './pulse'
+
+export type {
   DueDateLogic,
   ObligationGenerationPreview,
   ObligationRule,

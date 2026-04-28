@@ -23,19 +23,19 @@ describe('@duedatehq/db', () => {
     expect(repo.firmId).toBe('firm_123')
   })
 
-  it('wires concrete migration copilot repos and leaves pulse deferred', () => {
+  it('wires concrete migration copilot and pulse repos', () => {
     const repo = scoped(testDb, 'firm_123')
 
     expect(typeof repo.clients.create).toBe('function')
     expect(typeof repo.obligations.createBatch).toBe('function')
     expect(typeof repo.obligations.findById).toBe('function')
     expect(typeof repo.workboard.list).toBe('function')
+    expect(typeof repo.pulse.listAlerts).toBe('function')
+    expect(typeof repo.pulse.getDetail).toBe('function')
+    expect(typeof repo.pulse.apply).toBe('function')
     expect(typeof repo.migration.createBatch).toBe('function')
     expect(typeof repo.audit.write).toBe('function')
     expect(typeof repo.audit.list).toBe('function')
     expect(typeof repo.evidence.write).toBe('function')
-    expect(() => Reflect.get(repo.pulse, 'findMany')).toThrow(
-      'ScopedRepo.pulse.findMany not implemented yet',
-    )
   })
 })

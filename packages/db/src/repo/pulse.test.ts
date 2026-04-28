@@ -1,0 +1,211 @@
+/* eslint-disable typescript-eslint/no-unsafe-type-assertion --
+ * Focused Drizzle chain doubles only implement the query-builder methods used here.
+ */
+import { describe, expect, it, vi } from 'vitest'
+import { makePulseRepo, PulseRepoError } from './pulse'
+
+const ALERT = {
+  alertId: 'alert-1',
+  pulseId: 'pulse-1',
+  alertStatus: 'matched' as const,
+  matchedCount: 1,
+  needsReviewCount: 1,
+  source: 'IRS Disaster Relief',
+  sourceUrl: 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations',
+  publishedAt: new Date('2026-04-15T17:00:00.000Z'),
+  aiSummary: 'IRS CA storm relief',
+  verbatimQuote: 'Individuals and businesses in Los Angeles County have until October 15, 2026.',
+  parsedJurisdiction: 'CA',
+  parsedCounties: ['Los Angeles'],
+  parsedForms: ['federal_1065', 'federal_1120s'],
+  parsedEntityTypes: ['llc', 's_corp'],
+  parsedOriginalDueDate: new Date('2026-03-15T00:00:00.000Z'),
+  parsedNewDueDate: new Date('2026-10-15T00:00:00.000Z'),
+  parsedEffectiveFrom: new Date('2026-04-15T00:00:00.000Z'),
+  confidence: 0.94,
+  pulseStatus: 'approved' as const,
+  reviewedBy: 'user-1',
+  reviewedAt: new Date('2026-04-15T18:00:00.000Z'),
+  isSample: true,
+}
+
+const ELIGIBLE = {
+  obligationId: 'oi-eligible',
+  clientId: 'client-eligible',
+  clientName: 'Arbor & Vale LLC',
+  state: 'CA',
+  county: 'Los Angeles',
+  entityType: 'llc' as const,
+  taxType: 'federal_1065',
+  currentDueDate: new Date('2026-03-15T00:00:00.000Z'),
+  status: 'pending' as const,
+}
+
+const NEEDS_REVIEW = {
+  obligationId: 'oi-review',
+  clientId: 'client-review',
+  clientName: 'Bright Studio S-Corp',
+  state: 'CA',
+  county: null,
+  entityType: 's_corp' as const,
+  taxType: 'federal_1120s',
+  currentDueDate: new Date('2026-03-15T00:00:00.000Z'),
+  status: 'review' as const,
+}
+
+function selectChain(response: unknown[]) {
+  const chain = {
+    from: vi.fn(() => chain),
+    innerJoin: vi.fn(() => chain),
+    where: vi.fn(() => chain),
+    orderBy: vi.fn(async () => response),
+    limit: vi.fn(async () => response),
+  }
+  return chain
+}
+
+function fakeDb(selectResponses: unknown[][]) {
+  const batchStatements: unknown[] = []
+  const db = {
+    select: vi.fn(() => selectChain(selectResponses.shift() ?? [])),
+    insert: vi.fn((table: unknown) => ({
+      values: (value: unknown) => ({ kind: 'insert', table, value }),
+    })),
+    update: vi.fn((table: unknown) => ({
+      set: (value: unknown) => ({
+        where: () => ({ kind: 'update', table, value }),
+      }),
+    })),
+    batch: vi.fn(async (statements: [unknown, ...unknown[]]) => {
+      batchStatements.push(...statements)
+      return []
+    }),
+  }
+  return {
+    db: db as unknown as Parameters<typeof makePulseRepo>[0],
+    batchStatements,
+  }
+}
+
+describe('makePulseRepo', () => {
+  it('matches eligible clients and marks missing county rows as needs_review', async () => {
+    const { db } = fakeDb([
+      [ALERT],
+      [
+        ELIGIBLE,
+        NEEDS_REVIEW,
+        {
+          ...ELIGIBLE,
+          obligationId: 'oi-orange',
+          clientId: 'client-orange',
+          clientName: 'Orange County LLC',
+          county: 'Orange',
+        },
+      ],
+      [],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    const detail = await repo.getDetail('alert-1')
+
+    expect(detail.affectedClients.map((row) => [row.obligationId, row.matchStatus])).toEqual([
+      ['oi-eligible', 'eligible'],
+      ['oi-review', 'needs_review'],
+    ])
+    expect(detail.affectedClients[1]!.reason).toContain('county is missing')
+  })
+
+  it('batch-applies due date updates with applications, evidence, audit, and outbox', async () => {
+    const { db, batchStatements } = fakeDb([
+      [ALERT],
+      [ELIGIBLE],
+      [],
+      [{ ...ALERT, matchedCount: 0 }],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    const result = await repo.apply({
+      alertId: 'alert-1',
+      obligationIds: ['oi-eligible'],
+      userId: 'user-1',
+      now: new Date('2026-04-15T18:30:00.000Z'),
+    })
+
+    expect(result.appliedCount).toBe(1)
+    expect(result.auditIds).toHaveLength(1)
+    expect(result.evidenceIds).toHaveLength(1)
+    expect(result.applicationIds).toHaveLength(1)
+    expect(result.revertExpiresAt.toISOString()).toBe('2026-04-16T18:30:00.000Z')
+    expect(batchStatements).toHaveLength(6)
+    expect(batchStatements.filter((statement) => isKind(statement, 'insert'))).toHaveLength(4)
+    expect(batchStatements.filter((statement) => isKind(statement, 'update'))).toHaveLength(2)
+  })
+
+  it('rejects apply when the requested obligation was already applied', async () => {
+    const { db } = fakeDb([
+      [ALERT],
+      [],
+      [
+        {
+          id: 'app-1',
+          obligationId: 'oi-eligible',
+          clientId: 'client-eligible',
+          clientName: 'Arbor & Vale LLC',
+          state: 'CA',
+          county: 'Los Angeles',
+          entityType: 'llc',
+          taxType: 'federal_1065',
+          currentDueDate: new Date('2026-10-15T00:00:00.000Z'),
+          status: 'pending',
+          appliedAt: new Date('2026-04-15T18:30:00.000Z'),
+          revertedAt: null,
+          beforeDueDate: new Date('2026-03-15T00:00:00.000Z'),
+          afterDueDate: new Date('2026-10-15T00:00:00.000Z'),
+        },
+      ],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    await expect(
+      repo.apply({
+        alertId: 'alert-1',
+        obligationIds: ['oi-eligible'],
+        userId: 'user-1',
+      }),
+    ).rejects.toMatchObject({ code: 'conflict' } satisfies Partial<PulseRepoError>)
+  })
+
+  it('rejects revert after the 24h window expires', async () => {
+    const { db, batchStatements } = fakeDb([
+      [ALERT],
+      [
+        {
+          id: 'app-1',
+          obligationId: 'oi-eligible',
+          clientId: 'client-eligible',
+          appliedAt: new Date('2026-04-15T18:30:00.000Z'),
+          beforeDueDate: new Date('2026-03-15T00:00:00.000Z'),
+          afterDueDate: new Date('2026-10-15T00:00:00.000Z'),
+        },
+      ],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    await expect(
+      repo.revert({
+        alertId: 'alert-1',
+        userId: 'user-1',
+        now: new Date('2026-04-16T18:30:01.000Z'),
+      }),
+    ).rejects.toMatchObject({ code: 'revert_expired' } satisfies Partial<PulseRepoError>)
+    expect(batchStatements).toHaveLength(0)
+  })
+})
+
+function isKind(statement: unknown, kind: 'insert' | 'update'): boolean {
+  return (
+    typeof statement === 'object' &&
+    statement !== null &&
+    (statement as { kind?: string }).kind === kind
+  )
+}

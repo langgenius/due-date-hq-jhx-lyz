@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { authSchema, createDb, firmSchema, scoped } from '@duedatehq/db'
 import type { ContextVars, Env } from '../env'
 
-type SeedMode = 'empty' | 'workboard'
+type SeedMode = 'empty' | 'workboard' | 'pulse'
 type SeedRole = 'owner' | 'coordinator'
 type BillingPlan = 'firm' | 'pro'
 type BillingStatus = 'active' | 'trialing' | 'past_due' | 'paused'
@@ -91,7 +91,12 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
       userAgent: 'Playwright E2E',
     })
 
-    const seeded = seed === 'workboard' ? await seedWorkboard(db, firmId) : { workboardRows: [] }
+    const seeded =
+      seed === 'pulse'
+        ? await seedPulse(db, firmId, userId)
+        : seed === 'workboard'
+          ? await seedWorkboard(db, firmId)
+          : { workboardRows: [] }
     const signedToken = `${token}.${await makeSignature(token, c.env.AUTH_SECRET)}`
     const requestUrl = new URL(c.req.url)
     const cookie = {
@@ -201,7 +206,7 @@ async function readSeedRequest(request: Request): Promise<E2ESeedRequest> {
     const role = (raw as { role?: unknown }).role
     const testId = (raw as { testId?: unknown }).testId
     return {
-      seed: seed === 'workboard' ? 'workboard' : 'empty',
+      seed: seed === 'pulse' || seed === 'workboard' ? seed : 'empty',
       role: role === 'coordinator' ? 'coordinator' : 'owner',
       ...(typeof testId === 'string' ? { testId } : {}),
     }
@@ -259,6 +264,7 @@ async function seedWorkboard(db: ReturnType<typeof createDb>, firmId: string) {
     name: 'Arbor & Vale LLC',
     ein: '12-3456789',
     state: 'CA',
+    county: 'Los Angeles',
     entityType: 'llc' as const,
     assigneeName: 'M. Chen',
   }
@@ -267,6 +273,7 @@ async function seedWorkboard(db: ReturnType<typeof createDb>, firmId: string) {
     name: 'Northstar Dental Group',
     ein: '98-7654321',
     state: 'NY',
+    county: 'Queens',
     entityType: 's_corp' as const,
     assigneeName: 'A. Rivera',
   }
@@ -275,6 +282,7 @@ async function seedWorkboard(db: ReturnType<typeof createDb>, firmId: string) {
     name: 'Copperline Studios',
     ein: '45-1111111',
     state: 'TX',
+    county: 'Travis',
     entityType: 'c_corp' as const,
     assigneeName: 'K. Patel',
   }
@@ -320,6 +328,106 @@ async function seedWorkboard(db: ReturnType<typeof createDb>, firmId: string) {
       { clientName: northstar.name, status: 'review' },
       { clientName: copperline.name, status: 'waiting_on_client' },
     ],
+  }
+}
+
+async function seedPulse(db: ReturnType<typeof createDb>, firmId: string, userId: string) {
+  const repo = scoped(db, firmId)
+  const originalDueDate = new Date('2026-03-15T00:00:00.000Z')
+  const newDueDate = new Date('2026-10-15T00:00:00.000Z')
+  const publishedAt = new Date('2026-04-15T17:00:00.000Z')
+  const reviewedAt = new Date('2026-04-15T18:00:00.000Z')
+  const arbor = {
+    id: crypto.randomUUID(),
+    name: 'Arbor & Vale LLC',
+    ein: '12-3456789',
+    state: 'CA',
+    county: 'Los Angeles',
+    entityType: 'llc' as const,
+    assigneeName: 'M. Chen',
+  }
+  const bright = {
+    id: crypto.randomUUID(),
+    name: 'Bright Studio S-Corp',
+    ein: '21-2222222',
+    state: 'CA',
+    county: null,
+    entityType: 's_corp' as const,
+    assigneeName: 'A. Rivera',
+  }
+  const northstar = {
+    id: crypto.randomUUID(),
+    name: 'Northstar Dental Group',
+    ein: '98-7654321',
+    state: 'NY',
+    county: 'Queens',
+    entityType: 's_corp' as const,
+    assigneeName: 'A. Rivera',
+  }
+
+  await repo.clients.createBatch([arbor, bright, northstar])
+  await repo.obligations.createBatch([
+    {
+      id: crypto.randomUUID(),
+      clientId: arbor.id,
+      taxType: 'federal_1065',
+      taxYear: 2026,
+      baseDueDate: originalDueDate,
+      currentDueDate: originalDueDate,
+      status: 'pending',
+      migrationBatchId: null,
+    },
+    {
+      id: crypto.randomUUID(),
+      clientId: bright.id,
+      taxType: 'federal_1120s',
+      taxYear: 2026,
+      baseDueDate: originalDueDate,
+      currentDueDate: originalDueDate,
+      status: 'review',
+      migrationBatchId: null,
+    },
+    {
+      id: crypto.randomUUID(),
+      clientId: northstar.id,
+      taxType: 'ny_ct3s',
+      taxYear: 2026,
+      baseDueDate: new Date('2026-03-18T00:00:00.000Z'),
+      currentDueDate: new Date('2026-03-18T00:00:00.000Z'),
+      status: 'pending',
+      migrationBatchId: null,
+    },
+  ])
+
+  const seededPulse = await repo.pulse.createSeedAlert({
+    source: 'IRS Disaster Relief',
+    sourceUrl: 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations',
+    rawR2Key: 'demo/pulse/irs-ca-storm-relief.html',
+    publishedAt,
+    aiSummary: 'IRS CA storm relief extends selected filing deadlines for Los Angeles County.',
+    verbatimQuote:
+      'Individuals and businesses in Los Angeles County have until October 15, 2026 to file various federal returns.',
+    parsedJurisdiction: 'CA',
+    parsedCounties: ['Los Angeles'],
+    parsedForms: ['federal_1065', 'federal_1120s'],
+    parsedEntityTypes: ['llc', 's_corp'],
+    parsedOriginalDueDate: originalDueDate,
+    parsedNewDueDate: newDueDate,
+    parsedEffectiveFrom: publishedAt,
+    confidence: 0.94,
+    reviewedBy: userId,
+    reviewedAt,
+    requiresHumanReview: true,
+    isSample: true,
+  })
+
+  return {
+    workboardRows: [
+      { clientName: arbor.name, status: 'pending' },
+      { clientName: bright.name, status: 'review' },
+      { clientName: northstar.name, status: 'pending' },
+    ],
+    pulseAlerts: [{ alertId: seededPulse.alertId, pulseId: seededPulse.pulseId }],
   }
 }
 

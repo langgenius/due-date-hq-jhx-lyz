@@ -7,6 +7,7 @@ import { firmsHandlers } from './firms'
 import { migrationHandlers } from './migration'
 import { membersHandlers } from './members'
 import { obligationsHandlers } from './obligations'
+import { pulseHandlers } from './pulse'
 import { rulesHandlers } from './rules'
 import { workboardHandlers } from './workboard'
 import { os } from './_root'
@@ -64,7 +65,13 @@ export const router = os.router({
   workboard: {
     list: workboardHandlers.list,
   },
-  pulse: {},
+  pulse: {
+    listAlerts: pulseHandlers.listAlerts,
+    getDetail: pulseHandlers.getDetail,
+    apply: pulseHandlers.apply,
+    dismiss: pulseHandlers.dismiss,
+    revert: pulseHandlers.revert,
+  },
   migration: {
     createBatch: migrationHandlers.createBatch,
     uploadRaw: migrationHandlers.uploadRaw,

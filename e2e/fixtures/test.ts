@@ -14,7 +14,7 @@ import { MigrationWizardPage } from '../pages/migration-wizard-page'
 import { RulesConsolePage } from '../pages/rules-console-page'
 import { WorkboardPage } from '../pages/workboard-page'
 
-type AuthSeedMode = 'empty' | 'workboard'
+type AuthSeedMode = 'empty' | 'workboard' | 'pulse'
 type AuthRole = 'owner' | 'coordinator'
 
 type E2EAuthSession = {
@@ -30,6 +30,10 @@ type E2EAuthSession = {
     workboardRows: Array<{
       clientName: string
       status: string
+    }>
+    pulseAlerts: Array<{
+      alertId: string
+      pulseId: string
     }>
   }
 }
@@ -149,6 +153,9 @@ function parseAuthSession(value: unknown): E2EAuthSession {
     },
     seeded: {
       workboardRows: seeded.workboardRows.filter(isWorkboardSeedRow),
+      pulseAlerts: Array.isArray(seeded.pulseAlerts)
+        ? seeded.pulseAlerts.filter(isPulseSeedAlert)
+        : [],
     },
   }
 }
@@ -187,6 +194,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isWorkboardSeedRow(value: unknown): value is { clientName: string; status: string } {
   return isRecord(value) && typeof value.clientName === 'string' && typeof value.status === 'string'
+}
+
+function isPulseSeedAlert(value: unknown): value is { alertId: string; pulseId: string } {
+  return isRecord(value) && typeof value.alertId === 'string' && typeof value.pulseId === 'string'
 }
 
 function isAuthRole(value: unknown): value is AuthRole {

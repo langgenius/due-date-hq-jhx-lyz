@@ -33,6 +33,13 @@ import { EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 import { DashboardLoadOutputSchema, DashboardSeveritySchema, dashboardContract } from './dashboard'
 import { EvidencePublicSchema, evidenceContract } from './evidence'
 import {
+  PulseAffectedClientSchema,
+  PulseAlertPublicSchema,
+  PulseApplyOutputSchema,
+  PulseFirmAlertStatusSchema,
+  pulseContract,
+} from './pulse'
+import {
   ObligationRuleSchema,
   ObligationGenerationPreviewSchema,
   RuleGenerationPreviewInputSchema,
@@ -244,6 +251,68 @@ describe('@duedatehq/contracts', () => {
     expect(PulseAuditActionSchema.parse('pulse.apply')).toBe('pulse.apply')
     expect(AuditActionSchema.parse('pulse.revert')).toBe('pulse.revert')
     expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')
+  })
+
+  it('freezes Pulse demo backend contracts', () => {
+    expect(Object.keys(pulseContract)).toEqual([
+      'listAlerts',
+      'getDetail',
+      'apply',
+      'dismiss',
+      'revert',
+    ])
+    expect(PulseFirmAlertStatusSchema.options).toEqual([
+      'matched',
+      'dismissed',
+      'snoozed',
+      'partially_applied',
+      'applied',
+      'reverted',
+    ])
+    expect(ErrorCodes.PULSE_APPLY_CONFLICT).toBe('PULSE_APPLY_CONFLICT')
+
+    const alert = PulseAlertPublicSchema.parse({
+      id: '11111111-1111-4111-8111-111111111111',
+      pulseId: '22222222-2222-4222-8222-222222222222',
+      status: 'matched',
+      title: 'IRS CA storm relief',
+      source: 'IRS Disaster Relief',
+      sourceUrl: 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations',
+      summary: 'IRS extends selected filing deadlines for Los Angeles County.',
+      publishedAt: '2026-04-15T17:00:00.000Z',
+      matchedCount: 1,
+      needsReviewCount: 1,
+      confidence: 0.94,
+      isSample: true,
+    })
+    expect(alert.isSample).toBe(true)
+
+    const affected = PulseAffectedClientSchema.parse({
+      obligationId: '33333333-3333-4333-8333-333333333333',
+      clientId: '44444444-4444-4444-8444-444444444444',
+      clientName: 'Arbor & Vale LLC',
+      state: 'CA',
+      county: null,
+      entityType: 'llc',
+      taxType: 'federal_1065',
+      currentDueDate: '2026-03-15',
+      newDueDate: '2026-10-15',
+      status: 'pending',
+      matchStatus: 'needs_review',
+      reason: 'Client county is missing; confirm county applicability before applying.',
+    })
+    expect(affected.matchStatus).toBe('needs_review')
+
+    const apply = PulseApplyOutputSchema.parse({
+      alert: { ...alert, status: 'applied', matchedCount: 0, needsReviewCount: 1 },
+      appliedCount: 1,
+      auditIds: ['55555555-5555-4555-8555-555555555555'],
+      evidenceIds: ['66666666-6666-4666-8666-666666666666'],
+      applicationIds: ['77777777-7777-4777-8777-777777777777'],
+      emailOutboxId: '88888888-8888-4888-8888-888888888888',
+      revertExpiresAt: '2026-04-16T18:00:00.000Z',
+    })
+    expect(apply.appliedCount).toBe(1)
   })
 
   it('freezes evidence.listByObligation public shape', () => {

@@ -357,6 +357,28 @@ function buildScopedRepo(firmId: string) {
     },
   }
 
+  const pulse: ScopedRepo['pulse'] = {
+    firmId,
+    async createSeedAlert() {
+      return unexpectedRepoCall('pulse.createSeedAlert')
+    },
+    async listAlerts() {
+      return unexpectedRepoCall('pulse.listAlerts')
+    },
+    async getDetail() {
+      return unexpectedRepoCall('pulse.getDetail')
+    },
+    async apply() {
+      return unexpectedRepoCall('pulse.apply')
+    },
+    async dismiss() {
+      return unexpectedRepoCall('pulse.dismiss')
+    },
+    async revert() {
+      return unexpectedRepoCall('pulse.revert')
+    },
+  }
+
   const repo: ScopedRepo = {
     firmId,
     ai: {
@@ -376,7 +398,7 @@ function buildScopedRepo(firmId: string) {
     },
     obligations,
     workboard,
-    pulse: {},
+    pulse,
     migration,
     evidence,
     audit,

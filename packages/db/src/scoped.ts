@@ -6,6 +6,7 @@ import { makeDashboardRepo } from './repo/dashboard'
 import { makeEvidenceRepo } from './repo/evidence'
 import { makeMigrationRepo } from './repo/migration'
 import { makeObligationsRepo } from './repo/obligations'
+import { makePulseRepo } from './repo/pulse'
 import { makeWorkboardRepo } from './repo/workboard'
 import type { ScopedRepo } from './types'
 
@@ -25,20 +26,6 @@ import type { ScopedRepo } from './types'
  * Placeholder that throws if any method on an unimplemented repo is called.
  * Concrete repos will be wired up per-domain in Phase 0 (see `./repo/*`).
  */
-function unimplementedRepo(name: string): object {
-  return new Proxy(
-    {},
-    {
-      get(_target, prop) {
-        throw new Error(
-          `ScopedRepo.${name}.${String(prop)} not implemented yet. ` +
-            `Wire up packages/db/src/repo/${name}.ts before calling this from a procedure.`,
-        )
-      },
-    },
-  )
-}
-
 export function scoped(db: Db, firmId: string): ScopedRepo {
   return {
     firmId,
@@ -47,7 +34,7 @@ export function scoped(db: Db, firmId: string): ScopedRepo {
     dashboard: makeDashboardRepo(db, firmId),
     obligations: makeObligationsRepo(db, firmId),
     workboard: makeWorkboardRepo(db, firmId),
-    pulse: unimplementedRepo('pulse'),
+    pulse: makePulseRepo(db, firmId),
     migration: makeMigrationRepo(db, firmId),
     evidence: makeEvidenceRepo(db, firmId),
     audit: makeAuditRepo(db, firmId),
