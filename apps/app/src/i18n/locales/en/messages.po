@@ -252,7 +252,7 @@ msgstr "Candidate · never generates user reminders."
 msgid "Candidates"
 msgstr "Candidates"
 
-#. placeholder {0}: row.clientName
+#. placeholder {0}: workboardRow.clientName
 #: src/routes/workboard.tsx
 msgid "Change status for {0}"
 msgstr "Change status for {0}"

@@ -252,7 +252,7 @@ msgstr "候选规则 · 从不生成用户提醒。"
 msgid "Candidates"
 msgstr "Candidate"
 
-#. placeholder {0}: row.clientName
+#. placeholder {0}: workboardRow.clientName
 #: src/routes/workboard.tsx
 msgid "Change status for {0}"
 msgstr "修改 {0} 的状态"

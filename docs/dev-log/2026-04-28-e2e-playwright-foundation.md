@@ -49,3 +49,9 @@ Use traditional Playwright specs with AC metadata instead of Cucumber BDD.
   Migration Copilot happy paths.
 - Wire `scripts/ac-traceability.ts` to scan `e2e/**/*.spec.ts` once that script exists.
 - Promote staging E2E by setting `E2E_BASE_URL` in a release workflow after the staging deploy gate.
+
+## CI Follow-up
+
+- Synchronized Lingui catalogs after the Workboard table variable rename changed the extracted
+  placeholder comment from `row.clientName` to `workboardRow.clientName`; runtime strings and
+  translations stay unchanged.
