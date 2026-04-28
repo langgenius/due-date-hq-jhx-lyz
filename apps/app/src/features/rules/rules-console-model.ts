@@ -12,7 +12,8 @@ import {
   type RuleSource,
 } from '@duedatehq/contracts'
 
-export type RulesTab = 'coverage' | 'sources' | 'library' | 'preview'
+export const RULES_TAB_VALUES = ['coverage', 'sources', 'library', 'preview'] as const
+export type RulesTab = (typeof RULES_TAB_VALUES)[number]
 export type SourceHealthFilter = 'all' | RuleSource['healthStatus']
 export type RuleLibraryFilter =
   | 'all'
@@ -21,11 +22,12 @@ export type RuleLibraryFilter =
   | 'applicability_review'
   | 'exception'
 export type CoverageCellState = 'verified' | 'review' | 'none'
+export const DEFAULT_RULES_TAB: RulesTab = 'coverage'
 
 // Pure value tables only — i18n labels live with the consuming component
 // (rendered through `useLingui` so Lingui can extract them and so we never
 // pay re-extraction cost for non-React modules).
-export const RULES_TABS: Array<{ value: RulesTab; count?: number }> = [
+export const RULES_TABS: ReadonlyArray<{ value: RulesTab; count?: number }> = [
   { value: 'coverage' },
   { value: 'sources', count: 31 },
   { value: 'library', count: 26 },
@@ -80,7 +82,7 @@ export const DEFAULT_PREVIEW_FORM_VALUES: PreviewFormValues = {
 }
 
 export function isRulesTab(value: string): value is RulesTab {
-  return RULES_TABS.some((tab) => tab.value === value)
+  return (RULES_TAB_VALUES as readonly string[]).includes(value)
 }
 
 export function previewFormToInput(values: PreviewFormValues): RuleGenerationPreviewInput {

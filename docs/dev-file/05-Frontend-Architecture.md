@@ -120,7 +120,7 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 
 **URL state 约定：**
 
-- 所有可分享的过滤 / 排序 / 分页走 URL（用 `nuqs`）
+- 所有可分享的过滤 / 排序 / 分页 / tab 或 subview 选择走 URL（用 `nuqs`）
 - 任何抽屉开关 / 选中项也写 URL（`?drawer=obligation&id=xxx`）
 - **不要**把分页 / 筛选塞进 Zustand
 
@@ -131,7 +131,7 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 | 层           | 工具                                         | 管什么                                                                                                   |
 | ------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Server state | **TanStack Query + `@orpc/tanstack-query`**  | 所有内部 RPC 消费必须走 `orpc.*.queryOptions()` / `mutationOptions()`；自动缓存 / 乐观 UI / invalidation |
-| URL state    | **nuqs** + `react-router` params             | 筛选 / 排序 / 分页 / 抽屉打开项                                                                          |
+| URL state    | **nuqs** + `react-router` params             | 筛选 / 排序 / 分页 / tab/subview / 抽屉打开项                                                            |
 | Form state   | **react-hook-form** + Zod（复用契约 schema） | 所有表单                                                                                                 |
 | UI state     | **Zustand**                                  | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store**                                       |
 | Feature flag | **PostHog JS SDK**                           | 运行时开关                                                                                               |
@@ -385,6 +385,14 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **后续扩展**：列可见性、自定义列、批量选择、Saved Views 应继续走 TanStack controlled state，并把可分享状态写入 URL 或服务端 saved-view 记录。
 - 行内 `[status ▾]` mutation：当前成功后 invalidate `workboard.list` 并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation lifecycle 内补本地缓存更新。
 - 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/X/I/W` 改状态 · `Enter` 打开 Detail
+
+## 6A. Rules Console
+
+- `/settings/rules` 的四个 P0 tab（`coverage` / `sources` / `library` /
+  `preview`）由 `nuqs` 管理 URL state，使用 `tab` 参数持久化当前二级视图。
+- 缺省或非法 `tab` 回落到 `coverage`，避免无效 URL 打断受保护路由加载。
+- tab 切换不进入 Zustand；它是可分享的页面状态，和 Workboard 的
+  `q/status/sort/cursor/row` 同属 URL state。
 
 ---
 

@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useLingui } from '@lingui/react/macro'
+import { parseAsStringLiteral, useQueryState } from 'nuqs'
 
 import { Tabs, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
 import { cn } from '@duedatehq/ui/lib/utils'
@@ -9,7 +10,13 @@ import { GenerationPreviewTab } from './generation-preview-tab'
 import { RuleLibraryTab } from './rule-library-tab'
 import { RulesPageHeader } from './rules-console-primitives'
 import { SourcesTab } from './sources-tab'
-import { isRulesTab, RULES_TABS, type RulesTab } from './rules-console-model'
+import {
+  DEFAULT_RULES_TAB,
+  isRulesTab,
+  RULES_TAB_VALUES,
+  RULES_TABS,
+  type RulesTab,
+} from './rules-console-model'
 
 /**
  * Rules Console — 4-tab read-only ops workbench.
@@ -37,7 +44,14 @@ import { isRulesTab, RULES_TABS, type RulesTab } from './rules-console-model'
  *    sit flush against the route header rib at y = 56 + 1.
  *  - All user-facing copy is i18n-routed through Lingui (`useLingui` macros);
  *    the underlying `RULES_TABS` table only carries values + counts.
+ *  - The active tab is persisted in `?tab=` through nuqs. The parser and
+ *    `RulesTab` union share the same literal tuple, so invalid URL values fall
+ *    back to Coverage without widening the component state type.
  */
+
+const rulesTabQueryParser = parseAsStringLiteral(RULES_TAB_VALUES)
+  .withDefault(DEFAULT_RULES_TAB)
+  .withOptions({ history: 'replace' })
 
 function RulesTabPanel({ activeTab }: { activeTab: RulesTab }) {
   if (activeTab === 'coverage') return <CoverageTab />
@@ -48,7 +62,13 @@ function RulesTabPanel({ activeTab }: { activeTab: RulesTab }) {
 
 export function RulesConsole() {
   const { t } = useLingui()
-  const [activeTab, setActiveTab] = useState<RulesTab>('coverage')
+  const [activeTab, setActiveTab] = useQueryState('tab', rulesTabQueryParser)
+  const handleTabChange = useCallback(
+    (value: string) => {
+      if (isRulesTab(value)) void setActiveTab(value)
+    },
+    [setActiveTab],
+  )
 
   const tabLabels = useMemo<Record<RulesTab, string>>(
     () => ({
@@ -75,9 +95,7 @@ export function RulesConsole() {
   return (
     <Tabs
       value={activeTab}
-      onValueChange={(value) => {
-        if (isRulesTab(value)) setActiveTab(value)
-      }}
+      onValueChange={handleTabChange}
       className="flex h-full min-h-0 flex-col gap-0 overflow-hidden"
     >
       {/*

@@ -123,8 +123,8 @@ drawer (5/4)」状态稿（`node-id=259:2` 即是这个 drawer panel）。设计
 
 ## 用户验收路径
 
-> 打开 `/settings/rules` → Coverage 顶部一句话看懂三层关系 → 切到 Rule
-> Library → 点 `fed.1065.return.2025` 行 → drawer 看到 dueDateLogic 人话句、
+> 打开 `/settings/rules?tab=library` → 点 `fed.1065.return.2025` 行 →
+> drawer 看到 dueDateLogic 人话句、
 > extension policy、3 条 evidence → 点 “IRS Instructions 1065 ↗” → 浏览器
 > 新 tab 打开 https://www.irs.gov/instructions/i1065 → 关 drawer，切到
 > Generation Preview → 默认 demo client 跑出来的 obligation 右侧 evidence

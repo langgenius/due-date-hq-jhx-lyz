@@ -1,6 +1,6 @@
 # 02 · Rules Console 产品设计
 
-> 版本：v0.1（14 天 MVP · 2026-04-27）
+> 版本：v0.6（14 天 MVP · 2026-04-28）
 > 上游：`01-source-registry-and-rule-pack.md`
 > 下游：
 >
@@ -27,6 +27,15 @@ MVP 可先放在受保护 app 内：
 ```text
 /settings/rules
 ```
+
+P0 tab state is part of the route contract:
+`/settings/rules?tab=coverage|sources|library|preview`. Missing or invalid
+`tab` falls back to Coverage. This keeps Rules Console review links shareable
+without adding separate routes for each tab.
+
+Implementation note: bare `/settings/rules` is the canonical Coverage URL;
+`?tab=coverage` remains accepted but may be cleared when users switch back to
+the default tab.
 
 若后续区分内部 ops 与普通 CPA，可迁到：
 
@@ -370,6 +379,7 @@ AI Tip 只能使用 verified rule 和 source summary：
 
 | 版本 | 日期       | 作者  | 摘要                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ---- | ---------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v0.6 | 2026-04-28 | Codex | Rules Console 四个 P0 tab 的 active state 持久化到 URL（`?tab=coverage\|sources\|library\|preview`），由 `nuqs` 解析；非法值回落 Coverage，方便分享 Sources / Rule Library / Generation Preview 深链。                                                                                                                                                                                                                                                                                                                                                                                       |
 | v0.5 | 2026-04-28 | Codex | 布局判定从 URL（`/settings`）切换到内容形态：Rules Console 是 ops data surface，全宽展开（去掉 `mx-auto max-w-[928px]`），与 tab nav / Workboard 共锚 `left=24`。Coverage tab 重做为 KPI 条 + 左 7/12 jurisdiction summary + 右 5/12 jurisdiction × entity 矩阵；KPI 数字走 `font-mono text-2xl tabular-nums`，candidate>0 时数字 tone 走 `text-status-review`。`RulesPageHeader` 段落 max-w 从 720 → 1080，避免在 1512 视口下挤成 3 行。`DESIGN.md` §5.2 同步增订 settings forms vs settings data surfaces 的判定规则。详见 `docs/dev-log/2026-04-28-rules-console-fullwidth-coverage.md`。 |
 | v0.4 | 2026-04-27 | Codex | P0.5 落地：Rule Library 行可点 → 右侧 Sheet drawer（Applicability / Due-date logic / Extension / Review reasons / Evidence / Verification 6 节）；Sources 行整行 + ↗ icon 跳官方页；Generation Preview 假链接换成真链接；Coverage 头部描述讲清 Sources / Rules / Preview 三层关系。Figma `Settings · Rules` section 增加 5/4 状态稿（drawer 打开态）作为对齐基准。EvidenceCard 修复 inline-flex items-center 继承 + truncate 链断裂导致的「文字居中、长 title 把 badge 挤出 card」layout bug。详见 `docs/dev-log/2026-04-27-rules-console-detail-drawer.md`。                                |
 | v0.3 | 2026-04-27 | Codex | 侧栏 Settings 容器再收敛为非交互 section header（icon + label + 静态 chevron-down，无 hover bg、不可点击），子项始终展开；`/settings` 由 router loader 直接重定向到 `/settings/rules`；详见 `docs/dev-log/2026-04-27-sidebar-settings-flatten.md`。                                                                                                                                                                                                                                                                                                                                          |

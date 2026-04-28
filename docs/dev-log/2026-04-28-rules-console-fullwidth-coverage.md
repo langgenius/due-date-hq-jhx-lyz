@@ -40,6 +40,11 @@ ops workbench 布局；Profile / Members 等真正的 settings form 仍保留 88
 模块顶部 JSDoc 注释一并改写，把"Layout invariants" 从 Figma 静态帧坐标更新为
 "全宽 + 同锚 + 内容形态决定宽度"。
 
+Follow-up: tab state moved from local component state to `nuqs` URL state. The
+visual layout stays unchanged; `/settings/rules?tab=sources`,
+`?tab=library`, and `?tab=preview` now deep-link directly to the corresponding
+panel, while missing/invalid values fall back to Coverage.
+
 ### Page header — `apps/app/src/features/rules/rules-console-primitives.tsx`
 
 ```diff

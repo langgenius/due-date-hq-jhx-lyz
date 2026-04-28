@@ -8,6 +8,11 @@
 > [`2026-04-28-rules-console-fullwidth-coverage.md`](./2026-04-28-rules-console-fullwidth-coverage.md).
 > The IA / data-wiring / token-discipline / sidebar decisions in this
 > dev-log **still stand**.
+>
+> **2026-04-28 update — URL state:** tab selection is now shareable via
+> `?tab=coverage|sources|library|preview` and parsed with `nuqs`. The shell
+> still owns the tab rail and descriptions, but the active tab is no longer
+> plain component-local state.
 
 ## Context
 
@@ -34,7 +39,8 @@ content column.
 - Added the lazy route `settings/rules` in `apps/app/src/router.tsx`, rendering
   `apps/app/src/routes/settings.rules.tsx`.
 - Added the feature module under `apps/app/src/features/rules/`:
-  - `rules-console.tsx` owns the tab shell and tab-specific descriptions.
+  - `rules-console.tsx` owns the tab shell and tab-specific descriptions;
+    active tab state is persisted with `nuqs` as `?tab=...`.
   - `rules-console-primitives.tsx` owns shared frame, chip, status, table, and
     empty/loading/error primitives.
   - `coverage-tab.tsx` consumes `rules.coverage`.

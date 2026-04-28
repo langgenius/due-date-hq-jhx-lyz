@@ -4,18 +4,21 @@ import {
   countRulesByFilter,
   countSourcesByHealth,
   DEFAULT_PREVIEW_FORM_VALUES,
+  DEFAULT_RULES_TAB,
   filterRules,
   filterSources,
   groupPreviewRows,
   humanizeDueDateLogic,
   isRulesTab,
   previewFormToInput,
+  RULES_TAB_VALUES,
 } from './rules-console-model'
 
 describe('rules console model', () => {
-  it('guards tab values', () => {
-    expect(isRulesTab('coverage')).toBe(true)
-    expect(isRulesTab('preview')).toBe(true)
+  it('guards tab values from the shared literal tuple', () => {
+    expect(DEFAULT_RULES_TAB).toBe('coverage')
+    expect(RULES_TAB_VALUES).toEqual(['coverage', 'sources', 'library', 'preview'])
+    expect(RULES_TAB_VALUES.every(isRulesTab)).toBe(true)
     expect(isRulesTab('publish')).toBe(false)
   })
 
