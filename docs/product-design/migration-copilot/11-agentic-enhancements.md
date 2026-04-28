@@ -203,7 +203,7 @@ Safety
   ✓ Audit log captures every AI decision
   ✓ Coverage status is visible before import
   ✓ No client emails will be sent automatically
-  ✓ Report email goes only to the Practice Owner
+  ✓ Report email goes to the importing Owner/Manager and the Practice Owner
 ```
 
 同时新增 `[View evidence preview]`，打开抽屉：
@@ -217,7 +217,7 @@ Safety
 
 - Evidence preview 是 dry-run 解释，不等于正式 audit record；正式 audit 只在 commit 成功后写入。
 - 邮件 report 禁止出现 EIN、邮箱、电话、SSN、完整地址。
-- Revert token 只表达意图，不跳过登录和 Owner guard。
+- Revert token 只表达意图，不跳过登录和 Owner / Manager guard。
 
 ---
 

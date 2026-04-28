@@ -44,13 +44,14 @@ describe('@duedatehq/auth permissions', () => {
     expect(coord.dollars).toBeUndefined()
   })
 
-  it('keeps Pulse and migration revert owner-only', () => {
+  it('allows owner and manager to revert Pulse and migration batches', () => {
     const manager = roles.manager.statements as Record<string, readonly string[] | undefined>
     const owner = roles.owner.statements as Record<string, readonly string[]>
 
-    expect(manager.pulse).toEqual(expect.arrayContaining(['read', 'approve', 'batch_apply']))
-    expect(manager.pulse).not.toContain('revert')
-    expect(manager.migration).toEqual(['run'])
+    expect(manager.pulse).toEqual(
+      expect.arrayContaining(['read', 'approve', 'batch_apply', 'revert']),
+    )
+    expect(manager.migration).toEqual(expect.arrayContaining(['run', 'revert']))
     expect(owner.pulse).toContain('revert')
     expect(owner.migration).toContain('revert')
   })

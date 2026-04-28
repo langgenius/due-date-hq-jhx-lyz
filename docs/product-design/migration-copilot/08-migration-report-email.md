@@ -5,7 +5,7 @@
 > 入册位置：[`./README.md`](./README.md) §2 第 08 份
 > 阅读对象：Design / Frontend / Backend / Compliance
 
-本文件把 Import 完成后 60 秒内发给 Owner 的战报邮件的 Subject / Body / HTML 模板、locale 策略、Revert 链接签名、发送管线、可达性与合规写死。Demo Sprint 场景下该邮件是 Offline / Future-proof 的兑现凭证——Live Genesis 是"现场感动"，Migration Report 邮件是"回到邮箱仍然在"。
+本文件把 Import 完成后 60 秒内发给导入者与 Owner 的战报邮件的 Subject / Body / HTML 模板、locale 策略、Revert 链接签名、发送管线、可达性与合规写死。Demo Sprint 场景下该邮件是 Offline / Future-proof 的兑现凭证——Live Genesis 是"现场感动"，Migration Report 邮件是"回到邮箱仍然在"。
 
 ---
 
@@ -15,7 +15,7 @@
 
 - **AC 绑定**：S2-AC5"导入后立即生成全年日历"叙事中的 offline 验证（[`./01-mvp-and-journeys.md` §2](./01-mvp-and-journeys.md#2-ac--test--p0-三维映射表)）——即使用户关闭浏览器，邮件也能完成"30 分钟完成 30 客户"的闭环交付
 - **发送时机**：后端写入 `migration.imported` audit event 后 **+60s**，由 Queue consumer 从 `email_outbox` 取出推送 Resend。前端播 Live Genesis 动画期间邮件已入 `email_outbox`（对齐 `dev-file/02` §4.3 原子导入事务内 INSERT `email_outbox`）
-- **收件人**：Demo Sprint 只发 Owner 单人（对齐 [`./01-mvp-and-journeys.md` §6.1 Owner-only](./01-mvp-and-journeys.md#61-demo-sprint-权限owner-only)）；Phase 0 RBAC 开闸后扩展见 §8 扩展位
+- **收件人**：Demo Sprint 只发 Owner 单人；Phase 0 起发送给导入者 + Owner（如导入者就是 Owner 则去重）。邮件里的 Revert intent link 仍需登录，并只允许 Owner / Manager 执行。
 
 ---
 
@@ -497,7 +497,7 @@ GET /api/migration/{batch_id}/revert?token=...
   2. 校验 `now() < expires_at_unix`
   3. 校验 `batch_id` 存在且 `status=applied` 且 `revert_expires_at > now()`
   4. 校验用户已登录；否则 302 → `/login?redirect=/api/migration/{batch_id}/revert?token=...`
-  5. 校验用户是 batch 对应 firm 的 Owner（Demo Sprint + Phase 0 一致，对齐 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)）
+  5. 校验用户是 batch 对应 firm 的 Owner 或 Manager（对齐 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)）
 - 通过 → 302 → `/settings/migration/{batch_id}`
   - 前端 mount 时读 query `?from=email` → 直接展开 `[Undo all]` 确认 Modal（仍然需要二次点击确认，邮件 token 不做 one-click destructive）
 - 不通过 → 邮件落地页（静态）`/migration/revert/expired` 告知"链接已过期或不适用"
@@ -511,7 +511,7 @@ GET /api/migration/{batch_id}/revert?token=...
 ### 5.4 Auth Middleware 双层校验
 
 - **邮件 token** 是"谁收到邮件就能打开链接"的弱凭证；**不等于授权执行 revert**
-- 真正执行 revert 仍走 `rpc.migration.revert({ batch_id })`，middleware 校验 session + Owner role（对齐 ADR 0009 错误码合约 `FORBIDDEN` / `UNAUTHORIZED`）
+- 真正执行 revert 仍走 `rpc.migration.revert({ batch_id })`，middleware 校验 session + Owner / Manager role（对齐 ADR 0009 错误码合约 `FORBIDDEN` / `UNAUTHORIZED`）
 - 即：token 仅放行 `/api/migration/{batch_id}/revert` 到 `/settings/migration/{batch_id}` 的**跳转 + prefill 意图**，不跳过登录
 
 ---

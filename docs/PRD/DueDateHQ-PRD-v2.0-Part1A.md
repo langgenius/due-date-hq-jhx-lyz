@@ -319,12 +319,12 @@ TeamInvitation
 | Assign / Reassign               | ✓     | ✓       | —                                      | —                                                                                   |
 | **Migration**                   |       |         |                                        |                                                                                     |
 | Import                          | ✓     | ✓       | —                                      | —                                                                                   |
-| **Revert (24h full batch)**     | ✓     | —       | —                                      | —                                                                                   |
+| **Revert (24h full batch)**     | ✓     | ✓       | —                                      | —                                                                                   |
 | Revert 单客户（7d）             | ✓     | ✓       | —                                      | —                                                                                   |
 | **Regulatory Pulse**            |       |         |                                        |                                                                                     |
 | 查看 Pulse Feed                 | ✓     | ✓       | ✓                                      | ✓                                                                                   |
 | Batch Apply                     | ✓     | ✓       | —                                      | —                                                                                   |
-| Revert Pulse Apply（24h）       | ✓     | —       | —                                      | —                                                                                   |
+| Revert Pulse Apply（24h）       | ✓     | ✓       | —                                      | —                                                                                   |
 | Dismiss / Snooze                | ✓     | ✓       | —                                      | —                                                                                   |
 | **规则与证据**                  |       |         |                                        |                                                                                     |
 | 查看 Rules                      | ✓     | ✓       | ✓                                      | ✓                                                                                   |
@@ -338,6 +338,8 @@ TeamInvitation
 | **AI Ask**                      |       |         |                                        |                                                                                     |
 | Ask DueDateHQ                   | ✓     | ✓       | ✓                                      | ✓（可选开启）                                                                       |
 | Ask 含 $ 敞口字段               | ✓     | ✓       | ✓                                      | —                                                                                   |
+
+**权限边界原则：** Revert 是操作纠错能力，因此 Owner / Manager 都可执行；Owner-only 保留给所有权、账户、billing、role 和全 firm export 等不可由日常运营角色承担的能力。
 
 **执行机制：**
 
@@ -413,13 +415,13 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 
 ### 3.6.6 并发编辑与冲突处理
 
-| 场景                                    | 策略                                                                                                                                              |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 两人同时改同一 obligation 的 status     | **Last-write-wins + 通知**：晚到的写成功但推送 toast `X just changed this from 'in_progress' to 'waiting_on_client' 3s ago. [Undo my change]`     |
-| 两人同时 Pulse Batch Apply 同一条 Pulse | **Advisory lock**：事务开始前 `SELECT pulse FOR UPDATE SKIP LOCKED`；第二人看到 `This pulse is being applied by Y right now. [Wait] [Refresh]`    |
-| Migration 同一 firm 并行进行            | **禁止**：同一 firm 同时最多 1 个 draft batch；第二次 `Import` 提示 `Y is currently importing (Step 2 of 4). [View] [Cancel theirs — Owner only]` |
-| 两人同时 Revert 同一 batch              | DB unique constraint on `(batch_id, status='reverted')`；第二人看到 `Already reverted by X`                                                       |
-| Saved View 同名冲突                     | 允许同名（Personal 与 Shared 命名空间分离）；Shared 强制 Firm 内唯一                                                                              |
+| 场景                                    | 策略                                                                                                                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 两人同时改同一 obligation 的 status     | **Last-write-wins + 通知**：晚到的写成功但推送 toast `X just changed this from 'in_progress' to 'waiting_on_client' 3s ago. [Undo my change]`          |
+| 两人同时 Pulse Batch Apply 同一条 Pulse | **Advisory lock**：事务开始前 `SELECT pulse FOR UPDATE SKIP LOCKED`；第二人看到 `This pulse is being applied by Y right now. [Wait] [Refresh]`         |
+| Migration 同一 firm 并行进行            | **禁止**：同一 firm 同时最多 1 个 draft batch；第二次 `Import` 提示 `Y is currently importing (Step 2 of 4). [View] [Cancel theirs — Owner / Manager]` |
+| 两人同时 Revert 同一 batch              | DB unique constraint on `(batch_id, status='reverted')`；第二人看到 `Already reverted by X`                                                            |
+| Saved View 同名冲突                     | 允许同名（Personal 与 Shared 命名空间分离）；Shared 强制 Firm 内唯一                                                                                   |
 
 ### 3.6.7 Manager 工作负载视图（Workload View · P1）
 

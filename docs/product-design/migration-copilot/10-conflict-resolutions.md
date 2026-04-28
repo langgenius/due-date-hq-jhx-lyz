@@ -18,16 +18,16 @@
 
 ## 1. Revert 24h 全量撤销权限
 
-- **冲突点**：Migration 全量 batch 的 24h Revert 是"全量权限"还是"Owner-only"？PRD Part1B §6A.7 Revert 双档在写"24h 全量 + 7d 单客户"时未再次复述 RBAC；但 PRD Part1A §3.6.3 的 RBAC 矩阵 Migration 区明确 `Revert (24h full batch) = Owner only`。
+- **冲突点**：Migration 全量 batch 的 24h Revert 是"全量权限"还是"Owner-only"？早期 Demo 裁定曾收紧到 Owner-only；但长期 RBAC 已允许 Manager 执行 `migration.run`、`pulse.batch_apply` 这类批量变更，只保留 Owner 才能补救会让事故恢复路径不对称。
 - **PRD 引用位置**：
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part1A.md` §3.6.3 RBAC 权限矩阵（Migration 区行："Revert (24h full batch)" / "Revert 单客户（7d）"）
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part1B.md` §6A.7 Revert 双档表
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part2B.md` §13.2.1 Migration audit actions
 - **裁定**：
-  - Demo Sprint：单 Owner 账号下该权限无分歧；契约实现上**强制 Owner-only**（对齐 Phase 0 RBAC 开闸后的语义，不改）。
-  - Phase 0 MVP（4 周全量）：`Revert 24h 全量 = Owner only`；`Revert 单客户 7d = Owner + Manager`；对齐 Part1A §3.6.3。
-- **理由**：全量 batch 的副作用覆盖整个 firm（级联删除全部 batch 客户 + obligations + evidence_link），一旦误触成本极高；经 24h 后已有下游 Pulse Apply / Workboard 状态变更的风险快速增长，必须绑定最高权限者。单客户 Undo 影响面可控，Manager 能做。
-- **工程落地影响**：`./02-ux-4step-wizard.md` Step 4 完成后的 24h toast 按钮在非 Owner 场景灰化；后端 `migration.reverted` procedure middleware 走 Owner-only guard；audit 写 `migration.reverted`（Part2B §13.2.1）。
+  - `Revert 24h 全量 = Owner + Manager`；`Revert 单客户 7d = Owner + Manager`；对齐 Part1A §3.6.3。
+  - Owner-only 仍保留给所有权 / 账户级能力：Firm 删除、Owner 转让、billing/pay-intent、role 修改、全 firm export。
+- **理由**：Revert 是补救能力，不是所有权能力。Manager 已经可以触发批量导入或 Pulse 批量应用，就必须能在 24h 窗口内快速撤回同类变更；真正的风险控制放在确认弹窗、before/after diff、审计、Owner 通知、24h server-side expiry 和必要时二次验证。
+- **工程落地影响**：`./02-ux-4step-wizard.md` Step 4 完成后的 24h toast 按钮对 Owner / Manager 可见；后端 `migration.reverted` procedure middleware 走 Owner + Manager guard；audit 写 `migration.reverted`（Part2B §13.2.1）。
 
 ---
 

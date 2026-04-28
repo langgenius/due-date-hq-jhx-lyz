@@ -132,7 +132,7 @@ stateDiagram-v2
 ```
 ┌─ 顶栏内嵌 Alert（Wizard 顶栏下方，贴紧 Stepper）───────────────┐
 │  ⓘ  {actor} is currently importing (Step 2 of 4).              │   ← 背景 {colors.severity-medium-tint}；文本 {colors.text-primary}
-│      [View]    [Cancel theirs — Owner only]                     │   ← ghost 按钮；第二个仅 Owner 渲染
+│      [View]    [Cancel theirs — Owner / Manager]                │   ← ghost 按钮；第二个仅 Owner / Manager 渲染
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -672,13 +672,13 @@ stateDiagram-v2
 ```
 ┌─ Toast · Level 3 · 固定顶栏下 · 宽 720px · {rounded.md} ─────────────┐
 │  ✓ Imported 30 clients, 152 obligations, $19,200 at risk.            │   ← ✓ 色 {colors.status-done}
-│                                      [View audit]      [Undo all]    │   ← [View audit] ghost；[Undo all] destructive（Owner 可见）
+│                                      [View audit]      [Undo all]    │   ← [View audit] ghost；[Undo all] destructive（Owner / Manager 可见）
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
 - 背景 `{colors.surface-elevated}` + 1px `{colors.border-strong}` + shadow Level 3
 - 数值走 `{typography.numeric}`
-- `[Undo all]`：**Owner-only**（对齐裁定 1，见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)）；Demo Sprint Owner 单账号恒可见；非 Owner 场景不渲染该按钮
+- `[Undo all]`：**Owner + Manager**（对齐裁定 1，见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)）；Preparer / Coordinator 不渲染该按钮
 - 24h 后 `[Undo all]` 灰化 → `{colors.text-disabled}` + `cursor: not-allowed`；hover tooltip：
 
   ```
@@ -757,13 +757,13 @@ stateDiagram-v2
 
 ### 8.1 入口矩阵（对齐 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §5 + Part1A §3.6.3）
 
-| 入口                                         | 权限                   | 触发路径                        | 备注                      |
-| -------------------------------------------- | ---------------------- | ------------------------------- | ------------------------- |
-| Import 完成持久 Toast `[Undo all]`           | Owner only             | Step 4 → Toast                  | 24h 内有效                |
-| Settings › Imports history 列表行 `[Revert]` | Owner only（24h 全量） | `/settings/imports` → batch row | 同上                      |
-| 单客户详情页 `[Delete client]`               | Owner + Manager        | `/clients/{id}` → 右上          | 7d 软删 + 级联 obligation |
+| 入口                                         | 权限                        | 触发路径                        | 备注                      |
+| -------------------------------------------- | --------------------------- | ------------------------------- | ------------------------- |
+| Import 完成持久 Toast `[Undo all]`           | Owner + Manager             | Step 4 → Toast                  | 24h 内有效                |
+| Settings › Imports history 列表行 `[Revert]` | Owner + Manager（24h 全量） | `/settings/imports` → batch row | 同上                      |
+| 单客户详情页 `[Delete client]`               | Owner + Manager             | `/clients/{id}` → 右上          | 7d 软删 + 级联 obligation |
 
-> Demo Sprint Owner 单账号下 Manager 分支不渲染，但规格必须就位。
+> Demo Sprint Owner 单账号下 Manager 分支不渲染，但长期 RBAC 规格必须就位。
 
 ### 8.2 确认 Modal · 24h 全量
 
@@ -869,7 +869,7 @@ Toast 持久态  ──24h──>  Expired（Undo all 灰化）
 
 ## 11. Phase 0 扩展位（本轮不展开）
 
-- **Manager 进入 Import 路径的可见性开关**（对齐 Part1A §3.6.3 Migration Import ✓；当前 Owner-only 仅 Demo Sprint 口径，Phase 0 起需要在 Wizard 容器的权限 guard 打开）
+- **Manager 进入 Import / Revert 路径的可见性开关**（对齐 Part1A §3.6.3 Migration Import / Revert ✓；Demo Sprint 单 Owner 不渲染 Manager 分支，Phase 0 起需要在 Wizard 容器的权限 guard 打开）
 - **Preset 自定义（第 6 位 `Custom CSV template`）**：用户上传字段模板 + 保存为个人 Preset
 - **多 firm 切换时进行中 draft 的跨 firm 可见性提示**（对齐 Part1A §3.6.4 多事务所切换）
 - **Pulse Apply 与 Migration-generated obligations 的联动 Banner**（Demo Sprint 静态 seed 未联动；Phase 0 起在 Step 4 成功后展示 `1 rule updated recently affects your new clients`）

@@ -104,7 +104,7 @@ export function makeClientsRepo(db: Db, firmId: string) {
     },
 
     /**
-     * 24h full-batch revert helper (Owner-only; caller enforces the RBAC
+     * 24h full-batch revert helper (Owner/Manager; caller enforces the RBAC
      * gate + writes `migration.reverted` audit + `migration_revert`
      * evidence_link before calling).
      *

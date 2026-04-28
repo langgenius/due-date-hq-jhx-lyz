@@ -86,9 +86,9 @@ const statement = {
 | `obligation.update:assignee` | ✓     | ✓                  | —                    | —                         |
 | `pulse.approve`              | ✓     | ✓                  | —                    | —                         |
 | `pulse.batch_apply`          | ✓     | ✓                  | —                    | —                         |
-| `pulse.revert`               | ✓     | —                  | —                    | —                         |
+| `pulse.revert`               | ✓     | ✓                  | —                    | —                         |
 | `migration.run`              | ✓     | ✓                  | —                    | —                         |
-| `migration.revert`           | ✓     | —                  | —                    | —                         |
+| `migration.revert`           | ✓     | ✓                  | —                    | —                         |
 | `member.invite`              | ✓     | ✓（≤ preparer）    | —                    | —                         |
 | `member.change_role`         | ✓     | —                  | —                    | —                         |
 | `billing.*`                  | ✓     | —                  | —                    | —                         |
@@ -96,10 +96,12 @@ const statement = {
 | `dollars.read`               | ✓     | ✓                  | ✓                    | 默认 ✗；firm 开关打开才 ✓ |
 | `export.evidence_package`    | ✓     | —                  | —                    | —                         |
 
+**边界原则：** Revert 是补救能力，Owner + Manager 都可执行；Owner-only 只用于所有权 / 账户级能力，包括 Firm 删除、Owner 转让、billing/pay-intent、role 修改和全 firm export。
+
 ### 3.3 权限检查（P0 Owner-only，Phase 1 完整矩阵）
 
 - 7 天 Demo / P0 早期：单 Owner 账号，`member.role='owner'`；仍必须检查 session、active firm、tenant scope，且所有写操作写 audit
-- 真实试点前：Owner MFA 开启；危险写操作（migration revert / pulse apply / export）至少校验 owner role
+- 真实试点前：Owner MFA 开启；危险写操作按 RBAC 矩阵校验（migration/pulse revert = Owner + Manager，export / billing / ownership = Owner）
 - Phase 1 在每个 oRPC procedure middleware 中加 `authed.use(requirePermission('client.delete'))`，启用四角色矩阵
 - 失败 → 写 `audit_event(action='auth.denied', reason=...)` + 返回 `ORPCError('FORBIDDEN')`
 

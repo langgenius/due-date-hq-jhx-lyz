@@ -78,7 +78,7 @@ review（`../../dev-file/09-Demo-Sprint-Module-Playbook.md` §13）。
 
 以下 6 条是本册裁定的一行摘要，完整理由 + PRD 引用位置见 `./10-conflict-resolutions.md` 对应小节。
 
-1. **Revert 24h 全量权限 → Owner-only（Demo Sprint + Phase 0 MVP 一致）** — 见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)
+1. **Revert 24h 全量权限 → Owner + Manager（补救能力，不是所有权能力）** — 见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)
 2. **5 Preset 含 File In Time（第 5 位 + 彩蛋 tip）** — 见 [`./10-conflict-resolutions.md#2-5-preset-含-file-in-time`](./10-conflict-resolutions.md#2-5-preset-含-file-in-time)
 3. **T-S2-01 双指标 = Mapping Confidence ≥ 95% 且 EIN 识别率 = 100%** — 见 [`./10-conflict-resolutions.md#3-t-s2-01-双指标口径`](./10-conflict-resolutions.md#3-t-s2-01-双指标口径)
 4. **KPI 起点：Time-to-First-Value 与 P95 完成是两个指标两条起止点** — 见 [`./10-conflict-resolutions.md#4-kpi-起点与终点口径`](./10-conflict-resolutions.md#4-kpi-起点与终点口径)

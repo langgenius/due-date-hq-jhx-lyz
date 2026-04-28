@@ -9,10 +9,10 @@ date: 2026-04-29
 
 The Pulse module docs still assumed IRS / state RSS coverage that was not
 verified as stable. The same review also found a few implementation risks that
-should be fixed before building the ingest pipeline: manager roles could revert
-Pulse / migration batches, Pulse had no dedicated raw snapshot bucket or queue
-binding, and shared audit / evidence constants did not include Pulse apply and
-revert strings.
+should be fixed before building the ingest pipeline: Pulse had no dedicated raw
+snapshot bucket or queue binding, shared audit / evidence constants did not
+include Pulse apply and revert strings, and RBAC docs needed a clearer boundary
+between Owner-only account powers and Owner / Manager operational recovery.
 
 ## Change
 
@@ -25,8 +25,9 @@ revert strings.
   `pulse.status='applied'`.
 - Added `R2_PULSE` and `PULSE_QUEUE` to Worker bindings and documented the
   queue split between email outbox and Pulse extract / match jobs.
-- Removed manager access to `pulse.revert` and `migration.revert`; those remain
-  owner-only per the security matrix.
+- Kept `pulse.revert` and `migration.revert` available to Owner + Manager.
+  Revert is treated as operational recovery; Owner-only remains reserved for
+  ownership, billing, role-management, and export powers.
 - Added Pulse audit actions and `pulse_apply` / `pulse_revert` evidence source
   strings to contracts and DB schema constants.
 

@@ -32,8 +32,8 @@ export const migrationBatch = sqliteTable(
     firmId: text('firm_id')
       .notNull()
       .references(() => firmProfile.id, { onDelete: 'restrict' }),
-    // Owner-only in Demo (docs/adr/0011 Decision II.1). `user.id` not
-    // `member.id` because session actor is always a user.
+    // Import actor. `user.id` not `member.id` because session actor is always
+    // a user; RBAC is enforced by the caller.
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'restrict' }),
@@ -79,7 +79,7 @@ export const migrationBatch = sqliteTable(
       .default('draft'),
 
     appliedAt: integer('applied_at', { mode: 'timestamp_ms' }),
-    // = applied_at + 24h. Owner-only 24h revert button disables past this
+    // = applied_at + 24h. Owner/Manager 24h revert button disables past this
     // timestamp; server is the clock source (no client-side countdown).
     revertExpiresAt: integer('revert_expires_at', { mode: 'timestamp_ms' }),
     revertedAt: integer('reverted_at', { mode: 'timestamp_ms' }),

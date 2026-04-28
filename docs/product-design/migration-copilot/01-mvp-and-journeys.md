@@ -20,7 +20,7 @@
 | AI Normalizer + 智能建议非阻塞（Part1A P0-4 · Part1B §6A.3）                                                                                                                                                                                                          | Pulse apply 联动 Migration 产生的 obligations（Demo Sprint 用静态 seed；`dev-file/09` §2.2）                  |
 | Default Tax Types Inference Matrix Demo 子集 = Federal + CA + NY × 8 实体（Part1A P0-5 · Part1B §6A.5 · [`./05-default-matrix.md`](./05-default-matrix.md)）                                                                                                          | Migration 触发 PWA install prompt（PWA 整体 Phase 2；`dev-file/09` §5.11）                                    |
 | Dry-Run 预览 + 原子 Import + Live Genesis 动画（Part1A P0-6 · Part1B §6A.6 Step 4）                                                                                                                                                                                   | Tauri macOS menu bar 联动（PRD P1-37 · Phase 2）                                                              |
-| 24h 全量 Revert（Owner-only，见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)）                                                                                                                  | 真实 WISP v1.0（Demo Sprint 交 1-page draft；PRD Part1A P0-24 · Part2B §13.2）                                |
+| 24h 全量 Revert（Owner + Manager，见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)）                                                                                                             | 真实 WISP v1.0（Demo Sprint 交 1-page draft；PRD Part1A P0-24 · Part2B §13.2）                                |
 | Migration 专属 evidence_link + audit_event `migration.imported / .reverted / .single_undo`（Part2B §13.2.1）                                                                                                                                                          | Rules Overlay runtime engine（Demo 直接 UPDATE；`dev-file/09` §2.2 + `dev-file/00` §3）                       |
 | 5 套 Preset sample fixture + 坏行 fixture（Part2B §17 · [`./06-fixtures/README.md`](./06-fixtures/README.md)）                                                                                                                                                        | Audit-Ready Evidence Package（ZIP + SHA-256；PRD P1-28 · `dev-file/09` §14）                                  |
 | Agent-shaped setup shell 的产品与埋点契约（非完整 Agent；见 [`./11-agentic-enhancements.md`](./11-agentic-enhancements.md)）                                                                                                                                          | Agent 自动 commit / ReAct 工具调用 / Setup History 完整页                                                     |
@@ -140,23 +140,23 @@ sequenceDiagram
 
 ## 6. 权限与并发
 
-### 6.1 Demo Sprint 权限（Owner-only）
+### 6.1 Demo Sprint 权限与 Phase 0 RBAC
 
 对齐 `../../dev-file/09-Demo-Sprint-Module-Playbook.md` §2.2 与 PRD Part1A §4.1 P0-24：
 
 - 唯一 Owner；本向导仅对 Owner 可见
 - 四角色 RBAC 矩阵是 P1（PRD §3.6.3），Demo Sprint 不渲染
-- 后端仍走 `scoped(db, firmId)` 与 Owner-only 写路径校验（`../../dev-file/09-Demo-Sprint-Module-Playbook.md` §5.3）
+- 后端仍走 `scoped(db, firmId)` 与 RBAC 写路径校验；24h full-batch revert 为 Owner + Manager，账户 / billing / role / export 仍 Owner-only
 
 ### 6.2 Phase 0 权限矩阵预告（对齐 PRD Part1A §3.6.3）
 
 | 操作                  | Owner | Manager | Preparer | Coordinator |
 | --------------------- | ----- | ------- | -------- | ----------- |
 | Migration Import      | ✓     | ✓       | —        | —           |
-| Revert 24h 全量 batch | ✓     | —       | —        | —           |
+| Revert 24h 全量 batch | ✓     | ✓       | —        | —           |
 | Revert 单客户（7 天） | ✓     | ✓       | —        | —           |
 
-24h 全量 Revert 的裁定理由见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)。
+24h 全量 Revert 的裁定理由见 [`./10-conflict-resolutions.md#1-revert-24h-全量撤销权限`](./10-conflict-resolutions.md#1-revert-24h-全量撤销权限)：Revert 是补救能力，Owner-only 保留给所有权 / 账户级操作。
 
 ### 6.3 并发串行（对齐 PRD Part1A §3.6.6）
 
@@ -164,7 +164,7 @@ sequenceDiagram
 
 ```
 Another import is currently in progress (Step 2 of 4).
-[View] [Cancel theirs — Owner only]
+[View] [Cancel theirs — Owner / Manager]
 ```
 
 DB 层靠 `migration_batch.status='draft'` 的唯一性约束（全 firm 维度）保障（`../../dev-file/03-Data-Model.md` Migration 相关章节）。
