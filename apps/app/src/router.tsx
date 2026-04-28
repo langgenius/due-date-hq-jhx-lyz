@@ -202,6 +202,15 @@ export function createAppRouter() {
               },
             },
             {
+              path: 'clients',
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { ClientsRoute } = await import('@/routes/clients')
+
+                return { Component: ClientsRoute }
+              },
+            },
+            {
               path: 'settings',
               loader: settingsLoader,
               HydrateFallback: RouteHydrateFallback,
