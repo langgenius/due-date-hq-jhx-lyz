@@ -6,7 +6,6 @@ import { msg } from '@lingui/core/macro'
 import { useLingui } from '@lingui/react/macro'
 import type { FirmPublic } from '@duedatehq/contracts'
 
-import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import type { ThemePreference } from '@duedatehq/ui/theme'
 
 import { AppShell } from '@/components/patterns/app-shell'
@@ -179,14 +178,23 @@ function pickCurrentFirm(firms: FirmPublic[] | undefined, user: AuthUser): FirmP
  * Exported so the protected route can use it as `HydrateFallback` during the
  * initial session fetch. See `apps/app/src/router.tsx` —
  * `HydrateFallback: ShellSkeleton`.
+ *
+ * Renders only 1px hairline outlines — no fill, no animation. The previous
+ * version used `Skeleton`, whose `state-base-hover-alt` background reads as
+ * a purple flash on the white canvas. DESIGN.md is calm + hairline-first;
+ * the top-of-shell `PendingBar` already carries the "system is working"
+ * signal during the brief session fetch.
  */
 export function ShellSkeleton() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-body p-6">
+    <div
+      aria-hidden
+      className="flex min-h-screen items-center justify-center bg-background-body p-6"
+    >
       <div className="flex w-full max-w-[480px] flex-col gap-3">
-        <Skeleton className="h-6 w-40" />
-        <Skeleton className="h-4 w-64" />
-        <Skeleton className="h-40 w-full rounded-lg" />
+        <div className="h-6 w-40 rounded-md border border-divider-subtle" />
+        <div className="h-4 w-64 rounded-md border border-divider-subtle" />
+        <div className="h-40 w-full rounded-lg border border-divider-subtle" />
       </div>
     </div>
   )
