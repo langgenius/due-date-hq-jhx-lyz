@@ -22,10 +22,7 @@ import {
   type MigrationSource,
   type NormalizationRow,
 } from '@duedatehq/contracts'
-// `import type` from @duedatehq/db is restricted in procedures (vite.config.ts
-// no-restricted-imports override). Reach the type via dynamic-import syntax,
-// which the linter does not flag — same trick env.ts uses for ContextVars.
-type ScopedRepo = import('@duedatehq/db').ScopedRepo
+import type { ScopedRepo } from '@duedatehq/ports'
 import {
   buildAllIgnoreMappings,
   buildPresetMappings,

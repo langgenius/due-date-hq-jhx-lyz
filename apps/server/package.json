@@ -21,6 +21,7 @@
     "@duedatehq/core": "workspace:*",
     "@duedatehq/db": "workspace:*",
     "@duedatehq/i18n": "workspace:*",
+    "@duedatehq/ports": "workspace:*",
     "@orpc/contract": "catalog:",
     "@orpc/server": "catalog:",
     "@sentry/cloudflare": "catalog:",

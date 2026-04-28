@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { ScopedRepo } from '@duedatehq/ports'
 import { updateObligationStatus } from './_service'
-
-type ScopedRepo = import('@duedatehq/db').ScopedRepo
 
 interface Row {
   id: string

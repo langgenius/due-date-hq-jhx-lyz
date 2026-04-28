@@ -34,7 +34,7 @@ packages/db/
 
 **约束：**
 
-- `apps/server/src/procedures/**` **不允许**直接 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`；只能通过 `context.vars.scoped` / `context.vars.tenantContext`
+- `apps/server/src/procedures/**` **不允许**直接 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`；只能通过 `context.vars.scoped` / `context.vars.tenantContext` 访问运行时数据；类型边界使用 type-only `@duedatehq/ports`
 - `scoped.ts` 的每个 repo 入口都必须硬编码 `WHERE firm_id = :firmId`，`firmId` 只能从 middleware 注入，不能从 procedure `input` 接收
 - `schema/auth.ts`（better-auth 身份层 7 张表）**手工维护**：已在 `member` 表加 `(organization_id, user_id)` unique index、加 `member.status` 业务字段，并为 Members gateway 加 `invitation(organization_id,email,status)` 索引。不跑 `@better-auth/cli generate`（package.json 已无 `auth:schema` 脚本，避免误重跑覆盖这些约束）；后续 schema 变更一律走 `pnpm db:generate` + 人工 review
 - `schema/firm.ts` 是业务租户层，`firm_profile.id` 通过 PK FK 挂到 `organization.id`

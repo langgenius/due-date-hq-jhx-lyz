@@ -1,5 +1,6 @@
 import { createEnv } from '@t3-oss/env-core'
 import type { ServerSession } from '@duedatehq/auth'
+import type { FirmsRepo, MembersRepo, ScopedRepo, TenantContext } from '@duedatehq/ports'
 import * as z from 'zod'
 
 const serverEnvSchema = z.object({
@@ -92,14 +93,14 @@ export interface ContextVars {
   user?: ServerSession['user']
   firmId?: string
   userId?: string
-  firms?: import('@duedatehq/db').FirmsRepo
-  members?: import('@duedatehq/db').MembersRepo
-  scoped?: import('@duedatehq/db').ScopedRepo
+  firms?: FirmsRepo
+  members?: MembersRepo
+  scoped?: ScopedRepo
   /**
    * Resolved business-tenant view for the request. Composed by
    * `middleware/tenant.ts` from `firm_profile` (read or lazy-created).
    * Procedures gate on `plan` / `seatLimit` / `status` via this object
    * instead of re-querying. See ADR 0010.
    */
-  tenantContext?: import('@duedatehq/db').TenantContext
+  tenantContext?: TenantContext
 }

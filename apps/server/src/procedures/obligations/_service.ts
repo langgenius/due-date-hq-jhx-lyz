@@ -4,10 +4,7 @@ import type {
   ObligationStatusUpdateInput,
   ObligationStatusUpdateOutput,
 } from '@duedatehq/contracts'
-
-// Avoid hard-importing @duedatehq/db (procedures rule); reach the type via
-// dynamic-import syntax — same trick `_root.ts` and `migration/_service.ts` use.
-type ScopedRepo = import('@duedatehq/db').ScopedRepo
+import type { ScopedRepo } from '@duedatehq/ports'
 
 interface ObligationRow {
   id: string

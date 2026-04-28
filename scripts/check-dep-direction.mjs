@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Enforce the dependency-direction DAG (docs/dev-file/08 §6).
 //
-//   apps/*                → packages/{contracts, auth, ui, i18n, core}
-//   apps/server (adds)    → packages/{db, ai}
+//   apps/*                → app-specific internal package set
+//   apps/server           → packages/{db, ai, contracts, auth, core, ports}
 //   packages/ai           → packages/core (only; DB/KV/Vectorize/writers/tracing via ports)
-//   packages/db           → packages/core (only)
+//   packages/db           → packages/{core, ports}
+//   packages/ports        → ∅
 //   packages/core         → ∅
 //   packages/contracts    → zod + @orpc/contract only
 //
@@ -17,10 +18,11 @@ const ROOT = new URL('..', import.meta.url).pathname
 
 const ALLOWED = {
   'packages/core': new Set([]),
+  'packages/ports': new Set([]),
   'packages/i18n': new Set([]),
   'packages/ui': new Set([]),
   'packages/contracts': new Set(['zod', '@orpc/contract']),
-  'packages/db': new Set(['@duedatehq/core']),
+  'packages/db': new Set(['@duedatehq/core', '@duedatehq/ports']),
   'packages/ai': new Set(['@duedatehq/core']),
   'packages/auth': new Set(['@duedatehq/core']),
   // apps are free to depend on any internal package.

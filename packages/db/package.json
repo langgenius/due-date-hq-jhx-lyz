@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@duedatehq/core": "workspace:*",
+    "@duedatehq/ports": "workspace:*",
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {

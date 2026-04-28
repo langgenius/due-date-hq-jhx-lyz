@@ -9,10 +9,10 @@ import {
 } from '@duedatehq/core/rules'
 import { validateEin } from '@duedatehq/core/pii'
 import type { MappingRow, MappingTarget, NormalizationRow } from '@duedatehq/contracts'
+import type { ScopedRepo } from '@duedatehq/ports'
 import { validateRows } from './_deterministic'
 import type { MappingJsonPayload, MatrixApplicationEntry } from './_types'
 
-type ScopedRepo = import('@duedatehq/db').ScopedRepo
 type CommitImportInput = Parameters<ScopedRepo['migration']['commitImport']>[0]
 type CommitClient = CommitImportInput['clients'][number]
 type CommitObligation = CommitImportInput['obligations'][number]

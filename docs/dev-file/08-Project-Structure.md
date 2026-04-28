@@ -15,6 +15,7 @@ duedatehq/
 ├── packages/
 │   ├── i18n/                      # 共享 locale contract（常量/headers/Intl 映射）
 │   ├── contracts/                 # oRPC 契约（前后端唯一共享源）
+│   ├── ports/                     # 纯 TS 边界类型（repo / tenant ports，无运行时依赖）
 │   ├── db/                        # Drizzle schema + scoped repo 工厂 + writers
 │   ├── core/                      # 纯领域逻辑（penalty / priority / overlay / date-logic）
 │   ├── ai/                        # RAG + prompts + guard + AI SDK gateway
@@ -55,7 +56,7 @@ rm -rf apps/* packages/*
 # 3. 把 packages/typescript-config 改名 @duedatehq/typescript-config
 #    并派生出 base / library / vite / worker 四个 variant（见 §3.2）
 
-# 4. 手工新增我们的 apps/marketing · apps/server · apps/app · packages/{i18n,ui,contracts,db,core,ai,auth}
+# 4. 手工新增我们的 apps/marketing · apps/server · apps/app · packages/{i18n,ui,contracts,ports,db,core,ai,auth}
 # 5. 按 §01.4 把 pnpm-workspace.yaml 的 catalog 逐字对齐 01-Tech-Stack.md 的权威快照
 # 6. vp install      # 底层仍然调 pnpm
 # 7. vp check        # 全绿即脚手架完成
@@ -67,7 +68,7 @@ rm -rf apps/* packages/*
 
 ### 3.1 Just-in-Time (JIT) 内部包
 
-`packages/ui / contracts / db / core / ai / auth` **不构建**：
+`packages/ui / contracts / ports / db / core / ai / auth` **不构建**：
 
 - 直接导出 `.ts` 源码（`package.json` 的 `exports` 指向 `src/`\*）
 - 消费端（`apps/server` 的 wrangler esbuild · `apps/app` 的 Vite+ / Rolldown）自行转译
@@ -185,7 +186,7 @@ apps/server/
 
 **约束：**
 
-- `procedures/**` 不得 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`（用 `context.vars.scoped`）
+- `procedures/**` 不得 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`（用 `context.vars.scoped`）；允许 type-only import `@duedatehq/ports` 表达 repo / tenant 边界
 - `jobs/**` 可以直接用 `scoped(db, firmId)`（系统任务，firmId 从消息体或 cron 规则推导）
 - 每个 procedure 文件只导出一个 procedure 定义
 
@@ -322,7 +323,7 @@ packages/db/
 
 **约束：**
 
-- `exports` 仅暴露 `scoped` / `client` / `audit-writer` / `evidence-writer` / `types` / schema 导入要显式 `@duedatehq/db/schema/<domain>`（只给 migration / seed / writer 内部用）
+- `exports` 仅暴露 `scoped` / `client` / `audit-writer` / `evidence-writer` / `types` / schema 导入要显式 `@duedatehq/db/schema/<domain>`（只给 migration / seed / writer 内部用）；repo / tenant 类型由 `@duedatehq/ports` 定义，`@duedatehq/db/types` 仅做兼容转出
 - `schema/auth.ts` 不再通过 `@better-auth/cli generate` 自动覆盖；它包含手工维护的 `(organization_id, user_id)` unique index、`member.status` 附加字段，以及与 `firm_profile` 配套的身份层约束。后续 schema 变更走 `pnpm db:generate` 并人工 review migration。
 - `schema/firm.ts` 是业务租户层；`firm_profile.id` 复用 `organization.id`，业务表统一用 `firm_id -> firm_profile.id`。
 - oxlint 限制：`apps/server/src/procedures/**` 禁止 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`；规则在 `vite.config.ts` 的 `lint.rules.no-restricted-imports` override 中维护。
@@ -433,7 +434,7 @@ apps/*
         └─► packages/{core}
 
 apps/server
-  └─► packages/{db, ai, contracts, auth, core}
+  └─► packages/{db, ai, contracts, auth, core, ports}
 
 apps/app
   └─► packages/{contracts, auth(client-only exports), ui, i18n}
@@ -446,7 +447,10 @@ packages/ai
   └─► packages/{core}（only，DB/KV/Vectorize/writers 通过 ports 注入，不直接 import @duedatehq/db）
 
 packages/db
-  └─► packages/{core}（only）
+  └─► packages/{core, ports}
+
+packages/ports
+  └─► (无)
 
 packages/core
   └─► (无)
