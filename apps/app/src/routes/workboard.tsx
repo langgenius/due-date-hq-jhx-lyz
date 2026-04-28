@@ -6,11 +6,12 @@ import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
+  type RowData,
   type RowSelectionState,
   type SortingState,
   type Updater,
 } from '@tanstack/react-table'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { FilterIcon, SearchIcon } from 'lucide-react'
 import {
   parseAsArrayOf,
@@ -21,7 +22,7 @@ import {
 } from 'nuqs'
 import { toast } from 'sonner'
 
-import type { WorkboardRow, WorkboardSort } from '@duedatehq/contracts'
+import type { WorkboardListInput, WorkboardRow, WorkboardSort } from '@duedatehq/contracts'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -65,10 +66,14 @@ import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { formatDate } from '@/lib/utils'
 
-type WorkboardColumnMeta = {
-  headerClassName?: string
-  cellClassName?: string
+declare module '@tanstack/react-table' {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    headerClassName?: string
+    cellClassName?: string
+  }
 }
+type WorkboardCursor = NonNullable<WorkboardListInput['cursor']> | null
+type WorkboardListInputWithoutCursor = Omit<WorkboardListInput, 'cursor'>
 
 const ALL_SORTS = [
   'due_asc',
@@ -77,6 +82,7 @@ const ALL_SORTS = [
 ] as const satisfies readonly WorkboardSort[]
 const DEFAULT_SORT: WorkboardSort = 'due_asc'
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
+const INITIAL_CURSOR: WorkboardCursor = null
 const PAGE_SIZE = 50
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 
@@ -88,14 +94,13 @@ export const workboardSearchParamsParsers = {
   sort: parseAsStringLiteral(ALL_SORTS)
     .withDefault(DEFAULT_SORT)
     .withOptions(REPLACE_HISTORY_OPTIONS),
-  cursor: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
   row: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
 } as const
 
 export type WorkboardSearchParams = inferParserType<typeof workboardSearchParamsParsers>
 
 function isWorkboardSort(value: string): value is WorkboardSort {
-  return (ALL_SORTS as readonly string[]).includes(value)
+  return ALL_SORTS.some((sortOption) => sortOption === value)
 }
 
 function useSortLabels(): Record<WorkboardSort, string> {
@@ -120,10 +125,6 @@ function withDefaultSortCleared(sort: WorkboardSort): WorkboardSort | null {
   return sort === DEFAULT_SORT ? null : sort
 }
 
-function columnMeta(column: ColumnDef<WorkboardRow>): WorkboardColumnMeta {
-  return (column.meta ?? {}) as WorkboardColumnMeta
-}
-
 export function WorkboardRoute() {
   const { t } = useLingui()
   const queryClient = useQueryClient()
@@ -131,28 +132,34 @@ export function WorkboardRoute() {
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const statusLabels = useStatusLabels()
   const sortLabels = useSortLabels()
-  const [{ q: searchInput, status: statusFilter, sort, cursor, row }, setWorkboardQuery] =
-    useQueryStates(workboardSearchParamsParsers)
+  const [{ q: searchInput, status: statusFilter, sort, row }, setWorkboardQuery] = useQueryStates(
+    workboardSearchParamsParsers,
+  )
 
   const deferredSearch = useDeferredValue(searchInput.trim())
   const sorting = useMemo(() => getSortingState(sort), [sort])
   const statusQuery = useMemo(() => [...statusFilter], [statusFilter])
 
-  const queryInput = useMemo(
+  const queryInputWithoutCursor = useMemo<WorkboardListInputWithoutCursor>(
     () => ({
       ...(statusQuery.length > 0 ? { status: statusQuery } : {}),
       ...(deferredSearch ? { search: deferredSearch } : {}),
       sort,
-      cursor,
       limit: PAGE_SIZE,
     }),
-    [statusQuery, deferredSearch, sort, cursor],
+    [statusQuery, deferredSearch, sort],
   )
 
-  const listQuery = useQuery({
-    ...orpc.workboard.list.queryOptions({ input: queryInput }),
-    placeholderData: keepPreviousData,
-  })
+  const listQuery = useInfiniteQuery(
+    orpc.workboard.list.infiniteOptions({
+      initialPageParam: INITIAL_CURSOR,
+      input: (cursor) => ({
+        ...queryInputWithoutCursor,
+        cursor,
+      }),
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }),
+  )
 
   const updateStatusMutation = useMutation(
     orpc.obligations.updateStatus.mutationOptions({
@@ -172,8 +179,10 @@ export function WorkboardRoute() {
     }),
   )
 
-  const rows = useMemo(() => listQuery.data?.rows ?? EMPTY_WORKBOARD_ROWS, [listQuery.data?.rows])
-  const nextCursor = listQuery.data?.nextCursor ?? null
+  const rows = useMemo(
+    () => listQuery.data?.pages.flatMap((page) => page.rows) ?? EMPTY_WORKBOARD_ROWS,
+    [listQuery.data?.pages],
+  )
   const isInitialLoading = listQuery.isLoading
   const isError = listQuery.isError
   const keyboardEnabled = rows.length > 0 && !shortcutsBlocked
@@ -410,14 +419,13 @@ export function WorkboardRoute() {
       : [...statusFilter, status]
     void setWorkboardQuery({
       status: nextStatus.length > 0 ? nextStatus : null,
-      cursor: null,
       row: null,
     })
   }
 
   function loadMore() {
-    if (!nextCursor) return
-    void setWorkboardQuery({ cursor: nextCursor, row: null })
+    if (!listQuery.hasNextPage) return
+    void listQuery.fetchNextPage()
   }
 
   function resetWorkboard() {
@@ -476,7 +484,6 @@ export function WorkboardRoute() {
                 onChange={(event) => {
                   void setWorkboardQuery({
                     q: event.target.value || null,
-                    cursor: null,
                     row: null,
                   })
                 }}
@@ -492,7 +499,6 @@ export function WorkboardRoute() {
                   if (typeof value !== 'string' || !isWorkboardSort(value)) return
                   void setWorkboardQuery({
                     sort: withDefaultSortCleared(value),
-                    cursor: null,
                     row: null,
                   })
                 }}
@@ -513,7 +519,7 @@ export function WorkboardRoute() {
             <button
               type="button"
               className="cursor-pointer focus-visible:outline-none"
-              onClick={() => void setWorkboardQuery({ status: null, cursor: null, row: null })}
+              onClick={() => void setWorkboardQuery({ status: null, row: null })}
             >
               <Badge variant={statusFilter.length === 0 ? 'default' : 'ghost'}>
                 <Trans>All</Trans>
@@ -555,11 +561,11 @@ export function WorkboardRoute() {
                   {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
                       {headerGroup.headers.map((header) => {
-                        const meta = columnMeta(header.column.columnDef)
+                        const meta = header.column.columnDef.meta
                         return (
                           <TableHead
                             key={header.id}
-                            className={meta.headerClassName}
+                            className={meta?.headerClassName}
                             colSpan={header.colSpan}
                           >
                             {header.isPlaceholder
@@ -580,9 +586,9 @@ export function WorkboardRoute() {
                       onClick={() => void setWorkboardQuery({ row: tableRow.original.id })}
                     >
                       {tableRow.getVisibleCells().map((cell) => {
-                        const meta = columnMeta(cell.column.columnDef)
+                        const meta = cell.column.columnDef.meta
                         return (
-                          <TableCell key={cell.id} className={meta.cellClassName}>
+                          <TableCell key={cell.id} className={meta?.cellClassName}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </TableCell>
                         )
@@ -599,10 +605,14 @@ export function WorkboardRoute() {
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={!nextCursor || listQuery.isFetching}
+                  disabled={!listQuery.hasNextPage || listQuery.isFetchingNextPage}
                   onClick={loadMore}
                 >
-                  {listQuery.isFetching ? <Trans>Loading…</Trans> : <Trans>Load more</Trans>}
+                  {listQuery.isFetchingNextPage ? (
+                    <Trans>Loading…</Trans>
+                  ) : (
+                    <Trans>Load more</Trans>
+                  )}
                 </Button>
               </div>
             </>
