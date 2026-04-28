@@ -495,6 +495,19 @@ packages/core
 }
 ```
 
+E2E 基座在根目录而不是 `packages/e2e`：
+
+```txt
+playwright.config.ts
+e2e/
+  tests/
+  fixtures/
+  pages/
+```
+
+原因：E2E 横跨 `apps/app` 的 Vite SPA、`apps/server` 的 Cloudflare Worker/Hono/oRPC
+边界，以及本地 D1 seed/migration；它不是可复用 package，不应进入 `packages/` 的依赖方向图。
+
 每个 app/package 的 `package.json` 只需要场景化脚本；typecheck / lint / fmt 由根 `vp check` 一次跑完，不再要求每个包声明 `check-types`。示例：
 
 ```json

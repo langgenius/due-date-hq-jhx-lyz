@@ -26,6 +26,7 @@
     "deploy": "vp run workspace-deploy"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
     "tsx": "catalog:",

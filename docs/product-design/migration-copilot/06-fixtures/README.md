@@ -113,7 +113,7 @@ rg -nE "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}" . | rg -v "@example\.com
 
 ### 3.2 E2E fixture
 
-- `apps/app/e2e/migration.spec.ts`（或等价路径）的 Playwright 测试使用本目录 CSV 作为 Step 1 Intake 的 paste / upload 输入
+- `e2e/tests/migration.spec.ts`（后续登录态业务流）使用本目录 CSV 作为 Step 1 Intake 的 paste / upload 输入
 - 典型 assertion：
   - `taxdome-30clients.csv` → Step 3 结束 Dry-Run 预览显示 `30 clients · X obligations · $Y at risk`，Import 成功后 Dashboard Penalty Radar 数字 > 0
   - `karbon-20clients.csv` → Step 3 有 20 条 `needs_review` badge（无 tax_types）
