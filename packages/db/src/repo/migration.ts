@@ -26,8 +26,8 @@ const BATCH_WRITE_SIZE = Math.floor(100 / BATCH_COLS) // = 5
 // migration_mapping has 9 columns → 11/batch.
 const MAPPING_COLS = 9
 const MAPPING_BATCH_SIZE = Math.floor(100 / MAPPING_COLS) // = 11
-// migration_normalization has 9 columns → 11/batch.
-const NORM_BATCH_SIZE = Math.floor(100 / 9) // = 11
+// migration_normalization binds 10 values; created_at is SQL default expression → 10/batch.
+const NORM_BATCH_SIZE = Math.floor(100 / 10)
 // migration_error has 7 columns → 14/batch.
 const ERROR_BATCH_SIZE = Math.floor(100 / 7) // = 14
 // client has 14 columns → 7/batch.
