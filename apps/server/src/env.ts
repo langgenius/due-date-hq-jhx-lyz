@@ -8,12 +8,23 @@ const serverEnvSchema = z.object({
   APP_URL: z.url(),
   ENV: z.enum(['development', 'staging', 'production']).default('development'),
   RESEND_API_KEY: z.string().min(1).optional(),
+  RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
   EMAIL_FROM: z.email(),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
+export type ServerEnvInput = Partial<ServerEnv> &
+  Pick<
+    ServerEnv,
+    | 'AUTH_SECRET'
+    | 'AUTH_URL'
+    | 'APP_URL'
+    | 'EMAIL_FROM'
+    | 'GOOGLE_CLIENT_ID'
+    | 'GOOGLE_CLIENT_SECRET'
+  >
 
 export interface WorkerBindings {
   DB: D1Database
@@ -39,7 +50,7 @@ export interface Env extends WorkerBindings, ServerEnv {
   POSTHOG_KEY: string
 }
 
-export function validateServerEnv(runtimeEnv: Env): ServerEnv {
+export function validateServerEnv(runtimeEnv: ServerEnvInput): ServerEnv {
   const env = createEnv({
     server: serverEnvSchema.shape,
     runtimeEnv: {
@@ -48,6 +59,7 @@ export function validateServerEnv(runtimeEnv: Env): ServerEnv {
       APP_URL: runtimeEnv.APP_URL,
       ENV: runtimeEnv.ENV,
       RESEND_API_KEY: runtimeEnv.RESEND_API_KEY,
+      RESEND_WEBHOOK_SECRET: runtimeEnv.RESEND_WEBHOOK_SECRET,
       EMAIL_FROM: runtimeEnv.EMAIL_FROM,
       GOOGLE_CLIENT_ID: runtimeEnv.GOOGLE_CLIENT_ID,
       GOOGLE_CLIENT_SECRET: runtimeEnv.GOOGLE_CLIENT_SECRET,

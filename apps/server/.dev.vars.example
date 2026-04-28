@@ -48,6 +48,7 @@ GOOGLE_CLIENT_SECRET=
 # RESEND_API_KEY may be blank for login + organization bootstrap. Auth email
 # sending still requires it outside development; development prints to console.
 RESEND_API_KEY=
+RESEND_WEBHOOK_SECRET=
 EMAIL_FROM=noreply@duedatehq.com
 
 # ═════════════════════════════════════════════════════════════════════════════

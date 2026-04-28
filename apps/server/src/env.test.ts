@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { validateServerEnv, type Env } from './env'
+import { validateServerEnv, type ServerEnvInput } from './env'
 
-function runtimeEnv(overrides: Partial<Env> = {}): Env {
+function runtimeEnv(overrides: Partial<ServerEnvInput> = {}): ServerEnvInput {
   return {
     AUTH_SECRET: '0123456789abcdefghijklmnopqrstuvwxyz',
     AUTH_URL: 'https://api.duedatehq.test',
@@ -11,7 +11,7 @@ function runtimeEnv(overrides: Partial<Env> = {}): Env {
     GOOGLE_CLIENT_ID: 'google-client-id',
     GOOGLE_CLIENT_SECRET: 'google-client-secret',
     ...overrides,
-  } as Env
+  }
 }
 
 describe('validateServerEnv', () => {
@@ -26,5 +26,11 @@ describe('validateServerEnv', () => {
     const env = validateServerEnv(runtimeEnv({ RESEND_API_KEY: 're_test_key' }))
 
     expect(env.RESEND_API_KEY).toBe('re_test_key')
+  })
+
+  it('preserves the Resend webhook secret when delivery callbacks are configured', () => {
+    const env = validateServerEnv(runtimeEnv({ RESEND_WEBHOOK_SECRET: 'whsec_test' }))
+
+    expect(env.RESEND_WEBHOOK_SECRET).toBe('whsec_test')
   })
 })

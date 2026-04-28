@@ -85,7 +85,8 @@ export function createApp() {
   // /api/auth/* — better-auth handler (Google OAuth + Organization + Access Control).
   app.route('/api/auth', authRoute)
 
-  // /api/webhook/* — external callbacks (IP allowlist + signature).
+  // /api/webhook/* — external callbacks. Provider signature verification is required
+  // before side effects; IP allowlists are defense-in-depth when supported.
   app.route('/api/webhook/resend', resendWebhook)
 
   // /rpc/* — oRPC RPCHandler.

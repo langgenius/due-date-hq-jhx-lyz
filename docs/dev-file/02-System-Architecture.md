@@ -125,15 +125,15 @@
 
 对齐 oRPC 官方惯例，Worker 路由按职责分层，**不可混用**：
 
-| 前缀                   | 挂载的 handler                                    | 职责                                                                            | 身份 / 调用方                       |
-| ---------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------- |
-| `/rpc/*`               | `RPCHandler`（`@orpc/server/fetch`）              | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型         | `apps/app` 独占；cookie session     |
-| `/api/auth/*`          | better-auth（Google OAuth + Organization plugin） | 登录 / 注销 / Google OAuth callback / 邀请接受 / session 管理                   | 浏览器 + Google OAuth 回调          |
-| `/api/webhook/*`       | 手写 Hono route                                   | Resend / Stripe（Phase 1）等外部回调                                            | 无用户身份；IP allowlist + 签名校验 |
-| `/api/ics/:token`      | 手写 Hono route（Phase 1）                        | ICS 日历订阅 feed                                                               | token 鉴权                          |
-| `/api/health`          | 手写 Hono route                                   | Cloudflare healthcheck / liveness                                               | 公开                                |
-| `/api/v1/*`（Phase 2） | `OpenAPIHandler`（`@orpc/openapi/fetch`）         | 公网开放 REST；复用同一份 `packages/contracts` 契约；自动生成 OpenAPI spec      | OAuth client credentials            |
-| app 子域其他所有路径   | ASSETS binding                                    | `apps/app` SPA 静态产物 + `not_found_handling = "single-page-application"` 兜底 | 浏览器                              |
+| 前缀                   | 挂载的 handler                                    | 职责                                                                            | 身份 / 调用方                                                |
+| ---------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `/rpc/*`               | `RPCHandler`（`@orpc/server/fetch`）              | 内部 TS 前端调用；支持 Date / BigInt / Map / Set / AsyncIterator 富类型         | `apps/app` 独占；cookie session                              |
+| `/api/auth/*`          | better-auth（Google OAuth + Organization plugin） | 登录 / 注销 / Google OAuth callback / 邀请接受 / session 管理                   | 浏览器 + Google OAuth 回调                                   |
+| `/api/webhook/*`       | 手写 Hono route                                   | Resend / Stripe（Phase 1）等外部回调                                            | 无用户身份；provider 签名校验必做；IP allowlist 仅作可选加固 |
+| `/api/ics/:token`      | 手写 Hono route（Phase 1）                        | ICS 日历订阅 feed                                                               | token 鉴权                                                   |
+| `/api/health`          | 手写 Hono route                                   | Cloudflare healthcheck / liveness                                               | 公开                                                         |
+| `/api/v1/*`（Phase 2） | `OpenAPIHandler`（`@orpc/openapi/fetch`）         | 公网开放 REST；复用同一份 `packages/contracts` 契约；自动生成 OpenAPI spec      | OAuth client credentials                                     |
+| app 子域其他所有路径   | ASSETS binding                                    | `apps/app` SPA 静态产物 + `not_found_handling = "single-page-application"` 兜底 | 浏览器                                                       |
 
 `duedatehq.com` 的公开首页、后续 `/rules`、`/watch`、`/state/*`、`/pulse` 不走上表的 SaaS Worker fallback；它们属于 `apps/marketing`（见 [12 Marketing Architecture](./12-Marketing-Architecture.md)）。
 
