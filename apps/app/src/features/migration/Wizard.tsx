@@ -16,6 +16,7 @@ import type {
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { orpc } from '@/lib/rpc'
 
+import { canContinueNormalization } from './continue-rules'
 import { Step1Intake } from './Step1Intake'
 import { Step2Mapping } from './Step2Mapping'
 import { Step3Normalize } from './Step3Normalize'
@@ -419,10 +420,7 @@ function computeCanContinue(state: WizardState): boolean {
     return state.mapping.rows.some((r) => r.targetField !== 'IGNORE')
   }
   if (state.step === 3) {
-    // Every normalized value must be non-empty (user fills in needs_review).
-    return state.normalize.rows.every(
-      (r) => r.normalizedValue !== null && r.normalizedValue.length > 0,
-    )
+    return canContinueNormalization(state.normalize.rows)
   }
   if (state.step === 4) {
     return state.dryRun.summary !== null && state.dryRun.summary.clientsToCreate > 0
