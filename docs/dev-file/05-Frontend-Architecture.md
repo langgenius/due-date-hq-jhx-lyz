@@ -31,15 +31,17 @@ apps/app/
 │   │   ├── dashboard.tsx         ← index
 │   │   ├── workboard.tsx
 │   │   ├── clients.tsx           ← Clients 管理页（列表、筛选、新增、详情预览；使用 clients.listByFirm / clients.create）
+│   │   ├── audit.tsx             ← Audit Log 管理页（firm-wide write events；使用 audit.list）
 │   │   ├── settings.tsx
 │   │   └── fallback.tsx          ← RouteHydrateFallback
 │   │   # 目标形态（Phase 0 MVP → Phase 1）：
-│   │   # clients.$id.tsx · alerts.tsx · audit.tsx · settings/*.tsx · migration.tsx
+│   │   # clients.$id.tsx · alerts.tsx · settings/*.tsx · migration.tsx
 │   ├── features/             ← 业务特性（跨页面复用）
 │   │   ├── migration/
 │   │   ├── dashboard/
 │   │   ├── pulse/
 │   │   ├── workboard/
+│   │   ├── audit/
 │   │   └── evidence/
 │   ├── components/
 │   │   ├── primitives/       ← 自建（TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown）
@@ -364,10 +366,10 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 **纪律**
 
 - **EntryShell（`/login` / `/onboarding`）不挂 AppShell** —— entry surface 是单列、无导航的过渡页
-- **每一个 protected layout（当前的 RootLayout，未来的 Owner-only Audit Console / Workload Console 等）通过 `<AppShell>` 拼装**，不要在 layout 文件里直接拷贝 `SidebarProvider + Sidebar + SidebarInset` 三件套
+- **每一个 protected layout（当前的 RootLayout，未来的 Workload Console 等）通过 `<AppShell>` 拼装**，不要在 layout 文件里直接拷贝 `SidebarProvider + Sidebar + SidebarInset` 三件套
 - **Sidebar 不暴露 `collapsible` prop**：desktop 永远 220px，`<md` 自动 Sheet 折叠；这是产品决定不是配置项
 - **selected nav 视觉是 bg-only**（`bg-state-base-hover-alt` + `text-text-primary` + Inter Semi Bold）—— 严禁 accent border 或 accent-tint 出现在 selected 态，否则与 DESIGN §1.2「颜色只为风险服务」冲突。`SidebarMenuButton` 的 cva variants 里**根本不提供** `accent` 变体，把约束写进类型
-- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, status?: 'p1' | 'beta' }`。Owner / Manager 专属入口（Workload View / Audit Log）走同一个 hook + 角色 gate，**不**拆 AppShell 的两个版本
+- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag? }`。Clients 与 Audit Log 已作为 Admin read surfaces 启用；Workload View 保持 `P1` disabled，未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本
 - **Firm switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上
 - **顶栏右侧仅承载 AppShell-owned utility**（`⌘K` kbd hint + 通知 bell），路由动作放在 body 内或 body 顶部 toolbar，**不**塞到 shell header 右侧
 - **sidebar 的 Base UI `render` 包装不要用 `mergeProps<'button'>` 合成 `data-*` props**：TypeScript 会把 object literal 收窄到原生 button props 并拒绝 `data-slot` / `data-active`；直接把合并后的 `Record<string, unknown>` 传给 `useRender({ props })`，需要组合事件时在组件内显式包装 handler

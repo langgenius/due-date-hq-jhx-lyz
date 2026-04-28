@@ -211,6 +211,15 @@ export function createAppRouter() {
               },
             },
             {
+              path: 'audit',
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { AuditRoute } = await import('@/routes/audit')
+
+                return { Component: AuditRoute }
+              },
+            },
+            {
               path: 'settings',
               loader: settingsLoader,
               HydrateFallback: RouteHydrateFallback,

@@ -229,10 +229,11 @@ lint: {
 
 ```
 auth.login.success / auth.login.failed / auth.denied / auth.mfa.setup
-client.create / client.update / client.delete / client.restore
-obligation.status.change / obligation.assignee.change
+client.created / client.batch_created / client.updated / client.deleted / client.restored
+obligation.status.updated / obligation.batch_created / obligation.assignee.changed
 pulse.ingest / pulse.extract / pulse.approve / pulse.reject / pulse.apply / pulse.revert
-migration.import / migration.revert
+migration.batch.created / migration.mapper.confirmed / migration.normalizer.confirmed
+migration.matrix.applied / migration.imported / migration.reverted / migration.single_undo
 exception.apply / exception.revert           ← Phase 1
 rule.updated / rule.verified                 ← Phase 1（Rules-as-Asset）
 member.invite / member.accept / member.suspend / member.remove / member.change_role
@@ -256,6 +257,8 @@ ai.refusal / ai.guard_failed
 - `audit_event` **硬约束不删**；任何 migration / 运维脚本禁止 `DELETE FROM audit_event`
 - 写入永远走 `packages/db/audit-writer.ts` 的 `writeAudit(input, tx?)`，不允许其他入口
 - Pulse Apply / Migration Import 等批量操作必须在同一事务写 audit
+- 读取永远走 `audit.list` / `scoped.audit.list`，由 repo 层硬编码 `firm_id = scoped.firmId`；
+  Audit Log 页面只显示 hash 后的 IP / UA，不显示明文设备指纹
 
 ---
 

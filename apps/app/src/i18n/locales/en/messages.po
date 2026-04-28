@@ -154,6 +154,11 @@ msgstr "Account menu for {0}"
 msgid "Across {0} due this week."
 msgstr "Across {0} due this week."
 
+#: src/features/audit/audit-log-page.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "Action"
+msgstr "Action"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Actions"
 msgstr "Actions"
@@ -164,6 +169,15 @@ msgstr "Actions"
 msgid "Active firm · {0} plan · {1} seat limit"
 msgstr "Active firm · {0} plan · {1} seat limit"
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "Actor"
+msgstr "Actor"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Actor id"
+msgstr "Actor id"
+
 #: src/routes/clients.tsx
 msgid "Add a manual client record to the active firm directory."
 msgstr "Add a manual client record to the active firm directory."
@@ -173,10 +187,19 @@ msgid "Add firm"
 msgstr "Add firm"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/features/audit/audit-log-page.tsx
 #: src/routes/_layout.tsx
 #: src/routes/clients.tsx
 msgid "Admin"
 msgstr "Admin"
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "After"
+msgstr "After"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "AI"
+msgstr "AI"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
@@ -191,6 +214,10 @@ msgstr "AI Mapper unavailable — using fallback"
 #: src/routes/workboard.tsx
 msgid "All"
 msgstr "All"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "All categories"
+msgstr "All categories"
 
 #: src/routes/clients.tsx
 msgid "All entities"
@@ -207,6 +234,10 @@ msgstr "All states"
 #: src/routes/_entry-layout.tsx
 msgid "All systems operational"
 msgstr "All systems operational"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "All time"
+msgstr "All time"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Annual rolling"
@@ -245,13 +276,28 @@ msgstr "Assigned"
 msgid "Audit {0}"
 msgstr "Audit {0}"
 
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Audit detail"
+msgstr "Audit detail"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Audit filters"
+msgstr "Audit filters"
+
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/audit/audit-log-page.tsx
+#: src/routes/_layout.tsx
 msgid "Audit log"
 msgstr "Audit log"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Audit log captures every AI decision"
 msgstr "Audit log captures every AI decision"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Auth"
+msgstr "Auth"
 
 #. placeholder {0}: einDetected ? '100%' : '0%'
 #: src/features/migration/Step2Mapping.tsx
@@ -269,6 +315,10 @@ msgstr "Basic"
 #: src/features/migration/Step4Preview.tsx
 msgid "Batch rollback trace retained for 24 hours"
 msgstr "Batch rollback trace retained for 24 hours"
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Before"
+msgstr "Before"
 
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -303,6 +353,10 @@ msgstr "Candidate · never generates user reminders."
 msgid "Candidates"
 msgstr "Candidates"
 
+#: src/features/audit/audit-log-table.tsx
+msgid "Change"
+msgstr "Change"
+
 #. placeholder {0}: row.clientName
 #: src/features/workboard/status-control.tsx
 msgid "Change status for {0}"
@@ -312,6 +366,7 @@ msgstr "Change status for {0}"
 msgid "Clear search or filters to return to the full firm directory."
 msgstr "Clear search or filters to return to the full firm directory."
 
+#: src/features/audit/audit-log-page.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -400,6 +455,10 @@ msgstr "Could not create your practice"
 #: src/routes/settings.profile.tsx
 msgid "Could not delete firm."
 msgstr "Could not delete firm."
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Could not load audit events"
+msgstr "Could not load audit events"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Could not load rule library."
@@ -550,6 +609,10 @@ msgstr "Delete this firm?"
 msgid "Deprecated"
 msgstr "Deprecated"
 
+#: src/features/audit/audit-log-table.tsx
+msgid "Detail"
+msgstr "Detail"
+
 #: src/routes/workboard.tsx
 msgid "Detail drawer is coming soon"
 msgstr "Detail drawer is coming soon"
@@ -627,6 +690,8 @@ msgstr "Encrypted · Auto-saves · Renamable later"
 msgid "Enter execute · Esc close · {commandShortcut} toggle"
 msgstr "Enter execute · Esc close · {commandShortcut} toggle"
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
 #: src/routes/clients.tsx
 msgid "Entity"
 msgstr "Entity"
@@ -635,6 +700,11 @@ msgstr "Entity"
 msgid "ENTITY"
 msgstr "ENTITY"
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Entity id"
+msgstr "Entity id"
+
+#: src/features/audit/audit-log-page.tsx
 #: src/routes/clients.tsx
 msgid "Entity type"
 msgstr "Entity type"
@@ -646,6 +716,10 @@ msgstr "Entity types"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Event"
 msgstr "Event"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Event stream"
+msgstr "Event stream"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
@@ -660,9 +734,21 @@ msgstr "Evidence checks"
 msgid "Evidence drawer is coming soon"
 msgstr "Evidence drawer is coming soon"
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Exact action"
+msgstr "Exact action"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Exception"
 msgstr "Exception"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Export"
+msgstr "Export"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Export · P1"
+msgstr "Export · P1"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Extension"
@@ -694,6 +780,14 @@ msgstr "Filing-frequency review"
 #: src/routes/workboard.tsx
 msgid "Filter by status, search clients, and sort by due date."
 msgstr "Filter by status, search clients, and sort by due date."
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Filter by time range, action category, actor, or entity."
+msgstr "Filter by time range, action category, actor, or entity."
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Firm id"
+msgstr "Firm id"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/settings.profile.tsx
@@ -813,6 +907,10 @@ msgstr "Input client facts → dry-run rules engine → see which obligations wo
 msgid "Intake"
 msgstr "Intake"
 
+#: src/features/audit/audit-event-drawer.tsx
+msgid "IP hash"
+msgstr "IP hash"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION × ENTITY"
 msgstr "JURISDICTION × ENTITY"
@@ -847,6 +945,18 @@ msgstr "Keyboard shortcuts"
 msgid "Language"
 msgstr "Language"
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Last 24h"
+msgstr "Last 24h"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Last 30d"
+msgstr "Last 30d"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Last 7d"
+msgstr "Last 7d"
+
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Light"
 msgstr "Light"
@@ -859,6 +969,7 @@ msgstr "Linked"
 msgid "LLC"
 msgstr "LLC"
 
+#: src/features/audit/audit-log-page.tsx
 #: src/routes/workboard.tsx
 msgid "Load more"
 msgstr "Load more"
@@ -887,10 +998,18 @@ msgstr "Loading rule sources."
 msgid "Loading rules coverage."
 msgstr "Loading rules coverage."
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Loading..."
+msgstr "Loading..."
+
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Loading…"
 msgstr "Loading…"
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Local time"
+msgstr "Local time"
 
 #: src/routes/clients.tsx
 msgid "Location"
@@ -933,6 +1052,7 @@ msgid "Members"
 msgstr "Members"
 
 #: src/components/patterns/app-shell.tsx
+#: src/features/audit/audit-log-page.tsx
 msgid "Migration"
 msgstr "Migration"
 
@@ -971,6 +1091,10 @@ msgstr "New client"
 msgid "New York"
 msgstr "New York"
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Newest firm-scoped audit events appear first."
+msgstr "Newest firm-scoped audit events appear first."
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Next review"
 msgstr "Next review"
@@ -978,6 +1102,14 @@ msgstr "Next review"
 #: src/routes/settings.profile.tsx
 msgid "No active firm is selected."
 msgstr "No active firm is selected."
+
+#: src/features/audit/audit-log-page.tsx
+msgid "No audit events match these filters."
+msgstr "No audit events match these filters."
+
+#: src/features/audit/audit-log-page.tsx
+msgid "No audit events yet."
+msgstr "No audit events yet."
 
 #: src/routes/clients.tsx
 msgid "No clients match these filters"
@@ -1043,6 +1175,10 @@ msgstr "Normalizer warning"
 msgid "Not applicable"
 msgstr "Not applicable"
 
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Not recorded"
+msgstr "Not recorded"
+
 #: src/routes/clients.tsx
 msgid "Notes"
 msgstr "Notes"
@@ -1054,6 +1190,10 @@ msgstr "Notifications"
 #: src/components/patterns/app-shell.tsx
 msgid "Notifications, {unreadCount} unread"
 msgstr "Notifications, {unreadCount} unread"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Obligation"
+msgstr "Obligation"
 
 #: src/routes/workboard.tsx
 msgid "Obligation queue"
@@ -1176,6 +1316,7 @@ msgid "Please enter at least 2 characters."
 msgstr "Please enter at least 2 characters."
 
 #: src/components/patterns/app-shell-user-menu.tsx
+#: src/features/audit/audit-log-page.tsx
 #: src/features/migration/Wizard.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
@@ -1203,6 +1344,7 @@ msgid "Profile"
 msgstr "Profile"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/audit/audit-log-page.tsx
 msgid "Pulse"
 msgstr "Pulse"
 
@@ -1238,6 +1380,7 @@ msgstr "Ready to generate your deadline queue"
 msgid "Ready to import"
 msgstr "Ready to import"
 
+#: src/features/audit/audit-event-drawer.tsx
 #: src/features/migration/Step2Mapping.tsx
 msgid "Reason"
 msgstr "Reason"
@@ -1276,9 +1419,14 @@ msgstr "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
 msgid "Reserved"
 msgstr "Reserved"
 
+#: src/features/audit/audit-log-page.tsx
 #: src/routes/workboard.tsx
 msgid "Reset"
 msgstr "Reset"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Reset filters to return to the latest firm-wide events."
+msgstr "Reset filters to return to the latest firm-wide events."
 
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
@@ -1297,6 +1445,14 @@ msgstr "review"
 #: src/features/rules/rules-console-primitives.tsx
 msgid "review — needs CPA confirmation"
 msgstr "review — needs CPA confirmation"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review firm-wide audit events."
+msgstr "Review firm-wide audit events."
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Review firm-wide write events, before/after state, and actor metadata."
+msgstr "Review firm-wide write events, before/after state, and actor metadata."
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review risk and operating pressure."
@@ -1339,6 +1495,7 @@ msgid "Rule Library"
 msgstr "Rule Library"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/features/audit/audit-log-page.tsx
 #: src/routes/_layout.tsx
 msgid "Rules"
 msgstr "Rules"
@@ -1393,6 +1550,14 @@ msgstr "Save changes"
 #: src/routes/settings.profile.tsx
 msgid "Saving…"
 msgstr "Saving…"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Search action, entity, or reason"
+msgstr "Search action, entity, or reason"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Search audit events"
+msgstr "Search audit events"
 
 #: src/routes/clients.tsx
 #: src/routes/workboard.tsx
@@ -1577,6 +1742,9 @@ msgid "Switch firm — current {0}"
 msgstr "Switch firm — current {0}"
 
 #: src/components/patterns/app-shell-user-menu.tsx
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-page.tsx
+#: src/features/audit/audit-log-table.tsx
 msgid "System"
 msgstr "System"
 
@@ -1597,6 +1765,10 @@ msgstr "Tax year"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "TAX YEAR"
 msgstr "TAX YEAR"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Team"
+msgstr "Team"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Team workload"
@@ -1648,6 +1820,10 @@ msgstr "This removes the clients and deadlines created by this import. Other pra
 msgid "This soft-deletes the active firm and moves you to another available firm."
 msgstr "This soft-deletes the active firm and moves you to another available firm."
 
+#: src/features/audit/audit-log-table.tsx
+msgid "Time"
+msgstr "Time"
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/settings.profile.tsx
 msgid "Timezone"
@@ -1693,6 +1869,14 @@ msgstr "Unexpected route error"
 msgid "Updated"
 msgstr "Updated"
 
+#: src/features/audit/audit-event-drawer.tsx
+msgid "User agent hash"
+msgstr "User agent hash"
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "UTC time"
+msgstr "UTC time"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "verifiable per (jurisdiction, entity) pair"
 msgstr "verifiable per (jurisdiction, entity) pair"
@@ -1730,6 +1914,10 @@ msgstr "Verified by"
 #: src/features/rules/coverage-tab.tsx
 msgid "Verified rules"
 msgstr "Verified rules"
+
+#: src/features/audit/audit-log-table.tsx
+msgid "View audit detail"
+msgstr "View audit detail"
 
 #: src/features/workboard/status-control.tsx
 msgid "Waiting on client"
@@ -1803,6 +1991,10 @@ msgstr "Workbench"
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "Workboard"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Workboard status updates and client imports will appear here when they write audit rows."
+msgstr "Workboard status updates and client imports will appear here when they write audit rows."
 
 #: src/features/migration/WizardShell.tsx
 msgid "Working…"

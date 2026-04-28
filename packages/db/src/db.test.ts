@@ -32,6 +32,7 @@ describe('@duedatehq/db', () => {
     expect(typeof repo.workboard.list).toBe('function')
     expect(typeof repo.migration.createBatch).toBe('function')
     expect(typeof repo.audit.write).toBe('function')
+    expect(typeof repo.audit.list).toBe('function')
     expect(typeof repo.evidence.write).toBe('function')
     expect(() => Reflect.get(repo.pulse, 'findMany')).toThrow(
       'ScopedRepo.pulse.findMany not implemented yet',

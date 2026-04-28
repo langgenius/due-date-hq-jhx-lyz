@@ -316,7 +316,7 @@ function useNavItems(): NavConfig {
       ],
       admin: [
         { href: '/clients', label: t`Clients`, icon: UsersIcon, end: false },
-        { href: '/audit', label: t`Audit log`, icon: ScaleIcon, end: false, tag: 'P1' },
+        { href: '/audit', label: t`Audit log`, icon: ScaleIcon, end: false },
         {
           href: '/workload',
           label: t`Team workload`,
@@ -347,7 +347,7 @@ function NavGroups() {
       </NavGroupSection>
       <NavGroupSection label={t`Admin`}>
         {items.admin.map((item) => (
-          <NavMenuItem key={item.href} item={item} disabled={item.href !== '/clients'} />
+          <NavMenuItem key={item.href} item={item} disabled={Boolean(item.tag)} />
         ))}
       </NavGroupSection>
     </nav>

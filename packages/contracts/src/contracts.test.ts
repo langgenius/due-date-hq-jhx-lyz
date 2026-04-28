@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { appContract } from './index'
+import {
+  AUDIT_SEARCH_MAX_LENGTH,
+  AuditActionCategorySchema,
+  AuditEventPublicSchema,
+  AuditListInputSchema,
+  auditContract,
+} from './audit'
 import { ErrorCodes } from './errors'
 import {
   ObligationStatusUpdateInputSchema,
@@ -28,6 +35,56 @@ import {
 } from './rules'
 
 describe('@duedatehq/contracts', () => {
+  it('freezes audit.list read contract', () => {
+    expect(Object.keys(appContract)).toEqual(expect.arrayContaining(['audit']))
+    expect(Object.keys(auditContract)).toEqual(['list'])
+    expect(AuditActionCategorySchema.options).toEqual([
+      'client',
+      'obligation',
+      'migration',
+      'rules',
+      'auth',
+      'team',
+      'pulse',
+      'export',
+      'ai',
+      'system',
+    ])
+
+    const input = AuditListInputSchema.parse({
+      search: 'status',
+      category: 'obligation',
+      action: 'obligation.status.updated',
+      actorId: 'user_123',
+      entityType: 'obligation',
+      entityId: '11111111-1111-4111-8111-111111111111',
+      range: '7d',
+      cursor: null,
+      limit: 50,
+    })
+    expect(input.category).toBe('obligation')
+    expect(() =>
+      AuditListInputSchema.parse({ search: 'x'.repeat(AUDIT_SEARCH_MAX_LENGTH + 1) }),
+    ).toThrow()
+
+    const event = AuditEventPublicSchema.parse({
+      id: '33333333-3333-4333-8333-333333333333',
+      firmId: 'firm_123',
+      actorId: null,
+      actorLabel: null,
+      entityType: 'migration_batch',
+      entityId: 'batch_123',
+      action: 'migration.imported',
+      beforeJson: { status: 'reviewing' },
+      afterJson: { status: 'applied' },
+      reason: null,
+      ipHash: null,
+      userAgentHash: null,
+      createdAt: '2026-04-28T00:00:00.000Z',
+    })
+    expect(event.actorId).toBeNull()
+  })
+
   it('keeps shared error codes stable', () => {
     expect(ErrorCodes.TENANT_MISSING).toBe('TENANT_MISSING')
     expect(ErrorCodes.GUARD_REJECTED).toBe('GUARD_REJECTED')

@@ -131,6 +131,9 @@ function getRouteSummaryMessages(pathname: string): RouteSummaryMessages {
   if (pathname.startsWith('/clients')) {
     return { eyebrow: msg`Admin`, title: msg`Clients` }
   }
+  if (pathname.startsWith('/audit')) {
+    return { eyebrow: msg`Admin`, title: msg`Audit log` }
+  }
   return { eyebrow: msg`Operations`, title: msg`Dashboard` }
 }
 

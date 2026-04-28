@@ -1,4 +1,5 @@
 import { ORPCError } from '@orpc/server'
+import { auditHandlers } from './audit'
 import { clientsHandlers } from './clients'
 import { dashboardHandlers } from './dashboard'
 import { evidenceHandlers } from './evidence'
@@ -30,6 +31,9 @@ function notImplemented(): never {
 }
 
 export const router = os.router({
+  audit: {
+    list: auditHandlers.list,
+  },
   firms: {
     listMine: firmsHandlers.listMine,
     getCurrent: firmsHandlers.getCurrent,

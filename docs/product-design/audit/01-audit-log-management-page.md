@@ -1,7 +1,7 @@
 ---
 title: 'Audit Log Management Page'
 date: 2026-04-28
-status: planned
+status: implemented
 owner: LYZ
 ---
 
@@ -26,15 +26,11 @@ The repository already has the write-side foundation:
 - `audit_event` schema exists in `packages/db/src/schema/audit.ts`.
 - `createAuditWriter()` is insert-only and server-clocked.
 - `scoped.audit.write()` / `writeBatch()` are available to tenant-scoped procedures.
-- `scoped.audit.listByFirm()` exists, but only supports `action`, `actorId`, and `limit`.
-- Sidebar already contains `Audit log`, but it is disabled under `Admin · P1`.
+- `scoped.audit.list()` supports server-side filters and keyset pagination.
+- Sidebar `Audit log` is enabled under `Admin`.
 
 Missing pieces:
 
-- No `packages/contracts/src/audit.ts`.
-- No `apps/server/src/procedures/audit`.
-- No `/audit` route in the protected app router.
-- No front-end table, filters, detail drawer, or URL state contract.
 - Stable docs disagree on some action names. Existing code uses names such as
   `client.created`, `client.batch_created`, `obligation.status.updated`, and
   `migration.imported`; PRD/dev-file examples still include older variants such as

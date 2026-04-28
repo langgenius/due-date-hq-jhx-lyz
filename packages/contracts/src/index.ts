@@ -5,6 +5,7 @@
 //   - Mutations to contract files require a `[contract]` PR label.
 
 import { oc } from '@orpc/contract'
+import { auditContract } from './audit'
 import { clientsContract } from './clients'
 import { obligationsContract } from './obligations'
 import { dashboardContract } from './dashboard'
@@ -16,6 +17,7 @@ import { migrationContract } from './migration'
 import { rulesContract } from './rules'
 
 export const appContract = oc.router({
+  audit: auditContract,
   firms: firmsContract,
   clients: clientsContract,
   obligations: obligationsContract,
@@ -28,6 +30,25 @@ export const appContract = oc.router({
 })
 
 export type AppContract = typeof appContract
+
+export type {
+  AuditActionCategory,
+  AuditContract,
+  AuditEventPublic,
+  AuditListInput,
+  AuditListOutput,
+  AuditRange,
+} from './audit'
+export {
+  AUDIT_FILTER_MAX_LENGTH,
+  AUDIT_SEARCH_MAX_LENGTH,
+  AuditActionCategorySchema,
+  AuditEventPublicSchema,
+  AuditListInputSchema,
+  AuditListOutputSchema,
+  AuditRangeSchema,
+  auditContract,
+} from './audit'
 
 export type {
   FirmCreateInput,

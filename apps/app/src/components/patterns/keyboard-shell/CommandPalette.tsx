@@ -6,6 +6,7 @@ import {
   FileSearchIcon,
   GaugeIcon,
   LayoutDashboardIcon,
+  ScaleIcon,
   SettingsIcon,
   UploadCloudIcon,
   WavesIcon,
@@ -87,6 +88,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         group: 'navigate',
         icon: FileSearchIcon,
         onSelect: () => navigate('/settings/rules'),
+      },
+      {
+        id: 'audit',
+        label: t`Audit log`,
+        description: t`Review firm-wide audit events.`,
+        group: 'navigate',
+        icon: ScaleIcon,
+        onSelect: () => navigate('/audit'),
       },
       {
         id: 'migration',
