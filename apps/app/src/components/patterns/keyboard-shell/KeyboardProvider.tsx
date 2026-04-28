@@ -198,16 +198,15 @@ function GlobalKeyboardBindings({
     },
   })
 
-  useAppHotkeySequence(['G', 'A'], () => undefined, {
-    enabled: false,
+  useAppHotkeySequence(['G', 'A'], () => void navigate('/alerts'), {
+    enabled: !shortcutsBlocked,
     meta: {
       id: 'nav.alerts',
       name: 'Go to Alerts',
-      description: 'Alerts route is reserved for Pulse.',
+      description: 'Navigate to Pulse alerts.',
       category: 'navigate',
       scope: 'global',
       displayKeys: 'G then A',
-      disabledReason: 'Alerts route lands with Pulse detail navigation.',
     },
   })
 

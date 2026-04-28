@@ -186,6 +186,10 @@ function toDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
+function sameTimestamp(left: Date, right: Date): boolean {
+  return left.getTime() === right.getTime()
+}
+
 function toNonEmptyBatch<T>(items: T[]): [T, ...T[]] {
   const [first, ...rest] = items
   if (first === undefined) throw new Error('Expected at least one D1 batch statement')
@@ -403,6 +407,104 @@ export function makePulseRepo(db: Db, firmId: string) {
     }))
   }
 
+  async function listSelectedRows(obligationIds: readonly string[]): Promise<CandidateRow[]> {
+    if (obligationIds.length === 0) return []
+
+    return db
+      .select({
+        obligationId: obligationInstance.id,
+        clientId: client.id,
+        clientName: client.name,
+        state: client.state,
+        county: client.county,
+        entityType: client.entityType,
+        taxType: obligationInstance.taxType,
+        currentDueDate: obligationInstance.currentDueDate,
+        status: obligationInstance.status,
+      })
+      .from(obligationInstance)
+      .innerJoin(client, eq(obligationInstance.clientId, client.id))
+      .where(
+        and(
+          eq(obligationInstance.firmId, firmId),
+          eq(client.firmId, firmId),
+          inArray(obligationInstance.id, obligationIds),
+        ),
+      )
+      .orderBy(asc(obligationInstance.currentDueDate), asc(client.name))
+  }
+
+  async function listActiveApplicationIds(
+    pulseId: string,
+    obligationIds: readonly string[],
+  ): Promise<Set<string>> {
+    if (obligationIds.length === 0) return new Set()
+
+    const rows = await db
+      .select({ obligationId: pulseApplication.obligationInstanceId })
+      .from(pulseApplication)
+      .where(
+        and(
+          eq(pulseApplication.firmId, firmId),
+          eq(pulseApplication.pulseId, pulseId),
+          inArray(pulseApplication.obligationInstanceId, obligationIds),
+          isNull(pulseApplication.revertedAt),
+        ),
+      )
+      .orderBy(asc(pulseApplication.appliedAt))
+
+    return new Set(rows.map((row) => row.obligationId))
+  }
+
+  async function listFreshEligibleRows(
+    alert: AlertJoinedRow,
+    obligationIds: readonly string[],
+  ): Promise<PulseAffectedClientRow[]> {
+    if (obligationIds.length === 0) throw new PulseRepoError('no_eligible')
+
+    const rows = await listSelectedRows(obligationIds)
+    const rowsById = new Map(rows.map((row) => [row.obligationId, row]))
+    if (rowsById.size !== obligationIds.length) throw new PulseRepoError('conflict')
+
+    const activeApplicationIds = await listActiveApplicationIds(alert.pulseId, obligationIds)
+    const forms = new Set(alert.parsedForms)
+    const entityTypes = new Set(toClientEntityTypes(alert.parsedEntityTypes))
+    const counties = new Set(alert.parsedCounties.map((county) => county.toLowerCase()))
+
+    return obligationIds.map((obligationId) => {
+      const row = rowsById.get(obligationId)
+      if (!row) throw new PulseRepoError('conflict')
+      if (activeApplicationIds.has(row.obligationId)) throw new PulseRepoError('conflict')
+      if (row.state !== alert.parsedJurisdiction) throw new PulseRepoError('conflict')
+      if (!forms.has(row.taxType)) throw new PulseRepoError('conflict')
+      if (!entityTypes.has(row.entityType)) throw new PulseRepoError('conflict')
+      if (!OPEN_OBLIGATION_STATUSES.includes(row.status)) throw new PulseRepoError('conflict')
+      if (!sameTimestamp(row.currentDueDate, alert.parsedOriginalDueDate)) {
+        throw new PulseRepoError('conflict')
+      }
+      if (counties.size > 0) {
+        if (!row.county || !counties.has(row.county.toLowerCase())) {
+          throw new PulseRepoError('conflict')
+        }
+      }
+
+      return {
+        obligationId: row.obligationId,
+        clientId: row.clientId,
+        clientName: row.clientName,
+        state: row.state,
+        county: row.county,
+        entityType: row.entityType,
+        taxType: row.taxType,
+        currentDueDate: row.currentDueDate,
+        status: row.status,
+        newDueDate: alert.parsedNewDueDate,
+        matchStatus: 'eligible',
+        reason: null,
+      }
+    })
+  }
+
   async function buildDetail(alert: AlertJoinedRow): Promise<PulseDetailRow> {
     const affected = new Map<string, PulseAffectedClientRow>()
     for (const row of await listCandidateRows(alert)) affected.set(row.obligationId, row)
@@ -549,17 +651,21 @@ export function makePulseRepo(db: Db, firmId: string) {
       const alert = await getAlert(input.alertId)
       const now = input.now ?? new Date()
       const detail = await buildDetail(alert)
-      const requested = new Set(input.obligationIds)
-      const eligible = detail.affectedClients.filter(
-        (row) => requested.has(row.obligationId) && row.matchStatus === 'eligible',
-      )
-      if (eligible.length !== requested.size) {
-        const conflicts = detail.affectedClients.filter(
-          (row) => requested.has(row.obligationId) && row.matchStatus !== 'eligible',
-        )
-        throw new PulseRepoError(conflicts.length > 0 ? 'conflict' : 'no_eligible')
+      const requestedIds = Array.from(new Set(input.obligationIds))
+      const affectedById = new Map(detail.affectedClients.map((row) => [row.obligationId, row]))
+      const selectedEligibleCount = requestedIds.filter(
+        (obligationId) => affectedById.get(obligationId)?.matchStatus === 'eligible',
+      ).length
+      if (selectedEligibleCount === 0) {
+        const selectedConflict = requestedIds.some((obligationId) => affectedById.has(obligationId))
+        throw new PulseRepoError(selectedConflict ? 'conflict' : 'no_eligible')
       }
-      if (eligible.length === 0) throw new PulseRepoError('no_eligible')
+      for (const obligationId of requestedIds) {
+        const row = affectedById.get(obligationId)
+        if (!row) throw new PulseRepoError('conflict')
+        if (row.matchStatus !== 'eligible') throw new PulseRepoError('conflict')
+      }
+      const eligible = await listFreshEligibleRows(alert, requestedIds)
 
       const revertExpiresAt = new Date(now.getTime() + REVERT_WINDOW_MS)
       const applications: NewPulseApplication[] = eligible.map((row) => ({
@@ -745,11 +851,17 @@ export function makePulseRepo(db: Db, firmId: string) {
           appliedAt: pulseApplication.appliedAt,
           beforeDueDate: pulseApplication.beforeDueDate,
           afterDueDate: pulseApplication.afterDueDate,
+          currentDueDate: obligationInstance.currentDueDate,
         })
         .from(pulseApplication)
+        .innerJoin(
+          obligationInstance,
+          eq(pulseApplication.obligationInstanceId, obligationInstance.id),
+        )
         .where(
           and(
             eq(pulseApplication.firmId, firmId),
+            eq(obligationInstance.firmId, firmId),
             eq(pulseApplication.pulseId, alert.pulseId),
             isNull(pulseApplication.revertedAt),
           ),
@@ -760,6 +872,9 @@ export function makePulseRepo(db: Db, firmId: string) {
       const firstAppliedAt = applications[0]!.appliedAt
       if (now.getTime() > firstAppliedAt.getTime() + REVERT_WINDOW_MS) {
         throw new PulseRepoError('revert_expired')
+      }
+      if (applications.some((row) => !sameTimestamp(row.currentDueDate, row.afterDueDate))) {
+        throw new PulseRepoError('conflict')
       }
 
       const evidence: NewEvidenceLink[] = applications.map((row) => ({
@@ -813,6 +928,7 @@ export function makePulseRepo(db: Db, firmId: string) {
               and(
                 eq(obligationInstance.firmId, firmId),
                 eq(obligationInstance.id, row.obligationId),
+                eq(obligationInstance.currentDueDate, row.afterDueDate),
               ),
             ),
         )

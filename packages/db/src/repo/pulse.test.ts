@@ -120,6 +120,8 @@ describe('makePulseRepo', () => {
       [ALERT],
       [ELIGIBLE],
       [],
+      [ELIGIBLE],
+      [],
       [{ ...ALERT, matchedCount: 0 }],
     ])
     const repo = makePulseRepo(db, 'firm-1')
@@ -173,6 +175,106 @@ describe('makePulseRepo', () => {
         userId: 'user-1',
       }),
     ).rejects.toMatchObject({ code: 'conflict' } satisfies Partial<PulseRepoError>)
+  })
+
+  it('rejects apply when the selected obligation due date changed before write', async () => {
+    const { db, batchStatements } = fakeDb([
+      [ALERT],
+      [ELIGIBLE],
+      [],
+      [
+        {
+          ...ELIGIBLE,
+          currentDueDate: new Date('2026-03-16T00:00:00.000Z'),
+        },
+      ],
+      [],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    await expect(
+      repo.apply({
+        alertId: 'alert-1',
+        obligationIds: ['oi-eligible'],
+        userId: 'user-1',
+      }),
+    ).rejects.toMatchObject({ code: 'conflict' } satisfies Partial<PulseRepoError>)
+    expect(batchStatements).toHaveLength(0)
+  })
+
+  it('rejects apply when a fresh active application already exists', async () => {
+    const { db, batchStatements } = fakeDb([
+      [ALERT],
+      [ELIGIBLE],
+      [],
+      [ELIGIBLE],
+      [{ obligationId: 'oi-eligible' }],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    await expect(
+      repo.apply({
+        alertId: 'alert-1',
+        obligationIds: ['oi-eligible'],
+        userId: 'user-1',
+      }),
+    ).rejects.toMatchObject({ code: 'conflict' } satisfies Partial<PulseRepoError>)
+    expect(batchStatements).toHaveLength(0)
+  })
+
+  it('rejects apply when the selected obligation needs county review', async () => {
+    const { db, batchStatements } = fakeDb([[ALERT], [NEEDS_REVIEW], []])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    await expect(
+      repo.apply({
+        alertId: 'alert-1',
+        obligationIds: ['oi-review'],
+        userId: 'user-1',
+      }),
+    ).rejects.toMatchObject({ code: 'conflict' } satisfies Partial<PulseRepoError>)
+    expect(batchStatements).toHaveLength(0)
+  })
+
+  it('rejects apply with no eligible candidates when selections are outside the alert', async () => {
+    const { db, batchStatements } = fakeDb([[ALERT], [], []])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    await expect(
+      repo.apply({
+        alertId: 'alert-1',
+        obligationIds: ['oi-outside-alert'],
+        userId: 'user-1',
+      }),
+    ).rejects.toMatchObject({ code: 'no_eligible' } satisfies Partial<PulseRepoError>)
+    expect(batchStatements).toHaveLength(0)
+  })
+
+  it('rejects revert when the obligation changed after Pulse apply', async () => {
+    const { db, batchStatements } = fakeDb([
+      [ALERT],
+      [
+        {
+          id: 'app-1',
+          obligationId: 'oi-eligible',
+          clientId: 'client-eligible',
+          appliedAt: new Date('2026-04-15T18:30:00.000Z'),
+          beforeDueDate: new Date('2026-03-15T00:00:00.000Z'),
+          afterDueDate: new Date('2026-10-15T00:00:00.000Z'),
+          currentDueDate: new Date('2026-10-16T00:00:00.000Z'),
+        },
+      ],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    await expect(
+      repo.revert({
+        alertId: 'alert-1',
+        userId: 'user-1',
+        now: new Date('2026-04-15T19:00:00.000Z'),
+      }),
+    ).rejects.toMatchObject({ code: 'conflict' } satisfies Partial<PulseRepoError>)
+    expect(batchStatements).toHaveLength(0)
   })
 
   it('rejects revert after the 24h window expires', async () => {

@@ -6,6 +6,7 @@ import { Toaster } from '@duedatehq/ui/components/ui/sonner'
 import { TooltipProvider } from '@duedatehq/ui/components/ui/tooltip'
 import { bootstrapI18n } from '@/i18n/bootstrap'
 import { AppI18nProvider } from '@/i18n/provider'
+import { installMockPulse } from '@/features/pulse/__dev__/mock-pulse'
 import { createAppRouter } from './router'
 import './styles/globals.css'
 
@@ -14,6 +15,9 @@ const queryClient = new QueryClient({
     queries: { staleTime: 60_000, refetchOnWindowFocus: false },
   },
 })
+
+// Dev-only: opt-in pulse mock seeding via `?mockPulse=1`. No-op in prod builds.
+installMockPulse(queryClient)
 
 const rootEl = document.getElementById('root')
 if (!rootEl) {

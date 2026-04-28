@@ -143,8 +143,8 @@ function EmptyState() {
       <PulsingDot tone="success" active />
       <span className="flex-1">
         <Trans>
-          All clear. We're watching IRS + CA / NY / TX / FL / WA / MA — new signals will appear here
-          as soon as they match your clients.
+          All clear. We're watching IRS + CA / NY / TX / FL / WA — new signals will appear here as
+          soon as they match your clients.
         </Trans>
       </span>
     </div>

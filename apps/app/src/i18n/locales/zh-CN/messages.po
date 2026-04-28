@@ -309,12 +309,12 @@ msgid "All categories"
 msgstr "所有分类"
 
 #: src/features/pulse/PulseAlertsBanner.tsx
-msgid "All clear · Watching IRS + CA / NY / TX / FL / WA / MA"
-msgstr "一切正常 · 监控 IRS 与 CA / NY / TX / FL / WA / MA"
+msgid "All clear · Watching IRS + CA / NY / TX / FL / WA"
+msgstr "一切正常 · 正在监控 IRS 与 CA / NY / TX / FL / WA"
 
 #: src/features/pulse/AlertsListPage.tsx
-msgid "All clear. We're watching IRS + CA / NY / TX / FL / WA / MA — new signals will appear here as soon as they match your clients."
-msgstr "一切正常。我们正在监控 IRS 与 CA / NY / TX / FL / WA / MA，一旦匹配到你的客户，新的信号会立即出现在这里。"
+msgid "All clear. We're watching IRS + CA / NY / TX / FL / WA — new signals will appear here as soon as they match your clients."
+msgstr "一切正常。我们正在监控 IRS 与 CA / NY / TX / FL / WA，一旦匹配到你的客户，新的信号会立即出现在这里。"
 
 #: src/routes/clients.tsx
 msgid "All entities"
@@ -1651,6 +1651,10 @@ msgstr "打开官方来源：{0}"
 msgid "Open practice settings."
 msgstr "打开事务所设置。"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open Pulse alerts."
+msgstr "打开动态提醒。"
+
 #: src/routes/dashboard.tsx
 msgid "Open risk"
 msgstr "待处理风险"
@@ -1659,10 +1663,6 @@ msgstr "待处理风险"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Open rule detail: {0}"
 msgstr "打开规则详情：{0}"
-
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Open the dashboard Pulse banner."
-msgstr "打开仪表盘动态提醒。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."

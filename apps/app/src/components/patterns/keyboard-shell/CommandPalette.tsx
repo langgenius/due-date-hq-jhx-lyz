@@ -108,10 +108,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       {
         id: 'pulse',
         label: t`Pulse`,
-        description: t`Open the dashboard Pulse banner.`,
+        description: t`Open Pulse alerts.`,
         group: 'navigate',
         icon: WavesIcon,
-        onSelect: () => navigate('/#pulse'),
+        onSelect: () => navigate('/alerts'),
       },
       {
         id: 'ask',

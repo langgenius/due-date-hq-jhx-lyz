@@ -195,7 +195,7 @@ function WatchingLabel({ lastCheckedAt }: { lastCheckedAt: string | null }) {
   void lastCheckedAt
   return (
     <span className="truncate text-text-secondary">
-      <Trans>All clear · Watching IRS + CA / NY / TX / FL / WA / MA</Trans>
+      <Trans>All clear · Watching IRS + CA / NY / TX / FL / WA</Trans>
     </span>
   )
 }
