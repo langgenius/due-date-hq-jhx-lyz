@@ -119,6 +119,26 @@ export function SettingsBillingRoute() {
         </Alert>
       ) : null}
 
+      {firmsQuery.isError ? (
+        <Alert variant="destructive">
+          <AlertCircleIcon />
+          <AlertTitle>
+            <Trans>Firm context could not load</Trans>
+          </AlertTitle>
+          <AlertDescription>{firmsQuery.error.message}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {subscriptionsQuery.isError ? (
+        <Alert variant="destructive">
+          <AlertCircleIcon />
+          <AlertTitle>
+            <Trans>Billing status could not load</Trans>
+          </AlertTitle>
+          <AlertDescription>{subscriptionsQuery.error.message}</AlertDescription>
+        </Alert>
+      ) : null}
+
       <section className="grid gap-4 lg:grid-cols-[1fr_360px]">
         <Card>
           <CardHeader>
@@ -147,18 +167,33 @@ export function SettingsBillingRoute() {
               </>
             ) : (
               <>
-                <Metric label={<Trans>Firm</Trans>} value={currentFirm?.name ?? '—'} />
-                <Metric label={<Trans>Plan</Trans>} value={currentFirm?.plan ?? '—'} />
+                <Metric
+                  label={<Trans>Firm</Trans>}
+                  value={currentFirm?.name ?? '—'}
+                  name={`Firm: ${currentFirm?.name ?? 'none'}`}
+                />
+                <Metric
+                  label={<Trans>Plan</Trans>}
+                  value={currentFirm?.plan ?? '—'}
+                  name={`Plan: ${currentFirm?.plan ?? 'none'}`}
+                />
                 <Metric
                   label={<Trans>Seat limit</Trans>}
                   value={String(currentFirm?.seatLimit ?? '—')}
+                  name={`Seat limit: ${currentFirm?.seatLimit ?? 'none'}`}
                 />
               </>
             )}
           </CardContent>
           <CardFooter className="gap-2 border-t border-divider-regular">
             <Button
-              disabled={!owner || !activeSubscription || portalMutation.isPending}
+              disabled={
+                !owner ||
+                !activeSubscription ||
+                subscriptionsQuery.isPending ||
+                subscriptionsQuery.isError ||
+                portalMutation.isPending
+              }
               onClick={() => portalMutation.mutate()}
             >
               <ExternalLinkIcon data-icon="inline-start" />
@@ -201,9 +236,13 @@ export function SettingsBillingRoute() {
   )
 }
 
-function Metric({ label, value }: { label: ReactNode; value: string }) {
+function Metric({ label, value, name }: { label: ReactNode; value: string; name: string }) {
   return (
-    <div className="rounded-lg border border-divider-regular bg-background-subtle p-4">
+    <div
+      role="group"
+      aria-label={name}
+      className="rounded-lg border border-divider-regular bg-background-subtle p-4"
+    >
       <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
         {label}
       </span>

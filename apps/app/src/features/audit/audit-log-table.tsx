@@ -13,7 +13,7 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 
-import { shortenAuditId, summarizeAuditChange } from './audit-log-model'
+import { shortenAuditId, summarizeAuditChange, type AuditSummaryLabels } from './audit-log-model'
 
 function formatLocalDateTime(iso: string): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -32,6 +32,14 @@ export function AuditLogTable({
   onOpenEvent: (id: string) => void
 }) {
   const { t } = useLingui()
+  const summaryLabels: AuditSummaryLabels = {
+    empty: t`empty`,
+    object: t`object`,
+    noPayload: t`No before/after payload`,
+    created: t`Created snapshot`,
+    beforeOnly: t`Before snapshot only`,
+    noChange: t`No field-level change detected`,
+  }
 
   return (
     <Table>
@@ -93,7 +101,7 @@ export function AuditLogTable({
               </TableCell>
               <TableCell className="max-w-[360px] whitespace-normal">
                 <span className="line-clamp-2 text-sm text-text-secondary">
-                  {summarizeAuditChange(event)}
+                  {summarizeAuditChange(event, summaryLabels)}
                 </span>
               </TableCell>
               <TableCell className="text-right">

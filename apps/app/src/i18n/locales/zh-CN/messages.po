@@ -357,6 +357,11 @@ msgstr "保留 24 小时批次回滚追踪"
 msgid "Before"
 msgstr "变更前"
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "Before snapshot only"
+msgstr "仅有变更前快照"
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/_layout.tsx
 #: src/routes/settings.billing.tsx
@@ -366,6 +371,15 @@ msgstr "账单"
 #: src/routes/settings.billing.tsx
 msgid "Billing portal could not open"
 msgstr "无法打开账单门户"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
+msgid "Billing status could not load"
+msgstr "无法加载账单状态"
+
+#: src/routes/billing.checkout.tsx
+msgid "Billing status is not ready yet."
+msgstr "账单状态尚未准备好。"
 
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -644,6 +658,11 @@ msgstr "开始支付前，请先创建或选择一个事务所。"
 msgid "Created"
 msgstr "创建时间"
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "Created snapshot"
+msgstr "已创建快照"
+
 #: src/routes/clients.tsx
 msgid "Creating..."
 msgstr "正在创建..."
@@ -786,6 +805,11 @@ msgstr "EIN"
 msgid "Email"
 msgstr "邮箱"
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "empty"
+msgstr "空"
+
 #: src/routes/login.tsx
 msgid "Encrypted · 7-day session · SSO respected"
 msgstr "已加密 · 会话 7 天有效 · 遵循 SSO 策略"
@@ -902,6 +926,10 @@ msgstr "Firm"
 msgid "Firm context"
 msgstr "事务所上下文"
 
+#: src/routes/settings.billing.tsx
+msgid "Firm context could not load"
+msgstr "无法加载事务所上下文"
+
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Firm id"
 msgstr "事务所 ID"
@@ -914,6 +942,10 @@ msgstr "事务所名称"
 #: src/routes/settings.profile.tsx
 msgid "Firm profile"
 msgstr "事务所资料"
+
+#: src/routes/settings.profile.tsx
+msgid "Firm profile could not load"
+msgstr "无法加载事务所资料"
 
 #: src/routes/settings.profile.tsx
 msgid "Firm settings apply only to the active tenant."
@@ -1257,6 +1289,11 @@ msgstr "没有审计事件匹配这些筛选条件。"
 msgid "No audit events yet."
 msgstr "暂无审计事件。"
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "No before/after payload"
+msgstr "没有变更前/后的载荷"
+
 #: src/routes/clients.tsx
 msgid "No clients match these filters"
 msgstr "没有客户匹配这些筛选条件"
@@ -1280,6 +1317,11 @@ msgstr "不会自动发送任何邮件"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "No extension available."
 msgstr "无可用延期。"
+
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "No field-level change detected"
+msgstr "未检测到字段级变更"
 
 #: src/routes/billing.checkout.tsx
 msgid "No firm selected"
@@ -1348,6 +1390,11 @@ msgstr "通知"
 #: src/components/patterns/app-shell.tsx
 msgid "Notifications, {unreadCount} unread"
 msgstr "通知 · {unreadCount} 条未读"
+
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "object"
+msgstr "对象"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Obligation"
@@ -2216,6 +2263,10 @@ msgstr "在向 AI 发送任何内容前，我们会先拦截疑似 SSN 的模式
 #: src/features/migration/Step1Intake.tsx
 msgid "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
 msgstr "为保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。被拦截的列：{0} → 强制忽略。"
+
+#: src/routes/billing.success.tsx
+msgid "We could not refresh billing status yet. This page will keep checking."
+msgstr "我们暂时无法刷新账单状态。此页面会继续检查。"
 
 #: src/lib/i18n-error.ts
 #: src/routes/error.tsx

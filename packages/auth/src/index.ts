@@ -282,6 +282,7 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: Aut
             ...syncInput(subscription),
             plan: 'solo',
             seatLimit: 1,
+            stripeSubscriptionId: undefined,
           })
         },
       },

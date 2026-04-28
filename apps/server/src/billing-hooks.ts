@@ -9,7 +9,6 @@ function isOwnerRole(role: string | null | undefined): boolean {
 export function buildBillingHooks(db: Db): StripeBillingHooks {
   return {
     async authorizeReference(input) {
-      void input.action
       if (input.activeOrganizationId !== input.referenceId) return false
 
       const [membership] = await db
@@ -23,7 +22,9 @@ export function buildBillingHooks(db: Db): StripeBillingHooks {
         )
         .limit(1)
 
-      return Boolean(membership && isOwnerRole(membership.role) && membership.status === 'active')
+      if (!membership || membership.status !== 'active') return false
+      if (input.action === 'list-subscription') return true
+      return isOwnerRole(membership.role)
     },
 
     async syncSubscription(input: StripeSubscriptionSyncInput) {

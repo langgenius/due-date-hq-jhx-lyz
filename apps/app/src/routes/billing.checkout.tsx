@@ -84,9 +84,11 @@ export function BillingCheckoutRoute() {
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
     ['active', 'trialing', 'past_due', 'paused'].includes(subscription.status),
   )
+  const subscriptionsReady = !subscriptionsQuery.isPending && !subscriptionsQuery.isError
   const checkoutMutation = useMutation({
     mutationFn: async () => {
       if (!currentFirm) throw new Error(t`No active firm is selected.`)
+      if (!subscriptionsReady) throw new Error(t`Billing status is not ready yet.`)
       return createCheckout({
         plan,
         annual: interval === 'yearly',
@@ -168,6 +170,16 @@ export function BillingCheckoutRoute() {
         </Alert>
       ) : null}
 
+      {subscriptionsQuery.isError ? (
+        <Alert variant="destructive">
+          <AlertCircleIcon />
+          <AlertTitle>
+            <Trans>Billing status could not load</Trans>
+          </AlertTitle>
+          <AlertDescription>{subscriptionsQuery.error.message}</AlertDescription>
+        </Alert>
+      ) : null}
+
       {checkoutMutation.isError ? (
         <Alert variant="destructive">
           <AlertCircleIcon />
@@ -211,7 +223,13 @@ export function BillingCheckoutRoute() {
           </CardContent>
           <CardFooter className="gap-2 border-t border-divider-regular">
             <Button
-              disabled={!owner || checkoutMutation.isPending || alreadyOnPlan}
+              disabled={
+                !owner ||
+                !subscriptionsReady ||
+                checkoutMutation.isPending ||
+                subscriptionsQuery.isFetching ||
+                alreadyOnPlan
+              }
               onClick={() => checkoutMutation.mutate()}
             >
               <CreditCardIcon data-icon="inline-start" />

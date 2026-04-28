@@ -4,8 +4,11 @@ import type { FirmPublic } from '@duedatehq/contracts'
 import { orpc } from '@/lib/rpc'
 import { listOrganizationSubscriptions } from './api'
 
-export function useCurrentFirm() {
-  const firmsQuery = useQuery(orpc.firms.listMine.queryOptions({ input: undefined }))
+export function useCurrentFirm(options: { poll?: boolean } = {}) {
+  const firmsQuery = useQuery({
+    ...orpc.firms.listMine.queryOptions({ input: undefined }),
+    refetchInterval: options.poll ? 2500 : false,
+  })
   const currentFirm =
     firmsQuery.data?.find((firm) => firm.isCurrent) ?? firmsQuery.data?.[0] ?? null
   return { firmsQuery, currentFirm }

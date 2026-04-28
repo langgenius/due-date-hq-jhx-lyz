@@ -21,12 +21,13 @@ import { parseBillingPlan } from '@/lib/billing'
 export function BillingSuccessRoute() {
   const [searchParams] = useSearchParams()
   const expectedPlan = parseBillingPlan(searchParams.get('plan'))
-  const { firmsQuery, currentFirm } = useCurrentFirm()
+  const { firmsQuery, currentFirm } = useCurrentFirm({ poll: true })
   const subscriptionsQuery = useBillingSubscriptions(currentFirm, true)
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
     ['active', 'trialing'].includes(subscription.status),
   )
-  const activated = currentFirm?.plan === expectedPlan || activeSubscription?.plan === expectedPlan
+  const activated = currentFirm?.plan === expectedPlan && activeSubscription?.plan === expectedPlan
+  const statusError = firmsQuery.isError || subscriptionsQuery.isError
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
@@ -59,7 +60,19 @@ export function BillingSuccessRoute() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          {firmsQuery.isLoading || subscriptionsQuery.isLoading ? (
+          {statusError ? (
+            <Alert>
+              <ClockIcon />
+              <AlertTitle>
+                <Trans>Still waiting on Stripe</Trans>
+              </AlertTitle>
+              <AlertDescription>
+                <Trans>
+                  We could not refresh billing status yet. This page will keep checking.
+                </Trans>
+              </AlertDescription>
+            </Alert>
+          ) : firmsQuery.isLoading || subscriptionsQuery.isLoading ? (
             <>
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-2/3" />

@@ -357,6 +357,11 @@ msgstr "Batch rollback trace retained for 24 hours"
 msgid "Before"
 msgstr "Before"
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "Before snapshot only"
+msgstr "Before snapshot only"
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/_layout.tsx
 #: src/routes/settings.billing.tsx
@@ -366,6 +371,15 @@ msgstr "Billing"
 #: src/routes/settings.billing.tsx
 msgid "Billing portal could not open"
 msgstr "Billing portal could not open"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
+msgid "Billing status could not load"
+msgstr "Billing status could not load"
+
+#: src/routes/billing.checkout.tsx
+msgid "Billing status is not ready yet."
+msgstr "Billing status is not ready yet."
 
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -644,6 +658,11 @@ msgstr "Create or select a firm before starting checkout."
 msgid "Created"
 msgstr "Created"
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "Created snapshot"
+msgstr "Created snapshot"
+
 #: src/routes/clients.tsx
 msgid "Creating..."
 msgstr "Creating..."
@@ -786,6 +805,11 @@ msgstr "EIN"
 msgid "Email"
 msgstr "Email"
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "empty"
+msgstr "empty"
+
 #: src/routes/login.tsx
 msgid "Encrypted · 7-day session · SSO respected"
 msgstr "Encrypted · 7-day session · SSO respected"
@@ -902,6 +926,10 @@ msgstr "Firm"
 msgid "Firm context"
 msgstr "Firm context"
 
+#: src/routes/settings.billing.tsx
+msgid "Firm context could not load"
+msgstr "Firm context could not load"
+
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Firm id"
 msgstr "Firm id"
@@ -914,6 +942,10 @@ msgstr "Firm name"
 #: src/routes/settings.profile.tsx
 msgid "Firm profile"
 msgstr "Firm profile"
+
+#: src/routes/settings.profile.tsx
+msgid "Firm profile could not load"
+msgstr "Firm profile could not load"
 
 #: src/routes/settings.profile.tsx
 msgid "Firm settings apply only to the active tenant."
@@ -1257,6 +1289,11 @@ msgstr "No audit events match these filters."
 msgid "No audit events yet."
 msgstr "No audit events yet."
 
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "No before/after payload"
+msgstr "No before/after payload"
+
 #: src/routes/clients.tsx
 msgid "No clients match these filters"
 msgstr "No clients match these filters"
@@ -1280,6 +1317,11 @@ msgstr "No emails will be sent automatically"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "No extension available."
 msgstr "No extension available."
+
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "No field-level change detected"
+msgstr "No field-level change detected"
 
 #: src/routes/billing.checkout.tsx
 msgid "No firm selected"
@@ -1348,6 +1390,11 @@ msgstr "Notifications"
 #: src/components/patterns/app-shell.tsx
 msgid "Notifications, {unreadCount} unread"
 msgstr "Notifications, {unreadCount} unread"
+
+#: src/features/audit/audit-event-drawer.tsx
+#: src/features/audit/audit-log-table.tsx
+msgid "object"
+msgstr "object"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Obligation"
@@ -2216,6 +2263,10 @@ msgstr "We block SSN-like patterns before sending anything to the AI."
 #: src/features/migration/Step1Intake.tsx
 msgid "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
 msgstr "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
+
+#: src/routes/billing.success.tsx
+msgid "We could not refresh billing status yet. This page will keep checking."
+msgstr "We could not refresh billing status yet. This page will keep checking."
 
 #: src/lib/i18n-error.ts
 #: src/routes/error.tsx

@@ -10,7 +10,12 @@ import {
   SheetTitle,
 } from '@duedatehq/ui/components/ui/sheet'
 
-import { formatAuditJson, shortenAuditId, summarizeAuditChange } from './audit-log-model'
+import {
+  formatAuditJson,
+  shortenAuditId,
+  summarizeAuditChange,
+  type AuditSummaryLabels,
+} from './audit-log-model'
 
 function MetadataRow({ label, value }: { label: string; value: string }) {
   return (
@@ -44,6 +49,14 @@ export function AuditEventDrawer({
   const { t } = useLingui()
   if (!event) return null
 
+  const summaryLabels: AuditSummaryLabels = {
+    empty: t`empty`,
+    object: t`object`,
+    noPayload: t`No before/after payload`,
+    created: t`Created snapshot`,
+    beforeOnly: t`Before snapshot only`,
+    noChange: t`No field-level change detected`,
+  }
   const actor = event.actorLabel ?? event.actorId ?? t`System`
   const localTime = new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
@@ -68,7 +81,9 @@ export function AuditEventDrawer({
                 </Badge>
                 <Badge variant={event.actorId ? 'secondary' : 'outline'}>{actor}</Badge>
               </div>
-              <p className="text-md text-text-primary">{summarizeAuditChange(event)}</p>
+              <p className="text-md text-text-primary">
+                {summarizeAuditChange(event, summaryLabels)}
+              </p>
             </section>
 
             <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">

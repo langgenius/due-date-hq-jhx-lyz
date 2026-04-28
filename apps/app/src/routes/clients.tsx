@@ -103,34 +103,17 @@ const ALL_ENTITIES = 'all'
 const STATE_FILTER_ALL = 'all'
 const CLIENT_LIST_LIMIT = 500
 
-const clientFormSchema = z.object({
-  name: z.string().trim().min(1, 'Client name is required'),
-  entityType: z.enum(CLIENT_ENTITY_TYPES),
-  ein: z
-    .string()
-    .trim()
-    .refine((value) => value === '' || /^\d{2}-\d{7}$/.test(value), {
-      message: 'Use EIN format ##-#######',
-    }),
-  state: z
-    .string()
-    .trim()
-    .refine((value) => value === '' || /^[A-Za-z]{2}$/.test(value), {
-      message: 'Use a 2-letter state code',
-    }),
-  county: z.string().trim().max(120),
-  email: z
-    .string()
-    .trim()
-    .refine((value) => value === '' || z.email().safeParse(value).success, {
-      message: 'Enter a valid email address',
-    }),
-  assigneeName: z.string().trim().max(200),
-  notes: z.string().trim().max(5000),
-})
-
 type ClientEntityType = ClientCreateInput['entityType']
-type ClientFormValues = z.infer<typeof clientFormSchema>
+type ClientFormValues = {
+  name: string
+  entityType: ClientEntityType
+  ein: string
+  state: string
+  county: string
+  email: string
+  assigneeName: string
+  notes: string
+}
 type ClientMetric = {
   label: string
   value: string
@@ -147,6 +130,46 @@ const defaultClientFormValues: ClientFormValues = {
   email: '',
   assigneeName: '',
   notes: '',
+}
+
+function createClientFormSchema(t: ReturnType<typeof useLingui>['t']) {
+  return z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, t`Client name is required`),
+    entityType: z.enum(CLIENT_ENTITY_TYPES),
+    ein: z
+      .string()
+      .trim()
+      .refine((value) => value === '' || /^\d{2}-\d{7}$/.test(value), {
+        message: t`Use EIN format ##-#######`,
+      }),
+    state: z
+      .string()
+      .trim()
+      .refine((value) => value === '' || /^[A-Za-z]{2}$/.test(value), {
+        message: t`Use a 2-letter state code`,
+      }),
+    county: z
+      .string()
+      .trim()
+      .max(120, t`County must be 120 characters or fewer`),
+    email: z
+      .string()
+      .trim()
+      .refine((value) => value === '' || z.email().safeParse(value).success, {
+        message: t`Enter a valid email address`,
+      }),
+    assigneeName: z
+      .string()
+      .trim()
+      .max(200, t`Owner must be 200 characters or fewer`),
+    notes: z
+      .string()
+      .trim()
+      .max(5000, t`Notes must be 5000 characters or fewer`),
+  })
 }
 
 function isClientEntityType(value: string): value is ClientEntityType {
@@ -698,6 +721,7 @@ function CreateClientDialog({
 }) {
   const { t } = useLingui()
   const [open, setOpen] = useState(false)
+  const clientFormSchema = useMemo(() => createClientFormSchema(t), [t])
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),
     defaultValues: defaultClientFormValues,

@@ -2,8 +2,9 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { Building2Icon, Trash2Icon } from 'lucide-react'
+import { AlertCircleIcon, Building2Icon, Trash2Icon } from 'lucide-react'
 import type { FirmPublic } from '@duedatehq/contracts'
+import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,20 @@ export function SettingsProfileRoute() {
 
   if (currentQuery.isLoading) {
     return <ProfileSkeleton />
+  }
+
+  if (currentQuery.isError) {
+    return (
+      <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-4 py-6 md:px-6">
+        <Alert variant="destructive">
+          <AlertCircleIcon />
+          <AlertTitle>
+            <Trans>Firm profile could not load</Trans>
+          </AlertTitle>
+          <AlertDescription>{currentQuery.error.message}</AlertDescription>
+        </Alert>
+      </div>
+    )
   }
 
   if (!currentQuery.data) {
