@@ -2,6 +2,8 @@
 title: 'Migration revert and undo import'
 date: 2026-04-28
 author: 'Codex'
+updates:
+  - note: 'Added E2E coverage for toast-driven full import undo.'
 ---
 
 # Migration revert and undo import
@@ -41,6 +43,7 @@ Migration apply 已能把导入批次提交为 clients、obligations、evidence 
 - `pnpm --filter @duedatehq/server test -- --run src/procedures/migration/_service.test.ts`
 - `pnpm --filter @duedatehq/db test`
 - `pnpm --filter @duedatehq/app test -- --run src/router.test.ts`
+- `pnpm test:e2e -- --project=chromium e2e/tests/migration-wizard.spec.ts`
 - `pnpm --filter @duedatehq/app i18n:compile`
 - `pnpm test`
 - `pnpm check`

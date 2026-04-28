@@ -2,7 +2,8 @@ import { expect, test } from '../fixtures/test'
 
 // Feature: Migration Copilot Step 1
 // PRD: S2 import intake
-// AC: E2E-MIGRATION-INTAKE, E2E-MIGRATION-SSN-BLOCK, E2E-MIGRATION-DISCARD
+// AC: E2E-MIGRATION-INTAKE, E2E-MIGRATION-SSN-BLOCK, E2E-MIGRATION-DISCARD,
+//     E2E-MIGRATION-IMPORT-UNDO
 
 test.skip(
   Boolean(process.env.E2E_BASE_URL),
@@ -34,4 +35,50 @@ test('AC: E2E-MIGRATION-INTAKE parses pasted rows and protects discard', async (
   await expect(migrationWizardPage.discardDialog).toBeVisible()
   await authenticatedPage.getByRole('button', { name: 'Keep editing' }).click()
   await expect(migrationWizardPage.dialog).toBeVisible()
+})
+
+test('AC: E2E-MIGRATION-IMPORT-UNDO imports from the wizard and reverts from toast', async ({
+  appShellPage,
+  authenticatedPage,
+  migrationWizardPage,
+  workboardPage,
+}) => {
+  const importedClient = 'Undoable Migration LLC'
+
+  await appShellPage.goto()
+  await appShellPage.importClientsButton.click()
+
+  await expect(migrationWizardPage.dialog).toBeVisible()
+  await migrationWizardPage.presetButton('TaxDome').click()
+  await migrationWizardPage.pasteRows(
+    ['Client Name,EIN,State,Entity Type', `${importedClient},12-3456789,CA,LLC`].join('\n'),
+  )
+
+  await migrationWizardPage.continue()
+  await expect(
+    authenticatedPage.getByRole('heading', { name: 'AI mapped your columns — review and confirm' }),
+  ).toBeVisible()
+
+  await migrationWizardPage.continue()
+  await expect(
+    authenticatedPage.getByRole('heading', { name: /We normalized \d+ values/ }),
+  ).toBeVisible()
+
+  await migrationWizardPage.continue()
+  await expect(authenticatedPage.getByRole('heading', { name: 'Ready to import' })).toBeVisible()
+  await expect(authenticatedPage.getByText('1 client')).toBeVisible()
+
+  await migrationWizardPage.importAndGenerate()
+
+  await expect(authenticatedPage.getByText('Import complete')).toBeVisible()
+  await expect(authenticatedPage.getByText(/1 clients · [1-9]\d* obligations/)).toBeVisible()
+
+  await migrationWizardPage.openUndoImportConfirmation()
+  await expect(migrationWizardPage.undoImportDialog).toBeVisible()
+  await migrationWizardPage.confirmUndoImport()
+
+  await expect(authenticatedPage).toHaveURL(/\/workboard$/)
+  await expect(workboardPage.heading).toBeVisible()
+  await expect(authenticatedPage.getByText('Import undone')).toBeVisible()
+  await expect(workboardPage.rowFor(importedClient)).toBeHidden()
 })
