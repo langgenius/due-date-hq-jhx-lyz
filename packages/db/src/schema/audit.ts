@@ -147,11 +147,12 @@ export type EvidenceLink = typeof evidenceLink.$inferSelect
 export type NewEvidenceLink = typeof evidenceLink.$inferInsert
 
 /**
- * Demo Sprint audit action strings (docs/product-design/migration-copilot/01-mvp-and-journeys.md §4.3).
+ * Compliance audit action strings (docs/dev-file/06-Security-Compliance.md §6.1).
  * Consumers should import from packages/contracts/src/shared/audit-actions.ts;
  * this local copy keeps the DB package standalone.
  */
 export const MIGRATION_AUDIT_ACTIONS = [
+  'migration.batch.created',
   'migration.imported',
   'migration.reverted',
   'migration.single_undo',
@@ -161,9 +162,23 @@ export const MIGRATION_AUDIT_ACTIONS = [
 ] as const
 export type MigrationAuditAction = (typeof MIGRATION_AUDIT_ACTIONS)[number]
 
+export const PULSE_AUDIT_ACTIONS = [
+  'pulse.ingest',
+  'pulse.extract',
+  'pulse.approve',
+  'pulse.reject',
+  'pulse.apply',
+  'pulse.revert',
+] as const
+export type PulseAuditAction = (typeof PULSE_AUDIT_ACTIONS)[number]
+
+export const AUDIT_ACTIONS = [...MIGRATION_AUDIT_ACTIONS, ...PULSE_AUDIT_ACTIONS] as const
+export type AuditAction = (typeof AUDIT_ACTIONS)[number]
+
 /**
- * Demo Sprint evidence.source_type strings. AI Mapper / Normalizer write
- * one evidence_link per cell (docs/product-design/migration-copilot/04-ai-prompts.md §2.5 / §3.5).
+ * Evidence source_type strings. AI Mapper / Normalizer write one evidence_link
+ * per cell (docs/product-design/migration-copilot/04-ai-prompts.md §2.5 / §3.5);
+ * Pulse apply/revert writes provenance for regulatory date changes.
  */
 export const EVIDENCE_SOURCE_TYPES = [
   'default_inference_by_entity_state',
@@ -171,6 +186,8 @@ export const EVIDENCE_SOURCE_TYPES = [
   'ai_mapper',
   'ai_normalizer',
   'verified_rule',
+  'pulse_apply',
+  'pulse_revert',
   'user_override',
 ] as const
 export type EvidenceSourceType = (typeof EVIDENCE_SOURCE_TYPES)[number]

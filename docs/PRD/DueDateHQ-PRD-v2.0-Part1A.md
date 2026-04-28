@@ -523,7 +523,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 
 | #         | 模块                                          | 关键能力                                                                                                                                     | AC 绑定             |
 | --------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| P1-1      | **Regulatory Pulse™ Ingest**                  | IRS + 5 州 RSS / 页面抓取；24h SLA                                                                                                           | S3-AC1              |
+| P1-1      | **Regulatory Pulse™ Ingest**                  | IRS + 5 州官方页面 / API / RSS / 邮件信号；24h SLA                                                                                           | S3-AC1              |
 | P1-2      | **Pulse AI Extraction**                       | 结构化字段 + source excerpt + confidence                                                                                                     | S3-AC1, S3-AC5      |
 | P1-3      | **Pulse Match Engine**                        | 四维匹配：state + county + entity_type + tax_type                                                                                            | S3-AC2              |
 | P1-4      | **Dashboard Pulse Banner**                    | 顶部 sticky Banner + 折叠历史 + Last-checked 指标                                                                                            | S3-AC3              |
@@ -1045,18 +1045,19 @@ Render
 
 #### 6.3.1 Ingest（S3-AC1）
 
-6 个权威源 + 24h SLA：
+6 个权威源族 + 24h SLA：
 
-| Source                   | 类型   | 方式            | 频率    |
-| ------------------------ | ------ | --------------- | ------- |
-| IRS Newsroom             | RSS    | RSS → HTML 抽取 | 30 min  |
-| IRS Disaster Relief      | 专题页 | Cheerio diff    | 60 min  |
-| CA FTB News              | RSS    | RSS             | 60 min  |
-| NY DTF Tax News          | RSS    | RSS             | 60 min  |
-| TX Comptroller           | 页面   | Cheerio         | 60 min  |
-| FL DOR / WA DOR / MA DOR | 页面   | Cheerio         | 120 min |
+| Source                     | 类型                   | 方式                                     | 频率    |
+| -------------------------- | ---------------------- | ---------------------------------------- | ------- |
+| IRS Disaster Relief        | 专题页                 | HTML watch + detail diff                 | 60 min  |
+| IRS Newsroom               | 广谱新闻               | HTML list/detail signal                  | 120 min |
+| CA FTB Newsroom / Tax News | 官方 newsroom/archive  | HTML list/detail + email                 | 60 min  |
+| NY DTF Press               | 官方 press archive     | HTML yearly archive + email              | 120 min |
+| TX Comptroller             | 官方 RSS / GovDelivery | RSS + detail HTML                        | 60 min  |
+| FL DOR TIPs / WA DOR News  | 官方公告页             | HTML watch + email/subscription fallback | 120 min |
 
 冗余设计：任何单源失败 → 日志 + Sentry 告警 + 降级为 mock（UI 侧 `Last checked X min ago` 仍诚实显示）。
+实现约束：不得把未复核的 RSS endpoint 写成主依赖；Evidence 必须回链到官方 `.gov` canonical page，GovDelivery / email 只作为内部信号。
 
 #### 6.3.2 AI Extraction（S3-AC1 / AC5）
 
@@ -1094,7 +1095,7 @@ WHERE c.firm_id = :firm_id
   AND (:pulse_county_count = 0 OR c.county IN (:pulse_county_1, :pulse_county_2))
   AND c.entity_type IN (:entity_type_1, :entity_type_2)
   AND o.tax_type IN (:form_1, :form_2)
-  AND o.status NOT IN ('filed', 'paid', 'not_applicable')
+  AND o.status NOT IN ('done', 'not_applicable')
   AND o.current_due_date = :pulse_original_due_date;
 ```
 
@@ -1105,15 +1106,12 @@ WHERE c.firm_id = :firm_id
 ```
 BEGIN
   FOR each selected (client, obligation):
-    UPDATE obligations SET
-      current_due_date = new_date,
-      source_ref = pulse_id,
-      last_changed_by = user_id,
-      last_changed_at = now()
+    INSERT obligation_exception_application or controlled Phase 0 override
+      (obligation_instance_id, pulse_id, before_due_date, after_due_date, applied_by)
     INSERT evidence_link (obligation_id, pulse_id, applied_at, applied_by, source_type='pulse_apply')
     INSERT audit_event (actor, action='pulse.apply', batch_id, before, after)
-  INSERT email_job (assignee_list, pulse_summary, obligations)  -- §6.3.4
-  UPDATE pulse SET status='applied', applied_at, applied_by
+  INSERT email_outbox (assignee_list, pulse_summary, obligations)  -- §6.3.4
+  UPSERT pulse_firm_alert (firm_id, pulse_id, status='applied')
 COMMIT
 ```
 
@@ -1121,7 +1119,7 @@ COMMIT
 
 #### 6.3.4 Email Digest（S3-AC3 双渠道耦合）
 
-**关键设计：** Pulse Apply 成功的 **同一事务内** 插入 `email_job`，由 worker 异步发送。Email 与 Banner 共享一条 Pulse 数据，保证 CPA 在 Dashboard 看到与邮箱看到的**内容完全一致**。
+**关键设计：** Pulse Apply 成功的 **同一事务内** 插入 `email_outbox`，由 worker 异步发送。Email 与 Banner 共享一条 Pulse 数据，保证 CPA 在 Dashboard 看到与邮箱看到的**内容完全一致**。
 
 邮件模板：
 
@@ -1178,7 +1176,7 @@ AI-assisted. Verify with official sources.
 
 **DLQ（Dead Letter Queue）：** 任何单源失败 → 日志 + Sentry 告警 + 回退为 mock + UI 显示 `Last checked: 3 hr ago (retrying)` 警示色。
 
-Demo 预置：1 条 approved `IRS CA storm relief` + 1 条 `NY PTET reminder`，即使现场 RSS 抖动也能演完闭环。
+Demo 预置：1 条 approved `IRS CA storm relief` + 1 条 `NY PTET reminder`，即使现场官方源 / feed 抖动也能演完闭环。
 
 #### 6.3.6 24h Revert
 

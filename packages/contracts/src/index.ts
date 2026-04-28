@@ -243,8 +243,15 @@ export {
   migrationContract,
 } from './migration'
 
-export { MigrationAuditActions, MigrationAuditActionSchema } from './shared/audit-actions'
-export type { MigrationAuditAction } from './shared/audit-actions'
+export {
+  AuditActions,
+  AuditActionSchema,
+  MigrationAuditActions,
+  MigrationAuditActionSchema,
+  PulseAuditActions,
+  PulseAuditActionSchema,
+} from './shared/audit-actions'
+export type { AuditAction, MigrationAuditAction, PulseAuditAction } from './shared/audit-actions'
 export { EvidenceSourceTypes, EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 export type { EvidenceSourceType } from './shared/evidence-source-types'
 export { EntityIdSchema, TenantIdSchema } from './shared/ids'

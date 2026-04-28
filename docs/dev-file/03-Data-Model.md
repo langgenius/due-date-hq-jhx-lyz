@@ -230,16 +230,25 @@ Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 
 
 **pulse**
 
-| 字段                                                                                     | 备注      |
-| ---------------------------------------------------------------------------------------- | --------- |
-| `id` / `source` / `source_url` / `raw_r2_key`                                            | 原文存 R2 |
-| `published_at`                                                                           |           |
-| `ai_summary` / `verbatim_quote`                                                          |           |
-| `parsed_jurisdiction` / `parsed_counties[]` / `parsed_forms[]` / `parsed_entity_types[]` | JSON      |
-| `parsed_original_due_date` / `parsed_new_due_date` / `parsed_effective_from`             |           |
-| `confidence`                                                                             | 0–1       |
-| `status ∈ (pending_review, approved, applied, rejected)`                                 |           |
-| `reviewed_by` / `reviewed_at` / `requires_human_review`                                  |           |
+| 字段                                                                                     | 备注                                          |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `id` / `source` / `source_url` / `raw_r2_key`                                            | 原文存 R2                                     |
+| `published_at`                                                                           |                                               |
+| `ai_summary` / `verbatim_quote`                                                          |                                               |
+| `parsed_jurisdiction` / `parsed_counties[]` / `parsed_forms[]` / `parsed_entity_types[]` | JSON                                          |
+| `parsed_original_due_date` / `parsed_new_due_date` / `parsed_effective_from`             |                                               |
+| `confidence`                                                                             | 0–1                                           |
+| `status ∈ (pending_review, approved, rejected, quarantined, source_revoked)`             | 全局 ops 复核状态；不得表达某 firm 是否已应用 |
+| `reviewed_by` / `reviewed_at` / `requires_human_review`                                  |                                               |
+
+**pulse_firm_alert**
+
+| 字段                                                                           | 备注                                    |
+| ------------------------------------------------------------------------------ | --------------------------------------- |
+| `id` / `pulse_id` / `firm_id`                                                  | firm 级 Feed / Banner 状态              |
+| `status ∈ (matched, dismissed, snoozed, partially_applied, applied, reverted)` | tenant-scoped；替代全局 `pulse.applied` |
+| `matched_count` / `needs_review_count`                                         | Dashboard badge / drawer summary        |
+| `dismissed_by` / `dismissed_at` / `snoozed_until`                              | CPA 级处理状态                          |
 
 **pulse_application**
 
@@ -248,6 +257,9 @@ Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 
 | `id` / `pulse_id` / `obligation_instance_id` / `client_id` / `firm_id` |          |
 | `applied_by` / `applied_at` / `reverted_at`                            |          |
 | `before_due_date` / `after_due_date`                                   | 审计必备 |
+
+`pulse_application` 是 obligation 级真实 Apply/Revert 记录；`pulse_firm_alert.status='applied'`
+只能由该 firm 下全部选中 application 推导或事务内同步写入，不能回写到全局 `pulse.status`。
 
 ### 2.4 Migration
 

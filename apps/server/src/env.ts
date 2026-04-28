@@ -39,8 +39,10 @@ export interface WorkerBindings {
   R2_PDF: R2Bucket
   R2_MIGRATION: R2Bucket
   R2_AUDIT: R2Bucket
+  R2_PULSE: R2Bucket
   VECTORS: VectorizeIndex
   EMAIL_QUEUE: Queue
+  PULSE_QUEUE: Queue
   ASSETS: Fetcher
 }
 

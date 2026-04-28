@@ -702,7 +702,7 @@ EvidenceLink (核心 provenance 表)
   obligation_instance_id | ai_output_id,
   source_type (rule | pulse | human_note | ai_migration_normalize |
                ai_migration_map | default_inference_by_entity_state |
-               pulse_apply | penalty_override),
+               pulse_apply | pulse_revert | penalty_override),
   source_id, source_url, verbatim_quote,
   raw_value, normalized_value,       -- for migration
   confidence, model,                 -- for AI decisions
@@ -717,9 +717,15 @@ Pulse
   parsed_forms[], parsed_entity_types[],
   parsed_original_due_date, parsed_new_due_date,
   parsed_effective_from, confidence,
-  status (pending_review | approved | applied | rejected),
+  status (pending_review | approved | rejected | quarantined | source_revoked),
   reviewed_by, reviewed_at,
   requires_human_review
+
+PulseFirmAlert
+  id, pulse_id, firm_id,
+  status (matched | dismissed | snoozed | partially_applied | applied | reverted),
+  matched_count, needs_review_count,
+  dismissed_by, dismissed_at, snoozed_until
 
 PulseApplication
   id, pulse_id, obligation_instance_id, client_id, firm_id,
@@ -727,14 +733,15 @@ PulseApplication
   before_due_date, after_due_date
 
 AiOutput
-  id, firm_id, user_id, kind (brief | tip | summary | ask_answer),
+  id, firm_id, user_id, kind (brief | tip | summary | ask_answer | pulse_extract),
   prompt_version, model, input_context_ref,
   output_text, citations[], generated_at, tokens_in, tokens_out, cost_usd
 
 AuditEvent
   id, firm_id, actor_id, entity_type, entity_id,
-  action (status.change | pulse.apply | pulse.revert |
-          migration.import | migration.revert | penalty.override |
+  action (status.change | pulse.ingest | pulse.extract | pulse.approve |
+          pulse.reject | pulse.apply | pulse.revert |
+          migration.imported | migration.reverted | penalty.override |
           rule.updated),
   before_json, after_json, reason, created_at
 

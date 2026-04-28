@@ -28,6 +28,7 @@ import {
   MembersListOutputSchema,
   membersContract,
 } from './members'
+import { AuditActionSchema, PulseAuditActionSchema } from './shared/audit-actions'
 import { EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 import { DashboardLoadOutputSchema, DashboardSeveritySchema, dashboardContract } from './dashboard'
 import { EvidencePublicSchema, evidenceContract } from './evidence'
@@ -236,6 +237,13 @@ describe('@duedatehq/contracts', () => {
 
   it('allows verified rule evidence for generated obligations', () => {
     expect(EvidenceSourceTypeSchema.parse('verified_rule')).toBe('verified_rule')
+  })
+
+  it('allows migration and Pulse audit strings used by batch apply', () => {
+    expect(AuditActionSchema.parse('migration.batch.created')).toBe('migration.batch.created')
+    expect(PulseAuditActionSchema.parse('pulse.apply')).toBe('pulse.apply')
+    expect(AuditActionSchema.parse('pulse.revert')).toBe('pulse.revert')
+    expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')
   })
 
   it('freezes evidence.listByObligation public shape', () => {

@@ -6,6 +6,8 @@ export const EvidenceSourceTypes = [
   'ai_mapper',
   'ai_normalizer',
   'verified_rule',
+  'pulse_apply',
+  'pulse_revert',
   'user_override',
 ] as const
 

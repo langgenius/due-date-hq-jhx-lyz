@@ -38,7 +38,7 @@ binding = "CACHE"
 id = "cfa19528b52b4e8dad0723f3051dd4c8"
 
 # -------------------------------------------------------------
-# R2 · migration raw / generated PDFs / audit zips
+# R2 · migration raw / generated PDFs / audit zips / pulse raw snapshots
 # -------------------------------------------------------------
 [[r2_buckets]]
 binding = "R2_PDF"
@@ -51,6 +51,10 @@ bucket_name = "due-date-hq-migration-staging"
 [[r2_buckets]]
 binding = "R2_AUDIT"
 bucket_name = "due-date-hq-audit-staging"
+
+[[r2_buckets]]
+binding = "R2_PULSE"
+bucket_name = "due-date-hq-pulse-staging"
 
 # -------------------------------------------------------------
 # Vectorize · RAG top-k retrieval
@@ -75,12 +79,23 @@ simple = { limit = 100, period = 60 }
 binding = "EMAIL_QUEUE"
 queue = "due-date-hq-email-staging"
 
+[[queues.producers]]
+binding = "PULSE_QUEUE"
+queue = "due-date-hq-pulse-staging"
+
 [[queues.consumers]]
 queue = "due-date-hq-email-staging"
 max_batch_size = 10
 max_batch_timeout = 5
 max_retries = 5
 dead_letter_queue = "due-date-hq-email-dlq-staging"
+
+[[queues.consumers]]
+queue = "due-date-hq-pulse-staging"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "due-date-hq-pulse-dlq-staging"
 
 # -------------------------------------------------------------
 # Cron Triggers · pulse ingest + reminder dispatch

@@ -406,22 +406,22 @@ packages/typescript-config/
 
 ## 5. 命名约定
 
-| 实体               | 规则                                   | 示例                                 |
-| ------------------ | -------------------------------------- | ------------------------------------ |
-| 包名               | `@duedatehq/<kebab>`                   | `@duedatehq/contracts`               |
-| 目录               | `kebab-case`                           | `migration-wizard/`                  |
-| 文件               | `kebab-case.ts`；组件 `PascalCase.tsx` | `pulse-banner.ts` · `TriageCard.tsx` |
-| 类型               | `PascalCase`                           | `ClientInput` · `AppContract`        |
-| 常量               | `SCREAMING_SNAKE`                      | `MAX_CLIENTS_PER_IMPORT`             |
-| 函数               | `camelCase`                            | `computePenalty()`                   |
-| Zod schema         | `PascalCaseSchema`                     | `ClientSchema`                       |
-| oRPC 契约          | `<domain>Contract`                     | `clientsContract`                    |
-| oRPC procedure     | 动词 `camelCase`                       | `clients.list` / `pulse.batchApply`  |
-| DB 表              | `snake_case` 单数                      | `client` · `obligation_instance`     |
-| DB 列              | `snake_case`                           | `firm_id` · `current_due_date`       |
-| URL                | `/kebab-case`                          | `/api/webhook/resend`                |
-| 环境变量           | `SCREAMING_SNAKE`                      | `AUTH_SECRET`                        |
-| Cloudflare binding | `SCREAMING_SNAKE`                      | `DB` · `R2_PDF` · `EMAIL_QUEUE`      |
+| 实体               | 规则                                   | 示例                                         |
+| ------------------ | -------------------------------------- | -------------------------------------------- |
+| 包名               | `@duedatehq/<kebab>`                   | `@duedatehq/contracts`                       |
+| 目录               | `kebab-case`                           | `migration-wizard/`                          |
+| 文件               | `kebab-case.ts`；组件 `PascalCase.tsx` | `pulse-banner.ts` · `TriageCard.tsx`         |
+| 类型               | `PascalCase`                           | `ClientInput` · `AppContract`                |
+| 常量               | `SCREAMING_SNAKE`                      | `MAX_CLIENTS_PER_IMPORT`                     |
+| 函数               | `camelCase`                            | `computePenalty()`                           |
+| Zod schema         | `PascalCaseSchema`                     | `ClientSchema`                               |
+| oRPC 契约          | `<domain>Contract`                     | `clientsContract`                            |
+| oRPC procedure     | 动词 `camelCase`                       | `clients.list` / `pulse.batchApply`          |
+| DB 表              | `snake_case` 单数                      | `client` · `obligation_instance`             |
+| DB 列              | `snake_case`                           | `firm_id` · `current_due_date`               |
+| URL                | `/kebab-case`                          | `/api/webhook/resend`                        |
+| 环境变量           | `SCREAMING_SNAKE`                      | `AUTH_SECRET`                                |
+| Cloudflare binding | `SCREAMING_SNAKE`                      | `DB` · `R2_PDF` · `R2_PULSE` · `PULSE_QUEUE` |
 
 ---
 

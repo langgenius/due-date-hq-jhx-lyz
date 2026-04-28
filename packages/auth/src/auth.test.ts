@@ -44,6 +44,17 @@ describe('@duedatehq/auth permissions', () => {
     expect(coord.dollars).toBeUndefined()
   })
 
+  it('keeps Pulse and migration revert owner-only', () => {
+    const manager = roles.manager.statements as Record<string, readonly string[] | undefined>
+    const owner = roles.owner.statements as Record<string, readonly string[]>
+
+    expect(manager.pulse).toEqual(expect.arrayContaining(['read', 'approve', 'batch_apply']))
+    expect(manager.pulse).not.toContain('revert')
+    expect(manager.migration).toEqual(['run'])
+    expect(owner.pulse).toContain('revert')
+    expect(owner.migration).toContain('revert')
+  })
+
   it('grants owner the full member/organization/invitation surface', () => {
     const owner = roles.owner.statements as Record<string, readonly string[]>
     expect(owner.organization).toEqual(expect.arrayContaining(['update', 'delete']))

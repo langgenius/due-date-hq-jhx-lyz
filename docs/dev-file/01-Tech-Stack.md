@@ -408,8 +408,10 @@ ENV=development
 # R2_PDF       (R2 bucket)
 # R2_MIGRATION (R2 bucket)
 # R2_AUDIT     (R2 bucket)
+# R2_PULSE     (R2 bucket)
 # VECTORS      (Vectorize index)
 # EMAIL_QUEUE  (Queues producer)
+# PULSE_QUEUE  (Queues producer)
 # ASSETS       (Static Assets binding)
 
 # ───────── Auth ─────────

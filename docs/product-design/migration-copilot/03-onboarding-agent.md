@@ -362,7 +362,7 @@ Final bubble to user: "Got it — I've pre-loaded rules for Acme LLC / Bright St
 | dry_run_commit                    | 同上（批量挂到每条 obligation）+ `migration_batch_id`          | 原子导入时每条 obligation 都挂完整 evidence 链                                |
 | handoff                           | —                                                              | 无                                                                            |
 
-> 枚举值来自 PRD Part2A §8.1 `EvidenceLink.source_type` 定义：`rule | pulse | human_note | ai_migration_normalize | ai_migration_map | default_inference_by_entity_state | pulse_apply | penalty_override`。
+> 枚举值来自 PRD Part2A §8.1 `EvidenceLink.source_type` 定义：`rule | pulse | human_note | ai_migration_normalize | ai_migration_map | default_inference_by_entity_state | pulse_apply | pulse_revert | penalty_override`。
 
 ### 7.2 Audit Event 命名空间
 

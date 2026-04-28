@@ -69,8 +69,8 @@ export const roles = {
     // Business surface (PRD §3.6.3 column).
     client: ['create', 'read', 'update'],
     obligation: ['read', 'update:status', 'update:assignee'],
-    pulse: ['read', 'approve', 'batch_apply', 'revert'],
-    migration: ['run', 'revert'],
+    pulse: ['read', 'approve', 'batch_apply'],
+    migration: ['run'],
     rule: ['read', 'report_issue'],
     billing: ['read'],
     audit: ['read', 'export'],
