@@ -37,13 +37,14 @@ export function requireTenant(ctx: RpcContext): {
 
 export function requireSession(ctx: RpcContext): {
   firms: NonNullable<ContextVars['firms']>
+  members: NonNullable<ContextVars['members']>
   session: NonNullable<ContextVars['session']>
   user: NonNullable<ContextVars['user']>
   userId: string
 } {
-  const { firms, session, user, userId } = ctx.vars
-  if (!firms || !session || !user || !userId) {
+  const { firms, members, session, user, userId } = ctx.vars
+  if (!firms || !members || !session || !user || !userId) {
     throw new Error('Session middleware did not run before this procedure.')
   }
-  return { firms, session, user, userId }
+  return { firms, members, session, user, userId }
 }

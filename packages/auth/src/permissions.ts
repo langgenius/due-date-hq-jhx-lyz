@@ -64,10 +64,8 @@ export const roles = {
   }),
 
   manager: accessControl.newRole({
-    // Org plugin: can invite/cancel/suspend but NOT update org or delete
-    // roles — ownership transfer, plan downgrade, org delete stay owner-only.
-    member: ['create', 'invite', 'suspend'],
-    invitation: ['create', 'cancel'],
+    // Member administration is Owner-only in Members v1. Managers keep
+    // business-domain permissions but no organization-plugin member surface.
     // Business surface (PRD §3.6.3 column).
     client: ['create', 'read', 'update'],
     obligation: ['read', 'update:status', 'update:assignee'],

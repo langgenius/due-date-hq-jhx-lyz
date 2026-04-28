@@ -6,7 +6,7 @@ import { validateServerEnv, type Env, type ServerEnv } from './env'
 import { buildBillingHooks } from './billing-hooks'
 import { getRequestLocale } from './i18n/resolve'
 import { translate } from './i18n/messages'
-import { buildOrganizationHooks } from './organization-hooks'
+import { buildOrganizationHooks, buildOrganizationMembershipLimit } from './organization-hooks'
 import { buildDatabaseHooks } from './session-hooks'
 
 function absoluteUrl(env: ServerEnv, pathOrUrl: string): string {
@@ -87,6 +87,7 @@ export function createWorkerAuth(runtimeEnv: Env, ctx?: ExecutionContext) {
   // session-hooks.ts, and the dep-direction DAG in
   // scripts/check-dep-direction.mjs.
   const organizationHooks = buildOrganizationHooks(db)
+  const organizationMembershipLimit = buildOrganizationMembershipLimit(db)
   const databaseHooks = buildDatabaseHooks(db)
   const stripeBilling = { hooks: buildBillingHooks(db) }
 
@@ -96,6 +97,8 @@ export function createWorkerAuth(runtimeEnv: Env, ctx?: ExecutionContext) {
     env,
     email,
     organizationHooks,
+    organizationMembershipLimit,
+    organizationInvitationLimit: 100,
     databaseHooks,
     stripeBilling,
     ...(ctx ? { waitUntil: (promise) => ctx.waitUntil(promise) } : {}),

@@ -36,7 +36,7 @@ packages/db/
 
 - `apps/server/src/procedures/**` **不允许**直接 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`；只能通过 `context.vars.scoped` / `context.vars.tenantContext`
 - `scoped.ts` 的每个 repo 入口都必须硬编码 `WHERE firm_id = :firmId`，`firmId` 只能从 middleware 注入，不能从 procedure `input` 接收
-- `schema/auth.ts`（better-auth 身份层 7 张表）**手工维护**：已在 `member` 表加 `(organization_id, user_id)` unique index、加 `member.status` 业务字段。不跑 `@better-auth/cli generate`（package.json 已无 `auth:schema` 脚本，避免误重跑覆盖这些约束）；后续 schema 变更一律走 `pnpm db:generate` + 人工 review
+- `schema/auth.ts`（better-auth 身份层 7 张表）**手工维护**：已在 `member` 表加 `(organization_id, user_id)` unique index、加 `member.status` 业务字段，并为 Members gateway 加 `invitation(organization_id,email,status)` 索引。不跑 `@better-auth/cli generate`（package.json 已无 `auth:schema` 脚本，避免误重跑覆盖这些约束）；后续 schema 变更一律走 `pnpm db:generate` + 人工 review
 - `schema/firm.ts` 是业务租户层，`firm_profile.id` 通过 PK FK 挂到 `organization.id`
 - 业务表统一用 `firm_id` 保持 DueDateHQ 术语（逻辑等同 `organization_id`）
 
@@ -108,7 +108,8 @@ packages/db/
 
 - `packages/db/src/repo/firms.ts` 是跨 firm 的只读/管理入口，用于 `listMine / getCurrent / switchActive / create / update / softDelete`。它只按 `userId + active member` 查询用户可访问 firm，不暴露任意 `firmId` 读取。
 - 普通业务数据仍必须走 `scoped(db, firmId)`；firm 管理 repo 是身份/租户选择层的例外，不允许业务 procedure 用它读取 tenant-scoped rows。
-- `organizationLimit` 已放开以支持一个用户创建多个 firm；`invitationLimit:0` 和 `beforeAddMember(role!='owner')` 仍然关闭 Team/Members 扩展，直到 P1-18/P1-19。
+- `organizationLimit` 已放开以支持一个用户创建多个 firm；Members gateway 通过 `members.*` oRPC 管理当前 active firm 的 member/invitation，Better Auth hooks 只保留 role、active firm、seat limit 底线。
+- Seat usage 写时口径：`active members + pending non-expired invitations <= firm_profile.seat_limit`。`member.status='suspended'` 不占 seat，但 tenant middleware 会拒绝该成员访问业务 RPC。
 - `firm_profile.status='deleted'` 是当前 firm 删除路径；不会调用 Better Auth hard delete，避免 `organization -> firm_profile -> business data` 级联物理删除。
 
 **加列原则**：

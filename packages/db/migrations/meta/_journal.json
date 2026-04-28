@@ -43,6 +43,13 @@
       "when": 1777389992095,
       "tag": "0005_unknown_talon",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1777391302918,
+      "tag": "0006_worried_crusher_hogan",
+      "breakpoints": true
     }
   ]
 }

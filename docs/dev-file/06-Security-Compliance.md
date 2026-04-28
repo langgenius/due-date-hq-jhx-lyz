@@ -40,7 +40,7 @@
 
 ### 2.3 Invitation 流
 
-- P0 正常产品路径不开放邀请：`invitationLimit: 0`，Google 登录 + 创建组织 + 进入
+- Members 管理走 DueDateHQ `members.*` gateway：前端不直接调 Better Auth organization/member API；Better Auth hooks 作为绕过 gateway 时的 role / active firm / seat 底线
   app 不依赖 Resend key
 - Owner 在 Settings → Team 发邀请 → better-auth 生成 token + 入 `invitation` 表
 - 邀请邮件由 `sendInvitationEmail` hook 经 Resend 发出
@@ -115,6 +115,7 @@ const statement = {
 - `firm_profile.status !== 'active'` → `TENANT_SUSPENDED`
 - 注入 `c.set('tenantContext', ...)` + `c.set('scoped', scoped(db, firmId))`
 - `firms.*` RPC 是租户选择层例外：`listMine / create / switchActive / updateCurrent / softDeleteCurrent` 只要求 authenticated session + active membership 校验，不要求当前 `tenantContext`。这些 procedure 不读取业务表，只管理 `organization / member / firm_profile / session.activeOrganizationId`。
+- `members.*` RPC 不 bypass tenant middleware；它只管理当前 active firm，且 Members v1 mutation 统一 Owner-only、写 audit、按 `firm_profile.seatLimit` 校验 seat。
 
 ### 4.2 Repo 工厂层（约束）
 

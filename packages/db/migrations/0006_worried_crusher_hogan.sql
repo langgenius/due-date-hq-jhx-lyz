@@ -1,0 +1,1 @@
+CREATE INDEX `invitation_organization_email_status_idx` ON `invitation` (`organization_id`,`email`,`status`);

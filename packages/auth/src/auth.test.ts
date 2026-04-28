@@ -50,4 +50,10 @@ describe('@duedatehq/auth permissions', () => {
     expect(owner.invitation).toEqual(expect.arrayContaining(['create', 'cancel']))
     expect(owner.member).toEqual(expect.arrayContaining(['create', 'update', 'delete']))
   })
+
+  it('keeps member administration owner-only for Members v1', () => {
+    const manager = roles.manager.statements as Record<string, readonly string[] | undefined>
+    expect(manager.member).toBeUndefined()
+    expect(manager.invitation).toBeUndefined()
+  })
 })

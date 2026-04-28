@@ -1,6 +1,7 @@
 import * as authSchema from './schema/auth'
 import * as firmSchema from './schema/firm'
 import { makeFirmsRepo } from './repo/firms'
+import { makeMembersRepo } from './repo/members'
 
 export { createDb } from './client'
 export { scoped } from './scoped'
@@ -13,6 +14,7 @@ export { authSchema }
 // middleware, never read by procedures.
 export { firmSchema }
 export { makeFirmsRepo }
+export { makeMembersRepo }
 export type {
   Db,
   ScopedRepo,
@@ -21,4 +23,8 @@ export type {
   NewFirmProfile,
   FirmsRepo,
   FirmMembershipRow,
+  InvitationRow,
+  MemberRow,
+  MembersRepo,
+  SeatUsage,
 } from './types'

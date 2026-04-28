@@ -72,6 +72,7 @@
 | 模块                            | 路径                                                                  | PRD 对应                                         | 输入                                    | 输出                                                                                          |
 | ------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------ | --------------------------------------- | --------------------------------------------------------------------------------------------- |
 | **auth**                        | `packages/auth`                                                       | §13.2 · §3.6                                     | Google OAuth / invitation               | Session · Organization · Member                                                               |
+| **members**                     | `apps/server/src/procedures/members` + identity repo                  | §3.6                                             | current firm + Owner action             | Member / Invitation gateway over Better Auth                                                  |
 | **clients**                     | `apps/server/src/procedures/clients` + repo                           | §5.6 · §8.1                                      | CRUD                                    | Client 实体                                                                                   |
 | **rules**                       | `packages/db` + seed                                                  | §6.1 · §6D                                       | rule draft                              | ObligationRule + Source Registry                                                              |
 | **obligations**                 | `apps/server/src/procedures/obligations`                              | §5.2 · §8.1                                      | rule + client                           | ObligationInstance                                                                            |
@@ -314,8 +315,9 @@ SourceAdapter.fetch()  ──► raw 存 R2 ──► 入 Queue { type: 'extract
 三道防线共同构成纵深防御；其中 session 与 scoped repo 是运行时安全边界，lint 是防止绕过边界的开发期护栏：
 
 1. **better-auth session 层**：`activeOrganizationId` 必须存在于 session，否则 middleware 拒绝请求
-2. **repo 工厂层**：`scoped(db, firmId)` 是进入 `packages/db` 业务数据的唯一入口；所有 tenant-scoped query 在工厂内部硬编码 `WHERE firm_id = :firmId`
-3. **Lint 静态层**：oxlint 自定义规则（`no-restricted-imports`）禁止 procedures 直接 import `@duedatehq/db` 或 DB schema 表；PR 检查自动 block，但不替代运行时权限检查
+2. **gateway 层**：`firms.*` / `members.*` 把 Better Auth identity primitives 包成产品 API，统一 current firm、权限、seat、audit、错误码
+3. **repo 工厂层**：`scoped(db, firmId)` 是进入 `packages/db` 业务数据的唯一入口；所有 tenant-scoped query 在工厂内部硬编码 `WHERE firm_id = :firmId`
+4. **Lint 静态层**：oxlint 自定义规则（`no-restricted-imports`）禁止 procedures 直接 import `@duedatehq/db` 或 DB schema 表；PR 检查自动 block，但不替代运行时权限检查
 
 D1 无 RLS 能力，不依赖 DB 级防护。
 

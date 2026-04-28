@@ -91,6 +91,7 @@ export interface ContextVars {
   firmId?: string
   userId?: string
   firms?: import('@duedatehq/db').FirmsRepo
+  members?: import('@duedatehq/db').MembersRepo
   scoped?: import('@duedatehq/db').ScopedRepo
   /**
    * Resolved business-tenant view for the request. Composed by

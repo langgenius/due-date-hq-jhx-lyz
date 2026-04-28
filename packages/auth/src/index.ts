@@ -36,6 +36,7 @@ export type AuthEnv = {
 export type OrganizationHooks = NonNullable<
   NonNullable<Parameters<typeof organization>[0]>['organizationHooks']
 >
+type OrganizationPluginOptions = NonNullable<Parameters<typeof organization>[0]>
 
 export interface CreateAuthPluginsOptions {
   email?: AuthEmailSender
@@ -47,6 +48,8 @@ export interface CreateAuthPluginsOptions {
    * tests that don't care about firm_profile bookkeeping.
    */
   organizationHooks?: OrganizationHooks
+  organizationMembershipLimit?: OrganizationPluginOptions['membershipLimit']
+  organizationInvitationLimit?: OrganizationPluginOptions['invitationLimit']
   stripeBilling?: StripeBillingOptions
 }
 
@@ -97,6 +100,8 @@ export interface CreateAuthDeps {
    * cascade into every downstream `auth.api.getSession()` call.
    */
   organizationHooks?: OrganizationHooks
+  organizationMembershipLimit?: OrganizationPluginOptions['membershipLimit']
+  organizationInvitationLimit?: OrganizationPluginOptions['invitationLimit']
   stripeBilling?: StripeBillingOptions
   /**
    * `databaseHooks` escape hatch. Server uses `session.create.before` to
@@ -187,6 +192,10 @@ function syncInput(subscription: Subscription): StripeSubscriptionSyncInput {
   }
 }
 
+function isKnownFirmRole(role: string): boolean {
+  return role === 'owner' || role === 'manager' || role === 'preparer' || role === 'coordinator'
+}
+
 export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: AuthEnv) {
   const { email, organizationHooks } = opts
   const organizationPlugin = organization({
@@ -194,17 +203,12 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: Aut
     roles,
     creatorRole: 'owner',
     allowUserToCreateOrganization: true,
-    // Multi-firm foundation: users can create more than one Firm. Team
-    // expansion still stays closed below until Members/RBAC lands.
-    // P0 soft ceiling matches PRD §3.6.1 Firm Plan seat_limit. The hard
-    // "P0 single Owner" semantic is enforced by invitationLimit:0 +
-    // beforeAddMember below — this number is only the upper safety net.
-    // P1 should switch to a function: (user, org) => planSeatLimit(org.plan).
-    membershipLimit: 5,
-    // P0 does not expose invitations. invitationLimit:0 prevents the org
-    // plugin from accepting any invite create call; beforeAddMember is the
-    // belt-and-braces guard for direct member creation paths.
-    invitationLimit: 0,
+    // Better Auth owns the identity primitives; DueDateHQ's members gateway
+    // owns current-firm, seat, audit, and Owner-only business rules. Server
+    // injects the plan-aware membership limit because packages/auth cannot
+    // depend on @duedatehq/db.
+    membershipLimit: opts.organizationMembershipLimit ?? 5,
+    invitationLimit: opts.organizationInvitationLimit ?? 100,
     // org soft-delete is governed by firm_profile.status / deletedAt
     // (PRD §3.6.8 30d grace). Hard delete via the better-auth API would
     // bypass that flow, so it stays disabled.
@@ -212,16 +216,15 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: Aut
     invitationExpiresIn: 60 * 60 * 24 * 7,
     cancelPendingInvitationsOnReInvite: true,
     organizationHooks: {
-      // Default guard allows Better Auth's owner bootstrap and rejects
-      // non-owner member additions. Multi-firm creation is open, but Team
-      // expansion remains closed until the Members/RBAC slice lands.
+      // Default guard keeps the role vocabulary tight when tests construct
+      // auth without server-owned DB hooks. Server hooks add firm/seat gates.
       ...organizationHooks,
       beforeAddMember:
         organizationHooks?.beforeAddMember ??
         (async ({ member }) => {
-          if (member.role !== 'owner') {
+          if (!isKnownFirmRole(member.role)) {
             throw new APIError('FORBIDDEN', {
-              message: 'P0 only allows the creator owner.',
+              message: 'Unknown firm role.',
             })
           }
         }),
@@ -301,6 +304,12 @@ export function createAuth(deps: CreateAuthDeps) {
   const pluginOpts: CreateAuthPluginsOptions = {}
   if (deps.email) pluginOpts.email = deps.email
   if (deps.organizationHooks) pluginOpts.organizationHooks = deps.organizationHooks
+  if (deps.organizationMembershipLimit) {
+    pluginOpts.organizationMembershipLimit = deps.organizationMembershipLimit
+  }
+  if (deps.organizationInvitationLimit) {
+    pluginOpts.organizationInvitationLimit = deps.organizationInvitationLimit
+  }
   if (deps.stripeBilling) pluginOpts.stripeBilling = deps.stripeBilling
   const plugins = createAuthPlugins(pluginOpts, deps.env)
 

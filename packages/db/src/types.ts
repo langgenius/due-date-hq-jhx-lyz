@@ -9,6 +9,12 @@ import type {
   FirmsRepo as RealFirmsRepo,
 } from './repo/firms'
 import type { MigrationRepo as RealMigrationRepo } from './repo/migration'
+import type {
+  InvitationRow as RealInvitationRow,
+  MemberRow as RealMemberRow,
+  MembersRepo as RealMembersRepo,
+  SeatUsage as RealSeatUsage,
+} from './repo/members'
 import type { ObligationsRepo as RealObligationsRepo } from './repo/obligations'
 import type { WorkboardRepo as RealWorkboardRepo } from './repo/workboard'
 import type { FirmProfile } from './schema/firm'
@@ -17,6 +23,10 @@ export type { Db }
 export type { FirmProfile, NewFirmProfile } from './schema/firm'
 export type FirmsRepo = RealFirmsRepo
 export type FirmMembershipRow = RealFirmMembershipRow
+export type MembersRepo = RealMembersRepo
+export type MemberRow = RealMemberRow
+export type InvitationRow = RealInvitationRow
+export type SeatUsage = RealSeatUsage
 
 /**
  * TenantContext — the resolved business-tenant view for the current request.

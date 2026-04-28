@@ -5,6 +5,7 @@ import { dashboardHandlers } from './dashboard'
 import { evidenceHandlers } from './evidence'
 import { firmsHandlers } from './firms'
 import { migrationHandlers } from './migration'
+import { membersHandlers } from './members'
 import { obligationsHandlers } from './obligations'
 import { rulesHandlers } from './rules'
 import { workboardHandlers } from './workboard'
@@ -78,6 +79,16 @@ export const router = os.router({
     singleUndo: migrationHandlers.singleUndo,
     getBatch: migrationHandlers.getBatch,
     listErrors: migrationHandlers.listErrors,
+  },
+  members: {
+    listCurrent: membersHandlers.listCurrent,
+    invite: membersHandlers.invite,
+    cancelInvitation: membersHandlers.cancelInvitation,
+    resendInvitation: membersHandlers.resendInvitation,
+    updateRole: membersHandlers.updateRole,
+    suspend: membersHandlers.suspend,
+    reactivate: membersHandlers.reactivate,
+    remove: membersHandlers.remove,
   },
   rules: {
     listSources: rulesHandlers.listSources,

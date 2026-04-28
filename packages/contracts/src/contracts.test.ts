@@ -22,6 +22,12 @@ import {
   workboardContract,
 } from './workboard'
 import { MatrixSelectionSchema, MigrationErrorStageSchema, migrationContract } from './migration'
+import {
+  MemberInviteInputSchema,
+  MemberManagedRoleSchema,
+  MembersListOutputSchema,
+  membersContract,
+} from './members'
 import { EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 import { DashboardLoadOutputSchema, DashboardSeveritySchema, dashboardContract } from './dashboard'
 import { EvidencePublicSchema, evidenceContract } from './evidence'
@@ -88,6 +94,56 @@ describe('@duedatehq/contracts', () => {
   it('keeps shared error codes stable', () => {
     expect(ErrorCodes.TENANT_MISSING).toBe('TENANT_MISSING')
     expect(ErrorCodes.GUARD_REJECTED).toBe('GUARD_REJECTED')
+    expect(ErrorCodes.MEMBER_SEAT_LIMIT).toBe('MEMBER_SEAT_LIMIT')
+  })
+
+  it('freezes members gateway contracts', () => {
+    expect(Object.keys(appContract)).toEqual(expect.arrayContaining(['members']))
+    expect(Object.keys(membersContract)).toEqual([
+      'listCurrent',
+      'invite',
+      'cancelInvitation',
+      'resendInvitation',
+      'updateRole',
+      'suspend',
+      'reactivate',
+      'remove',
+    ])
+    expect(MemberManagedRoleSchema.options).toEqual(['manager', 'preparer', 'coordinator'])
+    expect(() =>
+      MemberInviteInputSchema.parse({ email: 'owner@example.com', role: 'owner' }),
+    ).toThrow()
+
+    const output = MembersListOutputSchema.parse({
+      seatLimit: 5,
+      usedSeats: 2,
+      availableSeats: 3,
+      members: [
+        {
+          id: 'member_1',
+          userId: 'user_1',
+          name: 'Alex Chen',
+          email: 'alex@example.com',
+          image: null,
+          role: 'owner',
+          status: 'active',
+          isCurrentUser: true,
+          createdAt: '2026-04-28T00:00:00.000Z',
+        },
+      ],
+      invitations: [
+        {
+          id: 'invitation_1',
+          email: 'maya@example.com',
+          role: 'preparer',
+          status: 'pending',
+          inviterId: 'user_1',
+          expiresAt: '2026-05-05T00:00:00.000Z',
+          createdAt: '2026-04-28T00:00:00.000Z',
+        },
+      ],
+    })
+    expect(output.availableSeats).toBe(3)
   })
 
   it('validates shared client payloads', () => {

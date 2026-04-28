@@ -28,10 +28,18 @@ function makeFakeDb(opts: { insertImpl?: () => Promise<void> } = {}): {
 } {
   const valuesSpy = vi.fn(opts.insertImpl ?? (async () => undefined))
   const insertSpy = vi.fn(() => ({ values: valuesSpy }))
-  // Cast through unknown — the real Db has many more methods our hook
-  // doesn't touch; the factory only needs db.insert.
+  // Cast through unknown — the real Db has many more methods than each
+  // focused hook test needs.
   const db = { insert: insertSpy } as unknown as Db
   return { db, insertSpy, valuesSpy }
+}
+
+function makeOwnerBootstrapDb(memberCount: number): Db {
+  const limit = vi.fn(async () => [{ value: memberCount }])
+  const where = vi.fn(() => ({ limit }))
+  const from = vi.fn(() => ({ where }))
+  const select = vi.fn(() => ({ from }))
+  return { select } as unknown as Db
 }
 
 describe('buildOrganizationHooks', () => {
@@ -109,8 +117,8 @@ describe('buildOrganizationHooks', () => {
     })
   })
 
-  describe('beforeAddMember', () => {
-    it('rejects non-owner roles with APIError(FORBIDDEN)', async () => {
+  describe('member guards', () => {
+    it('rejects unknown roles with APIError(FORBIDDEN)', async () => {
       const { db } = makeFakeDb()
       const hooks = buildOrganizationHooks(db)
 
@@ -123,12 +131,12 @@ describe('buildOrganizationHooks', () => {
       await expect(promise).rejects.toBeInstanceOf(APIError)
       await expect(promise).rejects.toMatchObject({
         // better-auth's APIError exposes the status string we passed in.
-        message: expect.stringContaining('P0 only allows the creator owner'),
+        message: expect.stringContaining('Unsupported member role'),
       })
     })
 
-    it('allows the creator owner role to pass through', async () => {
-      const { db } = makeFakeDb()
+    it('allows the creator owner bootstrap role to pass through', async () => {
+      const db = makeOwnerBootstrapDb(0)
       const hooks = buildOrganizationHooks(db)
 
       await expect(
@@ -138,6 +146,41 @@ describe('buildOrganizationHooks', () => {
           user: { id: 'user_4' } as never,
         }),
       ).resolves.toBeUndefined()
+    })
+
+    it('rejects adding another owner after bootstrap', async () => {
+      const db = makeOwnerBootstrapDb(1)
+      const hooks = buildOrganizationHooks(db)
+
+      await expect(
+        hooks.beforeAddMember!({
+          member: { userId: 'user_5', organizationId: 'org_y', role: 'owner' },
+          organization: { id: 'org_y', name: 'Y' } as never,
+          user: { id: 'user_5' } as never,
+        }),
+      ).rejects.toBeInstanceOf(APIError)
+    })
+
+    it('rejects owner role updates and removals until owner transfer lands', async () => {
+      const { db } = makeFakeDb()
+      const hooks = buildOrganizationHooks(db)
+
+      await expect(
+        hooks.beforeUpdateMemberRole!({
+          member: { id: 'member_1', role: 'owner' } as never,
+          newRole: 'manager',
+          organization: { id: 'org_y', name: 'Y' } as never,
+          user: { id: 'user_1' } as never,
+        }),
+      ).rejects.toBeInstanceOf(APIError)
+
+      await expect(
+        hooks.beforeRemoveMember!({
+          member: { id: 'member_1', role: 'owner' } as never,
+          organization: { id: 'org_y', name: 'Y' } as never,
+          user: { id: 'user_1' } as never,
+        }),
+      ).rejects.toBeInstanceOf(APIError)
     })
   })
 })

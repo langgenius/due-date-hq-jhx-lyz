@@ -14,6 +14,7 @@ import { firmsContract } from './firms'
 import { workboardContract } from './workboard'
 import { pulseContract } from './pulse'
 import { migrationContract } from './migration'
+import { membersContract } from './members'
 import { rulesContract } from './rules'
 
 export const appContract = oc.router({
@@ -26,6 +27,7 @@ export const appContract = oc.router({
   workboard: workboardContract,
   pulse: pulseContract,
   migration: migrationContract,
+  members: membersContract,
   rules: rulesContract,
 })
 
@@ -181,6 +183,30 @@ export {
   SourceHealthStatusSchema,
   SourcePrioritySchema,
 } from './rules'
+
+export type {
+  MemberInvitationPublic,
+  MemberInvitationStatus,
+  MemberInviteInput,
+  MemberManagedRole,
+  MemberPublic,
+  MembersContract,
+  MembersListOutput,
+  MemberStatus,
+} from './members'
+export {
+  MemberIdInputSchema,
+  MemberInvitationIdInputSchema,
+  MemberInvitationPublicSchema,
+  MemberInvitationStatusSchema,
+  MemberInviteInputSchema,
+  MemberManagedRoleSchema,
+  MemberPublicSchema,
+  membersContract,
+  MembersListOutputSchema,
+  MemberStatusSchema,
+  MemberUpdateRoleInputSchema,
+} from './members'
 
 export type {
   ApplyResult,

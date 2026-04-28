@@ -43,6 +43,6 @@ This slice opens the independent Firm path without opening Team/Members yet.
 
 ## Follow-ups
 
-1. Implement Members/RBAC as P1-18/P1-19: invitations, role changes, seat limit, member suspension, and procedure-level permission middleware.
+1. Implement `/settings/members` UI on top of the backend Members gateway.
 2. Replace the temporary free-text timezone input with a constrained timezone picker when onboarding/profile settings get a full form pass.
 3. Add a restore path for soft-deleted firms before exposing any 30-day grace period UX.
