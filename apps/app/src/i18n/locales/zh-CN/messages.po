@@ -121,7 +121,7 @@ msgid "5 draft extensions are waiting on K-1 attachments."
 msgstr "5 份延期申请草稿正在等待 K-1 附件。"
 
 #. placeholder {0}: user.name || user.email
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Account menu for {0}"
 msgstr "{0} 的账户菜单"
 
@@ -133,11 +133,11 @@ msgstr "覆盖 28 项未完成义务。"
 msgid "Actions"
 msgstr "操作"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Add firm"
 msgstr "添加事务所"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Admin · P1"
 msgstr "管理 · P1"
 
@@ -200,7 +200,7 @@ msgstr "询问 DueDateHQ"
 msgid "Audit {0}"
 msgstr "审计 {0}"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Audit log"
 msgstr "审计日志"
 
@@ -252,8 +252,8 @@ msgstr "候选规则 · 从不生成用户提醒。"
 msgid "Candidates"
 msgstr "Candidate"
 
-#. placeholder {0}: workboardRow.clientName
-#: src/routes/workboard.tsx
+#. placeholder {0}: row.clientName
+#: src/features/workboard/status-control.tsx
 msgid "Change status for {0}"
 msgstr "修改 {0} 的状态"
 
@@ -270,7 +270,7 @@ msgstr "客户 ID"
 msgid "Client risk rows"
 msgstr "客户风险行"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Clients"
 msgstr "客户"
 
@@ -376,11 +376,11 @@ msgstr "紧急"
 msgid "Currently available shortcuts and reserved keyboard slots."
 msgstr "当前可用的快捷键与已预留的键盘位。"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Dark"
 msgstr "深色"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Dashboard"
@@ -424,7 +424,7 @@ msgstr "要丢弃此次导入吗？"
 msgid "Dollar-first triage for the next operating window."
 msgstr "面向下一个运营窗口，按金额优先进行分级。"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "Done"
 msgstr "已完成"
 
@@ -615,11 +615,11 @@ msgstr "导入完成"
 msgid "Importing…"
 msgstr "正在导入…"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "In progress"
 msgstr "进行中"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "In review"
 msgstr "复核中"
 
@@ -664,12 +664,12 @@ msgstr "继续编辑"
 msgid "Keyboard shortcuts"
 msgstr "快捷键"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/components/primitives/locale-switcher.tsx
 msgid "Language"
 msgstr "语言"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Light"
 msgstr "浅色"
 
@@ -701,11 +701,11 @@ msgstr "正在加载规则覆盖。"
 msgid "Loading…"
 msgstr "加载中…"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Main"
 msgstr "主导航"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Manage"
 msgstr "管理"
 
@@ -725,7 +725,7 @@ msgstr "字段映射"
 msgid "medium"
 msgstr "中"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Members"
 msgstr "成员"
 
@@ -811,7 +811,7 @@ msgstr "规范化"
 msgid "Normalizer warning"
 msgstr "规范化警告"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "Not applicable"
 msgstr "不适用"
 
@@ -904,7 +904,7 @@ msgstr "负责人"
 msgid "Owner · demo seat"
 msgstr "所有者 · 演示席位"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "P1"
 msgstr "P1"
 
@@ -941,7 +941,7 @@ msgstr "罚款敞口"
 msgid "penalty-weighted"
 msgstr "按罚款金额加权"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "Pending"
 msgstr "待处理"
 
@@ -953,7 +953,7 @@ msgstr "等待 ops 复核"
 msgid "Please enter at least 2 characters."
 msgstr "请至少输入 2 个字符。"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/migration/Wizard.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
@@ -969,11 +969,11 @@ msgstr "事务所名称"
 msgid "PRACTICE PROFILE"
 msgstr "事务所资料"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
 msgstr "主导航"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Profile"
 msgstr "个人资料"
 
@@ -1107,7 +1107,7 @@ msgstr "规则详情与证据"
 msgid "Rule Library"
 msgstr "规则库"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/_layout.tsx
 msgid "Rules"
 msgstr "规则"
@@ -1169,7 +1169,7 @@ msgstr "设置你的事务所。"
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Settings"
@@ -1209,19 +1209,19 @@ msgstr "登录"
 msgid "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
 msgstr "使用 Google 登录，进入事务所的截止日期队列与可溯源的建议。"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out"
 msgstr "退出登录"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out failed"
 msgstr "退出登录失败"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signed in"
 msgstr "已登录"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signing out…"
 msgstr "正在退出…"
 
@@ -1298,11 +1298,11 @@ msgid "Suggested tax types (from entity × state matrix)"
 msgstr "建议税种（来自实体 × 州矩阵）"
 
 #. placeholder {0}: firm.name
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Switch firm — current {0}"
 msgstr "切换事务所 · 当前 {0}"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "System"
 msgstr "跟随系统"
 
@@ -1323,7 +1323,7 @@ msgstr "税年"
 msgid "TAX YEAR"
 msgstr "税务年度"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Team workload"
 msgstr "团队工作负载"
 
@@ -1345,7 +1345,7 @@ msgstr "以上数字根据你确认的字段映射、默认税种矩阵和已验
 msgid "The request was invalid. Please review your input and try again."
 msgstr "请求无效，请检查输入后重试。"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
 msgstr "主题"
 
@@ -1420,7 +1420,7 @@ msgstr "核验人"
 msgid "Verified rules"
 msgstr "Verified 规则"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "Waiting on client"
 msgstr "等待客户回复"
 
@@ -1484,7 +1484,7 @@ msgstr "你的数据从哪里来？"
 msgid "Workbench"
 msgstr "工作台"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
@@ -1495,7 +1495,7 @@ msgstr "工作台"
 msgid "Working…"
 msgstr "处理中…"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Workspaces"
 msgstr "工作空间"
 

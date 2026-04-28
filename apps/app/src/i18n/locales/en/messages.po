@@ -121,7 +121,7 @@ msgid "5 draft extensions are waiting on K-1 attachments."
 msgstr "5 draft extensions are waiting on K-1 attachments."
 
 #. placeholder {0}: user.name || user.email
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Account menu for {0}"
 msgstr "Account menu for {0}"
 
@@ -133,11 +133,11 @@ msgstr "Across 28 open obligations."
 msgid "Actions"
 msgstr "Actions"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Add firm"
 msgstr "Add firm"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Admin · P1"
 msgstr "Admin · P1"
 
@@ -200,7 +200,7 @@ msgstr "Ask DueDateHQ"
 msgid "Audit {0}"
 msgstr "Audit {0}"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Audit log"
 msgstr "Audit log"
 
@@ -252,8 +252,8 @@ msgstr "Candidate · never generates user reminders."
 msgid "Candidates"
 msgstr "Candidates"
 
-#. placeholder {0}: workboardRow.clientName
-#: src/routes/workboard.tsx
+#. placeholder {0}: row.clientName
+#: src/features/workboard/status-control.tsx
 msgid "Change status for {0}"
 msgstr "Change status for {0}"
 
@@ -270,7 +270,7 @@ msgstr "CLIENT ID"
 msgid "Client risk rows"
 msgstr "Client risk rows"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Clients"
 msgstr "Clients"
 
@@ -376,11 +376,11 @@ msgstr "critical"
 msgid "Currently available shortcuts and reserved keyboard slots."
 msgstr "Currently available shortcuts and reserved keyboard slots."
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Dark"
 msgstr "Dark"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Dashboard"
@@ -424,7 +424,7 @@ msgstr "Discard import?"
 msgid "Dollar-first triage for the next operating window."
 msgstr "Dollar-first triage for the next operating window."
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "Done"
 msgstr "Done"
 
@@ -615,11 +615,11 @@ msgstr "Import complete"
 msgid "Importing…"
 msgstr "Importing…"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "In progress"
 msgstr "In progress"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "In review"
 msgstr "In review"
 
@@ -664,12 +664,12 @@ msgstr "Keep editing"
 msgid "Keyboard shortcuts"
 msgstr "Keyboard shortcuts"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/components/primitives/locale-switcher.tsx
 msgid "Language"
 msgstr "Language"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Light"
 msgstr "Light"
 
@@ -701,11 +701,11 @@ msgstr "Loading rules coverage."
 msgid "Loading…"
 msgstr "Loading…"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Main"
 msgstr "Main"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Manage"
 msgstr "Manage"
 
@@ -725,7 +725,7 @@ msgstr "Mapping"
 msgid "medium"
 msgstr "medium"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Members"
 msgstr "Members"
 
@@ -811,7 +811,7 @@ msgstr "Normalize"
 msgid "Normalizer warning"
 msgstr "Normalizer warning"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "Not applicable"
 msgstr "Not applicable"
 
@@ -904,7 +904,7 @@ msgstr "Owner"
 msgid "Owner · demo seat"
 msgstr "Owner · demo seat"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "P1"
 msgstr "P1"
 
@@ -941,7 +941,7 @@ msgstr "Penalty exposure"
 msgid "penalty-weighted"
 msgstr "penalty-weighted"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "Pending"
 msgstr "Pending"
 
@@ -953,7 +953,7 @@ msgstr "pending ops review"
 msgid "Please enter at least 2 characters."
 msgstr "Please enter at least 2 characters."
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/migration/Wizard.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
@@ -969,11 +969,11 @@ msgstr "Practice name"
 msgid "PRACTICE PROFILE"
 msgstr "PRACTICE PROFILE"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
 msgstr "Primary navigation"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Profile"
 msgstr "Profile"
 
@@ -1107,7 +1107,7 @@ msgstr "Rule detail and evidence"
 msgid "Rule Library"
 msgstr "Rule Library"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/_layout.tsx
 msgid "Rules"
 msgstr "Rules"
@@ -1169,7 +1169,7 @@ msgstr "Set up your practice."
 msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 msgid "Settings"
@@ -1209,19 +1209,19 @@ msgstr "SIGN IN"
 msgid "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
 msgstr "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out"
 msgstr "Sign out"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out failed"
 msgstr "Sign out failed"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signed in"
 msgstr "Signed in"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
 
@@ -1298,11 +1298,11 @@ msgid "Suggested tax types (from entity × state matrix)"
 msgstr "Suggested tax types (from entity × state matrix)"
 
 #. placeholder {0}: firm.name
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Switch firm — current {0}"
 msgstr "Switch firm — current {0}"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "System"
 msgstr "System"
 
@@ -1323,7 +1323,7 @@ msgstr "Tax year"
 msgid "TAX YEAR"
 msgstr "TAX YEAR"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Team workload"
 msgstr "Team workload"
 
@@ -1345,7 +1345,7 @@ msgstr "The numbers above are computed from your confirmed mappings, Default Mat
 msgid "The request was invalid. Please review your input and try again."
 msgstr "The request was invalid. Please review your input and try again."
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
 msgstr "Theme"
 
@@ -1420,7 +1420,7 @@ msgstr "Verified by"
 msgid "Verified rules"
 msgstr "Verified rules"
 
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "Waiting on client"
 msgstr "Waiting on client"
 
@@ -1482,7 +1482,7 @@ msgstr "Where is your data coming from?"
 msgid "Workbench"
 msgstr "Workbench"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/_layout.tsx
 #: src/routes/workboard.tsx
@@ -1493,7 +1493,7 @@ msgstr "Workboard"
 msgid "Working…"
 msgstr "Working…"
 
-#: src/components/patterns/app-shell.tsx
+#: src/components/patterns/app-shell-nav.tsx
 msgid "Workspaces"
 msgstr "Workspaces"
 
