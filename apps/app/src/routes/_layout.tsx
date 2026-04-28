@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useSyncExternalStore } from 'react'
 import { useLoaderData, useLocation } from 'react-router'
 import type { MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
@@ -22,6 +22,7 @@ type RouteSummaryMessages = {
   eyebrow: MessageDescriptor
   title: MessageDescriptor
 }
+const THEME_PREFERENCE_CHANGE_EVENT = 'duedatehq-theme-preference-change'
 
 function getStoredThemePreference(): ThemePreference {
   try {
@@ -31,39 +32,44 @@ function getStoredThemePreference(): ThemePreference {
   }
 }
 
+function getServerThemePreference(): ThemePreference {
+  return 'system'
+}
+
+function subscribeToThemePreference(onStoreChange: () => void): () => void {
+  const media = window.matchMedia('(prefers-color-scheme: dark)')
+
+  function syncFromExternalChange() {
+    const next = getStoredThemePreference()
+    applyAndPersistTheme(next)
+    onStoreChange()
+  }
+
+  media.addEventListener('change', syncFromExternalChange)
+  window.addEventListener('storage', syncFromExternalChange)
+  window.addEventListener(THEME_PREFERENCE_CHANGE_EVENT, syncFromExternalChange)
+
+  return () => {
+    media.removeEventListener('change', syncFromExternalChange)
+    window.removeEventListener('storage', syncFromExternalChange)
+    window.removeEventListener(THEME_PREFERENCE_CHANGE_EVENT, syncFromExternalChange)
+  }
+}
+
 function useThemeSwitch(): {
   themePreference: ThemePreference
   switchThemePreference: (next: ThemePreference) => void
 } {
-  // rerender-lazy-state-init: pass the reader as a function so it only runs
-  // on mount, not on every render.
-  const [themePreference, setThemePreference] = useState(getStoredThemePreference)
-
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
-
-    function syncFromExternalChange() {
-      const next = getStoredThemePreference()
-      // The reads come back as one of the validated `ThemePreference` literals
-      // (the helper validates), so passing through `isThemePreference` again
-      // would be redundant — guard once at the storage boundary.
-      setThemePreference(next)
-      applyAndPersistTheme(next)
-    }
-
-    media.addEventListener('change', syncFromExternalChange)
-    window.addEventListener('storage', syncFromExternalChange)
-
-    return () => {
-      media.removeEventListener('change', syncFromExternalChange)
-      window.removeEventListener('storage', syncFromExternalChange)
-    }
-  }, [])
+  const themePreference = useSyncExternalStore(
+    subscribeToThemePreference,
+    getStoredThemePreference,
+    getServerThemePreference,
+  )
 
   const switchThemePreference = useCallback((next: ThemePreference) => {
     if (!isThemePreference(next)) return
-    setThemePreference(next)
     applyAndPersistTheme(next)
+    window.dispatchEvent(new Event(THEME_PREFERENCE_CHANGE_EVENT))
   }, [])
 
   return { themePreference, switchThemePreference }

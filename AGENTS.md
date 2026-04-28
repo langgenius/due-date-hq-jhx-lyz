@@ -28,6 +28,8 @@ After each development task, update the relevant dev log and verify DESIGN.md/do
 
 Write TypeScript ESM with two-space indentation, single quotes, no semicolons, trailing commas, and 100-column formatting. Use `#*` imports inside apps and package exports for cross-package usage. React components use PascalCase, hooks use `useX`, utility files use kebab or descriptive lowercase names, and tests mirror the subject file name. Keep `packages/core` infrastructure-free and keep `packages/contracts` limited to contract/schema concerns.
 
+Do not use React `useEffect` in app/package code.
+
 ## Testing Guidelines
 
 Vitest is the default test runner. Place focused unit tests next to implementation files, for example `apps/server/src/app.test.ts` or `packages/contracts/src/contracts.test.ts`. Prefer behavior-level assertions over implementation details. Run `pnpm test` for the suite and `pnpm ready` before opening a PR. Add Playwright coverage under the e2e setup when changing browser-level workflows.

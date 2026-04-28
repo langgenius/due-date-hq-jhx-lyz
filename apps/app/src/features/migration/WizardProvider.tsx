@@ -1,5 +1,5 @@
-import { useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import { Navigate, useLocation } from 'react-router'
 
 import { Wizard } from './Wizard'
 import { MigrationWizardContext, type MigrationWizardContextValue } from './WizardContext'
@@ -19,20 +19,22 @@ interface MigrationWizardProviderProps {
  * Fast Refresh cycles.
  */
 export function MigrationWizardProvider({ children }: MigrationWizardProviderProps) {
-  const [open, setOpen] = useState(false)
   const location = useLocation()
-  const navigate = useNavigate()
+  const [{ open, autoOpenLocationKey }, setWizardState] = useState<{
+    open: boolean
+    autoOpenLocationKey: string | null
+  }>({ open: false, autoOpenLocationKey: null })
+  const shouldConsumeAutoOpen =
+    isAutoOpenState(location.state) && autoOpenLocationKey !== location.key
+  const shouldStripAutoOpen =
+    isAutoOpenState(location.state) && autoOpenLocationKey === location.key
 
-  const openWizard = useCallback(() => setOpen(true), [])
-  const closeWizard = useCallback(() => setOpen(false), [])
+  if (shouldConsumeAutoOpen) {
+    setWizardState({ open: true, autoOpenLocationKey: location.key })
+  }
 
-  // Onboarding hand-off: open once, then strip the flag so a refresh / back
-  // navigation doesn't re-open the wizard unexpectedly.
-  useEffect(() => {
-    if (!isAutoOpenState(location.state)) return
-    setOpen(true)
-    void navigate(`${location.pathname}${location.search}`, { replace: true, state: null })
-  }, [location.pathname, location.search, location.state, navigate])
+  const openWizard = useCallback(() => setWizardState((prev) => ({ ...prev, open: true })), [])
+  const closeWizard = useCallback(() => setWizardState((prev) => ({ ...prev, open: false })), [])
 
   const value = useMemo<MigrationWizardContextValue>(
     () => ({ open, openWizard, closeWizard }),
@@ -42,6 +44,9 @@ export function MigrationWizardProvider({ children }: MigrationWizardProviderPro
   return (
     <MigrationWizardContext.Provider value={value}>
       {children}
+      {shouldStripAutoOpen ? (
+        <Navigate to={`${location.pathname}${location.search}`} replace state={null} />
+      ) : null}
       <Wizard open={open} onClose={closeWizard} />
     </MigrationWizardContext.Provider>
   )

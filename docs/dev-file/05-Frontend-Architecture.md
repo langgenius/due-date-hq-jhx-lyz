@@ -348,8 +348,8 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 | `SidebarMenuButton`                                          | 行内可点击         | `cva({ variant, isActive })` + `data-active` + 接受 `render` prop（让 react-router 的 `<NavLink>` 通过 base-ui `useRender` 注入；`data-*` props 直接传给 `useRender`，不经 `mergeProps<'button'>` 收窄） |
 | `SidebarMenuBadge`                                           | mono 计数胶囊      | Numeric/Small + tabular-nums                                                                                                                                                                             |
 | `SidebarTrigger`                                             | mobile-only toggle | `md:hidden`，调用 `useSidebar()` `setOpen(o => !o)`                                                                                                                                                      |
-| `SidebarProvider` + `useSidebar()`                           | mobile sheet 状态  | 仅在 `<md` 时有意义；desktop 永远 expanded，`isOpen` 在 desktop 路径上是 noop                                                                                                                            |
-| `useIsMobile()` hook (`@duedatehq/ui/hooks/use-mobile`)      | 768px 断点匹配     | `matchMedia` + cleanup；server-safe 默认 `false`                                                                                                                                                         |
+| `SidebarProvider` + `useSidebar()`                           | mobile sheet 状态  | 仅在 `<md` 时有意义；desktop 永远 expanded，`openMobile` 在 desktop 路径上由 `isMobile` 派生为 false                                                                                                     |
+| `useIsMobile()` hook (`@duedatehq/ui/hooks/use-mobile`)      | 768px 断点匹配     | Base UI `useMediaQuery` 封装；server-safe 默认 `false`                                                                                                                                                   |
 
 **纪律**
 
@@ -368,9 +368,9 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - `rerender-derived-state-no-effect` — active nav state **完全派生自 URL**（react-router `<NavLink>` 内部派生），不存 React state、不开 `useEffect` 同步
 - `rerender-functional-setstate` — mobile sheet open 状态用 `setOpen(o => !o)` 而非 `setOpen(!isOpen)`，`toggleSidebar` 才能用 `useCallback([setOpen])` 稳定引用
 - `rerender-memo-with-default-value` — `navItems` 数组在 `useNavItems` 内 `useMemo` + 深 i18n 依赖（`t` 的 lingui locale）；不在 render 里 inline 数组字面量
-- `rerender-dependencies` — `useEffect` 依赖只用 primitive（`isMobile` 是布尔，安全）；不要把 `setOpen` 之外的非 stable function 作为 effect dep
+- `rerender-move-effect-to-event` — wizard reset、Step 1 解析、mobile sheet toggle 都放回用户事件 / reducer 边界；不要用 effect 桥接派生 UI 状态
 - `bundle-analyzable-paths` — `@duedatehq/ui/components/ui/sidebar` 直接导出每个 named primitive；app 端用 `import { Sidebar, SidebarHeader, … } from '@duedatehq/ui/components/ui/sidebar'`，不走 barrel
-- `client-event-listeners` — `useIsMobile` 的 `matchMedia` 监听在 `useEffect` cleanup 里 `removeEventListener`，且**整个 app 只挂一个**（hook 单例化，多次调用复用同一个 listener 不可行——但每个组件实例独立监听是可接受的成本）
+- `client-event-listeners` — theme / viewport 这类外部订阅走专用 hook 或 `useSyncExternalStore`，业务组件不直接挂 `useEffect` listener
 - `advanced-init-once` — `SidebarProvider` context value 走 `useMemo`，`toggleSidebar` 走 `useCallback`，避免每次 render 把新引用塞进 context 触发整个子树重渲染
 
 **依赖方向澄清**

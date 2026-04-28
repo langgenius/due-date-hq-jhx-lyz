@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, type ChangeEvent, type DragEvent } from 'react'
+import { useId, useMemo, useRef, type ChangeEvent, type DragEvent } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { LockIcon, UploadCloudIcon } from 'lucide-react'
 
@@ -46,15 +46,17 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
   const pasteId = useId()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Parse on every text change so the SSN banner + row count update live.
-  useEffect(() => {
-    if (!intake.rawText.trim()) {
+  function commitText(text: string, fileName: string | null) {
+    onText(text, fileName)
+
+    if (!text.trim()) {
       onParsed({ rowCount: 0, truncated: false, ssnBlockedColumnIndexes: [] })
       onParseError(null)
       return
     }
+
     try {
-      const parsed = parseTabular(intake.rawText, { kind: 'paste' })
+      const parsed = parseTabular(text, { kind: 'paste' })
       const ssn = detectSsnColumns(parsed.headers, parsed.rows)
       onParsed({
         rowCount: parsed.rowCount,
@@ -67,13 +69,10 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         err instanceof TabularParseError
           ? friendlyParseError(err)
           : t`We couldn't read that file. Try exporting as CSV.`
-      onParseError(message)
       onParsed({ rowCount: 0, truncated: false, ssnBlockedColumnIndexes: [] })
+      onParseError(message)
     }
-    // We intentionally exclude callbacks — they are stable from the parent
-    // reducer dispatchers, and re-running on every render would loop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [intake.rawText])
+  }
 
   const ssnBlockedHeaders = useMemo(() => {
     if (intake.ssnBlockedColumnIndexes.length === 0) return [] as string[]
@@ -109,7 +108,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       return
     }
     void file.text().then((text) => {
-      onText(text, file.name)
+      commitText(text, file.name)
     })
   }
 
@@ -137,7 +136,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
             aria-label={t`Paste client data`}
             aria-describedby="paste-hint"
             value={intake.rawText}
-            onChange={(e) => onText(e.target.value, null)}
+            onChange={(e) => commitText(e.target.value, null)}
             placeholder={t`Paste here — any shape, we'll figure it out. Include the header row if you have one.`}
             className="h-[220px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
           />

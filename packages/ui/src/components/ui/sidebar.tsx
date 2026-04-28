@@ -64,6 +64,11 @@ export function useSidebar(): SidebarContextValue {
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
+  const visibleOpenMobile = isMobile ? openMobile : false
+
+  if (!isMobile && openMobile) {
+    setOpenMobile(false)
+  }
 
   // `setOpenMobile` is stable because it comes from useState; passing a
   // functional updater means callers don't need to subscribe to `openMobile`
@@ -72,18 +77,11 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     setOpenMobile((prev) => !prev)
   }, [])
 
-  // When the viewport crosses to desktop, close any mid-flight mobile sheet so
-  // we don't leave a stale Sheet in the DOM. We read isMobile, not openMobile,
-  // so toggling the sheet closed manually doesn't re-trigger this effect.
-  React.useEffect(() => {
-    if (!isMobile) setOpenMobile(false)
-  }, [isMobile])
-
   // Memoise the value so non-Provider subscribers don't re-render on every
   // tree update (advanced-init-once).
   const value = React.useMemo<SidebarContextValue>(
-    () => ({ openMobile, setOpenMobile, toggleSidebar, isMobile }),
-    [openMobile, toggleSidebar, isMobile],
+    () => ({ openMobile: visibleOpenMobile, setOpenMobile, toggleSidebar, isMobile }),
+    [visibleOpenMobile, toggleSidebar, isMobile],
   )
 
   return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>

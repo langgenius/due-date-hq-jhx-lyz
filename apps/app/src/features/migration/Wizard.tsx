@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useMemo, useReducer } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useNavigate } from 'react-router'
@@ -51,10 +51,6 @@ export function Wizard({ open, onClose }: WizardProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [state, dispatch] = useReducer(wizardReducer, INITIAL_STATE)
-
-  useEffect(() => {
-    if (!open) dispatch({ type: 'RESET' })
-  }, [open])
 
   const invalidateMigration = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: orpc.migration.key() })
@@ -125,6 +121,11 @@ export function Wizard({ open, onClose }: WizardProps) {
       },
     }),
   )
+
+  const resetAndClose = useCallback(() => {
+    dispatch({ type: 'RESET' })
+    onClose()
+  }, [onClose])
 
   const handleStep1Continue = useCallback(() => {
     const intake = state.intake
@@ -327,16 +328,12 @@ export function Wizard({ open, onClose }: WizardProps) {
           toast.success(t`Import complete`, {
             description: t`${result.clientCount} clients · ${result.obligationCount} obligations`,
           })
-          onClose()
+          resetAndClose()
           void navigate('/')
         },
       },
     )
-  }, [applyMutation, navigate, onClose, state.batchId, t])
-
-  const handleClose = useCallback(() => {
-    onClose()
-  }, [onClose])
+  }, [applyMutation, navigate, resetAndClose, state.batchId, t])
 
   const sampleByHeader = useMemo(() => {
     if (!state.intake.rawText) return {}
@@ -388,7 +385,7 @@ export function Wizard({ open, onClose }: WizardProps) {
       continueLabel={continueLabel}
       onContinue={onContinue}
       onBack={onBack}
-      onClose={handleClose}
+      onClose={resetAndClose}
     >
       {state.step === 1 ? (
         <Step1Intake
