@@ -376,9 +376,13 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 ## 6. 表格（Workboard）
 
-- **TanStack Table 8** + 服务端分页（50 行 / 页）+ 虚拟化（`@tanstack/react-virtual`）
-- 列可见性 / 排序 / 筛选状态全部 URL persist（`nuqs`）
-- 行内 `[status ▾]` 乐观 UI：先改前端 → mutation → 失败 toast + 回滚
+- **当前落地**：`apps/app/src/routes/workboard.tsx` 使用 **TanStack Table 8** 作为 headless table state/rendering 层，继续复用 `@duedatehq/ui/components/ui/table` 的语义 `<table>` primitive。
+- **服务端数据处理**：筛选 / 排序 / 分页仍由 `workboard.list` 和 D1 read model 负责；前端 `useReactTable` 开启 `manualFiltering` / `manualSorting` / `manualPagination`，不在浏览器端二次加工服务端行。
+- **URL state**：`q`、`status`、`sort`、`cursor`、`row` 由 `nuqs` 管理。筛选 / 排序变化在事件处理器中同步清空 `cursor` 和 active row，避免用 effect 追踪派生状态。
+- **分页形态**：当前后端是 cursor pagination（50 行 / 页），URL 持久化的是 `cursor` 而不是 page index；因为接口暂不返回 `rowCount`，不使用 TanStack 的页码式 `rowCount/pageCount` 控件。
+- **虚拟化时机**：`@tanstack/react-virtual` 已在依赖中保留，但当前 4 列 × 50 行不启用。等 Workboard 扩到 PRD 的 10–20 列、固定表头或长列表滚动容器时再接 row / column virtualization。
+- **后续扩展**：列可见性、自定义列、批量选择、Saved Views 应继续走 TanStack controlled state，并把可分享状态写入 URL 或服务端 saved-view 记录。
+- 行内 `[status ▾]` mutation：当前成功后 invalidate `workboard.list` 并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation lifecycle 内补本地缓存更新。
 - 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/X/I/W` 改状态 · `Enter` 打开 Detail
 
 ---
@@ -499,7 +503,7 @@ Phase 0 不做 Storybook，优先跑 Demo。
 ## 14. TODO
 
 - ~~接入 auth 时：登录态检查必须放在 app layout route 的 `loader` 或统一组件 gate 中，不要散落在各页面组件里。~~ 已在 `apps/app/src/router.tsx` 里用 `protectedLoader` / `guestLoader` 两个 loader 落地（`protected` 路由组 + 独立 `/login` 路由组），`RootLayout` 通过 `useLoaderData` 读取 `user`，不再订阅 `useSession`。
-- Workboard 接真实筛选 / 分页时：筛选、排序、分页和选中项必须通过 React Router search params 或 `nuqs` 管 URL state，不要放进普通组件 state。
+- ~~Workboard 接真实筛选 / 分页时：筛选、排序、分页和选中项必须通过 React Router search params 或 `nuqs` 管 URL state，不要放进普通组件 state。~~ 已在 `apps/app/src/routes/workboard.tsx` 中用 `nuqs` 管 `q/status/sort/cursor/row`。
 
 ---
 

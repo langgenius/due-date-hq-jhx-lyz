@@ -1,7 +1,18 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useDeferredValue, useMemo } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  flexRender,
+  functionalUpdate,
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+  type RowSelectionState,
+  type SortingState,
+  type Updater,
+} from '@tanstack/react-table'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { FilterIcon, SearchIcon } from 'lucide-react'
+import { parseAsArrayOf, parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
 import { toast } from 'sonner'
 
 import type { ObligationInstancePublic, WorkboardRow, WorkboardSort } from '@duedatehq/contracts'
@@ -43,25 +54,43 @@ import { rpcErrorMessage } from '@/lib/rpc-error'
 import { formatDate } from '@/lib/utils'
 
 type ObligationStatus = ObligationInstancePublic['status']
+type WorkboardColumnMeta = {
+  headerClassName?: string
+  cellClassName?: string
+}
 
-const ALL_STATUSES: ObligationStatus[] = [
+const ALL_STATUSES = [
   'pending',
   'in_progress',
   'review',
   'waiting_on_client',
   'done',
   'not_applicable',
-]
+] as const satisfies readonly ObligationStatus[]
 
-const ALL_SORTS: WorkboardSort[] = ['due_asc', 'due_desc', 'updated_desc']
+const ALL_SORTS = [
+  'due_asc',
+  'due_desc',
+  'updated_desc',
+] as const satisfies readonly WorkboardSort[]
+const DEFAULT_SORT: WorkboardSort = 'due_asc'
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
+const PAGE_SIZE = 50
+
+const workboardQueryParsers = {
+  q: parseAsString.withDefault(''),
+  status: parseAsArrayOf(parseAsStringLiteral(ALL_STATUSES)).withDefault([]),
+  sort: parseAsStringLiteral(ALL_SORTS).withDefault(DEFAULT_SORT),
+  cursor: parseAsString,
+  row: parseAsString,
+}
 
 function isObligationStatus(value: string): value is ObligationStatus {
-  return (ALL_STATUSES as string[]).includes(value)
+  return (ALL_STATUSES as readonly string[]).includes(value)
 }
 
 function isWorkboardSort(value: string): value is WorkboardSort {
-  return (ALL_SORTS as string[]).includes(value)
+  return (ALL_SORTS as readonly string[]).includes(value)
 }
 
 // Status → soft chip variant + halo dot tone. One central map keeps the
@@ -92,36 +121,43 @@ const STATUS_DOT: Record<
 
 function useStatusLabels(): Record<ObligationStatus, string> {
   const { t } = useLingui()
-  return {
-    pending: t`Pending`,
-    in_progress: t`In progress`,
-    review: t`In review`,
-    waiting_on_client: t`Waiting on client`,
-    done: t`Done`,
-    not_applicable: t`Not applicable`,
-  }
+  return useMemo(
+    () => ({
+      pending: t`Pending`,
+      in_progress: t`In progress`,
+      review: t`In review`,
+      waiting_on_client: t`Waiting on client`,
+      done: t`Done`,
+      not_applicable: t`Not applicable`,
+    }),
+    [t],
+  )
 }
 
 function useSortLabels(): Record<WorkboardSort, string> {
   const { t } = useLingui()
-  return {
-    due_asc: t`Due date — earliest first`,
-    due_desc: t`Due date — latest first`,
-    updated_desc: t`Recently updated`,
-  }
+  return useMemo(
+    () => ({
+      due_asc: t`Due date — earliest first`,
+      due_desc: t`Due date — latest first`,
+      updated_desc: t`Recently updated`,
+    }),
+    [t],
+  )
 }
 
-/**
- * Tiny debounce hook — kept inline because the only consumer is the search
- * input. Pulls in no new deps; resets on unmount.
- */
-function useDebounced<T>(value: T, delayMs: number): T {
-  const [debounced, setDebounced] = useState(value)
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delayMs)
-    return () => clearTimeout(id)
-  }, [value, delayMs])
-  return debounced
+function getSortingState(sort: WorkboardSort): SortingState {
+  if (sort === 'due_desc') return [{ id: 'currentDueDate', desc: true }]
+  if (sort === 'updated_desc') return [{ id: 'updatedAt', desc: true }]
+  return [{ id: 'currentDueDate', desc: false }]
+}
+
+function withDefaultSortCleared(sort: WorkboardSort): WorkboardSort | null {
+  return sort === DEFAULT_SORT ? null : sort
+}
+
+function columnMeta(column: ColumnDef<WorkboardRow>): WorkboardColumnMeta {
+  return (column.meta ?? {}) as WorkboardColumnMeta
 }
 
 export function WorkboardRoute() {
@@ -131,36 +167,28 @@ export function WorkboardRoute() {
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const statusLabels = useStatusLabels()
   const sortLabels = useSortLabels()
+  const [{ q: searchInput, status: statusFilter, sort, cursor, row }, setWorkboardQuery] =
+    useQueryStates(workboardQueryParsers, { history: 'replace' })
 
-  const [statusFilter, setStatusFilter] = useState<ObligationStatus[]>([])
-  const [searchInput, setSearchInput] = useState('')
-  const [sort, setSort] = useState<WorkboardSort>('due_asc')
-  const [cursors, setCursors] = useState<Array<string | null>>([null]) // one slot per page
-  const [activeRowId, setActiveRowId] = useState<string | null>(null)
-
-  const debouncedSearch = useDebounced(searchInput.trim(), 300)
-
-  // Reset to page 1 whenever a filter / sort / search input changes; keeps the
-  // cursor stack honest. We compare with the previous values via useEffect
-  // because router state isn't involved.
-  useEffect(() => {
-    setCursors([null])
-  }, [debouncedSearch, sort, statusFilter])
-
-  const currentCursor = cursors[cursors.length - 1] ?? null
+  const deferredSearch = useDeferredValue(searchInput.trim())
+  const sorting = useMemo(() => getSortingState(sort), [sort])
+  const statusQuery = useMemo(() => [...statusFilter], [statusFilter])
 
   const queryInput = useMemo(
     () => ({
-      ...(statusFilter.length > 0 ? { status: statusFilter } : {}),
-      ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      ...(statusQuery.length > 0 ? { status: statusQuery } : {}),
+      ...(deferredSearch ? { search: deferredSearch } : {}),
       sort,
-      cursor: currentCursor,
-      limit: 50,
+      cursor,
+      limit: PAGE_SIZE,
     }),
-    [statusFilter, debouncedSearch, sort, currentCursor],
+    [statusQuery, deferredSearch, sort, cursor],
   )
 
-  const listQuery = useQuery(orpc.workboard.list.queryOptions({ input: queryInput }))
+  const listQuery = useQuery({
+    ...orpc.workboard.list.queryOptions({ input: queryInput }),
+    placeholderData: keepPreviousData,
+  })
 
   const updateStatusMutation = useMutation(
     orpc.obligations.updateStatus.mutationOptions({
@@ -186,30 +214,124 @@ export function WorkboardRoute() {
   const isError = listQuery.isError
   const keyboardEnabled = rows.length > 0 && !shortcutsBlocked
 
-  const totalShown = rows.length
+  const rowsById = useMemo(
+    () => new Map(rows.map((workboardRow) => [workboardRow.id, workboardRow])),
+    [rows],
+  )
+  const activeRow = (row ? rowsById.get(row) : null) ?? rows[0] ?? null
+  const rowSelection = useMemo<RowSelectionState>(
+    () => (activeRow ? { [activeRow.id]: true } : {}),
+    [activeRow],
+  )
 
-  useEffect(() => {
-    if (rows.length === 0) {
-      setActiveRowId(null)
-      return
-    }
-    setActiveRowId((current) =>
-      current && rows.some((row) => row.id === current) ? current : (rows[0]?.id ?? null),
-    )
-  }, [rows])
+  const onRowSelectionChange = useCallback(
+    (updater: Updater<RowSelectionState>) => {
+      const nextSelection = functionalUpdate(updater, rowSelection)
+      const selectedRowId = Object.keys(nextSelection).find((id) => nextSelection[id]) ?? null
+      void setWorkboardQuery({ row: selectedRowId })
+    },
+    [rowSelection, setWorkboardQuery],
+  )
+
+  const updateStatus = updateStatusMutation.mutate
+  const statusUpdatePending = updateStatusMutation.isPending
+
+  const columns = useMemo<ColumnDef<WorkboardRow>[]>(
+    () => [
+      {
+        accessorKey: 'clientName',
+        header: t`Client`,
+        cell: (info) => info.getValue<string>(),
+        meta: { cellClassName: 'font-medium text-text-primary' },
+      },
+      {
+        accessorKey: 'taxType',
+        header: t`Tax type`,
+        cell: (info) => info.getValue<string>(),
+        meta: { cellClassName: 'text-text-secondary' },
+      },
+      {
+        accessorKey: 'currentDueDate',
+        header: t`Due date`,
+        cell: (info) => formatDate(info.getValue<string>()),
+        meta: { cellClassName: 'font-mono tabular-nums' },
+      },
+      {
+        accessorKey: 'status',
+        header: t`Status`,
+        cell: ({ row: tableRow }) => {
+          const workboardRow = tableRow.original
+          return (
+            <div className="flex items-center gap-3">
+              <Badge variant={STATUS_VARIANT[workboardRow.status]}>
+                <BadgeStatusDot tone={STATUS_DOT[workboardRow.status]} />
+                {statusLabels[workboardRow.status]}
+              </Badge>
+              <Select
+                value={workboardRow.status}
+                onValueChange={(value) => {
+                  if (typeof value !== 'string' || !isObligationStatus(value)) return
+                  if (value === workboardRow.status) return
+                  updateStatus({ id: workboardRow.id, status: value })
+                }}
+                disabled={statusUpdatePending}
+              >
+                <SelectTrigger
+                  size="sm"
+                  className="min-w-40"
+                  aria-label={t`Change status for ${workboardRow.clientName}`}
+                >
+                  <SelectValue placeholder={statusLabels[workboardRow.status]} />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALL_STATUSES.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {statusLabels[status]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )
+        },
+      },
+    ],
+    [statusLabels, statusUpdatePending, t, updateStatus],
+  )
+
+  const table = useReactTable({
+    data: rows,
+    columns,
+    state: {
+      rowSelection,
+      sorting,
+    },
+    enableMultiRowSelection: false,
+    enableRowSelection: true,
+    getCoreRowModel: getCoreRowModel(),
+    getRowId: (workboardRow) => workboardRow.id,
+    manualFiltering: true,
+    manualPagination: true,
+    manualSorting: true,
+    onRowSelectionChange,
+  })
+
+  const totalShown = table.getRowModel().rows.length
 
   const moveActiveRow = useCallback(
     (direction: 1 | -1) => {
-      if (rows.length === 0) return
-      const currentIndex = rows.findIndex((row) => row.id === activeRowId)
+      const tableRows = table.getRowModel().rows
+      if (tableRows.length === 0) return
+      const currentIndex = tableRows.findIndex((tableRow) => tableRow.original.id === activeRow?.id)
       const nextIndex =
-        currentIndex === -1 ? 0 : Math.min(rows.length - 1, Math.max(0, currentIndex + direction))
-      setActiveRowId(rows[nextIndex]?.id ?? null)
+        currentIndex === -1
+          ? 0
+          : Math.min(tableRows.length - 1, Math.max(0, currentIndex + direction))
+      const nextRowId = tableRows[nextIndex]?.original.id ?? null
+      void setWorkboardQuery({ row: nextRowId })
     },
-    [activeRowId, rows],
+    [activeRow?.id, setWorkboardQuery, table],
   )
-
-  const activeRow = rows.find((row) => row.id === activeRowId) ?? rows[0] ?? null
 
   const updateActiveRowStatus = useCallback(
     (status: ObligationStatus, target?: EventTarget | null) => {
@@ -217,13 +339,13 @@ export function WorkboardRoute() {
         isInteractiveEventTarget(target ?? null) ||
         !activeRow ||
         activeRow.status === status ||
-        updateStatusMutation.isPending
+        statusUpdatePending
       ) {
         return
       }
-      updateStatusMutation.mutate({ id: activeRow.id, status })
+      updateStatus({ id: activeRow.id, status })
     },
-    [activeRow, updateStatusMutation],
+    [activeRow, statusUpdatePending, updateStatus],
   )
 
   useAppHotkey('J', () => moveActiveRow(1), {
@@ -343,18 +465,23 @@ export function WorkboardRoute() {
   })
 
   function toggleStatus(status: ObligationStatus) {
-    setStatusFilter((prev) =>
-      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status],
-    )
+    const nextStatus = statusFilter.includes(status)
+      ? statusFilter.filter((current) => current !== status)
+      : [...statusFilter, status]
+    void setWorkboardQuery({
+      status: nextStatus.length > 0 ? nextStatus : null,
+      cursor: null,
+      row: null,
+    })
   }
 
   function loadMore() {
     if (!nextCursor) return
-    setCursors((prev) => [...prev, nextCursor])
+    void setWorkboardQuery({ cursor: nextCursor, row: null })
   }
 
-  function resetPagination() {
-    setCursors([null])
+  function resetWorkboard() {
+    void setWorkboardQuery(null)
   }
 
   return (
@@ -368,14 +495,14 @@ export function WorkboardRoute() {
             <h1 className="text-2xl font-semibold leading-tight text-text-primary">
               <Trans>Obligation queue</Trans>
             </h1>
-            <p className="max-w-[720px] text-md text-text-secondary">
+            <p className="max-w-180 text-md text-text-secondary">
               <Trans>
                 Status changes write an audit row in the same call so the trail stays trustworthy.
               </Trans>
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={resetPagination}>
+            <Button variant="outline" size="sm" onClick={resetWorkboard}>
               <FilterIcon data-icon="inline-start" />
               <Trans>Reset</Trans>
             </Button>
@@ -399,14 +526,20 @@ export function WorkboardRoute() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="relative w-full md:max-w-[360px]">
+            <div className="relative w-full md:max-w-90">
               <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-text-tertiary" />
               <Input
                 aria-label={t`Search obligations`}
                 className="pl-8"
                 placeholder={t`Search clients`}
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={(event) => {
+                  void setWorkboardQuery({
+                    q: event.target.value || null,
+                    cursor: null,
+                    row: null,
+                  })
+                }}
               />
             </div>
             <div className="flex items-center gap-2">
@@ -415,11 +548,16 @@ export function WorkboardRoute() {
               </span>
               <Select
                 value={sort}
-                onValueChange={(v) => {
-                  if (typeof v === 'string' && isWorkboardSort(v)) setSort(v)
+                onValueChange={(value) => {
+                  if (typeof value !== 'string' || !isWorkboardSort(value)) return
+                  void setWorkboardQuery({
+                    sort: withDefaultSortCleared(value),
+                    cursor: null,
+                    row: null,
+                  })
                 }}
               >
-                <SelectTrigger size="sm" className="min-w-[200px]">
+                <SelectTrigger size="sm" className="min-w-50">
                   <SelectValue placeholder={sortLabels[sort]} />
                 </SelectTrigger>
                 <SelectContent>
@@ -435,7 +573,7 @@ export function WorkboardRoute() {
             <button
               type="button"
               className="cursor-pointer focus-visible:outline-none"
-              onClick={() => setStatusFilter([])}
+              onClick={() => void setWorkboardQuery({ status: null, cursor: null, row: null })}
             >
               <Badge variant={statusFilter.length === 0 ? 'default' : 'ghost'}>
                 <Trans>All</Trans>
@@ -474,60 +612,41 @@ export function WorkboardRoute() {
             <>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>{t`Client`}</TableHead>
-                    <TableHead>{t`Tax type`}</TableHead>
-                    <TableHead>{t`Due date`}</TableHead>
-                    <TableHead>{t`Status`}</TableHead>
-                  </TableRow>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        const meta = columnMeta(header.column.columnDef)
+                        return (
+                          <TableHead
+                            key={header.id}
+                            className={meta.headerClassName}
+                            colSpan={header.colSpan}
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(header.column.columnDef.header, header.getContext())}
+                          </TableHead>
+                        )
+                      })}
+                    </TableRow>
+                  ))}
                 </TableHeader>
                 <TableBody>
-                  {rows.map((row) => (
+                  {table.getRowModel().rows.map((tableRow) => (
                     <TableRow
-                      key={row.id}
-                      aria-selected={row.id === activeRowId}
-                      className={row.id === activeRowId ? 'bg-state-accent-hover-alt' : undefined}
-                      onClick={() => setActiveRowId(row.id)}
+                      key={tableRow.id}
+                      aria-selected={tableRow.getIsSelected()}
+                      data-state={tableRow.getIsSelected() ? 'selected' : undefined}
+                      onClick={() => void setWorkboardQuery({ row: tableRow.original.id })}
                     >
-                      <TableCell className="font-medium text-text-primary">
-                        {row.clientName}
-                      </TableCell>
-                      <TableCell className="text-text-secondary">{row.taxType}</TableCell>
-                      <TableCell className="font-mono tabular-nums">
-                        {formatDate(row.currentDueDate)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Badge variant={STATUS_VARIANT[row.status]}>
-                            <BadgeStatusDot tone={STATUS_DOT[row.status]} />
-                            {statusLabels[row.status]}
-                          </Badge>
-                          <Select
-                            value={row.status}
-                            onValueChange={(v) => {
-                              if (typeof v !== 'string' || !isObligationStatus(v)) return
-                              if (v === row.status) return
-                              updateStatusMutation.mutate({ id: row.id, status: v })
-                            }}
-                            disabled={updateStatusMutation.isPending}
-                          >
-                            <SelectTrigger
-                              size="sm"
-                              className="min-w-[160px]"
-                              aria-label={t`Change status for ${row.clientName}`}
-                            >
-                              <SelectValue placeholder={statusLabels[row.status]} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {ALL_STATUSES.map((status) => (
-                                <SelectItem key={status} value={status}>
-                                  {statusLabels[status]}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </TableCell>
+                      {tableRow.getVisibleCells().map((cell) => {
+                        const meta = columnMeta(cell.column.columnDef)
+                        return (
+                          <TableCell key={cell.id} className={meta.cellClassName}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        )
+                      })}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -560,7 +679,7 @@ function EmptyState({ onOpenWizard }: { onOpenWizard: () => void }) {
       <span className="text-md font-semibold text-text-primary">
         <Trans>No obligations match these filters.</Trans>
       </span>
-      <p className="max-w-[420px] text-sm text-text-secondary">
+      <p className="max-w-105 text-sm text-text-secondary">
         <Trans>
           Run the migration wizard to import a CSV of clients, or change the filters above.
         </Trans>
