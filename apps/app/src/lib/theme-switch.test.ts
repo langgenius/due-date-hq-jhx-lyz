@@ -5,6 +5,8 @@ import {
   THEME_COLOR_LIGHT,
   THEME_DARK_CLASS,
   THEME_STORAGE_KEY,
+  clearStoredThemePreferenceCache,
+  readStoredThemePreference,
   switchThemePreference,
 } from '@duedatehq/ui/theme'
 
@@ -28,6 +30,7 @@ describe('switchThemePreference', () => {
     document.documentElement.removeAttribute('data-theme')
     document.documentElement.style.removeProperty('color-scheme')
     window.localStorage.clear()
+    clearStoredThemePreferenceCache(window.localStorage)
   })
 
   afterEach(() => {
@@ -71,5 +74,19 @@ describe('switchThemePreference', () => {
     expect(document.documentElement.classList.contains(THEME_DARK_CLASS)).toBe(false)
     expect(document.documentElement.dataset.theme).toBe('light')
     expect(meta.getAttribute('content')).toBe(THEME_COLOR_LIGHT)
+  })
+
+  it('caches storage reads until explicitly invalidated', () => {
+    const storage = { getItem: vi.fn(() => 'dark') }
+
+    expect(readStoredThemePreference(storage)).toBe('dark')
+    expect(readStoredThemePreference(storage)).toBe('dark')
+    expect(storage.getItem).toHaveBeenCalledOnce()
+
+    storage.getItem.mockReturnValue('light')
+    clearStoredThemePreferenceCache(storage)
+
+    expect(readStoredThemePreference(storage)).toBe('light')
+    expect(storage.getItem).toHaveBeenCalledTimes(2)
   })
 })

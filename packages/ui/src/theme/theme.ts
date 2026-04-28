@@ -9,6 +9,7 @@ const THEME_DARK_CLASS = 'dark'
 const THEME_COLOR_LIGHT = '#0A2540'
 const THEME_COLOR_DARK = '#0D0E11'
 const DISABLE_TRANSITIONS_STYLE = `*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}`
+const storedThemePreferenceCache = new WeakMap<object, ThemePreference>()
 
 function isThemePreference(value: string | null): value is ThemePreference {
   return value === 'light' || value === 'dark' || value === 'system'
@@ -23,13 +24,29 @@ function resolveThemePreference(preference: ThemePreference, prefersDark: boolea
 }
 
 function readStoredThemePreference(storage: Pick<Storage, 'getItem'>): ThemePreference {
+  const cached = storedThemePreferenceCache.get(storage)
+
+  if (cached) {
+    return cached
+  }
+
   const stored = storage.getItem(THEME_STORAGE_KEY)
 
   if (isThemePreference(stored)) {
+    storedThemePreferenceCache.set(storage, stored)
     return stored
   }
 
+  storedThemePreferenceCache.set(storage, 'system')
   return 'system'
+}
+
+function clearStoredThemePreferenceCache(storage: Pick<Storage, 'getItem'>): void {
+  storedThemePreferenceCache.delete(storage)
+}
+
+function cacheStoredThemePreference(storage: object, preference: ThemePreference): void {
+  storedThemePreferenceCache.set(storage, preference)
 }
 
 function themeColorFor(resolvedTheme: ResolvedTheme): string {
@@ -82,14 +99,14 @@ interface SwitchThemePreferenceOptions {
   prefersDark?: boolean
 }
 
-// Single entrypoint both apps use to switch theme at runtime. Encapsulates the
-// 4 ordered side effects so the SaaS shell and the Astro marketing footer can
-// stay in lock-step (no drift in transition handling, attribute writes, or
-// storage key). The no-flash `<head>` script in `THEME_INIT_SCRIPT` covers the
-// initial paint; this function only handles user-driven changes.
-function switchThemePreference(
+interface ApplyThemePreferenceOptions {
+  /** Override `prefers-color-scheme: dark` query result. Defaults to `matchMedia(...)`. */
+  prefersDark?: boolean
+}
+
+function applyThemePreference(
   preference: ThemePreference,
-  options?: SwitchThemePreferenceOptions,
+  options?: ApplyThemePreferenceOptions,
 ): ResolvedTheme {
   const prefersDark =
     options?.prefersDark ?? window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -100,6 +117,19 @@ function switchThemePreference(
   updateThemeColor(document, resolvedTheme)
   enableTransitions()
 
+  return resolvedTheme
+}
+
+// Single entrypoint both apps use to switch theme at runtime. Encapsulates the
+// ordered side effects so the SaaS shell and the Astro marketing footer can
+// stay in lock-step (no drift in transition handling, attribute writes, or
+// storage key). The no-flash `<head>` script in `THEME_INIT_SCRIPT` covers the
+// initial paint; this function only handles user-driven changes.
+function switchThemePreference(
+  preference: ThemePreference,
+  options?: SwitchThemePreferenceOptions,
+): ResolvedTheme {
+  const resolvedTheme = applyThemePreference(preference, options)
   const storage = options?.storage ?? window.localStorage
   try {
     storage.setItem(THEME_STORAGE_KEY, preference)
@@ -107,6 +137,7 @@ function switchThemePreference(
     // localStorage may be unavailable (private mode, security policy). Theme
     // is still applied for the current session — just won't persist.
   }
+  cacheStoredThemePreference(storage, preference)
 
   return resolvedTheme
 }
@@ -119,6 +150,9 @@ export {
   THEME_PREFERENCES,
   THEME_STORAGE_KEY,
   applyResolvedTheme,
+  applyThemePreference,
+  cacheStoredThemePreference,
+  clearStoredThemePreferenceCache,
   disableThemeTransitions,
   isThemePreference,
   readStoredThemePreference,
@@ -126,6 +160,7 @@ export {
   switchThemePreference,
   themeColorFor,
   updateThemeColor,
+  type ApplyThemePreferenceOptions,
   type ResolvedTheme,
   type SwitchThemePreferenceOptions,
   type ThemePreference,

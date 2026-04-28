@@ -5,55 +5,23 @@ import { msg } from '@lingui/core/macro'
 import { useLingui } from '@lingui/react/macro'
 
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
-import {
-  isThemePreference,
-  readStoredThemePreference,
-  switchThemePreference as applyAndPersistTheme,
-  type ThemePreference,
-} from '@duedatehq/ui/theme'
+import type { ThemePreference } from '@duedatehq/ui/theme'
 
 import { AppShell } from '@/components/patterns/app-shell'
 import { KeyboardProvider } from '@/components/patterns/keyboard-shell'
 import { MigrationWizardProvider, useMigrationWizard } from '@/features/migration/WizardProvider'
 import { initialsFromName, type AuthUser } from '@/lib/auth'
+import {
+  getServerThemePreference,
+  getStoredThemePreference,
+  subscribeToThemePreference,
+  switchThemePreference as persistThemePreference,
+} from '@/lib/theme-preference-store'
 
 type ProtectedLoaderData = { user: AuthUser }
 type RouteSummaryMessages = {
   eyebrow: MessageDescriptor
   title: MessageDescriptor
-}
-const THEME_PREFERENCE_CHANGE_EVENT = 'duedatehq-theme-preference-change'
-
-function getStoredThemePreference(): ThemePreference {
-  try {
-    return readStoredThemePreference(window.localStorage)
-  } catch {
-    return 'system'
-  }
-}
-
-function getServerThemePreference(): ThemePreference {
-  return 'system'
-}
-
-function subscribeToThemePreference(onStoreChange: () => void): () => void {
-  const media = window.matchMedia('(prefers-color-scheme: dark)')
-
-  function syncFromExternalChange() {
-    const next = getStoredThemePreference()
-    applyAndPersistTheme(next)
-    onStoreChange()
-  }
-
-  media.addEventListener('change', syncFromExternalChange)
-  window.addEventListener('storage', syncFromExternalChange)
-  window.addEventListener(THEME_PREFERENCE_CHANGE_EVENT, syncFromExternalChange)
-
-  return () => {
-    media.removeEventListener('change', syncFromExternalChange)
-    window.removeEventListener('storage', syncFromExternalChange)
-    window.removeEventListener(THEME_PREFERENCE_CHANGE_EVENT, syncFromExternalChange)
-  }
 }
 
 function useThemeSwitch(): {
@@ -67,9 +35,7 @@ function useThemeSwitch(): {
   )
 
   const switchThemePreference = useCallback((next: ThemePreference) => {
-    if (!isThemePreference(next)) return
-    applyAndPersistTheme(next)
-    window.dispatchEvent(new Event(THEME_PREFERENCE_CHANGE_EVENT))
+    persistThemePreference(next)
   }, [])
 
   return { themePreference, switchThemePreference }

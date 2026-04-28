@@ -141,6 +141,8 @@ const themeOptions = [
 <script>
   import {
     THEME_STORAGE_KEY,
+    applyThemePreference,
+    clearStoredThemePreferenceCache,
     isThemePreference,
     readStoredThemePreference,
     switchThemePreference,
@@ -213,13 +215,14 @@ const themeOptions = [
     media.addEventListener('change', () => {
       // Only re-resolve when "system" is the active preference; explicit
       // light/dark choices ignore OS-level changes.
-      if (readPref() === 'system') switchThemePreference('system')
+      if (readPref() === 'system') applyThemePreference('system')
     })
 
     window.addEventListener('storage', (event) => {
       if (event.key !== THEME_STORAGE_KEY) return
+      clearStoredThemePreferenceCache(window.localStorage)
       const next = readPref()
-      switchThemePreference(next)
+      applyThemePreference(next)
       paintAll(next)
     })
   }

@@ -65,3 +65,21 @@ bridging derived UI state, while keeping legitimate external synchronization exp
 Historical dev logs still mention earlier `useEffect` decisions. They remain snapshots. The live
 architecture note in `docs/dev-file/05-Frontend-Architecture.md` now records the current effect-free
 contract for sidebar and business UI state.
+
+## Follow-up: theme preference store hardening
+
+- Moved the app theme subscription implementation out of the protected route layout into
+  `apps/app/src/lib/theme-preference-store.ts`.
+- Split event handling by source:
+  - `storage` only reacts to `localStorage["duedatehq.theme"]`, invalidates the cached read, then
+    applies the stored preference.
+  - same-tab preference changes use the shared switch path, then dispatch the local notification.
+  - `prefers-color-scheme` changes only re-resolve the DOM theme when the active preference is
+    `system`.
+- Added a shared in-memory cache for `readStoredThemePreference()` so repeated snapshots avoid
+  synchronous storage reads and a failed `setItem()` still leaves the current tab with the selected
+  preference.
+- Split `applyThemePreference()` from `switchThemePreference()` so OS color changes can update DOM
+  theme state without rewriting the stored preference.
+- Aligned the Astro marketing switcher with the same apply-vs-persist distinction and cache
+  invalidation on cross-tab storage events.
