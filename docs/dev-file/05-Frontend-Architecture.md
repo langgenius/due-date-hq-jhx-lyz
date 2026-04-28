@@ -334,17 +334,17 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 **自建的 sidebar primitives（在 `@duedatehq/ui/components/ui/sidebar`）**
 
-| primitive                                                    | 角色               | 关键行为                                                                                                                          |
-| ------------------------------------------------------------ | ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| `Sidebar`                                                    | `<aside>` root     | 220px 固定宽，`<md` 自动切换到 `Sheet` drawer                                                                                     |
-| `SidebarHeader` / `SidebarContent` / `SidebarFooter`         | 三段式槽           | 纯 `<div data-slot="sidebar-{header,content,footer}">`                                                                            |
-| `SidebarGroup` / `SidebarGroupLabel` / `SidebarGroupContent` | 组                 | label 自带 11/16 mono uppercase 8% letter-spacing                                                                                 |
-| `SidebarMenu` / `SidebarMenuItem`                            | `<ul>` / `<li>`    | 语义保留                                                                                                                          |
-| `SidebarMenuButton`                                          | 行内可点击         | `cva({ variant, isActive })` + `data-active` + 接受 `render` prop（让 react-router 的 `<NavLink>` 通过 base-ui `useRender` 注入） |
-| `SidebarMenuBadge`                                           | mono 计数胶囊      | Numeric/Small + tabular-nums                                                                                                      |
-| `SidebarTrigger`                                             | mobile-only toggle | `md:hidden`，调用 `useSidebar()` `setOpen(o => !o)`                                                                               |
-| `SidebarProvider` + `useSidebar()`                           | mobile sheet 状态  | 仅在 `<md` 时有意义；desktop 永远 expanded，`isOpen` 在 desktop 路径上是 noop                                                     |
-| `useIsMobile()` hook (`@duedatehq/ui/hooks/use-mobile`)      | 768px 断点匹配     | `matchMedia` + cleanup；server-safe 默认 `false`                                                                                  |
+| primitive                                                    | 角色               | 关键行为                                                                                                                                                                                                 |
+| ------------------------------------------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Sidebar`                                                    | `<aside>` root     | 220px 固定宽，`<md` 自动切换到 `Sheet` drawer                                                                                                                                                            |
+| `SidebarHeader` / `SidebarContent` / `SidebarFooter`         | 三段式槽           | 纯 `<div data-slot="sidebar-{header,content,footer}">`                                                                                                                                                   |
+| `SidebarGroup` / `SidebarGroupLabel` / `SidebarGroupContent` | 组                 | label 自带 11/16 mono uppercase 8% letter-spacing                                                                                                                                                        |
+| `SidebarMenu` / `SidebarMenuItem`                            | `<ul>` / `<li>`    | 语义保留                                                                                                                                                                                                 |
+| `SidebarMenuButton`                                          | 行内可点击         | `cva({ variant, isActive })` + `data-active` + 接受 `render` prop（让 react-router 的 `<NavLink>` 通过 base-ui `useRender` 注入；`data-*` props 直接传给 `useRender`，不经 `mergeProps<'button'>` 收窄） |
+| `SidebarMenuBadge`                                           | mono 计数胶囊      | Numeric/Small + tabular-nums                                                                                                                                                                             |
+| `SidebarTrigger`                                             | mobile-only toggle | `md:hidden`，调用 `useSidebar()` `setOpen(o => !o)`                                                                                                                                                      |
+| `SidebarProvider` + `useSidebar()`                           | mobile sheet 状态  | 仅在 `<md` 时有意义；desktop 永远 expanded，`isOpen` 在 desktop 路径上是 noop                                                                                                                            |
+| `useIsMobile()` hook (`@duedatehq/ui/hooks/use-mobile`)      | 768px 断点匹配     | `matchMedia` + cleanup；server-safe 默认 `false`                                                                                                                                                         |
 
 **纪律**
 
@@ -355,6 +355,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, status?: 'p1' | 'beta' }`。Owner / Manager 专属入口（Workload View / Audit Log）走同一个 hook + 角色 gate，**不**拆 AppShell 的两个版本
 - **Firm switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上
 - **顶栏右侧仅承载 AppShell-owned utility**（`⌘K` kbd hint + 通知 bell），路由动作放在 body 内或 body 顶部 toolbar，**不**塞到 shell header 右侧
+- **sidebar 的 Base UI `render` 包装不要用 `mergeProps<'button'>` 合成 `data-*` props**：TypeScript 会把 object literal 收窄到原生 button props 并拒绝 `data-slot` / `data-active`；直接把合并后的 `Record<string, unknown>` 传给 `useRender({ props })`，需要组合事件时在组件内显式包装 handler
 
 **vercel-react-best-practices 红线（自建时一定要踩稳）**
 

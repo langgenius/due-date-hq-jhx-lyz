@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { mergeProps } from '@base-ui/react/merge-props'
 import { useRender } from '@base-ui/react/use-render'
 import { cva, type VariantProps } from 'class-variance-authority'
 
@@ -297,14 +296,12 @@ export function SidebarMenuButton({
 }: useRender.ComponentProps<'button'> & SidebarMenuButtonOwnProps) {
   return useRender({
     defaultTagName: 'button',
-    props: mergeProps<'button'>(
-      {
-        'data-slot': 'sidebar-menu-button',
-        'data-active': isActive ? 'true' : undefined,
-        className: cn(sidebarMenuButtonVariants({ variant }), className),
-      },
-      props,
-    ),
+    props: {
+      ...props,
+      'data-slot': 'sidebar-menu-button',
+      'data-active': isActive ? 'true' : undefined,
+      className: cn(sidebarMenuButtonVariants({ variant }), className),
+    },
     render,
   })
 }
@@ -350,23 +347,21 @@ export function SidebarTrigger({
 
   return useRender({
     defaultTagName: 'button',
-    props: mergeProps<'button'>(
-      {
-        'data-slot': 'sidebar-trigger',
-        type: 'button',
-        'aria-label': 'Toggle navigation',
-        onClick: handleClick,
-        className: cn(
-          'inline-flex size-7 cursor-pointer touch-manipulation items-center justify-center rounded-md border border-divider-regular bg-background-default text-text-secondary outline-none transition-colors',
-          'hover:bg-background-default-hover hover:text-text-primary',
-          'focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
-          'md:hidden',
-          className,
-        ),
-        children,
-      },
-      props,
-    ),
+    props: {
+      ...props,
+      'data-slot': 'sidebar-trigger',
+      type: 'button',
+      'aria-label': 'Toggle navigation',
+      onClick: handleClick,
+      className: cn(
+        'inline-flex size-7 cursor-pointer touch-manipulation items-center justify-center rounded-md border border-divider-regular bg-background-default text-text-secondary outline-none transition-colors',
+        'hover:bg-background-default-hover hover:text-text-primary',
+        'focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
+        'md:hidden',
+        className,
+      ),
+      children,
+    },
     render,
   })
 }
