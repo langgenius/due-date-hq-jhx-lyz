@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer } from 'react'
+import { useCallback, useMemo, useReducer, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useNavigate } from 'react-router'
@@ -13,6 +13,16 @@ import type {
   MigrationSource,
   NormalizationRow,
 } from '@duedatehq/contracts'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@duedatehq/ui/components/ui/alert-dialog'
 
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { orpc } from '@/lib/rpc'
@@ -51,6 +61,11 @@ export function Wizard({ open, onClose }: WizardProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [state, dispatch] = useReducer(wizardReducer, INITIAL_STATE)
+  const [pendingRevert, setPendingRevert] = useState<{
+    batchId: string
+    clientCount: number
+    obligationCount: number
+  } | null>(null)
 
   const invalidateMigration = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: orpc.migration.key() })
@@ -104,6 +119,14 @@ export function Wizard({ open, onClose }: WizardProps) {
   )
   const applyMutation = useMutation(
     orpc.migration.apply.mutationOptions({
+      onSuccess: () => {
+        invalidateMigration()
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+      },
+    }),
+  )
+  const revertMutation = useMutation(
+    orpc.migration.revert.mutationOptions({
       onSuccess: () => {
         invalidateMigration()
         void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
@@ -327,6 +350,15 @@ export function Wizard({ open, onClose }: WizardProps) {
         onSuccess: (result) => {
           toast.success(t`Import complete`, {
             description: t`${result.clientCount} clients · ${result.obligationCount} obligations`,
+            action: {
+              label: t`Undo import`,
+              onClick: () =>
+                setPendingRevert({
+                  batchId: result.batchId,
+                  clientCount: result.clientCount,
+                  obligationCount: result.obligationCount,
+                }),
+            },
           })
           resetAndClose()
           void navigate('/')
@@ -374,52 +406,112 @@ export function Wizard({ open, onClose }: WizardProps) {
     runNormalizerMutation.isPending ||
     confirmNormalizationMutation.isPending ||
     applyDefaultMatrixMutation.isPending ||
-    applyMutation.isPending
+    applyMutation.isPending ||
+    revertMutation.isPending
+
+  const handleConfirmRevert = useCallback(() => {
+    if (!pendingRevert) return
+    revertMutation.mutate(
+      { batchId: pendingRevert.batchId },
+      {
+        onError: (err) => {
+          toast.error(t`Couldn't undo import`, {
+            description: rpcErrorMessage(err) ?? t`Please try again.`,
+          })
+        },
+        onSuccess: () => {
+          toast.success(t`Import undone`, {
+            description: t`${pendingRevert.clientCount} clients · ${pendingRevert.obligationCount} obligations removed`,
+          })
+          setPendingRevert(null)
+          void navigate('/workboard')
+        },
+      },
+    )
+  }, [navigate, pendingRevert, revertMutation, t])
 
   return (
-    <WizardShell
-      open={open}
-      step={state.step}
-      busy={isMutating || state.isBusy}
-      canContinue={canContinue}
-      continueLabel={continueLabel}
-      onContinue={onContinue}
-      onBack={onBack}
-      onClose={resetAndClose}
-    >
-      {state.step === 1 ? (
-        <Step1Intake
-          intake={state.intake}
-          onText={(text, fileName) => dispatch({ type: 'INTAKE_TEXT', text, fileName })}
-          onPreset={(preset) => dispatch({ type: 'INTAKE_PRESET', preset })}
-          onParsed={(args) => dispatch({ type: 'INTAKE_PARSED', ...args })}
-          onParseError={(error) => dispatch({ type: 'INTAKE_PARSE_ERROR', error })}
-        />
-      ) : null}
+    <>
+      <WizardShell
+        open={open}
+        step={state.step}
+        busy={isMutating || state.isBusy}
+        canContinue={canContinue}
+        continueLabel={continueLabel}
+        onContinue={onContinue}
+        onBack={onBack}
+        onClose={resetAndClose}
+      >
+        {state.step === 1 ? (
+          <Step1Intake
+            intake={state.intake}
+            onText={(text, fileName) => dispatch({ type: 'INTAKE_TEXT', text, fileName })}
+            onPreset={(preset) => dispatch({ type: 'INTAKE_PRESET', preset })}
+            onParsed={(args) => dispatch({ type: 'INTAKE_PARSED', ...args })}
+            onParseError={(error) => dispatch({ type: 'INTAKE_PARSE_ERROR', error })}
+          />
+        ) : null}
 
-      {state.step === 2 ? (
-        <Step2Mapping
-          mapping={state.mapping}
-          sampleByHeader={sampleByHeader}
-          errors={state.errors}
-          onUserEdit={(rows: MappingRow[]) => dispatch({ type: 'MAPPER_USER_EDIT', rows })}
-          onRerun={handleStep2Rerun}
-        />
-      ) : null}
+        {state.step === 2 ? (
+          <Step2Mapping
+            mapping={state.mapping}
+            sampleByHeader={sampleByHeader}
+            errors={state.errors}
+            onUserEdit={(rows: MappingRow[]) => dispatch({ type: 'MAPPER_USER_EDIT', rows })}
+            onRerun={handleStep2Rerun}
+          />
+        ) : null}
 
-      {state.step === 3 ? (
-        <Step3Normalize
-          normalize={state.normalize}
-          matrix={matrixPreview}
-          onUserEdit={(rows: NormalizationRow[]) => dispatch({ type: 'NORMALIZE_USER_EDIT', rows })}
-          onToggleApplyToAll={(key, value) =>
-            dispatch({ type: 'NORMALIZE_TOGGLE_APPLY_TO_ALL', key, value })
-          }
-        />
-      ) : null}
+        {state.step === 3 ? (
+          <Step3Normalize
+            normalize={state.normalize}
+            matrix={matrixPreview}
+            onUserEdit={(rows: NormalizationRow[]) =>
+              dispatch({ type: 'NORMALIZE_USER_EDIT', rows })
+            }
+            onToggleApplyToAll={(key, value) =>
+              dispatch({ type: 'NORMALIZE_TOGGLE_APPLY_TO_ALL', key, value })
+            }
+          />
+        ) : null}
 
-      {state.step === 4 ? <Step4Preview summary={state.dryRun.summary} /> : null}
-    </WizardShell>
+        {state.step === 4 ? <Step4Preview summary={state.dryRun.summary} /> : null}
+      </WizardShell>
+
+      <AlertDialog
+        open={pendingRevert !== null}
+        onOpenChange={(next) => {
+          if (!next && !revertMutation.isPending) setPendingRevert(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              <Trans>Undo this import?</Trans>
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-md">
+              <Trans>
+                This removes the clients and deadlines created by this import. Other practice data
+                will not be changed.
+              </Trans>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel size="sm" disabled={revertMutation.isPending}>
+              <Trans>Keep import</Trans>
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive-primary"
+              size="sm"
+              disabled={revertMutation.isPending}
+              onClick={handleConfirmRevert}
+            >
+              <Trans>Undo import</Trans>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
 

@@ -558,6 +558,35 @@ export class MigrationService {
     }
   }
 
+  async revert(batchId: string): Promise<{ revertedAt: string }> {
+    const batch = await this.requireBatch(batchId)
+    this.assertBatchRevertible(batch)
+
+    const revertedAt = new Date()
+    await this.deps.scoped.migration.revertImport({
+      batchId,
+      userId: this.deps.userId,
+      revertedAt,
+    })
+
+    return { revertedAt: revertedAt.toISOString() }
+  }
+
+  async singleUndo(batchId: string, clientId: string): Promise<{ revertedAt: string }> {
+    const batch = await this.requireBatch(batchId)
+    this.assertBatchSingleUndoable(batch)
+
+    const revertedAt = new Date()
+    await this.deps.scoped.migration.singleUndoImport({
+      batchId,
+      clientId,
+      userId: this.deps.userId,
+      revertedAt,
+    })
+
+    return { revertedAt: revertedAt.toISOString() }
+  }
+
   async getBatch(batchId: string): Promise<MigrationBatch | null> {
     const row = await this.deps.scoped.migration.getBatch(batchId)
     return row ? toMigrationBatch(row) : null
@@ -604,6 +633,37 @@ export class MigrationService {
       })
     }
     return batch
+  }
+
+  private assertBatchRevertible(batch: Awaited<ReturnType<MigrationService['requireBatch']>>) {
+    if (batch.status === 'reverted') {
+      throw new ORPCError('CONFLICT', { message: 'This import has already been reverted.' })
+    }
+    if (batch.status !== 'applied') {
+      throw new ORPCError('BAD_REQUEST', { message: 'Only applied imports can be reverted.' })
+    }
+    if (!batch.revertExpiresAt || batch.revertExpiresAt.getTime() < Date.now()) {
+      throw new ORPCError('CONFLICT', {
+        message: 'The 24-hour import revert window has expired.',
+      })
+    }
+  }
+
+  private assertBatchSingleUndoable(batch: Awaited<ReturnType<MigrationService['requireBatch']>>) {
+    if (batch.status === 'reverted') {
+      throw new ORPCError('CONFLICT', { message: 'This import has already been reverted.' })
+    }
+    if (batch.status !== 'applied') {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'Only applied imports support single-client undo.',
+      })
+    }
+    const appliedAt = batch.appliedAt ?? batch.revertExpiresAt
+    if (!appliedAt || appliedAt.getTime() + 7 * 24 * 60 * 60 * 1000 < Date.now()) {
+      throw new ORPCError('CONFLICT', {
+        message: 'The 7-day single-client undo window has expired.',
+      })
+    }
   }
 
   private async persistErrors(batchId: string, errors: DeterministicError[]): Promise<void> {

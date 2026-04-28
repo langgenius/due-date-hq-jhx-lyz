@@ -54,8 +54,12 @@ function buildScopedRepo(firmId: string) {
   const batches = new Map<string, MigrationBatchRow>()
   const audits: Array<{ action: string; firmId: string; entityId: string }> = []
   const evidences: Array<{ sourceType: string; firmId: string }> = []
-  const importedClients: unknown[] = []
-  const importedObligations: unknown[] = []
+  const importedClients: Array<{ id: string; migrationBatchId: string | null | undefined }> = []
+  const importedObligations: Array<{
+    id: string
+    clientId: string
+    migrationBatchId: string | null | undefined
+  }> = []
   const mappings: Array<{ batchId: string; sourceHeader: string; targetField: string }> = []
   const normalizations: Array<{ batchId: string; field: string; rawValue: string }> = []
   const errors: Array<{
@@ -216,8 +220,19 @@ function buildScopedRepo(firmId: string) {
     async commitImport(input) {
       const b = batches.get(input.batchId)
       if (!b || b.firmId !== firmId) throw new Error('cross firm')
-      importedClients.push(...input.clients)
-      importedObligations.push(...input.obligations)
+      importedClients.push(
+        ...input.clients.map((item) => ({
+          id: item.id,
+          migrationBatchId: item.migrationBatchId,
+        })),
+      )
+      importedObligations.push(
+        ...input.obligations.map((item) => ({
+          id: item.id,
+          clientId: item.clientId,
+          migrationBatchId: item.migrationBatchId,
+        })),
+      )
       for (const item of input.evidence) {
         evidences.push({ sourceType: item.sourceType, firmId })
       }
@@ -233,6 +248,51 @@ function buildScopedRepo(firmId: string) {
         revertExpiresAt: input.revertExpiresAt,
         updatedAt: new Date(),
       })
+    },
+    async revertImport(input) {
+      const b = batches.get(input.batchId)
+      if (!b || b.firmId !== firmId) throw new Error('cross firm')
+      const clientCount = importedClients.filter(
+        (item) => item.migrationBatchId === input.batchId,
+      ).length
+      const obligationCount = importedObligations.filter(
+        (item) => item.migrationBatchId === input.batchId,
+      ).length
+      removeWhere(importedObligations, (item) => item.migrationBatchId === input.batchId)
+      removeWhere(importedClients, (item) => item.migrationBatchId === input.batchId)
+      evidences.push({ sourceType: 'migration_revert', firmId })
+      audits.push({ action: 'migration.reverted', firmId, entityId: input.batchId })
+      batches.set(input.batchId, {
+        ...b,
+        status: 'reverted',
+        revertedAt: input.revertedAt,
+        updatedAt: new Date(),
+      })
+      return { clientCount, obligationCount }
+    },
+    async singleUndoImport(input) {
+      const b = batches.get(input.batchId)
+      if (!b || b.firmId !== firmId) throw new Error('cross firm')
+      const clientExists = importedClients.some(
+        (item) => item.id === input.clientId && item.migrationBatchId === input.batchId,
+      )
+      if (!clientExists) {
+        throw new Error(`Client ${input.clientId} not found in migration batch ${input.batchId}`)
+      }
+      const obligationCount = importedObligations.filter(
+        (item) => item.clientId === input.clientId && item.migrationBatchId === input.batchId,
+      ).length
+      removeWhere(
+        importedObligations,
+        (item) => item.clientId === input.clientId && item.migrationBatchId === input.batchId,
+      )
+      removeWhere(
+        importedClients,
+        (item) => item.id === input.clientId && item.migrationBatchId === input.batchId,
+      )
+      evidences.push({ sourceType: 'migration_revert', firmId })
+      audits.push({ action: 'migration.single_undo', firmId, entityId: input.batchId })
+      return { clientCount: 1, obligationCount }
     },
   }
 
@@ -304,6 +364,12 @@ function buildScopedRepo(firmId: string) {
       importedObligations,
     },
     repo,
+  }
+}
+
+function removeWhere<T>(items: T[], predicate: (item: T) => boolean): void {
+  for (let i = items.length - 1; i >= 0; i -= 1) {
+    if (predicate(items[i]!)) items.splice(i, 1)
   }
 }
 
@@ -613,6 +679,109 @@ Acme LLC,12-3456789,CA,LLC,acme@example.com
     await service.apply(batch.id)
 
     await expect(service.apply(batch.id)).rejects.toMatchObject({ code: 'CONFLICT' })
+  })
+})
+
+describe('MigrationService.revert', () => {
+  it('removes imported clients and obligations, writes audit/evidence, and marks the batch reverted', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+    await service.applyDefaultMatrix(batch.id)
+    await service.apply(batch.id)
+
+    const result = await service.revert(batch.id)
+
+    expect(result.revertedAt).toEqual(expect.any(String))
+    expect(state.importedClients).toHaveLength(0)
+    expect(state.importedObligations).toHaveLength(0)
+    expect(state.audits.some((item) => item.action === 'migration.reverted')).toBe(true)
+    expect(state.evidences.some((item) => item.sourceType === 'migration_revert')).toBe(true)
+    expect(state.batches.get(batch.id)?.status).toBe('reverted')
+  })
+
+  it('rejects a revert after the 24-hour window expires', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+    await service.applyDefaultMatrix(batch.id)
+    await service.apply(batch.id)
+    const applied = state.batches.get(batch.id)!
+    state.batches.set(batch.id, {
+      ...applied,
+      revertExpiresAt: new Date(Date.now() - 1_000),
+    })
+
+    await expect(service.revert(batch.id)).rejects.toMatchObject({ code: 'CONFLICT' })
+  })
+
+  it('rejects reverting a draft batch', async () => {
+    const { repo } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'paste' })
+
+    await expect(service.revert(batch.id)).rejects.toMatchObject({ code: 'BAD_REQUEST' })
+  })
+})
+
+describe('MigrationService.singleUndo', () => {
+  it('removes one imported client without reverting the whole batch', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+    await service.applyDefaultMatrix(batch.id)
+    await service.apply(batch.id)
+    const targetClient = state.importedClients[0]!
+
+    const result = await service.singleUndo(batch.id, targetClient.id)
+
+    expect(result.revertedAt).toEqual(expect.any(String))
+    expect(state.importedClients.some((item) => item.id === targetClient.id)).toBe(false)
+    expect(state.importedClients).toHaveLength(2)
+    expect(state.batches.get(batch.id)?.status).toBe('applied')
+    expect(state.audits.some((item) => item.action === 'migration.single_undo')).toBe(true)
+  })
+
+  it('rejects single undo for a client outside the batch', async () => {
+    const { repo } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+    await service.applyDefaultMatrix(batch.id)
+    await service.apply(batch.id)
+
+    await expect(service.singleUndo(batch.id, 'client-not-in-batch')).rejects.toThrow(
+      'not found in migration batch',
+    )
   })
 })
 

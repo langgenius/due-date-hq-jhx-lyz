@@ -45,6 +45,12 @@ msgstr "{0, plural, other {共 # 行，我们仅读取了前 1000 行。请拆�
 msgid "{0} clients · {1} obligations"
 msgstr "{0} 个客户 · {1} 条截止日"
 
+#. placeholder {0}: pendingRevert.clientCount
+#. placeholder {1}: pendingRevert.obligationCount
+#: src/features/migration/Wizard.tsx
+msgid "{0} clients · {1} obligations removed"
+msgstr "已移除 {0} 个客户 · {1} 条截止日"
+
 #. placeholder {0}: stats.fullyCovered
 #. placeholder {1}: stats.jurisdictions - stats.fullyCovered
 #: src/features/rules/coverage-tab.tsx
@@ -360,6 +366,10 @@ msgstr "保存字段映射失败"
 msgid "Couldn't start the import"
 msgstr "无法启动导入流程"
 
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't undo import"
+msgstr "无法撤销导入"
+
 #: src/routes/workboard.tsx
 msgid "Couldn't update status"
 msgstr "状态更新失败"
@@ -611,6 +621,10 @@ msgstr "导入客户 · 第 {step} 步 / 共 4 步"
 msgid "Import complete"
 msgstr "导入完成"
 
+#: src/features/migration/Wizard.tsx
+msgid "Import undone"
+msgstr "导入已撤销"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Importing…"
 msgstr "正在导入…"
@@ -659,6 +673,10 @@ msgstr "辖区"
 #: src/features/migration/WizardShell.tsx
 msgid "Keep editing"
 msgstr "继续编辑"
+
+#: src/features/migration/Wizard.tsx
+msgid "Keep import"
+msgstr "保留导入"
 
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "Keyboard shortcuts"
@@ -1357,6 +1375,10 @@ msgstr "该操作与当前状态冲突，请刷新后重试。"
 msgid "This is what your team and clients will see."
 msgstr "你的团队和客户都会看到这个名字。"
 
+#: src/features/migration/Wizard.tsx
+msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
+msgstr "这会移除此导入创建的客户和截止日。其他事务所数据不会被更改。"
+
 #: src/routes/dashboard.tsx
 msgid "Today queue"
 msgstr "今日队列"
@@ -1372,6 +1394,14 @@ msgstr "2 条建议正在等待 source excerpt。"
 #: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
 msgstr "无法启动 Google 登录"
+
+#: src/features/migration/Wizard.tsx
+msgid "Undo import"
+msgstr "撤销导入"
+
+#: src/features/migration/Wizard.tsx
+msgid "Undo this import?"
+msgstr "撤销这次导入？"
 
 #: src/routes/error.tsx
 msgid "Unexpected route error"

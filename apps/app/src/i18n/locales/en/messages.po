@@ -45,6 +45,12 @@ msgstr "{0, plural, one {We imported the first 1000 of # row. Split your file to
 msgid "{0} clients · {1} obligations"
 msgstr "{0} clients · {1} obligations"
 
+#. placeholder {0}: pendingRevert.clientCount
+#. placeholder {1}: pendingRevert.obligationCount
+#: src/features/migration/Wizard.tsx
+msgid "{0} clients · {1} obligations removed"
+msgstr "{0} clients · {1} obligations removed"
+
 #. placeholder {0}: stats.fullyCovered
 #. placeholder {1}: stats.jurisdictions - stats.fullyCovered
 #: src/features/rules/coverage-tab.tsx
@@ -360,6 +366,10 @@ msgstr "Couldn't save mapping"
 msgid "Couldn't start the import"
 msgstr "Couldn't start the import"
 
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't undo import"
+msgstr "Couldn't undo import"
+
 #: src/routes/workboard.tsx
 msgid "Couldn't update status"
 msgstr "Couldn't update status"
@@ -611,6 +621,10 @@ msgstr "Import clients · Step {step} of 4"
 msgid "Import complete"
 msgstr "Import complete"
 
+#: src/features/migration/Wizard.tsx
+msgid "Import undone"
+msgstr "Import undone"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Importing…"
 msgstr "Importing…"
@@ -659,6 +673,10 @@ msgstr "Jurisdictions"
 #: src/features/migration/WizardShell.tsx
 msgid "Keep editing"
 msgstr "Keep editing"
+
+#: src/features/migration/Wizard.tsx
+msgid "Keep import"
+msgstr "Keep import"
 
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "Keyboard shortcuts"
@@ -1357,6 +1375,10 @@ msgstr "This action conflicts with the current state. Refresh and try again."
 msgid "This is what your team and clients will see."
 msgstr "This is what your team and clients will see."
 
+#: src/features/migration/Wizard.tsx
+msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
+msgstr "This removes the clients and deadlines created by this import. Other practice data will not be changed."
+
 #: src/routes/dashboard.tsx
 msgid "Today queue"
 msgstr "Today queue"
@@ -1372,6 +1394,14 @@ msgstr "Two recommendations are waiting on source excerpts."
 #: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
 msgstr "Unable to start Google sign-in"
+
+#: src/features/migration/Wizard.tsx
+msgid "Undo import"
+msgstr "Undo import"
+
+#: src/features/migration/Wizard.tsx
+msgid "Undo this import?"
+msgstr "Undo this import?"
 
 #: src/routes/error.tsx
 msgid "Unexpected route error"

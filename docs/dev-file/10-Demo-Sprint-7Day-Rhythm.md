@@ -187,7 +187,7 @@ flowchart LR
 
 ### Day 4
 
-- [ ] JHX：Migration 批量导入后能 revert，两次操作都有 evidence/audit
+- [x] JHX：Migration 批量导入后能 revert，两次操作都有 evidence/audit（`migration.apply` + `migration.revert` 已落库；front-end 通过 import success toast 接 `Undo import`，见 [2026-04-28 migration revert and undo import](../dev-log/2026-04-28-migration-revert-undo.md)）
 - [ ] JHX：Live Genesis 演示路径串通（exposure 数字能动）
 - [ ] LYZ：Dashboard 首屏由 server aggregation 提供，不由客户端扫表
 - [ ] LYZ：Weekly Brief citation 能点击打开 Evidence drawer

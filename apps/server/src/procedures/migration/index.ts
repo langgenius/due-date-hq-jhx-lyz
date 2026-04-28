@@ -9,7 +9,7 @@ import { MigrationService } from './_service'
  *
  * Current DDL cut: createBatch / uploadRaw / runMapper / confirmMapping /
  * runNormalizer / confirmNormalization / applyDefaultMatrix / dryRun /
- * apply / getBatch / listErrors. Revert and singleUndo remain deferred.
+ * apply / revert / singleUndo / getBatch / listErrors.
  */
 
 function buildService(ctx: RpcContext): MigrationService {
@@ -96,15 +96,15 @@ const listErrors = os.migration.listErrors.handler(async ({ input, context }) =>
   return { errors }
 })
 
-// Day 4 stubs — keep contracts implemented; throw a typed NOT_IMPLEMENTED.
-function notImplemented(): never {
-  throw new ORPCError('ORPC_NOT_IMPLEMENTED', {
-    message: 'This procedure lands in feat/migration/step4-commit (JHX Day 4).',
-  })
-}
+const revert = os.migration.revert.handler(async ({ input, context }) => {
+  const service = buildService(context)
+  return service.revert(input.batchId)
+})
 
-const revert = os.migration.revert.handler(notImplemented)
-const singleUndo = os.migration.singleUndo.handler(notImplemented)
+const singleUndo = os.migration.singleUndo.handler(async ({ input, context }) => {
+  const service = buildService(context)
+  return service.singleUndo(input.batchId, input.clientId)
+})
 
 export const migrationHandlers = {
   createBatch,

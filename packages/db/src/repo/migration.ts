@@ -73,6 +73,16 @@ export interface CommitImportInput {
   revertExpiresAt: Date
 }
 
+export interface RevertImportInput {
+  batchId: string
+  userId: string
+  revertedAt: Date
+}
+
+export interface SingleUndoImportInput extends RevertImportInput {
+  clientId: string
+}
+
 export function makeMigrationRepo(db: Db, firmId: string) {
   async function assertBatchInFirm(batchId: string): Promise<void> {
     const rows = await db
@@ -278,6 +288,197 @@ export function makeMigrationRepo(db: Db, firmId: string) {
 
       await db.batch(toNonEmptyBatch(queries))
     },
+
+    async revertImport(input: RevertImportInput): Promise<{
+      clientCount: number
+      obligationCount: number
+    }> {
+      await assertBatchInFirm(input.batchId)
+
+      const obligationsToDelete = await db
+        .select({ id: obligationInstance.id })
+        .from(obligationInstance)
+        .where(
+          and(
+            eq(obligationInstance.firmId, firmId),
+            eq(obligationInstance.migrationBatchId, input.batchId),
+          ),
+        )
+      const clientsToDelete = await db
+        .select({ id: client.id })
+        .from(client)
+        .where(and(eq(client.firmId, firmId), eq(client.migrationBatchId, input.batchId)))
+
+      const queries: BatchItem<'sqlite'>[] = [
+        db.insert(evidenceLink).values(migrationRevertEvidence(input, firmId, 'batch')),
+        db.insert(auditEvent).values(
+          migrationAudit(input, firmId, 'migration.reverted', {
+            clientCount: clientsToDelete.length,
+            obligationCount: obligationsToDelete.length,
+            revertedAt: input.revertedAt.toISOString(),
+          }),
+        ),
+      ]
+
+      if (obligationsToDelete.length > 0) {
+        queries.push(
+          db
+            .delete(obligationInstance)
+            .where(
+              and(
+                eq(obligationInstance.firmId, firmId),
+                eq(obligationInstance.migrationBatchId, input.batchId),
+              ),
+            ),
+        )
+      }
+
+      if (clientsToDelete.length > 0) {
+        queries.push(
+          db
+            .delete(client)
+            .where(and(eq(client.firmId, firmId), eq(client.migrationBatchId, input.batchId))),
+        )
+      }
+
+      queries.push(
+        db
+          .update(migrationBatch)
+          .set({
+            status: 'reverted',
+            revertedAt: input.revertedAt,
+          })
+          .where(
+            and(
+              eq(migrationBatch.firmId, firmId),
+              eq(migrationBatch.id, input.batchId),
+              eq(migrationBatch.status, 'applied'),
+            ),
+          ),
+      )
+
+      await db.batch(toNonEmptyBatch(queries))
+      return { clientCount: clientsToDelete.length, obligationCount: obligationsToDelete.length }
+    },
+
+    async singleUndoImport(input: SingleUndoImportInput): Promise<{
+      clientCount: number
+      obligationCount: number
+    }> {
+      await assertBatchInFirm(input.batchId)
+
+      const clientsToDelete = await db
+        .select({ id: client.id })
+        .from(client)
+        .where(
+          and(
+            eq(client.firmId, firmId),
+            eq(client.id, input.clientId),
+            eq(client.migrationBatchId, input.batchId),
+          ),
+        )
+      if (clientsToDelete.length === 0) {
+        throw new Error(`Client ${input.clientId} not found in migration batch ${input.batchId}`)
+      }
+
+      const obligationsToDelete = await db
+        .select({ id: obligationInstance.id })
+        .from(obligationInstance)
+        .where(
+          and(
+            eq(obligationInstance.firmId, firmId),
+            eq(obligationInstance.clientId, input.clientId),
+            eq(obligationInstance.migrationBatchId, input.batchId),
+          ),
+        )
+
+      const queries: BatchItem<'sqlite'>[] = [
+        db.insert(evidenceLink).values(migrationRevertEvidence(input, firmId, input.clientId)),
+        db.insert(auditEvent).values(
+          migrationAudit(input, firmId, 'migration.single_undo', {
+            clientId: input.clientId,
+            obligationCount: obligationsToDelete.length,
+            revertedAt: input.revertedAt.toISOString(),
+          }),
+        ),
+      ]
+
+      if (obligationsToDelete.length > 0) {
+        queries.push(
+          db
+            .delete(obligationInstance)
+            .where(
+              and(
+                eq(obligationInstance.firmId, firmId),
+                eq(obligationInstance.clientId, input.clientId),
+                eq(obligationInstance.migrationBatchId, input.batchId),
+              ),
+            ),
+        )
+      }
+
+      queries.push(
+        db
+          .delete(client)
+          .where(
+            and(
+              eq(client.firmId, firmId),
+              eq(client.id, input.clientId),
+              eq(client.migrationBatchId, input.batchId),
+            ),
+          ),
+      )
+
+      await db.batch(toNonEmptyBatch(queries))
+      return { clientCount: clientsToDelete.length, obligationCount: obligationsToDelete.length }
+    },
+  }
+}
+
+function migrationRevertEvidence(
+  input: RevertImportInput,
+  firmId: string,
+  sourceId: string,
+): NewEvidenceLink {
+  return {
+    id: crypto.randomUUID(),
+    firmId,
+    obligationInstanceId: null,
+    aiOutputId: input.batchId,
+    sourceType: 'migration_revert',
+    sourceId,
+    sourceUrl: null,
+    verbatimQuote: null,
+    rawValue: 'applied',
+    normalizedValue: 'reverted',
+    confidence: 1,
+    model: null,
+    matrixVersion: null,
+    verifiedAt: input.revertedAt,
+    verifiedBy: input.userId,
+    appliedAt: input.revertedAt,
+    appliedBy: input.userId,
+  }
+}
+
+function migrationAudit(
+  input: RevertImportInput,
+  firmId: string,
+  action: 'migration.reverted' | 'migration.single_undo',
+  afterJson: unknown,
+): NewAuditEvent {
+  return {
+    id: crypto.randomUUID(),
+    firmId,
+    actorId: input.userId,
+    entityType: 'migration_batch',
+    entityId: input.batchId,
+    action,
+    beforeJson: { status: 'applied' },
+    afterJson,
+    reason: null,
+    ipHash: null,
+    userAgentHash: null,
   }
 }
 
