@@ -17,6 +17,9 @@ landing 到 app 的首屏语言无法由 CTA 稳定决定。
 - 将 `lng` 作为一次性 URL handoff 状态纳入 nuqs，而不是手写 `URLSearchParams`。
 - 使用 `parseAsStringLiteral(SUPPORTED_LOCALES)`，让 runtime validation 和 TypeScript 类型都从
   `packages/i18n` 的单一 locale list 推导。
+- 2026-04-28 follow-up：`LocaleQuery` / `LocaleQueryValue` 改为从
+  `localeQueryParsers` parser map 推导，和 Workboard / Rules Console 的 nuqs
+  query contract 模式保持一致。
 - 在 React Router v7 root route 接入 `nuqs/adapters/react-router/v7`。
 - 在 `createAppRouter()` 创建前执行 app i18n bootstrap，同步消费有效 `lng`、同步 Lingui
   locale、`<html lang>` 和 `localStorage["lng"]`，然后用 nuqs serializer +

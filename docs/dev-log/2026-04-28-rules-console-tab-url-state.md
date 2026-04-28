@@ -27,15 +27,16 @@ Coverage URL; `?tab=coverage` is accepted but can be cleared on default.
 
 - `apps/app/src/features/rules/rules-console-model.ts`
   - Added `RULES_TAB_VALUES` as the literal tuple source of truth.
-  - Derived `RulesTab` from that tuple.
   - Added `DEFAULT_RULES_TAB = 'coverage'`.
+  - Added `rulesConsoleSearchParamsParsers` as the module-level query
+    contract.
+  - Derived `RulesConsoleSearchParams` and `RulesTab` with `inferParserType`.
   - Kept `isRulesTab` as a runtime guard backed by the same tuple.
 - `apps/app/src/features/rules/rules-console.tsx`
   - Replaced `useState<RulesTab>('coverage')` with
-    `useQueryState('tab', parseAsStringLiteral(RULES_TAB_VALUES))`.
-  - Applied `withDefault(DEFAULT_RULES_TAB)` and
-    `withOptions({ history: 'replace' })` on the parser, matching `nuqs` v2
-    hook typing.
+    `useQueryState('tab', rulesConsoleSearchParamsParsers.tab)`.
+  - Applied `withDefault(DEFAULT_RULES_TAB)` and `withOptions({ history:
+'replace' })` inside the parser contract, matching `nuqs` v2 hook typing.
   - Kept tab rendering controlled by the validated `RulesTab` value.
 - `apps/app/src/features/rules/rules-console-model.test.ts`
   - Covers the shared literal tuple, default tab, and invalid-value guard.

@@ -12,7 +12,13 @@ import {
 } from '@tanstack/react-table'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { FilterIcon, SearchIcon } from 'lucide-react'
-import { parseAsArrayOf, parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
+import {
+  parseAsArrayOf,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryStates,
+  type inferParserType,
+} from 'nuqs'
 import { toast } from 'sonner'
 
 import type { ObligationInstancePublic, WorkboardRow, WorkboardSort } from '@duedatehq/contracts'
@@ -76,14 +82,21 @@ const ALL_SORTS = [
 const DEFAULT_SORT: WorkboardSort = 'due_asc'
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
 const PAGE_SIZE = 50
+const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 
-const workboardQueryParsers = {
-  q: parseAsString.withDefault(''),
-  status: parseAsArrayOf(parseAsStringLiteral(ALL_STATUSES)).withDefault([]),
-  sort: parseAsStringLiteral(ALL_SORTS).withDefault(DEFAULT_SORT),
-  cursor: parseAsString,
-  row: parseAsString,
-}
+export const workboardSearchParamsParsers = {
+  q: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
+  status: parseAsArrayOf(parseAsStringLiteral(ALL_STATUSES))
+    .withDefault([])
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  sort: parseAsStringLiteral(ALL_SORTS)
+    .withDefault(DEFAULT_SORT)
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  cursor: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
+  row: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
+} as const
+
+export type WorkboardSearchParams = inferParserType<typeof workboardSearchParamsParsers>
 
 function isObligationStatus(value: string): value is ObligationStatus {
   return (ALL_STATUSES as readonly string[]).includes(value)
@@ -168,7 +181,7 @@ export function WorkboardRoute() {
   const statusLabels = useStatusLabels()
   const sortLabels = useSortLabels()
   const [{ q: searchInput, status: statusFilter, sort, cursor, row }, setWorkboardQuery] =
-    useQueryStates(workboardQueryParsers, { history: 'replace' })
+    useQueryStates(workboardSearchParamsParsers)
 
   const deferredSearch = useDeferredValue(searchInput.trim())
   const sorting = useMemo(() => getSortingState(sort), [sort])

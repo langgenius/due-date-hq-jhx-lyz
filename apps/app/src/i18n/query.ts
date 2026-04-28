@@ -11,7 +11,8 @@ export const localeQueryParsers = {
 
 export const serializeLocaleQuery = createSerializer(localeQueryParsers)
 
-export type LocaleQueryValue = NonNullable<inferParserType<typeof localeQueryParser>>
+export type LocaleQuery = inferParserType<typeof localeQueryParsers>
+export type LocaleQueryValue = NonNullable<LocaleQuery[typeof LOCALE_QUERY_KEY]>
 
 export function localeFromSearchParams(
   searchParams: Pick<URLSearchParams, 'get'>,

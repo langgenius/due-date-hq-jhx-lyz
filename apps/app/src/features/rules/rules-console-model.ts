@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { parseAsStringLiteral, type inferParserType } from 'nuqs'
 
 import {
   RuleGenerationPreviewInputSchema,
@@ -13,7 +14,14 @@ import {
 } from '@duedatehq/contracts'
 
 export const RULES_TAB_VALUES = ['coverage', 'sources', 'library', 'preview'] as const
-export type RulesTab = (typeof RULES_TAB_VALUES)[number]
+export const DEFAULT_RULES_TAB = 'coverage'
+export const rulesConsoleSearchParamsParsers = {
+  tab: parseAsStringLiteral(RULES_TAB_VALUES)
+    .withDefault(DEFAULT_RULES_TAB)
+    .withOptions({ history: 'replace' }),
+} as const
+export type RulesConsoleSearchParams = inferParserType<typeof rulesConsoleSearchParamsParsers>
+export type RulesTab = RulesConsoleSearchParams['tab']
 export type SourceHealthFilter = 'all' | RuleSource['healthStatus']
 export type RuleLibraryFilter =
   | 'all'
@@ -22,7 +30,6 @@ export type RuleLibraryFilter =
   | 'applicability_review'
   | 'exception'
 export type CoverageCellState = 'verified' | 'review' | 'none'
-export const DEFAULT_RULES_TAB: RulesTab = 'coverage'
 
 // Pure value tables only — i18n labels live with the consuming component
 // (rendered through `useLingui` so Lingui can extract them and so we never

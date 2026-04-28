@@ -121,6 +121,11 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 **URL state 约定：**
 
 - 所有可分享的过滤 / 排序 / 分页 / tab 或 subview 选择走 URL（用 `nuqs`）
+- 有两个及以上 URL 参数，或未来可能被 loader / serializer / link 复用的页面，必须把
+  search params 定义为模块级 parser map，并用 `inferParserType<typeof parsers>`
+  推导类型；不要手写一份和 parser 分离的 query state interface。
+- `history: 'replace'`、`clearOnDefault` 等 URL 行为优先挂在 parser map 里，让
+  `useQueryStates`、serializer 和未来 loader 消费同一份 contract。
 - 任何抽屉开关 / 选中项也写 URL（`?drawer=obligation&id=xxx`）
 - **不要**把分页 / 筛选塞进 Zustand
 
@@ -379,7 +384,10 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 - **当前落地**：`apps/app/src/routes/workboard.tsx` 使用 **TanStack Table 8** 作为 headless table state/rendering 层，继续复用 `@duedatehq/ui/components/ui/table` 的语义 `<table>` primitive。
 - **服务端数据处理**：筛选 / 排序 / 分页仍由 `workboard.list` 和 D1 read model 负责；前端 `useReactTable` 开启 `manualFiltering` / `manualSorting` / `manualPagination`，不在浏览器端二次加工服务端行。
-- **URL state**：`q`、`status`、`sort`、`cursor`、`row` 由 `nuqs` 管理。筛选 / 排序变化在事件处理器中同步清空 `cursor` 和 active row，避免用 effect 追踪派生状态。
+- **URL state**：`q`、`status`、`sort`、`cursor`、`row` 由 `nuqs` 管理。
+  `workboardSearchParamsParsers` 是模块级 query contract，`WorkboardSearchParams`
+  由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空 `cursor`
+  和 active row，避免用 effect 追踪派生状态。
 - **分页形态**：当前后端是 cursor pagination（50 行 / 页），URL 持久化的是 `cursor` 而不是 page index；因为接口暂不返回 `rowCount`，不使用 TanStack 的页码式 `rowCount/pageCount` 控件。
 - **虚拟化时机**：`@tanstack/react-virtual` 已在依赖中保留，但当前 4 列 × 50 行不启用。等 Workboard 扩到 PRD 的 10–20 列、固定表头或长列表滚动容器时再接 row / column virtualization。
 - **后续扩展**：列可见性、自定义列、批量选择、Saved Views 应继续走 TanStack controlled state，并把可分享状态写入 URL 或服务端 saved-view 记录。
@@ -390,6 +398,8 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 - `/settings/rules` 的四个 P0 tab（`coverage` / `sources` / `library` /
   `preview`）由 `nuqs` 管理 URL state，使用 `tab` 参数持久化当前二级视图。
+  `rulesConsoleSearchParamsParsers` 是模块级 query contract，`RulesTab` 从
+  `inferParserType` 推导。
 - 缺省或非法 `tab` 回落到 `coverage`，避免无效 URL 打断受保护路由加载。
 - tab 切换不进入 Zustand；它是可分享的页面状态，和 Workboard 的
   `q/status/sort/cursor/row` 同属 URL state。

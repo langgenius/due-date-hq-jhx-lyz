@@ -348,7 +348,8 @@ https://app.duedatehq.com/?lng=zh-CN
 `apps/app` 使用 nuqs 管理这个 URL 状态：React Router v7 root route 通过
 `nuqs/adapters/react-router/v7` 提供 adapter，并在同一 root route 挂载全局
 `RouteErrorBoundary`；`lng` 由
-`parseAsStringLiteral(SUPPORTED_LOCALES)` 校验。app 会在 `createBrowserRouter()` 创建前先同步
+`parseAsStringLiteral(SUPPORTED_LOCALES)` 校验，`LocaleQuery` / `LocaleQueryValue`
+从 `localeQueryParsers` parser map 推导。app 会在 `createBrowserRouter()` 创建前先同步
 消费有效值，写入 Lingui runtime、`<html lang>` 和 `localStorage["lng"]`，随后用 nuqs
 serializer 生成去掉 `lng` 的 URL，并通过 `history.replaceState` 清理。React Router loaders
 若再遇到有效 `lng`，只消费、不透传，redirect 到 `/login` / `/onboarding` 时不会继续保留该参数。
