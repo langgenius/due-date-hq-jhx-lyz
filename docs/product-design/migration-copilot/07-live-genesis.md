@@ -48,7 +48,7 @@ sequenceDiagram
   Genesis->>Genesis: Phase 3 · Odometer Roll (1.0–1.5s)
   Genesis->>Genesis: Phase 4 · Settle (0.5s)
   Genesis-->>Wizard: onComplete()
-  Wizard-->>Dashboard: navigate("/dashboard?tab=this-week&focus=top-1")
+  Wizard-->>Dashboard: navigate("/?tab=this-week&focus=top-1")
   Dashboard-->>David: first paint ≤ 300ms (Cache hit)
 ```
 
@@ -59,7 +59,7 @@ sequenceDiagram
 | 1     | Deadline Cards Rise    | 1000       | 舞台中央 10–30 张 obligation 卡片从 y+40px fade-in；卡片内文走 `{typography.body}`；背景 `{colors.surface-canvas}`；padding `{spacing.4}` |
 | 2     | Particles Arc to Radar | 2000–2500  | 每张卡片的 `$` 金额粒子化，沿贝塞尔曲线飞向顶栏 Penalty Radar 位；命中瞬间 Radar 位短促脉冲 `{colors.severity-critical}` 200ms            |
 | 3     | Odometer Roll          | 1000–1500  | 顶栏 `$0 → total_exposure_cents`，`{typography.hero-metric}` + tabular-nums；linear-interpolate + `cubic-bezier(0.4, 0, 0.2, 1)`          |
-| 4     | Settle & Navigate      | 500        | 卡片 fade-out；Radar 数字 hold `{colors.text-primary}`；触发 `onComplete` → `navigate("/dashboard?tab=this-week&focus=top-1")`            |
+| 4     | Settle & Navigate      | 500        | 卡片 fade-out；Radar 数字 hold `{colors.text-primary}`；触发 `onComplete` → `navigate("/?tab=this-week&focus=top-1")`                     |
 
 - Phase 1 启动同时 TanStack Query 预热 Dashboard / Workboard 的数据（Cache warm-up）；目标：动画结束跳 Dashboard 时首帧命中 cache，Dashboard first paint ≤ 300ms。
 - Phase 3 的 `target` = `summary.total_exposure_cents`（后端 `rpc.migration.apply` 返回，单位 cents）。
@@ -201,7 +201,7 @@ Toast（红色，常驻 12s 可手动关闭）
 ```
 
 - `[Review errors]` → `/settings/imports/{batch_id}/errors`（对齐 PRD Part1B §6A.7）
-- 跳转仍走 `navigate("/dashboard?tab=this-week&focus=top-1")`，保持主叙事
+- 跳转仍走 `navigate("/?tab=this-week&focus=top-1")`，保持主叙事
 
 ### 6.2 apply 整体失败
 
@@ -298,11 +298,12 @@ Toast（红色，常驻 12s 可手动关闭）
 ### 9.1 跳转目标 URL
 
 ```
-/dashboard?tab=this-week&focus=top-1
+/?tab=this-week&focus=top-1
 ```
 
 - `tab=this-week` → Dashboard 默认 Pulse + This Week tab
 - `focus=top-1` → 第 1 条 obligation 行自动获得键盘焦点（`aria-selected="true"`），对齐 PRD Part1B §6A.6 Step 4"Top of `This Week` tab 选中第 1 条"
+- `/` 是 Dashboard 的 canonical app root；`/dashboard` 仅作为历史兼容入口重定向到 `/`。
 
 ### 9.2 Cache 预热
 

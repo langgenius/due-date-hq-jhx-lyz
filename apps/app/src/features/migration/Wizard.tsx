@@ -311,7 +311,7 @@ export function Wizard({ open, onClose }: WizardProps) {
             description: t`${result.clientCount} clients · ${result.obligationCount} obligations`,
           })
           onClose()
-          void navigate('/dashboard')
+          void navigate('/')
         },
       },
     )

@@ -171,7 +171,7 @@
    Want me to walk you through the weekly triage workflow?                            ← Handoff：二选一，不再推进 state；下一轮会话可由用户从 Dashboard 继续
    Or jump to the Dashboard?                                                          ← audit_event = onboarding.agent.handoff.offered
 
-> [Open Dashboard] [Walk me through]                                                  ← 用户选择 = 跳转 /dashboard 或开始 Pulse / Brief 引导（本文不展开，见 Phase 0 follow-up）
+> [Open Dashboard] [Walk me through]                                                  ← 用户选择 = 跳转 / 或开始 Pulse / Brief 引导（本文不展开，见 Phase 0 follow-up）
 ```
 
 ### 3.2 每个气泡的 i18n 落地

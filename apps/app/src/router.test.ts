@@ -15,8 +15,14 @@ vi.mock('@/lib/auth', () => ({
 }))
 
 // Import after the mock so the loaders pick up the stubbed authClient.
-const { guestLoader, onboardingLoader, protectedLoader, pickSafeRedirect, notFoundLoader } =
-  await import('@/router')
+const {
+  dashboardAliasLoader,
+  guestLoader,
+  onboardingLoader,
+  protectedLoader,
+  pickSafeRedirect,
+  notFoundLoader,
+} = await import('@/router')
 const { activateLocale, currentLocale } = await import('@/i18n/i18n')
 
 type SessionShape = {
@@ -104,6 +110,15 @@ describe('notFoundLoader', () => {
     const res = thrown as Response
     expect(res.status).toBe(404)
     expect(res.statusText).toBe('Not Found')
+  })
+})
+
+describe('dashboardAliasLoader', () => {
+  it('redirects /dashboard to the canonical app root', async () => {
+    await expectRedirectTo(
+      Promise.resolve().then(() => dashboardAliasLoader()),
+      '/',
+    )
   })
 })
 
@@ -219,10 +234,7 @@ describe('guestLoader', () => {
 
   it('redirects authed users to redirectTo (safe paths only)', async () => {
     getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
-    await expectRedirectTo(
-      guestLoader(makeArgs('http://localhost/login?redirectTo=/dashboard')),
-      '/dashboard',
-    )
+    await expectRedirectTo(guestLoader(makeArgs('http://localhost/login?redirectTo=/')), '/')
   })
 
   it('consumes and drops a valid locale handoff when redirecting authed users away from login', async () => {

@@ -63,6 +63,10 @@ function settingsLoader() {
   throw redirect('/settings/rules')
 }
 
+function dashboardAliasLoader() {
+  throw redirect('/')
+}
+
 // Only reachable when unauthenticated. If the session resolves, bounce to the
 // post-login target (honouring ?redirectTo=... but only for in-app paths).
 async function guestLoader(args: LoaderFunctionArgs) {
@@ -184,6 +188,11 @@ export function createAppRouter() {
               },
             },
             {
+              path: 'dashboard',
+              loader: dashboardAliasLoader,
+              HydrateFallback: RouteHydrateFallback,
+            },
+            {
               path: 'workboard',
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
@@ -218,4 +227,11 @@ export function createAppRouter() {
 }
 
 // Exported for unit tests.
-export { guestLoader, onboardingLoader, protectedLoader, pickSafeRedirect, notFoundLoader }
+export {
+  dashboardAliasLoader,
+  guestLoader,
+  onboardingLoader,
+  protectedLoader,
+  pickSafeRedirect,
+  notFoundLoader,
+}

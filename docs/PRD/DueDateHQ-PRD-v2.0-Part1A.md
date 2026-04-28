@@ -390,7 +390,7 @@ Audit event: team.member.joined
 #### 多事务所切换
 
 - 登录成功后如 user has ≥ 2 active memberships → 强制选 Firm（类似 Slack workspace picker）
-- URL 含 `firm_slug`：`app.duedatehq.com/{firm_slug}/dashboard`，刷新保留
+- URL 含 `firm_slug`：`app.duedatehq.com/{firm_slug}`，刷新保留；Dashboard 是 firm app root
 - 右上 Firm 切换 dropdown + `Cmd+Shift+O`
 
 ### 3.6.5 视图层：My work / Firm-wide
