@@ -21,8 +21,8 @@ import {
 } from 'nuqs'
 import { toast } from 'sonner'
 
-import type { ObligationInstancePublic, WorkboardRow, WorkboardSort } from '@duedatehq/contracts'
-import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
+import type { WorkboardRow, WorkboardSort } from '@duedatehq/contracts'
+import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Card,
@@ -55,24 +55,20 @@ import {
   useKeyboardShortcutsBlocked,
 } from '@/components/patterns/keyboard-shell'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import {
+  ALL_STATUSES,
+  WorkboardStatusControl,
+  useStatusLabels,
+  type ObligationStatus,
+} from '@/features/workboard/status-control'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { formatDate } from '@/lib/utils'
 
-type ObligationStatus = ObligationInstancePublic['status']
 type WorkboardColumnMeta = {
   headerClassName?: string
   cellClassName?: string
 }
-
-const ALL_STATUSES = [
-  'pending',
-  'in_progress',
-  'review',
-  'waiting_on_client',
-  'done',
-  'not_applicable',
-] as const satisfies readonly ObligationStatus[]
 
 const ALL_SORTS = [
   'due_asc',
@@ -98,53 +94,8 @@ export const workboardSearchParamsParsers = {
 
 export type WorkboardSearchParams = inferParserType<typeof workboardSearchParamsParsers>
 
-function isObligationStatus(value: string): value is ObligationStatus {
-  return (ALL_STATUSES as readonly string[]).includes(value)
-}
-
 function isWorkboardSort(value: string): value is WorkboardSort {
   return (ALL_SORTS as readonly string[]).includes(value)
-}
-
-// Status → soft chip variant + halo dot tone. One central map keeps the
-// Workboard, Dashboard, and Audit drawers visually consistent.
-const STATUS_VARIANT: Record<
-  ObligationStatus,
-  'destructive' | 'info' | 'secondary' | 'outline' | 'success' | 'warning'
-> = {
-  pending: 'secondary',
-  in_progress: 'info',
-  review: 'warning',
-  waiting_on_client: 'outline',
-  done: 'success',
-  not_applicable: 'outline',
-}
-
-const STATUS_DOT: Record<
-  ObligationStatus,
-  'error' | 'normal' | 'disabled' | 'warning' | 'success'
-> = {
-  pending: 'disabled',
-  in_progress: 'normal',
-  review: 'warning',
-  waiting_on_client: 'warning',
-  done: 'success',
-  not_applicable: 'disabled',
-}
-
-function useStatusLabels(): Record<ObligationStatus, string> {
-  const { t } = useLingui()
-  return useMemo(
-    () => ({
-      pending: t`Pending`,
-      in_progress: t`In progress`,
-      review: t`In review`,
-      waiting_on_client: t`Waiting on client`,
-      done: t`Done`,
-      not_applicable: t`Not applicable`,
-    }),
-    [t],
-  )
 }
 
 function useSortLabels(): Record<WorkboardSort, string> {
@@ -275,36 +226,12 @@ export function WorkboardRoute() {
         cell: ({ row: tableRow }) => {
           const workboardRow = tableRow.original
           return (
-            <div className="flex items-center gap-3">
-              <Badge variant={STATUS_VARIANT[workboardRow.status]}>
-                <BadgeStatusDot tone={STATUS_DOT[workboardRow.status]} />
-                {statusLabels[workboardRow.status]}
-              </Badge>
-              <Select
-                value={workboardRow.status}
-                onValueChange={(value) => {
-                  if (typeof value !== 'string' || !isObligationStatus(value)) return
-                  if (value === workboardRow.status) return
-                  updateStatus({ id: workboardRow.id, status: value })
-                }}
-                disabled={statusUpdatePending}
-              >
-                <SelectTrigger
-                  size="sm"
-                  className="min-w-40"
-                  aria-label={t`Change status for ${workboardRow.clientName}`}
-                >
-                  <SelectValue placeholder={statusLabels[workboardRow.status]} />
-                </SelectTrigger>
-                <SelectContent>
-                  {ALL_STATUSES.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {statusLabels[status]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <WorkboardStatusControl
+              row={workboardRow}
+              labels={statusLabels}
+              disabled={statusUpdatePending}
+              onChange={(id, status) => updateStatus({ id, status })}
+            />
           )
         },
       },
