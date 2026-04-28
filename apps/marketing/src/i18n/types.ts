@@ -227,6 +227,8 @@ export interface PricingPlanCopy {
   name: string
   badge?: string
   price: string
+  /** When 'text' the price is rendered with Inter (e.g. "Custom"); 'numeric' uses Geist Mono. */
+  priceKind?: 'numeric' | 'text'
   cadence: string
   description: string
   seats: string
@@ -244,7 +246,16 @@ export interface PricingCopy {
     description: string
     note: string
   }
+  plansHeader: {
+    eyebrow: string
+    title: string
+    note: string
+  }
   plans: PricingPlanCopy[]
+  faqHeader: {
+    eyebrow: string
+    title: string
+  }
   faq: { question: string; answer: string }[]
 }
 

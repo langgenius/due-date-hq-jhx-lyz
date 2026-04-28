@@ -81,6 +81,27 @@ SaaS app 的 `/billing/checkout?plan=firm&interval=monthly`；未登录用户由
 自己的 auth/onboarding loader 接管后再回到 checkout。后续可以追加 `/rules`、
 `/state/[state]`、`/blog`，但不为不存在的内容搭复杂 CMS。
 
+`apps/marketing/src/components/Pricing.astro` 的视觉布局严格对齐 Figma `Marketing
+→ DueDateHQ — Pricing (Marketing)` frame 与 DESIGN.md：
+
+- 三档套餐分节：**Hero**（PRICING eyebrow + display-large title + 760 px 描述 +
+  mono note）、**Plans Header**（PLANS eyebrow + 22 px 副标题 + `BILLED USD ·
+STRIPE-HOSTED CHECKOUT` 右侧 mono 备注）、**Plans Row**（3 列 `lg:grid-cols-3`，
+  cards stretch 等高）、**FAQ**（FAQ eyebrow + 24 px heading + 3 列 panel）。
+- 卡片必须 flat：`rounded-xl` + `p-8` + 上下分组 `gap-7` + CTA 与内容之间 `mt-10`
+  呼吸距离。Recommended 套餐用 `border-[1.5px] border-accent-default` 与 accent
+  CTA 区分，**禁止** drop shadow / 顶部 stripe / 渐变 / decorative chrome。
+- 价格走 token 区分：数字 (`$0` / `$99`) 用 `font-mono font-bold text-[40px]`，
+  非数字 (`Custom`) 用 `font-sans font-semibold text-[40px]`；席位/试用提示走
+  Geist Mono 11 px `tracking-[0.06em]` `text-text-muted`。
+- Feature ✓ icon 用 `size-4 rounded-sm bg-accent-tint text-text-accent`，**不**
+  使用 `bg-status-done`（DESIGN.md 把 status-done 限定为 filed/done/applied 状态，
+  不应用作通用列表标记）。
+
+i18n 契约由 `PricingCopy` (`apps/marketing/src/i18n/types.ts`) 锁定：每个套餐
+必须含 `priceKind: 'numeric' | 'text'` 与 4 条 features，并自带 `plansHeader` /
+`faqHeader` 两段 eyebrow + 标题。en + zh-CN 必须同步更新。
+
 Pricing handoff 由 Playwright 覆盖：本地 e2e 会单独启动 Astro preview，并用
 `PUBLIC_APP_URL` 指向 app Worker；测试只验证 CTA href、登录回跳和 locale handoff，
 不把 marketing 页面视觉文案作为支付链路断言。
