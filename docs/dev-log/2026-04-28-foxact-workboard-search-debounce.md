@@ -2,6 +2,8 @@
 title: 'Foxact Workboard Search Debounce'
 date: 2026-04-28
 author: 'Codex'
+updates:
+  - note: '2026-04-29 helper renamed from search-specific Workboard defaults to generic query input debounce.'
 ---
 
 # Foxact Workboard Search Debounce
@@ -36,10 +38,10 @@ N ms 后再发请求”。nuqs 官方文档也明确区分：
 ## 做了什么
 
 - 在 `pnpm-workspace.yaml` catalog 与 `apps/app/package.json` 中加入 `foxact@0.3.0`。
-- 新增 `apps/app/src/lib/query-rate-limit.ts`：
-  - `SEARCH_QUERY_DEBOUNCE_MS = 350`
-  - `searchQueryUrlUpdateRateLimit = debounce(350)`，用于 nuqs URL 写入降频
-  - `useDebouncedSearchQuery()`，底层使用 `foxact/use-debounced-value`
+- 新增 `apps/app/src/lib/query-rate-limit.ts`（2026-04-29 已泛化命名）：
+  - `QUERY_INPUT_DEBOUNCE_MS = 350`
+  - `queryInputUrlUpdateRateLimit = debounce(350)`，用于 nuqs URL 写入降频
+  - `useDebouncedQueryInput(value, { maxLength })`，底层使用 `foxact/use-debounced-value`
 - Workboard 搜索输入继续即时显示 `nuqs` state；`workboard.list` input 改为使用
   debounced search。清空搜索时立即返回空查询，避免“清空后还等 350ms”。
 - `WorkboardListInputSchema.search` 上限收紧为 64 字符，并导出
@@ -75,4 +77,4 @@ TanStack Query 的 query input 应该包含实际影响请求的变量。把 deb
 ## 后续 / 未闭环
 
 - 如果后续新增客户端搜索 / slider / high-frequency filter，同样先评估是否需要
-  `useDebouncedSearchQuery` 或新增更通用的 app helper；不要在 route 内手写 timer。
+  `useDebouncedQueryInput(value, { maxLength })`；不要在 route 内手写 timer。

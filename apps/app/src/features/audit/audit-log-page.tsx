@@ -1,12 +1,11 @@
 import { useMemo } from 'react'
-import { useDebouncedValue } from 'foxact/use-debounced-value'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { debounce, parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
+import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
 import { DownloadIcon, FilterIcon, SearchIcon } from 'lucide-react'
 
 import type { AuditEventPublic, AuditListInput } from '@duedatehq/contracts'
-import { AUDIT_SEARCH_MAX_LENGTH } from '@duedatehq/contracts'
+import { AUDIT_FILTER_MAX_LENGTH, AUDIT_SEARCH_MAX_LENGTH } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -28,6 +27,7 @@ import {
 } from '@duedatehq/ui/components/ui/select'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
+import { queryInputUrlUpdateRateLimit, useDebouncedQueryInput } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
@@ -46,7 +46,6 @@ const EMPTY_EVENTS: AuditEventPublic[] = []
 const INITIAL_CURSOR: string | null = null
 const PAGE_SIZE = 50
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
-const auditSearchUrlUpdateRateLimit = debounce(350)
 
 export const auditLogSearchParamsParsers = {
   q: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
@@ -119,7 +118,19 @@ export function AuditLogPage() {
   const rangeLabels = useAuditRangeLabels()
   const [query, setQuery] = useQueryStates(auditLogSearchParamsParsers)
 
-  const debouncedSearch = useDebouncedValue(query.q.trim().slice(0, AUDIT_SEARCH_MAX_LENGTH), 350)
+  const debouncedSearch = useDebouncedQueryInput(query.q, { maxLength: AUDIT_SEARCH_MAX_LENGTH })
+  const debouncedAction = useDebouncedQueryInput(query.action, {
+    maxLength: AUDIT_FILTER_MAX_LENGTH,
+  })
+  const debouncedActor = useDebouncedQueryInput(query.actor, {
+    maxLength: AUDIT_FILTER_MAX_LENGTH,
+  })
+  const debouncedEntityType = useDebouncedQueryInput(query.entityType, {
+    maxLength: AUDIT_FILTER_MAX_LENGTH,
+  })
+  const debouncedEntity = useDebouncedQueryInput(query.entity, {
+    maxLength: AUDIT_FILTER_MAX_LENGTH,
+  })
 
   const queryInputWithoutCursor = useMemo<Omit<AuditListInput, 'cursor'>>(
     () => ({
@@ -127,18 +138,18 @@ export function AuditLogPage() {
       range: query.range,
       ...(debouncedSearch ? { search: debouncedSearch } : {}),
       ...(query.category !== 'all' ? { category: categoryToInput(query.category) } : {}),
-      ...(query.action ? { action: query.action } : {}),
-      ...(query.actor ? { actorId: query.actor } : {}),
-      ...(query.entityType ? { entityType: query.entityType } : {}),
-      ...(query.entity ? { entityId: query.entity } : {}),
+      ...(debouncedAction ? { action: debouncedAction } : {}),
+      ...(debouncedActor ? { actorId: debouncedActor } : {}),
+      ...(debouncedEntityType ? { entityType: debouncedEntityType } : {}),
+      ...(debouncedEntity ? { entityId: debouncedEntity } : {}),
     }),
     [
+      debouncedAction,
+      debouncedActor,
+      debouncedEntity,
+      debouncedEntityType,
       debouncedSearch,
-      query.action,
-      query.actor,
       query.category,
-      query.entity,
-      query.entityType,
       query.range,
     ],
   )
@@ -235,7 +246,7 @@ export function AuditLogPage() {
                     { q: nextSearch || null, event: null },
                     nextSearch === ''
                       ? undefined
-                      : { limitUrlUpdates: auditSearchUrlUpdateRateLimit },
+                      : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
                   )
                 }}
               />
@@ -290,25 +301,51 @@ export function AuditLogPage() {
               aria-label={t`Exact action`}
               placeholder={t`Action`}
               value={query.action}
-              onChange={(event) => void setQuery({ action: event.target.value || null })}
+              onChange={(event) => {
+                const nextAction = event.target.value
+                void setQuery(
+                  { action: nextAction || null, event: null },
+                  nextAction === '' ? undefined : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
+                )
+              }}
             />
             <Input
               aria-label={t`Actor id`}
               placeholder={t`Actor id`}
               value={query.actor}
-              onChange={(event) => void setQuery({ actor: event.target.value || null })}
+              onChange={(event) => {
+                const nextActor = event.target.value
+                void setQuery(
+                  { actor: nextActor || null, event: null },
+                  nextActor === '' ? undefined : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
+                )
+              }}
             />
             <Input
               aria-label={t`Entity type`}
               placeholder={t`Entity type`}
               value={query.entityType}
-              onChange={(event) => void setQuery({ entityType: event.target.value || null })}
+              onChange={(event) => {
+                const nextEntityType = event.target.value
+                void setQuery(
+                  { entityType: nextEntityType || null, event: null },
+                  nextEntityType === ''
+                    ? undefined
+                    : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
+                )
+              }}
             />
             <Input
               aria-label={t`Entity id`}
               placeholder={t`Entity id`}
               value={query.entity}
-              onChange={(event) => void setQuery({ entity: event.target.value || null })}
+              onChange={(event) => {
+                const nextEntity = event.target.value
+                void setQuery(
+                  { entity: nextEntity || null, event: null },
+                  nextEntity === '' ? undefined : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
+                )
+              }}
             />
           </div>
         </CardContent>

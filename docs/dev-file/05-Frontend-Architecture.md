@@ -426,7 +426,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **搜索防抖**：Workboard 搜索是客户端 TanStack Query fetching，不是 React Router
   loader/RSC fetching。`nuqs` 负责即时 URL state 和 URL 写入降频；实际
   `workboard.list` input 使用 `apps/app/src/lib/query-rate-limit.ts` 中的
-  `useDebouncedSearchQuery()`，底层 deep import `foxact/use-debounced-value`。这符合
+  `useDebouncedQueryInput()`，底层 deep import `foxact/use-debounced-value`。这符合
   nuqs 对 client-side fetching 的建议：debounce hook 返回的 state，而不是把
   `limitUrlUpdates` 当作请求防抖。搜索长度由 contract 限制为 64 字符；DB repo
   在进入 D1 `LIKE` 前会 normalize 并 escape pattern，避免用户输入触发 SQLite
@@ -450,6 +450,21 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - 缺省或非法 `tab` 回落到 `coverage`，避免无效 URL 打断受保护路由加载。
 - tab 切换不进入 Zustand；它是可分享的页面状态，和 Workboard 的
   `q/status/sort/row` 同属 URL state。
+
+## 6B. 高频 Query 输入
+
+- `apps/app/src/lib/query-rate-limit.ts` 是 app 内 URL query 文本输入的统一入口：
+  `queryInputUrlUpdateRateLimit` 负责 `nuqs` URL 写入降频，
+  `useDebouncedQueryInput(value, { maxLength })` 负责 TanStack Query/oRPC input
+  的请求防抖。调用方必须从 contract 显式传入 `maxLength`，不在 helper 内绑定某个
+  feature 的默认长度。清空输入必须立即返回空字符串，避免清空筛选时仍等待 350ms。
+- Workboard 与 Audit log 都是 URL state + client-side TanStack Query fetching；
+  它们的 search/filter 文本必须先经过 `useDebouncedQueryInput()` 再进入
+  `orpc.*.queryOptions()` / `infiniteOptions()` input。不同 contract 上限通过
+  `maxLength` 传入，例如 Workboard 64、Audit search 80、Audit 精确筛选 128。
+- Clients facts 页当前一次拉取 `clients.listByFirm({ limit: 500 })` 后本地过滤，
+  搜索不触发服务端 fetching；因此只对 `q` 的 URL 写入使用
+  `queryInputUrlUpdateRateLimit`，本地列表过滤保持即时反馈。
 
 ---
 

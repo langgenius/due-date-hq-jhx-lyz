@@ -21,6 +21,7 @@ import {
   type ClientEntityType,
 } from '@/features/clients/client-readiness'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { queryInputUrlUpdateRateLimit } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
@@ -103,7 +104,10 @@ export function ClientsRoute() {
 
   const handleSearchChange = useCallback(
     (value: string) => {
-      void setClientsQuery({ q: value || null, client: null })
+      void setClientsQuery(
+        { q: value || null, client: null },
+        value === '' ? undefined : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
+      )
     },
     [setClientsQuery],
   )

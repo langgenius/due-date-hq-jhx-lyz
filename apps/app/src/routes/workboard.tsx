@@ -22,7 +22,12 @@ import {
 } from 'nuqs'
 import { toast } from 'sonner'
 
-import type { WorkboardListInput, WorkboardRow, WorkboardSort } from '@duedatehq/contracts'
+import {
+  WORKBOARD_SEARCH_MAX_LENGTH,
+  type WorkboardListInput,
+  type WorkboardRow,
+  type WorkboardSort,
+} from '@duedatehq/contracts'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -62,7 +67,7 @@ import {
   useStatusLabels,
   type ObligationStatus,
 } from '@/features/workboard/status-control'
-import { searchQueryUrlUpdateRateLimit, useDebouncedSearchQuery } from '@/lib/query-rate-limit'
+import { queryInputUrlUpdateRateLimit, useDebouncedQueryInput } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { formatDate } from '@/lib/utils'
@@ -137,7 +142,9 @@ export function WorkboardRoute() {
     workboardSearchParamsParsers,
   )
 
-  const debouncedSearch = useDebouncedSearchQuery(searchInput)
+  const debouncedSearch = useDebouncedQueryInput(searchInput, {
+    maxLength: WORKBOARD_SEARCH_MAX_LENGTH,
+  })
   const sorting = useMemo(() => getSortingState(sort), [sort])
   const statusQuery = useMemo(() => [...statusFilter], [statusFilter])
 
@@ -491,7 +498,7 @@ export function WorkboardRoute() {
                     },
                     nextSearch === ''
                       ? undefined
-                      : { limitUrlUpdates: searchQueryUrlUpdateRateLimit },
+                      : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
                   )
                 }}
               />
