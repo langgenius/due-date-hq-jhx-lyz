@@ -120,6 +120,9 @@ should feel like a vital sign, always present but never noisy.
   so the Dashboard banner and nav badge stay in sync.
 - Dashboard Pulse banner now includes a manual refresh icon that calls the
   same `pulse.listAlerts` query refetch used by polling.
+- Pulse detail drawer widened from the earlier 720-820px cap to a workflow
+  panel that reaches 820px on desktop and 880px on wide screens. `DESIGN.md`
+  now distinguishes default 400px drawers from table-heavy workflow drawers.
 
 ## Validation
 

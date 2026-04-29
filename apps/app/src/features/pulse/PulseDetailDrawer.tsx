@@ -173,7 +173,10 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
 
   return (
     <Sheet open={open} onOpenChange={(next) => (next ? null : onClose())}>
-      <SheetContent side="right" className="w-full max-w-[100vw] sm:max-w-[720px] md:max-w-[820px]">
+      <SheetContent
+        side="right"
+        className="data-[side=right]:w-full data-[side=right]:max-w-[100vw] sm:data-[side=right]:w-[calc(100vw-2rem)] sm:data-[side=right]:max-w-[calc(100vw-2rem)] md:data-[side=right]:w-[min(820px,calc(100vw-2rem))] md:data-[side=right]:max-w-[min(820px,calc(100vw-2rem))] xl:data-[side=right]:w-[min(880px,calc(100vw-2rem))] xl:data-[side=right]:max-w-[min(880px,calc(100vw-2rem))]"
+      >
         <SheetHeader className="border-b border-divider-subtle">
           {detailQuery.isLoading || !detail ? (
             <DetailHeaderSkeleton />
