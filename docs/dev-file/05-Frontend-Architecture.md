@@ -32,13 +32,14 @@ apps/app/
 │   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
 │   │   ├── workboard.tsx
-│   │   ├── clients.tsx           ← Clients 管理页（列表、筛选、新增、详情预览；使用 clients.listByFirm / clients.create）
+│   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、详情预览；使用 clients.listByFirm / clients.create）
 │   │   ├── audit.tsx             ← Audit Log 管理页（firm-wide write events；使用 audit.list）
 │   │   ├── settings.tsx
 │   │   └── fallback.tsx          ← RouteHydrateFallback
 │   │   # 目标形态（Phase 0 MVP → Phase 1）：
 │   │   # clients.$id.tsx · alerts.tsx · settings/*.tsx · migration.tsx
 │   ├── features/             ← 业务特性（跨页面复用）
+│   │   ├── clients/           ← Clients facts/readiness 纯派生逻辑、创建弹窗、工作台展示组件
 │   │   ├── migration/
 │   │   ├── dashboard/
 │   │   ├── pulse/

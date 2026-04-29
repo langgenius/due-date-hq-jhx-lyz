@@ -41,6 +41,6 @@ test('AC: E2E-CLIENTS-CREATE creates a manual client through oRPC', async ({
 
   await expect(authenticatedPage.getByText('Client created')).toBeVisible()
   await expect(clientsPage.rowFor(clientName)).toBeVisible()
-  await expect(clientsPage.rowFor(clientName)).toContainText('23-4567890')
+  await expect(authenticatedPage.getByText('23-4567890')).toBeVisible()
   await expect(clientsPage.rowFor(clientName)).toContainText('E2E Owner')
 })

@@ -88,6 +88,11 @@ msgstr "{0} fully covered · {1} with open candidates"
 msgid "{0} is on {expectedPlan}"
 msgstr "{0} is on {expectedPlan}"
 
+#. placeholder {0}: factsModel.summary.manual
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "{0} manual records"
+msgstr "{0} manual records"
+
 #. placeholder {0}: alert.needsReviewCount
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "{0} need review"
@@ -319,7 +324,7 @@ msgstr "Actor"
 msgid "Actor id"
 msgstr "Actor id"
 
-#: src/routes/clients.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "Add a manual client record to the active firm directory."
 msgstr "Add a manual client record to the active firm directory."
 
@@ -329,8 +334,8 @@ msgstr "Add firm"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/audit/audit-log-page.tsx
-#: src/routes/_layout.tsx
 #: src/routes/clients.tsx
+#: src/routes/route-summary.ts
 msgid "Admin"
 msgstr "Admin"
 
@@ -365,7 +370,7 @@ msgstr "Alert dismissed"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/pulse/AlertsListPage.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 msgid "Alerts"
 msgstr "Alerts"
 
@@ -387,7 +392,7 @@ msgstr "All clear · Watching IRS + CA / NY / TX / FL / WA"
 msgid "All clear. We're watching IRS + CA / NY / TX / FL / WA — new signals will appear here as soon as they match your clients."
 msgstr "All clear. We're watching IRS + CA / NY / TX / FL / WA — new signals will appear here as soon as they match your clients."
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "All entities"
 msgstr "All entities"
 
@@ -399,7 +404,7 @@ msgstr "All review-flagged"
 msgid "All seats are in use. Upgrade to invite more, or suspend an active member to free a seat."
 msgstr "All seats are in use. Upgrade to invite more, or suspend an active member to free a seat."
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "All states"
 msgstr "All states"
 
@@ -456,10 +461,6 @@ msgstr "Ask"
 msgid "Ask DueDateHQ"
 msgstr "Ask DueDateHQ"
 
-#: src/routes/clients.tsx
-msgid "Assigned"
-msgstr "Assigned"
-
 #. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/workboard.tsx
 msgid "Audit {0}"
@@ -488,7 +489,7 @@ msgstr "Audit filters"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/audit/audit-log-page.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 msgid "Audit log"
 msgstr "Audit log"
 
@@ -539,7 +540,7 @@ msgid "Billed yearly"
 msgstr "Billed yearly"
 
 #: src/components/patterns/app-shell-nav.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 #: src/routes/settings.billing.tsx
 msgid "Billing"
 msgstr "Billing"
@@ -580,7 +581,7 @@ msgid "California"
 msgstr "California"
 
 #: src/components/patterns/app-shell-nav.tsx
-#: src/routes/clients.tsx
+#: src/features/clients/CreateClientDialog.tsx
 #: src/routes/settings.members.tsx
 #: src/routes/settings.profile.tsx
 msgid "Cancel"
@@ -621,7 +622,7 @@ msgstr "Change status for {0}"
 msgid "Checking IRS + state sources…"
 msgstr "Checking IRS + state sources…"
 
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 msgid "Checkout"
 msgstr "Checkout"
 
@@ -653,7 +654,7 @@ msgstr "Choose another plan"
 msgid "Choose Firm to start the hosted checkout flow."
 msgstr "Choose Firm to start the hosted checkout flow."
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Clear search or filters to return to the full firm directory."
 msgstr "Clear search or filters to return to the full firm directory."
 
@@ -662,8 +663,8 @@ msgid "Click more to change role, suspend, or remove"
 msgstr "Click more to change role, suspend, or remove"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
-#: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Client"
@@ -673,19 +674,16 @@ msgstr "Client"
 msgid "Client created"
 msgstr "Client created"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/clients.tsx
-msgid "Client detail"
-msgstr "Client detail"
-
-#: src/routes/clients.tsx
-msgid "Client directory"
-msgstr "Client directory"
+msgid "Client facts"
+msgstr "Client facts"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT ID"
 msgstr "CLIENT ID"
 
-#: src/routes/clients.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "Client name"
 msgstr "Client name"
 
@@ -694,8 +692,7 @@ msgid "Client risk rows"
 msgstr "Client risk rows"
 
 #: src/components/patterns/app-shell-nav.tsx
-#: src/routes/_layout.tsx
-#: src/routes/clients.tsx
+#: src/routes/route-summary.ts
 msgid "Clients"
 msgstr "Clients"
 
@@ -870,7 +867,7 @@ msgstr "Couldn't update status"
 msgid "Counties"
 msgstr "Counties"
 
-#: src/routes/clients.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "County"
 msgstr "County"
 
@@ -886,7 +883,7 @@ msgstr "Coverage state for the same obligations shown on the dashboard."
 msgid "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
 msgstr "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
 
-#: src/routes/clients.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "Create client"
 msgstr "Create client"
 
@@ -898,7 +895,11 @@ msgstr "Create firm"
 msgid "Create or select a firm before starting checkout."
 msgstr "Create or select a firm before starting checkout."
 
-#: src/routes/clients.tsx
+#: src/routes/route-summary.ts
+msgid "Create practice"
+msgstr "Create practice"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Created"
 msgstr "Created"
 
@@ -907,7 +908,7 @@ msgstr "Created"
 msgid "Created snapshot"
 msgstr "Created snapshot"
 
-#: src/routes/clients.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "Creating..."
 msgstr "Creating..."
 
@@ -946,7 +947,7 @@ msgstr "Dark"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -1064,7 +1065,8 @@ msgstr "Edit"
 msgid "Effective from"
 msgstr "Effective from"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "EIN"
 msgstr "EIN"
 
@@ -1072,7 +1074,8 @@ msgstr "EIN"
 msgid "Eligible"
 msgstr "Eligible"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "Email"
 msgstr "Email"
 
@@ -1095,7 +1098,7 @@ msgstr "Enter execute · Esc close · {commandShortcut} toggle"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-table.tsx
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Entity"
 msgstr "Entity"
 
@@ -1108,7 +1111,8 @@ msgid "Entity id"
 msgstr "Entity id"
 
 #: src/features/audit/audit-log-page.tsx
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "Entity type"
 msgstr "Entity type"
 
@@ -1116,6 +1120,10 @@ msgstr "Entity type"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Entity types"
 msgstr "Entity types"
+
+#: src/routes/route-summary.ts
+msgid "Entry"
+msgstr "Entry"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Event"
@@ -1171,6 +1179,14 @@ msgstr "Export · P1"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Extension"
 msgstr "Extension"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Fact profile"
+msgstr "Fact profile"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Fact readiness"
+msgstr "Fact readiness"
 
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
@@ -1260,6 +1276,10 @@ msgstr "For growing CPA practices that need shared deadline operations."
 msgid "For multi-office practices that need audit exports and higher rule coverage."
 msgstr "For multi-office practices that need audit exports and higher rule coverage."
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "for Pulse matching"
+msgstr "for Pulse matching"
+
 #: src/routes/_entry-layout.tsx
 msgid "For US CPA practices"
 msgstr "For US CPA practices"
@@ -1277,7 +1297,7 @@ msgstr "Forms"
 msgid "Free baseline"
 msgstr "Free baseline"
 
-#: src/routes/clients.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "Free-text for now; Team members wire in Phase 1."
 msgstr "Free-text for now; Team members wire in Phase 1."
 
@@ -1296,6 +1316,10 @@ msgstr "Glass-box threshold is active"
 #: src/routes/billing.success.tsx
 msgid "Go to Dashboard"
 msgstr "Go to Dashboard"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "have jurisdiction facts"
+msgstr "have jurisdiction facts"
 
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
@@ -1318,7 +1342,7 @@ msgstr "Import"
 msgid "Import & Generate"
 msgstr "Import & Generate"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Import a CSV or create the first manual client record."
 msgstr "Import a CSV or create the first manual client record."
 
@@ -1344,13 +1368,17 @@ msgstr "Import complete"
 msgid "Import undone"
 msgstr "Import undone"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Imported"
 msgstr "Imported"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Importing…"
 msgstr "Importing…"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Improves identity matching and audit review."
+msgstr "Improves identity matching and audit review."
 
 #: src/features/workboard/status-control.tsx
 msgid "In progress"
@@ -1384,6 +1412,7 @@ msgstr "Invite member"
 msgid "IP hash"
 msgstr "IP hash"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Jurisdiction"
 msgstr "Jurisdiction"
@@ -1412,6 +1441,10 @@ msgstr "Keep editing"
 #: src/features/migration/Wizard.tsx
 msgid "Keep import"
 msgstr "Keep import"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Keeps workboard follow-up accountable."
+msgstr "Keeps workboard follow-up accountable."
 
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "Keyboard shortcuts"
@@ -1496,10 +1529,6 @@ msgstr "Loading…"
 msgid "Local time"
 msgstr "Local time"
 
-#: src/routes/clients.tsx
-msgid "Location"
-msgstr "Location"
-
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Logged to audit trail"
 msgstr "Logged to audit trail"
@@ -1516,15 +1545,11 @@ msgstr "Manage"
 msgid "Manage billing"
 msgstr "Manage billing"
 
-#: src/routes/clients.tsx
-msgid "Manage the firm client directory that powers migration, rules preview, dashboard risk, and workboard obligations."
-msgstr "Manage the firm client directory that powers migration, rules preview, dashboard risk, and workboard obligations."
-
 #: src/routes/settings.profile.tsx
 msgid "Manager"
 msgstr "Manager"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Manual"
 msgstr "Manual"
 
@@ -1565,7 +1590,7 @@ msgid "member@example.com"
 msgstr "member@example.com"
 
 #: src/components/patterns/app-shell-nav.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 #: src/routes/settings.members.tsx
 msgid "Members"
 msgstr "Members"
@@ -1586,6 +1611,10 @@ msgstr "Migration and rules preview"
 #: src/features/migration/WizardShell.tsx
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "missing rule inputs"
+msgstr "missing rule inputs"
 
 #: src/routes/billing.checkout.tsx
 msgid "Monthly"
@@ -1608,11 +1637,19 @@ msgstr "Navigate"
 msgid "Needs evidence"
 msgstr "Needs evidence"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Needs facts"
+msgstr "Needs facts"
+
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/dashboard.tsx
 msgid "Needs review"
 msgstr "Needs review"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Needs state"
+msgstr "Needs state"
 
 #: src/routes/dashboard.tsx
 msgid "neutral"
@@ -1622,7 +1659,7 @@ msgstr "neutral"
 msgid "New"
 msgstr "New"
 
-#: src/routes/clients.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "New client"
 msgstr "New client"
 
@@ -1663,11 +1700,11 @@ msgstr "No audit events yet."
 msgid "No before/after payload"
 msgstr "No before/after payload"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No clients match these filters"
 msgstr "No clients match these filters"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No clients yet"
 msgstr "No clients yet"
 
@@ -1679,7 +1716,7 @@ msgstr "No commands found."
 msgid "No eligible obligations are selected."
 msgstr "No eligible obligations are selected."
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No email"
 msgstr "No email"
 
@@ -1708,7 +1745,7 @@ msgstr "No generated obligations yet."
 msgid "No matching clients in this firm."
 msgstr "No matching clients in this firm."
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
 msgstr "No notes."
 
@@ -1761,7 +1798,8 @@ msgstr "Not applicable"
 msgid "Not recorded"
 msgstr "Not recorded"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "Notes"
 msgstr "Notes"
 
@@ -1884,8 +1922,8 @@ msgid "Operational pressure points from server aggregation."
 msgstr "Operational pressure points from server aggregation."
 
 #: src/features/pulse/AlertsListPage.tsx
-#: src/routes/_layout.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/route-summary.ts
 msgid "Operations"
 msgstr "Operations"
 
@@ -1901,7 +1939,8 @@ msgstr "Organization billing stays scoped to the selected firm."
 msgid "Other"
 msgstr "Other"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
 msgid "Owner"
@@ -2064,7 +2103,7 @@ msgid "Pro"
 msgstr "Pro"
 
 #: src/components/patterns/app-shell-nav.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 msgid "Profile"
 msgstr "Profile"
 
@@ -2115,13 +2154,21 @@ msgstr "Reactivate access"
 msgid "READ-ONLY"
 msgstr "READ-ONLY"
 
-#: src/routes/clients.tsx
-msgid "Read-only v1 snapshot from clients.get/listByFirm data."
-msgstr "Read-only v1 snapshot from clients.get/listByFirm data."
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Read-only v1 profile from clients.listByFirm data."
+msgstr "Read-only v1 profile from clients.listByFirm data."
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Read-only view"
 msgstr "Read-only view"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Readiness"
+msgstr "Readiness"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Ready for rules"
+msgstr "Ready for rules"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Ready to generate your deadline queue"
@@ -2177,9 +2224,13 @@ msgstr "Remove from firm"
 msgid "Remove member?"
 msgstr "Remove member?"
 
-#: src/routes/clients.tsx
-msgid "represented in directory"
-msgstr "represented in directory"
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Required for rule applicability."
+msgstr "Required for rule applicability."
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Required for rules and Pulse matching."
+msgstr "Required for rules and Pulse matching."
 
 #. placeholder {0}: requiresReview.length
 #: src/features/rules/generation-preview-tab.tsx
@@ -2304,7 +2355,7 @@ msgstr "Rule Library"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/audit/audit-log-page.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 msgid "Rules"
 msgstr "Rules"
 
@@ -2313,7 +2364,7 @@ msgstr "Rules"
 msgid "Rules Console"
 msgstr "Rules Console"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Run migration"
@@ -2367,7 +2418,7 @@ msgstr "Search action, entity, or reason"
 msgid "Search audit events"
 msgstr "Search audit events"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/workboard.tsx
 msgid "Search clients"
 msgstr "Search clients"
@@ -2384,9 +2435,9 @@ msgstr "Search, ask, or navigate."
 msgid "Search, ask, or navigate..."
 msgstr "Search, ask, or navigate..."
 
-#: src/routes/clients.tsx
-msgid "Search, segment, and inspect active tenant client records."
-msgstr "Search, segment, and inspect active tenant client records."
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Search, segment, and inspect the facts that feed rules, risk, and Pulse matching."
+msgstr "Search, segment, and inspect the facts that feed rules, risk, and Pulse matching."
 
 #: src/routes/settings.billing.tsx
 msgid "Seat limit"
@@ -2409,7 +2460,7 @@ msgstr "Secure checkout"
 msgid "Select {0}"
 msgstr "Select {0}"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Select a client to inspect the record."
 msgstr "Select a client to inspect the record."
 
@@ -2460,7 +2511,7 @@ msgstr "Setting up your practice…"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.members.tsx
 #: src/routes/settings.profile.tsx
@@ -2501,6 +2552,10 @@ msgstr "Showing {0} of {1} · click any row to open rule detail · candidate row
 #: src/features/rules/sources-tab.tsx
 msgid "Showing {0} of {1} · click any row to open the official source ↗"
 msgstr "Showing {0} of {1} · click any row to open the official source ↗"
+
+#: src/routes/route-summary.ts
+msgid "Sign in"
+msgstr "Sign in"
 
 #: src/routes/login.tsx
 msgid "SIGN IN"
@@ -2563,8 +2618,8 @@ msgstr "Sort"
 msgid "source"
 msgstr "source"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/rules/generation-preview-tab.tsx
-#: src/routes/clients.tsx
 msgid "Source"
 msgstr "Source"
 
@@ -2600,7 +2655,7 @@ msgstr "Sources watched"
 msgid "SSN-like columns blocked"
 msgstr "SSN-like columns blocked"
 
-#: src/routes/clients.tsx
+#: src/features/clients/CreateClientDialog.tsx
 msgid "State"
 msgstr "State"
 
@@ -2608,10 +2663,17 @@ msgstr "State"
 msgid "STATE"
 msgstr "STATE"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "State jurisdiction"
+msgstr "State jurisdiction"
+
 #: src/features/migration/Step3Normalize.tsx
-#: src/routes/clients.tsx
 msgid "States"
 msgstr "States"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "States covered"
+msgstr "States covered"
 
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -2703,10 +2765,6 @@ msgstr "Team"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Team workload"
 msgstr "Team workload"
-
-#: src/routes/clients.tsx
-msgid "tenant-scoped records"
-msgstr "tenant-scoped records"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -2819,7 +2877,7 @@ msgstr "Trust"
 msgid "Unable to start Google sign-in"
 msgstr "Unable to start Google sign-in"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Unassigned"
 msgstr "Unassigned"
 
@@ -2847,7 +2905,7 @@ msgstr "Undo this import?"
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
 
-#: src/routes/clients.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Updated"
 msgstr "Updated"
 
@@ -2866,6 +2924,10 @@ msgstr "User agent hash"
 #: src/features/audit/audit-event-drawer.tsx
 msgid "UTC time"
 msgstr "UTC time"
+
+#: src/routes/clients.tsx
+msgid "Validate the firm client facts that generate obligations, dashboard risk, and Pulse matches."
+msgstr "Validate the firm client facts that generate obligations, dashboard risk, and Pulse matches."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "verifiable per (jurisdiction, entity) pair"
@@ -2990,22 +3052,18 @@ msgstr "What stays in DueDateHQ"
 msgid "Where is your data coming from?"
 msgstr "Where is your data coming from?"
 
-#: src/routes/clients.tsx
-msgid "with owner names"
-msgstr "with owner names"
-
 #: src/routes/settings.members.tsx
 msgid "Work email"
 msgstr "Work email"
 
 #: src/features/migration/WizardShell.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 msgid "Workbench"
 msgstr "Workbench"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/_layout.tsx
+#: src/routes/route-summary.ts
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "Workboard"

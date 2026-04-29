@@ -8,7 +8,7 @@ export class ClientsPage {
   readonly createClientButton: Locator
 
   constructor(readonly page: Page) {
-    this.directoryTitle = page.getByText('Client directory', { exact: true })
+    this.directoryTitle = page.getByRole('heading', { name: 'Client facts' })
     this.searchInput = page.getByPlaceholder('Search clients')
     this.newClientButton = page.getByRole('button', { name: 'New client' })
     this.createDialog = page.getByRole('dialog', { name: 'Create client' })
