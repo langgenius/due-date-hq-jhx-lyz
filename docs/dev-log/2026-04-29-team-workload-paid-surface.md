@@ -56,6 +56,7 @@ handoff remain a later slice once `obligation_instance.assignee_user_id` is adde
 - `pnpm test`
 - `pnpm --filter @duedatehq/server build`
 - `pnpm build`
+- Follow-up e2e closure: `pnpm exec playwright test e2e/tests/workload.spec.ts e2e/tests/audit-log.spec.ts e2e/tests/members.spec.ts --reporter=list`
 
 Known warnings during build are existing Vite/Wrangler/Astro warnings: one app chunk exceeds the
 default size warning threshold, Wrangler notes experimental `unsafe` fields, and Astro reports a

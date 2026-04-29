@@ -286,7 +286,16 @@ async function seedWorkboard(db: ReturnType<typeof createDb>, firmId: string) {
     entityType: 'c_corp' as const,
     assigneeName: 'K. Patel',
   }
-  const clients = [arbor, northstar, copperline]
+  const foundry = {
+    id: crypto.randomUUID(),
+    name: 'Unassigned Foundry LLC',
+    ein: '37-2222222',
+    state: 'CA',
+    county: 'San Diego',
+    entityType: 'llc' as const,
+    assigneeName: null,
+  }
+  const clients = [arbor, northstar, copperline, foundry]
 
   await repo.clients.createBatch(clients)
   await repo.obligations.createBatch([
@@ -320,6 +329,16 @@ async function seedWorkboard(db: ReturnType<typeof createDb>, firmId: string) {
       status: 'waiting_on_client',
       migrationBatchId: null,
     },
+    {
+      id: crypto.randomUUID(),
+      clientId: foundry.id,
+      taxType: 'ca_568',
+      taxYear: 2026,
+      baseDueDate: new Date('2026-05-02T00:00:00.000Z'),
+      currentDueDate: new Date('2026-05-02T00:00:00.000Z'),
+      status: 'pending',
+      migrationBatchId: null,
+    },
   ])
 
   return {
@@ -327,6 +346,7 @@ async function seedWorkboard(db: ReturnType<typeof createDb>, firmId: string) {
       { clientName: arbor.name, status: 'pending' },
       { clientName: northstar.name, status: 'review' },
       { clientName: copperline.name, status: 'waiting_on_client' },
+      { clientName: foundry.name, status: 'pending' },
     ],
   }
 }

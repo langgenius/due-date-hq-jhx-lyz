@@ -1,4 +1,5 @@
-import type { APIRequestContext, Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { seedBillingSubscription } from '../fixtures/billing'
 import { expect, test } from '../fixtures/test'
 
 // Feature: Billing success and settings
@@ -20,7 +21,7 @@ test('AC: E2E-BILLING-WEBHOOK-STATE shows activation only after subscription sta
   await expect(billingPage.successHeading).toBeVisible()
   await expect(billingPage.stillWaitingHeading).toBeVisible()
 
-  await seedBillingSubscription(request, authSession.firmId)
+  await seedBillingSubscription(request, { firmId: authSession.firmId })
   await billingPage.gotoSuccess()
 
   await expect(billingPage.subscriptionActiveHeading).toBeVisible()
@@ -33,7 +34,7 @@ test('AC: E2E-BILLING-SETTINGS-PORTAL reads webhook-backed state and opens porta
   authenticatedPage,
   billingPage,
 }) => {
-  await seedBillingSubscription(request, authSession.firmId)
+  await seedBillingSubscription(request, { firmId: authSession.firmId })
   const portal = await interceptBillingPortal(authenticatedPage)
 
   await billingPage.gotoSettings()
@@ -88,17 +89,6 @@ async function interceptBillingPortal(
       await expect.poll(() => payloads.length).toBeGreaterThan(0)
       return payloads.shift() ?? {}
     },
-  }
-}
-
-async function seedBillingSubscription(request: APIRequestContext, firmId: string): Promise<void> {
-  const response = await request.post('/api/e2e/billing/subscription', {
-    data: { firmId, plan: 'firm', status: 'active', interval: 'month' },
-  })
-  if (!response.ok()) {
-    throw new Error(
-      `Could not seed billing subscription: ${response.status()} ${await response.text()}`,
-    )
   }
 }
 

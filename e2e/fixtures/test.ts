@@ -7,12 +7,15 @@ import {
 } from '@playwright/test'
 
 import { AppShellPage } from '../pages/app-shell-page'
+import { AuditPage } from '../pages/audit-page'
 import { BillingPage } from '../pages/billing-page'
 import { ClientsPage } from '../pages/clients-page'
 import { LoginPage } from '../pages/login-page'
+import { MembersPage } from '../pages/members-page'
 import { MigrationWizardPage } from '../pages/migration-wizard-page'
 import { RulesConsolePage } from '../pages/rules-console-page'
 import { WorkboardPage } from '../pages/workboard-page'
+import { WorkloadPage } from '../pages/workload-page'
 
 type AuthSeedMode = 'empty' | 'workboard' | 'pulse'
 type AuthRole = 'owner' | 'coordinator'
@@ -45,11 +48,14 @@ type DueDateFixtures = {
   authSession: E2EAuthSession
   authenticatedPage: Page
   appShellPage: AppShellPage
+  auditPage: AuditPage
   billingPage: BillingPage
   clientsPage: ClientsPage
+  membersPage: MembersPage
   migrationWizardPage: MigrationWizardPage
   rulesConsolePage: RulesConsolePage
   workboardPage: WorkboardPage
+  workloadPage: WorkloadPage
 }
 
 export const test = base.extend<DueDateFixtures>({
@@ -64,12 +70,20 @@ export const test = base.extend<DueDateFixtures>({
     await use(new AppShellPage(authenticatedPage))
   },
 
+  auditPage: async ({ authenticatedPage }, use) => {
+    await use(new AuditPage(authenticatedPage))
+  },
+
   billingPage: async ({ authenticatedPage }, use) => {
     await use(new BillingPage(authenticatedPage))
   },
 
   clientsPage: async ({ authenticatedPage }, use) => {
     await use(new ClientsPage(authenticatedPage))
+  },
+
+  membersPage: async ({ authenticatedPage }, use) => {
+    await use(new MembersPage(authenticatedPage))
   },
 
   migrationWizardPage: async ({ authenticatedPage }, use) => {
@@ -82,6 +96,10 @@ export const test = base.extend<DueDateFixtures>({
 
   workboardPage: async ({ authenticatedPage }, use) => {
     await use(new WorkboardPage(authenticatedPage))
+  },
+
+  workloadPage: async ({ authenticatedPage }, use) => {
+    await use(new WorkloadPage(authenticatedPage))
   },
 
   authSession: async ({ request, authSeed, authRole }, use, testInfo) => {

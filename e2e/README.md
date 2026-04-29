@@ -47,7 +47,11 @@ Current specs intentionally cover shipped behavior only:
 - marketing-to-app locale handoff
 - entry-page locale switching
 - SPA 404 rendering
-- protected Dashboard / Clients / Workboard / Rules Console / Migration Step 1 surfaces with local seeded auth
+- protected Dashboard / Clients / Workboard / Team Workload / Rules Console / Members / Audit Log /
+  Migration Step 1 surfaces with local seeded auth
+- Team Workload paid-plan gating, server-computed owner metrics, unassigned risk, and Workboard
+  deep links
+- Workboard and Members write actions appearing in the Audit Log detail drawer
 - pricing-to-billing handoff, protected billing checkout payloads, owner-only checkout, cancel recovery,
   webhook-backed success state, and Stripe Billing Portal request contracts
 
@@ -61,7 +65,8 @@ Billing e2e uses two layers:
   owner permissions, Better Auth payload contracts, and app-visible subscription state.
 - **Webhook state simulation** uses the development-only `/api/e2e/billing/subscription` helper. It inserts a
   Better Auth `subscription` row and updates the `firm_profile` billing cache, matching the post-webhook facts
-  the app depends on. Staging/production return 404 for all `/api/e2e/*` routes.
+  the app depends on. Workload and Members specs also use this helper to exercise Firm-plan product surfaces
+  without making Stripe network calls. Staging/production return 404 for all `/api/e2e/*` routes.
 
 Do not assert Stripe-hosted Checkout DOM in the default suite. A future real Stripe test should be tagged
 separately, require explicit Stripe test credentials, and assert DueDateHQ's final subscription state rather

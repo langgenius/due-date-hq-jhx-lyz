@@ -145,3 +145,12 @@ Workboard gains the filters needed for deep links:
 - Clicking a workload row opens Workboard filtered to the same owner/unassigned set.
 - Clicking due/overdue-oriented controls opens Workboard with due filters.
 - No new task tables, time-tracking fields, or reassignment workflow are introduced in V1.
+
+## E2E Coverage
+
+`e2e/tests/workload.spec.ts` locks the V1 product loop:
+
+- Solo sees the paid Team Workload sidebar signal and direct-route upgrade panel.
+- Firm-plan sessions load server-computed owner metrics from seeded Workboard obligations.
+- `Unassigned` appears when an open obligation lacks an owner label.
+- Owner and due-risk links land on Workboard with matching URL filters.

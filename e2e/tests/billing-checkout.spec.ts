@@ -1,4 +1,5 @@
 import type { APIRequestContext, Page } from '@playwright/test'
+import { seedBillingSubscription as seedE2EBillingSubscription } from '../fixtures/billing'
 import { expect, test } from '../fixtures/test'
 
 // Feature: Billing checkout
@@ -121,22 +122,7 @@ async function seedBillingSubscription(
 ): Promise<{
   subscription: { stripeSubscriptionId: string }
 }> {
-  const response = await request.post('/api/e2e/billing/subscription', {
-    data: { firmId, plan: 'firm', status: 'active', interval: 'month' },
-  })
-  if (!response.ok()) {
-    throw new Error(
-      `Could not seed billing subscription: ${response.status()} ${await response.text()}`,
-    )
-  }
-  const body: unknown = await response.json()
-  assertJsonObject(body)
-  const subscription = body.subscription
-  assertJsonObject(subscription)
-  if (typeof subscription.stripeSubscriptionId !== 'string') {
-    throw new Error('Invalid e2e billing subscription response.')
-  }
-  return { subscription: { stripeSubscriptionId: subscription.stripeSubscriptionId } }
+  return seedE2EBillingSubscription(request, { firmId })
 }
 
 function expectCallbackUrl(value: unknown, pathname: string): void {
