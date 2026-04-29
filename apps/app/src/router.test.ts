@@ -23,6 +23,8 @@ const {
   pickSafeRedirect,
   notFoundLoader,
 } = await import('@/router')
+const { formatDocumentTitle, getRouteSummaryMessages, routeSummaries } =
+  await import('@/routes/route-summary')
 const { activateLocale, currentLocale } = await import('@/i18n/i18n')
 
 type SessionShape = {
@@ -119,6 +121,26 @@ describe('dashboardAliasLoader', () => {
       Promise.resolve().then(() => dashboardAliasLoader()),
       '/',
     )
+  })
+})
+
+describe('route metadata', () => {
+  it('uses the deepest matched route summary', () => {
+    expect(
+      getRouteSummaryMessages([
+        { handle: { routeSummary: routeSummaries.dashboard } },
+        { handle: { routeSummary: routeSummaries.clients } },
+      ]),
+    ).toBe(routeSummaries.clients)
+  })
+
+  it('falls back to dashboard when no route summary is matched', () => {
+    expect(getRouteSummaryMessages([{ handle: {} }])).toBe(routeSummaries.dashboard)
+  })
+
+  it('formats browser titles with the app suffix', () => {
+    expect(formatDocumentTitle('Clients')).toBe('Clients | DueDateHQ')
+    expect(formatDocumentTitle('DueDateHQ')).toBe('DueDateHQ')
   })
 })
 

@@ -1,8 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react'
-import { useLoaderData, useLocation } from 'react-router'
+import { useLoaderData, useMatches } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import type { MessageDescriptor } from '@lingui/core'
-import { msg } from '@lingui/core/macro'
 import { useLingui } from '@lingui/react/macro'
 import type { FirmPublic } from '@duedatehq/contracts'
 
@@ -14,6 +12,7 @@ import { MigrationWizardProvider, useMigrationWizard } from '@/features/migratio
 import { PulseDrawerProvider } from '@/features/pulse/DrawerProvider'
 import type { AuthUser } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
+import { getRouteSummaryMessages } from '@/routes/route-summary'
 import {
   getServerThemePreference,
   getStoredThemePreference,
@@ -22,10 +21,6 @@ import {
 } from '@/lib/theme-preference-store'
 
 type ProtectedLoaderData = { user: AuthUser }
-type RouteSummaryMessages = {
-  eyebrow: MessageDescriptor
-  title: MessageDescriptor
-}
 
 function useThemeSwitch(): {
   themePreference: ThemePreference
@@ -98,11 +93,11 @@ function RootLayoutShell({
   switchThemePreference: (next: ThemePreference) => void
 }) {
   const { i18n } = useLingui()
-  const location = useLocation()
+  const matches = useMatches()
   const { openWizard } = useMigrationWizard()
   const firmsQuery = useQuery(orpc.firms.listMine.queryOptions({ input: undefined }))
   const firm = pickCurrentFirm(firmsQuery.data, user)
-  const routeMessages = getRouteSummaryMessages(location.pathname)
+  const routeMessages = getRouteSummaryMessages(matches)
   const route = {
     eyebrow: i18n._(routeMessages.eyebrow),
     title: i18n._(routeMessages.title),
@@ -119,40 +114,6 @@ function RootLayoutShell({
       onImportClients={openWizard}
     />
   )
-}
-
-function getRouteSummaryMessages(pathname: string): RouteSummaryMessages {
-  // `/settings` is intentionally absent — the router-level `settingsLoader`
-  // redirects bare `/settings` straight to `/settings/rules`, so this layout
-  // never sees that pathname.
-  if (pathname === '/settings/profile') {
-    return { eyebrow: msg`Settings`, title: msg`Profile` }
-  }
-  if (pathname === '/settings/members') {
-    return { eyebrow: msg`Settings`, title: msg`Members` }
-  }
-  if (pathname === '/settings/rules') {
-    return { eyebrow: msg`Settings`, title: msg`Rules` }
-  }
-  if (pathname === '/settings/billing') {
-    return { eyebrow: msg`Settings`, title: msg`Billing` }
-  }
-  if (pathname.startsWith('/billing')) {
-    return { eyebrow: msg`Billing`, title: msg`Checkout` }
-  }
-  if (pathname.startsWith('/workboard')) {
-    return { eyebrow: msg`Workbench`, title: msg`Workboard` }
-  }
-  if (pathname.startsWith('/alerts')) {
-    return { eyebrow: msg`Operations`, title: msg`Alerts` }
-  }
-  if (pathname.startsWith('/clients')) {
-    return { eyebrow: msg`Admin`, title: msg`Clients` }
-  }
-  if (pathname.startsWith('/audit')) {
-    return { eyebrow: msg`Admin`, title: msg`Audit log` }
-  }
-  return { eyebrow: msg`Operations`, title: msg`Dashboard` }
 }
 
 function pickCurrentFirm(firms: FirmPublic[] | undefined, user: AuthUser): FirmPublic {

@@ -26,6 +26,8 @@ apps/app/
 │   │   ├── error.tsx             ← root route 全局 RouteErrorBoundary
 │   │   ├── _layout.tsx           ← 登录后 shell（侧栏 + 顶栏，path='/'，loader 做认证 gate）
 │   │   ├── _entry-layout.tsx     ← entry shell（顶栏 + 底栏，pathless layout route，包 /login + /onboarding；命名避开 "auth" 因为 onboarding 已在 post-auth 状态）
+│   │   ├── route-summary.ts      ← route handle metadata（AppShell route header + document title 的同一来源）
+│   │   ├── route-title.tsx       ← React 19 原生 <title> 输出，不用 effect 写 document.title
 │   │   ├── login.tsx             ← 登录页（path='/login'，loader 把已登录用户跳走，渲染在 EntryShell 内）
 │   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
@@ -106,6 +108,12 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
   entry route 使用 `EntryRouteHydrateFallback`（空白占位，保留 entry shell 的静态 header /
   footer，不显示 skeleton）；protected shell 初始认证 gate 使用 `ShellSkeleton`；dashboard /
   workboard / settings 等内容 route 使用 `RouteHydrateFallback`。
+- 页面摘要 metadata 挂在 route object 的 `handle.routeSummary` 上，类型为
+  `RouteSummaryMessages`（`eyebrow` + `title`，值为 Lingui `MessageDescriptor`）。
+  `RootLayout` 通过 `useMatches()` 取最深层 route summary 作为 AppShell route header；
+  `RouteDocumentTitle` 使用同一份 summary 渲染 React 19 原生 `<title>`，格式为
+  `<page> | DueDateHQ`。不要再新增 pathname switch、`document.title` effect，或引入
+  React Helmet 类 head 管理库。
 - 业务路由按 session/org 状态分成三个顶级 route group，并额外保留一个 public catch-all：
   - **EntryShell（pathless layout route，`Component: EntryShell`）** — 包 `/login` + `/onboarding` 共享同一套 header / footer / locale switcher chrome。子路由各自挂自己的 loader（`guestLoader` / `onboardingLoader`），EntryShell 自身不带 loader 也不带 path，详见 `apps/app/src/routes/_entry-layout.tsx`。**命名避开 "auth"：** `/login` 是 pre-auth、`/onboarding` 是 post-auth/pre-active-org，两者唯一共性是「在用户进 dashboard shell 之前要走完的过渡 surface」 → "entry"
     - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去
@@ -119,7 +127,8 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
       `protectedLoader → login → onboarding → redirectTo` 闭环
     - `/billing/success` / `/billing/cancel` — checkout 返回页；success 只展示 webhook/subscription 确认状态，不把 redirect 本身当成支付成功
   - `*` — 公开 catch-all route，loader 主动抛 404 `Response`，由 root `RouteErrorBoundary`
-    渲染统一 not found UI；未知 URL 不进入认证 gate，也不显示 React Router 默认开发错误页
+    渲染统一 not found UI；未知 URL 不进入认证 gate，也不显示 React Router 默认开发错误页。
+    错误边界自己渲染错误页 `<title>`，避免 loader error 保留上一个成功页面的浏览器标题。
 
 **Auth flow**：
 

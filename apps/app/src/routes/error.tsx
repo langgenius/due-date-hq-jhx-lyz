@@ -5,6 +5,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { translateServerErrorCode } from '@/lib/i18n-error'
+import { formatDocumentTitle } from '@/routes/route-summary'
 
 function useErrorCopy(error: unknown): { title: string; message: string } {
   const { t } = useLingui()
@@ -43,17 +44,20 @@ export function RouteErrorBoundary() {
   const { title, message } = useErrorCopy(error)
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg-canvas p-6">
-      <div className="flex w-full max-w-[560px] flex-col gap-4">
-        <Alert variant="destructive">
-          <AlertTriangleIcon />
-          <AlertTitle>{title}</AlertTitle>
-          <AlertDescription>{message}</AlertDescription>
-        </Alert>
-        <Button render={<Link to="/" />}>
-          <Trans>Return home</Trans>
-        </Button>
+    <>
+      <title>{formatDocumentTitle(title)}</title>
+      <div className="flex min-h-screen items-center justify-center bg-bg-canvas p-6">
+        <div className="flex w-full max-w-[560px] flex-col gap-4">
+          <Alert variant="destructive">
+            <AlertTriangleIcon />
+            <AlertTitle>{title}</AlertTitle>
+            <AlertDescription>{message}</AlertDescription>
+          </Alert>
+          <Button render={<Link to="/" />}>
+            <Trans>Return home</Trans>
+          </Button>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

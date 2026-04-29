@@ -15,6 +15,8 @@ import { EntryShell } from '@/routes/_entry-layout'
 import { RootLayout, ShellSkeleton } from '@/routes/_layout'
 import { RouteErrorBoundary } from '@/routes/error'
 import { EntryRouteHydrateFallback, RouteHydrateFallback } from '@/routes/fallback'
+import { routeHandle, routeSummaries } from '@/routes/route-summary'
+import { RouteDocumentTitle } from '@/routes/route-title'
 
 // Route id used by children to reach into the layout loader via useRouteLoaderData.
 export const PROTECTED_ROUTE_ID = 'protected'
@@ -50,6 +52,7 @@ function pathAndQueryWithoutLocale(url: URL): string {
 function AppRoot() {
   return (
     <NuqsAdapter>
+      <RouteDocumentTitle />
       <Outlet />
     </NuqsAdapter>
   )
@@ -144,6 +147,7 @@ export function createAppRouter() {
             {
               path: '/login',
               loader: guestLoader,
+              handle: routeHandle(routeSummaries.login),
               HydrateFallback: EntryRouteHydrateFallback,
               lazy: async () => {
                 const { LoginRoute } = await import('@/routes/login')
@@ -154,6 +158,7 @@ export function createAppRouter() {
             {
               path: '/onboarding',
               loader: onboardingLoader,
+              handle: routeHandle(routeSummaries.onboarding),
               HydrateFallback: EntryRouteHydrateFallback,
               lazy: async () => {
                 const { OnboardingRoute } = await import('@/routes/onboarding')
@@ -180,6 +185,7 @@ export function createAppRouter() {
           children: [
             {
               index: true,
+              handle: routeHandle(routeSummaries.dashboard),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { DashboardRoute } = await import('@/routes/dashboard')
@@ -194,6 +200,7 @@ export function createAppRouter() {
             },
             {
               path: 'workboard',
+              handle: routeHandle(routeSummaries.workboard),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { WorkboardRoute } = await import('@/routes/workboard')
@@ -203,6 +210,7 @@ export function createAppRouter() {
             },
             {
               path: 'alerts',
+              handle: routeHandle(routeSummaries.alerts),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { AlertsRoute } = await import('@/routes/alerts')
@@ -212,6 +220,7 @@ export function createAppRouter() {
             },
             {
               path: 'clients',
+              handle: routeHandle(routeSummaries.clients),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { ClientsRoute } = await import('@/routes/clients')
@@ -221,6 +230,7 @@ export function createAppRouter() {
             },
             {
               path: 'audit',
+              handle: routeHandle(routeSummaries.audit),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { AuditRoute } = await import('@/routes/audit')
@@ -235,6 +245,7 @@ export function createAppRouter() {
             },
             {
               path: 'settings/rules',
+              handle: routeHandle(routeSummaries.settingsRules),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { SettingsRulesRoute } = await import('@/routes/settings.rules')
@@ -244,6 +255,7 @@ export function createAppRouter() {
             },
             {
               path: 'settings/profile',
+              handle: routeHandle(routeSummaries.settingsProfile),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { SettingsProfileRoute } = await import('@/routes/settings.profile')
@@ -253,6 +265,7 @@ export function createAppRouter() {
             },
             {
               path: 'settings/members',
+              handle: routeHandle(routeSummaries.settingsMembers),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { SettingsMembersRoute } = await import('@/routes/settings.members')
@@ -262,6 +275,7 @@ export function createAppRouter() {
             },
             {
               path: 'settings/billing',
+              handle: routeHandle(routeSummaries.settingsBilling),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { SettingsBillingRoute } = await import('@/routes/settings.billing')
@@ -271,6 +285,7 @@ export function createAppRouter() {
             },
             {
               path: 'billing/checkout',
+              handle: routeHandle(routeSummaries.billingCheckout),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { BillingCheckoutRoute } = await import('@/routes/billing.checkout')
@@ -280,6 +295,7 @@ export function createAppRouter() {
             },
             {
               path: 'billing/success',
+              handle: routeHandle(routeSummaries.billingCheckout),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { BillingSuccessRoute } = await import('@/routes/billing.success')
@@ -289,6 +305,7 @@ export function createAppRouter() {
             },
             {
               path: 'billing/cancel',
+              handle: routeHandle(routeSummaries.billingCheckout),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
                 const { BillingCancelRoute } = await import('@/routes/billing.cancel')
