@@ -43,6 +43,7 @@ export function PulseAlertsBanner() {
       <PulseStrip
         tone="success"
         active
+        className="pulse-strip-breathing"
         label={<WatchingLabel lastCheckedAt={null} />}
         meta={<PulseMetaTimestamp iso={null} />}
         actions={refreshAction}
@@ -145,6 +146,7 @@ function ActivePulseStrip({
     <PulseStrip
       tone={tone}
       active
+      className="pulse-strip-breathing"
       onClick={() => openDrawer(primary.id)}
       label={
         <>

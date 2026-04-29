@@ -439,6 +439,13 @@ motion:
     color: '{colors.accent-default}'
     trailAlpha: 0.1
     bezier: ['start', 'startPlus(0, -200)', 'endPlus(0, -100)', 'end']
+  pulse-banner-breathing:
+    durationMs: 3800
+    ease: 'ease-in-out'
+    backgroundTint: '{colors.severity-medium}'
+    opacity: { idle: 0.12, peak: 0.46 }
+    reduceMotion: 'Static background tint at 0.2 opacity.'
+    note: 'Applies to active dashboard alerts, all-clear, and the top actionable Alerts history row; loading and non-actionable rows keep the dot heartbeat only.'
 maxConcurrent: 30
 ---
 

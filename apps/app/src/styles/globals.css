@@ -3,3 +3,56 @@
 @import '@duedatehq/ui/styles/preset.css';
 
 @source '../../../../packages/ui/src';
+
+.pulse-strip-breathing {
+  position: relative;
+  isolation: isolate;
+  --pulse-strip-breath-color: var(--text-warning);
+}
+
+.pulse-strip-breathing[data-tone='success'] {
+  --pulse-strip-breath-color: var(--text-success);
+}
+
+.pulse-strip-breathing[data-tone='error'] {
+  --pulse-strip-breath-color: var(--text-destructive);
+}
+
+.pulse-strip-breathing[data-tone='normal'] {
+  --pulse-strip-breath-color: var(--text-accent);
+}
+
+.pulse-strip-breathing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--pulse-strip-breath-color) 12%, transparent);
+  opacity: 0.18;
+  animation: pulse-strip-breathe 3.8s ease-in-out infinite;
+}
+
+.pulse-strip-breathing > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes pulse-strip-breathe {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+
+  50% {
+    opacity: 0.46;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-strip-breathing::before {
+    opacity: 0.2;
+    animation: none;
+  }
+}

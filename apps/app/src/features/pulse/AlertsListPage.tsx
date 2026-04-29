@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { AlertCircleIcon } from 'lucide-react'
 
+import type { PulseAlertPublic } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -19,6 +20,7 @@ export function AlertsListPage() {
   const alertsQuery = useQuery(usePulseListHistoryQueryOptions(50))
   const alerts = alertsQuery.data?.alerts ?? []
   const isEmpty = !alertsQuery.isLoading && alerts.length === 0
+  const breathingAlertId = alerts.find(isBreathingAlertRow)?.id
 
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">
@@ -73,12 +75,21 @@ export function AlertsListPage() {
       ) : (
         <div className="flex flex-col gap-2">
           {alerts.map((alert) => (
-            <PulseAlertCard key={alert.id} alert={alert} onReview={() => openDrawer(alert.id)} />
+            <PulseAlertCard
+              key={alert.id}
+              alert={alert}
+              breathing={alert.id === breathingAlertId}
+              onReview={() => openDrawer(alert.id)}
+            />
           ))}
         </div>
       )}
     </div>
   )
+}
+
+function isBreathingAlertRow(alert: PulseAlertPublic): boolean {
+  return alert.status === 'matched' && alert.matchedCount + alert.needsReviewCount > 0
 }
 
 // Loading shimmer that matches the heartbeat language: warning-tone pulsing

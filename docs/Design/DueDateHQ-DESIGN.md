@@ -345,18 +345,19 @@
 
 ```text
 ┌───────────────────────────────────────────────────────────────┐
-│ ⚠  IRS Notice 2026-14 · Form 941 clarification affects 3 clients│
-│    Verified from IRS.gov 2h ago          [Review]  [Dismiss] │
+│ ● IRS Notice 2026-14 · Form 941 clarification · 3 clients      │
+│   Verified from IRS.gov 2h ago            [Dismiss] [Review]  │
 └───────────────────────────────────────────────────────────────┘
 ```
 
 **规格**
 
-- Light：`background: #FEF9C3` + `border: 1px solid #EAB308` + `radius: 6px`
-- Dark：`background: rgba(234, 179, 8, 0.08)` + `border: 1px solid rgba(234, 179, 8, 0.3)`
-- 左侧 16x16 warning icon（lucide `AlertTriangle`）
-- 右侧 `[Review]` 主按钮 + `[Dismiss]` 次级链接
-- 多条时：`1 of 3 alerts · [Show 2 more ▾]`
+- 36px hairline strip：`background-default` + `border-divider-subtle` + `radius: 6px`
+- 左侧 8x8 `PulsingDot`，active alert 用 warning tone；all-clear 用 success tone
+- Active alert 与 all-clear strip 叠加低频 breathing background tint：3.8s `ease-in-out`，只改变 overlay opacity，不改变布局尺寸
+- `prefers-reduced-motion: reduce` 时关闭动画，保留静态低透明度背景 tint
+- 右侧 `[Dismiss]` 次级动作 + `[Review]` 主按钮；整行点击进入 drawer，按钮区域阻止冒泡
+- 多条时：主条显示 `+ N more`，历史页用同一 hairline row 语言；仅第一条 `matched` 且影响客户数 > 0 的 row 使用 breathing background
 - **禁止使用红色做 Banner** —— 红色留给行内 Critical 风险
 
 ### 4.4 Evidence Chip（证据徽章 · Glass-Box 核心）

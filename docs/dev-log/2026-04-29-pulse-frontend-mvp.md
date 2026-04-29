@@ -124,6 +124,22 @@ should feel like a vital sign, always present but never noisy.
   panel that reaches 820px on desktop and 880px on wide screens. `DESIGN.md`
   now distinguishes default 400px drawers from table-heavy workflow drawers.
 
+## Iteration 4 — Breathing Pulse Strip
+
+- Active Dashboard Pulse alerts now add a low-frequency breathing background
+  tint on the 36px strip. The animation uses existing semantic warning tokens,
+  changes only overlay opacity, and leaves the strip's layout dimensions fixed.
+- All-clear state uses the same breathing treatment with success tone so the
+  watcher still feels alive when no client is affected. Loading keeps the dot
+  heartbeat only.
+- Alerts history rows expose an explicit `breathing` state, but the route only
+  applies it to the first `matched` alert with affected clients. Other rows
+  keep the pulsing dot only so dense history scanning stays quiet.
+- `prefers-reduced-motion: reduce` disables the animation and leaves a static
+  low-opacity background tint.
+- `DESIGN.md` and `docs/Design/DueDateHQ-DESIGN.md` now document the breathing
+  motion contract for Pulse Banner.
+
 ## Validation
 
 - `pnpm --filter @duedatehq/app exec tsgo --noEmit` — passed.

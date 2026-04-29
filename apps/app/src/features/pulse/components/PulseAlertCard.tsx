@@ -13,6 +13,8 @@ interface PulseAlertCardProps {
   alert: PulseAlertPublic
   onReview: () => void
   onDismiss?: (() => void) | undefined
+  /** Background breathing is reserved for the top actionable row in dense lists. */
+  breathing?: boolean
   /** Inline actions are hidden when the card is rendered as a folded "more" entry. */
   compact?: boolean
 }
@@ -25,6 +27,7 @@ export function PulseAlertCard({
   alert,
   onReview,
   onDismiss,
+  breathing = false,
   compact = false,
 }: PulseAlertCardProps) {
   const { t } = useLingui()
@@ -37,8 +40,11 @@ export function PulseAlertCard({
       aria-label={t`Pulse alert: ${alert.title}`}
       className={cn(
         'flex flex-col gap-2 rounded-md border border-divider-subtle bg-background-default p-3 transition-colors hover:border-divider-regular',
+        breathing && 'pulse-strip-breathing',
         compact && 'p-2.5',
       )}
+      data-tone={tone}
+      data-breathing={breathing || undefined}
     >
       <header className="flex items-center gap-2">
         <PulsingDot tone={tone} active />
