@@ -68,31 +68,27 @@ function usePlanCards(): PlanCard[] {
       disabled: true,
     },
     {
-      id: 'firm',
-      name: t`Firm`,
+      id: 'pro',
+      name: t`Pro`,
       price: t`$99`,
       priceSuffix: t`/ mo`,
       cadence: t`Monthly billing`,
       seats: t`5 seats`,
       description: t`Shared deadline operations for a growing CPA practice.`,
       features: [t`5 seats included`, t`Shared deadline operations`, t`Pulse and workboard access`],
-      cta: t`Upgrade to Firm`,
+      cta: t`Upgrade to Pro`,
       badge: t`Recommended`,
-      href: billingPlanHref('firm', 'monthly'),
+      href: billingPlanHref('pro', 'monthly'),
     },
     {
-      id: 'pro',
-      name: t`Pro`,
+      id: 'firm',
+      name: t`Firm`,
       price: t`Contact sales`,
       priceKind: 'text',
-      cadence: t`Custom scope`,
-      seats: t`10 seats`,
+      cadence: t`Annual agreement`,
+      seats: t`10+ seats`,
       description: t`Priority onboarding, audit exports, and higher coverage needs.`,
-      features: [
-        t`10 seats included`,
-        t`Priority onboarding`,
-        t`Audit exports and coverage planning`,
-      ],
+      features: [t`10+ seats`, t`Priority onboarding`, t`Audit exports and coverage planning`],
       cta: t`Contact sales`,
       disabled: true,
     },
@@ -279,7 +275,7 @@ export function BillingRoute() {
               </span>
             ) : !activeSubscription ? (
               <span className="text-sm text-text-tertiary">
-                <Trans>Choose Firm to start the hosted checkout flow.</Trans>
+                <Trans>Choose Pro to start the hosted checkout flow.</Trans>
               </span>
             ) : (
               <span className="text-sm text-text-tertiary">
@@ -339,7 +335,7 @@ export function BillingRoute() {
           </div>
           <p className="max-w-[520px] text-sm text-text-secondary">
             <Trans>
-              Self-serve changes use secure checkout and keep the active firm as reference.
+              Self-serve Pro changes use secure checkout and keep the active firm as reference.
             </Trans>
           </p>
         </header>
@@ -363,7 +359,7 @@ export function BillingRoute() {
           </CardHeader>
           <CardContent className="grid gap-3 text-sm leading-6 text-text-secondary md:grid-cols-2">
             <p>
-              <Trans>Firm subscriptions bill the organization, not an individual user.</Trans>
+              <Trans>Paid subscriptions bill the organization, not an individual user.</Trans>
             </p>
             <p>
               <Trans>Success pages wait for webhook confirmation before showing activation.</Trans>
@@ -444,7 +440,7 @@ function PlanOption({
 }) {
   const current = plan.id === currentPlan
   const disabled = plan.disabled || current || !owner
-  const highlighted = plan.id === 'firm'
+  const highlighted = plan.id === 'pro'
   const priceKind = plan.priceKind ?? 'numeric'
 
   return (

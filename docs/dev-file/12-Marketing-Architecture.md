@@ -77,7 +77,7 @@ Homepage 只讲一个 offer：
 
 `/pricing` 已作为静态 Astro 页面进入首版支付闭环：公开页只负责转化和 SEO，
 不读取 app session、不发起 Stripe API、不保存任何支付状态。付费 CTA deep link 到
-SaaS app 的 `/billing/checkout?plan=firm&interval=monthly`；未登录用户由 app
+SaaS app 的 `/billing/checkout?plan=pro&interval=monthly`；未登录用户由 app
 自己的 auth/onboarding loader 接管后再回到 checkout。后续可以追加 `/rules`、
 `/state/[state]`、`/blog`，但不为不存在的内容搭复杂 CMS。
 
@@ -119,9 +119,9 @@ Marketing 只埋公开站事件，不读取 app session。
 | `marketing.secondary_cta.clicked`   | Hero secondary CTA |
 | `marketing.workflow_section.viewed` | Workflow 进入视口  |
 | `marketing.final_cta.clicked`       | 页尾 CTA           |
-| `marketing.pricing.checkout`        | Pricing Firm CTA   |
+| `marketing.pricing.checkout`        | Pricing Pro CTA    |
 | `marketing.pricing.app`             | Pricing Solo CTA   |
-| `marketing.pricing.contact`         | Pricing Pro CTA    |
+| `marketing.pricing.contact`         | Pricing Firm CTA   |
 
 事件命名不进 Lingui catalog。若 PostHog 尚未接入 marketing，先保留 data attribute 和文档契约。
 

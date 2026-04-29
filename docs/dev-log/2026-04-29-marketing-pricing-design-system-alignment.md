@@ -35,8 +35,8 @@ text-[40px]`（DESIGN.md：amounts must use mono tabular numerals）；非数字
   PLANS eyebrow + 22 px 副标题 + 右侧 mono `BILLED USD · STRIPE-HOSTED CHECKOUT`；
   FAQ eyebrow + 24 px heading。i18n 契约 `PricingCopy.plansHeader` /
   `PricingCopy.faqHeader` 现在是必填字段，en + zh-CN 同步。
-- **Plans 列表 4 条 features，并使用 cascade 写法**：Solo 列原子能力，Firm 第一
-  条 "Everything in Solo"，Pro 第一条 "Everything in Firm"。这让卡片在视觉上等高
+- **Plans 列表 4 条 features，并使用 cascade 写法**：Solo 列原子能力，Pro 第一
+  条 "Everything in Solo"，Firm 第一条 "Everything in Pro"。这让卡片在视觉上等高
   （Tailwind grid `items-stretch`），同时在内容上传达 plan tier 关系。
 - **`PricingPlanCopy.priceKind` 字段固化在 contract**：`'numeric' | 'text'` 决定
   价格 token 走 mono 还是 sans。这是 i18n 翻译人员不必知道前端怎么排版就能写出
@@ -68,7 +68,7 @@ TRIAL`、`Everything in Solo` 等）。
   错误。这是 main 上预先存在的 astro `astro check` 报错（与本 PR 无关，stash 全部改
   动后仍能复现），后续单独修。
 - 本地 dev `astro dev` 起服务、导航 `/pricing`，三档卡片渲染正确（Hero + Plans
-  Header + Solo / Firm Recommended / Pro + FAQ + Footer）。
+  Header + Solo / Pro Recommended / Firm + FAQ + Footer）。
 
 ## Follow-ups
 

@@ -12,12 +12,12 @@ author: 'Codex'
 
 - Migration、Workboard、Clients、Rules、Billing 已经有基础浏览器覆盖；
 - Pulse 和 Dashboard 增量很大，但本轮明确不把它们作为补测目标；
-- Team Workload 刚成为 Firm/Pro 付费面，Audit Log 和 Members 也已经具备真实 oRPC 写入与
+- Team Workload 刚成为 Pro/Firm 付费面，Audit Log 和 Members 也已经具备真实 oRPC 写入与
   audit trail，但缺少围绕产品本身的 e2e 闭环。
 
 ## 做了什么
 
-- 新增 `e2e/tests/workload.spec.ts`，覆盖 Solo 锁定升级、Firm workload 指标、unassigned 风险行、
+- 新增 `e2e/tests/workload.spec.ts`，覆盖 Solo 锁定升级、Pro workload 指标、unassigned 风险行、
   以及 Workload 到 Workboard 的 owner/due deep link。
 - 新增 `e2e/tests/audit-log.spec.ts`，从 Workboard 状态变更写入开始，回到 Audit Log 打开详情
   drawer，验证 before/after 状态。

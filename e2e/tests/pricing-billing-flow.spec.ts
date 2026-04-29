@@ -12,19 +12,19 @@ test.skip(
   'external app targets must provide E2E_MARKETING_BASE_URL for marketing pricing coverage',
 )
 
-test('AC: E2E-BILLING-PRICING-DEEPLINK sends Firm CTA to protected checkout', async ({ page }) => {
+test('AC: E2E-BILLING-PRICING-DEEPLINK sends Pro CTA to protected checkout', async ({ page }) => {
   await page.goto(`${marketingBaseURL}/pricing`)
 
-  const firmCta = page.locator('[data-event="marketing.pricing.checkout"]')
-  await expect(firmCta).toHaveAttribute('href', checkoutHrefPattern())
+  const proCta = page.locator('[data-event="marketing.pricing.checkout"]')
+  await expect(proCta).toHaveAttribute('href', checkoutHrefPattern())
 
-  await firmCta.click()
+  await proCta.click()
   await page.waitForURL('**/login?**')
 
   const url = new URL(page.url())
   expect(url.origin).toBe(new URL(appBaseURL).origin)
   expect(url.pathname).toBe('/login')
-  expect(url.searchParams.get('redirectTo')).toBe('/billing/checkout?plan=firm&interval=monthly')
+  expect(url.searchParams.get('redirectTo')).toBe('/billing/checkout?plan=pro&interval=monthly')
 })
 
 test('AC: E2E-BILLING-PRICING-LOCALE preserves zh-CN handoff before auth redirect', async ({
@@ -32,23 +32,23 @@ test('AC: E2E-BILLING-PRICING-LOCALE preserves zh-CN handoff before auth redirec
 }) => {
   await page.goto(`${marketingBaseURL}/zh-CN/pricing`)
 
-  const firmCta = page.locator('[data-event="marketing.pricing.checkout"]')
-  await expect(firmCta).toHaveAttribute('href', checkoutHrefPattern('zh-CN'))
+  const proCta = page.locator('[data-event="marketing.pricing.checkout"]')
+  await expect(proCta).toHaveAttribute('href', checkoutHrefPattern('zh-CN'))
 
-  await firmCta.click()
+  await proCta.click()
   await page.waitForURL('**/login?**')
 
   const url = new URL(page.url())
   expect(url.origin).toBe(new URL(appBaseURL).origin)
   expect(url.pathname).toBe('/login')
-  expect(url.searchParams.get('redirectTo')).toBe('/billing/checkout?plan=firm&interval=monthly')
+  expect(url.searchParams.get('redirectTo')).toBe('/billing/checkout?plan=pro&interval=monthly')
   await expect(page.evaluate(() => window.localStorage.getItem('lng'))).resolves.toBe('zh-CN')
 })
 
 function checkoutHrefPattern(locale?: 'zh-CN'): RegExp {
   const escapedOrigin = escapeRegExp(new URL(appBaseURL).origin)
   const localePart = locale ? '&lng=zh-CN' : ''
-  return new RegExp(`^${escapedOrigin}/billing/checkout\\?plan=firm&interval=monthly${localePart}$`)
+  return new RegExp(`^${escapedOrigin}/billing/checkout\\?plan=pro&interval=monthly${localePart}$`)
 }
 
 function escapeRegExp(value: string): string {

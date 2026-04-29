@@ -2,7 +2,7 @@
 
 ## Product Intent
 
-Team Workload is the paid shared-operations surface for Firm and Pro plans. It is not a
+Team Workload is the paid shared-operations surface for Pro and Firm plans. It is not a
 task-management module. It summarizes the existing obligation queue so a small CPA practice can
 answer the weekly manager questions quickly:
 
@@ -12,7 +12,7 @@ answer the weekly manager questions quickly:
 - which obligations are unassigned and should not be missed;
 - where to jump in Workboard to triage the underlying rows.
 
-Solo remains the personal deadline workbench. Firm and Pro add shared deadline operations.
+Solo remains the personal deadline workbench. Pro and Firm add shared deadline operations.
 The sidebar entry stays visible for all plans because it communicates the paid expansion path, but
 Solo users see a locked paid hint and a route-level upgrade panel instead of an active workload
 table.
@@ -140,7 +140,7 @@ Workboard gains the filters needed for deep links:
 
 - Solo users see `Team workload` in the sidebar with a paid hint but cannot click it.
 - Direct `/workload` navigation on Solo shows an upgrade panel linked to Billing.
-- Firm/Pro users can open `/workload` and see server-computed metrics.
+- Pro/Firm users can open `/workload` and see server-computed metrics.
 - `Unassigned` is visible when any open obligation has no owner label.
 - Clicking a workload row opens Workboard filtered to the same owner/unassigned set.
 - Clicking due/overdue-oriented controls opens Workboard with due filters.

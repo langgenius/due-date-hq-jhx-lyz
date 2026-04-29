@@ -39,12 +39,12 @@ describe('validateServerEnv', () => {
       runtimeEnv({
         STRIPE_SECRET_KEY: 'sk_test_123',
         STRIPE_WEBHOOK_SECRET: 'whsec_stripe',
-        STRIPE_PRICE_FIRM_MONTHLY: 'price_firm_monthly',
+        STRIPE_PRICE_PRO_MONTHLY: 'price_pro_monthly',
       }),
     )
 
     expect(env.STRIPE_SECRET_KEY).toBe('sk_test_123')
     expect(env.STRIPE_WEBHOOK_SECRET).toBe('whsec_stripe')
-    expect(env.STRIPE_PRICE_FIRM_MONTHLY).toBe('price_firm_monthly')
+    expect(env.STRIPE_PRICE_PRO_MONTHLY).toBe('price_pro_monthly')
   })
 })

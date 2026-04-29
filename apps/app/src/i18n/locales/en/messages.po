@@ -56,8 +56,8 @@ msgstr "{0, plural, one {We imported the first 1000 of # row. Split your file to
 
 #. placeholder {0}: data.availableSeats
 #: src/features/members/members-page.tsx
-msgid "{0} available · Firm plan"
-msgstr "{0} available · Firm plan"
+msgid "{0} available seats"
+msgstr "{0} available seats"
 
 #. placeholder {0}: result.clientCount
 #. placeholder {1}: result.obligationCount
@@ -226,14 +226,6 @@ msgid "$0"
 msgstr "$0"
 
 #: src/routes/billing.checkout.tsx
-msgid "$399"
-msgstr "$399"
-
-#: src/routes/billing.checkout.tsx
-msgid "$499"
-msgstr "$499"
-
-#: src/routes/billing.checkout.tsx
 msgid "$79"
 msgstr "$79"
 
@@ -250,14 +242,10 @@ msgstr "0 active"
 msgid "1 seat"
 msgstr "1 seat"
 
-#: src/routes/billing.tsx
-msgid "10 seats"
-msgstr "10 seats"
-
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
-msgid "10 seats included"
-msgstr "10 seats included"
+msgid "10+ seats"
+msgstr "10+ seats"
 
 #: src/features/rules/rules-console.tsx
 msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
@@ -447,6 +435,11 @@ msgstr "Already active"
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Already applied"
 msgstr "Already applied"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "Annual agreement"
+msgstr "Annual agreement"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Annual rolling"
@@ -696,8 +689,8 @@ msgid "Choose another plan"
 msgstr "Choose another plan"
 
 #: src/routes/billing.tsx
-msgid "Choose Firm to start the hosted checkout flow."
-msgstr "Choose Firm to start the hosted checkout flow."
+msgid "Choose Pro to start the hosted checkout flow."
+msgstr "Choose Pro to start the hosted checkout flow."
 
 #. placeholder {0}: citation.ref
 #: src/routes/dashboard.tsx
@@ -788,6 +781,7 @@ msgstr "Confirm checkout"
 msgid "Confirming subscription"
 msgstr "Confirming subscription"
 
+#: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Contact sales"
 msgstr "Contact sales"
@@ -996,10 +990,6 @@ msgstr "Current plan"
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "Currently available shortcuts and reserved keyboard slots."
 msgstr "Currently available shortcuts and reserved keyboard slots."
-
-#: src/routes/billing.tsx
-msgid "Custom scope"
-msgstr "Custom scope"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Dark"
@@ -1295,7 +1285,6 @@ msgstr "Filter by status, search clients, and sort by due date."
 msgid "Filter by time range, action category, actor, or entity."
 msgstr "Filter by time range, action category, actor, or entity."
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -1315,10 +1304,18 @@ msgstr "Firm context could not load"
 msgid "Firm id"
 msgstr "Firm id"
 
+#: src/routes/billing.checkout.tsx
+msgid "Firm is a sales-assisted plan. Contact sales from Billing."
+msgstr "Firm is a sales-assisted plan. Contact sales from Billing."
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/firm.tsx
 msgid "Firm name"
 msgstr "Firm name"
+
+#: src/routes/billing.checkout.tsx
+msgid "Firm plan changes require sales support."
+msgstr "Firm plan changes require sales support."
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
@@ -1335,10 +1332,6 @@ msgstr "Firm profile applies only to the active tenant."
 msgid "Firm profile could not load"
 msgstr "Firm profile could not load"
 
-#: src/routes/billing.tsx
-msgid "Firm subscriptions bill the organization, not an individual user."
-msgstr "Firm subscriptions bill the organization, not an individual user."
-
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -1354,8 +1347,8 @@ msgid "For growing CPA practices that need shared deadline operations."
 msgstr "For growing CPA practices that need shared deadline operations."
 
 #: src/routes/billing.checkout.tsx
-msgid "For multi-office practices that need audit exports and higher rule coverage."
-msgstr "For multi-office practices that need audit exports and higher rule coverage."
+msgid "For practices that need audit exports, coverage expansion, and priority onboarding."
+msgstr "For practices that need audit exports, coverage expansion, and priority onboarding."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "for Pulse matching"
@@ -2130,6 +2123,10 @@ msgstr "Page not found"
 msgid "Paid feature"
 msgstr "Paid feature"
 
+#: src/routes/billing.tsx
+msgid "Paid subscriptions bill the organization, not an individual user."
+msgstr "Paid subscriptions bill the organization, not an individual user."
+
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Partially applied"
 msgstr "Partially applied"
@@ -2257,6 +2254,7 @@ msgstr "Priority onboarding"
 msgid "Priority onboarding, audit exports, and higher coverage needs."
 msgstr "Priority onboarding, audit exports, and higher coverage needs."
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -2665,8 +2663,8 @@ msgid "Selected plan"
 msgstr "Selected plan"
 
 #: src/routes/billing.tsx
-msgid "Self-serve changes use secure checkout and keep the active firm as reference."
-msgstr "Self-serve changes use secure checkout and keep the active firm as reference."
+msgid "Self-serve Pro changes use secure checkout and keep the active firm as reference."
+msgstr "Self-serve Pro changes use secure checkout and keep the active firm as reference."
 
 #: src/features/members/members-page.tsx
 msgid "Send a 7-day magic link to add a member to this firm."
@@ -2711,8 +2709,8 @@ msgid "Shared deadline operations for a growing CPA practice."
 msgstr "Shared deadline operations for a growing CPA practice."
 
 #: src/features/workload/workload-page.tsx
-msgid "Shared deadline operations for Firm and Pro plans."
-msgstr "Shared deadline operations for Firm and Pro plans."
+msgid "Shared deadline operations for Pro and Firm plans."
+msgstr "Shared deadline operations for Pro and Firm plans."
 
 #. placeholder {0}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
@@ -2783,8 +2781,8 @@ msgid "Solo"
 msgstr "Solo"
 
 #: src/features/workload/workload-page.tsx
-msgid "Solo is the personal deadline workbench. Firm adds shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
-msgstr "Solo is the personal deadline workbench. Firm adds shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
+msgid "Solo is the personal deadline workbench. Pro adds shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
+msgstr "Solo is the personal deadline workbench. Pro adds shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
 
 #: src/features/pulse/lib/error-mapping.ts
 msgid "Some obligations have changed since you opened this alert. Refresh to load the latest list."
@@ -2966,12 +2964,12 @@ msgid "Team workload"
 msgstr "Team workload"
 
 #: src/features/workload/workload-page.tsx
-msgid "Team workload is available on Firm"
-msgstr "Team workload is available on Firm"
+msgid "Team workload is available on Pro"
+msgstr "Team workload is available on Pro"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Team workload is available on Firm and Pro plans."
-msgstr "Team workload is available on Firm and Pro plans."
+msgid "Team workload is available on Pro and Firm plans."
+msgstr "Team workload is available on Pro and Firm plans."
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -3137,8 +3135,8 @@ msgstr "Upgrade plan"
 
 #: src/features/workload/workload-page.tsx
 #: src/routes/billing.tsx
-msgid "Upgrade to Firm"
-msgstr "Upgrade to Firm"
+msgid "Upgrade to Pro"
+msgstr "Upgrade to Pro"
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "User agent hash"

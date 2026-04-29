@@ -424,7 +424,7 @@ const zhCN: LandingCopy = {
       eyebrow: 'PRICING',
       title: '只为你能看清的截止日风险付费。',
       description:
-        '从 Solo 开始评估；当截止日运营需要多人协作时升级到 Firm；需要审计导出和更高覆盖时再与我们定制 Pro。',
+        '从 Solo 开始评估；当截止日运营需要多人协作时升级到 Pro；需要审计导出和更高覆盖时再与我们定制 Firm。',
       note: 'Solo 无需信用卡 · DueDateHQ 不保存卡号',
     },
     plansHeader: {
@@ -445,14 +445,14 @@ const zhCN: LandingCopy = {
         features: ['单 Owner 工作区', '迁移与规则预览', '带来源的证据', '示例客户工作区'],
       },
       {
-        name: 'Firm',
+        name: 'Pro',
         badge: '推荐',
         price: '$99',
         priceKind: 'numeric',
         cadence: '/ 月',
         description: '适合需要共享截止日运营的成长型 CPA 事务所。',
         seats: '5 SEATS',
-        cta: '升级到 Firm',
+        cta: '升级到 Pro',
         hrefKind: 'checkout',
         features: [
           'Solo 全部功能',
@@ -462,7 +462,7 @@ const zhCN: LandingCopy = {
         ],
       },
       {
-        name: 'Pro',
+        name: 'Firm',
         price: 'Custom',
         priceKind: 'text',
         cadence: '年度协议',
@@ -470,7 +470,7 @@ const zhCN: LandingCopy = {
         seats: '10+ SEATS',
         cta: '联系销售',
         hrefKind: 'contact',
-        features: ['Firm 全部功能', '优先 onboarding', '审计导出与覆盖规划', '覆盖扩展评估'],
+        features: ['Pro 全部功能', '优先 onboarding', '审计导出与覆盖规划', '覆盖扩展评估'],
       },
     ],
     faqHeader: {
@@ -484,9 +484,9 @@ const zhCN: LandingCopy = {
           '只有当前事务所 Owner 可以创建或变更付费订阅。其他成员可以查看计划状态，但不能更改账单。',
       },
       {
-        question: 'Firm 比 Solo 多什么？',
+        question: 'Pro 比 Solo 多什么？',
         answer:
-          'Firm 增加 5 席共享工作区、Pulse 监控和成长型事务所管理截止日运营所需的 workboard 视图。',
+          'Pro 增加 5 席共享工作区、Pulse 监控和成长型事务所管理截止日运营所需的 workboard 视图。',
       },
       {
         question: '可以继续使用 Solo 吗？',

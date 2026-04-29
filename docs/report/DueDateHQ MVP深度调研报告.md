@@ -144,7 +144,7 @@ flowchart TD
 
 ## 商业模式、14天时间线与交付物
 
-定价不建议抄大而全平台，也不建议做成低价一次性桌面授权。更合理的方式是做“轻专精 SaaS”：价格明显低于大型 practice management 套件，但能体现“官方规则维护、持续更新、提醒和审计”的持续价值。结合官方竞品价格锚点，建议首发定价如下：Solo $39/月、Firm $99/月、Pro $199/月，并配 14–30 天试用。这个区间低于 TaxDome、Canopy、Karbon 的主流席位成本，也与 Financial Cents/Jetpack 的轻量云工具区间相邻，更适合独立 CPA 与 1–5 人小所。citeturn14view0turn7view3turn8view7turn8view3turn9view0
+定价不建议抄大而全平台，也不建议做成低价一次性桌面授权。更合理的方式是做“轻专精 SaaS”：价格明显低于大型 practice management 套件，但能体现“官方规则维护、持续更新、提醒和审计”的持续价值。结合官方竞品价格锚点，当前首发定价锚定为 Solo $0、Pro $99/月、Firm Custom，并配 14–30 天试用。这个区间低于 TaxDome、Canopy、Karbon 的主流席位成本，也与 Financial Cents/Jetpack 的轻量云工具区间相邻，更适合独立 CPA 与 1–5 人小所。citeturn14view0turn7view3turn8view7turn8view3turn9view0
 
 | 套餐  | 建议价格 | 对象          | 核心内容                                     |
 | ----- | -------: | ------------- | -------------------------------------------- |

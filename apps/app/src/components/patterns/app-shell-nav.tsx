@@ -363,8 +363,8 @@ function useNavItems(firm: FirmPublic): NavConfig {
           ...(workloadPaid
             ? {}
             : {
-                tag: t`Firm`,
-                disabledReason: t`Team workload is available on Firm and Pro plans.`,
+                tag: t`Pro`,
+                disabledReason: t`Team workload is available on Pro and Firm plans.`,
               }),
         },
       ],

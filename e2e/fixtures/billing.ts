@@ -17,7 +17,7 @@ export async function seedBillingSubscription(
   const response = await request.post('/api/e2e/billing/subscription', {
     data: {
       firmId: input.firmId,
-      plan: input.plan ?? 'firm',
+      plan: input.plan ?? 'pro',
       status: input.status ?? 'active',
       interval: input.interval ?? 'month',
     },

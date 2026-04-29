@@ -3,12 +3,13 @@ import type { FirmPublic } from '@duedatehq/contracts'
 
 export const BILLING_PLANS = ['firm', 'pro'] as const
 export const BILLING_INTERVALS = ['monthly', 'yearly'] as const
+export const SELF_SERVE_BILLING_PLAN = 'pro' as const
 
 export type BillingPlan = (typeof BILLING_PLANS)[number]
 export type BillingInterval = (typeof BILLING_INTERVALS)[number]
 
 export const billingSearchParamsParsers = {
-  plan: parseAsStringLiteral(BILLING_PLANS).withDefault('firm'),
+  plan: parseAsStringLiteral(BILLING_PLANS).withDefault(SELF_SERVE_BILLING_PLAN),
   interval: parseAsStringLiteral(BILLING_INTERVALS).withDefault('monthly'),
 } as const
 
@@ -35,7 +36,7 @@ export function isBillingInterval(value: string | null): value is BillingInterva
 }
 
 export function parseBillingPlan(value: string | null): BillingPlan {
-  return isBillingPlan(value) ? value : 'firm'
+  return isBillingPlan(value) ? value : SELF_SERVE_BILLING_PLAN
 }
 
 export function parseBillingInterval(value: string | null): BillingInterval {
@@ -54,6 +55,10 @@ export function serializeBillingQuery(
 
 export function billingPlanHref(plan: BillingPlan, interval: BillingInterval): string {
   return serializeBillingQuery('/billing/checkout', { plan, interval })
+}
+
+export function isSelfServeBillingPlan(plan: BillingPlan): boolean {
+  return plan === SELF_SERVE_BILLING_PLAN
 }
 
 export function isFirmOwner(firm: FirmPublic | null | undefined): boolean {

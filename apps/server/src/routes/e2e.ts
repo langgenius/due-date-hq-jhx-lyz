@@ -137,7 +137,7 @@ e2eRoute.post('/billing/subscription', async (c) => {
     input.interval === 'year'
       ? new Date(now.getTime() + 366 * 24 * 60 * 60 * 1000)
       : new Date(now.getTime() + 31 * 24 * 60 * 60 * 1000)
-  const seatLimit = input.plan === 'pro' ? 10 : 5
+  const seatLimit = input.plan === 'firm' ? 10 : 5
   const customerId = `cus_e2e_${input.firmId.replace(/[^a-zA-Z0-9_]/g, '_')}`
   const stripeSubscriptionId = `sub_e2e_${crypto.randomUUID().replaceAll('-', '')}`
 
@@ -224,7 +224,7 @@ async function readBillingRequest(request: Request): Promise<{
   try {
     const raw: unknown = await request.json()
     if (!raw || typeof raw !== 'object') {
-      return { firmId: null, plan: 'firm', status: 'active', interval: 'month' }
+      return { firmId: null, plan: 'pro', status: 'active', interval: 'month' }
     }
     const input = raw as {
       firmId?: unknown
@@ -234,12 +234,12 @@ async function readBillingRequest(request: Request): Promise<{
     }
     return {
       firmId: typeof input.firmId === 'string' ? input.firmId : null,
-      plan: input.plan === 'pro' ? 'pro' : 'firm',
+      plan: input.plan === 'firm' ? 'firm' : 'pro',
       status: isBillingStatus(input.status) ? input.status : 'active',
       interval: input.interval === 'year' ? 'year' : 'month',
     }
   } catch {
-    return { firmId: null, plan: 'firm', status: 'active', interval: 'month' }
+    return { firmId: null, plan: 'pro', status: 'active', interval: 'month' }
   }
 }
 

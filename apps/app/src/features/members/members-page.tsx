@@ -358,7 +358,7 @@ function SeatStat({ data }: { data: MembersListOutput }) {
         <span className="text-sm font-medium text-text-muted">/ {data.seatLimit}</span>
       </div>
       <p className="mt-auto text-xs leading-[18px] text-text-muted">
-        <Trans>{data.availableSeats} available · Firm plan</Trans>
+        <Trans>{data.availableSeats} available seats</Trans>
       </p>
       <div className="mt-2 h-0.5 rounded-full bg-divider-subtle">
         <div

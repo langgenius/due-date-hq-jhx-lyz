@@ -22,7 +22,7 @@ test.describe('seeded team workload', () => {
     await appShellPage.goto()
 
     const sidebarItem = appShellPage.primaryNavigation.getByRole('link', {
-      name: /Team workload.*Firm/,
+      name: /Team workload.*Pro/,
     })
     await expect(sidebarItem).toHaveAttribute('aria-disabled', 'true')
 
@@ -30,7 +30,7 @@ test.describe('seeded team workload', () => {
 
     await expect(authenticatedPage).toHaveURL(/\/workload$/)
     await expect(workloadPage.upgradeHeading).toBeVisible()
-    await expect(workloadPage.upgradeToFirmLink).toHaveAttribute('href', '/billing')
+    await expect(workloadPage.upgradeToProLink).toHaveAttribute('href', '/billing')
     await expect(workloadPage.openWorkboardLink).toHaveAttribute('href', '/workboard')
   })
 

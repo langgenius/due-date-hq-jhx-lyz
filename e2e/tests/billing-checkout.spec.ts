@@ -26,7 +26,7 @@ test('AC: E2E-BILLING-CHECKOUT-PAYLOAD starts organization checkout with stable 
 
   const payload = await checkout.nextPayload()
   expect(payload).toMatchObject({
-    plan: 'firm',
+    plan: 'pro',
     annual: false,
     referenceId: authSession.firmId,
     customerType: 'organization',
@@ -37,7 +37,7 @@ test('AC: E2E-BILLING-CHECKOUT-PAYLOAD starts organization checkout with stable 
   expectCallbackUrl(payload.successUrl, '/billing/success')
   expectCallbackUrl(payload.cancelUrl, '/billing/cancel')
   expectCallbackUrl(payload.returnUrl, '/billing')
-  await expect(authenticatedPage).toHaveURL(/\/billing\/success\?plan=firm&interval=monthly$/)
+  await expect(authenticatedPage).toHaveURL(/\/billing\/success\?plan=pro&interval=monthly$/)
 })
 
 test('AC: E2E-BILLING-CHECKOUT-EXISTING-SUBSCRIPTION includes subscriptionId on plan changes', async ({
@@ -46,7 +46,7 @@ test('AC: E2E-BILLING-CHECKOUT-EXISTING-SUBSCRIPTION includes subscriptionId on 
   request,
   billingPage,
 }) => {
-  const seeded = await seedBillingSubscription(request, authSession.firmId)
+  const seeded = await seedBillingSubscription(request, authSession.firmId, 'firm')
   const checkout = await interceptCheckout(authenticatedPage, {
     redirectPath: '/billing/success?plan=pro&interval=yearly',
   })
@@ -63,7 +63,7 @@ test('AC: E2E-BILLING-CHECKOUT-EXISTING-SUBSCRIPTION includes subscriptionId on 
     referenceId: authSession.firmId,
     subscriptionId: seeded.subscription.stripeSubscriptionId,
     customerType: 'organization',
-    seats: 10,
+    seats: 5,
     disableRedirect: true,
   })
   expectCallbackUrl(payload.successUrl, '/billing/success')
@@ -95,7 +95,7 @@ async function interceptCheckout(
   options: { redirectPath?: string } = {},
 ): Promise<{ nextPayload(): Promise<Record<string, unknown>> }> {
   const payloads: Record<string, unknown>[] = []
-  const redirectPath = options.redirectPath ?? '/billing/success?plan=firm&interval=monthly'
+  const redirectPath = options.redirectPath ?? '/billing/success?plan=pro&interval=monthly'
 
   await page.route('**/api/auth/subscription/upgrade', async (route) => {
     const payload: unknown = route.request().postDataJSON()
@@ -119,10 +119,11 @@ async function interceptCheckout(
 async function seedBillingSubscription(
   request: APIRequestContext,
   firmId: string,
+  plan: 'firm' | 'pro' = 'pro',
 ): Promise<{
   subscription: { stripeSubscriptionId: string }
 }> {
-  return seedE2EBillingSubscription(request, { firmId })
+  return seedE2EBillingSubscription(request, { firmId, plan })
 }
 
 function expectCallbackUrl(value: unknown, pathname: string): void {

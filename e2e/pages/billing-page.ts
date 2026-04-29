@@ -11,7 +11,7 @@ export class BillingPage {
   readonly subscriptionActiveHeading: Locator
   readonly stillWaitingHeading: Locator
   readonly restartCheckoutLink: Locator
-  readonly firmPlanLink: Locator
+  readonly proPlanLink: Locator
 
   constructor(readonly page: Page) {
     this.checkoutHeading = page.getByRole('heading', { name: 'Confirm checkout', level: 1 })
@@ -30,10 +30,10 @@ export class BillingPage {
       hasText: 'Still waiting on confirmation',
     })
     this.restartCheckoutLink = page.getByRole('link', { name: 'Restart checkout' })
-    this.firmPlanLink = page.getByRole('link', { name: /Upgrade to Firm/ })
+    this.proPlanLink = page.getByRole('link', { name: /Upgrade to Pro/ })
   }
 
-  async gotoCheckout(path = '/billing/checkout?plan=firm&interval=monthly') {
+  async gotoCheckout(path = '/billing/checkout?plan=pro&interval=monthly') {
     await this.page.goto(path)
   }
 
@@ -41,11 +41,11 @@ export class BillingPage {
     await this.page.goto('/billing')
   }
 
-  async gotoSuccess(path = '/billing/success?plan=firm&interval=monthly') {
+  async gotoSuccess(path = '/billing/success?plan=pro&interval=monthly') {
     await this.page.goto(path)
   }
 
-  async gotoCancel(path = '/billing/cancel?plan=firm&interval=monthly') {
+  async gotoCancel(path = '/billing/cancel?plan=pro&interval=monthly') {
     await this.page.goto(path)
   }
 }

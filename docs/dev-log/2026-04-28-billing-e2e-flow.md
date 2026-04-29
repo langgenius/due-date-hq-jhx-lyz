@@ -22,7 +22,7 @@ depend on Stripe-hosted Checkout DOM or live third-party network behavior.
 
 ## Coverage
 
-- Pricing Firm CTA preserves `plan=firm&interval=monthly` through the login redirect.
+- Pricing Pro CTA preserves `plan=pro&interval=monthly` through the login redirect.
 - Chinese pricing CTA carries `lng=zh-CN`; the app consumes locale before redirecting and keeps
   billing query state clean.
 - Checkout sends organization-scoped upgrade payloads and includes `subscriptionId` when changing an

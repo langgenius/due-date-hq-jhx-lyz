@@ -66,10 +66,12 @@ PULSE_OPS_TOKEN=
 # Then copy the printed whsec_* value into STRIPE_WEBHOOK_SECRET.
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
-STRIPE_PRICE_FIRM_MONTHLY=
-STRIPE_PRICE_FIRM_YEARLY=
+# Required for self-serve Pro checkout.
 STRIPE_PRICE_PRO_MONTHLY=
 STRIPE_PRICE_PRO_YEARLY=
+# Optional for sales-assisted Firm subscriptions.
+STRIPE_PRICE_FIRM_MONTHLY=
+STRIPE_PRICE_FIRM_YEARLY=
 
 # ═════════════════════════════════════════════════════════════════════════════
 # [Optional] AI SDK via Cloudflare AI Gateway

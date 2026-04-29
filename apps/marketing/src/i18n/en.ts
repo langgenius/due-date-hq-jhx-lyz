@@ -441,7 +441,7 @@ const en: LandingCopy = {
       eyebrow: 'PRICING',
       title: 'Pay for the deadline risk you can actually see.',
       description:
-        'Start on Solo, move to Firm when deadline operations need a shared workspace, and talk to us when audit exports and higher coverage become operational requirements.',
+        'Start on Solo, move to Pro when deadline operations need a shared workspace, and talk to us about Firm when audit exports and higher coverage become operational requirements.',
       note: 'No credit card required for Solo · DueDateHQ never stores card numbers',
     },
     plansHeader: {
@@ -467,14 +467,14 @@ const en: LandingCopy = {
         ],
       },
       {
-        name: 'Firm',
+        name: 'Pro',
         badge: 'Recommended',
         price: '$99',
         priceKind: 'numeric',
         cadence: '/ month',
         description: 'For growing CPA practices that need shared deadline operations.',
         seats: '5 SEATS',
-        cta: 'Upgrade to Firm',
+        cta: 'Upgrade to Pro',
         hrefKind: 'checkout',
         features: [
           'Everything in Solo',
@@ -484,7 +484,7 @@ const en: LandingCopy = {
         ],
       },
       {
-        name: 'Pro',
+        name: 'Firm',
         price: 'Custom',
         priceKind: 'text',
         cadence: 'annual agreement',
@@ -494,7 +494,7 @@ const en: LandingCopy = {
         cta: 'Contact sales',
         hrefKind: 'contact',
         features: [
-          'Everything in Firm',
+          'Everything in Pro',
           'Priority onboarding',
           'Audit exports and coverage planning',
           'Coverage expansion review',
@@ -512,9 +512,9 @@ const en: LandingCopy = {
           'Only the active firm owner can start or change a paid subscription. Member roles can review plan status but cannot make billing changes.',
       },
       {
-        question: 'What does Firm add over Solo?',
+        question: 'What does Pro add over Solo?',
         answer:
-          'Firm adds a five-seat shared workspace, Pulse monitoring, and the workboard views a growing practice needs for deadline operations.',
+          'Pro adds a five-seat shared workspace, Pulse monitoring, and the workboard views a growing practice needs for deadline operations.',
       },
       {
         question: 'Can I keep using Solo?',

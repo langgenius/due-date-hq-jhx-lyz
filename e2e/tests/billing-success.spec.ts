@@ -25,7 +25,7 @@ test('AC: E2E-BILLING-WEBHOOK-STATE shows activation only after subscription sta
   await billingPage.gotoSuccess()
 
   await expect(billingPage.subscriptionActiveHeading).toBeVisible()
-  await expect(billingPage.page.getByText('firm', { exact: true })).toBeVisible()
+  await expect(billingPage.page.getByText('pro', { exact: true })).toBeVisible()
 })
 
 test('AC: E2E-BILLING-PORTAL reads webhook-backed state and opens portal by contract', async ({
@@ -40,7 +40,7 @@ test('AC: E2E-BILLING-PORTAL reads webhook-backed state and opens portal by cont
   await billingPage.gotoBilling()
 
   await expect(billingPage.billingHeading).toBeVisible()
-  await expect(authenticatedPage.getByRole('group', { name: 'Plan: firm' })).toBeVisible()
+  await expect(authenticatedPage.getByRole('group', { name: 'Plan: pro' })).toBeVisible()
   await expect(authenticatedPage.getByRole('group', { name: 'Seat limit: 5' })).toBeVisible()
   await expect(billingPage.manageBillingButton).toBeEnabled()
 
@@ -64,7 +64,7 @@ test('AC: E2E-BILLING-CANCEL-RECOVERY keeps selected plan available after cancel
   await expect(billingPage.cancelHeading).toBeVisible()
   await expect(billingPage.restartCheckoutLink).toHaveAttribute(
     'href',
-    '/billing/checkout?plan=firm&interval=monthly',
+    '/billing/checkout?plan=pro&interval=monthly',
   )
 })
 

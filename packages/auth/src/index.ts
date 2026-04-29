@@ -132,29 +132,27 @@ function trustedOrigins(env: AuthEnv): string[] {
 function isStripeConfigured(env: AuthEnv): env is AuthEnv & {
   STRIPE_SECRET_KEY: string
   STRIPE_WEBHOOK_SECRET: string
-  STRIPE_PRICE_FIRM_MONTHLY: string
+  STRIPE_PRICE_PRO_MONTHLY: string
 } {
-  return Boolean(
-    env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET && env.STRIPE_PRICE_FIRM_MONTHLY,
-  )
+  return Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET && env.STRIPE_PRICE_PRO_MONTHLY)
 }
 
 function stripePlans(env: AuthEnv): StripePlan[] {
   const plans: StripePlan[] = [
     {
-      name: 'firm',
-      priceId: env.STRIPE_PRICE_FIRM_MONTHLY,
-      annualDiscountPriceId: env.STRIPE_PRICE_FIRM_YEARLY,
+      name: 'pro',
+      priceId: env.STRIPE_PRICE_PRO_MONTHLY,
+      annualDiscountPriceId: env.STRIPE_PRICE_PRO_YEARLY,
       limits: { seats: 5 },
       freeTrial: { days: 14 },
     },
   ]
 
-  if (env.STRIPE_PRICE_PRO_MONTHLY || env.STRIPE_PRICE_PRO_YEARLY) {
+  if (env.STRIPE_PRICE_FIRM_MONTHLY || env.STRIPE_PRICE_FIRM_YEARLY) {
     plans.push({
-      name: 'pro',
-      priceId: env.STRIPE_PRICE_PRO_MONTHLY,
-      annualDiscountPriceId: env.STRIPE_PRICE_PRO_YEARLY,
+      name: 'firm',
+      priceId: env.STRIPE_PRICE_FIRM_MONTHLY,
+      annualDiscountPriceId: env.STRIPE_PRICE_FIRM_YEARLY,
       limits: { seats: 10 },
     })
   }
@@ -163,8 +161,8 @@ function stripePlans(env: AuthEnv): StripePlan[] {
 }
 
 function planSeatLimit(plan: BillingPlan): number {
-  if (plan === 'pro') return 10
-  if (plan === 'firm') return 5
+  if (plan === 'firm') return 10
+  if (plan === 'pro') return 5
   return 1
 }
 
@@ -175,7 +173,7 @@ function activeBillingPlan(subscription: Subscription): BillingPlan {
     subscription.status === 'past_due' ||
     subscription.status === 'paused'
   ) {
-    return subscription.plan === 'pro' ? 'pro' : 'firm'
+    return subscription.plan === 'firm' ? 'firm' : 'pro'
   }
   return 'solo'
 }

@@ -9,7 +9,7 @@ Owner: Codex
 当前订阅卡片 + payment model + 三张很薄的 plan card。它和 `settings.profile` 的收敛式
 设置页宽度不一致，也没有复用 marketing pricing 里已经确定的套餐对比层级。
 
-后续检查发现 `/billing/checkout?plan=firm&interval=monthly` 的计划摘要卡片出现空白：
+后续检查发现 `/billing/checkout?plan=pro&interval=monthly` 的计划摘要卡片出现空白：
 原因是 Lingui `t` 宏被作为函数参数传入普通 helper 后再以 tagged template 使用，运行时
 没有得到正确 message descriptor，导致 plan label / price / features 渲染为空。
 

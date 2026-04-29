@@ -8,12 +8,12 @@ date: 2026-04-29
 ## Decision
 
 `Team workload` is no longer treated as a hidden future route. It remains a persistent Operations
-sidebar signal because shared deadline operations are the main Firm/Pro value proposition.
+sidebar signal because shared deadline operations are the main Pro/Firm value proposition.
 
 Plan behavior:
 
-- Solo keeps the sidebar row visible but locked with a paid `Firm` tag.
-- Firm and Pro enable the route.
+- Solo keeps the sidebar row visible but locked with a paid `Pro` tag.
+- Pro and Firm enable the route.
 - Direct Solo navigation shows a Billing upgrade panel rather than a 404.
 - The workload API also enforces paid-plan access.
 
