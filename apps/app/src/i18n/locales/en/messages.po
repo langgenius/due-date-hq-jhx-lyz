@@ -55,7 +55,7 @@ msgid "{0, plural, one {We imported the first 1000 of # row. Split your file to 
 msgstr "{0, plural, one {We imported the first 1000 of # row. Split your file to import more.} other {We imported the first 1000 of # rows. Split your file to import more.}}"
 
 #. placeholder {0}: data.availableSeats
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "{0} available · Firm plan"
 msgstr "{0} available · Firm plan"
 
@@ -143,7 +143,7 @@ msgid "{0} top rows have evidence."
 msgstr "{0} top rows have evidence."
 
 #. placeholder {0}: pendingRemoval.name
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "{0} will lose access to this firm. Audit history stays retained."
 msgstr "{0} will lose access to this firm. Audit history stays retained."
 
@@ -155,7 +155,7 @@ msgstr "{clientCount, plural, one {# client} other {# clients}}"
 msgid "{durationMonths} months"
 msgstr "{durationMonths} months"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "{expiredCount} expired needs resend"
 msgstr "{expiredCount} expired needs resend"
 
@@ -183,11 +183,11 @@ msgstr "{needsReviewCount, plural, one {# value needs human review} other {# val
 msgid "{obligationCount, plural, one {# obligation (full tax year)} other {# obligations (full tax year)}}"
 msgstr "{obligationCount, plural, one {# obligation (full tax year)} other {# obligations (full tax year)}}"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "{ownerCount} owner · {managedCount} managed"
 msgstr "{ownerCount} owner · {managedCount} managed"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "{pendingCount} pending · {expiredCount} expired · magic-link via Resend, 7-day expiry"
 msgstr "{pendingCount} pending · {expiredCount} expired · magic-link via Resend, 7-day expiry"
 
@@ -288,7 +288,7 @@ msgstr "5 seats"
 msgid "5 seats included"
 msgstr "5 seats included"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "access revoked, history kept"
 msgstr "access revoked, history kept"
 
@@ -315,7 +315,7 @@ msgstr "Action"
 msgid "Actions"
 msgstr "Actions"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Active"
 msgstr "Active"
 
@@ -332,7 +332,7 @@ msgstr "Active firm · {currentPlan} plan · {0} seat limit"
 msgid "Active firm summary"
 msgstr "Active firm summary"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Active members"
 msgstr "Active members"
 
@@ -418,7 +418,7 @@ msgstr "All entities"
 msgid "All review-flagged"
 msgstr "All review-flagged"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "All seats are in use. Upgrade to invite more, or suspend an active member to free a seat."
 msgstr "All seats are in use. Upgrade to invite more, or suspend an active member to free a seat."
 
@@ -608,7 +608,7 @@ msgstr "California"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/clients/CreateClientDialog.tsx
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 #: src/routes/settings.profile.tsx
 msgid "Cancel"
 msgstr "Cancel"
@@ -634,7 +634,7 @@ msgstr "Card numbers and invoice payment details never enter the app database."
 msgid "Change"
 msgstr "Change"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Change role"
 msgstr "Change role"
 
@@ -697,7 +697,7 @@ msgstr "Citation detail"
 msgid "Clear search or filters to return to the full firm directory."
 msgstr "Clear search or filters to return to the full firm directory."
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Click more to change role, suspend, or remove"
 msgstr "Click more to change role, suspend, or remove"
 
@@ -1202,17 +1202,17 @@ msgstr "Exact action"
 msgid "Exception"
 msgstr "Exception"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Expired"
 msgstr "Expired"
 
-#. placeholder {0}: formatShortDate(invitation.expiresAt)
-#: src/routes/settings.members.tsx
+#. placeholder {0}: formatInvitationDate(invitation.expiresAt)
+#: src/features/members/members-page.tsx
 msgid "Expired {0}"
 msgstr "Expired {0}"
 
-#. placeholder {0}: formatShortDate(invitation.expiresAt)
-#: src/routes/settings.members.tsx
+#. placeholder {0}: formatInvitationDate(invitation.expiresAt)
+#: src/features/members/members-page.tsx
 msgid "Expires {0}"
 msgstr "Expires {0}"
 
@@ -1448,11 +1448,11 @@ msgstr "Input client facts → dry-run rules engine → see which obligations wo
 msgid "Intake"
 msgstr "Intake"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Invite a teammate"
 msgstr "Invite a teammate"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Invite member"
 msgstr "Invite member"
 
@@ -1625,21 +1625,21 @@ msgstr "medium"
 msgid "Member"
 msgstr "Member"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Member action failed"
 msgstr "Member action failed"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "member@example.com"
 msgstr "member@example.com"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/features/members/members-page.tsx
 #: src/routes/route-summary.ts
-#: src/routes/settings.members.tsx
 msgid "Members"
 msgstr "Members"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Members could not load"
 msgstr "Members could not load"
 
@@ -1820,7 +1820,7 @@ msgstr "no rule"
 msgid "no rule — not in MVP scope"
 msgstr "no rule — not in MVP scope"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "No seats are available. Upgrade or suspend a member before inviting."
 msgstr "No seats are available. Upgrade or suspend a member before inviting."
 
@@ -1845,7 +1845,7 @@ msgid "Not applicable"
 msgstr "Not applicable"
 
 #: src/features/audit/audit-event-drawer.tsx
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Not recorded"
 msgstr "Not recorded"
 
@@ -1930,7 +1930,7 @@ msgstr "Open evidence for {label}"
 msgid "Open fact profile for {0}"
 msgstr "Open fact profile for {0}"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Open member actions"
 msgstr "Open member actions"
 
@@ -2043,15 +2043,15 @@ msgstr "Owner approved"
 msgid "Owner permission required"
 msgstr "Owner permission required"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "owner read-only · self read-only"
 msgstr "owner read-only · self read-only"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
 msgstr "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Owner-only. Invite teammates, change roles, and manage seats."
 msgstr "Owner-only. Invite teammates, change roles, and manage seats."
 
@@ -2104,16 +2104,16 @@ msgstr "Payment is extended along with filing."
 msgid "Payment model"
 msgstr "Payment model"
 
+#: src/features/members/members-page.tsx
 #: src/features/workboard/status-control.tsx
-#: src/routes/settings.members.tsx
 msgid "Pending"
 msgstr "Pending"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Pending invitations"
 msgstr "Pending invitations"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Pending invites"
 msgstr "Pending invites"
 
@@ -2240,7 +2240,7 @@ msgstr "Re-run AI with my overrides"
 msgid "Re-run failed."
 msgstr "Re-run failed."
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Reactivate access"
 msgstr "Reactivate access"
 
@@ -2322,11 +2322,11 @@ msgstr "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgid "reminder-ready across MVP scope"
 msgstr "reminder-ready across MVP scope"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Remove from firm"
 msgstr "Remove from firm"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Remove member?"
 msgstr "Remove member?"
 
@@ -2343,7 +2343,7 @@ msgstr "Required for rules and Pulse matching."
 msgid "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
 msgstr "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Resend"
 msgstr "Resend"
 
@@ -2435,7 +2435,7 @@ msgstr "Risk pulse"
 msgid "Risk table"
 msgstr "Risk table"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Role"
 msgstr "Role"
 
@@ -2549,11 +2549,11 @@ msgstr "Search, segment, and inspect the facts that feed rules, risk, and Pulse 
 msgid "Seat limit"
 msgstr "Seat limit"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Seat limit reached."
 msgstr "Seat limit reached."
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Seats used"
 msgstr "Seats used"
 
@@ -2586,20 +2586,20 @@ msgstr "Selected plan"
 msgid "Self-serve changes use secure checkout and keep the active firm as reference."
 msgstr "Self-serve changes use secure checkout and keep the active firm as reference."
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Send a 7-day magic link to add a member to this firm."
 msgstr "Send a 7-day magic link to add a member to this firm."
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Send invite"
 msgstr "Send invite"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Sending…"
 msgstr "Sending…"
 
-#. placeholder {0}: formatShortDate(invitation.createdAt)
-#: src/routes/settings.members.tsx
+#. placeholder {0}: formatInvitationDate(invitation.createdAt)
+#: src/features/members/members-page.tsx
 msgid "Sent {0}"
 msgstr "Sent {0}"
 
@@ -2616,8 +2616,8 @@ msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/members/members-page.tsx
 #: src/routes/settings.billing.tsx
-#: src/routes/settings.members.tsx
 #: src/routes/settings.profile.tsx
 msgid "Settings"
 msgstr "Settings"
@@ -2834,11 +2834,11 @@ msgstr "Suggested tax types (from entity × state matrix)"
 msgid "Summary queued to assignees"
 msgstr "Summary queued to assignees"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Suspend access"
 msgstr "Suspend access"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Suspended"
 msgstr "Suspended"
 
@@ -3032,7 +3032,7 @@ msgstr "Updated {0}"
 msgid "Upgrade"
 msgstr "Upgrade"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Upgrade plan"
 msgstr "Upgrade plan"
 
@@ -3098,7 +3098,7 @@ msgstr "View"
 msgid "View audit detail"
 msgstr "View audit detail"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "View audit log"
 msgstr "View audit log"
 
@@ -3179,7 +3179,7 @@ msgstr "What stays in DueDateHQ"
 msgid "Where is your data coming from?"
 msgstr "Where is your data coming from?"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "Work email"
 
@@ -3215,7 +3215,7 @@ msgstr "XLSX uploads land in Phase 0 — please export as CSV for now."
 msgid "Yearly"
 msgstr "Yearly"
 
-#: src/routes/settings.members.tsx
+#: src/features/members/members-page.tsx
 msgid "You"
 msgstr "You"
 

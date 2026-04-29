@@ -42,6 +42,7 @@ apps/app/
 │   │   ├── billing/           ← billing URL/model + Better Auth billing adapters
 │   │   ├── clients/           ← Clients facts/readiness 纯派生逻辑、创建弹窗、工作台展示组件
 │   │   ├── dashboard/         ← dashboard 专属 risk banner / severity row 等展示模型
+│   │   ├── members/           ← settings members route surface + member role/invite model
 │   │   ├── migration/
 │   │   ├── pulse/
 │   │   ├── workboard/
@@ -103,6 +104,11 @@ runtime / integration 入口，例如 auth client、oRPC client、RPC error mapp
 adapter、跨页面 URL input debounce；不得放 billing plan、dashboard row、rules table 等带业务语义的
 model 或 component。`apps/app/src/components/primitives` 只放真正跨 feature 的 app 专属 UI primitive；
 单一 vertical 的展示组件留在对应 feature 内。
+
+Route 文件默认保持薄组合层。复杂 route 的业务 UI 和派生 model 下沉到对应
+`features/<vertical>/`，例如 `/settings/members` 只通过
+`routes/settings.members.tsx` 挂载 `features/members` 页面，成员角色、邀请状态、日期展示等
+feature 语义留在 members vertical 内。
 
 ## 2. 路由模型（React Router 7 · data mode）
 

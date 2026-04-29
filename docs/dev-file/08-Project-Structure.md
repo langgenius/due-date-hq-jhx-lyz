@@ -202,6 +202,7 @@ apps/server/
 - `src/features/*`：业务 vertical；feature model、私有 helper、局部 UI 和测试优先 colocate 在这里
 - `src/features/billing/*`：billing URL/model + Better Auth billing adapters
 - `src/features/dashboard/*`：dashboard 专属展示模型和局部 UI
+- `src/features/members/*`：settings members 页面、成员角色/邀请派生 model 和局部 UI
 - `src/components/primitives/*`：真正跨 feature 的 app 专属 UI primitive；基础 UI 从 `@duedatehq/ui/components/ui/*` 引入
 - `src/components/patterns/*`：app-shell、keyboard-shell 等跨 feature 复合组件
 - `src/components/patterns/keyboard-shell/*`：唯一 app 级快捷键 provider、Command Palette、`?` 帮助浮层；允许依赖 React Router / Lingui / feature providers，不得下沉到 `packages/ui`
