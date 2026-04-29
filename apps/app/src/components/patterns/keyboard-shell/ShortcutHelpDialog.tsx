@@ -34,6 +34,12 @@ interface ShortcutHelpItem {
   disabledReason?: string | undefined
 }
 
+interface ShortcutHelpGroup {
+  category: ShortcutCategory
+  label: string
+  items: ShortcutHelpItem[]
+}
+
 const CATEGORY_ORDER: ShortcutCategory[] = [
   'global',
   'navigate',
@@ -106,71 +112,138 @@ export function ShortcutHelpDialog({ open, onOpenChange }: ShortcutHelpDialogPro
     })
   }, [hotkeys, sequences])
 
+  const availableCount = items.reduce((count, item) => count + (item.disabledReason ? 0 : 1), 0)
+  const reservedCount = items.length - availableCount
+  const groups = useMemo<ShortcutHelpGroup[]>(
+    () =>
+      CATEGORY_ORDER.map((category) => ({
+        category,
+        label: CATEGORY_LABELS[category],
+        items: items.filter((item) => item.category === category),
+      })).filter((group) => group.items.length > 0),
+    [items],
+  )
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[min(720px,calc(100vh-2rem))] w-[760px] overflow-hidden rounded-xl">
-        <DialogTitle>
-          <Trans>Keyboard shortcuts</Trans>
-        </DialogTitle>
-        <DialogDescription>
-          <Trans>Currently available shortcuts and reserved keyboard slots.</Trans>
-        </DialogDescription>
-        <div className="min-h-0 overflow-y-auto">
-          <div className="grid gap-5">
-            {CATEGORY_ORDER.map((category) => {
-              const categoryItems = items.filter((item) => item.category === category)
-              if (categoryItems.length === 0) return null
-              return (
-                <section key={category} className="grid gap-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-                    {CATEGORY_LABELS[category]}
-                  </h3>
-                  <div className="overflow-hidden rounded-lg border border-divider-regular">
-                    {categoryItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className={cn(
-                          'grid grid-cols-[minmax(120px,160px)_1fr] gap-3 border-b border-divider-subtle p-3 last:border-b-0',
-                          item.disabledReason && 'bg-background-subtle',
-                        )}
-                      >
-                        <div className="flex flex-wrap items-start gap-1">
-                          {shortcutSegments(item.keys).map((segment) => (
-                            <span key={`${item.id}-${segment.id}`} className="contents">
-                              {!segment.first ? (
-                                <span className="pt-1 text-xs text-text-tertiary">then</span>
-                              ) : null}
-                              <kbd className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-divider-regular bg-components-panel-bg px-1.5 font-mono text-xs text-text-primary">
-                                {segment.key}
-                              </kbd>
-                            </span>
-                          ))}
-                        </div>
-                        <div className="grid gap-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-medium text-text-primary">
-                              {item.name}
-                            </span>
-                            {item.disabledReason ? (
-                              <Badge variant="outline">
-                                <Trans>Reserved</Trans>
-                              </Badge>
-                            ) : null}
-                          </div>
-                          <p className="text-sm text-text-secondary">
-                            {item.disabledReason ?? item.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+      <DialogContent className="flex max-h-[min(760px,calc(100vh-2rem))] w-[min(900px,calc(100vw-2rem))] flex-col gap-0 overflow-hidden rounded-lg border border-components-panel-border bg-components-panel-bg p-0 shadow-overlay">
+        <header className="flex shrink-0 flex-col gap-3 border-b border-divider-regular bg-background-default px-5 py-4 pr-14">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="grid gap-1">
+              <DialogTitle>
+                <Trans>Keyboard shortcuts</Trans>
+              </DialogTitle>
+              <DialogDescription>
+                <Trans>Currently available shortcuts and reserved keyboard slots.</Trans>
+              </DialogDescription>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <Badge variant="secondary" className="font-mono tabular-nums">
+                <Trans>{availableCount} available</Trans>
+              </Badge>
+              <Badge variant="outline" className="font-mono tabular-nums">
+                <Trans>{reservedCount} reserved</Trans>
+              </Badge>
+            </div>
+          </div>
+        </header>
+
+        <div className="grid min-h-0 flex-1 bg-background-body md:grid-cols-[184px_1fr]">
+          <aside className="hidden border-r border-divider-regular bg-background-section p-3 md:block">
+            <div className="grid gap-1">
+              {groups.map((group) => {
+                return (
+                  <div
+                    key={group.category}
+                    className="flex min-h-9 items-center justify-between rounded-md px-2.5 text-sm"
+                  >
+                    <span className="font-medium text-text-secondary">{group.label}</span>
+                    <span className="font-mono text-xs tabular-nums text-text-tertiary">
+                      {group.items.length}
+                    </span>
                   </div>
-                </section>
-              )
-            })}
+                )
+              })}
+            </div>
+          </aside>
+
+          <div className="min-h-0 overflow-y-auto overscroll-contain px-4 py-4 md:px-5">
+            <div className="grid gap-5">
+              {groups.map((group) => {
+                return (
+                  <section key={group.category} className="grid gap-2">
+                    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-divider-subtle bg-background-body py-2">
+                      <h3 className="text-xs font-semibold uppercase text-text-tertiary">
+                        {group.label}
+                      </h3>
+                      <span className="font-mono text-xs tabular-nums text-text-tertiary">
+                        {group.items.length}
+                      </span>
+                    </div>
+                    <div className="overflow-hidden rounded-md border border-divider-regular bg-background-default">
+                      {group.items.map((item) => (
+                        <ShortcutRow key={item.id} item={item} />
+                      ))}
+                    </div>
+                  </section>
+                )
+              })}
+            </div>
           </div>
         </div>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function ShortcutRow({ item }: { item: ShortcutHelpItem }) {
+  return (
+    <div
+      className={cn(
+        'grid gap-3 border-b border-divider-subtle p-3 last:border-b-0 sm:grid-cols-[minmax(132px,168px)_1fr_auto] sm:items-center',
+        item.disabledReason && 'bg-background-subtle',
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-1">
+        {shortcutSegments(item.keys).map((segment) => (
+          <span key={`${item.id}-${segment.id}`} className="contents">
+            {!segment.first ? (
+              <span className="px-0.5 text-xs text-text-tertiary">
+                <Trans>then</Trans>
+              </span>
+            ) : null}
+            <kbd
+              className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-divider-regular bg-components-panel-bg px-1.5 font-mono text-xs font-medium tabular-nums text-text-primary"
+              translate="no"
+            >
+              {segment.key}
+            </kbd>
+          </span>
+        ))}
+      </div>
+
+      <div className="grid min-w-0 gap-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <span className="truncate text-sm font-medium text-text-primary">{item.name}</span>
+          {item.disabledReason ? (
+            <Badge variant="outline">
+              <Trans>Reserved</Trans>
+            </Badge>
+          ) : null}
+        </div>
+        <p className="break-words text-sm leading-5 text-text-secondary">
+          {item.disabledReason ?? item.description}
+        </p>
+      </div>
+
+      <Badge
+        variant={item.scope === 'global' ? 'secondary' : 'outline'}
+        className="capitalize"
+        translate="no"
+      >
+        {item.scope}
+      </Badge>
+    </div>
   )
 }
 

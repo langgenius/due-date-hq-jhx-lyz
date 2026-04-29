@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { formatCompactShortcutForDisplay, formatShortcutSequenceForDisplay } from './display'
+import { NAVIGATION_SHORTCUTS } from './navigation-shortcuts'
 import { isEditableEventTarget, isInteractiveEventTarget, RESERVED_SHORTCUTS } from './types'
 
 describe('keyboard shell utilities', () => {
@@ -46,5 +47,17 @@ describe('keyboard shell utilities', () => {
     expect(formatShortcutSequenceForDisplay('Mod+Shift+O')).not.toContain('Mod')
     expect(formatShortcutSequenceForDisplay('G then D')).toBe('G then D')
     expect(formatCompactShortcutForDisplay('Mod+K')).not.toContain(' ')
+  })
+
+  it('keeps operations navigation shortcuts explicit', () => {
+    expect(
+      NAVIGATION_SHORTCUTS.map((shortcut) => [shortcut.id, shortcut.path, shortcut.displayKeys]),
+    ).toEqual([
+      ['nav.dashboard', '/', 'G then D'],
+      ['nav.workboard', '/workboard', 'G then W'],
+      ['nav.clients', '/clients', 'G then C'],
+      ['nav.alerts', '/alerts', 'G then A'],
+      ['nav.workload', '/workload', 'G then T'],
+    ])
   })
 })

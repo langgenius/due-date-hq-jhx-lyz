@@ -9,6 +9,7 @@ export class AppShellPage {
   readonly importClientsButton: Locator
   readonly commandDialog: Locator
   readonly commandPaletteHeading: Locator
+  readonly shortcutDialog: Locator
 
   constructor(readonly page: Page) {
     this.primaryNavigation = page.getByRole('navigation', { name: 'Primary navigation' })
@@ -23,6 +24,7 @@ export class AppShellPage {
     this.commandPaletteHeading = this.commandDialog.getByRole('heading', {
       name: 'Command palette',
     })
+    this.shortcutDialog = page.getByRole('dialog', { name: 'Keyboard shortcuts' })
   }
 
   async goto(path = '/') {
@@ -36,6 +38,20 @@ export class AppShellPage {
 
   commandItem(name: string) {
     return this.commandDialog.getByText(name, { exact: true })
+  }
+
+  async openShortcutHelp() {
+    await this.primaryNavigation.waitFor({ state: 'visible' })
+    await this.page.keyboard.press('?')
+    if (await this.shortcutDialog.isVisible()) return
+
+    try {
+      await this.page.keyboard.down('Shift')
+      await this.page.keyboard.press('/')
+    } finally {
+      await this.page.keyboard.up('Shift')
+    }
+    await this.shortcutDialog.waitFor({ state: 'visible', timeout: 1_000 })
   }
 
   private async tryOpenCommandPalette(shortcut: string) {

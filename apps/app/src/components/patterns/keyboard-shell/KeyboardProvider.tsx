@@ -1,13 +1,23 @@
 import { lazy, Suspense, useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
-import { HotkeysProvider, type HotkeysProviderOptions } from '@tanstack/react-hotkeys'
+import {
+  HotkeysProvider,
+  type HotkeysProviderOptions,
+  type RegisterableHotkey,
+} from '@tanstack/react-hotkeys'
 
 import type { ThemePreference } from '@duedatehq/ui/theme'
 
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 
 import { COMMAND_PALETTE_HOTKEY } from './display'
-import { useAppHotkey, useAppHotkeySequence, useKeyboardShell } from './hooks'
+import {
+  useAppHotkey,
+  useAppHotkeySequence,
+  useKeyboardShell,
+  useKeyboardShortcutsBlocked,
+} from './hooks'
+import { NAVIGATION_SHORTCUTS, type NavigationShortcut } from './navigation-shortcuts'
 import { KeyboardShellContext } from './state'
 
 const CommandPalette = lazy(() =>
@@ -17,7 +27,7 @@ const ShortcutHelpDialog = lazy(() =>
   import('./ShortcutHelpDialog').then((module) => ({ default: module.ShortcutHelpDialog })),
 )
 
-const QUESTION_MARK_HOTKEY = { key: '/', shift: true }
+const QUESTION_MARK_HOTKEY = { key: '/', shift: true } satisfies RegisterableHotkey
 
 const HOTKEY_DEFAULTS: HotkeysProviderOptions = {
   hotkey: {
@@ -105,14 +115,8 @@ function GlobalKeyboardBindings({
   themePreference: ThemePreference
   switchThemePreference: (next: ThemePreference) => void
 }) {
-  const navigate = useNavigate()
-  const {
-    shortcutsBlocked,
-    openCommandPalette,
-    closeCommandPalette,
-    commandPaletteOpen,
-    openShortcutHelp,
-  } = useKeyboardShell()
+  const { openCommandPalette, closeCommandPalette, commandPaletteOpen, openShortcutHelp } =
+    useKeyboardShell()
 
   useAppHotkey(
     COMMAND_PALETTE_HOTKEY,
@@ -163,51 +167,28 @@ function GlobalKeyboardBindings({
     },
   )
 
-  useAppHotkeySequence(['G', 'D'], () => void navigate('/'), {
-    enabled: !shortcutsBlocked,
-    meta: {
-      id: 'nav.dashboard',
-      name: 'Go to Dashboard',
-      description: 'Navigate to the dashboard.',
-      category: 'navigate',
-      scope: 'global',
-      displayKeys: 'G then D',
-    },
-  })
+  return (
+    <>
+      {NAVIGATION_SHORTCUTS.map((shortcut) => (
+        <NavigationHotkeyBinding key={shortcut.id} shortcut={shortcut} />
+      ))}
+    </>
+  )
+}
 
-  useAppHotkeySequence(['G', 'W'], () => void navigate('/workboard'), {
-    enabled: !shortcutsBlocked,
-    meta: {
-      id: 'nav.workboard',
-      name: 'Go to Workboard',
-      description: 'Navigate to the Workboard.',
-      category: 'navigate',
-      scope: 'global',
-      displayKeys: 'G then W',
-    },
-  })
+function NavigationHotkeyBinding({ shortcut }: { shortcut: NavigationShortcut }) {
+  const navigate = useNavigate()
+  const shortcutsBlocked = useKeyboardShortcutsBlocked()
 
-  useAppHotkeySequence(['G', 'C'], () => void navigate('/clients'), {
+  useAppHotkeySequence(shortcut.sequence, () => void navigate(shortcut.path), {
     enabled: !shortcutsBlocked,
     meta: {
-      id: 'nav.clients',
-      name: 'Go to Clients',
-      description: 'Navigate to the client directory.',
+      id: shortcut.id,
+      name: shortcut.name,
+      description: shortcut.description,
       category: 'navigate',
       scope: 'global',
-      displayKeys: 'G then C',
-    },
-  })
-
-  useAppHotkeySequence(['G', 'A'], () => void navigate('/alerts'), {
-    enabled: !shortcutsBlocked,
-    meta: {
-      id: 'nav.alerts',
-      name: 'Go to Alerts',
-      description: 'Navigate to Pulse alerts.',
-      category: 'navigate',
-      scope: 'global',
-      displayKeys: 'G then A',
+      displayKeys: shortcut.displayKeys,
     },
   })
 

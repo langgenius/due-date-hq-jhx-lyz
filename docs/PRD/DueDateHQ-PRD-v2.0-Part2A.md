@@ -397,6 +397,7 @@ Total this week: −$15,150
 | `G then W`     | 跳 Workboard               | 全局              |
 | `G then C`     | 跳 Clients                 | 全局              |
 | `G then A`     | 跳 Alerts                  | 全局              |
+| `G then T`     | 跳 Team workload           | 全局              |
 
 ### 7.8 PWA 壳 与 Native Wrappers（交付形态补强）
 

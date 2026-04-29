@@ -147,6 +147,10 @@ msgstr "{0} top rows have evidence."
 msgid "{0} will lose access to this firm. Audit history stays retained."
 msgstr "{0} will lose access to this firm. Audit history stays retained."
 
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "{availableCount} available"
+msgstr "{availableCount} available"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, one {# client} other {# clients}}"
@@ -190,6 +194,10 @@ msgstr "{ownerCount} owner · {managedCount} managed"
 #: src/features/members/members-page.tsx
 msgid "{pendingCount} pending · {expiredCount} expired · magic-link via Resend, 7-day expiry"
 msgstr "{pendingCount} pending · {expiredCount} expired · magic-link via Resend, 7-day expiry"
+
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "{reservedCount} reserved"
+msgstr "{reservedCount} reserved"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
@@ -3024,6 +3032,10 @@ msgstr "The subscription applies to the active firm."
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
 msgstr "Theme"
+
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "then"
+msgstr "then"
 
 #: src/lib/i18n-error.ts
 msgid "This action conflicts with the current state. Refresh and try again."

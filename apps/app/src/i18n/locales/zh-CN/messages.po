@@ -147,6 +147,10 @@ msgstr "{0} 条首屏风险行已有 evidence。"
 msgid "{0} will lose access to this firm. Audit history stays retained."
 msgstr "{0} 将失去此事务所的访问权限。审计历史会继续保留。"
 
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "{availableCount} available"
+msgstr "{availableCount} 个可用"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, other {# 个客户}}"
@@ -190,6 +194,10 @@ msgstr "{ownerCount} 个 Owner · {managedCount} 个受管成员"
 #: src/features/members/members-page.tsx
 msgid "{pendingCount} pending · {expiredCount} expired · magic-link via Resend, 7-day expiry"
 msgstr "{pendingCount} 个待处理 · {expiredCount} 个已过期 · 通过 Resend 发送 magic link，7 天有效"
+
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "{reservedCount} reserved"
+msgstr "{reservedCount} 个保留"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
@@ -3024,6 +3032,10 @@ msgstr "该订阅会应用到当前事务所。"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
 msgstr "主题"
+
+#: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
+msgid "then"
+msgstr "然后"
 
 #: src/lib/i18n-error.ts
 msgid "This action conflicts with the current state. Refresh and try again."

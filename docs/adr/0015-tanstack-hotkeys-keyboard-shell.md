@@ -21,7 +21,10 @@ Use `@tanstack/react-hotkeys@0.10.0` as the only keyboard shortcut engine for `a
 - Keep shortcut orchestration in `apps/app/src/components/patterns/keyboard-shell`; do not put app
   routing, Lingui, oRPC, or feature-provider dependencies into `packages/ui`.
 - Use `HotkeysProvider` defaults for conflict warnings and shared sequence timeout.
-- Use `useHotkeySequence` for `G then D/W/C/A`.
+- Use `useHotkeySequence` for `G then D/W/C/A/T`.
+- Use RawHotkey object form for shifted punctuation such as `?` (`{ key: '/', shift: true }`),
+  while keeping the visible label as `?`; TanStack excludes Shift punctuation from its type-safe
+  hotkey string union because those keys are layout-dependent.
 - Use `useHotkeyRegistrations()` plus reserved shortcut metadata for the `?` help dialog.
 - Use keyboard-shell display helpers backed by TanStack `formatForDisplay` for visible shortcut
   labels; feature components must not hand-roll platform detection or glyph strings.

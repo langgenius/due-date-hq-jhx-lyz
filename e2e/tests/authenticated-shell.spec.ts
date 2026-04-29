@@ -71,3 +71,21 @@ test('AC: E2E-AUTH-COMMANDS navigates and opens implemented actions', async ({
   await expect(migrationWizardPage.dialog).toBeVisible()
   await expect(migrationWizardPage.pasteClientData).toBeVisible()
 })
+
+test('AC: E2E-AUTH-SHORTCUTS opens help and navigates to workload', async ({
+  appShellPage,
+  authenticatedPage,
+  workloadPage,
+}) => {
+  await appShellPage.goto()
+
+  await appShellPage.openShortcutHelp()
+  await expect(appShellPage.shortcutDialog.getByText('Go to Team workload')).toBeVisible()
+
+  await authenticatedPage.keyboard.press('Escape')
+  await authenticatedPage.keyboard.press('G')
+  await authenticatedPage.keyboard.press('T')
+
+  await expect(authenticatedPage).toHaveURL(/\/workload$/)
+  await expect(workloadPage.upgradeHeading).toBeVisible()
+})

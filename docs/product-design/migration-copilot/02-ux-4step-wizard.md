@@ -845,7 +845,7 @@ Toast 持久态  ──24h──>  Expired（Undo all 灰化）
 | `↑` / `↓`           | 在 Edit 下拉选项间移动                                                                                | Step 2 / Step 3            | 本文 §5.2                                                                                  |
 | `Enter` / `Space`   | 选中 Edit 下拉当前项 / 触发 needs_review Popover                                                      | Step 2 / Step 3            | 本文 §5.7 / §6.7                                                                           |
 
-> 与 `G then D` / `G then W` 等全局导航快捷键（PRD Part2A §7.7 行 396–399）在 Wizard 内**禁用**，避免导出向导意外导航。
+> 与 `G then D` / `G then W` 等全局导航快捷键（PRD Part2A §7.7 行 396–400）在 Wizard 内**禁用**，避免导出向导意外导航。
 > 实现归属：Wizard 的 `Enter` / `Esc` 由 app keyboard shell 的 overlay scope 统一注册；禁止在子组件里直接挂全局 `keydown` listener。
 
 ---

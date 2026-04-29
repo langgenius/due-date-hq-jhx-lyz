@@ -938,6 +938,7 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 **Keyboard Shell 层级**
 
 - App 只允许一个 keyboard shell：`apps/app/src/components/patterns/keyboard-shell`，基于 TanStack Hotkeys 注册全局、导航序列、route/list、overlay 四层快捷键
+- 导航序列只给高频运营路径：`G then D/W/C/A/T` 分别进入 Dashboard / Workboard / Clients / Alerts / Team workload；Organization / Billing / Audit 等一级页通过 Command Palette 进入
 - `?` 帮助浮层从注册表生成，并追加 reserved slots；不得手写第二份静态快捷键表
 - Wizard / Dialog / Command Palette 打开时压住导航序列和 Workboard 裸字母键
 - **全局 `A` 不占用**；Step 3 仅在 Suggested tax types cell 焦点内注册局部 `A`
