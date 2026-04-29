@@ -34,7 +34,7 @@
 
 - Cookie：`httpOnly` · `secure` · `sameSite=lax`
 - Session 存 D1；默认有效期 7 天
-- `session.activeOrganizationId` = 当前 Firm；切换 Firm 走 `auth.api.setActiveOrganization`
+- `session.activeOrganizationId` = 当前 Firm；前端切换 / 创建 / 删除 Firm 必须走 DueDateHQ `firms.*` gateway，服务端再按需调用 Better Auth organization API 或写 session
 - 双设备会话允许；Devices 列所有 session + "Sign out all"
 - 新设备 / 新 IP → Phase 1 要求 step-up（TOTP 二次验证）
 
@@ -119,7 +119,7 @@ const statement = {
 - `tenantMiddleware` 读取 `firm_profile`；若 org + active membership 存在但 profile 缺失，则 lazy create 自愈
 - `firm_profile.status !== 'active'` → `TENANT_SUSPENDED`
 - 注入 `c.set('tenantContext', ...)` + `c.set('scoped', scoped(db, firmId))`
-- `firms.*` RPC 是租户选择层例外：`listMine / create / switchActive / updateCurrent / softDeleteCurrent` 只要求 authenticated session + active membership 校验，不要求当前 `tenantContext`。这些 procedure 不读取业务表，只管理 `organization / member / firm_profile / session.activeOrganizationId`。
+- `firms.*` RPC 是租户选择层例外：`listMine / create / switchActive / updateCurrent / softDeleteCurrent` 只要求 authenticated session + active membership 校验，不要求当前 `tenantContext`。这些 procedure 是前端唯一 firm lifecycle 入口，统一管理 `organization / member / firm_profile / session.activeOrganizationId`，并过滤 `firm_profile.status='deleted'` 的 soft-deleted firm。
 - `members.*` RPC 不 bypass tenant middleware；它只管理当前 active firm，且 Members v1 mutation 统一 Owner-only、写 audit、按 `firm_profile.seatLimit` 校验 seat。
 
 ### 4.2 Repo 工厂层（约束）

@@ -1,19 +1,18 @@
-import { useMemo, useState, useTransition, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { ChevronRightIcon, Loader2Icon } from 'lucide-react'
 
-import { derivePracticeName, slugifyPracticeName } from '@duedatehq/core/practice-name'
+import { derivePracticeName } from '@duedatehq/core/practice-name'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Input } from '@duedatehq/ui/components/ui/input'
-import { authClient, type AuthUser } from '@/lib/auth'
+import { type AuthUser } from '@/lib/auth'
+import { orpc } from '@/lib/rpc'
+import { activateOrCreateOnboardingFirm } from './onboarding-firm-flow'
 
 const MIN_NAME_LENGTH = 2
-const MAX_RETRIES_ON_SLUG_COLLISION = 1
-// Hoisted out of `isSlugConflict` so we don't re-allocate the regex on every
-// failed signup attempt (Vercel `js-hoist-regexp`).
-const SLUG_CONFLICT_PATTERN = /unique|already exists|slug/i
 
 type OnboardingLoaderData = { user: AuthUser }
 
@@ -21,30 +20,22 @@ function isInAppPath(value: string | null): value is string {
   return !!value && value.startsWith('/') && !value.startsWith('//')
 }
 
-/**
- * Best-effort detection of the org-slug uniqueness violation we deliberately
- * don't pre-check (see slugifyPracticeName comment on collision strategy).
- * Better Auth surfaces the underlying SQLite error message + an HTTP 4xx — we
- * match on common shapes so a single retry can resolve it transparently.
- */
-function isSlugConflict(error: unknown): boolean {
-  if (!error || typeof error !== 'object') return false
-  const status = (error as { status?: number }).status
-  if (status === 409 || status === 422) return true
-  const message =
-    (error as { message?: string }).message ??
-    (error as { error?: { message?: string } }).error?.message ??
-    ''
-  return SLUG_CONFLICT_PATTERN.test(message)
+function readErrorMessage(error: unknown, fallback: string): string {
+  if (!error || typeof error !== 'object' || !('message' in error)) return fallback
+  const message = Reflect.get(error, 'message')
+  return typeof message === 'string' && message ? message : fallback
 }
 
 export function OnboardingRoute() {
   const { user } = useLoaderData<OnboardingLoaderData>()
   const { t } = useLingui()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [params] = useSearchParams()
-  const [isSubmitting, startSubmit] = useTransition()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const switchMutation = useMutation(orpc.firms.switchActive.mutationOptions())
+  const createMutation = useMutation(orpc.firms.create.mutationOptions())
 
   const fallback = t`My Practice`
   const defaultName = useMemo(
@@ -67,52 +58,29 @@ export function OnboardingRoute() {
       return
     }
 
-    startSubmit(async () => {
-      // Defense-in-depth for returning users: if the server-side
-      // databaseHooks.session.create.before hook didn't populate
-      // activeOrganizationId (db blip / race / schema-less edge case), the
-      // user is still here even though their org already exists.
-      // The first-login route should not create another firm when the user
-      // already has one; list existing ones first and setActive the earliest.
-      const existing = await loadExistingOrganizationId()
-      if (existing) {
-        const { error: reuseErr } = await authClient.organization.setActive({
-          organizationId: existing,
-        })
-        if (reuseErr) {
-          const message = reuseErr.message ?? t`Please try again.`
-          setError(message)
-          toast.error(t`Could not activate your practice`, { description: message })
-          return
-        }
-        // Returning users with an existing firm skip the import hand-off —
-        // they likely already imported once.
-        await navigate(redirectTo, { replace: true })
-        return
-      }
-
-      const result = await createOrgWithRetry(trimmed)
-      if (!result.ok) {
-        setError(result.message)
-        toast.error(t`Could not create your practice`, { description: result.message })
-        return
-      }
-
-      const { error: setActiveErr } = await authClient.organization.setActive({
-        organizationId: result.organizationId,
-      })
-      if (setActiveErr) {
-        const message = setActiveErr.message ?? t`Please try again.`
-        setError(message)
-        toast.error(t`Could not activate your practice`, { description: message })
-        return
-      }
-
-      // Brand-new firm: hand the user straight into Migration Copilot so the
-      // dashboard doesn't show empty-state placeholders. The flag is consumed
-      // and stripped by MigrationWizardProvider after the wizard opens.
-      await navigate(redirectTo, { replace: true, state: { autoOpenMigration: true } })
+    setIsSubmitting(true)
+    void activateOrCreateOnboardingFirm({
+      name: trimmed,
+      gateway: {
+        listMine: () =>
+          queryClient.fetchQuery(orpc.firms.listMine.queryOptions({ input: undefined })),
+        switchActive: (input) => switchMutation.mutateAsync(input),
+        create: (input) => createMutation.mutateAsync(input),
+      },
     })
+      .then(async (result) => {
+        await queryClient.invalidateQueries({ queryKey: orpc.firms.key() })
+        await navigate(redirectTo, {
+          replace: true,
+          state: result.kind === 'created' ? { autoOpenMigration: true } : undefined,
+        })
+      })
+      .catch((err: unknown) => {
+        const message = readErrorMessage(err, t`Please try again.`)
+        setError(message)
+        toast.error(t`Could not create your practice`, { description: message })
+      })
+      .finally(() => setIsSubmitting(false))
   }
 
   return (
@@ -199,42 +167,4 @@ export function OnboardingRoute() {
       </p>
     </div>
   )
-}
-
-/**
- * Returns the first existing organization id for the current user, or null
- * if they have none. Used by the onboarding submit to prefer setActive over
- * create when the server-side session hook didn't restore activeOrgId for
- * some reason. Errors are swallowed — the caller falls through to the
- * create path, which will then itself surface a toast on failure.
- */
-async function loadExistingOrganizationId(): Promise<string | null> {
-  const { data } = await authClient.organization.list()
-  if (!data || data.length === 0) return null
-  const sorted = [...data].toSorted(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  )
-  return sorted[0]?.id ?? null
-}
-
-type CreateResult = { ok: true; organizationId: string } | { ok: false; message: string }
-
-async function createOrgWithRetry(name: string): Promise<CreateResult> {
-  // Sequential retry is intentional: we must observe the first attempt's
-  // failure before deciding whether to roll a new slug. Promise.all would
-  // fire both attempts concurrently with stale slugs.
-  for (let attempt = 0; attempt <= MAX_RETRIES_ON_SLUG_COLLISION; attempt += 1) {
-    const slug = slugifyPracticeName(name)
-    // eslint-disable-next-line no-await-in-loop -- see comment above
-    const { data, error } = await authClient.organization.create({ name, slug })
-    if (data?.id) return { ok: true, organizationId: data.id }
-    if (error && isSlugConflict(error) && attempt < MAX_RETRIES_ON_SLUG_COLLISION) {
-      continue
-    }
-    return {
-      ok: false,
-      message: error?.message ?? 'Unable to create the practice. Please try again.',
-    }
-  }
-  return { ok: false, message: 'Unable to create the practice. Please try again.' }
 }

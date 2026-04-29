@@ -104,6 +104,8 @@ packages/db/
 1. **正常路径**：`apps/server/src/auth.ts` 注入的 `organizationHooks.afterCreateOrganization`（在 `apps/server/src/organization-hooks.ts` 工厂里），`organization.create` 完成后同请求 INSERT 一行 firm_profile
 2. **自愈路径**：`apps/server/src/middleware/tenant.ts` 在缺失时 lazy create —— 读 `organization` 行 + 找 `member.role='owner'` 最早一条 → INSERT。代价：缺失场景的请求多 1 次 select + 1 次 insert，下次起回正常路径
 
+前端不得直接使用 Better Auth organization lifecycle API。Onboarding、firm switcher、firm profile 删除都必须走 DueDateHQ `firms.*` RPC gateway；gateway 内部再创建 Better Auth organization、写 `firm_profile`、切换或清空 `session.activeOrganizationId`，并确保 soft-deleted `firm_profile` 不会被重新设为 active firm。
+
 **2026-04-28 multi-firm foundation**：
 
 - `packages/db/src/repo/firms.ts` 是跨 firm 的只读/管理入口，用于 `listMine / getCurrent / switchActive / create / update / softDelete`。它只按 `userId + active member` 查询用户可访问 firm，不暴露任意 `firmId` 读取。

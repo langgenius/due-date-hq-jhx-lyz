@@ -809,10 +809,6 @@ msgstr "Continue with Google"
 msgid "Coordinator"
 msgstr "Coordinator"
 
-#: src/routes/onboarding.tsx
-msgid "Could not activate your practice"
-msgstr "Could not activate your practice"
-
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not create firm."
 msgstr "Could not create firm."
