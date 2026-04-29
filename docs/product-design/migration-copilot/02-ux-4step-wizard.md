@@ -605,13 +605,13 @@ stateDiagram-v2
 - **目标**：展示即将创建的 counts + 顶部风险预览 + Safety 三条 + 触发 Live Genesis
 - **状态机**：`preview → importing → success → toast_persisted`；失败 `import_failed`
 
-| 状态            | 视觉                                                                              | CTA                                                          |
-| --------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| preview         | 见 §7.2 线框                                                                      | `[Import & Generate deadlines ▶]` 启用（primary）            |
-| importing       | Modal 锁定交互 + Stepper 高亮步 4 + spinner；底栏 `Importing… please don't close` | CTA 禁用 + spinner                                           |
-| success         | 过渡到 Live Genesis 动画（见 §7.3）                                               | —                                                            |
-| toast_persisted | 跳 Dashboard + 顶部常驻 toast 24h                                                 | `[View audit]` / `[Undo all]`                                |
-| import_failed   | 红 Banner + 失败计数                                                              | `[Review errors]` 跳 `/settings/migration/<batch_id>/errors` |
+| 状态            | 视觉                                                                              | CTA                                                 |
+| --------------- | --------------------------------------------------------------------------------- | --------------------------------------------------- |
+| preview         | 见 §7.2 线框                                                                      | `[Import & Generate deadlines ▶]` 启用（primary）   |
+| importing       | Modal 锁定交互 + Stepper 高亮步 4 + spinner；底栏 `Importing… please don't close` | CTA 禁用 + spinner                                  |
+| success         | 过渡到 Live Genesis 动画（见 §7.3）                                               | —                                                   |
+| toast_persisted | 跳 Dashboard + 顶部常驻 toast 24h                                                 | `[View audit]` / `[Undo all]`                       |
+| import_failed   | 红 Banner + 失败计数                                                              | `[Review errors]` 跳 `/migration/<batch_id>/errors` |
 
 ### 7.2 线框（preview 态）
 
@@ -686,7 +686,7 @@ stateDiagram-v2
   You can still delete individual clients.
   ```
 
-- `[View audit]` → 打开 `/settings/imports/{batch_id}`
+- `[View audit]` → 打开 `/imports/{batch_id}`
 
 ### 7.5 import_failed 态
 
@@ -697,7 +697,7 @@ stateDiagram-v2
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- `[Review errors]` → R2 下载 CSV `/settings/migration/<batch_id>/errors`
+- `[Review errors]` → R2 下载 CSV `/migration/<batch_id>/errors`
 - 单行失败不阻塞整批（PRD Part1B §6A.7 行 320"单行失败不阻塞"）
 
 ### 7.6 文案表（EN + zh-CN + Lingui 宏）
@@ -757,11 +757,11 @@ stateDiagram-v2
 
 ### 8.1 入口矩阵（对齐 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §5 + Part1A §3.6.3）
 
-| 入口                                         | 权限                        | 触发路径                        | 备注                      |
-| -------------------------------------------- | --------------------------- | ------------------------------- | ------------------------- |
-| Import 完成持久 Toast `[Undo all]`           | Owner + Manager             | Step 4 → Toast                  | 24h 内有效                |
-| Settings › Imports history 列表行 `[Revert]` | Owner + Manager（24h 全量） | `/settings/imports` → batch row | 同上                      |
-| 单客户详情页 `[Delete client]`               | Owner + Manager             | `/clients/{id}` → 右上          | 7d 软删 + 级联 obligation |
+| 入口                               | 权限                        | 触发路径               | 备注                      |
+| ---------------------------------- | --------------------------- | ---------------------- | ------------------------- |
+| Import 完成持久 Toast `[Undo all]` | Owner + Manager             | Step 4 → Toast         | 24h 内有效                |
+| Imports history 列表行 `[Revert]`  | Owner + Manager（24h 全量） | `/imports` → batch row | 同上                      |
+| 单客户详情页 `[Delete client]`     | Owner + Manager             | `/clients/{id}` → 右上 | 7d 软删 + 级联 obligation |
 
 > Demo Sprint Owner 单账号下 Manager 分支不渲染，但长期 RBAC 规格必须就位。
 

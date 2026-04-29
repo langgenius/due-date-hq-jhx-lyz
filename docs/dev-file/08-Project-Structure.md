@@ -243,7 +243,7 @@ packages/ui/
 **约束：**
 
 - 只放纯 UI、品牌视觉、基础 layout primitive 和稳定 design token
-- 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属 dashboard/workboard/settings 组件
+- 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属 dashboard/workboard/organization 组件
 - app 通过 `@duedatehq/ui/components/ui/*`、`@duedatehq/ui/lib/utils`、`@duedatehq/ui/styles/preset.css`、`@duedatehq/ui/theme*` 消费
 - 每个消费 app 的 Tailwind 入口必须 `@source` 扫描 `packages/ui/src`，否则 shadcn 组件内部 utilities 不会生成
 

@@ -317,7 +317,7 @@ BEGIN;
 COMMIT;
 ```
 
-**单行失败不阻塞整批。** 失败行进入 `/settings/migration/<batch_id>/errors` 可下载 CSV + 手改重导。
+**单行失败不阻塞整批。** 失败行进入 `/migration/<batch_id>/errors` 可下载 CSV + 手改重导。
 
 #### Revert（双档）
 
@@ -353,7 +353,7 @@ Skipped rows (3)
   Row 29: duplicate of existing Acme LLC, marked as skip
 
 You can undo this import for the next 24 hours.
-  https://app.duedatehq.com/settings/migration/batch_xx/revert
+  https://app.duedatehq.com/migration/batch_xx/revert
 ```
 
 ### 6A.9 安全与合规护栏
@@ -473,7 +473,7 @@ STATE: handoff               ← "Open Dashboard" / "Walk through triage"
 
 - Agent 的每一次字段识别、实体归一、规则预加载**都写 Evidence Link**，和 §6A.3 一致
 - 对话内容完整写 `AiOutput` 表，prompt version 可追溯
-- 用户在 Settings → Setup History 可看到"Your onboarding conversation"
+- 用户在 Setup history 可看到"Your onboarding conversation"
 
 #### 6A.11.6 为什么是 P1 而非 P0
 
@@ -984,7 +984,7 @@ Demo 结尾 10 秒：
 Presenter: "Last thing. Let's say the IRS calls tomorrow and asks
 about Acme LLC. Watch."
 
-[Settings → Export Audit-Ready Package → Scope: Acme LLC → 12 months]
+[Audit-ready export → Scope: Acme LLC → 12 months]
 
 Presenter: "One click."
 

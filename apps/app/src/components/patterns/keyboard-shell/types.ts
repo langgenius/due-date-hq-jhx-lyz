@@ -1,7 +1,7 @@
 export type ShortcutCategory =
   | 'global'
   | 'navigate'
-  | 'settings'
+  | 'organization'
   | 'workboard'
   | 'wizard'
   | 'reserved'

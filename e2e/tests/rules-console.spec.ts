@@ -1,6 +1,6 @@
 import { expect, test } from '../fixtures/test'
 
-// Feature: Rules Console
+// Feature: Rules
 // PRD: Rules source registry and rule pack
 // AC: E2E-RULES-TABS, E2E-RULES-DETAIL, E2E-RULES-PREVIEW
 
@@ -19,13 +19,13 @@ test('AC: E2E-RULES-TABS persists implemented tab state', async ({
   await expect(authenticatedPage.getByText('Verified rules', { exact: true })).toBeVisible()
 
   await rulesConsolePage.sourcesTab.click()
-  await expect(authenticatedPage).toHaveURL(/\/settings\/rules\?tab=sources$/)
+  await expect(authenticatedPage).toHaveURL(/\/rules\?tab=sources$/)
   await expect(
     authenticatedPage.getByText('IRS Publication 509 (2026), Tax Calendars'),
   ).toBeVisible()
 
   await rulesConsolePage.libraryTab.click()
-  await expect(authenticatedPage).toHaveURL(/\/settings\/rules\?tab=library$/)
+  await expect(authenticatedPage).toHaveURL(/\/rules\?tab=library$/)
   await expect(authenticatedPage.getByText('fed.1065.return.2025')).toBeVisible()
 })
 
@@ -57,7 +57,7 @@ test('AC: E2E-RULES-PREVIEW runs the implemented generation preview', async ({
   await rulesConsolePage.goto()
   await rulesConsolePage.previewTab.click()
 
-  await expect(authenticatedPage).toHaveURL(/\/settings\/rules\?tab=preview$/)
+  await expect(authenticatedPage).toHaveURL(/\/rules\?tab=preview$/)
   await authenticatedPage.getByRole('button', { name: /Run preview/ }).click()
 
   await expect(authenticatedPage.getByText(/REMINDER READY/)).toBeVisible()

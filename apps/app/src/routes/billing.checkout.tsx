@@ -101,7 +101,7 @@ export function BillingCheckoutRoute() {
         subscriptionId: activeSubscription?.stripeSubscriptionId ?? undefined,
         successUrl: checkoutUrl('/billing/success', plan, interval),
         cancelUrl: checkoutUrl('/billing/cancel', plan, interval),
-        returnUrl: new URL('/settings/billing', window.location.origin).toString(),
+        returnUrl: new URL('/billing', window.location.origin).toString(),
       })
     },
     onSuccess: (url) => {
@@ -141,7 +141,7 @@ export function BillingCheckoutRoute() {
     <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 px-4 py-6 md:px-6">
       <header className="flex flex-col gap-3">
         <Link
-          to="/settings/billing"
+          to="/billing"
           className="inline-flex w-fit items-center gap-1 text-sm text-text-secondary hover:text-text-primary"
         >
           <ArrowLeftIcon className="size-3.5" aria-hidden />
@@ -282,7 +282,7 @@ export function BillingCheckoutRoute() {
                 <Trans>Continue to secure checkout</Trans>
               )}
             </Button>
-            <Button variant="outline" onClick={() => void navigate('/settings/billing')}>
+            <Button variant="outline" onClick={() => void navigate('/billing')}>
               <Trans>Choose another plan</Trans>
             </Button>
           </CardFooter>
@@ -327,10 +327,10 @@ export function BillingCheckoutRoute() {
           </CardContent>
           <CardFooter>
             <Link
-              to="/settings/billing"
+              to="/billing"
               className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'px-0')}
             >
-              <Trans>View billing settings</Trans>
+              <Trans>View billing</Trans>
               <ArrowRightIcon data-icon="inline-end" />
             </Link>
           </CardFooter>

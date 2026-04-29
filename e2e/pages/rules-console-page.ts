@@ -14,6 +14,6 @@ export class RulesConsolePage {
   }
 
   async goto() {
-    await this.page.goto('/settings/rules')
+    await this.page.goto('/rules')
   }
 }

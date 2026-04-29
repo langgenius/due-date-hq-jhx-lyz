@@ -62,10 +62,6 @@ function notFoundLoader() {
   throw new Response('Page not found', { status: 404, statusText: 'Not Found' })
 }
 
-function settingsLoader() {
-  throw redirect('/settings/rules')
-}
-
 function dashboardAliasLoader() {
   throw redirect('/')
 }
@@ -249,48 +245,43 @@ export function createAppRouter() {
               },
             },
             {
-              path: 'settings',
-              loader: settingsLoader,
-              HydrateFallback: RouteHydrateFallback,
-            },
-            {
-              path: 'settings/rules',
-              handle: routeHandle(routeSummaries.settingsRules),
+              path: 'rules',
+              handle: routeHandle(routeSummaries.rules),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
-                const { SettingsRulesRoute } = await import('@/routes/settings.rules')
+                const { RulesRoute } = await import('@/routes/rules')
 
-                return { Component: SettingsRulesRoute }
+                return { Component: RulesRoute }
               },
             },
             {
-              path: 'settings/profile',
-              handle: routeHandle(routeSummaries.settingsProfile),
+              path: 'firm',
+              handle: routeHandle(routeSummaries.firm),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
-                const { SettingsProfileRoute } = await import('@/routes/settings.profile')
+                const { FirmRoute } = await import('@/routes/firm')
 
-                return { Component: SettingsProfileRoute }
+                return { Component: FirmRoute }
               },
             },
             {
-              path: 'settings/members',
-              handle: routeHandle(routeSummaries.settingsMembers),
+              path: 'members',
+              handle: routeHandle(routeSummaries.members),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
-                const { SettingsMembersRoute } = await import('@/routes/settings.members')
+                const { MembersRoute } = await import('@/routes/members')
 
-                return { Component: SettingsMembersRoute }
+                return { Component: MembersRoute }
               },
             },
             {
-              path: 'settings/billing',
-              handle: routeHandle(routeSummaries.settingsBilling),
+              path: 'billing',
+              handle: routeHandle(routeSummaries.billing),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
-                const { SettingsBillingRoute } = await import('@/routes/settings.billing')
+                const { BillingRoute } = await import('@/routes/billing')
 
-                return { Component: SettingsBillingRoute }
+                return { Component: BillingRoute }
               },
             },
             {

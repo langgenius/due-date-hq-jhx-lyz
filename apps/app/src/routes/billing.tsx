@@ -99,7 +99,7 @@ function usePlanCards(): PlanCard[] {
   ]
 }
 
-export function SettingsBillingRoute() {
+export function BillingRoute() {
   const { t } = useLingui()
   const planCards = usePlanCards()
   const { firmsQuery, currentFirm } = useCurrentFirm()
@@ -122,7 +122,7 @@ export function SettingsBillingRoute() {
       if (!currentFirm) throw new Error(t`No active firm is selected.`)
       return createBillingPortal({
         referenceId: currentFirm.id,
-        returnUrl: new URL('/settings/billing', window.location.origin).toString(),
+        returnUrl: new URL('/billing', window.location.origin).toString(),
       })
     },
     onSuccess: (url) => {
@@ -139,7 +139,7 @@ export function SettingsBillingRoute() {
           </span>
           <div className="min-w-0">
             <span className="text-xs font-medium uppercase text-text-tertiary">
-              <Trans>Settings</Trans>
+              <Trans>Organization</Trans>
             </span>
             <h1 className="mt-1 text-2xl font-semibold text-text-primary">
               <Trans>Billing</Trans>

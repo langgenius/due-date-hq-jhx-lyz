@@ -42,9 +42,23 @@ test('AC: E2E-AUTH-COMMANDS navigates and opens implemented actions', async ({
 
   await appShellPage.openCommandPalette()
   await expect(appShellPage.commandDialog).toBeVisible()
-  await appShellPage.commandItem('Rules Console').click()
+  await Promise.all(
+    [
+      'Dashboard',
+      'Workboard',
+      'Alerts',
+      'Team workload',
+      'Clients',
+      'Firm profile',
+      'Rules',
+      'Members',
+      'Billing',
+      'Audit log',
+    ].map((label) => expect(appShellPage.commandItem(label)).toBeVisible()),
+  )
+  await appShellPage.commandItem('Rules').click()
 
-  await expect(authenticatedPage).toHaveURL(/\/settings\/rules$/)
+  await expect(authenticatedPage).toHaveURL(/\/rules$/)
   await expect(authenticatedPage.getByRole('tab', { name: /Coverage/ })).toHaveAttribute(
     'aria-selected',
     'true',

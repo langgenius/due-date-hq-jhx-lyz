@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
   BellIcon,
+  Building2Icon,
   CalendarClockIcon,
   CheckIcon,
   ChevronsUpDownIcon,
@@ -369,9 +370,10 @@ function useNavItems(firm: FirmPublic): NavConfig {
       ],
       clients: [{ href: '/clients', label: t`Clients`, icon: UsersIcon, end: false }],
       organization: [
-        { href: '/settings/rules', label: t`Rules`, icon: FileCheck2Icon, end: false },
-        { href: '/settings/members', label: t`Members`, icon: UsersIcon, end: false },
-        { href: '/settings/billing', label: t`Billing`, icon: CreditCardIcon, end: false },
+        { href: '/firm', label: t`Firm profile`, icon: Building2Icon, end: false },
+        { href: '/rules', label: t`Rules`, icon: FileCheck2Icon, end: false },
+        { href: '/members', label: t`Members`, icon: UsersIcon, end: false },
+        { href: '/billing', label: t`Billing`, icon: CreditCardIcon, end: false },
         { href: '/audit', label: t`Audit log`, icon: ScaleIcon, end: false },
       ],
     }),

@@ -121,7 +121,7 @@ msgid "{0} seat"
 msgstr "{0} 个席位"
 
 #. placeholder {0}: currentFirm.seatLimit
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "{0} seat limit"
 msgstr "{0} 个席位上限"
 
@@ -212,7 +212,7 @@ msgid "{totalShown, plural, one {# row} other {# rows}}"
 msgstr "{totalShown, plural, other {# 行}}"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "/ mo"
 msgstr "/ 月"
 
@@ -221,7 +221,7 @@ msgstr "/ 月"
 msgid "© {0} DueDateHQ Inc."
 msgstr "© {0} DueDateHQ Inc."
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "$0"
 msgstr "$0"
 
@@ -238,7 +238,7 @@ msgid "$79"
 msgstr "$79"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "$99"
 msgstr "$99"
 
@@ -246,16 +246,16 @@ msgstr "$99"
 msgid "0 active"
 msgstr "0 条活跃"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "1 seat"
 msgstr "1 个席位"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "10 seats"
 msgstr "10 个席位"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "10 seats included"
 msgstr "包含 10 个席位"
 
@@ -279,22 +279,18 @@ msgstr "我们监控规则变更的 31 个官方渠道 — 每个来源都附带
 msgid "4 verified · 1 candidate watch"
 msgstr "4 已核验 · 1 候选观察"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "5 seats"
 msgstr "5 个席位"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "5 seats included"
 msgstr "包含 5 个席位"
 
 #: src/features/members/members-page.tsx
 msgid "access revoked, history kept"
 msgstr "访问已撤销，历史已保留"
-
-#: src/routes/route-summary.ts
-msgid "Account"
-msgstr "账户"
 
 #. placeholder {0}: user.name || user.email
 #: src/components/patterns/app-shell-user-menu.tsx
@@ -320,16 +316,16 @@ msgstr "操作"
 msgid "Active"
 msgstr "活跃"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Active firm"
 msgstr "当前事务所"
 
 #. placeholder {0}: firm.seatLimit
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Active firm · {currentPlan} plan · {0} seat limit"
 msgstr "当前事务所 · {currentPlan} 计划 · {0} 个席位上限"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Active firm summary"
 msgstr "当前事务所摘要"
 
@@ -396,6 +392,7 @@ msgid "Alert snoozed"
 msgstr "提醒已暂缓"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/routes/route-summary.ts
 msgid "Alerts"
@@ -509,7 +506,7 @@ msgstr "审计详情"
 msgid "Audit export surface"
 msgstr "审计导出界面"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Audit exports and coverage planning"
 msgstr "审计导出与覆盖规划"
 
@@ -571,25 +568,26 @@ msgid "Billed yearly"
 msgstr "按年计费"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/billing.tsx
 #: src/routes/route-summary.ts
-#: src/routes/settings.billing.tsx
 msgid "Billing"
 msgstr "账单"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Billing controls"
 msgstr "账单控制"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Billing portal could not open"
 msgstr "无法打开账单门户"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Billing role"
 msgstr "账单角色"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Billing status could not load"
 msgstr "无法加载账单状态"
 
@@ -622,7 +620,7 @@ msgstr "加利福尼亚"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Cancel"
 msgstr "取消"
 
@@ -639,7 +637,7 @@ msgstr "候选规则 · 从不生成用户提醒。"
 msgid "Candidates"
 msgstr "Candidate"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Card numbers and invoice payment details never enter the app database."
 msgstr "卡号和发票支付详情不会进入应用数据库。"
 
@@ -673,7 +671,7 @@ msgstr "正在加载负载指标前检查当前事务所套餐。"
 msgid "Checkout"
 msgstr "支付"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Checkout and portal sessions are hosted by the payment provider."
 msgstr "支付和账单门户会话由支付服务商托管。"
 
@@ -685,11 +683,11 @@ msgstr "支付已取消"
 msgid "Checkout could not start"
 msgstr "无法开始支付"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Checkout, cards, invoices, and portal sessions stay with the processor."
 msgstr "支付、银行卡、发票和账单门户会话都保留在支付处理方。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Choose a workspace tier"
 msgstr "选择工作区套餐"
 
@@ -697,7 +695,7 @@ msgstr "选择工作区套餐"
 msgid "Choose another plan"
 msgstr "选择其他计划"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Choose Firm to start the hosted checkout flow."
 msgstr "选择 Firm 以启动托管支付流程。"
 
@@ -748,6 +746,7 @@ msgid "Client risk rows"
 msgstr "客户风险行"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
 #: src/routes/route-summary.ts
 msgid "Clients"
@@ -789,7 +788,7 @@ msgstr "确认支付"
 msgid "Confirming subscription"
 msgstr "正在确认订阅"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Contact sales"
 msgstr "联系销售"
 
@@ -806,7 +805,7 @@ msgstr "继续安全支付"
 msgid "Continue with Google"
 msgstr "使用 Google 继续"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Coordinator"
 msgstr "协调员"
 
@@ -822,7 +821,7 @@ msgstr "无法创建事务所。"
 msgid "Could not create your practice"
 msgstr "无法创建你的事务所"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Could not delete firm."
 msgstr "无法删除事务所。"
 
@@ -854,7 +853,7 @@ msgstr "无法运行生成预览。"
 msgid "Could not switch firm."
 msgstr "无法切换事务所。"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Could not update firm."
 msgstr "无法更新事务所。"
 
@@ -985,16 +984,16 @@ msgstr "正在创建…"
 msgid "critical"
 msgstr "紧急"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Current"
 msgstr "当前"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Current baseline"
 msgstr "当前基础计划"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Current plan"
 msgstr "当前计划"
 
@@ -1002,7 +1001,7 @@ msgstr "当前计划"
 msgid "Currently available shortcuts and reserved keyboard slots."
 msgstr "当前可用的快捷键与已预留的键盘位。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Custom scope"
 msgstr "定制范围"
 
@@ -1037,11 +1036,11 @@ msgstr "Default Matrix 仅在导入行未包含税种时应用这些建议。"
 msgid "Degraded"
 msgstr "降级"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Delete firm"
 msgstr "删除事务所"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Delete this firm?"
 msgstr "删除这个事务所？"
 
@@ -1303,8 +1302,8 @@ msgstr "按时间范围、操作分类、执行人或实体筛选。"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
-#: src/routes/settings.profile.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
 msgid "Firm"
 msgstr "Firm"
 
@@ -1312,7 +1311,7 @@ msgstr "Firm"
 msgid "Firm context"
 msgstr "事务所上下文"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Firm context could not load"
 msgstr "无法加载事务所上下文"
 
@@ -1321,23 +1320,26 @@ msgid "Firm id"
 msgstr "事务所 ID"
 
 #: src/components/patterns/app-shell-nav.tsx
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Firm name"
 msgstr "事务所名称"
 
-#: src/routes/settings.profile.tsx
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/firm.tsx
+#: src/routes/route-summary.ts
 msgid "Firm profile"
 msgstr "事务所资料"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
+msgid "Firm profile applies only to the active tenant."
+msgstr "事务所资料仅适用于当前活跃租户。"
+
+#: src/routes/firm.tsx
 msgid "Firm profile could not load"
 msgstr "无法加载事务所资料"
 
-#: src/routes/settings.profile.tsx
-msgid "Firm settings apply only to the active tenant."
-msgstr "事务所设置只作用于当前激活的租户。"
-
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Firm subscriptions bill the organization, not an individual user."
 msgstr "Firm 订阅按组织计费，而不是按单个用户计费。"
 
@@ -1347,7 +1349,7 @@ msgstr "Firm 订阅按组织计费，而不是按单个用户计费。"
 msgid "Florida"
 msgstr "佛罗里达"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "For evaluating the deadline workbench with one owner."
 msgstr "适合一位 Owner 评估截止日工作台。"
 
@@ -1376,7 +1378,7 @@ msgstr "表单"
 msgid "Forms"
 msgstr "表格"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Free baseline"
 msgstr "免费基础版"
 
@@ -1384,7 +1386,7 @@ msgstr "免费基础版"
 msgid "Free-text for now; Team members wire in Phase 1."
 msgstr "暂为自由文本；团队成员将在 Phase 1 接入。"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "General"
 msgstr "常规"
 
@@ -1631,11 +1633,19 @@ msgstr "已写入审计日志"
 msgid "Manage"
 msgstr "管理"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Manage billing"
 msgstr "管理账单"
 
-#: src/routes/settings.profile.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Manage client facts and readiness."
+msgstr "管理客户事实与就绪度。"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Manage firm seats, roles, and invitations."
+msgstr "管理事务所席位、角色和邀请。"
+
+#: src/routes/firm.tsx
 msgid "Manager"
 msgstr "管理员"
 
@@ -1667,7 +1677,7 @@ msgstr "可能受影响。"
 msgid "medium"
 msgstr "中"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Member"
 msgstr "成员"
 
@@ -1680,6 +1690,7 @@ msgid "member@example.com"
 msgstr "member@example.com"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/members/members-page.tsx
 #: src/routes/route-summary.ts
 msgid "Members"
@@ -1693,7 +1704,7 @@ msgstr "无法加载成员"
 msgid "Migration"
 msgstr "迁移"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Migration and rules preview"
 msgstr "迁移与规则预览"
 
@@ -1710,7 +1721,7 @@ msgid "Monthly"
 msgstr "月付"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Monthly billing"
 msgstr "按月计费"
 
@@ -1771,8 +1782,8 @@ msgid "Next review"
 msgstr "下次复核"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
-#: src/routes/settings.profile.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
 msgid "No active firm is selected."
 msgstr "当前未选择事务所。"
 
@@ -1850,7 +1861,7 @@ msgstr "没有义务符合当前筛选。"
 msgid "No open obligations match the workload window."
 msgstr "当前负载窗口内没有匹配的未完成义务。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "No paid subscription"
 msgstr "无付费订阅"
 
@@ -1934,11 +1945,11 @@ msgstr "义务"
 msgid "official channels under monitor"
 msgstr "正在监听的官方渠道"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "One owner workspace"
 msgstr "单 Owner 工作区"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Only firm owners can change plans or open the portal."
 msgstr "只有事务所 Owner 可以变更计划或打开账单门户。"
 
@@ -1951,7 +1962,7 @@ msgstr "只有事务所 Owner 可以创建或变更订阅。"
 msgid "Only Owners and Managers can apply Pulse changes."
 msgstr "仅 Owner 与 Manager 可应用监管提醒。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Only owners can manage billing."
 msgstr "只有 Owner 可以管理账单。"
 
@@ -1969,8 +1980,8 @@ msgid "Open Billing"
 msgstr "打开账单"
 
 #: src/components/patterns/app-shell.tsx
-msgid "Open billing settings for {plan} plan"
-msgstr "打开 {plan} 计划的账单设置"
+msgid "Open billing for {plan} plan"
+msgstr "打开 {plan} 计划的账单"
 
 #: src/routes/dashboard.tsx
 msgid "Open evidence for {label}"
@@ -2003,14 +2014,6 @@ msgstr "未关闭义务"
 #: src/features/rules/sources-tab.tsx
 msgid "Open official source: {0}"
 msgstr "打开官方来源：{0}"
-
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Open practice settings."
-msgstr "打开事务所设置。"
-
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Open Pulse alerts."
-msgstr "打开动态提醒。"
 
 #: src/routes/dashboard.tsx
 msgid "Open risk"
@@ -2046,7 +2049,7 @@ msgstr "打开 Workboard"
 msgid "Opening checkout…"
 msgstr "正在打开支付…"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Opening…"
 msgstr "正在打开…"
 
@@ -2067,11 +2070,14 @@ msgstr "或"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/members/members-page.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
 #: src/routes/route-summary.ts
 msgid "Organization"
 msgstr "组织"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Organization billing stays scoped to the selected firm."
 msgstr "组织账单始终限定在当前选中的事务所。"
 
@@ -2086,8 +2092,8 @@ msgstr "已逾期"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/settings.billing.tsx
-#: src/routes/settings.profile.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
 #: src/routes/workboard.tsx
 msgid "Owner"
 msgstr "负责人"
@@ -2096,7 +2102,7 @@ msgstr "负责人"
 msgid "Owner approval required"
 msgstr "需要 Owner 授权"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Owner approved"
 msgstr "Owner 授权"
 
@@ -2169,7 +2175,7 @@ msgstr "支付详情由支付处理方保存"
 msgid "Payment is extended along with filing."
 msgstr "缴款随申报一同延期。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Payment model"
 msgstr "支付模型"
 
@@ -2190,15 +2196,15 @@ msgstr "待处理邀请"
 msgid "pending ops review"
 msgstr "等待 ops 复核"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Plan"
 msgstr "计划"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Plan activation appears after the provider confirms the subscription."
 msgstr "支付服务商确认订阅后，计划激活状态才会显示。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Plan options"
 msgstr "计划选项"
 
@@ -2207,8 +2213,8 @@ msgid "Plan summary"
 msgstr "计划摘要"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/routes/firm.tsx
 #: src/routes/onboarding.tsx
-#: src/routes/settings.profile.tsx
 msgid "Please enter at least 2 characters."
 msgstr "请至少输入 2 个字符。"
 
@@ -2238,7 +2244,7 @@ msgstr "事务所资料"
 msgid "Prepared in the background from the latest dashboard risk snapshot."
 msgstr "基于最新 Dashboard 风险快照在后台生成。"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Preparer"
 msgstr "经办人"
 
@@ -2247,31 +2253,25 @@ msgid "Primary navigation"
 msgstr "主导航"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Priority onboarding"
 msgstr "优先 onboarding"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Priority onboarding, audit exports, and higher coverage needs."
 msgstr "适合需要优先 onboarding、审计导出和更高覆盖的团队。"
 
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
-#: src/routes/settings.profile.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
 msgid "Pro"
 msgstr "Pro"
 
-#: src/components/patterns/app-shell-user-menu.tsx
-#: src/routes/route-summary.ts
-msgid "Profile"
-msgstr "个人资料"
-
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Provider hosted"
 msgstr "服务商托管"
 
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/audit/audit-log-page.tsx
 msgid "Pulse"
 msgstr "动态"
@@ -2282,7 +2282,7 @@ msgid "Pulse alert: {0}"
 msgstr "监管提醒：{0}"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Pulse and workboard access"
 msgstr "Pulse 与 workboard 访问权限"
 
@@ -2355,7 +2355,7 @@ msgstr "原因"
 msgid "Recently updated"
 msgstr "最近更新"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Recommended"
 msgstr "推荐"
 
@@ -2492,9 +2492,21 @@ msgstr "查看风险队列"
 msgid "Review source coverage, rule inventory, and generation preview."
 msgstr "查看来源覆盖、规则清单与生成预览。"
 
-#: src/routes/settings.billing.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review source-backed Pulse alerts."
+msgstr "查看有来源依据的 Pulse 提醒。"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review team capacity and risk pressure."
+msgstr "查看团队产能与风险压力。"
+
+#: src/routes/billing.tsx
 msgid "Review the active firm plan, open billing controls, and choose the right workspace tier."
 msgstr "查看当前事务所计划、打开账单控制，并选择合适的工作区套餐。"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review the active plan and billing controls."
+msgstr "查看当前计划和账单控制。"
 
 #: src/routes/billing.checkout.tsx
 msgid "Review the firm subscription before opening secure checkout."
@@ -2537,15 +2549,12 @@ msgid "Rule Library"
 msgstr "规则库"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/rules/rules-console-primitives.tsx
 #: src/routes/route-summary.ts
 msgid "Rules"
 msgstr "规则"
-
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/features/rules/rules-console-primitives.tsx
-msgid "Rules Console"
-msgstr "规则控制台"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
@@ -2585,11 +2594,11 @@ msgstr "安全保障"
 msgid "Sample"
 msgstr "样例"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Save changes"
 msgstr "保存更改"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Saving…"
 msgstr "正在保存…"
 
@@ -2622,7 +2631,7 @@ msgstr "搜索、提问或导航..."
 msgid "Search, segment, and inspect the facts that feed rules, risk, and Pulse matching."
 msgstr "搜索、分组并查看驱动规则、风险和 Pulse 匹配的客户事实。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Seat limit"
 msgstr "席位上限"
 
@@ -2659,7 +2668,7 @@ msgstr "请选择客户后再应用"
 msgid "Selected plan"
 msgstr "已选计划"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Self-serve changes use secure checkout and keep the active firm as reference."
 msgstr "自助变更会使用安全支付，并以当前事务所作为引用对象。"
 
@@ -2692,23 +2701,16 @@ msgstr "设置你的事务所。"
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/features/members/members-page.tsx
-#: src/routes/settings.billing.tsx
-#: src/routes/settings.profile.tsx
-msgid "Settings"
-msgstr "设置"
-
 #: src/routes/dashboard.tsx
 msgid "Severity"
 msgstr "严重程度"
 
 #: src/routes/billing.checkout.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Shared deadline operations"
 msgstr "共享截止日运营"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Shared deadline operations for a growing CPA practice."
 msgstr "适合成长中的 CPA 事务所共享截止日运营。"
 
@@ -2779,8 +2781,8 @@ msgid "Sole prop"
 msgstr "个体经营"
 
 #: src/components/patterns/app-shell.tsx
-#: src/routes/settings.billing.tsx
-#: src/routes/settings.profile.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
 msgid "Solo"
 msgstr "Solo"
 
@@ -2826,7 +2828,7 @@ msgstr "原文摘录"
 msgid "source gaps"
 msgstr "来源缺失"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Source-backed evidence"
 msgstr "带来源的证据"
 
@@ -2903,15 +2905,15 @@ msgstr "仍在等待确认"
 msgid "Subscription active"
 msgstr "订阅已激活"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Subscription overview"
 msgstr "订阅概览"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Subscription status"
 msgstr "订阅状态"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Success pages wait for webhook confirmation before showing activation."
 msgstr "成功页会等待 webhook 确认后再显示激活状态。"
 
@@ -2962,6 +2964,7 @@ msgid "Team"
 msgstr "团队"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/route-summary.ts
 msgid "Team workload"
 msgstr "团队工作负载"
@@ -2992,11 +2995,11 @@ msgstr "该提醒的 24 小时撤销窗口已过期。"
 msgid "The billing cache and subscription status now agree."
 msgstr "账单缓存和订阅状态现在一致。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
 msgstr "账单门户会在支付服务商处打开，用于查看发票、支付方式和取消订阅。"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "The firm will be removed from the picker. Audit history stays retained for compliance."
 msgstr "该事务所会从切换器中移除。审计历史会继续保留以满足合规要求。"
 
@@ -3004,7 +3007,7 @@ msgstr "该事务所会从切换器中移除。审计历史会继续保留以满
 msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
 msgstr "以上数字根据你确认的字段映射、默认税种矩阵和已验证规则计算。导入并生成会创建客户、截止日、证据和审计记录。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "The payment provider is the source of truth; DueDateHQ caches the active plan."
 msgstr "支付服务商是事实来源；DueDateHQ 会缓存当前激活计划。"
 
@@ -3017,8 +3020,8 @@ msgid "The secure checkout has redirected back to DueDateHQ. We are confirming t
 msgstr "安全支付已重定向回 DueDateHQ。我们正在确认订阅。"
 
 #: src/routes/billing.cancel.tsx
-msgid "The selected plan is still available from Billing settings."
-msgstr "仍可从账单设置中选择该计划。"
+msgid "The selected plan is still available from Billing."
+msgstr "所选计划仍可在账单页中使用。"
 
 #: src/routes/billing.checkout.tsx
 msgid "The subscription applies to the active firm."
@@ -3052,7 +3055,7 @@ msgstr "此页面会继续检查。你也可以返回账单页稍后刷新。"
 msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 msgstr "这会移除此导入创建的客户和截止日。其他事务所数据不会被更改。"
 
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "This soft-deletes the active firm and moves you to another available firm."
 msgstr "这会软删除当前事务所，并将你切换到另一个可用事务所。"
 
@@ -3061,7 +3064,7 @@ msgid "Time"
 msgstr "时间"
 
 #: src/components/patterns/app-shell-nav.tsx
-#: src/routes/settings.profile.tsx
+#: src/routes/firm.tsx
 msgid "Timezone"
 msgstr "时区"
 
@@ -3115,6 +3118,10 @@ msgstr "撤销这次导入？"
 msgid "Unexpected route error"
 msgstr "路由出现意外错误"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Update the active firm's name and timezone."
+msgstr "更新当前事务所的名称和时区。"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Updated"
 msgstr "更新时间"
@@ -3133,7 +3140,7 @@ msgid "Upgrade plan"
 msgstr "升级计划"
 
 #: src/features/workload/workload-page.tsx
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Upgrade to Firm"
 msgstr "升级到 Firm"
 
@@ -3200,8 +3207,8 @@ msgid "View audit log"
 msgstr "查看审计日志"
 
 #: src/routes/billing.checkout.tsx
-msgid "View billing settings"
-msgstr "查看账单设置"
+msgid "View billing"
+msgstr "查看账单"
 
 #: src/features/workload/workload-page.tsx
 msgid "Waiting"
@@ -3226,7 +3233,7 @@ msgstr "在向 AI 发送任何内容前，我们会先拦截疑似 SSN 的模式
 msgid "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
 msgstr "为保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。被拦截的列：{0} → 强制忽略。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "We cache the plan and seat limit for app permissions."
 msgstr "我们缓存计划和席位上限，用于应用内权限判断。"
 
@@ -3257,14 +3264,14 @@ msgid "We normalized {0} values — review if needed"
 msgstr "我们已规范化 {0} 个值 —— 需要的话请复核"
 
 #: src/routes/onboarding.tsx
-msgid "We pre-filled a name from your Google profile. You can change it now or anytime in Firm settings."
-msgstr "我们已根据你的 Google 资料预填了一个名字，你可以现在修改，也可以稍后在事务所设置里修改。"
+msgid "We pre-filled a name from your Google profile. You can change it now or anytime in Firm profile."
+msgstr "我们已从你的 Google 资料预填名称。你现在可以修改，也可以稍后在事务所资料中修改。"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "We'll figure out the shape — paste or upload, your call."
 msgstr "粘贴或上传都行 —— 我们会自动识别格式。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "Webhook confirmed"
 msgstr "Webhook 确认"
 
@@ -3272,7 +3279,7 @@ msgstr "Webhook 确认"
 msgid "Welcome back to the workbench."
 msgstr "欢迎回到工作台。"
 
-#: src/routes/settings.billing.tsx
+#: src/routes/billing.tsx
 msgid "What stays in DueDateHQ"
 msgstr "DueDateHQ 保留什么"
 

@@ -37,7 +37,7 @@ interface ShortcutHelpItem {
 const CATEGORY_ORDER: ShortcutCategory[] = [
   'global',
   'navigate',
-  'settings',
+  'organization',
   'workboard',
   'wizard',
   'reserved',
@@ -46,7 +46,7 @@ const CATEGORY_ORDER: ShortcutCategory[] = [
 const CATEGORY_LABELS: Record<ShortcutCategory, string> = {
   global: 'Global',
   navigate: 'Navigate',
-  settings: 'Settings',
+  organization: 'Organization',
   workboard: 'Workboard',
   wizard: 'Wizard',
   reserved: 'Reserved',

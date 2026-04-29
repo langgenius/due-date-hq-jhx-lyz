@@ -63,7 +63,7 @@ AI-assisted. Verify with official sources.
 
 #### 7.1.4 用户偏好
 
-Settings → Notifications：
+Notifications：
 
 - 全局开关
 - 按渠道开关（Email / In-app）
@@ -374,7 +374,7 @@ Total this week: −$15,150
 │  Navigate:                                       │
 │    > import                                      │
 │    Import clients → Paste / Upload / Preset     │
-│    Settings → Imports History                    │
+│    Imports history                    │
 └──────────────────────────────────────────────────┘
 ```
 
@@ -435,13 +435,13 @@ app/api/push/
 
 ##### 推送事件映射
 
-| 事件类型                      | 推送条件                               | 默认开关               | Setting 路径             |
-| ----------------------------- | -------------------------------------- | ---------------------- | ------------------------ |
-| **Pulse Applied**             | 新 Pulse approved 且匹配到受影响客户   | **强制开启**（法定级） | —                        |
-| **Obligation Overdue**        | 任意 obligation 超过 due_date 未 Filed | 默认开                 | Settings → Notifications |
-| **Client Readiness Response** | 客户在 Readiness Portal 提交           | 默认开                 | Settings → Notifications |
-| **Quiet Hours 尊重**          | 23:00–06:00 本地时间                   | 默认开                 | Settings → Notifications |
-| **Weekly Rhythm Report**      | 周一 8am（同 §6D.6）                   | 默认关                 | Settings → Notifications |
+| 事件类型                      | 推送条件                               | 默认开关               | Setting 路径  |
+| ----------------------------- | -------------------------------------- | ---------------------- | ------------- |
+| **Pulse Applied**             | 新 Pulse approved 且匹配到受影响客户   | **强制开启**（法定级） | —             |
+| **Obligation Overdue**        | 任意 obligation 超过 due_date 未 Filed | 默认开                 | Notifications |
+| **Client Readiness Response** | 客户在 Readiness Portal 提交           | 默认开                 | Notifications |
+| **Quiet Hours 尊重**          | 23:00–06:00 本地时间                   | 默认开                 | Notifications |
+| **Weekly Rhythm Report**      | 周一 8am（同 §6D.6）                   | 默认关                 | Notifications |
 
 ##### 验收（T-PWA-\*）
 

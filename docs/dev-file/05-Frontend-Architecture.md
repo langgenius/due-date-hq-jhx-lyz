@@ -34,10 +34,13 @@ apps/app/
 │   │   ├── workboard.tsx
 │   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、Sheet 档案；使用 clients.listByFirm / clients.create）
 │   │   ├── audit.tsx             ← Audit Log 管理页（firm-wide write events；使用 audit.list）
-│   │   ├── settings.tsx
+│   │   ├── firm.tsx              ← active firm profile（name / timezone / soft-delete）
+│   │   ├── rules.tsx
+│   │   ├── members.tsx
+│   │   ├── billing.tsx
 │   │   └── fallback.tsx          ← RouteHydrateFallback
 │   │   # 目标形态（Phase 0 MVP → Phase 1）：
-│   │   # clients.$id.tsx · alerts.tsx · settings/*.tsx · migration.tsx
+│   │   # clients.$id.tsx · alerts.tsx · imports.tsx · notifications.tsx · migration.tsx
 │   ├── features/             ← 业务特性（跨页面复用）
 │   │   ├── billing/           ← billing URL/model + Better Auth billing adapters
 │   │   ├── clients/           ← Clients facts/readiness 纯派生逻辑、创建弹窗、工作台展示组件
@@ -106,8 +109,8 @@ model 或 component。`apps/app/src/components/primitives` 只放真正跨 featu
 单一 vertical 的展示组件留在对应 feature 内。
 
 Route 文件默认保持薄组合层。复杂 route 的业务 UI 和派生 model 下沉到对应
-`features/<vertical>/`，例如 `/settings/members` 只通过
-`routes/settings.members.tsx` 挂载 `features/members` 页面，成员角色、邀请状态、日期展示等
+`features/<vertical>/`，例如 `/members` 只通过
+`routes/members.tsx` 挂载 `features/members` 页面，成员角色、邀请状态、日期展示等
 feature 语义留在 members vertical 内。
 
 ## 2. 路由模型（React Router 7 · data mode）
@@ -125,7 +128,7 @@ feature 语义留在 members vertical 内。
 - Hydrate fallback 按 route group 定义，不像 error boundary 一样 root-only 收敛：
   entry route 使用 `EntryRouteHydrateFallback`（空白占位，保留 entry shell 的静态 header /
   footer，不显示 skeleton）；protected shell 初始认证 gate 使用 `ShellSkeleton`；dashboard /
-  workboard / settings 等内容 route 使用 `RouteHydrateFallback`。
+  workboard / organization 等内容 route 使用 `RouteHydrateFallback`。
 - 页面摘要 metadata 挂在 route object 的 `handle.routeSummary` 上，类型为
   `RouteSummaryMessages`（`eyebrow` + `title`，值为 Lingui `MessageDescriptor`）。
   `RootLayout` 通过 `useMatches()` 取最深层 route summary 作为 AppShell route header；
@@ -136,11 +139,13 @@ feature 语义留在 members vertical 内。
   - **EntryShell（pathless layout route，`Component: EntryShell`）** — 包 `/login` + `/onboarding` 共享同一套 header / footer / locale switcher chrome。子路由各自挂自己的 loader（`guestLoader` / `onboardingLoader`），EntryShell 自身不带 loader 也不带 path，详见 `apps/app/src/routes/_entry-layout.tsx`。**命名避开 "auth"：** `/login` 是 pre-auth、`/onboarding` 是 post-auth/pre-active-org，两者唯一共性是「在用户进 dashboard shell 之前要走完的过渡 surface」 → "entry"
     - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去
     - `/onboarding` — `onboardingLoader` 要求有 session 且无 `activeOrganizationId`；已有 active org 直接 `redirect(redirectTo)`，无 session 跳 `/login?redirectTo=/onboarding`
-  - `/` — 受保护路由组（`id: 'protected'`，`Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `settings` 都作为它的 children
-    - `/settings/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
+  - `/` — 受保护路由组（`id: 'protected'`, `Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `firm` / `rules` / `members` / `billing` 等都作为它的 children；不再保留 `/settings` 或 `/settings/*` 兼容路由。
+    - `/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
       layout：上半区展示当前 firm plan / seat limit / subscription 状态和 owner-only
       billing portal 入口，下半区复用 marketing pricing 的 plan-card 信息层级进入 plan change。
       AppShell sidebar footer 只提供当前 plan + seat count 的轻量入口，不承载 pricing 对比。
+    - `/firm` — 当前 active firm profile，只编辑 firm name / timezone / soft-delete 当前 firm；它属于 Organization，不属于 user account profile。
+    - `/rules` / `/members` / `/audit` — durable organization surfaces，分别承载规则覆盖、成员席位、审计证据。
     - `/billing/checkout?plan=firm&interval=monthly` — checkout 确认页，使用 1120px max-width
       的 plan summary + firm context 布局；未登录 deep link 继续复用
       `protectedLoader → login → onboarding → redirectTo` 闭环
@@ -169,7 +174,7 @@ feature 语义留在 members vertical 内。
 - 任何抽屉开关 / 选中项也写 URL（`?drawer=obligation&id=xxx`）
 - Billing 例外约束：`plan` / `interval` 保持在 URL query 以支持 marketing deep link、登录回跳、
   checkout success/cancel 和 E2E；主 checkout 必须是 route，不用 URL dialog 承载支付链路。
-  `/settings/billing?changePlan=...` 可作为轻量确认 dialog，但确认后仍跳 `/billing/checkout?...`。
+  `/billing?changePlan=...` 可作为轻量确认 dialog，但确认后仍跳 `/billing/checkout?...`。
 - Billing e2e 断言流程状态而不是第三方支付页面 DOM：常规 suite 拦截 Checkout / Billing Portal
   请求并检查 payload；webhook 后状态通过 development-only `/api/e2e/billing/subscription`
   写入 `subscription` + `firm_profile` 后再由 UI 读取。
@@ -426,13 +431,13 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **每一个 protected layout（当前的 RootLayout，未来的 Workload Console 等）通过 `<AppShell>` 拼装**，不要在 layout 文件里直接拷贝 `SidebarProvider + Sidebar + SidebarInset` 三件套
 - **Sidebar 不暴露 `collapsible` prop**：desktop 永远 220px，`<md` 自动 Sheet 折叠；这是产品决定不是配置项
 - **selected nav 视觉是 bg-only**（`bg-state-base-hover-alt` + `text-text-primary` + Inter Semi Bold）—— 严禁 accent border 或 accent-tint 出现在 selected 态，否则与 DESIGN §1.2「颜色只为风险服务」冲突。`SidebarMenuButton` 的 cva variants 里**根本不提供** `accent` 变体，把约束写进类型
-- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag?, disabledReason? }`。当前 sidebar IA 是 `Operations`（Dashboard / Workboard / Alerts / Team workload）、`Clients`（Clients facts）、`Organization`（Rules / Members / Billing / Audit log）。Team workload 是付费 Operations surface：Solo 可见但禁用并显示 `Firm` hint，Firm/Pro 启用 `/workload`；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
+- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag?, disabledReason? }`。当前 sidebar IA 是 `Operations`（Dashboard / Workboard / Alerts / Team workload）、`Clients`（Clients facts）、`Organization`（Firm profile / Rules / Members / Billing / Audit log）。Team workload 是付费 Operations surface：Solo 可见但禁用并显示 `Firm` hint，Firm/Pro 启用 `/workload`；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
 - **Firm switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上
 - **Import clients 不在 sidebar footer 常驻**：Import 是 activation/setup path，把 CPA 已有客户表带入 weekly triage；常驻入口在 `/clients` 页面 header / empty state、Dashboard 空状态和 Command Palette action。Sidebar footer 不承载低频一次性 setup CTA。
-- **Plan status 入口在 sidebar footer**：`AppShell` 在 user menu 上方展示当前 firm 的 `Solo / Firm / Pro`、seat count 和 `Upgrade / Manage / View` 动作，统一链接 `/settings/billing`。这只是 subscription 状态入口；完整 pricing / checkout / portal 仍在 Billing 页面。
+- **Plan status 入口在 sidebar footer**：`AppShell` 在 user menu 上方展示当前 firm 的 `Solo / Firm / Pro`、seat count 和 `Upgrade / Manage / View` 动作，统一链接 `/billing`。这只是 subscription 状态入口；完整 pricing / checkout / portal 仍在 Billing 页面。
 - **顶栏右侧仅承载 AppShell-owned utility**（`⌘K` kbd hint + 通知 bell），路由动作放在 body 内或 body 顶部 toolbar，**不**塞到 shell header 右侧
 - **Billing 不进入 route header**：pricing 和 subscription 属于 account / firm commerce 信息，不是当前 route 的 primary action。Header 右侧不展示 plan pill、upgrade button 或 pricing CTA，避免和 page toolbar、通知、Command Palette 竞争。
-- **Profile 属于 account menu**：`/settings/profile` 仍保留 route，但入口下沉到 sidebar footer 的 user menu；sidebar 主导航只表达 firm/workspace 层级。
+- **Firm profile 属于 Organization**：`/firm` 编辑 active firm 资料；user menu 不承载 firm profile，除非后续新增真正的 user account profile。
 - **sidebar 的 Base UI `render` 包装不要用 `mergeProps<'button'>` 合成 `data-*` props**：TypeScript 会把 object literal 收窄到原生 button props 并拒绝 `data-slot` / `data-active`；直接把合并后的 `Record<string, unknown>` 传给 `useRender({ props })`，需要组合事件时在组件内显式包装 handler
 
 **vercel-react-best-practices 红线（自建时一定要踩稳）**
@@ -481,7 +486,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 ## 6A. Rules Console
 
-- `/settings/rules` 的四个 P0 tab（`coverage` / `sources` / `library` /
+- `/rules` 的四个 P0 tab（`coverage` / `sources` / `library` /
   `preview`）由 `nuqs` 管理 URL state，使用 `tab` 参数持久化当前二级视图。
   `rulesConsoleSearchParamsParsers` 是模块级 query contract，`RulesTab` 从
   `inferParserType` 推导。
@@ -531,8 +536,8 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 - **Optimistic UI**：所有改状态 / 改 assignee 的 mutation 先改 cache，失败回滚 + toast
 - **Loading skeleton**：每页至少一张 skeleton；冷启动避免白屏
-- **Keyboard Shell**：`apps/app/src/components/patterns/keyboard-shell` 是唯一 app 级快捷键入口，基于 `@tanstack/react-hotkeys`。全局层注册 `?` / `Cmd/Ctrl+K` / `Cmd/Ctrl+Shift+D` / `Cmd/Ctrl+Shift+O`，导航序列层注册 `G then D/W/C/A`，Settings route 层注册 `Cmd/Ctrl+I`，Workboard route 层注册 `J/K/Enter/E/F/X/I/W`，Wizard/Overlay 层压住 route/navigation 快捷键。裸字母键保留 TanStack 的 input ignore 行为，`Enter` 只在明确声明 `ignoreInputs: false` 且手动排除 textarea/contenteditable/select 时使用。所有可见 shortcut label 走 keyboard shell display helpers，不在业务组件里手写平台判断。
-- **Command Palette (Cmd-K)**：全局快捷键，搜索输入 + 三段结果（Navigate / Actions / Ask），Ask 在 Phase 1 前留占位 `Coming soon`。Palette 使用 lazy import，第一次 `Cmd/Ctrl+K` 后加载，避免进入首屏 bundle 热路径。列表交互基于 shadcn `Command` / `cmdk`，开启 `disablePointerSelection`，键盘 active item 不被鼠标 hover 抢走；鼠标 hover 用浅层 `bg-background-subtle`，键盘 active item 用更深的 `bg-state-base-hover`。
+- **Keyboard Shell**：`apps/app/src/components/patterns/keyboard-shell` 是唯一 app 级快捷键入口，基于 `@tanstack/react-hotkeys`。全局层注册 `?` / `Cmd/Ctrl+K` / `Cmd/Ctrl+Shift+D` / `Cmd/Ctrl+Shift+O`，导航序列层注册 `G then D/W/C/A`，Members route 层注册 `Cmd/Ctrl+I`，Workboard route 层注册 `J/K/Enter/E/F/X/I/W`，Wizard/Overlay 层压住 route/navigation 快捷键。裸字母键保留 TanStack 的 input ignore 行为，`Enter` 只在明确声明 `ignoreInputs: false` 且手动排除 textarea/contenteditable/select 时使用。所有可见 shortcut label 走 keyboard shell display helpers，不在业务组件里手写平台判断。
+- **Command Palette (Cmd-K)**：全局快捷键，搜索输入 + 三段结果（Navigate / Actions / Ask），Ask 在 Phase 1 前留占位 `Coming soon`。Navigate 必须直接列出 canonical 一级页面（Dashboard / Workboard / Alerts / Team workload / Clients / Firm profile / Rules / Members / Billing / Audit log），不再提供聚合 `Settings` 命令。Palette 使用 lazy import，第一次 `Cmd/Ctrl+K` 后加载，避免进入首屏 bundle 热路径。列表交互基于 shadcn `Command` / `cmdk`，开启 `disablePointerSelection`，键盘 active item 不被鼠标 hover 抢走；鼠标 hover 用浅层 `bg-background-subtle`，键盘 active item 用更深的 `bg-state-base-hover`。
 - **Shortcut Help (?)**：帮助浮层从 TanStack `useHotkeyRegistrations()` 读取当前已 mount 快捷键，再合并 reserved slots（Ask `/`、Evidence selected），避免文档与实现分叉。
 - **Evidence Mode**：当前 Workboard `E` 和全局 `Cmd/Ctrl+E` 先作为 reserved / placeholder 展示；真实 selection → `evidence-drawer` wiring 在 Day 6 接入。
 

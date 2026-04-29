@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test'
 
 export class BillingPage {
   readonly checkoutHeading: Locator
-  readonly settingsHeading: Locator
+  readonly billingHeading: Locator
   readonly successHeading: Locator
   readonly cancelHeading: Locator
   readonly continueToSecureCheckoutButton: Locator
@@ -15,7 +15,7 @@ export class BillingPage {
 
   constructor(readonly page: Page) {
     this.checkoutHeading = page.getByRole('heading', { name: 'Confirm checkout', level: 1 })
-    this.settingsHeading = page.getByRole('heading', { name: 'Billing', level: 1 })
+    this.billingHeading = page.getByRole('heading', { name: 'Billing', level: 1 })
     this.successHeading = page.getByRole('heading', { name: 'Payment confirmation', level: 1 })
     this.cancelHeading = page.getByRole('heading', { name: 'Checkout canceled', level: 1 })
     this.continueToSecureCheckoutButton = page.getByRole('button', {
@@ -37,8 +37,8 @@ export class BillingPage {
     await this.page.goto(path)
   }
 
-  async gotoSettings() {
-    await this.page.goto('/settings/billing')
+  async gotoBilling() {
+    await this.page.goto('/billing')
   }
 
   async gotoSuccess(path = '/billing/success?plan=firm&interval=monthly') {

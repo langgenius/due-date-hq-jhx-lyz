@@ -1,7 +1,7 @@
 import { seedBillingSubscription } from '../fixtures/billing'
 import { expect, test } from '../fixtures/test'
 
-// Feature: Members settings
+// Feature: Members
 // PRD: Firm team management
 // AC: E2E-MEMBERS-INVITE-CANCEL-AUDIT
 

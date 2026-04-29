@@ -18,7 +18,7 @@ test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm and switches context', 
   const timezone = 'America/Los_Angeles'
   const slugPrefix = slugBody(firmName)
 
-  await authenticatedPage.goto('/settings/profile')
+  await authenticatedPage.goto('/firm')
 
   await expect(
     authenticatedPage.getByRole('heading', { name: 'Firm profile', level: 1 }),
@@ -42,7 +42,7 @@ test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm and switches context', 
     }),
   ).toBeVisible()
 
-  await authenticatedPage.goto('/settings/profile')
+  await authenticatedPage.goto('/firm')
 
   await expect(authenticatedPage.getByLabel('Firm name')).toHaveValue(firmName)
   await expect(authenticatedPage.getByLabel('Timezone')).toHaveValue(timezone)

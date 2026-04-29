@@ -178,7 +178,7 @@ function WorkloadUpgradePanel() {
           </CardAction>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
-          <Button render={<Link to="/settings/billing" />}>
+          <Button render={<Link to="/billing" />}>
             <Trans>Upgrade to Firm</Trans>
           </Button>
           <Button variant="outline" render={<Link to="/workboard" />}>

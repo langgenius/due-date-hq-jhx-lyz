@@ -2,9 +2,9 @@ import type { Page } from '@playwright/test'
 import { seedBillingSubscription } from '../fixtures/billing'
 import { expect, test } from '../fixtures/test'
 
-// Feature: Billing success and settings
+// Feature: Billing success and portal
 // PRD: Pricing + Stripe payment loop
-// AC: E2E-BILLING-WEBHOOK-STATE, E2E-BILLING-SETTINGS-PORTAL, E2E-BILLING-CANCEL-RECOVERY
+// AC: E2E-BILLING-WEBHOOK-STATE, E2E-BILLING-PORTAL, E2E-BILLING-CANCEL-RECOVERY
 
 test.skip(
   Boolean(process.env.E2E_BASE_URL),
@@ -28,7 +28,7 @@ test('AC: E2E-BILLING-WEBHOOK-STATE shows activation only after subscription sta
   await expect(billingPage.page.getByText('firm', { exact: true })).toBeVisible()
 })
 
-test('AC: E2E-BILLING-SETTINGS-PORTAL reads webhook-backed state and opens portal by contract', async ({
+test('AC: E2E-BILLING-PORTAL reads webhook-backed state and opens portal by contract', async ({
   request,
   authSession,
   authenticatedPage,
@@ -37,9 +37,9 @@ test('AC: E2E-BILLING-SETTINGS-PORTAL reads webhook-backed state and opens porta
   await seedBillingSubscription(request, { firmId: authSession.firmId })
   const portal = await interceptBillingPortal(authenticatedPage)
 
-  await billingPage.gotoSettings()
+  await billingPage.gotoBilling()
 
-  await expect(billingPage.settingsHeading).toBeVisible()
+  await expect(billingPage.billingHeading).toBeVisible()
   await expect(authenticatedPage.getByRole('group', { name: 'Plan: firm' })).toBeVisible()
   await expect(authenticatedPage.getByRole('group', { name: 'Seat limit: 5' })).toBeVisible()
   await expect(billingPage.manageBillingButton).toBeEnabled()
@@ -53,7 +53,7 @@ test('AC: E2E-BILLING-SETTINGS-PORTAL reads webhook-backed state and opens porta
     disableRedirect: true,
   })
   const returnUrl = new URL(String(payload.returnUrl))
-  expect(returnUrl.pathname).toBe('/settings/billing')
+  expect(returnUrl.pathname).toBe('/billing')
 })
 
 test('AC: E2E-BILLING-CANCEL-RECOVERY keeps selected plan available after cancel', async ({
@@ -80,7 +80,7 @@ async function interceptBillingPortal(
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ url: '/settings/billing?portal=returned', redirect: false }),
+      body: JSON.stringify({ url: '/billing?portal=returned', redirect: false }),
     })
   })
 

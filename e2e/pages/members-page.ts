@@ -13,7 +13,7 @@ export class MembersPage {
     this.sendInviteButton = this.inviteDialog.getByRole('button', { name: 'Send invite' })
   }
 
-  async goto(path = '/settings/members') {
+  async goto(path = '/members') {
     await this.page.goto(path)
   }
 

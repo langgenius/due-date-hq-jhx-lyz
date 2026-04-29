@@ -123,8 +123,8 @@ function PlanStatusLink({ firm }: { firm: FirmPublic }) {
   return (
     <div className="px-2 py-1.5">
       <Link
-        to="/settings/billing"
-        aria-label={t`Open billing settings for ${plan} plan`}
+        to="/billing"
+        aria-label={t`Open billing for ${plan} plan`}
         className={cn(
           'group/plan flex h-12 w-full touch-manipulation items-center gap-2.5 rounded-md border border-divider-regular bg-background-section px-3 outline-none transition-colors',
           'hover:border-divider-deep hover:bg-background-default-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',

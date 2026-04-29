@@ -127,12 +127,12 @@ sequenceDiagram
 
 ## 5. 入口矩阵
 
-| 入口                         | 触发条件                                                           | 跳转路径                                | 是否强制 |
-| ---------------------------- | ------------------------------------------------------------------ | --------------------------------------- | -------- |
-| 首登空态                     | 首次 session 且 `clients.count = 0 AND obligations.count = 0`      | `/migration/new?source=empty`           | 强制     |
-| Clients 页 `+ Add clients ▾` | 已有客户的事务所新增时                                             | `/migration/new?source=clients-page`    | 否       |
-| Cmd-K 命令面板 `> import`    | 任何已登录页面按 `Cmd + K` 并输入 `import`（对齐 PRD Part2A §7.6） | `/migration/new?source=cmdk`            | 否       |
-| Settings → Imports History   | 回访查历史 / 触发 24h Revert（PRD Part1A §5.10）                   | `/settings/imports` 列表 → batch detail | 否       |
+| 入口                         | 触发条件                                                           | 跳转路径                             | 是否强制 |
+| ---------------------------- | ------------------------------------------------------------------ | ------------------------------------ | -------- |
+| 首登空态                     | 首次 session 且 `clients.count = 0 AND obligations.count = 0`      | `/migration/new?source=empty`        | 强制     |
+| Clients 页 `+ Add clients ▾` | 已有客户的事务所新增时                                             | `/migration/new?source=clients-page` | 否       |
+| Cmd-K 命令面板 `> import`    | 任何已登录页面按 `Cmd + K` 并输入 `import`（对齐 PRD Part2A §7.6） | `/migration/new?source=cmdk`         | 否       |
+| Imports history              | 回访查历史 / 触发 24h Revert（PRD Part1A §5.10）                   | `/imports` 列表 → batch detail       | 否       |
 
 > 说明：`/migration/*` URL 路径是产品设计建议，实现阶段允许前端按 React Router 约定做微调（`../../dev-file/05-Frontend-Architecture.md` 路由约定）；但**入口语义 = 首登强制 + 三处非强制**不能变。Onboarding AI Agent 作为平行入口的设计见 [`./03-onboarding-agent.md`](./03-onboarding-agent.md)（Demo Sprint 不渲染）。
 

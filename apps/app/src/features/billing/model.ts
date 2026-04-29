@@ -56,10 +56,6 @@ export function billingPlanHref(plan: BillingPlan, interval: BillingInterval): s
   return serializeBillingQuery('/billing/checkout', { plan, interval })
 }
 
-export function settingsBillingChangeHref(plan: BillingPlan, interval: BillingInterval): string {
-  return `/settings/billing?changePlan=${plan}&interval=${interval}`
-}
-
 export function isFirmOwner(firm: FirmPublic | null | undefined): boolean {
   return firm?.role === 'owner'
 }

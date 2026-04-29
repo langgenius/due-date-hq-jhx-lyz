@@ -802,7 +802,7 @@ function priorityScore(o: ObligationInstance, c: Client): PriorityBreakdown {
   ● High-priority client (15% weight)
   ● 1 late filing last year (10% weight)
   ● Waiting on client (5% weight)
-  [Why these weights?] → /settings/priority
+  [Why these weights?] → /priority
   ```
 - 用户可一键切换排序：`AI Smart` / `Due Date` / `$ At Risk` / `Status`
 - 用户可在 Settings 调权重（P1，MVP 只做"切 AI / 按日期"二选一）
@@ -1091,7 +1091,7 @@ COMMIT
 ```
 
 - 单行失败不阻塞整批（CPA 最讨厌"一条错导致整批不过"）
-- 失败行进入 `/settings/migration/<batch_id>/errors` 可下载 CSV + 手改重导
+- 失败行进入 `/migration/<batch_id>/errors` 可下载 CSV + 手改重导
 
 #### Revert 流程（24h 内可用）
 
@@ -1135,7 +1135,7 @@ Skipped rows (3)
   Row 29: duplicate of existing Acme LLC, marked as skip
 
 You can undo this import for the next 24 hours.
-  https://app.duedatehq.com/settings/migration/batch_xx/revert
+  https://app.duedatehq.com/migration/batch_xx/revert
 ```
 
 ### 6A.7 安全与合规护栏
@@ -1211,7 +1211,7 @@ You can undo this import for the next 24 hours.
 
 - **首次登录强制进 Migration Copilot**（空态首页 = Import 向导）
 - 侧栏底部常驻 `+ Import` 按钮
-- Settings → Migration 页列出历史 batches + Revert 按钮
+- Imports 页列出历史 batches + Revert 按钮
 
 ---
 

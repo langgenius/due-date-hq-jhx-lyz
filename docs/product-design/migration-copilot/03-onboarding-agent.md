@@ -253,9 +253,9 @@ stateDiagram-v2
 
 #### State 7 · `handoff`
 
-| 退出条件                                         | 复用管线     | Evidence / Audit 写入                                                                | Skip / Back / Switch to wizard 可达                                                            |
-| ------------------------------------------------ | ------------ | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| 用户点 `[Open Dashboard]` 或 `[Walk me through]` | 无（跳路由） | `audit_event = onboarding.agent.handoff.offered` + `onboarding.agent.handoff.chosen` | Skip：不可（终态）· Back：灰化 · Switch：灰化（已导入，后续入口走 Settings → Imports History） |
+| 退出条件                                         | 复用管线     | Evidence / Audit 写入                                                                | Skip / Back / Switch to wizard 可达                                                 |
+| ------------------------------------------------ | ------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| 用户点 `[Open Dashboard]` 或 `[Walk me through]` | 无（跳路由） | `audit_event = onboarding.agent.handoff.offered` + `onboarding.agent.handoff.chosen` | Skip：不可（终态）· Back：灰化 · Switch：灰化（已导入，后续入口走 Imports history） |
 
 > 三大逃生门约束：`[Skip this step]` / `[Go back]` / `[Use guided wizard →]` 在 **state 1–6** 必须全部可见（Skip 可能灰化，如 dry_run_commit）；state 7 handoff 为终态，三门全部灰化。切换到 wizard 时 **`onboardingDraft` 对象不丢**，由 [`./02-ux-4step-wizard.md`](./02-ux-4step-wizard.md) 同款对象消费（见 §4.3）。
 
@@ -412,11 +412,11 @@ onboarding.agent.fallback.triggered             ← 带 reason: timeout | loop |
 
 ### 7.5 Settings · Setup History（对齐 §6A.11.5）
 
-`/settings/setup-history` 页展示：
+`/setup-history` 页展示：
 
 - 每次 onboarding 会话的**完整对话记录**（回填后的气泡，**不是** redact 后的 AI SDK 输入）
 - 每个气泡 hover → Evidence Drawer Level 3（`../../docs/Design/DueDateHQ-DESIGN.md` 无障碍章节规范）展示 `prompt_version` / `model` / `confidence` / `guard_flags`
-- 与 `/settings/imports` 的 batch detail 页**互相引用**：`imports` 页的 batch 详情可跳 `setup-history` 看"这个 batch 是通过 Agent 对话还是 Wizard 创建的"
+- 与 `/imports` 的 batch detail 页**互相引用**：`imports` 页的 batch 详情可跳 `setup-history` 看"这个 batch 是通过 Agent 对话还是 Wizard 创建的"
 
 ---
 
@@ -574,7 +574,7 @@ render wizard Step 1 Intake
 - Agent 真实 AI SDK 调用（任何 state 都不发真实 AI SDK 请求）
 - `agent@v1` prompt 定稿（留 placeholder 在 [`./04-ai-prompts.md`](./04-ai-prompts.md) Phase 0 接入位）
 - `onboardingDraft` 持久化（localStorage / Worker session store 都不做）
-- `/settings/setup-history` 页面渲染（留空）
+- `/setup-history` 页面渲染（留空）
 - Chat UI 组件实装（只渲染 preview 卡 + Toast）
 - Escape hatch chips（§10.5）实装
 - `onboarding.agent.*` 其余 10 个 audit action 的 emit（仅 `.preview_card.clicked` emit）

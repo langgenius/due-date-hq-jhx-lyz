@@ -32,7 +32,7 @@ export function BillingCancelRoute() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-text-secondary">
-            <Trans>The selected plan is still available from Billing settings.</Trans>
+            <Trans>The selected plan is still available from Billing.</Trans>
           </p>
         </CardContent>
         <CardFooter className="gap-2 border-t border-divider-regular">
@@ -40,7 +40,7 @@ export function BillingCancelRoute() {
             <CreditCardIcon data-icon="inline-start" />
             <Trans>Restart checkout</Trans>
           </Button>
-          <Button variant="outline" render={<Link to="/settings/billing" />}>
+          <Button variant="outline" render={<Link to="/billing" />}>
             <ArrowLeftIcon data-icon="inline-start" />
             <Trans>Back to Billing</Trans>
           </Button>

@@ -21,7 +21,7 @@ export function RulesPageHeader({ description }: { description: string }) {
     <header className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
         <h1 className="text-2xl leading-7 font-semibold text-text-primary">
-          <Trans>Rules Console</Trans>
+          <Trans>Rules</Trans>
         </h1>
         <Badge className="h-[22px] rounded-sm bg-accent-tint px-2 py-0 text-[11px] font-medium tracking-[0.08em] text-text-accent uppercase">
           <Trans>READ-ONLY</Trans>

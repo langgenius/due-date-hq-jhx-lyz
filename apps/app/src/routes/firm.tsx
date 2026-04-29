@@ -29,7 +29,7 @@ import { Label } from '@duedatehq/ui/components/ui/label'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { orpc } from '@/lib/rpc'
 
-export function SettingsProfileRoute() {
+export function FirmRoute() {
   const currentQuery = useQuery(orpc.firms.getCurrent.queryOptions({ input: undefined }))
 
   if (currentQuery.isLoading) {
@@ -132,7 +132,7 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
     <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-4 py-6 md:px-6">
       <section className="flex flex-col gap-2">
         <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-          <Trans>Settings</Trans>
+          <Trans>Organization</Trans>
         </span>
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -164,7 +164,7 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
             <Trans>General</Trans>
           </CardTitle>
           <CardDescription>
-            <Trans>Firm settings apply only to the active tenant.</Trans>
+            <Trans>Firm profile applies only to the active tenant.</Trans>
           </CardDescription>
         </CardHeader>
         <CardContent>

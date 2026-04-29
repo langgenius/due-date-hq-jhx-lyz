@@ -377,12 +377,12 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 
 ### 13.7A Web Push 与 PWA 隐私（P1-36 · §7.8.1）
 
-- **订阅许可**：首次登录**不主动弹权限**；在用户首次创建 Pulse Banner 后、或主动访问 Settings → Notifications 时才请求
+- **订阅许可**：首次登录**不主动弹权限**；在用户首次创建 Pulse Banner 后、或主动访问 Notifications 时才请求
 - **VAPID 密钥**：服务端私钥存 env var（不进仓库），定期轮换
 - **endpoint 存储**：`PushSubscription.endpoint` 视同 PII，TLS + at-rest 加密（同客户 PII 级别）
 - **去识别化**：`user_agent_hash` 使用 SHA-256 + salt，保留设备级识别但不可反推原始 UA
 - **清理策略**：`consecutive_failures ≥ 3`（410/404 返回）自动 revoke，防止死链堆积
-- **用户控制**：Settings → Notifications 页显示所有订阅设备（device_label / platform / last_used_at），支持单台注销
+- **用户控制**：Notifications 页显示所有订阅设备（device_label / platform / last_used_at），支持单台注销
 - **跨租户隔离**：同一 endpoint 可在多 Firm 订阅（`UserFirmMembership` 多对多），推送时按 `firm_id + user_id` 查订阅
 - **Quiet Hours**：默认尊重设备本地 23:00–06:00 静默，push payload 带 `TTL` 和 `urgency=low`，关键事件（Pulse 法定级）用 `urgency=high` 覆盖
 - **合规声明**：`/security` 页明确 "We do not send marketing push notifications"；`/privacy` 页列出可能推送的 7 类事件
@@ -834,7 +834,7 @@ back to the source."
 Presenter: "If the IRS ever audits Sarah, she exports this
 whole evidence package as a signed ZIP. 90 seconds. Done."
 
-[Click Settings → Export Audit Package → SHA-256 hash 一键生成]
+[Click Audit export → SHA-256 hash 一键生成]
 
 Presenter: "Every tax AI today is a confident stranger.
 DueDateHQ is a tax AI that shows its work — from the first

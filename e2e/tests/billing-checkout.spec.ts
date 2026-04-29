@@ -36,7 +36,7 @@ test('AC: E2E-BILLING-CHECKOUT-PAYLOAD starts organization checkout with stable 
   expect(payload).not.toHaveProperty('subscriptionId')
   expectCallbackUrl(payload.successUrl, '/billing/success')
   expectCallbackUrl(payload.cancelUrl, '/billing/cancel')
-  expectCallbackUrl(payload.returnUrl, '/settings/billing')
+  expectCallbackUrl(payload.returnUrl, '/billing')
   await expect(authenticatedPage).toHaveURL(/\/billing\/success\?plan=firm&interval=monthly$/)
 })
 
@@ -68,7 +68,7 @@ test('AC: E2E-BILLING-CHECKOUT-EXISTING-SUBSCRIPTION includes subscriptionId on 
   })
   expectCallbackUrl(payload.successUrl, '/billing/success')
   expectCallbackUrl(payload.cancelUrl, '/billing/cancel')
-  expectCallbackUrl(payload.returnUrl, '/settings/billing')
+  expectCallbackUrl(payload.returnUrl, '/billing')
 })
 
 test.describe('coordinator checkout', () => {

@@ -114,7 +114,7 @@ export function BillingSuccessRoute() {
           ) : null}
         </CardContent>
         <CardFooter className="gap-2 border-t border-divider-regular">
-          <Button render={<Link to="/settings/billing" />}>
+          <Button render={<Link to="/billing" />}>
             <Trans>Open Billing</Trans>
             <ArrowRightIcon data-icon="inline-end" />
           </Button>

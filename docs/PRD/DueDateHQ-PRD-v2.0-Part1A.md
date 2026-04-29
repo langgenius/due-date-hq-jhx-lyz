@@ -383,7 +383,7 @@ Audit event: team.member.joined
 
 #### Owner 转让（小所继承 / 退休场景）
 
-- Settings → Team → `Transfer ownership` → 选择新 Owner（必须已是 active member 且 role ≥ manager）
+- Members → `Transfer ownership` → 选择新 Owner（必须已是 active member 且 role ≥ manager）
 - 二次确认（输入 firm name 或 MFA 再验）
 - 新旧 Owner 都收邮件通知；原 Owner 降级为 Manager（不退出）
 - 写 audit: `firm.owner.transferred`
@@ -1158,20 +1158,20 @@ AI-assisted. Verify with official sources.
 
 **邮件配送（Team 路由规则 · §3.6 Gap 4）：**
 
-| 收件人                                    | 规则                                                                                         | 可否关闭                 |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------ |
-| **Firm Owner**                            | 必收一份                                                                                     | ❌（Pulse 是法定级信号） |
-| **受影响 obligation 的 Assignee**（去重） | 必收一份（如果同一人有多条，合并为一封）                                                     | ❌                       |
-| **未分派 obligation 的 fallback 收件人**  | `firm.default_assignee` 配置（`owner` / `round_robin` / `none`）；默认 owner                 | —                        |
-| **Manager**                               | 可选订阅全量 Pulse Digest（Settings → Notifications → `Subscribe to all firm Pulse alerts`） | ✓ 可关                   |
-| **Preparer / Coordinator**                | 只有当 assignee = 自己 才发                                                                  | —                        |
+| 收件人                                    | 规则                                                                              | 可否关闭                 |
+| ----------------------------------------- | --------------------------------------------------------------------------------- | ------------------------ |
+| **Firm Owner**                            | 必收一份                                                                          | ❌（Pulse 是法定级信号） |
+| **受影响 obligation 的 Assignee**（去重） | 必收一份（如果同一人有多条，合并为一封）                                          | ❌                       |
+| **未分派 obligation 的 fallback 收件人**  | `firm.default_assignee` 配置（`owner` / `round_robin` / `none`）；默认 owner      | —                        |
+| **Manager**                               | 可选订阅全量 Pulse Digest（Notifications → `Subscribe to all firm Pulse alerts`） | ✓ 可关                   |
+| **Preparer / Coordinator**                | 只有当 assignee = 自己 才发                                                       | —                        |
 
 **配送规则：**
 
 - 同一人多条 obligation → **合并为一封邮件**（按 obligation 列表 bullets）
 - 模板渲染：服务端（Resend），不使用 AI 生成
 - 每封邮件 footer 显示 `You received this because you are the assignee on 3 obligations.` + `[Notification preferences]`
-- 切换到 Daily Digest：Settings → Notifications → `Pulse email cadence: Immediate / Daily digest 8am / Weekly digest Monday 8am`（默认 Immediate）
+- 切换到 Daily Digest：Notifications → `Pulse email cadence: Immediate / Daily digest 8am / Weekly digest Monday 8am`（默认 Immediate）
 - **Coordinator 邮件版本不含 `$ at risk` 字段**（与 §3.6.3 RBAC 一致，commercial-sensitive 隐藏）
 
 #### 6.3.5 Pulse 抓取失败的降级 Demo 流
@@ -1223,7 +1223,7 @@ Rank #1 — Acme LLC · CA Franchise
 ● High-priority client (15% weight)
 ● 1 late filing last year (10% weight)
 ● Waiting on client (5% weight)
-[Why these weights?] → /settings/priority
+[Why these weights?] → /priority
 ```
 
 #### 6.4.4 用户控制
@@ -1300,7 +1300,7 @@ Render
 - 只读白名单 + tenant 强制隔离（两层）
 - AI SDK 只看 schema + 用户问题 + 5 行 anonymized sample，不看全量 PII
 - 所有调用写内部 `ai_output` trace（成本 / 延迟 / token usage 可审计）
-- Ask 历史在 Settings → Ask History（用户可删除）
+- Ask 历史在 Ask history（用户可删除）
 
 #### 6.6.5 降级
 

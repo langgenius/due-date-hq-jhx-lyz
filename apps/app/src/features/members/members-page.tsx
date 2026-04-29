@@ -192,7 +192,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
       id: 'members.invite.open',
       name: 'Invite member',
       description: 'Open the member invite dialog.',
-      category: 'settings',
+      category: 'organization',
       scope: 'route',
       displayKeys: inviteShortcutLabel,
     },
@@ -203,7 +203,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
       <header className="flex min-h-20 flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-xs font-medium tracking-[0.08em] text-text-tertiary uppercase">
-            <Trans>Settings</Trans>
+            <Trans>Organization</Trans>
           </p>
           <h1 className="mt-0.5 text-2xl leading-[30px] font-semibold text-text-primary">
             <Trans>Members</Trans>
@@ -399,7 +399,7 @@ function SeatLimitBanner() {
           </Trans>
         </p>
       </div>
-      <Button variant="outline" render={<Link to="/settings/billing" />}>
+      <Button variant="outline" render={<Link to="/billing" />}>
         <Trans>Upgrade plan</Trans>
       </Button>
     </section>

@@ -35,14 +35,14 @@
 - Cookie：`httpOnly` · `secure` · `sameSite=lax`
 - Session 存 D1；默认有效期 7 天
 - `session.activeOrganizationId` = 当前 Firm；切换 Firm 走 `auth.api.setActiveOrganization`
-- 双设备会话允许；Settings → Devices 列所有 session + "Sign out all"
+- 双设备会话允许；Devices 列所有 session + "Sign out all"
 - 新设备 / 新 IP → Phase 1 要求 step-up（TOTP 二次验证）
 
 ### 2.3 Invitation 流
 
 - Members 管理走 DueDateHQ `members.*` gateway：前端不直接调 Better Auth organization/member API；Better Auth hooks 作为绕过 gateway 时的 role / active firm / seat 底线
   app 不依赖 Resend key
-- Owner 在 Settings → Team 发邀请 → better-auth 生成 token + 入 `invitation` 表
+- Owner 在 Members 发邀请 → better-auth 生成 token + 入 `invitation` 表
 - 邀请邮件由 `sendInvitationEmail` hook 经 Resend 发出
 - `RESEND_API_KEY` 仅在实际发送 auth email 时必需；development 缺 key 时打印到
   console，非 development 的发送路径会失败

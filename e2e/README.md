@@ -47,8 +47,8 @@ Current specs intentionally cover shipped behavior only:
 - marketing-to-app locale handoff
 - entry-page locale switching
 - SPA 404 rendering
-- protected Dashboard / Clients / Workboard / Team Workload / Rules Console / Members / Audit Log /
-  Migration Step 1 surfaces with local seeded auth
+- protected Dashboard / Clients / Workboard / Team Workload / Rules / Members / Billing /
+  Firm Profile / Audit Log / Migration Step 1 surfaces with local seeded auth
 - Clients facts manual creation, seeded readiness metrics, entity/state/search URL filters, filtered
   empty state, and Fact Profile sheet inspection from seeded client rows
 - Team Workload paid-plan gating, server-computed owner metrics, unassigned risk, and Workboard
