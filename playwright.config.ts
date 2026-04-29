@@ -15,7 +15,7 @@ const localWorkerCommand = [
     '--var AI_GATEWAY_API_KEY:',
     '--var STRIPE_SECRET_KEY:stripe_e2e_secret',
     '--var STRIPE_WEBHOOK_SECRET:stripe_e2e_webhook_secret',
-    '--var STRIPE_PRICE_FIRM_MONTHLY:price_firm_monthly_e2e',
+    '--var STRIPE_PRICE_PRO_MONTHLY:price_pro_monthly_e2e',
   ].join(' '),
 ].join(' && ')
 

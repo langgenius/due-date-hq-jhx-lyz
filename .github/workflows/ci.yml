@@ -91,7 +91,7 @@ jobs:
             'GOOGLE_CLIENT_SECRET',
             'STRIPE_SECRET_KEY',
             'STRIPE_WEBHOOK_SECRET',
-            'STRIPE_PRICE_FIRM_MONTHLY',
+            'STRIPE_PRICE_PRO_MONTHLY',
           ]
           const missing = required.filter((key) => !process.env[key])
           if (missing.length > 0) {
@@ -103,8 +103,8 @@ jobs:
             'RESEND_API_KEY',
             'AI_GATEWAY_PROVIDER_API_KEY',
             'AI_GATEWAY_API_KEY',
+            'STRIPE_PRICE_FIRM_MONTHLY',
             'STRIPE_PRICE_FIRM_YEARLY',
-            'STRIPE_PRICE_PRO_MONTHLY',
             'STRIPE_PRICE_PRO_YEARLY',
           ]
           const secrets = Object.fromEntries(

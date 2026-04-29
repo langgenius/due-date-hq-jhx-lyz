@@ -26,6 +26,8 @@ plan-id layer instead of adding a display-name mapping.
 - Marketing `/pricing`, app `/billing`, checkout, success/cancel flow, sidebar
   plan status, Members, Team workload, and E2E fixtures now use the same plan
   semantics.
+- CI deployment secret checks and Playwright/Wrangler E2E env injection require
+  `STRIPE_PRICE_PRO_MONTHLY`; Firm price ids remain optional.
 - Current docs were updated so pricing and deployment guidance point to
   `/billing/checkout?plan=pro&interval=monthly`.
 
@@ -40,8 +42,5 @@ plan-id layer instead of adding a display-name mapping.
 - `pnpm --filter @duedatehq/server test`
 - `pnpm test`
 - `git diff --check`
-- Targeted Playwright billing/pricing/workload/members specs were attempted, but
-  local `apps/server/.dev.vars` still exposes only the old
-  `STRIPE_PRICE_FIRM_MONTHLY`. Because billing enablement now correctly requires
-  `STRIPE_PRICE_PRO_MONTHLY`, Better Auth does not register subscription routes
-  until local/staging secrets are rotated.
+- `pnpm exec vp check .github/workflows/ci.yml .github/workflows/e2e.yml playwright.config.ts`
+- `pnpm test:e2e --project=chromium`
