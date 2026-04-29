@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Trans, useLingui } from '@lingui/react/macro'
 
 import type { AuditEventPublic } from '@duedatehq/contracts'
@@ -46,9 +47,25 @@ export function AuditEventDrawer({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const { t } = useLingui()
-  if (!event) return null
+  const [renderedEvent, setRenderedEvent] = useState<AuditEventPublic | null>(event)
 
+  if (event && renderedEvent !== event) {
+    setRenderedEvent(event)
+  }
+
+  const detailEvent = event ?? renderedEvent
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="w-full sm:max-w-[440px]">
+        {detailEvent ? <AuditEventDrawerContent event={detailEvent} /> : null}
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
+  const { t } = useLingui()
   const summaryLabels: AuditSummaryLabels = {
     empty: t`empty`,
     object: t`object`,
@@ -64,50 +81,48 @@ export function AuditEventDrawer({
   }).format(new Date(event.createdAt))
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-[440px]">
-        <SheetHeader>
-          <SheetTitle>
-            <Trans>Audit detail</Trans>
-          </SheetTitle>
-          <SheetDescription>{shortenAuditId(event.id)}</SheetDescription>
-        </SheetHeader>
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
-          <div className="grid gap-6">
-            <section className="grid gap-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="font-mono">
-                  {event.action}
-                </Badge>
-                <Badge variant={event.actorId ? 'secondary' : 'outline'}>{actor}</Badge>
-              </div>
-              <p className="text-md text-text-primary">
-                {summarizeAuditChange(event, summaryLabels)}
-              </p>
-            </section>
+    <>
+      <SheetHeader>
+        <SheetTitle>
+          <Trans>Audit detail</Trans>
+        </SheetTitle>
+        <SheetDescription>{shortenAuditId(event.id)}</SheetDescription>
+      </SheetHeader>
+      <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
+        <div className="grid gap-6">
+          <section className="grid gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="font-mono">
+                {event.action}
+              </Badge>
+              <Badge variant={event.actorId ? 'secondary' : 'outline'}>{actor}</Badge>
+            </div>
+            <p className="text-md text-text-primary">
+              {summarizeAuditChange(event, summaryLabels)}
+            </p>
+          </section>
 
-            <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
-              <MetadataRow label={t`Local time`} value={localTime} />
-              <MetadataRow label={t`UTC time`} value={event.createdAt} />
-              <MetadataRow label={t`Entity`} value={`${event.entityType} / ${event.entityId}`} />
-              <MetadataRow label={t`Actor`} value={actor} />
-              {event.reason ? <MetadataRow label={t`Reason`} value={event.reason} /> : null}
-            </dl>
+          <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
+            <MetadataRow label={t`Local time`} value={localTime} />
+            <MetadataRow label={t`UTC time`} value={event.createdAt} />
+            <MetadataRow label={t`Entity`} value={`${event.entityType} / ${event.entityId}`} />
+            <MetadataRow label={t`Actor`} value={actor} />
+            {event.reason ? <MetadataRow label={t`Reason`} value={event.reason} /> : null}
+          </dl>
 
-            <JsonBlock label={t`Before`} value={event.beforeJson} />
-            <JsonBlock label={t`After`} value={event.afterJson} />
+          <JsonBlock label={t`Before`} value={event.beforeJson} />
+          <JsonBlock label={t`After`} value={event.afterJson} />
 
-            <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
-              <MetadataRow label={t`IP hash`} value={event.ipHash ?? t`Not recorded`} />
-              <MetadataRow
-                label={t`User agent hash`}
-                value={event.userAgentHash ?? t`Not recorded`}
-              />
-              <MetadataRow label={t`Firm id`} value={event.firmId} />
-            </dl>
-          </div>
+          <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
+            <MetadataRow label={t`IP hash`} value={event.ipHash ?? t`Not recorded`} />
+            <MetadataRow
+              label={t`User agent hash`}
+              value={event.userAgentHash ?? t`Not recorded`}
+            />
+            <MetadataRow label={t`Firm id`} value={event.firmId} />
+          </dl>
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </>
   )
 }
