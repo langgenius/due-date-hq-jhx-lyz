@@ -79,14 +79,14 @@ peerDependencyRules:
 catalog:
   # ───────── Vite+ unified toolchain ─────────
   # These three move together; always bump as one set.
-  vite-plus: 0.1.19
-  vite: npm:@voidzero-dev/vite-plus-core@0.1.19
-  vitest: npm:@voidzero-dev/vite-plus-test@0.1.19
+  vite-plus: 0.1.20
+  vite: npm:@voidzero-dev/vite-plus-core@0.1.20
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.20
   tsx: 4.21.0
 
   # ───────── runtime core ─────────
   typescript: 6.0.3
-  '@typescript/native-preview': 7.0.0-dev.20260423.1
+  '@typescript/native-preview': 7.0.0-dev.20260429.1
   '@types/node': 25.6.0
 
   # ───────── Vite plugin ecosystem ─────────
@@ -103,7 +103,7 @@ catalog:
   '@types/react-dom': 19.2.3
   react-router: 7.14.2
   tailwindcss: 4.2.4
-  lucide-react: 1.8.0
+  lucide-react: 1.14.0
   class-variance-authority: 0.7.1
   tailwind-merge: 3.5.0
   tw-animate-css: 1.4.0
@@ -111,16 +111,16 @@ catalog:
   cmdk: 1.1.1
   sonner: 2.0.7
   agentation: 3.0.2
-  foxact: 0.3.0
+  foxact: 0.3.1
 
   # ───────── state / form ─────────
-  '@tanstack/react-query': 5.99.2
+  '@tanstack/react-query': 5.100.6
   '@tanstack/react-hotkeys': 0.10.0
   '@tanstack/react-table': 8.21.3
   '@tanstack/react-virtual': 3.13.24
   zustand: 5.0.12
   nuqs: 2.8.9
-  react-hook-form: 7.73.1
+  react-hook-form: 7.74.0
   '@hookform/resolvers': 5.2.2
   zod: 4.3.6
 
@@ -130,7 +130,7 @@ catalog:
   react-odometerjs: 3.1.3
 
   # ───────── backend ─────────
-  hono: 4.12.14
+  hono: 4.12.15
   '@hono/zod-validator': 0.7.6
 
   # ───────── oRPC ─────────
@@ -142,8 +142,8 @@ catalog:
 
   # ───────── auth ─────────
   '@t3-oss/env-core': 0.13.11
-  better-auth: 1.6.7
-  '@better-auth/stripe': 1.6.7
+  better-auth: 1.6.9
+  '@better-auth/stripe': 1.6.9
   stripe: 22.1.0
 
   # ───────── db ─────────
@@ -151,7 +151,7 @@ catalog:
   drizzle-kit: 0.31.10
 
   # ───────── ai ─────────
-  ai: 6.0.168
+  ai: 6.0.169
   ai-gateway-provider: 3.1.3
 
   # ───────── i18n (Lingui v6) ─────────
@@ -170,12 +170,12 @@ catalog:
   # ───────── infra / transport ─────────
   resend: 6.12.2
   '@react-email/components': 1.0.12
-  '@sentry/cloudflare': 10.49.0
-  posthog-js: 1.371.1
+  '@sentry/cloudflare': 10.50.0
+  posthog-js: 1.372.5
 
   # ───────── cloudflare ─────────
-  wrangler: 4.84.1
-  '@cloudflare/workers-types': 4.20260423.1
+  wrangler: 4.86.0
+  '@cloudflare/workers-types': 4.20260426.1
 
   # ───────── marketing (Astro static site) ─────────
   # Used only by apps/marketing. Astro 6 internally uses Vite 7; the
@@ -183,9 +183,9 @@ catalog:
   # mismatches silenced via `peerDependencyRules.allowAny: [vite]`.
   # `@astrojs/react` will be added back once a real React island is
   # introduced; the v1 landing is HTML-only to keep JS budget < 50 KB gz.
-  astro: 6.1.8
+  astro: 6.1.10
   '@astrojs/sitemap': 3.7.2
-  '@astrojs/check': 0.9.8
+  '@astrojs/check': 0.9.9
 
   # ───────── test adapters / env / e2e ─────────
   # The pool driver peers on `vitest: ^4.x`; because of the override
@@ -194,4 +194,4 @@ catalog:
   '@cloudflare/vitest-pool-workers': 0.14.9
   happy-dom: 20.9.0
   '@playwright/test': 1.59.1
-  msw: 2.13.5
+  msw: 2.13.6
