@@ -139,6 +139,7 @@ feature 语义留在 members vertical 内。
   - **EntryShell（pathless layout route，`Component: EntryShell`）** — 包 `/login` + `/onboarding` 共享同一套 header / footer / locale switcher chrome。子路由各自挂自己的 loader（`guestLoader` / `onboardingLoader`），EntryShell 自身不带 loader 也不带 path，详见 `apps/app/src/routes/_entry-layout.tsx`。**命名避开 "auth"：** `/login` 是 pre-auth、`/onboarding` 是 post-auth/pre-active-org，两者唯一共性是「在用户进 dashboard shell 之前要走完的过渡 surface」 → "entry"
     - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去
     - `/onboarding` — `onboardingLoader` 要求有 session 且无 `activeOrganizationId`；已有 active org 直接 `redirect(redirectTo)`，无 session 跳 `/login?redirectTo=/onboarding`
+      Onboarding 提交不直接调用 Better Auth organization client；它通过 DueDateHQ `firms` RPC gateway 先 `listMine` 查 active、非 deleted 的业务 firm，有则 `switchActive`，没有才 `create`。这样最后一个 firm soft-delete 后不会被 Better Auth 残留 organization 重新激活。
   - `/` — 受保护路由组（`id: 'protected'`, `Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `firm` / `rules` / `members` / `billing` 等都作为它的 children；不再保留 `/settings` 或 `/settings/*` 兼容路由。
     - `/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
       layout：上半区展示当前 firm plan / seat limit / subscription 状态和 owner-only
