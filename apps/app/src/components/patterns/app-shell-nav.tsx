@@ -6,13 +6,13 @@ import {
   BellIcon,
   CalendarClockIcon,
   CheckIcon,
-  ChevronDownIcon,
   ChevronsUpDownIcon,
   ClipboardListIcon,
+  CreditCardIcon,
+  FileCheck2Icon,
   LayoutDashboardIcon,
   PlusIcon,
   ScaleIcon,
-  SettingsIcon,
   UsersIcon,
   type LucideIcon,
 } from 'lucide-react'
@@ -66,20 +66,12 @@ type NavItem = {
   end?: boolean
   badge?: string
   tag?: string
-  subItems?: NavSubItem[]
-}
-
-type NavSubItem = {
-  href?: string
-  label: string
-  end?: boolean
-  tag?: string
 }
 
 type NavConfig = {
-  main: NavItem[]
-  manage: NavItem[]
-  admin: NavItem[]
+  operations: NavItem[]
+  clients: NavItem[]
+  organization: NavItem[]
 }
 
 function firmMonogram(name: string): string {
@@ -345,7 +337,7 @@ function useNavItems(): NavConfig {
   const pulseBadge = pulseCount > 0 ? String(pulseCount) : undefined
   return useMemo<NavConfig>(
     () => ({
-      main: [
+      operations: [
         { href: '/', label: t`Dashboard`, icon: LayoutDashboardIcon, end: true, badge: '12' },
         {
           href: '/workboard',
@@ -361,24 +353,6 @@ function useNavItems(): NavConfig {
           end: false,
           ...(pulseBadge !== undefined ? { badge: pulseBadge } : {}),
         },
-      ],
-      manage: [
-        {
-          href: '/settings',
-          label: t`Settings`,
-          icon: SettingsIcon,
-          end: false,
-          subItems: [
-            { href: '/settings/profile', label: t`Profile`, end: true },
-            { href: '/settings/rules', label: t`Rules`, end: true },
-            { href: '/settings/members', label: t`Members`, end: true },
-            { href: '/settings/billing', label: t`Billing`, end: true },
-          ],
-        },
-      ],
-      admin: [
-        { href: '/clients', label: t`Clients`, icon: UsersIcon, end: false },
-        { href: '/audit', label: t`Audit log`, icon: ScaleIcon, end: false },
         {
           href: '/workload',
           label: t`Team workload`,
@@ -386,6 +360,13 @@ function useNavItems(): NavConfig {
           end: false,
           tag: 'P1',
         },
+      ],
+      clients: [{ href: '/clients', label: t`Clients`, icon: UsersIcon, end: false }],
+      organization: [
+        { href: '/settings/rules', label: t`Rules`, icon: FileCheck2Icon, end: false },
+        { href: '/settings/members', label: t`Members`, icon: UsersIcon, end: false },
+        { href: '/settings/billing', label: t`Billing`, icon: CreditCardIcon, end: false },
+        { href: '/audit', label: t`Audit log`, icon: ScaleIcon, end: false },
       ],
     }),
     [t, pulseBadge],
@@ -397,19 +378,19 @@ function NavGroups() {
   const items = useNavItems()
   return (
     <nav aria-label={t`Primary navigation`} className="contents">
-      <NavGroupSection label={t`Main`}>
-        {items.main.map((item) => (
-          <NavMenuItem key={item.href} item={item} />
-        ))}
-      </NavGroupSection>
-      <NavGroupSection label={t`Manage`}>
-        {items.manage.map((item) => (
-          <NavMenuItem key={item.href} item={item} />
-        ))}
-      </NavGroupSection>
-      <NavGroupSection label={t`Admin`}>
-        {items.admin.map((item) => (
+      <NavGroupSection label={t`Operations`}>
+        {items.operations.map((item) => (
           <NavMenuItem key={item.href} item={item} disabled={Boolean(item.tag)} />
+        ))}
+      </NavGroupSection>
+      <NavGroupSection label={t`Clients`}>
+        {items.clients.map((item) => (
+          <NavMenuItem key={item.href} item={item} />
+        ))}
+      </NavGroupSection>
+      <NavGroupSection label={t`Organization`}>
+        {items.organization.map((item) => (
+          <NavMenuItem key={item.href} item={item} />
         ))}
       </NavGroupSection>
     </nav>
@@ -436,10 +417,6 @@ function NavGroupSection({
 }
 
 function NavMenuItem({ item, disabled = false }: { item: NavItem; disabled?: boolean }) {
-  if (item.subItems?.length) {
-    return <SectionGroupNavItem item={item} />
-  }
-
   const Icon = item.icon
   return (
     <SidebarMenuItem>
@@ -461,62 +438,6 @@ function NavMenuItem({ item, disabled = false }: { item: NavItem; disabled?: boo
           <span className="ml-auto font-mono text-xs tabular-nums text-text-muted">{item.tag}</span>
         ) : null}
       </SidebarMenuButton>
-    </SidebarMenuItem>
-  )
-}
-
-function SectionGroupNavItem({ item }: { item: NavItem }) {
-  const Icon = item.icon
-  return (
-    <>
-      <SidebarMenuItem>
-        <div className="flex h-8 w-full items-center gap-2.5 rounded-md px-3 text-base font-medium text-text-secondary">
-          <Icon aria-hidden className="size-4 shrink-0 text-text-tertiary" />
-          <span className="flex-1 truncate">{item.label}</span>
-          <ChevronDownIcon aria-hidden className="size-3.5 shrink-0 text-text-tertiary" />
-        </div>
-      </SidebarMenuItem>
-      {item.subItems?.map((subItem) => (
-        <SidebarSubMenuItem key={subItem.href ?? subItem.label} item={subItem} />
-      ))}
-    </>
-  )
-}
-
-function SidebarSubMenuItem({ item }: { item: NavSubItem }) {
-  return (
-    <SidebarMenuItem>
-      {item.href ? (
-        <NavLink
-          to={item.href}
-          end={item.end ?? false}
-          className={cn(
-            'group/sub-menu ml-5 flex h-7 w-[calc(100%-1.25rem)] items-center gap-2.5 rounded-md pr-3 pl-[18px] text-base text-text-secondary outline-none transition-colors',
-            'hover:bg-background-default-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
-            'aria-[current=page]:bg-state-base-hover-alt aria-[current=page]:font-semibold aria-[current=page]:text-text-primary',
-          )}
-        >
-          <span
-            aria-hidden
-            className="size-1 shrink-0 rounded-full bg-text-tertiary group-aria-[current=page]/sub-menu:bg-text-primary"
-          />
-          <span className="flex-1 truncate">{item.label}</span>
-          {item.tag ? (
-            <span className="font-mono text-xs tabular-nums text-text-muted">{item.tag}</span>
-          ) : null}
-        </NavLink>
-      ) : (
-        <span
-          aria-disabled="true"
-          className="ml-5 flex h-7 w-[calc(100%-1.25rem)] items-center gap-2.5 rounded-md pr-3 pl-[18px] text-base text-text-secondary opacity-55"
-        >
-          <span aria-hidden className="size-1 shrink-0 rounded-full bg-text-tertiary" />
-          <span className="flex-1 truncate">{item.label}</span>
-          {item.tag ? (
-            <span className="font-mono text-xs tabular-nums text-text-muted">{item.tag}</span>
-          ) : null}
-        </span>
-      )}
     </SidebarMenuItem>
   )
 }

@@ -199,7 +199,7 @@ export function AuditLogPage() {
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <header className="flex flex-col gap-2">
         <span className="text-xs font-medium tracking-wider text-text-tertiary uppercase">
-          <Trans>Admin</Trans>
+          <Trans>Organization</Trans>
         </span>
         <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-1">

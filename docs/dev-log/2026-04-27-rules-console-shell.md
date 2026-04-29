@@ -242,6 +242,11 @@ Fixes:
 >
 > - sub-items rather than promoting `Rules / Members / Profile` to top-level
 >   peers) **still stands**; only the parent's interactive surface changed.
+>
+> **2026-04-29 update:** this IA has been superseded by
+> `Operations / Clients / Organization`. Rules remains at `/settings/rules`,
+> but its sidebar label now lives under `Organization`; Profile moved to the
+> user menu. See `docs/dev-log/2026-04-29-sidebar-ia-import-semantics.md`.
 
 The four-tab Figma frames render the sidebar with `Settings` highlighted in
 `accent/tint` and the `Rules` sub-item also highlighted. We deliberately

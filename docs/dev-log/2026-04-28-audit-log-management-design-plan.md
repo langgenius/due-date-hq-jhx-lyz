@@ -13,7 +13,8 @@ author: 'LYZ'
 
 现状梳理后确认：
 
-- 侧边栏已有 `Audit log`，但在 `Admin · P1` 禁用分组下。
+- 当时侧边栏已有 `Audit log`，但在 `Admin · P1` 禁用分组下。2026-04-29 后该入口归入
+  `Organization`；本文件保留当时设计前状态。
 - `packages/db` 已有 `audit_event` schema、append-only writer 和
   `scoped.audit.listByFirm()`。
 - `packages/contracts`、`apps/server/src/procedures`、`apps/app/src/router.tsx`

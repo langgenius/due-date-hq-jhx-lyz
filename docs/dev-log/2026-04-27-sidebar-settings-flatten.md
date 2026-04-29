@@ -6,6 +6,8 @@ date: 2026-04-27
 # 2026-04-27 · 侧栏 Settings 折叠态拆除
 
 > 当前状态：**代码 + 文档落地完成**。`apps/app/src/components/patterns/app-shell.tsx` 删除 `ExpandableNavMenuItem`、`apps/app/src/routes/settings.tsx` 删除（已孤立）、`apps/app/src/routes/_layout.tsx` 清理无效分支。`vp check` / `vp test` / `lingui compile --strict` / `pnpm design:lint` 全部 0 errors。
+>
+> **2026-04-29 follow-up：** Settings 容器本身已被拆散到新的 sidebar IA：`Operations / Clients / Organization`。`Profile` 下沉到 user menu，`Rules / Members / Billing / Audit log` 属于 `Organization`。本文以下内容保留为当时移除 collapsible Settings 父项的历史记录。
 
 ## 背景
 

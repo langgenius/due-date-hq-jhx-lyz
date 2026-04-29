@@ -464,16 +464,15 @@ shadcn `Sidebar`（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `
 
 #### 三段式结构（顶到底）
 
-| Slot                                   | 高              | 内容                                                                                                                                                                                                                                                                                                                                      |
-| -------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **PendingBar**（route-owned）          | 2               | idle 几乎不可见；导航中 accent-default 段从左滑出                                                                                                                                                                                                                                                                                         |
-| **FirmSwitcher**（trigger）            | 56              | 24px navy brand tile + Firm name (Body·Medium) + role/seat eyebrow (Numeric/Small) + ChevronsUpDown 堆叠图标                                                                                                                                                                                                                              |
-| Hairline `border/default`              | 1               | 与右侧 route header 底边在同一 Y 处 collinear                                                                                                                                                                                                                                                                                             |
-| **SidebarContent**（nav body, flex 1） | —               | 三个 group：`MAIN`（Dashboard / Workboard，带 mono badge）`MANAGE`（`Settings` 非交互 section header：icon + label + 静态 chevron-down，无 hover bg、不可点击；下挂 `Profile` / `Rules` / `Members` / `Billing` 子项，缩进 ml-5、可达态 `accent-tint`）`ADMIN`（Clients / Audit log enabled；Team workload `P1` disabled，行末 mono tag） |
-| **+ Import clients** ghost CTA         | 32 + 16 padding | 灰底 (`surface-subtle`) + 14×14 plus icon + Inter Medium label + 右侧 `Migration` Numeric/Small 暗示。**不用 accent**——CTA 强调由"位置 + 行动语义"承担，不是颜色。履约 PRD §1213「侧栏底部常驻 + Import 按钮」                                                                                                                            |
-| **Plan status**                        | 48 + 8 padding  | `CreditCard` icon + 当前 `Solo / Firm / Pro` + seat count + `Upgrade / Manage / View` 动作，链接 `/settings/billing`。这是持久 subscription 状态入口，不是 pricing 卡片；完整套餐对比仍在 Settings Billing 页面内。                                                                                                                       |
-| Hairline `border/default`              | 1               |                                                                                                                                                                                                                                                                                                                                           |
-| **User row**                           | 56              | 28px 头像 + 右下 6px `status-done` 绿点（包 surface-panel 环 = ring 效果） + Body·Medium name + Numeric/Small email + 右端 chevron。点击展开 popover 含 sign-out / theme / locale                                                                                                                                                         |
+| Slot                                   | 高              | 内容                                                                                                                                                                                                                                                                                                                                       |
+| -------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **PendingBar**（route-owned）          | 2               | idle 几乎不可见；导航中 accent-default 段从左滑出                                                                                                                                                                                                                                                                                          |
+| **FirmSwitcher**（trigger）            | 56              | 24px navy brand tile + Firm name (Body·Medium) + role/seat eyebrow (Numeric/Small) + ChevronsUpDown 堆叠图标                                                                                                                                                                                                                               |
+| Hairline `border/default`              | 1               | 与右侧 route header 底边在同一 Y 处 collinear                                                                                                                                                                                                                                                                                              |
+| **SidebarContent**（nav body, flex 1） | —               | 三个 group：`OPERATIONS`（Dashboard / Workboard / Alerts / Team workload disabled `P1`）、`CLIENTS`（Clients facts）、`ORGANIZATION`（Rules / Members / Billing / Audit log）。Rules 使用 `FileCheck2`，表达 verified rules / source-backed deadline templates，不使用通用 settings gear。主导航按工作心智组织，不按工程模块或权限表命名。 |
+| **Plan status**                        | 48 + 12 padding | `CreditCard` icon + 当前 `Solo / Firm / Pro` + seat count + `Upgrade / Manage / View` action chip，链接 `/settings/billing`。这是持久 subscription 状态入口，不是 pricing 卡片；使用 `bg-background-section`、8px card radius、brand/accent icon tile 和 action chip，让它比普通 nav item 更像账户状态卡，但不进入营销视觉。               |
+| Hairline `border/default`              | 1               |                                                                                                                                                                                                                                                                                                                                            |
+| **User row**                           | 56              | 28px 头像 + 右下 6px `status-done` 绿点（包 surface-panel 环 = ring 效果） + Body·Medium name + Numeric/Small email + 右端 chevron。点击展开 popover 含 sign-out / theme / locale                                                                                                                                                          |
 
 #### Mobile（< 768px）
 
@@ -497,6 +496,16 @@ plan / seat，sidebar footer 追加一个轻量 `PlanStatusLink` 作为 `Upgrade
 完整 subscription overview、billing portal、checkout deep link 和 plan comparison 继续由
 `/settings/billing` 承载；route header 右侧只放 AppShell-owned utility（`⌘K`、通知），不放 pricing
 CTA、plan pill 或 route-specific action。
+
+#### Import / setup IA
+
+`Import clients` 是 activation/setup path：把 CPA 已有客户表变成 weekly triage 的真实
+clients + obligations。它不是日常导航，也不是 sidebar footer utility。常驻入口放在
+`/clients` 页面 header 和 clients empty state；Dashboard 空状态可继续提示导入以生成真实
+risk；Command Palette 保留 `Import clients` action 作为 power-user 快捷入口。
+
+Sidebar footer 只保留 workspace/account 持久状态：plan status + user menu。`/settings/profile`
+入口放在 user menu；sidebar 主导航只表达 firm/workspace 级别的工作域。
 
 ---
 
@@ -530,7 +539,7 @@ CTA、plan pill 或 route-specific action。
 - Billing checkout（`/billing/checkout`）：max-width `1120px`，主卡承载 plan summary
   和支付边界，右侧只放 firm context 核对信息；公开文案使用 payment provider /
   processor 口径，不把第三方实现细节当成套餐卖点。
-- Settings **data surfaces / ops workbench**（Rules Console `/settings/rules`、未来的 Audit log / Team workload）：全宽，不限 max-width，与 Workboard 同源——这一类页面虽然挂在 `/settings` 路由下，但内容是表格 / 矩阵 / drawer，与 form 不同语义。判定规则：**按内容形态而不是 URL 段决定宽度**
+- Organization **data surfaces / ops workbench**（Rules Console `/settings/rules`、Audit log `/audit`、未来的 Team workload）：全宽，不限 max-width，与 Workboard 同源——这一类页面即使路由段不同，内容都是表格 / 矩阵 / drawer，与 form 不同语义。判定规则：**按内容形态而不是 URL 段决定宽度**
 - Content body 段落（页头描述、policy 长文）：max-width `1080px`，约 ~135 个英文字符／行，短段落可读区间
 - Drawer：400px（right slide-in），modal max-width `640px`
 
@@ -542,7 +551,7 @@ CTA、plan pill 或 route-specific action。
 | **Comfortable**（默认） | 36px       | 8px             | Dashboard / Client list          |
 | **Spacious**            | 40px       | 10px            | Demo / onboarding                |
 
-切换：用户 Settings → 持久化到 `user.preferences.density` → CSS variable `--row-height`。
+切换：User menu → Profile → 持久化到 `user.preferences.density` → CSS variable `--row-height`。
 
 ### 5.4 Max information, minimum chrome
 

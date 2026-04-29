@@ -18,12 +18,12 @@ export const routeSummaries = {
   dashboard: { eyebrow: msg`Operations`, title: msg`Dashboard` },
   workboard: { eyebrow: msg`Workbench`, title: msg`Workboard` },
   alerts: { eyebrow: msg`Operations`, title: msg`Alerts` },
-  clients: { eyebrow: msg`Admin`, title: msg`Clients` },
-  audit: { eyebrow: msg`Admin`, title: msg`Audit log` },
-  settingsProfile: { eyebrow: msg`Settings`, title: msg`Profile` },
-  settingsMembers: { eyebrow: msg`Settings`, title: msg`Members` },
-  settingsRules: { eyebrow: msg`Settings`, title: msg`Rules` },
-  settingsBilling: { eyebrow: msg`Settings`, title: msg`Billing` },
+  clients: { eyebrow: msg`Clients`, title: msg`Clients` },
+  audit: { eyebrow: msg`Organization`, title: msg`Audit log` },
+  settingsProfile: { eyebrow: msg`Account`, title: msg`Profile` },
+  settingsMembers: { eyebrow: msg`Organization`, title: msg`Members` },
+  settingsRules: { eyebrow: msg`Organization`, title: msg`Rules` },
+  settingsBilling: { eyebrow: msg`Organization`, title: msg`Billing` },
   billingCheckout: { eyebrow: msg`Billing`, title: msg`Checkout` },
 } satisfies Record<string, RouteSummaryMessages>
 

@@ -9,6 +9,7 @@ import {
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
+  UserRoundIcon,
   SunIcon,
   type LucideIcon,
 } from 'lucide-react'
@@ -96,6 +97,12 @@ function UserMenuTrigger({
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => void navigate('/settings/profile')}>
+          <UserRoundIcon />
+          <span>
+            <Trans>Profile</Trans>
+          </span>
+        </DropdownMenuItem>
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <GlobeIcon />

@@ -285,6 +285,10 @@ msgstr "包含 5 个席位"
 msgid "access revoked, history kept"
 msgstr "访问已撤销，历史已保留"
 
+#: src/routes/route-summary.ts
+msgid "Account"
+msgstr "账户"
+
 #. placeholder {0}: user.name || user.email
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Account menu for {0}"
@@ -341,13 +345,6 @@ msgstr "添加手动客户记录到当前事务所目录。"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Add firm"
 msgstr "添加事务所"
-
-#: src/components/patterns/app-shell-nav.tsx
-#: src/features/audit/audit-log-page.tsx
-#: src/routes/clients.tsx
-#: src/routes/route-summary.ts
-msgid "Admin"
-msgstr "管理"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Affected clients"
@@ -702,6 +699,7 @@ msgid "Client risk rows"
 msgstr "客户风险行"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/routes/clients.tsx
 #: src/routes/route-summary.ts
 msgid "Clients"
 msgstr "客户"
@@ -1361,7 +1359,6 @@ msgstr "导入并生成"
 msgid "Import a CSV or create the first manual client record."
 msgstr "导入 CSV，或创建第一条手动客户记录。"
 
-#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
 msgid "Import clients"
@@ -1548,11 +1545,6 @@ msgstr "本地时间"
 msgid "Logged to audit trail"
 msgstr "已写入审计日志"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Main"
-msgstr "主导航"
-
-#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 msgid "Manage"
 msgstr "管理"
@@ -1615,7 +1607,6 @@ msgstr "成员"
 msgid "Members could not load"
 msgstr "无法加载成员"
 
-#: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-page.tsx
 msgid "Migration"
 msgstr "迁移"
@@ -1946,6 +1937,7 @@ msgstr "正在打开…"
 msgid "Operational pressure points from server aggregation."
 msgstr "来自服务端聚合的运营压力点。"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/route-summary.ts
@@ -1955,6 +1947,12 @@ msgstr "运营"
 #: src/features/migration/Step1Intake.tsx
 msgid "or"
 msgstr "或"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/features/audit/audit-log-page.tsx
+#: src/routes/route-summary.ts
+msgid "Organization"
+msgstr "组织"
 
 #: src/routes/settings.billing.tsx
 msgid "Organization billing stays scoped to the selected firm."
@@ -2128,7 +2126,7 @@ msgstr "适合需要优先 onboarding、审计导出和更高覆盖的团队。"
 msgid "Pro"
 msgstr "Pro"
 
-#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/routes/route-summary.ts
 msgid "Profile"
 msgstr "个人资料"
@@ -2535,9 +2533,7 @@ msgstr "设置你的事务所。"
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/route-summary.ts
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.members.tsx
 #: src/routes/settings.profile.tsx

@@ -8,7 +8,7 @@ import type { ThemePreference } from '@duedatehq/ui/theme'
 
 import { AppShell } from '@/components/patterns/app-shell'
 import { KeyboardProvider } from '@/components/patterns/keyboard-shell'
-import { MigrationWizardProvider, useMigrationWizard } from '@/features/migration/WizardProvider'
+import { MigrationWizardProvider } from '@/features/migration/WizardProvider'
 import { PulseDrawerProvider } from '@/features/pulse/DrawerProvider'
 import type { AuthUser } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
@@ -94,7 +94,6 @@ function RootLayoutShell({
 }) {
   const { i18n } = useLingui()
   const matches = useMatches()
-  const { openWizard } = useMigrationWizard()
   const firmsQuery = useQuery(orpc.firms.listMine.queryOptions({ input: undefined }))
   const firm = pickCurrentFirm(firmsQuery.data, user)
   const routeMessages = getRouteSummaryMessages(matches)
@@ -111,7 +110,6 @@ function RootLayoutShell({
       route={route}
       themePreference={themePreference}
       switchThemePreference={switchThemePreference}
-      onImportClients={openWizard}
     />
   )
 }

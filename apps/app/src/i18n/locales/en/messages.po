@@ -285,6 +285,10 @@ msgstr "5 seats included"
 msgid "access revoked, history kept"
 msgstr "access revoked, history kept"
 
+#: src/routes/route-summary.ts
+msgid "Account"
+msgstr "Account"
+
 #. placeholder {0}: user.name || user.email
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Account menu for {0}"
@@ -341,13 +345,6 @@ msgstr "Add a manual client record to the active firm directory."
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Add firm"
 msgstr "Add firm"
-
-#: src/components/patterns/app-shell-nav.tsx
-#: src/features/audit/audit-log-page.tsx
-#: src/routes/clients.tsx
-#: src/routes/route-summary.ts
-msgid "Admin"
-msgstr "Admin"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Affected clients"
@@ -702,6 +699,7 @@ msgid "Client risk rows"
 msgstr "Client risk rows"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/routes/clients.tsx
 #: src/routes/route-summary.ts
 msgid "Clients"
 msgstr "Clients"
@@ -1361,7 +1359,6 @@ msgstr "Import & Generate"
 msgid "Import a CSV or create the first manual client record."
 msgstr "Import a CSV or create the first manual client record."
 
-#: src/components/patterns/app-shell.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
 msgid "Import clients"
@@ -1548,11 +1545,6 @@ msgstr "Local time"
 msgid "Logged to audit trail"
 msgstr "Logged to audit trail"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Main"
-msgstr "Main"
-
-#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 msgid "Manage"
 msgstr "Manage"
@@ -1615,7 +1607,6 @@ msgstr "Members"
 msgid "Members could not load"
 msgstr "Members could not load"
 
-#: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-page.tsx
 msgid "Migration"
 msgstr "Migration"
@@ -1946,6 +1937,7 @@ msgstr "Opening…"
 msgid "Operational pressure points from server aggregation."
 msgstr "Operational pressure points from server aggregation."
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/route-summary.ts
@@ -1955,6 +1947,12 @@ msgstr "Operations"
 #: src/features/migration/Step1Intake.tsx
 msgid "or"
 msgstr "or"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/features/audit/audit-log-page.tsx
+#: src/routes/route-summary.ts
+msgid "Organization"
+msgstr "Organization"
 
 #: src/routes/settings.billing.tsx
 msgid "Organization billing stays scoped to the selected firm."
@@ -2128,7 +2126,7 @@ msgstr "Priority onboarding, audit exports, and higher coverage needs."
 msgid "Pro"
 msgstr "Pro"
 
-#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/routes/route-summary.ts
 msgid "Profile"
 msgstr "Profile"
@@ -2535,9 +2533,7 @@ msgstr "Set up your practice."
 msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/route-summary.ts
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.members.tsx
 #: src/routes/settings.profile.tsx

@@ -151,17 +151,17 @@ Files:
 Tasks:
 
 1. Register protected `/audit` route with lazy import.
-2. Add route summary for `/audit`: `Admin` / `Audit log`.
+2. Add route summary for `/audit`: `Organization` / `Audit log`.
 3. Enable sidebar `Audit log`.
-4. Rename the sidebar group from `Admin · P1` to `Admin`.
-5. Keep `Clients` and `Team workload` disabled with `P1`.
+4. Place `Audit log` under the `Organization` group.
+5. Keep `Team workload` disabled with `P1` under `Operations`.
 6. Add `auditLogLink` to the AppShell page object.
 7. Optionally add Command Palette navigation.
 
 Design notes:
 
 - Do not create a separate AppShell version for audit.
-- Do not change Settings IA.
+- Keep Profile account-owned and Organization firm-owned.
 
 Validation:
 

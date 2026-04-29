@@ -27,7 +27,7 @@ The repository already has the write-side foundation:
 - `createAuditWriter()` is insert-only and server-clocked.
 - `scoped.audit.write()` / `writeBatch()` are available to tenant-scoped procedures.
 - `scoped.audit.list()` supports server-side filters and keyset pagination.
-- Sidebar `Audit log` is enabled under `Admin`.
+- Sidebar `Audit log` is enabled under `Organization`.
 
 Missing pieces:
 
@@ -68,17 +68,17 @@ that export is not enabled. It must not fake a download.
 
 Navigation:
 
-- Sidebar group: `Admin`.
+- Sidebar group: `Organization`.
 - Enabled item: `Audit log`.
-- Enabled sibling item: `Clients`.
-- Still-disabled item: `Team workload`.
+- Enabled sibling items: `Rules`, `Members`, and `Billing`.
+- `Clients` is its own sidebar group; `Team workload` remains disabled under `Operations`.
 - Command Palette may include `Audit log` as a navigation command.
 
 Route:
 
 - Path: `/audit`.
 - Protected by the existing `protectedLoader`.
-- AppShell route summary: eyebrow `Admin`, title `Audit log`.
+- AppShell route summary: eyebrow `Organization`, title `Audit log`.
 
 The page is a data workbench, not a settings form. It follows the same full-width
 route container pattern as Dashboard, Workboard, and Rules Console.
@@ -89,7 +89,7 @@ route container pattern as Dashboard, Workboard, and Rules Console.
 
 The header should communicate proof, not fear.
 
-- Eyebrow: `Admin`
+- Eyebrow: `Organization`
 - H1: `Audit log`
 - Description: `Review firm-wide write events, before/after state, and actor metadata.`
 - Secondary action: disabled `Export · P1` if included.

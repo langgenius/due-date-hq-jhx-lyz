@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigation } from 'react-router'
-import { Trans, useLingui } from '@lingui/react/macro'
-import { BellIcon, CreditCardIcon, PanelLeftIcon, PlusIcon } from 'lucide-react'
+import { useLingui } from '@lingui/react/macro'
+import { BellIcon, CreditCardIcon, PanelLeftIcon } from 'lucide-react'
 
 import { cn } from '@duedatehq/ui/lib/utils'
 import {
@@ -53,7 +53,6 @@ export type AppShellProps = {
   route: RouteSummary
   themePreference: ThemePreference
   switchThemePreference: (next: ThemePreference) => void
-  onImportClients: () => void
   unreadNotificationCount?: number
 }
 
@@ -81,7 +80,6 @@ export function AppShell(props: AppShellProps) {
             <NavGroups />
           </SidebarContent>
           <SidebarFooter>
-            <ImportClientsCTA onClick={props.onImportClients} />
             <PlanStatusLink firm={props.firm} />
             <SidebarSeparator />
             <UserMenuTrigger
@@ -123,31 +121,31 @@ function PlanStatusLink({ firm }: { firm: FirmPublic }) {
   const action = owner ? (paid ? t`Manage` : t`Upgrade`) : t`View`
 
   return (
-    <div className="px-2 py-1">
+    <div className="px-2 py-1.5">
       <Link
         to="/settings/billing"
         aria-label={t`Open billing settings for ${plan} plan`}
         className={cn(
-          'group/plan flex h-12 w-full touch-manipulation items-center gap-2.5 rounded-md border border-divider-regular bg-background-default px-3 outline-none transition-colors',
-          'hover:bg-background-default-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
+          'group/plan flex h-12 w-full touch-manipulation items-center gap-2.5 rounded-md border border-divider-regular bg-background-section px-3 outline-none transition-colors',
+          'hover:border-divider-deep hover:bg-background-default-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
         )}
       >
         <span
           aria-hidden
           className={cn(
-            'grid size-7 shrink-0 place-items-center rounded-md border border-divider-subtle',
+            'grid size-8 shrink-0 place-items-center rounded-md border',
             paid
-              ? 'bg-state-success-hover-alt text-text-success'
-              : 'bg-background-subtle text-text-secondary',
+              ? 'border-brand-primary bg-brand-primary text-text-inverted'
+              : 'border-state-accent-active bg-state-accent-hover-alt text-text-accent',
           )}
         >
-          <CreditCardIcon className="size-3.5" />
+          <CreditCardIcon className="size-4" />
         </span>
         <span className="flex min-w-0 flex-1 flex-col leading-tight">
-          <span className="truncate text-sm font-medium text-text-primary">{plan}</span>
+          <span className="truncate text-sm font-semibold text-text-primary">{plan}</span>
           <span className="truncate font-mono text-xs tabular-nums text-text-muted">{seats}</span>
         </span>
-        <span className="shrink-0 font-mono text-xs font-medium tabular-nums text-text-muted group-hover/plan:text-text-secondary">
+        <span className="shrink-0 rounded-sm border border-divider-regular bg-background-default px-1.5 py-0.5 font-mono text-xs font-medium tabular-nums text-text-secondary group-hover/plan:text-text-primary">
           {action}
         </span>
       </Link>
@@ -176,37 +174,6 @@ function PendingBar() {
           isPending ? 'scale-x-100' : 'scale-x-0',
         )}
       />
-    </div>
-  )
-}
-
-// -----------------------------------------------------------------------------
-// + Import clients ghost CTA — DESIGN §4.9 + PRD §1213 (sidebar bottom)
-// -----------------------------------------------------------------------------
-
-function ImportClientsCTA({ onClick }: { onClick: () => void }) {
-  return (
-    <div className="px-2 py-2">
-      <button
-        type="button"
-        onClick={onClick}
-        className={cn(
-          // Geometry mirrors Figma 158:3 exactly: gap-2 (8px), 14px icon,
-          // px-3, h-8 — leaves enough horizontal space inside 220px sidebar
-          // for both the "Import clients" label and the right-aligned
-          // "Migration" route hint without wrapping.
-          'flex h-8 w-full cursor-pointer touch-manipulation items-center gap-2 rounded-md bg-background-section px-3 text-base font-medium whitespace-nowrap text-text-primary outline-none transition-colors',
-          'hover:bg-background-default-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
-        )}
-      >
-        <PlusIcon className="size-3.5 shrink-0 text-text-secondary" aria-hidden />
-        <span>
-          <Trans>Import clients</Trans>
-        </span>
-        <span className="ml-auto font-mono text-xs tabular-nums text-text-muted">
-          <Trans>Migration</Trans>
-        </span>
-      </button>
     </div>
   )
 }

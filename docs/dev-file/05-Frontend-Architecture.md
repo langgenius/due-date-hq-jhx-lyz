@@ -393,11 +393,13 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **每一个 protected layout（当前的 RootLayout，未来的 Workload Console 等）通过 `<AppShell>` 拼装**，不要在 layout 文件里直接拷贝 `SidebarProvider + Sidebar + SidebarInset` 三件套
 - **Sidebar 不暴露 `collapsible` prop**：desktop 永远 220px，`<md` 自动 Sheet 折叠；这是产品决定不是配置项
 - **selected nav 视觉是 bg-only**（`bg-state-base-hover-alt` + `text-text-primary` + Inter Semi Bold）—— 严禁 accent border 或 accent-tint 出现在 selected 态，否则与 DESIGN §1.2「颜色只为风险服务」冲突。`SidebarMenuButton` 的 cva variants 里**根本不提供** `accent` 变体，把约束写进类型
-- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag? }`。Clients 与 Audit Log 已作为 Admin read surfaces 启用；Workload View 保持 `P1` disabled，未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本
+- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag? }`。当前 sidebar IA 是 `Operations`（Dashboard / Workboard / Alerts / disabled Team workload）、`Clients`（Clients facts）、`Organization`（Rules / Members / Billing / Audit log）。Team workload 保持 disabled `P1`，因为该 surface 已进入近期规划；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
 - **Firm switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上
-- **Plan status 入口在 sidebar footer**：`AppShell` 在 `+ Import clients` 与 user menu 之间展示当前 firm 的 `Solo / Firm / Pro`、seat count 和 `Upgrade / Manage / View` 动作，统一链接 `/settings/billing`。这只是 subscription 状态入口；完整 pricing / checkout / portal 仍在 Billing 页面。
+- **Import clients 不在 sidebar footer 常驻**：Import 是 activation/setup path，把 CPA 已有客户表带入 weekly triage；常驻入口在 `/clients` 页面 header / empty state、Dashboard 空状态和 Command Palette action。Sidebar footer 不承载低频一次性 setup CTA。
+- **Plan status 入口在 sidebar footer**：`AppShell` 在 user menu 上方展示当前 firm 的 `Solo / Firm / Pro`、seat count 和 `Upgrade / Manage / View` 动作，统一链接 `/settings/billing`。这只是 subscription 状态入口；完整 pricing / checkout / portal 仍在 Billing 页面。
 - **顶栏右侧仅承载 AppShell-owned utility**（`⌘K` kbd hint + 通知 bell），路由动作放在 body 内或 body 顶部 toolbar，**不**塞到 shell header 右侧
 - **Billing 不进入 route header**：pricing 和 subscription 属于 account / firm commerce 信息，不是当前 route 的 primary action。Header 右侧不展示 plan pill、upgrade button 或 pricing CTA，避免和 page toolbar、通知、Command Palette 竞争。
+- **Profile 属于 account menu**：`/settings/profile` 仍保留 route，但入口下沉到 sidebar footer 的 user menu；sidebar 主导航只表达 firm/workspace 层级。
 - **sidebar 的 Base UI `render` 包装不要用 `mergeProps<'button'>` 合成 `data-*` props**：TypeScript 会把 object literal 收窄到原生 button props 并拒绝 `data-slot` / `data-active`；直接把合并后的 `Record<string, unknown>` 传给 `useRender({ props })`，需要组合事件时在组件内显式包装 handler
 
 **vercel-react-best-practices 红线（自建时一定要踩稳）**
