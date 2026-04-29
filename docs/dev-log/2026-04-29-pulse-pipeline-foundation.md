@@ -21,7 +21,7 @@ browser-level QA.
   helpers, fixture runner, and initial adapters for `irs.disaster`,
   `tx.cpa.rss`, and a seeded `ny.dtf.press` fixture path.
 - Added `pulse_source_snapshot` to the DB schema and migration
-  `0008_same_morlun.sql`. Snapshots track `sourceId`, `externalId`,
+  `0009_daily_norrin_radd.sql`. Snapshots track `sourceId`, `externalId`,
   `contentHash`, R2 key, parse status, and linked `pulse` / `ai_output` IDs.
 - Added a non-tenant Pulse ops repo for snapshot creation, extract result
   persistence, approve/reject/quarantine, and deterministic firm-alert
@@ -61,6 +61,9 @@ browser-level QA.
 - `DESIGN.md` did not require changes: the frontend addition follows the
   existing Pulse hairline/drawer patterns and adds only the expected Snooze
   action.
+- `0009_daily_norrin_radd.sql` is idempotent so local D1 databases that already
+  created `pulse_source_snapshot` under an older generated migration name can
+  still repair Wrangler's migration ledger.
 
 ## Validation
 

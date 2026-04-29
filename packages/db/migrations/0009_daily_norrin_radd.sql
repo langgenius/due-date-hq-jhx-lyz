@@ -1,4 +1,4 @@
-CREATE TABLE `pulse_source_snapshot` (
+CREATE TABLE IF NOT EXISTS `pulse_source_snapshot` (
 	`id` text PRIMARY KEY NOT NULL,
 	`source_id` text NOT NULL,
 	`external_id` text NOT NULL,
@@ -17,6 +17,6 @@ CREATE TABLE `pulse_source_snapshot` (
 	FOREIGN KEY (`pulse_id`) REFERENCES `pulse`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `uq_pss_source_external_hash` ON `pulse_source_snapshot` (`source_id`,`external_id`,`content_hash`);--> statement-breakpoint
-CREATE INDEX `idx_pss_status_time` ON `pulse_source_snapshot` (`parse_status`,`created_at`);--> statement-breakpoint
-CREATE INDEX `idx_pss_source_time` ON `pulse_source_snapshot` (`source_id`,`published_at`);
+CREATE UNIQUE INDEX IF NOT EXISTS `uq_pss_source_external_hash` ON `pulse_source_snapshot` (`source_id`,`external_id`,`content_hash`);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS `idx_pss_status_time` ON `pulse_source_snapshot` (`parse_status`,`created_at`);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS `idx_pss_source_time` ON `pulse_source_snapshot` (`source_id`,`published_at`);
