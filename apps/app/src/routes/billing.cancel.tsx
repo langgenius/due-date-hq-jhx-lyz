@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
 
-import { billingSearchParamsParsers, serializeBillingQuery } from '@/lib/billing'
+import { billingSearchParamsParsers, serializeBillingQuery } from '@/features/billing/model'
 
 export function BillingCancelRoute() {
   const [{ plan, interval }] = useQueryStates(billingSearchParamsParsers)

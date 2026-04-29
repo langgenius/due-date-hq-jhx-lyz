@@ -30,14 +30,14 @@ import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { createCheckout } from '@/features/billing/api'
-import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
 import {
-  isFirmOwner,
   billingSearchParamsParsers,
+  isFirmOwner,
   serializeBillingQuery,
   type BillingInterval,
   type BillingPlan,
-} from '@/lib/billing'
+} from '@/features/billing/model'
+import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
 
 type PlanView = {
   label: string

@@ -27,8 +27,13 @@ import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { createBillingPortal } from '@/features/billing/api'
+import {
+  billingPlanHref,
+  isFirmOwner,
+  paidPlanActive,
+  type BillingPlan,
+} from '@/features/billing/model'
 import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
-import { billingPlanHref, isFirmOwner, paidPlanActive, type BillingPlan } from '@/lib/billing'
 
 type BadgeVariant = ComponentProps<typeof Badge>['variant']
 

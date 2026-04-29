@@ -4,6 +4,8 @@
 
 DueDateHQ is a pnpm monorepo. Deployable apps live in `apps/`: `apps/app` is the Vite React SPA, and `apps/server` is the Cloudflare Worker API. Shared packages live in `packages/`: `ui` for React UI primitives and design tokens, `core` for pure TypeScript domain logic, `contracts` for Zod/oRPC contracts, `db` for Drizzle and D1 data access, `auth` for Better Auth integration, `ai` for AI ports, and `typescript-config` for shared TS settings. Tests sit beside source files as `*.test.ts` or `*.test.tsx`. Product, design, and architecture notes are under `docs/`.
 
+Colocate business code by vertical: put feature models, private helpers, and feature-specific UI under `apps/app/src/features/<vertical>/`; keep `apps/app/src/lib` for app runtime/integration helpers only, and keep `apps/app/src/components/primitives` for truly cross-feature UI primitives only.
+
 ## Build, Test, and Development Commands
 
 Use pnpm with Node `>=22.19.0`.

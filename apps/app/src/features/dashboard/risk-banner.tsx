@@ -10,10 +10,6 @@ export interface RiskBannerProps {
   className?: string
 }
 
-// Soft warning row used by the dashboard to surface obligation risk rows.
-// Layout slots stay open so callers can compose primitives (Badge, Button, etc.).
-// NOTE: this is the dashboard "risk row" banner — not the regulatory Pulse alert
-// banner. The Pulse alert banner lives under `features/pulse/`.
 export function RiskBanner({ title, detail, source, action, className }: RiskBannerProps) {
   return (
     <div

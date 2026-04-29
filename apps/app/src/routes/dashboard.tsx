@@ -44,8 +44,8 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
-import { RiskBanner } from '@/components/primitives/risk-banner'
-import { severityRowClass } from '@/components/primitives/severity-row'
+import { RiskBanner } from '@/features/dashboard/risk-banner'
+import { severityRowClass } from '@/features/dashboard/severity-row'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
 import { orpc } from '@/lib/rpc'

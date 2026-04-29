@@ -199,11 +199,13 @@ apps/server/
 详见 §05。核心：
 
 - `src/routes/*`：RR7 data mode 路由
-- `src/features/*`：跨页面业务组合
-- `src/components/{primitives,patterns}`：app 专属 UI 组合；基础 UI 从 `@duedatehq/ui/components/ui/*` 引入
+- `src/features/*`：业务 vertical；feature model、私有 helper、局部 UI 和测试优先 colocate 在这里
+- `src/features/billing/*`：billing URL/model + Better Auth billing adapters
+- `src/features/dashboard/*`：dashboard 专属展示模型和局部 UI
+- `src/components/primitives/*`：真正跨 feature 的 app 专属 UI primitive；基础 UI 从 `@duedatehq/ui/components/ui/*` 引入
+- `src/components/patterns/*`：app-shell、keyboard-shell 等跨 feature 复合组件
 - `src/components/patterns/keyboard-shell/*`：唯一 app 级快捷键 provider、Command Palette、`?` 帮助浮层；允许依赖 React Router / Lingui / feature providers，不得下沉到 `packages/ui`
-- `src/lib/rpc.ts`：唯一 oRPC client 实例
-- `src/lib/auth.ts`：better-auth client
+- `src/lib/*`：app runtime / integration helper，例如 `rpc.ts`、`auth.ts`、theme storage、RPC error mapping；不得放带业务语义的 feature model 或 feature UI
 
 ### 4.2.1 `apps/marketing`
 

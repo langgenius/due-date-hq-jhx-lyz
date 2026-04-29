@@ -16,8 +16,8 @@ import {
 } from '@duedatehq/ui/components/ui/card'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
+import { billingSearchParamsParsers } from '@/features/billing/model'
 import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
-import { billingSearchParamsParsers } from '@/lib/billing'
 
 export function BillingSuccessRoute() {
   const [{ plan: expectedPlan }] = useQueryStates(billingSearchParamsParsers)

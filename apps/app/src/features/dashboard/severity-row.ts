@@ -1,7 +1,3 @@
-// Severity-aware row recipe. Apply the returned className to a `<TableRow>`
-// (or any tr) to render the row with a soft Dify-style tint and a 2px left bar
-// in the matching severity tone. `neutral` keeps the default surface.
-
 export type SeverityTone = 'critical' | 'high' | 'medium' | 'neutral'
 
 const tonedRowClass: Record<Exclude<SeverityTone, 'neutral'>, string> = {

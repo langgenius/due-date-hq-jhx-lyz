@@ -16,8 +16,8 @@ import type { ThemePreference } from '@duedatehq/ui/theme'
 import { FirmSwitcherTrigger, NavGroups } from './app-shell-nav'
 import { UserMenuTrigger } from './app-shell-user-menu'
 import type { FirmPublic } from '@duedatehq/contracts'
+import { isFirmOwner, paidPlanActive } from '@/features/billing/model'
 import type { AuthUser } from '@/lib/auth'
-import { isFirmOwner, paidPlanActive } from '@/lib/billing'
 import {
   COMMAND_PALETTE_HOTKEY,
   formatCompactShortcutForDisplay,

@@ -39,21 +39,23 @@ apps/app/
 │   │   # 目标形态（Phase 0 MVP → Phase 1）：
 │   │   # clients.$id.tsx · alerts.tsx · settings/*.tsx · migration.tsx
 │   ├── features/             ← 业务特性（跨页面复用）
+│   │   ├── billing/           ← billing URL/model + Better Auth billing adapters
 │   │   ├── clients/           ← Clients facts/readiness 纯派生逻辑、创建弹窗、工作台展示组件
+│   │   ├── dashboard/         ← dashboard 专属 risk banner / severity row 等展示模型
 │   │   ├── migration/
-│   │   ├── dashboard/
 │   │   ├── pulse/
 │   │   ├── workboard/
 │   │   ├── audit/
 │   │   └── evidence/
 │   ├── components/
-│   │   ├── primitives/       ← 自建（TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown）
+│   │   ├── primitives/       ← 真正跨 feature 的 app 专属 UI primitive
 │   │   └── patterns/         ← 跨 feature 的复合组件（app-shell / evidence-drawer / cmdk / confirm-dialog）
 │   ├── lib/
 │   │   ├── rpc.ts            ← oRPC client + TanStack Query utils
 │   │   ├── auth.ts           ← better-auth client（`createAuthClient`）
-│   │   ├── utils.ts          ← cn / formatCents / formatDate
-│   │   └── env.ts            ← import.meta.env 类型收敛
+│   │   ├── utils.ts          ← app-level format helpers + cn re-export
+│   │   ├── query-rate-limit.ts ← 跨页面 URL query 文本输入 debounce
+│   │   └── theme-preference-store.ts ← browser theme preference adapter
 │   ├── hooks/
 │   ├── styles/
 │   │   └── globals.css       ← Tailwind 编译入口 + @duedatehq/ui preset + @source
@@ -92,6 +94,15 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
 公开页 SEO、metadata、canonical、hreflang、sitemap、robots 和 OG 图由 Astro 负责；`apps/app/index.html` 只负责 SaaS SPA shell。
 
 ---
+
+## 1.2 Vertical colocation
+
+业务代码按 vertical 归位。一个能力的 model、URL parser、私有 helper、局部 UI 和测试优先放在
+`apps/app/src/features/<vertical>/`，即使它被多个 route 使用。`apps/app/src/lib` 只放 app
+runtime / integration 入口，例如 auth client、oRPC client、RPC error mapping、theme storage
+adapter、跨页面 URL input debounce；不得放 billing plan、dashboard row、rules table 等带业务语义的
+model 或 component。`apps/app/src/components/primitives` 只放真正跨 feature 的 app 专属 UI primitive；
+单一 vertical 的展示组件留在对应 feature 内。
 
 ## 2. 路由模型（React Router 7 · data mode）
 
@@ -368,15 +379,18 @@ Theme runtime 同样由 `packages/ui` 持有：
 
 ### 5.3 组件分层
 
-| 层                                     | 位置        | 职责                                                                                                                 |
-| -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
-| `@duedatehq/ui/components/ui/*`        | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务、路由、session、oRPC                                             |
-| `apps/app/src/components/primitives/*` | 手写        | DueDateHQ 专有组件：TriageCard / DaysBadge / PenaltyPill / SourceBadge / AIHighlight / EvidenceChip / StatusDropdown |
-| `apps/app/src/components/patterns/*`   | 手写        | 跨 feature 复用：app-shell / evidence-drawer / cmdk / confirm-dialog                                                 |
-| `apps/app/src/features/<slice>/*`      | 手写        | 特性内部：migration-wizard / pulse-banner / workboard-table                                                          |
-| `apps/app/src/routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                                       |
+| 层                                     | 位置        | 职责                                                                                            |
+| -------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
+| `@duedatehq/ui/components/ui/*`        | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务、路由、session、oRPC                        |
+| `apps/app/src/components/primitives/*` | 手写        | 真正跨 feature 的 app 专属 UI primitive，不含具体业务 model                                     |
+| `apps/app/src/components/patterns/*`   | 手写        | 跨 feature 复用：app-shell / keyboard-shell / evidence-drawer / confirm-dialog                  |
+| `apps/app/src/features/<vertical>/*`   | 手写        | 特性内部：billing model / dashboard risk UI / migration-wizard / pulse-banner / workboard-table |
+| `apps/app/src/routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                  |
 
-**依赖方向**：`routes → features → patterns → primitives → @duedatehq/ui → @duedatehq/ui/lib`。下层**不得**依赖上层。`packages/ui` 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属业务组件。
+**依赖方向**：route 拼装 feature；feature 可以消费 app patterns / primitives 和
+`@duedatehq/ui`。`components/primitives` 不得依赖 feature。App-shell / keyboard-shell 这类 layout
+pattern 可以组合 feature provider，但不能下沉到 `packages/ui`。`packages/ui` 不得依赖 Better Auth
+session、React Router、TanStack Query、oRPC 或 app 专属业务组件。
 
 ### 5.4 AppShell（layout 级 sidebar + content shell）
 
