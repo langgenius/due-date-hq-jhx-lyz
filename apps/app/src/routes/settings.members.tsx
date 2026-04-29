@@ -202,7 +202,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
             variant="accent"
             size="lg"
             onClick={() => setInviteOpen(true)}
-            disabled={seatsFull}
+            aria-describedby={seatsFull ? 'members-seat-limit-note' : undefined}
           >
             <PlusIcon className="size-3.5" aria-hidden />
             <Trans>Invite member</Trans>
@@ -829,7 +829,7 @@ function InviteMemberDialog({
             </p>
           ) : null}
           {seatsFull ? (
-            <p role="alert" className="text-sm text-text-warning">
+            <p id="members-seat-limit-note" role="alert" className="text-sm text-text-warning">
               <Trans>No seats are available. Upgrade or suspend a member before inviting.</Trans>
             </p>
           ) : null}

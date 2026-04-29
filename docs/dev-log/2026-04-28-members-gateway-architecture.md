@@ -56,6 +56,8 @@ an Owner-only Settings data surface backed by this gateway.
 - Implemented the Figma `Settings · Members` owner view using real `members.*` oRPC calls.
 - The page shows seat usage KPIs, active/suspended members, pending/expired invitations, full-seat
   banner state, invite dialog, role updates, suspend/reactivate, remove, resend, and cancel actions.
+- The header invite trigger stays clickable at full seat usage so the dialog can explain the block;
+  only the final send action is disabled, and the gateway remains the hard seat-limit authority.
 - The UI keeps mutation boundaries aligned with the gateway: Owner-only access comes from the
   server, owner/self rows are read-only, and all writes continue to flow through audit-producing
   members procedures.
