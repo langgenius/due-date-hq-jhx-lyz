@@ -1,0 +1,335 @@
+import { Link } from 'react-router'
+import { Trans, useLingui } from '@lingui/react/macro'
+import { useQuery } from '@tanstack/react-query'
+import { ArrowRightIcon, ClipboardListIcon, LockKeyholeIcon, RefreshCwIcon } from 'lucide-react'
+
+import type { WorkloadOwnerRow } from '@duedatehq/contracts'
+import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Button } from '@duedatehq/ui/components/ui/button'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@duedatehq/ui/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@duedatehq/ui/components/ui/table'
+import { cn } from '@duedatehq/ui/lib/utils'
+
+import { paidPlanActive } from '@/features/billing/model'
+import { useCurrentFirm } from '@/features/billing/use-billing-data'
+import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
+import { workloadRowDueSoonHref, workloadRowHref, workloadRowOverdueHref } from './workload-links'
+
+function todayDateOnly(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+export function WorkloadPage() {
+  const { t } = useLingui()
+  const { firmsQuery, currentFirm } = useCurrentFirm()
+  const paid = paidPlanActive(currentFirm)
+  const asOfDate = todayDateOnly()
+  const windowDays = 7
+  const workloadQuery = useQuery({
+    ...orpc.workload.load.queryOptions({ input: { asOfDate, windowDays } }),
+    enabled: paid,
+  })
+
+  if (firmsQuery.isLoading) {
+    return (
+      <section className="grid gap-6 p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Trans>Loading team workload</Trans>
+            </CardTitle>
+            <CardDescription>
+              <Trans>Checking the active firm plan before loading workload metrics.</Trans>
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </section>
+    )
+  }
+
+  if (!paid) {
+    return <WorkloadUpgradePanel />
+  }
+
+  const data = workloadQuery.data
+
+  return (
+    <section className="grid gap-6 p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="grid gap-1">
+          <p className="text-sm text-text-secondary">
+            <Trans>Shared deadline operations for Firm and Pro plans.</Trans>
+          </p>
+          <p className="font-mono text-xs tabular-nums text-text-muted">
+            <Trans>
+              As of {asOfDate} · next {windowDays} days
+            </Trans>
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void workloadQuery.refetch()}
+          disabled={workloadQuery.isFetching}
+        >
+          <RefreshCwIcon data-icon="inline-start" />
+          <Trans>Refresh</Trans>
+        </Button>
+      </div>
+
+      {workloadQuery.isError ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Trans>Could not load team workload</Trans>
+            </CardTitle>
+            <CardDescription>
+              {rpcErrorMessage(workloadQuery.error) ?? t`Please try again.`}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : null}
+
+      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+        <MetricCard label={t`Open`} value={data?.summary.open} />
+        <MetricCard label={t`Due soon`} value={data?.summary.dueSoon} />
+        <MetricCard label={t`Overdue`} value={data?.summary.overdue} intent="critical" />
+        <MetricCard label={t`Waiting`} value={data?.summary.waiting} />
+        <MetricCard label={t`Review`} value={data?.summary.review} />
+        <MetricCard label={t`Unassigned`} value={data?.summary.unassigned} intent="warning" />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Trans>Owner workload</Trans>
+          </CardTitle>
+          <CardDescription>
+            <Trans>
+              Aggregated from open obligations and client owner labels. Open any row in Workboard to
+              triage the underlying deadlines.
+            </Trans>
+          </CardDescription>
+          <CardAction>
+            <Button variant="outline" size="sm" render={<Link to="/workboard" />}>
+              <Trans>Open Workboard</Trans>
+              <ArrowRightIcon data-icon="inline-end" />
+            </Button>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          {workloadQuery.isLoading ? (
+            <div className="rounded-md border border-divider-regular p-6 text-sm text-text-secondary">
+              <Trans>Loading workload metrics…</Trans>
+            </div>
+          ) : data && data.rows.length > 0 ? (
+            <WorkloadTable rows={data.rows} asOfDate={data.asOfDate} windowDays={data.windowDays} />
+          ) : (
+            <div className="rounded-md border border-divider-regular p-6 text-sm text-text-secondary">
+              <Trans>No open obligations match the workload window.</Trans>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </section>
+  )
+}
+
+function WorkloadUpgradePanel() {
+  return (
+    <section className="grid gap-6 p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="grid size-8 place-items-center rounded-md border border-state-accent-active bg-state-accent-hover-alt text-text-accent"
+            >
+              <LockKeyholeIcon className="size-4" />
+            </span>
+            <Trans>Team workload is available on Firm</Trans>
+          </CardTitle>
+          <CardDescription>
+            <Trans>
+              Solo is the personal deadline workbench. Firm adds shared deadline operations:
+              owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump
+              links for weekly triage.
+            </Trans>
+          </CardDescription>
+          <CardAction>
+            <Badge variant="outline">
+              <Trans>Paid feature</Trans>
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button render={<Link to="/settings/billing" />}>
+            <Trans>Upgrade to Firm</Trans>
+          </Button>
+          <Button variant="outline" render={<Link to="/workboard" />}>
+            <Trans>Open Workboard</Trans>
+          </Button>
+        </CardContent>
+      </Card>
+    </section>
+  )
+}
+
+function MetricCard({
+  label,
+  value,
+  intent = 'neutral',
+}: {
+  label: string
+  value: number | undefined
+  intent?: 'neutral' | 'critical' | 'warning'
+}) {
+  return (
+    <Card size="sm" className="min-h-[104px]">
+      <CardHeader>
+        <CardTitle className="text-sm font-medium text-text-secondary">{label}</CardTitle>
+        <CardDescription
+          className={cn(
+            'font-mono text-3xl font-semibold tabular-nums text-text-primary',
+            intent === 'critical' && 'text-text-destructive',
+            intent === 'warning' && 'text-text-warning',
+          )}
+        >
+          {value ?? '—'}
+        </CardDescription>
+      </CardHeader>
+    </Card>
+  )
+}
+
+function WorkloadTable({
+  rows,
+  asOfDate,
+  windowDays,
+}: {
+  rows: WorkloadOwnerRow[]
+  asOfDate: string
+  windowDays: number
+}) {
+  const { t } = useLingui()
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>
+            <Trans>Owner</Trans>
+          </TableHead>
+          <TableHead className="text-right">
+            <Trans>Open</Trans>
+          </TableHead>
+          <TableHead className="text-right">
+            <Trans>Due soon</Trans>
+          </TableHead>
+          <TableHead className="text-right">
+            <Trans>Overdue</Trans>
+          </TableHead>
+          <TableHead className="text-right">
+            <Trans>Waiting</Trans>
+          </TableHead>
+          <TableHead className="text-right">
+            <Trans>Review</Trans>
+          </TableHead>
+          <TableHead className="w-[180px]">
+            <Trans>Load</Trans>
+          </TableHead>
+          <TableHead className="w-[128px] text-right">
+            <Trans>Action</Trans>
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row) => (
+          <TableRow
+            key={row.id}
+            className={row.kind === 'unassigned' ? 'bg-state-warning-hover' : ''}
+          >
+            <TableCell>
+              <div className="flex min-w-0 items-center gap-2">
+                <ClipboardListIcon className="size-4 shrink-0 text-text-tertiary" aria-hidden />
+                <span className="truncate font-medium text-text-primary">{row.ownerLabel}</span>
+                {row.kind === 'unassigned' ? (
+                  <Badge variant="outline">
+                    <Trans>Unassigned</Trans>
+                  </Badge>
+                ) : null}
+              </div>
+            </TableCell>
+            <NumericCell value={row.open} href={workloadRowHref(row)} />
+            <NumericCell
+              value={row.dueSoon}
+              href={workloadRowDueSoonHref(row, asOfDate, windowDays)}
+            />
+            <NumericCell value={row.overdue} href={workloadRowOverdueHref(row, asOfDate)} danger />
+            <NumericCell
+              value={row.waiting}
+              href={`${workloadRowHref(row)}&status=waiting_on_client`}
+            />
+            <NumericCell value={row.review} href={`${workloadRowHref(row)}&status=review`} />
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <div className="h-2 flex-1 overflow-hidden rounded-sm bg-background-subtle">
+                  <div
+                    className="h-full bg-state-accent-solid"
+                    style={{ width: `${row.loadScore}%` }}
+                  />
+                </div>
+                <span className="w-10 text-right font-mono text-xs tabular-nums text-text-secondary">
+                  {row.kind === 'unassigned' ? t`Risk` : `${row.loadScore}%`}
+                </span>
+              </div>
+            </TableCell>
+            <TableCell className="text-right">
+              <Button variant="outline" size="sm" render={<Link to={workloadRowHref(row)} />}>
+                <Trans>Open</Trans>
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+function NumericCell({
+  value,
+  href,
+  danger = false,
+}: {
+  value: number
+  href: string
+  danger?: boolean
+}) {
+  return (
+    <TableCell className="text-right">
+      <Link
+        to={href}
+        className={cn(
+          'font-mono text-sm font-medium tabular-nums underline-offset-4 hover:underline',
+          danger && value > 0 ? 'text-text-destructive' : 'text-text-primary',
+        )}
+      >
+        {value}
+      </Link>
+    </TableCell>
+  )
+}

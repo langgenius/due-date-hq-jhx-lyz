@@ -77,7 +77,7 @@ export function AppShell(props: AppShellProps) {
           */}
           <SidebarSeparator />
           <SidebarContent>
-            <NavGroups />
+            <NavGroups firm={props.firm} />
           </SidebarContent>
           <SidebarFooter>
             <PlanStatusLink firm={props.firm} />

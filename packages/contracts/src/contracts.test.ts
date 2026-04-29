@@ -18,9 +18,16 @@ import { ClientSchema } from './shared/client'
 import {
   WORKBOARD_SEARCH_MAX_LENGTH,
   WorkboardListInputSchema,
+  WorkboardOwnerFilterSchema,
   WorkboardSortSchema,
   workboardContract,
 } from './workboard'
+import {
+  WorkloadLoadInputSchema,
+  WorkloadLoadOutputSchema,
+  WorkloadWindowMaxDays,
+  workloadContract,
+} from './workload'
 import { MatrixSelectionSchema, MigrationErrorStageSchema, migrationContract } from './migration'
 import {
   MemberInviteInputSchema,
@@ -219,14 +226,50 @@ describe('@duedatehq/contracts', () => {
     const parsed = WorkboardListInputSchema.parse({
       status: ['pending', 'in_progress'],
       search: 'acme',
+      assigneeName: 'Sarah',
+      owner: 'unassigned',
+      due: 'overdue',
+      dueWithinDays: 7,
+      asOfDate: '2026-04-29',
       sort: 'due_asc',
       cursor: null,
       limit: 50,
     })
     expect(parsed.limit).toBe(50)
+    expect(WorkboardOwnerFilterSchema.parse('unassigned')).toBe('unassigned')
     expect(() =>
       WorkboardListInputSchema.parse({ search: 'x'.repeat(WORKBOARD_SEARCH_MAX_LENGTH + 1) }),
     ).toThrow()
+  })
+
+  it('freezes workload paid surface contract', () => {
+    expect(Object.keys(workloadContract)).toEqual(['load'])
+    expect(WorkloadLoadInputSchema.parse({ asOfDate: '2026-04-29', windowDays: 7 })).toEqual({
+      asOfDate: '2026-04-29',
+      windowDays: 7,
+    })
+    expect(() => WorkloadLoadInputSchema.parse({ windowDays: WorkloadWindowMaxDays + 1 })).toThrow()
+
+    const output = WorkloadLoadOutputSchema.parse({
+      asOfDate: '2026-04-29',
+      windowDays: 7,
+      summary: { open: 3, dueSoon: 1, overdue: 1, waiting: 1, review: 0, unassigned: 1 },
+      rows: [
+        {
+          id: 'assignee:Sarah',
+          ownerLabel: 'Sarah',
+          assigneeName: 'Sarah',
+          kind: 'assignee',
+          open: 2,
+          dueSoon: 1,
+          overdue: 0,
+          waiting: 1,
+          review: 0,
+          loadScore: 100,
+        },
+      ],
+    })
+    expect(output.rows[0]?.ownerLabel).toBe('Sarah')
   })
 
   it('freezes migration.listErrors stages', () => {
@@ -609,6 +652,7 @@ describe('@duedatehq/contracts', () => {
         'dashboard',
         'evidence',
         'workboard',
+        'workload',
         'pulse',
         'migration',
         'rules',

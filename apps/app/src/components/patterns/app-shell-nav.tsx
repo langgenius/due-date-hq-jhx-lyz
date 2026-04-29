@@ -67,6 +67,7 @@ type NavItem = {
   end?: boolean
   badge?: string
   tag?: string
+  disabledReason?: string
 }
 
 type NavConfig = {
@@ -330,10 +331,11 @@ function usePulseAlertCount(): number {
   return query.data?.alerts.length ?? 0
 }
 
-function useNavItems(): NavConfig {
+function useNavItems(firm: FirmPublic): NavConfig {
   const { t } = useLingui()
   const pulseCount = usePulseAlertCount()
   const pulseBadge = pulseCount > 0 ? String(pulseCount) : undefined
+  const workloadPaid = firm.plan === 'firm' || firm.plan === 'pro'
   return useMemo<NavConfig>(
     () => ({
       operations: [
@@ -357,7 +359,12 @@ function useNavItems(): NavConfig {
           label: t`Team workload`,
           icon: ClipboardListIcon,
           end: false,
-          tag: 'P1',
+          ...(workloadPaid
+            ? {}
+            : {
+                tag: t`Firm`,
+                disabledReason: t`Team workload is available on Firm and Pro plans.`,
+              }),
         },
       ],
       clients: [{ href: '/clients', label: t`Clients`, icon: UsersIcon, end: false }],
@@ -368,13 +375,13 @@ function useNavItems(): NavConfig {
         { href: '/audit', label: t`Audit log`, icon: ScaleIcon, end: false },
       ],
     }),
-    [t, pulseBadge],
+    [t, pulseBadge, workloadPaid],
   )
 }
 
-function NavGroups() {
+function NavGroups({ firm }: { firm: FirmPublic }) {
   const { t } = useLingui()
-  const items = useNavItems()
+  const items = useNavItems(firm)
   return (
     <nav aria-label={t`Primary navigation`} className="contents">
       <NavGroupSection label={t`Operations`}>
@@ -426,9 +433,11 @@ function NavMenuItem({ item, disabled = false }: { item: NavItem; disabled?: boo
             end={item.end ?? false}
             aria-disabled={disabled || undefined}
             tabIndex={disabled ? -1 : undefined}
+            title={disabled ? item.disabledReason : undefined}
           />
         }
         className={cn(disabled && 'pointer-events-none')}
+        title={disabled ? item.disabledReason : undefined}
       >
         <Icon aria-hidden />
         <span>{item.label}</span>

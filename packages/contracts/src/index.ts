@@ -12,6 +12,7 @@ import { dashboardContract } from './dashboard'
 import { evidenceContract } from './evidence'
 import { firmsContract } from './firms'
 import { workboardContract } from './workboard'
+import { workloadContract } from './workload'
 import { pulseContract } from './pulse'
 import { migrationContract } from './migration'
 import { membersContract } from './members'
@@ -25,6 +26,7 @@ export const appContract = oc.router({
   dashboard: dashboardContract,
   evidence: evidenceContract,
   workboard: workboardContract,
+  workload: workloadContract,
   pulse: pulseContract,
   migration: migrationContract,
   members: membersContract,
@@ -135,6 +137,8 @@ export type { EvidenceContract, EvidencePublic } from './evidence'
 export { EvidencePublicSchema, evidenceContract } from './evidence'
 
 export type {
+  WorkboardDueFilter,
+  WorkboardOwnerFilter,
   WorkboardContract,
   WorkboardListInput,
   WorkboardListOutput,
@@ -143,12 +147,32 @@ export type {
 } from './workboard'
 export {
   WORKBOARD_SEARCH_MAX_LENGTH,
+  WorkboardDueFilterSchema,
   WorkboardListInputSchema,
   WorkboardListOutputSchema,
+  WorkboardOwnerFilterSchema,
   WorkboardRowSchema,
   WorkboardSortSchema,
   workboardContract,
 } from './workboard'
+
+export type {
+  WorkloadContract,
+  WorkloadLoadInput,
+  WorkloadLoadOutput,
+  WorkloadOwnerKind,
+  WorkloadOwnerRow,
+  WorkloadSummary,
+} from './workload'
+export {
+  WorkloadLoadInputSchema,
+  WorkloadLoadOutputSchema,
+  WorkloadOwnerKindSchema,
+  WorkloadOwnerRowSchema,
+  WorkloadSummarySchema,
+  WorkloadWindowMaxDays,
+  workloadContract,
+} from './workload'
 
 export type {
   PulseAffectedClient,

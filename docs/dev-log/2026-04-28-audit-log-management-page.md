@@ -55,7 +55,7 @@ Slice 范围实现：只读 firm-wide Audit Log，不做 CSV/PDF 导出、不做
   - 表格显示 Time / Actor / Action / Entity / Change / Detail。
   - Sheet drawer 显示 before/after JSON、reason、hash 后设备字段和 raw metadata。
   - 搜索输入 debounce，默认 range 为 24h。
-- 侧边栏 `Audit log` 启用；`Team workload` 继续 `P1` disabled。
+- 侧边栏 `Audit log` 启用；`Team workload` 当时仍为 `P1` disabled，2026-04-29 后已改为付费可见 surface。
 - Command Palette 增加 `Audit log` 导航项。
 
 ### 文档

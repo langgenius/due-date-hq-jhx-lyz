@@ -17,6 +17,7 @@
     "./evidence": "./src/evidence.ts",
     "./firms": "./src/firms.ts",
     "./workboard": "./src/workboard.ts",
+    "./workload": "./src/workload.ts",
     "./pulse": "./src/pulse.ts",
     "./rules": "./src/rules.ts",
     "./migration": "./src/migration.ts",

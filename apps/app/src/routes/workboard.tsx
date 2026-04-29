@@ -15,6 +15,7 @@ import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-q
 import { FilterIcon, SearchIcon } from 'lucide-react'
 import {
   parseAsArrayOf,
+  parseAsInteger,
   parseAsString,
   parseAsStringLiteral,
   useQueryStates,
@@ -86,6 +87,8 @@ const ALL_SORTS = [
   'due_desc',
   'updated_desc',
 ] as const satisfies readonly WorkboardSort[]
+const OWNER_FILTERS = ['unassigned'] as const
+const DUE_FILTERS = ['overdue'] as const
 const DEFAULT_SORT: WorkboardSort = 'due_asc'
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
 const INITIAL_CURSOR: WorkboardCursor = null
@@ -97,6 +100,11 @@ export const workboardSearchParamsParsers = {
   status: parseAsArrayOf(parseAsStringLiteral(ALL_STATUSES))
     .withDefault([])
     .withOptions(REPLACE_HISTORY_OPTIONS),
+  assignee: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
+  owner: parseAsStringLiteral(OWNER_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
+  due: parseAsStringLiteral(DUE_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
+  dueWithin: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
+  asOf: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
   sort: parseAsStringLiteral(ALL_SORTS)
     .withDefault(DEFAULT_SORT)
     .withOptions(REPLACE_HISTORY_OPTIONS),
@@ -138,9 +146,10 @@ export function WorkboardRoute() {
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const statusLabels = useStatusLabels()
   const sortLabels = useSortLabels()
-  const [{ q: searchInput, status: statusFilter, sort, row }, setWorkboardQuery] = useQueryStates(
-    workboardSearchParamsParsers,
-  )
+  const [
+    { q: searchInput, status: statusFilter, assignee, owner, due, dueWithin, asOf, sort, row },
+    setWorkboardQuery,
+  ] = useQueryStates(workboardSearchParamsParsers)
 
   const debouncedSearch = useDebouncedQueryInput(searchInput, {
     maxLength: WORKBOARD_SEARCH_MAX_LENGTH,
@@ -152,10 +161,15 @@ export function WorkboardRoute() {
     () => ({
       ...(statusQuery.length > 0 ? { status: statusQuery } : {}),
       ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      ...(assignee ? { assigneeName: assignee } : {}),
+      ...(owner ? { owner } : {}),
+      ...(due ? { due } : {}),
+      ...(dueWithin && dueWithin > 0 && dueWithin <= 30 ? { dueWithinDays: dueWithin } : {}),
+      ...(asOf ? { asOfDate: asOf } : {}),
       sort,
       limit: PAGE_SIZE,
     }),
-    [statusQuery, debouncedSearch, sort],
+    [statusQuery, debouncedSearch, assignee, owner, due, dueWithin, asOf, sort],
   )
 
   const listQuery = useInfiniteQuery(
@@ -224,6 +238,12 @@ export function WorkboardRoute() {
         header: t`Client`,
         cell: (info) => info.getValue<string>(),
         meta: { cellClassName: 'font-medium text-text-primary' },
+      },
+      {
+        accessorKey: 'assigneeName',
+        header: t`Owner`,
+        cell: (info) => info.getValue<string | null>() ?? t`Unassigned`,
+        meta: { cellClassName: 'text-text-secondary' },
       },
       {
         accessorKey: 'taxType',

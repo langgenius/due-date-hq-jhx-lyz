@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, inArray, lt, or, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, gt, gte, inArray, isNull, lt, lte, or, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import type { Db } from '../client'
 import { client } from '../schema/clients'
@@ -24,6 +24,11 @@ export type WorkboardSort = 'due_asc' | 'due_desc' | 'updated_desc'
 export interface WorkboardListInput {
   status?: ObligationStatus[]
   search?: string
+  assigneeName?: string
+  owner?: 'unassigned'
+  due?: 'overdue'
+  dueWithinDays?: number
+  asOfDate?: string
   sort?: WorkboardSort
   cursor?: string | null
   limit?: number
@@ -42,6 +47,7 @@ export interface WorkboardListRow {
   createdAt: Date
   updatedAt: Date
   clientName: string
+  assigneeName: string | null
 }
 
 export interface WorkboardListResult {
@@ -54,6 +60,7 @@ const MAX_LIMIT = 100
 const MAX_SEARCH_LENGTH = 64
 const LIKE_WILDCARD_RE = /[\\%_]/g
 const UNSAFE_SEARCH_CHARS_RE = /[^\p{L}\p{N}\s&'.-]+/gu
+const DAY_MS = 24 * 60 * 60 * 1000
 
 export function normalizeWorkboardSearch(search: string | undefined): string | null {
   const normalized = (search ?? '')
@@ -70,6 +77,18 @@ export function normalizeWorkboardSearch(search: string | undefined): string | n
 
 function escapeLikePattern(value: string): string {
   return value.replace(LIKE_WILDCARD_RE, '\\$&')
+}
+
+function parseDateOnly(date: string): Date {
+  return new Date(`${date}T00:00:00.000Z`)
+}
+
+function todayDateOnly(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getTime() + days * DAY_MS)
 }
 
 function encodeCursor(row: { currentDueDate: Date; id: string }): string {
@@ -102,6 +121,27 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
 
       if (input.status && input.status.length > 0) {
         filters.push(inArray(obligationInstance.status, input.status))
+      }
+
+      if (input.assigneeName) {
+        filters.push(eq(client.assigneeName, input.assigneeName))
+      }
+
+      if (input.owner === 'unassigned') {
+        filters.push(or(isNull(client.assigneeName), eq(client.assigneeName, ''))!)
+      }
+
+      const asOfDate = parseDateOnly(input.asOfDate ?? todayDateOnly())
+      if (input.due === 'overdue') {
+        filters.push(lt(obligationInstance.currentDueDate, asOfDate))
+      }
+      if (input.dueWithinDays !== undefined) {
+        filters.push(
+          and(
+            gte(obligationInstance.currentDueDate, asOfDate),
+            lte(obligationInstance.currentDueDate, addDays(asOfDate, input.dueWithinDays)),
+          )!,
+        )
       }
 
       const search = normalizeWorkboardSearch(input.search)
@@ -151,6 +191,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           createdAt: obligationInstance.createdAt,
           updatedAt: obligationInstance.updatedAt,
           clientName: client.name,
+          assigneeName: client.assigneeName,
         })
         .from(obligationInstance)
         .innerJoin(client, eq(obligationInstance.clientId, client.id))

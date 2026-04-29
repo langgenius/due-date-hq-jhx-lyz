@@ -10,6 +10,7 @@ import { obligationsHandlers } from './obligations'
 import { pulseHandlers } from './pulse'
 import { rulesHandlers } from './rules'
 import { workboardHandlers } from './workboard'
+import { workloadHandlers } from './workload'
 import { os } from './_root'
 
 /**
@@ -65,6 +66,9 @@ export const router = os.router({
   },
   workboard: {
     list: workboardHandlers.list,
+  },
+  workload: {
+    load: workloadHandlers.load,
   },
   pulse: {
     listAlerts: pulseHandlers.listAlerts,

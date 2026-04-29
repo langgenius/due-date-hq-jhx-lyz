@@ -9,7 +9,7 @@ date: 2026-04-27
 >
 > **2026-04-27 follow-up：** Settings 父项的 collapsible 交互在落地后被简化为非交互 section header（无 hover bg、静态 chevron-down、子项常驻），相关代码（`ExpandableNavMenuItem` / `defaultSubItemHref` / `Collapse {0}` / `Expand {0}`）已删除。详见 `docs/dev-log/2026-04-27-sidebar-settings-flatten.md`。本文件 §5 关于 "Expandable parent 左对齐" 的条目仅作历史保留——`SidebarMenuButton` 的 `text-left` 默认在其他 trigger 上仍然生效，但 Settings 父项不再走 `<button>` 路径。
 >
-> **2026-04-29 follow-up：** Sidebar IA 从历史 `MAIN / MANAGE / ADMIN` 收敛为 `Operations / Clients / Organization`。`Import clients` 不再作为 footer 常驻 CTA；它是 activation/setup path，入口回到 `/clients`、Dashboard empty state 和 Command Palette。Team workload 保持 disabled `P1`，因为该 surface 已进入近期实现计划。详见 `docs/dev-log/2026-04-29-sidebar-ia-import-semantics.md`。
+> **2026-04-29 follow-up：** Sidebar IA 从历史 `MAIN / MANAGE / ADMIN` 收敛为 `Operations / Clients / Organization`。`Import clients` 不再作为 footer 常驻 CTA；它是 activation/setup path，入口回到 `/clients`、Dashboard empty state 和 Command Palette。Team workload 改为付费可见 surface：Solo 显示 locked `Firm` hint，Firm/Pro 启用 route。详见 `docs/dev-log/2026-04-29-sidebar-ia-import-semantics.md` 和 `docs/dev-log/2026-04-29-team-workload-paid-surface.md`。
 
 ## 背景
 

@@ -358,6 +358,13 @@ function buildScopedRepo(firmId: string) {
     },
   }
 
+  const workload: ScopedRepo['workload'] = {
+    firmId,
+    async load() {
+      return unexpectedRepoCall('workload.load')
+    },
+  }
+
   const pulse: ScopedRepo['pulse'] = {
     firmId,
     async createSeedAlert() {
@@ -420,6 +427,7 @@ function buildScopedRepo(firmId: string) {
     },
     obligations,
     workboard,
+    workload,
     pulse,
     migration,
     evidence,

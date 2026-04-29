@@ -20,4 +20,5 @@ export type {
   SeatUsage,
   TenantContext,
   WorkboardRepo,
+  WorkloadRepo,
 } from '@duedatehq/ports'

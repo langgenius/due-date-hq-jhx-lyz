@@ -19,11 +19,11 @@ implementation and permissions vocabulary instead of the user's workflow vocabul
 ## Decision
 
 - Sidebar groups are now:
-  - `Operations`: Dashboard, Workboard, Alerts, disabled `Team workload` (`P1`).
+  - `Operations`: Dashboard, Workboard, Alerts, paid `Team workload`.
   - `Clients`: Clients facts.
   - `Organization`: Rules, Members, Billing, Audit log.
-- `Team workload` remains visible but disabled because the surface is planned next; the disabled
-  row is an intentional roadmap signal, not unfinished navigation drift.
+- `Team workload` remains visible for all plans because it is the Firm/Pro expansion path; Solo sees
+  a disabled `Firm` hint, and paid firms can open the route.
 - `Import clients` is removed from the sidebar footer. It remains available where the task belongs:
   `/clients` page header, clients empty state, Dashboard empty state, and Command Palette.
 - `Profile` moves to the user menu. It is account-level, not firm/workspace navigation.
@@ -38,7 +38,7 @@ implementation and permissions vocabulary instead of the user's workflow vocabul
   - Strengthened the plan status affordance with a section background, icon tile, and action chip while keeping the copy to plan name + seats only.
 - `apps/app/src/components/patterns/app-shell-nav.tsx`
   - Replaced `Main / Manage / Admin` with `Operations / Clients / Organization`.
-  - Kept `Team workload` disabled with `P1`.
+  - Kept `Team workload` visible and changed the tag semantics from roadmap `P1` to paid `Firm`.
   - Changed the Rules icon to `FileCheck2` so it reads as verified source-backed rules, not generic settings.
 - `apps/app/src/components/patterns/app-shell-user-menu.tsx`
   - Added the `Profile` entry to the account menu.

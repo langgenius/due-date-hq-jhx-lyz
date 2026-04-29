@@ -128,6 +128,13 @@ function buildScoped(firmId: string, rows: Row[]) {
     },
   }
 
+  const workload: ScopedRepo['workload'] = {
+    firmId,
+    async load() {
+      return unused('workload.load')
+    },
+  }
+
   const migration = {
     firmId,
     async createBatch() {
@@ -247,6 +254,7 @@ function buildScoped(firmId: string, rows: Row[]) {
     },
     obligations,
     workboard,
+    workload,
     pulse,
     migration,
     evidence,

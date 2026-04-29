@@ -209,6 +209,16 @@ export function createAppRouter() {
               },
             },
             {
+              path: 'workload',
+              handle: routeHandle(routeSummaries.workload),
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { WorkloadRoute } = await import('@/routes/workload')
+
+                return { Component: WorkloadRoute }
+              },
+            },
+            {
               path: 'alerts',
               handle: routeHandle(routeSummaries.alerts),
               HydrateFallback: RouteHydrateFallback,

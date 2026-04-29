@@ -15,6 +15,7 @@ interface FakeRow {
   createdAt: Date
   updatedAt: Date
   clientName: string
+  assigneeName: string | null
 }
 
 /**
@@ -55,6 +56,7 @@ function makeRow(over: Partial<FakeRow> = {}): FakeRow {
     createdAt: over.createdAt ?? due,
     updatedAt: over.updatedAt ?? due,
     clientName: over.clientName ?? 'Acme Holdings LLC',
+    assigneeName: over.assigneeName ?? null,
   }
 }
 

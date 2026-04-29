@@ -308,6 +308,7 @@ msgstr "Across {0} due this week."
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/audit/audit-log-table.tsx
+#: src/features/workload/workload-page.tsx
 msgid "Action"
 msgstr "Action"
 
@@ -360,6 +361,10 @@ msgstr "Affected clients"
 #: src/features/audit/audit-event-drawer.tsx
 msgid "After"
 msgstr "After"
+
+#: src/features/workload/workload-page.tsx
+msgid "Aggregated from open obligations and client owner labels. Open any row in Workboard to triage the underlying deadlines."
+msgstr "Aggregated from open obligations and client owner labels. Open any row in Workboard to triage the underlying deadlines."
 
 #: src/features/audit/audit-log-page.tsx
 msgid "AI"
@@ -474,6 +479,10 @@ msgstr "Applied to {0} clients"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
 msgstr "Apply to all"
+
+#: src/features/workload/workload-page.tsx
+msgid "As of {asOfDate} · next {windowDays} days"
+msgstr "As of {asOfDate} · next {windowDays} days"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask"
@@ -656,6 +665,10 @@ msgstr "Checking for the latest prepared brief…"
 msgid "Checking IRS + state sources…"
 msgstr "Checking IRS + state sources…"
 
+#: src/features/workload/workload-page.tsx
+msgid "Checking the active firm plan before loading workload metrics."
+msgstr "Checking the active firm plan before loading workload metrics."
+
 #: src/routes/route-summary.ts
 msgid "Checkout"
 msgstr "Checkout"
@@ -828,6 +841,10 @@ msgstr "Could not load rule sources."
 #: src/features/rules/coverage-tab.tsx
 msgid "Could not load rules coverage."
 msgstr "Could not load rules coverage."
+
+#: src/features/workload/workload-page.tsx
+msgid "Could not load team workload"
+msgstr "Could not load team workload"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Could not run generation preview."
@@ -1092,6 +1109,10 @@ msgstr "Due date change"
 msgid "Due date logic"
 msgstr "Due date logic"
 
+#: src/features/workload/workload-page.tsx
+msgid "Due soon"
+msgstr "Due soon"
+
 #: src/routes/dashboard.tsx
 msgid "Due this week"
 msgstr "Due this week"
@@ -1275,6 +1296,7 @@ msgstr "Filter by status, search clients, and sort by due date."
 msgid "Filter by time range, action category, actor, or entity."
 msgstr "Filter by time range, action category, actor, or entity."
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
@@ -1539,6 +1561,10 @@ msgstr "Live"
 msgid "LLC"
 msgstr "LLC"
 
+#: src/features/workload/workload-page.tsx
+msgid "Load"
+msgstr "Load"
+
 #: src/features/audit/audit-log-page.tsx
 #: src/routes/workboard.tsx
 msgid "Load more"
@@ -1571,6 +1597,14 @@ msgstr "Loading rule sources."
 #: src/features/rules/coverage-tab.tsx
 msgid "Loading rules coverage."
 msgstr "Loading rules coverage."
+
+#: src/features/workload/workload-page.tsx
+msgid "Loading team workload"
+msgstr "Loading team workload"
+
+#: src/features/workload/workload-page.tsx
+msgid "Loading workload metrics…"
+msgstr "Loading workload metrics…"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Loading..."
@@ -1808,6 +1842,10 @@ msgstr "No notes."
 msgid "No obligations match these filters."
 msgstr "No obligations match these filters."
 
+#: src/features/workload/workload-page.tsx
+msgid "No open obligations match the workload window."
+msgstr "No open obligations match the workload window."
+
 #: src/routes/settings.billing.tsx
 msgid "No paid subscription"
 msgstr "No paid subscription"
@@ -1918,6 +1956,7 @@ msgid "Only the firm owner can start or change a subscription."
 msgstr "Only the firm owner can start or change a subscription."
 
 #: src/features/migration/Step2Mapping.tsx
+#: src/features/workload/workload-page.tsx
 msgid "Open"
 msgstr "Open"
 
@@ -1995,6 +2034,10 @@ msgstr "Open the Migration Copilot wizard."
 msgid "Open the obligation queue."
 msgstr "Open the obligation queue."
 
+#: src/features/workload/workload-page.tsx
+msgid "Open Workboard"
+msgstr "Open Workboard"
+
 #: src/routes/billing.checkout.tsx
 msgid "Opening checkout…"
 msgstr "Opening checkout…"
@@ -2032,10 +2075,16 @@ msgstr "Organization billing stays scoped to the selected firm."
 msgid "Other"
 msgstr "Other"
 
+#: src/features/workload/workload-page.tsx
+msgid "Overdue"
+msgstr "Overdue"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/workload/workload-page.tsx
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
+#: src/routes/workboard.tsx
 msgid "Owner"
 msgstr "Owner"
 
@@ -2059,6 +2108,10 @@ msgstr "owner read-only · self read-only"
 msgid "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
 msgstr "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
 
+#: src/features/workload/workload-page.tsx
+msgid "Owner workload"
+msgstr "Owner workload"
+
 #: src/features/members/members-page.tsx
 msgid "Owner-only. Invite teammates, change roles, and manage seats."
 msgstr "Owner-only. Invite teammates, change roles, and manage seats."
@@ -2066,6 +2119,10 @@ msgstr "Owner-only. Invite teammates, change roles, and manage seats."
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "Page not found"
+
+#: src/features/workload/workload-page.tsx
+msgid "Paid feature"
+msgstr "Paid feature"
 
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Partially applied"
@@ -2156,6 +2213,7 @@ msgstr "Please enter at least 2 characters."
 #: src/features/audit/audit-log-page.tsx
 #: src/features/migration/Wizard.tsx
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/workload/workload-page.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/login.tsx
@@ -2301,7 +2359,9 @@ msgstr "Recommended"
 msgid "Redirecting to Google…"
 msgstr "Redirecting to Google…"
 
+#: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
+#: src/features/workload/workload-page.tsx
 msgid "Refresh"
 msgstr "Refresh"
 
@@ -2400,6 +2460,7 @@ msgstr "review"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
+#: src/features/workload/workload-page.tsx
 msgid "Review"
 msgstr "Review"
 
@@ -2434,6 +2495,10 @@ msgstr "Review the active firm plan, open billing controls, and choose the right
 #: src/routes/billing.checkout.tsx
 msgid "Review the firm subscription before opening secure checkout."
 msgstr "Review the firm subscription before opening secure checkout."
+
+#: src/features/workload/workload-page.tsx
+msgid "Risk"
+msgstr "Risk"
 
 #: src/routes/dashboard.tsx
 msgid "Risk pulse"
@@ -2643,6 +2708,10 @@ msgstr "Shared deadline operations"
 msgid "Shared deadline operations for a growing CPA practice."
 msgstr "Shared deadline operations for a growing CPA practice."
 
+#: src/features/workload/workload-page.tsx
+msgid "Shared deadline operations for Firm and Pro plans."
+msgstr "Shared deadline operations for Firm and Pro plans."
+
 #. placeholder {0}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -2710,6 +2779,10 @@ msgstr "Sole prop"
 #: src/routes/settings.profile.tsx
 msgid "Solo"
 msgstr "Solo"
+
+#: src/features/workload/workload-page.tsx
+msgid "Solo is the personal deadline workbench. Firm adds shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
+msgstr "Solo is the personal deadline workbench. Firm adds shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
 
 #: src/features/pulse/lib/error-mapping.ts
 msgid "Some obligations have changed since you opened this alert. Refresh to load the latest list."
@@ -2889,8 +2962,17 @@ msgid "Team"
 msgstr "Team"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/routes/route-summary.ts
 msgid "Team workload"
 msgstr "Team workload"
+
+#: src/features/workload/workload-page.tsx
+msgid "Team workload is available on Firm"
+msgstr "Team workload is available on Firm"
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Team workload is available on Firm and Pro plans."
+msgstr "Team workload is available on Firm and Pro plans."
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -3004,6 +3086,8 @@ msgid "Unable to start Google sign-in"
 msgstr "Unable to start Google sign-in"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/workload/workload-page.tsx
+#: src/routes/workboard.tsx
 msgid "Unassigned"
 msgstr "Unassigned"
 
@@ -3048,6 +3132,7 @@ msgstr "Upgrade"
 msgid "Upgrade plan"
 msgstr "Upgrade plan"
 
+#: src/features/workload/workload-page.tsx
 #: src/routes/settings.billing.tsx
 msgid "Upgrade to Firm"
 msgstr "Upgrade to Firm"
@@ -3117,6 +3202,10 @@ msgstr "View audit log"
 #: src/routes/billing.checkout.tsx
 msgid "View billing settings"
 msgstr "View billing settings"
+
+#: src/features/workload/workload-page.tsx
+msgid "Waiting"
+msgstr "Waiting"
 
 #: src/features/workboard/status-control.tsx
 msgid "Waiting on client"
