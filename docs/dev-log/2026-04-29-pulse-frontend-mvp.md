@@ -116,6 +116,10 @@ should feel like a vital sign, always present but never noisy.
   active alerts query is refetching and no alerts are currently cached.
 - If active alerts are already visible, background refetch keeps the alert row
   on screen instead of replacing it with the checking strip.
+- Active Pulse alerts now poll every 60 seconds through shared query options,
+  so the Dashboard banner and nav badge stay in sync.
+- Dashboard Pulse banner now includes a manual refresh icon that calls the
+  same `pulse.listAlerts` query refetch used by polling.
 
 ## Validation
 

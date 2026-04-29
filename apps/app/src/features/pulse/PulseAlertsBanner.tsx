@@ -1,10 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
-import { ChevronRightIcon } from 'lucide-react'
+import { ChevronRightIcon, RefreshCwIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 import type { PulseAlertPublic } from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { orpc } from '@/lib/rpc'
@@ -26,8 +27,16 @@ export function PulseAlertsBanner() {
   const alerts = alertsQuery.data?.alerts ?? []
   const hasAlerts = alerts.length > 0
   const isChecking = alertsQuery.isLoading || (!hasAlerts && alertsQuery.isFetching)
+  const refreshAction = (
+    <RefreshAlertsButton
+      isFetching={alertsQuery.isFetching}
+      onRefresh={() => void alertsQuery.refetch()}
+    />
+  )
 
-  if (isChecking) return <PulseStrip tone="warning" active label={<LoadingLabel />} />
+  if (isChecking) {
+    return <PulseStrip tone="warning" active label={<LoadingLabel />} actions={refreshAction} />
+  }
 
   if (!hasAlerts) {
     return (
@@ -36,11 +45,18 @@ export function PulseAlertsBanner() {
         active
         label={<WatchingLabel lastCheckedAt={null} />}
         meta={<PulseMetaTimestamp iso={null} />}
+        actions={refreshAction}
       />
     )
   }
 
-  return <ActivePulseStrip alerts={alerts} />
+  return (
+    <ActivePulseStrip
+      alerts={alerts}
+      isFetching={alertsQuery.isFetching}
+      onRefresh={() => void alertsQuery.refetch()}
+    />
+  )
 }
 
 interface PulseStripProps {
@@ -92,7 +108,15 @@ function PulseStrip({ tone, active, label, meta, actions, onClick, className }: 
 
 // Renders the strip in its active (alert-bearing) state. We pull this out so
 // the mutation hook stays out of the empty / loading branches.
-function ActivePulseStrip({ alerts }: { alerts: readonly PulseAlertPublic[] }) {
+function ActivePulseStrip({
+  alerts,
+  isFetching,
+  onRefresh,
+}: {
+  alerts: readonly PulseAlertPublic[]
+  isFetching: boolean
+  onRefresh: () => void
+}) {
   const { i18n, t } = useLingui()
   const { openDrawer } = usePulseDrawer()
   const invalidate = usePulseInvalidation()
@@ -164,6 +188,7 @@ function ActivePulseStrip({ alerts }: { alerts: readonly PulseAlertPublic[] }) {
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
+          <RefreshAlertsButton isFetching={isFetching} onRefresh={onRefresh} />
           <Button
             variant="ghost"
             size="sm"
@@ -178,6 +203,37 @@ function ActivePulseStrip({ alerts }: { alerts: readonly PulseAlertPublic[] }) {
         </span>
       }
     />
+  )
+}
+
+function RefreshAlertsButton({
+  isFetching,
+  onRefresh,
+}: {
+  isFetching: boolean
+  onRefresh: () => void
+}) {
+  const { t } = useLingui()
+  const button = (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon-sm"
+      disabled={isFetching}
+      aria-label={t`Refresh`}
+      onClick={onRefresh}
+    >
+      <RefreshCwIcon className={cn('size-3.5', isFetching ? 'animate-spin' : '')} />
+    </Button>
+  )
+
+  return (
+    <Tooltip>
+      <TooltipTrigger render={button} />
+      <TooltipContent>
+        <Trans>Refresh</Trans>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 

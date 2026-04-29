@@ -3,6 +3,8 @@ import { useCallback } from 'react'
 
 import { orpc } from '@/lib/rpc'
 
+const PULSE_ACTIVE_ALERTS_REFETCH_INTERVAL_MS = 60_000
+
 // All Pulse-related cache invalidation flows through this hook so every
 // mutation (apply, dismiss, revert) refreshes the same surfaces:
 //   - pulse.* queries (banner / detail / history)
@@ -20,9 +22,12 @@ export function usePulseInvalidation(): () => void {
 }
 
 export function usePulseListAlertsQueryOptions(limit?: number) {
-  return orpc.pulse.listAlerts.queryOptions({
-    input: limit === undefined ? undefined : { limit },
-  })
+  return {
+    ...orpc.pulse.listAlerts.queryOptions({
+      input: limit === undefined ? undefined : { limit },
+    }),
+    refetchInterval: PULSE_ACTIVE_ALERTS_REFETCH_INTERVAL_MS,
+  }
 }
 
 export function usePulseListHistoryQueryOptions(limit?: number) {

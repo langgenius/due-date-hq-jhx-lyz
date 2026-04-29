@@ -53,6 +53,7 @@ import { cn } from '@duedatehq/ui/lib/utils'
 import { initialsFromName } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { usePulseListAlertsQueryOptions } from '@/features/pulse/api'
 import { FIRM_SWITCHER_HOTKEY } from '@/components/patterns/keyboard-shell/display'
 import {
   useAppHotkey,
@@ -325,9 +326,7 @@ function AddFirmDialog({
 function usePulseAlertCount(): number {
   // Surface the real Pulse alert count next to the nav entry. Uses the
   // shared cache primed by the dashboard banner so we don't double-fetch.
-  const query = useQuery({
-    ...orpc.pulse.listAlerts.queryOptions({ input: { limit: 5 } }),
-  })
+  const query = useQuery(usePulseListAlertsQueryOptions(5))
   return query.data?.alerts.length ?? 0
 }
 
