@@ -10,15 +10,15 @@
 
 - Added `@duedatehq/ports` as a pure TypeScript workspace package for repo and tenant ports.
 - Moved public repo/tenant contract types (`ScopedRepo`, `TenantContext`, firm/member repo ports, domain repo ports and row/input shapes) into `packages/ports`.
-- Updated `packages/db/src/types.ts` to re-export repo/tenant ports from `@duedatehq/ports`, while keeping `Db`, `FirmProfile`, and `NewFirmProfile` owned by `@duedatehq/db`.
-- Replaced procedure/env dynamic `import('@duedatehq/db')` type references with type-only `@duedatehq/ports` imports.
+- Updated `packages/db/src/types.ts` to re-export repo/tenant ports from `@duedatehq/ports/<domain>`, while keeping `Db`, `FirmProfile`, and `NewFirmProfile` owned by `@duedatehq/db`.
+- Replaced procedure/env dynamic `import('@duedatehq/db')` type references with type-only `@duedatehq/ports` imports. Follow-up on 2026-04-29 removed the ports root entry and moved consumers to concrete subpaths.
 - Updated dependency-direction docs and script so `packages/db -> packages/ports` is explicit and `packages/ports -> (none)`.
 
 ## Boundary Decision
 
 - Runtime data access remains unchanged: procedures receive `context.vars.scoped` from middleware and never construct DB repos.
 - `@duedatehq/ports` intentionally has no dependency on Drizzle, Hono, Worker bindings, `@duedatehq/db`, or app packages.
-- The package is not a barrel over db types; it owns the structural port contracts directly.
+- The package is not a barrel over db types; it owns the structural port contracts directly and exposes only concrete subpaths such as `@duedatehq/ports/scoped`, `@duedatehq/ports/clients`, and `@duedatehq/ports/dashboard`.
 
 ## Validation
 

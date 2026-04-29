@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { ScopedRepo } from '@duedatehq/ports'
+import type { ScopedRepo } from '@duedatehq/ports/scoped'
 import { updateObligationStatus } from './_service'
 
 interface Row {

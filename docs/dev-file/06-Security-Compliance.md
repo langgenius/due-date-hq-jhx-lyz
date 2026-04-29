@@ -189,8 +189,9 @@ lint: {
 或 `import '@duedatehq/db/schema/xxx'` 会被 `vp check` 直接 block，不依赖独立的
 `oxlintrc.json` 文件。
 
-Procedure 需要表达 repo / tenant 类型时，使用 type-only `@duedatehq/ports`。
-该包只包含 TypeScript port contract，不包含 Drizzle schema、DB factory 或 Worker runtime；
+Procedure 需要表达 repo / tenant 类型时，使用 type-only `@duedatehq/ports/<domain>`；
+`@duedatehq/ports` 不提供根入口，避免形成 barrel API。该包只包含 TypeScript port
+contract，不包含 Drizzle schema、DB factory 或 Worker runtime；
 不得再用 `import('@duedatehq/db').ScopedRepo` 这类动态类型 import 绕过边界规则。
 
 > **注意**：`packages/auth` 不能依赖 `@duedatehq/db` 由

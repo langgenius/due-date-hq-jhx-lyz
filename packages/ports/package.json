@@ -8,7 +8,19 @@
     "#*": "./src/*"
   },
   "exports": {
-    ".": "./src/index.ts"
+    "./ai": "./src/ai.ts",
+    "./audit": "./src/audit.ts",
+    "./clients": "./src/clients.ts",
+    "./dashboard": "./src/dashboard.ts",
+    "./evidence": "./src/evidence.ts",
+    "./migration": "./src/migration.ts",
+    "./obligations": "./src/obligations.ts",
+    "./pulse": "./src/pulse.ts",
+    "./scoped": "./src/scoped.ts",
+    "./shared": "./src/shared.ts",
+    "./tenants": "./src/tenants.ts",
+    "./workboard": "./src/workboard.ts",
+    "./workload": "./src/workload.ts"
   },
   "devDependencies": {
     "@duedatehq/typescript-config": "workspace:*",
@@ -18,5 +30,5 @@
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
-  "//": "Pure TypeScript port contracts for repo and tenant boundaries. No runtime implementation and no dependency on @duedatehq/db."
+  "//": "Pure TypeScript port contracts for repo and tenant boundaries. Import concrete subpaths only; no root barrel export."
 }

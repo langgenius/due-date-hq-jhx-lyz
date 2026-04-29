@@ -1,0 +1,43 @@
+import type { ClientEntityType } from './shared'
+
+export interface ClientRow {
+  id: string
+  firmId: string
+  name: string
+  ein: string | null
+  state: string | null
+  county: string | null
+  entityType: ClientEntityType
+  email: string | null
+  notes: string | null
+  assigneeName: string | null
+  migrationBatchId: string | null
+  createdAt: Date
+  updatedAt: Date
+  deletedAt: Date | null
+}
+
+export interface ClientCreateInput {
+  id?: string
+  name: string
+  ein?: string | null
+  state?: string | null
+  county?: string | null
+  entityType: ClientEntityType
+  email?: string | null
+  notes?: string | null
+  assigneeName?: string | null
+  migrationBatchId?: string | null
+}
+
+export interface ClientsRepo {
+  readonly firmId: string
+  create(input: ClientCreateInput): Promise<{ id: string }>
+  createBatch(inputs: ClientCreateInput[]): Promise<{ ids: string[] }>
+  findById(id: string): Promise<ClientRow | undefined>
+  findManyByIds(ids: string[]): Promise<ClientRow[]>
+  listByFirm(opts?: { includeDeleted?: boolean; limit?: number }): Promise<ClientRow[]>
+  listByBatch(batchId: string): Promise<ClientRow[]>
+  softDelete(id: string): Promise<void>
+  deleteByBatch(batchId: string): Promise<number>
+}

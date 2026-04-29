@@ -1,4 +1,4 @@
-import type { DashboardBriefScope } from '@duedatehq/ports'
+import type { DashboardBriefScope } from '@duedatehq/ports/shared'
 import type { Env } from '../../env'
 import {
   DASHBOARD_BRIEF_MESSAGE_TYPE,

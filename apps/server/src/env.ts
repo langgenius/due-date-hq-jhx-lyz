@@ -1,6 +1,7 @@
 import { createEnv } from '@t3-oss/env-core'
 import type { ServerSession } from '@duedatehq/auth'
-import type { FirmsRepo, MembersRepo, ScopedRepo, TenantContext } from '@duedatehq/ports'
+import type { ScopedRepo } from '@duedatehq/ports/scoped'
+import type { FirmsRepo, MembersRepo, TenantContext } from '@duedatehq/ports/tenants'
 import * as z from 'zod'
 
 const serverEnvSchema = z.object({

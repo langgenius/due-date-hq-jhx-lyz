@@ -1,4 +1,4 @@
-import type { DashboardBriefScope } from '@duedatehq/ports'
+import type { DashboardBriefScope } from '@duedatehq/ports/shared'
 
 export const DASHBOARD_BRIEF_MESSAGE_TYPE = 'dashboard.brief.refresh'
 

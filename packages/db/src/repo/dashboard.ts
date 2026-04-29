@@ -4,9 +4,8 @@ import type {
   DashboardBriefFailedInput,
   DashboardBriefReadyInput,
   DashboardBriefRow,
-  DashboardBriefScope,
-  DashboardBriefStatus,
-} from '@duedatehq/ports'
+} from '@duedatehq/ports/dashboard'
+import type { DashboardBriefScope, DashboardBriefStatus } from '@duedatehq/ports/shared'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'

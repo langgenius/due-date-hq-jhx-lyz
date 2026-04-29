@@ -4,7 +4,7 @@ import type {
   ObligationStatusUpdateInput,
   ObligationStatusUpdateOutput,
 } from '@duedatehq/contracts'
-import type { ScopedRepo } from '@duedatehq/ports'
+import type { ScopedRepo } from '@duedatehq/ports/scoped'
 
 interface ObligationRow {
   id: string

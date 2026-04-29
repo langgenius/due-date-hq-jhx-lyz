@@ -9,7 +9,7 @@ import {
 } from '@duedatehq/core/rules'
 import { validateEin } from '@duedatehq/core/pii'
 import type { MappingRow, MappingTarget, NormalizationRow } from '@duedatehq/contracts'
-import type { ScopedRepo } from '@duedatehq/ports'
+import type { ScopedRepo } from '@duedatehq/ports/scoped'
 import { validateRows } from './_deterministic'
 import type { MappingJsonPayload, MatrixApplicationEntry } from './_types'
 

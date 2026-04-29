@@ -4,7 +4,7 @@ import {
   type DashboardLoadOutput,
   type DashboardTopRow,
 } from '@duedatehq/contracts'
-import type { DashboardBriefRow } from '@duedatehq/ports'
+import type { DashboardBriefRow } from '@duedatehq/ports/dashboard'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { requireTenant } from '../_context'
 import { os } from '../_root'

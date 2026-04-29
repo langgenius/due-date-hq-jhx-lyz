@@ -22,7 +22,7 @@ import {
   type MigrationSource,
   type NormalizationRow,
 } from '@duedatehq/contracts'
-import type { ScopedRepo } from '@duedatehq/ports'
+import type { ScopedRepo } from '@duedatehq/ports/scoped'
 import {
   buildAllIgnoreMappings,
   buildPresetMappings,

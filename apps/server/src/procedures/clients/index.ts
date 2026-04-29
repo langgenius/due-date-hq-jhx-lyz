@@ -1,5 +1,5 @@
 import { ORPCError } from '@orpc/server'
-import type { ClientsRepo } from '@duedatehq/ports'
+import type { ClientsRepo } from '@duedatehq/ports/clients'
 import { requireTenant } from '../_context'
 import { CLIENT_WRITE_ROLES, requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'

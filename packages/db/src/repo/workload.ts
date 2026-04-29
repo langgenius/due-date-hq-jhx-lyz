@@ -5,10 +5,10 @@ import { obligationInstance, type ObligationStatus } from '../schema/obligations
 import type {
   WorkloadLoadInput,
   WorkloadLoadResult,
-  WorkloadOwnerKind,
   WorkloadOwnerRow,
   WorkloadSummary,
-} from '@duedatehq/ports'
+} from '@duedatehq/ports/workload'
+import type { WorkloadOwnerKind } from '@duedatehq/ports/shared'
 
 const OPEN_STATUSES: ObligationStatus[] = ['pending', 'in_progress', 'waiting_on_client', 'review']
 const DEFAULT_WINDOW_DAYS = 7
