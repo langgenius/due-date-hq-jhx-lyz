@@ -523,6 +523,27 @@ const en: LandingCopy = {
       },
     ],
   },
+  notFound: {
+    meta: {
+      title: 'Page not found — DueDateHQ',
+      description:
+        'This DueDateHQ public page is not available. Return to the homepage or review pricing.',
+      ogImage: '/og/home.en.png',
+    },
+    eyebrow: '404 · PUBLIC PAGE NOT FOUND',
+    title: 'This page is not available.',
+    body: 'The public marketing site only serves published DueDateHQ pages. You can return to the homepage, review pricing, or open the app if you were trying to reach your workbench.',
+    primaryCta: 'Return home',
+    secondaryCta: 'View pricing',
+    statusLabel: 'ROUTE STATUS',
+    statusValue: 'No client data loaded',
+    routesLabel: 'PUBLISHED PATHS',
+    routes: [
+      { label: 'Homepage', href: '/' },
+      { label: 'Pricing', href: '/pricing' },
+      { label: 'Open app', href: 'app' },
+    ],
+  },
   footer: {
     brand: 'DueDateHQ',
     tagline: 'Glass-box deadline intelligence for US CPA practices.',

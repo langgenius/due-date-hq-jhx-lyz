@@ -259,6 +259,19 @@ export interface PricingCopy {
   faq: { question: string; answer: string }[]
 }
 
+export interface NotFoundCopy {
+  meta: MetaCopy
+  eyebrow: string
+  title: string
+  body: string
+  primaryCta: string
+  secondaryCta: string
+  statusLabel: string
+  statusValue: string
+  routesLabel: string
+  routes: { label: string; href: string }[]
+}
+
 export interface FooterColumn {
   title: string
   links: { label: string; href: string }[]
@@ -306,5 +319,6 @@ export interface LandingCopy {
   security: SecurityCopy
   finalCta: FinalCtaCopy
   pricing: PricingCopy
+  notFound: NotFoundCopy
   footer: FooterCopy
 }

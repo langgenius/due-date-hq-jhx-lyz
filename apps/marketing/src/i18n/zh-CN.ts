@@ -494,6 +494,26 @@ const zhCN: LandingCopy = {
       },
     ],
   },
+  notFound: {
+    meta: {
+      title: '页面未找到 — DueDateHQ',
+      description: '这个 DueDateHQ 公开页面暂不可用。你可以返回首页或查看价格页。',
+      ogImage: '/og/home.zh-CN.png',
+    },
+    eyebrow: '404 · PUBLIC PAGE NOT FOUND',
+    title: '这个页面暂不可用。',
+    body: '公开 marketing 站只提供已经发布的 DueDateHQ 页面。你可以返回首页、查看价格页，或直接打开 app 进入工作台。',
+    primaryCta: '返回首页',
+    secondaryCta: '查看价格',
+    statusLabel: 'ROUTE STATUS',
+    statusValue: '未加载客户数据',
+    routesLabel: 'PUBLISHED PATHS',
+    routes: [
+      { label: '首页', href: '/zh-CN' },
+      { label: '价格', href: '/zh-CN/pricing' },
+      { label: '打开 App', href: 'app' },
+    ],
+  },
   footer: {
     brand: 'DueDateHQ',
     tagline: '面向美国 CPA 团队的玻璃盒截止日智能。',

@@ -7,11 +7,12 @@ interface Props {
   /** BCP-47 tag rendered into <html lang>. */
   lang: Locale
   /** Path on the marketing site (e.g. "/" or "/pricing") used for canonical + OG. */
-  pathname: '/' | '/zh-CN' | '/pricing' | '/zh-CN/pricing'
+  pathname: '/' | '/zh-CN' | '/pricing' | '/zh-CN/pricing' | '/404'
   title: string
   description: string
   /** Path of the locale-specific OG image under /public, e.g. "/og/home.en.png". */
   ogImage: string
+  noindex?: boolean
 }
 
 const SITE = 'https://duedatehq.com'
@@ -24,7 +25,7 @@ const ALTERNATE_OG_LOCALE: Record<Locale, readonly string[]> = {
   'zh-CN': ['en_US'],
 }
 
-const { lang, pathname, title, description, ogImage } = Astro.props
+const { lang, pathname, title, description, ogImage, noindex = false } = Astro.props
 const canonical = `${SITE}${pathname === '/' ? '' : pathname}`
 const ogImageUrl = `${SITE}${ogImage}`
 ---
@@ -38,6 +39,7 @@ const ogImageUrl = `${SITE}${ogImage}`
 
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="en" href={`${SITE}${pathname.endsWith('/pricing') ? '/pricing' : '/'}`} />

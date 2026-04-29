@@ -191,6 +191,23 @@ apps/marketing/
 
 Astro 默认不向页面发送 JS。React 组件只有在需要交互时作为 island 加载，并显式使用 `client:*` directive。静态 section 优先写 `.astro`，不要把整个 landing 做成 React SPA。
 
+### 4.1 404 与错误兜底
+
+Marketing 是 Astro static output，不使用 React Router data router，也不存在 app 那种组件树
+`ErrorBoundary`。未匹配公开路径的兜底契约是：
+
+- `apps/marketing/src/pages/404.astro` 必须存在，并在构建时输出 `dist/404.html`。
+- Cloudflare Workers Static Assets 使用 `not_found_handling = "404-page"`，未命中资源时读取
+  `/404.html`，而不是回退到 SPA shell。
+- 404 页复用 `BaseLayout`、`TopNav`、`Footer`、shared tokens 和 marketing i18n copy；页面必须
+  标记 `noindex`，避免把错误路径收录为公开内容。
+- 404 页使用英文默认页作为跨 locale 兜底；如果将来需要按语言渲染，可追加
+  `src/pages/zh-CN/404.astro`，但 Cloudflare 的根级 fallback 仍要保证 `/404.html` 可用。
+
+Astro 官方实践是为静态站创建 `src/pages/404.astro` / `404.md`，构建为 `404.html` 后由部署平台
+识别。`src/pages/500.astro` 只面向 on-demand rendered 页面；当前 marketing 没有 SSR adapter，
+因此不把 500 页作为首要兜底。
+
 `astro.config.mjs` 目标配置：
 
 ```js
