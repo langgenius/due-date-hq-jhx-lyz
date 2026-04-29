@@ -27,6 +27,7 @@ describe('@duedatehq/db', () => {
     const repo = scoped(testDb, 'firm_123')
 
     expect(typeof repo.clients.create).toBe('function')
+    expect(typeof repo.clients.findManyByIds).toBe('function')
     expect(typeof repo.obligations.createBatch).toBe('function')
     expect(typeof repo.obligations.findById).toBe('function')
     expect(typeof repo.workboard.list).toBe('function')

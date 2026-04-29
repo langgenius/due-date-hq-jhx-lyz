@@ -1,4 +1,5 @@
 import { ORPCError } from '@orpc/server'
+import type { ClientsRepo } from '@duedatehq/ports'
 import { requireTenant } from '../_context'
 import { CLIENT_WRITE_ROLES, requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
@@ -17,6 +18,19 @@ import { toClientPublic, type ClientCreateInputForRepo, type ClientRow } from '.
  * create / createBatch / get / listByFirm. Workboard mutation paths
  * (status workflow / due_date update) belong to LYZ Day 3 and stay stub.
  */
+
+export async function rereadCreatedClientBatch(
+  clients: Pick<ClientsRepo, 'findManyByIds'>,
+  ids: string[],
+): Promise<ClientRow[]> {
+  const rows = await clients.findManyByIds(ids)
+  if (rows.length !== ids.length) {
+    throw new ORPCError('INTERNAL_SERVER_ERROR', {
+      message: 'Created client batch could not be re-read.',
+    })
+  }
+  return rows
+}
 
 const create = os.clients.create.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
@@ -79,11 +93,7 @@ const createBatch = os.clients.createBatch.handler(async ({ input, context }) =>
     after: { count: ids.length },
   })
 
-  // Re-read for the public output. listByFirm is fine for Demo size; Phase 0
-  // can swap to a targeted IN clause once we cross 500 rows / batch.
-  const allClients = await scoped.clients.listByFirm()
-  const idSet = new Set(ids)
-  const rows = allClients.filter((c: ClientRow) => idSet.has(c.id))
+  const rows = await rereadCreatedClientBatch(scoped.clients, ids)
 
   return { clients: rows.map(toClientPublic) }
 })

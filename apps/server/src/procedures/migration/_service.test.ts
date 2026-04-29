@@ -83,6 +83,9 @@ function buildScopedRepo(firmId: string) {
     async findById() {
       return undefined
     },
+    async findManyByIds() {
+      return []
+    },
     async listByFirm() {
       return []
     },

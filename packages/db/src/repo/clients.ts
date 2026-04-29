@@ -13,6 +13,7 @@ import { client, type Client, type ClientEntityType } from '../schema/clients'
 
 const COLS_PER_CLIENT_ROW = 14
 const CLIENT_BATCH_SIZE = Math.floor(100 / COLS_PER_CLIENT_ROW) // = 7
+const CLIENT_LOOKUP_IDS_PER_BATCH = 99
 
 export interface ClientCreateInput {
   id?: string
@@ -79,6 +80,37 @@ export function makeClientsRepo(db: Db, firmId: string) {
         .where(and(eq(client.firmId, firmId), eq(client.id, id), isNull(client.deletedAt)))
         .limit(1)
       return rows[0]
+    },
+
+    async findManyByIds(ids: string[]): Promise<Client[]> {
+      if (ids.length === 0) return []
+
+      const chunks: string[][] = []
+      for (let i = 0; i < ids.length; i += CLIENT_LOOKUP_IDS_PER_BATCH) {
+        chunks.push(ids.slice(i, i + CLIENT_LOOKUP_IDS_PER_BATCH))
+      }
+      const rows = (
+        await Promise.all(
+          chunks.map((batchIds) =>
+            db
+              .select()
+              .from(client)
+              .where(
+                and(
+                  eq(client.firmId, firmId),
+                  inArray(client.id, batchIds),
+                  isNull(client.deletedAt),
+                ),
+              ),
+          ),
+        )
+      ).flat()
+
+      const byId = new Map(rows.map((row) => [row.id, row]))
+      return ids.flatMap((id) => {
+        const row = byId.get(id)
+        return row ? [row] : []
+      })
     },
 
     async listByFirm(opts: { includeDeleted?: boolean; limit?: number } = {}): Promise<Client[]> {

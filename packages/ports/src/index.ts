@@ -768,6 +768,7 @@ export interface ClientsRepo {
   create(input: ClientCreateInput): Promise<{ id: string }>
   createBatch(inputs: ClientCreateInput[]): Promise<{ ids: string[] }>
   findById(id: string): Promise<ClientRow | undefined>
+  findManyByIds(ids: string[]): Promise<ClientRow[]>
   listByFirm(opts?: { includeDeleted?: boolean; limit?: number }): Promise<ClientRow[]>
   listByBatch(batchId: string): Promise<ClientRow[]>
   softDelete(id: string): Promise<void>
