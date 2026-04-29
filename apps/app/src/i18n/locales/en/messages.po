@@ -585,6 +585,10 @@ msgid "Billing status is not ready yet."
 msgstr "Billing status is not ready yet."
 
 #: src/routes/dashboard.tsx
+msgid "Brief evidence"
+msgstr "Brief evidence"
+
+#: src/routes/dashboard.tsx
 msgid "Brief is being prepared. The risk table is ready now."
 msgstr "Brief is being prepared. The risk table is ready now."
 
@@ -679,6 +683,15 @@ msgstr "Choose another plan"
 #: src/routes/settings.billing.tsx
 msgid "Choose Firm to start the hosted checkout flow."
 msgstr "Choose Firm to start the hosted checkout flow."
+
+#. placeholder {0}: citation.ref
+#: src/routes/dashboard.tsx
+msgid "Citation [{0}]"
+msgstr "Citation [{0}]"
+
+#: src/routes/dashboard.tsx
+msgid "Citation detail"
+msgstr "Citation detail"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Clear search or filters to return to the full firm directory."
@@ -1771,6 +1784,10 @@ msgstr "No firm selected"
 msgid "No generated obligations yet."
 msgstr "No generated obligations yet."
 
+#: src/routes/dashboard.tsx
+msgid "No linked source"
+msgstr "No linked source"
+
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this firm."
 msgstr "No matching clients in this firm."
@@ -1851,6 +1868,7 @@ msgid "object"
 msgstr "object"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/routes/dashboard.tsx
 msgid "Obligation"
 msgstr "Obligation"
 
@@ -1903,6 +1921,10 @@ msgstr "Open Billing"
 msgid "Open billing settings for {plan} plan"
 msgstr "Open billing settings for {plan} plan"
 
+#: src/routes/dashboard.tsx
+msgid "Open evidence for {label}"
+msgstr "Open evidence for {label}"
+
 #. placeholder {0}: row.original.name
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Open fact profile for {0}"
@@ -1911,6 +1933,10 @@ msgstr "Open fact profile for {0}"
 #: src/routes/settings.members.tsx
 msgid "Open member actions"
 msgstr "Open member actions"
+
+#: src/routes/dashboard.tsx
+msgid "Open obligation"
+msgstr "Open obligation"
 
 #: src/routes/dashboard.tsx
 msgid "open obligations"
@@ -1943,6 +1969,15 @@ msgstr "Open risk"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Open rule detail: {0}"
 msgstr "Open rule detail: {0}"
+
+#: src/routes/dashboard.tsx
+msgid "Open source"
+msgstr "Open source"
+
+#. placeholder {0}: citation.evidence.sourceType
+#: src/routes/dashboard.tsx
+msgid "Open source {0}"
+msgstr "Open source {0}"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
@@ -2690,6 +2725,7 @@ msgstr "source"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/rules/generation-preview-tab.tsx
+#: src/routes/dashboard.tsx
 msgid "Source"
 msgstr "Source"
 

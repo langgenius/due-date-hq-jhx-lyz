@@ -38,12 +38,12 @@ Risk table / Evidence checks
 
 AI Weekly Brief 有四种状态：
 
-| 状态      | 用户看到什么                                        | 行为                                         |
-| --------- | --------------------------------------------------- | -------------------------------------------- |
-| `ready`   | 3-5 条本周分诊建议，带 source / evidence chip       | 可点击跳到 obligation / evidence drawer。    |
-| `stale`   | 上次生成的 brief + `Updated <time>`                 | 仍可用；后台刷新中或已超过 TTL。             |
-| `pending` | `Brief is being prepared` 的轻量状态行              | 不显示 skeleton block；风险表照常可用。      |
-| `failed`  | 确定性 fallback，例如 `3 critical, 5 due this week` | 可提供 `Refresh brief` 入队，不同步调用 AI。 |
+| 状态      | 用户看到什么                                        | 行为                                                           |
+| --------- | --------------------------------------------------- | -------------------------------------------------------------- |
+| `ready`   | 3-5 条本周分诊建议，带 source / evidence chip       | 点击 citation chip 打开 evidence drawer，并可跳到 obligation。 |
+| `stale`   | 上次生成的 brief + `Updated <time>`                 | 仍可用；后台刷新中或已超过 TTL。                               |
+| `pending` | `Brief is being prepared` 的轻量状态行              | 不显示 skeleton block；风险表照常可用。                        |
+| `failed`  | 确定性 fallback，例如 `3 critical, 5 due this week` | 可提供 `Refresh brief` 入队，不同步调用 AI。                   |
 
 Brief 文案必须回答：
 
@@ -88,8 +88,8 @@ cron 只扫描 due firm，按 firm timezone 判断是否需要在本地工作日
 
 ### 4.3 手动刷新
 
-Dashboard 可以提供 `Refresh brief`。点击后只投递 Queue 消息并返回 pending 状态，不在 request path
-里调用 AI。
+Dashboard 可以提供 `Refresh brief`。点击后只投递 Queue 消息，前端立即进入 queued/pending 状态；
+按钮在 pending 期间禁用，不在 request path 里调用 AI。
 
 ## 5. 数据模型设计
 
@@ -190,7 +190,16 @@ type DashboardBriefPublic = {
   generatedAt: string | null
   expiresAt: string | null
   text: string | null
-  citations: unknown
+  citations: Array<{
+    ref: number
+    obligationId: string
+    evidence: {
+      id: string | null
+      sourceType: string
+      sourceId: string | null
+      sourceUrl: string | null
+    } | null
+  }> | null
   aiOutputId: string | null
   errorCode: string | null
 }
@@ -205,16 +214,20 @@ type DashboardBriefPublic = {
 dashboard.requestBriefRefresh({ scope: 'firm' | 'me' })
 ```
 
-该 mutation 只 enqueue，不等待 AI。返回 `queued: true` 和当前 latest brief。
+该 mutation 只 enqueue，不等待 AI。返回 `queued` 和当前 latest brief；前端用 `queued: true`
+做即时 pending 反馈，直到新的 ready / failed row 生成。
 
 ## 9. 成本与可靠性
 
-- 每 firm/day 默认：1 次 scheduled brief + 3 次 event-triggered refresh + 1 次 manual refresh。
+- 每 firm/day 默认：1 次 scheduled brief + 3 次 event-triggered refresh + 最多 3 次 manual refresh。
 - `input_hash` 不变则跳过。
 - Queue message 使用 `idempotencyKey`，consumer 先查 D1 再写 pending。
-- `CACHE` 可保存短 TTL debounce key：`dashboard-brief:debounce:{firmId}:{scope}`。
+- `CACHE` 保存短 TTL debounce key：`dashboard-brief:debounce:{firmId}:{scope}:{userOrFirm}`；
+  reason 不参与 key，5 分钟内同一 firm + scope 合并成一次 refresh。
 - 旧 ready brief 超过 TTL 后可显示为 stale；不要删除，便于 audit / compare。
 - AI 不可用时写 failed row，Dashboard 保留确定性数据。
+- 运维排障以 `dashboard_brief` 状态、Queue / DLQ 状态和 AI trace 表为准；运行时代码不写裸
+  `console.log`。
 
 ## 10. 代码架构落点
 
@@ -226,9 +239,9 @@ dashboard.requestBriefRefresh({ scope: 'firm' | 'me' })
 | Server procedures | `apps/server/src/procedures/dashboard`  | `load` 只读 latest brief；`requestBriefRefresh` 只投递 queue。                                        |
 | Jobs              | `apps/server/src/jobs/dashboard-brief/` | enqueue helper、consumer、snapshot builder、idempotency/debounce。                                    |
 | Queue dispatch    | `apps/server/src/jobs/queue.ts`         | 按 `batch.queue` 和 `message.type` 分发。                                                             |
-| Cron dispatch     | `apps/server/src/jobs/cron.ts`          | 扫描 due firms，投递 scheduled refresh。                                                              |
+| Cron dispatch     | `apps/server/src/jobs/cron.ts`          | 扫描 due firms，投递 scheduled refresh；周末仅在存在 critical risk 时生成。                           |
 | AI facade         | `packages/ai/src/prompter.ts`           | `brief@v1` 生成结构化 brief，不写 DB。                                                                |
-| Frontend          | `apps/app/src/routes/dashboard.tsx`     | 渲染 ready/stale/pending/failed；不发起模型调用。                                                     |
+| Frontend          | `apps/app/src/routes/dashboard.tsx`     | 渲染 ready/stale/pending/failed、citation drawer 和即时 queued 状态；不发起模型调用。                 |
 
 ## 11. Cloudflare / CI 变更
 
@@ -270,3 +283,4 @@ CI 需要同步的只有 Wrangler 配置和 queue 创建步骤；不需要新增
 | ---- | ---------- | ----- | ------------------------------------------------------------------------------------------------ |
 | v0.1 | 2026-04-29 | Codex | 新增后台物化 Dashboard AI Brief 设计，固定 Queue-first、no-request-path-AI、no-new-secret 裁定。 |
 | v0.2 | 2026-04-29 | Codex | 落地 `dashboard_brief`、`DASHBOARD_QUEUE`、consumer、manual refresh API 和 Dashboard UI 状态。   |
+| v0.3 | 2026-04-29 | Codex | 补齐 citation drawer、manual refresh queued 反馈、firm/scope debounce 和周末 scheduled 策略。    |

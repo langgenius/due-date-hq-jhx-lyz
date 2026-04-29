@@ -130,6 +130,7 @@ Marketing 失败时回滚 Cloudflare Pages deployment 或 static Worker 版本�
 | Worker error rate     | > 1% / 5min      | Sentry Slack                                     |
 | D1 query P95          | > 200ms          | Logpush 查询 + Slack                             |
 | AI fail rate          | > 5% / hour      | Workers Logs / Sentry / Analytics Engine → Slack |
+| Dashboard Brief DLQ   | 任意消息进入 DLQ | 参照 `docs/ops/dashboard-brief-queue-runbook.md` |
 | Email outbox stuck    | 未 flush > 5min  | Queue consumer 告警                              |
 | Pulse ingest idle     | Cron 未运行 > 2h | Cron health check                                |
 
@@ -238,7 +239,7 @@ E2E_BASE_URL=https://app.due.langgenius.app pnpm test:e2e
 | 6   | **T-S2-02 / S2-AC2** + **T-S2-04 / S2-AC4** | 粘贴 30 行 CSV（含 `Tax ID` 列，无 `tax_types` 列）→ EIN 格式化 + Default Matrix 兜底 → Live Genesis                                 |
 | 7   | **T-S2-03 / S2-AC3**                        | CSV 5 行缺 `state` → 非阻塞，其余 25 行正常导入                                                                                      |
 | 8   | **T-S3-03 + T-S3-04 / S3-AC3 + S3-AC4**     | Approved Pulse → Banner 打开 → Apply → 批量 UPDATE + Audit + 24h Undo + 邮件双渠道                                                   |
-| 9   | **T-S3-05 / S3-AC5**                        | 任意 `[n]` citation → Evidence Drawer 展开 source + excerpt + `official_source_url`                                                  |
+| 9   | **T-S3-05 / S3-AC5**                        | 任意 `[n]` citation → Dashboard Evidence Drawer 展开 source metadata + `official_source_url`，并可跳转 Workboard obligation          |
 | 10  | **T-NOTIFY-email**                          | Pulse Apply 触发 `email_outbox` → Resend 测试 key 回执；in-app toast 在下一次 Dashboard 加载命中 banner slot（替代原 Web Push 场景） |
 
 Phase 0 完整 MVP 追加覆盖（可用 integration test，不要求全部 E2E）：

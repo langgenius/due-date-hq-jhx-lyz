@@ -585,6 +585,10 @@ msgid "Billing status is not ready yet."
 msgstr "账单状态尚未准备好。"
 
 #: src/routes/dashboard.tsx
+msgid "Brief evidence"
+msgstr "简报证据"
+
+#: src/routes/dashboard.tsx
 msgid "Brief is being prepared. The risk table is ready now."
 msgstr "简报正在后台准备中。风险表现在已经可用。"
 
@@ -679,6 +683,15 @@ msgstr "选择其他计划"
 #: src/routes/settings.billing.tsx
 msgid "Choose Firm to start the hosted checkout flow."
 msgstr "选择 Firm 以启动托管支付流程。"
+
+#. placeholder {0}: citation.ref
+#: src/routes/dashboard.tsx
+msgid "Citation [{0}]"
+msgstr "引用 [{0}]"
+
+#: src/routes/dashboard.tsx
+msgid "Citation detail"
+msgstr "引用详情"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Clear search or filters to return to the full firm directory."
@@ -1771,6 +1784,10 @@ msgstr "未选择事务所"
 msgid "No generated obligations yet."
 msgstr "尚未生成义务。"
 
+#: src/routes/dashboard.tsx
+msgid "No linked source"
+msgstr "没有关联来源"
+
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this firm."
 msgstr "当前事务所没有匹配的客户。"
@@ -1851,6 +1868,7 @@ msgid "object"
 msgstr "对象"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/routes/dashboard.tsx
 msgid "Obligation"
 msgstr "义务"
 
@@ -1903,6 +1921,10 @@ msgstr "打开账单"
 msgid "Open billing settings for {plan} plan"
 msgstr "打开 {plan} 计划的账单设置"
 
+#: src/routes/dashboard.tsx
+msgid "Open evidence for {label}"
+msgstr "打开 {label} 的证据"
+
 #. placeholder {0}: row.original.name
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Open fact profile for {0}"
@@ -1911,6 +1933,10 @@ msgstr "打开 {0} 的事实档案"
 #: src/routes/settings.members.tsx
 msgid "Open member actions"
 msgstr "打开成员操作"
+
+#: src/routes/dashboard.tsx
+msgid "Open obligation"
+msgstr "打开义务"
 
 #: src/routes/dashboard.tsx
 msgid "open obligations"
@@ -1943,6 +1969,15 @@ msgstr "待处理风险"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Open rule detail: {0}"
 msgstr "打开规则详情：{0}"
+
+#: src/routes/dashboard.tsx
+msgid "Open source"
+msgstr "打开来源"
+
+#. placeholder {0}: citation.evidence.sourceType
+#: src/routes/dashboard.tsx
+msgid "Open source {0}"
+msgstr "打开来源 {0}"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
@@ -2690,6 +2725,7 @@ msgstr "来源"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/rules/generation-preview-tab.tsx
+#: src/routes/dashboard.tsx
 msgid "Source"
 msgstr "来源"
 

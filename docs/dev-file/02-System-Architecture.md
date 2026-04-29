@@ -304,14 +304,14 @@ SourceAdapter.fetch()  ──► raw 存 R2_PULSE ──► 入 PULSE_QUEUE { ty
 
 ## 6. 并发与一致性策略
 
-| 场景                                         | 策略                                                                                                   |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 同 firm 多设备并发改同一 obligation          | Drizzle optimistic `updated_at` 比对；前端 toast "conflict" 提示重试                                   |
-| Pulse Batch Apply 期间同一 firm 禁止二次触发 | KV 做 advisory lock（30s TTL）+ 前端按钮 disable                                                       |
-| Migration 运行中禁止二次 import              | `migration_batch.status=applying` 时拒绝新 batch                                                       |
-| Dashboard Brief 刷新                         | Queue 消息带 `idempotency_key`；D1 以 `(firm, scope, as_of_date, input_hash)` 去重，KV 5 分钟 debounce |
-| 邮件 outbox 幂等                             | `email_outbox.external_id` 唯一约束；consumer 处理前校验                                               |
-| Queue 消息幂等                               | 消息体带 `idempotency_key`，消费者先查 D1 去重                                                         |
+| 场景                                         | 策略                                                                                                                             |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 同 firm 多设备并发改同一 obligation          | Drizzle optimistic `updated_at` 比对；前端 toast "conflict" 提示重试                                                             |
+| Pulse Batch Apply 期间同一 firm 禁止二次触发 | KV 做 advisory lock（30s TTL）+ 前端按钮 disable                                                                                 |
+| Migration 运行中禁止二次 import              | `migration_batch.status=applying` 时拒绝新 batch                                                                                 |
+| Dashboard Brief 刷新                         | Queue 消息带 `idempotency_key`；D1 以 `(firm, scope, as_of_date, input_hash)` 去重，KV 以 firm + scope + user 做 5 分钟 debounce |
+| 邮件 outbox 幂等                             | `email_outbox.external_id` 唯一约束；consumer 处理前校验                                                                         |
+| Queue 消息幂等                               | 消息体带 `idempotency_key`，消费者先查 D1 去重                                                                                   |
 
 ---
 

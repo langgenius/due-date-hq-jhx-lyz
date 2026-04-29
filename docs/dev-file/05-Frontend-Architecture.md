@@ -180,13 +180,15 @@ aggregation 统一计算。
 Dashboard AI Brief 约束：前端不触发模型调用，也不轮询 AI provider。`dashboard.load` 返回 latest
 `brief` 状态后，页面按 `ready` / `stale` / `pending` / `failed` 渲染：
 
-- `ready`：展示后台 guard 通过的 brief 文本和 citation / evidence chips。
+- `ready`：展示后台 guard 通过的 brief 文本和 citation / evidence chips；点击 citation
+  打开 Dashboard 内 evidence drawer，drawer 可跳到 Workboard 对应 obligation 或官方 source URL。
 - `stale`：继续展示旧 brief，并标明更新时间。
 - `pending`：展示轻量状态行，风险表照常可用；不要放整块 skeleton。
 - `failed` 或 `null`：展示 deterministic fallback，例如 open risk / due-this-week summary。
 
-手动 `Refresh brief` 只能调用 enqueue mutation（例如 `dashboard.requestBriefRefresh`），返回后更新
-pending 状态；禁止在 button handler 中 await AI generation。
+手动 `Refresh brief` 只能调用 enqueue mutation（例如 `dashboard.requestBriefRefresh`），返回
+`queued: true` 后立即更新 pending 状态，并在 queued / pending 期间禁用按钮；禁止在 button
+handler 中 await AI generation。
 
 **禁止：** Redux、MobX、Recoil、自造 context 状态容器。
 

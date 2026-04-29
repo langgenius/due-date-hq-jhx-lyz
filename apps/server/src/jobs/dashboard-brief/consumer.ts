@@ -35,6 +35,7 @@ interface BriefSource {
   status: string
   severity: string
   evidence: {
+    id: string | null
     sourceType: string
     sourceUrl: string | null
     sourceId: string | null
@@ -81,6 +82,7 @@ function stableSnapshot(
       primaryEvidence: row.primaryEvidence
         ? {
             sourceType: row.primaryEvidence.sourceType,
+            id: row.primaryEvidence.id,
             sourceId: row.primaryEvidence.sourceId,
             sourceUrl: row.primaryEvidence.sourceUrl,
           }
@@ -221,7 +223,13 @@ async function refreshDashboardBrief(
         dueDate: source.dueDate,
         status: source.status,
         severity: source.severity,
-        evidence: source.evidence,
+        evidence: source.evidence
+          ? {
+              sourceType: source.evidence.sourceType,
+              sourceId: source.evidence.sourceId,
+              sourceUrl: source.evidence.sourceUrl,
+            }
+          : null,
       })),
     }
     const aiResult = await ai.runPrompt('brief@v1', aiInput, BriefOutputSchema)

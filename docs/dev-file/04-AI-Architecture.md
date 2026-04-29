@@ -395,14 +395,14 @@ pulse application。Phase 0 Demo 可直接 UPDATE `current_due_date`；完整 MV
 
 ### 10.1 每 firm / day 配额
 
-| 任务                          | 每日 cap                                                                             |
-| ----------------------------- | ------------------------------------------------------------------------------------ |
-| Weekly Brief                  | 1 次 scheduled + 3 次 event-triggered + 1 次 manual refresh；`input_hash` 不变则跳过 |
-| Client Risk Summary           | N 个客户 × 1                                                                         |
-| Deadline Tip                  | 50（缓存 per-rule 7d）                                                               |
-| Pulse Extract                 | ops/admin 触发，不计普通用户 cap                                                     |
-| Ask                           | 30（付费可升）                                                                       |
-| Migration Mapper / Normalizer | 20 req / firm / day                                                                  |
+| 任务                          | 每日 cap                                                                                  |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| Weekly Brief                  | 1 次 scheduled + 3 次 event-triggered + 最多 3 次 manual refresh；`input_hash` 不变则跳过 |
+| Client Risk Summary           | N 个客户 × 1                                                                              |
+| Deadline Tip                  | 50（缓存 per-rule 7d）                                                                    |
+| Pulse Extract                 | ops/admin 触发，不计普通用户 cap                                                          |
+| Ask                           | 30（付费可升）                                                                            |
+| Migration Mapper / Normalizer | 20 req / firm / day                                                                       |
 
 KV 保存预算计数。超限返回 `rate_limited` + 明确 message。
 
@@ -450,6 +450,7 @@ Dashboard AI Brief 是后台任务，不是 request-time generation：
 ```text
 Cron / data mutation
   -> enqueue dashboard.brief.refresh
+  -> KV debounce by firm + scope + user (reason is metadata, not debounce key)
   -> Queue consumer loads deterministic dashboard snapshot
   -> compute input_hash
   -> skip if latest ready/pending hash already exists
@@ -465,6 +466,11 @@ provider 失败或 AI budget 影响。
 Brief prompt 的输入必须来自 server-side Dashboard snapshot、Evidence、Rules source metadata
 和 approved Pulse；AI 不重新查询数据库、不决定排序、不写 obligation。Smart Priority 仍是纯函数，
 AI 只解释排序结果。
+
+Dashboard 前端消费结构化 citation：`ref + obligationId + evidence(sourceType/sourceId/sourceUrl)`。
+ready brief 的 citation chip 打开 evidence drawer，drawer 可跳转到 Workboard 对应 obligation 或
+打开官方 source URL。手动 refresh 只返回 queued 状态；UI 立即显示 pending，并在 pending / queued
+期间禁用刷新按钮。
 
 ---
 

@@ -99,6 +99,9 @@ export {
 } from './obligations'
 
 export type {
+  DashboardBriefCitation,
+  DashboardBriefCitationEvidence,
+  DashboardBriefCitations,
   DashboardBriefPublic,
   DashboardBriefScope,
   DashboardBriefStatus,
@@ -112,6 +115,9 @@ export type {
   DashboardTopRow,
 } from './dashboard'
 export {
+  DashboardBriefCitationEvidenceSchema,
+  DashboardBriefCitationSchema,
+  DashboardBriefCitationsSchema,
   DashboardBriefPublicSchema,
   DashboardBriefScopeSchema,
   DashboardBriefStatusSchema,

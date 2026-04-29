@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { dashboardBriefDebounceKey } from './dashboard-brief/enqueue'
+import { shouldEnqueueScheduledDashboardBrief } from './cron'
 import { assertQueueDispatchable } from './queue'
 
 function batch(messages: Array<{ body?: unknown }>) {
@@ -36,5 +38,35 @@ describe('queue consumer', () => {
         ]),
       ),
     ).not.toThrow()
+  })
+
+  it('debounces dashboard brief refreshes at firm and scope granularity', () => {
+    const first = dashboardBriefDebounceKey({
+      firmId: 'firm_1',
+      scope: 'firm',
+    })
+    const second = dashboardBriefDebounceKey({
+      firmId: 'firm_1',
+      scope: 'firm',
+    })
+    expect(first).toBe(second)
+    expect(first).toBe('dashboard-brief:debounce:firm_1:firm:firm')
+  })
+
+  it('skips scheduled dashboard briefs on weekends unless risk is critical', () => {
+    expect(
+      shouldEnqueueScheduledDashboardBrief({
+        timezone: 'UTC',
+        now: new Date('2026-04-25T07:00:00.000Z'),
+        hasCriticalRisk: false,
+      }),
+    ).toBe(false)
+    expect(
+      shouldEnqueueScheduledDashboardBrief({
+        timezone: 'UTC',
+        now: new Date('2026-04-25T07:00:00.000Z'),
+        hasCriticalRisk: true,
+      }),
+    ).toBe(true)
   })
 })

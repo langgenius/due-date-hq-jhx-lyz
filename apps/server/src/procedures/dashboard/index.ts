@@ -1,7 +1,8 @@
-import type {
-  DashboardBriefPublic,
-  DashboardLoadOutput,
-  DashboardTopRow,
+import {
+  DashboardBriefCitationsSchema,
+  type DashboardBriefPublic,
+  type DashboardLoadOutput,
+  type DashboardTopRow,
 } from '@duedatehq/contracts'
 import type { DashboardBriefRow } from '@duedatehq/ports'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
@@ -81,12 +82,13 @@ function toTopRow(row: DashboardRepoTopRow): DashboardTopRow {
 
 function toBriefPublic(row: DashboardBriefRow | null): DashboardBriefPublic | null {
   if (!row) return null
+  const citations = DashboardBriefCitationsSchema.safeParse(row.citations)
   return {
     status: row.status,
     generatedAt: row.generatedAt ? row.generatedAt.toISOString() : null,
     expiresAt: row.expiresAt ? row.expiresAt.toISOString() : null,
     text: row.summaryText,
-    citations: row.citations ?? null,
+    citations: citations.success ? citations.data : null,
     aiOutputId: row.aiOutputId,
     errorCode: row.errorCode,
   }

@@ -13,6 +13,26 @@ export type DashboardBriefStatus = z.infer<typeof DashboardBriefStatusSchema>
 export const DashboardBriefScopeSchema = z.enum(['firm', 'me'])
 export type DashboardBriefScope = z.infer<typeof DashboardBriefScopeSchema>
 
+export const DashboardBriefCitationEvidenceSchema = z
+  .object({
+    id: EntityIdSchema.nullable(),
+    sourceType: z.string().min(1),
+    sourceId: z.string().nullable(),
+    sourceUrl: z.string().nullable(),
+  })
+  .nullable()
+export type DashboardBriefCitationEvidence = z.infer<typeof DashboardBriefCitationEvidenceSchema>
+
+export const DashboardBriefCitationSchema = z.object({
+  ref: z.number().int().min(1),
+  obligationId: EntityIdSchema,
+  evidence: DashboardBriefCitationEvidenceSchema,
+})
+export type DashboardBriefCitation = z.infer<typeof DashboardBriefCitationSchema>
+
+export const DashboardBriefCitationsSchema = z.array(DashboardBriefCitationSchema)
+export type DashboardBriefCitations = z.infer<typeof DashboardBriefCitationsSchema>
+
 export const DashboardLoadInputSchema = z
   .object({
     asOfDate: z.iso.date().optional(),
@@ -49,7 +69,7 @@ export const DashboardBriefPublicSchema = z.object({
   generatedAt: z.iso.datetime().nullable(),
   expiresAt: z.iso.datetime().nullable(),
   text: z.string().nullable(),
-  citations: z.unknown().nullable(),
+  citations: DashboardBriefCitationsSchema.nullable(),
   aiOutputId: EntityIdSchema.nullable(),
   errorCode: z.string().nullable(),
 })

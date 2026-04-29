@@ -1,18 +1,23 @@
-import { createDb, firmSchema } from '@duedatehq/db'
+import { createDb, firmSchema, scoped } from '@duedatehq/db'
 import { eq } from 'drizzle-orm'
 import type { Env } from '../env'
 import { enqueueDashboardBriefRefresh } from './dashboard-brief/enqueue'
 
-function localTimeParts(timezone: string, date: Date): { hour: number; minute: number } {
+function localTimeParts(
+  timezone: string,
+  date: Date,
+): { hour: number; minute: number; weekday: string } {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
+    weekday: 'short',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
   }).formatToParts(date)
   const hour = Number(parts.find((part) => part.type === 'hour')?.value ?? '0')
   const minute = Number(parts.find((part) => part.type === 'minute')?.value ?? '0')
-  return { hour, minute }
+  const weekday = parts.find((part) => part.type === 'weekday')?.value ?? 'Mon'
+  return { hour, minute, weekday }
 }
 
 function dateInTimezone(timezone: string, date: Date): string {
@@ -28,6 +33,32 @@ function dateInTimezone(timezone: string, date: Date): string {
   return `${year}-${month}-${day}`
 }
 
+export function shouldEnqueueScheduledDashboardBrief(input: {
+  timezone: string
+  now: Date
+  hasCriticalRisk: boolean
+}): boolean {
+  const { hour, minute, weekday } = localTimeParts(input.timezone, input.now)
+  if (hour !== 7 || minute >= 30) return false
+  if ((weekday === 'Sat' || weekday === 'Sun') && !input.hasCriticalRisk) return false
+  return true
+}
+
+async function hasCriticalDashboardRisk(
+  env: Env,
+  firmId: string,
+  asOfDate: string,
+): Promise<boolean> {
+  const db = createDb(env.DB)
+  const repo = scoped(db, firmId)
+  const snapshot = await repo.dashboard.load({
+    asOfDate,
+    windowDays: 7,
+    topLimit: 20,
+  })
+  return snapshot.topRows.some((row) => row.severity === 'critical')
+}
+
 async function enqueueScheduledDashboardBriefs(env: Env, now: Date): Promise<void> {
   const db = createDb(env.DB)
   const firms = await db
@@ -40,12 +71,25 @@ async function enqueueScheduledDashboardBriefs(env: Env, now: Date): Promise<voi
 
   await Promise.all(
     firms.map(async (firm) => {
-      const { hour, minute } = localTimeParts(firm.timezone, now)
-      if (hour !== 7 || minute >= 30) return
+      const asOfDate = dateInTimezone(firm.timezone, now)
+      const { weekday } = localTimeParts(firm.timezone, now)
+      const hasCriticalRisk =
+        weekday === 'Sat' || weekday === 'Sun'
+          ? await hasCriticalDashboardRisk(env, firm.id, asOfDate)
+          : false
+      if (
+        !shouldEnqueueScheduledDashboardBrief({
+          timezone: firm.timezone,
+          now,
+          hasCriticalRisk,
+        })
+      ) {
+        return
+      }
       await enqueueDashboardBriefRefresh(env, {
         firmId: firm.id,
         scope: 'firm',
-        asOfDate: dateInTimezone(firm.timezone, now),
+        asOfDate,
         reason: 'scheduled',
         bypassDebounce: true,
       })

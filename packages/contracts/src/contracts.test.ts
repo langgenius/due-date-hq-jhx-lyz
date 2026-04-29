@@ -379,7 +379,18 @@ describe('@duedatehq/contracts', () => {
         generatedAt: '2026-04-28T12:00:00.000Z',
         expiresAt: '2026-04-29T12:00:00.000Z',
         text: 'Review Acme LLC first. [1]',
-        citations: [{ ref: 1 }],
+        citations: [
+          {
+            ref: 1,
+            obligationId: '11111111-1111-4111-8111-111111111111',
+            evidence: {
+              id: '33333333-3333-4333-8333-333333333333',
+              sourceType: 'verified_rule',
+              sourceId: 'ca.llc.annual_tax.2026',
+              sourceUrl: null,
+            },
+          },
+        ],
         aiOutputId: '44444444-4444-4444-8444-444444444444',
         errorCode: null,
       },

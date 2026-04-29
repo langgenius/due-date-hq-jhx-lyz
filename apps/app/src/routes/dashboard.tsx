@@ -7,6 +7,7 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
 } from 'lucide-react'
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { useNavigate } from 'react-router'
@@ -25,6 +26,14 @@ import {
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
 import { Separator } from '@duedatehq/ui/components/ui/separator'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@duedatehq/ui/components/ui/sheet'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import {
   Table,
@@ -48,6 +57,7 @@ type QueueStat = {
   value: string
   detail: string
 }
+type DashboardBriefCitation = NonNullable<DashboardBriefPublic['citations']>[number]
 
 const severityVariant: Record<
   DashboardSeverity,
@@ -95,6 +105,14 @@ export function DashboardRoute() {
     }),
   )
   const data = dashboardQuery.data
+  const refreshSubmittedAt = refreshBriefMutation.submittedAt
+  const briefSettledAfterRefresh =
+    refreshSubmittedAt > 0 && data?.brief?.generatedAt
+      ? Date.parse(data.brief.generatedAt) >= refreshSubmittedAt
+      : false
+  const isBriefQueued =
+    refreshBriefMutation.isPending ||
+    (refreshBriefMutation.data?.queued === true && !briefSettledAfterRefresh)
 
   const queueStats: QueueStat[] = data
     ? [
@@ -149,9 +167,13 @@ export function DashboardRoute() {
 
       <DashboardBriefPanel
         brief={data?.brief ?? null}
+        topRows={topRows}
         summary={data?.summary ?? null}
         isLoading={dashboardQuery.isLoading}
-        isRefreshing={refreshBriefMutation.isPending}
+        isQueued={isBriefQueued}
+        onOpenObligation={(obligationId) => {
+          void navigate(`/workboard?row=${encodeURIComponent(obligationId)}`)
+        }}
         onRefresh={() => refreshBriefMutation.mutate({ scope: 'firm' })}
       />
 
@@ -412,29 +434,40 @@ export function DashboardRoute() {
 
 function DashboardBriefPanel({
   brief,
+  topRows,
   summary,
   isLoading,
-  isRefreshing,
+  isQueued,
+  onOpenObligation,
   onRefresh,
 }: {
   brief: DashboardBriefPublic | null
+  topRows: DashboardTopRow[]
   summary: {
     openObligationCount: number
     dueThisWeekCount: number
     needsReviewCount: number
   } | null
   isLoading: boolean
-  isRefreshing: boolean
+  isQueued: boolean
+  onOpenObligation: (obligationId: string) => void
   onRefresh: () => void
 }) {
   const { t } = useLingui()
+  const [selectedCitation, setSelectedCitation] = useState<DashboardBriefCitation | null>(null)
   const fallback = summary
     ? t`${summary.openObligationCount} open obligations, ${summary.dueThisWeekCount} due this week, and ${summary.needsReviewCount} need review.`
     : t`Dashboard risk summary will appear after clients and obligations are generated.`
   const isReady = brief?.status === 'ready' || brief?.status === 'stale'
   const statusLabel =
-    brief?.status === 'stale' ? t`Stale` : brief?.status === 'ready' ? t`Ready` : null
-  const refreshDisabled = isRefreshing || brief?.status === 'pending'
+    isQueued || brief?.status === 'pending'
+      ? t`Queued`
+      : brief?.status === 'stale'
+        ? t`Stale`
+        : brief?.status === 'ready'
+          ? t`Ready`
+          : null
+  const refreshDisabled = isQueued || brief?.status === 'pending'
 
   return (
     <Card>
@@ -448,7 +481,17 @@ function DashboardBriefPanel({
         </CardDescription>
         <CardAction>
           {statusLabel ? (
-            <Badge variant={brief?.status === 'stale' ? 'warning' : 'outline'}>{statusLabel}</Badge>
+            <Badge
+              variant={
+                isQueued || brief?.status === 'pending'
+                  ? 'info'
+                  : brief?.status === 'stale'
+                    ? 'warning'
+                    : 'outline'
+              }
+            >
+              {statusLabel}
+            </Badge>
           ) : null}
         </CardAction>
       </CardHeader>
@@ -458,14 +501,21 @@ function DashboardBriefPanel({
             <span className="size-2 rounded-full bg-divider-deep" aria-hidden />
             <Trans>Checking for the latest prepared brief…</Trans>
           </div>
-        ) : isReady && brief?.text ? (
-          <div className="whitespace-pre-wrap text-sm leading-6 text-text-primary">
-            {brief.text}
-          </div>
-        ) : brief?.status === 'pending' ? (
+        ) : isQueued || brief?.status === 'pending' ? (
           <div className="flex items-center gap-2 text-sm text-text-secondary">
             <span className="size-2 rounded-full bg-state-accent-solid" aria-hidden />
             <Trans>Brief is being prepared. The risk table is ready now.</Trans>
+          </div>
+        ) : isReady && brief?.text ? (
+          <div className="flex flex-col gap-4">
+            <div className="whitespace-pre-wrap text-sm leading-6 text-text-primary">
+              {brief.text}
+            </div>
+            <DashboardBriefCitations
+              citations={brief.citations ?? []}
+              topRows={topRows}
+              onSelectCitation={setSelectedCitation}
+            />
           </div>
         ) : (
           <div className="text-sm leading-6 text-text-secondary">{fallback}</div>
@@ -483,14 +533,170 @@ function DashboardBriefPanel({
           aria-label={t`Refresh AI weekly brief`}
         >
           <RefreshCwIcon data-icon="inline-start" />
-          {isRefreshing || brief?.status === 'pending' ? (
+          {isQueued || brief?.status === 'pending' ? (
             <Trans>Queued</Trans>
           ) : (
             <Trans>Refresh brief</Trans>
           )}
         </Button>
       </CardFooter>
+      <DashboardBriefEvidenceDrawer
+        citation={selectedCitation}
+        topRows={topRows}
+        onOpenChange={(open) => {
+          if (!open) setSelectedCitation(null)
+        }}
+        onOpenObligation={onOpenObligation}
+      />
     </Card>
+  )
+}
+
+function DashboardBriefCitations({
+  citations,
+  topRows,
+  onSelectCitation,
+}: {
+  citations: NonNullable<DashboardBriefPublic['citations']>
+  topRows: DashboardTopRow[]
+  onSelectCitation: (citation: DashboardBriefCitation) => void
+}) {
+  const { t } = useLingui()
+  if (citations.length === 0) return null
+  const rowsById = new Map(topRows.map((row) => [row.obligationId, row]))
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {citations.map((citation) => {
+        const row = rowsById.get(citation.obligationId)
+        const label = row ? row.clientName : t`Obligation`
+        return (
+          <div key={`${citation.ref}:${citation.obligationId}`} className="flex items-center gap-1">
+            <Badge
+              variant="outline"
+              render={
+                <button
+                  type="button"
+                  onClick={() => onSelectCitation(citation)}
+                  aria-label={t`Open evidence for ${label}`}
+                />
+              }
+            >
+              <FileSearchIcon data-icon="inline-start" />
+              {`[${citation.ref}] ${label}`}
+            </Badge>
+            {citation.evidence?.sourceUrl ? (
+              <Badge
+                variant="link"
+                render={
+                  <a
+                    href={citation.evidence.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={t`Open source ${citation.evidence.sourceType}`}
+                  />
+                }
+              >
+                <ArrowUpRightIcon data-icon="inline-start" />
+                {citation.evidence.sourceType}
+              </Badge>
+            ) : citation.evidence ? (
+              <Badge variant="secondary">{citation.evidence.sourceType}</Badge>
+            ) : null}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function DashboardBriefEvidenceDrawer({
+  citation,
+  topRows,
+  onOpenChange,
+  onOpenObligation,
+}: {
+  citation: DashboardBriefCitation | null
+  topRows: DashboardTopRow[]
+  onOpenChange: (open: boolean) => void
+  onOpenObligation: (obligationId: string) => void
+}) {
+  const { t } = useLingui()
+  const row = citation
+    ? topRows.find((topRow) => topRow.obligationId === citation.obligationId)
+    : null
+  const sourceUrl = citation?.evidence?.sourceUrl ?? null
+
+  return (
+    <Sheet open={citation !== null} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-[440px]">
+        <SheetHeader className="border-b border-divider-subtle">
+          <SheetTitle>
+            <Trans>Brief evidence</Trans>
+          </SheetTitle>
+          <SheetDescription>
+            {citation ? t`Citation [${citation.ref}]` : t`Citation detail`}
+          </SheetDescription>
+        </SheetHeader>
+        <div className="flex flex-col gap-4 px-6 py-2">
+          <section className="flex flex-col gap-2">
+            <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+              <Trans>Obligation</Trans>
+            </span>
+            <div className="rounded-lg border border-divider-regular p-3">
+              <div className="font-medium text-text-primary">
+                {row?.clientName ?? t`Obligation`}
+              </div>
+              <div className="mt-1 text-sm text-text-secondary">
+                {row
+                  ? t`${row.taxType} due ${formatDate(row.currentDueDate)}`
+                  : citation?.obligationId}
+              </div>
+            </div>
+          </section>
+          <section className="flex flex-col gap-2">
+            <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+              <Trans>Source</Trans>
+            </span>
+            <div className="rounded-lg border border-divider-regular p-3 text-sm">
+              <div className="font-medium text-text-primary">
+                {citation?.evidence?.sourceType ?? t`No linked source`}
+              </div>
+              {citation?.evidence?.sourceId ? (
+                <div className="mt-1 font-mono text-xs break-all text-text-tertiary">
+                  {citation.evidence.sourceId}
+                </div>
+              ) : null}
+            </div>
+          </section>
+        </div>
+        <SheetFooter className="border-t border-divider-subtle">
+          {citation ? (
+            <Button
+              variant="outline"
+              onClick={() => {
+                onOpenObligation(citation.obligationId)
+                onOpenChange(false)
+              }}
+            >
+              <FileSearchIcon data-icon="inline-start" />
+              <Trans>Open obligation</Trans>
+            </Button>
+          ) : null}
+          {sourceUrl ? (
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg px-3.5 text-base font-medium text-text-accent underline-offset-4 hover:underline"
+            >
+              <ArrowUpRightIcon className="size-4" aria-hidden />
+              <Trans>Open source</Trans>
+            </a>
+          ) : null}
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   )
 }
 

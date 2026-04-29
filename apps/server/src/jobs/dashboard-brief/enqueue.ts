@@ -8,6 +8,50 @@ import {
 } from './message'
 
 const DEBOUNCE_TTL_SECONDS = 5 * 60
+const MANUAL_REFRESH_DAILY_LIMIT = 3
+const MANUAL_REFRESH_TTL_SECONDS = 36 * 60 * 60
+
+export function dashboardBriefDebounceKey(input: {
+  firmId: string
+  scope: DashboardBriefScope
+  userId?: string | null
+}): string {
+  return ['dashboard-brief', 'debounce', input.firmId, input.scope, input.userId ?? 'firm'].join(
+    ':',
+  )
+}
+
+function dashboardBriefManualRefreshKey(input: {
+  firmId: string
+  scope: DashboardBriefScope
+  userId?: string | null
+  asOfDate?: string | undefined
+}): string {
+  return [
+    'dashboard-brief',
+    'manual-refresh',
+    input.firmId,
+    input.scope,
+    input.userId ?? 'firm',
+    input.asOfDate ?? 'auto-date',
+  ].join(':')
+}
+
+async function reserveManualRefresh(
+  env: Env,
+  input: {
+    firmId: string
+    scope: DashboardBriefScope
+    userId?: string | null
+    asOfDate?: string | undefined
+  },
+): Promise<boolean> {
+  const key = dashboardBriefManualRefreshKey(input)
+  const current = Number((await env.CACHE.get(key)) ?? '0')
+  if (current >= MANUAL_REFRESH_DAILY_LIMIT) return false
+  await env.CACHE.put(key, String(current + 1), { expirationTtl: MANUAL_REFRESH_TTL_SECONDS })
+  return true
+}
 
 export async function enqueueDashboardBriefRefresh(
   env: Env,
@@ -30,11 +74,26 @@ export async function enqueueDashboardBriefRefresh(
   const idempotencyKey = dashboardBriefIdempotencyKey(
     input.asOfDate ? { ...keyInput, asOfDate: input.asOfDate } : keyInput,
   )
-  const debounceKey = `${idempotencyKey}:debounce`
+  const debounceKey = dashboardBriefDebounceKey({
+    firmId: input.firmId,
+    scope,
+    userId: input.userId ?? null,
+  })
 
   if (!input.bypassDebounce) {
     const existing = await env.CACHE.get(debounceKey)
-    if (existing) return false
+    if (existing) return true
+    if (
+      input.reason === 'manual_refresh' &&
+      !(await reserveManualRefresh(env, {
+        firmId: input.firmId,
+        scope,
+        userId: input.userId ?? null,
+        asOfDate: input.asOfDate,
+      }))
+    ) {
+      return false
+    }
     await env.CACHE.put(debounceKey, '1', { expirationTtl: DEBOUNCE_TTL_SECONDS })
   }
 
