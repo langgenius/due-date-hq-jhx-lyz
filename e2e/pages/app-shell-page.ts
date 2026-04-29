@@ -16,7 +16,9 @@ export class AppShellPage {
     this.workboardLink = page.getByRole('link', { name: /Workboard/ })
     this.clientsLink = page.getByRole('link', { name: 'Clients' })
     this.rulesLink = page.getByRole('link', { name: 'Rules' })
-    this.importClientsButton = page.getByRole('button', { name: 'Import clients' })
+    this.importClientsButton = page
+      .getByRole('button', { name: /^(Import clients|Run migration)$/ })
+      .first()
     this.commandDialog = page.getByRole('dialog', { name: 'Command palette' })
     this.commandPaletteHeading = this.commandDialog.getByRole('heading', {
       name: 'Command palette',

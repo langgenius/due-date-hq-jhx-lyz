@@ -42,6 +42,10 @@ next useful coverage needed a deterministic local session fixture instead of tes
 combobox. The row intentionally renders both a read-only status badge and an editable select value,
 so row-scoped text matching can hit duplicate `Done` labels under Playwright strict mode.
 
+2026-04-29 follow-up: aligned the AppShell page object with the sidebar IA import semantics change.
+The persistent sidebar CTA was removed; dashboard and empty-state migration entry points now use the
+visible `Run migration` label, while `/clients` and Command Palette still expose `Import clients`.
+
 ## Boundaries
 
 The new authenticated specs are local-only and skip external `E2E_BASE_URL` targets because the
