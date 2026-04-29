@@ -16,8 +16,9 @@ Dashboard risk, and Pulse matching.
     `States covered` from real `clients.listByFirm` rows
   - table adds a readiness column and keeps entity/state/source/owner/update
     scanning dense
-  - detail panel now presents a fact profile with identity, source, notes, and a
-    checklist for rule/Pulse readiness
+  - fact profile now opens in a right-side Sheet so the table can keep the
+    full workspace width while preserving identity, source, notes, and the
+    rule/Pulse readiness checklist
 - Split frontend architecture:
   - `client-readiness.ts` owns pure derived data, source classification, search,
     filters, and readiness summary
@@ -32,6 +33,9 @@ Dashboard risk, and Pulse matching.
   list response.
 - Added unit coverage for readiness derivation and filter behavior.
 - Updated the Clients e2e page object to target the new accessible heading.
+- Follow-up UI correction: removed the permanent right-side profile column,
+  gave the table stable min-width/column widths, and kept jurisdiction/source
+  cells from colliding at desktop widths.
 
 ## Notes
 

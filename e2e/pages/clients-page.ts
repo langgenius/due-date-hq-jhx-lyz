@@ -3,6 +3,8 @@ import type { Locator, Page } from '@playwright/test'
 export class ClientsPage {
   readonly directoryTitle: Locator
   readonly searchInput: Locator
+  readonly entityFilter: Locator
+  readonly stateFilter: Locator
   readonly newClientButton: Locator
   readonly createDialog: Locator
   readonly createClientButton: Locator
@@ -10,6 +12,8 @@ export class ClientsPage {
   constructor(readonly page: Page) {
     this.directoryTitle = page.getByRole('heading', { name: 'Client facts' })
     this.searchInput = page.getByPlaceholder('Search clients')
+    this.entityFilter = page.getByRole('combobox', { name: 'Entity filter' })
+    this.stateFilter = page.getByRole('combobox', { name: 'State filter' })
     this.newClientButton = page.getByRole('button', { name: 'New client' })
     this.createDialog = page.getByRole('dialog', { name: 'Create client' })
     this.createClientButton = this.createDialog.getByRole('button', { name: 'Create client' })
@@ -38,6 +42,12 @@ export class ClientsPage {
   }
 
   rowFor(clientName: string) {
-    return this.page.getByRole('row', { name: new RegExp(clientName) })
+    return this.page.getByRole('button', {
+      name: new RegExp(`Open fact profile for ${escapeRegExp(clientName)}`),
+    })
   }
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }

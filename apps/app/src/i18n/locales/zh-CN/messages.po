@@ -1106,6 +1106,10 @@ msgstr "实体"
 msgid "ENTITY"
 msgstr "实体"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Entity filter"
+msgstr "实体筛选"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Entity id"
 msgstr "实体 ID"
@@ -1864,6 +1868,11 @@ msgstr "展开"
 #: src/routes/billing.success.tsx
 msgid "Open Billing"
 msgstr "打开账单"
+
+#. placeholder {0}: row.original.name
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Open fact profile for {0}"
+msgstr "打开 {0} 的事实档案"
 
 #: src/routes/settings.members.tsx
 msgid "Open member actions"
@@ -2662,6 +2671,10 @@ msgstr "州"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "STATE"
 msgstr "州"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "State filter"
+msgstr "州筛选"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "State jurisdiction"

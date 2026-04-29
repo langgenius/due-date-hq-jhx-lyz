@@ -1,4 +1,11 @@
-import { type KeyboardEvent, type ReactNode, useMemo, type ComponentType } from 'react'
+import {
+  type ComponentType,
+  type KeyboardEvent,
+  type ReactNode,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react'
 import {
   flexRender,
   getCoreRowModel,
@@ -14,6 +21,7 @@ import {
   FileInputIcon,
   FileSearchIcon,
   MapPinnedIcon,
+  PanelRightOpenIcon,
   SearchIcon,
   UsersRoundIcon,
 } from 'lucide-react'
@@ -42,6 +50,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@duedatehq/ui/components/ui/select'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@duedatehq/ui/components/ui/sheet'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import {
   Table,
@@ -59,6 +74,7 @@ import {
   CLIENT_ENTITY_TYPES,
   STATE_FILTER_ALL,
   getClientSourceType,
+  isClientEntityType,
   type ClientEntityType,
   type ClientFactsModel,
   type ClientReadiness,
@@ -119,6 +135,7 @@ export function ClientFactsWorkspace({
   onImport,
 }: ClientFactsWorkspaceProps) {
   const { t } = useLingui()
+  const [profileOpen, setProfileOpen] = useState(false)
   const metrics = useMemo<ClientMetric[]>(
     () => [
       {
@@ -166,7 +183,10 @@ export function ClientFactsWorkspace({
             </span>
           </div>
         ),
-        meta: { cellClassName: 'min-w-[220px]' },
+        meta: {
+          headerClassName: 'w-[300px]',
+          cellClassName: 'w-[300px] min-w-[260px]',
+        },
       },
       {
         id: 'readiness',
@@ -177,30 +197,50 @@ export function ClientFactsWorkspace({
             compact={false}
           />
         ),
+        meta: {
+          headerClassName: 'w-[170px]',
+          cellClassName: 'w-[170px]',
+        },
       },
       {
         accessorKey: 'entityType',
         header: t`Entity`,
         cell: (info) => entityLabels[info.getValue<ClientEntityType>()],
+        meta: {
+          headerClassName: 'w-[150px]',
+          cellClassName: 'w-[150px]',
+        },
       },
       {
         accessorKey: 'state',
         header: t`Jurisdiction`,
         cell: ({ row }) => (
-          <span className="font-mono tabular-nums">
+          <span className="whitespace-nowrap font-mono tabular-nums">
             {[row.original.state, row.original.county].filter(Boolean).join(' / ') || 'N/A'}
           </span>
         ),
+        meta: {
+          headerClassName: 'w-[210px]',
+          cellClassName: 'w-[210px]',
+        },
       },
       {
         accessorKey: 'migrationBatchId',
         header: t`Source`,
         cell: ({ row }) => <ClientSourceBadge client={row.original} />,
+        meta: {
+          headerClassName: 'w-[130px]',
+          cellClassName: 'w-[130px]',
+        },
       },
       {
         accessorKey: 'assigneeName',
         header: t`Owner`,
         cell: (info) => info.getValue<string | null>() ?? t`Unassigned`,
+        meta: {
+          headerClassName: 'w-[170px]',
+          cellClassName: 'w-[170px]',
+        },
       },
       {
         accessorKey: 'updatedAt',
@@ -208,6 +248,10 @@ export function ClientFactsWorkspace({
         cell: (info) => (
           <span className="font-mono tabular-nums">{formatDate(info.getValue<string>())}</span>
         ),
+        meta: {
+          headerClassName: 'w-[150px]',
+          cellClassName: 'w-[150px] whitespace-nowrap',
+        },
       },
     ],
     [entityLabels, factsModel.readinessById, t],
@@ -219,6 +263,26 @@ export function ClientFactsWorkspace({
     getCoreRowModel: getCoreRowModel(),
     getRowId: (client) => client.id,
   })
+  const getEntityFilterLabel = useCallback(
+    (value: unknown) => {
+      if (typeof value !== 'string' || value === ALL_ENTITIES || !isClientEntityType(value)) {
+        return <Trans>All entities</Trans>
+      }
+      return entityLabels[value]
+    },
+    [entityLabels],
+  )
+  const getStateFilterLabel = useCallback((value: unknown) => {
+    if (typeof value !== 'string' || value === STATE_FILTER_ALL) return <Trans>All states</Trans>
+    return value
+  }, [])
+  const handleOpenClientProfile = useCallback(
+    (clientId: string) => {
+      onSelectClient(clientId)
+      setProfileOpen(true)
+    },
+    [onSelectClient],
+  )
 
   return (
     <>
@@ -228,7 +292,7 @@ export function ClientFactsWorkspace({
           : metrics.map((metric) => <ClientMetricCard key={metric.label} metric={metric} />)}
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <section>
         <Card>
           <CardHeader className="gap-4">
             <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -243,10 +307,19 @@ export function ClientFactsWorkspace({
                   </Trans>
                 </CardDescription>
               </div>
-              <CardAction>
+              <CardAction className="flex items-center gap-2">
                 <Badge variant="outline" className="font-mono tabular-nums">
                   {filteredClients.length}/{clients.length}
                 </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!activeClient}
+                  onClick={() => setProfileOpen(true)}
+                >
+                  <PanelRightOpenIcon data-icon="inline-start" />
+                  <Trans>Fact profile</Trans>
+                </Button>
               </CardAction>
             </div>
             <div className="grid gap-3 md:grid-cols-[minmax(240px,1fr)_180px_140px]">
@@ -261,8 +334,8 @@ export function ClientFactsWorkspace({
                 />
               </InputGroup>
               <Select value={entityFilter} onValueChange={onEntityFilterChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue />
+                <SelectTrigger className="w-full" aria-label={t`Entity filter`}>
+                  <SelectValue>{getEntityFilterLabel}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -278,8 +351,8 @@ export function ClientFactsWorkspace({
                 </SelectContent>
               </Select>
               <Select value={stateFilter} onValueChange={onStateFilterChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue />
+                <SelectTrigger className="w-full" aria-label={t`State filter`}>
+                  <SelectValue>{getStateFilterLabel}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -300,8 +373,8 @@ export function ClientFactsWorkspace({
             {isLoading ? (
               <ClientTableSkeleton />
             ) : filteredClients.length > 0 ? (
-              <div className="overflow-hidden rounded-md border border-divider-regular">
-                <Table className="table-fixed">
+              <div className="overflow-x-auto rounded-md border border-divider-regular">
+                <Table className="min-w-[1280px] table-fixed">
                   <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <TableRow key={headerGroup.id}>
@@ -323,11 +396,13 @@ export function ClientFactsWorkspace({
                       <TableRow
                         key={row.id}
                         data-state={activeClient?.id === row.original.id ? 'selected' : undefined}
+                        role="button"
                         tabIndex={0}
-                        className="cursor-pointer"
-                        onClick={() => onSelectClient(row.original.id)}
+                        aria-label={t`Open fact profile for ${row.original.name}`}
+                        className="cursor-pointer outline-none hover:bg-state-base-hover focus-visible:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt focus-visible:ring-inset"
+                        onClick={() => handleOpenClientProfile(row.original.id)}
                         onKeyDown={(event) =>
-                          handleClientRowKeyDown(event, row.original.id, onSelectClient)
+                          handleClientRowKeyDown(event, row.original.id, handleOpenClientProfile)
                         }
                       >
                         {row.getVisibleCells().map((cell) => (
@@ -349,7 +424,9 @@ export function ClientFactsWorkspace({
           </CardContent>
         </Card>
 
-        <ClientDetailPanel
+        <ClientProfileSheet
+          open={profileOpen}
+          onOpenChange={setProfileOpen}
           client={activeClient}
           entityLabels={entityLabels}
           readiness={activeClient ? factsModel.readinessById.get(activeClient.id) : undefined}
@@ -433,73 +510,90 @@ function ClientEmptyState({ hasClients, onImport }: { hasClients: boolean; onImp
   )
 }
 
-function ClientDetailPanel({
+function ClientProfileSheet({
+  open,
+  onOpenChange,
   client,
   entityLabels,
   readiness,
 }: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   client: ClientPublic | null
   entityLabels: Record<ClientEntityType, string>
   readiness: ClientReadiness | undefined
 }) {
   return (
-    <Card className="xl:sticky xl:top-6">
-      <CardHeader>
-        <CardTitle>
-          <Trans>Fact profile</Trans>
-        </CardTitle>
-        <CardDescription>
-          <Trans>Read-only v1 profile from clients.listByFirm data.</Trans>
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {client ? (
-          <div className="flex flex-col gap-5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex min-w-0 flex-col gap-1">
-                <span className="truncate text-base font-semibold text-text-primary">
-                  {client.name}
-                </span>
-                <span className="text-sm text-text-tertiary">
-                  {entityLabels[client.entityType]}
-                </span>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        className="w-full max-w-[100vw] gap-0 overflow-hidden p-0 sm:max-w-[420px]"
+      >
+        <SheetHeader className="border-b border-divider-subtle px-5 py-4">
+          <SheetTitle className="text-md">
+            <Trans>Fact profile</Trans>
+          </SheetTitle>
+          <SheetDescription>
+            <Trans>Read-only v1 profile from clients.listByFirm data.</Trans>
+          </SheetDescription>
+        </SheetHeader>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">
+          {client ? (
+            <div className="flex flex-col gap-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-col gap-1">
+                  <span className="truncate text-base font-semibold text-text-primary">
+                    {client.name}
+                  </span>
+                  <span className="text-sm text-text-tertiary">
+                    {entityLabels[client.entityType]}
+                  </span>
+                </div>
+                <ClientSourceBadge client={client} />
               </div>
-              <ClientSourceBadge client={client} />
-            </div>
 
-            <div className="flex flex-wrap gap-2">
-              <ClientReadinessBadge readiness={readiness} compact={false} />
-              <Badge variant="outline" className="font-mono tabular-nums">
-                {[client.state, client.county].filter(Boolean).join(' / ') || 'N/A'}
-              </Badge>
-            </div>
+              <div className="flex flex-wrap gap-2">
+                <ClientReadinessBadge readiness={readiness} compact={false} />
+                <Badge variant="outline" className="font-mono tabular-nums">
+                  {[client.state, client.county].filter(Boolean).join(' / ') || 'N/A'}
+                </Badge>
+              </div>
 
-            <div className="grid gap-3">
-              <DetailRow label={<Trans>EIN</Trans>} value={client.ein ?? 'N/A'} mono />
-              <DetailRow label={<Trans>Email</Trans>} value={client.email ?? 'N/A'} />
-              <DetailRow label={<Trans>Owner</Trans>} value={client.assigneeName ?? 'N/A'} />
-              <DetailRow label={<Trans>Created</Trans>} value={formatDate(client.createdAt)} mono />
-              <DetailRow label={<Trans>Updated</Trans>} value={formatDate(client.updatedAt)} mono />
-            </div>
+              <div className="grid gap-3">
+                <DetailRow label={<Trans>EIN</Trans>} value={client.ein ?? 'N/A'} mono />
+                <DetailRow label={<Trans>Email</Trans>} value={client.email ?? 'N/A'} />
+                <DetailRow label={<Trans>Owner</Trans>} value={client.assigneeName ?? 'N/A'} />
+                <DetailRow
+                  label={<Trans>Created</Trans>}
+                  value={formatDate(client.createdAt)}
+                  mono
+                />
+                <DetailRow
+                  label={<Trans>Updated</Trans>}
+                  value={formatDate(client.updatedAt)}
+                  mono
+                />
+              </div>
 
-            <ClientFactChecklist client={client} readiness={readiness} />
+              <ClientFactChecklist client={client} readiness={readiness} />
 
-            <div className="rounded-md border border-divider-regular bg-background-section p-3">
-              <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-                <Trans>Notes</Trans>
-              </span>
-              <p className="mt-2 text-sm text-text-secondary">
-                {client.notes || <Trans>No notes.</Trans>}
-              </p>
+              <div className="rounded-md border border-divider-regular bg-background-section p-3">
+                <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+                  <Trans>Notes</Trans>
+                </span>
+                <p className="mt-2 text-sm text-text-secondary">
+                  {client.notes || <Trans>No notes.</Trans>}
+                </p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex min-h-[220px] items-center justify-center rounded-md border border-dashed border-divider-regular p-6 text-center text-sm text-text-tertiary">
-            <Trans>Select a client to inspect the record.</Trans>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          ) : (
+            <div className="flex min-h-[220px] items-center justify-center rounded-md border border-dashed border-divider-regular p-6 text-center text-sm text-text-tertiary">
+              <Trans>Select a client to inspect the record.</Trans>
+            </div>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
   )
 }
 

@@ -1106,6 +1106,10 @@ msgstr "Entity"
 msgid "ENTITY"
 msgstr "ENTITY"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Entity filter"
+msgstr "Entity filter"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Entity id"
 msgstr "Entity id"
@@ -1864,6 +1868,11 @@ msgstr "Open"
 #: src/routes/billing.success.tsx
 msgid "Open Billing"
 msgstr "Open Billing"
+
+#. placeholder {0}: row.original.name
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Open fact profile for {0}"
+msgstr "Open fact profile for {0}"
 
 #: src/routes/settings.members.tsx
 msgid "Open member actions"
@@ -2662,6 +2671,10 @@ msgstr "State"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "STATE"
 msgstr "STATE"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "State filter"
+msgstr "State filter"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "State jurisdiction"

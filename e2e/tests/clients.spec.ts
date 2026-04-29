@@ -21,6 +21,8 @@ test('AC: E2E-CLIENTS-NAV opens the Clients directory from the shell', async ({
   await expect(appShellPage.clientsLink).toHaveAttribute('aria-current', 'page')
   await expect(clientsPage.directoryTitle).toBeVisible()
   await expect(clientsPage.searchInput).toBeVisible()
+  await expect(clientsPage.entityFilter).toContainText('All entities')
+  await expect(clientsPage.stateFilter).toContainText('All states')
 })
 
 test('AC: E2E-CLIENTS-CREATE creates a manual client through oRPC', async ({
@@ -41,6 +43,8 @@ test('AC: E2E-CLIENTS-CREATE creates a manual client through oRPC', async ({
 
   await expect(authenticatedPage.getByText('Client created')).toBeVisible()
   await expect(clientsPage.rowFor(clientName)).toBeVisible()
-  await expect(authenticatedPage.getByText('23-4567890')).toBeVisible()
   await expect(clientsPage.rowFor(clientName)).toContainText('E2E Owner')
+  await clientsPage.rowFor(clientName).click()
+  await expect(authenticatedPage.getByRole('dialog', { name: 'Fact profile' })).toBeVisible()
+  await expect(authenticatedPage.getByText('23-4567890')).toBeVisible()
 })

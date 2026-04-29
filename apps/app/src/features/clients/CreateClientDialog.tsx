@@ -217,7 +217,7 @@ export function CreateClientDialog({
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue />
+                    <SelectValue>{entityLabels[entityType]}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>

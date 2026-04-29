@@ -32,7 +32,7 @@ apps/app/
 │   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
 │   │   ├── workboard.tsx
-│   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、详情预览；使用 clients.listByFirm / clients.create）
+│   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、Sheet 档案；使用 clients.listByFirm / clients.create）
 │   │   ├── audit.tsx             ← Audit Log 管理页（firm-wide write events；使用 audit.list）
 │   │   ├── settings.tsx
 │   │   └── fallback.tsx          ← RouteHydrateFallback
