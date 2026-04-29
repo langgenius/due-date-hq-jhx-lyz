@@ -471,6 +471,7 @@ shadcn `Sidebar`（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `
 | Hairline `border/default`              | 1               | 与右侧 route header 底边在同一 Y 处 collinear                                                                                                                                                                                                                                                                                             |
 | **SidebarContent**（nav body, flex 1） | —               | 三个 group：`MAIN`（Dashboard / Workboard，带 mono badge）`MANAGE`（`Settings` 非交互 section header：icon + label + 静态 chevron-down，无 hover bg、不可点击；下挂 `Profile` / `Rules` / `Members` / `Billing` 子项，缩进 ml-5、可达态 `accent-tint`）`ADMIN`（Clients / Audit log enabled；Team workload `P1` disabled，行末 mono tag） |
 | **+ Import clients** ghost CTA         | 32 + 16 padding | 灰底 (`surface-subtle`) + 14×14 plus icon + Inter Medium label + 右侧 `Migration` Numeric/Small 暗示。**不用 accent**——CTA 强调由"位置 + 行动语义"承担，不是颜色。履约 PRD §1213「侧栏底部常驻 + Import 按钮」                                                                                                                            |
+| **Plan status**                        | 48 + 8 padding  | `CreditCard` icon + 当前 `Solo / Firm / Pro` + seat count + `Upgrade / Manage / View` 动作，链接 `/settings/billing`。这是持久 subscription 状态入口，不是 pricing 卡片；完整套餐对比仍在 Settings Billing 页面内。                                                                                                                       |
 | Hairline `border/default`              | 1               |                                                                                                                                                                                                                                                                                                                                           |
 | **User row**                           | 56              | 28px 头像 + 右下 6px `status-done` 绿点（包 surface-panel 环 = ring 效果） + Body·Medium name + Numeric/Small email + 右端 chevron。点击展开 popover 含 sign-out / theme / locale                                                                                                                                                         |
 
@@ -485,6 +486,17 @@ shadcn `Sidebar`（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `
 #### Firm switcher 位置（PRD §3.2.6 偏离）
 
 PRD §3.2.6 原来规定 firm switcher 是「**右上角 dropdown** + `⌘⇧O`」（Slack workspace picker 风格）。本设计把**可见 trigger 移到 sidebar 顶部**（Linear / Notion / Vercel 流派——firm 身份是工作台核心持久信号，应该常在视野内），右上角空间留给 AppShell-owned utility（通知 bell + `⌘K` hint）。`⌘⇧O` 全局快捷键**保留不变**，依然唤起 firm picker popover；只是 popover 现在锚定在 sidebar 顶部 trigger 上而非右上角。这条偏离已在 `docs/dev-log/2026-04-27-app-shell-sidebar.md` 记录，PRD §3.2.6 的同步更新留到下一个 PRD revise 窗口。
+
+#### Billing / subscription IA
+
+Pricing 是公开 marketing 页和 settings commerce surface 的内容，不进入 protected app 的 route
+header。Protected shell 只暴露当前 firm 的计划状态：sidebar 顶部 firm switcher 说明身份 / role /
+plan / seat，sidebar footer 追加一个轻量 `PlanStatusLink` 作为 `Upgrade / Manage / View` 入口。
+这样 owner 能随时找到账单入口，member 也能理解当前 workspace 的计划边界，但主导航仍按任务域组织。
+
+完整 subscription overview、billing portal、checkout deep link 和 plan comparison 继续由
+`/settings/billing` 承载；route header 右侧只放 AppShell-owned utility（`⌘K`、通知），不放 pricing
+CTA、plan pill 或 route-specific action。
 
 ---
 

@@ -108,10 +108,20 @@ msgstr "{0} 条义务需要 CPA 确认。"
 msgid "{0} open obligations have no evidence link."
 msgstr "{0} 条未关闭义务没有 evidence 链接。"
 
+#. placeholder {0}: firm.seatLimit
+#: src/components/patterns/app-shell.tsx
+msgid "{0} seat"
+msgstr "{0} 个席位"
+
 #. placeholder {0}: currentFirm.seatLimit
 #: src/routes/settings.billing.tsx
 msgid "{0} seat limit"
 msgstr "{0} 个席位上限"
+
+#. placeholder {0}: firm.seatLimit
+#: src/components/patterns/app-shell.tsx
+msgid "{0} seats"
+msgstr "{0} 个席位"
 
 #. placeholder {0}: stats.selectedCount
 #. placeholder {1}: stats.selectableCount
@@ -1223,6 +1233,7 @@ msgstr "按状态筛选，按客户搜索，并按到期日排序。"
 msgid "Filter by time range, action category, actor, or entity."
 msgstr "按时间范围、操作分类、执行人或实体筛选。"
 
+#: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
@@ -1542,6 +1553,7 @@ msgid "Main"
 msgstr "主导航"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Manage"
 msgstr "管理"
 
@@ -1869,6 +1881,10 @@ msgstr "展开"
 msgid "Open Billing"
 msgstr "打开账单"
 
+#: src/components/patterns/app-shell.tsx
+msgid "Open billing settings for {plan} plan"
+msgstr "打开 {plan} 计划的账单设置"
+
 #. placeholder {0}: row.original.name
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Open fact profile for {0}"
@@ -2105,6 +2121,7 @@ msgstr "优先 onboarding"
 msgid "Priority onboarding, audit exports, and higher coverage needs."
 msgstr "适合需要优先 onboarding、审计导出和更高覆盖的团队。"
 
+#: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
@@ -2598,6 +2615,7 @@ msgstr "已暂缓"
 msgid "Sole prop"
 msgstr "个体经营"
 
+#: src/components/patterns/app-shell.tsx
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
 msgid "Solo"
@@ -2922,6 +2940,10 @@ msgstr "路由出现意外错误"
 msgid "Updated"
 msgstr "更新时间"
 
+#: src/components/patterns/app-shell.tsx
+msgid "Upgrade"
+msgstr "升级"
+
 #: src/routes/settings.members.tsx
 msgid "Upgrade plan"
 msgstr "升级计划"
@@ -2979,6 +3001,10 @@ msgstr "核验人"
 #: src/features/rules/coverage-tab.tsx
 msgid "Verified rules"
 msgstr "Verified 规则"
+
+#: src/components/patterns/app-shell.tsx
+msgid "View"
+msgstr "查看"
 
 #: src/features/audit/audit-log-table.tsx
 msgid "View audit detail"

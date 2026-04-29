@@ -108,10 +108,20 @@ msgstr "{0} obligations require CPA confirmation."
 msgid "{0} open obligations have no evidence link."
 msgstr "{0} open obligations have no evidence link."
 
+#. placeholder {0}: firm.seatLimit
+#: src/components/patterns/app-shell.tsx
+msgid "{0} seat"
+msgstr "{0} seat"
+
 #. placeholder {0}: currentFirm.seatLimit
 #: src/routes/settings.billing.tsx
 msgid "{0} seat limit"
 msgstr "{0} seat limit"
+
+#. placeholder {0}: firm.seatLimit
+#: src/components/patterns/app-shell.tsx
+msgid "{0} seats"
+msgstr "{0} seats"
 
 #. placeholder {0}: stats.selectedCount
 #. placeholder {1}: stats.selectableCount
@@ -1223,6 +1233,7 @@ msgstr "Filter by status, search clients, and sort by due date."
 msgid "Filter by time range, action category, actor, or entity."
 msgstr "Filter by time range, action category, actor, or entity."
 
+#: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
@@ -1542,6 +1553,7 @@ msgid "Main"
 msgstr "Main"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell.tsx
 msgid "Manage"
 msgstr "Manage"
 
@@ -1869,6 +1881,10 @@ msgstr "Open"
 msgid "Open Billing"
 msgstr "Open Billing"
 
+#: src/components/patterns/app-shell.tsx
+msgid "Open billing settings for {plan} plan"
+msgstr "Open billing settings for {plan} plan"
+
 #. placeholder {0}: row.original.name
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Open fact profile for {0}"
@@ -2105,6 +2121,7 @@ msgstr "Priority onboarding"
 msgid "Priority onboarding, audit exports, and higher coverage needs."
 msgstr "Priority onboarding, audit exports, and higher coverage needs."
 
+#: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
@@ -2598,6 +2615,7 @@ msgstr "Snoozed"
 msgid "Sole prop"
 msgstr "Sole prop"
 
+#: src/components/patterns/app-shell.tsx
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
 msgid "Solo"
@@ -2922,6 +2940,10 @@ msgstr "Unexpected route error"
 msgid "Updated"
 msgstr "Updated"
 
+#: src/components/patterns/app-shell.tsx
+msgid "Upgrade"
+msgstr "Upgrade"
+
 #: src/routes/settings.members.tsx
 msgid "Upgrade plan"
 msgstr "Upgrade plan"
@@ -2979,6 +3001,10 @@ msgstr "Verified by"
 #: src/features/rules/coverage-tab.tsx
 msgid "Verified rules"
 msgstr "Verified rules"
+
+#: src/components/patterns/app-shell.tsx
+msgid "View"
+msgstr "View"
 
 #: src/features/audit/audit-log-table.tsx
 msgid "View audit detail"

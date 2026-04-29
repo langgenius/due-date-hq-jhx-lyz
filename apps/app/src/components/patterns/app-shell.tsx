@@ -1,6 +1,6 @@
-import { Outlet, useNavigation } from 'react-router'
+import { Link, Outlet, useNavigation } from 'react-router'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { BellIcon, PanelLeftIcon, PlusIcon } from 'lucide-react'
+import { BellIcon, CreditCardIcon, PanelLeftIcon, PlusIcon } from 'lucide-react'
 
 import { cn } from '@duedatehq/ui/lib/utils'
 import {
@@ -17,6 +17,7 @@ import { FirmSwitcherTrigger, NavGroups } from './app-shell-nav'
 import { UserMenuTrigger } from './app-shell-user-menu'
 import type { FirmPublic } from '@duedatehq/contracts'
 import type { AuthUser } from '@/lib/auth'
+import { isFirmOwner, paidPlanActive } from '@/lib/billing'
 import {
   COMMAND_PALETTE_HOTKEY,
   formatCompactShortcutForDisplay,
@@ -81,6 +82,7 @@ export function AppShell(props: AppShellProps) {
           </SidebarContent>
           <SidebarFooter>
             <ImportClientsCTA onClick={props.onImportClients} />
+            <PlanStatusLink firm={props.firm} />
             <SidebarSeparator />
             <UserMenuTrigger
               user={props.user}
@@ -109,6 +111,47 @@ export function AppShell(props: AppShellProps) {
         </SidebarInset>
       </div>
     </SidebarProvider>
+  )
+}
+
+function PlanStatusLink({ firm }: { firm: FirmPublic }) {
+  const { t } = useLingui()
+  const owner = isFirmOwner(firm)
+  const paid = paidPlanActive(firm)
+  const plan = firm.plan === 'firm' ? t`Firm` : firm.plan === 'pro' ? t`Pro` : t`Solo`
+  const seats = firm.seatLimit === 1 ? t`${firm.seatLimit} seat` : t`${firm.seatLimit} seats`
+  const action = owner ? (paid ? t`Manage` : t`Upgrade`) : t`View`
+
+  return (
+    <div className="px-2 py-1">
+      <Link
+        to="/settings/billing"
+        aria-label={t`Open billing settings for ${plan} plan`}
+        className={cn(
+          'group/plan flex h-12 w-full touch-manipulation items-center gap-2.5 rounded-md border border-divider-regular bg-background-default px-3 outline-none transition-colors',
+          'hover:bg-background-default-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
+        )}
+      >
+        <span
+          aria-hidden
+          className={cn(
+            'grid size-7 shrink-0 place-items-center rounded-md border border-divider-subtle',
+            paid
+              ? 'bg-state-success-hover-alt text-text-success'
+              : 'bg-background-subtle text-text-secondary',
+          )}
+        >
+          <CreditCardIcon className="size-3.5" />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col leading-tight">
+          <span className="truncate text-sm font-medium text-text-primary">{plan}</span>
+          <span className="truncate font-mono text-xs tabular-nums text-text-muted">{seats}</span>
+        </span>
+        <span className="shrink-0 font-mono text-xs font-medium tabular-nums text-text-muted group-hover/plan:text-text-secondary">
+          {action}
+        </span>
+      </Link>
+    </div>
   )
 }
 

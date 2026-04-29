@@ -122,7 +122,8 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
   - `/` — 受保护路由组（`id: 'protected'`，`Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `settings` 都作为它的 children
     - `/settings/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
       layout：上半区展示当前 firm plan / seat limit / subscription 状态和 owner-only
-      billing portal 入口，下半区复用 marketing pricing 的 plan-card 信息层级进入 plan change
+      billing portal 入口，下半区复用 marketing pricing 的 plan-card 信息层级进入 plan change。
+      AppShell sidebar footer 只提供当前 plan + seat count 的轻量入口，不承载 pricing 对比。
     - `/billing/checkout?plan=firm&interval=monthly` — checkout 确认页，使用 1120px max-width
       的 plan summary + firm context 布局；未登录 deep link 继续复用
       `protectedLoader → login → onboarding → redirectTo` 闭环
@@ -394,7 +395,9 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **selected nav 视觉是 bg-only**（`bg-state-base-hover-alt` + `text-text-primary` + Inter Semi Bold）—— 严禁 accent border 或 accent-tint 出现在 selected 态，否则与 DESIGN §1.2「颜色只为风险服务」冲突。`SidebarMenuButton` 的 cva variants 里**根本不提供** `accent` 变体，把约束写进类型
 - **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag? }`。Clients 与 Audit Log 已作为 Admin read surfaces 启用；Workload View 保持 `P1` disabled，未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本
 - **Firm switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上
+- **Plan status 入口在 sidebar footer**：`AppShell` 在 `+ Import clients` 与 user menu 之间展示当前 firm 的 `Solo / Firm / Pro`、seat count 和 `Upgrade / Manage / View` 动作，统一链接 `/settings/billing`。这只是 subscription 状态入口；完整 pricing / checkout / portal 仍在 Billing 页面。
 - **顶栏右侧仅承载 AppShell-owned utility**（`⌘K` kbd hint + 通知 bell），路由动作放在 body 内或 body 顶部 toolbar，**不**塞到 shell header 右侧
+- **Billing 不进入 route header**：pricing 和 subscription 属于 account / firm commerce 信息，不是当前 route 的 primary action。Header 右侧不展示 plan pill、upgrade button 或 pricing CTA，避免和 page toolbar、通知、Command Palette 竞争。
 - **sidebar 的 Base UI `render` 包装不要用 `mergeProps<'button'>` 合成 `data-*` props**：TypeScript 会把 object literal 收窄到原生 button props 并拒绝 `data-slot` / `data-active`；直接把合并后的 `Record<string, unknown>` 传给 `useRender({ props })`，需要组合事件时在组件内显式包装 handler
 
 **vercel-react-best-practices 红线（自建时一定要踩稳）**

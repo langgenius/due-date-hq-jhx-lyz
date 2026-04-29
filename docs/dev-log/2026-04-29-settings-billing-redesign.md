@@ -41,6 +41,8 @@ Owner: Codex
 - Follow-up 同步 E2E page object：测试 locator 从旧的 processor-specific 文案改为
   `Continue to secure checkout`、`Manage billing`、`Still waiting on confirmation`，避免测试
   继续锁定不应外露的 UI 文案。
+- Follow-up 明确 SaaS IA：pricing / subscription 不进入 protected route header，也不升为
+  main nav；AppShell sidebar footer 增加轻量 plan status 入口，统一指向 `/settings/billing`。
 
 ## Validation
 
