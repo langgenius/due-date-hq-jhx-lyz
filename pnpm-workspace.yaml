@@ -79,9 +79,10 @@ peerDependencyRules:
 catalog:
   # ───────── Vite+ unified toolchain ─────────
   # These three move together; always bump as one set.
-  vite-plus: 0.1.20
-  vite: npm:@voidzero-dev/vite-plus-core@0.1.20
-  vitest: npm:@voidzero-dev/vite-plus-test@0.1.20
+  # Keep Vite+ pinned at the last CI-green release until the Astro build regression is fixed.
+  vite-plus: 0.1.19
+  vite: npm:@voidzero-dev/vite-plus-core@0.1.19
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.19
   tsx: 4.21.0
 
   # ───────── runtime core ─────────
@@ -183,9 +184,9 @@ catalog:
   # mismatches silenced via `peerDependencyRules.allowAny: [vite]`.
   # `@astrojs/react` will be added back once a real React island is
   # introduced; the v1 landing is HTML-only to keep JS budget < 50 KB gz.
-  astro: 6.1.10
+  astro: 6.1.8
   '@astrojs/sitemap': 3.7.2
-  '@astrojs/check': 0.9.9
+  '@astrojs/check': 0.9.8
 
   # ───────── test adapters / env / e2e ─────────
   # The pool driver peers on `vitest: ^4.x`; because of the override

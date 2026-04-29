@@ -15,7 +15,7 @@
 | **统一工具链**          | **Vite+ (`vite-plus` + 全局 `vp`)**                                                     | 一个 dep 吞下 Vite 8 + Vitest + Oxlint + Oxfmt + Rolldown + tsdown + Vite Task；`vp check / test / build / run -r` 是全仓唯一入口，取代独立的 oxlint / oxfmt / vitest / turbo 调用链 |
 | **Git Hooks**           | Vite+ `staged` 块（vite.config.ts）                                                     | 由 `vp` 安装的 git hook 调度，等价于 lefthook + lint-staged；单一配置源                                                                                                              |
 | **SaaS 前端框架**       | Vite 8（由 vite-plus 提供）+ React 19                                                   | `apps/app` 是纯 SPA，不走 SSR；Workers Assets 只托管登录后产品静态产物                                                                                                               |
-| **Marketing 框架**      | Astro static site + `@astrojs/react` islands                                            | `apps/marketing` 承载 `duedatehq.com` landing / SEO / OG；默认零 JS，只有交互 island 才加载 React                                                                                    |
+| **Marketing 框架**      | Astro static site（React islands deferred）                                             | `apps/marketing` 承载 `duedatehq.com` landing / SEO / OG；当前 landing 不注册 React integration，只有真实交互 island 出现时才加回 React                                              |
 | **前端路由**            | React Router 7（library/data mode，非 framework mode）                                  | framework mode 会拖进 Node 依赖，与 Worker 冲突                                                                                                                                      |
 | **i18n contract**       | `packages/i18n` + app Lingui catalog + server thin dictionary                           | 语言列表、Intl locale、`x-locale` header 单一来源；文案 catalog 按 app/server/marketing 分离                                                                                         |
 | **UI 底座**             | shadcn/ui（`"style": "base-vega"`）+ Base UI                                            | Base UI 是 Radix 团队下一代；体积更小，键盘/RTL 更严                                                                                                                                 |
@@ -170,7 +170,7 @@ Vite+ (`vite-plus`) 把 **Vite 8 + Vitest + Oxlint + Oxfmt + Rolldown + tsdown +
 
 pnpm 10 已把所有配置迁到这里，**不要再写 `.npmrc`**。catalog 也定义于此。
 
-实际 `pnpm-workspace.yaml` 的版本号**全部**精确锁定。下面是 Phase 0 的权威快照（与仓库根的 `pnpm-workspace.yaml` 必须逐字一致）：
+实际 `pnpm-workspace.yaml` 的版本号**全部**精确锁定。下面只保留 Phase 0 关键摘录；完整权威清单以仓库根的 `pnpm-workspace.yaml` 为准。
 
 ```yaml
 packages:
@@ -197,7 +197,7 @@ onlyBuiltDependencies:
 catalog:
   # ── runtime core ──
   typescript: 6.0.3
-  '@typescript/native-preview': 7.0.0-dev.20260423.1
+  '@typescript/native-preview': 7.0.0-dev.20260429.1
   '@types/node': 25.6.0
 
   # ── frontend（由 vite-plus 统一驱动） ──
@@ -207,24 +207,26 @@ catalog:
   '@types/react-dom': 19.2.3
   react-router: 7.14.2
   '@vitejs/plugin-react': 6.0.1 # vite-plus 内部使用 vite 8 + rolldown
-  astro: 6.1.9
-  '@astrojs/react': 5.0.4
+  astro: 6.1.8
+  '@astrojs/sitemap': 3.7.2
+  '@astrojs/check': 0.9.8
   tailwindcss: 4.2.4
   '@tailwindcss/vite': 4.2.4
-  lucide-react: 1.8.0
+  lucide-react: 1.14.0
   class-variance-authority: 0.7.1
   tailwind-merge: 3.5.0
   tw-animate-css: 1.4.0
   clsx: 2.1.1
-  foxact: 0.3.0
+  foxact: 0.3.1
 
   # ── state / form ──
-  '@tanstack/react-query': 5.99.2
+  '@tanstack/react-query': 5.100.6
+  '@tanstack/react-hotkeys': 0.10.0
   '@tanstack/react-table': 8.21.3
   '@tanstack/react-virtual': 3.13.24
   zustand: 5.0.12
   nuqs: 2.8.9
-  react-hook-form: 7.73.1
+  react-hook-form: 7.74.0
   '@hookform/resolvers': 5.2.2
   zod: 4.3.6
 
@@ -234,7 +236,7 @@ catalog:
   react-odometerjs: 3.1.3
 
   # ── backend ──
-  hono: 4.12.14
+  hono: 4.12.15
   '@hono/zod-validator': 0.7.6
 
   # ── oRPC ──
@@ -245,31 +247,36 @@ catalog:
   '@orpc/openapi': 1.14.0
 
   # ── auth ──
-  better-auth: 1.6.7
+  better-auth: 1.6.9
+  '@better-auth/stripe': 1.6.9
+  stripe: 22.1.0
 
   # ── db ──
   drizzle-orm: 0.45.2
   drizzle-kit: 0.31.10
 
   # ── ai ──
-  ai: 6.0.168
+  ai: 6.0.169
   ai-gateway-provider: 3.1.3
 
   # ── infra / transport ──
   resend: 6.12.2
   '@react-email/components': 1.0.12
-  '@sentry/cloudflare': 10.49.0
-  posthog-js: 1.371.1
+  '@sentry/cloudflare': 10.50.0
+  posthog-js: 1.372.5
 
   # ── cloudflare ──
-  wrangler: 4.84.1
-  '@cloudflare/workers-types': 4.20260423.1
+  wrangler: 4.86.0
+  '@cloudflare/workers-types': 4.20260426.1
 
   # ── dev tooling（Vite+ 一统） ──
-  vite-plus: <pinned-at-install>
+  # Vite+ 0.1.20 + Astro 6.1.10 currently fails marketing build in generateBundle.
+  vite-plus: 0.1.19
+  vite: npm:@voidzero-dev/vite-plus-core@0.1.19
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.19
   '@cloudflare/vitest-pool-workers': 0.14.9
   '@playwright/test': 1.59.1
-  msw: 2.13.5
+  msw: 2.13.6
 
 # 命名 catalog 保留接口；Phase 0 暂不启用
 # catalogs:
@@ -277,7 +284,7 @@ catalog:
 #     react: 19.2.0-canary
 ```
 
-> **说明 · 不再在 catalog 里放**：`turbo`、`oxlint`、`oxfmt`、`lefthook`、`vitest`、`vite`（由 `vite-plus` 一包吞下，调用全部通过全局 `vp`）。已显式从 Phase 0 移除：`vite-plugin-pwa`、`workbox-window`、`web-push`（见 §1 PWA 降级）。
+> **说明**：不再在 catalog 里放 `turbo`、`oxlint`、`oxfmt`、`lefthook`；`vite` / `vitest` 保留为 workspace override alias，统一指向 Vite+ release train。已显式从 Phase 0 移除：`vite-plugin-pwa`、`workbox-window`、`web-push`（见 §1 PWA 降级）。
 
 ### 4.2 workspace 包 `package.json` 示例（约束形态）
 
