@@ -252,6 +252,15 @@ export function createAppRouter() {
               },
             },
             {
+              path: 'settings/members',
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { SettingsMembersRoute } = await import('@/routes/settings.members')
+
+                return { Component: SettingsMembersRoute }
+              },
+            },
+            {
               path: 'settings/billing',
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {

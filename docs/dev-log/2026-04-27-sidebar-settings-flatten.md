@@ -121,13 +121,13 @@ PRD / 产品设计 docs 里以 `/settings/migration`、`/settings/imports`、`/s
 - `vp run @duedatehq/app#build` — pass
 - 手测（`pnpm dev`）：
   - `/` / `/workboard` 行为不变
-  - `/settings/rules` parent 行无 hover bg；chevron 静态向下；Members / Profile 灰显 + `P1` 标
+  - `/settings/rules` parent 行无 hover bg；chevron 静态向下；当时 Members 为灰显 `P1` 标，后续已在 2026-04-29 落地为 `/settings/members` 可访问子项
   - 直接访问 `/settings` → loader redirect → 落到 `/settings/rules`
   - mobile（`<md`）drawer 内同款渲染：parent 不可点、子项可点
 
 ## 后续 / 未闭环
 
-1. `/settings/rules` 之外的 settings sub-route 真正落地时（Members / Profile / 未来的 Migration history / Billing 等），把对应 `subItems` 项从 `tag: 'P1'` + 无 href 改为带 `href`。届时 `SidebarSubMenuItem` 的两条分支共用 `tag` 渲染，所以"已交付"和"P1 占位"两态切换是一行 type 字段差。
+1. 后续新的 settings sub-route 真正落地时（未来的 Migration history / Integrations 等），把对应 `subItems` 项从 `tag: 'P1'` + 无 href 改为带 `href`。Members 已在 2026-04-29 按这一路径切换为真实 `/settings/members` 子项。
 2. 如果后续要恢复"点击 `Settings` 跳到默认 sub-route"的便利（用户调研里反映需要），最简单的回退是把 `SectionGroupNavItem` 的 `<div>` 换成 `<NavLink to="/settings" end={false}>` + 保留无 hover bg 的 className（覆盖 `hover:bg-` 为透明）。但这个反向迁移除非有数据支撑，否则不要做——它会让 parent 既不是普通 NavLink 也不是普通 header，回到本 log 改之前的位置。
 3. PRD §3.2.6 的偏离记录（firm switcher 位置）依然 deferred，与本次决策无关——下一个 PRD revise 窗口一并同步。
 

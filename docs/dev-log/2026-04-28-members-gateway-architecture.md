@@ -2,8 +2,8 @@
 
 ## Scope
 
-This slice opens the backend Members gateway while keeping the `/settings/members` UI for the next
-P1 surface.
+This slice opened the backend Members gateway. The `/settings/members` UI landed on 2026-04-29 as
+an Owner-only Settings data surface backed by this gateway.
 
 - Frontend callers get a DueDateHQ `members.*` oRPC surface instead of calling Better Auth
   organization/member APIs directly.
@@ -50,8 +50,19 @@ P1 surface.
 - `pnpm --filter @duedatehq/server test`
 - `pnpm exec vp check` on the Members-touched source set
 
+## 2026-04-29 UI follow-up
+
+- Added `/settings/members` to the protected router and Settings sidebar.
+- Implemented the Figma `Settings · Members` owner view using real `members.*` oRPC calls.
+- The page shows seat usage KPIs, active/suspended members, pending/expired invitations, full-seat
+  banner state, invite dialog, role updates, suspend/reactivate, remove, resend, and cancel actions.
+- The UI keeps mutation boundaries aligned with the gateway: Owner-only access comes from the
+  server, owner/self rows are read-only, and all writes continue to flow through audit-producing
+  members procedures.
+
 ## Follow-ups
 
-1. Build `/settings/members` UI against `members.*`.
-2. Add accept-invitation UX and E2E after the UI route exists.
-3. Add owner transfer before allowing any owner role mutation/removal.
+1. Add accept-invitation UX and E2E after invite acceptance is wired end-to-end.
+2. Add owner transfer before allowing any owner role mutation/removal.
+3. Add browser-level coverage for role/status/invitation flows once seeded multi-member fixtures
+   exist.

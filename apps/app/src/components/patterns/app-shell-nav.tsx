@@ -351,8 +351,8 @@ function useNavItems(): NavConfig {
           subItems: [
             { href: '/settings/profile', label: t`Profile`, end: true },
             { href: '/settings/rules', label: t`Rules`, end: true },
+            { href: '/settings/members', label: t`Members`, end: true },
             { href: '/settings/billing', label: t`Billing`, end: true },
-            { label: t`Members`, tag: 'P1' },
           ],
         },
       ],

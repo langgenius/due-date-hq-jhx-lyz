@@ -128,6 +128,9 @@ function getRouteSummaryMessages(pathname: string): RouteSummaryMessages {
   if (pathname === '/settings/profile') {
     return { eyebrow: msg`Settings`, title: msg`Profile` }
   }
+  if (pathname === '/settings/members') {
+    return { eyebrow: msg`Settings`, title: msg`Members` }
+  }
   if (pathname === '/settings/rules') {
     return { eyebrow: msg`Settings`, title: msg`Rules` }
   }
