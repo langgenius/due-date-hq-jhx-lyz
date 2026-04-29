@@ -12,7 +12,7 @@ const { t, appHref, checkoutHref } = Astro.props
 function hrefFor(plan: PricingPlanCopy): string {
   if (plan.hrefKind === 'checkout') return checkoutHref
   if (plan.hrefKind === 'app') return appHref
-  return 'mailto:founders@duedatehq.com?subject=DueDateHQ%20Pro'
+  return 'mailto:sales@duedatehq.com?subject=DueDateHQ%20Pro'
 }
 ---
 

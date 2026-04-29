@@ -37,7 +37,8 @@ export function BillingSuccessRoute() {
         </h1>
         <p className="mt-1 text-sm text-text-secondary">
           <Trans>
-            Stripe has redirected back to DueDateHQ. We are confirming the subscription.
+            The secure checkout has redirected back to DueDateHQ. We are confirming the
+            subscription.
           </Trans>
         </p>
       </header>
@@ -55,7 +56,7 @@ export function BillingSuccessRoute() {
             {activated ? (
               <Trans>Your firm plan is ready.</Trans>
             ) : (
-              <Trans>Webhook confirmation can take a few seconds in test mode.</Trans>
+              <Trans>Payment confirmation can take a few seconds.</Trans>
             )}
           </CardDescription>
         </CardHeader>
@@ -64,7 +65,7 @@ export function BillingSuccessRoute() {
             <Alert>
               <ClockIcon />
               <AlertTitle>
-                <Trans>Still waiting on Stripe</Trans>
+                <Trans>Still waiting on confirmation</Trans>
               </AlertTitle>
               <AlertDescription>
                 <Trans>
@@ -93,7 +94,7 @@ export function BillingSuccessRoute() {
             <Alert>
               <ClockIcon />
               <AlertTitle>
-                <Trans>Still waiting on Stripe</Trans>
+                <Trans>Still waiting on confirmation</Trans>
               </AlertTitle>
               <AlertDescription>
                 <Trans>

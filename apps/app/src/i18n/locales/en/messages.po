@@ -98,6 +98,11 @@ msgstr "{0} obligations require CPA confirmation."
 msgid "{0} open obligations have no evidence link."
 msgstr "{0} open obligations have no evidence link."
 
+#. placeholder {0}: currentFirm.seatLimit
+#: src/routes/settings.billing.tsx
+msgid "{0} seat limit"
+msgstr "{0} seat limit"
+
 #. placeholder {0}: stats.selectedCount
 #. placeholder {1}: stats.selectableCount
 #. placeholder {2}: stats.needsReviewCount
@@ -162,6 +167,11 @@ msgstr "{totalShown, plural, one {# obligation} other {# obligations}}"
 msgid "{totalShown, plural, one {# row} other {# rows}}"
 msgstr "{totalShown, plural, one {# row} other {# rows}}"
 
+#: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
+msgid "/ mo"
+msgstr "/ mo"
+
 #. placeholder {0}: new Date().getFullYear()
 #: src/routes/_entry-layout.tsx
 msgid "© {0} DueDateHQ Inc."
@@ -171,9 +181,22 @@ msgstr "© {0} DueDateHQ Inc."
 msgid "$0"
 msgstr "$0"
 
+#: src/routes/billing.checkout.tsx
+msgid "$399"
+msgstr "$399"
+
+#: src/routes/billing.checkout.tsx
+msgid "$499"
+msgstr "$499"
+
+#: src/routes/billing.checkout.tsx
+msgid "$79"
+msgstr "$79"
+
+#: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
-msgid "$99 / mo"
-msgstr "$99 / mo"
+msgid "$99"
+msgstr "$99"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "0 active"
@@ -186,6 +209,11 @@ msgstr "1 seat"
 #: src/routes/settings.billing.tsx
 msgid "10 seats"
 msgstr "10 seats"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
+msgid "10 seats included"
+msgstr "10 seats included"
 
 #: src/features/rules/rules-console.tsx
 msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
@@ -211,6 +239,11 @@ msgstr "4 verified · 1 candidate watch"
 msgid "5 seats"
 msgstr "5 seats"
 
+#: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
+msgid "5 seats included"
+msgstr "5 seats included"
+
 #. placeholder {0}: user.name || user.email
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Account menu for {0}"
@@ -229,6 +262,10 @@ msgstr "Action"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Actions"
 msgstr "Actions"
+
+#: src/routes/settings.billing.tsx
+msgid "Active firm"
+msgstr "Active firm"
 
 #. placeholder {0}: firm.seatLimit
 #: src/routes/settings.profile.tsx
@@ -398,6 +435,14 @@ msgstr "Audit + evidence written. Undo within 24h."
 msgid "Audit detail"
 msgstr "Audit detail"
 
+#: src/routes/billing.checkout.tsx
+msgid "Audit export surface"
+msgstr "Audit export surface"
+
+#: src/routes/settings.billing.tsx
+msgid "Audit exports and coverage planning"
+msgstr "Audit exports and coverage planning"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Audit filters"
 msgstr "Audit filters"
@@ -451,6 +496,10 @@ msgstr "Before"
 msgid "Before snapshot only"
 msgstr "Before snapshot only"
 
+#: src/routes/billing.checkout.tsx
+msgid "Billed yearly"
+msgstr "Billed yearly"
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/_layout.tsx
 #: src/routes/settings.billing.tsx
@@ -458,8 +507,16 @@ msgid "Billing"
 msgstr "Billing"
 
 #: src/routes/settings.billing.tsx
+msgid "Billing controls"
+msgstr "Billing controls"
+
+#: src/routes/settings.billing.tsx
 msgid "Billing portal could not open"
 msgstr "Billing portal could not open"
+
+#: src/routes/settings.billing.tsx
+msgid "Billing role"
+msgstr "Billing role"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
@@ -503,9 +560,9 @@ msgstr "Candidate · never generates user reminders."
 msgid "Candidates"
 msgstr "Candidates"
 
-#: src/routes/billing.checkout.tsx
-msgid "Card details are collected by Stripe. DueDateHQ never handles card numbers."
-msgstr "Card details are collected by Stripe. DueDateHQ never handles card numbers."
+#: src/routes/settings.billing.tsx
+msgid "Card numbers and invoice payment details never enter the app database."
+msgstr "Card numbers and invoice payment details never enter the app database."
 
 #: src/features/audit/audit-log-table.tsx
 msgid "Change"
@@ -526,8 +583,8 @@ msgid "Checkout"
 msgstr "Checkout"
 
 #: src/routes/settings.billing.tsx
-msgid "Checkout and portal sessions are hosted by Stripe."
-msgstr "Checkout and portal sessions are hosted by Stripe."
+msgid "Checkout and portal sessions are hosted by the payment provider."
+msgstr "Checkout and portal sessions are hosted by the payment provider."
 
 #: src/routes/billing.cancel.tsx
 msgid "Checkout canceled"
@@ -537,9 +594,21 @@ msgstr "Checkout canceled"
 msgid "Checkout could not start"
 msgstr "Checkout could not start"
 
+#: src/routes/settings.billing.tsx
+msgid "Checkout, cards, invoices, and portal sessions stay with the processor."
+msgstr "Checkout, cards, invoices, and portal sessions stay with the processor."
+
+#: src/routes/settings.billing.tsx
+msgid "Choose a workspace tier"
+msgstr "Choose a workspace tier"
+
 #: src/routes/billing.checkout.tsx
 msgid "Choose another plan"
 msgstr "Choose another plan"
+
+#: src/routes/settings.billing.tsx
+msgid "Choose Firm to start the hosted checkout flow."
+msgstr "Choose Firm to start the hosted checkout flow."
 
 #: src/routes/clients.tsx
 msgid "Clear search or filters to return to the full firm directory."
@@ -629,8 +698,8 @@ msgid "Continue"
 msgstr "Continue"
 
 #: src/routes/billing.checkout.tsx
-msgid "Continue to Stripe"
-msgstr "Continue to Stripe"
+msgid "Continue to secure checkout"
+msgstr "Continue to secure checkout"
 
 #: src/routes/login.tsx
 msgid "Continue with Google"
@@ -816,13 +885,13 @@ msgstr "Current baseline"
 msgid "Current plan"
 msgstr "Current plan"
 
-#: src/routes/settings.billing.tsx
-msgid "Current subscription"
-msgstr "Current subscription"
-
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "Currently available shortcuts and reserved keyboard slots."
 msgstr "Currently available shortcuts and reserved keyboard slots."
+
+#: src/routes/settings.billing.tsx
+msgid "Custom scope"
+msgstr "Custom scope"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Dark"
@@ -926,6 +995,10 @@ msgstr "Due date logic"
 #: src/routes/dashboard.tsx
 msgid "Due this week"
 msgstr "Due this week"
+
+#: src/routes/billing.checkout.tsx
+msgid "DueDateHQ does not store card numbers or invoice payment data."
+msgstr "DueDateHQ does not store card numbers or invoice payment data."
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "DueDateHQ field"
@@ -1118,6 +1191,14 @@ msgstr "Florida"
 msgid "For evaluating the deadline workbench with one owner."
 msgstr "For evaluating the deadline workbench with one owner."
 
+#: src/routes/billing.checkout.tsx
+msgid "For growing CPA practices that need shared deadline operations."
+msgstr "For growing CPA practices that need shared deadline operations."
+
+#: src/routes/billing.checkout.tsx
+msgid "For multi-office practices that need audit exports and higher rule coverage."
+msgstr "For multi-office practices that need audit exports and higher rule coverage."
+
 #: src/routes/_entry-layout.tsx
 msgid "For US CPA practices"
 msgstr "For US CPA practices"
@@ -1130,6 +1211,10 @@ msgstr "Form"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Forms"
 msgstr "Forms"
+
+#: src/routes/settings.billing.tsx
+msgid "Free baseline"
+msgstr "Free baseline"
 
 #: src/routes/clients.tsx
 msgid "Free-text for now; Team members wire in Phase 1."
@@ -1359,16 +1444,12 @@ msgid "Manage"
 msgstr "Manage"
 
 #: src/routes/settings.billing.tsx
-msgid "Manage in Stripe"
-msgstr "Manage in Stripe"
+msgid "Manage billing"
+msgstr "Manage billing"
 
 #: src/routes/clients.tsx
 msgid "Manage the firm client directory that powers migration, rules preview, dashboard risk, and workboard obligations."
 msgstr "Manage the firm client directory that powers migration, rules preview, dashboard risk, and workboard obligations."
-
-#: src/routes/settings.billing.tsx
-msgid "Manage the subscription attached to the active firm."
-msgstr "Manage the subscription attached to the active firm."
 
 #: src/routes/settings.profile.tsx
 msgid "Manager"
@@ -1402,6 +1483,10 @@ msgstr "may be affected."
 msgid "medium"
 msgstr "medium"
 
+#: src/routes/settings.billing.tsx
+msgid "Member"
+msgstr "Member"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Members"
 msgstr "Members"
@@ -1411,6 +1496,10 @@ msgstr "Members"
 msgid "Migration"
 msgstr "Migration"
 
+#: src/routes/settings.billing.tsx
+msgid "Migration and rules preview"
+msgstr "Migration and rules preview"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
@@ -1418,6 +1507,11 @@ msgstr "Migration Copilot wizard — paste or upload your client roster, review 
 #: src/routes/billing.checkout.tsx
 msgid "Monthly"
 msgstr "Monthly"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
+msgid "Monthly billing"
+msgstr "Monthly billing"
 
 #: src/routes/onboarding.tsx
 msgid "My Practice"
@@ -1468,6 +1562,7 @@ msgid "Next review"
 msgstr "Next review"
 
 #: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
 msgid "No active firm is selected."
 msgstr "No active firm is selected."
@@ -1611,6 +1706,18 @@ msgstr "obligations"
 msgid "official channels under monitor"
 msgstr "official channels under monitor"
 
+#: src/routes/settings.billing.tsx
+msgid "One owner workspace"
+msgstr "One owner workspace"
+
+#: src/routes/settings.billing.tsx
+msgid "Only firm owners can change plans or open the portal."
+msgstr "Only firm owners can change plans or open the portal."
+
+#: src/routes/billing.checkout.tsx
+msgid "Only firm owners can start or change a subscription."
+msgstr "Only firm owners can start or change a subscription."
+
 #: src/features/pulse/lib/error-mapping.ts
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Only Owners and Managers can apply Pulse changes."
@@ -1673,8 +1780,8 @@ msgid "Open the obligation queue."
 msgstr "Open the obligation queue."
 
 #: src/routes/billing.checkout.tsx
-msgid "Opening Stripe…"
-msgstr "Opening Stripe…"
+msgid "Opening checkout…"
+msgstr "Opening checkout…"
 
 #: src/routes/settings.billing.tsx
 msgid "Opening…"
@@ -1694,14 +1801,27 @@ msgstr "Operations"
 msgid "or"
 msgstr "or"
 
+#: src/routes/settings.billing.tsx
+msgid "Organization billing stays scoped to the selected firm."
+msgstr "Organization billing stays scoped to the selected firm."
+
 #: src/routes/clients.tsx
 msgid "Other"
 msgstr "Other"
 
 #: src/routes/clients.tsx
+#: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
 msgid "Owner"
 msgstr "Owner"
+
+#: src/routes/billing.checkout.tsx
+msgid "Owner approval required"
+msgstr "Owner approval required"
+
+#: src/routes/settings.billing.tsx
+msgid "Owner approved"
+msgstr "Owner approved"
 
 #: src/routes/billing.checkout.tsx
 msgid "Owner permission required"
@@ -1740,6 +1860,14 @@ msgstr "Paused"
 msgid "Payment confirmation"
 msgstr "Payment confirmation"
 
+#: src/routes/billing.success.tsx
+msgid "Payment confirmation can take a few seconds."
+msgstr "Payment confirmation can take a few seconds."
+
+#: src/routes/billing.checkout.tsx
+msgid "Payment details stay with the processor"
+msgstr "Payment details stay with the processor"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Payment is extended along with filing."
 msgstr "Payment is extended along with filing."
@@ -1759,6 +1887,18 @@ msgstr "pending ops review"
 #: src/routes/settings.billing.tsx
 msgid "Plan"
 msgstr "Plan"
+
+#: src/routes/settings.billing.tsx
+msgid "Plan activation appears after the provider confirms the subscription."
+msgstr "Plan activation appears after the provider confirms the subscription."
+
+#: src/routes/settings.billing.tsx
+msgid "Plan options"
+msgstr "Plan options"
+
+#: src/routes/billing.checkout.tsx
+msgid "Plan summary"
+msgstr "Plan summary"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
@@ -1795,10 +1935,16 @@ msgstr "Preparer"
 msgid "Primary navigation"
 msgstr "Primary navigation"
 
+#: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
+msgid "Priority onboarding"
+msgstr "Priority onboarding"
+
 #: src/routes/settings.billing.tsx
 msgid "Priority onboarding, audit exports, and higher coverage needs."
 msgstr "Priority onboarding, audit exports, and higher coverage needs."
 
+#: src/routes/billing.checkout.tsx
 #: src/routes/settings.billing.tsx
 #: src/routes/settings.profile.tsx
 msgid "Pro"
@@ -1809,6 +1955,10 @@ msgstr "Pro"
 msgid "Profile"
 msgstr "Profile"
 
+#: src/routes/settings.billing.tsx
+msgid "Provider hosted"
+msgstr "Provider hosted"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/audit/audit-log-page.tsx
 msgid "Pulse"
@@ -1818,6 +1968,11 @@ msgstr "Pulse"
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "Pulse alert: {0}"
 msgstr "Pulse alert: {0}"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
+msgid "Pulse and workboard access"
+msgstr "Pulse and workboard access"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Pulse evidence linked to each obligation"
@@ -1867,6 +2022,10 @@ msgstr "Reason"
 #: src/routes/workboard.tsx
 msgid "Recently updated"
 msgstr "Recently updated"
+
+#: src/routes/settings.billing.tsx
+msgid "Recommended"
+msgstr "Recommended"
 
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
@@ -1974,9 +2133,13 @@ msgstr "Review risk queue"
 msgid "Review source coverage, rule inventory, and generation preview."
 msgstr "Review source coverage, rule inventory, and generation preview."
 
+#: src/routes/settings.billing.tsx
+msgid "Review the active firm plan, open billing controls, and choose the right workspace tier."
+msgstr "Review the active firm plan, open billing controls, and choose the right workspace tier."
+
 #: src/routes/billing.checkout.tsx
-msgid "Review the subscription before continuing to Stripe Checkout."
-msgstr "Review the subscription before continuing to Stripe Checkout."
+msgid "Review the firm subscription before opening secure checkout."
+msgstr "Review the firm subscription before opening secure checkout."
 
 #: src/routes/dashboard.tsx
 msgid "Risk pulse"
@@ -2096,6 +2259,10 @@ msgstr "Search, segment, and inspect active tenant client records."
 msgid "Seat limit"
 msgstr "Seat limit"
 
+#: src/routes/billing.checkout.tsx
+msgid "Secure checkout"
+msgstr "Secure checkout"
+
 #. placeholder {0}: row.clientName
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Select {0}"
@@ -2112,6 +2279,14 @@ msgstr "Select all eligible obligations"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Select clients to apply"
 msgstr "Select clients to apply"
+
+#: src/routes/billing.checkout.tsx
+msgid "Selected plan"
+msgstr "Selected plan"
+
+#: src/routes/settings.billing.tsx
+msgid "Self-serve changes use secure checkout and keep the active firm as reference."
+msgstr "Self-serve changes use secure checkout and keep the active firm as reference."
 
 #: src/routes/dashboard.tsx
 msgid "Server-computed obligation risk for the next operating window."
@@ -2136,6 +2311,11 @@ msgstr "Settings"
 #: src/routes/dashboard.tsx
 msgid "Severity"
 msgstr "Severity"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/settings.billing.tsx
+msgid "Shared deadline operations"
+msgstr "Shared deadline operations"
 
 #: src/routes/settings.billing.tsx
 msgid "Shared deadline operations for a growing CPA practice."
@@ -2237,6 +2417,10 @@ msgstr "Source excerpt"
 msgid "source gaps"
 msgstr "source gaps"
 
+#: src/routes/settings.billing.tsx
+msgid "Source-backed evidence"
+msgstr "Source-backed evidence"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "Source-defined cal"
 msgstr "Source-defined cal"
@@ -2288,24 +2472,20 @@ msgid "Step {step} / 4"
 msgstr "Step {step} / 4"
 
 #: src/routes/billing.success.tsx
-msgid "Still waiting on Stripe"
-msgstr "Still waiting on Stripe"
-
-#: src/routes/billing.success.tsx
-msgid "Stripe has redirected back to DueDateHQ. We are confirming the subscription."
-msgstr "Stripe has redirected back to DueDateHQ. We are confirming the subscription."
-
-#: src/routes/settings.billing.tsx
-msgid "Stripe is the payment source of truth; this app caches the active plan."
-msgstr "Stripe is the payment source of truth; this app caches the active plan."
-
-#: src/routes/billing.checkout.tsx
-msgid "Stripe-hosted payment"
-msgstr "Stripe-hosted payment"
+msgid "Still waiting on confirmation"
+msgstr "Still waiting on confirmation"
 
 #: src/routes/billing.success.tsx
 msgid "Subscription active"
 msgstr "Subscription active"
+
+#: src/routes/settings.billing.tsx
+msgid "Subscription overview"
+msgstr "Subscription overview"
+
+#: src/routes/settings.billing.tsx
+msgid "Subscription status"
+msgstr "Subscription status"
 
 #: src/routes/settings.billing.tsx
 msgid "Success pages wait for webhook confirmation before showing activation."
@@ -2330,10 +2510,6 @@ msgstr "Switch firm — current {0}"
 #: src/features/audit/audit-log-table.tsx
 msgid "System"
 msgstr "System"
-
-#: src/routes/settings.billing.tsx
-msgid "Talk to founders"
-msgstr "Talk to founders"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
@@ -2383,6 +2559,10 @@ msgstr "The 24h undo window has expired for this alert."
 msgid "The billing cache and subscription status now agree."
 msgstr "The billing cache and subscription status now agree."
 
+#: src/routes/settings.billing.tsx
+msgid "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
+msgstr "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
+
 #: src/routes/settings.profile.tsx
 msgid "The firm will be removed from the picker. Audit history stays retained for compliance."
 msgstr "The firm will be removed from the picker. Audit history stays retained for compliance."
@@ -2391,9 +2571,17 @@ msgstr "The firm will be removed from the picker. Audit history stays retained f
 msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
 msgstr "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
 
+#: src/routes/settings.billing.tsx
+msgid "The payment provider is the source of truth; DueDateHQ caches the active plan."
+msgstr "The payment provider is the source of truth; DueDateHQ caches the active plan."
+
 #: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."
 msgstr "The request was invalid. Please review your input and try again."
+
+#: src/routes/billing.success.tsx
+msgid "The secure checkout has redirected back to DueDateHQ. We are confirming the subscription."
+msgstr "The secure checkout has redirected back to DueDateHQ. We are confirming the subscription."
 
 #: src/routes/billing.cancel.tsx
 msgid "The selected plan is still available from Billing settings."
@@ -2573,6 +2761,10 @@ msgstr "We block SSN-like patterns before sending anything to the AI."
 msgid "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
 msgstr "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
 
+#: src/routes/settings.billing.tsx
+msgid "We cache the plan and seat limit for app permissions."
+msgstr "We cache the plan and seat limit for app permissions."
+
 #: src/routes/billing.success.tsx
 msgid "We could not refresh billing status yet. This page will keep checking."
 msgstr "We could not refresh billing status yet. This page will keep checking."
@@ -2607,13 +2799,17 @@ msgstr "We pre-filled a name from your Google profile. You can change it now or 
 msgid "We'll figure out the shape — paste or upload, your call."
 msgstr "We'll figure out the shape — paste or upload, your call."
 
-#: src/routes/billing.success.tsx
-msgid "Webhook confirmation can take a few seconds in test mode."
-msgstr "Webhook confirmation can take a few seconds in test mode."
+#: src/routes/settings.billing.tsx
+msgid "Webhook confirmed"
+msgstr "Webhook confirmed"
 
 #: src/routes/login.tsx
 msgid "Welcome back to the workbench."
 msgstr "Welcome back to the workbench."
+
+#: src/routes/settings.billing.tsx
+msgid "What stays in DueDateHQ"
+msgstr "What stays in DueDateHQ"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Where is your data coming from?"

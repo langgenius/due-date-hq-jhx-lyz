@@ -19,9 +19,9 @@ test('AC: E2E-BILLING-CHECKOUT-PAYLOAD starts organization checkout with stable 
 
   await billingPage.gotoCheckout()
   await expect(billingPage.checkoutHeading).toBeVisible()
-  await expect(billingPage.continueToStripeButton).toBeEnabled()
+  await expect(billingPage.continueToSecureCheckoutButton).toBeEnabled()
 
-  await billingPage.continueToStripeButton.click()
+  await billingPage.continueToSecureCheckoutButton.click()
 
   const payload = await checkout.nextPayload()
   expect(payload).toMatchObject({
@@ -53,7 +53,7 @@ test('AC: E2E-BILLING-CHECKOUT-EXISTING-SUBSCRIPTION includes subscriptionId on 
   await billingPage.gotoCheckout('/billing/checkout?plan=pro&interval=yearly')
   await expect(billingPage.checkoutHeading).toBeVisible()
 
-  await billingPage.continueToStripeButton.click()
+  await billingPage.continueToSecureCheckoutButton.click()
 
   const payload = await checkout.nextPayload()
   expect(payload).toMatchObject({
@@ -85,7 +85,7 @@ test.describe('coordinator checkout', () => {
 
     await expect(billingPage.checkoutHeading).toBeVisible()
     await expect(billingPage.ownerPermissionAlert).toBeVisible()
-    await expect(billingPage.continueToStripeButton).toBeDisabled()
+    await expect(billingPage.continueToSecureCheckoutButton).toBeDisabled()
   })
 })
 

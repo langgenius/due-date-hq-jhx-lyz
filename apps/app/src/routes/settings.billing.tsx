@@ -1,8 +1,15 @@
 import { Link } from 'react-router'
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { AlertCircleIcon, ArrowRightIcon, CreditCardIcon, ExternalLinkIcon } from 'lucide-react'
+import {
+  AlertCircleIcon,
+  ArrowRightIcon,
+  CheckIcon,
+  CreditCardIcon,
+  ExternalLinkIcon,
+  ShieldCheckIcon,
+} from 'lucide-react'
 
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
@@ -23,13 +30,20 @@ import { createBillingPortal } from '@/features/billing/api'
 import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
 import { billingPlanHref, isFirmOwner, paidPlanActive, type BillingPlan } from '@/lib/billing'
 
+type BadgeVariant = ComponentProps<typeof Badge>['variant']
+
 type PlanCard = {
   id: 'solo' | BillingPlan
   name: string
   price: string
+  priceSuffix?: string
+  priceKind?: 'numeric' | 'text'
+  cadence: string
   seats: string
   description: string
+  features: string[]
   cta: string
+  badge?: string
   href?: string
   disabled?: boolean
 }
@@ -41,33 +55,47 @@ function usePlanCards(): PlanCard[] {
       id: 'solo',
       name: t`Solo`,
       price: t`$0`,
+      cadence: t`Free baseline`,
       seats: t`1 seat`,
       description: t`For evaluating the deadline workbench with one owner.`,
+      features: [t`One owner workspace`, t`Migration and rules preview`, t`Source-backed evidence`],
       cta: t`Current baseline`,
       disabled: true,
     },
     {
       id: 'firm',
       name: t`Firm`,
-      price: t`$99 / mo`,
+      price: t`$99`,
+      priceSuffix: t`/ mo`,
+      cadence: t`Monthly billing`,
       seats: t`5 seats`,
       description: t`Shared deadline operations for a growing CPA practice.`,
+      features: [t`5 seats included`, t`Shared deadline operations`, t`Pulse and workboard access`],
       cta: t`Upgrade to Firm`,
+      badge: t`Recommended`,
       href: billingPlanHref('firm', 'monthly'),
     },
     {
       id: 'pro',
       name: t`Pro`,
       price: t`Contact sales`,
+      priceKind: 'text',
+      cadence: t`Custom scope`,
       seats: t`10 seats`,
       description: t`Priority onboarding, audit exports, and higher coverage needs.`,
-      cta: t`Talk to founders`,
+      features: [
+        t`10 seats included`,
+        t`Priority onboarding`,
+        t`Audit exports and coverage planning`,
+      ],
+      cta: t`Contact sales`,
       disabled: true,
     },
   ]
 }
 
 export function SettingsBillingRoute() {
+  const { t } = useLingui()
   const planCards = usePlanCards()
   const { firmsQuery, currentFirm } = useCurrentFirm()
   const subscriptionsQuery = useBillingSubscriptions(currentFirm)
@@ -75,9 +103,18 @@ export function SettingsBillingRoute() {
     ['active', 'trialing', 'past_due', 'paused'].includes(subscription.status),
   )
   const owner = isFirmOwner(currentFirm)
+  const currentPlanName = currentFirm
+    ? currentFirm.plan === 'firm'
+      ? t`Firm`
+      : currentFirm.plan === 'pro'
+        ? t`Pro`
+        : t`Solo`
+    : '—'
+  const seatLimit = currentFirm ? t`${currentFirm.seatLimit} seat limit` : '—'
+  const subscriptionStatus = activeSubscription?.status ?? t`No paid subscription`
   const portalMutation = useMutation({
     mutationFn: async () => {
-      if (!currentFirm) throw new Error('No active firm is selected.')
+      if (!currentFirm) throw new Error(t`No active firm is selected.`)
       return createBillingPortal({
         referenceId: currentFirm.id,
         returnUrl: new URL('/settings/billing', window.location.origin).toString(),
@@ -89,22 +126,33 @@ export function SettingsBillingRoute() {
   })
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6">
+    <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 px-4 py-6 md:px-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-            <Trans>Settings</Trans>
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-primary text-text-inverted">
+            <CreditCardIcon className="size-4" aria-hidden />
           </span>
-          <h1 className="mt-1 text-2xl font-semibold tracking-normal text-text-primary">
-            <Trans>Billing</Trans>
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            <Trans>Manage the subscription attached to the active firm.</Trans>
-          </p>
+          <div className="min-w-0">
+            <span className="text-xs font-medium uppercase text-text-tertiary">
+              <Trans>Settings</Trans>
+            </span>
+            <h1 className="mt-1 text-2xl font-semibold text-text-primary">
+              <Trans>Billing</Trans>
+            </h1>
+            <p className="mt-1 max-w-[680px] text-sm leading-6 text-text-secondary">
+              <Trans>
+                Review the active firm plan, open billing controls, and choose the right workspace
+                tier.
+              </Trans>
+            </p>
+          </div>
         </div>
         {currentFirm ? (
-          <Badge variant={paidPlanActive(currentFirm) ? 'success' : 'outline'}>
-            {currentFirm.plan}
+          <Badge
+            variant={paidPlanActive(currentFirm) ? 'success' : 'outline'}
+            className="font-mono tabular-nums"
+          >
+            {currentPlanName}
           </Badge>
         ) : null}
       </header>
@@ -139,53 +187,74 @@ export function SettingsBillingRoute() {
         </Alert>
       ) : null}
 
-      <section className="grid gap-4 lg:grid-cols-[1fr_360px]">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.55fr)]">
         <Card>
           <CardHeader>
             <CardTitle>
-              <Trans>Current subscription</Trans>
+              <Trans>Subscription overview</Trans>
             </CardTitle>
             <CardDescription>
-              <Trans>Stripe is the payment source of truth; this app caches the active plan.</Trans>
+              <Trans>
+                The payment provider is the source of truth; DueDateHQ caches the active plan.
+              </Trans>
             </CardDescription>
             <CardAction>
-              {activeSubscription ? (
-                <Badge variant="info">{activeSubscription.status}</Badge>
-              ) : (
-                <Badge variant="outline">
-                  <Trans>No paid subscription</Trans>
-                </Badge>
-              )}
+              <Badge variant={billingStatusVariant(activeSubscription?.status)}>
+                {subscriptionStatus}
+              </Badge>
             </CardAction>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-3">
+          <CardContent className="grid gap-5">
             {firmsQuery.isLoading ? (
-              <>
+              <div className="grid gap-3 md:grid-cols-3">
                 <Skeleton className="h-20 w-full" />
                 <Skeleton className="h-20 w-full" />
                 <Skeleton className="h-20 w-full" />
-              </>
+              </div>
             ) : (
               <>
-                <Metric
-                  label={<Trans>Firm</Trans>}
-                  value={currentFirm?.name ?? '—'}
-                  name={`Firm: ${currentFirm?.name ?? 'none'}`}
-                />
-                <Metric
-                  label={<Trans>Plan</Trans>}
-                  value={currentFirm?.plan ?? '—'}
-                  name={`Plan: ${currentFirm?.plan ?? 'none'}`}
-                />
-                <Metric
-                  label={<Trans>Seat limit</Trans>}
-                  value={String(currentFirm?.seatLimit ?? '—')}
-                  name={`Seat limit: ${currentFirm?.seatLimit ?? 'none'}`}
-                />
+                <div className="flex flex-col justify-between gap-4 rounded-lg border border-divider-regular bg-background-subtle p-5 md:flex-row md:items-end">
+                  <div className="min-w-0">
+                    <p className="text-sm text-text-tertiary">
+                      <Trans>Active firm</Trans>
+                    </p>
+                    <p className="mt-1 truncate text-xl font-semibold text-text-primary">
+                      {currentFirm?.name ?? '—'}
+                    </p>
+                  </div>
+                  <div className="text-left md:text-right">
+                    <p className="font-mono text-3xl font-semibold tabular-nums text-text-primary">
+                      {currentPlanName}
+                    </p>
+                    <p className="mt-1 text-sm text-text-secondary">{seatLimit}</p>
+                  </div>
+                </div>
+                <div className="grid gap-3 md:grid-cols-4">
+                  <Metric
+                    label={<Trans>Plan</Trans>}
+                    value={currentFirm?.plan ?? '—'}
+                    name={`Plan: ${currentFirm?.plan ?? 'none'}`}
+                  />
+                  <Metric
+                    label={<Trans>Seat limit</Trans>}
+                    value={String(currentFirm?.seatLimit ?? '—')}
+                    name={`Seat limit: ${currentFirm?.seatLimit ?? 'none'}`}
+                  />
+                  <Metric
+                    label={<Trans>Subscription status</Trans>}
+                    value={subscriptionStatus}
+                    name={`Subscription status: ${subscriptionStatus}`}
+                  />
+                  <Metric
+                    label={<Trans>Billing role</Trans>}
+                    value={owner ? t`Owner` : t`Member`}
+                    name={`Billing role: ${owner ? 'owner' : 'member'}`}
+                  />
+                </div>
               </>
             )}
           </CardContent>
-          <CardFooter className="gap-2 border-t border-divider-regular">
+          <CardFooter className="flex-wrap gap-2 border-t border-divider-regular">
             <Button
               disabled={
                 !owner ||
@@ -197,26 +266,97 @@ export function SettingsBillingRoute() {
               onClick={() => portalMutation.mutate()}
             >
               <ExternalLinkIcon data-icon="inline-start" />
-              {portalMutation.isPending ? <Trans>Opening…</Trans> : <Trans>Manage in Stripe</Trans>}
+              {portalMutation.isPending ? <Trans>Opening…</Trans> : <Trans>Manage billing</Trans>}
             </Button>
             {!owner ? (
               <span className="text-sm text-text-tertiary">
                 <Trans>Only owners can manage billing.</Trans>
               </span>
-            ) : null}
+            ) : !activeSubscription ? (
+              <span className="text-sm text-text-tertiary">
+                <Trans>Choose Firm to start the hosted checkout flow.</Trans>
+              </span>
+            ) : (
+              <span className="text-sm text-text-tertiary">
+                <Trans>
+                  The billing portal opens with the payment provider for invoices, payment methods,
+                  and cancellation.
+                </Trans>
+              </span>
+            )}
           </CardFooter>
         </Card>
 
         <Card size="sm">
           <CardHeader>
             <CardTitle>
+              <Trans>Billing controls</Trans>
+            </CardTitle>
+            <CardDescription>
+              <Trans>Organization billing stays scoped to the selected firm.</Trans>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 text-sm">
+            <ControlRow
+              icon={<ShieldCheckIcon className="size-4" aria-hidden />}
+              title={<Trans>Owner approved</Trans>}
+              description={<Trans>Only firm owners can change plans or open the portal.</Trans>}
+            />
+            <ControlRow
+              icon={<CreditCardIcon className="size-4" aria-hidden />}
+              title={<Trans>Provider hosted</Trans>}
+              description={
+                <Trans>
+                  Checkout, cards, invoices, and portal sessions stay with the processor.
+                </Trans>
+              }
+            />
+            <ControlRow
+              icon={<CheckIcon className="size-4" aria-hidden />}
+              title={<Trans>Webhook confirmed</Trans>}
+              description={
+                <Trans>Plan activation appears after the provider confirms the subscription.</Trans>
+              }
+            />
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-4">
+        <header className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <span className="text-xs font-medium uppercase text-text-tertiary">
+              <Trans>Plan options</Trans>
+            </span>
+            <h2 className="mt-1 text-lg font-semibold text-text-primary">
+              <Trans>Choose a workspace tier</Trans>
+            </h2>
+          </div>
+          <p className="max-w-[520px] text-sm text-text-secondary">
+            <Trans>
+              Self-serve changes use secure checkout and keep the active firm as reference.
+            </Trans>
+          </p>
+        </header>
+
+        <div className="grid items-stretch gap-4 xl:grid-cols-3">
+          {planCards.map((plan) => (
+            <PlanOption key={plan.id} plan={plan} currentPlan={currentFirm?.plan} owner={owner} />
+          ))}
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        <Card size="sm" className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>
               <Trans>Payment model</Trans>
             </CardTitle>
             <CardDescription>
-              <Trans>Checkout and portal sessions are hosted by Stripe.</Trans>
+              <Trans>Checkout and portal sessions are hosted by the payment provider.</Trans>
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-3 text-sm text-text-secondary">
+          <CardContent className="grid gap-3 text-sm leading-6 text-text-secondary md:grid-cols-2">
             <p>
               <Trans>Firm subscriptions bill the organization, not an individual user.</Trans>
             </p>
@@ -225,15 +365,32 @@ export function SettingsBillingRoute() {
             </p>
           </CardContent>
         </Card>
-      </section>
 
-      <section className="grid gap-4 xl:grid-cols-3">
-        {planCards.map((plan) => (
-          <PlanOption key={plan.id} plan={plan} currentPlan={currentFirm?.plan} owner={owner} />
-        ))}
+        <Card size="sm">
+          <CardHeader>
+            <CardTitle>
+              <Trans>What stays in DueDateHQ</Trans>
+            </CardTitle>
+            <CardDescription>
+              <Trans>We cache the plan and seat limit for app permissions.</Trans>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-2 text-sm text-text-secondary">
+            <p>
+              <Trans>Card numbers and invoice payment details never enter the app database.</Trans>
+            </p>
+          </CardContent>
+        </Card>
       </section>
     </div>
   )
+}
+
+function billingStatusVariant(status: string | undefined): BadgeVariant {
+  if (!status) return 'outline'
+  if (status === 'past_due') return 'warning'
+  if (status === 'paused') return 'secondary'
+  return 'info'
 }
 
 function Metric({ label, value, name }: { label: ReactNode; value: string; name: string }) {
@@ -241,12 +398,32 @@ function Metric({ label, value, name }: { label: ReactNode; value: string; name:
     <div
       role="group"
       aria-label={name}
-      className="rounded-lg border border-divider-regular bg-background-subtle p-4"
+      className="rounded-lg border border-divider-regular bg-background-default p-4"
     >
-      <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-        {label}
-      </span>
+      <span className="text-xs font-medium uppercase text-text-tertiary">{label}</span>
       <p className="mt-2 truncate text-md font-semibold text-text-primary">{value}</p>
+    </div>
+  )
+}
+
+function ControlRow({
+  icon,
+  title,
+  description,
+}: {
+  icon: ReactNode
+  title: ReactNode
+  description: ReactNode
+}) {
+  return (
+    <div className="flex gap-3">
+      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-background-subtle text-text-accent">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="font-medium text-text-primary">{title}</p>
+        <p className="mt-1 leading-5 text-text-secondary">{description}</p>
+      </div>
     </div>
   )
 }
@@ -262,29 +439,75 @@ function PlanOption({
 }) {
   const current = plan.id === currentPlan
   const disabled = plan.disabled || current || !owner
+  const highlighted = plan.id === 'firm'
+  const priceKind = plan.priceKind ?? 'numeric'
 
   return (
-    <Card>
-      <CardHeader>
+    <Card
+      className={cn(
+        'h-full min-h-[420px]',
+        highlighted ? 'border-state-accent-active bg-background-default shadow-sm' : undefined,
+      )}
+    >
+      <CardHeader className="min-h-[112px] content-start">
         <CardTitle>{plan.name}</CardTitle>
-        <CardDescription>{plan.description}</CardDescription>
+        <CardDescription className="line-clamp-2 min-h-10 leading-5">
+          {plan.description}
+        </CardDescription>
         <CardAction>
           {current ? (
             <Badge variant="success">
               <Trans>Current</Trans>
             </Badge>
+          ) : plan.badge ? (
+            <Badge variant="info">{plan.badge}</Badge>
           ) : null}
         </CardAction>
       </CardHeader>
-      <CardContent className="grid gap-2">
-        <span className="font-mono text-2xl font-semibold tabular-nums text-text-primary">
-          {plan.price}
-        </span>
-        <span className="text-sm text-text-secondary">{plan.seats}</span>
+      <CardContent className="flex flex-1 flex-col gap-5">
+        <div className="grid min-h-[92px] content-start gap-2">
+          <div className="flex min-h-10 flex-wrap items-baseline gap-2">
+            <span
+              className={cn(
+                'text-3xl font-semibold text-text-primary',
+                priceKind === 'numeric' ? 'font-mono tabular-nums' : 'font-sans tracking-normal',
+              )}
+            >
+              {plan.price}
+            </span>
+            {plan.priceSuffix ? (
+              <span className="font-mono text-lg font-semibold tabular-nums text-text-primary">
+                {plan.priceSuffix}
+              </span>
+            ) : null}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary">
+            <span>{plan.cadence}</span>
+            <span aria-hidden>·</span>
+            <span>{plan.seats}</span>
+          </div>
+        </div>
+        <div className="h-px w-full bg-divider-regular" aria-hidden />
+        <ul className="grid gap-3 text-sm leading-5 text-text-secondary">
+          {plan.features.map((feature) => (
+            <li key={feature} className="flex items-center gap-2.5">
+              <span className="grid size-5 shrink-0 place-items-center rounded-sm bg-background-subtle text-text-accent">
+                <CheckIcon className="size-3.5" aria-hidden />
+              </span>
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
       </CardContent>
       <CardFooter className="border-t border-divider-regular">
         {plan.href && !disabled ? (
-          <Link to={plan.href} className={cn(buttonVariants(), 'w-full')}>
+          <Link
+            to={plan.href}
+            className={cn(
+              buttonVariants({ variant: highlighted ? 'accent' : 'default' }),
+              'w-full',
+            )}
+          >
             <CreditCardIcon data-icon="inline-start" />
             {plan.cta}
             <ArrowRightIcon data-icon="inline-end" />

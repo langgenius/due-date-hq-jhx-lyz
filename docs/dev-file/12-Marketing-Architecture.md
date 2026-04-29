@@ -85,8 +85,8 @@ SaaS app 的 `/billing/checkout?plan=firm&interval=monthly`；未登录用户由
 → DueDateHQ — Pricing (Marketing)` frame 与 DESIGN.md：
 
 - 三档套餐分节：**Hero**（PRICING eyebrow + display-large title + 760 px 描述 +
-  mono note）、**Plans Header**（PLANS eyebrow + 22 px 副标题 + `BILLED USD ·
-STRIPE-HOSTED CHECKOUT` 右侧 mono 备注）、**Plans Row**（3 列 `lg:grid-cols-3`，
+  mono note）、**Plans Header**（PLANS eyebrow + 22 px 副标题 + `USD PRICING ·
+OWNER-APPROVED UPGRADES` 右侧 mono 备注）、**Plans Row**（3 列 `lg:grid-cols-3`，
   cards stretch 等高）、**FAQ**（FAQ eyebrow + 24 px heading + 3 列 panel）。
 - 卡片必须 flat：`rounded-xl` + `p-8` + 上下分组 `gap-7` + CTA 与内容之间 `mt-10`
   呼吸距离。Recommended 套餐用 `border-[1.5px] border-accent-default` 与 accent
@@ -101,6 +101,9 @@ STRIPE-HOSTED CHECKOUT` 右侧 mono 备注）、**Plans Row**（3 列 `lg:grid-c
 i18n 契约由 `PricingCopy` (`apps/marketing/src/i18n/types.ts`) 锁定：每个套餐
 必须含 `priceKind: 'numeric' | 'text'` 与 4 条 features，并自带 `plansHeader` /
 `faqHeader` 两段 eyebrow + 标题。en + zh-CN 必须同步更新。
+Pricing 文案必须用业务语言描述套餐价值，禁止把内部实现或测试环境写进公开卖点：
+不要出现 `test-mode`、`Stripe-hosted`、`sandbox` 这类词；支付和实现边界留在 app
+checkout / billing settings 或工程文档中表达。
 
 Pricing handoff 由 Playwright 覆盖：本地 e2e 会单独启动 Astro preview，并用
 `PUBLIC_APP_URL` 指向 app Worker；测试只验证 CTA href、登录回跳和 locale handoff，

@@ -41,9 +41,9 @@ test('AC: E2E-BILLING-SETTINGS-PORTAL reads webhook-backed state and opens porta
   await expect(billingPage.settingsHeading).toBeVisible()
   await expect(authenticatedPage.getByRole('group', { name: 'Plan: firm' })).toBeVisible()
   await expect(authenticatedPage.getByRole('group', { name: 'Seat limit: 5' })).toBeVisible()
-  await expect(billingPage.manageInStripeButton).toBeEnabled()
+  await expect(billingPage.manageBillingButton).toBeEnabled()
 
-  await billingPage.manageInStripeButton.click()
+  await billingPage.manageBillingButton.click()
 
   const payload = await portal.nextPayload()
   expect(payload).toMatchObject({

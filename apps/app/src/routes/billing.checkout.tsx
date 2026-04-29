@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router'
+import type { ReactNode } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useQueryStates } from 'nuqs'
@@ -6,8 +7,11 @@ import {
   AlertCircleIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
+  Building2Icon,
   CheckIcon,
   CreditCardIcon,
+  ShieldCheckIcon,
+  UsersIcon,
 } from 'lucide-react'
 
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
@@ -38,20 +42,22 @@ import {
 type PlanView = {
   label: string
   price: string
+  priceSuffix: string
+  priceNote: string
   seatLimit: number
   summary: string
   bullets: string[]
 }
 
-function planView(
-  plan: BillingPlan,
-  interval: BillingInterval,
-  t: ReturnType<typeof useLingui>['t'],
-): PlanView {
+function usePlanView(plan: BillingPlan, interval: BillingInterval): PlanView {
+  const { t } = useLingui()
+
   if (plan === 'pro') {
     return {
       label: t`Pro`,
-      price: interval === 'yearly' ? t`$399 / mo, billed yearly` : t`$499 / mo`,
+      price: interval === 'yearly' ? t`$399` : t`$499`,
+      priceSuffix: t`/ mo`,
+      priceNote: interval === 'yearly' ? t`Billed yearly` : t`Monthly billing`,
       seatLimit: 10,
       summary: t`For multi-office practices that need audit exports and higher rule coverage.`,
       bullets: [t`10 seats included`, t`Audit export surface`, t`Priority onboarding`],
@@ -59,10 +65,12 @@ function planView(
   }
   return {
     label: t`Firm`,
-    price: interval === 'yearly' ? t`$79 / mo, billed yearly` : t`$99 / mo`,
+    price: interval === 'yearly' ? t`$79` : t`$99`,
+    priceSuffix: t`/ mo`,
+    priceNote: interval === 'yearly' ? t`Billed yearly` : t`Monthly billing`,
     seatLimit: 5,
     summary: t`For growing CPA practices that need shared deadline operations.`,
-    bullets: [t`5 seats included`, t`14-day trial`, t`Pulse and migration workbench included`],
+    bullets: [t`5 seats included`, t`Shared deadline operations`, t`Pulse and workboard access`],
   }
 }
 
@@ -74,7 +82,7 @@ export function BillingCheckoutRoute() {
   const { t } = useLingui()
   const navigate = useNavigate()
   const [{ plan, interval }] = useQueryStates(billingSearchParamsParsers)
-  const view = planView(plan, interval, t)
+  const view = usePlanView(plan, interval)
   const { firmsQuery, currentFirm } = useCurrentFirm()
   const subscriptionsQuery = useBillingSubscriptions(currentFirm)
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
@@ -130,8 +138,8 @@ export function BillingCheckoutRoute() {
   const alreadyOnPlan = activeSubscription?.plan === plan && currentFirm.plan === plan
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6">
-      <header className="flex flex-col gap-2">
+    <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 px-4 py-6 md:px-6">
+      <header className="flex flex-col gap-3">
         <Link
           to="/settings/billing"
           className="inline-flex w-fit items-center gap-1 text-sm text-text-secondary hover:text-text-primary"
@@ -140,16 +148,21 @@ export function BillingCheckoutRoute() {
           <Trans>Back to billing</Trans>
         </Link>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-normal text-text-primary">
-              <Trans>Confirm checkout</Trans>
-            </h1>
-            <p className="mt-1 text-sm text-text-secondary">
-              <Trans>Review the subscription before continuing to Stripe Checkout.</Trans>
-            </p>
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-primary text-text-inverted">
+              <CreditCardIcon className="size-4" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <h1 className="text-2xl font-semibold tracking-normal text-text-primary">
+                <Trans>Confirm checkout</Trans>
+              </h1>
+              <p className="mt-1 max-w-[680px] text-sm leading-6 text-text-secondary">
+                <Trans>Review the firm subscription before opening secure checkout.</Trans>
+              </p>
+            </div>
           </div>
           <Badge variant="info" className="font-mono tabular-nums">
-            <Trans>Stripe-hosted payment</Trans>
+            <Trans>Secure checkout</Trans>
           </Badge>
         </div>
       </header>
@@ -186,10 +199,12 @@ export function BillingCheckoutRoute() {
         </Alert>
       ) : null}
 
-      <section className="grid gap-4 lg:grid-cols-[1fr_360px]">
+      <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         <Card>
           <CardHeader>
-            <CardTitle>{view.label}</CardTitle>
+            <CardTitle>
+              <Trans>Plan summary</Trans>
+            </CardTitle>
             <CardDescription>{view.summary}</CardDescription>
             <CardAction>
               <Badge variant="outline">
@@ -198,26 +213,58 @@ export function BillingCheckoutRoute() {
             </CardAction>
           </CardHeader>
           <CardContent className="grid gap-5">
-            <div>
-              <span className="font-mono text-3xl font-semibold tabular-nums text-text-primary">
-                {view.price}
-              </span>
-              <p className="mt-2 text-sm text-text-secondary">
-                <Trans>
-                  Card details are collected by Stripe. DueDateHQ never handles card numbers.
-                </Trans>
-              </p>
+            <div className="rounded-lg border border-divider-regular bg-background-subtle p-5">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm text-text-tertiary">
+                    <Trans>Selected plan</Trans>
+                  </p>
+                  <p className="mt-1 text-xl font-semibold text-text-primary">{view.label}</p>
+                </div>
+                <div className="text-left md:text-right">
+                  <div className="flex items-baseline gap-2 md:justify-end">
+                    <span className="font-mono text-4xl font-semibold tabular-nums text-text-primary">
+                      {view.price}
+                    </span>
+                    <span className="font-mono text-lg font-semibold tabular-nums text-text-primary">
+                      {view.priceSuffix}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-text-secondary">{view.priceNote}</p>
+                </div>
+              </div>
             </div>
-            <div className="grid gap-2">
+
+            <div className="grid gap-3 md:grid-cols-3">
               {view.bullets.map((bullet) => (
-                <div key={bullet} className="flex items-center gap-2 text-sm text-text-secondary">
-                  <CheckIcon className="size-4 text-text-success" aria-hidden />
-                  <span>{bullet}</span>
+                <div
+                  key={bullet}
+                  className="flex min-h-16 items-start gap-2.5 rounded-lg border border-divider-regular bg-background-default p-3 text-sm text-text-secondary"
+                >
+                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-sm bg-background-subtle text-text-accent">
+                    <CheckIcon className="size-3.5" aria-hidden />
+                  </span>
+                  <span className="leading-5">{bullet}</span>
                 </div>
               ))}
             </div>
+
+            <div className="grid gap-3 rounded-lg border border-divider-regular bg-background-default p-4 text-sm text-text-secondary">
+              <CheckoutNote
+                icon={<ShieldCheckIcon className="size-4" aria-hidden />}
+                title={<Trans>Owner approval required</Trans>}
+                description={<Trans>Only firm owners can start or change a subscription.</Trans>}
+              />
+              <CheckoutNote
+                icon={<CreditCardIcon className="size-4" aria-hidden />}
+                title={<Trans>Payment details stay with the processor</Trans>}
+                description={
+                  <Trans>DueDateHQ does not store card numbers or invoice payment data.</Trans>
+                }
+              />
+            </div>
           </CardContent>
-          <CardFooter className="gap-2 border-t border-divider-regular">
+          <CardFooter className="flex-wrap gap-2 border-t border-divider-regular">
             <Button
               disabled={
                 !owner ||
@@ -230,9 +277,9 @@ export function BillingCheckoutRoute() {
             >
               <CreditCardIcon data-icon="inline-start" />
               {checkoutMutation.isPending ? (
-                <Trans>Opening Stripe…</Trans>
+                <Trans>Opening checkout…</Trans>
               ) : (
-                <Trans>Continue to Stripe</Trans>
+                <Trans>Continue to secure checkout</Trans>
               )}
             </Button>
             <Button variant="outline" onClick={() => void navigate('/settings/billing')}>
@@ -250,25 +297,22 @@ export function BillingCheckoutRoute() {
               <Trans>The subscription applies to the active firm.</Trans>
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 text-sm">
-            <div>
-              <span className="text-text-tertiary">
-                <Trans>Firm</Trans>
-              </span>
-              <p className="font-medium text-text-primary">{currentFirm.name}</p>
-            </div>
-            <div>
-              <span className="text-text-tertiary">
-                <Trans>Current plan</Trans>
-              </span>
-              <p className="font-medium text-text-primary">{currentFirm.plan}</p>
-            </div>
-            <div>
-              <span className="text-text-tertiary">
-                <Trans>New seat limit</Trans>
-              </span>
-              <p className="font-medium text-text-primary">{view.seatLimit}</p>
-            </div>
+          <CardContent className="grid gap-3 text-sm">
+            <CheckoutFact
+              icon={<Building2Icon className="size-4" aria-hidden />}
+              label={<Trans>Firm</Trans>}
+              value={currentFirm.name}
+            />
+            <CheckoutFact
+              icon={<CreditCardIcon className="size-4" aria-hidden />}
+              label={<Trans>Current plan</Trans>}
+              value={currentFirm.plan}
+            />
+            <CheckoutFact
+              icon={<UsersIcon className="size-4" aria-hidden />}
+              label={<Trans>New seat limit</Trans>}
+              value={String(view.seatLimit)}
+            />
             {alreadyOnPlan ? (
               <Alert>
                 <AlertCircleIcon />
@@ -292,6 +336,50 @@ export function BillingCheckoutRoute() {
           </CardFooter>
         </Card>
       </section>
+    </div>
+  )
+}
+
+function CheckoutFact({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode
+  label: ReactNode
+  value: string
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-lg border border-divider-regular bg-background-default p-3">
+      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-background-subtle text-text-accent">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="text-text-tertiary">{label}</p>
+        <p className="mt-1 truncate font-semibold text-text-primary">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+function CheckoutNote({
+  icon,
+  title,
+  description,
+}: {
+  icon: ReactNode
+  title: ReactNode
+  description: ReactNode
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-background-subtle text-text-accent">
+        {icon}
+      </span>
+      <div>
+        <p className="font-medium text-text-primary">{title}</p>
+        <p className="mt-1 leading-5">{description}</p>
+      </div>
     </div>
   )
 }

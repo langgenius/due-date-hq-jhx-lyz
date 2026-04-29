@@ -424,16 +424,16 @@ const en: LandingCopy = {
     pill: 'AVG $54k / yr / practice',
     pillCaption: 'AVOIDABLE PENALTY EXPOSURE IN A CALENDAR YEAR',
     title: 'Open the workbench. Let the dollars speak.',
-    body: 'Free 14-day trial of every workbench surface. No credit card. No native app. Sign in with Google and the first dollar of risk appears within ten minutes of your first paste.',
+    body: 'Start with Solo at no cost. No credit card. No native app. Sign in with Google and the first dollar of risk appears within ten minutes of your first paste.',
     primaryCta: 'Open the workbench',
-    secondaryCta: 'Talk to the founders',
+    secondaryCta: 'Contact sales',
     trust: 'no credit card · cancel anytime',
   },
   pricing: {
     meta: {
       title: 'DueDateHQ Pricing — Deadline intelligence for CPA practices',
       description:
-        'Simple plans for US CPA practices that need deadline risk, source-backed rules, and Stripe-hosted subscription checkout.',
+        'Simple plans for US CPA practices that need deadline risk, source-backed rules, and a shared operating queue.',
       ogImage: '/og/home.en.png',
     },
     navPricingHref: '/pricing',
@@ -442,12 +442,12 @@ const en: LandingCopy = {
       title: 'Pay for the deadline risk you can actually see.',
       description:
         'Start on Solo, move to Firm when deadline operations need a shared workspace, and talk to us when audit exports and higher coverage become operational requirements.',
-      note: 'Stripe-hosted checkout · 14-day Firm trial · no card data stored by DueDateHQ',
+      note: 'No credit card required for Solo · DueDateHQ never stores card numbers',
     },
     plansHeader: {
       eyebrow: 'PLANS',
       title: 'Choose the plan that matches your firm.',
-      note: 'BILLED USD · STRIPE-HOSTED CHECKOUT',
+      note: 'USD PRICING · OWNER-APPROVED UPGRADES',
     },
     plans: [
       {
@@ -460,10 +460,10 @@ const en: LandingCopy = {
         cta: 'Open the app',
         hrefKind: 'app',
         features: [
-          'Penalty Radar preview',
-          'Migration Copilot',
-          'Source-backed evidence drawer',
-          'Sample data sandbox',
+          'One owner workspace',
+          'Migration and rules preview',
+          'Source-backed evidence',
+          'Sample client workspace',
         ],
       },
       {
@@ -472,16 +472,15 @@ const en: LandingCopy = {
         price: '$99',
         priceKind: 'numeric',
         cadence: '/ month',
-        description:
-          'For small CPA teams that need a shared operating queue and billing-ready seat limit.',
-        seats: '5 SEATS · 14-DAY TRIAL',
-        cta: 'Start Firm trial',
+        description: 'For growing CPA practices that need shared deadline operations.',
+        seats: '5 SEATS',
+        cta: 'Upgrade to Firm',
         hrefKind: 'checkout',
         features: [
           'Everything in Solo',
-          'Shared workbench',
-          '24h Pulse monitoring',
-          'Test-mode Stripe checkout',
+          '5 seats included',
+          'Shared deadline operations',
+          'Pulse and workboard access',
         ],
       },
       {
@@ -492,30 +491,30 @@ const en: LandingCopy = {
         description:
           'For practices that need audit export workflows, priority onboarding, and coverage expansion.',
         seats: '10+ SEATS',
-        cta: 'Talk to founders',
+        cta: 'Contact sales',
         hrefKind: 'contact',
         features: [
           'Everything in Firm',
           'Priority onboarding',
-          'Audit export planning',
+          'Audit exports and coverage planning',
           'Coverage expansion review',
         ],
       },
     ],
     faqHeader: {
       eyebrow: 'FAQ',
-      title: 'Common questions about checkout.',
+      title: 'Common questions about plans.',
     },
     faq: [
       {
-        question: 'Where does payment happen?',
+        question: 'Who can upgrade a firm?',
         answer:
-          'DueDateHQ sends authenticated firm owners to Stripe Checkout. Card details are collected by Stripe, not by the app.',
+          'Only the active firm owner can start or change a paid subscription. Member roles can review plan status but cannot make billing changes.',
       },
       {
-        question: 'What does the Firm trial enable?',
+        question: 'What does Firm add over Solo?',
         answer:
-          'The test-mode Firm checkout activates the firm plan after webhook confirmation and raises the workspace seat limit to five.',
+          'Firm adds a five-seat shared workspace, Pulse monitoring, and the workboard views a growing practice needs for deadline operations.',
       },
       {
         question: 'Can I keep using Solo?',

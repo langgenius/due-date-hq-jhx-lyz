@@ -111,9 +111,13 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
     - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去
     - `/onboarding` — `onboardingLoader` 要求有 session 且无 `activeOrganizationId`；已有 active org 直接 `redirect(redirectTo)`，无 session 跳 `/login?redirectTo=/onboarding`
   - `/` — 受保护路由组（`id: 'protected'`，`Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `settings` 都作为它的 children
-    - `/settings/billing` — 登录后账单中心，展示当前 firm plan / seat limit / Stripe subscription 状态，并从这里进入 Billing Portal 或 plan change
-    - `/billing/checkout?plan=firm&interval=monthly` — 真实 checkout 确认页；未登录 deep link 继续复用 `protectedLoader → login → onboarding → redirectTo` 闭环
-    - `/billing/success` / `/billing/cancel` — Stripe Checkout 返回页；success 只展示 webhook/subscription 确认状态，不把 redirect 本身当成支付成功
+    - `/settings/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
+      layout：上半区展示当前 firm plan / seat limit / subscription 状态和 owner-only
+      billing portal 入口，下半区复用 marketing pricing 的 plan-card 信息层级进入 plan change
+    - `/billing/checkout?plan=firm&interval=monthly` — checkout 确认页，使用 1120px max-width
+      的 plan summary + firm context 布局；未登录 deep link 继续复用
+      `protectedLoader → login → onboarding → redirectTo` 闭环
+    - `/billing/success` / `/billing/cancel` — checkout 返回页；success 只展示 webhook/subscription 确认状态，不把 redirect 本身当成支付成功
   - `*` — 公开 catch-all route，loader 主动抛 404 `Response`，由 root `RouteErrorBoundary`
     渲染统一 not found UI；未知 URL 不进入认证 gate，也不显示 React Router 默认开发错误页
 
@@ -136,9 +140,9 @@ Marketing 的 Tailwind 入口必须导入共享 preset，并扫描 shared UI：
   `useQueryStates`、serializer 和未来 loader 消费同一份 contract。
 - 任何抽屉开关 / 选中项也写 URL（`?drawer=obligation&id=xxx`）
 - Billing 例外约束：`plan` / `interval` 保持在 URL query 以支持 marketing deep link、登录回跳、
-  Stripe success/cancel 和 E2E；主 checkout 必须是 route，不用 URL dialog 承载支付链路。
+  checkout success/cancel 和 E2E；主 checkout 必须是 route，不用 URL dialog 承载支付链路。
   `/settings/billing?changePlan=...` 可作为轻量确认 dialog，但确认后仍跳 `/billing/checkout?...`。
-- Billing e2e 断言流程状态而不是 Stripe 页面 DOM：常规 suite 拦截 Checkout / Billing Portal
+- Billing e2e 断言流程状态而不是第三方支付页面 DOM：常规 suite 拦截 Checkout / Billing Portal
   请求并检查 payload；webhook 后状态通过 development-only `/api/e2e/billing/subscription`
   写入 `subscription` + `firm_profile` 后再由 UI 读取。
 - **不要**把分页 / 筛选塞进 Zustand

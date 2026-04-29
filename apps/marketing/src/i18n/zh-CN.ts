@@ -408,16 +408,15 @@ const zhCN: LandingCopy = {
     pill: '平均 $54k / 每年 / 每家',
     pillCaption: 'AVOIDABLE PENALTY EXPOSURE IN A CALENDAR YEAR',
     title: '打开工作台。让金额自己说话。',
-    body: '所有工作台界面 14 天免费试用。无需信用卡，无需安装客户端。用 Google 登录，第一笔风险金额会在你完成第一次粘贴的十分钟内出现。',
+    body: '先用 Solo 免费开始。无需信用卡，无需安装客户端。用 Google 登录，第一笔风险金额会在你完成第一次粘贴的十分钟内出现。',
     primaryCta: '进入工作台',
-    secondaryCta: '与创始人聊聊',
+    secondaryCta: '联系销售',
     trust: '无需信用卡 · 随时取消',
   },
   pricing: {
     meta: {
       title: 'DueDateHQ 价格 — 面向 CPA 团队的截止日智能',
-      description:
-        '为美国 CPA 团队设计的简洁订阅方案：截止日风险、可追溯规则和 Stripe 托管支付闭环。',
+      description: '为美国 CPA 团队设计的简洁订阅方案：截止日风险、可追溯规则和共享运营队列。',
       ogImage: '/og/home.zh-CN.png',
     },
     navPricingHref: '/zh-CN/pricing',
@@ -426,12 +425,12 @@ const zhCN: LandingCopy = {
       title: '只为你能看清的截止日风险付费。',
       description:
         '从 Solo 开始评估；当截止日运营需要多人协作时升级到 Firm；需要审计导出和更高覆盖时再与我们定制 Pro。',
-      note: 'Stripe 托管支付 · Firm 14 天试用 · DueDateHQ 不保存卡号',
+      note: 'Solo 无需信用卡 · DueDateHQ 不保存卡号',
     },
     plansHeader: {
       eyebrow: 'PLANS',
       title: '选择适合你事务所的计划。',
-      note: '美元结算 · STRIPE 托管支付',
+      note: '美元定价 · Owner 授权升级',
     },
     plans: [
       {
@@ -443,7 +442,7 @@ const zhCN: LandingCopy = {
         seats: '1 SEAT',
         cta: '打开 App',
         hrefKind: 'app',
-        features: ['Penalty Radar 预览', 'Migration Copilot', '带来源的证据抽屉', '示例数据沙盒'],
+        features: ['单 Owner 工作区', '迁移与规则预览', '带来源的证据', '示例客户工作区'],
       },
       {
         name: 'Firm',
@@ -451,11 +450,16 @@ const zhCN: LandingCopy = {
         price: '$99',
         priceKind: 'numeric',
         cadence: '/ 月',
-        description: '适合需要共享运营队列和明确席位上限的小型 CPA 团队。',
-        seats: '5 SEATS · 14-DAY TRIAL',
-        cta: '开始 Firm 试用',
+        description: '适合需要共享截止日运营的成长型 CPA 事务所。',
+        seats: '5 SEATS',
+        cta: '升级到 Firm',
         hrefKind: 'checkout',
-        features: ['Solo 全部功能', '共享工作台', '24 小时 Pulse 监控', '测试模式 Stripe 支付'],
+        features: [
+          'Solo 全部功能',
+          '包含 5 个席位',
+          '共享截止日运营',
+          'Pulse 与 workboard 访问权限',
+        ],
       },
       {
         name: 'Pro',
@@ -464,25 +468,25 @@ const zhCN: LandingCopy = {
         cadence: '年度协议',
         description: '适合需要审计导出流程、优先 onboarding 和覆盖扩展的团队。',
         seats: '10+ SEATS',
-        cta: '与创始人聊聊',
+        cta: '联系销售',
         hrefKind: 'contact',
-        features: ['Firm 全部功能', '优先 onboarding', '审计导出规划', '覆盖扩展评估'],
+        features: ['Firm 全部功能', '优先 onboarding', '审计导出与覆盖规划', '覆盖扩展评估'],
       },
     ],
     faqHeader: {
       eyebrow: 'FAQ',
-      title: '关于支付的常见问题。',
+      title: '关于计划的常见问题。',
     },
     faq: [
       {
-        question: '在哪里完成支付？',
+        question: '谁可以升级事务所？',
         answer:
-          'DueDateHQ 会把已登录的事务所 Owner 送到 Stripe Checkout。卡号由 Stripe 收集，App 不处理卡号。',
+          '只有当前事务所 Owner 可以创建或变更付费订阅。其他成员可以查看计划状态，但不能更改账单。',
       },
       {
-        question: 'Firm 试用会启用什么？',
+        question: 'Firm 比 Solo 多什么？',
         answer:
-          '测试模式的 Firm checkout 在 webhook 确认后激活 Firm 计划，并把工作区席位上限提升到 5。',
+          'Firm 增加 5 席共享工作区、Pulse 监控和成长型事务所管理截止日运营所需的 workboard 视图。',
       },
       {
         question: '可以继续使用 Solo 吗？',
