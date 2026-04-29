@@ -50,9 +50,55 @@ jobs:
       - name: Secret scan
         run: gitleaks detect --source . --no-git --redact
 
-  deploy-staging:
+  staging_change_filter:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: ci
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.filter.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        run: |
+          before='${{ github.event.before }}'
+          after='${{ github.sha }}'
+          changed_files="$(mktemp)"
+
+          if [[ "$before" =~ ^0+$ ]]; then
+            git diff-tree --no-commit-id --name-only -r "$after" > "$changed_files"
+          elif git cat-file -e "$before^{commit}" 2>/dev/null; then
+            git diff --name-only "$before" "$after" > "$changed_files"
+          else
+            echo "Before commit is unavailable; defaulting to staging deploy."
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          deploy=false
+          while IFS= read -r file; do
+            case "$file" in
+              apps/app/*|apps/server/*|apps/marketing/*|packages/*|scripts/*)
+                deploy=true
+                break
+                ;;
+              .github/workflows/ci.yml|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|tsconfig.json|vite.config.ts)
+                deploy=true
+                break
+                ;;
+            esac
+          done < "$changed_files"
+
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+          echo "Staging deploy required: $deploy"
+          sed 's/^/- /' "$changed_files"
+
+  deploy-staging:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.staging_change_filter.outputs.deploy == 'true'
+    needs:
+      - ci
+      - staging_change_filter
     runs-on: ubuntu-latest
     environment: due-date-hq-staging
     env:
