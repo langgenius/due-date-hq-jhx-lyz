@@ -13,6 +13,9 @@ export const RATE_LIMIT = {
   backoffOn429Ms: 15 * 60_000,
 } as const
 
+const ROBOTS_CACHE_TTL_MS = 24 * 60 * 60 * 1000
+const robotsCache = new Map<string, { checkedAt: number; body: string | null }>()
+
 export async function hashText(value: string): Promise<string> {
   const data = new TextEncoder().encode(value)
   const digest = await crypto.subtle.digest('SHA-256', data)
@@ -53,9 +56,17 @@ function pathDisallowedByRobots(robots: string, userAgent: string, path: string)
 async function assertRobotsAllowed(ctx: IngestCtx, url: URL): Promise<void> {
   const robotsUrl = new URL('/robots.txt', url.origin)
   try {
-    const response = await ctx.fetch(robotsUrl, { headers: DEFAULT_HEADERS })
-    if (!response.ok) return
-    const robots = await response.text()
+    const cached = robotsCache.get(robotsUrl.toString())
+    const now = Date.now()
+    let robots: string | null
+    if (cached && now - cached.checkedAt < ROBOTS_CACHE_TTL_MS) {
+      robots = cached.body
+    } else {
+      const response = await ctx.fetch(robotsUrl, { headers: DEFAULT_HEADERS })
+      robots = response.ok ? await response.text() : null
+      robotsCache.set(robotsUrl.toString(), { checkedAt: now, body: robots })
+    }
+    if (!robots) return
     if (pathDisallowedByRobots(robots, 'DueDateHQ-PulseBot/1.0', url.pathname)) {
       throw new Error(`Pulse source robots.txt disallows ${url.pathname}`)
     }

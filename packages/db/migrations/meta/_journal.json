@@ -78,6 +78,13 @@
       "when": 1777455450737,
       "tag": "0010_curved_epoch",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1777480277246,
+      "tag": "0011_natural_yellow_claw",
+      "breakpoints": true
     }
   ]
 }

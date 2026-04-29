@@ -264,6 +264,18 @@ Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 
 `pulse_application` 是 obligation 级真实 Apply/Revert 记录；`pulse_firm_alert.status='applied'`
 只能由该 firm 下全部选中 application 推导或事务内同步写入，不能回写到全局 `pulse.status`。
 
+**pulse_source_signal**
+
+| 字段                                                                           | 备注                                         |
+| ------------------------------------------------------------------------------ | -------------------------------------------- |
+| `id` / `source_id` / `external_id` / `content_hash`                            | T2/T3 信号去重键；不创建客户可见 Pulse       |
+| `title` / `official_source_url` / `published_at` / `fetched_at` / `raw_r2_key` | 原文仍存 R2，供 ops 交叉验证                 |
+| `tier` / `jurisdiction` / `signal_type='anticipated_pulse'`                    | FEMA/GovDelivery 等预判信号                  |
+| `status ∈ (open, linked, dismissed)` / `linked_pulse_id`                       | T1 原文落地后可关联到正式 `pulse` 提升置信度 |
+
+`pulse_source_signal` 明确不进入 Evidence Chain，也不会创建 `pulse_firm_alert`；只有
+T1 `pulse_source_snapshot → pulse.pending_review → approve` 才能触达 Banner / Email。
+
 ### 2.4 Migration
 
 Drizzle schema: `packages/db/src/schema/migration.ts`。

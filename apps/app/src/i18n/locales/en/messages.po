@@ -137,6 +137,12 @@ msgstr "{0} seats"
 msgid "{0} selected · {1} eligible · {2} need review"
 msgstr "{0} selected · {1} eligible · {2} need review"
 
+#. placeholder {0}: filteredAlerts.length
+#. placeholder {1}: alerts.length
+#: src/features/pulse/AlertsListPage.tsx
+msgid "{0} shown · {1} total"
+msgstr "{0} shown · {1} total"
+
 #. placeholder {0}: topRows.filter((row) => row.evidenceCount > 0).length
 #: src/routes/dashboard.tsx
 msgid "{0} top rows have evidence."
@@ -170,6 +176,10 @@ msgstr "{ignoredCount, plural, one {# column is currently ignored.} other {# col
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "{impacted, plural, one {# client} other {# clients}}"
 msgstr "{impacted, plural, one {# client} other {# clients}}"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "{label} returned degraded or failing health on the latest checked run. Existing alerts remain reviewable."
+msgstr "{label} returned degraded or failing health on the latest checked run. Existing alerts remain reviewable."
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
@@ -309,6 +319,7 @@ msgid "Actions"
 msgstr "Actions"
 
 #: src/features/members/members-page.tsx
+#: src/features/pulse/AlertsListPage.tsx
 msgid "Active"
 msgstr "Active"
 
@@ -424,9 +435,17 @@ msgstr "All review-flagged"
 msgid "All seats are in use. Upgrade to invite more, or suspend an active member to free a seat."
 msgstr "All seats are in use. Upgrade to invite more, or suspend an active member to free a seat."
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All sources"
+msgstr "All sources"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "All states"
 msgstr "All states"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All statuses"
+msgstr "All statuses"
 
 #: src/routes/_entry-layout.tsx
 msgid "All systems operational"
@@ -465,6 +484,7 @@ msgstr "Applicability review"
 msgid "Applicability review · needs CPA confirmation at generation time."
 msgstr "Applicability review · needs CPA confirmation at generation time."
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Applied"
 msgstr "Applied"
@@ -781,6 +801,15 @@ msgstr "Command palette"
 msgid "Confidence"
 msgstr "Confidence"
 
+#. placeholder {0}: row.clientName
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Confirm {0} applies to this relief"
+msgstr "Confirm {0} applies to this relief"
+
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Confirm applies"
+msgstr "Confirm applies"
+
 #: src/routes/billing.checkout.tsx
 msgid "Confirm checkout"
 msgstr "Confirm checkout"
@@ -810,6 +839,10 @@ msgstr "Continue with Google"
 #: src/routes/firm.tsx
 msgid "Coordinator"
 msgstr "Coordinator"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Copy source excerpt"
+msgstr "Copy source excerpt"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not create firm."
@@ -862,6 +895,10 @@ msgstr "Couldn't apply Default Matrix"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't apply Pulse"
 msgstr "Couldn't apply Pulse"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Couldn't copy source excerpt"
+msgstr "Couldn't copy source excerpt"
 
 #: src/routes/clients.tsx
 msgid "Couldn't create client"
@@ -1069,6 +1106,7 @@ msgstr "Discard import?"
 msgid "Dismiss"
 msgstr "Dismiss"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Dismissed"
 msgstr "Dismissed"
@@ -1284,6 +1322,14 @@ msgstr "Filing only — payment NOT extended."
 #: src/features/rules/coverage-tab.tsx
 msgid "Filing-frequency review"
 msgstr "Filing-frequency review"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Filter by alert status"
+msgstr "Filter by alert status"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Filter by source"
+msgstr "Filter by source"
 
 #: src/routes/workboard.tsx
 msgid "Filter by status, search clients, and sort by due date."
@@ -1784,6 +1830,10 @@ msgstr "Next review"
 msgid "No active firm is selected."
 msgstr "No active firm is selected."
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "No alerts match these filters."
+msgstr "No alerts match these filters."
+
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events match these filters."
 msgstr "No audit events match these filters."
@@ -2135,6 +2185,7 @@ msgstr "Paid feature"
 msgid "Paid subscriptions bill the organization, not an individual user."
 msgstr "Paid subscriptions bill the organization, not an individual user."
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Partially applied"
 msgstr "Partially applied"
@@ -2292,6 +2343,10 @@ msgstr "Pulse and workboard access"
 msgid "Pulse evidence linked to each obligation"
 msgstr "Pulse evidence linked to each obligation"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Pulse source needs attention"
+msgstr "Pulse source needs attention"
+
 #: src/routes/workboard.tsx
 msgid "Queue controls"
 msgstr "Queue controls"
@@ -2426,6 +2481,7 @@ msgid "Reserved"
 msgstr "Reserved"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/pulse/AlertsListPage.tsx
 #: src/routes/workboard.tsx
 msgid "Reset"
 msgstr "Reset"
@@ -2450,6 +2506,7 @@ msgstr "Retry"
 msgid "Return home"
 msgstr "Return home"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Reverted"
@@ -2774,6 +2831,7 @@ msgstr "Signing out…"
 msgid "Snooze 24h"
 msgstr "Snooze 24h"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Snoozed"
 msgstr "Snoozed"
@@ -2826,9 +2884,17 @@ msgstr "Source"
 msgid "Source excerpt"
 msgstr "Source excerpt"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Source excerpt copied"
+msgstr "Source excerpt copied"
+
 #: src/routes/dashboard.tsx
 msgid "source gaps"
 msgstr "source gaps"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Source needs attention · {label}"
+msgstr "Source needs attention · {label}"
 
 #: src/routes/billing.tsx
 msgid "Source-backed evidence"

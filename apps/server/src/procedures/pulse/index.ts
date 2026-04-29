@@ -5,7 +5,7 @@ import {
   type PulseAlertPublic,
   type PulseSourceHealth,
 } from '@duedatehq/contracts'
-import { phase0PulseAdapters } from '@duedatehq/ingest/adapters'
+import { livePulseAdapters } from '@duedatehq/ingest/adapters'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { requireTenant, type RpcContext } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
@@ -28,11 +28,17 @@ interface PulseAlertRow {
 
 const SOURCE_LABELS: Record<string, string> = {
   'irs.disaster': 'IRS Disaster Relief',
+  'irs.newsroom': 'IRS Newsroom',
+  'irs.guidance': 'IRS Guidance',
   'ca.ftb.newsroom': 'CA FTB Newsroom',
   'ca.ftb.tax_news': 'CA FTB Tax News',
+  'ca.cdtfa.news': 'CA CDTFA News',
   'tx.cpa.rss': 'TX Comptroller RSS',
+  'fl.dor.tips': 'FL DOR Tax Tips',
+  'wa.dor.news': 'WA DOR News',
+  'wa.dor.whats_new': 'WA DOR What’s New',
   'fema.declarations': 'FEMA declarations',
-  'ny.dtf.press': 'NY DTF fixture',
+  'ny.dtf.press': 'NY DTF Press',
 }
 
 interface PulseAffectedClientRow {
@@ -167,23 +173,21 @@ const listSourceHealth = os.pulse.listSourceHealth.handler(async ({ context }) =
   const persisted = new Map(
     (await scoped.pulse.listSourceStates()).map((row) => [row.sourceId, row]),
   )
-  const sources: PulseSourceHealth[] = phase0PulseAdapters
-    .filter((adapter) => adapter.id !== 'ny.dtf.press')
-    .map((adapter) => {
-      const state = persisted.get(adapter.id)
-      return {
-        sourceId: adapter.id,
-        label: SOURCE_LABELS[adapter.id] ?? adapter.id,
-        tier: adapter.tier,
-        jurisdiction: adapter.jurisdiction,
-        enabled: state?.enabled ?? true,
-        healthStatus: state?.healthStatus ?? 'degraded',
-        lastCheckedAt: toIsoOrNull(state?.lastCheckedAt ?? null),
-        lastSuccessAt: toIsoOrNull(state?.lastSuccessAt ?? null),
-        nextCheckAt: toIsoOrNull(state?.nextCheckAt ?? null),
-        consecutiveFailures: state?.consecutiveFailures ?? 0,
-      }
-    })
+  const sources: PulseSourceHealth[] = livePulseAdapters.map((adapter) => {
+    const state = persisted.get(adapter.id)
+    return {
+      sourceId: adapter.id,
+      label: SOURCE_LABELS[adapter.id] ?? adapter.id,
+      tier: adapter.tier,
+      jurisdiction: adapter.jurisdiction,
+      enabled: state?.enabled ?? true,
+      healthStatus: state?.healthStatus ?? 'degraded',
+      lastCheckedAt: toIsoOrNull(state?.lastCheckedAt ?? null),
+      lastSuccessAt: toIsoOrNull(state?.lastSuccessAt ?? null),
+      nextCheckAt: toIsoOrNull(state?.nextCheckAt ?? null),
+      consecutiveFailures: state?.consecutiveFailures ?? 0,
+    }
+  })
   return { sources }
 })
 
@@ -220,6 +224,7 @@ const apply = os.pulse.apply.handler(async ({ input, context }) => {
         scoped.pulse.apply({
           alertId: input.alertId,
           obligationIds: input.obligationIds,
+          confirmedObligationIds: input.confirmedObligationIds ?? [],
           userId,
         }),
     )

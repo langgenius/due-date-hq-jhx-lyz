@@ -72,6 +72,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
   const invalidate = usePulseInvalidation()
 
   const [selection, setSelection] = useState<Set<string>>(() => new Set())
+  const [confirmedReviewIds, setConfirmedReviewIds] = useState<Set<string>>(() => new Set())
   const [resetKey, setResetKey] = useState<string | null>(null)
 
   // Re-derive default selection when the loaded alert changes — without
@@ -79,17 +80,35 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
   const nextResetKey = detail ? `${detail.alert.id}:${detail.affectedClients.length}` : null
   if (detail && resetKey !== nextResetKey) {
     setSelection(defaultSelection(detail.affectedClients))
+    setConfirmedReviewIds(new Set())
     setResetKey(nextResetKey)
   }
   if (!open && resetKey !== null) {
     setSelection(new Set())
+    setConfirmedReviewIds(new Set())
     setResetKey(null)
   }
 
   const stats = useMemo<SelectionStats | null>(
-    () => (detail ? computeSelectionStats(detail.affectedClients, selection) : null),
-    [detail, selection],
+    () =>
+      detail ? computeSelectionStats(detail.affectedClients, selection, confirmedReviewIds) : null,
+    [detail, selection, confirmedReviewIds],
   )
+
+  const handleToggleNeedsReviewConfirmation = (obligationId: string, confirmed: boolean) => {
+    setConfirmedReviewIds((current) => {
+      const next = new Set(current)
+      if (confirmed) next.add(obligationId)
+      else next.delete(obligationId)
+      return next
+    })
+    setSelection((current) => {
+      const next = new Set(current)
+      if (confirmed) next.add(obligationId)
+      else next.delete(obligationId)
+      return next
+    })
+  }
 
   const revertMutation = useMutation(
     orpc.pulse.revert.mutationOptions({
@@ -242,7 +261,9 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 <AffectedClientsTable
                   rows={detail.affectedClients}
                   selection={selection}
+                  confirmedReviewIds={confirmedReviewIds}
                   onChangeSelection={setSelection}
+                  onToggleNeedsReviewConfirmation={handleToggleNeedsReviewConfirmation}
                   readOnly={!canApply}
                 />
               </section>
@@ -263,6 +284,9 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 applyMutation.mutate({
                   alertId: detail.alert.id,
                   obligationIds: Array.from(selection),
+                  confirmedObligationIds: Array.from(selection).filter((obligationId) =>
+                    confirmedReviewIds.has(obligationId),
+                  ),
                 })
               }
               onDismiss={() => dismissMutation.mutate({ alertId: detail.alert.id })}

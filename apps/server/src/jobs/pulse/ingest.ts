@@ -1,6 +1,7 @@
 import { createDb, makePulseOpsRepo } from '@duedatehq/db'
 import { hashText } from '@duedatehq/ingest/http'
-import { phase0PulseAdapters } from '@duedatehq/ingest/adapters'
+import { livePulseAdapters } from '@duedatehq/ingest/adapters'
+import { RATE_LIMIT } from '@duedatehq/ingest/http'
 import type { IngestCtx, SourceAdapter } from '@duedatehq/ingest/types'
 import type { Env } from '../../env'
 
@@ -11,6 +12,7 @@ export interface PulseExtractQueueMessage {
 
 interface IngestCounts {
   snapshots: number
+  signals: number
   queued: number
   duplicates: number
   failures: number
@@ -60,16 +62,41 @@ function sumCounts(rows: readonly IngestCounts[]): IngestCounts {
   return rows.reduce(
     (acc, row) => ({
       snapshots: acc.snapshots + row.snapshots,
+      signals: acc.signals + row.signals,
       queued: acc.queued + row.queued,
       duplicates: acc.duplicates + row.duplicates,
       failures: acc.failures + row.failures,
     }),
-    { snapshots: 0, queued: 0, duplicates: 0, failures: 0 },
+    { snapshots: 0, signals: 0, queued: 0, duplicates: 0, failures: 0 },
   )
 }
 
 function nextCheckAt(from: Date, intervalMs: number): Date {
   return new Date(from.getTime() + intervalMs)
+}
+
+function createPoliteFetch(fetchImpl: typeof fetch): typeof fetch {
+  const locks = new Map<string, Promise<void>>()
+  const lastFetchAt = new Map<string, number>()
+
+  return (async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
+    const url =
+      input instanceof Request ? new URL(input.url) : input instanceof URL ? input : new URL(input)
+    const host = url.host
+    const previous = locks.get(host) ?? Promise.resolve()
+    const run = previous.then(async () => {
+      const last = lastFetchAt.get(host) ?? 0
+      const waitMs = Math.max(0, RATE_LIMIT.minIntervalMs - (Date.now() - last))
+      if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs))
+      lastFetchAt.set(host, Date.now())
+    })
+    locks.set(
+      host,
+      run.catch(() => undefined).then(() => undefined),
+    )
+    await run
+    return fetchImpl(input, init)
+  }) as typeof fetch
 }
 
 async function ingestAdapter(
@@ -87,7 +114,7 @@ async function ingestAdapter(
     now: checkedAt,
   })
   if (!state.enabled || (state.nextCheckAt && state.nextCheckAt.getTime() > checkedAt.getTime())) {
-    return { snapshots: 0, queued: 0, duplicates: 0, failures: 0 }
+    return { snapshots: 0, signals: 0, queued: 0, duplicates: 0, failures: 0 }
   }
 
   try {
@@ -98,6 +125,11 @@ async function ingestAdapter(
         items: rawSnapshot.notModified ? [] : await adapter.parse(rawSnapshot, ctx),
       })),
     )
+    const changedSnapshots = rawSnapshots.filter((snapshot) => !snapshot.notModified).length
+    const parsedItemCount = parsedGroups.reduce((count, group) => count + group.items.length, 0)
+    if (changedSnapshots > 0 && parsedItemCount === 0) {
+      throw new Error(`selector_drift: ${adapter.id} produced no parsed items`)
+    }
 
     const writes = parsedGroups.flatMap(({ rawSnapshot, items }) =>
       items.map(async (item): Promise<IngestCounts> => {
@@ -108,6 +140,28 @@ async function ingestAdapter(
           body: item.rawText,
           contentType: 'text/plain; charset=utf-8',
         })
+        if (adapter.canCreatePulse === false) {
+          const result = await repo.createSourceSignal({
+            sourceId: item.sourceId,
+            externalId: item.externalId,
+            title: item.title,
+            officialSourceUrl: item.officialSourceUrl,
+            publishedAt: item.publishedAt,
+            fetchedAt: rawSnapshot.fetchedAt,
+            contentHash: archived.contentHash,
+            rawR2Key: archived.r2Key,
+            tier: adapter.tier,
+            jurisdiction: adapter.jurisdiction,
+            signalType: 'anticipated_pulse',
+          })
+          return {
+            snapshots: 0,
+            signals: result.inserted ? 1 : 0,
+            queued: 0,
+            duplicates: result.inserted ? 0 : 1,
+            failures: 0,
+          }
+        }
         const result = await repo.createSourceSnapshot({
           sourceId: item.sourceId,
           externalId: item.externalId,
@@ -119,13 +173,13 @@ async function ingestAdapter(
           rawR2Key: archived.r2Key,
         })
         if (!result.inserted) {
-          return { snapshots: 1, queued: 0, duplicates: 1, failures: 0 }
+          return { snapshots: 1, signals: 0, queued: 0, duplicates: 1, failures: 0 }
         }
         await queue.send({
           type: 'pulse.extract',
           snapshotId: result.snapshot.id,
         } satisfies PulseExtractQueueMessage)
-        return { snapshots: 1, queued: 1, duplicates: 0, failures: 0 }
+        return { snapshots: 1, signals: 0, queued: 1, duplicates: 0, failures: 0 }
       }),
     )
 
@@ -135,7 +189,7 @@ async function ingestAdapter(
       sourceId: adapter.id,
       checkedAt,
       nextCheckAt: nextCheckAt(checkedAt, adapter.cronIntervalMs),
-      changed: counts.queued > 0,
+      changed: counts.queued + counts.signals > 0,
       ...(freshest?.etag !== undefined ? { etag: freshest.etag } : {}),
       ...(freshest?.lastModified !== undefined ? { lastModified: freshest.lastModified } : {}),
     })
@@ -147,18 +201,24 @@ async function ingestAdapter(
       nextCheckAt: nextCheckAt(checkedAt, Math.min(adapter.cronIntervalMs, 15 * 60 * 1000)),
       error: error instanceof Error ? error.message : 'Pulse ingest failed.',
     })
-    return { snapshots: 0, queued: 0, duplicates: 0, failures: 1 }
+    return { snapshots: 0, signals: 0, queued: 0, duplicates: 0, failures: 1 }
   }
 }
 
 export async function runPulseIngest(
   env: Pick<Env, 'DB' | 'R2_PULSE' | 'PULSE_QUEUE'>,
-  adapters: readonly SourceAdapter[] = phase0PulseAdapters,
-): Promise<{ snapshots: number; queued: number; duplicates: number; failures: number }> {
+  adapters: readonly SourceAdapter[] = livePulseAdapters,
+): Promise<{
+  snapshots: number
+  signals: number
+  queued: number
+  duplicates: number
+  failures: number
+}> {
   const db = createDb(env.DB)
   const repo = makePulseOpsRepo(db)
   const ctx: IngestCtx = {
-    fetch,
+    fetch: createPoliteFetch(fetch),
     getSourceState: async (sourceId) => {
       const state = await repo.getSourceState(sourceId)
       return state ? { etag: state.etag, lastModified: state.lastModified } : null

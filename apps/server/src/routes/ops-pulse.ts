@@ -3,7 +3,7 @@ import { HTTPException } from 'hono/http-exception'
 import { createDb, makePulseOpsRepo } from '@duedatehq/db'
 import type { ContextVars, Env } from '../env'
 
-type OpsPulseEnv = Pick<Env, 'DB' | 'R2_PULSE' | 'PULSE_OPS_TOKEN'>
+type OpsPulseEnv = Pick<Env, 'DB' | 'R2_PULSE' | 'PULSE_QUEUE' | 'PULSE_OPS_TOKEN'>
 
 function requireOpsToken(c: {
   env: OpsPulseEnv
@@ -67,6 +67,17 @@ export const opsPulseRoute = new Hono<{
     const repo = makePulseOpsRepo(createDb(c.env.DB))
     const rows = await repo.listPendingPulses({ limit: 50 })
     return c.json({ pulses: rows.map((row) => serializePulse(row)) })
+  })
+  .post('/snapshots/:snapshotId/retry', async (c) => {
+    const repo = makePulseOpsRepo(createDb(c.env.DB))
+    const snapshot = await repo.getSourceSnapshot(c.req.param('snapshotId'))
+    if (!snapshot) throw new HTTPException(404, { message: 'Pulse snapshot not found.' })
+    await repo.updateSourceSnapshotStatus(snapshot.id, {
+      parseStatus: 'pending_extract',
+      failureReason: null,
+    })
+    await c.env.PULSE_QUEUE.send({ type: 'pulse.extract', snapshotId: snapshot.id })
+    return c.json({ ok: true, snapshotId: snapshot.id })
   })
   .get('/:pulseId', async (c) => {
     const repo = makePulseOpsRepo(createDb(c.env.DB))

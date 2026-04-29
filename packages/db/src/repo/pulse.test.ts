@@ -237,6 +237,31 @@ describe('makePulseRepo', () => {
     expect(batchStatements).toHaveLength(0)
   })
 
+  it('applies a needs_review obligation after explicit confirmation', async () => {
+    const { db, batchStatements } = fakeDb([
+      [ALERT],
+      [NEEDS_REVIEW],
+      [],
+      [NEEDS_REVIEW],
+      [],
+      [{ email: 'manager@example.com' }],
+      [{ ...ALERT, matchedCount: 1, needsReviewCount: 0 }],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    const result = await repo.apply({
+      alertId: 'alert-1',
+      obligationIds: ['oi-review'],
+      confirmedObligationIds: ['oi-review'],
+      userId: 'user-1',
+      now: new Date('2026-04-15T18:30:00.000Z'),
+    })
+
+    expect(result.appliedCount).toBe(1)
+    expect(batchStatements).toHaveLength(6)
+    expect(batchStatements.filter((statement) => isKind(statement, 'update'))).toHaveLength(2)
+  })
+
   it('rejects apply with no eligible candidates when selections are outside the alert', async () => {
     const { db, batchStatements } = fakeDb([[ALERT], [], []])
     const repo = makePulseRepo(db, 'firm-1')

@@ -42,6 +42,7 @@ import { EvidencePublicSchema, evidenceContract } from './evidence'
 import {
   PulseAffectedClientSchema,
   PulseAlertPublicSchema,
+  PulseApplyInputSchema,
   PulseApplyOutputSchema,
   PulseFirmAlertStatusSchema,
   pulseContract,
@@ -292,6 +293,8 @@ describe('@duedatehq/contracts', () => {
   it('allows migration and Pulse audit strings used by batch apply', () => {
     expect(AuditActionSchema.parse('migration.batch.created')).toBe('migration.batch.created')
     expect(PulseAuditActionSchema.parse('pulse.apply')).toBe('pulse.apply')
+    expect(PulseAuditActionSchema.parse('pulse.dismiss')).toBe('pulse.dismiss')
+    expect(PulseAuditActionSchema.parse('pulse.quarantine')).toBe('pulse.quarantine')
     expect(PulseAuditActionSchema.parse('pulse.snooze')).toBe('pulse.snooze')
     expect(AuditActionSchema.parse('pulse.revert')).toBe('pulse.revert')
     expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')
@@ -349,6 +352,13 @@ describe('@duedatehq/contracts', () => {
       reason: 'Client county is missing; confirm county applicability before applying.',
     })
     expect(affected.matchStatus).toBe('needs_review')
+
+    const applyInput = PulseApplyInputSchema.parse({
+      alertId: '11111111-1111-4111-8111-111111111111',
+      obligationIds: ['33333333-3333-4333-8333-333333333333'],
+      confirmedObligationIds: ['33333333-3333-4333-8333-333333333333'],
+    })
+    expect(applyInput.confirmedObligationIds).toEqual(['33333333-3333-4333-8333-333333333333'])
 
     const apply = PulseApplyOutputSchema.parse({
       alert: { ...alert, status: 'applied', matchedCount: 0, needsReviewCount: 1 },

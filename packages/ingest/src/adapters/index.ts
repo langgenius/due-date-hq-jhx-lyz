@@ -4,10 +4,16 @@ import { extractLinks, stripHtml } from '../selectors'
 import type { IngestCtx, ParsedItem, SourceAdapter } from '../types'
 
 const IRS_DISASTER_URL = 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations'
+const IRS_NEWSROOM_URL = 'https://www.irs.gov/newsroom'
+const IRS_GUIDANCE_URL = 'https://www.irs.gov/newsroom/irs-guidance'
 const TX_CPA_RSS_URL = 'https://comptroller.texas.gov/about/media-center/rss/'
 const NY_DTF_PRESS_URL = 'https://www.tax.ny.gov/press/'
 const CA_FTB_NEWSROOM_URL = 'https://www.ftb.ca.gov/about-ftb/newsroom/index.html'
 const CA_FTB_TAX_NEWS_URL = 'https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/index.html'
+const CA_CDTFA_NEWS_URL = 'https://www.cdtfa.ca.gov/news/'
+const FL_DOR_TIPS_URL = 'https://floridarevenue.com/taxes/tips/Pages/default.aspx'
+const WA_DOR_NEWS_URL = 'https://dor.wa.gov/about/news-releases'
+const WA_DOR_WHATS_NEW_URL = 'https://dor.wa.gov/about/whats-new'
 const FEMA_DECLARATIONS_URL =
   'https://www.fema.gov/openfema-data-page/disaster-declarations-summaries-v2'
 const FEMA_API_URL =
@@ -120,6 +126,46 @@ export const irsDisasterAdapter: SourceAdapter = {
   },
 }
 
+export const irsNewsroomAdapter: SourceAdapter = {
+  id: 'irs.newsroom',
+  tier: 'T1',
+  cronIntervalMs: 120 * 60 * 1000,
+  jurisdiction: 'federal',
+  async fetch(ctx) {
+    return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: IRS_NEWSROOM_URL })]
+  },
+  async parse(snapshot, ctx) {
+    if (snapshot.notModified) return []
+    return parsedItemsFromLinks({
+      sourceId: this.id,
+      baseUrl: IRS_NEWSROOM_URL,
+      html: snapshot.body,
+      ctx,
+      limit: 12,
+    })
+  },
+}
+
+export const irsGuidanceAdapter: SourceAdapter = {
+  id: 'irs.guidance',
+  tier: 'T1',
+  cronIntervalMs: 120 * 60 * 1000,
+  jurisdiction: 'federal',
+  async fetch(ctx) {
+    return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: IRS_GUIDANCE_URL })]
+  },
+  async parse(snapshot, ctx) {
+    if (snapshot.notModified) return []
+    return parsedItemsFromLinks({
+      sourceId: this.id,
+      baseUrl: IRS_GUIDANCE_URL,
+      html: snapshot.body,
+      ctx,
+      limit: 12,
+    })
+  },
+}
+
 export const txComptrollerRssAdapter: SourceAdapter = {
   id: 'tx.cpa.rss',
   tier: 'T1',
@@ -212,6 +258,151 @@ export const caFtbTaxNewsAdapter: SourceAdapter = {
   },
 }
 
+export const caCdtfaNewsAdapter: SourceAdapter = {
+  id: 'ca.cdtfa.news',
+  tier: 'T1',
+  cronIntervalMs: 120 * 60 * 1000,
+  jurisdiction: 'CA',
+  async fetch(ctx) {
+    return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: CA_CDTFA_NEWS_URL })]
+  },
+  async parse(snapshot, ctx) {
+    if (snapshot.notModified) return []
+    const items = await parsedItemsFromLinks({
+      sourceId: this.id,
+      baseUrl: CA_CDTFA_NEWS_URL,
+      html: snapshot.body,
+      ctx,
+      limit: 12,
+    })
+    if (items.length > 0) return items
+    return [
+      parsedItemFromHtml({
+        sourceId: this.id,
+        sourceUrl: CA_CDTFA_NEWS_URL,
+        title: 'CA CDTFA news update',
+        html: snapshot.body,
+      }),
+    ]
+  },
+}
+
+export const nyDtfPressAdapter: SourceAdapter = {
+  id: 'ny.dtf.press',
+  tier: 'T1',
+  cronIntervalMs: 120 * 60 * 1000,
+  jurisdiction: 'NY',
+  async fetch(ctx) {
+    return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: NY_DTF_PRESS_URL })]
+  },
+  async parse(snapshot, ctx) {
+    if (snapshot.notModified) return []
+    const items = await parsedItemsFromLinks({
+      sourceId: this.id,
+      baseUrl: NY_DTF_PRESS_URL,
+      html: snapshot.body,
+      ctx,
+      limit: 12,
+    })
+    if (items.length > 0) return items
+    return [
+      parsedItemFromHtml({
+        sourceId: this.id,
+        sourceUrl: NY_DTF_PRESS_URL,
+        title: 'NY DTF press update',
+        html: snapshot.body,
+      }),
+    ]
+  },
+}
+
+export const flDorTipsAdapter: SourceAdapter = {
+  id: 'fl.dor.tips',
+  tier: 'T1',
+  cronIntervalMs: 120 * 60 * 1000,
+  jurisdiction: 'FL',
+  async fetch(ctx) {
+    return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: FL_DOR_TIPS_URL })]
+  },
+  async parse(snapshot, ctx) {
+    if (snapshot.notModified) return []
+    const items = await parsedItemsFromLinks({
+      sourceId: this.id,
+      baseUrl: FL_DOR_TIPS_URL,
+      html: snapshot.body,
+      ctx,
+      limit: 12,
+    })
+    if (items.length > 0) return items
+    return [
+      parsedItemFromHtml({
+        sourceId: this.id,
+        sourceUrl: FL_DOR_TIPS_URL,
+        title: 'FL DOR tax tip update',
+        html: snapshot.body,
+      }),
+    ]
+  },
+}
+
+export const waDorNewsAdapter: SourceAdapter = {
+  id: 'wa.dor.news',
+  tier: 'T1',
+  cronIntervalMs: 120 * 60 * 1000,
+  jurisdiction: 'WA',
+  async fetch(ctx) {
+    return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: WA_DOR_NEWS_URL })]
+  },
+  async parse(snapshot, ctx) {
+    if (snapshot.notModified) return []
+    const items = await parsedItemsFromLinks({
+      sourceId: this.id,
+      baseUrl: WA_DOR_NEWS_URL,
+      html: snapshot.body,
+      ctx,
+      limit: 12,
+    })
+    if (items.length > 0) return items
+    return [
+      parsedItemFromHtml({
+        sourceId: this.id,
+        sourceUrl: WA_DOR_NEWS_URL,
+        title: 'WA DOR news update',
+        html: snapshot.body,
+      }),
+    ]
+  },
+}
+
+export const waDorWhatsNewAdapter: SourceAdapter = {
+  id: 'wa.dor.whats_new',
+  tier: 'T1',
+  cronIntervalMs: 120 * 60 * 1000,
+  jurisdiction: 'WA',
+  async fetch(ctx) {
+    return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: WA_DOR_WHATS_NEW_URL })]
+  },
+  async parse(snapshot, ctx) {
+    if (snapshot.notModified) return []
+    const items = await parsedItemsFromLinks({
+      sourceId: this.id,
+      baseUrl: WA_DOR_WHATS_NEW_URL,
+      html: snapshot.body,
+      ctx,
+      limit: 12,
+    })
+    if (items.length > 0) return items
+    return [
+      parsedItemFromHtml({
+        sourceId: this.id,
+        sourceUrl: WA_DOR_WHATS_NEW_URL,
+        title: 'WA DOR what is new update',
+        html: snapshot.body,
+      }),
+    ]
+  },
+}
+
 function isFemaFeature(value: unknown): value is {
   attributes: Record<string, unknown>
 } {
@@ -239,6 +430,7 @@ export const femaDeclarationsAdapter: SourceAdapter = {
   tier: 'T2',
   cronIntervalMs: 30 * 60 * 1000,
   jurisdiction: 'federal',
+  canCreatePulse: false,
   async fetch(ctx) {
     return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: FEMA_API_URL })]
   },
@@ -327,11 +519,19 @@ export const nyDtfPressFixtureAdapter: SourceAdapter = {
   },
 }
 
-export const phase0PulseAdapters = [
+export const livePulseAdapters = [
   irsDisasterAdapter,
+  irsNewsroomAdapter,
+  irsGuidanceAdapter,
   caFtbNewsroomAdapter,
   caFtbTaxNewsAdapter,
+  caCdtfaNewsAdapter,
+  nyDtfPressAdapter,
   txComptrollerRssAdapter,
+  flDorTipsAdapter,
+  waDorNewsAdapter,
+  waDorWhatsNewAdapter,
   femaDeclarationsAdapter,
-  nyDtfPressFixtureAdapter,
 ] as const
+
+export const phase0PulseAdapters = livePulseAdapters

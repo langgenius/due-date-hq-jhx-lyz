@@ -1,0 +1,45 @@
+---
+title: 'Pulse Pilot Hardening'
+date: 2026-04-30
+---
+
+# Pulse Pilot Hardening
+
+## Context
+
+Pulse had the user-visible loop in place, but pilot readiness still needed cleaner notification
+semantics, audit action separation, T2 source gating, and a small ops workflow before the Overlay
+Engine migration.
+
+## Change
+
+- Split Pulse digest payload semantics with `event='pulse_approved'` and `event='pulse_applied'`
+  while keeping the existing `email_outbox.type='pulse_digest'` transport.
+- Queue approved digests for firm Owners and Managers during ops approval, before any CPA applies
+  due-date changes.
+- Added `pulse.dismiss` and `pulse.quarantine` audit actions so firm dismissal no longer reuses the
+  global reject semantic.
+- Added `pulse_source_signal` for FEMA/T2 anticipated signals; `SourceAdapter.canCreatePulse=false`
+  now prevents customer-visible Pulse creation and queue extraction.
+- Expanded live adapters to IRS newsroom/guidance, CA CDTFA, real NY DTF, FL DOR, and WA DOR sources;
+  retained the NY fixture for ingest tests only.
+- Added per-host polite fetch throttling, cached robots checks, selector drift classification, and
+  source attention states in Dashboard banner and `/alerts`.
+- Added needs-review confirmation in the Pulse drawer so missing-county rows can be applied only
+  after explicit CPA confirmation.
+- Added local `/alerts` status/source filters, source excerpt copy affordance, an ops CLI, and a Pulse
+  ingest stuck runbook.
+
+## Notes
+
+- Apply is still the documented Phase 0 write path: it updates
+  `obligation_instance.current_due_date` and records `pulse_application` as the revert anchor.
+- Overlay Engine / ExceptionRule remains the next major migration and should not be mixed into the
+  pilot hardening change.
+
+## Validation
+
+- `pnpm --filter @duedatehq/app test -- pulse`
+- `pnpm --filter @duedatehq/server test -- pulse ingest ops queue outbox`
+- `pnpm --filter @duedatehq/contracts test`
+- `pnpm --filter @duedatehq/db test -- pulse`

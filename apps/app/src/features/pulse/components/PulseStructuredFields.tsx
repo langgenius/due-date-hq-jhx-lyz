@@ -1,7 +1,11 @@
-import { Trans } from '@lingui/react/macro'
+import { Trans, useLingui } from '@lingui/react/macro'
+import { CopyIcon } from 'lucide-react'
+import { toast } from 'sonner'
 
 import type { PulseDetail } from '@duedatehq/contracts'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Button } from '@duedatehq/ui/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 
 import { formatDate } from '@/lib/utils'
 
@@ -12,6 +16,15 @@ interface PulseStructuredFieldsProps {
 // Glass-Box block: every parsed field with a stable label, monospaced values,
 // and the verbatim source excerpt below.
 export function PulseStructuredFields({ detail }: PulseStructuredFieldsProps) {
+  const { t } = useLingui()
+
+  const copySourceExcerpt = () => {
+    void navigator.clipboard.writeText(detail.sourceExcerpt).then(
+      () => toast.success(t`Source excerpt copied`),
+      () => toast.error(t`Couldn't copy source excerpt`),
+    )
+  }
+
   return (
     <div className="grid gap-3 rounded-lg border border-divider-subtle bg-background-section p-4">
       <FieldRow label={<Trans>Jurisdiction</Trans>}>
@@ -64,9 +77,29 @@ export function PulseStructuredFields({ detail }: PulseStructuredFieldsProps) {
       ) : null}
 
       <div className="mt-1 grid gap-1 rounded-md bg-background-default p-3">
-        <span className="text-xs font-medium uppercase tracking-[0.08em] text-text-tertiary">
-          <Trans>Source excerpt</Trans>
-        </span>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium uppercase tracking-[0.08em] text-text-tertiary">
+            <Trans>Source excerpt</Trans>
+          </span>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t`Copy source excerpt`}
+                  onClick={copySourceExcerpt}
+                >
+                  <CopyIcon className="size-3.5" aria-hidden />
+                </Button>
+              }
+            />
+            <TooltipContent>
+              <Trans>Copy source excerpt</Trans>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <blockquote className="text-md italic text-text-secondary">
           “{detail.sourceExcerpt}”
         </blockquote>

@@ -21,7 +21,9 @@ import { isSelectable, toggleSelection, setAllSelection } from '../lib/selection
 interface AffectedClientsTableProps {
   rows: readonly PulseAffectedClient[]
   selection: ReadonlySet<string>
+  confirmedReviewIds: ReadonlySet<string>
   onChangeSelection: (next: Set<string>) => void
+  onToggleNeedsReviewConfirmation: (obligationId: string, confirmed: boolean) => void
   /** When true, all controls are read-only (e.g. RBAC denies apply). */
   readOnly?: boolean
 }
@@ -32,20 +34,22 @@ interface AffectedClientsTableProps {
 export function AffectedClientsTable({
   rows,
   selection,
+  confirmedReviewIds,
   onChangeSelection,
+  onToggleNeedsReviewConfirmation,
   readOnly = false,
 }: AffectedClientsTableProps) {
   const { t } = useLingui()
-  const selectableCount = rows.filter(isSelectable).length
-  const selectedCount = countSelected(rows, selection)
+  const selectableCount = rows.filter((row) => isSelectable(row, confirmedReviewIds)).length
+  const selectedCount = countSelected(rows, selection, confirmedReviewIds)
   const allSelectableChecked = selectableCount > 0 && selectedCount === selectableCount
 
   const handleToggleAll = (checked: boolean) => {
-    onChangeSelection(setAllSelection(rows, checked))
+    onChangeSelection(setAllSelection(rows, checked, confirmedReviewIds))
   }
 
   const handleToggleRow = (row: PulseAffectedClient) => {
-    if (!isSelectable(row)) return
+    if (!isSelectable(row, confirmedReviewIds)) return
     onChangeSelection(toggleSelection(selection, row.obligationId))
   }
 
@@ -70,7 +74,8 @@ export function AffectedClientsTable({
       <TableBody>
         {rows.map((row) => {
           const checked = selection.has(row.obligationId)
-          const selectable = isSelectable(row) && !readOnly
+          const reviewConfirmed = confirmedReviewIds.has(row.obligationId)
+          const selectable = isSelectable(row, confirmedReviewIds) && !readOnly
           return (
             <TableRow
               key={row.obligationId}
@@ -106,7 +111,24 @@ export function AffectedClientsTable({
                 </div>
               </TableCell>
               <TableCell>
-                <MatchStatusBadge row={row} />
+                <div className="flex flex-col items-start gap-1.5">
+                  <MatchStatusBadge row={row} />
+                  {row.matchStatus === 'needs_review' ? (
+                    <label className="inline-flex items-center gap-2 text-xs text-text-secondary">
+                      <Checkbox
+                        aria-label={t`Confirm ${row.clientName} applies to this relief`}
+                        checked={reviewConfirmed}
+                        disabled={readOnly}
+                        onCheckedChange={(value) =>
+                          onToggleNeedsReviewConfirmation(row.obligationId, value)
+                        }
+                      />
+                      <span>
+                        <Trans>Confirm applies</Trans>
+                      </span>
+                    </label>
+                  ) : null}
+                </div>
               </TableCell>
             </TableRow>
           )
@@ -148,10 +170,11 @@ function MatchStatusBadge({ row }: { row: PulseAffectedClient }) {
 function countSelected(
   rows: readonly PulseAffectedClient[],
   selection: ReadonlySet<string>,
+  confirmedReviewIds: ReadonlySet<string>,
 ): number {
   let count = 0
   for (const row of rows) {
-    if (isSelectable(row) && selection.has(row.obligationId)) count += 1
+    if (isSelectable(row, confirmedReviewIds) && selection.has(row.obligationId)) count += 1
   }
   return count
 }

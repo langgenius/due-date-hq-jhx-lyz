@@ -1,11 +1,11 @@
 # 11 · Pulse Ingest Source Catalog
 
 > 文档类型：Data Source Operations Handbook
-> 版本：v1.1
+> 版本：v1.2
 > 对齐 PRD：`docs/PRD/DueDateHQ-PRD-v2.0-Unified-Part1.md` §6.3.1 Ingest
 > 对齐技术：`docs/dev-file/04-AI-Architecture.md` §6 Pulse Pipeline
 > 语言约定：正文中文，URL / 代码 / 命名 / 注释全部英文
-> 本轮源稳定性评审基线：2026-04-29
+> 本轮源稳定性评审基线：2026-04-30
 
 ---
 
@@ -34,6 +34,15 @@
 | **T3** | 商业聚合 / 行业协会 / 邮件订阅解析              | `Reference` badge（隐藏源） | 0.5（仅作触发器）      | FTA / AICPA / Checkpoint / Avalara      |
 
 **规则：** 只有 T1 可以直接进入 `pending_review → approved → banner`；T2/T3 仅能触发"去 T1 查验"的 worker 任务，自身不出现在 Evidence Chain。GovDelivery 属于官方投递渠道，但 Evidence 仍必须回链到 `.gov` canonical page；邮件正文只作为内部信号与快照。
+
+**当前实现状态（2026-04-30）：**
+
+- `SourceAdapter.canCreatePulse !== false` 的源会写 `pulse_source_snapshot` 并投递
+  `PULSE_QUEUE { type: 'pulse.extract', snapshotId }`，后续经 AI Extract 进入
+  `pulse.status='pending_review'`。
+- `canCreatePulse=false` 的 T2/T3 源只写 `pulse_source_signal`，
+  `signal_type='anticipated_pulse'`，不进入 Evidence Chain、不创建 firm alert。
+- FEMA 当前按 `canCreatePulse=false` 落地；它只能作为 IRS/州 T1 命中后的置信度辅助信号。
 
 ---
 
@@ -235,6 +244,7 @@ export interface SourceAdapter {
   readonly tier: 'T1' | 'T2' | 'T3'
   readonly cronIntervalMs: number
   readonly jurisdiction: 'federal' | UsStateCode
+  readonly canCreatePulse?: boolean // false => write pulse_source_signal only
 
   fetch(ctx: IngestCtx): Promise<RawSnapshot[]>
   parse(snapshot: RawSnapshot): Promise<ParsedItem[]>
@@ -314,13 +324,13 @@ packages/ingest/
 
 ## 7. 分期路线（对齐 09 Demo Sprint Playbook）
 
-| 阶段                      | 源                                                                    | 工程量   | 成功标准                            |
-| ------------------------- | --------------------------------------------------------------------- | -------- | ----------------------------------- |
-| **Phase 0 · Demo Sprint** | `irs.disaster` + `tx.cpa.rss` + seeded `ny.dtf.press` fixture         | 1 人 2d  | S3 场景能真实触发 + mock 兜底齐全   |
-| **Phase 0 · 完整 MVP**    | + `ca.ftb.newsroom` + `ca.ftb.tax_news` + `fema.declarations`         | 1 人 3d  | PRD §6.3.1 5 源骨架 + FEMA 交叉验证 |
-| **Phase 1**               | + `fl.dor.tips` + `wa.dor.news` + `wa.dor.whats_new` + `irs.guidance` | 1 人 5d  | 10 源 ≥ 99% SLA                     |
-| **Phase 2**               | + `ca.cdtfa.news` + `ma.dor.press` + GovDelivery 兜底池 + Browserless | 2 人周   | 15+ 源；反爬失败可自动切换          |
-| **Phase 3（商单触发）**   | Checkpoint / Bloomberg Tax / Avalara 商业 API                         | 谈单驱动 | 客户合同签字后再采购                |
+| 阶段                      | 源                                                                   | 工程量   | 成功标准                           |
+| ------------------------- | -------------------------------------------------------------------- | -------- | ---------------------------------- |
+| **Phase 0 · Demo Sprint** | `irs.disaster` + `tx.cpa.rss` + seeded `ny.dtf.press` fixture        | 已完成   | S3 场景能真实触发 + mock 兜底齐全  |
+| **Pilot hardening**       | `ca.ftb.*` + `ca.cdtfa.news` + real `ny.dtf.press` + FL/WA + FEMA T2 | 已落地   | Live catalog 可跑；FEMA 不出客户链 |
+| **Phase 1**               | GovDelivery inbound fallback + Browserless fallback                  | 1 人周   | 反爬失败可自动降级                 |
+| **Phase 2**               | + `ma.dor.press` + 更多州 DOR                                        | 2 人周   | 15+ 源；10 源 ≥ 99% SLA            |
+| **Phase 3（商单触发）**   | Checkpoint / Bloomberg Tax / Avalara 商业 API                        | 谈单驱动 | 客户合同签字后再采购               |
 
 ---
 
@@ -328,7 +338,8 @@ packages/ingest/
 
 1. 确定 **Tier**（T1/T2/T3）与 `jurisdiction`
 2. 查 **robots.txt** 与 **ToS**，确认自动化抓取合规
-3. 写 **Source Adapter**（`packages/ingest/adapters/...`），实现 `fetch + parse`
+3. 写 **Source Adapter**（`packages/ingest/adapters/...`），实现 `fetch + parse`，并为
+   T2/T3 明确设置 `canCreatePulse=false`
 4. 写 **Selector Fallback Chain**（HTML 源必做）
 5. 在 `SOURCE_FETCHER` 注册默认 fetcher（通常是 `cloudflare`）
 6. 加 **queue / R2 binding**（`apps/server/wrangler.toml`）

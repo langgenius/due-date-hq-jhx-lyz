@@ -31,6 +31,7 @@ export function PulseAlertsBanner() {
   const sourceHealthQuery = useQuery(usePulseSourceHealthQueryOptions())
   const alerts = alertsQuery.data?.alerts ?? []
   const sourceHealth = sourceHealthQuery.data?.sources ?? []
+  const attentionSources = sourcesNeedingAttention(sourceHealth)
   const hasAlerts = alerts.length > 0
   const isChecking = alertsQuery.isLoading || (!hasAlerts && alertsQuery.isFetching)
   const refreshAction = (
@@ -52,6 +53,18 @@ export function PulseAlertsBanner() {
   }
 
   if (!hasAlerts) {
+    if (attentionSources.length > 0) {
+      return (
+        <PulseStrip
+          tone="warning"
+          active
+          label={<AttentionLabel sources={attentionSources} />}
+          meta={<PulseMetaTimestamp iso={newestCheckedAt(attentionSources)} />}
+          actions={refreshAction}
+        />
+      )
+    }
+
     return (
       <PulseStrip
         tone="success"
@@ -257,11 +270,13 @@ function sourceLabel(sources: readonly PulseSourceHealth[]): string {
   if (enabled.length === 0) return 'configured sources'
   return enabled
     .map((source) => {
-      if (source.sourceId === 'irs.disaster') return 'IRS'
-      if (source.sourceId === 'ca.ftb.newsroom' || source.sourceId === 'ca.ftb.tax_news') {
-        return 'CA FTB'
-      }
+      if (source.sourceId.startsWith('irs.')) return 'IRS'
+      if (source.sourceId.startsWith('ca.ftb.')) return 'CA FTB'
+      if (source.sourceId.startsWith('ca.cdtfa.')) return 'CA CDTFA'
+      if (source.sourceId === 'ny.dtf.press') return 'NY'
       if (source.sourceId === 'tx.cpa.rss') return 'TX'
+      if (source.sourceId === 'fl.dor.tips') return 'FL'
+      if (source.sourceId.startsWith('wa.dor.')) return 'WA'
       if (source.sourceId === 'fema.declarations') return 'FEMA'
       return source.label
     })
@@ -287,6 +302,15 @@ function WatchingLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
   )
 }
 
+function AttentionLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
+  const label = sourceLabel(sources)
+  return (
+    <span className="truncate text-text-secondary">
+      <Trans>Source needs attention · {label}</Trans>
+    </span>
+  )
+}
+
 function PulseMetaTimestamp({ iso }: { iso: string | null }) {
   if (!iso) {
     return (
@@ -300,6 +324,28 @@ function PulseMetaTimestamp({ iso }: { iso: string | null }) {
     <span>
       <Plural value={minutes} one="# min ago" other="# min ago" />
     </span>
+  )
+}
+
+function newestCheckedAt(sources: readonly PulseSourceHealth[]): string | null {
+  let newest: string | null = null
+  for (const source of sources) {
+    if (
+      source.lastCheckedAt &&
+      (!newest || new Date(source.lastCheckedAt).getTime() > new Date(newest).getTime())
+    ) {
+      newest = source.lastCheckedAt
+    }
+  }
+  return newest
+}
+
+function sourcesNeedingAttention(sources: readonly PulseSourceHealth[]): PulseSourceHealth[] {
+  return sources.filter(
+    (source) =>
+      source.enabled &&
+      source.lastCheckedAt !== null &&
+      (source.healthStatus === 'degraded' || source.healthStatus === 'failing'),
   )
 }
 

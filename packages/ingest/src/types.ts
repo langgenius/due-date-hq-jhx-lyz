@@ -3,10 +3,16 @@ export type SourceJurisdiction = string
 
 export type SourceId =
   | 'irs.disaster'
+  | 'irs.newsroom'
+  | 'irs.guidance'
   | 'tx.cpa.rss'
   | 'ny.dtf.press'
   | 'ca.ftb.newsroom'
   | 'ca.ftb.tax_news'
+  | 'ca.cdtfa.news'
+  | 'fl.dor.tips'
+  | 'wa.dor.news'
+  | 'wa.dor.whats_new'
   | 'fema.declarations'
 
 export interface SourceStateHint {
@@ -52,6 +58,7 @@ export interface SourceAdapter {
   readonly tier: SourceTier
   readonly cronIntervalMs: number
   readonly jurisdiction: SourceJurisdiction
+  readonly canCreatePulse?: boolean
   fetch(ctx: IngestCtx): Promise<RawSnapshot[]>
   parse(snapshot: RawSnapshot, ctx: IngestCtx): Promise<ParsedItem[]>
 }

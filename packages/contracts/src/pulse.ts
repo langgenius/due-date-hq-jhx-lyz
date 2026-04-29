@@ -114,6 +114,7 @@ export const PulseAlertIdInputSchema = z.object({ alertId: EntityIdSchema })
 export const PulseApplyInputSchema = z.object({
   alertId: EntityIdSchema,
   obligationIds: z.array(EntityIdSchema).min(1).max(100),
+  confirmedObligationIds: z.array(EntityIdSchema).max(100).default([]).optional(),
 })
 export type PulseApplyInput = z.infer<typeof PulseApplyInputSchema>
 

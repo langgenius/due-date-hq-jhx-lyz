@@ -137,6 +137,12 @@ msgstr "{0} 个席位"
 msgid "{0} selected · {1} eligible · {2} need review"
 msgstr "已选 {0} · 可应用 {1} · 待确认 {2}"
 
+#. placeholder {0}: filteredAlerts.length
+#. placeholder {1}: alerts.length
+#: src/features/pulse/AlertsListPage.tsx
+msgid "{0} shown · {1} total"
+msgstr "显示 {0} · 共 {1}"
+
 #. placeholder {0}: topRows.filter((row) => row.evidenceCount > 0).length
 #: src/routes/dashboard.tsx
 msgid "{0} top rows have evidence."
@@ -170,6 +176,10 @@ msgstr "{ignoredCount, plural, other {# 列当前被忽略。}}"
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "{impacted, plural, one {# client} other {# clients}}"
 msgstr "{impacted, plural, other {# 个客户}}"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "{label} returned degraded or failing health on the latest checked run. Existing alerts remain reviewable."
+msgstr "{label} 在最近一次检查中返回降级或失败状态。现有提醒仍可继续复核。"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
@@ -309,6 +319,7 @@ msgid "Actions"
 msgstr "操作"
 
 #: src/features/members/members-page.tsx
+#: src/features/pulse/AlertsListPage.tsx
 msgid "Active"
 msgstr "活跃"
 
@@ -424,9 +435,17 @@ msgstr "全部复核"
 msgid "All seats are in use. Upgrade to invite more, or suspend an active member to free a seat."
 msgstr "所有席位都已占用。升级以邀请更多成员，或暂停一名活跃成员来释放席位。"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All sources"
+msgstr "全部来源"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "All states"
 msgstr "全部州"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All statuses"
+msgstr "全部状态"
 
 #: src/routes/_entry-layout.tsx
 msgid "All systems operational"
@@ -465,6 +484,7 @@ msgstr "适用性复核"
 msgid "Applicability review · needs CPA confirmation at generation time."
 msgstr "适用性复核 · 在生成 obligation 时需要 CPA 确认。"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Applied"
 msgstr "已应用"
@@ -781,6 +801,15 @@ msgstr "命令面板"
 msgid "Confidence"
 msgstr "置信度"
 
+#. placeholder {0}: row.clientName
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Confirm {0} applies to this relief"
+msgstr "确认 {0} 适用于本次宽限"
+
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Confirm applies"
+msgstr "确认适用"
+
 #: src/routes/billing.checkout.tsx
 msgid "Confirm checkout"
 msgstr "确认支付"
@@ -810,6 +839,10 @@ msgstr "使用 Google 继续"
 #: src/routes/firm.tsx
 msgid "Coordinator"
 msgstr "协调员"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Copy source excerpt"
+msgstr "复制原文摘录"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not create firm."
@@ -862,6 +895,10 @@ msgstr "应用默认税种矩阵失败"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't apply Pulse"
 msgstr "无法应用监管提醒"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Couldn't copy source excerpt"
+msgstr "无法复制原文摘录"
 
 #: src/routes/clients.tsx
 msgid "Couldn't create client"
@@ -1069,6 +1106,7 @@ msgstr "要丢弃此次导入吗？"
 msgid "Dismiss"
 msgstr "忽略"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Dismissed"
 msgstr "已忽略"
@@ -1284,6 +1322,14 @@ msgstr "仅申报延期 — 缴款不延期。"
 #: src/features/rules/coverage-tab.tsx
 msgid "Filing-frequency review"
 msgstr "申报频率复核"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Filter by alert status"
+msgstr "按提醒状态筛选"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Filter by source"
+msgstr "按来源筛选"
 
 #: src/routes/workboard.tsx
 msgid "Filter by status, search clients, and sort by due date."
@@ -1784,6 +1830,10 @@ msgstr "下次复核"
 msgid "No active firm is selected."
 msgstr "当前未选择事务所。"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "No alerts match these filters."
+msgstr "没有提醒匹配这些筛选条件。"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events match these filters."
 msgstr "没有审计事件匹配这些筛选条件。"
@@ -2135,6 +2185,7 @@ msgstr "付费功能"
 msgid "Paid subscriptions bill the organization, not an individual user."
 msgstr "付费订阅向组织收费，而不是向单个用户收费。"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Partially applied"
 msgstr "部分已应用"
@@ -2292,6 +2343,10 @@ msgstr "Pulse 与 workboard 访问权限"
 msgid "Pulse evidence linked to each obligation"
 msgstr "为每条义务关联监管证据"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Pulse source needs attention"
+msgstr "Pulse 来源需要处理"
+
 #: src/routes/workboard.tsx
 msgid "Queue controls"
 msgstr "队列控制"
@@ -2426,6 +2481,7 @@ msgid "Reserved"
 msgstr "已预留"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/pulse/AlertsListPage.tsx
 #: src/routes/workboard.tsx
 msgid "Reset"
 msgstr "重置"
@@ -2450,6 +2506,7 @@ msgstr "重试"
 msgid "Return home"
 msgstr "返回首页"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Reverted"
@@ -2774,6 +2831,7 @@ msgstr "正在退出…"
 msgid "Snooze 24h"
 msgstr "暂缓 24 小时"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Snoozed"
 msgstr "已暂缓"
@@ -2826,9 +2884,17 @@ msgstr "来源"
 msgid "Source excerpt"
 msgstr "原文摘录"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Source excerpt copied"
+msgstr "原文摘录已复制"
+
 #: src/routes/dashboard.tsx
 msgid "source gaps"
 msgstr "来源缺失"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Source needs attention · {label}"
+msgstr "来源需要处理 · {label}"
 
 #: src/routes/billing.tsx
 msgid "Source-backed evidence"

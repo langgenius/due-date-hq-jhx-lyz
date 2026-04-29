@@ -89,6 +89,7 @@ export interface PulseSeedInput {
 export interface PulseApplyInput {
   alertId: string
   obligationIds: string[]
+  confirmedObligationIds?: string[]
   userId: string
   now?: Date
 }

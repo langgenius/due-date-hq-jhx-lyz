@@ -36,7 +36,9 @@ describe('selection helpers', () => {
   it('isSelectable only returns true for eligible rows', () => {
     expect(isSelectable(makeRow('a', 'eligible'))).toBe(true)
     expect(isSelectable(makeRow('b', 'needs_review'))).toBe(false)
+    expect(isSelectable(makeRow('b', 'needs_review'), new Set(['b']))).toBe(true)
     expect(isSelectable(makeRow('c', 'already_applied'))).toBe(false)
+    expect(isSelectable(makeRow('c', 'already_applied'), new Set(['c']))).toBe(false)
     expect(isSelectable(makeRow('d', 'reverted'))).toBe(false)
   })
 
@@ -63,6 +65,7 @@ describe('selection helpers', () => {
     const rows = [makeRow('a', 'eligible'), makeRow('b', 'needs_review'), makeRow('c', 'eligible')]
     expect([...setAllSelection(rows, false)]).toEqual([])
     expect([...setAllSelection(rows, true)].toSorted()).toEqual(['a', 'c'])
+    expect([...setAllSelection(rows, true, new Set(['b']))].toSorted()).toEqual(['a', 'b', 'c'])
   })
 
   it('computeSelectionStats partitions by matchStatus', () => {
@@ -73,10 +76,10 @@ describe('selection helpers', () => {
       makeRow('d', 'already_applied'),
       makeRow('e', 'reverted'),
     ]
-    const stats = computeSelectionStats(rows, new Set(['a']))
+    const stats = computeSelectionStats(rows, new Set(['a', 'c']), new Set(['c']))
     expect(stats).toEqual({
-      selectableCount: 2,
-      selectedCount: 1,
+      selectableCount: 3,
+      selectedCount: 2,
       needsReviewCount: 1,
       alreadyAppliedCount: 1,
       revertedCount: 1,
