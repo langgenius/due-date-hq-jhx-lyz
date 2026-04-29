@@ -24,10 +24,10 @@ import { pulseErrorDescriptor } from './lib/error-mapping'
 export function PulseAlertsBanner() {
   const alertsQuery = useQuery(usePulseListAlertsQueryOptions(5))
   const alerts = alertsQuery.data?.alerts ?? []
-  const isLoading = alertsQuery.isLoading
   const hasAlerts = alerts.length > 0
+  const isChecking = alertsQuery.isLoading || (!hasAlerts && alertsQuery.isFetching)
 
-  if (isLoading) return <PulseStrip tone="warning" active label={<LoadingLabel />} />
+  if (isChecking) return <PulseStrip tone="warning" active label={<LoadingLabel />} />
 
   if (!hasAlerts) {
     return (

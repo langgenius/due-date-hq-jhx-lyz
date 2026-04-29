@@ -110,6 +110,13 @@ should feel like a vital sign, always present but never noisy.
   the metaphor carries through into the detail surface.
 - Deleted the now-redundant `PulseFreshness` component.
 
+## Iteration 3 — Empty Refetch State
+
+- Dashboard Pulse banner now shows `Checking IRS + state sources…` when the
+  active alerts query is refetching and no alerts are currently cached.
+- If active alerts are already visible, background refetch keeps the alert row
+  on screen instead of replacing it with the checking strip.
+
 ## Validation
 
 - `pnpm --filter @duedatehq/app exec tsgo --noEmit` — passed.
