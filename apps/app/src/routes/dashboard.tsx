@@ -434,6 +434,7 @@ function DashboardBriefPanel({
   const isReady = brief?.status === 'ready' || brief?.status === 'stale'
   const statusLabel =
     brief?.status === 'stale' ? t`Stale` : brief?.status === 'ready' ? t`Ready` : null
+  const refreshDisabled = isRefreshing || brief?.status === 'pending'
 
   return (
     <Card>
@@ -478,11 +479,15 @@ function DashboardBriefPanel({
           variant="outline"
           size="sm"
           onClick={onRefresh}
-          disabled={isRefreshing}
+          disabled={refreshDisabled}
           aria-label={t`Refresh AI weekly brief`}
         >
           <RefreshCwIcon data-icon="inline-start" />
-          {isRefreshing ? <Trans>Queued</Trans> : <Trans>Refresh brief</Trans>}
+          {isRefreshing || brief?.status === 'pending' ? (
+            <Trans>Queued</Trans>
+          ) : (
+            <Trans>Refresh brief</Trans>
+          )}
         </Button>
       </CardFooter>
     </Card>

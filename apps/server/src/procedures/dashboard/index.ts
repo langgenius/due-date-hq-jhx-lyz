@@ -125,7 +125,6 @@ const requestBriefRefresh = os.dashboard.requestBriefRefresh.handler(async ({ in
     userId: scope === 'me' ? userId : null,
     asOfDate,
     reason: 'manual_refresh',
-    bypassDebounce: true,
   })
   const brief = await scoped.dashboard.findLatestBrief({
     scope,
