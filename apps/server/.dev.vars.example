@@ -52,6 +52,13 @@ RESEND_WEBHOOK_SECRET=
 EMAIL_FROM=noreply@duedatehq.com
 
 # ═════════════════════════════════════════════════════════════════════════════
+# [Optional until Pulse ops review] Internal ops · Pulse review API
+# ═════════════════════════════════════════════════════════════════════════════
+# Protects /api/ops/pulse/* with Authorization: Bearer <token>. Use a random
+# value (`openssl rand -base64 32`) when running the ops review scripts.
+PULSE_OPS_TOKEN=
+
+# ═════════════════════════════════════════════════════════════════════════════
 # [Optional until billing test] Stripe · Better Auth subscription checkout
 # ═════════════════════════════════════════════════════════════════════════════
 # Local webhook test:

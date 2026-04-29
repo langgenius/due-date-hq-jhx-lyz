@@ -1,7 +1,13 @@
 import { ORPCError } from '@orpc/server'
-import { ErrorCodes, type PulseAffectedClient, type PulseAlertPublic } from '@duedatehq/contracts'
+import {
+  ErrorCodes,
+  type PulseAffectedClient,
+  type PulseAlertPublic,
+  type PulseSourceHealth,
+} from '@duedatehq/contracts'
+import { phase0PulseAdapters } from '@duedatehq/ingest/adapters'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
-import { requireTenant } from '../_context'
+import { requireTenant, type RpcContext } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
 
@@ -18,6 +24,15 @@ interface PulseAlertRow {
   needsReviewCount: number
   confidence: number
   isSample: boolean
+}
+
+const SOURCE_LABELS: Record<string, string> = {
+  'irs.disaster': 'IRS Disaster Relief',
+  'ca.ftb.newsroom': 'CA FTB Newsroom',
+  'ca.ftb.tax_news': 'CA FTB Tax News',
+  'tx.cpa.rss': 'TX Comptroller RSS',
+  'fema.declarations': 'FEMA declarations',
+  'ny.dtf.press': 'NY DTF fixture',
 }
 
 interface PulseAffectedClientRow {
@@ -91,6 +106,27 @@ function toAffectedClientPublic(row: PulseAffectedClientRow): PulseAffectedClien
   }
 }
 
+function toIsoOrNull(date: Date | null): string | null {
+  return date ? date.toISOString() : null
+}
+
+async function withPulseMutationLock<T>(
+  context: RpcContext,
+  input: { firmId: string; alertId: string; action: 'apply' | 'revert' },
+  run: () => Promise<T>,
+): Promise<T> {
+  const key = `pulse:lock:${input.firmId}:${input.alertId}:${input.action}`
+  if (await context.env.CACHE.get(key)) {
+    throw new ORPCError('CONFLICT', { message: ErrorCodes.PULSE_APPLY_CONFLICT })
+  }
+  await context.env.CACHE.put(key, String(Date.now()), { expirationTtl: 60 })
+  try {
+    return await run()
+  } finally {
+    await context.env.CACHE.delete(key).catch(() => undefined)
+  }
+}
+
 function mapPulseError(error: unknown): never {
   const code = pulseRepoErrorCode(error)
   if (code) {
@@ -126,6 +162,31 @@ const listHistory = os.pulse.listHistory.handler(async ({ input, context }) => {
   return { alerts: alerts.map(toAlertPublic) }
 })
 
+const listSourceHealth = os.pulse.listSourceHealth.handler(async ({ context }) => {
+  const { scoped } = requireTenant(context)
+  const persisted = new Map(
+    (await scoped.pulse.listSourceStates()).map((row) => [row.sourceId, row]),
+  )
+  const sources: PulseSourceHealth[] = phase0PulseAdapters
+    .filter((adapter) => adapter.id !== 'ny.dtf.press')
+    .map((adapter) => {
+      const state = persisted.get(adapter.id)
+      return {
+        sourceId: adapter.id,
+        label: SOURCE_LABELS[adapter.id] ?? adapter.id,
+        tier: adapter.tier,
+        jurisdiction: adapter.jurisdiction,
+        enabled: state?.enabled ?? true,
+        healthStatus: state?.healthStatus ?? 'degraded',
+        lastCheckedAt: toIsoOrNull(state?.lastCheckedAt ?? null),
+        lastSuccessAt: toIsoOrNull(state?.lastSuccessAt ?? null),
+        nextCheckAt: toIsoOrNull(state?.nextCheckAt ?? null),
+        consecutiveFailures: state?.consecutiveFailures ?? 0,
+      }
+    })
+  return { sources }
+})
+
 const getDetail = os.pulse.getDetail.handler(async ({ input, context }) => {
   const { scoped } = requireTenant(context)
   try {
@@ -152,11 +213,16 @@ const apply = os.pulse.apply.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
   try {
-    const result = await scoped.pulse.apply({
-      alertId: input.alertId,
-      obligationIds: input.obligationIds,
-      userId,
-    })
+    const result = await withPulseMutationLock(
+      context,
+      { firmId: tenant.firmId, alertId: input.alertId, action: 'apply' },
+      () =>
+        scoped.pulse.apply({
+          alertId: input.alertId,
+          obligationIds: input.obligationIds,
+          userId,
+        }),
+    )
     const output = {
       alert: toAlertPublic(result.alert),
       appliedCount: result.appliedCount,
@@ -193,13 +259,17 @@ const dismiss = os.pulse.dismiss.handler(async ({ input, context }) => {
 
 const snooze = os.pulse.snooze.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
-  const { scoped } = requireTenant(context)
+  const { scoped, tenant } = requireTenant(context)
   try {
     const result = await scoped.pulse.snooze({
       alertId: input.alertId,
       userId,
       until: new Date(input.until),
     })
+    await enqueueDashboardBriefRefresh(context.env, {
+      firmId: tenant.firmId,
+      reason: 'pulse_dismiss',
+    }).catch(() => false)
     return { alert: toAlertPublic(result.alert), auditId: result.auditId }
   } catch (error) {
     return mapPulseError(error)
@@ -210,7 +280,11 @@ const revert = os.pulse.revert.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
   try {
-    const result = await scoped.pulse.revert({ alertId: input.alertId, userId })
+    const result = await withPulseMutationLock(
+      context,
+      { firmId: tenant.firmId, alertId: input.alertId, action: 'revert' },
+      () => scoped.pulse.revert({ alertId: input.alertId, userId }),
+    )
     const output = {
       alert: toAlertPublic(result.alert),
       revertedCount: result.revertedCount,
@@ -230,6 +304,7 @@ const revert = os.pulse.revert.handler(async ({ input, context }) => {
 export const pulseHandlers = {
   listAlerts,
   listHistory,
+  listSourceHealth,
   getDetail,
   apply,
   dismiss,

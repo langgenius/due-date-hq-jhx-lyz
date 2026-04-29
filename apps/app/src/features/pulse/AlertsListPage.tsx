@@ -2,13 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { AlertCircleIcon } from 'lucide-react'
 
-import type { PulseAlertPublic } from '@duedatehq/contracts'
+import type { PulseAlertPublic, PulseSourceHealth } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
 import { usePulseDrawer } from './DrawerProvider'
-import { usePulseListHistoryQueryOptions } from './api'
+import { usePulseListHistoryQueryOptions, usePulseSourceHealthQueryOptions } from './api'
 import { PulseAlertCard } from './components/PulseAlertCard'
 import { PulsingDot } from './components/PulsingDot'
 
@@ -18,7 +18,9 @@ export function AlertsListPage() {
   const { t } = useLingui()
   const { openDrawer } = usePulseDrawer()
   const alertsQuery = useQuery(usePulseListHistoryQueryOptions(50))
+  const sourceHealthQuery = useQuery(usePulseSourceHealthQueryOptions())
   const alerts = alertsQuery.data?.alerts ?? []
+  const sourceHealth = sourceHealthQuery.data?.sources ?? []
   const isEmpty = !alertsQuery.isLoading && alerts.length === 0
   const breathingAlertId = alerts.find(isBreathingAlertRow)?.id
 
@@ -69,9 +71,9 @@ export function AlertsListPage() {
       ) : null}
 
       {alertsQuery.isLoading ? (
-        <SkeletonList />
+        <SkeletonList sources={sourceHealth} />
       ) : isEmpty ? (
-        <EmptyState />
+        <EmptyState sources={sourceHealth} />
       ) : (
         <div className="flex flex-col gap-2">
           {alerts.map((alert) => (
@@ -95,13 +97,31 @@ function isBreathingAlertRow(alert: PulseAlertPublic): boolean {
 // Loading shimmer that matches the heartbeat language: warning-tone pulsing
 // dot on the lead row, then two ghost rows with mono shimmer bars. No solid
 // gray blocks — the page should look like it's listening, not waiting.
-function SkeletonList() {
+function sourceLabel(sources: readonly PulseSourceHealth[]): string {
+  const enabled = sources.filter((source) => source.enabled && source.healthStatus !== 'paused')
+  if (enabled.length === 0) return 'configured Pulse sources'
+  return enabled
+    .map((source) => {
+      if (source.sourceId === 'irs.disaster') return 'IRS'
+      if (source.sourceId === 'ca.ftb.newsroom' || source.sourceId === 'ca.ftb.tax_news') {
+        return 'CA FTB'
+      }
+      if (source.sourceId === 'tx.cpa.rss') return 'TX'
+      if (source.sourceId === 'fema.declarations') return 'FEMA'
+      return source.label
+    })
+    .filter((label, index, labels) => labels.indexOf(label) === index)
+    .join(' + ')
+}
+
+function SkeletonList({ sources }: { sources: readonly PulseSourceHealth[] }) {
+  const label = sourceLabel(sources)
   return (
     <div role="status" aria-live="polite" className="flex flex-col gap-2">
       <span className="sr-only">
         <Trans>Loading alerts…</Trans>
       </span>
-      <SkeletonRow tone="warning" active label={<Trans>Checking IRS + state sources…</Trans>} />
+      <SkeletonRow tone="warning" active label={<Trans>Checking {label}…</Trans>} />
       <SkeletonRow tone="disabled" />
       <SkeletonRow tone="disabled" />
     </div>
@@ -148,15 +168,13 @@ function SkeletonRow({
   )
 }
 
-function EmptyState() {
+function EmptyState({ sources }: { sources: readonly PulseSourceHealth[] }) {
+  const label = sourceLabel(sources)
   return (
     <div className="flex items-center gap-3 rounded-md border border-dashed border-divider-regular bg-background-default px-4 py-5 text-md text-text-secondary">
       <PulsingDot tone="success" active />
       <span className="flex-1">
-        <Trans>
-          All clear. We're watching IRS + CA / NY / TX / FL / WA — new signals will appear here as
-          soon as they match your clients.
-        </Trans>
+        <Trans>All clear. We're watching {label}; new matches will appear here.</Trans>
       </span>
     </div>
   )

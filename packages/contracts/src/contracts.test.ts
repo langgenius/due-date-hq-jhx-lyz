@@ -301,6 +301,7 @@ describe('@duedatehq/contracts', () => {
     expect(Object.keys(pulseContract)).toEqual([
       'listAlerts',
       'listHistory',
+      'listSourceHealth',
       'getDetail',
       'apply',
       'dismiss',

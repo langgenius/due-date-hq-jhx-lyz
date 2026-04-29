@@ -376,6 +376,9 @@ function buildScopedRepo(firmId: string) {
     async listHistory() {
       return unexpectedRepoCall('pulse.listHistory')
     },
+    async listSourceStates() {
+      return unexpectedRepoCall('pulse.listSourceStates')
+    },
     async getDetail() {
       return unexpectedRepoCall('pulse.getDetail')
     },

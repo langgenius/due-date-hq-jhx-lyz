@@ -412,12 +412,12 @@ msgid "All categories"
 msgstr "所有分类"
 
 #: src/features/pulse/PulseAlertsBanner.tsx
-msgid "All clear · Watching IRS + CA / NY / TX / FL / WA"
-msgstr "一切正常 · 正在监控 IRS 与 CA / NY / TX / FL / WA"
+msgid "All clear · Watching {label}"
+msgstr "全部正常 · 正在监控 {label}"
 
 #: src/features/pulse/AlertsListPage.tsx
-msgid "All clear. We're watching IRS + CA / NY / TX / FL / WA — new signals will appear here as soon as they match your clients."
-msgstr "一切正常。我们正在监控 IRS 与 CA / NY / TX / FL / WA，一旦匹配到你的客户，新的信号会立即出现在这里。"
+msgid "All clear. We're watching {label}; new matches will appear here."
+msgstr "全部正常。我们正在监控 {label}；新的匹配会显示在这里。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "All entities"
@@ -656,14 +656,14 @@ msgstr "更改角色"
 msgid "Change status for {0}"
 msgstr "修改 {0} 的状态"
 
+#: src/features/pulse/AlertsListPage.tsx
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Checking {label}…"
+msgstr "正在检查 {label}…"
+
 #: src/routes/dashboard.tsx
 msgid "Checking for the latest prepared brief…"
 msgstr "正在检查最新生成的简报…"
-
-#: src/features/pulse/AlertsListPage.tsx
-#: src/features/pulse/PulseAlertsBanner.tsx
-msgid "Checking IRS + state sources…"
-msgstr "正在检查 IRS 与各州来源…"
 
 #: src/features/workload/workload-page.tsx
 msgid "Checking the active firm plan before loading workload metrics."
@@ -1057,6 +1057,10 @@ msgstr "详情"
 #: src/routes/workboard.tsx
 msgid "Detail drawer is coming soon"
 msgstr "详情抽屉即将推出"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Digest queued for owners and managers; delivery depends on email config"
+msgstr "Digest 已加入队列并发送给 Owner 和 Manager；送达取决于邮件配置"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Discard import"
@@ -2914,10 +2918,6 @@ msgstr "成功页会等待 webhook 确认后再显示激活状态。"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "建议税种（来自实体 × 州矩阵）"
-
-#: src/features/pulse/PulseDetailDrawer.tsx
-msgid "Summary queued to assignees"
-msgstr "已为负责人排队发送摘要邮件"
 
 #: src/features/members/members-page.tsx
 msgid "Suspend access"

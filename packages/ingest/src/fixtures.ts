@@ -26,12 +26,13 @@ export async function snapshotFromFixture(input: {
     contentType: input.contentType ?? 'text/html',
     etag: null,
     lastModified: null,
+    notModified: false,
   }
 }
 
 export async function runFixtureAdapter(adapter: SourceAdapter, ctx: IngestCtx) {
   const snapshots = await adapter.fetch(ctx)
-  const parsedGroups = await Promise.all(snapshots.map((snapshot) => adapter.parse(snapshot)))
+  const parsedGroups = await Promise.all(snapshots.map((snapshot) => adapter.parse(snapshot, ctx)))
   const items = parsedGroups.flat()
   return { snapshots, items }
 }

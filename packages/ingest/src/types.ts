@@ -1,10 +1,22 @@
 export type SourceTier = 'T1' | 'T2' | 'T3'
 export type SourceJurisdiction = string
 
-export type SourceId = 'irs.disaster' | 'tx.cpa.rss' | 'ny.dtf.press'
+export type SourceId =
+  | 'irs.disaster'
+  | 'tx.cpa.rss'
+  | 'ny.dtf.press'
+  | 'ca.ftb.newsroom'
+  | 'ca.ftb.tax_news'
+  | 'fema.declarations'
+
+export interface SourceStateHint {
+  etag: string | null
+  lastModified: string | null
+}
 
 export interface IngestCtx {
   fetch(input: string | URL, init?: RequestInit): Promise<Response>
+  getSourceState?(sourceId: string): Promise<SourceStateHint | null>
   archiveRaw(input: {
     sourceId: string
     externalId: string
@@ -23,6 +35,7 @@ export interface RawSnapshot {
   contentType: string | null
   etag: string | null
   lastModified: string | null
+  notModified?: boolean
 }
 
 export interface ParsedItem {
@@ -40,5 +53,5 @@ export interface SourceAdapter {
   readonly cronIntervalMs: number
   readonly jurisdiction: SourceJurisdiction
   fetch(ctx: IngestCtx): Promise<RawSnapshot[]>
-  parse(snapshot: RawSnapshot): Promise<ParsedItem[]>
+  parse(snapshot: RawSnapshot, ctx: IngestCtx): Promise<ParsedItem[]>
 }

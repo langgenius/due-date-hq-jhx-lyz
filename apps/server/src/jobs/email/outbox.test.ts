@@ -1,0 +1,88 @@
+/* eslint-disable typescript-eslint/no-unsafe-type-assertion --
+ * Focused D1/Resend doubles only implement the chain methods used by this worker slice.
+ */
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Env } from '../../env'
+import { flushEmailOutbox } from './outbox'
+
+const { sendMock, dbMocks } = vi.hoisted(() => {
+  const where = vi.fn(async () => undefined)
+  const set = vi.fn(() => ({ where }))
+  const update = vi.fn(() => ({ set }))
+  const rows = [
+    {
+      id: 'outbox_1',
+      firmId: 'firm_1',
+      externalId: 'pulse:firm_1:pulse_1:1',
+      type: 'pulse_digest',
+      status: 'pending',
+      payloadJson: {
+        recipients: ['owner@example.com'],
+        summary: 'Pulse deadline update applied.',
+        obligations: [
+          {
+            clientName: 'Arbor & Vale LLC',
+            beforeDueDate: '2026-03-15',
+            afterDueDate: '2026-10-15',
+          },
+        ],
+      },
+      createdAt: new Date('2026-04-29T00:00:00.000Z'),
+      sentAt: null,
+      failedAt: null,
+      failureReason: null,
+    },
+  ]
+  const limit = vi.fn(async () => rows)
+  const orderBy = vi.fn(() => ({ limit }))
+  const whereSelect = vi.fn(() => ({ orderBy }))
+  const from = vi.fn(() => ({ where: whereSelect }))
+  const select = vi.fn(() => ({ from }))
+  const createDb = vi.fn(() => ({ select, update }))
+  return {
+    sendMock: vi.fn(async () => ({ data: { id: 'email_1' }, error: null })),
+    dbMocks: { createDb, update, set, where, select, from, whereSelect, orderBy, limit },
+  }
+})
+
+vi.mock('resend', () => ({
+  Resend: class {
+    emails = {
+      send: sendMock,
+    }
+  },
+}))
+
+vi.mock('@duedatehq/db', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@duedatehq/db')>()
+  return {
+    ...actual,
+    createDb: dbMocks.createDb,
+  }
+})
+
+describe('flushEmailOutbox', () => {
+  beforeEach(() => {
+    sendMock.mockClear()
+    Object.values(dbMocks).forEach((mock) => mock.mockClear())
+  })
+
+  it('sends pending Pulse digests when recipients are present', async () => {
+    const result = await flushEmailOutbox({
+      DB: {} as D1Database,
+      EMAIL_FROM: 'noreply@example.com',
+      RESEND_API_KEY: 're_test',
+    } satisfies Pick<Env, 'DB' | 'EMAIL_FROM' | 'RESEND_API_KEY'>)
+
+    expect(result).toEqual({ sent: 1, failed: 0, skipped: 0 })
+    expect(sendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: 'noreply@example.com',
+        to: ['owner@example.com'],
+        subject: 'Pulse deadline update applied',
+      }),
+    )
+    expect(dbMocks.set).toHaveBeenCalledWith(expect.objectContaining({ status: 'sending' }))
+    expect(dbMocks.set).toHaveBeenCalledWith(expect.objectContaining({ status: 'sent' }))
+  })
+})

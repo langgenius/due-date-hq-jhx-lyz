@@ -7,9 +7,7 @@ export const aiOutput = sqliteTable(
   'ai_output',
   {
     id: text('id').primaryKey(),
-    firmId: text('firm_id')
-      .notNull()
-      .references(() => firmProfile.id, { onDelete: 'restrict' }),
+    firmId: text('firm_id').references(() => firmProfile.id, { onDelete: 'restrict' }),
     userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
     kind: text('kind', {
       enum: [
@@ -48,9 +46,7 @@ export const llmLog = sqliteTable(
   'llm_log',
   {
     id: text('id').primaryKey(),
-    firmId: text('firm_id')
-      .notNull()
-      .references(() => firmProfile.id, { onDelete: 'restrict' }),
+    firmId: text('firm_id').references(() => firmProfile.id, { onDelete: 'restrict' }),
     userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
     promptVersion: text('prompt_version').notNull(),
     model: text('model'),

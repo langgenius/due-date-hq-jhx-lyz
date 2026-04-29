@@ -33,6 +33,9 @@ export const PULSE_SOURCE_SNAPSHOT_STATUSES = [
 ] as const
 export type PulseSourceSnapshotStatus = (typeof PULSE_SOURCE_SNAPSHOT_STATUSES)[number]
 
+export const PULSE_SOURCE_HEALTH_STATUSES = ['healthy', 'degraded', 'failing', 'paused'] as const
+export type PulseSourceHealthStatus = (typeof PULSE_SOURCE_HEALTH_STATUSES)[number]
+
 /**
  * pulse — global ops-reviewed regulatory announcement.
  *
@@ -124,6 +127,42 @@ export const pulseSourceSnapshot = sqliteTable(
   ],
 )
 
+export const pulseSourceState = sqliteTable(
+  'pulse_source_state',
+  {
+    sourceId: text('source_id').primaryKey(),
+    tier: text('tier').notNull(),
+    jurisdiction: text('jurisdiction').notNull(),
+    enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+    cadenceMs: integer('cadence_ms').notNull(),
+    healthStatus: text('health_status', {
+      enum: PULSE_SOURCE_HEALTH_STATUSES,
+    })
+      .notNull()
+      .default('degraded'),
+    lastCheckedAt: integer('last_checked_at', { mode: 'timestamp_ms' }),
+    lastSuccessAt: integer('last_success_at', { mode: 'timestamp_ms' }),
+    lastChangeDetectedAt: integer('last_change_detected_at', { mode: 'timestamp_ms' }),
+    nextCheckAt: integer('next_check_at', { mode: 'timestamp_ms' }),
+    consecutiveFailures: integer('consecutive_failures').notNull().default(0),
+    lastError: text('last_error'),
+    etag: text('etag'),
+    lastModified: text('last_modified'),
+
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_pss_health_next').on(table.healthStatus, table.nextCheckAt),
+    index('idx_pss_enabled_next').on(table.enabled, table.nextCheckAt),
+  ],
+)
+
 export const pulseFirmAlert = sqliteTable(
   'pulse_firm_alert',
   {
@@ -211,6 +250,8 @@ export const pulseSourceSnapshotRelations = relations(pulseSourceSnapshot, ({ on
   }),
 }))
 
+export const pulseSourceStateRelations = relations(pulseSourceState, () => ({}))
+
 export const pulseFirmAlertRelations = relations(pulseFirmAlert, ({ one }) => ({
   pulse: one(pulse, {
     fields: [pulseFirmAlert.pulseId],
@@ -257,6 +298,8 @@ export type Pulse = typeof pulse.$inferSelect
 export type NewPulse = typeof pulse.$inferInsert
 export type PulseSourceSnapshot = typeof pulseSourceSnapshot.$inferSelect
 export type NewPulseSourceSnapshot = typeof pulseSourceSnapshot.$inferInsert
+export type PulseSourceState = typeof pulseSourceState.$inferSelect
+export type NewPulseSourceState = typeof pulseSourceState.$inferInsert
 export type PulseFirmAlert = typeof pulseFirmAlert.$inferSelect
 export type NewPulseFirmAlert = typeof pulseFirmAlert.$inferInsert
 export type PulseApplication = typeof pulseApplication.$inferSelect

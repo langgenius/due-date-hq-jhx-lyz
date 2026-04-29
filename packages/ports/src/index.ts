@@ -645,6 +645,23 @@ export interface PulseDetailRow {
   affectedClients: PulseAffectedClientRow[]
 }
 
+export interface PulseSourceStateRow {
+  sourceId: string
+  tier: string
+  jurisdiction: string
+  enabled: boolean
+  cadenceMs: number
+  healthStatus: 'healthy' | 'degraded' | 'failing' | 'paused'
+  lastCheckedAt: Date | null
+  lastSuccessAt: Date | null
+  lastChangeDetectedAt: Date | null
+  nextCheckAt: Date | null
+  consecutiveFailures: number
+  lastError: string | null
+  etag: string | null
+  lastModified: string | null
+}
+
 export interface PulseSeedInput {
   pulseId?: string
   alertId?: string
@@ -877,6 +894,7 @@ export interface PulseRepo {
   createSeedAlert(input: PulseSeedInput): Promise<{ pulseId: string; alertId: string }>
   listAlerts(opts?: { limit?: number }): Promise<PulseAlertRow[]>
   listHistory(opts?: { limit?: number; status?: PulseAlertRow['status'] }): Promise<PulseAlertRow[]>
+  listSourceStates(): Promise<PulseSourceStateRow[]>
   getDetail(alertId: string): Promise<PulseDetailRow>
   apply(input: PulseApplyInput): Promise<PulseApplyResult>
   dismiss(input: PulseAlertActionInput): Promise<PulseDismissResult>

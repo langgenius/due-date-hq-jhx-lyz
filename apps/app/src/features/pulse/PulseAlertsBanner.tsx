@@ -3,7 +3,7 @@ import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { ChevronRightIcon, RefreshCwIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
-import type { PulseAlertPublic } from '@duedatehq/contracts'
+import type { PulseAlertPublic, PulseSourceHealth } from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 import { cn } from '@duedatehq/ui/lib/utils'
@@ -12,7 +12,11 @@ import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
 import { usePulseDrawer } from './DrawerProvider'
-import { usePulseInvalidation, usePulseListAlertsQueryOptions } from './api'
+import {
+  usePulseInvalidation,
+  usePulseListAlertsQueryOptions,
+  usePulseSourceHealthQueryOptions,
+} from './api'
 import { PulsingDot, type PulsingDotTone } from './components/PulsingDot'
 import { pulseErrorDescriptor } from './lib/error-mapping'
 
@@ -24,7 +28,9 @@ import { pulseErrorDescriptor } from './lib/error-mapping'
 // like a vital sign on a hospital monitor.
 export function PulseAlertsBanner() {
   const alertsQuery = useQuery(usePulseListAlertsQueryOptions(5))
+  const sourceHealthQuery = useQuery(usePulseSourceHealthQueryOptions())
   const alerts = alertsQuery.data?.alerts ?? []
+  const sourceHealth = sourceHealthQuery.data?.sources ?? []
   const hasAlerts = alerts.length > 0
   const isChecking = alertsQuery.isLoading || (!hasAlerts && alertsQuery.isFetching)
   const refreshAction = (
@@ -35,7 +41,14 @@ export function PulseAlertsBanner() {
   )
 
   if (isChecking) {
-    return <PulseStrip tone="warning" active label={<LoadingLabel />} actions={refreshAction} />
+    return (
+      <PulseStrip
+        tone="warning"
+        active
+        label={<LoadingLabel sources={sourceHealth} />}
+        actions={refreshAction}
+      />
+    )
   }
 
   if (!hasAlerts) {
@@ -44,7 +57,7 @@ export function PulseAlertsBanner() {
         tone="success"
         active
         className="pulse-strip-breathing"
-        label={<WatchingLabel lastCheckedAt={null} />}
+        label={<WatchingLabel sources={sourceHealth} />}
         meta={<PulseMetaTimestamp iso={null} />}
         actions={refreshAction}
       />
@@ -239,21 +252,37 @@ function RefreshAlertsButton({
   )
 }
 
-function LoadingLabel() {
+function sourceLabel(sources: readonly PulseSourceHealth[]): string {
+  const enabled = sources.filter((source) => source.enabled && source.healthStatus !== 'paused')
+  if (enabled.length === 0) return 'configured sources'
+  return enabled
+    .map((source) => {
+      if (source.sourceId === 'irs.disaster') return 'IRS'
+      if (source.sourceId === 'ca.ftb.newsroom' || source.sourceId === 'ca.ftb.tax_news') {
+        return 'CA FTB'
+      }
+      if (source.sourceId === 'tx.cpa.rss') return 'TX'
+      if (source.sourceId === 'fema.declarations') return 'FEMA'
+      return source.label
+    })
+    .filter((label, index, labels) => labels.indexOf(label) === index)
+    .join(' + ')
+}
+
+function LoadingLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
+  const label = sourceLabel(sources)
   return (
     <span className="truncate text-text-tertiary">
-      <Trans>Checking IRS + state sources…</Trans>
+      <Trans>Checking {label}…</Trans>
     </span>
   )
 }
 
-function WatchingLabel({ lastCheckedAt }: { lastCheckedAt: string | null }) {
-  // Calm copy — the watcher promise is the whole message when nothing is
-  // matching. We render the lastCheckedAt only in the right-aligned mono meta.
-  void lastCheckedAt
+function WatchingLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
+  const label = sourceLabel(sources)
   return (
     <span className="truncate text-text-secondary">
-      <Trans>All clear · Watching IRS + CA / NY / TX / FL / WA</Trans>
+      <Trans>All clear · Watching {label}</Trans>
     </span>
   )
 }

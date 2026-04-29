@@ -11,6 +11,7 @@ import { rateLimitMiddleware } from './middleware/rate-limit'
 import { authRoute } from './routes/auth'
 import { e2eRoute } from './routes/e2e'
 import { healthRoute } from './routes/health'
+import { opsPulseRoute } from './routes/ops-pulse'
 import { resendWebhook } from './webhooks/resend'
 import { rpcHandler } from './rpc'
 
@@ -38,6 +39,7 @@ function allowedAuthOrigin(origin: string, env: Env): string | null {
  *   /rpc/*            → RPCHandler (internal frontend only)
  *   /api/auth/*       → better-auth
  *   /api/webhook/*    → narrow external callbacks
+ *   /api/ops/*        → token-protected internal operational endpoints
  *   /api/health       → liveness
  *   /api/v1/*         → OpenAPIHandler (Phase 2, reserved; do not add here)
  *   other             → ASSETS binding + SPA fallback (wrangler.toml)
@@ -91,6 +93,10 @@ export function createApp() {
   // 404 outside ENV=development so staging/production never expose a test
   // session minting surface.
   app.route('/api/e2e', e2eRoute)
+
+  // /api/ops/pulse/* — token-protected internal review API. This is deliberately
+  // outside the public oRPC contract and is intended for ops scripts only.
+  app.route('/api/ops/pulse', opsPulseRoute)
 
   // /api/webhook/* — external callbacks. Provider signature verification is required
   // before side effects; IP allowlists are defense-in-depth when supported.

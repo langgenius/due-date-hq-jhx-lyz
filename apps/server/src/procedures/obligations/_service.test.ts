@@ -205,6 +205,9 @@ function buildScoped(firmId: string, rows: Row[]) {
     async listHistory() {
       return unused('pulse.listHistory')
     },
+    async listSourceStates() {
+      return unused('pulse.listSourceStates')
+    },
     async getDetail() {
       return unused('pulse.getDetail')
     },

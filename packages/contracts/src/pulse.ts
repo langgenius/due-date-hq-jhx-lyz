@@ -22,6 +22,9 @@ export const PulseFirmAlertStatusSchema = z.enum([
 ])
 export type PulseFirmAlertStatus = z.infer<typeof PulseFirmAlertStatusSchema>
 
+export const PulseSourceHealthStatusSchema = z.enum(['healthy', 'degraded', 'failing', 'paused'])
+export type PulseSourceHealthStatus = z.infer<typeof PulseSourceHealthStatusSchema>
+
 export const PulseAffectedClientStatusSchema = z.enum([
   'eligible',
   'needs_review',
@@ -92,6 +95,20 @@ export const PulseListHistoryInputSchema = z
   .optional()
 export type PulseListHistoryInput = z.infer<typeof PulseListHistoryInputSchema>
 
+export const PulseSourceHealthSchema = z.object({
+  sourceId: z.string().min(1),
+  label: z.string().min(1),
+  tier: z.enum(['T1', 'T2', 'T3']),
+  jurisdiction: z.string().min(1),
+  enabled: z.boolean(),
+  healthStatus: PulseSourceHealthStatusSchema,
+  lastCheckedAt: z.iso.datetime().nullable(),
+  lastSuccessAt: z.iso.datetime().nullable(),
+  nextCheckAt: z.iso.datetime().nullable(),
+  consecutiveFailures: z.number().int().min(0),
+})
+export type PulseSourceHealth = z.infer<typeof PulseSourceHealthSchema>
+
 export const PulseAlertIdInputSchema = z.object({ alertId: EntityIdSchema })
 
 export const PulseApplyInputSchema = z.object({
@@ -141,6 +158,9 @@ export const pulseContract = oc.router({
   listHistory: oc
     .input(PulseListHistoryInputSchema)
     .output(z.object({ alerts: z.array(PulseAlertPublicSchema) })),
+  listSourceHealth: oc
+    .input(z.undefined())
+    .output(z.object({ sources: z.array(PulseSourceHealthSchema) })),
   getDetail: oc.input(PulseAlertIdInputSchema).output(PulseDetailSchema),
   apply: oc.input(PulseApplyInputSchema).output(PulseApplyOutputSchema),
   dismiss: oc.input(PulseAlertIdInputSchema).output(PulseDismissOutputSchema),

@@ -2,7 +2,7 @@ import type { IngestCtx, RawSnapshot } from './types'
 
 export const DEFAULT_HEADERS = {
   'User-Agent': 'DueDateHQ-PulseBot/1.0 (+https://duedatehq.com/bot; ops@duedatehq.com)',
-  Accept: 'text/html,application/xhtml+xml,application/xml,application/rss+xml',
+  Accept: 'text/html,application/xhtml+xml,application/xml,application/rss+xml,application/json',
   'Accept-Language': 'en-US,en;q=0.9',
   'Cache-Control': 'no-cache',
 } as const
@@ -31,18 +31,79 @@ export function textExcerpt(text: string, max = 6000): string {
   return text.replace(/\s+/g, ' ').trim().slice(0, max)
 }
 
+function pathDisallowedByRobots(robots: string, userAgent: string, path: string): boolean {
+  const lines = robots.split(/\r?\n/)
+  let applies = false
+  for (const line of lines) {
+    const trimmed = line.replace(/#.*/, '').trim()
+    if (!trimmed) continue
+    const separator = trimmed.indexOf(':')
+    if (separator === -1) continue
+    const key = trimmed.slice(0, separator).trim().toLowerCase()
+    const value = trimmed.slice(separator + 1).trim()
+    if (key === 'user-agent') {
+      applies = value === '*' || value.toLowerCase() === userAgent.toLowerCase()
+      continue
+    }
+    if (applies && key === 'disallow' && value && path.startsWith(value)) return true
+  }
+  return false
+}
+
+async function assertRobotsAllowed(ctx: IngestCtx, url: URL): Promise<void> {
+  const robotsUrl = new URL('/robots.txt', url.origin)
+  try {
+    const response = await ctx.fetch(robotsUrl, { headers: DEFAULT_HEADERS })
+    if (!response.ok) return
+    const robots = await response.text()
+    if (pathDisallowedByRobots(robots, 'DueDateHQ-PulseBot/1.0', url.pathname)) {
+      throw new Error(`Pulse source robots.txt disallows ${url.pathname}`)
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('disallows')) throw error
+  }
+}
+
+async function fetchWithRetry(ctx: IngestCtx, url: string, init: RequestInit): Promise<Response> {
+  const response = await ctx.fetch(url, init)
+  if (response.ok || response.status === 304 || response.status < 500) return response
+  return ctx.fetch(url, init)
+}
+
 export async function fetchTextSnapshot(
   ctx: IngestCtx,
   input: { sourceId: string; url: string },
 ): Promise<RawSnapshot> {
-  const response = await ctx.fetch(input.url, { headers: DEFAULT_HEADERS })
+  const url = new URL(input.url)
+  await assertRobotsAllowed(ctx, url)
+
+  const state = await ctx.getSourceState?.(input.sourceId)
+  const headers = new Headers(DEFAULT_HEADERS)
+  if (state?.etag) headers.set('If-None-Match', state.etag)
+  if (state?.lastModified) headers.set('If-Modified-Since', state.lastModified)
+
+  const response = await fetchWithRetry(ctx, input.url, { headers })
+  const fetchedAt = new Date()
+  const externalId = stableExternalId(input.url)
+  if (response.status === 304) {
+    return {
+      sourceId: input.sourceId,
+      fetchedAt,
+      body: '',
+      contentHash: '',
+      r2Key: '',
+      contentType: response.headers.get('content-type'),
+      etag: response.headers.get('etag') ?? state?.etag ?? null,
+      lastModified: response.headers.get('last-modified') ?? state?.lastModified ?? null,
+      notModified: true,
+    }
+  }
+
   if (!response.ok) {
     throw new Error(`Pulse source fetch failed for ${input.sourceId}: ${response.status}`)
   }
 
   const body = await response.text()
-  const fetchedAt = new Date()
-  const externalId = stableExternalId(input.url)
   const archived = await ctx.archiveRaw({
     sourceId: input.sourceId,
     externalId,

@@ -20,6 +20,7 @@ import type {
   PulseAffectedClient,
   PulseAlertPublic,
   PulseDetail,
+  PulseSourceHealth,
 } from '@duedatehq/contracts'
 
 import { orpc } from '@/lib/rpc'
@@ -263,6 +264,21 @@ const ALERTS: PulseAlertPublic[] = [MATCHED_ALERT, APPLIED_ALERT, DISMISSED_ALER
 
 const DETAILS: PulseDetail[] = [MATCHED_DETAIL, APPLIED_DETAIL, DISMISSED_DETAIL]
 
+const SOURCE_HEALTH: PulseSourceHealth[] = [
+  {
+    sourceId: 'irs.disaster',
+    label: 'IRS Disaster Relief',
+    tier: 'T1',
+    jurisdiction: 'federal',
+    enabled: true,
+    healthStatus: 'healthy',
+    lastCheckedAt: '2026-04-29T00:00:00.000Z',
+    lastSuccessAt: '2026-04-29T00:00:00.000Z',
+    nextCheckAt: '2026-04-29T01:00:00.000Z',
+    consecutiveFailures: 0,
+  },
+]
+
 // --- Public API -----------------------------------------------------------
 
 export function seedPulseMock(queryClient: QueryClient): void {
@@ -278,6 +294,9 @@ export function seedPulseMock(queryClient: QueryClient): void {
   })
   queryClient.setQueryData(orpc.pulse.listHistory.queryKey({ input: { limit: 50 } }), {
     alerts: ALERTS,
+  })
+  queryClient.setQueryData(orpc.pulse.listSourceHealth.queryKey({ input: undefined }), {
+    sources: SOURCE_HEALTH,
   })
 
   for (const detail of DETAILS) {

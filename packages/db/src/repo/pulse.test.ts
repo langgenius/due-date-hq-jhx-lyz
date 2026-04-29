@@ -16,7 +16,7 @@ const ALERT = {
   aiSummary: 'IRS CA storm relief',
   verbatimQuote: 'Individuals and businesses in Los Angeles County have until October 15, 2026.',
   parsedJurisdiction: 'CA',
-  parsedCounties: ['Los Angeles'],
+  parsedCounties: ['Los Angeles County'],
   parsedForms: ['federal_1065', 'federal_1120s'],
   parsedEntityTypes: ['llc', 's_corp'],
   parsedOriginalDueDate: new Date('2026-03-15T00:00:00.000Z'),
@@ -122,6 +122,7 @@ describe('makePulseRepo', () => {
       [],
       [ELIGIBLE],
       [],
+      [{ email: 'owner@example.com' }],
       [{ ...ALERT, matchedCount: 0 }],
     ])
     const repo = makePulseRepo(db, 'firm-1')

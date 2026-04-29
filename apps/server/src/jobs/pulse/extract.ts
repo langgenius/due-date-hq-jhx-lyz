@@ -1,5 +1,6 @@
 import { createAI } from '@duedatehq/ai'
 import { createDb, makePulseOpsRepo } from '@duedatehq/db'
+import { aiOutput, llmLog } from '@duedatehq/db/schema/ai'
 import type { Env } from '../../env'
 
 function dateFromIsoDate(value: string): Date {
@@ -19,11 +20,17 @@ export async function extractPulseSnapshot(
     | 'R2_PULSE'
   >,
   snapshotId: string,
-): Promise<{ pulseId: string | null; status: 'created' | 'failed' | 'missing' }> {
+): Promise<{ pulseId: string | null; status: 'created' | 'failed' | 'missing' | 'skipped' }> {
   const db = createDb(env.DB)
   const repo = makePulseOpsRepo(db)
   const snapshot = await repo.getSourceSnapshot(snapshotId)
   if (!snapshot) return { pulseId: null, status: 'missing' }
+  if (snapshot.pulseId || snapshot.parseStatus === 'extracted') {
+    return { pulseId: snapshot.pulseId, status: 'skipped' }
+  }
+  if (snapshot.parseStatus !== 'pending_extract' && snapshot.parseStatus !== 'failed') {
+    return { pulseId: null, status: 'skipped' }
+  }
 
   await repo.updateSourceSnapshotStatus(snapshotId, { parseStatus: 'extracting' })
   const raw = await env.R2_PULSE.get(snapshot.rawR2Key)
@@ -43,10 +50,54 @@ export async function extractPulseSnapshot(
     officialSourceUrl: snapshot.officialSourceUrl,
     rawText,
   })
+  const aiOutputId = crypto.randomUUID()
+  const llmLogId = crypto.randomUUID()
+  await Promise.all([
+    db.insert(aiOutput).values({
+      id: aiOutputId,
+      firmId: null,
+      userId: null,
+      kind: 'pulse_extract',
+      promptVersion: result.trace.promptVersion,
+      model: result.model ?? result.trace.model,
+      inputContextRef: snapshotId,
+      inputHash: result.trace.inputHash,
+      outputText: JSON.stringify(result.result ?? result.refusal),
+      citationsJson: result.result
+        ? {
+            sourceUrl: snapshot.officialSourceUrl,
+            sourceExcerpt: result.result.sourceExcerpt,
+          }
+        : null,
+      guardResult: result.trace.guardResult,
+      refusalCode: result.trace.refusalCode ?? result.refusal?.code ?? null,
+      tokensIn: result.trace.tokens?.input ?? null,
+      tokensOut: result.trace.tokens?.output ?? null,
+      latencyMs: result.trace.latencyMs,
+      costUsd: result.trace.costUsd ?? null,
+    }),
+    db.insert(llmLog).values({
+      id: llmLogId,
+      firmId: null,
+      userId: null,
+      promptVersion: result.trace.promptVersion,
+      model: result.model ?? result.trace.model,
+      inputHash: result.trace.inputHash,
+      inputTokens: result.trace.tokens?.input ?? null,
+      outputTokens: result.trace.tokens?.output ?? null,
+      latencyMs: result.trace.latencyMs,
+      costUsd: result.trace.costUsd ?? null,
+      guardResult: result.trace.guardResult,
+      refusalCode: result.trace.refusalCode ?? result.refusal?.code ?? null,
+      success: Boolean(result.result),
+      errorMsg: result.refusal?.message ?? null,
+    }),
+  ])
 
   if (!result.result) {
     await repo.updateSourceSnapshotStatus(snapshotId, {
       parseStatus: 'failed',
+      aiOutputId,
       failureReason: result.refusal?.message ?? 'Pulse extract failed.',
     })
     return { pulseId: null, status: 'failed' }
@@ -54,6 +105,7 @@ export async function extractPulseSnapshot(
 
   const created = await repo.createPendingPulseFromExtract({
     snapshotId,
+    aiOutputId,
     source: snapshot.sourceId,
     sourceUrl: snapshot.officialSourceUrl,
     rawR2Key: snapshot.rawR2Key,

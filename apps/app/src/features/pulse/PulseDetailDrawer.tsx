@@ -358,7 +358,12 @@ function ApplySafetyChecklist() {
   const items: Array<[string, React.ReactNode]> = [
     ['audit', <Trans key="audit">Logged to audit trail</Trans>],
     ['evidence', <Trans key="evidence">Pulse evidence linked to each obligation</Trans>],
-    ['email', <Trans key="email">Summary queued to assignees</Trans>],
+    [
+      'email',
+      <Trans key="email">
+        Digest queued for owners and managers; delivery depends on email config
+      </Trans>,
+    ],
     ['undo', <Trans key="undo">Undo available for 24 hours</Trans>],
   ]
   return (

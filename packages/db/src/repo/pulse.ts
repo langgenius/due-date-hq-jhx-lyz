@@ -2,6 +2,7 @@ import { and, asc, desc, eq, inArray, isNull, lte, notInArray, or } from 'drizzl
 import type { BatchItem } from 'drizzle-orm/batch'
 import type { Db } from '../client'
 import { auditEvent, evidenceLink, type NewAuditEvent, type NewEvidenceLink } from '../schema/audit'
+import { member, user } from '../schema/auth'
 import { client, type ClientEntityType } from '../schema/clients'
 import { emailOutbox, type NewEmailOutbox } from '../schema/notifications'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
@@ -9,12 +10,16 @@ import {
   pulse,
   pulseApplication,
   pulseFirmAlert,
+  pulseSourceState,
   pulseSourceSnapshot,
   type NewPulse,
   type NewPulseApplication,
   type NewPulseFirmAlert,
+  type NewPulseSourceState,
   type NewPulseSourceSnapshot,
   type PulseFirmAlertStatus,
+  type PulseSourceHealthStatus,
+  type PulseSourceState,
   type PulseSourceSnapshot,
   type PulseSourceSnapshotStatus,
   type PulseStatus,
@@ -153,6 +158,53 @@ export interface PulseSourceSnapshotRow {
   failureReason: string | null
 }
 
+export interface PulseSourceStateInput {
+  sourceId: string
+  tier: string
+  jurisdiction: string
+  cadenceMs: number
+  enabled?: boolean
+  now?: Date
+}
+
+export interface PulseSourceStateRow {
+  sourceId: string
+  tier: string
+  jurisdiction: string
+  enabled: boolean
+  cadenceMs: number
+  healthStatus: PulseSourceHealthStatus
+  lastCheckedAt: Date | null
+  lastSuccessAt: Date | null
+  lastChangeDetectedAt: Date | null
+  nextCheckAt: Date | null
+  consecutiveFailures: number
+  lastError: string | null
+  etag: string | null
+  lastModified: string | null
+}
+
+export interface PulseReviewRow {
+  pulseId: string
+  source: string
+  sourceUrl: string
+  rawR2Key: string | null
+  publishedAt: Date
+  summary: string
+  sourceExcerpt: string
+  jurisdiction: string
+  counties: string[]
+  forms: string[]
+  entityTypes: string[]
+  originalDueDate: Date
+  newDueDate: Date
+  effectiveFrom: Date | null
+  confidence: number
+  status: PulseStatus
+  requiresHumanReview: boolean
+  createdAt: Date
+}
+
 export interface PulseExtractInput {
   snapshotId: string
   aiOutputId?: string | null
@@ -233,6 +285,10 @@ interface AllFirmCandidateRow {
   county: string | null
 }
 
+interface AlertRecipientRow {
+  email: string
+}
+
 export class PulseRepoError extends Error {
   constructor(readonly code: 'not_found' | 'conflict' | 'revert_expired' | 'no_eligible') {
     super(`Pulse repo error: ${code}`)
@@ -289,6 +345,25 @@ function toSnapshot(row: PulseSourceSnapshot): PulseSourceSnapshotRow {
   }
 }
 
+function toSourceState(row: PulseSourceState): PulseSourceStateRow {
+  return {
+    sourceId: row.sourceId,
+    tier: row.tier,
+    jurisdiction: row.jurisdiction,
+    enabled: row.enabled,
+    cadenceMs: row.cadenceMs,
+    healthStatus: row.healthStatus,
+    lastCheckedAt: row.lastCheckedAt,
+    lastSuccessAt: row.lastSuccessAt,
+    lastChangeDetectedAt: row.lastChangeDetectedAt,
+    nextCheckAt: row.nextCheckAt,
+    consecutiveFailures: row.consecutiveFailures,
+    lastError: row.lastError,
+    etag: row.etag,
+    lastModified: row.lastModified,
+  }
+}
+
 function applicationStatus(row: ApplicationRow): PulseAffectedClientStatus {
   return row.revertedAt ? 'reverted' : 'already_applied'
 }
@@ -328,6 +403,15 @@ function isClientEntityType(value: string): value is ClientEntityType {
 
 function toClientEntityTypes(values: string[]): ClientEntityType[] {
   return values.filter(isClientEntityType)
+}
+
+function normalizeCountyName(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/\bcounty\b/g, '')
+    .replace(/\bparish\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 export function makePulseRepo(db: Db, firmId: string) {
@@ -399,7 +483,7 @@ export function makePulseRepo(db: Db, firmId: string) {
       )
       .orderBy(asc(obligationInstance.currentDueDate), asc(client.name))
 
-    const counties = new Set(alert.parsedCounties.map((county) => county.toLowerCase()))
+    const counties = new Set(alert.parsedCounties.map(normalizeCountyName))
     return rows
       .map((row: CandidateRow): PulseAffectedClientRow | null => {
         if (counties.size > 0) {
@@ -419,7 +503,7 @@ export function makePulseRepo(db: Db, firmId: string) {
               reason: 'Client county is missing; confirm county applicability before applying.',
             }
           }
-          if (!counties.has(row.county.toLowerCase())) return null
+          if (!counties.has(normalizeCountyName(row.county))) return null
         }
 
         return {
@@ -545,7 +629,7 @@ export function makePulseRepo(db: Db, firmId: string) {
     const activeApplicationIds = await listActiveApplicationIds(alert.pulseId, obligationIds)
     const forms = new Set(alert.parsedForms)
     const entityTypes = new Set(toClientEntityTypes(alert.parsedEntityTypes))
-    const counties = new Set(alert.parsedCounties.map((county) => county.toLowerCase()))
+    const counties = new Set(alert.parsedCounties.map(normalizeCountyName))
 
     return obligationIds.map((obligationId) => {
       const row = rowsById.get(obligationId)
@@ -559,7 +643,7 @@ export function makePulseRepo(db: Db, firmId: string) {
         throw new PulseRepoError('conflict')
       }
       if (counties.size > 0) {
-        if (!row.county || !counties.has(row.county.toLowerCase())) {
+        if (!row.county || !counties.has(normalizeCountyName(row.county))) {
           throw new PulseRepoError('conflict')
         }
       }
@@ -621,6 +705,23 @@ export function makePulseRepo(db: Db, firmId: string) {
       .set({ matchedCount, needsReviewCount })
       .where(and(eq(pulseFirmAlert.firmId, firmId), eq(pulseFirmAlert.id, alertId)))
     return { matchedCount, needsReviewCount }
+  }
+
+  async function listPulseDigestRecipients(): Promise<string[]> {
+    const rows = await db
+      .select({ email: user.email })
+      .from(member)
+      .innerJoin(user, eq(member.userId, user.id))
+      .where(
+        and(
+          eq(member.organizationId, firmId),
+          eq(member.status, 'active'),
+          inArray(member.role, ['owner', 'manager']),
+        ),
+      )
+      .orderBy(asc(user.email))
+
+    return Array.from(new Set((rows as AlertRecipientRow[]).map((row) => row.email)))
   }
 
   return {
@@ -762,6 +863,11 @@ export function makePulseRepo(db: Db, firmId: string) {
       return rows.map((row) => toAlert(row))
     },
 
+    async listSourceStates(): Promise<PulseSourceStateRow[]> {
+      const rows = await db.select().from(pulseSourceState).orderBy(asc(pulseSourceState.sourceId))
+      return rows.map(toSourceState)
+    },
+
     async getDetail(alertId: string): Promise<PulseDetailRow> {
       const alert = await getAlert(alertId)
       return buildDetail(alert)
@@ -843,6 +949,7 @@ export function makePulseRepo(db: Db, firmId: string) {
         ipHash: null,
         userAgentHash: null,
       }))
+      const recipients = await listPulseDigestRecipients()
       const emailId = crypto.randomUUID()
       const email: NewEmailOutbox = {
         id: emailId,
@@ -851,6 +958,7 @@ export function makePulseRepo(db: Db, firmId: string) {
         type: 'pulse_digest',
         status: 'pending',
         payloadJson: {
+          recipients,
           pulseId: alert.pulseId,
           alertId: alert.alertId,
           source: alert.source,
@@ -1169,13 +1277,13 @@ export function makePulseOpsRepo(db: Db) {
         ),
       )
 
-    const counties = new Set(row.parsedCounties.map((county) => county.toLowerCase()))
+    const counties = new Set(row.parsedCounties.map(normalizeCountyName))
     const counts = new Map<string, { matchedCount: number; needsReviewCount: number }>()
     for (const candidate of candidates as AllFirmCandidateRow[]) {
       const current = counts.get(candidate.firmId) ?? { matchedCount: 0, needsReviewCount: 0 }
       if (counties.size > 0) {
         if (!candidate.county) current.needsReviewCount += 1
-        else if (counties.has(candidate.county.toLowerCase())) current.matchedCount += 1
+        else if (counties.has(normalizeCountyName(candidate.county))) current.matchedCount += 1
       } else {
         current.matchedCount += 1
       }
@@ -1213,7 +1321,100 @@ export function makePulseOpsRepo(db: Db) {
     return alertCount
   }
 
+  async function getSourceStateRow(sourceId: string): Promise<PulseSourceStateRow | undefined> {
+    const rows = await db
+      .select()
+      .from(pulseSourceState)
+      .where(eq(pulseSourceState.sourceId, sourceId))
+      .limit(1)
+    const row = rows[0]
+    return row ? toSourceState(row) : undefined
+  }
+
   return {
+    async ensureSourceState(input: PulseSourceStateInput): Promise<PulseSourceStateRow> {
+      const now = input.now ?? new Date()
+      const row: NewPulseSourceState = {
+        sourceId: input.sourceId,
+        tier: input.tier,
+        jurisdiction: input.jurisdiction,
+        enabled: input.enabled ?? true,
+        cadenceMs: input.cadenceMs,
+        healthStatus: 'degraded',
+        nextCheckAt: now,
+      }
+      await db
+        .insert(pulseSourceState)
+        .values(row)
+        .onConflictDoUpdate({
+          target: pulseSourceState.sourceId,
+          set: {
+            tier: input.tier,
+            jurisdiction: input.jurisdiction,
+            cadenceMs: input.cadenceMs,
+            ...(input.enabled !== undefined ? { enabled: input.enabled } : {}),
+          },
+        })
+      const state = await getSourceStateRow(input.sourceId)
+      if (!state) throw new PulseRepoError('not_found')
+      return state
+    },
+
+    async getSourceState(sourceId: string): Promise<PulseSourceStateRow | undefined> {
+      return getSourceStateRow(sourceId)
+    },
+
+    async listSourceStates(): Promise<PulseSourceStateRow[]> {
+      const rows = await db.select().from(pulseSourceState).orderBy(asc(pulseSourceState.sourceId))
+      return rows.map(toSourceState)
+    },
+
+    async recordSourceSuccess(input: {
+      sourceId: string
+      checkedAt?: Date
+      nextCheckAt: Date
+      changed: boolean
+      etag?: string | null
+      lastModified?: string | null
+    }): Promise<void> {
+      const checkedAt = input.checkedAt ?? new Date()
+      await db
+        .update(pulseSourceState)
+        .set({
+          healthStatus: 'healthy',
+          lastCheckedAt: checkedAt,
+          lastSuccessAt: checkedAt,
+          ...(input.changed ? { lastChangeDetectedAt: checkedAt } : {}),
+          nextCheckAt: input.nextCheckAt,
+          consecutiveFailures: 0,
+          lastError: null,
+          ...(input.etag !== undefined ? { etag: input.etag } : {}),
+          ...(input.lastModified !== undefined ? { lastModified: input.lastModified } : {}),
+        })
+        .where(eq(pulseSourceState.sourceId, input.sourceId))
+    },
+
+    async recordSourceFailure(input: {
+      sourceId: string
+      checkedAt?: Date
+      nextCheckAt: Date
+      error: string
+    }): Promise<void> {
+      const checkedAt = input.checkedAt ?? new Date()
+      const current = await getSourceStateRow(input.sourceId)
+      const consecutiveFailures = (current?.consecutiveFailures ?? 0) + 1
+      await db
+        .update(pulseSourceState)
+        .set({
+          healthStatus: consecutiveFailures >= 3 ? 'failing' : 'degraded',
+          lastCheckedAt: checkedAt,
+          nextCheckAt: input.nextCheckAt,
+          consecutiveFailures,
+          lastError: input.error.slice(0, 500),
+        })
+        .where(eq(pulseSourceState.sourceId, input.sourceId))
+    },
+
     async createSourceSnapshot(input: PulseSourceSnapshotInput): Promise<{
       snapshot: PulseSourceSnapshotRow
       inserted: boolean
@@ -1328,6 +1529,62 @@ export function makePulseOpsRepo(db: Db) {
       return { pulseId }
     },
 
+    async listPendingPulses(opts: { limit?: number } = {}): Promise<PulseReviewRow[]> {
+      const limit = Math.min(Math.max(opts.limit ?? 20, 1), 100)
+      const rows = await db
+        .select()
+        .from(pulse)
+        .where(eq(pulse.status, 'pending_review'))
+        .orderBy(desc(pulse.publishedAt), desc(pulse.createdAt))
+        .limit(limit)
+      return rows.map((row) => ({
+        pulseId: row.id,
+        source: row.source,
+        sourceUrl: row.sourceUrl,
+        rawR2Key: row.rawR2Key,
+        publishedAt: row.publishedAt,
+        summary: row.aiSummary,
+        sourceExcerpt: row.verbatimQuote,
+        jurisdiction: row.parsedJurisdiction,
+        counties: row.parsedCounties,
+        forms: row.parsedForms,
+        entityTypes: row.parsedEntityTypes,
+        originalDueDate: row.parsedOriginalDueDate,
+        newDueDate: row.parsedNewDueDate,
+        effectiveFrom: row.parsedEffectiveFrom,
+        confidence: row.confidence,
+        status: row.status,
+        requiresHumanReview: row.requiresHumanReview,
+        createdAt: row.createdAt,
+      }))
+    },
+
+    async getPulseReview(pulseId: string): Promise<PulseReviewRow | undefined> {
+      const rows = await db.select().from(pulse).where(eq(pulse.id, pulseId)).limit(1)
+      const row = rows[0]
+      if (!row) return undefined
+      return {
+        pulseId: row.id,
+        source: row.source,
+        sourceUrl: row.sourceUrl,
+        rawR2Key: row.rawR2Key,
+        publishedAt: row.publishedAt,
+        summary: row.aiSummary,
+        sourceExcerpt: row.verbatimQuote,
+        jurisdiction: row.parsedJurisdiction,
+        counties: row.parsedCounties,
+        forms: row.parsedForms,
+        entityTypes: row.parsedEntityTypes,
+        originalDueDate: row.parsedOriginalDueDate,
+        newDueDate: row.parsedNewDueDate,
+        effectiveFrom: row.parsedEffectiveFrom,
+        confidence: row.confidence,
+        status: row.status,
+        requiresHumanReview: row.requiresHumanReview,
+        createdAt: row.createdAt,
+      }
+    },
+
     async approvePulse(input: {
       pulseId: string
       reviewedBy: string
@@ -1344,6 +1601,37 @@ export function makePulseOpsRepo(db: Db) {
         })
         .where(eq(pulse.id, input.pulseId))
       const alertCount = await refreshFirmAlertsForPulse(input.pulseId)
+      const alerts = await db
+        .select({
+          id: pulseFirmAlert.id,
+          firmId: pulseFirmAlert.firmId,
+          matchedCount: pulseFirmAlert.matchedCount,
+          needsReviewCount: pulseFirmAlert.needsReviewCount,
+        })
+        .from(pulseFirmAlert)
+        .where(eq(pulseFirmAlert.pulseId, input.pulseId))
+      if (alerts.length > 0) {
+        await db.insert(auditEvent).values(
+          alerts.map((alert) => ({
+            id: crypto.randomUUID(),
+            firmId: alert.firmId,
+            actorId: input.reviewedBy,
+            entityType: 'pulse_firm_alert',
+            entityId: alert.id,
+            action: 'pulse.approve',
+            beforeJson: { pulseId: input.pulseId, status: 'pending_review' },
+            afterJson: {
+              pulseId: input.pulseId,
+              status: 'matched',
+              matchedCount: alert.matchedCount,
+              needsReviewCount: alert.needsReviewCount,
+            },
+            reason: null,
+            ipHash: null,
+            userAgentHash: null,
+          })),
+        )
+      }
       return { alertCount }
     },
 
