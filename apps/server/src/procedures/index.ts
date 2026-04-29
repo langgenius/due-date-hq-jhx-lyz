@@ -68,9 +68,11 @@ export const router = os.router({
   },
   pulse: {
     listAlerts: pulseHandlers.listAlerts,
+    listHistory: pulseHandlers.listHistory,
     getDetail: pulseHandlers.getDetail,
     apply: pulseHandlers.apply,
     dismiss: pulseHandlers.dismiss,
+    snooze: pulseHandlers.snooze,
     revert: pulseHandlers.revert,
   },
   migration: {

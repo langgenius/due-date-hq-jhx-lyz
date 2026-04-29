@@ -674,6 +674,10 @@ export interface PulseAlertActionInput {
   now?: Date
 }
 
+export interface PulseSnoozeInput extends PulseAlertActionInput {
+  until: Date
+}
+
 export interface PulseApplyResult {
   alert: PulseAlertRow
   appliedCount: number
@@ -824,9 +828,11 @@ export interface PulseRepo {
   readonly firmId: string
   createSeedAlert(input: PulseSeedInput): Promise<{ pulseId: string; alertId: string }>
   listAlerts(opts?: { limit?: number }): Promise<PulseAlertRow[]>
+  listHistory(opts?: { limit?: number; status?: PulseAlertRow['status'] }): Promise<PulseAlertRow[]>
   getDetail(alertId: string): Promise<PulseDetailRow>
   apply(input: PulseApplyInput): Promise<PulseApplyResult>
   dismiss(input: PulseAlertActionInput): Promise<PulseDismissResult>
+  snooze(input: PulseSnoozeInput): Promise<PulseDismissResult>
   revert(input: PulseAlertActionInput): Promise<PulseRevertResult>
 }
 

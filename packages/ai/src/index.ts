@@ -1,7 +1,8 @@
 import type * as z from 'zod'
 import { callGateway, type GatewayRequest } from './gateway'
-import { GuardRejection, verifyMapperEinHitRate } from './guard'
+import { GuardRejection, verifyMapperEinHitRate, verifyPulseSourceExcerpt } from './guard'
 import { redactMigrationInput } from './pii'
+import { PulseExtractOutputSchema, type PulseExtractInput, type PulseExtractOutput } from './pulse'
 import { loadPrompt, type PromptName } from './prompter'
 import { createTrace, type AiTrace } from './trace'
 
@@ -59,6 +60,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function averageConfidence(value: unknown): number | null {
   if (!isRecord(value)) return null
+  if (typeof value.confidence === 'number') return value.confidence
   const arrays = [value.mappings, Object.values(value)]
   const confidences = arrays
     .flatMap((items) => (Array.isArray(items) ? items : []))
@@ -150,6 +152,7 @@ export function createAI(env: AiEnv = {}) {
       }
 
       if (name === 'mapper@v1') verifyMapperEinHitRate(input, parsed.data)
+      if (name === 'pulse-extract@v1') verifyPulseSourceExcerpt(input, parsed.data)
 
       const trace = createTrace({
         promptVersion: name,
@@ -203,9 +206,14 @@ export function createAI(env: AiEnv = {}) {
   }
 
   return {
+    extractPulse(input: PulseExtractInput): Promise<AiRunResult<PulseExtractOutput>> {
+      return runPrompt('pulse-extract@v1', input, PulseExtractOutputSchema)
+    },
     runPrompt,
     runStreaming: runPrompt,
   }
 }
 
 export type AI = ReturnType<typeof createAI>
+export type { PulseExtractInput, PulseExtractOutput } from './pulse'
+export { PulseExtractInputSchema, PulseExtractOutputSchema } from './pulse'

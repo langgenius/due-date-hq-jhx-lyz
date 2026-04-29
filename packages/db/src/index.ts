@@ -3,6 +3,7 @@ import * as dashboardSchema from './schema/dashboard'
 import * as firmSchema from './schema/firm'
 import { makeFirmsRepo } from './repo/firms'
 import { makeMembersRepo } from './repo/members'
+import { makePulseOpsRepo } from './repo/pulse'
 
 export { createDb } from './client'
 export { scoped } from './scoped'
@@ -17,6 +18,7 @@ export { dashboardSchema }
 export { firmSchema }
 export { makeFirmsRepo }
 export { makeMembersRepo }
+export { makePulseOpsRepo }
 export type {
   Db,
   ScopedRepo,

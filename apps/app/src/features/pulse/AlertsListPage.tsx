@@ -7,7 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
 import { usePulseDrawer } from './DrawerProvider'
-import { usePulseListAlertsQueryOptions } from './api'
+import { usePulseListHistoryQueryOptions } from './api'
 import { PulseAlertCard } from './components/PulseAlertCard'
 import { PulsingDot } from './components/PulsingDot'
 
@@ -16,7 +16,7 @@ import { PulsingDot } from './components/PulsingDot'
 export function AlertsListPage() {
   const { t } = useLingui()
   const { openDrawer } = usePulseDrawer()
-  const alertsQuery = useQuery(usePulseListAlertsQueryOptions(20))
+  const alertsQuery = useQuery(usePulseListHistoryQueryOptions(50))
   const alerts = alertsQuery.data?.alerts ?? []
   const isEmpty = !alertsQuery.isLoading && alerts.length === 0
 
@@ -35,7 +35,7 @@ export function AlertsListPage() {
             <p className="max-w-[640px] text-md text-text-secondary">
               <Trans>
                 Regulatory Pulse signals that match your firm's clients. Review, batch-apply
-                due-date changes, or dismiss to keep the queue clean.
+                due-date changes, snooze, or revisit closed alerts.
               </Trans>
             </p>
           </div>

@@ -195,6 +195,9 @@ function buildScoped(firmId: string, rows: Row[]) {
     async listAlerts() {
       return unused('pulse.listAlerts')
     },
+    async listHistory() {
+      return unused('pulse.listHistory')
+    },
     async getDetail() {
       return unused('pulse.getDetail')
     },
@@ -203,6 +206,9 @@ function buildScoped(firmId: string, rows: Row[]) {
     },
     async dismiss() {
       return unused('pulse.dismiss')
+    },
+    async snooze() {
+      return unused('pulse.snooze')
     },
     async revert() {
       return unused('pulse.revert')

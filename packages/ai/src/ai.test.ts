@@ -178,6 +178,64 @@ describe('@duedatehq/ai', () => {
     expect(result.trace.guardResult).toBe('guard_rejected')
   })
 
+  it('extracts Pulse output and requires a source-backed excerpt', async () => {
+    callGatewayMock.mockResolvedValueOnce({
+      output: {
+        summary: 'IRS extends selected filing deadlines for Los Angeles County.',
+        sourceExcerpt: 'Los Angeles County have until October 15, 2026',
+        jurisdiction: 'CA',
+        counties: ['Los Angeles'],
+        forms: ['federal_1065'],
+        entityTypes: ['llc'],
+        originalDueDate: '2026-03-15',
+        newDueDate: '2026-10-15',
+        effectiveFrom: '2026-04-15',
+        confidence: 0.94,
+      },
+      model: 'test-model',
+    })
+    const ai = createAI(CONFIGURED_ENV)
+
+    const result = await ai.extractPulse({
+      sourceId: 'irs.disaster',
+      title: 'IRS CA storm relief',
+      officialSourceUrl: 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations',
+      rawText: 'Individuals and businesses in Los Angeles County have until October 15, 2026.',
+    })
+
+    expect(result.result?.jurisdiction).toBe('CA')
+    expect(result.refusal).toBeNull()
+  })
+
+  it('rejects Pulse extract output when the excerpt is not in the source', async () => {
+    callGatewayMock.mockResolvedValueOnce({
+      output: {
+        summary: 'IRS extends selected filing deadlines.',
+        sourceExcerpt: 'made up quote',
+        jurisdiction: 'CA',
+        counties: ['Los Angeles'],
+        forms: ['federal_1065'],
+        entityTypes: ['llc'],
+        originalDueDate: '2026-03-15',
+        newDueDate: '2026-10-15',
+        effectiveFrom: null,
+        confidence: 0.94,
+      },
+      model: 'test-model',
+    })
+    const ai = createAI(CONFIGURED_ENV)
+
+    const result = await ai.extractPulse({
+      sourceId: 'irs.disaster',
+      title: 'IRS CA storm relief',
+      officialSourceUrl: 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations',
+      rawText: 'Official text.',
+    })
+
+    expect(result.result).toBeNull()
+    expect(result.refusal?.code).toBe('GUARD_REJECTED')
+  })
+
   it('returns AI_GATEWAY_ERROR with stable trace when the gateway throws', async () => {
     callGatewayMock.mockRejectedValueOnce(new Error('upstream failed'))
     const ai = createAI(CONFIGURED_ENV)

@@ -20,6 +20,7 @@ const ALLOWED = {
   'packages/core': new Set([]),
   'packages/ports': new Set([]),
   'packages/i18n': new Set([]),
+  'packages/ingest': new Set([]),
   'packages/ui': new Set([]),
   'packages/contracts': new Set(['zod', '@orpc/contract']),
   'packages/db': new Set(['@duedatehq/core', '@duedatehq/ports']),

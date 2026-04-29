@@ -2,6 +2,7 @@ import { createDb, firmSchema, scoped } from '@duedatehq/db'
 import { eq } from 'drizzle-orm'
 import type { Env } from '../env'
 import { enqueueDashboardBriefRefresh } from './dashboard-brief/enqueue'
+import { runPulseIngest } from './pulse/ingest'
 
 function localTimeParts(
   timezone: string,
@@ -104,5 +105,10 @@ export async function scheduled(
   env: Env,
   _ctx: ExecutionContext,
 ): Promise<void> {
-  await enqueueScheduledDashboardBriefs(env, new Date())
+  const now = new Date()
+  await Promise.all([
+    enqueueScheduledDashboardBriefs(env, now),
+    runPulseIngest(env),
+    env.EMAIL_QUEUE.send({ type: 'email.flush' }),
+  ])
 }

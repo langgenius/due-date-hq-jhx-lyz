@@ -276,6 +276,9 @@ export function seedPulseMock(queryClient: QueryClient): void {
   queryClient.setQueryData(orpc.pulse.listAlerts.queryKey({ input: { limit: 20 } }), {
     alerts: ALERTS,
   })
+  queryClient.setQueryData(orpc.pulse.listHistory.queryKey({ input: { limit: 50 } }), {
+    alerts: ALERTS,
+  })
 
   for (const detail of DETAILS) {
     queryClient.setQueryData(

@@ -11,7 +11,7 @@ function batch(messages: Array<{ body?: unknown }>) {
 }
 
 describe('queue consumer', () => {
-  it('rejects unsupported non-empty batches', () => {
+  it('rejects unknown message contracts', () => {
     expect(() => assertQueueDispatchable(batch([{ body: { type: 'test' } }]))).toThrow(
       'No queue dispatcher is implemented',
     )
@@ -35,6 +35,17 @@ describe('queue consumer', () => {
               requestedAt: '2026-04-29T00:00:00.000Z',
             },
           },
+        ]),
+      ),
+    ).not.toThrow()
+  })
+
+  it('allows Pulse extract and email flush messages', () => {
+    expect(() =>
+      assertQueueDispatchable(
+        batch([
+          { body: { type: 'pulse.extract', snapshotId: 'snapshot-1' } },
+          { body: { type: 'email.flush' } },
         ]),
       ),
     ).not.toThrow()

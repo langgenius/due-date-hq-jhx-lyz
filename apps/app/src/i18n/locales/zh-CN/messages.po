@@ -386,6 +386,10 @@ msgstr "AI 每周简报"
 msgid "Alert dismissed"
 msgstr "已忽略提醒"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Alert snoozed"
+msgstr "提醒已暂缓"
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/routes/route-summary.ts
@@ -885,6 +889,10 @@ msgstr "无法解析输入内容"
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't save mapping"
 msgstr "保存字段映射失败"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't snooze alert"
+msgstr "暂缓提醒失败"
 
 #: src/features/migration/Step1Intake.tsx
 #: src/features/migration/Wizard.tsx
@@ -2306,8 +2314,8 @@ msgid "Refresh brief"
 msgstr "刷新简报"
 
 #: src/features/pulse/AlertsListPage.tsx
-msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, or dismiss to keep the queue clean."
-msgstr "与你事务所客户匹配的监管脉搏信号。可复核、批量调整截止日，或忽略以保持队列整洁。"
+msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
+msgstr "匹配您事务所客户的监管 Pulse 信号。可复核、批量应用截止日变更、暂缓，或回看已关闭提醒。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "reminder ready"
@@ -2684,6 +2692,10 @@ msgstr "已登录"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signing out…"
 msgstr "正在退出…"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Snooze 24h"
+msgstr "暂缓 24 小时"
 
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Snoozed"

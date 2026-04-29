@@ -1,0 +1,77 @@
+import { expect, test } from '../fixtures/test'
+
+// Feature: Pulse regulatory alert loop
+// PRD: Phase 0 Pulse MVP
+// AC: E2E-PULSE-APPLY-UNDO, E2E-PULSE-RBAC
+
+test.skip(
+  Boolean(process.env.E2E_BASE_URL),
+  'local e2e auth seed is not available on external targets',
+)
+
+test.describe('seeded Pulse alerts', () => {
+  test.describe.configure({ mode: 'serial' })
+  test.use({ authSeed: 'pulse' })
+
+  test('AC: E2E-PULSE-APPLY-UNDO applies, audits, links evidence, and reverts', async ({
+    appShellPage,
+    authenticatedPage,
+    workboardPage,
+  }) => {
+    await appShellPage.goto()
+
+    await expect(authenticatedPage.getByText('IRS Disaster Relief')).toBeVisible()
+    await authenticatedPage.getByRole('button', { name: 'Review', exact: true }).click()
+
+    const drawer = authenticatedPage.getByRole('dialog')
+    await expect(drawer.getByText('Affected clients')).toBeVisible()
+    await expect(drawer.getByText('Arbor & Vale LLC')).toBeVisible()
+    await expect(drawer.getByText('Bright Studio S-Corp')).toBeVisible()
+    await expect(drawer.getByText('Pulse evidence linked to each obligation')).toBeVisible()
+
+    await drawer.getByRole('button', { name: /Apply to 1 client/ }).click()
+    await expect(authenticatedPage.getByText(/Applied to 1 clients?/)).toBeVisible()
+
+    await workboardPage.goto()
+    await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('Oct 15, 2026')
+    await expect(workboardPage.rowFor('Bright Studio S-Corp')).toContainText('Mar 15, 2026')
+
+    await appShellPage.goto('/audit?action=pulse.apply&range=all')
+    await expect(authenticatedPage.getByText('pulse.apply')).toBeVisible()
+
+    await appShellPage.goto('/')
+    await expect(authenticatedPage.getByText('pulse_apply')).toBeVisible()
+    await authenticatedPage.getByRole('tab', { name: 'Evidence checks' }).click()
+    await expect(authenticatedPage.getByText(/1 top rows have evidence/)).toBeVisible()
+
+    await appShellPage.goto('/alerts')
+    await authenticatedPage.getByRole('button', { name: 'Review' }).first().click()
+    await authenticatedPage.getByRole('button', { name: 'Undo (24h)' }).click()
+    await expect(authenticatedPage.getByText(/Reverted 1 clients?/)).toBeVisible()
+
+    await workboardPage.goto()
+    await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('Mar 15, 2026')
+  })
+
+  test.describe('coordinator role', () => {
+    test.use({ authRole: 'coordinator' })
+
+    test('AC: E2E-PULSE-RBAC keeps Pulse mutations read-only', async ({
+      appShellPage,
+      authenticatedPage,
+    }) => {
+      await appShellPage.goto()
+
+      await authenticatedPage.getByRole('button', { name: 'Review', exact: true }).click()
+      const drawer = authenticatedPage.getByRole('dialog')
+
+      await expect(drawer.getByText('Read-only view')).toBeVisible()
+      await expect(
+        drawer.getByText('Only Owners and Managers can apply Pulse changes.'),
+      ).toBeVisible()
+      await expect(drawer.getByRole('button', { name: /Apply to 1 client/ })).toBeDisabled()
+      await expect(drawer.getByRole('button', { name: 'Dismiss' })).toBeDisabled()
+      await expect(drawer.getByRole('button', { name: 'Snooze 24h' })).toBeDisabled()
+    })
+  })
+})

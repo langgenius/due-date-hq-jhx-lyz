@@ -386,6 +386,10 @@ msgstr "AI weekly brief"
 msgid "Alert dismissed"
 msgstr "Alert dismissed"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Alert snoozed"
+msgstr "Alert snoozed"
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/routes/route-summary.ts
@@ -885,6 +889,10 @@ msgstr "Couldn't parse the input"
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't save mapping"
 msgstr "Couldn't save mapping"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't snooze alert"
+msgstr "Couldn't snooze alert"
 
 #: src/features/migration/Step1Intake.tsx
 #: src/features/migration/Wizard.tsx
@@ -2306,8 +2314,8 @@ msgid "Refresh brief"
 msgstr "Refresh brief"
 
 #: src/features/pulse/AlertsListPage.tsx
-msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, or dismiss to keep the queue clean."
-msgstr "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, or dismiss to keep the queue clean."
+msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
+msgstr "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "reminder ready"
@@ -2684,6 +2692,10 @@ msgstr "Signed in"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Snooze 24h"
+msgstr "Snooze 24h"
 
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Snoozed"

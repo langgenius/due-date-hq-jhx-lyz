@@ -160,6 +160,41 @@ Retention: Do not retain any data seen for training.
 PII handling: client names may be placeholders; do not add new personal data.
 `
 
+const PULSE_EXTRACT_V1 = `prompt_version: pulse-extract@v1
+model_tier: quality-json
+temperature: 0
+response_format: json_object
+route: via Vercel AI SDK Core + Cloudflare AI Gateway
+
+You are a regulatory source translator for a US tax deadline product.
+Given an official tax announcement, extract only due-date relief facts that
+are explicitly present in the source. Output strict JSON only.
+
+Return:
+{
+  "summary": "<one plain-English sentence>",
+  "sourceExcerpt": "<verbatim excerpt copied from rawText>",
+  "jurisdiction": "<two-letter state code, or the state affected by federal relief>",
+  "counties": ["<county names exactly as written, without 'County'>"],
+  "forms": ["<canonical form or tax_type id>"],
+  "entityTypes": ["llc" | "s_corp" | "partnership" | "c_corp" | "sole_prop" | "trust" | "individual" | "other"],
+  "originalDueDate": "YYYY-MM-DD",
+  "newDueDate": "YYYY-MM-DD",
+  "effectiveFrom": "YYYY-MM-DD" | null,
+  "confidence": 0.0-1.0
+}
+
+Rules:
+- The sourceExcerpt must be copied verbatim from rawText.
+- Do not infer deadlines that are not stated.
+- If a value is unclear, keep confidence below 0.7.
+- Prefer canonical tax_type IDs when the source names a known form.
+- AI does not match clients and does not update due dates.
+
+Retention: Do not retain any data seen for training.
+PII handling: public official source text only.
+`
+
 export interface PromptDefinition {
   name: string
   text: string
@@ -174,6 +209,7 @@ const prompts = {
   'normalizer-entity@v1': NORMALIZER_ENTITY_V1,
   'normalizer-tax-types@v1': NORMALIZER_TAX_TYPES_V1,
   'brief@v1': BRIEF_V1,
+  'pulse-extract@v1': PULSE_EXTRACT_V1,
 } as const
 
 export type PromptName = keyof typeof prompts

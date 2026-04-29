@@ -150,8 +150,26 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
     }),
   )
 
+  const snoozeMutation = useMutation(
+    orpc.pulse.snooze.mutationOptions({
+      onSuccess: () => {
+        toast.success(t`Alert snoozed`)
+        invalidate()
+        onClose()
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't snooze alert`, {
+          description: i18n._(pulseErrorDescriptor(err)),
+        })
+      },
+    }),
+  )
+
   const isMutating =
-    applyMutation.isPending || dismissMutation.isPending || revertMutation.isPending
+    applyMutation.isPending ||
+    dismissMutation.isPending ||
+    revertMutation.isPending ||
+    snoozeMutation.isPending
 
   return (
     <Sheet open={open} onOpenChange={(next) => (next ? null : onClose())}>
@@ -245,6 +263,12 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 })
               }
               onDismiss={() => dismissMutation.mutate({ alertId: detail.alert.id })}
+              onSnooze={() =>
+                snoozeMutation.mutate({
+                  alertId: detail.alert.id,
+                  until: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                })
+              }
               onRevert={() => revertMutation.mutate({ alertId: detail.alert.id })}
             />
           ) : null}
@@ -261,6 +285,7 @@ function DrawerActions({
   isMutating,
   onApply,
   onDismiss,
+  onSnooze,
   onRevert,
 }: {
   alertStatus: PulseFirmAlertStatus
@@ -269,6 +294,7 @@ function DrawerActions({
   isMutating: boolean
   onApply: () => void
   onDismiss: () => void
+  onSnooze: () => void
   onRevert: () => void
 }) {
   const showRevert = REVERTABLE_STATUSES.has(alertStatus)
@@ -289,6 +315,14 @@ function DrawerActions({
         onClick={onDismiss}
       >
         <Trans>Dismiss</Trans>
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={!canApply || isMutating || isClosed}
+        onClick={onSnooze}
+      >
+        <Trans>Snooze 24h</Trans>
       </Button>
       <Button
         size="sm"

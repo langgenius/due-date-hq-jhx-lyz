@@ -1,0 +1,109 @@
+import { eq, asc } from 'drizzle-orm'
+import { Resend } from 'resend'
+import { createDb } from '@duedatehq/db'
+import { emailOutbox } from '@duedatehq/db/schema/notifications'
+import type { EmailOutbox } from '@duedatehq/db/schema/notifications'
+import type { Env } from '../../env'
+
+export interface EmailFlushQueueMessage {
+  type: 'email.flush'
+}
+
+type FlushRowResult = 'sent' | 'failed' | 'skipped'
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function readRecipients(payload: unknown): string[] {
+  if (!isRecord(payload) || !Array.isArray(payload.recipients)) return []
+  return payload.recipients.filter((value): value is string => typeof value === 'string')
+}
+
+function pulseDigestText(payload: unknown): string {
+  if (!isRecord(payload)) return 'Pulse digest'
+  const summary = typeof payload.summary === 'string' ? payload.summary : 'Pulse digest'
+  const obligations = Array.isArray(payload.obligations) ? payload.obligations : []
+  const lines = obligations.filter(isRecord).map((item) => {
+    const clientName = typeof item.clientName === 'string' ? item.clientName : 'Client'
+    const before = typeof item.beforeDueDate === 'string' ? item.beforeDueDate : 'previous date'
+    const after = typeof item.afterDueDate === 'string' ? item.afterDueDate : 'new date'
+    return `- ${clientName}: ${before} -> ${after}`
+  })
+  return [summary, '', ...lines].join('\n')
+}
+
+async function processOutboxRow(
+  db: ReturnType<typeof createDb>,
+  resend: Resend | null,
+  env: Pick<Env, 'EMAIL_FROM'>,
+  row: EmailOutbox,
+): Promise<FlushRowResult> {
+  const recipients = readRecipients(row.payloadJson)
+  if (!resend || recipients.length === 0) {
+    await db
+      .update(emailOutbox)
+      .set({
+        status: 'failed',
+        failedAt: new Date(),
+        failureReason: !resend
+          ? 'RESEND_API_KEY is not configured.'
+          : 'No recipients were present in the outbox payload.',
+      })
+      .where(eq(emailOutbox.id, row.id))
+    return 'failed'
+  }
+
+  await db.update(emailOutbox).set({ status: 'sending' }).where(eq(emailOutbox.id, row.id))
+
+  try {
+    const { error } = await resend.emails.send({
+      from: env.EMAIL_FROM,
+      to: recipients,
+      subject: 'Pulse deadline update applied',
+      text: pulseDigestText(row.payloadJson),
+      tags: [
+        { name: 'outbox_id', value: row.id },
+        { name: 'external_id', value: row.externalId },
+      ],
+    })
+    if (error) throw new Error(error.message)
+    await db
+      .update(emailOutbox)
+      .set({ status: 'sent', sentAt: new Date(), failureReason: null })
+      .where(eq(emailOutbox.id, row.id))
+    return 'sent'
+  } catch (error) {
+    await db
+      .update(emailOutbox)
+      .set({
+        status: 'failed',
+        failedAt: new Date(),
+        failureReason: error instanceof Error ? error.message : 'Resend send failed.',
+      })
+      .where(eq(emailOutbox.id, row.id))
+    return 'failed'
+  }
+}
+
+export async function flushEmailOutbox(
+  env: Pick<Env, 'DB' | 'EMAIL_FROM' | 'RESEND_API_KEY'>,
+): Promise<{ sent: number; failed: number; skipped: number }> {
+  const db = createDb(env.DB)
+  const rows = await db
+    .select()
+    .from(emailOutbox)
+    .where(eq(emailOutbox.status, 'pending'))
+    .orderBy(asc(emailOutbox.createdAt))
+    .limit(10)
+  if (rows.length === 0) return { sent: 0, failed: 0, skipped: 0 }
+
+  const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null
+  const results = await Promise.all(rows.map((row) => processOutboxRow(db, resend, env, row)))
+
+  return {
+    sent: results.filter((result) => result === 'sent').length,
+    failed: results.filter((result) => result === 'failed').length,
+    skipped: results.filter((result) => result === 'skipped').length,
+  }
+}

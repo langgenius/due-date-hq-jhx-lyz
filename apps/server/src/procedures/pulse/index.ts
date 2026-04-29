@@ -117,6 +117,15 @@ const listAlerts = os.pulse.listAlerts.handler(async ({ input, context }) => {
   return { alerts: alerts.map(toAlertPublic) }
 })
 
+const listHistory = os.pulse.listHistory.handler(async ({ input, context }) => {
+  const { scoped } = requireTenant(context)
+  const alerts = await scoped.pulse.listHistory({
+    ...(input?.limit === undefined ? {} : { limit: input.limit }),
+    ...(input?.status === undefined ? {} : { status: input.status }),
+  })
+  return { alerts: alerts.map(toAlertPublic) }
+})
+
 const getDetail = os.pulse.getDetail.handler(async ({ input, context }) => {
   const { scoped } = requireTenant(context)
   try {
@@ -182,6 +191,21 @@ const dismiss = os.pulse.dismiss.handler(async ({ input, context }) => {
   }
 })
 
+const snooze = os.pulse.snooze.handler(async ({ input, context }) => {
+  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { scoped } = requireTenant(context)
+  try {
+    const result = await scoped.pulse.snooze({
+      alertId: input.alertId,
+      userId,
+      until: new Date(input.until),
+    })
+    return { alert: toAlertPublic(result.alert), auditId: result.auditId }
+  } catch (error) {
+    return mapPulseError(error)
+  }
+})
+
 const revert = os.pulse.revert.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
@@ -205,8 +229,10 @@ const revert = os.pulse.revert.handler(async ({ input, context }) => {
 
 export const pulseHandlers = {
   listAlerts,
+  listHistory,
   getDetail,
   apply,
   dismiss,
+  snooze,
   revert,
 }

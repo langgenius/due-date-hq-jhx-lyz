@@ -25,6 +25,12 @@ export function usePulseListAlertsQueryOptions(limit?: number) {
   })
 }
 
+export function usePulseListHistoryQueryOptions(limit?: number) {
+  return orpc.pulse.listHistory.queryOptions({
+    input: limit === undefined ? undefined : { limit },
+  })
+}
+
 export function usePulseDetailQueryOptions(alertId: string | null) {
   return orpc.pulse.getDetail.queryOptions({
     input: { alertId: alertId ?? '' },

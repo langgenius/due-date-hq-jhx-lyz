@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull, notInArray } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, isNull, lte, notInArray, or } from 'drizzle-orm'
 import type { BatchItem } from 'drizzle-orm/batch'
 import type { Db } from '../client'
 import { auditEvent, evidenceLink, type NewAuditEvent, type NewEvidenceLink } from '../schema/audit'
@@ -9,10 +9,14 @@ import {
   pulse,
   pulseApplication,
   pulseFirmAlert,
+  pulseSourceSnapshot,
   type NewPulse,
   type NewPulseApplication,
   type NewPulseFirmAlert,
+  type NewPulseSourceSnapshot,
   type PulseFirmAlertStatus,
+  type PulseSourceSnapshot,
+  type PulseSourceSnapshotStatus,
   type PulseStatus,
 } from '../schema/pulse'
 
@@ -121,6 +125,55 @@ export interface PulseSeedInput {
   needsReviewCount?: number
 }
 
+export interface PulseSourceSnapshotInput {
+  id?: string
+  sourceId: string
+  externalId: string
+  title: string
+  officialSourceUrl: string
+  publishedAt: Date
+  fetchedAt: Date
+  contentHash: string
+  rawR2Key: string
+}
+
+export interface PulseSourceSnapshotRow {
+  id: string
+  sourceId: string
+  externalId: string
+  title: string
+  officialSourceUrl: string
+  publishedAt: Date
+  fetchedAt: Date
+  contentHash: string
+  rawR2Key: string
+  parseStatus: PulseSourceSnapshotStatus
+  pulseId: string | null
+  aiOutputId: string | null
+  failureReason: string | null
+}
+
+export interface PulseExtractInput {
+  snapshotId: string
+  aiOutputId?: string | null
+  source: string
+  sourceUrl: string
+  rawR2Key?: string | null
+  publishedAt: Date
+  aiSummary: string
+  verbatimQuote: string
+  parsedJurisdiction: string
+  parsedCounties: string[]
+  parsedForms: string[]
+  parsedEntityTypes: ClientEntityType[]
+  parsedOriginalDueDate: Date
+  parsedNewDueDate: Date
+  parsedEffectiveFrom?: Date | null
+  confidence: number
+  requiresHumanReview?: boolean
+  isSample?: boolean
+}
+
 interface AlertJoinedRow {
   alertId: string
   pulseId: string
@@ -175,6 +228,11 @@ interface ApplicationRow {
   afterDueDate: Date
 }
 
+interface AllFirmCandidateRow {
+  firmId: string
+  county: string | null
+}
+
 export class PulseRepoError extends Error {
   constructor(readonly code: 'not_found' | 'conflict' | 'revert_expired' | 'no_eligible') {
     super(`Pulse repo error: ${code}`)
@@ -210,6 +268,24 @@ function toAlert(row: AlertJoinedRow): PulseAlertRow {
     needsReviewCount: row.needsReviewCount,
     confidence: row.confidence,
     isSample: row.isSample,
+  }
+}
+
+function toSnapshot(row: PulseSourceSnapshot): PulseSourceSnapshotRow {
+  return {
+    id: row.id,
+    sourceId: row.sourceId,
+    externalId: row.externalId,
+    title: row.title,
+    officialSourceUrl: row.officialSourceUrl,
+    publishedAt: row.publishedAt,
+    fetchedAt: row.fetchedAt,
+    contentHash: row.contentHash,
+    rawR2Key: row.rawR2Key,
+    parseStatus: row.parseStatus,
+    pulseId: row.pulseId,
+    aiOutputId: row.aiOutputId,
+    failureReason: row.failureReason,
   }
 }
 
@@ -597,6 +673,7 @@ export function makePulseRepo(db: Db, firmId: string) {
 
     async listAlerts(opts: { limit?: number } = {}): Promise<PulseAlertRow[]> {
       const limit = Math.min(Math.max(opts.limit ?? 5, 1), 20)
+      const now = new Date()
       const rows = await db
         .select({
           alertId: pulseFirmAlert.id,
@@ -628,7 +705,55 @@ export function makePulseRepo(db: Db, firmId: string) {
           and(
             eq(pulseFirmAlert.firmId, firmId),
             eq(pulse.status, 'approved'),
-            inArray(pulseFirmAlert.status, ['matched', 'partially_applied']),
+            or(
+              inArray(pulseFirmAlert.status, ['matched', 'partially_applied']),
+              and(eq(pulseFirmAlert.status, 'snoozed'), lte(pulseFirmAlert.snoozedUntil, now)),
+            ),
+          ),
+        )
+        .orderBy(desc(pulse.publishedAt), desc(pulseFirmAlert.updatedAt))
+        .limit(limit)
+
+      return rows.map((row) => toAlert(row))
+    },
+
+    async listHistory(
+      opts: { limit?: number; status?: PulseFirmAlertStatus } = {},
+    ): Promise<PulseAlertRow[]> {
+      const limit = Math.min(Math.max(opts.limit ?? 20, 1), 100)
+      const statusFilter = opts.status ? eq(pulseFirmAlert.status, opts.status) : undefined
+      const rows = await db
+        .select({
+          alertId: pulseFirmAlert.id,
+          pulseId: pulse.id,
+          alertStatus: pulseFirmAlert.status,
+          matchedCount: pulseFirmAlert.matchedCount,
+          needsReviewCount: pulseFirmAlert.needsReviewCount,
+          source: pulse.source,
+          sourceUrl: pulse.sourceUrl,
+          publishedAt: pulse.publishedAt,
+          aiSummary: pulse.aiSummary,
+          verbatimQuote: pulse.verbatimQuote,
+          parsedJurisdiction: pulse.parsedJurisdiction,
+          parsedCounties: pulse.parsedCounties,
+          parsedForms: pulse.parsedForms,
+          parsedEntityTypes: pulse.parsedEntityTypes,
+          parsedOriginalDueDate: pulse.parsedOriginalDueDate,
+          parsedNewDueDate: pulse.parsedNewDueDate,
+          parsedEffectiveFrom: pulse.parsedEffectiveFrom,
+          confidence: pulse.confidence,
+          pulseStatus: pulse.status,
+          reviewedBy: pulse.reviewedBy,
+          reviewedAt: pulse.reviewedAt,
+          isSample: pulse.isSample,
+        })
+        .from(pulseFirmAlert)
+        .innerJoin(pulse, eq(pulseFirmAlert.pulseId, pulse.id))
+        .where(
+          and(
+            eq(pulseFirmAlert.firmId, firmId),
+            eq(pulse.status, 'approved'),
+            ...(statusFilter ? [statusFilter] : []),
           ),
         )
         .orderBy(desc(pulse.publishedAt), desc(pulseFirmAlert.updatedAt))
@@ -836,6 +961,46 @@ export function makePulseRepo(db: Db, firmId: string) {
       return { alert: toAlert(updated), auditId }
     },
 
+    async snooze(input: {
+      alertId: string
+      userId: string
+      until: Date
+      now?: Date
+    }): Promise<PulseDismissResult> {
+      const alert = await getAlert(input.alertId)
+      const now = input.now ?? new Date()
+      if (input.until.getTime() <= now.getTime()) throw new PulseRepoError('conflict')
+      const auditId = crypto.randomUUID()
+      await db.batch([
+        db
+          .update(pulseFirmAlert)
+          .set({
+            status: 'snoozed',
+            snoozedUntil: input.until,
+          })
+          .where(and(eq(pulseFirmAlert.firmId, firmId), eq(pulseFirmAlert.id, input.alertId))),
+        db.insert(auditEvent).values({
+          id: auditId,
+          firmId,
+          actorId: input.userId,
+          entityType: 'pulse_firm_alert',
+          entityId: input.alertId,
+          action: 'pulse.snooze',
+          beforeJson: { status: alert.alertStatus },
+          afterJson: {
+            status: 'snoozed',
+            pulseId: alert.pulseId,
+            snoozedUntil: input.until.toISOString(),
+          },
+          reason: null,
+          ipHash: null,
+          userAgentHash: null,
+        }),
+      ])
+      const updated = await getAlert(input.alertId)
+      return { alert: toAlert(updated), auditId }
+    },
+
     async revert(input: {
       alertId: string
       userId: string
@@ -971,3 +1136,233 @@ export function makePulseRepo(db: Db, firmId: string) {
 }
 
 export type PulseRepo = ReturnType<typeof makePulseRepo>
+
+export function makePulseOpsRepo(db: Db) {
+  async function getPulse(pulseId: string) {
+    const rows = await db.select().from(pulse).where(eq(pulse.id, pulseId)).limit(1)
+    return rows[0]
+  }
+
+  async function refreshFirmAlertsForPulse(pulseId: string): Promise<number> {
+    const row = await getPulse(pulseId)
+    if (!row || row.status !== 'approved') throw new PulseRepoError('not_found')
+
+    const forms = row.parsedForms
+    const entityTypes = toClientEntityTypes(row.parsedEntityTypes)
+    if (forms.length === 0 || entityTypes.length === 0) return 0
+
+    const candidates = await db
+      .select({
+        firmId: obligationInstance.firmId,
+        county: client.county,
+      })
+      .from(obligationInstance)
+      .innerJoin(client, eq(obligationInstance.clientId, client.id))
+      .where(
+        and(
+          eq(client.state, row.parsedJurisdiction),
+          inArray(client.entityType, entityTypes),
+          inArray(obligationInstance.taxType, forms),
+          inArray(obligationInstance.status, OPEN_OBLIGATION_STATUSES),
+          eq(obligationInstance.currentDueDate, row.parsedOriginalDueDate),
+          isNull(client.deletedAt),
+        ),
+      )
+
+    const counties = new Set(row.parsedCounties.map((county) => county.toLowerCase()))
+    const counts = new Map<string, { matchedCount: number; needsReviewCount: number }>()
+    for (const candidate of candidates as AllFirmCandidateRow[]) {
+      const current = counts.get(candidate.firmId) ?? { matchedCount: 0, needsReviewCount: 0 }
+      if (counties.size > 0) {
+        if (!candidate.county) current.needsReviewCount += 1
+        else if (counties.has(candidate.county.toLowerCase())) current.matchedCount += 1
+      } else {
+        current.matchedCount += 1
+      }
+      counts.set(candidate.firmId, current)
+    }
+
+    let alertCount = 0
+    const alertWrites = []
+    for (const [matchedFirmId, count] of counts) {
+      if (count.matchedCount + count.needsReviewCount === 0) continue
+      alertCount += 1
+      const alertRow: NewPulseFirmAlert = {
+        id: crypto.randomUUID(),
+        pulseId,
+        firmId: matchedFirmId,
+        status: 'matched',
+        matchedCount: count.matchedCount,
+        needsReviewCount: count.needsReviewCount,
+      }
+      alertWrites.push(
+        db
+          .insert(pulseFirmAlert)
+          .values(alertRow)
+          .onConflictDoUpdate({
+            target: [pulseFirmAlert.firmId, pulseFirmAlert.pulseId],
+            set: {
+              status: 'matched',
+              matchedCount: count.matchedCount,
+              needsReviewCount: count.needsReviewCount,
+            },
+          }),
+      )
+    }
+    await Promise.all(alertWrites)
+    return alertCount
+  }
+
+  return {
+    async createSourceSnapshot(input: PulseSourceSnapshotInput): Promise<{
+      snapshot: PulseSourceSnapshotRow
+      inserted: boolean
+    }> {
+      const id = input.id ?? crypto.randomUUID()
+      const row: NewPulseSourceSnapshot = {
+        id,
+        sourceId: input.sourceId,
+        externalId: input.externalId,
+        title: input.title,
+        officialSourceUrl: input.officialSourceUrl,
+        publishedAt: input.publishedAt,
+        fetchedAt: input.fetchedAt,
+        contentHash: input.contentHash,
+        rawR2Key: input.rawR2Key,
+        parseStatus: 'pending_extract',
+      }
+
+      await db
+        .insert(pulseSourceSnapshot)
+        .values(row)
+        .onConflictDoNothing({
+          target: [
+            pulseSourceSnapshot.sourceId,
+            pulseSourceSnapshot.externalId,
+            pulseSourceSnapshot.contentHash,
+          ],
+        })
+
+      const rows = await db
+        .select()
+        .from(pulseSourceSnapshot)
+        .where(
+          and(
+            eq(pulseSourceSnapshot.sourceId, input.sourceId),
+            eq(pulseSourceSnapshot.externalId, input.externalId),
+            eq(pulseSourceSnapshot.contentHash, input.contentHash),
+          ),
+        )
+        .limit(1)
+      const snapshot = rows[0]
+      if (!snapshot) throw new PulseRepoError('not_found')
+      return { snapshot: toSnapshot(snapshot), inserted: snapshot.id === id }
+    },
+
+    async getSourceSnapshot(snapshotId: string): Promise<PulseSourceSnapshotRow | undefined> {
+      const rows = await db
+        .select()
+        .from(pulseSourceSnapshot)
+        .where(eq(pulseSourceSnapshot.id, snapshotId))
+        .limit(1)
+      const row = rows[0]
+      return row ? toSnapshot(row) : undefined
+    },
+
+    async updateSourceSnapshotStatus(
+      snapshotId: string,
+      patch: {
+        parseStatus: PulseSourceSnapshotStatus
+        pulseId?: string | null
+        aiOutputId?: string | null
+        failureReason?: string | null
+      },
+    ): Promise<void> {
+      await db
+        .update(pulseSourceSnapshot)
+        .set({
+          parseStatus: patch.parseStatus,
+          ...(patch.pulseId !== undefined ? { pulseId: patch.pulseId } : {}),
+          ...(patch.aiOutputId !== undefined ? { aiOutputId: patch.aiOutputId } : {}),
+          ...(patch.failureReason !== undefined ? { failureReason: patch.failureReason } : {}),
+        })
+        .where(eq(pulseSourceSnapshot.id, snapshotId))
+    },
+
+    async createPendingPulseFromExtract(input: PulseExtractInput): Promise<{ pulseId: string }> {
+      const pulseId = crypto.randomUUID()
+      const pulseRow: NewPulse = {
+        id: pulseId,
+        source: input.source,
+        sourceUrl: input.sourceUrl,
+        rawR2Key: input.rawR2Key ?? null,
+        publishedAt: input.publishedAt,
+        aiSummary: input.aiSummary,
+        verbatimQuote: input.verbatimQuote,
+        parsedJurisdiction: input.parsedJurisdiction,
+        parsedCounties: input.parsedCounties,
+        parsedForms: input.parsedForms,
+        parsedEntityTypes: input.parsedEntityTypes,
+        parsedOriginalDueDate: input.parsedOriginalDueDate,
+        parsedNewDueDate: input.parsedNewDueDate,
+        parsedEffectiveFrom: input.parsedEffectiveFrom ?? null,
+        confidence: input.confidence,
+        status: 'pending_review',
+        reviewedBy: null,
+        reviewedAt: null,
+        requiresHumanReview: input.requiresHumanReview ?? true,
+        isSample: input.isSample ?? false,
+      }
+      await db.batch([
+        db.insert(pulse).values(pulseRow),
+        db
+          .update(pulseSourceSnapshot)
+          .set({
+            parseStatus: 'extracted',
+            pulseId,
+            aiOutputId: input.aiOutputId ?? null,
+            failureReason: null,
+          })
+          .where(eq(pulseSourceSnapshot.id, input.snapshotId)),
+      ])
+      return { pulseId }
+    },
+
+    async approvePulse(input: {
+      pulseId: string
+      reviewedBy: string
+      now?: Date
+    }): Promise<{ alertCount: number }> {
+      const now = input.now ?? new Date()
+      await db
+        .update(pulse)
+        .set({
+          status: 'approved',
+          reviewedBy: input.reviewedBy,
+          reviewedAt: now,
+          requiresHumanReview: false,
+        })
+        .where(eq(pulse.id, input.pulseId))
+      const alertCount = await refreshFirmAlertsForPulse(input.pulseId)
+      return { alertCount }
+    },
+
+    async rejectPulse(input: { pulseId: string; reviewedBy: string; now?: Date }): Promise<void> {
+      await db
+        .update(pulse)
+        .set({
+          status: 'rejected',
+          reviewedBy: input.reviewedBy,
+          reviewedAt: input.now ?? new Date(),
+        })
+        .where(eq(pulse.id, input.pulseId))
+    },
+
+    async quarantinePulse(input: { pulseId: string; reason?: string }): Promise<void> {
+      void input.reason
+      await db.update(pulse).set({ status: 'quarantined' }).where(eq(pulse.id, input.pulseId))
+    },
+  }
+}
+
+export type PulseOpsRepo = ReturnType<typeof makePulseOpsRepo>

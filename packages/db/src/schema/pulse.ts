@@ -24,6 +24,15 @@ export const PULSE_FIRM_ALERT_STATUSES = [
 ] as const
 export type PulseFirmAlertStatus = (typeof PULSE_FIRM_ALERT_STATUSES)[number]
 
+export const PULSE_SOURCE_SNAPSHOT_STATUSES = [
+  'pending_extract',
+  'extracting',
+  'extracted',
+  'duplicate',
+  'failed',
+] as const
+export type PulseSourceSnapshotStatus = (typeof PULSE_SOURCE_SNAPSHOT_STATUSES)[number]
+
 /**
  * pulse — global ops-reviewed regulatory announcement.
  *
@@ -72,6 +81,46 @@ export const pulse = sqliteTable(
   (table) => [
     index('idx_pulse_status_pub').on(table.status, table.publishedAt),
     index('idx_pulse_jurisdiction_pub').on(table.parsedJurisdiction, table.publishedAt),
+  ],
+)
+
+export const pulseSourceSnapshot = sqliteTable(
+  'pulse_source_snapshot',
+  {
+    id: text('id').primaryKey(),
+    sourceId: text('source_id').notNull(),
+    externalId: text('external_id').notNull(),
+    title: text('title').notNull(),
+    officialSourceUrl: text('official_source_url').notNull(),
+    publishedAt: integer('published_at', { mode: 'timestamp_ms' }).notNull(),
+    fetchedAt: integer('fetched_at', { mode: 'timestamp_ms' }).notNull(),
+    contentHash: text('content_hash').notNull(),
+    rawR2Key: text('raw_r2_key').notNull(),
+    parseStatus: text('parse_status', {
+      enum: PULSE_SOURCE_SNAPSHOT_STATUSES,
+    })
+      .notNull()
+      .default('pending_extract'),
+    pulseId: text('pulse_id').references(() => pulse.id, { onDelete: 'set null' }),
+    aiOutputId: text('ai_output_id'),
+    failureReason: text('failure_reason'),
+
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('uq_pss_source_external_hash').on(
+      table.sourceId,
+      table.externalId,
+      table.contentHash,
+    ),
+    index('idx_pss_status_time').on(table.parseStatus, table.createdAt),
+    index('idx_pss_source_time').on(table.sourceId, table.publishedAt),
   ],
 )
 
@@ -148,9 +197,17 @@ export const pulseApplication = sqliteTable(
 export const pulseRelations = relations(pulse, ({ many, one }) => ({
   firmAlerts: many(pulseFirmAlert),
   applications: many(pulseApplication),
+  sourceSnapshots: many(pulseSourceSnapshot),
   reviewer: one(user, {
     fields: [pulse.reviewedBy],
     references: [user.id],
+  }),
+}))
+
+export const pulseSourceSnapshotRelations = relations(pulseSourceSnapshot, ({ one }) => ({
+  pulse: one(pulse, {
+    fields: [pulseSourceSnapshot.pulseId],
+    references: [pulse.id],
   }),
 }))
 
@@ -198,6 +255,8 @@ export const pulseApplicationRelations = relations(pulseApplication, ({ one }) =
 
 export type Pulse = typeof pulse.$inferSelect
 export type NewPulse = typeof pulse.$inferInsert
+export type PulseSourceSnapshot = typeof pulseSourceSnapshot.$inferSelect
+export type NewPulseSourceSnapshot = typeof pulseSourceSnapshot.$inferInsert
 export type PulseFirmAlert = typeof pulseFirmAlert.$inferSelect
 export type NewPulseFirmAlert = typeof pulseFirmAlert.$inferInsert
 export type PulseApplication = typeof pulseApplication.$inferSelect

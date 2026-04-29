@@ -1,7 +1,7 @@
 export class GuardRejection extends Error {
   constructor(
     message: string,
-    readonly code: 'EIN_HIT_RATE_LOW' | 'SCHEMA_INVALID',
+    readonly code: 'EIN_HIT_RATE_LOW' | 'SCHEMA_INVALID' | 'SOURCE_EXCERPT_NOT_FOUND',
   ) {
     super(message)
   }
@@ -44,4 +44,24 @@ export function verifyMapperEinHitRate(input: unknown, output: unknown): void {
       'EIN_HIT_RATE_LOW',
     )
   }
+}
+
+export function verifyPulseSourceExcerpt(input: unknown, output: unknown): void {
+  if (!isRecord(input) || !isRecord(output)) return
+  const rawText = input.rawText
+  const sourceExcerpt = output.sourceExcerpt
+  if (typeof rawText !== 'string' || typeof sourceExcerpt !== 'string') return
+
+  const normalizedRaw = normalizeForExcerpt(rawText)
+  const normalizedExcerpt = normalizeForExcerpt(sourceExcerpt)
+  if (!normalizedExcerpt || normalizedRaw.includes(normalizedExcerpt)) return
+
+  throw new GuardRejection(
+    'Pulse extract rejected because source excerpt could not be located in raw text.',
+    'SOURCE_EXCERPT_NOT_FOUND',
+  )
+}
+
+function normalizeForExcerpt(value: string): string {
+  return value.replace(/\s+/g, ' ').trim().toLowerCase()
 }

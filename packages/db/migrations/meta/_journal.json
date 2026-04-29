@@ -64,6 +64,13 @@
       "when": 1777435647316,
       "tag": "0008_chilly_smasher",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1777451964338,
+      "tag": "0009_daily_norrin_radd",
+      "breakpoints": true
     }
   ]
 }

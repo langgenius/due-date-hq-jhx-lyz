@@ -160,8 +160,11 @@ export type {
   PulseDetail,
   PulseDismissOutput,
   PulseFirmAlertStatus,
+  PulseListHistoryInput,
   PulseListAlertsInput,
   PulseRevertOutput,
+  PulseSnoozeInput,
+  PulseSnoozeOutput,
   PulseStatus,
 } from './pulse'
 export {
@@ -175,8 +178,11 @@ export {
   PulseDetailSchema,
   PulseDismissOutputSchema,
   PulseFirmAlertStatusSchema,
+  PulseListHistoryInputSchema,
   PulseListAlertsInputSchema,
   PulseRevertOutputSchema,
+  PulseSnoozeInputSchema,
+  PulseSnoozeOutputSchema,
   PulseStatusSchema,
 } from './pulse'
 

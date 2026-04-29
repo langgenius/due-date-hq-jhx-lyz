@@ -249,6 +249,7 @@ describe('@duedatehq/contracts', () => {
   it('allows migration and Pulse audit strings used by batch apply', () => {
     expect(AuditActionSchema.parse('migration.batch.created')).toBe('migration.batch.created')
     expect(PulseAuditActionSchema.parse('pulse.apply')).toBe('pulse.apply')
+    expect(PulseAuditActionSchema.parse('pulse.snooze')).toBe('pulse.snooze')
     expect(AuditActionSchema.parse('pulse.revert')).toBe('pulse.revert')
     expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')
   })
@@ -256,9 +257,11 @@ describe('@duedatehq/contracts', () => {
   it('freezes Pulse demo backend contracts', () => {
     expect(Object.keys(pulseContract)).toEqual([
       'listAlerts',
+      'listHistory',
       'getDetail',
       'apply',
       'dismiss',
+      'snooze',
       'revert',
     ])
     expect(PulseFirmAlertStatusSchema.options).toEqual([

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { AI } from '@duedatehq/ai'
+import { PulseExtractOutputSchema } from '@duedatehq/ai'
 import { MigrationService, type MigrationDeps } from './_service'
 
 /**
@@ -365,6 +366,9 @@ function buildScopedRepo(firmId: string) {
     async listAlerts() {
       return unexpectedRepoCall('pulse.listAlerts')
     },
+    async listHistory() {
+      return unexpectedRepoCall('pulse.listHistory')
+    },
     async getDetail() {
       return unexpectedRepoCall('pulse.getDetail')
     },
@@ -373,6 +377,9 @@ function buildScopedRepo(firmId: string) {
     },
     async dismiss() {
       return unexpectedRepoCall('pulse.dismiss')
+    },
+    async snooze() {
+      return unexpectedRepoCall('pulse.snooze')
     },
     async revert() {
       return unexpectedRepoCall('pulse.revert')
@@ -492,7 +499,10 @@ function buildAi(rawResult?: unknown): AI {
     }
   }
 
-  return { runPrompt, runStreaming: runPrompt }
+  const extractPulse: AI['extractPulse'] = async (input) =>
+    runPrompt('pulse-extract@v1', input, PulseExtractOutputSchema)
+
+  return { extractPulse, runPrompt, runStreaming: runPrompt }
 }
 
 const SAMPLE_CSV = `Client Name,Tax ID,State,Entity Type,Email
