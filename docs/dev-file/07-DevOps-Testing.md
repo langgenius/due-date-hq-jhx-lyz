@@ -215,6 +215,8 @@ Migration Step 1 / firm switch / billing checkout 与 webhook-backed success 流
 
 除 Pulse 与 Dashboard 外，当前产品闭环 e2e 的重点是：
 
+- Clients facts：手工创建、seeded readiness KPI、entity/state/search URL 筛选、过滤空态、
+  以及从列表打开 Fact Profile Sheet 核对客户事实。
 - Team Workload：Solo 锁定升级面、Firm 计划真实 workload 聚合、unassigned 风险行、回跳
   Workboard 的 owner/due URL state。
 - Audit Log：从 Workboard 状态写入触发审计，再按 action 打开详情 drawer 验证 before/after。

@@ -42,8 +42,16 @@ CSV 场景，适合单独做下一批，避免把默认 e2e 套件拉慢。
 
 - `pnpm exec playwright test e2e/tests/workload.spec.ts e2e/tests/audit-log.spec.ts e2e/tests/members.spec.ts --reporter=list`
 
+## 2026-04-29 Clients follow-up
+
+- 已在 `e2e/tests/clients.spec.ts` 补齐 Clients facts seeded readiness、entity/state/search URL
+  筛选、过滤空态，以及从客户列表打开 Fact Profile Sheet 的浏览器闭环。
+- 验证命令：`pnpm exec playwright test e2e/tests/clients.spec.ts --reporter=list`。
+- 回归命令：`pnpm test:e2e --reporter=list`、`pnpm check`、`pnpm test`、`pnpm build`。
+
 ## 后续
 
 - 为 first-login onboarding 增加 `noFirm` e2e session seed。
-- 为 Clients facts 增补 seeded filter/readiness/fact-profile 闭环。
+- 为 Clients import convergence 增补从 `/clients` 入口进入 Migration、导入后回到 Clients/Workboard
+  的跨域闭环。
 - 再评估是否把 Members 的 role update、suspend/reactivate 扩展到专门的 `team` seed。

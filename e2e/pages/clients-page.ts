@@ -8,6 +8,8 @@ export class ClientsPage {
   readonly newClientButton: Locator
   readonly createDialog: Locator
   readonly createClientButton: Locator
+  readonly factProfileDialog: Locator
+  readonly filteredEmptyState: Locator
 
   constructor(readonly page: Page) {
     this.directoryTitle = page.getByRole('heading', { name: 'Client facts' })
@@ -17,6 +19,8 @@ export class ClientsPage {
     this.newClientButton = page.getByRole('button', { name: 'New client' })
     this.createDialog = page.getByRole('dialog', { name: 'Create client' })
     this.createClientButton = this.createDialog.getByRole('button', { name: 'Create client' })
+    this.factProfileDialog = page.getByRole('dialog', { name: 'Fact profile' })
+    this.filteredEmptyState = page.getByText('No clients match these filters')
   }
 
   async goto(path = '/clients') {
@@ -39,6 +43,26 @@ export class ClientsPage {
     if (input.email) await this.createDialog.getByLabel('Email').fill(input.email)
     if (input.owner) await this.createDialog.getByLabel('Owner').fill(input.owner)
     await this.createClientButton.click()
+  }
+
+  async selectEntityFilter(entity: string) {
+    await this.entityFilter.click()
+    await this.page.getByRole('option', { name: entity }).click()
+  }
+
+  async selectStateFilter(state: string) {
+    await this.stateFilter.click()
+    await this.page.getByRole('option', { name: state }).click()
+  }
+
+  metricCard(label: string) {
+    return this.page
+      .locator('section')
+      .first()
+      .locator('[data-slot="card"]')
+      .filter({
+        has: this.page.getByText(label, { exact: true }),
+      })
   }
 
   rowFor(clientName: string) {

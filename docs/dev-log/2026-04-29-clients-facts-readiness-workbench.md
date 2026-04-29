@@ -36,12 +36,19 @@ Dashboard risk, and Pulse matching.
 - Follow-up UI correction: removed the permanent right-side profile column,
   gave the table stable min-width/column widths, and kept jurisdiction/source
   cells from colliding at desktop widths.
+- Follow-up e2e closure: expanded `e2e/tests/clients.spec.ts` beyond navigation
+  and create to cover seeded readiness KPI, entity/state/search URL filters,
+  filtered empty state, and Fact Profile Sheet inspection against the local
+  `workboard` seed.
 
 ## Notes
 
 - This intentionally does not add edit/delete or server-side search. Those would
   require `packages/contracts/src/clients.ts` changes and a broader repo/index
   design pass.
+- The current browser seed path covers all-ready manual clients. Imported-client
+  convergence and missing-required-fact warning rows should use a dedicated
+  follow-up seed so the Workboard seed remains stable.
 - The workbench follows the existing React constraints: module-level components,
   derived state via render/useMemo, no `useEffect`, no raw oRPC client imports,
   and URL state through `nuqs`.
