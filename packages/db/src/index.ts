@@ -1,4 +1,5 @@
 import * as authSchema from './schema/auth'
+import * as dashboardSchema from './schema/dashboard'
 import * as firmSchema from './schema/firm'
 import { makeFirmsRepo } from './repo/firms'
 import { makeMembersRepo } from './repo/members'
@@ -6,6 +7,7 @@ import { makeMembersRepo } from './repo/members'
 export { createDb } from './client'
 export { scoped } from './scoped'
 export { authSchema }
+export { dashboardSchema }
 // firmSchema is exposed at the main entry (parallel to authSchema) so the
 // auth-layer code paths that legitimately need to write firm_profile —
 // the organization-create hook and the lazy-create branch in tenantMiddleware

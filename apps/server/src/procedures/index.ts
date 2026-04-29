@@ -58,6 +58,7 @@ export const router = os.router({
   },
   dashboard: {
     load: dashboardHandlers.load,
+    requestBriefRefresh: dashboardHandlers.requestBriefRefresh,
   },
   evidence: {
     listByObligation: evidenceHandlers.listByObligation,

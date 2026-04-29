@@ -83,6 +83,10 @@ queue = "due-date-hq-email-staging"
 binding = "PULSE_QUEUE"
 queue = "due-date-hq-pulse-staging"
 
+[[queues.producers]]
+binding = "DASHBOARD_QUEUE"
+queue = "due-date-hq-dashboard-staging"
+
 [[queues.consumers]]
 queue = "due-date-hq-email-staging"
 max_batch_size = 10
@@ -96,6 +100,13 @@ max_batch_size = 10
 max_batch_timeout = 5
 max_retries = 5
 dead_letter_queue = "due-date-hq-pulse-dlq-staging"
+
+[[queues.consumers]]
+queue = "due-date-hq-dashboard-staging"
+max_batch_size = 5
+max_batch_timeout = 5
+max_retries = 3
+dead_letter_queue = "due-date-hq-dashboard-dlq-staging"
 
 # -------------------------------------------------------------
 # Cron Triggers · pulse ingest + reminder dispatch

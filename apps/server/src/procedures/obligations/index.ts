@@ -7,6 +7,7 @@ import {
   requireCurrentFirmRole,
 } from '../_permissions'
 import { os } from '../_root'
+import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { toObligationPublic, updateObligationStatus } from './_service'
 
 /**
@@ -98,8 +99,13 @@ const listByClient = os.obligations.listByClient.handler(async ({ input, context
 
 const updateStatus = os.obligations.updateStatus.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
-  const { scoped, userId } = requireTenant(context)
-  return updateObligationStatus(scoped, userId, input)
+  const { scoped, tenant, userId } = requireTenant(context)
+  const result = await updateObligationStatus(scoped, userId, input)
+  await enqueueDashboardBriefRefresh(context.env, {
+    firmId: tenant.firmId,
+    reason: 'status_change',
+  }).catch(() => false)
+  return result
 })
 
 export const obligationsHandlers = {

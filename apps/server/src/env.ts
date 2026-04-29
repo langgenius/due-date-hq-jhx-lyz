@@ -44,6 +44,7 @@ export interface WorkerBindings {
   VECTORS: VectorizeIndex
   EMAIL_QUEUE: Queue
   PULSE_QUEUE: Queue
+  DASHBOARD_QUEUE: Queue
   ASSETS: Fetcher
 }
 

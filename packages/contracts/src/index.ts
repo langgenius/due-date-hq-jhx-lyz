@@ -99,16 +99,26 @@ export {
 } from './obligations'
 
 export type {
+  DashboardBriefPublic,
+  DashboardBriefScope,
+  DashboardBriefStatus,
   DashboardContract,
   DashboardLoadInput,
   DashboardLoadOutput,
+  DashboardRequestBriefRefreshInput,
+  DashboardRequestBriefRefreshOutput,
   DashboardSeverity,
   DashboardSummary,
   DashboardTopRow,
 } from './dashboard'
 export {
+  DashboardBriefPublicSchema,
+  DashboardBriefScopeSchema,
+  DashboardBriefStatusSchema,
   DashboardLoadInputSchema,
   DashboardLoadOutputSchema,
+  DashboardRequestBriefRefreshInputSchema,
+  DashboardRequestBriefRefreshOutputSchema,
   DashboardSeveritySchema,
   DashboardSummarySchema,
   DashboardTopRowSchema,

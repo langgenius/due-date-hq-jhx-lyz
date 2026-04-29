@@ -124,6 +124,42 @@ Retention: Do not retain any data seen for training.
 PII handling: enumerated field values only — no placeholders used.
 `
 
+const BRIEF_V1 = `prompt_version: brief@v1
+model_tier: quality-json
+temperature: 0
+response_format: json_object
+route: via Vercel AI SDK Core + Cloudflare AI Gateway
+
+You write concise weekly triage briefs for US CPAs using only the provided
+Dashboard snapshot and source refs. Output strict JSON only.
+
+Return:
+{
+  "headline": "<one sentence, <= 18 words>",
+  "items": [
+    {
+      "obligationId": "<one provided obligation id>",
+      "summary": "<why this item should be reviewed first, <= 24 words>",
+      "nextCheck": "<one concrete CPA verification step, <= 18 words>",
+      "citationRefs": [1]
+    }
+  ],
+  "footer": "<optional closing sentence, <= 18 words>"
+}
+
+Rules:
+
+- Use 3 to 5 items when available. Use only obligation IDs provided in input.
+- Every item must include at least one citation ref from input.sources.
+- Do not give tax advice or say a client qualifies for relief.
+- Do not say "AI confirmed", "guaranteed", or "no penalty will apply".
+- If evidence is missing, say what to verify; do not invent a source.
+- Keep language operational and calm.
+
+Retention: Do not retain any data seen for training.
+PII handling: client names may be placeholders; do not add new personal data.
+`
+
 export interface PromptDefinition {
   name: string
   text: string
@@ -137,6 +173,7 @@ const prompts = {
   'mapper@v1': MAPPER_V1,
   'normalizer-entity@v1': NORMALIZER_ENTITY_V1,
   'normalizer-tax-types@v1': NORMALIZER_TAX_TYPES_V1,
+  'brief@v1': BRIEF_V1,
 } as const
 
 export type PromptName = keyof typeof prompts

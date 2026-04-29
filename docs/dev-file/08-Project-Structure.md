@@ -170,6 +170,7 @@ apps/server/
 │   ├── jobs/
 │   │   ├── cron.ts                 # scheduled handler 总入口
 │   │   ├── queue.ts                # queue consumer 总入口
+│   │   ├── dashboard-brief/        # Dashboard AI Brief enqueue / consumer / snapshot
 │   │   ├── pulse/                  # ingest / extract / apply
 │   │   ├── reminders/
 │   │   └── email-outbox/
@@ -188,6 +189,9 @@ apps/server/
 
 - `procedures/**` 不得 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`（用 `context.vars.scoped`）；允许 type-only import `@duedatehq/ports` 表达 repo / tenant 边界
 - `jobs/**` 可以直接用 `scoped(db, firmId)`（系统任务，firmId 从消息体或 cron 规则推导）
+- `jobs/dashboard-brief/**` 只在 Queue / Cron / explicit enqueue mutation 路径运行；不得被
+  `dashboard.load` request path 直接调用。其输出写 `ai_output(kind='brief')` +
+  `dashboard_brief`，供 Dashboard 只读。
 - 每个 procedure 文件只导出一个 procedure 定义
 
 ### 4.2 `apps/app`
@@ -375,7 +379,9 @@ packages/ai/
 - `packages/ai` 不直接 import `@duedatehq/db`、Drizzle schema、Hono context 或 Cloudflare `env`。
 - `runPrompt` 返回 guarded result 与 trace payload；`apps/server` 负责用注入的 scoped repo
   写 `ai_output` / `evidence_link` / `llm_log`。Activation Slice v1 已先接入 Migration
-  mapper / normalizer；`generateBrief` / `generateTip` / `extractPulse` 仍是后续高阶 API。
+  mapper / normalizer；Dashboard Brief 的 `brief@v1` 由 `jobs/dashboard-brief` 调用，
+  写入 `ai_output(kind='brief')`，再物化到 `dashboard_brief`。`generateTip` / `extractPulse`
+  仍是后续高阶 API。
 - Vectorize / KV / writer / tracer ports 通过 `ports.ts` 注入；AI SDK provider 组合封装在 `packages/ai` 内部，便于 Workers integration test 和未来替换。
 
 ### 4.7 `packages/auth`

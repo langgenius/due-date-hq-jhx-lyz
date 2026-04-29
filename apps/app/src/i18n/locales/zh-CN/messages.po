@@ -108,6 +108,13 @@ msgstr "{0} 条义务需要 CPA 确认。"
 msgid "{0} open obligations have no evidence link."
 msgstr "{0} 条未关闭义务没有 evidence 链接。"
 
+#. placeholder {0}: summary.openObligationCount
+#. placeholder {1}: summary.dueThisWeekCount
+#. placeholder {2}: summary.needsReviewCount
+#: src/routes/dashboard.tsx
+msgid "{0} open obligations, {1} due this week, and {2} need review."
+msgstr "{0} 条未关闭义务，{1} 条本周到期，{2} 条需要复核。"
+
 #. placeholder {0}: firm.seatLimit
 #: src/components/patterns/app-shell.tsx
 msgid "{0} seat"
@@ -370,6 +377,10 @@ msgstr "AI 已识别你的列 —— 请审阅并确认"
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI 映射器不可用 —— 已使用降级方案"
 
+#: src/routes/dashboard.tsx
+msgid "AI weekly brief"
+msgstr "AI 每周简报"
+
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Alert dismissed"
@@ -573,6 +584,10 @@ msgstr "无法加载账单状态"
 msgid "Billing status is not ready yet."
 msgstr "账单状态尚未准备好。"
 
+#: src/routes/dashboard.tsx
+msgid "Brief is being prepared. The risk table is ready now."
+msgstr "简报正在后台准备中。风险表现在已经可用。"
+
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "登录即表示你同意 <termsLink>服务条款</termsLink> 与 <privacyLink>隐私政策</privacyLink>。登录遇到问题？请联系 <supportLink>support@duedatehq.com</supportLink>。"
@@ -623,6 +638,10 @@ msgstr "更改角色"
 #: src/features/workboard/status-control.tsx
 msgid "Change status for {0}"
 msgstr "修改 {0} 的状态"
+
+#: src/routes/dashboard.tsx
+msgid "Checking for the latest prepared brief…"
+msgstr "正在检查最新生成的简报…"
 
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
@@ -958,6 +977,10 @@ msgstr "深色"
 #: src/routes/route-summary.ts
 msgid "Dashboard"
 msgstr "仪表盘"
+
+#: src/routes/dashboard.tsx
+msgid "Dashboard risk summary will appear after clients and obligations are generated."
+msgstr "生成客户和义务后，Dashboard 风险摘要会显示在这里。"
 
 #: src/routes/dashboard.tsx
 msgid "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
@@ -1764,6 +1787,10 @@ msgstr "没有义务符合当前筛选。"
 msgid "No paid subscription"
 msgstr "无付费订阅"
 
+#: src/routes/dashboard.tsx
+msgid "No prepared brief yet"
+msgstr "还没有生成好的简报"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "no reminder"
 msgstr "无提醒"
@@ -2102,6 +2129,10 @@ msgstr "事务所名称"
 msgid "PRACTICE PROFILE"
 msgstr "事务所资料"
 
+#: src/routes/dashboard.tsx
+msgid "Prepared in the background from the latest dashboard risk snapshot."
+msgstr "基于最新 Dashboard 风险快照在后台生成。"
+
 #: src/routes/settings.profile.tsx
 msgid "Preparer"
 msgstr "经办人"
@@ -2158,6 +2189,10 @@ msgstr "为每条义务关联监管证据"
 msgid "Queue controls"
 msgstr "队列控制"
 
+#: src/routes/dashboard.tsx
+msgid "Queued"
+msgstr "已入队"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Re-run AI"
 msgstr "重新运行 AI"
@@ -2189,6 +2224,10 @@ msgstr "只读视图"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Readiness"
 msgstr "就绪度"
+
+#: src/routes/dashboard.tsx
+msgid "Ready"
+msgstr "已就绪"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Ready for rules"
@@ -2222,6 +2261,14 @@ msgstr "正在跳转到 Google…"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Refresh"
 msgstr "刷新"
+
+#: src/routes/dashboard.tsx
+msgid "Refresh AI weekly brief"
+msgstr "刷新 AI 每周简报"
+
+#: src/routes/dashboard.tsx
+msgid "Refresh brief"
+msgstr "刷新简报"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, or dismiss to keep the queue clean."
@@ -2678,6 +2725,10 @@ msgstr "监听中的来源"
 msgid "SSN-like columns blocked"
 msgstr "已拦截疑似 SSN 列"
 
+#: src/routes/dashboard.tsx
+msgid "Stale"
+msgstr "已过期"
+
 #: src/features/clients/CreateClientDialog.tsx
 msgid "State"
 msgstr "州"
@@ -2935,6 +2986,11 @@ msgstr "路由出现意外错误"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Updated"
 msgstr "更新时间"
+
+#. placeholder {0}: brief.generatedAt
+#: src/routes/dashboard.tsx
+msgid "Updated {0}"
+msgstr "更新于 {0}"
 
 #: src/components/patterns/app-shell.tsx
 msgid "Upgrade"

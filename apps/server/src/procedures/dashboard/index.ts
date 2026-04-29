@@ -1,4 +1,10 @@
-import type { DashboardLoadOutput, DashboardTopRow } from '@duedatehq/contracts'
+import type {
+  DashboardBriefPublic,
+  DashboardLoadOutput,
+  DashboardTopRow,
+} from '@duedatehq/contracts'
+import type { DashboardBriefRow } from '@duedatehq/ports'
+import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { requireTenant } from '../_context'
 import { os } from '../_root'
 
@@ -73,19 +79,60 @@ function toTopRow(row: DashboardRepoTopRow): DashboardTopRow {
   }
 }
 
+function toBriefPublic(row: DashboardBriefRow | null): DashboardBriefPublic | null {
+  if (!row) return null
+  return {
+    status: row.status,
+    generatedAt: row.generatedAt ? row.generatedAt.toISOString() : null,
+    expiresAt: row.expiresAt ? row.expiresAt.toISOString() : null,
+    text: row.summaryText,
+    citations: row.citations ?? null,
+    aiOutputId: row.aiOutputId,
+    errorCode: row.errorCode,
+  }
+}
+
 const load = os.dashboard.load.handler(async ({ input, context }) => {
-  const { scoped, tenant } = requireTenant(context)
+  const { scoped, tenant, userId } = requireTenant(context)
   const asOfDate = input?.asOfDate ?? dateInTimezone(tenant.timezone)
   const windowDays = input?.windowDays ?? 7
   const topLimit = input?.topLimit ?? 8
-  const result = await scoped.dashboard.load({ asOfDate, windowDays, topLimit })
+  const briefScope = input?.briefScope ?? 'firm'
+  const result = await scoped.dashboard.load({
+    asOfDate,
+    windowDays,
+    topLimit,
+    briefScope,
+    briefUserId: briefScope === 'me' ? userId : null,
+  })
 
   return {
     asOfDate: result.asOfDate,
     windowDays: result.windowDays,
     summary: result.summary,
     topRows: result.topRows.map(toTopRow),
+    brief: toBriefPublic(result.brief),
   } satisfies DashboardLoadOutput
 })
 
-export const dashboardHandlers = { load }
+const requestBriefRefresh = os.dashboard.requestBriefRefresh.handler(async ({ input, context }) => {
+  const { scoped, tenant, userId } = requireTenant(context)
+  const scope = input?.scope ?? 'firm'
+  const asOfDate = dateInTimezone(tenant.timezone)
+  const queued = await enqueueDashboardBriefRefresh(context.env, {
+    firmId: tenant.firmId,
+    scope,
+    userId: scope === 'me' ? userId : null,
+    asOfDate,
+    reason: 'manual_refresh',
+    bypassDebounce: true,
+  })
+  const brief = await scoped.dashboard.findLatestBrief({
+    scope,
+    asOfDate,
+    userId: scope === 'me' ? userId : null,
+  })
+  return { queued, brief: toBriefPublic(brief) }
+})
+
+export const dashboardHandlers = { load, requestBriefRefresh }

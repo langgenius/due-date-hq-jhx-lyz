@@ -107,14 +107,14 @@ AI_GATEWAY_API_KEY=
 
 当前策略：
 
-| 能力                          | 档位         | 说明                                    |
-| ----------------------------- | ------------ | --------------------------------------- |
-| Migration Mapper / Normalizer | fast-json    | 低温、结构化输出、低成本                |
-| Deadline Tip / Why-hover      | fast-text    | 短文本、必须带 citation                 |
-| Weekly Brief                  | quality      | 3-5 句、带 citation、可缓存 24h         |
-| Pulse Extract                 | quality-json | 官方公告结构化抽取，低置信进人工 review |
-| Ask DueDateHQ                 | quality-json | NL → DSL，禁止直接 SQL                  |
-| Embedding                     | embedding    | 规则 chunk / pulse chunk 写入 Vectorize |
+| 能力                          | 档位         | 说明                                                 |
+| ----------------------------- | ------------ | ---------------------------------------------------- |
+| Migration Mapper / Normalizer | fast-json    | 低温、结构化输出、低成本                             |
+| Deadline Tip / Why-hover      | fast-text    | 短文本、必须带 citation                              |
+| Weekly Brief                  | quality      | 后台 Queue 生成 3-5 句、带 citation、缓存 / 物化 24h |
+| Pulse Extract                 | quality-json | 官方公告结构化抽取，低置信进人工 review              |
+| Ask DueDateHQ                 | quality-json | NL → DSL，禁止直接 SQL                               |
+| Embedding                     | embedding    | 规则 chunk / pulse chunk 写入 Vectorize              |
 
 ---
 
@@ -160,11 +160,14 @@ const result = await generateText({
 
 ### 3.2 流式输出
 
-Weekly Brief / Ask 可以使用 `streamText`，但 UI 在 guard 完成前必须标记为 provisional：
+Ask 可以使用 `streamText`，但 UI 在 guard 完成前必须标记为 provisional：
 
 - 流式正文可以先显示为草稿状态。
 - Citation chip、Copy as Citation、Evidence click 只能在最终文本通过 `glassBoxGuard` 后出现。
 - guard 失败时整体替换为 refusal，不保留未验证文本。
+
+Weekly Brief 不走用户请求内 streaming。Brief 由后台 Queue consumer 生成并物化到
+`dashboard_brief`；Dashboard 只读取 `ready` / `stale` / `pending` / `failed` 状态，不等待模型。
 
 ### 3.3 Cloudflare AI Gateway provider
 
@@ -332,17 +335,17 @@ Vectorize 仍是检索层：
 
 ## 7. 能力矩阵（Phase 0 / 1 落地）
 
-| 能力                    | 优先级 | 输入                                   | 输出                                   | 降级                                                 |
-| ----------------------- | ------ | -------------------------------------- | -------------------------------------- | ---------------------------------------------------- |
-| Weekly Brief            | P0     | Smart Priority top-N + rule chunks     | 3-5 句带 citation                      | 缓存上次版本 + 模板 `You have N items this week.`    |
-| Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks | 一段话 + bullets                       | 纯 SQL 聚合 `3 upcoming, 1 critical`                 |
-| Deadline Tip            | P0     | 单 obligation + rule chunk             | What / Why / Prepare                   | `rule.default_tip`                                   |
-| Smart Priority          | P0     | open obligations + client 字段         | 打分 + 因子分解                        | **纯函数零 AI SDK 调用**；AI 仅用于 `Why-hover` 解释 |
-| Pulse Source Translator | P0     | 官方公告原文                           | 结构化 JSON + summary + source excerpt | 置信度 < 0.7 标记 `pending_review`                   |
-| Ask DueDateHQ           | P1     | 自然语言 query                         | DSL + 表格 + 一句话 + citations        | 预设模板 5 条兜底                                    |
-| AI Draft Client Email   | P1     | Pulse + 受影响客户                     | 邮件草稿                               | 固定模板                                             |
-| Migration Field Mapper  | P0     | 表头 + 前 5 行样本                     | mapping JSON                           | Preset profile + 手动下拉                            |
-| Migration Normalizer    | P0     | 字段枚举值                             | 归一值 + confidence                    | 字典 + fuzzy + 手动编辑                              |
+| 能力                    | 优先级 | 输入                                   | 输出                                   | 降级                                                     |
+| ----------------------- | ------ | -------------------------------------- | -------------------------------------- | -------------------------------------------------------- |
+| Weekly Brief            | P0     | Smart Priority top-N + rule chunks     | 后台物化 3-5 句带 citation             | 旧 brief 标记 stale + 模板 `You have N items this week.` |
+| Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks | 一段话 + bullets                       | 纯 SQL 聚合 `3 upcoming, 1 critical`                     |
+| Deadline Tip            | P0     | 单 obligation + rule chunk             | What / Why / Prepare                   | `rule.default_tip`                                       |
+| Smart Priority          | P0     | open obligations + client 字段         | 打分 + 因子分解                        | **纯函数零 AI SDK 调用**；AI 仅用于 `Why-hover` 解释     |
+| Pulse Source Translator | P0     | 官方公告原文                           | 结构化 JSON + summary + source excerpt | 置信度 < 0.7 标记 `pending_review`                       |
+| Ask DueDateHQ           | P1     | 自然语言 query                         | DSL + 表格 + 一句话 + citations        | 预设模板 5 条兜底                                        |
+| AI Draft Client Email   | P1     | Pulse + 受影响客户                     | 邮件草稿                               | 固定模板                                                 |
+| Migration Field Mapper  | P0     | 表头 + 前 5 行样本                     | mapping JSON                           | Preset profile + 手动下拉                                |
+| Migration Normalizer    | P0     | 字段枚举值                             | 归一值 + confidence                    | 字典 + fuzzy + 手动编辑                                  |
 
 Smart Priority 必须保持纯函数。AI 只解释排序结果，不决定排序本身。
 
@@ -392,14 +395,14 @@ pulse application。Phase 0 Demo 可直接 UPDATE `current_due_date`；完整 MV
 
 ### 10.1 每 firm / day 配额
 
-| 任务                          | 每日 cap                         |
-| ----------------------------- | -------------------------------- |
-| Weekly Brief                  | 1（缓存 24h）                    |
-| Client Risk Summary           | N 个客户 × 1                     |
-| Deadline Tip                  | 50（缓存 per-rule 7d）           |
-| Pulse Extract                 | ops/admin 触发，不计普通用户 cap |
-| Ask                           | 30（付费可升）                   |
-| Migration Mapper / Normalizer | 20 req / firm / day              |
+| 任务                          | 每日 cap                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------------ |
+| Weekly Brief                  | 1 次 scheduled + 3 次 event-triggered + 1 次 manual refresh；`input_hash` 不变则跳过 |
+| Client Risk Summary           | N 个客户 × 1                                                                         |
+| Deadline Tip                  | 50（缓存 per-rule 7d）                                                               |
+| Pulse Extract                 | ops/admin 触发，不计普通用户 cap                                                     |
+| Ask                           | 30（付费可升）                                                                       |
+| Migration Mapper / Normalizer | 20 req / firm / day                                                                  |
 
 KV 保存预算计数。超限返回 `rate_limited` + 明确 message。
 
@@ -439,6 +442,29 @@ OpenRouter / OpenAI structured output 兼容性裁定：Migration normalizer pro
 
 AI SDK 的 `experimental_telemetry` 可以打开，用于 OpenTelemetry-compatible span metadata。
 它是辅助观测，不是唯一审计来源。内部 audit/evidence 仍以 D1 表为准。
+
+### 10.4 Dashboard AI Brief 后台物化
+
+Dashboard AI Brief 是后台任务，不是 request-time generation：
+
+```text
+Cron / data mutation
+  -> enqueue dashboard.brief.refresh
+  -> Queue consumer loads deterministic dashboard snapshot
+  -> compute input_hash
+  -> skip if latest ready/pending hash already exists
+  -> run brief@v1 through packages/ai
+  -> guard + record ai_output(kind='brief') / llm_log
+  -> update dashboard_brief ready / failed
+```
+
+`dashboard.load` 禁止调用 `packages/ai`。它只能读取最新 `dashboard_brief` 行，并在没有 ready
+结果时返回 `null` 或 pending/failed/stale 状态。这样 Dashboard 首屏 P95 不受模型延迟、
+provider 失败或 AI budget 影响。
+
+Brief prompt 的输入必须来自 server-side Dashboard snapshot、Evidence、Rules source metadata
+和 approved Pulse；AI 不重新查询数据库、不决定排序、不写 obligation。Smart Priority 仍是纯函数，
+AI 只解释排序结果。
 
 ---
 

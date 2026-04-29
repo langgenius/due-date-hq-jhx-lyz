@@ -79,7 +79,7 @@
 | **overlay**（Phase 1）          | `packages/core/overlay`                                               | §6D.2                                            | ExceptionRule                                       | 派生 `current_due_date`                                                                       |
 | **penalty**                     | `packages/core/penalty`                                               | §7.5                                             | obligation + assumptions                            | ExposureReport                                                                                |
 | **priority**                    | `packages/core/priority`                                              | §6.4                                             | open obligations                                    | 打分 + 因子分解                                                                               |
-| **dashboard**                   | `apps/server/src/procedures/dashboard`                                | §5.1                                             | firm + scope                                        | Triage Tabs + Brief 上下文                                                                    |
+| **dashboard**                   | `apps/server/src/procedures/dashboard` + `jobs/dashboard-brief`       | §5.1                                             | firm + scope                                        | Triage Tabs + 物化 AI Brief 上下文                                                            |
 | **workboard**                   | `apps/server/src/procedures/workboard`                                | §5.2                                             | filter + sort + page                                | Table rows                                                                                    |
 | **pulse**                       | `apps/server/src/procedures/pulse` + `jobs/pulse` + `packages/ingest` | §6.3 · [11](./11-Pulse-Ingest-Source-Catalog.md) | HTML / RSS / JSON API / email signal（源清单见 11） | Pulse + （Phase 1）ExceptionRule                                                              |
 | **migration**                   | `apps/server/src/procedures/migration`                                | §6A                                              | paste / CSV                                         | Client[] + Obligation[]                                                                       |
@@ -113,12 +113,16 @@
                  │
                  ▼
           pulse (PULSE_QUEUE)  ──► batch_apply ──► email_outbox
+                 │
+                 └──► dashboard_brief_refresh（DASHBOARD_QUEUE）
                                                 │
                                                 ▼
                                          email consumer
 ```
 
 实线依赖直接调用；虚线（pulse → email_outbox）通过 **Transactional Outbox** 事件传递。
+Dashboard AI Brief 是后台物化 read model：写路径或 Cron 投递 Queue，Queue consumer 生成
+`ai_output(kind='brief')` + `dashboard_brief`；`dashboard.load` 只读，不调用 AI。
 
 ---
 
@@ -300,13 +304,14 @@ SourceAdapter.fetch()  ──► raw 存 R2_PULSE ──► 入 PULSE_QUEUE { ty
 
 ## 6. 并发与一致性策略
 
-| 场景                                         | 策略                                                                 |
-| -------------------------------------------- | -------------------------------------------------------------------- |
-| 同 firm 多设备并发改同一 obligation          | Drizzle optimistic `updated_at` 比对；前端 toast "conflict" 提示重试 |
-| Pulse Batch Apply 期间同一 firm 禁止二次触发 | KV 做 advisory lock（30s TTL）+ 前端按钮 disable                     |
-| Migration 运行中禁止二次 import              | `migration_batch.status=applying` 时拒绝新 batch                     |
-| 邮件 outbox 幂等                             | `email_outbox.external_id` 唯一约束；consumer 处理前校验             |
-| Queue 消息幂等                               | 消息体带 `idempotency_key`，消费者先查 D1 去重                       |
+| 场景                                         | 策略                                                                                                   |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 同 firm 多设备并发改同一 obligation          | Drizzle optimistic `updated_at` 比对；前端 toast "conflict" 提示重试                                   |
+| Pulse Batch Apply 期间同一 firm 禁止二次触发 | KV 做 advisory lock（30s TTL）+ 前端按钮 disable                                                       |
+| Migration 运行中禁止二次 import              | `migration_batch.status=applying` 时拒绝新 batch                                                       |
+| Dashboard Brief 刷新                         | Queue 消息带 `idempotency_key`；D1 以 `(firm, scope, as_of_date, input_hash)` 去重，KV 5 分钟 debounce |
+| 邮件 outbox 幂等                             | `email_outbox.external_id` 唯一约束；consumer 处理前校验                                               |
+| Queue 消息幂等                               | 消息体带 `idempotency_key`，消费者先查 D1 去重                                                         |
 
 ---
 
@@ -328,7 +333,8 @@ D1 无 RLS 能力，不依赖 DB 级防护。
 - Dashboard / Workboard 查询结果由 Worker 内存 + KV **分层缓存**；TTL 60s，写时主动 invalidate
 - Penalty Radar 顶栏 $ 聚合由一条 SQL 完成（复合索引 § 03.3），不在前端二次求和
 - Workboard 走服务端分页（50 行/页）+ 前端 TanStack Table 虚拟化
-- AI 调用全部异步 + 流式；Weekly Brief 用 Server-Sent Events（Hono `streamSSE`）
+- AI 调用全部异步；Weekly Brief 后台 Queue 物化到 `dashboard_brief`，Dashboard 首屏不等待模型
+- Streaming 只用于 Ask / future agent surfaces，不用于 Dashboard Brief 首屏
 - 大对象（PDF / migration raw / audit zip）存 R2，API 只返 signed URL
 
 ---

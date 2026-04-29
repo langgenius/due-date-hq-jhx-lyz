@@ -1,0 +1,61 @@
+import type { DashboardBriefScope } from '@duedatehq/ports'
+
+export const DASHBOARD_BRIEF_MESSAGE_TYPE = 'dashboard.brief.refresh'
+
+export type DashboardBriefRefreshReason =
+  | 'scheduled'
+  | 'migration_apply'
+  | 'migration_revert'
+  | 'pulse_apply'
+  | 'pulse_revert'
+  | 'pulse_dismiss'
+  | 'status_change'
+  | 'evidence_change'
+  | 'client_facts_change'
+  | 'manual_refresh'
+
+export interface DashboardBriefRefreshMessage {
+  type: typeof DASHBOARD_BRIEF_MESSAGE_TYPE
+  firmId: string
+  scope: DashboardBriefScope
+  userId?: string | null
+  asOfDate?: string
+  reason: DashboardBriefRefreshReason
+  idempotencyKey: string
+  requestedAt: string
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+export function isDashboardBriefRefreshMessage(
+  value: unknown,
+): value is DashboardBriefRefreshMessage {
+  if (!isRecord(value)) return false
+  return (
+    value.type === DASHBOARD_BRIEF_MESSAGE_TYPE &&
+    typeof value.firmId === 'string' &&
+    (value.scope === 'firm' || value.scope === 'me') &&
+    typeof value.reason === 'string' &&
+    typeof value.idempotencyKey === 'string' &&
+    typeof value.requestedAt === 'string'
+  )
+}
+
+export function dashboardBriefIdempotencyKey(input: {
+  firmId: string
+  scope: DashboardBriefScope
+  userId?: string | null
+  reason: DashboardBriefRefreshReason
+  asOfDate?: string
+}): string {
+  return [
+    'dashboard-brief',
+    input.firmId,
+    input.scope,
+    input.userId ?? 'firm',
+    input.asOfDate ?? 'auto-date',
+    input.reason,
+  ].join(':')
+}

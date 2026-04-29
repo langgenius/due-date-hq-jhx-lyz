@@ -3,13 +3,15 @@ import {
   ArrowUpRightIcon,
   CheckCircle2Icon,
   FileSearchIcon,
+  RefreshCwIcon,
   ShieldCheckIcon,
+  SparklesIcon,
 } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { useNavigate } from 'react-router'
 
-import type { DashboardSeverity, DashboardTopRow } from '@duedatehq/contracts'
+import type { DashboardBriefPublic, DashboardSeverity, DashboardTopRow } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -81,9 +83,17 @@ function formatEvidence(row: DashboardTopRow, t: ReturnType<typeof useLingui>['t
 export function DashboardRoute() {
   const { t } = useLingui()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
   const severityLabels = useSeverityLabels()
   const dashboardQuery = useQuery(orpc.dashboard.load.queryOptions({ input: {} }))
+  const refreshBriefMutation = useMutation(
+    orpc.dashboard.requestBriefRefresh.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+      },
+    }),
+  )
   const data = dashboardQuery.data
 
   const queueStats: QueueStat[] = data
@@ -136,6 +146,14 @@ export function DashboardRoute() {
       ) : null}
 
       <PulseAlertsBanner />
+
+      <DashboardBriefPanel
+        brief={data?.brief ?? null}
+        summary={data?.summary ?? null}
+        isLoading={dashboardQuery.isLoading}
+        isRefreshing={refreshBriefMutation.isPending}
+        onRefresh={() => refreshBriefMutation.mutate({ scope: 'firm' })}
+      />
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <Card id="pulse">
@@ -389,6 +407,85 @@ export function DashboardRoute() {
         </Tabs>
       </section>
     </div>
+  )
+}
+
+function DashboardBriefPanel({
+  brief,
+  summary,
+  isLoading,
+  isRefreshing,
+  onRefresh,
+}: {
+  brief: DashboardBriefPublic | null
+  summary: {
+    openObligationCount: number
+    dueThisWeekCount: number
+    needsReviewCount: number
+  } | null
+  isLoading: boolean
+  isRefreshing: boolean
+  onRefresh: () => void
+}) {
+  const { t } = useLingui()
+  const fallback = summary
+    ? t`${summary.openObligationCount} open obligations, ${summary.dueThisWeekCount} due this week, and ${summary.needsReviewCount} need review.`
+    : t`Dashboard risk summary will appear after clients and obligations are generated.`
+  const isReady = brief?.status === 'ready' || brief?.status === 'stale'
+  const statusLabel =
+    brief?.status === 'stale' ? t`Stale` : brief?.status === 'ready' ? t`Ready` : null
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <SparklesIcon className="size-4 text-text-accent" aria-hidden />
+          <Trans>AI weekly brief</Trans>
+        </CardTitle>
+        <CardDescription>
+          <Trans>Prepared in the background from the latest dashboard risk snapshot.</Trans>
+        </CardDescription>
+        <CardAction>
+          {statusLabel ? (
+            <Badge variant={brief?.status === 'stale' ? 'warning' : 'outline'}>{statusLabel}</Badge>
+          ) : null}
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-sm text-text-secondary">
+            <span className="size-2 rounded-full bg-divider-deep" aria-hidden />
+            <Trans>Checking for the latest prepared brief…</Trans>
+          </div>
+        ) : isReady && brief?.text ? (
+          <div className="whitespace-pre-wrap text-sm leading-6 text-text-primary">
+            {brief.text}
+          </div>
+        ) : brief?.status === 'pending' ? (
+          <div className="flex items-center gap-2 text-sm text-text-secondary">
+            <span className="size-2 rounded-full bg-state-accent-solid" aria-hidden />
+            <Trans>Brief is being prepared. The risk table is ready now.</Trans>
+          </div>
+        ) : (
+          <div className="text-sm leading-6 text-text-secondary">{fallback}</div>
+        )}
+      </CardContent>
+      <CardFooter className="justify-between gap-3 border-t border-divider-regular">
+        <span className="font-mono text-xs tabular-nums text-text-muted">
+          {brief?.generatedAt ? t`Updated ${brief.generatedAt}` : t`No prepared brief yet`}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          aria-label={t`Refresh AI weekly brief`}
+        >
+          <RefreshCwIcon data-icon="inline-start" />
+          {isRefreshing ? <Trans>Queued</Trans> : <Trans>Refresh brief</Trans>}
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
 

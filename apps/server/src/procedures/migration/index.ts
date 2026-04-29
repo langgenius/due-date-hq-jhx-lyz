@@ -1,6 +1,7 @@
 import { ORPCError } from '@orpc/server'
 import type { Role } from '@duedatehq/auth/permissions'
 import { createAI } from '@duedatehq/ai'
+import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { requireTenant, type RpcContext } from '../_context'
 import {
   MIGRATION_REVERT_ROLES,
@@ -92,7 +93,13 @@ const dryRun = os.migration.dryRun.handler(async ({ input, context }) => {
 
 const apply = os.migration.apply.handler(async ({ input, context }) => {
   const service = await buildService(context, MIGRATION_RUN_ROLES)
-  return service.apply(input.batchId)
+  const result = await service.apply(input.batchId)
+  const { tenant } = requireTenant(context)
+  await enqueueDashboardBriefRefresh(context.env, {
+    firmId: tenant.firmId,
+    reason: 'migration_apply',
+  }).catch(() => false)
+  return result
 })
 
 const getBatch = os.migration.getBatch.handler(async ({ input, context }) => {
@@ -108,12 +115,24 @@ const listErrors = os.migration.listErrors.handler(async ({ input, context }) =>
 
 const revert = os.migration.revert.handler(async ({ input, context }) => {
   const service = await buildService(context, MIGRATION_REVERT_ROLES)
-  return service.revert(input.batchId)
+  const result = await service.revert(input.batchId)
+  const { tenant } = requireTenant(context)
+  await enqueueDashboardBriefRefresh(context.env, {
+    firmId: tenant.firmId,
+    reason: 'migration_revert',
+  }).catch(() => false)
+  return result
 })
 
 const singleUndo = os.migration.singleUndo.handler(async ({ input, context }) => {
   const service = await buildService(context, MIGRATION_REVERT_ROLES)
-  return service.singleUndo(input.batchId, input.clientId)
+  const result = await service.singleUndo(input.batchId, input.clientId)
+  const { tenant } = requireTenant(context)
+  await enqueueDashboardBriefRefresh(context.env, {
+    firmId: tenant.firmId,
+    reason: 'migration_revert',
+  }).catch(() => false)
+  return result
 })
 
 export const migrationHandlers = {

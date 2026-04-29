@@ -336,7 +336,7 @@ describe('@duedatehq/contracts', () => {
   })
 
   it('freezes dashboard.load activation slice shape', () => {
-    expect(Object.keys(dashboardContract)).toEqual(['load'])
+    expect(Object.keys(dashboardContract)).toEqual(['load', 'requestBriefRefresh'])
     expect(DashboardSeveritySchema.options).toEqual(['critical', 'high', 'medium', 'neutral'])
 
     const output = DashboardLoadOutputSchema.parse({
@@ -374,8 +374,18 @@ describe('@duedatehq/contracts', () => {
           },
         },
       ],
+      brief: {
+        status: 'ready',
+        generatedAt: '2026-04-28T12:00:00.000Z',
+        expiresAt: '2026-04-29T12:00:00.000Z',
+        text: 'Review Acme LLC first. [1]',
+        citations: [{ ref: 1 }],
+        aiOutputId: '44444444-4444-4444-8444-444444444444',
+        errorCode: null,
+      },
     })
     expect(output.topRows[0]!.severity).toBe('critical')
+    expect(output.brief?.status).toBe('ready')
   })
 
   it('freezes rules read contracts', () => {

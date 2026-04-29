@@ -1,5 +1,6 @@
 import { ORPCError } from '@orpc/server'
 import { ErrorCodes, type PulseAffectedClient, type PulseAlertPublic } from '@duedatehq/contracts'
+import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { requireTenant } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
@@ -140,14 +141,14 @@ const getDetail = os.pulse.getDetail.handler(async ({ input, context }) => {
 
 const apply = os.pulse.apply.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
-  const { scoped } = requireTenant(context)
+  const { scoped, tenant } = requireTenant(context)
   try {
     const result = await scoped.pulse.apply({
       alertId: input.alertId,
       obligationIds: input.obligationIds,
       userId,
     })
-    return {
+    const output = {
       alert: toAlertPublic(result.alert),
       appliedCount: result.appliedCount,
       auditIds: result.auditIds,
@@ -156,6 +157,11 @@ const apply = os.pulse.apply.handler(async ({ input, context }) => {
       emailOutboxId: result.emailOutboxId,
       revertExpiresAt: result.revertExpiresAt.toISOString(),
     }
+    await enqueueDashboardBriefRefresh(context.env, {
+      firmId: tenant.firmId,
+      reason: 'pulse_apply',
+    }).catch(() => false)
+    return output
   } catch (error) {
     return mapPulseError(error)
   }
@@ -163,9 +169,13 @@ const apply = os.pulse.apply.handler(async ({ input, context }) => {
 
 const dismiss = os.pulse.dismiss.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
-  const { scoped } = requireTenant(context)
+  const { scoped, tenant } = requireTenant(context)
   try {
     const result = await scoped.pulse.dismiss({ alertId: input.alertId, userId })
+    await enqueueDashboardBriefRefresh(context.env, {
+      firmId: tenant.firmId,
+      reason: 'pulse_dismiss',
+    }).catch(() => false)
     return { alert: toAlertPublic(result.alert), auditId: result.auditId }
   } catch (error) {
     return mapPulseError(error)
@@ -174,15 +184,20 @@ const dismiss = os.pulse.dismiss.handler(async ({ input, context }) => {
 
 const revert = os.pulse.revert.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
-  const { scoped } = requireTenant(context)
+  const { scoped, tenant } = requireTenant(context)
   try {
     const result = await scoped.pulse.revert({ alertId: input.alertId, userId })
-    return {
+    const output = {
       alert: toAlertPublic(result.alert),
       revertedCount: result.revertedCount,
       auditIds: result.auditIds,
       evidenceIds: result.evidenceIds,
     }
+    await enqueueDashboardBriefRefresh(context.env, {
+      firmId: tenant.firmId,
+      reason: 'pulse_revert',
+    }).catch(() => false)
+    return output
   } catch (error) {
     return mapPulseError(error)
   }

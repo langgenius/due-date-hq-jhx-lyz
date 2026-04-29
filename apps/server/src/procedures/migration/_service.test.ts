@@ -395,6 +395,21 @@ function buildScopedRepo(firmId: string) {
       async load() {
         return unexpectedRepoCall('dashboard.load')
       },
+      async findLatestBrief() {
+        return unexpectedRepoCall('dashboard.findLatestBrief')
+      },
+      async findBriefByHash() {
+        return unexpectedRepoCall('dashboard.findBriefByHash')
+      },
+      async createBriefPending() {
+        return unexpectedRepoCall('dashboard.createBriefPending')
+      },
+      async markBriefReady() {
+        return unexpectedRepoCall('dashboard.markBriefReady')
+      },
+      async markBriefFailed() {
+        return unexpectedRepoCall('dashboard.markBriefFailed')
+      },
     },
     obligations,
     workboard,

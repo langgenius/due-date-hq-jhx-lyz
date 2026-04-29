@@ -108,6 +108,13 @@ msgstr "{0} obligations require CPA confirmation."
 msgid "{0} open obligations have no evidence link."
 msgstr "{0} open obligations have no evidence link."
 
+#. placeholder {0}: summary.openObligationCount
+#. placeholder {1}: summary.dueThisWeekCount
+#. placeholder {2}: summary.needsReviewCount
+#: src/routes/dashboard.tsx
+msgid "{0} open obligations, {1} due this week, and {2} need review."
+msgstr "{0} open obligations, {1} due this week, and {2} need review."
+
 #. placeholder {0}: firm.seatLimit
 #: src/components/patterns/app-shell.tsx
 msgid "{0} seat"
@@ -370,6 +377,10 @@ msgstr "AI mapped your columns — review and confirm"
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI Mapper unavailable — using fallback"
 
+#: src/routes/dashboard.tsx
+msgid "AI weekly brief"
+msgstr "AI weekly brief"
+
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Alert dismissed"
@@ -573,6 +584,10 @@ msgstr "Billing status could not load"
 msgid "Billing status is not ready yet."
 msgstr "Billing status is not ready yet."
 
+#: src/routes/dashboard.tsx
+msgid "Brief is being prepared. The risk table is ready now."
+msgstr "Brief is being prepared. The risk table is ready now."
+
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -623,6 +638,10 @@ msgstr "Change role"
 #: src/features/workboard/status-control.tsx
 msgid "Change status for {0}"
 msgstr "Change status for {0}"
+
+#: src/routes/dashboard.tsx
+msgid "Checking for the latest prepared brief…"
+msgstr "Checking for the latest prepared brief…"
 
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
@@ -958,6 +977,10 @@ msgstr "Dark"
 #: src/routes/route-summary.ts
 msgid "Dashboard"
 msgstr "Dashboard"
+
+#: src/routes/dashboard.tsx
+msgid "Dashboard risk summary will appear after clients and obligations are generated."
+msgstr "Dashboard risk summary will appear after clients and obligations are generated."
 
 #: src/routes/dashboard.tsx
 msgid "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
@@ -1764,6 +1787,10 @@ msgstr "No obligations match these filters."
 msgid "No paid subscription"
 msgstr "No paid subscription"
 
+#: src/routes/dashboard.tsx
+msgid "No prepared brief yet"
+msgstr "No prepared brief yet"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "no reminder"
 msgstr "no reminder"
@@ -2102,6 +2129,10 @@ msgstr "Practice name"
 msgid "PRACTICE PROFILE"
 msgstr "PRACTICE PROFILE"
 
+#: src/routes/dashboard.tsx
+msgid "Prepared in the background from the latest dashboard risk snapshot."
+msgstr "Prepared in the background from the latest dashboard risk snapshot."
+
 #: src/routes/settings.profile.tsx
 msgid "Preparer"
 msgstr "Preparer"
@@ -2158,6 +2189,10 @@ msgstr "Pulse evidence linked to each obligation"
 msgid "Queue controls"
 msgstr "Queue controls"
 
+#: src/routes/dashboard.tsx
+msgid "Queued"
+msgstr "Queued"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Re-run AI"
 msgstr "Re-run AI"
@@ -2189,6 +2224,10 @@ msgstr "Read-only view"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Readiness"
 msgstr "Readiness"
+
+#: src/routes/dashboard.tsx
+msgid "Ready"
+msgstr "Ready"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Ready for rules"
@@ -2222,6 +2261,14 @@ msgstr "Redirecting to Google…"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Refresh"
 msgstr "Refresh"
+
+#: src/routes/dashboard.tsx
+msgid "Refresh AI weekly brief"
+msgstr "Refresh AI weekly brief"
+
+#: src/routes/dashboard.tsx
+msgid "Refresh brief"
+msgstr "Refresh brief"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, or dismiss to keep the queue clean."
@@ -2678,6 +2725,10 @@ msgstr "Sources watched"
 msgid "SSN-like columns blocked"
 msgstr "SSN-like columns blocked"
 
+#: src/routes/dashboard.tsx
+msgid "Stale"
+msgstr "Stale"
+
 #: src/features/clients/CreateClientDialog.tsx
 msgid "State"
 msgstr "State"
@@ -2935,6 +2986,11 @@ msgstr "Unexpected route error"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Updated"
 msgstr "Updated"
+
+#. placeholder {0}: brief.generatedAt
+#: src/routes/dashboard.tsx
+msgid "Updated {0}"
+msgstr "Updated {0}"
 
 #: src/components/patterns/app-shell.tsx
 msgid "Upgrade"

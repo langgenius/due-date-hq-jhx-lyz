@@ -366,6 +366,24 @@ Activation Slice v1 新增 tenant-scoped `dashboard` repo，服务 `dashboard.lo
 当前 schema 尚未有稳定 dollar exposure 输入，Dashboard v1 使用真实 obligation count 风险；
 Penalty / dollar exposure 仍属于后续 read model，不在本 slice 伪造金额。
 
+Dashboard AI Brief 不在 `dashboard.load` request path 调用模型。后台 Queue consumer 读取同一份
+deterministic Dashboard snapshot，生成 `ai_output(kind='brief')`，并把可供首屏快速读取的状态写入
+`dashboard_brief` 物化表。
+
+**dashboard_brief**
+
+| 字段                                                                             | 说明                                                            |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `id` / `firm_id` / `user_id`                                                     | `user_id` 仅用于未来 `scope='me'`；firm-wide brief 为 null      |
+| `scope ∈ (firm, me)` / `as_of_date` / `status ∈ (pending, ready, failed, stale)` | MVP 可先只启用 `firm`                                           |
+| `input_hash` / `ai_output_id`                                                    | `input_hash` 来自 Dashboard snapshot；`ai_output_id` 指向 trace |
+| `summary_text` / `top_obligation_ids_json` / `citations_json`                    | 通过 guard 后才写用户可见文本                                   |
+| `reason` / `error_code`                                                          | 触发原因与 structured failure                                   |
+| `generated_at` / `expires_at` / `created_at` / `updated_at`                      | stale 与运维调试                                                |
+
+`dashboard_brief` 是 read-model 状态表，不替代 `ai_output` / `llm_log`。AI 成本、tokens、latency、
+guard/refusal 仍以 `ai_output` / `llm_log` 为审计来源。
+
 ### 2.7 通知
 
 **in_app_notification** · **email_outbox** · **reminder**
@@ -411,6 +429,13 @@ CREATE INDEX idx_ai_output_firm_time ON ai_output(firm_id, generated_at);
 CREATE INDEX idx_ai_output_context   ON ai_output(kind, input_context_ref);
 CREATE INDEX idx_llm_log_firm_time   ON llm_log(firm_id, created_at);
 CREATE INDEX idx_llm_log_prompt_time ON llm_log(prompt_version, created_at);
+
+-- Dashboard AI Brief materialized read model
+CREATE INDEX idx_dashboard_brief_firm_scope_time
+  ON dashboard_brief(firm_id, scope, as_of_date, updated_at DESC);
+CREATE UNIQUE INDEX uq_dashboard_brief_ready_hash
+  ON dashboard_brief(firm_id, scope, as_of_date, input_hash)
+  WHERE status IN ('ready', 'pending');
 
 -- Pulse feed
 CREATE INDEX idx_pulse_status_pub ON pulse(status, published_at DESC);

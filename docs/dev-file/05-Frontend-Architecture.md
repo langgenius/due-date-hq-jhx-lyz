@@ -177,6 +177,17 @@ Activation Slice v1 约束：Dashboard 不再维护本地 fake risk rows / queue
 real-data 呈现；open risk、due window、needs review、evidence gap 和 severity 都由 server
 aggregation 统一计算。
 
+Dashboard AI Brief 约束：前端不触发模型调用，也不轮询 AI provider。`dashboard.load` 返回 latest
+`brief` 状态后，页面按 `ready` / `stale` / `pending` / `failed` 渲染：
+
+- `ready`：展示后台 guard 通过的 brief 文本和 citation / evidence chips。
+- `stale`：继续展示旧 brief，并标明更新时间。
+- `pending`：展示轻量状态行，风险表照常可用；不要放整块 skeleton。
+- `failed` 或 `null`：展示 deterministic fallback，例如 open risk / due-this-week summary。
+
+手动 `Refresh brief` 只能调用 enqueue mutation（例如 `dashboard.requestBriefRefresh`），返回后更新
+pending 状态；禁止在 button handler 中 await AI generation。
+
 **禁止：** Redux、MobX、Recoil、自造 context 状态容器。
 
 ---

@@ -1,7 +1,16 @@
-import { asc, and, desc, eq, inArray } from 'drizzle-orm'
+import { asc, and, desc, eq, inArray, isNull } from 'drizzle-orm'
+import type {
+  DashboardBriefCreatePendingInput,
+  DashboardBriefFailedInput,
+  DashboardBriefReadyInput,
+  DashboardBriefRow,
+  DashboardBriefScope,
+  DashboardBriefStatus,
+} from '@duedatehq/ports'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
+import { dashboardBrief } from '../schema/dashboard'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
 
 const OPEN_STATUSES: ObligationStatus[] = ['pending', 'in_progress', 'waiting_on_client', 'review']
@@ -14,6 +23,8 @@ export interface DashboardLoadInput {
   asOfDate: string
   windowDays?: number
   topLimit?: number
+  briefScope?: DashboardBriefScope
+  briefUserId?: string | null
 }
 
 export interface DashboardEvidenceRow {
@@ -56,6 +67,7 @@ export interface DashboardLoadResult {
     evidenceGapCount: number
   }
   topRows: DashboardTopRow[]
+  brief: DashboardBriefRow | null
 }
 
 function parseDateOnly(date: string): Date {
@@ -148,10 +160,111 @@ export function composeDashboardLoad(
       evidenceGapCount,
     },
     topRows: topRows.slice(0, topLimit),
+    brief: null,
+  }
+}
+
+function normalizeBrief(
+  row: typeof dashboardBrief.$inferSelect,
+  now = new Date(),
+): DashboardBriefRow {
+  const computedStatus =
+    row.status === 'ready' && row.expiresAt && row.expiresAt.getTime() < now.getTime()
+      ? 'stale'
+      : row.status
+  return {
+    id: row.id,
+    firmId: row.firmId,
+    userId: row.userId,
+    scope: row.scope,
+    asOfDate: row.asOfDate,
+    status: computedStatus,
+    inputHash: row.inputHash,
+    aiOutputId: row.aiOutputId,
+    summaryText: row.summaryText,
+    topObligationIds: row.topObligationIdsJson ?? [],
+    citations: row.citationsJson ?? null,
+    reason: row.reason,
+    errorCode: row.errorCode,
+    generatedAt: row.generatedAt,
+    expiresAt: row.expiresAt,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   }
 }
 
 export function makeDashboardRepo(db: Db, firmId: string) {
+  function briefScopePredicate(scope: DashboardBriefScope, userId?: string | null) {
+    if (scope === 'me') {
+      return userId ? eq(dashboardBrief.userId, userId) : isNull(dashboardBrief.userId)
+    }
+    return isNull(dashboardBrief.userId)
+  }
+
+  async function findLatestBrief(input: {
+    scope: DashboardBriefScope
+    asOfDate: string
+    userId?: string | null
+    now?: Date
+  }): Promise<DashboardBriefRow | null> {
+    const [row] = await db
+      .select()
+      .from(dashboardBrief)
+      .where(
+        and(
+          eq(dashboardBrief.firmId, firmId),
+          eq(dashboardBrief.scope, input.scope),
+          eq(dashboardBrief.asOfDate, input.asOfDate),
+          briefScopePredicate(input.scope, input.userId),
+        ),
+      )
+      .orderBy(desc(dashboardBrief.updatedAt), desc(dashboardBrief.createdAt))
+      .limit(1)
+
+    return row ? normalizeBrief(row, input.now) : null
+  }
+
+  async function findBriefByHash(input: {
+    scope: DashboardBriefScope
+    asOfDate: string
+    inputHash: string
+    userId?: string | null
+    statuses?: DashboardBriefStatus[]
+    now?: Date
+  }): Promise<DashboardBriefRow | null> {
+    const statusPredicate =
+      input.statuses && input.statuses.length > 0
+        ? inArray(dashboardBrief.status, input.statuses)
+        : undefined
+    const [row] = await db
+      .select()
+      .from(dashboardBrief)
+      .where(
+        and(
+          eq(dashboardBrief.firmId, firmId),
+          eq(dashboardBrief.scope, input.scope),
+          eq(dashboardBrief.asOfDate, input.asOfDate),
+          eq(dashboardBrief.inputHash, input.inputHash),
+          briefScopePredicate(input.scope, input.userId),
+          statusPredicate,
+        ),
+      )
+      .orderBy(desc(dashboardBrief.updatedAt), desc(dashboardBrief.createdAt))
+      .limit(1)
+
+    return row ? normalizeBrief(row, input.now) : null
+  }
+
+  async function requireBrief(id: string, now?: Date): Promise<DashboardBriefRow> {
+    const [row] = await db
+      .select()
+      .from(dashboardBrief)
+      .where(and(eq(dashboardBrief.firmId, firmId), eq(dashboardBrief.id, id)))
+      .limit(1)
+    if (!row) throw new Error('Dashboard brief not found.')
+    return normalizeBrief(row, now)
+  }
+
   async function listEvidenceByObligations(
     obligationIds: string[],
   ): Promise<DashboardEvidenceRow[]> {
@@ -213,7 +326,72 @@ export function makeDashboardRepo(db: Db, firmId: string) {
         .limit(1000)
 
       const evidenceRows = await listEvidenceByObligations(rows.map((row) => row.obligationId))
-      return composeDashboardLoad(rows, evidenceRows, input)
+      const result = composeDashboardLoad(rows, evidenceRows, input)
+      return {
+        ...result,
+        brief: await findLatestBrief({
+          scope: input.briefScope ?? 'firm',
+          asOfDate: input.asOfDate,
+          userId: input.briefUserId ?? null,
+        }),
+      }
+    },
+
+    findLatestBrief,
+    findBriefByHash,
+
+    async createBriefPending(input: DashboardBriefCreatePendingInput): Promise<DashboardBriefRow> {
+      const now = input.now ?? new Date()
+      const id = input.id ?? crypto.randomUUID()
+      await db.insert(dashboardBrief).values({
+        id,
+        firmId,
+        userId: input.scope === 'me' ? (input.userId ?? null) : null,
+        scope: input.scope,
+        asOfDate: input.asOfDate,
+        status: 'pending',
+        inputHash: input.inputHash,
+        reason: input.reason,
+        createdAt: now,
+        updatedAt: now,
+      })
+      return requireBrief(id, now)
+    },
+
+    async markBriefReady(id: string, input: DashboardBriefReadyInput): Promise<DashboardBriefRow> {
+      await db
+        .update(dashboardBrief)
+        .set({
+          status: 'ready',
+          aiOutputId: input.aiOutputId ?? null,
+          summaryText: input.summaryText,
+          topObligationIdsJson: input.topObligationIds,
+          citationsJson: input.citations ?? null,
+          errorCode: null,
+          generatedAt: input.generatedAt,
+          expiresAt: input.expiresAt,
+          updatedAt: input.generatedAt,
+        })
+        .where(and(eq(dashboardBrief.firmId, firmId), eq(dashboardBrief.id, id)))
+      return requireBrief(id, input.generatedAt)
+    },
+
+    async markBriefFailed(
+      id: string,
+      input: DashboardBriefFailedInput,
+    ): Promise<DashboardBriefRow> {
+      await db
+        .update(dashboardBrief)
+        .set({
+          status: 'failed',
+          aiOutputId: input.aiOutputId ?? null,
+          errorCode: input.errorCode,
+          generatedAt: input.generatedAt,
+          expiresAt: input.expiresAt,
+          updatedAt: input.generatedAt,
+        })
+        .where(and(eq(dashboardBrief.firmId, firmId), eq(dashboardBrief.id, id)))
+      return requireBrief(id, input.generatedAt)
     },
   }
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { assertQueueDispatchable } from './queue'
 
-function batch(messages: unknown[]) {
+function batch(messages: Array<{ body?: unknown }>) {
   return {
     queue: 'due-date-hq-email-staging',
     messages,
@@ -9,7 +9,7 @@ function batch(messages: unknown[]) {
 }
 
 describe('queue consumer', () => {
-  it('does not acknowledge non-empty batches until a dispatcher exists', () => {
+  it('rejects unsupported non-empty batches', () => {
     expect(() => assertQueueDispatchable(batch([{ body: { type: 'test' } }]))).toThrow(
       'No queue dispatcher is implemented',
     )
@@ -17,5 +17,24 @@ describe('queue consumer', () => {
 
   it('allows empty batches', () => {
     expect(() => assertQueueDispatchable(batch([]))).not.toThrow()
+  })
+
+  it('allows dashboard brief refresh messages', () => {
+    expect(() =>
+      assertQueueDispatchable(
+        batch([
+          {
+            body: {
+              type: 'dashboard.brief.refresh',
+              firmId: 'firm_1',
+              scope: 'firm',
+              reason: 'manual_refresh',
+              idempotencyKey: 'key',
+              requestedAt: '2026-04-29T00:00:00.000Z',
+            },
+          },
+        ]),
+      ),
+    ).not.toThrow()
   })
 })

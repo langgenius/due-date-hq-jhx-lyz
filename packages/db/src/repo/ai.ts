@@ -22,7 +22,7 @@ export interface AiTraceInput {
 }
 
 export interface RecordAiRunInput {
-  userId: string
+  userId: string | null
   kind: AiOutputKind
   inputContextRef: string
   trace: AiTraceInput

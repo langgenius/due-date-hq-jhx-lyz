@@ -223,6 +223,21 @@ function buildScoped(firmId: string, rows: Row[]) {
       async load() {
         return unused('dashboard.load')
       },
+      async findLatestBrief() {
+        return unused('dashboard.findLatestBrief')
+      },
+      async findBriefByHash() {
+        return unused('dashboard.findBriefByHash')
+      },
+      async createBriefPending() {
+        return unused('dashboard.createBriefPending')
+      },
+      async markBriefReady() {
+        return unused('dashboard.markBriefReady')
+      },
+      async markBriefFailed() {
+        return unused('dashboard.markBriefFailed')
+      },
     },
     obligations,
     workboard,
