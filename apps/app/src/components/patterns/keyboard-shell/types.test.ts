@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { formatCompactShortcutForDisplay, formatShortcutSequenceForDisplay } from './display'
 import { isEditableEventTarget, isInteractiveEventTarget, RESERVED_SHORTCUTS } from './types'
 
 describe('keyboard shell utilities', () => {
@@ -37,8 +38,13 @@ describe('keyboard shell utilities', () => {
   it('keeps disabled PRD shortcut slots visible for help surfaces', () => {
     expect(RESERVED_SHORTCUTS.map((shortcut) => shortcut.id)).toEqual([
       'ask.focus',
-      'firm.switch',
       'evidence.selected',
     ])
+  })
+
+  it('formats display labels through the shared hotkey formatter', () => {
+    expect(formatShortcutSequenceForDisplay('Mod+Shift+O')).not.toContain('Mod')
+    expect(formatShortcutSequenceForDisplay('G then D')).toBe('G then D')
+    expect(formatCompactShortcutForDisplay('Mod+K')).not.toContain(' ')
   })
 })

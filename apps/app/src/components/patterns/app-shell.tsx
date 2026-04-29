@@ -17,6 +17,10 @@ import { FirmSwitcherTrigger, NavGroups } from './app-shell-nav'
 import { UserMenuTrigger } from './app-shell-user-menu'
 import type { FirmPublic } from '@duedatehq/contracts'
 import type { AuthUser } from '@/lib/auth'
+import {
+  COMMAND_PALETTE_HOTKEY,
+  formatCompactShortcutForDisplay,
+} from '@/components/patterns/keyboard-shell/display'
 
 /**
  * AppShell — layout-level shell shared by every protected layout.
@@ -168,10 +172,7 @@ function ImportClientsCTA({ onClick }: { onClick: () => void }) {
 // Route header — eyebrow + title (left) + AppShell-owned utility (right)
 // -----------------------------------------------------------------------------
 
-// `\u2318` (⌘) + narrow no-break space + `K`. Hoisted to module scope so it
-// is allocated once and stays referentially stable across renders
-// (`rerender-memo-with-default-value`).
-const KBD_CMDK = '\u2318\u202fK'
+const KBD_CMDK = formatCompactShortcutForDisplay(COMMAND_PALETTE_HOTKEY)
 
 function RouteHeader({
   eyebrow,

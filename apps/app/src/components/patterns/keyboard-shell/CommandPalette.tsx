@@ -26,6 +26,7 @@ import {
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { COMMAND_PALETTE_HOTKEY, formatShortcutForDisplay } from './display'
 
 interface CommandPaletteProps {
   open: boolean
@@ -44,16 +45,11 @@ type CommandEntry = {
 
 type CommandGroupId = CommandEntry['group']
 
-function getCommandShortcutLabel(): string {
-  if (typeof navigator === 'undefined') return 'Cmd/Ctrl+K'
-  return /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'
-}
-
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const { t } = useLingui()
   const navigate = useNavigate()
   const { openWizard } = useMigrationWizard()
-  const commandShortcut = getCommandShortcutLabel()
+  const commandShortcut = formatShortcutForDisplay(COMMAND_PALETTE_HOTKEY)
 
   const entries = useMemo<CommandEntry[]>(
     () => [

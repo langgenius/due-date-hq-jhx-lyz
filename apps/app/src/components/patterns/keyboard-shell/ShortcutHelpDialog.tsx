@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { formatForDisplay, useHotkeyRegistrations } from '@tanstack/react-hotkeys'
+import { useHotkeyRegistrations } from '@tanstack/react-hotkeys'
 import { Trans } from '@lingui/react/macro'
 
 import {
@@ -17,6 +17,7 @@ import {
   type ShortcutCategory,
   type ShortcutScope,
 } from './types'
+import { formatShortcutForDisplay, formatShortcutSequenceForDisplay } from './display'
 
 interface ShortcutHelpDialogProps {
   open: boolean
@@ -33,11 +34,19 @@ interface ShortcutHelpItem {
   disabledReason?: string | undefined
 }
 
-const CATEGORY_ORDER: ShortcutCategory[] = ['global', 'navigate', 'workboard', 'wizard', 'reserved']
+const CATEGORY_ORDER: ShortcutCategory[] = [
+  'global',
+  'navigate',
+  'settings',
+  'workboard',
+  'wizard',
+  'reserved',
+]
 
 const CATEGORY_LABELS: Record<ShortcutCategory, string> = {
   global: 'Global',
   navigate: 'Navigate',
+  settings: 'Settings',
   workboard: 'Workboard',
   wizard: 'Wizard',
   reserved: 'Reserved',
@@ -53,7 +62,7 @@ export function ShortcutHelpDialog({ open, onOpenChange }: ShortcutHelpDialogPro
         if (!meta?.name) return null
         return {
           id: meta.id ?? registration.id,
-          keys: meta.displayKeys ?? formatForDisplay(registration.hotkey),
+          keys: meta.displayKeys ?? formatShortcutForDisplay(registration.hotkey),
           name: meta.name,
           description: meta.description ?? '',
           category: meta.category ?? 'global',
@@ -81,7 +90,7 @@ export function ShortcutHelpDialog({ open, onOpenChange }: ShortcutHelpDialogPro
 
     const reserved = RESERVED_SHORTCUTS.map((shortcut) => ({
       id: shortcut.id,
-      keys: shortcut.keys,
+      keys: formatShortcutSequenceForDisplay(shortcut.keys),
       name: shortcut.name,
       description: shortcut.description,
       category: shortcut.category,

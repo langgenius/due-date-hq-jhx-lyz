@@ -62,6 +62,11 @@ import {
 } from '@duedatehq/ui/components/ui/table'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { formatShortcutForDisplay } from '@/components/patterns/keyboard-shell/display'
+import {
+  useAppHotkey,
+  useKeyboardShortcutsBlocked,
+} from '@/components/patterns/keyboard-shell/hooks'
 import { orpc } from '@/lib/rpc'
 
 type MemberActionTarget = {
@@ -83,6 +88,8 @@ const SHORT_DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
   month: 'short',
   day: '2-digit',
 })
+const INVITE_MEMBER_HOTKEY = 'Mod+I'
+const INVITE_MEMBER_ARIA_SHORTCUTS = 'Meta+I Control+I'
 
 export function SettingsMembersRoute() {
   const membersQuery = useQuery(orpc.members.listCurrent.queryOptions({ input: undefined }))
@@ -115,6 +122,8 @@ function MembersPage({ data }: { data: MembersListOutput }) {
   const queryClient = useQueryClient()
   const [inviteOpen, setInviteOpen] = useState(false)
   const [pendingRemoval, setPendingRemoval] = useState<MemberActionTarget | null>(null)
+  const shortcutsBlocked = useKeyboardShortcutsBlocked()
+  const inviteShortcutLabel = formatShortcutForDisplay(INVITE_MEMBER_HOTKEY)
   const activeMembers = data.members.filter((member) => member.status === 'active')
   const suspendedMembers = data.members.filter((member) => member.status === 'suspended')
   const ownerCount = data.members.filter((member) => member.role === 'owner').length
@@ -180,6 +189,20 @@ function MembersPage({ data }: { data: MembersListOutput }) {
     resendMutation.error ??
     cancelMutation.error
 
+  useAppHotkey(INVITE_MEMBER_HOTKEY, () => setInviteOpen(true), {
+    enabled: !shortcutsBlocked && !inviteOpen && pendingRemoval === null,
+    ignoreInputs: true,
+    requireReset: true,
+    meta: {
+      id: 'members.invite.open',
+      name: 'Invite member',
+      description: 'Open the member invite dialog.',
+      category: 'settings',
+      scope: 'route',
+      displayKeys: inviteShortcutLabel,
+    },
+  })
+
   return (
     <div className="mx-auto flex w-full max-w-[1172px] flex-col gap-6 px-4 py-6 md:px-6">
       <header className="flex min-h-20 flex-wrap items-start justify-between gap-4">
@@ -203,10 +226,11 @@ function MembersPage({ data }: { data: MembersListOutput }) {
             size="lg"
             onClick={() => setInviteOpen(true)}
             aria-describedby={seatsFull ? 'members-seat-limit-note' : undefined}
+            aria-keyshortcuts={INVITE_MEMBER_ARIA_SHORTCUTS}
           >
             <PlusIcon className="size-3.5" aria-hidden />
             <Trans>Invite member</Trans>
-            <span className="ml-1 font-mono text-[10px] opacity-70">⌘I</span>
+            <span className="ml-1 font-mono text-[10px] opacity-70">{inviteShortcutLabel}</span>
           </Button>
         </div>
       </header>

@@ -6,6 +6,7 @@ import type { ThemePreference } from '@duedatehq/ui/theme'
 
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 
+import { COMMAND_PALETTE_HOTKEY } from './display'
 import { useAppHotkey, useAppHotkeySequence, useKeyboardShell } from './hooks'
 import { KeyboardShellContext } from './state'
 
@@ -114,7 +115,7 @@ function GlobalKeyboardBindings({
   } = useKeyboardShell()
 
   useAppHotkey(
-    'Mod+K',
+    COMMAND_PALETTE_HOTKEY,
     () => {
       if (commandPaletteOpen) closeCommandPalette()
       else openCommandPalette()

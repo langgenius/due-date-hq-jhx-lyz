@@ -53,6 +53,11 @@ import { cn } from '@duedatehq/ui/lib/utils'
 import { initialsFromName } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { FIRM_SWITCHER_HOTKEY } from '@/components/patterns/keyboard-shell/display'
+import {
+  useAppHotkey,
+  useKeyboardShortcutsBlocked,
+} from '@/components/patterns/keyboard-shell/hooks'
 
 type NavItem = {
   href: string
@@ -105,6 +110,8 @@ function firmMeta(firm: FirmPublic, t: ReturnType<typeof useLingui>['t']): strin
 function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPublic[] }) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
+  const shortcutsBlocked = useKeyboardShortcutsBlocked()
+  const [switcherOpen, setSwitcherOpen] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
   const switchMutation = useMutation(
     orpc.firms.switchActive.mutationOptions({
@@ -129,14 +136,27 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
     [firm.id, switchMutation],
   )
 
+  useAppHotkey(FIRM_SWITCHER_HOTKEY, () => setSwitcherOpen(true), {
+    enabled: !shortcutsBlocked && !addOpen,
+    requireReset: true,
+    meta: {
+      id: 'firm.switch',
+      name: 'Switch firm',
+      description: 'Open the firm switcher.',
+      category: 'global',
+      scope: 'global',
+    },
+  })
+
   return (
     <SidebarHeader>
-      <DropdownMenu>
+      <DropdownMenu open={switcherOpen} onOpenChange={setSwitcherOpen}>
         <DropdownMenuTrigger
           render={
             <button
               type="button"
               aria-label={t`Switch firm — current ${firm.name}`}
+              aria-keyshortcuts="Meta+Shift+O Control+Shift+O"
               className="flex h-14 w-full cursor-pointer touch-manipulation items-center gap-2.5 px-3 text-left outline-none transition-colors hover:bg-background-default-hover focus-visible:bg-background-default-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
             />
           }

@@ -23,6 +23,8 @@ Use `@tanstack/react-hotkeys@0.10.0` as the only keyboard shortcut engine for `a
 - Use `HotkeysProvider` defaults for conflict warnings and shared sequence timeout.
 - Use `useHotkeySequence` for `G then D/W/C/A`.
 - Use `useHotkeyRegistrations()` plus reserved shortcut metadata for the `?` help dialog.
+- Use keyboard-shell display helpers backed by TanStack `formatForDisplay` for visible shortcut
+  labels; feature components must not hand-roll platform detection or glyph strings.
 - Lazy-load the Command Palette on first `Cmd/Ctrl+K` use.
 - Treat Wizard/Dialog/Command Palette as overlay scope that suppresses route/list and navigation
   shortcuts.
@@ -35,6 +37,7 @@ Use `@tanstack/react-hotkeys@0.10.0` as the only keyboard shortcut engine for `a
 - `packages/ui` remains a pure primitive/design-token package.
 - Route-specific shortcuts must carry metadata so they render correctly in the help dialog.
 - Reserved PRD shortcuts can be shown before their feature is implemented without becoming active.
+- Implemented surface shortcuts must leave the reserved list when their UI wiring lands.
 
 ## Alternatives
 

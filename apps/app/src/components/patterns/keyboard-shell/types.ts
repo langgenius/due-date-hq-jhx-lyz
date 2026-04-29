@@ -1,4 +1,10 @@
-export type ShortcutCategory = 'global' | 'navigate' | 'workboard' | 'wizard' | 'reserved'
+export type ShortcutCategory =
+  | 'global'
+  | 'navigate'
+  | 'settings'
+  | 'workboard'
+  | 'wizard'
+  | 'reserved'
 
 export type ShortcutScope = 'global' | 'route' | 'overlay' | 'native'
 
@@ -32,15 +38,6 @@ export const RESERVED_SHORTCUTS: ReservedShortcut[] = [
     category: 'reserved',
     scope: 'global',
     disabledReason: 'Ask DueDateHQ is not enabled in the Demo Sprint.',
-  },
-  {
-    id: 'firm.switch',
-    keys: 'Mod+Shift+O',
-    name: 'Switch firm',
-    description: 'Multi-firm workspace switching lands with Team/RBAC.',
-    category: 'reserved',
-    scope: 'global',
-    disabledReason: 'Multi-firm switching is reserved for Phase 1.',
   },
   {
     id: 'evidence.selected',
