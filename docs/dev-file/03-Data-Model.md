@@ -2,6 +2,7 @@
 
 > 目标：一次设计**覆盖 Phase 0 + Phase 1**，避免 Team / Overlay / Readiness 上线时回头重构。
 > 核心决策：**D1 + Drizzle + `scoped(db, firmId)` 工厂**；租户字段统一使用 `firmId`（= better-auth `organizationId`）。
+> 相关 ADR：[`0016`](../adr/0016-cloudflare-first-single-worker-d1-platform.md) · [`0018`](../adr/0018-d1-tenant-isolation-scoped-repo-ports.md)
 
 ---
 

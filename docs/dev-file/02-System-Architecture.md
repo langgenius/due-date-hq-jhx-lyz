@@ -2,6 +2,7 @@
 
 > 目标：把 PRD 的模块在工程上"干净地切开"，保证每个模块都有清晰的输入、输出、依赖与测试边界。
 > 核心决策：**公开站与 SaaS app 分离部署；SaaS 前后端物理隔离、通过 oRPC 契约同步类型；所有基础设施是 Cloudflare 原生 binding。**
+> 相关 ADR：[`0016`](../adr/0016-cloudflare-first-single-worker-d1-platform.md) · [`0017`](../adr/0017-orpc-contract-first-rpc-api-boundary.md) · [`0018`](../adr/0018-d1-tenant-isolation-scoped-repo-ports.md) · [`0019`](../adr/0019-ai-sdk-gateway-glass-box-boundary.md)
 
 ---
 

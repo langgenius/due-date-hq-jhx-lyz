@@ -7,7 +7,7 @@
 
 - **Bundle 预算**（`05 §12`）：单 chunk ≤ 150 KB gz，总计 ≤ 500 KB gz。
   `i18next` 仅运行时就有 ~40 KB gz（约占总预算 8%）。
-- **Contract-first Zod**（ADR 0002）：`packages/contracts` 中的 schema 保持
+- **Contract-first Zod**（ADR 0017）：`packages/contracts` 中的 schema 保持
   与 locale 无关；错误以结构化 code（`{ code, path }`）传递，由 UI 层渲染
   文案。i18n **不**用于翻译 Zod 报错。
 - **AI 协作的两人团队**（ADR 0000）：string-key 形式的 i18n API

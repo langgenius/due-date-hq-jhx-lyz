@@ -18,16 +18,10 @@ Any non-trivial architectural decision lives here (docs/dev-file/08 §9).
 proposed | accepted | deprecated | superseded by #NNN
 ```
 
-## Backlog (Phase 0)
+## Backlog
 
-1. 0001-cloudflare-single-worker-fullstack.md
-2. 0002-orpc-contract-first.md
-3. 0003-better-auth-organization.md
-4. 0004-d1-as-mvp-database.md
-5. 0005-shadcn-base-ui-vega.md
-6. 0006-vite-plus-oxlint-oxfmt.md
-7. 0007-pnpm-catalog-version-lock.md
-8. 0008-route-prefix-rpc-vs-api.md
+- Vite+ unified toolchain and pnpm catalog version locking.
+- shadcn/Base UI primitive strategy beyond the token-chain decision in ADR 0014.
 
 ## Accepted
 
@@ -38,3 +32,7 @@ proposed | accepted | deprecated | superseded by #NNN
 - 0013-marketing-locale-handoff-with-nuqs.md — Marketing `?lng=` locale handoff 由 nuqs + React Router v7 adapter 消费、持久化并清理
 - 0014-dify-token-tree-adoption.md — Adopt Dify Token Tree as the canonical design token source while implementation remains governed by Tailwind v4 CSS variables in `packages/ui`
 - 0015-tanstack-hotkeys-keyboard-shell.md — TanStack Hotkeys keyboard shell for global, sequence, route, and overlay shortcuts
+- 0016-cloudflare-first-single-worker-d1-platform.md — Cloudflare-first SaaS Worker, D1, and native binding platform decision
+- 0017-orpc-contract-first-rpc-api-boundary.md — oRPC contract-first with `/rpc` for internal SPA RPC and `/api` for auth/webhooks/future REST
+- 0018-d1-tenant-isolation-scoped-repo-ports.md — D1 tenant isolation through middleware, `scoped(db, firmId)`, lint rules, and `@duedatehq/ports/<domain>`
+- 0019-ai-sdk-gateway-glass-box-boundary.md — AI SDK + Cloudflare AI Gateway execution boundary with Glass-Box guard and no request-path Dashboard AI

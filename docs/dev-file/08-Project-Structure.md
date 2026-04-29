@@ -585,17 +585,17 @@ e2e/
 proposed | accepted | deprecated | superseded by #NNN
 ```
 
-当前已做决策应补充的 ADR（Phase 0 内补齐）：
+当前 Phase 0 已补齐的核心技术 ADR：
 
-1. `0001-cloudflare-single-worker-fullstack.md`
-2. `0002-orpc-contract-first.md`
-3. `0003-better-auth-organization.md`
-4. `0004-d1-as-mvp-database.md`
-5. `0005-shadcn-base-ui-vega.md`
-6. `0006-vite-plus-unified-toolchain.md`（取代独立 turbo / oxlint / oxfmt / lefthook / vitest）
-7. `0007-pnpm-catalog-version-lock.md`
-8. `0008-route-prefix-rpc-vs-api.md`
-9. `0009-remove-pwa-from-phase-0.md`
+1. `0016-cloudflare-first-single-worker-d1-platform.md`
+2. `0017-orpc-contract-first-rpc-api-boundary.md`
+3. `0018-d1-tenant-isolation-scoped-repo-ports.md`
+4. `0019-ai-sdk-gateway-glass-box-boundary.md`
+
+仍待补充但不阻塞当前实现的 ADR：
+
+1. Vite+ unified toolchain and pnpm catalog version locking。
+2. shadcn/Base UI primitive strategy beyond ADR 0014。
 
 ---
 

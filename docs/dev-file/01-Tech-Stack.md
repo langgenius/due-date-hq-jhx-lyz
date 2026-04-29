@@ -2,6 +2,7 @@
 
 > 原则：**公开站与 SaaS app 分离部署到 Cloudflare · 前后端物理隔离但共享类型契约 · 零 vendor lock-in 的可替换单元 · 类型安全到底。**
 > 每一项选择都必须能回答："为什么不是 X？"
+> 相关 ADR：[`0016`](../adr/0016-cloudflare-first-single-worker-d1-platform.md) · [`0017`](../adr/0017-orpc-contract-first-rpc-api-boundary.md) · [`0018`](../adr/0018-d1-tenant-isolation-scoped-repo-ports.md) · [`0019`](../adr/0019-ai-sdk-gateway-glass-box-boundary.md)
 
 ---
 

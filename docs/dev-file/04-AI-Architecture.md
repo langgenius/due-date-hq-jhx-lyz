@@ -10,6 +10,8 @@
 > 3. **Retrieval before generation** — prompt 只能引用已传入的 chunk
 > 4. **PII never leaves unnecessarily** — Agent / Brief / Pulse 走占位符；Migration Mapper 仅发送字段名 + 5 行样本
 > 5. **Human-controlled writes** — AI 只产出结构化建议；危险写入必须由服务端确定性流程 + 用户确认触发
+>
+> 相关 ADR：[`0019`](../adr/0019-ai-sdk-gateway-glass-box-boundary.md)
 
 ---
 
