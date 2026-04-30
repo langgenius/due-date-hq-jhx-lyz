@@ -89,9 +89,8 @@ export function createApp() {
   // /api/auth/* — better-auth handler (Google OAuth + Organization + Access Control).
   app.route('/api/auth', authRoute)
 
-  // /api/e2e/* — local Playwright bootstrap only. The route itself returns
-  // 404 outside ENV=development so staging/production never expose a test
-  // session minting surface.
+  // /api/e2e/* — Playwright bootstrap. Development is open locally; staging
+  // requires E2E_SEED_TOKEN; production always returns 404.
   app.route('/api/e2e', e2eRoute)
 
   // /api/ops/pulse/* — token-protected internal review API. This is deliberately

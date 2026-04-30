@@ -14,6 +14,7 @@ const { dbMocks, repoMocks } = vi.hoisted(() => {
     createSourceSnapshot: vi.fn(),
     recordSourceSuccess: vi.fn(),
     recordSourceFailure: vi.fn(),
+    listSourceStates: vi.fn(),
   }
   return {
     repoMocks: repo,
@@ -93,6 +94,7 @@ describe('runPulseIngest', () => {
       inserted: true,
       snapshot: { id: 'snapshot-1' },
     })
+    repoMocks.listSourceStates.mockResolvedValue([])
   })
 
   it('keeps T2 adapters as source signals instead of queueing extract', async () => {

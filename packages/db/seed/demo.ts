@@ -16,6 +16,8 @@ const OBLIGATION_ARBOR_ID = '66666666-6666-4666-8666-666666666666'
 const OBLIGATION_BRIGHT_ID = '77777777-7777-4777-8777-777777777777'
 const OBLIGATION_APPLIED_ID = '88888888-8888-4888-8888-888888888888'
 const APPLICATION_ID = '99999999-9999-4999-8999-999999999999'
+const EXCEPTION_RULE_ID = '12121212-1212-4121-8121-121212121212'
+const EXCEPTION_APPLICATION_ID = '34343434-3434-4343-8343-343434343434'
 
 function ms(iso: string): number {
   return new Date(iso).getTime()
@@ -60,7 +62,7 @@ const sqlText = [
     VALUES
     (${sql(OBLIGATION_ARBOR_ID)}, ${sql(FIRM_ID)}, ${sql(CLIENT_ARBOR_ID)}, 'federal_1065', 2026, ${ms('2026-03-15T00:00:00.000Z')}, ${ms('2026-03-15T00:00:00.000Z')}, 'pending', NULL, ${ms(NOW)}, ${ms(NOW)}),
     (${sql(OBLIGATION_BRIGHT_ID)}, ${sql(FIRM_ID)}, ${sql(CLIENT_BRIGHT_ID)}, 'federal_1120s', 2026, ${ms('2026-03-15T00:00:00.000Z')}, ${ms('2026-03-15T00:00:00.000Z')}, 'review', NULL, ${ms(NOW)}, ${ms(NOW)}),
-    (${sql(OBLIGATION_APPLIED_ID)}, ${sql(FIRM_ID)}, ${sql(CLIENT_APPLIED_ID)}, 'ca_llc_franchise_min_800', 2026, ${ms('2026-04-15T00:00:00.000Z')}, ${ms('2026-05-15T00:00:00.000Z')}, 'pending', NULL, ${ms(NOW)}, ${ms(NOW)});`,
+    (${sql(OBLIGATION_APPLIED_ID)}, ${sql(FIRM_ID)}, ${sql(CLIENT_APPLIED_ID)}, 'ca_llc_franchise_min_800', 2026, ${ms('2026-04-15T00:00:00.000Z')}, ${ms('2026-04-15T00:00:00.000Z')}, 'pending', NULL, ${ms(NOW)}, ${ms(NOW)});`,
   statement`INSERT OR IGNORE INTO pulse
     (id, source, source_url, raw_r2_key, published_at, ai_summary, verbatim_quote, parsed_jurisdiction, parsed_counties, parsed_forms, parsed_entity_types, parsed_original_due_date, parsed_new_due_date, parsed_effective_from, confidence, status, reviewed_by, reviewed_at, requires_human_review, is_sample, created_at, updated_at)
     VALUES
@@ -74,6 +76,12 @@ const sqlText = [
   statement`INSERT OR IGNORE INTO pulse_application
     (id, pulse_id, obligation_instance_id, client_id, firm_id, applied_by, applied_at, reverted_by, reverted_at, before_due_date, after_due_date)
     VALUES (${sql(APPLICATION_ID)}, ${sql(PULSE_APPLIED_ID)}, ${sql(OBLIGATION_APPLIED_ID)}, ${sql(CLIENT_APPLIED_ID)}, ${sql(FIRM_ID)}, ${sql(USER_ID)}, ${ms(NOW)}, NULL, NULL, ${ms('2026-04-15T00:00:00.000Z')}, ${ms('2026-05-15T00:00:00.000Z')});`,
+  statement`INSERT OR IGNORE INTO exception_rule
+    (id, firm_id, source_pulse_id, jurisdiction, counties, affected_forms, affected_entity_types, override_type, override_value_json, override_due_date, effective_from, effective_until, status, source_url, verbatim_quote, created_at, updated_at)
+    VALUES (${sql(EXCEPTION_RULE_ID)}, ${sql(FIRM_ID)}, ${sql(PULSE_APPLIED_ID)}, 'CA', ${json(['Alameda'])}, ${json(['ca_llc_franchise_min_800'])}, ${json(['llc'])}, 'extend_due_date', ${json({ originalDueDate: '2026-04-15', newDueDate: '2026-05-15' })}, ${ms('2026-05-15T00:00:00.000Z')}, ${ms('2026-04-15T18:00:00.000Z')}, NULL, 'applied', 'https://www.ftb.ca.gov/about-ftb/newsroom/index.html', 'The Franchise Tax Board extends the franchise-tax payment due date by 30 days.', ${ms(NOW)}, ${ms(NOW)});`,
+  statement`INSERT OR IGNORE INTO obligation_exception_application
+    (id, firm_id, obligation_instance_id, exception_rule_id, applied_at, applied_by_user_id, reverted_at, reverted_by_user_id)
+    VALUES (${sql(EXCEPTION_APPLICATION_ID)}, ${sql(FIRM_ID)}, ${sql(OBLIGATION_APPLIED_ID)}, ${sql(EXCEPTION_RULE_ID)}, ${ms(NOW)}, ${sql(USER_ID)}, NULL, NULL);`,
 ].join('\n')
 
 const result = spawnSync(

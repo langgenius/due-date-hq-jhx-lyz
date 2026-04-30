@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { hashText } from './http'
-import { runFixtureAdapter } from './fixtures'
-import { nyDtfPressFixtureAdapter } from './adapters'
+import { runFixtureAdapter, sourceFixtureBodies } from './fixtures'
+import { livePulseAdapters, nyDtfPressFixtureAdapter } from './adapters'
+import { createSourceFetcherRegistry } from './fetcher'
 import { extractLinks, pickSelector } from './selectors'
 import type { IngestCtx } from './types'
+
+const cloudflareFetch = async () => new Response('cloudflare')
+const browserlessFetch = async () => new Response('browserless')
 
 describe('@duedatehq/ingest', () => {
   it('hashes text with stable sha256 output', async () => {
@@ -48,5 +52,24 @@ describe('@duedatehq/ingest', () => {
       sourceId: 'ny.dtf.press',
       title: 'NY DTF clarifies pass-through entity tax election window',
     })
+  })
+
+  it('keeps a fixture body registered for every live source adapter', () => {
+    expect(Object.keys(sourceFixtureBodies).toSorted()).toEqual(
+      livePulseAdapters.map((adapter) => adapter.id).toSorted(),
+    )
+  })
+
+  it('routes browserless adapters through the configured fetch implementation', async () => {
+    const selectFetch = createSourceFetcherRegistry(cloudflareFetch, { browserlessFetch })
+
+    await expect(
+      selectFetch({ ...nyDtfPressFixtureAdapter, fetcher: 'browserless' })('/'),
+    ).resolves.toHaveProperty('ok', true)
+    await expect(
+      selectFetch({ ...nyDtfPressFixtureAdapter, fetcher: 'browserless' })('/').then((res) =>
+        res.text(),
+      ),
+    ).resolves.toBe('browserless')
   })
 })

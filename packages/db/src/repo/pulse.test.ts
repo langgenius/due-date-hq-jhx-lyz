@@ -103,6 +103,7 @@ describe('makePulseRepo', () => {
         },
       ],
       [],
+      [],
     ])
     const repo = makePulseRepo(db, 'firm-1')
 
@@ -115,12 +116,48 @@ describe('makePulseRepo', () => {
     expect(detail.affectedClients[1]!.reason).toContain('county is missing')
   })
 
+  it('marks base-date matches with active overlays as already applied', async () => {
+    const { db } = fakeDb([
+      [ALERT],
+      [ELIGIBLE],
+      [
+        {
+          obligationId: 'oi-eligible',
+          overrideDueDate: new Date('2026-10-15T00:00:00.000Z'),
+          appliedAt: new Date('2026-04-15T18:30:00.000Z'),
+        },
+      ],
+      [],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    const detail = await repo.getDetail('alert-1')
+
+    expect(detail.affectedClients).toHaveLength(1)
+    expect(detail.affectedClients[0]).toMatchObject({
+      obligationId: 'oi-eligible',
+      currentDueDate: new Date('2026-10-15T00:00:00.000Z'),
+      matchStatus: 'already_applied',
+    })
+  })
+
+  it('keeps source-revoked alerts visible in detail for history review', async () => {
+    const { db } = fakeDb([[{ ...ALERT, pulseStatus: 'source_revoked' }], [], []])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    const detail = await repo.getDetail('alert-1')
+
+    expect(detail.alert.sourceStatus).toBe('source_revoked')
+  })
+
   it('batch-applies due date overlays with applications, evidence, audit, and outbox', async () => {
     const { db, batchStatements } = fakeDb([
       [ALERT],
       [ELIGIBLE],
       [],
+      [],
       [ELIGIBLE],
+      [],
       [],
       [{ email: 'owner@example.com' }],
       [{ ...ALERT, matchedCount: 0 }],
@@ -183,6 +220,7 @@ describe('makePulseRepo', () => {
       [ALERT],
       [ELIGIBLE],
       [],
+      [],
       [
         {
           ...ELIGIBLE,
@@ -208,7 +246,9 @@ describe('makePulseRepo', () => {
       [ALERT],
       [ELIGIBLE],
       [],
+      [],
       [ELIGIBLE],
+      [],
       [{ obligationId: 'oi-eligible' }],
     ])
     const repo = makePulseRepo(db, 'firm-1')
@@ -224,7 +264,7 @@ describe('makePulseRepo', () => {
   })
 
   it('rejects apply when the selected obligation needs county review', async () => {
-    const { db, batchStatements } = fakeDb([[ALERT], [NEEDS_REVIEW], []])
+    const { db, batchStatements } = fakeDb([[ALERT], [NEEDS_REVIEW], [], []])
     const repo = makePulseRepo(db, 'firm-1')
 
     await expect(
@@ -242,7 +282,9 @@ describe('makePulseRepo', () => {
       [ALERT],
       [NEEDS_REVIEW],
       [],
+      [],
       [NEEDS_REVIEW],
+      [],
       [],
       [{ email: 'manager@example.com' }],
       [{ ...ALERT, matchedCount: 1, needsReviewCount: 0 }],

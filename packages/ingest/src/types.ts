@@ -13,6 +13,7 @@ export type SourceId =
   | 'fl.dor.tips'
   | 'wa.dor.news'
   | 'wa.dor.whats_new'
+  | 'ma.dor.press'
   | 'fema.declarations'
 
 export interface SourceStateHint {
@@ -21,7 +22,9 @@ export interface SourceStateHint {
 }
 
 export interface IngestCtx {
-  fetch(input: string | URL, init?: RequestInit): Promise<Response>
+  fetch(this: void, input: string | URL, init?: RequestInit): Promise<Response>
+  browserlessFetch?(this: void, input: string | URL, init?: RequestInit): Promise<Response>
+  govdeliveryFetch?(this: void, input: string | URL, init?: RequestInit): Promise<Response>
   getSourceState?(sourceId: string): Promise<SourceStateHint | null>
   archiveRaw(input: {
     sourceId: string

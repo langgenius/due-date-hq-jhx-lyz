@@ -14,6 +14,7 @@ const CA_CDTFA_NEWS_URL = 'https://www.cdtfa.ca.gov/news/'
 const FL_DOR_TIPS_URL = 'https://floridarevenue.com/taxes/tips/Pages/default.aspx'
 const WA_DOR_NEWS_URL = 'https://dor.wa.gov/about/news-releases'
 const WA_DOR_WHATS_NEW_URL = 'https://dor.wa.gov/about/whats-new'
+const MA_DOR_PRESS_URL = 'https://www.mass.gov/info-details/dor-press-releases-and-reports'
 const FEMA_DECLARATIONS_URL =
   'https://www.fema.gov/openfema-data-page/disaster-declarations-summaries-v2'
 const FEMA_API_URL =
@@ -321,6 +322,7 @@ export const flDorTipsAdapter: SourceAdapter = {
   tier: 'T1',
   cronIntervalMs: 120 * 60 * 1000,
   jurisdiction: 'FL',
+  fetcher: 'browserless',
   async fetch(ctx) {
     return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: FL_DOR_TIPS_URL })]
   },
@@ -350,6 +352,7 @@ export const waDorNewsAdapter: SourceAdapter = {
   tier: 'T1',
   cronIntervalMs: 120 * 60 * 1000,
   jurisdiction: 'WA',
+  fetcher: 'browserless',
   async fetch(ctx) {
     return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: WA_DOR_NEWS_URL })]
   },
@@ -379,6 +382,7 @@ export const waDorWhatsNewAdapter: SourceAdapter = {
   tier: 'T1',
   cronIntervalMs: 120 * 60 * 1000,
   jurisdiction: 'WA',
+  fetcher: 'browserless',
   async fetch(ctx) {
     return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: WA_DOR_WHATS_NEW_URL })]
   },
@@ -397,6 +401,35 @@ export const waDorWhatsNewAdapter: SourceAdapter = {
         sourceId: this.id,
         sourceUrl: WA_DOR_WHATS_NEW_URL,
         title: 'WA DOR what is new update',
+        html: snapshot.body,
+      }),
+    ]
+  },
+}
+
+export const maDorPressAdapter: SourceAdapter = {
+  id: 'ma.dor.press',
+  tier: 'T1',
+  cronIntervalMs: 120 * 60 * 1000,
+  jurisdiction: 'MA',
+  async fetch(ctx) {
+    return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: MA_DOR_PRESS_URL })]
+  },
+  async parse(snapshot, ctx) {
+    if (snapshot.notModified) return []
+    const items = await parsedItemsFromLinks({
+      sourceId: this.id,
+      baseUrl: MA_DOR_PRESS_URL,
+      html: snapshot.body,
+      ctx,
+      limit: 12,
+    })
+    if (items.length > 0) return items
+    return [
+      parsedItemFromHtml({
+        sourceId: this.id,
+        sourceUrl: MA_DOR_PRESS_URL,
+        title: 'MA DOR press update',
         html: snapshot.body,
       }),
     ]
@@ -532,6 +565,7 @@ export const livePulseAdapters = [
   flDorTipsAdapter,
   waDorNewsAdapter,
   waDorWhatsNewAdapter,
+  maDorPressAdapter,
   femaDeclarationsAdapter,
 ] as const
 

@@ -226,6 +226,7 @@ function sourceLabel(sources: readonly PulseSourceHealth[]): string {
       if (source.sourceId === 'tx.cpa.rss') return 'TX'
       if (source.sourceId === 'fl.dor.tips') return 'FL'
       if (source.sourceId.startsWith('wa.dor.')) return 'WA'
+      if (source.sourceId === 'ma.dor.press') return 'MA'
       if (source.sourceId === 'fema.declarations') return 'FEMA'
       return source.label
     })

@@ -8,6 +8,8 @@ Cloudflare Worker Assets, Hono routes, and oRPC HTTP boundary.
 - `pnpm test:e2e`: build the SPA, apply local D1 migrations, start `wrangler dev --local`, and run Playwright.
 - `pnpm test:e2e --ui`: run Playwright UI mode.
 - `E2E_BASE_URL=https://staging.example.com pnpm test:e2e`: run against an already deployed target.
+- `E2E_BASE_URL=https://staging.example.com E2E_SEED_TOKEN=... pnpm test:e2e e2e/tests/pulse.spec.ts`:
+  run the staged Pulse canary with token-gated seeded auth.
 - `E2E_MARKETING_BASE_URL=https://duedatehq.com pnpm test:e2e --grep E2E-BILLING-PRICING`: run marketing pricing handoff coverage against a deployed marketing target.
 
 ## Layout
@@ -35,10 +37,10 @@ Prefer accessible locators in this order:
 
 ## Auth And Data
 
-Real Google OAuth stays outside CI. Authenticated specs use the local-only `/api/e2e/session`
-bootstrap route to create a Better Auth user/session/firm in D1 and inject the returned signed cookie
-through the `authenticatedPage` fixture. That route returns 404 unless `ENV=development`, so these
-specs are skipped when `E2E_BASE_URL` points at staging or production.
+Real Google OAuth stays outside CI. Authenticated specs use `/api/e2e/session` to create a Better
+Auth user/session/firm in D1 and inject the returned signed cookie through the `authenticatedPage`
+fixture. The route is open only in local `ENV=development`; staging requires `E2E_SEED_TOKEN`;
+production returns 404.
 
 Current specs intentionally cover shipped behavior only:
 

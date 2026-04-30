@@ -3,6 +3,7 @@ import { consumeDashboardBriefRefresh } from './dashboard-brief/consumer'
 import { isDashboardBriefRefreshMessage } from './dashboard-brief/message'
 import { flushEmailOutbox } from './email/outbox'
 import { extractPulseSnapshot } from './pulse/extract'
+import { recordPulseMetric } from './pulse/metrics'
 
 interface QueueBatchLike {
   queue: string
@@ -57,7 +58,11 @@ async function dispatchMessage(message: Message, env: Env): Promise<void> {
       await flushEmailOutbox(env)
     }
     message.ack()
-  } catch {
+  } catch (error) {
+    recordPulseMetric('pulse.queue.retry', {
+      queue: 'unknown',
+      error: error instanceof Error ? error.message : 'Queue dispatch failed.',
+    })
     message.retry()
   }
 }

@@ -21,6 +21,9 @@ export async function seedBillingSubscription(
       status: input.status ?? 'active',
       interval: input.interval ?? 'month',
     },
+    headers: process.env.E2E_SEED_TOKEN
+      ? { Authorization: `Bearer ${process.env.E2E_SEED_TOKEN}` }
+      : {},
   })
   if (!response.ok()) {
     throw new Error(

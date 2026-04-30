@@ -34,13 +34,15 @@ manual SQL or the narrow review CLI.
 
 ## Notes
 
-- Browserless and GovDelivery are registry slots only in this change; concrete external bindings and
-  inbound-email parsing still need a follow-up.
-- There is still no browser-based internal Ops UI. The safe path is the token-protected CLI/API until
-  internal ops auth is designed separately from customer SaaS RBAC.
+- Follow-up pass added configurable Browserless fetch binding support and GovDelivery inbound
+  email-to-signal parsing; both remain optional and default-off without secrets/routing.
+- Follow-up pass added a hidden browser-based `/ops/pulse` workbench on top of the same
+  token-protected API. It is intentionally not in customer navigation and still waits for a formal
+  internal ops auth surface.
 - `pulse_application` remains the compatibility audit index; overlay applications are now the write
   path that controls effective due dates.
-- E2E/staging canary validation still needs a local app/server or staging target with seeded auth.
+- E2E/staging canary validation can now use `/api/e2e/session` on staging when `E2E_SEED_TOKEN` is
+  configured; production continues to return 404.
 
 ## Validation
 

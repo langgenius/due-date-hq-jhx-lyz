@@ -103,8 +103,8 @@ export const test = base.extend<DueDateFixtures>({
   },
 
   authSession: async ({ request, authSeed, authRole }, use, testInfo) => {
-    if (process.env.E2E_BASE_URL) {
-      throw new Error('authenticatedPage only supports the local development e2e target.')
+    if (process.env.E2E_BASE_URL && !process.env.E2E_SEED_TOKEN) {
+      throw new Error('Remote authenticated E2E requires E2E_SEED_TOKEN.')
     }
 
     await use(
@@ -190,7 +190,10 @@ async function tryCreateAuthSession(
   data: { seed: AuthSeedMode; role: AuthRole; testId: string },
   attempt: number,
 ): Promise<E2EAuthSession> {
-  const response = await request.post('/api/e2e/session', { data })
+  const response = await request.post('/api/e2e/session', {
+    data,
+    headers: e2eSeedHeaders(),
+  })
   if (response.ok()) {
     const body: unknown = await response.json()
     return parseAuthSession(body)
@@ -204,6 +207,10 @@ async function tryCreateAuthSession(
 
   await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)))
   return tryCreateAuthSession(request, data, attempt + 1)
+}
+
+function e2eSeedHeaders(): Record<string, string> {
+  return process.env.E2E_SEED_TOKEN ? { Authorization: `Bearer ${process.env.E2E_SEED_TOKEN}` } : {}
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -7,6 +7,7 @@ import { cn } from '@duedatehq/ui/lib/utils'
 
 import { PulseConfidenceBadge } from './PulseConfidenceBadge'
 import { PulseSourceBadge } from './PulseSourceBadge'
+import { PulseSourceStatusBadge } from './PulseSourceStatusBadge'
 import { PulsingDot } from './PulsingDot'
 
 interface PulseAlertCardProps {
@@ -59,6 +60,7 @@ export function PulseAlertCard({
           {alert.title}
         </h3>
         <PulseConfidenceBadge confidence={alert.confidence} />
+        <PulseSourceStatusBadge status={alert.sourceStatus} />
       </header>
 
       <p className="pl-4 text-sm text-text-secondary">

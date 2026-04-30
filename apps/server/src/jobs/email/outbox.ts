@@ -1,9 +1,10 @@
-import { eq, asc } from 'drizzle-orm'
+import { and, asc, eq, lte } from 'drizzle-orm'
 import { Resend } from 'resend'
 import { createDb } from '@duedatehq/db'
 import { emailOutbox } from '@duedatehq/db/schema/notifications'
 import type { EmailOutbox } from '@duedatehq/db/schema/notifications'
 import type { Env } from '../../env'
+import { recordPulseMetric } from '../pulse/metrics'
 
 export interface EmailFlushQueueMessage {
   type: 'email.flush'
@@ -11,6 +12,7 @@ export interface EmailFlushQueueMessage {
 
 type FlushRowResult = 'sent' | 'failed' | 'skipped'
 type PulseDigestEvent = 'pulse_approved' | 'pulse_applied'
+const STALE_SENDING_MS = 15 * 60 * 1000
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -115,6 +117,11 @@ export async function flushEmailOutbox(
   env: Pick<Env, 'DB' | 'EMAIL_FROM' | 'RESEND_API_KEY'>,
 ): Promise<{ sent: number; failed: number; skipped: number }> {
   const db = createDb(env.DB)
+  const staleSendingCutoff = new Date(Date.now() - STALE_SENDING_MS)
+  await db
+    .update(emailOutbox)
+    .set({ status: 'pending', failureReason: 'Recovered stale sending row for retry.' })
+    .where(and(eq(emailOutbox.status, 'sending'), lte(emailOutbox.createdAt, staleSendingCutoff)))
   const rows = await db
     .select()
     .from(emailOutbox)
@@ -126,9 +133,11 @@ export async function flushEmailOutbox(
   const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null
   const results = await Promise.all(rows.map((row) => processOutboxRow(db, resend, env, row)))
 
-  return {
+  const output = {
     sent: results.filter((result) => result === 'sent').length,
     failed: results.filter((result) => result === 'failed').length,
     skipped: results.filter((result) => result === 'skipped').length,
   }
+  recordPulseMetric('pulse.email_outbox.flush_result', output)
+  return output
 }

@@ -16,6 +16,7 @@ interface PulseAlertRow {
   id: string
   pulseId: string
   status: PulseAlertPublic['status']
+  sourceStatus: PulseAlertPublic['sourceStatus']
   title: string
   source: string
   sourceUrl: string
@@ -38,6 +39,7 @@ const SOURCE_LABELS: Record<string, string> = {
   'fl.dor.tips': 'FL DOR Tax Tips',
   'wa.dor.news': 'WA DOR News',
   'wa.dor.whats_new': 'WA DOR What’s New',
+  'ma.dor.press': 'MA DOR Press',
   'fema.declarations': 'FEMA declarations',
   'ny.dtf.press': 'NY DTF Press',
 }
@@ -84,6 +86,7 @@ function toAlertPublic(row: PulseAlertRow): PulseAlertPublic {
     id: row.id,
     pulseId: row.pulseId,
     status: row.status,
+    sourceStatus: row.sourceStatus,
     title: row.title,
     source: row.source,
     sourceUrl: row.sourceUrl,

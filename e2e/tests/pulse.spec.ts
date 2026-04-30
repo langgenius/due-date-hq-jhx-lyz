@@ -5,8 +5,8 @@ import { expect, test } from '../fixtures/test'
 // AC: E2E-PULSE-APPLY-UNDO, E2E-PULSE-RBAC
 
 test.skip(
-  Boolean(process.env.E2E_BASE_URL),
-  'local e2e auth seed is not available on external targets',
+  Boolean(process.env.E2E_BASE_URL) && !process.env.E2E_SEED_TOKEN,
+  'remote Pulse canary requires E2E_SEED_TOKEN',
 )
 
 test.describe('seeded Pulse alerts', () => {

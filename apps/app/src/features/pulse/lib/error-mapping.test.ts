@@ -18,9 +18,10 @@ describe('pulseErrorDescriptor', () => {
         ErrorCodes.PULSE_APPLY_CONFLICT,
         ErrorCodes.PULSE_REVERT_EXPIRED,
         ErrorCodes.PULSE_NO_ELIGIBLE_OBLIGATIONS,
+        ErrorCodes.MEMBER_FORBIDDEN,
       ].map((code) => pulseErrorDescriptor(rpcError(code)).id),
     )
-    expect(ids.size).toBe(4)
+    expect(ids.size).toBe(5)
   })
 
   it('falls back to a generic descriptor for unknown errors', () => {

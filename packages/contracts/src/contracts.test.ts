@@ -398,6 +398,7 @@ describe('@duedatehq/contracts', () => {
       id: '11111111-1111-4111-8111-111111111111',
       pulseId: '22222222-2222-4222-8222-222222222222',
       status: 'matched',
+      sourceStatus: 'approved',
       title: 'IRS CA storm relief',
       source: 'IRS Disaster Relief',
       sourceUrl: 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations',

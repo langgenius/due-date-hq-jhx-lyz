@@ -4,6 +4,7 @@ export interface PulseAlertRow {
   id: string
   pulseId: string
   status: 'matched' | 'partially_applied' | 'applied' | 'dismissed' | 'snoozed' | 'reverted'
+  sourceStatus: 'pending_review' | 'approved' | 'rejected' | 'quarantined' | 'source_revoked'
   title: string
   source: string
   sourceUrl: string

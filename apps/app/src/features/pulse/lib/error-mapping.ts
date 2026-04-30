@@ -13,6 +13,7 @@ const MESSAGE_BY_CODE: Partial<Record<ErrorCode, MessageDescriptor>> = {
   [ErrorCodes.PULSE_REVERT_EXPIRED]: msg`The 24h undo window has expired for this alert.`,
   [ErrorCodes.PULSE_NO_ELIGIBLE_OBLIGATIONS]: msg`No eligible obligations are selected.`,
   [ErrorCodes.FIRM_FORBIDDEN]: msg`Only Owners and Managers can apply Pulse changes.`,
+  [ErrorCodes.MEMBER_FORBIDDEN]: msg`Only Owners and Managers can apply Pulse changes.`,
 }
 
 const FALLBACK = msg`Something went wrong. Please try again.`

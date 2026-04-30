@@ -5,6 +5,8 @@ import { livePulseAdapters } from '@duedatehq/ingest/adapters'
 import { RATE_LIMIT } from '@duedatehq/ingest/http'
 import type { IngestCtx, SourceAdapter } from '@duedatehq/ingest/types'
 import type { Env } from '../../env'
+import { createBrowserlessFetch } from './browserless'
+import { emitSourceIdleAlerts, recordPulseMetric } from './metrics'
 
 export interface PulseExtractQueueMessage {
   type: 'pulse.extract'
@@ -119,8 +121,18 @@ async function ingestAdapter(
   }
 
   try {
+    const startedAt = Date.now()
     const cloudflareFetch: IngestCtx['fetch'] = (input, init) => ctx.fetch(input, init)
-    const sourceFetch = createSourceFetcherRegistry(cloudflareFetch)(adapter)
+    const browserlessFetch = ctx.browserlessFetch
+    const govdeliveryFetch = ctx.govdeliveryFetch
+    const sourceFetch = createSourceFetcherRegistry(cloudflareFetch, {
+      ...(browserlessFetch
+        ? { browserlessFetch: (input, init) => browserlessFetch(input, init) }
+        : {}),
+      ...(govdeliveryFetch
+        ? { govdeliveryFetch: (input, init) => govdeliveryFetch(input, init) }
+        : {}),
+    })(adapter)
     const adapterCtx: IngestCtx = { ...ctx, fetch: sourceFetch }
     const rawSnapshots = await adapter.fetch(adapterCtx)
     const parsedGroups = await Promise.all(
@@ -197,6 +209,16 @@ async function ingestAdapter(
       ...(freshest?.etag !== undefined ? { etag: freshest.etag } : {}),
       ...(freshest?.lastModified !== undefined ? { lastModified: freshest.lastModified } : {}),
     })
+    recordPulseMetric('pulse.ingest.fetch_result', {
+      sourceId: adapter.id,
+      result: 'success',
+      fetcher: adapter.fetcher ?? 'cloudflare',
+      durationMs: Date.now() - startedAt,
+      snapshots: counts.snapshots,
+      signals: counts.signals,
+      queued: counts.queued,
+      duplicates: counts.duplicates,
+    })
     return counts
   } catch (error) {
     await repo.recordSourceFailure({
@@ -205,12 +227,22 @@ async function ingestAdapter(
       nextCheckAt: nextCheckAt(checkedAt, Math.min(adapter.cronIntervalMs, 15 * 60 * 1000)),
       error: error instanceof Error ? error.message : 'Pulse ingest failed.',
     })
+    recordPulseMetric('pulse.ingest.fetch_result', {
+      sourceId: adapter.id,
+      result: 'failure',
+      fetcher: adapter.fetcher ?? 'cloudflare',
+      durationMs: Date.now() - checkedAt.getTime(),
+      error: error instanceof Error ? error.message : 'Pulse ingest failed.',
+    })
     return { snapshots: 0, signals: 0, queued: 0, duplicates: 0, failures: 1 }
   }
 }
 
 export async function runPulseIngest(
-  env: Pick<Env, 'DB' | 'R2_PULSE' | 'PULSE_QUEUE'>,
+  env: Pick<
+    Env,
+    'DB' | 'R2_PULSE' | 'PULSE_QUEUE' | 'PULSE_BROWSERLESS_URL' | 'PULSE_BROWSERLESS_TOKEN'
+  >,
   adapters: readonly SourceAdapter[] = livePulseAdapters,
 ): Promise<{
   snapshots: number
@@ -221,8 +253,13 @@ export async function runPulseIngest(
 }> {
   const db = createDb(env.DB)
   const repo = makePulseOpsRepo(db)
+  const browserlessFetch = createBrowserlessFetch({
+    ...(env.PULSE_BROWSERLESS_URL ? { endpoint: env.PULSE_BROWSERLESS_URL } : {}),
+    ...(env.PULSE_BROWSERLESS_TOKEN ? { token: env.PULSE_BROWSERLESS_TOKEN } : {}),
+  })
   const ctx: IngestCtx = {
     fetch: createPoliteFetch(fetch),
+    ...(browserlessFetch ? { browserlessFetch } : {}),
     getSourceState: async (sourceId) => {
       const state = await repo.getSourceState(sourceId)
       return state ? { etag: state.etag, lastModified: state.lastModified } : null
@@ -233,5 +270,8 @@ export async function runPulseIngest(
   const results = await Promise.all(
     adapters.map((adapter) => ingestAdapter(adapter, ctx, repo, env.PULSE_QUEUE)),
   )
-  return sumCounts(results)
+  const counts = sumCounts(results)
+  emitSourceIdleAlerts(await repo.listSourceStates())
+  recordPulseMetric('pulse.ingest.run_result', { ...counts })
+  return counts
 }

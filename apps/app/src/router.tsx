@@ -225,6 +225,16 @@ export function createAppRouter() {
               },
             },
             {
+              path: 'ops/pulse',
+              handle: routeHandle(routeSummaries.opsPulse),
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { OpsPulseRoute } = await import('@/routes/ops.pulse')
+
+                return { Component: OpsPulseRoute }
+              },
+            },
+            {
               path: 'clients',
               handle: routeHandle(routeSummaries.clients),
               HydrateFallback: RouteHydrateFallback,

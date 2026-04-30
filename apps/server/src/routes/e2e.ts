@@ -19,10 +19,18 @@ interface E2ESeedRequest {
 const COOKIE_NAME = 'duedatehq.session_token'
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
 
+function hasE2ESeedAccess(c: { env: Env; req: { header(name: string): string | undefined } }) {
+  if (c.env.ENV === 'development') return true
+  const token = c.env.E2E_SEED_TOKEN
+  if (c.env.ENV !== 'staging' || !token) return false
+  const header = c.req.header('authorization')
+  return header === `Bearer ${token}` || c.req.header('x-e2e-seed-token') === token
+}
+
 export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().post(
   '/session',
   async (c) => {
-    if (c.env.ENV !== 'development') {
+    if (!hasE2ESeedAccess(c)) {
       return c.notFound()
     }
 
@@ -122,7 +130,7 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
 )
 
 e2eRoute.post('/billing/subscription', async (c) => {
-  if (c.env.ENV !== 'development') {
+  if (!hasE2ESeedAccess(c)) {
     return c.notFound()
   }
 

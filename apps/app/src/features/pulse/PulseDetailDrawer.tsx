@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
-import { AlertCircleIcon, RotateCcwIcon, ShieldAlertIcon } from 'lucide-react'
+import { AlertCircleIcon, MailIcon, RotateCcwIcon, ShieldAlertIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
-import type { FirmPublic, PulseFirmAlertStatus } from '@duedatehq/contracts'
+import type { FirmPublic, PulseFirmAlertStatus, PulseStatus } from '@duedatehq/contracts'
+import type { PulseDetail } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -23,6 +24,7 @@ import { rpcErrorMessage } from '@/lib/rpc-error'
 import { AffectedClientsTable } from './components/AffectedClientsTable'
 import { PulseConfidenceBadge } from './components/PulseConfidenceBadge'
 import { PulseSourceBadge } from './components/PulseSourceBadge'
+import { PulseSourceStatusBadge } from './components/PulseSourceStatusBadge'
 import { PulseStatusBadge } from './components/PulseStatusBadge'
 import { PulseStructuredFields } from './components/PulseStructuredFields'
 import { PulsingDot, type PulsingDotTone } from './components/PulsingDot'
@@ -206,6 +208,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 <PulseSourceBadge source={detail.alert.source} sourceUrl={detail.alert.sourceUrl} />
                 <PulseConfidenceBadge confidence={detail.alert.confidence} />
                 <PulseStatusBadge status={detail.alert.status} />
+                <PulseSourceStatusBadge status={detail.alert.sourceStatus} />
               </div>
               <SheetTitle className="text-lg">{detail.alert.title}</SheetTitle>
               <SheetDescription className="text-md text-text-secondary">
@@ -251,6 +254,21 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 </Alert>
               ) : null}
 
+              {detail.alert.sourceStatus === 'source_revoked' ? (
+                <Alert variant="destructive">
+                  <ShieldAlertIcon />
+                  <AlertTitle>
+                    <Trans>Source revoked</Trans>
+                  </AlertTitle>
+                  <AlertDescription>
+                    <Trans>
+                      This source is no longer trusted. The historical alert remains visible, but
+                      new apply, dismiss, snooze, and undo actions are disabled.
+                    </Trans>
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+
               <section className="flex flex-col gap-3">
                 <header className="flex items-baseline justify-between">
                   <h3 className="text-md font-semibold text-text-primary">
@@ -277,6 +295,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
           {detail ? (
             <DrawerActions
               alertStatus={detail.alert.status}
+              sourceStatus={detail.alert.sourceStatus}
               selectionCount={stats?.selectedCount ?? 0}
               canApply={canApply}
               isMutating={isMutating}
@@ -297,6 +316,12 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 })
               }
               onRevert={() => revertMutation.mutate({ alertId: detail.alert.id })}
+              onCopyDraft={() => {
+                void navigator.clipboard.writeText(buildClientEmailDraft(detail)).then(
+                  () => toast.success(t`Client email draft copied`),
+                  () => toast.error(t`Couldn't copy client email draft`),
+                )
+              }}
             />
           ) : null}
         </SheetFooter>
@@ -307,6 +332,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
 
 function DrawerActions({
   alertStatus,
+  sourceStatus,
   selectionCount,
   canApply,
   isMutating,
@@ -314,8 +340,10 @@ function DrawerActions({
   onDismiss,
   onSnooze,
   onRevert,
+  onCopyDraft,
 }: {
   alertStatus: PulseFirmAlertStatus
+  sourceStatus: PulseStatus
   selectionCount: number
   canApply: boolean
   isMutating: boolean
@@ -323,14 +351,25 @@ function DrawerActions({
   onDismiss: () => void
   onSnooze: () => void
   onRevert: () => void
+  onCopyDraft: () => void
 }) {
   const showRevert = REVERTABLE_STATUSES.has(alertStatus)
   const isDismissed = alertStatus === 'dismissed'
-  const isClosed = alertStatus === 'reverted' || isDismissed
+  const sourceRevoked = sourceStatus === 'source_revoked'
+  const isClosed = alertStatus === 'reverted' || isDismissed || sourceRevoked
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
+      <Button variant="ghost" size="sm" disabled={isMutating} onClick={onCopyDraft}>
+        <MailIcon data-icon="inline-start" />
+        <Trans>Copy client email draft</Trans>
+      </Button>
       {showRevert ? (
-        <Button variant="outline" size="sm" disabled={!canApply || isMutating} onClick={onRevert}>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!canApply || isMutating || sourceRevoked}
+          onClick={onRevert}
+        >
           <RotateCcwIcon data-icon="inline-start" />
           <Trans>Undo (24h)</Trans>
         </Button>
@@ -365,6 +404,31 @@ function DrawerActions({
       </Button>
     </div>
   )
+}
+
+function buildClientEmailDraft(detail: PulseDetail): string {
+  const affectedClients = detail.affectedClients
+    .filter((row) => row.matchStatus === 'eligible' || row.matchStatus === 'already_applied')
+    .map((row) => `- ${row.clientName}: ${row.currentDueDate} -> ${row.newDueDate}`)
+  return [
+    `Subject: Deadline update: ${detail.alert.title}`,
+    '',
+    'Hi,',
+    '',
+    detail.alert.summary,
+    '',
+    `Original due date: ${detail.originalDueDate}`,
+    `New due date: ${detail.newDueDate}`,
+    '',
+    'Affected client deadlines:',
+    ...(affectedClients.length > 0
+      ? affectedClients
+      : ['- No client-specific deadline has been applied yet.']),
+    '',
+    `Source: ${detail.alert.sourceUrl}`,
+    '',
+    'This is a draft. Please review before sending.',
+  ].join('\n')
 }
 
 function SelectionSummary({ stats }: { stats: SelectionStats }) {

@@ -2,6 +2,7 @@ import { createAI } from '@duedatehq/ai'
 import { createDb, makePulseOpsRepo } from '@duedatehq/db'
 import { aiOutput, llmLog } from '@duedatehq/db/schema/ai'
 import type { Env } from '../../env'
+import { recordPulseAlert, recordPulseMetric } from './metrics'
 
 function dateFromIsoDate(value: string): Date {
   return new Date(`${value}T00:00:00.000Z`)
@@ -100,6 +101,13 @@ export async function extractPulseSnapshot(
       aiOutputId,
       failureReason: result.refusal?.message ?? 'Pulse extract failed.',
     })
+    recordPulseMetric('pulse.extract.result', {
+      snapshotId,
+      sourceId: snapshot.sourceId,
+      result: 'failed',
+      refusalCode: result.trace.refusalCode ?? result.refusal?.code ?? null,
+      confidence: null,
+    })
     return { pulseId: null, status: 'failed' }
   }
 
@@ -126,5 +134,19 @@ export async function extractPulseSnapshot(
     isSample: false,
   })
 
+  recordPulseMetric('pulse.extract.result', {
+    snapshotId,
+    sourceId: snapshot.sourceId,
+    result: 'created',
+    refusalCode: null,
+    confidence: result.result.confidence,
+  })
+  if (result.result.confidence < 0.5) {
+    recordPulseAlert('pulse.extract.low_confidence', {
+      snapshotId,
+      sourceId: snapshot.sourceId,
+      confidence: result.result.confidence,
+    })
+  }
   return { pulseId: created.pulseId, status: 'created' }
 }

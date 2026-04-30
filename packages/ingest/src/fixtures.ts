@@ -1,4 +1,33 @@
-import type { IngestCtx, RawSnapshot, SourceAdapter } from './types'
+import type { IngestCtx, RawSnapshot, SourceAdapter, SourceId } from './types'
+
+export const sourceFixtureBodies = {
+  'irs.disaster':
+    '<main><a href="/newsroom/tax-relief-ca-storm">Tax relief for CA storm victims</a></main>',
+  'irs.newsroom':
+    '<main><a href="/newsroom/irs-announces-tax-relief">IRS announces tax relief deadline extension</a></main>',
+  'irs.guidance':
+    '<main><a href="/newsroom/irs-guidance-disaster-relief">IRS guidance disaster relief</a></main>',
+  'ca.ftb.newsroom':
+    '<main><a href="/about-ftb/newsroom/tax-relief.html">FTB tax relief deadline extension</a></main>',
+  'ca.ftb.tax_news':
+    '<main><a href="/about-ftb/newsroom/tax-news/tax-relief.html">Tax News deadline relief</a></main>',
+  'ca.cdtfa.news':
+    '<main><a href="/news/disaster-relief.htm">CDTFA disaster tax relief deadline</a></main>',
+  'ny.dtf.press':
+    '<article><h1>NY DTF clarifies pass-through entity tax election window</h1></article>',
+  'tx.cpa.rss':
+    '<rss><channel><item><title>Texas tax deadline extension</title><link>https://comptroller.texas.gov/tax-relief</link><pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate><description>Deadline relief.</description></item></channel></rss>',
+  'fl.dor.tips':
+    '<main><a href="/taxes/tips/disaster-relief">Florida DOR tax tip disaster relief</a></main>',
+  'wa.dor.news':
+    '<main><a href="/about/news-releases/disaster-relief">WA DOR disaster relief deadline</a></main>',
+  'wa.dor.whats_new':
+    '<main><a href="/about/whats-new/tax-relief">WA DOR tax relief update</a></main>',
+  'ma.dor.press':
+    '<main><a href="/news/massachusetts-dor-tax-relief">Massachusetts DOR tax relief deadline update</a></main>',
+  'fema.declarations':
+    '{"features":[{"attributes":{"disasterNumber":9999,"state":"CA","declarationTitle":"California Severe Storms","incidentType":"Severe Storm","declarationDate":1776211200000,"incidentBeginDate":1776124800000,"designatedArea":"Los Angeles County"}}]}',
+} satisfies Record<SourceId, string>
 
 export async function snapshotFromFixture(input: {
   ctx: IngestCtx

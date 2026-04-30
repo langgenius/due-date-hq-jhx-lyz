@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { createDb, makePulseOpsRepo } from '@duedatehq/db'
+import { livePulseAdapters } from '@duedatehq/ingest/adapters'
 import type { ContextVars, Env } from '../env'
 
 type OpsPulseEnv = Pick<Env, 'DB' | 'R2_PULSE' | 'PULSE_QUEUE' | 'PULSE_OPS_TOKEN'>
@@ -74,6 +75,32 @@ function serializeSignal(
   }
 }
 
+function serializeSourceState(
+  row: Awaited<ReturnType<ReturnType<typeof makePulseOpsRepo>['listSourceStates']>>[number],
+) {
+  const adapter = livePulseAdapters.find((item) => item.id === row.sourceId)
+  return {
+    ...row,
+    label: adapter?.id ?? row.sourceId,
+    lastCheckedAt: row.lastCheckedAt?.toISOString() ?? null,
+    lastSuccessAt: row.lastSuccessAt?.toISOString() ?? null,
+    lastChangeDetectedAt: row.lastChangeDetectedAt?.toISOString() ?? null,
+    nextCheckAt: row.nextCheckAt?.toISOString() ?? null,
+  }
+}
+
+function serializeSnapshot(
+  row: Awaited<
+    ReturnType<ReturnType<typeof makePulseOpsRepo>['listFailedSourceSnapshots']>
+  >[number],
+) {
+  return {
+    ...row,
+    publishedAt: row.publishedAt.toISOString(),
+    fetchedAt: row.fetchedAt.toISOString(),
+  }
+}
+
 export const opsPulseRoute = new Hono<{
   Bindings: OpsPulseEnv
   Variables: ContextVars
@@ -95,6 +122,16 @@ export const opsPulseRoute = new Hono<{
       ...(status === 'open' || status === 'linked' || status === 'dismissed' ? { status } : {}),
     })
     return c.json({ signals: rows.map(serializeSignal) })
+  })
+  .get('/sources', async (c) => {
+    const repo = makePulseOpsRepo(createDb(c.env.DB))
+    const rows = await repo.listSourceStates()
+    return c.json({ sources: rows.map(serializeSourceState) })
+  })
+  .get('/snapshots/failed', async (c) => {
+    const repo = makePulseOpsRepo(createDb(c.env.DB))
+    const rows = await repo.listFailedSourceSnapshots({ limit: 100 })
+    return c.json({ snapshots: rows.map(serializeSnapshot) })
   })
   .post('/signals/link-open', async (c) => {
     const repo = makePulseOpsRepo(createDb(c.env.DB))

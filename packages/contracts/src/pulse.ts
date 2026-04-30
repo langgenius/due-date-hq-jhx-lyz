@@ -37,6 +37,7 @@ export const PulseAlertPublicSchema = z.object({
   id: EntityIdSchema,
   pulseId: EntityIdSchema,
   status: PulseFirmAlertStatusSchema,
+  sourceStatus: PulseStatusSchema,
   title: z.string().min(1),
   source: z.string().min(1),
   sourceUrl: z.url(),

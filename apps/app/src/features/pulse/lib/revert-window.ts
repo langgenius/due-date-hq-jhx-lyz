@@ -21,5 +21,6 @@ export function isWithinRevertWindow(expiresAt: Date | string, now: Date = new D
 }
 
 export function isAlertRevertable(alert: PulseAlertPublic): boolean {
+  if (alert.sourceStatus === 'source_revoked') return false
   return alert.status === 'applied' || alert.status === 'partially_applied'
 }

@@ -34,6 +34,7 @@ import {
   type PulseSourceSnapshotStatus,
   type PulseStatus,
 } from '../schema/pulse'
+import { listActiveOverlayDueDates } from './overlay'
 
 const OPEN_OBLIGATION_STATUSES: ObligationStatus[] = [
   'pending',
@@ -55,6 +56,7 @@ export interface PulseAlertRow {
   id: string
   pulseId: string
   status: PulseFirmAlertStatus
+  sourceStatus: PulseStatus
   title: string
   source: string
   sourceUrl: string
@@ -307,6 +309,10 @@ interface CandidateRow {
   status: ObligationStatus
 }
 
+interface EffectiveCandidateRow extends CandidateRow {
+  baseCurrentDueDate: Date
+}
+
 interface ApplicationRow {
   id: string
   obligationId: string
@@ -326,6 +332,8 @@ interface ApplicationRow {
 
 interface AllFirmCandidateRow {
   firmId: string
+  obligationId: string
+  currentDueDate: Date
   county: string | null
 }
 
@@ -381,6 +389,7 @@ function toAlert(row: AlertJoinedRow): PulseAlertRow {
     id: row.alertId,
     pulseId: row.pulseId,
     status: row.alertStatus,
+    sourceStatus: row.pulseStatus,
     title: row.aiSummary,
     source: row.source,
     sourceUrl: row.sourceUrl,
@@ -500,7 +509,10 @@ function normalizeCountyName(value: string): string {
 }
 
 export function makePulseRepo(db: Db, firmId: string) {
-  async function getAlert(alertId: string): Promise<AlertJoinedRow> {
+  async function getAlert(
+    alertId: string,
+    opts: { includeSourceRevoked?: boolean } = {},
+  ): Promise<AlertJoinedRow> {
     const rows = await db
       .select({
         alertId: pulseFirmAlert.id,
@@ -532,8 +544,42 @@ export function makePulseRepo(db: Db, firmId: string) {
       .limit(1)
 
     const row = rows[0]
-    if (!row || row.pulseStatus !== 'approved') throw new PulseRepoError('not_found')
+    const allowed =
+      row?.pulseStatus === 'approved' ||
+      (opts.includeSourceRevoked === true && row?.pulseStatus === 'source_revoked')
+    if (!row || !allowed) throw new PulseRepoError('not_found')
     return row
+  }
+
+  async function withEffectiveDueDates<T extends CandidateRow>(
+    rows: readonly T[],
+  ): Promise<Array<T & EffectiveCandidateRow>> {
+    const overlays = await listActiveOverlayDueDates(
+      db,
+      firmId,
+      rows.map((row) => row.obligationId),
+    )
+    return rows.map((row) => ({
+      ...row,
+      baseCurrentDueDate: row.currentDueDate,
+      currentDueDate: overlays.get(row.obligationId) ?? row.currentDueDate,
+    }))
+  }
+
+  function rowHasRelevantDueDate(row: EffectiveCandidateRow, alert: AlertJoinedRow): boolean {
+    return (
+      sameTimestamp(row.currentDueDate, alert.parsedOriginalDueDate) ||
+      sameTimestamp(row.baseCurrentDueDate, alert.parsedOriginalDueDate) ||
+      sameTimestamp(row.currentDueDate, alert.parsedNewDueDate)
+    )
+  }
+
+  function rowAlreadyHasOverlay(row: EffectiveCandidateRow, alert: AlertJoinedRow): boolean {
+    return (
+      !sameTimestamp(row.currentDueDate, alert.parsedOriginalDueDate) &&
+      (sameTimestamp(row.baseCurrentDueDate, alert.parsedOriginalDueDate) ||
+        sameTimestamp(row.currentDueDate, alert.parsedNewDueDate))
+    )
   }
 
   async function listCandidateRows(alert: AlertJoinedRow): Promise<PulseAffectedClientRow[]> {
@@ -563,14 +609,31 @@ export function makePulseRepo(db: Db, firmId: string) {
           inArray(client.entityType, entityTypes),
           inArray(obligationInstance.taxType, forms),
           inArray(obligationInstance.status, OPEN_OBLIGATION_STATUSES),
-          eq(obligationInstance.currentDueDate, alert.parsedOriginalDueDate),
         ),
       )
       .orderBy(asc(obligationInstance.currentDueDate), asc(client.name))
 
     const counties = new Set(alert.parsedCounties.map(normalizeCountyName))
-    return rows
-      .map((row: CandidateRow): PulseAffectedClientRow | null => {
+    const effectiveRows = await withEffectiveDueDates(rows as CandidateRow[])
+    return effectiveRows
+      .map((row): PulseAffectedClientRow | null => {
+        if (!rowHasRelevantDueDate(row, alert)) return null
+        if (rowAlreadyHasOverlay(row, alert)) {
+          return {
+            obligationId: row.obligationId,
+            clientId: row.clientId,
+            clientName: row.clientName,
+            state: row.state,
+            county: row.county,
+            entityType: row.entityType,
+            taxType: row.taxType,
+            currentDueDate: row.currentDueDate,
+            status: row.status,
+            newDueDate: alert.parsedNewDueDate,
+            matchStatus: 'already_applied',
+            reason: 'This obligation already has an active due-date overlay.',
+          }
+        }
         if (counties.size > 0) {
           if (!row.county) {
             return {
@@ -636,6 +699,12 @@ export function makePulseRepo(db: Db, firmId: string) {
       .where(and(eq(pulseApplication.firmId, firmId), eq(pulseApplication.pulseId, pulseId)))
       .orderBy(asc(client.name), asc(pulseApplication.appliedAt))
 
+    const overlays = await listActiveOverlayDueDates(
+      db,
+      firmId,
+      rows.map((row) => row.obligationId),
+    )
+
     return rows.map((row: ApplicationRow) => ({
       obligationId: row.obligationId,
       clientId: row.clientId,
@@ -644,7 +713,7 @@ export function makePulseRepo(db: Db, firmId: string) {
       county: row.county,
       entityType: row.entityType,
       taxType: row.taxType,
-      currentDueDate: row.currentDueDate,
+      currentDueDate: overlays.get(row.obligationId) ?? row.currentDueDate,
       newDueDate: row.afterDueDate,
       status: row.status,
       matchStatus: applicationStatus(row),
@@ -708,7 +777,7 @@ export function makePulseRepo(db: Db, firmId: string) {
   ): Promise<PulseAffectedClientRow[]> {
     if (obligationIds.length === 0) throw new PulseRepoError('no_eligible')
 
-    const rows = await listSelectedRows(obligationIds)
+    const rows = await withEffectiveDueDates(await listSelectedRows(obligationIds))
     const rowsById = new Map(rows.map((row) => [row.obligationId, row]))
     if (rowsById.size !== obligationIds.length) throw new PulseRepoError('conflict')
 
@@ -941,7 +1010,7 @@ export function makePulseRepo(db: Db, firmId: string) {
         .where(
           and(
             eq(pulseFirmAlert.firmId, firmId),
-            eq(pulse.status, 'approved'),
+            inArray(pulse.status, ['approved', 'source_revoked']),
             ...(statusFilter ? [statusFilter] : []),
           ),
         )
@@ -957,7 +1026,7 @@ export function makePulseRepo(db: Db, firmId: string) {
     },
 
     async getDetail(alertId: string): Promise<PulseDetailRow> {
-      const alert = await getAlert(alertId)
+      const alert = await getAlert(alertId, { includeSourceRevoked: true })
       return buildDetail(alert)
     },
 
@@ -1446,6 +1515,8 @@ export function makePulseOpsRepo(db: Db) {
     const candidates = await db
       .select({
         firmId: obligationInstance.firmId,
+        obligationId: obligationInstance.id,
+        currentDueDate: obligationInstance.currentDueDate,
         county: client.county,
       })
       .from(obligationInstance)
@@ -1456,22 +1527,41 @@ export function makePulseOpsRepo(db: Db) {
           inArray(client.entityType, entityTypes),
           inArray(obligationInstance.taxType, forms),
           inArray(obligationInstance.status, OPEN_OBLIGATION_STATUSES),
-          eq(obligationInstance.currentDueDate, row.parsedOriginalDueDate),
           isNull(client.deletedAt),
         ),
       )
 
     const counties = new Set(row.parsedCounties.map(normalizeCountyName))
     const counts = new Map<string, { matchedCount: number; needsReviewCount: number }>()
+    const candidatesByFirm = new Map<string, AllFirmCandidateRow[]>()
     for (const candidate of candidates as AllFirmCandidateRow[]) {
-      const current = counts.get(candidate.firmId) ?? { matchedCount: 0, needsReviewCount: 0 }
-      if (counties.size > 0) {
-        if (!candidate.county) current.needsReviewCount += 1
-        else if (counties.has(normalizeCountyName(candidate.county))) current.matchedCount += 1
-      } else {
-        current.matchedCount += 1
-      }
-      counts.set(candidate.firmId, current)
+      const group = candidatesByFirm.get(candidate.firmId) ?? []
+      group.push(candidate)
+      candidatesByFirm.set(candidate.firmId, group)
+    }
+    const firmCountEntries = await Promise.all(
+      Array.from(candidatesByFirm.entries()).map(async ([candidateFirmId, firmCandidates]) => {
+        const count = { matchedCount: 0, needsReviewCount: 0 }
+        const overlays = await listActiveOverlayDueDates(
+          db,
+          candidateFirmId,
+          firmCandidates.map((candidate) => candidate.obligationId),
+        )
+        for (const candidate of firmCandidates) {
+          const currentDueDate = overlays.get(candidate.obligationId) ?? candidate.currentDueDate
+          if (!sameTimestamp(currentDueDate, row.parsedOriginalDueDate)) continue
+          if (counties.size > 0) {
+            if (!candidate.county) count.needsReviewCount += 1
+            else if (counties.has(normalizeCountyName(candidate.county))) count.matchedCount += 1
+          } else {
+            count.matchedCount += 1
+          }
+        }
+        return [candidateFirmId, count] as const
+      }),
+    )
+    for (const [candidateFirmId, count] of firmCountEntries) {
+      counts.set(candidateFirmId, count)
     }
 
     let alertCount = 0
@@ -1560,15 +1650,21 @@ export function makePulseOpsRepo(db: Db) {
           inArray(client.entityType, entityTypes),
           inArray(obligationInstance.taxType, forms),
           inArray(obligationInstance.status, OPEN_OBLIGATION_STATUSES),
-          eq(obligationInstance.currentDueDate, row.parsedOriginalDueDate),
           isNull(client.deletedAt),
         ),
       )
       .orderBy(asc(obligationInstance.currentDueDate), asc(client.name))
 
+    const overlays = await listActiveOverlayDueDates(
+      db,
+      firmId,
+      candidates.map((candidate) => candidate.obligationId),
+    )
     const counties = new Set(row.parsedCounties.map(normalizeCountyName))
     return candidates
       .map((candidate): PulseDigestObligationRow | null => {
+        const currentDueDate = overlays.get(candidate.obligationId) ?? candidate.currentDueDate
+        if (!sameTimestamp(currentDueDate, row.parsedOriginalDueDate)) return null
         if (counties.size > 0) {
           if (!candidate.county) {
             return {
@@ -1578,7 +1674,7 @@ export function makePulseOpsRepo(db: Db) {
               state: candidate.state,
               county: candidate.county,
               taxType: candidate.taxType,
-              currentDueDate: candidate.currentDueDate,
+              currentDueDate,
               matchStatus: 'needs_review',
               reason: 'Client county is missing; confirm county applicability before applying.',
             }
@@ -1593,7 +1689,7 @@ export function makePulseOpsRepo(db: Db) {
           state: candidate.state,
           county: candidate.county,
           taxType: candidate.taxType,
-          currentDueDate: candidate.currentDueDate,
+          currentDueDate,
           matchStatus: 'eligible',
           reason: null,
         }
@@ -1983,6 +2079,19 @@ export function makePulseOpsRepo(db: Db) {
         .limit(1)
       const row = rows[0]
       return row ? toSnapshot(row) : undefined
+    },
+
+    async listFailedSourceSnapshots(
+      opts: { limit?: number } = {},
+    ): Promise<PulseSourceSnapshotRow[]> {
+      const limit = Math.min(Math.max(opts.limit ?? 50, 1), 100)
+      const rows = await db
+        .select()
+        .from(pulseSourceSnapshot)
+        .where(eq(pulseSourceSnapshot.parseStatus, 'failed'))
+        .orderBy(desc(pulseSourceSnapshot.updatedAt), desc(pulseSourceSnapshot.createdAt))
+        .limit(limit)
+      return rows.map(toSnapshot)
     },
 
     async updateSourceSnapshotStatus(

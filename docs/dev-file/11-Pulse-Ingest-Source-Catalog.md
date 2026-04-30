@@ -71,8 +71,9 @@
 | `wa.dor.whats_new` | WA    | `https://dor.wa.gov/about/whats-new`                               | HTML list/detail + subscribe | 120 min | 中         | 低       |
 | `ma.dor.press`     | MA    | `https://www.mass.gov/info-details/dor-press-releases-and-reports` | HTML list/detail + email     | 120 min | 中         | 低       |
 
-> Scope note: 当前 MVP rules coverage 是 Federal + CA/NY/TX/FL/WA。`ma.dor`
-> 只保留为后续扩州候选 source，不得在产品、marketing 或 Rules Console 中表达为当前覆盖。
+> Scope note: 当前 MVP rules coverage 是 Federal + CA/NY/TX/FL/WA。`ma.dor.press`
+> 已作为 T1 ingest adapter 启用，但 MA rule-pack 尚未完成；不得在 product、marketing 或 Rules
+> Console 中表达为当前规则覆盖。
 
 **适用性提示：**
 
@@ -320,9 +321,11 @@ packages/ingest/
         └── govdelivery-inbound.ts
 ```
 
-2026-04-30 implementation note: `fetcher.ts` now exposes the per-source registry boundary and keeps
-Cloudflare `fetch` as the default. Browserless and GovDelivery are still follow-up bindings/parsers,
-not production fallbacks yet.
+2026-04-30 implementation note: `fetcher.ts` exposes the per-source registry boundary and keeps
+Cloudflare `fetch` as the default. Browserless is now configurable through
+`PULSE_BROWSERLESS_URL` / `PULSE_BROWSERLESS_TOKEN`, and GovDelivery inbound email is parsed into
+T2 `pulse_source_signal` rows via Cloudflare Email Routing. Both integrations remain default-off
+unless the relevant Worker secret/routing is configured.
 
 ---
 
@@ -332,7 +335,7 @@ not production fallbacks yet.
 | ------------------------- | -------------------------------------------------------------------- | -------- | ---------------------------------- |
 | **Phase 0 · Demo Sprint** | `irs.disaster` + `tx.cpa.rss` + seeded `ny.dtf.press` fixture        | 已完成   | S3 场景能真实触发 + mock 兜底齐全  |
 | **Pilot hardening**       | `ca.ftb.*` + `ca.cdtfa.news` + real `ny.dtf.press` + FL/WA + FEMA T2 | 已落地   | Live catalog 可跑；FEMA 不出客户链 |
-| **Phase 1**               | GovDelivery inbound fallback + Browserless fallback                  | 1 人周   | 反爬失败可自动降级                 |
+| **Phase 1**               | GovDelivery inbound fallback + Browserless fallback                  | 已落地   | 可配置降级；默认关闭               |
 | **Phase 2**               | + `ma.dor.press` + 更多州 DOR                                        | 2 人周   | 15+ 源；10 源 ≥ 99% SLA            |
 | **Phase 3（商单触发）**   | Checkpoint / Bloomberg Tax / Avalara 商业 API                        | 谈单驱动 | 客户合同签字后再采购               |
 

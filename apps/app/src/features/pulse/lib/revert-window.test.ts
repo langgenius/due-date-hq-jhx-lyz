@@ -9,6 +9,7 @@ function makeAlert(status: PulseAlertPublic['status']): PulseAlertPublic {
     id: 'alert-1',
     pulseId: 'pulse-1',
     status,
+    sourceStatus: 'approved',
     title: 'IRS storm relief',
     source: 'irs.gov',
     sourceUrl: 'https://irs.gov',
@@ -41,5 +42,14 @@ describe('revert window helpers', () => {
     expect(isAlertRevertable(makeAlert('matched'))).toBe(false)
     expect(isAlertRevertable(makeAlert('dismissed'))).toBe(false)
     expect(isAlertRevertable(makeAlert('reverted'))).toBe(false)
+  })
+
+  it('does not allow undo when the source has been revoked', () => {
+    expect(
+      isAlertRevertable({
+        ...makeAlert('applied'),
+        sourceStatus: 'source_revoked',
+      }),
+    ).toBe(false)
   })
 })
