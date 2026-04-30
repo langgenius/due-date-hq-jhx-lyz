@@ -1,8 +1,9 @@
-import { and, asc, desc, eq, gt, gte, inArray, isNull, lt, lte, or, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, isNull, or, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import type { Db } from '../client'
 import { client } from '../schema/clients'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
+import { listActiveOverlayDueDates } from './overlay'
 
 /**
  * workboard — read model joining obligation_instance + client.
@@ -57,6 +58,7 @@ export interface WorkboardListResult {
 
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
+const MAX_READ_ROWS = 1000
 const MAX_SEARCH_LENGTH = 64
 const LIKE_WILDCARD_RE = /[\\%_]/g
 const UNSAFE_SEARCH_CHARS_RE = /[^\p{L}\p{N}\s&'.-]+/gu
@@ -109,6 +111,44 @@ function decodeCursor(cursor: string): { currentDueDate: Date; id: string } | nu
   }
 }
 
+function isWithinDueFilter(
+  row: { currentDueDate: Date },
+  input: Pick<WorkboardListInput, 'due' | 'dueWithinDays' | 'asOfDate'>,
+): boolean {
+  const asOfDate = parseDateOnly(input.asOfDate ?? todayDateOnly())
+  if (input.due === 'overdue' && row.currentDueDate.getTime() >= asOfDate.getTime()) return false
+  if (input.dueWithinDays !== undefined) {
+    const due = row.currentDueDate.getTime()
+    if (due < asOfDate.getTime() || due > addDays(asOfDate, input.dueWithinDays).getTime()) {
+      return false
+    }
+  }
+  return true
+}
+
+function compareRows(a: WorkboardListRow, b: WorkboardListRow, sort: WorkboardSort): number {
+  if (sort === 'updated_desc') {
+    const updatedDelta = b.updatedAt.getTime() - a.updatedAt.getTime()
+    if (updatedDelta !== 0) return updatedDelta
+    return b.id.localeCompare(a.id)
+  }
+  const direction = sort === 'due_desc' ? -1 : 1
+  const dateDelta = a.currentDueDate.getTime() - b.currentDueDate.getTime()
+  if (dateDelta !== 0) return dateDelta * direction
+  return a.id.localeCompare(b.id) * direction
+}
+
+function isAfterCursor(
+  row: WorkboardListRow,
+  sort: WorkboardSort,
+  cursor: { currentDueDate: Date; id: string },
+): boolean {
+  if (sort === 'updated_desc') return true
+  const dateDelta = row.currentDueDate.getTime() - cursor.currentDueDate.getTime()
+  if (sort === 'due_desc') return dateDelta < 0 || (dateDelta === 0 && row.id < cursor.id)
+  return dateDelta > 0 || (dateDelta === 0 && row.id > cursor.id)
+}
+
 export function makeWorkboardRepo(db: Db, firmId: string) {
   return {
     firmId,
@@ -131,42 +171,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         filters.push(or(isNull(client.assigneeName), eq(client.assigneeName, ''))!)
       }
 
-      const asOfDate = parseDateOnly(input.asOfDate ?? todayDateOnly())
-      if (input.due === 'overdue') {
-        filters.push(lt(obligationInstance.currentDueDate, asOfDate))
-      }
-      if (input.dueWithinDays !== undefined) {
-        filters.push(
-          and(
-            gte(obligationInstance.currentDueDate, asOfDate),
-            lte(obligationInstance.currentDueDate, addDays(asOfDate, input.dueWithinDays)),
-          )!,
-        )
-      }
-
       const search = normalizeWorkboardSearch(input.search)
       if (search) {
         const needle = `%${escapeLikePattern(search)}%`
         filters.push(sql`${client.name} like ${needle} escape '\\'`)
-      }
-
-      // Cursor only applies to due-date sorts; updated_desc returns a single
-      // page in Demo Sprint. Keyset condition: (due, id) > (cursor.due, cursor.id)
-      // for ascending, or < for descending.
-      if (sort !== 'updated_desc' && input.cursor) {
-        const decoded = decodeCursor(input.cursor)
-        if (decoded) {
-          const cmp = sort === 'due_asc' ? gt : lt
-          filters.push(
-            or(
-              cmp(obligationInstance.currentDueDate, decoded.currentDueDate),
-              and(
-                eq(obligationInstance.currentDueDate, decoded.currentDueDate),
-                cmp(obligationInstance.id, decoded.id),
-              ),
-            )!,
-          )
-        }
       }
 
       const orderBy =
@@ -176,7 +184,6 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
             ? [desc(obligationInstance.updatedAt), desc(obligationInstance.id)]
             : [asc(obligationInstance.currentDueDate), asc(obligationInstance.id)]
 
-      // limit + 1 sentinel to detect another page without a count query.
       const rawRows = await db
         .select({
           id: obligationInstance.id,
@@ -197,10 +204,28 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         .innerJoin(client, eq(obligationInstance.clientId, client.id))
         .where(and(...filters))
         .orderBy(...orderBy)
-        .limit(limit + 1)
+        .limit(MAX_READ_ROWS)
 
-      const hasMore = rawRows.length > limit
-      const pageRows = hasMore ? rawRows.slice(0, limit) : rawRows
+      const overlayDueDates = await listActiveOverlayDueDates(
+        db,
+        firmId,
+        rawRows.map((row) => row.id),
+      )
+      const decodedCursor =
+        sort !== 'updated_desc' && input.cursor ? decodeCursor(input.cursor) : null
+      const rows = rawRows
+        .map(
+          (row): WorkboardListRow =>
+            Object.assign({}, row, {
+              currentDueDate: overlayDueDates.get(row.id) ?? row.currentDueDate,
+            }),
+        )
+        .filter((row) => isWithinDueFilter(row, input))
+        .toSorted((a, b) => compareRows(a, b, sort))
+        .filter((row) => (decodedCursor ? isAfterCursor(row, sort, decodedCursor) : true))
+
+      const hasMore = rows.length > limit
+      const pageRows = hasMore ? rows.slice(0, limit) : rows
       const lastRow = pageRows[pageRows.length - 1]
       const nextCursor =
         hasMore && lastRow && sort !== 'updated_desc'

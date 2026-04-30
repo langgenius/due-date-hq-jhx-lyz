@@ -57,16 +57,42 @@ PULSE_OPS_TOKEN=<token> \
 node scripts/pulse-ops.mjs retry-snapshot <snapshot_id>
 ```
 
-- Bad extraction or source mismatch: quarantine the Pulse instead of approving.
+- Bad extraction or source mismatch: quarantine the Pulse instead of approving. Use a stable
+  internal actor id and record the reason.
 
 ```bash
 PULSE_OPS_BASE_URL=https://<worker-host> \
 PULSE_OPS_TOKEN=<token> \
-node scripts/pulse-ops.mjs quarantine <pulse_id> "Source excerpt mismatch"
+node scripts/pulse-ops.mjs quarantine <pulse_id> <actor_id> "Source excerpt mismatch"
 ```
 
 - T2 signal without T1 follow-up: leave `pulse_source_signal.status='open'`, verify the matching
-  IRS/state canonical source, and only create/approve a Pulse from T1 evidence.
+  IRS/state canonical source, and only create/approve a Pulse from T1 evidence. To inspect and link
+  signals:
+
+```bash
+PULSE_OPS_BASE_URL=https://<worker-host> \
+PULSE_OPS_TOKEN=<token> \
+node scripts/pulse-ops.mjs signals open
+
+PULSE_OPS_BASE_URL=https://<worker-host> \
+PULSE_OPS_TOKEN=<token> \
+node scripts/pulse-ops.mjs link-signal <signal_id> <pulse_id>
+```
+
+- Source takedown or revoked source: disable future ingest first, then revoke unreconciled Pulse
+  rows from that source. This preserves historical snapshots/Evidence while marking pending or
+  approved global Pulse rows as `source_revoked`.
+
+```bash
+PULSE_OPS_BASE_URL=https://<worker-host> \
+PULSE_OPS_TOKEN=<token> \
+node scripts/pulse-ops.mjs source-disable <source_id>
+
+PULSE_OPS_BASE_URL=https://<worker-host> \
+PULSE_OPS_TOKEN=<token> \
+node scripts/pulse-ops.mjs source-revoke <source_id> <actor_id> "Source takedown"
+```
 
 ## Validation
 
@@ -74,6 +100,7 @@ node scripts/pulse-ops.mjs quarantine <pulse_id> "Source excerpt mismatch"
 - `pnpm --filter @duedatehq/server test -- pulse ingest ops queue`
 - Confirm `pulse_source_state.health_status='healthy'` after the next successful run.
 - Confirm no customer-visible alert was generated from `pulse_source_signal` alone.
+- Confirm Workboard/Dashboard dates are derived from active overlay applications after a Pulse apply.
 
 ## Post-Mortem Notes
 

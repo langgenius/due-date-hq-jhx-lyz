@@ -6,10 +6,22 @@ import type { Env } from '../../env'
 import { flushEmailOutbox } from './outbox'
 
 const { sendMock, dbMocks } = vi.hoisted(() => {
+  type TestOutboxRow = {
+    id: string
+    firmId: string
+    externalId: string
+    type: string
+    status: string
+    payloadJson: unknown
+    createdAt: Date
+    sentAt: Date | null
+    failedAt: Date | null
+    failureReason: string | null
+  }
   const where = vi.fn(async () => undefined)
   const set = vi.fn(() => ({ where }))
   const update = vi.fn(() => ({ set }))
-  const rows = [
+  let rows: TestOutboxRow[] = [
     {
       id: 'outbox_1',
       firmId: 'firm_1',
@@ -17,6 +29,7 @@ const { sendMock, dbMocks } = vi.hoisted(() => {
       type: 'pulse_digest',
       status: 'pending',
       payloadJson: {
+        event: 'pulse_applied',
         recipients: ['owner@example.com'],
         summary: 'Pulse deadline update applied.',
         obligations: [
@@ -41,7 +54,20 @@ const { sendMock, dbMocks } = vi.hoisted(() => {
   const createDb = vi.fn(() => ({ select, update }))
   return {
     sendMock: vi.fn(async () => ({ data: { id: 'email_1' }, error: null })),
-    dbMocks: { createDb, update, set, where, select, from, whereSelect, orderBy, limit },
+    dbMocks: {
+      createDb,
+      update,
+      set,
+      where,
+      select,
+      from,
+      whereSelect,
+      orderBy,
+      limit,
+      setRows: (nextRows: typeof rows) => {
+        rows = nextRows
+      },
+    },
   }
 })
 
@@ -64,7 +90,9 @@ vi.mock('@duedatehq/db', async (importOriginal) => {
 describe('flushEmailOutbox', () => {
   beforeEach(() => {
     sendMock.mockClear()
-    Object.values(dbMocks).forEach((mock) => mock.mockClear())
+    Object.values(dbMocks).forEach((mock) => {
+      if (typeof mock === 'function' && 'mockClear' in mock) mock.mockClear()
+    })
   })
 
   it('sends pending Pulse digests when recipients are present', async () => {
@@ -84,5 +112,50 @@ describe('flushEmailOutbox', () => {
     )
     expect(dbMocks.set).toHaveBeenCalledWith(expect.objectContaining({ status: 'sending' }))
     expect(dbMocks.set).toHaveBeenCalledWith(expect.objectContaining({ status: 'sent' }))
+  })
+
+  it('renders approved Pulse digests with current/new due dates and review flags', async () => {
+    dbMocks.setRows([
+      {
+        id: 'outbox_2',
+        firmId: 'firm_1',
+        externalId: 'pulse-approved:firm_1:pulse_1:1',
+        type: 'pulse_digest',
+        status: 'pending',
+        payloadJson: {
+          event: 'pulse_approved',
+          recipients: ['manager@example.com'],
+          summary: 'Pulse deadline update available.',
+          obligations: [
+            {
+              clientName: 'Bright Studio S-Corp',
+              currentDueDate: '2026-03-15',
+              newDueDate: '2026-10-15',
+              matchStatus: 'needs_review',
+            },
+          ],
+        },
+        createdAt: new Date('2026-04-29T00:00:00.000Z'),
+        sentAt: null,
+        failedAt: null,
+        failureReason: null,
+      },
+    ])
+
+    await flushEmailOutbox({
+      DB: {} as D1Database,
+      EMAIL_FROM: 'noreply@example.com',
+      RESEND_API_KEY: 're_test',
+    } satisfies Pick<Env, 'DB' | 'EMAIL_FROM' | 'RESEND_API_KEY'>)
+
+    expect(sendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: ['manager@example.com'],
+        subject: 'Pulse deadline update available',
+        text: expect.stringContaining(
+          'Bright Studio S-Corp: 2026-03-15 -> 2026-10-15 (needs review)',
+        ),
+      }),
+    )
   })
 })

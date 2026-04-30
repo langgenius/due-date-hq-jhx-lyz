@@ -320,6 +320,10 @@ packages/ingest/
         └── govdelivery-inbound.ts
 ```
 
+2026-04-30 implementation note: `fetcher.ts` now exposes the per-source registry boundary and keeps
+Cloudflare `fetch` as the default. Browserless and GovDelivery are still follow-up bindings/parsers,
+not production fallbacks yet.
+
 ---
 
 ## 7. 分期路线（对齐 09 Demo Sprint Playbook）

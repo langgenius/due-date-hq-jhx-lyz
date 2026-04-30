@@ -115,7 +115,7 @@ describe('makePulseRepo', () => {
     expect(detail.affectedClients[1]!.reason).toContain('county is missing')
   })
 
-  it('batch-applies due date updates with applications, evidence, audit, and outbox', async () => {
+  it('batch-applies due date overlays with applications, evidence, audit, and outbox', async () => {
     const { db, batchStatements } = fakeDb([
       [ALERT],
       [ELIGIBLE],
@@ -139,9 +139,9 @@ describe('makePulseRepo', () => {
     expect(result.evidenceIds).toHaveLength(1)
     expect(result.applicationIds).toHaveLength(1)
     expect(result.revertExpiresAt.toISOString()).toBe('2026-04-16T18:30:00.000Z')
-    expect(batchStatements).toHaveLength(6)
-    expect(batchStatements.filter((statement) => isKind(statement, 'insert'))).toHaveLength(4)
-    expect(batchStatements.filter((statement) => isKind(statement, 'update'))).toHaveLength(2)
+    expect(batchStatements).toHaveLength(7)
+    expect(batchStatements.filter((statement) => isKind(statement, 'insert'))).toHaveLength(6)
+    expect(batchStatements.filter((statement) => isKind(statement, 'update'))).toHaveLength(1)
   })
 
   it('rejects apply when the requested obligation was already applied', async () => {
@@ -258,8 +258,8 @@ describe('makePulseRepo', () => {
     })
 
     expect(result.appliedCount).toBe(1)
-    expect(batchStatements).toHaveLength(6)
-    expect(batchStatements.filter((statement) => isKind(statement, 'update'))).toHaveLength(2)
+    expect(batchStatements).toHaveLength(7)
+    expect(batchStatements.filter((statement) => isKind(statement, 'update'))).toHaveLength(1)
   })
 
   it('rejects apply with no eligible candidates when selections are outside the alert', async () => {
@@ -276,7 +276,7 @@ describe('makePulseRepo', () => {
     expect(batchStatements).toHaveLength(0)
   })
 
-  it('rejects revert when the obligation changed after Pulse apply', async () => {
+  it('rejects revert when the active overlay no longer matches Pulse apply', async () => {
     const { db, batchStatements } = fakeDb([
       [ALERT],
       [
@@ -287,7 +287,15 @@ describe('makePulseRepo', () => {
           appliedAt: new Date('2026-04-15T18:30:00.000Z'),
           beforeDueDate: new Date('2026-03-15T00:00:00.000Z'),
           afterDueDate: new Date('2026-10-15T00:00:00.000Z'),
-          currentDueDate: new Date('2026-10-16T00:00:00.000Z'),
+          currentDueDate: new Date('2026-03-15T00:00:00.000Z'),
+        },
+      ],
+      [
+        {
+          id: 'oea-1',
+          obligationId: 'oi-eligible',
+          exceptionRuleId: 'exception-1',
+          overrideDueDate: new Date('2026-10-16T00:00:00.000Z'),
         },
       ],
     ])

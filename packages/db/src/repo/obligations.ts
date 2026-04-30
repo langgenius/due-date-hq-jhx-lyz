@@ -6,6 +6,7 @@ import {
   type ObligationInstance,
   type ObligationStatus,
 } from '../schema/obligations'
+import { listActiveOverlayDueDates } from './overlay'
 
 const COLS_PER_OI_ROW = 11
 const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 9
@@ -23,6 +24,20 @@ export interface ObligationCreateInput {
 }
 
 export function makeObligationsRepo(db: Db, firmId: string) {
+  async function applyOverlayDueDates<T extends { id: string; currentDueDate: Date }>(
+    rows: T[],
+  ): Promise<T[]> {
+    const overlayDueDates = await listActiveOverlayDueDates(
+      db,
+      firmId,
+      rows.map((row) => row.id),
+    )
+    return rows.map((row) => ({
+      ...row,
+      currentDueDate: overlayDueDates.get(row.id) ?? row.currentDueDate,
+    }))
+  }
+
   async function assertClientsInFirm(clientIds: string[]): Promise<void> {
     const uniqueIds = Array.from(new Set(clientIds))
     if (uniqueIds.length === 0) return
@@ -83,21 +98,25 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         .from(obligationInstance)
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
         .limit(1)
-      return rows[0]
+      const [row] = await applyOverlayDueDates(rows)
+      return row
     },
 
     async listByClient(clientId: string): Promise<ObligationInstance[]> {
-      return db
+      const rows = await db
         .select()
         .from(obligationInstance)
         .where(
           and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.clientId, clientId)),
         )
         .orderBy(asc(obligationInstance.currentDueDate))
+      return (await applyOverlayDueDates(rows)).toSorted(
+        (a, b) => a.currentDueDate.getTime() - b.currentDueDate.getTime(),
+      )
     },
 
     async listByBatch(batchId: string): Promise<ObligationInstance[]> {
-      return db
+      const rows = await db
         .select()
         .from(obligationInstance)
         .where(
@@ -106,6 +125,7 @@ export function makeObligationsRepo(db: Db, firmId: string) {
             eq(obligationInstance.migrationBatchId, batchId),
           ),
         )
+      return applyOverlayDueDates(rows)
     },
 
     /**

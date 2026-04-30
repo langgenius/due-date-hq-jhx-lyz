@@ -9,9 +9,16 @@ function usage(exitCode = 1) {
   console.log(`Usage:
   PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs pending
   PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs show <pulseId>
-  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs approve <pulseId> <reviewedBy>
-  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs reject <pulseId> <reviewedBy>
-  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs quarantine <pulseId> [reason]
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs approve <pulseId> <actorId>
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs reject <pulseId> <actorId> [reason]
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs quarantine <pulseId> <actorId> [reason]
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs signals [open|linked|dismissed]
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs link-open-signals
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs link-signal <signalId> <pulseId>
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs dismiss-signal <signalId>
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs source-disable <sourceId>
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs source-enable <sourceId>
+  PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs source-revoke <sourceId> <actorId> [reason]
   PULSE_OPS_BASE_URL=https://app.example.com PULSE_OPS_TOKEN=... node scripts/pulse-ops.mjs retry-snapshot <snapshotId>`)
   process.exit(exitCode)
 }
@@ -51,23 +58,63 @@ async function request(path, init = {}) {
 
 if (command === 'pending') {
   await request('/pending')
+} else if (command === 'signals') {
+  const [status] = args
+  const query = status ? `?status=${encodeURIComponent(status)}` : ''
+  await request(`/signals${query}`)
 } else if (command === 'show') {
   const [pulseId] = args
   if (!pulseId) usage()
   await request(`/${encodeURIComponent(pulseId)}`)
 } else if (command === 'approve' || command === 'reject') {
-  const [pulseId, reviewedBy] = args
-  if (!pulseId || !reviewedBy) usage()
+  const [pulseId, actorId, ...reasonParts] = args
+  if (!pulseId || !actorId) usage()
   await request(`/${encodeURIComponent(pulseId)}/${command}`, {
     method: 'POST',
-    body: JSON.stringify({ reviewedBy }),
+    body: JSON.stringify({ actorId, reason: reasonParts.join(' ') || undefined }),
   })
 } else if (command === 'quarantine') {
-  const [pulseId, ...reasonParts] = args
-  if (!pulseId) usage()
+  const [pulseId, actorId, ...reasonParts] = args
+  if (!pulseId || !actorId) usage()
   await request(`/${encodeURIComponent(pulseId)}/quarantine`, {
     method: 'POST',
-    body: JSON.stringify({ reason: reasonParts.join(' ') || undefined }),
+    body: JSON.stringify({ actorId, reason: reasonParts.join(' ') || undefined }),
+  })
+} else if (command === 'link-open-signals') {
+  await request('/signals/link-open', {
+    method: 'POST',
+    body: JSON.stringify({}),
+  })
+} else if (command === 'link-signal') {
+  const [signalId, pulseId] = args
+  if (!signalId || !pulseId) usage()
+  await request(`/signals/${encodeURIComponent(signalId)}/link`, {
+    method: 'POST',
+    body: JSON.stringify({ pulseId }),
+  })
+} else if (command === 'dismiss-signal') {
+  const [signalId] = args
+  if (!signalId) usage()
+  await request(`/signals/${encodeURIComponent(signalId)}/dismiss`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  })
+} else if (command === 'source-disable' || command === 'source-enable') {
+  const [sourceId] = args
+  if (!sourceId) usage()
+  await request(
+    `/sources/${encodeURIComponent(sourceId)}/${command === 'source-disable' ? 'disable' : 'enable'}`,
+    {
+      method: 'POST',
+      body: JSON.stringify({}),
+    },
+  )
+} else if (command === 'source-revoke') {
+  const [sourceId, actorId, ...reasonParts] = args
+  if (!sourceId || !actorId) usage()
+  await request(`/sources/${encodeURIComponent(sourceId)}/revoke`, {
+    method: 'POST',
+    body: JSON.stringify({ actorId, reason: reasonParts.join(' ') || undefined }),
   })
 } else if (command === 'retry-snapshot') {
   const [snapshotId] = args

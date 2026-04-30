@@ -17,6 +17,12 @@ const { dbMocks, repoMocks } = vi.hoisted(() => {
     approvePulse: vi.fn(),
     rejectPulse: vi.fn(),
     quarantinePulse: vi.fn(),
+    listSourceSignals: vi.fn(),
+    linkOpenSignalsToPulses: vi.fn(),
+    linkSourceSignal: vi.fn(),
+    dismissSourceSignal: vi.fn(),
+    setSourceEnabled: vi.fn(),
+    revokeSourcePulses: vi.fn(),
   }
   return {
     repoMocks: repo,
@@ -66,12 +72,15 @@ function authed(init: RequestInit = {}): RequestInit {
 }
 
 const PENDING_ROW = {
-  id: 'pulse-1',
-  sourceId: 'irs.disaster',
+  pulseId: 'pulse-1',
+  source: 'irs.disaster',
   sourceUrl: 'https://www.irs.gov/newsroom/tax-relief',
-  title: 'IRS relief',
   summary: 'Summary',
   sourceExcerpt: 'Quote',
+  jurisdiction: 'CA',
+  counties: ['Los Angeles'],
+  forms: ['federal_1065'],
+  entityTypes: ['llc'],
   publishedAt: new Date('2026-04-15T00:00:00.000Z'),
   originalDueDate: new Date('2026-03-15T00:00:00.000Z'),
   newDueDate: new Date('2026-10-15T00:00:00.000Z'),
@@ -116,7 +125,7 @@ describe('opsPulseRoute', () => {
     await expect(response.json()).resolves.toMatchObject({
       pulses: [
         {
-          id: 'pulse-1',
+          pulseId: 'pulse-1',
           publishedAt: '2026-04-15T00:00:00.000Z',
           originalDueDate: '2026-03-15',
           newDueDate: '2026-10-15',
@@ -166,7 +175,7 @@ describe('opsPulseRoute', () => {
       '/api/ops/pulse/pulse-1/quarantine',
       authed({
         method: 'POST',
-        body: JSON.stringify({ reason: 'Source excerpt mismatch' }),
+        body: JSON.stringify({ reviewedBy: 'ops-user', reason: 'Source excerpt mismatch' }),
       }),
       env(),
     )
@@ -181,10 +190,84 @@ describe('opsPulseRoute', () => {
     expect(repoMocks.rejectPulse).toHaveBeenCalledWith({
       pulseId: 'pulse-1',
       reviewedBy: 'ops-user',
+      reason: null,
     })
     expect(repoMocks.quarantinePulse).toHaveBeenCalledWith({
       pulseId: 'pulse-1',
+      actorId: 'ops-user',
       reason: 'Source excerpt mismatch',
+    })
+  })
+
+  it('manages source signals and source health from ops routes', async () => {
+    const signal = {
+      id: 'signal-1',
+      sourceId: 'fema.declarations',
+      externalId: 'fema-1',
+      title: 'FEMA declaration',
+      officialSourceUrl: 'https://www.fema.gov',
+      publishedAt: new Date('2026-04-30T00:00:00.000Z'),
+      fetchedAt: new Date('2026-04-30T00:05:00.000Z'),
+      contentHash: 'hash',
+      rawR2Key: 'pulse/fema.txt',
+      tier: 'T2',
+      jurisdiction: 'CA',
+      signalType: 'anticipated_pulse',
+      status: 'open',
+      linkedPulseId: null,
+    }
+    repoMocks.listSourceSignals.mockResolvedValueOnce([signal])
+    repoMocks.linkOpenSignalsToPulses.mockResolvedValueOnce({ linked: 1, inspected: 1 })
+    repoMocks.linkSourceSignal.mockResolvedValueOnce({
+      ...signal,
+      status: 'linked',
+      linkedPulseId: 'pulse-1',
+    })
+    repoMocks.dismissSourceSignal.mockResolvedValueOnce({ ...signal, status: 'dismissed' })
+    repoMocks.revokeSourcePulses.mockResolvedValueOnce({ revokedCount: 2 })
+
+    const app = createTestApp()
+    const list = await app.request('/api/ops/pulse/signals?status=open', authed(), env())
+    const autoLink = await app.request(
+      '/api/ops/pulse/signals/link-open',
+      authed({ method: 'POST' }),
+      env(),
+    )
+    const manualLink = await app.request(
+      '/api/ops/pulse/signals/signal-1/link',
+      authed({ method: 'POST', body: JSON.stringify({ pulseId: 'pulse-1' }) }),
+      env(),
+    )
+    const dismiss = await app.request(
+      '/api/ops/pulse/signals/signal-1/dismiss',
+      authed({ method: 'POST' }),
+      env(),
+    )
+    const disable = await app.request(
+      '/api/ops/pulse/sources/fema.declarations/disable',
+      authed({ method: 'POST' }),
+      env(),
+    )
+    const revoke = await app.request(
+      '/api/ops/pulse/sources/fema.declarations/revoke',
+      authed({ method: 'POST', body: JSON.stringify({ actorId: 'ops-user', reason: 'Takedown' }) }),
+      env(),
+    )
+
+    expect(list.status).toBe(200)
+    expect(autoLink.status).toBe(200)
+    expect(manualLink.status).toBe(200)
+    expect(dismiss.status).toBe(200)
+    expect(disable.status).toBe(200)
+    expect(revoke.status).toBe(200)
+    expect(repoMocks.setSourceEnabled).toHaveBeenCalledWith({
+      sourceId: 'fema.declarations',
+      enabled: false,
+    })
+    expect(repoMocks.revokeSourcePulses).toHaveBeenCalledWith({
+      sourceId: 'fema.declarations',
+      actorId: 'ops-user',
+      reason: 'Takedown',
     })
   })
 })

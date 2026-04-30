@@ -32,10 +32,10 @@ Engine migration.
 
 ## Notes
 
-- Apply is still the documented Phase 0 write path: it updates
-  `obligation_instance.current_due_date` and records `pulse_application` as the revert anchor.
-- Overlay Engine / ExceptionRule remains the next major migration and should not be mixed into the
-  pilot hardening change.
+- Superseded later on 2026-04-30 by the Overlay cutover in
+  `2026-04-30-pulse-overlay-ops-hardening.md`: Pulse apply now writes
+  `exception_rule` + `obligation_exception_application` and keeps `pulse_application` as the
+  compatibility audit/revert index.
 
 ## Validation
 

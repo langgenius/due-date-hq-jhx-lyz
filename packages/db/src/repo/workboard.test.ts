@@ -28,7 +28,13 @@ function createFakeDb(rows: FakeRow[]) {
   const where = vi.fn(() => ({ orderBy }))
   const innerJoin = vi.fn(() => ({ where }))
   const from = vi.fn(() => ({ innerJoin }))
-  const select = vi.fn(() => ({ from }))
+  const overlayOrderBy = vi.fn(async () => [])
+  const overlayWhere = vi.fn(() => ({ orderBy: overlayOrderBy }))
+  const overlayInnerJoin = vi.fn(() => ({ where: overlayWhere }))
+  const overlayFrom = vi.fn(() => ({ innerJoin: overlayInnerJoin }))
+  const select = vi.fn((shape?: Record<string, unknown>) =>
+    shape && 'overrideDueDate' in shape ? { from: overlayFrom } : { from },
+  )
 
   return {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- focused Drizzle test double.
@@ -37,6 +43,7 @@ function createFakeDb(rows: FakeRow[]) {
     where,
     orderBy,
     limit,
+    overlayOrderBy,
   }
 }
 
@@ -77,7 +84,7 @@ describe('makeWorkboardRepo.list', () => {
 
     expect(result.rows).toHaveLength(2)
     expect(result.nextCursor).toBeNull()
-    expect(fake.limit).toHaveBeenCalledWith(51)
+    expect(fake.limit).toHaveBeenCalledWith(1000)
   })
 
   it('emits nextCursor when more rows exist (sentinel detection)', async () => {
@@ -119,10 +126,10 @@ describe('makeWorkboardRepo.list', () => {
     const repo = makeWorkboardRepo(fake.db, 'firm_a')
 
     await repo.list({ limit: 9999 })
-    expect(fake.limit).toHaveBeenLastCalledWith(101)
+    expect(fake.limit).toHaveBeenLastCalledWith(1000)
 
     await repo.list({ limit: 0 })
-    expect(fake.limit).toHaveBeenLastCalledWith(2)
+    expect(fake.limit).toHaveBeenLastCalledWith(1000)
   })
 
   it('decodes invalid cursor gracefully (treats as no cursor)', async () => {

@@ -17,6 +17,7 @@ export const PulseAuditActions = [
   'pulse.reject',
   'pulse.dismiss',
   'pulse.quarantine',
+  'pulse.source_revoked',
   'pulse.snooze',
   'pulse.apply',
   'pulse.revert',

@@ -467,6 +467,7 @@ export const femaDeclarationsAdapter: SourceAdapter = {
           title,
           publishedAt,
           officialSourceUrl: FEMA_DECLARATIONS_URL,
+          jurisdiction: state,
           rawText: textExcerpt(
             [
               title,

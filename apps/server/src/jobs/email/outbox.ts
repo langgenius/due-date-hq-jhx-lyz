@@ -10,6 +10,7 @@ export interface EmailFlushQueueMessage {
 }
 
 type FlushRowResult = 'sent' | 'failed' | 'skipped'
+type PulseDigestEvent = 'pulse_approved' | 'pulse_applied'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -20,15 +21,39 @@ function readRecipients(payload: unknown): string[] {
   return payload.recipients.filter((value): value is string => typeof value === 'string')
 }
 
+function readPulseDigestEvent(payload: unknown): PulseDigestEvent {
+  if (!isRecord(payload)) return 'pulse_applied'
+  return payload.event === 'pulse_approved' ? 'pulse_approved' : 'pulse_applied'
+}
+
+function pulseDigestSubject(payload: unknown): string {
+  return readPulseDigestEvent(payload) === 'pulse_approved'
+    ? 'Pulse deadline update available'
+    : 'Pulse deadline update applied'
+}
+
 function pulseDigestText(payload: unknown): string {
   if (!isRecord(payload)) return 'Pulse digest'
   const summary = typeof payload.summary === 'string' ? payload.summary : 'Pulse digest'
   const obligations = Array.isArray(payload.obligations) ? payload.obligations : []
+  const event = readPulseDigestEvent(payload)
   const lines = obligations.filter(isRecord).map((item) => {
     const clientName = typeof item.clientName === 'string' ? item.clientName : 'Client'
-    const before = typeof item.beforeDueDate === 'string' ? item.beforeDueDate : 'previous date'
-    const after = typeof item.afterDueDate === 'string' ? item.afterDueDate : 'new date'
-    return `- ${clientName}: ${before} -> ${after}`
+    const before =
+      typeof item.beforeDueDate === 'string'
+        ? item.beforeDueDate
+        : typeof item.currentDueDate === 'string'
+          ? item.currentDueDate
+          : 'previous date'
+    const after =
+      typeof item.afterDueDate === 'string'
+        ? item.afterDueDate
+        : typeof item.newDueDate === 'string'
+          ? item.newDueDate
+          : 'new date'
+    const reviewSuffix =
+      event === 'pulse_approved' && item.matchStatus === 'needs_review' ? ' (needs review)' : ''
+    return `- ${clientName}: ${before} -> ${after}${reviewSuffix}`
   })
   return [summary, '', ...lines].join('\n')
 }
@@ -60,7 +85,7 @@ async function processOutboxRow(
     const { error } = await resend.emails.send({
       from: env.EMAIL_FROM,
       to: recipients,
-      subject: 'Pulse deadline update applied',
+      subject: pulseDigestSubject(row.payloadJson),
       text: pulseDigestText(row.payloadJson),
       tags: [
         { name: 'outbox_id', value: row.id },

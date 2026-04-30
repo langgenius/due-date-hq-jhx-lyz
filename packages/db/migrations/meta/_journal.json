@@ -85,6 +85,13 @@
       "when": 1777480277246,
       "tag": "0011_natural_yellow_claw",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1777515002674,
+      "tag": "0012_powerful_sinister_six",
+      "breakpoints": true
     }
   ]
 }

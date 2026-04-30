@@ -51,6 +51,7 @@ export interface ParsedItem {
   publishedAt: Date
   officialSourceUrl: string
   rawText: string
+  jurisdiction?: string
 }
 
 export interface SourceAdapter {
@@ -59,6 +60,7 @@ export interface SourceAdapter {
   readonly cronIntervalMs: number
   readonly jurisdiction: SourceJurisdiction
   readonly canCreatePulse?: boolean
+  readonly fetcher?: 'cloudflare' | 'browserless' | 'govdelivery'
   fetch(ctx: IngestCtx): Promise<RawSnapshot[]>
   parse(snapshot: RawSnapshot, ctx: IngestCtx): Promise<ParsedItem[]>
 }

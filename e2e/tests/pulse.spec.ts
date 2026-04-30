@@ -33,8 +33,8 @@ test.describe('seeded Pulse alerts', () => {
     await expect(authenticatedPage.getByText(/Applied to 1 clients?/)).toBeVisible()
 
     await workboardPage.goto()
-    await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('Oct 15, 2026')
-    await expect(workboardPage.rowFor('Bright Studio S-Corp')).toContainText('Mar 15, 2026')
+    await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('2026-10-15')
+    await expect(workboardPage.rowFor('Bright Studio S-Corp')).toContainText('2026-03-15')
 
     await appShellPage.goto('/audit?action=pulse.apply&range=all')
     await expect(authenticatedPage.getByText('pulse.apply')).toBeVisible()
@@ -50,7 +50,7 @@ test.describe('seeded Pulse alerts', () => {
     await expect(authenticatedPage.getByText(/Reverted 1 clients?/)).toBeVisible()
 
     await workboardPage.goto()
-    await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('Mar 15, 2026')
+    await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('2026-03-15')
   })
 
   test.describe('coordinator role', () => {

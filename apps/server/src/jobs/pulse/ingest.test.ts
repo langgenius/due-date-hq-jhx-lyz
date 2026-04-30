@@ -70,6 +70,7 @@ function adapter(overrides: Partial<SourceAdapter> = {}): SourceAdapter {
           title: 'FEMA declaration',
           publishedAt: new Date('2026-04-29T00:00:00.000Z'),
           officialSourceUrl: 'https://www.fema.gov/disaster/123',
+          jurisdiction: 'CA',
           rawText: 'FEMA declaration raw text',
         },
       ]
@@ -103,6 +104,7 @@ describe('runPulseIngest', () => {
     expect(repoMocks.createSourceSignal).toHaveBeenCalledWith(
       expect.objectContaining({
         sourceId: 'fema.declarations',
+        jurisdiction: 'CA',
         signalType: 'anticipated_pulse',
       }),
     )

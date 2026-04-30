@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull, lte, notInArray, or } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray, isNull, lte, or } from 'drizzle-orm'
 import type { BatchItem } from 'drizzle-orm/batch'
 import type { Db } from '../client'
 import { auditEvent, evidenceLink, type NewAuditEvent, type NewEvidenceLink } from '../schema/audit'
@@ -6,6 +6,12 @@ import { member, user } from '../schema/auth'
 import { client, type ClientEntityType } from '../schema/clients'
 import { emailOutbox, type NewEmailOutbox } from '../schema/notifications'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
+import {
+  exceptionRule,
+  obligationExceptionApplication,
+  type NewExceptionRule,
+  type NewObligationExceptionApplication,
+} from '../schema/overlay'
 import {
   pulse,
   pulseApplication,
@@ -36,6 +42,8 @@ const OPEN_OBLIGATION_STATUSES: ObligationStatus[] = [
   'review',
 ]
 const APPLICATION_BATCH_SIZE = Math.floor(100 / 9)
+const EXCEPTION_RULE_BATCH_SIZE = Math.floor(100 / 18)
+const EXCEPTION_APPLICATION_BATCH_SIZE = Math.floor(100 / 8)
 const EVIDENCE_BATCH_SIZE = Math.floor(100 / 17)
 const AUDIT_BATCH_SIZE = Math.floor(100 / 12)
 const EMAIL_BATCH_SIZE = 1
@@ -335,6 +343,16 @@ interface PulseDigestObligationRow {
   currentDueDate: Date
   matchStatus: 'eligible' | 'needs_review'
   reason: string | null
+}
+
+export interface PulseSourceSignalListInput {
+  limit?: number
+  status?: PulseSourceSignalRow['status']
+}
+
+export interface PulseSignalLinkResult {
+  linked: number
+  inspected: number
 }
 
 export class PulseRepoError extends Error {
@@ -980,6 +998,27 @@ export function makePulseRepo(db: Db, firmId: string) {
       const eligible = await listFreshEligibleRows(alert, requestedIds, confirmedReviewIds)
 
       const revertExpiresAt = new Date(now.getTime() + REVERT_WINDOW_MS)
+      const exceptionRuleId = crypto.randomUUID()
+      const exception: NewExceptionRule = {
+        id: exceptionRuleId,
+        firmId,
+        sourcePulseId: alert.pulseId,
+        jurisdiction: alert.parsedJurisdiction,
+        counties: alert.parsedCounties,
+        affectedForms: alert.parsedForms,
+        affectedEntityTypes: alert.parsedEntityTypes,
+        overrideType: 'extend_due_date',
+        overrideValueJson: {
+          originalDueDate: toDateOnly(alert.parsedOriginalDueDate),
+          newDueDate: toDateOnly(alert.parsedNewDueDate),
+        },
+        overrideDueDate: alert.parsedNewDueDate,
+        effectiveFrom: alert.parsedEffectiveFrom,
+        effectiveUntil: null,
+        status: 'applied',
+        sourceUrl: alert.sourceUrl,
+        verbatimQuote: alert.verbatimQuote,
+      }
       const applications: NewPulseApplication[] = eligible.map((row) => ({
         id: crypto.randomUUID(),
         pulseId: alert.pulseId,
@@ -990,6 +1029,16 @@ export function makePulseRepo(db: Db, firmId: string) {
         appliedAt: now,
         beforeDueDate: row.currentDueDate,
         afterDueDate: alert.parsedNewDueDate,
+      }))
+      const exceptionApplications: NewObligationExceptionApplication[] = eligible.map((row) => ({
+        id: crypto.randomUUID(),
+        firmId,
+        obligationInstanceId: row.obligationId,
+        exceptionRuleId,
+        appliedAt: now,
+        appliedByUserId: input.userId,
+        revertedAt: null,
+        revertedByUserId: null,
       }))
       const evidence: NewEvidenceLink[] = eligible.map((row) => ({
         id: crypto.randomUUID(),
@@ -1077,20 +1126,11 @@ export function makePulseRepo(db: Db, firmId: string) {
       const nextStatus: PulseFirmAlertStatus =
         remainingMatchedCount + remainingNeedsReviewCount > 0 ? 'partially_applied' : 'applied'
       const queries: BatchItem<'sqlite'>[] = []
-      for (const row of eligible) {
-        queries.push(
-          db
-            .update(obligationInstance)
-            .set({ currentDueDate: alert.parsedNewDueDate })
-            .where(
-              and(
-                eq(obligationInstance.firmId, firmId),
-                eq(obligationInstance.id, row.obligationId),
-                eq(obligationInstance.currentDueDate, row.currentDueDate),
-                notInArray(obligationInstance.status, ['done', 'not_applicable']),
-              ),
-            ),
-        )
+      for (const chunk of chunkRows([exception], EXCEPTION_RULE_BATCH_SIZE)) {
+        queries.push(db.insert(exceptionRule).values(chunk))
+      }
+      for (const chunk of chunkRows(exceptionApplications, EXCEPTION_APPLICATION_BATCH_SIZE)) {
+        queries.push(db.insert(obligationExceptionApplication).values(chunk))
       }
       for (const chunk of chunkRows(applications, APPLICATION_BATCH_SIZE)) {
         queries.push(db.insert(pulseApplication).values(chunk))
@@ -1240,7 +1280,41 @@ export function makePulseRepo(db: Db, firmId: string) {
       if (now.getTime() > firstAppliedAt.getTime() + REVERT_WINDOW_MS) {
         throw new PulseRepoError('revert_expired')
       }
-      if (applications.some((row) => !sameTimestamp(row.currentDueDate, row.afterDueDate))) {
+      const exceptionRows = await db
+        .select({
+          id: obligationExceptionApplication.id,
+          obligationId: obligationExceptionApplication.obligationInstanceId,
+          exceptionRuleId: obligationExceptionApplication.exceptionRuleId,
+          overrideDueDate: exceptionRule.overrideDueDate,
+        })
+        .from(obligationExceptionApplication)
+        .innerJoin(
+          exceptionRule,
+          eq(obligationExceptionApplication.exceptionRuleId, exceptionRule.id),
+        )
+        .where(
+          and(
+            eq(obligationExceptionApplication.firmId, firmId),
+            inArray(
+              obligationExceptionApplication.obligationInstanceId,
+              applications.map((row) => row.obligationId),
+            ),
+            isNull(obligationExceptionApplication.revertedAt),
+            eq(exceptionRule.sourcePulseId, alert.pulseId),
+            inArray(exceptionRule.status, ['verified', 'applied']),
+          ),
+        )
+        .orderBy(asc(obligationExceptionApplication.appliedAt))
+      const exceptionByObligation = new Map(exceptionRows.map((row) => [row.obligationId, row]))
+      if (
+        applications.some((row) => {
+          const activeException = exceptionByObligation.get(row.obligationId)
+          return (
+            !activeException?.overrideDueDate ||
+            !sameTimestamp(activeException.overrideDueDate, row.afterDueDate)
+          )
+        })
+      ) {
         throw new PulseRepoError('conflict')
       }
 
@@ -1286,20 +1360,6 @@ export function makePulseRepo(db: Db, firmId: string) {
       }))
 
       const queries: BatchItem<'sqlite'>[] = []
-      for (const row of applications) {
-        queries.push(
-          db
-            .update(obligationInstance)
-            .set({ currentDueDate: row.beforeDueDate })
-            .where(
-              and(
-                eq(obligationInstance.firmId, firmId),
-                eq(obligationInstance.id, row.obligationId),
-                eq(obligationInstance.currentDueDate, row.afterDueDate),
-              ),
-            ),
-        )
-      }
       queries.push(
         db
           .update(pulseApplication)
@@ -1309,6 +1369,36 @@ export function makePulseRepo(db: Db, firmId: string) {
               eq(pulseApplication.firmId, firmId),
               eq(pulseApplication.pulseId, alert.pulseId),
               isNull(pulseApplication.revertedAt),
+            ),
+          ),
+      )
+      queries.push(
+        db
+          .update(obligationExceptionApplication)
+          .set({ revertedAt: now, revertedByUserId: input.userId })
+          .where(
+            and(
+              eq(obligationExceptionApplication.firmId, firmId),
+              inArray(
+                obligationExceptionApplication.id,
+                exceptionRows.map((row) => row.id),
+              ),
+              isNull(obligationExceptionApplication.revertedAt),
+            ),
+          ),
+      )
+      queries.push(
+        db
+          .update(exceptionRule)
+          .set({ status: 'retracted' })
+          .where(
+            and(
+              eq(exceptionRule.firmId, firmId),
+              inArray(
+                exceptionRule.id,
+                Array.from(new Set(exceptionRows.map((row) => row.exceptionRuleId))),
+              ),
+              eq(exceptionRule.sourcePulseId, alert.pulseId),
             ),
           ),
       )
@@ -1514,7 +1604,7 @@ export function makePulseOpsRepo(db: Db) {
   async function writePulseAlertAuditForOps(input: {
     pulseId: string
     actorId: string | null
-    action: 'pulse.reject' | 'pulse.quarantine'
+    action: 'pulse.reject' | 'pulse.quarantine' | 'pulse.source_revoked'
     beforeStatus: string
     afterStatus: string
     reason?: string | null
@@ -1736,6 +1826,155 @@ export function makePulseOpsRepo(db: Db) {
       return { signal: toSourceSignal(signal), inserted: signal.id === id }
     },
 
+    async listSourceSignals(
+      opts: PulseSourceSignalListInput = {},
+    ): Promise<PulseSourceSignalRow[]> {
+      const limit = Math.min(Math.max(opts.limit ?? 50, 1), 100)
+      const statusFilter = opts.status ? eq(pulseSourceSignal.status, opts.status) : undefined
+      const rows = await db
+        .select()
+        .from(pulseSourceSignal)
+        .where(statusFilter)
+        .orderBy(desc(pulseSourceSignal.publishedAt), desc(pulseSourceSignal.createdAt))
+        .limit(limit)
+      return rows.map(toSourceSignal)
+    },
+
+    async linkSourceSignal(input: {
+      signalId: string
+      pulseId: string
+    }): Promise<PulseSourceSignalRow> {
+      const linkedPulse = await getPulse(input.pulseId)
+      if (!linkedPulse) throw new PulseRepoError('not_found')
+      await db
+        .update(pulseSourceSignal)
+        .set({ status: 'linked', linkedPulseId: input.pulseId })
+        .where(eq(pulseSourceSignal.id, input.signalId))
+      const rows = await db
+        .select()
+        .from(pulseSourceSignal)
+        .where(eq(pulseSourceSignal.id, input.signalId))
+        .limit(1)
+      const row = rows[0]
+      if (!row) throw new PulseRepoError('not_found')
+      return toSourceSignal(row)
+    },
+
+    async dismissSourceSignal(signalId: string): Promise<PulseSourceSignalRow> {
+      await db
+        .update(pulseSourceSignal)
+        .set({ status: 'dismissed' })
+        .where(eq(pulseSourceSignal.id, signalId))
+      const rows = await db
+        .select()
+        .from(pulseSourceSignal)
+        .where(eq(pulseSourceSignal.id, signalId))
+        .limit(1)
+      const row = rows[0]
+      if (!row) throw new PulseRepoError('not_found')
+      return toSourceSignal(row)
+    },
+
+    async linkOpenSignalsToPulses(
+      opts: { windowDays?: number } = {},
+    ): Promise<PulseSignalLinkResult> {
+      const windowMs = (opts.windowDays ?? 30) * 24 * 60 * 60 * 1000
+      const signals = await db
+        .select()
+        .from(pulseSourceSignal)
+        .where(eq(pulseSourceSignal.status, 'open'))
+        .orderBy(desc(pulseSourceSignal.publishedAt))
+        .limit(100)
+      const linkedResults = await Promise.all(
+        signals.map(async (signal) => {
+          const earliest = new Date(signal.publishedAt.getTime() - windowMs)
+          const latest = new Date(signal.publishedAt.getTime() + windowMs)
+          const candidates = await db
+            .select({ id: pulse.id })
+            .from(pulse)
+            .where(
+              and(
+                inArray(pulse.status, ['pending_review', 'approved']),
+                eq(pulse.parsedJurisdiction, signal.jurisdiction),
+                gte(pulse.publishedAt, earliest),
+                lte(pulse.publishedAt, latest),
+              ),
+            )
+            .orderBy(desc(pulse.publishedAt))
+            .limit(1)
+          const candidate = candidates[0]
+          if (!candidate) return 0
+          await db
+            .update(pulseSourceSignal)
+            .set({ status: 'linked', linkedPulseId: candidate.id })
+            .where(eq(pulseSourceSignal.id, signal.id))
+          return 1
+        }),
+      )
+      const linked = linkedResults.filter((count) => count > 0).length
+      return { linked, inspected: signals.length }
+    },
+
+    async setSourceEnabled(input: {
+      sourceId: string
+      enabled: boolean
+      now?: Date
+    }): Promise<void> {
+      const now = input.now ?? new Date()
+      await db
+        .update(pulseSourceState)
+        .set({
+          enabled: input.enabled,
+          healthStatus: input.enabled ? 'degraded' : 'paused',
+          nextCheckAt: input.enabled ? now : null,
+          ...(input.enabled ? { lastError: null } : {}),
+        })
+        .where(eq(pulseSourceState.sourceId, input.sourceId))
+    },
+
+    async revokeSourcePulses(input: {
+      sourceId: string
+      actorId: string
+      reason?: string | null
+      now?: Date
+    }): Promise<{ revokedCount: number }> {
+      const rows = await db
+        .select({ id: pulse.id, status: pulse.status })
+        .from(pulse)
+        .where(
+          and(
+            eq(pulse.source, input.sourceId),
+            inArray(pulse.status, ['pending_review', 'approved', 'quarantined']),
+          ),
+        )
+      await db
+        .update(pulse)
+        .set({
+          status: 'source_revoked',
+          reviewedBy: input.actorId,
+          reviewedAt: input.now ?? new Date(),
+        })
+        .where(
+          and(
+            eq(pulse.source, input.sourceId),
+            inArray(pulse.status, ['pending_review', 'approved', 'quarantined']),
+          ),
+        )
+      await Promise.all(
+        rows.map((row) =>
+          writePulseAlertAuditForOps({
+            pulseId: row.id,
+            actorId: input.actorId,
+            action: 'pulse.source_revoked',
+            beforeStatus: row.status,
+            afterStatus: 'source_revoked',
+            reason: input.reason ?? null,
+          }),
+        ),
+      )
+      return { revokedCount: rows.length }
+    },
+
     async getSourceSnapshot(snapshotId: string): Promise<PulseSourceSnapshotRow | undefined> {
       const rows = await db
         .select()
@@ -1955,7 +2194,12 @@ export function makePulseOpsRepo(db: Db) {
       return { alertCount }
     },
 
-    async rejectPulse(input: { pulseId: string; reviewedBy: string; now?: Date }): Promise<void> {
+    async rejectPulse(input: {
+      pulseId: string
+      reviewedBy: string
+      reason?: string | null
+      now?: Date
+    }): Promise<void> {
       const rows = await db.select().from(pulse).where(eq(pulse.id, input.pulseId)).limit(1)
       const current = rows[0]
       if (!current) throw new PulseRepoError('not_found')
@@ -1973,17 +2217,30 @@ export function makePulseOpsRepo(db: Db) {
         action: 'pulse.reject',
         beforeStatus: current.status,
         afterStatus: 'rejected',
+        reason: input.reason ?? null,
       })
     },
 
-    async quarantinePulse(input: { pulseId: string; reason?: string }): Promise<void> {
+    async quarantinePulse(input: {
+      pulseId: string
+      actorId: string
+      reason?: string | null
+      now?: Date
+    }): Promise<void> {
       const rows = await db.select().from(pulse).where(eq(pulse.id, input.pulseId)).limit(1)
       const current = rows[0]
       if (!current) throw new PulseRepoError('not_found')
-      await db.update(pulse).set({ status: 'quarantined' }).where(eq(pulse.id, input.pulseId))
+      await db
+        .update(pulse)
+        .set({
+          status: 'quarantined',
+          reviewedBy: input.actorId,
+          reviewedAt: input.now ?? new Date(),
+        })
+        .where(eq(pulse.id, input.pulseId))
       await writePulseAlertAuditForOps({
         pulseId: input.pulseId,
-        actorId: null,
+        actorId: input.actorId,
         action: 'pulse.quarantine',
         beforeStatus: current.status,
         afterStatus: 'quarantined',

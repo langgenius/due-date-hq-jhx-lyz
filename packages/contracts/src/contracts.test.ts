@@ -359,6 +359,7 @@ describe('@duedatehq/contracts', () => {
     expect(PulseAuditActionSchema.parse('pulse.apply')).toBe('pulse.apply')
     expect(PulseAuditActionSchema.parse('pulse.dismiss')).toBe('pulse.dismiss')
     expect(PulseAuditActionSchema.parse('pulse.quarantine')).toBe('pulse.quarantine')
+    expect(PulseAuditActionSchema.parse('pulse.source_revoked')).toBe('pulse.source_revoked')
     expect(PulseAuditActionSchema.parse('pulse.snooze')).toBe('pulse.snooze')
     expect(AuditActionSchema.parse('pulse.revert')).toBe('pulse.revert')
     expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')

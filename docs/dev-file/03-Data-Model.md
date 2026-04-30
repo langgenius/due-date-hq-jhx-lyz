@@ -16,7 +16,8 @@ packages/db/
 │   │   │                            / organization / member / invitation）
 │   │   ├── firm.ts              ← firm_profile（业务租户表；PK = organization.id）
 │   │   ├── clients.ts
-│   │   ├── obligations.ts       ← rule + instance + exception（Phase 1）
+│   │   ├── obligations.ts       ← rule + instance
+│   │   ├── overlay.ts           ← exception_rule + obligation_exception_application
 │   │   ├── migration.ts
 │   │   ├── pulse.ts
 │   │   ├── ai.ts                ← ai_output + llm_log
@@ -192,24 +193,27 @@ Drizzle schema: `packages/db/src/schema/clients.ts`。Demo Sprint 子集已兑�
 
 Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 `obligation_rule` FK；Migration 直接写 `tax_type` + `base_due_date`，Phase 1 再回填 Rules-as-Asset。
 
-| 字段                                                                               | 备注                                                         |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `id` / `firm_id` / `client_id` / `rule_id` / `rule_version`                        |                                                              |
-| `tax_year` / `period`                                                              |                                                              |
-| `original_due_date`                                                                | 规则生成时的原始日期，**永不变**                             |
-| `base_due_date`                                                                    | base rule 最新计算值                                         |
-| `current_due_date`                                                                 | Phase 0 直接 = base；Phase 1 = base + apply(active overlays) |
-| `filing_due_date` / `payment_due_date`                                             |                                                              |
-| `status ∈ (pending, in_progress, done, waiting_on_client, review, not_applicable)` | Demo Sprint 子集；Phase 1 再映射完整 Workboard 状态          |
-| `readiness ∈ (ready, waiting, needs_review)`                                       |                                                              |
-| `extension_decision`                                                               | JSON                                                         |
-| `estimated_tax_due_cents` / `estimated_exposure_cents`                             | Penalty Radar 预聚合                                         |
-| `assignee_id` / `notes`                                                            |                                                              |
-| `migration_batch_id`                                                               |                                                              |
-| `last_changed_by`                                                                  |                                                              |
-| `created_at` / `updated_at`                                                        |                                                              |
+| 字段                                                                               | 备注                                                                                                  |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `id` / `firm_id` / `client_id` / `rule_id` / `rule_version`                        |                                                                                                       |
+| `tax_year` / `period`                                                              |                                                                                                       |
+| `original_due_date`                                                                | 规则生成时的原始日期，**永不变**                                                                      |
+| `base_due_date`                                                                    | base rule 最新计算值                                                                                  |
+| `current_due_date`                                                                 | Stored legacy/base value；Pulse read models derive effective current date from base + active overlays |
+| `filing_due_date` / `payment_due_date`                                             |                                                                                                       |
+| `status ∈ (pending, in_progress, done, waiting_on_client, review, not_applicable)` | Demo Sprint 子集；Phase 1 再映射完整 Workboard 状态                                                   |
+| `readiness ∈ (ready, waiting, needs_review)`                                       |                                                                                                       |
+| `extension_decision`                                                               | JSON                                                                                                  |
+| `estimated_tax_due_cents` / `estimated_exposure_cents`                             | Penalty Radar 预聚合                                                                                  |
+| `assignee_id` / `notes`                                                            |                                                                                                       |
+| `migration_batch_id`                                                               |                                                                                                       |
+| `last_changed_by`                                                                  |                                                                                                       |
+| `created_at` / `updated_at`                                                        |                                                                                                       |
 
-**exception_rule**（Phase 1 · Overlay Engine）
+**exception_rule**（Overlay Engine）
+
+Drizzle schema: `packages/db/src/schema/overlay.ts`。Migration
+`0012_powerful_sinister_six.sql` starts the Pulse-backed due-date overlay path.
 
 | 字段                                                                           | 备注                                                                                 |
 | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
@@ -223,11 +227,17 @@ Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 
 
 **obligation_exception_application**（多对多）
 
-| 字段                                                 |     |
-| ---------------------------------------------------- | --- |
-| `obligation_instance_id` / `exception_rule_id`（PK） |     |
-| `applied_at` / `applied_by_user_id`                  |     |
-| `reverted_at` / `reverted_by_user_id`                |     |
+| 字段                                           |                                                 |
+| ---------------------------------------------- | ----------------------------------------------- |
+| `id` / `firm_id`                               |                                                 |
+| `obligation_instance_id` / `exception_rule_id` | Unique active anchor per obligation + exception |
+| `applied_at` / `applied_by_user_id`            |                                                 |
+| `reverted_at` / `reverted_by_user_id`          |                                                 |
+
+Pulse apply writes one source-backed `exception_rule` plus one
+`obligation_exception_application` per selected obligation. Workboard, Dashboard, and obligation
+detail reads overlay active exception applications on top of obligation base rows; revert expires the
+application rows and retracts the source-backed exception rule.
 
 ### 2.3 Pulse 链路
 
@@ -255,11 +265,11 @@ Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 
 
 **pulse_application**
 
-| 字段                                                                   | 备注     |
-| ---------------------------------------------------------------------- | -------- |
-| `id` / `pulse_id` / `obligation_instance_id` / `client_id` / `firm_id` |          |
-| `applied_by` / `applied_at` / `reverted_at`                            |          |
-| `before_due_date` / `after_due_date`                                   | 审计必备 |
+| 字段                                                                   | 备注                                                                                  |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `id` / `pulse_id` / `obligation_instance_id` / `client_id` / `firm_id` |                                                                                       |
+| `applied_by` / `applied_at` / `reverted_at`                            |                                                                                       |
+| `before_due_date` / `after_due_date`                                   | 审计必备；兼容 revert/audit 索引，实际 effective due date 由 overlay application 控制 |
 
 `pulse_application` 是 obligation 级真实 Apply/Revert 记录；`pulse_firm_alert.status='applied'`
 只能由该 firm 下全部选中 application 推导或事务内同步写入，不能回写到全局 `pulse.status`。

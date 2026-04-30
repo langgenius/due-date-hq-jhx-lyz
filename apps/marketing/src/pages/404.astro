@@ -9,15 +9,15 @@ const ctaHref = getCtaHref()
 const t = en
 const nav = {
   ...t.nav,
-  links: t.nav.links.map((link) => ({
-    ...link,
-    href: link.href.startsWith('#') ? `/${link.href}` : link.href,
-  })),
+  links: t.nav.links.map((link) =>
+    Object.assign({}, link, {
+      href: link.href.startsWith('#') ? `/${link.href}` : link.href,
+    }),
+  ),
 }
-const routes = t.notFound.routes.map((route) => ({
-  ...route,
-  href: route.href === 'app' ? ctaHref : route.href,
-}))
+const routes = t.notFound.routes.map((route) =>
+  Object.assign({}, route, { href: route.href === 'app' ? ctaHref : route.href }),
+)
 ---
 
 <BaseLayout

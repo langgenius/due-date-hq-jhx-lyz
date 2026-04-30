@@ -11,6 +11,7 @@ import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
 import { dashboardBrief } from '../schema/dashboard'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
+import { listActiveOverlayDueDates } from './overlay'
 
 const OPEN_STATUSES: ObligationStatus[] = ['pending', 'in_progress', 'waiting_on_client', 'review']
 const EVIDENCE_BATCH_SIZE = 90
@@ -325,7 +326,17 @@ export function makeDashboardRepo(db: Db, firmId: string) {
         .limit(1000)
 
       const evidenceRows = await listEvidenceByObligations(rows.map((row) => row.obligationId))
-      const result = composeDashboardLoad(rows, evidenceRows, input)
+      const overlayDueDates = await listActiveOverlayDueDates(
+        db,
+        firmId,
+        rows.map((row) => row.obligationId),
+      )
+      const overlayRows = rows.map((row) =>
+        Object.assign({}, row, {
+          currentDueDate: overlayDueDates.get(row.obligationId) ?? row.currentDueDate,
+        }),
+      )
+      const result = composeDashboardLoad(overlayRows, evidenceRows, input)
       return {
         ...result,
         brief: await findLatestBrief({

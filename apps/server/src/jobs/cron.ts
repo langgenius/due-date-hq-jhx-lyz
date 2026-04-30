@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import type { Env } from '../env'
 import { enqueueDashboardBriefRefresh } from './dashboard-brief/enqueue'
 import { runPulseIngest } from './pulse/ingest'
+import { linkPulseSourceSignals } from './pulse/signals'
 
 function localTimeParts(
   timezone: string,
@@ -109,6 +110,7 @@ export async function scheduled(
   await Promise.all([
     enqueueScheduledDashboardBriefs(env, now),
     runPulseIngest(env),
+    linkPulseSourceSignals(env),
     env.EMAIL_QUEUE.send({ type: 'email.flush' }),
   ])
 }

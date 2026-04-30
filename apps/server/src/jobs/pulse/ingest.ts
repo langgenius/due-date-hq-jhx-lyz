@@ -1,4 +1,5 @@
 import { createDb, makePulseOpsRepo } from '@duedatehq/db'
+import { createSourceFetcherRegistry } from '@duedatehq/ingest'
 import { hashText } from '@duedatehq/ingest/http'
 import { livePulseAdapters } from '@duedatehq/ingest/adapters'
 import { RATE_LIMIT } from '@duedatehq/ingest/http'
@@ -118,11 +119,14 @@ async function ingestAdapter(
   }
 
   try {
-    const rawSnapshots = await adapter.fetch(ctx)
+    const cloudflareFetch: IngestCtx['fetch'] = (input, init) => ctx.fetch(input, init)
+    const sourceFetch = createSourceFetcherRegistry(cloudflareFetch)(adapter)
+    const adapterCtx: IngestCtx = { ...ctx, fetch: sourceFetch }
+    const rawSnapshots = await adapter.fetch(adapterCtx)
     const parsedGroups = await Promise.all(
       rawSnapshots.map(async (rawSnapshot) => ({
         rawSnapshot,
-        items: rawSnapshot.notModified ? [] : await adapter.parse(rawSnapshot, ctx),
+        items: rawSnapshot.notModified ? [] : await adapter.parse(rawSnapshot, adapterCtx),
       })),
     )
     const changedSnapshots = rawSnapshots.filter((snapshot) => !snapshot.notModified).length
@@ -151,7 +155,7 @@ async function ingestAdapter(
             contentHash: archived.contentHash,
             rawR2Key: archived.r2Key,
             tier: adapter.tier,
-            jurisdiction: adapter.jurisdiction,
+            jurisdiction: item.jurisdiction ?? adapter.jurisdiction,
             signalType: 'anticipated_pulse',
           })
           return {

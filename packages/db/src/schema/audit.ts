@@ -169,6 +169,7 @@ export const PULSE_AUDIT_ACTIONS = [
   'pulse.reject',
   'pulse.dismiss',
   'pulse.quarantine',
+  'pulse.source_revoked',
   'pulse.snooze',
   'pulse.apply',
   'pulse.revert',
