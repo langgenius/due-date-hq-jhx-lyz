@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import TopNav from '../components/TopNav.astro'
+import StateCoveragePage from '../components/StateCoveragePage.astro'
+import Footer from '../components/Footer.astro'
+import en from '../i18n/en'
+import { getCtaHref } from '../lib/app-url'
+import { stateCoverageStructuredData } from '../lib/structured-data'
+
+const t = en
+const page = t.geo.stateCoverage
+const pathname = '/state-coverage'
+const ctaHref = getCtaHref()
+---
+
+<BaseLayout
+  lang="en"
+  pathname={pathname}
+  title={page.meta.title}
+  description={page.meta.description}
+  ogImage={page.meta.ogImage}
+  structuredData={stateCoverageStructuredData(t, page, 'en', pathname)}
+>
+  <TopNav t={t.nav} ctaHref={ctaHref} />
+  <StateCoveragePage page={page} locale="en" />
+  <Footer
+    t={t.footer}
+    enHref="/state-coverage"
+    zhHref="/zh-CN/state-coverage"
+    currentLocale="en"
+  />
+</BaseLayout>

@@ -259,6 +259,111 @@ export interface PricingCopy {
   faq: { question: string; answer: string }[]
 }
 
+export interface FaqItemCopy {
+  question: string
+  answer: string
+}
+
+export interface GeoCardCopy {
+  title: string
+  body: string
+}
+
+export interface GeoSectionCopy {
+  eyebrow: string
+  title: string
+  body: string
+  items: GeoCardCopy[]
+}
+
+export interface ResourcePageCopy {
+  meta: MetaCopy
+  hero: {
+    eyebrow: string
+    title: string
+    description: string
+    note: string
+  }
+  sections: GeoSectionCopy[]
+  faqHeader: {
+    eyebrow: string
+    title: string
+  }
+  faq: FaqItemCopy[]
+  cta: {
+    title: string
+    body: string
+    primary: string
+    secondary: string
+  }
+}
+
+export interface StateCoverageCopy {
+  meta: MetaCopy
+  hero: {
+    eyebrow: string
+    title: string
+    description: string
+    note: string
+  }
+  statesHeader: {
+    eyebrow: string
+    title: string
+  }
+  states: {
+    slug: string
+    name: string
+    abbreviation: string
+    status: string
+    body: string
+    href: string
+  }[]
+  sourceModel: GeoSectionCopy
+  faqHeader: {
+    eyebrow: string
+    title: string
+  }
+  faq: FaqItemCopy[]
+}
+
+export interface StatePageCopy {
+  slug: string
+  name: string
+  abbreviation: string
+  meta: MetaCopy
+  hero: {
+    eyebrow: string
+    title: string
+    description: string
+    note: string
+  }
+  sourceTypes: GeoCardCopy[]
+  coveredSignals: GeoCardCopy[]
+  limitations: string[]
+  faq: FaqItemCopy[]
+}
+
+export interface GuidePageCopy extends ResourcePageCopy {
+  slug: string
+}
+
+export interface StructuredDataCopy {
+  organizationName: string
+  organizationDescription: string
+  websiteName: string
+  productName: string
+  productDescription: string
+  audience: string
+}
+
+export interface GeoCopy {
+  structuredData: StructuredDataCopy
+  rules: ResourcePageCopy
+  stateCoverage: StateCoverageCopy
+  states: StatePageCopy[]
+  guides: GuidePageCopy[]
+}
+
 export interface NotFoundCopy {
   meta: MetaCopy
   eyebrow: string
@@ -319,6 +424,7 @@ export interface LandingCopy {
   security: SecurityCopy
   finalCta: FinalCtaCopy
   pricing: PricingCopy
+  geo: GeoCopy
   notFound: NotFoundCopy
   footer: FooterCopy
 }

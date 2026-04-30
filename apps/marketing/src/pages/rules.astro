@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import TopNav from '../components/TopNav.astro'
+import GeoResourcePage from '../components/GeoResourcePage.astro'
+import Footer from '../components/Footer.astro'
+import en from '../i18n/en'
+import { getCtaHref } from '../lib/app-url'
+import { resourceStructuredData } from '../lib/structured-data'
+
+const t = en
+const page = t.geo.rules
+const pathname = '/rules'
+const ctaHref = getCtaHref()
+---
+
+<BaseLayout
+  lang="en"
+  pathname={pathname}
+  title={page.meta.title}
+  description={page.meta.description}
+  ogImage={page.meta.ogImage}
+  structuredData={resourceStructuredData(t, page, 'en', pathname)}
+>
+  <TopNav t={t.nav} ctaHref={ctaHref} />
+  <GeoResourcePage page={page} primaryHref="/state-coverage" secondaryHref="/pricing" />
+  <Footer t={t.footer} enHref="/rules" zhHref="/zh-CN/rules" currentLocale="en" />
+</BaseLayout>

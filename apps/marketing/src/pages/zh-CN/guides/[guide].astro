@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import TopNav from '../../../components/TopNav.astro'
+import GeoResourcePage from '../../../components/GeoResourcePage.astro'
+import Footer from '../../../components/Footer.astro'
+import zhCN from '../../../i18n/zh-CN'
+import type { GuidePageCopy } from '../../../i18n/types'
+import { getCtaHref } from '../../../lib/app-url'
+import { resourceStructuredData } from '../../../lib/structured-data'
+
+export function getStaticPaths() {
+  return zhCN.geo.guides.map((guide) => ({
+    params: { guide: guide.slug },
+    props: { page: guide },
+  }))
+}
+
+interface Props {
+  page: GuidePageCopy
+}
+
+const t = zhCN
+const { page } = Astro.props
+const enPathname = `/guides/${page.slug}`
+const pathname = `/zh-CN${enPathname}`
+const ctaHref = getCtaHref('zh-CN')
+const primaryHref =
+  page.slug === 'cpa-deadline-risk'
+    ? '/zh-CN/guides/evidence-backed-tax-deadline-software'
+    : '/zh-CN/rules'
+const secondaryHref = page.slug === 'cpa-deadline-risk' ? '/zh-CN/rules' : '/zh-CN/state-coverage'
+---
+
+<BaseLayout
+  lang="zh-CN"
+  pathname={pathname}
+  title={page.meta.title}
+  description={page.meta.description}
+  ogImage={page.meta.ogImage}
+  structuredData={resourceStructuredData(t, page, 'zh-CN', pathname)}
+>
+  <TopNav t={t.nav} ctaHref={ctaHref} />
+  <GeoResourcePage page={page} primaryHref={primaryHref} secondaryHref={secondaryHref} />
+  <Footer t={t.footer} enHref={enPathname} zhHref={pathname} currentLocale="zh-CN" />
+</BaseLayout>

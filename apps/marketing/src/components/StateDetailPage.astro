@@ -1,0 +1,156 @@
+---
+import type { StatePageCopy } from '../i18n/types'
+
+interface Props {
+  page: StatePageCopy
+  coverageHref: string
+  locale: 'en' | 'zh-CN'
+}
+
+const { page, coverageHref, locale } = Astro.props
+const labels =
+  locale === 'zh-CN'
+    ? {
+        sourceEyebrow: 'SOURCE TYPES',
+        sourceTitle: `${page.name} 的公开来源监控范围。`,
+        signalsEyebrow: 'COVERED SIGNALS',
+        signalsTitle: '哪些信号可以成为复核工作。',
+        limitsEyebrow: 'LIMITS',
+        limitsTitle: '覆盖边界。',
+        faqEyebrow: 'FAQ',
+        faqTitle: `${page.name} 覆盖常见问题。`,
+      }
+    : {
+        sourceEyebrow: 'SOURCE TYPES',
+        sourceTitle: `Public sources DueDateHQ monitors for ${page.name}.`,
+        signalsEyebrow: 'COVERED SIGNALS',
+        signalsTitle: 'What can become review work.',
+        limitsEyebrow: 'LIMITS',
+        limitsTitle: 'Coverage boundaries.',
+        faqEyebrow: 'FAQ',
+        faqTitle: `${page.name} coverage questions.`,
+      }
+---
+
+<main>
+  <section id="hero" class="border-b border-border-default bg-bg-canvas">
+    <div class="mx-auto max-w-[1440px] px-6 py-16 md:px-12 lg:px-20 lg:py-20">
+      <a
+        href={coverageHref}
+        class="font-mono text-[11px] font-medium tracking-[0.15em] text-text-accent"
+      >
+        {page.hero.eyebrow}
+      </a>
+      <h1
+        class="mt-5 max-w-[920px] text-display-large font-semibold leading-[1.1] tracking-tight text-text-primary"
+      >
+        {page.hero.title}
+      </h1>
+      <p class="mt-5 max-w-[820px] text-[17px] leading-[1.65] text-text-secondary">
+        {page.hero.description}
+      </p>
+      <p class="mt-6 max-w-[780px] font-mono text-[12px] leading-5 text-text-muted">
+        {page.hero.note}
+      </p>
+    </div>
+  </section>
+
+  <section class="border-b border-border-default bg-bg-canvas">
+    <div class="mx-auto grid max-w-[1440px] gap-10 px-6 py-14 md:px-12 lg:grid-cols-12 lg:px-20 lg:py-16">
+      <div class="lg:col-span-5">
+        <span class="font-mono text-[11px] font-medium tracking-[0.15em] text-text-accent">
+          {labels.sourceEyebrow}
+        </span>
+        <h2 class="mt-4 text-[28px] font-semibold leading-[1.2] tracking-tight text-text-primary">
+          {labels.sourceTitle}
+        </h2>
+      </div>
+      <div class="grid gap-4 lg:col-span-7 lg:grid-cols-3">
+        {
+          page.sourceTypes.map((item) => (
+            <article class="rounded-xl border border-border-default bg-bg-panel p-6">
+              <h3 class="text-[15px] font-semibold leading-[1.4] text-text-primary">
+                {item.title}
+              </h3>
+              <p class="mt-3 text-[13px] leading-[1.65] text-text-secondary">
+                {item.body}
+              </p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-border-default bg-bg-canvas">
+    <div class="mx-auto grid max-w-[1440px] gap-10 px-6 py-14 md:px-12 lg:grid-cols-12 lg:px-20 lg:py-16">
+      <div class="lg:col-span-5">
+        <span class="font-mono text-[11px] font-medium tracking-[0.15em] text-text-accent">
+          {labels.signalsEyebrow}
+        </span>
+        <h2 class="mt-4 text-[28px] font-semibold leading-[1.2] tracking-tight text-text-primary">
+          {labels.signalsTitle}
+        </h2>
+      </div>
+      <div class="grid gap-4 lg:col-span-7 lg:grid-cols-3">
+        {
+          page.coveredSignals.map((item) => (
+            <article class="rounded-xl border border-border-default bg-bg-panel p-6">
+              <h3 class="text-[15px] font-semibold leading-[1.4] text-text-primary">
+                {item.title}
+              </h3>
+              <p class="mt-3 text-[13px] leading-[1.65] text-text-secondary">
+                {item.body}
+              </p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-border-default bg-bg-canvas">
+    <div class="mx-auto max-w-[1440px] px-6 py-14 md:px-12 lg:px-20 lg:py-16">
+      <span class="font-mono text-[11px] font-medium tracking-[0.15em] text-text-accent">
+        {labels.limitsEyebrow}
+      </span>
+      <h2 class="mt-4 text-[24px] font-semibold leading-[1.25] tracking-tight text-text-primary">
+        {labels.limitsTitle}
+      </h2>
+      <ul class="mt-8 grid gap-4 lg:grid-cols-3">
+        {
+          page.limitations.map((item) => (
+            <li class="rounded-xl border border-border-default bg-bg-panel p-6 text-[13px] leading-[1.65] text-text-secondary">
+              {item}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-bg-canvas">
+    <div class="mx-auto max-w-[1440px] px-6 py-14 md:px-12 lg:px-20 lg:py-16">
+      <span class="font-mono text-[11px] font-medium tracking-[0.15em] text-text-accent">
+        {labels.faqEyebrow}
+      </span>
+      <h2 class="mt-4 text-[24px] font-semibold leading-[1.25] tracking-tight text-text-primary">
+        {labels.faqTitle}
+      </h2>
+      <div class="mt-8 grid gap-4 lg:grid-cols-2">
+        {
+          page.faq.map((item) => (
+            <section class="rounded-xl border border-border-default bg-bg-panel p-6">
+              <h3 class="text-[15px] font-semibold leading-[1.4] text-text-primary">
+                {item.question}
+              </h3>
+              <p class="mt-3 text-[13px] leading-[1.65] text-text-secondary">
+                {item.answer}
+              </p>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</main>

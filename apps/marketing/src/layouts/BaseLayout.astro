@@ -1,18 +1,21 @@
 ---
 import { THEME_INIT_SCRIPT } from '@duedatehq/ui/theme/no-flash-script'
 import type { Locale } from '@duedatehq/i18n/locales'
+import StructuredData from '../components/StructuredData.astro'
+import type { JsonLdDocument } from '../lib/structured-data'
 import '../styles/globals.css'
 
 interface Props {
   /** BCP-47 tag rendered into <html lang>. */
   lang: Locale
   /** Path on the marketing site (e.g. "/" or "/pricing") used for canonical + OG. */
-  pathname: '/' | '/zh-CN' | '/pricing' | '/zh-CN/pricing' | '/404'
+  pathname: string
   title: string
   description: string
   /** Path of the locale-specific OG image under /public, e.g. "/og/home.en.png". */
   ogImage: string
   noindex?: boolean
+  structuredData?: JsonLdDocument | JsonLdDocument[]
 }
 
 const SITE = 'https://duedatehq.com'
@@ -25,9 +28,14 @@ const ALTERNATE_OG_LOCALE: Record<Locale, readonly string[]> = {
   'zh-CN': ['en_US'],
 }
 
-const { lang, pathname, title, description, ogImage, noindex = false } = Astro.props
+const { lang, pathname, title, description, ogImage, noindex = false, structuredData } =
+  Astro.props
 const canonical = `${SITE}${pathname === '/' ? '' : pathname}`
 const ogImageUrl = `${SITE}${ogImage}`
+const localeFreePath =
+  pathname === '/zh-CN' ? '/' : pathname.startsWith('/zh-CN/') ? pathname.slice('/zh-CN'.length) : pathname
+const enHref = `${SITE}${localeFreePath === '/' ? '' : localeFreePath}`
+const zhHref = `${SITE}${localeFreePath === '/' ? '/zh-CN' : `/zh-CN${localeFreePath}`}`
 ---
 
 <!doctype html>
@@ -42,13 +50,9 @@ const ogImageUrl = `${SITE}${ogImage}`
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="en" href={`${SITE}${pathname.endsWith('/pricing') ? '/pricing' : '/'}`} />
-    <link
-      rel="alternate"
-      hreflang="zh-CN"
-      href={`${SITE}${pathname.endsWith('/pricing') ? '/zh-CN/pricing' : '/zh-CN'}`}
-    />
-    <link rel="alternate" hreflang="x-default" href={`${SITE}${pathname.endsWith('/pricing') ? '/pricing' : '/'}`} />
+    {!noindex && <link rel="alternate" hreflang="en" href={enHref} />}
+    {!noindex && <link rel="alternate" hreflang="zh-CN" href={zhHref} />}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={enHref} />}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DueDateHQ" />
@@ -69,6 +73,8 @@ const ogImageUrl = `${SITE}${ogImage}`
     <meta name="twitter:image" content={ogImageUrl} />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    {structuredData && <StructuredData data={structuredData} />}
 
     <script is:inline set:html={THEME_INIT_SCRIPT}></script>
   </head>

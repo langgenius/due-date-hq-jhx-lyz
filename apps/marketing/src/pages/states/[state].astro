@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import TopNav from '../../components/TopNav.astro'
+import StateDetailPage from '../../components/StateDetailPage.astro'
+import Footer from '../../components/Footer.astro'
+import en from '../../i18n/en'
+import type { StatePageCopy } from '../../i18n/types'
+import { getCtaHref } from '../../lib/app-url'
+import { statePageStructuredData } from '../../lib/structured-data'
+
+export function getStaticPaths() {
+  return en.geo.states.map((state) => ({
+    params: { state: state.slug },
+    props: { page: state },
+  }))
+}
+
+interface Props {
+  page: StatePageCopy
+}
+
+const t = en
+const { page } = Astro.props
+const pathname = `/states/${page.slug}`
+const ctaHref = getCtaHref()
+---
+
+<BaseLayout
+  lang="en"
+  pathname={pathname}
+  title={page.meta.title}
+  description={page.meta.description}
+  ogImage={page.meta.ogImage}
+  structuredData={statePageStructuredData(t, page, 'en', pathname)}
+>
+  <TopNav t={t.nav} ctaHref={ctaHref} />
+  <StateDetailPage page={page} coverageHref="/state-coverage" locale="en" />
+  <Footer t={t.footer} enHref={pathname} zhHref={`/zh-CN${pathname}`} currentLocale="en" />
+</BaseLayout>

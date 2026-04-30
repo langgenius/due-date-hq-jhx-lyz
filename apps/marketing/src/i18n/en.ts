@@ -11,15 +11,15 @@ const en: LandingCopy = {
     brand: 'DueDateHQ',
     audience: 'For US CPA practices',
     links: [
-      { label: 'Product', href: '#hero' },
-      { label: 'Workflow', href: '#workflow' },
-      { label: 'Evidence', href: '#proof' },
-      { label: 'Security', href: '#security' },
+      { label: 'Product', href: '/#hero' },
+      { label: 'Workflow', href: '/#workflow' },
+      { label: 'Evidence', href: '/#proof' },
+      { label: 'Security', href: '/#security' },
       { label: 'Pricing', href: '/pricing' },
-      { label: 'Docs', href: '#docs' },
+      { label: 'Resources', href: '/rules' },
     ],
     statusPill: 'Live in CA · NY · TX · FL · WA',
-    cta: 'Open app',
+    cta: 'Open the workbench',
   },
   hero: {
     eyebrow: 'GLASS-BOX DEADLINE INTELLIGENCE',
@@ -457,7 +457,7 @@ const en: LandingCopy = {
         cadence: 'forever',
         description: 'For one owner evaluating the workbench with sample or first-party data.',
         seats: '1 SEAT',
-        cta: 'Open the app',
+        cta: 'Open the workbench',
         hrefKind: 'app',
         features: [
           'One owner workspace',
@@ -523,6 +523,686 @@ const en: LandingCopy = {
       },
     ],
   },
+  geo: {
+    structuredData: {
+      organizationName: 'DueDateHQ',
+      organizationDescription:
+        'DueDateHQ builds glass-box deadline intelligence software for US CPA practices.',
+      websiteName: 'DueDateHQ',
+      productName: 'DueDateHQ',
+      productDescription:
+        'A source-backed deadline intelligence workbench for CPA practices managing filing risk, state updates, evidence review, and shared deadline operations.',
+      audience: 'US CPA practices',
+    },
+    rules: {
+      meta: {
+        title: 'DueDateHQ Rule Library — Source-backed tax deadline coverage',
+        description:
+          'How DueDateHQ handles IRS and state tax deadline rules with source URLs, excerpts, verification timestamps, and human review.',
+        ogImage: '/og/home.en.png',
+      },
+      hero: {
+        eyebrow: 'RULE LIBRARY',
+        title: 'Deadline rules are only useful when every claim has a source.',
+        description:
+          'DueDateHQ treats filing rules as evidence-backed product data. Each public-source signal is normalized into a rule workflow with official source context, a review state, and a clear boundary between software coverage and tax advice.',
+        note: 'Coverage pages describe software behavior, not professional tax advice.',
+      },
+      sections: [
+        {
+          eyebrow: 'SOURCE INTAKE',
+          title: 'Official sources first.',
+          body: 'The rule workflow starts with public agency material instead of third-party summaries. DueDateHQ prioritizes IRS publications, state tax authority pages, filing calendars, form instructions, notices, and emergency relief announcements.',
+          items: [
+            {
+              title: 'Canonical source URL',
+              body: 'Each rule keeps the official page URL so reviewers and users can inspect the same source DueDateHQ used.',
+            },
+            {
+              title: 'Source excerpt',
+              body: 'A short excerpt is preserved for review context; the product avoids unsupported summaries in deadline workflows.',
+            },
+            {
+              title: 'Verified timestamp',
+              body: 'Rules carry a verification timestamp so CPA teams can see when a source was last reviewed.',
+            },
+          ],
+        },
+        {
+          eyebrow: 'REVIEW MODEL',
+          title: 'AI can assist, but it cannot become the source of truth.',
+          body: 'DueDateHQ uses AI to summarize, classify, and draft operational changes only when source context is present. Human review remains the gate before deadline changes are applied to client-facing operations.',
+          items: [
+            {
+              title: 'Human review required',
+              body: 'A rule is not treated as ready for operational use until the review state is explicit.',
+            },
+            {
+              title: 'No black-box recommendations',
+              body: 'Missing source context moves work into a verification-needed state instead of producing a silent recommendation.',
+            },
+            {
+              title: 'Audit-ready changes',
+              body: 'Apply, undo, and revert workflows are designed to leave an operational record for the firm.',
+            },
+          ],
+        },
+      ],
+      faqHeader: {
+        eyebrow: 'FAQ',
+        title: 'Rule library questions.',
+      },
+      faq: [
+        {
+          question: 'Does DueDateHQ provide tax advice?',
+          answer:
+            'No. DueDateHQ describes software coverage and source handling. CPA teams should verify obligations against official IRS and state authority sources and apply professional judgment.',
+        },
+        {
+          question: 'What makes a rule evidence-backed?',
+          answer:
+            'An evidence-backed rule keeps an official source URL, source excerpt, verification timestamp, and review status with the product workflow.',
+        },
+        {
+          question: 'Can AI apply a filing rule automatically?',
+          answer:
+            'No. AI can assist with summarization and classification, but DueDateHQ keeps deadline changes behind source-backed review and human action.',
+        },
+      ],
+      cta: {
+        title: 'See which state signals are in scope.',
+        body: 'State coverage explains the first five jurisdictions DueDateHQ monitors for public filing updates.',
+        primary: 'View state coverage',
+        secondary: 'Open pricing',
+      },
+    },
+    stateCoverage: {
+      meta: {
+        title: 'DueDateHQ State Coverage — CA, NY, TX, FL, WA filing signals',
+        description:
+          'Public state coverage for DueDateHQ Pulse monitoring across California, New York, Texas, Florida, and Washington filing-update signals.',
+        ogImage: '/og/home.en.png',
+      },
+      hero: {
+        eyebrow: 'STATE COVERAGE',
+        title: 'Five state filing surfaces, one evidence-first monitoring model.',
+        description:
+          'DueDateHQ v1 public coverage focuses on CA, NY, TX, FL, and WA. Coverage means the product monitors public state filing signals and routes changes into source-backed review workflows.',
+        note: 'Coverage is software monitoring scope; it is not a guarantee that every obligation applies to every firm.',
+      },
+      statesHeader: {
+        eyebrow: 'LIVE COVERAGE',
+        title: 'States in the first public coverage set.',
+      },
+      states: [
+        {
+          slug: 'california',
+          name: 'California',
+          abbreviation: 'CA',
+          status: 'Live',
+          body: 'FTB-facing filing updates, deadline notices, form-instruction changes, and relief announcements that can affect CPA deadline triage.',
+          href: '/states/california',
+        },
+        {
+          slug: 'new-york',
+          name: 'New York',
+          abbreviation: 'NY',
+          status: 'Live',
+          body: 'Department of Taxation and Finance updates, filing notices, calendar changes, and state-level signals routed into evidence review.',
+          href: '/states/new-york',
+        },
+        {
+          slug: 'texas',
+          name: 'Texas',
+          abbreviation: 'TX',
+          status: 'Live',
+          body: 'Comptroller updates, franchise-tax filing signals, public notice changes, and deadline-related announcements.',
+          href: '/states/texas',
+        },
+        {
+          slug: 'florida',
+          name: 'Florida',
+          abbreviation: 'FL',
+          status: 'Live',
+          body: 'Department of Revenue updates, public notices, relief announcements, and filing-surface changes relevant to CPA operations.',
+          href: '/states/florida',
+        },
+        {
+          slug: 'washington',
+          name: 'Washington',
+          abbreviation: 'WA',
+          status: 'Live',
+          body: 'Department of Revenue public updates, due-date notices, and official filing signals that can enter review workflows.',
+          href: '/states/washington',
+        },
+      ],
+      sourceModel: {
+        eyebrow: 'SOURCE MODEL',
+        title: 'What coverage means in DueDateHQ.',
+        body: 'Coverage starts with public monitoring, then routes candidate changes into source-backed review. A signal becomes actionable only when the source URL, excerpt, verification metadata, and review status are present.',
+        items: [
+          {
+            title: 'Public agency sources',
+            body: 'DueDateHQ prioritizes official tax authority pages, filing calendars, form instructions, notices, and emergency relief pages.',
+          },
+          {
+            title: 'Firm-specific applicability',
+            body: 'Coverage does not mean every signal applies to every client. The workbench helps a firm review impact against its own client profile.',
+          },
+          {
+            title: 'Operational handoff',
+            body: 'Relevant changes can surface in dashboard, workboard, and email workflows after review.',
+          },
+        ],
+      },
+      faqHeader: {
+        eyebrow: 'FAQ',
+        title: 'State coverage questions.',
+      },
+      faq: [
+        {
+          question: 'Does state coverage include all US jurisdictions?',
+          answer:
+            'No. v1 public coverage is limited to CA, NY, TX, FL, and WA. Additional jurisdictions require source review and coverage planning.',
+        },
+        {
+          question: 'Does coverage mean automatic compliance?',
+          answer:
+            'No. Coverage describes monitoring scope and product workflow. CPA teams remain responsible for reviewing applicability and filing decisions.',
+        },
+        {
+          question: 'How are source changes surfaced?',
+          answer:
+            'Candidate changes are routed with source URL, excerpt, verification timestamp, and review status before they appear as operational work.',
+        },
+      ],
+    },
+    states: [
+      {
+        slug: 'california',
+        name: 'California',
+        abbreviation: 'CA',
+        meta: {
+          title: 'California Tax Deadline Monitoring — DueDateHQ State Coverage',
+          description:
+            'How DueDateHQ monitors public California FTB filing signals with source URLs, excerpts, timestamps, and human review.',
+          ogImage: '/og/home.en.png',
+        },
+        hero: {
+          eyebrow: 'STATE COVERAGE · CA',
+          title: 'California filing signals with source-backed review.',
+          description:
+            'DueDateHQ monitors public California filing updates that can affect CPA deadline operations, then routes candidate changes through evidence review before they become operational work.',
+          note: 'California coverage describes monitoring scope, not tax advice.',
+        },
+        sourceTypes: [
+          {
+            title: 'FTB public pages',
+            body: 'Official Franchise Tax Board pages and public deadline material are preferred over summaries.',
+          },
+          {
+            title: 'Form instructions',
+            body: 'Form-specific instructions and calendar references can become source context for rule review.',
+          },
+          {
+            title: 'Relief announcements',
+            body: 'Public postponement and disaster-relief notices can trigger firm impact review.',
+          },
+        ],
+        coveredSignals: [
+          {
+            title: 'Deadline changes',
+            body: 'Changes to public due-date guidance that may affect entity, individual, or estimated-payment workflows.',
+          },
+          {
+            title: 'Applicability clues',
+            body: 'County, disaster, taxpayer type, form, and period references are preserved for review context.',
+          },
+          {
+            title: 'Operational routing',
+            body: 'Reviewed signals can surface as dashboard or workboard actions when firm data indicates possible impact.',
+          },
+        ],
+        limitations: [
+          'DueDateHQ does not determine whether a California rule applies without firm review.',
+          'Coverage depends on public source availability and review status.',
+          'Private notices and client-specific correspondence are not part of public state coverage.',
+        ],
+        faq: [
+          {
+            question: 'Is DueDateHQ a California tax authority?',
+            answer:
+              'No. DueDateHQ is software. CPA teams should verify California obligations against official FTB material.',
+          },
+          {
+            question: 'Does this page list every California filing deadline?',
+            answer:
+              'No. It describes the product monitoring model and source categories for California coverage.',
+          },
+        ],
+      },
+      {
+        slug: 'new-york',
+        name: 'New York',
+        abbreviation: 'NY',
+        meta: {
+          title: 'New York Tax Deadline Monitoring — DueDateHQ State Coverage',
+          description:
+            'How DueDateHQ monitors public New York tax filing signals with official-source context and human review.',
+          ogImage: '/og/home.en.png',
+        },
+        hero: {
+          eyebrow: 'STATE COVERAGE · NY',
+          title: 'New York filing updates routed through evidence review.',
+          description:
+            'DueDateHQ monitors public New York tax authority updates and keeps source context attached when a filing signal may affect deadline operations.',
+          note: 'New York coverage describes product scope, not a filing recommendation.',
+        },
+        sourceTypes: [
+          {
+            title: 'DTF public updates',
+            body: 'Official Department of Taxation and Finance pages are the preferred source surface.',
+          },
+          {
+            title: 'Filing calendars',
+            body: 'Calendar and form references can become review context for deadline operations.',
+          },
+          {
+            title: 'Official notices',
+            body: 'Public notices and filing announcements are routed into review when they contain deadline impact.',
+          },
+        ],
+        coveredSignals: [
+          {
+            title: 'State deadline movement',
+            body: 'Candidate due-date changes are preserved with source URL, excerpt, and verification metadata.',
+          },
+          {
+            title: 'Form-level context',
+            body: 'Form, period, taxpayer type, and jurisdiction details are kept for human review.',
+          },
+          {
+            title: 'Firm impact workflow',
+            body: 'Reviewed changes can be matched against firm-managed clients before operational work is created.',
+          },
+        ],
+        limitations: [
+          'DueDateHQ does not replace New York source review by a qualified professional.',
+          'Coverage is limited to public material and reviewed product workflows.',
+          'Client-specific correspondence is outside public monitoring scope.',
+        ],
+        faq: [
+          {
+            question: 'Does New York coverage include every tax type?',
+            answer:
+              'No. Coverage describes monitored public filing signals and review workflows, not a complete legal taxonomy.',
+          },
+          {
+            question: 'Can a New York signal change client deadlines automatically?',
+            answer:
+              'No. Candidate changes require source-backed review and human action before operational use.',
+          },
+        ],
+      },
+      {
+        slug: 'texas',
+        name: 'Texas',
+        abbreviation: 'TX',
+        meta: {
+          title: 'Texas Filing Deadline Monitoring — DueDateHQ State Coverage',
+          description:
+            'How DueDateHQ monitors public Texas filing signals and franchise-tax deadline updates for CPA operations.',
+          ogImage: '/og/home.en.png',
+        },
+        hero: {
+          eyebrow: 'STATE COVERAGE · TX',
+          title: 'Texas filing signals for CPA deadline operations.',
+          description:
+            'DueDateHQ monitors public Texas Comptroller-facing updates and keeps source evidence attached when a signal may affect deadline triage.',
+          note: 'Texas coverage is product monitoring scope and should be verified against official sources.',
+        },
+        sourceTypes: [
+          {
+            title: 'Comptroller updates',
+            body: 'Public Texas Comptroller pages and official filing notices are prioritized for source review.',
+          },
+          {
+            title: 'Franchise-tax signals',
+            body: 'Public franchise-tax deadline and form references can enter evidence review.',
+          },
+          {
+            title: 'Relief notices',
+            body: 'Official relief or postponement material can trigger impact review when it names affected taxpayers or periods.',
+          },
+        ],
+        coveredSignals: [
+          {
+            title: 'Deadline impact',
+            body: 'Due-date changes and filing-window updates are captured as candidate operational signals.',
+          },
+          {
+            title: 'Entity context',
+            body: 'Entity type, filing period, and form references are preserved when available.',
+          },
+          {
+            title: 'Review handoff',
+            body: 'Reviewed signals can become workboard actions for CPA teams managing affected clients.',
+          },
+        ],
+        limitations: [
+          'DueDateHQ does not determine Texas tax treatment.',
+          'Coverage depends on public source clarity and review state.',
+          'Private agency correspondence is not covered by public monitoring.',
+        ],
+        faq: [
+          {
+            question: 'Is Texas coverage only for franchise tax?',
+            answer:
+              'No. Franchise-tax signals are an important public surface, but coverage is defined by monitored public filing updates and review workflows.',
+          },
+          {
+            question: 'Does DueDateHQ file with Texas agencies?',
+            answer:
+              'No. DueDateHQ supports deadline operations and source review; filing decisions remain with the CPA firm.',
+          },
+        ],
+      },
+      {
+        slug: 'florida',
+        name: 'Florida',
+        abbreviation: 'FL',
+        meta: {
+          title: 'Florida Filing Deadline Monitoring — DueDateHQ State Coverage',
+          description:
+            'How DueDateHQ monitors public Florida filing notices and deadline-related state updates with evidence review.',
+          ogImage: '/og/home.en.png',
+        },
+        hero: {
+          eyebrow: 'STATE COVERAGE · FL',
+          title: 'Florida public filing updates with source context.',
+          description:
+            'DueDateHQ monitors public Florida Department of Revenue-facing updates and relief notices that may affect CPA deadline workflows.',
+          note: 'Florida coverage describes public monitoring, not compliance advice.',
+        },
+        sourceTypes: [
+          {
+            title: 'DOR public pages',
+            body: 'Official Florida Department of Revenue material is preferred for source-backed review.',
+          },
+          {
+            title: 'Public notices',
+            body: 'Filing notices and updates can become candidate deadline signals when they contain clear operational impact.',
+          },
+          {
+            title: 'Relief announcements',
+            body: 'Emergency or disaster-related public announcements are tracked for possible deadline implications.',
+          },
+        ],
+        coveredSignals: [
+          {
+            title: 'Filing-surface changes',
+            body: 'Public changes to deadlines, instructions, or filing windows can enter the review queue.',
+          },
+          {
+            title: 'Affected-period context',
+            body: 'Dates, periods, taxpayer classes, and geographic constraints are retained when present.',
+          },
+          {
+            title: 'Evidence drawer workflow',
+            body: 'Source URL, excerpt, and verification metadata stay attached for reviewer inspection.',
+          },
+        ],
+        limitations: [
+          'DueDateHQ does not guarantee applicability to a specific Florida client.',
+          'Coverage is limited to public sources and reviewed workflows.',
+          'Professional verification against official state material remains required.',
+        ],
+        faq: [
+          {
+            question: 'Can Florida updates appear in Pulse?',
+            answer:
+              'Yes, reviewed public signals can surface through Pulse-style workflows when they may affect firm deadline operations.',
+          },
+          {
+            question: 'Does DueDateHQ replace Florida source review?',
+            answer:
+              'No. It preserves source context and operationalizes review; it does not replace professional judgment.',
+          },
+        ],
+      },
+      {
+        slug: 'washington',
+        name: 'Washington',
+        abbreviation: 'WA',
+        meta: {
+          title: 'Washington Filing Deadline Monitoring — DueDateHQ State Coverage',
+          description:
+            'How DueDateHQ monitors public Washington Department of Revenue signals with official-source evidence workflows.',
+          ogImage: '/og/home.en.png',
+        },
+        hero: {
+          eyebrow: 'STATE COVERAGE · WA',
+          title: 'Washington filing signals kept tied to official sources.',
+          description:
+            'DueDateHQ monitors public Washington Department of Revenue-facing material for filing signals that may need source-backed CPA review.',
+          note: 'Washington coverage is software scope, not tax advice.',
+        },
+        sourceTypes: [
+          {
+            title: 'DOR public updates',
+            body: 'Official Department of Revenue updates are treated as primary source material.',
+          },
+          {
+            title: 'Due-date notices',
+            body: 'Public due-date and filing-window notices can enter review when they affect operational timing.',
+          },
+          {
+            title: 'Instruction changes',
+            body: 'Public instruction updates can be preserved with source excerpt and verification metadata.',
+          },
+        ],
+        coveredSignals: [
+          {
+            title: 'Deadline operations',
+            body: 'Signals are evaluated for operational impact before they become dashboard or workboard items.',
+          },
+          {
+            title: 'Applicability context',
+            body: 'Form, period, taxpayer type, and official language are retained when the source provides them.',
+          },
+          {
+            title: 'Human review',
+            body: 'Human review gates source-backed signals before firm workflows treat them as actionable.',
+          },
+        ],
+        limitations: [
+          'DueDateHQ is not a Washington tax authority.',
+          'Coverage depends on public-source visibility and product review status.',
+          'Client-specific obligations require CPA review.',
+        ],
+        faq: [
+          {
+            question: 'Does Washington coverage include private notices?',
+            answer:
+              'No. Public coverage is based on public agency material, not client-specific private correspondence.',
+          },
+          {
+            question: 'What should a firm do with a Washington signal?',
+            answer:
+              'Review the attached official source and determine applicability before changing client work.',
+          },
+        ],
+      },
+    ],
+    guides: [
+      {
+        slug: 'cpa-deadline-risk',
+        meta: {
+          title: 'CPA Deadline Risk Guide — How firms see penalties before they happen',
+          description:
+            'A practical guide to CPA deadline risk, penalty exposure, missing evidence, state filing changes, and Monday triage workflows.',
+          ogImage: '/og/home.en.png',
+        },
+        hero: {
+          eyebrow: 'GUIDE',
+          title: 'CPA deadline risk is an operations problem before it is a penalty.',
+          description:
+            'Small CPA practices do not miss deadlines because they lack calendars. They miss deadlines when client facts, state changes, source evidence, and team ownership drift apart during peak season.',
+          note: 'This guide explains operational risk patterns, not tax advice.',
+        },
+        sections: [
+          {
+            eyebrow: 'RISK MODEL',
+            title: 'The risky deadline is the one with missing context.',
+            body: 'A date on a calendar is only one part of deadline operations. CPA teams also need client entity context, filing status, jurisdiction coverage, evidence source, and owner assignment.',
+            items: [
+              {
+                title: 'Missing client facts',
+                body: 'Entity type, state footprint, fiscal year, and extension status can change whether a deadline matters.',
+              },
+              {
+                title: 'Source uncertainty',
+                body: 'A rule copied from memory or a third-party note is harder to trust than a rule tied to an official source.',
+              },
+              {
+                title: 'Ownership gaps',
+                body: 'Deadline work becomes risky when no owner is assigned to review, file, or resolve missing data.',
+              },
+            ],
+          },
+          {
+            eyebrow: 'TRIAGE',
+            title: 'The Monday workflow should rank risk, not just dates.',
+            body: 'Deadline risk becomes manageable when the team can scan dollars at risk, days remaining, evidence completeness, state updates, and work ownership in one operational view.',
+            items: [
+              {
+                title: 'Dollar exposure',
+                body: 'A risk queue should show which missed deadlines create meaningful penalty exposure.',
+              },
+              {
+                title: 'Evidence completeness',
+                body: 'Rows with missing or stale source evidence should be reviewed before the firm trusts the deadline.',
+              },
+              {
+                title: 'State-change impact',
+                body: 'A state filing update matters most when it can be matched to the clients it may affect.',
+              },
+            ],
+          },
+        ],
+        faqHeader: {
+          eyebrow: 'FAQ',
+          title: 'CPA deadline risk questions.',
+        },
+        faq: [
+          {
+            question: 'Is deadline risk only about due dates?',
+            answer:
+              'No. Due dates matter, but risk also depends on client facts, source quality, review status, ownership, and penalty exposure.',
+          },
+          {
+            question: 'Why does source evidence matter?',
+            answer:
+              'Source evidence helps a CPA team verify that a deadline or state update came from official material rather than an unsupported summary.',
+          },
+          {
+            question: 'What should software do first?',
+            answer:
+              'It should make the riskiest work visible, keep source evidence close to each rule, and route ambiguous items into review.',
+          },
+        ],
+        cta: {
+          title: 'See the evidence-backed product model.',
+          body: 'DueDateHQ turns deadline risk into source-backed operational work.',
+          primary: 'Read the evidence guide',
+          secondary: 'View rule library',
+        },
+      },
+      {
+        slug: 'evidence-backed-tax-deadline-software',
+        meta: {
+          title: 'Evidence-backed Tax Deadline Software — DueDateHQ Guide',
+          description:
+            'What evidence-backed tax deadline software means for CPA teams: source URLs, excerpts, verification timestamps, human review, and audit-ready workflows.',
+          ogImage: '/og/home.en.png',
+        },
+        hero: {
+          eyebrow: 'GUIDE',
+          title: 'Evidence-backed deadline software keeps the source next to the action.',
+          description:
+            'For CPA operations, a filing reminder is not enough. Teams need to know why the deadline exists, which official source supports it, when it was verified, and who approved the operational change.',
+          note: 'Evidence-backed workflows support review; they do not replace professional judgment.',
+        },
+        sections: [
+          {
+            eyebrow: 'DEFINITION',
+            title: 'Evidence-backed means every operational claim can be inspected.',
+            body: 'The product should preserve enough source context for a reviewer to understand where a rule came from and why it entered the workflow.',
+            items: [
+              {
+                title: 'Source URL',
+                body: 'The official page remains attached to the rule or signal.',
+              },
+              {
+                title: 'Source excerpt',
+                body: 'The relevant passage is visible near the operational action.',
+              },
+              {
+                title: 'Verified metadata',
+                body: 'The product records when the source was reviewed and the state of that review.',
+              },
+            ],
+          },
+          {
+            eyebrow: 'WORKFLOW',
+            title: 'The interface should fail closed when evidence is missing.',
+            body: 'If a rule lacks source context, the safer product behavior is to request verification instead of generating a confident deadline recommendation.',
+            items: [
+              {
+                title: 'Verification-needed states',
+                body: 'Ambiguous or unsupported signals should be visible as review work.',
+              },
+              {
+                title: 'Human-in-the-loop apply',
+                body: 'A person at the firm should approve operational changes before they affect client work.',
+              },
+              {
+                title: 'Audit trail',
+                body: 'Apply, undo, and revert actions should leave a record the firm can inspect later.',
+              },
+            ],
+          },
+        ],
+        faqHeader: {
+          eyebrow: 'FAQ',
+          title: 'Evidence-backed software questions.',
+        },
+        faq: [
+          {
+            question: 'Is evidence-backed software the same as AI tax advice?',
+            answer:
+              'No. Evidence-backed software keeps source context attached to workflows. It does not provide professional tax advice.',
+          },
+          {
+            question: 'Why not let AI apply rule changes automatically?',
+            answer:
+              'Deadline changes can affect client obligations. DueDateHQ treats AI as an assistant and keeps operational apply actions behind review.',
+          },
+          {
+            question: 'What is the minimum evidence a reviewer should see?',
+            answer:
+              'A reviewer should see the official source URL, the relevant excerpt, verification metadata, and the current review state.',
+          },
+        ],
+        cta: {
+          title: 'Review the public rule model.',
+          body: 'The DueDateHQ rule library explains how source-backed signals move into deadline workflows.',
+          primary: 'Open rule library',
+          secondary: 'View state coverage',
+        },
+      },
+    ],
+  },
   notFound: {
     meta: {
       title: 'Page not found — DueDateHQ',
@@ -541,7 +1221,7 @@ const en: LandingCopy = {
     routes: [
       { label: 'Homepage', href: '/' },
       { label: 'Pricing', href: '/pricing' },
-      { label: 'Open app', href: 'app' },
+      { label: 'Open the workbench', href: 'app' },
     ],
   },
   footer: {
@@ -552,31 +1232,34 @@ const en: LandingCopy = {
       {
         title: 'PRODUCT',
         links: [
-          { label: 'Workbench', href: '#' },
-          { label: 'Pulse', href: '#' },
-          { label: 'Migration Copilot', href: '#' },
-          { label: 'Evidence drawer', href: '#' },
-          { label: 'Pricing', href: '#' },
+          { label: 'Workbench', href: '/#hero' },
+          { label: 'Pulse', href: '/#workflow' },
+          { label: 'Migration Copilot', href: '/guides/cpa-deadline-risk' },
+          { label: 'Evidence drawer', href: '/rules' },
+          { label: 'Pricing', href: '/pricing' },
         ],
       },
       {
         title: 'RESOURCES',
         links: [
-          { label: 'Rule library', href: '#' },
-          { label: 'State coverage', href: '#' },
-          { label: 'Changelog', href: '#' },
-          { label: 'API', href: '#' },
-          { label: 'Status', href: '#' },
+          { label: 'Rule library', href: '/rules' },
+          { label: 'State coverage', href: '/state-coverage' },
+          { label: 'CPA deadline risk', href: '/guides/cpa-deadline-risk' },
+          {
+            label: 'Evidence-backed software',
+            href: '/guides/evidence-backed-tax-deadline-software',
+          },
+          { label: 'Status', href: 'mailto:support@duedatehq.com?subject=DueDateHQ%20Status' },
         ],
       },
       {
         title: 'COMPANY',
         links: [
-          { label: 'About', href: '#' },
-          { label: 'Security', href: '#' },
-          { label: 'Privacy', href: '#' },
-          { label: 'Terms', href: '#' },
-          { label: 'Contact', href: '#' },
+          { label: 'About', href: '/' },
+          { label: 'Security', href: '/#security' },
+          { label: 'Privacy', href: 'mailto:privacy@duedatehq.com?subject=DueDateHQ%20Privacy' },
+          { label: 'Terms', href: 'mailto:legal@duedatehq.com?subject=DueDateHQ%20Terms' },
+          { label: 'Contact', href: 'mailto:sales@duedatehq.com?subject=DueDateHQ' },
         ],
       },
     ],
