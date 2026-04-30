@@ -3,13 +3,14 @@ import type { Db } from '../client'
 import { client } from '../schema/clients'
 import {
   obligationInstance,
+  type ExposureStatus,
   type ObligationInstance,
   type ObligationStatus,
 } from '../schema/obligations'
 import { listActiveOverlayDueDates } from './overlay'
 
-const COLS_PER_OI_ROW = 11
-const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 9
+const COLS_PER_OI_ROW = 17
+const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 5
 const CLIENT_ASSERT_BATCH_SIZE = 90
 
 export interface ObligationCreateInput {
@@ -21,6 +22,12 @@ export interface ObligationCreateInput {
   currentDueDate?: Date
   status?: ObligationStatus
   migrationBatchId?: string | null
+  estimatedTaxDueCents?: number | null
+  estimatedExposureCents?: number | null
+  exposureStatus?: ExposureStatus
+  penaltyBreakdownJson?: unknown
+  penaltyFormulaVersion?: string | null
+  exposureCalculatedAt?: Date | null
 }
 
 export function makeObligationsRepo(db: Db, firmId: string) {
@@ -83,6 +90,12 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         currentDueDate: i.currentDueDate ?? i.baseDueDate,
         status: i.status ?? ('pending' as const),
         migrationBatchId: i.migrationBatchId ?? null,
+        estimatedTaxDueCents: i.estimatedTaxDueCents ?? null,
+        estimatedExposureCents: i.estimatedExposureCents ?? null,
+        exposureStatus: i.exposureStatus ?? ('needs_input' as const),
+        penaltyBreakdownJson: i.penaltyBreakdownJson ?? null,
+        penaltyFormulaVersion: i.penaltyFormulaVersion ?? null,
+        exposureCalculatedAt: i.exposureCalculatedAt ?? null,
       }))
       const writes = []
       for (let i = 0; i < rows.length; i += OI_BATCH_SIZE) {
@@ -137,6 +150,23 @@ export function makeObligationsRepo(db: Db, firmId: string) {
       await db
         .update(obligationInstance)
         .set({ currentDueDate: newDate })
+        .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
+    },
+
+    async updateExposure(
+      id: string,
+      patch: {
+        estimatedTaxDueCents: number | null
+        estimatedExposureCents: number | null
+        exposureStatus: ExposureStatus
+        penaltyBreakdownJson: unknown
+        penaltyFormulaVersion: string | null
+        exposureCalculatedAt: Date | null
+      },
+    ): Promise<void> {
+      await db
+        .update(obligationInstance)
+        .set(patch)
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
     },
 

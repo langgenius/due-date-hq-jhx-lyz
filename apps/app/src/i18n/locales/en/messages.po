@@ -59,17 +59,19 @@ msgstr "{0, plural, one {We imported the first 1000 of # row. Split your file to
 msgid "{0} available seats"
 msgstr "{0} available seats"
 
-#. placeholder {0}: result.clientCount
-#. placeholder {1}: result.obligationCount
-#: src/features/migration/Wizard.tsx
-msgid "{0} clients · {1} obligations"
-msgstr "{0} clients · {1} obligations"
-
 #. placeholder {0}: pendingRevert.clientCount
 #. placeholder {1}: pendingRevert.obligationCount
 #: src/features/migration/Wizard.tsx
 msgid "{0} clients · {1} obligations removed"
 msgstr "{0} clients · {1} obligations removed"
+
+#. placeholder {0}: result.clientCount
+#. placeholder {1}: result.obligationCount
+#. placeholder {2}: formatCents(exposure.totalExposureCents)
+#. placeholder {3}: exposure.needsInputCount
+#: src/features/migration/Wizard.tsx
+msgid "{0} clients, {1} obligations, {2} exposure, {3} need input"
+msgstr "{0} clients, {1} obligations, {2} exposure, {3} need input"
 
 #. placeholder {0}: row.taxType
 #. placeholder {1}: formatDate(row.currentDueDate)
@@ -98,10 +100,20 @@ msgstr "{0} manual records"
 msgid "{0} need review"
 msgstr "{0} need review"
 
+#. placeholder {0}: exposure.needsInputCount
+#: src/features/migration/Step4Preview.tsx
+msgid "{0} needs input"
+msgstr "{0} needs input"
+
 #. placeholder {0}: data?.summary.needsReviewCount ?? 0
 #: src/routes/dashboard.tsx
 msgid "{0} obligations require CPA confirmation."
 msgstr "{0} obligations require CPA confirmation."
+
+#. placeholder {0}: genesis.needsInputCount
+#: src/features/migration/Wizard.tsx
+msgid "{0} obligations still need penalty inputs."
+msgstr "{0} obligations still need penalty inputs."
 
 #. placeholder {0}: data?.summary.evidenceGapCount ?? 0
 #: src/routes/dashboard.tsx
@@ -114,6 +126,11 @@ msgstr "{0} open obligations have no evidence link."
 #: src/routes/dashboard.tsx
 msgid "{0} open obligations, {1} due this week, and {2} need review."
 msgstr "{0} open obligations, {1} due this week, and {2} need review."
+
+#. placeholder {0}: exposure.readyCount
+#: src/features/migration/Step4Preview.tsx
+msgid "{0} ready"
+msgstr "{0} ready"
 
 #. placeholder {0}: firm.seatLimit
 #: src/components/patterns/app-shell.tsx
@@ -147,6 +164,11 @@ msgstr "{0} shown · {1} total"
 #: src/routes/dashboard.tsx
 msgid "{0} top rows have evidence."
 msgstr "{0} top rows have evidence."
+
+#. placeholder {0}: exposure.unsupportedCount
+#: src/features/migration/Step4Preview.tsx
+msgid "{0} unsupported"
+msgstr "{0} unsupported"
 
 #. placeholder {0}: pendingRemoval.name
 #: src/features/members/members-page.tsx
@@ -510,6 +532,11 @@ msgstr "Ask"
 msgid "Ask DueDateHQ"
 msgstr "Ask DueDateHQ"
 
+#: src/features/migration/Wizard.tsx
+#: src/routes/dashboard.tsx
+msgid "at risk this week"
+msgstr "at risk this week"
+
 #. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/workboard.tsx
 msgid "Audit {0}"
@@ -545,6 +572,10 @@ msgstr "Audit log"
 #: src/features/migration/Step4Preview.tsx
 msgid "Audit log captures every AI decision"
 msgstr "Audit log captures every AI decision"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Audit timeline"
+msgstr "Audit timeline"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Auth"
@@ -617,10 +648,6 @@ msgid "Billing status is not ready yet."
 msgstr "Billing status is not ready yet."
 
 #: src/routes/dashboard.tsx
-msgid "Brief evidence"
-msgstr "Brief evidence"
-
-#: src/routes/dashboard.tsx
 msgid "Brief is being prepared. The risk table is ready now."
 msgstr "Brief is being prepared. The risk table is ready now."
 
@@ -642,6 +669,7 @@ msgstr "California"
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
 #: src/routes/firm.tsx
+#: src/routes/workboard.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -720,15 +748,6 @@ msgstr "Choose another plan"
 msgid "Choose Pro to start the hosted checkout flow."
 msgstr "Choose Pro to start the hosted checkout flow."
 
-#. placeholder {0}: citation.ref
-#: src/routes/dashboard.tsx
-msgid "Citation [{0}]"
-msgstr "Citation [{0}]"
-
-#: src/routes/dashboard.tsx
-msgid "Citation detail"
-msgstr "Citation detail"
-
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Clear search or filters to return to the full firm directory."
 msgstr "Clear search or filters to return to the full firm directory."
@@ -786,6 +805,10 @@ msgid "Code"
 msgstr "Code"
 
 #: src/features/migration/Step1Intake.tsx
+msgid "Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can power the penalty exposure preview."
+msgstr "Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can power the penalty exposure preview."
+
+#: src/features/migration/Step1Intake.tsx
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
 msgstr "Coming from File In Time? We'll migrate your full-year calendar in one shot."
 
@@ -797,6 +820,7 @@ msgstr "Coming soon"
 msgid "Command palette"
 msgstr "Command palette"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step2Mapping.tsx
 msgid "Confidence"
 msgstr "Confidence"
@@ -941,6 +965,10 @@ msgstr "Couldn't parse the input"
 msgid "Couldn't save mapping"
 msgstr "Couldn't save mapping"
 
+#: src/routes/workboard.tsx
+msgid "Couldn't save penalty inputs"
+msgstr "Couldn't save penalty inputs"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't snooze alert"
 msgstr "Couldn't snooze alert"
@@ -1084,9 +1112,9 @@ msgstr "Deprecated"
 msgid "Detail"
 msgstr "Detail"
 
-#: src/routes/workboard.tsx
-msgid "Detail drawer is coming soon"
-msgstr "Detail drawer is coming soon"
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Deterministic"
+msgstr "Deterministic"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Digest queued for owners and managers; delivery depends on email config"
@@ -1237,6 +1265,14 @@ msgstr "Entity types"
 msgid "Entry"
 msgstr "Entry"
 
+#: src/routes/dashboard.tsx
+msgid "Estimated exposure in the current operating window."
+msgstr "Estimated exposure in the current operating window."
+
+#: src/routes/workboard.tsx
+msgid "Estimated tax due"
+msgstr "Estimated tax due"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Event"
 msgstr "Event"
@@ -1247,16 +1283,17 @@ msgstr "Event stream"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Evidence"
 msgstr "Evidence"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Evidence chain"
+msgstr "Evidence chain"
 
 #: src/routes/dashboard.tsx
 msgid "Evidence checks"
 msgstr "Evidence checks"
-
-#: src/routes/workboard.tsx
-msgid "Evidence drawer is coming soon"
-msgstr "Evidence drawer is coming soon"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Exact action"
@@ -1287,6 +1324,19 @@ msgstr "Export"
 #: src/features/audit/audit-log-page.tsx
 msgid "Export · P1"
 msgstr "Export · P1"
+
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "Exposure"
+msgstr "Exposure"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Exposure preview"
+msgstr "Exposure preview"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "Exposure readiness appears after mapping and Default Matrix are confirmed."
+msgstr "Exposure readiness appears after mapping and Default Matrix are confirmed."
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Extension"
@@ -1759,6 +1809,10 @@ msgstr "Migration Copilot wizard — paste or upload your client roster, review 
 msgid "missing rule inputs"
 msgstr "missing rule inputs"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Model"
+msgstr "Model"
+
 #: src/routes/billing.checkout.tsx
 msgid "Monthly"
 msgstr "Monthly"
@@ -1777,12 +1831,22 @@ msgid "Navigate"
 msgstr "Navigate"
 
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Needs evidence"
 msgstr "Needs evidence"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Needs facts"
 msgstr "Needs facts"
+
+#: src/routes/workboard.tsx
+msgid "needs input"
+msgstr "needs input"
+
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "Needs input"
+msgstr "Needs input"
 
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
@@ -1838,6 +1902,10 @@ msgstr "No alerts match these filters."
 msgid "No audit events match these filters."
 msgstr "No audit events match these filters."
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "No audit events recorded for this obligation."
+msgstr "No audit events recorded for this obligation."
+
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events yet."
 msgstr "No audit events yet."
@@ -1871,6 +1939,10 @@ msgstr "No email"
 msgid "No emails will be sent automatically"
 msgstr "No emails will be sent automatically"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "No evidence linked yet"
+msgstr "No evidence linked yet"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "No extension available."
 msgstr "No extension available."
@@ -1887,10 +1959,6 @@ msgstr "No firm selected"
 #: src/routes/dashboard.tsx
 msgid "No generated obligations yet."
 msgstr "No generated obligations yet."
-
-#: src/routes/dashboard.tsx
-msgid "No linked source"
-msgstr "No linked source"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this firm."
@@ -1940,9 +2008,17 @@ msgstr "No subscription changes were made. You can restart checkout when ready."
 msgid "No tax types selected."
 msgstr "No tax types selected."
 
+#: src/features/firm/timezone-select.tsx
+msgid "No timezone found."
+msgstr "No timezone found."
+
 #: src/features/migration/Stepper.tsx
 msgid "Normalize"
 msgstr "Normalize"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Normalized"
+msgstr "Normalized"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Normalizer warning"
@@ -1953,6 +2029,7 @@ msgid "Not applicable"
 msgstr "Not applicable"
 
 #: src/features/audit/audit-event-drawer.tsx
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/members/members-page.tsx
 msgid "Not recorded"
 msgstr "Not recorded"
@@ -1976,9 +2053,18 @@ msgid "object"
 msgstr "object"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/routes/dashboard.tsx
 msgid "Obligation"
 msgstr "Obligation"
+
+#: src/routes/workboard.tsx
+msgid "Obligation detail"
+msgstr "Obligation detail"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Obligation evidence"
+msgstr "Obligation evidence"
 
 #: src/routes/workboard.tsx
 msgid "Obligation queue"
@@ -2019,6 +2105,7 @@ msgstr "Only the firm owner can start or change a subscription."
 
 #: src/features/migration/Step2Mapping.tsx
 #: src/features/workload/workload-page.tsx
+#: src/routes/workboard.tsx
 msgid "Open"
 msgstr "Open"
 
@@ -2029,6 +2116,17 @@ msgstr "Open Billing"
 #: src/components/patterns/app-shell.tsx
 msgid "Open billing for {plan} plan"
 msgstr "Open billing for {plan} plan"
+
+#: src/routes/workboard.tsx
+msgid "Open evidence"
+msgstr "Open evidence"
+
+#. placeholder {0}: row.clientName
+#. placeholder {0}: tableRow.original.clientName
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "Open evidence for {0}"
+msgstr "Open evidence for {0}"
 
 #: src/routes/dashboard.tsx
 msgid "Open evidence for {label}"
@@ -2042,10 +2140,6 @@ msgstr "Open fact profile for {0}"
 #: src/features/members/members-page.tsx
 msgid "Open member actions"
 msgstr "Open member actions"
-
-#: src/routes/dashboard.tsx
-msgid "Open obligation"
-msgstr "Open obligation"
 
 #: src/routes/dashboard.tsx
 msgid "open obligations"
@@ -2071,7 +2165,7 @@ msgstr "Open risk"
 msgid "Open rule detail: {0}"
 msgstr "Open rule detail: {0}"
 
-#: src/routes/dashboard.tsx
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Open source"
 msgstr "Open source"
 
@@ -2153,6 +2247,10 @@ msgstr "Owner approval required"
 msgid "Owner approved"
 msgstr "Owner approved"
 
+#: src/routes/workboard.tsx
+msgid "Owner count"
+msgstr "Owner count"
+
 #: src/routes/billing.checkout.tsx
 msgid "Owner permission required"
 msgstr "Owner permission required"
@@ -2230,6 +2328,22 @@ msgstr "Payment is extended along with filing."
 #: src/routes/billing.tsx
 msgid "Payment model"
 msgstr "Payment model"
+
+#: src/routes/workboard.tsx
+msgid "Penalty inputs"
+msgstr "Penalty inputs"
+
+#: src/routes/workboard.tsx
+msgid "Penalty inputs saved"
+msgstr "Penalty inputs saved"
+
+#: src/routes/dashboard.tsx
+msgid "Penalty Radar"
+msgstr "Penalty Radar"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "Penalty readiness is computed from the confirmed tax type plus any estimated tax due and owner count columns mapped in Step 2."
+msgstr "Penalty readiness is computed from the confirmed tax type plus any estimated tax due and owner count columns mapped in Step 2."
 
 #: src/features/members/members-page.tsx
 #: src/features/workboard/status-control.tsx
@@ -2354,6 +2468,10 @@ msgstr "Queue controls"
 #: src/routes/dashboard.tsx
 msgid "Queued"
 msgstr "Queued"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Raw"
+msgstr "Raw"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Re-run AI"
@@ -2524,6 +2642,7 @@ msgstr "review"
 #: src/features/pulse/components/PulseAlertCard.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/workload/workload-page.tsx
+#: src/routes/workboard.tsx
 msgid "Review"
 msgstr "Review"
 
@@ -2654,6 +2773,7 @@ msgid "Sample"
 msgstr "Sample"
 
 #: src/routes/firm.tsx
+#: src/routes/workboard.tsx
 msgid "Save changes"
 msgstr "Save changes"
 
@@ -2677,6 +2797,10 @@ msgstr "Search clients"
 #: src/routes/workboard.tsx
 msgid "Search obligations"
 msgstr "Search obligations"
+
+#: src/features/firm/timezone-select.tsx
+msgid "Search timezone..."
+msgstr "Search timezone..."
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Search, ask, or navigate."
@@ -2722,6 +2846,10 @@ msgstr "Select all eligible obligations"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Select clients to apply"
 msgstr "Select clients to apply"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Selected obligation"
+msgstr "Selected obligation"
 
 #: src/routes/billing.checkout.tsx
 msgid "Selected plan"
@@ -2876,7 +3004,6 @@ msgstr "source"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/rules/generation-preview-tab.tsx
-#: src/routes/dashboard.tsx
 msgid "Source"
 msgstr "Source"
 
@@ -2895,6 +3022,10 @@ msgstr "source gaps"
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source needs attention · {label}"
 msgstr "Source needs attention · {label}"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Source timeline"
+msgstr "Source timeline"
 
 #: src/routes/billing.tsx
 msgid "Source-backed evidence"
@@ -3131,6 +3262,10 @@ msgstr "This removes the clients and deadlines created by this import. Other pra
 msgid "This soft-deletes the active firm and moves you to another available firm."
 msgstr "This soft-deletes the active firm and moves you to another available firm."
 
+#: src/routes/workboard.tsx
+msgid "This week"
+msgstr "This week"
+
 #: src/features/audit/audit-log-table.tsx
 msgid "Time"
 msgstr "Time"
@@ -3190,6 +3325,10 @@ msgstr "Undo this import?"
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
 
+#: src/routes/dashboard.tsx
+msgid "Unsupported"
+msgstr "Unsupported"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Update the active firm's name and timezone."
 msgstr "Update the active firm's name and timezone."
@@ -3198,7 +3337,7 @@ msgstr "Update the active firm's name and timezone."
 msgid "Updated"
 msgstr "Updated"
 
-#. placeholder {0}: brief.generatedAt
+#. placeholder {0}: formatDateTimeWithTimezone(brief.generatedAt)
 #: src/routes/dashboard.tsx
 msgid "Updated {0}"
 msgstr "Updated {0}"
@@ -3374,6 +3513,10 @@ msgstr "Workbench"
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "Workboard"
+
+#: src/routes/workboard.tsx
+msgid "Workboard needs-input update"
+msgstr "Workboard needs-input update"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Workboard status updates and client imports will appear here when they write audit rows."

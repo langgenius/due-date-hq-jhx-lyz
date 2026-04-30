@@ -8,6 +8,7 @@ import type { ThemePreference } from '@duedatehq/ui/theme'
 
 import { AppShell } from '@/components/patterns/app-shell'
 import { KeyboardProvider } from '@/components/patterns/keyboard-shell'
+import { EvidenceDrawerProvider } from '@/features/evidence/EvidenceDrawerProvider'
 import { MigrationWizardProvider } from '@/features/migration/WizardProvider'
 import { PulseDrawerProvider } from '@/features/pulse/DrawerProvider'
 import type { AuthUser } from '@/lib/auth'
@@ -71,13 +72,15 @@ export function RootLayout() {
         themePreference={themePreference}
         switchThemePreference={switchThemePreference}
       >
-        <PulseDrawerProvider>
-          <RootLayoutShell
-            user={user}
-            themePreference={themePreference}
-            switchThemePreference={switchThemePreference}
-          />
-        </PulseDrawerProvider>
+        <EvidenceDrawerProvider>
+          <PulseDrawerProvider>
+            <RootLayoutShell
+              user={user}
+              themePreference={themePreference}
+              switchThemePreference={switchThemePreference}
+            />
+          </PulseDrawerProvider>
+        </EvidenceDrawerProvider>
       </KeyboardProvider>
     </MigrationWizardProvider>
   )

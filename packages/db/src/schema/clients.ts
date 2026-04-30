@@ -7,8 +7,8 @@ import { firmProfile } from './firm'
  *
  * Layering (docs/dev-file/03-Data-Model.md §2.2):
  *   - Demo Sprint subset only. Phase 0 / Phase 1 columns (assignee_id,
- *     estimated_tax_liability_cents, coordinator-visible billing mirrors,
- *     readiness_status) are deliberately deferred — D1 ALTER TABLE is cheap.
+ *     coordinator-visible billing mirrors, readiness_status) are deliberately
+ *     deferred — D1 ALTER TABLE is cheap.
  *   - `firm_id` FK goes to `firm_profile.id` (which === organization.id ===
  *     firmId). Scoped repo factory (`scoped.ts`) is the only way procedures
  *     reach this table.
@@ -53,6 +53,14 @@ export const client = sqliteTable(
     // once Team / RBAC opens (FU not tracked here; see PRD §3.6.3 + FU-1 hook).
     assigneeName: text('assignee_name'),
 
+    // Penalty/exposure inputs. Values come from explicit user input, fixture
+    // seed, or migration mapping only; AI never invents dollar amounts.
+    estimatedTaxLiabilityCents: integer('estimated_tax_liability_cents'),
+    estimatedTaxLiabilitySource: text('estimated_tax_liability_source', {
+      enum: ['manual', 'imported', 'demo_seed'],
+    }),
+    equityOwnerCount: integer('equity_owner_count'),
+
     // NULL for manually-created clients. Non-null rows participate in the
     // Migration batch revert (24h full revert) / single-client undo (7d).
     migrationBatchId: text('migration_batch_id'),
@@ -73,6 +81,12 @@ export const client = sqliteTable(
     index('idx_client_firm_time').on(table.firmId, table.createdAt),
     // Workboard filters by entity_type within firm.
     index('idx_client_firm_entity').on(table.firmId, table.entityType),
+    // Dashboard / Workboard penalty input triage.
+    index('idx_client_firm_penalty_inputs').on(
+      table.firmId,
+      table.estimatedTaxLiabilityCents,
+      table.equityOwnerCount,
+    ),
     // 24h revert path: DELETE FROM client WHERE migration_batch_id = ?
     index('idx_client_batch').on(table.migrationBatchId),
   ],
@@ -102,3 +116,6 @@ export const CLIENT_ENTITY_TYPES = [
   'other',
 ] as const
 export type ClientEntityType = (typeof CLIENT_ENTITY_TYPES)[number]
+
+export const ESTIMATED_TAX_LIABILITY_SOURCES = ['manual', 'imported', 'demo_seed'] as const
+export type EstimatedTaxLiabilitySource = (typeof ESTIMATED_TAX_LIABILITY_SOURCES)[number]

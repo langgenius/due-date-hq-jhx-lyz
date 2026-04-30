@@ -30,10 +30,10 @@ const MAPPING_BATCH_SIZE = Math.floor(100 / MAPPING_COLS) // = 11
 const NORM_BATCH_SIZE = Math.floor(100 / 10)
 // migration_error has 7 columns → 14/batch.
 const ERROR_BATCH_SIZE = Math.floor(100 / 7) // = 14
-// client has 14 columns → 7/batch.
-const CLIENT_BATCH_SIZE = Math.floor(100 / 14)
-// obligation_instance has 11 columns → 9/batch.
-const OBLIGATION_BATCH_SIZE = Math.floor(100 / 11)
+// client has 17 columns -> 5/batch.
+const CLIENT_BATCH_SIZE = Math.floor(100 / 17)
+// obligation_instance has 17 columns -> 5/batch.
+const OBLIGATION_BATCH_SIZE = Math.floor(100 / 17)
 // evidence_link has 17 columns → 5/batch.
 const EVIDENCE_BATCH_SIZE = Math.floor(100 / 17)
 // audit_event has 12 columns → 8/batch.

@@ -7,7 +7,6 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
 } from 'lucide-react'
-import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { useNavigate } from 'react-router'
@@ -26,14 +25,6 @@ import {
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
 import { Separator } from '@duedatehq/ui/components/ui/separator'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@duedatehq/ui/components/ui/sheet'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import {
   Table,
@@ -46,11 +37,12 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
 import { RiskBanner } from '@/features/dashboard/risk-banner'
 import { severityRowClass } from '@/features/dashboard/severity-row'
+import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-import { formatDate, formatDateTimeWithTimezone } from '@/lib/utils'
+import { formatCents, formatDate, formatDateTimeWithTimezone } from '@/lib/utils'
 
 type QueueStat = {
   label: string
@@ -90,11 +82,35 @@ function formatEvidence(row: DashboardTopRow, t: ReturnType<typeof useLingui>['t
   return row.primaryEvidence?.sourceType ?? t`Evidence linked`
 }
 
+function ExposureSummaryBadge({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg border border-divider-subtle p-3">
+      <div className="font-mono text-xl font-semibold tabular-nums text-text-primary">{value}</div>
+      <div className="text-xs font-medium uppercase tracking-wider text-text-tertiary">{label}</div>
+    </div>
+  )
+}
+
+function ExposureBadge({ row }: { row: DashboardTopRow }) {
+  if (row.exposureStatus === 'ready' && row.estimatedExposureCents !== null) {
+    return (
+      <Badge variant="warning" className="font-mono tabular-nums">
+        {formatCents(row.estimatedExposureCents)}
+      </Badge>
+    )
+  }
+  if (row.exposureStatus === 'needs_input') {
+    return <Badge variant="info">needs input</Badge>
+  }
+  return <Badge variant="outline">unsupported</Badge>
+}
+
 export function DashboardRoute() {
   const { t } = useLingui()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
+  const { openEvidence } = useEvidenceDrawer()
   const severityLabels = useSeverityLabels()
   const dashboardQuery = useQuery(orpc.dashboard.load.queryOptions({ input: {} }))
   const refreshBriefMutation = useMutation(
@@ -171,13 +187,57 @@ export function DashboardRoute() {
         summary={data?.summary ?? null}
         isLoading={dashboardQuery.isLoading}
         isQueued={isBriefQueued}
-        onOpenObligation={(obligationId) => {
-          void navigate(`/workboard?row=${encodeURIComponent(obligationId)}`)
+        onOpenEvidence={(citation) => {
+          const citedRow = topRows.find((item) => item.obligationId === citation.obligationId)
+          openEvidence({
+            obligationId: citation.obligationId,
+            label: citedRow ? `${citedRow.clientName} - ${citedRow.taxType}` : t`Obligation`,
+            focusEvidenceId: citation.evidence?.id ?? null,
+          })
         }}
         onRefresh={() => refreshBriefMutation.mutate({ scope: 'firm' })}
       />
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Trans>Penalty Radar</Trans>
+            </CardTitle>
+            <CardDescription>
+              <Trans>Estimated exposure in the current operating window.</Trans>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            {dashboardQuery.isLoading ? (
+              <Skeleton className="h-16 w-44" />
+            ) : (
+              <div className="flex flex-col gap-2">
+                <span className="font-mono text-hero font-semibold tabular-nums">
+                  {formatCents(data?.summary.totalExposureCents ?? 0)}
+                </span>
+                <span className="text-sm text-text-secondary">
+                  <Trans>at risk this week</Trans>
+                </span>
+              </div>
+            )}
+            <div className="grid gap-2 sm:grid-cols-3">
+              <ExposureSummaryBadge
+                label={t`Ready`}
+                value={data?.summary.exposureReadyCount ?? 0}
+              />
+              <ExposureSummaryBadge
+                label={t`Needs input`}
+                value={data?.summary.exposureNeedsInputCount ?? 0}
+              />
+              <ExposureSummaryBadge
+                label={t`Unsupported`}
+                value={data?.summary.exposureUnsupportedCount ?? 0}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         <Card id="pulse">
           <CardHeader>
             <CardTitle>
@@ -334,6 +394,7 @@ export function DashboardRoute() {
                         <TableHead>{t`Deadline`}</TableHead>
                         <TableHead>{t`Status`}</TableHead>
                         <TableHead>{t`Severity`}</TableHead>
+                        <TableHead>{t`Exposure`}</TableHead>
                         <TableHead>{t`Evidence`}</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -356,7 +417,22 @@ export function DashboardRoute() {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={row.evidenceCount > 0 ? 'outline' : 'warning'}>
+                            <ExposureBadge row={row} />
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              aria-label={t`Open evidence for ${row.clientName}`}
+                              onClick={() =>
+                                openEvidence({
+                                  obligationId: row.obligationId,
+                                  label: `${row.clientName} - ${row.taxType}`,
+                                  focusEvidenceId: row.primaryEvidence?.id ?? null,
+                                })
+                              }
+                            >
+                              <FileSearchIcon data-icon="inline-start" />
                               {row.evidenceCount > 0 ? (
                                 <Plural
                                   value={row.evidenceCount}
@@ -366,7 +442,7 @@ export function DashboardRoute() {
                               ) : (
                                 t`Needs evidence`
                               )}
-                            </Badge>
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -438,7 +514,7 @@ function DashboardBriefPanel({
   summary,
   isLoading,
   isQueued,
-  onOpenObligation,
+  onOpenEvidence,
   onRefresh,
 }: {
   brief: DashboardBriefPublic | null
@@ -450,11 +526,10 @@ function DashboardBriefPanel({
   } | null
   isLoading: boolean
   isQueued: boolean
-  onOpenObligation: (obligationId: string) => void
+  onOpenEvidence: (citation: DashboardBriefCitation) => void
   onRefresh: () => void
 }) {
   const { t } = useLingui()
-  const [selectedCitation, setSelectedCitation] = useState<DashboardBriefCitation | null>(null)
   const fallback = summary
     ? t`${summary.openObligationCount} open obligations, ${summary.dueThisWeekCount} due this week, and ${summary.needsReviewCount} need review.`
     : t`Dashboard risk summary will appear after clients and obligations are generated.`
@@ -514,7 +589,7 @@ function DashboardBriefPanel({
             <DashboardBriefCitations
               citations={brief.citations ?? []}
               topRows={topRows}
-              onSelectCitation={setSelectedCitation}
+              onSelectCitation={onOpenEvidence}
             />
           </div>
         ) : (
@@ -542,14 +617,6 @@ function DashboardBriefPanel({
           )}
         </Button>
       </CardFooter>
-      <DashboardBriefEvidenceDrawer
-        citation={selectedCitation}
-        topRows={topRows}
-        onOpenChange={(open) => {
-          if (!open) setSelectedCitation(null)
-        }}
-        onOpenObligation={onOpenObligation}
-      />
     </Card>
   )
 }
@@ -609,96 +676,6 @@ function DashboardBriefCitations({
         )
       })}
     </div>
-  )
-}
-
-function DashboardBriefEvidenceDrawer({
-  citation,
-  topRows,
-  onOpenChange,
-  onOpenObligation,
-}: {
-  citation: DashboardBriefCitation | null
-  topRows: DashboardTopRow[]
-  onOpenChange: (open: boolean) => void
-  onOpenObligation: (obligationId: string) => void
-}) {
-  const { t } = useLingui()
-  const row = citation
-    ? topRows.find((topRow) => topRow.obligationId === citation.obligationId)
-    : null
-  const sourceUrl = citation?.evidence?.sourceUrl ?? null
-
-  return (
-    <Sheet open={citation !== null} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-[440px]">
-        <SheetHeader className="border-b border-divider-subtle">
-          <SheetTitle>
-            <Trans>Brief evidence</Trans>
-          </SheetTitle>
-          <SheetDescription>
-            {citation ? t`Citation [${citation.ref}]` : t`Citation detail`}
-          </SheetDescription>
-        </SheetHeader>
-        <div className="flex flex-col gap-4 px-6 py-2">
-          <section className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-              <Trans>Obligation</Trans>
-            </span>
-            <div className="rounded-lg border border-divider-regular p-3">
-              <div className="font-medium text-text-primary">
-                {row?.clientName ?? t`Obligation`}
-              </div>
-              <div className="mt-1 text-sm text-text-secondary">
-                {row
-                  ? t`${row.taxType} due ${formatDate(row.currentDueDate)}`
-                  : citation?.obligationId}
-              </div>
-            </div>
-          </section>
-          <section className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-              <Trans>Source</Trans>
-            </span>
-            <div className="rounded-lg border border-divider-regular p-3 text-sm">
-              <div className="font-medium text-text-primary">
-                {citation?.evidence?.sourceType ?? t`No linked source`}
-              </div>
-              {citation?.evidence?.sourceId ? (
-                <div className="mt-1 font-mono text-xs break-all text-text-tertiary">
-                  {citation.evidence.sourceId}
-                </div>
-              ) : null}
-            </div>
-          </section>
-        </div>
-        <SheetFooter className="border-t border-divider-subtle">
-          {citation ? (
-            <Button
-              variant="outline"
-              onClick={() => {
-                onOpenObligation(citation.obligationId)
-                onOpenChange(false)
-              }}
-            >
-              <FileSearchIcon data-icon="inline-start" />
-              <Trans>Open obligation</Trans>
-            </Button>
-          ) : null}
-          {sourceUrl ? (
-            <a
-              href={sourceUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg px-3.5 text-base font-medium text-text-accent underline-offset-4 hover:underline"
-            >
-              <ArrowUpRightIcon className="size-4" aria-hidden />
-              <Trans>Open source</Trans>
-            </a>
-          ) : null}
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
   )
 }
 

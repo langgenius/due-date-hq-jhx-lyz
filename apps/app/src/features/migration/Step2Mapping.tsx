@@ -44,6 +44,8 @@ const SELECTABLE_TARGETS: ReadonlyArray<TargetEntry> = [
   { value: 'client.tax_types', label: 'tax_types' },
   { value: 'client.email', label: 'client.email' },
   { value: 'client.assignee_name', label: 'assignee_name' },
+  { value: 'client.estimated_tax_liability', label: 'estimated_tax_liability' },
+  { value: 'client.equity_owner_count', label: 'equity_owner_count' },
   { value: 'client.notes', label: 'notes' },
 ]
 

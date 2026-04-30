@@ -1,7 +1,7 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { EvidencePublicSchema } from './evidence'
-import { ObligationStatusSchema } from './shared/enums'
+import { ExposureStatusSchema, ObligationStatusSchema } from './shared/enums'
 import { EntityIdSchema } from './shared/ids'
 
 export const DashboardSeveritySchema = z.enum(['critical', 'high', 'medium', 'neutral'])
@@ -48,6 +48,10 @@ export const DashboardSummarySchema = z.object({
   dueThisWeekCount: z.number().int().min(0),
   needsReviewCount: z.number().int().min(0),
   evidenceGapCount: z.number().int().min(0),
+  totalExposureCents: z.number().int().min(0),
+  exposureReadyCount: z.number().int().min(0),
+  exposureNeedsInputCount: z.number().int().min(0),
+  exposureUnsupportedCount: z.number().int().min(0),
 })
 export type DashboardSummary = z.infer<typeof DashboardSummarySchema>
 
@@ -58,6 +62,9 @@ export const DashboardTopRowSchema = z.object({
   taxType: z.string().min(1),
   currentDueDate: z.iso.date(),
   status: ObligationStatusSchema,
+  estimatedExposureCents: z.number().int().min(0).nullable(),
+  exposureStatus: ExposureStatusSchema,
+  penaltyFormulaVersion: z.string().nullable(),
   severity: DashboardSeveritySchema,
   evidenceCount: z.number().int().min(0),
   primaryEvidence: EvidencePublicSchema.nullable(),

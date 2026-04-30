@@ -276,6 +276,12 @@ describe('@duedatehq/contracts', () => {
         currentDueDate: '2026-04-15',
         status: 'in_progress',
         migrationBatchId: null,
+        estimatedTaxDueCents: null,
+        estimatedExposureCents: null,
+        exposureStatus: 'needs_input',
+        penaltyBreakdown: [],
+        penaltyFormulaVersion: null,
+        exposureCalculatedAt: null,
         createdAt: '2026-04-26T00:00:00.000Z',
         updatedAt: '2026-04-26T00:00:00.000Z',
       },
@@ -363,6 +369,8 @@ describe('@duedatehq/contracts', () => {
     expect(PulseAuditActionSchema.parse('pulse.snooze')).toBe('pulse.snooze')
     expect(AuditActionSchema.parse('pulse.revert')).toBe('pulse.revert')
     expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')
+    expect(AuditActionSchema.parse('penalty.override')).toBe('penalty.override')
+    expect(EvidenceSourceTypeSchema.parse('penalty_override')).toBe('penalty_override')
   })
 
   it('freezes Pulse demo backend contracts', () => {
@@ -469,6 +477,10 @@ describe('@duedatehq/contracts', () => {
         dueThisWeekCount: 1,
         needsReviewCount: 0,
         evidenceGapCount: 0,
+        totalExposureCents: 80000,
+        exposureReadyCount: 1,
+        exposureNeedsInputCount: 0,
+        exposureUnsupportedCount: 0,
       },
       topRows: [
         {
@@ -478,6 +490,9 @@ describe('@duedatehq/contracts', () => {
           taxType: 'ca_llc_annual_tax',
           currentDueDate: '2026-04-30',
           status: 'pending',
+          estimatedExposureCents: 80000,
+          exposureStatus: 'ready',
+          penaltyFormulaVersion: 'penalty-v1-2026q2',
           severity: 'critical',
           evidenceCount: 1,
           primaryEvidence: {

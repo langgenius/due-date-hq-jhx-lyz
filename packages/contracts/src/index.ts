@@ -81,10 +81,19 @@ export {
 
 // Re-export domain types so consumers can `import type { ... } from '@duedatehq/contracts'`
 // without reaching into subpaths. Keeps the public surface stable + tree-shake-friendly.
-export type { ClientCreateInput, ClientIdentity, ClientPublic, ClientsContract } from './clients'
+export type {
+  ClientCreateInput,
+  ClientIdentity,
+  ClientPenaltyInputsUpdateInput,
+  ClientPenaltyInputsUpdateOutput,
+  ClientPublic,
+  ClientsContract,
+} from './clients'
 export {
   ClientCreateInputSchema,
   ClientIdentitySchema,
+  ClientPenaltyInputsUpdateOutputSchema,
+  ClientPenaltyInputsUpdateSchema,
   ClientPublicSchema,
   clientsContract,
 } from './clients'
@@ -96,6 +105,7 @@ export type {
   ObligationStatusUpdateInput,
   ObligationStatusUpdateOutput,
   ObligationsContract,
+  PenaltyBreakdownItem,
 } from './obligations'
 export {
   DueDateUpdateInputSchema,
@@ -104,6 +114,7 @@ export {
   ObligationStatusUpdateInputSchema,
   ObligationStatusUpdateOutputSchema,
   obligationsContract,
+  PenaltyBreakdownItemSchema,
 } from './obligations'
 
 export type {
@@ -307,6 +318,8 @@ export type {
   MigrationContract,
   MigrationError,
   MigrationErrorStage,
+  MigrationExposureSummary,
+  MigrationExposureTopRow,
   MigrationListErrorsInput,
   MigrationSource,
   NormalizationRow,
@@ -323,6 +336,8 @@ export {
   MigrationBatchStatusSchema,
   MigrationErrorSchema,
   MigrationErrorStageSchema,
+  MigrationExposureSummarySchema,
+  MigrationExposureTopRowSchema,
   MigrationListErrorsInputSchema,
   MigrationSourceSchema,
   NormalizationRowSchema,
@@ -332,12 +347,19 @@ export {
 export {
   AuditActions,
   AuditActionSchema,
+  PenaltyAuditActions,
+  PenaltyAuditActionSchema,
   MigrationAuditActions,
   MigrationAuditActionSchema,
   PulseAuditActions,
   PulseAuditActionSchema,
 } from './shared/audit-actions'
-export type { AuditAction, MigrationAuditAction, PulseAuditAction } from './shared/audit-actions'
+export type {
+  AuditAction,
+  MigrationAuditAction,
+  PenaltyAuditAction,
+  PulseAuditAction,
+} from './shared/audit-actions'
 export { EvidenceSourceTypes, EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 export type { EvidenceSourceType } from './shared/evidence-source-types'
 export { EntityIdSchema, TenantIdSchema } from './shared/ids'

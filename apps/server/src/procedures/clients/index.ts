@@ -3,6 +3,8 @@ import type { ClientsRepo } from '@duedatehq/ports/clients'
 import { requireTenant } from '../_context'
 import { CLIENT_WRITE_ROLES, requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
+import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
+import { recalculateClientExposure } from '../_penalty-exposure'
 import { toClientPublic, type ClientCreateInputForRepo, type ClientRow } from './_serializers'
 
 /**
@@ -44,6 +46,9 @@ const create = os.clients.create.handler(async ({ input, context }) => {
     email: input.email ?? null,
     notes: input.notes ?? null,
     assigneeName: input.assigneeName ?? null,
+    estimatedTaxLiabilityCents: input.estimatedTaxLiabilityCents ?? null,
+    estimatedTaxLiabilitySource: input.estimatedTaxLiabilitySource ?? null,
+    equityOwnerCount: input.equityOwnerCount ?? null,
     migrationBatchId: input.migrationBatchId ?? null,
   }
 
@@ -78,6 +83,9 @@ const createBatch = os.clients.createBatch.handler(async ({ input, context }) =>
     email: c.email ?? null,
     notes: c.notes ?? null,
     assigneeName: c.assigneeName ?? null,
+    estimatedTaxLiabilityCents: c.estimatedTaxLiabilityCents ?? null,
+    estimatedTaxLiabilitySource: c.estimatedTaxLiabilitySource ?? null,
+    equityOwnerCount: c.equityOwnerCount ?? null,
     migrationBatchId: c.migrationBatchId ?? null,
   }))
 
@@ -110,9 +118,85 @@ const listByFirm = os.clients.listByFirm.handler(async ({ input, context }) => {
   return rows.map(toClientPublic)
 })
 
+const updatePenaltyInputs = os.clients.updatePenaltyInputs.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
+  const { scoped, tenant, userId } = requireTenant(context)
+  const before = await scoped.clients.findById(input.id)
+  if (!before) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Client ${input.id} not found in current firm.`,
+    })
+  }
+
+  await scoped.clients.updatePenaltyInputs(input.id, {
+    ...(input.estimatedTaxLiabilityCents !== undefined
+      ? {
+          estimatedTaxLiabilityCents: input.estimatedTaxLiabilityCents,
+          estimatedTaxLiabilitySource:
+            input.estimatedTaxLiabilityCents === null ? null : ('manual' as const),
+        }
+      : {}),
+    ...(input.equityOwnerCount !== undefined ? { equityOwnerCount: input.equityOwnerCount } : {}),
+  })
+  const recalculatedObligationCount = await recalculateClientExposure(scoped, input.id)
+  const after = await scoped.clients.findById(input.id)
+  if (!after) {
+    throw new ORPCError('INTERNAL_SERVER_ERROR', {
+      message: 'Updated client could not be re-read.',
+    })
+  }
+
+  const auditEvent: Parameters<typeof scoped.audit.write>[0] = {
+    actorId: userId,
+    entityType: 'client',
+    entityId: input.id,
+    action: 'penalty.override',
+    before: {
+      estimatedTaxLiabilityCents: before.estimatedTaxLiabilityCents,
+      equityOwnerCount: before.equityOwnerCount,
+    },
+    after: {
+      estimatedTaxLiabilityCents: after.estimatedTaxLiabilityCents,
+      equityOwnerCount: after.equityOwnerCount,
+    },
+  }
+  if (input.reason !== undefined) auditEvent.reason = input.reason
+  await scoped.audit.write(auditEvent)
+
+  const obligations = await scoped.obligations.listByClient(input.id)
+  await scoped.evidence.writeBatch(
+    obligations.map((obligation) => ({
+      obligationInstanceId: obligation.id,
+      sourceType: 'penalty_override',
+      sourceId: input.id,
+      rawValue: JSON.stringify({
+        estimatedTaxLiabilityCents: before.estimatedTaxLiabilityCents,
+        equityOwnerCount: before.equityOwnerCount,
+      }),
+      normalizedValue: JSON.stringify({
+        estimatedTaxLiabilityCents: after.estimatedTaxLiabilityCents,
+        equityOwnerCount: after.equityOwnerCount,
+      }),
+      confidence: 1,
+      appliedBy: userId,
+    })),
+  )
+
+  await enqueueDashboardBriefRefresh(context.env, {
+    firmId: tenant.firmId,
+    reason: 'penalty_override',
+  }).catch(() => false)
+
+  return {
+    client: toClientPublic(after),
+    recalculatedObligationCount,
+  }
+})
+
 export const clientsHandlers = {
   create,
   createBatch,
   get,
   listByFirm,
+  updatePenaltyInputs,
 }

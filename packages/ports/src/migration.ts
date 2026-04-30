@@ -123,6 +123,9 @@ export interface CommitClientInput {
   email?: string | null
   notes?: string | null
   assigneeName?: string | null
+  estimatedTaxLiabilityCents?: number | null
+  estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
+  equityOwnerCount?: number | null
   migrationBatchId?: string | null
 }
 
@@ -136,6 +139,12 @@ export interface CommitObligationInput {
   currentDueDate: Date
   status: ObligationStatus
   migrationBatchId?: string | null
+  estimatedTaxDueCents?: number | null
+  estimatedExposureCents?: number | null
+  exposureStatus?: 'ready' | 'needs_input' | 'unsupported'
+  penaltyBreakdownJson?: unknown
+  penaltyFormulaVersion?: string | null
+  exposureCalculatedAt?: Date | null
 }
 
 export interface CommitEvidenceInput {

@@ -225,6 +225,12 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
           tax types.
         </Trans>
       </p>
+      <p className="text-sm text-text-tertiary">
+        <Trans>
+          Penalty readiness is computed from the confirmed tax type plus any estimated tax due and
+          owner count columns mapped in Step 2.
+        </Trans>
+      </p>
       <ul className="flex flex-col divide-y divide-divider-regular">
         {matrix.map((cell) => {
           const key = `${cell.entityType}::${cell.state}`

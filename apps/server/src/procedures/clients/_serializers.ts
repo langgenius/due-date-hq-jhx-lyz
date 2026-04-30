@@ -27,6 +27,9 @@ export interface ClientRow {
   email: string | null
   notes: string | null
   assigneeName: string | null
+  estimatedTaxLiabilityCents: number | null
+  estimatedTaxLiabilitySource: 'manual' | 'imported' | 'demo_seed' | null
+  equityOwnerCount: number | null
   migrationBatchId: string | null
   createdAt: Date
   updatedAt: Date
@@ -43,6 +46,9 @@ export interface ClientCreateInputForRepo {
   email?: string | null
   notes?: string | null
   assigneeName?: string | null
+  estimatedTaxLiabilityCents?: number | null
+  estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
+  equityOwnerCount?: number | null
   migrationBatchId?: string | null
 }
 
@@ -58,6 +64,9 @@ export function toClientPublic(row: ClientRow): ClientPublic {
     email: row.email,
     notes: row.notes,
     assigneeName: row.assigneeName,
+    estimatedTaxLiabilityCents: row.estimatedTaxLiabilityCents,
+    estimatedTaxLiabilitySource: row.estimatedTaxLiabilitySource,
+    equityOwnerCount: row.equityOwnerCount,
     migrationBatchId: row.migrationBatchId,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),

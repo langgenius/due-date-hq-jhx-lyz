@@ -22,6 +22,8 @@ export type ObligationStatus =
   | 'review'
   | 'not_applicable'
 
+export type ExposureStatus = 'ready' | 'needs_input' | 'unsupported'
+
 export type MigrationSource =
   | 'paste'
   | 'csv'

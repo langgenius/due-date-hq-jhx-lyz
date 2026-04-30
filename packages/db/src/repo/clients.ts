@@ -8,11 +8,11 @@ import { client, type Client, type ClientEntityType } from '../schema/clients'
  * Procedures never call this constructor directly; they call
  * `scoped(db, firmId).clients` (packages/db/src/scoped.ts).
  *
- * D1 100-param budget: `client` inserts 14 cols → 7 rows per batch INSERT.
+ * D1 100-param budget: `client` inserts 17 cols -> 5 rows per batch INSERT.
  */
 
-const COLS_PER_CLIENT_ROW = 14
-const CLIENT_BATCH_SIZE = Math.floor(100 / COLS_PER_CLIENT_ROW) // = 7
+const COLS_PER_CLIENT_ROW = 17
+const CLIENT_BATCH_SIZE = Math.floor(100 / COLS_PER_CLIENT_ROW) // = 5
 const CLIENT_LOOKUP_IDS_PER_BATCH = 99
 
 export interface ClientCreateInput {
@@ -25,6 +25,9 @@ export interface ClientCreateInput {
   email?: string | null
   notes?: string | null
   assigneeName?: string | null
+  estimatedTaxLiabilityCents?: number | null
+  estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
+  equityOwnerCount?: number | null
   migrationBatchId?: string | null
 }
 
@@ -45,6 +48,9 @@ export function makeClientsRepo(db: Db, firmId: string) {
         email: input.email ?? null,
         notes: input.notes ?? null,
         assigneeName: input.assigneeName ?? null,
+        estimatedTaxLiabilityCents: input.estimatedTaxLiabilityCents ?? null,
+        estimatedTaxLiabilitySource: input.estimatedTaxLiabilitySource ?? null,
+        equityOwnerCount: input.equityOwnerCount ?? null,
         migrationBatchId: input.migrationBatchId ?? null,
       })
       return { id }
@@ -63,6 +69,9 @@ export function makeClientsRepo(db: Db, firmId: string) {
         email: i.email ?? null,
         notes: i.notes ?? null,
         assigneeName: i.assigneeName ?? null,
+        estimatedTaxLiabilityCents: i.estimatedTaxLiabilityCents ?? null,
+        estimatedTaxLiabilitySource: i.estimatedTaxLiabilitySource ?? null,
+        equityOwnerCount: i.equityOwnerCount ?? null,
         migrationBatchId: i.migrationBatchId ?? null,
       }))
       const writes = []
@@ -126,6 +135,32 @@ export function makeClientsRepo(db: Db, firmId: string) {
         .select()
         .from(client)
         .where(and(eq(client.firmId, firmId), eq(client.migrationBatchId, batchId)))
+    },
+
+    async updatePenaltyInputs(
+      id: string,
+      input: {
+        estimatedTaxLiabilityCents?: number | null
+        estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
+        equityOwnerCount?: number | null
+      },
+    ): Promise<void> {
+      const patch: Partial<typeof client.$inferInsert> = {}
+      if (input.estimatedTaxLiabilityCents !== undefined) {
+        patch.estimatedTaxLiabilityCents = input.estimatedTaxLiabilityCents
+        patch.estimatedTaxLiabilitySource = input.estimatedTaxLiabilitySource ?? 'manual'
+      }
+      if (input.estimatedTaxLiabilitySource !== undefined) {
+        patch.estimatedTaxLiabilitySource = input.estimatedTaxLiabilitySource
+      }
+      if (input.equityOwnerCount !== undefined) {
+        patch.equityOwnerCount = input.equityOwnerCount
+      }
+      if (Object.keys(patch).length === 0) return
+      await db
+        .update(client)
+        .set(patch)
+        .where(and(eq(client.firmId, firmId), eq(client.id, id), isNull(client.deletedAt)))
     },
 
     async softDelete(id: string): Promise<void> {

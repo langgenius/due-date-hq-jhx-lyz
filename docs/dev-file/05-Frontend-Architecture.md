@@ -200,14 +200,16 @@ feature 语义留在 members vertical 内。
 Activation Slice v1 约束：Dashboard 不再维护本地 fake risk rows / queue stats / pulse items。
 `apps/app/src/routes/dashboard.tsx` 直接消费
 `useQuery(orpc.dashboard.load.queryOptions({ input: {} }))`，只负责 loading / error / empty /
-real-data 呈现；open risk、due window、needs review、evidence gap 和 severity 都由 server
-aggregation 统一计算。
+real-data 呈现；open risk、due window、needs review、evidence gap、Penalty Radar exposure
+和 severity 都由 server aggregation 统一计算。前端只渲染
+`ready / needs_input / unsupported`，不在 render 里补算或伪造金额。
 
 Dashboard AI Brief 约束：前端不触发模型调用，也不轮询 AI provider。`dashboard.load` 返回 latest
 `brief` 状态后，页面按 `ready` / `stale` / `pending` / `failed` 渲染：
 
 - `ready`：展示后台 guard 通过的 brief 文本和 citation / evidence chips；点击 citation
-  打开 Dashboard 内 evidence drawer，drawer 可跳到 Workboard 对应 obligation 或官方 source URL。
+  调用 app-level `EvidenceDrawerProvider.openEvidence()`，drawer 可跳到 obligation evidence
+  和官方 source URL。
 - `stale`：继续展示旧 brief，并标明更新时间。
 - `pending`：展示轻量状态行，风险表照常可用；不要放整块 skeleton。
 - `failed` 或 `null`：展示 deterministic fallback，例如 open risk / due-this-week summary。
@@ -546,7 +548,8 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **Keyboard Shell**：`apps/app/src/components/patterns/keyboard-shell` 是唯一 app 级快捷键入口，基于 `@tanstack/react-hotkeys`。全局层注册 `?` / `Cmd/Ctrl+K` / `Cmd/Ctrl+Shift+D` / `Cmd/Ctrl+Shift+O`，导航序列层注册 `G then D/W/C/A/T`（Dashboard / Workboard / Clients / Alerts / Team workload），Members route 层注册 `Cmd/Ctrl+I`，Workboard route 层注册 `J/K/Enter/E/F/X/I/W`，Wizard/Overlay 层压住 route/navigation 快捷键。裸字母键保留 TanStack 的 input ignore 行为，`Enter` 只在明确声明 `ignoreInputs: false` 且手动排除 textarea/contenteditable/select 时使用。所有可见 shortcut label 走 keyboard shell display helpers，不在业务组件里手写平台判断。
 - **Command Palette (Cmd-K)**：全局快捷键，搜索输入 + 三段结果（Navigate / Actions / Ask），Ask 在 Phase 1 前留占位 `Coming soon`。Navigate 必须直接列出 canonical 一级页面（Dashboard / Workboard / Alerts / Team workload / Clients / Firm profile / Rules / Members / Billing / Audit log），不再提供聚合 `Settings` 命令。Palette 使用 lazy import，第一次 `Cmd/Ctrl+K` 后加载，避免进入首屏 bundle 热路径。列表交互基于 shadcn `Command` / `cmdk`，开启 `disablePointerSelection`，键盘 active item 不被鼠标 hover 抢走；鼠标 hover 用浅层 `bg-background-subtle`，键盘 active item 用更深的 `bg-state-base-hover`。
 - **Shortcut Help (?)**：帮助浮层从 TanStack `useHotkeyRegistrations()` 读取当前已 mount 快捷键，再合并 reserved slots（Ask `/`、Evidence selected），避免文档与实现分叉。
-- **Evidence Mode**：当前 Workboard `E` 和全局 `Cmd/Ctrl+E` 先作为 reserved / placeholder 展示；真实 selection → `evidence-drawer` wiring 在 Day 6 接入。
+- **Evidence Mode**：Workboard `E`、row action、Dashboard top rows 和 Brief citation
+  统一调用 app-level Evidence drawer；全局 `Cmd/Ctrl+E` 仍保留给未来 cross-page selection。
 
 ---
 
@@ -556,7 +559,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - 所有交互元素 `tabindex` 正确；Base UI 自带正确 focus management
 - 颜色对比度 ≥ 4.5:1（DESIGN.md 的 token 已满足）
 - 暗色模式真实切换（不只是 media query）
-- `prefers-reduced-motion` → 关闭 Penalty Radar 数字滚动动画
+- `prefers-reduced-motion` → Live Genesis / Penalty Radar 金额动画降级为短 fade
 
 ---
 

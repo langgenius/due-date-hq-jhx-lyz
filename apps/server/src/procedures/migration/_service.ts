@@ -8,6 +8,7 @@ import {
 } from '@duedatehq/core/default-matrix'
 import { parseTabular, type ParsedTabular, type TabularKind } from '@duedatehq/core/csv-parser'
 import { normalizeEntityType, normalizeState } from '@duedatehq/core/normalize-dict'
+import { summarizePenaltyExposure } from '@duedatehq/core/penalty'
 import {
   DryRunSummarySchema,
   MappingRowSchema,
@@ -18,6 +19,7 @@ import {
   type MappingRow,
   type MatrixSelection,
   type MigrationBatch,
+  type MigrationExposureSummary,
   type MigrationError,
   type MigrationSource,
   type NormalizationRow,
@@ -61,6 +63,8 @@ import type { DeterministicError, MappingJsonPayload, MatrixApplicationEntry } f
  */
 
 const MAX_SAMPLE_ROWS = 5
+const TAX_TYPE_DICT_VERSION = 'dictionary-tax-types@v1'
+const TAX_TYPE_DICT_CONFIDENCE = 0.85
 
 const MapperOutputSchema = z.object({
   mappings: z.array(
@@ -76,6 +80,8 @@ const MapperOutputSchema = z.object({
         'client.assignee_name',
         'client.email',
         'client.notes',
+        'client.estimated_tax_liability',
+        'client.equity_owner_count',
         'IGNORE',
       ]),
       confidence: z.number().min(0).max(1),
@@ -546,6 +552,7 @@ export class MigrationService {
     obligationCount: number
     skippedCount: number
     revertibleUntil: string
+    exposureSummary: MigrationExposureSummary
   }> {
     const batch = await this.requireBatch(batchId)
     if (batch.status === 'applied') {
@@ -582,6 +589,7 @@ export class MigrationService {
       obligationCount: plan.obligations.length,
       skippedCount: plan.skippedCount,
       revertibleUntil: plan.revertExpiresAt.toISOString(),
+      exposureSummary: summarizeCommitPlanExposure(plan),
     }
   }
 
@@ -713,6 +721,12 @@ export class MigrationService {
       obligationsToCreate: stats.obligationsToCreate,
       skippedRows: stats.skippedRows,
       errors: stats.errors,
+      exposurePreview: previewExposureReadiness({
+        batchId,
+        firmId: this.deps.scoped.firmId,
+        userId: this.deps.userId,
+        payload,
+      }),
     }
     return DryRunSummarySchema.parse(summary)
   }
@@ -851,22 +865,31 @@ export class MigrationService {
       }
     }
 
-    // No dictionary fallback for tax_types — Default Matrix takes over.
+    // Dictionary fallback for common fixture/vendor labels. If a vendor
+    // provided a tax-type column, Default Matrix will not infer over it, so
+    // raw labels like "Form 1065 + CA LLC" need a deterministic path when AI
+    // is unavailable.
     return {
       aiOutputId,
-      rows: rawValues.map((raw) => ({
-        id: crypto.randomUUID(),
-        batchId,
-        field: 'tax_types',
-        rawValue: raw,
-        normalizedValue: null,
-        confidence: null,
-        model: null,
-        promptVersion: PRESET_VERSION,
-        reasoning: 'AI unavailable — Default Matrix will infer tax_types from (entity, state).',
-        userOverridden: false,
-        createdAt: now,
-      })),
+      rows: rawValues.map((raw) => {
+        const normalized = normalizeTaxTypesDictionary(raw)
+        return {
+          id: crypto.randomUUID(),
+          batchId,
+          field: 'tax_types',
+          rawValue: raw,
+          normalizedValue: normalized.length > 0 ? JSON.stringify(normalized) : null,
+          confidence: normalized.length > 0 ? TAX_TYPE_DICT_CONFIDENCE : null,
+          model: null,
+          promptVersion: normalized.length > 0 ? TAX_TYPE_DICT_VERSION : PRESET_VERSION,
+          reasoning:
+            normalized.length > 0
+              ? 'Local tax-type dictionary fallback (AI unavailable).'
+              : 'AI unavailable and no tax-type dictionary match.',
+          userOverridden: false,
+          createdAt: now,
+        } satisfies NormalizationRow
+      }),
     }
   }
 
@@ -927,6 +950,32 @@ function collectColumn(idx: number | undefined, rows: string[][]): string[] {
     }
   }
   return Array.from(out)
+}
+
+function normalizeTaxTypesDictionary(raw: string): string[] {
+  const value = raw
+    .trim()
+    .toLowerCase()
+    .replace(/[–—]/g, '-')
+    .replace(/\s+/g, ' ')
+  const out: string[] = []
+
+  if (/\b1120[\s-]?s\b/.test(value) || value.includes('ct-3-s')) out.push('federal_1120s')
+  else if (/\b1120\b/.test(value)) out.push('federal_1120')
+  if (/\b1065\b/.test(value)) out.push('federal_1065')
+
+  if (value.includes('ca llc') || value.includes('llc fee')) {
+    out.push('ca_llc_franchise_min_800', 'ca_llc_fee_gross_receipts')
+  }
+  if (value.includes('ca franchise') || value.includes('ca 100')) {
+    if (value.includes('100s')) out.push('ca_100s_franchise')
+    else out.push('ca_100_franchise')
+  }
+  if (value.includes('ny ct-3-s') || value.includes('ct-3-s')) out.push('ny_ct3s')
+  else if (value.includes('ny ct-3') || value.includes('ct-3')) out.push('ny_ct3')
+  if (value.includes('it-204') || value.includes('it204')) out.push('ny_it204')
+
+  return Array.from(new Set(out))
 }
 
 function base64ToBytes(b64: string): Uint8Array {
@@ -1055,6 +1104,48 @@ function estimateObligationCount(payload: MappingJsonPayload, clientCount: numbe
   return payload.matrixApplied.reduce(
     (sum, e) => (e.enabled ? sum + e.taxTypes.length * e.appliedClientCount : sum),
     0,
+  )
+}
+
+function previewExposureReadiness(input: {
+  batchId: string
+  firmId: string
+  userId: string
+  payload: MappingJsonPayload
+}): DryRunSummary['exposurePreview'] {
+  if (!input.payload.rawInput || !input.payload.confirmedMappings) return undefined
+  try {
+    const plan = buildCommitPlan(input)
+    const summary = summarizeCommitPlanExposure(plan)
+    return {
+      totalExposureCents: summary.totalExposureCents,
+      readyCount: summary.readyCount,
+      needsInputCount: summary.needsInputCount,
+      unsupportedCount: summary.unsupportedCount,
+      topRows: summary.topRows,
+    }
+  } catch {
+    return undefined
+  }
+}
+
+function summarizeCommitPlanExposure(
+  plan: ReturnType<typeof buildCommitPlan>,
+): MigrationExposureSummary {
+  const clientById = new Map(plan.clients.map((client) => [client.id, client]))
+  return summarizePenaltyExposure(
+    plan.obligations.map((obligation) => {
+      const client = clientById.get(obligation.clientId)
+      return {
+        id: obligation.id,
+        clientId: obligation.clientId,
+        clientName: client?.name ?? 'Unknown client',
+        taxType: obligation.taxType,
+        currentDueDate: obligation.currentDueDate,
+        exposureStatus: obligation.exposureStatus ?? 'needs_input',
+        estimatedExposureCents: obligation.estimatedExposureCents ?? null,
+      }
+    }),
   )
 }
 

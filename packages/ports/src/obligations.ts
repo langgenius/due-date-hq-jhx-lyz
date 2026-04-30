@@ -1,4 +1,11 @@
-import type { ObligationStatus } from './shared'
+import type { ExposureStatus, ObligationStatus } from './shared'
+
+export interface PenaltyBreakdownItem {
+  key: string
+  label: string
+  amountCents: number
+  formula: string
+}
 
 export interface ObligationInstanceRow {
   id: string
@@ -10,6 +17,12 @@ export interface ObligationInstanceRow {
   currentDueDate: Date
   status: ObligationStatus
   migrationBatchId: string | null
+  estimatedTaxDueCents: number | null
+  estimatedExposureCents: number | null
+  exposureStatus: ExposureStatus
+  penaltyBreakdownJson: unknown
+  penaltyFormulaVersion: string | null
+  exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
 }
@@ -23,6 +36,12 @@ export interface ObligationCreateInput {
   currentDueDate?: Date
   status?: ObligationStatus
   migrationBatchId?: string | null
+  estimatedTaxDueCents?: number | null
+  estimatedExposureCents?: number | null
+  exposureStatus?: ExposureStatus
+  penaltyBreakdownJson?: unknown
+  penaltyFormulaVersion?: string | null
+  exposureCalculatedAt?: Date | null
 }
 
 export interface ObligationsRepo {
@@ -32,6 +51,17 @@ export interface ObligationsRepo {
   listByClient(clientId: string): Promise<ObligationInstanceRow[]>
   listByBatch(batchId: string): Promise<ObligationInstanceRow[]>
   updateDueDate(id: string, newDate: Date): Promise<void>
+  updateExposure(
+    id: string,
+    patch: {
+      estimatedTaxDueCents: number | null
+      estimatedExposureCents: number | null
+      exposureStatus: ExposureStatus
+      penaltyBreakdownJson: unknown
+      penaltyFormulaVersion: string | null
+      exposureCalculatedAt: Date | null
+    },
+  ): Promise<void>
   updateStatus(id: string, status: ObligationStatus): Promise<void>
   deleteByBatch(batchId: string): Promise<number>
 }

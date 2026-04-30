@@ -52,6 +52,8 @@ export const MappingTargetSchema = z.enum([
   'client.assignee_name',
   'client.email',
   'client.notes',
+  'client.estimated_tax_liability',
+  'client.equity_owner_count',
   'IGNORE',
 ])
 export type MappingTarget = z.infer<typeof MappingTargetSchema>
@@ -99,6 +101,25 @@ export const DryRunSummarySchema = z.object({
   obligationsToCreate: z.number().int().min(0),
   skippedRows: z.number().int().min(0),
   errors: z.array(MigrationErrorSchema),
+  exposurePreview: z
+    .object({
+      totalExposureCents: z.number().int().min(0),
+      readyCount: z.number().int().min(0),
+      needsInputCount: z.number().int().min(0),
+      unsupportedCount: z.number().int().min(0),
+      topRows: z.array(
+        z.object({
+          obligationId: EntityIdSchema,
+          clientId: EntityIdSchema,
+          clientName: z.string().min(1),
+          taxType: z.string().min(1),
+          currentDueDate: z.iso.date(),
+          estimatedExposureCents: z.number().int().min(0),
+          exposureStatus: z.enum(['ready', 'needs_input', 'unsupported']),
+        }),
+      ),
+    })
+    .optional(),
 })
 
 export const MatrixSelectionSchema = z.object({
@@ -143,12 +164,33 @@ export const MapperRunOutputSchema = z.object({
 })
 export type MapperRunOutput = z.infer<typeof MapperRunOutputSchema>
 
+export const MigrationExposureTopRowSchema = z.object({
+  obligationId: EntityIdSchema,
+  clientId: EntityIdSchema,
+  clientName: z.string().min(1),
+  taxType: z.string().min(1),
+  currentDueDate: z.iso.date(),
+  estimatedExposureCents: z.number().int().min(0),
+  exposureStatus: z.enum(['ready', 'needs_input', 'unsupported']),
+})
+export type MigrationExposureTopRow = z.infer<typeof MigrationExposureTopRowSchema>
+
+export const MigrationExposureSummarySchema = z.object({
+  totalExposureCents: z.number().int().min(0),
+  readyCount: z.number().int().min(0),
+  needsInputCount: z.number().int().min(0),
+  unsupportedCount: z.number().int().min(0),
+  topRows: z.array(MigrationExposureTopRowSchema),
+})
+export type MigrationExposureSummary = z.infer<typeof MigrationExposureSummarySchema>
+
 export const ApplyResultSchema = z.object({
   batchId: EntityIdSchema,
   clientCount: z.number().int().min(0),
   obligationCount: z.number().int().min(0),
   skippedCount: z.number().int().min(0),
   revertibleUntil: z.iso.datetime(),
+  exposureSummary: MigrationExposureSummarySchema,
 })
 
 const BatchIdInput = z.object({ batchId: EntityIdSchema })

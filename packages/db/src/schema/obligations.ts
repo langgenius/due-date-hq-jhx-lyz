@@ -3,6 +3,9 @@ import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { client } from './clients'
 import { firmProfile } from './firm'
 
+export const EXPOSURE_STATUSES = ['ready', 'needs_input', 'unsupported'] as const
+export type ExposureStatus = (typeof EXPOSURE_STATUSES)[number]
+
 /**
  * obligation_instance — a single due-date row for one client for one tax type.
  *
@@ -56,6 +59,15 @@ export const obligationInstance = sqliteTable(
     // Pulse-apply in Phase 1 via exception) do not carry a batch id.
     migrationBatchId: text('migration_batch_id'),
 
+    estimatedTaxDueCents: integer('estimated_tax_due_cents'),
+    estimatedExposureCents: integer('estimated_exposure_cents'),
+    exposureStatus: text('exposure_status', { enum: EXPOSURE_STATUSES })
+      .notNull()
+      .default('needs_input'),
+    penaltyBreakdownJson: text('penalty_breakdown_json', { mode: 'json' }).$type<unknown>(),
+    penaltyFormulaVersion: text('penalty_formula_version'),
+    exposureCalculatedAt: integer('exposure_calculated_at', { mode: 'timestamp_ms' }),
+
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
       .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
       .notNull(),
@@ -68,6 +80,13 @@ export const obligationInstance = sqliteTable(
     // Dashboard tabs: This Week / This Month / All — scan by firm + status +
     // soonest due first.
     index('idx_oi_firm_status_due').on(table.firmId, table.status, table.currentDueDate),
+    // Penalty Radar / Workboard triage: sort open obligations by exposure.
+    index('idx_oi_firm_due_exposure').on(
+      table.firmId,
+      table.currentDueDate,
+      table.exposureStatus,
+      table.estimatedExposureCents,
+    ),
     // Client detail page drawer.
     index('idx_oi_client').on(table.clientId),
     // 24h revert path mirror of idx_client_batch.

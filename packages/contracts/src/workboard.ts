@@ -1,7 +1,7 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { ObligationInstancePublicSchema } from './obligations'
-import { ObligationStatusSchema } from './shared/enums'
+import { ExposureStatusSchema, ObligationStatusSchema } from './shared/enums'
 
 /**
  * Workboard is the firm-wide obligation queue. Read-only here; mutations
@@ -27,6 +27,8 @@ export const WorkboardListInputSchema = z.object({
   owner: WorkboardOwnerFilterSchema.optional(),
   due: WorkboardDueFilterSchema.optional(),
   dueWithinDays: z.number().int().min(1).max(30).optional(),
+  exposureStatus: ExposureStatusSchema.optional(),
+  needsEvidence: z.boolean().optional(),
   asOfDate: z.iso.date().optional(),
   sort: WorkboardSortSchema.default('due_asc').optional(),
   cursor: z.string().nullable().optional(),
@@ -37,6 +39,7 @@ export type WorkboardListInput = z.infer<typeof WorkboardListInputSchema>
 export const WorkboardRowSchema = ObligationInstancePublicSchema.extend({
   clientName: z.string().min(1),
   assigneeName: z.string().min(1).nullable(),
+  evidenceCount: z.number().int().min(0),
 })
 export type WorkboardRow = z.infer<typeof WorkboardRowSchema>
 

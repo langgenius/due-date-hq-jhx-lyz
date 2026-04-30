@@ -8,6 +8,8 @@ export interface WorkboardListInput {
   owner?: WorkboardOwnerFilter
   due?: WorkboardDueFilter
   dueWithinDays?: number
+  exposureStatus?: ObligationInstanceRow['exposureStatus']
+  needsEvidence?: boolean
   asOfDate?: string
   sort?: WorkboardSort
   cursor?: string | null
@@ -17,6 +19,7 @@ export interface WorkboardListInput {
 export interface WorkboardListRow extends ObligationInstanceRow {
   clientName: string
   assigneeName: string | null
+  evidenceCount: number
 }
 
 export interface WorkboardListResult {

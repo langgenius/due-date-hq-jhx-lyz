@@ -16,12 +16,22 @@ interface ObligationRow {
   currentDueDate: Date
   status: ObligationInstancePublic['status']
   migrationBatchId: string | null
+  estimatedTaxDueCents: number | null
+  estimatedExposureCents: number | null
+  exposureStatus: ObligationInstancePublic['exposureStatus']
+  penaltyBreakdownJson: unknown
+  penaltyFormulaVersion: string | null
+  exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
 }
 
 function toIsoDate(d: Date): string {
   return d.toISOString().slice(0, 10)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
 }
 
 export function toObligationPublic(row: ObligationRow): ObligationInstancePublic {
@@ -35,9 +45,42 @@ export function toObligationPublic(row: ObligationRow): ObligationInstancePublic
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,
     migrationBatchId: row.migrationBatchId,
+    estimatedTaxDueCents: row.estimatedTaxDueCents,
+    estimatedExposureCents: row.estimatedExposureCents,
+    exposureStatus: row.exposureStatus,
+    penaltyBreakdown: parsePenaltyBreakdown(row.penaltyBreakdownJson),
+    penaltyFormulaVersion: row.penaltyFormulaVersion,
+    exposureCalculatedAt: row.exposureCalculatedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   }
+}
+
+function parsePenaltyBreakdown(value: unknown): ObligationInstancePublic['penaltyBreakdown'] {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((item) => {
+    if (!isRecord(item)) return []
+    const key = item.key
+    const label = item.label
+    const amountCents = item.amountCents
+    const formula = item.formula
+    if (
+      typeof key !== 'string' ||
+      typeof label !== 'string' ||
+      typeof amountCents !== 'number' ||
+      typeof formula !== 'string'
+    ) {
+      return []
+    }
+    return [
+      {
+        key,
+        label,
+        amountCents,
+        formula,
+      },
+    ]
+  })
 }
 
 /**
@@ -89,7 +132,7 @@ export async function updateObligationStatus(
     reason?: string
   } = {
     actorId: userId,
-    entityType: 'obligation',
+    entityType: 'obligation_instance',
     entityId: input.id,
     action: 'obligation.status.updated',
     before: { status: before.status },

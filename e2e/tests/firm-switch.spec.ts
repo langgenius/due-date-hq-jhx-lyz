@@ -32,7 +32,8 @@ test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm and switches context', 
   const dialog = authenticatedPage.getByRole('dialog', { name: 'Add firm' })
   await expect(dialog).toBeVisible()
   await dialog.getByLabel('Firm name').fill(firmName)
-  await dialog.getByLabel('Timezone').fill(timezone)
+  await dialog.getByLabel('Timezone').click()
+  await authenticatedPage.getByRole('option', { name: /Pacific.*America\/Los_Angeles/ }).click()
   await dialog.getByRole('button', { name: 'Create firm' }).click()
 
   await expect(dialog).toBeHidden()
@@ -45,7 +46,7 @@ test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm and switches context', 
   await authenticatedPage.goto('/firm')
 
   await expect(authenticatedPage.getByLabel('Firm name')).toHaveValue(firmName)
-  await expect(authenticatedPage.getByLabel('Timezone')).toHaveValue(timezone)
+  await expect(authenticatedPage.getByLabel('Timezone')).toContainText(timezone)
   await expectActiveFirmSummary(authenticatedPage, { plan: 'Solo', seatLimit: 1 })
   await expect(authenticatedPage.locator('body')).not.toContainText(
     new RegExp(`${escapeRegExp(slugPrefix)}-[a-z2-9]{6}`),

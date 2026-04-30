@@ -1,7 +1,15 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
-import { ObligationStatusSchema } from './shared/enums'
+import { ExposureStatusSchema, ObligationStatusSchema } from './shared/enums'
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
+
+export const PenaltyBreakdownItemSchema = z.object({
+  key: z.string().min(1),
+  label: z.string().min(1),
+  amountCents: z.number().int().min(0),
+  formula: z.string().min(1),
+})
+export type PenaltyBreakdownItem = z.infer<typeof PenaltyBreakdownItemSchema>
 
 export const ObligationInstancePublicSchema = z.object({
   id: EntityIdSchema,
@@ -13,6 +21,12 @@ export const ObligationInstancePublicSchema = z.object({
   currentDueDate: z.iso.date(),
   status: ObligationStatusSchema,
   migrationBatchId: EntityIdSchema.nullable(),
+  estimatedTaxDueCents: z.number().int().min(0).nullable(),
+  estimatedExposureCents: z.number().int().min(0).nullable(),
+  exposureStatus: ExposureStatusSchema,
+  penaltyBreakdown: z.array(PenaltyBreakdownItemSchema),
+  penaltyFormulaVersion: z.string().nullable(),
+  exposureCalculatedAt: z.iso.datetime().nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 })
@@ -25,6 +39,12 @@ export const ObligationCreateInputSchema = z.object({
   currentDueDate: z.iso.date().optional(),
   status: ObligationStatusSchema.optional(),
   migrationBatchId: EntityIdSchema.nullable().optional(),
+  estimatedTaxDueCents: z.number().int().min(0).nullable().optional(),
+  estimatedExposureCents: z.number().int().min(0).nullable().optional(),
+  exposureStatus: ExposureStatusSchema.optional(),
+  penaltyBreakdown: z.array(PenaltyBreakdownItemSchema).optional(),
+  penaltyFormulaVersion: z.string().nullable().optional(),
+  exposureCalculatedAt: z.iso.datetime().nullable().optional(),
 })
 
 export const DueDateUpdateInputSchema = z.object({

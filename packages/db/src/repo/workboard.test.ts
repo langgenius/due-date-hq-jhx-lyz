@@ -12,6 +12,12 @@ interface FakeRow {
   currentDueDate: Date
   status: 'pending' | 'in_progress' | 'done' | 'waiting_on_client' | 'review' | 'not_applicable'
   migrationBatchId: string | null
+  estimatedTaxDueCents: number | null
+  estimatedExposureCents: number | null
+  exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+  penaltyBreakdownJson: unknown
+  penaltyFormulaVersion: string | null
+  exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
   clientName: string
@@ -32,9 +38,15 @@ function createFakeDb(rows: FakeRow[]) {
   const overlayWhere = vi.fn(() => ({ orderBy: overlayOrderBy }))
   const overlayInnerJoin = vi.fn(() => ({ where: overlayWhere }))
   const overlayFrom = vi.fn(() => ({ innerJoin: overlayInnerJoin }))
-  const select = vi.fn((shape?: Record<string, unknown>) =>
-    shape && 'overrideDueDate' in shape ? { from: overlayFrom } : { from },
-  )
+  const evidenceWhere = vi.fn(async () => [])
+  const evidenceFrom = vi.fn(() => ({ where: evidenceWhere }))
+  const select = vi.fn((shape?: Record<string, unknown>) => {
+    if (shape && 'overrideDueDate' in shape) return { from: overlayFrom }
+    if (shape && Object.keys(shape).length === 1 && 'obligationInstanceId' in shape) {
+      return { from: evidenceFrom }
+    }
+    return { from }
+  })
 
   return {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- focused Drizzle test double.
@@ -60,6 +72,12 @@ function makeRow(over: Partial<FakeRow> = {}): FakeRow {
     currentDueDate: due,
     status: over.status ?? 'pending',
     migrationBatchId: over.migrationBatchId ?? null,
+    estimatedTaxDueCents: over.estimatedTaxDueCents ?? null,
+    estimatedExposureCents: over.estimatedExposureCents ?? null,
+    exposureStatus: over.exposureStatus ?? 'needs_input',
+    penaltyBreakdownJson: over.penaltyBreakdownJson ?? null,
+    penaltyFormulaVersion: over.penaltyFormulaVersion ?? null,
+    exposureCalculatedAt: over.exposureCalculatedAt ?? null,
     createdAt: over.createdAt ?? due,
     updatedAt: over.updatedAt ?? due,
     clientName: over.clientName ?? 'Acme Holdings LLC',

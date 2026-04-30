@@ -1,4 +1,3 @@
-import { ORPCError } from '@orpc/server'
 import { auditHandlers } from './audit'
 import { clientsHandlers } from './clients'
 import { dashboardHandlers } from './dashboard'
@@ -17,21 +16,13 @@ import { os } from './_root'
  * Root oRPC router.
  *
  * Each domain has its own folder under `procedures/`. Per-domain `*Handlers`
- * objects fan out into the contract router shape here. Domains that haven't
- * landed yet keep `notImplemented` stubs so the contract surface stays
- * complete for typed client codegen.
+ * objects fan out into the contract router shape here.
  *
  * Constraint (docs/dev-file/08 §4.1):
  *   - procedures may NOT import @duedatehq/db / its subpaths.
  *   - they receive the scoped repo via `context.vars.scoped` (tenant
  *     middleware injects it before this handler runs).
  */
-
-function notImplemented(): never {
-  throw new ORPCError('ORPC_NOT_IMPLEMENTED', {
-    message: 'This procedure contract is frozen; implementation lands in the next slice.',
-  })
-}
 
 export const router = os.router({
   audit: {
@@ -51,10 +42,11 @@ export const router = os.router({
     createBatch: clientsHandlers.createBatch,
     get: clientsHandlers.get,
     listByFirm: clientsHandlers.listByFirm,
+    updatePenaltyInputs: clientsHandlers.updatePenaltyInputs,
   },
   obligations: {
     createBatch: obligationsHandlers.createBatch,
-    updateDueDate: os.obligations.updateDueDate.handler(notImplemented),
+    updateDueDate: obligationsHandlers.updateDueDate,
     updateStatus: obligationsHandlers.updateStatus,
     listByClient: obligationsHandlers.listByClient,
   },

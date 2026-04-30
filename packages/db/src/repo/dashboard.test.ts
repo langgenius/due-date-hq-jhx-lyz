@@ -18,6 +18,9 @@ describe('dashboard aggregation', () => {
           taxType: 'ca_100',
           currentDueDate: due('2026-04-27'),
           status: 'pending',
+          estimatedExposureCents: null,
+          exposureStatus: 'needs_input',
+          penaltyFormulaVersion: null,
         },
         {
           obligationId: 'oi_week',
@@ -26,6 +29,9 @@ describe('dashboard aggregation', () => {
           taxType: 'ny_ct3',
           currentDueDate: due('2026-05-02'),
           status: 'review',
+          estimatedExposureCents: 125_000,
+          exposureStatus: 'ready',
+          penaltyFormulaVersion: 'penalty-v1-2026q2',
         },
         {
           obligationId: 'oi_later',
@@ -34,6 +40,9 @@ describe('dashboard aggregation', () => {
           taxType: 'federal_1120',
           currentDueDate: due('2026-05-20'),
           status: 'waiting_on_client',
+          estimatedExposureCents: null,
+          exposureStatus: 'unsupported',
+          penaltyFormulaVersion: null,
         },
         {
           obligationId: 'oi_day_7',
@@ -42,6 +51,9 @@ describe('dashboard aggregation', () => {
           taxType: 'federal_1120',
           currentDueDate: due('2026-05-05'),
           status: 'pending',
+          estimatedExposureCents: 80_000,
+          exposureStatus: 'ready',
+          penaltyFormulaVersion: 'penalty-v1-2026q2',
         },
       ],
       [
@@ -68,6 +80,10 @@ describe('dashboard aggregation', () => {
       dueThisWeekCount: 2,
       needsReviewCount: 1,
       evidenceGapCount: 3,
+      totalExposureCents: 205_000,
+      exposureReadyCount: 2,
+      exposureNeedsInputCount: 0,
+      exposureUnsupportedCount: 0,
     })
     expect(result.topRows[0]!.obligationId).toBe('oi_overdue')
     expect(result.topRows[0]!.severity).toBe('critical')

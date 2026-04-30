@@ -1,6 +1,9 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import type { AI } from '@duedatehq/ai'
 import { PulseExtractOutputSchema } from '@duedatehq/ai'
+import type { MappingTarget } from '@duedatehq/contracts'
+import { PRESET_FALLBACK_CONFIDENCE, PRESET_VERSION } from './_preset-mappings'
 import { MigrationService, type MigrationDeps } from './_service'
 
 /**
@@ -92,6 +95,7 @@ function buildScopedRepo(firmId: string) {
     async listByBatch() {
       return []
     },
+    async updatePenaltyInputs() {},
     async softDelete() {},
     async deleteByBatch() {
       return 0
@@ -113,6 +117,7 @@ function buildScopedRepo(firmId: string) {
       return []
     },
     async updateDueDate() {},
+    async updateExposure() {},
     async updateStatus() {},
     async deleteByBatch() {
       return 0
@@ -524,6 +529,161 @@ Acme LLC,12-3456789,CA,LLC,acme@example.com
 Bright Studio,98-7654321,NY,S-Corp,bright@example.com
 Lake Holdings,11-2233445,CA,Partnership,lake@example.com`
 
+const FIXTURE_DIR = new URL(
+  '../../../../../docs/product-design/migration-copilot/06-fixtures/',
+  import.meta.url,
+)
+
+function readFixture(name: string): string {
+  return readFileSync(new URL(name, FIXTURE_DIR), 'utf8')
+}
+
+type SourcePreset =
+  | 'preset_taxdome'
+  | 'preset_drake'
+  | 'preset_karbon'
+  | 'preset_quickbooks'
+  | 'preset_file_in_time'
+
+interface FixtureGoldenCase {
+  preset: 'taxdome' | 'drake' | 'karbon' | 'quickbooks' | 'file_in_time'
+  source: SourcePreset
+  file: string
+  clients: number
+  expectedMappings: Record<string, MappingTarget>
+  expectedEinInvalid: number
+}
+
+const PRESET_GOLDENS: FixtureGoldenCase[] = [
+  {
+    preset: 'taxdome',
+    source: 'preset_taxdome',
+    file: 'taxdome-30clients.csv',
+    clients: 30,
+    expectedEinInvalid: 0,
+    expectedMappings: {
+      'Client Name': 'client.name',
+      'Tax ID': 'client.ein',
+      'Entity Type': 'client.entity_type',
+      State: 'client.state',
+      'Tax Return Type': 'client.tax_types',
+      Assignee: 'client.assignee_name',
+      Email: 'client.email',
+      Notes: 'client.notes',
+    },
+  },
+  {
+    preset: 'drake',
+    source: 'preset_drake',
+    file: 'drake-30clients.csv',
+    clients: 30,
+    expectedEinInvalid: 0,
+    expectedMappings: {
+      'Client ID': 'IGNORE',
+      Name: 'client.name',
+      EIN: 'client.ein',
+      Entity: 'client.entity_type',
+      State: 'client.state',
+      'Return Type': 'client.tax_types',
+      Staff: 'client.assignee_name',
+    },
+  },
+  {
+    preset: 'karbon',
+    source: 'preset_karbon',
+    file: 'karbon-20clients.csv',
+    clients: 20,
+    expectedEinInvalid: 0,
+    expectedMappings: {
+      'Organization Name': 'client.name',
+      'Tax ID': 'client.ein',
+      Country: 'IGNORE',
+      'Primary Contact': 'client.assignee_name',
+      'Contact Email': 'client.email',
+    },
+  },
+  {
+    preset: 'quickbooks',
+    source: 'preset_quickbooks',
+    file: 'quickbooks-20clients.csv',
+    clients: 20,
+    expectedEinInvalid: 0,
+    expectedMappings: {
+      Customer: 'client.name',
+      'Tax ID': 'client.ein',
+      'Billing State': 'client.state',
+      Terms: 'IGNORE',
+    },
+  },
+  {
+    preset: 'file_in_time',
+    source: 'preset_file_in_time',
+    file: 'file-in-time-30clients.csv',
+    clients: 30,
+    expectedEinInvalid: 0,
+    expectedMappings: {
+      Client: 'client.name',
+      Service: 'client.tax_types',
+      'Due Date': 'IGNORE',
+      Status: 'IGNORE',
+      Staff: 'client.assignee_name',
+      Entity: 'client.entity_type',
+      State: 'client.state',
+      County: 'client.county',
+      Notes: 'client.notes',
+    },
+  },
+]
+
+const MESSY_EXPECTED_MAPPINGS: Record<string, MappingTarget> = {
+  Client: 'client.name',
+  'Federal ID': 'client.ein',
+  'Org Type': 'client.entity_type',
+  'State/Juris': 'client.state',
+  'County/Region': 'client.county',
+  'Tax Forms': 'client.tax_types',
+  Contact: 'client.assignee_name',
+  Email: 'client.email',
+  Industry: 'IGNORE',
+  'Year Revenue': 'IGNORE',
+  Notes: 'client.notes',
+}
+
+function expectFixtureMappings(
+  mappings: Awaited<ReturnType<MigrationService['runMapper']>>['mappings'],
+  expected: Record<string, MappingTarget>,
+): void {
+  const byHeader = new Map(mappings.map((mapping) => [mapping.sourceHeader, mapping]))
+  for (const [header, target] of Object.entries(expected)) {
+    const mapping = byHeader.get(header)
+    expect(mapping, `missing mapping for ${header}`).toBeDefined()
+    expect(mapping?.targetField).toBe(target)
+    if (target === 'IGNORE') {
+      expect(mapping?.confidence).toBeNull()
+    } else {
+      expect(mapping?.confidence ?? 0).toBeGreaterThanOrEqual(PRESET_FALLBACK_CONFIDENCE)
+    }
+  }
+}
+
+function overrideFixtureMappings(
+  mappings: Awaited<ReturnType<MigrationService['runMapper']>>['mappings'],
+  expected: Record<string, MappingTarget>,
+) {
+  return mappings.map((mapping) => {
+    const targetField = expected[mapping.sourceHeader] ?? 'IGNORE'
+    return {
+      ...mapping,
+      targetField,
+      confidence: targetField === 'IGNORE' ? null : PRESET_FALLBACK_CONFIDENCE,
+      reasoning: 'Fixture golden mapping override.',
+      userOverridden: true,
+      model: null,
+      promptVersion: PRESET_VERSION,
+    }
+  })
+}
+
 describe('MigrationService.createBatch', () => {
   it('writes a draft batch + audit row', async () => {
     const { repo, state } = buildScopedRepo(FIRM)
@@ -607,6 +767,99 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
 
     const updated = await service.getBatch(batch.id)
     expect(updated?.mappingJson).toEqual(expect.objectContaining({ ssnBlockedColumns: [1, 2] }))
+  })
+})
+
+describe('MigrationService fixture golden tests', () => {
+  it.each(PRESET_GOLDENS)(
+    'keeps $preset preset fallback stable for mapping, EIN checks, and dry-run counts',
+    async (golden) => {
+      const { repo, state } = buildScopedRepo(FIRM)
+      const ai = buildAi()
+      const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+      const batch = await service.createBatch({
+        source: golden.source,
+        presetUsed: golden.preset,
+      })
+      await service.uploadRaw({
+        batchId: batch.id,
+        kind: 'csv',
+        text: readFixture(golden.file),
+      })
+
+      const mapper = await service.runMapper(batch.id)
+      expect(mapper.meta?.fallback).toBe('preset')
+      expectFixtureMappings(mapper.mappings, golden.expectedMappings)
+
+      await service.confirmMapping(batch.id, mapper.mappings)
+      const dryRun = await service.dryRun(batch.id)
+
+      expect(dryRun.clientsToCreate).toBe(golden.clients)
+      expect(dryRun.obligationsToCreate).toBeGreaterThan(0)
+      expect(state.errors.filter((error) => error.errorCode === 'EIN_INVALID')).toHaveLength(
+        golden.expectedEinInvalid,
+      )
+    },
+  )
+
+  it('keeps the messy fixture bad-row count stable when mapped without AI', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'paste' })
+    await service.uploadRaw({
+      batchId: batch.id,
+      kind: 'csv',
+      text: readFixture('messy-excel-agent-demo.csv'),
+    })
+    const mapper = await service.runMapper(batch.id)
+    expect(mapper.meta?.fallback).toBe('all_ignore')
+
+    const manualMappings = overrideFixtureMappings(mapper.mappings, MESSY_EXPECTED_MAPPINGS)
+    await service.confirmMapping(batch.id, manualMappings)
+
+    expect(state.errors.filter((error) => error.errorCode === 'EIN_INVALID')).toHaveLength(8)
+  })
+
+  it('calculates exposure preview from explicit tax-due fixture inputs', async () => {
+    const { repo } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({
+      source: 'preset_taxdome',
+      presetUsed: 'taxdome',
+    })
+    await service.uploadRaw({
+      batchId: batch.id,
+      kind: 'csv',
+      text: readFixture('taxdome-exposure-3clients.csv'),
+    })
+
+    const mapper = await service.runMapper(batch.id)
+    expectFixtureMappings(mapper.mappings, {
+      'Client Name': 'client.name',
+      'Tax ID': 'client.ein',
+      'Entity Type': 'client.entity_type',
+      State: 'client.state',
+      'Estimated Tax Due': 'client.estimated_tax_liability',
+      'Owner Count': 'client.equity_owner_count',
+    })
+    await service.confirmMapping(batch.id, mapper.mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+
+    const dryRun = await service.applyDefaultMatrix(batch.id)
+    expect(dryRun.exposurePreview?.totalExposureCents).toBeGreaterThan(0)
+    expect(dryRun.exposurePreview?.readyCount).toBeGreaterThan(0)
+    expect(dryRun.exposurePreview?.needsInputCount).toBe(0)
+
+    const applied = await service.apply(batch.id)
+    expect(applied.exposureSummary.totalExposureCents).toBe(
+      dryRun.exposurePreview?.totalExposureCents,
+    )
   })
 })
 

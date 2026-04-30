@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import {
   flexRender,
@@ -12,7 +12,7 @@ import {
   type Updater,
 } from '@tanstack/react-table'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { FilterIcon, SearchIcon } from 'lucide-react'
+import { FileSearchIcon, FilterIcon, SearchIcon } from 'lucide-react'
 import {
   parseAsArrayOf,
   parseAsInteger,
@@ -41,6 +41,15 @@ import {
 } from '@duedatehq/ui/components/ui/card'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@duedatehq/ui/components/ui/dialog'
+import { Separator } from '@duedatehq/ui/components/ui/separator'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -55,12 +64,21 @@ import {
   TableHeader,
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@duedatehq/ui/components/ui/sheet'
 
 import {
   isInteractiveEventTarget,
   useAppHotkey,
   useKeyboardShortcutsBlocked,
 } from '@/components/patterns/keyboard-shell'
+import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import {
   ALL_STATUSES,
@@ -71,7 +89,7 @@ import {
 import { queryInputUrlUpdateRateLimit, useDebouncedQueryInput } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-import { formatDate } from '@/lib/utils'
+import { formatCents, formatDate } from '@/lib/utils'
 
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -89,6 +107,8 @@ const ALL_SORTS = [
 ] as const satisfies readonly WorkboardSort[]
 const OWNER_FILTERS = ['unassigned'] as const
 const DUE_FILTERS = ['overdue'] as const
+const EXPOSURE_FILTERS = ['ready', 'needs_input', 'unsupported'] as const
+const EVIDENCE_FILTERS = ['needs'] as const
 const DEFAULT_SORT: WorkboardSort = 'due_asc'
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
 const INITIAL_CURSOR: WorkboardCursor = null
@@ -104,6 +124,8 @@ export const workboardSearchParamsParsers = {
   owner: parseAsStringLiteral(OWNER_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
   due: parseAsStringLiteral(DUE_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
   dueWithin: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
+  exposure: parseAsStringLiteral(EXPOSURE_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
+  evidence: parseAsStringLiteral(EVIDENCE_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
   asOf: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
   sort: parseAsStringLiteral(ALL_SORTS)
     .withDefault(DEFAULT_SORT)
@@ -143,13 +165,28 @@ export function WorkboardRoute() {
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
+  const { openEvidence } = useEvidenceDrawer()
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const statusLabels = useStatusLabels()
   const sortLabels = useSortLabels()
   const [
-    { q: searchInput, status: statusFilter, assignee, owner, due, dueWithin, asOf, sort, row },
+    {
+      q: searchInput,
+      status: statusFilter,
+      assignee,
+      owner,
+      due,
+      dueWithin,
+      exposure,
+      evidence,
+      asOf,
+      sort,
+      row,
+    },
     setWorkboardQuery,
   ] = useQueryStates(workboardSearchParamsParsers)
+  const [detailRow, setDetailRow] = useState<WorkboardRow | null>(null)
+  const [penaltyRow, setPenaltyRow] = useState<WorkboardRow | null>(null)
 
   const debouncedSearch = useDebouncedQueryInput(searchInput, {
     maxLength: WORKBOARD_SEARCH_MAX_LENGTH,
@@ -165,11 +202,13 @@ export function WorkboardRoute() {
       ...(owner ? { owner } : {}),
       ...(due ? { due } : {}),
       ...(dueWithin && dueWithin > 0 && dueWithin <= 30 ? { dueWithinDays: dueWithin } : {}),
+      ...(exposure ? { exposureStatus: exposure } : {}),
+      ...(evidence === 'needs' ? { needsEvidence: true } : {}),
       ...(asOf ? { asOfDate: asOf } : {}),
       sort,
       limit: PAGE_SIZE,
     }),
-    [statusQuery, debouncedSearch, assignee, owner, due, dueWithin, asOf, sort],
+    [statusQuery, debouncedSearch, assignee, owner, due, dueWithin, exposure, evidence, asOf, sort],
   )
 
   const listQuery = useInfiniteQuery(
@@ -187,6 +226,8 @@ export function WorkboardRoute() {
     orpc.obligations.updateStatus.mutationOptions({
       onSuccess: (result) => {
         void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         // Show a short audit reference so the user has an immediately
         // checkable "did this write to audit?" answer (Day 3 acceptance).
         toast.success(t`Status updated`, {
@@ -258,6 +299,34 @@ export function WorkboardRoute() {
         meta: { cellClassName: 'font-mono tabular-nums' },
       },
       {
+        accessorKey: 'estimatedExposureCents',
+        header: t`Exposure`,
+        cell: ({ row: tableRow }) => (
+          <ExposurePill row={tableRow.original} onNeedsInput={setPenaltyRow} />
+        ),
+      },
+      {
+        accessorKey: 'evidenceCount',
+        header: t`Evidence`,
+        cell: ({ row: tableRow }) => (
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={t`Open evidence for ${tableRow.original.clientName}`}
+            onClick={(event) => {
+              event.stopPropagation()
+              openEvidence({
+                obligationId: tableRow.original.id,
+                label: `${tableRow.original.clientName} - ${tableRow.original.taxType}`,
+              })
+            }}
+          >
+            <FileSearchIcon data-icon="inline-start" />
+            {tableRow.original.evidenceCount > 0 ? tableRow.original.evidenceCount : t`Open`}
+          </Button>
+        ),
+      },
+      {
         accessorKey: 'status',
         header: t`Status`,
         cell: ({ row: tableRow }) => {
@@ -273,7 +342,7 @@ export function WorkboardRoute() {
         },
       },
     ],
-    [statusLabels, statusUpdatePending, t, updateStatus],
+    [openEvidence, statusLabels, statusUpdatePending, t, updateStatus],
   )
 
   const table = useReactTable({
@@ -354,9 +423,7 @@ export function WorkboardRoute() {
     (event) => {
       if (isInteractiveEventTarget(event.target)) return
       if (!activeRow) return
-      toast.message(t`Detail drawer is coming soon`, {
-        description: activeRow.clientName,
-      })
+      setDetailRow(activeRow)
     },
     {
       enabled: keyboardEnabled,
@@ -376,8 +443,9 @@ export function WorkboardRoute() {
     (event) => {
       if (isInteractiveEventTarget(event.target)) return
       if (!activeRow) return
-      toast.message(t`Evidence drawer is coming soon`, {
-        description: activeRow.clientName,
+      openEvidence({
+        obligationId: activeRow.id,
+        label: `${activeRow.clientName} - ${activeRow.taxType}`,
       })
     },
     {
@@ -553,6 +621,55 @@ export function WorkboardRoute() {
             <button
               type="button"
               className="cursor-pointer focus-visible:outline-none"
+              onClick={() => void setWorkboardQuery({ dueWithin: 7, due: null, row: null })}
+            >
+              <Badge variant={dueWithin === 7 ? 'default' : 'ghost'}>
+                <Trans>This week</Trans>
+              </Badge>
+            </button>
+            <button
+              type="button"
+              className="cursor-pointer focus-visible:outline-none"
+              onClick={() =>
+                void setWorkboardQuery({
+                  exposure: exposure === 'needs_input' ? null : 'needs_input',
+                  row: null,
+                })
+              }
+            >
+              <Badge variant={exposure === 'needs_input' ? 'default' : 'ghost'}>
+                <Trans>Needs input</Trans>
+              </Badge>
+            </button>
+            <button
+              type="button"
+              className="cursor-pointer focus-visible:outline-none"
+              onClick={() =>
+                void setWorkboardQuery({
+                  evidence: evidence === 'needs' ? null : 'needs',
+                  row: null,
+                })
+              }
+            >
+              <Badge variant={evidence === 'needs' ? 'default' : 'ghost'}>
+                <Trans>Needs evidence</Trans>
+              </Badge>
+            </button>
+            <button
+              type="button"
+              className="cursor-pointer focus-visible:outline-none"
+              onClick={() => toggleStatus('review')}
+            >
+              <Badge variant={statusFilter.includes('review') ? 'default' : 'ghost'}>
+                <Trans>Review</Trans>
+              </Badge>
+            </button>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="cursor-pointer focus-visible:outline-none"
               onClick={() => void setWorkboardQuery({ status: null, row: null })}
             >
               <Badge variant={statusFilter.length === 0 ? 'default' : 'ghost'}>
@@ -653,8 +770,210 @@ export function WorkboardRoute() {
           )}
         </CardContent>
       </Card>
+      <WorkboardDetailDrawer
+        row={detailRow}
+        onClose={() => setDetailRow(null)}
+        onOpenEvidence={(rowToOpen) =>
+          openEvidence({
+            obligationId: rowToOpen.id,
+            label: `${rowToOpen.clientName} - ${rowToOpen.taxType}`,
+          })
+        }
+      />
+      <PenaltyInputDialog
+        row={penaltyRow}
+        onClose={() => setPenaltyRow(null)}
+        onSaved={() => {
+          void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+          void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        }}
+      />
     </div>
   )
+}
+
+function ExposurePill({
+  row,
+  onNeedsInput,
+}: {
+  row: WorkboardRow
+  onNeedsInput: (row: WorkboardRow) => void
+}) {
+  if (row.exposureStatus === 'ready' && row.estimatedExposureCents !== null) {
+    return (
+      <Badge variant="warning" className="font-mono tabular-nums">
+        {formatCents(row.estimatedExposureCents)}
+      </Badge>
+    )
+  }
+  if (row.exposureStatus === 'needs_input') {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={(event) => {
+          event.stopPropagation()
+          onNeedsInput(row)
+        }}
+      >
+        <Trans>needs input</Trans>
+      </Button>
+    )
+  }
+  return <Badge variant="outline">unsupported</Badge>
+}
+
+function WorkboardDetailDrawer({
+  row,
+  onClose,
+  onOpenEvidence,
+}: {
+  row: WorkboardRow | null
+  onClose: () => void
+  onOpenEvidence: (row: WorkboardRow) => void
+}) {
+  return (
+    <Sheet open={row !== null} onOpenChange={(open) => (!open ? onClose() : undefined)}>
+      <SheetContent className="w-full sm:max-w-[440px]">
+        <SheetHeader>
+          <SheetTitle>{row?.clientName ?? <Trans>Obligation detail</Trans>}</SheetTitle>
+          <SheetDescription>
+            {row ? `${row.taxType} - ${formatDate(row.currentDueDate)}` : null}
+          </SheetDescription>
+        </SheetHeader>
+        {row ? (
+          <div className="grid gap-4 px-6 pb-6">
+            <DetailRow label="Status" value={row.status} />
+            <DetailRow label="Tax type" value={row.taxType} />
+            <DetailRow label="Due date" value={formatDate(row.currentDueDate)} />
+            <DetailRow
+              label="Exposure"
+              value={
+                row.exposureStatus === 'ready' && row.estimatedExposureCents !== null
+                  ? formatCents(row.estimatedExposureCents)
+                  : row.exposureStatus
+              }
+            />
+            <DetailRow label="Evidence" value={String(row.evidenceCount)} />
+            <Separator />
+          </div>
+        ) : null}
+        <SheetFooter>
+          {row ? (
+            <Button onClick={() => onOpenEvidence(row)}>
+              <FileSearchIcon data-icon="inline-start" />
+              <Trans>Open evidence</Trans>
+            </Button>
+          ) : null}
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[96px_1fr] gap-3 text-sm">
+      <dt className="text-xs font-medium uppercase tracking-wider text-text-tertiary">{label}</dt>
+      <dd className="break-words text-text-primary">{value}</dd>
+    </div>
+  )
+}
+
+function PenaltyInputDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  row: WorkboardRow | null
+  onClose: () => void
+  onSaved: () => void
+}) {
+  const { t } = useLingui()
+  const [draft, setDraft] = useState({ rowId: '', taxDue: '', ownerCount: '' })
+  const mutation = useMutation(
+    orpc.clients.updatePenaltyInputs.mutationOptions({
+      onSuccess: () => {
+        toast.success(t`Penalty inputs saved`)
+        onSaved()
+        onClose()
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't save penalty inputs`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+
+  if (row && draft.rowId !== row.id) {
+    setDraft({ rowId: row.id, taxDue: '', ownerCount: '' })
+  }
+
+  function save() {
+    if (!row) return
+    const taxDue = parseMoneyCents(draft.taxDue)
+    const ownerCount = parseOwnerCount(draft.ownerCount)
+    mutation.mutate({
+      id: row.clientId,
+      ...(taxDue !== null ? { estimatedTaxLiabilityCents: taxDue } : {}),
+      ...(ownerCount !== null ? { equityOwnerCount: ownerCount } : {}),
+      reason: t`Workboard needs-input update`,
+    })
+  }
+
+  return (
+    <Dialog open={row !== null} onOpenChange={(open) => (!open ? onClose() : undefined)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            <Trans>Penalty inputs</Trans>
+          </DialogTitle>
+          <DialogDescription>{row ? `${row.clientName} - ${row.taxType}` : null}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3">
+          <Input
+            inputMode="decimal"
+            placeholder={t`Estimated tax due`}
+            value={draft.taxDue}
+            onChange={(event) =>
+              setDraft((current) => ({ ...current, taxDue: event.target.value }))
+            }
+          />
+          <Input
+            inputMode="numeric"
+            placeholder={t`Owner count`}
+            value={draft.ownerCount}
+            onChange={(event) =>
+              setDraft((current) => ({ ...current, ownerCount: event.target.value }))
+            }
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            <Trans>Cancel</Trans>
+          </Button>
+          <Button onClick={save} disabled={mutation.isPending}>
+            <Trans>Save changes</Trans>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function parseMoneyCents(value: string): number | null {
+  const normalized = value.trim().replace(/[$,\s]/g, '')
+  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) return null
+  const parsed = Number(normalized)
+  return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) : null
+}
+
+function parseOwnerCount(value: string): number | null {
+  const normalized = value.trim()
+  if (!/^\d+$/.test(normalized)) return null
+  const parsed = Number(normalized)
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null
 }
 
 function EmptyState({ onOpenWizard }: { onOpenWizard: () => void }) {

@@ -3,6 +3,8 @@ import { CheckCircle2Icon, PlayIcon, ShieldCheckIcon } from 'lucide-react'
 
 import type { DryRunSummary } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
+import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { formatCents } from '@/lib/utils'
 
 interface Step4Props {
   summary: DryRunSummary | null
@@ -18,6 +20,7 @@ export function Step4Preview({ summary }: Step4Props) {
   const clientCount = summary?.clientsToCreate ?? 0
   const obligationCount = summary?.obligationsToCreate ?? 0
   const skipped = summary?.skippedRows ?? 0
+  const exposure = summary?.exposurePreview ?? null
 
   return (
     <div className="flex flex-col gap-5 py-5">
@@ -76,6 +79,50 @@ export function Step4Preview({ summary }: Step4Props) {
             <Trans>No emails will be sent automatically</Trans>
           </li>
         </ul>
+      </section>
+
+      <section className="grid gap-3 rounded-lg border border-divider-regular bg-background-section p-3">
+        <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
+          <Trans>Exposure preview</Trans>
+        </h3>
+        {exposure ? (
+          <>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="warning" className="font-mono tabular-nums">
+                {formatCents(exposure.totalExposureCents)}
+              </Badge>
+              <Badge variant="outline">
+                <Trans>{exposure.readyCount} ready</Trans>
+              </Badge>
+              <Badge variant="info">
+                <Trans>{exposure.needsInputCount} needs input</Trans>
+              </Badge>
+              <Badge variant="secondary">
+                <Trans>{exposure.unsupportedCount} unsupported</Trans>
+              </Badge>
+            </div>
+            {exposure.topRows.length > 0 ? (
+              <ul className="grid gap-1 text-sm text-text-secondary">
+                {exposure.topRows.slice(0, 3).map((row) => (
+                  <li key={row.obligationId} className="flex items-center justify-between gap-3">
+                    <span>
+                      {row.clientName} - {row.taxType}
+                    </span>
+                    <span className="font-mono tabular-nums">
+                      {formatCents(row.estimatedExposureCents)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </>
+        ) : (
+          <p className="text-sm text-text-secondary">
+            <Trans>
+              Exposure readiness appears after mapping and Default Matrix are confirmed.
+            </Trans>
+          </p>
+        )}
       </section>
 
       <Alert role="status" aria-live="polite">

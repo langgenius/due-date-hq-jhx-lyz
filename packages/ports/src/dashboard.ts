@@ -2,6 +2,7 @@ import type {
   DashboardBriefScope,
   DashboardBriefStatus,
   DashboardSeverity,
+  ExposureStatus,
   ObligationStatus,
 } from './shared'
 
@@ -35,6 +36,9 @@ export interface DashboardTopRow {
   taxType: string
   currentDueDate: Date
   status: ObligationStatus
+  estimatedExposureCents: number | null
+  exposureStatus: ExposureStatus
+  penaltyFormulaVersion: string | null
   severity: DashboardSeverity
   evidenceCount: number
   primaryEvidence: DashboardEvidenceRow | null
@@ -48,6 +52,10 @@ export interface DashboardLoadResult {
     dueThisWeekCount: number
     needsReviewCount: number
     evidenceGapCount: number
+    totalExposureCents: number
+    exposureReadyCount: number
+    exposureNeedsInputCount: number
+    exposureUnsupportedCount: number
   }
   topRows: DashboardTopRow[]
   brief: DashboardBriefRow | null

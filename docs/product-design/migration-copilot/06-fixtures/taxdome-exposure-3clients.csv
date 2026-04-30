@@ -1,0 +1,4 @@
+Client Name,Tax ID,Entity Type,State,Assignee,Email,Estimated Tax Due,Owner Count,Notes
+Acme Exposure LLC (TEST),99-0000901,LLC,CA,Jordan Park,test+901@example.com,"$25,000",2,Exposure fixture
+Beacon Exposure Inc (TEST),99-0000902,S-Corp,NY,Riley Chen,test+902@example.com,"$40,000",3,Exposure fixture
+Cedar Exposure Corp (TEST),99-0000903,C-Corp,CA,Morgan Lee,test+903@example.com,"$75,000",1,Exposure fixture

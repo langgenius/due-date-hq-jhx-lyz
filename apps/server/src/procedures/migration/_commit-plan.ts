@@ -8,6 +8,7 @@ import {
   type RuleGenerationState,
 } from '@duedatehq/core/rules'
 import { validateEin } from '@duedatehq/core/pii'
+import { estimatePenaltyExposure } from '@duedatehq/core/penalty'
 import type { MappingRow, MappingTarget, NormalizationRow } from '@duedatehq/contracts'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
 import { validateRows } from './_deterministic'
@@ -86,6 +87,10 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
       email: facts.email,
       notes: facts.notes,
       assigneeName: facts.assigneeName,
+      estimatedTaxLiabilityCents: facts.estimatedTaxLiabilityCents,
+      estimatedTaxLiabilitySource:
+        facts.estimatedTaxLiabilityCents !== null ? ('imported' as const) : null,
+      equityOwnerCount: facts.equityOwnerCount,
       migrationBatchId: batchId,
     }
     clients.push(clientRow)
@@ -106,6 +111,15 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
     for (const preview of uniqueConcretePreviews(previews)) {
       const obligationId = crypto.randomUUID()
       const dueDate = new Date(`${preview.dueDate}T00:00:00.000Z`)
+      const exposure = estimatePenaltyExposure({
+        jurisdiction: preview.jurisdiction,
+        taxType: preview.taxType,
+        entityType: facts.entityType,
+        dueDate,
+        asOfDate: appliedAt,
+        estimatedTaxLiabilityCents: facts.estimatedTaxLiabilityCents,
+        equityOwnerCount: facts.equityOwnerCount,
+      })
       obligations.push({
         id: obligationId,
         firmId,
@@ -116,6 +130,12 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
         currentDueDate: dueDate,
         status: preview.requiresReview ? 'review' : 'pending',
         migrationBatchId: batchId,
+        estimatedTaxDueCents: exposure.estimatedTaxDueCents,
+        estimatedExposureCents: exposure.estimatedExposureCents,
+        exposureStatus: exposure.status,
+        penaltyBreakdownJson: exposure.breakdown,
+        penaltyFormulaVersion: exposure.formulaVersion,
+        exposureCalculatedAt: appliedAt,
       })
 
       const primaryEvidence = preview.evidence[0]
@@ -220,6 +240,8 @@ interface ClientImportFacts {
   email: string | null
   notes: string | null
   assigneeName: string | null
+  estimatedTaxLiabilityCents: number | null
+  equityOwnerCount: number | null
   taxTypes: string[]
 }
 
@@ -229,6 +251,8 @@ function rowToClientFacts(input: RowToClientFactsInput): ClientImportFacts {
   const rawState = readMappedValue(input, 'client.state')
   const rawEntity = readMappedValue(input, 'client.entity_type')
   const rawTaxTypes = readMappedValue(input, 'client.tax_types')
+  const rawEstimatedTaxLiability = readMappedValue(input, 'client.estimated_tax_liability')
+  const rawEquityOwnerCount = readMappedValue(input, 'client.equity_owner_count')
   const state = normalizeMappedValue(input.normalizations, 'state', rawState)
   const entity = normalizeMappedValue(input.normalizations, 'entity_type', rawEntity)
   const entityCandidate = entity ?? ''
@@ -253,6 +277,8 @@ function rowToClientFacts(input: RowToClientFactsInput): ClientImportFacts {
     email: normalizeEmail(readMappedValue(input, 'client.email')),
     notes: readMappedValue(input, 'client.notes'),
     assigneeName: readMappedValue(input, 'client.assignee_name'),
+    estimatedTaxLiabilityCents: parseMoneyCents(rawEstimatedTaxLiability),
+    equityOwnerCount: parsePositiveInteger(rawEquityOwnerCount),
     taxTypes: Array.from(new Set(taxTypes.filter((value) => value.length > 0))),
   }
 }
@@ -303,6 +329,24 @@ function normalizeTaxTypes(
 function normalizeEmail(value: string | null): string | null {
   if (!value) return null
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : null
+}
+
+function parseMoneyCents(value: string | null): number | null {
+  if (!value) return null
+  const normalized = value.replace(/[$,\s]/g, '')
+  if (!/^-?\d+(\.\d{1,2})?$/.test(normalized)) return null
+  const dollars = Number(normalized)
+  if (!Number.isFinite(dollars) || dollars <= 0) return null
+  return Math.round(dollars * 100)
+}
+
+function parsePositiveInteger(value: string | null): number | null {
+  if (!value) return null
+  const normalized = value.replace(/[, ]/g, '')
+  if (!/^\d+$/.test(normalized)) return null
+  const parsed = Number(normalized)
+  if (!Number.isSafeInteger(parsed) || parsed <= 0) return null
+  return parsed
 }
 
 function isRuleGenerationState(value: string | null): value is RuleGenerationState {

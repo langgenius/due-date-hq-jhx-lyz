@@ -121,6 +121,12 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         <p className="text-md text-text-secondary">
           <Trans>We&apos;ll figure out the shape — paste or upload, your call.</Trans>
         </p>
+        <p className="text-sm text-text-tertiary">
+          <Trans>
+            Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can
+            power the penalty exposure preview.
+          </Trans>
+        </p>
       </div>
 
       <div className="flex flex-col gap-2">

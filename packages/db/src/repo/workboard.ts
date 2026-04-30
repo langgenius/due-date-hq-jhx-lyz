@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, inArray, isNull, or, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import type { Db } from '../client'
+import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
 import { listActiveOverlayDueDates } from './overlay'
@@ -29,6 +30,8 @@ export interface WorkboardListInput {
   owner?: 'unassigned'
   due?: 'overdue'
   dueWithinDays?: number
+  exposureStatus?: 'ready' | 'needs_input' | 'unsupported'
+  needsEvidence?: boolean
   asOfDate?: string
   sort?: WorkboardSort
   cursor?: string | null
@@ -45,10 +48,17 @@ export interface WorkboardListRow {
   currentDueDate: Date
   status: ObligationStatus
   migrationBatchId: string | null
+  estimatedTaxDueCents: number | null
+  estimatedExposureCents: number | null
+  exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+  penaltyBreakdownJson: unknown
+  penaltyFormulaVersion: string | null
+  exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
   clientName: string
   assigneeName: string | null
+  evidenceCount: number
 }
 
 export interface WorkboardListResult {
@@ -59,6 +69,7 @@ export interface WorkboardListResult {
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
 const MAX_READ_ROWS = 1000
+const EVIDENCE_COUNT_BATCH_SIZE = 90
 const MAX_SEARCH_LENGTH = 64
 const LIKE_WILDCARD_RE = /[\\%_]/g
 const UNSAFE_SEARCH_CHARS_RE = /[^\p{L}\p{N}\s&'.-]+/gu
@@ -150,6 +161,32 @@ function isAfterCursor(
 }
 
 export function makeWorkboardRepo(db: Db, firmId: string) {
+  async function listEvidenceCounts(obligationIds: string[]): Promise<Map<string, number>> {
+    if (obligationIds.length === 0) return new Map()
+    const reads = []
+    for (let i = 0; i < obligationIds.length; i += EVIDENCE_COUNT_BATCH_SIZE) {
+      const chunk = obligationIds.slice(i, i + EVIDENCE_COUNT_BATCH_SIZE)
+      reads.push(
+        db
+          .select({
+            obligationInstanceId: evidenceLink.obligationInstanceId,
+          })
+          .from(evidenceLink)
+          .where(
+            and(eq(evidenceLink.firmId, firmId), inArray(evidenceLink.obligationInstanceId, chunk)),
+          ),
+      )
+    }
+    const rows = (await Promise.all(reads)).flat()
+
+    const counts = new Map<string, number>()
+    for (const row of rows) {
+      if (!row.obligationInstanceId) continue
+      counts.set(row.obligationInstanceId, (counts.get(row.obligationInstanceId) ?? 0) + 1)
+    }
+    return counts
+  }
+
   return {
     firmId,
 
@@ -169,6 +206,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
 
       if (input.owner === 'unassigned') {
         filters.push(or(isNull(client.assigneeName), eq(client.assigneeName, ''))!)
+      }
+
+      if (input.exposureStatus) {
+        filters.push(eq(obligationInstance.exposureStatus, input.exposureStatus))
       }
 
       const search = normalizeWorkboardSearch(input.search)
@@ -195,6 +236,12 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           currentDueDate: obligationInstance.currentDueDate,
           status: obligationInstance.status,
           migrationBatchId: obligationInstance.migrationBatchId,
+          estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
+          estimatedExposureCents: obligationInstance.estimatedExposureCents,
+          exposureStatus: obligationInstance.exposureStatus,
+          penaltyBreakdownJson: obligationInstance.penaltyBreakdownJson,
+          penaltyFormulaVersion: obligationInstance.penaltyFormulaVersion,
+          exposureCalculatedAt: obligationInstance.exposureCalculatedAt,
           createdAt: obligationInstance.createdAt,
           updatedAt: obligationInstance.updatedAt,
           clientName: client.name,
@@ -211,6 +258,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         firmId,
         rawRows.map((row) => row.id),
       )
+      const evidenceCounts = await listEvidenceCounts(rawRows.map((row) => row.id))
       const decodedCursor =
         sort !== 'updated_desc' && input.cursor ? decodeCursor(input.cursor) : null
       const rows = rawRows
@@ -218,9 +266,11 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           (row): WorkboardListRow =>
             Object.assign({}, row, {
               currentDueDate: overlayDueDates.get(row.id) ?? row.currentDueDate,
+              evidenceCount: evidenceCounts.get(row.id) ?? 0,
             }),
         )
         .filter((row) => isWithinDueFilter(row, input))
+        .filter((row) => (input.needsEvidence ? row.evidenceCount === 0 : true))
         .toSorted((a, b) => compareRows(a, b, sort))
         .filter((row) => (decodedCursor ? isAfterCursor(row, sort, decodedCursor) : true))
 

@@ -10,16 +10,17 @@
 
 ## 1. 文件清单
 
-| 文件                                                           | 行数（数据） | 列数 | 覆盖场景                                                                                  | 期望 mapping 置信度均值 | 期望 EIN 识别率          | 故意坏行数 |
-| -------------------------------------------------------------- | ------------ | ---- | ----------------------------------------------------------------------------------------- | ----------------------- | ------------------------ | ---------- |
-| [`./taxdome-30clients.csv`](./taxdome-30clients.csv)           | 30           | 8    | TaxDome 导出 · 全字段干净 · CA+NY 8 实体型混合                                            | ≥ 95%                   | 100%                     | 0          |
-| [`./drake-30clients.csv`](./drake-30clients.csv)               | 30           | 7    | Drake 导出 · 全字段 · 含 2 坏行触发 needs_review / normalize                              | ≥ 95%                   | 100%                     | 2          |
-| [`./karbon-20clients.csv`](./karbon-20clients.csv)             | 20           | 5    | Karbon 导出 · 缺 tax_types 列 → 走 Default Matrix                                         | ≥ 85%                   | 100%                     | 1          |
-| [`./quickbooks-20clients.csv`](./quickbooks-20clients.csv)     | 20           | 4    | QuickBooks 仅元数据 · state 全称需归一                                                    | ≥ 80%                   | 95%                      | 2          |
-| [`./file-in-time-30clients.csv`](./file-in-time-30clients.csv) | 30           | 9    | File In Time 独有列（service / due date / status / staff / county）· 期望 preset 自动识别 | ≥ 90%                   | N/A（无 EIN 列）         | 0          |
-| [`./messy-excel-agent-demo.csv`](./messy-excel-agent-demo.csv) | 52           | 11   | Agent Demo 现场演出 · entity 多种写法 / state 混用 / EIN 含空格 / 缺列 / 多余列           | 70 – 85%（故意低）      | 85 – 95%（故意部分失败） | ≥ 8        |
+| 文件                                                                 | 行数（数据） | 列数 | 覆盖场景                                                                                  | 期望 mapping 置信度均值 | 期望 EIN 识别率          | 故意坏行数 |
+| -------------------------------------------------------------------- | ------------ | ---- | ----------------------------------------------------------------------------------------- | ----------------------- | ------------------------ | ---------- |
+| [`./taxdome-30clients.csv`](./taxdome-30clients.csv)                 | 30           | 8    | TaxDome 导出 · 全字段干净 · CA+NY 8 实体型混合                                            | ≥ 95%                   | 100%                     | 0          |
+| [`./drake-30clients.csv`](./drake-30clients.csv)                     | 30           | 7    | Drake 导出 · 全字段 · 含 2 坏行触发 needs_review / normalize                              | ≥ 95%                   | 100%                     | 2          |
+| [`./karbon-20clients.csv`](./karbon-20clients.csv)                   | 20           | 5    | Karbon 导出 · 缺 tax_types 列 → 走 Default Matrix                                         | ≥ 85%                   | 100%                     | 1          |
+| [`./quickbooks-20clients.csv`](./quickbooks-20clients.csv)           | 20           | 4    | QuickBooks 仅元数据 · state 全称需归一                                                    | ≥ 80%                   | 95%                      | 2          |
+| [`./file-in-time-30clients.csv`](./file-in-time-30clients.csv)       | 30           | 9    | File In Time 独有列（service / due date / status / staff / county）· 期望 preset 自动识别 | ≥ 90%                   | N/A（无 EIN 列）         | 0          |
+| [`./messy-excel-agent-demo.csv`](./messy-excel-agent-demo.csv)       | 52           | 11   | Agent Demo 现场演出 · entity 多种写法 / state 混用 / EIN 含空格 / 缺列 / 多余列           | 70 – 85%（故意低）      | 85 – 95%（故意部分失败） | ≥ 8        |
+| [`./taxdome-exposure-3clients.csv`](./taxdome-exposure-3clients.csv) | 3            | 9    | TaxDome exposure 专用 · 含 Estimated Tax Due / Owner Count，验证 penalty preview 可计算   | ≥ 85% fallback          | 100%                     | 0          |
 
-**总 Preset fixture 行数 = 130** · **Agent demo 行数 = 52** · **Preset 列数合计 = 33**
+**总 Preset fixture 行数 = 133** · **Agent demo 行数 = 52** · **Preset 列数合计 = 42**
 
 ### 1.1 每个 CSV 的细节
 
@@ -30,6 +31,12 @@
 - 辖区：16 CA + 14 NY
 - EIN 段：`99-0000001` ~ `99-0000030`
 - 验证：Preset 自动识别 + AI Mapping 置信度均值 ≥ 95% + EIN 识别率 = 100%（双指标 T-S2-01，见 [`../10-conflict-resolutions.md#3-t-s2-01-双指标口径`](../10-conflict-resolutions.md#3-t-s2-01-双指标口径)）
+
+#### `taxdome-exposure-3clients.csv`
+
+- 列：`Client Name, Tax ID, Entity Type, State, Assignee, Email, Estimated Tax Due, Owner Count, Notes`
+- 3 行：LLC / S-Corp / C-Corp，覆盖 owner-count 与 tax-due 两类 penalty 输入
+- 验证：AI disabled 时 TaxDome preset fallback 识别 `Estimated Tax Due` / `Owner Count`，Step 4 exposure preview `readyCount > 0` 且 total exposure > 0
 
 #### `drake-30clients.csv`
 

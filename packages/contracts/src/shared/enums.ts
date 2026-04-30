@@ -29,3 +29,6 @@ export const ObligationStatusSchema = z.enum([
   'not_applicable',
 ])
 export type ObligationStatus = z.infer<typeof ObligationStatusSchema>
+
+export const ExposureStatusSchema = z.enum(['ready', 'needs_input', 'unsupported'])
+export type ExposureStatus = z.infer<typeof ExposureStatusSchema>

@@ -16,6 +16,9 @@ interface DashboardRepoTopRow {
   taxType: string
   currentDueDate: Date
   status: DashboardTopRow['status']
+  estimatedExposureCents: number | null
+  exposureStatus: DashboardTopRow['exposureStatus']
+  penaltyFormulaVersion: string | null
   severity: DashboardTopRow['severity']
   evidenceCount: number
   primaryEvidence: {
@@ -59,6 +62,9 @@ function toTopRow(row: DashboardRepoTopRow): DashboardTopRow {
     taxType: row.taxType,
     currentDueDate: toDateOnly(row.currentDueDate),
     status: row.status,
+    estimatedExposureCents: row.estimatedExposureCents,
+    exposureStatus: row.exposureStatus,
+    penaltyFormulaVersion: row.penaltyFormulaVersion,
     severity: row.severity,
     evidenceCount: row.evidenceCount,
     primaryEvidence: row.primaryEvidence

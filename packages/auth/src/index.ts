@@ -330,7 +330,7 @@ export function createAuth(deps: CreateAuthDeps) {
     plugins: [...plugins],
     trustedOrigins: trustedOrigins(deps.env),
     rateLimit: {
-      enabled: true,
+      enabled: deps.env.ENV !== 'development',
       storage: 'database',
       window: 60,
       max: 100,

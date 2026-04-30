@@ -23,13 +23,22 @@ export const PulseAuditActions = [
   'pulse.revert',
 ] as const
 
-export const AuditActions = [...MigrationAuditActions, ...PulseAuditActions] as const
+export const PenaltyAuditActions = ['penalty.override'] as const
+
+export const AuditActions = [
+  ...MigrationAuditActions,
+  ...PulseAuditActions,
+  ...PenaltyAuditActions,
+] as const
 
 export const MigrationAuditActionSchema = z.enum(MigrationAuditActions)
 export type MigrationAuditAction = z.infer<typeof MigrationAuditActionSchema>
 
 export const PulseAuditActionSchema = z.enum(PulseAuditActions)
 export type PulseAuditAction = z.infer<typeof PulseAuditActionSchema>
+
+export const PenaltyAuditActionSchema = z.enum(PenaltyAuditActions)
+export type PenaltyAuditAction = z.infer<typeof PenaltyAuditActionSchema>
 
 export const AuditActionSchema = z.enum(AuditActions)
 export type AuditAction = z.infer<typeof AuditActionSchema>

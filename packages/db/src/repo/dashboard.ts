@@ -49,6 +49,9 @@ export interface DashboardRawRow {
   taxType: string
   currentDueDate: Date
   status: ObligationStatus
+  estimatedExposureCents: number | null
+  exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+  penaltyFormulaVersion: string | null
 }
 
 export interface DashboardTopRow extends DashboardRawRow {
@@ -65,6 +68,10 @@ export interface DashboardLoadResult {
     dueThisWeekCount: number
     needsReviewCount: number
     evidenceGapCount: number
+    totalExposureCents: number
+    exposureReadyCount: number
+    exposureNeedsInputCount: number
+    exposureUnsupportedCount: number
   }
   topRows: DashboardTopRow[]
   brief: DashboardBriefRow | null
@@ -122,6 +129,10 @@ export function composeDashboardLoad(
   let dueThisWeekCount = 0
   let needsReviewCount = 0
   let evidenceGapCount = 0
+  let totalExposureCents = 0
+  let exposureReadyCount = 0
+  let exposureNeedsInputCount = 0
+  let exposureUnsupportedCount = 0
   const asOf = parseDateOnly(input.asOfDate).getTime()
   const topRows: DashboardTopRow[] = []
 
@@ -129,10 +140,19 @@ export function composeDashboardLoad(
     const daysUntilDue = Math.floor(
       (parseDateOnly(toDateOnly(row.currentDueDate)).getTime() - asOf) / DAY_MS,
     )
+    const inWindow = daysUntilDue >= 0 && daysUntilDue <= windowDays
     const evidence = evidenceByObligation.get(row.obligationId) ?? []
-    if (daysUntilDue >= 0 && daysUntilDue <= windowDays) dueThisWeekCount += 1
+    if (inWindow) dueThisWeekCount += 1
     if (row.status === 'review') needsReviewCount += 1
     if (evidence.length === 0) evidenceGapCount += 1
+    if (inWindow && row.exposureStatus === 'ready') {
+      exposureReadyCount += 1
+      totalExposureCents += row.estimatedExposureCents ?? 0
+    } else if (inWindow && row.exposureStatus === 'needs_input') {
+      exposureNeedsInputCount += 1
+    } else if (inWindow && row.exposureStatus === 'unsupported') {
+      exposureUnsupportedCount += 1
+    }
 
     topRows.push({
       ...row,
@@ -145,6 +165,8 @@ export function composeDashboardLoad(
   topRows.sort((a, b) => {
     const severityDelta = severityRank(a.severity) - severityRank(b.severity)
     if (severityDelta !== 0) return severityDelta
+    const exposureDelta = (b.estimatedExposureCents ?? 0) - (a.estimatedExposureCents ?? 0)
+    if (exposureDelta !== 0) return exposureDelta
     const dateDelta = a.currentDueDate.getTime() - b.currentDueDate.getTime()
     if (dateDelta !== 0) return dateDelta
     return a.obligationId.localeCompare(b.obligationId)
@@ -158,6 +180,10 @@ export function composeDashboardLoad(
       dueThisWeekCount,
       needsReviewCount,
       evidenceGapCount,
+      totalExposureCents,
+      exposureReadyCount,
+      exposureNeedsInputCount,
+      exposureUnsupportedCount,
     },
     topRows: topRows.slice(0, topLimit),
     brief: null,
@@ -312,6 +338,9 @@ export function makeDashboardRepo(db: Db, firmId: string) {
           taxType: obligationInstance.taxType,
           currentDueDate: obligationInstance.currentDueDate,
           status: obligationInstance.status,
+          estimatedExposureCents: obligationInstance.estimatedExposureCents,
+          exposureStatus: obligationInstance.exposureStatus,
+          penaltyFormulaVersion: obligationInstance.penaltyFormulaVersion,
         })
         .from(obligationInstance)
         .innerJoin(client, eq(obligationInstance.clientId, client.id))

@@ -176,7 +176,14 @@ export const PULSE_AUDIT_ACTIONS = [
 ] as const
 export type PulseAuditAction = (typeof PULSE_AUDIT_ACTIONS)[number]
 
-export const AUDIT_ACTIONS = [...MIGRATION_AUDIT_ACTIONS, ...PULSE_AUDIT_ACTIONS] as const
+export const PENALTY_AUDIT_ACTIONS = ['penalty.override'] as const
+export type PenaltyAuditAction = (typeof PENALTY_AUDIT_ACTIONS)[number]
+
+export const AUDIT_ACTIONS = [
+  ...MIGRATION_AUDIT_ACTIONS,
+  ...PULSE_AUDIT_ACTIONS,
+  ...PENALTY_AUDIT_ACTIONS,
+] as const
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]
 
 /**
@@ -193,5 +200,6 @@ export const EVIDENCE_SOURCE_TYPES = [
   'pulse_apply',
   'pulse_revert',
   'user_override',
+  'penalty_override',
 ] as const
 export type EvidenceSourceType = (typeof EVIDENCE_SOURCE_TYPES)[number]

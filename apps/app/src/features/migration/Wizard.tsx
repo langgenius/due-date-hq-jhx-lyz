@@ -12,6 +12,7 @@ import type {
   MigrationBatch,
   MigrationSource,
   NormalizationRow,
+  WorkboardListInput,
 } from '@duedatehq/contracts'
 import {
   AlertDialog,
@@ -26,6 +27,7 @@ import {
 
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { orpc } from '@/lib/rpc'
+import { formatCents } from '@/lib/utils'
 
 import { canContinueNormalization } from './continue-rules'
 import { Step1Intake } from './Step1Intake'
@@ -47,6 +49,9 @@ interface WizardProps {
   onClose: () => void
 }
 
+type WorkboardCursor = NonNullable<WorkboardListInput['cursor']> | null
+const WORKBOARD_PREFETCH_LIMIT = 50
+
 /**
  * Migration Copilot Wizard — controlled modal mounted once at the app shell.
  *
@@ -66,9 +71,28 @@ export function Wizard({ open, onClose }: WizardProps) {
     clientCount: number
     obligationCount: number
   } | null>(null)
+  const [genesis, setGenesis] = useState<{
+    totalExposureCents: number
+    needsInputCount: number
+  } | null>(null)
 
   const invalidateMigration = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: orpc.migration.key() })
+  }, [queryClient])
+
+  const preheatOperations = useCallback(() => {
+    void queryClient.prefetchQuery(orpc.dashboard.load.queryOptions({ input: {} }))
+    void queryClient.prefetchInfiniteQuery(
+      orpc.workboard.list.infiniteOptions({
+        initialPageParam: null as WorkboardCursor,
+        input: (cursor) => ({
+          cursor,
+          limit: WORKBOARD_PREFETCH_LIMIT,
+          sort: 'due_asc',
+        }),
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }),
+    )
   }, [queryClient])
 
   const cacheBatch = useCallback(
@@ -123,7 +147,7 @@ export function Wizard({ open, onClose }: WizardProps) {
         invalidateMigration()
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
-        void queryClient.prefetchQuery(orpc.dashboard.load.queryOptions({ input: {} }))
+        preheatOperations()
       },
     }),
   )
@@ -131,9 +155,10 @@ export function Wizard({ open, onClose }: WizardProps) {
     orpc.migration.revert.mutationOptions({
       onSuccess: () => {
         invalidateMigration()
+        queryClient.removeQueries({ queryKey: orpc.dashboard.load.key() })
+        queryClient.removeQueries({ queryKey: orpc.workboard.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
-        void queryClient.prefetchQuery(orpc.dashboard.load.queryOptions({ input: {} }))
       },
     }),
   )
@@ -352,8 +377,9 @@ export function Wizard({ open, onClose }: WizardProps) {
           })
         },
         onSuccess: (result) => {
+          const exposure = result.exposureSummary
           toast.success(t`Import complete`, {
-            description: t`${result.clientCount} clients · ${result.obligationCount} obligations`,
+            description: t`${result.clientCount} clients, ${result.obligationCount} obligations, ${formatCents(exposure.totalExposureCents)} exposure, ${exposure.needsInputCount} need input`,
             action: {
               label: t`Undo import`,
               onClick: () =>
@@ -364,8 +390,41 @@ export function Wizard({ open, onClose }: WizardProps) {
                 }),
             },
           })
+          window.dispatchEvent(
+            new CustomEvent('migration.genesis.started', {
+              detail: {
+                batchId: result.batchId,
+                totalExposureCents: exposure.totalExposureCents,
+                needsInputCount: exposure.needsInputCount,
+              },
+            }),
+          )
+          if (exposure.totalExposureCents === 0 && exposure.needsInputCount > 0) {
+            resetAndClose()
+            void navigate('/')
+            window.dispatchEvent(new CustomEvent('migration.genesis.completed'))
+            return
+          }
+          if (exposure.totalExposureCents > 0) {
+            setGenesis({
+              totalExposureCents: exposure.totalExposureCents,
+              needsInputCount: exposure.needsInputCount,
+            })
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            window.setTimeout(
+              () => {
+                setGenesis(null)
+                resetAndClose()
+                void navigate('/')
+                window.dispatchEvent(new CustomEvent('migration.genesis.completed'))
+              },
+              reduced ? 200 : 1200,
+            )
+            return
+          }
           resetAndClose()
           void navigate('/')
+          window.dispatchEvent(new CustomEvent('migration.genesis.completed'))
         },
       },
     )
@@ -515,7 +574,33 @@ export function Wizard({ open, onClose }: WizardProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <LiveGenesisOverlay genesis={genesis} />
     </>
+  )
+}
+
+function LiveGenesisOverlay({
+  genesis,
+}: {
+  genesis: { totalExposureCents: number; needsInputCount: number } | null
+}) {
+  if (!genesis) return null
+  return (
+    <div className="fixed inset-0 z-[70] grid place-items-center bg-background-body/90 backdrop-blur-sm">
+      <div className="grid gap-3 text-center">
+        <div className="font-mono text-hero font-semibold tabular-nums text-text-primary motion-safe:animate-pulse">
+          {formatCents(genesis.totalExposureCents)}
+        </div>
+        <div className="text-sm text-text-secondary">
+          <Trans>at risk this week</Trans>
+        </div>
+        {genesis.needsInputCount > 0 ? (
+          <div className="text-xs text-text-tertiary">
+            <Trans>{genesis.needsInputCount} obligations still need penalty inputs.</Trans>
+          </div>
+        ) : null}
+      </div>
+    </div>
   )
 }
 

@@ -11,6 +11,9 @@ export interface ClientRow {
   email: string | null
   notes: string | null
   assigneeName: string | null
+  estimatedTaxLiabilityCents: number | null
+  estimatedTaxLiabilitySource: 'manual' | 'imported' | 'demo_seed' | null
+  equityOwnerCount: number | null
   migrationBatchId: string | null
   createdAt: Date
   updatedAt: Date
@@ -27,6 +30,9 @@ export interface ClientCreateInput {
   email?: string | null
   notes?: string | null
   assigneeName?: string | null
+  estimatedTaxLiabilityCents?: number | null
+  estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
+  equityOwnerCount?: number | null
   migrationBatchId?: string | null
 }
 
@@ -38,6 +44,14 @@ export interface ClientsRepo {
   findManyByIds(ids: string[]): Promise<ClientRow[]>
   listByFirm(opts?: { includeDeleted?: boolean; limit?: number }): Promise<ClientRow[]>
   listByBatch(batchId: string): Promise<ClientRow[]>
+  updatePenaltyInputs(
+    id: string,
+    input: {
+      estimatedTaxLiabilityCents?: number | null
+      estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
+      equityOwnerCount?: number | null
+    },
+  ): Promise<void>
   softDelete(id: string): Promise<void>
   deleteByBatch(batchId: string): Promise<number>
 }

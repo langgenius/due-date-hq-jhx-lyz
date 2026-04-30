@@ -10,6 +10,7 @@ import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue
 import { requireTenant, type RpcContext } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
+import { recalculateObligationExposure } from '../_penalty-exposure'
 
 interface PulseAlertRow {
   id: string
@@ -237,6 +238,11 @@ const apply = os.pulse.apply.handler(async ({ input, context }) => {
       emailOutboxId: result.emailOutboxId,
       revertExpiresAt: result.revertExpiresAt.toISOString(),
     }
+    await Promise.all(
+      input.obligationIds.map((obligationId) =>
+        recalculateObligationExposure(scoped, obligationId),
+      ),
+    )
     await enqueueDashboardBriefRefresh(context.env, {
       firmId: tenant.firmId,
       reason: 'pulse_apply',
@@ -285,6 +291,7 @@ const revert = os.pulse.revert.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
   try {
+    const detail = await scoped.pulse.getDetail(input.alertId)
     const result = await withPulseMutationLock(
       context,
       { firmId: tenant.firmId, alertId: input.alertId, action: 'revert' },
@@ -296,6 +303,9 @@ const revert = os.pulse.revert.handler(async ({ input, context }) => {
       auditIds: result.auditIds,
       evidenceIds: result.evidenceIds,
     }
+    await Promise.all(
+      detail.affectedClients.map((row) => recalculateObligationExposure(scoped, row.obligationId)),
+    )
     await enqueueDashboardBriefRefresh(context.env, {
       firmId: tenant.firmId,
       reason: 'pulse_revert',

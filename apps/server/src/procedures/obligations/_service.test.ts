@@ -12,6 +12,12 @@ interface Row {
   currentDueDate: Date
   status: 'pending' | 'in_progress' | 'done' | 'waiting_on_client' | 'review' | 'not_applicable'
   migrationBatchId: string | null
+  estimatedTaxDueCents: number | null
+  estimatedExposureCents: number | null
+  exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+  penaltyBreakdownJson: unknown
+  penaltyFormulaVersion: string | null
+  exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
 }
@@ -48,6 +54,7 @@ function buildScoped(firmId: string, rows: Row[]) {
       return []
     },
     async updateDueDate() {},
+    async updateExposure() {},
     async updateStatus(id: string, status: Row['status']) {
       const row = map.get(id)
       if (!row) throw new Error('not found')
@@ -118,6 +125,7 @@ function buildScoped(firmId: string, rows: Row[]) {
     async listByBatch() {
       return []
     },
+    async updatePenaltyInputs() {},
     async softDelete() {},
     async deleteByBatch() {
       return 0
@@ -285,6 +293,12 @@ function makeRow(over: Partial<Row> = {}): Row {
     currentDueDate: now,
     status: 'pending',
     migrationBatchId: null,
+    estimatedTaxDueCents: null,
+    estimatedExposureCents: null,
+    exposureStatus: 'needs_input',
+    penaltyBreakdownJson: [],
+    penaltyFormulaVersion: null,
+    exposureCalculatedAt: null,
     createdAt: now,
     updatedAt: now,
     ...over,
@@ -309,7 +323,7 @@ describe('updateObligationStatus', () => {
     expect(audits[0]).toMatchObject({
       action: 'obligation.status.updated',
       actorId: 'user_1',
-      entityType: 'obligation',
+      entityType: 'obligation_instance',
       entityId: ROW_ID,
       before: { status: 'pending' },
       after: { status: 'in_progress' },

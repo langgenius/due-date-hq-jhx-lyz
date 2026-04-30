@@ -8,6 +8,7 @@ import {
 } from '../_permissions'
 import { os } from '../_root'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
+import { recalculateObligationExposure } from '../_penalty-exposure'
 import { toObligationPublic, updateObligationStatus } from './_service'
 
 /**
@@ -32,6 +33,12 @@ interface ObligationRow {
   currentDueDate: Date
   status: ObligationInstancePublic['status']
   migrationBatchId: string | null
+  estimatedTaxDueCents: number | null
+  estimatedExposureCents: number | null
+  exposureStatus: ObligationInstancePublic['exposureStatus']
+  penaltyBreakdownJson: unknown
+  penaltyFormulaVersion: string | null
+  exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
 }
@@ -49,6 +56,12 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       currentDueDate: Date
       status?: ObligationInstancePublic['status']
       migrationBatchId: string | null
+      estimatedTaxDueCents?: number | null
+      estimatedExposureCents?: number | null
+      exposureStatus?: ObligationInstancePublic['exposureStatus']
+      penaltyBreakdownJson?: unknown
+      penaltyFormulaVersion?: string | null
+      exposureCalculatedAt?: Date | null
     } = {
       clientId: o.clientId,
       taxType: o.taxType,
@@ -56,6 +69,12 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       baseDueDate: new Date(o.baseDueDate),
       currentDueDate: o.currentDueDate ? new Date(o.currentDueDate) : new Date(o.baseDueDate),
       migrationBatchId: o.migrationBatchId ?? null,
+      estimatedTaxDueCents: o.estimatedTaxDueCents ?? null,
+      estimatedExposureCents: o.estimatedExposureCents ?? null,
+      exposureStatus: o.exposureStatus ?? 'needs_input',
+      penaltyBreakdownJson: o.penaltyBreakdown ?? [],
+      penaltyFormulaVersion: o.penaltyFormulaVersion ?? null,
+      exposureCalculatedAt: o.exposureCalculatedAt ? new Date(o.exposureCalculatedAt) : null,
     }
     if (o.status !== undefined) repoInput.status = o.status
     return repoInput
@@ -97,6 +116,45 @@ const listByClient = os.obligations.listByClient.handler(async ({ input, context
   return rows.map(toObligationPublic)
 })
 
+const updateDueDate = os.obligations.updateDueDate.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
+  const { scoped, tenant, userId } = requireTenant(context)
+  const before = await scoped.obligations.findById(input.id)
+  if (!before) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Obligation ${input.id} not found in current firm.`,
+    })
+  }
+
+  await scoped.obligations.updateDueDate(
+    input.id,
+    new Date(`${input.currentDueDate}T00:00:00.000Z`),
+  )
+  await recalculateObligationExposure(scoped, input.id)
+  const after = await scoped.obligations.findById(input.id)
+  if (!after) {
+    throw new ORPCError('INTERNAL_SERVER_ERROR', {
+      message: 'Updated obligation could not be re-read.',
+    })
+  }
+
+  await scoped.audit.write({
+    actorId: userId,
+    entityType: 'obligation_instance',
+    entityId: input.id,
+    action: 'obligation.due_date.updated',
+    before: { currentDueDate: before.currentDueDate.toISOString().slice(0, 10) },
+    after: { currentDueDate: input.currentDueDate },
+  })
+
+  await enqueueDashboardBriefRefresh(context.env, {
+    firmId: tenant.firmId,
+    reason: 'due_date_update',
+  }).catch(() => false)
+
+  return toObligationPublic(after)
+})
+
 const updateStatus = os.obligations.updateStatus.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
   const { scoped, tenant, userId } = requireTenant(context)
@@ -110,6 +168,7 @@ const updateStatus = os.obligations.updateStatus.handler(async ({ input, context
 
 export const obligationsHandlers = {
   createBatch,
+  updateDueDate,
   listByClient,
   updateStatus,
 }

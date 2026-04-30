@@ -9,6 +9,7 @@ export const EvidenceSourceTypes = [
   'pulse_apply',
   'pulse_revert',
   'user_override',
+  'penalty_override',
 ] as const
 
 export const EvidenceSourceTypeSchema = z.enum(EvidenceSourceTypes)
