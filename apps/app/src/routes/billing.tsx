@@ -130,9 +130,6 @@ export function BillingRoute() {
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 px-4 py-6 md:px-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-start gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-primary text-text-inverted">
-            <CreditCardIcon className="size-4" aria-hidden />
-          </span>
           <div className="min-w-0">
             <span className="text-xs font-medium uppercase text-text-tertiary">
               <Trans>Organization</Trans>

@@ -27,6 +27,7 @@ import {
 import { Input } from '@duedatehq/ui/components/ui/input'
 import { Label } from '@duedatehq/ui/components/ui/label'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { FirmTimezoneSelect, resolveUSFirmTimezone } from '@/features/firm/timezone-select'
 import { orpc } from '@/lib/rpc'
 
 export function FirmRoute() {
@@ -75,7 +76,8 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [name, setName] = useState(firm.name)
-  const [timezone, setTimezone] = useState(firm.timezone)
+  const originalTimezone = resolveUSFirmTimezone(firm.timezone)
+  const [timezone, setTimezone] = useState(originalTimezone)
   const [error, setError] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -106,16 +108,14 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const trimmed = name.trim()
-    const nextTimezone = timezone.trim() || 'America/New_York'
     if (trimmed.length < 2) {
       setError(t`Please enter at least 2 characters.`)
       return
     }
-    updateMutation.mutate({ name: trimmed, timezone: nextTimezone })
+    updateMutation.mutate({ name: trimmed, timezone })
   }
 
-  const dirty =
-    name.trim() !== firm.name || (timezone.trim() || 'America/New_York') !== firm.timezone
+  const dirty = name.trim() !== firm.name || timezone !== originalTimezone
   const currentPlan = firm.plan === 'firm' ? t`Firm` : firm.plan === 'pro' ? t`Pro` : t`Solo`
   const currentRole =
     firm.role === 'owner'
@@ -184,11 +184,11 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
               <Label htmlFor="firm-timezone">
                 <Trans>Timezone</Trans>
               </Label>
-              <Input
+              <FirmTimezoneSelect
                 id="firm-timezone"
                 value={timezone}
-                onChange={(event) => setTimezone(event.target.value)}
-                autoComplete="off"
+                onValueChange={setTimezone}
+                disabled={updateMutation.isPending}
               />
             </div>
             {error ? (

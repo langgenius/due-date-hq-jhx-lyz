@@ -43,6 +43,7 @@ export const router = os.router({
     create: firmsHandlers.create,
     switchActive: firmsHandlers.switchActive,
     updateCurrent: firmsHandlers.updateCurrent,
+    listSubscriptions: firmsHandlers.listSubscriptions,
     softDeleteCurrent: firmsHandlers.softDeleteCurrent,
   },
   clients: {

@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import type { FirmPublic } from '@duedatehq/contracts'
+import type { FirmPublic, USFirmTimezone } from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Dialog,
@@ -55,6 +55,7 @@ import { initialsFromName } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { usePulseListAlertsQueryOptions } from '@/features/pulse/api'
+import { DEFAULT_US_FIRM_TIMEZONE, FirmTimezoneSelect } from '@/features/firm/timezone-select'
 import { FIRM_SWITCHER_HOTKEY } from '@/components/patterns/keyboard-shell/display'
 import {
   useAppHotkey,
@@ -240,13 +241,13 @@ function AddFirmDialog({
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const [name, setName] = useState('')
-  const [timezone, setTimezone] = useState('America/New_York')
+  const [timezone, setTimezone] = useState<USFirmTimezone>(DEFAULT_US_FIRM_TIMEZONE)
   const [error, setError] = useState<string | null>(null)
   const createMutation = useMutation(
     orpc.firms.create.mutationOptions({
       onSuccess: () => {
         setName('')
-        setTimezone('America/New_York')
+        setTimezone(DEFAULT_US_FIRM_TIMEZONE)
         setError(null)
         onOpenChange(false)
         void queryClient.invalidateQueries()
@@ -265,7 +266,7 @@ function AddFirmDialog({
       return
     }
     setError(null)
-    createMutation.mutate({ name: trimmed, timezone: timezone.trim() || 'America/New_York' })
+    createMutation.mutate({ name: trimmed, timezone })
   }
 
   return (
@@ -299,11 +300,11 @@ function AddFirmDialog({
             <Label htmlFor="add-firm-timezone">
               <Trans>Timezone</Trans>
             </Label>
-            <Input
+            <FirmTimezoneSelect
               id="add-firm-timezone"
               value={timezone}
-              onChange={(event) => setTimezone(event.target.value)}
-              autoComplete="off"
+              onValueChange={setTimezone}
+              disabled={createMutation.isPending}
             />
           </div>
           {error ? (

@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@duedatehq/ui/components/ui/sheet'
+import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 import {
   formatAuditJson,
@@ -75,10 +76,8 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
     noChange: t`No field-level change detected`,
   }
   const actor = event.actorLabel ?? event.actorId ?? t`System`
-  const localTime = new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'medium',
-  }).format(new Date(event.createdAt))
+  const localTime = formatDateTimeWithTimezone(event.createdAt)
+  const utcTime = formatDateTimeWithTimezone(event.createdAt, 'UTC')
 
   return (
     <>
@@ -104,7 +103,7 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
 
           <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
             <MetadataRow label={t`Local time`} value={localTime} />
-            <MetadataRow label={t`UTC time`} value={event.createdAt} />
+            <MetadataRow label={t`UTC time`} value={utcTime} />
             <MetadataRow label={t`Entity`} value={`${event.entityType} / ${event.entityId}`} />
             <MetadataRow label={t`Actor`} value={actor} />
             {event.reason ? <MetadataRow label={t`Reason`} value={event.reason} /> : null}

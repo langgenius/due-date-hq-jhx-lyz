@@ -144,8 +144,11 @@ feature 语义留在 members vertical 内。
     - `/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
       layout：上半区展示当前 firm plan / seat limit / subscription 状态和 owner-only
       billing portal 入口，下半区复用 marketing pricing 的 plan-card 信息层级进入 plan change。
+      Subscription status 读取 app-owned `firms.listSubscriptions` RPC（DB subscription 表）；
+      hosted checkout / portal endpoint 仍只用于跳转动作，列表读取不直接打
+      `/api/auth/subscription/list`，避免本地未启用 Stripe plugin 时出现 auth 404。
       AppShell sidebar footer 只提供当前 plan + seat count 的轻量入口，不承载 pricing 对比。
-    - `/firm` — 当前 active firm profile，只编辑 firm name / timezone / soft-delete 当前 firm；它属于 Organization，不属于 user account profile。
+    - `/firm` — 当前 active firm profile，只编辑 firm name / timezone / soft-delete 当前 firm；timezone 使用受 contract 约束的美国 IANA 时区下拉（含州内差异区和美国属地），不再提供自由文本输入。它属于 Organization，不属于 user account profile。
     - `/rules` / `/members` / `/audit` — durable organization surfaces，分别承载规则覆盖、成员席位、审计证据。
     - `/billing/checkout?plan=pro&interval=monthly` — checkout 确认页，使用 1120px max-width
       的 plan summary + firm context 布局；未登录 deep link 继续复用
@@ -494,6 +497,9 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - 缺省或非法 `tab` 回落到 `coverage`，避免无效 URL 打断受保护路由加载。
 - tab 切换不进入 Zustand；它是可分享的页面状态，和 Workboard 的
   `q/status/sort/row` 同属 URL state。
+- Rule Library 右侧 detail drawer 使用比默认 Sheet 更宽的 ops 宽度（桌面约
+  920px，窄屏回落到全宽），用于同时容纳 rule logic、extension policy、evidence locator 和 verification
+  metadata。
 
 ## 6B. 高频 Query 输入
 

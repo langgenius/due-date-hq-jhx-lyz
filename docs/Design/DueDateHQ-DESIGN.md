@@ -291,6 +291,11 @@
 
 所有需要**纵向对齐**的数字（金额、天数、日期、EIN、ID）**必须** 使用 `--font-mono` + `tabular-nums`。
 
+Datetime 展示统一使用 `YYYY-MM-DD HH:mm:ss <timezone>`，例如
+`2026-04-29 09:14:32 UTC` 或 `2026-04-29 17:14:32 GMT+8`。UI 不直接暴露
+`2026-04-29T09:14:32.883Z` 这类 ISO transport value；date-only due date 可只显示
+`YYYY-MM-DD`。
+
 ---
 
 ## 4. Component Stylings

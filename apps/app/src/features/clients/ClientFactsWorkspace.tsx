@@ -67,7 +67,7 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 
-import { formatDate } from '@/lib/utils'
+import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 import {
   ALL_ENTITIES,
@@ -246,11 +246,13 @@ export function ClientFactsWorkspace({
         accessorKey: 'updatedAt',
         header: t`Updated`,
         cell: (info) => (
-          <span className="font-mono tabular-nums">{formatDate(info.getValue<string>())}</span>
+          <span className="font-mono tabular-nums">
+            {formatDateTimeWithTimezone(info.getValue<string>())}
+          </span>
         ),
         meta: {
-          headerClassName: 'w-[150px]',
-          cellClassName: 'w-[150px] whitespace-nowrap',
+          headerClassName: 'w-[230px]',
+          cellClassName: 'w-[230px] whitespace-nowrap',
         },
       },
     ],
@@ -565,12 +567,12 @@ function ClientProfileSheet({
                 <DetailRow label={<Trans>Owner</Trans>} value={client.assigneeName ?? 'N/A'} />
                 <DetailRow
                   label={<Trans>Created</Trans>}
-                  value={formatDate(client.createdAt)}
+                  value={formatDateTimeWithTimezone(client.createdAt)}
                   mono
                 />
                 <DetailRow
                   label={<Trans>Updated</Trans>}
-                  value={formatDate(client.updatedAt)}
+                  value={formatDateTimeWithTimezone(client.updatedAt)}
                   mono
                 />
               </div>

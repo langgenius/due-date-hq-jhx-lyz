@@ -52,7 +52,11 @@ describe('member model', () => {
   })
 
   it('formats member and invitation dates for the members surface', () => {
-    expect(formatMemberDate('2026-04-01T12:00:00.000Z')).toBe('Apr 01, 2026')
-    expect(formatInvitationDate('2026-04-09T12:00:00.000Z')).toBe('Apr 09')
+    expect(formatMemberDate('2026-04-01T12:00:00.000Z')).toMatch(
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} .+$/,
+    )
+    expect(formatInvitationDate('2026-04-09T12:00:00.000Z')).toMatch(
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} .+$/,
+    )
   })
 })

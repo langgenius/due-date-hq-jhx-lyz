@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import type { FirmPublic } from '@duedatehq/contracts'
 
 import { orpc } from '@/lib/rpc'
-import { listOrganizationSubscriptions } from './api'
 
 export function useCurrentFirm(options: { poll?: boolean } = {}) {
   const firmsQuery = useQuery({
@@ -16,9 +15,9 @@ export function useCurrentFirm(options: { poll?: boolean } = {}) {
 
 export function useBillingSubscriptions(firm: FirmPublic | null, poll = false) {
   return useQuery({
+    ...orpc.firms.listSubscriptions.queryOptions({ input: undefined }),
     queryKey: ['billing', 'subscriptions', firm?.id],
     enabled: Boolean(firm?.id),
-    queryFn: () => listOrganizationSubscriptions(firm?.id ?? ''),
     refetchInterval: poll ? 2500 : false,
   })
 }

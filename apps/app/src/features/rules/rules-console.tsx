@@ -112,7 +112,7 @@ export function RulesConsole() {
               key={tab.value}
               value={tab.value}
               className={cn(
-                'h-10 flex-none rounded-none px-4 py-0 text-[13px] text-text-muted',
+                'h-10 flex-none rounded-none px-4 py-0 text-[13px] text-text-muted first:pl-0',
                 'data-active:font-semibold data-active:text-text-primary',
                 'after:left-2 after:right-2 after:bg-state-accent-solid group-data-horizontal/tabs:after:bottom-0',
               )}

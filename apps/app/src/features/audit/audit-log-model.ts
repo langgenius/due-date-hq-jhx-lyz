@@ -1,4 +1,5 @@
 import type { AuditActionCategory, AuditEventPublic, AuditRange } from '@duedatehq/contracts'
+import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 export const AUDIT_CATEGORY_OPTIONS = [
   'all',
@@ -57,6 +58,12 @@ const DEFAULT_AUDIT_SUMMARY_LABELS: AuditSummaryLabels = {
   noChange: 'No field-level change detected',
 }
 
+const ISO_DATETIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/
+
+function formatStringValue(value: string): string {
+  return ISO_DATETIME_PATTERN.test(value) ? formatDateTimeWithTimezone(value) : value
+}
+
 function readRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   return Object.fromEntries(Object.entries(value))
@@ -65,9 +72,21 @@ function readRecord(value: unknown): Record<string, unknown> | null {
 function stringifyScalar(value: unknown, labels: AuditSummaryLabels): string {
   if (value === null) return 'null'
   if (value === undefined) return labels.empty
-  if (typeof value === 'string') return value
+  if (typeof value === 'string') return formatStringValue(value)
   if (typeof value === 'number' || typeof value === 'boolean') return String(value)
   return labels.object
+}
+
+function formatAuditJsonValue(value: unknown): unknown {
+  if (typeof value === 'string') return formatStringValue(value)
+  if (Array.isArray(value)) return value.map(formatAuditJsonValue)
+  const record = readRecord(value)
+  if (record) {
+    return Object.fromEntries(
+      Object.entries(record).map(([key, entry]) => [key, formatAuditJsonValue(entry)]),
+    )
+  }
+  return value
 }
 
 export function summarizeAuditChange(
@@ -95,5 +114,5 @@ export function summarizeAuditChange(
 
 export function formatAuditJson(value: unknown): string {
   if (value === null || value === undefined) return 'null'
-  return JSON.stringify(value, null, 2)
+  return JSON.stringify(formatAuditJsonValue(value), null, 2)
 }

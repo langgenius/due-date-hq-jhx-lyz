@@ -9,6 +9,14 @@ import {
 } from './audit'
 import { ErrorCodes } from './errors'
 import {
+  FirmBillingSubscriptionPublicSchema,
+  FirmCreateInputSchema,
+  FirmUpdateInputSchema,
+  US_FIRM_TIMEZONE_OPTIONS,
+  USFirmTimezoneSchema,
+  firmsContract,
+} from './firms'
+import {
   ObligationStatusUpdateInputSchema,
   ObligationStatusUpdateOutputSchema,
   obligationsContract,
@@ -111,6 +119,62 @@ describe('@duedatehq/contracts', () => {
     expect(ErrorCodes.TENANT_MISSING).toBe('TENANT_MISSING')
     expect(ErrorCodes.GUARD_REJECTED).toBe('GUARD_REJECTED')
     expect(ErrorCodes.MEMBER_SEAT_LIMIT).toBe('MEMBER_SEAT_LIMIT')
+  })
+
+  it('freezes firm timezone and subscription contracts', () => {
+    expect(Object.keys(appContract)).toEqual(expect.arrayContaining(['firms']))
+    expect(Object.keys(firmsContract)).toEqual([
+      'listMine',
+      'getCurrent',
+      'create',
+      'switchActive',
+      'updateCurrent',
+      'listSubscriptions',
+      'softDeleteCurrent',
+    ])
+
+    expect(US_FIRM_TIMEZONE_OPTIONS.map((option) => option.value)).toEqual(
+      USFirmTimezoneSchema.options,
+    )
+    expect(USFirmTimezoneSchema.options).toEqual(
+      expect.arrayContaining([
+        'America/New_York',
+        'America/Adak',
+        'Pacific/Honolulu',
+        'America/Puerto_Rico',
+        'Pacific/Guam',
+        'Pacific/Pago_Pago',
+        'Pacific/Wake',
+      ]),
+    )
+    expect(USFirmTimezoneSchema.options).not.toContain('Pacific/Johnston')
+    expect(() =>
+      FirmUpdateInputSchema.parse({ name: 'Bright CPA', timezone: 'Europe/London' }),
+    ).toThrow()
+    expect(FirmCreateInputSchema.parse({ name: 'Bright CPA' }).timezone).toBe('America/New_York')
+
+    const subscription = FirmBillingSubscriptionPublicSchema.parse({
+      id: 'sub_123',
+      plan: 'pro',
+      referenceId: 'firm_123',
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      status: 'active',
+      periodStart: null,
+      periodEnd: null,
+      trialStart: null,
+      trialEnd: null,
+      cancelAtPeriodEnd: false,
+      cancelAt: null,
+      canceledAt: null,
+      endedAt: null,
+      seats: 5,
+      billingInterval: 'month',
+      stripeScheduleId: null,
+      createdAt: '2026-04-28T00:00:00.000Z',
+      updatedAt: '2026-04-28T00:00:00.000Z',
+    })
+    expect(subscription.referenceId).toBe('firm_123')
   })
 
   it('freezes members gateway contracts', () => {

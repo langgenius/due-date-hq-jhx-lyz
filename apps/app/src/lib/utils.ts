@@ -16,6 +16,42 @@ export function formatCents(cents: number): string {
   }).format(cents / 100)
 }
 
-export function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat(intlLocale(), { dateStyle: 'medium' }).format(new Date(iso))
+function localTimeZone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone
+}
+
+function readPart(parts: Intl.DateTimeFormatPart[], type: Intl.DateTimeFormatPart['type']): string {
+  return parts.find((part) => part.type === type)?.value ?? ''
+}
+
+export function formatDate(value: string): string {
+  if (/^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10)
+
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: localTimeZone(),
+    numberingSystem: 'latn',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date(value))
+  return `${readPart(parts, 'year')}-${readPart(parts, 'month')}-${readPart(parts, 'day')}`
+}
+
+export function formatDateTimeWithTimezone(value: string, timeZone = localTimeZone()): string {
+  const date = new Date(value)
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    numberingSystem: 'latn',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+    timeZoneName: 'short',
+  }).formatToParts(date)
+
+  const zoneName = readPart(parts, 'timeZoneName') || timeZone
+  return `${readPart(parts, 'year')}-${readPart(parts, 'month')}-${readPart(parts, 'day')} ${readPart(parts, 'hour')}:${readPart(parts, 'minute')}:${readPart(parts, 'second')} ${zoneName}`
 }

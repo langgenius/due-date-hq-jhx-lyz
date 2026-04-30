@@ -53,6 +53,28 @@ export interface InvitationRow {
   createdAt: Date
 }
 
+export interface FirmBillingSubscriptionRow {
+  id: string
+  plan: string
+  referenceId: string
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  status: string
+  periodStart: Date | null
+  periodEnd: Date | null
+  trialStart: Date | null
+  trialEnd: Date | null
+  cancelAtPeriodEnd: boolean
+  cancelAt: Date | null
+  canceledAt: Date | null
+  endedAt: Date | null
+  seats: number | null
+  billingInterval: string | null
+  stripeScheduleId: string | null
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface SeatUsage {
   activeMembers: number
   pendingInvitations: number
@@ -65,6 +87,7 @@ export interface FirmsRepo {
   findActiveForUser(userId: string, firmId: string): Promise<FirmMembershipRow | undefined>
   updateProfile(firmId: string, input: FirmUpdateInput): Promise<void>
   softDelete(firmId: string): Promise<void>
+  listBillingSubscriptions(firmId: string): Promise<FirmBillingSubscriptionRow[]>
   setActiveSession(sessionId: string, userId: string, firmId: string | null): Promise<void>
   writeAudit(event: AuditEventInput): Promise<{ id: string }>
 }

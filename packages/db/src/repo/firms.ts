@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, ne, isNull } from 'drizzle-orm'
 import { createAuditWriter, type AuditEventInput } from '../audit-writer'
 import type { Db } from '../client'
-import { member, organization, session } from '../schema/auth'
+import { member, organization, session, subscription } from '../schema/auth'
 import { firmProfile, type FirmProfile } from '../schema/firm'
 
 export type FirmRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
@@ -24,6 +24,28 @@ export interface FirmMembershipRow {
 export interface FirmUpdateInput {
   name: string
   timezone: string
+}
+
+export interface FirmBillingSubscriptionRow {
+  id: string
+  plan: string
+  referenceId: string
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  status: string
+  periodStart: Date | null
+  periodEnd: Date | null
+  trialStart: Date | null
+  trialEnd: Date | null
+  cancelAtPeriodEnd: boolean
+  cancelAt: Date | null
+  canceledAt: Date | null
+  endedAt: Date | null
+  seats: number | null
+  billingInterval: string | null
+  stripeScheduleId: string | null
+  createdAt: Date
+  updatedAt: Date
 }
 
 function normalizeRole(value: string): FirmRole {
@@ -124,6 +146,34 @@ export function makeFirmsRepo(db: Db) {
           .where(eq(firmProfile.id, firmId)),
         db.update(organization).set({ name: input.name }).where(eq(organization.id, firmId)),
       ])
+    },
+
+    async listBillingSubscriptions(firmId: string): Promise<FirmBillingSubscriptionRow[]> {
+      return db
+        .select({
+          id: subscription.id,
+          plan: subscription.plan,
+          referenceId: subscription.referenceId,
+          stripeCustomerId: subscription.stripeCustomerId,
+          stripeSubscriptionId: subscription.stripeSubscriptionId,
+          status: subscription.status,
+          periodStart: subscription.periodStart,
+          periodEnd: subscription.periodEnd,
+          trialStart: subscription.trialStart,
+          trialEnd: subscription.trialEnd,
+          cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+          cancelAt: subscription.cancelAt,
+          canceledAt: subscription.canceledAt,
+          endedAt: subscription.endedAt,
+          seats: subscription.seats,
+          billingInterval: subscription.billingInterval,
+          stripeScheduleId: subscription.stripeScheduleId,
+          createdAt: subscription.createdAt,
+          updatedAt: subscription.updatedAt,
+        })
+        .from(subscription)
+        .where(eq(subscription.referenceId, firmId))
+        .orderBy(desc(subscription.createdAt))
     },
 
     async softDelete(firmId: string): Promise<void> {

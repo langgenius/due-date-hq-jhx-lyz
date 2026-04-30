@@ -1,6 +1,11 @@
 import { ORPCError } from '@orpc/server'
 import { slugifyPracticeName } from '@duedatehq/core/practice-name'
-import { ErrorCodes, type FirmPublic } from '@duedatehq/contracts'
+import {
+  ErrorCodes,
+  type FirmBillingSubscriptionPublic,
+  type FirmPublic,
+} from '@duedatehq/contracts'
+import type { FirmBillingSubscriptionRow } from '@duedatehq/ports/tenants'
 import { createWorkerAuth } from '../../auth'
 import { requireSession } from '../_context'
 import { os } from '../_root'
@@ -36,8 +41,33 @@ function toFirmPublic(row: FirmRow, currentFirmId: string | null | undefined): F
   }
 }
 
+function toNullableIso(value: Date | null): string | null {
+  return value ? toIso(value) : null
+}
+
+function toBillingSubscriptionPublic(
+  row: FirmBillingSubscriptionRow,
+): FirmBillingSubscriptionPublic {
+  return {
+    ...row,
+    periodStart: toNullableIso(row.periodStart),
+    periodEnd: toNullableIso(row.periodEnd),
+    trialStart: toNullableIso(row.trialStart),
+    trialEnd: toNullableIso(row.trialEnd),
+    cancelAt: toNullableIso(row.cancelAt),
+    canceledAt: toNullableIso(row.canceledAt),
+    endedAt: toNullableIso(row.endedAt),
+    createdAt: toIso(row.createdAt),
+    updatedAt: toIso(row.updatedAt),
+  }
+}
+
 function isOwner(row: FirmRow, userId: string): boolean {
   return row.role === 'owner' || row.ownerUserId === userId
+}
+
+function canReadBilling(row: FirmRow, userId: string): boolean {
+  return isOwner(row, userId) || row.role === 'manager'
 }
 
 function readObjectString(value: object, key: 'message' | 'status'): string | undefined {
@@ -199,6 +229,23 @@ const updateCurrent = os.firms.updateCurrent.handler(async ({ input, context }) 
   return toFirmPublic(after, activeFirmId)
 })
 
+const listSubscriptions = os.firms.listSubscriptions.handler(async ({ context }) => {
+  const { firms, session, userId } = requireSession(context)
+  const activeFirmId = session.activeOrganizationId
+  if (!activeFirmId) return []
+
+  const row = await firms.findActiveForUser(userId, activeFirmId)
+  if (!row) {
+    throw new ORPCError('NOT_FOUND', { message: ErrorCodes.FIRM_NOT_FOUND })
+  }
+  if (!canReadBilling(row, userId)) {
+    throw new ORPCError('FORBIDDEN', { message: ErrorCodes.FIRM_FORBIDDEN })
+  }
+
+  const subscriptions = await firms.listBillingSubscriptions(activeFirmId)
+  return subscriptions.map(toBillingSubscriptionPublic)
+})
+
 const softDeleteCurrent = os.firms.softDeleteCurrent.handler(async ({ context }) => {
   const { firms, session, userId } = requireSession(context)
   const activeFirmId = session.activeOrganizationId
@@ -237,5 +284,6 @@ export const firmsHandlers = {
   create,
   switchActive,
   updateCurrent,
+  listSubscriptions,
   softDeleteCurrent,
 }

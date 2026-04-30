@@ -55,6 +55,7 @@ export {
 } from './audit'
 
 export type {
+  FirmBillingSubscriptionPublic,
   FirmCreateInput,
   FirmPlan,
   FirmPublic,
@@ -62,8 +63,10 @@ export type {
   FirmsContract,
   FirmStatus,
   FirmUpdateInput,
+  USFirmTimezone,
 } from './firms'
 export {
+  FirmBillingSubscriptionPublicSchema,
   FirmCreateInputSchema,
   FirmPlanSchema,
   FirmPublicSchema,
@@ -71,6 +74,9 @@ export {
   firmsContract,
   FirmStatusSchema,
   FirmUpdateInputSchema,
+  US_FIRM_TIMEZONE_OPTIONS,
+  US_FIRM_TIMEZONES,
+  USFirmTimezoneSchema,
 } from './firms'
 
 // Re-export domain types so consumers can `import type { ... } from '@duedatehq/contracts'`

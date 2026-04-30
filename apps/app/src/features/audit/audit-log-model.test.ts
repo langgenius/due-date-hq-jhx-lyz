@@ -34,6 +34,9 @@ describe('audit-log-model', () => {
   it('formats identifiers and JSON blocks', () => {
     expect(shortenAuditId('33333333-3333-4333-8333-333333333333')).toBe('33333333...3333')
     expect(formatAuditJson({ status: 'done' })).toContain('"status": "done"')
+    expect(formatAuditJson({ createdAt: '2026-04-29T09:14:32.883Z' })).toMatch(
+      /2026-04-\d{2} \d{2}:14:32 .+/,
+    )
     expect(formatAuditJson(null)).toBe('null')
   })
 })

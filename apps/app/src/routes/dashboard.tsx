@@ -50,7 +50,7 @@ import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatDateTimeWithTimezone } from '@/lib/utils'
 
 type QueueStat = {
   label: string
@@ -523,7 +523,9 @@ function DashboardBriefPanel({
       </CardContent>
       <CardFooter className="justify-between gap-3 border-t border-divider-regular">
         <span className="font-mono text-xs tabular-nums text-text-muted">
-          {brief?.generatedAt ? t`Updated ${brief.generatedAt}` : t`No prepared brief yet`}
+          {brief?.generatedAt
+            ? t`Updated ${formatDateTimeWithTimezone(brief.generatedAt)}`
+            : t`No prepared brief yet`}
         </span>
         <Button
           variant="outline"

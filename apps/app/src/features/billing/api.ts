@@ -1,16 +1,5 @@
 import { authClient } from '@/lib/auth'
 
-export async function listOrganizationSubscriptions(referenceId: string) {
-  const { data, error } = await authClient.subscription.list({
-    query: {
-      referenceId,
-      customerType: 'organization',
-    },
-  })
-  if (error) throw new Error(error.message || 'Could not load billing status.')
-  return data ?? []
-}
-
 export async function createCheckout(input: {
   plan: string
   annual: boolean

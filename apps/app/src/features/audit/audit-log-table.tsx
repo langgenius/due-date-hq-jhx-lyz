@@ -11,17 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
+import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 import { shortenAuditId, summarizeAuditChange, type AuditSummaryLabels } from './audit-log-model'
-
-function formatLocalDateTime(iso: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(iso))
-}
 
 export function AuditLogTable({
   events,
@@ -116,8 +108,10 @@ function AuditLogRow({
     >
       <TableCell className="font-mono text-xs tabular-nums">
         <div className="grid gap-1">
-          <span className="text-text-primary">{formatLocalDateTime(event.createdAt)}</span>
-          <span className="text-text-tertiary">{event.createdAt}</span>
+          <span className="text-text-primary">{formatDateTimeWithTimezone(event.createdAt)}</span>
+          <span className="text-text-tertiary">
+            {formatDateTimeWithTimezone(event.createdAt, 'UTC')}
+          </span>
         </div>
       </TableCell>
       <TableCell>

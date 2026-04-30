@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { activateLocale } from '@/i18n/i18n'
-import { cn, formatCents, formatDate } from './utils'
+import { cn, formatCents, formatDate, formatDateTimeWithTimezone } from './utils'
 
 describe('utils', () => {
   afterEach(() => {
@@ -24,11 +24,13 @@ describe('utils', () => {
     expect(formatCents(14230000)).toMatch(/142,300\.00/)
   })
 
-  it('localizes date formatting to the active locale', () => {
-    activateLocale('en')
-    const enValue = formatDate('2026-03-15')
-    activateLocale('zh-CN')
-    const zhValue = formatDate('2026-03-15')
-    expect(enValue).not.toEqual(zhValue)
+  it('formats date-only values as YYYY-MM-DD', () => {
+    expect(formatDate('2026-03-15')).toBe('2026-03-15')
+  })
+
+  it('formats datetimes as YYYY-MM-DD HH:mm:ss plus timezone', () => {
+    expect(formatDateTimeWithTimezone('2026-04-29T09:14:32.883Z', 'UTC')).toBe(
+      '2026-04-29 09:14:32 UTC',
+    )
   })
 })
