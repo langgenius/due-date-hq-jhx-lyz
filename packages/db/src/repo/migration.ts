@@ -44,6 +44,9 @@ export interface CreateBatchInput {
   userId: string
   source: MigrationSource
   rawInputR2Key?: string | null
+  rawInputFileName?: string | null
+  rawInputContentType?: string | null
+  rawInputSizeBytes?: number | null
   presetUsed?: string | null
   rowCount?: number
 }
@@ -51,6 +54,10 @@ export interface CreateBatchInput {
 export interface UpdateBatchPatch {
   status?: MigrationBatchStatus
   mappingJson?: unknown
+  rawInputR2Key?: string | null
+  rawInputFileName?: string | null
+  rawInputContentType?: string | null
+  rawInputSizeBytes?: number | null
   presetUsed?: string | null
   rowCount?: number
   successCount?: number
@@ -107,6 +114,9 @@ export function makeMigrationRepo(db: Db, firmId: string) {
         userId: input.userId,
         source: input.source,
         rawInputR2Key: input.rawInputR2Key ?? null,
+        rawInputFileName: input.rawInputFileName ?? null,
+        rawInputContentType: input.rawInputContentType ?? null,
+        rawInputSizeBytes: input.rawInputSizeBytes ?? null,
         presetUsed: input.presetUsed ?? null,
         rowCount: input.rowCount ?? 0,
       })

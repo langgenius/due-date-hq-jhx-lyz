@@ -50,6 +50,7 @@ export interface WorkerBindings {
   EMAIL_QUEUE: Queue
   PULSE_QUEUE: Queue
   DASHBOARD_QUEUE: Queue
+  AUDIT_QUEUE: Queue
   ASSETS: Fetcher
 }
 

@@ -4,6 +4,7 @@ import type { ClientsRepo } from './clients'
 import type { DashboardRepo } from './dashboard'
 import type { EvidenceRepo } from './evidence'
 import type { MigrationRepo } from './migration'
+import type { NotificationsRepo } from './notifications'
 import type { ObligationsRepo } from './obligations'
 import type { PulseRepo } from './pulse'
 import type { WorkboardRepo } from './workboard'
@@ -19,6 +20,7 @@ export interface ScopedRepo {
   readonly workload: WorkloadRepo
   readonly pulse: PulseRepo
   readonly migration: MigrationRepo
+  readonly notifications?: NotificationsRepo
   readonly evidence: EvidenceRepo
   readonly audit: AuditRepo
 }

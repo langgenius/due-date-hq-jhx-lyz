@@ -29,6 +29,10 @@ export interface IntakeState {
   /** Raw paste text or file content as utf-8 string. */
   rawText: string
   fileName: string | null
+  fileKind: 'paste' | 'csv' | 'tsv' | 'xlsx'
+  rawFileBase64: string | null
+  contentType: string | null
+  sizeBytes: number
   preset: PresetId | null
   /** Header indexes blocked by SSN regex on the client side. */
   ssnBlockedColumnIndexes: number[]
@@ -86,6 +90,10 @@ export const INITIAL_STATE: WizardState = {
     mode: 'paste',
     rawText: '',
     fileName: null,
+    fileKind: 'paste',
+    rawFileBase64: null,
+    contentType: null,
+    sizeBytes: 0,
     preset: null,
     ssnBlockedColumnIndexes: [],
     rowCount: 0,
@@ -104,7 +112,15 @@ export type WizardAction =
   | { type: 'SET_BUSY'; busy: boolean }
   | { type: 'GO_TO_STEP'; step: StepIndex }
   | { type: 'INTAKE_MODE'; mode: IntakeMode }
-  | { type: 'INTAKE_TEXT'; text: string; fileName?: string | null }
+  | {
+      type: 'INTAKE_TEXT'
+      text: string
+      fileName?: string | null
+      fileKind?: 'paste' | 'csv' | 'tsv' | 'xlsx'
+      rawFileBase64?: string | null
+      contentType?: string | null
+      sizeBytes?: number
+    }
   | { type: 'INTAKE_PRESET'; preset: PresetId | null }
   | {
       type: 'INTAKE_PARSED'
@@ -144,6 +160,12 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
           ...state.intake,
           rawText: action.text,
           fileName: action.fileName ?? state.intake.fileName,
+          fileKind: action.fileKind ?? state.intake.fileKind,
+          rawFileBase64:
+            action.rawFileBase64 === undefined ? state.intake.rawFileBase64 : action.rawFileBase64,
+          contentType:
+            action.contentType === undefined ? state.intake.contentType : action.contentType,
+          sizeBytes: action.sizeBytes ?? state.intake.sizeBytes,
           parseError: null,
           submitError: null,
         },

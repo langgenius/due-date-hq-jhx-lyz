@@ -2,7 +2,12 @@ import { and, desc, eq, gte, like, lt, not, or, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import { createAuditWriter, type AuditEventInput } from '../audit-writer'
 import type { Db } from '../client'
-import { auditEvent, type AuditEvent } from '../schema/audit'
+import {
+  auditEvent,
+  auditEvidencePackage,
+  type AuditEvent,
+  type AuditEvidencePackage,
+} from '../schema/audit'
 import { user } from '../schema/auth'
 
 type AuditActionCategory =
@@ -199,6 +204,88 @@ export function makeAuditRepo(db: Db, firmId: string) {
         rows,
         nextCursor: hasMore && lastRow ? encodeCursor(lastRow) : null,
       }
+    },
+
+    async createEvidencePackage(input: {
+      exportedByUserId: string
+      scope: AuditEvidencePackage['scope']
+      scopeEntityId?: string | null
+      rangeStart?: Date | null
+      rangeEnd?: Date | null
+      expiresAt: Date
+    }): Promise<{ id: string }> {
+      const id = crypto.randomUUID()
+      await db.insert(auditEvidencePackage).values({
+        id,
+        firmId,
+        exportedByUserId: input.exportedByUserId,
+        scope: input.scope,
+        scopeEntityId: input.scopeEntityId ?? null,
+        rangeStart: input.rangeStart ?? null,
+        rangeEnd: input.rangeEnd ?? null,
+        expiresAt: input.expiresAt,
+      })
+      return { id }
+    },
+
+    async getEvidencePackage(id: string): Promise<AuditEvidencePackage | undefined> {
+      const [row] = await db
+        .select()
+        .from(auditEvidencePackage)
+        .where(and(eq(auditEvidencePackage.firmId, firmId), eq(auditEvidencePackage.id, id)))
+        .limit(1)
+      return row
+    },
+
+    async listEvidencePackages(opts: { limit?: number } = {}): Promise<AuditEvidencePackage[]> {
+      const q = db
+        .select()
+        .from(auditEvidencePackage)
+        .where(eq(auditEvidencePackage.firmId, firmId))
+        .orderBy(desc(auditEvidencePackage.createdAt))
+      return opts.limit ? await q.limit(opts.limit) : await q
+    },
+
+    async markEvidencePackageRunning(id: string): Promise<void> {
+      await db
+        .update(auditEvidencePackage)
+        .set({ status: 'running', updatedAt: new Date() })
+        .where(and(eq(auditEvidencePackage.firmId, firmId), eq(auditEvidencePackage.id, id)))
+    },
+
+    async completeEvidencePackage(input: {
+      packageId: string
+      fileCount: number
+      fileManifestJson: unknown
+      sha256Hash: string
+      r2Key: string
+      expiresAt: Date
+    }): Promise<void> {
+      await db
+        .update(auditEvidencePackage)
+        .set({
+          status: 'ready',
+          fileCount: input.fileCount,
+          fileManifestJson: input.fileManifestJson,
+          sha256Hash: input.sha256Hash,
+          r2Key: input.r2Key,
+          expiresAt: input.expiresAt,
+          failureReason: null,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(auditEvidencePackage.firmId, firmId),
+            eq(auditEvidencePackage.id, input.packageId),
+          ),
+        )
+    },
+
+    async failEvidencePackage(id: string, failureReason: string): Promise<void> {
+      await db
+        .update(auditEvidencePackage)
+        .set({ status: 'failed', failureReason, updatedAt: new Date() })
+        .where(and(eq(auditEvidencePackage.firmId, firmId), eq(auditEvidencePackage.id, id)))
     },
   }
 }

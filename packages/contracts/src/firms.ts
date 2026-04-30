@@ -103,6 +103,7 @@ export const FirmPublicSchema = z.object({
   status: FirmStatusSchema,
   role: FirmRoleSchema,
   ownerUserId: z.string().min(1),
+  coordinatorCanSeeDollars: z.boolean(),
   isCurrent: z.boolean(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
@@ -117,6 +118,7 @@ export const FirmCreateInputSchema = z.object({
 export const FirmUpdateInputSchema = z.object({
   name: z.string().trim().min(2).max(120),
   timezone: USFirmTimezoneSchema,
+  coordinatorCanSeeDollars: z.boolean().optional(),
 })
 
 export const FirmBillingSubscriptionPublicSchema = z.object({

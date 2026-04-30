@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
-import { TenantIdSchema } from './shared/ids'
+import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 export const AuditActionCategorySchema = z.enum([
   'client',
@@ -58,7 +58,58 @@ export const AuditListOutputSchema = z.object({
 })
 export type AuditListOutput = z.infer<typeof AuditListOutputSchema>
 
+export const AuditEvidencePackageStatusSchema = z.enum([
+  'pending',
+  'running',
+  'ready',
+  'failed',
+  'expired',
+])
+export const AuditEvidencePackageScopeSchema = z.enum(['firm', 'client', 'obligation', 'migration'])
+
+export const AuditEvidencePackagePublicSchema = z.object({
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  exportedByUserId: z.string().min(1),
+  scope: AuditEvidencePackageScopeSchema,
+  scopeEntityId: z.string().nullable(),
+  rangeStart: z.iso.datetime().nullable(),
+  rangeEnd: z.iso.datetime().nullable(),
+  fileCount: z.number().int().min(0),
+  fileManifestJson: z.unknown().nullable(),
+  sha256Hash: z.string().nullable(),
+  r2Key: z.string().nullable(),
+  status: AuditEvidencePackageStatusSchema,
+  expiresAt: z.iso.datetime().nullable(),
+  failureReason: z.string().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+})
+export type AuditEvidencePackagePublic = z.infer<typeof AuditEvidencePackagePublicSchema>
+
+export const AuditRequestEvidencePackageInputSchema = z.object({
+  scope: AuditEvidencePackageScopeSchema.default('firm').optional(),
+  scopeEntityId: z.string().nullable().optional(),
+  rangeStart: z.iso.datetime().nullable().optional(),
+  rangeEnd: z.iso.datetime().nullable().optional(),
+})
+export type AuditRequestEvidencePackageInput = z.infer<
+  typeof AuditRequestEvidencePackageInputSchema
+>
+
 export const auditContract = oc.router({
   list: oc.input(AuditListInputSchema).output(AuditListOutputSchema),
+  requestEvidencePackage: oc
+    .input(AuditRequestEvidencePackageInputSchema)
+    .output(AuditEvidencePackagePublicSchema),
+  getEvidencePackage: oc
+    .input(z.object({ id: EntityIdSchema }))
+    .output(AuditEvidencePackagePublicSchema.nullable()),
+  listEvidencePackages: oc
+    .input(z.object({ limit: z.number().int().min(1).max(50).default(10).optional() }).optional())
+    .output(z.object({ packages: z.array(AuditEvidencePackagePublicSchema) })),
+  createDownloadUrl: oc
+    .input(z.object({ id: EntityIdSchema }))
+    .output(z.object({ url: z.string().min(1), expiresAt: z.iso.datetime() })),
 })
 export type AuditContract = typeof auditContract

@@ -13,6 +13,7 @@ function firm(overrides: Partial<FirmPublic> = {}): FirmPublic {
     status: 'active',
     role: 'owner',
     ownerUserId: 'user_1',
+    coordinatorCanSeeDollars: false,
     isCurrent: false,
     createdAt: '2026-04-29T00:00:00.000Z',
     updatedAt: '2026-04-29T00:00:00.000Z',

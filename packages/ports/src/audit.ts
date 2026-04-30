@@ -49,10 +49,56 @@ export interface AuditListResult {
   nextCursor: string | null
 }
 
+export type AuditEvidencePackageStatus = 'pending' | 'running' | 'ready' | 'failed' | 'expired'
+export type AuditEvidencePackageScope = 'firm' | 'client' | 'obligation' | 'migration'
+
+export interface AuditEvidencePackageRow {
+  id: string
+  firmId: string
+  exportedByUserId: string
+  scope: AuditEvidencePackageScope
+  scopeEntityId: string | null
+  rangeStart: Date | null
+  rangeEnd: Date | null
+  fileCount: number
+  fileManifestJson: unknown
+  sha256Hash: string | null
+  r2Key: string | null
+  status: AuditEvidencePackageStatus
+  expiresAt: Date | null
+  failureReason: string | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface AuditEvidencePackageCreateInput {
+  exportedByUserId: string
+  scope: AuditEvidencePackageScope
+  scopeEntityId?: string | null
+  rangeStart?: Date | null
+  rangeEnd?: Date | null
+  expiresAt: Date
+}
+
+export interface AuditEvidencePackageCompleteInput {
+  packageId: string
+  fileCount: number
+  fileManifestJson: unknown
+  sha256Hash: string
+  r2Key: string
+  expiresAt: Date
+}
+
 export interface AuditRepo {
   readonly firmId: string
   write(event: Omit<AuditEventInput, 'firmId'>): Promise<{ id: string }>
   writeBatch(events: Array<Omit<AuditEventInput, 'firmId'>>): Promise<{ ids: string[] }>
   listByFirm(opts?: { action?: string; actorId?: string; limit?: number }): Promise<AuditEventRow[]>
   list(input?: AuditListInput): Promise<AuditListResult>
+  createEvidencePackage?(input: AuditEvidencePackageCreateInput): Promise<{ id: string }>
+  getEvidencePackage?(id: string): Promise<AuditEvidencePackageRow | undefined>
+  listEvidencePackages?(opts?: { limit?: number }): Promise<AuditEvidencePackageRow[]>
+  markEvidencePackageRunning?(id: string): Promise<void>
+  completeEvidencePackage?(input: AuditEvidencePackageCompleteInput): Promise<void>
+  failEvidencePackage?(id: string, failureReason: string): Promise<void>
 }

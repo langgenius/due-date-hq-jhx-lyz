@@ -128,14 +128,19 @@ export interface MigrationDeps {
   scoped: ScopedRepo
   ai: AI
   userId: string
+  rawBucket?: R2Bucket
 }
 
 export interface UploadRawInput {
   batchId: string
   kind: TabularKind
+  fileName?: string
+  contentType?: string
+  sizeBytes?: number
   /** Either utf-8 text (paste / csv / tsv) or base64-encoded bytes. */
   text?: string
   base64?: string
+  rawBase64?: string
 }
 
 export class MigrationService {
@@ -184,20 +189,37 @@ export class MigrationService {
     const batch = await this.requireDraftBatch(input.batchId)
 
     let parsed: ParsedTabular
+    const parserKind = input.kind === 'xlsx' ? 'tsv' : input.kind
     if (input.text !== undefined) {
-      parsed = parseTabular(input.text, { kind: input.kind })
+      parsed = parseTabular(input.text, { kind: parserKind })
     } else if (input.base64 !== undefined) {
       const bytes = base64ToBytes(input.base64)
       // Decode straight to text — the parser does the same internally for
       // ArrayBuffer input, so this avoids a SharedArrayBuffer / ArrayBuffer
       // type juggle when running in Workers.
       const text = new TextDecoder('utf-8', { fatal: false }).decode(bytes)
-      parsed = parseTabular(text, { kind: input.kind })
+      parsed = parseTabular(text, { kind: parserKind })
     } else {
       throw new ORPCError('BAD_REQUEST', {
         message: 'uploadRaw requires either `text` or `base64` payload.',
       })
     }
+
+    const rawBytes =
+      input.rawBase64 !== undefined
+        ? base64ToBytes(input.rawBase64)
+        : input.text !== undefined
+          ? new TextEncoder().encode(input.text)
+          : base64ToBytes(input.base64 ?? '')
+    const fileName = input.fileName ?? defaultRawFileName(input.kind)
+    const contentType = input.contentType ?? defaultRawContentType(input.kind)
+    const sizeBytes = input.sizeBytes ?? rawBytes.byteLength
+    const rawInputR2Key = await this.putRawInput({
+      batchId: input.batchId,
+      fileName,
+      contentType,
+      bytes: rawBytes,
+    })
 
     const payload = (batch.mappingJson ?? {}) as MappingJsonPayload
     payload.rawInput = {
@@ -210,13 +232,29 @@ export class MigrationService {
 
     await this.deps.scoped.migration.updateBatch(input.batchId, {
       mappingJson: payload,
+      rawInputR2Key,
+      rawInputFileName: fileName,
+      rawInputContentType: contentType,
+      rawInputSizeBytes: sizeBytes,
       rowCount: parsed.rowCount,
       status: 'mapping',
     })
 
-    // Day 3 keeps raw input inline. Day 7 / Phase 0 swaps this to a real
-    // R2 signed PUT URL; the contract surface stays identical.
-    return { rawInputR2Key: `inline://${input.batchId}` }
+    await this.deps.scoped.audit.write({
+      actorId: this.deps.userId,
+      entityType: 'migration_batch',
+      entityId: input.batchId,
+      action: 'migration.raw_uploaded',
+      after: {
+        rawInputR2Key,
+        fileName,
+        contentType,
+        sizeBytes,
+        kind: input.kind,
+      },
+    })
+
+    return { rawInputR2Key }
   }
 
   // ---------------------------------------------------------------------
@@ -627,6 +665,17 @@ export class MigrationService {
     return row ? toMigrationBatch(row) : null
   }
 
+  async listBatches(input: { limit?: number; status?: MigrationBatch['status'] } = {}): Promise<{
+    batches: MigrationBatch[]
+  }> {
+    const rows = await this.deps.scoped.migration.listByFirm({ limit: input.limit ?? 50 })
+    return {
+      batches: rows
+        .filter((row) => (input.status ? row.status === input.status : true))
+        .map(toMigrationBatch),
+    }
+  }
+
   /**
    * Read-only list of migration_error rows for a batch, optionally filtered
    * by stage. Stage classification is heuristic on `errorCode` until each
@@ -668,6 +717,22 @@ export class MigrationService {
       })
     }
     return batch
+  }
+
+  private async putRawInput(input: {
+    batchId: string
+    fileName: string
+    contentType: string
+    bytes: Uint8Array
+  }): Promise<string> {
+    const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120) || 'upload'
+    const key = `firm/${this.deps.scoped.firmId}/migration/${input.batchId}/${safeName}`
+    if (this.deps.rawBucket) {
+      await this.deps.rawBucket.put(key, input.bytes, {
+        httpMetadata: { contentType: input.contentType },
+      })
+    }
+    return key
   }
 
   private assertBatchRevertible(batch: Awaited<ReturnType<MigrationService['requireBatch']>>) {
@@ -1252,6 +1317,18 @@ function toMigrationError(row: {
   }
 }
 
+function defaultRawFileName(kind: TabularKind): string {
+  return kind === 'paste' ? 'paste.txt' : `upload.${kind}`
+}
+
+function defaultRawContentType(kind: TabularKind): string {
+  if (kind === 'xlsx') {
+    return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  }
+  if (kind === 'paste') return 'text/plain'
+  return kind === 'tsv' ? 'text/tab-separated-values' : 'text/csv'
+}
+
 // Heuristic stage classification — mirrors the deterministic checks in
 // _deterministic.ts. Until each check tags its origin explicitly, the prefix
 // match is the cheapest correct way to split mapping vs normalize errors so
@@ -1270,6 +1347,9 @@ function toMigrationBatch(row: {
   userId: string
   source: MigrationSource
   rawInputR2Key: string | null
+  rawInputFileName: string | null
+  rawInputContentType: string | null
+  rawInputSizeBytes: number | null
   mappingJson: unknown
   presetUsed: string | null
   rowCount: number
@@ -1289,6 +1369,9 @@ function toMigrationBatch(row: {
     userId: row.userId,
     source: row.source,
     rawInputR2Key: row.rawInputR2Key,
+    rawInputFileName: row.rawInputFileName,
+    rawInputContentType: row.rawInputContentType,
+    rawInputSizeBytes: row.rawInputSizeBytes,
     mappingJson: row.mappingJson ?? null,
     presetUsed: row.presetUsed,
     rowCount: row.rowCount,

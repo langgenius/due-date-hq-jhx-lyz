@@ -225,6 +225,16 @@ export function createAppRouter() {
               },
             },
             {
+              path: 'notifications',
+              handle: routeHandle(routeSummaries.notifications),
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { NotificationsRoute } = await import('@/routes/notifications')
+
+                return { Component: NotificationsRoute }
+              },
+            },
+            {
               path: 'ops/pulse',
               handle: routeHandle(routeSummaries.opsPulse),
               HydrateFallback: RouteHydrateFallback,
@@ -242,6 +252,16 @@ export function createAppRouter() {
                 const { ClientsRoute } = await import('@/routes/clients')
 
                 return { Component: ClientsRoute }
+              },
+            },
+            {
+              path: 'imports',
+              handle: routeHandle(routeSummaries.imports),
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { ImportsRoute } = await import('@/routes/imports')
+
+                return { Component: ImportsRoute }
               },
             },
             {

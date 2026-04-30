@@ -9,8 +9,10 @@ import { sessionMiddleware } from './middleware/session'
 import { tenantMiddleware } from './middleware/tenant'
 import { rateLimitMiddleware } from './middleware/rate-limit'
 import { authRoute } from './routes/auth'
+import { auditDownloadRoute } from './routes/audit-download'
 import { e2eRoute } from './routes/e2e'
 import { healthRoute } from './routes/health'
+import { notificationsRoute } from './routes/notifications'
 import { opsPulseRoute } from './routes/ops-pulse'
 import { resendWebhook } from './webhooks/resend'
 import { rpcHandler } from './rpc'
@@ -100,6 +102,17 @@ export function createApp() {
   // /api/webhook/* — external callbacks. Provider signature verification is required
   // before side effects; IP allowlists are defense-in-depth when supported.
   app.route('/api/webhook/resend', resendWebhook)
+
+  app.route('/api/notifications', notificationsRoute)
+
+  app.use(
+    '/api/audit/*',
+    sessionMiddleware,
+    firmAccessMiddleware,
+    tenantMiddleware,
+    rateLimitMiddleware,
+  )
+  app.route('/api/audit', auditDownloadRoute)
 
   // /rpc/* — oRPC RPCHandler.
   // Order is load-bearing: session MUST run before tenant (tenant needs firmId from session)

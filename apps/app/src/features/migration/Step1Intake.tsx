@@ -1,6 +1,7 @@
 import { useId, useMemo, useRef, type ChangeEvent, type DragEvent } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { LockIcon, UploadCloudIcon } from 'lucide-react'
+import readXlsxFile, { type SheetData } from 'read-excel-file/browser'
 
 import { parseTabular, TabularParseError } from '@duedatehq/core/csv-parser'
 import { detectSsnColumns } from '@duedatehq/core/pii'
@@ -25,9 +26,29 @@ function handleDragOver(event: DragEvent<HTMLDivElement>) {
   event.preventDefault()
 }
 
+function formatXlsxCell(cell: unknown): string {
+  if (cell === null || cell === undefined) return ''
+  if (cell instanceof Date) return cell.toISOString()
+  if (typeof cell === 'string') return cell
+  if (typeof cell === 'number' || typeof cell === 'boolean' || typeof cell === 'bigint') {
+    return String(cell)
+  }
+  if (typeof cell === 'symbol') return cell.description ?? ''
+  return JSON.stringify(cell) ?? ''
+}
+
 interface Step1Props {
   intake: IntakeState
-  onText: (text: string, fileName: string | null) => void
+  onText: (
+    text: string,
+    fileName: string | null,
+    options?: {
+      fileKind?: IntakeState['fileKind']
+      rawFileBase64?: string | null
+      contentType?: string | null
+      sizeBytes?: number
+    },
+  ) => void
   onPreset: (preset: PresetId | null) => void
   onParsed: (args: {
     rowCount: number
@@ -46,8 +67,17 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
   const pasteId = useId()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  function commitText(text: string, fileName: string | null) {
-    onText(text, fileName)
+  function commitText(
+    text: string,
+    fileName: string | null,
+    options: {
+      fileKind?: IntakeState['fileKind']
+      rawFileBase64?: string | null
+      contentType?: string | null
+      sizeBytes?: number
+    } = {},
+  ) {
+    onText(text, fileName, options)
 
     if (!text.trim()) {
       onParsed({ rowCount: 0, truncated: false, ssnBlockedColumnIndexes: [] })
@@ -103,13 +133,44 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       onParseError(t`File is larger than 2 MB. Please trim or split the export.`)
       return
     }
-    if (file.name.toLowerCase().endsWith('.xlsx')) {
-      onParseError(t`XLSX uploads land in Phase 0 — please export as CSV for now.`)
+    const lowerName = file.name.toLowerCase()
+    if (lowerName.endsWith('.xlsx')) {
+      void loadXlsxFile(file)
       return
     }
     void file.text().then((text) => {
-      commitText(text, file.name)
+      commitText(text, file.name, {
+        fileKind: lowerName.endsWith('.tsv') ? 'tsv' : 'csv',
+        contentType:
+          file.type || (lowerName.endsWith('.tsv') ? 'text/tab-separated-values' : 'text/csv'),
+        sizeBytes: file.size,
+      })
     })
+  }
+
+  async function loadXlsxFile(file: File) {
+    try {
+      const [sheets, rawFileBase64] = await Promise.all([readXlsxFile(file), fileToBase64(file)])
+      const rows: SheetData = sheets.find((sheet) =>
+        sheet.data.some((row) => row.some((cell) => formatXlsxCell(cell).trim() !== '')),
+      )?.data ?? [[]]
+      const text = rows
+        .map((row) =>
+          row
+            .map((cell) => formatXlsxCell(cell).replaceAll('\t', ' ').replaceAll('\n', ' '))
+            .join('\t'),
+        )
+        .join('\n')
+      commitText(text, file.name, {
+        fileKind: 'xlsx',
+        rawFileBase64,
+        contentType:
+          file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        sizeBytes: file.size,
+      })
+    } catch {
+      onParseError(t`We couldn't read that XLSX file. Try exporting the first sheet as CSV.`)
+    }
   }
 
   return (
@@ -173,7 +234,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       >
         <UploadCloudIcon className="size-5 text-text-tertiary" aria-hidden />
         <span>
-          <Trans>Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB</Trans>
+          <Trans>Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB</Trans>
         </span>
         {intake.fileName ? (
           <span className="font-mono text-md text-text-secondary tabular-nums">
@@ -183,7 +244,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv,.tsv,text/csv,text/tab-separated-values"
+          accept=".csv,.tsv,.xlsx,text/csv,text/tab-separated-values,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           className="hidden"
           onChange={handleFilePicked}
         />
@@ -323,8 +384,20 @@ function friendlyParseError(error: TabularParseError): string {
     case 'no_data_rows':
       return "We couldn't find a header row. Make sure the first line lists your column names."
     case 'xlsx_not_supported':
-      return 'XLSX is not yet supported. Export as CSV and re-upload.'
+      return 'XLSX could not be parsed. Export as CSV and re-upload.'
     default:
       return "We couldn't read that file. Try exporting as CSV."
   }
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.addEventListener('error', () => reject(reader.error))
+    reader.addEventListener('load', () => {
+      const value = typeof reader.result === 'string' ? reader.result : ''
+      resolve(value.includes(',') ? value.split(',').slice(1).join(',') : value)
+    })
+    reader.readAsDataURL(file)
+  })
 }

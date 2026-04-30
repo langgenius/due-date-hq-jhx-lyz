@@ -184,7 +184,13 @@ export function Wizard({ open, onClose }: WizardProps) {
     if (!intake.rawText.trim() || intake.rowCount === 0) return
 
     dispatch({ type: 'INTAKE_SUBMIT_ERROR', error: null })
-    const source: MigrationSource = intake.preset ? PRESET_TO_SOURCE[intake.preset] : 'paste'
+    const source: MigrationSource = intake.preset
+      ? PRESET_TO_SOURCE[intake.preset]
+      : intake.fileKind === 'xlsx'
+        ? 'xlsx'
+        : intake.fileKind === 'csv'
+          ? 'csv'
+          : 'paste'
     const handleError = (err: unknown) => {
       const description = rpcErrorMessage(err) ?? t`Please try again.`
       dispatch({ type: 'INTAKE_SUBMIT_ERROR', error: description })
@@ -205,11 +211,15 @@ export function Wizard({ open, onClose }: WizardProps) {
             {
               batchId: batch.id,
               fileName: intake.fileName ?? 'paste.txt',
-              contentType: intake.fileName?.endsWith('.tsv')
-                ? 'text/tab-separated-values'
-                : 'text/csv',
-              sizeBytes: intake.rawText.length,
-              inline: { kind: 'paste', text: intake.rawText },
+              contentType:
+                intake.contentType ??
+                (intake.fileKind === 'tsv' ? 'text/tab-separated-values' : 'text/csv'),
+              sizeBytes: intake.sizeBytes || intake.rawText.length,
+              inline: {
+                kind: intake.fileKind,
+                text: intake.rawText,
+                ...(intake.rawFileBase64 ? { rawBase64: intake.rawFileBase64 } : {}),
+              },
             },
             {
               onError: handleError,
@@ -508,7 +518,9 @@ export function Wizard({ open, onClose }: WizardProps) {
         {state.step === 1 ? (
           <Step1Intake
             intake={state.intake}
-            onText={(text, fileName) => dispatch({ type: 'INTAKE_TEXT', text, fileName })}
+            onText={(text, fileName, options) =>
+              dispatch({ type: 'INTAKE_TEXT', text, fileName, ...options })
+            }
             onPreset={(preset) => dispatch({ type: 'INTAKE_PRESET', preset })}
             onParsed={(args) => dispatch({ type: 'INTAKE_PARSED', ...args })}
             onParseError={(error) => dispatch({ type: 'INTAKE_PARSE_ERROR', error })}

@@ -34,6 +34,18 @@ function pulseDigestSubject(payload: unknown): string {
     : 'Pulse deadline update applied'
 }
 
+function genericSubject(payload: unknown, fallback: string): string {
+  if (!isRecord(payload)) return fallback
+  return typeof payload.subject === 'string' && payload.subject.trim()
+    ? payload.subject.trim()
+    : fallback
+}
+
+function genericText(payload: unknown, fallback: string): string {
+  if (!isRecord(payload)) return fallback
+  return typeof payload.text === 'string' && payload.text.trim() ? payload.text.trim() : fallback
+}
+
 function pulseDigestText(payload: unknown): string {
   if (!isRecord(payload)) return 'Pulse digest'
   const summary = typeof payload.summary === 'string' ? payload.summary : 'Pulse digest'
@@ -87,8 +99,14 @@ async function processOutboxRow(
     const { error } = await resend.emails.send({
       from: env.EMAIL_FROM,
       to: recipients,
-      subject: pulseDigestSubject(row.payloadJson),
-      text: pulseDigestText(row.payloadJson),
+      subject:
+        row.type === 'pulse_digest'
+          ? pulseDigestSubject(row.payloadJson)
+          : genericSubject(row.payloadJson, 'DueDateHQ notification'),
+      text:
+        row.type === 'pulse_digest'
+          ? pulseDigestText(row.payloadJson)
+          : genericText(row.payloadJson, 'You have a new DueDateHQ notification.'),
       tags: [
         { name: 'outbox_id', value: row.id },
         { name: 'external_id', value: row.externalId },

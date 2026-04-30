@@ -33,6 +33,9 @@ interface MigrationBatchRow {
     | 'preset_quickbooks'
     | 'preset_file_in_time'
   rawInputR2Key: string | null
+  rawInputFileName: string | null
+  rawInputContentType: string | null
+  rawInputSizeBytes: number | null
   mappingJson: unknown
   presetUsed: string | null
   rowCount: number
@@ -135,6 +138,9 @@ function buildScopedRepo(firmId: string) {
         userId: input.userId,
         source: input.source,
         rawInputR2Key: input.rawInputR2Key ?? null,
+        rawInputFileName: input.rawInputFileName ?? null,
+        rawInputContentType: input.rawInputContentType ?? null,
+        rawInputSizeBytes: input.rawInputSizeBytes ?? null,
         mappingJson: null,
         presetUsed: input.presetUsed ?? null,
         rowCount: input.rowCount ?? 0,

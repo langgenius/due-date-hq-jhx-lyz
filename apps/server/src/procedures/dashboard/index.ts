@@ -54,7 +54,7 @@ function toDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
-function toTopRow(row: DashboardRepoTopRow): DashboardTopRow {
+function toTopRow(row: DashboardRepoTopRow, opts: { hideDollars?: boolean } = {}): DashboardTopRow {
   return {
     obligationId: row.obligationId,
     clientId: row.clientId,
@@ -62,7 +62,7 @@ function toTopRow(row: DashboardRepoTopRow): DashboardTopRow {
     taxType: row.taxType,
     currentDueDate: toDateOnly(row.currentDueDate),
     status: row.status,
-    estimatedExposureCents: row.estimatedExposureCents,
+    estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,
     exposureStatus: row.exposureStatus,
     penaltyFormulaVersion: row.penaltyFormulaVersion,
     severity: row.severity,
@@ -114,11 +114,17 @@ const load = os.dashboard.load.handler(async ({ input, context }) => {
     briefUserId: briefScope === 'me' ? userId : null,
   })
 
+  const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
+  const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
+
   return {
     asOfDate: result.asOfDate,
     windowDays: result.windowDays,
-    summary: result.summary,
-    topRows: result.topRows.map(toTopRow),
+    summary: {
+      ...result.summary,
+      totalExposureCents: hideDollars ? 0 : result.summary.totalExposureCents,
+    },
+    topRows: result.topRows.map((row) => toTopRow(row, { hideDollars })),
     brief: toBriefPublic(result.brief),
   } satisfies DashboardLoadOutput
 })

@@ -111,6 +111,53 @@ export const evidenceLink = sqliteTable(
   ],
 )
 
+export const AUDIT_EVIDENCE_PACKAGE_STATUSES = [
+  'pending',
+  'running',
+  'ready',
+  'failed',
+  'expired',
+] as const
+export type AuditEvidencePackageStatus = (typeof AUDIT_EVIDENCE_PACKAGE_STATUSES)[number]
+
+export const AUDIT_EVIDENCE_PACKAGE_SCOPES = ['firm', 'client', 'obligation', 'migration'] as const
+export type AuditEvidencePackageScope = (typeof AUDIT_EVIDENCE_PACKAGE_SCOPES)[number]
+
+export const auditEvidencePackage = sqliteTable(
+  'audit_evidence_package',
+  {
+    id: text('id').primaryKey(),
+    firmId: text('firm_id')
+      .notNull()
+      .references(() => firmProfile.id, { onDelete: 'cascade' }),
+    exportedByUserId: text('exported_by_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'restrict' }),
+    scope: text('scope', { enum: AUDIT_EVIDENCE_PACKAGE_SCOPES }).notNull().default('firm'),
+    scopeEntityId: text('scope_entity_id'),
+    rangeStart: integer('range_start', { mode: 'timestamp_ms' }),
+    rangeEnd: integer('range_end', { mode: 'timestamp_ms' }),
+    fileCount: integer('file_count').notNull().default(0),
+    fileManifestJson: text('file_manifest_json', { mode: 'json' }).$type<unknown>(),
+    sha256Hash: text('sha256_hash'),
+    r2Key: text('r2_key'),
+    status: text('status', { enum: AUDIT_EVIDENCE_PACKAGE_STATUSES }).notNull().default('pending'),
+    expiresAt: integer('expires_at', { mode: 'timestamp_ms' }),
+    failureReason: text('failure_reason'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_audit_package_firm_time').on(table.firmId, table.createdAt),
+    index('idx_audit_package_status').on(table.status, table.createdAt),
+  ],
+)
+
 export const auditEventRelations = relations(auditEvent, ({ one }) => ({
   firm: one(firmProfile, {
     fields: [auditEvent.firmId],
@@ -141,10 +188,23 @@ export const evidenceLinkRelations = relations(evidenceLink, ({ one }) => ({
   }),
 }))
 
+export const auditEvidencePackageRelations = relations(auditEvidencePackage, ({ one }) => ({
+  firm: one(firmProfile, {
+    fields: [auditEvidencePackage.firmId],
+    references: [firmProfile.id],
+  }),
+  exporter: one(user, {
+    fields: [auditEvidencePackage.exportedByUserId],
+    references: [user.id],
+  }),
+}))
+
 export type AuditEvent = typeof auditEvent.$inferSelect
 export type NewAuditEvent = typeof auditEvent.$inferInsert
 export type EvidenceLink = typeof evidenceLink.$inferSelect
 export type NewEvidenceLink = typeof evidenceLink.$inferInsert
+export type AuditEvidencePackage = typeof auditEvidencePackage.$inferSelect
+export type NewAuditEvidencePackage = typeof auditEvidencePackage.$inferInsert
 
 /**
  * Compliance audit action strings (docs/dev-file/06-Security-Compliance.md §6.1).
@@ -153,6 +213,7 @@ export type NewEvidenceLink = typeof evidenceLink.$inferInsert
  */
 export const MIGRATION_AUDIT_ACTIONS = [
   'migration.batch.created',
+  'migration.raw_uploaded',
   'migration.imported',
   'migration.reverted',
   'migration.single_undo',
@@ -179,10 +240,23 @@ export type PulseAuditAction = (typeof PULSE_AUDIT_ACTIONS)[number]
 export const PENALTY_AUDIT_ACTIONS = ['penalty.override'] as const
 export type PenaltyAuditAction = (typeof PENALTY_AUDIT_ACTIONS)[number]
 
+export const AUTH_AUDIT_ACTIONS = ['auth.denied'] as const
+export type AuthAuditAction = (typeof AUTH_AUDIT_ACTIONS)[number]
+
+export const EXPORT_AUDIT_ACTIONS = [
+  'export.audit_package.requested',
+  'export.audit_package.ready',
+  'export.audit_package.failed',
+  'export.audit_package.downloaded',
+] as const
+export type ExportAuditAction = (typeof EXPORT_AUDIT_ACTIONS)[number]
+
 export const AUDIT_ACTIONS = [
   ...MIGRATION_AUDIT_ACTIONS,
   ...PULSE_AUDIT_ACTIONS,
   ...PENALTY_AUDIT_ACTIONS,
+  ...AUTH_AUDIT_ACTIONS,
+  ...EXPORT_AUDIT_ACTIONS,
 ] as const
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]
 
@@ -201,5 +275,6 @@ export const EVIDENCE_SOURCE_TYPES = [
   'pulse_revert',
   'user_override',
   'penalty_override',
+  'migration_raw_upload',
 ] as const
 export type EvidenceSourceType = (typeof EVIDENCE_SOURCE_TYPES)[number]

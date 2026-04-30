@@ -29,7 +29,9 @@
     "@t3-oss/env-core": "catalog:",
     "better-auth": "catalog:",
     "drizzle-orm": "catalog:",
+    "fflate": "catalog:",
     "hono": "catalog:",
+    "pdf-lib": "catalog:",
     "resend": "catalog:",
     "zod": "catalog:"
   },

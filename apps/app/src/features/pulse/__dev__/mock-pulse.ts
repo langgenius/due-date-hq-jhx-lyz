@@ -63,6 +63,7 @@ const MOCK_FIRM: FirmPublic = {
   status: 'active',
   role: 'owner',
   ownerUserId: 'user_mock_001',
+  coordinatorCanSeeDollars: false,
   isCurrent: true,
   createdAt: ISO_NOW,
   updatedAt: ISO_NOW,

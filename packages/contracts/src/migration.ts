@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
+import { ClientPublicSchema } from './clients'
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 export const MigrationSourceSchema = z.enum([
@@ -28,6 +29,9 @@ export const MigrationBatchSchema = z.object({
   userId: TenantIdSchema,
   source: MigrationSourceSchema,
   rawInputR2Key: z.string().nullable(),
+  rawInputFileName: z.string().nullable(),
+  rawInputContentType: z.string().nullable(),
+  rawInputSizeBytes: z.number().int().min(0).nullable(),
   mappingJson: z.unknown().nullable(),
   presetUsed: z.string().nullable(),
   rowCount: z.number().int().min(0),
@@ -232,6 +236,7 @@ export const migrationContract = oc.router({
             kind: z.enum(['csv', 'tsv', 'paste', 'xlsx']),
             text: z.string().optional(),
             base64: z.string().optional(),
+            rawBase64: z.string().optional(),
           })
           .optional(),
       }),
@@ -264,6 +269,19 @@ export const migrationContract = oc.router({
   listErrors: oc
     .input(MigrationListErrorsInputSchema)
     .output(z.object({ errors: z.array(MigrationErrorSchema) })),
+  listBatches: oc
+    .input(
+      z
+        .object({
+          status: MigrationBatchStatusSchema.optional(),
+          limit: z.number().int().min(1).max(100).default(50).optional(),
+        })
+        .optional(),
+    )
+    .output(z.object({ batches: z.array(MigrationBatchSchema) })),
+  listBatchClients: oc
+    .input(BatchIdInput)
+    .output(z.object({ clients: z.array(ClientPublicSchema) })),
 })
 
 export type MigrationBatch = z.infer<typeof MigrationBatchSchema>

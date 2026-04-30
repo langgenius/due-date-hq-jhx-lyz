@@ -5,6 +5,7 @@ import { evidenceHandlers } from './evidence'
 import { firmsHandlers } from './firms'
 import { migrationHandlers } from './migration'
 import { membersHandlers } from './members'
+import { notificationsHandlers } from './notifications'
 import { obligationsHandlers } from './obligations'
 import { pulseHandlers } from './pulse'
 import { rulesHandlers } from './rules'
@@ -27,6 +28,10 @@ import { os } from './_root'
 export const router = os.router({
   audit: {
     list: auditHandlers.list,
+    requestEvidencePackage: auditHandlers.requestEvidencePackage,
+    getEvidencePackage: auditHandlers.getEvidencePackage,
+    listEvidencePackages: auditHandlers.listEvidencePackages,
+    createDownloadUrl: auditHandlers.createDownloadUrl,
   },
   firms: {
     listMine: firmsHandlers.listMine,
@@ -87,6 +92,8 @@ export const router = os.router({
     singleUndo: migrationHandlers.singleUndo,
     getBatch: migrationHandlers.getBatch,
     listErrors: migrationHandlers.listErrors,
+    listBatches: migrationHandlers.listBatches,
+    listBatchClients: migrationHandlers.listBatchClients,
   },
   members: {
     listCurrent: membersHandlers.listCurrent,
@@ -97,6 +104,14 @@ export const router = os.router({
     suspend: membersHandlers.suspend,
     reactivate: membersHandlers.reactivate,
     remove: membersHandlers.remove,
+  },
+  notifications: {
+    list: notificationsHandlers.list,
+    unreadCount: notificationsHandlers.unreadCount,
+    markRead: notificationsHandlers.markRead,
+    markAllRead: notificationsHandlers.markAllRead,
+    getPreferences: notificationsHandlers.getPreferences,
+    updatePreferences: notificationsHandlers.updatePreferences,
   },
   rules: {
     listSources: rulesHandlers.listSources,

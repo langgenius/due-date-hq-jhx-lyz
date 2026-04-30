@@ -98,6 +98,9 @@ function RootLayoutShell({
   const { i18n } = useLingui()
   const matches = useMatches()
   const firmsQuery = useQuery(orpc.firms.listMine.queryOptions({ input: undefined }))
+  const notificationsQuery = useQuery(
+    orpc.notifications.unreadCount.queryOptions({ input: undefined }),
+  )
   const firm = pickCurrentFirm(firmsQuery.data, user)
   const routeMessages = getRouteSummaryMessages(matches)
   const route = {
@@ -113,6 +116,7 @@ function RootLayoutShell({
       route={route}
       themePreference={themePreference}
       switchThemePreference={switchThemePreference}
+      unreadNotificationCount={notificationsQuery.data?.count ?? 0}
     />
   )
 }
@@ -132,6 +136,7 @@ function pickCurrentFirm(firms: FirmPublic[] | undefined, user: AuthUser): FirmP
     status: 'active',
     role: 'owner',
     ownerUserId: user.id,
+    coordinatorCanSeeDollars: false,
     isCurrent: true,
     createdAt: new Date(0).toISOString(),
     updatedAt: new Date(0).toISOString(),

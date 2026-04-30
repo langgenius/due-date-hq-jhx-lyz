@@ -16,6 +16,7 @@ export interface FirmMembershipRow {
   status: FirmProfile['status']
   role: FirmRole
   ownerUserId: string
+  coordinatorCanSeeDollars: boolean
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -24,6 +25,7 @@ export interface FirmMembershipRow {
 export interface FirmUpdateInput {
   name: string
   timezone: string
+  coordinatorCanSeeDollars?: boolean
 }
 
 export interface FirmBillingSubscriptionRow {
@@ -70,6 +72,7 @@ function toMembershipRow(row: {
   status: FirmProfile['status']
   role: string
   ownerUserId: string
+  coordinatorCanSeeDollars: boolean
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -92,6 +95,7 @@ function baseFirmSelect(db: Db) {
       status: firmProfile.status,
       role: member.role,
       ownerUserId: firmProfile.ownerUserId,
+      coordinatorCanSeeDollars: firmProfile.coordinatorCanSeeDollars,
       createdAt: firmProfile.createdAt,
       updatedAt: firmProfile.updatedAt,
       deletedAt: firmProfile.deletedAt,
@@ -139,11 +143,16 @@ export function makeFirmsRepo(db: Db) {
 
     async updateProfile(firmId: string, input: FirmUpdateInput): Promise<void> {
       const now = new Date()
+      const patch: Partial<typeof firmProfile.$inferInsert> = {
+        name: input.name,
+        timezone: input.timezone,
+        updatedAt: now,
+      }
+      if (input.coordinatorCanSeeDollars !== undefined) {
+        patch.coordinatorCanSeeDollars = input.coordinatorCanSeeDollars
+      }
       await Promise.all([
-        db
-          .update(firmProfile)
-          .set({ name: input.name, timezone: input.timezone, updatedAt: now })
-          .where(eq(firmProfile.id, firmId)),
+        db.update(firmProfile).set(patch).where(eq(firmProfile.id, firmId)),
         db.update(organization).set({ name: input.name }).where(eq(organization.id, firmId)),
       ])
     },

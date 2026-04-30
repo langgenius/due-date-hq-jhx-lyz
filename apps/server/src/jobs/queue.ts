@@ -1,4 +1,5 @@
 import type { Env } from '../env'
+import { generateAuditEvidencePackage } from './audit/package'
 import { consumeDashboardBriefRefresh } from './dashboard-brief/consumer'
 import { isDashboardBriefRefreshMessage } from './dashboard-brief/message'
 import { flushEmailOutbox } from './email/outbox'
@@ -24,7 +25,10 @@ export function assertQueueDispatchable(batch: QueueBatchLike): void {
 
 function isDispatchableMessage(body: unknown): boolean {
   return (
-    isDashboardBriefRefreshMessage(body) || isPulseExtractMessage(body) || isEmailFlushMessage(body)
+    isDashboardBriefRefreshMessage(body) ||
+    isPulseExtractMessage(body) ||
+    isEmailFlushMessage(body) ||
+    isAuditPackageGenerateMessage(body)
   )
 }
 
@@ -36,6 +40,14 @@ function isPulseExtractMessage(
 
 function isEmailFlushMessage(body: unknown): body is { type: 'email.flush' } {
   return isRecord(body) && body.type === 'email.flush'
+}
+
+function isAuditPackageGenerateMessage(
+  body: unknown,
+): body is { type: 'audit.package.generate'; packageId: string } {
+  return (
+    isRecord(body) && body.type === 'audit.package.generate' && typeof body.packageId === 'string'
+  )
 }
 
 // Queue consumer entry. Keep message contracts explicit so additional queues
@@ -56,6 +68,9 @@ async function dispatchMessage(message: Message, env: Env): Promise<void> {
     }
     if (isEmailFlushMessage(body)) {
       await flushEmailOutbox(env)
+    }
+    if (isAuditPackageGenerateMessage(body)) {
+      await generateAuditEvidencePackage(env, body.packageId)
     }
     message.ack()
   } catch (error) {

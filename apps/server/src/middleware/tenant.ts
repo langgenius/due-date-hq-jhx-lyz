@@ -105,6 +105,7 @@ export const tenantMiddleware = createMiddleware<{
     timezone: profile.timezone,
     status: profile.status,
     ownerUserId: profile.ownerUserId,
+    coordinatorCanSeeDollars: profile.coordinatorCanSeeDollars,
   }
   c.set('tenantContext', tenant)
   c.set('scoped', scoped(db, firmId))

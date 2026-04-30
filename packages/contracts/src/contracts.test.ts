@@ -67,7 +67,13 @@ import {
 describe('@duedatehq/contracts', () => {
   it('freezes audit.list read contract', () => {
     expect(Object.keys(appContract)).toEqual(expect.arrayContaining(['audit']))
-    expect(Object.keys(auditContract)).toEqual(['list'])
+    expect(Object.keys(auditContract)).toEqual([
+      'list',
+      'requestEvidencePackage',
+      'getEvidencePackage',
+      'listEvidencePackages',
+      'createDownloadUrl',
+    ])
     expect(AuditActionCategorySchema.options).toEqual([
       'client',
       'obligation',

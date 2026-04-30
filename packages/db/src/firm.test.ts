@@ -51,6 +51,7 @@ describe('firm_profile schema', () => {
         'status',
         'billing_customer_id',
         'billing_subscription_id',
+        'coordinator_can_see_dollars',
         'created_at',
         'updated_at',
         'deleted_at',
@@ -60,6 +61,7 @@ describe('firm_profile schema', () => {
     // Spot-check SQL types (drizzle reports these as the underlying SQLite types).
     expect(byName.id?.getSQLType()).toBe('text')
     expect(byName.seat_limit?.getSQLType()).toBe('integer')
+    expect(byName.coordinator_can_see_dollars?.getSQLType()).toBe('integer')
     expect(byName.created_at?.getSQLType()).toBe('integer')
     expect(byName.deleted_at?.getSQLType()).toBe('integer')
   })
@@ -81,6 +83,7 @@ describe('firm_profile schema', () => {
     expect(findColumn('status').default).toBe('active')
     expect(findColumn('seat_limit').default).toBe(1)
     expect(findColumn('timezone').default).toBe('America/New_York')
+    expect(findColumn('coordinator_can_see_dollars').default).toBe(false)
   })
 
   it('declares the plan and status enums (drizzle-side enum values)', () => {
@@ -123,6 +126,7 @@ describe('firm_profile schema', () => {
       status: 'active',
       billingCustomerId: null,
       billingSubscriptionId: null,
+      coordinatorCanSeeDollars: false,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,

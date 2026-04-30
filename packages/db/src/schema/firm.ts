@@ -21,7 +21,6 @@ import { organization, user } from './auth'
  * orphan). See docs/dev-log/2026-04-24-first-login-practice-onboarding.md.
  *
  * YAGNI columns deliberately deferred (D1 ALTER TABLE is cheap):
- *   - coordinatorCanSeeDollars                    → P1 RBAC (PRD §3.6)
  *   - defaultAssigneeUserId                       → P1 (PRD §3.6.8)
  */
 export const firmProfile = sqliteTable('firm_profile', {
@@ -67,6 +66,12 @@ export const firmProfile = sqliteTable('firm_profile', {
   // tenant context cheap and make plan gates independent from Stripe reads.
   billingCustomerId: text('billing_customer_id'),
   billingSubscriptionId: text('billing_subscription_id'),
+
+  // RBAC P1: Coordinator does not see dollar/exposure values unless Owner
+  // explicitly flips this firm-level setting.
+  coordinatorCanSeeDollars: integer('coordinator_can_see_dollars', { mode: 'boolean' })
+    .notNull()
+    .default(false),
 
   createdAt: integer('created_at', { mode: 'timestamp_ms' })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)

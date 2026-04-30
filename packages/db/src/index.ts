@@ -1,6 +1,8 @@
 import * as authSchema from './schema/auth'
+import * as auditSchema from './schema/audit'
 import * as dashboardSchema from './schema/dashboard'
 import * as firmSchema from './schema/firm'
+import * as notificationSchema from './schema/notifications'
 import { makeFirmsRepo } from './repo/firms'
 import { makeMembersRepo } from './repo/members'
 import { makePulseOpsRepo } from './repo/pulse'
@@ -8,6 +10,7 @@ import { makePulseOpsRepo } from './repo/pulse'
 export { createDb } from './client'
 export { scoped } from './scoped'
 export { authSchema }
+export { auditSchema }
 export { dashboardSchema }
 // firmSchema is exposed at the main entry (parallel to authSchema) so the
 // auth-layer code paths that legitimately need to write firm_profile —
@@ -16,6 +19,7 @@ export { dashboardSchema }
 // through `scoped()`; firm_profile is composed into the tenantContext by
 // middleware, never read by procedures.
 export { firmSchema }
+export { notificationSchema }
 export { makeFirmsRepo }
 export { makeMembersRepo }
 export { makePulseOpsRepo }

@@ -14,6 +14,7 @@ import {
   LayoutDashboardIcon,
   PlusIcon,
   ScaleIcon,
+  UploadIcon,
   UsersIcon,
   type LucideIcon,
 } from 'lucide-react'
@@ -369,7 +370,10 @@ function useNavItems(firm: FirmPublic): NavConfig {
               }),
         },
       ],
-      clients: [{ href: '/clients', label: t`Clients`, icon: UsersIcon, end: false }],
+      clients: [
+        { href: '/clients', label: t`Clients`, icon: UsersIcon, end: false },
+        { href: '/imports', label: t`Imports`, icon: UploadIcon, end: false },
+      ],
       organization: [
         { href: '/firm', label: t`Firm profile`, icon: Building2Icon, end: false },
         { href: '/rules', label: t`Rules`, icon: FileCheck2Icon, end: false },

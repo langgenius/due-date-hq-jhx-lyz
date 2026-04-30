@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
 import { DownloadIcon, FilterIcon, SearchIcon } from 'lucide-react'
@@ -17,6 +17,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@duedatehq/ui/components/ui/dialog'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import {
   Select,
@@ -109,6 +117,96 @@ function AuditSkeleton() {
         <Skeleton key={index} className="h-12 w-full rounded-lg" />
       ))}
     </div>
+  )
+}
+
+function AuditExportButton() {
+  const { t } = useLingui()
+  const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
+  const packagesQuery = useQuery(
+    orpc.audit.listEvidencePackages.queryOptions({ input: { limit: 5 } }),
+  )
+  const requestPackage = useMutation(
+    orpc.audit.requestEvidencePackage.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+      },
+      onError: (error) => {
+        window.alert(rpcErrorMessage(error) ?? t`Could not request export.`)
+      },
+    }),
+  )
+  const createDownloadUrl = useMutation(
+    orpc.audit.createDownloadUrl.mutationOptions({
+      onSuccess: (result) => {
+        window.location.assign(result.url)
+      },
+    }),
+  )
+  const latest = packagesQuery.data?.packages[0] ?? null
+
+  return (
+    <>
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+        <DownloadIcon data-icon="inline-start" />
+        <Trans>Export</Trans>
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              <Trans>Audit evidence package</Trans>
+            </DialogTitle>
+            <DialogDescription>
+              <Trans>
+                Create a ZIP with a PDF report, audit events, evidence links, and manifest.
+              </Trans>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 rounded-lg border border-divider-subtle p-3 text-sm">
+            {latest ? (
+              <>
+                <div className="flex justify-between gap-3">
+                  <span className="text-text-secondary">
+                    <Trans>Latest status</Trans>
+                  </span>
+                  <Badge variant="outline">{latest.status}</Badge>
+                </div>
+                {latest.failureReason ? (
+                  <p className="text-text-destructive">{latest.failureReason}</p>
+                ) : null}
+              </>
+            ) : (
+              <p className="text-text-secondary">
+                <Trans>No export packages yet.</Trans>
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              <Trans>Close</Trans>
+            </Button>
+            {latest?.status === 'ready' ? (
+              <Button
+                onClick={() => createDownloadUrl.mutate({ id: latest.id })}
+                disabled={createDownloadUrl.isPending}
+              >
+                <DownloadIcon data-icon="inline-start" />
+                <Trans>Download latest</Trans>
+              </Button>
+            ) : (
+              <Button
+                onClick={() => requestPackage.mutate({ scope: 'firm' })}
+                disabled={requestPackage.isPending}
+              >
+                <Trans>Request export</Trans>
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
@@ -210,10 +308,7 @@ export function AuditLogPage() {
               <Trans>Review firm-wide write events, before/after state, and actor metadata.</Trans>
             </p>
           </div>
-          <Button variant="outline" size="sm" disabled>
-            <DownloadIcon data-icon="inline-start" />
-            <Trans>Export · P1</Trans>
-          </Button>
+          <AuditExportButton />
         </div>
       </header>
 

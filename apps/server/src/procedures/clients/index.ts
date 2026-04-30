@@ -34,6 +34,14 @@ export async function rereadCreatedClientBatch(
   return rows
 }
 
+async function shouldHideDollars(context: Parameters<typeof requireTenant>[0]): Promise<boolean> {
+  const { members } = context.vars
+  const { tenant, userId } = requireTenant(context)
+  if (tenant.coordinatorCanSeeDollars || !members) return false
+  const actor = await members.findMembership(tenant.firmId, userId)
+  return actor?.role === 'coordinator'
+}
+
 const create = os.clients.create.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
   const { scoped, userId } = requireTenant(context)
@@ -103,19 +111,21 @@ const createBatch = os.clients.createBatch.handler(async ({ input, context }) =>
 
   const rows = await rereadCreatedClientBatch(scoped.clients, ids)
 
-  return { clients: rows.map(toClientPublic) }
+  return { clients: rows.map((row) => toClientPublic(row)) }
 })
 
 const get = os.clients.get.handler(async ({ input, context }) => {
   const { scoped } = requireTenant(context)
   const row = await scoped.clients.findById(input.id)
-  return row ? toClientPublic(row) : null
+  const hideDollars = await shouldHideDollars(context)
+  return row ? toClientPublic(row, { hideDollars }) : null
 })
 
 const listByFirm = os.clients.listByFirm.handler(async ({ input, context }) => {
   const { scoped } = requireTenant(context)
   const rows = await scoped.clients.listByFirm(input?.limit ? { limit: input.limit } : {})
-  return rows.map(toClientPublic)
+  const hideDollars = await shouldHideDollars(context)
+  return rows.map((row) => toClientPublic(row, { hideDollars }))
 })
 
 const updatePenaltyInputs = os.clients.updatePenaltyInputs.handler(async ({ input, context }) => {

@@ -11,6 +11,9 @@ export interface MigrationBatchRow {
   userId: string
   source: MigrationSource
   rawInputR2Key: string | null
+  rawInputFileName: string | null
+  rawInputContentType: string | null
+  rawInputSizeBytes: number | null
   mappingJson: unknown
   presetUsed: string | null
   rowCount: number
@@ -67,6 +70,9 @@ export interface CreateBatchInput {
   userId: string
   source: MigrationSource
   rawInputR2Key?: string | null
+  rawInputFileName?: string | null
+  rawInputContentType?: string | null
+  rawInputSizeBytes?: number | null
   presetUsed?: string | null
   rowCount?: number
 }
@@ -74,6 +80,10 @@ export interface CreateBatchInput {
 export interface UpdateBatchPatch {
   status?: MigrationBatchStatus
   mappingJson?: unknown
+  rawInputR2Key?: string | null
+  rawInputFileName?: string | null
+  rawInputContentType?: string | null
+  rawInputSizeBytes?: number | null
   presetUsed?: string | null
   rowCount?: number
   successCount?: number

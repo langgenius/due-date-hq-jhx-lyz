@@ -224,9 +224,8 @@ function NotificationsBell({ unreadCount }: { unreadCount: number }) {
   const { t } = useLingui()
   const hasUnread = unreadCount > 0
   return (
-    <button
-      type="button"
-      // TODO(P1): wire to inbox query; for v0 this is a static utility chrome.
+    <Link
+      to="/notifications"
       aria-label={hasUnread ? t`Notifications, ${unreadCount} unread` : t`Notifications`}
       className={cn(
         'relative inline-flex size-7 cursor-pointer touch-manipulation items-center justify-center rounded-md border border-divider-regular bg-background-default text-text-secondary outline-none transition-colors',
@@ -241,6 +240,6 @@ function NotificationsBell({ unreadCount }: { unreadCount: number }) {
           className="absolute top-0.5 right-0.5 size-1.5 rounded-full bg-state-destructive-solid"
         />
       ) : null}
-    </button>
+    </Link>
   )
 }

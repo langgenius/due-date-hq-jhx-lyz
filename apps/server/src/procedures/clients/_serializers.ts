@@ -52,7 +52,7 @@ export interface ClientCreateInputForRepo {
   migrationBatchId?: string | null
 }
 
-export function toClientPublic(row: ClientRow): ClientPublic {
+export function toClientPublic(row: ClientRow, opts: { hideDollars?: boolean } = {}): ClientPublic {
   return {
     id: row.id,
     firmId: row.firmId,
@@ -64,8 +64,8 @@ export function toClientPublic(row: ClientRow): ClientPublic {
     email: row.email,
     notes: row.notes,
     assigneeName: row.assigneeName,
-    estimatedTaxLiabilityCents: row.estimatedTaxLiabilityCents,
-    estimatedTaxLiabilitySource: row.estimatedTaxLiabilitySource,
+    estimatedTaxLiabilityCents: opts.hideDollars ? null : row.estimatedTaxLiabilityCents,
+    estimatedTaxLiabilitySource: opts.hideDollars ? null : row.estimatedTaxLiabilitySource,
     equityOwnerCount: row.equityOwnerCount,
     migrationBatchId: row.migrationBatchId,
     createdAt: row.createdAt.toISOString(),

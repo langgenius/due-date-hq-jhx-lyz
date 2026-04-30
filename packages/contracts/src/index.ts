@@ -16,6 +16,7 @@ import { workloadContract } from './workload'
 import { pulseContract } from './pulse'
 import { migrationContract } from './migration'
 import { membersContract } from './members'
+import { notificationsContract } from './notifications'
 import { rulesContract } from './rules'
 
 export const appContract = oc.router({
@@ -30,6 +31,7 @@ export const appContract = oc.router({
   pulse: pulseContract,
   migration: migrationContract,
   members: membersContract,
+  notifications: notificationsContract,
   rules: rulesContract,
 })
 
@@ -38,18 +40,24 @@ export type AppContract = typeof appContract
 export type {
   AuditActionCategory,
   AuditContract,
+  AuditEvidencePackagePublic,
   AuditEventPublic,
   AuditListInput,
   AuditListOutput,
+  AuditRequestEvidencePackageInput,
   AuditRange,
 } from './audit'
 export {
   AUDIT_FILTER_MAX_LENGTH,
   AUDIT_SEARCH_MAX_LENGTH,
   AuditActionCategorySchema,
+  AuditEvidencePackagePublicSchema,
+  AuditEvidencePackageScopeSchema,
+  AuditEvidencePackageStatusSchema,
   AuditEventPublicSchema,
   AuditListInputSchema,
   AuditListOutputSchema,
+  AuditRequestEvidencePackageInputSchema,
   AuditRangeSchema,
   auditContract,
 } from './audit'
@@ -304,6 +312,21 @@ export {
   MemberStatusSchema,
   MemberUpdateRoleInputSchema,
 } from './members'
+
+export type {
+  InAppNotificationPublic,
+  NotificationPreferencePublic,
+  NotificationsContract,
+  NotificationType,
+} from './notifications'
+export {
+  InAppNotificationPublicSchema,
+  NotificationListInputSchema,
+  NotificationPreferencePublicSchema,
+  notificationsContract,
+  NotificationStatusFilterSchema,
+  NotificationTypeSchema,
+} from './notifications'
 
 export type {
   ApplyResult,

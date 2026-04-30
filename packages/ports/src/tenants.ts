@@ -8,6 +8,7 @@ export interface TenantContext {
   readonly timezone: string
   readonly status: FirmStatus
   readonly ownerUserId: string
+  readonly coordinatorCanSeeDollars: boolean
 }
 
 export interface FirmMembershipRow {
@@ -20,6 +21,7 @@ export interface FirmMembershipRow {
   status: FirmStatus
   role: FirmRole
   ownerUserId: string
+  coordinatorCanSeeDollars: boolean
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -28,6 +30,7 @@ export interface FirmMembershipRow {
 export interface FirmUpdateInput {
   name: string
   timezone: string
+  coordinatorCanSeeDollars?: boolean
 }
 
 export interface MemberRow {

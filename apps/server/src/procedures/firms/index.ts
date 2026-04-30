@@ -34,6 +34,7 @@ function toFirmPublic(row: FirmRow, currentFirmId: string | null | undefined): F
     status: row.status,
     role: row.role,
     ownerUserId: row.ownerUserId,
+    coordinatorCanSeeDollars: row.coordinatorCanSeeDollars,
     isCurrent: row.id === currentFirmId,
     createdAt: toIso(row.createdAt),
     updatedAt: toIso(row.updatedAt),
@@ -208,7 +209,13 @@ const updateCurrent = os.firms.updateCurrent.handler(async ({ input, context }) 
     throw new ORPCError('FORBIDDEN', { message: ErrorCodes.FIRM_FORBIDDEN })
   }
 
-  await firms.updateProfile(activeFirmId, input)
+  await firms.updateProfile(activeFirmId, {
+    name: input.name,
+    timezone: input.timezone,
+    ...(input.coordinatorCanSeeDollars !== undefined
+      ? { coordinatorCanSeeDollars: input.coordinatorCanSeeDollars }
+      : {}),
+  })
   const after = await firms.findActiveForUser(userId, activeFirmId)
   if (!after) {
     throw new ORPCError('INTERNAL_SERVER_ERROR', {
@@ -222,8 +229,16 @@ const updateCurrent = os.firms.updateCurrent.handler(async ({ input, context }) 
     entityType: 'firm',
     entityId: activeFirmId,
     action: 'firm.updated',
-    before: { name: before.name, timezone: before.timezone },
-    after: { name: after.name, timezone: after.timezone },
+    before: {
+      name: before.name,
+      timezone: before.timezone,
+      coordinatorCanSeeDollars: before.coordinatorCanSeeDollars,
+    },
+    after: {
+      name: after.name,
+      timezone: after.timezone,
+      coordinatorCanSeeDollars: after.coordinatorCanSeeDollars,
+    },
   })
 
   return toFirmPublic(after, activeFirmId)

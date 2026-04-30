@@ -9,6 +9,7 @@ import {
   requireCurrentFirmRole,
 } from '../_permissions'
 import { os } from '../_root'
+import { toClientPublic } from '../clients/_serializers'
 import { MigrationService } from './_service'
 
 /**
@@ -29,6 +30,7 @@ async function buildService(
     scoped,
     userId,
     ai: createAI(ctx.env),
+    rawBucket: ctx.env.R2_MIGRATION,
   })
 }
 
@@ -53,9 +55,13 @@ const uploadRaw = os.migration.uploadRaw.handler(async ({ input, context }) => {
   const out: Parameters<MigrationService['uploadRaw']>[0] = {
     batchId: input.batchId,
     kind: input.inline.kind,
+    fileName: input.fileName,
+    contentType: input.contentType,
+    sizeBytes: input.sizeBytes,
   }
   if (input.inline.text !== undefined) out.text = input.inline.text
   if (input.inline.base64 !== undefined) out.base64 = input.inline.base64
+  if (input.inline.rawBase64 !== undefined) out.rawBase64 = input.inline.rawBase64
   return service.uploadRaw(out)
 })
 
@@ -113,6 +119,23 @@ const listErrors = os.migration.listErrors.handler(async ({ input, context }) =>
   return { errors }
 })
 
+const listBatches = os.migration.listBatches.handler(async ({ input, context }) => {
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
+  return service.listBatches({
+    ...(input?.limit !== undefined ? { limit: input.limit } : {}),
+    ...(input?.status !== undefined ? { status: input.status } : {}),
+  })
+})
+
+const listBatchClients = os.migration.listBatchClients.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, MIGRATION_RUN_ROLES)
+  const { scoped } = requireTenant(context)
+  const batch = await scoped.migration.getBatch(input.batchId)
+  if (!batch) return { clients: [] }
+  const clients = await scoped.clients.listByBatch(input.batchId)
+  return { clients: clients.map((client) => toClientPublic(client)) }
+})
+
 const revert = os.migration.revert.handler(async ({ input, context }) => {
   const service = await buildService(context, MIGRATION_REVERT_ROLES)
   const result = await service.revert(input.batchId)
@@ -149,4 +172,6 @@ export const migrationHandlers = {
   singleUndo,
   getBatch,
   listErrors,
+  listBatches,
+  listBatchClients,
 }

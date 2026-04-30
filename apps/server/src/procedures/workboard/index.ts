@@ -40,7 +40,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function toRow(row: RawRow): WorkboardRow {
+function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow {
   return {
     id: row.id,
     firmId: row.firmId,
@@ -51,8 +51,8 @@ function toRow(row: RawRow): WorkboardRow {
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,
     migrationBatchId: row.migrationBatchId,
-    estimatedTaxDueCents: row.estimatedTaxDueCents,
-    estimatedExposureCents: row.estimatedExposureCents,
+    estimatedTaxDueCents: opts.hideDollars ? null : row.estimatedTaxDueCents,
+    estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,
     exposureStatus: row.exposureStatus,
     penaltyBreakdown: parsePenaltyBreakdown(row.penaltyBreakdownJson),
     penaltyFormulaVersion: row.penaltyFormulaVersion,
@@ -93,7 +93,7 @@ function parsePenaltyBreakdown(value: unknown): WorkboardRow['penaltyBreakdown']
 }
 
 const list = os.workboard.list.handler(async ({ input, context }) => {
-  const { scoped } = requireTenant(context)
+  const { scoped, tenant, userId } = requireTenant(context)
 
   const repoInput: {
     status?: WorkboardRow['status'][]
@@ -123,9 +123,11 @@ const list = os.workboard.list.handler(async ({ input, context }) => {
   if (input.limit !== undefined) repoInput.limit = input.limit
 
   const result = await scoped.workboard.list(repoInput)
+  const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
+  const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
 
   return {
-    rows: result.rows.map(toRow),
+    rows: result.rows.map((row) => toRow(row, { hideDollars })),
     nextCursor: result.nextCursor,
   }
 })

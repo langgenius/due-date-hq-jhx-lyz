@@ -2,6 +2,7 @@ import * as z from 'zod'
 
 export const MigrationAuditActions = [
   'migration.batch.created',
+  'migration.raw_uploaded',
   'migration.imported',
   'migration.reverted',
   'migration.single_undo',
@@ -24,11 +25,20 @@ export const PulseAuditActions = [
 ] as const
 
 export const PenaltyAuditActions = ['penalty.override'] as const
+export const AuthAuditActions = ['auth.denied'] as const
+export const ExportAuditActions = [
+  'export.audit_package.requested',
+  'export.audit_package.ready',
+  'export.audit_package.failed',
+  'export.audit_package.downloaded',
+] as const
 
 export const AuditActions = [
   ...MigrationAuditActions,
   ...PulseAuditActions,
   ...PenaltyAuditActions,
+  ...AuthAuditActions,
+  ...ExportAuditActions,
 ] as const
 
 export const MigrationAuditActionSchema = z.enum(MigrationAuditActions)
@@ -39,6 +49,12 @@ export type PulseAuditAction = z.infer<typeof PulseAuditActionSchema>
 
 export const PenaltyAuditActionSchema = z.enum(PenaltyAuditActions)
 export type PenaltyAuditAction = z.infer<typeof PenaltyAuditActionSchema>
+
+export const AuthAuditActionSchema = z.enum(AuthAuditActions)
+export type AuthAuditAction = z.infer<typeof AuthAuditActionSchema>
+
+export const ExportAuditActionSchema = z.enum(ExportAuditActions)
+export type ExportAuditAction = z.infer<typeof ExportAuditActionSchema>
 
 export const AuditActionSchema = z.enum(AuditActions)
 export type AuditAction = z.infer<typeof AuditActionSchema>

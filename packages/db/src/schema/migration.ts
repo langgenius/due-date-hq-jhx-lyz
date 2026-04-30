@@ -57,6 +57,9 @@ export const migrationBatch = sqliteTable(
     // Nullable: 'paste' source writes inline raw_input_json into mappingJson
     // payload + skips R2.
     rawInputR2Key: text('raw_input_r2_key'),
+    rawInputFileName: text('raw_input_file_name'),
+    rawInputContentType: text('raw_input_content_type'),
+    rawInputSizeBytes: integer('raw_input_size_bytes'),
 
     // Mapper + Normalizer JSON payloads. Structure matches the contracts in
     // packages/contracts/src/migration.ts (MappingRow[] + NormalizationRow[]).

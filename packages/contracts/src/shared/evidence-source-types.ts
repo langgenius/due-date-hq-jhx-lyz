@@ -10,6 +10,7 @@ export const EvidenceSourceTypes = [
   'pulse_revert',
   'user_override',
   'penalty_override',
+  'migration_raw_upload',
 ] as const
 
 export const EvidenceSourceTypeSchema = z.enum(EvidenceSourceTypes)

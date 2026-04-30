@@ -507,6 +507,7 @@ msgstr "Applicability review"
 msgid "Applicability review · needs CPA confirmation at generation time."
 msgstr "Applicability review · needs CPA confirmation at generation time."
 
+#: src/features/migration/ImportsPage.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Applied"
@@ -554,6 +555,10 @@ msgstr "Audit + evidence written. Undo within 24h."
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Audit detail"
 msgstr "Audit detail"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Audit evidence package"
+msgstr "Audit evidence package"
 
 #: src/routes/billing.checkout.tsx
 msgid "Audit export surface"
@@ -794,6 +799,10 @@ msgstr "Client facts"
 msgid "CLIENT ID"
 msgstr "CLIENT ID"
 
+#: src/features/migration/ImportsPage.tsx
+msgid "Client import undone"
+msgstr "Client import undone"
+
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Client name"
 msgstr "Client name"
@@ -804,11 +813,13 @@ msgstr "Client risk rows"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/migration/ImportsPage.tsx
 #: src/routes/clients.tsx
 #: src/routes/route-summary.ts
 msgid "Clients"
 msgstr "Clients"
 
+#: src/features/audit/audit-log-page.tsx
 #: src/features/migration/WizardShell.tsx
 msgid "Close"
 msgstr "Close"
@@ -905,6 +916,14 @@ msgstr "Could not delete firm."
 msgid "Could not load audit events"
 msgstr "Could not load audit events"
 
+#: src/features/migration/ImportsPage.tsx
+msgid "Could not load import history"
+msgstr "Could not load import history"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Could not load notifications"
+msgstr "Could not load notifications"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Could not load rule library."
 msgstr "Could not load rule library."
@@ -921,6 +940,18 @@ msgstr "Could not load rules coverage."
 msgid "Could not load team workload"
 msgstr "Could not load team workload"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Could not mark notification read"
+msgstr "Could not mark notification read"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Could not request export."
+msgstr "Could not request export."
+
+#: src/features/migration/ImportsPage.tsx
+msgid "Could not revert import"
+msgstr "Could not revert import"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Could not run generation preview."
 msgstr "Could not run generation preview."
@@ -928,6 +959,10 @@ msgstr "Could not run generation preview."
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not switch firm."
 msgstr "Could not switch firm."
+
+#: src/features/migration/ImportsPage.tsx
+msgid "Could not undo client"
+msgstr "Could not undo client"
 
 #: src/routes/firm.tsx
 msgid "Could not update firm."
@@ -1035,6 +1070,10 @@ msgstr "Coverage state for the same obligations shown on the dashboard."
 msgid "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
 msgstr "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Create a ZIP with a PDF report, audit events, evidence links, and manifest."
+msgstr "Create a ZIP with a PDF report, audit events, evidence links, and manifest."
+
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Create client"
 msgstr "Create client"
@@ -1111,6 +1150,10 @@ msgstr "Dashboard rows are sourced from obligations and evidence links, not demo
 msgid "Deadline"
 msgstr "Deadline"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Deadline reminders"
+msgstr "Deadline reminders"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Default Matrix applies these suggestions only where imported rows do not already include tax types."
 msgstr "Default Matrix applies these suggestions only where imported rows do not already include tax types."
@@ -1173,9 +1216,13 @@ msgstr "Dismissed"
 msgid "Done"
 msgstr "Done"
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Download latest"
+msgstr "Download latest"
+
 #: src/features/migration/Step1Intake.tsx
-msgid "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
-msgstr "Drop CSV / TSV here or click to choose · max 1000 rows · 2 MB"
+msgid "Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB"
+msgstr "Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB"
 
 #: src/features/migration/Stepper.tsx
 msgid "Dry-Run"
@@ -1242,6 +1289,7 @@ msgstr "Eligible"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/notifications/notifications-page.tsx
 msgid "Email"
 msgstr "Email"
 
@@ -1354,10 +1402,6 @@ msgstr "Expires {0}"
 #: src/features/audit/audit-log-page.tsx
 msgid "Export"
 msgstr "Export"
-
-#: src/features/audit/audit-log-page.tsx
-msgid "Export · P1"
-msgstr "Export · P1"
 
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -1579,6 +1623,10 @@ msgstr "Import clients to generate real obligation risk."
 msgid "Import complete"
 msgstr "Import complete"
 
+#: src/features/migration/ImportsPage.tsx
+msgid "Import reverted"
+msgstr "Import reverted"
+
 #: src/features/migration/Wizard.tsx
 msgid "Import undone"
 msgstr "Import undone"
@@ -1591,6 +1639,12 @@ msgstr "Imported"
 msgid "Importing…"
 msgstr "Importing…"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/features/migration/ImportsPage.tsx
+#: src/routes/route-summary.ts
+msgid "Imports"
+msgstr "Imports"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Improves identity matching and audit review."
 msgstr "Improves identity matching and audit review."
@@ -1602,6 +1656,14 @@ msgstr "In progress"
 #: src/features/workboard/status-control.tsx
 msgid "In review"
 msgstr "In review"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "In-app"
+msgstr "In-app"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Inbox"
+msgstr "Inbox"
 
 #: src/routes/clients.tsx
 msgid "Individual"
@@ -1697,6 +1759,10 @@ msgstr "Last 7d"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Last success {0} · next check {1} · failures {2}"
 msgstr "Last success {0} · next check {1} · failures {2}"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Latest status"
+msgstr "Latest status"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Light"
@@ -1831,6 +1897,14 @@ msgstr "Map \"{sourceHeader}\" to…"
 #: src/features/migration/Stepper.tsx
 msgid "Mapping"
 msgstr "Mapping"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Mark all read"
+msgstr "Mark all read"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Mark read"
+msgstr "Mark read"
 
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Match"
@@ -2017,6 +2091,10 @@ msgstr "No emails will be sent automatically"
 msgid "No evidence linked yet"
 msgstr "No evidence linked yet"
 
+#: src/features/audit/audit-log-page.tsx
+msgid "No export packages yet."
+msgstr "No export packages yet."
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "No extension available."
 msgstr "No extension available."
@@ -2045,6 +2123,10 @@ msgstr "No matching clients in this firm."
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
 msgstr "No notes."
+
+#: src/features/notifications/notifications-page.tsx
+msgid "No notifications yet."
+msgstr "No notifications yet."
 
 #: src/routes/workboard.tsx
 msgid "No obligations match these filters."
@@ -2129,7 +2211,13 @@ msgstr "Not recorded"
 msgid "Notes"
 msgstr "Notes"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Notification center"
+msgstr "Notification center"
+
 #: src/components/patterns/app-shell.tsx
+#: src/features/notifications/notifications-page.tsx
+#: src/routes/route-summary.ts
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -2489,7 +2577,9 @@ msgstr "Please enter at least 2 characters."
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/migration/ImportsPage.tsx
 #: src/features/migration/Wizard.tsx
+#: src/features/notifications/notifications-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/clients.tsx
@@ -2507,6 +2597,10 @@ msgstr "Practice name"
 #: src/routes/onboarding.tsx
 msgid "PRACTICE PROFILE"
 msgstr "PRACTICE PROFILE"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Preferences"
+msgstr "Preferences"
 
 #: src/routes/dashboard.tsx
 msgid "Prepared in the background from the latest dashboard risk snapshot."
@@ -2583,6 +2677,10 @@ msgstr "Pulse ops credentials saved locally"
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Pulse source needs attention"
 msgstr "Pulse source needs attention"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Pulse updates"
+msgstr "Pulse updates"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Quarantine"
@@ -2712,6 +2810,10 @@ msgstr "Remove from firm"
 msgid "Remove member?"
 msgstr "Remove member?"
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Request export"
+msgstr "Request export"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Required for reject, quarantine, and source revoke decisions"
 msgstr "Required for reject, quarantine, and source revoke decisions"
@@ -2766,6 +2868,14 @@ msgstr "Retry extract"
 #: src/routes/error.tsx
 msgid "Return home"
 msgstr "Return home"
+
+#: src/features/migration/ImportsPage.tsx
+msgid "Revert batch"
+msgstr "Revert batch"
+
+#: src/features/migration/ImportsPage.tsx
+msgid "Revert until"
+msgstr "Revert until"
 
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
@@ -2868,6 +2978,10 @@ msgstr "Row"
 #: src/features/migration/Step1Intake.tsx
 msgid "Row limit hit"
 msgstr "Row limit hit"
+
+#: src/features/migration/ImportsPage.tsx
+msgid "Rows"
+msgstr "Rows"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Rule detail and evidence"
@@ -3297,6 +3411,10 @@ msgstr "Subscription overview"
 msgid "Subscription status"
 msgstr "Subscription status"
 
+#: src/features/migration/ImportsPage.tsx
+msgid "Success"
+msgstr "Success"
+
 #: src/routes/billing.tsx
 msgid "Success pages wait for webhook confirmation before showing activation."
 msgstr "Success pages wait for webhook confirmation before showing activation."
@@ -3494,6 +3612,11 @@ msgstr "Unable to start Google sign-in"
 msgid "Unassigned"
 msgstr "Unassigned"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Unassigned work"
+msgstr "Unassigned work"
+
+#: src/features/migration/ImportsPage.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Undo"
 msgstr "Undo"
@@ -3662,6 +3785,10 @@ msgstr "We couldn't reach AI. Using your preset default mapping — review and e
 msgid "We couldn't read that file. Try exporting as CSV."
 msgstr "We couldn't read that file. Try exporting as CSV."
 
+#: src/features/migration/Step1Intake.tsx
+msgid "We couldn't read that XLSX file. Try exporting the first sheet as CSV."
+msgstr "We couldn't read that XLSX file. Try exporting the first sheet as CSV."
+
 #. placeholder {0}: normalize.rows.length
 #: src/features/migration/Step3Normalize.tsx
 msgid "We normalized {0} values — review if needed"
@@ -3722,10 +3849,6 @@ msgstr "Working…"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Workspaces"
 msgstr "Workspaces"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "XLSX uploads land in Phase 0 — please export as CSV for now."
-msgstr "XLSX uploads land in Phase 0 — please export as CSV for now."
 
 #: src/routes/billing.checkout.tsx
 msgid "Yearly"

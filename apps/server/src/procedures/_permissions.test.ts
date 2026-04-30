@@ -26,6 +26,7 @@ function contextFor(role: string, status = 'active'): RpcContext {
         seatLimit: 1,
         status: 'active',
         ownerUserId: 'user_1',
+        coordinatorCanSeeDollars: false,
       },
       userId: 'user_1',
       scoped: { firmId: 'firm_1' } as NonNullable<ContextVars['scoped']>,

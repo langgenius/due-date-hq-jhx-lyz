@@ -4,6 +4,7 @@ import type { Env } from '../env'
 import { enqueueDashboardBriefRefresh } from './dashboard-brief/enqueue'
 import { runPulseIngest } from './pulse/ingest'
 import { linkPulseSourceSignals } from './pulse/signals'
+import { dispatchDeadlineReminders } from './reminders/dispatch'
 
 function localTimeParts(
   timezone: string,
@@ -111,6 +112,7 @@ export async function scheduled(
     enqueueScheduledDashboardBriefs(env, now),
     runPulseIngest(env),
     linkPulseSourceSignals(env),
+    dispatchDeadlineReminders(env, now),
     env.EMAIL_QUEUE.send({ type: 'email.flush' }),
   ])
 }
