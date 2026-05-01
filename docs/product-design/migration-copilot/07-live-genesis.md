@@ -196,11 +196,11 @@ sequenceDiagram
 
 ```
 Toast（红色，常驻 12s 可手动关闭）
-  Some rows couldn't be imported. Review errors in Imports history.
+  Some rows couldn't be imported. Review errors in Clients import history.
   [Review errors] [Dismiss]
 ```
 
-- `[Review errors]` → `/imports/{batch_id}/errors`（对齐 PRD Part1B §6A.7）
+- `[Review errors]` → `/clients?importHistory=open` 并打开 batch detail / errors（对齐 PRD Part1B §6A.7）
 - 跳转仍走 `navigate("/?tab=this-week&focus=top-1")`，保持主叙事
 
 ### 6.2 apply 整体失败

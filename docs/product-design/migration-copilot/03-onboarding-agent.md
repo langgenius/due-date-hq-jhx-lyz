@@ -253,9 +253,9 @@ stateDiagram-v2
 
 #### State 7 · `handoff`
 
-| 退出条件                                         | 复用管线     | Evidence / Audit 写入                                                                | Skip / Back / Switch to wizard 可达                                                 |
-| ------------------------------------------------ | ------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| 用户点 `[Open Dashboard]` 或 `[Walk me through]` | 无（跳路由） | `audit_event = onboarding.agent.handoff.offered` + `onboarding.agent.handoff.chosen` | Skip：不可（终态）· Back：灰化 · Switch：灰化（已导入，后续入口走 Imports history） |
+| 退出条件                                         | 复用管线     | Evidence / Audit 写入                                                                | Skip / Back / Switch to wizard 可达                                                                  |
+| ------------------------------------------------ | ------------ | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| 用户点 `[Open Dashboard]` 或 `[Walk me through]` | 无（跳路由） | `audit_event = onboarding.agent.handoff.offered` + `onboarding.agent.handoff.chosen` | Skip：不可（终态）· Back：灰化 · Switch：灰化（已导入，后续入口走 Clients 的 Import history drawer） |
 
 > 三大逃生门约束：`[Skip this step]` / `[Go back]` / `[Use guided wizard →]` 在 **state 1–6** 必须全部可见（Skip 可能灰化，如 dry_run_commit）；state 7 handoff 为终态，三门全部灰化。切换到 wizard 时 **`onboardingDraft` 对象不丢**，由 [`./02-ux-4step-wizard.md`](./02-ux-4step-wizard.md) 同款对象消费（见 §4.3）。
 
@@ -416,7 +416,7 @@ onboarding.agent.fallback.triggered             ← 带 reason: timeout | loop |
 
 - 每次 onboarding 会话的**完整对话记录**（回填后的气泡，**不是** redact 后的 AI SDK 输入）
 - 每个气泡 hover → Evidence Drawer Level 3（`../../docs/Design/DueDateHQ-DESIGN.md` 无障碍章节规范）展示 `prompt_version` / `model` / `confidence` / `guard_flags`
-- 与 `/imports` 的 batch detail 页**互相引用**：`imports` 页的 batch 详情可跳 `setup-history` 看"这个 batch 是通过 Agent 对话还是 Wizard 创建的"
+- 与 Clients 的 Import history drawer **互相引用**：batch detail 可跳 `setup-history` 看"这个 batch 是通过 Agent 对话还是 Wizard 创建的"；历史 `/imports` deep link 只重定向打开 drawer
 
 ---
 

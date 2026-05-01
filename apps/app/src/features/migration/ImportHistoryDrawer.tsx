@@ -1,0 +1,351 @@
+import { useCallback, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Trans, useLingui } from '@lingui/react/macro'
+import { EyeIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
+import { toast } from 'sonner'
+
+import type { ClientPublic, MigrationBatch } from '@duedatehq/contracts'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@duedatehq/ui/components/ui/alert-dialog'
+import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
+import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Button } from '@duedatehq/ui/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@duedatehq/ui/components/ui/card'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@duedatehq/ui/components/ui/sheet'
+import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+
+import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
+
+type ImportHistoryDrawerProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onViewClient: (clientId: string) => void
+}
+
+type PendingRecovery =
+  | { kind: 'batch'; batchId: string }
+  | { kind: 'client'; batchId: string; client: ClientPublic }
+
+function fmt(value: string | null): string {
+  if (!value) return '—'
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(value))
+}
+
+function batchLabel(batch: MigrationBatch): string {
+  return batch.rawInputFileName ?? batch.presetUsed ?? batch.source
+}
+
+function isBatchRevertible(batch: MigrationBatch): boolean {
+  return (
+    batch.status === 'applied' &&
+    !!batch.revertExpiresAt &&
+    Date.parse(batch.revertExpiresAt) > Date.now()
+  )
+}
+
+export function ImportHistoryDrawer({
+  open,
+  onOpenChange,
+  onViewClient,
+}: ImportHistoryDrawerProps) {
+  const { t } = useLingui()
+  const queryClient = useQueryClient()
+  const [pendingRecovery, setPendingRecovery] = useState<PendingRecovery | null>(null)
+  const batchesQuery = useQuery({
+    ...orpc.migration.listBatches.queryOptions({ input: { limit: 50 } }),
+    enabled: open,
+  })
+
+  const refreshAfterRecovery = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: orpc.migration.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+  }, [queryClient])
+
+  const revert = useMutation(
+    orpc.migration.revert.mutationOptions({
+      onSuccess: () => {
+        refreshAfterRecovery()
+        setPendingRecovery(null)
+        toast.success(t`Import reverted`)
+      },
+      onError: (error) => {
+        toast.error(t`Could not revert import`, {
+          description: rpcErrorMessage(error) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const singleUndo = useMutation(
+    orpc.migration.singleUndo.mutationOptions({
+      onSuccess: () => {
+        refreshAfterRecovery()
+        setPendingRecovery(null)
+        toast.success(t`Client import undone`)
+      },
+      onError: (error) => {
+        toast.error(t`Could not undo client`, {
+          description: rpcErrorMessage(error) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+
+  const batches = batchesQuery.data?.batches ?? []
+  const recoveryPending = revert.isPending || singleUndo.isPending
+
+  const handleConfirmRecovery = useCallback(() => {
+    if (!pendingRecovery) return
+    if (pendingRecovery.kind === 'batch') {
+      revert.mutate({ batchId: pendingRecovery.batchId })
+      return
+    }
+    singleUndo.mutate({
+      batchId: pendingRecovery.batchId,
+      clientId: pendingRecovery.client.id,
+    })
+  }, [pendingRecovery, revert, singleUndo])
+
+  return (
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent
+          side="right"
+          className="data-[side=right]:w-full data-[side=right]:max-w-[100vw] gap-0 overflow-hidden p-0 sm:data-[side=right]:w-[calc(100vw-2rem)] sm:data-[side=right]:max-w-[calc(100vw-2rem)] md:data-[side=right]:w-[min(820px,calc(100vw-2rem))] md:data-[side=right]:max-w-[min(820px,calc(100vw-2rem))] xl:data-[side=right]:w-[min(880px,calc(100vw-2rem))] xl:data-[side=right]:max-w-[min(880px,calc(100vw-2rem))]"
+        >
+          <SheetHeader className="border-b border-divider-subtle px-5 py-4">
+            <SheetTitle className="text-md">
+              <Trans>Import history</Trans>
+            </SheetTitle>
+            <SheetDescription>
+              <Trans>
+                Recover mistaken batch imports. Edit individual client facts from Clients.
+              </Trans>
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">
+            {batchesQuery.isError ? (
+              <Alert variant="destructive">
+                <AlertTitle>
+                  <Trans>Could not load import history</Trans>
+                </AlertTitle>
+                <AlertDescription>
+                  {rpcErrorMessage(batchesQuery.error) ?? t`Please try again.`}
+                </AlertDescription>
+              </Alert>
+            ) : null}
+
+            {batchesQuery.isLoading ? (
+              <div className="grid gap-3">
+                {[0, 1, 2].map((item) => (
+                  <Skeleton key={item} className="h-40 w-full" />
+                ))}
+              </div>
+            ) : null}
+
+            {!batchesQuery.isLoading && batches.length === 0 ? (
+              <div className="grid min-h-[260px] place-items-center rounded-md border border-dashed border-divider-regular p-6 text-center">
+                <div className="grid max-w-sm gap-2">
+                  <p className="text-sm font-medium text-text-primary">
+                    <Trans>No import batches yet</Trans>
+                  </p>
+                  <p className="text-sm text-text-tertiary">
+                    <Trans>New client imports will appear here when you need batch recovery.</Trans>
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
+            {!batchesQuery.isLoading && batches.length > 0 ? (
+              <div className="grid gap-4">
+                {batches.map((batch) => {
+                  const canRevertBatch = isBatchRevertible(batch)
+                  return (
+                    <Card key={batch.id}>
+                      <CardHeader className="flex flex-row items-start justify-between gap-4">
+                        <div className="grid min-w-0 gap-1">
+                          <CardTitle className="truncate text-base">{batchLabel(batch)}</CardTitle>
+                          <p className="truncate font-mono text-xs text-text-tertiary">
+                            {batch.id}
+                          </p>
+                        </div>
+                        <Badge variant="outline">{batch.status}</Badge>
+                      </CardHeader>
+                      <CardContent className="grid gap-4">
+                        <div className="grid gap-2 text-sm text-text-secondary sm:grid-cols-4">
+                          <span>
+                            <Trans>Rows</Trans>: {batch.rowCount}
+                          </span>
+                          <span>
+                            <Trans>Success</Trans>: {batch.successCount}
+                          </span>
+                          <span>
+                            <Trans>Applied</Trans>: {fmt(batch.appliedAt)}
+                          </span>
+                          <span>
+                            <Trans>Revert until</Trans>: {fmt(batch.revertExpiresAt)}
+                          </span>
+                        </div>
+                        <BatchClients
+                          batchId={batch.id}
+                          enabled={open}
+                          canUndo={batch.status === 'applied'}
+                          recoveryPending={recoveryPending}
+                          onViewClient={onViewClient}
+                          onUndo={(client) =>
+                            setPendingRecovery({ kind: 'client', batchId: batch.id, client })
+                          }
+                        />
+                        <div className="flex justify-end">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setPendingRecovery({
+                                kind: 'batch',
+                                batchId: batch.id,
+                              })
+                            }
+                            disabled={!canRevertBatch || recoveryPending}
+                          >
+                            <RotateCcwIcon data-icon="inline-start" />
+                            <Trans>Revert batch</Trans>
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            ) : null}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog
+        open={pendingRecovery !== null}
+        onOpenChange={(next) => {
+          if (!next && !recoveryPending) setPendingRecovery(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingRecovery?.kind === 'client' ? (
+                <Trans>Undo this imported client?</Trans>
+              ) : (
+                <Trans>Revert this import batch?</Trans>
+              )}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-md">
+              {pendingRecovery?.kind === 'client' ? (
+                <Trans>
+                  This removes the client and deadlines created by this import. Use Clients to edit
+                  facts instead.
+                </Trans>
+              ) : (
+                <Trans>
+                  This removes every client and deadline created by this import. Use Clients to edit
+                  individual records instead.
+                </Trans>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel size="sm" disabled={recoveryPending}>
+              <Trans>Cancel</Trans>
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive-primary"
+              size="sm"
+              disabled={recoveryPending}
+              onClick={handleConfirmRecovery}
+            >
+              {pendingRecovery?.kind === 'client' ? (
+                <Trans>Undo client</Trans>
+              ) : (
+                <Trans>Revert batch</Trans>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
+}
+
+function BatchClients({
+  batchId,
+  enabled,
+  canUndo,
+  recoveryPending,
+  onViewClient,
+  onUndo,
+}: {
+  batchId: string
+  enabled: boolean
+  canUndo: boolean
+  recoveryPending: boolean
+  onViewClient: (clientId: string) => void
+  onUndo: (client: ClientPublic) => void
+}) {
+  const { t } = useLingui()
+  const clientsQuery = useQuery({
+    ...orpc.migration.listBatchClients.queryOptions({ input: { batchId } }),
+    enabled,
+  })
+  const clients = clientsQuery.data?.clients ?? []
+  if (clientsQuery.isLoading) return <Skeleton className="h-16 w-full" />
+  if (clients.length === 0) return null
+  return (
+    <div className="grid gap-2 rounded-md border border-divider-subtle p-3">
+      {clients.slice(0, 8).map((client) => (
+        <div key={client.id} className="flex items-center justify-between gap-3 text-sm">
+          <span className="min-w-0 truncate">{client.name}</span>
+          <div className="flex shrink-0 items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label={t`View ${client.name}`}
+              onClick={() => onViewClient(client.id)}
+            >
+              <EyeIcon data-icon="inline-start" />
+              <Trans>View</Trans>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onUndo(client)}
+              disabled={!canUndo || recoveryPending}
+            >
+              <Trash2Icon data-icon="inline-start" />
+              <Trans>Undo</Trans>
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}

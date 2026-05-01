@@ -1,7 +1,7 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { AlertCircleIcon, FileSearchIcon } from 'lucide-react'
+import { AlertCircleIcon, FileClockIcon, FileSearchIcon } from 'lucide-react'
 import { parseAsString, parseAsStringLiteral, useQueryStates, type inferParserType } from 'nuqs'
 import { toast } from 'sonner'
 
@@ -20,6 +20,7 @@ import {
   isClientEntityType,
   type ClientEntityType,
 } from '@/features/clients/client-readiness'
+import { ImportHistoryDrawer } from '@/features/migration/ImportHistoryDrawer'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { queryInputUrlUpdateRateLimit } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
@@ -35,6 +36,7 @@ export const clientsSearchParamsParsers = {
     .withOptions(REPLACE_HISTORY_OPTIONS),
   state: parseAsString.withDefault(STATE_FILTER_ALL).withOptions(REPLACE_HISTORY_OPTIONS),
   client: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
+  importHistory: parseAsStringLiteral(['open']).withOptions(REPLACE_HISTORY_OPTIONS),
 } as const
 
 export type ClientsSearchParams = inferParserType<typeof clientsSearchParamsParsers>
@@ -63,8 +65,15 @@ export function ClientsRoute() {
   const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
   const entityLabels = useEntityLabels()
+  const [profileOpen, setProfileOpen] = useState(false)
   const [
-    { q: search, entity: entityFilter, state: stateFilter, client: selectedClientId },
+    {
+      q: search,
+      entity: entityFilter,
+      state: stateFilter,
+      client: selectedClientId,
+      importHistory,
+    },
     setClientsQuery,
   ] = useQueryStates(clientsSearchParamsParsers)
 
@@ -141,6 +150,26 @@ export function ClientsRoute() {
     [setClientsQuery],
   )
 
+  const handleImportHistoryOpenChange = useCallback(
+    (next: boolean) => {
+      void setClientsQuery({ importHistory: next ? 'open' : null })
+    },
+    [setClientsQuery],
+  )
+
+  const handleViewImportedClient = useCallback(
+    (clientId: string) => {
+      void setClientsQuery({
+        q: null,
+        entity: ALL_ENTITIES,
+        state: STATE_FILTER_ALL,
+        client: clientId,
+        importHistory: 'open',
+      }).then(() => setProfileOpen(true))
+    },
+    [setClientsQuery],
+  )
+
   const handleCreateClient = useCallback(
     (input: ClientCreateInput, callbacks: { onSuccess: () => void }) => {
       createMutation.mutate(input, callbacks)
@@ -168,6 +197,10 @@ export function ClientsRoute() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="ghost" onClick={() => handleImportHistoryOpenChange(true)}>
+            <FileClockIcon data-icon="inline-start" />
+            <Trans>Import history</Trans>
+          </Button>
           <Button variant="outline" onClick={openWizard}>
             <FileSearchIcon data-icon="inline-start" />
             <Trans>Import clients</Trans>
@@ -195,6 +228,11 @@ export function ClientsRoute() {
         </Alert>
       ) : null}
 
+      <ImportHistoryDrawer
+        open={importHistory === 'open'}
+        onOpenChange={handleImportHistoryOpenChange}
+        onViewClient={handleViewImportedClient}
+      />
       <ClientFactsWorkspace
         clients={clients}
         filteredClients={filteredClients}
@@ -205,10 +243,12 @@ export function ClientsRoute() {
         search={search}
         entityFilter={entityFilter}
         stateFilter={stateFilter}
+        profileOpen={profileOpen}
         onSearchChange={handleSearchChange}
         onEntityFilterChange={handleEntityFilterChange}
         onStateFilterChange={handleStateFilterChange}
         onSelectClient={handleSelectClient}
+        onProfileOpenChange={setProfileOpen}
         onImport={openWizard}
       />
     </div>

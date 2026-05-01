@@ -18,6 +18,7 @@ vi.mock('@/lib/auth', () => ({
 const {
   dashboardAliasLoader,
   guestLoader,
+  importsAliasLoader,
   onboardingLoader,
   protectedLoader,
   pickSafeRedirect,
@@ -120,6 +121,15 @@ describe('dashboardAliasLoader', () => {
     await expectRedirectTo(
       Promise.resolve().then(() => dashboardAliasLoader()),
       '/',
+    )
+  })
+})
+
+describe('importsAliasLoader', () => {
+  it('redirects /imports to Clients with import history open', async () => {
+    await expectRedirectTo(
+      Promise.resolve().then(() => importsAliasLoader()),
+      '/clients?importHistory=open',
     )
   })
 })

@@ -520,7 +520,7 @@ msgstr "适用性复核"
 msgid "Applicability review · needs CPA confirmation at generation time."
 msgstr "适用性复核 · 在生成 obligation 时需要 CPA 确认。"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Applied"
@@ -699,6 +699,7 @@ msgstr "加利福尼亚"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 #: src/routes/firm.tsx
 #: src/routes/workboard.tsx
 msgid "Cancel"
@@ -812,7 +813,7 @@ msgstr "客户事实"
 msgid "CLIENT ID"
 msgstr "客户 ID"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Client import undone"
 msgstr "客户导入已撤销"
 
@@ -826,7 +827,6 @@ msgstr "客户风险行"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/features/migration/ImportsPage.tsx
 #: src/routes/clients.tsx
 #: src/routes/route-summary.ts
 msgid "Clients"
@@ -929,7 +929,7 @@ msgstr "无法删除事务所。"
 msgid "Could not load audit events"
 msgstr "无法加载审计事件"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Could not load import history"
 msgstr "无法加载导入历史"
 
@@ -961,7 +961,7 @@ msgstr "无法将通知标记为已读"
 msgid "Could not request export."
 msgstr "无法请求导出。"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Could not revert import"
 msgstr "无法回滚导入"
 
@@ -973,7 +973,7 @@ msgstr "无法运行生成预览。"
 msgid "Could not switch firm."
 msgstr "无法切换事务所。"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Could not undo client"
 msgstr "无法撤销客户"
 
@@ -1637,7 +1637,12 @@ msgstr "导入客户即可生成真实义务风险。"
 msgid "Import complete"
 msgstr "导入完成"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
+#: src/routes/clients.tsx
+msgid "Import history"
+msgstr ""
+
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Import reverted"
 msgstr "导入已回滚"
 
@@ -1652,12 +1657,6 @@ msgstr "已导入"
 #: src/features/migration/WizardShell.tsx
 msgid "Importing…"
 msgstr "正在导入…"
-
-#: src/components/patterns/app-shell-nav.tsx
-#: src/features/migration/ImportsPage.tsx
-#: src/routes/route-summary.ts
-msgid "Imports"
-msgstr "导入"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Improves identity matching and audit review."
@@ -2073,6 +2072,10 @@ msgstr "新"
 msgid "New client"
 msgstr "新客户"
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "New client imports will appear here when you need batch recovery."
+msgstr ""
+
 #: src/routes/billing.checkout.tsx
 msgid "New seat limit"
 msgstr "新席位上限"
@@ -2186,6 +2189,10 @@ msgstr "没有表单"
 #: src/routes/dashboard.tsx
 msgid "No generated obligations yet."
 msgstr "尚未生成义务。"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "No import batches yet"
+msgstr ""
 
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this firm."
@@ -2656,7 +2663,7 @@ msgstr "请至少输入 2 个字符。"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-page.tsx
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/migration/Wizard.tsx
 #: src/features/notifications/notifications-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
@@ -2848,6 +2855,10 @@ msgstr "最近更新"
 msgid "Recommended"
 msgstr "推荐"
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
+msgstr ""
+
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
 msgstr "正在跳转到 Google…"
@@ -2954,11 +2965,15 @@ msgstr "重试提取"
 msgid "Return home"
 msgstr "返回首页"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Revert batch"
 msgstr "回滚批次"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Revert this import batch?"
+msgstr ""
+
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Revert until"
 msgstr "可回滚至"
 
@@ -3067,7 +3082,7 @@ msgstr "行"
 msgid "Row limit hit"
 msgstr "已达行数上限"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Rows"
 msgstr "行数"
 
@@ -3512,7 +3527,7 @@ msgstr "订阅概览"
 msgid "Subscription status"
 msgstr "订阅状态"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Success"
 msgstr "成功"
 
@@ -3658,6 +3673,14 @@ msgstr "你的团队和客户都会看到这个名字。"
 msgid "This page will keep checking. You can also return to Billing and refresh later."
 msgstr "此页面会继续检查。你也可以返回账单页稍后刷新。"
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "This removes every client and deadline created by this import. Use Clients to edit individual records instead."
+msgstr ""
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "This removes the client and deadlines created by this import. Use Clients to edit facts instead."
+msgstr ""
+
 #: src/features/migration/Wizard.tsx
 msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 msgstr "这会移除此导入创建的客户和截止日。其他事务所数据不会被更改。"
@@ -3722,7 +3745,7 @@ msgstr "未分配"
 msgid "Unassigned work"
 msgstr "未分配工作"
 
-#: src/features/migration/ImportsPage.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Undo"
 msgstr "撤销"
@@ -3735,6 +3758,10 @@ msgstr "撤销 (24h)"
 msgid "Undo available for 24 hours"
 msgstr "24 小时内可撤销"
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Undo client"
+msgstr ""
+
 #: src/features/migration/Wizard.tsx
 msgid "Undo import"
 msgstr "撤销导入"
@@ -3742,6 +3769,10 @@ msgstr "撤销导入"
 #: src/features/migration/Wizard.tsx
 msgid "Undo this import?"
 msgstr "撤销这次导入？"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Undo this imported client?"
+msgstr ""
 
 #: src/routes/error.tsx
 msgid "Unexpected route error"
@@ -3832,8 +3863,14 @@ msgid "Verified rules"
 msgstr "Verified 规则"
 
 #: src/components/patterns/app-shell.tsx
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "View"
 msgstr "查看"
+
+#. placeholder {0}: client.name
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "View {0}"
+msgstr ""
 
 #: src/features/audit/audit-log-table.tsx
 msgid "View audit detail"

@@ -66,6 +66,10 @@ function dashboardAliasLoader() {
   throw redirect('/')
 }
 
+function importsAliasLoader() {
+  throw redirect('/clients?importHistory=open')
+}
+
 // Only reachable when unauthenticated. If the session resolves, bounce to the
 // post-login target (honouring ?redirectTo=... but only for in-app paths).
 async function guestLoader(args: LoaderFunctionArgs) {
@@ -256,13 +260,8 @@ export function createAppRouter() {
             },
             {
               path: 'imports',
-              handle: routeHandle(routeSummaries.imports),
               HydrateFallback: RouteHydrateFallback,
-              lazy: async () => {
-                const { ImportsRoute } = await import('@/routes/imports')
-
-                return { Component: ImportsRoute }
-              },
+              loader: importsAliasLoader,
             },
             {
               path: 'audit',
@@ -359,6 +358,7 @@ export function createAppRouter() {
 export {
   dashboardAliasLoader,
   guestLoader,
+  importsAliasLoader,
   onboardingLoader,
   protectedLoader,
   pickSafeRedirect,

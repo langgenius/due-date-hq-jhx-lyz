@@ -686,7 +686,7 @@ stateDiagram-v2
   You can still delete individual clients.
   ```
 
-- `[View audit]` → 打开 `/imports/{batch_id}`
+- `[View audit]` → 打开 Audit detail；batch recovery 从 `/clients` 的 Import history drawer 进入
 
 ### 7.5 import_failed 态
 
@@ -757,11 +757,11 @@ stateDiagram-v2
 
 ### 8.1 入口矩阵（对齐 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §5 + Part1A §3.6.3）
 
-| 入口                               | 权限                        | 触发路径               | 备注                      |
-| ---------------------------------- | --------------------------- | ---------------------- | ------------------------- |
-| Import 完成持久 Toast `[Undo all]` | Owner + Manager             | Step 4 → Toast         | 24h 内有效                |
-| Imports history 列表行 `[Revert]`  | Owner + Manager（24h 全量） | `/imports` → batch row | 同上                      |
-| 单客户详情页 `[Delete client]`     | Owner + Manager             | `/clients/{id}` → 右上 | 7d 软删 + 级联 obligation |
+| 入口                               | 权限                        | 触发路径                                  | 备注                      |
+| ---------------------------------- | --------------------------- | ----------------------------------------- | ------------------------- |
+| Import 完成持久 Toast `[Undo all]` | Owner + Manager             | Step 4 → Toast                            | 24h 内有效                |
+| Import history drawer `[Revert]`   | Owner + Manager（24h 全量） | `/clients?importHistory=open` → batch row | 同上                      |
+| 单客户详情页 `[Delete client]`     | Owner + Manager             | `/clients/{id}` → 右上                    | 7d 软删 + 级联 obligation |
 
 > Demo Sprint Owner 单账号下 Manager 分支不渲染，但长期 RBAC 规格必须就位。
 

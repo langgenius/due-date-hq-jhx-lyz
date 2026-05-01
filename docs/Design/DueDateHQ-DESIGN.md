@@ -511,6 +511,11 @@ clients + obligations。它不是日常导航，也不是 sidebar footer utility
 `/clients` 页面 header 和 clients empty state；Dashboard 空状态可继续提示导入以生成真实
 risk；Command Palette 保留 `Import clients` action 作为 power-user 快捷入口。
 
+`Import history` 是 batch recovery，不是客户资料修正入口。它在 `/clients` header 作为弱入口
+打开右侧 drawer，展示最近导入批次、批次撤销和单个 imported client undo；单个客户资料修正仍然
+回到 Clients fact profile。历史 `/imports` deep link 只重定向到
+`/clients?importHistory=open`，不进入 sidebar。
+
 Sidebar footer 只保留 workspace/account 持久状态：plan status + user menu。`/firm`
 入口放在 Organization 导航；user menu 不承载 firm profile，除非后续新增真正的 user account
 profile。

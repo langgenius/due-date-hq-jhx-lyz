@@ -145,6 +145,7 @@ export function Wizard({ open, onClose }: WizardProps) {
     orpc.migration.apply.mutationOptions({
       onSuccess: () => {
         invalidateMigration()
+        void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
         preheatOperations()
@@ -155,6 +156,7 @@ export function Wizard({ open, onClose }: WizardProps) {
     orpc.migration.revert.mutationOptions({
       onSuccess: () => {
         invalidateMigration()
+        void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
         queryClient.removeQueries({ queryKey: orpc.dashboard.load.key() })
         queryClient.removeQueries({ queryKey: orpc.workboard.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })

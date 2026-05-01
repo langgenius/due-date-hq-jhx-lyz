@@ -1,11 +1,4 @@
-import {
-  type ComponentType,
-  type KeyboardEvent,
-  type ReactNode,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react'
+import { type ComponentType, type KeyboardEvent, type ReactNode, useCallback, useMemo } from 'react'
 import {
   flexRender,
   getCoreRowModel,
@@ -105,10 +98,12 @@ type ClientFactsWorkspaceProps = {
   search: string
   entityFilter: string
   stateFilter: string
+  profileOpen: boolean
   onSearchChange: (value: string) => void
   onEntityFilterChange: (value: string | null) => void
   onStateFilterChange: (value: string | null) => void
   onSelectClient: (clientId: string) => void
+  onProfileOpenChange: (open: boolean) => void
   onImport: () => void
 }
 
@@ -128,14 +123,15 @@ export function ClientFactsWorkspace({
   search,
   entityFilter,
   stateFilter,
+  profileOpen,
   onSearchChange,
   onEntityFilterChange,
   onStateFilterChange,
   onSelectClient,
+  onProfileOpenChange,
   onImport,
 }: ClientFactsWorkspaceProps) {
   const { t } = useLingui()
-  const [profileOpen, setProfileOpen] = useState(false)
   const metrics = useMemo<ClientMetric[]>(
     () => [
       {
@@ -281,9 +277,9 @@ export function ClientFactsWorkspace({
   const handleOpenClientProfile = useCallback(
     (clientId: string) => {
       onSelectClient(clientId)
-      setProfileOpen(true)
+      onProfileOpenChange(true)
     },
-    [onSelectClient],
+    [onProfileOpenChange, onSelectClient],
   )
 
   return (
@@ -317,7 +313,7 @@ export function ClientFactsWorkspace({
                   variant="outline"
                   size="sm"
                   disabled={!activeClient}
-                  onClick={() => setProfileOpen(true)}
+                  onClick={() => onProfileOpenChange(true)}
                 >
                   <PanelRightOpenIcon data-icon="inline-start" />
                   <Trans>Fact profile</Trans>
@@ -428,7 +424,7 @@ export function ClientFactsWorkspace({
 
         <ClientProfileSheet
           open={profileOpen}
-          onOpenChange={setProfileOpen}
+          onOpenChange={onProfileOpenChange}
           client={activeClient}
           entityLabels={entityLabels}
           readiness={activeClient ? factsModel.readinessById.get(activeClient.id) : undefined}
