@@ -254,15 +254,16 @@ export default defineConfig({
       },
       // Deploy is the only Cloudflare-control-plane task. The order is
       // locked by docs/dev-file/12-Marketing-Architecture.md §7:
-      //   1. D1 migrate           (schema first)
-      //   2. server Worker        (back-end + SaaS SPA assets)
-      //   3. marketing Worker     (last; CTA targets the now-ready app)
+      //   1. Queue provision      (bindings exist before deploy)
+      //   2. D1 migrate           (schema first)
+      //   3. server Worker        (back-end + SaaS SPA assets)
+      //   4. marketing Worker     (last; CTA targets the now-ready app)
       // Any failure aborts subsequent steps because `&&` short-circuits.
       // `cache: false` means no env fingerprinting — Cloudflare creds
       // are inherited from the shell at run time.
       'workspace-deploy': {
         command:
-          'pnpm db:migrate:remote && vp run @duedatehq/server#deploy && vp run @duedatehq/marketing#deploy',
+          'pnpm cf:ensure-queues && pnpm db:migrate:remote && vp run @duedatehq/server#deploy && vp run @duedatehq/marketing#deploy',
         cache: false,
         dependsOn: ['workspace-build', 'workspace-test'],
       },

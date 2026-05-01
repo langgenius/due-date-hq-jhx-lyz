@@ -430,9 +430,10 @@ Vercel / Notion / Figma）都是同标签。强制新标签会破坏返回键预
 ```text
 pnpm deploy
   -> check / test / build
-  -> migrate remote D1          # 1. schema 先就绪
-  -> deploy app Worker          # 2. 后端与 SaaS SPA 就绪
-  -> deploy marketing           # 3. marketing 最后发布，CTA 指向已就绪的 app
+  -> ensure Cloudflare Queues   # 1. Queue binding 先存在
+  -> migrate remote D1          # 2. schema 先就绪
+  -> deploy app Worker          # 3. 后端与 SaaS SPA 就绪
+  -> deploy marketing           # 4. marketing 最后发布，CTA 指向已就绪的 app
 ```
 
 任一步失败立即中止后续步骤；marketing 在 D1/app 部署成功前不会暴露新 CTA 给访客。

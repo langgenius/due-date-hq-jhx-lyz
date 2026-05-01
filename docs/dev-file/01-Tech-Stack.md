@@ -373,7 +373,7 @@ export default defineConfig({
       },
       'workspace-deploy': {
         command:
-          'pnpm db:migrate:remote && vp run @duedatehq/server#deploy && vp run @duedatehq/marketing#deploy',
+          'pnpm cf:ensure-queues && pnpm db:migrate:remote && vp run @duedatehq/server#deploy && vp run @duedatehq/marketing#deploy',
         cache: false,
         dependsOn: ['workspace-build', 'workspace-test'],
       },
@@ -389,7 +389,7 @@ export default defineConfig({
 **备注**：
 
 - `apps/marketing` 是公开站部署单元；可以用 Cloudflare Pages direct upload 或 static Worker。root `deploy` 负责把它和 SaaS Worker 串起来。
-- `apps/server` 的 `wrangler deploy` 不走 Vite+ bundling；root `deploy` 先跑有序 build + D1 迁移，再调度 server deploy。D1 迁移脚本从 `apps/server/wrangler.toml` 解析 `DB` binding，`--local` / `--remote` 决定目标是本地 Miniflare SQLite 还是 Cloudflare D1。
+- `apps/server` 的 `wrangler deploy` 不走 Vite+ bundling；root `deploy` 先跑有序 build + Queue preflight + D1 迁移，再调度 server deploy。Queue preflight 从 `apps/server/wrangler.toml` 解析 producer/consumer/DLQ 名称并只创建缺失 Queue；D1 迁移脚本从 `DB` binding 解析目标，`--local` / `--remote` 决定目标是本地 Miniflare SQLite 还是 Cloudflare D1。
 - `run.cache.scripts` 保持 Vite+ 默认 `false`，避免 build 缓存命中但 `apps/app/dist` 未真实存在。
 - Secrets 扫描仍用 `gitleaks`（外部 CLI，通过 GitHub Action 跑；本地不入 hook 以保持 pre-commit < 3s）。
 

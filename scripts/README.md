@@ -3,6 +3,9 @@
 Operational CLI utilities (docs/dev-file/08 §1).
 
 - `check-dep-direction.mjs` — enforces the dependency DAG in docs/dev-file/08 §6. Wired into `pnpm check:deps`.
+- `ensure-cloudflare-queues.mjs` — reads Queue producer/consumer/DLQ names from
+  `apps/server/wrangler.toml` and creates any missing Cloudflare Queues before deploy. Wired into
+  `pnpm cf:ensure-queues` and `workspace-deploy`.
 
 Planned (Phase 0 / Phase 1):
 
