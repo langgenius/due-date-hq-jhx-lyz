@@ -20,7 +20,7 @@ test.describe('seeded audit trail', () => {
     await workboardPage.goto()
 
     await workboardPage.statusSelectFor('Arbor & Vale LLC').click()
-    await authenticatedPage.getByRole('option', { name: 'Done' }).click()
+    await workboardPage.statusChangeOption('Done').click()
 
     await expect(authenticatedPage.getByText('Status updated')).toBeVisible()
 

@@ -39,6 +39,10 @@ export class WorkboardPage {
     return this.page.getByLabel(`Change status for ${clientName}`)
   }
 
+  statusChangeOption(name: string) {
+    return this.page.getByRole('menuitemradio', { name })
+  }
+
   rowFor(clientName: string) {
     return this.page.getByRole('row', { name: new RegExp(clientName) })
   }

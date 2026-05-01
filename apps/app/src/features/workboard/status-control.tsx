@@ -89,7 +89,7 @@ function WorkboardStatusControl({
             disabled={disabled}
             className={cn(
               badgeVariants({ variant: STATUS_VARIANT[row.status] }),
-              'h-6 cursor-pointer outline-none hover:ring-2 hover:ring-state-accent-active-alt focus-visible:ring-2 focus-visible:ring-state-accent-active-alt disabled:cursor-not-allowed disabled:opacity-50',
+              'h-6 cursor-pointer text-[12px] outline-none hover:ring-2 hover:ring-state-accent-active-alt focus-visible:ring-2 focus-visible:ring-state-accent-active-alt disabled:cursor-not-allowed disabled:opacity-50',
             )}
             onClick={(event) => event.stopPropagation()}
           >

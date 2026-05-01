@@ -33,6 +33,10 @@ responding under one second.
 - Follow-up: header filter dropdowns now keep draft selections locally and commit URL/query changes
   only when the dropdown closes, so multi-select filtering does not refetch after every checkbox
   click.
+- Follow-up: status cells now use the visible status pill itself as the dropdown trigger for status
+  changes, replacing the extra select control that previously sat beside the pill.
+- Visual follow-up: Exposure, Readiness, and Status table pills now render at 12px instead of the
+  global 11px badge `text-xs` token for better scannability in the dense Workboard table.
 - E2E follow-up: updated the Workboard page object to select Status through the table-header
   dropdown and close it before asserting committed URL/query state.
 - DESIGN.md check: no token, color, spacing, or component contract change was needed; this stays on
@@ -47,8 +51,12 @@ responding under one second.
 - `pnpm exec vp check apps/app/src/routes/workboard.tsx`
 - `pnpm exec vp check apps/app/src/routes/workboard.tsx docs/dev-log/2026-05-01-workboard-p0-13-filters.md`
 - `pnpm exec vp check apps/app/src/routes/workboard.tsx e2e/pages/workboard-page.ts e2e/tests/workboard.spec.ts docs/dev-log/2026-05-01-workboard-p0-13-filters.md`
+- `pnpm exec vp check apps/app/src/features/workboard/status-control.tsx e2e/pages/workboard-page.ts e2e/tests/workboard.spec.ts e2e/tests/audit-log.spec.ts docs/dev-log/2026-05-01-workboard-p0-13-filters.md`
+- `pnpm exec vp check --fix apps/app/src/routes/workboard.tsx apps/app/src/features/workboard/status-control.tsx`
+- `pnpm exec vp check apps/app/src/routes/workboard.tsx apps/app/src/features/workboard/status-control.tsx docs/dev-log/2026-05-01-workboard-p0-13-filters.md`
 - `pnpm check`
 - `E2E_REUSE_EXISTING_SERVER=1 pnpm test:e2e e2e/tests/workboard.spec.ts`
+- `pnpm test:e2e e2e/tests/workboard.spec.ts e2e/tests/audit-log.spec.ts`
 - `pnpm check:deps`
 - `pnpm ready`
 

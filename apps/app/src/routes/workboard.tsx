@@ -134,6 +134,7 @@ const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 const DAYS_FILTER_MIN = -3650
 const DAYS_FILTER_MAX = 3650
 const UNASSIGNED_OWNER_OPTION = '__unassigned__'
+const WORKBOARD_TABLE_PILL_CLASSNAME = 'text-[12px]'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const STATE_CODE_RE = /^[A-Z]{2}$/
 
@@ -1232,7 +1233,10 @@ function ExposurePill({
 }) {
   if (row.exposureStatus === 'ready' && row.estimatedExposureCents !== null) {
     return (
-      <Badge variant="warning" className="font-mono tabular-nums">
+      <Badge
+        variant="warning"
+        className={`${WORKBOARD_TABLE_PILL_CLASSNAME} font-mono tabular-nums`}
+      >
         {formatCents(row.estimatedExposureCents)}
       </Badge>
     )
@@ -1251,7 +1255,11 @@ function ExposurePill({
       </Button>
     )
   }
-  return <Badge variant="outline">unsupported</Badge>
+  return (
+    <Badge variant="outline" className={WORKBOARD_TABLE_PILL_CLASSNAME}>
+      unsupported
+    </Badge>
+  )
 }
 
 function ReadinessPill({
@@ -1262,7 +1270,11 @@ function ReadinessPill({
   labels: Record<WorkboardReadiness, string>
 }) {
   const variant = readiness === 'ready' ? 'success' : readiness === 'waiting' ? 'info' : 'warning'
-  return <Badge variant={variant}>{labels[readiness]}</Badge>
+  return (
+    <Badge variant={variant} className={WORKBOARD_TABLE_PILL_CLASSNAME}>
+      {labels[readiness]}
+    </Badge>
+  )
 }
 
 function MultiFilterDropdown({

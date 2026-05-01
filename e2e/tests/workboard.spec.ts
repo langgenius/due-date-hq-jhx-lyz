@@ -51,7 +51,7 @@ test.describe('seeded workboard', () => {
     await workboardPage.goto()
 
     await workboardPage.statusSelectFor('Arbor & Vale LLC').click()
-    await authenticatedPage.getByRole('option', { name: 'Done' }).click()
+    await workboardPage.statusChangeOption('Done').click()
 
     await expect(authenticatedPage.getByText('Status updated')).toBeVisible()
     await expect(authenticatedPage.getByText(/Audit [a-f0-9-]{8}/)).toBeVisible()
