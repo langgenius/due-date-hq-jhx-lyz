@@ -10,6 +10,8 @@
   unless the firm-level `coordinatorCanSeeDollars` setting is enabled.
 - Added XLSX intake in the import wizard, raw upload metadata/R2 persistence, import history,
   batch-level revert, and single-client undo entry points.
+- Hardened the D1 migrations for the notification/audit storage slice so pre-existing remote
+  tables or indexes do not block Wrangler from recording unapplied migrations.
 
 ## Validation
 
@@ -21,11 +23,14 @@
 - `pnpm --filter @duedatehq/db db:generate`
 - `pnpm --filter @duedatehq/app build`
 - `pnpm --filter @duedatehq/server build`
+- `pnpm --dir apps/server exec wrangler d1 migrations apply DB --local --persist-to /private/tmp/duedatehq-d1-fresh --config wrangler.toml`
 
 ## Notes
 
 - DESIGN.md was reviewed; the new operational pages use the existing dense workbench, sidebar,
   table, toolbar, dialog, and compact settings patterns, so no design-token changes were needed.
+- DESIGN.md was re-checked for the migration hardening fix; no UI or product-contract changes were
+  required.
 - Customer deadline reminders are email-only and still use the existing email outbox path.
 - MFA was intentionally removed from this implementation pass; there is no two-factor auth plugin,
   MFA setup route, or Owner/Manager MFA gate in the app.

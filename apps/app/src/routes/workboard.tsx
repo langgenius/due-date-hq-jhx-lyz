@@ -817,18 +817,22 @@ export function WorkboardRoute() {
     onRowSelectionChange,
   })
 
-  const totalShown = table.getRowModel().rows.length
+  const tableRows = table.getRowModel().rows
+  const totalShown = tableRows.length
+  const visibleColumnCount = table.getAllLeafColumns().length
 
   const moveActiveRow = useCallback(
     (direction: 1 | -1) => {
-      const tableRows = table.getRowModel().rows
-      if (tableRows.length === 0) return
-      const currentIndex = tableRows.findIndex((tableRow) => tableRow.original.id === activeRow?.id)
+      const currentRows = table.getRowModel().rows
+      if (currentRows.length === 0) return
+      const currentIndex = currentRows.findIndex(
+        (tableRow) => tableRow.original.id === activeRow?.id,
+      )
       const nextIndex =
         currentIndex === -1
           ? 0
-          : Math.min(tableRows.length - 1, Math.max(0, currentIndex + direction))
-      const nextRowId = tableRows[nextIndex]?.original.id ?? null
+          : Math.min(currentRows.length - 1, Math.max(0, currentIndex + direction))
+      const nextRowId = currentRows[nextIndex]?.original.id ?? null
       void setWorkboardQuery({ row: nextRowId })
     },
     [activeRow?.id, setWorkboardQuery, table],
@@ -1116,8 +1120,6 @@ export function WorkboardRoute() {
                 <Trans>Retry</Trans>
               </button>
             </div>
-          ) : rows.length === 0 ? (
-            <EmptyState onOpenWizard={openWizard} />
           ) : (
             <>
               <Table>
@@ -1142,43 +1144,53 @@ export function WorkboardRoute() {
                   ))}
                 </TableHeader>
                 <TableBody>
-                  {table.getRowModel().rows.map((tableRow) => (
-                    <TableRow
-                      key={tableRow.id}
-                      aria-selected={tableRow.getIsSelected()}
-                      data-state={tableRow.getIsSelected() ? 'selected' : undefined}
-                      onClick={() => void setWorkboardQuery({ row: tableRow.original.id })}
-                    >
-                      {tableRow.getVisibleCells().map((cell) => {
-                        const meta = cell.column.columnDef.meta
-                        return (
-                          <TableCell key={cell.id} className={meta?.cellClassName}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        )
-                      })}
+                  {tableRows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={visibleColumnCount} className="py-8">
+                        <EmptyState onOpenWizard={openWizard} />
+                      </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    tableRows.map((tableRow) => (
+                      <TableRow
+                        key={tableRow.id}
+                        aria-selected={tableRow.getIsSelected()}
+                        data-state={tableRow.getIsSelected() ? 'selected' : undefined}
+                        onClick={() => void setWorkboardQuery({ row: tableRow.original.id })}
+                      >
+                        {tableRow.getVisibleCells().map((cell) => {
+                          const meta = cell.column.columnDef.meta
+                          return (
+                            <TableCell key={cell.id} className={meta?.cellClassName}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          )
+                        })}
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
 
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-text-tertiary">
-                  <Plural value={totalShown} one="# obligation" other="# obligations" />
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!listQuery.hasNextPage || listQuery.isFetchingNextPage}
-                  onClick={loadMore}
-                >
-                  {listQuery.isFetchingNextPage ? (
-                    <Trans>Loading…</Trans>
-                  ) : (
-                    <Trans>Load more</Trans>
-                  )}
-                </Button>
-              </div>
+              {tableRows.length > 0 ? (
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-text-tertiary">
+                    <Plural value={totalShown} one="# obligation" other="# obligations" />
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!listQuery.hasNextPage || listQuery.isFetchingNextPage}
+                    onClick={loadMore}
+                  >
+                    {listQuery.isFetchingNextPage ? (
+                      <Trans>Loading…</Trans>
+                    ) : (
+                      <Trans>Load more</Trans>
+                    )}
+                  </Button>
+                </div>
+              ) : null}
             </>
           )}
         </CardContent>

@@ -172,7 +172,7 @@ function DropdownMenuCheckboxItem({
       data-inset={inset}
       className={cn(
         overlayRowClassName,
-        'pr-8 pl-2 data-inset:pl-8',
+        'pr-2 pl-7 data-inset:pl-8',
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
@@ -180,11 +180,11 @@ function DropdownMenuCheckboxItem({
       {...props}
     >
       <span
-        className="pointer-events-none absolute right-2 flex items-center justify-center text-text-accent"
+        className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center rounded-[3px] border border-divider-regular bg-background-default text-text-accent"
         data-slot="dropdown-menu-checkbox-item-indicator"
       >
         <MenuPrimitive.CheckboxItemIndicator>
-          <CheckIcon />
+          <CheckIcon className="size-3" />
         </MenuPrimitive.CheckboxItemIndicator>
       </span>
       {children}
