@@ -1,0 +1,207 @@
+# apps/app 模块文档：产品单页应用
+
+## 功能定位
+
+`apps/app` 是 DueDateHQ 的主产品前端，基于 Vite、React 19、React Router 7、TanStack Query、oRPC client、Better Auth client 和 `@duedatehq/ui` 构建。它承载事务所用户的日常操作：登录、onboarding、dashboard、workboard、导入、Pulse、审计、规则预览、成员、事务所设置和计费。
+
+前端的核心职责不是保存业务事实，而是把 server 合约暴露的状态组织成高效、可审计、可键盘操作的工作台。
+
+## 关键路径
+
+| 路径                                             | 职责                                                       |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| `apps/app/src/main.tsx`                          | React root、QueryClient、i18n、tooltip、router、toaster    |
+| `apps/app/src/router.tsx`                        | 路由表、loader gating、locale handoff、404                 |
+| `apps/app/src/lib/rpc.ts`                        | oRPC client、locale header、credentials                    |
+| `apps/app/src/lib/auth.ts`                       | Better Auth client、organization/stripe plugins            |
+| `apps/app/src/routes/_layout.tsx`                | 登录后应用框架、firm/session 数据加载                      |
+| `apps/app/src/components/patterns/app-shell.tsx` | Sidebar、header、mobile shell、pending indicator           |
+| `apps/app/src/features/migration`                | Migration Copilot 四步向导                                 |
+| `apps/app/src/features/pulse`                    | Pulse alert 列表、详情 drawer、apply/dismiss/snooze/revert |
+| `apps/app/src/features/evidence`                 | Evidence drawer 和审计时间线                               |
+| `apps/app/src/routes/workboard.tsx`              | Workboard 表格、过滤、状态更新、罚金输入                   |
+| `apps/app/src/routes/rules.tsx`                  | Rules Console                                              |
+
+## 主要功能
+
+### 登录、onboarding 与 firm 切换
+
+- 使用 Better Auth client 调用 `/api/auth`。
+- React Router loaders 区分 guest、onboarding 和 protected route。
+- 登录后根据 active organization 加载 firm context。
+- 支持成员、事务所设置、active firm 切换和 owner-only 管理动作。
+
+### Dashboard
+
+- 展示 penalty radar、risk pulse、queue stats、top obligations。
+- `DashboardBriefPanel` 可触发 AI brief refresh，server 侧有队列、debounce 和 daily limit。
+- `PulseAlertsBanner` 把可处理的政府更新带入首页。
+
+### Workboard
+
+- 使用 TanStack Table 和 infinite query。
+- URL query 由 `nuqs` 管理，支持 `q/status/assignee/owner/due/dueWithin/exposure/evidence/asOf/sort/row`。
+- 支持义务状态更新、客户罚金输入更新、证据 drawer、键盘选择。
+- coordinator 角色在 firm 设置禁止时隐藏 dollar exposure。
+
+### Migration Copilot
+
+四步导入流程：
+
+1. Intake：解析 CSV/TSV/粘贴表格。
+2. Mapping：AI mapper 或 preset/manual mapping。
+3. Normalize：AI normalizer、字典 fallback、默认矩阵。
+4. Preview & apply：dry-run、错误列表、apply、revert。
+
+前端只负责用户决策和中间态展示，真正的 batch 状态、AI 调用、commit plan、audit/evidence 写入都在 server。
+
+### Pulse
+
+- `/alerts` 面向事务所用户，`/ops/pulse` 面向内部 ops。
+- Pulse detail drawer 展示来源状态、置信度、结构化字段、影响客户、安全 checklist 和操作按钮。
+- apply/revert 会触发 server 端锁、数据更新、罚金重算、audit/evidence 和 dashboard queue。
+
+### Audit 与 Evidence
+
+- Audit 页面支持事件列表、证据包请求、下载 URL 创建。
+- Evidence drawer 可从义务上下文打开，展示证据链和相关 audit timeline。
+- 这是产品的核心差异化界面：用户能解释每个截止日和罚金数字从何而来。
+
+### Rules Console
+
+- 只读规则工作台，展示 source coverage、source list、rule library 和 generation preview。
+- 用于解释系统支持哪些 jurisdiction、source 和 obligation rule。
+
+### 通知、成员、计费和设置
+
+- Notifications：未读数、mark read、mark all read、preferences。
+- Members：owner-only invite、cancel/resend、role update、suspend/reactivate/remove。
+- Firm：名称、时区、coordinator dollar visibility、soft delete。
+- Billing：plan、checkout、success/cancel 和 audit pay intent。
+
+## 创新点
+
+- **操作台优先**：首页不是静态报表，而是把风险、Pulse、任务、证据入口和 AI brief 放到同一个工作语境。
+- **URL 可复现工作状态**：Workboard 和 Rules Console 用 URL query 保存筛选、排序和选中行，便于团队共享上下文。
+- **全局证据 drawer**：证据不是单独页面，而是嵌入在 dashboard/workboard/pulse 等工作流里，降低解释成本。
+- **键盘工作流**：命令面板、快捷键导航、帮助层和表格选择服务于高频后台操作。
+- **无 React `useEffect` 约束下的架构**：依赖 route loader、TanStack Query、render-time keyed reset、external store 和受控状态完成常见副作用场景。
+
+## 技术实现
+
+### 路由与数据加载
+
+```mermaid
+flowchart TB
+  Browser["Browser"]
+  Router["React Router 7"]
+  Loaders["guest/onboarding/protected loaders"]
+  Query["TanStack Query"]
+  ORPC["oRPC client"]
+  Auth["Better Auth client"]
+  Server["apps/server"]
+
+  Browser --> Router
+  Router --> Loaders
+  Loaders --> Auth
+  Router --> Query
+  Query --> ORPC
+  ORPC --> Server
+  Auth --> Server
+```
+
+- `router.tsx` 定义全部页面和 loader。
+- `main.tsx` 创建全局 `QueryClient`，默认 `staleTime` 60 秒，关闭 window focus refetch。
+- `lib/rpc.ts` 统一设置 `/rpc` base path、locale header 和 cookie credentials。
+- `lib/auth.ts` 统一 Better Auth plugins 和 locale-aware fetch。
+
+### 应用 Shell
+
+```mermaid
+flowchart LR
+  Layout["_layout route"]
+  Migration["MigrationWizardProvider"]
+  Keyboard["KeyboardProvider"]
+  Evidence["EvidenceDrawerProvider"]
+  Pulse["PulseDrawerProvider"]
+  Shell["AppShell"]
+  Outlet["Route outlet"]
+
+  Layout --> Migration
+  Migration --> Keyboard
+  Keyboard --> Evidence
+  Evidence --> Pulse
+  Pulse --> Shell
+  Shell --> Outlet
+```
+
+应用 shell 负责：
+
+- desktop sidebar 和 mobile sheet。
+- 顶部路由标题、计划/计费入口、通知铃铛。
+- pending navigation indicator。
+- provider 层级，确保全局 drawer 和 keyboard shell 能跨 route 工作。
+
+### 数据状态模式
+
+| 场景              | 实现方式                                           |
+| ----------------- | -------------------------------------------------- |
+| Server state      | TanStack Query + oRPC queryOptions/mutationOptions |
+| URL state         | `nuqs` parsers                                     |
+| Global UI state   | Provider + context，必要时 useSyncExternalStore    |
+| Auth/session      | Better Auth client + route loader                  |
+| Theme             | `@duedatehq/ui/theme` shared store                 |
+| Optimistic update | 针对成员、通知、workboard 状态等局部 query cache   |
+
+## 架构图
+
+```mermaid
+flowchart TB
+  subgraph App["apps/app"]
+    Routes["routes/*"]
+    Features["features/*"]
+    Lib["lib/rpc, auth, locale"]
+    Components["components/patterns + primitives"]
+  end
+
+  subgraph Shared["Shared packages"]
+    Contracts["packages/contracts"]
+    UI["packages/ui"]
+    Core["packages/core\nclient-safe helpers"]
+  end
+
+  subgraph Server["apps/server"]
+    RPC["/rpc"]
+    AuthAPI["/api/auth"]
+    OpsAPI["/api/ops/pulse"]
+  end
+
+  Routes --> Features
+  Routes --> Components
+  Features --> Lib
+  Components --> UI
+  Lib --> Contracts
+  Lib --> RPC
+  Lib --> AuthAPI
+  Features --> Core
+  Features --> OpsAPI
+```
+
+## 权限与安全
+
+- 前端会根据 session、firm membership、role 做 UX gating，但所有权限仍由 server enforcement 决定。
+- coordinator dollar visibility 属于 server 返回数据前的脱敏逻辑，前端只负责展示结果。
+- 路由 loader 只做导航体验，不作为安全边界。
+
+## 测试与验证
+
+- 单元和组件测试应与实现文件 colocate。
+- 浏览器级工作流变化应增加 Playwright e2e 覆盖。
+- UI 改动应检查 desktop/mobile 布局、按钮文字溢出、drawer/sheet 可访问性和键盘路径。
+
+## 后续演进关注点
+
+- Migration Wizard 可继续拆出更细的 feature model，减少 route/provider 对 mutation 细节的了解。
+- Workboard 的 filter schema 可以从 contracts 派生更多类型，降低 URL state 和 server filter 漂移。
+- Pulse drawer 可补更强的来源 diff 可视化，帮助用户比较变更前后截止日。
+- Billing 相关页面需要随当前 billing contract/procedure 完成度持续同步。
