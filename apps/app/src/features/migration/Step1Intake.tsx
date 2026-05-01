@@ -1,4 +1,4 @@
-import { useId, useMemo, useRef, type ChangeEvent, type DragEvent } from 'react'
+import { useId, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { LockIcon, UploadCloudIcon } from 'lucide-react'
 import readXlsxFile, { type SheetData } from 'read-excel-file/browser'
@@ -22,8 +22,8 @@ const PRESET_LABELS: Record<PresetId, string> = {
   file_in_time: 'File In Time',
 }
 
-function handleDragOver(event: DragEvent<HTMLDivElement>) {
-  event.preventDefault()
+function hasDraggedFiles(event: DragEvent<HTMLElement>) {
+  return Array.from(event.dataTransfer.types).includes('Files')
 }
 
 function formatXlsxCell(cell: unknown): string {
@@ -66,6 +66,8 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
   const { t } = useLingui()
   const pasteId = useId()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileDragDepthRef = useRef(0)
+  const [isFileDragActive, setIsFileDragActive] = useState(false)
 
   function commitText(
     text: string,
@@ -116,8 +118,34 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
     }
   }, [intake.ssnBlockedColumnIndexes, intake.rawText])
 
+  function resetFileDragState() {
+    fileDragDepthRef.current = 0
+    setIsFileDragActive(false)
+  }
+
+  function handleFileDragEnter(event: DragEvent<HTMLDivElement>) {
+    if (!hasDraggedFiles(event)) return
+    event.preventDefault()
+    fileDragDepthRef.current += 1
+    setIsFileDragActive(true)
+  }
+
+  function handleFileDragOver(event: DragEvent<HTMLDivElement>) {
+    if (!hasDraggedFiles(event)) return
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'copy'
+    setIsFileDragActive(true)
+  }
+
+  function handleFileDragLeave(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault()
+    fileDragDepthRef.current = Math.max(0, fileDragDepthRef.current - 1)
+    if (fileDragDepthRef.current === 0) setIsFileDragActive(false)
+  }
+
   function handleDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault()
+    resetFileDragState()
     const file = event.dataTransfer.files?.[0]
     if (file) loadFile(file)
   }
@@ -222,7 +250,9 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         role="button"
         tabIndex={0}
         onDrop={handleDrop}
-        onDragOver={handleDragOver}
+        onDragEnter={handleFileDragEnter}
+        onDragOver={handleFileDragOver}
+        onDragLeave={handleFileDragLeave}
         onClick={() => fileInputRef.current?.click()}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -230,9 +260,17 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
             fileInputRef.current?.click()
           }
         }}
-        className="flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-divider-deep bg-components-panel-bg text-md text-text-secondary transition-colors hover:border-state-accent-solid hover:bg-state-accent-hover-alt focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className={cn(
+          'flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-md transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+          isFileDragActive
+            ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
+            : 'border-divider-deep bg-components-panel-bg text-text-secondary hover:border-state-accent-solid hover:bg-state-accent-hover-alt',
+        )}
       >
-        <UploadCloudIcon className="size-5 text-text-tertiary" aria-hidden />
+        <UploadCloudIcon
+          className={cn('size-5', isFileDragActive ? 'text-text-accent' : 'text-text-tertiary')}
+          aria-hidden
+        />
         <span>
           <Trans>Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB</Trans>
         </span>

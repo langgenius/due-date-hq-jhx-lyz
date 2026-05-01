@@ -268,6 +268,7 @@ stateDiagram-v2
 | Paste textarea 圆角      | 6px                    | `{rounded.md}`                                                          |
 | Upload zone 背景         | subtle                 | `{colors.surface-subtle}`                                               |
 | Upload zone 边框         | 1px strong 虚线        | `{colors.border-strong}`                                                |
+| Upload zone 拖入态       | 紫色 affordance        | `{colors.accent-tint}` + `{colors.accent-default}` border/text          |
 | Preset chip hover 边框   | accent                 | `{colors.accent-default}`                                               |
 | SSN banner 背景 / 边框   | critical tint + border | `{colors.severity-critical-tint}` / `{colors.severity-critical-border}` |
 | Row overflow banner 背景 | medium tint            | `{colors.severity-medium-tint}`                                         |
