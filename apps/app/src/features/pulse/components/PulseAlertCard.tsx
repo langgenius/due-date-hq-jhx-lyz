@@ -1,11 +1,11 @@
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
-import { ArrowRightIcon } from 'lucide-react'
+import { AlertTriangleIcon, ArrowRightIcon } from 'lucide-react'
 
 import type { PulseAlertPublic } from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { cn } from '@duedatehq/ui/lib/utils'
 
-import { PulseConfidenceBadge } from './PulseConfidenceBadge'
+import { isVeryLowPulseConfidence, PulseConfidenceBadge } from './PulseConfidenceBadge'
 import { PulseSourceBadge } from './PulseSourceBadge'
 import { PulseSourceStatusBadge } from './PulseSourceStatusBadge'
 import { PulsingDot } from './PulsingDot'
@@ -33,7 +33,8 @@ export function PulseAlertCard({
 }: PulseAlertCardProps) {
   const { t } = useLingui()
   const impacted = alert.matchedCount + alert.needsReviewCount
-  const tone = impacted === 0 ? 'normal' : 'warning'
+  const veryLowConfidence = isVeryLowPulseConfidence(alert.confidence)
+  const tone = veryLowConfidence ? 'error' : impacted === 0 ? 'success' : 'warning'
 
   return (
     <article
@@ -41,6 +42,8 @@ export function PulseAlertCard({
       aria-label={t`Pulse alert: ${alert.title}`}
       className={cn(
         'flex flex-col gap-2 rounded-md border border-divider-subtle bg-background-default p-3 transition-colors hover:border-divider-regular',
+        veryLowConfidence &&
+          'border-state-destructive-border bg-state-destructive-hover hover:border-state-destructive-border',
         breathing && 'pulse-strip-breathing',
         compact && 'p-2.5',
       )}
@@ -83,6 +86,13 @@ export function PulseAlertCard({
           </>
         )}
       </p>
+
+      {veryLowConfidence ? (
+        <p className="flex items-center gap-1.5 pl-4 text-sm font-medium text-text-destructive">
+          <AlertTriangleIcon className="size-4 shrink-0" aria-hidden />
+          <Trans>Low AI confidence. Review source details before applying.</Trans>
+        </p>
+      ) : null}
 
       {compact ? null : (
         <footer className="flex items-center justify-between gap-2 pl-4">

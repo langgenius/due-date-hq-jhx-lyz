@@ -1555,6 +1555,12 @@ export function makePulseOpsRepo(db: Db) {
     return rows[0]
   }
 
+  async function existingUserId(actorId: string | null | undefined): Promise<string | null> {
+    if (!actorId) return null
+    const rows = await db.select({ id: user.id }).from(user).where(eq(user.id, actorId)).limit(1)
+    return rows[0]?.id ?? null
+  }
+
   async function refreshFirmAlertsForPulse(pulseId: string): Promise<number> {
     const row = await getPulse(pulseId)
     if (!row || row.status !== 'approved') throw new PulseRepoError('not_found')
@@ -1751,6 +1757,7 @@ export function makePulseOpsRepo(db: Db) {
   async function writePulseAlertAuditForOps(input: {
     pulseId: string
     actorId: string | null
+    opsActorId?: string | null
     action: 'pulse.reject' | 'pulse.quarantine' | 'pulse.source_revoked'
     beforeStatus: string
     afterStatus: string
@@ -1787,6 +1794,7 @@ export function makePulseOpsRepo(db: Db) {
           pulseId: input.pulseId,
           pulseStatus: input.afterStatus,
           alertStatus: alert.status,
+          ...(input.opsActorId ? { opsActorId: input.opsActorId } : {}),
         },
         reason: input.reason ?? null,
         ipHash: null,
@@ -2085,6 +2093,7 @@ export function makePulseOpsRepo(db: Db) {
       reason?: string | null
       now?: Date
     }): Promise<{ revokedCount: number }> {
+      const actorUserId = await existingUserId(input.actorId)
       const rows = await db
         .select({ id: pulse.id, status: pulse.status })
         .from(pulse)
@@ -2098,7 +2107,7 @@ export function makePulseOpsRepo(db: Db) {
         .update(pulse)
         .set({
           status: 'source_revoked',
-          reviewedBy: input.actorId,
+          reviewedBy: actorUserId,
           reviewedAt: input.now ?? new Date(),
         })
         .where(
@@ -2111,7 +2120,8 @@ export function makePulseOpsRepo(db: Db) {
         rows.map((row) =>
           writePulseAlertAuditForOps({
             pulseId: row.id,
-            actorId: input.actorId,
+            actorId: actorUserId,
+            opsActorId: actorUserId ? null : input.actorId,
             action: 'pulse.source_revoked',
             beforeStatus: row.status,
             afterStatus: 'source_revoked',
@@ -2266,11 +2276,12 @@ export function makePulseOpsRepo(db: Db) {
       now?: Date
     }): Promise<{ alertCount: number }> {
       const now = input.now ?? new Date()
+      const reviewedByUserId = await existingUserId(input.reviewedBy)
       await db
         .update(pulse)
         .set({
           status: 'approved',
-          reviewedBy: input.reviewedBy,
+          reviewedBy: reviewedByUserId,
           reviewedAt: now,
           requiresHumanReview: false,
         })
@@ -2292,7 +2303,7 @@ export function makePulseOpsRepo(db: Db) {
         const audits: NewAuditEvent[] = alerts.map((alert) => ({
           id: crypto.randomUUID(),
           firmId: alert.firmId,
-          actorId: input.reviewedBy,
+          actorId: reviewedByUserId,
           entityType: 'pulse_firm_alert',
           entityId: alert.id,
           action: 'pulse.approve',
@@ -2302,6 +2313,7 @@ export function makePulseOpsRepo(db: Db) {
             status: 'matched',
             matchedCount: alert.matchedCount,
             needsReviewCount: alert.needsReviewCount,
+            ...(reviewedByUserId ? {} : { opsActorId: input.reviewedBy }),
           },
           reason: null,
           ipHash: null,
@@ -2363,17 +2375,19 @@ export function makePulseOpsRepo(db: Db) {
       const rows = await db.select().from(pulse).where(eq(pulse.id, input.pulseId)).limit(1)
       const current = rows[0]
       if (!current) throw new PulseRepoError('not_found')
+      const reviewedByUserId = await existingUserId(input.reviewedBy)
       await db
         .update(pulse)
         .set({
           status: 'rejected',
-          reviewedBy: input.reviewedBy,
+          reviewedBy: reviewedByUserId,
           reviewedAt: input.now ?? new Date(),
         })
         .where(eq(pulse.id, input.pulseId))
       await writePulseAlertAuditForOps({
         pulseId: input.pulseId,
-        actorId: input.reviewedBy,
+        actorId: reviewedByUserId,
+        opsActorId: reviewedByUserId ? null : input.reviewedBy,
         action: 'pulse.reject',
         beforeStatus: current.status,
         afterStatus: 'rejected',
@@ -2390,17 +2404,19 @@ export function makePulseOpsRepo(db: Db) {
       const rows = await db.select().from(pulse).where(eq(pulse.id, input.pulseId)).limit(1)
       const current = rows[0]
       if (!current) throw new PulseRepoError('not_found')
+      const actorUserId = await existingUserId(input.actorId)
       await db
         .update(pulse)
         .set({
           status: 'quarantined',
-          reviewedBy: input.actorId,
+          reviewedBy: actorUserId,
           reviewedAt: input.now ?? new Date(),
         })
         .where(eq(pulse.id, input.pulseId))
       await writePulseAlertAuditForOps({
         pulseId: input.pulseId,
-        actorId: input.actorId,
+        actorId: actorUserId,
+        opsActorId: actorUserId ? null : input.actorId,
         action: 'pulse.quarantine',
         beforeStatus: current.status,
         afterStatus: 'quarantined',

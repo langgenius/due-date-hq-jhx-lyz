@@ -1880,6 +1880,14 @@ msgstr "Local time"
 msgid "Logged to audit trail"
 msgstr "Logged to audit trail"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Low AI confidence"
+msgstr "Low AI confidence"
+
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "Low AI confidence. Review source details before applying."
+msgstr "Low AI confidence. Review source details before applying."
+
 #: src/components/patterns/app-shell.tsx
 msgid "Manage"
 msgstr "Manage"
@@ -3026,6 +3034,10 @@ msgstr "Review the active plan and billing controls."
 #: src/routes/billing.checkout.tsx
 msgid "Review the firm subscription before opening secure checkout."
 msgstr "Review the firm subscription before opening secure checkout."
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Review the source excerpt and structured fields before applying this alert."
+msgstr "Review the source excerpt and structured fields before applying this alert."
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Revoke source"

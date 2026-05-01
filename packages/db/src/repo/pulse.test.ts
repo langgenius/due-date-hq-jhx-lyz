@@ -2,7 +2,7 @@
  * Focused Drizzle chain doubles only implement the query-builder methods used here.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { makePulseRepo, PulseRepoError } from './pulse'
+import { makePulseOpsRepo, makePulseRepo, PulseRepoError } from './pulse'
 
 const ALERT = {
   alertId: 'alert-1',
@@ -54,26 +54,40 @@ const NEEDS_REVIEW = {
 }
 
 function selectChain(response: unknown[]) {
-  const chain = {
-    from: vi.fn(() => chain),
-    innerJoin: vi.fn(() => chain),
-    where: vi.fn(() => chain),
-    orderBy: vi.fn(async () => response),
-    limit: vi.fn(async () => response),
+  const chain = response.slice() as unknown[] & {
+    from: ReturnType<typeof vi.fn>
+    innerJoin: ReturnType<typeof vi.fn>
+    where: ReturnType<typeof vi.fn>
+    orderBy: ReturnType<typeof vi.fn>
+    limit: ReturnType<typeof vi.fn>
   }
+  chain.from = vi.fn(() => chain)
+  chain.innerJoin = vi.fn(() => chain)
+  chain.where = vi.fn(() => chain)
+  chain.orderBy = vi.fn(() => chain)
+  chain.limit = vi.fn(async () => response)
   return chain
 }
 
 function fakeDb(selectResponses: unknown[][]) {
   const batchStatements: unknown[] = []
+  const directStatements: unknown[] = []
   const db = {
     select: vi.fn(() => selectChain(selectResponses.shift() ?? [])),
     insert: vi.fn((table: unknown) => ({
-      values: (value: unknown) => ({ kind: 'insert', table, value }),
+      values: (value: unknown) => {
+        const statement = { kind: 'insert', table, value }
+        directStatements.push(statement)
+        return statement
+      },
     })),
     update: vi.fn((table: unknown) => ({
       set: (value: unknown) => ({
-        where: () => ({ kind: 'update', table, value }),
+        where: () => {
+          const statement = { kind: 'update', table, value }
+          directStatements.push(statement)
+          return statement
+        },
       }),
     })),
     batch: vi.fn(async (statements: [unknown, ...unknown[]]) => {
@@ -84,6 +98,7 @@ function fakeDb(selectResponses: unknown[][]) {
   return {
     db: db as unknown as Parameters<typeof makePulseRepo>[0],
     batchStatements,
+    directStatements,
   }
 }
 
@@ -483,6 +498,51 @@ describe('makePulseRepo', () => {
       }),
     ).rejects.toMatchObject({ code: 'revert_expired' } satisfies Partial<PulseRepoError>)
     expect(batchStatements).toHaveLength(0)
+  })
+})
+
+describe('makePulseOpsRepo', () => {
+  it('does not write synthetic ops actor ids into user foreign keys', async () => {
+    const approvedPulse = {
+      id: 'pulse-approve',
+      status: 'approved' as const,
+      parsedForms: [],
+      parsedEntityTypes: [],
+    }
+    const approveDb = fakeDb([[], [approvedPulse], [approvedPulse], []])
+    await makePulseOpsRepo(approveDb.db).approvePulse({
+      pulseId: 'pulse-approve',
+      reviewedBy: 'ops-web',
+    })
+
+    const rejectDb = fakeDb([[{ id: 'pulse-reject', status: 'pending_review' }], [], []])
+    await makePulseOpsRepo(rejectDb.db).rejectPulse({
+      pulseId: 'pulse-reject',
+      reviewedBy: 'ops-web',
+    })
+
+    const quarantineDb = fakeDb([[{ id: 'pulse-quarantine', status: 'pending_review' }], [], []])
+    await makePulseOpsRepo(quarantineDb.db).quarantinePulse({
+      pulseId: 'pulse-quarantine',
+      actorId: 'ops-web',
+    })
+
+    const revokeDb = fakeDb([[], [{ id: 'pulse-revoke', status: 'approved' }], []])
+    await makePulseOpsRepo(revokeDb.db).revokeSourcePulses({
+      sourceId: 'irs.disaster',
+      actorId: 'ops-web',
+    })
+
+    for (const statements of [
+      approveDb.directStatements,
+      rejectDb.directStatements,
+      quarantineDb.directStatements,
+      revokeDb.directStatements,
+    ]) {
+      expect(
+        statements.find((statement) => statementHasValue(statement, { reviewedBy: null })),
+      ).toBeTruthy()
+    }
   })
 })
 

@@ -36,15 +36,18 @@ async function bodyJson(c: {
 
 function requireString(body: Record<string, unknown>, key: string): string {
   const value = body[key]
-  if (typeof value !== 'string' || value.length === 0) {
+  const trimmed = typeof value === 'string' ? value.trim() : ''
+  if (trimmed.length === 0) {
     throw new HTTPException(400, { message: `${key} is required.` })
   }
-  return value
+  return trimmed
 }
 
 function optionalString(body: Record<string, unknown>, key: string): string | undefined {
   const value = body[key]
-  return typeof value === 'string' && value.length > 0 ? value : undefined
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : undefined
 }
 
 function actorId(body: Record<string, unknown>): string {
@@ -210,7 +213,7 @@ export const opsPulseRoute = new Hono<{
     await repo.rejectPulse({
       pulseId: c.req.param('pulseId'),
       reviewedBy: actorId(body),
-      reason: optionalString(body, 'reason') ?? null,
+      reason: requireString(body, 'reason'),
     })
     return c.json({ ok: true })
   })
@@ -220,7 +223,7 @@ export const opsPulseRoute = new Hono<{
     await repo.quarantinePulse({
       pulseId: c.req.param('pulseId'),
       actorId: actorId(body),
-      reason: optionalString(body, 'reason') ?? null,
+      reason: requireString(body, 'reason'),
     })
     return c.json({ ok: true })
   })

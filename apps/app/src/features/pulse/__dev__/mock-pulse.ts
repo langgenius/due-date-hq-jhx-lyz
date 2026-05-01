@@ -6,7 +6,8 @@
 //
 // What gets seeded:
 //   - `firms.listMine`     → one firm with role `owner` (so apply/dismiss CTAs unlock).
-//   - `pulse.listAlerts`   → 3 alerts covering matched / applied / dismissed states.
+//   - `pulse.listAlerts`   → 4 alerts covering matched / applied / dismissed states and
+//                            success / info / warning / sub-50% confidence examples.
 //   - `pulse.getDetail`    → matching detail per alert with affected clients.
 //
 // What is NOT mocked: the actual mutations (apply / dismiss / revert) still hit
@@ -29,12 +30,14 @@ const ALERT_IDS = {
   matched: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   applied: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
   dismissed: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+  veryLow: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
 } as const
 
 const PULSE_IDS = {
   matched: '11111111-1111-4111-8111-111111111111',
   applied: '22222222-2222-4222-8222-222222222222',
   dismissed: '33333333-3333-4333-8333-333333333333',
+  veryLow: '44444444-4444-4444-8444-444444444444',
 } as const
 
 function obligationId(prefix: string, n: number): string {
@@ -209,7 +212,7 @@ const APPLIED_ALERT: PulseAlertPublic = {
   publishedAt: new Date(NOW.getTime() - 1000 * 60 * 60 * 26).toISOString(),
   matchedCount: 2,
   needsReviewCount: 0,
-  confidence: 0.92,
+  confidence: 0.82,
   isSample: true,
 }
 
@@ -243,7 +246,7 @@ const DISMISSED_ALERT: PulseAlertPublic = {
   publishedAt: new Date(NOW.getTime() - 1000 * 60 * 60 * 48).toISOString(),
   matchedCount: 0,
   needsReviewCount: 0,
-  confidence: 0.78,
+  confidence: 0.58,
   isSample: true,
 }
 
@@ -262,11 +265,45 @@ const DISMISSED_DETAIL: PulseDetail = {
   affectedClients: [],
 }
 
+// --- Alert 4: very low confidence -------------------------------------------
+
+const VERY_LOW_ALERT: PulseAlertPublic = {
+  id: ALERT_IDS.veryLow,
+  pulseId: PULSE_IDS.veryLow,
+  status: 'matched',
+  sourceStatus: 'approved',
+  title: 'FL DOR posts corporate income-tax deadline bulletin',
+  source: 'FL DOR',
+  sourceUrl: 'https://floridarevenue.com/taxes/taxesfees/Pages/corporate.aspx',
+  summary:
+    'Very-low-confidence extraction: deadline details depend on entity status, fiscal year, and extension election.',
+  publishedAt: new Date(NOW.getTime() - 1000 * 60 * 60 * 72).toISOString(),
+  matchedCount: 0,
+  needsReviewCount: 0,
+  confidence: 0.46,
+  isSample: true,
+}
+
+const VERY_LOW_DETAIL: PulseDetail = {
+  alert: VERY_LOW_ALERT,
+  jurisdiction: 'FL',
+  counties: [],
+  forms: ['F-1120'],
+  entityTypes: ['c_corp'],
+  originalDueDate: isoDate(12),
+  newDueDate: isoDate(32),
+  effectiveFrom: null,
+  sourceExcerpt:
+    'Corporate income tax filing dates may depend on entity status, fiscal year, and extension election.',
+  reviewedAt: new Date(NOW.getTime() - 1000 * 60 * 60 * 36).toISOString(),
+  affectedClients: [],
+}
+
 // --- Index ----------------------------------------------------------------
 
-const ALERTS: PulseAlertPublic[] = [MATCHED_ALERT, APPLIED_ALERT, DISMISSED_ALERT]
+const ALERTS: PulseAlertPublic[] = [MATCHED_ALERT, APPLIED_ALERT, DISMISSED_ALERT, VERY_LOW_ALERT]
 
-const DETAILS: PulseDetail[] = [MATCHED_DETAIL, APPLIED_DETAIL, DISMISSED_DETAIL]
+const DETAILS: PulseDetail[] = [MATCHED_DETAIL, APPLIED_DETAIL, DISMISSED_DETAIL, VERY_LOW_DETAIL]
 
 const SOURCE_HEALTH: PulseSourceHealth[] = [
   {

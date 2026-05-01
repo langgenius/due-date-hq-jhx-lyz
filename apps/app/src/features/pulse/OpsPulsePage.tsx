@@ -114,6 +114,7 @@ export function OpsPulsePage() {
   const [token, setToken] = useState(() => readStoredValue('pulseOpsToken'))
   const [actorId, setActorId] = useState(() => readStoredValue('pulseOpsActorId') || 'ops-web')
   const [reason, setReason] = useState('')
+  const [reasonInvalid, setReasonInvalid] = useState(false)
   const [selectedPulseId, setSelectedPulseId] = useState<string | null>(null)
   const [linkPulseId, setLinkPulseId] = useState('')
   const enabled = token.trim().length > 0
@@ -169,6 +170,16 @@ export function OpsPulsePage() {
     () => ({ actorId, reviewedBy: actorId, reason: reason.trim() || null }),
     [actorId, reason],
   )
+
+  const requireReviewReason = () => {
+    if (reason.trim().length > 0) {
+      setReasonInvalid(false)
+      return true
+    }
+    setReasonInvalid(true)
+    toast.error(t`Required for reject, quarantine, and source revoke decisions`)
+    return false
+  }
 
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">
@@ -242,59 +253,75 @@ export function OpsPulsePage() {
         <Textarea
           id="pulse-ops-reason"
           value={reason}
-          onChange={(event) => setReason(event.target.value)}
+          onChange={(event) => {
+            setReason(event.target.value)
+            if (event.target.value.trim().length > 0) setReasonInvalid(false)
+          }}
+          aria-invalid={reasonInvalid ? true : undefined}
+          aria-describedby={reasonInvalid ? 'pulse-ops-reason-error' : undefined}
           placeholder={t`Required for reject, quarantine, and source revoke decisions`}
         />
+        {reasonInvalid ? (
+          <p id="pulse-ops-reason-error" role="alert" className="text-sm text-text-destructive">
+            <Trans>Required for reject, quarantine, and source revoke decisions</Trans>
+          </p>
+        ) : null}
       </label>
 
-      <Tabs defaultValue="pending">
-        <TabsList>
-          <TabsTrigger value="pending">
+      <Tabs defaultValue="pending" className="gap-3">
+        <TabsList className="h-auto min-h-9 max-w-full flex-wrap justify-start overflow-visible">
+          <TabsTrigger value="pending" className="h-7 flex-none">
             <Trans>Pending review</Trans>
           </TabsTrigger>
-          <TabsTrigger value="sources">
+          <TabsTrigger value="sources" className="h-7 flex-none">
             <Trans>Sources</Trans>
           </TabsTrigger>
-          <TabsTrigger value="signals">
+          <TabsTrigger value="signals" className="h-7 flex-none">
             <Trans>Signals</Trans>
           </TabsTrigger>
-          <TabsTrigger value="snapshots">
+          <TabsTrigger value="snapshots" className="h-7 flex-none">
             <Trans>Failed snapshots</Trans>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="pending">
+        <TabsContent value="pending" className="w-full">
           <PulseOpsPending
             pulses={pendingQuery.data?.pulses ?? []}
             isLoading={pendingQuery.isLoading}
             selectedPulseId={selectedPulseId}
             detail={detailQuery.data}
             onSelectPulse={setSelectedPulseId}
-            onAction={(pulseId, action) =>
+            onAction={(pulseId, action) => {
+              if ((action === 'reject' || action === 'quarantine') && !requireReviewReason()) {
+                return
+              }
+              if (action === 'approve') setReasonInvalid(false)
               actionMutation.mutate({
                 path: `/${pulseId}/${action}`,
                 body: reviewBody,
                 label: t`Pulse ${action} queued`,
               })
-            }
+            }}
           />
         </TabsContent>
 
-        <TabsContent value="sources">
+        <TabsContent value="sources" className="w-full">
           <PulseOpsSources
             sources={sourcesQuery.data?.sources ?? []}
             isLoading={sourcesQuery.isLoading}
-            onAction={(sourceId, action) =>
+            onAction={(sourceId, action) => {
+              if (action === 'revoke' && !requireReviewReason()) return
+              if (action !== 'revoke') setReasonInvalid(false)
               actionMutation.mutate({
                 path: `/sources/${sourceId}/${action}`,
                 body: action === 'revoke' ? reviewBody : {},
                 label: t`Source action queued`,
               })
-            }
+            }}
           />
         </TabsContent>
 
-        <TabsContent value="signals">
+        <TabsContent value="signals" className="w-full">
           <PulseOpsSignals
             signals={signalsQuery.data?.signals ?? []}
             isLoading={signalsQuery.isLoading}
@@ -316,7 +343,7 @@ export function OpsPulsePage() {
           />
         </TabsContent>
 
-        <TabsContent value="snapshots">
+        <TabsContent value="snapshots" className="w-full">
           <PulseOpsSnapshots
             snapshots={snapshotsQuery.data?.snapshots ?? []}
             isLoading={snapshotsQuery.isLoading}

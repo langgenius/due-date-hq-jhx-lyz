@@ -22,7 +22,7 @@ import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
 import { AffectedClientsTable } from './components/AffectedClientsTable'
-import { PulseConfidenceBadge } from './components/PulseConfidenceBadge'
+import { isVeryLowPulseConfidence, PulseConfidenceBadge } from './components/PulseConfidenceBadge'
 import { PulseSourceBadge } from './components/PulseSourceBadge'
 import { PulseSourceStatusBadge } from './components/PulseSourceStatusBadge'
 import { PulseStatusBadge } from './components/PulseStatusBadge'
@@ -43,7 +43,8 @@ const REVERTABLE_STATUSES: ReadonlySet<PulseFirmAlertStatus> = new Set([
   'partially_applied',
 ])
 
-function drawerTone(status: PulseFirmAlertStatus): PulsingDotTone {
+function drawerTone(status: PulseFirmAlertStatus, confidence: number): PulsingDotTone {
+  if (isVeryLowPulseConfidence(confidence)) return 'error'
   if (status === 'applied' || status === 'partially_applied') return 'success'
   if (status === 'matched') return 'warning'
   return 'disabled'
@@ -221,7 +222,10 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
           ) : (
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <PulsingDot tone={drawerTone(detail.alert.status)} active />
+                <PulsingDot
+                  tone={drawerTone(detail.alert.status, detail.alert.confidence)}
+                  active
+                />
                 <PulseSourceBadge source={detail.alert.source} sourceUrl={detail.alert.sourceUrl} />
                 <PulseConfidenceBadge confidence={detail.alert.confidence} />
                 <PulseStatusBadge status={detail.alert.status} />
@@ -257,6 +261,20 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
 
           {detail ? (
             <>
+              {isVeryLowPulseConfidence(detail.alert.confidence) ? (
+                <Alert variant="destructive">
+                  <AlertCircleIcon />
+                  <AlertTitle>
+                    <Trans>Low AI confidence</Trans>
+                  </AlertTitle>
+                  <AlertDescription>
+                    <Trans>
+                      Review the source excerpt and structured fields before applying this alert.
+                    </Trans>
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+
               <PulseStructuredFields detail={detail} />
 
               {!canApply ? (

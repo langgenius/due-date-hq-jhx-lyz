@@ -38,7 +38,7 @@ import {
  *    widened on Show all).
  *  - The wrapping `<Tabs>` owns the route viewport height. The tab nav is a
  *    non-scrolling top rail; only the content column below it scrolls.
- *  - The wrapping `<Tabs>` defaults to `flex gap-2 data-horizontal:flex-col`
+ *  - The wrapping `<Tabs>` defaults to `flex gap-2 data-[orientation=horizontal]:flex-col`
  *    via `@duedatehq/ui`. We override `gap-0` so the tab nav and scroll region
  *    sit flush against the route header rib at y = 56 + 1.
  *  - All user-facing copy is i18n-routed through Lingui (`useLingui` macros);
@@ -114,7 +114,7 @@ export function RulesConsole() {
               className={cn(
                 'h-10 flex-none rounded-none px-4 py-0 text-[13px] text-text-muted first:pl-0',
                 'data-active:font-semibold data-active:text-text-primary',
-                'after:left-2 after:right-2 after:bg-state-accent-solid group-data-horizontal/tabs:after:bottom-0',
+                'after:left-2 after:right-2 after:bg-state-accent-solid group-data-[orientation=horizontal]/tabs:after:bottom-0',
               )}
             >
               <span>{tabLabels[tab.value]}</span>

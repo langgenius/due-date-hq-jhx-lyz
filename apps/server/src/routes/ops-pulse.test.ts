@@ -167,7 +167,7 @@ describe('opsPulseRoute', () => {
       '/api/ops/pulse/pulse-1/reject',
       authed({
         method: 'POST',
-        body: JSON.stringify({ reviewedBy: 'ops-user' }),
+        body: JSON.stringify({ reviewedBy: 'ops-user', reason: 'Bad extract' }),
       }),
       env(),
     )
@@ -190,13 +190,39 @@ describe('opsPulseRoute', () => {
     expect(repoMocks.rejectPulse).toHaveBeenCalledWith({
       pulseId: 'pulse-1',
       reviewedBy: 'ops-user',
-      reason: null,
+      reason: 'Bad extract',
     })
     expect(repoMocks.quarantinePulse).toHaveBeenCalledWith({
       pulseId: 'pulse-1',
       actorId: 'ops-user',
       reason: 'Source excerpt mismatch',
     })
+  })
+
+  it('requires a reason for reject and quarantine decisions', async () => {
+    const app = createTestApp()
+
+    const reject = await app.request(
+      '/api/ops/pulse/pulse-1/reject',
+      authed({
+        method: 'POST',
+        body: JSON.stringify({ reviewedBy: 'ops-user', reason: '   ' }),
+      }),
+      env(),
+    )
+    const quarantine = await app.request(
+      '/api/ops/pulse/pulse-1/quarantine',
+      authed({
+        method: 'POST',
+        body: JSON.stringify({ reviewedBy: 'ops-user' }),
+      }),
+      env(),
+    )
+
+    expect(reject.status).toBe(400)
+    expect(quarantine.status).toBe(400)
+    expect(repoMocks.rejectPulse).not.toHaveBeenCalled()
+    expect(repoMocks.quarantinePulse).not.toHaveBeenCalled()
   })
 
   it('manages source signals and source health from ops routes', async () => {

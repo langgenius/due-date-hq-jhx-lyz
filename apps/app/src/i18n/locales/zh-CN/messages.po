@@ -1880,6 +1880,14 @@ msgstr "本地时间"
 msgid "Logged to audit trail"
 msgstr "已写入审计日志"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Low AI confidence"
+msgstr "AI 置信度低"
+
+#: src/features/pulse/components/PulseAlertCard.tsx
+msgid "Low AI confidence. Review source details before applying."
+msgstr "AI 置信度低。应用前请复核来源详情。"
+
 #: src/components/patterns/app-shell.tsx
 msgid "Manage"
 msgstr "管理"
@@ -3026,6 +3034,10 @@ msgstr "查看当前计划和账单控制。"
 #: src/routes/billing.checkout.tsx
 msgid "Review the firm subscription before opening secure checkout."
 msgstr "打开安全支付前，请先核对事务所订阅。"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Review the source excerpt and structured fields before applying this alert."
+msgstr "应用此提醒前，请复核来源摘录和结构化字段。"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Revoke source"
