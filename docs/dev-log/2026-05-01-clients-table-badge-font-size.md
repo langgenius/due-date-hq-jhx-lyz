@@ -16,7 +16,7 @@ primitive so badge typography stays consistent across the app.
 
 ## Validation
 
-- `pnpm exec vp check packages/ui/src/components/ui/badge.tsx apps/app/src/features/clients/ClientFactsWorkspace.tsx docs/dev-log/2026-05-01-clients-table-badge-font-size.md`
+- `pnpm exec vp check packages/ui/src/components/ui/badge.tsx packages/ui/src/styles/tokens/primitives.css apps/app/src/features/clients/ClientFactsWorkspace.tsx DESIGN.md docs/Design/DueDateHQ-DESIGN.md docs/dev-log/2026-05-01-clients-table-badge-font-size.md`
 - `pnpm exec tsc -p packages/ui/tsconfig.json --noEmit`
 - `pnpm exec tsc -p apps/app/tsconfig.json --noEmit`
-- Pending: `pnpm design:lint`
+- `pnpm design:lint`
