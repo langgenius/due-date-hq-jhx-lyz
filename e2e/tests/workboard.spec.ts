@@ -28,12 +28,17 @@ test.describe('seeded workboard', () => {
     await expect(authenticatedPage.getByText('Northstar Dental Group')).toBeHidden()
 
     await workboardPage.resetButton.click()
-    await workboardPage.statusFilter('In review').click()
+    await expect(authenticatedPage).toHaveURL(/\/workboard$/)
+    await workboardPage.openStatusFilter()
+    await workboardPage.statusFilterOption('In review').click()
+    await expect(authenticatedPage).toHaveURL(/\/workboard$/)
+    await authenticatedPage.keyboard.press('Escape')
     await expect(authenticatedPage).toHaveURL(/\/workboard\?status=review$/)
     await expect(authenticatedPage.getByText('Northstar Dental Group')).toBeVisible()
     await expect(authenticatedPage.getByText('Arbor & Vale LLC')).toBeHidden()
 
     await workboardPage.resetButton.click()
+    await expect(authenticatedPage).toHaveURL(/\/workboard$/)
     await workboardPage.sortSelect.click()
     await authenticatedPage.getByRole('option', { name: 'Due date — latest first' }).click()
     await expect(authenticatedPage).toHaveURL(/\/workboard\?sort=due_desc$/)

@@ -30,6 +30,11 @@ responding under one second.
 - Follow-up: moved P0-13 filter triggers into table headers for Client / Owner / State / County /
   Tax type / Days / Exposure / Readiness / Status. The old standalone multi-filter row was removed
   so filtering happens where users scan the table.
+- Follow-up: header filter dropdowns now keep draft selections locally and commit URL/query changes
+  only when the dropdown closes, so multi-select filtering does not refetch after every checkbox
+  click.
+- E2E follow-up: updated the Workboard page object to select Status through the table-header
+  dropdown and close it before asserting committed URL/query state.
 - DESIGN.md check: no token, color, spacing, or component contract change was needed; this stays on
   existing `Button`, `Badge`, `DropdownMenu`, `Input`, and `Table` primitives.
 
@@ -40,7 +45,10 @@ responding under one second.
 - `pnpm --filter @duedatehq/db test -- src/repo/workboard.test.ts src/db.test.ts`
 - `pnpm --filter @duedatehq/server test -- src/procedures/obligations/_service.test.ts src/procedures/migration/_service.test.ts`
 - `pnpm exec vp check apps/app/src/routes/workboard.tsx`
+- `pnpm exec vp check apps/app/src/routes/workboard.tsx docs/dev-log/2026-05-01-workboard-p0-13-filters.md`
+- `pnpm exec vp check apps/app/src/routes/workboard.tsx e2e/pages/workboard-page.ts e2e/tests/workboard.spec.ts docs/dev-log/2026-05-01-workboard-p0-13-filters.md`
 - `pnpm check`
+- `E2E_REUSE_EXISTING_SERVER=1 pnpm test:e2e e2e/tests/workboard.spec.ts`
 - `pnpm check:deps`
 - `pnpm ready`
 

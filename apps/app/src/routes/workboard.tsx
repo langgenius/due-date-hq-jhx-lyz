@@ -270,6 +270,16 @@ function daysFilterValue(value: number | null): number | undefined {
   return Math.min(DAYS_FILTER_MAX, Math.max(DAYS_FILTER_MIN, value))
 }
 
+function sameStringSet(left: readonly string[], right: readonly string[]): boolean {
+  if (left.length !== right.length) return false
+  const leftSet = new Set(left)
+  return right.every((value) => leftSet.has(value))
+}
+
+function inputValueFromNumber(value: number | null): string {
+  return value === null ? '' : String(value)
+}
+
 function facetOptionToFilterOption(option: WorkboardFacetOption): FilterOption {
   return {
     value: option.value,
@@ -649,11 +659,12 @@ export function WorkboardRoute() {
             inputMode="numeric"
             min={DAYS_FILTER_MIN}
             max={DAYS_FILTER_MAX}
-            onMinChange={(nextValue) =>
-              void setWorkboardQuery({ daysMin: integerFromInput(nextValue), row: null })
-            }
-            onMaxChange={(nextValue) =>
-              void setWorkboardQuery({ daysMax: integerFromInput(nextValue), row: null })
+            onCommit={(nextMin, nextMax) =>
+              void setWorkboardQuery({
+                daysMin: integerFromInput(nextMin),
+                daysMax: integerFromInput(nextMax),
+                row: null,
+              })
             }
           />
         ),
@@ -678,15 +689,10 @@ export function WorkboardRoute() {
             maxValue={riskMax}
             inputMode="numeric"
             min={0}
-            onMinChange={(nextValue) =>
+            onCommit={(nextMin, nextMax) =>
               void setWorkboardQuery({
-                riskMin: integerFromInput(nextValue, 0),
-                row: null,
-              })
-            }
-            onMaxChange={(nextValue) =>
-              void setWorkboardQuery({
-                riskMax: integerFromInput(nextValue, 0),
+                riskMin: integerFromInput(nextMin, 0),
+                riskMax: integerFromInput(nextMax, 0),
                 row: null,
               })
             }
@@ -1280,9 +1286,12 @@ function MultiFilterDropdown({
   searchPlaceholder?: string
   onSelectedChange: (selected: string[]) => void
 }) {
+  const [open, setOpen] = useState(false)
+  const [draftSelected, setDraftSelected] = useState<string[]>(() => [...selected])
   const [optionSearch, setOptionSearch] = useState('')
-  const selectedSet = new Set(selected)
-  const selectedCount = selected.length
+  const activeSelected = open ? draftSelected : selected
+  const selectedSet = new Set(activeSelected)
+  const selectedCount = activeSelected.length
   const atSelectionLimit = selectedCount >= WORKBOARD_FILTER_MAX_SELECTIONS
   const visibleOptions = useMemo(() => {
     const needle = optionSearch.trim().toLowerCase()
@@ -1312,8 +1321,22 @@ function MultiFilterDropdown({
       </Button>
     )
 
+  function handleOpenChange(nextOpen: boolean) {
+    if (nextOpen) {
+      setDraftSelected([...selected])
+      setOptionSearch('')
+      setOpen(true)
+      return
+    }
+    setOpen(false)
+    setOptionSearch('')
+    if (!sameStringSet(draftSelected, selected)) {
+      onSelectedChange(draftSelected)
+    }
+  }
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger render={triggerNode} />
       <DropdownMenuContent className="max-h-80 w-64 overflow-y-auto" align="start">
         <DropdownMenuGroup>
@@ -1349,9 +1372,9 @@ function MultiFilterDropdown({
                 className="gap-2"
                 onCheckedChange={(nextChecked) => {
                   const nextSelected = nextChecked
-                    ? [...selected, option.value].slice(0, WORKBOARD_FILTER_MAX_SELECTIONS)
-                    : selected.filter((value) => value !== option.value)
-                  onSelectedChange(nextSelected)
+                    ? [...activeSelected, option.value].slice(0, WORKBOARD_FILTER_MAX_SELECTIONS)
+                    : activeSelected.filter((value) => value !== option.value)
+                  setDraftSelected(nextSelected)
                 }}
               >
                 <span className="truncate">{option.label}</span>
@@ -1380,8 +1403,7 @@ function RangeHeaderFilterDropdown({
   inputMode,
   min,
   max,
-  onMinChange,
-  onMaxChange,
+  onCommit,
 }: {
   label: string
   minLabel: string
@@ -1393,13 +1415,32 @@ function RangeHeaderFilterDropdown({
   inputMode: HTMLAttributes<HTMLInputElement>['inputMode']
   min?: number
   max?: number
-  onMinChange: (value: string) => void
-  onMaxChange: (value: string) => void
+  onCommit: (minValue: string, maxValue: string) => void
 }) {
-  const activeCount = (minValue !== null ? 1 : 0) + (maxValue !== null ? 1 : 0)
+  const [open, setOpen] = useState(false)
+  const [draftMin, setDraftMin] = useState(inputValueFromNumber(minValue))
+  const [draftMax, setDraftMax] = useState(inputValueFromNumber(maxValue))
+  const currentMin = inputValueFromNumber(minValue)
+  const currentMax = inputValueFromNumber(maxValue)
+  const activeMin = open ? draftMin : currentMin
+  const activeMax = open ? draftMax : currentMax
+  const activeCount = (activeMin.trim() ? 1 : 0) + (activeMax.trim() ? 1 : 0)
+
+  function handleOpenChange(nextOpen: boolean) {
+    if (nextOpen) {
+      setDraftMin(currentMin)
+      setDraftMax(currentMax)
+      setOpen(true)
+      return
+    }
+    setOpen(false)
+    if (draftMin !== currentMin || draftMax !== currentMax) {
+      onCommit(draftMin, draftMax)
+    }
+  }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger render={headerFilterTrigger({ label, activeCount })} />
       <DropdownMenuContent className="w-72" align="start">
         <DropdownMenuGroup>
@@ -1415,8 +1456,8 @@ function RangeHeaderFilterDropdown({
               max={max}
               className="h-8"
               placeholder={minPlaceholder}
-              value={minValue ?? ''}
-              onChange={(event) => onMinChange(event.target.value)}
+              value={draftMin}
+              onChange={(event) => setDraftMin(event.target.value)}
               onKeyDown={(event) => event.stopPropagation()}
             />
           </label>
@@ -1428,8 +1469,8 @@ function RangeHeaderFilterDropdown({
               max={max}
               className="h-8"
               placeholder={maxPlaceholder}
-              value={maxValue ?? ''}
-              onChange={(event) => onMaxChange(event.target.value)}
+              value={draftMax}
+              onChange={(event) => setDraftMax(event.target.value)}
               onKeyDown={(event) => event.stopPropagation()}
             />
           </label>

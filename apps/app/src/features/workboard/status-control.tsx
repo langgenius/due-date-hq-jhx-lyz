@@ -2,14 +2,15 @@ import { useMemo } from 'react'
 import { useLingui } from '@lingui/react/macro'
 
 import type { ObligationInstancePublic, WorkboardRow } from '@duedatehq/contracts'
-import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
+import { BadgeStatusDot, badgeVariants } from '@duedatehq/ui/components/ui/badge'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@duedatehq/ui/components/ui/select'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@duedatehq/ui/components/ui/dropdown-menu'
+import { cn } from '@duedatehq/ui/lib/utils'
 
 type ObligationStatus = ObligationInstancePublic['status']
 type StatusLabels = Record<ObligationStatus, string>
@@ -79,36 +80,42 @@ function WorkboardStatusControl({
 }) {
   const { t } = useLingui()
   return (
-    <div className="flex items-center gap-3">
-      <Badge variant={STATUS_VARIANT[row.status]}>
-        <BadgeStatusDot tone={STATUS_DOT[row.status]} />
-        {labels[row.status]}
-      </Badge>
-      <Select
-        value={row.status}
-        onValueChange={(value) => {
-          if (typeof value !== 'string' || !isObligationStatus(value)) return
-          if (value === row.status) return
-          onChange(row.id, value)
-        }}
-        disabled={disabled}
-      >
-        <SelectTrigger
-          size="sm"
-          className="min-w-40"
-          aria-label={t`Change status for ${row.clientName}`}
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <button
+            type="button"
+            aria-label={t`Change status for ${row.clientName}`}
+            disabled={disabled}
+            className={cn(
+              badgeVariants({ variant: STATUS_VARIANT[row.status] }),
+              'h-6 cursor-pointer outline-none hover:ring-2 hover:ring-state-accent-active-alt focus-visible:ring-2 focus-visible:ring-state-accent-active-alt disabled:cursor-not-allowed disabled:opacity-50',
+            )}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <BadgeStatusDot tone={STATUS_DOT[row.status]} />
+            {labels[row.status]}
+          </button>
+        }
+      />
+      <DropdownMenuContent className="min-w-48" align="start">
+        <DropdownMenuRadioGroup
+          value={row.status}
+          onValueChange={(value) => {
+            if (typeof value !== 'string' || !isObligationStatus(value)) return
+            if (value === row.status) return
+            onChange(row.id, value)
+          }}
         >
-          <SelectValue>{labels[row.status]}</SelectValue>
-        </SelectTrigger>
-        <SelectContent>
           {ALL_STATUSES.map((status) => (
-            <SelectItem key={status} value={status}>
-              {labels[status]}
-            </SelectItem>
+            <DropdownMenuRadioItem key={status} value={status} className="gap-2">
+              <BadgeStatusDot tone={STATUS_DOT[status]} />
+              <span>{labels[status]}</span>
+            </DropdownMenuRadioItem>
           ))}
-        </SelectContent>
-      </Select>
-    </div>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
