@@ -21,4 +21,11 @@ describe('@duedatehq/server app', () => {
 
     expect(response.status).toBe(404)
   })
+
+  it('does not expose the demo login route outside development', async () => {
+    const app = createApp()
+    const response = await app.request('/api/e2e/demo-login', {}, { ENV: 'staging' })
+
+    expect(response.status).toBe(404)
+  })
 })

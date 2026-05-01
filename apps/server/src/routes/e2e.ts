@@ -18,6 +18,8 @@ interface E2ESeedRequest {
 
 const COOKIE_NAME = 'duedatehq.session_token'
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
+const DEMO_USER_ID = 'mock_user_owner_sarah'
+const DEMO_FIRM_ID = 'mock_firm_brightline'
 
 function hasE2ESeedAccess(c: { env: Env; req: { header(name: string): string | undefined } }) {
   if (c.env.ENV === 'development') return true
@@ -128,6 +130,60 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
     })
   },
 )
+
+e2eRoute.get('/demo-login', async (c) => {
+  if (!hasE2ESeedAccess(c)) {
+    return c.notFound()
+  }
+
+  const db = createDb(c.env.DB)
+  const [demoUser] = await db
+    .select({ id: authSchema.user.id })
+    .from(authSchema.user)
+    .where(eq(authSchema.user.id, DEMO_USER_ID))
+    .limit(1)
+  const [demoFirm] = await db
+    .select({ id: firmSchema.firmProfile.id })
+    .from(firmSchema.firmProfile)
+    .where(eq(firmSchema.firmProfile.id, DEMO_FIRM_ID))
+    .limit(1)
+
+  if (!demoUser || !demoFirm) {
+    return c.text('Demo data is missing. Run `pnpm db:seed:demo` first.', 409)
+  }
+
+  const now = new Date()
+  const expiresAt = new Date(now.getTime() + SESSION_MAX_AGE_SECONDS * 1000)
+  const sessionId = `mock_demo_session_${crypto.randomUUID().replaceAll('-', '')}`
+  const token = `mock_demo_token_${crypto.randomUUID().replaceAll('-', '')}`
+  await db.insert(authSchema.session).values({
+    id: sessionId,
+    token,
+    userId: DEMO_USER_ID,
+    activeOrganizationId: DEMO_FIRM_ID,
+    expiresAt,
+    createdAt: now,
+    updatedAt: now,
+    ipAddress: '127.0.0.1',
+    userAgent: 'DueDateHQ live demo',
+  })
+
+  const signedToken = `${token}.${await makeSignature(token, c.env.AUTH_SECRET)}`
+  const requestUrl = new URL(c.req.url)
+  c.header(
+    'Set-Cookie',
+    serializeCookie({
+      name: COOKIE_NAME,
+      value: signedToken,
+      path: '/',
+      httpOnly: true,
+      secure: requestUrl.protocol === 'https:',
+      sameSite: 'Lax',
+      expires: Math.floor(expiresAt.getTime() / 1000),
+    }),
+  )
+  return c.redirect(c.env.APP_URL || '/', 302)
+})
 
 e2eRoute.post('/billing/subscription', async (c) => {
   if (!hasE2ESeedAccess(c)) {
