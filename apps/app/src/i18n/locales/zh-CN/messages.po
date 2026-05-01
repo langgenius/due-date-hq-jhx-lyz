@@ -27,6 +27,11 @@ msgstr "{0, plural, other {# 个 {3} × {4} 客户}}"
 msgid "{0, plural, one {# active} other {# active}}"
 msgstr "{0, plural, other {# 条活跃}}"
 
+#. placeholder {0}: Math.abs(days)
+#: src/routes/workboard.tsx
+msgid "{0, plural, one {# day late} other {# days late}}"
+msgstr "{0, plural, other {逾期 # 天}}"
+
 #. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
 #: src/features/migration/Step2Mapping.tsx
@@ -89,11 +94,6 @@ msgstr "{0} 已完整覆盖 · {1} 有待审 candidate"
 #: src/routes/billing.success.tsx
 msgid "{0} is on {expectedPlan}"
 msgstr "{0} 已启用 {expectedPlan}"
-
-#. placeholder {0}: Math.abs(days)
-#: src/routes/workboard.tsx
-msgid "{0} late"
-msgstr "逾期 {0} 天"
 
 #. placeholder {0}: factsModel.summary.manual
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -189,8 +189,8 @@ msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, other {# 个客户}}"
 
 #: src/routes/workboard.tsx
-msgid "{days} days"
-msgstr "{days} 天"
+msgid "{days, plural, one {# day} other {# days}}"
+msgstr "{days, plural, other {# 天}}"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "{durationMonths} months"

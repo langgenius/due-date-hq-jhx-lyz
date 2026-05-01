@@ -27,6 +27,11 @@ msgstr "{0, plural, one {# {1} × {2} client} other {# {3} × {4} clients}}"
 msgid "{0, plural, one {# active} other {# active}}"
 msgstr "{0, plural, one {# active} other {# active}}"
 
+#. placeholder {0}: Math.abs(days)
+#: src/routes/workboard.tsx
+msgid "{0, plural, one {# day late} other {# days late}}"
+msgstr "{0, plural, one {# day late} other {# days late}}"
+
 #. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
 #: src/features/migration/Step2Mapping.tsx
@@ -89,11 +94,6 @@ msgstr "{0} fully covered · {1} with open candidates"
 #: src/routes/billing.success.tsx
 msgid "{0} is on {expectedPlan}"
 msgstr "{0} is on {expectedPlan}"
-
-#. placeholder {0}: Math.abs(days)
-#: src/routes/workboard.tsx
-msgid "{0} late"
-msgstr "{0} late"
 
 #. placeholder {0}: factsModel.summary.manual
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -189,8 +189,8 @@ msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, one {# client} other {# clients}}"
 
 #: src/routes/workboard.tsx
-msgid "{days} days"
-msgstr "{days} days"
+msgid "{days, plural, one {# day} other {# days}}"
+msgstr "{days, plural, one {# day} other {# days}}"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "{durationMonths} months"

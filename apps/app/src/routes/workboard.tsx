@@ -32,7 +32,7 @@ import {
   type WorkboardRow,
   type WorkboardSort,
 } from '@duedatehq/contracts'
-import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Card,
@@ -137,6 +137,13 @@ const UNASSIGNED_OWNER_OPTION = '__unassigned__'
 const WORKBOARD_TABLE_PILL_CLASSNAME = 'text-[12px]'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const STATE_CODE_RE = /^[A-Z]{2}$/
+
+type DueDaysTone = {
+  variant: 'destructive' | 'warning' | 'success'
+  dot: 'error' | 'warning' | 'success'
+  badgeClassName?: string
+  dotClassName?: string
+}
 
 interface FilterOption {
   value: string
@@ -287,6 +294,21 @@ function facetOptionToFilterOption(option: WorkboardFacetOption): FilterOption {
     label: option.label,
     count: option.count,
   }
+}
+
+function dueDaysTone(days: number): DueDaysTone {
+  if (days < 0) {
+    return {
+      variant: 'destructive',
+      dot: 'error',
+      badgeClassName:
+        'border-state-destructive-border bg-state-destructive-solid text-text-inverted',
+      dotClassName: 'bg-text-inverted shadow-none',
+    }
+  }
+  if (days <= 2) return { variant: 'destructive', dot: 'error' }
+  if (days <= 7) return { variant: 'warning', dot: 'warning' }
+  return { variant: 'success', dot: 'success' }
 }
 
 export function WorkboardRoute() {
@@ -669,13 +691,8 @@ export function WorkboardRoute() {
             }
           />
         ),
-        cell: (info) => {
-          const days = info.getValue<number>()
-          if (days === 0) return t`Today`
-          if (days < 0) return t`${Math.abs(days)} late`
-          return t`${days} days`
-        },
-        meta: { cellClassName: 'font-mono tabular-nums text-text-secondary' },
+        cell: (info) => <DueDaysPill days={info.getValue<number>()} />,
+        meta: { cellClassName: 'tabular-nums' },
       },
       {
         accessorKey: 'estimatedExposureCents',
@@ -1273,6 +1290,25 @@ function ReadinessPill({
   return (
     <Badge variant={variant} className={WORKBOARD_TABLE_PILL_CLASSNAME}>
       {labels[readiness]}
+    </Badge>
+  )
+}
+
+function DueDaysPill({ days }: { days: number }) {
+  const tone = dueDaysTone(days)
+  return (
+    <Badge
+      variant={tone.variant}
+      className={`${WORKBOARD_TABLE_PILL_CLASSNAME} min-w-18 justify-start font-mono tabular-nums ${tone.badgeClassName ?? ''}`}
+    >
+      <BadgeStatusDot tone={tone.dot} className={`size-1.5 ${tone.dotClassName ?? ''}`} />
+      {days === 0 ? (
+        <Trans>Today</Trans>
+      ) : days < 0 ? (
+        <Plural value={Math.abs(days)} one="# day late" other="# days late" />
+      ) : (
+        <Plural value={days} one="# day" other="# days" />
+      )}
     </Badge>
   )
 }

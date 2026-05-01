@@ -37,17 +37,23 @@ responding under one second.
   changes, replacing the extra select control that previously sat beside the pill.
 - Visual follow-up: Exposure, Readiness, and Status table pills now render at 12px instead of the
   global 11px badge `text-xs` token for better scannability in the dense Workboard table.
+- Visual follow-up: Days-until-due cells now render as compact semantic pills: overdue uses a
+  stronger solid destructive treatment, today / 1-2 days use red, 3-7 days use warning, and 8+
+  days use success. This keeps 1-day, 10-day, and overdue obligations visually distinct while
+  staying on existing Badge and status-dot tokens.
 - E2E follow-up: updated the Workboard page object to select Status through the table-header
   dropdown and close it before asserting committed URL/query state.
 - DESIGN.md check: no token, color, spacing, or component contract change was needed; this stays on
-  existing `Button`, `Badge`, `DropdownMenu`, `Input`, and `Table` primitives.
+  existing `Button`, `Badge`, `BadgeStatusDot`, `DropdownMenu`, `Input`, and `Table` primitives.
 
 ## Validation
 
 - `pnpm --filter @duedatehq/app i18n:compile`
+- `pnpm --filter @duedatehq/app test`
 - `pnpm --filter @duedatehq/contracts test`
 - `pnpm --filter @duedatehq/db test -- src/repo/workboard.test.ts src/db.test.ts`
 - `pnpm --filter @duedatehq/server test -- src/procedures/obligations/_service.test.ts src/procedures/migration/_service.test.ts`
+- `pnpm exec vp check apps/app/src/routes/workboard.tsx apps/app/src/i18n/locales/en/messages.po apps/app/src/i18n/locales/en/messages.ts apps/app/src/i18n/locales/zh-CN/messages.po apps/app/src/i18n/locales/zh-CN/messages.ts docs/dev-log/2026-05-01-workboard-p0-13-filters.md`
 - `pnpm exec vp check apps/app/src/routes/workboard.tsx`
 - `pnpm exec vp check apps/app/src/routes/workboard.tsx docs/dev-log/2026-05-01-workboard-p0-13-filters.md`
 - `pnpm exec vp check apps/app/src/routes/workboard.tsx e2e/pages/workboard-page.ts e2e/tests/workboard.spec.ts docs/dev-log/2026-05-01-workboard-p0-13-filters.md`
@@ -59,6 +65,7 @@ responding under one second.
 - `pnpm test:e2e e2e/tests/workboard.spec.ts e2e/tests/audit-log.spec.ts`
 - `pnpm check:deps`
 - `pnpm ready`
+- `pnpm --filter @duedatehq/app i18n:extract`
 
 `pnpm ready` returned 0. Wrangler dry-run still printed the local log-file EPERM warning for
 `~/Library/Preferences/.wrangler/logs/...`, but the Worker dry-run and all builds completed.
