@@ -27,6 +27,9 @@ responding under one second.
 - Updated `/workboard` controls to keep all filters in `nuqs` URL state, preserve the existing
   workload `assignee` deep link, and render dense multi-select dropdowns with searchable client /
   county / assignee options.
+- Follow-up: moved P0-13 filter triggers into table headers for Client / Owner / State / County /
+  Tax type / Days / Exposure / Readiness / Status. The old standalone multi-filter row was removed
+  so filtering happens where users scan the table.
 - DESIGN.md check: no token, color, spacing, or component contract change was needed; this stays on
   existing `Button`, `Badge`, `DropdownMenu`, `Input`, and `Table` primitives.
 
@@ -36,6 +39,7 @@ responding under one second.
 - `pnpm --filter @duedatehq/contracts test`
 - `pnpm --filter @duedatehq/db test -- src/repo/workboard.test.ts src/db.test.ts`
 - `pnpm --filter @duedatehq/server test -- src/procedures/obligations/_service.test.ts src/procedures/migration/_service.test.ts`
+- `pnpm exec vp check apps/app/src/routes/workboard.tsx`
 - `pnpm check`
 - `pnpm check:deps`
 - `pnpm ready`

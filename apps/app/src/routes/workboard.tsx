@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, type HTMLAttributes } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import {
   flexRender,
@@ -47,6 +47,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -132,6 +133,7 @@ const PAGE_SIZE = 50
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 const DAYS_FILTER_MIN = -3650
 const DAYS_FILTER_MAX = 3650
+const UNASSIGNED_OWNER_OPTION = '__unassigned__'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const STATE_CODE_RE = /^[A-Z]{2}$/
 
@@ -188,6 +190,10 @@ function isWorkboardSort(value: string): value is WorkboardSort {
 
 function isWorkboardReadiness(value: string): value is WorkboardReadiness {
   return READINESS_FILTERS.some((readiness) => readiness === value)
+}
+
+function isObligationStatus(value: string): value is ObligationStatus {
+  return ALL_STATUSES.some((status) => status === value)
 }
 
 function useSortLabels(): Record<WorkboardSort, string> {
@@ -370,6 +376,14 @@ export function WorkboardRoute() {
     () => facetsQuery.data?.assigneeNames.map(facetOptionToFilterOption) ?? EMPTY_FACET_OPTIONS,
     [facetsQuery.data?.assigneeNames],
   )
+  const ownerOptions = useMemo<FilterOption[]>(
+    () => [{ value: UNASSIGNED_OWNER_OPTION, label: t`Unassigned` }, ...assigneeOptions],
+    [assigneeOptions, t],
+  )
+  const ownerQuery = useMemo(
+    () => (owner === 'unassigned' ? [UNASSIGNED_OWNER_OPTION] : combinedAssigneeQuery),
+    [combinedAssigneeQuery, owner],
+  )
   const readinessOptions = useMemo<FilterOption[]>(
     () =>
       READINESS_FILTERS.map((readiness) => ({
@@ -378,6 +392,15 @@ export function WorkboardRoute() {
       })),
     [readinessLabels],
   )
+  const statusOptions = useMemo<FilterOption[]>(
+    () =>
+      ALL_STATUSES.map((status) => ({
+        value: status,
+        label: statusLabels[status],
+      })),
+    [statusLabels],
+  )
+  const filtersDisabled = facetsQuery.isLoading
 
   const queryInputWithoutCursor = useMemo<WorkboardListInputWithoutCursor>(
     () => ({
@@ -492,31 +515,117 @@ export function WorkboardRoute() {
     () => [
       {
         accessorKey: 'clientName',
-        header: t`Client`,
+        header: () => (
+          <MultiFilterDropdown
+            trigger="header"
+            label={t`Client`}
+            options={clientOptions}
+            selected={clientQuery}
+            disabled={filtersDisabled}
+            emptyLabel={t`No clients`}
+            searchable
+            searchPlaceholder={t`Search clients`}
+            onSelectedChange={(nextClient) =>
+              void setWorkboardQuery({
+                client: nextClient.length > 0 ? nextClient : null,
+                row: null,
+              })
+            }
+          />
+        ),
         cell: (info) => info.getValue<string>(),
         meta: { cellClassName: 'font-medium text-text-primary' },
       },
       {
         accessorKey: 'assigneeName',
-        header: t`Owner`,
+        header: () => (
+          <MultiFilterDropdown
+            trigger="header"
+            label={t`Owner`}
+            options={ownerOptions}
+            selected={ownerQuery}
+            disabled={filtersDisabled}
+            emptyLabel={t`No assignees`}
+            searchable
+            searchPlaceholder={t`Search assignees`}
+            onSelectedChange={(nextOwner) => {
+              const isUnassigned = nextOwner.includes(UNASSIGNED_OWNER_OPTION)
+              const nextAssignee = nextOwner.filter((value) => value !== UNASSIGNED_OWNER_OPTION)
+              void setWorkboardQuery({
+                owner: isUnassigned ? 'unassigned' : null,
+                assignee: null,
+                assignees: !isUnassigned && nextAssignee.length > 0 ? nextAssignee : null,
+                row: null,
+              })
+            }}
+          />
+        ),
         cell: (info) => info.getValue<string | null>() ?? t`Unassigned`,
         meta: { cellClassName: 'text-text-secondary' },
       },
       {
         accessorKey: 'clientState',
-        header: t`State`,
+        header: () => (
+          <MultiFilterDropdown
+            trigger="header"
+            label={t`State`}
+            options={stateOptions}
+            selected={stateQuery}
+            disabled={filtersDisabled}
+            emptyLabel={t`No states`}
+            onSelectedChange={(nextState) =>
+              void setWorkboardQuery({
+                state: nextState.length > 0 ? nextState : null,
+                county: null,
+                row: null,
+              })
+            }
+          />
+        ),
         cell: (info) => info.getValue<string | null>() ?? '—',
         meta: { cellClassName: 'font-mono text-text-secondary' },
       },
       {
         accessorKey: 'clientCounty',
-        header: t`County`,
+        header: () => (
+          <MultiFilterDropdown
+            trigger="header"
+            label={t`County`}
+            options={countyOptions}
+            selected={countyQuery}
+            disabled={filtersDisabled || countyOptions.length === 0}
+            emptyLabel={t`No counties`}
+            searchable
+            searchPlaceholder={t`Search counties`}
+            onSelectedChange={(nextCounty) =>
+              void setWorkboardQuery({
+                county: nextCounty.length > 0 ? nextCounty : null,
+                row: null,
+              })
+            }
+          />
+        ),
         cell: (info) => info.getValue<string | null>() ?? '—',
         meta: { cellClassName: 'text-text-secondary' },
       },
       {
         accessorKey: 'taxType',
-        header: t`Tax type`,
+        header: () => (
+          <MultiFilterDropdown
+            trigger="header"
+            label={t`Tax type`}
+            options={taxTypeOptions}
+            selected={taxTypeQuery}
+            disabled={filtersDisabled}
+            emptyLabel={t`No forms`}
+            onSelectedChange={(nextTaxType) =>
+              void setWorkboardQuery({
+                taxType: nextTaxType.length > 0 ? nextTaxType : null,
+                row: null,
+              })
+            }
+          />
+        ),
         cell: (info) => info.getValue<string>(),
         meta: { cellClassName: 'text-text-secondary' },
       },
@@ -528,7 +637,26 @@ export function WorkboardRoute() {
       },
       {
         accessorKey: 'daysUntilDue',
-        header: t`Days`,
+        header: () => (
+          <RangeHeaderFilterDropdown
+            label={t`Days`}
+            minLabel={t`Minimum days until due`}
+            maxLabel={t`Maximum days until due`}
+            minPlaceholder={t`Min days`}
+            maxPlaceholder={t`Max days`}
+            minValue={daysMin}
+            maxValue={daysMax}
+            inputMode="numeric"
+            min={DAYS_FILTER_MIN}
+            max={DAYS_FILTER_MAX}
+            onMinChange={(nextValue) =>
+              void setWorkboardQuery({ daysMin: integerFromInput(nextValue), row: null })
+            }
+            onMaxChange={(nextValue) =>
+              void setWorkboardQuery({ daysMax: integerFromInput(nextValue), row: null })
+            }
+          />
+        ),
         cell: (info) => {
           const days = info.getValue<number>()
           if (days === 0) return t`Today`
@@ -539,14 +667,53 @@ export function WorkboardRoute() {
       },
       {
         accessorKey: 'estimatedExposureCents',
-        header: t`Exposure`,
+        header: () => (
+          <RangeHeaderFilterDropdown
+            label={t`Exposure`}
+            minLabel={t`Minimum dollars at risk`}
+            maxLabel={t`Maximum dollars at risk`}
+            minPlaceholder={t`Min $`}
+            maxPlaceholder={t`Max $`}
+            minValue={riskMin}
+            maxValue={riskMax}
+            inputMode="numeric"
+            min={0}
+            onMinChange={(nextValue) =>
+              void setWorkboardQuery({
+                riskMin: integerFromInput(nextValue, 0),
+                row: null,
+              })
+            }
+            onMaxChange={(nextValue) =>
+              void setWorkboardQuery({
+                riskMax: integerFromInput(nextValue, 0),
+                row: null,
+              })
+            }
+          />
+        ),
         cell: ({ row: tableRow }) => (
           <ExposurePill row={tableRow.original} onNeedsInput={setPenaltyRow} />
         ),
       },
       {
         accessorKey: 'readiness',
-        header: t`Readiness`,
+        header: () => (
+          <MultiFilterDropdown
+            trigger="header"
+            label={t`Readiness`}
+            options={readinessOptions}
+            selected={readinessQuery}
+            emptyLabel={t`No readiness states`}
+            onSelectedChange={(nextReadiness) => {
+              const typedReadiness = nextReadiness.filter(isWorkboardReadiness)
+              void setWorkboardQuery({
+                readiness: typedReadiness.length > 0 ? typedReadiness : null,
+                row: null,
+              })
+            }}
+          />
+        ),
         cell: (info) => (
           <ReadinessPill readiness={info.getValue<WorkboardReadiness>()} labels={readinessLabels} />
         ),
@@ -574,7 +741,22 @@ export function WorkboardRoute() {
       },
       {
         accessorKey: 'status',
-        header: t`Status`,
+        header: () => (
+          <MultiFilterDropdown
+            trigger="header"
+            label={t`Status`}
+            options={statusOptions}
+            selected={statusQuery}
+            emptyLabel={t`All statuses`}
+            onSelectedChange={(nextStatus) => {
+              const typedStatus = nextStatus.filter(isObligationStatus)
+              void setWorkboardQuery({
+                status: typedStatus.length > 0 ? typedStatus : null,
+                row: null,
+              })
+            }}
+          />
+        ),
         cell: ({ row: tableRow }) => {
           const workboardRow = tableRow.original
           return (
@@ -588,7 +770,34 @@ export function WorkboardRoute() {
         },
       },
     ],
-    [openEvidence, readinessLabels, statusLabels, statusUpdatePending, t, updateStatus],
+    [
+      clientOptions,
+      clientQuery,
+      countyOptions,
+      countyQuery,
+      daysMax,
+      daysMin,
+      filtersDisabled,
+      openEvidence,
+      ownerOptions,
+      ownerQuery,
+      readinessLabels,
+      readinessOptions,
+      readinessQuery,
+      riskMax,
+      riskMin,
+      setWorkboardQuery,
+      stateOptions,
+      stateQuery,
+      statusLabels,
+      statusOptions,
+      statusQuery,
+      statusUpdatePending,
+      t,
+      taxTypeOptions,
+      taxTypeQuery,
+      updateStatus,
+    ],
   )
 
   const table = useReactTable({
@@ -609,7 +818,6 @@ export function WorkboardRoute() {
   })
 
   const totalShown = table.getRowModel().rows.length
-  const filtersDisabled = facetsQuery.isLoading
 
   const moveActiveRow = useCallback(
     (direction: 1 | -1) => {
@@ -756,16 +964,6 @@ export function WorkboardRoute() {
     },
   })
 
-  function toggleStatus(status: ObligationStatus) {
-    const nextStatus = statusFilter.includes(status)
-      ? statusFilter.filter((current) => current !== status)
-      : [...statusFilter, status]
-    void setWorkboardQuery({
-      status: nextStatus.length > 0 ? nextStatus : null,
-      row: null,
-    })
-  }
-
   function loadMore() {
     if (!listQuery.hasNextPage) return
     void listQuery.fetchNextPage()
@@ -807,7 +1005,10 @@ export function WorkboardRoute() {
             <Trans>Queue controls</Trans>
           </CardTitle>
           <CardDescription>
-            <Trans>Filter by client, geography, form, readiness, owner, risk, and timing.</Trans>
+            <Trans>
+              Use table headers to filter by client, geography, form, readiness, owner, risk, and
+              timing.
+            </Trans>
           </CardDescription>
           <CardAction>
             <Badge variant="outline" className="font-mono tabular-nums">
@@ -864,165 +1065,6 @@ export function WorkboardRoute() {
             </div>
           </div>
 
-          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto_auto] xl:items-end">
-            <div className="flex flex-wrap gap-2">
-              <MultiFilterDropdown
-                label={t`Client`}
-                options={clientOptions}
-                selected={clientQuery}
-                disabled={filtersDisabled}
-                emptyLabel={t`No clients`}
-                searchable
-                searchPlaceholder={t`Search clients`}
-                onSelectedChange={(nextClient) =>
-                  void setWorkboardQuery({
-                    client: nextClient.length > 0 ? nextClient : null,
-                    row: null,
-                  })
-                }
-              />
-              <MultiFilterDropdown
-                label={t`State`}
-                options={stateOptions}
-                selected={stateQuery}
-                disabled={filtersDisabled}
-                emptyLabel={t`No states`}
-                onSelectedChange={(nextState) =>
-                  void setWorkboardQuery({
-                    state: nextState.length > 0 ? nextState : null,
-                    county: null,
-                    row: null,
-                  })
-                }
-              />
-              <MultiFilterDropdown
-                label={t`County`}
-                options={countyOptions}
-                selected={countyQuery}
-                disabled={filtersDisabled || countyOptions.length === 0}
-                emptyLabel={t`No counties`}
-                searchable
-                searchPlaceholder={t`Search counties`}
-                onSelectedChange={(nextCounty) =>
-                  void setWorkboardQuery({
-                    county: nextCounty.length > 0 ? nextCounty : null,
-                    row: null,
-                  })
-                }
-              />
-              <MultiFilterDropdown
-                label={t`Form`}
-                options={taxTypeOptions}
-                selected={taxTypeQuery}
-                disabled={filtersDisabled}
-                emptyLabel={t`No forms`}
-                onSelectedChange={(nextTaxType) =>
-                  void setWorkboardQuery({
-                    taxType: nextTaxType.length > 0 ? nextTaxType : null,
-                    row: null,
-                  })
-                }
-              />
-              <MultiFilterDropdown
-                label={t`Readiness`}
-                options={readinessOptions}
-                selected={readinessQuery}
-                emptyLabel={t`No readiness states`}
-                onSelectedChange={(nextReadiness) => {
-                  const typedReadiness = nextReadiness.filter(isWorkboardReadiness)
-                  void setWorkboardQuery({
-                    readiness: typedReadiness.length > 0 ? typedReadiness : null,
-                    row: null,
-                  })
-                }}
-              />
-              <MultiFilterDropdown
-                label={t`Assignee`}
-                options={assigneeOptions}
-                selected={combinedAssigneeQuery}
-                disabled={filtersDisabled}
-                emptyLabel={t`No assignees`}
-                searchable
-                searchPlaceholder={t`Search assignees`}
-                onSelectedChange={(nextAssignee) =>
-                  void setWorkboardQuery({
-                    assignee: null,
-                    assignees: nextAssignee.length > 0 ? nextAssignee : null,
-                    row: null,
-                  })
-                }
-              />
-            </div>
-
-            <div className="grid grid-cols-[auto_minmax(5rem,6.5rem)_minmax(5rem,6.5rem)] items-center gap-2">
-              <span className="text-sm text-text-secondary">
-                <Trans>Risk</Trans>
-              </span>
-              <Input
-                aria-label={t`Minimum dollars at risk`}
-                inputMode="numeric"
-                className="h-8"
-                placeholder={t`Min $`}
-                value={riskMin ?? ''}
-                onChange={(event) =>
-                  void setWorkboardQuery({
-                    riskMin: integerFromInput(event.target.value, 0),
-                    row: null,
-                  })
-                }
-              />
-              <Input
-                aria-label={t`Maximum dollars at risk`}
-                inputMode="numeric"
-                className="h-8"
-                placeholder={t`Max $`}
-                value={riskMax ?? ''}
-                onChange={(event) =>
-                  void setWorkboardQuery({
-                    riskMax: integerFromInput(event.target.value, 0),
-                    row: null,
-                  })
-                }
-              />
-            </div>
-
-            <div className="grid grid-cols-[auto_minmax(5rem,6.5rem)_minmax(5rem,6.5rem)] items-center gap-2">
-              <span className="text-sm text-text-secondary">
-                <Trans>Days</Trans>
-              </span>
-              <Input
-                aria-label={t`Minimum days until due`}
-                inputMode="numeric"
-                min={DAYS_FILTER_MIN}
-                max={DAYS_FILTER_MAX}
-                className="h-8"
-                placeholder={t`Min days`}
-                value={daysMin ?? ''}
-                onChange={(event) =>
-                  void setWorkboardQuery({
-                    daysMin: integerFromInput(event.target.value),
-                    row: null,
-                  })
-                }
-              />
-              <Input
-                aria-label={t`Maximum days until due`}
-                inputMode="numeric"
-                min={DAYS_FILTER_MIN}
-                max={DAYS_FILTER_MAX}
-                className="h-8"
-                placeholder={t`Max days`}
-                value={daysMax ?? ''}
-                onChange={(event) =>
-                  void setWorkboardQuery({
-                    daysMax: integerFromInput(event.target.value),
-                    row: null,
-                  })
-                }
-              />
-            </div>
-          </div>
-
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -1061,41 +1103,6 @@ export function WorkboardRoute() {
                 <Trans>Needs evidence</Trans>
               </Badge>
             </button>
-            <button
-              type="button"
-              className="cursor-pointer focus-visible:outline-none"
-              onClick={() => toggleStatus('review')}
-            >
-              <Badge variant={statusFilter.includes('review') ? 'default' : 'ghost'}>
-                <Trans>Review</Trans>
-              </Badge>
-            </button>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="cursor-pointer focus-visible:outline-none"
-              onClick={() => void setWorkboardQuery({ status: null, row: null })}
-            >
-              <Badge variant={statusFilter.length === 0 ? 'default' : 'ghost'}>
-                <Trans>All</Trans>
-              </Badge>
-            </button>
-            {ALL_STATUSES.map((status) => {
-              const active = statusFilter.includes(status)
-              return (
-                <button
-                  key={status}
-                  type="button"
-                  className="cursor-pointer focus-visible:outline-none"
-                  onClick={() => toggleStatus(status)}
-                  aria-pressed={active}
-                >
-                  <Badge variant={active ? 'default' : 'ghost'}>{statusLabels[status]}</Badge>
-                </button>
-              )
-            })}
           </div>
 
           {isInitialLoading ? (
@@ -1241,6 +1248,7 @@ function ReadinessPill({
 }
 
 function MultiFilterDropdown({
+  trigger = 'toolbar',
   label,
   options,
   selected,
@@ -1250,6 +1258,7 @@ function MultiFilterDropdown({
   searchPlaceholder,
   onSelectedChange,
 }: {
+  trigger?: 'toolbar' | 'header'
   label: string
   options: readonly FilterOption[]
   selected: readonly string[]
@@ -1271,29 +1280,33 @@ function MultiFilterDropdown({
         option.label.toLowerCase().includes(needle) || option.value.toLowerCase().includes(needle),
     )
   }, [optionSearch, options])
+  const triggerNode =
+    trigger === 'header' ? (
+      headerFilterTrigger({ label, activeCount: selectedCount, disabled: disabled ?? false })
+    ) : (
+      <Button
+        variant={selectedCount > 0 ? 'accent' : 'outline'}
+        size="sm"
+        disabled={disabled}
+        className="max-w-52 justify-start"
+      >
+        <span className="truncate">{label}</span>
+        {selectedCount > 0 ? (
+          <Badge variant="outline" className="h-4 px-1.5 font-mono tabular-nums">
+            {selectedCount}
+          </Badge>
+        ) : null}
+        <ChevronDownIcon data-icon="inline-end" />
+      </Button>
+    )
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant={selectedCount > 0 ? 'accent' : 'outline'}
-            size="sm"
-            disabled={disabled}
-            className="max-w-52 justify-start"
-          >
-            <span className="truncate">{label}</span>
-            {selectedCount > 0 ? (
-              <Badge variant="outline" className="h-4 px-1.5 font-mono tabular-nums">
-                {selectedCount}
-              </Badge>
-            ) : null}
-            <ChevronDownIcon data-icon="inline-end" />
-          </Button>
-        }
-      />
+      <DropdownMenuTrigger render={triggerNode} />
       <DropdownMenuContent className="max-h-80 w-64 overflow-y-auto" align="start">
-        <DropdownMenuLabel>{label}</DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>{label}</DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {searchable ? (
           <>
@@ -1341,6 +1354,103 @@ function MultiFilterDropdown({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+function RangeHeaderFilterDropdown({
+  label,
+  minLabel,
+  maxLabel,
+  minPlaceholder,
+  maxPlaceholder,
+  minValue,
+  maxValue,
+  inputMode,
+  min,
+  max,
+  onMinChange,
+  onMaxChange,
+}: {
+  label: string
+  minLabel: string
+  maxLabel: string
+  minPlaceholder: string
+  maxPlaceholder: string
+  minValue: number | null
+  maxValue: number | null
+  inputMode: HTMLAttributes<HTMLInputElement>['inputMode']
+  min?: number
+  max?: number
+  onMinChange: (value: string) => void
+  onMaxChange: (value: string) => void
+}) {
+  const activeCount = (minValue !== null ? 1 : 0) + (maxValue !== null ? 1 : 0)
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger render={headerFilterTrigger({ label, activeCount })} />
+      <DropdownMenuContent className="w-72" align="start">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>{label}</DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <div className="grid gap-3 p-2">
+          <label className="grid gap-1 text-xs font-medium text-text-secondary">
+            <span>{minLabel}</span>
+            <Input
+              inputMode={inputMode}
+              min={min}
+              max={max}
+              className="h-8"
+              placeholder={minPlaceholder}
+              value={minValue ?? ''}
+              onChange={(event) => onMinChange(event.target.value)}
+              onKeyDown={(event) => event.stopPropagation()}
+            />
+          </label>
+          <label className="grid gap-1 text-xs font-medium text-text-secondary">
+            <span>{maxLabel}</span>
+            <Input
+              inputMode={inputMode}
+              min={min}
+              max={max}
+              className="h-8"
+              placeholder={maxPlaceholder}
+              value={maxValue ?? ''}
+              onChange={(event) => onMaxChange(event.target.value)}
+              onKeyDown={(event) => event.stopPropagation()}
+            />
+          </label>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+function headerFilterTrigger({
+  label,
+  activeCount,
+  disabled,
+}: {
+  label: string
+  activeCount: number
+  disabled?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      data-active={activeCount > 0 ? true : undefined}
+      className="-mx-2 inline-flex h-7 max-w-40 cursor-pointer items-center gap-1 rounded-md px-2 text-xs font-medium tracking-wider whitespace-nowrap text-text-tertiary uppercase outline-none transition-colors hover:bg-state-base-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt disabled:pointer-events-none disabled:opacity-50 data-[active=true]:text-text-accent"
+    >
+      <span className="truncate">{label}</span>
+      {activeCount > 0 ? (
+        <Badge variant="outline" className="h-4 px-1.5 font-mono text-[10px] tabular-nums">
+          {activeCount}
+        </Badge>
+      ) : null}
+      <ChevronDownIcon className="size-3 shrink-0" aria-hidden />
+    </button>
   )
 }
 

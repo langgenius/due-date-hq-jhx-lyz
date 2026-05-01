@@ -1,4 +1,4 @@
-CREATE TABLE `audit_evidence_package` (
+CREATE TABLE IF NOT EXISTS `audit_evidence_package` (
 	`id` text PRIMARY KEY NOT NULL,
 	`firm_id` text NOT NULL,
 	`exported_by_user_id` text NOT NULL,
@@ -19,9 +19,9 @@ CREATE TABLE `audit_evidence_package` (
 	FOREIGN KEY (`exported_by_user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE restrict
 );
 --> statement-breakpoint
-CREATE INDEX `idx_audit_package_firm_time` ON `audit_evidence_package` (`firm_id`,`created_at`);--> statement-breakpoint
-CREATE INDEX `idx_audit_package_status` ON `audit_evidence_package` (`status`,`created_at`);--> statement-breakpoint
-CREATE TABLE `client_email_suppression` (
+CREATE INDEX IF NOT EXISTS `idx_audit_package_firm_time` ON `audit_evidence_package` (`firm_id`,`created_at`);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS `idx_audit_package_status` ON `audit_evidence_package` (`status`,`created_at`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `client_email_suppression` (
 	`id` text PRIMARY KEY NOT NULL,
 	`firm_id` text NOT NULL,
 	`email` text NOT NULL,
@@ -31,9 +31,9 @@ CREATE TABLE `client_email_suppression` (
 	FOREIGN KEY (`firm_id`) REFERENCES `firm_profile`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `uq_client_email_suppression_firm_email` ON `client_email_suppression` (`firm_id`,`email`);--> statement-breakpoint
-CREATE UNIQUE INDEX `uq_client_email_suppression_token` ON `client_email_suppression` (`token_hash`);--> statement-breakpoint
-CREATE TABLE `in_app_notification` (
+CREATE UNIQUE INDEX IF NOT EXISTS `uq_client_email_suppression_firm_email` ON `client_email_suppression` (`firm_id`,`email`);--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS `uq_client_email_suppression_token` ON `client_email_suppression` (`token_hash`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `in_app_notification` (
 	`id` text PRIMARY KEY NOT NULL,
 	`firm_id` text NOT NULL,
 	`user_id` text NOT NULL,
@@ -50,9 +50,9 @@ CREATE TABLE `in_app_notification` (
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE INDEX `idx_in_app_notification_user_time` ON `in_app_notification` (`firm_id`,`user_id`,`created_at`);--> statement-breakpoint
-CREATE INDEX `idx_in_app_notification_user_read` ON `in_app_notification` (`firm_id`,`user_id`,`read_at`);--> statement-breakpoint
-CREATE TABLE `notification_preference` (
+CREATE INDEX IF NOT EXISTS `idx_in_app_notification_user_time` ON `in_app_notification` (`firm_id`,`user_id`,`created_at`);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS `idx_in_app_notification_user_read` ON `in_app_notification` (`firm_id`,`user_id`,`read_at`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `notification_preference` (
 	`id` text PRIMARY KEY NOT NULL,
 	`firm_id` text NOT NULL,
 	`user_id` text NOT NULL,
@@ -67,9 +67,9 @@ CREATE TABLE `notification_preference` (
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `uq_notification_preference_firm_user` ON `notification_preference` (`firm_id`,`user_id`);--> statement-breakpoint
-CREATE INDEX `idx_notification_preference_user` ON `notification_preference` (`user_id`);--> statement-breakpoint
-CREATE TABLE `reminder` (
+CREATE UNIQUE INDEX IF NOT EXISTS `uq_notification_preference_firm_user` ON `notification_preference` (`firm_id`,`user_id`);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS `idx_notification_preference_user` ON `notification_preference` (`user_id`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `reminder` (
 	`id` text PRIMARY KEY NOT NULL,
 	`firm_id` text NOT NULL,
 	`obligation_instance_id` text NOT NULL,
@@ -96,9 +96,9 @@ CREATE TABLE `reminder` (
 	FOREIGN KEY (`notification_id`) REFERENCES `in_app_notification`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `uq_reminder_dedupe` ON `reminder` (`dedupe_key`);--> statement-breakpoint
-CREATE INDEX `idx_reminder_firm_status_time` ON `reminder` (`firm_id`,`status`,`scheduled_for`);--> statement-breakpoint
-CREATE INDEX `idx_reminder_obligation` ON `reminder` (`obligation_instance_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS `uq_reminder_dedupe` ON `reminder` (`dedupe_key`);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS `idx_reminder_firm_status_time` ON `reminder` (`firm_id`,`status`,`scheduled_for`);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS `idx_reminder_obligation` ON `reminder` (`obligation_instance_id`);--> statement-breakpoint
 ALTER TABLE `firm_profile` ADD `coordinator_can_see_dollars` integer DEFAULT false NOT NULL;--> statement-breakpoint
 ALTER TABLE `migration_batch` ADD `raw_input_file_name` text;--> statement-breakpoint
 ALTER TABLE `migration_batch` ADD `raw_input_content_type` text;--> statement-breakpoint

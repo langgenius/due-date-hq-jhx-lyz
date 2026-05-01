@@ -439,7 +439,6 @@ msgstr "提醒"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
-#: src/routes/workboard.tsx
 msgid "All"
 msgstr "全部"
 
@@ -476,6 +475,7 @@ msgid "All states"
 msgstr "全部州"
 
 #: src/features/pulse/AlertsListPage.tsx
+#: src/routes/workboard.tsx
 msgid "All statuses"
 msgstr "全部状态"
 
@@ -546,10 +546,6 @@ msgstr "提问"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask DueDateHQ"
 msgstr "询问 DueDateHQ"
-
-#: src/routes/workboard.tsx
-msgid "Assignee"
-msgstr "经办人"
 
 #: src/features/migration/Wizard.tsx
 #: src/routes/dashboard.tsx
@@ -1477,10 +1473,6 @@ msgstr "申报频率复核"
 msgid "Filter by alert status"
 msgstr "按提醒状态筛选"
 
-#: src/routes/workboard.tsx
-msgid "Filter by client, geography, form, readiness, owner, risk, and timing."
-msgstr "按客户、辖区、表单、就绪度、负责人、风险和时间筛选。"
-
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Filter by source"
 msgstr "按来源筛选"
@@ -1564,7 +1556,6 @@ msgstr "面向美国注册会计师事务所"
 
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-detail-drawer.tsx
-#: src/routes/workboard.tsx
 msgid "Form"
 msgstr "表单"
 
@@ -2973,7 +2964,6 @@ msgstr "复核"
 #: src/features/pulse/components/PulseAlertCard.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
 msgid "Review"
 msgstr "查看"
 
@@ -3030,7 +3020,6 @@ msgid "Revoke source"
 msgstr "撤销来源"
 
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
 msgid "Risk"
 msgstr "风险"
 
@@ -3762,6 +3751,10 @@ msgstr "升级计划"
 #: src/routes/billing.tsx
 msgid "Upgrade to Pro"
 msgstr "升级到 Pro"
+
+#: src/routes/workboard.tsx
+msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
+msgstr "使用表格表头按客户、辖区、表单、就绪度、负责人、风险和时间筛选。"
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "User agent hash"

@@ -439,7 +439,6 @@ msgstr "Alerts"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
-#: src/routes/workboard.tsx
 msgid "All"
 msgstr "All"
 
@@ -476,6 +475,7 @@ msgid "All states"
 msgstr "All states"
 
 #: src/features/pulse/AlertsListPage.tsx
+#: src/routes/workboard.tsx
 msgid "All statuses"
 msgstr "All statuses"
 
@@ -546,10 +546,6 @@ msgstr "Ask"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask DueDateHQ"
 msgstr "Ask DueDateHQ"
-
-#: src/routes/workboard.tsx
-msgid "Assignee"
-msgstr "Assignee"
 
 #: src/features/migration/Wizard.tsx
 #: src/routes/dashboard.tsx
@@ -1477,10 +1473,6 @@ msgstr "Filing-frequency review"
 msgid "Filter by alert status"
 msgstr "Filter by alert status"
 
-#: src/routes/workboard.tsx
-msgid "Filter by client, geography, form, readiness, owner, risk, and timing."
-msgstr "Filter by client, geography, form, readiness, owner, risk, and timing."
-
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Filter by source"
 msgstr "Filter by source"
@@ -1564,7 +1556,6 @@ msgstr "For US CPA practices"
 
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-detail-drawer.tsx
-#: src/routes/workboard.tsx
 msgid "Form"
 msgstr "Form"
 
@@ -2973,7 +2964,6 @@ msgstr "review"
 #: src/features/pulse/components/PulseAlertCard.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
 msgid "Review"
 msgstr "Review"
 
@@ -3030,7 +3020,6 @@ msgid "Revoke source"
 msgstr "Revoke source"
 
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
 msgid "Risk"
 msgstr "Risk"
 
@@ -3762,6 +3751,10 @@ msgstr "Upgrade plan"
 #: src/routes/billing.tsx
 msgid "Upgrade to Pro"
 msgstr "Upgrade to Pro"
+
+#: src/routes/workboard.tsx
+msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
+msgstr "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "User agent hash"

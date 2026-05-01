@@ -478,6 +478,9 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   Workboard readiness 目前由 read model 派生：`waiting_on_client → waiting`，`review` 或
   exposure 非 ready → `needs_review`，其余为 `ready`。等独立 readiness state machine
   落地后替换此派生字段。
+- **表头筛选**：Client / Owner / State / County / Tax type / Days / Exposure /
+  Readiness / Status 的筛选入口直接挂在 TanStack Table header 上；顶部控制区只保留搜索、排序、
+  Reset 和少量 triage 快捷 chip，避免 Workboard 出现两套筛选面。
 - **搜索防抖**：Workboard 搜索是客户端 TanStack Query fetching，不是 React Router
   loader/RSC fetching。`nuqs` 负责即时 URL state 和 URL 写入降频；实际
   `workboard.list` input 使用 `apps/app/src/lib/query-rate-limit.ts` 中的
