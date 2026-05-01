@@ -7,8 +7,19 @@ import { Button } from '@duedatehq/ui/components/ui/button'
 import { overlayBackdropClassName, overlayPopupAnimationClassName } from '@duedatehq/ui/lib/overlay'
 import { cn } from '@duedatehq/ui/lib/utils'
 
-function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
-  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
+type AlertDialogActionsRef = React.RefObject<AlertDialogPrimitive.Root.Actions | null>
+
+const AlertDialogActionsContext = React.createContext<AlertDialogActionsRef | null>(null)
+
+function AlertDialog({ actionsRef: actionsRefProp, ...props }: AlertDialogPrimitive.Root.Props) {
+  const internalActionsRef = React.useRef<AlertDialogPrimitive.Root.Actions | null>(null)
+  const actionsRef = actionsRefProp ?? internalActionsRef
+
+  return (
+    <AlertDialogActionsContext.Provider value={actionsRef}>
+      <AlertDialogPrimitive.Root data-slot="alert-dialog" actionsRef={actionsRef} {...props} />
+    </AlertDialogActionsContext.Provider>
+  )
 }
 
 function AlertDialogTrigger({ ...props }: AlertDialogPrimitive.Trigger.Props) {
@@ -19,11 +30,34 @@ function AlertDialogPortal({ ...props }: AlertDialogPrimitive.Portal.Props) {
   return <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" {...props} />
 }
 
-function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdrop.Props) {
+type AlertDialogOverlayClickEvent = Parameters<
+  NonNullable<AlertDialogPrimitive.Backdrop.Props['onClick']>
+>[0]
+
+function AlertDialogOverlay({
+  className,
+  forceRender = true,
+  onClick,
+  ...props
+}: AlertDialogPrimitive.Backdrop.Props) {
+  const actionsRef = React.useContext(AlertDialogActionsContext)
+
+  function handleClick(event: AlertDialogOverlayClickEvent) {
+    onClick?.(event)
+
+    if (event.defaultPrevented) {
+      return
+    }
+
+    actionsRef?.current?.close()
+  }
+
   return (
     <AlertDialogPrimitive.Backdrop
       data-slot="alert-dialog-overlay"
       className={cn(overlayBackdropClassName, 'isolate', className)}
+      forceRender={forceRender}
+      onClick={handleClick}
       {...props}
     />
   )
