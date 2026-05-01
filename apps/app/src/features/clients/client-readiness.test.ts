@@ -13,6 +13,7 @@ function makeClient(overrides: Partial<ClientPublic> = {}): ClientPublic {
     entityType: 'llc',
     email: 'ops@example.com',
     notes: null,
+    assigneeId: 'user_casey',
     assigneeName: 'Casey',
     estimatedTaxLiabilityCents: null,
     estimatedTaxLiabilitySource: null,
@@ -36,7 +37,14 @@ describe('client readiness', () => {
   it('builds summary metrics from real client rows', () => {
     const model = buildClientFactsModel([
       makeClient({ id: '1', migrationBatchId: '00000000-0000-4000-8000-000000000001' }),
-      makeClient({ id: '2', state: null, assigneeName: null, ein: null, email: null }),
+      makeClient({
+        id: '2',
+        state: null,
+        assigneeId: null,
+        assigneeName: null,
+        ein: null,
+        email: null,
+      }),
       makeClient({ id: '3', state: 'NY', migrationBatchId: null }),
     ])
 

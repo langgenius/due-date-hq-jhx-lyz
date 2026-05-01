@@ -11,7 +11,7 @@ import { client, type Client, type ClientEntityType } from '../schema/clients'
  * D1 100-param budget: `client` inserts 17 cols -> 5 rows per batch INSERT.
  */
 
-const COLS_PER_CLIENT_ROW = 17
+const COLS_PER_CLIENT_ROW = 18
 const CLIENT_BATCH_SIZE = Math.floor(100 / COLS_PER_CLIENT_ROW) // = 5
 const CLIENT_LOOKUP_IDS_PER_BATCH = 99
 
@@ -24,6 +24,7 @@ export interface ClientCreateInput {
   entityType: ClientEntityType
   email?: string | null
   notes?: string | null
+  assigneeId?: string | null
   assigneeName?: string | null
   estimatedTaxLiabilityCents?: number | null
   estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
@@ -47,6 +48,7 @@ export function makeClientsRepo(db: Db, firmId: string) {
         entityType: input.entityType,
         email: input.email ?? null,
         notes: input.notes ?? null,
+        assigneeId: input.assigneeId ?? null,
         assigneeName: input.assigneeName ?? null,
         estimatedTaxLiabilityCents: input.estimatedTaxLiabilityCents ?? null,
         estimatedTaxLiabilitySource: input.estimatedTaxLiabilitySource ?? null,
@@ -68,6 +70,7 @@ export function makeClientsRepo(db: Db, firmId: string) {
         entityType: i.entityType,
         email: i.email ?? null,
         notes: i.notes ?? null,
+        assigneeId: i.assigneeId ?? null,
         assigneeName: i.assigneeName ?? null,
         estimatedTaxLiabilityCents: i.estimatedTaxLiabilityCents ?? null,
         estimatedTaxLiabilitySource: i.estimatedTaxLiabilitySource ?? null,

@@ -36,6 +36,14 @@ export const MembersListOutputSchema = z.object({
   invitations: z.array(MemberInvitationPublicSchema),
 })
 
+export const MemberAssigneeOptionSchema = z.object({
+  assigneeId: z.string().min(1),
+  memberId: z.string().min(1),
+  name: z.string().min(1),
+  email: z.email(),
+  role: FirmRoleSchema,
+})
+
 export const MemberInviteInputSchema = z.object({
   email: z.email().trim().toLowerCase(),
   role: MemberManagedRoleSchema,
@@ -56,6 +64,7 @@ export const MemberUpdateRoleInputSchema = z.object({
 
 export const membersContract = oc.router({
   listCurrent: oc.input(z.undefined()).output(MembersListOutputSchema),
+  listAssignable: oc.input(z.undefined()).output(z.array(MemberAssigneeOptionSchema)),
   invite: oc.input(MemberInviteInputSchema).output(MembersListOutputSchema),
   cancelInvitation: oc.input(MemberInvitationIdInputSchema).output(MembersListOutputSchema),
   resendInvitation: oc.input(MemberInvitationIdInputSchema).output(MembersListOutputSchema),
@@ -67,6 +76,7 @@ export const membersContract = oc.router({
 
 export type MemberInvitationPublic = z.infer<typeof MemberInvitationPublicSchema>
 export type MemberInvitationStatus = z.infer<typeof MemberInvitationStatusSchema>
+export type MemberAssigneeOption = z.infer<typeof MemberAssigneeOptionSchema>
 export type MemberInviteInput = z.infer<typeof MemberInviteInputSchema>
 export type MemberManagedRole = z.infer<typeof MemberManagedRoleSchema>
 export type MemberPublic = z.infer<typeof MemberPublicSchema>

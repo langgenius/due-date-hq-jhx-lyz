@@ -99,6 +99,7 @@ export const router = os.router({
   },
   members: {
     listCurrent: membersHandlers.listCurrent,
+    listAssignable: membersHandlers.listAssignable,
     invite: membersHandlers.invite,
     cancelInvitation: membersHandlers.cancelInvitation,
     resendInvitation: membersHandlers.resendInvitation,

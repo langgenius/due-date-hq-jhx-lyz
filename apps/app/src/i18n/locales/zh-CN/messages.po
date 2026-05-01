@@ -1575,10 +1575,6 @@ msgstr "表格"
 msgid "Free baseline"
 msgstr "免费基础版"
 
-#: src/features/clients/CreateClientDialog.tsx
-msgid "Free-text for now; Team members wire in Phase 1."
-msgstr "暂为自由文本；团队成员将在 Phase 1 接入。"
-
 #: src/routes/firm.tsx
 msgid "General"
 msgstr "常规"
@@ -1854,6 +1850,10 @@ msgstr "正在加载来源健康状态…"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Loading source signals…"
 msgstr "正在加载来源信号…"
+
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Loading team members..."
+msgstr "正在加载团队成员…"
 
 #: src/features/workload/workload-page.tsx
 msgid "Loading team workload"
@@ -2515,6 +2515,10 @@ msgstr "Owner 授权"
 #: src/routes/workboard.tsx
 msgid "Owner count"
 msgstr "所有者数量"
+
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Owner is linked to an active team member."
+msgstr "负责人已绑定到一名活跃团队成员。"
 
 #: src/routes/billing.checkout.tsx
 msgid "Owner permission required"
@@ -3570,6 +3574,10 @@ msgstr "税务年度"
 msgid "Team"
 msgstr "团队"
 
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Team members could not load; leave owner unassigned and retry."
+msgstr "无法加载团队成员；可先保持未分配并稍后重试。"
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/route-summary.ts
@@ -3716,6 +3724,7 @@ msgid "Unable to start Google sign-in"
 msgstr "无法启动 Google 登录"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/workboard.tsx
 msgid "Unassigned"

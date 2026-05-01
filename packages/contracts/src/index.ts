@@ -306,6 +306,7 @@ export {
 export type {
   MemberInvitationPublic,
   MemberInvitationStatus,
+  MemberAssigneeOption,
   MemberInviteInput,
   MemberManagedRole,
   MemberPublic,
@@ -318,6 +319,7 @@ export {
   MemberInvitationIdInputSchema,
   MemberInvitationPublicSchema,
   MemberInvitationStatusSchema,
+  MemberAssigneeOptionSchema,
   MemberInviteInputSchema,
   MemberManagedRoleSchema,
   MemberPublicSchema,

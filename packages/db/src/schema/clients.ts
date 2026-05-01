@@ -6,9 +6,8 @@ import { firmProfile } from './firm'
  * client — the CPA firm's tenant-scoped customer record.
  *
  * Layering (docs/dev-file/03-Data-Model.md §2.2):
- *   - Demo Sprint subset only. Phase 0 / Phase 1 columns (assignee_id,
- *     coordinator-visible billing mirrors, readiness_status) are deliberately
- *     deferred — D1 ALTER TABLE is cheap.
+ *   - Demo Sprint subset only. Coordinator-visible billing mirrors and
+ *     readiness_status are deliberately deferred — D1 ALTER TABLE is cheap.
  *   - `firm_id` FK goes to `firm_profile.id` (which === organization.id ===
  *     firmId). Scoped repo factory (`scoped.ts`) is the only way procedures
  *     reach this table.
@@ -49,8 +48,10 @@ export const client = sqliteTable(
 
     email: text('email'),
     notes: text('notes'),
-    // Free text during Demo Sprint. Phase 1 resolves to assignee_id → user.id
-    // once Team / RBAC opens (FU not tracked here; see PRD §3.6.3 + FU-1 hook).
+    // Team member binding stores auth user.id. `assignee_name` remains a
+    // denormalized display/import label so Workboard and migration rows keep
+    // working when historical free-text assignments have no member match.
+    assigneeId: text('assignee_id'),
     assigneeName: text('assignee_name'),
 
     // Penalty/exposure inputs. Values come from explicit user input, fixture
@@ -83,6 +84,7 @@ export const client = sqliteTable(
     index('idx_client_firm_entity').on(table.firmId, table.entityType),
     // Workboard P0 filters: state → county drilldown and assignee ownership.
     index('idx_client_firm_state_county').on(table.firmId, table.state, table.county),
+    index('idx_client_firm_assignee_id').on(table.firmId, table.assigneeId),
     index('idx_client_firm_assignee').on(table.firmId, table.assigneeName),
     // Dashboard / Workboard penalty input triage.
     index('idx_client_firm_penalty_inputs').on(

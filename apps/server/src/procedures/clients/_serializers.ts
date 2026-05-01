@@ -26,6 +26,7 @@ export interface ClientRow {
     | 'other'
   email: string | null
   notes: string | null
+  assigneeId: string | null
   assigneeName: string | null
   estimatedTaxLiabilityCents: number | null
   estimatedTaxLiabilitySource: 'manual' | 'imported' | 'demo_seed' | null
@@ -45,6 +46,7 @@ export interface ClientCreateInputForRepo {
   entityType: ClientRow['entityType']
   email?: string | null
   notes?: string | null
+  assigneeId?: string | null
   assigneeName?: string | null
   estimatedTaxLiabilityCents?: number | null
   estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
@@ -63,6 +65,7 @@ export function toClientPublic(row: ClientRow, opts: { hideDollars?: boolean } =
     entityType: row.entityType,
     email: row.email,
     notes: row.notes,
+    assigneeId: row.assigneeId,
     assigneeName: row.assigneeName,
     estimatedTaxLiabilityCents: opts.hideDollars ? null : row.estimatedTaxLiabilityCents,
     estimatedTaxLiabilitySource: opts.hideDollars ? null : row.estimatedTaxLiabilitySource,

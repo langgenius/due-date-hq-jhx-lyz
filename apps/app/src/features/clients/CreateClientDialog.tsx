@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Trans, useLingui } from '@lingui/react/macro'
+import { useQuery } from '@tanstack/react-query'
 import { PlusIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
-import { ClientCreateInputSchema, type ClientCreateInput } from '@duedatehq/contracts'
+import {
+  ClientCreateInputSchema,
+  type ClientCreateInput,
+  type MemberAssigneeOption,
+} from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Dialog,
@@ -34,7 +39,11 @@ import {
 } from '@duedatehq/ui/components/ui/select'
 import { Textarea } from '@duedatehq/ui/components/ui/textarea'
 
+import { orpc } from '@/lib/rpc'
+
 import { CLIENT_ENTITY_TYPES, isClientEntityType, type ClientEntityType } from './client-readiness'
+
+const UNASSIGNED_ASSIGNEE_VALUE = '__unassigned__'
 
 type ClientFormValues = {
   name: string
@@ -43,7 +52,7 @@ type ClientFormValues = {
   state: string
   county: string
   email: string
-  assigneeName: string
+  assigneeId: string
   notes: string
 }
 
@@ -56,7 +65,7 @@ const defaultClientFormValues: ClientFormValues = {
   state: '',
   county: '',
   email: '',
-  assigneeName: '',
+  assigneeId: '',
   notes: '',
 }
 
@@ -89,10 +98,10 @@ function createClientFormSchema(t: ReturnType<typeof useLingui>['t']) {
       .refine((value) => value === '' || z.email().safeParse(value).success, {
         message: t`Enter a valid email address`,
       }),
-    assigneeName: z
+    assigneeId: z
       .string()
       .trim()
-      .max(200, t`Owner must be 200 characters or fewer`),
+      .max(200, t`Owner selection is invalid`),
     notes: z
       .string()
       .trim()
@@ -113,7 +122,7 @@ function formValuesToInput(values: ClientFormValues): ClientCreateInput {
     state: nullableText(values.state)?.toUpperCase() ?? null,
     county: nullableText(values.county),
     email: nullableText(values.email),
-    assigneeName: nullableText(values.assigneeName),
+    assigneeId: nullableText(values.assigneeId),
     notes: nullableText(values.notes),
   }
 }
@@ -127,7 +136,7 @@ function contractPathToFormField(path: PropertyKey[]): ClientFormField | null {
     case 'state':
     case 'county':
     case 'email':
-    case 'assigneeName':
+    case 'assigneeId':
     case 'notes':
       return field
     default:
@@ -152,6 +161,15 @@ export function CreateClientDialog({
     defaultValues: defaultClientFormValues,
   })
   const entityType = form.watch('entityType')
+  const assigneeId = form.watch('assigneeId')
+  const assigneesQuery = useQuery({
+    ...orpc.members.listAssignable.queryOptions({ input: undefined }),
+    enabled: open,
+  })
+  const assignees = assigneesQuery.data ?? []
+  const selectedAssignee = assignees.find((assignee) => assignee.assigneeId === assigneeId) ?? null
+  const assigneeSelectValue = assigneeId || UNASSIGNED_ASSIGNEE_VALUE
+  const assigneeSelectLabel = selectedAssignee?.name ?? t`Unassigned`
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -282,13 +300,48 @@ export function CreateClientDialog({
                 <FieldError errors={[form.formState.errors.email]} />
               </Field>
               <Field>
-                <FieldLabel htmlFor="client-assignee">
+                <FieldLabel htmlFor="client-assignee-trigger">
                   <Trans>Owner</Trans>
                 </FieldLabel>
-                <Input id="client-assignee" {...form.register('assigneeName')} />
+                <Select
+                  value={assigneeSelectValue}
+                  onValueChange={(value) => {
+                    const nextAssigneeId = value && value !== UNASSIGNED_ASSIGNEE_VALUE ? value : ''
+                    form.setValue('assigneeId', nextAssigneeId, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }}
+                  disabled={assigneesQuery.isLoading || assigneesQuery.isError}
+                >
+                  <SelectTrigger
+                    id="client-assignee-trigger"
+                    className="w-full"
+                    aria-invalid={Boolean(form.formState.errors.assigneeId)}
+                  >
+                    <SelectValue>{assigneeSelectLabel}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent align="start">
+                    <SelectGroup>
+                      <SelectItem value={UNASSIGNED_ASSIGNEE_VALUE}>
+                        <Trans>Unassigned</Trans>
+                      </SelectItem>
+                      {assignees.map((assignee) => (
+                        <AssigneeSelectItem key={assignee.assigneeId} assignee={assignee} />
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
                 <FieldDescription>
-                  <Trans>Free-text for now; Team members wire in Phase 1.</Trans>
+                  {assigneesQuery.isLoading ? (
+                    <Trans>Loading team members...</Trans>
+                  ) : assigneesQuery.isError ? (
+                    <Trans>Team members could not load; leave owner unassigned and retry.</Trans>
+                  ) : (
+                    <Trans>Owner is linked to an active team member.</Trans>
+                  )}
                 </FieldDescription>
+                <FieldError errors={[form.formState.errors.assigneeId]} />
               </Field>
             </div>
 
@@ -311,5 +364,14 @@ export function CreateClientDialog({
         </form>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function AssigneeSelectItem({ assignee }: { assignee: MemberAssigneeOption }) {
+  return (
+    <SelectItem value={assignee.assigneeId}>
+      <span className="truncate">{assignee.name}</span>
+      <span className="truncate text-xs text-text-tertiary">{assignee.email}</span>
+    </SelectItem>
   )
 }

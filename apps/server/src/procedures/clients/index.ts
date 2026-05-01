@@ -1,5 +1,6 @@
 import { ORPCError } from '@orpc/server'
 import type { ClientsRepo } from '@duedatehq/ports/clients'
+import type { MembersRepo } from '@duedatehq/ports/tenants'
 import { requireTenant } from '../_context'
 import { CLIENT_WRITE_ROLES, requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
@@ -42,9 +43,60 @@ async function shouldHideDollars(context: Parameters<typeof requireTenant>[0]): 
   return actor?.role === 'coordinator'
 }
 
+function nullableText(value: string | null | undefined): string | null {
+  const next = value?.trim() ?? ''
+  return next ? next : null
+}
+
+async function resolveClientAssignees(
+  members: MembersRepo,
+  firmId: string,
+  inputs: Array<{
+    assigneeId?: string | null | undefined
+    assigneeName?: string | null | undefined
+  }>,
+): Promise<Array<{ assigneeId: string | null; assigneeName: string | null }>> {
+  const hasAssigneeIds = inputs.some((input) => nullableText(input.assigneeId))
+  if (!hasAssigneeIds) {
+    return inputs.map((input) => ({
+      assigneeId: null,
+      assigneeName: nullableText(input.assigneeName),
+    }))
+  }
+
+  const activeMembersByUserId = new Map(
+    (await members.listMembers(firmId))
+      .filter((member) => member.status === 'active')
+      .map((member) => [member.userId, member]),
+  )
+
+  return inputs.map((input) => {
+    const assigneeId = nullableText(input.assigneeId)
+    if (!assigneeId) {
+      return {
+        assigneeId: null,
+        assigneeName: nullableText(input.assigneeName),
+      }
+    }
+
+    const member = activeMembersByUserId.get(assigneeId)
+    if (!member) {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'Selected owner must be an active team member.',
+      })
+    }
+
+    return {
+      assigneeId: member.userId,
+      assigneeName: member.name,
+    }
+  })
+}
+
 const create = os.clients.create.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
-  const { scoped, userId } = requireTenant(context)
+  const { members, tenant, userId } = await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
+  const { scoped } = requireTenant(context)
+  const [assignee] = await resolveClientAssignees(members, tenant.firmId, [input])
   const repoInput: ClientCreateInputForRepo = {
     name: input.name,
     ein: input.ein ?? null,
@@ -53,7 +105,8 @@ const create = os.clients.create.handler(async ({ input, context }) => {
     entityType: input.entityType,
     email: input.email ?? null,
     notes: input.notes ?? null,
-    assigneeName: input.assigneeName ?? null,
+    assigneeId: assignee?.assigneeId ?? null,
+    assigneeName: assignee?.assigneeName ?? null,
     estimatedTaxLiabilityCents: input.estimatedTaxLiabilityCents ?? null,
     estimatedTaxLiabilitySource: input.estimatedTaxLiabilitySource ?? null,
     equityOwnerCount: input.equityOwnerCount ?? null,
@@ -79,10 +132,11 @@ const create = os.clients.create.handler(async ({ input, context }) => {
 })
 
 const createBatch = os.clients.createBatch.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
-  const { scoped, userId } = requireTenant(context)
+  const { members, tenant, userId } = await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
+  const { scoped } = requireTenant(context)
+  const assignees = await resolveClientAssignees(members, tenant.firmId, input.clients)
 
-  const repoInputs: ClientCreateInputForRepo[] = input.clients.map((c) => ({
+  const repoInputs: ClientCreateInputForRepo[] = input.clients.map((c, index) => ({
     name: c.name,
     ein: c.ein ?? null,
     state: c.state ?? null,
@@ -90,7 +144,8 @@ const createBatch = os.clients.createBatch.handler(async ({ input, context }) =>
     entityType: c.entityType,
     email: c.email ?? null,
     notes: c.notes ?? null,
-    assigneeName: c.assigneeName ?? null,
+    assigneeId: assignees[index]?.assigneeId ?? null,
+    assigneeName: assignees[index]?.assigneeName ?? null,
     estimatedTaxLiabilityCents: c.estimatedTaxLiabilityCents ?? null,
     estimatedTaxLiabilitySource: c.estimatedTaxLiabilitySource ?? null,
     equityOwnerCount: c.equityOwnerCount ?? null,

@@ -32,20 +32,24 @@ client portal workflows, or a separate task table.
 
 ## Data Boundary
 
-Current schema has no formal `obligation_instance.assignee_user_id`. The only assignment-like data
-that already exists is `client.assignee_name`, imported or manually entered as a free-text owner
-label. V1 uses that as the workload owner source:
+Current schema has no formal `obligation_instance.assignee_user_id`. Client records can now bind
+new manual assignments to an active team member through `client.assignee_id` (`user.id`), while
+`client.assignee_name` remains the denormalized owner label for display, Workboard filters, and
+imported/free-text historical rows. V1 uses the label as the workload owner source:
 
-- `client.assignee_name` non-empty: grouped as that owner label;
-- `client.assignee_name` missing or blank: grouped into `Unassigned`;
+- `client.assignee_id` present: assignment is member-backed, with `client.assignee_name` storing the
+  active member display name at write time;
+- `client.assignee_name` non-empty without `client.assignee_id`: grouped as that imported or legacy
+  owner label;
+- both assignment fields missing or blank: grouped into `Unassigned`;
 - obligation status and due-date math come from `obligation_instance`;
 - open obligations are `pending`, `in_progress`, `waiting_on_client`, and `review`;
 - due soon means `0 <= current_due_date - as_of_date <= windowDays`;
 - overdue means `current_due_date < as_of_date`.
 
 This keeps Team Workload a read model over Workboard data. A later assignment slice should add
-`obligation_instance.assignee_user_id`, member binding, `obligation.reassigned` audit events, and
-bulk reassignment without changing this page's user-facing purpose.
+`obligation_instance.assignee_user_id`, `obligation.reassigned` audit events, and bulk reassignment
+without changing this page's user-facing purpose.
 
 ## Access Model
 

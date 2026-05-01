@@ -10,6 +10,7 @@ export interface ClientRow {
   entityType: ClientEntityType
   email: string | null
   notes: string | null
+  assigneeId: string | null
   assigneeName: string | null
   estimatedTaxLiabilityCents: number | null
   estimatedTaxLiabilitySource: 'manual' | 'imported' | 'demo_seed' | null
@@ -29,6 +30,7 @@ export interface ClientCreateInput {
   entityType: ClientEntityType
   email?: string | null
   notes?: string | null
+  assigneeId?: string | null
   assigneeName?: string | null
   estimatedTaxLiabilityCents?: number | null
   estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null

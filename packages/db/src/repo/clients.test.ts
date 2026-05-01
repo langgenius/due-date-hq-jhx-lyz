@@ -28,6 +28,7 @@ function makeClient(overrides: Partial<Client> = {}): Client {
     entityType: overrides.entityType ?? 'llc',
     email: overrides.email ?? null,
     notes: overrides.notes ?? null,
+    assigneeId: overrides.assigneeId ?? null,
     assigneeName: overrides.assigneeName ?? null,
     estimatedTaxLiabilityCents: overrides.estimatedTaxLiabilityCents ?? null,
     estimatedTaxLiabilitySource: overrides.estimatedTaxLiabilitySource ?? null,

@@ -41,6 +41,7 @@ import {
 } from './workload'
 import { MatrixSelectionSchema, MigrationErrorStageSchema, migrationContract } from './migration'
 import {
+  MemberAssigneeOptionSchema,
   MemberInviteInputSchema,
   MemberManagedRoleSchema,
   MembersListOutputSchema,
@@ -190,6 +191,7 @@ describe('@duedatehq/contracts', () => {
     expect(Object.keys(appContract)).toEqual(expect.arrayContaining(['members']))
     expect(Object.keys(membersContract)).toEqual([
       'listCurrent',
+      'listAssignable',
       'invite',
       'cancelInvitation',
       'resendInvitation',
@@ -233,6 +235,16 @@ describe('@duedatehq/contracts', () => {
       ],
     })
     expect(output.availableSeats).toBe(3)
+
+    expect(() =>
+      MemberAssigneeOptionSchema.parse({
+        assigneeId: 'user_1',
+        memberId: 'member_1',
+        name: 'Alex Chen',
+        email: 'alex@example.com',
+        role: 'owner',
+      }),
+    ).not.toThrow()
   })
 
   it('validates shared client payloads', () => {

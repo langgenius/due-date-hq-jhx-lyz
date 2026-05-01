@@ -1575,10 +1575,6 @@ msgstr "Forms"
 msgid "Free baseline"
 msgstr "Free baseline"
 
-#: src/features/clients/CreateClientDialog.tsx
-msgid "Free-text for now; Team members wire in Phase 1."
-msgstr "Free-text for now; Team members wire in Phase 1."
-
 #: src/routes/firm.tsx
 msgid "General"
 msgstr "General"
@@ -1854,6 +1850,10 @@ msgstr "Loading source health…"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Loading source signals…"
 msgstr "Loading source signals…"
+
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Loading team members..."
+msgstr "Loading team members..."
 
 #: src/features/workload/workload-page.tsx
 msgid "Loading team workload"
@@ -2515,6 +2515,10 @@ msgstr "Owner approved"
 #: src/routes/workboard.tsx
 msgid "Owner count"
 msgstr "Owner count"
+
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Owner is linked to an active team member."
+msgstr "Owner is linked to an active team member."
 
 #: src/routes/billing.checkout.tsx
 msgid "Owner permission required"
@@ -3570,6 +3574,10 @@ msgstr "TAX YEAR"
 msgid "Team"
 msgstr "Team"
 
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Team members could not load; leave owner unassigned and retry."
+msgstr "Team members could not load; leave owner unassigned and retry."
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/route-summary.ts
@@ -3716,6 +3724,7 @@ msgid "Unable to start Google sign-in"
 msgstr "Unable to start Google sign-in"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/workboard.tsx
 msgid "Unassigned"

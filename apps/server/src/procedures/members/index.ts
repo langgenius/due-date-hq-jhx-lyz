@@ -1,6 +1,7 @@
 import { ORPCError } from '@orpc/server'
 import {
   ErrorCodes,
+  type MemberAssigneeOption,
   type MemberInvitationPublic,
   type MemberPublic,
   type MembersListOutput,
@@ -8,7 +9,11 @@ import {
 import { createWorkerAuth } from '../../auth'
 import type { ContextVars } from '../../env'
 import type { RpcContext } from '../_context'
-import { requireCurrentFirmOwner } from '../_permissions'
+import {
+  CLIENT_WRITE_ROLES,
+  requireCurrentFirmOwner,
+  requireCurrentFirmRole,
+} from '../_permissions'
 import { os } from '../_root'
 
 type MembersRepo = NonNullable<ContextVars['members']>
@@ -31,6 +36,16 @@ function toMemberPublic(row: MemberRow, currentUserId: string): MemberPublic {
     status: row.status,
     isCurrentUser: row.userId === currentUserId,
     createdAt: toIso(row.createdAt),
+  }
+}
+
+function toMemberAssigneeOption(row: MemberRow): MemberAssigneeOption {
+  return {
+    assigneeId: row.userId,
+    memberId: row.id,
+    name: row.name,
+    email: row.email,
+    role: row.role,
   }
 }
 
@@ -173,6 +188,12 @@ async function callAuthApi<T>(promise: Promise<T>): Promise<T> {
 const listCurrent = os.members.listCurrent.handler(async ({ context }) => {
   const { members, tenant, userId } = await requireCurrentFirmOwner(context)
   return listOutput({ members, firmId: tenant.firmId, userId })
+})
+
+const listAssignable = os.members.listAssignable.handler(async ({ context }) => {
+  const { members, tenant } = await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
+  const rows = await members.listMembers(tenant.firmId)
+  return rows.filter((member) => member.status === 'active').map(toMemberAssigneeOption)
 })
 
 const invite = os.members.invite.handler(async ({ input, context }) => {
@@ -379,6 +400,7 @@ const remove = os.members.remove.handler(async ({ input, context }) => {
 
 export const membersHandlers = {
   listCurrent,
+  listAssignable,
   invite,
   cancelInvitation,
   resendInvitation,
