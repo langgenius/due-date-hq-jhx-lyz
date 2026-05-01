@@ -28,9 +28,15 @@ interface RawRow {
   createdAt: Date
   updatedAt: Date
   clientName: string
+  clientState: string | null
+  clientCounty: string | null
   assigneeName: string | null
+  readiness: WorkboardRow['readiness']
+  daysUntilDue: number
   evidenceCount: number
 }
+
+const STATE_CODE_RE = /^[A-Z]{2}$/
 
 function toIsoDate(d: Date): string {
   return d.toISOString().slice(0, 10)
@@ -38,6 +44,16 @@ function toIsoDate(d: Date): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
+}
+
+function normalizeStateCode(value: string | null): string | null {
+  const normalized = value?.trim().toUpperCase()
+  return normalized && STATE_CODE_RE.test(normalized) ? normalized : null
+}
+
+function normalizeNullableText(value: string | null): string | null {
+  const normalized = value?.trim()
+  return normalized ? normalized : null
 }
 
 function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow {
@@ -60,7 +76,11 @@ function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow 
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     clientName: row.clientName,
+    clientState: normalizeStateCode(row.clientState),
+    clientCounty: normalizeNullableText(row.clientCounty),
     assigneeName: row.assigneeName?.trim() || null,
+    readiness: row.readiness,
+    daysUntilDue: row.daysUntilDue,
     evidenceCount: row.evidenceCount,
   }
 }
@@ -94,28 +114,31 @@ function parsePenaltyBreakdown(value: unknown): WorkboardRow['penaltyBreakdown']
 
 const list = os.workboard.list.handler(async ({ input, context }) => {
   const { scoped, tenant, userId } = requireTenant(context)
+  const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
+  const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
 
-  const repoInput: {
-    status?: WorkboardRow['status'][]
-    search?: string
-    assigneeName?: string
-    owner?: 'unassigned'
-    due?: 'overdue'
-    dueWithinDays?: number
-    exposureStatus?: WorkboardRow['exposureStatus']
-    needsEvidence?: boolean
-    asOfDate?: string
-    sort?: 'due_asc' | 'due_desc' | 'updated_desc'
-    cursor?: string | null
-    limit?: number
-  } = {}
+  const repoInput: NonNullable<Parameters<typeof scoped.workboard.list>[0]> = {}
   if (input.status !== undefined) repoInput.status = input.status
   if (input.search !== undefined) repoInput.search = input.search
+  if (input.clientIds !== undefined) repoInput.clientIds = input.clientIds
+  if (input.states !== undefined) repoInput.states = input.states
+  if (input.counties !== undefined) repoInput.counties = input.counties
+  if (input.taxTypes !== undefined) repoInput.taxTypes = input.taxTypes
   if (input.assigneeName !== undefined) repoInput.assigneeName = input.assigneeName
+  if (input.assigneeNames !== undefined) repoInput.assigneeNames = input.assigneeNames
   if (input.owner !== undefined) repoInput.owner = input.owner
   if (input.due !== undefined) repoInput.due = input.due
   if (input.dueWithinDays !== undefined) repoInput.dueWithinDays = input.dueWithinDays
   if (input.exposureStatus !== undefined) repoInput.exposureStatus = input.exposureStatus
+  if (input.readiness !== undefined) repoInput.readiness = input.readiness
+  if (!hideDollars && input.minExposureCents !== undefined) {
+    repoInput.minExposureCents = input.minExposureCents
+  }
+  if (!hideDollars && input.maxExposureCents !== undefined) {
+    repoInput.maxExposureCents = input.maxExposureCents
+  }
+  if (input.minDaysUntilDue !== undefined) repoInput.minDaysUntilDue = input.minDaysUntilDue
+  if (input.maxDaysUntilDue !== undefined) repoInput.maxDaysUntilDue = input.maxDaysUntilDue
   if (input.needsEvidence !== undefined) repoInput.needsEvidence = input.needsEvidence
   if (input.asOfDate !== undefined) repoInput.asOfDate = input.asOfDate
   if (input.sort !== undefined) repoInput.sort = input.sort
@@ -123,8 +146,6 @@ const list = os.workboard.list.handler(async ({ input, context }) => {
   if (input.limit !== undefined) repoInput.limit = input.limit
 
   const result = await scoped.workboard.list(repoInput)
-  const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
-  const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
 
   return {
     rows: result.rows.map((row) => toRow(row, { hideDollars })),
@@ -132,4 +153,9 @@ const list = os.workboard.list.handler(async ({ input, context }) => {
   }
 })
 
-export const workboardHandlers = { list }
+const facets = os.workboard.facets.handler(async ({ context }) => {
+  const { scoped } = requireTenant(context)
+  return scoped.workboard.facets()
+})
+
+export const workboardHandlers = { list, facets }

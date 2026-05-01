@@ -31,6 +31,7 @@ describe('@duedatehq/db', () => {
     expect(typeof repo.obligations.createBatch).toBe('function')
     expect(typeof repo.obligations.findById).toBe('function')
     expect(typeof repo.workboard.list).toBe('function')
+    expect(typeof repo.workboard.facets).toBe('function')
     expect(typeof repo.dashboard.load).toBe('function')
     expect(typeof repo.dashboard.createBriefPending).toBe('function')
     expect(typeof repo.pulse.listAlerts).toBe('function')

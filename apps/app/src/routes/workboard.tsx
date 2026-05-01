@@ -11,8 +11,8 @@ import {
   type SortingState,
   type Updater,
 } from '@tanstack/react-table'
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { FileSearchIcon, FilterIcon, SearchIcon } from 'lucide-react'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ChevronDownIcon, FileSearchIcon, FilterIcon, SearchIcon } from 'lucide-react'
 import {
   parseAsArrayOf,
   parseAsInteger,
@@ -25,7 +25,10 @@ import { toast } from 'sonner'
 
 import {
   WORKBOARD_SEARCH_MAX_LENGTH,
+  WORKBOARD_FILTER_MAX_SELECTIONS,
+  type WorkboardFacetOption,
   type WorkboardListInput,
+  type WorkboardReadiness,
   type WorkboardRow,
   type WorkboardSort,
 } from '@duedatehq/contracts'
@@ -40,6 +43,15 @@ import {
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
 import { Input } from '@duedatehq/ui/components/ui/input'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@duedatehq/ui/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
@@ -109,23 +121,58 @@ const OWNER_FILTERS = ['unassigned'] as const
 const DUE_FILTERS = ['overdue'] as const
 const EXPOSURE_FILTERS = ['ready', 'needs_input', 'unsupported'] as const
 const EVIDENCE_FILTERS = ['needs'] as const
+const READINESS_FILTERS = ['ready', 'waiting', 'needs_review'] as const
 const DEFAULT_SORT: WorkboardSort = 'due_asc'
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
+const EMPTY_FACET_OPTIONS: FilterOption[] = []
+const EMPTY_CLIENT_OPTIONS: ClientFilterOption[] = []
+const EMPTY_COUNTY_OPTIONS: CountyFilterOption[] = []
 const INITIAL_CURSOR: WorkboardCursor = null
 const PAGE_SIZE = 50
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
+const DAYS_FILTER_MIN = -3650
+const DAYS_FILTER_MAX = 3650
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const STATE_CODE_RE = /^[A-Z]{2}$/
+
+interface FilterOption {
+  value: string
+  label: string
+  count?: number
+}
+
+interface ClientFilterOption extends FilterOption {
+  state: string | null
+  county: string | null
+}
+
+interface CountyFilterOption extends FilterOption {
+  state: string | null
+}
 
 export const workboardSearchParamsParsers = {
   q: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
   status: parseAsArrayOf(parseAsStringLiteral(ALL_STATUSES))
     .withDefault([])
     .withOptions(REPLACE_HISTORY_OPTIONS),
+  client: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
+  state: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
+  county: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
+  taxType: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
   assignee: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
+  assignees: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
   owner: parseAsStringLiteral(OWNER_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
   due: parseAsStringLiteral(DUE_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
   dueWithin: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
   exposure: parseAsStringLiteral(EXPOSURE_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
   evidence: parseAsStringLiteral(EVIDENCE_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
+  readiness: parseAsArrayOf(parseAsStringLiteral(READINESS_FILTERS))
+    .withDefault([])
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  riskMin: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
+  riskMax: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
+  daysMin: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
+  daysMax: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
   asOf: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
   sort: parseAsStringLiteral(ALL_SORTS)
     .withDefault(DEFAULT_SORT)
@@ -139,6 +186,10 @@ function isWorkboardSort(value: string): value is WorkboardSort {
   return ALL_SORTS.some((sortOption) => sortOption === value)
 }
 
+function isWorkboardReadiness(value: string): value is WorkboardReadiness {
+  return READINESS_FILTERS.some((readiness) => readiness === value)
+}
+
 function useSortLabels(): Record<WorkboardSort, string> {
   const { t } = useLingui()
   return useMemo(
@@ -146,6 +197,18 @@ function useSortLabels(): Record<WorkboardSort, string> {
       due_asc: t`Due date — earliest first`,
       due_desc: t`Due date — latest first`,
       updated_desc: t`Recently updated`,
+    }),
+    [t],
+  )
+}
+
+function useReadinessLabels(): Record<WorkboardReadiness, string> {
+  const { t } = useLingui()
+  return useMemo(
+    () => ({
+      ready: t`Ready`,
+      waiting: t`Waiting`,
+      needs_review: t`Needs review`,
     }),
     [t],
   )
@@ -161,6 +224,54 @@ function withDefaultSortCleared(sort: WorkboardSort): WorkboardSort | null {
   return sort === DEFAULT_SORT ? null : sort
 }
 
+function cleanStringFilters(values: readonly string[], maxLength = 120): string[] {
+  return [
+    ...new Set(
+      values
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0 && value.length <= maxLength),
+    ),
+  ].slice(0, WORKBOARD_FILTER_MAX_SELECTIONS)
+}
+
+function cleanEntityIdFilters(values: readonly string[]): string[] {
+  return cleanStringFilters(values).filter((value) => UUID_RE.test(value))
+}
+
+function cleanStateFilters(values: readonly string[]): string[] {
+  return cleanStringFilters(values)
+    .map((value) => value.toUpperCase())
+    .filter((value) => STATE_CODE_RE.test(value))
+}
+
+function integerFromInput(value: string, min?: number): number | null {
+  const trimmed = value.trim()
+  if (trimmed.length === 0) return null
+  if (!/^-?\d+$/.test(trimmed)) return null
+  const parsed = Number(trimmed)
+  if (!Number.isSafeInteger(parsed)) return null
+  return min === undefined ? parsed : Math.max(min, parsed)
+}
+
+function dollarsToCents(value: number | null): number | undefined {
+  if (value === null || value < 0 || !Number.isSafeInteger(value)) return undefined
+  const cents = value * 100
+  return Number.isSafeInteger(cents) ? cents : undefined
+}
+
+function daysFilterValue(value: number | null): number | undefined {
+  if (value === null || !Number.isSafeInteger(value)) return undefined
+  return Math.min(DAYS_FILTER_MAX, Math.max(DAYS_FILTER_MIN, value))
+}
+
+function facetOptionToFilterOption(option: WorkboardFacetOption): FilterOption {
+  return {
+    value: option.value,
+    label: option.label,
+    count: option.count,
+  }
+}
+
 export function WorkboardRoute() {
   const { t } = useLingui()
   const queryClient = useQueryClient()
@@ -169,16 +280,27 @@ export function WorkboardRoute() {
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const statusLabels = useStatusLabels()
   const sortLabels = useSortLabels()
+  const readinessLabels = useReadinessLabels()
   const [
     {
       q: searchInput,
       status: statusFilter,
+      client: clientFilter,
+      state: stateFilter,
+      county: countyFilter,
+      taxType: taxTypeFilter,
       assignee,
+      assignees: assigneeFilter,
       owner,
       due,
       dueWithin,
       exposure,
       evidence,
+      readiness: readinessFilter,
+      riskMin,
+      riskMax,
+      daysMin,
+      daysMax,
       asOf,
       sort,
       row,
@@ -193,22 +315,116 @@ export function WorkboardRoute() {
   })
   const sorting = useMemo(() => getSortingState(sort), [sort])
   const statusQuery = useMemo(() => [...statusFilter], [statusFilter])
+  const clientQuery = useMemo(() => cleanEntityIdFilters(clientFilter), [clientFilter])
+  const stateQuery = useMemo(() => cleanStateFilters(stateFilter), [stateFilter])
+  const countyQuery = useMemo(() => cleanStringFilters(countyFilter), [countyFilter])
+  const taxTypeQuery = useMemo(() => cleanStringFilters(taxTypeFilter), [taxTypeFilter])
+  const assigneeNameQuery = useMemo(
+    () => cleanStringFilters(assignee ? [assignee] : [])[0] ?? null,
+    [assignee],
+  )
+  const assigneeQuery = useMemo(() => cleanStringFilters(assigneeFilter), [assigneeFilter])
+  const combinedAssigneeQuery = useMemo(
+    () => cleanStringFilters([...(assigneeNameQuery ? [assigneeNameQuery] : []), ...assigneeQuery]),
+    [assigneeNameQuery, assigneeQuery],
+  )
+  const readinessQuery = useMemo(() => [...readinessFilter], [readinessFilter])
+  const minExposureCents = useMemo(() => dollarsToCents(riskMin), [riskMin])
+  const maxExposureCents = useMemo(() => dollarsToCents(riskMax), [riskMax])
+  const minDaysUntilDue = useMemo(() => daysFilterValue(daysMin), [daysMin])
+  const maxDaysUntilDue = useMemo(() => daysFilterValue(daysMax), [daysMax])
+
+  const facetsQuery = useQuery(orpc.workboard.facets.queryOptions({ input: undefined }))
+  const clientOptions = useMemo<ClientFilterOption[]>(
+    () =>
+      facetsQuery.data?.clients.map((option) => ({
+        value: option.value,
+        label: option.label,
+        count: option.count,
+        state: option.state,
+        county: option.county,
+      })) ?? EMPTY_CLIENT_OPTIONS,
+    [facetsQuery.data?.clients],
+  )
+  const stateOptions = useMemo<FilterOption[]>(
+    () => facetsQuery.data?.states.map(facetOptionToFilterOption) ?? EMPTY_FACET_OPTIONS,
+    [facetsQuery.data?.states],
+  )
+  const countyOptions = useMemo<CountyFilterOption[]>(() => {
+    const allCounties = facetsQuery.data?.counties ?? EMPTY_COUNTY_OPTIONS
+    return allCounties
+      .filter((option) => stateQuery.length === 0 || stateQuery.includes(option.state ?? ''))
+      .map((option) =>
+        Object.assign(
+          { value: option.value, label: stateQuery.length > 0 ? option.value : option.label },
+          option.count !== undefined ? { count: option.count } : {},
+          { state: option.state },
+        ),
+      )
+  }, [facetsQuery.data?.counties, stateQuery])
+  const taxTypeOptions = useMemo<FilterOption[]>(
+    () => facetsQuery.data?.taxTypes.map(facetOptionToFilterOption) ?? EMPTY_FACET_OPTIONS,
+    [facetsQuery.data?.taxTypes],
+  )
+  const assigneeOptions = useMemo<FilterOption[]>(
+    () => facetsQuery.data?.assigneeNames.map(facetOptionToFilterOption) ?? EMPTY_FACET_OPTIONS,
+    [facetsQuery.data?.assigneeNames],
+  )
+  const readinessOptions = useMemo<FilterOption[]>(
+    () =>
+      READINESS_FILTERS.map((readiness) => ({
+        value: readiness,
+        label: readinessLabels[readiness],
+      })),
+    [readinessLabels],
+  )
 
   const queryInputWithoutCursor = useMemo<WorkboardListInputWithoutCursor>(
     () => ({
       ...(statusQuery.length > 0 ? { status: statusQuery } : {}),
       ...(debouncedSearch ? { search: debouncedSearch } : {}),
-      ...(assignee ? { assigneeName: assignee } : {}),
+      ...(clientQuery.length > 0 ? { clientIds: clientQuery } : {}),
+      ...(stateQuery.length > 0 ? { states: stateQuery } : {}),
+      ...(countyQuery.length > 0 ? { counties: countyQuery } : {}),
+      ...(taxTypeQuery.length > 0 ? { taxTypes: taxTypeQuery } : {}),
+      ...(assigneeNameQuery ? { assigneeName: assigneeNameQuery } : {}),
+      ...(assigneeQuery.length > 0 ? { assigneeNames: assigneeQuery } : {}),
       ...(owner ? { owner } : {}),
       ...(due ? { due } : {}),
       ...(dueWithin && dueWithin > 0 && dueWithin <= 30 ? { dueWithinDays: dueWithin } : {}),
       ...(exposure ? { exposureStatus: exposure } : {}),
+      ...(readinessQuery.length > 0 ? { readiness: readinessQuery } : {}),
+      ...(minExposureCents !== undefined ? { minExposureCents } : {}),
+      ...(maxExposureCents !== undefined ? { maxExposureCents } : {}),
+      ...(minDaysUntilDue !== undefined ? { minDaysUntilDue } : {}),
+      ...(maxDaysUntilDue !== undefined ? { maxDaysUntilDue } : {}),
       ...(evidence === 'needs' ? { needsEvidence: true } : {}),
       ...(asOf ? { asOfDate: asOf } : {}),
       sort,
       limit: PAGE_SIZE,
     }),
-    [statusQuery, debouncedSearch, assignee, owner, due, dueWithin, exposure, evidence, asOf, sort],
+    [
+      statusQuery,
+      debouncedSearch,
+      clientQuery,
+      stateQuery,
+      countyQuery,
+      taxTypeQuery,
+      assigneeNameQuery,
+      assigneeQuery,
+      owner,
+      due,
+      dueWithin,
+      exposure,
+      readinessQuery,
+      minExposureCents,
+      maxExposureCents,
+      minDaysUntilDue,
+      maxDaysUntilDue,
+      evidence,
+      asOf,
+      sort,
+    ],
   )
 
   const listQuery = useInfiniteQuery(
@@ -287,6 +503,18 @@ export function WorkboardRoute() {
         meta: { cellClassName: 'text-text-secondary' },
       },
       {
+        accessorKey: 'clientState',
+        header: t`State`,
+        cell: (info) => info.getValue<string | null>() ?? '—',
+        meta: { cellClassName: 'font-mono text-text-secondary' },
+      },
+      {
+        accessorKey: 'clientCounty',
+        header: t`County`,
+        cell: (info) => info.getValue<string | null>() ?? '—',
+        meta: { cellClassName: 'text-text-secondary' },
+      },
+      {
         accessorKey: 'taxType',
         header: t`Tax type`,
         cell: (info) => info.getValue<string>(),
@@ -299,10 +527,28 @@ export function WorkboardRoute() {
         meta: { cellClassName: 'font-mono tabular-nums' },
       },
       {
+        accessorKey: 'daysUntilDue',
+        header: t`Days`,
+        cell: (info) => {
+          const days = info.getValue<number>()
+          if (days === 0) return t`Today`
+          if (days < 0) return t`${Math.abs(days)} late`
+          return t`${days} days`
+        },
+        meta: { cellClassName: 'font-mono tabular-nums text-text-secondary' },
+      },
+      {
         accessorKey: 'estimatedExposureCents',
         header: t`Exposure`,
         cell: ({ row: tableRow }) => (
           <ExposurePill row={tableRow.original} onNeedsInput={setPenaltyRow} />
+        ),
+      },
+      {
+        accessorKey: 'readiness',
+        header: t`Readiness`,
+        cell: (info) => (
+          <ReadinessPill readiness={info.getValue<WorkboardReadiness>()} labels={readinessLabels} />
         ),
       },
       {
@@ -342,7 +588,7 @@ export function WorkboardRoute() {
         },
       },
     ],
-    [openEvidence, statusLabels, statusUpdatePending, t, updateStatus],
+    [openEvidence, readinessLabels, statusLabels, statusUpdatePending, t, updateStatus],
   )
 
   const table = useReactTable({
@@ -363,6 +609,7 @@ export function WorkboardRoute() {
   })
 
   const totalShown = table.getRowModel().rows.length
+  const filtersDisabled = facetsQuery.isLoading
 
   const moveActiveRow = useCallback(
     (direction: 1 | -1) => {
@@ -560,7 +807,7 @@ export function WorkboardRoute() {
             <Trans>Queue controls</Trans>
           </CardTitle>
           <CardDescription>
-            <Trans>Filter by status, search clients, and sort by due date.</Trans>
+            <Trans>Filter by client, geography, form, readiness, owner, risk, and timing.</Trans>
           </CardDescription>
           <CardAction>
             <Badge variant="outline" className="font-mono tabular-nums">
@@ -614,6 +861,165 @@ export function WorkboardRoute() {
                   <SelectItem value="updated_desc">{sortLabels.updated_desc}</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto_auto] xl:items-end">
+            <div className="flex flex-wrap gap-2">
+              <MultiFilterDropdown
+                label={t`Client`}
+                options={clientOptions}
+                selected={clientQuery}
+                disabled={filtersDisabled}
+                emptyLabel={t`No clients`}
+                searchable
+                searchPlaceholder={t`Search clients`}
+                onSelectedChange={(nextClient) =>
+                  void setWorkboardQuery({
+                    client: nextClient.length > 0 ? nextClient : null,
+                    row: null,
+                  })
+                }
+              />
+              <MultiFilterDropdown
+                label={t`State`}
+                options={stateOptions}
+                selected={stateQuery}
+                disabled={filtersDisabled}
+                emptyLabel={t`No states`}
+                onSelectedChange={(nextState) =>
+                  void setWorkboardQuery({
+                    state: nextState.length > 0 ? nextState : null,
+                    county: null,
+                    row: null,
+                  })
+                }
+              />
+              <MultiFilterDropdown
+                label={t`County`}
+                options={countyOptions}
+                selected={countyQuery}
+                disabled={filtersDisabled || countyOptions.length === 0}
+                emptyLabel={t`No counties`}
+                searchable
+                searchPlaceholder={t`Search counties`}
+                onSelectedChange={(nextCounty) =>
+                  void setWorkboardQuery({
+                    county: nextCounty.length > 0 ? nextCounty : null,
+                    row: null,
+                  })
+                }
+              />
+              <MultiFilterDropdown
+                label={t`Form`}
+                options={taxTypeOptions}
+                selected={taxTypeQuery}
+                disabled={filtersDisabled}
+                emptyLabel={t`No forms`}
+                onSelectedChange={(nextTaxType) =>
+                  void setWorkboardQuery({
+                    taxType: nextTaxType.length > 0 ? nextTaxType : null,
+                    row: null,
+                  })
+                }
+              />
+              <MultiFilterDropdown
+                label={t`Readiness`}
+                options={readinessOptions}
+                selected={readinessQuery}
+                emptyLabel={t`No readiness states`}
+                onSelectedChange={(nextReadiness) => {
+                  const typedReadiness = nextReadiness.filter(isWorkboardReadiness)
+                  void setWorkboardQuery({
+                    readiness: typedReadiness.length > 0 ? typedReadiness : null,
+                    row: null,
+                  })
+                }}
+              />
+              <MultiFilterDropdown
+                label={t`Assignee`}
+                options={assigneeOptions}
+                selected={combinedAssigneeQuery}
+                disabled={filtersDisabled}
+                emptyLabel={t`No assignees`}
+                searchable
+                searchPlaceholder={t`Search assignees`}
+                onSelectedChange={(nextAssignee) =>
+                  void setWorkboardQuery({
+                    assignee: null,
+                    assignees: nextAssignee.length > 0 ? nextAssignee : null,
+                    row: null,
+                  })
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-[auto_minmax(5rem,6.5rem)_minmax(5rem,6.5rem)] items-center gap-2">
+              <span className="text-sm text-text-secondary">
+                <Trans>Risk</Trans>
+              </span>
+              <Input
+                aria-label={t`Minimum dollars at risk`}
+                inputMode="numeric"
+                className="h-8"
+                placeholder={t`Min $`}
+                value={riskMin ?? ''}
+                onChange={(event) =>
+                  void setWorkboardQuery({
+                    riskMin: integerFromInput(event.target.value, 0),
+                    row: null,
+                  })
+                }
+              />
+              <Input
+                aria-label={t`Maximum dollars at risk`}
+                inputMode="numeric"
+                className="h-8"
+                placeholder={t`Max $`}
+                value={riskMax ?? ''}
+                onChange={(event) =>
+                  void setWorkboardQuery({
+                    riskMax: integerFromInput(event.target.value, 0),
+                    row: null,
+                  })
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-[auto_minmax(5rem,6.5rem)_minmax(5rem,6.5rem)] items-center gap-2">
+              <span className="text-sm text-text-secondary">
+                <Trans>Days</Trans>
+              </span>
+              <Input
+                aria-label={t`Minimum days until due`}
+                inputMode="numeric"
+                min={DAYS_FILTER_MIN}
+                max={DAYS_FILTER_MAX}
+                className="h-8"
+                placeholder={t`Min days`}
+                value={daysMin ?? ''}
+                onChange={(event) =>
+                  void setWorkboardQuery({
+                    daysMin: integerFromInput(event.target.value),
+                    row: null,
+                  })
+                }
+              />
+              <Input
+                aria-label={t`Maximum days until due`}
+                inputMode="numeric"
+                min={DAYS_FILTER_MIN}
+                max={DAYS_FILTER_MAX}
+                className="h-8"
+                placeholder={t`Max days`}
+                value={daysMax ?? ''}
+                onChange={(event) =>
+                  void setWorkboardQuery({
+                    daysMax: integerFromInput(event.target.value),
+                    row: null,
+                  })
+                }
+              />
             </div>
           </div>
 
@@ -821,6 +1227,121 @@ function ExposurePill({
     )
   }
   return <Badge variant="outline">unsupported</Badge>
+}
+
+function ReadinessPill({
+  readiness,
+  labels,
+}: {
+  readiness: WorkboardReadiness
+  labels: Record<WorkboardReadiness, string>
+}) {
+  const variant = readiness === 'ready' ? 'success' : readiness === 'waiting' ? 'info' : 'warning'
+  return <Badge variant={variant}>{labels[readiness]}</Badge>
+}
+
+function MultiFilterDropdown({
+  label,
+  options,
+  selected,
+  disabled,
+  emptyLabel,
+  searchable,
+  searchPlaceholder,
+  onSelectedChange,
+}: {
+  label: string
+  options: readonly FilterOption[]
+  selected: readonly string[]
+  disabled?: boolean
+  emptyLabel: string
+  searchable?: boolean
+  searchPlaceholder?: string
+  onSelectedChange: (selected: string[]) => void
+}) {
+  const [optionSearch, setOptionSearch] = useState('')
+  const selectedSet = new Set(selected)
+  const selectedCount = selected.length
+  const atSelectionLimit = selectedCount >= WORKBOARD_FILTER_MAX_SELECTIONS
+  const visibleOptions = useMemo(() => {
+    const needle = optionSearch.trim().toLowerCase()
+    if (!needle) return options
+    return options.filter(
+      (option) =>
+        option.label.toLowerCase().includes(needle) || option.value.toLowerCase().includes(needle),
+    )
+  }, [optionSearch, options])
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant={selectedCount > 0 ? 'accent' : 'outline'}
+            size="sm"
+            disabled={disabled}
+            className="max-w-52 justify-start"
+          >
+            <span className="truncate">{label}</span>
+            {selectedCount > 0 ? (
+              <Badge variant="outline" className="h-4 px-1.5 font-mono tabular-nums">
+                {selectedCount}
+              </Badge>
+            ) : null}
+            <ChevronDownIcon data-icon="inline-end" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent className="max-h-80 w-64 overflow-y-auto" align="start">
+        <DropdownMenuLabel>{label}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {searchable ? (
+          <>
+            <div className="p-2">
+              <Input
+                aria-label={searchPlaceholder ?? label}
+                className="h-8"
+                placeholder={searchPlaceholder ?? label}
+                value={optionSearch}
+                onChange={(event) => setOptionSearch(event.target.value)}
+                onKeyDown={(event) => event.stopPropagation()}
+              />
+            </div>
+            <DropdownMenuSeparator />
+          </>
+        ) : null}
+        {visibleOptions.length === 0 ? (
+          <DropdownMenuItem disabled>{emptyLabel}</DropdownMenuItem>
+        ) : (
+          visibleOptions.map((option) => {
+            const checked = selectedSet.has(option.value)
+            return (
+              <DropdownMenuCheckboxItem
+                key={`${option.value}:${option.label}`}
+                checked={checked}
+                disabled={!checked && atSelectionLimit}
+                closeOnClick={false}
+                className="gap-2"
+                onCheckedChange={(nextChecked) => {
+                  const nextSelected = nextChecked
+                    ? [...selected, option.value].slice(0, WORKBOARD_FILTER_MAX_SELECTIONS)
+                    : selected.filter((value) => value !== option.value)
+                  onSelectedChange(nextSelected)
+                }}
+              >
+                <span className="truncate">{option.label}</span>
+                {option.count !== undefined ? (
+                  <span className="ml-auto pr-2 font-mono text-xs tabular-nums text-text-tertiary">
+                    {option.count}
+                  </span>
+                ) : null}
+              </DropdownMenuCheckboxItem>
+            )
+          })
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }
 
 function WorkboardDetailDrawer({

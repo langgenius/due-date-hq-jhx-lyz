@@ -21,6 +21,8 @@ interface FakeRow {
   createdAt: Date
   updatedAt: Date
   clientName: string
+  clientState: string | null
+  clientCounty: string | null
   assigneeName: string | null
 }
 
@@ -81,6 +83,8 @@ function makeRow(over: Partial<FakeRow> = {}): FakeRow {
     createdAt: over.createdAt ?? due,
     updatedAt: over.updatedAt ?? due,
     clientName: over.clientName ?? 'Acme Holdings LLC',
+    clientState: over.clientState ?? 'CA',
+    clientCounty: over.clientCounty ?? 'Orange',
     assigneeName: over.assigneeName ?? null,
   }
 }
@@ -158,5 +162,112 @@ describe('makeWorkboardRepo.list', () => {
       rows: [],
       nextCursor: null,
     })
+  })
+
+  it('derives readiness and filters by days until due after overlay-safe row shaping', async () => {
+    const fake = createFakeDb([
+      makeRow({
+        id: 'ready',
+        currentDueDate: new Date('2026-04-20T00:00:00.000Z'),
+        exposureStatus: 'ready',
+      }),
+      makeRow({
+        id: 'waiting',
+        currentDueDate: new Date('2026-04-22T00:00:00.000Z'),
+        status: 'waiting_on_client',
+        exposureStatus: 'ready',
+      }),
+      makeRow({
+        id: 'review',
+        currentDueDate: new Date('2026-05-01T00:00:00.000Z'),
+        status: 'review',
+        exposureStatus: 'ready',
+      }),
+      makeRow({
+        id: 'needs-input',
+        currentDueDate: new Date('2026-04-18T00:00:00.000Z'),
+        exposureStatus: 'needs_input',
+      }),
+    ])
+    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+
+    const result = await repo.list({
+      asOfDate: '2026-04-15',
+      minDaysUntilDue: 1,
+      maxDaysUntilDue: 7,
+      readiness: ['ready', 'needs_review'],
+    })
+
+    expect(result.rows.map((row) => row.id)).toEqual(['needs-input', 'ready'])
+    expect(result.rows.map((row) => row.daysUntilDue)).toEqual([3, 5])
+    expect(result.rows.map((row) => row.readiness)).toEqual(['needs_review', 'ready'])
+  })
+
+  it('aggregates workboard facet options for client, geography, form, and assignee filters', async () => {
+    const fake = createFakeDb([
+      makeRow({
+        id: 'a',
+        clientId: '11111111-1111-4111-8111-111111111111',
+        clientName: 'Acme Holdings LLC',
+        clientState: 'ca',
+        clientCounty: ' Orange ',
+        taxType: '1040',
+        assigneeName: 'Sarah Kim',
+      }),
+      makeRow({
+        id: 'b',
+        clientId: '11111111-1111-4111-8111-111111111111',
+        clientName: 'Acme Holdings LLC',
+        clientState: 'CA',
+        clientCounty: 'Orange',
+        taxType: '1120-S',
+        assigneeName: 'Sarah Kim',
+      }),
+      makeRow({
+        id: 'c',
+        clientId: '22222222-2222-4222-8222-222222222222',
+        clientName: 'Bright Dental',
+        clientState: 'NY',
+        clientCounty: 'Queens',
+        taxType: '1040',
+        assigneeName: 'Mina Patel',
+      }),
+    ])
+    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+
+    const result = await repo.facets()
+
+    expect(result.clients).toEqual([
+      {
+        value: '11111111-1111-4111-8111-111111111111',
+        label: 'Acme Holdings LLC',
+        count: 2,
+        state: 'CA',
+        county: 'Orange',
+      },
+      {
+        value: '22222222-2222-4222-8222-222222222222',
+        label: 'Bright Dental',
+        count: 1,
+        state: 'NY',
+        county: 'Queens',
+      },
+    ])
+    expect(result.states).toEqual([
+      { value: 'CA', label: 'CA', count: 2 },
+      { value: 'NY', label: 'NY', count: 1 },
+    ])
+    expect(result.counties).toEqual([
+      { value: 'Orange', label: 'Orange, CA', count: 2, state: 'CA' },
+      { value: 'Queens', label: 'Queens, NY', count: 1, state: 'NY' },
+    ])
+    expect(result.taxTypes).toEqual([
+      { value: '1040', label: '1040', count: 2 },
+      { value: '1120-S', label: '1120-S', count: 1 },
+    ])
+    expect(result.assigneeNames).toEqual([
+      { value: 'Mina Patel', label: 'Mina Patel', count: 1 },
+      { value: 'Sarah Kim', label: 'Sarah Kim', count: 2 },
+    ])
   })
 })

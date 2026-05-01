@@ -66,6 +66,7 @@ export type AuditActionCategory =
 export type WorkboardSort = 'due_asc' | 'due_desc' | 'updated_desc'
 export type WorkboardOwnerFilter = 'unassigned'
 export type WorkboardDueFilter = 'overdue'
+export type WorkboardReadiness = 'ready' | 'waiting' | 'needs_review'
 export type DashboardSeverity = 'critical' | 'high' | 'medium' | 'neutral'
 export type DashboardBriefScope = 'firm' | 'me'
 export type DashboardBriefStatus = 'pending' | 'ready' | 'failed' | 'stale'

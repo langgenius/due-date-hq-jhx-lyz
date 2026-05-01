@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull, or, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray, isNull, lte, or, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
@@ -22,15 +22,26 @@ import { listActiveOverlayDueDates } from './overlay'
  */
 
 export type WorkboardSort = 'due_asc' | 'due_desc' | 'updated_desc'
+export type WorkboardReadiness = 'ready' | 'waiting' | 'needs_review'
 
 export interface WorkboardListInput {
   status?: ObligationStatus[]
   search?: string
+  clientIds?: string[]
+  states?: string[]
+  counties?: string[]
+  taxTypes?: string[]
   assigneeName?: string
+  assigneeNames?: string[]
   owner?: 'unassigned'
   due?: 'overdue'
   dueWithinDays?: number
   exposureStatus?: 'ready' | 'needs_input' | 'unsupported'
+  readiness?: WorkboardReadiness[]
+  minExposureCents?: number
+  maxExposureCents?: number
+  minDaysUntilDue?: number
+  maxDaysUntilDue?: number
   needsEvidence?: boolean
   asOfDate?: string
   sort?: WorkboardSort
@@ -57,7 +68,11 @@ export interface WorkboardListRow {
   createdAt: Date
   updatedAt: Date
   clientName: string
+  clientState: string | null
+  clientCounty: string | null
   assigneeName: string | null
+  readiness: WorkboardReadiness
+  daysUntilDue: number
   evidenceCount: number
 }
 
@@ -66,14 +81,39 @@ export interface WorkboardListResult {
   nextCursor: string | null
 }
 
+export interface WorkboardFacetOption {
+  value: string
+  label: string
+  count: number
+}
+
+export interface WorkboardClientFacetOption extends WorkboardFacetOption {
+  state: string | null
+  county: string | null
+}
+
+export interface WorkboardCountyFacetOption extends WorkboardFacetOption {
+  state: string | null
+}
+
+export interface WorkboardFacetsOutput {
+  clients: WorkboardClientFacetOption[]
+  states: WorkboardFacetOption[]
+  counties: WorkboardCountyFacetOption[]
+  taxTypes: WorkboardFacetOption[]
+  assigneeNames: WorkboardFacetOption[]
+}
+
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
 const MAX_READ_ROWS = 1000
+const MAX_FACET_OPTIONS = 250
 const EVIDENCE_COUNT_BATCH_SIZE = 90
 const MAX_SEARCH_LENGTH = 64
 const LIKE_WILDCARD_RE = /[\\%_]/g
 const UNSAFE_SEARCH_CHARS_RE = /[^\p{L}\p{N}\s&'.-]+/gu
 const DAY_MS = 24 * 60 * 60 * 1000
+const STATE_CODE_RE = /^[A-Z]{2}$/
 
 export function normalizeWorkboardSearch(search: string | undefined): string | null {
   const normalized = (search ?? '')
@@ -98,6 +138,10 @@ function parseDateOnly(date: string): Date {
 
 function todayDateOnly(): string {
   return new Date().toISOString().slice(0, 10)
+}
+
+function getAsOfDate(input: Pick<WorkboardListInput, 'asOfDate'>): Date {
+  return parseDateOnly(input.asOfDate ?? todayDateOnly())
 }
 
 function addDays(date: Date, days: number): Date {
@@ -126,7 +170,7 @@ function isWithinDueFilter(
   row: { currentDueDate: Date },
   input: Pick<WorkboardListInput, 'due' | 'dueWithinDays' | 'asOfDate'>,
 ): boolean {
-  const asOfDate = parseDateOnly(input.asOfDate ?? todayDateOnly())
+  const asOfDate = getAsOfDate(input)
   if (input.due === 'overdue' && row.currentDueDate.getTime() >= asOfDate.getTime()) return false
   if (input.dueWithinDays !== undefined) {
     const due = row.currentDueDate.getTime()
@@ -135,6 +179,57 @@ function isWithinDueFilter(
     }
   }
   return true
+}
+
+function daysUntilDue(currentDueDate: Date, asOfDate: Date): number {
+  return Math.floor((currentDueDate.getTime() - asOfDate.getTime()) / DAY_MS)
+}
+
+function deriveReadiness(row: {
+  status: ObligationStatus
+  exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+}): WorkboardReadiness {
+  if (row.status === 'waiting_on_client') return 'waiting'
+  if (row.status === 'review' || row.exposureStatus !== 'ready') return 'needs_review'
+  return 'ready'
+}
+
+function isWithinDaysRange(
+  row: Pick<WorkboardListRow, 'daysUntilDue'>,
+  input: Pick<WorkboardListInput, 'minDaysUntilDue' | 'maxDaysUntilDue'>,
+): boolean {
+  if (input.minDaysUntilDue !== undefined && row.daysUntilDue < input.minDaysUntilDue) return false
+  if (input.maxDaysUntilDue !== undefined && row.daysUntilDue > input.maxDaysUntilDue) return false
+  return true
+}
+
+function uniqueNonEmpty(values: (string | null | undefined)[] | undefined): string[] {
+  return [
+    ...new Set(
+      (values ?? [])
+        .map((value) => value?.trim())
+        .filter((value): value is string => typeof value === 'string' && value.length > 0),
+    ),
+  ]
+}
+
+function normalizeStateCode(value: string | null | undefined): string | null {
+  const normalized = value?.trim().toUpperCase()
+  return normalized && STATE_CODE_RE.test(normalized) ? normalized : null
+}
+
+function normalizeNullableText(value: string | null | undefined): string | null {
+  const normalized = value?.trim()
+  return normalized ? normalized : null
+}
+
+function compareFacetLabels(
+  a: { label: string; value: string },
+  b: { label: string; value: string },
+) {
+  const labelDelta = a.label.localeCompare(b.label)
+  if (labelDelta !== 0) return labelDelta
+  return a.value.localeCompare(b.value)
 }
 
 function compareRows(a: WorkboardListRow, b: WorkboardListRow, sort: WorkboardSort): number {
@@ -193,6 +288,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
     async list(input: WorkboardListInput = {}): Promise<WorkboardListResult> {
       const sort: WorkboardSort = input.sort ?? 'due_asc'
       const limit = Math.min(Math.max(input.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT)
+      const asOfDate = getAsOfDate(input)
 
       const filters: SQL[] = [eq(obligationInstance.firmId, firmId)]
 
@@ -200,8 +296,31 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         filters.push(inArray(obligationInstance.status, input.status))
       }
 
-      if (input.assigneeName) {
-        filters.push(eq(client.assigneeName, input.assigneeName))
+      const clientIds = uniqueNonEmpty(input.clientIds)
+      if (clientIds.length > 0) {
+        filters.push(inArray(obligationInstance.clientId, clientIds))
+      }
+
+      const states = uniqueNonEmpty(input.states)
+        .map((value) => normalizeStateCode(value))
+        .filter((value): value is string => value !== null)
+      if (states.length > 0) {
+        filters.push(inArray(client.state, states))
+      }
+
+      const counties = uniqueNonEmpty(input.counties)
+      if (counties.length > 0) {
+        filters.push(inArray(client.county, counties))
+      }
+
+      const taxTypes = uniqueNonEmpty(input.taxTypes)
+      if (taxTypes.length > 0) {
+        filters.push(inArray(obligationInstance.taxType, taxTypes))
+      }
+
+      const assigneeNames = uniqueNonEmpty([input.assigneeName, ...(input.assigneeNames ?? [])])
+      if (assigneeNames.length > 0) {
+        filters.push(inArray(client.assigneeName, assigneeNames))
       }
 
       if (input.owner === 'unassigned') {
@@ -210,6 +329,14 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
 
       if (input.exposureStatus) {
         filters.push(eq(obligationInstance.exposureStatus, input.exposureStatus))
+      }
+
+      if (input.minExposureCents !== undefined) {
+        filters.push(gte(obligationInstance.estimatedExposureCents, input.minExposureCents))
+      }
+
+      if (input.maxExposureCents !== undefined) {
+        filters.push(lte(obligationInstance.estimatedExposureCents, input.maxExposureCents))
       }
 
       const search = normalizeWorkboardSearch(input.search)
@@ -245,6 +372,8 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           createdAt: obligationInstance.createdAt,
           updatedAt: obligationInstance.updatedAt,
           clientName: client.name,
+          clientState: client.state,
+          clientCounty: client.county,
           assigneeName: client.assigneeName,
         })
         .from(obligationInstance)
@@ -262,14 +391,24 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
       const decodedCursor =
         sort !== 'updated_desc' && input.cursor ? decodeCursor(input.cursor) : null
       const rows = rawRows
-        .map(
-          (row): WorkboardListRow =>
-            Object.assign({}, row, {
-              currentDueDate: overlayDueDates.get(row.id) ?? row.currentDueDate,
-              evidenceCount: evidenceCounts.get(row.id) ?? 0,
-            }),
-        )
+        .map((row): WorkboardListRow => {
+          const currentDueDate = overlayDueDates.get(row.id) ?? row.currentDueDate
+          return Object.assign({}, row, {
+            currentDueDate,
+            evidenceCount: evidenceCounts.get(row.id) ?? 0,
+            clientState: normalizeStateCode(row.clientState),
+            clientCounty: normalizeNullableText(row.clientCounty),
+            readiness: deriveReadiness(row),
+            daysUntilDue: daysUntilDue(currentDueDate, asOfDate),
+          })
+        })
         .filter((row) => isWithinDueFilter(row, input))
+        .filter((row) => isWithinDaysRange(row, input))
+        .filter((row) =>
+          input.readiness && input.readiness.length > 0
+            ? input.readiness.includes(row.readiness)
+            : true,
+        )
         .filter((row) => (input.needsEvidence ? row.evidenceCount === 0 : true))
         .toSorted((a, b) => compareRows(a, b, sort))
         .filter((row) => (decodedCursor ? isAfterCursor(row, sort, decodedCursor) : true))
@@ -285,6 +424,102 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
       return {
         rows: pageRows,
         nextCursor,
+      }
+    },
+
+    async facets(): Promise<WorkboardFacetsOutput> {
+      const rawRows = await db
+        .select({
+          clientId: obligationInstance.clientId,
+          clientName: client.name,
+          clientState: client.state,
+          clientCounty: client.county,
+          taxType: obligationInstance.taxType,
+          assigneeName: client.assigneeName,
+        })
+        .from(obligationInstance)
+        .innerJoin(client, eq(obligationInstance.clientId, client.id))
+        .where(eq(obligationInstance.firmId, firmId))
+        .orderBy(asc(client.name), asc(obligationInstance.taxType))
+        .limit(MAX_READ_ROWS)
+
+      const clients = new Map<string, WorkboardClientFacetOption>()
+      const states = new Map<string, WorkboardFacetOption>()
+      const counties = new Map<string, WorkboardCountyFacetOption>()
+      const taxTypes = new Map<string, WorkboardFacetOption>()
+      const assigneeNames = new Map<string, WorkboardFacetOption>()
+
+      for (const row of rawRows) {
+        const clientState = normalizeStateCode(row.clientState)
+        const clientCounty = normalizeNullableText(row.clientCounty)
+        const assigneeName = normalizeNullableText(row.assigneeName)
+
+        const clientFacet = clients.get(row.clientId)
+        if (clientFacet) {
+          clientFacet.count += 1
+        } else {
+          clients.set(row.clientId, {
+            value: row.clientId,
+            label: row.clientName,
+            count: 1,
+            state: clientState,
+            county: clientCounty,
+          })
+        }
+
+        if (clientState) {
+          const stateFacet = states.get(clientState)
+          if (stateFacet) {
+            stateFacet.count += 1
+          } else {
+            states.set(clientState, { value: clientState, label: clientState, count: 1 })
+          }
+        }
+
+        if (clientCounty) {
+          const countyKey = `${clientState ?? ''}|${clientCounty}`
+          const countyFacet = counties.get(countyKey)
+          if (countyFacet) {
+            countyFacet.count += 1
+          } else {
+            counties.set(countyKey, {
+              value: clientCounty,
+              label: clientState ? `${clientCounty}, ${clientState}` : clientCounty,
+              count: 1,
+              state: clientState,
+            })
+          }
+        }
+
+        const taxTypeFacet = taxTypes.get(row.taxType)
+        if (taxTypeFacet) {
+          taxTypeFacet.count += 1
+        } else {
+          taxTypes.set(row.taxType, { value: row.taxType, label: row.taxType, count: 1 })
+        }
+
+        if (assigneeName) {
+          const assigneeFacet = assigneeNames.get(assigneeName)
+          if (assigneeFacet) {
+            assigneeFacet.count += 1
+          } else {
+            assigneeNames.set(assigneeName, {
+              value: assigneeName,
+              label: assigneeName,
+              count: 1,
+            })
+          }
+        }
+      }
+
+      return {
+        clients: [...clients.values()].toSorted(compareFacetLabels).slice(0, MAX_FACET_OPTIONS),
+        states: [...states.values()].toSorted(compareFacetLabels).slice(0, MAX_FACET_OPTIONS),
+        counties: [...counties.values()].toSorted(compareFacetLabels).slice(0, MAX_FACET_OPTIONS),
+        taxTypes: [...taxTypes.values()].toSorted(compareFacetLabels).slice(0, MAX_FACET_OPTIONS),
+        assigneeNames: [...assigneeNames.values()]
+          .toSorted(compareFacetLabels)
+          .slice(0, MAX_FACET_OPTIONS),
       }
     },
   }

@@ -137,6 +137,9 @@ function buildScoped(firmId: string, rows: Row[]) {
     async list() {
       return { rows: [], nextCursor: null }
     },
+    async facets() {
+      return { clients: [], states: [], counties: [], taxTypes: [], assigneeNames: [] }
+    },
   }
 
   const workload: ScopedRepo['workload'] = {

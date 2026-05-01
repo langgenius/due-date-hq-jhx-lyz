@@ -162,20 +162,32 @@ export type { EvidenceContract, EvidencePublic } from './evidence'
 export { EvidencePublicSchema, evidenceContract } from './evidence'
 
 export type {
+  WorkboardClientFacetOption,
+  WorkboardCountyFacetOption,
   WorkboardDueFilter,
+  WorkboardFacetOption,
+  WorkboardFacetsOutput,
   WorkboardOwnerFilter,
   WorkboardContract,
   WorkboardListInput,
   WorkboardListOutput,
+  WorkboardReadiness,
   WorkboardRow,
   WorkboardSort,
 } from './workboard'
 export {
+  WORKBOARD_FILTER_MAX_SELECTIONS,
+  WORKBOARD_FILTER_VALUE_MAX_LENGTH,
   WORKBOARD_SEARCH_MAX_LENGTH,
+  WorkboardClientFacetOptionSchema,
+  WorkboardCountyFacetOptionSchema,
   WorkboardDueFilterSchema,
+  WorkboardFacetOptionSchema,
+  WorkboardFacetsOutputSchema,
   WorkboardListInputSchema,
   WorkboardListOutputSchema,
   WorkboardOwnerFilterSchema,
+  WorkboardReadinessSchema,
   WorkboardRowSchema,
   WorkboardSortSchema,
   workboardContract,

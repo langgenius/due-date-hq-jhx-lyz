@@ -24,9 +24,12 @@ import {
 import { ObligationStatusSchema } from './shared/enums'
 import { ClientSchema } from './shared/client'
 import {
+  WORKBOARD_FILTER_MAX_SELECTIONS,
   WORKBOARD_SEARCH_MAX_LENGTH,
+  WorkboardFacetsOutputSchema,
   WorkboardListInputSchema,
   WorkboardOwnerFilterSchema,
+  WorkboardReadinessSchema,
   WorkboardSortSchema,
   workboardContract,
 } from './workboard'
@@ -297,16 +300,28 @@ describe('@duedatehq/contracts', () => {
   })
 
   it('freezes workboard.list input shape', () => {
-    expect(Object.keys(workboardContract)).toEqual(['list'])
+    expect(Object.keys(workboardContract)).toEqual(['list', 'facets'])
     expect(WorkboardSortSchema.options).toEqual(['due_asc', 'due_desc', 'updated_desc'])
+    expect(WorkboardReadinessSchema.options).toEqual(['ready', 'waiting', 'needs_review'])
 
     const parsed = WorkboardListInputSchema.parse({
       status: ['pending', 'in_progress'],
       search: 'acme',
+      clientIds: ['11111111-1111-4111-8111-111111111111'],
+      states: ['CA'],
+      counties: ['Orange'],
+      taxTypes: ['1040'],
       assigneeName: 'Sarah',
+      assigneeNames: ['Mina'],
       owner: 'unassigned',
       due: 'overdue',
       dueWithinDays: 7,
+      exposureStatus: 'ready',
+      readiness: ['ready'],
+      minExposureCents: 100_00,
+      maxExposureCents: 500_00,
+      minDaysUntilDue: -10,
+      maxDaysUntilDue: 30,
       asOfDate: '2026-04-29',
       sort: 'due_asc',
       cursor: null,
@@ -317,6 +332,31 @@ describe('@duedatehq/contracts', () => {
     expect(() =>
       WorkboardListInputSchema.parse({ search: 'x'.repeat(WORKBOARD_SEARCH_MAX_LENGTH + 1) }),
     ).toThrow()
+    expect(() =>
+      WorkboardListInputSchema.parse({
+        clientIds: Array.from(
+          { length: WORKBOARD_FILTER_MAX_SELECTIONS + 1 },
+          (_, index) => `11111111-1111-4111-8111-${String(index).padStart(12, '0')}`,
+        ),
+      }),
+    ).toThrow()
+
+    const facets = WorkboardFacetsOutputSchema.parse({
+      clients: [
+        {
+          value: '11111111-1111-4111-8111-111111111111',
+          label: 'Acme Holdings LLC',
+          count: 2,
+          state: 'CA',
+          county: 'Orange',
+        },
+      ],
+      states: [{ value: 'CA', label: 'CA', count: 2 }],
+      counties: [{ value: 'Orange', label: 'Orange, CA', count: 2, state: 'CA' }],
+      taxTypes: [{ value: '1040', label: '1040', count: 2 }],
+      assigneeNames: [{ value: 'Sarah', label: 'Sarah', count: 2 }],
+    })
+    expect(facets.clients[0]?.state).toBe('CA')
   })
 
   it('freezes workload paid surface contract', () => {

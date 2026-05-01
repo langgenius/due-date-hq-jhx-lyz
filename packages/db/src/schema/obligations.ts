@@ -87,6 +87,9 @@ export const obligationInstance = sqliteTable(
       table.exposureStatus,
       table.estimatedExposureCents,
     ),
+    // Workboard P0 filters: tax form/type and dollar-at-risk range.
+    index('idx_oi_firm_tax_type_due').on(table.firmId, table.taxType, table.currentDueDate),
+    index('idx_oi_firm_exposure_amount').on(table.firmId, table.estimatedExposureCents),
     // Client detail page drawer.
     index('idx_oi_client').on(table.clientId),
     // 24h revert path mirror of idx_client_batch.

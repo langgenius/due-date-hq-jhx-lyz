@@ -64,6 +64,7 @@ export const router = os.router({
   },
   workboard: {
     list: workboardHandlers.list,
+    facets: workboardHandlers.facets,
   },
   workload: {
     load: workloadHandlers.load,

@@ -468,10 +468,16 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 - **当前落地**：`apps/app/src/routes/workboard.tsx` 使用 **TanStack Table 8** 作为 headless table state/rendering 层，继续复用 `@duedatehq/ui/components/ui/table` 的语义 `<table>` primitive。
 - **服务端数据处理**：筛选 / 排序 / 分页仍由 `workboard.list` 和 D1 read model 负责；前端 `useReactTable` 开启 `manualFiltering` / `manualSorting` / `manualPagination`，不在浏览器端二次加工服务端行。
-- **URL state**：`q`、`status`、`sort`、`row` 由 `nuqs` 管理。
-  `workboardSearchParamsParsers` 是模块级 query contract，`WorkboardSearchParams`
-  由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空 active
-  row，避免用 effect 追踪派生状态。
+- **URL state**：`q`、`status`、`client`、`state`、`county`、`taxType`、`assignee`
+  / `assignees`、`readiness`、`riskMin` / `riskMax`、`daysMin` / `daysMax`、`sort`、
+  `row` 由 `nuqs` 管理。`workboardSearchParamsParsers` 是模块级 query contract，
+  `WorkboardSearchParams` 由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空
+  active row，避免用 effect 追踪派生状态。
+- **Filter facets**：`workboard.facets` 返回 client / state / county / tax type /
+  assignee 的服务器端选项和计数；county option 带 `state`，前端按已选 state 做联动展示。
+  Workboard readiness 目前由 read model 派生：`waiting_on_client → waiting`，`review` 或
+  exposure 非 ready → `needs_review`，其余为 `ready`。等独立 readiness state machine
+  落地后替换此派生字段。
 - **搜索防抖**：Workboard 搜索是客户端 TanStack Query fetching，不是 React Router
   loader/RSC fetching。`nuqs` 负责即时 URL state 和 URL 写入降频；实际
   `workboard.list` input 使用 `apps/app/src/lib/query-rate-limit.ts` 中的

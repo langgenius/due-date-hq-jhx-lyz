@@ -90,6 +90,11 @@ msgstr "{0} fully covered · {1} with open candidates"
 msgid "{0} is on {expectedPlan}"
 msgstr "{0} is on {expectedPlan}"
 
+#. placeholder {0}: Math.abs(days)
+#: src/routes/workboard.tsx
+msgid "{0} late"
+msgstr "{0} late"
+
 #. placeholder {0}: factsModel.summary.manual
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "{0} manual records"
@@ -182,6 +187,10 @@ msgstr "{availableCount} available"
 #: src/features/migration/Step4Preview.tsx
 msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, one {# client} other {# clients}}"
+
+#: src/routes/workboard.tsx
+msgid "{days} days"
+msgstr "{days} days"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "{durationMonths} months"
@@ -537,6 +546,10 @@ msgstr "Ask"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask DueDateHQ"
 msgstr "Ask DueDateHQ"
+
+#: src/routes/workboard.tsx
+msgid "Assignee"
+msgstr "Assignee"
 
 #: src/features/migration/Wizard.tsx
 #: src/routes/dashboard.tsx
@@ -1055,6 +1068,7 @@ msgid "Counties"
 msgstr "Counties"
 
 #: src/features/clients/CreateClientDialog.tsx
+#: src/routes/workboard.tsx
 msgid "County"
 msgstr "County"
 
@@ -1145,6 +1159,10 @@ msgstr "Dashboard risk summary will appear after clients and obligations are gen
 #: src/routes/dashboard.tsx
 msgid "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
 msgstr "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
+
+#: src/routes/workboard.tsx
+msgid "Days"
+msgstr "Days"
 
 #: src/routes/dashboard.tsx
 msgid "Deadline"
@@ -1459,13 +1477,13 @@ msgstr "Filing-frequency review"
 msgid "Filter by alert status"
 msgstr "Filter by alert status"
 
+#: src/routes/workboard.tsx
+msgid "Filter by client, geography, form, readiness, owner, risk, and timing."
+msgstr "Filter by client, geography, form, readiness, owner, risk, and timing."
+
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Filter by source"
 msgstr "Filter by source"
-
-#: src/routes/workboard.tsx
-msgid "Filter by status, search clients, and sort by due date."
-msgstr "Filter by status, search clients, and sort by due date."
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Filter by time range, action category, actor, or entity."
@@ -1546,6 +1564,7 @@ msgstr "For US CPA practices"
 
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-detail-drawer.tsx
+#: src/routes/workboard.tsx
 msgid "Form"
 msgstr "Form"
 
@@ -1910,6 +1929,22 @@ msgstr "Mark read"
 msgid "Match"
 msgstr "Match"
 
+#: src/routes/workboard.tsx
+msgid "Max $"
+msgstr "Max $"
+
+#: src/routes/workboard.tsx
+msgid "Max days"
+msgstr "Max days"
+
+#: src/routes/workboard.tsx
+msgid "Maximum days until due"
+msgstr "Maximum days until due"
+
+#: src/routes/workboard.tsx
+msgid "Maximum dollars at risk"
+msgstr "Maximum dollars at risk"
+
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "may be affected."
 msgstr "may be affected."
@@ -1952,6 +1987,22 @@ msgstr "Migration and rules preview"
 #: src/features/migration/WizardShell.tsx
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
+
+#: src/routes/workboard.tsx
+msgid "Min $"
+msgstr "Min $"
+
+#: src/routes/workboard.tsx
+msgid "Min days"
+msgstr "Min days"
+
+#: src/routes/workboard.tsx
+msgid "Minimum days until due"
+msgstr "Minimum days until due"
+
+#: src/routes/workboard.tsx
+msgid "Minimum dollars at risk"
+msgstr "Minimum dollars at risk"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "missing rule inputs"
@@ -1999,6 +2050,7 @@ msgstr "Needs input"
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Needs review"
 msgstr "Needs review"
 
@@ -2046,6 +2098,10 @@ msgstr "No active firm is selected."
 msgid "No alerts match these filters."
 msgstr "No alerts match these filters."
 
+#: src/routes/workboard.tsx
+msgid "No assignees"
+msgstr "No assignees"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events match these filters."
 msgstr "No audit events match these filters."
@@ -2063,6 +2119,10 @@ msgstr "No audit events yet."
 msgid "No before/after payload"
 msgstr "No before/after payload"
 
+#: src/routes/workboard.tsx
+msgid "No clients"
+msgstr "No clients"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No clients match these filters"
 msgstr "No clients match these filters"
@@ -2074,6 +2134,10 @@ msgstr "No clients yet"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "No commands found."
 msgstr "No commands found."
+
+#: src/routes/workboard.tsx
+msgid "No counties"
+msgstr "No counties"
 
 #: src/features/pulse/lib/error-mapping.ts
 msgid "No eligible obligations are selected."
@@ -2112,6 +2176,10 @@ msgstr "No field-level change detected"
 msgid "No firm selected"
 msgstr "No firm selected"
 
+#: src/routes/workboard.tsx
+msgid "No forms"
+msgstr "No forms"
+
 #: src/routes/dashboard.tsx
 msgid "No generated obligations yet."
 msgstr "No generated obligations yet."
@@ -2148,6 +2216,10 @@ msgstr "No pending Pulse extracts."
 msgid "No prepared brief yet"
 msgstr "No prepared brief yet"
 
+#: src/routes/workboard.tsx
+msgid "No readiness states"
+msgstr "No readiness states"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "no reminder"
 msgstr "no reminder"
@@ -2171,6 +2243,10 @@ msgstr "No signals found."
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "No source state has been recorded."
 msgstr "No source state has been recorded."
+
+#: src/routes/workboard.tsx
+msgid "No states"
+msgstr "No states"
 
 #: src/routes/billing.cancel.tsx
 msgid "No subscription changes were made. You can restart checkout when ready."
@@ -2727,10 +2803,12 @@ msgid "Read-only view"
 msgstr "Read-only view"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/workboard.tsx
 msgid "Readiness"
 msgstr "Readiness"
 
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Ready"
 msgstr "Ready"
 
@@ -2952,6 +3030,7 @@ msgid "Revoke source"
 msgstr "Revoke source"
 
 #: src/features/workload/workload-page.tsx
+#: src/routes/workboard.tsx
 msgid "Risk"
 msgstr "Risk"
 
@@ -3054,6 +3133,10 @@ msgstr "Saving…"
 msgid "Search action, entity, or reason"
 msgstr "Search action, entity, or reason"
 
+#: src/routes/workboard.tsx
+msgid "Search assignees"
+msgstr "Search assignees"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Search audit events"
 msgstr "Search audit events"
@@ -3062,6 +3145,10 @@ msgstr "Search audit events"
 #: src/routes/workboard.tsx
 msgid "Search clients"
 msgstr "Search clients"
+
+#: src/routes/workboard.tsx
+msgid "Search counties"
+msgstr "Search counties"
 
 #: src/routes/workboard.tsx
 msgid "Search obligations"
@@ -3355,6 +3442,7 @@ msgid "Stale"
 msgstr "Stale"
 
 #: src/features/clients/CreateClientDialog.tsx
+#: src/routes/workboard.tsx
 msgid "State"
 msgstr "State"
 
@@ -3582,6 +3670,10 @@ msgstr "Time"
 msgid "Timezone"
 msgstr "Timezone"
 
+#: src/routes/workboard.tsx
+msgid "Today"
+msgstr "Today"
+
 #: src/routes/dashboard.tsx
 msgid "Today queue"
 msgstr "Today queue"
@@ -3738,6 +3830,7 @@ msgid "View billing"
 msgstr "View billing"
 
 #: src/features/workload/workload-page.tsx
+#: src/routes/workboard.tsx
 msgid "Waiting"
 msgstr "Waiting"
 

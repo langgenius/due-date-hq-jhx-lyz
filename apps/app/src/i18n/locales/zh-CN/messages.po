@@ -90,6 +90,11 @@ msgstr "{0} 已完整覆盖 · {1} 有待审 candidate"
 msgid "{0} is on {expectedPlan}"
 msgstr "{0} 已启用 {expectedPlan}"
 
+#. placeholder {0}: Math.abs(days)
+#: src/routes/workboard.tsx
+msgid "{0} late"
+msgstr "逾期 {0} 天"
+
 #. placeholder {0}: factsModel.summary.manual
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "{0} manual records"
@@ -182,6 +187,10 @@ msgstr "{availableCount} 个可用"
 #: src/features/migration/Step4Preview.tsx
 msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, other {# 个客户}}"
+
+#: src/routes/workboard.tsx
+msgid "{days} days"
+msgstr "{days} 天"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "{durationMonths} months"
@@ -537,6 +546,10 @@ msgstr "提问"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask DueDateHQ"
 msgstr "询问 DueDateHQ"
+
+#: src/routes/workboard.tsx
+msgid "Assignee"
+msgstr "经办人"
 
 #: src/features/migration/Wizard.tsx
 #: src/routes/dashboard.tsx
@@ -1055,6 +1068,7 @@ msgid "Counties"
 msgstr "县"
 
 #: src/features/clients/CreateClientDialog.tsx
+#: src/routes/workboard.tsx
 msgid "County"
 msgstr "县"
 
@@ -1145,6 +1159,10 @@ msgstr "生成客户和义务后，Dashboard 风险摘要会显示在这里。"
 #: src/routes/dashboard.tsx
 msgid "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
 msgstr "仪表盘行来自义务与 evidence 链接，不再使用 demo 数组。"
+
+#: src/routes/workboard.tsx
+msgid "Days"
+msgstr "天数"
 
 #: src/routes/dashboard.tsx
 msgid "Deadline"
@@ -1459,13 +1477,13 @@ msgstr "申报频率复核"
 msgid "Filter by alert status"
 msgstr "按提醒状态筛选"
 
+#: src/routes/workboard.tsx
+msgid "Filter by client, geography, form, readiness, owner, risk, and timing."
+msgstr "按客户、辖区、表单、就绪度、负责人、风险和时间筛选。"
+
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Filter by source"
 msgstr "按来源筛选"
-
-#: src/routes/workboard.tsx
-msgid "Filter by status, search clients, and sort by due date."
-msgstr "按状态筛选，按客户搜索，并按到期日排序。"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Filter by time range, action category, actor, or entity."
@@ -1546,6 +1564,7 @@ msgstr "面向美国注册会计师事务所"
 
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-detail-drawer.tsx
+#: src/routes/workboard.tsx
 msgid "Form"
 msgstr "表单"
 
@@ -1910,6 +1929,22 @@ msgstr "标记已读"
 msgid "Match"
 msgstr "匹配"
 
+#: src/routes/workboard.tsx
+msgid "Max $"
+msgstr "最高 $"
+
+#: src/routes/workboard.tsx
+msgid "Max days"
+msgstr "最大天数"
+
+#: src/routes/workboard.tsx
+msgid "Maximum days until due"
+msgstr "距离截止日的最大天数"
+
+#: src/routes/workboard.tsx
+msgid "Maximum dollars at risk"
+msgstr "最高风险金额"
+
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "may be affected."
 msgstr "可能受影响。"
@@ -1952,6 +1987,22 @@ msgstr "迁移与规则预览"
 #: src/features/migration/WizardShell.tsx
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "迁移助手向导 —— 粘贴或上传客户名单，审阅 AI 映射，规范化数据，并在提交前预览导入结果。"
+
+#: src/routes/workboard.tsx
+msgid "Min $"
+msgstr "最低 $"
+
+#: src/routes/workboard.tsx
+msgid "Min days"
+msgstr "最小天数"
+
+#: src/routes/workboard.tsx
+msgid "Minimum days until due"
+msgstr "距离截止日的最小天数"
+
+#: src/routes/workboard.tsx
+msgid "Minimum dollars at risk"
+msgstr "最低风险金额"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "missing rule inputs"
@@ -1999,6 +2050,7 @@ msgstr "需要输入"
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Needs review"
 msgstr "需复核"
 
@@ -2046,6 +2098,10 @@ msgstr "当前未选择事务所。"
 msgid "No alerts match these filters."
 msgstr "没有提醒匹配这些筛选条件。"
 
+#: src/routes/workboard.tsx
+msgid "No assignees"
+msgstr "没有经办人"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events match these filters."
 msgstr "没有审计事件匹配这些筛选条件。"
@@ -2063,6 +2119,10 @@ msgstr "暂无审计事件。"
 msgid "No before/after payload"
 msgstr "没有变更前/后的载荷"
 
+#: src/routes/workboard.tsx
+msgid "No clients"
+msgstr "没有客户"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No clients match these filters"
 msgstr "没有客户匹配这些筛选条件"
@@ -2074,6 +2134,10 @@ msgstr "还没有客户"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "No commands found."
 msgstr "未找到命令。"
+
+#: src/routes/workboard.tsx
+msgid "No counties"
+msgstr "没有县"
 
 #: src/features/pulse/lib/error-mapping.ts
 msgid "No eligible obligations are selected."
@@ -2112,6 +2176,10 @@ msgstr "未检测到字段级变更"
 msgid "No firm selected"
 msgstr "未选择事务所"
 
+#: src/routes/workboard.tsx
+msgid "No forms"
+msgstr "没有表单"
+
 #: src/routes/dashboard.tsx
 msgid "No generated obligations yet."
 msgstr "尚未生成义务。"
@@ -2148,6 +2216,10 @@ msgstr "没有待复核的 Pulse 提取结果。"
 msgid "No prepared brief yet"
 msgstr "还没有生成好的简报"
 
+#: src/routes/workboard.tsx
+msgid "No readiness states"
+msgstr "没有就绪状态"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "no reminder"
 msgstr "无提醒"
@@ -2171,6 +2243,10 @@ msgstr "未找到信号。"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "No source state has been recorded."
 msgstr "尚未记录来源状态。"
+
+#: src/routes/workboard.tsx
+msgid "No states"
+msgstr "没有州"
 
 #: src/routes/billing.cancel.tsx
 msgid "No subscription changes were made. You can restart checkout when ready."
@@ -2727,10 +2803,12 @@ msgid "Read-only view"
 msgstr "只读视图"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/workboard.tsx
 msgid "Readiness"
 msgstr "就绪度"
 
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Ready"
 msgstr "已就绪"
 
@@ -2952,6 +3030,7 @@ msgid "Revoke source"
 msgstr "撤销来源"
 
 #: src/features/workload/workload-page.tsx
+#: src/routes/workboard.tsx
 msgid "Risk"
 msgstr "风险"
 
@@ -3054,6 +3133,10 @@ msgstr "正在保存…"
 msgid "Search action, entity, or reason"
 msgstr "搜索操作、实体或原因"
 
+#: src/routes/workboard.tsx
+msgid "Search assignees"
+msgstr "搜索经办人"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Search audit events"
 msgstr "搜索审计事件"
@@ -3062,6 +3145,10 @@ msgstr "搜索审计事件"
 #: src/routes/workboard.tsx
 msgid "Search clients"
 msgstr "搜索客户"
+
+#: src/routes/workboard.tsx
+msgid "Search counties"
+msgstr "搜索县"
 
 #: src/routes/workboard.tsx
 msgid "Search obligations"
@@ -3355,6 +3442,7 @@ msgid "Stale"
 msgstr "已过期"
 
 #: src/features/clients/CreateClientDialog.tsx
+#: src/routes/workboard.tsx
 msgid "State"
 msgstr "州"
 
@@ -3582,6 +3670,10 @@ msgstr "时间"
 msgid "Timezone"
 msgstr "时区"
 
+#: src/routes/workboard.tsx
+msgid "Today"
+msgstr "今天"
+
 #: src/routes/dashboard.tsx
 msgid "Today queue"
 msgstr "今日队列"
@@ -3738,6 +3830,7 @@ msgid "View billing"
 msgstr "查看账单"
 
 #: src/features/workload/workload-page.tsx
+#: src/routes/workboard.tsx
 msgid "Waiting"
 msgstr "等待中"
 

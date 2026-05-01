@@ -81,6 +81,9 @@ export const client = sqliteTable(
     index('idx_client_firm_time').on(table.firmId, table.createdAt),
     // Workboard filters by entity_type within firm.
     index('idx_client_firm_entity').on(table.firmId, table.entityType),
+    // Workboard P0 filters: state → county drilldown and assignee ownership.
+    index('idx_client_firm_state_county').on(table.firmId, table.state, table.county),
+    index('idx_client_firm_assignee').on(table.firmId, table.assigneeName),
     // Dashboard / Workboard penalty input triage.
     index('idx_client_firm_penalty_inputs').on(
       table.firmId,
