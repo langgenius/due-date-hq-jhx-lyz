@@ -217,7 +217,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
             <Trans>View audit log</Trans>
           </Button>
           <Button
-            variant="accent"
+            variant="primary"
             size="lg"
             onClick={() => setInviteOpen(true)}
             aria-describedby={seatsFull ? 'members-seat-limit-note' : undefined}

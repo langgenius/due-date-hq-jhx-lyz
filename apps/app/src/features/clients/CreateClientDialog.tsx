@@ -21,13 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@duedatehq/ui/components/ui/dialog'
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@duedatehq/ui/components/ui/field'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@duedatehq/ui/components/ui/field'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import {
   Select,
@@ -332,15 +326,6 @@ export function CreateClientDialog({
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <FieldDescription>
-                  {assigneesQuery.isLoading ? (
-                    <Trans>Loading team members...</Trans>
-                  ) : assigneesQuery.isError ? (
-                    <Trans>Team members could not load; leave owner unassigned and retry.</Trans>
-                  ) : (
-                    <Trans>Owner is linked to an active team member.</Trans>
-                  )}
-                </FieldDescription>
                 <FieldError errors={[form.formState.errors.assigneeId]} />
               </Field>
             </div>

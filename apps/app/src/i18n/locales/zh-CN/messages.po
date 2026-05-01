@@ -1851,10 +1851,6 @@ msgstr "正在加载来源健康状态…"
 msgid "Loading source signals…"
 msgstr "正在加载来源信号…"
 
-#: src/features/clients/CreateClientDialog.tsx
-msgid "Loading team members..."
-msgstr "正在加载团队成员…"
-
 #: src/features/workload/workload-page.tsx
 msgid "Loading team workload"
 msgstr "正在加载团队负载"
@@ -2515,10 +2511,6 @@ msgstr "Owner 授权"
 #: src/routes/workboard.tsx
 msgid "Owner count"
 msgstr "所有者数量"
-
-#: src/features/clients/CreateClientDialog.tsx
-msgid "Owner is linked to an active team member."
-msgstr "负责人已绑定到一名活跃团队成员。"
 
 #: src/routes/billing.checkout.tsx
 msgid "Owner permission required"
@@ -3573,10 +3565,6 @@ msgstr "税务年度"
 #: src/features/audit/audit-log-page.tsx
 msgid "Team"
 msgstr "团队"
-
-#: src/features/clients/CreateClientDialog.tsx
-msgid "Team members could not load; leave owner unassigned and retry."
-msgstr "无法加载团队成员；可先保持未分配并稍后重试。"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
