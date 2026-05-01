@@ -234,6 +234,7 @@ export const PULSE_AUDIT_ACTIONS = [
   'pulse.snooze',
   'pulse.apply',
   'pulse.revert',
+  'pulse.reactivate',
 ] as const
 export type PulseAuditAction = (typeof PULSE_AUDIT_ACTIONS)[number]
 

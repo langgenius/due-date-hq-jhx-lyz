@@ -318,6 +318,112 @@ describe('makePulseRepo', () => {
     expect(batchStatements).toHaveLength(0)
   })
 
+  it('reopens the alert as matched after a successful undo', async () => {
+    const appliedAlert = {
+      ...ALERT,
+      alertStatus: 'applied' as const,
+      matchedCount: 0,
+      needsReviewCount: 0,
+    }
+    const application = {
+      id: 'app-1',
+      obligationId: 'oi-eligible',
+      clientId: 'client-eligible',
+      appliedAt: new Date('2026-04-15T18:30:00.000Z'),
+      beforeDueDate: new Date('2026-03-15T00:00:00.000Z'),
+      afterDueDate: new Date('2026-10-15T00:00:00.000Z'),
+      currentDueDate: new Date('2026-10-15T00:00:00.000Z'),
+    }
+    const { db, batchStatements } = fakeDb([
+      [appliedAlert],
+      [application],
+      [
+        {
+          id: 'oea-1',
+          obligationId: 'oi-eligible',
+          exceptionRuleId: 'exception-1',
+          overrideDueDate: new Date('2026-10-15T00:00:00.000Z'),
+        },
+      ],
+      [{ ...appliedAlert, alertStatus: 'matched' as const }],
+      [ELIGIBLE],
+      [],
+      [{ ...application, revertedAt: new Date('2026-04-15T19:00:00.000Z') }],
+      [],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    const result = await repo.revert({
+      alertId: 'alert-1',
+      userId: 'user-1',
+      now: new Date('2026-04-15T19:00:00.000Z'),
+    })
+
+    expect(result.revertedCount).toBe(1)
+    expect(result.alert).toMatchObject({
+      status: 'matched',
+      matchedCount: 1,
+      needsReviewCount: 0,
+    })
+    expect(
+      batchStatements.some((statement) => statementHasValue(statement, { status: 'matched' })),
+    ).toBe(true)
+  })
+
+  it('reactivates a historical reverted alert for re-apply', async () => {
+    const revertedAlert = {
+      ...ALERT,
+      alertStatus: 'reverted' as const,
+      matchedCount: 0,
+      needsReviewCount: 0,
+    }
+    const revertedApplication = {
+      id: 'app-1',
+      obligationId: 'oi-eligible',
+      clientId: 'client-eligible',
+      clientName: 'Arbor & Vale LLC',
+      state: 'CA',
+      county: 'Los Angeles',
+      entityType: 'llc' as const,
+      taxType: 'federal_1065',
+      currentDueDate: new Date('2026-03-15T00:00:00.000Z'),
+      status: 'pending' as const,
+      appliedAt: new Date('2026-04-15T18:30:00.000Z'),
+      revertedAt: new Date('2026-04-15T19:00:00.000Z'),
+      beforeDueDate: new Date('2026-03-15T00:00:00.000Z'),
+      afterDueDate: new Date('2026-10-15T00:00:00.000Z'),
+    }
+    const { db, batchStatements } = fakeDb([
+      [revertedAlert],
+      [{ ...revertedAlert, alertStatus: 'matched' as const }],
+      [ELIGIBLE],
+      [],
+      [revertedApplication],
+      [],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    const result = await repo.reactivate({
+      alertId: 'alert-1',
+      userId: 'user-1',
+      now: new Date('2026-04-15T19:10:00.000Z'),
+    })
+
+    expect(result.alert).toMatchObject({
+      status: 'matched',
+      matchedCount: 1,
+      needsReviewCount: 0,
+    })
+    expect(
+      batchStatements.some((statement) => statementHasValue(statement, { status: 'matched' })),
+    ).toBe(true)
+    expect(
+      batchStatements.some((statement) =>
+        statementHasValue(statement, { action: 'pulse.reactivate' }),
+      ),
+    ).toBe(true)
+  })
+
   it('rejects revert when the active overlay no longer matches Pulse apply', async () => {
     const { db, batchStatements } = fakeDb([
       [ALERT],
@@ -385,5 +491,14 @@ function isKind(statement: unknown, kind: 'insert' | 'update'): boolean {
     typeof statement === 'object' &&
     statement !== null &&
     (statement as { kind?: string }).kind === kind
+  )
+}
+
+function statementHasValue(statement: unknown, expected: Record<string, unknown>): boolean {
+  if (typeof statement !== 'object' || statement === null) return false
+  const value = (statement as { value?: unknown }).value
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
+  return Object.entries(expected).every(
+    ([key, item]) => (value as Record<string, unknown>)[key] === item,
   )
 }

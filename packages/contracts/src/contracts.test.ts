@@ -414,6 +414,7 @@ describe('@duedatehq/contracts', () => {
     expect(PulseAuditActionSchema.parse('pulse.source_revoked')).toBe('pulse.source_revoked')
     expect(PulseAuditActionSchema.parse('pulse.snooze')).toBe('pulse.snooze')
     expect(AuditActionSchema.parse('pulse.revert')).toBe('pulse.revert')
+    expect(AuditActionSchema.parse('pulse.reactivate')).toBe('pulse.reactivate')
     expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')
     expect(AuditActionSchema.parse('penalty.override')).toBe('penalty.override')
     expect(EvidenceSourceTypeSchema.parse('penalty_override')).toBe('penalty_override')
@@ -429,6 +430,7 @@ describe('@duedatehq/contracts', () => {
       'dismiss',
       'snooze',
       'revert',
+      'reactivate',
     ])
     expect(PulseFirmAlertStatusSchema.options).toEqual([
       'matched',

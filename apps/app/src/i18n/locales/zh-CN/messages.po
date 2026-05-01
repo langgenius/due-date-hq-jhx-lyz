@@ -427,6 +427,10 @@ msgid "Alert dismissed"
 msgstr "已忽略提醒"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Alert reactivated"
+msgstr "提醒已重新激活"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Alert snoozed"
 msgstr "提醒已暂缓"
 
@@ -1029,6 +1033,10 @@ msgstr "无法加载该提醒"
 #: src/features/migration/Step1Intake.tsx
 msgid "Couldn't parse the input"
 msgstr "无法解析输入内容"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't reactivate alert"
+msgstr "无法重新激活提醒"
 
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't save mapping"
@@ -2777,6 +2785,10 @@ msgstr "带上我的修改重跑 AI"
 msgid "Re-run failed."
 msgstr "重新运行失败。"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Reactivate / Re-apply"
+msgstr "重新激活 / 再次应用"
+
 #: src/features/members/members-page.tsx
 msgid "Reactivate access"
 msgstr "恢复访问"
@@ -3191,6 +3203,10 @@ msgstr "选择一个 Pulse 以查看来源原文。"
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Select all eligible obligations"
 msgstr "选择全部可应用义务"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Select clients and apply again."
+msgstr "请选择客户后再次应用。"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Select clients to apply"

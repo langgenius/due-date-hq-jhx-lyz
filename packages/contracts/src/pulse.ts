@@ -145,6 +145,9 @@ export type PulseDismissOutput = z.infer<typeof PulseDismissOutputSchema>
 export const PulseSnoozeOutputSchema = PulseDismissOutputSchema
 export type PulseSnoozeOutput = z.infer<typeof PulseSnoozeOutputSchema>
 
+export const PulseReactivateOutputSchema = PulseDismissOutputSchema
+export type PulseReactivateOutput = z.infer<typeof PulseReactivateOutputSchema>
+
 export const PulseRevertOutputSchema = z.object({
   alert: PulseAlertPublicSchema,
   revertedCount: z.number().int().min(0),
@@ -168,5 +171,6 @@ export const pulseContract = oc.router({
   dismiss: oc.input(PulseAlertIdInputSchema).output(PulseDismissOutputSchema),
   snooze: oc.input(PulseSnoozeInputSchema).output(PulseSnoozeOutputSchema),
   revert: oc.input(PulseAlertIdInputSchema).output(PulseRevertOutputSchema),
+  reactivate: oc.input(PulseAlertIdInputSchema).output(PulseReactivateOutputSchema),
 })
 export type PulseContract = typeof pulseContract

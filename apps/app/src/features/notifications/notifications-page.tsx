@@ -70,7 +70,7 @@ export function NotificationsPage() {
           </h1>
         </div>
         <Button
-          variant="outline"
+          variant="primary"
           size="sm"
           onClick={() => markAllRead.mutate(undefined)}
           disabled={markAllRead.isPending || notifications.every((item) => item.readAt)}

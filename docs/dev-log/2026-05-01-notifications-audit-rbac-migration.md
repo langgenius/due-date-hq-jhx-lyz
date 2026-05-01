@@ -12,6 +12,8 @@
   batch-level revert, and single-client undo entry points.
 - Hardened the D1 migrations for the notification/audit storage slice so pre-existing remote
   tables or indexes do not block Wrangler from recording unapplied migrations.
+- Visual follow-up: changed the Notification center "Mark all read" action from the secondary
+  outline button to the existing primary purple button treatment.
 
 ## Validation
 
@@ -24,6 +26,7 @@
 - `pnpm --filter @duedatehq/app build`
 - `pnpm --filter @duedatehq/server build`
 - `pnpm --dir apps/server exec wrangler d1 migrations apply DB --local --persist-to /private/tmp/duedatehq-d1-fresh --config wrangler.toml`
+- `pnpm exec vp check apps/app/src/features/notifications/notifications-page.tsx docs/dev-log/2026-05-01-notifications-audit-rbac-migration.md`
 
 ## Notes
 

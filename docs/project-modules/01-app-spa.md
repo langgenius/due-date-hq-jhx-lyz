@@ -59,7 +59,8 @@
 
 - `/alerts` 面向事务所用户，`/ops/pulse` 面向内部 ops。
 - Pulse detail drawer 展示来源状态、置信度、结构化字段、影响客户、安全 checklist 和操作按钮。
-- apply/revert 会触发 server 端锁、数据更新、罚金重算、audit/evidence 和 dashboard queue。
+- apply/revert/reactivate 会触发 server 端锁或状态流、数据更新、罚金重算、audit/evidence 和
+  dashboard queue；undo 后 alert 回到 `matched`，历史 `reverted` alert 可重新激活再 apply。
 
 ### Audit 与 Evidence
 

@@ -319,6 +319,21 @@ const revert = os.pulse.revert.handler(async ({ input, context }) => {
   }
 })
 
+const reactivate = os.pulse.reactivate.handler(async ({ input, context }) => {
+  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { scoped, tenant } = requireTenant(context)
+  try {
+    const result = await scoped.pulse.reactivate({ alertId: input.alertId, userId })
+    await enqueueDashboardBriefRefresh(context.env, {
+      firmId: tenant.firmId,
+      reason: 'pulse_reactivate',
+    }).catch(() => false)
+    return { alert: toAlertPublic(result.alert), auditId: result.auditId }
+  } catch (error) {
+    return mapPulseError(error)
+  }
+})
+
 export const pulseHandlers = {
   listAlerts,
   listHistory,
@@ -328,4 +343,5 @@ export const pulseHandlers = {
   dismiss,
   snooze,
   revert,
+  reactivate,
 }

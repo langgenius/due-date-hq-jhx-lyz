@@ -138,4 +138,5 @@ export interface PulseRepo {
   dismiss(input: PulseAlertActionInput): Promise<PulseDismissResult>
   snooze(input: PulseSnoozeInput): Promise<PulseDismissResult>
   revert(input: PulseAlertActionInput): Promise<PulseRevertResult>
+  reactivate(input: PulseAlertActionInput): Promise<PulseDismissResult>
 }

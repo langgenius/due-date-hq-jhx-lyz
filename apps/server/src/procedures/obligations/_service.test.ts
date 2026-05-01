@@ -237,6 +237,9 @@ function buildScoped(firmId: string, rows: Row[]) {
     async revert() {
       return unused('pulse.revert')
     },
+    async reactivate() {
+      return unused('pulse.reactivate')
+    },
   }
 
   const repo: ScopedRepo = {

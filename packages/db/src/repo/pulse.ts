@@ -825,7 +825,11 @@ export function makePulseRepo(db: Db, firmId: string) {
   async function buildDetail(alert: AlertJoinedRow): Promise<PulseDetailRow> {
     const affected = new Map<string, PulseAffectedClientRow>()
     for (const row of await listCandidateRows(alert)) affected.set(row.obligationId, row)
-    for (const row of await listApplicationRows(alert.pulseId)) affected.set(row.obligationId, row)
+    for (const row of await listApplicationRows(alert.pulseId)) {
+      if (alert.alertStatus === 'reverted' || row.matchStatus !== 'reverted') {
+        affected.set(row.obligationId, row)
+      }
+    }
 
     return {
       alert: toAlert(alert),
@@ -1480,18 +1484,65 @@ export function makePulseRepo(db: Db, firmId: string) {
       queries.push(
         db
           .update(pulseFirmAlert)
-          .set({ status: 'reverted' })
+          .set({ status: 'matched' })
           .where(and(eq(pulseFirmAlert.firmId, firmId), eq(pulseFirmAlert.id, input.alertId))),
       )
 
       await db.batch(toNonEmptyBatch(queries))
-      const updated = await getAlert(input.alertId)
+      let updated = await getAlert(input.alertId)
+      const counts = await refreshAlertCounts(input.alertId, updated)
+      updated = { ...updated, ...counts }
       return {
         alert: toAlert(updated),
         revertedCount: applications.length,
         auditIds: audits.map((row) => row.id),
         evidenceIds: evidence.map((row) => row.id),
       }
+    },
+
+    async reactivate(input: {
+      alertId: string
+      userId: string
+      now?: Date
+    }): Promise<PulseDismissResult> {
+      const alert = await getAlert(input.alertId)
+      const now = input.now ?? new Date()
+      if (alert.alertStatus !== 'reverted') throw new PulseRepoError('conflict')
+
+      const auditId = crypto.randomUUID()
+      await db.batch([
+        db
+          .update(pulseFirmAlert)
+          .set({
+            status: 'matched',
+            snoozedUntil: null,
+            dismissedBy: null,
+            dismissedAt: null,
+          })
+          .where(and(eq(pulseFirmAlert.firmId, firmId), eq(pulseFirmAlert.id, input.alertId))),
+        db.insert(auditEvent).values({
+          id: auditId,
+          firmId,
+          actorId: input.userId,
+          entityType: 'pulse_firm_alert',
+          entityId: input.alertId,
+          action: 'pulse.reactivate',
+          beforeJson: { status: alert.alertStatus },
+          afterJson: {
+            status: 'matched',
+            pulseId: alert.pulseId,
+            reactivatedAt: now.toISOString(),
+          },
+          reason: null,
+          ipHash: null,
+          userAgentHash: null,
+        }),
+      ])
+
+      let updated = await getAlert(input.alertId)
+      const counts = await refreshAlertCounts(input.alertId, updated)
+      updated = { ...updated, ...counts }
+      return { alert: toAlert(updated), auditId }
     },
   }
 }

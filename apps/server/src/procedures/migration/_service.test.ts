@@ -411,6 +411,9 @@ function buildScopedRepo(firmId: string) {
     async revert() {
       return unexpectedRepoCall('pulse.revert')
     },
+    async reactivate() {
+      return unexpectedRepoCall('pulse.reactivate')
+    },
   }
 
   const repo: ScopedRepo = {

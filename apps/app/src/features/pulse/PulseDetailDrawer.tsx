@@ -126,6 +126,22 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
     }),
   )
 
+  const reactivateMutation = useMutation(
+    orpc.pulse.reactivate.mutationOptions({
+      onSuccess: () => {
+        invalidate()
+        toast.success(t`Alert reactivated`, {
+          description: t`Select clients and apply again.`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't reactivate alert`, {
+          description: i18n._(pulseErrorDescriptor(err)),
+        })
+      },
+    }),
+  )
+
   const applyMutation = useMutation(
     orpc.pulse.apply.mutationOptions({
       onSuccess: (result) => {
@@ -189,6 +205,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
   const isMutating =
     applyMutation.isPending ||
     dismissMutation.isPending ||
+    reactivateMutation.isPending ||
     revertMutation.isPending ||
     snoozeMutation.isPending
 
@@ -316,6 +333,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 })
               }
               onRevert={() => revertMutation.mutate({ alertId: detail.alert.id })}
+              onReactivate={() => reactivateMutation.mutate({ alertId: detail.alert.id })}
               onCopyDraft={() => {
                 void navigator.clipboard.writeText(buildClientEmailDraft(detail)).then(
                   () => toast.success(t`Client email draft copied`),
@@ -340,6 +358,7 @@ function DrawerActions({
   onDismiss,
   onSnooze,
   onRevert,
+  onReactivate,
   onCopyDraft,
 }: {
   alertStatus: PulseFirmAlertStatus
@@ -351,9 +370,11 @@ function DrawerActions({
   onDismiss: () => void
   onSnooze: () => void
   onRevert: () => void
+  onReactivate: () => void
   onCopyDraft: () => void
 }) {
   const showRevert = REVERTABLE_STATUSES.has(alertStatus)
+  const showReactivate = alertStatus === 'reverted'
   const isDismissed = alertStatus === 'dismissed'
   const sourceRevoked = sourceStatus === 'source_revoked'
   const isClosed = alertStatus === 'reverted' || isDismissed || sourceRevoked
@@ -372,6 +393,17 @@ function DrawerActions({
         >
           <RotateCcwIcon data-icon="inline-start" />
           <Trans>Undo (24h)</Trans>
+        </Button>
+      ) : null}
+      {showReactivate ? (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!canApply || isMutating || sourceRevoked}
+          onClick={onReactivate}
+        >
+          <RotateCcwIcon data-icon="inline-start" />
+          <Trans>Reactivate / Re-apply</Trans>
         </Button>
       ) : null}
       <Button

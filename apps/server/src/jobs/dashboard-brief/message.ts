@@ -8,6 +8,7 @@ export type DashboardBriefRefreshReason =
   | 'migration_revert'
   | 'pulse_apply'
   | 'pulse_revert'
+  | 'pulse_reactivate'
   | 'pulse_dismiss'
   | 'status_change'
   | 'evidence_change'

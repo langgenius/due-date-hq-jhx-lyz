@@ -22,6 +22,7 @@ export const PulseAuditActions = [
   'pulse.snooze',
   'pulse.apply',
   'pulse.revert',
+  'pulse.reactivate',
 ] as const
 
 export const PenaltyAuditActions = ['penalty.override'] as const

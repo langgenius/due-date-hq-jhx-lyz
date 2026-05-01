@@ -351,7 +351,7 @@ D1 无 RLS 能力，不依赖 DB 级防护。
 | ----------------------------------- | -------------------------------------------------------------------------- |
 | Worker 新版本线上异常               | `wrangler rollback`（立即回上一版）                                        |
 | D1 migration 写坏                   | 迁移走"可逆 migration"模式；写坏后 rollback migration + 从备份恢复         |
-| Pulse 批量误改                      | 24h 内 `pulse.revert` 一键还原（写入 `reverted_at`，UI 不再展示）          |
+| Pulse 批量误改                      | 24h 内 `pulse.revert` 一键还原（写入 `reverted_at`，alert 回到 `matched`） |
 | Migration 导入误操作                | 24h 内 `migration.revert` 按 `migration_batch_id` 级联删客户和 obligations |
 | Exception overlay 误应用（Phase 1） | 独立 `ObligationExceptionApplication` 表，`reverted_at` 立即失效           |
 

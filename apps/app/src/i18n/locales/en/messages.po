@@ -427,6 +427,10 @@ msgid "Alert dismissed"
 msgstr "Alert dismissed"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Alert reactivated"
+msgstr "Alert reactivated"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Alert snoozed"
 msgstr "Alert snoozed"
 
@@ -1029,6 +1033,10 @@ msgstr "Couldn't load this alert"
 #: src/features/migration/Step1Intake.tsx
 msgid "Couldn't parse the input"
 msgstr "Couldn't parse the input"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't reactivate alert"
+msgstr "Couldn't reactivate alert"
 
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't save mapping"
@@ -2777,6 +2785,10 @@ msgstr "Re-run AI with my overrides"
 msgid "Re-run failed."
 msgstr "Re-run failed."
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Reactivate / Re-apply"
+msgstr "Reactivate / Re-apply"
+
 #: src/features/members/members-page.tsx
 msgid "Reactivate access"
 msgstr "Reactivate access"
@@ -3191,6 +3203,10 @@ msgstr "Select a Pulse to inspect raw source text."
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Select all eligible obligations"
 msgstr "Select all eligible obligations"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Select clients and apply again."
+msgstr "Select clients and apply again."
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Select clients to apply"
