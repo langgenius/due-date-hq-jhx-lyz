@@ -1640,7 +1640,7 @@ msgstr "导入完成"
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/routes/clients.tsx
 msgid "Import history"
-msgstr ""
+msgstr "导入历史"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Import reverted"
@@ -2074,7 +2074,7 @@ msgstr "新客户"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "New client imports will appear here when you need batch recovery."
-msgstr ""
+msgstr "需要批量恢复时，新的客户导入会显示在这里。"
 
 #: src/routes/billing.checkout.tsx
 msgid "New seat limit"
@@ -2192,7 +2192,7 @@ msgstr "尚未生成义务。"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "No import batches yet"
-msgstr ""
+msgstr "尚无导入批次"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this firm."
@@ -2857,7 +2857,7 @@ msgstr "推荐"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
-msgstr ""
+msgstr "恢复误导入的批次。单个客户资料请在“客户”中编辑。"
 
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
@@ -2971,7 +2971,7 @@ msgstr "回滚批次"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Revert this import batch?"
-msgstr ""
+msgstr "回滚此导入批次？"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Revert until"
@@ -3675,11 +3675,11 @@ msgstr "此页面会继续检查。你也可以返回账单页稍后刷新。"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "This removes every client and deadline created by this import. Use Clients to edit individual records instead."
-msgstr ""
+msgstr "这会移除此导入创建的所有客户和截止日。请改用“客户”来编辑单条记录。"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "This removes the client and deadlines created by this import. Use Clients to edit facts instead."
-msgstr ""
+msgstr "这会移除此导入创建的客户和截止日。请改用“客户”来编辑资料。"
 
 #: src/features/migration/Wizard.tsx
 msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
@@ -3760,7 +3760,7 @@ msgstr "24 小时内可撤销"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Undo client"
-msgstr ""
+msgstr "撤销客户"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo import"
@@ -3772,7 +3772,7 @@ msgstr "撤销这次导入？"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Undo this imported client?"
-msgstr ""
+msgstr "撤销这个导入的客户？"
 
 #: src/routes/error.tsx
 msgid "Unexpected route error"
@@ -3870,7 +3870,7 @@ msgstr "查看"
 #. placeholder {0}: client.name
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "View {0}"
-msgstr ""
+msgstr "查看 {0}"
 
 #: src/features/audit/audit-log-table.tsx
 msgid "View audit detail"
