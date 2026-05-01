@@ -134,7 +134,7 @@ export function validateRows(
         rowIndex,
         rawRow,
         errorCode: 'EMPTY_NAME',
-        errorMessage: 'Row has no value mapped to client.name.',
+        errorMessage: 'Row is missing a client name value.',
       })
     }
     const einValue = readByTarget(row, targetByIndex, 'client.ein')

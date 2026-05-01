@@ -6,6 +6,8 @@ import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { formatCents } from '@/lib/utils'
 
+import { formatMigrationErrorMessage, useMappingTargetLabels } from './mapping-target-labels'
+
 interface Step4Props {
   summary: DryRunSummary | null
 }
@@ -17,6 +19,7 @@ interface Step4Props {
  * counts, skipped-row visibility, and safety checks before `migration.apply`.
  */
 export function Step4Preview({ summary }: Step4Props) {
+  const targetLabels = useMappingTargetLabels()
   const clientCount = summary?.clientsToCreate ?? 0
   const obligationCount = summary?.obligationsToCreate ?? 0
   const skipped = summary?.skippedRows ?? 0
@@ -165,7 +168,7 @@ export function Step4Preview({ summary }: Step4Props) {
                 <span className="font-mono text-xs tabular-nums text-text-tertiary">
                   {err.errorCode}
                 </span>
-                <span className="text-sm">{err.errorMessage}</span>
+                <span className="text-sm">{formatMigrationErrorMessage(err, targetLabels)}</span>
               </li>
             ))}
           </ul>

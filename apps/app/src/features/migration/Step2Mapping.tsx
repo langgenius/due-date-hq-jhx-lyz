@@ -30,27 +30,12 @@ import {
 } from '@duedatehq/ui/components/ui/table'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import {
+  SELECTABLE_MAPPING_TARGETS,
+  formatMigrationErrorMessage,
+  useMappingTargetLabels,
+} from './mapping-target-labels'
 import type { MapperState } from './state'
-
-type TargetEntry = { value: MappingTarget; label: string }
-
-// Selectable mapping fields, rendered as a single-select radio group.
-const SELECTABLE_TARGETS: ReadonlyArray<TargetEntry> = [
-  { value: 'client.name', label: 'client.name' },
-  { value: 'client.ein', label: 'client.ein' },
-  { value: 'client.state', label: 'state' },
-  { value: 'client.county', label: 'county' },
-  { value: 'client.entity_type', label: 'entity_type' },
-  { value: 'client.tax_types', label: 'tax_types' },
-  { value: 'client.email', label: 'client.email' },
-  { value: 'client.assignee_name', label: 'assignee_name' },
-  { value: 'client.estimated_tax_liability', label: 'estimated_tax_liability' },
-  { value: 'client.equity_owner_count', label: 'equity_owner_count' },
-  { value: 'client.notes', label: 'notes' },
-]
-
-// Rendered last, after a separator, to opt out of mapping for a column.
-const IGNORE_TARGET: TargetEntry = { value: 'IGNORE', label: 'Ignore this column' }
 
 interface Step2Props {
   mapping: MapperState
@@ -75,6 +60,7 @@ interface Step2Props {
  */
 export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRerun }: Step2Props) {
   const { t } = useLingui()
+  const targetLabels = useMappingTargetLabels()
 
   const lowConfCount = mapping.rows.filter(
     (r) => typeof r.confidence === 'number' && r.confidence < 0.8 && r.targetField !== 'IGNORE',
@@ -191,7 +177,9 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
         </Alert>
       ) : null}
 
-      {errors && errors.length > 0 ? <BadRowsPanel errors={errors} /> : null}
+      {errors && errors.length > 0 ? (
+        <BadRowsPanel errors={errors} targetLabels={targetLabels} />
+      ) : null}
 
       {mapping.status === 'loading' ? (
         <div className="grid gap-2">
@@ -227,13 +215,13 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
                     <TableCell aria-hidden className="text-text-tertiary">
                       →
                     </TableCell>
-                    <TableCell className="font-mono text-xs tabular-nums text-text-primary">
+                    <TableCell className="text-sm font-medium text-text-primary">
                       <span className="inline-flex items-center gap-1">
                         {row.targetField === 'IGNORE' ? (
-                          <span className="italic text-text-tertiary">⚠ IGNORED</span>
+                          <span className="italic text-text-tertiary">{targetLabels.IGNORE}</span>
                         ) : (
                           <>
-                            {row.targetField}
+                            {targetLabels[row.targetField]}
                             {row.targetField === 'client.ein' ? (
                               <StarIcon className="size-3 text-text-accent" aria-label="EIN" />
                             ) : null}
@@ -251,6 +239,7 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
                       <EditPopover
                         current={row.targetField}
                         sourceHeader={row.sourceHeader}
+                        targetLabels={targetLabels}
                         onChange={(target) => updateRow(idx, { targetField: target })}
                       />
                     </TableCell>
@@ -306,6 +295,7 @@ function ConfidenceBadge({ tier, confidence }: { tier: Tier; confidence: number 
 interface EditPopoverProps {
   current: MappingTarget
   sourceHeader: string
+  targetLabels: Record<MappingTarget, string>
   onChange: (next: MappingTarget) => void
 }
 
@@ -317,7 +307,13 @@ interface EditPopoverProps {
  * makes the "bad rows do not block good rows" invariant visible at the
  * mapping step instead of hiding it until Step 4.
  */
-function BadRowsPanel({ errors }: { errors: MigrationError[] }) {
+function BadRowsPanel({
+  errors,
+  targetLabels,
+}: {
+  errors: MigrationError[]
+  targetLabels: Record<MappingTarget, string>
+}) {
   return (
     <details
       className="overflow-hidden rounded-lg border border-divider-regular bg-background-section"
@@ -353,7 +349,9 @@ function BadRowsPanel({ errors }: { errors: MigrationError[] }) {
                 <TableCell className="font-mono text-xs uppercase tracking-wide text-text-warning">
                   {err.errorCode}
                 </TableCell>
-                <TableCell className="text-text-secondary">{err.errorMessage}</TableCell>
+                <TableCell className="text-text-secondary">
+                  {formatMigrationErrorMessage(err, targetLabels)}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -363,7 +361,7 @@ function BadRowsPanel({ errors }: { errors: MigrationError[] }) {
   )
 }
 
-function EditPopover({ current, sourceHeader, onChange }: EditPopoverProps) {
+function EditPopover({ current, sourceHeader, targetLabels, onChange }: EditPopoverProps) {
   // Base UI types `onValueChange` as `(value: any) => void`; validate the
   // payload at runtime to keep the public API strictly typed.
   function handleValueChange(next: unknown) {
@@ -388,21 +386,14 @@ function EditPopover({ current, sourceHeader, onChange }: EditPopoverProps) {
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuRadioGroup value={current} onValueChange={handleValueChange}>
-          {SELECTABLE_TARGETS.map((target) => (
-            <DropdownMenuRadioItem
-              key={target.value}
-              value={target.value}
-              className="font-mono text-xs tabular-nums"
-            >
-              {target.label}
+          {SELECTABLE_MAPPING_TARGETS.map((target) => (
+            <DropdownMenuRadioItem key={target} value={target} className="text-sm">
+              {targetLabels[target]}
             </DropdownMenuRadioItem>
           ))}
           <DropdownMenuSeparator />
-          <DropdownMenuRadioItem
-            value={IGNORE_TARGET.value}
-            className="font-mono text-xs tabular-nums"
-          >
-            {IGNORE_TARGET.label}
+          <DropdownMenuRadioItem value="IGNORE" className="text-sm">
+            {targetLabels.IGNORE}
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>

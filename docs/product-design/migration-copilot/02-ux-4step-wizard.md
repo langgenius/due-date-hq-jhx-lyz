@@ -318,15 +318,14 @@ stateDiagram-v2
 │  ┌──────────────────┬───┬────────────────┬────────────┬───────────┐  │
 │  │ Your column      │ → │ DueDateHQ field│ Confidence │ Sample    │  │   ← 表头：{typography.label} + {colors.text-secondary}
 │  ├──────────────────┼───┼────────────────┼────────────┼───────────┤  │     表格行高 36px（Comfortable）
-│  │ "Client Name"    │ → │ client.name    │  99% [H]   │ Acme LLC  │  │   ← 普通行；High 徽章背景 {colors.accent-tint}
-│  │ "Tax ID"         │ → │ client.ein ★   │  96% [H]   │12-3456789 │  │   ← ★ 徽章 {colors.accent-text}；sample 走 {typography.numeric}
-│  │ "Ent Type"       │ → │ entity_type    │  94% [M]   │ LLC       │  │   ← Medium 徽章：{colors.severity-neutral-tint} + {colors.text-secondary}
-│  │ "State/Juris"    │ → │ state          │  97% [H]   │ CA        │  │
-│  │ "County"         │ → │ county         │  88% [M]   │ LA        │  │
-│  │ "Tax F/Y"        │ → │ tax_year       │  81% [L]   │ 2026      │  │   ← Low 徽章：{colors.severity-medium-tint} + {colors.text-primary}
-│  │ "Resp"           │ → │ assignee_name  │  76% [L]   │ Sarah     │  │   ← 行整条染 {colors.severity-medium-tint}（对齐 needs review 裁定）
-│  │ "status LY"      │ → │ ⚠ IGNORED      │    —       │   —       │  │   ← IGNORED：{colors.text-muted} + 斜体
-│  │ "Notes"          │ → │ notes          │  92% [H]   │ …         │  │
+│  │ "Client Name"    │ → │ Client name    │  99% [H]   │ Acme LLC  │  │   ← 普通行；High 徽章背景 {colors.accent-tint}
+│  │ "Tax ID"         │ → │ EIN ★          │  96% [H]   │12-3456789 │  │   ← ★ 徽章 {colors.accent-text}；sample 走 {typography.numeric}
+│  │ "Ent Type"       │ → │ Entity type    │  94% [M]   │ LLC       │  │   ← Medium 徽章：{colors.severity-neutral-tint} + {colors.text-secondary}
+│  │ "State/Juris"    │ → │ State          │  97% [H]   │ CA        │  │
+│  │ "County"         │ → │ County         │  88% [M]   │ LA        │  │
+│  │ "Resp"           │ → │ Assignee       │  76% [L]   │ Sarah     │  │   ← 行整条染 {colors.severity-medium-tint}（对齐 needs review 裁定）
+│  │ "status LY"      │ → │ Ignored        │    —       │   —       │  │   ← Ignored：{colors.text-muted} + 斜体
+│  │ "Notes"          │ → │ Notes          │  92% [H]   │ …         │  │
 │  │                  │   │         [Edit ▾]                        │  │   ← 行内按钮每行末尾，ghost
 │  └──────────────────┴───┴────────────────┴────────────┴───────────┘  │
 │                                                                      │
@@ -340,21 +339,24 @@ stateDiagram-v2
 ```
 ┌─ Popover · 宽 240px · Level 3 ────────────────┐
 │  Map "Resp" to…                               │
-│   ○ client.name                               │
-│   ○ client.ein                                │
-│   ○ state                                     │
-│   ○ county                                    │
-│   ○ entity_type                               │
-│   ○ tax_types                                 │
-│   ○ email                                     │
-│   ● assignee_name     ← 当前选中              │
-│   ○ notes                                     │
+│   ○ Client name                               │
+│   ○ EIN                                       │
+│   ○ State                                     │
+│   ○ County                                    │
+│   ○ Entity type                               │
+│   ○ Tax types                                 │
+│   ○ Email                                     │
+│   ● Assignee          ← 当前选中              │
+│   ○ Estimated tax liability                   │
+│   ○ Owner count                               │
+│   ○ Notes                                     │
 │   ──────────────────────────                  │
 │   ○ Ignore this column                        │
 └───────────────────────────────────────────────┘
 ```
 
-- 9 目标字段 = `client.name / client.ein / state / county / entity_type / tax_types / email / assignee_name / notes`（对齐 Part1A P0-3 行 499）
+- UI 只展示用户可读字段名（Client name / EIN / State / Entity type 等）；`client.*`
+  target 仅保留在内部 contract / audit payload 中。
 - 边缘项：`IGNORE`（分组线分隔；`{colors.text-muted}`）
 
 **行 hover Popover（AI reasoning）**：

@@ -551,6 +551,10 @@ msgstr "提问"
 msgid "Ask DueDateHQ"
 msgstr "询问 DueDateHQ"
 
+#: src/features/migration/mapping-target-labels.ts
+msgid "Assignee"
+msgstr "经办人"
+
 #: src/features/migration/Wizard.tsx
 #: src/routes/dashboard.tsx
 msgid "at risk this week"
@@ -818,6 +822,7 @@ msgid "Client import undone"
 msgstr "客户导入已撤销"
 
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/migration/mapping-target-labels.ts
 msgid "Client name"
 msgstr "客户名称"
 
@@ -1072,6 +1077,7 @@ msgid "Counties"
 msgstr "县"
 
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/migration/mapping-target-labels.ts
 #: src/routes/workboard.tsx
 msgid "County"
 msgstr "县"
@@ -1302,6 +1308,7 @@ msgstr "生效日期"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/migration/mapping-target-labels.ts
 msgid "EIN"
 msgstr "EIN"
 
@@ -1311,6 +1318,7 @@ msgstr "可应用"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/migration/mapping-target-labels.ts
 #: src/features/notifications/notifications-page.tsx
 msgid "Email"
 msgstr "邮箱"
@@ -1357,6 +1365,7 @@ msgstr "实体 ID"
 #: src/features/audit/audit-log-page.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/migration/mapping-target-labels.ts
 msgid "Entity type"
 msgstr "实体类型"
 
@@ -1375,6 +1384,10 @@ msgstr "当前操作窗口内的预计 exposure。"
 
 #: src/routes/workboard.tsx
 msgid "Estimated tax due"
+msgstr "预计应纳税额"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Estimated tax liability"
 msgstr "预计应纳税额"
 
 #: src/features/rules/rule-detail-drawer.tsx
@@ -1607,6 +1620,10 @@ msgstr "高"
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
 msgstr "我正在从…迁移过来（可选）"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Ignore this column"
+msgstr "忽略此列"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Import"
@@ -2294,6 +2311,7 @@ msgstr "未记录"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/migration/mapping-target-labels.ts
 msgid "Notes"
 msgstr "备注"
 
@@ -2515,6 +2533,7 @@ msgstr "需要 Owner 授权"
 msgid "Owner approved"
 msgstr "Owner 授权"
 
+#: src/features/migration/mapping-target-labels.ts
 #: src/routes/workboard.tsx
 msgid "Owner count"
 msgstr "所有者数量"
@@ -3470,6 +3489,7 @@ msgid "Stale"
 msgstr "已过期"
 
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/migration/mapping-target-labels.ts
 #: src/routes/workboard.tsx
 msgid "State"
 msgstr "州"
@@ -3563,6 +3583,10 @@ msgstr "跟随系统"
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Tax type"
+msgstr "税种"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Tax types"
 msgstr "税种"
 
 #: src/features/rules/generation-preview-tab.tsx
