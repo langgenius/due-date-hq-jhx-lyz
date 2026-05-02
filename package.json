@@ -24,7 +24,8 @@
     "db:migrate:remote": "pnpm --dir apps/server exec wrangler d1 migrations apply DB --remote --config wrangler.toml",
     "db:seed:demo": "pnpm --filter @duedatehq/db seed:demo",
     "cf:ensure-queues": "node scripts/ensure-cloudflare-queues.mjs apps/server/wrangler.toml",
-    "deploy": "vp run workspace-deploy"
+    "deploy": "vp run workspace-deploy",
+    "deploy:ci": "vp run workspace-publish"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

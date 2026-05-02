@@ -1226,6 +1226,10 @@ msgstr "Could not create your practice"
 msgid "Could not delete practice."
 msgstr "Could not delete practice."
 
+#: src/routes/account.security.tsx
+msgid "Could not disable two-factor authentication"
+msgstr "Could not disable two-factor authentication"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Could not load audit events"
 msgstr "Could not load audit events"
@@ -1265,6 +1269,14 @@ msgstr "Could not request export."
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Could not revert import"
 msgstr "Could not revert import"
+
+#: src/routes/account.security.tsx
+msgid "Could not revoke other sessions"
+msgstr "Could not revoke other sessions"
+
+#: src/routes/account.security.tsx
+msgid "Could not revoke session"
+msgstr "Could not revoke session"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Could not run obligation preview."
@@ -4766,6 +4778,7 @@ msgstr "Sent {0}"
 msgid "Server-computed obligation risk for the next operating window."
 msgstr "Server-computed obligation risk for the next operating window."
 
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/account.security.tsx
 msgid "Session revoked"
 msgstr "Session revoked"
@@ -4860,6 +4873,14 @@ msgstr "Sign out failed"
 #: src/routes/account.security.tsx
 msgid "Sign out other sessions"
 msgstr "Sign out other sessions"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Sign-in failed"
+msgstr "Sign-in failed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Sign-in succeeded"
+msgstr "Sign-in succeeded"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Signal action queued"
@@ -5357,6 +5378,18 @@ msgstr "Two-factor authentication disabled"
 #: src/routes/account.security.tsx
 msgid "Two-factor authentication enabled"
 msgstr "Two-factor authentication enabled"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Two-factor disabled"
+msgstr "Two-factor disabled"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Two-factor enabled"
+msgstr "Two-factor enabled"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Two-factor setup started"
+msgstr "Two-factor setup started"
 
 #: src/routes/route-summary.ts
 #: src/routes/two-factor.tsx

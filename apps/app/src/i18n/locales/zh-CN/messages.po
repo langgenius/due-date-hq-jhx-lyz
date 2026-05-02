@@ -1226,6 +1226,10 @@ msgstr "无法创建你的事务所"
 msgid "Could not delete practice."
 msgstr "无法删除事务所。"
 
+#: src/routes/account.security.tsx
+msgid "Could not disable two-factor authentication"
+msgstr "无法停用两步验证"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Could not load audit events"
 msgstr "无法加载审计事件"
@@ -1265,6 +1269,14 @@ msgstr "无法请求导出。"
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Could not revert import"
 msgstr "无法回滚导入"
+
+#: src/routes/account.security.tsx
+msgid "Could not revoke other sessions"
+msgstr "无法撤销其他会话"
+
+#: src/routes/account.security.tsx
+msgid "Could not revoke session"
+msgstr "无法撤销会话"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Could not run obligation preview."
@@ -4766,6 +4778,7 @@ msgstr "已发送 {0}"
 msgid "Server-computed obligation risk for the next operating window."
 msgstr "由服务端计算的下一工作窗口义务风险。"
 
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/account.security.tsx
 msgid "Session revoked"
 msgstr "会话已撤销"
@@ -4860,6 +4873,14 @@ msgstr "退出登录失败"
 #: src/routes/account.security.tsx
 msgid "Sign out other sessions"
 msgstr "登出其他会话"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Sign-in failed"
+msgstr "登录失败"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Sign-in succeeded"
+msgstr "登录成功"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Signal action queued"
@@ -5357,6 +5378,18 @@ msgstr "两步验证已停用"
 #: src/routes/account.security.tsx
 msgid "Two-factor authentication enabled"
 msgstr "两步验证已启用"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Two-factor disabled"
+msgstr "两步验证已停用"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Two-factor enabled"
+msgstr "两步验证已启用"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Two-factor setup started"
+msgstr "两步验证设置已开始"
 
 #: src/routes/route-summary.ts
 #: src/routes/two-factor.tsx

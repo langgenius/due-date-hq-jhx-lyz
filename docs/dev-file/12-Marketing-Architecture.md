@@ -449,6 +449,9 @@ pnpm deploy
   -> deploy marketing           # 4. marketing 最后发布，CTA 指向已就绪的 app
 ```
 
+CI staging 复用 `ci` job 产出的 app/marketing build artifact，`deploy-staging` 只运行
+`deploy:ci` / `workspace-publish` 控制面步骤；本地 `pnpm deploy` 仍保留完整 check/test/build。
+
 任一步失败立即中止后续步骤；marketing 在 D1/app 部署成功前不会暴露新 CTA 给访客。
 
 平台选择：marketing 与 server 统一走 **Cloudflare Workers + Static Assets**，不使用 Cloudflare Pages。理由：
@@ -544,7 +547,7 @@ CSP 中 `connect-src` 仅在 marketing 真的需要向 app 子域发请求（例
 2. 新增 `apps/marketing` Astro static app，`astro.config.mjs` 完整声明 §4 中的 `site` / `trailingSlash` / `vite.plugins[tailwindcss()]` / i18n routing，接入 `@astrojs/react` 和 `@duedatehq/ui` preset。
 3. 实现英文 landing，CTA 指向 `PUBLIC_APP_URL`；添加 `public/_headers`（§7 安全头）和 `public/robots.txt`。
 4. 加入 Astro i18n routing；按需要实现 `zh-CN` 首页，hreflang 与 sitemap 自动跟随。
-5. 更新 root Vite Task：`workspace-build` 包含 marketing；`workspace-deploy` 严格按 §7 顺序串行执行（D1 → app → marketing），任一步失败立即中止。
+5. 更新 root Vite Task：`workspace-build` 包含 marketing；`workspace-publish` 严格按 §7 顺序串行执行（D1 → app → marketing），`workspace-deploy` 为本地入口并在 publish 前加 check/test/build，任一步失败立即中止。
 6. 配置 Cloudflare Workers + Static Assets 路由：marketing 绑定 `duedatehq.com`，server 绑定 `app.duedatehq.com`，两者不共享 Worker。
 
 ---

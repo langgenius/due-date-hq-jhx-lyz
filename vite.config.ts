@@ -252,7 +252,7 @@ export default defineConfig({
         command: 'vp run -r test',
         env: ['NODE_ENV', 'CI'],
       },
-      // Deploy is the only Cloudflare-control-plane task. The order is
+      // Publish is the only Cloudflare-control-plane task. The order is
       // locked by docs/dev-file/12-Marketing-Architecture.md §7:
       //   1. Queue provision      (bindings exist before deploy)
       //   2. D1 migrate           (schema first)
@@ -261,9 +261,13 @@ export default defineConfig({
       // Any failure aborts subsequent steps because `&&` short-circuits.
       // `cache: false` means no env fingerprinting — Cloudflare creds
       // are inherited from the shell at run time.
-      'workspace-deploy': {
+      'workspace-publish': {
         command:
           'pnpm cf:ensure-queues && pnpm db:migrate:remote && vp run @duedatehq/server#deploy && vp run @duedatehq/marketing#deploy',
+        cache: false,
+      },
+      'workspace-deploy': {
+        command: 'vp run workspace-publish',
         cache: false,
         dependsOn: ['workspace-build', 'workspace-test'],
       },

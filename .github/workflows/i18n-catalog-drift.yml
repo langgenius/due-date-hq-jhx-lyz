@@ -26,7 +26,7 @@ jobs:
           node-version: '22'
           cache: true
 
-      - run: vp install
+      - run: vp install --frozen-lockfile
 
       - name: Sync Lingui catalogs
         run: |

@@ -28,7 +28,7 @@ jobs:
           node-version: '22'
           cache: true
 
-      - run: vp install
+      - run: vp install --frozen-lockfile
 
       - run: vp run ci
 
@@ -49,6 +49,17 @@ jobs:
       # pulling pnpm in just to run a one-liner isn't worth the complexity.
       - name: Secret scan
         run: gitleaks detect --source . --no-git --redact
+
+      - name: Upload staging build artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-build
+          path: |
+            apps/app/dist
+            apps/marketing/dist
+          if-no-files-found: error
+          retention-days: 1
 
   staging_change_filter:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -124,7 +135,14 @@ jobs:
           node-version: '22'
           cache: true
 
-      - run: vp install
+      - name: Install deploy dependencies
+        run: vp install --frozen-lockfile
+
+      - name: Download staging build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: staging-build
+          path: .
 
       - name: Prepare Worker secrets
         run: |
@@ -163,4 +181,5 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_ENV, `WRANGLER_SECRETS_FILE=${file}\n`)
           NODE
 
-      - run: vp run workspace-deploy
+      - name: Publish staging
+        run: vp run deploy:ci
