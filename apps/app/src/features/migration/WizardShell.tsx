@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { ArrowLeftIcon, ArrowRightIcon, XIcon } from 'lucide-react'
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, LoaderCircleIcon, XIcon } from 'lucide-react'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -26,12 +26,20 @@ import { useAppHotkey, isEditableEventTarget } from '@/components/patterns/keybo
 import { Stepper } from './Stepper'
 import type { StepIndex } from './state'
 
+export type WizardTransitionPhase = 'intake' | 'mapping' | 'rerun_mapper' | 'normalize' | 'import'
+
+export interface WizardTransitionState {
+  phase: WizardTransitionPhase
+  activeIndex: number
+}
+
 interface WizardShellProps {
   /** Controlled visibility — provider toggles this in response to user intent. */
   open: boolean
   step: StepIndex
-  /** Disables the [Continue →] button and shows a spinner inside it. */
+  /** Disables the [Continue →] button and locks the body while work is pending. */
   busy: boolean
+  transition?: WizardTransitionState | null | undefined
   /** Whether the current step considers itself ready to advance. */
   canContinue: boolean
   /** Lingui-aware label for Step 4 swaps the primary CTA. */
@@ -58,6 +66,7 @@ export function WizardShell({
   open,
   step,
   busy,
+  transition,
   canContinue,
   continueLabel,
   onBack,
@@ -174,7 +183,25 @@ export function WizardShell({
 
         <Stepper current={step} />
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-6">{children}</div>
+        <div
+          className={cn(
+            'relative min-h-0 px-6',
+            transition ? 'shrink-0 overflow-hidden py-6' : 'flex-1 overflow-y-auto',
+          )}
+          aria-busy={busy || undefined}
+        >
+          <div
+            aria-hidden={transition ? true : undefined}
+            inert={transition ? true : undefined}
+            className={cn(
+              'transition-opacity',
+              transition ? 'pointer-events-none absolute inset-x-6 top-0 opacity-0' : 'opacity-100',
+            )}
+          >
+            {children}
+          </div>
+          {transition ? <ProcessingOverlay transition={transition} /> : null}
+        </div>
 
         <footer className="flex h-12 shrink-0 items-center justify-end gap-4 border-divider-subtle bg-background-body px-4">
           <Button
@@ -230,4 +257,149 @@ export function WizardShell({
       ) : null}
     </Dialog>
   )
+}
+
+function ProcessingOverlay({ transition }: { transition: WizardTransitionState }) {
+  const copy = transitionCopy(transition.phase)
+  const activeIndex = Math.min(Math.max(transition.activeIndex, 0), copy.steps.length - 1)
+  const progress = `${((activeIndex + 1) / copy.steps.length) * 100}%`
+
+  return (
+    <div className="grid min-h-[300px] place-items-center bg-components-panel-bg/85">
+      <section
+        role="status"
+        aria-live="polite"
+        className="w-full max-w-[520px] rounded-lg border border-state-accent-active bg-background-body p-4 shadow-overlay"
+      >
+        <div className="flex items-start gap-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-md bg-state-accent-hover-alt text-text-accent">
+            <LoaderCircleIcon className="size-5 animate-spin" aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <h3 className="text-md font-semibold text-text-primary">{copy.title}</h3>
+            <p className="mt-1 text-sm text-text-secondary">{copy.description}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 h-1 overflow-hidden rounded-full bg-state-accent-active">
+          <div
+            className="h-full rounded-full bg-state-accent-solid transition-[width] duration-500 ease-out"
+            style={{ width: progress }}
+          />
+        </div>
+
+        <ol className="mt-4 grid gap-2">
+          {copy.steps.map((step, index) => {
+            const complete = index < activeIndex
+            const active = index === activeIndex
+            return (
+              <li
+                key={step.key}
+                className={cn(
+                  'flex min-h-8 items-center gap-2 rounded-md border px-2.5 text-sm transition-colors',
+                  active
+                    ? 'border-state-accent-active bg-state-accent-hover text-text-primary'
+                    : complete
+                      ? 'border-divider-regular bg-background-body text-text-secondary'
+                      : 'border-divider-subtle bg-background-default-subtle text-text-tertiary',
+                )}
+              >
+                <span
+                  className={cn(
+                    'grid size-5 shrink-0 place-items-center rounded-sm border',
+                    active
+                      ? 'border-state-accent-solid bg-state-accent-solid text-text-primary-on-surface'
+                      : complete
+                        ? 'border-state-success-solid bg-state-success-hover text-text-success'
+                        : 'border-divider-regular bg-background-body text-text-muted',
+                  )}
+                >
+                  {complete ? (
+                    <CheckIcon className="size-3.5" aria-hidden />
+                  ) : active ? (
+                    <LoaderCircleIcon className="size-3.5 animate-spin" aria-hidden />
+                  ) : (
+                    <span className="size-1.5 rounded-full bg-current" aria-hidden />
+                  )}
+                </span>
+                <span className="truncate">{step.label}</span>
+              </li>
+            )
+          })}
+        </ol>
+      </section>
+    </div>
+  )
+}
+
+interface TransitionStep {
+  key: string
+  label: ReactNode
+}
+
+function transitionCopy(phase: WizardTransitionPhase): {
+  title: ReactNode
+  description: ReactNode
+  steps: TransitionStep[]
+} {
+  switch (phase) {
+    case 'intake':
+      return {
+        title: <Trans>Preparing your mapping</Trans>,
+        description: (
+          <Trans>Creating a safe import batch, uploading rows, and mapping your columns.</Trans>
+        ),
+        steps: [
+          { key: 'create-batch', label: <Trans>Create batch</Trans> },
+          { key: 'upload-rows', label: <Trans>Upload rows</Trans> },
+          { key: 'map-columns', label: <Trans>Map columns</Trans> },
+        ],
+      }
+    case 'mapping':
+      return {
+        title: <Trans>Preparing normalization</Trans>,
+        description: <Trans>Saving your confirmed fields and grouping values for review.</Trans>,
+        steps: [
+          { key: 'save-mapping', label: <Trans>Save mapping</Trans> },
+          { key: 'read-field-values', label: <Trans>Read field values</Trans> },
+          { key: 'suggest-clean-values', label: <Trans>Suggest clean values</Trans> },
+        ],
+      }
+    case 'rerun_mapper':
+      return {
+        title: <Trans>Refreshing the AI mapping</Trans>,
+        description: <Trans>Re-reading your columns with the latest overrides applied.</Trans>,
+        steps: [
+          { key: 'read-columns', label: <Trans>Read columns</Trans> },
+          { key: 'remap-fields', label: <Trans>Re-map fields</Trans> },
+          { key: 'refresh-confidence', label: <Trans>Refresh confidence</Trans> },
+        ],
+      }
+    case 'normalize':
+      return {
+        title: <Trans>Building the import preview</Trans>,
+        description: (
+          <Trans>
+            Saving normalized values, applying the Default Matrix, and calculating totals.
+          </Trans>
+        ),
+        steps: [
+          { key: 'save-normalized-values', label: <Trans>Save normalized values</Trans> },
+          { key: 'apply-default-matrix', label: <Trans>Apply Default Matrix</Trans> },
+          { key: 'calculate-preview', label: <Trans>Calculate preview</Trans> },
+        ],
+      }
+    case 'import':
+      return {
+        title: <Trans>Generating your deadline queue</Trans>,
+        description: <Trans>Creating clients, deadlines, evidence links, and audit records.</Trans>,
+        steps: [
+          { key: 'create-clients', label: <Trans>Create clients</Trans> },
+          { key: 'generate-deadlines', label: <Trans>Generate deadlines</Trans> },
+          { key: 'record-audit-trail', label: <Trans>Record audit trail</Trans> },
+        ],
+      }
+  }
+  const exhaustive: never = phase
+  return exhaustive
 }

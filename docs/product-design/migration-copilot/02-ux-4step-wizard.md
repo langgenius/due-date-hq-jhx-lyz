@@ -139,6 +139,25 @@ stateDiagram-v2
 - Demo Sprint Owner 单账号不会触发，但 UI 必须就位（对齐 Phase 0 RBAC 开闸）
 - `role="status"` + `aria-live="polite"`
 
+### 3.4 跨步处理过渡
+
+Step 1 → 2、Step 2 → 3、Step 3 → 4、Step 4 Import 都可能等待 AI / D1 /
+Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wizard body 需要盖一层
+`role="status"` 处理中面板，锁住当前内容并把用户注意力留在当前任务上。
+
+| 阶段         | 标题                             | 阶段明细                                                          |
+| ------------ | -------------------------------- | ----------------------------------------------------------------- |
+| Intake → Map | `Preparing your mapping`         | Create batch → Upload rows → Map columns                          |
+| Map → Norm   | `Preparing normalization`        | Save mapping → Read field values → Suggest clean values           |
+| Re-run Map   | `Refreshing the AI mapping`      | Read columns → Re-map fields → Refresh confidence                 |
+| Norm → Dry   | `Building the import preview`    | Save normalized values → Apply Default Matrix → Calculate preview |
+| Import       | `Generating your deadline queue` | Create clients → Generate deadlines → Record audit trail          |
+
+- 面板：`bg-background-body` + `border-state-accent-active` + `shadow-overlay`，居中但不扩大 Wizard。
+- 遮罩：仅覆盖 Wizard body，`bg-components-panel-bg/85` + `backdrop-blur-sm`；header / Stepper / footer 保持可见但按钮禁用。
+- 进度：3 段式状态列表，completed 使用 success check，active 使用 accent spinner，pending 使用 muted dot。
+- a11y：面板 `role="status"` + `aria-live="polite"`；body 设置 `aria-busy=true`。
+
 ---
 
 ## 4. Step 1 · Intake
@@ -151,7 +170,7 @@ stateDiagram-v2
 | 状态        | 触发                | `[Continue →]`              | 视觉提示                                          |
 | ----------- | ------------------- | --------------------------- | ------------------------------------------------- |
 | idle        | 进入 Step 1 默认    | 禁用                        | Paste 区空；上传区待拖放                          |
-| validating  | 粘贴 / 上传后解析中 | 禁用（loading spinner）     | 进度条 `{colors.accent-default}`                  |
+| validating  | 粘贴 / 上传后解析中 | 禁用（upload 结束后再启用） | Upload 区紫色态 + `Reading file…` status          |
 | ready       | 解析成功 ≥ 1 行     | 启用（`button-primary`）    | 顶部计数 "N rows ready"                           |
 | error       | 解析失败 / 空文件   | 禁用                        | 红 Banner（`{colors.severity-critical-tint}`）    |
 | ssn_blocked | 命中 SSN 列         | 启用（但对应列强制 IGNORE） | 红 Banner + 该列边框 `{colors.severity-critical}` |
@@ -168,7 +187,7 @@ stateDiagram-v2
 │  We'll figure out the shape — paste or upload, your call.            │   ← {typography.body} + {colors.text-secondary}
 │                                                                      │
 │  ┌──────────────────────────────────────────────────────────────┐    │
-│  │  Paste here — any shape, we'll figure it out.                │    │   ← Textarea：高 240px；背景 {colors.surface-elevated}
+│  │  Paste here — any shape, we'll figure it out.                │    │   ← Textarea：高 200px；背景 {colors.surface-elevated}
 │  │  Include the header row if you have one.                     │    │     边框 1px {colors.border-default}；圆角 {rounded.md}
 │  │                                                              │    │     字体 {typography.numeric}（mono）；aria-label 见 §4.5
 │  │                                                              │    │
@@ -213,8 +232,11 @@ stateDiagram-v2
 
 ### 4.3 交互细节
 
-- Paste 区高度固定 240px；字体 `{typography.numeric}` 便于查看列对齐；粘贴后自动探测 header（空值则由 Step 2 Mapper 再决）
-- Upload：拖放 + 点击；接受 `.csv .tsv .xlsx`；≤ 2MB；超 1000 行前端**只**读取前 1000 行 + 顶部 Banner（见线框）
+- Paste 区高度固定 200px；字体 `{typography.numeric}` 便于查看列对齐；粘贴后自动探测 header（空值则由 Step 2 Mapper 再决）
+- Upload：拖放 + 点击；接受 `.csv .tsv .xlsx`；≤ 2MB；开始读取文件时先清空旧解析结果，
+  Upload 区显示紫色读取态与 `Reading file…`；读取成功且 `rowCount >= 1` 后 `[Continue →]`
+  才启用。空文件 / 只有表头无数据行时展示解析错误，不让用户面对一个无反馈的禁用按钮。
+- 超 1000 行前端**只**读取前 1000 行 + 顶部 Banner（见线框）
 - SSN 正则 `\d{3}-\d{2}-\d{4}`；命中列强制 `IGNORE` 并将表格列头边框替换为 `{colors.severity-critical}`（Step 2 透传给 Mapper 结果行）
 - Preset chips：5 个顺序固定 **TaxDome · Drake · Karbon · QuickBooks · File In Time**（对齐 [`./10-conflict-resolutions.md#2-5-preset-含-file-in-time`](./10-conflict-resolutions.md#2-5-preset-含-file-in-time)）
 - File In Time chip hover：弹出 tooltip（宽 240px，`{rounded.md}`，阴影 Level 3）
@@ -236,6 +258,7 @@ stateDiagram-v2
 | Subtitle                  | `Where is your data coming from?`                                                              | `你的数据从哪里来？`                                                   | `<Trans>`                                     |
 | Paste placeholder         | `Paste here — any shape, we'll figure it out. Include the header row if you have one.`         | `粘贴到这里 —— 任何格式都行，我们会自动识别。如果有表头也请一并粘贴。` | `` t`...` ``（textarea placeholder 用函数式） |
 | Upload hint               | `Drop CSV / TSV / XLSX here or choose file · max 1000 rows · 2 MB`                             | `把 CSV / TSV / XLSX 拖到这里或点击上传 · 最多 1000 行 · 2 MB`         | `<Trans>`                                     |
+| Upload reading            | `Reading file…`                                                                                | `正在读取文件…`                                                        | `<Trans>`                                     |
 | Preset label              | `I'm coming from…`                                                                             | `我正在从…迁移过来`                                                    | `<Trans>`                                     |
 | FIT tooltip               | `Coming from File In Time? We'll migrate your full-year calendar in one shot.`                 | `正在从 File In Time 迁移？我们一次性把全年日历迁过来。`               | `<Trans>`                                     |
 | SSN banner                | `We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI.` | `为了保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。`           | `<Trans>`                                     |
@@ -243,6 +266,7 @@ stateDiagram-v2
 | Primary CTA               | `Continue →`                                                                                   | `下一步 →`                                                             | `<Trans>`                                     |
 | Secondary CTA             | `← Back`                                                                                       | `← 返回`                                                               | `<Trans>`                                     |
 | Error banner (parse fail) | `We couldn't read that file. Try exporting as CSV.`                                            | `无法读取该文件。请先导出为 CSV 再试。`                                | `<Trans>`                                     |
+| Error banner (no rows)    | `We found a header, but no data rows. Add at least one client row to continue.`                | `找到了表头，但没有数据行。请至少添加一条客户记录后继续。`             | `` t`...` ``                                  |
 | Empty state               | `Paste or upload to continue.`                                                                 | `请粘贴或上传数据以继续。`                                             | `<Trans>`                                     |
 | Close confirm title       | `Discard import?`                                                                              | `要丢弃此次导入吗？`                                                   | `<Trans>`                                     |
 | Close confirm body        | `Your pasted data and unsaved edits in this wizard will be lost.`                              | `你粘贴的数据和向导中未保存的修改将会丢失。`                           | `<Trans>`                                     |

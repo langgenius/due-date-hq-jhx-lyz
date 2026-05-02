@@ -531,6 +531,10 @@ msgstr "Applied"
 msgid "Applied to {0} clients"
 msgstr "Applied to {0} clients"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Apply Default Matrix"
+msgstr "Apply Default Matrix"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
 msgstr "Apply to all"
@@ -690,6 +694,10 @@ msgstr "Billing status is not ready yet."
 msgid "Brief is being prepared. The risk table is ready now."
 msgstr "Brief is being prepared. The risk table is ready now."
 
+#: src/features/migration/WizardShell.tsx
+msgid "Building the import preview"
+msgstr "Building the import preview"
+
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -697,6 +705,10 @@ msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacy
 #: src/routes/clients.tsx
 msgid "C corp"
 msgstr "C corp"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Calculate preview"
+msgstr "Calculate preview"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -1106,9 +1118,17 @@ msgstr "Create a separate tenant with its own clients, deadlines, audit trail, a
 msgid "Create a ZIP with a PDF report, audit events, evidence links, and manifest."
 msgstr "Create a ZIP with a PDF report, audit events, evidence links, and manifest."
 
+#: src/features/migration/WizardShell.tsx
+msgid "Create batch"
+msgstr "Create batch"
+
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Create client"
 msgstr "Create client"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Create clients"
+msgstr "Create clients"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Create firm"
@@ -1130,6 +1150,14 @@ msgstr "Created"
 #: src/features/audit/audit-log-table.tsx
 msgid "Created snapshot"
 msgstr "Created snapshot"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Creating a safe import batch, uploading rows, and mapping your columns."
+msgstr "Creating a safe import batch, uploading rows, and mapping your columns."
+
+#: src/features/migration/WizardShell.tsx
+msgid "Creating clients, deadlines, evidence links, and audit records."
+msgstr "Creating clients, deadlines, evidence links, and audit records."
 
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Creating..."
@@ -1604,6 +1632,14 @@ msgstr "Free baseline"
 msgid "General"
 msgstr "General"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Generate deadlines"
+msgstr "Generate deadlines"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Generating your deadline queue"
+msgstr "Generating your deadline queue"
+
 #: src/features/rules/rules-console.tsx
 msgid "Generation Preview"
 msgstr "Generation Preview"
@@ -1943,6 +1979,10 @@ msgstr "Manual review source · click to open the official page"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Map \"{sourceHeader}\" to…"
 msgstr "Map \"{sourceHeader}\" to…"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Map columns"
+msgstr "Map columns"
 
 #: src/features/migration/Stepper.tsx
 msgid "Mapping"
@@ -2734,6 +2774,14 @@ msgstr "Prepared in the background from the latest dashboard risk snapshot."
 msgid "Preparer"
 msgstr "Preparer"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Preparing normalization"
+msgstr "Preparing normalization"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Preparing your mapping"
+msgstr "Preparing your mapping"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
 msgstr "Primary navigation"
@@ -2826,6 +2874,14 @@ msgstr "Queued"
 msgid "Raw"
 msgstr "Raw"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Re-map fields"
+msgstr "Re-map fields"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Re-reading your columns with the latest overrides applied."
+msgstr "Re-reading your columns with the latest overrides applied."
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Re-run AI"
 msgstr "Re-run AI"
@@ -2846,6 +2902,14 @@ msgstr "Reactivate / Re-apply"
 msgid "Reactivate access"
 msgstr "Reactivate access"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Read columns"
+msgstr "Read columns"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Read field values"
+msgstr "Read field values"
+
 #: src/features/rules/rules-console-primitives.tsx
 msgid "READ-ONLY"
 msgstr "READ-ONLY"
@@ -2862,6 +2926,10 @@ msgstr "Read-only view"
 #: src/routes/workboard.tsx
 msgid "Readiness"
 msgstr "Readiness"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Reading file…"
+msgstr "Reading file…"
 
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -2897,6 +2965,10 @@ msgstr "Recently updated"
 msgid "Recommended"
 msgstr "Recommended"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Record audit trail"
+msgstr "Record audit trail"
+
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
 msgstr "Recover mistaken batch imports. Edit individual client facts from Clients."
@@ -2918,6 +2990,14 @@ msgstr "Refresh AI weekly brief"
 #: src/routes/dashboard.tsx
 msgid "Refresh brief"
 msgstr "Refresh brief"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Refresh confidence"
+msgstr "Refresh confidence"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Refreshing the AI mapping"
+msgstr "Refreshing the AI mapping"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
@@ -3190,6 +3270,22 @@ msgstr "Save"
 #: src/routes/workboard.tsx
 msgid "Save changes"
 msgstr "Save changes"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Save mapping"
+msgstr "Save mapping"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Save normalized values"
+msgstr "Save normalized values"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Saving normalized values, applying the Default Matrix, and calculating totals."
+msgstr "Saving normalized values, applying the Default Matrix, and calculating totals."
+
+#: src/features/migration/WizardShell.tsx
+msgid "Saving your confirmed fields and grouping values for review."
+msgstr "Saving your confirmed fields and grouping values for review."
 
 #: src/routes/firm.tsx
 msgid "Saving…"
@@ -3578,6 +3674,10 @@ msgstr "Success"
 msgid "Success pages wait for webhook confirmation before showing activation."
 msgstr "Success pages wait for webhook confirmation before showing activation."
 
+#: src/features/migration/WizardShell.tsx
+msgid "Suggest clean values"
+msgstr "Suggest clean values"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "Suggested tax types (from entity × state matrix)"
@@ -3651,6 +3751,10 @@ msgstr "Team workload is available on Pro and Firm plans."
 #: src/features/rules/sources-tab.tsx
 msgid "Texas"
 msgstr "Texas"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "That file doesn't contain any rows. Upload a CSV, TSV, or XLSX with a header and at least one data row."
+msgstr "That file doesn't contain any rows. Upload a CSV, TSV, or XLSX with a header and at least one data row."
 
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
@@ -3859,6 +3963,10 @@ msgstr "Upgrade plan"
 msgid "Upgrade to Pro"
 msgstr "Upgrade to Pro"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Upload rows"
+msgstr "Upload rows"
+
 #: src/routes/workboard.tsx
 msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
 msgstr "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
@@ -3987,6 +4095,10 @@ msgstr "We couldn't read that file. Try exporting as CSV."
 #: src/features/migration/Step1Intake.tsx
 msgid "We couldn't read that XLSX file. Try exporting the first sheet as CSV."
 msgstr "We couldn't read that XLSX file. Try exporting the first sheet as CSV."
+
+#: src/features/migration/Step1Intake.tsx
+msgid "We found a header, but no data rows. Add at least one client row to continue."
+msgstr "We found a header, but no data rows. Add at least one client row to continue."
 
 #. placeholder {0}: normalize.rows.length
 #: src/features/migration/Step3Normalize.tsx

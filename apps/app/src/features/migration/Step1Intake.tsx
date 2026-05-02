@@ -1,6 +1,6 @@
 import { useId, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
-import { LockIcon, UploadCloudIcon } from 'lucide-react'
+import { LoaderCircleIcon, LockIcon, UploadCloudIcon } from 'lucide-react'
 import readXlsxFile, { type SheetData } from 'read-excel-file/browser'
 
 import { parseTabular, TabularParseError } from '@duedatehq/core/csv-parser'
@@ -65,9 +65,16 @@ interface Step1Props {
 export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }: Step1Props) {
   const { t } = useLingui()
   const pasteId = useId()
+  const uploadHintId = useId()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const fileDragDepthRef = useRef(0)
+  const fileReadSerialRef = useRef(0)
   const [isFileDragActive, setIsFileDragActive] = useState(false)
+  const [isReadingFile, setIsReadingFile] = useState(false)
+
+  function resetParsedRows() {
+    onParsed({ rowCount: 0, truncated: false, ssnBlockedColumnIndexes: [] })
+  }
 
   function commitText(
     text: string,
@@ -82,13 +89,24 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
     onText(text, fileName, options)
 
     if (!text.trim()) {
-      onParsed({ rowCount: 0, truncated: false, ssnBlockedColumnIndexes: [] })
-      onParseError(null)
+      resetParsedRows()
+      onParseError(
+        fileName
+          ? t`That file doesn't contain any rows. Upload a CSV, TSV, or XLSX with a header and at least one data row.`
+          : null,
+      )
       return
     }
 
     try {
       const parsed = parseTabular(text, { kind: 'paste' })
+      if (parsed.rowCount === 0) {
+        resetParsedRows()
+        onParseError(
+          t`We found a header, but no data rows. Add at least one client row to continue.`,
+        )
+        return
+      }
       const ssn = detectSsnColumns(parsed.headers, parsed.rows)
       onParsed({
         rowCount: parsed.rowCount,
@@ -101,9 +119,20 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         err instanceof TabularParseError
           ? friendlyParseError(err)
           : t`We couldn't read that file. Try exporting as CSV.`
-      onParsed({ rowCount: 0, truncated: false, ssnBlockedColumnIndexes: [] })
+      resetParsedRows()
       onParseError(message)
     }
+  }
+
+  function handleTextChange(text: string) {
+    fileReadSerialRef.current += 1
+    setIsReadingFile(false)
+    commitText(text, null, {
+      fileKind: 'paste',
+      rawFileBase64: null,
+      contentType: null,
+      sizeBytes: 0,
+    })
   }
 
   const ssnBlockedHeaders = useMemo(() => {
@@ -157,28 +186,76 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
   }
 
   function loadFile(file: File) {
+    const lowerName = file.name.toLowerCase()
+    const fileKind: IntakeState['fileKind'] = lowerName.endsWith('.xlsx')
+      ? 'xlsx'
+      : lowerName.endsWith('.tsv')
+        ? 'tsv'
+        : 'csv'
+    const contentType =
+      file.type ||
+      (fileKind === 'xlsx'
+        ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        : fileKind === 'tsv'
+          ? 'text/tab-separated-values'
+          : 'text/csv')
+    const readSerial = startFileRead(file, fileKind, contentType)
+
     if (file.size > MAX_FILE_BYTES) {
+      setIsReadingFile(false)
       onParseError(t`File is larger than 2 MB. Please trim or split the export.`)
       return
     }
-    const lowerName = file.name.toLowerCase()
-    if (lowerName.endsWith('.xlsx')) {
-      void loadXlsxFile(file)
+    if (fileKind === 'xlsx') {
+      void loadXlsxFile(file, readSerial, contentType)
       return
     }
-    void file.text().then((text) => {
-      commitText(text, file.name, {
-        fileKind: lowerName.endsWith('.tsv') ? 'tsv' : 'csv',
-        contentType:
-          file.type || (lowerName.endsWith('.tsv') ? 'text/tab-separated-values' : 'text/csv'),
-        sizeBytes: file.size,
+    void file
+      .text()
+      .then((text) => {
+        if (!isCurrentFileRead(readSerial)) return
+        commitText(text, file.name, {
+          fileKind,
+          contentType,
+          sizeBytes: file.size,
+        })
       })
-    })
+      .catch(() => {
+        if (!isCurrentFileRead(readSerial)) return
+        resetParsedRows()
+        onParseError(t`We couldn't read that file. Try exporting as CSV.`)
+      })
+      .finally(() => {
+        if (isCurrentFileRead(readSerial)) setIsReadingFile(false)
+      })
   }
 
-  async function loadXlsxFile(file: File) {
+  function startFileRead(
+    file: File,
+    fileKind: IntakeState['fileKind'],
+    contentType: string,
+  ): number {
+    fileReadSerialRef.current += 1
+    setIsReadingFile(true)
+    onText('', file.name, {
+      fileKind,
+      rawFileBase64: null,
+      contentType,
+      sizeBytes: file.size,
+    })
+    resetParsedRows()
+    onParseError(null)
+    return fileReadSerialRef.current
+  }
+
+  function isCurrentFileRead(serial: number) {
+    return fileReadSerialRef.current === serial
+  }
+
+  async function loadXlsxFile(file: File, readSerial: number, contentType: string) {
     try {
       const [sheets, rawFileBase64] = await Promise.all([readXlsxFile(file), fileToBase64(file)])
+      if (!isCurrentFileRead(readSerial)) return
       const rows: SheetData = sheets.find((sheet) =>
         sheet.data.some((row) => row.some((cell) => formatXlsxCell(cell).trim() !== '')),
       )?.data ?? [[]]
@@ -192,12 +269,15 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
       commitText(text, file.name, {
         fileKind: 'xlsx',
         rawFileBase64,
-        contentType:
-          file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        contentType,
         sizeBytes: file.size,
       })
     } catch {
+      if (!isCurrentFileRead(readSerial)) return
+      resetParsedRows()
       onParseError(t`We couldn't read that XLSX file. Try exporting the first sheet as CSV.`)
+    } finally {
+      if (isCurrentFileRead(readSerial)) setIsReadingFile(false)
     }
   }
 
@@ -231,9 +311,9 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
             aria-label={t`Paste client data`}
             aria-describedby="paste-hint"
             value={intake.rawText}
-            onChange={(e) => commitText(e.target.value, null)}
+            onChange={(e) => handleTextChange(e.target.value)}
             placeholder={t`Paste here — any shape, we'll figure it out. Include the header row if you have one.`}
-            className="h-[220px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
+            className="h-[200px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
           />
         </div>
       </div>
@@ -254,6 +334,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         onDragOver={handleFileDragOver}
         onDragLeave={handleFileDragLeave}
         onClick={() => fileInputRef.current?.click()}
+        aria-describedby={uploadHintId}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
@@ -262,19 +343,27 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         }}
         className={cn(
           'flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-md transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
-          isFileDragActive
+          isFileDragActive || isReadingFile
             ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
             : 'border-divider-deep bg-components-panel-bg text-text-secondary hover:border-state-accent-solid hover:bg-state-accent-hover-alt',
         )}
       >
-        <UploadCloudIcon
-          className={cn('size-5', isFileDragActive ? 'text-text-accent' : 'text-text-tertiary')}
-          aria-hidden
-        />
-        <span>
+        {isReadingFile ? (
+          <LoaderCircleIcon className="size-5 animate-spin text-text-accent" aria-hidden />
+        ) : (
+          <UploadCloudIcon
+            className={cn('size-5', isFileDragActive ? 'text-text-accent' : 'text-text-tertiary')}
+            aria-hidden
+          />
+        )}
+        <span id={uploadHintId}>
           <Trans>Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB</Trans>
         </span>
-        {intake.fileName ? (
+        {isReadingFile ? (
+          <span role="status" aria-live="polite" className="font-mono text-md text-text-accent">
+            <Trans>Reading file…</Trans>
+          </span>
+        ) : intake.fileName ? (
           <span className="font-mono text-md text-text-secondary tabular-nums">
             {intake.fileName}
           </span>
@@ -284,6 +373,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
           type="file"
           accept=".csv,.tsv,.xlsx,text/csv,text/tab-separated-values,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           className="hidden"
+          onClick={(event) => event.stopPropagation()}
           onChange={handleFilePicked}
         />
       </div>

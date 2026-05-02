@@ -531,6 +531,10 @@ msgstr "已应用"
 msgid "Applied to {0} clients"
 msgstr "已应用至 {0} 个客户"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Apply Default Matrix"
+msgstr "应用默认矩阵"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
 msgstr "全部应用"
@@ -690,6 +694,10 @@ msgstr "账单状态尚未准备好。"
 msgid "Brief is being prepared. The risk table is ready now."
 msgstr "简报正在后台准备中。风险表现在已经可用。"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Building the import preview"
+msgstr "正在生成导入预览"
+
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "登录即表示你同意 <termsLink>服务条款</termsLink> 与 <privacyLink>隐私政策</privacyLink>。登录遇到问题？请联系 <supportLink>support@duedatehq.com</supportLink>。"
@@ -697,6 +705,10 @@ msgstr "登录即表示你同意 <termsLink>服务条款</termsLink> 与 <privac
 #: src/routes/clients.tsx
 msgid "C corp"
 msgstr "C 公司"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Calculate preview"
+msgstr "计算预览"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -1106,8 +1118,16 @@ msgstr "创建一个独立租户，拥有独立的客户、截止日、审计轨
 msgid "Create a ZIP with a PDF report, audit events, evidence links, and manifest."
 msgstr "创建包含 PDF 报告、审计事件、证据链接和 manifest 的 ZIP。"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Create batch"
+msgstr "创建批次"
+
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Create client"
+msgstr "创建客户"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Create clients"
 msgstr "创建客户"
 
 #: src/components/patterns/app-shell-nav.tsx
@@ -1130,6 +1150,14 @@ msgstr "创建时间"
 #: src/features/audit/audit-log-table.tsx
 msgid "Created snapshot"
 msgstr "已创建快照"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Creating a safe import batch, uploading rows, and mapping your columns."
+msgstr "正在创建安全导入批次、上传行数据并映射字段。"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Creating clients, deadlines, evidence links, and audit records."
+msgstr "正在创建客户、截止日、证据链接和审计记录。"
 
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Creating..."
@@ -1604,6 +1632,14 @@ msgstr "免费基础版"
 msgid "General"
 msgstr "常规"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Generate deadlines"
+msgstr "生成截止日"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Generating your deadline queue"
+msgstr "正在生成你的截止日队列"
+
 #: src/features/rules/rules-console.tsx
 msgid "Generation Preview"
 msgstr "生成预览"
@@ -1943,6 +1979,10 @@ msgstr "人工巡检来源 · 点击打开官方页面"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Map \"{sourceHeader}\" to…"
 msgstr "把 \"{sourceHeader}\" 映射到…"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Map columns"
+msgstr "映射字段"
 
 #: src/features/migration/Stepper.tsx
 msgid "Mapping"
@@ -2734,6 +2774,14 @@ msgstr "基于最新 Dashboard 风险快照在后台生成。"
 msgid "Preparer"
 msgstr "经办人"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Preparing normalization"
+msgstr "正在准备规范化"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Preparing your mapping"
+msgstr "正在准备字段映射"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
 msgstr "主导航"
@@ -2826,6 +2874,14 @@ msgstr "已入队"
 msgid "Raw"
 msgstr "原始值"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Re-map fields"
+msgstr "重新映射字段"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Re-reading your columns with the latest overrides applied."
+msgstr "正在根据最新修改重新读取你的列。"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Re-run AI"
 msgstr "重新运行 AI"
@@ -2846,6 +2902,14 @@ msgstr "重新激活 / 再次应用"
 msgid "Reactivate access"
 msgstr "恢复访问"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Read columns"
+msgstr "读取字段"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Read field values"
+msgstr "读取字段值"
+
 #: src/features/rules/rules-console-primitives.tsx
 msgid "READ-ONLY"
 msgstr "只读"
@@ -2862,6 +2926,10 @@ msgstr "只读视图"
 #: src/routes/workboard.tsx
 msgid "Readiness"
 msgstr "就绪度"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Reading file…"
+msgstr "正在读取文件…"
 
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -2897,6 +2965,10 @@ msgstr "最近更新"
 msgid "Recommended"
 msgstr "推荐"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Record audit trail"
+msgstr "记录审计轨迹"
+
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
 msgstr "恢复误导入的批次。单个客户资料请在“客户”中编辑。"
@@ -2918,6 +2990,14 @@ msgstr "刷新 AI 每周简报"
 #: src/routes/dashboard.tsx
 msgid "Refresh brief"
 msgstr "刷新简报"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Refresh confidence"
+msgstr "刷新置信度"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Refreshing the AI mapping"
+msgstr "正在刷新 AI 映射"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
@@ -3190,6 +3270,22 @@ msgstr "保存"
 #: src/routes/workboard.tsx
 msgid "Save changes"
 msgstr "保存更改"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Save mapping"
+msgstr "保存字段映射"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Save normalized values"
+msgstr "保存规范化值"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Saving normalized values, applying the Default Matrix, and calculating totals."
+msgstr "正在保存规范化值、应用默认矩阵并计算汇总。"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Saving your confirmed fields and grouping values for review."
+msgstr "正在保存已确认字段，并将值分组以供复核。"
 
 #: src/routes/firm.tsx
 msgid "Saving…"
@@ -3578,6 +3674,10 @@ msgstr "成功"
 msgid "Success pages wait for webhook confirmation before showing activation."
 msgstr "成功页会等待 webhook 确认后再显示激活状态。"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Suggest clean values"
+msgstr "建议清洗后的值"
+
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "建议税种（来自实体 × 州矩阵）"
@@ -3651,6 +3751,10 @@ msgstr "Team workload 可在 Pro 和 Firm 计划使用。"
 #: src/features/rules/sources-tab.tsx
 msgid "Texas"
 msgstr "德克萨斯"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "That file doesn't contain any rows. Upload a CSV, TSV, or XLSX with a header and at least one data row."
+msgstr "这个文件不包含任何数据行。请上传带有表头且至少包含一条数据行的 CSV、TSV 或 XLSX。"
 
 #: src/lib/i18n-error.ts
 msgid "That resource belongs to a different practice."
@@ -3859,6 +3963,10 @@ msgstr "升级计划"
 msgid "Upgrade to Pro"
 msgstr "升级到 Pro"
 
+#: src/features/migration/WizardShell.tsx
+msgid "Upload rows"
+msgstr "上传行数据"
+
 #: src/routes/workboard.tsx
 msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
 msgstr "使用表格表头按客户、辖区、表单、就绪度、负责人、风险和时间筛选。"
@@ -3987,6 +4095,10 @@ msgstr "无法读取该文件。请先导出为 CSV 再试。"
 #: src/features/migration/Step1Intake.tsx
 msgid "We couldn't read that XLSX file. Try exporting the first sheet as CSV."
 msgstr "无法读取该 XLSX 文件。请尝试将第一个工作表导出为 CSV。"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "We found a header, but no data rows. Add at least one client row to continue."
+msgstr "找到了表头，但没有数据行。请至少添加一条客户记录后继续。"
 
 #. placeholder {0}: normalize.rows.length
 #: src/features/migration/Step3Normalize.tsx

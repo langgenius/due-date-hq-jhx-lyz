@@ -159,7 +159,7 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
         intake: {
           ...state.intake,
           rawText: action.text,
-          fileName: action.fileName ?? state.intake.fileName,
+          fileName: action.fileName === undefined ? state.intake.fileName : action.fileName,
           fileKind: action.fileKind ?? state.intake.fileKind,
           rawFileBase64:
             action.rawFileBase64 === undefined ? state.intake.rawFileBase64 : action.rawFileBase64,

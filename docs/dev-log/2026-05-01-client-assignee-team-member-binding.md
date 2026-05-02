@@ -27,3 +27,11 @@
 - `pnpm --filter @duedatehq/app test`
 - `pnpm --filter @duedatehq/server test`
 - `pnpm check`
+
+## Follow-up: 2026-05-02 E2E owner select
+
+- Updated the clients Playwright page object to select Owner via the combobox option flow instead
+  of filling the old free-text input.
+- This keeps `E2E-CLIENTS-CREATE` aligned with the member-backed assignment UI while preserving
+  the test assertion that the created row displays the selected owner label.
+- Verified with `pnpm test:e2e e2e/tests/clients.spec.ts --project=chromium`.

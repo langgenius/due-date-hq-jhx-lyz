@@ -34,7 +34,7 @@ import { Step1Intake } from './Step1Intake'
 import { Step2Mapping } from './Step2Mapping'
 import { Step3Normalize } from './Step3Normalize'
 import { Step4Preview } from './Step4Preview'
-import { WizardShell } from './WizardShell'
+import { WizardShell, type WizardTransitionState } from './WizardShell'
 import {
   INITIAL_STATE,
   PRESET_TO_SOURCE,
@@ -483,6 +483,31 @@ export function Wizard({ open, onClose }: WizardProps) {
     applyDefaultMatrixMutation.isPending ||
     applyMutation.isPending ||
     revertMutation.isPending
+  const transition = useMemo<WizardTransitionState | null>(() => {
+    if (createBatchMutation.isPending) return { phase: 'intake', activeIndex: 0 }
+    if (uploadRawMutation.isPending) return { phase: 'intake', activeIndex: 1 }
+    if (runMapperMutation.isPending) {
+      return state.step === 2
+        ? { phase: 'rerun_mapper', activeIndex: 1 }
+        : { phase: 'intake', activeIndex: 2 }
+    }
+    if (confirmMappingMutation.isPending) return { phase: 'mapping', activeIndex: 0 }
+    if (runNormalizerMutation.isPending) return { phase: 'mapping', activeIndex: 2 }
+    if (confirmNormalizationMutation.isPending) return { phase: 'normalize', activeIndex: 0 }
+    if (applyDefaultMatrixMutation.isPending) return { phase: 'normalize', activeIndex: 1 }
+    if (applyMutation.isPending) return { phase: 'import', activeIndex: 1 }
+    return null
+  }, [
+    applyDefaultMatrixMutation.isPending,
+    applyMutation.isPending,
+    confirmMappingMutation.isPending,
+    confirmNormalizationMutation.isPending,
+    createBatchMutation.isPending,
+    runMapperMutation.isPending,
+    runNormalizerMutation.isPending,
+    state.step,
+    uploadRawMutation.isPending,
+  ])
 
   const handleConfirmRevert = useCallback(() => {
     if (!pendingRevert) return
@@ -511,6 +536,7 @@ export function Wizard({ open, onClose }: WizardProps) {
         open={open}
         step={state.step}
         busy={isMutating || state.isBusy}
+        transition={transition}
         canContinue={canContinue}
         continueLabel={continueLabel}
         onContinue={onContinue}

@@ -8,6 +8,7 @@ export class ClientsPage {
   readonly newClientButton: Locator
   readonly createDialog: Locator
   readonly createClientButton: Locator
+  readonly ownerSelect: Locator
   readonly factProfileDialog: Locator
   readonly filteredEmptyState: Locator
 
@@ -19,6 +20,7 @@ export class ClientsPage {
     this.newClientButton = page.getByRole('button', { name: 'New client' })
     this.createDialog = page.getByRole('dialog', { name: 'Create client' })
     this.createClientButton = this.createDialog.getByRole('button', { name: 'Create client' })
+    this.ownerSelect = this.createDialog.getByRole('combobox', { name: 'Owner' })
     this.factProfileDialog = page.getByRole('dialog', { name: 'Fact profile' })
     this.filteredEmptyState = page.getByText('No clients match these filters')
   }
@@ -42,7 +44,7 @@ export class ClientsPage {
     if (input.county) await this.createDialog.getByLabel('County').fill(input.county)
     if (input.email) await this.createDialog.getByLabel('Email').fill(input.email)
     if (input.owner) {
-      await this.createDialog.getByRole('combobox', { name: 'Owner' }).click()
+      await this.ownerSelect.click()
       await this.page
         .getByRole('option', { name: new RegExp(`^${escapeRegExp(input.owner)}`) })
         .click()
