@@ -214,15 +214,15 @@ export function CoverageTab() {
                     <TableCell className="py-2">
                       <JurisdictionCode code={row.jurisdiction} />
                     </TableCell>
-                    <TableCell className="py-2 text-sm font-medium">
+                    <TableCell className="py-2 text-xs font-medium">
                       {jurisdictionLabels[row.jurisdiction]}
                     </TableCell>
-                    <TableCell className="py-2 text-right font-mono text-sm tabular-nums">
+                    <TableCell className="py-2 text-right font-mono text-xs tabular-nums">
                       {row.verifiedRuleCount}
                     </TableCell>
                     <TableCell
                       className={cn(
-                        'py-2 text-right font-mono text-sm tabular-nums',
+                        'py-2 text-right font-mono text-xs tabular-nums',
                         // Candidate count tones the column purple only when there
                         // is at least one candidate (Figma 218:24); zero values
                         // stay muted to avoid drawing the eye to "nothing here".
@@ -231,7 +231,7 @@ export function CoverageTab() {
                     >
                       {row.candidateCount}
                     </TableCell>
-                    <TableCell className="py-2 text-right font-mono text-sm tabular-nums text-text-secondary">
+                    <TableCell className="py-2 text-right font-mono text-xs tabular-nums text-text-secondary">
                       {row.sourceCount}
                     </TableCell>
                     <TableCell className="py-2">
@@ -271,7 +271,7 @@ export function CoverageTab() {
               <TableBody>
                 {RULE_JURISDICTIONS.map((jurisdiction) => (
                   <TableRow key={jurisdiction} className="h-11 hover:bg-transparent">
-                    <TableCell className="py-2 text-sm font-medium">
+                    <TableCell className="py-2 text-xs font-medium">
                       {jurisdictionLabels[jurisdiction]}
                     </TableCell>
                     {ENTITY_COLUMNS.map((entity) => (

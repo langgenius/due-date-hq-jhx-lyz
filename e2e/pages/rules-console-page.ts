@@ -10,7 +10,7 @@ export class RulesConsolePage {
     this.coverageTab = page.getByRole('tab', { name: /Coverage/ })
     this.sourcesTab = page.getByRole('tab', { name: /Sources/ })
     this.libraryTab = page.getByRole('tab', { name: /Rule Library/ })
-    this.previewTab = page.getByRole('tab', { name: /Generation Preview/ })
+    this.previewTab = page.getByRole('tab', { name: /Obligation Preview/ })
   }
 
   async goto() {

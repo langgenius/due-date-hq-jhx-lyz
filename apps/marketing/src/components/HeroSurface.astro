@@ -82,7 +82,7 @@ const rowTint: Record<'critical' | 'high' | 'medium', string> = {
 
   <!-- Table -->
   <div class="px-0">
-    <div class="grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr_1.3fr] items-center gap-3 border-b border-border-subtle px-4 py-2 font-mono text-2xs tracking-wider text-text-muted">
+    <div class="grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr_1.3fr] items-center gap-3 border-b border-border-subtle px-4 py-2 font-mono text-xs tracking-wider text-text-muted">
       <span>{t.table.headers.client}</span>
       <span>{t.table.headers.form}</span>
       <span>{t.table.headers.due}</span>
@@ -95,15 +95,15 @@ const rowTint: Record<'critical' | 'high' | 'medium', string> = {
         <div class="flex items-center gap-3">
           <SeverityBar severity={row.severity} />
           <div class="leading-tight">
-            <div class="text-[13px] font-medium text-text-primary">{row.client}</div>
-            <div class="font-mono text-[11px] text-text-muted">{row.ein}</div>
+            <div class="text-xs font-medium text-text-primary">{row.client}</div>
+            <div class="font-mono text-xs text-text-muted">{row.ein}</div>
           </div>
         </div>
-        <span class="font-mono text-[12px] text-text-secondary">{row.form}</span>
-        <span class="font-mono text-[12px] text-text-secondary">{row.due}</span>
-        <span class="font-mono text-[12px] text-text-muted">{row.daysLeft}</span>
-        <span class="text-right font-mono tabular text-[13px] font-medium text-text-primary">{row.exposure}</span>
-        <span class="inline-flex items-center gap-1.5 font-mono text-[11px] text-text-secondary">
+        <span class="font-mono text-xs text-text-secondary">{row.form}</span>
+        <span class="font-mono text-xs text-text-secondary">{row.due}</span>
+        <span class="font-mono text-xs text-text-muted">{row.daysLeft}</span>
+        <span class="text-right font-mono tabular text-xs font-medium text-text-primary">{row.exposure}</span>
+        <span class="inline-flex items-center gap-1.5 font-mono text-xs text-text-secondary">
           <span class="block h-1 w-1 rounded-full bg-status-waiting"></span>
           {row.evidence}
         </span>

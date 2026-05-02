@@ -50,7 +50,7 @@ test('AC: E2E-RULES-DETAIL opens a shipped rule detail drawer', async ({
   await expect(authenticatedPage.getByText('Evidence', { exact: true })).toBeVisible()
 })
 
-test('AC: E2E-RULES-PREVIEW runs the implemented generation preview', async ({
+test('AC: E2E-RULES-PREVIEW runs the implemented obligation preview', async ({
   authenticatedPage,
   rulesConsolePage,
 }) => {

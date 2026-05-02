@@ -215,7 +215,7 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
                     <TableCell aria-hidden className="text-text-tertiary">
                       →
                     </TableCell>
-                    <TableCell className="text-sm font-medium text-text-primary">
+                    <TableCell className="text-xs font-medium text-text-primary">
                       <span className="inline-flex items-center gap-1">
                         {row.targetField === 'IGNORE' ? (
                           <span className="italic text-text-tertiary">{targetLabels.IGNORE}</span>

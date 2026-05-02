@@ -259,10 +259,10 @@
 | Token                | Size | Weight | Line-height | 用途                                                                                            |
 | -------------------- | ---- | ------ | ----------- | ----------------------------------------------------------------------------------------------- |
 | `text-2xs`           | 10px | 500    | 1.3         | keyboard chip, compact evidence marks                                                           |
-| `text-xs`            | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase（即 `typography.label`）                         |
+| `text-xs`            | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase, 表格行内容（即 `typography.label`）             |
 | `text-badge`         | 11px | 500    | 1.333       | Badge primitive（status / readiness / source chips）                                            |
 | `text-sm`            | 12px | 400    | 1.5         | 次级说明、非 badge 状态 label                                                                   |
-| `text-base`          | 13px | 400    | 1.5         | **正文默认** / 表格行内容（即 `typography.body` / `body-medium`）                               |
+| `text-base`          | 13px | 400    | 1.5         | **正文默认**（即 `typography.body` / `body-medium`）                                            |
 | `text-md`            | 14px | 500    | 1.5         | 客户名、可点击标题                                                                              |
 | `text-lg`            | 16px | 500    | 1.4         | 页面标题、Drawer 标题（即 `typography.title`）                                                  |
 | `text-xl`            | 20px | 600    | 1.3         | Hero 副指标数字、Section heading                                                                |
@@ -737,7 +737,7 @@ Done/Applied: emerald-600 (#059669) ← only for completed
 
 **生成一个 Dashboard 风险表格行**
 
-> Build a table row component for DueDateHQ. Light mode. Use Inter 13px for client name, Geist Mono tabular-nums for "$28,400" and "3d", font-weight 600 on name. Row height 36px. Critical status → `border-left: 2px solid #DC2626` + `background: rgba(220,38,38,0.06)`. No shadow. Hover state adds `background: rgba(0,0,0,0.02)`. Right-aligned dollar amount. Inline `[Apply]` button uses `color: #5B5BD6` no border no bg with hover underline. Status label 12px slate-500.
+> Build a table row component for DueDateHQ. Light mode. Use Inter 11px for table row text and Geist Mono 11px tabular-nums for "$28,400" and "3d", font-weight 600 on name. Row height 36px. Critical status → `border-left: 2px solid #DC2626` + `background: rgba(220,38,38,0.06)`. No shadow. Hover state adds `background: rgba(0,0,0,0.02)`. Right-aligned dollar amount. Inline `[Apply]` button uses `color: #5B5BD6` no border no bg with hover underline. Status label 11px slate-500.
 
 **生成一个 Hero 风险聚合区**
 

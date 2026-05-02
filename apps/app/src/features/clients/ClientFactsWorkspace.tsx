@@ -610,7 +610,7 @@ function handleClientRowKeyDown(
 function ClientMetricCard({ metric }: { metric: ClientMetric }) {
   const Icon = metric.icon
   return (
-    <Card>
+    <Card role="group" aria-label={metric.label}>
       <CardContent className="flex items-center justify-between gap-4 p-4">
         <div className="flex min-w-0 flex-col gap-1">
           <span className="text-sm font-medium text-text-secondary">{metric.label}</span>
@@ -643,7 +643,7 @@ function ClientTableEmptyRow({ colSpan }: { colSpan: number }) {
   return (
     <TableRow>
       <TableCell colSpan={colSpan} className="h-48 text-center">
-        <div className="flex flex-col items-center justify-center gap-1 text-sm">
+        <div className="flex flex-col items-center justify-center gap-1 text-xs">
           <span className="font-medium text-text-primary">
             <Trans>No clients match these filters</Trans>
           </span>

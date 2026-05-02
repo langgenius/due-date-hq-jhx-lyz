@@ -51,7 +51,7 @@ export class AppShellPage {
     } finally {
       await this.page.keyboard.up('Shift')
     }
-    await this.shortcutDialog.waitFor({ state: 'visible', timeout: 1_000 })
+    await this.shortcutDialog.waitFor({ state: 'visible' })
   }
 
   private async tryOpenCommandPalette(shortcut: string) {

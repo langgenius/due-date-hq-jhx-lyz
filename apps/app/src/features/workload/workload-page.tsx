@@ -299,7 +299,12 @@ function WorkloadTable({
               </div>
             </TableCell>
             <TableCell className="text-right">
-              <Button variant="outline" size="sm" render={<Link to={workloadRowHref(row)} />}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                render={<Link to={workloadRowHref(row)} />}
+              >
                 <Trans>Open</Trans>
               </Button>
             </TableCell>
@@ -324,7 +329,7 @@ function NumericCell({
       <Link
         to={href}
         className={cn(
-          'font-mono text-sm font-medium tabular-nums underline-offset-4 hover:underline',
+          'font-mono text-xs font-medium tabular-nums underline-offset-4 hover:underline',
           danger && value > 0 ? 'text-text-destructive' : 'text-text-primary',
         )}
       >

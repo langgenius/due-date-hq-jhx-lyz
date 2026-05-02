@@ -722,7 +722,7 @@ function daysUntilDueFromAsOf(dueDate: string, asOfDate: string | null): number 
 function DashboardCountdownBadge({ days }: { days: number }) {
   const variant = days <= 2 ? 'destructive' : days <= 7 ? 'warning' : 'outline'
   return (
-    <Badge variant={variant} className="min-w-18 justify-start font-mono text-[11px] tabular-nums">
+    <Badge variant={variant} className="min-w-18 justify-start font-mono text-xs tabular-nums">
       {days === 0 ? (
         <Trans>Today</Trans>
       ) : days < 0 ? (
@@ -1054,6 +1054,7 @@ function DashboardTriageTable({
           <Button
             variant="ghost"
             size="sm"
+            className="text-xs"
             aria-label={t`Open evidence for ${row.original.clientName}`}
             onClick={() => onOpenEvidence(row.original)}
           >
@@ -1110,7 +1111,7 @@ function DashboardTriageTable({
       <TableBody>
         {tableRows.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={visibleColumnCount} className="py-8 text-sm text-text-secondary">
+            <TableCell colSpan={visibleColumnCount} className="py-8 text-xs text-text-secondary">
               <Trans>No obligations in this window.</Trans>
             </TableCell>
           </TableRow>

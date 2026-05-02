@@ -15,6 +15,7 @@ test.describe('seeded Pulse alerts', () => {
 
   test('AC: E2E-PULSE-APPLY-UNDO applies, audits, links evidence, and reverts', async ({
     appShellPage,
+    auditPage,
     authenticatedPage,
     workboardPage,
   }) => {
@@ -46,7 +47,8 @@ test.describe('seeded Pulse alerts', () => {
     await expect(workboardPage.rowFor('Bright Studio S-Corp')).toContainText('2026-03-15')
 
     await appShellPage.goto('/audit?action=pulse.apply&range=all')
-    await expect(authenticatedPage.getByText('pulse.apply')).toBeVisible()
+    await expect(auditPage.eventRowFor('pulse.apply')).toBeVisible()
+    await expect(auditPage.eventRowFor('pulse.apply')).toContainText('Pulse applied')
 
     await appShellPage.goto('/')
     await expect(authenticatedPage.getByText('pulse_apply')).toBeVisible()

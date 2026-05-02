@@ -77,13 +77,7 @@ export class ClientsPage {
   }
 
   metricCard(label: string) {
-    return this.page
-      .locator('section')
-      .first()
-      .locator('[data-slot="card"]')
-      .filter({
-        has: this.page.getByText(label, { exact: true }),
-      })
+    return this.page.getByRole('group', { name: label })
   }
 
   rowFor(clientName: string) {

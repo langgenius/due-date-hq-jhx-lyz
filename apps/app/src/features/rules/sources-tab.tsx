@@ -235,21 +235,21 @@ function SourceRow({ source }: { source: RuleSource }) {
       className="h-10 cursor-pointer hover:bg-state-base-hover"
     >
       <TableCell className="px-4 py-1.5">
-        <span className="block truncate text-sm font-medium text-text-primary">{source.title}</span>
+        <span className="block truncate text-xs font-medium text-text-primary">{source.title}</span>
         <span className="block truncate font-mono text-xs text-text-tertiary">{source.id}</span>
       </TableCell>
       <TableCell className="px-0 py-1.5">
         <JurisdictionCode code={source.jurisdiction} />
       </TableCell>
-      <TableCell className="px-0 py-1.5 text-sm text-text-secondary">
+      <TableCell className="px-0 py-1.5 text-xs text-text-secondary">
         {compactSourceType(source.sourceType)}
       </TableCell>
-      <TableCell className="px-0 py-1.5 text-sm text-text-secondary">
+      <TableCell className="px-0 py-1.5 text-xs text-text-secondary">
         {source.cadence.replace('_', '-')}
       </TableCell>
       <TableCell
         className={cn(
-          'px-0 py-1.5 text-sm',
+          'px-0 py-1.5 text-xs',
           isManualReview ? 'text-severity-medium' : 'text-text-secondary',
         )}
         title={

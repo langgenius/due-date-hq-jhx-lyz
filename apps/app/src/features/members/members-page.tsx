@@ -446,7 +446,7 @@ function ActiveMembersTable({
 }) {
   return (
     <div className="overflow-hidden rounded-md border border-divider-regular bg-background-default">
-      <Table className="min-w-[1040px] text-base">
+      <Table className="min-w-[1040px]">
         <TableHeader>
           <TableRow className="h-9 hover:bg-transparent">
             <TableHead className="w-[304px] px-4">Name</TableHead>
@@ -519,7 +519,7 @@ function PendingInvitationsTable({
 }) {
   return (
     <div className="overflow-hidden rounded-md border border-divider-regular bg-background-default">
-      <Table className="min-w-[1040px] text-base">
+      <Table className="min-w-[1040px]">
         <TableHeader>
           <TableRow className="h-9 hover:bg-transparent">
             <TableHead className="w-[444px] px-4">Email</TableHead>
@@ -535,7 +535,7 @@ function PendingInvitationsTable({
             <TableRow key={invitation.id} className="h-14">
               <TableCell className="px-4 py-2">
                 <div className="flex flex-col">
-                  <span className="font-mono text-sm font-medium text-text-primary">
+                  <span className="font-mono text-xs font-medium text-text-primary">
                     {invitation.email}
                   </span>
                   <span className="text-xs text-text-muted">
@@ -549,7 +549,7 @@ function PendingInvitationsTable({
               <TableCell className="py-2">
                 <RoleDisplay role={invitation.role} />
               </TableCell>
-              <TableCell className="py-2 text-sm text-text-secondary">
+              <TableCell className="py-2 text-xs text-text-secondary">
                 {inviterName(members, invitation.inviterId)}
               </TableCell>
               <TableCell className="py-2 font-mono text-xs leading-4">
@@ -609,7 +609,7 @@ function MemberIdentity({ member }: { member: MemberPublic }) {
       </span>
       <span
         className={cn(
-          'truncate text-sm font-medium',
+          'truncate text-xs font-medium',
           member.status === 'suspended' ? 'text-text-muted' : 'text-text-primary',
         )}
       >
@@ -671,7 +671,7 @@ function MemberStatusPill({ status }: { status: MemberPublic['status'] }) {
   return (
     <Badge
       variant={suspended ? 'secondary' : 'outline'}
-      className="h-5 rounded-sm px-2 text-[11px] text-text-secondary"
+      className="h-5 rounded-sm px-2 text-xs text-text-secondary"
     >
       <BadgeStatusDot tone={suspended ? 'disabled' : 'warning'} className="size-1.5" />
       {suspended ? <Trans>Suspended</Trans> : <Trans>Active</Trans>}
@@ -682,7 +682,7 @@ function MemberStatusPill({ status }: { status: MemberPublic['status'] }) {
 function InvitationStatusPill({ status }: { status: MemberInvitationPublic['status'] }) {
   const expired = status === 'expired'
   return (
-    <Badge variant={expired ? 'warning' : 'success'} className="h-5 rounded-sm px-2 text-[11px]">
+    <Badge variant={expired ? 'warning' : 'success'} className="h-5 rounded-sm px-2 text-xs">
       <BadgeStatusDot tone={expired ? 'warning' : 'success'} className="size-1.5" />
       {expired ? <Trans>Expired</Trans> : <Trans>Pending</Trans>}
     </Badge>

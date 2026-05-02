@@ -167,7 +167,7 @@ const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 const DAYS_FILTER_MIN = -3650
 const DAYS_FILTER_MAX = 3650
 const UNASSIGNED_OWNER_OPTION = '__unassigned__'
-const WORKBOARD_TABLE_PILL_CLASSNAME = 'text-[12px]'
+const WORKBOARD_TABLE_PILL_CLASSNAME = 'text-xs'
 const NON_HIDEABLE_COLUMNS = new Set(['select'])
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const STATE_CODE_RE = /^[A-Z]{2}$/
@@ -1005,7 +1005,7 @@ export function WorkboardRoute() {
         accessorKey: 'currentDueDate',
         header: t`Due date`,
         cell: (info) => formatDate(info.getValue<string>()),
-        meta: { cellClassName: 'font-mono text-[11px] tabular-nums' },
+        meta: { cellClassName: 'font-mono text-xs tabular-nums' },
       },
       {
         accessorKey: 'daysUntilDue',
@@ -1095,6 +1095,7 @@ export function WorkboardRoute() {
           <Button
             variant="ghost"
             size="sm"
+            className="text-xs"
             aria-label={t`Open evidence for ${tableRow.original.clientName}`}
             onClick={(event) => {
               event.stopPropagation()
@@ -2015,6 +2016,7 @@ function ExposurePill({
       <Button
         variant="ghost"
         size="sm"
+        className="text-xs"
         onClick={(event) => {
           event.stopPropagation()
           onNeedsInput(row)
@@ -2294,15 +2296,15 @@ function parseOwnerCount(value: string): number | null {
 function EmptyState({ onOpenWizard }: { onOpenWizard: () => void }) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-divider-regular py-10 px-6 text-center">
-      <span className="text-md font-semibold text-text-primary">
+      <span className="text-xs font-semibold text-text-primary">
         <Trans>No obligations match these filters.</Trans>
       </span>
-      <p className="max-w-105 text-sm text-text-secondary">
+      <p className="max-w-105 text-xs text-text-secondary">
         <Trans>
           Run the migration wizard to import a CSV of clients, or change the filters above.
         </Trans>
       </p>
-      <Button size="sm" onClick={onOpenWizard}>
+      <Button size="sm" className="text-xs" onClick={onOpenWizard}>
         <Trans>Run migration</Trans>
       </Button>
     </div>

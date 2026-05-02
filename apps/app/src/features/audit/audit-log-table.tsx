@@ -142,7 +142,7 @@ function AuditLogRow({
       </TableCell>
       <TableCell>
         <div className="grid gap-1">
-          <span className="text-sm font-medium text-text-primary">{actor}</span>
+          <span className="text-xs font-medium text-text-primary">{actor}</span>
           {event.actorId ? (
             <span className="font-mono text-xs text-text-tertiary">
               {shortenAuditId(event.actorId)}
@@ -157,17 +157,17 @@ function AuditLogRow({
       </TableCell>
       <TableCell>
         <div className="grid gap-1">
-          <span className="text-sm text-text-primary" title={event.entityType}>
+          <span className="text-xs text-text-primary" title={event.entityType}>
             {entityDisplay.primary}
           </span>
           <span className="text-xs text-text-tertiary">{entityDisplay.secondary}</span>
         </div>
       </TableCell>
       <TableCell className="max-w-[360px] whitespace-normal">
-        <span className="line-clamp-2 text-sm text-text-secondary">{changeHeadline}</span>
+        <span className="line-clamp-2 text-xs text-text-secondary">{changeHeadline}</span>
       </TableCell>
       <TableCell className="text-right">
-        <span className="text-sm text-text-tertiary" aria-hidden>
+        <span className="text-xs text-text-tertiary" aria-hidden>
           ›
         </span>
       </TableCell>

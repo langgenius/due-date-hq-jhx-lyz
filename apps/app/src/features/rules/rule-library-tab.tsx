@@ -183,10 +183,10 @@ function RuleRow({
       <TableCell className="py-2">
         <JurisdictionCode code={rule.jurisdiction} />
       </TableCell>
-      <TableCell className="max-w-[300px] py-2 font-mono text-sm font-medium">
+      <TableCell className="max-w-[300px] py-2 font-mono text-xs font-medium">
         <span className="block truncate">{rule.id}</span>
       </TableCell>
-      <TableCell className="max-w-[168px] py-2 text-sm text-text-secondary">
+      <TableCell className="max-w-[168px] py-2 text-xs text-text-secondary">
         <span className="block truncate">{rule.entityApplicability.join(', ')}</span>
       </TableCell>
       <TableCell className="py-2">
@@ -195,7 +195,7 @@ function RuleRow({
       <TableCell className="py-2">
         <StatusCell status={rule.status} />
       </TableCell>
-      <TableCell className="py-2 text-right text-sm text-text-tertiary">›</TableCell>
+      <TableCell className="py-2 text-right text-xs text-text-tertiary">›</TableCell>
     </TableRow>
   )
 }
@@ -211,7 +211,7 @@ function StatusCell({ status }: { status: StatusKey }) {
     [t],
   )
   return (
-    <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary">
+    <span className="inline-flex items-center gap-2 text-xs font-medium text-text-primary">
       <ToneDot tone={status === 'candidate' ? 'review' : 'success'} />
       {label[status]}
     </span>

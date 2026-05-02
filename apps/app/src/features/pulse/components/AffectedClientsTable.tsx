@@ -102,7 +102,7 @@ export function AffectedClientsTable({
                 {row.taxType}
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-1.5 font-mono text-base tabular-nums text-text-primary">
+                <div className="flex items-center justify-end gap-1.5 font-mono text-xs tabular-nums text-text-primary">
                   <span className="text-text-tertiary line-through">
                     {formatDate(row.currentDueDate)}
                   </span>
