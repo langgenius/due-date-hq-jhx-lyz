@@ -22,7 +22,6 @@ import {
   FileSearchIcon,
   MapPinnedIcon,
   PanelRightOpenIcon,
-  SearchIcon,
   UsersRoundIcon,
 } from 'lucide-react'
 
@@ -31,17 +30,11 @@ import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@duedatehq/ui/components/ui/input-group'
 import {
   Sheet,
   SheetContent,
@@ -102,7 +95,6 @@ type ClientFactsWorkspaceProps = {
   factsModel: ClientFactsModel
   entityLabels: Record<ClientEntityType, string>
   isLoading: boolean
-  search: string
   clientFilter: string[]
   entityFilter: ClientEntityType[]
   stateFilter: string[]
@@ -110,7 +102,6 @@ type ClientFactsWorkspaceProps = {
   sourceFilter: ClientSourceType[]
   ownerFilter: string[]
   profileOpen: boolean
-  onSearchChange: (value: string) => void
   onClientFilterChange: (value: string[]) => void
   onEntityFilterChange: (value: string[]) => void
   onStateFilterChange: (value: string[]) => void
@@ -135,7 +126,6 @@ export function ClientFactsWorkspace({
   factsModel,
   entityLabels,
   isLoading,
-  search,
   clientFilter,
   entityFilter,
   stateFilter,
@@ -143,7 +133,6 @@ export function ClientFactsWorkspace({
   sourceFilter,
   ownerFilter,
   profileOpen,
-  onSearchChange,
   onClientFilterChange,
   onEntityFilterChange,
   onStateFilterChange,
@@ -483,7 +472,7 @@ export function ClientFactsWorkspace({
       <section>
         <Card>
           <CardHeader className="gap-4">
-            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="flex min-w-0 flex-col gap-1">
                 <CardTitle>
                   <Trans>Client facts</Trans>
@@ -495,7 +484,7 @@ export function ClientFactsWorkspace({
                   </Trans>
                 </CardDescription>
               </div>
-              <CardAction className="flex items-center gap-2">
+              <div className="flex w-full min-w-0 flex-wrap items-center gap-2 xl:w-auto xl:max-w-[880px] xl:shrink-0 xl:justify-end">
                 <Badge variant="outline" className="font-mono tabular-nums">
                   {filteredClients.length}/{clients.length}
                 </Badge>
@@ -508,20 +497,16 @@ export function ClientFactsWorkspace({
                   <PanelRightOpenIcon data-icon="inline-start" />
                   <Trans>Fact profile</Trans>
                 </Button>
-              </CardAction>
-            </div>
-            <div className="flex flex-col gap-3 md:flex-row md:items-center">
-              <InputGroup className="md:max-w-90">
-                <InputGroupAddon>
-                  <SearchIcon />
-                </InputGroupAddon>
-                <InputGroupInput
-                  value={search}
-                  onChange={(event) => onSearchChange(event.target.value)}
-                  placeholder={t`Search clients`}
+                <TableHeaderMultiFilter
+                  label={t`Client`}
+                  options={clientOptions}
+                  selected={clientFilter}
+                  disabled={isLoading}
+                  emptyLabel={t`No clients`}
+                  searchable
+                  searchPlaceholder={t`Search clients`}
+                  onSelectedChange={onClientFilterChange}
                 />
-              </InputGroup>
-              <div className="flex flex-wrap gap-2">
                 <TableHeaderMultiFilter
                   label={t`Entity`}
                   options={entityOptions}

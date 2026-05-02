@@ -22,6 +22,21 @@ did not match the Workboard table interaction. The page still reads from
 - DESIGN.md check: no token or component spec change was needed; this reuses existing DropdownMenu,
   Table, Button, and Badge primitives.
 
+## 2026-05-02 Follow-up: Header Toolbar Layout
+
+- Fixed the `Client facts` card header toolbar after the top-level Entity/State filters were added.
+- Root cause: nested `CardAction` still contributed `data-slot="card-action"`, which triggered the
+  shared `CardHeader` two-column grid selector even though the action was no longer a direct grid
+  child. The next toolbar row was then auto-placed into the narrow right column.
+- Replaced that nested `CardAction` with a local flex toolbar so count/Profile, search, and
+  Entity/State controls stay horizontal on desktop and only wrap when the available width is too
+  small.
+- Follow-up: replaced the toolbar free-text client search with the same searchable multi-select
+  dropdown pattern used by Entity/State, so Client / Entity / State now share one horizontal
+  filter row and all write URL-backed facet filters.
+- DESIGN.md check: no design-token or component-contract update was needed; this is a local
+  composition fix that keeps the existing Card, Button, Badge, and DropdownMenu primitives.
+
 ## Validation
 
 - `pnpm --filter @duedatehq/app test -- src/features/clients/client-readiness.test.ts`
@@ -30,3 +45,7 @@ did not match the Workboard table interaction. The page still reads from
 - `pnpm --filter @duedatehq/app i18n:compile`
 - `pnpm exec tsc -p apps/app/tsconfig.json --noEmit`
 - `pnpm check`
+- Follow-up: `pnpm check`
+- Follow-up: `pnpm --filter @duedatehq/app build`
+- Follow-up: `E2E_REUSE_EXISTING_SERVER=1 pnpm exec playwright test e2e/tests/clients.spec.ts --project=chromium --grep E2E-CLIENTS-FACTS-SEED`
+- Follow-up: `E2E_REUSE_EXISTING_SERVER=1 pnpm exec playwright test e2e/tests/clients.spec.ts --project=chromium --grep E2E-CLIENTS-FILTERS`

@@ -21,9 +21,9 @@ test('AC: E2E-CLIENTS-NAV opens the Clients directory from the shell', async ({
   await expect(authenticatedPage).toHaveURL(/\/clients$/)
   await expect(appShellPage.clientsLink).toHaveAttribute('aria-current', 'page')
   await expect(clientsPage.directoryTitle).toBeVisible()
-  await expect(clientsPage.searchInput).toBeVisible()
-  await expect(clientsPage.entityFilter).toContainText('All entities')
-  await expect(clientsPage.stateFilter).toContainText('All states')
+  await expect(clientsPage.clientFilter).toBeVisible()
+  await expect(clientsPage.entityFilter).toBeVisible()
+  await expect(clientsPage.stateFilter).toBeVisible()
 })
 
 test('AC: E2E-CLIENTS-CREATE creates a manual client through oRPC', async ({
@@ -70,7 +70,7 @@ test.describe('seeded client facts', () => {
     await expect(clientsPage.rowFor('Unassigned Foundry LLC')).toContainText('Unassigned')
   })
 
-  test('AC: E2E-CLIENTS-FILTERS persists entity, state, search, and empty results', async ({
+  test('AC: E2E-CLIENTS-FILTERS persists client, entity, state, and empty results', async ({
     authenticatedPage,
     clientsPage,
   }) => {
@@ -86,11 +86,8 @@ test.describe('seeded client facts', () => {
     await expect(authenticatedPage).toHaveURL(/state=NY/)
     await expect(clientsPage.rowFor('Northstar Dental Group')).toBeVisible()
 
-    await clientsPage.searchInput.fill('northstar')
-    await expect(authenticatedPage).toHaveURL(/q=northstar/)
-    await expect(clientsPage.rowFor('Northstar Dental Group')).toBeVisible()
-
-    await clientsPage.searchInput.fill('No matching firm')
+    await clientsPage.selectClientFilter('Arbor & Vale LLC')
+    await expect(authenticatedPage).toHaveURL(/clients=/)
     await expect(clientsPage.filteredEmptyState).toBeVisible()
     await expect(
       authenticatedPage.getByText('Clear search or filters to return to the full firm directory.'),

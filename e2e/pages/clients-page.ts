@@ -2,7 +2,8 @@ import type { Locator, Page } from '@playwright/test'
 
 export class ClientsPage {
   readonly directoryTitle: Locator
-  readonly searchInput: Locator
+  readonly toolbar: Locator
+  readonly clientFilter: Locator
   readonly entityFilter: Locator
   readonly stateFilter: Locator
   readonly newClientButton: Locator
@@ -14,9 +15,12 @@ export class ClientsPage {
 
   constructor(readonly page: Page) {
     this.directoryTitle = page.getByRole('heading', { name: 'Client facts' })
-    this.searchInput = page.getByPlaceholder('Search clients')
-    this.entityFilter = page.getByRole('combobox', { name: 'Entity filter' })
-    this.stateFilter = page.getByRole('combobox', { name: 'State filter' })
+    this.toolbar = page.locator('[data-slot="card-header"]').filter({
+      has: page.getByText('Search, segment, and inspect the facts'),
+    })
+    this.clientFilter = this.toolbar.getByRole('button', { name: /^Client/ })
+    this.entityFilter = this.toolbar.getByRole('button', { name: /^Entity/ })
+    this.stateFilter = this.toolbar.getByRole('button', { name: /^State/ })
     this.newClientButton = page.getByRole('button', { name: 'New client' })
     this.createDialog = page.getByRole('dialog', { name: 'Create client' })
     this.createClientButton = this.createDialog.getByRole('button', { name: 'Create client' })
@@ -54,12 +58,22 @@ export class ClientsPage {
 
   async selectEntityFilter(entity: string) {
     await this.entityFilter.click()
-    await this.page.getByRole('option', { name: entity }).click()
+    await this.page.getByRole('menuitemcheckbox', { name: new RegExp(`^${entity}`) }).click()
+    await this.page.keyboard.press('Escape')
   }
 
   async selectStateFilter(state: string) {
     await this.stateFilter.click()
-    await this.page.getByRole('option', { name: state }).click()
+    await this.page.getByRole('menuitemcheckbox', { name: new RegExp(`^${state}`) }).click()
+    await this.page.keyboard.press('Escape')
+  }
+
+  async selectClientFilter(clientName: string) {
+    await this.clientFilter.click()
+    await this.page
+      .getByRole('menuitemcheckbox', { name: new RegExp(`^${escapeRegExp(clientName)}`) })
+      .click()
+    await this.page.keyboard.press('Escape')
   }
 
   metricCard(label: string) {

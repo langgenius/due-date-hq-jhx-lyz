@@ -31,7 +31,6 @@ import {
 } from '@/features/clients/client-readiness'
 import { ImportHistoryDrawer } from '@/features/migration/ImportHistoryDrawer'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
-import { queryInputUrlUpdateRateLimit } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
@@ -85,7 +84,6 @@ export function ClientsRoute() {
   const [profileOpen, setProfileOpen] = useState(false)
   const [
     {
-      q: search,
       clients: clientFilter,
       entity: entityFilter,
       state: stateFilter,
@@ -115,7 +113,7 @@ export function ClientsRoute() {
   const filteredClients = useMemo(
     () =>
       filterClients(clients, {
-        search,
+        search: '',
         clientFilters: clientIdQuery,
         entityFilters: entityFilter,
         stateFilters: stateQuery,
@@ -123,16 +121,7 @@ export function ClientsRoute() {
         sourceFilters: sourceFilter,
         ownerFilters: ownerQuery,
       }),
-    [
-      clientIdQuery,
-      clients,
-      entityFilter,
-      ownerQuery,
-      readinessFilter,
-      search,
-      sourceFilter,
-      stateQuery,
-    ],
+    [clientIdQuery, clients, entityFilter, ownerQuery, readinessFilter, sourceFilter, stateQuery],
   )
   const activeClient =
     (selectedClientId ? filteredClients.find((client) => client.id === selectedClientId) : null) ??
@@ -163,19 +152,10 @@ export function ClientsRoute() {
     }),
   )
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      void setClientsQuery(
-        { q: value || null, client: null },
-        value === '' ? undefined : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
-      )
-    },
-    [setClientsQuery],
-  )
-
   const handleClientFilterChange = useCallback(
     (values: string[]) => {
       void setClientsQuery({
+        q: null,
         clients: values.length > 0 ? values : null,
         client: null,
       })
@@ -187,6 +167,7 @@ export function ClientsRoute() {
     (values: string[]) => {
       const typedEntities = values.filter(isClientEntityType)
       void setClientsQuery({
+        q: null,
         entity: typedEntities.length > 0 ? typedEntities : null,
         client: null,
       })
@@ -200,6 +181,7 @@ export function ClientsRoute() {
         .map((state) => state.toUpperCase())
         .filter((state) => state !== STATE_FILTER_ALL)
       void setClientsQuery({
+        q: null,
         state: states.length > 0 ? states : null,
         client: null,
       })
@@ -211,6 +193,7 @@ export function ClientsRoute() {
     (values: string[]) => {
       const typedReadiness = values.filter(isClientReadinessStatus)
       void setClientsQuery({
+        q: null,
         readiness: typedReadiness.length > 0 ? typedReadiness : null,
         client: null,
       })
@@ -222,6 +205,7 @@ export function ClientsRoute() {
     (values: string[]) => {
       const typedSources = values.filter(isClientSourceType)
       void setClientsQuery({
+        q: null,
         source: typedSources.length > 0 ? typedSources : null,
         client: null,
       })
@@ -233,6 +217,7 @@ export function ClientsRoute() {
     (values: string[]) => {
       const owners = cleanStringFilters(values)
       void setClientsQuery({
+        q: null,
         owner: owners.length > 0 ? owners : null,
         client: null,
       })
@@ -341,7 +326,6 @@ export function ClientsRoute() {
         factsModel={factsModel}
         entityLabels={entityLabels}
         isLoading={clientsQuery.isLoading}
-        search={search}
         clientFilter={clientIdQuery}
         entityFilter={entityFilter}
         stateFilter={stateQuery}
@@ -349,7 +333,6 @@ export function ClientsRoute() {
         sourceFilter={sourceFilter}
         ownerFilter={ownerQuery}
         profileOpen={profileOpen}
-        onSearchChange={handleSearchChange}
         onClientFilterChange={handleClientFilterChange}
         onEntityFilterChange={handleEntityFilterChange}
         onStateFilterChange={handleStateFilterChange}
