@@ -322,6 +322,10 @@ msgstr "5 seats"
 msgid "5 seats included"
 msgstr "5 seats included"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Access denied"
+msgstr "Access denied"
+
 #: src/features/members/members-page.tsx
 msgid "access revoked, history kept"
 msgstr "access revoked, history kept"
@@ -410,6 +414,10 @@ msgstr "AI"
 msgid "AI {percent}%"
 msgstr "AI {percent}%"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "AI guard failed"
+msgstr "AI guard failed"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
 msgstr "AI mapped your columns — review and confirm"
@@ -417,6 +425,10 @@ msgstr "AI mapped your columns — review and confirm"
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI Mapper unavailable — using fallback"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "AI refused request"
+msgstr "AI refused request"
 
 #: src/routes/dashboard.tsx
 msgid "AI weekly brief"
@@ -572,6 +584,10 @@ msgstr "Ask"
 msgid "Ask DueDateHQ"
 msgstr "Ask DueDateHQ"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Ask query run"
+msgstr "Ask query run"
+
 #: src/features/migration/mapping-target-labels.ts
 msgid "Assignee"
 msgstr "Assignee"
@@ -600,8 +616,24 @@ msgid "Audit evidence package"
 msgstr "Audit evidence package"
 
 #: src/features/audit/audit-log-labels.ts
+msgid "Audit export downloaded"
+msgstr "Audit export downloaded"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Audit export failed"
+msgstr "Audit export failed"
+
+#: src/features/audit/audit-log-labels.ts
 msgid "Audit export package"
 msgstr "Audit export package"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Audit export ready"
+msgstr "Audit export ready"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Audit export requested"
+msgstr "Audit export requested"
 
 #: src/routes/billing.checkout.tsx
 msgid "Audit export surface"
@@ -872,6 +904,15 @@ msgstr "Click more to change role, suspend, or remove"
 msgid "Client"
 msgstr "Client"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Client assignee changed"
+msgstr "Client assignee changed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Client batch created"
+msgstr "Client batch created"
+
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/clients.tsx
 msgid "Client created"
 msgstr "Client created"
@@ -1316,6 +1357,10 @@ msgstr "Deadline"
 msgid "Deadline batch"
 msgstr "Deadline batch"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Deadline readiness changed"
+msgstr "Deadline readiness changed"
+
 #: src/features/notifications/notifications-page.tsx
 msgid "Deadline reminder"
 msgstr "Deadline reminder"
@@ -1323,6 +1368,18 @@ msgstr "Deadline reminder"
 #: src/features/notifications/notifications-page.tsx
 msgid "Deadline reminders"
 msgstr "Deadline reminders"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Deadline status changed"
+msgstr "Deadline status changed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Deadlines created"
+msgstr "Deadlines created"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Default Matrix applied"
+msgstr "Default Matrix applied"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Default Matrix applies these suggestions only where imported rows do not already include tax types."
@@ -1414,6 +1471,10 @@ msgstr "Due date — latest first"
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Due date change"
 msgstr "Due date change"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Due date changed"
+msgstr "Due date changed"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Due date logic"
@@ -1673,6 +1734,14 @@ msgstr "Firm context"
 msgid "Firm context could not load"
 msgstr "Firm context could not load"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Firm created"
+msgstr "Firm created"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Firm deleted"
+msgstr "Firm deleted"
+
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Firm id"
 msgstr "Firm id"
@@ -1704,6 +1773,14 @@ msgstr "Firm profile applies only to the active tenant."
 #: src/routes/firm.tsx
 msgid "Firm profile could not load"
 msgstr "Firm profile could not load"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Firm switched"
+msgstr "Firm switched"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Firm updated"
+msgstr "Firm updated"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -1805,6 +1882,10 @@ msgstr "Import a CSV or create the first manual client record."
 msgid "Import batch"
 msgstr "Import batch"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Import batch created"
+msgstr "Import batch created"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
 msgid "Import clients"
@@ -1822,11 +1903,28 @@ msgstr "Import clients to generate real obligation risk."
 msgid "Import complete"
 msgstr "Import complete"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Import completed"
+msgstr "Import completed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Import file uploaded"
+msgstr "Import file uploaded"
+
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/routes/clients.tsx
 msgid "Import history"
 msgstr "Import history"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Import mapping confirmed"
+msgstr "Import mapping confirmed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Import normalization confirmed"
+msgstr "Import normalization confirmed"
+
+#: src/features/audit/audit-log-labels.ts
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Import reverted"
 msgstr "Import reverted"
@@ -1838,6 +1936,10 @@ msgstr "Import undone"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Imported"
 msgstr "Imported"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Imported client undone"
+msgstr "Imported client undone"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Importing…"
@@ -1879,6 +1981,14 @@ msgstr "Intake"
 #: src/routes/route-summary.ts
 msgid "Internal operations"
 msgstr "Internal operations"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Invitation canceled"
+msgstr "Invitation canceled"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Invitation resent"
+msgstr "Invitation resent"
 
 #: src/features/members/members-page.tsx
 msgid "Invite a teammate"
@@ -2151,6 +2261,10 @@ msgstr "medium"
 msgid "Member"
 msgstr "Member"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Member accepted"
+msgstr "Member accepted"
+
 #: src/features/members/members-page.tsx
 msgid "Member action failed"
 msgstr "Member action failed"
@@ -2158,6 +2272,26 @@ msgstr "Member action failed"
 #: src/features/audit/audit-log-labels.ts
 msgid "Member invitation"
 msgstr "Member invitation"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member invited"
+msgstr "Member invited"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member reactivated"
+msgstr "Member reactivated"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member removed"
+msgstr "Member removed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member role changed"
+msgstr "Member role changed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member suspended"
+msgstr "Member suspended"
 
 #: src/features/members/members-page.tsx
 msgid "member@example.com"
@@ -2598,6 +2732,50 @@ msgstr "obligations"
 msgid "official channels under monitor"
 msgstr "official channels under monitor"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding dry run previewed"
+msgstr "Onboarding dry run previewed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding fallback triggered"
+msgstr "Onboarding fallback triggered"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding handoff chosen"
+msgstr "Onboarding handoff chosen"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding handoff offered"
+msgstr "Onboarding handoff offered"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding import committed"
+msgstr "Onboarding import committed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding intake submitted"
+msgstr "Onboarding intake submitted"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding matrix preloaded"
+msgstr "Onboarding matrix preloaded"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding normalization confirmed"
+msgstr "Onboarding normalization confirmed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding preview opened"
+msgstr "Onboarding preview opened"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding state advanced"
+msgstr "Onboarding state advanced"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding turn opened"
+msgstr "Onboarding turn opened"
+
 #: src/routes/billing.tsx
 msgid "One owner workspace"
 msgstr "One owner workspace"
@@ -2889,6 +3067,10 @@ msgstr "PDF zip"
 msgid "Penalty inputs"
 msgstr "Penalty inputs"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Penalty inputs changed"
+msgstr "Penalty inputs changed"
+
 #: src/routes/workboard.tsx
 msgid "Penalty inputs saved"
 msgstr "Penalty inputs saved"
@@ -2920,6 +3102,10 @@ msgstr "pending ops review"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Pending review"
 msgstr "Pending review"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Permission checked"
+msgstr "Permission checked"
 
 #: src/routes/workboard.tsx
 msgid "Pin view"
@@ -3051,6 +3237,18 @@ msgstr "Pulse and workboard access"
 msgid "Pulse application"
 msgstr "Pulse application"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse applied"
+msgstr "Pulse applied"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse approved"
+msgstr "Pulse approved"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse dismissed"
+msgstr "Pulse dismissed"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Pulse evidence linked to each obligation"
 msgstr "Pulse evidence linked to each obligation"
@@ -3072,9 +3270,41 @@ msgstr "Pulse ops action failed"
 msgid "Pulse ops credentials saved locally"
 msgstr "Pulse ops credentials saved locally"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse quarantined"
+msgstr "Pulse quarantined"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse reactivated"
+msgstr "Pulse reactivated"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse rejected"
+msgstr "Pulse rejected"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse reverted"
+msgstr "Pulse reverted"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse snoozed"
+msgstr "Pulse snoozed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse source ingested"
+msgstr "Pulse source ingested"
+
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Pulse source needs attention"
 msgstr "Pulse source needs attention"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse source revoked"
+msgstr "Pulse source revoked"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse update extracted"
+msgstr "Pulse update extracted"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Pulse updates"
@@ -3095,14 +3325,6 @@ msgstr "Queued"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Raw"
 msgstr "Raw"
-
-#: src/features/audit/audit-event-drawer.tsx
-msgid "Raw entity id"
-msgstr "Raw entity id"
-
-#: src/features/audit/audit-event-drawer.tsx
-msgid "Raw entity type"
-msgstr "Raw entity type"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Re-map fields"
@@ -3450,17 +3672,41 @@ msgstr "Rows"
 msgid "Rule"
 msgstr "Rule"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule candidate created"
+msgstr "Rule candidate created"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Rule detail and evidence"
 msgstr "Rule detail and evidence"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule issue reported"
+msgstr "Rule issue reported"
 
 #: src/features/rules/rules-console.tsx
 msgid "Rule Library"
 msgstr "Rule Library"
 
 #: src/features/audit/audit-log-labels.ts
+msgid "Rule review required"
+msgstr "Rule review required"
+
+#: src/features/audit/audit-log-labels.ts
 msgid "Rule source"
 msgstr "Rule source"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule source changed"
+msgstr "Rule source changed"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule updated"
+msgstr "Rule updated"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule verified"
+msgstr "Rule verified"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
@@ -3469,6 +3715,10 @@ msgstr "Rule source"
 #: src/routes/route-summary.ts
 msgid "Rules"
 msgstr "Rules"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rules published"
+msgstr "Rules published"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
@@ -3533,10 +3783,12 @@ msgstr "Save normalized values"
 msgid "Save view"
 msgstr "Save view"
 
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/workboard.tsx
 msgid "Saved view created"
 msgstr "Saved view created"
 
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/workboard.tsx
 msgid "Saved view deleted"
 msgstr "Saved view deleted"
@@ -3545,6 +3797,7 @@ msgstr "Saved view deleted"
 msgid "Saved view name"
 msgstr "Saved view name"
 
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/workboard.tsx
 msgid "Saved view updated"
 msgstr "Saved view updated"
@@ -4480,6 +4733,10 @@ msgstr "Workboard bulk owner change"
 #: src/features/audit/audit-log-labels.ts
 msgid "Workboard export"
 msgstr "Workboard export"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Workboard exported"
+msgstr "Workboard exported"
 
 #: src/routes/workboard.tsx
 msgid "Workboard needs-input update"

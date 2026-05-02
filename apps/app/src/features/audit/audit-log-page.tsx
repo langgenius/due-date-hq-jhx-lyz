@@ -38,12 +38,13 @@ import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
 import { AuditEventDrawer } from './audit-event-drawer'
-import { useAuditEntityTypeLabels } from './audit-log-labels'
+import { useAuditActionLabels, useAuditEntityTypeLabels } from './audit-log-labels'
 import { AuditLogTable } from './audit-log-table'
 import {
   AUDIT_CATEGORY_OPTIONS,
   AUDIT_RANGE_OPTIONS,
   categoryToInput,
+  formatAuditActionLabel,
   formatAuditEntityTypeLabel,
   isAuditCategoryOption,
   isAuditRange,
@@ -188,7 +189,12 @@ function AuditFilterSelect({
           {allLabel}
         </SelectItem>
         {visibleOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value} indicatorPosition="start">
+          <SelectItem
+            key={option.value}
+            value={option.value}
+            indicatorPosition="start"
+            data-audit-filter-value={option.value}
+          >
             <span className="truncate">{option.label}</span>
             {option.count > 0 ? (
               <span className="ml-auto pr-2 font-mono text-xs tabular-nums text-text-tertiary">
@@ -374,6 +380,7 @@ export function AuditLogPage() {
   const { t } = useLingui()
   const categoryLabels = useAuditCategoryLabels()
   const rangeLabels = useAuditRangeLabels()
+  const actionLabels = useAuditActionLabels()
   const entityTypeLabels = useAuditEntityTypeLabels()
   const [query, setQuery] = useQueryStates(auditLogSearchParamsParsers)
   const [pageIndex, setPageIndex] = useState(0)
@@ -399,8 +406,12 @@ export function AuditLogPage() {
     [auditQuery.data?.pages],
   )
   const actionOptions = useMemo(
-    () => makeAuditFilterOptions(events, (event) => ({ value: event.action, label: event.action })),
-    [events],
+    () =>
+      makeAuditFilterOptions(events, (event) => ({
+        value: event.action,
+        label: formatAuditActionLabel(event.action, actionLabels),
+      })),
+    [actionLabels, events],
   )
   const actorOptions = useMemo(
     () =>
@@ -557,7 +568,7 @@ export function AuditLogPage() {
             label={t`Action`}
             value={actionFilter}
             allLabel={t`All actions`}
-            fallbackLabel={actionFilter}
+            fallbackLabel={actionFilter ? formatAuditActionLabel(actionFilter, actionLabels) : ''}
             options={actionOptions}
             onValueChange={(value) => {
               setPageIndex(0)

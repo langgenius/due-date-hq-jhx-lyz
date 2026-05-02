@@ -13,8 +13,9 @@ import {
 } from '@duedatehq/ui/components/ui/table'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
 
-import { useAuditEntityTypeLabels } from './audit-log-labels'
+import { useAuditActionLabels, useAuditEntityTypeLabels } from './audit-log-labels'
 import {
+  formatAuditActionLabel,
   formatAuditEntityTypeLabel,
   getAuditEntityDisplay,
   shortenAuditId,
@@ -30,6 +31,7 @@ export function AuditLogTable({
   onOpenEvent: (id: string) => void
 }) {
   const { t } = useLingui()
+  const actionLabels = useAuditActionLabels()
   const entityTypeLabels = useAuditEntityTypeLabels()
   const summaryLabels: AuditSummaryLabels = {
     empty: t`empty`,
@@ -67,6 +69,7 @@ export function AuditLogTable({
       <TableBody>
         {events.map((event) => {
           const actor = event.actorLabel ?? event.actorId ?? t`System`
+          const actionLabel = formatAuditActionLabel(event.action, actionLabels)
           const entityTypeLabel = formatAuditEntityTypeLabel(event.entityType, entityTypeLabels)
           const entityDisplay = getAuditEntityDisplay(event, entityTypeLabel)
           return (
@@ -74,6 +77,7 @@ export function AuditLogTable({
               key={event.id}
               event={event}
               actor={actor}
+              actionLabel={actionLabel}
               entityDisplay={entityDisplay}
               summaryLabels={summaryLabels}
               onOpenEvent={onOpenEvent}
@@ -88,12 +92,14 @@ export function AuditLogTable({
 function AuditLogRow({
   event,
   actor,
+  actionLabel,
   entityDisplay,
   summaryLabels,
   onOpenEvent,
 }: {
   event: AuditEventPublic
   actor: string
+  actionLabel: string
   entityDisplay: { primary: string; secondary: string }
   summaryLabels: AuditSummaryLabels
   onOpenEvent: (id: string) => void
@@ -115,6 +121,7 @@ function AuditLogRow({
       role="button"
       tabIndex={0}
       aria-label={t`View audit detail`}
+      data-audit-action={event.action}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className="cursor-pointer align-top outline-none hover:bg-state-base-hover focus-visible:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt focus-visible:ring-inset"
@@ -138,8 +145,8 @@ function AuditLogRow({
         </div>
       </TableCell>
       <TableCell>
-        <Badge variant="outline" className="font-mono text-xs">
-          {event.action}
+        <Badge variant="outline" className="text-xs">
+          {actionLabel}
         </Badge>
       </TableCell>
       <TableCell>

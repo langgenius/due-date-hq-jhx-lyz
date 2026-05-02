@@ -102,12 +102,13 @@ implementation. Required controls:
 - Time range: `24h`, `7d`, `30d`, `All`.
 - Action category: `All`, `Client`, `Obligation`, `Migration`, `Rules`, `Auth`,
   `Team`, `Pulse`, `Export`, `AI`, `System`.
-- Action: optional exact action selected from loaded audit events; stored action strings
-  remain stable and untranslated.
+- Action: optional exact action selected from loaded audit events. The select value remains
+  the stored action string for URL/API compatibility, but the trigger and menu render
+  user-facing labels such as `Saved view deleted`.
 - Actor: optional actor selected from loaded audit events. Member display-name facets wait
   for Team-backed facet data.
 - Entity type: optional user-facing entity type label selected from loaded audit events.
-  Raw `entityType` remains the query value and audit metadata value.
+  Raw `entityType` remains the query value, but the UI renders only user-facing labels.
 - Do not render an entity-instance filter in the main toolbar; entity IDs and instance names
   are too high-cardinality for a useful select control.
 
@@ -122,22 +123,23 @@ URL state:
 
 Columns:
 
-| Column | Behavior                                                                                                                                    |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Time   | Local timestamp as the primary line; UTC timestamp as secondary metadata. Use mono tabular numerals.                                        |
-| Actor  | User display label when available; `System` when `actorId` is null; raw actor id as fallback.                                               |
-| Action | Stable action string in mono. Do not translate the stored action.                                                                           |
-| Entity | Entity name/description when available; otherwise user-facing type label + shortened `entityId`. Raw `entityType` stays in detail metadata. |
-| Change | Human summary derived from `beforeJson` and `afterJson`; fallback to `No before/after payload`.                                             |
-| Device | `IP hash` / `UA hash` presence indicators, not raw values.                                                                                  |
-| Detail | Icon button or row click opens drawer.                                                                                                      |
+| Column | Behavior                                                                                                                         |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Time   | Local timestamp as the primary line; UTC timestamp as secondary metadata. Use mono tabular numerals.                             |
+| Actor  | User display label when available; `System` when `actorId` is null; raw actor id as fallback.                                    |
+| Action | User-facing action label such as `Deadline status changed` or `Saved view deleted`; do not show the stored dotted action string. |
+| Entity | Entity name/description when available; otherwise user-facing type label + shortened `entityId`. Raw `entityType` is not shown.  |
+| Change | Human summary derived from `beforeJson` and `afterJson`; fallback to `No before/after payload`.                                  |
+| Device | `IP hash` / `UA hash` presence indicators, not raw values.                                                                       |
+| Detail | Icon button or row click opens drawer.                                                                                           |
 
 Pagination:
 
 - The table renders a fixed-size current page with Previous / Next controls.
 - Audit reads still use cursor-based `audit.list` fetching underneath; advancing beyond the
   currently loaded rows fetches the next cursor page.
-- Keep the ACTION badge compact (`text-xs`) and mono; do not translate the stored action.
+- Keep the ACTION badge compact (`text-xs`) and render the same readable action label used
+  by the filter.
 - Render common raw entity types such as `workboard_saved_view` as user-facing labels such
   as `Saved workboard view`; unknown types fall back to humanized text.
 - When audit payloads include names or stable business identifiers, table rows should show
@@ -163,8 +165,9 @@ The drawer must not allow edit, delete, or redact actions.
 
 ## 6. Action Categorization
 
-Audit actions are stable engineering strings. They are not Lingui messages and must
-not be translated or retroactively rewritten.
+Audit actions are stable engineering strings. They are not retroactively rewritten in
+storage, exports, URLs, or API filters. User-facing Audit Log surfaces map those stable
+strings through localized labels and use a humanized fallback for unknown future actions.
 
 Category is a derived UI concept:
 

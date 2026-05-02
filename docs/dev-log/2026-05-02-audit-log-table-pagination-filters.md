@@ -21,7 +21,7 @@ workflow with page navigation and select-only filters.
 - Removed the `Load more` affordance; moving past the currently loaded pages fetches the next
   cursor page automatically.
 - Added user-facing entity type labels for the table, Entity type filter, and drawer summary while
-  preserving raw `entityType` in drawer metadata.
+  preserving raw `entityType` only as the URL/API filter value.
 - Removed the high-cardinality Entity instance filter; specific entity names and ids remain visible
   in the table and drawer instead of becoming toolbar options.
 - Changed Audit filter select menus to use a left checkbox-style selected indicator instead of the
@@ -32,6 +32,11 @@ workflow with page navigation and select-only filters.
   first, with type and shortened id as secondary metadata.
 - Tightened the Action badge typography to `text-xs`.
 - Synced the Audit product-design note with the current no-search/select-filter behavior.
+- Updated the Audit E2E page object to use the Action select combobox exactly, avoiding the
+  `Action category` / `Action` accessible-label collision that made the seeded audit trail spec
+  wait on the removed `Exact action` input.
+- Added stable audit action hooks for E2E (`data-audit-filter-value` and `data-audit-action`) so
+  tests can keep using raw action values without rendering database-style action text in the UI.
 
 ## Validation
 
@@ -39,3 +44,4 @@ workflow with page navigation and select-only filters.
 - `pnpm --filter @duedatehq/app i18n:compile`
 - `pnpm check`
 - `pnpm --filter @duedatehq/app test`
+- `E2E_REUSE_EXISTING_SERVER=1 pnpm test:e2e e2e/tests/audit-log.spec.ts --project=chromium`

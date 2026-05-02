@@ -14,13 +14,14 @@ import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 import {
   formatAuditJson,
+  formatAuditActionLabel,
   formatAuditEntityTypeLabel,
   getAuditEntityDisplay,
   shortenAuditId,
   summarizeAuditChange,
   type AuditSummaryLabels,
 } from './audit-log-model'
-import { useAuditEntityTypeLabels } from './audit-log-labels'
+import { useAuditActionLabels, useAuditEntityTypeLabels } from './audit-log-labels'
 
 function MetadataRow({ label, value }: { label: string; value: string }) {
   return (
@@ -70,6 +71,7 @@ export function AuditEventDrawer({
 
 function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
   const { t } = useLingui()
+  const actionLabels = useAuditActionLabels()
   const entityTypeLabels = useAuditEntityTypeLabels()
   const summaryLabels: AuditSummaryLabels = {
     empty: t`empty`,
@@ -80,6 +82,7 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
     noChange: t`No field-level change detected`,
   }
   const actor = event.actorLabel ?? event.actorId ?? t`System`
+  const actionLabel = formatAuditActionLabel(event.action, actionLabels)
   const entityTypeLabel = formatAuditEntityTypeLabel(event.entityType, entityTypeLabels)
   const entityDisplay = getAuditEntityDisplay(event, entityTypeLabel)
   const localTime = formatDateTimeWithTimezone(event.createdAt)
@@ -97,9 +100,7 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
         <div className="grid gap-6">
           <section className="grid gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="font-mono">
-                {event.action}
-              </Badge>
+              <Badge variant="outline">{actionLabel}</Badge>
               <Badge variant={event.actorId ? 'secondary' : 'outline'}>{actor}</Badge>
             </div>
             <p className="text-md text-text-primary">
@@ -127,8 +128,6 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
               value={event.userAgentHash ?? t`Not recorded`}
             />
             <MetadataRow label={t`Firm id`} value={event.firmId} />
-            <MetadataRow label={t`Raw entity type`} value={event.entityType} />
-            <MetadataRow label={t`Raw entity id`} value={event.entityId} />
           </dl>
         </div>
       </div>

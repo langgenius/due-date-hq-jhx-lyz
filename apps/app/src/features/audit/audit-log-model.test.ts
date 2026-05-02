@@ -1,16 +1,37 @@
 import { describe, expect, it } from 'vitest'
 import {
+  AUDIT_ACTION_LABEL_KEYS,
   categoryToInput,
+  formatAuditActionLabel,
   formatAuditJson,
   formatAuditEntityTypeLabel,
   getAuditEntityDisplay,
+  humanizeAuditAction,
   humanizeAuditEntityType,
   isAuditCategoryOption,
   isAuditRange,
   shortenAuditId,
   summarizeAuditChange,
+  type AuditActionLabels,
   type AuditEntityTypeLabels,
 } from './audit-log-model'
+
+function assertAuditActionLabels(
+  value: Record<string, string>,
+): asserts value is AuditActionLabels {
+  const missingKey = Object.values(AUDIT_ACTION_LABEL_KEYS).find((key) => !(key in value))
+  if (missingKey) throw new Error(`Missing audit action label test value: ${missingKey}`)
+}
+
+function makeActionLabels(overrides: Partial<AuditActionLabels>): AuditActionLabels {
+  const labels: Record<string, string> = {}
+  for (const key of Object.values(AUDIT_ACTION_LABEL_KEYS)) {
+    labels[key] = key
+  }
+  assertAuditActionLabels(labels)
+  Object.assign(labels, overrides)
+  return labels
+}
 
 describe('audit-log-model', () => {
   it('validates category and range options', () => {
@@ -67,6 +88,22 @@ describe('audit-log-model', () => {
     expect(formatAuditEntityTypeLabel('workboard_saved_view', labels)).toBe('Saved workboard view')
     expect(formatAuditEntityTypeLabel('obligation_instance', labels)).toBe('Deadline')
     expect(humanizeAuditEntityType('custom_ai_output')).toBe('Custom AI output')
+  })
+
+  it('formats audit action labels for user-facing surfaces', () => {
+    const labels = makeActionLabels({
+      obligationStatusUpdated: 'Deadline status changed',
+      workboardSavedViewDeleted: 'Saved view deleted',
+    })
+
+    expect(formatAuditActionLabel('workboard.saved_view.deleted', labels)).toBe(
+      'Saved view deleted',
+    )
+    expect(formatAuditActionLabel('obligation.status.updated', labels)).toBe(
+      'Deadline status changed',
+    )
+    expect(formatAuditActionLabel('custom.object_changed', labels)).toBe('Custom object changed')
+    expect(humanizeAuditAction('custom.object_changed')).toBe('Custom object changed')
   })
 
   it('derives audit entity display names from payloads', () => {

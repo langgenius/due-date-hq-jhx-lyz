@@ -322,6 +322,10 @@ msgstr "5 个席位"
 msgid "5 seats included"
 msgstr "包含 5 个席位"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Access denied"
+msgstr "访问被拒绝"
+
 #: src/features/members/members-page.tsx
 msgid "access revoked, history kept"
 msgstr "访问已撤销，历史已保留"
@@ -410,6 +414,10 @@ msgstr "AI"
 msgid "AI {percent}%"
 msgstr "AI {percent}%"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "AI guard failed"
+msgstr "AI 防护检查失败"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI mapped your columns — review and confirm"
 msgstr "AI 已识别你的列 —— 请审阅并确认"
@@ -417,6 +425,10 @@ msgstr "AI 已识别你的列 —— 请审阅并确认"
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI 映射器不可用 —— 已使用降级方案"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "AI refused request"
+msgstr "AI 已拒绝请求"
 
 #: src/routes/dashboard.tsx
 msgid "AI weekly brief"
@@ -572,6 +584,10 @@ msgstr "提问"
 msgid "Ask DueDateHQ"
 msgstr "询问 DueDateHQ"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Ask query run"
+msgstr "Ask 查询已运行"
+
 #: src/features/migration/mapping-target-labels.ts
 msgid "Assignee"
 msgstr "经办人"
@@ -600,8 +616,24 @@ msgid "Audit evidence package"
 msgstr "审计证据包"
 
 #: src/features/audit/audit-log-labels.ts
+msgid "Audit export downloaded"
+msgstr "审计导出已下载"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Audit export failed"
+msgstr "审计导出失败"
+
+#: src/features/audit/audit-log-labels.ts
 msgid "Audit export package"
 msgstr "审计导出包"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Audit export ready"
+msgstr "审计导出已就绪"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Audit export requested"
+msgstr "已请求审计导出"
 
 #: src/routes/billing.checkout.tsx
 msgid "Audit export surface"
@@ -872,6 +904,15 @@ msgstr "点击更多以更改角色、暂停或移除"
 msgid "Client"
 msgstr "客户"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Client assignee changed"
+msgstr "客户经办人已更改"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Client batch created"
+msgstr "客户批次已创建"
+
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/clients.tsx
 msgid "Client created"
 msgstr "客户已创建"
@@ -1316,6 +1357,10 @@ msgstr "截止日期"
 msgid "Deadline batch"
 msgstr "截止日期批次"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Deadline readiness changed"
+msgstr "截止日准备状态已更改"
+
 #: src/features/notifications/notifications-page.tsx
 msgid "Deadline reminder"
 msgstr "截止日提醒"
@@ -1323,6 +1368,18 @@ msgstr "截止日提醒"
 #: src/features/notifications/notifications-page.tsx
 msgid "Deadline reminders"
 msgstr "截止日提醒"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Deadline status changed"
+msgstr "截止日状态已更改"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Deadlines created"
+msgstr "截止日已创建"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Default Matrix applied"
+msgstr "已应用 Default Matrix"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Default Matrix applies these suggestions only where imported rows do not already include tax types."
@@ -1414,6 +1471,10 @@ msgstr "到期日 — 最晚优先"
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Due date change"
 msgstr "截止日变更"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Due date changed"
+msgstr "截止日已更改"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Due date logic"
@@ -1673,6 +1734,14 @@ msgstr "事务所上下文"
 msgid "Firm context could not load"
 msgstr "无法加载事务所上下文"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Firm created"
+msgstr "事务所已创建"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Firm deleted"
+msgstr "事务所已删除"
+
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Firm id"
 msgstr "事务所 ID"
@@ -1704,6 +1773,14 @@ msgstr "事务所资料仅适用于当前活跃租户。"
 #: src/routes/firm.tsx
 msgid "Firm profile could not load"
 msgstr "无法加载事务所资料"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Firm switched"
+msgstr "事务所已切换"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Firm updated"
+msgstr "事务所已更新"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -1805,6 +1882,10 @@ msgstr "导入 CSV，或创建第一条手动客户记录。"
 msgid "Import batch"
 msgstr "导入批次"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Import batch created"
+msgstr "导入批次已创建"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
 msgid "Import clients"
@@ -1822,11 +1903,28 @@ msgstr "导入客户即可生成真实义务风险。"
 msgid "Import complete"
 msgstr "导入完成"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Import completed"
+msgstr "导入已完成"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Import file uploaded"
+msgstr "导入文件已上传"
+
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/routes/clients.tsx
 msgid "Import history"
 msgstr "导入历史"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Import mapping confirmed"
+msgstr "导入映射已确认"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Import normalization confirmed"
+msgstr "导入规范化已确认"
+
+#: src/features/audit/audit-log-labels.ts
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Import reverted"
 msgstr "导入已回滚"
@@ -1838,6 +1936,10 @@ msgstr "导入已撤销"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Imported"
 msgstr "已导入"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Imported client undone"
+msgstr "已撤销导入的客户"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Importing…"
@@ -1879,6 +1981,14 @@ msgstr "入料"
 #: src/routes/route-summary.ts
 msgid "Internal operations"
 msgstr "内部运营"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Invitation canceled"
+msgstr "邀请已取消"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Invitation resent"
+msgstr "邀请已重发"
 
 #: src/features/members/members-page.tsx
 msgid "Invite a teammate"
@@ -2151,6 +2261,10 @@ msgstr "中"
 msgid "Member"
 msgstr "成员"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Member accepted"
+msgstr "成员已接受邀请"
+
 #: src/features/members/members-page.tsx
 msgid "Member action failed"
 msgstr "成员操作失败"
@@ -2158,6 +2272,26 @@ msgstr "成员操作失败"
 #: src/features/audit/audit-log-labels.ts
 msgid "Member invitation"
 msgstr "成员邀请"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member invited"
+msgstr "成员已邀请"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member reactivated"
+msgstr "成员已重新启用"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member removed"
+msgstr "成员已移除"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member role changed"
+msgstr "成员角色已更改"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Member suspended"
+msgstr "成员已暂停"
 
 #: src/features/members/members-page.tsx
 msgid "member@example.com"
@@ -2598,6 +2732,50 @@ msgstr "义务"
 msgid "official channels under monitor"
 msgstr "正在监听的官方渠道"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding dry run previewed"
+msgstr "引导试运行已预览"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding fallback triggered"
+msgstr "引导降级已触发"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding handoff chosen"
+msgstr "引导交接已选择"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding handoff offered"
+msgstr "引导交接已提供"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding import committed"
+msgstr "引导导入已提交"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding intake submitted"
+msgstr "引导信息已提交"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding matrix preloaded"
+msgstr "引导矩阵已预加载"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding normalization confirmed"
+msgstr "引导规范化已确认"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding preview opened"
+msgstr "引导预览已打开"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding state advanced"
+msgstr "引导状态已推进"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Onboarding turn opened"
+msgstr "引导对话轮次已打开"
+
 #: src/routes/billing.tsx
 msgid "One owner workspace"
 msgstr "单 Owner 工作区"
@@ -2889,6 +3067,10 @@ msgstr "PDF 压缩包"
 msgid "Penalty inputs"
 msgstr "Penalty 输入"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Penalty inputs changed"
+msgstr "Penalty 输入已更改"
+
 #: src/routes/workboard.tsx
 msgid "Penalty inputs saved"
 msgstr "Penalty 输入已保存"
@@ -2920,6 +3102,10 @@ msgstr "等待 ops 复核"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Pending review"
 msgstr "待复核"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Permission checked"
+msgstr "权限已检查"
 
 #: src/routes/workboard.tsx
 msgid "Pin view"
@@ -3051,6 +3237,18 @@ msgstr "Pulse 与 workboard 访问权限"
 msgid "Pulse application"
 msgstr "Pulse 应用"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse applied"
+msgstr "Pulse 已应用"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse approved"
+msgstr "Pulse 已批准"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse dismissed"
+msgstr "Pulse 已忽略"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Pulse evidence linked to each obligation"
 msgstr "为每条义务关联监管证据"
@@ -3072,9 +3270,41 @@ msgstr "Pulse ops 操作失败"
 msgid "Pulse ops credentials saved locally"
 msgstr "Pulse ops 凭证已保存在本地"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse quarantined"
+msgstr "Pulse 已隔离"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse reactivated"
+msgstr "Pulse 已重新激活"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse rejected"
+msgstr "Pulse 已拒绝"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse reverted"
+msgstr "Pulse 已回滚"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse snoozed"
+msgstr "Pulse 已暂缓"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse source ingested"
+msgstr "Pulse 来源已摄取"
+
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Pulse source needs attention"
 msgstr "Pulse 来源需要处理"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse source revoked"
+msgstr "Pulse 来源已撤销"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Pulse update extracted"
+msgstr "Pulse 更新已抽取"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Pulse updates"
@@ -3095,14 +3325,6 @@ msgstr "已入队"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Raw"
 msgstr "原始值"
-
-#: src/features/audit/audit-event-drawer.tsx
-msgid "Raw entity id"
-msgstr "原始实体 ID"
-
-#: src/features/audit/audit-event-drawer.tsx
-msgid "Raw entity type"
-msgstr "原始实体类型"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Re-map fields"
@@ -3450,17 +3672,41 @@ msgstr "行数"
 msgid "Rule"
 msgstr "规则"
 
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule candidate created"
+msgstr "规则候选项已创建"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Rule detail and evidence"
 msgstr "规则详情与证据"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule issue reported"
+msgstr "规则问题已报告"
 
 #: src/features/rules/rules-console.tsx
 msgid "Rule Library"
 msgstr "规则库"
 
 #: src/features/audit/audit-log-labels.ts
+msgid "Rule review required"
+msgstr "规则需要审阅"
+
+#: src/features/audit/audit-log-labels.ts
 msgid "Rule source"
 msgstr "规则来源"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule source changed"
+msgstr "规则来源已更改"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule updated"
+msgstr "规则已更新"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule verified"
+msgstr "规则已验证"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
@@ -3469,6 +3715,10 @@ msgstr "规则来源"
 #: src/routes/route-summary.ts
 msgid "Rules"
 msgstr "规则"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rules published"
+msgstr "规则已发布"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
@@ -3533,10 +3783,12 @@ msgstr "保存规范化值"
 msgid "Save view"
 msgstr "保存视图"
 
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/workboard.tsx
 msgid "Saved view created"
 msgstr "已创建保存视图"
 
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/workboard.tsx
 msgid "Saved view deleted"
 msgstr "已删除保存视图"
@@ -3545,6 +3797,7 @@ msgstr "已删除保存视图"
 msgid "Saved view name"
 msgstr "保存视图名称"
 
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/workboard.tsx
 msgid "Saved view updated"
 msgstr "已更新保存视图"
@@ -4480,6 +4733,10 @@ msgstr "工作台批量负责人变更"
 #: src/features/audit/audit-log-labels.ts
 msgid "Workboard export"
 msgstr "工作台导出"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Workboard exported"
+msgstr "Workboard 已导出"
 
 #: src/routes/workboard.tsx
 msgid "Workboard needs-input update"

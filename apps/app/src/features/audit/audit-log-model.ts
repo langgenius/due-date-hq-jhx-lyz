@@ -40,6 +40,114 @@ export function shortenAuditId(id: string): string {
   return `${id.slice(0, 8)}...${id.slice(-4)}`
 }
 
+export const AUDIT_ACTION_LABEL_KEYS = {
+  'ai.guard_failed': 'aiGuardFailed',
+  'ai.refusal': 'aiRefusal',
+  'ask.query_run': 'askQueryRun',
+  'auth.denied': 'authDenied',
+  'client.assignee.updated': 'clientAssigneeUpdated',
+  'client.batch_created': 'clientBatchCreated',
+  'client.created': 'clientCreated',
+  'export.audit_package.downloaded': 'exportAuditPackageDownloaded',
+  'export.audit_package.failed': 'exportAuditPackageFailed',
+  'export.audit_package.ready': 'exportAuditPackageReady',
+  'export.audit_package.requested': 'exportAuditPackageRequested',
+  'firm.created': 'firmCreated',
+  'firm.deleted': 'firmDeleted',
+  'firm.switched': 'firmSwitched',
+  'firm.updated': 'firmUpdated',
+  'member.accepted': 'memberAccepted',
+  'member.invitation.canceled': 'memberInvitationCanceled',
+  'member.invitation.resent': 'memberInvitationResent',
+  'member.invited': 'memberInvited',
+  'member.reactivated': 'memberReactivated',
+  'member.removed': 'memberRemoved',
+  'member.role.updated': 'memberRoleUpdated',
+  'member.suspended': 'memberSuspended',
+  'migration.batch.created': 'migrationBatchCreated',
+  'migration.imported': 'migrationImported',
+  'migration.mapper.confirmed': 'migrationMapperConfirmed',
+  'migration.matrix.applied': 'migrationMatrixApplied',
+  'migration.normalizer.confirmed': 'migrationNormalizerConfirmed',
+  'migration.raw_uploaded': 'migrationRawUploaded',
+  'migration.reverted': 'migrationReverted',
+  'migration.single_undo': 'migrationSingleUndo',
+  'obligation.batch_created': 'obligationBatchCreated',
+  'obligation.due_date.updated': 'obligationDueDateUpdated',
+  'obligation.readiness.updated': 'obligationReadinessUpdated',
+  'obligation.status.updated': 'obligationStatusUpdated',
+  'onboarding.agent.dry_run.previewed': 'onboardingAgentDryRunPreviewed',
+  'onboarding.agent.fallback.triggered': 'onboardingAgentFallbackTriggered',
+  'onboarding.agent.handoff.chosen': 'onboardingAgentHandoffChosen',
+  'onboarding.agent.handoff.offered': 'onboardingAgentHandoffOffered',
+  'onboarding.agent.import.committed': 'onboardingAgentImportCommitted',
+  'onboarding.agent.intake.submitted': 'onboardingAgentIntakeSubmitted',
+  'onboarding.agent.matrix.preloaded': 'onboardingAgentMatrixPreloaded',
+  'onboarding.agent.normalize.confirmed': 'onboardingAgentNormalizeConfirmed',
+  'onboarding.agent.preview_card.clicked': 'onboardingAgentPreviewCardClicked',
+  'onboarding.agent.state.advanced': 'onboardingAgentStateAdvanced',
+  'onboarding.agent.turn.opened': 'onboardingAgentTurnOpened',
+  'penalty.override': 'penaltyOverride',
+  'pulse.apply': 'pulseApply',
+  'pulse.approve': 'pulseApprove',
+  'pulse.dismiss': 'pulseDismiss',
+  'pulse.extract': 'pulseExtract',
+  'pulse.ingest': 'pulseIngest',
+  'pulse.quarantine': 'pulseQuarantine',
+  'pulse.reactivate': 'pulseReactivate',
+  'pulse.reject': 'pulseReject',
+  'pulse.revert': 'pulseRevert',
+  'pulse.snooze': 'pulseSnooze',
+  'pulse.source_revoked': 'pulseSourceRevoked',
+  'role.check': 'roleCheck',
+  'rule.report_issue': 'ruleReportIssue',
+  'rule.updated': 'ruleUpdated',
+  'rule.verified': 'ruleVerified',
+  'rules.candidate.created': 'rulesCandidateCreated',
+  'rules.published': 'rulesPublished',
+  'rules.review.required': 'rulesReviewRequired',
+  'rules.source.changed': 'rulesSourceChanged',
+  'workboard.exported': 'workboardExported',
+  'workboard.saved_view.created': 'workboardSavedViewCreated',
+  'workboard.saved_view.deleted': 'workboardSavedViewDeleted',
+  'workboard.saved_view.updated': 'workboardSavedViewUpdated',
+} as const
+
+export type AuditActionLabelKey =
+  (typeof AUDIT_ACTION_LABEL_KEYS)[keyof typeof AUDIT_ACTION_LABEL_KEYS]
+export type AuditActionLabels = Record<AuditActionLabelKey, string>
+
+type KnownAuditAction = keyof typeof AUDIT_ACTION_LABEL_KEYS
+
+function isKnownAuditAction(action: string): action is KnownAuditAction {
+  return action in AUDIT_ACTION_LABEL_KEYS
+}
+
+const AUDIT_LABEL_ACRONYMS = new Set(['ai', 'api', 'd1', 'id', 'ip', 'ua', 'url', 'utc'])
+
+function humanizeAuditIdentifier(value: string): string {
+  const normalized = value.replace(/[._-]+/g, ' ').trim()
+  if (!normalized) return value
+
+  return normalized
+    .split(/\s+/)
+    .map((word, index) => {
+      const lower = word.toLowerCase()
+      if (AUDIT_LABEL_ACRONYMS.has(lower)) return lower.toUpperCase()
+      return index === 0 ? `${lower.charAt(0).toUpperCase()}${lower.slice(1)}` : lower
+    })
+    .join(' ')
+}
+
+export function humanizeAuditAction(action: string): string {
+  return humanizeAuditIdentifier(action)
+}
+
+export function formatAuditActionLabel(action: string, labels: AuditActionLabels): string {
+  if (!isKnownAuditAction(action)) return humanizeAuditAction(action)
+  return labels[AUDIT_ACTION_LABEL_KEYS[action]]
+}
+
 export type AuditEntityTypeLabels = {
   auth: string
   auditEvidencePackage: string
@@ -80,7 +188,6 @@ const AUDIT_ENTITY_TYPE_LABEL_KEYS = {
   workboard_saved_view: 'workboardSavedView',
 } as const satisfies Record<string, keyof AuditEntityTypeLabels>
 
-const AUDIT_ENTITY_TYPE_ACRONYMS = new Set(['ai', 'api', 'd1', 'id', 'ip', 'ua', 'url', 'utc'])
 type KnownAuditEntityType = keyof typeof AUDIT_ENTITY_TYPE_LABEL_KEYS
 
 function isKnownAuditEntityType(entityType: string): entityType is KnownAuditEntityType {
@@ -88,17 +195,7 @@ function isKnownAuditEntityType(entityType: string): entityType is KnownAuditEnt
 }
 
 export function humanizeAuditEntityType(entityType: string): string {
-  const normalized = entityType.replace(/[._-]+/g, ' ').trim()
-  if (!normalized) return entityType
-
-  return normalized
-    .split(/\s+/)
-    .map((word, index) => {
-      const lower = word.toLowerCase()
-      if (AUDIT_ENTITY_TYPE_ACRONYMS.has(lower)) return lower.toUpperCase()
-      return index === 0 ? `${lower.charAt(0).toUpperCase()}${lower.slice(1)}` : lower
-    })
-    .join(' ')
+  return humanizeAuditIdentifier(entityType)
 }
 
 export function formatAuditEntityTypeLabel(

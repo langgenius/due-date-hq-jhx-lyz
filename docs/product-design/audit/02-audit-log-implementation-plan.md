@@ -193,7 +193,8 @@ Tasks:
 Design notes:
 
 - No `useEffect`.
-- Keep raw action strings mono and untranslated.
+- Keep raw action strings as storage/query values, but render user-facing action labels in
+  filters, table rows, and drawer summary.
 - Use existing primitives before creating app-specific wrappers.
 - JSON blocks can be raw formatted strings; do not build a complex tree diff unless
   the initial summary is insufficient.
@@ -220,7 +221,7 @@ Tasks:
    - heading is visible.
 3. Test drawer:
    - open first row detail;
-   - raw action and before/after sections are visible.
+   - readable action label and before/after sections are visible.
 4. Test reset:
    - apply a filter;
    - reset filters;

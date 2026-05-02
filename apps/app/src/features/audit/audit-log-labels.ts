@@ -1,7 +1,87 @@
 import { useMemo } from 'react'
 import { useLingui } from '@lingui/react/macro'
 
-import type { AuditEntityTypeLabels } from './audit-log-model'
+import type { AuditActionLabels, AuditEntityTypeLabels } from './audit-log-model'
+
+export function useAuditActionLabels(): AuditActionLabels {
+  const { t } = useLingui()
+
+  return useMemo(
+    () => ({
+      aiGuardFailed: t`AI guard failed`,
+      aiRefusal: t`AI refused request`,
+      askQueryRun: t`Ask query run`,
+      authDenied: t`Access denied`,
+      clientAssigneeUpdated: t`Client assignee changed`,
+      clientBatchCreated: t`Client batch created`,
+      clientCreated: t`Client created`,
+      exportAuditPackageDownloaded: t`Audit export downloaded`,
+      exportAuditPackageFailed: t`Audit export failed`,
+      exportAuditPackageReady: t`Audit export ready`,
+      exportAuditPackageRequested: t`Audit export requested`,
+      firmCreated: t`Firm created`,
+      firmDeleted: t`Firm deleted`,
+      firmSwitched: t`Firm switched`,
+      firmUpdated: t`Firm updated`,
+      memberAccepted: t`Member accepted`,
+      memberInvitationCanceled: t`Invitation canceled`,
+      memberInvitationResent: t`Invitation resent`,
+      memberInvited: t`Member invited`,
+      memberReactivated: t`Member reactivated`,
+      memberRemoved: t`Member removed`,
+      memberRoleUpdated: t`Member role changed`,
+      memberSuspended: t`Member suspended`,
+      migrationBatchCreated: t`Import batch created`,
+      migrationImported: t`Import completed`,
+      migrationMapperConfirmed: t`Import mapping confirmed`,
+      migrationMatrixApplied: t`Default Matrix applied`,
+      migrationNormalizerConfirmed: t`Import normalization confirmed`,
+      migrationRawUploaded: t`Import file uploaded`,
+      migrationReverted: t`Import reverted`,
+      migrationSingleUndo: t`Imported client undone`,
+      obligationBatchCreated: t`Deadlines created`,
+      obligationDueDateUpdated: t`Due date changed`,
+      obligationReadinessUpdated: t`Deadline readiness changed`,
+      obligationStatusUpdated: t`Deadline status changed`,
+      onboardingAgentDryRunPreviewed: t`Onboarding dry run previewed`,
+      onboardingAgentFallbackTriggered: t`Onboarding fallback triggered`,
+      onboardingAgentHandoffChosen: t`Onboarding handoff chosen`,
+      onboardingAgentHandoffOffered: t`Onboarding handoff offered`,
+      onboardingAgentImportCommitted: t`Onboarding import committed`,
+      onboardingAgentIntakeSubmitted: t`Onboarding intake submitted`,
+      onboardingAgentMatrixPreloaded: t`Onboarding matrix preloaded`,
+      onboardingAgentNormalizeConfirmed: t`Onboarding normalization confirmed`,
+      onboardingAgentPreviewCardClicked: t`Onboarding preview opened`,
+      onboardingAgentStateAdvanced: t`Onboarding state advanced`,
+      onboardingAgentTurnOpened: t`Onboarding turn opened`,
+      penaltyOverride: t`Penalty inputs changed`,
+      pulseApply: t`Pulse applied`,
+      pulseApprove: t`Pulse approved`,
+      pulseDismiss: t`Pulse dismissed`,
+      pulseExtract: t`Pulse update extracted`,
+      pulseIngest: t`Pulse source ingested`,
+      pulseQuarantine: t`Pulse quarantined`,
+      pulseReactivate: t`Pulse reactivated`,
+      pulseReject: t`Pulse rejected`,
+      pulseRevert: t`Pulse reverted`,
+      pulseSnooze: t`Pulse snoozed`,
+      pulseSourceRevoked: t`Pulse source revoked`,
+      roleCheck: t`Permission checked`,
+      ruleReportIssue: t`Rule issue reported`,
+      ruleUpdated: t`Rule updated`,
+      ruleVerified: t`Rule verified`,
+      rulesCandidateCreated: t`Rule candidate created`,
+      rulesPublished: t`Rules published`,
+      rulesReviewRequired: t`Rule review required`,
+      rulesSourceChanged: t`Rule source changed`,
+      workboardExported: t`Workboard exported`,
+      workboardSavedViewCreated: t`Saved view created`,
+      workboardSavedViewDeleted: t`Saved view deleted`,
+      workboardSavedViewUpdated: t`Saved view updated`,
+    }),
+    [t],
+  )
+}
 
 export function useAuditEntityTypeLabels(): AuditEntityTypeLabels {
   const { t } = useLingui()
