@@ -41,7 +41,12 @@ export class ClientsPage {
     await this.createDialog.getByLabel('State').fill(input.state)
     if (input.county) await this.createDialog.getByLabel('County').fill(input.county)
     if (input.email) await this.createDialog.getByLabel('Email').fill(input.email)
-    if (input.owner) await this.createDialog.getByLabel('Owner').fill(input.owner)
+    if (input.owner) {
+      await this.createDialog.getByRole('combobox', { name: 'Owner' }).click()
+      await this.page
+        .getByRole('option', { name: new RegExp(`^${escapeRegExp(input.owner)}`) })
+        .click()
+    }
     await this.createClientButton.click()
   }
 
