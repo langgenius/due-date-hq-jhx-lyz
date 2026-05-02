@@ -1,7 +1,6 @@
 ---
 title: '首次登录 Practice onboarding + 业务租户层闭环'
 date: 2026-04-24
-plan: '/.cursor/plans/first-login_firm_onboarding_787856ab.plan.md'
 updates:
   - note: 'Updated apps/app workspace references.'
 ---

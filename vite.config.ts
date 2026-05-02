@@ -199,7 +199,6 @@ export default defineConfig({
       'packages/ui/src/components/ui/**',
       '.agents/**',
       '.claude/**',
-      '.cursor/**',
     ],
   },
 
@@ -217,12 +216,7 @@ export default defineConfig({
     arrowParens: 'always',
     endOfLine: 'lf',
     sortPackageJson: true,
-    ignorePatterns: [
-      '.agents/**',
-      '.claude/**',
-      '.cursor/**',
-      'apps/app/src/i18n/locales/**/messages.ts',
-    ],
+    ignorePatterns: ['.agents/**', '.claude/**', 'apps/app/src/i18n/locales/**/messages.ts'],
   },
 
   // ──────────────────────────────────────────────────────────
