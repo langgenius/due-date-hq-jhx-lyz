@@ -151,7 +151,7 @@ function pickCurrentFirm(firms: FirmPublic[] | undefined, user: AuthUser): FirmP
  *
  * Renders only 1px hairline outlines — no fill, no animation. The previous
  * version used `Skeleton`, whose `state-base-hover-alt` background reads as
- * a purple flash on the white canvas. DESIGN.md is calm + hairline-first;
+ * a blue flash on the white canvas. DESIGN.md is calm + hairline-first;
  * the top-of-shell `PendingBar` already carries the "system is working"
  * signal during the brief session fetch.
  */

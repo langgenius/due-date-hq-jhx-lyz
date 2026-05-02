@@ -8,9 +8,9 @@ Figma: file `ssejugriUJkW9vbcBzmRgd`, frame "DueDateHQ — Brand Icon (Design Sp
 
 | File                     | viewBox | Tile fill | Accent fill | Use it for                                                |
 | ------------------------ | ------- | --------- | ----------- | --------------------------------------------------------- |
-| `brand-mark.svg`         | 256×256 | `#0A2540` | `#5B5BD6`   | OG images, email hero, ≥ 64 px hero tiles                 |
-| `brand-favicon.svg`      | 32×32   | `#0A2540` | `#5B5BD6`   | Browser favicon, ≤ 32 px inline brand chips (light theme) |
-| `brand-favicon-dark.svg` | 32×32   | `#15171C` | `#7C7BF5`   | ≤ 32 px inline brand chips (dark theme)                   |
+| `brand-mark.svg`         | 256×256 | `#0A2540` | `#155aef`   | OG images, email hero, ≥ 64 px hero tiles                 |
+| `brand-favicon.svg`      | 32×32   | `#0A2540` | `#155aef`   | Browser favicon, ≤ 32 px inline brand chips (light theme) |
+| `brand-favicon-dark.svg` | 32×32   | `#222225` | `#5289ff`   | ≤ 32 px inline brand chips (dark theme)                   |
 
 The full mark uses 1 px hairline elements (clock-face ring, four ticks,
 workbench baseline, pulse halo). Below ~32 px those features sub-pixel out

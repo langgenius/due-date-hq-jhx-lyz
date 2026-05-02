@@ -7,7 +7,7 @@
   <rect x="192" y="127" width="8" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.32"/>
   <rect x="127" y="192" width="2" height="8" rx="1" fill="#FFFFFF" fill-opacity="0.32"/>
   <rect x="56" y="127" width="8" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.32"/>
-  <path d="M128 52C162.398 52 192.507 75.104 201.41 108.33" stroke="#5B5BD6" stroke-width="8" stroke-linecap="round"/>
-  <circle cx="201.41" cy="108.33" r="17.5" stroke="#5B5BD6" stroke-opacity="0.35"/>
-  <circle cx="201.41" cy="108.33" r="11" fill="#5B5BD6"/>
+  <path d="M128 52C162.398 52 192.507 75.104 201.41 108.33" stroke="#155aef" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="201.41" cy="108.33" r="17.5" stroke="#155aef" stroke-opacity="0.35"/>
+  <circle cx="201.41" cy="108.33" r="11" fill="#155aef"/>
 </svg>

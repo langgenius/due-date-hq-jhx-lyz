@@ -321,7 +321,7 @@ import { THEME_INIT_SCRIPT } from '@duedatehq/ui/theme/no-flash-script'
 
 设计风格继承 `docs/Design/DueDateHQ-DESIGN.md` 的专业、克制、证据优先方向，但 landing 可以使用更大的标题和更宽的叙事节奏。边界如下：
 
-- 可以：真实产品 UI 截图 / 产品状态复刻、navy 文本、indigo CTA、风险色只用于业务信号。
+- 可以：真实产品 UI 截图 / 产品状态复刻、navy 文本、Dify UI blue CTA、风险色只用于业务信号。
 - 不可以：紫色渐变 hero、抽象 SVG 插画、漂浮装饰球、大圆角营销卡片堆、与产品无关的 stock photo。
 - Cards 只用于重复 proof/workflow item；页面 section 不做“卡片套卡片”。
 - 首屏必须露出下一段内容的一部分，避免一屏只有 hero。

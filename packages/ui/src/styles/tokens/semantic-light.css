@@ -14,38 +14,38 @@
 
 :root {
   /* ===== Text =========================================================== */
-  --text-primary: #0a2540;
-  --text-secondary: #475569;
-  --text-tertiary: #64748b;
-  --text-quaternary: rgb(10 37 64 / 0.45);
-  --text-muted: #94a3b8;
-  --text-placeholder: #94a3b8;
-  --text-disabled: #cbd5e1;
+  --text-primary: var(--color-util-colors-gray-900);
+  --text-secondary: var(--color-util-colors-gray-700);
+  --text-tertiary: var(--color-util-colors-gray-500);
+  --text-quaternary: rgb(16 24 40 / 0.3);
+  --text-muted: var(--color-util-colors-gray-400);
+  --text-placeholder: var(--color-util-colors-gray-400);
+  --text-disabled: var(--color-util-colors-gray-300);
   --text-destructive: var(--color-util-colors-red-600);
   --text-destructive-secondary: var(--color-util-colors-red-500);
   --text-success: var(--color-util-colors-green-600);
   --text-success-secondary: var(--color-util-colors-green-500);
   --text-warning: var(--color-util-colors-warning-600);
   --text-warning-secondary: var(--color-util-colors-warning-500);
-  --text-accent: var(--color-util-colors-primary-500);
-  --text-accent-secondary: var(--color-util-colors-primary-600);
+  --text-accent: var(--color-util-colors-primary-600);
+  --text-accent-secondary: var(--color-util-colors-primary-500);
   --text-primary-on-surface: #ffffff;
   --text-secondary-on-surface: rgb(255 255 255 / 0.9);
   --text-inverted: #ffffff;
 
   /* ===== Background ===================================================== */
-  --background-body: #ffffff;
+  --background-body: var(--color-util-colors-gray-100);
   --background-default: #ffffff;
-  --background-default-subtle: #fcfcfd;
-  --background-default-hover: #f9fafb;
+  --background-default-subtle: var(--color-util-colors-gray-25);
+  --background-default-hover: var(--color-util-colors-gray-50);
   --background-default-dimmed: var(--state-base-hover-alt);
-  --background-section: #fafafa;
+  --background-section: var(--color-util-colors-gray-50);
   --background-section-burn: var(--state-base-hover);
-  --background-soft: var(--state-base-hover);
-  --background-subtle: #f8fafc;
-  --background-neutral-subtle: #f9fafb;
-  --background-overlay: rgb(10 37 64 / 0.55);
-  --background-overlay-alt: rgb(10 37 64 / 0.4);
+  --background-soft: var(--color-util-colors-gray-50);
+  --background-subtle: var(--color-util-colors-gray-100);
+  --background-neutral-subtle: var(--color-util-colors-gray-50);
+  --background-overlay: rgb(16 24 40 / 0.6);
+  --background-overlay-alt: rgb(16 24 40 / 0.4);
   --background-overlay-backdrop: rgb(255 255 255 / 0.95);
   --background-overlay-fullscreen: rgb(249 250 251 / 0.95);
   --background-sidenav-bg: rgb(255 255 255 / 0.85);
@@ -57,27 +57,25 @@
   --divider-deep: rgb(16 24 40 / 0.14);
   --divider-burn: rgb(16 24 40 / 0.04);
   --divider-intense: rgb(16 24 40 / 0.3);
-  --divider-solid: #d0d5dd;
-  --divider-solid-alt: #98a2b3;
-  --divider-accent: #d6d6f1;
+  --divider-solid: var(--color-util-colors-gray-300);
+  --divider-solid-alt: var(--color-util-colors-gray-400);
+  --divider-accent: #e5eaff;
 
   /* ===== State (interaction layers) =====================================
-   * Brand-tinted neutral hovers — keeps DueDateHQ's signature purple as the
-   * default "selectable surface" affordance instead of Dify's gray. Affects
-   * dropdown-menu rows, select options, table row hover, ghost buttons,
-   * outline badges, popover triggers and similar surfaces.
+   * Dify neutral hovers — selectable surfaces stay gray; explicit accent
+   * state tokens below carry the Dify UI blue treatment.
    * ===================================================================== */
-  --state-base-hover: rgb(91 91 214 / 0.08);
-  --state-base-hover-alt: rgb(91 91 214 / 0.14);
-  --state-base-hover-subtle: rgb(91 91 214 / 0.04);
-  --state-base-active: rgb(91 91 214 / 0.16);
+  --state-base-hover: rgb(200 206 218 / 0.2);
+  --state-base-hover-alt: rgb(200 206 218 / 0.4);
+  --state-base-hover-subtle: rgb(200 206 218 / 0.08);
+  --state-base-active: rgb(200 206 218 / 0.4);
   --state-base-handle: rgb(16 24 40 / 0.2);
   --state-base-handle-hover: rgb(16 24 40 / 0.3);
 
-  --state-accent-hover: #eeeefa;
-  --state-accent-hover-alt: #d6d6f1;
-  --state-accent-active: rgb(91 91 214 / 0.12);
-  --state-accent-active-alt: rgb(91 91 214 / 0.18);
+  --state-accent-hover: #eff4ff;
+  --state-accent-hover-alt: #d1e0ff;
+  --state-accent-active: rgb(21 90 239 / 0.08);
+  --state-accent-active-alt: rgb(21 90 239 / 0.14);
   --state-accent-solid: var(--color-util-colors-primary-500);
 
   --state-destructive-hover: var(--color-util-colors-red-50);
@@ -117,29 +115,29 @@
   /* ===== Components: button ============================================= */
   --components-button-primary-text: #ffffff;
   --components-button-primary-text-disabled: rgb(255 255 255 / 0.6);
-  --components-button-primary-bg: var(--color-util-colors-primary-500);
-  --components-button-primary-bg-hover: var(--color-util-colors-primary-600);
-  --components-button-primary-bg-disabled: rgb(91 91 214 / 0.18);
+  --components-button-primary-bg: var(--color-util-colors-primary-600);
+  --components-button-primary-bg-hover: var(--color-util-colors-primary-700);
+  --components-button-primary-bg-disabled: rgb(21 90 239 / 0.14);
   --components-button-primary-border: rgb(16 24 40 / 0.04);
   --components-button-primary-border-hover: rgb(16 24 40 / 0.08);
   --components-button-primary-border-disabled: rgb(255 255 255 / 0);
 
-  --components-button-secondary-text: #344054;
+  --components-button-secondary-text: var(--color-util-colors-gray-700);
   --components-button-secondary-text-disabled: rgb(16 24 40 / 0.25);
   --components-button-secondary-bg: #ffffff;
-  --components-button-secondary-bg-hover: var(--state-base-hover);
-  --components-button-secondary-bg-disabled: #f9fafb;
+  --components-button-secondary-bg-hover: var(--color-util-colors-gray-50);
+  --components-button-secondary-bg-disabled: var(--color-util-colors-gray-50);
   --components-button-secondary-border: rgb(16 24 40 / 0.14);
   --components-button-secondary-border-hover: rgb(16 24 40 / 0.2);
   --components-button-secondary-border-disabled: rgb(16 24 40 / 0.04);
 
-  --components-button-tertiary-text: #344054;
+  --components-button-tertiary-text: var(--color-util-colors-gray-700);
   --components-button-tertiary-text-disabled: rgb(16 24 40 / 0.25);
-  --components-button-tertiary-bg: var(--state-base-hover);
-  --components-button-tertiary-bg-hover: var(--state-base-hover-alt);
-  --components-button-tertiary-bg-disabled: #f9fafb;
+  --components-button-tertiary-bg: var(--color-util-colors-gray-100);
+  --components-button-tertiary-bg-hover: var(--color-util-colors-gray-200);
+  --components-button-tertiary-bg-disabled: var(--color-util-colors-gray-50);
 
-  --components-button-ghost-text: #344054;
+  --components-button-ghost-text: var(--color-util-colors-gray-700);
   --components-button-ghost-text-disabled: rgb(16 24 40 / 0.25);
   --components-button-ghost-bg-hover: var(--state-base-hover);
 
@@ -171,7 +169,7 @@
   --components-button-accent-text-disabled: var(--color-util-colors-primary-200);
   --components-button-accent-bg: #ffffff;
   --components-button-accent-bg-hover: var(--state-base-hover);
-  --components-button-accent-bg-disabled: #f9fafb;
+  --components-button-accent-bg-disabled: var(--color-util-colors-gray-50);
   --components-button-accent-border: rgb(16 24 40 / 0.14);
 
   /* ===== Components: input ============================================== */
@@ -180,41 +178,41 @@
   --components-input-bg-active: #f9fafb;
   --components-input-bg-disabled: rgb(200 206 218 / 0.14);
   --components-input-bg-destructive: #ffffff;
-  --components-input-text-placeholder: #98a2b3;
-  --components-input-text-filled: #101828;
-  --components-input-text-filled-disabled: #676f83;
-  --components-input-text-disabled: #d0d5dd;
-  --components-input-border-hover: #d0d5dd;
-  --components-input-border-active: #d0d5dd;
+  --components-input-text-placeholder: var(--color-util-colors-gray-400);
+  --components-input-text-filled: var(--color-util-colors-gray-900);
+  --components-input-text-filled-disabled: var(--color-util-colors-gray-500);
+  --components-input-text-disabled: var(--color-util-colors-gray-300);
+  --components-input-border-hover: var(--color-util-colors-gray-300);
+  --components-input-border-active: var(--color-util-colors-gray-300);
   --components-input-border-destructive: #fda29b;
 
   /* ===== Components: checkbox =========================================== */
   --components-checkbox-icon: #ffffff;
   --components-checkbox-icon-disabled: rgb(255 255 255 / 0.5);
-  --components-checkbox-bg: var(--color-util-colors-primary-500);
-  --components-checkbox-bg-hover: var(--color-util-colors-primary-600);
-  --components-checkbox-bg-disabled: #f2f4f7;
+  --components-checkbox-bg: var(--color-util-colors-primary-600);
+  --components-checkbox-bg-hover: var(--color-util-colors-primary-700);
+  --components-checkbox-bg-disabled: var(--color-util-colors-gray-100);
   --components-checkbox-bg-disabled-checked: var(--color-util-colors-primary-200);
   --components-checkbox-bg-unchecked: #ffffff;
   --components-checkbox-bg-unchecked-hover: #ffffff;
-  --components-checkbox-border: #d0d5dd;
-  --components-checkbox-border-hover: #98a2b3;
+  --components-checkbox-border: var(--color-util-colors-gray-300);
+  --components-checkbox-border-hover: var(--color-util-colors-gray-400);
   --components-checkbox-border-disabled: rgb(24 24 27 / 0.04);
 
   /* ===== Components: radio (mirrors checkbox) =========================== */
   --components-radio-bg-disabled: rgb(255 255 255 / 0);
-  --components-radio-border: #d0d5dd;
-  --components-radio-border-hover: #98a2b3;
-  --components-radio-border-checked: var(--color-util-colors-primary-500);
-  --components-radio-border-checked-hover: var(--color-util-colors-primary-600);
+  --components-radio-border: var(--color-util-colors-gray-300);
+  --components-radio-border-hover: var(--color-util-colors-gray-400);
+  --components-radio-border-checked: var(--color-util-colors-primary-600);
+  --components-radio-border-checked-hover: var(--color-util-colors-primary-700);
   --components-radio-border-checked-disabled: var(--color-util-colors-primary-200);
 
   /* ===== Components: toggle (switch) ==================================== */
   --components-toggle-bg: rgb(16 24 40 / 0.14);
   --components-toggle-bg-hover: rgb(16 24 40 / 0.2);
   --components-toggle-bg-disabled: rgb(16 24 40 / 0.04);
-  --components-toggle-bg-checked: var(--color-util-colors-primary-500);
-  --components-toggle-bg-checked-hover: var(--color-util-colors-primary-600);
+  --components-toggle-bg-checked: var(--color-util-colors-primary-600);
+  --components-toggle-bg-checked-hover: var(--color-util-colors-primary-700);
   --components-toggle-bg-checked-disabled: var(--color-util-colors-primary-200);
   --components-toggle-knob: #ffffff;
   --components-toggle-knob-disabled: rgb(255 255 255 / 0.85);
@@ -223,32 +221,32 @@
   --components-segmented-bg: var(--state-base-hover);
   --components-segmented-item-bg-active: #ffffff;
   --components-segmented-item-bg-hover: rgb(255 255 255 / 0.6);
-  --components-segmented-text: #475467;
-  --components-segmented-text-active: #101828;
+  --components-segmented-text: var(--color-util-colors-gray-600);
+  --components-segmented-text-active: var(--color-util-colors-gray-900);
 
   /* ===== Components: panel (popover/dialog/sheet/dropdown surfaces) ===== */
   --components-panel-bg: #ffffff;
   --components-panel-bg-blur: rgb(255 255 255 / 0.95);
-  --components-panel-bg-alt: #fcfcfd;
+  --components-panel-bg-alt: var(--color-util-colors-gray-50);
   --components-panel-border: rgb(16 24 40 / 0.08);
   --components-panel-border-subtle: rgb(16 24 40 / 0.04);
   --components-panel-divider: rgb(16 24 40 / 0.08);
 
   /* ===== Components: tooltip ============================================ */
   --components-tooltip-bg: rgb(255 255 255 / 0.95);
-  --components-tooltip-text: #344054;
+  --components-tooltip-text: var(--color-util-colors-gray-700);
 
   /* ===== Components: menu (dropdown / select item) ====================== */
   --components-menu-bg: #ffffff;
   --components-menu-item-bg-hover: var(--state-base-hover);
   --components-menu-item-bg-active: var(--state-base-active);
-  --components-menu-item-text: #344054;
+  --components-menu-item-text: var(--color-util-colors-gray-600);
   --components-menu-item-text-disabled: rgb(16 24 40 / 0.3);
   --components-menu-separator: rgb(16 24 40 / 0.08);
 
   /* ===== Components: card =============================================== */
-  --components-card-bg: #ffffff;
-  --components-card-bg-alt: #fcfcfd;
+  --components-card-bg: var(--color-util-colors-gray-25);
+  --components-card-bg-alt: #ffffff;
   --components-card-border: rgb(16 24 40 / 0.08);
 
   /* ===== Components: actionbar ========================================== */
@@ -272,7 +270,7 @@
   --components-badge-status-light-disabled-bg: var(--color-util-colors-gray-400);
   --components-badge-status-light-disabled-border-inner: var(--color-util-colors-gray-500);
   --components-badge-status-light-disabled-halo: rgb(16 24 40 / 0.04);
-  --components-badge-bg-gray-soft: var(--state-base-hover-alt);
+  --components-badge-bg-gray-soft: rgb(16 24 40 / 0.04);
   --components-badge-bg-green-soft: rgb(23 178 106 / 0.08);
   --components-badge-bg-red-soft: rgb(240 68 56 / 0.08);
   --components-badge-bg-warning-soft: rgb(247 144 9 / 0.08);
@@ -308,26 +306,26 @@
   --card-foreground: var(--text-primary);
   --popover: var(--components-panel-bg);
   --popover-foreground: var(--text-primary);
-  --primary: var(--color-util-colors-primary-500);
+  --primary: var(--color-util-colors-primary-600);
   --primary-foreground: #ffffff;
   --secondary: var(--state-base-hover);
   --secondary-foreground: var(--text-primary);
   --muted: var(--state-base-hover);
   --muted-foreground: var(--text-muted);
-  --accent: #f1f1fd;
+  --accent: #eff4ff;
   --accent-foreground: var(--color-util-colors-primary-700);
   --destructive: var(--color-util-colors-red-600);
-  --border: #e5e7eb;
-  --input: #e5e7eb;
-  --ring: var(--color-util-colors-primary-500);
-  --sidebar: #fafafa;
+  --border: var(--color-util-colors-gray-200);
+  --input: var(--color-util-colors-gray-200);
+  --ring: var(--color-util-colors-primary-600);
+  --sidebar: var(--color-util-colors-gray-50);
   --sidebar-foreground: var(--text-secondary);
-  --sidebar-primary: var(--color-util-colors-primary-500);
+  --sidebar-primary: var(--color-util-colors-primary-600);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f1fd;
+  --sidebar-accent: #eff4ff;
   --sidebar-accent-foreground: var(--text-primary);
-  --sidebar-border: #e5e7eb;
-  --sidebar-ring: var(--color-util-colors-primary-500);
+  --sidebar-border: var(--color-util-colors-gray-200);
+  --sidebar-ring: var(--color-util-colors-primary-600);
 
   --bg-canvas: var(--background);
   --bg-panel: var(--sidebar);
@@ -335,31 +333,31 @@
   --bg-subtle: var(--muted);
 
   --border-default: var(--border);
-  --border-strong: #d4d4d8;
-  --border-subtle: #f1f5f9;
+  --border-strong: var(--color-util-colors-gray-300);
+  --border-subtle: var(--color-util-colors-gray-100);
 
   --accent-default: var(--primary);
-  --accent-hover: var(--color-util-colors-primary-600);
-  --accent-active: var(--color-util-colors-primary-700);
+  --accent-hover: var(--color-util-colors-primary-700);
+  --accent-active: var(--color-util-colors-primary-800);
   --accent-tint: var(--accent);
   --accent-text: var(--accent-foreground);
 
   --severity-critical: var(--destructive);
-  --severity-critical-tint: #fef2f2;
-  --severity-critical-border: #fca5a5;
-  --severity-high: #ea580c;
-  --severity-high-tint: #fff7ed;
-  --severity-high-border: #fdba74;
-  --severity-medium: #ca8a04;
-  --severity-medium-tint: #fefce8;
-  --severity-medium-border: #fde68a;
-  --severity-neutral: #475569;
-  --severity-neutral-tint: #f8fafc;
+  --severity-critical-tint: var(--color-util-colors-red-50);
+  --severity-critical-border: var(--color-util-colors-red-300);
+  --severity-high: var(--color-util-colors-orange-600);
+  --severity-high-tint: var(--color-util-colors-orange-50);
+  --severity-high-border: var(--color-util-colors-orange-300);
+  --severity-medium: var(--color-util-colors-warning-600);
+  --severity-medium-tint: var(--color-util-colors-warning-50);
+  --severity-medium-border: var(--color-util-colors-warning-200);
+  --severity-neutral: var(--color-util-colors-gray-600);
+  --severity-neutral-tint: var(--color-util-colors-gray-50);
 
-  --status-done: #059669;
-  --status-draft: #64748b;
-  --status-waiting: #0284c7;
-  --status-review: #7c3aed;
+  --status-done: var(--color-util-colors-green-600);
+  --status-draft: var(--color-util-colors-gray-500);
+  --status-waiting: var(--color-util-colors-blue-light-600);
+  --status-review: var(--color-util-colors-primary-600);
 
   --brand-primary: var(--text-primary);
   --brand-secondary: var(--text-secondary);

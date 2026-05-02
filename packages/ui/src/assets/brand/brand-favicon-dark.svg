@@ -1,6 +1,6 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DueDateHQ">
   <title>DueDateHQ</title>
-  <rect width="32" height="32" rx="7" fill="#15171C"/>
-  <path d="M16 7C20.073 7 23.639 9.736 24.693 13.671" stroke="#7C7BF5" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="24.6933" cy="13.6706" r="2.6" fill="#7C7BF5"/>
+  <rect width="32" height="32" rx="7" fill="#222225"/>
+  <path d="M16 7C20.073 7 23.639 9.736 24.693 13.671" stroke="#5289ff" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="24.6933" cy="13.6706" r="2.6" fill="#5289ff"/>
 </svg>

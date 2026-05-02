@@ -27,7 +27,7 @@ accepted · 2026-04-27
 | -------------- | --------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------- |
 | Card 圆角      | `{rounded.md}` = 6px                    | `rounded-xl` = 12px                                                                         | `packages/ui/src/components/ui/card`          |
 | 正文默认字号   | `text-base` 13px                        | `text-md` 14px                                                                              | dashboard `<p>` / wizard step body            |
-| Stepper 当前态 | `{colors.accent-tint}` = `#F1F1FD` 实色 | `bg-state-accent-hover-alt` (`#D6D6F1`) + `border-state-accent-active` + `text-text-accent` | `apps/app/src/features/migration/Stepper.tsx` |
+| Stepper 当前态 | `{colors.accent-tint}` = `#eff4ff` 实色 | `bg-state-accent-hover-alt` (`#d1e0ff`) + `border-state-accent-active` + `text-text-accent` | `apps/app/src/features/migration/Stepper.tsx` |
 | 选中态背景     | `accent-tint` 单一 token                | `state-accent-{hover,hover-alt,active}` 三段 + `state-base-*` 中性回退                      | dropdown / select / table row hover           |
 | 颜色 utility   | `bg-bg-canvas` / `text-primary`         | `bg-background-body` / `text-text-primary`                                                  | `_layout.tsx` · migration features            |
 

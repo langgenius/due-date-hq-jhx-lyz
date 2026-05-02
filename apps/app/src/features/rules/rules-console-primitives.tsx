@@ -62,9 +62,9 @@ export function FilterChips<T extends string>({
   value: T
   onValueChange: (value: T) => void
 }) {
-  // Active chip is navy (`bg-text-primary` + `text-text-inverted`), NOT the
-  // brand purple — Figma 219:254 uses `text/primary #0a2540` to keep the
-  // wayfinding accent (purple) reserved for tab underline + sub-route
+  // Active chip is neutral (`bg-text-primary` + `text-text-inverted`), NOT the
+  // Dify UI blue — Figma 219:254 uses `text/primary` to keep the
+  // wayfinding accent reserved for tab underline + sub-route
   // highlights only. Inactive chips are flat white pills with a 1 px hairline.
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-1.5">

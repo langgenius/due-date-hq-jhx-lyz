@@ -35,8 +35,8 @@ function CoverageStatusPill({
   jurisdiction: RuleJurisdiction
   label: string
 }) {
-  // FED's "candidate watch" pill uses the *review* purple `#7c3aed`
-  // (Figma 218:28), not `text-text-accent` (#4338ca). The latter is reserved
+  // FED's "candidate watch" pill uses the *review* blue token,
+  // not `text-text-accent`. The latter is reserved
   // for read-only badges and active filter chips.
   const tone: StatusTone =
     jurisdiction === 'FED'
@@ -223,7 +223,7 @@ export function CoverageTab() {
                     <TableCell
                       className={cn(
                         'py-2 text-right font-mono text-xs tabular-nums',
-                        // Candidate count tones the column purple only when there
+                        // Candidate count tones the column blue only when there
                         // is at least one candidate (Figma 218:24); zero values
                         // stay muted to avoid drawing the eye to "nothing here".
                         row.candidateCount > 0 ? 'text-status-review' : 'text-text-muted',

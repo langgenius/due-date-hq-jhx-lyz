@@ -2,7 +2,8 @@
 
 Shared React UI primitives, design tokens, and styling utilities.
 Visual language is adapted from Dify (`@langgenius/dify-ui`) over Tailwind v4
-with `@base-ui/react` headless primitives. Brand palette is DueDateHQ purple.
+with `@base-ui/react` headless primitives. Color families follow Dify UI
+runtime values, with primary/accent mapped to Dify UI blue.
 
 ## Component Authoring Rules
 
@@ -50,7 +51,7 @@ is driven by `.dark` on `<html>`.
 Legacy aliases (`bg-primary`, `text-foreground`, `bg-card`, `border-border`,
 `bg-sidebar`, `text-muted-foreground`, `bg-severity-*`, etc.) remain valid
 and resolve onto the new token tree, so pre-migration call-sites keep
-working without value changes.
+working without class-name changes.
 
 ## Page Typography & Spacing (App Routes)
 

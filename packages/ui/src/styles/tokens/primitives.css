@@ -5,7 +5,7 @@
  * spacing, radius, shadows, breakpoints, animations.
  *
  * Util-colors are 25/50/100..900 scales adapted from Dify's design system,
- * plus a custom `primary` palette anchored on DueDateHQ brand purple #5b5bd6.
+ * with the `primary` palette aligned to Dify UI blue.
  *
  * Semantic tokens (text-*, background-*, components-*) live in
  * semantic-light.css / semantic-dark.css and are exposed to Tailwind via the
@@ -83,30 +83,30 @@
   --color-util-colors-gray-25: #fcfcfd;
   --color-util-colors-gray-50: #f9fafb;
   --color-util-colors-gray-100: #f2f4f7;
-  --color-util-colors-gray-200: #eaecf0;
-  --color-util-colors-gray-300: #d0d5dd;
-  --color-util-colors-gray-400: #98a2b3;
-  --color-util-colors-gray-500: #667085;
-  --color-util-colors-gray-600: #475467;
-  --color-util-colors-gray-700: #344054;
-  --color-util-colors-gray-800: #1d2939;
+  --color-util-colors-gray-200: #e9ebf0;
+  --color-util-colors-gray-300: #d0d5dc;
+  --color-util-colors-gray-400: #98a2b2;
+  --color-util-colors-gray-500: #676f83;
+  --color-util-colors-gray-600: #495464;
+  --color-util-colors-gray-700: #354052;
+  --color-util-colors-gray-800: #18222f;
   --color-util-colors-gray-900: #101828;
 
-  /* ===== Util-colors: primary (DueDateHQ brand purple) ===================
-   * Anchored on the brand seed #5b5bd6 (current --primary). Hover/active
-   * map to existing #4f46e5 / #4338ca for continuity with old aliases.
+  /* ===== Util-colors: primary (Dify UI blue) =============================
+   * Anchored on Dify product UI blue-brand/runtime values. Primary CTA uses
+   * 600 (#155aef); 500 (#296dff) is reserved for solid accent indicators.
    * ===================================================================== */
-  --color-util-colors-primary-25: #f7f7fd;
-  --color-util-colors-primary-50: #eeeefa;
-  --color-util-colors-primary-100: #d6d6f1;
-  --color-util-colors-primary-200: #b8b7e8;
-  --color-util-colors-primary-300: #9391f8;
-  --color-util-colors-primary-400: #7c7bf5;
-  --color-util-colors-primary-500: #5b5bd6;
-  --color-util-colors-primary-600: #4f46e5;
-  --color-util-colors-primary-700: #4338ca;
-  --color-util-colors-primary-800: #3730a3;
-  --color-util-colors-primary-900: #312e81;
+  --color-util-colors-primary-25: #f5f7ff;
+  --color-util-colors-primary-50: #eff4ff;
+  --color-util-colors-primary-100: #d1e0ff;
+  --color-util-colors-primary-200: #b2caff;
+  --color-util-colors-primary-300: #84abff;
+  --color-util-colors-primary-400: #5289ff;
+  --color-util-colors-primary-500: #296dff;
+  --color-util-colors-primary-600: #155aef;
+  --color-util-colors-primary-700: #004aeb;
+  --color-util-colors-primary-800: #003dc1;
+  --color-util-colors-primary-900: #00329e;
 
   /* ===== Util-colors: red ================================================ */
   --color-util-colors-red-50: #fef3f2;
@@ -159,14 +159,14 @@
   --color-util-colors-warning-700: #b54708;
 
   /* ===== Util-colors: blue =============================================== */
-  --color-util-colors-blue-50: #eff6ff;
-  --color-util-colors-blue-100: #dbeafe;
-  --color-util-colors-blue-200: #bfdbfe;
-  --color-util-colors-blue-300: #93c5fd;
-  --color-util-colors-blue-400: #60a5fa;
-  --color-util-colors-blue-500: #3b82f6;
-  --color-util-colors-blue-600: #2563eb;
-  --color-util-colors-blue-700: #1d4ed8;
+  --color-util-colors-blue-50: #eff8ff;
+  --color-util-colors-blue-100: #d1e9ff;
+  --color-util-colors-blue-200: #b2ddff;
+  --color-util-colors-blue-300: #84caff;
+  --color-util-colors-blue-400: #53b1fd;
+  --color-util-colors-blue-500: #2e90fa;
+  --color-util-colors-blue-600: #1570ef;
+  --color-util-colors-blue-700: #175cd3;
 
   /* ===== Util-colors: blue-light (sky) =================================== */
   --color-util-colors-blue-light-50: #f0f9ff;

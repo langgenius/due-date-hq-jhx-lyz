@@ -242,10 +242,8 @@ export function SidebarMenuItem({ className, ...props }: React.ComponentProps<'l
 const sidebarMenuButtonVariants = cva(
   cn(
     'group/menu-button peer/menu-button relative flex h-8 w-full cursor-pointer touch-manipulation items-center gap-2.5 overflow-hidden rounded-md px-3 text-left text-base font-medium text-text-secondary outline-none transition-colors',
-    // Hover/active backgrounds use *neutral* surface tokens, not the
-    // `state-base-hover-*` tokens which are 8–14 % indigo washes — keeping
-    // accent indigo reserved exclusively for CTAs / focus / risk callouts
-    // (DESIGN.md §1.2 "color only serves risk").
+    // Hover uses a neutral surface token; selected state below uses the
+    // explicit accent tint so route wayfinding stays distinct from row hover.
     'hover:bg-background-default-hover hover:text-text-primary',
     'focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
     'disabled:pointer-events-none disabled:opacity-50',
@@ -257,7 +255,7 @@ const sidebarMenuButtonVariants = cva(
     // the visual; we never store a redundant React state copy.
     //
     // Background uses `accent-tint` (the DESIGN.md wayfinding token,
-    // `#F1F1FD` light / 14 % indigo dark) — calm enough to honor "color only
+    // `#eff4ff` light / 14 % Dify blue dark) — calm enough to honor "color only
     // serves risk" while still visibly identifying the active route. No 2 px
     // accent border, no `accent-text` label color.
     "data-[active=true]:bg-accent-tint data-[active=true]:font-semibold data-[active=true]:text-text-primary [&[data-active=true]_svg:not([class*='text-'])]:text-text-primary",

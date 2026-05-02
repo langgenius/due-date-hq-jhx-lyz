@@ -7,7 +7,7 @@ const THEME_STORAGE_KEY = 'duedatehq.theme'
 const THEME_ATTRIBUTE = 'theme'
 const THEME_DARK_CLASS = 'dark'
 const THEME_COLOR_LIGHT = '#0A2540'
-const THEME_COLOR_DARK = '#0D0E11'
+const THEME_COLOR_DARK = '#1D1D20'
 const DISABLE_TRANSITIONS_STYLE = `*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}`
 const storedThemePreferenceCache = new WeakMap<object, ThemePreference>()
 

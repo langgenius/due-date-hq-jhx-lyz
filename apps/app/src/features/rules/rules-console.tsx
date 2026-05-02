@@ -98,8 +98,8 @@ export function RulesConsole() {
 
         - cva default `bg-components-segmented-text-active` resolves to the
           dark navy `#101828`. Figma 214:75 / 219:249 explicitly use
-          `accent/default = #5b5bd6`, so we override `after:bg-state-accent-solid`
-          (which maps to `--color-util-colors-primary-500 = #5b5bd6`).
+          `accent/solid = #296dff`, so we override `after:bg-state-accent-solid`
+          (which maps to `--color-util-colors-primary-500 = #296dff`).
         - Underline insets are 8 px each side per Figma (`left:8`, `right:8`
           inside an 89.6 px / 105.6 px tab). The cva default is `inset-x-0`
           (full bleed), hence the explicit `after:left-2 after:right-2`

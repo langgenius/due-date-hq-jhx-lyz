@@ -392,7 +392,7 @@ Theme runtime 同样由 `packages/ui` 持有：
 
 **强制约束：**
 
-1. **禁止在业务组件里写原子颜色值**（如 `text-indigo-500`）；必须用语义 token（`text-accent-default` / `text-severity-critical`）
+1. **禁止在业务组件里写原子颜色值**（如 `text-blue-600`）；必须用语义 token（`text-accent-default` / `text-severity-critical`）
 2. **禁止在业务组件里写 `shadow-*`**，除 Cmd-K / Drawer / Tooltip 等浮层例外（用 `shadow-overlay`）
 3. **所有数字展示**（金额 / 天数 / 日期 / EIN）必须 `font-mono tabular-nums`
 

@@ -1,7 +1,7 @@
 // Route-level HydrateFallback shown while a lazy route chunk is loading.
 //
 // We intentionally keep this surface VERY quiet — large pulsing skeleton
-// blocks read as flashing purple panels (Skeleton uses the indigo-accent
+// blocks read as flashing blue panels (Skeleton uses the accent
 // `state-base-hover-alt` token), which fights the rest of the workbench
 // design. Per DESIGN.md "calm, hairline-first": no animation, no tinted
 // panels — just an empty page-shaped slot that gets replaced once the route
