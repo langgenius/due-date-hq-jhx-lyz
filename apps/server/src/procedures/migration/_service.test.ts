@@ -126,6 +126,7 @@ function buildScopedRepo(firmId: string) {
     async updateDueDate() {},
     async updateExposure() {},
     async updateStatus() {},
+    async updateExtensionDecision() {},
     async updateStatusMany() {},
     async updateReadiness() {},
     async updateReadinessMany() {},
@@ -472,6 +473,23 @@ function buildScopedRepo(firmId: string) {
     workboard,
     workload,
     pulse,
+    readiness: {
+      firmId,
+      async listByObligation() {
+        return unexpectedRepoCall('readiness.listByObligation')
+      },
+      async createRequest() {
+        return unexpectedRepoCall('readiness.createRequest')
+      },
+      async getRequest() {
+        return unexpectedRepoCall('readiness.getRequest')
+      },
+      async markOpened() {},
+      async revokeRequest() {},
+      async submitResponses() {
+        return unexpectedRepoCall('readiness.submitResponses')
+      },
+    },
     migration,
     evidence,
     audit,

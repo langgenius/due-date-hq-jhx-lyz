@@ -12,6 +12,7 @@ import { recalculateObligationExposure } from '../_penalty-exposure'
 import {
   bulkUpdateObligationReadiness,
   bulkUpdateObligationStatus,
+  decideObligationExtension,
   toObligationPublic,
   updateObligationReadiness,
   updateObligationStatus,
@@ -39,6 +40,12 @@ interface ObligationRow {
   currentDueDate: Date
   status: ObligationInstancePublic['status']
   readiness: ObligationInstancePublic['readiness']
+  extensionDecision: ObligationInstancePublic['extensionDecision']
+  extensionMemo: string | null
+  extensionSource: string | null
+  extensionExpectedDueDate: Date | null
+  extensionDecidedAt: Date | null
+  extensionDecidedByUserId: string | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -199,6 +206,17 @@ const updateReadiness = os.obligations.updateReadiness.handler(async ({ input, c
   return result
 })
 
+const decideExtension = os.obligations.decideExtension.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
+  const { scoped, tenant, userId } = requireTenant(context)
+  const result = await decideObligationExtension(scoped, userId, input)
+  await enqueueDashboardBriefRefresh(context.env, {
+    firmId: tenant.firmId,
+    reason: 'status_change',
+  }).catch(() => false)
+  return result
+})
+
 const bulkUpdateReadiness = os.obligations.bulkUpdateReadiness.handler(
   async ({ input, context }) => {
     await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
@@ -221,5 +239,6 @@ export const obligationsHandlers = {
   updateStatus,
   bulkUpdateStatus,
   updateReadiness,
+  decideExtension,
   bulkUpdateReadiness,
 }

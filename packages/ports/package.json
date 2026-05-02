@@ -17,6 +17,7 @@
     "./notifications": "./src/notifications.ts",
     "./obligations": "./src/obligations.ts",
     "./pulse": "./src/pulse.ts",
+    "./readiness": "./src/readiness.ts",
     "./scoped": "./src/scoped.ts",
     "./shared": "./src/shared.ts",
     "./tenants": "./src/tenants.ts",

@@ -15,6 +15,7 @@
     "./obligations": "./src/obligations.ts",
     "./dashboard": "./src/dashboard.ts",
     "./evidence": "./src/evidence.ts",
+    "./readiness": "./src/readiness.ts",
     "./firms": "./src/firms.ts",
     "./workboard": "./src/workboard.ts",
     "./workload": "./src/workload.ts",

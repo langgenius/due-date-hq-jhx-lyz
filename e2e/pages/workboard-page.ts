@@ -74,6 +74,10 @@ export class WorkboardPage {
   rowFor(clientName: string) {
     return this.page.getByRole('row', { name: new RegExp(clientName) })
   }
+
+  async openDetailFor(clientName: string) {
+    await this.rowFor(clientName).click({ position: { x: 96, y: 12 }, force: true })
+  }
 }
 
 function escapeRegex(value: string) {

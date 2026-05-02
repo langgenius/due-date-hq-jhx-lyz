@@ -32,6 +32,7 @@ apps/app/
 │   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
 │   │   ├── workboard.tsx
+│   │   ├── readiness.tsx         ← public client readiness portal（/readiness/:token）
 │   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、Sheet 档案；使用 clients.listByFirm / clients.create）
 │   │   ├── audit.tsx             ← Audit Log 管理页（firm-wide write events；使用 audit.list）
 │   │   ├── firm.tsx              ← active firm profile（name / timezone / soft-delete）
@@ -154,6 +155,9 @@ feature 语义留在 members vertical 内。
       的 plan summary + firm context 布局；未登录 deep link 继续复用
       `protectedLoader → login → onboarding → redirectTo` 闭环
     - `/billing/success` / `/billing/cancel` — checkout 返回页；success 只展示 webhook/subscription 确认状态，不把 redirect 本身当成支付成功
+  - `/readiness/:token` — 公开客户 portal route，不挂 protected app shell；只读取
+    `/api/readiness/:token` 的安全字段，允许客户提交 `ready | not_yet | need_help`、
+    note 和 ETA。
   - `*` — 公开 catch-all route，loader 主动抛 404 `Response`，由 root `RouteErrorBoundary`
     渲染统一 not found UI；未知 URL 不进入认证 gate，也不显示 React Router 默认开发错误页。
     错误边界自己渲染错误页 `<title>`，避免 loader error 保留上一个成功页面的浏览器标题。
@@ -175,7 +179,8 @@ feature 语义留在 members vertical 内。
   推导类型；不要手写一份和 parser 分离的 query state interface。
 - `history: 'replace'`、`clearOnDefault` 等 URL 行为优先挂在 parser map 里，让
   `useQueryStates`、serializer 和未来 loader 消费同一份 contract。
-- 任何抽屉开关 / 选中项也写 URL（`?drawer=obligation&id=xxx`）
+- 任何抽屉开关 / 选中项也写 URL（Workboard obligation detail 使用
+  `?drawer=obligation&id=<obligationId>&tab=<readiness|extension|risk|evidence|audit>`）
 - Billing 例外约束：`plan` / `interval` 保持在 URL query 以支持 marketing deep link、登录回跳、
   checkout success/cancel 和 E2E；主 checkout 必须是 route，不用 URL dialog 承载支付链路。
   `/billing?changePlan=...` 可作为轻量确认 dialog，但确认后仍跳 `/billing/checkout?...`。
@@ -470,9 +475,18 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **服务端数据处理**：筛选 / 排序 / 分页仍由 `workboard.list` 和 D1 read model 负责；前端 `useReactTable` 开启 `manualFiltering` / `manualSorting` / `manualPagination`，不在浏览器端二次加工服务端行。
 - **URL state**：`q`、`status`、`client`、`state`、`county`、`taxType`、`assignee`
   / `assignees`、`readiness`、`riskMin` / `riskMax`、`daysMin` / `daysMax`、`sort`、
-  `density`、`hide`、`view`、`row` 由 `nuqs` 管理。`workboardSearchParamsParsers` 是模块级 query contract，
-  `WorkboardSearchParams` 由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空
-  active row，避免用 effect 追踪派生状态。
+  `density`、`hide`、`view`、`row`、`drawer`、`id`、`tab` 由 `nuqs` 管理。
+  `workboardSearchParamsParsers` 是模块级 query contract，`WorkboardSearchParams`
+  由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空 active row，
+  避免用 effect 追踪派生状态。
+- **Obligation Detail drawer**：`workboard.getDetail({ obligationId })` hydrate 当前行、
+  matched rule metadata、readiness request/response、extension decision、evidence 和 audit。
+  drawer 桌面宽度约 1120-1180px，五个 URL-backed tab 为 Readiness、Extension、Risk、
+  Evidence、Audit；单击表格行打开 drawer，`Enter` 仍作为键盘快捷键打开当前 active row，
+  tab 切换只更新 URL state。
+  Readiness tab 支持 AI checklist、编辑、send/revoke 和 portal link copy；Extension tab
+  只做内部 apply/reject 决策，`applied` 会把 obligation status 标记为 `extended`，
+  但不改 due date，也不表示已提交官方延期。
 - **Filter facets**：`workboard.facets` 返回 client / state / county / tax type /
   assignee 的服务器端选项和计数；county option 带 `state`，前端按已选 state 做联动展示。
   Workboard readiness 读取 `obligation_instance.readiness_status` 持久字段；status 写入会按
@@ -509,7 +523,8 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - 行内 `[status ▾]` / `[readiness ▾]` mutation：当前成功后 invalidate `workboard.list`
   并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation
   lifecycle 内补本地缓存更新。
-- 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/P/X/I/W` 改状态 · `Enter` 打开 Detail
+- 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/P/X/I/W` 改状态 · `Enter` 打开 URL-backed
+  obligation detail drawer
 
 ## 6A. Rules Console
 

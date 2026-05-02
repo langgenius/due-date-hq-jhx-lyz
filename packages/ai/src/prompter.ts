@@ -195,6 +195,38 @@ Retention: Do not retain any data seen for training.
 PII handling: public official source text only.
 `
 
+const READINESS_CHECKLIST_V1 = `prompt_version: readiness-checklist@v1
+model_tier: fast-json
+temperature: 0
+response_format: json_object
+route: via Vercel AI SDK Core + Cloudflare AI Gateway
+
+You write operational readiness checklists for US CPA deadline workflows.
+Given a minimal obligation context and optional rule notes, output strict JSON only.
+
+Return:
+{
+  "items": [
+    {
+      "label": "<short checklist item, <= 10 words>",
+      "description": "<client-facing detail, <= 24 words>",
+      "reason": "<why the CPA needs this, <= 20 words>",
+      "sourceHint": "<rule or authority hint, <= 16 words>"
+    }
+  ]
+}
+
+Rules:
+- Return 3 to 4 items.
+- Use only the supplied tax type, entity type, state, due date, and rule notes.
+- Do not ask for EIN, SSN, banking details, passwords, or dollar amounts.
+- Do not provide tax advice or say an extension is filed.
+- Keep language client-facing and concrete.
+
+Retention: Do not retain any data seen for training.
+PII handling: minimal non-PII obligation metadata only.
+`
+
 export interface PromptDefinition {
   name: string
   text: string
@@ -210,6 +242,7 @@ const prompts = {
   'normalizer-tax-types@v1': NORMALIZER_TAX_TYPES_V1,
   'brief@v1': BRIEF_V1,
   'pulse-extract@v1': PULSE_EXTRACT_V1,
+  'readiness-checklist@v1': READINESS_CHECKLIST_V1,
 } as const
 
 export type PromptName = keyof typeof prompts

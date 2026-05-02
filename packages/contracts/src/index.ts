@@ -17,6 +17,7 @@ import { pulseContract } from './pulse'
 import { migrationContract } from './migration'
 import { membersContract } from './members'
 import { notificationsContract } from './notifications'
+import { readinessContract } from './readiness'
 import { rulesContract } from './rules'
 
 export const appContract = oc.router({
@@ -32,6 +33,7 @@ export const appContract = oc.router({
   migration: migrationContract,
   members: membersContract,
   notifications: notificationsContract,
+  readiness: readinessContract,
   rules: rulesContract,
 })
 
@@ -117,6 +119,8 @@ export type {
   ObligationBulkStatusUpdateInput,
   ObligationBulkStatusUpdateOutput,
   ObligationCreateInput,
+  ObligationExtensionDecisionInput,
+  ObligationExtensionDecisionOutput,
   ObligationInstancePublic,
   ObligationReadinessUpdateInput,
   ObligationReadinessUpdateOutput,
@@ -132,6 +136,8 @@ export {
   ObligationBulkStatusUpdateInputSchema,
   ObligationBulkStatusUpdateOutputSchema,
   ObligationCreateInputSchema,
+  ObligationExtensionDecisionInputSchema,
+  ObligationExtensionDecisionOutputSchema,
   ObligationInstancePublicSchema,
   ObligationReadinessUpdateInputSchema,
   ObligationReadinessUpdateOutputSchema,
@@ -207,6 +213,10 @@ export type {
   WorkboardDensity,
   WorkboardExportSelectedInput,
   WorkboardExportSelectedOutput,
+  WorkboardDetail,
+  WorkboardDetailInput,
+  WorkboardDetailTab,
+  WorkboardMatchedRule,
   WorkboardListInput,
   WorkboardListOutput,
   WorkboardReadiness,
@@ -229,11 +239,15 @@ export {
   WorkboardDueFilterSchema,
   WorkboardExportSelectedInputSchema,
   WorkboardExportSelectedOutputSchema,
+  WorkboardDetailInputSchema,
+  WorkboardDetailSchema,
+  WorkboardDetailTabSchema,
   WorkboardFacetOptionSchema,
   WorkboardFacetsOutputSchema,
   WorkboardListInputSchema,
   WorkboardListOutputSchema,
   WorkboardOwnerFilterSchema,
+  WorkboardMatchedRuleSchema,
   WorkboardReadinessSchema,
   WorkboardRowSchema,
   WorkboardSavedViewQuerySchema,
@@ -242,6 +256,47 @@ export {
   WorkboardUpdateSavedViewInputSchema,
   workboardContract,
 } from './workboard'
+
+export type {
+  ClientReadinessRequestPublic,
+  ClientReadinessResponsePublic,
+  ReadinessContract,
+  ReadinessGenerateChecklistInput,
+  ReadinessGenerateChecklistOutput,
+  ReadinessListByObligationInput,
+  ReadinessListByObligationOutput,
+  ReadinessPublicPortal,
+  ReadinessPublicPortalItem,
+  ReadinessPublicSubmitInput,
+  ReadinessPublicSubmitOutput,
+  ReadinessRequestStatus,
+  ReadinessResponseStatus,
+  ReadinessRevokeRequestInput,
+  ReadinessRevokeRequestOutput,
+  ReadinessSendRequestInput,
+  ReadinessSendRequestOutput,
+  ReadinessChecklistItem,
+} from './readiness'
+export {
+  ClientReadinessRequestPublicSchema,
+  ClientReadinessResponsePublicSchema,
+  readinessContract,
+  ReadinessGenerateChecklistInputSchema,
+  ReadinessGenerateChecklistOutputSchema,
+  ReadinessListByObligationInputSchema,
+  ReadinessListByObligationOutputSchema,
+  ReadinessPublicPortalItemSchema,
+  ReadinessPublicPortalSchema,
+  ReadinessPublicSubmitInputSchema,
+  ReadinessPublicSubmitOutputSchema,
+  ReadinessRequestStatusSchema,
+  ReadinessResponseStatusSchema,
+  ReadinessRevokeRequestInputSchema,
+  ReadinessRevokeRequestOutputSchema,
+  ReadinessSendRequestInputSchema,
+  ReadinessSendRequestOutputSchema,
+  ReadinessChecklistItemSchema,
+} from './readiness'
 
 export type {
   WorkloadContract,
@@ -451,6 +506,16 @@ export type {
 } from './shared/audit-actions'
 export { EvidenceSourceTypes, EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 export type { EvidenceSourceType } from './shared/evidence-source-types'
+export {
+  ObligationExtensionDecisionSchema,
+  ObligationReadinessSchema,
+  ObligationStatusSchema,
+} from './shared/enums'
+export type {
+  ObligationExtensionDecision,
+  ObligationReadiness,
+  ObligationStatus,
+} from './shared/enums'
 export { EntityIdSchema, TenantIdSchema } from './shared/ids'
 export type { EntityId, TenantId } from './shared/ids'
 export { ErrorCodes } from './errors'

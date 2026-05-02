@@ -14,6 +14,7 @@ import { e2eRoute } from './routes/e2e'
 import { healthRoute } from './routes/health'
 import { notificationsRoute } from './routes/notifications'
 import { opsPulseRoute } from './routes/ops-pulse'
+import { readinessRoute } from './routes/readiness'
 import { resendWebhook } from './webhooks/resend'
 import { rpcHandler } from './rpc'
 
@@ -104,6 +105,9 @@ export function createApp() {
   app.route('/api/webhook/resend', resendWebhook)
 
   app.route('/api/notifications', notificationsRoute)
+
+  app.use('/api/readiness/*', rateLimitMiddleware)
+  app.route('/api/readiness', readinessRoute)
 
   app.use(
     '/api/audit/*',

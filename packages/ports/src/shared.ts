@@ -26,6 +26,8 @@ export type ObligationStatus =
 
 export type ObligationReadiness = 'ready' | 'waiting' | 'needs_review'
 
+export type ObligationExtensionDecision = 'not_considered' | 'applied' | 'rejected'
+
 export type ExposureStatus = 'ready' | 'needs_input' | 'unsupported'
 
 export type MigrationSource =
@@ -54,6 +56,7 @@ export type AiOutputKind =
   | 'pulse_extract'
   | 'migration_map'
   | 'migration_normalize'
+  | 'readiness_checklist'
 
 export type AuditActionCategory =
   | 'client'

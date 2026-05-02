@@ -1,6 +1,10 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
+import { AuditEventPublicSchema } from './audit'
+import { EvidencePublicSchema } from './evidence'
 import { ObligationInstancePublicSchema } from './obligations'
+import { ClientReadinessRequestPublicSchema } from './readiness'
+import { ExtensionPolicySchema, RuleEvidenceSchema } from './rules'
 import {
   ExposureStatusSchema,
   ObligationReadinessSchema,
@@ -164,8 +168,42 @@ export const WorkboardExportSelectedOutputSchema = z.object({
 })
 export type WorkboardExportSelectedOutput = z.infer<typeof WorkboardExportSelectedOutputSchema>
 
+export const WorkboardDetailTabSchema = z.enum([
+  'readiness',
+  'extension',
+  'risk',
+  'evidence',
+  'audit',
+])
+export type WorkboardDetailTab = z.infer<typeof WorkboardDetailTabSchema>
+
+export const WorkboardMatchedRuleSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  defaultTip: z.string().min(1),
+  extensionPolicy: ExtensionPolicySchema,
+  evidence: z.array(RuleEvidenceSchema),
+})
+export type WorkboardMatchedRule = z.infer<typeof WorkboardMatchedRuleSchema>
+
+export const WorkboardDetailInputSchema = z.object({
+  obligationId: EntityIdSchema,
+  asOfDate: z.iso.date().optional(),
+})
+export type WorkboardDetailInput = z.infer<typeof WorkboardDetailInputSchema>
+
+export const WorkboardDetailSchema = z.object({
+  row: WorkboardRowSchema,
+  matchedRule: WorkboardMatchedRuleSchema.nullable(),
+  evidence: z.array(EvidencePublicSchema),
+  auditEvents: z.array(AuditEventPublicSchema),
+  readinessRequests: z.array(ClientReadinessRequestPublicSchema),
+})
+export type WorkboardDetail = z.infer<typeof WorkboardDetailSchema>
+
 export const workboardContract = oc.router({
   list: oc.input(WorkboardListInputSchema).output(WorkboardListOutputSchema),
+  getDetail: oc.input(WorkboardDetailInputSchema).output(WorkboardDetailSchema),
   facets: oc.input(z.undefined()).output(WorkboardFacetsOutputSchema),
   listSavedViews: oc.input(z.undefined()).output(z.array(WorkboardSavedViewSchema)),
   createSavedView: oc.input(WorkboardCreateSavedViewInputSchema).output(WorkboardSavedViewSchema),

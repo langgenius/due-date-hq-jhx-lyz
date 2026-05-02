@@ -166,6 +166,15 @@ export function createAppRouter() {
                 return { Component: OnboardingRoute }
               },
             },
+            {
+              path: '/readiness/:token',
+              HydrateFallback: EntryRouteHydrateFallback,
+              lazy: async () => {
+                const { ReadinessPortalRoute } = await import('@/routes/readiness')
+
+                return { Component: ReadinessPortalRoute }
+              },
+            },
           ],
         },
         {

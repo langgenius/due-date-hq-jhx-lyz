@@ -4,6 +4,8 @@ import type {
   ObligationBulkStatusUpdateOutput,
   ObligationBulkReadinessUpdateInput,
   ObligationBulkReadinessUpdateOutput,
+  ObligationExtensionDecisionInput,
+  ObligationExtensionDecisionOutput,
   ObligationInstancePublic,
   ObligationReadinessUpdateInput,
   ObligationReadinessUpdateOutput,
@@ -23,6 +25,12 @@ interface ObligationRow {
   currentDueDate: Date
   status: ObligationInstancePublic['status']
   readiness: ObligationInstancePublic['readiness']
+  extensionDecision: ObligationInstancePublic['extensionDecision']
+  extensionMemo: string | null
+  extensionSource: string | null
+  extensionExpectedDueDate: Date | null
+  extensionDecidedAt: Date | null
+  extensionDecidedByUserId: string | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -53,6 +61,14 @@ export function toObligationPublic(row: ObligationRow): ObligationInstancePublic
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,
     readiness: row.readiness,
+    extensionDecision: row.extensionDecision,
+    extensionMemo: row.extensionMemo,
+    extensionSource: row.extensionSource,
+    extensionExpectedDueDate: row.extensionExpectedDueDate
+      ? toIsoDate(row.extensionExpectedDueDate)
+      : null,
+    extensionDecidedAt: row.extensionDecidedAt?.toISOString() ?? null,
+    extensionDecidedByUserId: row.extensionDecidedByUserId,
     migrationBatchId: row.migrationBatchId,
     estimatedTaxDueCents: row.estimatedTaxDueCents,
     estimatedExposureCents: row.estimatedExposureCents,
@@ -266,6 +282,92 @@ export async function updateObligationReadiness(
   return {
     obligation: toObligationPublic(after),
     auditId,
+  }
+}
+
+export async function decideObligationExtension(
+  scoped: ScopedRepo,
+  userId: string,
+  input: ObligationExtensionDecisionInput,
+): Promise<ObligationExtensionDecisionOutput> {
+  const before = await scoped.obligations.findById(input.id)
+  if (!before) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Obligation ${input.id} not found in current firm.`,
+    })
+  }
+
+  const decidedAt = new Date()
+  const memo = input.memo?.trim() || null
+  const source = input.source?.trim() || null
+  const expectedExtendedDueDate = input.expectedExtendedDueDate
+    ? new Date(`${input.expectedExtendedDueDate}T00:00:00.000Z`)
+    : null
+  const nextStatus = input.decision === 'applied' ? 'extended' : before.status
+  const nextReadiness = input.decision === 'applied' ? before.readiness : before.readiness
+
+  await scoped.obligations.updateExtensionDecision(input.id, {
+    decision: input.decision,
+    memo,
+    source,
+    expectedExtendedDueDate,
+    decidedAt,
+    decidedByUserId: userId,
+    status: nextStatus,
+    readiness: nextReadiness,
+  })
+  const after = await scoped.obligations.findById(input.id)
+  if (!after) {
+    throw new ORPCError('INTERNAL_SERVER_ERROR', {
+      message: 'Updated obligation could not be re-read.',
+    })
+  }
+
+  const evidence = await scoped.evidence.write({
+    obligationInstanceId: input.id,
+    sourceType: 'extension_decision',
+    rawValue: JSON.stringify({
+      decision: before.extensionDecision,
+      memo: before.extensionMemo,
+      source: before.extensionSource,
+    }),
+    normalizedValue: JSON.stringify({
+      decision: input.decision,
+      memo,
+      source,
+      expectedExtendedDueDate: input.expectedExtendedDueDate ?? null,
+      paymentStillDue: true,
+    }),
+    appliedBy: userId,
+  })
+
+  const { id: auditId } = await scoped.audit.write({
+    actorId: userId,
+    entityType: 'obligation_instance',
+    entityId: input.id,
+    action: 'obligation.extension.decided',
+    before: {
+      status: before.status,
+      extensionDecision: before.extensionDecision,
+      extensionMemo: before.extensionMemo,
+      extensionSource: before.extensionSource,
+      extensionExpectedDueDate: before.extensionExpectedDueDate?.toISOString().slice(0, 10) ?? null,
+    },
+    after: {
+      status: after.status,
+      extensionDecision: after.extensionDecision,
+      extensionMemo: after.extensionMemo,
+      extensionSource: after.extensionSource,
+      extensionExpectedDueDate: after.extensionExpectedDueDate?.toISOString().slice(0, 10) ?? null,
+      paymentStillDue: true,
+    },
+    ...(memo ? { reason: memo } : {}),
+  })
+
+  return {
+    obligation: toObligationPublic(after),
+    auditId,
+    evidenceId: evidence.id,
   }
 }
 

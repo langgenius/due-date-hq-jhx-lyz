@@ -18,6 +18,7 @@ export const aiOutput = sqliteTable(
         'pulse_extract',
         'migration_map',
         'migration_normalize',
+        'readiness_checklist',
       ],
     }).notNull(),
     promptVersion: text('prompt_version').notNull(),

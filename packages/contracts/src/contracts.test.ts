@@ -314,6 +314,7 @@ describe('@duedatehq/contracts', () => {
         'updateStatus',
         'bulkUpdateStatus',
         'updateReadiness',
+        'decideExtension',
         'bulkUpdateReadiness',
         'listByClient',
       ]),
@@ -337,6 +338,12 @@ describe('@duedatehq/contracts', () => {
         currentDueDate: '2026-04-15',
         status: 'in_progress',
         readiness: 'ready',
+        extensionDecision: 'not_considered',
+        extensionMemo: null,
+        extensionSource: null,
+        extensionExpectedDueDate: null,
+        extensionDecidedAt: null,
+        extensionDecidedByUserId: null,
         migrationBatchId: null,
         estimatedTaxDueCents: null,
         estimatedExposureCents: null,
@@ -409,6 +416,7 @@ describe('@duedatehq/contracts', () => {
   it('freezes workboard.list input shape', () => {
     expect(Object.keys(workboardContract)).toEqual([
       'list',
+      'getDetail',
       'facets',
       'listSavedViews',
       'createSavedView',

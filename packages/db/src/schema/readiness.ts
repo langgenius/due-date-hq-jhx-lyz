@@ -1,0 +1,133 @@
+import { relations, sql } from 'drizzle-orm'
+import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { user } from './auth'
+import { client } from './clients'
+import { firmProfile } from './firm'
+import { obligationInstance } from './obligations'
+
+export const READINESS_REQUEST_STATUSES = [
+  'sent',
+  'opened',
+  'responded',
+  'revoked',
+  'expired',
+] as const
+export type ReadinessRequestStatus = (typeof READINESS_REQUEST_STATUSES)[number]
+
+export const READINESS_RESPONSE_STATUSES = ['ready', 'not_yet', 'need_help'] as const
+export type ReadinessResponseStatus = (typeof READINESS_RESPONSE_STATUSES)[number]
+
+export interface ReadinessChecklistItemRow {
+  id: string
+  label: string
+  description: string | null
+  reason: string | null
+  sourceHint: string | null
+}
+
+export const clientReadinessRequest = sqliteTable(
+  'client_readiness_request',
+  {
+    id: text('id').primaryKey(),
+    firmId: text('firm_id')
+      .notNull()
+      .references(() => firmProfile.id, { onDelete: 'cascade' }),
+    obligationInstanceId: text('obligation_instance_id')
+      .notNull()
+      .references(() => obligationInstance.id, { onDelete: 'cascade' }),
+    clientId: text('client_id')
+      .notNull()
+      .references(() => client.id, { onDelete: 'cascade' }),
+    createdByUserId: text('created_by_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'restrict' }),
+    recipientEmail: text('recipient_email'),
+    tokenHash: text('token_hash').notNull(),
+    status: text('status', { enum: READINESS_REQUEST_STATUSES }).notNull().default('sent'),
+    checklistJson: text('checklist_json', { mode: 'json' })
+      .$type<ReadinessChecklistItemRow[]>()
+      .notNull(),
+    expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
+    sentAt: integer('sent_at', { mode: 'timestamp_ms' }),
+    firstOpenedAt: integer('first_opened_at', { mode: 'timestamp_ms' }),
+    lastRespondedAt: integer('last_responded_at', { mode: 'timestamp_ms' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('uq_readiness_request_token_hash').on(table.tokenHash),
+    index('idx_readiness_request_firm_obligation').on(table.firmId, table.obligationInstanceId),
+    index('idx_readiness_request_status_expiry').on(table.status, table.expiresAt),
+  ],
+)
+
+export const clientReadinessResponse = sqliteTable(
+  'client_readiness_response',
+  {
+    id: text('id').primaryKey(),
+    firmId: text('firm_id')
+      .notNull()
+      .references(() => firmProfile.id, { onDelete: 'cascade' }),
+    requestId: text('request_id')
+      .notNull()
+      .references(() => clientReadinessRequest.id, { onDelete: 'cascade' }),
+    obligationInstanceId: text('obligation_instance_id')
+      .notNull()
+      .references(() => obligationInstance.id, { onDelete: 'cascade' }),
+    itemId: text('item_id').notNull(),
+    status: text('status', { enum: READINESS_RESPONSE_STATUSES }).notNull(),
+    note: text('note'),
+    etaDate: integer('eta_date', { mode: 'timestamp_ms' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+  },
+  (table) => [
+    index('idx_readiness_response_request').on(table.requestId),
+    index('idx_readiness_response_obligation').on(table.firmId, table.obligationInstanceId),
+  ],
+)
+
+export const clientReadinessRequestRelations = relations(
+  clientReadinessRequest,
+  ({ one, many }) => ({
+    firm: one(firmProfile, {
+      fields: [clientReadinessRequest.firmId],
+      references: [firmProfile.id],
+    }),
+    client: one(client, {
+      fields: [clientReadinessRequest.clientId],
+      references: [client.id],
+    }),
+    obligation: one(obligationInstance, {
+      fields: [clientReadinessRequest.obligationInstanceId],
+      references: [obligationInstance.id],
+    }),
+    creator: one(user, {
+      fields: [clientReadinessRequest.createdByUserId],
+      references: [user.id],
+    }),
+    responses: many(clientReadinessResponse),
+  }),
+)
+
+export const clientReadinessResponseRelations = relations(clientReadinessResponse, ({ one }) => ({
+  request: one(clientReadinessRequest, {
+    fields: [clientReadinessResponse.requestId],
+    references: [clientReadinessRequest.id],
+  }),
+  obligation: one(obligationInstance, {
+    fields: [clientReadinessResponse.obligationInstanceId],
+    references: [obligationInstance.id],
+  }),
+}))
+
+export type ClientReadinessRequest = typeof clientReadinessRequest.$inferSelect
+export type NewClientReadinessRequest = typeof clientReadinessRequest.$inferInsert
+export type ClientReadinessResponse = typeof clientReadinessResponse.$inferSelect
+export type NewClientReadinessResponse = typeof clientReadinessResponse.$inferInsert

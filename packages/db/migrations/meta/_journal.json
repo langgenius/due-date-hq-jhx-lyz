@@ -134,6 +134,13 @@
       "when": 1777705286077,
       "tag": "0018_solid_status_readiness",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1777715219492,
+      "tag": "0019_serious_tenebrous",
+      "breakpoints": true
     }
   ]
 }

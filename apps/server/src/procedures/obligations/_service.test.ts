@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
-import type { ObligationReadiness, ObligationStatus } from '@duedatehq/ports/shared'
+import type {
+  ObligationExtensionDecision,
+  ObligationReadiness,
+  ObligationStatus,
+} from '@duedatehq/ports/shared'
 import {
   bulkUpdateObligationReadiness,
   bulkUpdateObligationStatus,
@@ -18,6 +22,12 @@ interface Row {
   currentDueDate: Date
   status: ObligationStatus
   readiness: ObligationReadiness
+  extensionDecision: ObligationExtensionDecision
+  extensionMemo: string | null
+  extensionSource: string | null
+  extensionExpectedDueDate: Date | null
+  extensionDecidedAt: Date | null
+  extensionDecidedByUserId: string | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -83,6 +93,7 @@ function buildScoped(firmId: string, rows: Row[]) {
         }
       }
     },
+    async updateExtensionDecision() {},
     async updateReadiness(id: string, readiness: Row['readiness']) {
       const row = map.get(id)
       if (!row) throw new Error('not found')
@@ -324,6 +335,23 @@ function buildScoped(firmId: string, rows: Row[]) {
     workboard,
     workload,
     pulse,
+    readiness: {
+      firmId,
+      async listByObligation() {
+        return unused('readiness.listByObligation')
+      },
+      async createRequest() {
+        return unused('readiness.createRequest')
+      },
+      async getRequest() {
+        return unused('readiness.getRequest')
+      },
+      async markOpened() {},
+      async revokeRequest() {},
+      async submitResponses() {
+        return unused('readiness.submitResponses')
+      },
+    },
     migration,
     evidence,
     audit,
@@ -347,6 +375,12 @@ function makeRow(over: Partial<Row> = {}): Row {
     currentDueDate: now,
     status: 'pending',
     readiness: 'ready',
+    extensionDecision: 'not_considered',
+    extensionMemo: null,
+    extensionSource: null,
+    extensionExpectedDueDate: null,
+    extensionDecidedAt: null,
+    extensionDecidedByUserId: null,
     migrationBatchId: null,
     estimatedTaxDueCents: null,
     estimatedExposureCents: null,

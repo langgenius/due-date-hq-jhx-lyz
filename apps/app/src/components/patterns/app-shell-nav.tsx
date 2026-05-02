@@ -341,13 +341,12 @@ function useNavItems(firm: FirmPublic): NavConfig {
   return useMemo<NavConfig>(
     () => ({
       operations: [
-        { href: '/', label: t`Dashboard`, icon: LayoutDashboardIcon, end: true, badge: '12' },
+        { href: '/', label: t`Dashboard`, icon: LayoutDashboardIcon, end: true },
         {
           href: '/workboard',
           label: t`Workboard`,
           icon: CalendarClockIcon,
           end: false,
-          badge: '34',
         },
         {
           href: '/alerts',

@@ -10,6 +10,7 @@ import * as notificationsSchema from './schema/notifications'
 import * as obligationsSchema from './schema/obligations'
 import * as overlaySchema from './schema/overlay'
 import * as pulseSchema from './schema/pulse'
+import * as readinessSchema from './schema/readiness'
 import * as workboardSchema from './schema/workboard'
 
 const schema = {
@@ -24,6 +25,7 @@ const schema = {
   ...obligationsSchema,
   ...overlaySchema,
   ...pulseSchema,
+  ...readinessSchema,
   ...workboardSchema,
 }
 

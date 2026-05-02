@@ -9,6 +9,9 @@ export type ExposureStatus = (typeof EXPOSURE_STATUSES)[number]
 export const OBLIGATION_READINESSES = ['ready', 'waiting', 'needs_review'] as const
 export type ObligationReadiness = (typeof OBLIGATION_READINESSES)[number]
 
+export const OBLIGATION_EXTENSION_DECISIONS = ['not_considered', 'applied', 'rejected'] as const
+export type ObligationExtensionDecision = (typeof OBLIGATION_EXTENSION_DECISIONS)[number]
+
 /**
  * obligation_instance — a single due-date row for one client for one tax type.
  *
@@ -69,6 +72,14 @@ export const obligationInstance = sqliteTable(
     readiness: text('readiness_status', { enum: OBLIGATION_READINESSES })
       .notNull()
       .default('ready'),
+    extensionDecision: text('extension_decision', { enum: OBLIGATION_EXTENSION_DECISIONS })
+      .notNull()
+      .default('not_considered'),
+    extensionMemo: text('extension_memo'),
+    extensionSource: text('extension_source'),
+    extensionExpectedDueDate: integer('extension_expected_due_date', { mode: 'timestamp_ms' }),
+    extensionDecidedAt: integer('extension_decided_at', { mode: 'timestamp_ms' }),
+    extensionDecidedByUserId: text('extension_decided_by_user_id'),
 
     // Nullable: rows created outside of a migration batch (manual add,
     // Pulse-apply in Phase 1 via exception) do not carry a batch id.

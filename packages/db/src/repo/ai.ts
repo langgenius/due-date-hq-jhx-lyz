@@ -9,6 +9,7 @@ export type AiOutputKind =
   | 'pulse_extract'
   | 'migration_map'
   | 'migration_normalize'
+  | 'readiness_checklist'
 
 export interface AiTraceInput {
   promptVersion: string

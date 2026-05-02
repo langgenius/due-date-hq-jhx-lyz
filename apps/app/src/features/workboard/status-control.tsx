@@ -160,7 +160,12 @@ function WorkboardStatusControl({
           }}
         >
           {ALL_STATUSES.map((status) => (
-            <DropdownMenuRadioItem key={status} value={status} className="gap-2">
+            <DropdownMenuRadioItem
+              key={status}
+              value={status}
+              className="gap-2"
+              onClick={(event) => event.stopPropagation()}
+            >
               <BadgeStatusDot tone={STATUS_DOT[status]} />
               <span>{labels[status]}</span>
             </DropdownMenuRadioItem>
@@ -212,7 +217,12 @@ function WorkboardReadinessControl({
           }}
         >
           {ALL_READINESSES.map((readiness) => (
-            <DropdownMenuRadioItem key={readiness} value={readiness} className="gap-2">
+            <DropdownMenuRadioItem
+              key={readiness}
+              value={readiness}
+              className="gap-2"
+              onClick={(event) => event.stopPropagation()}
+            >
               <BadgeStatusDot tone={READINESS_DOT[readiness]} />
               <span>{labels[readiness]}</span>
             </DropdownMenuRadioItem>

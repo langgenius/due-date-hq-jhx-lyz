@@ -40,8 +40,12 @@
 ### Workboard
 
 - 使用 TanStack Table 和 infinite query。
-- URL query 由 `nuqs` 管理，支持 `q/status/assignee/owner/due/dueWithin/exposure/evidence/asOf/sort/row`。
-- 支持义务状态更新、客户罚金输入更新、证据 drawer、键盘选择。
+- URL query 由 `nuqs` 管理，支持
+  `q/status/assignee/owner/due/dueWithin/exposure/evidence/asOf/sort/row/drawer/id/tab`。
+- 支持义务状态更新、客户罚金输入更新、证据 drawer、键盘选择，以及五 tab 的义务详情
+  drawer（Readiness / Extension / Risk / Evidence / Audit）。
+- `/readiness/:token` 是公开客户 portal route，脱离受保护 app shell，只展示客户安全字段并提交
+  readiness response。
 - coordinator 角色在 firm 设置禁止时隐藏 dollar exposure。
 
 ### Migration Copilot

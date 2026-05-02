@@ -1,4 +1,9 @@
-import type { ExposureStatus, ObligationReadiness, ObligationStatus } from './shared'
+import type {
+  ExposureStatus,
+  ObligationExtensionDecision,
+  ObligationReadiness,
+  ObligationStatus,
+} from './shared'
 
 export interface PenaltyBreakdownItem {
   key: string
@@ -17,6 +22,12 @@ export interface ObligationInstanceRow {
   currentDueDate: Date
   status: ObligationStatus
   readiness: ObligationReadiness
+  extensionDecision: ObligationExtensionDecision
+  extensionMemo: string | null
+  extensionSource: string | null
+  extensionExpectedDueDate: Date | null
+  extensionDecidedAt: Date | null
+  extensionDecidedByUserId: string | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -66,6 +77,19 @@ export interface ObligationsRepo {
     },
   ): Promise<void>
   updateStatus(id: string, status: ObligationStatus, readiness?: ObligationReadiness): Promise<void>
+  updateExtensionDecision(
+    id: string,
+    patch: {
+      decision: Exclude<ObligationExtensionDecision, 'not_considered'>
+      memo: string | null
+      source: string | null
+      expectedExtendedDueDate: Date | null
+      decidedAt: Date
+      decidedByUserId: string
+      status?: ObligationStatus
+      readiness?: ObligationReadiness
+    },
+  ): Promise<void>
   updateStatusMany(
     ids: string[],
     status: ObligationStatus,

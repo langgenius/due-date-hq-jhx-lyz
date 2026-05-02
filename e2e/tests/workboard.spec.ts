@@ -100,6 +100,31 @@ test.describe('seeded workboard', () => {
     await expect(authenticatedPage).toHaveURL(/\/workboard\?sort=due_desc$/)
   })
 
+  test('AC: E2E-WORKBOARD-DETAIL opens the obligation drawer from a row click', async ({
+    authenticatedPage,
+    workboardPage,
+  }) => {
+    await workboardPage.goto()
+
+    await workboardPage.openDetailFor('Arbor & Vale LLC')
+    await expect(authenticatedPage).toHaveURL(/drawer=obligation/)
+    await expect(authenticatedPage).toHaveURL(/tab=readiness/)
+    await expect(authenticatedPage.getByRole('dialog', { name: /Arbor & Vale LLC/ })).toBeVisible()
+    await expect(authenticatedPage.getByRole('tab', { name: 'Readiness' })).toBeVisible()
+    await expect(authenticatedPage.getByRole('tab', { name: 'Extension' })).toBeVisible()
+    await expect(authenticatedPage.getByRole('tab', { name: 'Risk' })).toBeVisible()
+    await expect(authenticatedPage.getByRole('tab', { name: 'Evidence' })).toBeVisible()
+    await expect(authenticatedPage.getByRole('tab', { name: 'Audit' })).toBeVisible()
+
+    const checklistLabels = authenticatedPage.getByLabel('Checklist item label')
+    const checklistCount = await checklistLabels.count()
+    await authenticatedPage.getByRole('button', { name: 'Add item' }).click()
+    await expect(checklistLabels).toHaveCount(checklistCount + 1)
+    await checklistLabels.last().fill('E2E removable checklist item')
+    await authenticatedPage.getByRole('button', { name: 'Remove checklist item' }).last().click()
+    await expect(checklistLabels).toHaveCount(checklistCount)
+  })
+
   test('AC: E2E-WORKBOARD-STATUS updates status through oRPC and audit toast', async ({
     authenticatedPage,
     workboardPage,
@@ -119,7 +144,6 @@ test.describe('seeded workboard', () => {
     await expect(authenticatedPage.getByText('Readiness updated')).toBeVisible()
     await expect(workboardPage.readinessSelectFor('Arbor & Vale LLC')).toContainText('Waiting')
 
-    await workboardPage.rowFor('Arbor & Vale LLC').click()
     await authenticatedPage.keyboard.press('P')
     await expect(workboardPage.statusSelectFor('Arbor & Vale LLC')).toContainText('Paid')
   })

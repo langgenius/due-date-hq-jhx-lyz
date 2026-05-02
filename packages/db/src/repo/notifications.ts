@@ -6,7 +6,7 @@ import type {
   NotificationType,
 } from '@duedatehq/ports/notifications'
 import type { Db } from '../client'
-import { inAppNotification, notificationPreference } from '../schema/notifications'
+import { emailOutbox, inAppNotification, notificationPreference } from '../schema/notifications'
 
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
@@ -195,6 +195,35 @@ export function makeNotificationsRepo(db: Db, firmId: string) {
         metadataJson: input.metadataJson ?? null,
       })
       return { id }
+    },
+
+    async enqueueEmail(input: {
+      externalId: string
+      type:
+        | 'pulse_digest'
+        | 'deadline_reminder'
+        | 'client_deadline_reminder'
+        | 'audit_evidence_package_ready'
+        | 'readiness_request'
+      payloadJson: unknown
+    }): Promise<{ id: string; created: boolean }> {
+      const id = crypto.randomUUID()
+      await db
+        .insert(emailOutbox)
+        .values({
+          id,
+          firmId,
+          externalId: input.externalId,
+          type: input.type,
+          payloadJson: input.payloadJson,
+        })
+        .onConflictDoNothing({ target: emailOutbox.externalId })
+      const rows = await db
+        .select({ id: emailOutbox.id })
+        .from(emailOutbox)
+        .where(eq(emailOutbox.externalId, input.externalId))
+        .limit(1)
+      return { id: rows[0]?.id ?? id, created: rows[0]?.id === id }
     },
   }
 }

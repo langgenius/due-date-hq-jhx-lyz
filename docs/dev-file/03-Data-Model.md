@@ -204,7 +204,9 @@ Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 
 | `filing_due_date` / `payment_due_date`                                                             |                                                                                                       |
 | `status ∈ (pending, in_progress, done, extended, paid, waiting_on_client, review, not_applicable)` | `done` 保留既有 filed/done wire value；UI 显示为 Filed；`done/extended/paid/not_applicable` 是 closed |
 | `readiness_status ∈ (ready, waiting, needs_review)`                                                | 独立持久状态；status 写入会按 P0-16 默认规则同步，之后可由用户单独纠正                                |
-| `extension_decision`                                                                               | JSON                                                                                                  |
+| `extension_decision ∈ (not_considered, applied, rejected)`                                         | Workboard detail 的内部延期决策；`applied` 可把 obligation status 标记为 `extended`                   |
+| `extension_memo` / `extension_source` / `extension_expected_due_date`                              | 内部说明和来源；不会修改 `current_due_date`，也不表示已向税务机关 filing                              |
+| `extension_decided_at` / `extension_decided_by_user_id`                                            | 决策时间和操作者                                                                                      |
 | `estimated_tax_due_cents` / `estimated_exposure_cents`                                             | Penalty Radar 预聚合；缺输入时 exposure 为 NULL                                                       |
 | `exposure_status ∈ (ready, needs_input, unsupported)`                                              | Dashboard / Workboard triage badge                                                                    |
 | `penalty_breakdown_json` / `penalty_formula_version` / `exposure_calculated_at`                    | 可解释公式、版本和重算时间                                                                            |
@@ -241,6 +243,33 @@ Pulse apply writes one source-backed `exception_rule` plus one
 `obligation_exception_application` per selected obligation. Workboard, Dashboard, and obligation
 detail reads overlay active exception applications on top of obligation base rows; revert expires the
 application rows and retracts the source-backed exception rule.
+
+**client_readiness_request**
+
+Drizzle schema: `packages/db/src/schema/readiness.ts`。
+
+| 字段                                                                                        | 备注                                                           |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `id` / `firm_id` / `client_id` / `obligation_instance_id`                                   | tenant-scoped；repo 通过 obligation/client 同 firm 校验        |
+| `checklist_json`                                                                            | 客户可见 checklist item JSON；生成输入不得包含 EIN/邮箱/金额等 |
+| `token_hash` / `expires_at`                                                                 | 公开 portal 只存 hash，HMAC token 默认 14 天过期               |
+| `status ∈ (sent, opened, responded, revoked, expired)`                                      | portal 生命周期                                                |
+| `portal_opened_at` / `sent_at` / `revoked_at` / `created_by_user_id` / `revoked_by_user_id` | 审计和运营追踪                                                 |
+| `created_at` / `updated_at`                                                                 |                                                                |
+
+**client_readiness_response**
+
+| 字段                                                         | 备注                                    |
+| ------------------------------------------------------------ | --------------------------------------- |
+| `id` / `firm_id` / `request_id` / `obligation_instance_id`   | response 永远挂回 request 和 obligation |
+| `checklist_item_id` / `status ∈ (ready, not_yet, need_help)` | 客户逐项响应                            |
+| `note` / `eta_date`                                          | 客户备注和预计补齐时间                  |
+| `ip_hash` / `user_agent_hash` / `submitted_at`               | 公开 portal 写入的匿名化元数据          |
+
+公开 `/api/readiness/:token` GET/POST 只返回客户安全字段，不暴露 EIN、金额、内部 notes、
+member id 或 raw audit JSON。POST 响应会写 `readiness.client_response` audit、
+`readiness_client_response` evidence，并把 obligation `readiness_status` 归一到
+`ready | waiting | needs_review`。
 
 ### 2.3 Pulse 链路
 
@@ -457,6 +486,14 @@ CREATE INDEX idx_oi_batch     ON obligation_instance(migration_batch_id);
 CREATE INDEX idx_evidence_firm_time ON evidence_link(firm_id, applied_at DESC);
 CREATE INDEX idx_evidence_oi     ON evidence_link(obligation_instance_id);
 CREATE INDEX idx_evidence_source ON evidence_link(source_type, source_id);
+
+-- Client readiness portal
+CREATE INDEX idx_readiness_request_oi
+  ON client_readiness_request(firm_id, obligation_instance_id, created_at DESC);
+CREATE UNIQUE INDEX uq_readiness_request_token
+  ON client_readiness_request(token_hash);
+CREATE INDEX idx_readiness_response_request
+  ON client_readiness_response(firm_id, request_id, submitted_at DESC);
 
 -- AI trace
 CREATE INDEX idx_ai_output_firm_time ON ai_output(firm_id, generated_at);

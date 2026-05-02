@@ -8,6 +8,7 @@ import { membersHandlers } from './members'
 import { notificationsHandlers } from './notifications'
 import { obligationsHandlers } from './obligations'
 import { pulseHandlers } from './pulse'
+import { readinessHandlers } from './readiness'
 import { rulesHandlers } from './rules'
 import { workboardHandlers } from './workboard'
 import { workloadHandlers } from './workload'
@@ -56,6 +57,7 @@ export const router = os.router({
     updateStatus: obligationsHandlers.updateStatus,
     bulkUpdateStatus: obligationsHandlers.bulkUpdateStatus,
     updateReadiness: obligationsHandlers.updateReadiness,
+    decideExtension: obligationsHandlers.decideExtension,
     bulkUpdateReadiness: obligationsHandlers.bulkUpdateReadiness,
     listByClient: obligationsHandlers.listByClient,
   },
@@ -68,6 +70,7 @@ export const router = os.router({
   },
   workboard: {
     list: workboardHandlers.list,
+    getDetail: workboardHandlers.getDetail,
     facets: workboardHandlers.facets,
     listSavedViews: workboardHandlers.listSavedViews,
     createSavedView: workboardHandlers.createSavedView,
@@ -124,6 +127,12 @@ export const router = os.router({
     markAllRead: notificationsHandlers.markAllRead,
     getPreferences: notificationsHandlers.getPreferences,
     updatePreferences: notificationsHandlers.updatePreferences,
+  },
+  readiness: {
+    generateChecklist: readinessHandlers.generateChecklist,
+    sendRequest: readinessHandlers.sendRequest,
+    revokeRequest: readinessHandlers.revokeRequest,
+    listByObligation: readinessHandlers.listByObligation,
   },
   rules: {
     listSources: rulesHandlers.listSources,

@@ -21,25 +21,27 @@
 13. [12-i18n.md](./12-i18n.md)：`packages/i18n` 与 app/marketing 多语言。
 14. [13-typescript-config-tooling.md](./13-typescript-config-tooling.md)：`packages/typescript-config` 与工程化脚本。
 15. [14-user-manual.md](./14-user-manual.md)：面向用户和跨职能读者的产品/技术模块使用手册。
+16. [15-tax-prep-workflow-gap-analysis.md](./15-tax-prep-workflow-gap-analysis.md)：参考 1040 报税服务线流程，对当前项目的产品/工程缺陷做差距分析。
 
 ## 模块地图
 
-| 模块                                     | 类型           | 核心职责                                                               |
-| ---------------------------------------- | -------------- | ---------------------------------------------------------------------- |
-| `apps/app`                               | Deployable app | 会计事务所操作台、迁移向导、工单、Pulse、审计、成员、计费              |
-| `apps/server`                            | Deployable app | Cloudflare Worker API、oRPC、Better Auth、队列、定时任务、邮件 webhook |
-| `apps/marketing`                         | Deployable app | 静态营销站、双语 landing/pricing/rules/state/guides                    |
-| `packages/ui`                            | Shared package | Base UI primitives、Tailwind v4 token、主题脚本、sidebar               |
-| `packages/core`                          | Shared package | 无基础设施依赖的税务/日期/导入/罚金/规则纯逻辑                         |
-| `packages/contracts`                     | Shared package | 前后端共享 oRPC contract、Zod schema、错误码                           |
-| `packages/db`                            | Shared package | Drizzle schema、D1 client、tenant-scoped repositories                  |
-| `packages/auth`                          | Shared package | Better Auth 配置、组织权限、角色权限矩阵、Stripe plugin                |
-| `packages/ai`                            | Shared package | AI Gateway 调用、提示词、结构化输出、PII redaction、guard              |
-| `packages/ingest`                        | Shared package | Pulse 来源 adapter、fetcher、robots/conditional fetch、HTML/RSS 解析   |
-| `packages/i18n`                          | Shared package | locale 常量、请求语言协商 helper                                       |
-| `packages/ports`                         | Shared package | 领域服务与仓储边界接口                                                 |
-| `packages/typescript-config`             | Shared package | workspace TS 配置基线                                                  |
-| `docs/project-modules/14-user-manual.md` | Documentation  | 用户功能手册、角色权限、常见路径和技术模块使用指南                     |
+| 模块                                                        | 类型           | 核心职责                                                               |
+| ----------------------------------------------------------- | -------------- | ---------------------------------------------------------------------- |
+| `apps/app`                                                  | Deployable app | 会计事务所操作台、迁移向导、工单、Pulse、审计、成员、计费              |
+| `apps/server`                                               | Deployable app | Cloudflare Worker API、oRPC、Better Auth、队列、定时任务、邮件 webhook |
+| `apps/marketing`                                            | Deployable app | 静态营销站、双语 landing/pricing/rules/state/guides                    |
+| `packages/ui`                                               | Shared package | Base UI primitives、Tailwind v4 token、主题脚本、sidebar               |
+| `packages/core`                                             | Shared package | 无基础设施依赖的税务/日期/导入/罚金/规则纯逻辑                         |
+| `packages/contracts`                                        | Shared package | 前后端共享 oRPC contract、Zod schema、错误码                           |
+| `packages/db`                                               | Shared package | Drizzle schema、D1 client、tenant-scoped repositories                  |
+| `packages/auth`                                             | Shared package | Better Auth 配置、组织权限、角色权限矩阵、Stripe plugin                |
+| `packages/ai`                                               | Shared package | AI Gateway 调用、提示词、结构化输出、PII redaction、guard              |
+| `packages/ingest`                                           | Shared package | Pulse 来源 adapter、fetcher、robots/conditional fetch、HTML/RSS 解析   |
+| `packages/i18n`                                             | Shared package | locale 常量、请求语言协商 helper                                       |
+| `packages/ports`                                            | Shared package | 领域服务与仓储边界接口                                                 |
+| `packages/typescript-config`                                | Shared package | workspace TS 配置基线                                                  |
+| `docs/project-modules/14-user-manual.md`                    | Documentation  | 用户功能手册、角色权限、常见路径和技术模块使用指南                     |
+| `docs/project-modules/15-tax-prep-workflow-gap-analysis.md` | Documentation  | 对照 1040 报税 workflow 的缺陷、优先级和模块补全建议                   |
 
 ## 总体架构速览
 

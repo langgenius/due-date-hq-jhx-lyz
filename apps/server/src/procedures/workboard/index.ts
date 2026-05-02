@@ -1,10 +1,19 @@
 import { ORPCError } from '@orpc/server'
 import { zipSync } from 'fflate'
 import { PDFDocument, StandardFonts } from 'pdf-lib'
-import type { WorkboardRow } from '@duedatehq/contracts'
+import type {
+  AuditEventPublic,
+  EvidencePublic,
+  WorkboardMatchedRule,
+  WorkboardRow,
+} from '@duedatehq/contracts'
+import { listObligationRules, normalizeRuleTaxTypeCandidates } from '@duedatehq/core/rules'
+import { toAuditEventPublic } from '../audit'
 import { requireTenant } from '../_context'
 import { OBLIGATION_STATUS_WRITE_ROLES, requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
+import { signReadinessPortalToken } from '../../lib/readiness-token'
+import { toReadinessRequestPublic } from '../readiness/_public'
 
 /**
  * workboard.* — read-only firm-wide obligation queue.
@@ -23,6 +32,12 @@ interface RawRow {
   currentDueDate: Date
   status: WorkboardRow['status']
   readiness: WorkboardRow['readiness']
+  extensionDecision: WorkboardRow['extensionDecision']
+  extensionMemo: string | null
+  extensionSource: string | null
+  extensionExpectedDueDate: Date | null
+  extensionDecidedAt: Date | null
+  extensionDecidedByUserId: string | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -84,6 +99,14 @@ function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow 
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,
     readiness: row.readiness,
+    extensionDecision: row.extensionDecision,
+    extensionMemo: row.extensionMemo,
+    extensionSource: row.extensionSource,
+    extensionExpectedDueDate: row.extensionExpectedDueDate
+      ? toIsoDate(row.extensionExpectedDueDate)
+      : null,
+    extensionDecidedAt: row.extensionDecidedAt?.toISOString() ?? null,
+    extensionDecidedByUserId: row.extensionDecidedByUserId,
     migrationBatchId: row.migrationBatchId,
     estimatedTaxDueCents: opts.hideDollars ? null : row.estimatedTaxDueCents,
     estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,
@@ -99,6 +122,38 @@ function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow 
     assigneeName: row.assigneeName?.trim() || null,
     daysUntilDue: row.daysUntilDue,
     evidenceCount: row.evidenceCount,
+  }
+}
+
+interface EvidenceRow {
+  id: string
+  obligationInstanceId: string | null
+  aiOutputId: string | null
+  sourceType: string
+  sourceId: string | null
+  sourceUrl: string | null
+  verbatimQuote: string | null
+  rawValue: string | null
+  normalizedValue: string | null
+  confidence: number | null
+  model: string | null
+  appliedAt: Date
+}
+
+function toEvidencePublic(row: EvidenceRow): EvidencePublic {
+  return {
+    id: row.id,
+    obligationInstanceId: row.obligationInstanceId,
+    aiOutputId: row.aiOutputId,
+    sourceType: row.sourceType,
+    sourceId: row.sourceId,
+    sourceUrl: row.sourceUrl,
+    verbatimQuote: row.verbatimQuote,
+    rawValue: row.rawValue,
+    normalizedValue: row.normalizedValue,
+    confidence: row.confidence,
+    model: row.model,
+    appliedAt: row.appliedAt.toISOString(),
   }
 }
 
@@ -164,6 +219,43 @@ function dateInTimezone(timezone: string, date = new Date()): string {
   const month = parts.find((part) => part.type === 'month')?.value
   const day = parts.find((part) => part.type === 'day')?.value
   return `${year}-${month}-${day}`
+}
+
+function matchedRuleForRow(row: WorkboardRow): WorkboardMatchedRule | null {
+  const candidates = normalizeRuleTaxTypeCandidates(row.taxType).map(
+    (candidate) => candidate.taxType,
+  )
+  const candidateSet = new Set([row.taxType, ...candidates])
+  const rule = listObligationRules({ includeCandidates: true }).find((item) => {
+    if (!candidateSet.has(item.taxType)) return false
+    if (item.jurisdiction === 'FED') return true
+    return row.clientState === item.jurisdiction
+  })
+  if (!rule) return null
+  return {
+    id: rule.id,
+    title: rule.title,
+    defaultTip: rule.defaultTip,
+    extensionPolicy: { ...rule.extensionPolicy },
+    evidence: rule.evidence.map((item) => Object.assign({}, item)),
+  }
+}
+
+async function readinessPortalUrl(input: {
+  appUrl: string
+  secret: string
+  requestId: string
+  expiresAt: Date
+  status: string
+}): Promise<string | null> {
+  if (input.status === 'revoked' || input.status === 'expired') return null
+  if (input.expiresAt.getTime() <= Date.now()) return null
+  const token = await signReadinessPortalToken({
+    secret: input.secret,
+    requestId: input.requestId,
+    expiresAtMs: input.expiresAt.getTime(),
+  })
+  return `${input.appUrl.replace(/\/$/, '')}/readiness/${encodeURIComponent(token)}`
 }
 
 function csvCell(value: unknown): string {
@@ -278,6 +370,53 @@ const list = os.workboard.list.handler(async ({ input, context }) => {
   return {
     rows: result.rows.map((row) => toRow(row, { hideDollars })),
     nextCursor: result.nextCursor,
+  }
+})
+
+const getDetail = os.workboard.getDetail.handler(async ({ input, context }) => {
+  const { scoped, tenant, userId } = requireTenant(context)
+  const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
+  const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
+  const rows = await scoped.workboard.listByIds([input.obligationId], {
+    asOfDate: input.asOfDate ?? dateInTimezone(tenant.timezone),
+  })
+  const rawRow = rows[0]
+  if (!rawRow) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Obligation ${input.obligationId} not found in current firm.`,
+    })
+  }
+  const row = toRow(rawRow, { hideDollars })
+  const [evidenceRows, auditResult, readinessRows] = await Promise.all([
+    scoped.evidence.listByObligation(input.obligationId),
+    scoped.audit.list({
+      entityType: 'obligation_instance',
+      entityId: input.obligationId,
+      range: 'all',
+      limit: 50,
+    }),
+    scoped.readiness.listByObligation(input.obligationId),
+  ])
+
+  return {
+    row,
+    matchedRule: matchedRuleForRow(row),
+    evidence: evidenceRows.map(toEvidencePublic),
+    auditEvents: auditResult.rows.map((auditRow): AuditEventPublic => toAuditEventPublic(auditRow)),
+    readinessRequests: await Promise.all(
+      readinessRows.map(async (readinessRow) =>
+        toReadinessRequestPublic(
+          readinessRow,
+          await readinessPortalUrl({
+            appUrl: context.env.APP_URL,
+            secret: context.env.AUTH_SECRET,
+            requestId: readinessRow.id,
+            expiresAt: readinessRow.expiresAt,
+            status: readinessRow.status,
+          }),
+        ),
+      ),
+    ),
   }
 })
 
@@ -412,6 +551,7 @@ const exportSelected = os.workboard.exportSelected.handler(async ({ input, conte
 
 export const workboardHandlers = {
   list,
+  getDetail,
   facets,
   listSavedViews,
   createSavedView,

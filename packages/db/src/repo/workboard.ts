@@ -64,6 +64,12 @@ export interface WorkboardListRow {
   currentDueDate: Date
   status: ObligationStatus
   readiness: WorkboardReadiness
+  extensionDecision: 'not_considered' | 'applied' | 'rejected'
+  extensionMemo: string | null
+  extensionSource: string | null
+  extensionExpectedDueDate: Date | null
+  extensionDecidedAt: Date | null
+  extensionDecidedByUserId: string | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -150,6 +156,12 @@ interface WorkboardRawJoinedRow {
   currentDueDate: Date
   status: ObligationStatus
   readiness: WorkboardReadiness
+  extensionDecision: 'not_considered' | 'applied' | 'rejected'
+  extensionMemo: string | null
+  extensionSource: string | null
+  extensionExpectedDueDate: Date | null
+  extensionDecidedAt: Date | null
+  extensionDecidedByUserId: string | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -442,6 +454,12 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           currentDueDate: obligationInstance.currentDueDate,
           status: obligationInstance.status,
           readiness: obligationInstance.readiness,
+          extensionDecision: obligationInstance.extensionDecision,
+          extensionMemo: obligationInstance.extensionMemo,
+          extensionSource: obligationInstance.extensionSource,
+          extensionExpectedDueDate: obligationInstance.extensionExpectedDueDate,
+          extensionDecidedAt: obligationInstance.extensionDecidedAt,
+          extensionDecidedByUserId: obligationInstance.extensionDecidedByUserId,
           migrationBatchId: obligationInstance.migrationBatchId,
           estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
           estimatedExposureCents: obligationInstance.estimatedExposureCents,
@@ -512,6 +530,12 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
               currentDueDate: obligationInstance.currentDueDate,
               status: obligationInstance.status,
               readiness: obligationInstance.readiness,
+              extensionDecision: obligationInstance.extensionDecision,
+              extensionMemo: obligationInstance.extensionMemo,
+              extensionSource: obligationInstance.extensionSource,
+              extensionExpectedDueDate: obligationInstance.extensionExpectedDueDate,
+              extensionDecidedAt: obligationInstance.extensionDecidedAt,
+              extensionDecidedByUserId: obligationInstance.extensionDecidedByUserId,
               migrationBatchId: obligationInstance.migrationBatchId,
               estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
               estimatedExposureCents: obligationInstance.estimatedExposureCents,

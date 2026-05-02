@@ -215,6 +215,34 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
     },
 
+    async updateExtensionDecision(
+      id: string,
+      patch: {
+        decision: 'applied' | 'rejected'
+        memo: string | null
+        source: string | null
+        expectedExtendedDueDate: Date | null
+        decidedAt: Date
+        decidedByUserId: string
+        status?: ObligationStatus
+        readiness?: ObligationReadiness
+      },
+    ): Promise<void> {
+      await db
+        .update(obligationInstance)
+        .set({
+          extensionDecision: patch.decision,
+          extensionMemo: patch.memo,
+          extensionSource: patch.source,
+          extensionExpectedDueDate: patch.expectedExtendedDueDate,
+          extensionDecidedAt: patch.decidedAt,
+          extensionDecidedByUserId: patch.decidedByUserId,
+          ...(patch.status !== undefined ? { status: patch.status } : {}),
+          ...(patch.readiness !== undefined ? { readiness: patch.readiness } : {}),
+        })
+        .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
+    },
+
     async updateStatusMany(
       ids: string[],
       status: ObligationStatus,

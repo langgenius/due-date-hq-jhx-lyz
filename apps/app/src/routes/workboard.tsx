@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type HTMLAttributes } from 'react'
+import { useCallback, useMemo, useState, type HTMLAttributes, type ReactNode } from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import {
   flexRender,
@@ -14,12 +14,19 @@ import {
 } from '@tanstack/react-table'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  AlertTriangleIcon,
   ChevronDownIcon,
   Columns3Icon,
+  CopyIcon,
   DownloadIcon,
+  ExternalLinkIcon,
   FileArchiveIcon,
   FileSearchIcon,
   FilterIcon,
+  LinkIcon,
+  RefreshCwIcon,
+  SendIcon,
+  ShieldAlertIcon,
   PinIcon,
   SaveIcon,
   SearchIcon,
@@ -39,8 +46,11 @@ import { toast } from 'sonner'
 import {
   WORKBOARD_SEARCH_MAX_LENGTH,
   WORKBOARD_FILTER_MAX_SELECTIONS,
+  WorkboardDetailTabSchema,
   type MemberAssigneeOption,
   type WorkboardColumnVisibility,
+  type ReadinessChecklistItem,
+  type WorkboardDetailTab,
   type WorkboardDensity,
   type WorkboardFacetOption,
   type WorkboardListInput,
@@ -95,12 +105,11 @@ import {
   TableHeader,
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
-import { Tabs, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
 import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from '@duedatehq/ui/components/ui/sheet'
@@ -151,6 +160,8 @@ const OWNER_FILTERS = ['unassigned'] as const
 const DUE_FILTERS = ['overdue'] as const
 const EXPOSURE_FILTERS = ['ready', 'needs_input', 'unsupported'] as const
 const EVIDENCE_FILTERS = ['needs'] as const
+const DETAIL_DRAWERS = ['obligation'] as const
+const DETAIL_TABS = ['readiness', 'extension', 'risk', 'evidence', 'audit'] as const
 const READINESS_FILTERS = ALL_READINESSES
 const DENSITY_OPTIONS = ['comfortable', 'compact'] as const satisfies readonly WorkboardDensity[]
 const DEFAULT_SORT: WorkboardSort = 'due_asc'
@@ -158,6 +169,7 @@ const DEFAULT_DENSITY: WorkboardDensity = 'comfortable'
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
 const EMPTY_SAVED_VIEWS: WorkboardSavedView[] = []
 const EMPTY_ASSIGNEES: MemberAssigneeOption[] = []
+const EMPTY_CHECKLIST: ReadinessChecklistItem[] = []
 const EMPTY_FACET_OPTIONS: FilterOption[] = []
 const EMPTY_CLIENT_OPTIONS: ClientFilterOption[] = []
 const EMPTY_COUNTY_OPTIONS: CountyFilterOption[] = []
@@ -169,8 +181,14 @@ const DAYS_FILTER_MAX = 3650
 const UNASSIGNED_OWNER_OPTION = '__unassigned__'
 const WORKBOARD_TABLE_PILL_CLASSNAME = 'text-xs'
 const NON_HIDEABLE_COLUMNS = new Set(['select'])
+const WORKBOARD_ROW_CONTROL_SELECTOR =
+  'button,a[href],input,label,select,textarea,[role="button"],[role="checkbox"],[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"],[role="option"],[role="radio"],[role="tab"],[data-slot="checkbox"]'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const STATE_CODE_RE = /^[A-Z]{2}$/
+
+function isWorkboardDetailTab(value: string): value is WorkboardDetailTab {
+  return WorkboardDetailTabSchema.safeParse(value).success
+}
 
 type DueDaysTone = {
   variant: 'destructive' | 'warning' | 'success'
@@ -206,6 +224,11 @@ export const workboardSearchParamsParsers = {
   dueWithin: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
   exposure: parseAsStringLiteral(EXPOSURE_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
   evidence: parseAsStringLiteral(EVIDENCE_FILTERS).withOptions(REPLACE_HISTORY_OPTIONS),
+  drawer: parseAsStringLiteral(DETAIL_DRAWERS).withOptions(REPLACE_HISTORY_OPTIONS),
+  id: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
+  tab: parseAsStringLiteral(DETAIL_TABS)
+    .withDefault('readiness')
+    .withOptions({ ...REPLACE_HISTORY_OPTIONS, clearOnDefault: false }),
   readiness: parseAsArrayOf(parseAsStringLiteral(READINESS_FILTERS))
     .withDefault([])
     .withOptions(REPLACE_HISTORY_OPTIONS),
@@ -327,6 +350,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
+function isWorkboardRowControlClick(target: EventTarget | null): boolean {
+  if (isInteractiveEventTarget(target)) return true
+  if (!(target instanceof HTMLElement)) return false
+  return Boolean(target.closest(WORKBOARD_ROW_CONTROL_SELECTOR))
+}
+
 function stringArrayFromUnknown(value: unknown): string[] {
   return Array.isArray(value)
     ? cleanStringFilters(value.filter((item): item is string => typeof item === 'string'))
@@ -427,6 +456,9 @@ export function WorkboardRoute() {
       dueWithin,
       exposure,
       evidence,
+      drawer,
+      id: detailId,
+      tab: detailTab,
       readiness: readinessFilter,
       riskMin,
       riskMax,
@@ -441,7 +473,6 @@ export function WorkboardRoute() {
     },
     setWorkboardQuery,
   ] = useQueryStates(workboardSearchParamsParsers)
-  const [detailRow, setDetailRow] = useState<WorkboardRow | null>(null)
   const [penaltyRow, setPenaltyRow] = useState<WorkboardRow | null>(null)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [savedViewDraft, setSavedViewDraft] = useState<{
@@ -834,6 +865,7 @@ export function WorkboardRoute() {
     [rows],
   )
   const activeRow = (row ? rowsById.get(row) : null) ?? rows[0] ?? null
+  const activeDetailId = drawer === 'obligation' && detailId ? detailId : null
 
   const onRowSelectionChange = useCallback(
     (updater: Updater<RowSelectionState>) => {
@@ -846,8 +878,18 @@ export function WorkboardRoute() {
     setOpenHeaderFilter((current) => (nextOpen ? filterId : current === filterId ? null : current))
   }, [])
 
-  const updateStatus = updateStatusMutation.mutate
-  const updateReadiness = updateReadinessMutation.mutate
+  const updateStatus = useCallback(
+    (input: { id: string; status: ObligationStatus }) => {
+      updateStatusMutation.mutate(input)
+    },
+    [updateStatusMutation],
+  )
+  const updateReadiness = useCallback(
+    (input: { id: string; readiness: ObligationReadiness }) => {
+      updateReadinessMutation.mutate(input)
+    },
+    [updateReadinessMutation],
+  )
   const statusUpdatePending = updateStatusMutation.isPending || bulkStatusMutation.isPending
   const readinessUpdatePending =
     updateReadinessMutation.isPending || bulkReadinessMutation.isPending
@@ -1268,7 +1310,11 @@ export function WorkboardRoute() {
     (event) => {
       if (isInteractiveEventTarget(event.target)) return
       if (!activeRow) return
-      setDetailRow(activeRow)
+      void setWorkboardQuery({
+        drawer: 'obligation',
+        id: activeRow.id,
+        tab: detailTab,
+      })
     },
     {
       enabled: keyboardEnabled,
@@ -1855,7 +1901,18 @@ export function WorkboardRoute() {
                         className={
                           tableRow.original.id === activeRow?.id ? 'bg-state-base-hover' : undefined
                         }
-                        onClick={() => void setWorkboardQuery({ row: tableRow.original.id })}
+                        onClick={(event) => {
+                          if (isWorkboardRowControlClick(event.target)) {
+                            void setWorkboardQuery({ row: tableRow.original.id })
+                            return
+                          }
+                          void setWorkboardQuery({
+                            row: tableRow.original.id,
+                            drawer: 'obligation',
+                            id: tableRow.original.id,
+                            tab: detailTab,
+                          })
+                        }}
                       >
                         {tableRow.getVisibleCells().map((cell) => {
                           const meta = cell.column.columnDef.meta
@@ -1898,14 +1955,11 @@ export function WorkboardRoute() {
         </CardContent>
       </Card>
       <WorkboardDetailDrawer
-        row={detailRow}
-        onClose={() => setDetailRow(null)}
-        onOpenEvidence={(rowToOpen) =>
-          openEvidence({
-            obligationId: rowToOpen.id,
-            label: `${rowToOpen.clientName} - ${rowToOpen.taxType}`,
-          })
-        }
+        obligationId={activeDetailId}
+        activeTab={detailTab}
+        onTabChange={(nextTab) => void setWorkboardQuery({ tab: nextTab })}
+        onClose={() => void setWorkboardQuery({ drawer: null, id: null })}
+        onNeedsInput={setPenaltyRow}
       />
       <PenaltyInputDialog
         row={penaltyRow}
@@ -2141,54 +2195,670 @@ function RangeHeaderFilterDropdown({
 }
 
 function WorkboardDetailDrawer({
-  row,
+  obligationId,
+  activeTab,
+  onTabChange,
   onClose,
-  onOpenEvidence,
+  onNeedsInput,
 }: {
-  row: WorkboardRow | null
+  obligationId: string | null
+  activeTab: WorkboardDetailTab
+  onTabChange: (tab: WorkboardDetailTab) => void
   onClose: () => void
-  onOpenEvidence: (row: WorkboardRow) => void
+  onNeedsInput: (row: WorkboardRow) => void
 }) {
+  const { t } = useLingui()
+  const queryClient = useQueryClient()
+  const [checklistDraft, setChecklistDraft] = useState<{
+    obligationId: string
+    items: ReadinessChecklistItem[]
+  } | null>(null)
+  const [extensionDraft, setExtensionDraft] = useState({
+    obligationId: '',
+    decision: 'applied' as 'applied' | 'rejected',
+    memo: '',
+    source: '',
+    expectedExtendedDueDate: '',
+  })
+  const detailQuery = useQuery({
+    ...orpc.workboard.getDetail.queryOptions({
+      input: { obligationId: obligationId ?? '' },
+    }),
+    enabled: obligationId !== null,
+  })
+  const detail = detailQuery.data
+  const row = detail?.row ?? null
+  const latestRequest = detail?.readinessRequests[0] ?? null
+  const checklist =
+    row && checklistDraft?.obligationId === row.id
+      ? checklistDraft.items
+      : (latestRequest?.checklist ?? EMPTY_CHECKLIST)
+
+  if (row && extensionDraft.obligationId !== row.id) {
+    setExtensionDraft({
+      obligationId: row.id,
+      decision: row.extensionDecision === 'rejected' ? 'rejected' : 'applied',
+      memo: row.extensionMemo ?? '',
+      source: row.extensionSource ?? '',
+      expectedExtendedDueDate: row.extensionExpectedDueDate ?? '',
+    })
+  }
+
+  function invalidateDetail() {
+    void queryClient.invalidateQueries({ queryKey: orpc.workboard.getDetail.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+  }
+
+  const generateChecklistMutation = useMutation(
+    orpc.readiness.generateChecklist.mutationOptions({
+      onSuccess: (result) => {
+        if (row) setChecklistDraft({ obligationId: row.id, items: result.checklist })
+        invalidateDetail()
+        toast.success(result.degraded ? t`Fallback checklist ready` : t`Checklist generated`)
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't generate checklist`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const sendRequestMutation = useMutation(
+    orpc.readiness.sendRequest.mutationOptions({
+      onSuccess: (result) => {
+        if (row) setChecklistDraft({ obligationId: row.id, items: result.request.checklist })
+        invalidateDetail()
+        toast.success(result.emailQueued ? t`Readiness request sent` : t`Readiness link created`)
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't send readiness request`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const revokeRequestMutation = useMutation(
+    orpc.readiness.revokeRequest.mutationOptions({
+      onSuccess: () => {
+        invalidateDetail()
+        toast.success(t`Readiness request revoked`)
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't revoke request`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const decideExtensionMutation = useMutation(
+    orpc.obligations.decideExtension.mutationOptions({
+      onSuccess: (result) => {
+        invalidateDetail()
+        toast.success(t`Extension decision saved`, {
+          description: t`Audit ${result.auditId.slice(0, 8)}`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't save extension decision`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+
+  function updateChecklistItem(index: number, patch: Partial<ReadinessChecklistItem>) {
+    if (!row) return
+    const base = checklist.length > 0 ? checklist : EMPTY_CHECKLIST
+    setChecklistDraft({
+      obligationId: row.id,
+      items: base.map((item, itemIndex) =>
+        itemIndex === index ? Object.assign({}, item, patch) : item,
+      ),
+    })
+  }
+
+  function addChecklistItem() {
+    if (!row) return
+    setChecklistDraft({
+      obligationId: row.id,
+      items: [
+        ...checklist,
+        {
+          id: `custom-${crypto.randomUUID()}`,
+          label: '',
+          description: null,
+          reason: null,
+          sourceHint: null,
+        },
+      ],
+    })
+  }
+
+  function removeChecklistItem(index: number) {
+    if (!row) return
+    setChecklistDraft({
+      obligationId: row.id,
+      items: checklist.filter((_, itemIndex) => itemIndex !== index),
+    })
+  }
+
+  function copyLatestLink() {
+    if (!latestRequest?.portalUrl) return
+    void navigator.clipboard.writeText(latestRequest.portalUrl)
+    toast.success(t`Portal link copied`)
+  }
+
+  function saveExtensionDecision() {
+    if (!row) return
+    decideExtensionMutation.mutate({
+      id: row.id,
+      decision: extensionDraft.decision,
+      ...(extensionDraft.memo.trim() ? { memo: extensionDraft.memo.trim() } : {}),
+      ...(extensionDraft.source.trim() ? { source: extensionDraft.source.trim() } : {}),
+      ...(extensionDraft.expectedExtendedDueDate
+        ? { expectedExtendedDueDate: extensionDraft.expectedExtendedDueDate }
+        : {}),
+    })
+  }
+
+  const validChecklist = checklist.filter((item) => item.label.trim())
+
   return (
-    <Sheet open={row !== null} onOpenChange={(open) => (!open ? onClose() : undefined)}>
-      <SheetContent className="w-full sm:max-w-[440px]">
-        <SheetHeader>
+    <Sheet open={obligationId !== null} onOpenChange={(open) => (!open ? onClose() : undefined)}>
+      <SheetContent className="data-[side=right]:w-full data-[side=right]:max-w-[100vw] sm:data-[side=right]:w-[min(1120px,calc(100vw-1rem))] sm:data-[side=right]:max-w-none xl:data-[side=right]:w-[min(1180px,calc(100vw-2rem))] overflow-y-auto">
+        <SheetHeader className="border-b border-divider-subtle">
           <SheetTitle>{row?.clientName ?? <Trans>Obligation detail</Trans>}</SheetTitle>
           <SheetDescription>
             {row ? `${row.taxType} - ${formatDate(row.currentDueDate)}` : null}
           </SheetDescription>
         </SheetHeader>
-        {row ? (
-          <div className="grid gap-4 px-6 pb-6">
-            <DetailRow label="Status" value={row.status} />
-            <DetailRow label="Tax type" value={row.taxType} />
-            <DetailRow label="Due date" value={formatDate(row.currentDueDate)} />
-            <DetailRow
-              label="Exposure"
-              value={
-                row.exposureStatus === 'ready' && row.estimatedExposureCents !== null
-                  ? formatCents(row.estimatedExposureCents)
-                  : row.exposureStatus
-              }
-            />
-            <DetailRow label="Evidence" value={String(row.evidenceCount)} />
-            <Separator />
-          </div>
-        ) : null}
-        <SheetFooter>
-          {row ? (
-            <Button onClick={() => onOpenEvidence(row)}>
-              <FileSearchIcon data-icon="inline-start" />
-              <Trans>Open evidence</Trans>
-            </Button>
-          ) : null}
-        </SheetFooter>
+        <div className="px-6 pb-6">
+          {detailQuery.isLoading ? (
+            <div className="rounded-lg border border-dashed border-divider-regular py-8 text-center text-sm text-text-tertiary">
+              <Trans>Loading obligation detail…</Trans>
+            </div>
+          ) : detailQuery.isError || !detail || !row ? (
+            <div className="rounded-lg border border-state-destructive-border bg-state-destructive-hover p-4 text-sm text-text-destructive">
+              <Trans>Couldn't load obligation detail.</Trans>{' '}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => void detailQuery.refetch()}
+              >
+                <Trans>Retry</Trans>
+              </button>
+            </div>
+          ) : (
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) => {
+                if (isWorkboardDetailTab(value)) onTabChange(value)
+              }}
+            >
+              <TabsList className="mb-4 flex w-full flex-wrap justify-start">
+                <TabsTrigger value="readiness">
+                  <Trans>Readiness</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="extension">
+                  <Trans>Extension</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="risk">
+                  <Trans>Risk</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="evidence">
+                  <Trans>Evidence</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="audit">
+                  <Trans>Audit</Trans>
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="readiness">
+                <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+                  <div className="grid gap-3">
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => generateChecklistMutation.mutate({ obligationId: row.id })}
+                        disabled={generateChecklistMutation.isPending}
+                      >
+                        <RefreshCwIcon data-icon="inline-start" />
+                        <Trans>Generate checklist</Trans>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={addChecklistItem}
+                        disabled={checklist.length >= 8}
+                      >
+                        <Trans>Add item</Trans>
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          sendRequestMutation.mutate({
+                            obligationId: row.id,
+                            checklist: validChecklist,
+                          })
+                        }
+                        disabled={sendRequestMutation.isPending || validChecklist.length === 0}
+                      >
+                        <SendIcon data-icon="inline-start" />
+                        <Trans>Send readiness check</Trans>
+                      </Button>
+                    </div>
+                    {checklist.length === 0 ? (
+                      <EmptyPanel>
+                        <Trans>
+                          Generate a checklist or add items before sending a portal link.
+                        </Trans>
+                      </EmptyPanel>
+                    ) : (
+                      checklist.map((item, index) => (
+                        <div
+                          key={item.id}
+                          className="grid gap-2 rounded-lg border border-divider-regular p-3"
+                        >
+                          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                            <Input
+                              aria-label={t`Checklist item label`}
+                              value={item.label}
+                              placeholder={t`Checklist item`}
+                              onChange={(event) =>
+                                updateChecklistItem(index, { label: event.target.value })
+                              }
+                            />
+                            <Button
+                              type="button"
+                              size="icon-sm"
+                              variant="destructive-ghost"
+                              aria-label={t`Remove checklist item`}
+                              onClick={() => removeChecklistItem(index)}
+                            >
+                              <Trash2Icon />
+                            </Button>
+                          </div>
+                          <Textarea
+                            aria-label={t`Checklist item description`}
+                            value={item.description ?? ''}
+                            placeholder={t`Client-facing detail`}
+                            onChange={(event) =>
+                              updateChecklistItem(index, {
+                                description: event.target.value || null,
+                              })
+                            }
+                          />
+                          <p className="text-xs text-text-tertiary">{item.reason}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="grid content-start gap-3 rounded-lg border border-divider-regular p-3">
+                    <DetailRow label={<Trans>Readiness</Trans>} value={row.readiness} />
+                    <DetailRow
+                      label={<Trans>Latest request</Trans>}
+                      value={latestRequest ? latestRequest.status : t`None`}
+                    />
+                    {latestRequest?.portalUrl ? (
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline" onClick={copyLatestLink}>
+                          <CopyIcon data-icon="inline-start" />
+                          <Trans>Copy link</Trans>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          render={
+                            <a href={latestRequest.portalUrl} target="_blank" rel="noreferrer" />
+                          }
+                        >
+                          <ExternalLinkIcon data-icon="inline-start" />
+                          <Trans>Open portal</Trans>
+                        </Button>
+                      </div>
+                    ) : null}
+                    {latestRequest && latestRequest.status !== 'revoked' ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() =>
+                          revokeRequestMutation.mutate({ requestId: latestRequest.id })
+                        }
+                        disabled={revokeRequestMutation.isPending}
+                      >
+                        <Trans>Revoke request</Trans>
+                      </Button>
+                    ) : null}
+                    <Separator />
+                    <div className="grid gap-2">
+                      {latestRequest?.responses.length ? (
+                        latestRequest.responses.map((response) => (
+                          <div key={response.id} className="text-xs text-text-secondary">
+                            <span className="font-medium text-text-primary">{response.itemId}</span>
+                            {': '}
+                            {response.status}
+                            {response.note ? ` - ${response.note}` : null}
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-xs text-text-tertiary">
+                          <Trans>No client response yet.</Trans>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="extension">
+                <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+                  <div className="grid gap-3">
+                    <AlertPanel>
+                      <Trans>
+                        This is an internal decision record. It does not update the due date or
+                        confirm an authority filing. Payment may still be due by the original date.
+                      </Trans>
+                    </AlertPanel>
+                    <div className="grid gap-2 rounded-lg border border-divider-regular p-3">
+                      <DetailRow
+                        label={<Trans>Policy</Trans>}
+                        value={
+                          detail.matchedRule?.extensionPolicy.available
+                            ? t`Available`
+                            : t`Not available or unknown`
+                        }
+                      />
+                      <DetailRow
+                        label={<Trans>Form</Trans>}
+                        value={detail.matchedRule?.extensionPolicy.formName ?? t`Not specified`}
+                      />
+                      <DetailRow
+                        label={<Trans>Notes</Trans>}
+                        value={detail.matchedRule?.extensionPolicy.notes ?? t`No matched rule`}
+                      />
+                    </div>
+                    <Select
+                      value={extensionDraft.decision}
+                      onValueChange={(value) => {
+                        if (value !== 'applied' && value !== 'rejected') return
+                        setExtensionDraft((current) => ({ ...current, decision: value }))
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="applied">
+                          <Trans>Apply internal extension decision</Trans>
+                        </SelectItem>
+                        <SelectItem value="rejected">
+                          <Trans>Reject extension decision</Trans>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type="date"
+                      aria-label={t`Expected extended due date`}
+                      value={extensionDraft.expectedExtendedDueDate}
+                      onChange={(event) =>
+                        setExtensionDraft((current) => ({
+                          ...current,
+                          expectedExtendedDueDate: event.target.value,
+                        }))
+                      }
+                    />
+                    <Input
+                      aria-label={t`Extension source`}
+                      placeholder={t`Source or confirmation reference`}
+                      value={extensionDraft.source}
+                      onChange={(event) =>
+                        setExtensionDraft((current) => ({ ...current, source: event.target.value }))
+                      }
+                    />
+                    <Textarea
+                      aria-label={t`Extension memo`}
+                      placeholder={t`Decision memo`}
+                      value={extensionDraft.memo}
+                      onChange={(event) =>
+                        setExtensionDraft((current) => ({ ...current, memo: event.target.value }))
+                      }
+                    />
+                    <Button
+                      className="w-fit"
+                      onClick={saveExtensionDecision}
+                      disabled={decideExtensionMutation.isPending}
+                    >
+                      <Trans>Save decision</Trans>
+                    </Button>
+                  </div>
+                  <div className="grid content-start gap-3 rounded-lg border border-divider-regular p-3">
+                    <DetailRow label={<Trans>Current status</Trans>} value={row.status} />
+                    <DetailRow label={<Trans>Decision</Trans>} value={row.extensionDecision} />
+                    <DetailRow
+                      label={<Trans>Expected date</Trans>}
+                      value={
+                        row.extensionExpectedDueDate
+                          ? formatDate(row.extensionExpectedDueDate)
+                          : t`Not set`
+                      }
+                    />
+                    <DetailRow
+                      label={<Trans>Decided at</Trans>}
+                      value={
+                        row.extensionDecidedAt
+                          ? new Date(row.extensionDecidedAt).toLocaleString()
+                          : t`Not decided`
+                      }
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="risk">
+                <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
+                  <div className="grid gap-3">
+                    <DetailRow
+                      label={<Trans>Exposure</Trans>}
+                      value={
+                        row.exposureStatus === 'ready' && row.estimatedExposureCents !== null
+                          ? formatCents(row.estimatedExposureCents)
+                          : row.exposureStatus
+                      }
+                    />
+                    <DetailRow
+                      label={<Trans>Tax due</Trans>}
+                      value={
+                        row.estimatedTaxDueCents === null
+                          ? t`Not entered`
+                          : formatCents(row.estimatedTaxDueCents)
+                      }
+                    />
+                    <DetailRow
+                      label={<Trans>Formula</Trans>}
+                      value={row.penaltyFormulaVersion ?? t`Not calculated`}
+                    />
+                    <DetailRow
+                      label={<Trans>Calculated</Trans>}
+                      value={
+                        row.exposureCalculatedAt
+                          ? new Date(row.exposureCalculatedAt).toLocaleString()
+                          : t`Not calculated`
+                      }
+                    />
+                    <Separator />
+                    {row.penaltyBreakdown.length > 0 ? (
+                      <div className="grid gap-2">
+                        {row.penaltyBreakdown.map((item) => (
+                          <div
+                            key={item.key}
+                            className="grid gap-1 rounded-lg border border-divider-regular p-3"
+                          >
+                            <div className="flex justify-between gap-3">
+                              <span className="font-medium">{item.label}</span>
+                              <span className="font-mono">{formatCents(item.amountCents)}</span>
+                            </div>
+                            <span className="text-xs text-text-tertiary">{item.formula}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <EmptyPanel>
+                        <Trans>No penalty breakdown is available yet.</Trans>
+                      </EmptyPanel>
+                    )}
+                  </div>
+                  <div className="content-start rounded-lg border border-divider-regular p-3">
+                    {row.exposureStatus === 'needs_input' ? (
+                      <Button size="sm" onClick={() => onNeedsInput(row)}>
+                        <ShieldAlertIcon data-icon="inline-start" />
+                        <Trans>Enter penalty inputs</Trans>
+                      </Button>
+                    ) : (
+                      <p className="text-xs text-text-secondary">
+                        <Trans>Risk reflects the latest stored penalty calculation.</Trans>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="evidence">
+                <div className="grid gap-3">
+                  {detail.matchedRule ? (
+                    <div className="rounded-lg border border-divider-regular p-3">
+                      <p className="font-medium">{detail.matchedRule.title}</p>
+                      <p className="mt-1 text-sm text-text-secondary">
+                        {detail.matchedRule.defaultTip}
+                      </p>
+                    </div>
+                  ) : null}
+                  {detail.evidence.length > 0 ? (
+                    detail.evidence.map((item) => <EvidenceInlineItem key={item.id} item={item} />)
+                  ) : (
+                    <EmptyPanel>
+                      <Trans>No evidence links are attached to this obligation.</Trans>
+                    </EmptyPanel>
+                  )}
+                  {detail.matchedRule?.evidence.map((item) => (
+                    <div
+                      key={`${item.sourceId}-${item.summary}`}
+                      className="rounded-lg border border-divider-regular p-3"
+                    >
+                      <p className="font-medium">{item.summary}</p>
+                      <p className="mt-1 text-xs text-text-tertiary">{item.sourceExcerpt}</p>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+              <TabsContent value="audit">
+                <div className="grid gap-3">
+                  {detail.auditEvents.length > 0 ? (
+                    detail.auditEvents.map((event) => (
+                      <div key={event.id} className="rounded-lg border border-divider-regular p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="font-medium">{event.action}</span>
+                          <span className="text-xs text-text-tertiary">
+                            {new Date(event.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs text-text-secondary">
+                          {event.actorLabel ?? t`System or client portal`}
+                        </p>
+                        {event.reason ? (
+                          <p className="mt-2 text-sm text-text-secondary">{event.reason}</p>
+                        ) : null}
+                        <AuditJsonSummary before={event.beforeJson} after={event.afterJson} />
+                      </div>
+                    ))
+                  ) : (
+                    <EmptyPanel>
+                      <Trans>No audit events are attached to this obligation.</Trans>
+                    </EmptyPanel>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
+        </div>
       </SheetContent>
     </Sheet>
   )
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function EmptyPanel({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-dashed border-divider-regular p-4 text-sm text-text-tertiary">
+      {children}
+    </div>
+  )
+}
+
+function AlertPanel({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex gap-2 rounded-lg border border-state-warning-hover-alt bg-state-warning-hover p-3 text-sm text-text-primary">
+      <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-text-warning" aria-hidden />
+      <p>{children}</p>
+    </div>
+  )
+}
+
+function EvidenceInlineItem({
+  item,
+}: {
+  item: {
+    id: string
+    sourceType: string
+    sourceUrl: string | null
+    rawValue: string | null
+    normalizedValue: string | null
+    appliedAt: string
+  }
+}) {
+  return (
+    <div className="rounded-lg border border-divider-regular p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="font-medium">{item.sourceType}</span>
+        <span className="text-xs text-text-tertiary">
+          {new Date(item.appliedAt).toLocaleString()}
+        </span>
+      </div>
+      {item.normalizedValue ? (
+        <p className="mt-1 break-words text-sm text-text-secondary">{item.normalizedValue}</p>
+      ) : item.rawValue ? (
+        <p className="mt-1 break-words text-sm text-text-secondary">{item.rawValue}</p>
+      ) : null}
+      {item.sourceUrl ? (
+        <Button
+          className="mt-2"
+          size="sm"
+          variant="outline"
+          render={<a href={item.sourceUrl} target="_blank" rel="noreferrer" />}
+        >
+          <LinkIcon data-icon="inline-start" />
+          <Trans>Open source</Trans>
+        </Button>
+      ) : null}
+    </div>
+  )
+}
+
+function AuditJsonSummary({ before, after }: { before: unknown; after: unknown }) {
+  if (before === null && after === null) return null
+  return (
+    <div className="mt-2 grid gap-2 text-xs">
+      {before !== null ? (
+        <pre className="max-h-32 overflow-auto rounded-md bg-background-section p-2">
+          {JSON.stringify(before, null, 2)}
+        </pre>
+      ) : null}
+      {after !== null ? (
+        <pre className="max-h-32 overflow-auto rounded-md bg-background-section p-2">
+          {JSON.stringify(after, null, 2)}
+        </pre>
+      ) : null}
+    </div>
+  )
+}
+
+function DetailRow({ label, value }: { label: ReactNode; value: ReactNode }) {
   return (
     <div className="grid grid-cols-[96px_1fr] gap-3 text-sm">
       <dt className="text-xs font-medium uppercase tracking-wider text-text-tertiary">{label}</dt>

@@ -35,5 +35,8 @@ export type ObligationStatus = z.infer<typeof ObligationStatusSchema>
 export const ObligationReadinessSchema = z.enum(['ready', 'waiting', 'needs_review'])
 export type ObligationReadiness = z.infer<typeof ObligationReadinessSchema>
 
+export const ObligationExtensionDecisionSchema = z.enum(['not_considered', 'applied', 'rejected'])
+export type ObligationExtensionDecision = z.infer<typeof ObligationExtensionDecisionSchema>
+
 export const ExposureStatusSchema = z.enum(['ready', 'needs_input', 'unsupported'])
 export type ExposureStatus = z.infer<typeof ExposureStatusSchema>

@@ -75,4 +75,14 @@ export interface NotificationsRepo {
     href?: string | null
     metadataJson?: unknown
   }): Promise<{ id: string }>
+  enqueueEmail(input: {
+    externalId: string
+    type:
+      | 'pulse_digest'
+      | 'deadline_reminder'
+      | 'client_deadline_reminder'
+      | 'audit_evidence_package_ready'
+      | 'readiness_request'
+    payloadJson: unknown
+  }): Promise<{ id: string; created: boolean }>
 }
