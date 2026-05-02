@@ -10,6 +10,9 @@ import {
   groupPreviewRows,
   humanizeDueDateLogic,
   isRulesTab,
+  PREVIEW_CLIENT_OPTIONS,
+  previewCalendarYearFromFormDates,
+  previewCalendarYearToFormDates,
   previewFormToInput,
   RULES_TAB_VALUES,
 } from './rules-console-model'
@@ -32,6 +35,33 @@ describe('rules console model', () => {
         taxYearStart: '2026-01-01',
         taxYearEnd: '2025-12-31',
       },
+    })
+  })
+
+  it('keeps preview client options parseable by the form contract', () => {
+    expect(PREVIEW_CLIENT_OPTIONS.map((option) => option.clientId)).toEqual([
+      'cli_demo_acme_llc',
+      'cli_demo_hudson_scorp',
+      'cli_demo_suncoast_c_corp',
+    ])
+    expect(
+      PREVIEW_CLIENT_OPTIONS.map((option) =>
+        previewFormToInput({
+          ...DEFAULT_PREVIEW_FORM_VALUES,
+          ...option,
+        }),
+      ),
+    ).toHaveLength(3)
+  })
+
+  it('maps the preview calendar year to rule-engine date inputs', () => {
+    expect(previewCalendarYearFromFormDates(DEFAULT_PREVIEW_FORM_VALUES)).toBe(2026)
+    expect(previewCalendarYearFromFormDates({ taxYearStart: '', taxYearEnd: '2025-12-31' })).toBe(
+      2026,
+    )
+    expect(previewCalendarYearToFormDates(2027)).toEqual({
+      taxYearStart: '2027-01-01',
+      taxYearEnd: '2026-12-31',
     })
   })
 

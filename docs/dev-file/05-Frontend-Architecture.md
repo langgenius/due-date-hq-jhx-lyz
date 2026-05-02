@@ -523,6 +523,12 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - Rule Library 右侧 detail drawer 使用比默认 Sheet 更宽的 ops 宽度（桌面约
   920px，窄屏回落到全宽），用于同时容纳 rule logic、extension policy、evidence locator 和 verification
   metadata。
+- Obligation Preview 的 tax year 不再暴露复合 ISO 字符串输入；UI 使用 Popover 年份网格筛选框。
+  选择的预览年份会映射为规则引擎需要的 `taxYearStart = YYYY-01-01` 与
+  `taxYearEnd = (YYYY - 1)-12-31`，以保持当前 “本年 payment + 上一税年 return” 的
+  preview 语义。
+- Client ID 也是 preset 下拉框；选择 preview client 会同步写入 entity、state 和 tax
+  types，避免只改变 id 而预览事实仍停留在上一组输入。
 
 ## 6B. 高频 Query 输入
 

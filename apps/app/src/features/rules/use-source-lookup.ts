@@ -11,7 +11,7 @@ const EMPTY_SOURCES: readonly RuleSource[] = []
  * Shared `Map<sourceId, RuleSource>` lookup for the Rules Console.
  *
  * Backed by the same `rules.listSources` query that powers the Sources tab,
- * so consumers in the Rule Detail drawer and Generation Preview hit the
+ * so consumers in the Rule Detail drawer and Obligation Preview hit the
  * TanStack Query cache instead of issuing a second round-trip
  * (vercel rule: `client-swr-dedup`).
  *

@@ -79,13 +79,60 @@ export const previewFormSchema = z.object({
 
 export type PreviewFormValues = z.infer<typeof previewFormSchema>
 
+export type PreviewClientOption = Pick<
+  PreviewFormValues,
+  'clientId' | 'entityType' | 'state' | 'taxTypes'
+>
+
+export const PREVIEW_CLIENT_OPTIONS = [
+  {
+    clientId: DEFAULT_PREVIEW_INPUT.client.id,
+    entityType: 'llc',
+    state: 'CA',
+    taxTypes: DEFAULT_PREVIEW_INPUT.client.taxTypes.join(', '),
+  },
+  {
+    clientId: 'cli_demo_hudson_scorp',
+    entityType: 's_corp',
+    state: 'NY',
+    taxTypes: ['federal_1120s', 'ny_ct3s', 'ny_ptet_optional'].join(', '),
+  },
+  {
+    clientId: 'cli_demo_suncoast_c_corp',
+    entityType: 'c_corp',
+    state: 'FL',
+    taxTypes: ['fl_f1120', 'fl_cit_estimated_tax'].join(', '),
+  },
+] as const satisfies readonly PreviewClientOption[]
+
 export const DEFAULT_PREVIEW_FORM_VALUES: PreviewFormValues = {
-  clientId: DEFAULT_PREVIEW_INPUT.client.id,
-  entityType: 'llc',
-  state: 'CA',
+  clientId: PREVIEW_CLIENT_OPTIONS[0].clientId,
+  entityType: PREVIEW_CLIENT_OPTIONS[0].entityType,
+  state: PREVIEW_CLIENT_OPTIONS[0].state,
   taxYearStart: DEFAULT_PREVIEW_INPUT.client.taxYearStart ?? '2026-01-01',
   taxYearEnd: DEFAULT_PREVIEW_INPUT.client.taxYearEnd ?? '2025-12-31',
-  taxTypes: DEFAULT_PREVIEW_INPUT.client.taxTypes.join(', '),
+  taxTypes: PREVIEW_CLIENT_OPTIONS[0].taxTypes,
+}
+
+export function previewCalendarYearToFormDates(
+  year: number,
+): Pick<PreviewFormValues, 'taxYearStart' | 'taxYearEnd'> {
+  return {
+    taxYearStart: `${year}-01-01`,
+    taxYearEnd: `${year - 1}-12-31`,
+  }
+}
+
+export function previewCalendarYearFromFormDates(
+  values: Pick<PreviewFormValues, 'taxYearStart' | 'taxYearEnd'>,
+): number {
+  const startYear = parseIsoYear(values.taxYearStart)
+  if (startYear !== null) return startYear
+
+  const endYear = parseIsoYear(values.taxYearEnd)
+  if (endYear !== null) return endYear + 1
+
+  return parseIsoYear(DEFAULT_PREVIEW_FORM_VALUES.taxYearStart) ?? 2026
 }
 
 export function isRulesTab(value: string): value is RulesTab {
@@ -111,6 +158,12 @@ export function previewFormToInput(values: PreviewFormValues): RuleGenerationPre
 
 export function formatEnumLabel(value: string): string {
   return value.replaceAll('_', ' ')
+}
+
+function parseIsoYear(value: string): number | null {
+  const match = /^(\d{4})-\d{2}-\d{2}$/.exec(value)
+  if (!match) return null
+  return Number(match[1])
 }
 
 export function compactAcquisitionMethod(method: RuleSource['acquisitionMethod']): string {

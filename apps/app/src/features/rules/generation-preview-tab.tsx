@@ -3,7 +3,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { CornerDownLeftIcon } from 'lucide-react'
+import {
+  CalendarDaysIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CornerDownLeftIcon,
+} from 'lucide-react'
 
 import type {
   ObligationGenerationPreview,
@@ -12,6 +18,7 @@ import type {
 } from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Input } from '@duedatehq/ui/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@duedatehq/ui/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -29,6 +36,9 @@ import {
   DEFAULT_PREVIEW_INPUT,
   formatEnumLabel,
   groupPreviewRows,
+  PREVIEW_CLIENT_OPTIONS,
+  previewCalendarYearFromFormDates,
+  previewCalendarYearToFormDates,
   previewFormSchema,
   previewFormToInput,
   RULE_GENERATION_STATES,
@@ -39,6 +49,7 @@ import { SourceExternalLink } from './source-external-link'
 import { useSourceLookup } from './use-source-lookup'
 
 const ENTITY_OPTIONS = ['llc', 'partnership', 's_corp', 'c_corp'] as const
+const TAX_YEAR_GRID_SIZE = 10
 
 export function GenerationPreviewTab() {
   const { t } = useLingui()
@@ -56,6 +67,7 @@ export function GenerationPreviewTab() {
     }),
   )
 
+  const clientIdValue = form.watch('clientId')
   const entityTypeValue = form.watch('entityType')
   const stateValue = form.watch('state')
   const taxYearStart = form.watch('taxYearStart')
@@ -70,7 +82,10 @@ export function GenerationPreviewTab() {
     [taxTypesValue],
   )
 
-  const taxYearDisplay = formatTaxYearDisplay(taxYearStart, taxYearEnd)
+  const previewCalendarYear = previewCalendarYearFromFormDates({
+    taxYearStart,
+    taxYearEnd,
+  })
   const taxYearInvalid = Boolean(
     form.formState.errors.taxYearStart || form.formState.errors.taxYearEnd,
   )
@@ -87,13 +102,48 @@ export function GenerationPreviewTab() {
           })}
         >
           <div className="grid grid-cols-[220px_110px_110px_220px_120px] gap-3">
-            <PreviewField label={t`CLIENT ID`} htmlFor="preview-client-id">
-              <Input
-                id="preview-client-id"
-                className="h-8 rounded-md font-mono text-xs"
-                aria-invalid={Boolean(form.formState.errors.clientId)}
-                {...form.register('clientId')}
-              />
+            <PreviewField label={t`CLIENT ID`}>
+              <Select
+                value={clientIdValue}
+                onValueChange={(value) => {
+                  const clientOption = PREVIEW_CLIENT_OPTIONS.find(
+                    (option) => option.clientId === value,
+                  )
+                  if (!clientOption) return
+                  form.setValue('clientId', clientOption.clientId, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                  form.setValue('entityType', clientOption.entityType, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                  form.setValue('state', clientOption.state, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                  form.setValue('taxTypes', clientOption.taxTypes, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }}
+              >
+                <SelectTrigger
+                  className="h-8 w-full rounded-md font-mono text-xs"
+                  aria-invalid={Boolean(form.formState.errors.clientId)}
+                >
+                  <SelectValue>{clientIdValue}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {PREVIEW_CLIENT_OPTIONS.map((option) => (
+                      <SelectItem key={option.clientId} value={option.clientId}>
+                        {option.clientId}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </PreviewField>
             <PreviewField label={t`ENTITY`}>
               <Select
@@ -108,13 +158,13 @@ export function GenerationPreviewTab() {
                 }}
               >
                 <SelectTrigger className="h-8 w-full rounded-md text-xs">
-                  <SelectValue />
+                  <SelectValue>{previewEntityLabel(entityTypeValue)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     {ENTITY_OPTIONS.map((entity) => (
                       <SelectItem key={entity} value={entity}>
-                        {formatEnumLabel(entity).toUpperCase()}
+                        {previewEntityLabel(entity)}
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -148,25 +198,22 @@ export function GenerationPreviewTab() {
               </Select>
             </PreviewField>
             <PreviewField label={t`TAX YEAR`} htmlFor="preview-tax-year">
-              <Input
+              <TaxYearCalendarSelect
                 id="preview-tax-year"
-                className="h-8 rounded-md font-mono text-xs"
-                aria-invalid={taxYearInvalid}
-                value={taxYearDisplay}
-                onChange={(event) => {
-                  const parsed = parseTaxYearInput(event.target.value)
-                  if (parsed.start) {
-                    form.setValue('taxYearStart', parsed.start, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    })
-                  }
-                  if (parsed.end) {
-                    form.setValue('taxYearEnd', parsed.end, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    })
-                  }
+                value={previewCalendarYear}
+                taxYearStart={taxYearStart}
+                taxYearEnd={taxYearEnd}
+                invalid={taxYearInvalid}
+                onValueChange={(year) => {
+                  const dates = previewCalendarYearToFormDates(year)
+                  form.setValue('taxYearStart', dates.taxYearStart, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                  form.setValue('taxYearEnd', dates.taxYearEnd, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
                 }}
               />
             </PreviewField>
@@ -204,15 +251,134 @@ export function GenerationPreviewTab() {
       </SectionFrame>
 
       {previewQuery.isLoading ? (
-        <QueryPanelState state="loading" message={t`Loading generation preview.`} />
+        <QueryPanelState state="loading" message={t`Loading obligation preview.`} />
       ) : previewQuery.isError ? (
-        <QueryPanelState state="error" message={t`Could not run generation preview.`} />
+        <QueryPanelState state="error" message={t`Could not run obligation preview.`} />
       ) : (
         <PreviewResultsCard
           reminderReady={groups.reminderReady}
           requiresReview={groups.requiresReview}
         />
       )}
+    </div>
+  )
+}
+
+function TaxYearCalendarSelect({
+  id,
+  value,
+  taxYearStart,
+  taxYearEnd,
+  invalid,
+  onValueChange,
+}: {
+  id: string
+  value: number
+  taxYearStart: string
+  taxYearEnd: string
+  invalid: boolean
+  onValueChange: (value: number) => void
+}) {
+  const { t } = useLingui()
+  const [open, setOpen] = useState(false)
+  const [gridStart, setGridStart] = useState(() => taxYearGridStart(value))
+  const years = useMemo(
+    () => Array.from({ length: TAX_YEAR_GRID_SIZE }, (_, index) => gridStart + index),
+    [gridStart],
+  )
+
+  function changeOpen(nextOpen: boolean) {
+    setOpen(nextOpen)
+    if (nextOpen) setGridStart(taxYearGridStart(value))
+  }
+
+  function selectYear(year: number) {
+    onValueChange(year)
+    setOpen(false)
+  }
+
+  return (
+    <Popover open={open} onOpenChange={changeOpen}>
+      <PopoverTrigger
+        render={
+          <button
+            id={id}
+            type="button"
+            aria-label={t`Select tax year ${value}`}
+            aria-expanded={open}
+            aria-invalid={invalid || undefined}
+            className={cn(
+              'flex h-8 w-full items-center justify-between gap-2 rounded-md border border-transparent bg-components-input-bg-normal py-1 pr-2 pl-2.5 text-xs text-components-input-text-filled transition-colors outline-none',
+              'hover:bg-components-input-bg-hover',
+              'focus-visible:border-components-input-border-active focus-visible:bg-components-input-bg-active focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
+              'aria-invalid:border-components-input-border-destructive aria-invalid:bg-components-input-bg-destructive aria-invalid:ring-2 aria-invalid:ring-state-destructive-active',
+            )}
+          >
+            <span className="flex min-w-0 items-center gap-1.5">
+              <CalendarDaysIcon className="size-3.5 shrink-0 text-text-tertiary" aria-hidden />
+              <span className="truncate font-mono tabular-nums">{value}</span>
+            </span>
+            <ChevronDownIcon className="size-3.5 shrink-0 text-text-tertiary" aria-hidden />
+          </button>
+        }
+      />
+      <PopoverContent align="start" className="w-64 gap-3 p-3">
+        <div className="flex items-center justify-between gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t`Previous years`}
+            onClick={() => setGridStart((current) => current - TAX_YEAR_GRID_SIZE)}
+          >
+            <ChevronLeftIcon aria-hidden />
+          </Button>
+          <div className="font-mono text-xs font-medium text-text-secondary tabular-nums">
+            {gridStart}–{gridStart + TAX_YEAR_GRID_SIZE - 1}
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t`Next years`}
+            onClick={() => setGridStart((current) => current + TAX_YEAR_GRID_SIZE)}
+          >
+            <ChevronRightIcon aria-hidden />
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-5 gap-1">
+          {years.map((year) => (
+            <Button
+              key={year}
+              type="button"
+              variant={year === value ? 'accent' : 'ghost'}
+              size="xs"
+              aria-pressed={year === value}
+              className="h-8 rounded-md px-0 font-mono text-xs tabular-nums"
+              onClick={() => selectYear(year)}
+            >
+              {year}
+            </Button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 border-t border-divider-subtle pt-3">
+          <TaxYearDateSummary label={t`Filing year end`} value={taxYearEnd} />
+          <TaxYearDateSummary label={t`Payment year start`} value={taxYearStart} />
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function TaxYearDateSummary({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md bg-background-subtle px-2 py-1.5">
+      <div className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-text-muted">
+        {label}
+      </div>
+      <div className="truncate font-mono text-[11px] text-text-secondary">{value}</div>
     </div>
   )
 }
@@ -239,28 +405,12 @@ function PreviewField({
   )
 }
 
-const TAX_YEAR_FULL_PATTERN = /^\d{4}-\d{2}-\d{2}$/
-
-function formatTaxYearDisplay(start: string, end: string): string {
-  if (start && end && start.slice(0, 4) === end.slice(0, 4)) {
-    return `${start} → ${end.slice(5)}`
-  }
-  return `${start} → ${end}`
+function taxYearGridStart(year: number): number {
+  return Math.floor(year / TAX_YEAR_GRID_SIZE) * TAX_YEAR_GRID_SIZE
 }
 
-function parseTaxYearInput(value: string): { start?: string; end?: string } {
-  const [rawStart, rawEnd] = value.split(/→|->/).map((part) => part.trim())
-  const result: { start?: string; end?: string } = {}
-  if (rawStart && TAX_YEAR_FULL_PATTERN.test(rawStart)) result.start = rawStart
-  if (rawEnd && TAX_YEAR_FULL_PATTERN.test(rawEnd)) {
-    result.end = rawEnd
-  } else if (rawEnd && /^\d{2}-\d{2}$/.test(rawEnd) && result.start) {
-    // Accept the design-style abbreviated end like "12-31" by reusing the
-    // start year — keeps the visible label honest while the underlying form
-    // schema stays strictly ISO YYYY-MM-DD.
-    result.end = `${result.start.slice(0, 4)}-${rawEnd}`
-  }
-  return result
+function previewEntityLabel(entity: PreviewFormValues['entityType']): string {
+  return formatEnumLabel(entity).toUpperCase()
 }
 
 function isEntityOption(value: string | null): value is PreviewFormValues['entityType'] {

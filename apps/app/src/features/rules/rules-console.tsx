@@ -70,14 +70,14 @@ export function RulesConsole() {
       coverage: t`Coverage`,
       sources: t`Sources`,
       library: t`Rule Library`,
-      preview: t`Generation Preview`,
+      preview: t`Obligation Preview`,
     }),
     [t],
   )
 
   const tabDescriptions = useMemo<Record<RulesTab, string>>(
     () => ({
-      coverage: t`Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules.`,
+      coverage: t`Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Obligation Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules.`,
       sources: t`31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion.`,
       library: t`26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders.`,
       preview: t`Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded.`,

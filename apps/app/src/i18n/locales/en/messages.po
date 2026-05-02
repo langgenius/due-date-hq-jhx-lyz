@@ -1100,8 +1100,8 @@ msgid "Could not revert import"
 msgstr "Could not revert import"
 
 #: src/features/rules/generation-preview-tab.tsx
-msgid "Could not run generation preview."
-msgstr "Could not run generation preview."
+msgid "Could not run obligation preview."
+msgstr "Could not run obligation preview."
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not switch firm."
@@ -1702,6 +1702,10 @@ msgstr "Filed"
 msgid "Filing only — payment NOT extended."
 msgstr "Filing only — payment NOT extended."
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Filing year end"
+msgstr "Filing year end"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "Filing-frequency review"
 msgstr "Filing-frequency review"
@@ -1840,10 +1844,6 @@ msgstr "Generate deadlines"
 #: src/features/migration/WizardShell.tsx
 msgid "Generating your deadline queue"
 msgstr "Generating your deadline queue"
-
-#: src/features/rules/rules-console.tsx
-msgid "Generation Preview"
-msgstr "Generation Preview"
 
 #: src/routes/dashboard.tsx
 msgid "Glass-box threshold is active"
@@ -2109,8 +2109,8 @@ msgid "Loading failed snapshots…"
 msgstr "Loading failed snapshots…"
 
 #: src/features/rules/generation-preview-tab.tsx
-msgid "Loading generation preview."
-msgstr "Loading generation preview."
+msgid "Loading obligation preview."
+msgstr "Loading obligation preview."
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Loading pending Pulse extracts…"
@@ -2448,6 +2448,10 @@ msgstr "Next page"
 msgid "Next review"
 msgstr "Next review"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Next years"
+msgstr "Next years"
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 #: src/routes/firm.tsx
@@ -2723,6 +2727,10 @@ msgstr "Obligation detail"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Obligation evidence"
 msgstr "Obligation evidence"
+
+#: src/features/rules/rules-console.tsx
+msgid "Obligation Preview"
+msgstr "Obligation Preview"
 
 #: src/routes/workboard.tsx
 msgid "Obligation queue"
@@ -3063,6 +3071,10 @@ msgstr "Payment is extended along with filing."
 msgid "Payment model"
 msgstr "Payment model"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Payment year start"
+msgstr "Payment year start"
+
 #: src/routes/workboard.tsx
 msgid "PDF zip"
 msgstr "PDF zip"
@@ -3189,6 +3201,10 @@ msgstr "Previous"
 #: src/features/audit/audit-log-page.tsx
 msgid "Previous page"
 msgstr "Previous page"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Previous years"
+msgstr "Previous years"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
@@ -3614,8 +3630,8 @@ msgid "Review risk queue"
 msgstr "Review risk queue"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Review source coverage, rule inventory, and generation preview."
-msgstr "Review source coverage, rule inventory, and generation preview."
+msgid "Review source coverage, rule inventory, and obligation preview."
+msgstr "Review source coverage, rule inventory, and obligation preview."
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source-backed Pulse alerts."
@@ -3912,6 +3928,10 @@ msgstr "Select clients and apply again."
 msgid "Select clients to apply"
 msgstr "Select clients to apply"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Select tax year {value}"
+msgstr "Select tax year {value}"
+
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Selected obligation"
 msgstr "Selected obligation"
@@ -4135,8 +4155,8 @@ msgid "Sources"
 msgstr "Sources"
 
 #: src/features/rules/rules-console.tsx
-msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
-msgstr "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
+msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Obligation Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
+msgstr "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Obligation Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Sources watched"

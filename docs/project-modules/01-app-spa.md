@@ -70,7 +70,7 @@
 
 ### Rules Console
 
-- 只读规则工作台，展示 source coverage、source list、rule library 和 generation preview。
+- 只读规则工作台，展示 source coverage、source list、rule library 和 obligation preview。
 - 用于解释系统支持哪些 jurisdiction、source 和 obligation rule。
 
 ### 通知、成员、计费和设置

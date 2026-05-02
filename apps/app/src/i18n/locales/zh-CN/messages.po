@@ -1100,8 +1100,8 @@ msgid "Could not revert import"
 msgstr "无法回滚导入"
 
 #: src/features/rules/generation-preview-tab.tsx
-msgid "Could not run generation preview."
-msgstr "无法运行生成预览。"
+msgid "Could not run obligation preview."
+msgstr "无法运行事项预览。"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not switch firm."
@@ -1702,6 +1702,10 @@ msgstr "已申报"
 msgid "Filing only — payment NOT extended."
 msgstr "仅申报延期 — 缴款不延期。"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Filing year end"
+msgstr "申报税年结束"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "Filing-frequency review"
 msgstr "申报频率复核"
@@ -1840,10 +1844,6 @@ msgstr "生成截止日"
 #: src/features/migration/WizardShell.tsx
 msgid "Generating your deadline queue"
 msgstr "正在生成你的截止日队列"
-
-#: src/features/rules/rules-console.tsx
-msgid "Generation Preview"
-msgstr "生成预览"
 
 #: src/routes/dashboard.tsx
 msgid "Glass-box threshold is active"
@@ -2109,8 +2109,8 @@ msgid "Loading failed snapshots…"
 msgstr "正在加载失败快照…"
 
 #: src/features/rules/generation-preview-tab.tsx
-msgid "Loading generation preview."
-msgstr "正在加载生成预览。"
+msgid "Loading obligation preview."
+msgstr "正在加载事项预览。"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Loading pending Pulse extracts…"
@@ -2448,6 +2448,10 @@ msgstr "下一页"
 msgid "Next review"
 msgstr "下次复核"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Next years"
+msgstr "下一组年份"
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 #: src/routes/firm.tsx
@@ -2723,6 +2727,10 @@ msgstr "事项详情"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Obligation evidence"
 msgstr "事项证据"
+
+#: src/features/rules/rules-console.tsx
+msgid "Obligation Preview"
+msgstr "事项预览"
 
 #: src/routes/workboard.tsx
 msgid "Obligation queue"
@@ -3063,6 +3071,10 @@ msgstr "缴款随申报一同延期。"
 msgid "Payment model"
 msgstr "支付模型"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Payment year start"
+msgstr "缴款税年开始"
+
 #: src/routes/workboard.tsx
 msgid "PDF zip"
 msgstr "PDF 压缩包"
@@ -3189,6 +3201,10 @@ msgstr "上一页"
 #: src/features/audit/audit-log-page.tsx
 msgid "Previous page"
 msgstr "上一页"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Previous years"
+msgstr "上一组年份"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
@@ -3614,8 +3630,8 @@ msgid "Review risk queue"
 msgstr "查看风险队列"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Review source coverage, rule inventory, and generation preview."
-msgstr "查看来源覆盖、规则清单与生成预览。"
+msgid "Review source coverage, rule inventory, and obligation preview."
+msgstr "查看来源覆盖、规则清单与事项预览。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source-backed Pulse alerts."
@@ -3912,6 +3928,10 @@ msgstr "请选择客户后再次应用。"
 msgid "Select clients to apply"
 msgstr "请选择客户后再应用"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Select tax year {value}"
+msgstr "选择税年 {value}"
+
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Selected obligation"
 msgstr "已选事项"
@@ -4135,8 +4155,8 @@ msgid "Sources"
 msgstr "来源"
 
 #: src/features/rules/rules-console.tsx
-msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
-msgstr "Sources 是我们监控的官方原料（31 个）。Rules 是我们加工出的截止日模板（26 条 · 25 已核验 · 1 候选）。Preview 展示规则会为某个客户生成什么 obligation —— 可提醒的 obligation 只来自已核验规则。"
+msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Obligation Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
+msgstr "Sources 是我们监控的官方原料（31 个）。Rules 是我们加工出的截止日模板（26 条 · 25 已核验 · 1 候选）。Obligation Preview 展示规则会为某个客户生成什么 obligation —— 可提醒的 obligation 只来自已核验规则。"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Sources watched"

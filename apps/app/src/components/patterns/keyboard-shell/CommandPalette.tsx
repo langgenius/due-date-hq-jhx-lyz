@@ -116,7 +116,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       {
         id: 'rules',
         label: t`Rules`,
-        description: t`Review source coverage, rule inventory, and generation preview.`,
+        description: t`Review source coverage, rule inventory, and obligation preview.`,
         group: 'navigate',
         icon: FileCheck2Icon,
         onSelect: () => navigate('/rules'),
