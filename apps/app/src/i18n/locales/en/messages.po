@@ -1280,6 +1280,10 @@ msgid "Couldn't parse the input"
 msgstr "Couldn't parse the input"
 
 #: src/routes/workboard.tsx
+msgid "Couldn't prepare the latest tip. Showing fallback or previous content."
+msgstr "Couldn't prepare the latest tip. Showing fallback or previous content."
+
+#: src/routes/workboard.tsx
 msgid "Couldn't queue deadline tip"
 msgstr "Couldn't queue deadline tip"
 
@@ -3606,9 +3610,17 @@ msgstr "Prepared in the background from the latest dashboard risk snapshot."
 msgid "Preparer"
 msgstr "Preparer"
 
+#: src/routes/workboard.tsx
+msgid "Preparing"
+msgstr "Preparing"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Preparing normalization"
 msgstr "Preparing normalization"
+
+#: src/routes/workboard.tsx
+msgid "Preparing tip from verified deadline context."
+msgstr "Preparing tip from verified deadline context."
 
 #: src/features/migration/WizardShell.tsx
 msgid "Preparing your mapping"
@@ -3784,7 +3796,6 @@ msgstr "Queue controls"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Queued"
 msgstr "Queued"
 
@@ -4588,6 +4599,10 @@ msgstr "Showing {0} of {1} · click any row to open the official source ↗"
 msgid "Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events"
 msgstr "Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events"
 
+#: src/routes/workboard.tsx
+msgid "Showing the previous tip while the latest one is being prepared."
+msgstr "Showing the previous tip while the latest one is being prepared."
+
 #: src/routes/route-summary.ts
 msgid "Sign in"
 msgstr "Sign in"
@@ -4806,6 +4821,10 @@ msgstr "Status updated"
 #: src/features/migration/WizardShell.tsx
 msgid "Step {step} / 4"
 msgstr "Step {step} / 4"
+
+#: src/routes/workboard.tsx
+msgid "Still preparing. You can leave this page and check back later."
+msgstr "Still preparing. You can leave this page and check back later."
 
 #: src/routes/billing.success.tsx
 msgid "Still waiting on confirmation"
@@ -5170,7 +5189,9 @@ msgid "Updated"
 msgstr "Updated"
 
 #. placeholder {0}: formatDateTimeWithTimezone(brief.generatedAt)
+#. placeholder {0}: formatDateTimeWithTimezone(insight.generatedAt)
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Updated {0}"
 msgstr "Updated {0}"
 

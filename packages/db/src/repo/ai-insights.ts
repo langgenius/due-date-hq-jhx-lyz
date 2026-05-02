@@ -119,7 +119,11 @@ export function makeAiInsightsRepo(db: Db, firmId: string) {
         asOfDate: input.asOfDate,
         status: 'pending',
         inputHash: input.inputHash,
+        outputJson: input.output ?? null,
+        citationsJson: input.citations ?? null,
         reason: input.reason,
+        generatedAt: input.generatedAt ?? null,
+        expiresAt: input.expiresAt ?? null,
         createdAt: now,
         updatedAt: now,
       })

@@ -997,7 +997,7 @@ msgstr "客户事实"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Client facts, risk inputs, and cached AI summary."
-msgstr ""
+msgstr "客户事实、风险输入和缓存的 AI 摘要。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT ID"
@@ -1013,7 +1013,7 @@ msgstr "客户导入已撤销"
 
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Client importance"
-msgstr ""
+msgstr "客户重要性"
 
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
@@ -1026,7 +1026,7 @@ msgstr "客户提醒"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Client Risk Summary"
-msgstr ""
+msgstr "客户风险摘要"
 
 #: src/routes/workboard.tsx
 msgid "Client-facing detail"
@@ -1280,12 +1280,16 @@ msgid "Couldn't parse the input"
 msgstr "无法解析输入内容"
 
 #: src/routes/workboard.tsx
+msgid "Couldn't prepare the latest tip. Showing fallback or previous content."
+msgstr "无法生成最新提示。正在显示兜底内容或上一版内容。"
+
+#: src/routes/workboard.tsx
 msgid "Couldn't queue deadline tip"
-msgstr ""
+msgstr "无法排队生成截止日提示"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Couldn't queue risk summary"
-msgstr ""
+msgstr "无法排队生成风险摘要"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't reactivate alert"
@@ -1309,7 +1313,7 @@ msgstr "无法保存 penalty 输入"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Couldn't save risk inputs"
-msgstr ""
+msgstr "无法保存风险输入"
 
 #: src/routes/workboard.tsx
 msgid "Couldn't save view"
@@ -1506,11 +1510,11 @@ msgstr "截止日状态从 {previous} 变更为 {next}"
 
 #: src/routes/workboard.tsx
 msgid "Deadline Tip"
-msgstr ""
+msgstr "截止日提示"
 
 #: src/routes/workboard.tsx
 msgid "Deadline tip refresh queued"
-msgstr ""
+msgstr "截止日提示刷新已排队"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "deadlines"
@@ -2058,7 +2062,7 @@ msgstr "高"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 msgid "High"
-msgstr ""
+msgstr "高"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
@@ -2144,7 +2148,7 @@ msgstr "导入已撤销"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Importance"
-msgstr ""
+msgstr "重要性"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Imported"
@@ -2280,7 +2284,7 @@ msgstr "上次成功 {0} · 下次检查 {1} · 失败 {2}"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Late filings, 12mo"
-msgstr ""
+msgstr "近 12 个月迟交次数"
 
 #: src/routes/workboard.tsx
 msgid "Latest request"
@@ -2324,7 +2328,7 @@ msgstr "正在加载提醒…"
 
 #: src/routes/workboard.tsx
 msgid "Loading deadline tip…"
-msgstr ""
+msgstr "正在加载截止日提示…"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Loading failed snapshots…"
@@ -2402,7 +2406,7 @@ msgstr "长期"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Low"
-msgstr ""
+msgstr "低"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Low AI confidence"
@@ -2510,7 +2514,7 @@ msgstr "中"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Medium"
-msgstr ""
+msgstr "中"
 
 #: src/routes/billing.tsx
 msgid "Member"
@@ -3606,9 +3610,17 @@ msgstr "基于最新 Dashboard 风险快照在后台生成。"
 msgid "Preparer"
 msgstr "经办人"
 
+#: src/routes/workboard.tsx
+msgid "Preparing"
+msgstr "准备中"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Preparing normalization"
 msgstr "正在准备规范化"
+
+#: src/routes/workboard.tsx
+msgid "Preparing tip from verified deadline context."
+msgstr "正在基于已验证的截止日上下文准备提示。"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Preparing your mapping"
@@ -3638,7 +3650,7 @@ msgstr "主导航"
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Priority"
-msgstr ""
+msgstr "优先级"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -3784,7 +3796,6 @@ msgstr "队列控制"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Queued"
 msgstr "已入队"
 
@@ -4159,11 +4170,11 @@ msgstr "风险"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Risk inputs"
-msgstr ""
+msgstr "风险输入"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Risk inputs saved"
-msgstr ""
+msgstr "风险输入已保存"
 
 #: src/routes/dashboard.tsx
 msgid "Risk pulse"
@@ -4175,7 +4186,7 @@ msgstr "风险反映最近一次已保存的罚金计算。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Risk summary refresh queued"
-msgstr ""
+msgstr "风险摘要刷新已排队"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/members/members-page.tsx
@@ -4328,7 +4339,7 @@ msgstr "保存规范化值"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Save risk inputs"
-msgstr ""
+msgstr "保存风险输入"
 
 #: src/routes/workboard.tsx
 msgid "Save view"
@@ -4379,7 +4390,7 @@ msgstr "正在保存已确认字段，并将值分组以供复核。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Saving..."
-msgstr ""
+msgstr "正在保存..."
 
 #: src/routes/firm.tsx
 msgid "Saving…"
@@ -4408,7 +4419,7 @@ msgstr "范围"
 
 #: src/features/priority/SmartPriorityBadge.tsx
 msgid "Score"
-msgstr ""
+msgstr "分数"
 
 #: src/routes/workboard.tsx
 msgid "Search assignees"
@@ -4588,6 +4599,10 @@ msgstr "显示 {0} / {1} · 点击任意行打开官方来源 ↗"
 msgid "Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events"
 msgstr "显示 {firstItemNumber}-{lastItemNumber}，共加载 {loadedCount} 条事件"
 
+#: src/routes/workboard.tsx
+msgid "Showing the previous tip while the latest one is being prepared."
+msgstr "正在显示上一版提示，同时准备最新版。"
+
 #: src/routes/route-summary.ts
 msgid "Sign in"
 msgstr "登录"
@@ -4635,7 +4650,7 @@ msgstr "已跳过行"
 #: src/features/priority/SmartPriorityBadge.tsx
 #: src/routes/workboard.tsx
 msgid "Smart Priority"
-msgstr ""
+msgstr "智能优先级"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Snapshot retry queued"
@@ -4806,6 +4821,10 @@ msgstr "状态已更新"
 #: src/features/migration/WizardShell.tsx
 msgid "Step {step} / 4"
 msgstr "第 {step} 步 / 共 4 步"
+
+#: src/routes/workboard.tsx
+msgid "Still preparing. You can leave this page and check back later."
+msgstr "仍在准备中。你可以离开此页面，稍后再回来查看。"
 
 #: src/routes/billing.success.tsx
 msgid "Still waiting on confirmation"
@@ -5170,7 +5189,9 @@ msgid "Updated"
 msgstr "更新时间"
 
 #. placeholder {0}: formatDateTimeWithTimezone(brief.generatedAt)
+#. placeholder {0}: formatDateTimeWithTimezone(insight.generatedAt)
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Updated {0}"
 msgstr "更新于 {0}"
 
@@ -5193,7 +5214,7 @@ msgstr "上传行数据"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use a whole number from 0 to 99"
-msgstr ""
+msgstr "请输入 0 到 99 之间的整数"
 
 #: src/routes/workboard.tsx
 msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."

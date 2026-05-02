@@ -30,6 +30,10 @@ export interface AiInsightCreatePendingInput {
   asOfDate: string
   inputHash: string
   reason: string
+  output?: unknown
+  citations?: unknown
+  generatedAt?: Date | null
+  expiresAt?: Date | null
   now?: Date
 }
 

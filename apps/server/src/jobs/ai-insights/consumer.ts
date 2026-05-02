@@ -302,6 +302,13 @@ async function refreshAiInsight(message: AiInsightRefreshMessage, env: Env): Pro
   })
   if (existing) return
 
+  const previous = await repos.aiInsights.findLatest({
+    kind: message.kind,
+    subjectType: message.subjectType,
+    subjectId: message.subjectId,
+    asOfDate,
+    now,
+  })
   const pending = await repos.aiInsights.createPending({
     kind: message.kind,
     subjectType: message.subjectType,
@@ -309,6 +316,10 @@ async function refreshAiInsight(message: AiInsightRefreshMessage, env: Env): Pro
     asOfDate,
     inputHash,
     reason: message.reason,
+    output: previous?.output ?? undefined,
+    citations: previous?.citations ?? undefined,
+    generatedAt: previous?.generatedAt ?? null,
+    expiresAt: previous?.expiresAt ?? null,
     now,
   })
 

@@ -142,7 +142,7 @@ import {
 import { queryInputUrlUpdateRateLimit, useDebouncedQueryInput } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-import { formatCents, formatDate } from '@/lib/utils'
+import { formatCents, formatDate, formatDateTimeWithTimezone } from '@/lib/utils'
 
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -169,6 +169,8 @@ const READINESS_FILTERS = ALL_READINESSES
 const DENSITY_OPTIONS = ['comfortable', 'compact'] as const satisfies readonly WorkboardDensity[]
 const DEFAULT_SORT: WorkboardSort = 'smart_priority'
 const DEFAULT_DENSITY: WorkboardDensity = 'comfortable'
+const DEADLINE_TIP_REFRESH_POLL_INTERVAL_MS = 3_000
+const DEADLINE_TIP_REFRESH_TIMEOUT_MS = 60_000
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
 const EMPTY_SAVED_VIEWS: WorkboardSavedView[] = []
 const EMPTY_ASSIGNEES: MemberAssigneeOption[] = []
@@ -2237,20 +2239,77 @@ function WorkboardDetailDrawer({
     source: '',
     expectedExtendedDueDate: '',
   })
+  const [deadlineTipRefresh, setDeadlineTipRefresh] = useState<{
+    obligationId: string
+    startedAt: number
+  } | null>(null)
+  const activeDeadlineTipRefresh =
+    obligationId && deadlineTipRefresh?.obligationId === obligationId ? deadlineTipRefresh : null
   const detailQuery = useQuery({
     ...orpc.workboard.getDetail.queryOptions({
       input: { obligationId: obligationId ?? '' },
     }),
     enabled: obligationId !== null,
   })
+  const requestDeadlineTipMutation = useMutation(
+    orpc.obligations.requestDeadlineTipRefresh.mutationOptions({
+      onMutate: (variables) => {
+        setDeadlineTipRefresh({ obligationId: variables.obligationId, startedAt: Date.now() })
+      },
+      onSuccess: (result, variables) => {
+        const queryOptions = orpc.obligations.getDeadlineTip.queryOptions({
+          input: { obligationId: variables.obligationId },
+        })
+        queryClient.setQueryData(queryOptions.queryKey, result.insight)
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
+        toast.success(t`Deadline tip refresh queued`)
+      },
+      onError: (err) => {
+        setDeadlineTipRefresh(null)
+        toast.error(t`Couldn't queue deadline tip`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
   const deadlineTipQuery = useQuery({
     ...orpc.obligations.getDeadlineTip.queryOptions({
       input: { obligationId: obligationId ?? '' },
     }),
     enabled: obligationId !== null,
+    refetchInterval: (query) => {
+      const insight = query.state.data
+      if (!activeDeadlineTipRefresh) return insight?.status === 'pending' ? 5_000 : false
+
+      const ageMs = Date.now() - activeDeadlineTipRefresh.startedAt
+      if (ageMs >= DEADLINE_TIP_REFRESH_TIMEOUT_MS) return false
+
+      const generatedAtMs = insight?.generatedAt ? Date.parse(insight.generatedAt) : 0
+      const latestRefreshSettled =
+        insight?.status !== 'pending' && generatedAtMs >= activeDeadlineTipRefresh.startedAt
+      return latestRefreshSettled ? false : DEADLINE_TIP_REFRESH_POLL_INTERVAL_MS
+    },
   })
   const detail = detailQuery.data
   const row = detail?.row ?? null
+  const deadlineTipInsight = deadlineTipQuery.data ?? null
+  const deadlineTipGeneratedAtMs = deadlineTipInsight?.generatedAt
+    ? Date.parse(deadlineTipInsight.generatedAt)
+    : 0
+  const deadlineTipLatestRefreshSettled = Boolean(
+    activeDeadlineTipRefresh &&
+    deadlineTipInsight?.status !== 'pending' &&
+    deadlineTipGeneratedAtMs >= activeDeadlineTipRefresh.startedAt,
+  )
+  const deadlineTipRefreshTimedOut = Boolean(
+    activeDeadlineTipRefresh &&
+    !deadlineTipLatestRefreshSettled &&
+    Date.now() - activeDeadlineTipRefresh.startedAt >= DEADLINE_TIP_REFRESH_TIMEOUT_MS,
+  )
+  const deadlineTipPreparing = Boolean(
+    requestDeadlineTipMutation.isPending ||
+    (activeDeadlineTipRefresh && !deadlineTipLatestRefreshSettled && !deadlineTipRefreshTimedOut),
+  )
   const latestRequest = detail?.readinessRequests[0] ?? null
   const checklist =
     row && checklistDraft?.obligationId === row.id
@@ -2331,20 +2390,6 @@ function WorkboardDetailDrawer({
       },
     }),
   )
-  const requestDeadlineTipMutation = useMutation(
-    orpc.obligations.requestDeadlineTipRefresh.mutationOptions({
-      onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
-        toast.success(t`Deadline tip refresh queued`)
-      },
-      onError: (err) => {
-        toast.error(t`Couldn't queue deadline tip`, {
-          description: rpcErrorMessage(err) ?? t`Please try again.`,
-        })
-      },
-    }),
-  )
-
   function updateChecklistItem(index: number, patch: Partial<ReadinessChecklistItem>) {
     if (!row) return
     const base = checklist.length > 0 ? checklist : EMPTY_CHECKLIST
@@ -2714,9 +2759,10 @@ function WorkboardDetailDrawer({
                       </div>
                     </div>
                     <DeadlineTipPanel
-                      insight={deadlineTipQuery.data ?? null}
+                      insight={deadlineTipInsight}
                       isLoading={deadlineTipQuery.isLoading}
-                      isRefreshing={requestDeadlineTipMutation.isPending}
+                      isPreparing={deadlineTipPreparing}
+                      isTimedOut={deadlineTipRefreshTimedOut}
                       onRefresh={() => requestDeadlineTipMutation.mutate({ obligationId: row.id })}
                     />
                     <DetailRow
@@ -2857,14 +2903,26 @@ function EmptyPanel({ children }: { children: ReactNode }) {
 function DeadlineTipPanel({
   insight,
   isLoading,
-  isRefreshing,
+  isPreparing,
+  isTimedOut,
   onRefresh,
 }: {
   insight: AiInsightPublic | null
   isLoading: boolean
-  isRefreshing: boolean
+  isPreparing: boolean
+  isTimedOut: boolean
   onRefresh: () => void
 }) {
+  const hasPreviousTip = Boolean(insight?.generatedAt)
+  const showFailedState = insight?.status === 'failed' && !isPreparing
+  const buttonLabel = isPreparing ? (
+    <Trans>Preparing</Trans>
+  ) : isTimedOut || showFailedState ? (
+    <Trans>Retry</Trans>
+  ) : (
+    <Trans>Refresh</Trans>
+  )
+
   return (
     <div className="grid gap-3 rounded-lg border border-divider-regular bg-background-section p-3">
       <div className="flex items-center justify-between gap-3">
@@ -2873,17 +2931,23 @@ function DeadlineTipPanel({
           <span className="text-sm font-medium text-text-primary">
             <Trans>Deadline Tip</Trans>
           </span>
-          {insight ? <InsightStatusBadge status={insight.status} /> : null}
+          {isPreparing ? (
+            <Badge variant="warning">
+              <Trans>Preparing</Trans>
+            </Badge>
+          ) : insight ? (
+            <InsightStatusBadge status={insight.status} />
+          ) : null}
         </div>
         <Button
           type="button"
           size="sm"
           variant="outline"
-          disabled={isRefreshing}
+          disabled={isPreparing}
           onClick={onRefresh}
         >
           <RefreshCwIcon data-icon="inline-start" />
-          {isRefreshing ? <Trans>Queued</Trans> : <Trans>Refresh</Trans>}
+          {buttonLabel}
         </Button>
       </div>
       {isLoading ? (
@@ -2892,6 +2956,25 @@ function DeadlineTipPanel({
         </div>
       ) : insight ? (
         <div className="grid gap-3">
+          {isPreparing ? (
+            <AlertPanel>
+              {hasPreviousTip ? (
+                <Trans>Showing the previous tip while the latest one is being prepared.</Trans>
+              ) : (
+                <Trans>Preparing tip from verified deadline context.</Trans>
+              )}
+            </AlertPanel>
+          ) : null}
+          {isTimedOut ? (
+            <AlertPanel>
+              <Trans>Still preparing. You can leave this page and check back later.</Trans>
+            </AlertPanel>
+          ) : null}
+          {showFailedState ? (
+            <AlertPanel>
+              <Trans>Couldn't prepare the latest tip. Showing fallback or previous content.</Trans>
+            </AlertPanel>
+          ) : null}
           {insight.sections.map((section) => (
             <div key={section.key} className="grid gap-1">
               <p className="text-sm font-medium text-text-primary">{section.label}</p>
@@ -2899,6 +2982,11 @@ function DeadlineTipPanel({
               <InsightCitationChips insight={insight} citationRefs={section.citationRefs} />
             </div>
           ))}
+          {insight.generatedAt ? (
+            <span className="text-xs text-text-tertiary">
+              <Trans>Updated {formatDateTimeWithTimezone(insight.generatedAt)}</Trans>
+            </span>
+          ) : null}
         </div>
       ) : null}
     </div>

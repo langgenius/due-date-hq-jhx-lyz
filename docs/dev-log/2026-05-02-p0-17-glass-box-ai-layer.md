@@ -34,3 +34,24 @@
 - `pnpm --filter @duedatehq/app i18n:compile`
 - `pnpm format:fix`
 - `pnpm ready`
+
+## Follow-up: Deadline Tip refresh UX
+
+- `obligations.requestDeadlineTipRefresh` now writes an immediate pending cache marker before
+  enqueueing generation. If a previous tip exists, the pending row keeps the previous sections and
+  citations so users do not lose useful context while a newer tip is prepared.
+- Workboard detail `Risk` tab now shows `Preparing` state, preserves the previous tip, polls
+  `obligations.getDeadlineTip` every 3 seconds for up to 60 seconds, and then shows a
+  `Still preparing` message with a retry affordance.
+- This stays useEffect-free: the refresh event records local start time, TanStack Query owns
+  polling, and mutation success writes the returned pending insight into the query cache.
+
+Validation:
+
+- `pnpm --filter @duedatehq/server test`
+- `pnpm --filter @duedatehq/app test`
+- `pnpm --filter @duedatehq/db test`
+- `pnpm --filter @duedatehq/app i18n:extract`
+- `pnpm --filter @duedatehq/app i18n:compile`
+- `pnpm check`
+- `pnpm ready`

@@ -313,6 +313,27 @@ const requestDeadlineTipRefresh = os.obligations.requestDeadlineTipRefresh.handl
       })
     }
     const asOfDate = dateInTimezone(tenant.timezone)
+    const latest = await scoped.aiInsights.findLatest({
+      kind: 'deadline_tip',
+      subjectType: 'obligation',
+      subjectId: input.obligationId,
+      asOfDate,
+    })
+    const pending =
+      latest?.status === 'pending'
+        ? latest
+        : await scoped.aiInsights.createPending({
+            kind: 'deadline_tip',
+            subjectType: 'obligation',
+            subjectId: input.obligationId,
+            asOfDate,
+            inputHash: `manual-refresh:${crypto.randomUUID()}`,
+            reason: 'manual_refresh',
+            output: latest?.output ?? undefined,
+            citations: latest?.citations ?? undefined,
+            generatedAt: latest?.generatedAt ?? null,
+            expiresAt: latest?.expiresAt ?? null,
+          })
     const queued = await enqueueAiInsightRefresh(context.env, {
       firmId: tenant.firmId,
       kind: 'deadline_tip',
@@ -320,15 +341,9 @@ const requestDeadlineTipRefresh = os.obligations.requestDeadlineTipRefresh.handl
       asOfDate,
       reason: 'manual_refresh',
     })
-    const insight = await scoped.aiInsights.findLatest({
-      kind: 'deadline_tip',
-      subjectType: 'obligation',
-      subjectId: input.obligationId,
-      asOfDate,
-    })
     return {
       queued,
-      insight: toAiInsightPublic(insight, {
+      insight: toAiInsightPublic(pending, {
         kind: 'deadline_tip',
         subjectId: input.obligationId,
         sections: deadlineTipFallback(input.obligationId),

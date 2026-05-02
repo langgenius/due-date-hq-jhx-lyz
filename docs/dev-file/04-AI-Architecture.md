@@ -497,8 +497,10 @@ Client profile / Workboard drawer refresh
 
 `clients.getRiskSummary` and `obligations.getDeadlineTip` never call the model. They return the
 current cache state with public shape `status`, `generatedAt`, `expiresAt`, `sections`, `citations`,
-`aiOutputId`, and `errorCode`; if no usable row exists, the server returns a deterministic fallback
-and queues can be triggered by the explicit refresh mutations.
+`aiOutputId`, and `errorCode`; if no usable row exists, the server returns a deterministic fallback.
+Explicit refresh mutations enqueue work and may write an immediate `pending` cache marker. For
+Deadline Tip, that pending marker preserves the previous sections/citations when available so the UI
+can show old guidance while polling for the latest generated result.
 
 Insight guard adds the P0-17 checks on top of the shared Glass-Box rules: non-empty retrieval,
 citation bounds, every section citing at least one source, banned tax-advice phrases, and no
