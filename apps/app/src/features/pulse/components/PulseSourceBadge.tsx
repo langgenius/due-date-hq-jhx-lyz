@@ -10,7 +10,7 @@ interface PulseSourceBadgeProps {
 // Compact "source · open ↗" chip used inside the banner card and detail header.
 export function PulseSourceBadge({ source, sourceUrl }: PulseSourceBadgeProps) {
   return (
-    <Badge variant="outline" className="font-mono tabular-nums">
+    <Badge variant="outline" className="font-mono tabular-nums text-xs">
       <a
         href={sourceUrl}
         target="_blank"

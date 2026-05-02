@@ -7,7 +7,7 @@ export function PulseSourceStatusBadge({ status }: { status: PulseStatus }) {
   if (status !== 'source_revoked') return null
 
   return (
-    <Badge variant="outline" className="text-text-secondary">
+    <Badge variant="outline" className="text-xs text-text-secondary">
       <BadgeStatusDot tone="error" />
       <Trans>Source revoked</Trans>
     </Badge>
