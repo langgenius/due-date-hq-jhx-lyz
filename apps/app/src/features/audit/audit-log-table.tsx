@@ -13,7 +13,14 @@ import {
 } from '@duedatehq/ui/components/ui/table'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
 
-import { shortenAuditId, summarizeAuditChange, type AuditSummaryLabels } from './audit-log-model'
+import { useAuditEntityTypeLabels } from './audit-log-labels'
+import {
+  formatAuditEntityTypeLabel,
+  getAuditEntityDisplay,
+  shortenAuditId,
+  summarizeAuditChange,
+  type AuditSummaryLabels,
+} from './audit-log-model'
 
 export function AuditLogTable({
   events,
@@ -23,6 +30,7 @@ export function AuditLogTable({
   onOpenEvent: (id: string) => void
 }) {
   const { t } = useLingui()
+  const entityTypeLabels = useAuditEntityTypeLabels()
   const summaryLabels: AuditSummaryLabels = {
     empty: t`empty`,
     object: t`object`,
@@ -59,11 +67,14 @@ export function AuditLogTable({
       <TableBody>
         {events.map((event) => {
           const actor = event.actorLabel ?? event.actorId ?? t`System`
+          const entityTypeLabel = formatAuditEntityTypeLabel(event.entityType, entityTypeLabels)
+          const entityDisplay = getAuditEntityDisplay(event, entityTypeLabel)
           return (
             <AuditLogRow
               key={event.id}
               event={event}
               actor={actor}
+              entityDisplay={entityDisplay}
               summaryLabels={summaryLabels}
               onOpenEvent={onOpenEvent}
             />
@@ -77,11 +88,13 @@ export function AuditLogTable({
 function AuditLogRow({
   event,
   actor,
+  entityDisplay,
   summaryLabels,
   onOpenEvent,
 }: {
   event: AuditEventPublic
   actor: string
+  entityDisplay: { primary: string; secondary: string }
   summaryLabels: AuditSummaryLabels
   onOpenEvent: (id: string) => void
 }) {
@@ -125,16 +138,16 @@ function AuditLogRow({
         </div>
       </TableCell>
       <TableCell>
-        <Badge variant="outline" className="font-mono">
+        <Badge variant="outline" className="font-mono text-xs">
           {event.action}
         </Badge>
       </TableCell>
       <TableCell>
         <div className="grid gap-1">
-          <span className="text-sm text-text-primary">{event.entityType}</span>
-          <span className="font-mono text-xs text-text-tertiary">
-            {shortenAuditId(event.entityId)}
+          <span className="text-sm text-text-primary" title={event.entityType}>
+            {entityDisplay.primary}
           </span>
+          <span className="text-xs text-text-tertiary">{entityDisplay.secondary}</span>
         </div>
       </TableCell>
       <TableCell className="max-w-[360px] whitespace-normal">

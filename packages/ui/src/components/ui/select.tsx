@@ -4,6 +4,7 @@ import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from 'lucide-react'
 
 import { cn } from '@duedatehq/ui/lib/utils'
 import {
+  overlayCheckboxIndicatorClassName,
   overlayLabelClassName,
   overlayPopupAnimationClassName,
   overlayPopupBaseClassName,
@@ -121,13 +122,23 @@ function SelectLabel({ className, ...props }: SelectPrimitive.GroupLabel.Props) 
   )
 }
 
-function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Props) {
+function SelectItem({
+  className,
+  children,
+  indicatorPosition = 'end',
+  ...props
+}: SelectPrimitive.Item.Props & {
+  indicatorPosition?: 'start' | 'end'
+}) {
+  const indicatorAtStart = indicatorPosition === 'start'
+
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
         overlayRowClassName,
-        'pr-8 pl-2',
+        'relative',
+        indicatorAtStart ? 'pr-2 pl-7' : 'pr-8 pl-2',
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className,
       )}
@@ -136,13 +147,21 @@ function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Prop
       <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
         {children}
       </SelectPrimitive.ItemText>
-      <SelectPrimitive.ItemIndicator
-        render={
-          <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center text-text-accent" />
-        }
-      >
-        <CheckIcon className="pointer-events-none" />
-      </SelectPrimitive.ItemIndicator>
+      {indicatorAtStart ? (
+        <span className={overlayCheckboxIndicatorClassName} data-slot="select-item-indicator">
+          <SelectPrimitive.ItemIndicator>
+            <CheckIcon className="size-3" />
+          </SelectPrimitive.ItemIndicator>
+        </span>
+      ) : (
+        <SelectPrimitive.ItemIndicator
+          render={
+            <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center text-text-accent" />
+          }
+        >
+          <CheckIcon className="pointer-events-none" />
+        </SelectPrimitive.ItemIndicator>
+      )}
     </SelectPrimitive.Item>
   )
 }

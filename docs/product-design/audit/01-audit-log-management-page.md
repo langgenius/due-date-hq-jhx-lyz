@@ -99,35 +99,49 @@ The header should communicate proof, not fear.
 Controls sit in one card or unframed toolbar, depending on visual density after
 implementation. Required controls:
 
-- Search: free text over action, entity type, entity id, and reason.
 - Time range: `24h`, `7d`, `30d`, `All`.
 - Action category: `All`, `Client`, `Obligation`, `Migration`, `Rules`, `Auth`,
   `Team`, `Pulse`, `Export`, `AI`, `System`.
-- Exact action: optional exact string, primarily for deep links from toast or future
-  detail surfaces.
-- Actor: optional actor id string for this slice. Member display-name multi-select
-  waits for Team.
-- Entity: optional `entityType` and `entityId`.
+- Action: optional exact action selected from loaded audit events; stored action strings
+  remain stable and untranslated.
+- Actor: optional actor selected from loaded audit events. Member display-name facets wait
+  for Team-backed facet data.
+- Entity type: optional user-facing entity type label selected from loaded audit events.
+  Raw `entityType` remains the query value and audit metadata value.
+- Do not render an entity-instance filter in the main toolbar; entity IDs and instance names
+  are too high-cardinality for a useful select control.
 
 URL state:
 
 - Use `nuqs` parser-level options with `history: 'replace'`.
 - Empty/default values clear from the URL.
-- Search input is debounced before query execution.
+- Legacy deep-link search query values may be cleared by Reset, but the page no longer
+  renders a free-text search box.
 
 ### Table
 
 Columns:
 
-| Column | Behavior                                                                                             |
-| ------ | ---------------------------------------------------------------------------------------------------- |
-| Time   | Local timestamp as the primary line; UTC timestamp as secondary metadata. Use mono tabular numerals. |
-| Actor  | User display label when available; `System` when `actorId` is null; raw actor id as fallback.        |
-| Action | Stable action string in mono. Do not translate the stored action.                                    |
-| Entity | `entityType` + shortened `entityId`.                                                                 |
-| Change | Human summary derived from `beforeJson` and `afterJson`; fallback to `No before/after payload`.      |
-| Device | `IP hash` / `UA hash` presence indicators, not raw values.                                           |
-| Detail | Icon button or row click opens drawer.                                                               |
+| Column | Behavior                                                                                                                                    |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Time   | Local timestamp as the primary line; UTC timestamp as secondary metadata. Use mono tabular numerals.                                        |
+| Actor  | User display label when available; `System` when `actorId` is null; raw actor id as fallback.                                               |
+| Action | Stable action string in mono. Do not translate the stored action.                                                                           |
+| Entity | Entity name/description when available; otherwise user-facing type label + shortened `entityId`. Raw `entityType` stays in detail metadata. |
+| Change | Human summary derived from `beforeJson` and `afterJson`; fallback to `No before/after payload`.                                             |
+| Device | `IP hash` / `UA hash` presence indicators, not raw values.                                                                                  |
+| Detail | Icon button or row click opens drawer.                                                                                                      |
+
+Pagination:
+
+- The table renders a fixed-size current page with Previous / Next controls.
+- Audit reads still use cursor-based `audit.list` fetching underneath; advancing beyond the
+  currently loaded rows fetches the next cursor page.
+- Keep the ACTION badge compact (`text-xs`) and mono; do not translate the stored action.
+- Render common raw entity types such as `workboard_saved_view` as user-facing labels such
+  as `Saved workboard view`; unknown types fall back to humanized text.
+- When audit payloads include names or stable business identifiers, table rows should show
+  those values as the primary Entity text and move raw ids to secondary metadata.
 
 Rows should be dense enough for scanning. The first viewport should show at least ten
 rows on common laptop sizes when data exists.
@@ -223,6 +237,8 @@ Query behavior:
 - `action` is exact match.
 - `category` becomes a safe prefix list or controlled `LIKE 'prefix.%'` expression.
 - `search` is normalized, capped, escaped, and applied only to safe text fields.
+- Current UI uses select filters and does not render free-text search; the contract keeps
+  `search` for compatibility with older links and future explicit search surfaces.
 - Actor label join is optional. If joining `user`, select only display fields needed
   for the row label.
 
@@ -249,8 +265,10 @@ State:
 
 Rendering:
 
-- Use existing `Button`, `Input`, `Select`, `Badge`, `Table`, `Sheet`/`Dialog` primitives.
+- Use existing `Button`, `Select`, `Badge`, `Table`, `Sheet`/`Dialog` primitives.
 - Use Lucide icons for row detail, filter, reset, and disabled export.
+- Audit filter select menus show selected options with a checkbox-style square indicator on
+  the left, matching the Workboard table header filter indicator instead of a trailing check mark.
 - Do not introduce a new UI primitive unless an existing primitive cannot express the
   required accessibility behavior.
 

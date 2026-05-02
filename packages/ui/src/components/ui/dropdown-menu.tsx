@@ -6,11 +6,12 @@ import { ChevronRightIcon, CheckIcon } from 'lucide-react'
 
 import { cn } from '@duedatehq/ui/lib/utils'
 import {
+  overlayCheckboxIndicatorClassName,
+  overlayDestructiveClassName,
   overlayLabelClassName,
   overlayPopupAnimationClassName,
   overlayPopupBaseClassName,
   overlayRowClassName,
-  overlayDestructiveClassName,
   overlaySeparatorClassName,
 } from '@duedatehq/ui/lib/overlay'
 
@@ -180,7 +181,7 @@ function DropdownMenuCheckboxItem({
       {...props}
     >
       <span
-        className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center rounded-[3px] border border-divider-regular bg-background-default text-text-accent"
+        className={overlayCheckboxIndicatorClassName}
         data-slot="dropdown-menu-checkbox-item-indicator"
       >
         <MenuPrimitive.CheckboxItemIndicator>

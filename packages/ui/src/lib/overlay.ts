@@ -21,6 +21,10 @@ export const overlayDestructiveClassName =
 /* Trailing indicator (check-mark, chevron) inside a row. */
 export const overlayIndicatorClassName = 'ml-auto flex shrink-0 items-center text-text-accent'
 
+/* Checkbox-style selected indicator used by header filters and filter selects. */
+export const overlayCheckboxIndicatorClassName =
+  'pointer-events-none absolute left-2 flex size-3.5 items-center justify-center rounded-[3px] border border-divider-regular bg-background-default text-text-accent'
+
 /* Section label (group header) inside menus / selects. */
 export const overlayLabelClassName =
   'px-3 pt-1 pb-0.5 text-2xs font-medium tracking-wider uppercase text-text-tertiary'

@@ -14,10 +14,13 @@ import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 import {
   formatAuditJson,
+  formatAuditEntityTypeLabel,
+  getAuditEntityDisplay,
   shortenAuditId,
   summarizeAuditChange,
   type AuditSummaryLabels,
 } from './audit-log-model'
+import { useAuditEntityTypeLabels } from './audit-log-labels'
 
 function MetadataRow({ label, value }: { label: string; value: string }) {
   return (
@@ -67,6 +70,7 @@ export function AuditEventDrawer({
 
 function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
   const { t } = useLingui()
+  const entityTypeLabels = useAuditEntityTypeLabels()
   const summaryLabels: AuditSummaryLabels = {
     empty: t`empty`,
     object: t`object`,
@@ -76,6 +80,8 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
     noChange: t`No field-level change detected`,
   }
   const actor = event.actorLabel ?? event.actorId ?? t`System`
+  const entityTypeLabel = formatAuditEntityTypeLabel(event.entityType, entityTypeLabels)
+  const entityDisplay = getAuditEntityDisplay(event, entityTypeLabel)
   const localTime = formatDateTimeWithTimezone(event.createdAt)
   const utcTime = formatDateTimeWithTimezone(event.createdAt, 'UTC')
 
@@ -104,7 +110,9 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
           <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
             <MetadataRow label={t`Local time`} value={localTime} />
             <MetadataRow label={t`UTC time`} value={utcTime} />
-            <MetadataRow label={t`Entity`} value={`${event.entityType} / ${event.entityId}`} />
+            <MetadataRow label={t`Entity`} value={entityDisplay.primary} />
+            <MetadataRow label={t`Entity type`} value={entityTypeLabel} />
+            <MetadataRow label={t`Entity id`} value={shortenAuditId(event.entityId)} />
             <MetadataRow label={t`Actor`} value={actor} />
             {event.reason ? <MetadataRow label={t`Reason`} value={event.reason} /> : null}
           </dl>
@@ -119,6 +127,8 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
               value={event.userAgentHash ?? t`Not recorded`}
             />
             <MetadataRow label={t`Firm id`} value={event.firmId} />
+            <MetadataRow label={t`Raw entity type`} value={event.entityType} />
+            <MetadataRow label={t`Raw entity id`} value={event.entityId} />
           </dl>
         </div>
       </div>

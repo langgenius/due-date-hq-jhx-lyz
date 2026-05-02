@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
-import { DownloadIcon, FilterIcon, SearchIcon } from 'lucide-react'
+import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, FilterIcon } from 'lucide-react'
 
 import type { AuditEventPublic, AuditListInput } from '@duedatehq/contracts'
-import { AUDIT_FILTER_MAX_LENGTH, AUDIT_SEARCH_MAX_LENGTH } from '@duedatehq/contracts'
+import { AUDIT_FILTER_MAX_LENGTH } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -25,7 +25,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@duedatehq/ui/components/ui/dialog'
-import { Input } from '@duedatehq/ui/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -35,25 +34,35 @@ import {
 } from '@duedatehq/ui/components/ui/select'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
-import { queryInputUrlUpdateRateLimit, useDebouncedQueryInput } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
 import { AuditEventDrawer } from './audit-event-drawer'
+import { useAuditEntityTypeLabels } from './audit-log-labels'
 import { AuditLogTable } from './audit-log-table'
 import {
   AUDIT_CATEGORY_OPTIONS,
   AUDIT_RANGE_OPTIONS,
   categoryToInput,
+  formatAuditEntityTypeLabel,
   isAuditCategoryOption,
   isAuditRange,
+  shortenAuditId,
   type AuditCategoryOption,
 } from './audit-log-model'
 
 const EMPTY_EVENTS: AuditEventPublic[] = []
 const INITIAL_CURSOR: string | null = null
-const PAGE_SIZE = 50
+const AUDIT_QUERY_PAGE_SIZE = 50
+const TABLE_PAGE_SIZE = 10
+const ALL_FILTER_VALUE = '__all__'
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
+
+interface AuditFilterOption {
+  value: string
+  label: string
+  count: number
+}
 
 export const auditLogSearchParamsParsers = {
   q: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
@@ -97,6 +106,39 @@ function useAuditRangeLabels(): Record<(typeof AUDIT_RANGE_OPTIONS)[number], str
   }
 }
 
+function sanitizeAuditFilter(value: string): string {
+  return value.trim().slice(0, AUDIT_FILTER_MAX_LENGTH)
+}
+
+function makeAuditFilterOptions(
+  events: readonly AuditEventPublic[],
+  readOption: (event: AuditEventPublic) => { value: string | null | undefined; label: string },
+) {
+  const options = new Map<string, AuditFilterOption>()
+
+  for (const event of events) {
+    const option = readOption(event)
+    const value = option.value?.trim()
+    if (!value) continue
+
+    const existing = options.get(value)
+    if (existing) {
+      existing.count += 1
+      continue
+    }
+
+    options.set(value, {
+      value,
+      label: option.label.trim() || value,
+      count: 1,
+    })
+  }
+
+  return [...options.values()].toSorted((left, right) =>
+    left.label.localeCompare(right.label, undefined, { sensitivity: 'base' }),
+  )
+}
+
 function useAuditEvents(queryInputWithoutCursor: Omit<AuditListInput, 'cursor'>) {
   return useInfiniteQuery(
     orpc.audit.list.infiniteOptions({
@@ -110,12 +152,130 @@ function useAuditEvents(queryInputWithoutCursor: Omit<AuditListInput, 'cursor'>)
   )
 }
 
+function AuditFilterSelect({
+  label,
+  value,
+  allLabel,
+  fallbackLabel,
+  options,
+  onValueChange,
+}: {
+  label: string
+  value: string
+  allLabel: string
+  fallbackLabel: string
+  options: readonly AuditFilterOption[]
+  onValueChange: (value: string) => void
+}) {
+  const selectedOption = value ? options.find((option) => option.value === value) : undefined
+  const visibleOptions =
+    value && !selectedOption ? [{ value, label: fallbackLabel, count: 0 }, ...options] : options
+  const selectedLabel = value ? (selectedOption?.label ?? fallbackLabel) : allLabel
+
+  return (
+    <Select
+      value={value || ALL_FILTER_VALUE}
+      onValueChange={(nextValue) => {
+        if (typeof nextValue !== 'string') return
+        onValueChange(nextValue === ALL_FILTER_VALUE ? '' : nextValue)
+      }}
+    >
+      <SelectTrigger className="w-full" aria-label={label}>
+        <SelectValue>{selectedLabel}</SelectValue>
+      </SelectTrigger>
+      <SelectContent className="max-h-80 overflow-y-auto" align="start">
+        <SelectItem value={ALL_FILTER_VALUE} indicatorPosition="start">
+          {allLabel}
+        </SelectItem>
+        {visibleOptions.map((option) => (
+          <SelectItem key={option.value} value={option.value} indicatorPosition="start">
+            <span className="truncate">{option.label}</span>
+            {option.count > 0 ? (
+              <span className="ml-auto pr-2 font-mono text-xs tabular-nums text-text-tertiary">
+                {option.count}
+              </span>
+            ) : null}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
 function AuditSkeleton() {
   return (
     <div className="grid gap-3">
       {Array.from({ length: 8 }, (_, index) => (
         <Skeleton key={index} className="h-12 w-full rounded-lg" />
       ))}
+    </div>
+  )
+}
+
+function AuditLogPagination({
+  pageIndex,
+  firstItemNumber,
+  lastItemNumber,
+  loadedCount,
+  hasPreviousPage,
+  hasNextPage,
+  isFetchingNextPage,
+  onPreviousPage,
+  onNextPage,
+}: {
+  pageIndex: number
+  firstItemNumber: number
+  lastItemNumber: number
+  loadedCount: number
+  hasPreviousPage: boolean
+  hasNextPage: boolean
+  isFetchingNextPage: boolean
+  onPreviousPage: () => void
+  onNextPage: () => void
+}) {
+  const { t } = useLingui()
+  const pageNumber = pageIndex + 1
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-divider-subtle pt-3 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="font-medium text-text-primary">
+          <Trans>Page {pageNumber}</Trans>
+        </span>
+        <span>
+          <Trans>
+            Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events
+          </Trans>
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPreviousPage}
+          disabled={!hasPreviousPage}
+          aria-label={t`Previous page`}
+        >
+          <ChevronLeftIcon data-icon="inline-start" />
+          <Trans>Previous</Trans>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNextPage}
+          disabled={!hasNextPage || isFetchingNextPage}
+          aria-label={t`Next page`}
+        >
+          {isFetchingNextPage ? (
+            <Trans>Loading...</Trans>
+          ) : (
+            <>
+              <Trans>Next</Trans>
+              <ChevronRightIcon data-icon="inline-end" />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   )
 }
@@ -214,42 +374,23 @@ export function AuditLogPage() {
   const { t } = useLingui()
   const categoryLabels = useAuditCategoryLabels()
   const rangeLabels = useAuditRangeLabels()
+  const entityTypeLabels = useAuditEntityTypeLabels()
   const [query, setQuery] = useQueryStates(auditLogSearchParamsParsers)
-
-  const debouncedSearch = useDebouncedQueryInput(query.q, { maxLength: AUDIT_SEARCH_MAX_LENGTH })
-  const debouncedAction = useDebouncedQueryInput(query.action, {
-    maxLength: AUDIT_FILTER_MAX_LENGTH,
-  })
-  const debouncedActor = useDebouncedQueryInput(query.actor, {
-    maxLength: AUDIT_FILTER_MAX_LENGTH,
-  })
-  const debouncedEntityType = useDebouncedQueryInput(query.entityType, {
-    maxLength: AUDIT_FILTER_MAX_LENGTH,
-  })
-  const debouncedEntity = useDebouncedQueryInput(query.entity, {
-    maxLength: AUDIT_FILTER_MAX_LENGTH,
-  })
+  const [pageIndex, setPageIndex] = useState(0)
+  const actionFilter = sanitizeAuditFilter(query.action)
+  const actorFilter = sanitizeAuditFilter(query.actor)
+  const entityTypeFilter = sanitizeAuditFilter(query.entityType)
 
   const queryInputWithoutCursor = useMemo<Omit<AuditListInput, 'cursor'>>(
     () => ({
-      limit: PAGE_SIZE,
+      limit: AUDIT_QUERY_PAGE_SIZE,
       range: query.range,
-      ...(debouncedSearch ? { search: debouncedSearch } : {}),
       ...(query.category !== 'all' ? { category: categoryToInput(query.category) } : {}),
-      ...(debouncedAction ? { action: debouncedAction } : {}),
-      ...(debouncedActor ? { actorId: debouncedActor } : {}),
-      ...(debouncedEntityType ? { entityType: debouncedEntityType } : {}),
-      ...(debouncedEntity ? { entityId: debouncedEntity } : {}),
+      ...(actionFilter ? { action: actionFilter } : {}),
+      ...(actorFilter ? { actorId: actorFilter } : {}),
+      ...(entityTypeFilter ? { entityType: entityTypeFilter } : {}),
     }),
-    [
-      debouncedAction,
-      debouncedActor,
-      debouncedEntity,
-      debouncedEntityType,
-      debouncedSearch,
-      query.category,
-      query.range,
-    ],
+    [actionFilter, actorFilter, entityTypeFilter, query.category, query.range],
   )
 
   const auditQuery = useAuditEvents(queryInputWithoutCursor)
@@ -257,17 +398,50 @@ export function AuditLogPage() {
     () => auditQuery.data?.pages.flatMap((page) => page.events) ?? EMPTY_EVENTS,
     [auditQuery.data?.pages],
   )
+  const actionOptions = useMemo(
+    () => makeAuditFilterOptions(events, (event) => ({ value: event.action, label: event.action })),
+    [events],
+  )
+  const actorOptions = useMemo(
+    () =>
+      makeAuditFilterOptions(events, (event) => ({
+        value: event.actorId,
+        label: event.actorId
+          ? event.actorLabel
+            ? `${event.actorLabel} (${shortenAuditId(event.actorId)})`
+            : shortenAuditId(event.actorId)
+          : '',
+      })),
+    [events],
+  )
+  const entityTypeOptions = useMemo(
+    () =>
+      makeAuditFilterOptions(events, (event) => ({
+        value: event.entityType,
+        label: formatAuditEntityTypeLabel(event.entityType, entityTypeLabels),
+      })),
+    [entityTypeLabels, events],
+  )
+  const loadedPageCount = Math.max(1, Math.ceil(events.length / TABLE_PAGE_SIZE))
+  const currentPageIndex = Math.min(pageIndex, loadedPageCount - 1)
+  const currentPageStart = currentPageIndex * TABLE_PAGE_SIZE
+  const currentPageEvents = events.slice(currentPageStart, currentPageStart + TABLE_PAGE_SIZE)
+  const firstItemNumber = currentPageEvents.length > 0 ? currentPageStart + 1 : 0
+  const lastItemNumber = currentPageStart + currentPageEvents.length
+  const hasLoadedNextPage = (currentPageIndex + 1) * TABLE_PAGE_SIZE < events.length
+  const hasPreviousPage = currentPageIndex > 0
+  const hasNextPage = hasLoadedNextPage || auditQuery.hasNextPage
   const selectedEvent = events.find((event) => event.id === query.event) ?? null
   const filtersActive =
     query.q !== '' ||
     query.category !== 'all' ||
     query.range !== '24h' ||
-    query.action !== '' ||
-    query.actor !== '' ||
-    query.entityType !== '' ||
-    query.entity !== ''
+    actionFilter !== '' ||
+    actorFilter !== '' ||
+    entityTypeFilter !== ''
 
   function resetFilters() {
+    setPageIndex(0)
     void setQuery({
       q: null,
       category: null,
@@ -288,9 +462,21 @@ export function AuditLogPage() {
     if (!open) void setQuery({ event: null })
   }
 
-  function loadMore() {
+  function goToPreviousPage() {
+    setPageIndex(Math.max(0, currentPageIndex - 1))
+  }
+
+  function goToNextPage() {
+    const nextPageIndex = currentPageIndex + 1
+    if (nextPageIndex * TABLE_PAGE_SIZE < events.length) {
+      setPageIndex(nextPageIndex)
+      return
+    }
     if (!auditQuery.hasNextPage || auditQuery.isFetchingNextPage) return
-    void auditQuery.fetchNextPage()
+
+    void auditQuery.fetchNextPage().then((result) => {
+      if (!result.isError) setPageIndex(nextPageIndex)
+    })
   }
 
   return (
@@ -318,7 +504,7 @@ export function AuditLogPage() {
             <Trans>Audit filters</Trans>
           </CardTitle>
           <CardDescription>
-            <Trans>Filter by time range, action category, actor, or entity.</Trans>
+            <Trans>Filter by time range, action category, action, actor, or entity type.</Trans>
           </CardDescription>
           <CardAction>
             <Badge variant="outline" className="font-mono tabular-nums">
@@ -326,123 +512,87 @@ export function AuditLogPage() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_repeat(2,minmax(160px,200px))_auto] lg:items-center">
-            <div className="relative">
-              <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-text-tertiary" />
-              <Input
-                aria-label={t`Search audit events`}
-                className="pl-8"
-                placeholder={t`Search action, entity, or reason`}
-                value={query.q}
-                onChange={(event) => {
-                  const nextSearch = event.target.value
-                  void setQuery(
-                    { q: nextSearch || null, event: null },
-                    nextSearch === ''
-                      ? undefined
-                      : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
-                  )
-                }}
-              />
-            </div>
+        <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-[repeat(5,minmax(0,1fr))_auto] xl:items-center">
+          <Select
+            value={query.category}
+            onValueChange={(value) => {
+              if (typeof value !== 'string' || !isAuditCategoryOption(value)) return
+              setPageIndex(0)
+              void setQuery({ category: value === 'all' ? null : value, event: null })
+            }}
+          >
+            <SelectTrigger className="w-full" aria-label={t`Action category`}>
+              <SelectValue>{categoryLabels[query.category]}</SelectValue>
+            </SelectTrigger>
+            <SelectContent align="start">
+              {AUDIT_CATEGORY_OPTIONS.map((option) => (
+                <SelectItem key={option} value={option} indicatorPosition="start">
+                  {categoryLabels[option]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-            <Select
-              value={query.category}
-              onValueChange={(value) => {
-                if (typeof value !== 'string' || !isAuditCategoryOption(value)) return
-                void setQuery({ category: value === 'all' ? null : value, event: null })
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue>{categoryLabels[query.category]}</SelectValue>
-              </SelectTrigger>
-              <SelectContent align="start">
-                {AUDIT_CATEGORY_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {categoryLabels[option]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <Select
+            value={query.range}
+            onValueChange={(value) => {
+              if (typeof value !== 'string' || !isAuditRange(value)) return
+              setPageIndex(0)
+              void setQuery({ range: value === '24h' ? null : value, event: null })
+            }}
+          >
+            <SelectTrigger className="w-full" aria-label={t`Time range`}>
+              <SelectValue>{rangeLabels[query.range]}</SelectValue>
+            </SelectTrigger>
+            <SelectContent align="start">
+              {AUDIT_RANGE_OPTIONS.map((option) => (
+                <SelectItem key={option} value={option} indicatorPosition="start">
+                  {rangeLabels[option]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-            <Select
-              value={query.range}
-              onValueChange={(value) => {
-                if (typeof value !== 'string' || !isAuditRange(value)) return
-                void setQuery({ range: value === '24h' ? null : value, event: null })
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue>{rangeLabels[query.range]}</SelectValue>
-              </SelectTrigger>
-              <SelectContent align="start">
-                {AUDIT_RANGE_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {rangeLabels[option]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <AuditFilterSelect
+            label={t`Action`}
+            value={actionFilter}
+            allLabel={t`All actions`}
+            fallbackLabel={actionFilter}
+            options={actionOptions}
+            onValueChange={(value) => {
+              setPageIndex(0)
+              void setQuery({ action: value || null, event: null })
+            }}
+          />
 
-            <Button variant="outline" size="sm" onClick={resetFilters} disabled={!filtersActive}>
-              <FilterIcon data-icon="inline-start" />
-              <Trans>Reset</Trans>
-            </Button>
-          </div>
+          <AuditFilterSelect
+            label={t`Actor`}
+            value={actorFilter}
+            allLabel={t`All actors`}
+            fallbackLabel={actorFilter ? shortenAuditId(actorFilter) : ''}
+            options={actorOptions}
+            onValueChange={(value) => {
+              setPageIndex(0)
+              void setQuery({ actor: value || null, event: null })
+            }}
+          />
 
-          <div className="grid gap-3 md:grid-cols-4">
-            <Input
-              aria-label={t`Exact action`}
-              placeholder={t`Action`}
-              value={query.action}
-              onChange={(event) => {
-                const nextAction = event.target.value
-                void setQuery(
-                  { action: nextAction || null, event: null },
-                  nextAction === '' ? undefined : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
-                )
-              }}
-            />
-            <Input
-              aria-label={t`Actor id`}
-              placeholder={t`Actor id`}
-              value={query.actor}
-              onChange={(event) => {
-                const nextActor = event.target.value
-                void setQuery(
-                  { actor: nextActor || null, event: null },
-                  nextActor === '' ? undefined : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
-                )
-              }}
-            />
-            <Input
-              aria-label={t`Entity type`}
-              placeholder={t`Entity type`}
-              value={query.entityType}
-              onChange={(event) => {
-                const nextEntityType = event.target.value
-                void setQuery(
-                  { entityType: nextEntityType || null, event: null },
-                  nextEntityType === ''
-                    ? undefined
-                    : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
-                )
-              }}
-            />
-            <Input
-              aria-label={t`Entity id`}
-              placeholder={t`Entity id`}
-              value={query.entity}
-              onChange={(event) => {
-                const nextEntity = event.target.value
-                void setQuery(
-                  { entity: nextEntity || null, event: null },
-                  nextEntity === '' ? undefined : { limitUrlUpdates: queryInputUrlUpdateRateLimit },
-                )
-              }}
-            />
-          </div>
+          <AuditFilterSelect
+            label={t`Entity type`}
+            value={entityTypeFilter}
+            allLabel={t`All entity types`}
+            fallbackLabel={entityTypeFilter}
+            options={entityTypeOptions}
+            onValueChange={(value) => {
+              setPageIndex(0)
+              void setQuery({ entityType: value || null, event: null })
+            }}
+          />
+
+          <Button variant="outline" size="sm" onClick={resetFilters} disabled={!filtersActive}>
+            <FilterIcon data-icon="inline-start" />
+            <Trans>Reset</Trans>
+          </Button>
         </CardContent>
       </Card>
 
@@ -491,18 +641,21 @@ export function AuditLogPage() {
             </div>
           ) : null}
 
-          {events.length > 0 ? <AuditLogTable events={events} onOpenEvent={openEvent} /> : null}
-
-          {auditQuery.hasNextPage ? (
-            <div className="flex justify-center">
-              <Button variant="outline" onClick={loadMore} disabled={auditQuery.isFetchingNextPage}>
-                {auditQuery.isFetchingNextPage ? (
-                  <Trans>Loading...</Trans>
-                ) : (
-                  <Trans>Load more</Trans>
-                )}
-              </Button>
-            </div>
+          {events.length > 0 ? (
+            <>
+              <AuditLogTable events={currentPageEvents} onOpenEvent={openEvent} />
+              <AuditLogPagination
+                pageIndex={currentPageIndex}
+                firstItemNumber={firstItemNumber}
+                lastItemNumber={lastItemNumber}
+                loadedCount={events.length}
+                hasPreviousPage={hasPreviousPage}
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={auditQuery.isFetchingNextPage}
+                onPreviousPage={goToPreviousPage}
+                onNextPage={goToNextPage}
+              />
+            </>
           ) : null}
         </CardContent>
       </Card>
