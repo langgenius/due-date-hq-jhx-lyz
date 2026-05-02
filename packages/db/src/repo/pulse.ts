@@ -41,13 +41,12 @@ import {
   type PulseStatus,
 } from '../schema/pulse'
 import { listActiveOverlayDueDates } from './overlay'
+import {
+  OPEN_OBLIGATION_STATUSES,
+  isOpenObligationStatus,
+} from '@duedatehq/core/obligation-workflow'
 
-const OPEN_OBLIGATION_STATUSES: ObligationStatus[] = [
-  'pending',
-  'in_progress',
-  'waiting_on_client',
-  'review',
-]
+const OPEN_STATUSES = [...OPEN_OBLIGATION_STATUSES] satisfies ObligationStatus[]
 const APPLICATION_BATCH_SIZE = Math.floor(100 / 9)
 const EXCEPTION_RULE_BATCH_SIZE = Math.floor(100 / 18)
 const EXCEPTION_APPLICATION_BATCH_SIZE = Math.floor(100 / 8)
@@ -622,7 +621,7 @@ export function makePulseRepo(db: Db, firmId: string) {
           eq(client.state, alert.parsedJurisdiction),
           inArray(client.entityType, entityTypes),
           inArray(obligationInstance.taxType, forms),
-          inArray(obligationInstance.status, OPEN_OBLIGATION_STATUSES),
+          inArray(obligationInstance.status, OPEN_STATUSES),
         ),
       )
       .orderBy(asc(obligationInstance.currentDueDate), asc(client.name))
@@ -807,7 +806,7 @@ export function makePulseRepo(db: Db, firmId: string) {
       if (row.state !== alert.parsedJurisdiction) throw new PulseRepoError('conflict')
       if (!forms.has(row.taxType)) throw new PulseRepoError('conflict')
       if (!entityTypes.has(row.entityType)) throw new PulseRepoError('conflict')
-      if (!OPEN_OBLIGATION_STATUSES.includes(row.status)) throw new PulseRepoError('conflict')
+      if (!isOpenObligationStatus(row.status)) throw new PulseRepoError('conflict')
       if (!sameTimestamp(row.currentDueDate, alert.parsedOriginalDueDate)) {
         throw new PulseRepoError('conflict')
       }
@@ -1597,7 +1596,7 @@ export function makePulseOpsRepo(db: Db) {
           eq(client.state, row.parsedJurisdiction),
           inArray(client.entityType, entityTypes),
           inArray(obligationInstance.taxType, forms),
-          inArray(obligationInstance.status, OPEN_OBLIGATION_STATUSES),
+          inArray(obligationInstance.status, OPEN_STATUSES),
           isNull(client.deletedAt),
         ),
       )
@@ -1824,7 +1823,7 @@ export function makePulseOpsRepo(db: Db) {
           eq(client.state, row.parsedJurisdiction),
           inArray(client.entityType, entityTypes),
           inArray(obligationInstance.taxType, forms),
-          inArray(obligationInstance.status, OPEN_OBLIGATION_STATUSES),
+          inArray(obligationInstance.status, OPEN_STATUSES),
           isNull(client.deletedAt),
         ),
       )

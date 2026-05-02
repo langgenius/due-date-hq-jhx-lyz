@@ -47,7 +47,15 @@ export class WorkboardPage {
     return this.page.getByLabel(`Change status for ${clientName}`)
   }
 
+  readinessSelectFor(clientName: string) {
+    return this.page.getByLabel(`Change readiness for ${clientName}`)
+  }
+
   statusChangeOption(name: string) {
+    return this.page.getByRole('menuitemradio', { name })
+  }
+
+  readinessChangeOption(name: string) {
     return this.page.getByRole('menuitemradio', { name })
   }
 

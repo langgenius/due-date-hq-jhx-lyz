@@ -6,6 +6,9 @@ import { firmProfile } from './firm'
 export const EXPOSURE_STATUSES = ['ready', 'needs_input', 'unsupported'] as const
 export type ExposureStatus = (typeof EXPOSURE_STATUSES)[number]
 
+export const OBLIGATION_READINESSES = ['ready', 'waiting', 'needs_review'] as const
+export type ObligationReadiness = (typeof OBLIGATION_READINESSES)[number]
+
 /**
  * obligation_instance — a single due-date row for one client for one tax type.
  *
@@ -25,7 +28,7 @@ export type ExposureStatus = (typeof EXPOSURE_STATUSES)[number]
  *     import and manual edits also write here. Phase 1: this column becomes
  *     generated/virtual from base + overlays.
  *
- * status enum: minimal Demo set (PRD §8.1 full set deferred).
+ * status/readiness workflow: full P0-16 surface with flexible corrective transitions.
  */
 export const obligationInstance = sqliteTable(
   'obligation_instance',
@@ -63,6 +66,9 @@ export const obligationInstance = sqliteTable(
     })
       .notNull()
       .default('pending'),
+    readiness: text('readiness_status', { enum: OBLIGATION_READINESSES })
+      .notNull()
+      .default('ready'),
 
     // Nullable: rows created outside of a migration batch (manual add,
     // Pulse-apply in Phase 1 via exception) do not carry a batch id.
@@ -89,6 +95,7 @@ export const obligationInstance = sqliteTable(
     // Dashboard tabs: This Week / This Month / All — scan by firm + status +
     // soonest due first.
     index('idx_oi_firm_status_due').on(table.firmId, table.status, table.currentDueDate),
+    index('idx_oi_firm_readiness_due').on(table.firmId, table.readiness, table.currentDueDate),
     // Penalty Radar / Workboard triage: sort open obligations by exposure.
     index('idx_oi_firm_due_exposure').on(
       table.firmId,

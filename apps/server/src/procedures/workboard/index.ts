@@ -22,6 +22,7 @@ interface RawRow {
   baseDueDate: Date
   currentDueDate: Date
   status: WorkboardRow['status']
+  readiness: WorkboardRow['readiness']
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -35,7 +36,6 @@ interface RawRow {
   clientState: string | null
   clientCounty: string | null
   assigneeName: string | null
-  readiness: WorkboardRow['readiness']
   daysUntilDue: number
   evidenceCount: number
 }
@@ -83,6 +83,7 @@ function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow 
     baseDueDate: toIsoDate(row.baseDueDate),
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,
+    readiness: row.readiness,
     migrationBatchId: row.migrationBatchId,
     estimatedTaxDueCents: opts.hideDollars ? null : row.estimatedTaxDueCents,
     estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,
@@ -96,7 +97,6 @@ function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow 
     clientState: normalizeStateCode(row.clientState),
     clientCounty: normalizeNullableText(row.clientCounty),
     assigneeName: row.assigneeName?.trim() || null,
-    readiness: row.readiness,
     daysUntilDue: row.daysUntilDue,
     evidenceCount: row.evidenceCount,
   }

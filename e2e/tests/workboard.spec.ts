@@ -52,11 +52,11 @@ test.describe('seeded workboard', () => {
     await workboardPage.resetButton.click()
     await expect(authenticatedPage).toHaveURL(/\/workboard$/)
     await workboardPage.openStatusFilter()
-    await workboardPage.statusFilterOption('In review').click()
+    await workboardPage.statusFilterOption('Needs review').click()
     await expect(authenticatedPage).toHaveURL(/\/workboard\?status=review$/)
     await expect(authenticatedPage.getByText('Northstar Dental Group')).toBeVisible()
     await expect(authenticatedPage.getByText('Arbor & Vale LLC')).toBeHidden()
-    await expect(workboardPage.statusFilterOption('In review')).toBeVisible()
+    await expect(workboardPage.statusFilterOption('Needs review')).toBeVisible()
     await authenticatedPage.keyboard.press('Escape')
 
     await workboardPage.resetButton.click()
@@ -73,11 +73,21 @@ test.describe('seeded workboard', () => {
     await workboardPage.goto()
 
     await workboardPage.statusSelectFor('Arbor & Vale LLC').click()
-    await workboardPage.statusChangeOption('Done').click()
+    await workboardPage.statusChangeOption('Filed').click()
 
     await expect(authenticatedPage.getByText('Status updated')).toBeVisible()
     await expect(authenticatedPage.getByText(/Audit [a-f0-9-]{8}/)).toBeVisible()
-    await expect(workboardPage.statusSelectFor('Arbor & Vale LLC')).toContainText('Done')
+    await expect(workboardPage.statusSelectFor('Arbor & Vale LLC')).toContainText('Filed')
+
+    await workboardPage.readinessSelectFor('Arbor & Vale LLC').click()
+    await workboardPage.readinessChangeOption('Waiting').click()
+
+    await expect(authenticatedPage.getByText('Readiness updated')).toBeVisible()
+    await expect(workboardPage.readinessSelectFor('Arbor & Vale LLC')).toContainText('Waiting')
+
+    await workboardPage.rowFor('Arbor & Vale LLC').click()
+    await authenticatedPage.keyboard.press('P')
+    await expect(workboardPage.statusSelectFor('Arbor & Vale LLC')).toContainText('Paid')
   })
 
   test('AC: E2E-WORKBOARD-COMPLETE saves a view, changes density/columns, and bulk updates rows', async ({
@@ -127,6 +137,12 @@ test.describe('seeded workboard', () => {
     await authenticatedPage.getByRole('menuitem', { name: 'E2E Owner' }).click()
     await expect(authenticatedPage.getByText('Owners updated')).toBeVisible()
     await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('E2E Owner')
+
+    await workboardPage.selectRow('Arbor & Vale LLC').click()
+    await authenticatedPage.getByRole('button', { name: 'Change readiness', exact: true }).click()
+    await authenticatedPage.getByRole('menuitem', { name: 'Needs review' }).click()
+    await expect(authenticatedPage.getByText('Bulk readiness updated')).toBeVisible()
+    await expect(workboardPage.readinessSelectFor('Arbor & Vale LLC')).toContainText('Needs review')
 
     await workboardPage.selectRow('Arbor & Vale LLC').click()
     await workboardPage.selectRow('Northstar Dental Group').click()

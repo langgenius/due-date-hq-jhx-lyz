@@ -1,7 +1,8 @@
-import { and, eq, isNull, ne } from 'drizzle-orm'
+import { and, eq, inArray, isNull } from 'drizzle-orm'
+import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
 import { createDb, authSchema, firmSchema } from '@duedatehq/db'
 import { client } from '@duedatehq/db/schema/clients'
-import { obligationInstance } from '@duedatehq/db/schema/obligations'
+import { obligationInstance, type ObligationStatus } from '@duedatehq/db/schema/obligations'
 import {
   clientEmailSuppression,
   emailOutbox,
@@ -11,6 +12,8 @@ import {
 } from '@duedatehq/db/schema/notifications'
 import { signClientUnsubscribeToken } from '../../lib/client-unsubscribe-token'
 import type { Env } from '../../env'
+
+const OPEN_STATUSES = [...OPEN_OBLIGATION_STATUSES] satisfies ObligationStatus[]
 
 type MemberRecipient = {
   userId: string
@@ -158,8 +161,7 @@ async function loadOpenObligations(env: Env, firmId: string): Promise<Obligation
     .where(
       and(
         eq(obligationInstance.firmId, firmId),
-        ne(obligationInstance.status, 'done'),
-        ne(obligationInstance.status, 'not_applicable'),
+        inArray(obligationInstance.status, OPEN_STATUSES),
         isNull(client.deletedAt),
       ),
     )

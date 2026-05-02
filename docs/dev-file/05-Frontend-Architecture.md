@@ -475,9 +475,8 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   active row，避免用 effect 追踪派生状态。
 - **Filter facets**：`workboard.facets` 返回 client / state / county / tax type /
   assignee 的服务器端选项和计数；county option 带 `state`，前端按已选 state 做联动展示。
-  Workboard readiness 目前由 read model 派生：`waiting_on_client → waiting`，`review` 或
-  exposure 非 ready → `needs_review`，其余为 `ready`。等独立 readiness state machine
-  落地后替换此派生字段。
+  Workboard readiness 读取 `obligation_instance.readiness_status` 持久字段；status 写入会按
+  P0-16 默认规则同步 readiness，用户也可在 readiness 列或批量操作中单独修正。
 - **表头筛选**：Client / Owner / State / County / Tax type / Days / Exposure /
   Readiness / Status 的筛选入口直接挂在 TanStack Table header 上；顶部控制区只保留搜索、排序、
   density segmented control、column visibility、Saved Views、Reset 和少量 triage 快捷 chip，避免
@@ -507,8 +506,10 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **虚拟化时机**：`@tanstack/react-virtual` 已在依赖中保留，但当前 4 列 × 50 行不启用。等 Workboard 扩到 PRD 的 10–20 列、固定表头或长列表滚动容器时再接 row / column virtualization。
 - **后续扩展**：自定义列和虚拟化继续走 TanStack controlled state，并把可分享状态写入 URL
   或服务端 saved-view 记录。
-- 行内 `[status ▾]` mutation：当前成功后 invalidate `workboard.list` 并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation lifecycle 内补本地缓存更新。
-- 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/X/I/W` 改状态 · `Enter` 打开 Detail
+- 行内 `[status ▾]` / `[readiness ▾]` mutation：当前成功后 invalidate `workboard.list`
+  并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation
+  lifecycle 内补本地缓存更新。
+- 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/P/X/I/W` 改状态 · `Enter` 打开 Detail
 
 ## 6A. Rules Console
 

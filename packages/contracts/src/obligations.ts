@@ -1,6 +1,10 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
-import { ExposureStatusSchema, ObligationStatusSchema } from './shared/enums'
+import {
+  ExposureStatusSchema,
+  ObligationReadinessSchema,
+  ObligationStatusSchema,
+} from './shared/enums'
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 export const PenaltyBreakdownItemSchema = z.object({
@@ -20,6 +24,7 @@ export const ObligationInstancePublicSchema = z.object({
   baseDueDate: z.iso.date(),
   currentDueDate: z.iso.date(),
   status: ObligationStatusSchema,
+  readiness: ObligationReadinessSchema,
   migrationBatchId: EntityIdSchema.nullable(),
   estimatedTaxDueCents: z.number().int().min(0).nullable(),
   estimatedExposureCents: z.number().int().min(0).nullable(),
@@ -38,6 +43,7 @@ export const ObligationCreateInputSchema = z.object({
   baseDueDate: z.iso.date(),
   currentDueDate: z.iso.date().optional(),
   status: ObligationStatusSchema.optional(),
+  readiness: ObligationReadinessSchema.optional(),
   migrationBatchId: EntityIdSchema.nullable().optional(),
   estimatedTaxDueCents: z.number().int().min(0).nullable().optional(),
   estimatedExposureCents: z.number().int().min(0).nullable().optional(),
@@ -63,6 +69,17 @@ export const ObligationStatusUpdateOutputSchema = z.object({
   auditId: EntityIdSchema,
 })
 
+export const ObligationReadinessUpdateInputSchema = z.object({
+  id: EntityIdSchema,
+  readiness: ObligationReadinessSchema,
+  reason: z.string().max(280).optional(),
+})
+
+export const ObligationReadinessUpdateOutputSchema = z.object({
+  obligation: ObligationInstancePublicSchema,
+  auditId: EntityIdSchema,
+})
+
 export const ObligationBulkStatusUpdateInputSchema = z.object({
   ids: z.array(EntityIdSchema).min(1).max(100),
   status: ObligationStatusSchema,
@@ -76,6 +93,23 @@ export const ObligationBulkStatusUpdateOutputSchema = z.object({
 })
 export type ObligationBulkStatusUpdateOutput = z.infer<
   typeof ObligationBulkStatusUpdateOutputSchema
+>
+
+export const ObligationBulkReadinessUpdateInputSchema = z.object({
+  ids: z.array(EntityIdSchema).min(1).max(100),
+  readiness: ObligationReadinessSchema,
+  reason: z.string().max(280).optional(),
+})
+export type ObligationBulkReadinessUpdateInput = z.infer<
+  typeof ObligationBulkReadinessUpdateInputSchema
+>
+
+export const ObligationBulkReadinessUpdateOutputSchema = z.object({
+  updatedCount: z.number().int().min(0),
+  auditIds: z.array(EntityIdSchema),
+})
+export type ObligationBulkReadinessUpdateOutput = z.infer<
+  typeof ObligationBulkReadinessUpdateOutputSchema
 >
 
 export const obligationsContract = oc.router({
@@ -95,6 +129,12 @@ export const obligationsContract = oc.router({
   bulkUpdateStatus: oc
     .input(ObligationBulkStatusUpdateInputSchema)
     .output(ObligationBulkStatusUpdateOutputSchema),
+  updateReadiness: oc
+    .input(ObligationReadinessUpdateInputSchema)
+    .output(ObligationReadinessUpdateOutputSchema),
+  bulkUpdateReadiness: oc
+    .input(ObligationBulkReadinessUpdateInputSchema)
+    .output(ObligationBulkReadinessUpdateOutputSchema),
   listByClient: oc
     .input(z.object({ clientId: EntityIdSchema }))
     .output(z.array(ObligationInstancePublicSchema)),
@@ -105,4 +145,6 @@ export type ObligationCreateInput = z.infer<typeof ObligationCreateInputSchema>
 export type DueDateUpdateInput = z.infer<typeof DueDateUpdateInputSchema>
 export type ObligationStatusUpdateInput = z.infer<typeof ObligationStatusUpdateInputSchema>
 export type ObligationStatusUpdateOutput = z.infer<typeof ObligationStatusUpdateOutputSchema>
+export type ObligationReadinessUpdateInput = z.infer<typeof ObligationReadinessUpdateInputSchema>
+export type ObligationReadinessUpdateOutput = z.infer<typeof ObligationReadinessUpdateOutputSchema>
 export type ObligationsContract = typeof obligationsContract

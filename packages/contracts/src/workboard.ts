@@ -1,7 +1,12 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { ObligationInstancePublicSchema } from './obligations'
-import { ExposureStatusSchema, ObligationStatusSchema, StateCodeSchema } from './shared/enums'
+import {
+  ExposureStatusSchema,
+  ObligationReadinessSchema,
+  ObligationStatusSchema,
+  StateCodeSchema,
+} from './shared/enums'
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 /**
@@ -21,7 +26,7 @@ export const WorkboardOwnerFilterSchema = z.enum(['unassigned'])
 export type WorkboardOwnerFilter = z.infer<typeof WorkboardOwnerFilterSchema>
 export const WorkboardDueFilterSchema = z.enum(['overdue'])
 export type WorkboardDueFilter = z.infer<typeof WorkboardDueFilterSchema>
-export const WorkboardReadinessSchema = z.enum(['ready', 'waiting', 'needs_review'])
+export const WorkboardReadinessSchema = ObligationReadinessSchema
 export type WorkboardReadiness = z.infer<typeof WorkboardReadinessSchema>
 export const WORKBOARD_SEARCH_MAX_LENGTH = 64
 export const WORKBOARD_FILTER_MAX_SELECTIONS = 16

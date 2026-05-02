@@ -1,4 +1,5 @@
 import { and, asc, eq, inArray } from 'drizzle-orm'
+import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
 import type { Db } from '../client'
 import { client } from '../schema/clients'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
@@ -10,7 +11,7 @@ import type {
 } from '@duedatehq/ports/workload'
 import type { WorkloadOwnerKind } from '@duedatehq/ports/shared'
 
-const OPEN_STATUSES: ObligationStatus[] = ['pending', 'in_progress', 'waiting_on_client', 'review']
+const OPEN_STATUSES = [...OPEN_OBLIGATION_STATUSES] satisfies ObligationStatus[]
 const DEFAULT_WINDOW_DAYS = 7
 const MAX_WINDOW_DAYS = 30
 const DAY_MS = 24 * 60 * 60 * 1000

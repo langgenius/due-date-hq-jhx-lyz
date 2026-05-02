@@ -241,7 +241,7 @@ contract，不包含 Drizzle schema、DB factory 或 Worker runtime；
 ```
 auth.login.success / auth.login.failed / auth.denied / auth.mfa.setup
 client.created / client.batch_created / client.updated / client.deleted / client.restored
-obligation.status.updated / obligation.batch_created / obligation.assignee.changed
+obligation.status.updated / obligation.readiness.updated / obligation.batch_created / obligation.assignee.changed
 pulse.ingest / pulse.extract / pulse.approve / pulse.reject / pulse.dismiss / pulse.quarantine
 pulse.apply / pulse.revert
 migration.batch.created / migration.mapper.confirmed / migration.normalizer.confirmed

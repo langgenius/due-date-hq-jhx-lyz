@@ -11,6 +11,7 @@ export type DashboardBriefRefreshReason =
   | 'pulse_reactivate'
   | 'pulse_dismiss'
   | 'status_change'
+  | 'readiness_change'
   | 'evidence_change'
   | 'client_facts_change'
   | 'penalty_override'

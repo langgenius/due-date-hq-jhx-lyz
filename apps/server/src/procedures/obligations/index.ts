@@ -9,7 +9,13 @@ import {
 import { os } from '../_root'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { recalculateObligationExposure } from '../_penalty-exposure'
-import { bulkUpdateObligationStatus, toObligationPublic, updateObligationStatus } from './_service'
+import {
+  bulkUpdateObligationReadiness,
+  bulkUpdateObligationStatus,
+  toObligationPublic,
+  updateObligationReadiness,
+  updateObligationStatus,
+} from './_service'
 
 /**
  * obligations.* — Demo Sprint subset of the Obligation Domain Contract.
@@ -32,6 +38,7 @@ interface ObligationRow {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationInstancePublic['status']
+  readiness: ObligationInstancePublic['readiness']
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -55,6 +62,7 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       baseDueDate: Date
       currentDueDate: Date
       status?: ObligationInstancePublic['status']
+      readiness?: ObligationInstancePublic['readiness']
       migrationBatchId: string | null
       estimatedTaxDueCents?: number | null
       estimatedExposureCents?: number | null
@@ -77,6 +85,7 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       exposureCalculatedAt: o.exposureCalculatedAt ? new Date(o.exposureCalculatedAt) : null,
     }
     if (o.status !== undefined) repoInput.status = o.status
+    if (o.readiness !== undefined) repoInput.readiness = o.readiness
     return repoInput
   })
 
@@ -179,10 +188,38 @@ const bulkUpdateStatus = os.obligations.bulkUpdateStatus.handler(async ({ input,
   return result
 })
 
+const updateReadiness = os.obligations.updateReadiness.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
+  const { scoped, tenant, userId } = requireTenant(context)
+  const result = await updateObligationReadiness(scoped, userId, input)
+  await enqueueDashboardBriefRefresh(context.env, {
+    firmId: tenant.firmId,
+    reason: 'readiness_change',
+  }).catch(() => false)
+  return result
+})
+
+const bulkUpdateReadiness = os.obligations.bulkUpdateReadiness.handler(
+  async ({ input, context }) => {
+    await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
+    const { scoped, tenant, userId } = requireTenant(context)
+    const result = await bulkUpdateObligationReadiness(scoped, userId, input)
+    if (result.updatedCount > 0) {
+      await enqueueDashboardBriefRefresh(context.env, {
+        firmId: tenant.firmId,
+        reason: 'readiness_change',
+      }).catch(() => false)
+    }
+    return result
+  },
+)
+
 export const obligationsHandlers = {
   createBatch,
   updateDueDate,
   listByClient,
   updateStatus,
   bulkUpdateStatus,
+  updateReadiness,
+  bulkUpdateReadiness,
 }

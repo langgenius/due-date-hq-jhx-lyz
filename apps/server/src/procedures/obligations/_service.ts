@@ -2,10 +2,15 @@ import { ORPCError } from '@orpc/server'
 import type {
   ObligationBulkStatusUpdateInput,
   ObligationBulkStatusUpdateOutput,
+  ObligationBulkReadinessUpdateInput,
+  ObligationBulkReadinessUpdateOutput,
   ObligationInstancePublic,
+  ObligationReadinessUpdateInput,
+  ObligationReadinessUpdateOutput,
   ObligationStatusUpdateInput,
   ObligationStatusUpdateOutput,
 } from '@duedatehq/contracts'
+import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
 
 interface ObligationRow {
@@ -17,6 +22,7 @@ interface ObligationRow {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationInstancePublic['status']
+  readiness: ObligationInstancePublic['readiness']
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -46,6 +52,7 @@ export function toObligationPublic(row: ObligationRow): ObligationInstancePublic
     baseDueDate: toIsoDate(row.baseDueDate),
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,
+    readiness: row.readiness,
     migrationBatchId: row.migrationBatchId,
     estimatedTaxDueCents: row.estimatedTaxDueCents,
     estimatedExposureCents: row.estimatedExposureCents,
@@ -85,6 +92,13 @@ function parsePenaltyBreakdown(value: unknown): ObligationInstancePublic['penalt
   })
 }
 
+function bulkReadinessForStatus(
+  status: ObligationInstancePublic['status'],
+): ObligationInstancePublic['readiness'] | undefined {
+  if (status === 'pending' || status === 'in_progress') return undefined
+  return defaultReadinessForStatus(status, undefined)
+}
+
 /**
  * updateObligationStatus — extracted from the procedure handler so it can be
  * unit-tested with an in-memory scoped repo + audit writer.
@@ -116,7 +130,8 @@ export async function updateObligationStatus(
     }
   }
 
-  await scoped.obligations.updateStatus(input.id, input.status)
+  const readiness = defaultReadinessForStatus(input.status, before.readiness)
+  await scoped.obligations.updateStatus(input.id, input.status, readiness)
   const after = await scoped.obligations.findById(input.id)
   if (!after) {
     throw new ORPCError('INTERNAL_SERVER_ERROR', {
@@ -129,16 +144,16 @@ export async function updateObligationStatus(
     entityType: string
     entityId: string
     action: string
-    before: { status: string }
-    after: { status: string }
+    before: { status: string; readiness: string }
+    after: { status: string; readiness: string }
     reason?: string
   } = {
     actorId: userId,
     entityType: 'obligation_instance',
     entityId: input.id,
     action: 'obligation.status.updated',
-    before: { status: before.status },
-    after: { status: input.status },
+    before: { status: before.status, readiness: before.readiness },
+    after: { status: input.status, readiness },
   }
   if (input.reason !== undefined) auditPayload.reason = input.reason
 
@@ -168,9 +183,11 @@ export async function bulkUpdateObligationStatus(
     return { updatedCount: 0, auditIds: [] }
   }
 
+  const readiness = bulkReadinessForStatus(input.status)
   await scoped.obligations.updateStatusMany(
     changedRows.map((row) => row.id),
     input.status,
+    readiness,
   )
   const afterRows = await scoped.obligations.findManyByIds(changedRows.map((row) => row.id))
   const afterById = new Map(afterRows.map((row) => [row.id, row]))
@@ -182,8 +199,110 @@ export async function bulkUpdateObligationStatus(
         entityType: 'obligation_instance',
         entityId: before.id,
         action: 'obligation.status.updated',
-        before: { status: before.status },
-        after: { status: afterById.get(before.id)?.status ?? input.status },
+        before: { status: before.status, readiness: before.readiness },
+        after: {
+          status: afterById.get(before.id)?.status ?? input.status,
+          readiness: afterById.get(before.id)?.readiness ?? readiness ?? before.readiness,
+        },
+      }
+      if (input.reason !== undefined) event.reason = input.reason
+      return event
+    }),
+  )
+
+  return {
+    updatedCount: changedRows.length,
+    auditIds,
+  }
+}
+
+export async function updateObligationReadiness(
+  scoped: ScopedRepo,
+  userId: string,
+  input: ObligationReadinessUpdateInput,
+): Promise<ObligationReadinessUpdateOutput> {
+  const before = await scoped.obligations.findById(input.id)
+  if (!before) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Obligation ${input.id} not found in current firm.`,
+    })
+  }
+
+  if (before.readiness === input.readiness) {
+    return {
+      obligation: toObligationPublic(before),
+      auditId: '00000000-0000-0000-0000-000000000000',
+    }
+  }
+
+  await scoped.obligations.updateReadiness(input.id, input.readiness)
+  const after = await scoped.obligations.findById(input.id)
+  if (!after) {
+    throw new ORPCError('INTERNAL_SERVER_ERROR', {
+      message: 'Updated obligation could not be re-read.',
+    })
+  }
+
+  const auditPayload: {
+    actorId: string
+    entityType: string
+    entityId: string
+    action: string
+    before: { readiness: string }
+    after: { readiness: string }
+    reason?: string
+  } = {
+    actorId: userId,
+    entityType: 'obligation_instance',
+    entityId: input.id,
+    action: 'obligation.readiness.updated',
+    before: { readiness: before.readiness },
+    after: { readiness: input.readiness },
+  }
+  if (input.reason !== undefined) auditPayload.reason = input.reason
+
+  const { id: auditId } = await scoped.audit.write(auditPayload)
+
+  return {
+    obligation: toObligationPublic(after),
+    auditId,
+  }
+}
+
+export async function bulkUpdateObligationReadiness(
+  scoped: ScopedRepo,
+  userId: string,
+  input: ObligationBulkReadinessUpdateInput,
+): Promise<ObligationBulkReadinessUpdateOutput> {
+  const ids = [...new Set(input.ids)]
+  const beforeRows = await scoped.obligations.findManyByIds(ids)
+  if (beforeRows.length !== ids.length) {
+    throw new ORPCError('NOT_FOUND', {
+      message: 'One or more selected obligations were not found in the current firm.',
+    })
+  }
+
+  const changedRows = beforeRows.filter((row) => row.readiness !== input.readiness)
+  if (changedRows.length === 0) {
+    return { updatedCount: 0, auditIds: [] }
+  }
+
+  await scoped.obligations.updateReadinessMany(
+    changedRows.map((row) => row.id),
+    input.readiness,
+  )
+  const afterRows = await scoped.obligations.findManyByIds(changedRows.map((row) => row.id))
+  const afterById = new Map(afterRows.map((row) => [row.id, row]))
+
+  const { ids: auditIds } = await scoped.audit.writeBatch(
+    changedRows.map((before) => {
+      const event: Parameters<typeof scoped.audit.writeBatch>[0][number] = {
+        actorId: userId,
+        entityType: 'obligation_instance',
+        entityId: before.id,
+        action: 'obligation.readiness.updated',
+        before: { readiness: before.readiness },
+        after: { readiness: afterById.get(before.id)?.readiness ?? input.readiness },
       }
       if (input.reason !== undefined) event.reason = input.reason
       return event

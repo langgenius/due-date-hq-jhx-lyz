@@ -1,15 +1,17 @@
 import { and, asc, eq, inArray } from 'drizzle-orm'
+import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
 import type { Db } from '../client'
 import { client } from '../schema/clients'
 import {
   obligationInstance,
   type ExposureStatus,
   type ObligationInstance,
+  type ObligationReadiness,
   type ObligationStatus,
 } from '../schema/obligations'
 import { listActiveOverlayDueDates } from './overlay'
 
-const COLS_PER_OI_ROW = 17
+const COLS_PER_OI_ROW = 18
 const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 5
 const CLIENT_ASSERT_BATCH_SIZE = 90
 const OI_LOOKUP_IDS_PER_BATCH = 90
@@ -23,6 +25,7 @@ export interface ObligationCreateInput {
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
+  readiness?: ObligationReadiness
   migrationBatchId?: string | null
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null
@@ -82,23 +85,27 @@ export function makeObligationsRepo(db: Db, firmId: string) {
     async createBatch(inputs: ObligationCreateInput[]): Promise<{ ids: string[] }> {
       if (inputs.length === 0) return { ids: [] }
       await assertClientsInFirm(inputs.map((input) => input.clientId))
-      const rows = inputs.map((i) => ({
-        id: i.id ?? crypto.randomUUID(),
-        firmId,
-        clientId: i.clientId,
-        taxType: i.taxType,
-        taxYear: i.taxYear ?? null,
-        baseDueDate: i.baseDueDate,
-        currentDueDate: i.currentDueDate ?? i.baseDueDate,
-        status: i.status ?? ('pending' as const),
-        migrationBatchId: i.migrationBatchId ?? null,
-        estimatedTaxDueCents: i.estimatedTaxDueCents ?? null,
-        estimatedExposureCents: i.estimatedExposureCents ?? null,
-        exposureStatus: i.exposureStatus ?? ('needs_input' as const),
-        penaltyBreakdownJson: i.penaltyBreakdownJson ?? null,
-        penaltyFormulaVersion: i.penaltyFormulaVersion ?? null,
-        exposureCalculatedAt: i.exposureCalculatedAt ?? null,
-      }))
+      const rows = inputs.map((i) => {
+        const status = i.status ?? ('pending' as const)
+        return {
+          id: i.id ?? crypto.randomUUID(),
+          firmId,
+          clientId: i.clientId,
+          taxType: i.taxType,
+          taxYear: i.taxYear ?? null,
+          baseDueDate: i.baseDueDate,
+          currentDueDate: i.currentDueDate ?? i.baseDueDate,
+          status,
+          readiness: i.readiness ?? defaultReadinessForStatus(status, undefined),
+          migrationBatchId: i.migrationBatchId ?? null,
+          estimatedTaxDueCents: i.estimatedTaxDueCents ?? null,
+          estimatedExposureCents: i.estimatedExposureCents ?? null,
+          exposureStatus: i.exposureStatus ?? ('needs_input' as const),
+          penaltyBreakdownJson: i.penaltyBreakdownJson ?? null,
+          penaltyFormulaVersion: i.penaltyFormulaVersion ?? null,
+          exposureCalculatedAt: i.exposureCalculatedAt ?? null,
+        }
+      })
       const writes = []
       for (let i = 0; i < rows.length; i += OI_BATCH_SIZE) {
         writes.push(db.insert(obligationInstance).values(rows.slice(i, i + OI_BATCH_SIZE)))
@@ -195,14 +202,51 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
     },
 
-    async updateStatus(id: string, status: ObligationStatus): Promise<void> {
+    async updateStatus(
+      id: string,
+      status: ObligationStatus,
+      readiness?: ObligationReadiness,
+    ): Promise<void> {
+      const patch: { status: ObligationStatus; readiness?: ObligationReadiness } = { status }
+      if (readiness !== undefined) patch.readiness = readiness
       await db
         .update(obligationInstance)
-        .set({ status })
+        .set(patch)
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
     },
 
-    async updateStatusMany(ids: string[], status: ObligationStatus): Promise<void> {
+    async updateStatusMany(
+      ids: string[],
+      status: ObligationStatus,
+      readiness?: ObligationReadiness,
+    ): Promise<void> {
+      if (ids.length === 0) return
+      const uniqueIds = [...new Set(ids)]
+      const patch: { status: ObligationStatus; readiness?: ObligationReadiness } = { status }
+      if (readiness !== undefined) patch.readiness = readiness
+      const writes = []
+      for (let i = 0; i < uniqueIds.length; i += OI_UPDATE_IDS_PER_BATCH) {
+        const chunk = uniqueIds.slice(i, i + OI_UPDATE_IDS_PER_BATCH)
+        writes.push(
+          db
+            .update(obligationInstance)
+            .set(patch)
+            .where(
+              and(eq(obligationInstance.firmId, firmId), inArray(obligationInstance.id, chunk)),
+            ),
+        )
+      }
+      await Promise.all(writes)
+    },
+
+    async updateReadiness(id: string, readiness: ObligationReadiness): Promise<void> {
+      await db
+        .update(obligationInstance)
+        .set({ readiness })
+        .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
+    },
+
+    async updateReadinessMany(ids: string[], readiness: ObligationReadiness): Promise<void> {
       if (ids.length === 0) return
       const uniqueIds = [...new Set(ids)]
       const writes = []
@@ -211,7 +255,7 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         writes.push(
           db
             .update(obligationInstance)
-            .set({ status })
+            .set({ readiness })
             .where(
               and(eq(obligationInstance.firmId, firmId), inArray(obligationInstance.id, chunk)),
             ),

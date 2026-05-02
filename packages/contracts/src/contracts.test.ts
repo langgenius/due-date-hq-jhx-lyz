@@ -22,13 +22,17 @@ import {
   clientsContract,
 } from './clients'
 import {
+  ObligationBulkReadinessUpdateInputSchema,
+  ObligationBulkReadinessUpdateOutputSchema,
   ObligationBulkStatusUpdateInputSchema,
   ObligationBulkStatusUpdateOutputSchema,
+  ObligationReadinessUpdateInputSchema,
+  ObligationReadinessUpdateOutputSchema,
   ObligationStatusUpdateInputSchema,
   ObligationStatusUpdateOutputSchema,
   obligationsContract,
 } from './obligations'
-import { ObligationStatusSchema } from './shared/enums'
+import { ObligationReadinessSchema, ObligationStatusSchema } from './shared/enums'
 import { ClientSchema } from './shared/client'
 import {
   WORKBOARD_FILTER_MAX_SELECTIONS,
@@ -294,6 +298,10 @@ describe('@duedatehq/contracts', () => {
     ])
   })
 
+  it('keeps the obligation readiness enum stable', () => {
+    expect(ObligationReadinessSchema.options).toEqual(['ready', 'waiting', 'needs_review'])
+  })
+
   it('exposes obligations.updateStatus with before/after audit contract', () => {
     expect(Object.keys(obligationsContract)).toEqual(
       expect.arrayContaining([
@@ -301,6 +309,8 @@ describe('@duedatehq/contracts', () => {
         'updateDueDate',
         'updateStatus',
         'bulkUpdateStatus',
+        'updateReadiness',
+        'bulkUpdateReadiness',
         'listByClient',
       ]),
     )
@@ -322,6 +332,7 @@ describe('@duedatehq/contracts', () => {
         baseDueDate: '2026-04-15',
         currentDueDate: '2026-04-15',
         status: 'in_progress',
+        readiness: 'ready',
         migrationBatchId: null,
         estimatedTaxDueCents: null,
         estimatedExposureCents: null,
@@ -347,6 +358,31 @@ describe('@duedatehq/contracts', () => {
       auditIds: ['33333333-3333-4333-8333-333333333333'],
     })
     expect(bulkOutput.updatedCount).toBe(1)
+
+    const readinessInput = ObligationReadinessUpdateInputSchema.parse({
+      id: '11111111-1111-4111-8111-111111111111',
+      readiness: 'waiting',
+      reason: 'waiting on K-1',
+    })
+    expect(readinessInput.readiness).toBe('waiting')
+
+    const readinessOutput = ObligationReadinessUpdateOutputSchema.parse({
+      obligation: { ...output.obligation, readiness: 'waiting' },
+      auditId: '33333333-3333-4333-8333-333333333333',
+    })
+    expect(readinessOutput.obligation.readiness).toBe('waiting')
+
+    const bulkReadinessInput = ObligationBulkReadinessUpdateInputSchema.parse({
+      ids: ['11111111-1111-4111-8111-111111111111'],
+      readiness: 'needs_review',
+      reason: 'CPA review',
+    })
+    expect(bulkReadinessInput.readiness).toBe('needs_review')
+    const bulkReadinessOutput = ObligationBulkReadinessUpdateOutputSchema.parse({
+      updatedCount: 1,
+      auditIds: ['33333333-3333-4333-8333-333333333333'],
+    })
+    expect(bulkReadinessOutput.updatedCount).toBe(1)
   })
 
   it('exposes clients.bulkUpdateAssignee for Workboard bulk owner changes', () => {

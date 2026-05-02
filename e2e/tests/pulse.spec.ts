@@ -33,7 +33,16 @@ test.describe('seeded Pulse alerts', () => {
     await expect(authenticatedPage.getByText(/Applied to 1 clients?/)).toBeVisible()
 
     await workboardPage.goto()
-    await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('2026-10-15')
+    const arborRow = workboardPage.rowFor('Arbor & Vale LLC')
+    await expect(arborRow).toContainText('2026-10-15')
+    const arborEvidenceButton = arborRow.getByRole('button', {
+      name: 'Open evidence for Arbor & Vale LLC',
+    })
+    await expect(arborEvidenceButton).toHaveText('1')
+    await arborEvidenceButton.click()
+    const evidenceDrawer = authenticatedPage.getByRole('dialog', { name: 'Evidence chain' })
+    await expect(evidenceDrawer.getByText('pulse_apply')).toBeVisible()
+    await evidenceDrawer.getByRole('button', { name: 'Close' }).click()
     await expect(workboardPage.rowFor('Bright Studio S-Corp')).toContainText('2026-03-15')
 
     await appShellPage.goto('/audit?action=pulse.apply&range=all')
@@ -41,8 +50,6 @@ test.describe('seeded Pulse alerts', () => {
 
     await appShellPage.goto('/')
     await expect(authenticatedPage.getByText('pulse_apply')).toBeVisible()
-    await authenticatedPage.getByRole('tab', { name: 'Evidence checks' }).click()
-    await expect(authenticatedPage.getByText(/1 top rows have evidence/)).toBeVisible()
 
     await appShellPage.goto('/alerts')
     await authenticatedPage.getByRole('button', { name: 'Review' }).first().click()

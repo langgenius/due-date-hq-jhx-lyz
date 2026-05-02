@@ -33,3 +33,6 @@
 - Added server unit coverage for bulk status audit writes.
 - Added e2e coverage for Dashboard triage URL sync/deep link plus Workboard saved views,
   density, column visibility, bulk assignee, CSV/PDF zip export, and extended memo flow.
+- Updated the Pulse apply/revert E2E to validate `pulse_apply` through the Workboard evidence
+  drawer and Dashboard top-row badge, matching the current triage-tab UI instead of the removed
+  Evidence checks tab.

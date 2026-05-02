@@ -55,6 +55,8 @@ export const router = os.router({
     updateDueDate: obligationsHandlers.updateDueDate,
     updateStatus: obligationsHandlers.updateStatus,
     bulkUpdateStatus: obligationsHandlers.bulkUpdateStatus,
+    updateReadiness: obligationsHandlers.updateReadiness,
+    bulkUpdateReadiness: obligationsHandlers.bulkUpdateReadiness,
     listByClient: obligationsHandlers.listByClient,
   },
   dashboard: {

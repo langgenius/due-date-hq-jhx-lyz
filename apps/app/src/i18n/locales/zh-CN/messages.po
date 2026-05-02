@@ -701,6 +701,10 @@ msgid "Building the import preview"
 msgstr "正在生成导入预览"
 
 #: src/routes/workboard.tsx
+msgid "Bulk readiness updated"
+msgstr "批量就绪度已更新"
+
+#: src/routes/workboard.tsx
 msgid "Bulk status updated"
 msgstr "批量状态已更新"
 
@@ -755,6 +759,15 @@ msgstr "变更"
 #: src/routes/workboard.tsx
 msgid "Change assignee"
 msgstr "更改负责人"
+
+#: src/routes/workboard.tsx
+msgid "Change readiness"
+msgstr "更改就绪度"
+
+#. placeholder {0}: row.clientName
+#: src/features/workboard/status-control.tsx
+msgid "Change readiness for {0}"
+msgstr "更改 {0} 的就绪度"
 
 #: src/features/members/members-page.tsx
 msgid "Change role"
@@ -1131,6 +1144,10 @@ msgid "Couldn't update owners"
 msgstr "无法更新负责人"
 
 #: src/routes/workboard.tsx
+msgid "Couldn't update readiness"
+msgstr "无法更新就绪度"
+
+#: src/routes/workboard.tsx
 msgid "Couldn't update selected rows"
 msgstr "无法更新所选行"
 
@@ -1334,10 +1351,6 @@ msgstr "忽略"
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Dismissed"
 msgstr "已忽略"
-
-#: src/features/workboard/status-control.tsx
-msgid "Done"
-msgstr "已完成"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Download latest"
@@ -1585,6 +1598,10 @@ msgstr "联邦"
 msgid "File is larger than 2 MB. Please trim or split the export."
 msgstr "文件大于 2 MB，请精简或拆分后再上传。"
 
+#: src/features/workboard/status-control.tsx
+msgid "Filed"
+msgstr "已申报"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Filing only — payment NOT extended."
 msgstr "仅申报延期 — 缴款不延期。"
@@ -1793,10 +1810,6 @@ msgstr "提升身份匹配与审计复核质量。"
 #: src/features/workboard/status-control.tsx
 msgid "In progress"
 msgstr "进行中"
-
-#: src/features/workboard/status-control.tsx
-msgid "In review"
-msgstr "复核中"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "In-app"
@@ -2192,7 +2205,7 @@ msgstr "需要输入"
 
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
-#: src/routes/workboard.tsx
+#: src/features/workboard/status-control.tsx
 msgid "Needs review"
 msgstr "需复核"
 
@@ -2447,6 +2460,10 @@ msgstr "不适用"
 #: src/features/members/members-page.tsx
 msgid "Not recorded"
 msgstr "未记录"
+
+#: src/features/workboard/status-control.tsx
+msgid "Not started"
+msgstr "未开始"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
@@ -2799,7 +2816,6 @@ msgid "Penalty readiness is computed from the confirmed tax type plus any estima
 msgstr "Penalty readiness 会根据已确认的税种，以及 Step 2 映射出的预计应纳税额和所有者数量列计算。"
 
 #: src/features/members/members-page.tsx
-#: src/features/workboard/status-control.tsx
 msgid "Pending"
 msgstr "待处理"
 
@@ -3034,12 +3050,16 @@ msgstr "只读视图"
 msgid "Readiness"
 msgstr "就绪度"
 
+#: src/routes/workboard.tsx
+msgid "Readiness updated"
+msgstr "就绪度已更新"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Reading file…"
 msgstr "正在读取文件…"
 
+#: src/features/workboard/status-control.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Ready"
 msgstr "已就绪"
 
@@ -4227,8 +4247,8 @@ msgstr "查看账单"
 msgid "Visible columns"
 msgstr "可见列"
 
+#: src/features/workboard/status-control.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
 msgid "Waiting"
 msgstr "等待中"
 

@@ -127,6 +127,8 @@ function buildScopedRepo(firmId: string) {
     async updateExposure() {},
     async updateStatus() {},
     async updateStatusMany() {},
+    async updateReadiness() {},
+    async updateReadinessMany() {},
     async deleteByBatch() {
       return 0
     },

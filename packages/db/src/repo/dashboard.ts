@@ -6,6 +6,7 @@ import type {
   DashboardBriefRow,
 } from '@duedatehq/ports/dashboard'
 import type { DashboardBriefScope, DashboardBriefStatus } from '@duedatehq/ports/shared'
+import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
@@ -13,7 +14,7 @@ import { dashboardBrief } from '../schema/dashboard'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
 import { listActiveOverlayDueDates } from './overlay'
 
-const OPEN_STATUSES: ObligationStatus[] = ['pending', 'in_progress', 'waiting_on_client', 'review']
+const OPEN_STATUSES = [...OPEN_OBLIGATION_STATUSES] satisfies ObligationStatus[]
 const EVIDENCE_BATCH_SIZE = 90
 const DAY_MS = 24 * 60 * 60 * 1000
 

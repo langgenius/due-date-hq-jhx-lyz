@@ -44,7 +44,6 @@ import {
   type WorkboardDensity,
   type WorkboardFacetOption,
   type WorkboardListInput,
-  type WorkboardReadiness,
   type WorkboardRow,
   type WorkboardSavedView,
   type WorkboardSort,
@@ -114,9 +113,14 @@ import {
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import {
+  ALL_READINESSES,
   ALL_STATUSES,
+  WorkboardReadinessControl,
   WorkboardStatusControl,
+  isObligationReadiness,
   useStatusLabels,
+  useReadinessLabels,
+  type ObligationReadiness,
   type ObligationStatus,
 } from '@/features/workboard/status-control'
 import { queryInputUrlUpdateRateLimit, useDebouncedQueryInput } from '@/lib/query-rate-limit'
@@ -142,7 +146,7 @@ const OWNER_FILTERS = ['unassigned'] as const
 const DUE_FILTERS = ['overdue'] as const
 const EXPOSURE_FILTERS = ['ready', 'needs_input', 'unsupported'] as const
 const EVIDENCE_FILTERS = ['needs'] as const
-const READINESS_FILTERS = ['ready', 'waiting', 'needs_review'] as const
+const READINESS_FILTERS = ALL_READINESSES
 const DENSITY_OPTIONS = ['comfortable', 'compact'] as const satisfies readonly WorkboardDensity[]
 const DEFAULT_SORT: WorkboardSort = 'due_asc'
 const DEFAULT_DENSITY: WorkboardDensity = 'comfortable'
@@ -226,10 +230,6 @@ function isWorkboardSort(value: string): value is WorkboardSort {
   return ALL_SORTS.some((sortOption) => sortOption === value)
 }
 
-function isWorkboardReadiness(value: string): value is WorkboardReadiness {
-  return READINESS_FILTERS.some((readiness) => readiness === value)
-}
-
 function isObligationStatus(value: string): value is ObligationStatus {
   return ALL_STATUSES.some((status) => status === value)
 }
@@ -241,18 +241,6 @@ function useSortLabels(): Record<WorkboardSort, string> {
       due_asc: t`Due date — earliest first`,
       due_desc: t`Due date — latest first`,
       updated_desc: t`Recently updated`,
-    }),
-    [t],
-  )
-}
-
-function useReadinessLabels(): Record<WorkboardReadiness, string> {
-  const { t } = useLingui()
-  return useMemo(
-    () => ({
-      ready: t`Ready`,
-      waiting: t`Waiting`,
-      needs_review: t`Needs review`,
     }),
     [t],
   )
@@ -365,7 +353,7 @@ function savedViewQueryPatch(query: unknown): Partial<WorkboardSearchParams> {
         ? query.exposure
         : null,
     evidence: query.evidence === 'needs' ? 'needs' : null,
-    readiness: stringArrayFromUnknown(query.readiness).filter(isWorkboardReadiness),
+    readiness: stringArrayFromUnknown(query.readiness).filter(isObligationReadiness),
     riskMin: typeof query.riskMin === 'number' ? query.riskMin : null,
     riskMax: typeof query.riskMax === 'number' ? query.riskMax : null,
     daysMin: typeof query.daysMin === 'number' ? query.daysMin : null,
@@ -701,6 +689,23 @@ export function WorkboardRoute() {
       },
     }),
   )
+  const updateReadinessMutation = useMutation(
+    orpc.obligations.updateReadiness.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+        toast.success(t`Readiness updated`, {
+          description: t`Audit ${result.auditId.slice(0, 8)}`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't update readiness`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
   const bulkStatusMutation = useMutation(
     orpc.obligations.bulkUpdateStatus.mutationOptions({
       onSuccess: (result) => {
@@ -709,6 +714,24 @@ export function WorkboardRoute() {
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         setRowSelection({})
         toast.success(t`Bulk status updated`, {
+          description: t`${result.updatedCount} rows changed`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't update selected rows`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const bulkReadinessMutation = useMutation(
+    orpc.obligations.bulkUpdateReadiness.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+        setRowSelection({})
+        toast.success(t`Bulk readiness updated`, {
           description: t`${result.updatedCount} rows changed`,
         })
       },
@@ -823,7 +846,11 @@ export function WorkboardRoute() {
   }, [])
 
   const updateStatus = updateStatusMutation.mutate
+  const updateReadiness = updateReadinessMutation.mutate
   const statusUpdatePending = updateStatusMutation.isPending || bulkStatusMutation.isPending
+  const readinessUpdatePending =
+    updateReadinessMutation.isPending || bulkReadinessMutation.isPending
+  const workflowUpdatePending = statusUpdatePending || readinessUpdatePending
 
   const columns = useMemo<ColumnDef<WorkboardRow>[]>(
     () => [
@@ -1043,7 +1070,7 @@ export function WorkboardRoute() {
             selected={readinessQuery}
             emptyLabel={t`No readiness states`}
             onSelectedChange={(nextReadiness) => {
-              const typedReadiness = nextReadiness.filter(isWorkboardReadiness)
+              const typedReadiness = nextReadiness.filter(isObligationReadiness)
               void setWorkboardQuery({
                 readiness: typedReadiness.length > 0 ? typedReadiness : null,
                 row: null,
@@ -1052,7 +1079,12 @@ export function WorkboardRoute() {
           />
         ),
         cell: (info) => (
-          <ReadinessPill readiness={info.getValue<WorkboardReadiness>()} labels={readinessLabels} />
+          <WorkboardReadinessControl
+            row={info.row.original}
+            labels={readinessLabels}
+            disabled={workflowUpdatePending}
+            onChange={(id, readiness) => updateReadiness({ id, readiness })}
+          />
         ),
       },
       {
@@ -1137,7 +1169,9 @@ export function WorkboardRoute() {
       t,
       taxTypeOptions,
       taxTypeQuery,
+      updateReadiness,
       updateStatus,
+      workflowUpdatePending,
     ],
   )
 
@@ -1276,7 +1310,19 @@ export function WorkboardRoute() {
     meta: {
       id: 'workboard.mark-filed',
       name: 'Mark filed',
-      description: 'Mark the active row as done.',
+      description: 'Mark the active row as filed.',
+      category: 'workboard',
+      scope: 'route',
+    },
+  })
+
+  useAppHotkey('P', (event) => updateActiveRowStatus('paid', event.target), {
+    enabled: keyboardEnabled,
+    requireReset: true,
+    meta: {
+      id: 'workboard.mark-paid',
+      name: 'Mark paid',
+      description: 'Mark the active row as paid.',
       category: 'workboard',
       scope: 'route',
     },
@@ -1375,6 +1421,14 @@ export function WorkboardRoute() {
       ids: selectedIds,
       status,
       ...(reason ? { reason } : {}),
+    })
+  }
+
+  function changeSelectedReadiness(readiness: ObligationReadiness) {
+    if (selectedIds.length === 0) return
+    bulkReadinessMutation.mutate({
+      ids: selectedIds,
+      readiness,
     })
   }
 
@@ -1678,6 +1732,26 @@ export function WorkboardRoute() {
                 <DropdownMenuTrigger
                   render={
                     <Button variant="outline" size="sm">
+                      <Trans>Change readiness</Trans>
+                      <ChevronDownIcon data-icon="inline-end" />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="start">
+                  {ALL_READINESSES.map((readiness) => (
+                    <DropdownMenuItem
+                      key={readiness}
+                      onClick={() => changeSelectedReadiness(readiness)}
+                    >
+                      {readinessLabels[readiness]}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant="outline" size="sm">
                       <Trans>Change assignee</Trans>
                       <ChevronDownIcon data-icon="inline-end" />
                     </Button>
@@ -1952,21 +2026,6 @@ function ExposurePill({
   return (
     <Badge variant="outline" className={WORKBOARD_TABLE_PILL_CLASSNAME}>
       <Trans>unsupported</Trans>
-    </Badge>
-  )
-}
-
-function ReadinessPill({
-  readiness,
-  labels,
-}: {
-  readiness: WorkboardReadiness
-  labels: Record<WorkboardReadiness, string>
-}) {
-  const variant = readiness === 'ready' ? 'success' : readiness === 'waiting' ? 'info' : 'warning'
-  return (
-    <Badge variant={variant} className={WORKBOARD_TABLE_PILL_CLASSNAME}>
-      {labels[readiness]}
     </Badge>
   )
 }

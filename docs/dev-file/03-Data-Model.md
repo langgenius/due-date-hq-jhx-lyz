@@ -202,8 +202,8 @@ Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 
 | `base_due_date`                                                                                    | base rule 最新计算值                                                                                  |
 | `current_due_date`                                                                                 | Stored legacy/base value；Pulse read models derive effective current date from base + active overlays |
 | `filing_due_date` / `payment_due_date`                                                             |                                                                                                       |
-| `status ∈ (pending, in_progress, done, extended, paid, waiting_on_client, review, not_applicable)` | `done` 保留既有 filed/done wire value；`extended` / `paid` 支撑 Workboard 批量操作                    |
-| `readiness ∈ (ready, waiting, needs_review)`                                                       |                                                                                                       |
+| `status ∈ (pending, in_progress, done, extended, paid, waiting_on_client, review, not_applicable)` | `done` 保留既有 filed/done wire value；UI 显示为 Filed；`done/extended/paid/not_applicable` 是 closed |
+| `readiness_status ∈ (ready, waiting, needs_review)`                                                | 独立持久状态；status 写入会按 P0-16 默认规则同步，之后可由用户单独纠正                                |
 | `extension_decision`                                                                               | JSON                                                                                                  |
 | `estimated_tax_due_cents` / `estimated_exposure_cents`                                             | Penalty Radar 预聚合；缺输入时 exposure 为 NULL                                                       |
 | `exposure_status ∈ (ready, needs_input, unsupported)`                                              | Dashboard / Workboard triage badge                                                                    |

@@ -3,7 +3,11 @@ import type { SQL } from 'drizzle-orm'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
-import { obligationInstance, type ObligationStatus } from '../schema/obligations'
+import {
+  obligationInstance,
+  type ObligationReadiness,
+  type ObligationStatus,
+} from '../schema/obligations'
 import { workboardSavedView, type WorkboardDensity } from '../schema/workboard'
 import { listActiveOverlayDueDates } from './overlay'
 
@@ -23,7 +27,7 @@ import { listActiveOverlayDueDates } from './overlay'
  */
 
 export type WorkboardSort = 'due_asc' | 'due_desc' | 'updated_desc'
-export type WorkboardReadiness = 'ready' | 'waiting' | 'needs_review'
+export type WorkboardReadiness = ObligationReadiness
 
 export interface WorkboardListInput {
   status?: ObligationStatus[]
@@ -59,6 +63,7 @@ export interface WorkboardListRow {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
+  readiness: WorkboardReadiness
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -72,7 +77,6 @@ export interface WorkboardListRow {
   clientState: string | null
   clientCounty: string | null
   assigneeName: string | null
-  readiness: WorkboardReadiness
   daysUntilDue: number
   evidenceCount: number
 }
@@ -145,6 +149,7 @@ interface WorkboardRawJoinedRow {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
+  readiness: WorkboardReadiness
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -240,15 +245,6 @@ function isWithinDueFilter(
 
 function daysUntilDue(currentDueDate: Date, asOfDate: Date): number {
   return Math.floor((currentDueDate.getTime() - asOfDate.getTime()) / DAY_MS)
-}
-
-function deriveReadiness(row: {
-  status: ObligationStatus
-  exposureStatus: 'ready' | 'needs_input' | 'unsupported'
-}): WorkboardReadiness {
-  if (row.status === 'waiting_on_client') return 'waiting'
-  if (row.status === 'review' || row.exposureStatus !== 'ready') return 'needs_review'
-  return 'ready'
 }
 
 function isWithinDaysRange(
@@ -357,7 +353,6 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         evidenceCount: evidenceCounts.get(row.id) ?? 0,
         clientState: normalizeStateCode(row.clientState),
         clientCounty: normalizeNullableText(row.clientCounty),
-        readiness: deriveReadiness(row),
         daysUntilDue: daysUntilDue(currentDueDate, asOfDate),
       })
     })
@@ -411,6 +406,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         filters.push(eq(obligationInstance.exposureStatus, input.exposureStatus))
       }
 
+      if (input.readiness && input.readiness.length > 0) {
+        filters.push(inArray(obligationInstance.readiness, input.readiness))
+      }
+
       if (input.minExposureCents !== undefined) {
         filters.push(gte(obligationInstance.estimatedExposureCents, input.minExposureCents))
       }
@@ -442,6 +441,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           baseDueDate: obligationInstance.baseDueDate,
           currentDueDate: obligationInstance.currentDueDate,
           status: obligationInstance.status,
+          readiness: obligationInstance.readiness,
           migrationBatchId: obligationInstance.migrationBatchId,
           estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
           estimatedExposureCents: obligationInstance.estimatedExposureCents,
@@ -511,6 +511,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
               baseDueDate: obligationInstance.baseDueDate,
               currentDueDate: obligationInstance.currentDueDate,
               status: obligationInstance.status,
+              readiness: obligationInstance.readiness,
               migrationBatchId: obligationInstance.migrationBatchId,
               estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
               estimatedExposureCents: obligationInstance.estimatedExposureCents,

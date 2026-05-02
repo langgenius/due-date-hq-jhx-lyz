@@ -1,4 +1,4 @@
-import type { ExposureStatus, ObligationStatus } from './shared'
+import type { ExposureStatus, ObligationReadiness, ObligationStatus } from './shared'
 
 export interface PenaltyBreakdownItem {
   key: string
@@ -16,6 +16,7 @@ export interface ObligationInstanceRow {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
+  readiness: ObligationReadiness
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -35,6 +36,7 @@ export interface ObligationCreateInput {
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
+  readiness?: ObligationReadiness
   migrationBatchId?: string | null
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null
@@ -63,7 +65,13 @@ export interface ObligationsRepo {
       exposureCalculatedAt: Date | null
     },
   ): Promise<void>
-  updateStatus(id: string, status: ObligationStatus): Promise<void>
-  updateStatusMany(ids: string[], status: ObligationStatus): Promise<void>
+  updateStatus(id: string, status: ObligationStatus, readiness?: ObligationReadiness): Promise<void>
+  updateStatusMany(
+    ids: string[],
+    status: ObligationStatus,
+    readiness?: ObligationReadiness,
+  ): Promise<void>
+  updateReadiness(id: string, readiness: ObligationReadiness): Promise<void>
+  updateReadinessMany(ids: string[], readiness: ObligationReadiness): Promise<void>
   deleteByBatch(batchId: string): Promise<number>
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Db } from '../client'
 import { makeWorkboardRepo, normalizeWorkboardSearch } from './workboard'
+import type { ObligationReadiness, ObligationStatus } from '../schema/obligations'
 
 interface FakeRow {
   id: string
@@ -10,7 +11,8 @@ interface FakeRow {
   taxYear: number | null
   baseDueDate: Date
   currentDueDate: Date
-  status: 'pending' | 'in_progress' | 'done' | 'waiting_on_client' | 'review' | 'not_applicable'
+  status: ObligationStatus
+  readiness: ObligationReadiness
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -73,6 +75,7 @@ function makeRow(over: Partial<FakeRow> = {}): FakeRow {
     baseDueDate: over.baseDueDate ?? due,
     currentDueDate: due,
     status: over.status ?? 'pending',
+    readiness: over.readiness ?? 'ready',
     migrationBatchId: over.migrationBatchId ?? null,
     estimatedTaxDueCents: over.estimatedTaxDueCents ?? null,
     estimatedExposureCents: over.estimatedExposureCents ?? null,
@@ -164,7 +167,7 @@ describe('makeWorkboardRepo.list', () => {
     })
   })
 
-  it('derives readiness and filters by days until due after overlay-safe row shaping', async () => {
+  it('uses persisted readiness and filters by days until due after overlay-safe row shaping', async () => {
     const fake = createFakeDb([
       makeRow({
         id: 'ready',
@@ -175,17 +178,20 @@ describe('makeWorkboardRepo.list', () => {
         id: 'waiting',
         currentDueDate: new Date('2026-04-22T00:00:00.000Z'),
         status: 'waiting_on_client',
+        readiness: 'waiting',
         exposureStatus: 'ready',
       }),
       makeRow({
         id: 'review',
         currentDueDate: new Date('2026-05-01T00:00:00.000Z'),
         status: 'review',
+        readiness: 'needs_review',
         exposureStatus: 'ready',
       }),
       makeRow({
         id: 'needs-input',
         currentDueDate: new Date('2026-04-18T00:00:00.000Z'),
+        readiness: 'needs_review',
         exposureStatus: 'needs_input',
       }),
     ])

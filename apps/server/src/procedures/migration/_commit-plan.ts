@@ -1,5 +1,6 @@
 import { ORPCError } from '@orpc/server'
 import { inferTaxTypes, type EntityType } from '@duedatehq/core/default-matrix'
+import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
 import {
   findRuleById,
   listRuleSources,
@@ -120,6 +121,7 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
         estimatedTaxLiabilityCents: facts.estimatedTaxLiabilityCents,
         equityOwnerCount: facts.equityOwnerCount,
       })
+      const status = preview.requiresReview ? 'review' : 'pending'
       obligations.push({
         id: obligationId,
         firmId,
@@ -128,7 +130,8 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
         taxYear: findRuleById(preview.ruleId)?.taxYear ?? 2026,
         baseDueDate: dueDate,
         currentDueDate: dueDate,
-        status: preview.requiresReview ? 'review' : 'pending',
+        status,
+        readiness: defaultReadinessForStatus(status, undefined),
         migrationBatchId: batchId,
         estimatedTaxDueCents: exposure.estimatedTaxDueCents,
         estimatedExposureCents: exposure.estimatedExposureCents,

@@ -32,8 +32,8 @@ const NORM_BATCH_SIZE = Math.floor(100 / 10)
 const ERROR_BATCH_SIZE = Math.floor(100 / 7) // = 14
 // client has 17 columns -> 5/batch.
 const CLIENT_BATCH_SIZE = Math.floor(100 / 17)
-// obligation_instance has 17 columns -> 5/batch.
-const OBLIGATION_BATCH_SIZE = Math.floor(100 / 17)
+// obligation_instance has 18 columns -> 5/batch.
+const OBLIGATION_BATCH_SIZE = Math.floor(100 / 18)
 // evidence_link has 17 columns → 5/batch.
 const EVIDENCE_BATCH_SIZE = Math.floor(100 / 17)
 // audit_event has 12 columns → 8/batch.

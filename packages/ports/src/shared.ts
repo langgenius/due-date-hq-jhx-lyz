@@ -24,6 +24,8 @@ export type ObligationStatus =
   | 'review'
   | 'not_applicable'
 
+export type ObligationReadiness = 'ready' | 'waiting' | 'needs_review'
+
 export type ExposureStatus = 'ready' | 'needs_input' | 'unsupported'
 
 export type MigrationSource =
@@ -68,7 +70,7 @@ export type AuditActionCategory =
 export type WorkboardSort = 'due_asc' | 'due_desc' | 'updated_desc'
 export type WorkboardOwnerFilter = 'unassigned'
 export type WorkboardDueFilter = 'overdue'
-export type WorkboardReadiness = 'ready' | 'waiting' | 'needs_review'
+export type WorkboardReadiness = ObligationReadiness
 export type DashboardSeverity = 'critical' | 'high' | 'medium' | 'neutral'
 export type DashboardBriefScope = 'firm' | 'me'
 export type DashboardBriefStatus = 'pending' | 'ready' | 'failed' | 'stale'
