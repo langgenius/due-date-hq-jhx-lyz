@@ -28,8 +28,11 @@ test('AC: E2E-AUTH-SHELL renders the protected dashboard shell', async ({
   await expect(authenticatedPage).toHaveURL(/\/$/)
   await expect(appShellPage.primaryNavigation).toBeVisible()
   await expect(appShellPage.dashboardLink).toHaveAttribute('aria-current', 'page')
-  await expect(authenticatedPage.getByText('Risk pulse')).toBeVisible()
-  await expect(authenticatedPage.getByText('Today queue')).toBeVisible()
+  await expect(
+    authenticatedPage.getByRole('heading', { name: 'Deadline risk workbench' }),
+  ).toBeVisible()
+  await expect(authenticatedPage.getByText('Next deadlines', { exact: true })).toBeVisible()
+  await expect(authenticatedPage.getByText('Triage queue', { exact: true })).toBeVisible()
   await expect(appShellPage.importClientsButton).toBeVisible()
 })
 

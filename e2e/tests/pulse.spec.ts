@@ -51,7 +51,10 @@ test.describe('seeded Pulse alerts', () => {
     await expect(auditPage.eventRowFor('pulse.apply')).toContainText('Pulse applied')
 
     await appShellPage.goto('/')
-    await expect(authenticatedPage.getByText('pulse_apply')).toBeVisible()
+    await expect(authenticatedPage.getByText('Next deadlines', { exact: true })).toBeVisible()
+    await expect(authenticatedPage.getByRole('row', { name: /Arbor & Vale LLC/ })).toContainText(
+      '2026-10-15',
+    )
 
     await appShellPage.goto('/alerts')
     await authenticatedPage.getByRole('button', { name: 'Review' }).first().click()

@@ -34,5 +34,5 @@
 - Added e2e coverage for Dashboard triage URL sync/deep link plus Workboard saved views,
   density, column visibility, bulk assignee, CSV/PDF zip export, and extended memo flow.
 - Updated the Pulse apply/revert E2E to validate `pulse_apply` through the Workboard evidence
-  drawer and Dashboard top-row badge, matching the current triage-tab UI instead of the removed
-  Evidence checks tab.
+  drawer and Audit log while Dashboard assertions now verify the resulting deadline row in the
+  current `Next deadlines` / `Triage queue` UI instead of the removed Evidence checks tab.

@@ -17,7 +17,7 @@ test.describe('seeded workboard', () => {
   }) => {
     await authenticatedPage.goto('/')
 
-    await expect(authenticatedPage.getByText('Triage queue')).toBeVisible()
+    await expect(authenticatedPage.getByText('Triage queue', { exact: true })).toBeVisible()
     await expect(authenticatedPage.getByRole('tab', { name: /This Week/ })).toHaveAttribute(
       'aria-selected',
       'true',
@@ -39,8 +39,12 @@ test.describe('seeded workboard', () => {
   }) => {
     await authenticatedPage.goto('/')
 
+    const triageTable = authenticatedPage
+      .locator('[data-slot="card"]')
+      .filter({ has: authenticatedPage.getByText('Triage queue', { exact: true }) })
+      .getByRole('table')
     const dashboardHeaderButton = (name: string) =>
-      authenticatedPage
+      triageTable
         .locator('th')
         .filter({ hasText: new RegExp(`^${name}$`) })
         .locator('button')
@@ -49,10 +53,8 @@ test.describe('seeded workboard', () => {
     await dashboardHeaderButton('Status').click()
     await authenticatedPage.getByRole('menuitemcheckbox', { name: /Needs review/ }).click()
     await expect(authenticatedPage).toHaveURL(/\/\?status=review$/)
-    await expect(
-      authenticatedPage.getByRole('row', { name: /Northstar Dental Group/ }),
-    ).toBeVisible()
-    await expect(authenticatedPage.getByRole('row', { name: /Arbor & Vale LLC/ })).toBeHidden()
+    await expect(triageTable.getByRole('row', { name: /Northstar Dental Group/ })).toBeVisible()
+    await expect(triageTable.getByRole('row', { name: /Arbor & Vale LLC/ })).toBeHidden()
     await expect(
       authenticatedPage.getByRole('menuitemcheckbox', { name: /Needs review/ }),
     ).toBeVisible()
@@ -61,10 +63,8 @@ test.describe('seeded workboard', () => {
     await dashboardHeaderButton('Deadline').click()
     await authenticatedPage.getByRole('menuitemcheckbox', { name: /Today/ }).click()
     await expect(authenticatedPage).toHaveURL(/\/\?due=today$/)
-    await expect(
-      authenticatedPage.getByRole('row', { name: /Unassigned Foundry LLC/ }),
-    ).toBeVisible()
-    await expect(authenticatedPage.getByRole('row', { name: /Arbor & Vale LLC/ })).toBeHidden()
+    await expect(triageTable.getByRole('row', { name: /Unassigned Foundry LLC/ })).toBeVisible()
+    await expect(triageTable.getByRole('row', { name: /Arbor & Vale LLC/ })).toBeHidden()
     await expect(authenticatedPage.getByRole('menuitemcheckbox', { name: /Today/ })).toBeVisible()
   })
 
