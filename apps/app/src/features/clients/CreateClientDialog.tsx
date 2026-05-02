@@ -47,6 +47,8 @@ type ClientFormValues = {
   county: string
   email: string
   assigneeId: string
+  importanceWeight: '1' | '2' | '3'
+  lateFilingCountLast12mo: string
   notes: string
 }
 
@@ -60,6 +62,8 @@ const defaultClientFormValues: ClientFormValues = {
   county: '',
   email: '',
   assigneeId: '',
+  importanceWeight: '2',
+  lateFilingCountLast12mo: '0',
   notes: '',
 }
 
@@ -96,6 +100,13 @@ function createClientFormSchema(t: ReturnType<typeof useLingui>['t']) {
       .string()
       .trim()
       .max(200, t`Owner selection is invalid`),
+    importanceWeight: z.enum(['1', '2', '3']),
+    lateFilingCountLast12mo: z
+      .string()
+      .trim()
+      .refine((value) => /^\d+$/.test(value) && Number(value) >= 0 && Number(value) <= 99, {
+        message: t`Use a whole number from 0 to 99`,
+      }),
     notes: z
       .string()
       .trim()
@@ -117,6 +128,8 @@ function formValuesToInput(values: ClientFormValues): ClientCreateInput {
     county: nullableText(values.county),
     email: nullableText(values.email),
     assigneeId: nullableText(values.assigneeId),
+    importanceWeight: Number(values.importanceWeight),
+    lateFilingCountLast12mo: Number(values.lateFilingCountLast12mo),
     notes: nullableText(values.notes),
   }
 }
@@ -131,6 +144,8 @@ function contractPathToFormField(path: PropertyKey[]): ClientFormField | null {
     case 'county':
     case 'email':
     case 'assigneeId':
+    case 'importanceWeight':
+    case 'lateFilingCountLast12mo':
     case 'notes':
       return field
     default:
@@ -327,6 +342,63 @@ export function CreateClientDialog({
                   </SelectContent>
                 </Select>
                 <FieldError errors={[form.formState.errors.assigneeId]} />
+              </Field>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field>
+                <FieldLabel>
+                  <Trans>Client importance</Trans>
+                </FieldLabel>
+                <Select
+                  value={form.watch('importanceWeight')}
+                  onValueChange={(value) => {
+                    if (value === '1' || value === '2' || value === '3') {
+                      form.setValue('importanceWeight', value, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue>
+                      {form.watch('importanceWeight') === '3'
+                        ? t`High`
+                        : form.watch('importanceWeight') === '1'
+                          ? t`Low`
+                          : t`Medium`}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="1">
+                        <Trans>Low</Trans>
+                      </SelectItem>
+                      <SelectItem value="2">
+                        <Trans>Medium</Trans>
+                      </SelectItem>
+                      <SelectItem value="3">
+                        <Trans>High</Trans>
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="client-late-filings">
+                  <Trans>Late filings, 12mo</Trans>
+                </FieldLabel>
+                <Input
+                  id="client-late-filings"
+                  type="number"
+                  min={0}
+                  max={99}
+                  className="font-mono tabular-nums"
+                  aria-invalid={Boolean(form.formState.errors.lateFilingCountLast12mo)}
+                  {...form.register('lateFilingCountLast12mo')}
+                />
+                <FieldError errors={[form.formState.errors.lateFilingCountLast12mo]} />
               </Field>
             </div>
 

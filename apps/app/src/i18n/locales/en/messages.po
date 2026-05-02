@@ -995,6 +995,10 @@ msgstr "Client email draft copied"
 msgid "Client facts"
 msgstr "Client facts"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Client facts, risk inputs, and cached AI summary."
+msgstr "Client facts, risk inputs, and cached AI summary."
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT ID"
 msgstr "CLIENT ID"
@@ -1008,6 +1012,10 @@ msgid "Client import undone"
 msgstr "Client import undone"
 
 #: src/features/clients/CreateClientDialog.tsx
+msgid "Client importance"
+msgstr "Client importance"
+
+#: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
 msgid "Client name"
 msgstr "Client name"
@@ -1015,6 +1023,10 @@ msgstr "Client name"
 #: src/features/notifications/notifications-page.tsx
 msgid "Client reminder"
 msgstr "Client reminder"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Client Risk Summary"
+msgstr "Client Risk Summary"
 
 #: src/routes/workboard.tsx
 msgid "Client-facing detail"
@@ -1267,6 +1279,14 @@ msgstr "Couldn't load this alert"
 msgid "Couldn't parse the input"
 msgstr "Couldn't parse the input"
 
+#: src/routes/workboard.tsx
+msgid "Couldn't queue deadline tip"
+msgstr "Couldn't queue deadline tip"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't queue risk summary"
+msgstr "Couldn't queue risk summary"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't reactivate alert"
 msgstr "Couldn't reactivate alert"
@@ -1286,6 +1306,10 @@ msgstr "Couldn't save mapping"
 #: src/routes/workboard.tsx
 msgid "Couldn't save penalty inputs"
 msgstr "Couldn't save penalty inputs"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't save risk inputs"
+msgstr "Couldn't save risk inputs"
 
 #: src/routes/workboard.tsx
 msgid "Couldn't save view"
@@ -1479,6 +1503,14 @@ msgstr "Deadline status changed"
 #: src/features/audit/audit-log-labels.ts
 msgid "Deadline status changed from {previous} to {next}"
 msgstr "Deadline status changed from {previous} to {next}"
+
+#: src/routes/workboard.tsx
+msgid "Deadline Tip"
+msgstr "Deadline Tip"
+
+#: src/routes/workboard.tsx
+msgid "Deadline tip refresh queued"
+msgstr "Deadline tip refresh queued"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "deadlines"
@@ -1846,6 +1878,8 @@ msgid "Fact readiness"
 msgstr "Fact readiness"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/workboard.tsx
 msgid "Failed"
 msgstr "Failed"
 
@@ -2021,6 +2055,11 @@ msgstr "Healthy"
 msgid "high"
 msgstr "high"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
+msgid "High"
+msgstr "High"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
 msgstr "I'm coming from… (optional)"
@@ -2102,6 +2141,10 @@ msgstr "Import reverted"
 #: src/features/migration/Wizard.tsx
 msgid "Import undone"
 msgstr "Import undone"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Importance"
+msgstr "Importance"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Imported"
@@ -2234,6 +2277,11 @@ msgstr "Last 7d"
 msgid "Last success {0} · next check {1} · failures {2}"
 msgstr "Last success {0} · next check {1} · failures {2}"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Late filings, 12mo"
+msgstr "Late filings, 12mo"
+
 #: src/routes/workboard.tsx
 msgid "Latest request"
 msgstr "Latest request"
@@ -2273,6 +2321,10 @@ msgstr "Load more"
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Loading alerts…"
 msgstr "Loading alerts…"
+
+#: src/routes/workboard.tsx
+msgid "Loading deadline tip…"
+msgstr "Loading deadline tip…"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Loading failed snapshots…"
@@ -2346,6 +2398,11 @@ msgstr "Logged to audit trail"
 #: src/routes/dashboard.tsx
 msgid "Long-term"
 msgstr "Long-term"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Low"
+msgstr "Low"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Low AI confidence"
@@ -2449,6 +2506,11 @@ msgstr "may be affected."
 #: src/routes/dashboard.tsx
 msgid "medium"
 msgstr "medium"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Medium"
+msgstr "Medium"
 
 #: src/routes/billing.tsx
 msgid "Member"
@@ -3369,7 +3431,9 @@ msgid "Penalty readiness is computed from the confirmed tax type plus any estima
 msgstr "Penalty readiness is computed from the confirmed tax type plus any estimated tax due and owner count columns mapped in Step 2."
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/members/members-page.tsx
+#: src/routes/workboard.tsx
 msgid "Pending"
 msgstr "Pending"
 
@@ -3427,6 +3491,7 @@ msgstr "Please enter at least 2 characters."
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/migration/Wizard.tsx
 #: src/features/notifications/notifications-page.tsx
@@ -3570,6 +3635,11 @@ msgstr "Previous years"
 msgid "Primary navigation"
 msgstr "Primary navigation"
 
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "Priority"
+msgstr "Priority"
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Priority onboarding"
@@ -3712,7 +3782,9 @@ msgstr "Quarantined"
 msgid "Queue controls"
 msgstr "Queue controls"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Queued"
 msgstr "Queued"
 
@@ -3760,10 +3832,6 @@ msgstr "Read field values"
 msgid "READ-ONLY"
 msgstr "READ-ONLY"
 
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Read-only v1 profile from practice client data."
-msgstr "Read-only v1 profile from practice client data."
-
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Read-only view"
 msgstr "Read-only view"
@@ -3802,9 +3870,11 @@ msgstr "Readiness updated"
 msgid "Reading file…"
 msgstr "Reading file…"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/workboard/status-control.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/readiness.tsx
+#: src/routes/workboard.tsx
 msgid "Ready"
 msgstr "Ready"
 
@@ -3849,9 +3919,11 @@ msgstr "Recover mistaken batch imports. Edit individual client facts from Client
 msgid "Redirecting to Google…"
 msgstr "Redirecting to Google…"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/features/workload/workload-page.tsx
+#: src/routes/workboard.tsx
 msgid "Refresh"
 msgstr "Refresh"
 
@@ -4085,6 +4157,14 @@ msgstr "Revoked"
 msgid "Risk"
 msgstr "Risk"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Risk inputs"
+msgstr "Risk inputs"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Risk inputs saved"
+msgstr "Risk inputs saved"
+
 #: src/routes/dashboard.tsx
 msgid "Risk pulse"
 msgstr "Risk pulse"
@@ -4092,6 +4172,10 @@ msgstr "Risk pulse"
 #: src/routes/workboard.tsx
 msgid "Risk reflects the latest stored penalty calculation."
 msgstr "Risk reflects the latest stored penalty calculation."
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Risk summary refresh queued"
+msgstr "Risk summary refresh queued"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/members/members-page.tsx
@@ -4242,6 +4326,10 @@ msgstr "Save mapping"
 msgid "Save normalized values"
 msgstr "Save normalized values"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Save risk inputs"
+msgstr "Save risk inputs"
+
 #: src/routes/workboard.tsx
 msgid "Save view"
 msgstr "Save view"
@@ -4289,6 +4377,10 @@ msgstr "Saving normalized values, applying the Default Matrix, and calculating t
 msgid "Saving your confirmed fields and grouping values for review."
 msgstr "Saving your confirmed fields and grouping values for review."
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Saving..."
+msgstr "Saving..."
+
 #: src/routes/firm.tsx
 msgid "Saving…"
 msgstr "Saving…"
@@ -4313,6 +4405,10 @@ msgstr "Scale plan changes require sales support."
 #: src/features/audit/audit-log-labels.ts
 msgid "Scope"
 msgstr "Scope"
+
+#: src/features/priority/SmartPriorityBadge.tsx
+msgid "Score"
+msgstr "Score"
 
 #: src/routes/workboard.tsx
 msgid "Search assignees"
@@ -4536,6 +4632,11 @@ msgstr "Signing out…"
 msgid "Skipped rows"
 msgstr "Skipped rows"
 
+#: src/features/priority/SmartPriorityBadge.tsx
+#: src/routes/workboard.tsx
+msgid "Smart Priority"
+msgstr "Smart Priority"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Snapshot retry queued"
 msgstr "Snapshot retry queued"
@@ -4658,7 +4759,9 @@ msgstr "Sources watched"
 msgid "SSN-like columns blocked"
 msgstr "SSN-like columns blocked"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Stale"
 msgstr "Stale"
 
@@ -5087,6 +5190,10 @@ msgstr "Upgrade to Pro"
 #: src/features/migration/WizardShell.tsx
 msgid "Upload rows"
 msgstr "Upload rows"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Use a whole number from 0 to 99"
+msgstr "Use a whole number from 0 to 99"
 
 #: src/routes/workboard.tsx
 msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."

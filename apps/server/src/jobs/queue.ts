@@ -1,4 +1,6 @@
 import type { Env } from '../env'
+import { consumeAiInsightRefresh } from './ai-insights/consumer'
+import { isAiInsightRefreshMessage } from './ai-insights/message'
 import { generateAuditEvidencePackage } from './audit/package'
 import { consumeDashboardBriefRefresh } from './dashboard-brief/consumer'
 import { isDashboardBriefRefreshMessage } from './dashboard-brief/message'
@@ -25,6 +27,7 @@ export function assertQueueDispatchable(batch: QueueBatchLike): void {
 
 function isDispatchableMessage(body: unknown): boolean {
   return (
+    isAiInsightRefreshMessage(body) ||
     isDashboardBriefRefreshMessage(body) ||
     isPulseExtractMessage(body) ||
     isEmailFlushMessage(body) ||
@@ -60,6 +63,9 @@ export async function queue(batch: MessageBatch, env: Env, _ctx: ExecutionContex
 async function dispatchMessage(message: Message, env: Env): Promise<void> {
   try {
     const body = message.body
+    if (isAiInsightRefreshMessage(body)) {
+      await consumeAiInsightRefresh(body, env)
+    }
     if (isDashboardBriefRefreshMessage(body)) {
       await consumeDashboardBriefRefresh(body, env)
     }

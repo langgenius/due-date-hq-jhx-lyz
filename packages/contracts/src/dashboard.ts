@@ -1,6 +1,7 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { EvidencePublicSchema } from './evidence'
+import { SmartPriorityBreakdownSchema } from './priority'
 import { ExposureStatusSchema, ObligationStatusSchema } from './shared/enums'
 import { EntityIdSchema } from './shared/ids'
 
@@ -107,6 +108,7 @@ export const DashboardTopRowSchema = z.object({
   severity: DashboardSeveritySchema,
   evidenceCount: z.number().int().min(0),
   primaryEvidence: EvidencePublicSchema.nullable(),
+  smartPriority: SmartPriorityBreakdownSchema,
 })
 export type DashboardTopRow = z.infer<typeof DashboardTopRowSchema>
 

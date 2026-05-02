@@ -3,6 +3,7 @@ import * as z from 'zod'
 import { AuditEventPublicSchema } from './audit'
 import { EvidencePublicSchema } from './evidence'
 import { ObligationInstancePublicSchema } from './obligations'
+import { SmartPriorityBreakdownSchema } from './priority'
 import { ClientReadinessRequestPublicSchema } from './readiness'
 import { ExtensionPolicySchema, RuleEvidenceSchema } from './rules'
 import {
@@ -22,7 +23,7 @@ import { EntityIdSchema, TenantIdSchema } from './shared/ids'
  * `(currentDueDate, id)` so the next page query only needs 2 extra params.
  */
 
-export const WorkboardSortSchema = z.enum(['due_asc', 'due_desc', 'updated_desc'])
+export const WorkboardSortSchema = z.enum(['smart_priority', 'due_asc', 'due_desc', 'updated_desc'])
 export type WorkboardSort = z.infer<typeof WorkboardSortSchema>
 export const WorkboardDensitySchema = z.enum(['comfortable', 'compact'])
 export type WorkboardDensity = z.infer<typeof WorkboardDensitySchema>
@@ -61,7 +62,7 @@ export const WorkboardListInputSchema = z.object({
   maxDaysUntilDue: z.number().int().min(-3650).max(3650).optional(),
   needsEvidence: z.boolean().optional(),
   asOfDate: z.iso.date().optional(),
-  sort: WorkboardSortSchema.default('due_asc').optional(),
+  sort: WorkboardSortSchema.default('smart_priority').optional(),
   cursor: z.string().nullable().optional(),
   limit: z.number().int().min(1).max(100).default(50).optional(),
 })
@@ -75,6 +76,7 @@ export const WorkboardRowSchema = ObligationInstancePublicSchema.extend({
   readiness: WorkboardReadinessSchema,
   daysUntilDue: z.number().int(),
   evidenceCount: z.number().int().min(0),
+  smartPriority: SmartPriorityBreakdownSchema,
 })
 export type WorkboardRow = z.infer<typeof WorkboardRowSchema>
 

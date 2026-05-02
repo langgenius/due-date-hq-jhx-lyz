@@ -85,18 +85,19 @@ describe('dashboard aggregation', () => {
       exposureNeedsInputCount: 0,
       exposureUnsupportedCount: 0,
     })
-    expect(result.topRows[0]!.obligationId).toBe('oi_overdue')
-    expect(result.topRows[0]!.severity).toBe('critical')
-    expect(result.topRows[0]!.evidenceCount).toBe(1)
-    expect(result.topRows[1]!.obligationId).toBe('oi_week')
+    expect(result.topRows[0]!.obligationId).toBe('oi_week')
+    expect(result.topRows[0]!.severity).toBe('high')
+    expect(result.topRows[0]!.smartPriority.rank).toBe(1)
+    expect(result.topRows[1]!.obligationId).toBe('oi_overdue')
+    expect(result.topRows[1]!.evidenceCount).toBe(1)
     expect(result.triageTabs.map((tab) => [tab.key, tab.count, tab.totalExposureCents])).toEqual([
       ['this_week', 3, 205_000],
       ['this_month', 1, 0],
       ['long_term', 0, 0],
     ])
     expect(result.triageTabs[0]!.rows.map((row) => row.obligationId)).toEqual([
-      'oi_overdue',
       'oi_week',
+      'oi_overdue',
       'oi_day_7',
     ])
     expect(new Map(result.facets.clients.map((option) => [option.value, option.count]))).toEqual(

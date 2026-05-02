@@ -1,13 +1,24 @@
 export class GuardRejection extends Error {
   constructor(
     message: string,
-    readonly code: 'EIN_HIT_RATE_LOW' | 'SCHEMA_INVALID' | 'SOURCE_EXCERPT_NOT_FOUND',
+    readonly code:
+      | 'EIN_HIT_RATE_LOW'
+      | 'SCHEMA_INVALID'
+      | 'SOURCE_EXCERPT_NOT_FOUND'
+      | 'EMPTY_RETRIEVAL'
+      | 'CITATION_OUT_OF_BOUNDS'
+      | 'UNCITED_SECTION'
+      | 'BANNED_TAX_ADVICE'
+      | 'UNREPLACED_PLACEHOLDER',
   ) {
     super(message)
   }
 }
 
 const EIN_PATTERN = /^\d{2}-\d{7}$/
+const BANNED_TAX_ADVICE_RE =
+  /\b(guaranteed|no penalty will apply|qualifies for relief|you should file|do not file|tax advice|legal advice|safe harbor applies)\b/i
+const PLACEHOLDER_RE = /{{[^}]+}}|<[^>\n]+>/
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -60,6 +71,53 @@ export function verifyPulseSourceExcerpt(input: unknown, output: unknown): void 
     'Pulse extract rejected because source excerpt could not be located in raw text.',
     'SOURCE_EXCERPT_NOT_FOUND',
   )
+}
+
+export function verifyInsightOutput(input: unknown, output: unknown): void {
+  if (!isRecord(input) || !isRecord(output)) return
+  const sources = input.sources
+  const sections = output.sections
+  if (!Array.isArray(sources) || sources.length === 0) {
+    throw new GuardRejection(
+      'Insight rejected because retrieval returned no sources.',
+      'EMPTY_RETRIEVAL',
+    )
+  }
+  if (!Array.isArray(sections)) return
+
+  const sourceRefs = new Set(
+    sources
+      .map((source) => (isRecord(source) ? source.ref : undefined))
+      .filter((ref): ref is number => typeof ref === 'number'),
+  )
+
+  for (const section of sections) {
+    if (!isRecord(section)) continue
+    const label = typeof section.label === 'string' ? section.label : ''
+    const text = typeof section.text === 'string' ? section.text : ''
+    const citationRefs = section.citationRefs
+    if (!Array.isArray(citationRefs) || citationRefs.length === 0) {
+      throw new GuardRejection('Insight rejected because a section is uncited.', 'UNCITED_SECTION')
+    }
+    if (!citationRefs.every((ref) => typeof ref === 'number' && sourceRefs.has(ref))) {
+      throw new GuardRejection(
+        'Insight rejected because a citation ref was not in the retrieval set.',
+        'CITATION_OUT_OF_BOUNDS',
+      )
+    }
+    if (BANNED_TAX_ADVICE_RE.test(label) || BANNED_TAX_ADVICE_RE.test(text)) {
+      throw new GuardRejection(
+        'Insight rejected because it used banned tax-advice language.',
+        'BANNED_TAX_ADVICE',
+      )
+    }
+    if (PLACEHOLDER_RE.test(label) || PLACEHOLDER_RE.test(text)) {
+      throw new GuardRejection(
+        'Insight rejected because a placeholder was not replaced.',
+        'UNREPLACED_PLACEHOLDER',
+      )
+    }
+  }
 }
 
 function normalizeForExcerpt(value: string): string {

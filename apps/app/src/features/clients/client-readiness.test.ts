@@ -20,6 +20,8 @@ function makeClient(overrides: Partial<ClientPublic> = {}): ClientPublic {
     notes: null,
     assigneeId: 'user_casey',
     assigneeName: 'Casey',
+    importanceWeight: 2,
+    lateFilingCountLast12mo: 0,
     estimatedTaxLiabilityCents: null,
     estimatedTaxLiabilitySource: null,
     equityOwnerCount: null,

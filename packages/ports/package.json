@@ -9,6 +9,7 @@
   },
   "exports": {
     "./ai": "./src/ai.ts",
+    "./ai-insights": "./src/ai-insights.ts",
     "./audit": "./src/audit.ts",
     "./clients": "./src/clients.ts",
     "./dashboard": "./src/dashboard.ts",
@@ -16,6 +17,7 @@
     "./migration": "./src/migration.ts",
     "./notifications": "./src/notifications.ts",
     "./obligations": "./src/obligations.ts",
+    "./priority": "./src/priority.ts",
     "./pulse": "./src/pulse.ts",
     "./readiness": "./src/readiness.ts",
     "./scoped": "./src/scoped.ts",

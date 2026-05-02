@@ -70,7 +70,7 @@ export type AuditActionCategory =
   | 'ai'
   | 'system'
 
-export type WorkboardSort = 'due_asc' | 'due_desc' | 'updated_desc'
+export type WorkboardSort = 'smart_priority' | 'due_asc' | 'due_desc' | 'updated_desc'
 export type WorkboardOwnerFilter = 'unassigned'
 export type WorkboardDueFilter = 'overdue'
 export type WorkboardReadiness = ObligationReadiness

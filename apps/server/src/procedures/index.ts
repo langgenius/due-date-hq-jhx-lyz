@@ -49,6 +49,9 @@ export const router = os.router({
     get: clientsHandlers.get,
     listByFirm: clientsHandlers.listByFirm,
     updatePenaltyInputs: clientsHandlers.updatePenaltyInputs,
+    updateRiskProfile: clientsHandlers.updateRiskProfile,
+    getRiskSummary: clientsHandlers.getRiskSummary,
+    requestRiskSummaryRefresh: clientsHandlers.requestRiskSummaryRefresh,
     bulkUpdateAssignee: clientsHandlers.bulkUpdateAssignee,
   },
   obligations: {
@@ -60,6 +63,8 @@ export const router = os.router({
     decideExtension: obligationsHandlers.decideExtension,
     bulkUpdateReadiness: obligationsHandlers.bulkUpdateReadiness,
     listByClient: obligationsHandlers.listByClient,
+    getDeadlineTip: obligationsHandlers.getDeadlineTip,
+    requestDeadlineTipRefresh: obligationsHandlers.requestDeadlineTipRefresh,
   },
   dashboard: {
     load: dashboardHandlers.load,

@@ -4,6 +4,8 @@ import type { MembersRepo } from '@duedatehq/ports/tenants'
 import { requireTenant } from '../_context'
 import { CLIENT_WRITE_ROLES, requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
+import { dateInTimezone, toAiInsightPublic } from '../_ai-insights'
+import { enqueueAiInsightRefresh } from '../../jobs/ai-insights/enqueue'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { recalculateClientExposure } from '../_penalty-exposure'
 import { toClientPublic, type ClientCreateInputForRepo, type ClientRow } from './_serializers'
@@ -107,6 +109,8 @@ const create = os.clients.create.handler(async ({ input, context }) => {
     notes: input.notes ?? null,
     assigneeId: assignee?.assigneeId ?? null,
     assigneeName: assignee?.assigneeName ?? null,
+    importanceWeight: input.importanceWeight ?? 2,
+    lateFilingCountLast12mo: input.lateFilingCountLast12mo ?? 0,
     estimatedTaxLiabilityCents: input.estimatedTaxLiabilityCents ?? null,
     estimatedTaxLiabilitySource: input.estimatedTaxLiabilitySource ?? null,
     equityOwnerCount: input.equityOwnerCount ?? null,
@@ -146,6 +150,8 @@ const createBatch = os.clients.createBatch.handler(async ({ input, context }) =>
     notes: c.notes ?? null,
     assigneeId: assignees[index]?.assigneeId ?? null,
     assigneeName: assignees[index]?.assigneeName ?? null,
+    importanceWeight: c.importanceWeight ?? 2,
+    lateFilingCountLast12mo: c.lateFilingCountLast12mo ?? 0,
     estimatedTaxLiabilityCents: c.estimatedTaxLiabilityCents ?? null,
     estimatedTaxLiabilitySource: c.estimatedTaxLiabilitySource ?? null,
     equityOwnerCount: c.equityOwnerCount ?? null,
@@ -258,6 +264,143 @@ const updatePenaltyInputs = os.clients.updatePenaltyInputs.handler(async ({ inpu
   }
 })
 
+const updateRiskProfile = os.clients.updateRiskProfile.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
+  const { scoped, tenant, userId } = requireTenant(context)
+  const before = await scoped.clients.findById(input.id)
+  if (!before) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Client ${input.id} not found in current firm.`,
+    })
+  }
+
+  await scoped.clients.updateRiskProfile(input.id, {
+    ...(input.importanceWeight !== undefined ? { importanceWeight: input.importanceWeight } : {}),
+    ...(input.lateFilingCountLast12mo !== undefined
+      ? { lateFilingCountLast12mo: input.lateFilingCountLast12mo }
+      : {}),
+  })
+  const after = await scoped.clients.findById(input.id)
+  if (!after) {
+    throw new ORPCError('INTERNAL_SERVER_ERROR', {
+      message: 'Updated client could not be re-read.',
+    })
+  }
+
+  const { id: auditId } = await scoped.audit.write({
+    actorId: userId,
+    entityType: 'client',
+    entityId: input.id,
+    action: 'client.risk_profile.updated',
+    before: {
+      importanceWeight: before.importanceWeight,
+      lateFilingCountLast12mo: before.lateFilingCountLast12mo,
+    },
+    after: {
+      importanceWeight: after.importanceWeight,
+      lateFilingCountLast12mo: after.lateFilingCountLast12mo,
+    },
+    ...(input.reason !== undefined ? { reason: input.reason } : {}),
+  })
+
+  await Promise.all([
+    enqueueDashboardBriefRefresh(context.env, {
+      firmId: tenant.firmId,
+      reason: 'client_facts_change',
+    }).catch(() => false),
+    enqueueAiInsightRefresh(context.env, {
+      firmId: tenant.firmId,
+      kind: 'client_risk_summary',
+      subjectId: input.id,
+      reason: 'client_risk_profile_update',
+    }).catch(() => false),
+  ])
+
+  return {
+    client: toClientPublic(after),
+    auditId,
+  }
+})
+
+function clientRiskFallback(clientId: string) {
+  return [
+    {
+      key: 'risk',
+      label: 'Risk',
+      text: 'Cached risk summary is pending. Review the deterministic risk inputs and open deadlines meanwhile.',
+      citationRefs: [],
+    },
+    {
+      key: 'drivers',
+      label: 'Drivers',
+      text: 'Smart Priority uses exposure, urgency, client importance, late filing history, and readiness signals.',
+      citationRefs: [],
+    },
+    {
+      key: 'next_step',
+      label: 'Next step',
+      text: `Request a refresh after updating risk inputs for client ${clientId}.`,
+      citationRefs: [],
+    },
+  ]
+}
+
+const getRiskSummary = os.clients.getRiskSummary.handler(async ({ input, context }) => {
+  const { scoped, tenant } = requireTenant(context)
+  const client = await scoped.clients.findById(input.clientId)
+  if (!client) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Client ${input.clientId} not found in current firm.`,
+    })
+  }
+  const asOfDate = dateInTimezone(tenant.timezone)
+  const insight = await scoped.aiInsights.findLatest({
+    kind: 'client_risk_summary',
+    subjectType: 'client',
+    subjectId: input.clientId,
+    asOfDate,
+  })
+  return toAiInsightPublic(insight, {
+    kind: 'client_risk_summary',
+    subjectId: input.clientId,
+    sections: clientRiskFallback(input.clientId),
+  })
+})
+
+const requestRiskSummaryRefresh = os.clients.requestRiskSummaryRefresh.handler(
+  async ({ input, context }) => {
+    const { scoped, tenant } = requireTenant(context)
+    const client = await scoped.clients.findById(input.clientId)
+    if (!client) {
+      throw new ORPCError('NOT_FOUND', {
+        message: `Client ${input.clientId} not found in current firm.`,
+      })
+    }
+    const asOfDate = dateInTimezone(tenant.timezone)
+    const queued = await enqueueAiInsightRefresh(context.env, {
+      firmId: tenant.firmId,
+      kind: 'client_risk_summary',
+      subjectId: input.clientId,
+      asOfDate,
+      reason: 'manual_refresh',
+    })
+    const insight = await scoped.aiInsights.findLatest({
+      kind: 'client_risk_summary',
+      subjectType: 'client',
+      subjectId: input.clientId,
+      asOfDate,
+    })
+    return {
+      queued,
+      insight: toAiInsightPublic(insight, {
+        kind: 'client_risk_summary',
+        subjectId: input.clientId,
+        sections: clientRiskFallback(input.clientId),
+      }),
+    }
+  },
+)
+
 const bulkUpdateAssignee = os.clients.bulkUpdateAssignee.handler(async ({ input, context }) => {
   const { members, tenant, userId } = await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
   const { scoped } = requireTenant(context)
@@ -313,5 +456,8 @@ export const clientsHandlers = {
   get,
   listByFirm,
   updatePenaltyInputs,
+  updateRiskProfile,
+  getRiskSummary,
+  requestRiskSummaryRefresh,
   bulkUpdateAssignee,
 }

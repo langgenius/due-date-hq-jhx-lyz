@@ -54,6 +54,11 @@ export const client = sqliteTable(
     assigneeId: text('assignee_id'),
     assigneeName: text('assignee_name'),
 
+    // Smart Priority inputs. Defaults preserve existing tenant behavior while
+    // letting firms explicitly mark high-touch clients and recent late filers.
+    importanceWeight: integer('importance_weight').notNull().default(2),
+    lateFilingCountLast12mo: integer('late_filing_count_last_12mo').notNull().default(0),
+
     // Penalty/exposure inputs. Values come from explicit user input, fixture
     // seed, or migration mapping only; AI never invents dollar amounts.
     estimatedTaxLiabilityCents: integer('estimated_tax_liability_cents'),

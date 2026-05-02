@@ -15,6 +15,8 @@ import type {
   ExposureStatus,
 } from '@duedatehq/ports/shared'
 import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
+import { rankSmartPriorities } from '@duedatehq/core/priority'
+import type { SmartPriorityBreakdown } from '@duedatehq/ports/priority'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
@@ -91,12 +93,15 @@ export interface DashboardRawRow {
   estimatedExposureCents: number | null
   exposureStatus: ExposureStatus
   penaltyFormulaVersion: string | null
+  importanceWeight?: number
+  lateFilingCountLast12mo?: number
 }
 
 export interface DashboardTopRow extends DashboardRawRow {
   severity: DashboardSeverity
   evidenceCount: number
   primaryEvidence: DashboardEvidenceRow | null
+  smartPriority: SmartPriorityBreakdown
 }
 
 export interface DashboardTriageTab {
@@ -146,13 +151,6 @@ export function severityForDueDate(
   if (days <= 7) return 'high'
   if (status === 'review' || days <= 14) return 'medium'
   return 'neutral'
-}
-
-function severityRank(severity: DashboardSeverity): number {
-  if (severity === 'critical') return 0
-  if (severity === 'high') return 1
-  if (severity === 'medium') return 2
-  return 3
 }
 
 function triageKeyForDays(days: number): DashboardTriageTabKey | null {
@@ -319,7 +317,7 @@ export function composeDashboardLoad(
   let exposureNeedsInputCount = 0
   let exposureUnsupportedCount = 0
   const asOf = parseDateOnly(input.asOfDate).getTime()
-  const topRows: DashboardTopRow[] = []
+  const topRowDrafts: Array<Omit<DashboardTopRow, 'smartPriority'>> = []
 
   for (const row of rows) {
     const days = daysUntilDueFromDate(row.currentDueDate, input.asOfDate)
@@ -337,7 +335,7 @@ export function composeDashboardLoad(
       exposureUnsupportedCount += 1
     }
 
-    topRows.push({
+    topRowDrafts.push({
       ...row,
       severity: severityForDueDate(row.currentDueDate, input.asOfDate, row.status),
       evidenceCount: evidence.length,
@@ -345,15 +343,19 @@ export function composeDashboardLoad(
     })
   }
 
-  topRows.sort((a, b) => {
-    const severityDelta = severityRank(a.severity) - severityRank(b.severity)
-    if (severityDelta !== 0) return severityDelta
-    const exposureDelta = (b.estimatedExposureCents ?? 0) - (a.estimatedExposureCents ?? 0)
-    if (exposureDelta !== 0) return exposureDelta
-    const dateDelta = a.currentDueDate.getTime() - b.currentDueDate.getTime()
-    if (dateDelta !== 0) return dateDelta
-    return a.obligationId.localeCompare(b.obligationId)
-  })
+  const topRows: DashboardTopRow[] = rankSmartPriorities(
+    topRowDrafts.map((row) =>
+      Object.assign({}, row, {
+        asOfDate: input.asOfDate,
+        importanceWeight: row.importanceWeight ?? 2,
+        lateFilingCountLast12mo: row.lateFilingCountLast12mo ?? 0,
+      }),
+    ),
+  ).map(({ row, smartPriority }) =>
+    Object.assign({}, row, {
+      smartPriority,
+    }),
+  )
 
   const filteredRows = topRows.filter((row) => matchesDashboardFilters(row, input, asOf))
   const facets = composeDashboardFacets(topRows, asOf)
@@ -555,6 +557,8 @@ export function makeDashboardRepo(db: Db, firmId: string) {
           estimatedExposureCents: obligationInstance.estimatedExposureCents,
           exposureStatus: obligationInstance.exposureStatus,
           penaltyFormulaVersion: obligationInstance.penaltyFormulaVersion,
+          importanceWeight: client.importanceWeight,
+          lateFilingCountLast12mo: client.lateFilingCountLast12mo,
         })
         .from(obligationInstance)
         .innerJoin(client, eq(obligationInstance.clientId, client.id))

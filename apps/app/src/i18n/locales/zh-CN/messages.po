@@ -995,6 +995,10 @@ msgstr "客户邮件草稿已复制"
 msgid "Client facts"
 msgstr "客户事实"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Client facts, risk inputs, and cached AI summary."
+msgstr ""
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT ID"
 msgstr "客户 ID"
@@ -1008,6 +1012,10 @@ msgid "Client import undone"
 msgstr "客户导入已撤销"
 
 #: src/features/clients/CreateClientDialog.tsx
+msgid "Client importance"
+msgstr ""
+
+#: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
 msgid "Client name"
 msgstr "客户名称"
@@ -1015,6 +1023,10 @@ msgstr "客户名称"
 #: src/features/notifications/notifications-page.tsx
 msgid "Client reminder"
 msgstr "客户提醒"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Client Risk Summary"
+msgstr ""
 
 #: src/routes/workboard.tsx
 msgid "Client-facing detail"
@@ -1267,6 +1279,14 @@ msgstr "无法加载该提醒"
 msgid "Couldn't parse the input"
 msgstr "无法解析输入内容"
 
+#: src/routes/workboard.tsx
+msgid "Couldn't queue deadline tip"
+msgstr ""
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't queue risk summary"
+msgstr ""
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't reactivate alert"
 msgstr "无法重新激活提醒"
@@ -1286,6 +1306,10 @@ msgstr "保存字段映射失败"
 #: src/routes/workboard.tsx
 msgid "Couldn't save penalty inputs"
 msgstr "无法保存 penalty 输入"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't save risk inputs"
+msgstr ""
 
 #: src/routes/workboard.tsx
 msgid "Couldn't save view"
@@ -1479,6 +1503,14 @@ msgstr "截止日状态已更改"
 #: src/features/audit/audit-log-labels.ts
 msgid "Deadline status changed from {previous} to {next}"
 msgstr "截止日状态从 {previous} 变更为 {next}"
+
+#: src/routes/workboard.tsx
+msgid "Deadline Tip"
+msgstr ""
+
+#: src/routes/workboard.tsx
+msgid "Deadline tip refresh queued"
+msgstr ""
 
 #: src/features/audit/audit-log-labels.ts
 msgid "deadlines"
@@ -1846,6 +1878,8 @@ msgid "Fact readiness"
 msgstr "事实就绪度"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/workboard.tsx
 msgid "Failed"
 msgstr "失败"
 
@@ -2021,6 +2055,11 @@ msgstr "健康"
 msgid "high"
 msgstr "高"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
+msgid "High"
+msgstr ""
+
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
 msgstr "我正在从…迁移过来（可选）"
@@ -2102,6 +2141,10 @@ msgstr "导入已回滚"
 #: src/features/migration/Wizard.tsx
 msgid "Import undone"
 msgstr "导入已撤销"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Importance"
+msgstr ""
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Imported"
@@ -2234,6 +2277,11 @@ msgstr "最近 7 天"
 msgid "Last success {0} · next check {1} · failures {2}"
 msgstr "上次成功 {0} · 下次检查 {1} · 失败 {2}"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Late filings, 12mo"
+msgstr ""
+
 #: src/routes/workboard.tsx
 msgid "Latest request"
 msgstr "最新请求"
@@ -2273,6 +2321,10 @@ msgstr "加载更多"
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Loading alerts…"
 msgstr "正在加载提醒…"
+
+#: src/routes/workboard.tsx
+msgid "Loading deadline tip…"
+msgstr ""
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Loading failed snapshots…"
@@ -2346,6 +2398,11 @@ msgstr "已写入审计日志"
 #: src/routes/dashboard.tsx
 msgid "Long-term"
 msgstr "长期"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Low"
+msgstr ""
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Low AI confidence"
@@ -2449,6 +2506,11 @@ msgstr "可能受影响。"
 #: src/routes/dashboard.tsx
 msgid "medium"
 msgstr "中"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/clients/CreateClientDialog.tsx
+msgid "Medium"
+msgstr ""
 
 #: src/routes/billing.tsx
 msgid "Member"
@@ -3369,7 +3431,9 @@ msgid "Penalty readiness is computed from the confirmed tax type plus any estima
 msgstr "Penalty readiness 会根据已确认的税种，以及 Step 2 映射出的预计应纳税额和所有者数量列计算。"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/members/members-page.tsx
+#: src/routes/workboard.tsx
 msgid "Pending"
 msgstr "待处理"
 
@@ -3427,6 +3491,7 @@ msgstr "请至少输入 2 个字符。"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/migration/Wizard.tsx
 #: src/features/notifications/notifications-page.tsx
@@ -3570,6 +3635,11 @@ msgstr "上一组年份"
 msgid "Primary navigation"
 msgstr "主导航"
 
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "Priority"
+msgstr ""
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Priority onboarding"
@@ -3712,7 +3782,9 @@ msgstr "已隔离"
 msgid "Queue controls"
 msgstr "队列控制"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Queued"
 msgstr "已入队"
 
@@ -3760,10 +3832,6 @@ msgstr "读取字段值"
 msgid "READ-ONLY"
 msgstr "只读"
 
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Read-only v1 profile from practice client data."
-msgstr "来自事务所客户数据的只读 v1 资料。"
-
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Read-only view"
 msgstr "只读视图"
@@ -3802,9 +3870,11 @@ msgstr "就绪度已更新"
 msgid "Reading file…"
 msgstr "正在读取文件…"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/workboard/status-control.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/readiness.tsx
+#: src/routes/workboard.tsx
 msgid "Ready"
 msgstr "已就绪"
 
@@ -3849,9 +3919,11 @@ msgstr "恢复误导入的批次。单个客户资料请在“客户”中编辑
 msgid "Redirecting to Google…"
 msgstr "正在跳转到 Google…"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/features/workload/workload-page.tsx
+#: src/routes/workboard.tsx
 msgid "Refresh"
 msgstr "刷新"
 
@@ -4085,6 +4157,14 @@ msgstr "已撤销"
 msgid "Risk"
 msgstr "风险"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Risk inputs"
+msgstr ""
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Risk inputs saved"
+msgstr ""
+
 #: src/routes/dashboard.tsx
 msgid "Risk pulse"
 msgstr "风险脉动"
@@ -4092,6 +4172,10 @@ msgstr "风险脉动"
 #: src/routes/workboard.tsx
 msgid "Risk reflects the latest stored penalty calculation."
 msgstr "风险反映最近一次已保存的罚金计算。"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Risk summary refresh queued"
+msgstr ""
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/members/members-page.tsx
@@ -4242,6 +4326,10 @@ msgstr "保存字段映射"
 msgid "Save normalized values"
 msgstr "保存规范化值"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Save risk inputs"
+msgstr ""
+
 #: src/routes/workboard.tsx
 msgid "Save view"
 msgstr "保存视图"
@@ -4289,6 +4377,10 @@ msgstr "正在保存规范化值、应用默认矩阵并计算汇总。"
 msgid "Saving your confirmed fields and grouping values for review."
 msgstr "正在保存已确认字段，并将值分组以供复核。"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Saving..."
+msgstr ""
+
 #: src/routes/firm.tsx
 msgid "Saving…"
 msgstr "正在保存…"
@@ -4313,6 +4405,10 @@ msgstr "Scale 计划变更需要销售支持。"
 #: src/features/audit/audit-log-labels.ts
 msgid "Scope"
 msgstr "范围"
+
+#: src/features/priority/SmartPriorityBadge.tsx
+msgid "Score"
+msgstr ""
 
 #: src/routes/workboard.tsx
 msgid "Search assignees"
@@ -4536,6 +4632,11 @@ msgstr "正在退出…"
 msgid "Skipped rows"
 msgstr "已跳过行"
 
+#: src/features/priority/SmartPriorityBadge.tsx
+#: src/routes/workboard.tsx
+msgid "Smart Priority"
+msgstr ""
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Snapshot retry queued"
 msgstr "快照重试已入队"
@@ -4658,7 +4759,9 @@ msgstr "监听中的来源"
 msgid "SSN-like columns blocked"
 msgstr "已拦截疑似 SSN 列"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Stale"
 msgstr "已过期"
 
@@ -5087,6 +5190,10 @@ msgstr "升级到 Pro"
 #: src/features/migration/WizardShell.tsx
 msgid "Upload rows"
 msgstr "上传行数据"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Use a whole number from 0 to 99"
+msgstr ""
 
 #: src/routes/workboard.tsx
 msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."

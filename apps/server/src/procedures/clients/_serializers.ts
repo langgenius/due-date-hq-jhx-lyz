@@ -28,6 +28,8 @@ export interface ClientRow {
   notes: string | null
   assigneeId: string | null
   assigneeName: string | null
+  importanceWeight: number
+  lateFilingCountLast12mo: number
   estimatedTaxLiabilityCents: number | null
   estimatedTaxLiabilitySource: 'manual' | 'imported' | 'demo_seed' | null
   equityOwnerCount: number | null
@@ -48,6 +50,8 @@ export interface ClientCreateInputForRepo {
   notes?: string | null
   assigneeId?: string | null
   assigneeName?: string | null
+  importanceWeight?: number
+  lateFilingCountLast12mo?: number
   estimatedTaxLiabilityCents?: number | null
   estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
   equityOwnerCount?: number | null
@@ -67,6 +71,8 @@ export function toClientPublic(row: ClientRow, opts: { hideDollars?: boolean } =
     notes: row.notes,
     assigneeId: row.assigneeId,
     assigneeName: row.assigneeName,
+    importanceWeight: row.importanceWeight,
+    lateFilingCountLast12mo: row.lateFilingCountLast12mo,
     estimatedTaxLiabilityCents: opts.hideDollars ? null : row.estimatedTaxLiabilityCents,
     estimatedTaxLiabilitySource: opts.hideDollars ? null : row.estimatedTaxLiabilitySource,
     equityOwnerCount: row.equityOwnerCount,

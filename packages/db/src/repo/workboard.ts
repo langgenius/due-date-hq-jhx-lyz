@@ -1,5 +1,7 @@
 import { and, asc, desc, eq, gte, inArray, isNull, lte, or, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
+import { compareSmartPriority, rankSmartPriorities } from '@duedatehq/core/priority'
+import type { SmartPriorityBreakdown } from '@duedatehq/ports/priority'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
@@ -26,7 +28,7 @@ import { listActiveOverlayDueDates } from './overlay'
  * Demo Sprint (limit caps at 100 per request).
  */
 
-export type WorkboardSort = 'due_asc' | 'due_desc' | 'updated_desc'
+export type WorkboardSort = 'smart_priority' | 'due_asc' | 'due_desc' | 'updated_desc'
 export type WorkboardReadiness = ObligationReadiness
 
 export interface WorkboardListInput {
@@ -85,6 +87,7 @@ export interface WorkboardListRow {
   assigneeName: string | null
   daysUntilDue: number
   evidenceCount: number
+  smartPriority: SmartPriorityBreakdown
 }
 
 export interface WorkboardListResult {
@@ -175,6 +178,8 @@ interface WorkboardRawJoinedRow {
   clientState: string | null
   clientCounty: string | null
   assigneeName: string | null
+  importanceWeight: number
+  lateFilingCountLast12mo: number
 }
 
 const DEFAULT_LIMIT = 50
@@ -222,19 +227,32 @@ function addDays(date: Date, days: number): Date {
   return new Date(date.getTime() + days * DAY_MS)
 }
 
-function encodeCursor(row: { currentDueDate: Date; id: string }): string {
+function encodeCursor(
+  row: Pick<WorkboardListRow, 'currentDueDate' | 'id' | 'smartPriority'>,
+): string {
   const iso = row.currentDueDate.toISOString()
-  return Buffer.from(`${iso}|${row.id}`, 'utf8').toString('base64url')
+  return Buffer.from(`${row.smartPriority.score}|${iso}|${row.id}`, 'utf8').toString('base64url')
 }
 
-function decodeCursor(cursor: string): { currentDueDate: Date; id: string } | null {
+function decodeCursor(cursor: string): {
+  currentDueDate: Date
+  id: string
+  smartPriorityScore: number | null
+} | null {
   try {
     const raw = Buffer.from(cursor, 'base64url').toString('utf8')
-    const [iso, id] = raw.split('|')
+    const parts = raw.split('|')
+    const [scoreValue, iso, id] =
+      parts.length === 3 ? parts : [null, parts[0] ?? '', parts[1] ?? '']
     if (!iso || !id) return null
     const d = new Date(iso)
     if (Number.isNaN(d.getTime())) return null
-    return { currentDueDate: d, id }
+    const score = scoreValue === null ? Number.NaN : Number(scoreValue)
+    return {
+      currentDueDate: d,
+      id,
+      smartPriorityScore: Number.isFinite(score) ? score : null,
+    }
   } catch {
     return null
   }
@@ -298,6 +316,12 @@ function compareFacetLabels(
 }
 
 function compareRows(a: WorkboardListRow, b: WorkboardListRow, sort: WorkboardSort): number {
+  if (sort === 'smart_priority') {
+    return compareSmartPriority(
+      { obligationId: a.id, currentDueDate: a.currentDueDate, smartPriority: a.smartPriority },
+      { obligationId: b.id, currentDueDate: b.currentDueDate, smartPriority: b.smartPriority },
+    )
+  }
   if (sort === 'updated_desc') {
     const updatedDelta = b.updatedAt.getTime() - a.updatedAt.getTime()
     if (updatedDelta !== 0) return updatedDelta
@@ -312,9 +336,26 @@ function compareRows(a: WorkboardListRow, b: WorkboardListRow, sort: WorkboardSo
 function isAfterCursor(
   row: WorkboardListRow,
   sort: WorkboardSort,
-  cursor: { currentDueDate: Date; id: string },
+  cursor: { currentDueDate: Date; id: string; smartPriorityScore: number | null },
 ): boolean {
   if (sort === 'updated_desc') return true
+  if (sort === 'smart_priority') {
+    if (cursor.smartPriorityScore === null) return true
+    return (
+      compareSmartPriority(
+        {
+          obligationId: row.id,
+          currentDueDate: row.currentDueDate,
+          smartPriority: row.smartPriority,
+        },
+        {
+          obligationId: cursor.id,
+          currentDueDate: cursor.currentDueDate,
+          smartPriority: { score: cursor.smartPriorityScore },
+        },
+      ) > 0
+    )
+  }
   const dateDelta = row.currentDueDate.getTime() - cursor.currentDueDate.getTime()
   if (sort === 'due_desc') return dateDelta < 0 || (dateDelta === 0 && row.id < cursor.id)
   return dateDelta > 0 || (dateDelta === 0 && row.id > cursor.id)
@@ -358,7 +399,8 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
     )
     const evidenceCounts = await listEvidenceCounts(rawRows.map((row) => row.id))
     const asOfDate = getAsOfDate(input)
-    return rawRows.map((row): WorkboardListRow => {
+    const asOfDateOnly = asOfDate.toISOString().slice(0, 10)
+    const rowDrafts = rawRows.map((row) => {
       const currentDueDate = overlayDueDates.get(row.id) ?? row.currentDueDate
       return Object.assign({}, row, {
         currentDueDate,
@@ -368,13 +410,31 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         daysUntilDue: daysUntilDue(currentDueDate, asOfDate),
       })
     })
+    const priorityById = new Map(
+      rankSmartPriorities(
+        rowDrafts.map((row) => ({
+          ...row,
+          obligationId: row.id,
+          asOfDate: asOfDateOnly,
+          importanceWeight: row.importanceWeight ?? 2,
+          lateFilingCountLast12mo: row.lateFilingCountLast12mo ?? 0,
+        })),
+      ).map(({ row, smartPriority }) => [row.id, smartPriority]),
+    )
+
+    return rowDrafts.map(
+      (row): WorkboardListRow =>
+        Object.assign({}, row, {
+          smartPriority: priorityById.get(row.id)!,
+        }),
+    )
   }
 
   return {
     firmId,
 
     async list(input: WorkboardListInput = {}): Promise<WorkboardListResult> {
-      const sort: WorkboardSort = input.sort ?? 'due_asc'
+      const sort: WorkboardSort = input.sort ?? 'smart_priority'
       const limit = Math.min(Math.max(input.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT)
 
       const filters: SQL[] = [eq(obligationInstance.firmId, firmId)]
@@ -473,6 +533,8 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           clientState: client.state,
           clientCounty: client.county,
           assigneeName: client.assigneeName,
+          importanceWeight: client.importanceWeight,
+          lateFilingCountLast12mo: client.lateFilingCountLast12mo,
         })
         .from(obligationInstance)
         .innerJoin(client, eq(obligationInstance.clientId, client.id))
@@ -498,9 +560,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
       const pageRows = hasMore ? rows.slice(0, limit) : rows
       const lastRow = pageRows[pageRows.length - 1]
       const nextCursor =
-        hasMore && lastRow && sort !== 'updated_desc'
-          ? encodeCursor({ currentDueDate: lastRow.currentDueDate, id: lastRow.id })
-          : null
+        hasMore && lastRow && sort !== 'updated_desc' ? encodeCursor(lastRow) : null
 
       return {
         rows: pageRows,
@@ -549,6 +609,8 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
               clientState: client.state,
               clientCounty: client.county,
               assigneeName: client.assigneeName,
+              importanceWeight: client.importanceWeight,
+              lateFilingCountLast12mo: client.lateFilingCountLast12mo,
             })
             .from(obligationInstance)
             .innerJoin(client, eq(obligationInstance.clientId, client.id))

@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   flexRender,
   getCoreRowModel,
@@ -22,10 +23,14 @@ import {
   FileSearchIcon,
   MapPinnedIcon,
   PanelRightOpenIcon,
+  RefreshCwIcon,
+  ShieldAlertIcon,
+  SparklesIcon,
   UsersRoundIcon,
 } from 'lucide-react'
+import { toast } from 'sonner'
 
-import type { ClientPublic } from '@duedatehq/contracts'
+import type { AiInsightPublic, ClientPublic } from '@duedatehq/contracts'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -35,6 +40,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
+import { Field, FieldError, FieldLabel } from '@duedatehq/ui/components/ui/field'
+import { Input } from '@duedatehq/ui/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@duedatehq/ui/components/ui/select'
 import {
   Sheet,
   SheetContent,
@@ -57,6 +72,8 @@ import {
   type TableFilterOption,
 } from '@/components/patterns/table-header-filter'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
+import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
 
 import {
   CLIENT_ENTITY_TYPES,
@@ -701,6 +718,43 @@ function ClientProfileSheet({
   entityLabels: Record<ClientEntityType, string>
   readiness: ClientReadiness | undefined
 }) {
+  const { t } = useLingui()
+  const queryClient = useQueryClient()
+  const insightClientId = client?.id ?? '00000000-0000-4000-8000-000000000000'
+  const riskSummaryQuery = useQuery({
+    ...orpc.clients.getRiskSummary.queryOptions({ input: { clientId: insightClientId } }),
+    enabled: Boolean(client),
+  })
+  const updateRiskProfileMutation = useMutation(
+    orpc.clients.updateRiskProfile.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.clients.getRiskSummary.key() })
+        toast.success(t`Risk inputs saved`, { description: result.client.name })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't save risk inputs`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const requestRiskSummaryMutation = useMutation(
+    orpc.clients.requestRiskSummaryRefresh.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries({ queryKey: orpc.clients.getRiskSummary.key() })
+        toast.success(t`Risk summary refresh queued`)
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't queue risk summary`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -712,7 +766,7 @@ function ClientProfileSheet({
             <Trans>Fact profile</Trans>
           </SheetTitle>
           <SheetDescription>
-            <Trans>Read-only v1 profile from practice client data.</Trans>
+            <Trans>Client facts, risk inputs, and cached AI summary.</Trans>
           </SheetDescription>
         </SheetHeader>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">
@@ -753,6 +807,24 @@ function ClientProfileSheet({
                 />
               </div>
 
+              <ClientRiskInputsPanel
+                key={client.id}
+                client={client}
+                isSaving={updateRiskProfileMutation.isPending}
+                onSave={(input) => updateRiskProfileMutation.mutate(input)}
+              />
+
+              <ClientRiskSummaryPanel
+                insight={riskSummaryQuery.data ?? null}
+                isLoading={riskSummaryQuery.isLoading}
+                isRefreshing={requestRiskSummaryMutation.isPending}
+                onRefresh={() =>
+                  requestRiskSummaryMutation.mutate({
+                    clientId: client.id,
+                  })
+                }
+              />
+
               <ClientFactChecklist client={client} readiness={readiness} />
 
               <div className="rounded-md border border-divider-regular bg-background-section p-3">
@@ -772,6 +844,238 @@ function ClientProfileSheet({
         </div>
       </SheetContent>
     </Sheet>
+  )
+}
+
+function importanceLabel(value: number): ReactNode {
+  if (value === 3) return <Trans>High</Trans>
+  if (value === 1) return <Trans>Low</Trans>
+  return <Trans>Medium</Trans>
+}
+
+function importanceSelectValue(value: number): '1' | '2' | '3' {
+  if (value === 1) return '1'
+  if (value === 3) return '3'
+  return '2'
+}
+
+function ClientRiskInputsPanel({
+  client,
+  isSaving,
+  onSave,
+}: {
+  client: ClientPublic
+  isSaving: boolean
+  onSave: (input: { id: string; importanceWeight: number; lateFilingCountLast12mo: number }) => void
+}) {
+  const { t } = useLingui()
+  const [importanceWeight, setImportanceWeight] = useState<'1' | '2' | '3'>(
+    importanceSelectValue(client.importanceWeight),
+  )
+  const [lateFilingCount, setLateFilingCount] = useState(String(client.lateFilingCountLast12mo))
+  const lateFilingNumber = Number(lateFilingCount)
+  const lateFilingInvalid =
+    !/^\d+$/.test(lateFilingCount.trim()) || lateFilingNumber < 0 || lateFilingNumber > 99
+  const hasChanges =
+    Number(importanceWeight) !== client.importanceWeight ||
+    lateFilingNumber !== client.lateFilingCountLast12mo
+
+  return (
+    <div className="grid gap-3 rounded-md border border-divider-regular p-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+          <Trans>Risk inputs</Trans>
+        </span>
+        <ShieldAlertIcon className="size-4 text-text-tertiary" aria-hidden />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field>
+          <FieldLabel>
+            <Trans>Importance</Trans>
+          </FieldLabel>
+          <Select
+            value={importanceWeight}
+            onValueChange={(value) => {
+              if (value === '1' || value === '2' || value === '3') setImportanceWeight(value)
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue>{importanceLabel(Number(importanceWeight))}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="1">
+                  <Trans>Low</Trans>
+                </SelectItem>
+                <SelectItem value="2">
+                  <Trans>Medium</Trans>
+                </SelectItem>
+                <SelectItem value="3">
+                  <Trans>High</Trans>
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="risk-late-filing-count">
+            <Trans>Late filings, 12mo</Trans>
+          </FieldLabel>
+          <Input
+            id="risk-late-filing-count"
+            type="number"
+            min={0}
+            max={99}
+            className="font-mono tabular-nums"
+            value={lateFilingCount}
+            aria-invalid={lateFilingInvalid}
+            onChange={(event) => setLateFilingCount(event.target.value)}
+          />
+          {lateFilingInvalid ? <FieldError>{t`Use a whole number from 0 to 99`}</FieldError> : null}
+        </Field>
+      </div>
+      <Button
+        type="button"
+        size="sm"
+        disabled={!hasChanges || lateFilingInvalid || isSaving}
+        onClick={() =>
+          onSave({
+            id: client.id,
+            importanceWeight: Number(importanceWeight),
+            lateFilingCountLast12mo: lateFilingNumber,
+          })
+        }
+      >
+        {isSaving ? t`Saving...` : t`Save risk inputs`}
+      </Button>
+    </div>
+  )
+}
+
+function ClientRiskSummaryPanel({
+  insight,
+  isLoading,
+  isRefreshing,
+  onRefresh,
+}: {
+  insight: AiInsightPublic | null
+  isLoading: boolean
+  isRefreshing: boolean
+  onRefresh: () => void
+}) {
+  return (
+    <div className="grid gap-3 rounded-md border border-divider-regular bg-background-section p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <SparklesIcon className="size-4 text-text-secondary" aria-hidden />
+          <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+            <Trans>Client Risk Summary</Trans>
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {insight ? <InsightStatusBadge status={insight.status} /> : null}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isRefreshing}
+            onClick={onRefresh}
+          >
+            <RefreshCwIcon data-icon="inline-start" />
+            {isRefreshing ? <Trans>Queued</Trans> : <Trans>Refresh</Trans>}
+          </Button>
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="grid gap-2">
+          <Skeleton className="h-14 w-full" />
+          <Skeleton className="h-14 w-full" />
+        </div>
+      ) : insight ? (
+        <div className="grid gap-3">
+          {insight.sections.map((section) => (
+            <InsightSection key={section.key} section={section} insight={insight} />
+          ))}
+          <span className="text-xs text-text-tertiary">
+            {insight.generatedAt ? (
+              formatDateTimeWithTimezone(insight.generatedAt)
+            ) : (
+              <Trans>Pending</Trans>
+            )}
+          </span>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function InsightStatusBadge({ status }: { status: AiInsightPublic['status'] }) {
+  if (status === 'ready') {
+    return (
+      <Badge variant="success" className="text-xs">
+        <Trans>Ready</Trans>
+      </Badge>
+    )
+  }
+  if (status === 'failed') {
+    return (
+      <Badge variant="warning" className="text-xs">
+        <Trans>Failed</Trans>
+      </Badge>
+    )
+  }
+  if (status === 'stale') {
+    return (
+      <Badge variant="info" className="text-xs">
+        <Trans>Stale</Trans>
+      </Badge>
+    )
+  }
+  return (
+    <Badge variant="outline" className="text-xs">
+      <Trans>Pending</Trans>
+    </Badge>
+  )
+}
+
+function InsightSection({
+  section,
+  insight,
+}: {
+  section: AiInsightPublic['sections'][number]
+  insight: AiInsightPublic
+}) {
+  const citations = insight.citations.filter((citation) =>
+    section.citationRefs.includes(citation.ref),
+  )
+  return (
+    <div className="grid gap-2">
+      <p className="text-sm font-medium text-text-primary">{section.label}</p>
+      <p className="text-sm text-text-secondary">{section.text}</p>
+      {citations.length > 0 ? (
+        <div className="flex flex-wrap gap-1">
+          {citations.map((citation) => (
+            <InsightSourceChip key={citation.ref} citation={citation} />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function InsightSourceChip({ citation }: { citation: AiInsightPublic['citations'][number] }) {
+  const label = citation.evidence?.sourceId ?? citation.evidence?.sourceType ?? `#${citation.ref}`
+  const chip = (
+    <Badge variant="outline" className="max-w-full truncate text-xs">
+      [{citation.ref}] {label}
+    </Badge>
+  )
+  return citation.evidence?.sourceUrl ? (
+    <a href={citation.evidence.sourceUrl} target="_blank" rel="noreferrer" className="max-w-full">
+      {chip}
+    </a>
+  ) : (
+    chip
   )
 }
 

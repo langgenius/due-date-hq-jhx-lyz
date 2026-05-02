@@ -21,6 +21,7 @@ interface DashboardRepoTopRow {
   penaltyFormulaVersion: string | null
   severity: DashboardTopRow['severity']
   evidenceCount: number
+  smartPriority: DashboardTopRow['smartPriority']
   primaryEvidence: {
     id: string
     obligationInstanceId: string | null
@@ -67,6 +68,7 @@ function toTopRow(row: DashboardRepoTopRow, opts: { hideDollars?: boolean } = {}
     penaltyFormulaVersion: row.penaltyFormulaVersion,
     severity: row.severity,
     evidenceCount: row.evidenceCount,
+    smartPriority: row.smartPriority,
     primaryEvidence: row.primaryEvidence
       ? {
           id: row.primaryEvidence.id,

@@ -5,6 +5,7 @@ import type {
   WorkboardSort,
 } from './shared'
 import type { ObligationInstanceRow } from './obligations'
+import type { SmartPriorityBreakdown } from './priority'
 
 export interface WorkboardListInput {
   status?: ObligationInstanceRow['status'][]
@@ -39,6 +40,7 @@ export interface WorkboardListRow extends ObligationInstanceRow {
   readiness: WorkboardReadiness
   daysUntilDue: number
   evidenceCount: number
+  smartPriority: SmartPriorityBreakdown
 }
 
 export interface WorkboardListResult {

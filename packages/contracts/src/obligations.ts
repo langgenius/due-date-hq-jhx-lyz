@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
+import { AiInsightPublicSchema } from './ai-insights'
 import {
   ExposureStatusSchema,
   ObligationExtensionDecisionSchema,
@@ -133,6 +134,18 @@ export type ObligationBulkReadinessUpdateOutput = z.infer<
   typeof ObligationBulkReadinessUpdateOutputSchema
 >
 
+export const DeadlineTipInputSchema = z.object({ obligationId: EntityIdSchema })
+export type DeadlineTipInput = z.infer<typeof DeadlineTipInputSchema>
+
+export const DeadlineTipRefreshInputSchema = z.object({ obligationId: EntityIdSchema })
+export type DeadlineTipRefreshInput = z.infer<typeof DeadlineTipRefreshInputSchema>
+
+export const DeadlineTipRefreshOutputSchema = z.object({
+  queued: z.boolean(),
+  insight: AiInsightPublicSchema,
+})
+export type DeadlineTipRefreshOutput = z.infer<typeof DeadlineTipRefreshOutputSchema>
+
 export const obligationsContract = oc.router({
   createBatch: oc
     .input(z.object({ obligations: z.array(ObligationCreateInputSchema).min(1).max(1000) }))
@@ -162,6 +175,10 @@ export const obligationsContract = oc.router({
   listByClient: oc
     .input(z.object({ clientId: EntityIdSchema }))
     .output(z.array(ObligationInstancePublicSchema)),
+  getDeadlineTip: oc.input(DeadlineTipInputSchema).output(AiInsightPublicSchema),
+  requestDeadlineTipRefresh: oc
+    .input(DeadlineTipRefreshInputSchema)
+    .output(DeadlineTipRefreshOutputSchema),
 })
 
 export type ObligationInstancePublic = z.infer<typeof ObligationInstancePublicSchema>

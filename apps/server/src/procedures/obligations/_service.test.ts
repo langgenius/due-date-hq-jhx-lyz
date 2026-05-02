@@ -171,6 +171,7 @@ function buildScoped(firmId: string, rows: Row[]) {
       return []
     },
     async updatePenaltyInputs() {},
+    async updateRiskProfile() {},
     async updateAssigneeMany() {},
     async softDelete() {},
     async deleteByBatch() {
@@ -307,6 +308,24 @@ function buildScoped(firmId: string, rows: Row[]) {
       firmId,
       async recordRun() {
         return unused('ai.recordRun')
+      },
+    },
+    aiInsights: {
+      firmId,
+      async findLatest() {
+        return null
+      },
+      async findByHash() {
+        return null
+      },
+      async createPending() {
+        return unused('aiInsights.createPending')
+      },
+      async markReady() {
+        return unused('aiInsights.markReady')
+      },
+      async markFailed() {
+        return unused('aiInsights.markFailed')
       },
     },
     clients,

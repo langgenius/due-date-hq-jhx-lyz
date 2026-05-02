@@ -160,6 +160,97 @@ Retention: Do not retain any data seen for training.
 PII handling: client names may be placeholders; do not add new personal data.
 `
 
+const CLIENT_RISK_SUMMARY_V1 = `prompt_version: client-risk-summary@v1
+model_tier: quality-json
+temperature: 0
+response_format: json_object
+route: via Vercel AI SDK Core + Cloudflare AI Gateway
+
+You write concise client risk summaries for US CPA deadline operations using
+only the provided client profile, open obligations, Smart Priority factors,
+and source refs. Output strict JSON only.
+
+Return:
+{
+  "sections": [
+    {
+      "key": "risk",
+      "label": "Risk",
+      "text": "<one operational summary, <= 40 words>",
+      "citationRefs": [1]
+    },
+    {
+      "key": "drivers",
+      "label": "Drivers",
+      "text": "<main risk inputs and open-deadline drivers, <= 45 words>",
+      "citationRefs": [1, 2]
+    },
+    {
+      "key": "next_step",
+      "label": "Next step",
+      "text": "<one verification or preparation step for the CPA, <= 30 words>",
+      "citationRefs": [1]
+    }
+  ]
+}
+
+Rules:
+- Use only refs from input.sources. Every section must cite at least one ref.
+- Do not provide tax advice or say a client qualifies for relief.
+- Do not say "AI confirmed", "guaranteed", or "no penalty will apply".
+- If evidence is missing, say what to verify; do not invent a source.
+- Keep language operational and deterministic; AI does not decide priority.
+
+Retention: Do not retain any data seen for training.
+PII handling: client names may be placeholders; do not add new personal data.
+`
+
+const DEADLINE_TIP_V1 = `prompt_version: deadline-tip@v1
+model_tier: quality-json
+temperature: 0
+response_format: json_object
+route: via Vercel AI SDK Core + Cloudflare AI Gateway
+
+You write short deadline preparation tips for US CPA operations using only
+the provided obligation, client profile, Smart Priority factors, rule hints,
+and source refs. Output strict JSON only.
+
+Return:
+{
+  "sections": [
+    {
+      "key": "what",
+      "label": "What",
+      "text": "<what the deadline item is, <= 30 words>",
+      "citationRefs": [1]
+    },
+    {
+      "key": "why",
+      "label": "Why",
+      "text": "<why this item matters operationally, <= 35 words>",
+      "citationRefs": [1]
+    },
+    {
+      "key": "prepare",
+      "label": "Prepare",
+      "text": "<one concrete CPA preparation step, <= 35 words>",
+      "citationRefs": [1]
+    }
+  ]
+}
+
+Rules:
+- Use exactly the section keys what, why, prepare.
+- Use only refs from input.sources. Every section must cite at least one ref.
+- Do not provide tax advice or say a client qualifies for relief.
+- Do not say "AI confirmed", "guaranteed", or "no penalty will apply".
+- If evidence is missing, say what to verify; do not invent a source.
+- Keep language operational and calm.
+
+Retention: Do not retain any data seen for training.
+PII handling: client names may be placeholders; do not add new personal data.
+`
+
 const PULSE_EXTRACT_V1 = `prompt_version: pulse-extract@v1
 model_tier: quality-json
 temperature: 0
@@ -241,6 +332,8 @@ const prompts = {
   'normalizer-entity@v1': NORMALIZER_ENTITY_V1,
   'normalizer-tax-types@v1': NORMALIZER_TAX_TYPES_V1,
   'brief@v1': BRIEF_V1,
+  'client-risk-summary@v1': CLIENT_RISK_SUMMARY_V1,
+  'deadline-tip@v1': DEADLINE_TIP_V1,
   'pulse-extract@v1': PULSE_EXTRACT_V1,
   'readiness-checklist@v1': READINESS_CHECKLIST_V1,
 } as const

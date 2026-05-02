@@ -12,6 +12,8 @@ export interface ClientRow {
   notes: string | null
   assigneeId: string | null
   assigneeName: string | null
+  importanceWeight: number
+  lateFilingCountLast12mo: number
   estimatedTaxLiabilityCents: number | null
   estimatedTaxLiabilitySource: 'manual' | 'imported' | 'demo_seed' | null
   equityOwnerCount: number | null
@@ -32,6 +34,8 @@ export interface ClientCreateInput {
   notes?: string | null
   assigneeId?: string | null
   assigneeName?: string | null
+  importanceWeight?: number
+  lateFilingCountLast12mo?: number
   estimatedTaxLiabilityCents?: number | null
   estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
   equityOwnerCount?: number | null
@@ -52,6 +56,13 @@ export interface ClientsRepo {
       estimatedTaxLiabilityCents?: number | null
       estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
       equityOwnerCount?: number | null
+    },
+  ): Promise<void>
+  updateRiskProfile(
+    id: string,
+    input: {
+      importanceWeight?: number
+      lateFilingCountLast12mo?: number
     },
   ): Promise<void>
   updateAssigneeMany(

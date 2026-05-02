@@ -58,6 +58,7 @@ import { severityRowClass } from '@/features/dashboard/severity-row'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
+import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
   WorkboardStatusControl,
   useStatusLabels,
@@ -886,6 +887,11 @@ function DashboardTriageTable({
 
   const columns = useMemo<ColumnDef<DashboardTopRow>[]>(
     () => [
+      {
+        id: 'smartPriority',
+        header: t`Priority`,
+        cell: ({ row }) => <SmartPriorityBadge smartPriority={row.original.smartPriority} />,
+      },
       {
         accessorKey: 'clientName',
         header: () => (

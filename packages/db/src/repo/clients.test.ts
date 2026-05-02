@@ -30,6 +30,8 @@ function makeClient(overrides: Partial<Client> = {}): Client {
     notes: overrides.notes ?? null,
     assigneeId: overrides.assigneeId ?? null,
     assigneeName: overrides.assigneeName ?? null,
+    importanceWeight: overrides.importanceWeight ?? 2,
+    lateFilingCountLast12mo: overrides.lateFilingCountLast12mo ?? 0,
     estimatedTaxLiabilityCents: overrides.estimatedTaxLiabilityCents ?? null,
     estimatedTaxLiabilitySource: overrides.estimatedTaxLiabilitySource ?? null,
     equityOwnerCount: overrides.equityOwnerCount ?? null,

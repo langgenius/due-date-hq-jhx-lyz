@@ -53,6 +53,7 @@ interface RawRow {
   assigneeName: string | null
   daysUntilDue: number
   evidenceCount: number
+  smartPriority: WorkboardRow['smartPriority']
 }
 
 interface SavedViewRow {
@@ -122,6 +123,7 @@ function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow 
     assigneeName: row.assigneeName?.trim() || null,
     daysUntilDue: row.daysUntilDue,
     evidenceCount: row.evidenceCount,
+    smartPriority: row.smartPriority,
   }
 }
 

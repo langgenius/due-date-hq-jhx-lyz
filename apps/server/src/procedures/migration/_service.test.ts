@@ -99,6 +99,7 @@ function buildScopedRepo(firmId: string) {
       return []
     },
     async updatePenaltyInputs() {},
+    async updateRiskProfile() {},
     async updateAssigneeMany() {},
     async softDelete() {},
     async deleteByBatch() {
@@ -445,6 +446,24 @@ function buildScopedRepo(firmId: string) {
         const aiOutputId = `ai-output-${aiRuns.length + 1}`
         aiRuns.push({ kind: input.kind, aiOutputId })
         return { aiOutputId, llmLogId: `llm-log-${aiRuns.length}` }
+      },
+    },
+    aiInsights: {
+      firmId,
+      async findLatest() {
+        return null
+      },
+      async findByHash() {
+        return null
+      },
+      async createPending() {
+        return unexpectedRepoCall('aiInsights.createPending')
+      },
+      async markReady() {
+        return unexpectedRepoCall('aiInsights.markReady')
+      },
+      async markFailed() {
+        return unexpectedRepoCall('aiInsights.markFailed')
       },
     },
     clients,

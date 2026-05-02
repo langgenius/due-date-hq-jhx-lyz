@@ -424,7 +424,12 @@ describe('@duedatehq/contracts', () => {
       'deleteSavedView',
       'exportSelected',
     ])
-    expect(WorkboardSortSchema.options).toEqual(['due_asc', 'due_desc', 'updated_desc'])
+    expect(WorkboardSortSchema.options).toEqual([
+      'smart_priority',
+      'due_asc',
+      'due_desc',
+      'updated_desc',
+    ])
     expect(WorkboardDensitySchema.options).toEqual(['comfortable', 'compact'])
     expect(WorkboardReadinessSchema.options).toEqual(['ready', 'waiting', 'needs_review'])
 
@@ -737,6 +742,12 @@ describe('@duedatehq/contracts', () => {
           penaltyFormulaVersion: 'penalty-v1-2026q2',
           severity: 'critical',
           evidenceCount: 1,
+          smartPriority: {
+            version: 'smart-priority-v1',
+            score: 42.5,
+            rank: 1,
+            factors: [],
+          },
           primaryEvidence: {
             id: '33333333-3333-4333-8333-333333333333',
             obligationInstanceId: '11111111-1111-4111-8111-111111111111',
@@ -772,6 +783,12 @@ describe('@duedatehq/contracts', () => {
               penaltyFormulaVersion: 'penalty-v1-2026q2',
               severity: 'critical',
               evidenceCount: 1,
+              smartPriority: {
+                version: 'smart-priority-v1',
+                score: 42.5,
+                rank: 1,
+                factors: [],
+              },
               primaryEvidence: null,
             },
           ],

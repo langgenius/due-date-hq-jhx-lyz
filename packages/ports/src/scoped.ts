@@ -1,4 +1,5 @@
 import type { AiRepo } from './ai'
+import type { AiInsightsRepo } from './ai-insights'
 import type { AuditRepo } from './audit'
 import type { ClientsRepo } from './clients'
 import type { DashboardRepo } from './dashboard'
@@ -14,6 +15,7 @@ import type { WorkloadRepo } from './workload'
 export interface ScopedRepo {
   readonly firmId: string
   readonly ai: AiRepo
+  readonly aiInsights: AiInsightsRepo
   readonly clients: ClientsRepo
   readonly dashboard: DashboardRepo
   readonly obligations: ObligationsRepo

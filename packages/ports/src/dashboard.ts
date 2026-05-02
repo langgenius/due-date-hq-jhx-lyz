@@ -7,6 +7,7 @@ import type {
   ExposureStatus,
   ObligationStatus,
 } from './shared'
+import type { SmartPriorityBreakdown } from './priority'
 
 export type DashboardTriageTabKey = 'this_week' | 'this_month' | 'long_term'
 
@@ -53,6 +54,7 @@ export interface DashboardTopRow {
   severity: DashboardSeverity
   evidenceCount: number
   primaryEvidence: DashboardEvidenceRow | null
+  smartPriority: SmartPriorityBreakdown
 }
 
 export interface DashboardTriageTab {

@@ -11,7 +11,7 @@ import { client, type Client, type ClientEntityType } from '../schema/clients'
  * D1 100-param budget: `client` inserts 17 cols -> 5 rows per batch INSERT.
  */
 
-const COLS_PER_CLIENT_ROW = 18
+const COLS_PER_CLIENT_ROW = 20
 const CLIENT_BATCH_SIZE = Math.floor(100 / COLS_PER_CLIENT_ROW) // = 5
 const CLIENT_LOOKUP_IDS_PER_BATCH = 99
 const CLIENT_UPDATE_IDS_PER_BATCH = 90
@@ -27,6 +27,8 @@ export interface ClientCreateInput {
   notes?: string | null
   assigneeId?: string | null
   assigneeName?: string | null
+  importanceWeight?: number
+  lateFilingCountLast12mo?: number
   estimatedTaxLiabilityCents?: number | null
   estimatedTaxLiabilitySource?: 'manual' | 'imported' | 'demo_seed' | null
   equityOwnerCount?: number | null
@@ -51,6 +53,8 @@ export function makeClientsRepo(db: Db, firmId: string) {
         notes: input.notes ?? null,
         assigneeId: input.assigneeId ?? null,
         assigneeName: input.assigneeName ?? null,
+        importanceWeight: input.importanceWeight ?? 2,
+        lateFilingCountLast12mo: input.lateFilingCountLast12mo ?? 0,
         estimatedTaxLiabilityCents: input.estimatedTaxLiabilityCents ?? null,
         estimatedTaxLiabilitySource: input.estimatedTaxLiabilitySource ?? null,
         equityOwnerCount: input.equityOwnerCount ?? null,
@@ -73,6 +77,8 @@ export function makeClientsRepo(db: Db, firmId: string) {
         notes: i.notes ?? null,
         assigneeId: i.assigneeId ?? null,
         assigneeName: i.assigneeName ?? null,
+        importanceWeight: i.importanceWeight ?? 2,
+        lateFilingCountLast12mo: i.lateFilingCountLast12mo ?? 0,
         estimatedTaxLiabilityCents: i.estimatedTaxLiabilityCents ?? null,
         estimatedTaxLiabilitySource: i.estimatedTaxLiabilitySource ?? null,
         equityOwnerCount: i.equityOwnerCount ?? null,
@@ -159,6 +165,24 @@ export function makeClientsRepo(db: Db, firmId: string) {
       }
       if (input.equityOwnerCount !== undefined) {
         patch.equityOwnerCount = input.equityOwnerCount
+      }
+      if (Object.keys(patch).length === 0) return
+      await db
+        .update(client)
+        .set(patch)
+        .where(and(eq(client.firmId, firmId), eq(client.id, id), isNull(client.deletedAt)))
+    },
+
+    async updateRiskProfile(
+      id: string,
+      input: { importanceWeight?: number; lateFilingCountLast12mo?: number },
+    ): Promise<void> {
+      const patch: Partial<typeof client.$inferInsert> = {}
+      if (input.importanceWeight !== undefined) {
+        patch.importanceWeight = Math.min(3, Math.max(1, Math.round(input.importanceWeight)))
+      }
+      if (input.lateFilingCountLast12mo !== undefined) {
+        patch.lateFilingCountLast12mo = Math.max(0, Math.floor(input.lateFilingCountLast12mo))
       }
       if (Object.keys(patch).length === 0) return
       await db

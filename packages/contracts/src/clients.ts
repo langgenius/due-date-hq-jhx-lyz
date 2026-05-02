@@ -1,7 +1,11 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
+import { AiInsightPublicSchema } from './ai-insights'
 import { EntityTypeSchema, StateCodeSchema } from './shared/enums'
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
+
+export const ClientImportanceWeightSchema = z.number().int().min(1).max(3)
+export type ClientImportanceWeight = z.infer<typeof ClientImportanceWeightSchema>
 
 export const ClientIdentitySchema = z.object({
   id: EntityIdSchema,
@@ -29,6 +33,8 @@ export const ClientCreateInputSchema = z.object({
   notes: z.string().max(5000).nullable().optional(),
   assigneeId: z.string().trim().min(1).max(200).nullable().optional(),
   assigneeName: z.string().max(200).nullable().optional(),
+  importanceWeight: ClientImportanceWeightSchema.default(2).optional(),
+  lateFilingCountLast12mo: z.number().int().min(0).max(99).default(0).optional(),
   estimatedTaxLiabilityCents: z.number().int().positive().nullable().optional(),
   estimatedTaxLiabilitySource: z.enum(['manual', 'imported', 'demo_seed']).nullable().optional(),
   equityOwnerCount: z.number().int().positive().nullable().optional(),
@@ -41,6 +47,8 @@ export const ClientPublicSchema = ClientIdentitySchema.extend({
   notes: z.string().nullable(),
   assigneeId: z.string().min(1).nullable(),
   assigneeName: z.string().nullable(),
+  importanceWeight: ClientImportanceWeightSchema,
+  lateFilingCountLast12mo: z.number().int().min(0),
   estimatedTaxLiabilityCents: z.number().int().positive().nullable(),
   estimatedTaxLiabilitySource: z.enum(['manual', 'imported', 'demo_seed']).nullable(),
   equityOwnerCount: z.number().int().positive().nullable(),
@@ -61,6 +69,32 @@ export const ClientPenaltyInputsUpdateOutputSchema = z.object({
   client: ClientPublicSchema,
   recalculatedObligationCount: z.number().int().min(0),
 })
+
+export const ClientRiskProfileUpdateSchema = z.object({
+  id: EntityIdSchema,
+  importanceWeight: ClientImportanceWeightSchema.optional(),
+  lateFilingCountLast12mo: z.number().int().min(0).max(99).optional(),
+  reason: z.string().max(280).optional(),
+})
+export type ClientRiskProfileUpdateInput = z.infer<typeof ClientRiskProfileUpdateSchema>
+
+export const ClientRiskProfileUpdateOutputSchema = z.object({
+  client: ClientPublicSchema,
+  auditId: EntityIdSchema,
+})
+export type ClientRiskProfileUpdateOutput = z.infer<typeof ClientRiskProfileUpdateOutputSchema>
+
+export const ClientRiskSummaryInputSchema = z.object({ clientId: EntityIdSchema })
+export type ClientRiskSummaryInput = z.infer<typeof ClientRiskSummaryInputSchema>
+
+export const ClientRiskSummaryRefreshInputSchema = z.object({ clientId: EntityIdSchema })
+export type ClientRiskSummaryRefreshInput = z.infer<typeof ClientRiskSummaryRefreshInputSchema>
+
+export const ClientRiskSummaryRefreshOutputSchema = z.object({
+  queued: z.boolean(),
+  insight: AiInsightPublicSchema,
+})
+export type ClientRiskSummaryRefreshOutput = z.infer<typeof ClientRiskSummaryRefreshOutputSchema>
 
 export const ClientBulkAssigneeUpdateInputSchema = z.object({
   clientIds: z.array(EntityIdSchema).min(1).max(100),
@@ -87,6 +121,13 @@ export const clientsContract = oc.router({
   updatePenaltyInputs: oc
     .input(ClientPenaltyInputsUpdateSchema)
     .output(ClientPenaltyInputsUpdateOutputSchema),
+  updateRiskProfile: oc
+    .input(ClientRiskProfileUpdateSchema)
+    .output(ClientRiskProfileUpdateOutputSchema),
+  getRiskSummary: oc.input(ClientRiskSummaryInputSchema).output(AiInsightPublicSchema),
+  requestRiskSummaryRefresh: oc
+    .input(ClientRiskSummaryRefreshInputSchema)
+    .output(ClientRiskSummaryRefreshOutputSchema),
   bulkUpdateAssignee: oc
     .input(ClientBulkAssigneeUpdateInputSchema)
     .output(ClientBulkAssigneeUpdateOutputSchema),

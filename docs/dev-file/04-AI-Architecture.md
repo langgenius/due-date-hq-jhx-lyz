@@ -112,7 +112,9 @@ AI_GATEWAY_API_KEY=
 | 能力                          | 档位         | 说明                                                 |
 | ----------------------------- | ------------ | ---------------------------------------------------- |
 | Migration Mapper / Normalizer | fast-json    | 低温、结构化输出、低成本                             |
-| Deadline Tip / Why-hover      | fast-text    | 短文本、必须带 citation                              |
+| Client Risk Summary           | fast-text    | async cached sections、必须带 citation               |
+| Deadline Tip                  | fast-text    | async cached What / Why / Prepare、必须带 citation   |
+| Smart Priority Explanation    | no-model     | 纯函数 factor breakdown，不调用 AI                   |
 | Weekly Brief                  | quality      | 后台 Queue 生成 3-5 句、带 citation、缓存 / 物化 24h |
 | Pulse Extract                 | quality-json | 官方公告结构化抽取，低置信进人工 review              |
 | Ask DueDateHQ                 | quality-json | NL → DSL，禁止直接 SQL                               |
@@ -219,8 +221,9 @@ Prompt 原文落仓，`prompt_version` 是产品审计字段：
 - `normalizer-entity@v1` → `packages/ai/src/prompts/normalizer-entity@v1.md`
 - `normalizer-tax-types@v1` → `packages/ai/src/prompts/normalizer-tax-types@v1.md`
 - `brief@v1` → Phase 0 新增
+- `client-risk-summary@v1` → Phase 0 P0-17 新增
 - `pulse-extract@v1` → Phase 0 新增
-- `deadline-tip@v1` → Phase 0 新增
+- `deadline-tip@v1` → Phase 0 P0-17 新增
 
 Prompt metadata 只描述任务档位，不写 provider SDK：
 
@@ -337,19 +340,21 @@ Vectorize 仍是检索层：
 
 ## 7. 能力矩阵（Phase 0 / 1 落地）
 
-| 能力                    | 优先级 | 输入                                   | 输出                                   | 降级                                                     |
-| ----------------------- | ------ | -------------------------------------- | -------------------------------------- | -------------------------------------------------------- |
-| Weekly Brief            | P0     | Smart Priority top-N + rule chunks     | 后台物化 3-5 句带 citation             | 旧 brief 标记 stale + 模板 `You have N items this week.` |
-| Client Risk Summary     | P0     | 单客户 30 天 obligations + rule chunks | 一段话 + bullets                       | 纯 SQL 聚合 `3 upcoming, 1 critical`                     |
-| Deadline Tip            | P0     | 单 obligation + rule chunk             | What / Why / Prepare                   | `rule.default_tip`                                       |
-| Smart Priority          | P0     | open obligations + client 字段         | 打分 + 因子分解                        | **纯函数零 AI SDK 调用**；AI 仅用于 `Why-hover` 解释     |
-| Pulse Source Translator | P0     | 官方公告原文                           | 结构化 JSON + summary + source excerpt | 置信度 < 0.7 标记 `pending_review`                       |
-| Ask DueDateHQ           | P1     | 自然语言 query                         | DSL + 表格 + 一句话 + citations        | 预设模板 5 条兜底                                        |
-| AI Draft Client Email   | P1     | Pulse + 受影响客户                     | 邮件草稿                               | 固定模板                                                 |
-| Migration Field Mapper  | P0     | 表头 + 前 5 行样本                     | mapping JSON                           | Preset profile + 手动下拉                                |
-| Migration Normalizer    | P0     | 字段枚举值                             | 归一值 + confidence                    | 字典 + fuzzy + 手动编辑                                  |
+| 能力                    | 优先级 | 输入                                     | 输出                                           | 降级                                                     |
+| ----------------------- | ------ | ---------------------------------------- | ---------------------------------------------- | -------------------------------------------------------- |
+| Weekly Brief            | P0     | Smart Priority top-N + rule chunks       | 后台物化 3-5 句带 citation                     | 旧 brief 标记 stale + 模板 `You have N items this week.` |
+| Client Risk Summary     | P0     | 单客户 top obligations + source snippets | async cached sections + source chips           | 纯 SQL 聚合 `3 upcoming, 1 critical`                     |
+| Deadline Tip            | P0     | 单 obligation + evidence/source snippets | async cached What / Why / Prepare              | deterministic fallback sections                          |
+| Smart Priority          | P0     | open obligations + client risk fields    | score、rank、factor contribution、source label | **纯函数零 AI SDK 调用**                                 |
+| Pulse Source Translator | P0     | 官方公告原文                             | 结构化 JSON + summary + source excerpt         | 置信度 < 0.7 标记 `pending_review`                       |
+| Ask DueDateHQ           | P1     | 自然语言 query                           | DSL + 表格 + 一句话 + citations                | 预设模板 5 条兜底                                        |
+| AI Draft Client Email   | P1     | Pulse + 受影响客户                       | 邮件草稿                                       | 固定模板                                                 |
+| Migration Field Mapper  | P0     | 表头 + 前 5 行样本                       | mapping JSON                                   | Preset profile + 手动下拉                                |
+| Migration Normalizer    | P0     | 字段枚举值                               | 归一值 + confidence                            | 字典 + fuzzy + 手动编辑                                  |
 
-Smart Priority 必须保持纯函数。AI 只解释排序结果，不决定排序本身。
+Smart Priority 必须保持纯函数。排序、badge、popover 和 Weekly Brief ordering 都使用同一份
+`packages/core/src/priority` 结果；AI 不解释或改写排序，只能在 Brief / Insight 文案中引用已经
+计算好的分数和来源标签。
 
 ---
 
@@ -473,6 +478,31 @@ Dashboard 前端消费结构化 citation：`ref + obligationId + evidence(source
 ready brief 的 citation chip 打开 evidence drawer，drawer 可跳转到 Workboard 对应 obligation 或
 打开官方 source URL。手动 refresh 只返回 queued 状态；UI 立即显示 pending，并在 pending / queued
 期间禁用刷新按钮。
+
+### 10.5 Async AI Insight Cache
+
+P0-17 的 Client Risk Summary 和 Deadline Tip 走同一条 async cache path：
+
+```text
+Client profile / Workboard drawer refresh
+  -> enqueue ai.insight.refresh on DASHBOARD_QUEUE
+  -> KV debounce by firm + kind + subject + asOfDate
+  -> Queue consumer loads tenant-scoped deterministic snapshot
+  -> compute input_hash
+  -> skip if latest ready/pending hash already exists
+  -> run client-risk-summary@v1 or deadline-tip@v1 through packages/ai
+  -> guard + record ai_output(kind='summary'|'tip') / llm_log
+  -> update ai_insight_cache ready / failed
+```
+
+`clients.getRiskSummary` and `obligations.getDeadlineTip` never call the model. They return the
+current cache state with public shape `status`, `generatedAt`, `expiresAt`, `sections`, `citations`,
+`aiOutputId`, and `errorCode`; if no usable row exists, the server returns a deterministic fallback
+and queues can be triggered by the explicit refresh mutations.
+
+Insight guard adds the P0-17 checks on top of the shared Glass-Box rules: non-empty retrieval,
+citation bounds, every section citing at least one source, banned tax-advice phrases, and no
+unreplaced `{{placeholder}}` text.
 
 ---
 

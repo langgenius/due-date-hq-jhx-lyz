@@ -40,6 +40,34 @@ export const appContract = oc.router({
 export type AppContract = typeof appContract
 
 export type {
+  AiInsightCitation,
+  AiInsightCitationEvidence,
+  AiInsightKind,
+  AiInsightPublic,
+  AiInsightSection,
+  AiInsightStatus,
+} from './ai-insights'
+export {
+  AiInsightCitationEvidenceSchema,
+  AiInsightCitationSchema,
+  AiInsightKindSchema,
+  AiInsightPublicSchema,
+  AiInsightSectionSchema,
+  AiInsightStatusSchema,
+} from './ai-insights'
+
+export type {
+  SmartPriorityBreakdown,
+  SmartPriorityFactor,
+  SmartPriorityFactorKey,
+} from './priority'
+export {
+  SmartPriorityBreakdownSchema,
+  SmartPriorityFactorKeySchema,
+  SmartPriorityFactorSchema,
+} from './priority'
+
+export type {
   AuditActionCategory,
   AuditContract,
   AuditEvidencePackagePublic,
@@ -96,9 +124,15 @@ export type {
   ClientBulkAssigneeUpdateOutput,
   ClientCreateInput,
   ClientIdentity,
+  ClientImportanceWeight,
   ClientPenaltyInputsUpdateInput,
   ClientPenaltyInputsUpdateOutput,
   ClientPublic,
+  ClientRiskProfileUpdateInput,
+  ClientRiskProfileUpdateOutput,
+  ClientRiskSummaryInput,
+  ClientRiskSummaryRefreshInput,
+  ClientRiskSummaryRefreshOutput,
   ClientsContract,
 } from './clients'
 export {
@@ -106,13 +140,22 @@ export {
   ClientBulkAssigneeUpdateOutputSchema,
   ClientCreateInputSchema,
   ClientIdentitySchema,
+  ClientImportanceWeightSchema,
   ClientPenaltyInputsUpdateOutputSchema,
   ClientPenaltyInputsUpdateSchema,
   ClientPublicSchema,
+  ClientRiskProfileUpdateOutputSchema,
+  ClientRiskProfileUpdateSchema,
+  ClientRiskSummaryInputSchema,
+  ClientRiskSummaryRefreshInputSchema,
+  ClientRiskSummaryRefreshOutputSchema,
   clientsContract,
 } from './clients'
 
 export type {
+  DeadlineTipInput,
+  DeadlineTipRefreshInput,
+  DeadlineTipRefreshOutput,
   DueDateUpdateInput,
   ObligationBulkReadinessUpdateInput,
   ObligationBulkReadinessUpdateOutput,
@@ -130,6 +173,9 @@ export type {
   PenaltyBreakdownItem,
 } from './obligations'
 export {
+  DeadlineTipInputSchema,
+  DeadlineTipRefreshInputSchema,
+  DeadlineTipRefreshOutputSchema,
   DueDateUpdateInputSchema,
   ObligationBulkReadinessUpdateInputSchema,
   ObligationBulkReadinessUpdateOutputSchema,

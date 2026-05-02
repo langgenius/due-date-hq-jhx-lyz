@@ -1,6 +1,11 @@
 import type * as z from 'zod'
 import { callGateway, type GatewayRequest } from './gateway'
-import { GuardRejection, verifyMapperEinHitRate, verifyPulseSourceExcerpt } from './guard'
+import {
+  GuardRejection,
+  verifyInsightOutput,
+  verifyMapperEinHitRate,
+  verifyPulseSourceExcerpt,
+} from './guard'
 import { redactMigrationInput } from './pii'
 import { PulseExtractOutputSchema, type PulseExtractInput, type PulseExtractOutput } from './pulse'
 import { loadPrompt, type PromptName } from './prompter'
@@ -153,6 +158,9 @@ export function createAI(env: AiEnv = {}) {
 
       if (name === 'mapper@v1') verifyMapperEinHitRate(input, parsed.data)
       if (name === 'pulse-extract@v1') verifyPulseSourceExcerpt(input, parsed.data)
+      if (name === 'client-risk-summary@v1' || name === 'deadline-tip@v1') {
+        verifyInsightOutput(input, parsed.data)
+      }
 
       const trace = createTrace({
         promptVersion: name,

@@ -57,6 +57,7 @@ import {
   type WorkboardRow,
   type WorkboardSavedView,
   type WorkboardSort,
+  type AiInsightPublic,
 } from '@duedatehq/contracts'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -126,6 +127,7 @@ import {
 } from '@/components/patterns/table-header-filter'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
   ALL_READINESSES,
   ALL_STATUSES,
@@ -152,6 +154,7 @@ type WorkboardCursor = NonNullable<WorkboardListInput['cursor']> | null
 type WorkboardListInputWithoutCursor = Omit<WorkboardListInput, 'cursor'>
 
 const ALL_SORTS = [
+  'smart_priority',
   'due_asc',
   'due_desc',
   'updated_desc',
@@ -164,7 +167,7 @@ const DETAIL_DRAWERS = ['obligation'] as const
 const DETAIL_TABS = ['readiness', 'extension', 'risk', 'evidence', 'audit'] as const
 const READINESS_FILTERS = ALL_READINESSES
 const DENSITY_OPTIONS = ['comfortable', 'compact'] as const satisfies readonly WorkboardDensity[]
-const DEFAULT_SORT: WorkboardSort = 'due_asc'
+const DEFAULT_SORT: WorkboardSort = 'smart_priority'
 const DEFAULT_DENSITY: WorkboardDensity = 'comfortable'
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
 const EMPTY_SAVED_VIEWS: WorkboardSavedView[] = []
@@ -262,6 +265,7 @@ function useSortLabels(): Record<WorkboardSort, string> {
   const { t } = useLingui()
   return useMemo(
     () => ({
+      smart_priority: t`Smart Priority`,
       due_asc: t`Due date — earliest first`,
       due_desc: t`Due date — latest first`,
       updated_desc: t`Recently updated`,
@@ -271,6 +275,7 @@ function useSortLabels(): Record<WorkboardSort, string> {
 }
 
 function getSortingState(sort: WorkboardSort): SortingState {
+  if (sort === 'smart_priority') return [{ id: 'smartPriority', desc: true }]
   if (sort === 'due_desc') return [{ id: 'currentDueDate', desc: true }]
   if (sort === 'updated_desc') return [{ id: 'updatedAt', desc: true }]
   return [{ id: 'currentDueDate', desc: false }]
@@ -492,6 +497,7 @@ export function WorkboardRoute() {
   const columnLabels = useMemo(
     () => ({
       clientName: t`Client`,
+      smartPriority: t`Smart Priority`,
       assigneeName: t`Owner`,
       clientState: t`State`,
       clientCounty: t`County`,
@@ -707,6 +713,7 @@ export function WorkboardRoute() {
       onSuccess: (result) => {
         void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         // Show a short audit reference so the user has an immediately
         // checkable "did this write to audit?" answer (Day 3 acceptance).
@@ -726,6 +733,7 @@ export function WorkboardRoute() {
       onSuccess: (result) => {
         void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         toast.success(t`Readiness updated`, {
           description: t`Audit ${result.auditId.slice(0, 8)}`,
@@ -916,6 +924,14 @@ export function WorkboardRoute() {
           />
         ),
         meta: { headerClassName: 'w-10', cellClassName: 'w-10' },
+      },
+      {
+        id: 'smartPriority',
+        header: t`Priority`,
+        cell: ({ row: tableRow }) => (
+          <SmartPriorityBadge smartPriority={tableRow.original.smartPriority} />
+        ),
+        meta: { headerClassName: 'w-[120px]', cellClassName: 'w-[120px]' },
       },
       {
         accessorKey: 'clientName',
@@ -1698,6 +1714,7 @@ export function WorkboardRoute() {
                   <SelectValue>{sortLabels[sort]}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="smart_priority">{sortLabels.smart_priority}</SelectItem>
                   <SelectItem value="due_asc">{sortLabels.due_asc}</SelectItem>
                   <SelectItem value="due_desc">{sortLabels.due_desc}</SelectItem>
                   <SelectItem value="updated_desc">{sortLabels.updated_desc}</SelectItem>
@@ -2226,6 +2243,12 @@ function WorkboardDetailDrawer({
     }),
     enabled: obligationId !== null,
   })
+  const deadlineTipQuery = useQuery({
+    ...orpc.obligations.getDeadlineTip.queryOptions({
+      input: { obligationId: obligationId ?? '' },
+    }),
+    enabled: obligationId !== null,
+  })
   const detail = detailQuery.data
   const row = detail?.row ?? null
   const latestRequest = detail?.readinessRequests[0] ?? null
@@ -2248,6 +2271,7 @@ function WorkboardDetailDrawer({
     void queryClient.invalidateQueries({ queryKey: orpc.workboard.getDetail.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
   }
 
@@ -2302,6 +2326,19 @@ function WorkboardDetailDrawer({
       },
       onError: (err) => {
         toast.error(t`Couldn't save extension decision`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const requestDeadlineTipMutation = useMutation(
+    orpc.obligations.requestDeadlineTipRefresh.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
+        toast.success(t`Deadline tip refresh queued`)
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't queue deadline tip`, {
           description: rpcErrorMessage(err) ?? t`Please try again.`,
         })
       },
@@ -2656,6 +2693,32 @@ function WorkboardDetailDrawer({
               <TabsContent value="risk">
                 <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
                   <div className="grid gap-3">
+                    <div className="rounded-lg border border-divider-regular p-3">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <span className="text-sm font-medium text-text-primary">
+                          <Trans>Smart Priority</Trans>
+                        </span>
+                        <SmartPriorityBadge smartPriority={row.smartPriority} align="end" />
+                      </div>
+                      <div className="grid gap-2">
+                        {row.smartPriority.factors.map((factor) => (
+                          <div key={factor.key} className="flex justify-between gap-3 text-xs">
+                            <span className="min-w-0 truncate text-text-secondary">
+                              {factor.label} · {factor.sourceLabel}
+                            </span>
+                            <span className="font-mono tabular-nums text-text-primary">
+                              +{factor.contribution.toFixed(1)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <DeadlineTipPanel
+                      insight={deadlineTipQuery.data ?? null}
+                      isLoading={deadlineTipQuery.isLoading}
+                      isRefreshing={requestDeadlineTipMutation.isPending}
+                      onRefresh={() => requestDeadlineTipMutation.mutate({ obligationId: row.id })}
+                    />
                     <DetailRow
                       label={<Trans>Exposure</Trans>}
                       value={
@@ -2787,6 +2850,120 @@ function EmptyPanel({ children }: { children: ReactNode }) {
   return (
     <div className="rounded-lg border border-dashed border-divider-regular p-4 text-sm text-text-tertiary">
       {children}
+    </div>
+  )
+}
+
+function DeadlineTipPanel({
+  insight,
+  isLoading,
+  isRefreshing,
+  onRefresh,
+}: {
+  insight: AiInsightPublic | null
+  isLoading: boolean
+  isRefreshing: boolean
+  onRefresh: () => void
+}) {
+  return (
+    <div className="grid gap-3 rounded-lg border border-divider-regular bg-background-section p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <FileSearchIcon className="size-4 text-text-secondary" aria-hidden />
+          <span className="text-sm font-medium text-text-primary">
+            <Trans>Deadline Tip</Trans>
+          </span>
+          {insight ? <InsightStatusBadge status={insight.status} /> : null}
+        </div>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={isRefreshing}
+          onClick={onRefresh}
+        >
+          <RefreshCwIcon data-icon="inline-start" />
+          {isRefreshing ? <Trans>Queued</Trans> : <Trans>Refresh</Trans>}
+        </Button>
+      </div>
+      {isLoading ? (
+        <div className="text-sm text-text-tertiary">
+          <Trans>Loading deadline tip…</Trans>
+        </div>
+      ) : insight ? (
+        <div className="grid gap-3">
+          {insight.sections.map((section) => (
+            <div key={section.key} className="grid gap-1">
+              <p className="text-sm font-medium text-text-primary">{section.label}</p>
+              <p className="text-sm text-text-secondary">{section.text}</p>
+              <InsightCitationChips insight={insight} citationRefs={section.citationRefs} />
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function InsightStatusBadge({ status }: { status: AiInsightPublic['status'] }) {
+  if (status === 'ready')
+    return (
+      <Badge variant="success">
+        <Trans>Ready</Trans>
+      </Badge>
+    )
+  if (status === 'failed')
+    return (
+      <Badge variant="warning">
+        <Trans>Failed</Trans>
+      </Badge>
+    )
+  if (status === 'stale')
+    return (
+      <Badge variant="info">
+        <Trans>Stale</Trans>
+      </Badge>
+    )
+  return (
+    <Badge variant="outline">
+      <Trans>Pending</Trans>
+    </Badge>
+  )
+}
+
+function InsightCitationChips({
+  insight,
+  citationRefs,
+}: {
+  insight: AiInsightPublic
+  citationRefs: number[]
+}) {
+  const citations = insight.citations.filter((citation) => citationRefs.includes(citation.ref))
+  if (citations.length === 0) return null
+  return (
+    <div className="flex flex-wrap gap-1">
+      {citations.map((citation) => {
+        const label =
+          citation.evidence?.sourceId ?? citation.evidence?.sourceType ?? `#${citation.ref}`
+        const badge = (
+          <Badge key={citation.ref} variant="outline" className="max-w-full truncate text-xs">
+            [{citation.ref}] {label}
+          </Badge>
+        )
+        return citation.evidence?.sourceUrl ? (
+          <a
+            key={citation.ref}
+            href={citation.evidence.sourceUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="max-w-full"
+          >
+            {badge}
+          </a>
+        ) : (
+          badge
+        )
+      })}
     </div>
   )
 }

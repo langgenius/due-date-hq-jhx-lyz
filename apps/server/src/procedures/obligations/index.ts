@@ -7,6 +7,8 @@ import {
   requireCurrentFirmRole,
 } from '../_permissions'
 import { os } from '../_root'
+import { dateInTimezone, toAiInsightPublic } from '../_ai-insights'
+import { enqueueAiInsightRefresh } from '../../jobs/ai-insights/enqueue'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { recalculateObligationExposure } from '../_penalty-exposure'
 import {
@@ -167,6 +169,12 @@ const updateDueDate = os.obligations.updateDueDate.handler(async ({ input, conte
     firmId: tenant.firmId,
     reason: 'due_date_update',
   }).catch(() => false)
+  await enqueueAiInsightRefresh(context.env, {
+    firmId: tenant.firmId,
+    kind: 'deadline_tip',
+    subjectId: input.id,
+    reason: 'due_date_update',
+  }).catch(() => false)
 
   return toObligationPublic(after)
 })
@@ -177,6 +185,12 @@ const updateStatus = os.obligations.updateStatus.handler(async ({ input, context
   const result = await updateObligationStatus(scoped, userId, input)
   await enqueueDashboardBriefRefresh(context.env, {
     firmId: tenant.firmId,
+    reason: 'status_change',
+  }).catch(() => false)
+  await enqueueAiInsightRefresh(context.env, {
+    firmId: tenant.firmId,
+    kind: 'deadline_tip',
+    subjectId: input.id,
     reason: 'status_change',
   }).catch(() => false)
   return result
@@ -203,6 +217,12 @@ const updateReadiness = os.obligations.updateReadiness.handler(async ({ input, c
     firmId: tenant.firmId,
     reason: 'readiness_change',
   }).catch(() => false)
+  await enqueueAiInsightRefresh(context.env, {
+    firmId: tenant.firmId,
+    kind: 'deadline_tip',
+    subjectId: input.id,
+    reason: 'readiness_change',
+  }).catch(() => false)
   return result
 })
 
@@ -212,6 +232,12 @@ const decideExtension = os.obligations.decideExtension.handler(async ({ input, c
   const result = await decideObligationExtension(scoped, userId, input)
   await enqueueDashboardBriefRefresh(context.env, {
     firmId: tenant.firmId,
+    reason: 'status_change',
+  }).catch(() => false)
+  await enqueueAiInsightRefresh(context.env, {
+    firmId: tenant.firmId,
+    kind: 'deadline_tip',
+    subjectId: input.id,
     reason: 'status_change',
   }).catch(() => false)
   return result
@@ -232,6 +258,85 @@ const bulkUpdateReadiness = os.obligations.bulkUpdateReadiness.handler(
   },
 )
 
+function deadlineTipFallback(obligationId: string) {
+  return [
+    {
+      key: 'what',
+      label: 'What',
+      text: 'Cached deadline tip is pending for this obligation.',
+      citationRefs: [],
+    },
+    {
+      key: 'why',
+      label: 'Why',
+      text: 'Smart Priority explains urgency with deterministic deadline, exposure, client risk, and readiness inputs.',
+      citationRefs: [],
+    },
+    {
+      key: 'prepare',
+      label: 'Prepare',
+      text: `Request a refresh after evidence or status changes for obligation ${obligationId}.`,
+      citationRefs: [],
+    },
+  ]
+}
+
+const getDeadlineTip = os.obligations.getDeadlineTip.handler(async ({ input, context }) => {
+  const { scoped, tenant } = requireTenant(context)
+  const obligation = await scoped.obligations.findById(input.obligationId)
+  if (!obligation) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Obligation ${input.obligationId} not found in current firm.`,
+    })
+  }
+  const asOfDate = dateInTimezone(tenant.timezone)
+  const insight = await scoped.aiInsights.findLatest({
+    kind: 'deadline_tip',
+    subjectType: 'obligation',
+    subjectId: input.obligationId,
+    asOfDate,
+  })
+  return toAiInsightPublic(insight, {
+    kind: 'deadline_tip',
+    subjectId: input.obligationId,
+    sections: deadlineTipFallback(input.obligationId),
+  })
+})
+
+const requestDeadlineTipRefresh = os.obligations.requestDeadlineTipRefresh.handler(
+  async ({ input, context }) => {
+    const { scoped, tenant } = requireTenant(context)
+    const obligation = await scoped.obligations.findById(input.obligationId)
+    if (!obligation) {
+      throw new ORPCError('NOT_FOUND', {
+        message: `Obligation ${input.obligationId} not found in current firm.`,
+      })
+    }
+    const asOfDate = dateInTimezone(tenant.timezone)
+    const queued = await enqueueAiInsightRefresh(context.env, {
+      firmId: tenant.firmId,
+      kind: 'deadline_tip',
+      subjectId: input.obligationId,
+      asOfDate,
+      reason: 'manual_refresh',
+    })
+    const insight = await scoped.aiInsights.findLatest({
+      kind: 'deadline_tip',
+      subjectType: 'obligation',
+      subjectId: input.obligationId,
+      asOfDate,
+    })
+    return {
+      queued,
+      insight: toAiInsightPublic(insight, {
+        kind: 'deadline_tip',
+        subjectId: input.obligationId,
+        sections: deadlineTipFallback(input.obligationId),
+      }),
+    }
+  },
+)
+
 export const obligationsHandlers = {
   createBatch,
   updateDueDate,
@@ -241,4 +346,6 @@ export const obligationsHandlers = {
   updateReadiness,
   decideExtension,
   bulkUpdateReadiness,
+  getDeadlineTip,
+  requestDeadlineTipRefresh,
 }
