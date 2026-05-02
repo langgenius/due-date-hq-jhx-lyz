@@ -29,14 +29,29 @@ const { formatDocumentTitle, getRouteSummaryMessages, routeSummaries } =
 const { activateLocale, currentLocale } = await import('@/i18n/i18n')
 
 type SessionShape = {
-  user: { id: string; name?: string; email?: string }
-  session: { activeOrganizationId: string | null }
+  user: { id: string; name?: string; email?: string; twoFactorEnabled?: boolean }
+  session: { activeOrganizationId: string | null; twoFactorVerified?: boolean }
 }
 
-function makeSession(activeOrganizationId: string | null): SessionShape {
+function makeSession(
+  activeOrganizationId: string | null,
+  options: { twoFactorEnabled?: boolean; twoFactorVerified?: boolean } = {},
+): SessionShape {
   return {
-    user: { id: 'user_1', name: 'Alex Chen', email: 'alex@example.com' },
-    session: { activeOrganizationId },
+    user: {
+      id: 'user_1',
+      name: 'Alex Chen',
+      email: 'alex@example.com',
+      ...(options.twoFactorEnabled === undefined
+        ? {}
+        : { twoFactorEnabled: options.twoFactorEnabled }),
+    },
+    session: {
+      activeOrganizationId,
+      ...(options.twoFactorVerified === undefined
+        ? {}
+        : { twoFactorVerified: options.twoFactorVerified }),
+    },
   }
 }
 
@@ -201,6 +216,31 @@ describe('protectedLoader', () => {
     getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
     const result = await protectedLoader(makeArgs('http://localhost/'))
     expect(result).toEqual({ user: { id: 'user_1', name: 'Alex Chen', email: 'alex@example.com' } })
+  })
+
+  it('redirects MFA-enabled sessions to two-factor verification until the session is verified', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession('firm_1', { twoFactorEnabled: true, twoFactorVerified: false }),
+    })
+    await expectRedirectTo(
+      protectedLoader(makeArgs('http://localhost/workboard?scope=me')),
+      '/two-factor?redirectTo=%2Fworkboard%3Fscope%3Dme',
+    )
+  })
+
+  it('allows MFA-enabled sessions after current-session two-factor verification', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession('firm_1', { twoFactorEnabled: true, twoFactorVerified: true }),
+    })
+    const result = await protectedLoader(makeArgs('http://localhost/'))
+    expect(result).toEqual({
+      user: {
+        id: 'user_1',
+        name: 'Alex Chen',
+        email: 'alex@example.com',
+        twoFactorEnabled: true,
+      },
+    })
   })
 })
 

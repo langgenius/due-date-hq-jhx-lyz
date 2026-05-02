@@ -1,5 +1,6 @@
 import { onError } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
+import { splitSetCookieHeader } from 'better-auth/cookies'
 import type { Env, ContextVars } from './env'
 import { logServerError } from './middleware/logger'
 import { router } from './procedures/index'
@@ -22,6 +23,19 @@ const handler = new RPCHandler(router, {
   ],
 })
 
+export function appendResponseHeaders(target: Headers, source: Headers): void {
+  source.forEach((value, key) => {
+    if (key.toLowerCase() !== 'set-cookie') {
+      target.set(key, value)
+      return
+    }
+
+    for (const cookie of splitSetCookieHeader(value)) {
+      target.append('set-cookie', cookie)
+    }
+  })
+}
+
 export async function rpcHandler(
   request: Request,
   env: Env,
@@ -34,6 +48,15 @@ export async function rpcHandler(
 
   if (!matched) {
     return new Response('Not Found', { status: 404 })
+  }
+  if (meta.vars.responseHeaders) {
+    const headers = new Headers(response.headers)
+    appendResponseHeaders(headers, meta.vars.responseHeaders)
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    })
   }
   return response
 }

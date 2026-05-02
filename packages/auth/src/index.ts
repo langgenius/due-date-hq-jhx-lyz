@@ -377,6 +377,14 @@ export function createAuth(deps: CreateAuthDeps) {
     session: {
       expiresIn: 60 * 60 * 24 * 7,
       updateAge: 60 * 60 * 24,
+      additionalFields: {
+        twoFactorVerified: {
+          type: 'boolean',
+          required: true,
+          defaultValue: false,
+          input: false,
+        },
+      },
     },
     advanced: {
       cookiePrefix: 'duedatehq',

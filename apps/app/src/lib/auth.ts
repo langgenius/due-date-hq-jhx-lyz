@@ -51,11 +51,6 @@ export function signInWithMicrosoft(callbackURL = '/') {
   })
 }
 
-export async function verifySignInTwoFactor(code: string) {
-  const { error } = await authClient.twoFactor.verifyTotp({ code, trustDevice: true })
-  if (error) throw new Error(error.message || 'Could not verify the code.')
-}
-
 export function initialsFromName(value: string | null | undefined): string {
   if (!value) return '?'
   const parts = value.trim().split(/\s+/).slice(0, 2)

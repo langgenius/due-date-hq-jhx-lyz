@@ -1,5 +1,6 @@
 import { useState, type SyntheticEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Loader2Icon, ShieldCheckIcon } from 'lucide-react'
 import { toast } from 'sonner'
@@ -14,28 +15,35 @@ import {
 } from '@duedatehq/ui/components/ui/card'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import { Label } from '@duedatehq/ui/components/ui/label'
-import { verifySignInTwoFactor } from '@/lib/auth'
+import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
 
 export function TwoFactorRoute() {
   const { t } = useLingui()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [search] = useSearchParams()
   const [code, setCode] = useState('')
-  const [pending, setPending] = useState(false)
+  const verifyMutation = useMutation(
+    orpc.security.verifyTwoFactor.mutationOptions({
+      onSuccess: async () => {
+        toast.success(t`Two-factor verification complete`)
+        await queryClient.invalidateQueries()
+        await navigate(search.get('redirectTo') || '/', { replace: true })
+      },
+      onError: (err) => {
+        toast.error(t`Could not verify the code`, {
+          description: rpcErrorMessage(err) ?? err.message,
+        })
+      },
+    }),
+  )
 
-  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
+  function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault()
-    setPending(true)
-    try {
-      await verifySignInTwoFactor(code.trim())
-      toast.success(t`Two-factor verification complete`)
-      await navigate(search.get('redirectTo') || '/', { replace: true })
-    } catch (err) {
-      toast.error(t`Could not verify the code`, {
-        description: err instanceof Error ? err.message : t`Please try again.`,
-      })
-      setPending(false)
-    }
+    const trimmed = code.trim()
+    if (trimmed.length < 6) return
+    verifyMutation.mutate({ code: trimmed })
   }
 
   return (
@@ -64,8 +72,10 @@ export function TwoFactorRoute() {
                 onChange={(event) => setCode(event.target.value)}
               />
             </div>
-            <Button type="submit" disabled={pending || code.trim().length < 6}>
-              {pending ? <Loader2Icon className="size-4 animate-spin" aria-hidden /> : null}
+            <Button type="submit" disabled={verifyMutation.isPending || code.trim().length < 6}>
+              {verifyMutation.isPending ? (
+                <Loader2Icon className="size-4 animate-spin" aria-hidden />
+              ) : null}
               <Trans>Verify</Trans>
             </Button>
           </form>

@@ -11,6 +11,7 @@ import {
   type TenantContext,
 } from '@duedatehq/db'
 import type { Env, ContextVars } from '../env'
+import { createAuthSessionsRepo } from '../auth-sessions'
 
 /**
  * Tenant isolation gate (docs/dev-file/06 §4.1, §4.2; ADR 0010).
@@ -108,6 +109,7 @@ export const tenantMiddleware = createMiddleware<{
     coordinatorCanSeeDollars: profile.coordinatorCanSeeDollars,
   }
   c.set('tenantContext', tenant)
+  c.set('authSessions', createAuthSessionsRepo(db))
   c.set('scoped', scoped(db, firmId))
   return next()
 })

@@ -36,6 +36,7 @@ export const session = sqliteTable(
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     activeOrganizationId: text('active_organization_id'),
+    twoFactorVerified: integer('two_factor_verified', { mode: 'boolean' }).default(false).notNull(),
   },
   (table) => [index('session_userId_idx').on(table.userId)],
 )

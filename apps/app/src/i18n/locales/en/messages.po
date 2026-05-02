@@ -3743,7 +3743,6 @@ msgstr "Please enter at least 2 characters."
 #: src/routes/firm.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
-#: src/routes/two-factor.tsx
 #: src/routes/workboard.tsx
 msgid "Please try again."
 msgstr "Please try again."

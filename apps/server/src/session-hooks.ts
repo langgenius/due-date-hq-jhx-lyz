@@ -20,7 +20,10 @@ import { sha256Hex } from './lib/readiness-token'
  *   The fix per the better-auth organization docs: on session create, if
  *   the user already has an active membership, auto-populate
  *   activeOrganizationId on the brand-new session row. First-time users
- *   (no memberships) get `null` and land in /onboarding as designed.
+ *   (no memberships) keep `activeOrganizationId` null and land in
+ *   /onboarding as designed. The same hook also stamps `twoFactorVerified`
+ *   false for users who already enabled MFA, so OAuth-created sessions are
+ *   challenged by the app loader.
  *
  *   Lives in the server layer (NOT in packages/auth) because it imports
  *   the auth schema via the drizzle db handle. `packages/auth` can't
@@ -40,9 +43,13 @@ export function buildDatabaseHooks(db: Db, secret: string): DatabaseHooks {
     session: {
       create: {
         before: async (session) => {
-          // Defensive guard for the (impossible-in-practice) case userId is
-          // missing on the base Session shape.
           if (!session.userId) return undefined
+
+          const [user] = await db
+            .select({ twoFactorEnabled: authSchema.user.twoFactorEnabled })
+            .from(authSchema.user)
+            .where(eq(authSchema.user.id, session.userId))
+            .limit(1)
 
           const [earliestMembership] = await db
             .select({ organizationId: authSchema.member.organizationId })
@@ -61,15 +68,13 @@ export function buildDatabaseHooks(db: Db, secret: string): DatabaseHooks {
             .orderBy(asc(authSchema.member.createdAt))
             .limit(1)
 
-          // First-time user has no memberships yet — return undefined so
-          // better-auth writes the session as-is (activeOrganizationId null);
-          // the protected loader then redirects to /onboarding.
-          if (!earliestMembership) return undefined
-
           return {
             data: {
               ...session,
-              activeOrganizationId: earliestMembership.organizationId,
+              twoFactorVerified: !user?.twoFactorEnabled,
+              ...(earliestMembership
+                ? { activeOrganizationId: earliestMembership.organizationId }
+                : {}),
             },
           }
         },

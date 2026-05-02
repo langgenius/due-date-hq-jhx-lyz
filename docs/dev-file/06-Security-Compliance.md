@@ -55,9 +55,9 @@
 
 - `twoFactor` plugin；TOTP + 10 条 recovery codes
 - `/account/security` 可通过 QR code 扫码启用 MFA，保留 setup URI fallback，可复制 recovery codes，并管理 active sessions
-- `/two-factor` 承接已启用 MFA 用户的登录二次验证
+- `/two-factor` 承接已启用 MFA 用户的登录二次验证；OAuth 登录不会走 Better Auth email sign-in 的 `twoFactorRedirect` hook，所以 `protectedLoader` 用 session 上的 `twoFactorVerified` 做应用层 gate
 - production 中 owner-only procedure 在 Owner 未启用 MFA 时返回 `MFA_REQUIRED` 并写 `auth.denied`
-- `two_factor.secret` / `backup_codes` 由 Better Auth 管理；表级迁移为 `0021_elite_daredevil`
+- `two_factor.secret` / `backup_codes` 由 Better Auth 管理；session 额外记录当前登录是否完成 MFA 验证
 
 ---
 

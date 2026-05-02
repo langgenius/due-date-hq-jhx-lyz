@@ -3743,7 +3743,6 @@ msgstr "请至少输入 2 个字符。"
 #: src/routes/firm.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
-#: src/routes/two-factor.tsx
 #: src/routes/workboard.tsx
 msgid "Please try again."
 msgstr "请稍后重试。"

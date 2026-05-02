@@ -21,11 +21,29 @@ import { RouteDocumentTitle } from '@/routes/route-title'
 // Route id used by children to reach into the layout loader via useRouteLoaderData.
 export const PROTECTED_ROUTE_ID = 'protected'
 
+type MfaSessionShape = {
+  user?: unknown
+  session?: unknown
+}
+
 async function fetchSession({ request }: LoaderFunctionArgs) {
   const { data } = await authClient.getSession({
     fetchOptions: { signal: request.signal },
   })
   return data
+}
+
+function booleanField(value: unknown, key: string): boolean | undefined {
+  if (!value || typeof value !== 'object' || !(key in value)) return undefined
+  const field = Reflect.get(value, key)
+  return typeof field === 'boolean' ? field : undefined
+}
+
+function needsTwoFactorVerification(session: MfaSessionShape): boolean {
+  return (
+    booleanField(session.user, 'twoFactorEnabled') === true &&
+    booleanField(session.session, 'twoFactorVerified') !== true
+  )
 }
 
 /**
@@ -124,6 +142,12 @@ async function protectedLoader(args: LoaderFunctionArgs) {
         ? `?redirectTo=${encodeURIComponent(pathAndQuery)}`
         : ''
     throw redirect(`/onboarding${param}`)
+  }
+  if (needsTwoFactorVerification(session)) {
+    const pathAndQuery = pathAndQueryWithoutLocale(url)
+    const param =
+      pathAndQuery && pathAndQuery !== '/' ? `?redirectTo=${encodeURIComponent(pathAndQuery)}` : ''
+    throw redirect(`/two-factor${param}`)
   }
   if (consumedLocale) throw replace(pathAndQueryWithoutLocale(url))
   return { user: session.user }

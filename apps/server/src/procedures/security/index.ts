@@ -1,4 +1,5 @@
 import { ORPCError } from '@orpc/server'
+import { splitSetCookieHeader } from 'better-auth/cookies'
 import { createWorkerAuth } from '../../auth'
 import { sha256Hex } from '../../lib/readiness-token'
 import { requireTenant, type RpcContext } from '../_context'
@@ -12,6 +13,11 @@ type AuthSessionRow = {
   createdAt: Date | string
   updatedAt: Date | string
   expiresAt: Date | string
+}
+
+type AuthWithHeaders<T> = {
+  headers: Headers
+  response: T
 }
 
 function toIso(value: Date | string): string {
@@ -75,6 +81,55 @@ async function callAuth<T>(promise: Promise<T>): Promise<T> {
   }
 }
 
+function captureAuthHeaders(context: RpcContext, headers: Headers): void {
+  const responseHeaders = context.vars.responseHeaders ?? new Headers()
+  headers.forEach((value, key) => {
+    if (key.toLowerCase() !== 'set-cookie') {
+      responseHeaders.set(key, value)
+      return
+    }
+
+    for (const cookie of splitSetCookieHeader(value)) {
+      responseHeaders.append('set-cookie', cookie)
+    }
+  })
+  context.vars.responseHeaders = responseHeaders
+}
+
+function requestHeadersWithAuthCookies(requestHeaders: Headers, responseHeaders: Headers): Headers {
+  const headers = new Headers(requestHeaders)
+  const cookies = new Map<string, string>()
+
+  for (const cookie of headers.get('cookie')?.split(';') ?? []) {
+    const [name, ...valueParts] = cookie.trim().split('=')
+    const value = valueParts.join('=')
+    if (name && value) cookies.set(name, value)
+  }
+
+  responseHeaders.forEach((headerValue, key) => {
+    if (key.toLowerCase() !== 'set-cookie') return
+    for (const cookie of splitSetCookieHeader(headerValue)) {
+      const [nameValue, ...attributes] = cookie.split(';')
+      if (!nameValue) continue
+      const [name, ...valueParts] = nameValue.trim().split('=')
+      const cookieValue = valueParts.join('=')
+      const expiresCookie = attributes.some((attribute) => {
+        const normalized = attribute.trim().toLowerCase()
+        return normalized === 'max-age=0' || normalized.startsWith('expires=thu, 01 jan 1970')
+      })
+      if (!name) continue
+      if (!cookieValue || expiresCookie) {
+        cookies.delete(name)
+      } else {
+        cookies.set(name, cookieValue)
+      }
+    }
+  })
+
+  headers.set('cookie', Array.from(cookies, ([name, value]) => `${name}=${value}`).join('; '))
+  return headers
+}
+
 const status = os.security.status.handler(async ({ context }) => {
   requireTenant(context)
   const auth = createWorkerAuth(context.env)
@@ -115,28 +170,45 @@ const enableTwoFactor = os.security.enableTwoFactor.handler(async ({ context }) 
 
 const verifyTwoFactor = os.security.verifyTwoFactor.handler(async ({ input, context }) => {
   requireTenant(context)
+  const authSessions = context.vars.authSessions
+  if (!authSessions) throw new Error('Tenant middleware did not provide auth session access.')
   const auth = createWorkerAuth(context.env)
-  await callAuth(
+  const wasEnabled = context.vars.user?.twoFactorEnabled === true
+  const result: AuthWithHeaders<unknown> = await callAuth(
     auth.api.verifyTOTP({
-      body: { code: input.code, trustDevice: true },
+      body: { code: input.code },
       headers: context.request.headers,
+      returnHeaders: true,
     }),
   )
-  await auditSecurityEvent({ context, action: 'auth.mfa.enabled' })
+  captureAuthHeaders(context, result.headers)
+  const refreshed = await callAuth(
+    auth.api.getSession({
+      headers: requestHeadersWithAuthCookies(context.request.headers, result.headers),
+    }),
+  )
+  const verifiedToken = refreshed?.session?.token ?? context.vars.session?.token
+  if (verifiedToken) await authSessions.markTwoFactorVerified(verifiedToken)
+  await auditSecurityEvent({
+    context,
+    action: wasEnabled ? 'auth.mfa.challenge.verified' : 'auth.mfa.enabled',
+  })
   return { status: true }
 })
 
 const disableTwoFactor = os.security.disableTwoFactor.handler(async ({ context }) => {
   requireTenant(context)
   const auth = createWorkerAuth(context.env)
-  const result = await callAuth(
+  const result: AuthWithHeaders<{ status: boolean }> = await callAuth(
     auth.api.disableTwoFactor({
       body: {},
       headers: context.request.headers,
+      returnHeaders: true,
     }),
   )
+  captureAuthHeaders(context, result.headers)
   await auditSecurityEvent({ context, action: 'auth.mfa.disabled' })
-  return result
+  return result.response
 })
 
 const revokeSession = os.security.revokeSession.handler(async ({ input, context }) => {

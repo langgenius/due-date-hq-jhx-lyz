@@ -2,6 +2,7 @@ import { createEnv } from '@t3-oss/env-core'
 import type { ServerSession } from '@duedatehq/auth'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
 import type { FirmsRepo, MembersRepo, TenantContext } from '@duedatehq/ports/tenants'
+import type { AuthSessionsRepo } from './auth-sessions'
 import * as z from 'zod'
 
 const serverEnvSchema = z.object({
@@ -118,10 +119,12 @@ export interface ContextVars {
   requestId: string
   session?: ServerSession['session']
   user?: ServerSession['user']
+  responseHeaders?: Headers
   firmId?: string
   userId?: string
   firms?: FirmsRepo
   members?: MembersRepo
+  authSessions?: AuthSessionsRepo
   scoped?: ScopedRepo
   /**
    * Resolved business-tenant view for the request. Composed by
