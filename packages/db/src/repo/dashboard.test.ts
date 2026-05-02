@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { composeDashboardLoad, severityForDueDate } from './dashboard'
+import { composeDashboardLoad, severityForDueDate, type DashboardLoadInput } from './dashboard'
 
 const AS_OF = '2026-04-28'
 
@@ -99,6 +99,18 @@ describe('dashboard aggregation', () => {
       'oi_week',
       'oi_day_7',
     ])
+    expect(new Map(result.facets.clients.map((option) => [option.value, option.count]))).toEqual(
+      new Map([
+        ['client_1', 1],
+        ['client_2', 1],
+        ['client_3', 1],
+        ['client_4', 1],
+      ]),
+    )
+    expect(result.facets.evidence).toEqual([
+      { value: 'needs', label: 'needs', count: 3 },
+      { value: 'linked', label: 'linked', count: 1 },
+    ])
   })
 
   it('assigns rows to exactly one triage tab at dashboard window boundaries', () => {
@@ -139,6 +151,93 @@ describe('dashboard aggregation', () => {
       'day_180',
       'day_31',
     ])
+  })
+
+  it('filters triage table rows without changing global summary or top risk rows', () => {
+    const rows = [
+      {
+        obligationId: 'oi_overdue',
+        clientId: 'client_1',
+        clientName: 'Overdue LLC',
+        taxType: 'ca_100',
+        currentDueDate: due('2026-04-27'),
+        status: 'pending' as const,
+        estimatedExposureCents: null,
+        exposureStatus: 'needs_input' as const,
+        penaltyFormulaVersion: null,
+      },
+      {
+        obligationId: 'oi_week',
+        clientId: 'client_2',
+        clientName: 'This Week LLC',
+        taxType: 'ny_ct3',
+        currentDueDate: due('2026-05-02'),
+        status: 'review' as const,
+        estimatedExposureCents: 125_000,
+        exposureStatus: 'ready' as const,
+        penaltyFormulaVersion: 'penalty-v1-2026q2',
+      },
+      {
+        obligationId: 'oi_day_7',
+        clientId: 'client_3',
+        clientName: 'Boundary LLC',
+        taxType: 'federal_1120',
+        currentDueDate: due('2026-05-05'),
+        status: 'in_progress' as const,
+        estimatedExposureCents: 80_000,
+        exposureStatus: 'ready' as const,
+        penaltyFormulaVersion: 'penalty-v1-2026q2',
+      },
+      {
+        obligationId: 'oi_later',
+        clientId: 'client_4',
+        clientName: 'Later LLC',
+        taxType: 'federal_1120',
+        currentDueDate: due('2026-05-20'),
+        status: 'waiting_on_client' as const,
+        estimatedExposureCents: null,
+        exposureStatus: 'unsupported' as const,
+        penaltyFormulaVersion: null,
+      },
+    ]
+    const evidenceRows = [
+      {
+        id: 'ev_1',
+        obligationInstanceId: 'oi_overdue',
+        aiOutputId: null,
+        sourceType: 'verified_rule',
+        sourceId: 'rule_1',
+        sourceUrl: null,
+        verbatimQuote: null,
+        rawValue: null,
+        normalizedValue: null,
+        confidence: 1,
+        model: null,
+        appliedAt: due('2026-04-28'),
+      },
+    ]
+    const baseInput = { asOfDate: AS_OF, windowDays: 7, topLimit: 8 }
+    const baseline = composeDashboardLoad(rows, evidenceRows, baseInput)
+    const baselineTopRows = baseline.topRows.map((row) => row.obligationId)
+
+    const cases: Array<[Partial<DashboardLoadInput>, string[]]> = [
+      [{ clientIds: ['client_2'] }, ['oi_week']],
+      [{ taxTypes: ['federal_1120'] }, ['oi_day_7', 'oi_later']],
+      [{ dueBuckets: ['next_7_days'] }, ['oi_week', 'oi_day_7']],
+      [{ status: ['review'] }, ['oi_week']],
+      [{ severity: ['critical'] }, ['oi_overdue']],
+      [{ exposureStatus: ['unsupported'] }, ['oi_later']],
+      [{ evidence: ['needs'] }, ['oi_week', 'oi_day_7', 'oi_later']],
+    ]
+
+    for (const [filterInput, expectedIds] of cases) {
+      const result = composeDashboardLoad(rows, evidenceRows, { ...baseInput, ...filterInput })
+      expect(result.summary).toEqual(baseline.summary)
+      expect(result.topRows.map((row) => row.obligationId)).toEqual(baselineTopRows)
+      expect(result.triageTabs.flatMap((tab) => tab.rows.map((row) => row.obligationId))).toEqual(
+        expectedIds,
+      )
+    }
   })
 
   it('uses deterministic severity thresholds', () => {

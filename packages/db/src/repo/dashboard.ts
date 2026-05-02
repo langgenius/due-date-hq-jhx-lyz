@@ -4,8 +4,16 @@ import type {
   DashboardBriefFailedInput,
   DashboardBriefReadyInput,
   DashboardBriefRow,
+  DashboardDueBucket,
+  DashboardEvidenceFilter,
+  DashboardFacetOption,
+  DashboardFacetsOutput,
 } from '@duedatehq/ports/dashboard'
-import type { DashboardBriefScope, DashboardBriefStatus } from '@duedatehq/ports/shared'
+import type {
+  DashboardBriefScope,
+  DashboardBriefStatus,
+  ExposureStatus,
+} from '@duedatehq/ports/shared'
 import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
@@ -17,6 +25,28 @@ import { listActiveOverlayDueDates } from './overlay'
 const OPEN_STATUSES = [...OPEN_OBLIGATION_STATUSES] satisfies ObligationStatus[]
 const EVIDENCE_BATCH_SIZE = 90
 const DAY_MS = 24 * 60 * 60 * 1000
+const DASHBOARD_DUE_BUCKETS = [
+  'overdue',
+  'today',
+  'next_7_days',
+  'next_30_days',
+  'long_term',
+] as const satisfies readonly DashboardDueBucket[]
+const DASHBOARD_EVIDENCE_FILTERS = [
+  'needs',
+  'linked',
+] as const satisfies readonly DashboardEvidenceFilter[]
+const DASHBOARD_EXPOSURE_STATUSES = [
+  'ready',
+  'needs_input',
+  'unsupported',
+] as const satisfies readonly ExposureStatus[]
+const DASHBOARD_SEVERITIES = [
+  'critical',
+  'high',
+  'medium',
+  'neutral',
+] as const satisfies readonly DashboardSeverity[]
 
 export type DashboardSeverity = 'critical' | 'high' | 'medium' | 'neutral'
 export type DashboardTriageTabKey = 'this_week' | 'this_month' | 'long_term'
@@ -27,6 +57,13 @@ export interface DashboardLoadInput {
   topLimit?: number
   briefScope?: DashboardBriefScope
   briefUserId?: string | null
+  clientIds?: string[]
+  taxTypes?: string[]
+  dueBuckets?: DashboardDueBucket[]
+  status?: ObligationStatus[]
+  severity?: DashboardSeverity[]
+  exposureStatus?: ExposureStatus[]
+  evidence?: DashboardEvidenceFilter[]
 }
 
 export interface DashboardEvidenceRow {
@@ -52,7 +89,7 @@ export interface DashboardRawRow {
   currentDueDate: Date
   status: ObligationStatus
   estimatedExposureCents: number | null
-  exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+  exposureStatus: ExposureStatus
   penaltyFormulaVersion: string | null
 }
 
@@ -85,6 +122,7 @@ export interface DashboardLoadResult {
   }
   topRows: DashboardTopRow[]
   triageTabs: DashboardTriageTab[]
+  facets: DashboardFacetsOutput
   brief: DashboardBriefRow | null
 }
 
@@ -101,12 +139,12 @@ export function severityForDueDate(
   asOfDate: string,
   status: ObligationStatus,
 ): DashboardSeverity {
-  const daysUntilDue = Math.floor(
+  const days = Math.floor(
     (parseDateOnly(toDateOnly(dueDate)).getTime() - parseDateOnly(asOfDate).getTime()) / DAY_MS,
   )
-  if (daysUntilDue <= 2) return 'critical'
-  if (daysUntilDue <= 7) return 'high'
-  if (status === 'review' || daysUntilDue <= 14) return 'medium'
+  if (days <= 2) return 'critical'
+  if (days <= 7) return 'high'
+  if (status === 'review' || days <= 14) return 'medium'
   return 'neutral'
 }
 
@@ -117,11 +155,140 @@ function severityRank(severity: DashboardSeverity): number {
   return 3
 }
 
-function triageKeyForDays(daysUntilDue: number): DashboardTriageTabKey | null {
-  if (daysUntilDue <= 7) return 'this_week'
-  if (daysUntilDue <= 30) return 'this_month'
-  if (daysUntilDue <= 180) return 'long_term'
+function triageKeyForDays(days: number): DashboardTriageTabKey | null {
+  if (days <= 7) return 'this_week'
+  if (days <= 30) return 'this_month'
+  if (days <= 180) return 'long_term'
   return null
+}
+
+function dueBucketForDays(days: number): DashboardDueBucket | null {
+  if (days < 0) return 'overdue'
+  if (days === 0) return 'today'
+  if (days <= 7) return 'next_7_days'
+  if (days <= 30) return 'next_30_days'
+  if (days <= 180) return 'long_term'
+  return null
+}
+
+function daysUntilDueFromDate(dueDate: Date, asOfDate: string): number {
+  return Math.floor(
+    (parseDateOnly(toDateOnly(dueDate)).getTime() - parseDateOnly(asOfDate).getTime()) / DAY_MS,
+  )
+}
+
+function uniqueNonEmpty(values: readonly string[] | undefined): string[] {
+  return [
+    ...new Set((values ?? []).map((value) => value.trim()).filter((value) => value.length > 0)),
+  ]
+}
+
+function incrementFacet(
+  facets: Map<string, DashboardFacetOption>,
+  value: string,
+  label = value,
+): void {
+  const current = facets.get(value)
+  if (current) {
+    current.count += 1
+    return
+  }
+  facets.set(value, { value, label, count: 1 })
+}
+
+function compareFacetLabels(
+  a: Pick<DashboardFacetOption, 'label' | 'value'>,
+  b: Pick<DashboardFacetOption, 'label' | 'value'>,
+): number {
+  const labelDelta = a.label.localeCompare(b.label)
+  if (labelDelta !== 0) return labelDelta
+  return a.value.localeCompare(b.value)
+}
+
+function enumFacetOptions<T extends string>(
+  values: readonly T[],
+  counts: Map<string, number>,
+): Array<DashboardFacetOption & { value: T }> {
+  return values.map((value) => ({ value, label: value, count: counts.get(value) ?? 0 }))
+}
+
+function matchesDashboardFilters(
+  row: DashboardTopRow,
+  input: DashboardLoadInput,
+  asOfMs: number,
+): boolean {
+  const clientIds = uniqueNonEmpty(input.clientIds)
+  if (clientIds.length > 0 && !clientIds.includes(row.clientId)) return false
+
+  const taxTypes = uniqueNonEmpty(input.taxTypes)
+  if (taxTypes.length > 0 && !taxTypes.includes(row.taxType)) return false
+
+  const days = Math.floor(
+    (parseDateOnly(toDateOnly(row.currentDueDate)).getTime() - asOfMs) / DAY_MS,
+  )
+  const dueBucket = dueBucketForDays(days)
+  if (input.dueBuckets && input.dueBuckets.length > 0) {
+    if (!dueBucket || !input.dueBuckets.includes(dueBucket)) return false
+  }
+
+  if (input.status && input.status.length > 0 && !input.status.includes(row.status)) return false
+  if (input.severity && input.severity.length > 0 && !input.severity.includes(row.severity)) {
+    return false
+  }
+  if (
+    input.exposureStatus &&
+    input.exposureStatus.length > 0 &&
+    !input.exposureStatus.includes(row.exposureStatus)
+  ) {
+    return false
+  }
+
+  if (input.evidence && input.evidence.length > 0) {
+    const evidenceState: DashboardEvidenceFilter = row.evidenceCount === 0 ? 'needs' : 'linked'
+    if (!input.evidence.includes(evidenceState)) return false
+  }
+
+  return true
+}
+
+function composeDashboardFacets(rows: DashboardTopRow[], asOfMs: number): DashboardFacetsOutput {
+  const clients = new Map<string, DashboardFacetOption>()
+  const taxTypes = new Map<string, DashboardFacetOption>()
+  const dueBucketCounts = new Map<string, number>()
+  const statusCounts = new Map<string, number>()
+  const severityCounts = new Map<string, number>()
+  const exposureStatusCounts = new Map<string, number>()
+  const evidenceCounts = new Map<string, number>()
+
+  for (const row of rows) {
+    const days = Math.floor(
+      (parseDateOnly(toDateOnly(row.currentDueDate)).getTime() - asOfMs) / DAY_MS,
+    )
+    if (!triageKeyForDays(days)) continue
+
+    incrementFacet(clients, row.clientId, row.clientName)
+    incrementFacet(taxTypes, row.taxType)
+    const dueBucket = dueBucketForDays(days)
+    if (dueBucket) dueBucketCounts.set(dueBucket, (dueBucketCounts.get(dueBucket) ?? 0) + 1)
+    statusCounts.set(row.status, (statusCounts.get(row.status) ?? 0) + 1)
+    severityCounts.set(row.severity, (severityCounts.get(row.severity) ?? 0) + 1)
+    exposureStatusCounts.set(
+      row.exposureStatus,
+      (exposureStatusCounts.get(row.exposureStatus) ?? 0) + 1,
+    )
+    const evidenceState: DashboardEvidenceFilter = row.evidenceCount === 0 ? 'needs' : 'linked'
+    evidenceCounts.set(evidenceState, (evidenceCounts.get(evidenceState) ?? 0) + 1)
+  }
+
+  return {
+    clients: [...clients.values()].toSorted(compareFacetLabels),
+    taxTypes: [...taxTypes.values()].toSorted(compareFacetLabels),
+    dueBuckets: enumFacetOptions(DASHBOARD_DUE_BUCKETS, dueBucketCounts),
+    statuses: enumFacetOptions(OPEN_STATUSES, statusCounts),
+    severities: enumFacetOptions(DASHBOARD_SEVERITIES, severityCounts),
+    exposureStatuses: enumFacetOptions(DASHBOARD_EXPOSURE_STATUSES, exposureStatusCounts),
+    evidence: enumFacetOptions(DASHBOARD_EVIDENCE_FILTERS, evidenceCounts),
+  }
 }
 
 export function composeDashboardLoad(
@@ -155,10 +322,8 @@ export function composeDashboardLoad(
   const topRows: DashboardTopRow[] = []
 
   for (const row of rows) {
-    const daysUntilDue = Math.floor(
-      (parseDateOnly(toDateOnly(row.currentDueDate)).getTime() - asOf) / DAY_MS,
-    )
-    const inWindow = daysUntilDue >= 0 && daysUntilDue <= windowDays
+    const days = daysUntilDueFromDate(row.currentDueDate, input.asOfDate)
+    const inWindow = days >= 0 && days <= windowDays
     const evidence = evidenceByObligation.get(row.obligationId) ?? []
     if (inWindow) dueThisWeekCount += 1
     if (row.status === 'review') needsReviewCount += 1
@@ -190,6 +355,9 @@ export function composeDashboardLoad(
     return a.obligationId.localeCompare(b.obligationId)
   })
 
+  const filteredRows = topRows.filter((row) => matchesDashboardFilters(row, input, asOf))
+  const facets = composeDashboardFacets(topRows, asOf)
+
   const triage = new Map<
     DashboardTriageTabKey,
     { count: number; totalExposureCents: number; rows: DashboardTopRow[] }
@@ -199,11 +367,11 @@ export function composeDashboardLoad(
     ['long_term', { count: 0, totalExposureCents: 0, rows: [] }],
   ])
 
-  for (const row of topRows) {
-    const daysUntilDue = Math.floor(
+  for (const row of filteredRows) {
+    const days = Math.floor(
       (parseDateOnly(toDateOnly(row.currentDueDate)).getTime() - asOf) / DAY_MS,
     )
-    const key = triageKeyForDays(daysUntilDue)
+    const key = triageKeyForDays(days)
     if (!key) continue
     const bucket = triage.get(key)
     if (!bucket) continue
@@ -231,6 +399,7 @@ export function composeDashboardLoad(
       { key: 'this_month', label: 'This Month', ...triage.get('this_month')! },
       { key: 'long_term', label: 'Long-term', ...triage.get('long_term')! },
     ],
+    facets,
     brief: null,
   }
 }

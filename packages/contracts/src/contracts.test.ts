@@ -67,6 +67,10 @@ import {
 import { AuditActionSchema, PulseAuditActionSchema } from './shared/audit-actions'
 import { EvidenceSourceTypeSchema } from './shared/evidence-source-types'
 import {
+  DASHBOARD_FILTER_MAX_SELECTIONS,
+  DashboardDueBucketSchema,
+  DashboardEvidenceFilterSchema,
+  DashboardLoadInputSchema,
   DashboardLoadOutputSchema,
   DashboardSeveritySchema,
   DashboardTriageTabKeySchema,
@@ -671,6 +675,33 @@ describe('@duedatehq/contracts', () => {
     expect(Object.keys(dashboardContract)).toEqual(['load', 'requestBriefRefresh'])
     expect(DashboardSeveritySchema.options).toEqual(['critical', 'high', 'medium', 'neutral'])
     expect(DashboardTriageTabKeySchema.options).toEqual(['this_week', 'this_month', 'long_term'])
+    expect(DashboardDueBucketSchema.options).toEqual([
+      'overdue',
+      'today',
+      'next_7_days',
+      'next_30_days',
+      'long_term',
+    ])
+    expect(DashboardEvidenceFilterSchema.options).toEqual(['needs', 'linked'])
+
+    const input = DashboardLoadInputSchema.parse({
+      clientIds: ['11111111-1111-4111-8111-111111111111'],
+      taxTypes: ['ca_llc_annual_tax'],
+      dueBuckets: ['overdue', 'next_7_days'],
+      status: ['pending', 'review'],
+      severity: ['critical'],
+      exposureStatus: ['ready'],
+      evidence: ['linked'],
+    })
+    expect(input?.dueBuckets).toEqual(['overdue', 'next_7_days'])
+    expect(() =>
+      DashboardLoadInputSchema.parse({
+        clientIds: Array.from(
+          { length: DASHBOARD_FILTER_MAX_SELECTIONS + 1 },
+          (_, index) => `11111111-1111-4111-8111-${String(index).padStart(12, '0')}`,
+        ),
+      }),
+    ).toThrow()
 
     const output = DashboardLoadOutputSchema.parse({
       asOfDate: '2026-04-28',
@@ -752,6 +783,44 @@ describe('@duedatehq/contracts', () => {
           rows: [],
         },
       ],
+      facets: {
+        clients: [
+          {
+            value: '22222222-2222-4222-8222-222222222222',
+            label: 'Acme LLC',
+            count: 1,
+          },
+        ],
+        taxTypes: [{ value: 'ca_llc_annual_tax', label: 'ca_llc_annual_tax', count: 1 }],
+        dueBuckets: [
+          { value: 'overdue', label: 'overdue', count: 0 },
+          { value: 'today', label: 'today', count: 0 },
+          { value: 'next_7_days', label: 'next_7_days', count: 1 },
+          { value: 'next_30_days', label: 'next_30_days', count: 0 },
+          { value: 'long_term', label: 'long_term', count: 0 },
+        ],
+        statuses: [
+          { value: 'pending', label: 'pending', count: 1 },
+          { value: 'in_progress', label: 'in_progress', count: 0 },
+          { value: 'waiting_on_client', label: 'waiting_on_client', count: 0 },
+          { value: 'review', label: 'review', count: 0 },
+        ],
+        severities: [
+          { value: 'critical', label: 'critical', count: 1 },
+          { value: 'high', label: 'high', count: 0 },
+          { value: 'medium', label: 'medium', count: 0 },
+          { value: 'neutral', label: 'neutral', count: 0 },
+        ],
+        exposureStatuses: [
+          { value: 'ready', label: 'ready', count: 1 },
+          { value: 'needs_input', label: 'needs_input', count: 0 },
+          { value: 'unsupported', label: 'unsupported', count: 0 },
+        ],
+        evidence: [
+          { value: 'needs', label: 'needs', count: 0 },
+          { value: 'linked', label: 'linked', count: 1 },
+        ],
+      },
       brief: {
         status: 'ready',
         generatedAt: '2026-04-28T12:00:00.000Z',

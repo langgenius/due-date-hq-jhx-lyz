@@ -112,6 +112,13 @@ const load = os.dashboard.load.handler(async ({ input, context }) => {
     topLimit,
     briefScope,
     briefUserId: briefScope === 'me' ? userId : null,
+    ...(input?.clientIds ? { clientIds: input.clientIds } : {}),
+    ...(input?.taxTypes ? { taxTypes: input.taxTypes } : {}),
+    ...(input?.dueBuckets ? { dueBuckets: input.dueBuckets } : {}),
+    ...(input?.status ? { status: input.status } : {}),
+    ...(input?.severity ? { severity: input.severity } : {}),
+    ...(input?.exposureStatus ? { exposureStatus: input.exposureStatus } : {}),
+    ...(input?.evidence ? { evidence: input.evidence } : {}),
   })
 
   const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
@@ -132,6 +139,7 @@ const load = os.dashboard.load.handler(async ({ input, context }) => {
       totalExposureCents: hideDollars ? 0 : tab.totalExposureCents,
       rows: tab.rows.map((row) => toTopRow(row, { hideDollars })),
     })),
+    facets: result.facets,
     brief: toBriefPublic(result.brief),
   } satisfies DashboardLoadOutput
 })

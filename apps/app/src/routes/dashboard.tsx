@@ -6,19 +6,26 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
 } from 'lucide-react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
-import { parseAsStringLiteral, useQueryStates } from 'nuqs'
+import { parseAsArrayOf, parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import type {
+  DashboardDueBucket,
+  DashboardEvidenceFilter,
+  DashboardFacetsOutput,
+  DashboardLoadInput,
   DashboardBriefPublic,
   DashboardSeverity,
   DashboardTopRow,
   DashboardTriageTab,
   DashboardTriageTabKey,
 } from '@duedatehq/contracts'
+import { DASHBOARD_FILTER_MAX_SELECTIONS } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -42,6 +49,10 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
+import {
+  TableHeaderMultiFilter,
+  type TableFilterOption,
+} from '@/components/patterns/table-header-filter'
 import { RiskBanner } from '@/features/dashboard/risk-banner'
 import { severityRowClass } from '@/features/dashboard/severity-row'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
@@ -61,18 +72,107 @@ type QueueStat = {
   value: string
   detail: string
 }
+type DashboardExposureStatus = DashboardTopRow['exposureStatus']
+type DashboardStatusFilter = 'pending' | 'in_progress' | 'waiting_on_client' | 'review'
+type DashboardFilterState = {
+  client: string[]
+  taxType: string[]
+  due: DashboardDueBucket[]
+  status: DashboardStatusFilter[]
+  severity: DashboardSeverity[]
+  exposure: DashboardExposureStatus[]
+  evidence: DashboardEvidenceFilter[]
+}
+type DashboardFilterOptions = {
+  clients: TableFilterOption[]
+  taxTypes: TableFilterOption[]
+  due: TableFilterOption[]
+  status: TableFilterOption[]
+  severity: TableFilterOption[]
+  exposure: TableFilterOption[]
+  evidence: TableFilterOption[]
+}
+type DashboardQueryPatch = Partial<{
+  client: string[] | null
+  taxType: string[] | null
+  due: DashboardDueBucket[] | null
+  status: DashboardStatusFilter[] | null
+  severity: DashboardSeverity[] | null
+  exposure: DashboardExposureStatus[] | null
+  evidence: DashboardEvidenceFilter[] | null
+}>
 type DashboardBriefCitation = NonNullable<DashboardBriefPublic['citations']>[number]
 const TRIAGE_TAB_KEYS = ['this_week', 'this_month', 'long_term'] as const
+const DASHBOARD_DUE_BUCKETS = [
+  'overdue',
+  'today',
+  'next_7_days',
+  'next_30_days',
+  'long_term',
+] as const satisfies readonly DashboardDueBucket[]
+const DASHBOARD_STATUS_FILTERS = [
+  'pending',
+  'in_progress',
+  'waiting_on_client',
+  'review',
+] as const satisfies readonly ObligationStatus[]
+const DASHBOARD_EXPOSURE_STATUSES = [
+  'ready',
+  'needs_input',
+  'unsupported',
+] as const satisfies readonly DashboardExposureStatus[]
+const DASHBOARD_EVIDENCE_FILTERS = [
+  'needs',
+  'linked',
+] as const satisfies readonly DashboardEvidenceFilter[]
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 
 const dashboardSearchParamsParsers = {
   triage: parseAsStringLiteral(TRIAGE_TAB_KEYS)
     .withDefault('this_week')
     .withOptions(REPLACE_HISTORY_OPTIONS),
+  client: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
+  taxType: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
+  due: parseAsArrayOf(parseAsStringLiteral(DASHBOARD_DUE_BUCKETS))
+    .withDefault([])
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  status: parseAsArrayOf(parseAsStringLiteral(DASHBOARD_STATUS_FILTERS))
+    .withDefault([])
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  severity: parseAsArrayOf(parseAsStringLiteral(['critical', 'high', 'medium', 'neutral']))
+    .withDefault([])
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  exposure: parseAsArrayOf(parseAsStringLiteral(DASHBOARD_EXPOSURE_STATUSES))
+    .withDefault([])
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  evidence: parseAsArrayOf(parseAsStringLiteral(DASHBOARD_EVIDENCE_FILTERS))
+    .withDefault([])
+    .withOptions(REPLACE_HISTORY_OPTIONS),
 } as const
 
 function isTriageTabKey(value: string): value is DashboardTriageTabKey {
   return (TRIAGE_TAB_KEYS as readonly string[]).includes(value)
+}
+
+function isDashboardDueBucket(value: string): value is DashboardDueBucket {
+  return (DASHBOARD_DUE_BUCKETS as readonly string[]).includes(value)
+}
+
+function isDashboardStatus(value: string): value is (typeof DASHBOARD_STATUS_FILTERS)[number] {
+  return (DASHBOARD_STATUS_FILTERS as readonly string[]).includes(value)
+}
+
+function isDashboardSeverity(value: string): value is DashboardSeverity {
+  return ['critical', 'high', 'medium', 'neutral'].includes(value)
+}
+
+function isDashboardExposureStatus(value: string): value is DashboardTopRow['exposureStatus'] {
+  return (DASHBOARD_EXPOSURE_STATUSES as readonly string[]).includes(value)
+}
+
+function isDashboardEvidenceFilter(value: string): value is DashboardEvidenceFilter {
+  return (DASHBOARD_EVIDENCE_FILTERS as readonly string[]).includes(value)
 }
 
 const severityVariant: Record<
@@ -108,6 +208,43 @@ function useTriageTabLabels(): Record<DashboardTriageTabKey, string> {
     this_month: t`This Month`,
     long_term: t`Long-term`,
   }
+}
+
+function useDueBucketLabels(): Record<DashboardDueBucket, string> {
+  const { t } = useLingui()
+  return useMemo(
+    () => ({
+      overdue: t`Overdue`,
+      today: t`Today`,
+      next_7_days: t`Next 7 days`,
+      next_30_days: t`Next 30 days`,
+      long_term: t`Long-term`,
+    }),
+    [t],
+  )
+}
+
+function useExposureStatusLabels(): Record<DashboardTopRow['exposureStatus'], string> {
+  const { t } = useLingui()
+  return useMemo(
+    () => ({
+      ready: t`Ready`,
+      needs_input: t`Needs input`,
+      unsupported: t`Unsupported`,
+    }),
+    [t],
+  )
+}
+
+function useEvidenceFilterLabels(): Record<DashboardEvidenceFilter, string> {
+  const { t } = useLingui()
+  return useMemo(
+    () => ({
+      needs: t`Needs evidence`,
+      linked: t`Evidence linked`,
+    }),
+    [t],
+  )
 }
 
 function formatEvidence(row: DashboardTopRow, t: ReturnType<typeof useLingui>['t']): string {
@@ -146,6 +283,32 @@ function ExposureBadge({ row }: { row: DashboardTopRow }) {
   )
 }
 
+function cleanStringFilters(values: readonly string[]): string[] {
+  return [
+    ...new Set(
+      values
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0 && value.length <= 120),
+    ),
+  ].slice(0, DASHBOARD_FILTER_MAX_SELECTIONS)
+}
+
+function cleanEntityIdFilters(values: readonly string[]): string[] {
+  return cleanStringFilters(values).filter((value) => UUID_RE.test(value))
+}
+
+function enumOptionsFromFacets<T extends string>(
+  values: readonly T[],
+  facets: DashboardFacetsOutput | undefined,
+  facetKey: 'dueBuckets' | 'statuses' | 'severities' | 'exposureStatuses' | 'evidence',
+  labels: Record<T, string>,
+): TableFilterOption[] {
+  const counts = new Map<string, number>(
+    (facets?.[facetKey] ?? []).map((option) => [option.value, option.count]),
+  )
+  return values.map((value) => ({ value, label: labels[value], count: counts.get(value) ?? 0 }))
+}
+
 export function DashboardRoute() {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -154,9 +317,32 @@ export function DashboardRoute() {
   const { openEvidence } = useEvidenceDrawer()
   const severityLabels = useSeverityLabels()
   const triageTabLabels = useTriageTabLabels()
+  const dueBucketLabels = useDueBucketLabels()
+  const exposureStatusLabels = useExposureStatusLabels()
+  const evidenceFilterLabels = useEvidenceFilterLabels()
   const statusLabels = useStatusLabels()
-  const [{ triage }, setDashboardQuery] = useQueryStates(dashboardSearchParamsParsers)
-  const dashboardQuery = useQuery(orpc.dashboard.load.queryOptions({ input: {} }))
+  const [
+    { triage, client, taxType, due, status: statusFilter, severity, exposure, evidence },
+    setDashboardQuery,
+  ] = useQueryStates(dashboardSearchParamsParsers)
+  const clientQuery = useMemo(() => cleanEntityIdFilters(client), [client])
+  const taxTypeQuery = useMemo(() => cleanStringFilters(taxType), [taxType])
+  const dashboardTableInput = useMemo<DashboardLoadInput>(
+    () => ({
+      ...(clientQuery.length > 0 ? { clientIds: clientQuery } : {}),
+      ...(taxTypeQuery.length > 0 ? { taxTypes: taxTypeQuery } : {}),
+      ...(due.length > 0 ? { dueBuckets: due } : {}),
+      ...(statusFilter.length > 0 ? { status: statusFilter } : {}),
+      ...(severity.length > 0 ? { severity } : {}),
+      ...(exposure.length > 0 ? { exposureStatus: exposure } : {}),
+      ...(evidence.length > 0 ? { evidence } : {}),
+    }),
+    [clientQuery, due, evidence, exposure, severity, statusFilter, taxTypeQuery],
+  )
+  const dashboardQuery = useQuery({
+    ...orpc.dashboard.load.queryOptions({ input: dashboardTableInput }),
+    placeholderData: keepPreviousData,
+  })
   const updateStatusMutation = useMutation(
     orpc.obligations.updateStatus.mutationOptions({
       onSuccess: (result) => {
@@ -214,6 +400,59 @@ export function DashboardRoute() {
   const visibleBanners = topRows.slice(0, 3)
   const triageTabs = data?.triageTabs ?? []
   const selectedTriageTab = triageTabs.find((tab) => tab.key === triage) ?? triageTabs[0] ?? null
+  const facets = data?.facets
+  const clientOptions = useMemo<TableFilterOption[]>(
+    () =>
+      facets?.clients.map((option) => ({
+        value: option.value,
+        label: option.label,
+        count: option.count,
+      })) ?? [],
+    [facets?.clients],
+  )
+  const taxTypeOptions = useMemo<TableFilterOption[]>(
+    () =>
+      facets?.taxTypes.map((option) => ({
+        value: option.value,
+        label: option.label,
+        count: option.count,
+      })) ?? [],
+    [facets?.taxTypes],
+  )
+  const dueOptions = useMemo(
+    () => enumOptionsFromFacets(DASHBOARD_DUE_BUCKETS, facets, 'dueBuckets', dueBucketLabels),
+    [dueBucketLabels, facets],
+  )
+  const statusOptions = useMemo(
+    () => enumOptionsFromFacets(DASHBOARD_STATUS_FILTERS, facets, 'statuses', statusLabels),
+    [facets, statusLabels],
+  )
+  const severityOptions = useMemo(
+    () =>
+      enumOptionsFromFacets(
+        ['critical', 'high', 'medium', 'neutral'] as const,
+        facets,
+        'severities',
+        severityLabels,
+      ),
+    [facets, severityLabels],
+  )
+  const exposureOptions = useMemo(
+    () =>
+      enumOptionsFromFacets(
+        DASHBOARD_EXPOSURE_STATUSES,
+        facets,
+        'exposureStatuses',
+        exposureStatusLabels,
+      ),
+    [exposureStatusLabels, facets],
+  )
+  const evidenceOptions = useMemo(
+    () =>
+      enumOptionsFromFacets(DASHBOARD_EVIDENCE_FILTERS, facets, 'evidence', evidenceFilterLabels),
+    [evidenceFilterLabels, facets],
+  )
+  const filtersDisabled = dashboardQuery.isLoading && !data
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
@@ -426,10 +665,30 @@ export function DashboardRoute() {
           tabs={triageTabs}
           selectedKey={selectedTriageTab?.key ?? triage}
           tabLabels={triageTabLabels}
+          filtersDisabled={filtersDisabled}
+          filterOptions={{
+            clients: clientOptions,
+            taxTypes: taxTypeOptions,
+            due: dueOptions,
+            status: statusOptions,
+            severity: severityOptions,
+            exposure: exposureOptions,
+            evidence: evidenceOptions,
+          }}
+          filterState={{
+            client: clientQuery,
+            taxType: taxTypeQuery,
+            due,
+            status: statusFilter,
+            severity,
+            exposure,
+            evidence,
+          }}
           severityLabels={severityLabels}
           statusLabels={statusLabels}
           statusDisabled={updateStatusMutation.isPending}
           onSelect={(key) => void setDashboardQuery({ triage: key })}
+          onFilterChange={(patch) => void setDashboardQuery(patch)}
           onOpenWizard={openWizard}
           onOpenWorkboard={(key) => void navigate(workboardHrefForTriage(key))}
           onOpenEvidence={(row) =>
@@ -439,8 +698,8 @@ export function DashboardRoute() {
               focusEvidenceId: row.primaryEvidence?.id ?? null,
             })
           }
-          onChangeStatus={(row, status) =>
-            updateStatusMutation.mutate({ id: row.obligationId, status })
+          onChangeStatus={(row, nextStatus) =>
+            updateStatusMutation.mutate({ id: row.obligationId, status: nextStatus })
           }
         />
       </section>
@@ -481,10 +740,14 @@ function DashboardTriagePanel({
   tabs,
   selectedKey,
   tabLabels,
+  filtersDisabled,
+  filterOptions,
+  filterState,
   severityLabels,
   statusLabels,
   statusDisabled,
   onSelect,
+  onFilterChange,
   onOpenWizard,
   onOpenWorkboard,
   onOpenEvidence,
@@ -495,16 +758,19 @@ function DashboardTriagePanel({
   tabs: DashboardTriageTab[]
   selectedKey: DashboardTriageTabKey
   tabLabels: Record<DashboardTriageTabKey, string>
+  filtersDisabled: boolean
+  filterOptions: DashboardFilterOptions
+  filterState: DashboardFilterState
   severityLabels: Record<DashboardSeverity, string>
   statusLabels: Record<ObligationStatus, string>
   statusDisabled: boolean
   onSelect: (key: DashboardTriageTabKey) => void
+  onFilterChange: (patch: DashboardQueryPatch) => void
   onOpenWizard: () => void
   onOpenWorkboard: (key: DashboardTriageTabKey) => void
   onOpenEvidence: (row: DashboardTopRow) => void
   onChangeStatus: (row: DashboardTopRow, status: ObligationStatus) => void
 }) {
-  const { t } = useLingui()
   const selectedTab = tabs.find((tab) => tab.key === selectedKey) ?? tabs[0] ?? null
 
   return (
@@ -553,84 +819,19 @@ function DashboardTriagePanel({
             </TabsList>
             {tabs.map((tab) => (
               <TabsContent key={tab.key} value={tab.key}>
-                {tab.rows.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-divider-regular p-6 text-sm text-text-secondary">
-                    <Trans>No obligations in this window.</Trans>
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>{t`Client`}</TableHead>
-                        <TableHead>{t`Tax type`}</TableHead>
-                        <TableHead>{t`Deadline`}</TableHead>
-                        <TableHead>{t`Status`}</TableHead>
-                        <TableHead>{t`Severity`}</TableHead>
-                        <TableHead>{t`Exposure`}</TableHead>
-                        <TableHead>{t`Evidence`}</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {tab.rows.map((row) => (
-                        <TableRow key={row.obligationId} className={severityRowClass(row.severity)}>
-                          <TableCell className="font-medium">{row.clientName}</TableCell>
-                          <TableCell className="text-text-secondary">{row.taxType}</TableCell>
-                          <TableCell className="font-mono tabular-nums">
-                            <div className="flex items-center gap-2">
-                              <DashboardCountdownBadge
-                                days={daysUntilDueFromAsOf(row.currentDueDate, asOfDate)}
-                              />
-                              <span className="text-xs">{formatDate(row.currentDueDate)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <WorkboardStatusControl
-                              row={{
-                                id: row.obligationId,
-                                clientName: row.clientName,
-                                status: row.status,
-                              }}
-                              labels={statusLabels}
-                              disabled={statusDisabled}
-                              onChange={(_, status) => onChangeStatus(row, status)}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={severityVariant[row.severity]}
-                              className="h-7 px-2.5 text-xs uppercase tracking-wide"
-                            >
-                              <BadgeStatusDot tone={severityDot[row.severity]} />
-                              {severityLabels[row.severity]}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <ExposureBadge row={row} />
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              aria-label={t`Open evidence for ${row.clientName}`}
-                              onClick={() => onOpenEvidence(row)}
-                            >
-                              <FileSearchIcon data-icon="inline-start" />
-                              {row.evidenceCount > 0 ? (
-                                <Plural
-                                  value={row.evidenceCount}
-                                  one="# source"
-                                  other="# sources"
-                                />
-                              ) : (
-                                t`Needs evidence`
-                              )}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
+                <DashboardTriageTable
+                  rows={tab.rows}
+                  asOfDate={asOfDate}
+                  filtersDisabled={filtersDisabled}
+                  filterOptions={filterOptions}
+                  filterState={filterState}
+                  severityLabels={severityLabels}
+                  statusLabels={statusLabels}
+                  statusDisabled={statusDisabled}
+                  onFilterChange={onFilterChange}
+                  onOpenEvidence={onOpenEvidence}
+                  onChangeStatus={onChangeStatus}
+                />
               </TabsContent>
             ))}
           </Tabs>
@@ -648,6 +849,293 @@ function DashboardTriagePanel({
         </Button>
       </CardFooter>
     </Card>
+  )
+}
+
+function DashboardTriageTable({
+  rows,
+  asOfDate,
+  filtersDisabled,
+  filterOptions,
+  filterState,
+  severityLabels,
+  statusLabels,
+  statusDisabled,
+  onFilterChange,
+  onOpenEvidence,
+  onChangeStatus,
+}: {
+  rows: DashboardTopRow[]
+  asOfDate: string | null
+  filtersDisabled: boolean
+  filterOptions: DashboardFilterOptions
+  filterState: DashboardFilterState
+  severityLabels: Record<DashboardSeverity, string>
+  statusLabels: Record<ObligationStatus, string>
+  statusDisabled: boolean
+  onFilterChange: (patch: DashboardQueryPatch) => void
+  onOpenEvidence: (row: DashboardTopRow) => void
+  onChangeStatus: (row: DashboardTopRow, status: ObligationStatus) => void
+}) {
+  const { t } = useLingui()
+  const [openHeaderFilter, setOpenHeaderFilter] = useState<string | null>(null)
+
+  function setHeaderFilterOpen(filterId: string, nextOpen: boolean) {
+    setOpenHeaderFilter((current) => (nextOpen ? filterId : current === filterId ? null : current))
+  }
+
+  const columns = useMemo<ColumnDef<DashboardTopRow>[]>(
+    () => [
+      {
+        accessorKey: 'clientName',
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Client`}
+            open={openHeaderFilter === 'client'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('client', nextOpen)}
+            options={filterOptions.clients}
+            selected={filterState.client}
+            disabled={filtersDisabled}
+            emptyLabel={t`No clients`}
+            searchable
+            searchPlaceholder={t`Search clients`}
+            onSelectedChange={(nextClient) =>
+              onFilterChange({ client: nextClient.length > 0 ? nextClient : null })
+            }
+          />
+        ),
+        cell: (info) => info.getValue<string>(),
+      },
+      {
+        accessorKey: 'taxType',
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Tax type`}
+            open={openHeaderFilter === 'taxType'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('taxType', nextOpen)}
+            options={filterOptions.taxTypes}
+            selected={filterState.taxType}
+            disabled={filtersDisabled}
+            emptyLabel={t`No forms`}
+            onSelectedChange={(nextTaxType) =>
+              onFilterChange({ taxType: nextTaxType.length > 0 ? nextTaxType : null })
+            }
+          />
+        ),
+        cell: (info) => info.getValue<string>(),
+      },
+      {
+        accessorKey: 'currentDueDate',
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Deadline`}
+            open={openHeaderFilter === 'due'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('due', nextOpen)}
+            options={filterOptions.due}
+            selected={filterState.due}
+            disabled={filtersDisabled}
+            emptyLabel={t`No deadline windows`}
+            onSelectedChange={(nextDue) => {
+              const typedDue = nextDue.filter(isDashboardDueBucket)
+              onFilterChange({ due: typedDue.length > 0 ? typedDue : null })
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2 font-mono tabular-nums">
+            <DashboardCountdownBadge
+              days={daysUntilDueFromAsOf(row.original.currentDueDate, asOfDate)}
+            />
+            <span className="text-xs">{formatDate(row.original.currentDueDate)}</span>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Status`}
+            open={openHeaderFilter === 'status'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('status', nextOpen)}
+            options={filterOptions.status}
+            selected={filterState.status}
+            disabled={filtersDisabled}
+            emptyLabel={t`No statuses`}
+            onSelectedChange={(nextStatus) => {
+              const typedStatus = nextStatus.filter(isDashboardStatus)
+              onFilterChange({ status: typedStatus.length > 0 ? typedStatus : null })
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <WorkboardStatusControl
+            row={{
+              id: row.original.obligationId,
+              clientName: row.original.clientName,
+              status: row.original.status,
+            }}
+            labels={statusLabels}
+            disabled={statusDisabled}
+            onChange={(_, status) => onChangeStatus(row.original, status)}
+          />
+        ),
+      },
+      {
+        accessorKey: 'severity',
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Severity`}
+            open={openHeaderFilter === 'severity'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('severity', nextOpen)}
+            options={filterOptions.severity}
+            selected={filterState.severity}
+            disabled={filtersDisabled}
+            emptyLabel={t`No severities`}
+            onSelectedChange={(nextSeverity) => {
+              const typedSeverity = nextSeverity.filter(isDashboardSeverity)
+              onFilterChange({ severity: typedSeverity.length > 0 ? typedSeverity : null })
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <Badge
+            variant={severityVariant[row.original.severity]}
+            className="h-7 px-2.5 text-xs uppercase tracking-wide"
+          >
+            <BadgeStatusDot tone={severityDot[row.original.severity]} />
+            {severityLabels[row.original.severity]}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'estimatedExposureCents',
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Exposure`}
+            open={openHeaderFilter === 'exposure'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('exposure', nextOpen)}
+            options={filterOptions.exposure}
+            selected={filterState.exposure}
+            disabled={filtersDisabled}
+            emptyLabel={t`No exposure states`}
+            onSelectedChange={(nextExposure) => {
+              const typedExposure = nextExposure.filter(isDashboardExposureStatus)
+              onFilterChange({ exposure: typedExposure.length > 0 ? typedExposure : null })
+            }}
+          />
+        ),
+        cell: ({ row }) => <ExposureBadge row={row.original} />,
+      },
+      {
+        accessorKey: 'evidenceCount',
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Evidence`}
+            open={openHeaderFilter === 'evidence'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('evidence', nextOpen)}
+            options={filterOptions.evidence}
+            selected={filterState.evidence}
+            disabled={filtersDisabled}
+            emptyLabel={t`No evidence states`}
+            onSelectedChange={(nextEvidence) => {
+              const typedEvidence = nextEvidence.filter(isDashboardEvidenceFilter)
+              onFilterChange({ evidence: typedEvidence.length > 0 ? typedEvidence : null })
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={t`Open evidence for ${row.original.clientName}`}
+            onClick={() => onOpenEvidence(row.original)}
+          >
+            <FileSearchIcon data-icon="inline-start" />
+            {row.original.evidenceCount > 0 ? (
+              <Plural value={row.original.evidenceCount} one="# source" other="# sources" />
+            ) : (
+              t`Needs evidence`
+            )}
+          </Button>
+        ),
+      },
+    ],
+    [
+      asOfDate,
+      filterOptions,
+      filterState,
+      filtersDisabled,
+      onChangeStatus,
+      onFilterChange,
+      onOpenEvidence,
+      openHeaderFilter,
+      severityLabels,
+      statusDisabled,
+      statusLabels,
+      t,
+    ],
+  )
+  const table = useReactTable({
+    data: rows,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getRowId: (row) => row.obligationId,
+    manualFiltering: true,
+  })
+  const tableRows = table.getRowModel().rows
+  const visibleColumnCount = table.getVisibleLeafColumns().length
+
+  return (
+    <Table>
+      <TableHeader>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <TableHead key={header.id} colSpan={header.colSpan}>
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(header.column.columnDef.header, header.getContext())}
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {tableRows.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={visibleColumnCount} className="py-8 text-sm text-text-secondary">
+              <Trans>No obligations in this window.</Trans>
+            </TableCell>
+          </TableRow>
+        ) : (
+          tableRows.map((tableRow) => (
+            <TableRow key={tableRow.id} className={severityRowClass(tableRow.original.severity)}>
+              {tableRow.getVisibleCells().map((cell) => (
+                <TableCell
+                  key={cell.id}
+                  className={
+                    cell.column.id === 'clientName'
+                      ? 'font-medium'
+                      : cell.column.id === 'taxType'
+                        ? 'text-text-secondary'
+                        : undefined
+                  }
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))
+        )}
+      </TableBody>
+    </Table>
   )
 }
 

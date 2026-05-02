@@ -50,7 +50,7 @@ msgstr "{0, plural, other {# 行已准备就绪可以导入}}"
 msgid "{0, plural, one {# selected} other {# selected}}"
 msgstr "{0, plural, one {已选 # 项} other {已选 # 项}}"
 
-#. placeholder {0}: row.evidenceCount
+#. placeholder {0}: row.original.evidenceCount
 #: src/routes/dashboard.tsx
 msgid "{0, plural, one {# source} other {# sources}}"
 msgstr "{0, plural, other {# 个来源}}"
@@ -1516,6 +1516,10 @@ msgstr "证据"
 msgid "Evidence chain"
 msgstr "证据链"
 
+#: src/routes/dashboard.tsx
+msgid "Evidence linked"
+msgstr "已关联证据"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Exact action"
 msgstr "精确操作"
@@ -2247,6 +2251,14 @@ msgstr "纽约"
 msgid "Newest firm-scoped audit events appear first."
 msgstr "事务所范围内最新审计事件优先显示。"
 
+#: src/routes/dashboard.tsx
+msgid "Next 30 days"
+msgstr "未来 30 天"
+
+#: src/routes/dashboard.tsx
+msgid "Next 7 days"
+msgstr "未来 7 天"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Next review"
 msgstr "下次复核"
@@ -2286,6 +2298,7 @@ msgstr "暂无审计事件。"
 msgid "No before/after payload"
 msgstr "没有变更前/后的载荷"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "No clients"
 msgstr "没有客户"
@@ -2306,6 +2319,10 @@ msgstr "未找到命令。"
 msgid "No counties"
 msgstr "没有县"
 
+#: src/routes/dashboard.tsx
+msgid "No deadline windows"
+msgstr "没有截止日窗口"
+
 #: src/features/pulse/lib/error-mapping.ts
 msgid "No eligible obligations are selected."
 msgstr "没有选中可应用的义务。"
@@ -2322,9 +2339,17 @@ msgstr "不会自动发送任何邮件"
 msgid "No evidence linked yet"
 msgstr "尚未关联证据"
 
+#: src/routes/dashboard.tsx
+msgid "No evidence states"
+msgstr "没有证据状态"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "No export packages yet."
 msgstr "暂无导出包。"
+
+#: src/routes/dashboard.tsx
+msgid "No exposure states"
+msgstr "没有风险暴露状态"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "No extension available."
@@ -2343,6 +2368,7 @@ msgstr "未检测到字段级变更"
 msgid "No firm selected"
 msgstr "未选择事务所"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "No forms"
 msgstr "没有表单"
@@ -2415,6 +2441,10 @@ msgstr "没有已保存视图"
 msgid "No seats are available. Upgrade or suspend a member before inviting."
 msgstr "没有可用席位。请先升级或暂停一名成员再邀请。"
 
+#: src/routes/dashboard.tsx
+msgid "No severities"
+msgstr "没有严重性"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "No signals found."
 msgstr "未找到信号。"
@@ -2426,6 +2456,10 @@ msgstr "尚未记录来源状态。"
 #: src/routes/workboard.tsx
 msgid "No states"
 msgstr "没有州"
+
+#: src/routes/dashboard.tsx
+msgid "No statuses"
+msgstr "没有状态"
 
 #: src/routes/billing.cancel.tsx
 msgid "No subscription changes were made. You can restart checkout when ready."
@@ -2561,7 +2595,7 @@ msgstr "打开 {plan} 计划的账单"
 msgid "Open evidence"
 msgstr "打开证据"
 
-#. placeholder {0}: row.clientName
+#. placeholder {0}: row.original.clientName
 #. placeholder {0}: tableRow.original.clientName
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -2680,6 +2714,7 @@ msgstr "其他"
 
 #: src/features/notifications/notifications-page.tsx
 #: src/features/workload/workload-page.tsx
+#: src/routes/dashboard.tsx
 msgid "Overdue"
 msgstr "已逾期"
 
@@ -3467,6 +3502,7 @@ msgid "Search audit events"
 msgstr "搜索审计事件"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Search clients"
 msgstr "搜索客户"

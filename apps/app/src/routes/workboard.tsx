@@ -110,6 +110,11 @@ import {
   useAppHotkey,
   useKeyboardShortcutsBlocked,
 } from '@/components/patterns/keyboard-shell'
+import {
+  TableHeaderMultiFilter,
+  tableHeaderFilterTrigger,
+  type TableFilterOption,
+} from '@/components/patterns/table-header-filter'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import {
@@ -174,11 +179,7 @@ type DueDaysTone = {
   dotClassName?: string
 }
 
-interface FilterOption {
-  value: string
-  label: string
-  count?: number
-}
+type FilterOption = TableFilterOption
 
 interface ClientFilterOption extends FilterOption {
   state: string | null
@@ -877,7 +878,7 @@ export function WorkboardRoute() {
       {
         accessorKey: 'clientName',
         header: () => (
-          <MultiFilterDropdown
+          <TableHeaderMultiFilter
             trigger="header"
             label={t`Client`}
             open={openHeaderFilter === 'client'}
@@ -902,7 +903,7 @@ export function WorkboardRoute() {
       {
         accessorKey: 'assigneeName',
         header: () => (
-          <MultiFilterDropdown
+          <TableHeaderMultiFilter
             trigger="header"
             label={t`Owner`}
             open={openHeaderFilter === 'owner'}
@@ -931,7 +932,7 @@ export function WorkboardRoute() {
       {
         accessorKey: 'clientState',
         header: () => (
-          <MultiFilterDropdown
+          <TableHeaderMultiFilter
             trigger="header"
             label={t`State`}
             open={openHeaderFilter === 'state'}
@@ -955,7 +956,7 @@ export function WorkboardRoute() {
       {
         accessorKey: 'clientCounty',
         header: () => (
-          <MultiFilterDropdown
+          <TableHeaderMultiFilter
             trigger="header"
             label={t`County`}
             open={openHeaderFilter === 'county'}
@@ -980,7 +981,7 @@ export function WorkboardRoute() {
       {
         accessorKey: 'taxType',
         header: () => (
-          <MultiFilterDropdown
+          <TableHeaderMultiFilter
             trigger="header"
             label={t`Tax type`}
             open={openHeaderFilter === 'taxType'}
@@ -1061,7 +1062,7 @@ export function WorkboardRoute() {
       {
         accessorKey: 'readiness',
         header: () => (
-          <MultiFilterDropdown
+          <TableHeaderMultiFilter
             trigger="header"
             label={t`Readiness`}
             open={openHeaderFilter === 'readiness'}
@@ -1111,7 +1112,7 @@ export function WorkboardRoute() {
       {
         accessorKey: 'status',
         header: () => (
-          <MultiFilterDropdown
+          <TableHeaderMultiFilter
             trigger="header"
             label={t`Status`}
             open={openHeaderFilter === 'status'}
@@ -2049,130 +2050,6 @@ function DueDaysPill({ days }: { days: number }) {
   )
 }
 
-function MultiFilterDropdown({
-  trigger = 'toolbar',
-  label,
-  open: controlledOpen,
-  onOpenChange,
-  options,
-  selected,
-  disabled,
-  emptyLabel,
-  searchable,
-  searchPlaceholder,
-  onSelectedChange,
-}: {
-  trigger?: 'toolbar' | 'header'
-  label: string
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  options: readonly FilterOption[]
-  selected: readonly string[]
-  disabled?: boolean
-  emptyLabel: string
-  searchable?: boolean
-  searchPlaceholder?: string
-  onSelectedChange: (selected: string[]) => void
-}) {
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
-  const [optionSearch, setOptionSearch] = useState('')
-  const open = controlledOpen ?? uncontrolledOpen
-  const selectedSet = new Set(selected)
-  const selectedCount = selected.length
-  const atSelectionLimit = selectedCount >= WORKBOARD_FILTER_MAX_SELECTIONS
-  const visibleOptions = useMemo(() => {
-    const needle = optionSearch.trim().toLowerCase()
-    if (!needle) return options
-    return options.filter(
-      (option) =>
-        option.label.toLowerCase().includes(needle) || option.value.toLowerCase().includes(needle),
-    )
-  }, [optionSearch, options])
-  const triggerNode =
-    trigger === 'header' ? (
-      headerFilterTrigger({ label, activeCount: selectedCount, disabled: disabled ?? false })
-    ) : (
-      <Button
-        variant={selectedCount > 0 ? 'accent' : 'outline'}
-        size="sm"
-        disabled={disabled}
-        className="max-w-52 justify-start"
-      >
-        <span className="truncate">{label}</span>
-        {selectedCount > 0 ? (
-          <Badge variant="outline" className="h-4 px-1.5 font-mono tabular-nums">
-            {selectedCount}
-          </Badge>
-        ) : null}
-        <ChevronDownIcon data-icon="inline-end" />
-      </Button>
-    )
-
-  function handleOpenChange(nextOpen: boolean) {
-    setOptionSearch('')
-    if (controlledOpen === undefined) {
-      setUncontrolledOpen(nextOpen)
-    }
-    onOpenChange?.(nextOpen)
-  }
-
-  return (
-    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
-      <DropdownMenuTrigger render={triggerNode} />
-      <DropdownMenuContent className="max-h-80 w-64 overflow-y-auto" align="start">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>{label}</DropdownMenuLabel>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        {searchable ? (
-          <>
-            <div className="p-2">
-              <Input
-                aria-label={searchPlaceholder ?? label}
-                className="h-8"
-                placeholder={searchPlaceholder ?? label}
-                value={optionSearch}
-                onChange={(event) => setOptionSearch(event.target.value)}
-                onKeyDown={(event) => event.stopPropagation()}
-              />
-            </div>
-            <DropdownMenuSeparator />
-          </>
-        ) : null}
-        {visibleOptions.length === 0 ? (
-          <DropdownMenuItem disabled>{emptyLabel}</DropdownMenuItem>
-        ) : (
-          visibleOptions.map((option) => {
-            const checked = selectedSet.has(option.value)
-            return (
-              <DropdownMenuCheckboxItem
-                key={`${option.value}:${option.label}`}
-                checked={checked}
-                disabled={!checked && atSelectionLimit}
-                closeOnClick={false}
-                className="gap-2"
-                onCheckedChange={(nextChecked) => {
-                  const nextSelected = nextChecked
-                    ? [...selected, option.value].slice(0, WORKBOARD_FILTER_MAX_SELECTIONS)
-                    : selected.filter((value) => value !== option.value)
-                  onSelectedChange(nextSelected)
-                }}
-              >
-                <span className="truncate">{option.label}</span>
-                {option.count !== undefined ? (
-                  <span className="ml-auto pr-2 font-mono text-xs tabular-nums text-text-tertiary">
-                    {option.count}
-                  </span>
-                ) : null}
-              </DropdownMenuCheckboxItem>
-            )
-          })
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
-
 function RangeHeaderFilterDropdown({
   label,
   minLabel,
@@ -2222,7 +2099,7 @@ function RangeHeaderFilterDropdown({
 
   return (
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
-      <DropdownMenuTrigger render={headerFilterTrigger({ label, activeCount })} />
+      <DropdownMenuTrigger render={tableHeaderFilterTrigger({ label, activeCount })} />
       <DropdownMenuContent className="w-72" align="start">
         <DropdownMenuGroup>
           <DropdownMenuLabel>{label}</DropdownMenuLabel>
@@ -2258,33 +2135,6 @@ function RangeHeaderFilterDropdown({
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
-
-function headerFilterTrigger({
-  label,
-  activeCount,
-  disabled,
-}: {
-  label: string
-  activeCount: number
-  disabled?: boolean
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      data-active={activeCount > 0 ? true : undefined}
-      className="-mx-2 inline-flex h-7 max-w-40 cursor-pointer items-center gap-1 rounded-md px-2 text-xs font-medium tracking-wider whitespace-nowrap text-text-tertiary uppercase outline-none transition-colors hover:bg-state-base-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt disabled:pointer-events-none disabled:opacity-50 data-[active=true]:text-text-accent"
-    >
-      <span className="truncate">{label}</span>
-      {activeCount > 0 ? (
-        <Badge variant="outline" className="h-4 px-1.5 font-mono text-[10px] tabular-nums">
-          {activeCount}
-        </Badge>
-      ) : null}
-      <ChevronDownIcon className="size-3 shrink-0" aria-hidden />
-    </button>
   )
 }
 

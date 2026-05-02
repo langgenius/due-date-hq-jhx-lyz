@@ -34,6 +34,40 @@ test.describe('seeded workboard', () => {
     await expect(authenticatedPage).toHaveURL(/\/workboard\?daysMin=8&daysMax=30$/)
   })
 
+  test('AC: E2E-DASHBOARD-FILTERS keeps header filters open while updating table data', async ({
+    authenticatedPage,
+  }) => {
+    await authenticatedPage.goto('/')
+
+    const dashboardHeaderButton = (name: string) =>
+      authenticatedPage
+        .locator('th')
+        .filter({ hasText: new RegExp(`^${name}$`) })
+        .locator('button')
+        .first()
+
+    await dashboardHeaderButton('Status').click()
+    await authenticatedPage.getByRole('menuitemcheckbox', { name: /Needs review/ }).click()
+    await expect(authenticatedPage).toHaveURL(/\/\?status=review$/)
+    await expect(
+      authenticatedPage.getByRole('row', { name: /Northstar Dental Group/ }),
+    ).toBeVisible()
+    await expect(authenticatedPage.getByRole('row', { name: /Arbor & Vale LLC/ })).toBeHidden()
+    await expect(
+      authenticatedPage.getByRole('menuitemcheckbox', { name: /Needs review/ }),
+    ).toBeVisible()
+
+    await authenticatedPage.goto('/')
+    await dashboardHeaderButton('Deadline').click()
+    await authenticatedPage.getByRole('menuitemcheckbox', { name: /Today/ }).click()
+    await expect(authenticatedPage).toHaveURL(/\/\?due=today$/)
+    await expect(
+      authenticatedPage.getByRole('row', { name: /Unassigned Foundry LLC/ }),
+    ).toBeVisible()
+    await expect(authenticatedPage.getByRole('row', { name: /Arbor & Vale LLC/ })).toBeHidden()
+    await expect(authenticatedPage.getByRole('menuitemcheckbox', { name: /Today/ })).toBeVisible()
+  })
+
   test('AC: E2E-WORKBOARD-FILTERS searches, filters, and sorts real queue rows', async ({
     authenticatedPage,
     workboardPage,

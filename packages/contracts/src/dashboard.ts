@@ -4,11 +4,28 @@ import { EvidencePublicSchema } from './evidence'
 import { ExposureStatusSchema, ObligationStatusSchema } from './shared/enums'
 import { EntityIdSchema } from './shared/ids'
 
+export const DASHBOARD_FILTER_MAX_SELECTIONS = 16
+export const DASHBOARD_FILTER_VALUE_MAX_LENGTH = 120
+
+const DashboardFilterValueSchema = z.string().trim().min(1).max(DASHBOARD_FILTER_VALUE_MAX_LENGTH)
+
 export const DashboardSeveritySchema = z.enum(['critical', 'high', 'medium', 'neutral'])
 export type DashboardSeverity = z.infer<typeof DashboardSeveritySchema>
 
 export const DashboardTriageTabKeySchema = z.enum(['this_week', 'this_month', 'long_term'])
 export type DashboardTriageTabKey = z.infer<typeof DashboardTriageTabKeySchema>
+
+export const DashboardDueBucketSchema = z.enum([
+  'overdue',
+  'today',
+  'next_7_days',
+  'next_30_days',
+  'long_term',
+])
+export type DashboardDueBucket = z.infer<typeof DashboardDueBucketSchema>
+
+export const DashboardEvidenceFilterSchema = z.enum(['needs', 'linked'])
+export type DashboardEvidenceFilter = z.infer<typeof DashboardEvidenceFilterSchema>
 
 export const DashboardBriefStatusSchema = z.enum(['pending', 'ready', 'failed', 'stale'])
 export type DashboardBriefStatus = z.infer<typeof DashboardBriefStatusSchema>
@@ -42,6 +59,25 @@ export const DashboardLoadInputSchema = z
     windowDays: z.number().int().min(1).max(31).default(7).optional(),
     topLimit: z.number().int().min(1).max(20).default(8).optional(),
     briefScope: DashboardBriefScopeSchema.default('firm').optional(),
+    clientIds: z.array(EntityIdSchema).max(DASHBOARD_FILTER_MAX_SELECTIONS).optional(),
+    taxTypes: z.array(DashboardFilterValueSchema).max(DASHBOARD_FILTER_MAX_SELECTIONS).optional(),
+    dueBuckets: z
+      .array(DashboardDueBucketSchema)
+      .max(DashboardDueBucketSchema.options.length)
+      .optional(),
+    status: z.array(ObligationStatusSchema).max(8).optional(),
+    severity: z
+      .array(DashboardSeveritySchema)
+      .max(DashboardSeveritySchema.options.length)
+      .optional(),
+    exposureStatus: z
+      .array(ExposureStatusSchema)
+      .max(ExposureStatusSchema.options.length)
+      .optional(),
+    evidence: z
+      .array(DashboardEvidenceFilterSchema)
+      .max(DashboardEvidenceFilterSchema.options.length)
+      .optional(),
   })
   .optional()
 export type DashboardLoadInput = z.infer<typeof DashboardLoadInputSchema>
@@ -83,6 +119,29 @@ export const DashboardTriageTabSchema = z.object({
 })
 export type DashboardTriageTab = z.infer<typeof DashboardTriageTabSchema>
 
+export const DashboardFacetOptionSchema = z.object({
+  value: DashboardFilterValueSchema,
+  label: z.string().trim().min(1).max(160),
+  count: z.number().int().min(0),
+})
+export type DashboardFacetOption = z.infer<typeof DashboardFacetOptionSchema>
+
+export const DashboardClientFacetOptionSchema = DashboardFacetOptionSchema.extend({
+  value: EntityIdSchema,
+})
+export type DashboardClientFacetOption = z.infer<typeof DashboardClientFacetOptionSchema>
+
+export const DashboardFacetsOutputSchema = z.object({
+  clients: z.array(DashboardClientFacetOptionSchema),
+  taxTypes: z.array(DashboardFacetOptionSchema),
+  dueBuckets: z.array(DashboardFacetOptionSchema.extend({ value: DashboardDueBucketSchema })),
+  statuses: z.array(DashboardFacetOptionSchema.extend({ value: ObligationStatusSchema })),
+  severities: z.array(DashboardFacetOptionSchema.extend({ value: DashboardSeveritySchema })),
+  exposureStatuses: z.array(DashboardFacetOptionSchema.extend({ value: ExposureStatusSchema })),
+  evidence: z.array(DashboardFacetOptionSchema.extend({ value: DashboardEvidenceFilterSchema })),
+})
+export type DashboardFacetsOutput = z.infer<typeof DashboardFacetsOutputSchema>
+
 export const DashboardBriefPublicSchema = z.object({
   status: DashboardBriefStatusSchema,
   generatedAt: z.iso.datetime().nullable(),
@@ -100,6 +159,7 @@ export const DashboardLoadOutputSchema = z.object({
   summary: DashboardSummarySchema,
   topRows: z.array(DashboardTopRowSchema),
   triageTabs: z.array(DashboardTriageTabSchema),
+  facets: DashboardFacetsOutputSchema,
   brief: DashboardBriefPublicSchema.nullable(),
 })
 export type DashboardLoadOutput = z.infer<typeof DashboardLoadOutputSchema>

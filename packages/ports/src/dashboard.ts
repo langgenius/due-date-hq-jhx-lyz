@@ -1,6 +1,8 @@
 import type {
   DashboardBriefScope,
   DashboardBriefStatus,
+  DashboardDueBucket,
+  DashboardEvidenceFilter,
   DashboardSeverity,
   ExposureStatus,
   ObligationStatus,
@@ -14,6 +16,13 @@ export interface DashboardLoadInput {
   topLimit?: number
   briefScope?: DashboardBriefScope
   briefUserId?: string | null
+  clientIds?: string[]
+  taxTypes?: string[]
+  dueBuckets?: DashboardDueBucket[]
+  status?: ObligationStatus[]
+  severity?: DashboardSeverity[]
+  exposureStatus?: ExposureStatus[]
+  evidence?: DashboardEvidenceFilter[]
 }
 
 export interface DashboardEvidenceRow {
@@ -54,6 +63,48 @@ export interface DashboardTriageTab {
   rows: DashboardTopRow[]
 }
 
+export interface DashboardFacetOption {
+  value: string
+  label: string
+  count: number
+}
+
+export interface DashboardClientFacetOption extends DashboardFacetOption {
+  value: string
+}
+
+export interface DashboardDueBucketFacetOption extends DashboardFacetOption {
+  value: DashboardDueBucket
+}
+
+export interface DashboardStatusFacetOption extends DashboardFacetOption {
+  value: ObligationStatus
+}
+
+export interface DashboardSeverityFacetOption extends DashboardFacetOption {
+  value: DashboardSeverity
+}
+
+export interface DashboardExposureStatusFacetOption extends DashboardFacetOption {
+  value: ExposureStatus
+}
+
+export interface DashboardEvidenceFacetOption extends DashboardFacetOption {
+  value: DashboardEvidenceFilter
+}
+
+export interface DashboardFacetsOutput {
+  clients: DashboardClientFacetOption[]
+  taxTypes: DashboardFacetOption[]
+  dueBuckets: DashboardDueBucketFacetOption[]
+  statuses: DashboardStatusFacetOption[]
+  severities: DashboardSeverityFacetOption[]
+  exposureStatuses: DashboardExposureStatusFacetOption[]
+  evidence: DashboardEvidenceFacetOption[]
+}
+
+export type { DashboardDueBucket, DashboardEvidenceFilter } from './shared'
+
 export interface DashboardLoadResult {
   asOfDate: string
   windowDays: number
@@ -69,6 +120,7 @@ export interface DashboardLoadResult {
   }
   topRows: DashboardTopRow[]
   triageTabs: DashboardTriageTab[]
+  facets: DashboardFacetsOutput
   brief: DashboardBriefRow | null
 }
 
