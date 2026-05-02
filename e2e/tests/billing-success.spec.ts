@@ -25,7 +25,8 @@ test('AC: E2E-BILLING-WEBHOOK-STATE shows activation only after subscription sta
   await billingPage.gotoSuccess()
 
   await expect(billingPage.subscriptionActiveHeading).toBeVisible()
-  await expect(billingPage.page.getByText('pro', { exact: true })).toBeVisible()
+  await expect(billingPage.page.getByRole('alert')).toContainText('E2E Practice is on Pro')
+  await expect(billingPage.page.getByRole('main').getByText('Pro', { exact: true })).toBeVisible()
 })
 
 test('AC: E2E-BILLING-PORTAL reads webhook-backed state and opens portal by contract', async ({

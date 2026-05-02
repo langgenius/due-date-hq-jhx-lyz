@@ -17,9 +17,9 @@ test('AC: E2E-FIRM-CREATE-GATE blocks extra self-serve firm creation', async ({
   await authenticatedPage.goto('/firm')
 
   await expect(
-    authenticatedPage.getByRole('heading', { name: 'Firm profile', level: 1 }),
+    authenticatedPage.getByRole('heading', { name: 'Practice profile', level: 1 }),
   ).toBeVisible()
-  await expect(authenticatedPage.getByLabel('Firm name')).toHaveValue('E2E Practice')
+  await expect(authenticatedPage.getByLabel('Practice name')).toHaveValue('E2E Practice')
   await expectActiveFirmSummary(authenticatedPage, { plan: 'Solo', seatLimit: 1 })
 
   await authenticatedPage.getByRole('button', { name: /Switch firm/ }).click()
@@ -50,9 +50,9 @@ test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm on the Firm plan', asyn
   await authenticatedPage.goto('/firm')
 
   await expect(
-    authenticatedPage.getByRole('heading', { name: 'Firm profile', level: 1 }),
+    authenticatedPage.getByRole('heading', { name: 'Practice profile', level: 1 }),
   ).toBeVisible()
-  await expect(authenticatedPage.getByLabel('Firm name')).toHaveValue('E2E Practice')
+  await expect(authenticatedPage.getByLabel('Practice name')).toHaveValue('E2E Practice')
   await expectActiveFirmSummary(authenticatedPage, { plan: 'Firm', seatLimit: 10 })
 
   await authenticatedPage.getByRole('button', { name: /Switch firm/ }).click()
@@ -74,7 +74,7 @@ test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm on the Firm plan', asyn
 
   await authenticatedPage.goto('/firm')
 
-  await expect(authenticatedPage.getByLabel('Firm name')).toHaveValue(firmName)
+  await expect(authenticatedPage.getByLabel('Practice name')).toHaveValue(firmName)
   await expect(authenticatedPage.getByLabel('Timezone')).toContainText(timezone)
   await expectActiveFirmSummary(authenticatedPage, { plan: 'Solo', seatLimit: 1 })
   await expect(authenticatedPage.locator('body')).not.toContainText(
@@ -86,7 +86,7 @@ async function expectActiveFirmSummary(
   page: Page,
   expected: { plan: string; seatLimit: number },
 ): Promise<void> {
-  const summary = page.getByRole('note', { name: 'Active firm summary' })
+  const summary = page.getByRole('note', { name: 'Active practice summary' })
   await expect(summary).toContainText(new RegExp(`\\b${escapeRegExp(expected.plan)}\\b`))
   await expect(summary).toContainText(new RegExp(`\\b${expected.seatLimit}\\b`))
 }

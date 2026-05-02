@@ -90,7 +90,9 @@ test.describe('seeded client facts', () => {
     await expect(authenticatedPage).toHaveURL(/clients=/)
     await expect(clientsPage.filteredEmptyState).toBeVisible()
     await expect(
-      authenticatedPage.getByText('Clear search or filters to return to the full firm directory.'),
+      authenticatedPage.getByText(
+        'Clear search or filters to return to the full practice directory.',
+      ),
     ).toBeVisible()
   })
 
