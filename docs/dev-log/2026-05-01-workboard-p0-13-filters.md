@@ -30,9 +30,9 @@ responding under one second.
 - Follow-up: moved P0-13 filter triggers into table headers for Client / Owner / State / County /
   Tax type / Days / Exposure / Readiness / Status. The old standalone multi-filter row was removed
   so filtering happens where users scan the table.
-- Follow-up: header filter dropdowns now keep draft selections locally and commit URL/query changes
-  only when the dropdown closes, so multi-select filtering does not refetch after every checkbox
-  click.
+- Follow-up: header checkbox filter dropdowns now commit URL/query changes on each option click
+  while keeping the dropdown open, so the table refilters immediately without interrupting
+  multi-select workflows. Days / Exposure range inputs still commit when their dropdown closes.
 - Follow-up: status cells now use the visible status pill itself as the dropdown trigger for status
   changes, replacing the extra select control that previously sat beside the pill.
 - Visual follow-up: Exposure, Readiness, and Status table pills now render at 12px instead of the
@@ -42,7 +42,7 @@ responding under one second.
   days use success. This keeps 1-day, 10-day, and overdue obligations visually distinct while
   staying on existing Badge and status-dot tokens.
 - E2E follow-up: updated the Workboard page object to select Status through the table-header
-  dropdown and close it before asserting committed URL/query state.
+  dropdown and assert immediate URL/query state while the menu remains open.
 - DESIGN.md check: no token, color, spacing, or component contract change was needed; this stays on
   existing `Button`, `Badge`, `BadgeStatusDot`, `DropdownMenu`, `Input`, and `Table` primitives.
 

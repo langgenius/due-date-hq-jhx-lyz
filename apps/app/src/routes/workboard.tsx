@@ -326,12 +326,6 @@ function daysFilterValue(value: number | null): number | undefined {
   return Math.min(DAYS_FILTER_MAX, Math.max(DAYS_FILTER_MIN, value))
 }
 
-function sameStringSet(left: readonly string[], right: readonly string[]): boolean {
-  if (left.length !== right.length) return false
-  const leftSet = new Set(left)
-  return right.every((value) => leftSet.has(value))
-}
-
 function inputValueFromNumber(value: number | null): string {
   return value === null ? '' : String(value)
 }
@@ -466,6 +460,7 @@ export function WorkboardRoute() {
     id?: string
     name: string
   } | null>(null)
+  const [openHeaderFilter, setOpenHeaderFilter] = useState<string | null>(null)
   const [extendedMemoOpen, setExtendedMemoOpen] = useState(false)
   const [extendedMemo, setExtendedMemo] = useState('')
 
@@ -823,6 +818,9 @@ export function WorkboardRoute() {
     },
     [rowSelection],
   )
+  const setHeaderFilterOpen = useCallback((filterId: string, nextOpen: boolean) => {
+    setOpenHeaderFilter((current) => (nextOpen ? filterId : current === filterId ? null : current))
+  }, [])
 
   const updateStatus = updateStatusMutation.mutate
   const statusUpdatePending = updateStatusMutation.isPending || bulkStatusMutation.isPending
@@ -855,6 +853,8 @@ export function WorkboardRoute() {
           <MultiFilterDropdown
             trigger="header"
             label={t`Client`}
+            open={openHeaderFilter === 'client'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('client', nextOpen)}
             options={clientOptions}
             selected={clientQuery}
             disabled={filtersDisabled}
@@ -878,6 +878,8 @@ export function WorkboardRoute() {
           <MultiFilterDropdown
             trigger="header"
             label={t`Owner`}
+            open={openHeaderFilter === 'owner'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('owner', nextOpen)}
             options={ownerOptions}
             selected={ownerQuery}
             disabled={filtersDisabled}
@@ -905,6 +907,8 @@ export function WorkboardRoute() {
           <MultiFilterDropdown
             trigger="header"
             label={t`State`}
+            open={openHeaderFilter === 'state'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('state', nextOpen)}
             options={stateOptions}
             selected={stateQuery}
             disabled={filtersDisabled}
@@ -927,6 +931,8 @@ export function WorkboardRoute() {
           <MultiFilterDropdown
             trigger="header"
             label={t`County`}
+            open={openHeaderFilter === 'county'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('county', nextOpen)}
             options={countyOptions}
             selected={countyQuery}
             disabled={filtersDisabled || countyOptions.length === 0}
@@ -950,6 +956,8 @@ export function WorkboardRoute() {
           <MultiFilterDropdown
             trigger="header"
             label={t`Tax type`}
+            open={openHeaderFilter === 'taxType'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('taxType', nextOpen)}
             options={taxTypeOptions}
             selected={taxTypeQuery}
             disabled={filtersDisabled}
@@ -1029,6 +1037,8 @@ export function WorkboardRoute() {
           <MultiFilterDropdown
             trigger="header"
             label={t`Readiness`}
+            open={openHeaderFilter === 'readiness'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('readiness', nextOpen)}
             options={readinessOptions}
             selected={readinessQuery}
             emptyLabel={t`No readiness states`}
@@ -1072,6 +1082,8 @@ export function WorkboardRoute() {
           <MultiFilterDropdown
             trigger="header"
             label={t`Status`}
+            open={openHeaderFilter === 'status'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('status', nextOpen)}
             options={statusOptions}
             selected={statusQuery}
             emptyLabel={t`All statuses`}
@@ -1105,6 +1117,7 @@ export function WorkboardRoute() {
       daysMax,
       daysMin,
       filtersDisabled,
+      openHeaderFilter,
       openEvidence,
       ownerOptions,
       ownerQuery,
@@ -1113,6 +1126,7 @@ export function WorkboardRoute() {
       readinessQuery,
       riskMax,
       riskMin,
+      setHeaderFilterOpen,
       setWorkboardQuery,
       stateOptions,
       stateQuery,
@@ -1979,6 +1993,8 @@ function DueDaysPill({ days }: { days: number }) {
 function MultiFilterDropdown({
   trigger = 'toolbar',
   label,
+  open: controlledOpen,
+  onOpenChange,
   options,
   selected,
   disabled,
@@ -1989,6 +2005,8 @@ function MultiFilterDropdown({
 }: {
   trigger?: 'toolbar' | 'header'
   label: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
   options: readonly FilterOption[]
   selected: readonly string[]
   disabled?: boolean
@@ -1997,12 +2015,11 @@ function MultiFilterDropdown({
   searchPlaceholder?: string
   onSelectedChange: (selected: string[]) => void
 }) {
-  const [open, setOpen] = useState(false)
-  const [draftSelected, setDraftSelected] = useState<string[]>(() => [...selected])
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
   const [optionSearch, setOptionSearch] = useState('')
-  const activeSelected = open ? draftSelected : selected
-  const selectedSet = new Set(activeSelected)
-  const selectedCount = activeSelected.length
+  const open = controlledOpen ?? uncontrolledOpen
+  const selectedSet = new Set(selected)
+  const selectedCount = selected.length
   const atSelectionLimit = selectedCount >= WORKBOARD_FILTER_MAX_SELECTIONS
   const visibleOptions = useMemo(() => {
     const needle = optionSearch.trim().toLowerCase()
@@ -2033,17 +2050,11 @@ function MultiFilterDropdown({
     )
 
   function handleOpenChange(nextOpen: boolean) {
-    if (nextOpen) {
-      setDraftSelected([...selected])
-      setOptionSearch('')
-      setOpen(true)
-      return
-    }
-    setOpen(false)
     setOptionSearch('')
-    if (!sameStringSet(draftSelected, selected)) {
-      onSelectedChange(draftSelected)
+    if (controlledOpen === undefined) {
+      setUncontrolledOpen(nextOpen)
     }
+    onOpenChange?.(nextOpen)
   }
 
   return (
@@ -2083,9 +2094,9 @@ function MultiFilterDropdown({
                 className="gap-2"
                 onCheckedChange={(nextChecked) => {
                   const nextSelected = nextChecked
-                    ? [...activeSelected, option.value].slice(0, WORKBOARD_FILTER_MAX_SELECTIONS)
-                    : activeSelected.filter((value) => value !== option.value)
-                  setDraftSelected(nextSelected)
+                    ? [...selected, option.value].slice(0, WORKBOARD_FILTER_MAX_SELECTIONS)
+                    : selected.filter((value) => value !== option.value)
+                  onSelectedChange(nextSelected)
                 }}
               >
                 <span className="truncate">{option.label}</span>

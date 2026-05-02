@@ -481,7 +481,8 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **表头筛选**：Client / Owner / State / County / Tax type / Days / Exposure /
   Readiness / Status 的筛选入口直接挂在 TanStack Table header 上；顶部控制区只保留搜索、排序、
   density segmented control、column visibility、Saved Views、Reset 和少量 triage 快捷 chip，避免
-  Workboard 出现两套筛选面。
+  Workboard 出现两套筛选面。checkbox 型表头筛选点击选项即同步 URL/query state 并保持下拉
+  打开；Days / Exposure 的自由输入范围在下拉关闭时提交。
 - **选择与批量操作**：TanStack `rowSelection` 是本地 table state，active row 仍由 URL
   `row` 驱动键盘导航。选中行出现 bulk bar，状态批量写 `obligations.bulkUpdateStatus`，
   owner 批量写 `clients.bulkUpdateAssignee`（当前 ownership 来源是 client-level assignee），导出走

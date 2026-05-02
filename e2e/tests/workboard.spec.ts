@@ -53,11 +53,11 @@ test.describe('seeded workboard', () => {
     await expect(authenticatedPage).toHaveURL(/\/workboard$/)
     await workboardPage.openStatusFilter()
     await workboardPage.statusFilterOption('In review').click()
-    await expect(authenticatedPage).toHaveURL(/\/workboard$/)
-    await authenticatedPage.keyboard.press('Escape')
     await expect(authenticatedPage).toHaveURL(/\/workboard\?status=review$/)
     await expect(authenticatedPage.getByText('Northstar Dental Group')).toBeVisible()
     await expect(authenticatedPage.getByText('Arbor & Vale LLC')).toBeHidden()
+    await expect(workboardPage.statusFilterOption('In review')).toBeVisible()
+    await authenticatedPage.keyboard.press('Escape')
 
     await workboardPage.resetButton.click()
     await expect(authenticatedPage).toHaveURL(/\/workboard$/)
