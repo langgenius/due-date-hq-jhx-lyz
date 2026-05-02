@@ -20,6 +20,7 @@ export const IN_APP_NOTIFICATION_TYPES = [
   'deadline_reminder',
   'overdue',
   'client_reminder',
+  'pulse_alert',
   'audit_package_ready',
   'system',
 ] as const

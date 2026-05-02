@@ -4,7 +4,13 @@ import type { Db } from '../client'
 import { auditEvent, evidenceLink, type NewAuditEvent, type NewEvidenceLink } from '../schema/audit'
 import { member, user } from '../schema/auth'
 import { client, type ClientEntityType } from '../schema/clients'
-import { emailOutbox, type NewEmailOutbox } from '../schema/notifications'
+import {
+  emailOutbox,
+  inAppNotification,
+  notificationPreference,
+  type NewEmailOutbox,
+  type NewInAppNotification,
+} from '../schema/notifications'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
 import {
   exceptionRule,
@@ -48,6 +54,7 @@ const EXCEPTION_APPLICATION_BATCH_SIZE = Math.floor(100 / 8)
 const EVIDENCE_BATCH_SIZE = Math.floor(100 / 17)
 const AUDIT_BATCH_SIZE = Math.floor(100 / 12)
 const EMAIL_BATCH_SIZE = 1
+const NOTIFICATION_BATCH_SIZE = Math.floor(100 / 10)
 const REVERT_WINDOW_MS = 24 * 60 * 60 * 1000
 
 export type PulseAffectedClientStatus = 'eligible' | 'needs_review' | 'already_applied' | 'reverted'
@@ -339,6 +346,13 @@ interface AllFirmCandidateRow {
 
 interface AlertRecipientRow {
   email: string
+}
+
+interface PulseNotificationRecipientRow {
+  userId: string
+  email: string
+  inAppEnabled: boolean | null
+  pulseEnabled: boolean | null
 }
 
 interface PulseDigestObligationRow {
@@ -1679,6 +1693,110 @@ export function makePulseOpsRepo(db: Db) {
     return Array.from(new Set((rows as AlertRecipientRow[]).map((row) => row.email)))
   }
 
+  async function listFirmPulseNotificationRecipients(
+    firmId: string,
+  ): Promise<PulseNotificationRecipientRow[]> {
+    const rows = await db
+      .select({
+        userId: member.userId,
+        email: user.email,
+        inAppEnabled: notificationPreference.inAppEnabled,
+        pulseEnabled: notificationPreference.pulseEnabled,
+      })
+      .from(member)
+      .innerJoin(user, eq(member.userId, user.id))
+      .leftJoin(
+        notificationPreference,
+        and(
+          eq(notificationPreference.firmId, firmId),
+          eq(notificationPreference.userId, member.userId),
+        ),
+      )
+      .where(
+        and(
+          eq(member.organizationId, firmId),
+          eq(member.status, 'active'),
+          inArray(member.role, ['owner', 'manager']),
+        ),
+      )
+      .orderBy(asc(user.email))
+
+    return Array.from(
+      new Map(
+        (rows as PulseNotificationRecipientRow[])
+          .filter((row) => (row.inAppEnabled ?? true) && (row.pulseEnabled ?? true))
+          .map((row) => [row.userId, row]),
+      ).values(),
+    )
+  }
+
+  async function buildPulseAlertNotifications(
+    approvedPulse: Pulse,
+    alerts: readonly {
+      id: string
+      firmId: string
+      matchedCount: number
+      needsReviewCount: number
+    }[],
+    now: Date,
+  ): Promise<NewInAppNotification[]> {
+    const alertIds = alerts.map((alert) => alert.id)
+    if (alertIds.length === 0) return []
+
+    const existing = await db
+      .select({
+        userId: inAppNotification.userId,
+        entityId: inAppNotification.entityId,
+      })
+      .from(inAppNotification)
+      .where(
+        and(
+          eq(inAppNotification.entityType, 'pulse_firm_alert'),
+          inArray(inAppNotification.entityId, alertIds),
+        ),
+      )
+    const existingKeys = new Set(existing.map((row) => `${row.entityId}:${row.userId}`))
+    const recipientEntries = await Promise.all(
+      alerts.map(async (alert) => ({
+        alert,
+        recipients: await listFirmPulseNotificationRecipients(alert.firmId),
+      })),
+    )
+
+    return recipientEntries.flatMap(({ alert, recipients }) => {
+      const impactedCount = alert.matchedCount + alert.needsReviewCount
+      const title = `New Pulse alert: ${approvedPulse.source}`
+      const body =
+        impactedCount > 0
+          ? `${approvedPulse.aiSummary} ${impactedCount} client${impactedCount === 1 ? '' : 's'} may be affected.`
+          : approvedPulse.aiSummary
+
+      return recipients
+        .filter((recipient) => !existingKeys.has(`${alert.id}:${recipient.userId}`))
+        .map(
+          (recipient): NewInAppNotification => ({
+            id: crypto.randomUUID(),
+            firmId: alert.firmId,
+            userId: recipient.userId,
+            type: 'pulse_alert',
+            entityType: 'pulse_firm_alert',
+            entityId: alert.id,
+            title,
+            body,
+            href: `/alerts?alert=${encodeURIComponent(alert.id)}`,
+            metadataJson: {
+              pulseId: approvedPulse.id,
+              source: approvedPulse.source,
+              sourceUrl: approvedPulse.sourceUrl,
+              matchedCount: alert.matchedCount,
+              needsReviewCount: alert.needsReviewCount,
+              approvedAt: now.toISOString(),
+            },
+          }),
+        )
+    })
+  }
+
   async function listApprovedDigestObligations(
     row: Pulse,
     firmId: string,
@@ -2357,9 +2475,13 @@ export function makePulseOpsRepo(db: Db) {
             }),
           ),
         )
+        const approvedNotifications = await buildPulseAlertNotifications(approvedPulse, alerts, now)
         const writes: BatchItem<'sqlite'>[] = [db.insert(auditEvent).values(audits)]
         for (const chunk of chunkRows(approvedEmails, EMAIL_BATCH_SIZE)) {
           writes.push(db.insert(emailOutbox).values(chunk))
+        }
+        for (const chunk of chunkRows(approvedNotifications, NOTIFICATION_BATCH_SIZE)) {
+          writes.push(db.insert(inAppNotification).values(chunk))
         }
         await db.batch(toNonEmptyBatch(writes))
       }

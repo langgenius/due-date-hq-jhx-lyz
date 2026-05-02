@@ -57,12 +57,14 @@ function selectChain(response: unknown[]) {
   const chain = response.slice() as unknown[] & {
     from: ReturnType<typeof vi.fn>
     innerJoin: ReturnType<typeof vi.fn>
+    leftJoin: ReturnType<typeof vi.fn>
     where: ReturnType<typeof vi.fn>
     orderBy: ReturnType<typeof vi.fn>
     limit: ReturnType<typeof vi.fn>
   }
   chain.from = vi.fn(() => chain)
   chain.innerJoin = vi.fn(() => chain)
+  chain.leftJoin = vi.fn(() => chain)
   chain.where = vi.fn(() => chain)
   chain.orderBy = vi.fn(() => chain)
   chain.limit = vi.fn(async () => response)
@@ -76,7 +78,13 @@ function fakeDb(selectResponses: unknown[][]) {
     select: vi.fn(() => selectChain(selectResponses.shift() ?? [])),
     insert: vi.fn((table: unknown) => ({
       values: (value: unknown) => {
-        const statement = { kind: 'insert', table, value }
+        const statement = {
+          kind: 'insert',
+          table,
+          value,
+          onConflictDoUpdate: vi.fn(() => statement),
+          onConflictDoNothing: vi.fn(() => statement),
+        }
         directStatements.push(statement)
         return statement
       },
@@ -544,6 +552,91 @@ describe('makePulseOpsRepo', () => {
       ).toBeTruthy()
     }
   })
+
+  it('writes Pulse approval notifications for opted-in owner and manager users', async () => {
+    const approvedPulse = {
+      id: 'pulse-approve',
+      source: 'IRS Disaster Relief',
+      sourceUrl: 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations',
+      status: 'approved' as const,
+      aiSummary: 'IRS CA storm relief',
+      parsedJurisdiction: 'CA',
+      parsedCounties: ['Los Angeles County'],
+      parsedForms: ['federal_1065'],
+      parsedEntityTypes: ['llc'],
+      parsedOriginalDueDate: new Date('2026-03-15T00:00:00.000Z'),
+      parsedNewDueDate: new Date('2026-10-15T00:00:00.000Z'),
+    }
+    const alert = {
+      id: 'alert-1',
+      firmId: 'firm-1',
+      matchedCount: 1,
+      needsReviewCount: 0,
+    }
+    const candidate = {
+      firmId: 'firm-1',
+      obligationId: 'oi-eligible',
+      clientId: 'client-eligible',
+      clientName: 'Arbor & Vale LLC',
+      state: 'CA',
+      county: 'Los Angeles',
+      entityType: 'llc',
+      taxType: 'federal_1065',
+      currentDueDate: new Date('2026-03-15T00:00:00.000Z'),
+      status: 'pending',
+    }
+    const { db, batchStatements } = fakeDb([
+      [{ id: 'reviewer-1' }],
+      [approvedPulse],
+      [approvedPulse],
+      [candidate],
+      [],
+      [alert],
+      [{ email: 'owner@example.com' }],
+      [candidate],
+      [],
+      [],
+      [
+        {
+          userId: 'owner-1',
+          email: 'owner@example.com',
+          inAppEnabled: true,
+          pulseEnabled: true,
+        },
+        {
+          userId: 'manager-muted',
+          email: 'manager@example.com',
+          inAppEnabled: true,
+          pulseEnabled: false,
+        },
+      ],
+    ])
+
+    await makePulseOpsRepo(db).approvePulse({
+      pulseId: 'pulse-approve',
+      reviewedBy: 'reviewer-1',
+      now: new Date('2026-04-15T18:30:00.000Z'),
+    })
+
+    expect(
+      batchStatements.some((statement) =>
+        statementHasValue(statement, {
+          type: 'pulse_alert',
+          userId: 'owner-1',
+          entityId: 'alert-1',
+          href: '/alerts?alert=alert-1',
+        }),
+      ),
+    ).toBe(true)
+    expect(
+      batchStatements.some((statement) =>
+        statementHasValue(statement, {
+          type: 'pulse_alert',
+          userId: 'manager-muted',
+        }),
+      ),
+    ).toBe(false)
+  })
 })
 
 function isKind(statement: unknown, kind: 'insert' | 'update'): boolean {
@@ -557,8 +650,11 @@ function isKind(statement: unknown, kind: 'insert' | 'update'): boolean {
 function statementHasValue(statement: unknown, expected: Record<string, unknown>): boolean {
   if (typeof statement !== 'object' || statement === null) return false
   const value = (statement as { value?: unknown }).value
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
-  return Object.entries(expected).every(
-    ([key, item]) => (value as Record<string, unknown>)[key] === item,
-  )
+  const rows = Array.isArray(value) ? value : [value]
+  return rows.some((row) => {
+    if (typeof row !== 'object' || row === null) return false
+    return Object.entries(expected).every(
+      ([key, item]) => (row as Record<string, unknown>)[key] === item,
+    )
+  })
 }

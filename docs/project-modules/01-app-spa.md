@@ -75,7 +75,7 @@
 
 ### 通知、成员、计费和设置
 
-- Notifications：未读数、mark read、mark all read、preferences。
+- Notifications：未读数、mark read、mark all read、preferences 和 `href` 深链跳转；Pulse 到达通知只负责把用户带到 `/alerts` 决策工作台，不在通知中心承载 apply/dismiss/revert。
 - Members：owner-only invite、cancel/resend、role update、suspend/reactivate/remove。
 - Firm：名称、时区、coordinator dollar visibility、soft delete。
 - Billing：plan、checkout、success/cancel 和 audit pay intent。
@@ -139,7 +139,7 @@ flowchart LR
 应用 shell 负责：
 
 - desktop sidebar 和 mobile sheet。
-- 顶部路由标题、计划/计费入口、通知铃铛。
+- 顶部路由标题、计划/计费入口、个人通知铃铛。
 - pending navigation indicator。
 - provider 层级，确保全局 drawer 和 keyboard shell 能跨 route 工作。
 

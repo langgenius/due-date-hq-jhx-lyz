@@ -600,6 +600,10 @@ msgstr "Audit log"
 msgid "Audit log captures every AI decision"
 msgstr "Audit log captures every AI decision"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Audit package"
+msgstr "Audit package"
+
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Audit timeline"
 msgstr "Audit timeline"
@@ -825,6 +829,10 @@ msgstr "Client import undone"
 #: src/features/migration/mapping-target-labels.ts
 msgid "Client name"
 msgstr "Client name"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Client reminder"
+msgstr "Client reminder"
 
 #: src/routes/dashboard.tsx
 msgid "Client risk rows"
@@ -1177,6 +1185,10 @@ msgstr "Days"
 #: src/routes/dashboard.tsx
 msgid "Deadline"
 msgstr "Deadline"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Deadline reminder"
+msgstr "Deadline reminder"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Deadline reminders"
@@ -2320,6 +2332,7 @@ msgid "Notification center"
 msgstr "Notification center"
 
 #: src/components/patterns/app-shell.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/notifications/notifications-page.tsx
 #: src/routes/route-summary.ts
 msgid "Notifications"
@@ -2386,6 +2399,7 @@ msgid "Only the firm owner can start or change a subscription."
 msgstr "Only the firm owner can start or change a subscription."
 
 #: src/features/migration/Step2Mapping.tsx
+#: src/features/notifications/notifications-page.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/workboard.tsx
 msgid "Open"
@@ -2468,6 +2482,10 @@ msgstr "Open the obligation queue."
 msgid "Open Workboard"
 msgstr "Open Workboard"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open your personal notification inbox."
+msgstr "Open your personal notification inbox."
+
 #: src/routes/billing.checkout.tsx
 msgid "Opening checkout…"
 msgstr "Opening checkout…"
@@ -2512,6 +2530,7 @@ msgstr "Organization billing stays scoped to the selected firm."
 msgid "Other"
 msgstr "Other"
 
+#: src/features/notifications/notifications-page.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Overdue"
 msgstr "Overdue"
@@ -2747,6 +2766,10 @@ msgstr "Pulse"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Pulse {action} queued"
 msgstr "Pulse {action} queued"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Pulse alert"
+msgstr "Pulse alert"
 
 #. placeholder {0}: alert.title
 #: src/features/pulse/components/PulseAlertCard.tsx
@@ -3578,6 +3601,10 @@ msgstr "Switch firm — current {0}"
 #: src/features/audit/audit-log-table.tsx
 msgid "System"
 msgstr "System"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "System notification"
+msgstr "System notification"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx

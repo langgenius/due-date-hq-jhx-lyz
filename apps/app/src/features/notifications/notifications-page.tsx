@@ -1,8 +1,10 @@
+import { Link } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { CheckCheckIcon, CheckIcon, InboxIcon } from 'lucide-react'
+import { ArrowRightIcon, CheckCheckIcon, CheckIcon, InboxIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
+import type { NotificationType } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@duedatehq/ui/components/ui/card'
@@ -17,6 +19,15 @@ function formatDate(value: string): string {
     hour: 'numeric',
     minute: '2-digit',
   }).format(new Date(value))
+}
+
+function notificationTypeLabel(type: NotificationType): React.ReactNode {
+  if (type === 'deadline_reminder') return <Trans>Deadline reminder</Trans>
+  if (type === 'overdue') return <Trans>Overdue</Trans>
+  if (type === 'client_reminder') return <Trans>Client reminder</Trans>
+  if (type === 'pulse_alert') return <Trans>Pulse alert</Trans>
+  if (type === 'audit_package_ready') return <Trans>Audit package</Trans>
+  return <Trans>System notification</Trans>
 }
 
 export function NotificationsPage() {
@@ -125,18 +136,39 @@ export function NotificationsPage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-xs text-text-tertiary">{item.type}</span>
-                  {!item.readAt ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => markRead.mutate({ id: item.id })}
-                      disabled={markRead.isPending}
-                    >
-                      <CheckIcon data-icon="inline-start" />
-                      <Trans>Mark read</Trans>
-                    </Button>
-                  ) : null}
+                  <span className="font-mono text-xs text-text-tertiary">
+                    {notificationTypeLabel(item.type)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    {item.href ? (
+                      <Button
+                        render={
+                          <Link
+                            to={item.href}
+                            onClick={() => {
+                              if (!item.readAt) markRead.mutate({ id: item.id })
+                            }}
+                          />
+                        }
+                        variant="ghost"
+                        size="sm"
+                      >
+                        <Trans>Open</Trans>
+                        <ArrowRightIcon data-icon="inline-end" />
+                      </Button>
+                    ) : null}
+                    {!item.readAt ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => markRead.mutate({ id: item.id })}
+                        disabled={markRead.isPending}
+                      >
+                        <CheckIcon data-icon="inline-start" />
+                        <Trans>Mark read</Trans>
+                      </Button>
+                    ) : null}
+                  </span>
                 </div>
               </article>
             ))}

@@ -76,7 +76,7 @@
 - `llm_log`
 - `dashboard_brief`
 - `email_outbox`
-- `in_app_notification`
+- `in_app_notification`（deadline / overdue / pulse_alert / audit package / system）
 - `reminder`
 - `notification_preference`
 - `client_email_suppression`
@@ -149,18 +149,18 @@ erDiagram
 
 ## Repo 能力概览
 
-| Repo            | 能力                                                                      |
-| --------------- | ------------------------------------------------------------------------- |
-| `clients`       | create/createBatch/find/list/updatePenaltyInputs/softDelete/deleteByBatch |
-| `obligations`   | createBatch/list/updateDueDate/updateExposure/updateStatus/deleteByBatch  |
-| `migration`     | batch lifecycle、mapping、normalization、errors、commit/revert            |
-| `audit`         | write/writeBatch/list/create package/mark package state                   |
-| `evidence`      | write/writeBatch/listByObligation                                         |
-| `dashboard`     | load snapshot、brief cache、pending/ready/failed state                    |
-| `pulse`         | alert lifecycle、history、source health、apply/dismiss/snooze/revert      |
-| `notifications` | in-app、email outbox、preferences、suppression                            |
-| `firms`         | organization/firm profile/current firm/switch/update/soft delete          |
-| `members`       | list/invite/update role/status/seat usage                                 |
+| Repo            | 能力                                                                                                                       |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `clients`       | create/createBatch/find/list/updatePenaltyInputs/softDelete/deleteByBatch                                                  |
+| `obligations`   | createBatch/list/updateDueDate/updateExposure/updateStatus/deleteByBatch                                                   |
+| `migration`     | batch lifecycle、mapping、normalization、errors、commit/revert                                                             |
+| `audit`         | write/writeBatch/list/create package/mark package state                                                                    |
+| `evidence`      | write/writeBatch/listByObligation                                                                                          |
+| `dashboard`     | load snapshot、brief cache、pending/ready/failed state                                                                     |
+| `pulse`         | alert lifecycle、history、source health、apply/dismiss/snooze/revert                                                       |
+| `notifications` | in-app notification、email outbox、preferences、suppression；Pulse alert 到达写入个人通知，但业务生命周期仍归 `pulse` repo |
+| `firms`         | organization/firm profile/current firm/switch/update/soft delete                                                           |
+| `members`       | list/invite/update role/status/seat usage                                                                                  |
 
 ## 架构图
 

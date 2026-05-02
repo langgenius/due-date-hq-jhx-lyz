@@ -600,6 +600,10 @@ msgstr "审计日志"
 msgid "Audit log captures every AI decision"
 msgstr "审计日志记录每一次 AI 决策"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Audit package"
+msgstr "审计包"
+
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Audit timeline"
 msgstr "审计时间线"
@@ -825,6 +829,10 @@ msgstr "客户导入已撤销"
 #: src/features/migration/mapping-target-labels.ts
 msgid "Client name"
 msgstr "客户名称"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Client reminder"
+msgstr "客户提醒"
 
 #: src/routes/dashboard.tsx
 msgid "Client risk rows"
@@ -1177,6 +1185,10 @@ msgstr "天数"
 #: src/routes/dashboard.tsx
 msgid "Deadline"
 msgstr "截止日期"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Deadline reminder"
+msgstr "截止日提醒"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Deadline reminders"
@@ -2320,6 +2332,7 @@ msgid "Notification center"
 msgstr "通知中心"
 
 #: src/components/patterns/app-shell.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/notifications/notifications-page.tsx
 #: src/routes/route-summary.ts
 msgid "Notifications"
@@ -2386,6 +2399,7 @@ msgid "Only the firm owner can start or change a subscription."
 msgstr "只有事务所 Owner 可以开始或变更订阅。"
 
 #: src/features/migration/Step2Mapping.tsx
+#: src/features/notifications/notifications-page.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/workboard.tsx
 msgid "Open"
@@ -2468,6 +2482,10 @@ msgstr "打开义务队列。"
 msgid "Open Workboard"
 msgstr "打开 Workboard"
 
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open your personal notification inbox."
+msgstr "打开你的个人通知收件箱。"
+
 #: src/routes/billing.checkout.tsx
 msgid "Opening checkout…"
 msgstr "正在打开支付…"
@@ -2512,6 +2530,7 @@ msgstr "组织账单始终限定在当前选中的事务所。"
 msgid "Other"
 msgstr "其他"
 
+#: src/features/notifications/notifications-page.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Overdue"
 msgstr "已逾期"
@@ -2747,6 +2766,10 @@ msgstr "动态"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Pulse {action} queued"
 msgstr "Pulse {action} 已入队"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Pulse alert"
+msgstr "Pulse 提醒"
 
 #. placeholder {0}: alert.title
 #: src/features/pulse/components/PulseAlertCard.tsx
@@ -3578,6 +3601,10 @@ msgstr "切换事务所 · 当前 {0}"
 #: src/features/audit/audit-log-table.tsx
 msgid "System"
 msgstr "跟随系统"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "System notification"
+msgstr "系统通知"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx

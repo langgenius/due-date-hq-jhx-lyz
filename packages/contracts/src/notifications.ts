@@ -6,6 +6,7 @@ export const NotificationTypeSchema = z.enum([
   'deadline_reminder',
   'overdue',
   'client_reminder',
+  'pulse_alert',
   'audit_package_ready',
   'system',
 ])

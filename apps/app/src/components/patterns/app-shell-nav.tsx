@@ -3,7 +3,6 @@ import { NavLink } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
-  BellIcon,
   Building2Icon,
   CalendarClockIcon,
   CheckIcon,
@@ -13,6 +12,7 @@ import {
   FileCheck2Icon,
   LayoutDashboardIcon,
   PlusIcon,
+  RadioTowerIcon,
   ScaleIcon,
   UsersIcon,
   type LucideIcon,
@@ -352,7 +352,7 @@ function useNavItems(firm: FirmPublic): NavConfig {
         {
           href: '/alerts',
           label: t`Alerts`,
-          icon: BellIcon,
+          icon: RadioTowerIcon,
           end: false,
           ...(pulseBadge !== undefined ? { badge: pulseBadge } : {}),
         },

@@ -2,6 +2,7 @@ export type NotificationType =
   | 'deadline_reminder'
   | 'overdue'
   | 'client_reminder'
+  | 'pulse_alert'
   | 'audit_package_ready'
   | 'system'
 

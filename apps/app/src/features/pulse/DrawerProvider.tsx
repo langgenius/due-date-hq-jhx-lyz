@@ -1,4 +1,5 @@
 import { useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import { useLocation, useSearchParams } from 'react-router'
 
 import { PulseDrawerContext, type PulseDrawerContextValue } from './DrawerContext'
 import { PulseDetailDrawer } from './PulseDetailDrawer'
@@ -10,10 +11,26 @@ interface PulseDrawerProviderProps {
 // Mounts the Pulse Detail drawer once at the app shell so any descendant can
 // imperatively open it. Mirrors `MigrationWizardProvider` for shape/consistency.
 export function PulseDrawerProvider({ children }: PulseDrawerProviderProps) {
-  const [alertId, setAlertId] = useState<string | null>(null)
+  const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const urlAlertId = location.pathname === '/alerts' ? searchParams.get('alert') : null
+  const [localAlertId, setLocalAlertId] = useState<string | null>(null)
+  const alertId = urlAlertId ?? localAlertId
 
-  const openDrawer = useCallback((id: string) => setAlertId(id), [])
-  const closeDrawer = useCallback(() => setAlertId(null), [])
+  const openDrawer = useCallback((id: string) => setLocalAlertId(id), [])
+  const closeDrawer = useCallback(() => {
+    setLocalAlertId(null)
+    if (urlAlertId) {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current)
+          next.delete('alert')
+          return next
+        },
+        { replace: true },
+      )
+    }
+  }, [setSearchParams, urlAlertId])
 
   const value = useMemo<PulseDrawerContextValue>(
     () => ({ open: alertId !== null, alertId, openDrawer, closeDrawer }),
