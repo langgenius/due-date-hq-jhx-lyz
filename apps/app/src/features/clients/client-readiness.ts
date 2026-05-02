@@ -14,6 +14,9 @@ export const CLIENT_ENTITY_TYPES = [
 export const ALL_ENTITIES = 'all'
 export const CLIENT_ENTITY_FILTERS = [ALL_ENTITIES, ...CLIENT_ENTITY_TYPES] as const
 export const STATE_FILTER_ALL = 'all'
+export const CLIENT_READINESS_FILTERS = ['ready', 'needs_facts'] as const
+export const CLIENT_SOURCE_FILTERS = ['imported', 'manual'] as const
+export const CLIENT_UNASSIGNED_OWNER_FILTER = '__unassigned__'
 
 export type ClientEntityType = ClientCreateInput['entityType']
 export type ClientSourceType = 'imported' | 'manual'
@@ -45,12 +48,24 @@ export type ClientFactsModel = {
 
 export type ClientFilters = {
   search: string
-  entityFilter: string
-  stateFilter: string
+  clientFilters: readonly string[]
+  entityFilters: readonly ClientEntityType[]
+  stateFilters: readonly string[]
+  readinessFilters: readonly ClientReadinessStatus[]
+  sourceFilters: readonly ClientSourceType[]
+  ownerFilters: readonly string[]
 }
 
 export function isClientEntityType(value: string): value is ClientEntityType {
   return CLIENT_ENTITY_TYPES.some((entityType) => entityType === value)
+}
+
+export function isClientReadinessStatus(value: string): value is ClientReadinessStatus {
+  return CLIENT_READINESS_FILTERS.some((status) => status === value)
+}
+
+export function isClientSourceType(value: string): value is ClientSourceType {
+  return CLIENT_SOURCE_FILTERS.some((source) => source === value)
 }
 
 export function getClientSourceType(client: ClientPublic): ClientSourceType {
@@ -129,13 +144,36 @@ export function getClientSearchHaystack(client: ClientPublic): string {
 
 export function filterClients(clients: ClientPublic[], filters: ClientFilters): ClientPublic[] {
   const normalizedSearch = filters.search.trim().toLowerCase()
+  const clientFilterSet = new Set(filters.clientFilters)
+  const entityFilterSet = new Set(filters.entityFilters)
+  const stateFilterSet = new Set(
+    filters.stateFilters
+      .map((state) => state.trim().toUpperCase())
+      .filter((state) => state.length > 0 && state !== STATE_FILTER_ALL),
+  )
+  const readinessFilterSet = new Set(filters.readinessFilters)
+  const sourceFilterSet = new Set(filters.sourceFilters)
+  const ownerFilterSet = new Set(filters.ownerFilters.filter((owner) => owner.trim().length > 0))
 
   return clients.filter((client) => {
-    if (filters.entityFilter !== ALL_ENTITIES && client.entityType !== filters.entityFilter) {
+    if (clientFilterSet.size > 0 && !clientFilterSet.has(client.id)) {
       return false
     }
-    if (filters.stateFilter !== STATE_FILTER_ALL && client.state !== filters.stateFilter) {
+    if (entityFilterSet.size > 0 && !entityFilterSet.has(client.entityType)) {
       return false
+    }
+    if (stateFilterSet.size > 0 && (!client.state || !stateFilterSet.has(client.state))) {
+      return false
+    }
+    if (readinessFilterSet.size > 0 && !readinessFilterSet.has(getClientReadiness(client).status)) {
+      return false
+    }
+    if (sourceFilterSet.size > 0 && !sourceFilterSet.has(getClientSourceType(client))) {
+      return false
+    }
+    if (ownerFilterSet.size > 0) {
+      const ownerValue = client.assigneeName ?? CLIENT_UNASSIGNED_OWNER_FILTER
+      if (!ownerFilterSet.has(ownerValue)) return false
     }
     if (normalizedSearch && !getClientSearchHaystack(client).includes(normalizedSearch)) {
       return false

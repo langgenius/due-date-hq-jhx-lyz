@@ -506,7 +506,7 @@ export function AuditLogPage() {
               <Trans>Audit log</Trans>
             </h1>
             <p className="max-w-180 text-md text-text-secondary">
-              <Trans>Review firm-wide write events, before/after state, and actor metadata.</Trans>
+              <Trans>Review firm-wide write events, what changed, and actor metadata.</Trans>
             </p>
           </div>
           <AuditExportButton />

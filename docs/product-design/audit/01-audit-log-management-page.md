@@ -12,7 +12,7 @@ owner: LYZ
 Audit Log is the firm-wide read surface for `audit_event`. Its job is not to create
 another analytics feed. It lets the firm answer a narrow compliance question:
 
-> What changed, who caused it, when did it happen, and what was the before/after state?
+> What changed, who caused it, when did it happen, and what user-facing fields moved?
 
 This page turns the existing append-only audit writer into a user-visible management
 surface. It should make Workboard status changes, Migration imports/reverts, client
@@ -46,7 +46,7 @@ Implement a read-only firm-wide Audit Log page:
 - `/audit` is a protected route inside the existing AppShell.
 - Page lists audit events newest first with server-side pagination.
 - Filters are URL-backed and safe to share.
-- Users can open a row detail drawer to inspect metadata and before/after JSON.
+- Users can open a row detail drawer to inspect metadata and a user-facing change summary.
 - Empty, loading, and error states are explicit.
 
 ### Deferred
@@ -91,7 +91,7 @@ The header should communicate proof, not fear.
 
 - Eyebrow: `Organization`
 - H1: `Audit log`
-- Description: `Review firm-wide write events, before/after state, and actor metadata.`
+- Description: `Review firm-wide write events, what changed, and actor metadata.`
 - Secondary action: disabled `Export · P1` if included.
 
 ### Controls
@@ -129,7 +129,7 @@ Columns:
 | Actor  | User display label when available; `System` when `actorId` is null; raw actor id as fallback.                                    |
 | Action | User-facing action label such as `Deadline status changed` or `Saved view deleted`; do not show the stored dotted action string. |
 | Entity | Entity name/description when available; otherwise user-facing type label + shortened `entityId`. Raw `entityType` is not shown.  |
-| Change | Human summary derived from `beforeJson` and `afterJson`; fallback to `No before/after payload`.                                  |
+| Change | Human summary derived from `beforeJson` and `afterJson`; fallback to a no detailed snapshot note.                                |
 | Device | `IP hash` / `UA hash` presence indicators, not raw values.                                                                       |
 | Detail | Icon button or row click opens drawer.                                                                                           |
 
@@ -157,7 +157,8 @@ Sections:
 
 - Summary: time, actor, action, entity.
 - Reason: visible only when present.
-- Before/after: structured diff summary first, raw JSON blocks second.
+- What changed: structured field table with `Field`, `Previous`, and `New`.
+- Raw before/after JSON is not shown in the product UI. It remains in `audit_event` storage and API responses for export/support paths.
 - Device: hash values, never raw IP/user-agent.
 - Raw event metadata: audit id and firm id, primarily for support.
 

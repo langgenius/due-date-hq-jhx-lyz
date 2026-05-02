@@ -1,4 +1,11 @@
-import { type ComponentType, type KeyboardEvent, type ReactNode, useCallback, useMemo } from 'react'
+import {
+  type ComponentType,
+  type KeyboardEvent,
+  type ReactNode,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react'
 import {
   flexRender,
   getCoreRowModel,
@@ -36,14 +43,6 @@ import {
   InputGroupInput,
 } from '@duedatehq/ui/components/ui/input-group'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@duedatehq/ui/components/ui/select'
-import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -60,17 +59,23 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 
+import {
+  TableHeaderMultiFilter,
+  type TableFilterOption,
+} from '@/components/patterns/table-header-filter'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 import {
-  ALL_ENTITIES,
   CLIENT_ENTITY_TYPES,
-  STATE_FILTER_ALL,
+  CLIENT_READINESS_FILTERS,
+  CLIENT_SOURCE_FILTERS,
+  CLIENT_UNASSIGNED_OWNER_FILTER,
   getClientSourceType,
-  isClientEntityType,
   type ClientEntityType,
   type ClientFactsModel,
   type ClientReadiness,
+  type ClientReadinessStatus,
+  type ClientSourceType,
 } from './client-readiness'
 
 declare module '@tanstack/react-table' {
@@ -88,6 +93,8 @@ type ClientMetric = {
   tone: 'ready' | 'attention' | 'neutral'
 }
 
+type FilterOption = TableFilterOption
+
 type ClientFactsWorkspaceProps = {
   clients: ClientPublic[]
   filteredClients: ClientPublic[]
@@ -96,12 +103,20 @@ type ClientFactsWorkspaceProps = {
   entityLabels: Record<ClientEntityType, string>
   isLoading: boolean
   search: string
-  entityFilter: string
-  stateFilter: string
+  clientFilter: string[]
+  entityFilter: ClientEntityType[]
+  stateFilter: string[]
+  readinessFilter: ClientReadinessStatus[]
+  sourceFilter: ClientSourceType[]
+  ownerFilter: string[]
   profileOpen: boolean
   onSearchChange: (value: string) => void
-  onEntityFilterChange: (value: string | null) => void
-  onStateFilterChange: (value: string | null) => void
+  onClientFilterChange: (value: string[]) => void
+  onEntityFilterChange: (value: string[]) => void
+  onStateFilterChange: (value: string[]) => void
+  onReadinessFilterChange: (value: string[]) => void
+  onSourceFilterChange: (value: string[]) => void
+  onOwnerFilterChange: (value: string[]) => void
   onSelectClient: (clientId: string) => void
   onProfileOpenChange: (open: boolean) => void
   onImport: () => void
@@ -121,17 +136,26 @@ export function ClientFactsWorkspace({
   entityLabels,
   isLoading,
   search,
+  clientFilter,
   entityFilter,
   stateFilter,
+  readinessFilter,
+  sourceFilter,
+  ownerFilter,
   profileOpen,
   onSearchChange,
+  onClientFilterChange,
   onEntityFilterChange,
   onStateFilterChange,
+  onReadinessFilterChange,
+  onSourceFilterChange,
+  onOwnerFilterChange,
   onSelectClient,
   onProfileOpenChange,
   onImport,
 }: ClientFactsWorkspaceProps) {
   const { t } = useLingui()
+  const [openHeaderFilter, setOpenHeaderFilter] = useState<string | null>(null)
   const metrics = useMemo<ClientMetric[]>(
     () => [
       {
@@ -165,12 +189,110 @@ export function ClientFactsWorkspace({
     ],
     [factsModel.summary, t],
   )
+  const readinessLabels = useMemo<Record<ClientReadinessStatus, string>>(
+    () => ({
+      ready: t`Ready for rules`,
+      needs_facts: t`Needs facts`,
+    }),
+    [t],
+  )
+  const sourceLabels = useMemo<Record<ClientSourceType, string>>(
+    () => ({
+      imported: t`Imported`,
+      manual: t`Manual`,
+    }),
+    [t],
+  )
+  const clientOptions = useMemo<FilterOption[]>(
+    () =>
+      clients
+        .map((client) => ({ value: client.id, label: client.name }))
+        .toSorted((a, b) => a.label.localeCompare(b.label)),
+    [clients],
+  )
+  const readinessOptions = useMemo<FilterOption[]>(
+    () =>
+      CLIENT_READINESS_FILTERS.map((status) => ({
+        value: status,
+        label: readinessLabels[status],
+        count:
+          status === 'ready' ? factsModel.summary.readyForRules : factsModel.summary.needsFacts,
+      })).filter((option) => option.count > 0),
+    [factsModel.summary.needsFacts, factsModel.summary.readyForRules, readinessLabels],
+  )
+  const entityOptions = useMemo<FilterOption[]>(() => {
+    const counts = new Map<ClientEntityType, number>()
+    for (const client of clients) {
+      counts.set(client.entityType, (counts.get(client.entityType) ?? 0) + 1)
+    }
+    return CLIENT_ENTITY_TYPES.map((entityType) => ({
+      value: entityType,
+      label: entityLabels[entityType],
+      count: counts.get(entityType) ?? 0,
+    })).filter((option) => option.count > 0)
+  }, [clients, entityLabels])
+  const stateOptions = useMemo<FilterOption[]>(() => {
+    const counts = new Map<string, number>()
+    for (const client of clients) {
+      if (client.state) counts.set(client.state, (counts.get(client.state) ?? 0) + 1)
+    }
+    return factsModel.stateOptions.map((state) => ({
+      value: state,
+      label: state,
+      count: counts.get(state) ?? 0,
+    }))
+  }, [clients, factsModel.stateOptions])
+  const sourceOptions = useMemo<FilterOption[]>(
+    () =>
+      CLIENT_SOURCE_FILTERS.map((source) => ({
+        value: source,
+        label: sourceLabels[source],
+        count: source === 'imported' ? factsModel.summary.imported : factsModel.summary.manual,
+      })).filter((option) => option.count > 0),
+    [factsModel.summary.imported, factsModel.summary.manual, sourceLabels],
+  )
+  const ownerOptions = useMemo<FilterOption[]>(() => {
+    const counts = new Map<string, number>()
+    const labels = new Map<string, string>()
+    for (const client of clients) {
+      const value = client.assigneeName ?? CLIENT_UNASSIGNED_OWNER_FILTER
+      counts.set(value, (counts.get(value) ?? 0) + 1)
+      labels.set(value, client.assigneeName ?? t`Unassigned`)
+    }
+    return [...counts.entries()]
+      .map(([value, count]) => ({
+        value,
+        label: labels.get(value) ?? value,
+        count,
+      }))
+      .toSorted((a, b) => {
+        if (a.value === CLIENT_UNASSIGNED_OWNER_FILTER) return -1
+        if (b.value === CLIENT_UNASSIGNED_OWNER_FILTER) return 1
+        return a.label.localeCompare(b.label)
+      })
+  }, [clients, t])
+  const setHeaderFilterOpen = useCallback((filterId: string, nextOpen: boolean) => {
+    setOpenHeaderFilter((current) => (nextOpen ? filterId : current === filterId ? null : current))
+  }, [])
 
   const columns = useMemo<ColumnDef<ClientPublic>[]>(
     () => [
       {
         accessorKey: 'name',
-        header: t`Client`,
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Client`}
+            open={openHeaderFilter === 'client'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('client', nextOpen)}
+            options={clientOptions}
+            selected={clientFilter}
+            emptyLabel={t`No clients`}
+            searchable
+            searchPlaceholder={t`Search clients`}
+            onSelectedChange={onClientFilterChange}
+          />
+        ),
         cell: ({ row }) => (
           <div className="flex min-w-0 flex-col gap-1">
             <span className="truncate font-medium text-text-primary">{row.original.name}</span>
@@ -186,7 +308,18 @@ export function ClientFactsWorkspace({
       },
       {
         id: 'readiness',
-        header: t`Readiness`,
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Readiness`}
+            open={openHeaderFilter === 'readiness'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('readiness', nextOpen)}
+            options={readinessOptions}
+            selected={readinessFilter}
+            emptyLabel={t`No readiness states`}
+            onSelectedChange={onReadinessFilterChange}
+          />
+        ),
         cell: ({ row }) => (
           <ClientReadinessBadge
             readiness={factsModel.readinessById.get(row.original.id)}
@@ -200,7 +333,18 @@ export function ClientFactsWorkspace({
       },
       {
         accessorKey: 'entityType',
-        header: t`Entity`,
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Entity`}
+            open={openHeaderFilter === 'entity'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('entity', nextOpen)}
+            options={entityOptions}
+            selected={entityFilter}
+            emptyLabel={t`No entities`}
+            onSelectedChange={onEntityFilterChange}
+          />
+        ),
         cell: (info) => entityLabels[info.getValue<ClientEntityType>()],
         meta: {
           headerClassName: 'w-[150px]',
@@ -209,7 +353,18 @@ export function ClientFactsWorkspace({
       },
       {
         accessorKey: 'state',
-        header: t`Jurisdiction`,
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Jurisdiction`}
+            open={openHeaderFilter === 'state'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('state', nextOpen)}
+            options={stateOptions}
+            selected={stateFilter}
+            emptyLabel={t`No states`}
+            onSelectedChange={onStateFilterChange}
+          />
+        ),
         cell: ({ row }) => (
           <span className="whitespace-nowrap font-mono tabular-nums">
             {[row.original.state, row.original.county].filter(Boolean).join(' / ') || 'N/A'}
@@ -222,7 +377,18 @@ export function ClientFactsWorkspace({
       },
       {
         accessorKey: 'migrationBatchId',
-        header: t`Source`,
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Source`}
+            open={openHeaderFilter === 'source'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('source', nextOpen)}
+            options={sourceOptions}
+            selected={sourceFilter}
+            emptyLabel={t`No source types`}
+            onSelectedChange={onSourceFilterChange}
+          />
+        ),
         cell: ({ row }) => <ClientSourceBadge client={row.original} />,
         meta: {
           headerClassName: 'w-[130px]',
@@ -231,7 +397,20 @@ export function ClientFactsWorkspace({
       },
       {
         accessorKey: 'assigneeName',
-        header: t`Owner`,
+        header: () => (
+          <TableHeaderMultiFilter
+            trigger="header"
+            label={t`Owner`}
+            open={openHeaderFilter === 'owner'}
+            onOpenChange={(nextOpen) => setHeaderFilterOpen('owner', nextOpen)}
+            options={ownerOptions}
+            selected={ownerFilter}
+            emptyLabel={t`No owners`}
+            searchable
+            searchPlaceholder={t`Search owners`}
+            onSelectedChange={onOwnerFilterChange}
+          />
+        ),
         cell: (info) => info.getValue<string | null>() ?? t`Unassigned`,
         meta: {
           headerClassName: 'w-[170px]',
@@ -252,7 +431,31 @@ export function ClientFactsWorkspace({
         },
       },
     ],
-    [entityLabels, factsModel.readinessById, t],
+    [
+      clientFilter,
+      clientOptions,
+      entityFilter,
+      entityLabels,
+      entityOptions,
+      factsModel.readinessById,
+      onClientFilterChange,
+      onEntityFilterChange,
+      onOwnerFilterChange,
+      onReadinessFilterChange,
+      onSourceFilterChange,
+      onStateFilterChange,
+      openHeaderFilter,
+      ownerFilter,
+      ownerOptions,
+      readinessFilter,
+      readinessOptions,
+      setHeaderFilterOpen,
+      sourceFilter,
+      sourceOptions,
+      stateFilter,
+      stateOptions,
+      t,
+    ],
   )
 
   const table = useReactTable({
@@ -261,19 +464,6 @@ export function ClientFactsWorkspace({
     getCoreRowModel: getCoreRowModel(),
     getRowId: (client) => client.id,
   })
-  const getEntityFilterLabel = useCallback(
-    (value: unknown) => {
-      if (typeof value !== 'string' || value === ALL_ENTITIES || !isClientEntityType(value)) {
-        return <Trans>All entities</Trans>
-      }
-      return entityLabels[value]
-    },
-    [entityLabels],
-  )
-  const getStateFilterLabel = useCallback((value: unknown) => {
-    if (typeof value !== 'string' || value === STATE_FILTER_ALL) return <Trans>All states</Trans>
-    return value
-  }, [])
   const handleOpenClientProfile = useCallback(
     (clientId: string) => {
       onSelectClient(clientId)
@@ -320,8 +510,8 @@ export function ClientFactsWorkspace({
                 </Button>
               </CardAction>
             </div>
-            <div className="grid gap-3 md:grid-cols-[minmax(240px,1fr)_180px_140px]">
-              <InputGroup>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <InputGroup className="md:max-w-90">
                 <InputGroupAddon>
                   <SearchIcon />
                 </InputGroupAddon>
@@ -331,46 +521,30 @@ export function ClientFactsWorkspace({
                   placeholder={t`Search clients`}
                 />
               </InputGroup>
-              <Select value={entityFilter} onValueChange={onEntityFilterChange}>
-                <SelectTrigger className="w-full" aria-label={t`Entity filter`}>
-                  <SelectValue>{getEntityFilterLabel}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value={ALL_ENTITIES}>
-                      <Trans>All entities</Trans>
-                    </SelectItem>
-                    {CLIENT_ENTITY_TYPES.map((entityType) => (
-                      <SelectItem key={entityType} value={entityType}>
-                        {entityLabels[entityType]}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <Select value={stateFilter} onValueChange={onStateFilterChange}>
-                <SelectTrigger className="w-full" aria-label={t`State filter`}>
-                  <SelectValue>{getStateFilterLabel}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value={STATE_FILTER_ALL}>
-                      <Trans>All states</Trans>
-                    </SelectItem>
-                    {factsModel.stateOptions.map((state) => (
-                      <SelectItem key={state} value={state}>
-                        {state}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-wrap gap-2">
+                <TableHeaderMultiFilter
+                  label={t`Entity`}
+                  options={entityOptions}
+                  selected={entityFilter}
+                  disabled={isLoading}
+                  emptyLabel={t`No entities`}
+                  onSelectedChange={onEntityFilterChange}
+                />
+                <TableHeaderMultiFilter
+                  label={t`State`}
+                  options={stateOptions}
+                  selected={stateFilter}
+                  disabled={isLoading}
+                  emptyLabel={t`No states`}
+                  onSelectedChange={onStateFilterChange}
+                />
+              </div>
             </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <ClientTableSkeleton />
-            ) : filteredClients.length > 0 ? (
+            ) : clients.length > 0 ? (
               <div className="overflow-x-auto rounded-md border border-divider-regular">
                 <Table className="min-w-[1280px] table-fixed">
                   <TableHeader>
@@ -390,34 +564,38 @@ export function ClientFactsWorkspace({
                     ))}
                   </TableHeader>
                   <TableBody>
-                    {table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={activeClient?.id === row.original.id ? 'selected' : undefined}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={t`Open fact profile for ${row.original.name}`}
-                        className="cursor-pointer outline-none hover:bg-state-base-hover focus-visible:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt focus-visible:ring-inset"
-                        onClick={() => handleOpenClientProfile(row.original.id)}
-                        onKeyDown={(event) =>
-                          handleClientRowKeyDown(event, row.original.id, handleOpenClientProfile)
-                        }
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell
-                            key={cell.id}
-                            className={cell.column.columnDef.meta?.cellClassName}
-                          >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
+                    {table.getRowModel().rows.length > 0 ? (
+                      table.getRowModel().rows.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          data-state={activeClient?.id === row.original.id ? 'selected' : undefined}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={t`Open fact profile for ${row.original.name}`}
+                          className="cursor-pointer outline-none hover:bg-state-base-hover focus-visible:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt focus-visible:ring-inset"
+                          onClick={() => handleOpenClientProfile(row.original.id)}
+                          onKeyDown={(event) =>
+                            handleClientRowKeyDown(event, row.original.id, handleOpenClientProfile)
+                          }
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell
+                              key={cell.id}
+                              className={cell.column.columnDef.meta?.cellClassName}
+                            >
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <ClientTableEmptyRow colSpan={table.getAllLeafColumns().length} />
+                    )}
                   </TableBody>
                 </Table>
               </div>
             ) : (
-              <ClientEmptyState hasClients={clients.length > 0} onImport={onImport} />
+              <ClientEmptyState hasClients={false} onImport={onImport} />
             )}
           </CardContent>
         </Card>
@@ -473,6 +651,23 @@ function ClientTableSkeleton() {
         <Skeleton key={item} className="h-12 w-full" />
       ))}
     </div>
+  )
+}
+
+function ClientTableEmptyRow({ colSpan }: { colSpan: number }) {
+  return (
+    <TableRow>
+      <TableCell colSpan={colSpan} className="h-48 text-center">
+        <div className="flex flex-col items-center justify-center gap-1 text-sm">
+          <span className="font-medium text-text-primary">
+            <Trans>No clients match these filters</Trans>
+          </span>
+          <span className="text-text-tertiary">
+            <Trans>Clear search or filters to return to the full firm directory.</Trans>
+          </span>
+        </div>
+      </TableCell>
+    </TableRow>
   )
 }
 
@@ -664,7 +859,7 @@ function ClientReadinessBadge({
 }) {
   if (readiness?.status === 'needs_facts') {
     return (
-      <Badge variant="warning">
+      <Badge variant="warning" className="text-xs">
         <BadgeStatusDot tone="warning" />
         {compact ? <Trans>Needs facts</Trans> : <MissingFactsLabel readiness={readiness} />}
       </Badge>
@@ -672,7 +867,7 @@ function ClientReadinessBadge({
   }
 
   return (
-    <Badge variant="success">
+    <Badge variant="success" className="text-xs">
       <BadgeStatusDot tone="success" />
       <Trans>Ready for rules</Trans>
     </Badge>
@@ -688,12 +883,12 @@ function MissingFactsLabel({ readiness }: { readiness: ClientReadiness }) {
 
 function ClientSourceBadge({ client }: { client: ClientPublic }) {
   return getClientSourceType(client) === 'imported' ? (
-    <Badge variant="info">
+    <Badge variant="info" className="text-xs">
       <BadgeStatusDot tone="normal" />
       <Trans>Imported</Trans>
     </Badge>
   ) : (
-    <Badge variant="outline">
+    <Badge variant="outline" className="text-xs">
       <Trans>Manual</Trans>
     </Badge>
   )

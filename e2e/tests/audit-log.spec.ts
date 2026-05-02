@@ -34,10 +34,15 @@ test.describe('seeded audit trail', () => {
     await auditPage.eventRowFor('obligation.status.updated').click()
 
     await expect(auditPage.detailDrawer).toBeVisible()
-    await expect(auditPage.detailDrawer.getByText('Deadline status changed')).toBeVisible()
-    await expect(auditPage.detailDrawer.getByText('Before')).toBeVisible()
-    await expect(auditPage.detailDrawer.getByText('After')).toBeVisible()
-    await expect(auditPage.detailDrawer.getByText('"status": "pending"')).toBeVisible()
-    await expect(auditPage.detailDrawer.getByText('"status": "done"')).toBeVisible()
+    await expect(
+      auditPage.detailDrawer.getByText('Deadline status changed', { exact: true }),
+    ).toBeVisible()
+    await expect(
+      auditPage.detailDrawer.getByRole('heading', { name: 'What changed', level: 3 }),
+    ).toBeVisible()
+    await expect(auditPage.detailDrawer.getByText('Status', { exact: true })).toBeVisible()
+    await expect(auditPage.detailDrawer.getByText('Not started', { exact: true })).toBeVisible()
+    await expect(auditPage.detailDrawer.getByText('Filed', { exact: true })).toBeVisible()
+    await expect(auditPage.detailDrawer.getByText('"status": "pending"')).toHaveCount(0)
   })
 })

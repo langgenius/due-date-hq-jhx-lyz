@@ -12,15 +12,19 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
+import { useReadinessLabels, useStatusLabels } from '@/features/workboard/status-control'
 
-import { useAuditActionLabels, useAuditEntityTypeLabels } from './audit-log-labels'
+import { buildAuditChangeView } from './audit-change-view'
+import {
+  useAuditActionLabels,
+  useAuditChangeLabels,
+  useAuditEntityTypeLabels,
+} from './audit-log-labels'
 import {
   formatAuditActionLabel,
   formatAuditEntityTypeLabel,
   getAuditEntityDisplay,
   shortenAuditId,
-  summarizeAuditChange,
-  type AuditSummaryLabels,
 } from './audit-log-model'
 
 export function AuditLogTable({
@@ -35,14 +39,9 @@ export function AuditLogTable({
   const { t } = useLingui()
   const actionLabels = useAuditActionLabels()
   const entityTypeLabels = useAuditEntityTypeLabels()
-  const summaryLabels: AuditSummaryLabels = {
-    empty: t`empty`,
-    object: t`object`,
-    noPayload: t`No before/after payload`,
-    created: t`Created snapshot`,
-    beforeOnly: t`Before snapshot only`,
-    noChange: t`No field-level change detected`,
-  }
+  const statusLabels = useStatusLabels()
+  const readinessLabels = useReadinessLabels()
+  const changeLabels = useAuditChangeLabels({ actionLabels, readinessLabels, statusLabels })
 
   return (
     <Table>
@@ -81,7 +80,7 @@ export function AuditLogTable({
               actor={actor}
               actionLabel={actionLabel}
               entityDisplay={entityDisplay}
-              summaryLabels={summaryLabels}
+              changeHeadline={buildAuditChangeView(event, changeLabels, firmTimezone).headline}
               firmTimezone={firmTimezone}
               onOpenEvent={onOpenEvent}
             />
@@ -97,7 +96,7 @@ function AuditLogRow({
   actor,
   actionLabel,
   entityDisplay,
-  summaryLabels,
+  changeHeadline,
   firmTimezone,
   onOpenEvent,
 }: {
@@ -105,7 +104,7 @@ function AuditLogRow({
   actor: string
   actionLabel: string
   entityDisplay: { primary: string; secondary: string }
-  summaryLabels: AuditSummaryLabels
+  changeHeadline: string
   firmTimezone: string
   onOpenEvent: (id: string) => void
 }) {
@@ -165,9 +164,7 @@ function AuditLogRow({
         </div>
       </TableCell>
       <TableCell className="max-w-[360px] whitespace-normal">
-        <span className="line-clamp-2 text-sm text-text-secondary">
-          {summarizeAuditChange(event, summaryLabels, firmTimezone)}
-        </span>
+        <span className="line-clamp-2 text-sm text-text-secondary">{changeHeadline}</span>
       </TableCell>
       <TableCell className="text-right">
         <span className="text-sm text-text-tertiary" aria-hidden>

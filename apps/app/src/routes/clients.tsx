@@ -2,7 +2,13 @@ import { useCallback, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { AlertCircleIcon, FileClockIcon, FileSearchIcon } from 'lucide-react'
-import { parseAsString, parseAsStringLiteral, useQueryStates, type inferParserType } from 'nuqs'
+import {
+  parseAsArrayOf,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryStates,
+  type inferParserType,
+} from 'nuqs'
 import { toast } from 'sonner'
 
 import type { ClientCreateInput, ClientPublic } from '@duedatehq/contracts'
@@ -12,12 +18,15 @@ import { Button } from '@duedatehq/ui/components/ui/button'
 import { ClientFactsWorkspace } from '@/features/clients/ClientFactsWorkspace'
 import { CreateClientDialog } from '@/features/clients/CreateClientDialog'
 import {
-  ALL_ENTITIES,
-  CLIENT_ENTITY_FILTERS,
+  CLIENT_ENTITY_TYPES,
+  CLIENT_READINESS_FILTERS,
+  CLIENT_SOURCE_FILTERS,
   STATE_FILTER_ALL,
   buildClientFactsModel,
   filterClients,
   isClientEntityType,
+  isClientReadinessStatus,
+  isClientSourceType,
   type ClientEntityType,
 } from '@/features/clients/client-readiness'
 import { ImportHistoryDrawer } from '@/features/migration/ImportHistoryDrawer'
@@ -31,10 +40,18 @@ const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 
 export const clientsSearchParamsParsers = {
   q: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
-  entity: parseAsStringLiteral(CLIENT_ENTITY_FILTERS)
-    .withDefault(ALL_ENTITIES)
+  clients: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
+  entity: parseAsArrayOf(parseAsStringLiteral(CLIENT_ENTITY_TYPES))
+    .withDefault([])
     .withOptions(REPLACE_HISTORY_OPTIONS),
-  state: parseAsString.withDefault(STATE_FILTER_ALL).withOptions(REPLACE_HISTORY_OPTIONS),
+  state: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
+  readiness: parseAsArrayOf(parseAsStringLiteral(CLIENT_READINESS_FILTERS))
+    .withDefault([])
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  source: parseAsArrayOf(parseAsStringLiteral(CLIENT_SOURCE_FILTERS))
+    .withDefault([])
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  owner: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
   client: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
   importHistory: parseAsStringLiteral(['open']).withOptions(REPLACE_HISTORY_OPTIONS),
 } as const
@@ -69,8 +86,12 @@ export function ClientsRoute() {
   const [
     {
       q: search,
+      clients: clientFilter,
       entity: entityFilter,
       state: stateFilter,
+      readiness: readinessFilter,
+      source: sourceFilter,
+      owner: ownerFilter,
       client: selectedClientId,
       importHistory,
     },
@@ -82,9 +103,36 @@ export function ClientsRoute() {
   )
   const clients = clientsQuery.data ?? EMPTY_CLIENTS
   const factsModel = useMemo(() => buildClientFactsModel(clients), [clients])
+  const clientIdQuery = useMemo(() => cleanStringFilters(clientFilter), [clientFilter])
+  const stateQuery = useMemo(
+    () =>
+      cleanStringFilters(stateFilter)
+        .map((state) => state.toUpperCase())
+        .filter((state) => state !== STATE_FILTER_ALL),
+    [stateFilter],
+  )
+  const ownerQuery = useMemo(() => cleanStringFilters(ownerFilter), [ownerFilter])
   const filteredClients = useMemo(
-    () => filterClients(clients, { search, entityFilter, stateFilter }),
-    [clients, entityFilter, search, stateFilter],
+    () =>
+      filterClients(clients, {
+        search,
+        clientFilters: clientIdQuery,
+        entityFilters: entityFilter,
+        stateFilters: stateQuery,
+        readinessFilters: readinessFilter,
+        sourceFilters: sourceFilter,
+        ownerFilters: ownerQuery,
+      }),
+    [
+      clientIdQuery,
+      clients,
+      entityFilter,
+      ownerQuery,
+      readinessFilter,
+      search,
+      sourceFilter,
+      stateQuery,
+    ],
   )
   const activeClient =
     (selectedClientId ? filteredClients.find((client) => client.id === selectedClientId) : null) ??
@@ -97,8 +145,12 @@ export function ClientsRoute() {
         void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
         void setClientsQuery({
           q: null,
-          entity: ALL_ENTITIES,
-          state: STATE_FILTER_ALL,
+          clients: null,
+          entity: null,
+          state: null,
+          readiness: null,
+          source: null,
+          owner: null,
           client: client.id,
         })
         toast.success(t`Client created`, { description: client.name })
@@ -121,11 +173,21 @@ export function ClientsRoute() {
     [setClientsQuery],
   )
 
-  const handleEntityFilterChange = useCallback(
-    (value: string | null) => {
-      if (!value || (value !== ALL_ENTITIES && !isClientEntityType(value))) return
+  const handleClientFilterChange = useCallback(
+    (values: string[]) => {
       void setClientsQuery({
-        entity: value === ALL_ENTITIES ? null : value,
+        clients: values.length > 0 ? values : null,
+        client: null,
+      })
+    },
+    [setClientsQuery],
+  )
+
+  const handleEntityFilterChange = useCallback(
+    (values: string[]) => {
+      const typedEntities = values.filter(isClientEntityType)
+      void setClientsQuery({
+        entity: typedEntities.length > 0 ? typedEntities : null,
         client: null,
       })
     },
@@ -133,10 +195,45 @@ export function ClientsRoute() {
   )
 
   const handleStateFilterChange = useCallback(
-    (value: string | null) => {
-      if (!value) return
+    (values: string[]) => {
+      const states = cleanStringFilters(values)
+        .map((state) => state.toUpperCase())
+        .filter((state) => state !== STATE_FILTER_ALL)
       void setClientsQuery({
-        state: value === STATE_FILTER_ALL ? null : value,
+        state: states.length > 0 ? states : null,
+        client: null,
+      })
+    },
+    [setClientsQuery],
+  )
+
+  const handleReadinessFilterChange = useCallback(
+    (values: string[]) => {
+      const typedReadiness = values.filter(isClientReadinessStatus)
+      void setClientsQuery({
+        readiness: typedReadiness.length > 0 ? typedReadiness : null,
+        client: null,
+      })
+    },
+    [setClientsQuery],
+  )
+
+  const handleSourceFilterChange = useCallback(
+    (values: string[]) => {
+      const typedSources = values.filter(isClientSourceType)
+      void setClientsQuery({
+        source: typedSources.length > 0 ? typedSources : null,
+        client: null,
+      })
+    },
+    [setClientsQuery],
+  )
+
+  const handleOwnerFilterChange = useCallback(
+    (values: string[]) => {
+      const owners = cleanStringFilters(values)
+      void setClientsQuery({
+        owner: owners.length > 0 ? owners : null,
         client: null,
       })
     },
@@ -161,8 +258,12 @@ export function ClientsRoute() {
     (clientId: string) => {
       void setClientsQuery({
         q: null,
-        entity: ALL_ENTITIES,
-        state: STATE_FILTER_ALL,
+        clients: null,
+        entity: null,
+        state: null,
+        readiness: null,
+        source: null,
+        owner: null,
         client: clientId,
         importHistory: 'open',
       }).then(() => setProfileOpen(true))
@@ -241,16 +342,34 @@ export function ClientsRoute() {
         entityLabels={entityLabels}
         isLoading={clientsQuery.isLoading}
         search={search}
+        clientFilter={clientIdQuery}
         entityFilter={entityFilter}
-        stateFilter={stateFilter}
+        stateFilter={stateQuery}
+        readinessFilter={readinessFilter}
+        sourceFilter={sourceFilter}
+        ownerFilter={ownerQuery}
         profileOpen={profileOpen}
         onSearchChange={handleSearchChange}
+        onClientFilterChange={handleClientFilterChange}
         onEntityFilterChange={handleEntityFilterChange}
         onStateFilterChange={handleStateFilterChange}
+        onReadinessFilterChange={handleReadinessFilterChange}
+        onSourceFilterChange={handleSourceFilterChange}
+        onOwnerFilterChange={handleOwnerFilterChange}
         onSelectClient={handleSelectClient}
         onProfileOpenChange={setProfileOpen}
         onImport={openWizard}
       />
     </div>
   )
+}
+
+function cleanStringFilters(values: readonly string[], maxLength = 120): string[] {
+  return [
+    ...new Set(
+      values
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0 && value.length <= maxLength),
+    ),
+  ]
 }

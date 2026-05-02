@@ -11,17 +11,20 @@ import {
   SheetTitle,
 } from '@duedatehq/ui/components/ui/sheet'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
+import { useReadinessLabels, useStatusLabels } from '@/features/workboard/status-control'
 
+import { buildAuditChangeView, type AuditChangeView } from './audit-change-view'
 import {
-  formatAuditJson,
   formatAuditActionLabel,
   formatAuditEntityTypeLabel,
   getAuditEntityDisplay,
   shortenAuditId,
-  summarizeAuditChange,
-  type AuditSummaryLabels,
 } from './audit-log-model'
-import { useAuditActionLabels, useAuditEntityTypeLabels } from './audit-log-labels'
+import {
+  useAuditActionLabels,
+  useAuditChangeLabels,
+  useAuditEntityTypeLabels,
+} from './audit-log-labels'
 
 function MetadataRow({ label, value }: { label: string; value: string }) {
   return (
@@ -29,25 +32,6 @@ function MetadataRow({ label, value }: { label: string; value: string }) {
       <dt className="text-xs font-medium tracking-wider text-text-tertiary uppercase">{label}</dt>
       <dd className="break-all text-sm text-text-primary">{value}</dd>
     </div>
-  )
-}
-
-function JsonBlock({
-  label,
-  value,
-  firmTimezone,
-}: {
-  label: string
-  value: unknown
-  firmTimezone?: string
-}) {
-  return (
-    <section className="grid gap-2">
-      <h3 className="text-xs font-medium tracking-wider text-text-tertiary uppercase">{label}</h3>
-      <pre className="max-h-56 overflow-auto rounded-lg border border-divider-subtle bg-background-subtle p-3 font-mono text-xs leading-relaxed text-text-secondary">
-        {formatAuditJson(value, firmTimezone)}
-      </pre>
-    </section>
   )
 }
 
@@ -91,20 +75,16 @@ function AuditEventDrawerContent({
   const { t } = useLingui()
   const actionLabels = useAuditActionLabels()
   const entityTypeLabels = useAuditEntityTypeLabels()
-  const summaryLabels: AuditSummaryLabels = {
-    empty: t`empty`,
-    object: t`object`,
-    noPayload: t`No before/after payload`,
-    created: t`Created snapshot`,
-    beforeOnly: t`Before snapshot only`,
-    noChange: t`No field-level change detected`,
-  }
+  const statusLabels = useStatusLabels()
+  const readinessLabels = useReadinessLabels()
+  const changeLabels = useAuditChangeLabels({ actionLabels, readinessLabels, statusLabels })
   const actor = event.actorLabel ?? event.actorId ?? t`System`
   const actionLabel = formatAuditActionLabel(event.action, actionLabels)
   const entityTypeLabel = formatAuditEntityTypeLabel(event.entityType, entityTypeLabels)
   const entityDisplay = getAuditEntityDisplay(event, entityTypeLabel)
   const firmTime = formatDateTimeWithTimezone(event.createdAt, firmTimezone)
   const utcTime = formatDateTimeWithTimezone(event.createdAt, 'UTC')
+  const changeView = buildAuditChangeView(event, changeLabels, firmTimezone)
 
   return (
     <>
@@ -121,9 +101,7 @@ function AuditEventDrawerContent({
               <Badge variant="outline">{actionLabel}</Badge>
               <Badge variant={event.actorId ? 'secondary' : 'outline'}>{actor}</Badge>
             </div>
-            <p className="text-md text-text-primary">
-              {summarizeAuditChange(event, summaryLabels, firmTimezone)}
-            </p>
+            <p className="text-md text-text-primary">{changeView.headline}</p>
           </section>
 
           <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
@@ -136,8 +114,7 @@ function AuditEventDrawerContent({
             {event.reason ? <MetadataRow label={t`Reason`} value={event.reason} /> : null}
           </dl>
 
-          <JsonBlock label={t`Before`} value={event.beforeJson} firmTimezone={firmTimezone} />
-          <JsonBlock label={t`After`} value={event.afterJson} firmTimezone={firmTimezone} />
+          <AuditChangeDetails changeView={changeView} />
 
           <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
             <MetadataRow label={t`IP hash`} value={event.ipHash ?? t`Not recorded`} />
@@ -150,5 +127,47 @@ function AuditEventDrawerContent({
         </div>
       </div>
     </>
+  )
+}
+
+function AuditChangeDetails({ changeView }: { changeView: AuditChangeView }) {
+  return (
+    <section className="grid gap-3">
+      <h3 className="text-xs font-medium tracking-wider text-text-tertiary uppercase">
+        <Trans>What changed</Trans>
+      </h3>
+      {changeView.changes.length > 0 ? (
+        <div className="overflow-hidden rounded-lg border border-divider-subtle">
+          <div className="grid grid-cols-[minmax(88px,0.8fr)_minmax(0,1fr)_minmax(0,1fr)] gap-0 border-b border-divider-subtle bg-background-subtle px-3 py-2 text-xs font-medium tracking-wider text-text-tertiary uppercase">
+            <span>
+              <Trans>Field</Trans>
+            </span>
+            <span>
+              <Trans>Previous</Trans>
+            </span>
+            <span>
+              <Trans>New</Trans>
+            </span>
+          </div>
+          {changeView.changes.map((row) => (
+            <div
+              key={`${row.field}-${row.previous}-${row.next}`}
+              className="grid grid-cols-[minmax(88px,0.8fr)_minmax(0,1fr)_minmax(0,1fr)] gap-0 border-b border-divider-subtle px-3 py-2 text-sm last:border-b-0"
+            >
+              <span className="font-medium text-text-primary">{row.field}</span>
+              <span className="break-words text-text-secondary">{row.previous}</span>
+              <span className="break-words text-text-primary">{row.next}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {changeView.notes.length > 0 ? (
+        <div className="grid gap-1 text-sm text-text-secondary">
+          {changeView.notes.map((note) => (
+            <p key={note}>{note}</p>
+          ))}
+        </div>
+      ) : null}
+    </section>
   )
 }

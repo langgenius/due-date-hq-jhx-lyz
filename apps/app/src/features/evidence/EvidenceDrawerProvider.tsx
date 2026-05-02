@@ -18,6 +18,10 @@ import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
 import { orpc } from '@/lib/rpc'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
+import { buildAuditChangeView } from '@/features/audit/audit-change-view'
+import { useAuditActionLabels, useAuditChangeLabels } from '@/features/audit/audit-log-labels'
+import { formatAuditActionLabel } from '@/features/audit/audit-log-model'
+import { useReadinessLabels, useStatusLabels } from '@/features/workboard/status-control'
 
 export interface OpenEvidenceInput {
   obligationId: string
@@ -215,6 +219,11 @@ function EvidenceMetaRow({ label, value }: { label: string; value: string }) {
 }
 
 function AuditTimeline({ events, loading }: { events: AuditEventPublic[]; loading: boolean }) {
+  const actionLabels = useAuditActionLabels()
+  const statusLabels = useStatusLabels()
+  const readinessLabels = useReadinessLabels()
+  const changeLabels = useAuditChangeLabels({ actionLabels, readinessLabels, statusLabels })
+
   return (
     <section className="grid gap-3">
       <div className="flex items-center justify-between gap-3">
@@ -231,22 +240,39 @@ function AuditTimeline({ events, loading }: { events: AuditEventPublic[]; loadin
         </div>
       ) : (
         <div className="grid gap-3">
-          {events.map((event) => (
-            <article
-              key={event.id}
-              className="grid gap-2 rounded-lg border border-divider-subtle p-3"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <Badge variant="outline">{event.action}</Badge>
-                <span className="font-mono text-xs text-text-tertiary">
-                  {formatDateTimeWithTimezone(event.createdAt)}
-                </span>
-              </div>
-              <pre className="max-h-36 overflow-auto rounded-md bg-background-subtle p-2 font-mono text-xs text-text-secondary">
-                {JSON.stringify({ before: event.beforeJson, after: event.afterJson }, null, 2)}
-              </pre>
-            </article>
-          ))}
+          {events.map((event) => {
+            const actionLabel = formatAuditActionLabel(event.action, actionLabels)
+            const changeView = buildAuditChangeView(event, changeLabels)
+            return (
+              <article
+                key={event.id}
+                className="grid gap-2 rounded-lg border border-divider-subtle p-3"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Badge variant="outline">{actionLabel}</Badge>
+                  <span className="font-mono text-xs text-text-tertiary">
+                    {formatDateTimeWithTimezone(event.createdAt)}
+                  </span>
+                </div>
+                <p className="text-sm text-text-primary">{changeView.headline}</p>
+                {changeView.changes.length > 0 ? (
+                  <dl className="grid gap-1 text-xs text-text-secondary">
+                    {changeView.changes.slice(0, 3).map((row) => (
+                      <div key={row.field} className="grid grid-cols-[96px_1fr] gap-2">
+                        <dt className="font-medium text-text-tertiary">{row.field}</dt>
+                        <dd className="break-words">
+                          {row.previous} to {row.next}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+                {changeView.notes.length > 0 ? (
+                  <p className="text-xs text-text-tertiary">{changeView.notes[0]}</p>
+                ) : null}
+              </article>
+            )
+          })}
         </div>
       )}
     </section>

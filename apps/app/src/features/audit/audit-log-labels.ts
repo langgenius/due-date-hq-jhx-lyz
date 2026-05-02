@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useLingui } from '@lingui/react/macro'
 
+import type { AuditChangeLabels } from './audit-change-view'
 import type { AuditActionLabels, AuditEntityTypeLabels } from './audit-log-model'
 
 export function useAuditActionLabels(): AuditActionLabels {
@@ -106,5 +107,142 @@ export function useAuditEntityTypeLabels(): AuditEntityTypeLabels {
       workboardSavedView: t`Saved workboard view`,
     }),
     [t],
+  )
+}
+
+export function useAuditChangeLabels({
+  actionLabels,
+  readinessLabels,
+  statusLabels,
+}: {
+  actionLabels: AuditActionLabels
+  readinessLabels: Record<string, string>
+  statusLabels: Record<string, string>
+}): AuditChangeLabels {
+  const { t } = useLingui()
+
+  return useMemo(
+    () => ({
+      actionLabels,
+      statusLabels,
+      readinessLabels,
+      fields: {
+        alertStatus: t`Alert status`,
+        assigneeName: t`Assignee`,
+        cells: t`Rule cells`,
+        clientCount: t`Clients`,
+        clientsAffected: t`Clients affected`,
+        contentType: t`File type`,
+        count: t`Rows`,
+        currentDueDate: t`Due date`,
+        disabledCells: t`Disabled cells`,
+        email: t`Email`,
+        enabledCells: t`Enabled cells`,
+        equityOwnerCount: t`Owner count`,
+        errorCount: t`Rows needing attention`,
+        estimatedTaxLiabilityCents: t`Estimated tax liability`,
+        fileCount: t`Files`,
+        fileName: t`File`,
+        format: t`Format`,
+        isPinned: t`Pinned`,
+        kind: t`File kind`,
+        matchedCount: t`Matched clients`,
+        name: t`Name`,
+        needsReviewCount: t`Needs review`,
+        obligationCount: t`Deadlines`,
+        plan: t`Plan`,
+        presetUsed: t`Preset`,
+        pulseStatus: t`Pulse status`,
+        readiness: t`Readiness`,
+        role: t`Role`,
+        rowCount: t`Rows`,
+        scope: t`Scope`,
+        seatLimit: t`Seat limit`,
+        sizeBytes: t`File size`,
+        skippedCount: t`Skipped rows`,
+        snoozedUntil: t`Snoozed until`,
+        source: t`Source`,
+        status: t`Status`,
+        timezone: t`Timezone`,
+      },
+      values: {
+        detailsUpdated: t`Details updated`,
+        multipleValues: t`Multiple values`,
+        no: t`No`,
+        none: t`None`,
+        notRecorded: t`Not recorded`,
+        notSet: t`Not set`,
+        unchanged: t`Unchanged`,
+        yes: t`Yes`,
+      },
+      enumValues: {
+        active: t`Active`,
+        all_ignore: t`All ignored`,
+        applied: t`Applied`,
+        canceled: t`Canceled`,
+        coordinator: t`Coordinator`,
+        csv: t`CSV`,
+        dismissed: t`Dismissed`,
+        failed: t`Failed`,
+        Firm: t`Firm`,
+        manager: t`Manager`,
+        manual: t`Manual`,
+        mapping: t`Mapping`,
+        matched: t`Matched`,
+        owner: t`Owner`,
+        pending: statusLabels.pending ?? t`Pending`,
+        pending_review: t`Pending review`,
+        preparer: t`Preparer`,
+        preset: t`Preset`,
+        quarantined: t`Quarantined`,
+        rejected: t`Rejected`,
+        reviewing: t`Reviewing`,
+        revoked: t`Revoked`,
+        snoozed: t`Snoozed`,
+        suspended: t`Suspended`,
+        tsv: t`TSV`,
+        xlsx: t`XLSX`,
+      },
+      headlines: {
+        actionRecorded: (action) => t`${action} recorded`,
+        assigneeChanged: (assignee, count) =>
+          count === null
+            ? t`Client assignee changed to ${assignee}`
+            : t`Client assignee changed to ${assignee} for ${count} clients`,
+        batchCreated: (action, count) =>
+          count === null ? t`${action} recorded` : t`${action}: ${count} rows`,
+        deadlineDueDateChanged: (previous, next) =>
+          t`Deadline due date changed from ${previous} to ${next}`,
+        deadlineReadinessChanged: (previous, next) =>
+          t`Deadline readiness changed from ${previous} to ${next}`,
+        deadlineStatusChanged: (previous, next) =>
+          t`Deadline status changed from ${previous} to ${next}`,
+        fieldChanged: (field, previous, next) => t`${field} changed from ${previous} to ${next}`,
+        firmUpdated: t`Firm profile changed`,
+        importCompleted: (clientCount, obligationCount, skippedCount) =>
+          t`Import completed: ${clientCount ?? 0} clients, ${obligationCount ?? 0} deadlines, ${skippedCount ?? 0} skipped rows`,
+        memberRoleChanged: (previous, next) => t`Member role changed from ${previous} to ${next}`,
+        multipleFieldsChanged: (action, count) => t`${action}: ${count} fields changed`,
+        penaltyInputsChanged: t`Penalty inputs changed`,
+        pulseDueDateChanged: (previous, next) =>
+          t`Pulse changed due date from ${previous} to ${next}`,
+        savedViewUpdated: (name) => (name ? t`Saved view updated: ${name}` : t`Saved view updated`),
+      },
+      notes: {
+        additionalChanges: (count) => t`${count} additional fields changed`,
+        countUpdated: (count, noun) => t`${count} ${noun} updated`,
+        noDetailedSnapshot: t`Event recorded without a detailed change snapshot.`,
+        noFieldChange: t`No user-facing field change was recorded.`,
+      },
+      nouns: {
+        clients: t`clients`,
+        deadlines: t`deadlines`,
+        events: t`events`,
+        files: t`files`,
+        fields: t`fields`,
+        rows: t`rows`,
+      },
+    }),
+    [actionLabels, readinessLabels, statusLabels, t],
   )
 }

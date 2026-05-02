@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  AUDIT_CHANGE_PRESENTERS,
+  buildAuditChangeView,
+  type AuditChangeLabels,
+} from './audit-change-view'
+import {
   AUDIT_ACTION_LABEL_KEYS,
   categoryToInput,
   formatAuditActionLabel,
@@ -11,7 +16,6 @@ import {
   isAuditCategoryOption,
   isAuditRange,
   shortenAuditId,
-  summarizeAuditChange,
   type AuditActionLabels,
   type AuditEntityTypeLabels,
 } from './audit-log-model'
@@ -33,6 +37,109 @@ function makeActionLabels(overrides: Partial<AuditActionLabels>): AuditActionLab
   return labels
 }
 
+function makeChangeLabels(overrides: Partial<AuditActionLabels> = {}): AuditChangeLabels {
+  const actionLabels = makeActionLabels({
+    clientAssigneeUpdated: 'Client assignee changed',
+    clientBatchCreated: 'Client batch created',
+    memberRoleUpdated: 'Member role changed',
+    migrationImported: 'Import completed',
+    obligationDueDateUpdated: 'Due date changed',
+    obligationStatusUpdated: 'Deadline status changed',
+    penaltyOverride: 'Penalty inputs changed',
+    pulseApply: 'Pulse applied',
+    workboardSavedViewUpdated: 'Saved view updated',
+    ...overrides,
+  })
+
+  return {
+    actionLabels,
+    statusLabels: {
+      pending: 'Not started',
+      in_progress: 'In progress',
+      waiting_on_client: 'Waiting on client',
+      review: 'Needs review',
+      done: 'Filed',
+      paid: 'Paid',
+      extended: 'Extended',
+      not_applicable: 'Not applicable',
+    },
+    readinessLabels: {
+      ready: 'Ready',
+      waiting: 'Waiting',
+      needs_review: 'Needs review',
+    },
+    fields: {
+      assigneeName: 'Assignee',
+      clientCount: 'Clients',
+      currentDueDate: 'Due date',
+      equityOwnerCount: 'Owner count',
+      estimatedTaxLiabilityCents: 'Estimated tax liability',
+      isPinned: 'Pinned',
+      name: 'Name',
+      obligationCount: 'Deadlines',
+      readiness: 'Readiness',
+      role: 'Role',
+      skippedCount: 'Skipped rows',
+      status: 'Status',
+    },
+    values: {
+      detailsUpdated: 'Details updated',
+      multipleValues: 'Multiple values',
+      no: 'No',
+      none: 'None',
+      notRecorded: 'Not recorded',
+      notSet: 'Not set',
+      unchanged: 'Unchanged',
+      yes: 'Yes',
+    },
+    enumValues: {
+      active: 'Active',
+      manager: 'Manager',
+      preparer: 'Preparer',
+      pending_review: 'Pending review',
+      applied: 'Applied',
+    },
+    headlines: {
+      actionRecorded: (action) => `${action} recorded`,
+      assigneeChanged: (assignee, count) =>
+        count === null
+          ? `Client assignee changed to ${assignee}`
+          : `Client assignee changed to ${assignee} for ${count} clients`,
+      batchCreated: (action, count) =>
+        count === null ? `${action} recorded` : `${action}: ${count} rows`,
+      deadlineDueDateChanged: (previous, next) =>
+        `Deadline due date changed from ${previous} to ${next}`,
+      deadlineReadinessChanged: (previous, next) =>
+        `Deadline readiness changed from ${previous} to ${next}`,
+      deadlineStatusChanged: (previous, next) =>
+        `Deadline status changed from ${previous} to ${next}`,
+      fieldChanged: (field, previous, next) => `${field} changed from ${previous} to ${next}`,
+      firmUpdated: 'Firm profile changed',
+      importCompleted: (clientCount, obligationCount, skippedCount) =>
+        `Import completed: ${clientCount ?? 0} clients, ${obligationCount ?? 0} deadlines, ${skippedCount ?? 0} skipped rows`,
+      memberRoleChanged: (previous, next) => `Member role changed from ${previous} to ${next}`,
+      multipleFieldsChanged: (action, count) => `${action}: ${count} fields changed`,
+      penaltyInputsChanged: 'Penalty inputs changed',
+      pulseDueDateChanged: (previous, next) => `Pulse changed due date from ${previous} to ${next}`,
+      savedViewUpdated: (name) => (name ? `Saved view updated: ${name}` : 'Saved view updated'),
+    },
+    notes: {
+      additionalChanges: (count) => `${count} additional fields changed`,
+      countUpdated: (count, noun) => `${count} ${noun} updated`,
+      noDetailedSnapshot: 'Event recorded without a detailed change snapshot.',
+      noFieldChange: 'No user-facing field change was recorded.',
+    },
+    nouns: {
+      clients: 'clients',
+      deadlines: 'deadlines',
+      events: 'events',
+      fields: 'fields',
+      files: 'files',
+      rows: 'rows',
+    },
+  }
+}
+
 describe('audit-log-model', () => {
   it('validates category and range options', () => {
     expect(isAuditCategoryOption('migration')).toBe(true)
@@ -43,16 +150,9 @@ describe('audit-log-model', () => {
     expect(isAuditRange('90d')).toBe(false)
   })
 
-  it('summarizes before/after changes', () => {
-    expect(
-      summarizeAuditChange({
-        beforeJson: { status: 'pending', count: 1 },
-        afterJson: { status: 'done', count: 1 },
-      }),
-    ).toBe('status: pending -> done')
-
-    expect(summarizeAuditChange({ beforeJson: null, afterJson: null })).toBe(
-      'No before/after payload',
+  it('registers user-facing presenters for every known audit action', () => {
+    expect(Object.keys(AUDIT_CHANGE_PRESENTERS).toSorted()).toEqual(
+      Object.keys(AUDIT_ACTION_LABEL_KEYS).toSorted(),
     )
   })
 
@@ -68,17 +168,142 @@ describe('audit-log-model', () => {
     expect(formatAuditJson(null)).toBe('null')
   })
 
-  it('summarizes timestamp changes in the requested firm timezone', () => {
+  it('builds user-facing deadline status and date change views', () => {
+    const labels = makeChangeLabels()
+
     expect(
-      summarizeAuditChange(
+      buildAuditChangeView(
         {
-          beforeJson: { createdAt: '2026-04-29T09:14:32.883Z' },
-          afterJson: { createdAt: '2026-04-29T10:14:32.883Z' },
+          action: 'obligation.status.updated',
+          beforeJson: { status: 'pending', readiness: 'ready' },
+          afterJson: { status: 'done', readiness: 'ready' },
         },
-        undefined,
+        labels,
+      ),
+    ).toMatchObject({
+      headline: 'Deadline status changed from Not started to Filed',
+      changes: [{ field: 'Status', previous: 'Not started', next: 'Filed' }],
+    })
+
+    expect(
+      buildAuditChangeView(
+        {
+          action: 'obligation.due_date.updated',
+          beforeJson: { currentDueDate: '2026-04-15' },
+          afterJson: { currentDueDate: '2026-05-15' },
+        },
+        labels,
         'America/Los_Angeles',
       ),
-    ).toContain('createdAt: 2026-04-29 02:14:32')
+    ).toMatchObject({
+      headline: 'Deadline due date changed from 2026-04-15 to 2026-05-15',
+      changes: [{ field: 'Due date', previous: '2026-04-15', next: '2026-05-15' }],
+    })
+  })
+
+  it('builds user-facing views for common client, import, pulse, member, and saved view events', () => {
+    const labels = makeChangeLabels()
+
+    expect(
+      buildAuditChangeView(
+        {
+          action: 'penalty.override',
+          beforeJson: { estimatedTaxLiabilityCents: null, equityOwnerCount: 2 },
+          afterJson: { estimatedTaxLiabilityCents: 125000, equityOwnerCount: 3 },
+        },
+        labels,
+      ),
+    ).toMatchObject({
+      headline: 'Penalty inputs changed',
+      changes: [
+        { field: 'Estimated tax liability', previous: 'Not set', next: '$1,250.00' },
+        { field: 'Owner count', previous: '2', next: '3' },
+      ],
+    })
+
+    expect(
+      buildAuditChangeView(
+        {
+          action: 'client.assignee.updated',
+          beforeJson: { clients: [{ id: 'client_1', assigneeName: 'Mina' }] },
+          afterJson: { count: 3, assigneeName: 'Sarah', clientIds: ['client_1'] },
+        },
+        labels,
+      ).headline,
+    ).toBe('Client assignee changed to Sarah for 3 clients')
+
+    expect(
+      buildAuditChangeView(
+        {
+          action: 'migration.imported',
+          beforeJson: { status: 'reviewing' },
+          afterJson: { clientCount: 2, obligationCount: 5, skippedCount: 1 },
+        },
+        labels,
+      ).headline,
+    ).toBe('Import completed: 2 clients, 5 deadlines, 1 skipped rows')
+
+    expect(
+      buildAuditChangeView(
+        {
+          action: 'pulse.apply',
+          beforeJson: { obligationId: 'obl_1', currentDueDate: '2026-03-15' },
+          afterJson: { pulseId: 'pulse_1', obligationId: 'obl_1', currentDueDate: '2026-05-25' },
+        },
+        labels,
+      ).headline,
+    ).toBe('Pulse changed due date from 2026-03-15 to 2026-05-25')
+
+    expect(
+      buildAuditChangeView(
+        {
+          action: 'member.role.updated',
+          beforeJson: { role: 'preparer' },
+          afterJson: { role: 'manager' },
+        },
+        labels,
+      ).headline,
+    ).toBe('Member role changed from Preparer to Manager')
+
+    expect(
+      buildAuditChangeView(
+        {
+          action: 'workboard.saved_view.updated',
+          beforeJson: null,
+          afterJson: { name: 'Pinned high-risk clients', isPinned: true },
+        },
+        labels,
+      ),
+    ).toMatchObject({
+      headline: 'Saved view updated: Pinned high-risk clients',
+      changes: [
+        { field: 'Name', previous: 'Not set', next: 'Pinned high-risk clients' },
+        { field: 'Pinned', previous: 'Not set', next: 'Yes' },
+      ],
+    })
+  })
+
+  it('keeps fallback change views readable without raw JSON or technical action strings', () => {
+    const view = buildAuditChangeView(
+      {
+        action: 'custom.settings_changed',
+        beforeJson: { settings: { nested: true }, firmId: 'firm_1' },
+        afterJson: { settings: { nested: false }, firmId: 'firm_2' },
+      },
+      makeChangeLabels(),
+    )
+
+    const rendered = [
+      view.headline,
+      ...view.changes.flatMap((row) => [row.field, row.previous, row.next]),
+    ].join(' ')
+    expect(rendered).toContain('Custom settings changed')
+    expect(rendered).toContain('Settings')
+    expect(rendered).toContain('Details updated')
+    expect(rendered).not.toContain('custom.settings_changed')
+    expect(rendered).not.toContain('firmId')
+    expect(rendered).not.toContain('"nested"')
+    expect(rendered).not.toContain('object')
   })
 
   it('formats audit entity type labels for user-facing surfaces', () => {

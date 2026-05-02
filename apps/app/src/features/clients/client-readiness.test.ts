@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { ClientPublic } from '@duedatehq/contracts'
-import { buildClientFactsModel, filterClients, getClientReadiness } from './client-readiness'
+import {
+  CLIENT_UNASSIGNED_OWNER_FILTER,
+  buildClientFactsModel,
+  filterClients,
+  getClientReadiness,
+} from './client-readiness'
 
 function makeClient(overrides: Partial<ClientPublic> = {}): ClientPublic {
   return {
@@ -69,9 +74,43 @@ describe('client readiness', () => {
     expect(
       filterClients(clients, {
         search: 'harbor',
-        entityFilter: 'llc',
-        stateFilter: 'CA',
+        clientFilters: [],
+        entityFilters: ['llc'],
+        stateFilters: ['CA'],
+        readinessFilters: [],
+        sourceFilters: [],
+        ownerFilters: [],
       }).map((client) => client.id),
     ).toEqual(['1'])
+  })
+
+  it('filters by table header facets', () => {
+    const clients = [
+      makeClient({
+        id: '1',
+        state: 'CA',
+        assigneeName: 'Casey',
+        migrationBatchId: '00000000-0000-4000-8000-000000000001',
+      }),
+      makeClient({
+        id: '2',
+        state: null,
+        assigneeId: null,
+        assigneeName: null,
+        migrationBatchId: null,
+      }),
+    ]
+
+    expect(
+      filterClients(clients, {
+        search: '',
+        clientFilters: [],
+        entityFilters: [],
+        stateFilters: [],
+        readinessFilters: ['needs_facts'],
+        sourceFilters: ['manual'],
+        ownerFilters: [CLIENT_UNASSIGNED_OWNER_FILTER],
+      }).map((client) => client.id),
+    ).toEqual(['2'])
   })
 })
