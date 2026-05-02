@@ -125,6 +125,13 @@ const load = os.dashboard.load.handler(async ({ input, context }) => {
       totalExposureCents: hideDollars ? 0 : result.summary.totalExposureCents,
     },
     topRows: result.topRows.map((row) => toTopRow(row, { hideDollars })),
+    triageTabs: result.triageTabs.map((tab) => ({
+      key: tab.key,
+      label: tab.label,
+      count: tab.count,
+      totalExposureCents: hideDollars ? 0 : tab.totalExposureCents,
+      rows: tab.rows.map((row) => toTopRow(row, { hideDollars })),
+    })),
     brief: toBriefPublic(result.brief),
   } satisfies DashboardLoadOutput
 })

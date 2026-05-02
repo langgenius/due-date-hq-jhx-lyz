@@ -12,6 +12,8 @@ import { listActiveOverlayDueDates } from './overlay'
 const COLS_PER_OI_ROW = 17
 const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 5
 const CLIENT_ASSERT_BATCH_SIZE = 90
+const OI_LOOKUP_IDS_PER_BATCH = 90
+const OI_UPDATE_IDS_PER_BATCH = 90
 
 export interface ObligationCreateInput {
   id?: string
@@ -115,6 +117,29 @@ export function makeObligationsRepo(db: Db, firmId: string) {
       return row
     },
 
+    async findManyByIds(ids: string[]): Promise<ObligationInstance[]> {
+      if (ids.length === 0) return []
+      const uniqueIds = [...new Set(ids)]
+      const reads = []
+      for (let i = 0; i < uniqueIds.length; i += OI_LOOKUP_IDS_PER_BATCH) {
+        const chunk = uniqueIds.slice(i, i + OI_LOOKUP_IDS_PER_BATCH)
+        reads.push(
+          db
+            .select()
+            .from(obligationInstance)
+            .where(
+              and(eq(obligationInstance.firmId, firmId), inArray(obligationInstance.id, chunk)),
+            ),
+        )
+      }
+      const rows = await applyOverlayDueDates((await Promise.all(reads)).flat())
+      const byId = new Map(rows.map((row) => [row.id, row]))
+      return uniqueIds.flatMap((id) => {
+        const row = byId.get(id)
+        return row ? [row] : []
+      })
+    },
+
     async listByClient(clientId: string): Promise<ObligationInstance[]> {
       const rows = await db
         .select()
@@ -175,6 +200,24 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         .update(obligationInstance)
         .set({ status })
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
+    },
+
+    async updateStatusMany(ids: string[], status: ObligationStatus): Promise<void> {
+      if (ids.length === 0) return
+      const uniqueIds = [...new Set(ids)]
+      const writes = []
+      for (let i = 0; i < uniqueIds.length; i += OI_UPDATE_IDS_PER_BATCH) {
+        const chunk = uniqueIds.slice(i, i + OI_UPDATE_IDS_PER_BATCH)
+        writes.push(
+          db
+            .update(obligationInstance)
+            .set({ status })
+            .where(
+              and(eq(obligationInstance.firmId, firmId), inArray(obligationInstance.id, chunk)),
+            ),
+        )
+      }
+      await Promise.all(writes)
     },
 
     /**

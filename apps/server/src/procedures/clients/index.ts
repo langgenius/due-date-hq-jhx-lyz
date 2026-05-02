@@ -258,10 +258,60 @@ const updatePenaltyInputs = os.clients.updatePenaltyInputs.handler(async ({ inpu
   }
 })
 
+const bulkUpdateAssignee = os.clients.bulkUpdateAssignee.handler(async ({ input, context }) => {
+  const { members, tenant, userId } = await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
+  const { scoped } = requireTenant(context)
+  const clientIds = [...new Set(input.clientIds)]
+  const beforeRows = await scoped.clients.findManyByIds(clientIds)
+  if (beforeRows.length !== clientIds.length) {
+    throw new ORPCError('NOT_FOUND', {
+      message: 'One or more selected clients were not found in the current firm.',
+    })
+  }
+
+  const [assignee] = await resolveClientAssignees(members, tenant.firmId, [
+    { assigneeId: input.assigneeId },
+  ])
+  const nextAssignee = {
+    assigneeId: assignee?.assigneeId ?? null,
+    assigneeName: assignee?.assigneeName ?? null,
+  }
+
+  await scoped.clients.updateAssigneeMany(clientIds, nextAssignee)
+  const afterRows = await scoped.clients.findManyByIds(clientIds)
+  const auditEvent: Parameters<typeof scoped.audit.write>[0] = {
+    actorId: userId,
+    entityType: 'client_batch',
+    entityId: clientIds[0] ?? 'empty',
+    action: 'client.assignee.updated',
+    before: {
+      clients: beforeRows.map((row) => ({
+        id: row.id,
+        assigneeId: row.assigneeId,
+        assigneeName: row.assigneeName,
+      })),
+    },
+    after: {
+      count: afterRows.length,
+      assigneeId: nextAssignee.assigneeId,
+      assigneeName: nextAssignee.assigneeName,
+      clientIds,
+    },
+  }
+  if (input.reason !== undefined) auditEvent.reason = input.reason
+  const { id: auditId } = await scoped.audit.write(auditEvent)
+
+  return {
+    updatedCount: afterRows.length,
+    auditId,
+  }
+})
+
 export const clientsHandlers = {
   create,
   createBatch,
   get,
   listByFirm,
   updatePenaltyInputs,
+  bulkUpdateAssignee,
 }

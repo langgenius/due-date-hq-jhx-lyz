@@ -470,7 +470,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **服务端数据处理**：筛选 / 排序 / 分页仍由 `workboard.list` 和 D1 read model 负责；前端 `useReactTable` 开启 `manualFiltering` / `manualSorting` / `manualPagination`，不在浏览器端二次加工服务端行。
 - **URL state**：`q`、`status`、`client`、`state`、`county`、`taxType`、`assignee`
   / `assignees`、`readiness`、`riskMin` / `riskMax`、`daysMin` / `daysMax`、`sort`、
-  `row` 由 `nuqs` 管理。`workboardSearchParamsParsers` 是模块级 query contract，
+  `density`、`hide`、`view`、`row` 由 `nuqs` 管理。`workboardSearchParamsParsers` 是模块级 query contract，
   `WorkboardSearchParams` 由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空
   active row，避免用 effect 追踪派生状态。
 - **Filter facets**：`workboard.facets` 返回 client / state / county / tax type /
@@ -480,7 +480,16 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   落地后替换此派生字段。
 - **表头筛选**：Client / Owner / State / County / Tax type / Days / Exposure /
   Readiness / Status 的筛选入口直接挂在 TanStack Table header 上；顶部控制区只保留搜索、排序、
-  Reset 和少量 triage 快捷 chip，避免 Workboard 出现两套筛选面。
+  density segmented control、column visibility、Saved Views、Reset 和少量 triage 快捷 chip，避免
+  Workboard 出现两套筛选面。
+- **选择与批量操作**：TanStack `rowSelection` 是本地 table state，active row 仍由 URL
+  `row` 驱动键盘导航。选中行出现 bulk bar，状态批量写 `obligations.bulkUpdateStatus`，
+  owner 批量写 `clients.bulkUpdateAssignee`（当前 ownership 来源是 client-level assignee），导出走
+  `workboard.exportSelected`。
+- **Saved Views / density / columns**：Saved Views 存服务端 `workboard_saved_view`，内容包含
+  query JSON、column visibility JSON、density 和 pin 状态；pin 只影响 Workboard saved-view list
+  排序。列可见性使用 TanStack controlled `columnVisibility`，URL `hide` 存隐藏列 id，density
+  支持 `comfortable` / `compact`。
 - **搜索防抖**：Workboard 搜索是客户端 TanStack Query fetching，不是 React Router
   loader/RSC fetching。`nuqs` 负责即时 URL state 和 URL 写入降频；实际
   `workboard.list` input 使用 `apps/app/src/lib/query-rate-limit.ts` 中的
@@ -495,7 +504,8 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   `data.pages[].rows` 交给 TanStack Table。浏览器 URL 不保存 cursor，因为
   cursor 是查询内部的分页游标，不是可分享的筛选状态。
 - **虚拟化时机**：`@tanstack/react-virtual` 已在依赖中保留，但当前 4 列 × 50 行不启用。等 Workboard 扩到 PRD 的 10–20 列、固定表头或长列表滚动容器时再接 row / column virtualization。
-- **后续扩展**：列可见性、自定义列、批量选择、Saved Views 应继续走 TanStack controlled state，并把可分享状态写入 URL 或服务端 saved-view 记录。
+- **后续扩展**：自定义列和虚拟化继续走 TanStack controlled state，并把可分享状态写入 URL
+  或服务端 saved-view 记录。
 - 行内 `[status ▾]` mutation：当前成功后 invalidate `workboard.list` 并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation lifecycle 内补本地缓存更新。
 - 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/X/I/W` 改状态 · `Enter` 打开 Detail
 

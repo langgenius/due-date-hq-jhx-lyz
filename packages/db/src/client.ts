@@ -10,6 +10,7 @@ import * as notificationsSchema from './schema/notifications'
 import * as obligationsSchema from './schema/obligations'
 import * as overlaySchema from './schema/overlay'
 import * as pulseSchema from './schema/pulse'
+import * as workboardSchema from './schema/workboard'
 
 const schema = {
   ...aiSchema,
@@ -23,6 +24,7 @@ const schema = {
   ...obligationsSchema,
   ...overlaySchema,
   ...pulseSchema,
+  ...workboardSchema,
 }
 
 export type Db = DrizzleD1Database<typeof schema>

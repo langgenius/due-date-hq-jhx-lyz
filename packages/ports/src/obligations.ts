@@ -48,6 +48,7 @@ export interface ObligationsRepo {
   readonly firmId: string
   createBatch(inputs: ObligationCreateInput[]): Promise<{ ids: string[] }>
   findById(id: string): Promise<ObligationInstanceRow | undefined>
+  findManyByIds(ids: string[]): Promise<ObligationInstanceRow[]>
   listByClient(clientId: string): Promise<ObligationInstanceRow[]>
   listByBatch(batchId: string): Promise<ObligationInstanceRow[]>
   updateDueDate(id: string, newDate: Date): Promise<void>
@@ -63,5 +64,6 @@ export interface ObligationsRepo {
     },
   ): Promise<void>
   updateStatus(id: string, status: ObligationStatus): Promise<void>
+  updateStatusMany(ids: string[], status: ObligationStatus): Promise<void>
   deleteByBatch(batchId: string): Promise<number>
 }

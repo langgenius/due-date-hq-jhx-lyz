@@ -24,6 +24,8 @@ export const ObligationStatusSchema = z.enum([
   'pending',
   'in_progress',
   'done',
+  'extended',
+  'paid',
   'waiting_on_client',
   'review',
   'not_applicable',

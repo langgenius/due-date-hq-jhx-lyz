@@ -4,6 +4,7 @@ import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
+import { workboardSavedView, type WorkboardDensity } from '../schema/workboard'
 import { listActiveOverlayDueDates } from './overlay'
 
 /**
@@ -104,11 +105,67 @@ export interface WorkboardFacetsOutput {
   assigneeNames: WorkboardFacetOption[]
 }
 
+export interface WorkboardSavedViewRow {
+  id: string
+  firmId: string
+  createdByUserId: string
+  name: string
+  queryJson: unknown
+  columnVisibilityJson: unknown
+  density: WorkboardDensity
+  isPinned: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface WorkboardSavedViewCreateInput {
+  name: string
+  createdByUserId: string
+  queryJson: unknown
+  columnVisibilityJson: unknown
+  density: WorkboardDensity
+  isPinned: boolean
+}
+
+export interface WorkboardSavedViewUpdateInput {
+  id: string
+  name?: string
+  queryJson?: unknown
+  columnVisibilityJson?: unknown
+  density?: WorkboardDensity
+  isPinned?: boolean
+}
+
+interface WorkboardRawJoinedRow {
+  id: string
+  firmId: string
+  clientId: string
+  taxType: string
+  taxYear: number | null
+  baseDueDate: Date
+  currentDueDate: Date
+  status: ObligationStatus
+  migrationBatchId: string | null
+  estimatedTaxDueCents: number | null
+  estimatedExposureCents: number | null
+  exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+  penaltyBreakdownJson: unknown
+  penaltyFormulaVersion: string | null
+  exposureCalculatedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+  clientName: string
+  clientState: string | null
+  clientCounty: string | null
+  assigneeName: string | null
+}
+
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
 const MAX_READ_ROWS = 1000
 const MAX_FACET_OPTIONS = 250
 const EVIDENCE_COUNT_BATCH_SIZE = 90
+const ID_LOOKUP_BATCH_SIZE = 90
 const MAX_SEARCH_LENGTH = 64
 const LIKE_WILDCARD_RE = /[\\%_]/g
 const UNSAFE_SEARCH_CHARS_RE = /[^\p{L}\p{N}\s&'.-]+/gu
@@ -282,13 +339,36 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
     return counts
   }
 
+  async function hydrateRows(
+    rawRows: WorkboardRawJoinedRow[],
+    input: Pick<WorkboardListInput, 'asOfDate'> = {},
+  ): Promise<WorkboardListRow[]> {
+    const overlayDueDates = await listActiveOverlayDueDates(
+      db,
+      firmId,
+      rawRows.map((row) => row.id),
+    )
+    const evidenceCounts = await listEvidenceCounts(rawRows.map((row) => row.id))
+    const asOfDate = getAsOfDate(input)
+    return rawRows.map((row): WorkboardListRow => {
+      const currentDueDate = overlayDueDates.get(row.id) ?? row.currentDueDate
+      return Object.assign({}, row, {
+        currentDueDate,
+        evidenceCount: evidenceCounts.get(row.id) ?? 0,
+        clientState: normalizeStateCode(row.clientState),
+        clientCounty: normalizeNullableText(row.clientCounty),
+        readiness: deriveReadiness(row),
+        daysUntilDue: daysUntilDue(currentDueDate, asOfDate),
+      })
+    })
+  }
+
   return {
     firmId,
 
     async list(input: WorkboardListInput = {}): Promise<WorkboardListResult> {
       const sort: WorkboardSort = input.sort ?? 'due_asc'
       const limit = Math.min(Math.max(input.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT)
-      const asOfDate = getAsOfDate(input)
 
       const filters: SQL[] = [eq(obligationInstance.firmId, firmId)]
 
@@ -382,26 +462,9 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         .orderBy(...orderBy)
         .limit(MAX_READ_ROWS)
 
-      const overlayDueDates = await listActiveOverlayDueDates(
-        db,
-        firmId,
-        rawRows.map((row) => row.id),
-      )
-      const evidenceCounts = await listEvidenceCounts(rawRows.map((row) => row.id))
       const decodedCursor =
         sort !== 'updated_desc' && input.cursor ? decodeCursor(input.cursor) : null
-      const rows = rawRows
-        .map((row): WorkboardListRow => {
-          const currentDueDate = overlayDueDates.get(row.id) ?? row.currentDueDate
-          return Object.assign({}, row, {
-            currentDueDate,
-            evidenceCount: evidenceCounts.get(row.id) ?? 0,
-            clientState: normalizeStateCode(row.clientState),
-            clientCounty: normalizeNullableText(row.clientCounty),
-            readiness: deriveReadiness(row),
-            daysUntilDue: daysUntilDue(currentDueDate, asOfDate),
-          })
-        })
+      const rows = (await hydrateRows(rawRows, input))
         .filter((row) => isWithinDueFilter(row, input))
         .filter((row) => isWithinDaysRange(row, input))
         .filter((row) =>
@@ -425,6 +488,61 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         rows: pageRows,
         nextCursor,
       }
+    },
+
+    async listByIds(
+      ids: string[],
+      input: Pick<WorkboardListInput, 'asOfDate'> = {},
+    ): Promise<WorkboardListRow[]> {
+      const uniqueIds = uniqueNonEmpty(ids)
+      if (uniqueIds.length === 0) return []
+
+      const reads = []
+      for (let i = 0; i < uniqueIds.length; i += ID_LOOKUP_BATCH_SIZE) {
+        const chunk = uniqueIds.slice(i, i + ID_LOOKUP_BATCH_SIZE)
+        reads.push(
+          db
+            .select({
+              id: obligationInstance.id,
+              firmId: obligationInstance.firmId,
+              clientId: obligationInstance.clientId,
+              taxType: obligationInstance.taxType,
+              taxYear: obligationInstance.taxYear,
+              baseDueDate: obligationInstance.baseDueDate,
+              currentDueDate: obligationInstance.currentDueDate,
+              status: obligationInstance.status,
+              migrationBatchId: obligationInstance.migrationBatchId,
+              estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
+              estimatedExposureCents: obligationInstance.estimatedExposureCents,
+              exposureStatus: obligationInstance.exposureStatus,
+              penaltyBreakdownJson: obligationInstance.penaltyBreakdownJson,
+              penaltyFormulaVersion: obligationInstance.penaltyFormulaVersion,
+              exposureCalculatedAt: obligationInstance.exposureCalculatedAt,
+              createdAt: obligationInstance.createdAt,
+              updatedAt: obligationInstance.updatedAt,
+              clientName: client.name,
+              clientState: client.state,
+              clientCounty: client.county,
+              assigneeName: client.assigneeName,
+            })
+            .from(obligationInstance)
+            .innerJoin(client, eq(obligationInstance.clientId, client.id))
+            .where(
+              and(
+                eq(obligationInstance.firmId, firmId),
+                eq(client.firmId, firmId),
+                inArray(obligationInstance.id, chunk),
+              ),
+            ),
+        )
+      }
+
+      const rows = await hydrateRows((await Promise.all(reads)).flat(), input)
+      const byId = new Map(rows.map((row) => [row.id, row]))
+      return uniqueIds.flatMap((id) => {
+        const row = byId.get(id)
+        return row ? [row] : []
+      })
     },
 
     async facets(): Promise<WorkboardFacetsOutput> {
@@ -521,6 +639,65 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           .toSorted(compareFacetLabels)
           .slice(0, MAX_FACET_OPTIONS),
       }
+    },
+
+    async listSavedViews(): Promise<WorkboardSavedViewRow[]> {
+      return db
+        .select()
+        .from(workboardSavedView)
+        .where(eq(workboardSavedView.firmId, firmId))
+        .orderBy(desc(workboardSavedView.isPinned), asc(workboardSavedView.name))
+    },
+
+    async createSavedView(input: WorkboardSavedViewCreateInput): Promise<WorkboardSavedViewRow> {
+      const id = crypto.randomUUID()
+      await db.insert(workboardSavedView).values({
+        id,
+        firmId,
+        createdByUserId: input.createdByUserId,
+        name: input.name,
+        queryJson: input.queryJson,
+        columnVisibilityJson: input.columnVisibilityJson,
+        density: input.density,
+        isPinned: input.isPinned,
+      })
+      const [row] = await db
+        .select()
+        .from(workboardSavedView)
+        .where(and(eq(workboardSavedView.firmId, firmId), eq(workboardSavedView.id, id)))
+        .limit(1)
+      if (!row) throw new Error('Saved view could not be re-read.')
+      return row
+    },
+
+    async updateSavedView(input: WorkboardSavedViewUpdateInput): Promise<WorkboardSavedViewRow> {
+      const patch: Partial<typeof workboardSavedView.$inferInsert> = {}
+      if (input.name !== undefined) patch.name = input.name
+      if (input.queryJson !== undefined) patch.queryJson = input.queryJson
+      if (input.columnVisibilityJson !== undefined) {
+        patch.columnVisibilityJson = input.columnVisibilityJson
+      }
+      if (input.density !== undefined) patch.density = input.density
+      if (input.isPinned !== undefined) patch.isPinned = input.isPinned
+      if (Object.keys(patch).length > 0) {
+        await db
+          .update(workboardSavedView)
+          .set(patch)
+          .where(and(eq(workboardSavedView.firmId, firmId), eq(workboardSavedView.id, input.id)))
+      }
+      const [row] = await db
+        .select()
+        .from(workboardSavedView)
+        .where(and(eq(workboardSavedView.firmId, firmId), eq(workboardSavedView.id, input.id)))
+        .limit(1)
+      if (!row) throw new Error('Saved view not found.')
+      return row
+    },
+
+    async deleteSavedView(id: string): Promise<void> {
+      await db
+        .delete(workboardSavedView)
+        .where(and(eq(workboardSavedView.firmId, firmId), eq(workboardSavedView.id, id)))
     },
   }
 }

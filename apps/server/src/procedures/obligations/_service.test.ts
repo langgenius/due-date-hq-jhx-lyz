@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
-import { updateObligationStatus } from './_service'
+import type { ObligationStatus } from '@duedatehq/ports/shared'
+import { bulkUpdateObligationStatus, updateObligationStatus } from './_service'
 
 interface Row {
   id: string
@@ -10,7 +11,7 @@ interface Row {
   taxYear: number | null
   baseDueDate: Date
   currentDueDate: Date
-  status: 'pending' | 'in_progress' | 'done' | 'waiting_on_client' | 'review' | 'not_applicable'
+  status: ObligationStatus
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -47,6 +48,9 @@ function buildScoped(firmId: string, rows: Row[]) {
     async findById(id: string) {
       return map.get(id)
     },
+    async findManyByIds(ids: string[]) {
+      return ids.flatMap((id) => map.get(id) ?? [])
+    },
     async listByClient() {
       return []
     },
@@ -59,6 +63,12 @@ function buildScoped(firmId: string, rows: Row[]) {
       const row = map.get(id)
       if (!row) throw new Error('not found')
       map.set(id, { ...row, status, updatedAt: new Date() })
+    },
+    async updateStatusMany(ids: string[], status: Row['status']) {
+      for (const id of ids) {
+        const row = map.get(id)
+        if (row) map.set(id, { ...row, status, updatedAt: new Date() })
+      }
     },
     async deleteByBatch() {
       return 0
@@ -126,6 +136,7 @@ function buildScoped(firmId: string, rows: Row[]) {
       return []
     },
     async updatePenaltyInputs() {},
+    async updateAssigneeMany() {},
     async softDelete() {},
     async deleteByBatch() {
       return 0
@@ -137,9 +148,22 @@ function buildScoped(firmId: string, rows: Row[]) {
     async list() {
       return { rows: [], nextCursor: null }
     },
+    async listByIds() {
+      return []
+    },
     async facets() {
       return { clients: [], states: [], counties: [], taxTypes: [], assigneeNames: [] }
     },
+    async listSavedViews() {
+      return []
+    },
+    async createSavedView() {
+      return unused('workboard.createSavedView')
+    },
+    async updateSavedView() {
+      return unused('workboard.updateSavedView')
+    },
+    async deleteSavedView() {},
   }
 
   const workload: ScopedRepo['workload'] = {
@@ -348,6 +372,46 @@ describe('updateObligationStatus', () => {
     expect(result.obligation.status).toBe('in_progress')
     expect(result.auditId).toBe('00000000-0000-0000-0000-000000000000')
     expect(audits).toHaveLength(0)
+  })
+
+  it('bulk-updates changed rows and writes per-obligation audit rows', async () => {
+    const rowA = makeRow()
+    const rowB = makeRow({
+      id: '33333333-3333-4333-8333-333333333333',
+      status: 'in_progress',
+    })
+    const rowC = makeRow({
+      id: '44444444-4444-4444-8444-444444444444',
+      status: 'extended',
+    })
+    const { repo, audits, map } = buildScoped(FIRM, [rowA, rowB, rowC])
+
+    const result = await bulkUpdateObligationStatus(repo, 'user_1', {
+      ids: [rowA.id, rowB.id, rowC.id],
+      status: 'extended',
+      reason: 'extension memo',
+    })
+
+    expect(result.updatedCount).toBe(2)
+    expect(result.auditIds).toEqual(['audit-1', 'audit-2'])
+    expect(map.get(rowA.id)?.status).toBe('extended')
+    expect(map.get(rowB.id)?.status).toBe('extended')
+    expect(audits).toEqual([
+      expect.objectContaining({
+        action: 'obligation.status.updated',
+        entityId: rowA.id,
+        before: { status: 'pending' },
+        after: { status: 'extended' },
+        reason: 'extension memo',
+      }),
+      expect.objectContaining({
+        action: 'obligation.status.updated',
+        entityId: rowB.id,
+        before: { status: 'in_progress' },
+        after: { status: 'extended' },
+        reason: 'extension memo',
+      }),
+    ])
   })
 
   it('throws NOT_FOUND when the obligation does not belong to the firm', async () => {

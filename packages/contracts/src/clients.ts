@@ -62,6 +62,19 @@ export const ClientPenaltyInputsUpdateOutputSchema = z.object({
   recalculatedObligationCount: z.number().int().min(0),
 })
 
+export const ClientBulkAssigneeUpdateInputSchema = z.object({
+  clientIds: z.array(EntityIdSchema).min(1).max(100),
+  assigneeId: z.string().trim().min(1).max(200).nullable(),
+  reason: z.string().max(280).optional(),
+})
+export type ClientBulkAssigneeUpdateInput = z.infer<typeof ClientBulkAssigneeUpdateInputSchema>
+
+export const ClientBulkAssigneeUpdateOutputSchema = z.object({
+  updatedCount: z.number().int().min(0),
+  auditId: EntityIdSchema,
+})
+export type ClientBulkAssigneeUpdateOutput = z.infer<typeof ClientBulkAssigneeUpdateOutputSchema>
+
 export const clientsContract = oc.router({
   create: oc.input(ClientCreateInputSchema).output(ClientPublicSchema),
   createBatch: oc
@@ -74,6 +87,9 @@ export const clientsContract = oc.router({
   updatePenaltyInputs: oc
     .input(ClientPenaltyInputsUpdateSchema)
     .output(ClientPenaltyInputsUpdateOutputSchema),
+  bulkUpdateAssignee: oc
+    .input(ClientBulkAssigneeUpdateInputSchema)
+    .output(ClientBulkAssigneeUpdateOutputSchema),
 })
 
 export type ClientIdentity = z.infer<typeof ClientIdentitySchema>

@@ -260,7 +260,7 @@
 | -------------------- | ---- | ------ | ----------- | ----------------------------------------------------------------------------------------------- |
 | `text-2xs`           | 10px | 500    | 1.3         | keyboard chip, compact evidence marks                                                           |
 | `text-xs`            | 11px | 500    | 1.4         | metadata（timestamp / source）, 表头 uppercase（即 `typography.label`）                         |
-| `text-badge`         | 12px | 500    | 1.333       | Badge primitive（status / readiness / source chips）                                            |
+| `text-badge`         | 11px | 500    | 1.333       | Badge primitive（status / readiness / source chips）                                            |
 | `text-sm`            | 12px | 400    | 1.5         | 次级说明、非 badge 状态 label                                                                   |
 | `text-base`          | 13px | 400    | 1.5         | **正文默认** / 表格行内容（即 `typography.body` / `body-medium`）                               |
 | `text-md`            | 14px | 500    | 1.5         | 客户名、可点击标题                                                                              |

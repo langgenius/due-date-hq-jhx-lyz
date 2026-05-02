@@ -99,6 +99,7 @@ function buildScopedRepo(firmId: string) {
       return []
     },
     async updatePenaltyInputs() {},
+    async updateAssigneeMany() {},
     async softDelete() {},
     async deleteByBatch() {
       return 0
@@ -113,6 +114,9 @@ function buildScopedRepo(firmId: string) {
     async findById() {
       return undefined
     },
+    async findManyByIds() {
+      return []
+    },
     async listByClient() {
       return []
     },
@@ -122,6 +126,7 @@ function buildScopedRepo(firmId: string) {
     async updateDueDate() {},
     async updateExposure() {},
     async updateStatus() {},
+    async updateStatusMany() {},
     async deleteByBatch() {
       return 0
     },
@@ -370,9 +375,22 @@ function buildScopedRepo(firmId: string) {
     async list() {
       return { rows: [], nextCursor: null }
     },
+    async listByIds() {
+      return []
+    },
     async facets() {
       return { clients: [], states: [], counties: [], taxTypes: [], assigneeNames: [] }
     },
+    async listSavedViews() {
+      return []
+    },
+    async createSavedView() {
+      return unexpectedRepoCall('workboard.createSavedView')
+    },
+    async updateSavedView() {
+      return unexpectedRepoCall('workboard.updateSavedView')
+    },
+    async deleteSavedView() {},
   }
 
   const workload: ScopedRepo['workload'] = {

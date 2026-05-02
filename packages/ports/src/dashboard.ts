@@ -6,6 +6,8 @@ import type {
   ObligationStatus,
 } from './shared'
 
+export type DashboardTriageTabKey = 'this_week' | 'this_month' | 'long_term'
+
 export interface DashboardLoadInput {
   asOfDate: string
   windowDays?: number
@@ -44,6 +46,14 @@ export interface DashboardTopRow {
   primaryEvidence: DashboardEvidenceRow | null
 }
 
+export interface DashboardTriageTab {
+  key: DashboardTriageTabKey
+  label: string
+  count: number
+  totalExposureCents: number
+  rows: DashboardTopRow[]
+}
+
 export interface DashboardLoadResult {
   asOfDate: string
   windowDays: number
@@ -58,6 +68,7 @@ export interface DashboardLoadResult {
     exposureUnsupportedCount: number
   }
   topRows: DashboardTopRow[]
+  triageTabs: DashboardTriageTab[]
   brief: DashboardBriefRow | null
 }
 

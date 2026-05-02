@@ -7,6 +7,9 @@ import { EntityIdSchema } from './shared/ids'
 export const DashboardSeveritySchema = z.enum(['critical', 'high', 'medium', 'neutral'])
 export type DashboardSeverity = z.infer<typeof DashboardSeveritySchema>
 
+export const DashboardTriageTabKeySchema = z.enum(['this_week', 'this_month', 'long_term'])
+export type DashboardTriageTabKey = z.infer<typeof DashboardTriageTabKeySchema>
+
 export const DashboardBriefStatusSchema = z.enum(['pending', 'ready', 'failed', 'stale'])
 export type DashboardBriefStatus = z.infer<typeof DashboardBriefStatusSchema>
 
@@ -71,6 +74,15 @@ export const DashboardTopRowSchema = z.object({
 })
 export type DashboardTopRow = z.infer<typeof DashboardTopRowSchema>
 
+export const DashboardTriageTabSchema = z.object({
+  key: DashboardTriageTabKeySchema,
+  label: z.string().min(1),
+  count: z.number().int().min(0),
+  totalExposureCents: z.number().int().min(0),
+  rows: z.array(DashboardTopRowSchema),
+})
+export type DashboardTriageTab = z.infer<typeof DashboardTriageTabSchema>
+
 export const DashboardBriefPublicSchema = z.object({
   status: DashboardBriefStatusSchema,
   generatedAt: z.iso.datetime().nullable(),
@@ -87,6 +99,7 @@ export const DashboardLoadOutputSchema = z.object({
   windowDays: z.number().int().min(1),
   summary: DashboardSummarySchema,
   topRows: z.array(DashboardTopRowSchema),
+  triageTabs: z.array(DashboardTriageTabSchema),
   brief: DashboardBriefPublicSchema.nullable(),
 })
 export type DashboardLoadOutput = z.infer<typeof DashboardLoadOutputSchema>

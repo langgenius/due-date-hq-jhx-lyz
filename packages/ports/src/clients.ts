@@ -54,6 +54,10 @@ export interface ClientsRepo {
       equityOwnerCount?: number | null
     },
   ): Promise<void>
+  updateAssigneeMany(
+    ids: string[],
+    input: { assigneeId: string | null; assigneeName: string | null },
+  ): Promise<void>
   softDelete(id: string): Promise<void>
   deleteByBatch(batchId: string): Promise<number>
 }

@@ -3,6 +3,7 @@ import * as auditSchema from './schema/audit'
 import * as dashboardSchema from './schema/dashboard'
 import * as firmSchema from './schema/firm'
 import * as notificationSchema from './schema/notifications'
+import * as workboardSchema from './schema/workboard'
 import { makeFirmsRepo } from './repo/firms'
 import { makeMembersRepo } from './repo/members'
 import { makePulseOpsRepo } from './repo/pulse'
@@ -20,6 +21,7 @@ export { dashboardSchema }
 // middleware, never read by procedures.
 export { firmSchema }
 export { notificationSchema }
+export { workboardSchema }
 export { makeFirmsRepo }
 export { makeMembersRepo }
 export { makePulseOpsRepo }

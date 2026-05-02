@@ -48,11 +48,13 @@ export const router = os.router({
     get: clientsHandlers.get,
     listByFirm: clientsHandlers.listByFirm,
     updatePenaltyInputs: clientsHandlers.updatePenaltyInputs,
+    bulkUpdateAssignee: clientsHandlers.bulkUpdateAssignee,
   },
   obligations: {
     createBatch: obligationsHandlers.createBatch,
     updateDueDate: obligationsHandlers.updateDueDate,
     updateStatus: obligationsHandlers.updateStatus,
+    bulkUpdateStatus: obligationsHandlers.bulkUpdateStatus,
     listByClient: obligationsHandlers.listByClient,
   },
   dashboard: {
@@ -65,6 +67,11 @@ export const router = os.router({
   workboard: {
     list: workboardHandlers.list,
     facets: workboardHandlers.facets,
+    listSavedViews: workboardHandlers.listSavedViews,
+    createSavedView: workboardHandlers.createSavedView,
+    updateSavedView: workboardHandlers.updateSavedView,
+    deleteSavedView: workboardHandlers.deleteSavedView,
+    exportSelected: workboardHandlers.exportSelected,
   },
   workload: {
     load: workloadHandlers.load,

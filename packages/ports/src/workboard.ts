@@ -69,8 +69,46 @@ export interface WorkboardFacetsOutput {
   assigneeNames: WorkboardFacetOption[]
 }
 
+export type WorkboardDensity = 'comfortable' | 'compact'
+
+export interface WorkboardSavedViewRow {
+  id: string
+  firmId: string
+  createdByUserId: string
+  name: string
+  queryJson: unknown
+  columnVisibilityJson: unknown
+  density: WorkboardDensity
+  isPinned: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface WorkboardSavedViewCreateInput {
+  name: string
+  createdByUserId: string
+  queryJson: unknown
+  columnVisibilityJson: unknown
+  density: WorkboardDensity
+  isPinned: boolean
+}
+
+export interface WorkboardSavedViewUpdateInput {
+  id: string
+  name?: string
+  queryJson?: unknown
+  columnVisibilityJson?: unknown
+  density?: WorkboardDensity
+  isPinned?: boolean
+}
+
 export interface WorkboardRepo {
   readonly firmId: string
   list(input?: WorkboardListInput): Promise<WorkboardListResult>
+  listByIds(ids: string[], input?: { asOfDate?: string }): Promise<WorkboardListRow[]>
   facets(): Promise<WorkboardFacetsOutput>
+  listSavedViews(): Promise<WorkboardSavedViewRow[]>
+  createSavedView(input: WorkboardSavedViewCreateInput): Promise<WorkboardSavedViewRow>
+  updateSavedView(input: WorkboardSavedViewUpdateInput): Promise<WorkboardSavedViewRow>
+  deleteSavedView(id: string): Promise<void>
 }

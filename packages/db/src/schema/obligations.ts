@@ -50,7 +50,16 @@ export const obligationInstance = sqliteTable(
     currentDueDate: integer('current_due_date', { mode: 'timestamp_ms' }).notNull(),
 
     status: text('status', {
-      enum: ['pending', 'in_progress', 'done', 'waiting_on_client', 'review', 'not_applicable'],
+      enum: [
+        'pending',
+        'in_progress',
+        'done',
+        'extended',
+        'paid',
+        'waiting_on_client',
+        'review',
+        'not_applicable',
+      ],
     })
       .notNull()
       .default('pending'),
@@ -115,6 +124,8 @@ export const OBLIGATION_STATUSES = [
   'pending',
   'in_progress',
   'done',
+  'extended',
+  'paid',
   'waiting_on_client',
   'review',
   'not_applicable',

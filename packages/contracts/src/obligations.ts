@@ -63,6 +63,21 @@ export const ObligationStatusUpdateOutputSchema = z.object({
   auditId: EntityIdSchema,
 })
 
+export const ObligationBulkStatusUpdateInputSchema = z.object({
+  ids: z.array(EntityIdSchema).min(1).max(100),
+  status: ObligationStatusSchema,
+  reason: z.string().max(280).optional(),
+})
+export type ObligationBulkStatusUpdateInput = z.infer<typeof ObligationBulkStatusUpdateInputSchema>
+
+export const ObligationBulkStatusUpdateOutputSchema = z.object({
+  updatedCount: z.number().int().min(0),
+  auditIds: z.array(EntityIdSchema),
+})
+export type ObligationBulkStatusUpdateOutput = z.infer<
+  typeof ObligationBulkStatusUpdateOutputSchema
+>
+
 export const obligationsContract = oc.router({
   createBatch: oc
     .input(z.object({ obligations: z.array(ObligationCreateInputSchema).min(1).max(1000) }))
@@ -77,6 +92,9 @@ export const obligationsContract = oc.router({
   updateStatus: oc
     .input(ObligationStatusUpdateInputSchema)
     .output(ObligationStatusUpdateOutputSchema),
+  bulkUpdateStatus: oc
+    .input(ObligationBulkStatusUpdateInputSchema)
+    .output(ObligationBulkStatusUpdateOutputSchema),
   listByClient: oc
     .input(z.object({ clientId: EntityIdSchema }))
     .output(z.array(ObligationInstancePublicSchema)),

@@ -18,6 +18,7 @@ const EVIDENCE_BATCH_SIZE = 90
 const DAY_MS = 24 * 60 * 60 * 1000
 
 export type DashboardSeverity = 'critical' | 'high' | 'medium' | 'neutral'
+export type DashboardTriageTabKey = 'this_week' | 'this_month' | 'long_term'
 
 export interface DashboardLoadInput {
   asOfDate: string
@@ -60,6 +61,14 @@ export interface DashboardTopRow extends DashboardRawRow {
   primaryEvidence: DashboardEvidenceRow | null
 }
 
+export interface DashboardTriageTab {
+  key: DashboardTriageTabKey
+  label: string
+  count: number
+  totalExposureCents: number
+  rows: DashboardTopRow[]
+}
+
 export interface DashboardLoadResult {
   asOfDate: string
   windowDays: number
@@ -74,6 +83,7 @@ export interface DashboardLoadResult {
     exposureUnsupportedCount: number
   }
   topRows: DashboardTopRow[]
+  triageTabs: DashboardTriageTab[]
   brief: DashboardBriefRow | null
 }
 
@@ -104,6 +114,13 @@ function severityRank(severity: DashboardSeverity): number {
   if (severity === 'high') return 1
   if (severity === 'medium') return 2
   return 3
+}
+
+function triageKeyForDays(daysUntilDue: number): DashboardTriageTabKey | null {
+  if (daysUntilDue <= 7) return 'this_week'
+  if (daysUntilDue <= 30) return 'this_month'
+  if (daysUntilDue <= 180) return 'long_term'
+  return null
 }
 
 export function composeDashboardLoad(
@@ -172,6 +189,28 @@ export function composeDashboardLoad(
     return a.obligationId.localeCompare(b.obligationId)
   })
 
+  const triage = new Map<
+    DashboardTriageTabKey,
+    { count: number; totalExposureCents: number; rows: DashboardTopRow[] }
+  >([
+    ['this_week', { count: 0, totalExposureCents: 0, rows: [] }],
+    ['this_month', { count: 0, totalExposureCents: 0, rows: [] }],
+    ['long_term', { count: 0, totalExposureCents: 0, rows: [] }],
+  ])
+
+  for (const row of topRows) {
+    const daysUntilDue = Math.floor(
+      (parseDateOnly(toDateOnly(row.currentDueDate)).getTime() - asOf) / DAY_MS,
+    )
+    const key = triageKeyForDays(daysUntilDue)
+    if (!key) continue
+    const bucket = triage.get(key)
+    if (!bucket) continue
+    bucket.count += 1
+    if (row.exposureStatus === 'ready') bucket.totalExposureCents += row.estimatedExposureCents ?? 0
+    if (bucket.rows.length < topLimit) bucket.rows.push(row)
+  }
+
   return {
     asOfDate: input.asOfDate,
     windowDays,
@@ -186,6 +225,11 @@ export function composeDashboardLoad(
       exposureUnsupportedCount,
     },
     topRows: topRows.slice(0, topLimit),
+    triageTabs: [
+      { key: 'this_week', label: 'This Week', ...triage.get('this_week')! },
+      { key: 'this_month', label: 'This Month', ...triage.get('this_month')! },
+      { key: 'long_term', label: 'Long-term', ...triage.get('long_term')! },
+    ],
     brief: null,
   }
 }

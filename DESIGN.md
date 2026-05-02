@@ -114,7 +114,7 @@ typography:
     letterSpacing: 0px
   badge:
     fontFamily: Inter
-    fontSize: 12px
+    fontSize: 11px
     fontWeight: 500
     lineHeight: 1.333
     letterSpacing: 0px
@@ -485,7 +485,7 @@ Do not place raw color utilities in business components. Use semantic utilities 
 
 Inter is the UI font. Geist Mono is reserved for aligned operational data: amounts, days, dates, EINs, rule IDs, URLs, and source labels.
 
-Default UI text is 13px. Metadata and table headers use 11px. Badges use 12px Inter Medium. Page and drawer titles use 16px. The dashboard risk hero uses 56px Geist Mono with tabular numbers and tight letter spacing.
+Default UI text is 13px. Metadata, table headers, and badges use 11px. Badges use Inter Medium. Page and drawer titles use 16px. The dashboard risk hero uses 56px Geist Mono with tabular numbers and tight letter spacing.
 
 All numbers that need vertical comparison must use mono tabular numerals.
 
@@ -535,7 +535,7 @@ front-matter 9 个顶层段：`colors / colorsDark / typography / rounded / shad
 
 - `colors` · Light 模式 35 个语义色，是 Figma Token Spec Sheet §01 Color 的权威源。
 - `colorsDark` · 暗色镜像，键集合与 `colors` 同名；详细规则见 `docs/Design/DueDateHQ-DESIGN.md` §2.3。
-- `typography` · 12 个 text style：3 档 display（`display-hero` 54 / `display-large` 36 / `section-title` 32，仅 marketing landing 使用，权威值与 Figma 同步）+ `title` 16 + `body` / `body-medium` 13 + `button` / `badge` 12 + `label` 11 + `hero-metric` 56 mono + `numeric` 13 mono + `numeric-small` 11 mono。
+- `typography` · 12 个 text style：3 档 display（`display-hero` 54 / `display-large` 36 / `section-title` 32，仅 marketing landing 使用，权威值与 Figma 同步）+ `title` 16 + `body` / `body-medium` 13 + `button` 12 + `badge` / `label` 11 + `hero-metric` 56 mono + `numeric` 13 mono + `numeric-small` 11 mono。
 - `rounded` · 3 档圆角（`sm` 4 / `md` 6 / `lg` 12）；按钮走 `md`（6px）以匹配 shadcn `base-vega` 默认。
 - `shadows` · 2 档（`subtle` Drawer/Popover/Tooltip · `overlay` Modal/Command Palette）；其余阴影一律禁止。
 - `spacing` · 4px scale 9 档（0 / 4 / 8 / 12 / 16 / 24 / 32 / 48 / 80）。

@@ -2,7 +2,7 @@ import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { ObligationInstancePublicSchema } from './obligations'
 import { ExposureStatusSchema, ObligationStatusSchema, StateCodeSchema } from './shared/enums'
-import { EntityIdSchema } from './shared/ids'
+import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 /**
  * Workboard is the firm-wide obligation queue. Read-only here; mutations
@@ -15,6 +15,8 @@ import { EntityIdSchema } from './shared/ids'
 
 export const WorkboardSortSchema = z.enum(['due_asc', 'due_desc', 'updated_desc'])
 export type WorkboardSort = z.infer<typeof WorkboardSortSchema>
+export const WorkboardDensitySchema = z.enum(['comfortable', 'compact'])
+export type WorkboardDensity = z.infer<typeof WorkboardDensitySchema>
 export const WorkboardOwnerFilterSchema = z.enum(['unassigned'])
 export type WorkboardOwnerFilter = z.infer<typeof WorkboardOwnerFilterSchema>
 export const WorkboardDueFilterSchema = z.enum(['overdue'])
@@ -28,7 +30,7 @@ export const WORKBOARD_FILTER_VALUE_MAX_LENGTH = 120
 const WorkboardFilterValueSchema = z.string().trim().min(1).max(WORKBOARD_FILTER_VALUE_MAX_LENGTH)
 
 export const WorkboardListInputSchema = z.object({
-  status: z.array(ObligationStatusSchema).max(6).optional(),
+  status: z.array(ObligationStatusSchema).max(8).optional(),
   search: z.string().max(WORKBOARD_SEARCH_MAX_LENGTH).optional(),
   clientIds: z.array(EntityIdSchema).max(WORKBOARD_FILTER_MAX_SELECTIONS).optional(),
   states: z.array(StateCodeSchema).max(WORKBOARD_FILTER_MAX_SELECTIONS).optional(),
@@ -101,8 +103,73 @@ export const WorkboardFacetsOutputSchema = z.object({
 })
 export type WorkboardFacetsOutput = z.infer<typeof WorkboardFacetsOutputSchema>
 
+export const WorkboardSavedViewQuerySchema = z.record(z.string(), z.unknown())
+export type WorkboardSavedViewQuery = z.infer<typeof WorkboardSavedViewQuerySchema>
+
+export const WorkboardColumnVisibilitySchema = z.record(z.string(), z.boolean())
+export type WorkboardColumnVisibility = z.infer<typeof WorkboardColumnVisibilitySchema>
+
+export const WorkboardSavedViewSchema = z.object({
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  createdByUserId: z.string().min(1),
+  name: z.string().trim().min(1).max(80),
+  query: WorkboardSavedViewQuerySchema,
+  columnVisibility: WorkboardColumnVisibilitySchema,
+  density: WorkboardDensitySchema,
+  isPinned: z.boolean(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+})
+export type WorkboardSavedView = z.infer<typeof WorkboardSavedViewSchema>
+
+export const WorkboardCreateSavedViewInputSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  query: WorkboardSavedViewQuerySchema,
+  columnVisibility: WorkboardColumnVisibilitySchema.default({}).optional(),
+  density: WorkboardDensitySchema.default('comfortable').optional(),
+  isPinned: z.boolean().default(false).optional(),
+})
+export type WorkboardCreateSavedViewInput = z.infer<typeof WorkboardCreateSavedViewInputSchema>
+
+export const WorkboardUpdateSavedViewInputSchema = z.object({
+  id: EntityIdSchema,
+  name: z.string().trim().min(1).max(80).optional(),
+  query: WorkboardSavedViewQuerySchema.optional(),
+  columnVisibility: WorkboardColumnVisibilitySchema.optional(),
+  density: WorkboardDensitySchema.optional(),
+  isPinned: z.boolean().optional(),
+})
+export type WorkboardUpdateSavedViewInput = z.infer<typeof WorkboardUpdateSavedViewInputSchema>
+
+export const WorkboardDeleteSavedViewInputSchema = z.object({ id: EntityIdSchema })
+export type WorkboardDeleteSavedViewInput = z.infer<typeof WorkboardDeleteSavedViewInputSchema>
+
+export const WorkboardExportSelectedInputSchema = z.object({
+  ids: z.array(EntityIdSchema).min(1).max(100),
+  format: z.enum(['csv', 'pdf_zip']),
+})
+export type WorkboardExportSelectedInput = z.infer<typeof WorkboardExportSelectedInputSchema>
+
+export const WorkboardExportSelectedOutputSchema = z.object({
+  fileName: z.string().min(1),
+  contentType: z.string().min(1),
+  contentBase64: z.string().min(1),
+  auditId: EntityIdSchema,
+})
+export type WorkboardExportSelectedOutput = z.infer<typeof WorkboardExportSelectedOutputSchema>
+
 export const workboardContract = oc.router({
   list: oc.input(WorkboardListInputSchema).output(WorkboardListOutputSchema),
   facets: oc.input(z.undefined()).output(WorkboardFacetsOutputSchema),
+  listSavedViews: oc.input(z.undefined()).output(z.array(WorkboardSavedViewSchema)),
+  createSavedView: oc.input(WorkboardCreateSavedViewInputSchema).output(WorkboardSavedViewSchema),
+  updateSavedView: oc.input(WorkboardUpdateSavedViewInputSchema).output(WorkboardSavedViewSchema),
+  deleteSavedView: oc
+    .input(WorkboardDeleteSavedViewInputSchema)
+    .output(z.object({ id: EntityIdSchema })),
+  exportSelected: oc
+    .input(WorkboardExportSelectedInputSchema)
+    .output(WorkboardExportSelectedOutputSchema),
 })
 export type WorkboardContract = typeof workboardContract

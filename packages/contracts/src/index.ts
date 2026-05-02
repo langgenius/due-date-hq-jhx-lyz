@@ -90,6 +90,8 @@ export {
 // Re-export domain types so consumers can `import type { ... } from '@duedatehq/contracts'`
 // without reaching into subpaths. Keeps the public surface stable + tree-shake-friendly.
 export type {
+  ClientBulkAssigneeUpdateInput,
+  ClientBulkAssigneeUpdateOutput,
   ClientCreateInput,
   ClientIdentity,
   ClientPenaltyInputsUpdateInput,
@@ -98,6 +100,8 @@ export type {
   ClientsContract,
 } from './clients'
 export {
+  ClientBulkAssigneeUpdateInputSchema,
+  ClientBulkAssigneeUpdateOutputSchema,
   ClientCreateInputSchema,
   ClientIdentitySchema,
   ClientPenaltyInputsUpdateOutputSchema,
@@ -108,6 +112,8 @@ export {
 
 export type {
   DueDateUpdateInput,
+  ObligationBulkStatusUpdateInput,
+  ObligationBulkStatusUpdateOutput,
   ObligationCreateInput,
   ObligationInstancePublic,
   ObligationStatusUpdateInput,
@@ -117,6 +123,8 @@ export type {
 } from './obligations'
 export {
   DueDateUpdateInputSchema,
+  ObligationBulkStatusUpdateInputSchema,
+  ObligationBulkStatusUpdateOutputSchema,
   ObligationCreateInputSchema,
   ObligationInstancePublicSchema,
   ObligationStatusUpdateInputSchema,
@@ -140,6 +148,8 @@ export type {
   DashboardSeverity,
   DashboardSummary,
   DashboardTopRow,
+  DashboardTriageTab,
+  DashboardTriageTabKey,
 } from './dashboard'
 export {
   DashboardBriefCitationEvidenceSchema,
@@ -155,6 +165,8 @@ export {
   DashboardSeveritySchema,
   DashboardSummarySchema,
   DashboardTopRowSchema,
+  DashboardTriageTabKeySchema,
+  DashboardTriageTabSchema,
   dashboardContract,
 } from './dashboard'
 
@@ -169,10 +181,19 @@ export type {
   WorkboardFacetsOutput,
   WorkboardOwnerFilter,
   WorkboardContract,
+  WorkboardColumnVisibility,
+  WorkboardCreateSavedViewInput,
+  WorkboardDeleteSavedViewInput,
+  WorkboardDensity,
+  WorkboardExportSelectedInput,
+  WorkboardExportSelectedOutput,
   WorkboardListInput,
   WorkboardListOutput,
   WorkboardReadiness,
   WorkboardRow,
+  WorkboardSavedView,
+  WorkboardSavedViewQuery,
+  WorkboardUpdateSavedViewInput,
   WorkboardSort,
 } from './workboard'
 export {
@@ -180,8 +201,14 @@ export {
   WORKBOARD_FILTER_VALUE_MAX_LENGTH,
   WORKBOARD_SEARCH_MAX_LENGTH,
   WorkboardClientFacetOptionSchema,
+  WorkboardColumnVisibilitySchema,
   WorkboardCountyFacetOptionSchema,
+  WorkboardCreateSavedViewInputSchema,
+  WorkboardDeleteSavedViewInputSchema,
+  WorkboardDensitySchema,
   WorkboardDueFilterSchema,
+  WorkboardExportSelectedInputSchema,
+  WorkboardExportSelectedOutputSchema,
   WorkboardFacetOptionSchema,
   WorkboardFacetsOutputSchema,
   WorkboardListInputSchema,
@@ -189,7 +216,10 @@ export {
   WorkboardOwnerFilterSchema,
   WorkboardReadinessSchema,
   WorkboardRowSchema,
+  WorkboardSavedViewQuerySchema,
+  WorkboardSavedViewSchema,
   WorkboardSortSchema,
+  WorkboardUpdateSavedViewInputSchema,
   workboardContract,
 } from './workboard'
 

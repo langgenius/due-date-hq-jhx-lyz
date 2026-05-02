@@ -14,6 +14,7 @@ import { cn } from '@duedatehq/ui/lib/utils'
 
 type ObligationStatus = ObligationInstancePublic['status']
 type StatusLabels = Record<ObligationStatus, string>
+type StatusControlRow = Pick<WorkboardRow, 'clientName' | 'status'> & { id: string }
 
 const ALL_STATUSES = [
   'pending',
@@ -21,6 +22,8 @@ const ALL_STATUSES = [
   'review',
   'waiting_on_client',
   'done',
+  'extended',
+  'paid',
   'not_applicable',
 ] as const satisfies readonly ObligationStatus[]
 
@@ -33,6 +36,8 @@ const STATUS_VARIANT: Record<
   review: 'warning',
   waiting_on_client: 'outline',
   done: 'success',
+  extended: 'info',
+  paid: 'success',
   not_applicable: 'outline',
 }
 
@@ -45,6 +50,8 @@ const STATUS_DOT: Record<
   review: 'warning',
   waiting_on_client: 'warning',
   done: 'success',
+  extended: 'normal',
+  paid: 'success',
   not_applicable: 'disabled',
 }
 
@@ -61,6 +68,8 @@ function useStatusLabels(): StatusLabels {
       review: t`In review`,
       waiting_on_client: t`Waiting on client`,
       done: t`Done`,
+      extended: t`Extended`,
+      paid: t`Paid`,
       not_applicable: t`Not applicable`,
     }),
     [t],
@@ -73,7 +82,7 @@ function WorkboardStatusControl({
   disabled,
   onChange,
 }: {
-  row: WorkboardRow
+  row: StatusControlRow
   labels: StatusLabels
   disabled: boolean
   onChange: (id: string, status: ObligationStatus) => void

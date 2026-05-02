@@ -6,6 +6,10 @@ export class WorkboardPage {
   readonly resetButton: Locator
   readonly sortSelect: Locator
   readonly statusFilterTrigger: Locator
+  readonly savedViewsButton: Locator
+  readonly columnsButton: Locator
+  readonly compactTab: Locator
+  readonly comfortableTab: Locator
 
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Obligation queue' })
@@ -13,6 +17,10 @@ export class WorkboardPage {
     this.resetButton = page.getByRole('button', { name: 'Reset' })
     this.sortSelect = page.getByRole('combobox').first()
     this.statusFilterTrigger = page.getByRole('button', { name: /^Status(?:\s+\d+)?$/ })
+    this.savedViewsButton = page.getByRole('button', { name: 'Saved views' })
+    this.columnsButton = page.getByRole('button', { name: 'Columns' })
+    this.compactTab = page.getByRole('tab', { name: 'Compact' })
+    this.comfortableTab = page.getByRole('tab', { name: 'Comfortable' })
   }
 
   async goto(path = '/workboard') {
@@ -41,6 +49,18 @@ export class WorkboardPage {
 
   statusChangeOption(name: string) {
     return this.page.getByRole('menuitemradio', { name })
+  }
+
+  selectRow(clientName: string) {
+    return this.page.getByLabel(`Select ${clientName}`)
+  }
+
+  savedViewMenuItem(name: string) {
+    return this.page.getByRole('menuitem', { name })
+  }
+
+  columnVisibilityOption(name: string) {
+    return this.page.getByRole('menuitemcheckbox', { name })
   }
 
   rowFor(clientName: string) {

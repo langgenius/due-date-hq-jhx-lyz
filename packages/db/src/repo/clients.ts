@@ -14,6 +14,7 @@ import { client, type Client, type ClientEntityType } from '../schema/clients'
 const COLS_PER_CLIENT_ROW = 18
 const CLIENT_BATCH_SIZE = Math.floor(100 / COLS_PER_CLIENT_ROW) // = 5
 const CLIENT_LOOKUP_IDS_PER_BATCH = 99
+const CLIENT_UPDATE_IDS_PER_BATCH = 90
 
 export interface ClientCreateInput {
   id?: string
@@ -164,6 +165,30 @@ export function makeClientsRepo(db: Db, firmId: string) {
         .update(client)
         .set(patch)
         .where(and(eq(client.firmId, firmId), eq(client.id, id), isNull(client.deletedAt)))
+    },
+
+    async updateAssigneeMany(
+      ids: string[],
+      input: { assigneeId: string | null; assigneeName: string | null },
+    ): Promise<void> {
+      if (ids.length === 0) return
+      const uniqueIds = [...new Set(ids)]
+      const writes = []
+      for (let i = 0; i < uniqueIds.length; i += CLIENT_UPDATE_IDS_PER_BATCH) {
+        const chunk = uniqueIds.slice(i, i + CLIENT_UPDATE_IDS_PER_BATCH)
+        writes.push(
+          db
+            .update(client)
+            .set({
+              assigneeId: input.assigneeId,
+              assigneeName: input.assigneeName,
+            })
+            .where(
+              and(eq(client.firmId, firmId), inArray(client.id, chunk), isNull(client.deletedAt)),
+            ),
+        )
+      }
+      await Promise.all(writes)
     },
 
     async softDelete(id: string): Promise<void> {

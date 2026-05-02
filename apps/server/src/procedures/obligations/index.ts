@@ -9,7 +9,7 @@ import {
 import { os } from '../_root'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { recalculateObligationExposure } from '../_penalty-exposure'
-import { toObligationPublic, updateObligationStatus } from './_service'
+import { bulkUpdateObligationStatus, toObligationPublic, updateObligationStatus } from './_service'
 
 /**
  * obligations.* — Demo Sprint subset of the Obligation Domain Contract.
@@ -166,9 +166,23 @@ const updateStatus = os.obligations.updateStatus.handler(async ({ input, context
   return result
 })
 
+const bulkUpdateStatus = os.obligations.bulkUpdateStatus.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
+  const { scoped, tenant, userId } = requireTenant(context)
+  const result = await bulkUpdateObligationStatus(scoped, userId, input)
+  if (result.updatedCount > 0) {
+    await enqueueDashboardBriefRefresh(context.env, {
+      firmId: tenant.firmId,
+      reason: 'status_change',
+    }).catch(() => false)
+  }
+  return result
+})
+
 export const obligationsHandlers = {
   createBatch,
   updateDueDate,
   listByClient,
   updateStatus,
+  bulkUpdateStatus,
 }

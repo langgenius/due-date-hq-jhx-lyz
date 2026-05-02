@@ -1,5 +1,7 @@
 import { ORPCError } from '@orpc/server'
 import type {
+  ObligationBulkStatusUpdateInput,
+  ObligationBulkStatusUpdateOutput,
   ObligationInstancePublic,
   ObligationStatusUpdateInput,
   ObligationStatusUpdateOutput,
@@ -145,5 +147,51 @@ export async function updateObligationStatus(
   return {
     obligation: toObligationPublic(after),
     auditId,
+  }
+}
+
+export async function bulkUpdateObligationStatus(
+  scoped: ScopedRepo,
+  userId: string,
+  input: ObligationBulkStatusUpdateInput,
+): Promise<ObligationBulkStatusUpdateOutput> {
+  const ids = [...new Set(input.ids)]
+  const beforeRows = await scoped.obligations.findManyByIds(ids)
+  if (beforeRows.length !== ids.length) {
+    throw new ORPCError('NOT_FOUND', {
+      message: 'One or more selected obligations were not found in the current firm.',
+    })
+  }
+
+  const changedRows = beforeRows.filter((row) => row.status !== input.status)
+  if (changedRows.length === 0) {
+    return { updatedCount: 0, auditIds: [] }
+  }
+
+  await scoped.obligations.updateStatusMany(
+    changedRows.map((row) => row.id),
+    input.status,
+  )
+  const afterRows = await scoped.obligations.findManyByIds(changedRows.map((row) => row.id))
+  const afterById = new Map(afterRows.map((row) => [row.id, row]))
+
+  const { ids: auditIds } = await scoped.audit.writeBatch(
+    changedRows.map((before) => {
+      const event: Parameters<typeof scoped.audit.writeBatch>[0][number] = {
+        actorId: userId,
+        entityType: 'obligation_instance',
+        entityId: before.id,
+        action: 'obligation.status.updated',
+        before: { status: before.status },
+        after: { status: afterById.get(before.id)?.status ?? input.status },
+      }
+      if (input.reason !== undefined) event.reason = input.reason
+      return event
+    }),
+  )
+
+  return {
+    updatedCount: changedRows.length,
+    auditIds,
   }
 }

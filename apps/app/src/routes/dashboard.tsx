@@ -1,7 +1,6 @@
 import {
   AlertCircleIcon,
   ArrowUpRightIcon,
-  CheckCircle2Icon,
   FileSearchIcon,
   RefreshCwIcon,
   ShieldCheckIcon,
@@ -9,9 +8,17 @@ import {
 } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
+import { parseAsStringLiteral, useQueryStates } from 'nuqs'
 import { useNavigate } from 'react-router'
+import { toast } from 'sonner'
 
-import type { DashboardBriefPublic, DashboardSeverity, DashboardTopRow } from '@duedatehq/contracts'
+import type {
+  DashboardBriefPublic,
+  DashboardSeverity,
+  DashboardTopRow,
+  DashboardTriageTab,
+  DashboardTriageTabKey,
+} from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -40,6 +47,11 @@ import { severityRowClass } from '@/features/dashboard/severity-row'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
+import {
+  WorkboardStatusControl,
+  useStatusLabels,
+  type ObligationStatus,
+} from '@/features/workboard/status-control'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { formatCents, formatDate, formatDateTimeWithTimezone } from '@/lib/utils'
@@ -50,6 +62,18 @@ type QueueStat = {
   detail: string
 }
 type DashboardBriefCitation = NonNullable<DashboardBriefPublic['citations']>[number]
+const TRIAGE_TAB_KEYS = ['this_week', 'this_month', 'long_term'] as const
+const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
+
+const dashboardSearchParamsParsers = {
+  triage: parseAsStringLiteral(TRIAGE_TAB_KEYS)
+    .withDefault('this_week')
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+} as const
+
+function isTriageTabKey(value: string): value is DashboardTriageTabKey {
+  return (TRIAGE_TAB_KEYS as readonly string[]).includes(value)
+}
 
 const severityVariant: Record<
   DashboardSeverity,
@@ -77,6 +101,15 @@ function useSeverityLabels(): Record<DashboardSeverity, string> {
   }
 }
 
+function useTriageTabLabels(): Record<DashboardTriageTabKey, string> {
+  const { t } = useLingui()
+  return {
+    this_week: t`This Week`,
+    this_month: t`This Month`,
+    long_term: t`Long-term`,
+  }
+}
+
 function formatEvidence(row: DashboardTopRow, t: ReturnType<typeof useLingui>['t']): string {
   if (row.evidenceCount === 0) return t`Needs evidence`
   return row.primaryEvidence?.sourceType ?? t`Evidence linked`
@@ -100,9 +133,17 @@ function ExposureBadge({ row }: { row: DashboardTopRow }) {
     )
   }
   if (row.exposureStatus === 'needs_input') {
-    return <Badge variant="info">needs input</Badge>
+    return (
+      <Badge variant="info">
+        <Trans>needs input</Trans>
+      </Badge>
+    )
   }
-  return <Badge variant="outline">unsupported</Badge>
+  return (
+    <Badge variant="outline">
+      <Trans>unsupported</Trans>
+    </Badge>
+  )
 }
 
 export function DashboardRoute() {
@@ -112,7 +153,27 @@ export function DashboardRoute() {
   const { openWizard } = useMigrationWizard()
   const { openEvidence } = useEvidenceDrawer()
   const severityLabels = useSeverityLabels()
+  const triageTabLabels = useTriageTabLabels()
+  const statusLabels = useStatusLabels()
+  const [{ triage }, setDashboardQuery] = useQueryStates(dashboardSearchParamsParsers)
   const dashboardQuery = useQuery(orpc.dashboard.load.queryOptions({ input: {} }))
+  const updateStatusMutation = useMutation(
+    orpc.obligations.updateStatus.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+        toast.success(t`Status updated`, {
+          description: t`Audit ${result.auditId.slice(0, 8)}`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't update status`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
   const refreshBriefMutation = useMutation(
     orpc.dashboard.requestBriefRefresh.mutationOptions({
       onSuccess: () => {
@@ -151,6 +212,8 @@ export function DashboardRoute() {
     : []
   const topRows = data?.topRows ?? []
   const visibleBanners = topRows.slice(0, 3)
+  const triageTabs = data?.triageTabs ?? []
+  const selectedTriageTab = triageTabs.find((tab) => tab.key === triage) ?? triageTabs[0] ?? null
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
@@ -357,34 +420,143 @@ export function DashboardRoute() {
       </section>
 
       <section>
-        <Tabs defaultValue="risk" className="gap-4">
-          <TabsList variant="line">
-            <TabsTrigger value="risk">
-              <Trans>Risk table</Trans>
-            </TabsTrigger>
-            <TabsTrigger value="evidence">
-              <Trans>Evidence checks</Trans>
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="risk">
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Trans>Client risk rows</Trans>
-                </CardTitle>
-                <CardDescription>
-                  <Trans>Top obligations are sorted by deterministic due-date severity.</Trans>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {dashboardQuery.isLoading ? (
-                  <div className="grid gap-2">
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
+        <DashboardTriagePanel
+          isLoading={dashboardQuery.isLoading}
+          asOfDate={data?.asOfDate ?? null}
+          tabs={triageTabs}
+          selectedKey={selectedTriageTab?.key ?? triage}
+          tabLabels={triageTabLabels}
+          severityLabels={severityLabels}
+          statusLabels={statusLabels}
+          statusDisabled={updateStatusMutation.isPending}
+          onSelect={(key) => void setDashboardQuery({ triage: key })}
+          onOpenWizard={openWizard}
+          onOpenWorkboard={(key) => void navigate(workboardHrefForTriage(key))}
+          onOpenEvidence={(row) =>
+            openEvidence({
+              obligationId: row.obligationId,
+              label: `${row.clientName} - ${row.taxType}`,
+              focusEvidenceId: row.primaryEvidence?.id ?? null,
+            })
+          }
+          onChangeStatus={(row, status) =>
+            updateStatusMutation.mutate({ id: row.obligationId, status })
+          }
+        />
+      </section>
+    </div>
+  )
+}
+
+function workboardHrefForTriage(key: DashboardTriageTabKey): string {
+  if (key === 'this_week') return '/workboard?daysMax=7'
+  if (key === 'this_month') return '/workboard?daysMin=8&daysMax=30'
+  return '/workboard?daysMin=31&daysMax=180'
+}
+
+function daysUntilDueFromAsOf(dueDate: string, asOfDate: string | null): number {
+  const asOf = new Date(`${asOfDate ?? new Date().toISOString().slice(0, 10)}T00:00:00.000Z`)
+  const due = new Date(`${dueDate}T00:00:00.000Z`)
+  return Math.floor((due.getTime() - asOf.getTime()) / (24 * 60 * 60 * 1000))
+}
+
+function DashboardCountdownBadge({ days }: { days: number }) {
+  const variant = days <= 2 ? 'destructive' : days <= 7 ? 'warning' : 'outline'
+  return (
+    <Badge variant={variant} className="min-w-18 justify-start font-mono text-[11px] tabular-nums">
+      {days === 0 ? (
+        <Trans>Today</Trans>
+      ) : days < 0 ? (
+        <Plural value={Math.abs(days)} one="# day late" other="# days late" />
+      ) : (
+        <Plural value={days} one="# day" other="# days" />
+      )}
+    </Badge>
+  )
+}
+
+function DashboardTriagePanel({
+  isLoading,
+  asOfDate,
+  tabs,
+  selectedKey,
+  tabLabels,
+  severityLabels,
+  statusLabels,
+  statusDisabled,
+  onSelect,
+  onOpenWizard,
+  onOpenWorkboard,
+  onOpenEvidence,
+  onChangeStatus,
+}: {
+  isLoading: boolean
+  asOfDate: string | null
+  tabs: DashboardTriageTab[]
+  selectedKey: DashboardTriageTabKey
+  tabLabels: Record<DashboardTriageTabKey, string>
+  severityLabels: Record<DashboardSeverity, string>
+  statusLabels: Record<ObligationStatus, string>
+  statusDisabled: boolean
+  onSelect: (key: DashboardTriageTabKey) => void
+  onOpenWizard: () => void
+  onOpenWorkboard: (key: DashboardTriageTabKey) => void
+  onOpenEvidence: (row: DashboardTopRow) => void
+  onChangeStatus: (row: DashboardTopRow, status: ObligationStatus) => void
+}) {
+  const { t } = useLingui()
+  const selectedTab = tabs.find((tab) => tab.key === selectedKey) ?? tabs[0] ?? null
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          <Trans>Triage queue</Trans>
+        </CardTitle>
+        <CardDescription>
+          <Trans>This Week, This Month, and Long-term risk windows from server aggregation.</Trans>
+        </CardDescription>
+        <CardAction>
+          {selectedTab ? (
+            <Badge variant="outline" className="font-mono tabular-nums">
+              {formatCents(selectedTab.totalExposureCents)}
+            </Badge>
+          ) : null}
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="grid gap-2">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        ) : tabs.length === 0 || !selectedTab ? (
+          <EmptyDashboard onOpenWizard={onOpenWizard} />
+        ) : (
+          <Tabs
+            value={selectedTab.key}
+            onValueChange={(value) => {
+              if (isTriageTabKey(value)) onSelect(value)
+            }}
+            className="gap-4"
+          >
+            <TabsList variant="line">
+              {tabs.map((tab) => (
+                <TabsTrigger key={tab.key} value={tab.key} className="gap-2">
+                  <span>{tabLabels[tab.key]}</span>
+                  <span className="font-mono tabular-nums">
+                    {tab.count} · {formatCents(tab.totalExposureCents)}
+                  </span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {tabs.map((tab) => (
+              <TabsContent key={tab.key} value={tab.key}>
+                {tab.rows.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-divider-regular p-6 text-sm text-text-secondary">
+                    <Trans>No obligations in this window.</Trans>
                   </div>
-                ) : topRows.length === 0 ? (
-                  <EmptyDashboard onOpenWizard={openWizard} />
                 ) : (
                   <Table>
                     <TableHeader>
@@ -399,18 +571,34 @@ export function DashboardRoute() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {topRows.map((row) => (
+                      {tab.rows.map((row) => (
                         <TableRow key={row.obligationId} className={severityRowClass(row.severity)}>
                           <TableCell className="font-medium">{row.clientName}</TableCell>
                           <TableCell className="text-text-secondary">{row.taxType}</TableCell>
                           <TableCell className="font-mono tabular-nums">
-                            {formatDate(row.currentDueDate)}
+                            <div className="flex items-center gap-2">
+                              <DashboardCountdownBadge
+                                days={daysUntilDueFromAsOf(row.currentDueDate, asOfDate)}
+                              />
+                              <span className="text-xs">{formatDate(row.currentDueDate)}</span>
+                            </div>
                           </TableCell>
-                          <TableCell>{row.status}</TableCell>
+                          <TableCell>
+                            <WorkboardStatusControl
+                              row={{
+                                id: row.obligationId,
+                                clientName: row.clientName,
+                                status: row.status,
+                              }}
+                              labels={statusLabels}
+                              disabled={statusDisabled}
+                              onChange={(_, status) => onChangeStatus(row, status)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <Badge
                               variant={severityVariant[row.severity]}
-                              className="h-7 px-2.5 text-md uppercase tracking-wide"
+                              className="h-7 px-2.5 text-xs uppercase tracking-wide"
                             >
                               <BadgeStatusDot tone={severityDot[row.severity]} />
                               {severityLabels[row.severity]}
@@ -424,13 +612,7 @@ export function DashboardRoute() {
                               variant="ghost"
                               size="sm"
                               aria-label={t`Open evidence for ${row.clientName}`}
-                              onClick={() =>
-                                openEvidence({
-                                  obligationId: row.obligationId,
-                                  label: `${row.clientName} - ${row.taxType}`,
-                                  focusEvidenceId: row.primaryEvidence?.id ?? null,
-                                })
-                              }
+                              onClick={() => onOpenEvidence(row)}
                             >
                               <FileSearchIcon data-icon="inline-start" />
                               {row.evidenceCount > 0 ? (
@@ -449,62 +631,23 @@ export function DashboardRoute() {
                     </TableBody>
                   </Table>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="evidence">
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Trans>Evidence checks</Trans>
-                </CardTitle>
-                <CardDescription>
-                  <Trans>Coverage state for the same obligations shown on the dashboard.</Trans>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-3 md:grid-cols-3">
-                <Alert>
-                  <CheckCircle2Icon />
-                  <AlertTitle>
-                    <Trans>Linked</Trans>
-                  </AlertTitle>
-                  <AlertDescription>
-                    <Trans>
-                      {topRows.filter((row) => row.evidenceCount > 0).length} top rows have
-                      evidence.
-                    </Trans>
-                  </AlertDescription>
-                </Alert>
-                <Alert>
-                  <AlertCircleIcon />
-                  <AlertTitle>
-                    <Trans>Needs evidence</Trans>
-                  </AlertTitle>
-                  <AlertDescription>
-                    <Trans>
-                      {data?.summary.evidenceGapCount ?? 0} open obligations have no evidence link.
-                    </Trans>
-                  </AlertDescription>
-                </Alert>
-                <Alert
-                  variant={data && data.summary.needsReviewCount > 0 ? 'destructive' : 'default'}
-                >
-                  <AlertCircleIcon />
-                  <AlertTitle>
-                    <Trans>Needs review</Trans>
-                  </AlertTitle>
-                  <AlertDescription>
-                    <Trans>
-                      {data?.summary.needsReviewCount ?? 0} obligations require CPA confirmation.
-                    </Trans>
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </section>
-    </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        )}
+      </CardContent>
+      <CardFooter className="justify-end gap-2 border-t border-divider-regular">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!selectedTab}
+          onClick={() => selectedTab && onOpenWorkboard(selectedTab.key)}
+        >
+          <Trans>Open full Workboard</Trans>
+          <ArrowUpRightIcon data-icon="inline-end" />
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
 

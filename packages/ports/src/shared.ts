@@ -18,6 +18,8 @@ export type ObligationStatus =
   | 'pending'
   | 'in_progress'
   | 'done'
+  | 'extended'
+  | 'paid'
   | 'waiting_on_client'
   | 'review'
   | 'not_applicable'

@@ -17,6 +17,13 @@ import {
   firmsContract,
 } from './firms'
 import {
+  ClientBulkAssigneeUpdateInputSchema,
+  ClientBulkAssigneeUpdateOutputSchema,
+  clientsContract,
+} from './clients'
+import {
+  ObligationBulkStatusUpdateInputSchema,
+  ObligationBulkStatusUpdateOutputSchema,
   ObligationStatusUpdateInputSchema,
   ObligationStatusUpdateOutputSchema,
   obligationsContract,
@@ -26,11 +33,17 @@ import { ClientSchema } from './shared/client'
 import {
   WORKBOARD_FILTER_MAX_SELECTIONS,
   WORKBOARD_SEARCH_MAX_LENGTH,
+  WorkboardCreateSavedViewInputSchema,
+  WorkboardDensitySchema,
+  WorkboardExportSelectedInputSchema,
+  WorkboardExportSelectedOutputSchema,
   WorkboardFacetsOutputSchema,
   WorkboardListInputSchema,
   WorkboardOwnerFilterSchema,
   WorkboardReadinessSchema,
+  WorkboardSavedViewSchema,
   WorkboardSortSchema,
+  WorkboardUpdateSavedViewInputSchema,
   workboardContract,
 } from './workboard'
 import {
@@ -49,7 +62,12 @@ import {
 } from './members'
 import { AuditActionSchema, PulseAuditActionSchema } from './shared/audit-actions'
 import { EvidenceSourceTypeSchema } from './shared/evidence-source-types'
-import { DashboardLoadOutputSchema, DashboardSeveritySchema, dashboardContract } from './dashboard'
+import {
+  DashboardLoadOutputSchema,
+  DashboardSeveritySchema,
+  DashboardTriageTabKeySchema,
+  dashboardContract,
+} from './dashboard'
 import { EvidencePublicSchema, evidenceContract } from './evidence'
 import {
   PulseAffectedClientSchema,
@@ -268,6 +286,8 @@ describe('@duedatehq/contracts', () => {
       'pending',
       'in_progress',
       'done',
+      'extended',
+      'paid',
       'waiting_on_client',
       'review',
       'not_applicable',
@@ -276,7 +296,13 @@ describe('@duedatehq/contracts', () => {
 
   it('exposes obligations.updateStatus with before/after audit contract', () => {
     expect(Object.keys(obligationsContract)).toEqual(
-      expect.arrayContaining(['createBatch', 'updateDueDate', 'updateStatus', 'listByClient']),
+      expect.arrayContaining([
+        'createBatch',
+        'updateDueDate',
+        'updateStatus',
+        'bulkUpdateStatus',
+        'listByClient',
+      ]),
     )
 
     const parsed = ObligationStatusUpdateInputSchema.parse({
@@ -309,11 +335,49 @@ describe('@duedatehq/contracts', () => {
       auditId: '33333333-3333-4333-8333-333333333333',
     })
     expect(output.auditId).toMatch(/-/)
+
+    const bulkInput = ObligationBulkStatusUpdateInputSchema.parse({
+      ids: ['11111111-1111-4111-8111-111111111111'],
+      status: 'extended',
+      reason: 'extension filed',
+    })
+    expect(bulkInput.status).toBe('extended')
+    const bulkOutput = ObligationBulkStatusUpdateOutputSchema.parse({
+      updatedCount: 1,
+      auditIds: ['33333333-3333-4333-8333-333333333333'],
+    })
+    expect(bulkOutput.updatedCount).toBe(1)
+  })
+
+  it('exposes clients.bulkUpdateAssignee for Workboard bulk owner changes', () => {
+    expect(Object.keys(clientsContract)).toEqual(
+      expect.arrayContaining(['bulkUpdateAssignee', 'updatePenaltyInputs']),
+    )
+    const input = ClientBulkAssigneeUpdateInputSchema.parse({
+      clientIds: ['22222222-2222-4222-8222-222222222222'],
+      assigneeId: 'user_123',
+      reason: 'rebalance queue',
+    })
+    expect(input.assigneeId).toBe('user_123')
+    const output = ClientBulkAssigneeUpdateOutputSchema.parse({
+      updatedCount: 1,
+      auditId: '33333333-3333-4333-8333-333333333333',
+    })
+    expect(output.updatedCount).toBe(1)
   })
 
   it('freezes workboard.list input shape', () => {
-    expect(Object.keys(workboardContract)).toEqual(['list', 'facets'])
+    expect(Object.keys(workboardContract)).toEqual([
+      'list',
+      'facets',
+      'listSavedViews',
+      'createSavedView',
+      'updateSavedView',
+      'deleteSavedView',
+      'exportSelected',
+    ])
     expect(WorkboardSortSchema.options).toEqual(['due_asc', 'due_desc', 'updated_desc'])
+    expect(WorkboardDensitySchema.options).toEqual(['comfortable', 'compact'])
     expect(WorkboardReadinessSchema.options).toEqual(['ready', 'waiting', 'needs_review'])
 
     const parsed = WorkboardListInputSchema.parse({
@@ -369,6 +433,47 @@ describe('@duedatehq/contracts', () => {
       assigneeNames: [{ value: 'Sarah', label: 'Sarah', count: 2 }],
     })
     expect(facets.clients[0]?.state).toBe('CA')
+
+    const savedView = WorkboardSavedViewSchema.parse({
+      id: '55555555-5555-4555-8555-555555555555',
+      firmId: 'firm_123',
+      createdByUserId: 'user_123',
+      name: 'CA clients due in 14 days',
+      query: { state: ['CA'], dueWithin: 14 },
+      columnVisibility: { clientCounty: false },
+      density: 'compact',
+      isPinned: true,
+      createdAt: '2026-04-29T00:00:00.000Z',
+      updatedAt: '2026-04-29T00:00:00.000Z',
+    })
+    expect(savedView.isPinned).toBe(true)
+    expect(
+      WorkboardCreateSavedViewInputSchema.parse({
+        name: 'Waiting on client',
+        query: { status: ['waiting_on_client'] },
+        columnVisibility: {},
+        density: 'comfortable',
+      }).name,
+    ).toBe('Waiting on client')
+    expect(
+      WorkboardUpdateSavedViewInputSchema.parse({
+        id: savedView.id,
+        isPinned: false,
+      }).isPinned,
+    ).toBe(false)
+    const exportInput = WorkboardExportSelectedInputSchema.parse({
+      ids: ['11111111-1111-4111-8111-111111111111'],
+      format: 'pdf_zip',
+    })
+    expect(exportInput.format).toBe('pdf_zip')
+    expect(
+      WorkboardExportSelectedOutputSchema.parse({
+        fileName: 'workboard.zip',
+        contentType: 'application/zip',
+        contentBase64: 'abcd',
+        auditId: '33333333-3333-4333-8333-333333333333',
+      }).fileName,
+    ).toBe('workboard.zip')
   })
 
   it('freezes workload paid surface contract', () => {
@@ -529,6 +634,7 @@ describe('@duedatehq/contracts', () => {
   it('freezes dashboard.load activation slice shape', () => {
     expect(Object.keys(dashboardContract)).toEqual(['load', 'requestBriefRefresh'])
     expect(DashboardSeveritySchema.options).toEqual(['critical', 'high', 'medium', 'neutral'])
+    expect(DashboardTriageTabKeySchema.options).toEqual(['this_week', 'this_month', 'long_term'])
 
     const output = DashboardLoadOutputSchema.parse({
       asOfDate: '2026-04-28',
@@ -570,6 +676,44 @@ describe('@duedatehq/contracts', () => {
             model: null,
             appliedAt: '2026-04-28T00:00:00.000Z',
           },
+        },
+      ],
+      triageTabs: [
+        {
+          key: 'this_week',
+          label: 'This Week',
+          count: 1,
+          totalExposureCents: 80000,
+          rows: [
+            {
+              obligationId: '11111111-1111-4111-8111-111111111111',
+              clientId: '22222222-2222-4222-8222-222222222222',
+              clientName: 'Acme LLC',
+              taxType: 'ca_llc_annual_tax',
+              currentDueDate: '2026-04-30',
+              status: 'pending',
+              estimatedExposureCents: 80000,
+              exposureStatus: 'ready',
+              penaltyFormulaVersion: 'penalty-v1-2026q2',
+              severity: 'critical',
+              evidenceCount: 1,
+              primaryEvidence: null,
+            },
+          ],
+        },
+        {
+          key: 'this_month',
+          label: 'This Month',
+          count: 0,
+          totalExposureCents: 0,
+          rows: [],
+        },
+        {
+          key: 'long_term',
+          label: 'Long-term',
+          count: 0,
+          totalExposureCents: 0,
+          rows: [],
         },
       ],
       brief: {

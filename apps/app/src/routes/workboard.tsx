@@ -10,9 +10,22 @@ import {
   type RowSelectionState,
   type SortingState,
   type Updater,
+  type VisibilityState,
 } from '@tanstack/react-table'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronDownIcon, FileSearchIcon, FilterIcon, SearchIcon } from 'lucide-react'
+import {
+  ChevronDownIcon,
+  Columns3Icon,
+  DownloadIcon,
+  FileArchiveIcon,
+  FileSearchIcon,
+  FilterIcon,
+  PinIcon,
+  SaveIcon,
+  SearchIcon,
+  Trash2Icon,
+  XIcon,
+} from 'lucide-react'
 import {
   parseAsArrayOf,
   parseAsInteger,
@@ -26,14 +39,19 @@ import { toast } from 'sonner'
 import {
   WORKBOARD_SEARCH_MAX_LENGTH,
   WORKBOARD_FILTER_MAX_SELECTIONS,
+  type MemberAssigneeOption,
+  type WorkboardColumnVisibility,
+  type WorkboardDensity,
   type WorkboardFacetOption,
   type WorkboardListInput,
   type WorkboardReadiness,
   type WorkboardRow,
+  type WorkboardSavedView,
   type WorkboardSort,
 } from '@duedatehq/contracts'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
+import { Checkbox } from '@duedatehq/ui/components/ui/checkbox'
 import {
   Card,
   CardAction,
@@ -43,6 +61,7 @@ import {
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
 import { Input } from '@duedatehq/ui/components/ui/input'
+import { Textarea } from '@duedatehq/ui/components/ui/textarea'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -77,6 +96,7 @@ import {
   TableHeader,
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
+import { Tabs, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
 import {
   Sheet,
   SheetContent,
@@ -123,8 +143,12 @@ const DUE_FILTERS = ['overdue'] as const
 const EXPOSURE_FILTERS = ['ready', 'needs_input', 'unsupported'] as const
 const EVIDENCE_FILTERS = ['needs'] as const
 const READINESS_FILTERS = ['ready', 'waiting', 'needs_review'] as const
+const DENSITY_OPTIONS = ['comfortable', 'compact'] as const satisfies readonly WorkboardDensity[]
 const DEFAULT_SORT: WorkboardSort = 'due_asc'
+const DEFAULT_DENSITY: WorkboardDensity = 'comfortable'
 const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
+const EMPTY_SAVED_VIEWS: WorkboardSavedView[] = []
+const EMPTY_ASSIGNEES: MemberAssigneeOption[] = []
 const EMPTY_FACET_OPTIONS: FilterOption[] = []
 const EMPTY_CLIENT_OPTIONS: ClientFilterOption[] = []
 const EMPTY_COUNTY_OPTIONS: CountyFilterOption[] = []
@@ -135,6 +159,7 @@ const DAYS_FILTER_MIN = -3650
 const DAYS_FILTER_MAX = 3650
 const UNASSIGNED_OWNER_OPTION = '__unassigned__'
 const WORKBOARD_TABLE_PILL_CLASSNAME = 'text-[12px]'
+const NON_HIDEABLE_COLUMNS = new Set(['select'])
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const STATE_CODE_RE = /^[A-Z]{2}$/
 
@@ -187,6 +212,11 @@ export const workboardSearchParamsParsers = {
   sort: parseAsStringLiteral(ALL_SORTS)
     .withDefault(DEFAULT_SORT)
     .withOptions(REPLACE_HISTORY_OPTIONS),
+  density: parseAsStringLiteral(DENSITY_OPTIONS)
+    .withDefault(DEFAULT_DENSITY)
+    .withOptions(REPLACE_HISTORY_OPTIONS),
+  hide: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
+  view: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
   row: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
 } as const
 
@@ -238,6 +268,10 @@ function withDefaultSortCleared(sort: WorkboardSort): WorkboardSort | null {
   return sort === DEFAULT_SORT ? null : sort
 }
 
+function withDefaultDensityCleared(density: WorkboardDensity): WorkboardDensity | null {
+  return density === DEFAULT_DENSITY ? null : density
+}
+
 function cleanStringFilters(values: readonly string[], maxLength = 120): string[] {
   return [
     ...new Set(
@@ -256,6 +290,20 @@ function cleanStateFilters(values: readonly string[]): string[] {
   return cleanStringFilters(values)
     .map((value) => value.toUpperCase())
     .filter((value) => STATE_CODE_RE.test(value))
+}
+
+function cleanColumnIds(values: readonly string[]): string[] {
+  return cleanStringFilters(values, 80).filter((value) => !NON_HIDEABLE_COLUMNS.has(value))
+}
+
+function columnVisibilityFromHidden(hidden: readonly string[]): VisibilityState {
+  return Object.fromEntries(cleanColumnIds(hidden).map((columnId) => [columnId, false]))
+}
+
+function hiddenFromColumnVisibility(visibility: VisibilityState): string[] {
+  return Object.entries(visibility)
+    .filter(([columnId, isVisible]) => !isVisible && !NON_HIDEABLE_COLUMNS.has(columnId))
+    .map(([columnId]) => columnId)
 }
 
 function integerFromInput(value: string, min?: number): number | null {
@@ -286,6 +334,67 @@ function sameStringSet(left: readonly string[], right: readonly string[]): boole
 
 function inputValueFromNumber(value: number | null): string {
   return value === null ? '' : String(value)
+}
+
+function columnLabel(columnId: string, labels: Record<string, string>): string {
+  return labels[columnId] ?? columnId
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function stringArrayFromUnknown(value: unknown): string[] {
+  return Array.isArray(value)
+    ? cleanStringFilters(value.filter((item): item is string => typeof item === 'string'))
+    : []
+}
+
+function savedViewQueryPatch(query: unknown): Partial<WorkboardSearchParams> {
+  if (!isRecord(query)) return {}
+  return {
+    q: typeof query.q === 'string' ? query.q : '',
+    status: stringArrayFromUnknown(query.status).filter(isObligationStatus),
+    client: cleanEntityIdFilters(stringArrayFromUnknown(query.client)),
+    state: cleanStateFilters(stringArrayFromUnknown(query.state)),
+    county: cleanStringFilters(stringArrayFromUnknown(query.county)),
+    taxType: cleanStringFilters(stringArrayFromUnknown(query.taxType)),
+    assignee: typeof query.assignee === 'string' ? query.assignee : '',
+    assignees: cleanStringFilters(stringArrayFromUnknown(query.assignees)),
+    owner: query.owner === 'unassigned' ? 'unassigned' : null,
+    due: query.due === 'overdue' ? 'overdue' : null,
+    dueWithin: typeof query.dueWithin === 'number' ? query.dueWithin : null,
+    exposure:
+      query.exposure === 'ready' ||
+      query.exposure === 'needs_input' ||
+      query.exposure === 'unsupported'
+        ? query.exposure
+        : null,
+    evidence: query.evidence === 'needs' ? 'needs' : null,
+    readiness: stringArrayFromUnknown(query.readiness).filter(isWorkboardReadiness),
+    riskMin: typeof query.riskMin === 'number' ? query.riskMin : null,
+    riskMax: typeof query.riskMax === 'number' ? query.riskMax : null,
+    daysMin: typeof query.daysMin === 'number' ? query.daysMin : null,
+    daysMax: typeof query.daysMax === 'number' ? query.daysMax : null,
+    asOf: typeof query.asOf === 'string' ? query.asOf : null,
+    sort: typeof query.sort === 'string' && isWorkboardSort(query.sort) ? query.sort : DEFAULT_SORT,
+    row: null,
+  }
+}
+
+function downloadBase64File(input: {
+  fileName: string
+  contentType: string
+  contentBase64: string
+}) {
+  const binary = atob(input.contentBase64)
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+  const url = URL.createObjectURL(new Blob([bytes], { type: input.contentType }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = input.fileName
+  link.click()
+  URL.revokeObjectURL(url)
 }
 
 function facetOptionToFilterOption(option: WorkboardFacetOption): FilterOption {
@@ -342,17 +451,45 @@ export function WorkboardRoute() {
       daysMax,
       asOf,
       sort,
+      density,
+      hide: hiddenColumns,
+      view: activeSavedViewId,
       row,
     },
     setWorkboardQuery,
   ] = useQueryStates(workboardSearchParamsParsers)
   const [detailRow, setDetailRow] = useState<WorkboardRow | null>(null)
   const [penaltyRow, setPenaltyRow] = useState<WorkboardRow | null>(null)
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const [savedViewDraft, setSavedViewDraft] = useState<{
+    mode: 'create' | 'rename'
+    id?: string
+    name: string
+  } | null>(null)
+  const [extendedMemoOpen, setExtendedMemoOpen] = useState(false)
+  const [extendedMemo, setExtendedMemo] = useState('')
 
   const debouncedSearch = useDebouncedQueryInput(searchInput, {
     maxLength: WORKBOARD_SEARCH_MAX_LENGTH,
   })
   const sorting = useMemo(() => getSortingState(sort), [sort])
+  const columnVisibility = useMemo(() => columnVisibilityFromHidden(hiddenColumns), [hiddenColumns])
+  const columnLabels = useMemo(
+    () => ({
+      clientName: t`Client`,
+      assigneeName: t`Owner`,
+      clientState: t`State`,
+      clientCounty: t`County`,
+      taxType: t`Tax type`,
+      currentDueDate: t`Due date`,
+      daysUntilDue: t`Days`,
+      estimatedExposureCents: t`Exposure`,
+      readiness: t`Readiness`,
+      evidenceCount: t`Evidence`,
+      status: t`Status`,
+    }),
+    [t],
+  )
   const statusQuery = useMemo(() => [...statusFilter], [statusFilter])
   const clientQuery = useMemo(() => cleanEntityIdFilters(clientFilter), [clientFilter])
   const stateQuery = useMemo(() => cleanStateFilters(stateFilter), [stateFilter])
@@ -374,6 +511,12 @@ export function WorkboardRoute() {
   const maxDaysUntilDue = useMemo(() => daysFilterValue(daysMax), [daysMax])
 
   const facetsQuery = useQuery(orpc.workboard.facets.queryOptions({ input: undefined }))
+  const savedViewsQuery = useQuery(orpc.workboard.listSavedViews.queryOptions({ input: undefined }))
+  const assignableMembersQuery = useQuery(
+    orpc.members.listAssignable.queryOptions({ input: undefined }),
+  )
+  const savedViews = savedViewsQuery.data ?? EMPTY_SAVED_VIEWS
+  const assignableMembers = assignableMembersQuery.data ?? EMPTY_ASSIGNEES
   const clientOptions = useMemo<ClientFilterOption[]>(
     () =>
       facetsQuery.data?.clients.map((option) => ({
@@ -482,6 +625,56 @@ export function WorkboardRoute() {
       sort,
     ],
   )
+  const currentSavedViewQuery = useMemo<Record<string, unknown>>(
+    () => ({
+      q: searchInput,
+      status: statusFilter,
+      client: clientFilter,
+      state: stateFilter,
+      county: countyFilter,
+      taxType: taxTypeFilter,
+      assignee,
+      assignees: assigneeFilter,
+      owner,
+      due,
+      dueWithin,
+      exposure,
+      evidence,
+      readiness: readinessFilter,
+      riskMin,
+      riskMax,
+      daysMin,
+      daysMax,
+      asOf,
+      sort,
+    }),
+    [
+      asOf,
+      assignee,
+      assigneeFilter,
+      clientFilter,
+      countyFilter,
+      daysMax,
+      daysMin,
+      due,
+      dueWithin,
+      evidence,
+      exposure,
+      readinessFilter,
+      riskMax,
+      riskMin,
+      searchInput,
+      sort,
+      stateFilter,
+      statusFilter,
+      taxTypeFilter,
+      owner,
+    ],
+  )
+  const currentSavedColumnVisibility = useMemo<WorkboardColumnVisibility>(
+    () => Object.fromEntries(hiddenColumns.map((columnId) => [columnId, false])),
+    [hiddenColumns],
+  )
 
   const listQuery = useInfiniteQuery(
     orpc.workboard.list.infiniteOptions({
@@ -513,6 +706,101 @@ export function WorkboardRoute() {
       },
     }),
   )
+  const bulkStatusMutation = useMutation(
+    orpc.obligations.bulkUpdateStatus.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+        setRowSelection({})
+        toast.success(t`Bulk status updated`, {
+          description: t`${result.updatedCount} rows changed`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't update selected rows`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const bulkAssigneeMutation = useMutation(
+    orpc.clients.bulkUpdateAssignee.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workload.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+        setRowSelection({})
+        toast.success(t`Owners updated`, {
+          description: t`Audit ${result.auditId.slice(0, 8)}`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't update owners`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const exportMutation = useMutation(
+    orpc.workboard.exportSelected.mutationOptions({
+      onSuccess: (result) => {
+        downloadBase64File(result)
+        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+        toast.success(t`Export ready`, {
+          description: t`Audit ${result.auditId.slice(0, 8)}`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't export selected rows`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const createSavedViewMutation = useMutation(
+    orpc.workboard.createSavedView.mutationOptions({
+      onSuccess: (view) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.listSavedViews.key() })
+        void setWorkboardQuery({ view: view.id })
+        setSavedViewDraft(null)
+        toast.success(t`Saved view created`)
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't save view`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const updateSavedViewMutation = useMutation(
+    orpc.workboard.updateSavedView.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.listSavedViews.key() })
+        setSavedViewDraft(null)
+        toast.success(t`Saved view updated`)
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't update view`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
+  const deleteSavedViewMutation = useMutation(
+    orpc.workboard.deleteSavedView.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.listSavedViews.key() })
+        if (activeSavedViewId === result.id) void setWorkboardQuery({ view: null })
+        toast.success(t`Saved view deleted`)
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't delete view`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
 
   const rows = useMemo(
     () => listQuery.data?.pages.flatMap((page) => page.rows) ?? EMPTY_WORKBOARD_ROWS,
@@ -527,25 +815,40 @@ export function WorkboardRoute() {
     [rows],
   )
   const activeRow = (row ? rowsById.get(row) : null) ?? rows[0] ?? null
-  const rowSelection = useMemo<RowSelectionState>(
-    () => (activeRow ? { [activeRow.id]: true } : {}),
-    [activeRow],
-  )
 
   const onRowSelectionChange = useCallback(
     (updater: Updater<RowSelectionState>) => {
       const nextSelection = functionalUpdate(updater, rowSelection)
-      const selectedRowId = Object.keys(nextSelection).find((id) => nextSelection[id]) ?? null
-      void setWorkboardQuery({ row: selectedRowId })
+      setRowSelection(nextSelection)
     },
-    [rowSelection, setWorkboardQuery],
+    [rowSelection],
   )
 
   const updateStatus = updateStatusMutation.mutate
-  const statusUpdatePending = updateStatusMutation.isPending
+  const statusUpdatePending = updateStatusMutation.isPending || bulkStatusMutation.isPending
 
   const columns = useMemo<ColumnDef<WorkboardRow>[]>(
     () => [
+      {
+        id: 'select',
+        enableHiding: false,
+        header: ({ table }) => (
+          <Checkbox
+            aria-label={t`Select all visible rows`}
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(checked) => table.toggleAllPageRowsSelected(checked)}
+          />
+        ),
+        cell: ({ row: tableRow }) => (
+          <Checkbox
+            aria-label={t`Select ${tableRow.original.clientName}`}
+            checked={tableRow.getIsSelected()}
+            onClick={(event) => event.stopPropagation()}
+            onCheckedChange={(checked) => tableRow.toggleSelected(checked)}
+          />
+        ),
+        meta: { headerClassName: 'w-10', cellClassName: 'w-10' },
+      },
       {
         accessorKey: 'clientName',
         header: () => (
@@ -666,7 +969,7 @@ export function WorkboardRoute() {
         accessorKey: 'currentDueDate',
         header: t`Due date`,
         cell: (info) => formatDate(info.getValue<string>()),
-        meta: { cellClassName: 'font-mono tabular-nums' },
+        meta: { cellClassName: 'font-mono text-[11px] tabular-nums' },
       },
       {
         accessorKey: 'daysUntilDue',
@@ -828,22 +1131,31 @@ export function WorkboardRoute() {
     data: rows,
     columns,
     state: {
+      columnVisibility,
       rowSelection,
       sorting,
     },
-    enableMultiRowSelection: false,
+    enableMultiRowSelection: true,
     enableRowSelection: true,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (workboardRow) => workboardRow.id,
     manualFiltering: true,
     manualPagination: true,
     manualSorting: true,
+    onColumnVisibilityChange: (updater) => {
+      const nextVisibility = functionalUpdate(updater, columnVisibility)
+      const nextHidden = hiddenFromColumnVisibility(nextVisibility)
+      void setWorkboardQuery({ hide: nextHidden.length > 0 ? nextHidden : null })
+    },
     onRowSelectionChange,
   })
 
   const tableRows = table.getRowModel().rows
   const totalShown = tableRows.length
-  const visibleColumnCount = table.getAllLeafColumns().length
+  const visibleColumnCount = table.getVisibleLeafColumns().length
+  const selectedRows = table.getSelectedRowModel().rows.map((selectedRow) => selectedRow.original)
+  const selectedIds = selectedRows.map((selectedRow) => selectedRow.id)
+  const selectedClientIds = [...new Set(selectedRows.map((selectedRow) => selectedRow.clientId))]
 
   const moveActiveRow = useCallback(
     (direction: 1 | -1) => {
@@ -956,13 +1268,13 @@ export function WorkboardRoute() {
     },
   })
 
-  useAppHotkey('X', (event) => updateActiveRowStatus('review', event.target), {
+  useAppHotkey('X', (event) => updateActiveRowStatus('extended', event.target), {
     enabled: keyboardEnabled,
     requireReset: true,
     meta: {
       id: 'workboard.mark-extended',
       name: 'Mark extended',
-      description: 'Move the active row into review until extension status lands.',
+      description: 'Mark the active row as extended.',
       category: 'workboard',
       scope: 'route',
     },
@@ -999,6 +1311,71 @@ export function WorkboardRoute() {
 
   function resetWorkboard() {
     void setWorkboardQuery(null)
+    setRowSelection({})
+  }
+
+  function applySavedView(viewToApply: WorkboardSavedView) {
+    const hidden = hiddenFromColumnVisibility(viewToApply.columnVisibility)
+    void setWorkboardQuery({
+      ...savedViewQueryPatch(viewToApply.query),
+      density: withDefaultDensityCleared(viewToApply.density),
+      hide: hidden.length > 0 ? hidden : null,
+      view: viewToApply.id,
+      row: null,
+    })
+    setRowSelection({})
+  }
+
+  function saveViewDraft() {
+    if (!savedViewDraft) return
+    const name = savedViewDraft.name.trim()
+    if (!name) return
+    if (savedViewDraft.mode === 'create') {
+      createSavedViewMutation.mutate({
+        name,
+        query: currentSavedViewQuery,
+        columnVisibility: currentSavedColumnVisibility,
+        density,
+        isPinned: false,
+      })
+      return
+    }
+    if (savedViewDraft.id) {
+      updateSavedViewMutation.mutate({ id: savedViewDraft.id, name })
+    }
+  }
+
+  function updateActiveSavedView() {
+    if (!activeSavedViewId) return
+    updateSavedViewMutation.mutate({
+      id: activeSavedViewId,
+      query: currentSavedViewQuery,
+      columnVisibility: currentSavedColumnVisibility,
+      density,
+    })
+  }
+
+  function changeSelectedStatus(status: ObligationStatus, reason?: string) {
+    if (selectedIds.length === 0) return
+    bulkStatusMutation.mutate({
+      ids: selectedIds,
+      status,
+      ...(reason ? { reason } : {}),
+    })
+  }
+
+  function changeSelectedAssignee(assigneeId: string | null) {
+    if (selectedClientIds.length === 0) return
+    bulkAssigneeMutation.mutate({
+      clientIds: selectedClientIds,
+      assigneeId,
+      reason: t`Workboard bulk owner change`,
+    })
+  }
+
+  function exportSelected(format: 'csv' | 'pdf_zip') {
+    if (selectedIds.length === 0) return
+    exportMutation.mutate({ ids: selectedIds, format })
   }
 
   return (
@@ -1018,7 +1395,76 @@ export function WorkboardRoute() {
               </Trans>
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="outline" size="sm">
+                    <SaveIcon data-icon="inline-start" />
+                    <Trans>Saved views</Trans>
+                  </Button>
+                }
+              />
+              <DropdownMenuContent className="w-72" align="end">
+                <DropdownMenuItem
+                  onClick={() => setSavedViewDraft({ mode: 'create', name: t`New workboard view` })}
+                >
+                  <SaveIcon data-icon="inline-start" />
+                  <Trans>Save current view</Trans>
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled={!activeSavedViewId} onClick={updateActiveSavedView}>
+                  <SaveIcon data-icon="inline-start" />
+                  <Trans>Update active view</Trans>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {savedViews.length === 0 ? (
+                  <DropdownMenuItem disabled>
+                    <Trans>No saved views</Trans>
+                  </DropdownMenuItem>
+                ) : (
+                  savedViews.map((savedView) => (
+                    <DropdownMenuGroup key={savedView.id}>
+                      <DropdownMenuLabel className="flex items-center gap-2">
+                        {savedView.isPinned ? <PinIcon className="size-3" aria-hidden /> : null}
+                        <span className="truncate">{savedView.name}</span>
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => applySavedView(savedView)}>
+                        <Trans>Apply view</Trans>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          updateSavedViewMutation.mutate({
+                            id: savedView.id,
+                            isPinned: !savedView.isPinned,
+                          })
+                        }
+                      >
+                        <PinIcon data-icon="inline-start" />
+                        {savedView.isPinned ? <Trans>Unpin view</Trans> : <Trans>Pin view</Trans>}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          setSavedViewDraft({
+                            mode: 'rename',
+                            id: savedView.id,
+                            name: savedView.name,
+                          })
+                        }
+                      >
+                        <Trans>Rename view</Trans>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => deleteSavedViewMutation.mutate({ id: savedView.id })}
+                      >
+                        <Trash2Icon data-icon="inline-start" />
+                        <Trans>Delete view</Trans>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </DropdownMenuGroup>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="outline" size="sm" onClick={resetWorkboard}>
               <FilterIcon data-icon="inline-start" />
               <Trans>Reset</Trans>
@@ -1067,7 +1513,58 @@ export function WorkboardRoute() {
                 }}
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Tabs
+                value={density}
+                onValueChange={(value) => {
+                  if (value !== 'comfortable' && value !== 'compact') return
+                  void setWorkboardQuery({ density: withDefaultDensityCleared(value) })
+                }}
+              >
+                <TabsList>
+                  <TabsTrigger value="comfortable">
+                    <Trans>Comfortable</Trans>
+                  </TabsTrigger>
+                  <TabsTrigger value="compact">
+                    <Trans>Compact</Trans>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant="outline" size="sm">
+                      <Columns3Icon data-icon="inline-start" />
+                      <Trans>Columns</Trans>
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent className="w-56" align="end">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>
+                      <Trans>Visible columns</Trans>
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  {table
+                    .getAllLeafColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => {
+                      const label = columnLabel(column.id, columnLabels)
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          aria-label={label}
+                          checked={column.getIsVisible()}
+                          closeOnClick={false}
+                          onCheckedChange={(checked) => column.toggleVisibility(checked)}
+                        >
+                          <span>{label}</span>
+                        </DropdownMenuCheckboxItem>
+                      )
+                    })}
+                </DropdownMenuContent>
+              </DropdownMenu>
               <span className="text-sm text-text-secondary">
                 <Trans>Sort</Trans>
               </span>
@@ -1097,9 +1594,17 @@ export function WorkboardRoute() {
             <button
               type="button"
               className="cursor-pointer focus-visible:outline-none"
-              onClick={() => void setWorkboardQuery({ dueWithin: 7, due: null, row: null })}
+              onClick={() =>
+                void setWorkboardQuery({
+                  dueWithin: null,
+                  due: null,
+                  daysMin: null,
+                  daysMax: 7,
+                  row: null,
+                })
+              }
             >
-              <Badge variant={dueWithin === 7 ? 'default' : 'ghost'}>
+              <Badge variant={daysMax === 7 && daysMin === null ? 'default' : 'ghost'}>
                 <Trans>This week</Trans>
               </Badge>
             </button>
@@ -1132,6 +1637,83 @@ export function WorkboardRoute() {
               </Badge>
             </button>
           </div>
+
+          {selectedIds.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-divider-regular bg-background-section p-3">
+              <Badge variant="info" className="font-mono tabular-nums">
+                <Plural value={selectedIds.length} one="# selected" other="# selected" />
+              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button size="sm">
+                      <Trans>Change status</Trans>
+                      <ChevronDownIcon data-icon="inline-end" />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="start">
+                  {ALL_STATUSES.map((status) => (
+                    <DropdownMenuItem key={status} onClick={() => changeSelectedStatus(status)}>
+                      {statusLabels[status]}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant="outline" size="sm">
+                      <Trans>Change assignee</Trans>
+                      <ChevronDownIcon data-icon="inline-end" />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuItem onClick={() => changeSelectedAssignee(null)}>
+                    <Trans>Unassigned</Trans>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {assignableMembers.length === 0 ? (
+                    <DropdownMenuItem disabled>
+                      <Trans>No assignable members</Trans>
+                    </DropdownMenuItem>
+                  ) : (
+                    assignableMembers.map((member) => (
+                      <DropdownMenuItem
+                        key={member.assigneeId}
+                        onClick={() => changeSelectedAssignee(member.assigneeId)}
+                      >
+                        <span className="truncate">{member.name}</span>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setExtendedMemo('')
+                  setExtendedMemoOpen(true)
+                }}
+              >
+                <Trans>Mark extended</Trans>
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportSelected('csv')}>
+                <DownloadIcon data-icon="inline-start" />
+                <Trans>CSV</Trans>
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportSelected('pdf_zip')}>
+                <FileArchiveIcon data-icon="inline-start" />
+                <Trans>PDF zip</Trans>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setRowSelection({})}>
+                <XIcon data-icon="inline-start" />
+                <Trans>Clear</Trans>
+              </Button>
+            </div>
+          ) : null}
 
           {isInitialLoading ? (
             <div className="rounded-lg border border-dashed border-divider-regular py-8 text-center text-sm text-text-tertiary">
@@ -1178,14 +1760,20 @@ export function WorkboardRoute() {
                     tableRows.map((tableRow) => (
                       <TableRow
                         key={tableRow.id}
-                        aria-selected={tableRow.getIsSelected()}
+                        aria-selected={tableRow.original.id === activeRow?.id}
                         data-state={tableRow.getIsSelected() ? 'selected' : undefined}
+                        className={
+                          tableRow.original.id === activeRow?.id ? 'bg-state-base-hover' : undefined
+                        }
                         onClick={() => void setWorkboardQuery({ row: tableRow.original.id })}
                       >
                         {tableRow.getVisibleCells().map((cell) => {
                           const meta = cell.column.columnDef.meta
                           return (
-                            <TableCell key={cell.id} className={meta?.cellClassName}>
+                            <TableCell
+                              key={cell.id}
+                              className={`${density === 'compact' ? 'px-2 py-1.5' : ''} ${meta?.cellClassName ?? ''}`}
+                            >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </TableCell>
                           )
@@ -1237,6 +1825,81 @@ export function WorkboardRoute() {
           void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         }}
       />
+      <Dialog
+        open={savedViewDraft !== null}
+        onOpenChange={(open) => (!open ? setSavedViewDraft(null) : undefined)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {savedViewDraft?.mode === 'rename' ? (
+                <Trans>Rename saved view</Trans>
+              ) : (
+                <Trans>Save current view</Trans>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              <Trans>Saved views store filters, sort, visible columns, and density.</Trans>
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            aria-label={t`Saved view name`}
+            value={savedViewDraft?.name ?? ''}
+            onChange={(event) =>
+              setSavedViewDraft((current) =>
+                current ? { ...current, name: event.target.value } : current,
+              )
+            }
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSavedViewDraft(null)}>
+              <Trans>Cancel</Trans>
+            </Button>
+            <Button
+              onClick={saveViewDraft}
+              disabled={
+                !savedViewDraft?.name.trim() ||
+                createSavedViewMutation.isPending ||
+                updateSavedViewMutation.isPending
+              }
+            >
+              <Trans>Save view</Trans>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={extendedMemoOpen} onOpenChange={setExtendedMemoOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              <Trans>Mark selected extended</Trans>
+            </DialogTitle>
+            <DialogDescription>
+              <Trans>The memo is stored on the audit trail for the bulk status change.</Trans>
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            aria-label={t`Extension memo`}
+            placeholder={t`Extension memo`}
+            value={extendedMemo}
+            onChange={(event) => setExtendedMemo(event.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExtendedMemoOpen(false)}>
+              <Trans>Cancel</Trans>
+            </Button>
+            <Button
+              onClick={() => {
+                changeSelectedStatus('extended', extendedMemo.trim() || undefined)
+                setExtendedMemoOpen(false)
+              }}
+              disabled={bulkStatusMutation.isPending}
+            >
+              <Trans>Mark extended</Trans>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -1274,7 +1937,7 @@ function ExposurePill({
   }
   return (
     <Badge variant="outline" className={WORKBOARD_TABLE_PILL_CLASSNAME}>
-      unsupported
+      <Trans>unsupported</Trans>
     </Badge>
   )
 }

@@ -28,6 +28,7 @@ msgid "{0, plural, one {# active} other {# active}}"
 msgstr "{0, plural, one {# active} other {# active}}"
 
 #. placeholder {0}: Math.abs(days)
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "{0, plural, one {# day late} other {# days late}}"
 msgstr "{0, plural, one {# day late} other {# days late}}"
@@ -43,6 +44,11 @@ msgstr "{0, plural, one {# row needs attention} other {# rows need attention}}"
 #: src/features/migration/Step1Intake.tsx
 msgid "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 msgstr "{0, plural, one {# row ready to import} other {# rows ready to import}}"
+
+#. placeholder {0}: selectedIds.length
+#: src/routes/workboard.tsx
+msgid "{0, plural, one {# selected} other {# selected}}"
+msgstr "{0, plural, one {# selected} other {# selected}}"
 
 #. placeholder {0}: row.evidenceCount
 #: src/routes/dashboard.tsx
@@ -110,20 +116,10 @@ msgstr "{0} need review"
 msgid "{0} needs input"
 msgstr "{0} needs input"
 
-#. placeholder {0}: data?.summary.needsReviewCount ?? 0
-#: src/routes/dashboard.tsx
-msgid "{0} obligations require CPA confirmation."
-msgstr "{0} obligations require CPA confirmation."
-
 #. placeholder {0}: genesis.needsInputCount
 #: src/features/migration/Wizard.tsx
 msgid "{0} obligations still need penalty inputs."
 msgstr "{0} obligations still need penalty inputs."
-
-#. placeholder {0}: data?.summary.evidenceGapCount ?? 0
-#: src/routes/dashboard.tsx
-msgid "{0} open obligations have no evidence link."
-msgstr "{0} open obligations have no evidence link."
 
 #. placeholder {0}: summary.openObligationCount
 #. placeholder {1}: summary.dueThisWeekCount
@@ -136,6 +132,11 @@ msgstr "{0} open obligations, {1} due this week, and {2} need review."
 #: src/features/migration/Step4Preview.tsx
 msgid "{0} ready"
 msgstr "{0} ready"
+
+#. placeholder {0}: result.updatedCount
+#: src/routes/workboard.tsx
+msgid "{0} rows changed"
+msgstr "{0} rows changed"
 
 #. placeholder {0}: firm.seatLimit
 #: src/components/patterns/app-shell.tsx
@@ -165,11 +166,6 @@ msgstr "{0} selected · {1} eligible · {2} need review"
 msgid "{0} shown · {1} total"
 msgstr "{0} shown · {1} total"
 
-#. placeholder {0}: topRows.filter((row) => row.evidenceCount > 0).length
-#: src/routes/dashboard.tsx
-msgid "{0} top rows have evidence."
-msgstr "{0} top rows have evidence."
-
 #. placeholder {0}: exposure.unsupportedCount
 #: src/features/migration/Step4Preview.tsx
 msgid "{0} unsupported"
@@ -188,6 +184,7 @@ msgstr "{availableCount} available"
 msgid "{clientCount, plural, one {# client} other {# clients}}"
 msgstr "{clientCount, plural, one {# client} other {# clients}}"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "{days, plural, one {# day} other {# days}}"
 msgstr "{days, plural, one {# day} other {# days}}"
@@ -539,6 +536,10 @@ msgstr "Apply Default Matrix"
 msgid "Apply to all"
 msgstr "Apply to all"
 
+#: src/routes/workboard.tsx
+msgid "Apply view"
+msgstr "Apply view"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Approve"
 msgstr "Approve"
@@ -565,6 +566,7 @@ msgid "at risk this week"
 msgstr "at risk this week"
 
 #. placeholder {0}: result.auditId.slice(0, 8)
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Audit {0}"
 msgstr "Audit {0}"
@@ -698,6 +700,10 @@ msgstr "Brief is being prepared. The risk table is ready now."
 msgid "Building the import preview"
 msgstr "Building the import preview"
 
+#: src/routes/workboard.tsx
+msgid "Bulk status updated"
+msgstr "Bulk status updated"
+
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -746,9 +752,17 @@ msgstr "Card numbers and invoice payment details never enter the app database."
 msgid "Change"
 msgstr "Change"
 
+#: src/routes/workboard.tsx
+msgid "Change assignee"
+msgstr "Change assignee"
+
 #: src/features/members/members-page.tsx
 msgid "Change role"
 msgstr "Change role"
+
+#: src/routes/workboard.tsx
+msgid "Change status"
+msgstr "Change status"
 
 #. placeholder {0}: row.clientName
 #: src/features/workboard/status-control.tsx
@@ -800,6 +814,10 @@ msgstr "Choose another plan"
 msgid "Choose Pro to start the hosted checkout flow."
 msgstr "Choose Pro to start the hosted checkout flow."
 
+#: src/routes/workboard.tsx
+msgid "Clear"
+msgstr "Clear"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Clear search or filters to return to the full firm directory."
 msgstr "Clear search or filters to return to the full firm directory."
@@ -846,10 +864,6 @@ msgstr "Client name"
 msgid "Client reminder"
 msgstr "Client reminder"
 
-#: src/routes/dashboard.tsx
-msgid "Client risk rows"
-msgstr "Client risk rows"
-
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
@@ -870,9 +884,17 @@ msgstr "Close wizard"
 msgid "Code"
 msgstr "Code"
 
+#: src/routes/workboard.tsx
+msgid "Columns"
+msgstr "Columns"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can power the penalty exposure preview."
 msgstr "Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can power the penalty exposure preview."
+
+#: src/routes/workboard.tsx
+msgid "Comfortable"
+msgstr "Comfortable"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
@@ -885,6 +907,10 @@ msgstr "Coming soon"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Command palette"
 msgstr "Command palette"
+
+#: src/routes/workboard.tsx
+msgid "Compact"
+msgstr "Compact"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step2Mapping.tsx
@@ -1026,10 +1052,18 @@ msgstr "Couldn't copy source excerpt"
 msgid "Couldn't create client"
 msgstr "Couldn't create client"
 
+#: src/routes/workboard.tsx
+msgid "Couldn't delete view"
+msgstr "Couldn't delete view"
+
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't dismiss alert"
 msgstr "Couldn't dismiss alert"
+
+#: src/routes/workboard.tsx
+msgid "Couldn't export selected rows"
+msgstr "Couldn't export selected rows"
 
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't import clients"
@@ -1071,6 +1105,10 @@ msgstr "Couldn't save mapping"
 msgid "Couldn't save penalty inputs"
 msgstr "Couldn't save penalty inputs"
 
+#: src/routes/workboard.tsx
+msgid "Couldn't save view"
+msgstr "Couldn't save view"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't snooze alert"
 msgstr "Couldn't snooze alert"
@@ -1089,8 +1127,21 @@ msgid "Couldn't undo Pulse"
 msgstr "Couldn't undo Pulse"
 
 #: src/routes/workboard.tsx
+msgid "Couldn't update owners"
+msgstr "Couldn't update owners"
+
+#: src/routes/workboard.tsx
+msgid "Couldn't update selected rows"
+msgstr "Couldn't update selected rows"
+
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Couldn't update status"
 msgstr "Couldn't update status"
+
+#: src/routes/workboard.tsx
+msgid "Couldn't update view"
+msgstr "Couldn't update view"
 
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Counties"
@@ -1105,10 +1156,6 @@ msgstr "County"
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "Coverage"
-
-#: src/routes/dashboard.tsx
-msgid "Coverage state for the same obligations shown on the dashboard."
-msgstr "Coverage state for the same obligations shown on the dashboard."
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
@@ -1170,6 +1217,10 @@ msgstr "Creating…"
 #: src/routes/dashboard.tsx
 msgid "critical"
 msgstr "critical"
+
+#: src/routes/workboard.tsx
+msgid "CSV"
+msgstr "CSV"
 
 #: src/routes/billing.tsx
 msgid "Current"
@@ -1238,6 +1289,10 @@ msgstr "Delete firm"
 #: src/routes/firm.tsx
 msgid "Delete this firm?"
 msgstr "Delete this firm?"
+
+#: src/routes/workboard.tsx
+msgid "Delete view"
+msgstr "Delete view"
 
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -1448,10 +1503,6 @@ msgstr "Evidence"
 msgid "Evidence chain"
 msgstr "Evidence chain"
 
-#: src/routes/dashboard.tsx
-msgid "Evidence checks"
-msgstr "Evidence checks"
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Exact action"
 msgstr "Exact action"
@@ -1478,6 +1529,10 @@ msgstr "Expires {0}"
 msgid "Export"
 msgstr "Export"
 
+#: src/routes/workboard.tsx
+msgid "Export ready"
+msgstr "Export ready"
+
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Exposure"
@@ -1491,9 +1546,17 @@ msgstr "Exposure preview"
 msgid "Exposure readiness appears after mapping and Default Matrix are confirmed."
 msgstr "Exposure readiness appears after mapping and Default Matrix are confirmed."
 
+#: src/features/workboard/status-control.tsx
+msgid "Extended"
+msgstr "Extended"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Extension"
 msgstr "Extension"
+
+#: src/routes/workboard.tsx
+msgid "Extension memo"
+msgstr "Extension memo"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Fact profile"
@@ -1850,10 +1913,6 @@ msgstr "Light"
 msgid "Link"
 msgstr "Link"
 
-#: src/routes/dashboard.tsx
-msgid "Linked"
-msgstr "Linked"
-
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Live"
 msgstr "Live"
@@ -1940,6 +1999,10 @@ msgstr "Local time"
 msgid "Logged to audit trail"
 msgstr "Logged to audit trail"
 
+#: src/routes/dashboard.tsx
+msgid "Long-term"
+msgstr "Long-term"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Low AI confidence"
 msgstr "Low AI confidence"
@@ -1992,9 +2055,17 @@ msgstr "Mapping"
 msgid "Mark all read"
 msgstr "Mark all read"
 
+#: src/routes/workboard.tsx
+msgid "Mark extended"
+msgstr "Mark extended"
+
 #: src/features/notifications/notifications-page.tsx
 msgid "Mark read"
 msgstr "Mark read"
+
+#: src/routes/workboard.tsx
+msgid "Mark selected extended"
+msgstr "Mark selected extended"
 
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Match"
@@ -2109,6 +2180,7 @@ msgstr "Needs evidence"
 msgid "Needs facts"
 msgstr "Needs facts"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "needs input"
 msgstr "needs input"
@@ -2120,7 +2192,6 @@ msgstr "Needs input"
 
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Needs review"
 msgstr "Needs review"
@@ -2149,6 +2220,10 @@ msgstr "New client imports will appear here when you need batch recovery."
 msgid "New seat limit"
 msgstr "New seat limit"
 
+#: src/routes/workboard.tsx
+msgid "New workboard view"
+msgstr "New workboard view"
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -2172,6 +2247,10 @@ msgstr "No active firm is selected."
 #: src/features/pulse/AlertsListPage.tsx
 msgid "No alerts match these filters."
 msgstr "No alerts match these filters."
+
+#: src/routes/workboard.tsx
+msgid "No assignable members"
+msgstr "No assignable members"
 
 #: src/routes/workboard.tsx
 msgid "No assignees"
@@ -2275,6 +2354,10 @@ msgstr "No notes."
 msgid "No notifications yet."
 msgstr "No notifications yet."
 
+#: src/routes/dashboard.tsx
+msgid "No obligations in this window."
+msgstr "No obligations in this window."
+
 #: src/routes/workboard.tsx
 msgid "No obligations match these filters."
 msgstr "No obligations match these filters."
@@ -2310,6 +2393,10 @@ msgstr "no rule"
 #: src/features/rules/rules-console-primitives.tsx
 msgid "no rule — not in MVP scope"
 msgstr "no rule — not in MVP scope"
+
+#: src/routes/workboard.tsx
+msgid "No saved views"
+msgstr "No saved views"
 
 #: src/features/members/members-page.tsx
 msgid "No seats are available. Upgrade or suspend a member before inviting."
@@ -2473,6 +2560,10 @@ msgstr "Open evidence for {label}"
 msgid "Open fact profile for {0}"
 msgstr "Open fact profile for {0}"
 
+#: src/routes/dashboard.tsx
+msgid "Open full Workboard"
+msgstr "Open full Workboard"
+
 #: src/features/members/members-page.tsx
 msgid "Open member actions"
 msgstr "Open member actions"
@@ -2617,9 +2708,17 @@ msgstr "Owner workload"
 msgid "Owner-only. Invite teammates, change roles, and manage seats."
 msgstr "Owner-only. Invite teammates, change roles, and manage seats."
 
+#: src/routes/workboard.tsx
+msgid "Owners updated"
+msgstr "Owners updated"
+
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "Page not found"
+
+#: src/features/workboard/status-control.tsx
+msgid "Paid"
+msgstr "Paid"
 
 #: src/features/workload/workload-page.tsx
 msgid "Paid feature"
@@ -2680,6 +2779,10 @@ msgid "Payment model"
 msgstr "Payment model"
 
 #: src/routes/workboard.tsx
+msgid "PDF zip"
+msgstr "PDF zip"
+
+#: src/routes/workboard.tsx
 msgid "Penalty inputs"
 msgstr "Penalty inputs"
 
@@ -2715,6 +2818,10 @@ msgstr "pending ops review"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Pending review"
 msgstr "Pending review"
+
+#: src/routes/workboard.tsx
+msgid "Pin view"
+msgstr "Pin view"
 
 #: src/routes/billing.tsx
 msgid "Plan"
@@ -3028,6 +3135,14 @@ msgstr "Remove from firm"
 msgid "Remove member?"
 msgstr "Remove member?"
 
+#: src/routes/workboard.tsx
+msgid "Rename saved view"
+msgstr "Rename saved view"
+
+#: src/routes/workboard.tsx
+msgid "Rename view"
+msgstr "Rename view"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Request export"
 msgstr "Request export"
@@ -3184,10 +3299,6 @@ msgstr "Risk"
 msgid "Risk pulse"
 msgstr "Risk pulse"
 
-#: src/routes/dashboard.tsx
-msgid "Risk table"
-msgstr "Risk table"
-
 #: src/features/members/members-page.tsx
 msgid "Role"
 msgstr "Role"
@@ -3271,6 +3382,10 @@ msgstr "Save"
 msgid "Save changes"
 msgstr "Save changes"
 
+#: src/routes/workboard.tsx
+msgid "Save current view"
+msgstr "Save current view"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Save mapping"
 msgstr "Save mapping"
@@ -3278,6 +3393,34 @@ msgstr "Save mapping"
 #: src/features/migration/WizardShell.tsx
 msgid "Save normalized values"
 msgstr "Save normalized values"
+
+#: src/routes/workboard.tsx
+msgid "Save view"
+msgstr "Save view"
+
+#: src/routes/workboard.tsx
+msgid "Saved view created"
+msgstr "Saved view created"
+
+#: src/routes/workboard.tsx
+msgid "Saved view deleted"
+msgstr "Saved view deleted"
+
+#: src/routes/workboard.tsx
+msgid "Saved view name"
+msgstr "Saved view name"
+
+#: src/routes/workboard.tsx
+msgid "Saved view updated"
+msgstr "Saved view updated"
+
+#: src/routes/workboard.tsx
+msgid "Saved views"
+msgstr "Saved views"
+
+#: src/routes/workboard.tsx
+msgid "Saved views store filters, sort, visible columns, and density."
+msgstr "Saved views store filters, sort, visible columns, and density."
 
 #: src/features/migration/WizardShell.tsx
 msgid "Saving normalized values, applying the Default Matrix, and calculating totals."
@@ -3349,7 +3492,9 @@ msgid "Secure checkout"
 msgstr "Secure checkout"
 
 #. placeholder {0}: row.clientName
+#. placeholder {0}: tableRow.original.clientName
 #: src/features/pulse/components/AffectedClientsTable.tsx
+#: src/routes/workboard.tsx
 msgid "Select {0}"
 msgstr "Select {0}"
 
@@ -3364,6 +3509,10 @@ msgstr "Select a Pulse to inspect raw source text."
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Select all eligible obligations"
 msgstr "Select all eligible obligations"
+
+#: src/routes/workboard.tsx
+msgid "Select all visible rows"
+msgstr "Select all visible rows"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Select clients and apply again."
@@ -3642,6 +3791,7 @@ msgstr "Status"
 msgid "Status changes write an audit row in the same call so the trail stays trustworthy."
 msgstr "Status changes write an audit row in the same call so the trail stays trustworthy."
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Status updated"
 msgstr "Status updated"
@@ -3776,6 +3926,10 @@ msgstr "The billing portal opens with the payment provider for invoices, payment
 msgid "The firm will be removed from the picker. Audit history stays retained for compliance."
 msgstr "The firm will be removed from the picker. Audit history stays retained for compliance."
 
+#: src/routes/workboard.tsx
+msgid "The memo is stored on the audit trail for the bulk status change."
+msgstr "The memo is stored on the audit trail for the bulk status change."
+
 #: src/features/migration/Step4Preview.tsx
 msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
 msgstr "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
@@ -3824,6 +3978,10 @@ msgstr "This firm already has the selected plan."
 msgid "This is what your team and clients will see."
 msgstr "This is what your team and clients will see."
 
+#: src/routes/dashboard.tsx
+msgid "This Month"
+msgstr "This Month"
+
 #: src/routes/billing.success.tsx
 msgid "This page will keep checking. You can also return to Billing and refresh later."
 msgstr "This page will keep checking. You can also return to Billing and refresh later."
@@ -3852,6 +4010,14 @@ msgstr "This source is no longer trusted. The historical alert remains visible, 
 msgid "This week"
 msgstr "This week"
 
+#: src/routes/dashboard.tsx
+msgid "This Week"
+msgstr "This Week"
+
+#: src/routes/dashboard.tsx
+msgid "This Week, This Month, and Long-term risk windows from server aggregation."
+msgstr "This Week, This Month, and Long-term risk windows from server aggregation."
+
 #: src/features/audit/audit-log-table.tsx
 msgid "Time"
 msgstr "Time"
@@ -3861,6 +4027,7 @@ msgstr "Time"
 msgid "Timezone"
 msgstr "Timezone"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Today"
 msgstr "Today"
@@ -3878,8 +4045,8 @@ msgid "Too many requests. Please try again in a moment."
 msgstr "Too many requests. Please try again in a moment."
 
 #: src/routes/dashboard.tsx
-msgid "Top obligations are sorted by deterministic due-date severity."
-msgstr "Top obligations are sorted by deterministic due-date severity."
+msgid "Triage queue"
+msgstr "Triage queue"
 
 #: src/routes/clients.tsx
 msgid "Trust"
@@ -3933,9 +4100,22 @@ msgstr "Undo this imported client?"
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
 
+#: src/routes/workboard.tsx
+msgid "Unpin view"
+msgstr "Unpin view"
+
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "unsupported"
+msgstr "unsupported"
+
 #: src/routes/dashboard.tsx
 msgid "Unsupported"
 msgstr "Unsupported"
+
+#: src/routes/workboard.tsx
+msgid "Update active view"
+msgstr "Update active view"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Update the active firm's name and timezone."
@@ -4043,6 +4223,10 @@ msgstr "View audit log"
 msgid "View billing"
 msgstr "View billing"
 
+#: src/routes/workboard.tsx
+msgid "Visible columns"
+msgstr "Visible columns"
+
 #: src/features/workload/workload-page.tsx
 #: src/routes/workboard.tsx
 msgid "Waiting"
@@ -4144,6 +4328,10 @@ msgstr "Workbench"
 #: src/routes/workboard.tsx
 msgid "Workboard"
 msgstr "Workboard"
+
+#: src/routes/workboard.tsx
+msgid "Workboard bulk owner change"
+msgstr "Workboard bulk owner change"
 
 #: src/routes/workboard.tsx
 msgid "Workboard needs-input update"
