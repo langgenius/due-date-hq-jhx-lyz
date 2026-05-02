@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useMemo, useState, type SyntheticEvent, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
@@ -268,7 +268,7 @@ function AddFirmDialog({
     }),
   )
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!canCreate) return
     const trimmed = name.trim()

@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useMemo, useState, type SyntheticEvent } from 'react'
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -47,7 +47,7 @@ export function OnboardingRoute() {
   const redirectToParam = params.get('redirectTo')
   const redirectTo = isInAppPath(redirectToParam) ? redirectToParam : '/'
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault()
     if (isSubmitting) return
     setError(null)

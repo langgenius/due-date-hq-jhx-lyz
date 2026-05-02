@@ -754,6 +754,10 @@ msgstr "身份验证器应用"
 msgid "Authenticator is active on this account."
 msgstr "此账号已启用身份验证器。"
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Authenticator setup QR code"
+msgstr "身份验证器设置二维码"
+
 #: src/routes/account.security.tsx
 msgid "Authenticator setup started"
 msgstr "身份验证器设置已开始"
@@ -1194,7 +1198,7 @@ msgstr "合同约定"
 msgid "Coordinator"
 msgstr "协调员"
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 msgid "Copy"
 msgstr "复制"
 
@@ -1210,9 +1214,17 @@ msgstr "复制链接"
 msgid "Copy source excerpt"
 msgstr "复制原文摘录"
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Copy URI"
+msgstr "复制 URI"
+
 #: src/routes/accept-invite.tsx
 msgid "Could not accept invitation"
 msgstr "无法接受邀请"
+
+#: src/routes/account.security.tsx
+msgid "Could not copy to clipboard"
+msgstr "无法复制到剪贴板"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not create firm."
@@ -3445,6 +3457,10 @@ msgstr "打开义务队列。"
 msgid "Open Workboard"
 msgstr "打开 Workboard"
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Open your authenticator app, add a new account, then scan this code. Use the setup URI if scanning is not available."
+msgstr "打开你的身份验证器应用，添加新账户，然后扫描此二维码。如果无法扫码，请使用设置 URI。"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open your personal notification inbox."
 msgstr "打开你的个人通知收件箱。"
@@ -4139,7 +4155,7 @@ msgstr "记录审计轨迹"
 msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
 msgstr "恢复误导入的批次。单个客户资料请在“客户”中编辑。"
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 msgid "Recovery codes"
 msgstr "恢复码"
 
@@ -4578,6 +4594,10 @@ msgstr "保存规范化值"
 msgid "Save risk inputs"
 msgstr "保存风险输入"
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Save these recovery codes now"
+msgstr "立即保存这些恢复码"
+
 #: src/routes/workboard.tsx
 msgid "Save view"
 msgstr "保存视图"
@@ -4632,6 +4652,10 @@ msgstr "正在保存..."
 #: src/routes/firm.tsx
 msgid "Saving…"
 msgstr "正在保存…"
+
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Scan the QR code"
+msgstr "扫描二维码"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Scope"
@@ -4795,9 +4819,13 @@ msgstr "设置你的事务所。"
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 msgid "Setup URI"
 msgstr "设置 URI"
+
+#: src/routes/account.security.tsx
+msgid "Setup URI copied"
+msgstr "设置 URI 已复制"
 
 #: src/routes/dashboard.tsx
 msgid "Severity"
@@ -5264,6 +5292,10 @@ msgstr "主题"
 msgid "then"
 msgstr "然后"
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "They are only shown during setup. Store them somewhere private before verification."
+msgstr "这些恢复码只会在设置期间显示。请在验证前将它们保存在私密位置。"
+
 #: src/lib/i18n-error.ts
 msgid "This action conflicts with the current state. Refresh and try again."
 msgstr "该操作与当前状态冲突，请刷新后重试。"
@@ -5541,7 +5573,7 @@ msgstr "每个 (辖区, 实体类型) 组合是否可验证"
 msgid "Verification"
 msgstr "核验"
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 #: src/routes/two-factor.tsx
 msgid "Verification code"
 msgstr "验证码"
@@ -5580,7 +5612,7 @@ msgstr "Verified 规则"
 msgid "Verify"
 msgstr "验证"
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 msgid "Verify and enable"
 msgstr "验证并启用"
 

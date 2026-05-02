@@ -1,11 +1,10 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type SyntheticEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
   AlertCircleIcon,
   CheckCircle2Icon,
-  CopyIcon,
   Loader2Icon,
   MonitorIcon,
   ShieldCheckIcon,
@@ -23,24 +22,21 @@ import {
   CardHeader,
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
-import { Input } from '@duedatehq/ui/components/ui/input'
-import { Label } from '@duedatehq/ui/components/ui/label'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-
-type PendingSetup = {
-  totpURI: string
-  backupCodes: string[]
-}
+import {
+  TwoFactorSetupPanel,
+  type PendingTwoFactorSetup,
+} from './account-security-two-factor-setup'
 
 export function AccountSecurityRoute() {
   const { t } = useLingui()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const statusQuery = useQuery(orpc.security.status.queryOptions({ input: undefined }))
-  const [pendingSetup, setPendingSetup] = useState<PendingSetup | null>(null)
+  const [pendingSetup, setPendingSetup] = useState<PendingTwoFactorSetup | null>(null)
   const [code, setCode] = useState('')
   const securityKey = orpc.security.key()
 
@@ -121,17 +117,30 @@ export function AccountSecurityRoute() {
     }),
   )
 
-  function handleVerify(event: FormEvent<HTMLFormElement>) {
+  function handleVerify(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault()
     const trimmed = code.trim()
     if (trimmed.length < 6) return
     verifyMutation.mutate({ code: trimmed })
   }
 
+  async function copyText(value: string, successMessage: string) {
+    try {
+      await navigator.clipboard.writeText(value)
+      toast.success(successMessage)
+    } catch {
+      toast.error(t`Could not copy to clipboard`)
+    }
+  }
+
+  function copySetupUri() {
+    if (!pendingSetup) return
+    void copyText(pendingSetup.totpURI, t`Setup URI copied`)
+  }
+
   function copyBackupCodes() {
     if (!pendingSetup) return
-    void navigator.clipboard.writeText(pendingSetup.backupCodes.join('\n'))
-    toast.success(t`Backup codes copied`)
+    void copyText(pendingSetup.backupCodes.join('\n'), t`Backup codes copied`)
   }
 
   if (statusQuery.isLoading) {
@@ -217,51 +226,15 @@ export function AccountSecurityRoute() {
           )}
 
           {pendingSetup ? (
-            <form
-              onSubmit={handleVerify}
-              className="grid gap-4 rounded-md border border-border-default p-4"
-            >
-              <div className="grid gap-2">
-                <Label htmlFor="totp-uri">
-                  <Trans>Setup URI</Trans>
-                </Label>
-                <Input id="totp-uri" readOnly value={pendingSetup.totpURI} className="font-mono" />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between gap-2">
-                  <Label>
-                    <Trans>Recovery codes</Trans>
-                  </Label>
-                  <Button type="button" variant="ghost" size="sm" onClick={copyBackupCodes}>
-                    <CopyIcon className="size-4" aria-hidden />
-                    <Trans>Copy</Trans>
-                  </Button>
-                </div>
-                <div className="grid gap-1 rounded-md bg-bg-panel p-3 font-mono text-xs text-text-secondary sm:grid-cols-2">
-                  {pendingSetup.backupCodes.map((backupCode) => (
-                    <span key={backupCode}>{backupCode}</span>
-                  ))}
-                </div>
-              </div>
-              <div className="grid gap-2 sm:max-w-[220px]">
-                <Label htmlFor="totp-code">
-                  <Trans>Verification code</Trans>
-                </Label>
-                <Input
-                  id="totp-code"
-                  value={code}
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  onChange={(event) => setCode(event.target.value)}
-                />
-              </div>
-              <Button type="submit" className="w-fit" disabled={verifyMutation.isPending}>
-                {verifyMutation.isPending ? (
-                  <Loader2Icon className="size-4 animate-spin" aria-hidden />
-                ) : null}
-                <Trans>Verify and enable</Trans>
-              </Button>
-            </form>
+            <TwoFactorSetupPanel
+              code={code}
+              pendingSetup={pendingSetup}
+              verifyPending={verifyMutation.isPending}
+              onCodeChange={setCode}
+              onCopyBackupCodes={copyBackupCodes}
+              onCopySetupUri={copySetupUri}
+              onVerify={handleVerify}
+            />
           ) : null}
         </CardContent>
       </Card>

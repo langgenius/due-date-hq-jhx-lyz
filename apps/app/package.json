@@ -39,6 +39,7 @@
     "motion": "catalog:",
     "nuqs": "catalog:",
     "posthog-js": "catalog:",
+    "qrcode.react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-hook-form": "catalog:",

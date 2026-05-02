@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type SyntheticEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Loader2Icon, ShieldCheckIcon } from 'lucide-react'
@@ -23,7 +23,7 @@ export function TwoFactorRoute() {
   const [code, setCode] = useState('')
   const [pending, setPending] = useState(false)
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault()
     setPending(true)
     try {

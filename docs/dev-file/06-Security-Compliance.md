@@ -54,7 +54,7 @@
 ### 2.4 MFA（production Owner gate）
 
 - `twoFactor` plugin；TOTP + 10 条 recovery codes
-- `/account/security` 可启用/停用 MFA、复制 recovery codes、管理 active sessions
+- `/account/security` 可通过 QR code 扫码启用 MFA，保留 setup URI fallback，可复制 recovery codes，并管理 active sessions
 - `/two-factor` 承接已启用 MFA 用户的登录二次验证
 - production 中 owner-only procedure 在 Owner 未启用 MFA 时返回 `MFA_REQUIRED` 并写 `auth.denied`
 - `two_factor.secret` / `backup_codes` 由 Better Auth 管理；表级迁移为 `0021_elite_daredevil`

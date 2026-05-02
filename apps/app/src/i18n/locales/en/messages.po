@@ -754,6 +754,10 @@ msgstr "Authenticator app"
 msgid "Authenticator is active on this account."
 msgstr "Authenticator is active on this account."
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Authenticator setup QR code"
+msgstr "Authenticator setup QR code"
+
 #: src/routes/account.security.tsx
 msgid "Authenticator setup started"
 msgstr "Authenticator setup started"
@@ -1194,7 +1198,7 @@ msgstr "contract"
 msgid "Coordinator"
 msgstr "Coordinator"
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 msgid "Copy"
 msgstr "Copy"
 
@@ -1210,9 +1214,17 @@ msgstr "Copy link"
 msgid "Copy source excerpt"
 msgstr "Copy source excerpt"
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Copy URI"
+msgstr "Copy URI"
+
 #: src/routes/accept-invite.tsx
 msgid "Could not accept invitation"
 msgstr "Could not accept invitation"
+
+#: src/routes/account.security.tsx
+msgid "Could not copy to clipboard"
+msgstr "Could not copy to clipboard"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not create firm."
@@ -3445,6 +3457,10 @@ msgstr "Open the obligation queue."
 msgid "Open Workboard"
 msgstr "Open Workboard"
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Open your authenticator app, add a new account, then scan this code. Use the setup URI if scanning is not available."
+msgstr "Open your authenticator app, add a new account, then scan this code. Use the setup URI if scanning is not available."
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open your personal notification inbox."
 msgstr "Open your personal notification inbox."
@@ -4139,7 +4155,7 @@ msgstr "Record audit trail"
 msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
 msgstr "Recover mistaken batch imports. Edit individual client facts from Clients."
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 msgid "Recovery codes"
 msgstr "Recovery codes"
 
@@ -4578,6 +4594,10 @@ msgstr "Save normalized values"
 msgid "Save risk inputs"
 msgstr "Save risk inputs"
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Save these recovery codes now"
+msgstr "Save these recovery codes now"
+
 #: src/routes/workboard.tsx
 msgid "Save view"
 msgstr "Save view"
@@ -4632,6 +4652,10 @@ msgstr "Saving..."
 #: src/routes/firm.tsx
 msgid "Saving…"
 msgstr "Saving…"
+
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "Scan the QR code"
+msgstr "Scan the QR code"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Scope"
@@ -4795,9 +4819,13 @@ msgstr "Set up your practice."
 msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 msgid "Setup URI"
 msgstr "Setup URI"
+
+#: src/routes/account.security.tsx
+msgid "Setup URI copied"
+msgstr "Setup URI copied"
 
 #: src/routes/dashboard.tsx
 msgid "Severity"
@@ -5264,6 +5292,10 @@ msgstr "Theme"
 msgid "then"
 msgstr "then"
 
+#: src/routes/account-security-two-factor-setup.tsx
+msgid "They are only shown during setup. Store them somewhere private before verification."
+msgstr "They are only shown during setup. Store them somewhere private before verification."
+
 #: src/lib/i18n-error.ts
 msgid "This action conflicts with the current state. Refresh and try again."
 msgstr "This action conflicts with the current state. Refresh and try again."
@@ -5541,7 +5573,7 @@ msgstr "verifiable per (jurisdiction, entity) pair"
 msgid "Verification"
 msgstr "Verification"
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 #: src/routes/two-factor.tsx
 msgid "Verification code"
 msgstr "Verification code"
@@ -5580,7 +5612,7 @@ msgstr "Verified rules"
 msgid "Verify"
 msgstr "Verify"
 
-#: src/routes/account.security.tsx
+#: src/routes/account-security-two-factor-setup.tsx
 msgid "Verify and enable"
 msgstr "Verify and enable"
 
