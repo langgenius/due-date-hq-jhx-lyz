@@ -486,7 +486,7 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 | **华人 CPA 微信群（美国华人执业 CPA 协会）**        | 100 浏览 → 8 click → 2 signup         | 25%             | $0   | Day 3–7   |
 | **IndieHackers / ProductHunt 预热**                 | 50 signup → 1 paying                  | 2%              | 时间 | Day 12–14 |
 
-**目标：14 天内 10 位真实 CPA signup + 3 位 pay-intent 点击 + 2 位录屏访谈。**
+**目标：14 天内 10 位真实 CPA signup + 2 位录屏访谈。**
 
 #### 15.2.1 Reddit r/taxpros · 精准埋伏帖（Day 1–3）
 
@@ -815,7 +815,7 @@ to the assignees. Every change in audit log with source URL."
 [手机叮一声，收到邮件 · 现场放音效或真实邮件]
 ```
 
-#### 15.3.6 300–360s · Evidence + Pay-intent 收束
+#### 15.3.6 300–360s · Evidence 收束
 
 ```
 Presenter: "Last thing. Watch the whole story come together."
@@ -839,8 +839,6 @@ whole evidence package as a signed ZIP. 90 seconds. Done."
 Presenter: "Every tax AI today is a confident stranger.
 DueDateHQ is a tax AI that shows its work — from the first
 paste to the IRS-auditable weekly brief."
-
-[Click "I'd pay $49/mo" button → toast]
 
 Presenter: "Thank you."
 ```

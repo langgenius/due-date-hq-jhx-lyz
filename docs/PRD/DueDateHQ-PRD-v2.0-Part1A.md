@@ -307,7 +307,7 @@ TeamInvitation
 | 邀请 / 撤销成员                 | ✓     | —       | —                                      | —                                                                                   |
 | 修改他人 role                   | ✓     | —       | —                                      | —                                                                                   |
 | 转让 Firm Owner                 | ✓     | —       | —                                      | —                                                                                   |
-| Billing / Pay-intent            | ✓     | —       | —                                      | —                                                                                   |
+| Billing                         | ✓     | —       | —                                      | —                                                                                   |
 | 删除 Firm                       | ✓     | —       | —                                      | —                                                                                   |
 | **客户与 obligations**          |       |         |                                        |                                                                                     |
 | 查看全部客户                    | ✓     | ✓       | ✓                                      | ✓                                                                                   |
@@ -518,7 +518,6 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | P0-20 | Audit Log                                        | 状态变更 / Pulse Apply / 批量操作 / Migration / Revert 全留痕                                                                                                                                                   | —              |
 | P0-21 | Email Reminders                                  | 30 / 7 / 1 天阶梯；模板带上下文 + source link                                                                                                                                                                   | —              |
 | P0-22 | In-app Notifications                             | Top bar 铃铛 + 未读计数 + Preferences                                                                                                                                                                           | —              |
-| P0-23 | Pay-intent Button                                | `I'd pay $49/mo` 点击埋点（不接 Stripe）                                                                                                                                                                        | —              |
 | P0-24 | Security Baseline                                | HTTPS / TLS / AES-256 at rest / tenant isolation / audit log / `ai_output` trace；7 天 Demo 可交 WISP draft，真实试点 / 4 周 MVP 交 WISP v1.0；Owner MFA 在真实试点前启用，完整四角色 Team RBAC 属 P1（§3.6.3） | —              |
 
 ### 4.2 P1 — 差异化亮点（Story S3 + VPC Medium）
@@ -931,7 +930,7 @@ hover 展开逐源 health + 下周 / 下季度的 ops review 时间点。
 
 ### 5.10 Settings
 
-- Profile / Notifications / Imports History（含 Undo）/ Ask History / Billing（pay-intent 按钮）/ Team（P1）/ About / WISP / Privacy
+- Profile / Notifications / Imports History（含 Undo）/ Ask History / Billing / Team（P1）/ About / WISP / Privacy
 
 ---
 

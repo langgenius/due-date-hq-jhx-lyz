@@ -25,7 +25,7 @@
   - `docs/PRD/DueDateHQ-PRD-v2.0-Part2B.md` §13.2.1 Migration audit actions
 - **裁定**：
   - `Revert 24h 全量 = Owner + Manager`；`Revert 单客户 7d = Owner + Manager`；对齐 Part1A §3.6.3。
-  - Owner-only 仍保留给所有权 / 账户级能力：Firm 删除、Owner 转让、billing/pay-intent、role 修改、全 firm export。
+  - Owner-only 仍保留给所有权 / 账户级能力：Firm 删除、Owner 转让、billing、role 修改、全 firm export。
 - **理由**：Revert 是补救能力，不是所有权能力。Manager 已经可以触发批量导入或 Pulse 批量应用，就必须能在 24h 窗口内快速撤回同类变更；真正的风险控制放在确认弹窗、before/after diff、审计、Owner 通知、24h server-side expiry 和必要时二次验证。
 - **工程落地影响**：`./02-ux-4step-wizard.md` Step 4 完成后的 24h toast 按钮对 Owner / Manager 可见；后端 `migration.reverted` procedure middleware 走 Owner + Manager guard；audit 写 `migration.reverted`（Part2B §13.2.1）。
 

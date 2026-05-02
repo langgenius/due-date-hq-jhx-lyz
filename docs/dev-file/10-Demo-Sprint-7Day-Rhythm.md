@@ -65,7 +65,7 @@ Paste / CSV
 | Dashboard                | v1 风险首屏完成 | 已不再 mock；Penalty Radar、exposure breakdown、top-row Evidence 入口已接入；仍缺 source-backed Brief polish       |
 | Evidence / Audit         | v1 可见闭环     | Evidence drawer 读取 obligation evidence + audit timeline；write path 覆盖 migration / penalty override / status   |
 | Pulse Pipeline           | 后端/前端 MVP   | fixture-backed review/apply/revert 已入主线；真抓 cron 和更完整 Overlay 仍是后续硬化                               |
-| Demo Data / Pay-intent   | 部分完成        | 需要幂等 seed、demo profile 隔离、`$49/mo` pay-intent event 收口                                                   |
+| Demo Data                | 部分完成        | 需要幂等 seed、demo profile 隔离、部署/录屏数据稳定性                                                              |
 | E2E / Quality            | 主路径可用      | Import undo、Workboard、Rules console、auth shell 已覆盖；本地 E2E 默认不复用开发者手动 server                     |
 
 ---
@@ -78,7 +78,6 @@ Paste / CSV
 | Triage Workbench         | Workboard + Dashboard 真实 obligations、Penalty Radar、Evidence drawer 已完成第一版 | Dashboard Brief 解释层还可继续 polish                  |
 | Glass-Box Brief          | 后端 evidence/ai trace 底座已打好                                                   | 尚未实现 source-backed brief；这是下一批 AI 增强优先级 |
 | Pulse Apply              | fixture pipeline / apply / revert 已能演示                                          | 真抓 cron、source drift 和 ops review 继续硬化         |
-| Pay-intent               | 入口还未收口                                                                        | 需要 `$49/mo` event、demo path、analytics / audit 口径 |
 | Demo Readiness           | 主链路可演                                                                          | seed、部署 checklist、Plan B、录屏脚本还要补           |
 
 ---
@@ -150,7 +149,6 @@ AI_GATEWAY_API_KEY=
 | 1      | Dashboard Brief v1.1             | AI 下一步最适合做 source-backed brief，而不是开放 Ask；可直接复用 `dashboard.load`、exposure 和 evidence |
 | 2      | Demo seed + deployment checklist | 让搭档和外部试用能稳定复现，而不是只在开发机上跑通                                                       |
 | 3      | Import report / history          | 对试用有帮助；当前 toast undo 已覆盖 v1 最小撤销                                                         |
-| 4      | Pay-intent event                 | Demo / landing conversion 需要，但不应压过可信导入                                                       |
 
 ### P1 · 再做
 

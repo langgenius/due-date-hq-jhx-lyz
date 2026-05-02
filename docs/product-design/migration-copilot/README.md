@@ -58,12 +58,12 @@
 
 Migration Copilot 的**实现**开工前必须先冻结以下 4 条共享契约（对齐 `../../dev-file/09-Demo-Sprint-Module-Playbook.md` §6 Shared Contract Surface 与 `../../dev-file/10-Demo-Sprint-7Day-Rhythm.md` §4 契约冻结时间表）。冻结前 Migration Copilot 的**产品 UX / Prompt / Fixture / Default Matrix** 可以先做（本册正是为冻结提供输入），但**代码实现**不得动。
 
-| 契约                       | Provider                      | Consumer                                        | 冻结节点 | 当前状态（2026-04-24）                                                   |
-| -------------------------- | ----------------------------- | ----------------------------------------------- | -------- | ------------------------------------------------------------------------ |
-| AI Execution Contract      | AI Orchestrator（Alice）      | Migration · Pulse · Brief                       | Day 2 末 | Activation v1 subset frozen 2026-04-28：Migration mapper/normalizer only |
-| Audit/Evidence Contract    | Evidence + Audit Trail（Bob） | Migration · Pulse · Workboard · Pay-intent · AI | Day 2 末 | Activation v1 subset frozen 2026-04-28：audit write + evidence read      |
-| Client Domain Contract     | Client + Workboard（Bob）     | Migration · Dashboard · Pulse · Demo Seed       | Day 3 末 | Frozen for Migration → Dashboard v1 2026-04-28                           |
-| Obligation Domain Contract | Client + Workboard（Bob）     | Migration · Dashboard · Pulse · Evidence        | Day 3 末 | Frozen for Migration → Workboard/Dashboard v1 2026-04-28                 |
+| 契约                       | Provider                      | Consumer                                  | 冻结节点 | 当前状态（2026-04-24）                                                   |
+| -------------------------- | ----------------------------- | ----------------------------------------- | -------- | ------------------------------------------------------------------------ |
+| AI Execution Contract      | AI Orchestrator（Alice）      | Migration · Pulse · Brief                 | Day 2 末 | Activation v1 subset frozen 2026-04-28：Migration mapper/normalizer only |
+| Audit/Evidence Contract    | Evidence + Audit Trail（Bob） | Migration · Pulse · Workboard · AI        | Day 2 末 | Activation v1 subset frozen 2026-04-28：audit write + evidence read      |
+| Client Domain Contract     | Client + Workboard（Bob）     | Migration · Dashboard · Pulse · Demo Seed | Day 3 末 | Frozen for Migration → Dashboard v1 2026-04-28                           |
+| Obligation Domain Contract | Client + Workboard（Bob）     | Migration · Dashboard · Pulse · Evidence  | Day 3 末 | Frozen for Migration → Workboard/Dashboard v1 2026-04-28                 |
 
 **阻塞门规则：** Activation Slice v1 相关的 AI / Evidence / Client / Obligation 子集已在
 2026-04-28 冻结，足以支撑 Migration → Workboard → Dashboard 主闭环。本册承载的 UX

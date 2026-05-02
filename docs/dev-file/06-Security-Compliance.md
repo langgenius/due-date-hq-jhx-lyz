@@ -99,7 +99,7 @@ const statement = {
 | `dollars.read`               | ✓     | ✓       | ✓                    | 默认 ✗；firm 开关打开才 ✓ |
 | `export.evidence_package`    | ✓     | —       | —                    | —                         |
 
-**边界原则：** Revert 是补救能力，Owner + Manager 都可执行；Owner-only 只用于所有权 / 账户级能力，包括 Firm 删除、Owner 转让、billing/pay-intent、member 管理和全 firm export。Members v1 mutation 网关当前只允许 Owner；Manager 成员管理可在 P1 重新评估。
+**边界原则：** Revert 是补救能力，Owner + Manager 都可执行；Owner-only 只用于所有权 / 账户级能力，包括 Firm 删除、Owner 转让、billing、member 管理和全 firm export。Members v1 mutation 网关当前只允许 Owner；Manager 成员管理可在 P1 重新评估。
 
 ### 3.3 权限检查（P0 Owner-only，Phase 1 完整矩阵）
 
