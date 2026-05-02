@@ -77,7 +77,7 @@ export function LoginRoute() {
 
       <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">
         <Trans>
-          Sign in with Google to access your firm&apos;s deadline queue and evidence-backed
+          Sign in with Google to access your practice&apos;s deadline queue and evidence-backed
           recommendations.
         </Trans>
       </p>

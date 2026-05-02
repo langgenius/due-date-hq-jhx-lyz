@@ -22,11 +22,11 @@ export const routeSummaries = {
   notifications: { eyebrow: msg`Operations`, title: msg`Notifications` },
   opsPulse: { eyebrow: msg`Internal operations`, title: msg`Pulse Ops` },
   clients: { eyebrow: msg`Clients`, title: msg`Clients` },
-  audit: { eyebrow: msg`Organization`, title: msg`Audit log` },
-  firm: { eyebrow: msg`Organization`, title: msg`Firm profile` },
-  members: { eyebrow: msg`Organization`, title: msg`Members` },
-  rules: { eyebrow: msg`Organization`, title: msg`Rules` },
-  billing: { eyebrow: msg`Organization`, title: msg`Billing` },
+  audit: { eyebrow: msg`Practice`, title: msg`Audit log` },
+  firm: { eyebrow: msg`Practice`, title: msg`Practice profile` },
+  members: { eyebrow: msg`Practice`, title: msg`Members` },
+  rules: { eyebrow: msg`Practice`, title: msg`Rules` },
+  billing: { eyebrow: msg`Practice`, title: msg`Billing` },
   billingCheckout: { eyebrow: msg`Billing`, title: msg`Checkout` },
 } satisfies Record<string, RouteSummaryMessages>
 

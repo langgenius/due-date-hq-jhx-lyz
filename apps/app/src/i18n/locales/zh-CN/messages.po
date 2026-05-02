@@ -98,8 +98,8 @@ msgstr "{0} 已完整覆盖 · {1} 有待审 candidate"
 
 #. placeholder {0}: currentFirm?.name
 #: src/routes/billing.success.tsx
-msgid "{0} is on {expectedPlan}"
-msgstr "{0} 已启用 {expectedPlan}"
+msgid "{0} is on {expectedPlanName}"
+msgstr "{0} 已启用 {expectedPlanName}"
 
 #. placeholder {0}: factsModel.summary.manual
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -173,8 +173,8 @@ msgstr "{0} 个暂不支持"
 
 #. placeholder {0}: pendingRemoval.name
 #: src/features/members/members-page.tsx
-msgid "{0} will lose access to this firm. Audit history stays retained."
-msgstr "{0} 将失去此事务所的访问权限。审计历史会继续保留。"
+msgid "{0} will lose access to this practice. Audit history stays retained."
+msgstr "{0} 将失去对该事务所的访问权限。审计历史会保留。"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "{action} recorded"
@@ -384,22 +384,22 @@ msgstr "操作"
 msgid "Active"
 msgstr "活跃"
 
+#: src/features/members/members-page.tsx
+msgid "Active members"
+msgstr "活跃成员"
+
 #: src/routes/billing.tsx
-msgid "Active firm"
+msgid "Active practice"
 msgstr "当前事务所"
 
 #. placeholder {0}: firm.seatLimit
 #: src/routes/firm.tsx
-msgid "Active firm · {currentPlan} plan · {0} seat limit"
+msgid "Active practice · {currentPlan} plan · {0} seat limit"
 msgstr "当前事务所 · {currentPlan} 计划 · {0} 个席位上限"
 
 #: src/routes/firm.tsx
-msgid "Active firm summary"
+msgid "Active practice summary"
 msgstr "当前事务所摘要"
-
-#: src/features/members/members-page.tsx
-msgid "Active members"
-msgstr "活跃成员"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
@@ -412,12 +412,8 @@ msgid "Actor id"
 msgstr "执行人 ID"
 
 #: src/features/clients/CreateClientDialog.tsx
-msgid "Add a manual client record to the active firm directory."
+msgid "Add a manual client record to the active practice directory."
 msgstr "添加手动客户记录到当前事务所目录。"
-
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Add firm"
-msgstr "添加事务所"
 
 #: src/routes/workboard.tsx
 msgid "Add item"
@@ -782,6 +778,10 @@ msgstr "无法加载账单状态"
 msgid "Billing status is not ready yet."
 msgstr "账单状态尚未准备好。"
 
+#: src/routes/billing.tsx
+msgid "Billing stays scoped to the selected practice."
+msgstr "账单仅限定在所选事务所。"
+
 #: src/routes/dashboard.tsx
 msgid "Brief is being prepared. The risk table is ready now."
 msgstr "简报正在后台准备中。风险表现在已经可用。"
@@ -820,7 +820,6 @@ msgstr "已计算"
 msgid "California"
 msgstr "加利福尼亚"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
@@ -890,8 +889,8 @@ msgid "Checking for the latest prepared brief…"
 msgstr "正在检查最新生成的简报…"
 
 #: src/features/workload/workload-page.tsx
-msgid "Checking the active firm plan before loading workload metrics."
-msgstr "正在加载负载指标前检查当前事务所套餐。"
+msgid "Checking the active practice plan before loading workload metrics."
+msgstr "加载工作负载指标前正在检查当前事务所计划。"
 
 #: src/routes/readiness.tsx
 msgid "Checklist"
@@ -934,8 +933,8 @@ msgid "Checkout, cards, invoices, and portal sessions stay with the processor."
 msgstr "支付、银行卡、发票和账单门户会话都保留在支付处理方。"
 
 #: src/routes/billing.tsx
-msgid "Choose a workspace tier"
-msgstr "选择工作区套餐"
+msgid "Choose a plan"
+msgstr "选择计划"
 
 #: src/routes/billing.checkout.tsx
 msgid "Choose another plan"
@@ -950,7 +949,7 @@ msgid "Clear"
 msgstr "清除"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Clear search or filters to return to the full firm directory."
+msgid "Clear search or filters to return to the full practice directory."
 msgstr "清除搜索或筛选以返回完整事务所目录。"
 
 #: src/features/members/members-page.tsx
@@ -1135,16 +1134,12 @@ msgstr "复制链接"
 msgid "Copy source excerpt"
 msgstr "复制原文摘录"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Could not create firm."
-msgstr "无法创建事务所。"
-
 #: src/routes/onboarding.tsx
 msgid "Could not create your practice"
 msgstr "无法创建你的事务所"
 
 #: src/routes/firm.tsx
-msgid "Could not delete firm."
+msgid "Could not delete practice."
 msgstr "无法删除事务所。"
 
 #: src/features/audit/audit-log-page.tsx
@@ -1192,7 +1187,7 @@ msgid "Could not run obligation preview."
 msgstr "无法运行事项预览。"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Could not switch firm."
+msgid "Could not switch practice."
 msgstr "无法切换事务所。"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
@@ -1200,7 +1195,7 @@ msgid "Could not undo client"
 msgstr "无法撤销客户"
 
 #: src/routes/firm.tsx
-msgid "Could not update firm."
+msgid "Could not update practice."
 msgstr "无法更新事务所。"
 
 #: src/features/migration/Wizard.tsx
@@ -1356,9 +1351,9 @@ msgstr "县"
 msgid "Coverage"
 msgstr "覆盖"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
-msgstr "创建一个独立租户，拥有独立的客户、截止日、审计轨迹和设置。"
+#: src/routes/billing.checkout.tsx
+msgid "Create a practice before starting checkout."
+msgstr "请先创建事务所再开始支付。"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Create a ZIP with a PDF report, audit events, evidence links, and manifest."
@@ -1375,14 +1370,6 @@ msgstr "创建客户"
 #: src/features/migration/WizardShell.tsx
 msgid "Create clients"
 msgstr "创建客户"
-
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Create firm"
-msgstr "创建事务所"
-
-#: src/routes/billing.checkout.tsx
-msgid "Create or select a firm before starting checkout."
-msgstr "开始支付前，请先创建或选择一个事务所。"
 
 #: src/routes/route-summary.ts
 msgid "Create practice"
@@ -1403,10 +1390,6 @@ msgstr "正在创建客户、截止日、证据链接和审计记录。"
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Creating..."
 msgstr "正在创建..."
-
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Creating…"
-msgstr "正在创建…"
 
 #: src/routes/dashboard.tsx
 msgid "critical"
@@ -1535,11 +1518,11 @@ msgid "Degraded"
 msgstr "降级"
 
 #: src/routes/firm.tsx
-msgid "Delete firm"
+msgid "Delete practice"
 msgstr "删除事务所"
 
 #: src/routes/firm.tsx
-msgid "Delete this firm?"
+msgid "Delete this practice?"
 msgstr "删除这个事务所？"
 
 #: src/routes/workboard.tsx
@@ -1654,7 +1637,6 @@ msgstr "DueDateHQ 字段"
 msgid "DueDateHQ readiness portal"
 msgstr "DueDateHQ 准备状态门户"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
 msgid "e.g. Bright CPA Practice"
 msgstr "例如：Bright CPA Practice"
@@ -1949,82 +1931,6 @@ msgstr "按来源筛选"
 #: src/features/audit/audit-log-page.tsx
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "按时间范围、操作分类、操作、执行人或实体类型筛选。"
-
-#: src/components/patterns/app-shell.tsx
-#: src/features/audit/audit-log-labels.ts
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-#: src/routes/firm.tsx
-msgid "Firm"
-msgstr "Firm"
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm context"
-msgstr "事务所上下文"
-
-#: src/routes/billing.tsx
-msgid "Firm context could not load"
-msgstr "无法加载事务所上下文"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm created"
-msgstr "事务所已创建"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm deleted"
-msgstr "事务所已删除"
-
-#: src/features/audit/audit-event-drawer.tsx
-msgid "Firm id"
-msgstr "事务所 ID"
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm is a sales-assisted plan. Contact sales from Billing."
-msgstr "Firm 是销售协助计划。请从 Billing 联系销售。"
-
-#: src/components/patterns/app-shell-nav.tsx
-#: src/routes/firm.tsx
-msgid "Firm name"
-msgstr "事务所名称"
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm plan changes require sales support."
-msgstr "Firm 计划变更需要销售支持。"
-
-#: src/components/patterns/app-shell-nav.tsx
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/firm.tsx
-#: src/routes/route-summary.ts
-msgid "Firm profile"
-msgstr "事务所资料"
-
-#: src/routes/firm.tsx
-msgid "Firm profile applies only to the active tenant."
-msgstr "事务所资料仅适用于当前活跃租户。"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm profile changed"
-msgstr "事务所资料已变更"
-
-#: src/routes/firm.tsx
-msgid "Firm profile could not load"
-msgstr "无法加载事务所资料"
-
-#: src/routes/firm.tsx
-msgid "Firm profile saved"
-msgstr "事务所资料已保存"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm switched"
-msgstr "事务所已切换"
-
-#: src/features/audit/audit-event-drawer.tsx
-msgid "Firm time"
-msgstr "事务所时间"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm updated"
-msgstr "事务所已更新"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -2462,7 +2368,7 @@ msgid "Manage client facts and readiness."
 msgstr "管理客户事实与就绪度。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Manage firm seats, roles, and invitations."
+msgid "Manage practice seats, roles, and invitations."
 msgstr "管理事务所席位、角色和邀请。"
 
 #: src/features/audit/audit-log-labels.ts
@@ -2726,8 +2632,8 @@ msgid "New York"
 msgstr "纽约"
 
 #: src/features/audit/audit-log-page.tsx
-msgid "Newest firm-scoped audit events appear first."
-msgstr "事务所范围内最新审计事件优先显示。"
+msgid "Newest practice-scoped audit events appear first."
+msgstr "最新的事务所范围审计事件会优先显示。"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Next"
@@ -2760,8 +2666,8 @@ msgstr "否"
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 #: src/routes/firm.tsx
-msgid "No active firm is selected."
-msgstr "当前未选择事务所。"
+msgid "No active practice is selected."
+msgstr "未选择当前事务所。"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "No alerts match these filters."
@@ -2865,10 +2771,6 @@ msgstr "无可用延期。"
 msgid "No failed snapshots."
 msgstr "没有失败快照。"
 
-#: src/routes/billing.checkout.tsx
-msgid "No firm selected"
-msgstr "未选择事务所"
-
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "No forms"
@@ -2887,8 +2789,8 @@ msgid "No matched rule"
 msgstr "没有匹配规则"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
-msgid "No matching clients in this firm."
-msgstr "当前事务所没有匹配的客户。"
+msgid "No matching clients in this practice."
+msgstr "该事务所没有匹配客户。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
@@ -2925,6 +2827,10 @@ msgstr "尚无可用的罚金明细。"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "No pending Pulse extracts."
 msgstr "没有待复核的 Pulse 提取结果。"
+
+#: src/routes/billing.checkout.tsx
+msgid "No practice selected"
+msgstr "未选择事务所"
 
 #: src/routes/dashboard.tsx
 msgid "No prepared brief yet"
@@ -3158,16 +3064,8 @@ msgid "Onboarding turn opened"
 msgstr "引导对话轮次已打开"
 
 #: src/routes/billing.tsx
-msgid "One owner workspace"
-msgstr "单 Owner 工作区"
-
-#: src/routes/billing.tsx
-msgid "Only firm owners can change plans or open the portal."
-msgstr "只有事务所 Owner 可以变更计划或打开账单门户。"
-
-#: src/routes/billing.checkout.tsx
-msgid "Only firm owners can start or change a subscription."
-msgstr "只有事务所 Owner 可以创建或变更订阅。"
+msgid "One owner practice"
+msgstr "单 Owner 事务所"
 
 #: src/features/pulse/lib/error-mapping.ts
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -3178,9 +3076,17 @@ msgstr "仅 Owner 与 Manager 可应用监管提醒。"
 msgid "Only owners can manage billing."
 msgstr "只有 Owner 可以管理账单。"
 
+#: src/routes/billing.tsx
+msgid "Only practice owners can change plans or open the portal."
+msgstr "只有事务所 Owner 可以更改计划或打开门户。"
+
 #: src/routes/billing.checkout.tsx
-msgid "Only the firm owner can start or change a subscription."
-msgstr "只有事务所 Owner 可以开始或变更订阅。"
+msgid "Only practice owners can start or change a subscription."
+msgstr "只有事务所 Owner 可以开始或更改订阅。"
+
+#: src/routes/billing.checkout.tsx
+msgid "Only the practice owner can start or change a subscription."
+msgstr "只有事务所 Owner 可以开始或更改订阅。"
 
 #: src/features/migration/Step2Mapping.tsx
 #: src/features/notifications/notifications-page.tsx
@@ -3306,19 +3212,6 @@ msgstr "可选备注"
 msgid "or"
 msgstr "或"
 
-#: src/components/patterns/app-shell-nav.tsx
-#: src/features/audit/audit-log-page.tsx
-#: src/features/members/members-page.tsx
-#: src/routes/billing.tsx
-#: src/routes/firm.tsx
-#: src/routes/route-summary.ts
-msgid "Organization"
-msgstr "组织"
-
-#: src/routes/billing.tsx
-msgid "Organization billing stays scoped to the selected firm."
-msgstr "组织账单始终限定在当前选中的事务所。"
-
 #: src/routes/clients.tsx
 msgid "Other"
 msgstr "其他"
@@ -3394,8 +3287,8 @@ msgid "Paid feature"
 msgstr "付费功能"
 
 #: src/routes/billing.tsx
-msgid "Paid subscriptions bill the organization, not an individual user."
-msgstr "付费订阅向组织收费，而不是向单个用户收费。"
+msgid "Paid subscriptions bill the practice, not an individual user."
+msgstr "付费订阅向事务所计费，而不是个人用户。"
 
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
@@ -3526,7 +3419,6 @@ msgstr "计划选项"
 msgid "Plan summary"
 msgstr "计划摘要"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/firm.tsx
 #: src/routes/onboarding.tsx
 msgid "Please enter at least 2 characters."
@@ -3557,13 +3449,84 @@ msgstr "政策"
 msgid "Portal link copied"
 msgstr "门户链接已复制"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/features/audit/audit-log-labels.ts
+#: src/features/audit/audit-log-page.tsx
+#: src/features/members/members-page.tsx
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
+#: src/routes/route-summary.ts
+msgid "Practice"
+msgstr "事务所"
+
+#: src/routes/billing.checkout.tsx
+msgid "Practice context"
+msgstr "事务所上下文"
+
+#: src/routes/billing.tsx
+msgid "Practice context could not load"
+msgstr "无法加载事务所上下文"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice created"
+msgstr "事务所已创建"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice deleted"
+msgstr "事务所已删除"
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Practice ID"
+msgstr "事务所 ID"
+
+#: src/routes/firm.tsx
 #: src/routes/onboarding.tsx
 msgid "Practice name"
 msgstr "事务所名称"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/firm.tsx
+#: src/routes/route-summary.ts
+msgid "Practice profile"
+msgstr "事务所资料"
+
 #: src/routes/onboarding.tsx
 msgid "PRACTICE PROFILE"
 msgstr "事务所资料"
+
+#: src/routes/firm.tsx
+msgid "Practice profile applies only to the active practice."
+msgstr "事务所资料仅适用于当前事务所。"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice profile changed"
+msgstr "事务所资料已更改"
+
+#: src/routes/firm.tsx
+msgid "Practice profile could not load"
+msgstr "无法加载事务所资料"
+
+#: src/routes/firm.tsx
+msgid "Practice profile saved"
+msgstr "事务所资料已保存"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice switched"
+msgstr "事务所已切换"
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Practice time"
+msgstr "事务所时间"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice updated"
+msgstr "事务所已更新"
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Practices"
+msgstr "事务所"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Preferences"
@@ -3619,6 +3582,7 @@ msgstr "适合需要优先 onboarding、审计导出和更高覆盖的团队。"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
+#: src/routes/billing.success.tsx
 #: src/routes/billing.tsx
 #: src/routes/firm.tsx
 msgid "Pro"
@@ -3797,8 +3761,8 @@ msgid "READ-ONLY"
 msgstr "只读"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Read-only v1 profile from clients.listByFirm data."
-msgstr "来自 clients.listByFirm 数据的只读 v1 档案。"
+msgid "Read-only v1 profile from practice client data."
+msgstr "来自事务所客户数据的只读 v1 资料。"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Read-only view"
@@ -3908,8 +3872,8 @@ msgid "Refreshing the AI mapping"
 msgstr "正在刷新 AI 映射"
 
 #: src/features/pulse/AlertsListPage.tsx
-msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
-msgstr "匹配您事务所客户的监管 Pulse 信号。可复核、批量应用截止日变更、暂缓，或回看已关闭提醒。"
+msgid "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
+msgstr "匹配你事务所客户的监管 Pulse 信号。复核、批量应用截止日变更、暂缓，或重新查看已关闭提醒。"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Reject"
@@ -3941,7 +3905,7 @@ msgid "Remove checklist item"
 msgstr "删除检查项"
 
 #: src/features/members/members-page.tsx
-msgid "Remove from firm"
+msgid "Remove from practice"
 msgstr "从事务所移除"
 
 #: src/features/members/members-page.tsx
@@ -3992,8 +3956,8 @@ msgid "Reset"
 msgstr "重置"
 
 #: src/features/audit/audit-log-page.tsx
-msgid "Reset filters to return to the latest firm-wide events."
-msgstr "重置筛选以返回最新的事务所事件。"
+msgid "Reset filters to return to the latest practice-wide events."
+msgstr "重置筛选以返回最新的事务所范围事件。"
 
 #: src/routes/billing.cancel.tsx
 msgid "Restart checkout"
@@ -4052,17 +4016,17 @@ msgstr "查看"
 msgid "review — needs CPA confirmation"
 msgstr "复核 —— 需 CPA 确认"
 
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Review firm-wide audit events."
-msgstr "查看事务所范围内的审计事件。"
-
-#: src/features/audit/audit-log-page.tsx
-msgid "Review firm-wide write events, what changed, and actor metadata."
-msgstr "查看事务所范围内的写入事件、变更内容和执行人元数据。"
-
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Review pending Pulse extracts, inspect source health, reconcile signals, and retry failed snapshots. This page uses the token-protected ops API."
 msgstr "复核待处理的 Pulse 提取结果、检查来源健康状态、核对信号并重试失败快照。此页面使用 token 保护的 ops API。"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review practice-wide audit events."
+msgstr "查看事务所范围内的审计事件。"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Review practice-wide write events, what changed, and actor metadata."
+msgstr "查看事务所范围内的写入事件、变更内容和执行人元数据。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review risk and operating pressure."
@@ -4084,16 +4048,16 @@ msgstr "查看有来源依据的 Pulse 提醒。"
 msgid "Review team capacity and risk pressure."
 msgstr "查看团队产能与风险压力。"
 
-#: src/routes/billing.tsx
-msgid "Review the active firm plan, open billing controls, and choose the right workspace tier."
-msgstr "查看当前事务所计划、打开账单控制，并选择合适的工作区套餐。"
-
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review the active plan and billing controls."
 msgstr "查看当前计划和账单控制。"
 
+#: src/routes/billing.tsx
+msgid "Review the active practice plan, open billing controls, and choose the right plan."
+msgstr "查看当前事务所计划、打开账单控制，并选择合适的计划。"
+
 #: src/routes/billing.checkout.tsx
-msgid "Review the firm subscription before opening secure checkout."
+msgid "Review the practice subscription before opening secure checkout."
 msgstr "打开安全支付前，请先核对事务所订阅。"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -4329,6 +4293,23 @@ msgstr "正在保存已确认字段，并将值分组以供复核。"
 msgid "Saving…"
 msgstr "正在保存…"
 
+#: src/components/patterns/app-shell.tsx
+#: src/features/audit/audit-log-labels.ts
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.success.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
+msgid "Scale"
+msgstr "Scale"
+
+#: src/routes/billing.checkout.tsx
+msgid "Scale is a sales-assisted plan. Contact sales from Billing."
+msgstr "Scale 是销售协助计划。请从账单页联系销售。"
+
+#: src/routes/billing.checkout.tsx
+msgid "Scale plan changes require sales support."
+msgstr "Scale 计划变更需要销售支持。"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Scope"
 msgstr "范围"
@@ -4432,12 +4413,12 @@ msgid "Selected plan"
 msgstr "已选计划"
 
 #: src/routes/billing.tsx
-msgid "Self-serve Pro changes use secure checkout and keep the active firm as reference."
-msgstr "Pro 自助变更使用安全 checkout，并以当前事务所作为引用对象。"
+msgid "Self-serve Pro changes use secure checkout and keep the active practice as reference."
+msgstr "自助 Pro 变更使用安全支付，并以当前事务所作为引用。"
 
 #: src/features/members/members-page.tsx
-msgid "Send a 7-day magic link to add a member to this firm."
-msgstr "发送 7 天有效的 magic link，将成员添加到此事务所。"
+msgid "Send a 7-day magic link to add a member to this practice."
+msgstr "发送 7 天有效的 magic link，将成员添加到该事务所。"
 
 #: src/features/members/members-page.tsx
 msgid "Send invite"
@@ -4482,8 +4463,8 @@ msgid "Shared deadline operations for a growing CPA practice."
 msgstr "适合成长中的 CPA 事务所共享截止日运营。"
 
 #: src/features/workload/workload-page.tsx
-msgid "Shared deadline operations for Pro and Firm plans."
-msgstr "Pro 和 Firm 计划可使用共享截止日运营。"
+msgid "Shared deadline operations for Pro and Scale plans."
+msgstr "Pro 和 Scale 计划可使用共享截止日运营。"
 
 #. placeholder {0}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
@@ -4520,8 +4501,8 @@ msgid "SIGN IN"
 msgstr "登录"
 
 #: src/routes/login.tsx
-msgid "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
-msgstr "使用 Google 登录，进入事务所的截止日期队列与可溯源的建议。"
+msgid "Sign in with Google to access your practice's deadline queue and evidence-backed recommendations."
+msgstr "使用 Google 登录，进入你事务所的截止日期队列与可溯源建议。"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out"
@@ -4578,6 +4559,8 @@ msgid "Sole prop"
 msgstr "个体经营"
 
 #: src/components/patterns/app-shell.tsx
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.success.tsx
 #: src/routes/billing.tsx
 #: src/routes/firm.tsx
 msgid "Solo"
@@ -4768,8 +4751,8 @@ msgstr "已暂停"
 
 #. placeholder {0}: firm.name
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Switch firm — current {0}"
-msgstr "切换事务所 · 当前 {0}"
+msgid "Switch practice, current {0}"
+msgstr "切换事务所，当前为 {0}"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-event-drawer.tsx
@@ -4831,8 +4814,8 @@ msgid "Team workload is available on Pro"
 msgstr "Team workload 可在 Pro 使用"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Team workload is available on Pro and Firm plans."
-msgstr "Team workload 可在 Pro 和 Firm 计划使用。"
+msgid "Team workload is available on Pro and Scale plans."
+msgstr "Team workload 可在 Pro 和 Scale 计划使用。"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -4860,10 +4843,6 @@ msgstr "账单缓存和订阅状态现在一致。"
 msgid "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
 msgstr "账单门户会在支付服务商处打开，用于查看发票、支付方式和取消订阅。"
 
-#: src/routes/firm.tsx
-msgid "The firm will be removed from the picker. Audit history stays retained for compliance."
-msgstr "该事务所会从切换器中移除。审计历史会继续保留以满足合规要求。"
-
 #: src/routes/workboard.tsx
 msgid "The memo is stored on the audit trail for the bulk status change."
 msgstr "该备注会记录在这次批量状态变更的审计轨迹中。"
@@ -4875,6 +4854,10 @@ msgstr "以上数字根据你确认的字段映射、默认税种矩阵和已验
 #: src/routes/billing.tsx
 msgid "The payment provider is the source of truth; DueDateHQ caches the active plan."
 msgstr "支付服务商是事实来源；DueDateHQ 会缓存当前激活计划。"
+
+#: src/routes/firm.tsx
+msgid "The practice will be removed from your account. Audit history stays retained for compliance."
+msgstr "该事务所会从你的账户中移除。审计历史会保留以满足合规要求。"
 
 #: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."
@@ -4889,7 +4872,7 @@ msgid "The selected plan is still available from Billing."
 msgstr "所选计划仍可在账单页中使用。"
 
 #: src/routes/billing.checkout.tsx
-msgid "The subscription applies to the active firm."
+msgid "The subscription applies to the active practice."
 msgstr "该订阅会应用到当前事务所。"
 
 #: src/components/patterns/app-shell-user-menu.tsx
@@ -4908,10 +4891,6 @@ msgstr "该操作与当前状态冲突，请刷新后重试。"
 msgid "This alert is no longer available."
 msgstr "该提醒已不可用。"
 
-#: src/routes/billing.checkout.tsx
-msgid "This firm already has the selected plan."
-msgstr "该事务所已经启用所选计划。"
-
 #: src/routes/workboard.tsx
 msgid "This is an internal decision record. It does not update the due date or confirm an authority filing. Payment may still be due by the original date."
 msgstr "这是内部决策记录。它不会更新截止日，也不确认已向主管机关申报。付款仍可能需要在原截止日前完成。"
@@ -4927,6 +4906,10 @@ msgstr "本月"
 #: src/routes/billing.success.tsx
 msgid "This page will keep checking. You can also return to Billing and refresh later."
 msgstr "此页面会继续检查。你也可以返回账单页稍后刷新。"
+
+#: src/routes/billing.checkout.tsx
+msgid "This practice already has the selected plan."
+msgstr "该事务所已经启用所选计划。"
 
 #: src/routes/readiness.tsx
 msgid "This readiness link is expired, revoked, or invalid."
@@ -4945,8 +4928,8 @@ msgid "This removes the clients and deadlines created by this import. Other prac
 msgstr "这会移除此导入创建的客户和截止日。其他事务所数据不会被更改。"
 
 #: src/routes/firm.tsx
-msgid "This soft-deletes the active firm and moves you to another available firm."
-msgstr "这会软删除当前事务所，并将你切换到另一个可用事务所。"
+msgid "This soft-deletes the active practice. If another practice is available, you will be moved there."
+msgstr "这会软删除当前事务所。如果还有其他可用事务所，你会被切换过去。"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "This source is no longer trusted. The historical alert remains visible, but new apply, dismiss, snooze, and undo actions are disabled."
@@ -4972,7 +4955,6 @@ msgstr "时间"
 msgid "Time range"
 msgstr "时间范围"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/features/audit/audit-log-labels.ts
 #: src/routes/firm.tsx
 msgid "Timezone"
@@ -5077,7 +5059,7 @@ msgid "Update active view"
 msgstr "更新当前视图"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Update the active firm's name and timezone."
+msgid "Update the active practice's name and timezone."
 msgstr "更新当前事务所的名称和时区。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -5119,8 +5101,8 @@ msgid "UTC time"
 msgstr "UTC 时间"
 
 #: src/routes/clients.tsx
-msgid "Validate the firm client facts that generate obligations, dashboard risk, and Pulse matches."
-msgstr "校验用于生成义务、仪表盘风险和 Pulse 匹配的事务所客户事实。"
+msgid "Validate the practice client facts that generate obligations, dashboard risk, and Pulse matches."
+msgstr "核验事务所客户事实，这些事实会生成义务、仪表盘风险和 Pulse 匹配。"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "verifiable per (jurisdiction, entity) pair"
@@ -5249,7 +5231,7 @@ msgid "We normalized {0} values — review if needed"
 msgstr "我们已规范化 {0} 个值 —— 需要的话请复核"
 
 #: src/routes/onboarding.tsx
-msgid "We pre-filled a name from your Google profile. You can change it now or anytime in Firm profile."
+msgid "We pre-filled a name from your Google profile. You can change it now or anytime in the Practice profile."
 msgstr "我们已从你的 Google 资料预填名称。你现在可以修改，也可以稍后在事务所资料中修改。"
 
 #: src/features/migration/Step1Intake.tsx
@@ -5316,10 +5298,6 @@ msgstr "工作台状态更新和客户导入在写入审计记录后会显示在
 msgid "Working…"
 msgstr "处理中…"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Workspaces"
-msgstr "工作空间"
-
 #: src/features/audit/audit-log-labels.ts
 msgid "XLSX"
 msgstr "XLSX"
@@ -5356,10 +5334,6 @@ msgstr "你的账户尚未关联任何事务所。"
 msgid "Your column"
 msgstr "你的列"
 
-#: src/routes/billing.success.tsx
-msgid "Your firm plan is ready."
-msgstr "你的事务所计划已就绪。"
-
 #: src/features/migration/WizardShell.tsx
 msgid "Your pasted data and unsaved edits in this wizard will be lost."
 msgstr "你粘贴的数据和向导中未保存的修改将会丢失。"
@@ -5367,3 +5341,7 @@ msgstr "你粘贴的数据和向导中未保存的修改将会丢失。"
 #: src/lib/i18n-error.ts
 msgid "Your practice is suspended. Contact support to restore access."
 msgstr "你的事务所已被停用，请联系支持团队恢复访问。"
+
+#: src/routes/billing.success.tsx
+msgid "Your practice plan is ready."
+msgstr "你的事务所计划已就绪。"

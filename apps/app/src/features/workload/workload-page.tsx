@@ -54,7 +54,7 @@ export function WorkloadPage() {
               <Trans>Loading team workload</Trans>
             </CardTitle>
             <CardDescription>
-              <Trans>Checking the active firm plan before loading workload metrics.</Trans>
+              <Trans>Checking the active practice plan before loading workload metrics.</Trans>
             </CardDescription>
           </CardHeader>
         </Card>
@@ -73,7 +73,7 @@ export function WorkloadPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="grid gap-1">
           <p className="text-sm text-text-secondary">
-            <Trans>Shared deadline operations for Pro and Firm plans.</Trans>
+            <Trans>Shared deadline operations for Pro and Scale plans.</Trans>
           </p>
           <p className="font-mono text-xs tabular-nums text-text-muted">
             <Trans>

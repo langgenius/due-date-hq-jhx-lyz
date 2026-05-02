@@ -203,7 +203,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
       <header className="flex min-h-20 flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-xs font-medium tracking-[0.08em] text-text-tertiary uppercase">
-            <Trans>Organization</Trans>
+            <Trans>Practice</Trans>
           </p>
           <h1 className="mt-0.5 text-2xl leading-[30px] font-semibold text-text-primary">
             <Trans>Members</Trans>
@@ -320,7 +320,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingRemoval
-                ? t`${pendingRemoval.name} will lose access to this firm. Audit history stays retained.`
+                ? t`${pendingRemoval.name} will lose access to this practice. Audit history stays retained.`
                 : null}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -335,7 +335,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
                 if (pendingRemoval) removeMutation.mutate({ memberId: pendingRemoval.id })
               }}
             >
-              <Trans>Remove from firm</Trans>
+              <Trans>Remove from practice</Trans>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -745,7 +745,7 @@ function MemberActionsMenu({
           variant="destructive"
           onClick={() => onRemove({ id: member.id, name: member.name })}
         >
-          <Trans>Remove from firm</Trans>
+          <Trans>Remove from practice</Trans>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -792,7 +792,7 @@ function InviteMemberDialog({
             <Trans>Invite a teammate</Trans>
           </DialogTitle>
           <DialogDescription className="text-xs">
-            <Trans>Send a 7-day magic link to add a member to this firm.</Trans>
+            <Trans>Send a 7-day magic link to add a member to this practice.</Trans>
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4">

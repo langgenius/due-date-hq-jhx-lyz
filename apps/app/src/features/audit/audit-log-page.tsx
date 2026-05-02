@@ -498,7 +498,7 @@ export function AuditLogPage() {
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <header className="flex flex-col gap-2">
         <span className="text-xs font-medium tracking-wider text-text-tertiary uppercase">
-          <Trans>Organization</Trans>
+          <Trans>Practice</Trans>
         </span>
         <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-1">
@@ -506,7 +506,7 @@ export function AuditLogPage() {
               <Trans>Audit log</Trans>
             </h1>
             <p className="max-w-180 text-md text-text-secondary">
-              <Trans>Review firm-wide write events, what changed, and actor metadata.</Trans>
+              <Trans>Review practice-wide write events, what changed, and actor metadata.</Trans>
             </p>
           </div>
           <AuditExportButton />
@@ -617,7 +617,7 @@ export function AuditLogPage() {
             <Trans>Event stream</Trans>
           </CardTitle>
           <CardDescription>
-            <Trans>Newest firm-scoped audit events appear first.</Trans>
+            <Trans>Newest practice-scoped audit events appear first.</Trans>
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -645,7 +645,7 @@ export function AuditLogPage() {
               </h2>
               <p className="text-sm text-text-secondary">
                 {filtersActive ? (
-                  <Trans>Reset filters to return to the latest firm-wide events.</Trans>
+                  <Trans>Reset filters to return to the latest practice-wide events.</Trans>
                 ) : (
                   <Trans>
                     Workboard status updates and client imports will appear here when they write

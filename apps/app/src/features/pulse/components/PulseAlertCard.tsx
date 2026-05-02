@@ -68,7 +68,7 @@ export function PulseAlertCard({
 
       <p className="pl-4 text-sm text-text-secondary">
         {impacted === 0 ? (
-          <Trans>No matching clients in this firm.</Trans>
+          <Trans>No matching clients in this practice.</Trans>
         ) : (
           <>
             <span className="font-mono tabular-nums text-text-primary">

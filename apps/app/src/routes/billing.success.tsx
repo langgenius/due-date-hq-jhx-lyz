@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { Trans } from '@lingui/react/macro'
+import { Trans, useLingui } from '@lingui/react/macro'
 import { ArrowRightIcon, CheckCircle2Icon, ClockIcon } from 'lucide-react'
 import { useQueryStates } from 'nuqs'
 
@@ -20,6 +20,7 @@ import { billingSearchParamsParsers } from '@/features/billing/model'
 import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
 
 export function BillingSuccessRoute() {
+  const { t } = useLingui()
   const [{ plan: expectedPlan }] = useQueryStates(billingSearchParamsParsers)
   const { firmsQuery, currentFirm } = useCurrentFirm({ poll: true })
   const subscriptionsQuery = useBillingSubscriptions(currentFirm, true)
@@ -28,6 +29,14 @@ export function BillingSuccessRoute() {
   )
   const activated = currentFirm?.plan === expectedPlan && activeSubscription?.plan === expectedPlan
   const statusError = firmsQuery.isError || subscriptionsQuery.isError
+  const expectedPlanName =
+    expectedPlan === 'firm' ? t`Scale` : expectedPlan === 'pro' ? t`Pro` : t`Solo`
+  const activePlanName =
+    activeSubscription?.plan === 'firm'
+      ? t`Scale`
+      : activeSubscription?.plan === 'pro'
+        ? t`Pro`
+        : activeSubscription?.plan
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
@@ -54,7 +63,7 @@ export function BillingSuccessRoute() {
           </CardTitle>
           <CardDescription>
             {activated ? (
-              <Trans>Your firm plan is ready.</Trans>
+              <Trans>Your practice plan is ready.</Trans>
             ) : (
               <Trans>Payment confirmation can take a few seconds.</Trans>
             )}
@@ -83,7 +92,7 @@ export function BillingSuccessRoute() {
               <CheckCircle2Icon />
               <AlertTitle>
                 <Trans>
-                  {currentFirm?.name} is on {expectedPlan}
+                  {currentFirm?.name} is on {expectedPlanName}
                 </Trans>
               </AlertTitle>
               <AlertDescription>
@@ -106,7 +115,7 @@ export function BillingSuccessRoute() {
           {activeSubscription ? (
             <div className="flex flex-wrap gap-2">
               <Badge variant="outline">{activeSubscription.status}</Badge>
-              <Badge variant="outline">{activeSubscription.plan}</Badge>
+              <Badge variant="outline">{activePlanName}</Badge>
               {activeSubscription.billingInterval ? (
                 <Badge variant="outline">{activeSubscription.billingInterval}</Badge>
               ) : null}

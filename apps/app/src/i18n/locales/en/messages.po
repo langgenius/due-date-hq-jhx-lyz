@@ -98,8 +98,8 @@ msgstr "{0} fully covered · {1} with open candidates"
 
 #. placeholder {0}: currentFirm?.name
 #: src/routes/billing.success.tsx
-msgid "{0} is on {expectedPlan}"
-msgstr "{0} is on {expectedPlan}"
+msgid "{0} is on {expectedPlanName}"
+msgstr "{0} is on {expectedPlanName}"
 
 #. placeholder {0}: factsModel.summary.manual
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -173,8 +173,8 @@ msgstr "{0} unsupported"
 
 #. placeholder {0}: pendingRemoval.name
 #: src/features/members/members-page.tsx
-msgid "{0} will lose access to this firm. Audit history stays retained."
-msgstr "{0} will lose access to this firm. Audit history stays retained."
+msgid "{0} will lose access to this practice. Audit history stays retained."
+msgstr "{0} will lose access to this practice. Audit history stays retained."
 
 #: src/features/audit/audit-log-labels.ts
 msgid "{action} recorded"
@@ -384,22 +384,22 @@ msgstr "Actions"
 msgid "Active"
 msgstr "Active"
 
-#: src/routes/billing.tsx
-msgid "Active firm"
-msgstr "Active firm"
-
-#. placeholder {0}: firm.seatLimit
-#: src/routes/firm.tsx
-msgid "Active firm · {currentPlan} plan · {0} seat limit"
-msgstr "Active firm · {currentPlan} plan · {0} seat limit"
-
-#: src/routes/firm.tsx
-msgid "Active firm summary"
-msgstr "Active firm summary"
-
 #: src/features/members/members-page.tsx
 msgid "Active members"
 msgstr "Active members"
+
+#: src/routes/billing.tsx
+msgid "Active practice"
+msgstr "Active practice"
+
+#. placeholder {0}: firm.seatLimit
+#: src/routes/firm.tsx
+msgid "Active practice · {currentPlan} plan · {0} seat limit"
+msgstr "Active practice · {currentPlan} plan · {0} seat limit"
+
+#: src/routes/firm.tsx
+msgid "Active practice summary"
+msgstr "Active practice summary"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
@@ -412,12 +412,8 @@ msgid "Actor id"
 msgstr "Actor id"
 
 #: src/features/clients/CreateClientDialog.tsx
-msgid "Add a manual client record to the active firm directory."
-msgstr "Add a manual client record to the active firm directory."
-
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Add firm"
-msgstr "Add firm"
+msgid "Add a manual client record to the active practice directory."
+msgstr "Add a manual client record to the active practice directory."
 
 #: src/routes/workboard.tsx
 msgid "Add item"
@@ -782,6 +778,10 @@ msgstr "Billing status could not load"
 msgid "Billing status is not ready yet."
 msgstr "Billing status is not ready yet."
 
+#: src/routes/billing.tsx
+msgid "Billing stays scoped to the selected practice."
+msgstr "Billing stays scoped to the selected practice."
+
 #: src/routes/dashboard.tsx
 msgid "Brief is being prepared. The risk table is ready now."
 msgstr "Brief is being prepared. The risk table is ready now."
@@ -820,7 +820,6 @@ msgstr "Calculated"
 msgid "California"
 msgstr "California"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
@@ -890,8 +889,8 @@ msgid "Checking for the latest prepared brief…"
 msgstr "Checking for the latest prepared brief…"
 
 #: src/features/workload/workload-page.tsx
-msgid "Checking the active firm plan before loading workload metrics."
-msgstr "Checking the active firm plan before loading workload metrics."
+msgid "Checking the active practice plan before loading workload metrics."
+msgstr "Checking the active practice plan before loading workload metrics."
 
 #: src/routes/readiness.tsx
 msgid "Checklist"
@@ -934,8 +933,8 @@ msgid "Checkout, cards, invoices, and portal sessions stay with the processor."
 msgstr "Checkout, cards, invoices, and portal sessions stay with the processor."
 
 #: src/routes/billing.tsx
-msgid "Choose a workspace tier"
-msgstr "Choose a workspace tier"
+msgid "Choose a plan"
+msgstr "Choose a plan"
 
 #: src/routes/billing.checkout.tsx
 msgid "Choose another plan"
@@ -950,8 +949,8 @@ msgid "Clear"
 msgstr "Clear"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Clear search or filters to return to the full firm directory."
-msgstr "Clear search or filters to return to the full firm directory."
+msgid "Clear search or filters to return to the full practice directory."
+msgstr "Clear search or filters to return to the full practice directory."
 
 #: src/features/members/members-page.tsx
 msgid "Click more to change role, suspend, or remove"
@@ -1135,17 +1134,13 @@ msgstr "Copy link"
 msgid "Copy source excerpt"
 msgstr "Copy source excerpt"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Could not create firm."
-msgstr "Could not create firm."
-
 #: src/routes/onboarding.tsx
 msgid "Could not create your practice"
 msgstr "Could not create your practice"
 
 #: src/routes/firm.tsx
-msgid "Could not delete firm."
-msgstr "Could not delete firm."
+msgid "Could not delete practice."
+msgstr "Could not delete practice."
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Could not load audit events"
@@ -1192,16 +1187,16 @@ msgid "Could not run obligation preview."
 msgstr "Could not run obligation preview."
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Could not switch firm."
-msgstr "Could not switch firm."
+msgid "Could not switch practice."
+msgstr "Could not switch practice."
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Could not undo client"
 msgstr "Could not undo client"
 
 #: src/routes/firm.tsx
-msgid "Could not update firm."
-msgstr "Could not update firm."
+msgid "Could not update practice."
+msgstr "Could not update practice."
 
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't apply Default Matrix"
@@ -1356,9 +1351,9 @@ msgstr "County"
 msgid "Coverage"
 msgstr "Coverage"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
-msgstr "Create a separate tenant with its own clients, deadlines, audit trail, and settings."
+#: src/routes/billing.checkout.tsx
+msgid "Create a practice before starting checkout."
+msgstr "Create a practice before starting checkout."
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Create a ZIP with a PDF report, audit events, evidence links, and manifest."
@@ -1375,14 +1370,6 @@ msgstr "Create client"
 #: src/features/migration/WizardShell.tsx
 msgid "Create clients"
 msgstr "Create clients"
-
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Create firm"
-msgstr "Create firm"
-
-#: src/routes/billing.checkout.tsx
-msgid "Create or select a firm before starting checkout."
-msgstr "Create or select a firm before starting checkout."
 
 #: src/routes/route-summary.ts
 msgid "Create practice"
@@ -1403,10 +1390,6 @@ msgstr "Creating clients, deadlines, evidence links, and audit records."
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Creating..."
 msgstr "Creating..."
-
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Creating…"
-msgstr "Creating…"
 
 #: src/routes/dashboard.tsx
 msgid "critical"
@@ -1535,12 +1518,12 @@ msgid "Degraded"
 msgstr "Degraded"
 
 #: src/routes/firm.tsx
-msgid "Delete firm"
-msgstr "Delete firm"
+msgid "Delete practice"
+msgstr "Delete practice"
 
 #: src/routes/firm.tsx
-msgid "Delete this firm?"
-msgstr "Delete this firm?"
+msgid "Delete this practice?"
+msgstr "Delete this practice?"
 
 #: src/routes/workboard.tsx
 msgid "Delete view"
@@ -1654,7 +1637,6 @@ msgstr "DueDateHQ field"
 msgid "DueDateHQ readiness portal"
 msgstr "DueDateHQ readiness portal"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
 msgid "e.g. Bright CPA Practice"
 msgstr "e.g. Bright CPA Practice"
@@ -1949,82 +1931,6 @@ msgstr "Filter by source"
 #: src/features/audit/audit-log-page.tsx
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "Filter by time range, action category, action, actor, or entity type."
-
-#: src/components/patterns/app-shell.tsx
-#: src/features/audit/audit-log-labels.ts
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-#: src/routes/firm.tsx
-msgid "Firm"
-msgstr "Firm"
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm context"
-msgstr "Firm context"
-
-#: src/routes/billing.tsx
-msgid "Firm context could not load"
-msgstr "Firm context could not load"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm created"
-msgstr "Firm created"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm deleted"
-msgstr "Firm deleted"
-
-#: src/features/audit/audit-event-drawer.tsx
-msgid "Firm id"
-msgstr "Firm id"
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm is a sales-assisted plan. Contact sales from Billing."
-msgstr "Firm is a sales-assisted plan. Contact sales from Billing."
-
-#: src/components/patterns/app-shell-nav.tsx
-#: src/routes/firm.tsx
-msgid "Firm name"
-msgstr "Firm name"
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm plan changes require sales support."
-msgstr "Firm plan changes require sales support."
-
-#: src/components/patterns/app-shell-nav.tsx
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/routes/firm.tsx
-#: src/routes/route-summary.ts
-msgid "Firm profile"
-msgstr "Firm profile"
-
-#: src/routes/firm.tsx
-msgid "Firm profile applies only to the active tenant."
-msgstr "Firm profile applies only to the active tenant."
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm profile changed"
-msgstr "Firm profile changed"
-
-#: src/routes/firm.tsx
-msgid "Firm profile could not load"
-msgstr "Firm profile could not load"
-
-#: src/routes/firm.tsx
-msgid "Firm profile saved"
-msgstr "Firm profile saved"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm switched"
-msgstr "Firm switched"
-
-#: src/features/audit/audit-event-drawer.tsx
-msgid "Firm time"
-msgstr "Firm time"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Firm updated"
-msgstr "Firm updated"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -2462,8 +2368,8 @@ msgid "Manage client facts and readiness."
 msgstr "Manage client facts and readiness."
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Manage firm seats, roles, and invitations."
-msgstr "Manage firm seats, roles, and invitations."
+msgid "Manage practice seats, roles, and invitations."
+msgstr "Manage practice seats, roles, and invitations."
 
 #: src/features/audit/audit-log-labels.ts
 #: src/routes/firm.tsx
@@ -2726,8 +2632,8 @@ msgid "New York"
 msgstr "New York"
 
 #: src/features/audit/audit-log-page.tsx
-msgid "Newest firm-scoped audit events appear first."
-msgstr "Newest firm-scoped audit events appear first."
+msgid "Newest practice-scoped audit events appear first."
+msgstr "Newest practice-scoped audit events appear first."
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Next"
@@ -2760,8 +2666,8 @@ msgstr "No"
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 #: src/routes/firm.tsx
-msgid "No active firm is selected."
-msgstr "No active firm is selected."
+msgid "No active practice is selected."
+msgstr "No active practice is selected."
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "No alerts match these filters."
@@ -2865,10 +2771,6 @@ msgstr "No extension available."
 msgid "No failed snapshots."
 msgstr "No failed snapshots."
 
-#: src/routes/billing.checkout.tsx
-msgid "No firm selected"
-msgstr "No firm selected"
-
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "No forms"
@@ -2887,8 +2789,8 @@ msgid "No matched rule"
 msgstr "No matched rule"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
-msgid "No matching clients in this firm."
-msgstr "No matching clients in this firm."
+msgid "No matching clients in this practice."
+msgstr "No matching clients in this practice."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
@@ -2925,6 +2827,10 @@ msgstr "No penalty breakdown is available yet."
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "No pending Pulse extracts."
 msgstr "No pending Pulse extracts."
+
+#: src/routes/billing.checkout.tsx
+msgid "No practice selected"
+msgstr "No practice selected"
 
 #: src/routes/dashboard.tsx
 msgid "No prepared brief yet"
@@ -3158,16 +3064,8 @@ msgid "Onboarding turn opened"
 msgstr "Onboarding turn opened"
 
 #: src/routes/billing.tsx
-msgid "One owner workspace"
-msgstr "One owner workspace"
-
-#: src/routes/billing.tsx
-msgid "Only firm owners can change plans or open the portal."
-msgstr "Only firm owners can change plans or open the portal."
-
-#: src/routes/billing.checkout.tsx
-msgid "Only firm owners can start or change a subscription."
-msgstr "Only firm owners can start or change a subscription."
+msgid "One owner practice"
+msgstr "One owner practice"
 
 #: src/features/pulse/lib/error-mapping.ts
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -3178,9 +3076,17 @@ msgstr "Only Owners and Managers can apply Pulse changes."
 msgid "Only owners can manage billing."
 msgstr "Only owners can manage billing."
 
+#: src/routes/billing.tsx
+msgid "Only practice owners can change plans or open the portal."
+msgstr "Only practice owners can change plans or open the portal."
+
 #: src/routes/billing.checkout.tsx
-msgid "Only the firm owner can start or change a subscription."
-msgstr "Only the firm owner can start or change a subscription."
+msgid "Only practice owners can start or change a subscription."
+msgstr "Only practice owners can start or change a subscription."
+
+#: src/routes/billing.checkout.tsx
+msgid "Only the practice owner can start or change a subscription."
+msgstr "Only the practice owner can start or change a subscription."
 
 #: src/features/migration/Step2Mapping.tsx
 #: src/features/notifications/notifications-page.tsx
@@ -3306,19 +3212,6 @@ msgstr "Optional note"
 msgid "or"
 msgstr "or"
 
-#: src/components/patterns/app-shell-nav.tsx
-#: src/features/audit/audit-log-page.tsx
-#: src/features/members/members-page.tsx
-#: src/routes/billing.tsx
-#: src/routes/firm.tsx
-#: src/routes/route-summary.ts
-msgid "Organization"
-msgstr "Organization"
-
-#: src/routes/billing.tsx
-msgid "Organization billing stays scoped to the selected firm."
-msgstr "Organization billing stays scoped to the selected firm."
-
 #: src/routes/clients.tsx
 msgid "Other"
 msgstr "Other"
@@ -3394,8 +3287,8 @@ msgid "Paid feature"
 msgstr "Paid feature"
 
 #: src/routes/billing.tsx
-msgid "Paid subscriptions bill the organization, not an individual user."
-msgstr "Paid subscriptions bill the organization, not an individual user."
+msgid "Paid subscriptions bill the practice, not an individual user."
+msgstr "Paid subscriptions bill the practice, not an individual user."
 
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
@@ -3526,7 +3419,6 @@ msgstr "Plan options"
 msgid "Plan summary"
 msgstr "Plan summary"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/routes/firm.tsx
 #: src/routes/onboarding.tsx
 msgid "Please enter at least 2 characters."
@@ -3557,13 +3449,84 @@ msgstr "Policy"
 msgid "Portal link copied"
 msgstr "Portal link copied"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/features/audit/audit-log-labels.ts
+#: src/features/audit/audit-log-page.tsx
+#: src/features/members/members-page.tsx
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
+#: src/routes/route-summary.ts
+msgid "Practice"
+msgstr "Practice"
+
+#: src/routes/billing.checkout.tsx
+msgid "Practice context"
+msgstr "Practice context"
+
+#: src/routes/billing.tsx
+msgid "Practice context could not load"
+msgstr "Practice context could not load"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice created"
+msgstr "Practice created"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice deleted"
+msgstr "Practice deleted"
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Practice ID"
+msgstr "Practice ID"
+
+#: src/routes/firm.tsx
 #: src/routes/onboarding.tsx
 msgid "Practice name"
 msgstr "Practice name"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/firm.tsx
+#: src/routes/route-summary.ts
+msgid "Practice profile"
+msgstr "Practice profile"
+
 #: src/routes/onboarding.tsx
 msgid "PRACTICE PROFILE"
 msgstr "PRACTICE PROFILE"
+
+#: src/routes/firm.tsx
+msgid "Practice profile applies only to the active practice."
+msgstr "Practice profile applies only to the active practice."
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice profile changed"
+msgstr "Practice profile changed"
+
+#: src/routes/firm.tsx
+msgid "Practice profile could not load"
+msgstr "Practice profile could not load"
+
+#: src/routes/firm.tsx
+msgid "Practice profile saved"
+msgstr "Practice profile saved"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice switched"
+msgstr "Practice switched"
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Practice time"
+msgstr "Practice time"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Practice updated"
+msgstr "Practice updated"
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Practices"
+msgstr "Practices"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Preferences"
@@ -3619,6 +3582,7 @@ msgstr "Priority onboarding, audit exports, and higher coverage needs."
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
+#: src/routes/billing.success.tsx
 #: src/routes/billing.tsx
 #: src/routes/firm.tsx
 msgid "Pro"
@@ -3797,8 +3761,8 @@ msgid "READ-ONLY"
 msgstr "READ-ONLY"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Read-only v1 profile from clients.listByFirm data."
-msgstr "Read-only v1 profile from clients.listByFirm data."
+msgid "Read-only v1 profile from practice client data."
+msgstr "Read-only v1 profile from practice client data."
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Read-only view"
@@ -3908,8 +3872,8 @@ msgid "Refreshing the AI mapping"
 msgstr "Refreshing the AI mapping"
 
 #: src/features/pulse/AlertsListPage.tsx
-msgid "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
-msgstr "Regulatory Pulse signals that match your firm's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
+msgid "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
+msgstr "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Reject"
@@ -3941,8 +3905,8 @@ msgid "Remove checklist item"
 msgstr "Remove checklist item"
 
 #: src/features/members/members-page.tsx
-msgid "Remove from firm"
-msgstr "Remove from firm"
+msgid "Remove from practice"
+msgstr "Remove from practice"
 
 #: src/features/members/members-page.tsx
 msgid "Remove member?"
@@ -3992,8 +3956,8 @@ msgid "Reset"
 msgstr "Reset"
 
 #: src/features/audit/audit-log-page.tsx
-msgid "Reset filters to return to the latest firm-wide events."
-msgstr "Reset filters to return to the latest firm-wide events."
+msgid "Reset filters to return to the latest practice-wide events."
+msgstr "Reset filters to return to the latest practice-wide events."
 
 #: src/routes/billing.cancel.tsx
 msgid "Restart checkout"
@@ -4052,17 +4016,17 @@ msgstr "Review"
 msgid "review — needs CPA confirmation"
 msgstr "review — needs CPA confirmation"
 
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Review firm-wide audit events."
-msgstr "Review firm-wide audit events."
-
-#: src/features/audit/audit-log-page.tsx
-msgid "Review firm-wide write events, what changed, and actor metadata."
-msgstr "Review firm-wide write events, what changed, and actor metadata."
-
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Review pending Pulse extracts, inspect source health, reconcile signals, and retry failed snapshots. This page uses the token-protected ops API."
 msgstr "Review pending Pulse extracts, inspect source health, reconcile signals, and retry failed snapshots. This page uses the token-protected ops API."
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review practice-wide audit events."
+msgstr "Review practice-wide audit events."
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Review practice-wide write events, what changed, and actor metadata."
+msgstr "Review practice-wide write events, what changed, and actor metadata."
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review risk and operating pressure."
@@ -4084,17 +4048,17 @@ msgstr "Review source-backed Pulse alerts."
 msgid "Review team capacity and risk pressure."
 msgstr "Review team capacity and risk pressure."
 
-#: src/routes/billing.tsx
-msgid "Review the active firm plan, open billing controls, and choose the right workspace tier."
-msgstr "Review the active firm plan, open billing controls, and choose the right workspace tier."
-
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review the active plan and billing controls."
 msgstr "Review the active plan and billing controls."
 
+#: src/routes/billing.tsx
+msgid "Review the active practice plan, open billing controls, and choose the right plan."
+msgstr "Review the active practice plan, open billing controls, and choose the right plan."
+
 #: src/routes/billing.checkout.tsx
-msgid "Review the firm subscription before opening secure checkout."
-msgstr "Review the firm subscription before opening secure checkout."
+msgid "Review the practice subscription before opening secure checkout."
+msgstr "Review the practice subscription before opening secure checkout."
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Review the source excerpt and structured fields before applying this alert."
@@ -4329,6 +4293,23 @@ msgstr "Saving your confirmed fields and grouping values for review."
 msgid "Saving…"
 msgstr "Saving…"
 
+#: src/components/patterns/app-shell.tsx
+#: src/features/audit/audit-log-labels.ts
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.success.tsx
+#: src/routes/billing.tsx
+#: src/routes/firm.tsx
+msgid "Scale"
+msgstr "Scale"
+
+#: src/routes/billing.checkout.tsx
+msgid "Scale is a sales-assisted plan. Contact sales from Billing."
+msgstr "Scale is a sales-assisted plan. Contact sales from Billing."
+
+#: src/routes/billing.checkout.tsx
+msgid "Scale plan changes require sales support."
+msgstr "Scale plan changes require sales support."
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Scope"
 msgstr "Scope"
@@ -4432,12 +4413,12 @@ msgid "Selected plan"
 msgstr "Selected plan"
 
 #: src/routes/billing.tsx
-msgid "Self-serve Pro changes use secure checkout and keep the active firm as reference."
-msgstr "Self-serve Pro changes use secure checkout and keep the active firm as reference."
+msgid "Self-serve Pro changes use secure checkout and keep the active practice as reference."
+msgstr "Self-serve Pro changes use secure checkout and keep the active practice as reference."
 
 #: src/features/members/members-page.tsx
-msgid "Send a 7-day magic link to add a member to this firm."
-msgstr "Send a 7-day magic link to add a member to this firm."
+msgid "Send a 7-day magic link to add a member to this practice."
+msgstr "Send a 7-day magic link to add a member to this practice."
 
 #: src/features/members/members-page.tsx
 msgid "Send invite"
@@ -4482,8 +4463,8 @@ msgid "Shared deadline operations for a growing CPA practice."
 msgstr "Shared deadline operations for a growing CPA practice."
 
 #: src/features/workload/workload-page.tsx
-msgid "Shared deadline operations for Pro and Firm plans."
-msgstr "Shared deadline operations for Pro and Firm plans."
+msgid "Shared deadline operations for Pro and Scale plans."
+msgstr "Shared deadline operations for Pro and Scale plans."
 
 #. placeholder {0}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
@@ -4520,8 +4501,8 @@ msgid "SIGN IN"
 msgstr "SIGN IN"
 
 #: src/routes/login.tsx
-msgid "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
-msgstr "Sign in with Google to access your firm's deadline queue and evidence-backed recommendations."
+msgid "Sign in with Google to access your practice's deadline queue and evidence-backed recommendations."
+msgstr "Sign in with Google to access your practice's deadline queue and evidence-backed recommendations."
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out"
@@ -4578,6 +4559,8 @@ msgid "Sole prop"
 msgstr "Sole prop"
 
 #: src/components/patterns/app-shell.tsx
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.success.tsx
 #: src/routes/billing.tsx
 #: src/routes/firm.tsx
 msgid "Solo"
@@ -4768,8 +4751,8 @@ msgstr "Suspended"
 
 #. placeholder {0}: firm.name
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Switch firm — current {0}"
-msgstr "Switch firm — current {0}"
+msgid "Switch practice, current {0}"
+msgstr "Switch practice, current {0}"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-event-drawer.tsx
@@ -4831,8 +4814,8 @@ msgid "Team workload is available on Pro"
 msgstr "Team workload is available on Pro"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Team workload is available on Pro and Firm plans."
-msgstr "Team workload is available on Pro and Firm plans."
+msgid "Team workload is available on Pro and Scale plans."
+msgstr "Team workload is available on Pro and Scale plans."
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -4860,10 +4843,6 @@ msgstr "The billing cache and subscription status now agree."
 msgid "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
 msgstr "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
 
-#: src/routes/firm.tsx
-msgid "The firm will be removed from the picker. Audit history stays retained for compliance."
-msgstr "The firm will be removed from the picker. Audit history stays retained for compliance."
-
 #: src/routes/workboard.tsx
 msgid "The memo is stored on the audit trail for the bulk status change."
 msgstr "The memo is stored on the audit trail for the bulk status change."
@@ -4875,6 +4854,10 @@ msgstr "The numbers above are computed from your confirmed mappings, Default Mat
 #: src/routes/billing.tsx
 msgid "The payment provider is the source of truth; DueDateHQ caches the active plan."
 msgstr "The payment provider is the source of truth; DueDateHQ caches the active plan."
+
+#: src/routes/firm.tsx
+msgid "The practice will be removed from your account. Audit history stays retained for compliance."
+msgstr "The practice will be removed from your account. Audit history stays retained for compliance."
 
 #: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."
@@ -4889,8 +4872,8 @@ msgid "The selected plan is still available from Billing."
 msgstr "The selected plan is still available from Billing."
 
 #: src/routes/billing.checkout.tsx
-msgid "The subscription applies to the active firm."
-msgstr "The subscription applies to the active firm."
+msgid "The subscription applies to the active practice."
+msgstr "The subscription applies to the active practice."
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
@@ -4908,10 +4891,6 @@ msgstr "This action conflicts with the current state. Refresh and try again."
 msgid "This alert is no longer available."
 msgstr "This alert is no longer available."
 
-#: src/routes/billing.checkout.tsx
-msgid "This firm already has the selected plan."
-msgstr "This firm already has the selected plan."
-
 #: src/routes/workboard.tsx
 msgid "This is an internal decision record. It does not update the due date or confirm an authority filing. Payment may still be due by the original date."
 msgstr "This is an internal decision record. It does not update the due date or confirm an authority filing. Payment may still be due by the original date."
@@ -4927,6 +4906,10 @@ msgstr "This Month"
 #: src/routes/billing.success.tsx
 msgid "This page will keep checking. You can also return to Billing and refresh later."
 msgstr "This page will keep checking. You can also return to Billing and refresh later."
+
+#: src/routes/billing.checkout.tsx
+msgid "This practice already has the selected plan."
+msgstr "This practice already has the selected plan."
 
 #: src/routes/readiness.tsx
 msgid "This readiness link is expired, revoked, or invalid."
@@ -4945,8 +4928,8 @@ msgid "This removes the clients and deadlines created by this import. Other prac
 msgstr "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 
 #: src/routes/firm.tsx
-msgid "This soft-deletes the active firm and moves you to another available firm."
-msgstr "This soft-deletes the active firm and moves you to another available firm."
+msgid "This soft-deletes the active practice. If another practice is available, you will be moved there."
+msgstr "This soft-deletes the active practice. If another practice is available, you will be moved there."
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "This source is no longer trusted. The historical alert remains visible, but new apply, dismiss, snooze, and undo actions are disabled."
@@ -4972,7 +4955,6 @@ msgstr "Time"
 msgid "Time range"
 msgstr "Time range"
 
-#: src/components/patterns/app-shell-nav.tsx
 #: src/features/audit/audit-log-labels.ts
 #: src/routes/firm.tsx
 msgid "Timezone"
@@ -5077,8 +5059,8 @@ msgid "Update active view"
 msgstr "Update active view"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Update the active firm's name and timezone."
-msgstr "Update the active firm's name and timezone."
+msgid "Update the active practice's name and timezone."
+msgstr "Update the active practice's name and timezone."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Updated"
@@ -5119,8 +5101,8 @@ msgid "UTC time"
 msgstr "UTC time"
 
 #: src/routes/clients.tsx
-msgid "Validate the firm client facts that generate obligations, dashboard risk, and Pulse matches."
-msgstr "Validate the firm client facts that generate obligations, dashboard risk, and Pulse matches."
+msgid "Validate the practice client facts that generate obligations, dashboard risk, and Pulse matches."
+msgstr "Validate the practice client facts that generate obligations, dashboard risk, and Pulse matches."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "verifiable per (jurisdiction, entity) pair"
@@ -5249,8 +5231,8 @@ msgid "We normalized {0} values — review if needed"
 msgstr "We normalized {0} values — review if needed"
 
 #: src/routes/onboarding.tsx
-msgid "We pre-filled a name from your Google profile. You can change it now or anytime in Firm profile."
-msgstr "We pre-filled a name from your Google profile. You can change it now or anytime in Firm profile."
+msgid "We pre-filled a name from your Google profile. You can change it now or anytime in the Practice profile."
+msgstr "We pre-filled a name from your Google profile. You can change it now or anytime in the Practice profile."
 
 #: src/features/migration/Step1Intake.tsx
 msgid "We'll figure out the shape — paste or upload, your call."
@@ -5316,10 +5298,6 @@ msgstr "Workboard status updates and client imports will appear here when they w
 msgid "Working…"
 msgstr "Working…"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Workspaces"
-msgstr "Workspaces"
-
 #: src/features/audit/audit-log-labels.ts
 msgid "XLSX"
 msgstr "XLSX"
@@ -5356,10 +5334,6 @@ msgstr "Your account isn't linked to a practice yet."
 msgid "Your column"
 msgstr "Your column"
 
-#: src/routes/billing.success.tsx
-msgid "Your firm plan is ready."
-msgstr "Your firm plan is ready."
-
 #: src/features/migration/WizardShell.tsx
 msgid "Your pasted data and unsaved edits in this wizard will be lost."
 msgstr "Your pasted data and unsaved edits in this wizard will be lost."
@@ -5367,3 +5341,7 @@ msgstr "Your pasted data and unsaved edits in this wizard will be lost."
 #: src/lib/i18n-error.ts
 msgid "Your practice is suspended. Contact support to restore access."
 msgstr "Your practice is suspended. Contact support to restore access."
+
+#: src/routes/billing.success.tsx
+msgid "Your practice plan is ready."
+msgstr "Your practice plan is ready."

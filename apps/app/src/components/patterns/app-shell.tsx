@@ -116,7 +116,7 @@ function PlanStatusLink({ firm }: { firm: FirmPublic }) {
   const { t } = useLingui()
   const owner = isFirmOwner(firm)
   const paid = paidPlanActive(firm)
-  const plan = firm.plan === 'firm' ? t`Firm` : firm.plan === 'pro' ? t`Pro` : t`Solo`
+  const plan = firm.plan === 'firm' ? t`Scale` : firm.plan === 'pro' ? t`Pro` : t`Solo`
   const seats = firm.seatLimit === 1 ? t`${firm.seatLimit} seat` : t`${firm.seatLimit} seats`
   const action = owner ? (paid ? t`Manage` : t`Upgrade`) : t`View`
 

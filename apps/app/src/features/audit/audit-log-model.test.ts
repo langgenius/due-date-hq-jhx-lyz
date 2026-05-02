@@ -114,7 +114,7 @@ function makeChangeLabels(overrides: Partial<AuditActionLabels> = {}): AuditChan
       deadlineStatusChanged: (previous, next) =>
         `Deadline status changed from ${previous} to ${next}`,
       fieldChanged: (field, previous, next) => `${field} changed from ${previous} to ${next}`,
-      firmUpdated: 'Firm profile changed',
+      firmUpdated: 'Practice profile changed',
       importCompleted: (clientCount, obligationCount, skippedCount) =>
         `Import completed: ${clientCount ?? 0} clients, ${obligationCount ?? 0} deadlines, ${skippedCount ?? 0} skipped rows`,
       memberRoleChanged: (previous, next) => `Member role changed from ${previous} to ${next}`,
@@ -312,7 +312,7 @@ describe('audit-log-model', () => {
       auditEvidencePackage: 'Audit export package',
       client: 'Client',
       clientBatch: 'Client import batch',
-      firm: 'Firm',
+      firm: 'Practice',
       member: 'Team member',
       memberInvitation: 'Member invitation',
       migrationBatch: 'Import batch',

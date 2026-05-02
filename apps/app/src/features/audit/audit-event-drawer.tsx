@@ -105,7 +105,7 @@ function AuditEventDrawerContent({
           </section>
 
           <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
-            <MetadataRow label={t`Firm time`} value={firmTime} />
+            <MetadataRow label={t`Practice time`} value={firmTime} />
             <MetadataRow label={t`UTC time`} value={utcTime} />
             <MetadataRow label={t`Entity`} value={entityDisplay.primary} />
             <MetadataRow label={t`Entity type`} value={entityTypeLabel} />
@@ -122,7 +122,7 @@ function AuditEventDrawerContent({
               label={t`User agent hash`}
               value={event.userAgentHash ?? t`Not recorded`}
             />
-            <MetadataRow label={t`Firm id`} value={event.firmId} />
+            <MetadataRow label={t`Practice ID`} value={event.firmId} />
           </dl>
         </div>
       </div>

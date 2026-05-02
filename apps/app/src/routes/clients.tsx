@@ -276,8 +276,8 @@ export function ClientsRoute() {
             </h1>
             <p className="max-w-3xl text-sm text-text-secondary">
               <Trans>
-                Validate the firm client facts that generate obligations, dashboard risk, and Pulse
-                matches.
+                Validate the practice client facts that generate obligations, dashboard risk, and
+                Pulse matches.
               </Trans>
             </p>
           </div>

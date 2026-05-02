@@ -86,7 +86,7 @@ export function AlertsListPage() {
             </h1>
             <p className="max-w-[640px] text-md text-text-secondary">
               <Trans>
-                Regulatory Pulse signals that match your firm's clients. Review, batch-apply
+                Regulatory Pulse signals that match your practice's clients. Review, batch-apply
                 due-date changes, snooze, or revisit closed alerts.
               </Trans>
             </p>

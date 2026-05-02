@@ -648,7 +648,7 @@ function ClientTableEmptyRow({ colSpan }: { colSpan: number }) {
             <Trans>No clients match these filters</Trans>
           </span>
           <span className="text-text-tertiary">
-            <Trans>Clear search or filters to return to the full firm directory.</Trans>
+            <Trans>Clear search or filters to return to the full practice directory.</Trans>
           </span>
         </div>
       </TableCell>
@@ -672,7 +672,7 @@ function ClientEmptyState({ hasClients, onImport }: { hasClients: boolean; onImp
         </p>
         <p className="text-sm text-text-tertiary">
           {hasClients ? (
-            <Trans>Clear search or filters to return to the full firm directory.</Trans>
+            <Trans>Clear search or filters to return to the full practice directory.</Trans>
           ) : (
             <Trans>Import a CSV or create the first manual client record.</Trans>
           )}
@@ -712,7 +712,7 @@ function ClientProfileSheet({
             <Trans>Fact profile</Trans>
           </SheetTitle>
           <SheetDescription>
-            <Trans>Read-only v1 profile from clients.listByFirm data.</Trans>
+            <Trans>Read-only v1 profile from practice client data.</Trans>
           </SheetDescription>
         </SheetHeader>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">

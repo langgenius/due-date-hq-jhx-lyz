@@ -58,7 +58,7 @@ function isoDate(daysFromNow: number): string {
 
 const MOCK_FIRM: FirmPublic = {
   id: 'firm_mock_001',
-  name: 'Mock Firm (Dev)',
+  name: 'Mock Practice (Dev)',
   slug: 'mock-firm-dev',
   plan: 'firm',
   seatLimit: 10,
@@ -242,7 +242,7 @@ const DISMISSED_ALERT: PulseAlertPublic = {
   source: 'NY DTF',
   sourceUrl: 'https://www.tax.ny.gov/notice-mock-pte-2026',
   summary:
-    'No matching clients in this firm — informational notice only. Dismissed by Sarah on 2026-04-28.',
+    'No matching clients in this practice - informational notice only. Dismissed by Sarah on 2026-04-28.',
   publishedAt: new Date(NOW.getTime() - 1000 * 60 * 60 * 48).toISOString(),
   matchedCount: 0,
   needsReviewCount: 0,

@@ -107,8 +107,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       },
       {
         id: 'firm',
-        label: t`Firm profile`,
-        description: t`Update the active firm's name and timezone.`,
+        label: t`Practice profile`,
+        description: t`Update the active practice's name and timezone.`,
         group: 'navigate',
         icon: Building2Icon,
         onSelect: () => navigate('/firm'),
@@ -124,7 +124,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       {
         id: 'members',
         label: t`Members`,
-        description: t`Manage firm seats, roles, and invitations.`,
+        description: t`Manage practice seats, roles, and invitations.`,
         group: 'navigate',
         icon: UsersIcon,
         onSelect: () => navigate('/members'),
@@ -140,7 +140,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       {
         id: 'audit',
         label: t`Audit log`,
-        description: t`Review firm-wide audit events.`,
+        description: t`Review practice-wide audit events.`,
         group: 'navigate',
         icon: ScaleIcon,
         onSelect: () => navigate('/audit'),

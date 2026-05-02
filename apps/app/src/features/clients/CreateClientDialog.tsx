@@ -177,7 +177,7 @@ export function CreateClientDialog({
             <Trans>Create client</Trans>
           </DialogTitle>
           <DialogDescription>
-            <Trans>Add a manual client record to the active firm directory.</Trans>
+            <Trans>Add a manual client record to the active practice directory.</Trans>
           </DialogDescription>
         </DialogHeader>
         <form

@@ -63,7 +63,7 @@ function usePlanCards(): PlanCard[] {
       cadence: t`Free baseline`,
       seats: t`1 seat`,
       description: t`For evaluating the deadline workbench with one owner.`,
-      features: [t`One owner workspace`, t`Migration and rules preview`, t`Source-backed evidence`],
+      features: [t`One owner practice`, t`Migration and rules preview`, t`Source-backed evidence`],
       cta: t`Current baseline`,
       disabled: true,
     },
@@ -82,7 +82,7 @@ function usePlanCards(): PlanCard[] {
     },
     {
       id: 'firm',
-      name: t`Firm`,
+      name: t`Scale`,
       price: t`Contact sales`,
       priceKind: 'text',
       cadence: t`Annual agreement`,
@@ -106,7 +106,7 @@ export function BillingRoute() {
   const owner = isFirmOwner(currentFirm)
   const currentPlanName = currentFirm
     ? currentFirm.plan === 'firm'
-      ? t`Firm`
+      ? t`Scale`
       : currentFirm.plan === 'pro'
         ? t`Pro`
         : t`Solo`
@@ -115,7 +115,7 @@ export function BillingRoute() {
   const subscriptionStatus = activeSubscription?.status ?? t`No paid subscription`
   const portalMutation = useMutation({
     mutationFn: async () => {
-      if (!currentFirm) throw new Error(t`No active firm is selected.`)
+      if (!currentFirm) throw new Error(t`No active practice is selected.`)
       return createBillingPortal({
         referenceId: currentFirm.id,
         returnUrl: new URL('/billing', window.location.origin).toString(),
@@ -132,15 +132,14 @@ export function BillingRoute() {
         <div className="flex min-w-0 items-start gap-3">
           <div className="min-w-0">
             <span className="text-xs font-medium uppercase text-text-tertiary">
-              <Trans>Organization</Trans>
+              <Trans>Practice</Trans>
             </span>
             <h1 className="mt-1 text-2xl font-semibold text-text-primary">
               <Trans>Billing</Trans>
             </h1>
             <p className="mt-1 max-w-[680px] text-sm leading-6 text-text-secondary">
               <Trans>
-                Review the active firm plan, open billing controls, and choose the right workspace
-                tier.
+                Review the active practice plan, open billing controls, and choose the right plan.
               </Trans>
             </p>
           </div>
@@ -148,7 +147,7 @@ export function BillingRoute() {
         {currentFirm ? (
           <Badge
             variant={paidPlanActive(currentFirm) ? 'success' : 'outline'}
-            className="font-mono tabular-nums"
+            className="font-mono text-xs tabular-nums"
           >
             {currentPlanName}
           </Badge>
@@ -169,7 +168,7 @@ export function BillingRoute() {
         <Alert variant="destructive">
           <AlertCircleIcon />
           <AlertTitle>
-            <Trans>Firm context could not load</Trans>
+            <Trans>Practice context could not load</Trans>
           </AlertTitle>
           <AlertDescription>{firmsQuery.error.message}</AlertDescription>
         </Alert>
@@ -214,7 +213,7 @@ export function BillingRoute() {
                 <div className="flex flex-col justify-between gap-4 rounded-lg border border-divider-regular bg-background-subtle p-5 md:flex-row md:items-end">
                   <div className="min-w-0">
                     <p className="text-sm text-text-tertiary">
-                      <Trans>Active firm</Trans>
+                      <Trans>Active practice</Trans>
                     </p>
                     <p className="mt-1 truncate text-xl font-semibold text-text-primary">
                       {currentFirm?.name ?? '—'}
@@ -230,8 +229,8 @@ export function BillingRoute() {
                 <div className="grid gap-3 md:grid-cols-4">
                   <Metric
                     label={<Trans>Plan</Trans>}
-                    value={currentFirm?.plan ?? '—'}
-                    name={`Plan: ${currentFirm?.plan ?? 'none'}`}
+                    value={currentFirm ? currentPlanName : '—'}
+                    name={`Plan: ${currentFirm ? currentPlanName : 'none'}`}
                   />
                   <Metric
                     label={<Trans>Seat limit</Trans>}
@@ -291,14 +290,14 @@ export function BillingRoute() {
               <Trans>Billing controls</Trans>
             </CardTitle>
             <CardDescription>
-              <Trans>Organization billing stays scoped to the selected firm.</Trans>
+              <Trans>Billing stays scoped to the selected practice.</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 text-sm">
             <ControlRow
               icon={<ShieldCheckIcon className="size-4" aria-hidden />}
               title={<Trans>Owner approved</Trans>}
-              description={<Trans>Only firm owners can change plans or open the portal.</Trans>}
+              description={<Trans>Only practice owners can change plans or open the portal.</Trans>}
             />
             <ControlRow
               icon={<CreditCardIcon className="size-4" aria-hidden />}
@@ -327,12 +326,12 @@ export function BillingRoute() {
               <Trans>Plan options</Trans>
             </span>
             <h2 className="mt-1 text-lg font-semibold text-text-primary">
-              <Trans>Choose a workspace tier</Trans>
+              <Trans>Choose a plan</Trans>
             </h2>
           </div>
           <p className="max-w-[520px] text-sm text-text-secondary">
             <Trans>
-              Self-serve Pro changes use secure checkout and keep the active firm as reference.
+              Self-serve Pro changes use secure checkout and keep the active practice as reference.
             </Trans>
           </p>
         </header>
@@ -356,7 +355,7 @@ export function BillingRoute() {
           </CardHeader>
           <CardContent className="grid gap-3 text-sm leading-6 text-text-secondary md:grid-cols-2">
             <p>
-              <Trans>Paid subscriptions bill the organization, not an individual user.</Trans>
+              <Trans>Paid subscriptions bill the practice, not an individual user.</Trans>
             </p>
             <p>
               <Trans>Success pages wait for webhook confirmation before showing activation.</Trans>

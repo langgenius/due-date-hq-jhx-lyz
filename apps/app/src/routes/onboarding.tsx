@@ -96,8 +96,8 @@ export function OnboardingRoute() {
 
       <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">
         <Trans>
-          We pre-filled a name from your Google profile. You can change it now or anytime in Firm
-          profile.
+          We pre-filled a name from your Google profile. You can change it now or anytime in the
+          Practice profile.
         </Trans>
       </p>
 
