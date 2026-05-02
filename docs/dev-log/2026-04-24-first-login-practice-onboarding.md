@@ -14,7 +14,7 @@ updates:
 >   [`2026-04-28-firm-crud-switch.md`](./2026-04-28-firm-crud-switch.md) to support multi-firm
 >   membership and switching.
 > - The current product pricing closure is documented in
->   [`docs/product-design/billing/01-firm-entitlement-pricing.md`](../product-design/billing/01-firm-entitlement-pricing.md):
+>   [`docs/product-design/billing/01-practice-entitlement-pricing.md`](../product-design/billing/01-practice-entitlement-pricing.md):
 >   Solo / Pro include 1 active firm; Firm plan includes multiple active firms/offices by contract.
 
 ## 背景

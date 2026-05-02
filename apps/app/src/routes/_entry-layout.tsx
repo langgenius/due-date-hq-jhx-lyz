@@ -13,9 +13,9 @@ import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 // landing, SSO consent, email verification, password reset) belong here too.
 //
 // We deliberately don't call this "_auth-layout" — `/onboarding` runs *after*
-// authentication and only blocks until the user provisions a firm, so an
+// authentication and only blocks until the user provisions a practice, so an
 // "auth" framing would be misleading. The shared chrome justification is
-// visual + semantic: header + footer carry no user metadata, no nav, no firm
+// visual + semantic: header + footer carry no user metadata, no nav, no practice
 // switcher; both surfaces are single-column, decoration-free, and meant to
 // finish quickly so the user can leave them.
 //

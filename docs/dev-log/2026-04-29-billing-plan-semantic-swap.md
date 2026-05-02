@@ -6,7 +6,7 @@ Owner: Codex
 > Product follow-up (2026-05-02): plan-id semantics still stand (`pro` self-serve, `firm` custom),
 > and active firm count is now an explicit pricing entitlement. Solo / Pro include 1 active firm;
 > Firm plan supports multiple active firms/offices by contract. See
-> `docs/product-design/billing/01-firm-entitlement-pricing.md`.
+> `docs/product-design/billing/01-practice-entitlement-pricing.md`.
 
 ## Context
 

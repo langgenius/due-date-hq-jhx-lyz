@@ -62,9 +62,9 @@ function usePlanView(plan: BillingPlan, interval: BillingInterval): PlanView {
       priceSuffix: t`/ mo`,
       priceNote: interval === 'yearly' ? t`Billed yearly` : t`Monthly billing`,
       seatLimit: 5,
-      firmLimit: t`1 production firm`,
+      firmLimit: t`1 production practice`,
       summary: t`For growing CPA practices that need shared deadline operations.`,
-      bullets: [t`1 production firm`, t`5 seats included`, t`Shared deadline operations`],
+      bullets: [t`1 production practice`, t`5 seats included`, t`Shared deadline operations`],
       selfServe: true,
     }
   }
@@ -74,9 +74,9 @@ function usePlanView(plan: BillingPlan, interval: BillingInterval): PlanView {
     priceSuffix: '',
     priceNote: t`Annual agreement`,
     seatLimit: 10,
-    firmLimit: t`Multiple firms/offices`,
+    firmLimit: t`Multiple practices/offices`,
     summary: t`For practices that need audit exports, coverage expansion, and priority onboarding.`,
-    bullets: [t`Multiple firms/offices`, t`10+ seats`, t`Priority onboarding`],
+    bullets: [t`Multiple practices/offices`, t`10+ seats`, t`Priority onboarding`],
     selfServe: false,
   }
 }
@@ -98,7 +98,7 @@ export function BillingCheckoutRoute() {
   const subscriptionsReady = !subscriptionsQuery.isPending && !subscriptionsQuery.isError
   const checkoutMutation = useMutation({
     mutationFn: async () => {
-      if (!currentFirm) throw new Error(t`No active firm is selected.`)
+      if (!currentFirm) throw new Error(t`No active practice is selected.`)
       if (!subscriptionsReady) throw new Error(t`Billing status is not ready yet.`)
       if (!isSelfServeBillingPlan(plan))
         throw new Error(t`Firm plan changes require sales support.`)
@@ -133,10 +133,10 @@ export function BillingCheckoutRoute() {
         <Alert variant="destructive">
           <AlertCircleIcon />
           <AlertTitle>
-            <Trans>No firm selected</Trans>
+            <Trans>No practice selected</Trans>
           </AlertTitle>
           <AlertDescription>
-            <Trans>Create or select a firm before starting checkout.</Trans>
+            <Trans>Create or select a practice before starting checkout.</Trans>
           </AlertDescription>
         </Alert>
       </div>
@@ -169,7 +169,7 @@ export function BillingCheckoutRoute() {
                 <Trans>Confirm checkout</Trans>
               </h1>
               <p className="mt-1 max-w-[680px] text-sm leading-6 text-text-secondary">
-                <Trans>Review the firm subscription before opening secure checkout.</Trans>
+                <Trans>Review the practice subscription before opening secure checkout.</Trans>
               </p>
             </div>
           </div>
@@ -186,7 +186,7 @@ export function BillingCheckoutRoute() {
             <Trans>Owner permission required</Trans>
           </AlertTitle>
           <AlertDescription>
-            <Trans>Only the firm owner can start or change a subscription.</Trans>
+            <Trans>Only the practice owner can start or change a subscription.</Trans>
           </AlertDescription>
         </Alert>
       ) : null}
@@ -265,7 +265,9 @@ export function BillingCheckoutRoute() {
               <CheckoutNote
                 icon={<ShieldCheckIcon className="size-4" aria-hidden />}
                 title={<Trans>Owner approval required</Trans>}
-                description={<Trans>Only firm owners can start or change a subscription.</Trans>}
+                description={
+                  <Trans>Only practice owners can start or change a subscription.</Trans>
+                }
               />
               <CheckoutNote
                 icon={<CreditCardIcon className="size-4" aria-hidden />}
@@ -301,8 +303,8 @@ export function BillingCheckoutRoute() {
             {!selfServe ? (
               <span className="text-sm text-text-tertiary">
                 <Trans>
-                  Firm is a sales-assisted plan for multiple firms or offices. Contact sales from
-                  Billing.
+                  Firm is a sales-assisted plan for multiple practices or offices. Contact sales
+                  from Billing.
                 </Trans>
               </span>
             ) : null}
@@ -312,18 +314,19 @@ export function BillingCheckoutRoute() {
         <Card size="sm">
           <CardHeader>
             <CardTitle>
-              <Trans>Firm context</Trans>
+              <Trans>Practice context</Trans>
             </CardTitle>
             <CardDescription>
               <Trans>
-                Pro applies to one production firm. Firm plan covers multiple firms by contract.
+                Pro applies to one production practice. Firm plan covers multiple practices by
+                contract.
               </Trans>
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 text-sm">
             <CheckoutFact
               icon={<Building2Icon className="size-4" aria-hidden />}
-              label={<Trans>Firm</Trans>}
+              label={<Trans>Practice</Trans>}
               value={currentFirm.name}
             />
             <CheckoutFact
@@ -338,7 +341,7 @@ export function BillingCheckoutRoute() {
             />
             <CheckoutFact
               icon={<Building2Icon className="size-4" aria-hidden />}
-              label={<Trans>Firm limit</Trans>}
+              label={<Trans>Practice limit</Trans>}
               value={view.firmLimit}
             />
             {alreadyOnPlan ? (
@@ -348,7 +351,7 @@ export function BillingCheckoutRoute() {
                   <Trans>Already active</Trans>
                 </AlertTitle>
                 <AlertDescription>
-                  <Trans>This firm already has the selected plan.</Trans>
+                  <Trans>This practice already has the selected plan.</Trans>
                 </AlertDescription>
               </Alert>
             ) : null}

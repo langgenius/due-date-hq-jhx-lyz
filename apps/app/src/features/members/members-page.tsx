@@ -192,7 +192,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
       id: 'members.invite.open',
       name: 'Invite member',
       description: 'Open the member invite dialog.',
-      category: 'organization',
+      category: 'practice',
       scope: 'route',
       displayKeys: inviteShortcutLabel,
     },

@@ -337,13 +337,13 @@ export function createAppRouter() {
               },
             },
             {
-              path: 'firm',
-              handle: routeHandle(routeSummaries.firm),
+              path: 'practice',
+              handle: routeHandle(routeSummaries.practice),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
-                const { FirmRoute } = await import('@/routes/firm')
+                const { PracticeRoute } = await import('@/routes/practice')
 
-                return { Component: FirmRoute }
+                return { Component: PracticeRoute }
               },
             },
             {

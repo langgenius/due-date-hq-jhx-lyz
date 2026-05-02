@@ -18,12 +18,16 @@ the product UI should not make normal CPA users reason about multiple firms or a
   still get the switcher, labeled `Practices`.
 - Removed the app-shell create-second-firm entry. Onboarding and backend recovery paths can still
   create a practice, but the protected app no longer promotes that as a primary workflow.
+  Superseded later on 2026-05-02: the switcher keeps a secondary, plan-gated `Add practice`
+  action for Firm entitlement discovery, but single-practice product copy remains Practice-first.
 - Reworded visible app UI from firm/organization/tenant/workspace language to Practice where the
   text describes the customer tenant. Internal route names, RPC contracts, DB concepts, and audit
   action keys stay unchanged.
 - Renamed the visible `plan === 'firm'` tier to `Scale` while preserving the stored enum value.
   This naming was superseded later on 2026-05-02 by the Firm entitlement/pricing closure: the
   stored enum remains `firm`, and the visible paid tier is now `Firm`.
+- 2026-05-02 follow-up: Practice profile is now routed at `/practice`; the old `/firm` URL is not
+  kept as a compatibility alias.
 
 ## Validation
 

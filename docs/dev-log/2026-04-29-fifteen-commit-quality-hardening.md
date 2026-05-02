@@ -19,7 +19,7 @@ reflected earlier planning assumptions.
   acknowledgement of unprocessed email or Pulse messages.
 - Aligned member invitation status contracts with Better Auth's `canceled` state.
 - Fixed front-end drift: Clients keyboard navigation, client-create filter reset, paused billing
-  portal visibility, firm-switch error feedback, and localized firm profile enum labels.
+  portal visibility, practice-switch error feedback, and localized firm profile enum labels.
 - Removed the unsafe placement tuple assertion in `packages/ui`.
 - Updated Audit, RBAC, E2E, project script, design-path, and dev-log docs to match shipped behavior.
 

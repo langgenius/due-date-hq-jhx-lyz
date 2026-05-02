@@ -25,7 +25,7 @@ export const routeSummaries = {
   opsPulse: { eyebrow: msg`Internal operations`, title: msg`Pulse Ops` },
   clients: { eyebrow: msg`Clients`, title: msg`Clients` },
   audit: { eyebrow: msg`Practice`, title: msg`Audit log` },
-  firm: { eyebrow: msg`Practice`, title: msg`Practice profile` },
+  practice: { eyebrow: msg`Practice`, title: msg`Practice profile` },
   members: { eyebrow: msg`Practice`, title: msg`Members` },
   rules: { eyebrow: msg`Practice`, title: msg`Rules` },
   billing: { eyebrow: msg`Practice`, title: msg`Billing` },

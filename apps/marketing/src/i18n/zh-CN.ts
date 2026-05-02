@@ -424,12 +424,12 @@ const zhCN: LandingCopy = {
       eyebrow: 'PRICING',
       title: '只为你能看清的截止日风险付费。',
       description:
-        '先用 Solo 评估一个事务所工作区；当这个事务所需要多人协作时升级到 Pro；需要多个办公室或多个工作区时再与我们定制 Firm。',
+        '先用 Solo 评估一个 practice 工作区；当这个 practice 需要多人协作时升级到 Pro；需要多个办公室或多个工作区时再与我们定制 Firm。',
       note: 'Solo 无需信用卡 · DueDateHQ 不保存卡号',
     },
     plansHeader: {
       eyebrow: 'PLANS',
-      title: '选择适合你事务所的计划。',
+      title: '选择适合你 practice 的计划。',
       note: '美元定价 · Owner 授权升级',
     },
     plans: [
@@ -439,10 +439,10 @@ const zhCN: LandingCopy = {
         priceKind: 'numeric',
         cadence: '永久免费',
         description: '适合一位 Owner 用示例或第一方数据评估工作台。',
-        seats: '1 个事务所工作区 · 1 个 Owner 席位',
+        seats: '1 个 practice 工作区 · 1 个 Owner 席位',
         cta: '打开工作台',
         hrefKind: 'app',
-        features: ['1 个事务所工作区', '迁移与规则预览', '带来源的证据', '示例或第一方数据'],
+        features: ['1 个 practice 工作区', '迁移与规则预览', '带来源的证据', '示例或第一方数据'],
       },
       {
         name: 'Pro',
@@ -451,11 +451,11 @@ const zhCN: LandingCopy = {
         priceKind: 'numeric',
         cadence: '/ 月',
         description: '适合需要共享截止日运营的成长型 CPA 事务所。',
-        seats: '1 个生产事务所 · 5 个席位',
+        seats: '1 个生产 practice · 5 个席位',
         cta: '升级到 Pro',
         hrefKind: 'checkout',
         features: [
-          '1 个生产事务所',
+          '1 个生产 practice',
           '包含 5 个席位',
           '共享截止日运营',
           'Pulse 与 workboard 访问权限',
@@ -467,10 +467,15 @@ const zhCN: LandingCopy = {
         priceKind: 'text',
         cadence: '年度协议',
         description: '适合需要审计导出流程、优先 onboarding 和覆盖扩展的团队。',
-        seats: '多个事务所/办公室 · 10+ 席位',
+        seats: '多个 practice/办公室 · 10+ 席位',
         cta: '联系销售',
         hrefKind: 'contact',
-        features: ['多个事务所或办公室', '优先 onboarding', '审计导出与覆盖规划', '覆盖扩展评估'],
+        features: [
+          '多个 practice 或办公室',
+          '优先 onboarding',
+          '审计导出与覆盖规划',
+          '覆盖扩展评估',
+        ],
       },
     ],
     faqHeader: {
@@ -479,23 +484,23 @@ const zhCN: LandingCopy = {
     },
     faq: [
       {
-        question: '谁可以升级事务所？',
+        question: '谁可以升级 practice？',
         answer:
-          '只有当前事务所 Owner 可以创建或变更付费订阅。其他成员可以查看计划状态，但不能更改账单。',
+          '只有当前 practice Owner 可以创建或变更付费订阅。其他成员可以查看计划状态，但不能更改账单。',
       },
       {
         question: 'Pro 比 Solo 多什么？',
         answer:
-          'Pro 增加 5 席共享工作区、Pulse 监控和成长型事务所管理截止日运营所需的 workboard 视图。',
+          'Pro 增加 5 席共享工作区、Pulse 监控和成长型 practice 管理截止日运营所需的 workboard 视图。',
       },
       {
         question: '可以继续使用 Solo 吗？',
-        answer: '可以。Solo 适合单 Owner 事务所继续评估工作台。',
+        answer: '可以。Solo 适合单 Owner practice 继续评估工作台。',
       },
       {
-        question: '我可以创建多个事务所吗？',
+        question: '我可以创建多个 practice 吗？',
         answer:
-          'Solo 和 Pro 包含 1 个 active 事务所工作区。额外事务所、办公室，或 demo/production 分离属于 Firm 计划。',
+          'Solo 和 Pro 包含 1 个 active practice 工作区。额外 practice、办公室，或 demo/production 分离属于 Firm 计划。',
       },
     ],
   },

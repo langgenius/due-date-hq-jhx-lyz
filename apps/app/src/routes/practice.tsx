@@ -32,7 +32,7 @@ import { FirmTimezoneSelect, resolveUSFirmTimezone } from '@/features/firm/timez
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
-export function FirmRoute() {
+export function PracticeRoute() {
   const currentQuery = useQuery(orpc.firms.getCurrent.queryOptions({ input: undefined }))
 
   if (currentQuery.isLoading) {
@@ -70,10 +70,10 @@ export function FirmRoute() {
     )
   }
 
-  return <FirmProfileForm key={currentQuery.data.id} firm={currentQuery.data} />
+  return <PracticeProfileForm key={currentQuery.data.id} firm={currentQuery.data} />
 }
 
-function FirmProfileForm({ firm }: { firm: FirmPublic }) {
+function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
   const { t } = useLingui()
   const navigate = useNavigate()
   const queryClient = useQueryClient()

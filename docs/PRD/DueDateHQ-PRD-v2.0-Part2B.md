@@ -144,7 +144,7 @@ App (after login)
  │   ├─ Search
  │   ├─ Ask ✨
  │   └─ Navigate
- ├─ Firm Switcher (sidebar top · 多 Firm membership 时显示；Add firm 受 plan gate)  ← §3.6.4
+ ├─ Practice Switcher (sidebar top · 多 practice membership 时显示；Add practice 受 plan gate)  ← §3.6.4
  └─ Settings
      ├─ Profile (per-user)
      ├─ Notifications (per-user, 含 Team 路由偏好 §7.1.4)

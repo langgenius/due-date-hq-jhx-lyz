@@ -49,7 +49,7 @@ DueDateHQ 的税务规则、截止日、罚金风险估算和 AI brief 用于事
 
 - 所有需要进入事务所操作台的用户。
 - 首次注册用户会进入 onboarding。
-- 已有 active firm 的用户会直接进入主操作台。
+- 已有 active practice 的用户会直接进入主操作台。
 
 **如何使用**
 
@@ -63,29 +63,29 @@ DueDateHQ 的税务规则、截止日、罚金风险估算和 AI brief 用于事
 
 - Auth 与身份：`08-auth-identity.md`
 - SPA 路由：`01-app-spa.md`
-- Firm profile：本文后续“Firm profile”模块
+- Practice profile：本文后续“Practice profile”模块
 
 ### 工作区切换与账户菜单
 
 **模块功能**
 
-工作区切换器用于在多个 firm 之间切换 active firm，也可以创建新的 firm。账户菜单用于切换语言、主题和退出登录。
+Practice switcher 用于在多个 practice 之间切换 active practice；新建 practice 是受套餐权益控制的次级动作。账户菜单用于切换语言、主题和退出登录。
 
 **适用用户**
 
-- 属于多个 firm 的事务所用户。
+- 属于多个 practice 的事务所用户。
 - 需要在不同事务所租户之间切换数据上下文的 Owner、Manager、Preparer 或 Coordinator。
 
 **如何使用**
 
-1. 在左侧 sidebar 顶部点击当前 firm 名称。
-2. 在 `Workspaces` 列表中选择目标 firm。
-3. 如需新建独立租户，点击 `Add firm`，输入 firm name 和 timezone。
+1. 在左侧 sidebar 顶部点击当前 practice 名称。
+2. 在 `Practices` 列表中选择目标 practice。
+3. 如需新建独立租户，点击 `Add practice`，输入 practice name 和 timezone；Solo/Pro 超出 1 个 active practice 时会看到 Billing / Contact sales gate。
 4. 在底部账户菜单中切换 `Language`、`Theme`，或点击 `Sign out` 退出。
 
 **关联模块**
 
-- Firm profile：当前 firm 的名称和 timezone 会影响这里的显示。
+- Practice profile：当前 practice 的名称和 timezone 会影响这里的显示。
 - Auth 与租户隔离：`08-auth-identity.md`、`07-db-data-access.md`
 
 ### Dashboard
@@ -494,29 +494,29 @@ Billing 页面展示当前 firm 的订阅状态、plan、seat limit、billing ro
 - Team Workload：Pro/Firm 解锁。
 - Auth billing plugin：`08-auth-identity.md`
 
-### Firm profile
+### Practice profile
 
 **模块功能**
 
-Firm profile 管理 active firm 的名称和 timezone，并提供 soft delete firm 操作。该配置只作用于当前 active tenant。
+Practice profile 管理 active practice 的名称和 timezone，并提供 soft delete practice 操作。该配置只作用于当前 active tenant，底层仍由 `firm_profile` 持久化。
 
 **适用用户**
 
-- 具备当前 firm 访问权的用户可查看当前 firm 摘要。
-- Owner 可修改 firm name、timezone，并可 soft delete 当前 firm。
+- 具备当前 practice 访问权的用户可查看当前 practice 摘要。
+- Owner 可修改 practice name、timezone，并可 soft delete 当前 practice。
 - Manager、Preparer、Coordinator 不具备当前 server 写权限，保存或删除会被拒绝。
 
 **如何使用**
 
-1. 从 sidebar 点击 `Firm profile`。
-2. 在 `General` 中修改 firm name 和 timezone。
+1. 从 sidebar 点击 `Practice profile`，进入 `/practice`。
+2. 在 `General` 中修改 practice name 和 timezone。
 3. 点击 `Save changes`。
-4. Owner 如需删除当前 firm，点击 `Delete firm`，确认后该 firm 会从 picker 中移除。
-5. 删除为 soft delete，审计历史保留；如果还有其他 firm，会跳转到下一个可用 firm，否则进入 onboarding。
+4. Owner 如需删除当前 practice，点击 `Delete practice`，确认后该 practice 会从 picker 中移除。
+5. 删除为 soft delete，审计历史保留；如果还有其他 practice，会跳转到下一个可用 practice，否则进入 onboarding。
 
 **关联模块**
 
-- 工作区切换器：显示当前 firm 名称、plan、role、seat limit。
+- Practice switcher：显示当前 practice 名称、plan、role、seat limit。
 - Auth / tenant：`08-auth-identity.md`
 - Audit：敏感变更应保留审计上下文。
 

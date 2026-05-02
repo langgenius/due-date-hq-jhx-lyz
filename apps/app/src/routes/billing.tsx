@@ -65,9 +65,13 @@ function usePlanCards(): PlanCard[] {
       price: t`$0`,
       cadence: t`Free baseline`,
       seats: t`1 owner seat`,
-      firms: t`1 firm workspace`,
+      firms: t`1 practice workspace`,
       description: t`For evaluating the deadline workbench with one owner.`,
-      features: [t`1 firm workspace`, t`Migration and rules preview`, t`Source-backed evidence`],
+      features: [
+        t`1 practice workspace`,
+        t`Migration and rules preview`,
+        t`Source-backed evidence`,
+      ],
       cta: t`Current baseline`,
       disabled: true,
     },
@@ -78,10 +82,10 @@ function usePlanCards(): PlanCard[] {
       priceSuffix: t`/ mo`,
       cadence: t`Monthly billing`,
       seats: t`5 seats included`,
-      firms: t`1 production firm`,
+      firms: t`1 production practice`,
       description: t`Shared deadline operations for a growing CPA practice.`,
       features: [
-        t`1 production firm`,
+        t`1 production practice`,
         t`Shared deadline operations`,
         t`Pulse and workboard access`,
       ],
@@ -96,10 +100,10 @@ function usePlanCards(): PlanCard[] {
       priceKind: 'text',
       cadence: t`Annual agreement`,
       seats: t`10+ seats`,
-      firms: t`Multiple firms/offices`,
+      firms: t`Multiple practices/offices`,
       description: t`Priority onboarding, audit exports, and higher coverage needs.`,
       features: [
-        t`Multiple firms/offices`,
+        t`Multiple practices/offices`,
         t`Priority onboarding`,
         t`Audit exports and coverage planning`,
       ],
@@ -118,7 +122,7 @@ export function BillingRoute() {
   const activeFirmLimit = activeFirmEntitlementLimit(firms)
   const activeFirmLimitLabel = activeFirmLimit === null ? t`contract` : String(activeFirmLimit)
   const activeFirmUsage = currentFirm
-    ? t`${activeFirmCount} of ${activeFirmLimitLabel} active firms`
+    ? t`${activeFirmCount} of ${activeFirmLimitLabel} active practices`
     : '—'
   const subscriptionsQuery = useBillingSubscriptions(currentFirm)
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
@@ -136,7 +140,7 @@ export function BillingRoute() {
   const subscriptionStatus = activeSubscription?.status ?? t`No paid subscription`
   const portalMutation = useMutation({
     mutationFn: async () => {
-      if (!currentFirm) throw new Error(t`No active firm is selected.`)
+      if (!currentFirm) throw new Error(t`No active practice is selected.`)
       return createBillingPortal({
         referenceId: currentFirm.id,
         returnUrl: new URL('/billing', window.location.origin).toString(),
@@ -153,15 +157,15 @@ export function BillingRoute() {
         <div className="flex min-w-0 items-start gap-3">
           <div className="min-w-0">
             <span className="text-xs font-medium uppercase text-text-tertiary">
-              <Trans>Organization</Trans>
+              <Trans>Practice</Trans>
             </span>
             <h1 className="mt-1 text-2xl font-semibold text-text-primary">
               <Trans>Billing</Trans>
             </h1>
             <p className="mt-1 max-w-[680px] text-sm leading-6 text-text-secondary">
               <Trans>
-                Review the active firm plan, open billing controls, and choose the right workspace
-                tier.
+                Review the active practice plan, open billing controls, and choose the right
+                workspace tier.
               </Trans>
             </p>
           </div>
@@ -190,7 +194,7 @@ export function BillingRoute() {
         <Alert variant="destructive">
           <AlertCircleIcon />
           <AlertTitle>
-            <Trans>Firm context could not load</Trans>
+            <Trans>Practice context could not load</Trans>
           </AlertTitle>
           <AlertDescription>{firmsQuery.error.message}</AlertDescription>
         </Alert>
@@ -235,7 +239,7 @@ export function BillingRoute() {
                 <div className="flex flex-col justify-between gap-4 rounded-lg border border-divider-regular bg-background-subtle p-5 md:flex-row md:items-end">
                   <div className="min-w-0">
                     <p className="text-sm text-text-tertiary">
-                      <Trans>Active firm</Trans>
+                      <Trans>Active practice</Trans>
                     </p>
                     <p className="mt-1 truncate text-xl font-semibold text-text-primary">
                       {currentFirm?.name ?? '—'}
@@ -262,9 +266,9 @@ export function BillingRoute() {
                     name={`Seat limit: ${currentFirm?.seatLimit ?? 'none'}`}
                   />
                   <Metric
-                    label={<Trans>Firm workspaces</Trans>}
+                    label={<Trans>Practice workspaces</Trans>}
                     value={activeFirmUsage}
-                    name={`Firm workspaces: ${activeFirmCount} of ${activeFirmLimitLabel}`}
+                    name={`Practice workspaces: ${activeFirmCount} of ${activeFirmLimitLabel}`}
                   />
                   <Metric
                     label={<Trans>Subscription status</Trans>}
@@ -319,14 +323,14 @@ export function BillingRoute() {
               <Trans>Billing controls</Trans>
             </CardTitle>
             <CardDescription>
-              <Trans>Organization billing stays scoped to the selected firm.</Trans>
+              <Trans>Practice billing stays scoped to the selected practice.</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 text-sm">
             <ControlRow
               icon={<ShieldCheckIcon className="size-4" aria-hidden />}
               title={<Trans>Owner approved</Trans>}
-              description={<Trans>Only firm owners can change plans or open the portal.</Trans>}
+              description={<Trans>Only practice owners can change plans or open the portal.</Trans>}
             />
             <ControlRow
               icon={<CreditCardIcon className="size-4" aria-hidden />}
@@ -360,7 +364,7 @@ export function BillingRoute() {
           </div>
           <p className="max-w-[520px] text-sm text-text-secondary">
             <Trans>
-              Self-serve Pro changes use secure checkout and include one production firm.
+              Self-serve Pro changes use secure checkout and include one production practice.
             </Trans>
           </p>
         </header>
@@ -384,7 +388,7 @@ export function BillingRoute() {
           </CardHeader>
           <CardContent className="grid gap-3 text-sm leading-6 text-text-secondary md:grid-cols-2">
             <p>
-              <Trans>Paid subscriptions bill the organization, not an individual user.</Trans>
+              <Trans>Paid subscriptions bill the practice, not an individual user.</Trans>
             </p>
             <p>
               <Trans>Success pages wait for webhook confirmation before showing activation.</Trans>

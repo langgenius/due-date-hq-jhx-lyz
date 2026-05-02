@@ -254,7 +254,7 @@
 ### 3.6.1 定位与前置约束
 
 > **2026-05-02 pricing entitlement update**：本节的 P0/P1 切分保留历史 PRD 语境；
-> 当前 accepted 产品口径以 `docs/product-design/billing/01-firm-entitlement-pricing.md`
+> 当前 accepted 产品口径以 `docs/product-design/billing/01-practice-entitlement-pricing.md`
 > 为准。`pro` 是 $99/mo self-serve paid tier（1 active firm + 5 seats），`firm` 是
 > sales-assisted custom tier（multiple active firms/offices + 10+ seats）。Firm switcher
 > 的 multi-firm foundation 已落地，但 active firm count 仍是待实现的 pricing gate。
@@ -400,10 +400,10 @@ Audit event: team.member.joined
 
 #### 多事务所切换
 
-- 登录成功后如 user has ≥ 2 active memberships → 进入最近 active firm；sidebar 顶部 Firm
+- 登录成功后如 user has ≥ 2 active memberships → 进入最近 active practice；sidebar 顶部 Practice
   switcher 可切换（类似 Slack / Notion workspace picker），全局快捷键 `Cmd+Shift+O` 保留。
 - URL 不含 `firm_slug`；当前 firm 来自 `session.activeOrganizationId`，刷新保留在 session。
-- `Add firm` 是 plan-gated action：Solo / Pro 超过 1 active firm 时进入 Billing / Contact sales gate，
+- `Add practice` 是 plan-gated action：Solo / Pro 超过 1 active practice 时进入 Billing / Contact sales gate，
   Firm plan 依据合同允许多个 active firms / offices。
 
 ### 3.6.5 视图层：My work / Firm-wide

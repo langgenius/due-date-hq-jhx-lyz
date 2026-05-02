@@ -16,7 +16,7 @@ specs were:
 - `authenticated-shell.spec.ts`
 - `billing-success.spec.ts`
 - `clients.spec.ts`
-- `firm-switch.spec.ts`
+- `practice-switch.spec.ts`
 
 The app behavior was present and the failures were assertion drift, not product regressions.
 
@@ -40,5 +40,5 @@ change product behavior, the E2E harness, seed routes, Playwright config, or CI 
 
 ## Validation
 
-- `pnpm test:e2e e2e/tests/authenticated-shell.spec.ts e2e/tests/billing-success.spec.ts e2e/tests/clients.spec.ts e2e/tests/firm-switch.spec.ts`
+- `pnpm test:e2e e2e/tests/authenticated-shell.spec.ts e2e/tests/billing-success.spec.ts e2e/tests/clients.spec.ts e2e/tests/practice-switch.spec.ts`
 - `pnpm test:e2e`

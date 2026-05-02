@@ -19,7 +19,7 @@ creating unlimited independent tenant workspaces.
 
 ## Documentation Changes
 
-- Added `docs/product-design/billing/01-firm-entitlement-pricing.md` as the source product
+- Added `docs/product-design/billing/01-practice-entitlement-pricing.md` as the source product
   definition for firm/workspace limits.
 - Updated Data Model docs to mark the current multi-firm implementation as a foundation with an
   outstanding entitlement gap.
@@ -44,7 +44,7 @@ creating unlimited independent tenant workspaces.
   both firm/workspace limits and seat limits.
 - Added unit coverage for app entitlement helpers, server entitlement helper, db query shape, and
   stable error codes.
-- Updated firm-switch E2E to verify Solo gate behavior and Firm-plan multi-firm creation.
+- Updated practice-switch E2E to verify Solo gate behavior and Firm-plan multi-firm creation.
 
 ## Validation
 
@@ -58,4 +58,4 @@ creating unlimited independent tenant workspaces.
 - `pnpm check`
 - `pnpm --filter @duedatehq/marketing build`
 - `pnpm --filter @duedatehq/server build`
-- `pnpm exec playwright test e2e/tests/firm-switch.spec.ts`
+- `pnpm exec playwright test e2e/tests/practice-switch.spec.ts`

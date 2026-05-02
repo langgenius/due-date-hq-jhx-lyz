@@ -9,7 +9,7 @@ import { attachLocaleHeader } from '@/i18n/i18n'
 // The x-locale header is forwarded so the Worker can localize invitation emails etc.
 //
 // `organizationClient()` mirrors the server-side `organization()` plugin so
-// the typed shape of `session.activeOrganizationId` stays available. Firm
+// the typed shape of `session.activeOrganizationId` stays available. Practice
 // lifecycle writes go through the app-owned `firms` RPC gateway.
 export const authClient = createAuthClient({
   baseURL: `${window.location.origin}/api/auth`,

@@ -21,7 +21,7 @@ Firm (tenant)
 Solo / Pro 默认只包含 1 个 active firm；Firm plan 才包含 contract-defined multiple
 active firms / offices。`seatLimit` 仍是每个 firm 内的成员席位限制，不等于 active
 firm count。完整产品口径见
-`docs/product-design/billing/01-firm-entitlement-pricing.md`。
+`docs/product-design/billing/01-practice-entitlement-pricing.md`。
 
 也就是说 PRD 第一性把这些字段视为 **first-class**（结构化、可索引、可在需要时
 通过 schema / migration 加 CHECK 约束、可加 FK），不是 metadata blob。当前 D1

@@ -98,7 +98,7 @@ export function AppShell(props: AppShellProps) {
           {/*
             The sibling 1px hairline (instead of `border-b` on `<header>`)
             puts the route-header rib at the same Y as the sidebar's
-            FirmSwitcher hairline (both at `h_header + 0`), avoiding the
+            Practice switcher hairline (both at `h_header + 0`), avoiding the
             1px collinearity drift caused by mixing `strokeAlign:'INSIDE'`
             with sibling rectangles.
           */}

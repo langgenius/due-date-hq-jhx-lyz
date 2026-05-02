@@ -111,7 +111,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         description: t`Update the active practice's name and timezone.`,
         group: 'navigate',
         icon: Building2Icon,
-        onSelect: () => navigate('/firm'),
+        onSelect: () => navigate('/practice'),
       },
       {
         id: 'rules',

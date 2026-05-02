@@ -14,7 +14,7 @@
 | `apps/app/src/router.tsx`                        | 路由表、loader gating、locale handoff、404                 |
 | `apps/app/src/lib/rpc.ts`                        | oRPC client、locale header、credentials                    |
 | `apps/app/src/lib/auth.ts`                       | Better Auth client、organization/stripe plugins            |
-| `apps/app/src/routes/_layout.tsx`                | 登录后应用框架、firm/session 数据加载                      |
+| `apps/app/src/routes/_layout.tsx`                | 登录后应用框架、practice/session 数据加载                  |
 | `apps/app/src/components/patterns/app-shell.tsx` | Sidebar、header、mobile shell、pending indicator           |
 | `apps/app/src/features/migration`                | Migration Copilot 四步向导                                 |
 | `apps/app/src/features/pulse`                    | Pulse alert 列表、详情 drawer、apply/dismiss/snooze/revert |
@@ -24,12 +24,12 @@
 
 ## 主要功能
 
-### 登录、onboarding 与 firm 切换
+### 登录、onboarding 与 practice identity/switching
 
 - 使用 Better Auth client 调用 `/api/auth`。
 - React Router loaders 区分 guest、onboarding 和 protected route。
-- 登录后根据 active organization 加载 firm context。
-- 支持成员、事务所设置、active firm 切换和 owner-only 管理动作。
+- 登录后根据 active organization 加载 practice context。
+- 支持成员、事务所设置、active practice 切换和 owner-only 管理动作。
 
 ### Dashboard
 
@@ -46,7 +46,7 @@
   drawer（Readiness / Extension / Risk / Evidence / Audit）。
 - `/readiness/:token` 是公开客户 portal route，脱离受保护 app shell，只展示客户安全字段并提交
   readiness response。
-- coordinator 角色在 firm 设置禁止时隐藏 dollar exposure。
+- coordinator 角色在 practice 设置禁止时隐藏 dollar exposure。
 
 ### Migration Copilot
 

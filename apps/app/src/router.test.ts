@@ -212,7 +212,7 @@ describe('protectedLoader', () => {
     )
   })
 
-  it('returns the user when session has an active firm', async () => {
+  it('returns the user when session has an active practice', async () => {
     getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
     const result = await protectedLoader(makeArgs('http://localhost/'))
     expect(result).toEqual({ user: { id: 'user_1', name: 'Alex Chen', email: 'alex@example.com' } })
@@ -267,7 +267,7 @@ describe('onboardingLoader', () => {
     expect(currentLocale()).toBe('zh-CN')
   })
 
-  it('redirects to redirectTo (or /) when an active firm already exists', async () => {
+  it('redirects to redirectTo (or /) when an active practice already exists', async () => {
     getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
     await expectRedirectTo(
       onboardingLoader(makeArgs('http://localhost/onboarding?redirectTo=/workboard')),

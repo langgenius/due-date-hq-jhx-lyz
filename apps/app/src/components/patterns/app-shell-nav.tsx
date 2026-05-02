@@ -76,7 +76,7 @@ type NavItem = {
 type NavConfig = {
   operations: NavItem[]
   clients: NavItem[]
-  organization: NavItem[]
+  practice: NavItem[]
 }
 
 function firmMonogram(name: string): string {
@@ -116,7 +116,7 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
         void queryClient.invalidateQueries()
       },
       onError: (err) => {
-        toast.error(t`Could not switch firm.`, {
+        toast.error(t`Could not switch practice.`, {
           description: rpcErrorMessage(err) ?? t`Please try again.`,
         })
       },
@@ -138,8 +138,8 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
     requireReset: true,
     meta: {
       id: 'firm.switch',
-      name: 'Switch firm',
-      description: 'Open the firm switcher.',
+      name: 'Switch practice',
+      description: 'Open the practice switcher.',
       category: 'global',
       scope: 'global',
     },
@@ -152,7 +152,7 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
           render={
             <button
               type="button"
-              aria-label={t`Switch firm, current ${firm.name}`}
+              aria-label={t`Switch practice, current ${firm.name}`}
               aria-keyshortcuts="Meta+Shift+O Control+Shift+O"
               className="flex h-14 w-full cursor-pointer touch-manipulation items-center gap-2.5 px-3 text-left outline-none transition-colors hover:bg-background-default-hover focus-visible:bg-background-default-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
             />
@@ -177,7 +177,7 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
           <DropdownMenuGroup>
             <DropdownMenuLabel className="text-left">
               <span className="text-xs font-medium uppercase tracking-[0.08em] text-text-tertiary">
-                <Trans>Workspaces</Trans>
+                <Trans>Practices</Trans>
               </span>
             </DropdownMenuLabel>
             {firms.map((item) => {
@@ -226,7 +226,7 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
             >
               <PlusIcon />
               <span>
-                <Trans>Add firm</Trans>
+                <Trans>Add practice</Trans>
               </span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
@@ -263,7 +263,7 @@ function AddFirmDialog({
         void queryClient.invalidateQueries()
       },
       onError: (err) => {
-        setError(rpcErrorMessage(err) ?? t`Could not create firm.`)
+        setError(rpcErrorMessage(err) ?? t`Could not create practice.`)
       },
     }),
   )
@@ -285,19 +285,20 @@ function AddFirmDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            <Trans>Add firm</Trans>
+            <Trans>Add practice</Trans>
           </DialogTitle>
           {canCreate ? (
             <DialogDescription>
               <Trans>
-                Create a separate tenant with its own clients, deadlines, audit trail, and settings.
+                Create a separate practice with its own clients, deadlines, audit trail, and
+                settings.
               </Trans>
             </DialogDescription>
           ) : (
             <DialogDescription>
               <Trans>
-                Your current plan includes one active firm. Additional firms are available on the
-                Firm plan.
+                Your current plan includes one active practice. Additional practices are available
+                on the Firm plan.
               </Trans>
             </DialogDescription>
           )}
@@ -306,15 +307,15 @@ function AddFirmDialog({
           <div className="grid gap-4">
             <div className="rounded-md border border-divider-regular bg-background-subtle p-4">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-text-tertiary">
-                <Trans>Firm workspaces</Trans>
+                <Trans>Practice workspaces</Trans>
               </p>
               <p className="mt-2 text-sm font-medium text-text-primary">
                 <Trans>{ownedFirmCount} of 1 included</Trans>
               </p>
               <p className="mt-1 text-sm leading-5 text-text-secondary">
                 <Trans>
-                  Solo and Pro include one active firm workspace. Contact sales for multiple firms,
-                  offices, or demo/production separation.
+                  Solo and Pro include one active practice workspace. Contact sales for multiple
+                  practices, offices, or demo/production separation.
                 </Trans>
               </p>
             </div>
@@ -331,7 +332,7 @@ function AddFirmDialog({
           <form onSubmit={handleSubmit} className="grid gap-4">
             <div className="grid gap-1.5">
               <Label htmlFor="add-firm-name">
-                <Trans>Firm name</Trans>
+                <Trans>Practice name</Trans>
               </Label>
               <Input
                 id="add-firm-name"
@@ -363,7 +364,11 @@ function AddFirmDialog({
                 <Trans>Cancel</Trans>
               </Button>
               <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? <Trans>Creating…</Trans> : <Trans>Create firm</Trans>}
+                {createMutation.isPending ? (
+                  <Trans>Creating…</Trans>
+                ) : (
+                  <Trans>Create practice</Trans>
+                )}
               </Button>
             </DialogFooter>
           </form>
@@ -416,8 +421,8 @@ function useNavItems(firm: FirmPublic): NavConfig {
         },
       ],
       clients: [{ href: '/clients', label: t`Clients`, icon: UsersIcon, end: false }],
-      organization: [
-        { href: '/firm', label: t`Firm profile`, icon: Building2Icon, end: false },
+      practice: [
+        { href: '/practice', label: t`Practice profile`, icon: Building2Icon, end: false },
         { href: '/rules', label: t`Rules`, icon: FileCheck2Icon, end: false },
         { href: '/members', label: t`Members`, icon: UsersIcon, end: false },
         { href: '/billing', label: t`Billing`, icon: CreditCardIcon, end: false },
@@ -443,8 +448,8 @@ function NavGroups({ firm }: { firm: FirmPublic }) {
           <NavMenuItem key={item.href} item={item} />
         ))}
       </NavGroupSection>
-      <NavGroupSection label={t`Organization`}>
-        {items.organization.map((item) => (
+      <NavGroupSection label={t`Practice`}>
+        {items.practice.map((item) => (
           <NavMenuItem key={item.href} item={item} />
         ))}
       </NavGroupSection>

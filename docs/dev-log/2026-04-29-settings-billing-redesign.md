@@ -7,7 +7,7 @@ Owner: Codex
 > 2026-04-29 by `2026-04-29-billing-plan-semantic-swap.md`. Current product pricing shape is:
 > Solo = 1 active firm / 1 owner seat, Pro = 1 active firm / 5 seats self-serve, Firm =
 > multiple active firms/offices by contract / 10+ seats. See
-> `docs/product-design/billing/01-firm-entitlement-pricing.md`.
+> `docs/product-design/billing/01-practice-entitlement-pricing.md`.
 
 ## Context
 
