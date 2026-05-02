@@ -80,31 +80,6 @@ async function writeDeniedAudit(
   }
 }
 
-function isOwnerOnlyGate(allowedRoles: readonly Role[]): boolean {
-  return allowedRoles.length === 1 && allowedRoles[0] === 'owner'
-}
-
-function userHasTwoFactor(ctx: RpcContext): boolean {
-  const user = ctx.vars.user
-  if (!user || !('twoFactorEnabled' in user)) return false
-  return user.twoFactorEnabled === true
-}
-
-async function enforceOwnerMfa(ctx: RpcContext, allowedRoles: readonly Role[], actualRole: Role) {
-  if (ctx.env.ENV === 'development' || actualRole !== 'owner' || !isOwnerOnlyGate(allowedRoles)) {
-    return
-  }
-  if (userHasTwoFactor(ctx)) return
-
-  await writeDeniedAudit(ctx, {
-    action: 'mfa.required',
-    allowedRoles,
-    actualRole,
-    reason: 'mfa_required',
-  })
-  throw new ORPCError('FORBIDDEN', { message: ErrorCodes.MFA_REQUIRED })
-}
-
 export async function requireCurrentFirmRole(
   ctx: RpcContext,
   allowedRoles: readonly Role[],
@@ -125,8 +100,6 @@ export async function requireCurrentFirmRole(
     })
     throw new ORPCError('FORBIDDEN', { message: ErrorCodes.MEMBER_FORBIDDEN })
   }
-
-  await enforceOwnerMfa(ctx, allowedRoles, actor.role)
 
   return { members, tenant, userId }
 }
@@ -155,6 +128,5 @@ export async function requirePermission(
     })
     throw new ORPCError('FORBIDDEN', { message: ErrorCodes.MEMBER_FORBIDDEN })
   }
-  await enforceOwnerMfa(ctx, allowedRoles, actor.role)
   return { members, tenant, userId }
 }

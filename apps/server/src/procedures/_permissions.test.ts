@@ -10,12 +10,13 @@ import {
   MIGRATION_REVERT_ROLES,
   MIGRATION_RUN_ROLES,
   OBLIGATION_STATUS_WRITE_ROLES,
+  requireCurrentFirmOwner,
   requireCurrentFirmRole,
 } from './_permissions'
 
 function contextFor(role: string, status = 'active'): RpcContext {
   return {
-    env: {} as Env,
+    env: { ENV: 'production' } as Env,
     request: new Request('https://app.test/rpc/audit/list'),
     vars: {
       requestId: 'req_1',
@@ -70,6 +71,13 @@ describe('requireCurrentFirmRole', () => {
       requireCurrentFirmRole(contextFor('owner', 'suspended'), ['owner']),
     ).rejects.toMatchObject({
       code: 'FORBIDDEN',
+    })
+  })
+
+  it('allows owner-only gates by role without coupling project access to optional MFA', async () => {
+    await expect(requireCurrentFirmOwner(contextFor('owner'))).resolves.toMatchObject({
+      tenant: { firmId: 'firm_1' },
+      userId: 'user_1',
     })
   })
 

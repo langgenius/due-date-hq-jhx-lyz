@@ -8,12 +8,12 @@
 - Added `/accept-invite`, `/two-factor`, and `/account/security` routes so invitation acceptance, MFA setup, login challenge, and session revocation are user-facing.
 - Added `security.*` oRPC procedures that wrap Better Auth session/MFA APIs without exposing raw session tokens to the SPA.
 - Closed the OAuth MFA gap by adding a `twoFactorVerified` session field, a `protectedLoader` MFA gate, and server-side `Set-Cookie` forwarding for Better Auth MFA session rotation.
-- Added production Owner MFA enforcement for owner-only sensitive procedures via `MFA_REQUIRED`.
+- Corrected the boundary so MFA stays optional account security; project interfaces do not depend on MFA state.
 - Extended auth audit actions for login success, MFA lifecycle, and session revocation.
 
 ## Validation
 
-Current MFA session fix:
+Current MFA session and optional-boundary fix:
 
 - `pnpm --filter @duedatehq/server test`
 - `pnpm --filter @duedatehq/app test -- router.test.ts`

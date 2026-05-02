@@ -114,7 +114,7 @@
 | **Phase 2 · Q3 2026**（PRD §14.3）     | macOS Menu Bar Widget · Audit-Ready Evidence Package · QBO/TaxDome/Drake 集成 · 电子签名 · SOC 2 预审                                         | Tauri 壳 · RFC 3161 TSA · 第三方集成 API                                                                                                              |
 | **Phase 3 · Q4 2026+**（PRD §14.4）    | Compliance Calendar API（给 TaxDome / Karbon 做 intelligence 层）                                                                             | 开放 `/api/v1/*` OpenAPIHandler 路由（复用同一份 `packages/contracts` 契约）                                                                          |
 
-Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Membership 三表在 Phase 0 已通过 better-auth Organization 就位；ExceptionRule 表结构在 Phase 0 末设计到位，Phase 1 启用 Overlay Engine 时零 schema 重构。P0 的安全含义是 tenant isolation、Owner-only 写路径、审计与 AI 日志；完整四角色权限矩阵与 Manager MFA 属 P1，Owner MFA 在真实试点前启用。
+Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Membership 三表在 Phase 0 已通过 better-auth Organization 就位；ExceptionRule 表结构在 Phase 0 末设计到位，Phase 1 启用 Overlay Engine 时零 schema 重构。P0 的安全含义是 tenant isolation、Owner-only 写路径、审计与 AI 日志；完整四角色权限矩阵属 P1，MFA 作为用户可选账户安全项。
 
 ---
 

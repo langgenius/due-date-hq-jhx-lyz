@@ -529,7 +529,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | P0-20 | Audit Log                                        | 状态变更 / Pulse Apply / 批量操作 / Migration / Revert 全留痕                                                                                                                                                   | —              |
 | P0-21 | Email Reminders                                  | 30 / 7 / 1 天阶梯；模板带上下文 + source link                                                                                                                                                                   | —              |
 | P0-22 | In-app Notifications                             | Top bar 铃铛 + 未读计数 + Preferences                                                                                                                                                                           | —              |
-| P0-24 | Security Baseline                                | HTTPS / TLS / AES-256 at rest / tenant isolation / audit log / `ai_output` trace；7 天 Demo 可交 WISP draft，真实试点 / 4 周 MVP 交 WISP v1.0；Owner MFA 在真实试点前启用，完整四角色 Team RBAC 属 P1（§3.6.3） | —              |
+| P0-24 | Security Baseline                                | HTTPS / TLS / AES-256 at rest / tenant isolation / audit log / `ai_output` trace；7 天 Demo 可交 WISP draft，真实试点 / 4 周 MVP 交 WISP v1.0；MFA 作为用户可选账户安全项，完整四角色 Team RBAC 属 P1（§3.6.3） | —              |
 
 ### 4.2 P1 — 差异化亮点（Story S3 + VPC Medium）
 

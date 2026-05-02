@@ -40,7 +40,7 @@
 
 | 能力                            | Demo 不做                        | 保留口径                                                                                        |
 | ------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |
-| 完整 Team/RBAC                  | 不做四角色权限 UI 和权限矩阵落地 | Owner-only；Organization 数据层就位；真实试点前补 Owner MFA                                     |
+| 完整 Team/RBAC                  | 不做四角色权限 UI 和权限矩阵落地 | Owner-only；Organization 数据层就位；MFA 作为用户可选账户安全项                                 |
 | Client Readiness Portal         | 不做外部客户入口                 | Phase 1                                                                                         |
 | Audit-Ready Package             | 不做 ZIP 签名导出                | Demo 展示 audit trail / evidence chain                                                          |
 | 完整 Rules Overlay              | 不做 runtime overlay engine      | Demo 直接更新 due date；后续从 Pulse application 迁移                                           |

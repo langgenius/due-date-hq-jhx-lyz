@@ -34,7 +34,7 @@
 - Cookie prefix `duedatehq`。
 - 非 development 环境启用 secure cookies。
 - trusted origins 来自 `AUTH_URL` 和 `APP_URL`。
-- `twoFactor` plugin 提供 TOTP MFA；production Owner-only 敏感操作要求 Owner 已启用 MFA。
+- `twoFactor` plugin 提供可选 TOTP MFA；启用后当前登录 session 必须完成 `/two-factor` 验证，项目接口权限仍只由 tenant + role 决定。
 
 ### Organization 与 firm
 
