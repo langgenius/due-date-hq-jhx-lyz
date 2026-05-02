@@ -33,4 +33,10 @@ describe('utils', () => {
       '2026-04-29 09:14:32 UTC',
     )
   })
+
+  it('formats datetimes in the requested IANA timezone', () => {
+    expect(formatDateTimeWithTimezone('2026-04-29T09:14:32.883Z', 'America/Los_Angeles')).toMatch(
+      /^2026-04-29 02:14:32 (PDT|GMT-7)$/,
+    )
+  })
 })

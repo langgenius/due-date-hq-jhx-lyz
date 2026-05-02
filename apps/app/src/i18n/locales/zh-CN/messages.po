@@ -1774,9 +1774,17 @@ msgstr "事务所资料仅适用于当前活跃租户。"
 msgid "Firm profile could not load"
 msgstr "无法加载事务所资料"
 
+#: src/routes/firm.tsx
+msgid "Firm profile saved"
+msgstr "事务所资料已保存"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Firm switched"
 msgstr "事务所已切换"
+
+#: src/features/audit/audit-event-drawer.tsx
+msgid "Firm time"
+msgstr "事务所时间"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Firm updated"
@@ -2152,10 +2160,6 @@ msgstr "加载中..."
 #: src/routes/workboard.tsx
 msgid "Loading…"
 msgstr "加载中…"
-
-#: src/features/audit/audit-event-drawer.tsx
-msgid "Local time"
-msgstr "本地时间"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Logged to audit trail"
@@ -3143,6 +3147,7 @@ msgstr "请至少输入 2 个字符。"
 #: src/features/workload/workload-page.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/firm.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
 #: src/routes/workboard.tsx

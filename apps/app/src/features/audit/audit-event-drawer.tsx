@@ -32,12 +32,20 @@ function MetadataRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-function JsonBlock({ label, value }: { label: string; value: unknown }) {
+function JsonBlock({
+  label,
+  value,
+  firmTimezone,
+}: {
+  label: string
+  value: unknown
+  firmTimezone?: string
+}) {
   return (
     <section className="grid gap-2">
       <h3 className="text-xs font-medium tracking-wider text-text-tertiary uppercase">{label}</h3>
       <pre className="max-h-56 overflow-auto rounded-lg border border-divider-subtle bg-background-subtle p-3 font-mono text-xs leading-relaxed text-text-secondary">
-        {formatAuditJson(value)}
+        {formatAuditJson(value, firmTimezone)}
       </pre>
     </section>
   )
@@ -45,10 +53,12 @@ function JsonBlock({ label, value }: { label: string; value: unknown }) {
 
 export function AuditEventDrawer({
   event,
+  firmTimezone,
   open,
   onOpenChange,
 }: {
   event: AuditEventPublic | null
+  firmTimezone: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
@@ -63,13 +73,21 @@ export function AuditEventDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-[440px]">
-        {detailEvent ? <AuditEventDrawerContent event={detailEvent} /> : null}
+        {detailEvent ? (
+          <AuditEventDrawerContent event={detailEvent} firmTimezone={firmTimezone} />
+        ) : null}
       </SheetContent>
     </Sheet>
   )
 }
 
-function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
+function AuditEventDrawerContent({
+  event,
+  firmTimezone,
+}: {
+  event: AuditEventPublic
+  firmTimezone: string
+}) {
   const { t } = useLingui()
   const actionLabels = useAuditActionLabels()
   const entityTypeLabels = useAuditEntityTypeLabels()
@@ -85,7 +103,7 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
   const actionLabel = formatAuditActionLabel(event.action, actionLabels)
   const entityTypeLabel = formatAuditEntityTypeLabel(event.entityType, entityTypeLabels)
   const entityDisplay = getAuditEntityDisplay(event, entityTypeLabel)
-  const localTime = formatDateTimeWithTimezone(event.createdAt)
+  const firmTime = formatDateTimeWithTimezone(event.createdAt, firmTimezone)
   const utcTime = formatDateTimeWithTimezone(event.createdAt, 'UTC')
 
   return (
@@ -104,12 +122,12 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
               <Badge variant={event.actorId ? 'secondary' : 'outline'}>{actor}</Badge>
             </div>
             <p className="text-md text-text-primary">
-              {summarizeAuditChange(event, summaryLabels)}
+              {summarizeAuditChange(event, summaryLabels, firmTimezone)}
             </p>
           </section>
 
           <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
-            <MetadataRow label={t`Local time`} value={localTime} />
+            <MetadataRow label={t`Firm time`} value={firmTime} />
             <MetadataRow label={t`UTC time`} value={utcTime} />
             <MetadataRow label={t`Entity`} value={entityDisplay.primary} />
             <MetadataRow label={t`Entity type`} value={entityTypeLabel} />
@@ -118,8 +136,8 @@ function AuditEventDrawerContent({ event }: { event: AuditEventPublic }) {
             {event.reason ? <MetadataRow label={t`Reason`} value={event.reason} /> : null}
           </dl>
 
-          <JsonBlock label={t`Before`} value={event.beforeJson} />
-          <JsonBlock label={t`After`} value={event.afterJson} />
+          <JsonBlock label={t`Before`} value={event.beforeJson} firmTimezone={firmTimezone} />
+          <JsonBlock label={t`After`} value={event.afterJson} firmTimezone={firmTimezone} />
 
           <dl className="grid gap-4 rounded-lg border border-divider-subtle p-4">
             <MetadataRow label={t`IP hash`} value={event.ipHash ?? t`Not recorded`} />

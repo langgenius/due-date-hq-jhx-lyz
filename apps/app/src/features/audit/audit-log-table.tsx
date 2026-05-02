@@ -25,9 +25,11 @@ import {
 
 export function AuditLogTable({
   events,
+  firmTimezone,
   onOpenEvent,
 }: {
   events: AuditEventPublic[]
+  firmTimezone: string
   onOpenEvent: (id: string) => void
 }) {
   const { t } = useLingui()
@@ -80,6 +82,7 @@ export function AuditLogTable({
               actionLabel={actionLabel}
               entityDisplay={entityDisplay}
               summaryLabels={summaryLabels}
+              firmTimezone={firmTimezone}
               onOpenEvent={onOpenEvent}
             />
           )
@@ -95,6 +98,7 @@ function AuditLogRow({
   actionLabel,
   entityDisplay,
   summaryLabels,
+  firmTimezone,
   onOpenEvent,
 }: {
   event: AuditEventPublic
@@ -102,6 +106,7 @@ function AuditLogRow({
   actionLabel: string
   entityDisplay: { primary: string; secondary: string }
   summaryLabels: AuditSummaryLabels
+  firmTimezone: string
   onOpenEvent: (id: string) => void
 }) {
   const { t } = useLingui()
@@ -128,7 +133,9 @@ function AuditLogRow({
     >
       <TableCell className="font-mono text-xs tabular-nums">
         <div className="grid gap-1">
-          <span className="text-text-primary">{formatDateTimeWithTimezone(event.createdAt)}</span>
+          <span className="text-text-primary">
+            {formatDateTimeWithTimezone(event.createdAt, firmTimezone)}
+          </span>
           <span className="text-text-tertiary">
             {formatDateTimeWithTimezone(event.createdAt, 'UTC')}
           </span>
@@ -159,7 +166,7 @@ function AuditLogRow({
       </TableCell>
       <TableCell className="max-w-[360px] whitespace-normal">
         <span className="line-clamp-2 text-sm text-text-secondary">
-          {summarizeAuditChange(event, summaryLabels)}
+          {summarizeAuditChange(event, summaryLabels, firmTimezone)}
         </span>
       </TableCell>
       <TableCell className="text-right">

@@ -36,6 +36,7 @@ import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { resolveUSFirmTimezone } from '@/features/firm/timezone-select'
 
 import { AuditEventDrawer } from './audit-event-drawer'
 import { useAuditActionLabels, useAuditEntityTypeLabels } from './audit-log-labels'
@@ -387,6 +388,9 @@ export function AuditLogPage() {
   const actionFilter = sanitizeAuditFilter(query.action)
   const actorFilter = sanitizeAuditFilter(query.actor)
   const entityTypeFilter = sanitizeAuditFilter(query.entityType)
+  const firmsQuery = useQuery(orpc.firms.listMine.queryOptions({ input: undefined }))
+  const currentFirm = firmsQuery.data?.find((firm) => firm.isCurrent) ?? firmsQuery.data?.[0]
+  const firmTimezone = resolveUSFirmTimezone(currentFirm?.timezone)
 
   const queryInputWithoutCursor = useMemo<Omit<AuditListInput, 'cursor'>>(
     () => ({
@@ -654,7 +658,11 @@ export function AuditLogPage() {
 
           {events.length > 0 ? (
             <>
-              <AuditLogTable events={currentPageEvents} onOpenEvent={openEvent} />
+              <AuditLogTable
+                events={currentPageEvents}
+                firmTimezone={firmTimezone}
+                onOpenEvent={openEvent}
+              />
               <AuditLogPagination
                 pageIndex={currentPageIndex}
                 firstItemNumber={firstItemNumber}
@@ -673,6 +681,7 @@ export function AuditLogPage() {
 
       <AuditEventDrawer
         event={selectedEvent}
+        firmTimezone={firmTimezone}
         open={Boolean(selectedEvent)}
         onOpenChange={closeEvent}
       />

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { AlertCircleIcon, Building2Icon, Trash2Icon } from 'lucide-react'
+import { toast } from 'sonner'
 import type { FirmPublic } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import {
@@ -29,6 +30,7 @@ import { Label } from '@duedatehq/ui/components/ui/label'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { FirmTimezoneSelect, resolveUSFirmTimezone } from '@/features/firm/timezone-select'
 import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
 
 export function FirmRoute() {
   const currentQuery = useQuery(orpc.firms.getCurrent.queryOptions({ input: undefined }))
@@ -83,12 +85,19 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
 
   const updateMutation = useMutation(
     orpc.firms.updateCurrent.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (updatedFirm) => {
         setError(null)
         void queryClient.invalidateQueries({ queryKey: orpc.firms.key() })
+        toast.success(t`Firm profile saved`, {
+          description: updatedFirm.name,
+        })
       },
       onError: (err) => {
-        setError(err.message || t`Could not update firm.`)
+        const message = rpcErrorMessage(err) ?? t`Please try again.`
+        setError(message)
+        toast.error(t`Could not update firm.`, {
+          description: message,
+        })
       },
     }),
   )
@@ -109,7 +118,11 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
     event.preventDefault()
     const trimmed = name.trim()
     if (trimmed.length < 2) {
-      setError(t`Please enter at least 2 characters.`)
+      const message = t`Please enter at least 2 characters.`
+      setError(message)
+      toast.error(t`Could not update firm.`, {
+        description: message,
+      })
       return
     }
     updateMutation.mutate({ name: trimmed, timezone })

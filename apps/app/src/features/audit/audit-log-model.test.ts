@@ -62,7 +62,23 @@ describe('audit-log-model', () => {
     expect(formatAuditJson({ createdAt: '2026-04-29T09:14:32.883Z' })).toMatch(
       /2026-04-\d{2} \d{2}:14:32 .+/,
     )
+    expect(
+      formatAuditJson({ createdAt: '2026-04-29T09:14:32.883Z' }, 'America/Los_Angeles'),
+    ).toContain('2026-04-29 02:14:32')
     expect(formatAuditJson(null)).toBe('null')
+  })
+
+  it('summarizes timestamp changes in the requested firm timezone', () => {
+    expect(
+      summarizeAuditChange(
+        {
+          beforeJson: { createdAt: '2026-04-29T09:14:32.883Z' },
+          afterJson: { createdAt: '2026-04-29T10:14:32.883Z' },
+        },
+        undefined,
+        'America/Los_Angeles',
+      ),
+    ).toContain('createdAt: 2026-04-29 02:14:32')
   })
 
   it('formats audit entity type labels for user-facing surfaces', () => {

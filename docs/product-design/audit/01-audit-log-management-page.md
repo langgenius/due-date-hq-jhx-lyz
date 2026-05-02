@@ -125,7 +125,7 @@ Columns:
 
 | Column | Behavior                                                                                                                         |
 | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| Time   | Local timestamp as the primary line; UTC timestamp as secondary metadata. Use mono tabular numerals.                             |
+| Time   | Active firm timezone timestamp as the primary line; UTC timestamp as secondary metadata. Use mono tabular numerals.              |
 | Actor  | User display label when available; `System` when `actorId` is null; raw actor id as fallback.                                    |
 | Action | User-facing action label such as `Deadline status changed` or `Saved view deleted`; do not show the stored dotted action string. |
 | Entity | Entity name/description when available; otherwise user-facing type label + shortened `entityId`. Raw `entityType` is not shown.  |

@@ -295,7 +295,8 @@
 Datetime 展示统一使用 `YYYY-MM-DD HH:mm:ss <timezone>`，例如
 `2026-04-29 09:14:32 UTC` 或 `2026-04-29 17:14:32 GMT+8`。UI 不直接暴露
 `2026-04-29T09:14:32.883Z` 这类 ISO transport value；date-only due date 可只显示
-`YYYY-MM-DD`。
+`YYYY-MM-DD`。Firm-scoped operational surfaces use the active firm timezone as the primary
+display timezone and may show UTC as secondary audit metadata.
 
 ---
 
