@@ -53,30 +53,47 @@ const severityRow: Record<'critical' | 'high' | 'medium', { tint: string; bar: s
                 <span class="text-text-muted">·</span>
                 <span class="font-mono text-[12px] text-text-muted">{s.header.timestamp}</span>
               </div>
-              <div class="flex items-center gap-1 rounded-md border border-border-default bg-bg-canvas p-0.5 text-[12px]">
+              <div class="flex items-center gap-1 rounded-md border border-border-default bg-bg-canvas p-0.5 font-mono text-[12px]">
                 {s.ranges.map((range, idx) => (
-                  <span class={`rounded-sm px-2 py-1 ${idx === 0 ? 'bg-accent-tint text-accent-text' : 'text-text-secondary'}`}>{range}</span>
+                  <span class={`rounded-sm px-2 py-1 ${idx === 0 ? 'bg-bg-elevated text-text-primary' : 'text-text-secondary'}`}>{range}</span>
                 ))}
               </div>
             </div>
-            <div class="flex items-center gap-3 border-b border-border-subtle bg-accent-tint/40 px-4 py-2.5">
-              <span class="inline-flex items-center rounded-sm bg-accent-default px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-primary-foreground">
+            <div class="flex items-center gap-3 border-b border-severity-medium-border bg-severity-medium-tint px-4 py-2.5">
+              <span class="inline-flex items-center rounded-sm bg-severity-medium px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-primary-foreground">
                 {s.pulse.tag}
               </span>
-              <p class="flex-1 text-[12px] text-accent-text">{s.pulse.text}</p>
+              <p class="flex-1 text-[12px] text-text-primary">{s.pulse.text}</p>
               <span class="font-mono text-[12px] text-accent-default">{s.pulse.cta} →</span>
             </div>
-            {s.rows.map((row) => {
+            <div class="grid grid-cols-3 border-b border-border-subtle">
+              {s.summary.map((item, idx) => (
+                <div class:list={['px-4 py-3', idx < s.summary.length - 1 ? 'border-r border-border-subtle' : '']}>
+                  <div class="font-mono text-[10px] tracking-wider text-text-muted">{item.label}</div>
+                  <div class="mt-1 font-mono text-[24px] font-semibold leading-none text-text-primary">{item.value}</div>
+                </div>
+              ))}
+            </div>
+            <div class="grid grid-cols-[0.55fr_2fr_1fr_1fr_0.9fr_1fr] items-center gap-3 border-b border-border-subtle px-4 py-2 font-mono text-[10px] tracking-wider text-text-muted">
+              <span>{s.tableHeaders.priority}</span>
+              <span>{s.tableHeaders.client}</span>
+              <span>{s.tableHeaders.form}</span>
+              <span>{s.tableHeaders.due}</span>
+              <span>{s.tableHeaders.status}</span>
+              <span class="text-right">{s.tableHeaders.exposure}</span>
+            </div>
+            {s.rows.map((row, idx) => {
               const sev = severityRow[row.severity]
               return (
-                <div class:list={['grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr] items-center gap-3 border-b border-border-subtle px-4 py-2.5 last:border-b-0', sev.tint]}>
+                <div class:list={['grid grid-cols-[0.55fr_2fr_1fr_1fr_0.9fr_1fr] items-center gap-3 border-b border-border-subtle px-4 py-2.5 last:border-b-0', sev.tint]}>
+                  <span class="font-mono text-[12px] font-semibold text-text-primary">P{idx === 0 ? 0 : idx}</span>
                   <div class="flex items-center gap-3">
                     <span class:list={['block h-5 w-[3px] rounded-full', sev.bar]}></span>
                     <span class="text-[13px] font-medium text-text-primary">{row.client}</span>
                   </div>
                   <span class="font-mono text-[12px] text-text-secondary">{row.form}</span>
                   <span class="font-mono text-[12px] text-text-secondary">{row.due}</span>
-                  <span class:list={['font-mono text-[12px]', sev.text]}>{row.daysLeft}</span>
+                  <span class="rounded-md border border-border-default bg-bg-elevated px-2 py-1 text-center font-mono text-[11px] text-text-secondary">{row.daysLeft}</span>
                   <span class:list={['text-right font-mono tabular text-[13px] font-medium', sev.text]}>{row.exposure}</span>
                 </div>
               )

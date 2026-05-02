@@ -21,11 +21,14 @@ export interface HeroTrustItem {
 }
 
 export interface HeroSurfaceRow {
+  priority: string
   client: string
   ein: string
   form: string
   due: string
   daysLeft: string
+  status: string
+  severityLabel: string
   exposure: string
   evidence: string
   severity: 'critical' | 'high' | 'medium'
@@ -34,6 +37,12 @@ export interface HeroSurfaceRow {
 export interface HeroSurfaceCopy {
   breadcrumb: { workbench: string; dashboard: string; week: string }
   kbdCommand: string
+  brief: {
+    status: string
+    title: string
+    text: string
+    citation: string
+  }
   pulse: {
     tag: string
     text: string
@@ -47,12 +56,16 @@ export interface HeroSurfaceCopy {
     delta: string
     stats: { label: string; value: string }[]
   }
+  triageTabs: { label: string; count: string }[]
   table: {
     headers: {
       client: string
+      priority: string
       form: string
       due: string
       days: string
+      status: string
+      severity: string
       exposure: string
       evidence: string
     }
@@ -132,6 +145,15 @@ export interface WorkflowDashboardCopy {
   kind: 'dashboard'
   header: { title: string; timestamp: string }
   ranges: string[]
+  summary: { label: string; value: string }[]
+  tableHeaders: {
+    priority: string
+    client: string
+    form: string
+    due: string
+    status: string
+    exposure: string
+  }
   pulse: { tag: string; text: string; cta: string }
   rows: WorkflowDashboardRow[]
 }

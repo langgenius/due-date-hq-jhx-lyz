@@ -9,26 +9,29 @@ interface Props {
 
 const { t } = Astro.props
 
-// Row tint per DESIGN.md `risk-row-{critical,high,upcoming}` tokens.
-// `medium` maps to `risk-row-upcoming` (yellow).
 const rowTint: Record<'critical' | 'high' | 'medium', string> = {
   critical: 'bg-severity-critical-tint',
   high: 'bg-severity-high-tint',
   medium: 'bg-severity-medium-tint',
 }
+
+const severityPill: Record<'critical' | 'high' | 'medium', string> = {
+  critical: 'bg-severity-critical-tint text-severity-critical',
+  high: 'bg-severity-high-tint text-severity-high',
+  medium: 'bg-severity-medium-tint text-severity-medium',
+}
 ---
 
 <div class="relative overflow-hidden rounded-xl border border-border-default bg-bg-elevated shadow-overlay">
-  <!-- Window chrome -->
   <div class="flex h-10 items-center justify-between border-b border-border-subtle px-3">
-    <div class="flex items-center gap-3">
-      <div class="flex items-center gap-1.5">
+    <div class="flex min-w-0 items-center gap-3">
+      <div class="flex shrink-0 items-center gap-1.5">
         <span class="block h-2 w-2 rounded-full bg-severity-critical/70"></span>
         <span class="block h-2 w-2 rounded-full bg-severity-medium/70"></span>
         <span class="block h-2 w-2 rounded-full bg-status-done/70"></span>
       </div>
-      <div class="flex items-center gap-1.5 text-[12px] font-mono text-text-muted">
-        <span class="block h-2.5 w-2.5 rounded-sm bg-bg-subtle"></span>
+      <div class="flex min-w-0 items-center gap-1.5 truncate text-[12px] font-mono text-text-muted">
+        <span class="block h-2.5 w-2.5 shrink-0 rounded-sm bg-bg-subtle"></span>
         <span>{t.breadcrumb.workbench}</span>
         <span>/</span>
         <span>{t.breadcrumb.dashboard}</span>
@@ -39,83 +42,117 @@ const rowTint: Record<'critical' | 'high' | 'medium', string> = {
     <KbdHint keys="⌘K" label={t.kbdCommand} />
   </div>
 
-  <!-- Pulse banner: per DESIGN.md `pulse-banner` token = severity-medium-tint (yellow) -->
   <div class="flex items-center gap-3 border-b border-severity-medium-border bg-severity-medium-tint px-4 py-2.5">
     <span class="inline-flex items-center rounded-sm bg-severity-medium px-1.5 py-0.5 font-mono text-2xs font-bold tracking-wider text-primary-foreground">
       {t.pulse.tag}
     </span>
-    <p class="flex-1 text-[12px] text-text-primary">{t.pulse.text}</p>
-    <span class="rounded border border-border-default bg-bg-elevated px-2 py-0.5 font-mono text-2xs text-text-secondary">
+    <p class="min-w-0 flex-1 truncate text-[12px] text-text-primary">{t.pulse.text}</p>
+    <span class="hidden rounded border border-border-default bg-bg-elevated px-2 py-0.5 font-mono text-2xs text-text-secondary sm:inline-flex">
       {t.pulse.source}
     </span>
     <span class="font-mono text-[12px] text-accent-default">{t.pulse.cta} →</span>
   </div>
 
-  <!-- Penalty radar metric -->
-  <div class="border-b border-border-subtle px-4 py-4">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2 text-xs font-mono tracking-[0.16em] text-text-muted">
-        <span class="block h-1.5 w-1.5 rounded-full bg-severity-critical"></span>
-        <span>{t.metric.eyebrow}</span>
+  <div class="grid gap-0 border-b border-border-subtle lg:grid-cols-[1fr_0.82fr]">
+    <div class="border-b border-border-subtle px-4 py-4 lg:border-b-0 lg:border-r">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 text-xs font-mono tracking-[0.16em] text-text-muted">
+          <span class="block h-1.5 w-1.5 rounded-full bg-severity-critical"></span>
+          <span>{t.metric.eyebrow}</span>
+        </div>
+        <span class="rounded-md border border-border-default bg-bg-canvas px-2 py-1 font-mono text-[12px] text-text-secondary">
+          {t.metric.range}
+        </span>
       </div>
-      <span class="inline-flex items-center gap-1.5 rounded-md border border-border-default bg-bg-canvas px-2 py-1 font-mono text-[12px] text-text-secondary">
-        <span>{t.metric.range}</span>
-        <span aria-hidden="true">▾</span>
-      </span>
-    </div>
-    <div class="mt-3 flex items-baseline gap-4">
-      <span class="font-mono tabular text-hero font-bold tracking-[-0.02em] text-text-primary">{t.metric.value}</span>
-      <span class="inline-flex items-center gap-1 rounded-md bg-severity-critical-tint px-2 py-1 font-mono text-[12px] text-severity-critical">
-        <span aria-hidden="true">▲</span>
-        <span>{t.metric.delta}</span>
-      </span>
-    </div>
-    <div class="mt-3 grid grid-cols-4 gap-4 border-t border-border-subtle pt-3">
-      {t.metric.stats.map((stat) => (
+      <div class="mt-3 flex items-end justify-between gap-4">
         <div>
-          <div class="font-mono text-2xs tracking-wider text-text-muted">{stat.label}</div>
-          <div class="mt-0.5 font-mono tabular text-[18px] font-semibold text-text-primary">{stat.value}</div>
+          <div class="font-mono tabular text-[42px] font-bold leading-none text-text-primary">
+            {t.metric.value}
+          </div>
+          <div class="mt-2 inline-flex items-center rounded-md bg-severity-critical-tint px-2 py-1 font-mono text-[12px] text-severity-critical">
+            {t.metric.delta}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid content-start gap-3 px-4 py-4">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <div class="text-[13px] font-semibold text-text-primary">{t.brief.title}</div>
+          <div class="mt-0.5 font-mono text-[11px] text-text-muted">{t.brief.citation}</div>
+        </div>
+        <span class="rounded-md bg-accent-tint px-2 py-1 font-mono text-[11px] font-medium text-accent-text">
+          {t.brief.status}
+        </span>
+      </div>
+      <p class="text-[12px] leading-relaxed text-text-secondary">{t.brief.text}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-4 gap-0 border-b border-border-subtle">
+    {t.metric.stats.map((stat) => (
+      <div class="border-r border-border-subtle px-4 py-3 last:border-r-0">
+        <div class="font-mono text-2xs tracking-wider text-text-muted">{stat.label}</div>
+        <div class="mt-0.5 font-mono tabular text-[18px] font-semibold text-text-primary">{stat.value}</div>
+      </div>
+    ))}
+  </div>
+
+  <div class="flex items-center justify-between border-b border-border-subtle px-4 py-2.5">
+    <div class="flex rounded-md border border-border-default bg-bg-canvas p-0.5 font-mono text-[11px]">
+      {t.triageTabs.map((tab, idx) => (
+        <span class:list={['px-2 py-1', idx === 0 ? 'rounded-sm bg-bg-elevated text-text-primary' : 'text-text-secondary']}>
+          {tab.label} · {tab.count}
+        </span>
+      ))}
+    </div>
+    <span class="font-mono text-[11px] text-text-muted">{t.liveLabel}</span>
+  </div>
+
+  <div class="overflow-x-auto">
+    <div class="min-w-[760px]">
+      <div class="grid grid-cols-[0.55fr_1.7fr_0.8fr_0.85fr_1fr_0.9fr_1fr_1.2fr] items-center gap-3 border-b border-border-subtle px-4 py-2 font-mono text-[10px] tracking-wider text-text-muted">
+        <span>{t.table.headers.priority}</span>
+        <span>{t.table.headers.client}</span>
+        <span>{t.table.headers.form}</span>
+        <span>{t.table.headers.due}</span>
+        <span>{t.table.headers.status}</span>
+        <span>{t.table.headers.severity}</span>
+        <span class="text-right">{t.table.headers.exposure}</span>
+        <span>{t.table.headers.evidence}</span>
+      </div>
+      {t.table.rows.slice(0, 4).map((row) => (
+        <div class:list={['grid grid-cols-[0.55fr_1.7fr_0.8fr_0.85fr_1fr_0.9fr_1fr_1.2fr] items-center gap-3 border-b border-border-subtle px-4 py-2 last:border-b-0', rowTint[row.severity]]}>
+          <span class="font-mono text-[12px] font-semibold text-text-primary">{row.priority}</span>
+          <div class="flex min-w-0 items-center gap-3">
+            <SeverityBar severity={row.severity} />
+            <div class="min-w-0 leading-tight">
+              <div class="truncate text-xs font-medium text-text-primary">{row.client}</div>
+              <div class="font-mono text-xs text-text-muted">{row.ein}</div>
+            </div>
+          </div>
+          <span class="font-mono text-xs text-text-secondary">{row.form}</span>
+          <span class="font-mono text-xs text-text-secondary">{row.due}</span>
+          <span class="rounded-md border border-border-default bg-bg-elevated px-2 py-1 text-center font-mono text-[11px] text-text-secondary">
+            {row.status}
+          </span>
+          <span class:list={['rounded-md px-2 py-1 text-center font-mono text-[11px]', severityPill[row.severity]]}>
+            {row.severityLabel}
+          </span>
+          <span class="text-right font-mono tabular text-xs font-medium text-text-primary">{row.exposure}</span>
+          <span class="inline-flex items-center gap-1.5 truncate font-mono text-xs text-text-secondary">
+            <span class="block h-1 w-1 shrink-0 rounded-full bg-status-waiting"></span>
+            {row.evidence}
+          </span>
         </div>
       ))}
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="px-0">
-    <div class="grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr_1.3fr] items-center gap-3 border-b border-border-subtle px-4 py-2 font-mono text-xs tracking-wider text-text-muted">
-      <span>{t.table.headers.client}</span>
-      <span>{t.table.headers.form}</span>
-      <span>{t.table.headers.due}</span>
-      <span>{t.table.headers.days}</span>
-      <span class="text-right">{t.table.headers.exposure}</span>
-      <span>{t.table.headers.evidence}</span>
-    </div>
-    {t.table.rows.map((row) => (
-      <div class:list={['grid grid-cols-[2fr_1fr_1fr_0.7fr_1fr_1.3fr] items-center gap-3 border-b border-border-subtle px-4 py-2 last:border-b-0', rowTint[row.severity]]}>
-        <div class="flex items-center gap-3">
-          <SeverityBar severity={row.severity} />
-          <div class="leading-tight">
-            <div class="text-xs font-medium text-text-primary">{row.client}</div>
-            <div class="font-mono text-xs text-text-muted">{row.ein}</div>
-          </div>
-        </div>
-        <span class="font-mono text-xs text-text-secondary">{row.form}</span>
-        <span class="font-mono text-xs text-text-secondary">{row.due}</span>
-        <span class="font-mono text-xs text-text-muted">{row.daysLeft}</span>
-        <span class="text-right font-mono tabular text-xs font-medium text-text-primary">{row.exposure}</span>
-        <span class="inline-flex items-center gap-1.5 font-mono text-xs text-text-secondary">
-          <span class="block h-1 w-1 rounded-full bg-status-waiting"></span>
-          {row.evidence}
-        </span>
-      </div>
-    ))}
-  </div>
-
-  <!-- Keyboard hints footer -->
   <div class="flex items-center gap-4 border-t border-border-subtle px-4 py-2.5">
-    {t.hints.map((hint) => (
+    {t.hints.slice(0, 3).map((hint) => (
       <KbdHint keys={hint.keys} label={hint.label} variant="inline" />
     ))}
-    <span class="ml-auto font-mono text-[11px] text-text-muted">{t.liveLabel}</span>
   </div>
 </div>

@@ -21,6 +21,7 @@ import type {
   DashboardLoadInput,
   DashboardBriefPublic,
   DashboardSeverity,
+  DashboardSummary,
   DashboardTopRow,
   DashboardTriageTab,
   DashboardTriageTabKey,
@@ -53,7 +54,6 @@ import {
   TableHeaderMultiFilter,
   type TableFilterOption,
 } from '@/components/patterns/table-header-filter'
-import { RiskBanner } from '@/features/dashboard/risk-banner'
 import { severityRowClass } from '@/features/dashboard/severity-row'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
@@ -246,11 +246,6 @@ function useEvidenceFilterLabels(): Record<DashboardEvidenceFilter, string> {
     }),
     [t],
   )
-}
-
-function formatEvidence(row: DashboardTopRow, t: ReturnType<typeof useLingui>['t']): string {
-  if (row.evidenceCount === 0) return t`Needs evidence`
-  return row.primaryEvidence?.sourceType ?? t`Evidence linked`
 }
 
 function ExposureSummaryBadge({ label, value }: { label: string; value: number }) {
@@ -456,11 +451,37 @@ export function DashboardRoute() {
   const filtersDisabled = dashboardQuery.isLoading && !data
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6">
-      <header className="flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-          <Trans>Operations</Trans>
-        </span>
+    <div className="flex flex-col gap-5 p-4 md:p-6">
+      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+            <Trans>Operations command</Trans>
+          </span>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
+              <Trans>Deadline risk workbench</Trans>
+            </h1>
+            <p className="max-w-3xl text-md text-text-secondary">
+              <Trans>
+                Start with the money and deadline pressure, then work the evidence-backed triage
+                queue.
+              </Trans>
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline" className="font-mono tabular-nums">
+            {dashboardQuery.isLoading ? <Trans>Loading…</Trans> : data?.asOfDate}
+          </Badge>
+          <Button variant="outline" size="sm" onClick={openWizard}>
+            <FileSearchIcon data-icon="inline-start" />
+            <Trans>Run migration</Trans>
+          </Button>
+          <Button size="sm" onClick={() => void navigate('/workboard')}>
+            <Trans>Review risk queue</Trans>
+            <ArrowUpRightIcon data-icon="inline-end" />
+          </Button>
+        </div>
       </header>
 
       {dashboardQuery.isError ? (
@@ -501,162 +522,35 @@ export function DashboardRoute() {
         onRefresh={() => refreshBriefMutation.mutate({ scope: 'firm' })}
       />
 
-      <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Trans>Penalty Radar</Trans>
-            </CardTitle>
-            <CardDescription>
-              <Trans>Estimated exposure in the current operating window.</Trans>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            {dashboardQuery.isLoading ? (
-              <Skeleton className="h-16 w-44" />
-            ) : (
-              <div className="flex flex-col gap-2">
-                <span className="font-mono text-hero font-semibold tabular-nums">
-                  {formatCents(data?.summary.totalExposureCents ?? 0)}
-                </span>
-                <span className="text-sm text-text-secondary">
-                  <Trans>at risk this week</Trans>
-                </span>
-              </div>
-            )}
-            <div className="grid gap-2 sm:grid-cols-3">
-              <ExposureSummaryBadge
-                label={t`Ready`}
-                value={data?.summary.exposureReadyCount ?? 0}
-              />
-              <ExposureSummaryBadge
-                label={t`Needs input`}
-                value={data?.summary.exposureNeedsInputCount ?? 0}
-              />
-              <ExposureSummaryBadge
-                label={t`Unsupported`}
-                value={data?.summary.exposureUnsupportedCount ?? 0}
-              />
-            </div>
-          </CardContent>
-        </Card>
+      <DashboardMetricStrip
+        isLoading={dashboardQuery.isLoading}
+        summary={data?.summary ?? null}
+        queueStats={queueStats}
+      />
 
-        <Card id="pulse">
-          <CardHeader>
-            <CardTitle>
-              <Trans>Risk pulse</Trans>
-            </CardTitle>
-            <CardDescription>
-              <Trans>Server-computed obligation risk for the next operating window.</Trans>
-            </CardDescription>
-            <CardAction>
-              <Badge variant="outline" className="font-mono tabular-nums">
-                {dashboardQuery.isLoading ? <Trans>Loading…</Trans> : data?.asOfDate}
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-[220px_1fr]">
-              <div className="flex flex-col gap-2">
-                <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-                  <Trans>Open obligations</Trans>
-                </span>
-                {dashboardQuery.isLoading ? (
-                  <Skeleton className="h-14 w-28" />
-                ) : (
-                  <span className="font-mono text-hero leading-none font-semibold tabular-nums">
-                    {data?.summary.openObligationCount ?? 0}
-                  </span>
-                )}
-                <span className="text-md text-text-secondary">
-                  {data ? (
-                    <Trans>Across {data.summary.dueThisWeekCount} due this week.</Trans>
-                  ) : (
-                    <Trans>Loading real deadline risk.</Trans>
-                  )}
-                </span>
-              </div>
-              <div className="grid gap-3">
-                {dashboardQuery.isLoading ? (
-                  <>
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                  </>
-                ) : visibleBanners.length > 0 ? (
-                  visibleBanners.map((row) => (
-                    <RiskBanner
-                      key={row.obligationId}
-                      title={row.clientName}
-                      detail={t`${row.taxType} due ${formatDate(row.currentDueDate)}`}
-                      source={
-                        <Badge variant={row.evidenceCount > 0 ? 'outline' : 'warning'}>
-                          {formatEvidence(row, t)}
-                        </Badge>
-                      }
-                    />
-                  ))
-                ) : (
-                  <div className="rounded-lg border border-dashed border-divider-regular p-4 text-sm text-text-secondary">
-                    <Trans>Import clients to generate real obligation risk.</Trans>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="gap-2 border-t border-divider-regular">
-            <Button size="sm" onClick={() => void navigate('/workboard')}>
-              <Trans>Review risk queue</Trans>
-              <ArrowUpRightIcon data-icon="inline-end" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={openWizard}>
-              <FileSearchIcon data-icon="inline-start" />
-              <Trans>Run migration</Trans>
-            </Button>
-          </CardFooter>
-        </Card>
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <DashboardRiskCommandCenter
+          isLoading={dashboardQuery.isLoading}
+          asOfDate={data?.asOfDate ?? null}
+          summary={data?.summary ?? null}
+          topRows={visibleBanners}
+          onOpenEvidence={(row) =>
+            openEvidence({
+              obligationId: row.obligationId,
+              label: `${row.clientName} - ${row.taxType}`,
+              focusEvidenceId: row.primaryEvidence?.id ?? null,
+            })
+          }
+          onOpenWorkboard={() => void navigate('/workboard')}
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Trans>Today queue</Trans>
-            </CardTitle>
-            <CardDescription>
-              <Trans>Operational pressure points from server aggregation.</Trans>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            {dashboardQuery.isLoading
-              ? [0, 1, 2].map((item) => <Skeleton key={item} className="h-12 w-full" />)
-              : queueStats.map((stat) => (
-                  <div key={stat.label} className="flex items-center justify-between gap-4">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-md font-medium">{stat.label}</span>
-                      <span className="text-sm text-text-tertiary">{stat.detail}</span>
-                    </div>
-                    <span className="font-mono text-2xl font-semibold tabular-nums">
-                      {stat.value}
-                    </span>
-                  </div>
-                ))}
-            <Separator />
-            <Alert>
-              <ShieldCheckIcon />
-              <AlertTitle>
-                <Trans>Glass-box threshold is active</Trans>
-              </AlertTitle>
-              <AlertDescription>
-                <Trans>
-                  Dashboard rows are sourced from obligations and evidence links, not demo arrays.
-                </Trans>
-              </AlertDescription>
-            </Alert>
-            <div className="grid gap-2">
-              <Skeleton className="h-2 w-full" />
-              <Skeleton className="h-2 w-2/3" />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid gap-4">
+          <OperationalClosurePanel
+            isLoading={dashboardQuery.isLoading}
+            queueStats={queueStats}
+            needsReviewCount={data?.summary.needsReviewCount ?? 0}
+          />
+        </div>
       </section>
 
       <section>
@@ -705,6 +599,305 @@ export function DashboardRoute() {
         />
       </section>
     </div>
+  )
+}
+
+function DashboardMetricStrip({
+  isLoading,
+  summary,
+  queueStats,
+}: {
+  isLoading: boolean
+  summary: DashboardSummary | null
+  queueStats: QueueStat[]
+}) {
+  const metrics = summary
+    ? [
+        {
+          id: 'open',
+          label: <Trans>Open obligations</Trans>,
+          value: String(summary.openObligationCount),
+          detail: <Trans>Active client deadlines in the operating window.</Trans>,
+        },
+        {
+          id: 'due',
+          label: <Trans>Due this week</Trans>,
+          value: String(summary.dueThisWeekCount),
+          detail: <Trans>Includes overdue and next-seven-day obligations.</Trans>,
+        },
+        {
+          id: 'evidence',
+          label: <Trans>Evidence gaps</Trans>,
+          value: String(summary.evidenceGapCount),
+          detail: <Trans>Rows that still need a source before review.</Trans>,
+        },
+        {
+          id: 'exposure',
+          label: <Trans>Penalty exposure</Trans>,
+          value: formatCents(summary.totalExposureCents),
+          detail: <Trans>Estimated dollars where formulas are ready.</Trans>,
+        },
+      ]
+    : queueStats.map((stat) => ({
+        id: stat.label,
+        label: stat.label,
+        value: stat.value,
+        detail: stat.detail,
+      }))
+
+  return (
+    <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      {isLoading
+        ? [0, 1, 2, 3].map((item) => (
+            <Card key={item} size="sm">
+              <CardContent className="grid gap-3">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-8 w-28" />
+                <Skeleton className="h-3 w-full" />
+              </CardContent>
+            </Card>
+          ))
+        : metrics.map((metric) => (
+            <Card key={metric.id} size="sm">
+              <CardContent className="grid gap-2">
+                <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+                  {metric.label}
+                </span>
+                <span className="font-mono text-3xl font-semibold tabular-nums text-text-primary">
+                  {metric.value}
+                </span>
+                <span className="text-sm text-text-secondary">{metric.detail}</span>
+              </CardContent>
+            </Card>
+          ))}
+    </section>
+  )
+}
+
+function DashboardRiskCommandCenter({
+  isLoading,
+  asOfDate,
+  summary,
+  topRows,
+  onOpenEvidence,
+  onOpenWorkboard,
+}: {
+  isLoading: boolean
+  asOfDate: string | null
+  summary: DashboardSummary | null
+  topRows: DashboardTopRow[]
+  onOpenEvidence: (row: DashboardTopRow) => void
+  onOpenWorkboard: () => void
+}) {
+  const { t } = useLingui()
+  const statusLabels = useStatusLabels()
+
+  return (
+    <Card id="pulse" className="min-w-0">
+      <CardHeader>
+        <CardTitle>
+          <Trans>Next deadlines</Trans>
+        </CardTitle>
+        <CardDescription>
+          <Trans>Evidence-backed obligations ordered by server priority.</Trans>
+        </CardDescription>
+        <CardAction>
+          <Badge variant="outline" className="font-mono tabular-nums">
+            {summary ? (
+              <Trans>{summary.dueThisWeekCount} due this week</Trans>
+            ) : (
+              <Trans>Loading</Trans>
+            )}
+          </Badge>
+        </CardAction>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <div className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-background-default-subtle p-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+              <Trans>Penalty Radar</Trans>
+            </span>
+            <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              {isLoading ? (
+                <Skeleton className="h-8 w-32" />
+              ) : (
+                <span className="font-mono text-3xl font-semibold tabular-nums text-text-primary">
+                  {formatCents(summary?.totalExposureCents ?? 0)}
+                </span>
+              )}
+              <span className="text-sm text-text-secondary">
+                <Trans>Estimated exposure for obligations with ready penalty formulas.</Trans>
+              </span>
+            </div>
+          </div>
+          <div className="grid shrink-0 gap-2 sm:grid-cols-3 lg:w-105">
+            <ExposureSummaryBadge label={t`Ready`} value={summary?.exposureReadyCount ?? 0} />
+            <ExposureSummaryBadge
+              label={t`Needs input`}
+              value={summary?.exposureNeedsInputCount ?? 0}
+            />
+            <ExposureSummaryBadge
+              label={t`Unsupported`}
+              value={summary?.exposureUnsupportedCount ?? 0}
+            />
+          </div>
+        </div>
+
+        <div className="min-w-0 overflow-hidden rounded-lg border border-divider-regular">
+          {isLoading ? (
+            <div className="grid gap-px bg-divider-subtle">
+              <Skeleton className="h-12 w-full rounded-none" />
+              <Skeleton className="h-12 w-full rounded-none" />
+              <Skeleton className="h-12 w-full rounded-none" />
+            </div>
+          ) : topRows.length > 0 ? (
+            <Table className="min-w-[920px] table-fixed">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[34%]">
+                    <Trans>Client</Trans>
+                  </TableHead>
+                  <TableHead className="w-[20%]">
+                    <Trans>Deadline</Trans>
+                  </TableHead>
+                  <TableHead className="w-[18%]">
+                    <Trans>Status</Trans>
+                  </TableHead>
+                  <TableHead className="w-[14%] text-right">
+                    <Trans>Exposure</Trans>
+                  </TableHead>
+                  <TableHead className="w-[14%] text-right">
+                    <Trans>Evidence</Trans>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {topRows.map((row) => (
+                  <TableRow key={row.obligationId}>
+                    <TableCell className="whitespace-normal">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <SmartPriorityBadge smartPriority={row.smartPriority} />
+                        <div className="min-w-0">
+                          <div className="truncate font-medium text-text-primary">
+                            {row.clientName}
+                          </div>
+                          <div className="mt-0.5 truncate text-xs text-text-tertiary">
+                            {row.taxType}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <DashboardCountdownBadge
+                          days={daysUntilDueFromAsOf(row.currentDueDate, asOfDate)}
+                        />
+                        <span className="font-mono text-xs tabular-nums text-text-secondary">
+                          {formatDate(row.currentDueDate)}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <WorkboardStatusControl
+                        row={{
+                          id: row.obligationId,
+                          clientName: row.clientName,
+                          status: row.status,
+                        }}
+                        labels={statusLabels}
+                        disabled
+                        onChange={() => undefined}
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <ExposureBadge row={row} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => onOpenEvidence(row)}>
+                        <FileSearchIcon data-icon="inline-start" />
+                        <Trans>Evidence</Trans>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="p-4 text-sm text-text-secondary">
+              <Trans>Import clients to generate real obligation risk.</Trans>
+            </div>
+          )}
+        </div>
+      </CardContent>
+      <CardFooter className="justify-between gap-2 border-t border-divider-regular">
+        <span className="text-sm text-text-secondary">
+          <Trans>Work from evidence first; status updates are audited automatically.</Trans>
+        </span>
+        <Button size="sm" onClick={onOpenWorkboard}>
+          <Trans>Open Workboard</Trans>
+          <ArrowUpRightIcon data-icon="inline-end" />
+        </Button>
+      </CardFooter>
+    </Card>
+  )
+}
+
+function OperationalClosurePanel({
+  isLoading,
+  queueStats,
+  needsReviewCount,
+}: {
+  isLoading: boolean
+  queueStats: QueueStat[]
+  needsReviewCount: number
+}) {
+  return (
+    <Card className="min-w-0">
+      <CardHeader>
+        <CardTitle>
+          <Trans>Operational closure</Trans>
+        </CardTitle>
+        <CardDescription>
+          <Trans>What has to move before the dashboard can go quiet.</Trans>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        {isLoading
+          ? [0, 1, 2].map((item) => <Skeleton key={item} className="h-12 w-full" />)
+          : queueStats.map((stat) => (
+              <div key={stat.label} className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-md font-medium">{stat.label}</span>
+                  <span className="text-sm text-text-tertiary">{stat.detail}</span>
+                </div>
+                <span className="font-mono text-2xl font-semibold tabular-nums">{stat.value}</span>
+              </div>
+            ))}
+        <Separator />
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-divider-regular bg-background-default-subtle p-3">
+          <div className="flex flex-col gap-1">
+            <span className="text-md font-medium">
+              <Trans>Needs review</Trans>
+            </span>
+            <span className="text-sm text-text-tertiary">
+              <Trans>Rows waiting for final human action.</Trans>
+            </span>
+          </div>
+          <span className="font-mono text-2xl font-semibold tabular-nums">{needsReviewCount}</span>
+        </div>
+        <Alert>
+          <ShieldCheckIcon />
+          <AlertTitle>
+            <Trans>Glass-box threshold is active</Trans>
+          </AlertTitle>
+          <AlertDescription>
+            <Trans>
+              Dashboard rows are sourced from obligations and evidence links, not demo arrays.
+            </Trans>
+          </AlertDescription>
+        </Alert>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -775,7 +968,7 @@ function DashboardTriagePanel({
   const selectedTab = tabs.find((tab) => tab.key === selectedKey) ?? tabs[0] ?? null
 
   return (
-    <Card>
+    <Card className="min-w-0">
       <CardHeader>
         <CardTitle>
           <Trans>Triage queue</Trans>
@@ -1100,49 +1293,51 @@ function DashboardTriageTable({
   const visibleColumnCount = table.getVisibleLeafColumns().length
 
   return (
-    <Table>
-      <TableHeader>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <TableHead key={header.id} colSpan={header.colSpan}>
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(header.column.columnDef.header, header.getContext())}
-              </TableHead>
-            ))}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {tableRows.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={visibleColumnCount} className="py-8 text-xs text-text-secondary">
-              <Trans>No obligations in this window.</Trans>
-            </TableCell>
-          </TableRow>
-        ) : (
-          tableRows.map((tableRow) => (
-            <TableRow key={tableRow.id} className={severityRowClass(tableRow.original.severity)}>
-              {tableRow.getVisibleCells().map((cell) => (
-                <TableCell
-                  key={cell.id}
-                  className={
-                    cell.column.id === 'clientName'
-                      ? 'font-medium'
-                      : cell.column.id === 'taxType'
-                        ? 'text-text-secondary'
-                        : undefined
-                  }
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
+    <div className="overflow-x-auto">
+      <Table className="min-w-[980px]">
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} colSpan={header.colSpan}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
               ))}
             </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {tableRows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={visibleColumnCount} className="py-8 text-xs text-text-secondary">
+                <Trans>No obligations in this window.</Trans>
+              </TableCell>
+            </TableRow>
+          ) : (
+            tableRows.map((tableRow) => (
+              <TableRow key={tableRow.id} className={severityRowClass(tableRow.original.severity)}>
+                {tableRow.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className={
+                      cell.column.id === 'clientName'
+                        ? 'font-medium'
+                        : cell.column.id === 'taxType'
+                          ? 'text-text-secondary'
+                          : undefined
+                    }
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   )
 }
 
@@ -1182,33 +1377,55 @@ function DashboardBriefPanel({
           : null
   const refreshDisabled = isQueued || brief?.status === 'pending'
 
+  const updatedLabel = brief?.generatedAt
+    ? t`Updated ${formatDateTimeWithTimezone(brief.generatedAt)}`
+    : t`No prepared brief yet`
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <SparklesIcon className="size-4 text-text-accent" aria-hidden />
-          <Trans>AI weekly brief</Trans>
-        </CardTitle>
-        <CardDescription>
-          <Trans>Prepared in the background from the latest dashboard risk snapshot.</Trans>
-        </CardDescription>
-        <CardAction>
-          {statusLabel ? (
-            <Badge
-              variant={
-                isQueued || brief?.status === 'pending'
-                  ? 'info'
-                  : brief?.status === 'stale'
-                    ? 'warning'
-                    : 'outline'
-              }
-            >
-              {statusLabel}
-            </Badge>
-          ) : null}
-        </CardAction>
-      </CardHeader>
-      <CardContent>
+    <section className="grid gap-3 rounded-xl border border-components-card-border bg-components-card-bg px-4 py-3 text-md text-text-primary shadow-xs">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <SparklesIcon className="size-4 text-text-accent" aria-hidden />
+            <span className="text-md font-semibold text-text-primary">
+              <Trans>AI weekly brief</Trans>
+            </span>
+            {statusLabel ? (
+              <Badge
+                variant={
+                  isQueued || brief?.status === 'pending'
+                    ? 'info'
+                    : brief?.status === 'stale'
+                      ? 'warning'
+                      : 'outline'
+                }
+              >
+                {statusLabel}
+              </Badge>
+            ) : null}
+            <span className="font-mono text-xs tabular-nums text-text-muted">{updatedLabel}</span>
+          </div>
+          <p className="mt-1 text-sm text-text-tertiary">
+            <Trans>Prepared in the background from the latest dashboard risk snapshot.</Trans>
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRefresh}
+          disabled={refreshDisabled}
+          aria-label={t`Refresh AI weekly brief`}
+          className="shrink-0"
+        >
+          <RefreshCwIcon data-icon="inline-start" />
+          {isQueued || brief?.status === 'pending' ? (
+            <Trans>Queued</Trans>
+          ) : (
+            <Trans>Refresh brief</Trans>
+          )}
+        </Button>
+      </div>
+      <div>
         {isLoading ? (
           <div className="flex items-center gap-2 text-sm text-text-secondary">
             <span className="size-2 rounded-full bg-divider-deep" aria-hidden />
@@ -1233,29 +1450,8 @@ function DashboardBriefPanel({
         ) : (
           <div className="text-sm leading-6 text-text-secondary">{fallback}</div>
         )}
-      </CardContent>
-      <CardFooter className="justify-between gap-3 border-t border-divider-regular">
-        <span className="font-mono text-xs tabular-nums text-text-muted">
-          {brief?.generatedAt
-            ? t`Updated ${formatDateTimeWithTimezone(brief.generatedAt)}`
-            : t`No prepared brief yet`}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onRefresh}
-          disabled={refreshDisabled}
-          aria-label={t`Refresh AI weekly brief`}
-        >
-          <RefreshCwIcon data-icon="inline-start" />
-          {isQueued || brief?.status === 'pending' ? (
-            <Trans>Queued</Trans>
-          ) : (
-            <Trans>Refresh brief</Trans>
-          )}
-        </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </section>
   )
 }
 

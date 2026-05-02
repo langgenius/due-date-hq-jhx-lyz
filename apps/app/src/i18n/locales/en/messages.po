@@ -84,11 +84,10 @@ msgstr "{0} clients · {1} obligations removed"
 msgid "{0} clients, {1} obligations, {2} exposure, {3} need input"
 msgstr "{0} clients, {1} obligations, {2} exposure, {3} need input"
 
-#. placeholder {0}: row.taxType
-#. placeholder {1}: formatDate(row.currentDueDate)
+#. placeholder {0}: summary.dueThisWeekCount
 #: src/routes/dashboard.tsx
-msgid "{0} due {1}"
-msgstr "{0} due {1}"
+msgid "{0} due this week"
+msgstr "{0} due this week"
 
 #. placeholder {0}: stats.fullyCovered
 #. placeholder {1}: stats.jurisdictions - stats.fullyCovered
@@ -388,11 +387,6 @@ msgstr "Account"
 msgid "Account menu for {0}"
 msgstr "Account menu for {0}"
 
-#. placeholder {0}: data.summary.dueThisWeekCount
-#: src/routes/dashboard.tsx
-msgid "Across {0} due this week."
-msgstr "Across {0} due this week."
-
 #: src/features/audit/audit-log-page.tsx
 #: src/features/audit/audit-log-table.tsx
 #: src/features/workload/workload-page.tsx
@@ -412,6 +406,10 @@ msgstr "Actions"
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Active"
 msgstr "Active"
+
+#: src/routes/dashboard.tsx
+msgid "Active client deadlines in the operating window."
+msgstr "Active client deadlines in the operating window."
 
 #: src/features/members/members-page.tsx
 msgid "Active members"
@@ -665,7 +663,6 @@ msgid "Assignee"
 msgstr "Assignee"
 
 #: src/features/migration/Wizard.tsx
-#: src/routes/dashboard.tsx
 msgid "at risk this week"
 msgstr "at risk this week"
 
@@ -1628,6 +1625,10 @@ msgstr "Deadline reminder"
 msgid "Deadline reminders"
 msgstr "Deadline reminders"
 
+#: src/routes/dashboard.tsx
+msgid "Deadline risk workbench"
+msgstr "Deadline risk workbench"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Deadline status changed"
 msgstr "Deadline status changed"
@@ -1896,8 +1897,12 @@ msgid "Entry"
 msgstr "Entry"
 
 #: src/routes/dashboard.tsx
-msgid "Estimated exposure in the current operating window."
-msgstr "Estimated exposure in the current operating window."
+msgid "Estimated dollars where formulas are ready."
+msgstr "Estimated dollars where formulas are ready."
+
+#: src/routes/dashboard.tsx
+msgid "Estimated exposure for obligations with ready penalty formulas."
+msgstr "Estimated exposure for obligations with ready penalty formulas."
 
 #: src/routes/workboard.tsx
 msgid "Estimated tax due"
@@ -1939,8 +1944,16 @@ msgid "Evidence chain"
 msgstr "Evidence chain"
 
 #: src/routes/dashboard.tsx
+msgid "Evidence gaps"
+msgstr "Evidence gaps"
+
+#: src/routes/dashboard.tsx
 msgid "Evidence linked"
 msgstr "Evidence linked"
+
+#: src/routes/dashboard.tsx
+msgid "Evidence-backed obligations ordered by server priority."
+msgstr "Evidence-backed obligations ordered by server priority."
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Exception"
@@ -2332,6 +2345,10 @@ msgstr "In-app"
 msgid "Inbox"
 msgstr "Inbox"
 
+#: src/routes/dashboard.tsx
+msgid "Includes overdue and next-seven-day obligations."
+msgstr "Includes overdue and next-seven-day obligations."
+
 #: src/routes/clients.tsx
 msgid "Individual"
 msgstr "Individual"
@@ -2496,6 +2513,10 @@ msgstr "Load"
 msgid "Load more"
 msgstr "Load more"
 
+#: src/routes/dashboard.tsx
+msgid "Loading"
+msgstr "Loading"
+
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Loading alerts…"
 msgstr "Loading alerts…"
@@ -2527,10 +2548,6 @@ msgstr "Loading queue…"
 #: src/routes/readiness.tsx
 msgid "Loading readiness check…"
 msgstr "Loading readiness check…"
-
-#: src/routes/dashboard.tsx
-msgid "Loading real deadline risk."
-msgstr "Loading real deadline risk."
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Loading rule library."
@@ -2846,6 +2863,7 @@ msgstr "Needs input"
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/workboard/status-control.tsx
+#: src/routes/dashboard.tsx
 msgid "Needs review"
 msgstr "Needs review"
 
@@ -2899,6 +2917,10 @@ msgstr "Next 30 days"
 #: src/routes/dashboard.tsx
 msgid "Next 7 days"
 msgstr "Next 7 days"
+
+#: src/routes/dashboard.tsx
+msgid "Next deadlines"
+msgstr "Next deadlines"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Next page"
@@ -3423,6 +3445,7 @@ msgid "Open the obligation queue."
 msgstr "Open the obligation queue."
 
 #: src/features/workload/workload-page.tsx
+#: src/routes/dashboard.tsx
 msgid "Open Workboard"
 msgstr "Open Workboard"
 
@@ -3443,15 +3466,18 @@ msgid "Opening…"
 msgstr "Opening…"
 
 #: src/routes/dashboard.tsx
-msgid "Operational pressure points from server aggregation."
-msgstr "Operational pressure points from server aggregation."
+msgid "Operational closure"
+msgstr "Operational closure"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/pulse/AlertsListPage.tsx
-#: src/routes/dashboard.tsx
 #: src/routes/route-summary.ts
 msgid "Operations"
 msgstr "Operations"
+
+#: src/routes/dashboard.tsx
+msgid "Operations command"
+msgstr "Operations command"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Ops token"
@@ -3608,6 +3634,10 @@ msgstr "Payment year start"
 #: src/routes/workboard.tsx
 msgid "PDF zip"
 msgstr "PDF zip"
+
+#: src/routes/dashboard.tsx
+msgid "Penalty exposure"
+msgstr "Penalty exposure"
 
 #: src/routes/workboard.tsx
 msgid "Penalty inputs"
@@ -4414,10 +4444,6 @@ msgstr "Risk inputs"
 msgid "Risk inputs saved"
 msgstr "Risk inputs saved"
 
-#: src/routes/dashboard.tsx
-msgid "Risk pulse"
-msgstr "Risk pulse"
-
 #: src/routes/workboard.tsx
 msgid "Risk reflects the latest stored penalty calculation."
 msgstr "Risk reflects the latest stored penalty calculation."
@@ -4455,6 +4481,14 @@ msgstr "Rows"
 #: src/features/audit/audit-log-labels.ts
 msgid "Rows needing attention"
 msgstr "Rows needing attention"
+
+#: src/routes/dashboard.tsx
+msgid "Rows that still need a source before review."
+msgstr "Rows that still need a source before review."
+
+#: src/routes/dashboard.tsx
+msgid "Rows waiting for final human action."
+msgstr "Rows waiting for final human action."
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule"
@@ -4787,10 +4821,6 @@ msgstr "Sending…"
 msgid "Sent {0}"
 msgstr "Sent {0}"
 
-#: src/routes/dashboard.tsx
-msgid "Server-computed obligation risk for the next operating window."
-msgstr "Server-computed obligation risk for the next operating window."
-
 #: src/features/audit/audit-log-labels.ts
 #: src/routes/account.security.tsx
 msgid "Session revoked"
@@ -5059,6 +5089,10 @@ msgstr "SSN-like columns blocked"
 #: src/routes/workboard.tsx
 msgid "Stale"
 msgstr "Stale"
+
+#: src/routes/dashboard.tsx
+msgid "Start with the money and deadline pressure, then work the evidence-backed triage queue."
+msgstr "Start with the money and deadline pressure, then work the evidence-backed triage queue."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
@@ -5367,10 +5401,6 @@ msgstr "Timezone"
 #: src/routes/workboard.tsx
 msgid "Today"
 msgstr "Today"
-
-#: src/routes/dashboard.tsx
-msgid "Today queue"
-msgstr "Today queue"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Token required"
@@ -5713,6 +5743,10 @@ msgstr "Welcome back to the workbench."
 msgid "What changed"
 msgstr "What changed"
 
+#: src/routes/dashboard.tsx
+msgid "What has to move before the dashboard can go quiet."
+msgstr "What has to move before the dashboard can go quiet."
+
 #: src/routes/billing.tsx
 msgid "What stays in DueDateHQ"
 msgstr "What stays in DueDateHQ"
@@ -5724,6 +5758,10 @@ msgstr "Where is your data coming from?"
 #: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "Work email"
+
+#: src/routes/dashboard.tsx
+msgid "Work from evidence first; status updates are audited automatically."
+msgstr "Work from evidence first; status updates are audited automatically."
 
 #: src/features/migration/WizardShell.tsx
 #: src/routes/route-summary.ts
