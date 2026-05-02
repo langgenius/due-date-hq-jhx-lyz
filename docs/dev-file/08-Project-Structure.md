@@ -394,7 +394,7 @@ packages/auth/
 ├── src/
 │   ├── index.ts                    # createAuth(db, env) 工厂
 │   ├── permissions.ts              # Access Control statement + 四角色
-│   ├── plugins.ts                  # Google OAuth / organization / twoFactor 配置
+│   ├── plugins.ts                  # OAuth / organization / twoFactor 配置
 │   ├── email.ts                    # sendInvitationEmail
 │   └── types.ts                    # Session / Member 扩展类型
 └── package.json

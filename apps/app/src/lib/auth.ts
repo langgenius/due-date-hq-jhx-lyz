@@ -1,5 +1,5 @@
 import { createAuthClient } from 'better-auth/react'
-import { organizationClient } from 'better-auth/client/plugins'
+import { genericOAuthClient, organizationClient, twoFactorClient } from 'better-auth/client/plugins'
 import { stripeClient } from '@better-auth/stripe/client'
 
 import { attachLocaleHeader } from '@/i18n/i18n'
@@ -13,7 +13,12 @@ import { attachLocaleHeader } from '@/i18n/i18n'
 // lifecycle writes go through the app-owned `firms` RPC gateway.
 export const authClient = createAuthClient({
   baseURL: `${window.location.origin}/api/auth`,
-  plugins: [organizationClient(), stripeClient({ subscription: true })],
+  plugins: [
+    organizationClient(),
+    twoFactorClient({ twoFactorPage: '/two-factor' }),
+    genericOAuthClient(),
+    stripeClient({ subscription: true }),
+  ],
   fetchOptions: {
     onRequest: (context) => {
       attachLocaleHeader(context.headers)
@@ -36,6 +41,19 @@ export function signInWithGoogle(callbackURL = '/') {
     provider: 'google',
     callbackURL: absolute,
   })
+}
+
+export function signInWithMicrosoft(callbackURL = '/') {
+  const absolute = new URL(callbackURL, window.location.origin).toString()
+  return authClient.signIn.oauth2({
+    providerId: 'microsoft-entra-id',
+    callbackURL: absolute,
+  })
+}
+
+export async function verifySignInTwoFactor(code: string) {
+  const { error } = await authClient.twoFactor.verifyTotp({ code, trustDevice: true })
+  if (error) throw new Error(error.message || 'Could not verify the code.')
 }
 
 export function initialsFromName(value: string | null | undefined): string {

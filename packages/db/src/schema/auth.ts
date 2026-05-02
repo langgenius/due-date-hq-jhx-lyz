@@ -6,6 +6,7 @@ export const user = sqliteTable('user', {
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: integer('email_verified', { mode: 'boolean' }).default(false).notNull(),
+  twoFactorEnabled: integer('two_factor_enabled', { mode: 'boolean' }).default(false).notNull(),
   image: text('image'),
   stripeCustomerId: text('stripe_customer_id'),
   createdAt: integer('created_at', { mode: 'timestamp_ms' })
@@ -85,6 +86,23 @@ export const verification = sqliteTable(
       .notNull(),
   },
   (table) => [index('verification_identifier_idx').on(table.identifier)],
+)
+
+export const twoFactor = sqliteTable(
+  'two_factor',
+  {
+    id: text('id').primaryKey(),
+    secret: text('secret').notNull(),
+    backupCodes: text('backup_codes').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    verified: integer('verified', { mode: 'boolean' }).default(true).notNull(),
+  },
+  (table) => [
+    index('two_factor_userId_idx').on(table.userId),
+    index('two_factor_secret_idx').on(table.secret),
+  ],
 )
 
 export const organization = sqliteTable(
@@ -214,6 +232,7 @@ export const userRelations = relations(user, ({ many }) => ({
   accounts: many(account),
   members: many(member),
   invitations: many(invitation),
+  twoFactors: many(twoFactor),
 }))
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -226,6 +245,13 @@ export const sessionRelations = relations(session, ({ one }) => ({
 export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
+    references: [user.id],
+  }),
+}))
+
+export const twoFactorRelations = relations(twoFactor, ({ one }) => ({
+  user: one(user, {
+    fields: [twoFactor.userId],
     references: [user.id],
   }),
 }))

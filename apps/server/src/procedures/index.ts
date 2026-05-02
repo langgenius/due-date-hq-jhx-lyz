@@ -10,6 +10,7 @@ import { obligationsHandlers } from './obligations'
 import { pulseHandlers } from './pulse'
 import { readinessHandlers } from './readiness'
 import { rulesHandlers } from './rules'
+import { securityHandlers } from './security'
 import { workboardHandlers } from './workboard'
 import { workloadHandlers } from './workload'
 import { os } from './_root'
@@ -145,5 +146,13 @@ export const router = os.router({
     listRules: rulesHandlers.listRules,
     coverage: rulesHandlers.coverage,
     previewObligations: rulesHandlers.previewObligations,
+  },
+  security: {
+    status: securityHandlers.status,
+    enableTwoFactor: securityHandlers.enableTwoFactor,
+    verifyTwoFactor: securityHandlers.verifyTwoFactor,
+    disableTwoFactor: securityHandlers.disableTwoFactor,
+    revokeSession: securityHandlers.revokeSession,
+    revokeOtherSessions: securityHandlers.revokeOtherSessions,
   },
 })

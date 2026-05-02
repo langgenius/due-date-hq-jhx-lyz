@@ -14,6 +14,8 @@ export type RouteHandle = {
 
 export const routeSummaries = {
   login: { eyebrow: msg`Entry`, title: msg`Sign in` },
+  twoFactor: { eyebrow: msg`Entry`, title: msg`Two-factor verification` },
+  acceptInvite: { eyebrow: msg`Entry`, title: msg`Accept invitation` },
   onboarding: { eyebrow: msg`Entry`, title: msg`Create practice` },
   dashboard: { eyebrow: msg`Operations`, title: msg`Dashboard` },
   workboard: { eyebrow: msg`Workbench`, title: msg`Workboard` },
@@ -28,6 +30,7 @@ export const routeSummaries = {
   rules: { eyebrow: msg`Practice`, title: msg`Rules` },
   billing: { eyebrow: msg`Practice`, title: msg`Billing` },
   billingCheckout: { eyebrow: msg`Billing`, title: msg`Checkout` },
+  accountSecurity: { eyebrow: msg`Account`, title: msg`Security` },
 } satisfies Record<string, RouteSummaryMessages>
 
 export function routeHandle(routeSummary: RouteSummaryMessages): RouteHandle {

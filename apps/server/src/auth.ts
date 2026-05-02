@@ -93,7 +93,7 @@ export function createWorkerAuth(runtimeEnv: Env, ctx?: ExecutionContext) {
   const organizationHooks = buildOrganizationHooks(db)
   const allowUserToCreateOrganization = buildAllowUserToCreateOrganization(db)
   const organizationMembershipLimit = buildOrganizationMembershipLimit(db)
-  const databaseHooks = buildDatabaseHooks(db)
+  const databaseHooks = buildDatabaseHooks(db, env.AUTH_SECRET)
   const stripeBilling = { hooks: buildBillingHooks(db) }
 
   return createAuth({

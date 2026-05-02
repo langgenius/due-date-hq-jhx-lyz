@@ -26,7 +26,15 @@ export const PulseAuditActions = [
 ] as const
 
 export const PenaltyAuditActions = ['penalty.override'] as const
-export const AuthAuditActions = ['auth.denied'] as const
+export const AuthAuditActions = [
+  'auth.denied',
+  'auth.login.success',
+  'auth.login.failed',
+  'auth.mfa.setup.started',
+  'auth.mfa.enabled',
+  'auth.mfa.disabled',
+  'auth.session.revoked',
+] as const
 export const ExportAuditActions = [
   'export.audit_package.requested',
   'export.audit_package.ready',

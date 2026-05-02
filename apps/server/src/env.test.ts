@@ -47,4 +47,21 @@ describe('validateServerEnv', () => {
     expect(env.STRIPE_WEBHOOK_SECRET).toBe('whsec_stripe')
     expect(env.STRIPE_PRICE_PRO_MONTHLY).toBe('price_pro_monthly')
   })
+
+  it('keeps Microsoft OAuth optional but validates paired credentials', () => {
+    const env = validateServerEnv(
+      runtimeEnv({
+        MICROSOFT_CLIENT_ID: 'microsoft-client-id',
+        MICROSOFT_CLIENT_SECRET: 'microsoft-client-secret',
+        MICROSOFT_TENANT_ID: 'organizations',
+      }),
+    )
+
+    expect(env.MICROSOFT_CLIENT_ID).toBe('microsoft-client-id')
+    expect(env.MICROSOFT_CLIENT_SECRET).toBe('microsoft-client-secret')
+    expect(env.MICROSOFT_TENANT_ID).toBe('organizations')
+    expect(() =>
+      validateServerEnv(runtimeEnv({ MICROSOFT_CLIENT_ID: 'microsoft-client-id' })),
+    ).toThrow(/MICROSOFT_CLIENT_ID and MICROSOFT_CLIENT_SECRET/)
+  })
 })

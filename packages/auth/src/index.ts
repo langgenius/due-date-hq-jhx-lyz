@@ -6,7 +6,9 @@ import {
   type StripePlan,
   type Subscription,
 } from '@better-auth/stripe'
+import { genericOAuth, microsoftEntraId } from 'better-auth/plugins/generic-oauth'
 import { organization } from 'better-auth/plugins/organization'
+import { twoFactor } from 'better-auth/plugins/two-factor'
 import { APIError } from 'better-auth/api'
 import StripeClient from 'stripe'
 import type { AuthEmailSender } from './email'
@@ -19,6 +21,9 @@ export type AuthEnv = {
   EMAIL_FROM: string
   GOOGLE_CLIENT_ID: string
   GOOGLE_CLIENT_SECRET: string
+  MICROSOFT_CLIENT_ID?: string | undefined
+  MICROSOFT_CLIENT_SECRET?: string | undefined
+  MICROSOFT_TENANT_ID?: string | undefined
   STRIPE_SECRET_KEY?: string | undefined
   STRIPE_WEBHOOK_SECRET?: string | undefined
   STRIPE_PRICE_FIRM_MONTHLY?: string | undefined
@@ -139,6 +144,13 @@ function isStripeConfigured(env: AuthEnv): env is AuthEnv & {
   return Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET && env.STRIPE_PRICE_PRO_MONTHLY)
 }
 
+function isMicrosoftConfigured(env: AuthEnv): env is AuthEnv & {
+  MICROSOFT_CLIENT_ID: string
+  MICROSOFT_CLIENT_SECRET: string
+} {
+  return Boolean(env.MICROSOFT_CLIENT_ID && env.MICROSOFT_CLIENT_SECRET)
+}
+
 function stripePlans(env: AuthEnv): StripePlan[] {
   const plans: StripePlan[] = [
     {
@@ -253,6 +265,28 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: Aut
     },
   })
 
+  const securityPlugins = [
+    twoFactor({
+      issuer: 'DueDateHQ',
+      allowPasswordless: true,
+    }),
+  ] as const
+
+  const microsoftPlugins =
+    env && isMicrosoftConfigured(env)
+      ? ([
+          genericOAuth({
+            config: [
+              microsoftEntraId({
+                clientId: env.MICROSOFT_CLIENT_ID,
+                clientSecret: env.MICROSOFT_CLIENT_SECRET,
+                tenantId: env.MICROSOFT_TENANT_ID || 'common',
+              }),
+            ],
+          }),
+        ] as const)
+      : ([] as const)
+
   if (env && opts.stripeBilling && isStripeConfigured(env)) {
     const stripeSecret = env.STRIPE_SECRET_KEY
     const stripeWebhookSecret = env.STRIPE_WEBHOOK_SECRET
@@ -291,10 +325,10 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: Aut
       },
       organization: { enabled: true },
     })
-    return [organizationPlugin, stripePlugin] as const
+    return [organizationPlugin, ...securityPlugins, ...microsoftPlugins, stripePlugin] as const
   }
 
-  return [organizationPlugin] as const
+  return [organizationPlugin, ...securityPlugins, ...microsoftPlugins] as const
 }
 
 export function createAuth(deps: CreateAuthDeps) {

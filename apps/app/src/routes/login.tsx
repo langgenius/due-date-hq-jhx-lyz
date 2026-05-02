@@ -1,11 +1,12 @@
 import { useState, useTransition } from 'react'
 import { useSearchParams } from 'react-router'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Loader2Icon } from 'lucide-react'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
-import { signInWithGoogle } from '@/lib/auth'
+import { signInWithGoogle, signInWithMicrosoft } from '@/lib/auth'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -34,7 +35,27 @@ const GoogleIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const MicrosoftIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 23 23"
+    aria-hidden="true"
+    className={cn('size-4', className)}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path fill="#f25022" d="M1 1h10v10H1z" />
+    <path fill="#7fba00" d="M12 1h10v10H12z" />
+    <path fill="#00a4ef" d="M1 12h10v10H1z" />
+    <path fill="#ffb900" d="M12 12h10v10H12z" />
+  </svg>
+)
+
 const USER_CANCELED = /cancel|popup|closed/i
+
+async function authCapabilities(): Promise<{ providers: { google: boolean; microsoft: boolean } }> {
+  const response = await fetch('/api/auth-capabilities', { credentials: 'include' })
+  if (!response.ok) return { providers: { google: true, microsoft: false } }
+  return response.json()
+}
 
 export function LoginRoute() {
   // Authed users never reach this component — the /login loader redirects them
@@ -42,12 +63,18 @@ export function LoginRoute() {
   const [search] = useSearchParams()
   const redirectTo = search.get('redirectTo') || '/'
   const { t } = useLingui()
+  const capabilitiesQuery = useQuery({
+    queryKey: ['auth-capabilities'],
+    queryFn: authCapabilities,
+    staleTime: 60_000,
+  })
+  const microsoftEnabled = capabilitiesQuery.data?.providers.microsoft ?? false
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submittingProvider, setSubmittingProvider] = useState<'google' | 'microsoft' | null>(null)
   const [, startTransition] = useTransition()
 
   async function handleGoogleSignIn() {
-    setIsSubmitting(true)
+    setSubmittingProvider('google')
     try {
       // better-auth performs the browser redirect itself; this promise typically does not resolve.
       await signInWithGoogle(redirectTo)
@@ -56,7 +83,20 @@ export function LoginRoute() {
       if (!USER_CANCELED.test(message)) {
         toast.error(t`Unable to start Google sign-in`, { description: message })
       }
-      startTransition(() => setIsSubmitting(false))
+      startTransition(() => setSubmittingProvider(null))
+    }
+  }
+
+  async function handleMicrosoftSignIn() {
+    setSubmittingProvider('microsoft')
+    try {
+      await signInWithMicrosoft(redirectTo)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t`Please try again.`
+      if (!USER_CANCELED.test(message)) {
+        toast.error(t`Unable to start Microsoft sign-in`, { description: message })
+      }
+      startTransition(() => setSubmittingProvider(null))
     }
   }
 
@@ -87,16 +127,16 @@ export function LoginRoute() {
         size="lg"
         className="mt-8 h-11 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel"
         onClick={handleGoogleSignIn}
-        disabled={isSubmitting}
-        aria-busy={isSubmitting}
+        disabled={submittingProvider !== null}
+        aria-busy={submittingProvider === 'google'}
       >
-        {isSubmitting ? (
+        {submittingProvider === 'google' ? (
           <Loader2Icon className="size-4 animate-spin" aria-hidden />
         ) : (
           <GoogleIcon />
         )}
         <span>
-          {isSubmitting ? (
+          {submittingProvider === 'google' ? (
             <Trans>Redirecting to Google…</Trans>
           ) : (
             <Trans>Continue with Google</Trans>
@@ -104,9 +144,33 @@ export function LoginRoute() {
         </span>
       </Button>
 
+      {microsoftEnabled ? (
+        <Button
+          variant="outline"
+          size="lg"
+          className="mt-3 h-11 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel"
+          onClick={handleMicrosoftSignIn}
+          disabled={submittingProvider !== null}
+          aria-busy={submittingProvider === 'microsoft'}
+        >
+          {submittingProvider === 'microsoft' ? (
+            <Loader2Icon className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <MicrosoftIcon />
+          )}
+          <span>
+            {submittingProvider === 'microsoft' ? (
+              <Trans>Redirecting to Microsoft…</Trans>
+            ) : (
+              <Trans>Continue with Microsoft</Trans>
+            )}
+          </span>
+        </Button>
+      ) : null}
+
       <p className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] text-text-muted">
         <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-status-done" />
-        <Trans>Encrypted · 7-day session · SSO respected</Trans>
+        <Trans>Encrypted · 7-day session · SSO-ready</Trans>
       </p>
 
       <p className="mt-8 text-[12px] leading-relaxed text-text-muted">

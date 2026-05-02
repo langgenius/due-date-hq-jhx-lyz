@@ -3,6 +3,7 @@ import type { Locator, Page } from '@playwright/test'
 export class LoginPage {
   readonly heading: Locator
   readonly googleButton: Locator
+  readonly microsoftButton: Locator
   readonly languageButton: Locator
   readonly footerStatus: Locator
 
@@ -13,6 +14,10 @@ export class LoginPage {
 
     this.googleButton = page.getByRole('button', {
       name: /Continue with Google|使用 Google 继续/,
+    })
+
+    this.microsoftButton = page.getByRole('button', {
+      name: /Continue with Microsoft|使用 Microsoft 继续/,
     })
 
     this.languageButton = page.getByRole('button', {

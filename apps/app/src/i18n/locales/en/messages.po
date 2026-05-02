@@ -96,6 +96,12 @@ msgstr "{0} due {1}"
 msgid "{0} fully covered · {1} with open candidates"
 msgstr "{0} fully covered · {1} with open candidates"
 
+#. placeholder {0}: inviteQuery.data.inviterEmail
+#. placeholder {1}: inviteQuery.data.organizationName
+#: src/routes/accept-invite.tsx
+msgid "{0} invited you to {1}."
+msgstr "{0} invited you to {1}."
+
 #. placeholder {0}: currentFirm?.name
 #: src/routes/billing.success.tsx
 msgid "{0} is on {expectedPlanName}"
@@ -359,6 +365,11 @@ msgstr "4 verified · 1 candidate watch"
 msgid "5 seats included"
 msgstr "5 seats included"
 
+#: src/routes/accept-invite.tsx
+#: src/routes/route-summary.ts
+msgid "Accept invitation"
+msgstr "Accept invitation"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Access denied"
 msgstr "Access denied"
@@ -366,6 +377,11 @@ msgstr "Access denied"
 #: src/features/members/members-page.tsx
 msgid "access revoked, history kept"
 msgstr "access revoked, history kept"
+
+#: src/routes/account.security.tsx
+#: src/routes/route-summary.ts
+msgid "Account"
+msgstr "Account"
 
 #. placeholder {0}: user.name || user.email
 #: src/components/patterns/app-shell-user-menu.tsx
@@ -413,6 +429,10 @@ msgstr "Active practice · {currentPlan} plan · {0} seat limit"
 #: src/routes/firm.tsx
 msgid "Active practice summary"
 msgstr "Active practice summary"
+
+#: src/routes/account.security.tsx
+msgid "Active sessions"
+msgstr "Active sessions"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
@@ -635,6 +655,10 @@ msgstr "Ask DueDateHQ"
 msgid "Ask query run"
 msgstr "Ask query run"
 
+#: src/routes/accept-invite.tsx
+msgid "Ask the practice owner to send a new invitation."
+msgstr "Ask the practice owner to send a new invitation."
+
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/mapping-target-labels.ts
 msgid "Assignee"
@@ -722,6 +746,18 @@ msgstr "Auth"
 msgid "Authentication"
 msgstr "Authentication"
 
+#: src/routes/account.security.tsx
+msgid "Authenticator app"
+msgstr "Authenticator app"
+
+#: src/routes/account.security.tsx
+msgid "Authenticator is active on this account."
+msgstr "Authenticator is active on this account."
+
+#: src/routes/account.security.tsx
+msgid "Authenticator setup started"
+msgstr "Authenticator setup started"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Auto-link open signals"
 msgstr "Auto-link open signals"
@@ -746,6 +782,10 @@ msgstr "Back to billing"
 #: src/routes/billing.cancel.tsx
 msgid "Back to Billing"
 msgstr "Back to Billing"
+
+#: src/routes/account.security.tsx
+msgid "Backup codes copied"
+msgstr "Backup codes copied"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Basic"
@@ -1135,9 +1175,15 @@ msgstr "Continue"
 msgid "Continue to secure checkout"
 msgstr "Continue to secure checkout"
 
+#: src/routes/accept-invite.tsx
 #: src/routes/login.tsx
 msgid "Continue with Google"
 msgstr "Continue with Google"
+
+#: src/routes/accept-invite.tsx
+#: src/routes/login.tsx
+msgid "Continue with Microsoft"
+msgstr "Continue with Microsoft"
 
 #: src/routes/billing.tsx
 msgid "contract"
@@ -1147,6 +1193,10 @@ msgstr "contract"
 #: src/routes/firm.tsx
 msgid "Coordinator"
 msgstr "Coordinator"
+
+#: src/routes/account.security.tsx
+msgid "Copy"
+msgstr "Copy"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Copy client email draft"
@@ -1159,6 +1209,10 @@ msgstr "Copy link"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Copy source excerpt"
 msgstr "Copy source excerpt"
+
+#: src/routes/accept-invite.tsx
+msgid "Could not accept invitation"
+msgstr "Could not accept invitation"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not create firm."
@@ -1216,6 +1270,14 @@ msgstr "Could not revert import"
 msgid "Could not run obligation preview."
 msgstr "Could not run obligation preview."
 
+#: src/routes/account.security.tsx
+msgid "Could not start authenticator setup"
+msgstr "Could not start authenticator setup"
+
+#: src/routes/accept-invite.tsx
+msgid "Could not start sign-in"
+msgstr "Could not start sign-in"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Could not switch firm."
 msgstr "Could not switch firm."
@@ -1227,6 +1289,11 @@ msgstr "Could not undo client"
 #: src/routes/firm.tsx
 msgid "Could not update practice."
 msgstr "Could not update practice."
+
+#: src/routes/account.security.tsx
+#: src/routes/two-factor.tsx
+msgid "Could not verify the code"
+msgstr "Could not verify the code"
 
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't apply Default Matrix"
@@ -1467,6 +1534,7 @@ msgstr "critical"
 msgid "CSV"
 msgstr "CSV"
 
+#: src/routes/account.security.tsx
 #: src/routes/billing.tsx
 msgid "Current"
 msgstr "Current"
@@ -1629,6 +1697,10 @@ msgstr "Digest queued for owners and managers; delivery depends on email config"
 msgid "Disable"
 msgstr "Disable"
 
+#: src/routes/account.security.tsx
+msgid "Disable MFA"
+msgstr "Disable MFA"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Disabled cells"
 msgstr "Disabled cells"
@@ -1752,8 +1824,8 @@ msgid "Enabled cells"
 msgstr "Enabled cells"
 
 #: src/routes/login.tsx
-msgid "Encrypted · 7-day session · SSO respected"
-msgstr "Encrypted · 7-day session · SSO respected"
+msgid "Encrypted · 7-day session · SSO-ready"
+msgstr "Encrypted · 7-day session · SSO-ready"
 
 #: src/routes/onboarding.tsx
 msgid "Encrypted · Auto-saves · Renamable later"
@@ -1766,6 +1838,10 @@ msgstr "Enter execute · Esc close · {commandShortcut} toggle"
 #: src/routes/workboard.tsx
 msgid "Enter penalty inputs"
 msgstr "Enter penalty inputs"
+
+#: src/routes/two-factor.tsx
+msgid "Enter the code from your authenticator app."
+msgstr "Enter the code from your authenticator app."
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-table.tsx
@@ -2281,9 +2357,17 @@ msgstr "Intake"
 msgid "Internal operations"
 msgstr "Internal operations"
 
+#: src/routes/accept-invite.tsx
+msgid "Invitation accepted"
+msgstr "Invitation accepted"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Invitation canceled"
 msgstr "Invitation canceled"
+
+#: src/routes/accept-invite.tsx
+msgid "Invitation could not load"
+msgstr "Invitation could not load"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Invitation resent"
@@ -2292,6 +2376,10 @@ msgstr "Invitation resent"
 #: src/features/members/members-page.tsx
 msgid "Invite a teammate"
 msgstr "Invite a teammate"
+
+#: src/routes/accept-invite.tsx
+msgid "Invite link is missing"
+msgstr "Invite link is missing"
 
 #: src/features/members/members-page.tsx
 msgid "Invite member"
@@ -2660,6 +2748,14 @@ msgstr "Members"
 #: src/features/members/members-page.tsx
 msgid "Members could not load"
 msgstr "Members could not load"
+
+#: src/routes/account.security.tsx
+msgid "MFA enabled"
+msgstr "MFA enabled"
+
+#: src/routes/account.security.tsx
+msgid "MFA not enabled"
+msgstr "MFA not enabled"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Migration"
@@ -3385,6 +3481,10 @@ msgstr "Organization billing stays scoped to the selected firm."
 msgid "Other"
 msgstr "Other"
 
+#: src/routes/account.security.tsx
+msgid "Other sessions revoked"
+msgstr "Other sessions revoked"
+
 #: src/features/notifications/notifications-page.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/dashboard.tsx
@@ -3434,6 +3534,10 @@ msgstr "Owner workload"
 #: src/features/members/members-page.tsx
 msgid "Owner-only. Invite teammates, change roles, and manage seats."
 msgstr "Owner-only. Invite teammates, change roles, and manage seats."
+
+#: src/routes/account.security.tsx
+msgid "Owners need MFA before sensitive production actions."
+msgstr "Owners need MFA before sensitive production actions."
 
 #: src/routes/workboard.tsx
 msgid "Owners updated"
@@ -3605,11 +3709,13 @@ msgstr "Please enter at least 2 characters."
 #: src/features/notifications/notifications-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/workload/workload-page.tsx
+#: src/routes/accept-invite.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/firm.tsx
 #: src/routes/login.tsx
 #: src/routes/onboarding.tsx
+#: src/routes/two-factor.tsx
 #: src/routes/workboard.tsx
 msgid "Please try again."
 msgstr "Please try again."
@@ -3641,6 +3747,10 @@ msgstr "Practice deleted"
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Practice ID"
 msgstr "Practice ID"
+
+#: src/routes/accept-invite.tsx
+msgid "Practice invitation"
+msgstr "Practice invitation"
 
 #: src/routes/firm.tsx
 #: src/routes/onboarding.tsx
@@ -4017,9 +4127,17 @@ msgstr "Record audit trail"
 msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
 msgstr "Recover mistaken batch imports. Edit individual client facts from Clients."
 
+#: src/routes/account.security.tsx
+msgid "Recovery codes"
+msgstr "Recovery codes"
+
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
 msgstr "Redirecting to Google…"
+
+#: src/routes/login.tsx
+msgid "Redirecting to Microsoft…"
+msgstr "Redirecting to Microsoft…"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
@@ -4214,6 +4332,10 @@ msgstr "Review risk and operating pressure."
 msgid "Review risk queue"
 msgstr "Review risk queue"
 
+#: src/routes/account.security.tsx
+msgid "Review signed-in browsers and revoke stale access."
+msgstr "Review signed-in browsers and revoke stale access."
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source coverage, rule inventory, and obligation preview."
 msgstr "Review source coverage, rule inventory, and obligation preview."
@@ -4245,6 +4367,10 @@ msgstr "Review the source excerpt and structured fields before applying this ale
 #: src/features/audit/audit-log-labels.ts
 msgid "Reviewing"
 msgstr "Reviewing"
+
+#: src/routes/account.security.tsx
+msgid "Revoke"
+msgstr "Revoke"
 
 #: src/routes/workboard.tsx
 msgid "Revoke request"
@@ -4558,6 +4684,16 @@ msgstr "Seats used"
 msgid "Secure checkout"
 msgstr "Secure checkout"
 
+#: src/components/patterns/app-shell-user-menu.tsx
+#: src/routes/account.security.tsx
+#: src/routes/route-summary.ts
+msgid "Security"
+msgstr "Security"
+
+#: src/routes/account.security.tsx
+msgid "Security settings could not load"
+msgstr "Security settings could not load"
+
 #. placeholder {0}: row.clientName
 #. placeholder {0}: tableRow.original.clientName
 #: src/features/pulse/components/AffectedClientsTable.tsx
@@ -4630,6 +4766,14 @@ msgstr "Sent {0}"
 msgid "Server-computed obligation risk for the next operating window."
 msgstr "Server-computed obligation risk for the next operating window."
 
+#: src/routes/account.security.tsx
+msgid "Session revoked"
+msgstr "Session revoked"
+
+#: src/routes/account.security.tsx
+msgid "Set up authenticator"
+msgstr "Set up authenticator"
+
 #: src/routes/onboarding.tsx
 msgid "Set up your practice."
 msgstr "Set up your practice."
@@ -4637,6 +4781,10 @@ msgstr "Set up your practice."
 #: src/routes/onboarding.tsx
 msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
+
+#: src/routes/account.security.tsx
+msgid "Setup URI"
+msgstr "Setup URI"
 
 #: src/routes/dashboard.tsx
 msgid "Severity"
@@ -4693,6 +4841,10 @@ msgstr "Sign in"
 msgid "SIGN IN"
 msgstr "SIGN IN"
 
+#: src/routes/accept-invite.tsx
+msgid "Sign in to accept this invitation."
+msgstr "Sign in to accept this invitation."
+
 #: src/routes/login.tsx
 msgid "Sign in with Google to access your practice's deadline queue and evidence-backed recommendations."
 msgstr "Sign in with Google to access your practice's deadline queue and evidence-backed recommendations."
@@ -4704,6 +4856,10 @@ msgstr "Sign out"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out failed"
 msgstr "Sign out failed"
+
+#: src/routes/account.security.tsx
+msgid "Sign out other sessions"
+msgstr "Sign out other sessions"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Signal action queued"
@@ -5194,9 +5350,30 @@ msgstr "Trust"
 msgid "TSV"
 msgstr "TSV"
 
+#: src/routes/account.security.tsx
+msgid "Two-factor authentication disabled"
+msgstr "Two-factor authentication disabled"
+
+#: src/routes/account.security.tsx
+msgid "Two-factor authentication enabled"
+msgstr "Two-factor authentication enabled"
+
+#: src/routes/route-summary.ts
+#: src/routes/two-factor.tsx
+msgid "Two-factor verification"
+msgstr "Two-factor verification"
+
+#: src/routes/two-factor.tsx
+msgid "Two-factor verification complete"
+msgstr "Two-factor verification complete"
+
 #: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
 msgstr "Unable to start Google sign-in"
+
+#: src/routes/login.tsx
+msgid "Unable to start Microsoft sign-in"
+msgstr "Unable to start Microsoft sign-in"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
@@ -5245,6 +5422,10 @@ msgstr "Undo this imported client?"
 #: src/routes/error.tsx
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
+
+#: src/routes/account.security.tsx
+msgid "Unknown browser"
+msgstr "Unknown browser"
 
 #: src/routes/workboard.tsx
 msgid "Unpin view"
@@ -5327,6 +5508,11 @@ msgstr "verifiable per (jurisdiction, entity) pair"
 msgid "Verification"
 msgstr "Verification"
 
+#: src/routes/account.security.tsx
+#: src/routes/two-factor.tsx
+msgid "Verification code"
+msgstr "Verification code"
+
 #: src/features/rules/rules-console-primitives.tsx
 msgid "verified"
 msgstr "verified"
@@ -5356,6 +5542,14 @@ msgstr "Verified by"
 #: src/features/rules/coverage-tab.tsx
 msgid "Verified rules"
 msgstr "Verified rules"
+
+#: src/routes/two-factor.tsx
+msgid "Verify"
+msgstr "Verify"
+
+#: src/routes/account.security.tsx
+msgid "Verify and enable"
+msgstr "Verify and enable"
 
 #: src/components/patterns/app-shell.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx

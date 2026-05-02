@@ -40,7 +40,7 @@ describe('buildDatabaseHooks.session.create.before', () => {
 
   it('sets activeOrganizationId from the earliest active membership when the user has one', async () => {
     const { db, limitSpy, innerJoinSpy } = makeFakeDb([{ organizationId: 'firm_early' }])
-    const hooks = buildDatabaseHooks(db)
+    const hooks = buildDatabaseHooks(db, 'secret')
     const before = hooks.session?.create?.before
     expect(before).toBeDefined()
 
@@ -55,7 +55,7 @@ describe('buildDatabaseHooks.session.create.before', () => {
 
   it('relies on the firm_profile active join before choosing a returning firm', async () => {
     const { db, innerJoinSpy } = makeFakeDb([{ organizationId: 'firm_active_second' }])
-    const hooks = buildDatabaseHooks(db)
+    const hooks = buildDatabaseHooks(db, 'secret')
 
     const result = await hooks.session!.create!.before!(baseSession('user_1') as never, null)
 
@@ -67,7 +67,7 @@ describe('buildDatabaseHooks.session.create.before', () => {
 
   it('returns undefined when the user has no active memberships (first-time signup)', async () => {
     const { db, limitSpy } = makeFakeDb([])
-    const hooks = buildDatabaseHooks(db)
+    const hooks = buildDatabaseHooks(db, 'secret')
     const result = await hooks.session!.create!.before!(baseSession('user_new') as never, null)
 
     expect(limitSpy).toHaveBeenCalledTimes(1)
@@ -76,7 +76,7 @@ describe('buildDatabaseHooks.session.create.before', () => {
 
   it('returns undefined without hitting the db when userId is missing', async () => {
     const { db, limitSpy } = makeFakeDb([])
-    const hooks = buildDatabaseHooks(db)
+    const hooks = buildDatabaseHooks(db, 'secret')
     const result = await hooks.session!.create!.before!(baseSession(undefined) as never, null)
 
     expect(limitSpy).not.toHaveBeenCalled()

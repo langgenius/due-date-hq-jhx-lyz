@@ -18,6 +18,9 @@ const serverEnvSchema = z.object({
   EMAIL_FROM: z.email(),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
+  MICROSOFT_CLIENT_ID: z.string().min(1).optional(),
+  MICROSOFT_CLIENT_SECRET: z.string().min(1).optional(),
+  MICROSOFT_TENANT_ID: z.string().min(1).optional(),
   STRIPE_SECRET_KEY: z.string().min(1).optional(),
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
   STRIPE_PRICE_FIRM_MONTHLY: z.string().min(1).optional(),
@@ -25,6 +28,14 @@ const serverEnvSchema = z.object({
   STRIPE_PRICE_PRO_MONTHLY: z.string().min(1).optional(),
   STRIPE_PRICE_PRO_YEARLY: z.string().min(1).optional(),
 })
+
+function assertMicrosoftOAuthPair(env: ServerEnv) {
+  const hasMicrosoftClientId = Boolean(env.MICROSOFT_CLIENT_ID)
+  const hasMicrosoftClientSecret = Boolean(env.MICROSOFT_CLIENT_SECRET)
+  if (hasMicrosoftClientId === hasMicrosoftClientSecret) return
+
+  throw new Error('MICROSOFT_CLIENT_ID and MICROSOFT_CLIENT_SECRET must be configured together.')
+}
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
 export type ServerEnvInput = Partial<ServerEnv> &
@@ -85,6 +96,9 @@ export function validateServerEnv(runtimeEnv: ServerEnvInput): ServerEnv {
       EMAIL_FROM: runtimeEnv.EMAIL_FROM,
       GOOGLE_CLIENT_ID: runtimeEnv.GOOGLE_CLIENT_ID,
       GOOGLE_CLIENT_SECRET: runtimeEnv.GOOGLE_CLIENT_SECRET,
+      MICROSOFT_CLIENT_ID: runtimeEnv.MICROSOFT_CLIENT_ID,
+      MICROSOFT_CLIENT_SECRET: runtimeEnv.MICROSOFT_CLIENT_SECRET,
+      MICROSOFT_TENANT_ID: runtimeEnv.MICROSOFT_TENANT_ID,
       STRIPE_SECRET_KEY: runtimeEnv.STRIPE_SECRET_KEY,
       STRIPE_WEBHOOK_SECRET: runtimeEnv.STRIPE_WEBHOOK_SECRET,
       STRIPE_PRICE_FIRM_MONTHLY: runtimeEnv.STRIPE_PRICE_FIRM_MONTHLY,
@@ -94,6 +108,8 @@ export function validateServerEnv(runtimeEnv: ServerEnvInput): ServerEnv {
     },
     emptyStringAsUndefined: true,
   })
+
+  assertMicrosoftOAuthPair(env)
 
   return env
 }

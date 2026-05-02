@@ -2,20 +2,20 @@
 
 > 对齐 PRD §13 + §3.6.3（RBAC 矩阵）+ §6C（Audit Package）。
 > 核心纪律：**三层防御（Session / Scoped Repo / Lint）· 最小必要数据 · 审计永不删。**
-> Auth 基座：**better-auth + Organization plugin + Access Control plugin**。
+> Auth 基座：**better-auth + Organization plugin + Access Control plugin + twoFactor plugin**。
 
 ---
 
 ## 1. 威胁模型（STRIDE 速览）
 
-| 威胁                | 场景                            | 缓解                                                                                                 |
-| ------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **S**poofing        | 伪冒 CPA 登录                   | Google OAuth + device/IP fingerprint；Owner TOTP 在真实试点前启用，Manager TOTP 随 Team Phase 1 强制 |
-| **T**ampering       | 篡改 `current_due_date` / Pulse | Phase 1 Overlay 独立留痕不改 base；所有变更写 `audit_event`（永不删）                                |
-| **R**epudiation     | "不是我改的"                    | `audit_event` 记 actor + ip_hash + ua_hash                                                           |
-| **I**nfo disclosure | 跨 firm 数据泄露                | Middleware + `scoped(db, firmId)` + oxlint 三层                                                      |
-| **D**oS             | Ask 恶意构造 query              | Rate Limit binding + DSL 白名单 + 3s 超时                                                            |
-| **E**levation       | Preparer 跑 Owner 操作          | better-auth Access Control plugin 校验（Phase 1）                                                    |
+| 威胁                | 场景                            | 缓解                                                                                                                                |
+| ------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **S**poofing        | 伪冒 CPA 登录                   | Google / Microsoft OAuth + device/IP fingerprint；Owner TOTP 在 production Owner-only 操作前强制，Manager TOTP 随 Team Phase 1 强制 |
+| **T**ampering       | 篡改 `current_due_date` / Pulse | Phase 1 Overlay 独立留痕不改 base；所有变更写 `audit_event`（永不删）                                                               |
+| **R**epudiation     | "不是我改的"                    | `audit_event` 记 actor + ip_hash + ua_hash                                                                                          |
+| **I**nfo disclosure | 跨 firm 数据泄露                | Middleware + `scoped(db, firmId)` + oxlint 三层                                                                                     |
+| **D**oS             | Ask 恶意构造 query              | Rate Limit binding + DSL 白名单 + 3s 超时                                                                                           |
+| **E**levation       | Preparer 跑 Owner 操作          | better-auth Access Control plugin 校验（Phase 1）                                                                                   |
 
 ---
 
@@ -23,20 +23,21 @@
 
 ### 2.1 核心插件
 
-| 插件                                       | 用途                                                           |
-| ------------------------------------------ | -------------------------------------------------------------- |
-| `socialProviders.google`                   | Google OAuth 登录                                              |
-| `organization`                             | 多租户（= Firm）+ Member + Invitation + Active-org 切换        |
-| 自定义 Access Control（`organization.ac`） | 四角色权限矩阵                                                 |
-| `twoFactor`（真实试点前 / Phase 1）        | TOTP MFA；Owner 在真实试点前强制，Manager 随 Team Phase 1 强制 |
+| 插件                                       | 用途                                                         |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| `socialProviders.google`                   | Google OAuth 登录                                            |
+| `genericOAuth.microsoft-entra-id`          | Microsoft Entra ID / Microsoft 365 登录                      |
+| `organization`                             | 多租户（= Firm）+ Member + Invitation + Active-org 切换      |
+| 自定义 Access Control（`organization.ac`） | 四角色权限矩阵                                               |
+| `twoFactor`                                | TOTP MFA；production 的 Owner-only 敏感操作要求 Owner 已启用 |
 
 ### 2.2 Session & Cookie
 
 - Cookie：`httpOnly` · `secure` · `sameSite=lax`
 - Session 存 D1；默认有效期 7 天
 - `session.activeOrganizationId` = 当前 Firm；前端切换 / 创建 / 删除 Firm 必须走 DueDateHQ `firms.*` gateway，服务端再按需调用 Better Auth organization API 或写 session
-- 双设备会话允许；Devices 列所有 session + "Sign out all"
-- 新设备 / 新 IP → Phase 1 要求 step-up（TOTP 二次验证）
+- 双设备会话允许；Account Security 列所有 session，可撤销单个 session 或其他 session
+- 已启用 MFA 的用户登录时走 Better Auth two-factor challenge；Owner-only 敏感操作在 production 要求 Owner 已启用 MFA
 
 ### 2.3 Invitation 流
 
@@ -46,15 +47,17 @@
 - 邀请邮件由 `sendInvitationEmail` hook 经 Resend 发出
 - `RESEND_API_KEY` 仅在实际发送 auth email 时必需；development 缺 key 时打印到
   console，非 development 的发送路径会失败
-- 接受：点链接 → `/api/auth/organization/accept-invitation/:token` → 自动加入并设为 active
+- 接受：点链接 → `/accept-invite?id=...` → 登录后调用 `/api/auth/organization/accept-invitation`
 - 拒绝 / 撤销：`cancelInvitation` / `rejectInvitation`
 - 过期：默认 14 天
 
-### 2.4 MFA（真实试点前 / Phase 1）
+### 2.4 MFA（production Owner gate）
 
 - `twoFactor` plugin；TOTP + 10 条 recovery codes
-- 7 天 Demo 可跳过；真实 CPA 试点前 Owner 登录时若未开启 → 强制 setup wall
-- `mfa_secret` AES-GCM 加密存储；key 来自 Worker secret
+- `/account/security` 可启用/停用 MFA、复制 recovery codes、管理 active sessions
+- `/two-factor` 承接已启用 MFA 用户的登录二次验证
+- production 中 owner-only procedure 在 Owner 未启用 MFA 时返回 `MFA_REQUIRED` 并写 `auth.denied`
+- `two_factor.secret` / `backup_codes` 由 Better Auth 管理；表级迁移为 `0021_elite_daredevil`
 
 ---
 
@@ -239,7 +242,7 @@ contract，不包含 Drizzle schema、DB factory 或 Worker runtime；
 ### 6.1 Action 枚举（只增不删）
 
 ```
-auth.login.success / auth.login.failed / auth.denied / auth.mfa.setup
+auth.login.success / auth.login.failed / auth.denied / auth.mfa.setup.started / auth.mfa.enabled / auth.mfa.disabled / auth.session.revoked
 client.created / client.batch_created / client.updated / client.deleted / client.restored
 obligation.status.updated / obligation.readiness.updated / obligation.batch_created / obligation.assignee.changed
 pulse.ingest / pulse.extract / pulse.approve / pulse.reject / pulse.dismiss / pulse.quarantine

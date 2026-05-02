@@ -241,7 +241,15 @@ export type PulseAuditAction = (typeof PULSE_AUDIT_ACTIONS)[number]
 export const PENALTY_AUDIT_ACTIONS = ['penalty.override'] as const
 export type PenaltyAuditAction = (typeof PENALTY_AUDIT_ACTIONS)[number]
 
-export const AUTH_AUDIT_ACTIONS = ['auth.denied'] as const
+export const AUTH_AUDIT_ACTIONS = [
+  'auth.denied',
+  'auth.login.success',
+  'auth.login.failed',
+  'auth.mfa.setup.started',
+  'auth.mfa.enabled',
+  'auth.mfa.disabled',
+  'auth.session.revoked',
+] as const
 export type AuthAuditAction = (typeof AUTH_AUDIT_ACTIONS)[number]
 
 export const EXPORT_AUDIT_ACTIONS = [

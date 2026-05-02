@@ -1,12 +1,15 @@
 import { and, asc, eq } from 'drizzle-orm'
 import { authSchema, firmSchema, type Db } from '@duedatehq/db'
+import { createAuditWriter } from '@duedatehq/db/audit-writer'
 import type { DatabaseHooks } from '@duedatehq/auth'
+import { sha256Hex } from './lib/readiness-token'
 
 /**
  * Build better-auth's `databaseHooks` for the running Worker.
  *
- * Currently we only register `session.create.before` — the rest
- * (user/account lifecycle) stays at better-auth defaults.
+ * Currently we register `session.create.before` for active organization
+ * restoration and `session.create.after` for firm-scoped login audit.
+ * The rest (user/account lifecycle) stays at better-auth defaults.
  *
  * Why this exists:
  *   The protected loader treats `session.activeOrganizationId == null` as
@@ -23,7 +26,16 @@ import type { DatabaseHooks } from '@duedatehq/auth'
  *   the auth schema via the drizzle db handle. `packages/auth` can't
  *   depend on `@duedatehq/db` (scripts/check-dep-direction.mjs).
  */
-export function buildDatabaseHooks(db: Db): DatabaseHooks {
+async function hashValue(
+  secret: string,
+  value: string | null | undefined,
+): Promise<string | undefined> {
+  if (!value) return undefined
+  return sha256Hex(`${secret}:${value}`)
+}
+
+export function buildDatabaseHooks(db: Db, secret: string): DatabaseHooks {
+  const audit = createAuditWriter(db)
   return {
     session: {
       create: {
@@ -59,6 +71,32 @@ export function buildDatabaseHooks(db: Db): DatabaseHooks {
               ...session,
               activeOrganizationId: earliestMembership.organizationId,
             },
+          }
+        },
+        after: async (session) => {
+          const firmId =
+            typeof session.activeOrganizationId === 'string'
+              ? session.activeOrganizationId
+              : undefined
+          if (!session.userId || !firmId) return
+          try {
+            const ipHash = await hashValue(secret, session.ipAddress)
+            const userAgentHash = await hashValue(secret, session.userAgent)
+            await audit.write({
+              firmId,
+              actorId: session.userId,
+              entityType: 'auth_session',
+              entityId: session.id,
+              action: 'auth.login.success',
+              after: {
+                sessionId: session.id,
+                provider: 'oauth',
+              },
+              ...(ipHash ? { ipHash } : {}),
+              ...(userAgentHash ? { userAgentHash } : {}),
+            })
+          } catch {
+            // Session creation must not fail if audit persistence is temporarily unavailable.
           }
         },
       },

@@ -53,10 +53,11 @@ packages/db/
 
 | 表             | 说明                                                                     | DueDateHQ 视角                                           |
 | -------------- | ------------------------------------------------------------------------ | -------------------------------------------------------- |
-| `user`         | 全局唯一的人（邮箱唯一）                                                 | CPA 本人                                                 |
+| `user`         | 全局唯一的人（邮箱唯一）                                                 | CPA 本人；含 `two_factor_enabled`                        |
 | `session`      | 登录态                                                                   | 含 `activeOrganizationId`                                |
 | `account`      | OAuth account                                                            | Google OAuth 为主                                        |
 | `verification` | 邮箱 / 邀请 token                                                        | —                                                        |
+| `two_factor`   | Better Auth TOTP secret + recovery codes                                 | MFA 设置记录                                             |
 | `organization` | **Firm（租户）身份容器**；业务字段在 `firm_profile`（§2.1.b）            | 仅 `id / name / slug / logo / metadata`（metadata 留空） |
 | `member`       | **UserFirmMembership**；`role ∈ {owner, manager, preparer, coordinator}` | —                                                        |
 | `invitation`   | **TeamInvitation**                                                       | token + 14d 过期                                         |

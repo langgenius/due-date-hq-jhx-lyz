@@ -9,6 +9,7 @@ import {
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
+  ShieldCheckIcon,
   SunIcon,
   type LucideIcon,
 } from 'lucide-react'
@@ -118,6 +119,12 @@ function UserMenuTrigger({
             <ThemeMenuItems currentTheme={themePreference} onSelect={switchThemePreference} />
           </DropdownMenuSubContent>
         </DropdownMenuSub>
+        <DropdownMenuItem onClick={() => void navigate('/account/security')}>
+          <ShieldCheckIcon />
+          <span>
+            <Trans>Security</Trans>
+          </span>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleSignOut} disabled={isSigningOut}>
           <LogOutIcon />

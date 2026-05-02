@@ -10,6 +10,7 @@ test('AC: E2E-SMOKE-LOGIN renders the login entry', async ({ loginPage, page }) 
   await expect(page).toHaveURL(/\/login$/)
   await expect(loginPage.heading).toBeVisible()
   await expect(loginPage.googleButton).toBeEnabled()
+  await expect(loginPage.microsoftButton).toHaveCount(0)
   await expect(loginPage.footerStatus).toBeVisible()
 })
 
@@ -47,4 +48,17 @@ test('AC: E2E-SMOKE-AUTH-REDIRECT preserves the onboarding target', async ({ log
   const url = new URL(page.url())
   expect(url.pathname).toBe('/login')
   expect(url.searchParams.get('redirectTo')).toBe('/onboarding')
+})
+
+test('AC: E2E-SMOKE-INVITE renders the invite entry error without a token', async ({ page }) => {
+  await page.goto('/accept-invite')
+
+  await expect(page.getByText(/Invite link is missing|邀请链接缺少参数/)).toBeVisible()
+})
+
+test('AC: E2E-SMOKE-MFA renders the two-factor challenge entry', async ({ page }) => {
+  await page.goto('/two-factor')
+
+  await expect(page.getByText(/Two-factor verification|两步验证/)).toBeVisible()
+  await expect(page.getByLabel(/Verification code|验证码/)).toBeVisible()
 })

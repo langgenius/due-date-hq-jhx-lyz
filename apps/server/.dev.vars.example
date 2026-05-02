@@ -41,6 +41,13 @@ APP_URL=http://localhost:5173
 AUTH_SECRET=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
+# Optional Microsoft Entra ID OAuth for Outlook / Microsoft 365 firms.
+# Azure Portal → App registrations → Authentication
+# Redirect URI must include: {AUTH_URL}/api/auth/oauth2/callback/microsoft-entra-id
+# MICROSOFT_TENANT_ID may be "common" for multi-tenant sign-in.
+MICROSOFT_CLIENT_ID=
+MICROSOFT_CLIENT_SECRET=
+MICROSOFT_TENANT_ID=common
 
 # ═════════════════════════════════════════════════════════════════════════════
 # [Optional until email send] Mail · Resend

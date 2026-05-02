@@ -19,6 +19,7 @@ import { membersContract } from './members'
 import { notificationsContract } from './notifications'
 import { readinessContract } from './readiness'
 import { rulesContract } from './rules'
+import { securityContract } from './security'
 
 export const appContract = oc.router({
   audit: auditContract,
@@ -35,9 +36,29 @@ export const appContract = oc.router({
   notifications: notificationsContract,
   readiness: readinessContract,
   rules: rulesContract,
+  security: securityContract,
 })
 
 export type AppContract = typeof appContract
+
+export type {
+  EnableTwoFactorOutput,
+  SecurityContract,
+  SecurityMutationOutput,
+  SecuritySession,
+  SecurityStatus,
+  RevokeSessionInput,
+  VerifyTwoFactorInput,
+} from './security'
+export {
+  EnableTwoFactorOutputSchema,
+  RevokeSessionInputSchema,
+  SecurityMutationOutputSchema,
+  SecuritySessionSchema,
+  SecurityStatusSchema,
+  securityContract,
+  VerifyTwoFactorInputSchema,
+} from './security'
 
 export type {
   AiInsightCitation,

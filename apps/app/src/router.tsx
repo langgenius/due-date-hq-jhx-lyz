@@ -156,6 +156,26 @@ export function createAppRouter() {
               },
             },
             {
+              path: '/two-factor',
+              handle: routeHandle(routeSummaries.twoFactor),
+              HydrateFallback: EntryRouteHydrateFallback,
+              lazy: async () => {
+                const { TwoFactorRoute } = await import('@/routes/two-factor')
+
+                return { Component: TwoFactorRoute }
+              },
+            },
+            {
+              path: '/accept-invite',
+              handle: routeHandle(routeSummaries.acceptInvite),
+              HydrateFallback: EntryRouteHydrateFallback,
+              lazy: async () => {
+                const { AcceptInviteRoute } = await import('@/routes/accept-invite')
+
+                return { Component: AcceptInviteRoute }
+              },
+            },
+            {
               path: '/onboarding',
               loader: onboardingLoader,
               handle: routeHandle(routeSummaries.onboarding),
@@ -310,6 +330,16 @@ export function createAppRouter() {
                 const { MembersRoute } = await import('@/routes/members')
 
                 return { Component: MembersRoute }
+              },
+            },
+            {
+              path: 'account/security',
+              handle: routeHandle(routeSummaries.accountSecurity),
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { AccountSecurityRoute } = await import('@/routes/account.security')
+
+                return { Component: AccountSecurityRoute }
               },
             },
             {

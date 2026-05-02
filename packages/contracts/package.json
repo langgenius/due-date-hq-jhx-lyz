@@ -23,6 +23,7 @@
     "./rules": "./src/rules.ts",
     "./migration": "./src/migration.ts",
     "./members": "./src/members.ts",
+    "./security": "./src/security.ts",
     "./errors": "./src/errors.ts"
   },
   "scripts": {

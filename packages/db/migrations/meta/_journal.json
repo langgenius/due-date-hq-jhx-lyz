@@ -148,6 +148,13 @@
       "when": 1777719364023,
       "tag": "0020_same_valeria_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1777724525489,
+      "tag": "0021_elite_daredevil",
+      "breakpoints": true
     }
   ]
 }

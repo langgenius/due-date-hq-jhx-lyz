@@ -8,6 +8,7 @@ import { firmAccessMiddleware } from './middleware/firm-access'
 import { sessionMiddleware } from './middleware/session'
 import { tenantMiddleware } from './middleware/tenant'
 import { rateLimitMiddleware } from './middleware/rate-limit'
+import { authCapabilitiesRoute } from './routes/auth-capabilities'
 import { authRoute } from './routes/auth'
 import { auditDownloadRoute } from './routes/audit-download'
 import { e2eRoute } from './routes/e2e'
@@ -76,6 +77,7 @@ export function createApp() {
 
   // /api/health — public liveness probe (no auth, no tenant).
   app.route('/api/health', healthRoute)
+  app.route('/api/auth-capabilities', authCapabilitiesRoute)
 
   app.use(
     '/api/auth/*',
@@ -89,7 +91,7 @@ export function createApp() {
     }),
   )
 
-  // /api/auth/* — better-auth handler (Google OAuth + Organization + Access Control).
+  // /api/auth/* — better-auth handler (Google/Microsoft OAuth + Organization + Access Control).
   app.route('/api/auth', authRoute)
 
   // /api/e2e/* — Playwright bootstrap. Development is open locally; staging
