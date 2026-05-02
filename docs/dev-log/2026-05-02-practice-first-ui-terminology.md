@@ -22,6 +22,8 @@ the product UI should not make normal CPA users reason about multiple firms or a
   text describes the customer tenant. Internal route names, RPC contracts, DB concepts, and audit
   action keys stay unchanged.
 - Renamed the visible `plan === 'firm'` tier to `Scale` while preserving the stored enum value.
+  This naming was superseded later on 2026-05-02 by the Firm entitlement/pricing closure: the
+  stored enum remains `firm`, and the visible paid tier is now `Firm`.
 
 ## Validation
 

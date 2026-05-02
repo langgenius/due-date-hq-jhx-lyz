@@ -441,7 +441,7 @@ const en: LandingCopy = {
       eyebrow: 'PRICING',
       title: 'Pay for the deadline risk you can actually see.',
       description:
-        'Start on Solo, move to Pro when deadline operations need a shared workspace, and talk to us about Firm when audit exports and higher coverage become operational requirements.',
+        'Start with one firm workspace on Solo, move to Pro when that firm needs shared operations, and talk to us about Firm when multiple offices or workspaces become operational requirements.',
       note: 'No credit card required for Solo · DueDateHQ never stores card numbers',
     },
     plansHeader: {
@@ -456,14 +456,14 @@ const en: LandingCopy = {
         priceKind: 'numeric',
         cadence: 'forever',
         description: 'For one owner evaluating the workbench with sample or first-party data.',
-        seats: '1 SEAT',
+        seats: '1 FIRM WORKSPACE · 1 OWNER SEAT',
         cta: 'Open the workbench',
         hrefKind: 'app',
         features: [
-          'One owner workspace',
+          '1 firm workspace',
           'Migration and rules preview',
           'Source-backed evidence',
-          'Sample client workspace',
+          'Sample or first-party data',
         ],
       },
       {
@@ -473,11 +473,11 @@ const en: LandingCopy = {
         priceKind: 'numeric',
         cadence: '/ month',
         description: 'For growing CPA practices that need shared deadline operations.',
-        seats: '5 SEATS',
+        seats: '1 PRODUCTION FIRM · 5 SEATS',
         cta: 'Upgrade to Pro',
         hrefKind: 'checkout',
         features: [
-          'Everything in Solo',
+          '1 production firm',
           '5 seats included',
           'Shared deadline operations',
           'Pulse and workboard access',
@@ -490,11 +490,11 @@ const en: LandingCopy = {
         cadence: 'annual agreement',
         description:
           'For practices that need audit export workflows, priority onboarding, and coverage expansion.',
-        seats: '10+ SEATS',
+        seats: 'MULTIPLE FIRMS/OFFICES · 10+ SEATS',
         cta: 'Contact sales',
         hrefKind: 'contact',
         features: [
-          'Everything in Pro',
+          'Multiple firms or offices',
           'Priority onboarding',
           'Audit exports and coverage planning',
           'Coverage expansion review',
@@ -520,6 +520,11 @@ const en: LandingCopy = {
         question: 'Can I keep using Solo?',
         answer:
           'Yes. Solo remains available for a single-owner practice while you evaluate the workbench.',
+      },
+      {
+        question: 'Can I create multiple firms?',
+        answer:
+          'Solo and Pro include one active firm workspace. Additional firms, offices, or demo/production separation are available on the Firm plan.',
       },
     ],
   },

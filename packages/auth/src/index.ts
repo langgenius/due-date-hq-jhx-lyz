@@ -48,6 +48,7 @@ export interface CreateAuthPluginsOptions {
    * tests that don't care about firm_profile bookkeeping.
    */
   organizationHooks?: OrganizationHooks
+  allowUserToCreateOrganization?: OrganizationPluginOptions['allowUserToCreateOrganization']
   organizationMembershipLimit?: OrganizationPluginOptions['membershipLimit']
   organizationInvitationLimit?: OrganizationPluginOptions['invitationLimit']
   stripeBilling?: StripeBillingOptions
@@ -100,6 +101,7 @@ export interface CreateAuthDeps {
    * cascade into every downstream `auth.api.getSession()` call.
    */
   organizationHooks?: OrganizationHooks
+  allowUserToCreateOrganization?: OrganizationPluginOptions['allowUserToCreateOrganization']
   organizationMembershipLimit?: OrganizationPluginOptions['membershipLimit']
   organizationInvitationLimit?: OrganizationPluginOptions['invitationLimit']
   stripeBilling?: StripeBillingOptions
@@ -200,7 +202,7 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: Aut
     ac: accessControl,
     roles,
     creatorRole: 'owner',
-    allowUserToCreateOrganization: true,
+    allowUserToCreateOrganization: opts.allowUserToCreateOrganization ?? true,
     // Better Auth owns the identity primitives; DueDateHQ's members gateway
     // owns current-firm, seat, audit, and Owner-only business rules. Server
     // injects the plan-aware membership limit because packages/auth cannot
@@ -302,6 +304,9 @@ export function createAuth(deps: CreateAuthDeps) {
   const pluginOpts: CreateAuthPluginsOptions = {}
   if (deps.email) pluginOpts.email = deps.email
   if (deps.organizationHooks) pluginOpts.organizationHooks = deps.organizationHooks
+  if (deps.allowUserToCreateOrganization) {
+    pluginOpts.allowUserToCreateOrganization = deps.allowUserToCreateOrganization
+  }
   if (deps.organizationMembershipLimit) {
     pluginOpts.organizationMembershipLimit = deps.organizationMembershipLimit
   }

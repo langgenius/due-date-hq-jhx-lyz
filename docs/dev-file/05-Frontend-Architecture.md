@@ -32,7 +32,6 @@ apps/app/
 │   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
 │   │   ├── workboard.tsx
-│   │   ├── readiness.tsx         ← public client readiness portal（/readiness/:token）
 │   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、Sheet 档案；使用 clients.listByFirm / clients.create）
 │   │   ├── audit.tsx             ← Audit Log 管理页（firm-wide write events；使用 audit.list）
 │   │   ├── firm.tsx              ← active firm profile（name / timezone / soft-delete）
@@ -143,21 +142,20 @@ feature 语义留在 members vertical 内。
       Onboarding 提交不直接调用 Better Auth organization client；它通过 DueDateHQ `firms` RPC gateway 先 `listMine` 查 active、非 deleted 的业务 firm，有则 `switchActive`，没有才 `create`。这样最后一个 firm soft-delete 后不会被 Better Auth 残留 organization 重新激活。
   - `/` — 受保护路由组（`id: 'protected'`, `Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `firm` / `rules` / `members` / `billing` 等都作为它的 children；不再保留 `/settings` 或 `/settings/*` 兼容路由。
     - `/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
-      layout：上半区展示当前 firm plan / seat limit / subscription 状态和 owner-only
-      billing portal 入口，下半区复用 marketing pricing 的 plan-card 信息层级进入 plan change。
+      layout：上半区展示当前 firm plan / seat limit / active firm entitlement /
+      subscription 状态和 owner-only billing portal 入口，下半区复用 marketing pricing 的
+      plan-card 信息层级进入 plan change。
       Subscription status 读取 app-owned `firms.listSubscriptions` RPC（DB subscription 表）；
       hosted checkout / portal endpoint 仍只用于跳转动作，列表读取不直接打
       `/api/auth/subscription/list`，避免本地未启用 Stripe plugin 时出现 auth 404。
-      AppShell sidebar footer 只提供当前 plan + seat count 的轻量入口，不承载 pricing 对比。
+      AppShell sidebar footer 只提供当前 plan + seat count 的轻量入口，不承载 pricing 对比；
+      完整 Billing 页面必须同时说明 seats 和 firms 两个 entitlement 维度。
     - `/firm` — 当前 active firm profile，只编辑 firm name / timezone / soft-delete 当前 firm；timezone 使用受 contract 约束的美国 IANA 时区下拉（含州内差异区和美国属地），不再提供自由文本输入。它属于 Organization，不属于 user account profile。
     - `/rules` / `/members` / `/audit` — durable organization surfaces，分别承载规则覆盖、成员席位、审计证据。
     - `/billing/checkout?plan=pro&interval=monthly` — checkout 确认页，使用 1120px max-width
       的 plan summary + firm context 布局；未登录 deep link 继续复用
       `protectedLoader → login → onboarding → redirectTo` 闭环
     - `/billing/success` / `/billing/cancel` — checkout 返回页；success 只展示 webhook/subscription 确认状态，不把 redirect 本身当成支付成功
-  - `/readiness/:token` — 公开客户 portal route，不挂 protected app shell；只读取
-    `/api/readiness/:token` 的安全字段，允许客户提交 `ready | not_yet | need_help`、
-    note 和 ETA。
   - `*` — 公开 catch-all route，loader 主动抛 404 `Response`，由 root `RouteErrorBoundary`
     渲染统一 not found UI；未知 URL 不进入认证 gate，也不显示 React Router 默认开发错误页。
     错误边界自己渲染错误页 `<title>`，避免 loader error 保留上一个成功页面的浏览器标题。
@@ -179,8 +177,7 @@ feature 语义留在 members vertical 内。
   推导类型；不要手写一份和 parser 分离的 query state interface。
 - `history: 'replace'`、`clearOnDefault` 等 URL 行为优先挂在 parser map 里，让
   `useQueryStates`、serializer 和未来 loader 消费同一份 contract。
-- 任何抽屉开关 / 选中项也写 URL（Workboard obligation detail 使用
-  `?drawer=obligation&id=<obligationId>&tab=<readiness|extension|risk|evidence|audit>`）
+- 任何抽屉开关 / 选中项也写 URL（`?drawer=obligation&id=xxx`）
 - Billing 例外约束：`plan` / `interval` 保持在 URL query 以支持 marketing deep link、登录回跳、
   checkout success/cancel 和 E2E；主 checkout 必须是 route，不用 URL dialog 承载支付链路。
   `/billing?changePlan=...` 可作为轻量确认 dialog，但确认后仍跳 `/billing/checkout?...`。
@@ -442,13 +439,13 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **每一个 protected layout（当前的 RootLayout，未来的 Workload Console 等）通过 `<AppShell>` 拼装**，不要在 layout 文件里直接拷贝 `SidebarProvider + Sidebar + SidebarInset` 三件套
 - **Sidebar 不暴露 `collapsible` prop**：desktop 永远 220px，`<md` 自动 Sheet 折叠；这是产品决定不是配置项
 - **selected nav 视觉是 bg-only**（`bg-state-base-hover-alt` + `text-text-primary` + Inter Semi Bold）—— 严禁 accent border 或 accent-tint 出现在 selected 态，否则与 DESIGN §1.2「颜色只为风险服务」冲突。`SidebarMenuButton` 的 cva variants 里**根本不提供** `accent` 变体，把约束写进类型
-- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag?, disabledReason? }`。当前 sidebar IA 是 `Operations`（Dashboard / Workboard / Alerts / Team workload）、`Clients`（Clients facts）、`Practice`（Practice profile / Rules / Members / Billing / Audit log）。Alerts 使用 `RadioTower` icon，表达 Pulse regulatory signal workbench；右上角 `Bell` 只表达个人通知收件箱，避免两个入口都像“消息提醒”。Team workload 是付费 Operations surface：Solo 可见但禁用并显示 `Pro` hint，Pro/Scale 启用 `/workload`；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
-- **Practice identity 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；单 practice 只展示静态 identity chrome，不注册 `⌘⇧O`；多 practice 才展示切换 popover 并注册 `⌘⇧O`
+- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag?, disabledReason? }`。当前 sidebar IA 是 `Operations`（Dashboard / Workboard / Alerts / Team workload）、`Clients`（Clients facts）、`Organization`（Firm profile / Rules / Members / Billing / Audit log）。Alerts 使用 `RadioTower` icon，表达 Pulse regulatory signal workbench；右上角 `Bell` 只表达个人通知收件箱，避免两个入口都像“消息提醒”。Team workload 是付费 Operations surface：Solo 可见但禁用并显示 `Pro` hint，Pro/Firm 启用 `/workload`；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
+- **Firm switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上。`Add firm` 是 plan-gated creation action：在 active firm entitlement 内打开创建 dialog，超出 Solo / Pro 的 1 active firm 限制时打开 upgrade / contact-sales gate，而不是继续创建免费 Solo firm。
 - **Import clients / history 不做一等导航**：Import 是 activation/setup path，把 CPA 已有客户表带入 weekly triage；启动入口在 `/clients` 页面 header / empty state、Dashboard 空状态和 Command Palette action。Import history 是低频 batch recovery，放在 `/clients` header 的弱入口并打开右侧 drawer；历史 `/imports` URL 仅兼容重定向到 `/clients?importHistory=open`。Sidebar 不承载导入或导入历史。
-- **Plan status 入口在 sidebar footer**：`AppShell` 在 user menu 上方展示当前 practice 的 `Solo / Pro / Scale`、seat count 和 `Upgrade / Manage / View` 动作，统一链接 `/billing`。这只是 subscription 状态入口；完整 pricing / checkout / portal 仍在 Billing 页面。
+- **Plan status 入口在 sidebar footer**：`AppShell` 在 user menu 上方展示当前 firm 的 `Solo / Pro / Firm`、seat count 和 `Upgrade / Manage / View` 动作，统一链接 `/billing`。这只是 subscription 状态入口；完整 pricing / checkout / portal 和 active firm entitlement usage 仍在 Billing 页面。
 - **顶栏右侧仅承载 AppShell-owned utility**（`⌘K` kbd hint + 通知 bell），路由动作放在 body 内或 body 顶部 toolbar，**不**塞到 shell header 右侧
-- **Billing 不进入 route header**：pricing 和 subscription 属于 practice commerce 信息，不是当前 route 的 primary action。Header 右侧不展示 plan pill、upgrade button 或 pricing CTA，避免和 page toolbar、通知、Command Palette 竞争。
-- **Practice profile 属于 Practice**：`/firm` 编辑 active practice 资料；user menu 不承载 practice profile，除非后续新增真正的 user account profile。
+- **Billing 不进入 route header**：pricing 和 subscription 属于 account / firm commerce 信息，不是当前 route 的 primary action。Header 右侧不展示 plan pill、upgrade button 或 pricing CTA，避免和 page toolbar、通知、Command Palette 竞争。
+- **Firm profile 属于 Organization**：`/firm` 编辑 active firm 资料；user menu 不承载 firm profile，除非后续新增真正的 user account profile。
 - **sidebar 的 Base UI `render` 包装不要用 `mergeProps<'button'>` 合成 `data-*` props**：TypeScript 会把 object literal 收窄到原生 button props 并拒绝 `data-slot` / `data-active`；直接把合并后的 `Record<string, unknown>` 传给 `useRender({ props })`，需要组合事件时在组件内显式包装 handler
 
 **vercel-react-best-practices 红线（自建时一定要踩稳）**
@@ -475,35 +472,17 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **服务端数据处理**：筛选 / 排序 / 分页仍由 `workboard.list` 和 D1 read model 负责；前端 `useReactTable` 开启 `manualFiltering` / `manualSorting` / `manualPagination`，不在浏览器端二次加工服务端行。
 - **URL state**：`q`、`status`、`client`、`state`、`county`、`taxType`、`assignee`
   / `assignees`、`readiness`、`riskMin` / `riskMax`、`daysMin` / `daysMax`、`sort`、
-  `density`、`hide`、`view`、`row`、`drawer`、`id`、`tab` 由 `nuqs` 管理。
-  `workboardSearchParamsParsers` 是模块级 query contract，`WorkboardSearchParams`
-  由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空 active row，
-  避免用 effect 追踪派生状态。
-- **Obligation Detail drawer**：`workboard.getDetail({ obligationId })` hydrate 当前行、
-  matched rule metadata、readiness request/response、extension decision、evidence 和 audit。
-  drawer 桌面宽度约 1120-1180px，五个 URL-backed tab 为 Readiness、Extension、Risk、
-  Evidence、Audit；单击表格行打开 drawer，`Enter` 仍作为键盘快捷键打开当前 active row，
-  tab 切换只更新 URL state。
-  Readiness tab 支持 AI checklist、编辑、send/revoke 和 portal link copy；Extension tab
-  只做内部 apply/reject 决策，`applied` 会把 obligation status 标记为 `extended`，
-  但不改 due date，也不表示已提交官方延期。
+  `row` 由 `nuqs` 管理。`workboardSearchParamsParsers` 是模块级 query contract，
+  `WorkboardSearchParams` 由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空
+  active row，避免用 effect 追踪派生状态。
 - **Filter facets**：`workboard.facets` 返回 client / state / county / tax type /
   assignee 的服务器端选项和计数；county option 带 `state`，前端按已选 state 做联动展示。
-  Workboard readiness 读取 `obligation_instance.readiness_status` 持久字段；status 写入会按
-  P0-16 默认规则同步 readiness，用户也可在 readiness 列或批量操作中单独修正。
+  Workboard readiness 目前由 read model 派生：`waiting_on_client → waiting`，`review` 或
+  exposure 非 ready → `needs_review`，其余为 `ready`。等独立 readiness state machine
+  落地后替换此派生字段。
 - **表头筛选**：Client / Owner / State / County / Tax type / Days / Exposure /
   Readiness / Status 的筛选入口直接挂在 TanStack Table header 上；顶部控制区只保留搜索、排序、
-  density segmented control、column visibility、Saved Views、Reset 和少量 triage 快捷 chip，避免
-  Workboard 出现两套筛选面。checkbox 型表头筛选点击选项即同步 URL/query state 并保持下拉
-  打开；Days / Exposure 的自由输入范围在下拉关闭时提交。
-- **选择与批量操作**：TanStack `rowSelection` 是本地 table state，active row 仍由 URL
-  `row` 驱动键盘导航。选中行出现 bulk bar，状态批量写 `obligations.bulkUpdateStatus`，
-  owner 批量写 `clients.bulkUpdateAssignee`（当前 ownership 来源是 client-level assignee），导出走
-  `workboard.exportSelected`。
-- **Saved Views / density / columns**：Saved Views 存服务端 `workboard_saved_view`，内容包含
-  query JSON、column visibility JSON、density 和 pin 状态；pin 只影响 Workboard saved-view list
-  排序。列可见性使用 TanStack controlled `columnVisibility`，URL `hide` 存隐藏列 id，density
-  支持 `comfortable` / `compact`。
+  Reset 和少量 triage 快捷 chip，避免 Workboard 出现两套筛选面。
 - **搜索防抖**：Workboard 搜索是客户端 TanStack Query fetching，不是 React Router
   loader/RSC fetching。`nuqs` 负责即时 URL state 和 URL 写入降频；实际
   `workboard.list` input 使用 `apps/app/src/lib/query-rate-limit.ts` 中的
@@ -518,13 +497,9 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   `data.pages[].rows` 交给 TanStack Table。浏览器 URL 不保存 cursor，因为
   cursor 是查询内部的分页游标，不是可分享的筛选状态。
 - **虚拟化时机**：`@tanstack/react-virtual` 已在依赖中保留，但当前 4 列 × 50 行不启用。等 Workboard 扩到 PRD 的 10–20 列、固定表头或长列表滚动容器时再接 row / column virtualization。
-- **后续扩展**：自定义列和虚拟化继续走 TanStack controlled state，并把可分享状态写入 URL
-  或服务端 saved-view 记录。
-- 行内 `[status ▾]` / `[readiness ▾]` mutation：当前成功后 invalidate `workboard.list`
-  并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation
-  lifecycle 内补本地缓存更新。
-- 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/P/X/I/W` 改状态 · `Enter` 打开 URL-backed
-  obligation detail drawer
+- **后续扩展**：列可见性、自定义列、批量选择、Saved Views 应继续走 TanStack controlled state，并把可分享状态写入 URL 或服务端 saved-view 记录。
+- 行内 `[status ▾]` mutation：当前成功后 invalidate `workboard.list` 并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation lifecycle 内补本地缓存更新。
+- 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/X/I/W` 改状态 · `Enter` 打开 Detail
 
 ## 6A. Rules Console
 
@@ -538,12 +513,6 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - Rule Library 右侧 detail drawer 使用比默认 Sheet 更宽的 ops 宽度（桌面约
   920px，窄屏回落到全宽），用于同时容纳 rule logic、extension policy、evidence locator 和 verification
   metadata。
-- Obligation Preview 的 tax year 不再暴露复合 ISO 字符串输入；UI 使用 Popover 年份网格筛选框。
-  选择的预览年份会映射为规则引擎需要的 `taxYearStart = YYYY-01-01` 与
-  `taxYearEnd = (YYYY - 1)-12-31`，以保持当前 “本年 payment + 上一税年 return” 的
-  preview 语义。
-- Client ID 也是 preset 下拉框；选择 preview client 会同步写入 entity、state 和 tax
-  types，避免只改变 id 而预览事实仍停留在上一组输入。
 
 ## 6B. 高频 Query 输入
 
@@ -558,8 +527,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   `maxLength` 传入，例如 Workboard 64、Audit search 80、Audit 精确筛选 128。
 - Clients facts 页当前一次拉取 `clients.listByFirm({ limit: 500 })` 后本地过滤，
   搜索不触发服务端 fetching；因此只对 `q` 的 URL 写入使用
-  `queryInputUrlUpdateRateLimit`。表头 facet（client/entity/state/readiness/source/owner）
-  也走 URL state，但仍基于这份本地列表即时过滤，不触发额外 fetching。
+  `queryInputUrlUpdateRateLimit`，本地列表过滤保持即时反馈。
 
 ---
 
@@ -589,7 +557,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **Optimistic UI**：所有改状态 / 改 assignee 的 mutation 先改 cache，失败回滚 + toast
 - **Loading skeleton**：每页至少一张 skeleton；冷启动避免白屏
 - **Keyboard Shell**：`apps/app/src/components/patterns/keyboard-shell` 是唯一 app 级快捷键入口，基于 `@tanstack/react-hotkeys`。全局层注册 `?` / `Cmd/Ctrl+K` / `Cmd/Ctrl+Shift+D` / `Cmd/Ctrl+Shift+O`，导航序列层注册 `G then D/W/C/A/T`（Dashboard / Workboard / Clients / Alerts / Team workload），Members route 层注册 `Cmd/Ctrl+I`，Workboard route 层注册 `J/K/Enter/E/F/X/I/W`，Wizard/Overlay 层压住 route/navigation 快捷键。裸字母键保留 TanStack 的 input ignore 行为，`Enter` 只在明确声明 `ignoreInputs: false` 且手动排除 textarea/contenteditable/select 时使用。所有可见 shortcut label 走 keyboard shell display helpers，不在业务组件里手写平台判断。
-- **Command Palette (Cmd-K)**：全局快捷键，搜索输入 + 三段结果（Navigate / Actions / Ask），Ask 在 Phase 1 前留占位 `Coming soon`。Navigate 必须直接列出 canonical 一级页面（Dashboard / Workboard / Alerts / Notifications / Team workload / Clients / Practice profile / Rules / Members / Billing / Audit log），不再提供聚合 `Settings` 命令。Palette 使用 lazy import，第一次 `Cmd/Ctrl+K` 后加载，避免进入首屏 bundle 热路径。列表交互基于 shadcn `Command` / `cmdk`，开启 `disablePointerSelection`，键盘 active item 不被鼠标 hover 抢走；鼠标 hover 用浅层 `bg-background-subtle`，键盘 active item 用更深的 `bg-state-base-hover`。
+- **Command Palette (Cmd-K)**：全局快捷键，搜索输入 + 三段结果（Navigate / Actions / Ask），Ask 在 Phase 1 前留占位 `Coming soon`。Navigate 必须直接列出 canonical 一级页面（Dashboard / Workboard / Alerts / Notifications / Team workload / Clients / Firm profile / Rules / Members / Billing / Audit log），不再提供聚合 `Settings` 命令。Palette 使用 lazy import，第一次 `Cmd/Ctrl+K` 后加载，避免进入首屏 bundle 热路径。列表交互基于 shadcn `Command` / `cmdk`，开启 `disablePointerSelection`，键盘 active item 不被鼠标 hover 抢走；鼠标 hover 用浅层 `bg-background-subtle`，键盘 active item 用更深的 `bg-state-base-hover`。
 - **Shortcut Help (?)**：帮助浮层从 TanStack `useHotkeyRegistrations()` 读取当前已 mount 快捷键，再合并 reserved slots（Ask `/`、Evidence selected），避免文档与实现分叉。
 - **Evidence Mode**：Workboard `E`、row action、Dashboard top rows 和 Brief citation
   统一调用 app-level Evidence drawer；全局 `Cmd/Ctrl+E` 仍保留给未来 cross-page selection。

@@ -123,6 +123,21 @@ export function makeFirmsRepo(db: Db) {
       return rows.map(toMembershipRow)
     },
 
+    async listOwnedActive(userId: string): Promise<FirmMembershipRow[]> {
+      const rows = await baseFirmSelect(db)
+        .where(
+          and(
+            eq(member.userId, userId),
+            eq(member.status, 'active'),
+            eq(firmProfile.ownerUserId, userId),
+            eq(firmProfile.status, 'active'),
+            isNull(firmProfile.deletedAt),
+          ),
+        )
+        .orderBy(desc(firmProfile.updatedAt), asc(firmProfile.name))
+      return rows.map(toMembershipRow)
+    },
+
     async findActiveForUser(
       userId: string,
       firmId: string,

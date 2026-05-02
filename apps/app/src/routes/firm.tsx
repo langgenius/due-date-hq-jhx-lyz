@@ -129,7 +129,7 @@ function FirmProfileForm({ firm }: { firm: FirmPublic }) {
   }
 
   const dirty = name.trim() !== firm.name || timezone !== originalTimezone
-  const currentPlan = firm.plan === 'firm' ? t`Scale` : firm.plan === 'pro' ? t`Pro` : t`Solo`
+  const currentPlan = firm.plan === 'firm' ? t`Firm` : firm.plan === 'pro' ? t`Pro` : t`Solo`
   const currentRole =
     firm.role === 'owner'
       ? t`Owner`

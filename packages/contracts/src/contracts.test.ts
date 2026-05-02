@@ -155,6 +155,7 @@ describe('@duedatehq/contracts', () => {
     expect(ErrorCodes.TENANT_MISSING).toBe('TENANT_MISSING')
     expect(ErrorCodes.GUARD_REJECTED).toBe('GUARD_REJECTED')
     expect(ErrorCodes.MEMBER_SEAT_LIMIT).toBe('MEMBER_SEAT_LIMIT')
+    expect(ErrorCodes.FIRM_LIMIT_EXCEEDED).toBe('FIRM_LIMIT_EXCEEDED')
   })
 
   it('freezes firm timezone and subscription contracts', () => {

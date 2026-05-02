@@ -3,6 +3,12 @@
 Date: 2026-04-29
 Owner: Codex
 
+> Superseded note (2026-05-02): Plan semantics in this historical log were superseded later on
+> 2026-04-29 by `2026-04-29-billing-plan-semantic-swap.md`. Current product pricing shape is:
+> Solo = 1 active firm / 1 owner seat, Pro = 1 active firm / 5 seats self-serve, Firm =
+> multiple active firms/offices by contract / 10+ seats. See
+> `docs/product-design/billing/01-firm-entitlement-pricing.md`.
+
 ## Context
 
 `/settings/billing` 已经完成 checkout / billing portal 闭环，但页面仍是最小功能排版：

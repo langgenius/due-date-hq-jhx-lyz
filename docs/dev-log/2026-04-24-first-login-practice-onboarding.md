@@ -8,6 +8,15 @@ updates:
 
 # 首次登录 Practice onboarding + 业务租户层闭环
 
+> Superseded notes:
+>
+> - `organizationLimit: 1` in this historical log was later opened by
+>   [`2026-04-28-firm-crud-switch.md`](./2026-04-28-firm-crud-switch.md) to support multi-firm
+>   membership and switching.
+> - The current product pricing closure is documented in
+>   [`docs/product-design/billing/01-firm-entitlement-pricing.md`](../product-design/billing/01-firm-entitlement-pricing.md):
+>   Solo / Pro include 1 active firm; Firm plan includes multiple active firms/offices by contract.
+
 ## 背景
 
 当前 Better Auth `organization` 插件已经接入（包括 schema、middleware、tenant

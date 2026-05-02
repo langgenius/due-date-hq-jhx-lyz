@@ -8,7 +8,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { APIError } from 'better-auth/api'
 import type { Db } from '@duedatehq/db'
-import { buildOrganizationHooks } from './organization-hooks'
+import { buildAllowUserToCreateOrganization, buildOrganizationHooks } from './organization-hooks'
 
 /**
  * Pure-function tests for the organization-plugin hook factory.
@@ -38,6 +38,14 @@ function makeOwnerBootstrapDb(memberCount: number): Db {
   const limit = vi.fn(async () => [{ value: memberCount }])
   const where = vi.fn(() => ({ limit }))
   const from = vi.fn(() => ({ where }))
+  const select = vi.fn(() => ({ from }))
+  return { select } as unknown as Db
+}
+
+function makeOrganizationCreationGateDb(rows: Array<{ plan: 'solo' | 'pro' | 'firm' }>): Db {
+  const where = vi.fn(async () => rows)
+  const innerJoin = vi.fn(() => ({ where }))
+  const from = vi.fn(() => ({ innerJoin }))
   const select = vi.fn(() => ({ from }))
   return { select } as unknown as Db
 }
@@ -226,5 +234,34 @@ describe('buildOrganizationHooks', () => {
         }),
       )
     })
+  })
+})
+
+describe('buildAllowUserToCreateOrganization', () => {
+  it('allows first firm creation through Better Auth native endpoints', async () => {
+    const gate = buildAllowUserToCreateOrganization(makeOrganizationCreationGateDb([]))
+
+    await expect(gate({ id: 'user_1' })).resolves.toBe(true)
+  })
+
+  it('blocks extra Solo and Pro firm creation through Better Auth native endpoints', async () => {
+    await expect(
+      buildAllowUserToCreateOrganization(makeOrganizationCreationGateDb([{ plan: 'solo' }]))({
+        id: 'user_1',
+      }),
+    ).resolves.toBe(false)
+    await expect(
+      buildAllowUserToCreateOrganization(makeOrganizationCreationGateDb([{ plan: 'pro' }]))({
+        id: 'user_1',
+      }),
+    ).resolves.toBe(false)
+  })
+
+  it('allows Firm-plan owners to create additional firms by contract', async () => {
+    const gate = buildAllowUserToCreateOrganization(
+      makeOrganizationCreationGateDb([{ plan: 'firm' }]),
+    )
+
+    await expect(gate({ id: 'user_1' })).resolves.toBe(true)
   })
 })

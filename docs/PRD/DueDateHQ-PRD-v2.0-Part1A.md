@@ -253,6 +253,12 @@
 
 ### 3.6.1 定位与前置约束
 
+> **2026-05-02 pricing entitlement update**：本节的 P0/P1 切分保留历史 PRD 语境；
+> 当前 accepted 产品口径以 `docs/product-design/billing/01-firm-entitlement-pricing.md`
+> 为准。`pro` 是 $99/mo self-serve paid tier（1 active firm + 5 seats），`firm` 是
+> sales-assisted custom tier（multiple active firms/offices + 10+ seats）。Firm switcher
+> 的 multi-firm foundation 已落地，但 active firm count 仍是待实现的 pricing gate。
+
 | 层级                                          | P0（Solo · Pro Plan $99）                       | P1（Firm Custom）                     |
 | --------------------------------------------- | ----------------------------------------------- | ------------------------------------- |
 | **数据架构**（Firm = tenant，User 归属 Firm） | **已就位**                                      | 无需改动                              |
@@ -262,7 +268,7 @@
 | **工作负载页**（Workload View）               | ❌                                              | **Manager 可见**                      |
 | **Firm-wide Audit Log 页**                    | 简化版（单客户 Audit Tab）                      | **全量 Firm 级页面**                  |
 | **并发编辑与冲突处理**                        | 单用户无冲突                                    | **last-write-wins + 提示 + 乐观锁**   |
-| **多事务所用户**（一人多 Firm）               | 不支持（一邮箱一 Firm）                         | **支持（UserFirmMembership 多对多）** |
+| **多事务所用户**（一人多 Firm）               | 支持 membership / switch；创建受 plan gate 限制 | **支持（UserFirmMembership 多对多）** |
 
 **核心原则**：数据模型在 **P0 就必须支持 Team**（`firm_id` 作为所有业务数据的 tenant key，User 通过 `firm_id` 归属 Firm），但**权限校验和 Team UI 是 P1**。这是可向前兼容的最薄切片——MVP 不会因为"将来要支持 Team"而增加 P0 复杂度，但不会因为 MVP 走错数据模型而在 P1 重构。
 
@@ -271,7 +277,7 @@
 ```
 Firm (tenant)
   id, name, timezone, plan (solo|firm|pro),
-  seat_limit,                    -- 1 / 5 / 10 (derived from plan)
+  seat_limit,                    -- Solo 1 / Pro 5 / Firm 10+ contract-defined
   owner_user_id,                 -- Firm 的主负责人（转让时修改）
   created_at, deleted_at (soft)
 
@@ -292,6 +298,9 @@ TeamInvitation
   invite_token, expires_at,
   invited_by_user_id, accepted_at, revoked_at
 ```
+
+Active firm count 是 account / subscription / contract 层的 product entitlement，不是
+单个 `firm_profile` 行内字段：Solo / Pro = 1 active firm，Firm = contract-defined。
 
 **⚠ Deprecated as of 2026-04-24** — `User.firm_id` shortcut 字段从未在代码中启用：当前实现走 Better Auth `member` 多对多 + `firmId == session.activeOrganizationId == firm_profile.id`（见 ADR 0010）。本段保留为历史口径，不要在新代码里依赖。
 
@@ -391,9 +400,11 @@ Audit event: team.member.joined
 
 #### 多事务所切换
 
-- 登录成功后如 user has ≥ 2 active memberships → 强制选 Firm（类似 Slack workspace picker）
-- URL 含 `firm_slug`：`app.duedatehq.com/{firm_slug}`，刷新保留；Dashboard 是 firm app root
-- 右上 Firm 切换 dropdown + `Cmd+Shift+O`
+- 登录成功后如 user has ≥ 2 active memberships → 进入最近 active firm；sidebar 顶部 Firm
+  switcher 可切换（类似 Slack / Notion workspace picker），全局快捷键 `Cmd+Shift+O` 保留。
+- URL 不含 `firm_slug`；当前 firm 来自 `session.activeOrganizationId`，刷新保留在 session。
+- `Add firm` 是 plan-gated action：Solo / Pro 超过 1 active firm 时进入 Billing / Contact sales gate，
+  Firm plan 依据合同允许多个 active firms / offices。
 
 ### 3.6.5 视图层：My work / Firm-wide
 
@@ -564,7 +575,10 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 
 ### 4.3 P2 — 明确不做（v2.0 范围外）
 
-完整 e-file 提交 / 税额计算 / 客户门户 / 文档存储 / eSignature / 支付 / Stripe 计费 / 短信 / Google/Outlook 日历双向同步 / 完整团队 RBAC / 多租户组织层级 / 50 州完整真规则（当前只做 Federal + CA/NY/TX/FL/WA 首发）/ 原生移动 App / Drake / QuickBooks / TaxDome 深度集成 / 25+ 报告中心。
+完整 e-file 提交 / 税额计算 / 客户门户 / 文档存储 / eSignature / 短信 / Google/Outlook 日历双向同步 / 完整团队 RBAC / 多层级企业组织树 / 50 州完整真规则（当前只做 Federal + CA/NY/TX/FL/WA 首发）/ 原生移动 App / Drake / QuickBooks / TaxDome 深度集成 / 25+ 报告中心。
+
+> Billing update：Stripe checkout / billing portal / subscription cache 已提前落地；仍不做复杂 invoice
+> profile、Stripe Tax、coupon、self-serve multi-firm add-on 或 enterprise org hierarchy。
 
 > **为什么日历只做单向订阅？** ICS 单向订阅 1 人天落地，在 Outlook / Google / Apple 里 0 配置显示所有 deadline（含 Pulse 改动）。双向同步会违反 §1.3 "Deadline-first, not calendar-first" 原则——外部日历改的日期会覆盖 Pulse 官方解读，Evidence / Audit 失真。战略上我们要用户周一 8 点回到 DueDateHQ 分诊，而不是停留在 Outlook。
 

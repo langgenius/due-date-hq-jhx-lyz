@@ -144,7 +144,7 @@ App (after login)
  │   ├─ Search
  │   ├─ Ask ✨
  │   └─ Navigate
- ├─ Firm Picker (top-right · 多 Firm membership 时显示)  ← §3.6.4
+ ├─ Firm Switcher (sidebar top · 多 Firm membership 时显示；Add firm 受 plan gate)  ← §3.6.4
  └─ Settings
      ├─ Profile (per-user)
      ├─ Notifications (per-user, 含 Team 路由偏好 §7.1.4)
@@ -425,7 +425,7 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 - Rules-as-Asset 全量落地（P1-29 ~ P1-35 · §6D）
 - 50 州规则 full coverage（逐州签字 + 发布）
 - 团队多席位 + assignee 完整 RBAC（P1-18 ~ P1-25 · §3.6）
-- Stripe 计费
+- Stripe 计费已提前落地；Phase 1 只补发票资料、Tax/coupon、自助降级和 entitlement hard gate
 - Google / Outlook 日历**单向写入**（不做双向同步）
 - Zapier App
 - 公共 SEO tracker 扩到全 50 州

@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import { seedBillingSubscription } from '../fixtures/billing'
 import { expect, test } from '../fixtures/test'
 
 // Feature: Firm creation and switching
@@ -10,14 +11,9 @@ test.skip(
   'local e2e auth seed is not available on external targets',
 )
 
-test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm and switches context', async ({
+test('AC: E2E-FIRM-CREATE-GATE blocks extra self-serve firm creation', async ({
   authenticatedPage,
-  authSession,
 }) => {
-  const firmName = `E2E Advisory ${authSession.user.id.slice(-8)}`
-  const timezone = 'America/Los_Angeles'
-  const slugPrefix = slugBody(firmName)
-
   await authenticatedPage.goto('/firm')
 
   await expect(
@@ -25,6 +21,39 @@ test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm and switches context', 
   ).toBeVisible()
   await expect(authenticatedPage.getByLabel('Firm name')).toHaveValue('E2E Practice')
   await expectActiveFirmSummary(authenticatedPage, { plan: 'Solo', seatLimit: 1 })
+
+  await authenticatedPage.getByRole('button', { name: /Switch firm/ }).click()
+  await authenticatedPage.getByRole('menuitem', { name: 'Add firm' }).click()
+
+  const dialog = authenticatedPage.getByRole('dialog', { name: 'Add firm' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByText('1 of 1 included')).toBeVisible()
+  await expect(dialog.getByText(/Solo and Pro include one active firm workspace/)).toBeVisible()
+  await expect(dialog.getByLabel('Firm name')).toBeHidden()
+
+  await dialog.getByRole('link', { name: 'Review plans' }).click()
+  await expect(authenticatedPage).toHaveURL(/\/billing$/)
+  await expect(authenticatedPage.getByRole('heading', { name: 'Billing', level: 1 })).toBeVisible()
+  await expect(authenticatedPage.getByText('1 of 1 active firms', { exact: true })).toBeVisible()
+})
+
+test('AC: E2E-FIRM-CREATE-SWITCH creates a separate firm on the Firm plan', async ({
+  authenticatedPage,
+  authSession,
+  request,
+}) => {
+  const firmName = `E2E Advisory ${authSession.user.id.slice(-8)}`
+  const timezone = 'America/Los_Angeles'
+  const slugPrefix = slugBody(firmName)
+
+  await seedBillingSubscription(request, { firmId: authSession.firmId, plan: 'firm' })
+  await authenticatedPage.goto('/firm')
+
+  await expect(
+    authenticatedPage.getByRole('heading', { name: 'Firm profile', level: 1 }),
+  ).toBeVisible()
+  await expect(authenticatedPage.getByLabel('Firm name')).toHaveValue('E2E Practice')
+  await expectActiveFirmSummary(authenticatedPage, { plan: 'Firm', seatLimit: 10 })
 
   await authenticatedPage.getByRole('button', { name: /Switch firm/ }).click()
   await authenticatedPage.getByRole('menuitem', { name: 'Add firm' }).click()

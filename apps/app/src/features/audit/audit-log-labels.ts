@@ -184,7 +184,7 @@ export function useAuditChangeLabels({
         csv: t`CSV`,
         dismissed: t`Dismissed`,
         failed: t`Failed`,
-        Firm: t`Scale`,
+        Firm: t`Firm`,
         manager: t`Manager`,
         manual: t`Manual`,
         mapping: t`Mapping`,

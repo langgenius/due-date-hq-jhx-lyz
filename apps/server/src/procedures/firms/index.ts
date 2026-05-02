@@ -12,6 +12,7 @@ import { os } from '../_root'
 
 const MAX_RETRIES_ON_SLUG_COLLISION = 1
 const SLUG_CONFLICT_PATTERN = /unique|already exists|slug/i
+const SELF_SERVE_ACTIVE_FIRM_LIMIT = 1
 
 type FirmRow = Omit<FirmPublic, 'isCurrent' | 'createdAt' | 'updatedAt' | 'deletedAt'> & {
   createdAt: Date
@@ -69,6 +70,13 @@ function isOwner(row: FirmRow, userId: string): boolean {
 
 function canReadBilling(row: FirmRow, userId: string): boolean {
   return isOwner(row, userId) || row.role === 'manager'
+}
+
+export function canCreateAdditionalFirm(
+  ownedActiveFirms: ReadonlyArray<Pick<FirmRow, 'plan'>>,
+): boolean {
+  if (ownedActiveFirms.length < SELF_SERVE_ACTIVE_FIRM_LIMIT) return true
+  return ownedActiveFirms.some((firm) => firm.plan === 'firm')
 }
 
 function readObjectString(value: object, key: 'message' | 'status'): string | undefined {
@@ -144,6 +152,13 @@ const getCurrent = os.firms.getCurrent.handler(async ({ context }) => {
 
 const create = os.firms.create.handler(async ({ input, context }) => {
   const { firms, session, userId } = requireSession(context)
+  const ownedActiveFirms = await firms.listOwnedActive(userId)
+  if (!canCreateAdditionalFirm(ownedActiveFirms)) {
+    throw new ORPCError('FORBIDDEN', {
+      message: ErrorCodes.FIRM_LIMIT_EXCEEDED,
+    })
+  }
+
   const auth = createWorkerAuth(context.env)
   const firmId = await createOrganizationWithRetry({
     auth,

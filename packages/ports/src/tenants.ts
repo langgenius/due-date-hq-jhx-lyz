@@ -87,6 +87,7 @@ export interface SeatUsage {
 
 export interface FirmsRepo {
   listMine(userId: string): Promise<FirmMembershipRow[]>
+  listOwnedActive(userId: string): Promise<FirmMembershipRow[]>
   findActiveForUser(userId: string, firmId: string): Promise<FirmMembershipRow | undefined>
   updateProfile(firmId: string, input: FirmUpdateInput): Promise<void>
   softDelete(firmId: string): Promise<void>

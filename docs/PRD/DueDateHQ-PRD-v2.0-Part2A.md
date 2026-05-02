@@ -572,7 +572,7 @@ the web does.
 ```
 Firm (tenant)
   id, name, slug, timezone, plan (solo/firm/pro),
-  seat_limit,                        -- derived from plan (1/5/10)
+  seat_limit,                        -- Solo 1 / Pro 5 / Firm 10+ contract-defined
   owner_user_id,                     -- FK to User，转让时修改
   default_assignee_strategy,         -- owner | round_robin | none
   coordinator_can_see_dollars,       -- bool, default false
@@ -827,6 +827,9 @@ AuditEvidencePackage (P1-28 · 合规 ZIP 导出)
 Event (analytics)
   id, firm_id, event_name, props_json, created_at
 ```
+
+Active firm count 是 account / subscription / contract 层的 product entitlement，不是
+单个 `firm_profile` 行内字段：Solo / Pro = 1 active firm，Firm = contract-defined。
 
 ### 8.2 关键索引（S1-AC3 < 1s 响应保障）
 

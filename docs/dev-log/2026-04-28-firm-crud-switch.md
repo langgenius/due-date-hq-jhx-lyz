@@ -1,5 +1,10 @@
 # 2026-04-28 · Firm CRUD + switch foundation
 
+> Product follow-up (2026-05-02): this slice opened multi-firm identity and switching. It did not
+> define pricing entitlement. Current product direction treats active firm count as a paid
+> entitlement: Solo / Pro include 1 active firm; Firm plan supports multiple active firms/offices by
+> contract. See `docs/product-design/billing/01-firm-entitlement-pricing.md`.
+
 ## Scope
 
 This slice opens the independent Firm path without opening Team/Members yet.

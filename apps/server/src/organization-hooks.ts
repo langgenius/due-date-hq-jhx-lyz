@@ -1,5 +1,5 @@
 import { APIError } from 'better-auth/api'
-import { and, count, eq, gt } from 'drizzle-orm'
+import { and, count, eq, gt, isNull } from 'drizzle-orm'
 import { authSchema, firmSchema, type Db } from '@duedatehq/db'
 import { createAuditWriter } from '@duedatehq/db/audit-writer'
 import type { OrganizationHooks } from '@duedatehq/auth'
@@ -142,6 +142,27 @@ export function buildOrganizationHooks(db: Db): OrganizationHooks {
 export function buildOrganizationMembershipLimit(db: Db) {
   return async (_user: unknown, organization: { id: string }): Promise<number> =>
     loadActiveSeatLimit(db, organization.id)
+}
+
+export function buildAllowUserToCreateOrganization(db: Db) {
+  return async (user: { id: string }): Promise<boolean> => {
+    const ownedActiveFirms = await db
+      .select({ plan: firmSchema.firmProfile.plan })
+      .from(firmSchema.firmProfile)
+      .innerJoin(authSchema.member, eq(authSchema.member.organizationId, firmSchema.firmProfile.id))
+      .where(
+        and(
+          eq(authSchema.member.userId, user.id),
+          eq(authSchema.member.status, 'active'),
+          eq(firmSchema.firmProfile.ownerUserId, user.id),
+          eq(firmSchema.firmProfile.status, 'active'),
+          isNull(firmSchema.firmProfile.deletedAt),
+        ),
+      )
+
+    if (ownedActiveFirms.length === 0) return true
+    return ownedActiveFirms.some((firm) => firm.plan === 'firm')
+  }
 }
 
 function assertManagedRole(role: string): asserts role is 'manager' | 'preparer' | 'coordinator' {

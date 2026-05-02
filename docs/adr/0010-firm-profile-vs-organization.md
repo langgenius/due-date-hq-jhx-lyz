@@ -12,10 +12,16 @@ PRD §3.6.2 把 `Firm` 定义为：
 ```
 Firm (tenant)
   id, name, timezone, plan (solo|firm|pro),
-  seat_limit,                    -- 1 / 5 / 10 (derived from plan)
+  seat_limit,                    -- Solo 1 / Pro 5 / Firm 10+ contract-defined
   owner_user_id,                 -- Firm 的主负责人（转让时修改）
   created_at, deleted_at (soft)
 ```
+
+2026-05-02 产品口径补充：`Firm` 现在也是 pricing workspace 的一等 entitlement。
+Solo / Pro 默认只包含 1 个 active firm；Firm plan 才包含 contract-defined multiple
+active firms / offices。`seatLimit` 仍是每个 firm 内的成员席位限制，不等于 active
+firm count。完整产品口径见
+`docs/product-design/billing/01-firm-entitlement-pricing.md`。
 
 也就是说 PRD 第一性把这些字段视为 **first-class**（结构化、可索引、可在需要时
 通过 schema / migration 加 CHECK 约束、可加 FK），不是 metadata blob。当前 D1

@@ -424,7 +424,7 @@ const zhCN: LandingCopy = {
       eyebrow: 'PRICING',
       title: '只为你能看清的截止日风险付费。',
       description:
-        '从 Solo 开始评估；当截止日运营需要多人协作时升级到 Pro；需要审计导出和更高覆盖时再与我们定制 Firm。',
+        '先用 Solo 评估一个事务所工作区；当这个事务所需要多人协作时升级到 Pro；需要多个办公室或多个工作区时再与我们定制 Firm。',
       note: 'Solo 无需信用卡 · DueDateHQ 不保存卡号',
     },
     plansHeader: {
@@ -439,10 +439,10 @@ const zhCN: LandingCopy = {
         priceKind: 'numeric',
         cadence: '永久免费',
         description: '适合一位 Owner 用示例或第一方数据评估工作台。',
-        seats: '1 SEAT',
+        seats: '1 个事务所工作区 · 1 个 Owner 席位',
         cta: '打开工作台',
         hrefKind: 'app',
-        features: ['单 Owner 工作区', '迁移与规则预览', '带来源的证据', '示例客户工作区'],
+        features: ['1 个事务所工作区', '迁移与规则预览', '带来源的证据', '示例或第一方数据'],
       },
       {
         name: 'Pro',
@@ -451,11 +451,11 @@ const zhCN: LandingCopy = {
         priceKind: 'numeric',
         cadence: '/ 月',
         description: '适合需要共享截止日运营的成长型 CPA 事务所。',
-        seats: '5 SEATS',
+        seats: '1 个生产事务所 · 5 个席位',
         cta: '升级到 Pro',
         hrefKind: 'checkout',
         features: [
-          'Solo 全部功能',
+          '1 个生产事务所',
           '包含 5 个席位',
           '共享截止日运营',
           'Pulse 与 workboard 访问权限',
@@ -467,10 +467,10 @@ const zhCN: LandingCopy = {
         priceKind: 'text',
         cadence: '年度协议',
         description: '适合需要审计导出流程、优先 onboarding 和覆盖扩展的团队。',
-        seats: '10+ SEATS',
+        seats: '多个事务所/办公室 · 10+ 席位',
         cta: '联系销售',
         hrefKind: 'contact',
-        features: ['Pro 全部功能', '优先 onboarding', '审计导出与覆盖规划', '覆盖扩展评估'],
+        features: ['多个事务所或办公室', '优先 onboarding', '审计导出与覆盖规划', '覆盖扩展评估'],
       },
     ],
     faqHeader: {
@@ -491,6 +491,11 @@ const zhCN: LandingCopy = {
       {
         question: '可以继续使用 Solo 吗？',
         answer: '可以。Solo 适合单 Owner 事务所继续评估工作台。',
+      },
+      {
+        question: '我可以创建多个事务所吗？',
+        answer:
+          'Solo 和 Pro 包含 1 个 active 事务所工作区。额外事务所、办公室，或 demo/production 分离属于 Firm 计划。',
       },
     ],
   },
