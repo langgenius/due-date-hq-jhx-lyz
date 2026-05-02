@@ -142,7 +142,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: staging-build
-          path: .
+          path: apps
 
       - name: Prepare Worker secrets
         run: |
