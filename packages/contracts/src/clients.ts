@@ -70,6 +70,21 @@ export const ClientPenaltyInputsUpdateOutputSchema = z.object({
   recalculatedObligationCount: z.number().int().min(0),
 })
 
+export const ClientJurisdictionUpdateSchema = z.object({
+  id: EntityIdSchema,
+  state: StateCodeSchema.nullable(),
+  county: z.string().trim().max(120).nullable(),
+  reason: z.string().max(280).optional(),
+})
+export type ClientJurisdictionUpdateInput = z.infer<typeof ClientJurisdictionUpdateSchema>
+
+export const ClientJurisdictionUpdateOutputSchema = z.object({
+  client: ClientPublicSchema,
+  recalculatedObligationCount: z.number().int().min(0),
+  auditId: EntityIdSchema,
+})
+export type ClientJurisdictionUpdateOutput = z.infer<typeof ClientJurisdictionUpdateOutputSchema>
+
 export const ClientRiskProfileUpdateSchema = z.object({
   id: EntityIdSchema,
   importanceWeight: ClientImportanceWeightSchema.optional(),
@@ -121,6 +136,9 @@ export const clientsContract = oc.router({
   updatePenaltyInputs: oc
     .input(ClientPenaltyInputsUpdateSchema)
     .output(ClientPenaltyInputsUpdateOutputSchema),
+  updateJurisdiction: oc
+    .input(ClientJurisdictionUpdateSchema)
+    .output(ClientJurisdictionUpdateOutputSchema),
   updateRiskProfile: oc
     .input(ClientRiskProfileUpdateSchema)
     .output(ClientRiskProfileUpdateOutputSchema),

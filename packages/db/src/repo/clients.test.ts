@@ -16,6 +16,20 @@ function createFakeDb(selectResponses: Client[][]) {
   }
 }
 
+function createFakeUpdateDb() {
+  const where = vi.fn(async () => undefined)
+  const set = vi.fn(() => ({ where }))
+  const update = vi.fn(() => ({ set }))
+
+  return {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- focused Drizzle test double.
+    db: { update } as unknown as Db,
+    update,
+    set,
+    where,
+  }
+}
+
 function makeClient(overrides: Partial<Client> = {}): Client {
   const now = new Date('2026-04-29T00:00:00.000Z')
   return {
@@ -65,5 +79,18 @@ describe('makeClientsRepo.findManyByIds', () => {
     expect(fake.select).toHaveBeenCalledTimes(2)
     expect(fake.where).toHaveBeenCalledTimes(2)
     expect(rows.map((row) => row.id)).toEqual(['client_0', 'client_98', 'client_99', 'client_100'])
+  })
+})
+
+describe('makeClientsRepo.updateJurisdiction', () => {
+  it('updates state and county in one tenant-scoped statement', async () => {
+    const fake = createFakeUpdateDb()
+    const repo = makeClientsRepo(fake.db, 'firm_1')
+
+    await repo.updateJurisdiction('client_1', { state: 'WA', county: 'King' })
+
+    expect(fake.update).toHaveBeenCalledTimes(1)
+    expect(fake.set).toHaveBeenCalledWith({ state: 'WA', county: 'King' })
+    expect(fake.where).toHaveBeenCalledTimes(1)
   })
 })

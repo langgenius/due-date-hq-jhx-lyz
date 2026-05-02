@@ -151,7 +151,7 @@ erDiagram
 
 | Repo            | 能力                                                                                                                       |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `clients`       | create/createBatch/find/list/updatePenaltyInputs/softDelete/deleteByBatch                                                  |
+| `clients`       | create/createBatch/find/list/updateJurisdiction/updatePenaltyInputs/softDelete/deleteByBatch                               |
 | `obligations`   | createBatch/list/updateDueDate/updateExposure/updateStatus/deleteByBatch                                                   |
 | `migration`     | batch lifecycle、mapping、normalization、errors、commit/revert                                                             |
 | `audit`         | write/writeBatch/list/create package/mark package state                                                                    |

@@ -1619,7 +1619,7 @@ export function WorkboardRoute() {
             </Trans>
           </CardDescription>
           <CardAction>
-            <Badge variant="outline" className="font-mono tabular-nums">
+            <Badge variant="outline" className="font-mono text-xs tabular-nums">
               <Plural value={totalShown} one="# row" other="# rows" />
             </Badge>
           </CardAction>

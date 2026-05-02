@@ -527,7 +527,11 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   `maxLength` 传入，例如 Workboard 64、Audit search 80、Audit 精确筛选 128。
 - Clients facts 页当前一次拉取 `clients.listByFirm({ limit: 500 })` 后本地过滤，
   搜索不触发服务端 fetching；因此只对 `q` 的 URL 写入使用
-  `queryInputUrlUpdateRateLimit`，本地列表过滤保持即时反馈。
+  `queryInputUrlUpdateRateLimit`。表头 facet（client/entity/state/readiness/source/owner）
+  也走 URL state，但仍基于这份本地列表即时过滤，不触发额外 fetching。
+- Fact profile 的 jurisdiction 编辑走 `clients.updateJurisdiction` mutation；成功后必须
+  invalidate Clients、Dashboard、Workboard list/detail/facets 与 client risk summary，确保
+  state/county、exposure 与 Pulse/规则相关派生视图不滞后。
 
 ---
 

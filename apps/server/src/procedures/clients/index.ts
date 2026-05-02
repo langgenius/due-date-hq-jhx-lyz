@@ -189,6 +189,66 @@ const listByFirm = os.clients.listByFirm.handler(async ({ input, context }) => {
   return rows.map((row) => toClientPublic(row, { hideDollars }))
 })
 
+const updateJurisdiction = os.clients.updateJurisdiction.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
+  const { scoped, tenant, userId } = requireTenant(context)
+  const before = await scoped.clients.findById(input.id)
+  if (!before) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Client ${input.id} not found in current firm.`,
+    })
+  }
+
+  await scoped.clients.updateJurisdiction(input.id, {
+    state: input.state,
+    county: nullableText(input.county),
+  })
+  const recalculatedObligationCount = await recalculateClientExposure(scoped, input.id)
+  const after = await scoped.clients.findById(input.id)
+  if (!after) {
+    throw new ORPCError('INTERNAL_SERVER_ERROR', {
+      message: 'Updated client could not be re-read.',
+    })
+  }
+
+  const { id: auditId } = await scoped.audit.write({
+    actorId: userId,
+    entityType: 'client',
+    entityId: input.id,
+    action: 'client.jurisdiction.updated',
+    before: {
+      state: before.state,
+      county: before.county,
+    },
+    after: {
+      state: after.state,
+      county: after.county,
+      recalculatedObligationCount,
+    },
+    ...(input.reason !== undefined ? { reason: input.reason } : {}),
+  })
+
+  await Promise.all([
+    enqueueDashboardBriefRefresh(context.env, {
+      firmId: tenant.firmId,
+      reason: 'client_facts_change',
+    }).catch(() => false),
+    enqueueAiInsightRefresh(context.env, {
+      firmId: tenant.firmId,
+      kind: 'client_risk_summary',
+      subjectId: input.id,
+      reason: 'client_jurisdiction_update',
+    }).catch(() => false),
+  ])
+
+  const hideDollars = await shouldHideDollars(context)
+  return {
+    client: toClientPublic(after, { hideDollars }),
+    recalculatedObligationCount,
+    auditId,
+  }
+})
+
 const updatePenaltyInputs = os.clients.updatePenaltyInputs.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
   const { scoped, tenant, userId } = requireTenant(context)
@@ -455,6 +515,7 @@ export const clientsHandlers = {
   createBatch,
   get,
   listByFirm,
+  updateJurisdiction,
   updatePenaltyInputs,
   updateRiskProfile,
   getRiskSummary,

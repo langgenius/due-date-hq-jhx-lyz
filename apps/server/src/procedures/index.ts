@@ -48,6 +48,7 @@ export const router = os.router({
     createBatch: clientsHandlers.createBatch,
     get: clientsHandlers.get,
     listByFirm: clientsHandlers.listByFirm,
+    updateJurisdiction: clientsHandlers.updateJurisdiction,
     updatePenaltyInputs: clientsHandlers.updatePenaltyInputs,
     updateRiskProfile: clientsHandlers.updateRiskProfile,
     getRiskSummary: clientsHandlers.getRiskSummary,

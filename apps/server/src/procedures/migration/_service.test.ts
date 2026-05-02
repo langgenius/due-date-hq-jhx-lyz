@@ -99,6 +99,7 @@ function buildScopedRepo(firmId: string) {
       return []
     },
     async updatePenaltyInputs() {},
+    async updateJurisdiction() {},
     async updateRiskProfile() {},
     async updateAssigneeMany() {},
     async softDelete() {},

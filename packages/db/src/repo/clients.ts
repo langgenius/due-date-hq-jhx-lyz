@@ -173,6 +173,19 @@ export function makeClientsRepo(db: Db, firmId: string) {
         .where(and(eq(client.firmId, firmId), eq(client.id, id), isNull(client.deletedAt)))
     },
 
+    async updateJurisdiction(
+      id: string,
+      input: { state: string | null; county: string | null },
+    ): Promise<void> {
+      await db
+        .update(client)
+        .set({
+          state: input.state,
+          county: input.county,
+        })
+        .where(and(eq(client.firmId, firmId), eq(client.id, id), isNull(client.deletedAt)))
+    },
+
     async updateRiskProfile(
       id: string,
       input: { importanceWeight?: number; lateFilingCountLast12mo?: number },

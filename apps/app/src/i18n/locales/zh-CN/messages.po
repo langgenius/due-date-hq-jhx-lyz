@@ -1321,6 +1321,10 @@ msgstr "无法撤销请求"
 msgid "Couldn't save extension decision"
 msgstr "无法保存延期决策"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't save jurisdiction"
+msgstr "无法保存辖区"
+
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't save mapping"
 msgstr "保存字段映射失败"
@@ -1387,11 +1391,16 @@ msgstr "无法更新视图"
 msgid "Counties"
 msgstr "县"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
 #: src/routes/workboard.tsx
 msgid "County"
 msgstr "县"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "County must be 120 characters or fewer"
+msgstr "县名不能超过 120 个字符"
 
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
@@ -2300,6 +2309,14 @@ msgstr "管辖范围"
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION × ENTITY"
 msgstr "辖区 × 实体类型"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Jurisdiction facts"
+msgstr "辖区信息"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Jurisdiction saved"
+msgstr "辖区已保存"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION SUMMARY"
@@ -4407,6 +4424,10 @@ msgstr "保存当前视图"
 msgid "Save decision"
 msgstr "保存决策"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Save jurisdiction"
+msgstr "保存辖区"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Save mapping"
 msgstr "保存字段映射"
@@ -5273,6 +5294,10 @@ msgstr "升级到 Pro"
 #: src/features/migration/WizardShell.tsx
 msgid "Upload rows"
 msgstr "上传行数据"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Use a 2-letter state code"
+msgstr "请输入两位州代码"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use a whole number from 0 to 99"

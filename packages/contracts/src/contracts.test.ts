@@ -19,6 +19,8 @@ import {
 import {
   ClientBulkAssigneeUpdateInputSchema,
   ClientBulkAssigneeUpdateOutputSchema,
+  ClientJurisdictionUpdateOutputSchema,
+  ClientJurisdictionUpdateSchema,
   clientsContract,
 } from './clients'
 import {
@@ -412,6 +414,46 @@ describe('@duedatehq/contracts', () => {
       auditId: '33333333-3333-4333-8333-333333333333',
     })
     expect(output.updatedCount).toBe(1)
+  })
+
+  it('exposes clients.updateJurisdiction for existing client fact edits', () => {
+    expect(Object.keys(clientsContract)).toEqual(expect.arrayContaining(['updateJurisdiction']))
+    const input = ClientJurisdictionUpdateSchema.parse({
+      id: '22222222-2222-4222-8222-222222222222',
+      state: 'WA',
+      county: 'King',
+      reason: 'client facts correction',
+    })
+    expect(input.state).toBe('WA')
+    expect(input.county).toBe('King')
+    const output = ClientJurisdictionUpdateOutputSchema.parse({
+      client: {
+        id: '22222222-2222-4222-8222-222222222222',
+        firmId: '11111111-1111-4111-8111-111111111111',
+        name: 'Riverbend Draft Client',
+        ein: null,
+        state: 'WA',
+        county: 'King',
+        entityType: 'llc',
+        email: null,
+        notes: null,
+        assigneeId: null,
+        assigneeName: null,
+        importanceWeight: 1,
+        lateFilingCountLast12mo: 0,
+        estimatedTaxLiabilityCents: null,
+        estimatedTaxLiabilitySource: null,
+        equityOwnerCount: null,
+        migrationBatchId: null,
+        createdAt: '2026-05-01T00:00:00.000Z',
+        updatedAt: '2026-05-02T00:00:00.000Z',
+        deletedAt: null,
+      },
+      recalculatedObligationCount: 1,
+      auditId: '33333333-3333-4333-8333-333333333333',
+    })
+    expect(output.client.state).toBe('WA')
+    expect(output.recalculatedObligationCount).toBe(1)
   })
 
   it('freezes workboard.list input shape', () => {

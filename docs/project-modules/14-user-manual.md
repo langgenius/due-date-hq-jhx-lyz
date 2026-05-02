@@ -140,7 +140,7 @@ Clients 模块管理事务所客户事实，包括客户名称、实体类型、
    - `States covered`：可用于 Pulse 匹配的州覆盖。
 3. 使用搜索框按客户名称检索。
 4. 使用 `Entity` 和 `State` 筛选客户。
-5. 点击客户行或 `Fact profile` 打开只读事实侧栏。
+5. 点击客户行或 `Fact profile` 打开事实侧栏；可在 `Jurisdiction facts` 中补充或修正 state、county。
 6. 点击 `New client` 手动创建客户，填写 client name、entity type、EIN、state、county、email、owner 和 notes。
 7. 点击 `Import clients` 打开 Migration Copilot。
 8. 点击 `Import history` 查看导入批次，并可从历史记录跳转到导入客户。

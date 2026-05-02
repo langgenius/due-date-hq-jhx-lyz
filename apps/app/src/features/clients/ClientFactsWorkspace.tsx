@@ -30,7 +30,11 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import type { AiInsightPublic, ClientPublic } from '@duedatehq/contracts'
+import type {
+  AiInsightPublic,
+  ClientJurisdictionUpdateInput,
+  ClientPublic,
+} from '@duedatehq/contracts'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -135,6 +139,7 @@ const metricToneClassName = {
   attention: 'bg-components-badge-bg-warning-soft text-text-warning',
   neutral: 'bg-background-section text-text-secondary',
 } satisfies Record<ClientMetric['tone'], string>
+const STATE_CODE_RE = /^[A-Z]{2}$/
 
 export function ClientFactsWorkspace({
   clients,
@@ -741,6 +746,24 @@ function ClientProfileSheet({
       },
     }),
   )
+  const updateJurisdictionMutation = useMutation(
+    orpc.clients.updateJurisdiction.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.getDetail.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.facets.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.clients.getRiskSummary.key() })
+        toast.success(t`Jurisdiction saved`, { description: result.client.name })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't save jurisdiction`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
   const requestRiskSummaryMutation = useMutation(
     orpc.clients.requestRiskSummaryRefresh.mutationOptions({
       onSuccess: () => {
@@ -807,8 +830,15 @@ function ClientProfileSheet({
                 />
               </div>
 
+              <ClientJurisdictionPanel
+                key={`${client.id}:jurisdiction`}
+                client={client}
+                isSaving={updateJurisdictionMutation.isPending}
+                onSave={(input) => updateJurisdictionMutation.mutate(input)}
+              />
+
               <ClientRiskInputsPanel
-                key={client.id}
+                key={`${client.id}:risk`}
                 client={client}
                 isSaving={updateRiskProfileMutation.isPending}
                 onSave={(input) => updateRiskProfileMutation.mutate(input)}
@@ -857,6 +887,83 @@ function importanceSelectValue(value: number): '1' | '2' | '3' {
   if (value === 1) return '1'
   if (value === 3) return '3'
   return '2'
+}
+
+function ClientJurisdictionPanel({
+  client,
+  isSaving,
+  onSave,
+}: {
+  client: ClientPublic
+  isSaving: boolean
+  onSave: (input: ClientJurisdictionUpdateInput) => void
+}) {
+  const { t } = useLingui()
+  const [state, setState] = useState(client.state ?? '')
+  const [county, setCounty] = useState(client.county ?? '')
+  const normalizedState = state.trim().toUpperCase() || null
+  const normalizedCounty = county.trim() || null
+  const stateInvalid = normalizedState !== null && !STATE_CODE_RE.test(normalizedState)
+  const countyInvalid = county.trim().length > 120
+  const hasChanges = normalizedState !== client.state || normalizedCounty !== client.county
+
+  return (
+    <div className="grid gap-3 rounded-md border border-divider-regular p-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+          <Trans>Jurisdiction facts</Trans>
+        </span>
+        <MapPinnedIcon className="size-4 text-text-tertiary" aria-hidden />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-[96px_minmax(0,1fr)]">
+        <Field>
+          <FieldLabel htmlFor="client-jurisdiction-state">
+            <Trans>State</Trans>
+          </FieldLabel>
+          <Input
+            id="client-jurisdiction-state"
+            className="font-mono uppercase tabular-nums"
+            placeholder="WA"
+            maxLength={2}
+            value={state}
+            aria-invalid={stateInvalid}
+            onChange={(event) => setState(event.target.value.toUpperCase())}
+          />
+          {stateInvalid ? <FieldError>{t`Use a 2-letter state code`}</FieldError> : null}
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="client-jurisdiction-county">
+            <Trans>County</Trans>
+          </FieldLabel>
+          <Input
+            id="client-jurisdiction-county"
+            maxLength={120}
+            value={county}
+            aria-invalid={countyInvalid}
+            onChange={(event) => setCounty(event.target.value)}
+          />
+          {countyInvalid ? (
+            <FieldError>{t`County must be 120 characters or fewer`}</FieldError>
+          ) : null}
+        </Field>
+      </div>
+      <Button
+        type="button"
+        size="sm"
+        disabled={!hasChanges || stateInvalid || countyInvalid || isSaving}
+        onClick={() =>
+          onSave({
+            id: client.id,
+            state: normalizedState,
+            county: normalizedCounty,
+            reason: 'Fact profile jurisdiction edit',
+          })
+        }
+      >
+        {isSaving ? t`Saving...` : t`Save jurisdiction`}
+      </Button>
+    </div>
+  )
 }
 
 function ClientRiskInputsPanel({

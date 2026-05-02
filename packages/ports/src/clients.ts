@@ -58,6 +58,13 @@ export interface ClientsRepo {
       equityOwnerCount?: number | null
     },
   ): Promise<void>
+  updateJurisdiction(
+    id: string,
+    input: {
+      state: string | null
+      county: string | null
+    },
+  ): Promise<void>
   updateRiskProfile(
     id: string,
     input: {
