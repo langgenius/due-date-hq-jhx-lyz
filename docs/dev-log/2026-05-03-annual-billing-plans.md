@@ -15,6 +15,9 @@ monthly choices.
   card prices, savings copy, and Solo/Pro/Team checkout links to `interval=yearly`.
 - App Billing now mirrors the same Monthly/Yearly toggle and savings copy. Owners can switch the
   same self-serve plan between monthly and yearly when the active subscription interval differs.
+- Follow-up: yearly App Billing cards now reserve the taller savings-summary height across every
+  plan, so the four AI-included panels stay horizontally aligned even when Enterprise savings copy
+  wraps.
 - Checkout "already active" detection now compares both plan and billing interval, so same-plan
   annual conversion is not blocked as the current plan.
 - `apps/server/.dev.vars.example` now documents the yearly Stripe recurring price amounts expected

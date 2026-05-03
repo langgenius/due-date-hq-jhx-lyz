@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 
 import type { FirmPublic, PulseFirmAlertStatus, PulseStatus } from '@duedatehq/contracts'
 import type { PulseDetail } from '@duedatehq/contracts'
+import { hasFirmPermission } from '@duedatehq/core/permissions'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -38,7 +39,6 @@ interface PulseDetailDrawerProps {
   onClose: () => void
 }
 
-const APPLY_ALLOWED_ROLES: ReadonlySet<FirmPublic['role']> = new Set(['owner', 'manager'])
 const REVERTABLE_STATUSES: ReadonlySet<PulseFirmAlertStatus> = new Set([
   'applied',
   'partially_applied',
@@ -61,7 +61,11 @@ function useCanApply(): boolean {
   if (!firms) return false
   const current = firms.find((firm) => firm.isCurrent) ?? firms[0]
   if (!current) return false
-  return APPLY_ALLOWED_ROLES.has(current.role)
+  return hasFirmPermission({
+    role: current.role,
+    permission: 'pulse.apply',
+    coordinatorCanSeeDollars: current.coordinatorCanSeeDollars,
+  })
 }
 
 // Pulse detail drawer: AI summary + structured fields + affected clients + apply

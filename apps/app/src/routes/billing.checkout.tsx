@@ -29,13 +29,13 @@ import {
 } from '@duedatehq/ui/components/ui/card'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { cn } from '@duedatehq/ui/lib/utils'
+import { hasFirmPermission } from '@duedatehq/core/permissions'
 
 import { createCheckout } from '@/features/billing/api'
 import {
   billingPlanMonthlyEquivalent,
   billingSearchParamsParsers,
   isSelfServeBillingPlan,
-  isFirmOwner,
   serializeBillingQuery,
   subscriptionBillingIntervalToUi,
   type BillingInterval,
@@ -46,6 +46,7 @@ import {
   useBillingSubscriptions,
   useCurrentFirm,
 } from '@/features/billing/use-billing-data'
+import { PermissionGate } from '@/features/permissions/permission-gate'
 
 type PlanView = {
   label: string
@@ -148,8 +149,13 @@ export function BillingCheckoutRoute() {
   const [{ plan, interval }] = useQueryStates(billingSearchParamsParsers)
   const view = usePlanView(plan, interval)
   const { firmsQuery, currentFirm } = useCurrentFirm()
-  const subscriptionsQuery = useBillingSubscriptions(currentFirm)
-  const checkoutConfigQuery = useBillingCheckoutConfig(Boolean(currentFirm))
+  const canReadBilling = hasFirmPermission({
+    role: currentFirm?.role,
+    permission: 'billing.read',
+    coordinatorCanSeeDollars: currentFirm?.coordinatorCanSeeDollars,
+  })
+  const subscriptionsQuery = useBillingSubscriptions(currentFirm, false, canReadBilling)
+  const checkoutConfigQuery = useBillingCheckoutConfig(Boolean(currentFirm) && canReadBilling)
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
     ['active', 'trialing', 'past_due', 'paused'].includes(subscription.status),
   )
@@ -210,7 +216,11 @@ export function BillingCheckoutRoute() {
     )
   }
 
-  const owner = isFirmOwner(currentFirm)
+  const owner = hasFirmPermission({
+    role: currentFirm.role,
+    permission: 'billing.update',
+    coordinatorCanSeeDollars: currentFirm.coordinatorCanSeeDollars,
+  })
   const alreadyOnPlan =
     activeSubscription?.plan === plan &&
     currentFirm.plan === plan &&
@@ -225,6 +235,24 @@ export function BillingCheckoutRoute() {
         : currentFirm.plan === 'pro'
           ? t`Pro`
           : t`Solo`
+
+  if (!canReadBilling) {
+    return (
+      <PermissionGate
+        permission="billing.read"
+        firm={currentFirm}
+        description={
+          <Trans>
+            Billing checkout is available only after you have billing access for this practice.
+            Contact the practice owner if you need access.
+          </Trans>
+        }
+        secondaryAction={{ label: <Trans>Back to billing</Trans>, to: '/billing' }}
+      >
+        <div />
+      </PermissionGate>
+    )
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 px-4 py-6 md:px-6">

@@ -63,6 +63,11 @@
 
 ## 3. RBAC（Access Control · Phase 1 强制）
 
+当前共享权限矩阵落在 `@duedatehq/core/permissions`，前后端都从同一张
+`FirmPermission -> FirmRole[]` 表派生判断。Worker 的 `requireCurrentFirmRole` /
+`requirePermission` 仍是安全边界；SPA 的 `PermissionGate` 只负责禁用必然失败的查询和渲染
+“可见但受限”的权限说明。
+
 ### 3.1 四角色 + 权限 statement（约束）
 
 ```ts
@@ -98,13 +103,22 @@ const statement = {
 | `billing.read`               | ✓     | ✓       | —                    | —                         |
 | `billing.update`             | ✓     | —       | —                    | —                         |
 | `audit.read`                 | ✓     | ✓       | ✓                    | —                         |
-| `audit.export`               | ✓     | ✓       | —                    | —                         |
+| `audit.export`               | ✓     | —       | —                    | —                         |
 | `dollars.read`               | ✓     | ✓       | ✓                    | 默认 ✗；firm 开关打开才 ✓ |
 | `export.evidence_package`    | ✓     | —       | —                    | —                         |
 
 **边界原则：** Revert 是补救能力，Owner + Manager 都可执行；Owner-only 只用于所有权 / 账户级能力，包括 Firm 删除、Owner 转让、billing、member 管理和全 firm export。Members v1 mutation 网关当前只允许 Owner；Manager 成员管理可在 P1 重新评估。
 
-### 3.3 权限检查（P0 Owner-only，Phase 1 完整矩阵）
+### 3.3 前端无权限交互
+
+- 导航入口不隐藏；用户可以进入 URL，但整页无权限时显示统一面板，不 redirect。
+- 整页 gate 必须在权限不足时阻止对应业务 RPC query，例如 manager 访问 Members 时不调用
+  `members.listCurrent`，coordinator 访问 Audit 时不调用 `audit.list`。
+- 局部只读区域使用 inline notice；按钮、menu item、command palette item 保留但 disabled，
+  并展示所需角色说明。
+- `FORBIDDEN`、`FIRM_FORBIDDEN`、`MEMBER_FORBIDDEN` 对用户翻译成权限文案，不直接展示错误码。
+
+### 3.4 权限检查（P0 Owner-only，Phase 1 完整矩阵）
 
 - 7 天 Demo / P0 早期：必须检查 session、active firm、tenant scope；client / migration / obligation 写入口已在服务端按 role gate 收口，且所有写操作写 audit
 - 真实试点前：危险写操作按 RBAC 矩阵校验（migration/pulse revert = Owner + Manager，export / billing / ownership = Owner）；MFA 保持账户可选项

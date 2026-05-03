@@ -276,6 +276,16 @@ msgstr "{pendingCount} pending · {expiredCount} expired · magic-link via Resen
 msgid "{reservedCount} reserved"
 msgstr "{reservedCount} reserved"
 
+#. placeholder {0}: firm.seatLimit
+#: src/components/patterns/app-shell-nav.tsx
+msgid "{role} · {plan} · {0} seat"
+msgstr "{role} · {plan} · {0} seat"
+
+#. placeholder {0}: firm.seatLimit
+#: src/components/patterns/app-shell-nav.tsx
+msgid "{role} · {plan} · {0} seats"
+msgstr "{role} · {plan} · {0} seats"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
 msgstr "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
@@ -904,6 +914,10 @@ msgstr "Billed yearly · Save $96/year"
 msgid "Billing"
 msgstr "Billing"
 
+#: src/routes/billing.checkout.tsx
+msgid "Billing checkout is available only after you have billing access for this practice. Contact the practice owner if you need access."
+msgstr "Billing checkout is available only after you have billing access for this practice. Contact the practice owner if you need access."
+
 #: src/routes/billing.tsx
 msgid "Billing controls"
 msgstr "Billing controls"
@@ -911,6 +925,10 @@ msgstr "Billing controls"
 #: src/routes/billing.tsx
 msgid "Billing interval"
 msgstr "Billing interval"
+
+#: src/routes/billing.tsx
+msgid "Billing overview is available to owners and managers. Contact the practice owner if you need plan or invoice access."
+msgstr "Billing overview is available to owners and managers. Contact the practice owner if you need plan or invoice access."
 
 #: src/routes/billing.tsx
 msgid "Billing portal could not open"
@@ -1346,7 +1364,10 @@ msgstr "Contract coverage and audit controls"
 msgid "Contract-level model routing, custom coverage, and audit-grade AI controls."
 msgstr "Contract-level model routing, custom coverage, and audit-grade AI controls."
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
+#: src/features/permissions/permission-gate.tsx
 #: src/routes/practice.tsx
 msgid "Coordinator"
 msgstr "Coordinator"
@@ -1751,6 +1772,14 @@ msgstr "Current"
 msgid "Current plan"
 msgstr "Current plan"
 
+#: src/features/permissions/permission-gate.tsx
+msgid "Current role: {currentRoleLabel}"
+msgstr "Current role: {currentRoleLabel}"
+
+#: src/features/permissions/permission-gate.tsx
+msgid "Current role: {currentRoleLabel}. Required: {requiredRoleText}."
+msgstr "Current role: {currentRoleLabel}. Required: {requiredRoleText}."
+
 #: src/routes/workboard.tsx
 msgid "Current status"
 msgstr "Current status"
@@ -1901,6 +1930,10 @@ msgstr "Delete this practice?"
 msgid "Delete view"
 msgstr "Delete view"
 
+#: src/components/patterns/app-shell-user-menu.tsx
+msgid "Demo account"
+msgstr "Demo account"
+
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 msgid "Deprecated"
@@ -1959,6 +1992,10 @@ msgstr "Dismissed"
 #: src/routes/practice.tsx
 msgid "Dollar exposure"
 msgstr "Dollar exposure"
+
+#: src/routes/dashboard.tsx
+msgid "Dollar exposure is hidden for your current role."
+msgstr "Dollar exposure is hidden for your current role."
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Download latest"
@@ -2093,6 +2130,7 @@ msgstr "Enter penalty inputs"
 msgid "Enter the code from your authenticator app."
 msgstr "Enter the code from your authenticator app."
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
@@ -2489,6 +2527,14 @@ msgstr "have jurisdiction facts"
 #: src/features/rules/sources-tab.tsx
 msgid "Healthy"
 msgstr "Healthy"
+
+#: src/routes/dashboard.tsx
+msgid "Hidden"
+msgstr "Hidden"
+
+#: src/routes/dashboard.tsx
+msgid "Hidden by role"
+msgstr "Hidden by role"
 
 #: src/routes/dashboard.tsx
 msgid "high"
@@ -2907,7 +2953,10 @@ msgstr "Manage external deadline calendar feeds."
 msgid "Manage practice seats, roles, and invitations."
 msgstr "Manage practice seats, roles, and invitations."
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
+#: src/features/permissions/permission-gate.tsx
 #: src/routes/practice.tsx
 msgid "Manager"
 msgstr "Manager"
@@ -3049,6 +3098,10 @@ msgstr "member@example.com"
 #: src/routes/route-summary.ts
 msgid "Members"
 msgstr "Members"
+
+#: src/features/members/members-page.tsx
+msgid "Members are managed by the practice owner. Contact the owner if you need to invite teammates or change roles."
+msgstr "Members are managed by the practice owner. Contact the owner if you need to invite teammates or change roles."
 
 #: src/features/members/members-page.tsx
 msgid "Members could not load"
@@ -3659,6 +3712,10 @@ msgstr "Only Owners and Managers can apply Pulse changes."
 msgid "Only owners and managers can enable the firm-wide calendar feed."
 msgstr "Only owners and managers can enable the firm-wide calendar feed."
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Only Owners and Managers can undo migration imports."
+msgstr "Only Owners and Managers can undo migration imports."
+
 #: src/routes/billing.tsx
 msgid "Only owners can manage billing."
 msgstr "Only owners can manage billing."
@@ -3674,6 +3731,14 @@ msgstr "Only practice owners can start or change a subscription."
 #: src/routes/practice.tsx
 msgid "Only the practice owner can change Smart Priority settings."
 msgstr "Only the practice owner can change Smart Priority settings."
+
+#: src/routes/practice.tsx
+msgid "Only the practice owner can change the practice name or timezone."
+msgstr "Only the practice owner can change the practice name or timezone."
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Only the practice owner can export audit evidence packages."
+msgstr "Only the practice owner can export audit evidence packages."
 
 #: src/routes/billing.checkout.tsx
 msgid "Only the practice owner can start or change a subscription."
@@ -3760,7 +3825,10 @@ msgstr "Open the Migration Copilot wizard."
 msgid "Open the obligation queue."
 msgstr "Open the obligation queue."
 
+#: src/features/audit/audit-log-page.tsx
+#: src/features/members/members-page.tsx
 #: src/features/workload/workload-page.tsx
+#: src/routes/billing.tsx
 msgid "Open Workboard"
 msgstr "Open Workboard"
 
@@ -3824,10 +3892,13 @@ msgstr "Outlook"
 msgid "Overdue"
 msgstr "Overdue"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/concepts/concept-help.tsx
+#: src/features/permissions/permission-gate.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/billing.tsx
 #: src/routes/practice.tsx
@@ -3849,8 +3920,8 @@ msgstr "Owner approved"
 msgid "Owner count"
 msgstr "Owner count"
 
+#: src/features/permissions/permission-gate.tsx
 #: src/routes/billing.checkout.tsx
-#: src/routes/practice.tsx
 msgid "Owner permission required"
 msgstr "Owner permission required"
 
@@ -4004,6 +4075,10 @@ msgstr "Pending review"
 #: src/features/audit/audit-log-labels.ts
 msgid "Permission checked"
 msgstr "Permission checked"
+
+#: src/features/permissions/permission-gate.tsx
+msgid "Permission required"
+msgstr "Permission required"
 
 #: src/routes/workboard.tsx
 msgid "Pin view"
@@ -4161,6 +4236,10 @@ msgstr "Practice updated"
 msgid "Practice workspaces"
 msgstr "Practice workspaces"
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Practice-wide audit events are available to owners, managers, and preparers. Contact the practice owner if you need audit access."
+msgstr "Practice-wide audit events are available to owners, managers, and preparers. Contact the practice owner if you need audit access."
+
 #: src/routes/practice.tsx
 msgid "Practice-wide weights for deterministic deadline ranking."
 msgstr "Practice-wide weights for deterministic deadline ranking."
@@ -4177,7 +4256,10 @@ msgstr "Preferences"
 msgid "Prepared in the background from the latest dashboard risk snapshot."
 msgstr "Prepared in the background from the latest dashboard risk snapshot."
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
+#: src/features/permissions/permission-gate.tsx
 #: src/routes/practice.tsx
 msgid "Preparer"
 msgstr "Preparer"
@@ -4435,6 +4517,7 @@ msgstr "Read field values"
 msgid "READ-ONLY"
 msgstr "READ-ONLY"
 
+#: src/features/permissions/permission-gate.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Read-only view"
 msgstr "Read-only view"
@@ -4636,6 +4719,10 @@ msgstr "Required for rule applicability."
 msgid "Required for rules and Pulse matching."
 msgstr "Required for rules and Pulse matching."
 
+#: src/features/permissions/permission-gate.tsx
+msgid "Required: {requiredRoleText}"
+msgstr "Required: {requiredRoleText}"
+
 #: src/features/concepts/concept-help.tsx
 msgid "Requires review"
 msgstr "Requires review"
@@ -4694,6 +4781,10 @@ msgstr "Retry extract"
 #: src/routes/error.tsx
 msgid "Return home"
 msgstr "Return home"
+
+#: src/features/permissions/permission-gate.tsx
+msgid "Return to dashboard"
+msgstr "Return to dashboard"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Revert batch"
@@ -5393,6 +5484,7 @@ msgstr "Snoozed until"
 msgid "Sole prop"
 msgstr "Sole prop"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
@@ -5632,6 +5724,11 @@ msgstr "Suspend access"
 msgid "Suspended"
 msgstr "Suspended"
 
+#. placeholder {0}: account.name
+#: src/components/patterns/app-shell-user-menu.tsx
+msgid "Switch demo account to {0}"
+msgstr "Switch demo account to {0}"
+
 #. placeholder {0}: firm.name
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Switch practice, current {0}"
@@ -5686,6 +5783,7 @@ msgstr "Tax year"
 msgid "TAX YEAR"
 msgstr "TAX YEAR"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-page.tsx
 #: src/routes/billing.checkout.tsx
@@ -6041,6 +6139,10 @@ msgstr "Undo this imported client?"
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
 
+#: src/features/permissions/permission-gate.tsx
+msgid "Unknown"
+msgstr "Unknown"
+
 #: src/routes/account.security.tsx
 msgid "Unknown browser"
 msgstr "Unknown browser"
@@ -6368,6 +6470,10 @@ msgid "You don't have permission to perform this action."
 msgstr "You don't have permission to perform this action."
 
 #: src/lib/i18n-error.ts
+msgid "You don't have permission to use this practice feature."
+msgstr "You don't have permission to use this practice feature."
+
+#: src/lib/i18n-error.ts
 msgid "You need to sign in to continue."
 msgstr "You need to sign in to continue."
 
@@ -6386,6 +6492,14 @@ msgstr "Your column"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Your current plan includes one active practice. Additional practices are available on the Enterprise plan."
 msgstr "Your current plan includes one active practice. Additional practices are available on the Enterprise plan."
+
+#: src/features/permissions/permission-gate.tsx
+msgid "Your current role cannot use this surface. Contact the practice owner if you need access."
+msgstr "Your current role cannot use this surface. Contact the practice owner if you need access."
+
+#: src/lib/i18n-error.ts
+msgid "Your current role doesn't include this permission."
+msgstr "Your current role doesn't include this permission."
 
 #: src/features/migration/WizardShell.tsx
 msgid "Your pasted data and unsaved edits in this wizard will be lost."

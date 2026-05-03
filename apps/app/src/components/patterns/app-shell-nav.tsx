@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState, type SyntheticEvent, type ReactNode } f
 import { Link, NavLink } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
+import { msg } from '@lingui/core/macro'
+import type { I18n } from '@lingui/core'
 import {
   Building2Icon,
   CalendarClockIcon,
@@ -83,30 +85,38 @@ function firmMonogram(name: string): string {
   return initialsFromName(name).slice(0, 2).toUpperCase() || 'DD'
 }
 
-function roleLabel(role: FirmPublic['role'], t: ReturnType<typeof useLingui>['t']): string {
-  if (role === 'owner') return t`Owner`
-  if (role === 'manager') return t`Manager`
-  if (role === 'preparer') return t`Preparer`
-  return t`Coordinator`
+const NAV_ROLE_LABELS = {
+  owner: msg`Owner`,
+  manager: msg`Manager`,
+  preparer: msg`Preparer`,
+  coordinator: msg`Coordinator`,
+} as const
+
+const NAV_PLAN_LABELS = {
+  firm: msg`Enterprise`,
+  team: msg`Team`,
+  pro: msg`Pro`,
+  solo: msg`Solo`,
+} as const
+
+function roleLabel(role: FirmPublic['role'], i18n: I18n): string {
+  return i18n._(NAV_ROLE_LABELS[role])
 }
 
-function planLabel(plan: FirmPublic['plan'], t: ReturnType<typeof useLingui>['t']): string {
-  if (plan === 'firm') return t`Enterprise`
-  if (plan === 'team') return t`Team`
-  if (plan === 'pro') return t`Pro`
-  return t`Solo`
+function planLabel(plan: FirmPublic['plan'], i18n: I18n): string {
+  return i18n._(NAV_PLAN_LABELS[plan])
 }
 
-function firmMeta(firm: FirmPublic, t: ReturnType<typeof useLingui>['t']): string {
-  const role = roleLabel(firm.role, t)
-  const plan = planLabel(firm.plan, t)
+function firmMeta(firm: FirmPublic, i18n: I18n): string {
+  const role = roleLabel(firm.role, i18n)
+  const plan = planLabel(firm.plan, i18n)
   return firm.seatLimit === 1
-    ? t`${role} · ${plan} · ${firm.seatLimit} seat`
-    : t`${role} · ${plan} · ${firm.seatLimit} seats`
+    ? i18n._(msg`${role} · ${plan} · ${firm.seatLimit} seat`)
+    : i18n._(msg`${role} · ${plan} · ${firm.seatLimit} seats`)
 }
 
 function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPublic[] }) {
-  const { t } = useLingui()
+  const { i18n, t } = useLingui()
   const queryClient = useQueryClient()
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const [switcherOpen, setSwitcherOpen] = useState(false)
@@ -124,7 +134,7 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
     }),
   )
   const currentMonogram = firmMonogram(firm.name)
-  const currentMeta = firmMeta(firm, t)
+  const currentMeta = firmMeta(firm, i18n)
 
   const handleSwitch = useCallback(
     (firmId: string) => {
@@ -206,7 +216,7 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
                         {item.name}
                       </span>
                       <span className="truncate text-xs text-text-tertiary">
-                        {firmMeta(item, t)}
+                        {firmMeta(item, i18n)}
                       </span>
                     </span>
                   </span>

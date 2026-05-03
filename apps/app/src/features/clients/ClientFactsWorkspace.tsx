@@ -132,6 +132,7 @@ type ClientFactsWorkspaceProps = {
   onSelectClient: (clientId: string) => void
   onProfileOpenChange: (open: boolean) => void
   onImport: () => void
+  canImport: boolean
 }
 
 const metricToneClassName = {
@@ -164,6 +165,7 @@ export function ClientFactsWorkspace({
   onSelectClient,
   onProfileOpenChange,
   onImport,
+  canImport,
 }: ClientFactsWorkspaceProps) {
   const { t } = useLingui()
   const [openHeaderFilter, setOpenHeaderFilter] = useState<string | null>(null)
@@ -602,7 +604,7 @@ export function ClientFactsWorkspace({
                 </Table>
               </div>
             ) : (
-              <ClientEmptyState hasClients={false} onImport={onImport} />
+              <ClientEmptyState hasClients={false} onImport={onImport} canImport={canImport} />
             )}
           </CardContent>
         </Card>
@@ -678,7 +680,15 @@ function ClientTableEmptyRow({ colSpan }: { colSpan: number }) {
   )
 }
 
-function ClientEmptyState({ hasClients, onImport }: { hasClients: boolean; onImport: () => void }) {
+function ClientEmptyState({
+  hasClients,
+  onImport,
+  canImport,
+}: {
+  hasClients: boolean
+  onImport: () => void
+  canImport: boolean
+}) {
   return (
     <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-md border border-dashed border-divider-regular p-6 text-center">
       <div className="grid size-10 place-items-center rounded-md bg-background-section text-text-secondary">
@@ -701,7 +711,7 @@ function ClientEmptyState({ hasClients, onImport }: { hasClients: boolean; onImp
         </p>
       </div>
       {!hasClients ? (
-        <Button variant="outline" onClick={onImport}>
+        <Button variant="outline" onClick={onImport} disabled={!canImport}>
           <FileSearchIcon data-icon="inline-start" />
           <Trans>Run migration</Trans>
         </Button>

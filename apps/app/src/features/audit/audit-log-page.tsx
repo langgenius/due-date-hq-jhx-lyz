@@ -4,8 +4,9 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
 import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, FilterIcon } from 'lucide-react'
 
-import type { AuditEventPublic, AuditListInput } from '@duedatehq/contracts'
+import type { AuditEventPublic, AuditListInput, FirmPublic } from '@duedatehq/contracts'
 import { AUDIT_FILTER_MAX_LENGTH } from '@duedatehq/contracts'
+import { hasFirmPermission } from '@duedatehq/core/permissions'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -38,6 +39,7 @@ import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { ConceptLabel } from '@/features/concepts/concept-help'
 import { resolveUSFirmTimezone } from '@/features/firm/timezone-select'
+import { PermissionGate, PermissionInlineNotice } from '@/features/permissions/permission-gate'
 
 import { AuditEventDrawer } from './audit-event-drawer'
 import { useAuditActionLabels, useAuditEntityTypeLabels } from './audit-log-labels'
@@ -142,7 +144,7 @@ function makeAuditFilterOptions(
   )
 }
 
-function useAuditEvents(queryInputWithoutCursor: Omit<AuditListInput, 'cursor'>) {
+function useAuditEvents(queryInputWithoutCursor: Omit<AuditListInput, 'cursor'>, enabled = true) {
   return useInfiniteQuery(
     orpc.audit.list.infiniteOptions({
       initialPageParam: INITIAL_CURSOR,
@@ -151,6 +153,7 @@ function useAuditEvents(queryInputWithoutCursor: Omit<AuditListInput, 'cursor'>)
         cursor,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled,
     }),
   )
 }
@@ -288,13 +291,19 @@ function AuditLogPagination({
   )
 }
 
-function AuditExportButton() {
+function AuditExportButton({ firm }: { firm: FirmPublic | null | undefined }) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const packagesQuery = useQuery(
-    orpc.audit.listEvidencePackages.queryOptions({ input: { limit: 5 } }),
-  )
+  const canExport = hasFirmPermission({
+    role: firm?.role,
+    permission: 'audit.export',
+    coordinatorCanSeeDollars: firm?.coordinatorCanSeeDollars,
+  })
+  const packagesQuery = useQuery({
+    ...orpc.audit.listEvidencePackages.queryOptions({ input: { limit: 5 } }),
+    enabled: open && canExport,
+  })
   const requestPackage = useMutation(
     orpc.audit.requestEvidencePackage.mutationOptions({
       onSuccess: () => {
@@ -316,10 +325,21 @@ function AuditExportButton() {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setOpen(true)}
+        disabled={!canExport}
+        aria-describedby={!canExport ? 'audit-export-permission-note' : undefined}
+      >
         <DownloadIcon data-icon="inline-start" />
         <Trans>Export</Trans>
       </Button>
+      {!canExport ? (
+        <span id="audit-export-permission-note" className="sr-only">
+          <Trans>Only the practice owner can export audit evidence packages.</Trans>
+        </span>
+      ) : null}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
@@ -394,6 +414,11 @@ export function AuditLogPage() {
   const firmsQuery = useQuery(orpc.firms.listMine.queryOptions({ input: undefined }))
   const currentFirm = firmsQuery.data?.find((firm) => firm.isCurrent) ?? firmsQuery.data?.[0]
   const firmTimezone = resolveUSFirmTimezone(currentFirm?.timezone)
+  const canReadAudit = hasFirmPermission({
+    role: currentFirm?.role,
+    permission: 'audit.read',
+    coordinatorCanSeeDollars: currentFirm?.coordinatorCanSeeDollars,
+  })
 
   const queryInputWithoutCursor = useMemo<Omit<AuditListInput, 'cursor'>>(
     () => ({
@@ -407,7 +432,7 @@ export function AuditLogPage() {
     [actionFilter, actorFilter, entityTypeFilter, query.category, query.range],
   )
 
-  const auditQuery = useAuditEvents(queryInputWithoutCursor)
+  const auditQuery = useAuditEvents(queryInputWithoutCursor, canReadAudit)
   const events = useMemo(
     () => auditQuery.data?.pages.flatMap((page) => page.events) ?? EMPTY_EVENTS,
     [auditQuery.data?.pages],
@@ -497,6 +522,33 @@ export function AuditLogPage() {
     })
   }
 
+  if (firmsQuery.isLoading) {
+    return (
+      <div className="flex flex-col gap-6 p-4 md:p-6">
+        <Skeleton className="h-10 w-56" />
+        <Skeleton className="h-60 w-full rounded-lg" />
+      </div>
+    )
+  }
+
+  if (!canReadAudit) {
+    return (
+      <PermissionGate
+        permission="audit.read"
+        firm={currentFirm}
+        description={
+          <Trans>
+            Practice-wide audit events are available to owners, managers, and preparers. Contact the
+            practice owner if you need audit access.
+          </Trans>
+        }
+        secondaryAction={{ label: <Trans>Open Workboard</Trans>, to: '/workboard' }}
+      >
+        <div />
+      </PermissionGate>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <header className="flex flex-col gap-2">
@@ -514,7 +566,14 @@ export function AuditLogPage() {
               <Trans>Review practice-wide write events, what changed, and actor metadata.</Trans>
             </p>
           </div>
-          <AuditExportButton />
+          <div className="flex flex-col items-start gap-2 md:items-end">
+            <AuditExportButton firm={currentFirm} />
+            {currentFirm?.role !== 'owner' ? (
+              <PermissionInlineNotice permission="audit.export" currentRole={currentFirm?.role}>
+                <Trans>Only the practice owner can export audit evidence packages.</Trans>
+              </PermissionInlineNotice>
+            ) : null}
+          </div>
         </div>
       </header>
 

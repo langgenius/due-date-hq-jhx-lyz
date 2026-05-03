@@ -70,6 +70,7 @@ import { ConceptLabel } from '@/features/concepts/concept-help'
 import { severityRowClass } from '@/features/dashboard/severity-row'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { useFirmPermission } from '@/features/permissions/permission-gate'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
@@ -281,7 +282,14 @@ function useEvidenceFilterLabels(): Record<DashboardEvidenceFilter, string> {
   )
 }
 
-function ExposureBadge({ row }: { row: DashboardTopRow }) {
+function ExposureBadge({ row, canSeeDollars }: { row: DashboardTopRow; canSeeDollars: boolean }) {
+  if (!canSeeDollars) {
+    return (
+      <Badge variant="outline">
+        <Trans>Hidden by role</Trans>
+      </Badge>
+    )
+  }
   if (row.exposureStatus === 'ready' && row.estimatedExposureCents !== null) {
     return (
       <Badge variant="warning" className="font-mono tabular-nums">
@@ -370,6 +378,9 @@ export function DashboardRoute() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
+  const permission = useFirmPermission()
+  const canRunMigration = permission.can('migration.run')
+  const canSeeDollars = permission.can('dollars.read')
   const { openEvidence } = useEvidenceDrawer()
   const severityLabels = useSeverityLabels()
   const triageTabLabels = useTriageTabLabels()
@@ -516,7 +527,7 @@ export function DashboardRoute() {
           <Badge variant="outline" className="font-mono tabular-nums text-xs">
             {dashboardQuery.isLoading ? <Trans>Loading…</Trans> : data?.asOfDate}
           </Badge>
-          <Button variant="outline" size="sm" onClick={openWizard}>
+          <Button variant="outline" size="sm" onClick={openWizard} disabled={!canRunMigration}>
             <FileSearchIcon data-icon="inline-start" />
             <Trans>Run migration</Trans>
           </Button>
@@ -570,6 +581,7 @@ export function DashboardRoute() {
       <DashboardMetricStrip
         isLoading={dashboardQuery.isLoading}
         summary={data?.summary ?? null}
+        canSeeDollars={canSeeDollars}
         onResolveNeedsReview={() => void navigate('/workboard?status=review')}
       />
 
@@ -602,6 +614,8 @@ export function DashboardRoute() {
           severityLabels={severityLabels}
           statusLabels={statusLabels}
           statusDisabled={updateStatusMutation.isPending}
+          canRunMigration={canRunMigration}
+          canSeeDollars={canSeeDollars}
           onSelect={(key) => void setDashboardQuery({ triage: key })}
           onFilterChange={(patch) => void setDashboardQuery(patch)}
           onOpenWizard={openWizard}
@@ -625,10 +639,12 @@ export function DashboardRoute() {
 function DashboardMetricStrip({
   isLoading,
   summary,
+  canSeeDollars,
   onResolveNeedsReview,
 }: {
   isLoading: boolean
   summary: DashboardSummary | null
+  canSeeDollars: boolean
   onResolveNeedsReview: () => void
 }) {
   const { t } = useLingui()
@@ -673,14 +689,16 @@ function DashboardMetricStrip({
               <Trans>Penalty Radar</Trans>
             </ConceptLabel>
           ),
-          value: formatCents(summary.totalExposureCents),
-          detail: (
+          value: canSeeDollars ? formatCents(summary.totalExposureCents) : t`Hidden by role`,
+          detail: canSeeDollars ? (
             <Trans>
               {summary.exposureReadyCount} ready · {summary.exposureNeedsInputCount} needs input ·{' '}
               {summary.exposureUnsupportedCount} unsupported
             </Trans>
+          ) : (
+            <Trans>Dollar exposure is hidden for your current role.</Trans>
           ),
-          valueClassName: 'text-text-primary',
+          valueClassName: canSeeDollars ? 'text-text-primary' : 'text-text-muted',
         },
       ]
     : []
@@ -773,6 +791,8 @@ function DashboardTriagePanel({
   severityLabels,
   statusLabels,
   statusDisabled,
+  canRunMigration,
+  canSeeDollars,
   onSelect,
   onFilterChange,
   onOpenWizard,
@@ -791,6 +811,8 @@ function DashboardTriagePanel({
   severityLabels: Record<DashboardSeverity, string>
   statusLabels: Record<ObligationStatus, string>
   statusDisabled: boolean
+  canRunMigration: boolean
+  canSeeDollars: boolean
   onSelect: (key: DashboardTriageTabKey) => void
   onFilterChange: (patch: DashboardQueryPatch) => void
   onOpenWizard: () => void
@@ -814,7 +836,7 @@ function DashboardTriagePanel({
         <CardAction>
           {selectedTab ? (
             <Badge variant="outline" className="font-mono tabular-nums">
-              {formatCents(selectedTab.totalExposureCents)}
+              {canSeeDollars ? formatCents(selectedTab.totalExposureCents) : <Trans>Hidden</Trans>}
             </Badge>
           ) : null}
         </CardAction>
@@ -827,7 +849,7 @@ function DashboardTriagePanel({
             <Skeleton className="h-10 w-full" />
           </div>
         ) : tabs.length === 0 || !selectedTab ? (
-          <EmptyDashboard onOpenWizard={onOpenWizard} />
+          <EmptyDashboard onOpenWizard={onOpenWizard} canRunMigration={canRunMigration} />
         ) : (
           <Tabs
             value={selectedTab.key}
@@ -841,7 +863,8 @@ function DashboardTriagePanel({
                 <TabsTrigger key={tab.key} value={tab.key} className="gap-2">
                   <span>{tabLabels[tab.key]}</span>
                   <span className="font-mono tabular-nums">
-                    {tab.count} · {formatCents(tab.totalExposureCents)}
+                    {tab.count} ·{' '}
+                    {canSeeDollars ? formatCents(tab.totalExposureCents) : <Trans>Hidden</Trans>}
                   </span>
                 </TabsTrigger>
               ))}
@@ -857,6 +880,7 @@ function DashboardTriagePanel({
                   severityLabels={severityLabels}
                   statusLabels={statusLabels}
                   statusDisabled={statusDisabled}
+                  canSeeDollars={canSeeDollars}
                   onFilterChange={onFilterChange}
                   onOpenEvidence={onOpenEvidence}
                   onChangeStatus={onChangeStatus}
@@ -890,6 +914,7 @@ function DashboardTriageTable({
   severityLabels,
   statusLabels,
   statusDisabled,
+  canSeeDollars,
   onFilterChange,
   onOpenEvidence,
   onChangeStatus,
@@ -902,6 +927,7 @@ function DashboardTriageTable({
   severityLabels: Record<DashboardSeverity, string>
   statusLabels: Record<ObligationStatus, string>
   statusDisabled: boolean
+  canSeeDollars: boolean
   onFilterChange: (patch: DashboardQueryPatch) => void
   onOpenEvidence: (row: DashboardTopRow) => void
   onChangeStatus: (row: DashboardTopRow, status: ObligationStatus) => void
@@ -1093,7 +1119,7 @@ function DashboardTriageTable({
             </DashboardSortableFilterHeader>
           )
         },
-        cell: ({ row }) => <ExposureBadge row={row.original} />,
+        cell: ({ row }) => <ExposureBadge row={row.original} canSeeDollars={canSeeDollars} />,
       },
       {
         accessorKey: 'evidenceCount',
@@ -1134,6 +1160,7 @@ function DashboardTriageTable({
     ],
     [
       asOfDate,
+      canSeeDollars,
       filterOptions,
       filterState,
       filtersDisabled,
@@ -1400,7 +1427,13 @@ function DashboardBriefCitations({
   )
 }
 
-function EmptyDashboard({ onOpenWizard }: { onOpenWizard: () => void }) {
+function EmptyDashboard({
+  onOpenWizard,
+  canRunMigration,
+}: {
+  onOpenWizard: () => void
+  canRunMigration: boolean
+}) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-divider-regular px-6 py-10 text-center">
       <span className="text-md font-semibold text-text-primary">
@@ -1409,7 +1442,7 @@ function EmptyDashboard({ onOpenWizard }: { onOpenWizard: () => void }) {
       <p className="max-w-105 text-sm text-text-secondary">
         <Trans>Run Migration Copilot to import clients and generate real deadlines.</Trans>
       </p>
-      <Button size="sm" onClick={onOpenWizard}>
+      <Button size="sm" onClick={onOpenWizard} disabled={!canRunMigration}>
         <FileSearchIcon data-icon="inline-start" />
         <Trans>Run migration</Trans>
       </Button>

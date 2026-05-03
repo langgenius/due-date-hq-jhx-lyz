@@ -67,6 +67,7 @@ import {
   useAppHotkey,
   useKeyboardShortcutsBlocked,
 } from '@/components/patterns/keyboard-shell/hooks'
+import { PermissionGate, useFirmPermission } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import {
   formatInvitationDate,
@@ -87,7 +88,31 @@ const INVITE_MEMBER_HOTKEY = 'Mod+I'
 const INVITE_MEMBER_ARIA_SHORTCUTS = 'Meta+I Control+I'
 
 export function MembersPageRoute() {
-  const membersQuery = useQuery(orpc.members.listCurrent.queryOptions({ input: undefined }))
+  const permission = useFirmPermission()
+  const canManageMembers = permission.can('member.manage')
+  const membersQuery = useQuery({
+    ...orpc.members.listCurrent.queryOptions({ input: undefined }),
+    enabled: canManageMembers,
+  })
+
+  if (permission.isLoading || !canManageMembers) {
+    return (
+      <PermissionGate
+        permission="member.manage"
+        firm={permission.firm}
+        loading={permission.isLoading}
+        description={
+          <Trans>
+            Members are managed by the practice owner. Contact the owner if you need to invite
+            teammates or change roles.
+          </Trans>
+        }
+        secondaryAction={{ label: <Trans>Open Workboard</Trans>, to: '/workboard' }}
+      >
+        <MembersSkeleton />
+      </PermissionGate>
+    )
+  }
 
   if (membersQuery.isLoading) {
     return <MembersSkeleton />

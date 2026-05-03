@@ -13,11 +13,11 @@ export function useCurrentFirm(options: { poll?: boolean } = {}) {
   return { firmsQuery, currentFirm }
 }
 
-export function useBillingSubscriptions(firm: FirmPublic | null, poll = false) {
+export function useBillingSubscriptions(firm: FirmPublic | null, poll = false, enabled = true) {
   return useQuery({
     ...orpc.firms.listSubscriptions.queryOptions({ input: undefined }),
     queryKey: ['billing', 'subscriptions', firm?.id],
-    enabled: Boolean(firm?.id),
+    enabled: enabled && Boolean(firm?.id),
     refetchInterval: poll ? 2500 : false,
   })
 }

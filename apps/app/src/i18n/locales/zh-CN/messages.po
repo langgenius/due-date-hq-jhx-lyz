@@ -276,6 +276,16 @@ msgstr "{pendingCount} 个待处理 · {expiredCount} 个已过期 · 通过 Res
 msgid "{reservedCount} reserved"
 msgstr "{reservedCount} 个保留"
 
+#. placeholder {0}: firm.seatLimit
+#: src/components/patterns/app-shell-nav.tsx
+msgid "{role} · {plan} · {0} seat"
+msgstr "{role} · {plan} · {0} 个席位"
+
+#. placeholder {0}: firm.seatLimit
+#: src/components/patterns/app-shell-nav.tsx
+msgid "{role} · {plan} · {0} seats"
+msgstr "{role} · {plan} · {0} 个席位"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
 msgstr "{selectionCount, plural, other {应用到 # 个客户}}"
@@ -904,6 +914,10 @@ msgstr "按年支付 · 每年省 $96"
 msgid "Billing"
 msgstr "账单"
 
+#: src/routes/billing.checkout.tsx
+msgid "Billing checkout is available only after you have billing access for this practice. Contact the practice owner if you need access."
+msgstr "只有拥有该事务所账单访问权限后才能使用结账。需要访问权限请联系事务所负责人。"
+
 #: src/routes/billing.tsx
 msgid "Billing controls"
 msgstr "账单控制"
@@ -911,6 +925,10 @@ msgstr "账单控制"
 #: src/routes/billing.tsx
 msgid "Billing interval"
 msgstr "账单周期"
+
+#: src/routes/billing.tsx
+msgid "Billing overview is available to owners and managers. Contact the practice owner if you need plan or invoice access."
+msgstr "账单概览仅负责人和管理员可访问。需要套餐或发票权限请联系事务所负责人。"
 
 #: src/routes/billing.tsx
 msgid "Billing portal could not open"
@@ -1346,7 +1364,10 @@ msgstr "合同级覆盖与审计控制"
 msgid "Contract-level model routing, custom coverage, and audit-grade AI controls."
 msgstr "合同级模型路由、自定义覆盖范围和审计级 AI 控制。"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
+#: src/features/permissions/permission-gate.tsx
 #: src/routes/practice.tsx
 msgid "Coordinator"
 msgstr "协调员"
@@ -1751,6 +1772,14 @@ msgstr "当前"
 msgid "Current plan"
 msgstr "当前计划"
 
+#: src/features/permissions/permission-gate.tsx
+msgid "Current role: {currentRoleLabel}"
+msgstr "当前角色：{currentRoleLabel}"
+
+#: src/features/permissions/permission-gate.tsx
+msgid "Current role: {currentRoleLabel}. Required: {requiredRoleText}."
+msgstr "当前角色：{currentRoleLabel}。需要：{requiredRoleText}。"
+
 #: src/routes/workboard.tsx
 msgid "Current status"
 msgstr "当前状态"
@@ -1901,6 +1930,10 @@ msgstr "删除这个事务所？"
 msgid "Delete view"
 msgstr "删除视图"
 
+#: src/components/patterns/app-shell-user-menu.tsx
+msgid "Demo account"
+msgstr "演示账号"
+
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 msgid "Deprecated"
@@ -1959,6 +1992,10 @@ msgstr "已忽略"
 #: src/routes/practice.tsx
 msgid "Dollar exposure"
 msgstr "金额敞口"
+
+#: src/routes/dashboard.tsx
+msgid "Dollar exposure is hidden for your current role."
+msgstr "当前角色无法查看金额风险。"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Download latest"
@@ -2093,6 +2130,7 @@ msgstr "填写罚金输入项"
 msgid "Enter the code from your authenticator app."
 msgstr "输入身份验证器应用中的代码。"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
@@ -2489,6 +2527,14 @@ msgstr "已具备辖区事实"
 #: src/features/rules/sources-tab.tsx
 msgid "Healthy"
 msgstr "健康"
+
+#: src/routes/dashboard.tsx
+msgid "Hidden"
+msgstr "已隐藏"
+
+#: src/routes/dashboard.tsx
+msgid "Hidden by role"
+msgstr "因角色隐藏"
 
 #: src/routes/dashboard.tsx
 msgid "high"
@@ -2907,7 +2953,10 @@ msgstr "管理外部截止日日历订阅源。"
 msgid "Manage practice seats, roles, and invitations."
 msgstr "管理事务所席位、角色和邀请。"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
+#: src/features/permissions/permission-gate.tsx
 #: src/routes/practice.tsx
 msgid "Manager"
 msgstr "管理员"
@@ -3049,6 +3098,10 @@ msgstr "member@example.com"
 #: src/routes/route-summary.ts
 msgid "Members"
 msgstr "成员"
+
+#: src/features/members/members-page.tsx
+msgid "Members are managed by the practice owner. Contact the owner if you need to invite teammates or change roles."
+msgstr "成员由事务所负责人管理。需要邀请成员或变更角色时，请联系负责人。"
 
 #: src/features/members/members-page.tsx
 msgid "Members could not load"
@@ -3659,6 +3712,10 @@ msgstr "仅 Owner 与 Manager 可应用监管提醒。"
 msgid "Only owners and managers can enable the firm-wide calendar feed."
 msgstr "只有 Owner 和 Manager 可以启用全事务所日历订阅源。"
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Only Owners and Managers can undo migration imports."
+msgstr "只有负责人和管理员可以撤销迁移导入。"
+
 #: src/routes/billing.tsx
 msgid "Only owners can manage billing."
 msgstr "只有 Owner 可以管理账单。"
@@ -3674,6 +3731,14 @@ msgstr "只有事务所 Owner 可以创建或变更订阅。"
 #: src/routes/practice.tsx
 msgid "Only the practice owner can change Smart Priority settings."
 msgstr "只有事务所 Owner 可以更改 Smart Priority 设置。"
+
+#: src/routes/practice.tsx
+msgid "Only the practice owner can change the practice name or timezone."
+msgstr "只有事务所负责人可以修改事务所名称或时区。"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Only the practice owner can export audit evidence packages."
+msgstr "只有事务所负责人可以导出审计证据包。"
 
 #: src/routes/billing.checkout.tsx
 msgid "Only the practice owner can start or change a subscription."
@@ -3760,7 +3825,10 @@ msgstr "打开 Migration Copilot 向导。"
 msgid "Open the obligation queue."
 msgstr "打开义务队列。"
 
+#: src/features/audit/audit-log-page.tsx
+#: src/features/members/members-page.tsx
 #: src/features/workload/workload-page.tsx
+#: src/routes/billing.tsx
 msgid "Open Workboard"
 msgstr "打开 Workboard"
 
@@ -3824,10 +3892,13 @@ msgstr "Outlook"
 msgid "Overdue"
 msgstr "已逾期"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/concepts/concept-help.tsx
+#: src/features/permissions/permission-gate.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/billing.tsx
 #: src/routes/practice.tsx
@@ -3849,8 +3920,8 @@ msgstr "Owner 授权"
 msgid "Owner count"
 msgstr "所有者数量"
 
+#: src/features/permissions/permission-gate.tsx
 #: src/routes/billing.checkout.tsx
-#: src/routes/practice.tsx
 msgid "Owner permission required"
 msgstr "需要 Owner 权限"
 
@@ -4004,6 +4075,10 @@ msgstr "待复核"
 #: src/features/audit/audit-log-labels.ts
 msgid "Permission checked"
 msgstr "权限已检查"
+
+#: src/features/permissions/permission-gate.tsx
+msgid "Permission required"
+msgstr "需要权限"
 
 #: src/routes/workboard.tsx
 msgid "Pin view"
@@ -4161,6 +4236,10 @@ msgstr "事务所已更新"
 msgid "Practice workspaces"
 msgstr "事务所工作区"
 
+#: src/features/audit/audit-log-page.tsx
+msgid "Practice-wide audit events are available to owners, managers, and preparers. Contact the practice owner if you need audit access."
+msgstr "全事务所审计事件仅负责人、管理员和经办人可访问。需要审计权限请联系事务所负责人。"
+
 #: src/routes/practice.tsx
 msgid "Practice-wide weights for deterministic deadline ranking."
 msgstr "用于确定性截止日排序的事务所级权重。"
@@ -4177,7 +4256,10 @@ msgstr "偏好设置"
 msgid "Prepared in the background from the latest dashboard risk snapshot."
 msgstr "基于最新 Dashboard 风险快照在后台生成。"
 
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
+#: src/features/permissions/permission-gate.tsx
 #: src/routes/practice.tsx
 msgid "Preparer"
 msgstr "经办人"
@@ -4435,6 +4517,7 @@ msgstr "读取字段值"
 msgid "READ-ONLY"
 msgstr "只读"
 
+#: src/features/permissions/permission-gate.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Read-only view"
 msgstr "只读视图"
@@ -4636,6 +4719,10 @@ msgstr "规则适用性判断必需。"
 msgid "Required for rules and Pulse matching."
 msgstr "规则生成与 Pulse 匹配必需。"
 
+#: src/features/permissions/permission-gate.tsx
+msgid "Required: {requiredRoleText}"
+msgstr "需要：{requiredRoleText}"
+
 #: src/features/concepts/concept-help.tsx
 msgid "Requires review"
 msgstr "需要复核"
@@ -4694,6 +4781,10 @@ msgstr "重试提取"
 #: src/routes/error.tsx
 msgid "Return home"
 msgstr "返回首页"
+
+#: src/features/permissions/permission-gate.tsx
+msgid "Return to dashboard"
+msgstr "返回仪表盘"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Revert batch"
@@ -5393,6 +5484,7 @@ msgstr "暂缓至"
 msgid "Sole prop"
 msgstr "个体经营"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
@@ -5632,6 +5724,11 @@ msgstr "暂停访问"
 msgid "Suspended"
 msgstr "已暂停"
 
+#. placeholder {0}: account.name
+#: src/components/patterns/app-shell-user-menu.tsx
+msgid "Switch demo account to {0}"
+msgstr "切换演示账号到 {0}"
+
 #. placeholder {0}: firm.name
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Switch practice, current {0}"
@@ -5686,6 +5783,7 @@ msgstr "税年"
 msgid "TAX YEAR"
 msgstr "税务年度"
 
+#: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-page.tsx
 #: src/routes/billing.checkout.tsx
@@ -6041,6 +6139,10 @@ msgstr "撤销这个导入的客户？"
 msgid "Unexpected route error"
 msgstr "路由出现意外错误"
 
+#: src/features/permissions/permission-gate.tsx
+msgid "Unknown"
+msgstr "未知"
+
 #: src/routes/account.security.tsx
 msgid "Unknown browser"
 msgstr "未知浏览器"
@@ -6368,6 +6470,10 @@ msgid "You don't have permission to perform this action."
 msgstr "您没有执行该操作的权限。"
 
 #: src/lib/i18n-error.ts
+msgid "You don't have permission to use this practice feature."
+msgstr "你没有权限使用该事务所功能。"
+
+#: src/lib/i18n-error.ts
 msgid "You need to sign in to continue."
 msgstr "请先登录后继续。"
 
@@ -6386,6 +6492,14 @@ msgstr "你的列"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Your current plan includes one active practice. Additional practices are available on the Enterprise plan."
 msgstr "你当前的计划包含 1 个 active 事务所。额外事务所属于 Enterprise 计划。"
+
+#: src/features/permissions/permission-gate.tsx
+msgid "Your current role cannot use this surface. Contact the practice owner if you need access."
+msgstr "当前角色无法使用此页面或功能。需要访问权限请联系事务所负责人。"
+
+#: src/lib/i18n-error.ts
+msgid "Your current role doesn't include this permission."
+msgstr "当前角色不包含此权限。"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Your pasted data and unsaved edits in this wizard will be lost."

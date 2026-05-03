@@ -16,6 +16,7 @@ import {
   UploadCloudIcon,
   UsersIcon,
 } from 'lucide-react'
+import type { FirmPermission } from '@duedatehq/core/permissions'
 
 import {
   Command,
@@ -31,6 +32,7 @@ import {
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { requiredRolesLabel, useFirmPermission } from '@/features/permissions/permission-gate'
 import { COMMAND_PALETTE_HOTKEY, formatShortcutForDisplay } from './display'
 
 interface CommandPaletteProps {
@@ -44,6 +46,7 @@ type CommandEntry = {
   description: string
   group: 'navigate' | 'actions' | 'ask'
   disabled?: boolean
+  permission?: FirmPermission
   onSelect: () => void
   icon: typeof LayoutDashboardIcon
 }
@@ -51,9 +54,10 @@ type CommandEntry = {
 type CommandGroupId = CommandEntry['group']
 
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
-  const { t } = useLingui()
+  const { i18n, t } = useLingui()
   const navigate = useNavigate()
   const { openWizard } = useMigrationWizard()
+  const permission = useFirmPermission()
   const commandShortcut = formatShortcutForDisplay(COMMAND_PALETTE_HOTKEY)
 
   const entries = useMemo<CommandEntry[]>(
@@ -128,6 +132,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         description: t`Manage practice seats, roles, and invitations.`,
         group: 'navigate',
         icon: UsersIcon,
+        permission: 'member.manage',
         onSelect: () => navigate('/members'),
       },
       {
@@ -136,6 +141,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         description: t`Review the active plan and billing controls.`,
         group: 'navigate',
         icon: CreditCardIcon,
+        permission: 'billing.read',
         onSelect: () => navigate('/billing'),
       },
       {
@@ -144,6 +150,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         description: t`Review practice-wide audit events.`,
         group: 'navigate',
         icon: ScaleIcon,
+        permission: 'audit.read',
         onSelect: () => navigate('/audit'),
       },
       {
@@ -160,6 +167,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         description: t`Open the Migration Copilot wizard.`,
         group: 'actions',
         icon: UploadCloudIcon,
+        permission: 'migration.run',
         onSelect: openWizard,
       },
       {
@@ -186,7 +194,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   )
 
   function selectEntry(entry: CommandEntry) {
-    if (entry.disabled) return
+    if (entry.disabled || (entry.permission && !permission.can(entry.permission))) return
     entry.onSelect()
     onOpenChange(false)
   }
@@ -211,12 +219,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
               <CommandGroup key={group.id} heading={group.heading}>
                 {groupEntries.map((entry) => {
                   const Icon = entry.icon
+                  const locked = Boolean(entry.permission && !permission.can(entry.permission))
                   return (
                     <CommandItem
                       key={entry.id}
                       value={`${entry.label} ${entry.description} ${group.heading}`}
                       onSelect={() => selectEntry(entry)}
-                      {...(entry.disabled ? { disabled: true } : {})}
+                      {...(entry.disabled || locked ? { disabled: true } : {})}
                     >
                       <span className="grid size-8 place-items-center rounded-md bg-background-subtle text-text-secondary group-data-[selected=true]/command-item:text-text-primary">
                         <Icon aria-hidden />
@@ -228,6 +237,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                       {entry.disabled ? (
                         <Badge variant="outline">
                           <Trans>Coming soon</Trans>
+                        </Badge>
+                      ) : locked && entry.permission ? (
+                        <Badge variant="outline">
+                          {requiredRolesLabel(entry.permission, i18n)}
                         </Badge>
                       ) : (
                         <CommandShortcut>{group.heading}</CommandShortcut>

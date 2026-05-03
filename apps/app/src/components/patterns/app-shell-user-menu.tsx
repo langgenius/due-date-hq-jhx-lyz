@@ -1,7 +1,10 @@
 import { useCallback, useTransition } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Trans, useLingui } from '@lingui/react/macro'
+import { msg } from '@lingui/core/macro'
+import type { I18n } from '@lingui/core'
 import {
   CheckIcon,
   ChevronsUpDownIcon,
@@ -11,6 +14,7 @@ import {
   MoonIcon,
   ShieldCheckIcon,
   SunIcon,
+  UsersIcon,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -34,6 +38,83 @@ import { useLocaleSwitch } from '@/i18n/provider'
 import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+type DemoRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
+
+type DemoAccount = {
+  userId: string
+  name: string
+  email: string
+  role: DemoRole
+}
+
+type DemoAccountsResponse = {
+  accounts: DemoAccount[]
+}
+
+const DEMO_ACCOUNTS_QUERY_KEY = ['e2e', 'demo-accounts'] as const
+
+function isDemoRole(value: unknown): value is DemoRole {
+  return value === 'owner' || value === 'manager' || value === 'preparer' || value === 'coordinator'
+}
+
+function isDemoAccount(value: unknown): value is DemoAccount {
+  if (!value || typeof value !== 'object') return false
+  const input = value as Partial<Record<keyof DemoAccount, unknown>>
+  return (
+    typeof input.userId === 'string' &&
+    typeof input.name === 'string' &&
+    typeof input.email === 'string' &&
+    isDemoRole(input.role)
+  )
+}
+
+function parseDemoAccountsResponse(value: unknown): DemoAccountsResponse {
+  if (!value || typeof value !== 'object' || !('accounts' in value)) {
+    return { accounts: [] }
+  }
+  const accounts = Reflect.get(value, 'accounts')
+  return {
+    accounts: Array.isArray(accounts) ? accounts.filter(isDemoAccount) : [],
+  }
+}
+
+async function fetchDemoAccounts(): Promise<DemoAccountsResponse> {
+  const response = await fetch('/api/e2e/demo-accounts', { credentials: 'include' })
+  if (!response.ok) return { accounts: [] }
+  return parseDemoAccountsResponse(await response.json())
+}
+
+export function isDemoUser(user: Pick<AuthUser, 'id'> | null | undefined): boolean {
+  return typeof user?.id === 'string' && user.id.startsWith('mock_user_')
+}
+
+export function currentPathForDemoSwitch(input: {
+  pathname: string
+  search: string
+  hash: string
+}): string {
+  return `${input.pathname || '/'}${input.search}${input.hash}`
+}
+
+export function demoAccountSwitchHref(role: DemoRole, redirectTo: string): string {
+  const params = new URLSearchParams({
+    role,
+    redirectTo: redirectTo || '/',
+  })
+  return `/api/e2e/demo-login?${params.toString()}`
+}
+
+const DEMO_ROLE_LABELS = {
+  owner: msg`Owner`,
+  manager: msg`Manager`,
+  preparer: msg`Preparer`,
+  coordinator: msg`Coordinator`,
+} as const
+
+function demoRoleLabel(role: DemoRole, i18n: I18n): string {
+  return i18n._(DEMO_ROLE_LABELS[role])
+}
+
 function UserMenuTrigger({
   user,
   themePreference,
@@ -44,9 +125,18 @@ function UserMenuTrigger({
   switchThemePreference: (next: ThemePreference) => void
 }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const { t } = useLingui()
   const { locale, switchLocale } = useLocaleSwitch()
   const [isSigningOut, startSignOut] = useTransition()
+  const demoEnabled = isDemoUser(user)
+  const demoAccountsQuery = useQuery({
+    queryKey: DEMO_ACCOUNTS_QUERY_KEY,
+    queryFn: fetchDemoAccounts,
+    enabled: demoEnabled,
+    staleTime: 60_000,
+    retry: false,
+  })
 
   const handleSignOut = useCallback(() => {
     if (isSigningOut) return
@@ -65,6 +155,9 @@ function UserMenuTrigger({
   const displayName = user.name || t`Signed in`
   const accountLabel = t`Account menu for ${user.name || user.email}`
   const signOutLabel = isSigningOut ? t`Signing out…` : t`Sign out`
+  const demoAccounts = demoAccountsQuery.data?.accounts ?? []
+  const showDemoSwitcher = demoEnabled && demoAccounts.length > 0
+  const currentPath = currentPathForDemoSwitch(location)
 
   return (
     <DropdownMenu>
@@ -119,6 +212,23 @@ function UserMenuTrigger({
             <ThemeMenuItems currentTheme={themePreference} onSelect={switchThemePreference} />
           </DropdownMenuSubContent>
         </DropdownMenuSub>
+        {showDemoSwitcher ? (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <UsersIcon />
+              <span>
+                <Trans>Demo account</Trans>
+              </span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="w-64">
+              <DemoAccountMenuItems
+                accounts={demoAccounts}
+                currentUserId={user.id}
+                currentPath={currentPath}
+              />
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        ) : null}
         <DropdownMenuItem onClick={() => void navigate('/account/security')}>
           <ShieldCheckIcon />
           <span>
@@ -132,6 +242,49 @@ function UserMenuTrigger({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+function DemoAccountMenuItems({
+  accounts,
+  currentUserId,
+  currentPath,
+}: {
+  accounts: DemoAccount[]
+  currentUserId: string
+  currentPath: string
+}) {
+  const { i18n, t } = useLingui()
+
+  return (
+    <>
+      {accounts.map((account) => {
+        const selected = account.userId === currentUserId
+        return (
+          <DropdownMenuItem
+            key={account.userId}
+            aria-checked={selected}
+            className="flex items-center justify-between gap-3"
+            render={
+              <a
+                href={demoAccountSwitchHref(account.role, currentPath)}
+                aria-label={t`Switch demo account to ${account.name}`}
+              />
+            }
+          >
+            <span className="flex min-w-0 flex-col leading-tight">
+              <span className="truncate text-sm font-medium text-text-primary">{account.name}</span>
+              <span className="truncate text-xs text-text-tertiary">
+                {demoRoleLabel(account.role, i18n)} · {account.email}
+              </span>
+            </span>
+            {selected ? (
+              <CheckIcon className="size-4 shrink-0 text-text-accent" aria-hidden />
+            ) : null}
+          </DropdownMenuItem>
+        )
+      })}
+    </>
   )
 }
 

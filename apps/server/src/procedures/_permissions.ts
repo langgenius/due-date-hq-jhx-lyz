@@ -1,5 +1,9 @@
 import { ORPCError } from '@orpc/server'
-import type { Role } from '@duedatehq/auth/permissions'
+import {
+  requiredRolesForFirmPermission,
+  type FirmPermission,
+  type FirmRole,
+} from '@duedatehq/core/permissions'
 import { ErrorCodes } from '@duedatehq/contracts'
 import type { ContextVars } from '../env'
 import { requireTenant, type RpcContext } from './_context'
@@ -10,54 +14,21 @@ export interface CurrentFirmOwnerContext {
   userId: string
 }
 
-export const CLIENT_WRITE_ROLES = [
-  'owner',
-  'manager',
-  'preparer',
-] as const satisfies readonly Role[]
-export const MIGRATION_RUN_ROLES = [
-  'owner',
-  'manager',
-  'preparer',
-] as const satisfies readonly Role[]
-export const MIGRATION_REVERT_ROLES = ['owner', 'manager'] as const satisfies readonly Role[]
-export const OBLIGATION_STATUS_WRITE_ROLES = [
-  'owner',
-  'manager',
-  'preparer',
-] as const satisfies readonly Role[]
+export const CLIENT_WRITE_ROLES = requiredRolesForFirmPermission('client.write')
+export const MIGRATION_RUN_ROLES = requiredRolesForFirmPermission('migration.run')
+export const MIGRATION_REVERT_ROLES = requiredRolesForFirmPermission('migration.revert')
+export const OBLIGATION_STATUS_WRITE_ROLES = requiredRolesForFirmPermission(
+  'obligation.status.update',
+)
 
-export type Permission =
-  | 'audit.export'
-  | 'audit.read'
-  | 'billing.read'
-  | 'billing.update'
-  | 'client.write'
-  | 'migration.revert'
-  | 'migration.run'
-  | 'obligation.status.update'
-  | 'pulse.apply'
-  | 'pulse.read'
-
-const PERMISSION_ROLES: Record<Permission, readonly Role[]> = {
-  'audit.export': ['owner'],
-  'audit.read': ['owner', 'manager', 'preparer'],
-  'billing.read': ['owner', 'manager'],
-  'billing.update': ['owner'],
-  'client.write': CLIENT_WRITE_ROLES,
-  'migration.revert': MIGRATION_REVERT_ROLES,
-  'migration.run': MIGRATION_RUN_ROLES,
-  'obligation.status.update': OBLIGATION_STATUS_WRITE_ROLES,
-  'pulse.apply': ['owner', 'manager'],
-  'pulse.read': ['owner', 'manager', 'preparer', 'coordinator'],
-}
+export type Permission = FirmPermission
 
 async function writeDeniedAudit(
   ctx: RpcContext,
   input: {
     action: string
-    allowedRoles: readonly Role[]
-    actualRole?: Role | null
+    allowedRoles: readonly FirmRole[]
+    actualRole?: FirmRole | null
     reason: string
   },
 ) {
@@ -82,7 +53,7 @@ async function writeDeniedAudit(
 
 export async function requireCurrentFirmRole(
   ctx: RpcContext,
-  allowedRoles: readonly Role[],
+  allowedRoles: readonly FirmRole[],
 ): Promise<CurrentFirmOwnerContext> {
   const { tenant, userId } = requireTenant(ctx)
   const { members } = ctx.vars
@@ -112,7 +83,7 @@ export async function requirePermission(
   ctx: RpcContext,
   permission: Permission,
 ): Promise<CurrentFirmOwnerContext> {
-  const allowedRoles = PERMISSION_ROLES[permission]
+  const allowedRoles = requiredRolesForFirmPermission(permission)
   const { tenant, userId } = requireTenant(ctx)
   const { members } = ctx.vars
   if (!members) {

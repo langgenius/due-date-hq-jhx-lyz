@@ -1,11 +1,12 @@
 import { Hono } from 'hono'
 import { makeSignature } from 'better-auth/crypto'
-import { eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import { authSchema, createDb, firmSchema, scoped } from '@duedatehq/db'
 import type { ContextVars, Env } from '../env'
 
 type SeedMode = 'empty' | 'workboard' | 'pulse'
-type SeedRole = 'owner' | 'coordinator'
+type DemoRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
+type SeedRole = DemoRole
 type BillingPlan = 'solo' | 'pro' | 'team' | 'firm'
 type BillingStatus = 'active' | 'trialing' | 'past_due' | 'paused'
 type BillingInterval = 'month' | 'year'
@@ -18,8 +19,42 @@ interface E2ESeedRequest {
 
 const COOKIE_NAME = 'duedatehq.session_token'
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
-const DEMO_USER_ID = 'mock_user_owner_sarah'
 const DEMO_FIRM_ID = 'mock_firm_brightline'
+const DEMO_ACCOUNTS = [
+  {
+    role: 'owner',
+    userId: 'mock_user_owner_sarah',
+    name: 'Sarah Martinez',
+    email: 'sarah.demo@duedatehq.test',
+  },
+  {
+    role: 'manager',
+    userId: 'mock_user_manager_miguel',
+    name: 'Miguel Chen',
+    email: 'miguel.manager@duedatehq.test',
+  },
+  {
+    role: 'preparer',
+    userId: 'mock_user_preparer_avery',
+    name: 'Avery Patel',
+    email: 'avery.preparer@duedatehq.test',
+  },
+  {
+    role: 'coordinator',
+    userId: 'mock_user_coordinator_jules',
+    name: 'Jules Rivera',
+    email: 'jules.coordinator@duedatehq.test',
+  },
+] as const satisfies readonly {
+  role: DemoRole
+  userId: string
+  name: string
+  email: string
+}[]
+
+const DEMO_USER_IDS = DEMO_ACCOUNTS.map((account) => account.userId)
+const DEMO_ROLES = DEMO_ACCOUNTS.map((account) => account.role)
+const DEMO_DATA_MISSING = 'Demo data is missing. Run `pnpm db:seed:demo` first.'
 
 function hasE2ESeedAccess(c: { env: Env; req: { header(name: string): string | undefined } }) {
   if (c.env.ENV === 'development') return true
@@ -27,6 +62,36 @@ function hasE2ESeedAccess(c: { env: Env; req: { header(name: string): string | u
   if (c.env.ENV !== 'staging' || !token) return false
   const header = c.req.header('authorization')
   return header === `Bearer ${token}` || c.req.header('x-e2e-seed-token') === token
+}
+
+export function isDemoRole(value: unknown): value is DemoRole {
+  return value === 'owner' || value === 'manager' || value === 'preparer' || value === 'coordinator'
+}
+
+export function readDemoRoleParam(value: string | null): DemoRole | null {
+  if (value === null || value.length === 0) return 'owner'
+  return isDemoRole(value) ? value : null
+}
+
+export function pickSafeDemoRedirect(raw: string | null, fallback = '/'): string {
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return fallback
+  return raw
+}
+
+function demoAccountForRole(role: DemoRole) {
+  return DEMO_ACCOUNTS.find((account) => account.role === role) ?? DEMO_ACCOUNTS[0]
+}
+
+function roleLabel(role: DemoRole): string {
+  if (role === 'owner') return 'Owner'
+  if (role === 'manager') return 'Manager'
+  if (role === 'preparer') return 'Preparer'
+  return 'Coordinator'
+}
+
+function orderDemoAccounts<T extends { userId: string }>(rows: T[]): T[] {
+  const byUserId = new Map(rows.map((row) => [row.userId, row]))
+  return DEMO_USER_IDS.map((userId) => byUserId.get(userId)).filter((row): row is T => Boolean(row))
 }
 
 export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().post(
@@ -43,20 +108,35 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
     const now = new Date()
     const expiresAt = new Date(now.getTime() + SESSION_MAX_AGE_SECONDS * 1000)
     const userId = `e2e_user_${suffix}`
+    const ownerUserId = role === 'owner' ? userId : `e2e_owner_${suffix}`
     const firmId = `e2e_firm_${suffix}`
     const sessionId = `e2e_session_${suffix}`
     const token = `e2e_token_${suffix}_${crypto.randomUUID().replaceAll('-', '')}`
+    const userName = role === 'owner' ? 'E2E Owner' : `E2E ${roleLabel(role)}`
+    const userEmail = `${suffix}@e2e.duedatehq.test`
     const db = createDb(c.env.DB)
 
     await db.insert(authSchema.user).values({
       id: userId,
-      name: 'E2E Owner',
-      email: `${suffix}@e2e.duedatehq.test`,
+      name: userName,
+      email: userEmail,
       emailVerified: true,
       image: null,
       createdAt: now,
       updatedAt: now,
     })
+
+    if (ownerUserId !== userId) {
+      await db.insert(authSchema.user).values({
+        id: ownerUserId,
+        name: 'E2E Practice Owner',
+        email: `owner-${suffix}@e2e.duedatehq.test`,
+        emailVerified: true,
+        image: null,
+        createdAt: now,
+        updatedAt: now,
+      })
+    }
 
     await db.insert(authSchema.organization).values({
       id: firmId,
@@ -66,6 +146,17 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
       createdAt: now,
       metadata: null,
     })
+
+    if (ownerUserId !== userId) {
+      await db.insert(authSchema.member).values({
+        id: `e2e_owner_member_${suffix}`,
+        organizationId: firmId,
+        userId: ownerUserId,
+        role: 'owner',
+        createdAt: now,
+        status: 'active',
+      })
+    }
 
     await db.insert(authSchema.member).values({
       id: `e2e_member_${suffix}`,
@@ -82,7 +173,7 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
       plan: 'solo',
       seatLimit: 1,
       timezone: 'America/New_York',
-      ownerUserId: userId,
+      ownerUserId,
       status: 'active',
       createdAt: now,
       updatedAt: now,
@@ -123,7 +214,7 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
 
     c.header('Set-Cookie', serializeCookie(cookie))
     return c.json({
-      user: { id: userId, name: 'E2E Owner', email: `${suffix}@e2e.duedatehq.test` },
+      user: { id: userId, name: userName, email: userEmail },
       firmId,
       role,
       cookie,
@@ -137,11 +228,30 @@ e2eRoute.get('/demo-login', async (c) => {
     return c.notFound()
   }
 
+  const requestUrl = new URL(c.req.url)
+  const role = readDemoRoleParam(requestUrl.searchParams.get('role'))
+  if (!role) {
+    return c.json({ error: 'Invalid demo role.' }, 400)
+  }
+
+  const demoAccount = demoAccountForRole(role)
   const db = createDb(c.env.DB)
-  const [demoUser] = await db
-    .select({ id: authSchema.user.id })
-    .from(authSchema.user)
-    .where(eq(authSchema.user.id, DEMO_USER_ID))
+  const [demoMember] = await db
+    .select({
+      userId: authSchema.user.id,
+      firmId: authSchema.member.organizationId,
+      role: authSchema.member.role,
+    })
+    .from(authSchema.member)
+    .innerJoin(authSchema.user, eq(authSchema.user.id, authSchema.member.userId))
+    .where(
+      and(
+        eq(authSchema.member.organizationId, DEMO_FIRM_ID),
+        eq(authSchema.member.userId, demoAccount.userId),
+        eq(authSchema.member.role, role),
+        eq(authSchema.member.status, 'active'),
+      ),
+    )
     .limit(1)
   const [demoFirm] = await db
     .select({ id: firmSchema.firmProfile.id })
@@ -149,8 +259,8 @@ e2eRoute.get('/demo-login', async (c) => {
     .where(eq(firmSchema.firmProfile.id, DEMO_FIRM_ID))
     .limit(1)
 
-  if (!demoUser || !demoFirm) {
-    return c.text('Demo data is missing. Run `pnpm db:seed:demo` first.', 409)
+  if (!demoMember || !demoFirm) {
+    return c.text(DEMO_DATA_MISSING, 409)
   }
 
   const now = new Date()
@@ -160,7 +270,7 @@ e2eRoute.get('/demo-login', async (c) => {
   await db.insert(authSchema.session).values({
     id: sessionId,
     token,
-    userId: DEMO_USER_ID,
+    userId: demoAccount.userId,
     activeOrganizationId: DEMO_FIRM_ID,
     twoFactorVerified: true,
     expiresAt,
@@ -171,7 +281,6 @@ e2eRoute.get('/demo-login', async (c) => {
   })
 
   const signedToken = `${token}.${await makeSignature(token, c.env.AUTH_SECRET)}`
-  const requestUrl = new URL(c.req.url)
   c.header(
     'Set-Cookie',
     serializeCookie({
@@ -184,7 +293,52 @@ e2eRoute.get('/demo-login', async (c) => {
       expires: Math.floor(expiresAt.getTime() / 1000),
     }),
   )
-  return c.redirect(c.env.APP_URL || '/', 302)
+  const redirectTo = requestUrl.searchParams.get('redirectTo')
+  return c.redirect(
+    redirectTo === null ? c.env.APP_URL || '/' : pickSafeDemoRedirect(redirectTo),
+    302,
+  )
+})
+
+e2eRoute.get('/demo-accounts', async (c) => {
+  if (!hasE2ESeedAccess(c)) {
+    return c.notFound()
+  }
+
+  const db = createDb(c.env.DB)
+  const [demoFirm] = await db
+    .select({ id: firmSchema.firmProfile.id })
+    .from(firmSchema.firmProfile)
+    .where(eq(firmSchema.firmProfile.id, DEMO_FIRM_ID))
+    .limit(1)
+
+  const rows = await db
+    .select({
+      userId: authSchema.user.id,
+      name: authSchema.user.name,
+      email: authSchema.user.email,
+      role: authSchema.member.role,
+    })
+    .from(authSchema.member)
+    .innerJoin(authSchema.user, eq(authSchema.user.id, authSchema.member.userId))
+    .where(
+      and(
+        eq(authSchema.member.organizationId, DEMO_FIRM_ID),
+        eq(authSchema.member.status, 'active'),
+        inArray(authSchema.member.userId, DEMO_USER_IDS),
+        inArray(authSchema.member.role, DEMO_ROLES),
+      ),
+    )
+
+  const accounts = orderDemoAccounts(
+    rows.filter((row): row is (typeof rows)[number] & { role: DemoRole } => isDemoRole(row.role)),
+  )
+
+  if (!demoFirm || accounts.length !== DEMO_ACCOUNTS.length) {
+    return c.text(DEMO_DATA_MISSING, 409)
+  }
+
+  return c.json({ accounts })
 })
 
 e2eRoute.post('/billing/subscription', async (c) => {
@@ -273,7 +427,7 @@ async function readSeedRequest(request: Request): Promise<E2ESeedRequest> {
     const testId = (raw as { testId?: unknown }).testId
     return {
       seed: seed === 'pulse' || seed === 'workboard' ? seed : 'empty',
-      role: role === 'coordinator' ? 'coordinator' : 'owner',
+      role: isDemoRole(role) ? role : 'owner',
       ...(typeof testId === 'string' ? { testId } : {}),
     }
   } catch {

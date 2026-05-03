@@ -18,6 +18,7 @@ import {
   type SmartPriorityFactorKey,
   type SmartPriorityProfile,
 } from '@duedatehq/contracts'
+import { hasFirmPermission } from '@duedatehq/core/permissions'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import {
   AlertDialog,
@@ -51,6 +52,7 @@ import {
 } from '@duedatehq/ui/components/ui/table'
 import { ConceptHelp, ConceptLabel } from '@/features/concepts/concept-help'
 import { FirmTimezoneSelect, resolveUSFirmTimezone } from '@/features/firm/timezone-select'
+import { PermissionInlineNotice } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
@@ -286,7 +288,21 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
   }
 
   const dirty = name.trim() !== firm.name || timezone !== originalTimezone
-  const canEditPriority = firm.role === 'owner'
+  const canEditPractice = hasFirmPermission({
+    role: firm.role,
+    permission: 'firm.update',
+    coordinatorCanSeeDollars: firm.coordinatorCanSeeDollars,
+  })
+  const canEditPriority = hasFirmPermission({
+    role: firm.role,
+    permission: 'firm.priority.update',
+    coordinatorCanSeeDollars: firm.coordinatorCanSeeDollars,
+  })
+  const canDeletePractice = hasFirmPermission({
+    role: firm.role,
+    permission: 'firm.delete',
+    coordinatorCanSeeDollars: firm.coordinatorCanSeeDollars,
+  })
   const weightTotal = priorityWeightTotal(priorityProfile)
   const priorityValid =
     weightTotal === 100 &&
@@ -364,6 +380,11 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-5">
+            {!canEditPractice ? (
+              <PermissionInlineNotice permission="firm.update" currentRole={firm.role}>
+                <Trans>Only the practice owner can change the practice name or timezone.</Trans>
+              </PermissionInlineNotice>
+            ) : null}
             <div className="grid gap-1.5">
               <Label htmlFor="firm-name">
                 <Trans>Practice name</Trans>
@@ -373,6 +394,7 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 autoComplete="organization"
+                disabled={!canEditPractice || updateMutation.isPending}
               />
             </div>
             <div className="grid gap-1.5">
@@ -383,7 +405,7 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
                 id="firm-timezone"
                 value={timezone}
                 onValueChange={setTimezone}
-                disabled={updateMutation.isPending}
+                disabled={!canEditPractice || updateMutation.isPending}
               />
             </div>
             {error ? (
@@ -392,7 +414,10 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
               </p>
             ) : null}
             <div className="flex justify-end">
-              <Button type="submit" disabled={!dirty || updateMutation.isPending}>
+              <Button
+                type="submit"
+                disabled={!canEditPractice || !dirty || updateMutation.isPending}
+              >
                 {updateMutation.isPending ? <Trans>Saving…</Trans> : <Trans>Save changes</Trans>}
               </Button>
             </div>
@@ -508,15 +533,9 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
           </div>
 
           {!canEditPriority ? (
-            <Alert>
-              <AlertCircleIcon />
-              <AlertTitle>
-                <Trans>Owner permission required</Trans>
-              </AlertTitle>
-              <AlertDescription>
-                <Trans>Only the practice owner can change Smart Priority settings.</Trans>
-              </AlertDescription>
-            </Alert>
+            <PermissionInlineNotice permission="firm.priority.update" currentRole={firm.role}>
+              <Trans>Only the practice owner can change Smart Priority settings.</Trans>
+            </PermissionInlineNotice>
           ) : null}
 
           {canEditPriority ? (
@@ -583,7 +602,7 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
             type="button"
             variant="destructive-secondary"
             onClick={() => setConfirmDelete(true)}
-            disabled={deleteMutation.isPending}
+            disabled={!canDeletePractice || deleteMutation.isPending}
           >
             <Trash2Icon className="size-4" aria-hidden />
             <Trans>Delete practice</Trans>
@@ -611,6 +630,7 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
             <AlertDialogAction
               variant="destructive-primary"
               onClick={() => deleteMutation.mutate(undefined)}
+              disabled={!canDeletePractice || deleteMutation.isPending}
             >
               <Trans>Delete practice</Trans>
             </AlertDialogAction>

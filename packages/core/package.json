@@ -20,6 +20,7 @@
     "./pii": "./src/pii/index.ts",
     "./normalize-dict": "./src/normalize-dict/index.ts",
     "./plan-entitlements": "./src/plan-entitlements/index.ts",
+    "./permissions": "./src/permissions/index.ts",
     "./practice-name": "./src/practice-name.ts"
   },
   "scripts": {

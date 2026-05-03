@@ -31,6 +31,7 @@ import {
 } from '@/features/clients/client-readiness'
 import { ImportHistoryDrawer } from '@/features/migration/ImportHistoryDrawer'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { useFirmPermission } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
@@ -80,6 +81,8 @@ export function ClientsRoute() {
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
+  const permission = useFirmPermission()
+  const canRunMigration = permission.can('migration.run')
   const entityLabels = useEntityLabels()
   const [profileOpen, setProfileOpen] = useState(false)
   const [
@@ -287,7 +290,7 @@ export function ClientsRoute() {
             <FileClockIcon data-icon="inline-start" />
             <Trans>Import history</Trans>
           </Button>
-          <Button variant="outline" onClick={openWizard}>
+          <Button variant="outline" onClick={openWizard} disabled={!canRunMigration}>
             <FileSearchIcon data-icon="inline-start" />
             <Trans>Import clients</Trans>
           </Button>
@@ -342,6 +345,7 @@ export function ClientsRoute() {
         onSelectClient={handleSelectClient}
         onProfileOpenChange={setProfileOpen}
         onImport={openWizard}
+        canImport={canRunMigration}
       />
     </div>
   )

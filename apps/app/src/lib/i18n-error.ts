@@ -13,6 +13,8 @@ const ERROR_MESSAGES: Record<string, MessageDescriptor> = {
   TENANT_MISSING: msg`Your account isn't linked to a practice yet.`,
   TENANT_MISMATCH: msg`That resource belongs to a different practice.`,
   TENANT_SUSPENDED: msg`Your practice is suspended. Contact support to restore access.`,
+  FIRM_FORBIDDEN: msg`You don't have permission to use this practice feature.`,
+  MEMBER_FORBIDDEN: msg`Your current role doesn't include this permission.`,
   NOT_FOUND: msg`We couldn't find what you were looking for.`,
   INVALID_REQUEST: msg`The request was invalid. Please review your input and try again.`,
   CONFLICT: msg`This action conflicts with the current state. Refresh and try again.`,

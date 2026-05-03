@@ -32,7 +32,6 @@ import {
   activeFirmEntitlementLimit,
   billingPlanMonthlyEquivalent,
   billingPlanHref,
-  isFirmOwner,
   ownedActiveFirms,
   paidPlanActive,
   subscriptionBillingIntervalToUi,
@@ -40,6 +39,8 @@ import {
   type BillingPlan,
 } from '@/features/billing/model'
 import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
+import { hasFirmPermission } from '@duedatehq/core/permissions'
+import { PermissionGate } from '@/features/permissions/permission-gate'
 
 type BadgeVariant = ComponentProps<typeof Badge>['variant']
 
@@ -181,20 +182,29 @@ export function BillingRoute() {
   const planCards = usePlanCards(billingInterval)
   const { firmsQuery, currentFirm } = useCurrentFirm()
   const firms = firmsQuery.data ?? (currentFirm ? [currentFirm] : [])
+  const canReadBilling = hasFirmPermission({
+    role: currentFirm?.role,
+    permission: 'billing.read',
+    coordinatorCanSeeDollars: currentFirm?.coordinatorCanSeeDollars,
+  })
   const activeFirmCount = ownedActiveFirms(firms).length
   const activeFirmLimit = activeFirmEntitlementLimit(firms)
   const activeFirmLimitLabel = activeFirmLimit === null ? t`contract` : String(activeFirmLimit)
   const activeFirmUsage = currentFirm
     ? t`${activeFirmCount} of ${activeFirmLimitLabel} active practices`
     : '—'
-  const subscriptionsQuery = useBillingSubscriptions(currentFirm)
+  const subscriptionsQuery = useBillingSubscriptions(currentFirm, false, canReadBilling)
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
     ['active', 'trialing', 'past_due', 'paused'].includes(subscription.status),
   )
   const activeSubscriptionInterval = subscriptionBillingIntervalToUi(
     activeSubscription?.billingInterval,
   )
-  const owner = isFirmOwner(currentFirm)
+  const owner = hasFirmPermission({
+    role: currentFirm?.role,
+    permission: 'billing.update',
+    coordinatorCanSeeDollars: currentFirm?.coordinatorCanSeeDollars,
+  })
   const currentPlanName = currentFirm
     ? currentFirm.plan === 'firm'
       ? t`Enterprise`
@@ -218,6 +228,33 @@ export function BillingRoute() {
       window.location.assign(url)
     },
   })
+
+  if (firmsQuery.isLoading) {
+    return (
+      <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 px-4 py-6 md:px-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-72 w-full" />
+      </div>
+    )
+  }
+
+  if (!canReadBilling) {
+    return (
+      <PermissionGate
+        permission="billing.read"
+        firm={currentFirm}
+        description={
+          <Trans>
+            Billing overview is available to owners and managers. Contact the practice owner if you
+            need plan or invoice access.
+          </Trans>
+        }
+        secondaryAction={{ label: <Trans>Open Workboard</Trans>, to: '/workboard' }}
+      >
+        <div />
+      </PermissionGate>
+    )
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 px-4 py-6 md:px-6">
@@ -643,7 +680,12 @@ function PlanOption({
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-5">
-        <div className="grid min-h-[116px] content-start gap-3">
+        <div
+          className={cn(
+            'grid content-start gap-3',
+            plan.savings ? 'min-h-[156px]' : 'min-h-[116px]',
+          )}
+        >
           <div className="flex min-h-10 flex-wrap items-baseline gap-2">
             <span
               className={cn(

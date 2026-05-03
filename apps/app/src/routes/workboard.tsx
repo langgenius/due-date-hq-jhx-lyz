@@ -133,6 +133,7 @@ import {
 import { ConceptLabel } from '@/features/concepts/concept-help'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
+import { useFirmPermission } from '@/features/permissions/permission-gate'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
   ALL_READINESSES,
@@ -485,6 +486,8 @@ export function WorkboardRoute() {
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
+  const permission = useFirmPermission()
+  const canRunMigration = permission.can('migration.run')
   const { openEvidence } = useEvidenceDrawer()
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const statusLabels = useStatusLabels()
@@ -2000,7 +2003,7 @@ export function WorkboardRoute() {
                   {tableRows.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={visibleColumnCount} className="py-8">
-                        <EmptyState onOpenWizard={openWizard} />
+                        <EmptyState onOpenWizard={openWizard} canRunMigration={canRunMigration} />
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -3376,7 +3379,13 @@ function parseOwnerCount(value: string): number | null {
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null
 }
 
-function EmptyState({ onOpenWizard }: { onOpenWizard: () => void }) {
+function EmptyState({
+  onOpenWizard,
+  canRunMigration,
+}: {
+  onOpenWizard: () => void
+  canRunMigration: boolean
+}) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-divider-regular py-10 px-6 text-center">
       <span className="text-xs font-semibold text-text-primary">
@@ -3387,7 +3396,7 @@ function EmptyState({ onOpenWizard }: { onOpenWizard: () => void }) {
           Run the migration wizard to import a CSV of clients, or change the filters above.
         </Trans>
       </p>
-      <Button size="sm" className="text-xs" onClick={onOpenWizard}>
+      <Button size="sm" className="text-xs" onClick={onOpenWizard} disabled={!canRunMigration}>
         <Trans>Run migration</Trans>
       </Button>
     </div>

@@ -18,7 +18,7 @@ import { WorkboardPage } from '../pages/workboard-page'
 import { WorkloadPage } from '../pages/workload-page'
 
 type AuthSeedMode = 'empty' | 'workboard' | 'pulse'
-type AuthRole = 'owner' | 'coordinator'
+type AuthRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
 
 type E2EAuthSession = {
   user: {
@@ -226,5 +226,5 @@ function isPulseSeedAlert(value: unknown): value is { alertId: string; pulseId: 
 }
 
 function isAuthRole(value: unknown): value is AuthRole {
-  return value === 'owner' || value === 'coordinator'
+  return value === 'owner' || value === 'manager' || value === 'preparer' || value === 'coordinator'
 }

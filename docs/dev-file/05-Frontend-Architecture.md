@@ -188,6 +188,21 @@ feature 语义留在 members vertical 内。
   写入 `subscription` + `firm_profile` 后再由 UI 读取。
 - **不要**把分页 / 筛选塞进 Zustand
 
+### 2.1 权限交互
+
+前端采用“可见但受限”的 RBAC 交互：导航入口保留，URL 不重定向，受限页面在 App Shell
+内渲染统一权限面板。权限判断来自 `@duedatehq/core/permissions` 的纯矩阵；服务端仍是安全
+边界，前端只负责减少必然 403 的请求和给用户明确路径。
+
+- 整页受限：用 `PermissionGate` 渲染 `Permission required` / `Owner permission required`，
+  展示当前角色、所需角色、联系 practice owner 的说明，并提供 `Return to dashboard`。
+- 局部受限：保留可读信息，用 `PermissionInlineNotice` 标记只读区域，写操作禁用。
+- 动作受限：按钮、dropdown、command palette 项保留但 disabled，右侧显示所需角色 badge 或
+  inline note。Members、Billing、Audit 等整页 gate 必须在权限不足时禁用对应 RPC query，
+  不能先请求再把 403 当 UI 状态处理。
+- `$ exposure` 对 coordinator 默认显示 `Hidden by role`；只有 firm 开启
+  `coordinatorCanSeeDollars` 时才展示金额。
+
 ---
 
 ## 3. 状态管理分层（约束）

@@ -28,6 +28,7 @@ import {
 } from '@duedatehq/ui/components/ui/sheet'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
+import { PermissionInlineNotice, useFirmPermission } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 
@@ -70,6 +71,8 @@ export function ImportHistoryDrawer({
 }: ImportHistoryDrawerProps) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
+  const permission = useFirmPermission()
+  const canRevertMigration = permission.can('migration.revert')
   const [pendingRecovery, setPendingRecovery] = useState<PendingRecovery | null>(null)
   const batchesQuery = useQuery({
     ...orpc.migration.listBatches.queryOptions({ input: { limit: 50 } }),
@@ -180,8 +183,16 @@ export function ImportHistoryDrawer({
 
             {!batchesQuery.isLoading && batches.length > 0 ? (
               <div className="grid gap-4">
+                {!canRevertMigration ? (
+                  <PermissionInlineNotice
+                    permission="migration.revert"
+                    currentRole={permission.firm?.role}
+                  >
+                    <Trans>Only Owners and Managers can undo migration imports.</Trans>
+                  </PermissionInlineNotice>
+                ) : null}
                 {batches.map((batch) => {
-                  const canRevertBatch = isBatchRevertible(batch)
+                  const canRevertBatch = canRevertMigration && isBatchRevertible(batch)
                   return (
                     <Card key={batch.id}>
                       <CardHeader className="flex flex-row items-start justify-between gap-4">
@@ -211,7 +222,7 @@ export function ImportHistoryDrawer({
                         <BatchClients
                           batchId={batch.id}
                           enabled={open}
-                          canUndo={batch.status === 'applied'}
+                          canUndo={canRevertMigration && batch.status === 'applied'}
                           recoveryPending={recoveryPending}
                           onViewClient={onViewClient}
                           onUndo={(client) =>
