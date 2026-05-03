@@ -370,7 +370,7 @@ componentExtensions:
 ### 9.3 其他全局（沿用 DueDateHQ-DESIGN §9）
 
 - `?` 快捷键帮助浮层
-- `Esc` 打开关闭确认（非 destructive；动画期间失效）
+- `Esc` 在空白向导中直接关闭；已有导入工作时打开关闭确认（非 destructive；动画期间失效）
 - `Cmd + K` 命令面板
 - `Cmd + Shift + D` 暗色切换
 - 数字键 `1` - `4` 在向导内**不跳步**

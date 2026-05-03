@@ -119,6 +119,54 @@ export const INITIAL_STATE: WizardState = {
   isBusy: false,
 }
 
+export function hasDiscardableWizardWork(state: WizardState): boolean {
+  if (state.step !== INITIAL_STATE.step) return true
+  if (state.batchId !== null || state.batch !== null) return true
+
+  const intake = state.intake
+  if (
+    intake.mode !== INITIAL_STATE.intake.mode ||
+    intake.rawText !== '' ||
+    intake.fileName !== null ||
+    intake.fileKind !== INITIAL_STATE.intake.fileKind ||
+    intake.rawFileBase64 !== null ||
+    intake.contentType !== null ||
+    intake.sizeBytes !== 0 ||
+    intake.preset !== null ||
+    intake.integrationProvider !== INITIAL_STATE.intake.integrationProvider ||
+    intake.integrationRawText !== '' ||
+    intake.integrationRows.length > 0 ||
+    intake.previousSyncBatchId !== null ||
+    intake.ssnBlockedColumnIndexes.length > 0 ||
+    intake.rowCount !== 0 ||
+    intake.truncated ||
+    intake.parseError !== null ||
+    intake.submitError !== null
+  ) {
+    return true
+  }
+
+  if (
+    state.mapping.status !== 'idle' ||
+    state.mapping.rows.length > 0 ||
+    state.mapping.fallback !== null ||
+    state.mapping.errorBanner !== null
+  ) {
+    return true
+  }
+
+  if (
+    state.normalize.status !== 'idle' ||
+    state.normalize.rows.length > 0 ||
+    Object.keys(state.normalize.applyToAll).length > 0 ||
+    state.normalize.errorBanner !== null
+  ) {
+    return true
+  }
+
+  return state.dryRun.summary !== null || state.errors.length > 0
+}
+
 export type WizardAction =
   | { type: 'SET_BUSY'; busy: boolean }
   | { type: 'GO_TO_STEP'; step: StepIndex }

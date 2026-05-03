@@ -48,6 +48,8 @@ interface WizardShellProps {
   onBack?: (() => void) | undefined
   onContinue: () => void
   onClose: () => void
+  /** When true, close attempts ask before discarding current wizard work. */
+  confirmOnClose: boolean
   /** When true, [Back] is disabled (Step 1). */
   backDisabled?: boolean | undefined
   children: ReactNode
@@ -60,8 +62,9 @@ interface WizardShellProps {
  * Visual authority: DESIGN.md §Layout/Components + apps/marketing HeroSurface.
  * Behavior authority: docs/product-design/migration-copilot/02-ux-4step-wizard.md §2.
  *
- * Esc / overlay click bounces through a discard confirmation so accidental
- * dismissals don't silently drop the user's paste or unsaved edits.
+ * Esc / overlay click bounces through a discard confirmation once the wizard
+ * has discardable work, so accidental dismissals don't silently drop the user's
+ * paste or unsaved edits.
  */
 export function WizardShell({
   open,
@@ -73,16 +76,26 @@ export function WizardShell({
   onBack,
   onContinue,
   onClose,
+  confirmOnClose,
   backDisabled,
   children,
 }: WizardShellProps) {
   const { t } = useLingui()
   const [confirming, setConfirming] = useState(false)
 
+  function requestClose() {
+    if (busy) return
+    if (confirmOnClose) {
+      setConfirming(true)
+      return
+    }
+    setConfirming(false)
+    onClose()
+  }
+
   function handleOpenChange(next: boolean) {
     if (next) return
-    if (busy) return
-    setConfirming(true)
+    requestClose()
   }
 
   function handleDiscard() {
@@ -90,13 +103,13 @@ export function WizardShell({
     onClose()
   }
 
-  useAppHotkey('Escape', () => setConfirming(true), {
+  useAppHotkey('Escape', requestClose, {
     enabled: open && !confirming && !busy,
     requireReset: true,
     meta: {
       id: 'wizard.escape',
       name: 'Close wizard',
-      description: 'Open the discard import confirmation.',
+      description: 'Close the wizard or open the discard import confirmation.',
       category: 'wizard',
       scope: 'overlay',
     },
@@ -177,7 +190,7 @@ export function WizardShell({
               size="icon-sm"
               aria-label={t`Close wizard`}
               disabled={busy}
-              onClick={() => setConfirming(true)}
+              onClick={requestClose}
             >
               <XIcon />
             </Button>

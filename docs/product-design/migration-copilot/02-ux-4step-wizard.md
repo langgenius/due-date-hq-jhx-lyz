@@ -23,7 +23,7 @@ stateDiagram-v2
   Step4_DryRunGenesis --> DashboardLanding : Import & Generate (migration.imported)
   DashboardLanding --> [*] : Toast 常驻 24h
 
-  Step1_Intake --> Entry : [Close] → 关闭确认
+  Step1_Intake --> Entry : [Close] → 空白直接关闭 / 有导入工作则关闭确认
   Step2_Mapping --> Step1_Intake : [Back]
   Step2_Mapping --> Entry : [Close]
   Step3_Normalize --> Step2_Mapping : [Back]
@@ -63,7 +63,7 @@ stateDiagram-v2
 - 形态：**全屏 modal**（非 drawer）；最大宽度 960px；背景 `{colors.surface-canvas}`；圆角 `{rounded.lg}`；阴影 Level 4 Modal（DueDateHQ-DESIGN §6 行 478）
 - 无障碍：`role="dialog"` + `aria-modal="true"` + `aria-labelledby="wizard-title"` + `aria-describedby="wizard-step-desc"`
 - 焦点陷阱（Focus trap）：Tab / Shift+Tab 在向导内循环，不逃出宿主页面
-- `Esc`：**不直接关闭**，而是打开关闭确认（见 §3.2）
+- `Esc`：空白向导直接关闭；已有输入、选择、批次或 AI 结果时打开关闭确认（见 §3.2）
 - 顶栏：`Import clients · Step X of 4`（`{typography.title}` + `{colors.text-primary}`）+ 右上 `[Close ×]`（Icon-only 按钮；hover `{colors.surface-subtle}`）
 - 底栏：左 `[← Back]`（Step 1 禁用，颜色 `{colors.text-disabled}`）；右 `[Continue →]` 使用 `button-primary`；Step 4 改为 `[Import & Generate deadlines ▶]`
 
@@ -92,7 +92,7 @@ stateDiagram-v2
 | ------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------- |
 | `Tab` / `Shift+Tab` | 焦点循环                                                           | 不逃出 modal                                                        |
 | `Enter`             | 提交当前步（焦点在非 textarea / non-editable 区时等价于 Continue） | 对齐 [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §7.2    |
-| `Esc`               | 打开关闭确认（非 destructive）                                     | Step 4 动画期间 `Esc` **失效**                                      |
+| `Esc`               | 空白向导直接关闭；已有导入工作时打开关闭确认（非 destructive）     | Step 4 动画期间 `Esc` **失效**                                      |
 | `A`                 | 切换当前聚焦的 Step 3 `Apply to all`                               | 仅 Suggested tax types cell 内生效                                  |
 | `1` - `4` 数字键    | 不跳步骤                                                           | 避免误触；通过 `[Back]` 逐级回退                                    |
 | `Cmd/Ctrl + V`      | 粘贴                                                               | Step 1 textarea 默认生效                                            |
@@ -122,6 +122,7 @@ stateDiagram-v2
 ```
 
 - 外壳使用 `@duedatehq/ui/components/ui/alert-dialog`（shadcn Alert Dialog 结构 + Base UI primitive）；Level 4 Modal（宽 ≤ 480px）；`role="alertdialog"` + `aria-labelledby`
+- 仅当向导已有可丢弃工作时展示：例如 Step 1 输入/上传/选择来源、进入后续步骤、创建批次、AI 映射/归一结果、dry-run 预览或错误状态。纯打开后未输入、未选择、未执行操作时，Close / Esc / overlay 直接关闭。
 - DDL cut 不承诺完整 Import History / resume UI；关闭只表示丢弃当前向导内未完成信息
 - 文案走 Lingui `<Trans />`（见 §8 全局文案表第 1~3 行）
 
@@ -864,7 +865,7 @@ Toast 持久态  ──24h──>  Expired（Undo all 灰化）
 | ------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------ |
 | `Tab` / `Shift+Tab` | 在 Wizard 内循环焦点（Focus trap）                                                                    | 全部                       | [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md) §7.3 + DueDateHQ-DESIGN §13（a11y） |
 | `Enter`             | 提交当前步（等价 `[Continue →]` / Step 4 = `[Import ▶]`）；焦点在 textarea / contenteditable 时不劫持 | 全部                       | PRD Part2A §7.7 行 390                                                                     |
-| `Esc`               | 打开关闭确认（非 destructive）；Step 4 animation 期间失效                                             | 全部                       | DueDateHQ-DESIGN §13 + 本文 §2.3                                                           |
+| `Esc`               | 空白向导直接关闭；已有导入工作时打开关闭确认（非 destructive）；Step 4 animation 期间失效             | 全部                       | DueDateHQ-DESIGN §13 + 本文 §2.3                                                           |
 | `Cmd/Ctrl + K`      | 命令面板（向导内可用但不建议；对齐 Part2A §7.6 行 375–377）                                           | 全部                       | PRD Part2A §7.6                                                                            |
 | `?`                 | 快捷键帮助浮层                                                                                        | 全部（非 textarea 焦点时） | PRD Part2A §7.7 行 384                                                                     |
 | `Cmd/Ctrl + V`      | 粘贴（textarea 默认）                                                                                 | Step 1                     | PRD Part1B §6A.6 Step 1                                                                    |

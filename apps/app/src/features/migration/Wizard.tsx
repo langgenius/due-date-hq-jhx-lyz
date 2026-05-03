@@ -40,6 +40,7 @@ import {
   INITIAL_STATE,
   PROVIDER_TO_SOURCE,
   PRESET_TO_SOURCE,
+  hasDiscardableWizardWork,
   wizardReducer,
   type StepIndex,
   type WizardState,
@@ -616,6 +617,7 @@ export function Wizard({ open, onClose }: WizardProps) {
         onContinue={onContinue}
         onBack={onBack}
         onClose={resetAndClose}
+        confirmOnClose={hasDiscardableWizardWork(state)}
       >
         {state.step === 1 ? (
           <Step1Intake
