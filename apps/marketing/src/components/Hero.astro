@@ -15,7 +15,7 @@ const { t, ctaHref, workflowAnchor } = Astro.props
   <!-- Section pt 108 = Hero/RightSurface y in Figma; pb 108 mirrors bottom inset. -->
   <!-- Flex (not 12-col grid) so left copy = 560 and right surface = 640 match Figma exactly; -->
   <!-- the 80px slack at 1440 viewport falls naturally between them via justify-between. -->
-  <div class="mx-auto flex max-w-[1440px] flex-col gap-12 px-20 pb-[108px] pt-[108px] lg:flex-row lg:items-start lg:justify-between">
+  <div class="mx-auto flex max-w-[1440px] flex-col gap-12 px-6 pb-20 pt-20 sm:px-10 lg:flex-row lg:items-start lg:justify-between lg:px-20 lg:pb-[108px] lg:pt-[108px]">
     <!-- Left: copy. Sits ~21px below surface top (matches Figma Hero/Left vs Hero/RightSurface offset). -->
     <div class="lg:w-[560px] lg:shrink-0 lg:pt-[21px]">
       <span class="inline-flex items-center gap-2 rounded-full bg-accent-tint px-3 py-1 font-mono text-[12px] tracking-[0.16em] text-accent-text">
@@ -57,7 +57,7 @@ const { t, ctaHref, workflowAnchor } = Astro.props
     </div>
 
     <!-- Right: surface — Figma Hero/RightSurface fixed width = 640. -->
-    <div class="lg:w-[640px] lg:shrink-0">
+    <div class="min-w-0 max-w-full lg:w-[640px] lg:shrink-0">
       <HeroSurface t={t.surface} />
     </div>
   </div>

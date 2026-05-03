@@ -20,17 +20,33 @@ export interface HeroTrustItem {
   label: string
 }
 
+export type MarketingBadgeTone =
+  | 'destructive'
+  | 'warning'
+  | 'info'
+  | 'success'
+  | 'secondary'
+  | 'outline'
+
+export type MarketingStatusDotTone = 'success' | 'warning' | 'error' | 'normal' | 'disabled'
+
 export interface HeroSurfaceRow {
-  priority: string
+  priorityScore: string
+  priorityRank?: string
+  priorityTone: MarketingBadgeTone
   client: string
   ein: string
   form: string
   due: string
   daysLeft: string
   status: string
+  statusTone: MarketingBadgeTone
+  statusDotTone: MarketingStatusDotTone
   severityLabel: string
   exposure: string
+  exposureTone: MarketingBadgeTone
   evidence: string
+  evidenceTone: MarketingBadgeTone
   severity: 'critical' | 'high' | 'medium'
 }
 
@@ -101,13 +117,15 @@ export interface ProblemRow {
   pill: string
   text: string
   date: string
-  /** Optional row tint per DESIGN.md `risk-row-{critical,high,upcoming}` tokens. */
+  pillTone?: MarketingBadgeTone
+  dotTone?: MarketingStatusDotTone
+  /** Optional row tint matching the app's Dashboard / Workboard severity rows. */
   severity?: 'critical' | 'high' | 'medium'
 }
 
 export interface ProblemCard {
   tag: string
-  /** Drives the tag pill color tint. critical=red, high=orange, medium=amber. */
+  /** Drives the tag pill color tint. critical=red, high=orange, medium=gray. */
   severity: 'critical' | 'high' | 'medium'
   cadence: string
   headline: string
@@ -132,12 +150,22 @@ export interface WorkflowKbd {
 }
 
 export interface WorkflowDashboardRow {
+  priorityScore: string
+  priorityRank?: string
+  priorityTone: MarketingBadgeTone
   client: string
   form: string
   due: string
   daysLeft: string
+  status: string
+  statusTone: MarketingBadgeTone
+  statusDotTone: MarketingStatusDotTone
+  severityLabel: string
   exposure: string
-  /** Drives row tint, left bar, and days/exposure text color. */
+  exposureTone: MarketingBadgeTone
+  evidence: string
+  evidenceTone: MarketingBadgeTone
+  /** Drives row tint and severity badge tone. */
   severity: 'critical' | 'high' | 'medium'
 }
 
@@ -152,7 +180,9 @@ export interface WorkflowDashboardCopy {
     form: string
     due: string
     status: string
+    severity: string
     exposure: string
+    evidence: string
   }
   pulse: { tag: string; text: string; cta: string }
   rows: WorkflowDashboardRow[]

@@ -9,24 +9,54 @@ interface Props {
 const { t } = Astro.props
 const surface = t.surface
 
-const confidenceClass = {
-  HIGH: 'bg-status-done/15 text-status-done',
-  MED: 'bg-severity-medium-tint text-severity-medium',
-  LOW: 'bg-severity-critical-tint text-severity-critical',
+const badgeBase =
+  'inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-badge font-medium whitespace-nowrap transition-colors'
+
+const badgeTone = {
+  destructive: 'bg-components-badge-bg-red-soft text-text-destructive',
+  warning: 'bg-components-badge-bg-warning-soft text-text-warning',
+  info: 'bg-components-badge-bg-blue-soft text-text-accent',
+  success: 'bg-components-badge-bg-green-soft text-text-success',
+  secondary: 'bg-components-badge-bg-gray-soft text-text-secondary',
+  outline: 'border-divider-regular text-text-secondary',
 }
 
-// Per DESIGN.md `risk-row-{critical,high,upcoming}` + `risk-row-*-bar` tokens.
-// Drives row tint, left-bar color, and severity-aware days/exposure text.
-const severityRow: Record<'critical' | 'high' | 'medium', { tint: string; bar: string; text: string }> = {
-  critical: { tint: 'bg-severity-critical-tint', bar: 'bg-severity-critical', text: 'text-severity-critical' },
-  high: { tint: 'bg-severity-high-tint', bar: 'bg-severity-high', text: 'text-severity-high' },
-  medium: { tint: 'bg-severity-medium-tint', bar: 'bg-severity-medium', text: 'text-severity-medium' },
+const statusDot = {
+  success: 'bg-components-badge-status-light-success-bg shadow-status-indicator-green',
+  warning: 'bg-components-badge-status-light-warning-bg shadow-status-indicator-warning',
+  error: 'bg-components-badge-status-light-error-bg shadow-status-indicator-red',
+  normal: 'bg-components-badge-status-light-normal-bg shadow-status-indicator-blue',
+  disabled: 'bg-components-badge-status-light-disabled-bg shadow-status-indicator-gray',
+}
+
+const confidenceTone = {
+  HIGH: 'success',
+  MED: 'warning',
+  LOW: 'destructive',
+} as const
+
+const confidenceDot = {
+  HIGH: 'success',
+  MED: 'warning',
+  LOW: 'error',
+} as const
+
+const severityDot: Record<'critical' | 'high' | 'medium', keyof typeof statusDot> = {
+  critical: 'error',
+  high: 'warning',
+  medium: 'disabled',
+}
+
+const severityRow: Record<'critical' | 'high' | 'medium', string> = {
+  critical: 'bg-components-badge-bg-red-soft hover:bg-components-badge-bg-red-soft',
+  high: 'bg-components-badge-bg-warning-soft hover:bg-components-badge-bg-warning-soft',
+  medium: 'bg-components-badge-bg-gray-soft hover:bg-components-badge-bg-gray-soft',
 }
 ---
 
-<article class="grid grid-cols-12 gap-12">
+<article class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
   <!-- Left: copy -->
-  <div class="col-span-12 lg:col-span-4">
+  <div class="lg:col-span-4">
     <div class="flex items-baseline gap-4">
       <span class="font-mono text-[48px] font-bold leading-none text-accent-default">{t.index}</span>
       <span class="pb-1 font-mono text-[12px] tracking-[0.18em] text-text-muted">{t.tag}</span>
@@ -41,63 +71,95 @@ const severityRow: Record<'critical' | 'high' | 'medium', { tint: string; bar: s
   </div>
 
   <!-- Right: surface -->
-  <div class="col-span-12 lg:col-span-8">
-    <div class="overflow-hidden rounded-xl border border-border-default bg-bg-elevated shadow-overlay">
+  <div class="min-w-0 lg:col-span-8">
+    <div class="overflow-hidden rounded-xl border border-components-card-border bg-components-card-bg shadow-overlay">
       {surface.kind === 'dashboard' && (() => {
         const s = surface as WorkflowDashboardCopy
         return (
           <Fragment>
-            <div class="flex items-center justify-between border-b border-border-subtle px-4 py-3">
-              <div class="flex items-center gap-2 text-[13px]">
+            <div class="flex items-center justify-between border-b border-divider-subtle px-4 py-3">
+              <div class="flex items-center gap-2 text-xs">
                 <span class="font-medium text-text-primary">{s.header.title}</span>
-                <span class="text-text-muted">·</span>
-                <span class="font-mono text-[12px] text-text-muted">{s.header.timestamp}</span>
+                <span class="text-text-tertiary">·</span>
+                <span class="font-mono text-xs text-text-tertiary">{s.header.timestamp}</span>
               </div>
-              <div class="flex items-center gap-1 rounded-md border border-border-default bg-bg-canvas p-0.5 font-mono text-[12px]">
+              <div class="flex items-center gap-1 rounded-md border border-divider-regular bg-background-section p-0.5 font-mono text-xs">
                 {s.ranges.map((range, idx) => (
-                  <span class={`rounded-sm px-2 py-1 ${idx === 0 ? 'bg-bg-elevated text-text-primary' : 'text-text-secondary'}`}>{range}</span>
+                  <span class={`rounded-sm px-2 py-1 ${idx === 0 ? 'bg-background-default text-text-primary' : 'text-text-secondary'}`}>{range}</span>
                 ))}
               </div>
             </div>
-            <div class="flex items-center gap-3 border-b border-severity-medium-border bg-severity-medium-tint px-4 py-2.5">
-              <span class="inline-flex items-center rounded-sm bg-severity-medium px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-primary-foreground">
+            <div class="flex items-center gap-3 border-b border-divider-subtle bg-components-badge-bg-warning-soft px-4 py-2.5">
+              <span class:list={[badgeBase, 'bg-components-badge-bg-warning-soft text-text-warning']}>
+                <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot.warning]}></span>
                 {s.pulse.tag}
               </span>
-              <p class="flex-1 text-[12px] text-text-primary">{s.pulse.text}</p>
-              <span class="font-mono text-[12px] text-accent-default">{s.pulse.cta} →</span>
+              <p class="min-w-0 flex-1 truncate text-xs text-text-primary">{s.pulse.text}</p>
+              <span class="font-mono text-xs text-text-accent">{s.pulse.cta} →</span>
             </div>
-            <div class="grid grid-cols-3 border-b border-border-subtle">
+            <div class="grid grid-cols-3 border-b border-divider-subtle">
               {s.summary.map((item, idx) => (
-                <div class:list={['px-4 py-3', idx < s.summary.length - 1 ? 'border-r border-border-subtle' : '']}>
-                  <div class="font-mono text-[10px] tracking-wider text-text-muted">{item.label}</div>
+                <div class:list={['px-4 py-3', idx < s.summary.length - 1 ? 'border-r border-divider-subtle' : '']}>
+                  <div class="font-mono text-2xs tracking-wider text-text-tertiary">{item.label}</div>
                   <div class="mt-1 font-mono text-[24px] font-semibold leading-none text-text-primary">{item.value}</div>
                 </div>
               ))}
             </div>
-            <div class="grid grid-cols-[0.55fr_2fr_1fr_1fr_0.9fr_1fr] items-center gap-3 border-b border-border-subtle px-4 py-2 font-mono text-[10px] tracking-wider text-text-muted">
-              <span>{s.tableHeaders.priority}</span>
-              <span>{s.tableHeaders.client}</span>
-              <span>{s.tableHeaders.form}</span>
-              <span>{s.tableHeaders.due}</span>
-              <span>{s.tableHeaders.status}</span>
-              <span class="text-right">{s.tableHeaders.exposure}</span>
-            </div>
-            {s.rows.map((row, idx) => {
-              const sev = severityRow[row.severity]
-              return (
-                <div class:list={['grid grid-cols-[0.55fr_2fr_1fr_1fr_0.9fr_1fr] items-center gap-3 border-b border-border-subtle px-4 py-2.5 last:border-b-0', sev.tint]}>
-                  <span class="font-mono text-[12px] font-semibold text-text-primary">P{idx === 0 ? 0 : idx}</span>
-                  <div class="flex items-center gap-3">
-                    <span class:list={['block h-5 w-[3px] rounded-full', sev.bar]}></span>
-                    <span class="text-[13px] font-medium text-text-primary">{row.client}</span>
-                  </div>
-                  <span class="font-mono text-[12px] text-text-secondary">{row.form}</span>
-                  <span class="font-mono text-[12px] text-text-secondary">{row.due}</span>
-                  <span class="rounded-md border border-border-default bg-bg-elevated px-2 py-1 text-center font-mono text-[11px] text-text-secondary">{row.daysLeft}</span>
-                  <span class:list={['text-right font-mono tabular text-[13px] font-medium', sev.text]}>{row.exposure}</span>
+            <div class="overflow-x-auto">
+              <div class="min-w-[900px]">
+                <div class="grid h-9 grid-cols-[1.1fr_1.65fr_0.75fr_1.35fr_1.25fr_1.05fr_1fr_1.15fr] items-center gap-3 border-b border-divider-regular px-4 text-xs font-medium tracking-wider text-text-tertiary uppercase">
+                  <span class="-mx-2 inline-flex h-7 items-center gap-1 rounded-md px-2">
+                    {s.tableHeaders.priority}
+                    <span aria-hidden class="text-text-quaternary">↕</span>
+                  </span>
+                  <span class="-mx-2 inline-flex h-7 items-center gap-1 rounded-md px-2">
+                    {s.tableHeaders.client}
+                    <span aria-hidden class="text-text-quaternary">⌄</span>
+                  </span>
+                  <span>{s.tableHeaders.form}</span>
+                  <span class="-mx-2 inline-flex h-7 items-center gap-1 rounded-md px-2">
+                    {s.tableHeaders.due}
+                    <span aria-hidden class="text-text-quaternary">↕</span>
+                  </span>
+                  <span class="-mx-2 inline-flex h-7 items-center gap-1 rounded-md px-2">
+                    {s.tableHeaders.status}
+                    <span aria-hidden class="text-text-quaternary">⌄</span>
+                  </span>
+                  <span>{s.tableHeaders.severity}</span>
+                  <span class="-mx-2 inline-flex h-7 items-center justify-end gap-1 rounded-md px-2 text-right">
+                    {s.tableHeaders.exposure}
+                    <span aria-hidden class="text-text-quaternary">↕</span>
+                  </span>
+                  <span>{s.tableHeaders.evidence}</span>
                 </div>
-              )
-            })}
+                {s.rows.map((row) => (
+                  <div class:list={['grid h-9 grid-cols-[1.1fr_1.65fr_0.75fr_1.35fr_1.25fr_1.05fr_1fr_1.15fr] items-center gap-3 border-b border-divider-subtle px-4 text-xs transition-colors last:border-b-0', severityRow[row.severity]]}>
+                    <span class:list={[badgeBase, badgeTone[row.priorityTone], 'font-mono tabular-nums']}>
+                      {row.priorityScore}
+                      {row.priorityRank && <span>{row.priorityRank}</span>}
+                    </span>
+                    <span class="truncate font-medium text-text-primary">{row.client}</span>
+                    <span class="font-mono text-xs text-text-secondary">{row.form}</span>
+                    <span class="flex min-w-0 items-center gap-2 font-mono text-xs tabular-nums text-text-secondary">
+                      <span class:list={[badgeBase, badgeTone[row.severity === 'medium' ? 'outline' : 'warning'], 'min-w-16 justify-start font-mono']}>
+                        {row.daysLeft}
+                      </span>
+                      <span>{row.due}</span>
+                    </span>
+                    <span class:list={[badgeBase, badgeTone[row.statusTone]]}>
+                      <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[row.statusDotTone]]}></span>
+                      {row.status}
+                    </span>
+                    <span class:list={[badgeBase, badgeTone[row.severity === 'critical' ? 'destructive' : row.severity === 'high' ? 'warning' : 'secondary'], 'uppercase tracking-wide']}>
+                      <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[severityDot[row.severity]]]}></span>
+                      {row.severityLabel}
+                    </span>
+                    <span class:list={[badgeBase, badgeTone[row.exposureTone], 'ml-auto font-mono tabular-nums']}>{row.exposure}</span>
+                    <span class:list={[badgeBase, badgeTone[row.evidenceTone], 'font-mono']}>{row.evidence}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </Fragment>
         )
       })()}
@@ -106,39 +168,44 @@ const severityRow: Record<'critical' | 'high' | 'medium', { tint: string; bar: s
         const s = surface as WorkflowMappingCopy
         return (
           <Fragment>
-            <div class="flex items-center justify-between border-b border-border-subtle px-4 py-3 text-[13px]">
+            <div class="flex items-center justify-between border-b border-divider-subtle px-4 py-3 text-xs">
               <span class="font-medium text-text-primary">{s.step}</span>
-              <div class="flex items-center gap-2 text-[12px]">
+              <div class="flex items-center gap-2 text-xs">
                 {s.steps.map((step, idx) => (
                   <Fragment>
-                    {idx > 0 && <span class="text-text-muted">→</span>}
-                    <span class={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono ${idx === 1 ? 'bg-accent-tint text-accent-text' : 'text-text-secondary'}`}>
-                      <span class={`block h-1.5 w-1.5 rounded-full ${idx === 1 ? 'bg-accent-default' : 'bg-border-strong'}`}></span>
+                    {idx > 0 && <span class="text-text-tertiary">→</span>}
+                    <span class:list={[badgeBase, idx === 1 ? badgeTone.info : badgeTone.outline, 'font-mono']}>
+                      <span class:list={['inline-block size-2 shrink-0 rounded-full', idx === 1 ? statusDot.normal : statusDot.disabled]}></span>
                       {step.label}
                     </span>
                   </Fragment>
                 ))}
               </div>
             </div>
-            <div class="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-4 border-b border-border-subtle px-4 py-2 font-mono text-[10px] tracking-wider text-text-muted">
-              <span>{s.headers.source}</span>
-              <span>{s.headers.target}</span>
-              <span>{s.headers.sample}</span>
-              <span class="text-right">{s.headers.confidence}</span>
-            </div>
-            {s.rows.map((row) => (
-              <div class="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-4 border-b border-border-subtle px-4 py-2.5 last:border-b-0">
-                <span class="font-mono text-[13px] text-text-primary">{row.source}</span>
-                <span class="font-mono text-[12px] text-text-secondary">{row.target}</span>
-                <span class="font-mono text-[12px] text-text-muted">{row.sample}</span>
-                <span class={`inline-flex items-center rounded-md px-2 py-1 font-mono text-[11px] font-medium ${confidenceClass[row.confidence]}`}>
-                  {row.confidenceLabel}
-                </span>
+            <div class="overflow-x-auto">
+              <div class="min-w-[720px]">
+                <div class="grid h-9 grid-cols-[1fr_1.25fr_1.1fr_0.9fr] items-center gap-4 border-b border-divider-regular px-4 text-xs font-medium tracking-wider text-text-tertiary uppercase">
+                  <span>{s.headers.source}</span>
+                  <span>{s.headers.target}</span>
+                  <span>{s.headers.sample}</span>
+                  <span class="text-right">{s.headers.confidence}</span>
+                </div>
+                {s.rows.map((row) => (
+                  <div class="grid h-9 grid-cols-[1fr_1.25fr_1.1fr_0.9fr] items-center gap-4 border-b border-divider-subtle px-4 text-xs transition-colors last:border-b-0 hover:bg-state-base-hover">
+                    <span class="truncate font-mono text-xs text-text-primary">{row.source}</span>
+                    <span class="truncate font-mono text-xs text-text-secondary">{row.target}</span>
+                    <span class="truncate font-mono text-xs text-text-tertiary">{row.sample}</span>
+                    <span class:list={[badgeBase, badgeTone[confidenceTone[row.confidence]], 'ml-auto font-mono']}>
+                      <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[confidenceDot[row.confidence]]]}></span>
+                      {row.confidenceLabel}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
-            <div class="flex items-center justify-between border-t border-border-subtle px-4 py-3">
-              <span class="font-mono text-[12px] text-text-muted">{s.footer.summary}</span>
-              <a href="#" class="inline-flex h-8 items-center gap-2 rounded-md bg-accent-default px-3 text-[13px] font-medium text-primary-foreground">
+            </div>
+            <div class="flex items-center justify-between border-t border-divider-subtle px-4 py-3">
+              <span class="font-mono text-xs text-text-tertiary">{s.footer.summary}</span>
+              <a href="#" class="inline-flex h-8 items-center gap-2 rounded-md bg-components-button-primary-bg px-3 text-xs font-medium text-components-button-primary-text">
                 <span>{s.footer.cta}</span>
                 <span aria-hidden="true">→</span>
               </a>
@@ -161,8 +228,8 @@ const severityRow: Record<'critical' | 'high' | 'medium', { tint: string; bar: s
                 <span class="text-text-muted">{s.closeHint}</span>
               </div>
             </div>
-            <div class="grid grid-cols-[280px_1fr] gap-0">
-              <div class="border-r border-border-subtle p-4">
+            <div class="grid grid-cols-1 gap-0 lg:grid-cols-[280px_1fr]">
+              <div class="border-b border-border-subtle p-4 lg:border-b-0 lg:border-r">
                 {s.fields.map((field) => (
                   <div class="border-b border-border-subtle py-3 last:border-b-0">
                     <div class="font-mono text-[10px] tracking-wider text-text-muted">{field.label}</div>
@@ -171,7 +238,7 @@ const severityRow: Record<'critical' | 'high' | 'medium', { tint: string; bar: s
                 ))}
               </div>
               <div class="p-4">
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
                   <span class="font-mono text-[10px] tracking-wider text-text-muted">{s.source.label}</span>
                   <span class="inline-flex items-center gap-1.5 rounded-md border border-border-default bg-bg-canvas px-2 py-1 font-mono text-[12px] text-text-secondary">
                     <span class="block h-1.5 w-1.5 rounded-full bg-accent-default"></span>
@@ -183,7 +250,7 @@ const severityRow: Record<'critical' | 'high' | 'medium', { tint: string; bar: s
                   <div class="font-mono text-[10px] tracking-wider text-text-muted">{s.source.quoteLabel}</div>
                   <p class="mt-2 text-[13px] leading-relaxed text-text-primary">{s.source.quote}</p>
                 </div>
-                <div class="mt-6 grid grid-cols-4 gap-3 text-[12px]">
+                <div class="mt-6 grid grid-cols-2 gap-3 text-[12px] sm:grid-cols-4">
                   <div>
                     <div class="font-mono text-[10px] tracking-wider text-text-muted">SOURCE</div>
                     <div class="mt-1 font-mono text-text-secondary">{s.meta.source}</div>

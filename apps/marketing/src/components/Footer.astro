@@ -16,10 +16,10 @@ const { t, enHref, zhHref, currentLocale } = Astro.props
 ---
 
 <footer class="border-t border-border-default bg-bg-panel">
-  <div class="mx-auto max-w-[1440px] px-20 py-16">
-    <div class="grid grid-cols-12 gap-12">
+  <div class="mx-auto max-w-[1440px] px-6 py-16 sm:px-10 lg:px-20">
+    <div class="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
       <!-- Brand block -->
-      <div class="col-span-12 lg:col-span-4">
+      <div class="lg:col-span-4">
         <div class="flex items-center gap-2">
           <img
             src={brandMarkLight}
@@ -43,7 +43,7 @@ const { t, enHref, zhHref, currentLocale } = Astro.props
         <p class="mt-3 font-mono text-[12px] text-text-muted">{t.audience}</p>
       </div>
       <!-- Columns -->
-      <div class="col-span-12 grid grid-cols-3 gap-8 lg:col-span-8">
+      <div class="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:col-span-8">
         {
           t.columns.map((column) => (
             <div>
