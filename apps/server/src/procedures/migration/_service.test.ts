@@ -749,12 +749,91 @@ function buildAi(rawResult?: unknown): AI {
   return { extractPulse, runPrompt, runStreaming: runPrompt }
 }
 
-const failingRunPrompt: AI['runPrompt'] = async () => {
-  throw new Error('AI should not be called for this plan.')
-}
+function buildCountingMigrationAi(): { ai: AI; calls: string[] } {
+  const calls: string[] = []
+  const runPrompt: AI['runPrompt'] = async (name, _input, schema) => {
+    calls.push(name)
+    const result =
+      name === 'mapper@v1'
+        ? {
+            mappings: [
+              {
+                source: 'Client Name',
+                target: 'client.name',
+                confidence: 0.96,
+                reasoning: 'Header matches client name.',
+              },
+              {
+                source: 'Tax ID',
+                target: 'client.ein',
+                confidence: 0.93,
+                reasoning: 'Tax ID is the EIN column.',
+              },
+              {
+                source: 'State',
+                target: 'client.state',
+                confidence: 0.94,
+                reasoning: 'State contains jurisdiction codes.',
+              },
+              {
+                source: 'Entity Type',
+                target: 'client.entity_type',
+                confidence: 0.92,
+                reasoning: 'Entity Type contains tax entity labels.',
+              },
+              {
+                source: 'Email',
+                target: 'client.email',
+                confidence: 0.91,
+                reasoning: 'Email contains contact addresses.',
+              },
+            ],
+          }
+        : name === 'normalizer-entity@v1'
+          ? {
+              normalizations: [
+                {
+                  raw: 'LLC',
+                  normalized: 'llc',
+                  confidence: 0.95,
+                  reasoning: 'LLC maps to limited liability company.',
+                },
+                {
+                  raw: 'S-Corp',
+                  normalized: 's_corp',
+                  confidence: 0.94,
+                  reasoning: 'S-Corp maps to S corporation.',
+                },
+                {
+                  raw: 'Partnership',
+                  normalized: 'partnership',
+                  confidence: 0.94,
+                  reasoning: 'Partnership is already canonical.',
+                },
+              ],
+            }
+          : { normalizations: [] }
 
-function buildFailingAi(): AI {
-  return { ...buildAi(), runPrompt: failingRunPrompt, runStreaming: failingRunPrompt }
+    return {
+      result: schema.parse(result),
+      refusal: null,
+      trace: {
+        promptVersion: name,
+        model: 'fast-json-test-model',
+        latencyMs: 5,
+        guardResult: 'ok',
+        inputHash: 'test-hash',
+      },
+      model: 'fast-json-test-model',
+      confidence: 0.97,
+      cost: 0.0001,
+    }
+  }
+
+  const extractPulse: AI['extractPulse'] = async (input) =>
+    runPrompt('pulse-extract@v1', input, PulseExtractOutputSchema)
+
+  return { ai: { extractPulse, runPrompt, runStreaming: runPrompt }, calls }
 }
 
 const SAMPLE_CSV = `Client Name,Tax ID,State,Entity Type,Email
@@ -979,9 +1058,9 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
     expect(result.mappings.every((m) => m.targetField === 'IGNORE')).toBe(true)
   })
 
-  it('uses preset mapper fallback for Solo without calling production migration AI', async () => {
+  it('routes Solo mapper through basic migration AI instead of deterministic-only fallback', async () => {
     const { repo, state } = buildScopedRepo(FIRM)
-    const ai = buildFailingAi()
+    const { ai, calls } = buildCountingMigrationAi()
     const service = new MigrationService({ scoped: repo, ai, userId: USER, plan: 'solo' })
 
     const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
@@ -989,15 +1068,16 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
 
     const result = await service.runMapper(batch.id)
 
-    expect(result.meta?.fallback).toBe('preset')
+    expect(calls).toContain('mapper@v1')
+    expect(result.meta?.fallback).toBeNull()
     expect(result.mappings.some((mapping) => mapping.targetField === 'client.name')).toBe(true)
     expect(state.aiRuns.some((run) => run.kind === 'migration_map')).toBe(true)
-    expect(result.mappings.every((mapping) => mapping.model === null)).toBe(true)
+    expect(result.mappings.every((mapping) => mapping.model === 'fast-json-test-model')).toBe(true)
   })
 
-  it('uses deterministic normalizer fallback for Solo without calling production migration AI', async () => {
+  it('routes Solo normalizer through basic migration AI', async () => {
     const { repo } = buildScopedRepo(FIRM)
-    const ai = buildFailingAi()
+    const { ai, calls } = buildCountingMigrationAi()
     const service = new MigrationService({ scoped: repo, ai, userId: USER, plan: 'solo' })
 
     const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
@@ -1007,12 +1087,16 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
 
     const result = await service.runNormalizer(batch.id)
 
+    expect(calls).toContain('normalizer-entity@v1')
     expect(
       result.normalizations.some(
-        (row) => row.field === 'entity_type' && row.rawValue === 'LLC' && row.normalizedValue,
+        (row) =>
+          row.field === 'entity_type' &&
+          row.rawValue === 'LLC' &&
+          row.normalizedValue === 'llc' &&
+          row.model === 'fast-json-test-model',
       ),
     ).toBe(true)
-    expect(result.normalizations.every((row) => row.model === null)).toBe(true)
   })
 
   it('forces SSN-flagged columns to IGNORE even on the AI happy path', async () => {

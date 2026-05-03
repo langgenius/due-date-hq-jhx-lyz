@@ -6,7 +6,7 @@ import {
   type EntityType,
   type InferTaxTypesResult,
 } from '@duedatehq/core/default-matrix'
-import { planHasFeature, type BillingPlan } from '@duedatehq/core/plan-entitlements'
+import type { BillingPlan } from '@duedatehq/core/plan-entitlements'
 import { parseTabular, type ParsedTabular, type TabularKind } from '@duedatehq/core/csv-parser'
 import { normalizeEntityType, normalizeState } from '@duedatehq/core/normalize-dict'
 import { summarizePenaltyExposure } from '@duedatehq/core/penalty'
@@ -164,10 +164,6 @@ export class MigrationService {
       taskKind: 'migration' as const,
       ...(this.deps.plan ? { plan: this.deps.plan } : {}),
     }
-  }
-
-  private hasProductionMigrationAi(): boolean {
-    return this.deps.plan === undefined || planHasFeature(this.deps.plan, 'productionMigrationAi')
   }
 
   // ---------------------------------------------------------------------
@@ -415,51 +411,40 @@ export class MigrationService {
     let fallback: MapperFallback = null
     let aiOutputId: string | null = null
 
-    if (this.hasProductionMigrationAi()) {
-      const aiResult = await this.deps.ai.runPrompt(
-        'mapper@v1',
-        {
-          header: headers,
-          sample_rows: sampleRows,
-          preset: batch.presetUsed,
-          provider_context: payload.providerContext ?? null,
-          firm_id_hash: this.deps.scoped.firmId,
-        },
-        MapperOutputSchema,
-        this.migrationAiRouting(),
-      )
-      const recorded = await this.recordAiRun('migration_map', batchId, aiResult)
-      aiOutputId = recorded.aiOutputId
+    const aiResult = await this.deps.ai.runPrompt(
+      'mapper@v1',
+      {
+        header: headers,
+        sample_rows: sampleRows,
+        preset: batch.presetUsed,
+        provider_context: payload.providerContext ?? null,
+        firm_id_hash: this.deps.scoped.firmId,
+      },
+      MapperOutputSchema,
+      this.migrationAiRouting(),
+    )
+    const recorded = await this.recordAiRun('migration_map', batchId, aiResult)
+    aiOutputId = recorded.aiOutputId
 
-      if (aiResult.result) {
-        aiMappings = aiResult.result.mappings.map(
-          (m) =>
-            ({
-              id: crypto.randomUUID(),
-              batchId,
-              sourceHeader: m.source,
-              targetField: m.target,
-              confidence: m.confidence,
-              reasoning: m.reasoning ?? null,
-              userOverridden: false,
-              model: aiResult.model,
-              promptVersion: 'mapper@v1',
-              createdAt: new Date().toISOString(),
-            }) satisfies MappingRow,
-        )
-      }
+    if (aiResult.result) {
+      aiMappings = aiResult.result.mappings.map(
+        (m) =>
+          ({
+            id: crypto.randomUUID(),
+            batchId,
+            sourceHeader: m.source,
+            targetField: m.target,
+            confidence: m.confidence,
+            reasoning: m.reasoning ?? null,
+            userOverridden: false,
+            model: aiResult.model,
+            promptVersion: 'mapper@v1',
+            createdAt: new Date().toISOString(),
+          }) satisfies MappingRow,
+      )
     }
 
     if (!aiMappings) {
-      if (!aiOutputId) {
-        const recorded = await this.recordLocalMapperRun(batchId, {
-          headers,
-          sampleRows,
-          preset: batch.presetUsed,
-          providerContext: payload.providerContext ?? null,
-        })
-        aiOutputId = recorded.aiOutputId
-      }
       if (isPresetId(batch.presetUsed)) {
         aiMappings = buildPresetMappings(batch.presetUsed, headers, batchId)
         fallback = 'preset'
@@ -1043,78 +1028,42 @@ export class MigrationService {
     })
   }
 
-  private async recordLocalMapperRun(
-    batchId: string,
-    input: {
-      headers: readonly string[]
-      sampleRows: readonly string[][]
-      preset: string | null
-      providerContext: MappingJsonPayload['providerContext'] | null
-    },
-  ): Promise<{ aiOutputId: string; llmLogId: string }> {
-    return this.deps.scoped.ai.recordRun({
-      userId: this.deps.userId,
-      kind: 'migration_map',
-      inputContextRef: batchId,
-      trace: {
-        promptVersion: PRESET_VERSION,
-        model: null,
-        latencyMs: 0,
-        guardResult: 'ok',
-        inputHash: await hashValue(input),
-      },
-      outputText: JSON.stringify(input),
-      errorMsg: null,
-    })
-  }
-
   private async runEntityNormalizer(
     batchId: string,
     rawValues: string[],
   ): Promise<{ rows: NormalizationRow[]; aiOutputId: string }> {
     const now = new Date().toISOString()
-    let aiOutputId: string
+    const aiResult = await this.deps.ai.runPrompt(
+      'normalizer-entity@v1',
+      { values: rawValues },
+      EntityNormalizerSchema,
+      this.migrationAiRouting(),
+    )
+    const { aiOutputId } = await this.recordAiRun('migration_normalize', batchId, aiResult)
 
-    if (this.hasProductionMigrationAi()) {
-      const aiResult = await this.deps.ai.runPrompt(
-        'normalizer-entity@v1',
-        { values: rawValues },
-        EntityNormalizerSchema,
-        this.migrationAiRouting(),
+    if (aiResult.result) {
+      const hits = new Map<string, EntityNormalizerResult>(
+        aiResult.result.normalizations.map((hit) => [hit.raw, hit]),
       )
-      const recorded = await this.recordAiRun('migration_normalize', batchId, aiResult)
-      aiOutputId = recorded.aiOutputId
-
-      if (aiResult.result) {
-        const hits = new Map<string, EntityNormalizerResult>(
-          aiResult.result.normalizations.map((hit) => [hit.raw, hit]),
-        )
-        return {
-          aiOutputId,
-          rows: rawValues.map((raw) => {
-            const hit = hits.get(raw)
-            return {
-              id: crypto.randomUUID(),
-              batchId,
-              field: 'entity_type',
-              rawValue: raw,
-              normalizedValue: hit?.normalized ?? null,
-              confidence: hit?.confidence ?? null,
-              model: aiResult.model,
-              promptVersion: 'normalizer-entity@v1',
-              reasoning: hit?.reasoning ?? null,
-              userOverridden: false,
-              createdAt: now,
-            } satisfies NormalizationRow
-          }),
-        }
+      return {
+        aiOutputId,
+        rows: rawValues.map((raw) => {
+          const hit = hits.get(raw)
+          return {
+            id: crypto.randomUUID(),
+            batchId,
+            field: 'entity_type',
+            rawValue: raw,
+            normalizedValue: hit?.normalized ?? null,
+            confidence: hit?.confidence ?? null,
+            model: aiResult.model,
+            promptVersion: 'normalizer-entity@v1',
+            reasoning: hit?.reasoning ?? null,
+            userOverridden: false,
+            createdAt: now,
+          } satisfies NormalizationRow
+        }),
       }
-    } else {
-      const recorded = await this.recordLocalNormalizerRun(batchId, {
-        field: 'entity_type',
-        values: rawValues,
-      })
-      aiOutputId = recorded.aiOutputId
     }
 
     return {
@@ -1143,48 +1092,37 @@ export class MigrationService {
     rawValues: string[],
   ): Promise<{ rows: NormalizationRow[]; aiOutputId: string }> {
     const now = new Date().toISOString()
-    let aiOutputId: string
+    const aiResult = await this.deps.ai.runPrompt(
+      'normalizer-tax-types@v1',
+      { values: rawValues },
+      TaxTypesNormalizerSchema,
+      this.migrationAiRouting(),
+    )
+    const { aiOutputId } = await this.recordAiRun('migration_normalize', batchId, aiResult)
 
-    if (this.hasProductionMigrationAi()) {
-      const aiResult = await this.deps.ai.runPrompt(
-        'normalizer-tax-types@v1',
-        { values: rawValues },
-        TaxTypesNormalizerSchema,
-        this.migrationAiRouting(),
+    if (aiResult.result) {
+      const hits = new Map<string, TaxTypesNormalizerResult>(
+        aiResult.result.normalizations.map((hit) => [hit.raw, hit]),
       )
-      const recorded = await this.recordAiRun('migration_normalize', batchId, aiResult)
-      aiOutputId = recorded.aiOutputId
-
-      if (aiResult.result) {
-        const hits = new Map<string, TaxTypesNormalizerResult>(
-          aiResult.result.normalizations.map((hit) => [hit.raw, hit]),
-        )
-        return {
-          aiOutputId,
-          rows: rawValues.map((raw) => {
-            const hit = hits.get(raw)
-            return {
-              id: crypto.randomUUID(),
-              batchId,
-              field: 'tax_types',
-              rawValue: raw,
-              normalizedValue: hit?.normalized ? JSON.stringify(hit.normalized) : null,
-              confidence: hit?.confidence ?? null,
-              model: aiResult.model,
-              promptVersion: 'normalizer-tax-types@v1',
-              reasoning: hit?.reasoning ?? null,
-              userOverridden: false,
-              createdAt: now,
-            } satisfies NormalizationRow
-          }),
-        }
+      return {
+        aiOutputId,
+        rows: rawValues.map((raw) => {
+          const hit = hits.get(raw)
+          return {
+            id: crypto.randomUUID(),
+            batchId,
+            field: 'tax_types',
+            rawValue: raw,
+            normalizedValue: hit?.normalized ? JSON.stringify(hit.normalized) : null,
+            confidence: hit?.confidence ?? null,
+            model: aiResult.model,
+            promptVersion: 'normalizer-tax-types@v1',
+            reasoning: hit?.reasoning ?? null,
+            userOverridden: false,
+            createdAt: now,
+          } satisfies NormalizationRow
+        }),
       }
-    } else {
-      const recorded = await this.recordLocalNormalizerRun(batchId, {
-        field: 'tax_types',
-        values: rawValues,
-      })
-      aiOutputId = recorded.aiOutputId
     }
 
     // Dictionary fallback for common fixture/vendor labels. If a vendor

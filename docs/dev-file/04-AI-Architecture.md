@@ -137,11 +137,12 @@ fair-use 保护，但 Billing 文案不能暗示 Team 有更强模型或更深 A
 
 实现约束：
 
-- Solo 只能使用 preview / basic AI。手动触发的 practice AI workflows（Dashboard brief、
-  Client Risk Summary、Deadline Tip、Readiness Checklist）必须在 procedure 层拒绝，并在
-  前端显示 Pro 升级入口。
-- Migration Mapper / Normalizer 在 Solo 下不得调用 production migration AI；应写入本地
-  deterministic run trace，并使用 preset / dictionary fallback 继续导入流程。
+- Solo 只能使用 preview / basic AI。手动触发的非迁移 practice AI workflows（Dashboard
+  brief、Client Risk Summary、Deadline Tip、Readiness Checklist）必须在 procedure 层拒绝，
+  并在前端显示 Pro 升级入口。
+- Migration 是核心 activation flow：Solo 的 Mapper / Normalizer 必须调用 basic tier AI，
+  但仍受 Solo 的低 daily limit 和人工确认约束。AI 不可用时才降级到 preset / dictionary
+  fallback，并继续写入 trace。
 - Pro 的 Production Pulse 包含 needs-review 确认和 review request；Team 不改变 AI tier，
   但解锁 `priorityPulseMatching`、`guidedMigrationReview`、`auditExport` 等更高阶运营和审计差异。
 

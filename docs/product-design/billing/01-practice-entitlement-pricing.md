@@ -80,8 +80,9 @@ Pricing cards must also show the AI capability:
 
 Runtime gates must match that copy:
 
-- Solo can view deterministic previews and cached/fallback summaries, but manual practice AI
-  refresh/generation actions open a Pro upgrade path instead of queueing AI.
+- Solo can use basic Migration Mapper / Normalizer AI for the activation import flow, plus
+  deterministic previews and cached/fallback summaries. Other manual practice AI refresh/generation
+  actions open a Pro upgrade path instead of queueing AI.
 - Pro unlocks Dashboard brief refresh, client risk summary refresh, deadline tip refresh,
   readiness checklist generation, production Pulse actions including needs-review confirmation and
   review requests, and production migration AI.
