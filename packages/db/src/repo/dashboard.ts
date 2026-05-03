@@ -321,17 +321,17 @@ export function composeDashboardLoad(
 
   for (const row of rows) {
     const days = daysUntilDueFromDate(row.currentDueDate, input.asOfDate)
-    const inWindow = days >= 0 && days <= windowDays
+    const inUrgentWindow = days <= windowDays
     const evidence = evidenceByObligation.get(row.obligationId) ?? []
-    if (inWindow) dueThisWeekCount += 1
+    if (inUrgentWindow) dueThisWeekCount += 1
     if (row.status === 'review') needsReviewCount += 1
     if (evidence.length === 0) evidenceGapCount += 1
-    if (inWindow && row.exposureStatus === 'ready') {
+    if (inUrgentWindow && row.exposureStatus === 'ready') {
       exposureReadyCount += 1
       totalExposureCents += row.estimatedExposureCents ?? 0
-    } else if (inWindow && row.exposureStatus === 'needs_input') {
+    } else if (inUrgentWindow && row.exposureStatus === 'needs_input') {
       exposureNeedsInputCount += 1
-    } else if (inWindow && row.exposureStatus === 'unsupported') {
+    } else if (inUrgentWindow && row.exposureStatus === 'unsupported') {
       exposureUnsupportedCount += 1
     }
 

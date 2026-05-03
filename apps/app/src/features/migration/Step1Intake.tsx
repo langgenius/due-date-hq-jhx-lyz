@@ -313,7 +313,7 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
             value={intake.rawText}
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder={t`Paste here — any shape, we'll figure it out. Include the header row if you have one.`}
-            className="h-[200px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
+            className="h-[142px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
           />
         </div>
       </div>

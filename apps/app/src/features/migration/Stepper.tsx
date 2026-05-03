@@ -23,7 +23,7 @@ export function Stepper({ current }: { current: StepIndex }) {
     <ol
       role="list"
       aria-label="Wizard steps"
-      className="flex h-12 items-center gap-2 border-b border-divider-subtle bg-background-body px-4"
+      className="flex h-12 items-center gap-2 border-b border-divider-subtle px-4"
     >
       {STEP_LABELS.map((step, idx) => {
         const isDone = step.index < current

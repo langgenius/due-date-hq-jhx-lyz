@@ -77,12 +77,12 @@ describe('dashboard aggregation', () => {
 
     expect(result.summary).toEqual({
       openObligationCount: 4,
-      dueThisWeekCount: 2,
+      dueThisWeekCount: 3,
       needsReviewCount: 1,
       evidenceGapCount: 3,
       totalExposureCents: 205_000,
       exposureReadyCount: 2,
-      exposureNeedsInputCount: 0,
+      exposureNeedsInputCount: 1,
       exposureUnsupportedCount: 0,
     })
     expect(result.topRows[0]!.obligationId).toBe('oi_week')
@@ -144,6 +144,8 @@ describe('dashboard aggregation', () => {
       ['this_month', 2, 70_000],
       ['long_term', 2, 110_000],
     ])
+    expect(result.summary.totalExposureCents).toBe(30_000)
+    expect(result.summary.exposureReadyCount).toBe(2)
     expect(result.triageTabs.flatMap((tab) => tab.rows.map((row) => row.obligationId))).toEqual([
       'overdue',
       'day_7',

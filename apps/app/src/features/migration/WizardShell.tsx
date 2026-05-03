@@ -140,7 +140,7 @@ export function WizardShell({
         </DialogDescription>
 
         {/* Window chrome — mirrors HeroSurface traffic-light + mono breadcrumb. */}
-        <header className="flex h-10 shrink-0 items-center justify-between gap-3 border-b border-divider-subtle bg-background-body px-3">
+        <header className="flex h-10 shrink-0 items-center justify-between gap-3 border-b border-divider-subtle px-3">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 font-mono text-sm text-text-tertiary">
               <span
@@ -203,7 +203,7 @@ export function WizardShell({
           {transition ? <ProcessingOverlay transition={transition} /> : null}
         </div>
 
-        <footer className="flex h-12 shrink-0 items-center justify-end gap-4 border-divider-subtle bg-background-body px-4">
+        <footer className="flex h-12 shrink-0 items-center justify-end gap-4 border-divider-subtle px-4">
           <Button
             variant="outline"
             size="lg"

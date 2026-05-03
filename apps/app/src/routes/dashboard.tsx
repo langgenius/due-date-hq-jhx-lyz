@@ -50,6 +50,7 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
+import { cn } from '@duedatehq/ui/lib/utils'
 import {
   TableHeaderMultiFilter,
   type TableFilterOption,
@@ -325,6 +326,7 @@ export function DashboardRoute() {
   const taxTypeQuery = useMemo(() => cleanStringFilters(taxType), [taxType])
   const dashboardTableInput = useMemo<DashboardLoadInput>(
     () => ({
+      topLimit: 20,
       ...(clientQuery.length > 0 ? { clientIds: clientQuery } : {}),
       ...(taxTypeQuery.length > 0 ? { taxTypes: taxTypeQuery } : {}),
       ...(due.length > 0 ? { dueBuckets: due } : {}),
@@ -392,9 +394,9 @@ export function DashboardRoute() {
         },
       ]
     : []
-  const topRows = data?.topRows ?? []
-  const visibleBanners = topRows.slice(0, 3)
   const triageTabs = data?.triageTabs ?? []
+  const topRows = data?.topRows ?? []
+  const urgentRows = triageTabs.find((tab) => tab.key === 'this_week')?.rows ?? []
   const selectedTriageTab = triageTabs.find((tab) => tab.key === triage) ?? triageTabs[0] ?? null
   const facets = data?.facets
   const clientOptions = useMemo<TableFilterOption[]>(
@@ -470,7 +472,7 @@ export function DashboardRoute() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="font-mono tabular-nums">
+          <Badge variant="outline" className="font-mono tabular-nums text-xs">
             {dashboardQuery.isLoading ? <Trans>Loading…</Trans> : data?.asOfDate}
           </Badge>
           <Button variant="outline" size="sm" onClick={openWizard}>
@@ -533,7 +535,7 @@ export function DashboardRoute() {
           isLoading={dashboardQuery.isLoading}
           asOfDate={data?.asOfDate ?? null}
           summary={data?.summary ?? null}
-          topRows={visibleBanners}
+          topRows={urgentRows}
           onOpenEvidence={(row) =>
             openEvidence({
               obligationId: row.obligationId,
@@ -618,24 +620,28 @@ function DashboardMetricStrip({
           label: <Trans>Open obligations</Trans>,
           value: String(summary.openObligationCount),
           detail: <Trans>Active client deadlines in the operating window.</Trans>,
+          valueClassName: 'text-text-primary',
         },
         {
           id: 'due',
           label: <Trans>Due this week</Trans>,
           value: String(summary.dueThisWeekCount),
           detail: <Trans>Includes overdue and next-seven-day obligations.</Trans>,
+          valueClassName: 'text-severity-critical',
         },
         {
           id: 'evidence',
           label: <Trans>Evidence gaps</Trans>,
           value: String(summary.evidenceGapCount),
           detail: <Trans>Rows that still need a source before review.</Trans>,
+          valueClassName: 'text-severity-medium',
         },
         {
           id: 'exposure',
           label: <Trans>Penalty exposure</Trans>,
           value: formatCents(summary.totalExposureCents),
           detail: <Trans>Estimated dollars where formulas are ready.</Trans>,
+          valueClassName: 'text-text-primary',
         },
       ]
     : queueStats.map((stat) => ({
@@ -643,6 +649,7 @@ function DashboardMetricStrip({
         label: stat.label,
         value: stat.value,
         detail: stat.detail,
+        valueClassName: 'text-text-primary',
       }))
 
   return (
@@ -663,7 +670,12 @@ function DashboardMetricStrip({
                 <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
                   {metric.label}
                 </span>
-                <span className="font-mono text-3xl font-semibold tabular-nums text-text-primary">
+                <span
+                  className={cn(
+                    'font-mono text-3xl font-semibold tabular-nums',
+                    metric.valueClassName,
+                  )}
+                >
                   {metric.value}
                 </span>
                 <span className="text-sm text-text-secondary">{metric.detail}</span>
@@ -702,7 +714,7 @@ function DashboardRiskCommandCenter({
           <Trans>Evidence-backed obligations ordered by server priority.</Trans>
         </CardDescription>
         <CardAction>
-          <Badge variant="outline" className="font-mono tabular-nums">
+          <Badge variant="outline" className="font-mono text-xs tabular-nums">
             {summary ? (
               <Trans>{summary.dueThisWeekCount} due this week</Trans>
             ) : (
@@ -813,7 +825,12 @@ function DashboardRiskCommandCenter({
                       <ExposureBadge row={row} />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => onOpenEvidence(row)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="pr-0 text-xs"
+                        onClick={() => onOpenEvidence(row)}
+                      >
                         <FileSearchIcon data-icon="inline-start" />
                         <Trans>Evidence</Trans>
                       </Button>
@@ -1394,7 +1411,7 @@ function DashboardBriefPanel({
               <Badge
                 variant={
                   isQueued || brief?.status === 'pending'
-                    ? 'info'
+                    ? 'warning'
                     : brief?.status === 'stale'
                       ? 'warning'
                       : 'outline'
@@ -1433,7 +1450,10 @@ function DashboardBriefPanel({
           </div>
         ) : isQueued || brief?.status === 'pending' ? (
           <div className="flex items-center gap-2 text-sm text-text-secondary">
-            <span className="size-2 rounded-full bg-state-accent-solid" aria-hidden />
+            <span
+              className="size-2 rounded-full bg-components-badge-status-light-warning-bg"
+              aria-hidden
+            />
             <Trans>Brief is being prepared. The risk table is ready now.</Trans>
           </div>
         ) : isReady && brief?.text ? (

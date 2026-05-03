@@ -204,7 +204,9 @@ Activation Slice v1 约束：Dashboard 不再维护本地 fake risk rows / queue
 `apps/app/src/routes/dashboard.tsx` 直接消费
 `useQuery(orpc.dashboard.load.queryOptions({ input: {} }))`，只负责 loading / error / empty /
 real-data 呈现；open risk、due window、needs review、evidence gap、Penalty Radar exposure
-和 severity 都由 server aggregation 统一计算。前端只渲染
+和 severity 都由 server aggregation 统一计算。Penalty Radar 的首屏金额口径是
+overdue + next-seven-day ready exposure，`Next deadlines` 首屏表格使用同一组 urgent
+rows。前端只渲染
 `ready / needs_input / unsupported`，不在 render 里补算或伪造金额。
 
 Dashboard AI Brief 约束：前端不触发模型调用，也不轮询 AI provider。`dashboard.load` 返回 latest

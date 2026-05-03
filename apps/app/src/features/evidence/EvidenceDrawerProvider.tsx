@@ -188,7 +188,7 @@ function EvidenceCard({ item, focused }: { item: EvidencePublic; focused: boolea
         <EvidenceMetaRow label={t`Model`} value={item.model ?? t`Deterministic`} />
       </dl>
       {item.verbatimQuote ? (
-        <blockquote className="rounded-lg border-l-2 border-divider-deep bg-background-subtle px-3 py-2 text-sm text-text-secondary">
+        <blockquote className="rounded-lg bg-severity-medium-tint px-3 py-2 text-sm text-text-primary">
           {item.verbatimQuote}
         </blockquote>
       ) : null}
