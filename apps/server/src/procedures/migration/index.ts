@@ -143,6 +143,11 @@ const apply = os.migration.apply.handler(async ({ input, context }) => {
   return result
 })
 
+const discardDraft = os.migration.discardDraft.handler(async ({ input, context }) => {
+  const service = await buildService(context, MIGRATION_RUN_ROLES)
+  return service.discardDraft(input.batchId)
+})
+
 const getBatch = os.migration.getBatch.handler(async ({ input, context }) => {
   const service = await buildService(context, MIGRATION_RUN_ROLES)
   return service.getBatch(input.batchId)
@@ -206,6 +211,7 @@ export const migrationHandlers = {
   applyDefaultMatrix,
   dryRun,
   apply,
+  discardDraft,
   revert,
   singleUndo,
   getBatch,

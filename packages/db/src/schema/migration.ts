@@ -107,7 +107,7 @@ export const migrationBatch = sqliteTable(
     uniqueIndex('uq_mb_firm_draft')
       .on(table.firmId)
       .where(sql`status = 'draft'`),
-    // Settings > Imports History listing.
+    // Clients > Import history listing.
     index('idx_mb_firm_time').on(table.firmId, table.createdAt),
     // 24h revert actor lookup.
     index('idx_mb_firm_status').on(table.firmId, table.status),

@@ -122,6 +122,7 @@ export const router = os.router({
     applyDefaultMatrix: migrationHandlers.applyDefaultMatrix,
     dryRun: migrationHandlers.dryRun,
     apply: migrationHandlers.apply,
+    discardDraft: migrationHandlers.discardDraft,
     revert: migrationHandlers.revert,
     singleUndo: migrationHandlers.singleUndo,
     getBatch: migrationHandlers.getBatch,

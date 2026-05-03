@@ -1,0 +1,123 @@
+{
+  "karbon": [
+    {
+      "id": "karbon-work-1001",
+      "externalEntityType": "work_item",
+      "url": "https://app.karbonhq.com/work/karbon-work-1001",
+      "Organization Name": "Acme Advisory LLC (TEST)",
+      "Tax ID": "99-0001001",
+      "State": "CA",
+      "Entity Type": "LLC",
+      "Contact Email": "test+karbon-acme@example.com",
+      "Owner": "Jordan Park",
+      "Estimated Tax Due": "$18500",
+      "Owner Count": 2,
+      "Workflow Status": "Ready for prep"
+    },
+    {
+      "id": "karbon-work-1002",
+      "externalEntityType": "work_item",
+      "url": "https://app.karbonhq.com/work/karbon-work-1002",
+      "Organization Name": "Bright Studio Inc (TEST)",
+      "Tax ID": "99-0001002",
+      "State": "NY",
+      "Entity Type": "S-Corp",
+      "Contact Email": "test+karbon-bright@example.com",
+      "Owner": "Alex Chen",
+      "Estimated Tax Due": "$9200",
+      "Owner Count": 1,
+      "Workflow Status": "Waiting on client"
+    },
+    {
+      "id": "karbon-work-1003",
+      "externalEntityType": "work_item",
+      "url": "https://app.karbonhq.com/work/karbon-work-1003",
+      "Organization Name": "Lake Holdings LP (TEST)",
+      "Tax ID": "99-0001003",
+      "State": "TX",
+      "Entity Type": "Partnership",
+      "Contact Email": "test+karbon-lake@example.com",
+      "Owner": "Mina Patel",
+      "Estimated Tax Due": "$7400",
+      "Owner Count": 4,
+      "Workflow Status": "Organizer sent"
+    }
+  ],
+  "taxdome": [
+    {
+      "accountId": "taxdome-account-2001",
+      "externalEntityType": "account",
+      "externalUrl": "https://example.taxdome.com/accounts/2001",
+      "Client Name": "Northstar Consulting LLC (TEST)",
+      "Tax ID": "99-0002001",
+      "State / Jurisdiction": "CA",
+      "Entity Type": "LLC",
+      "Email": "test+taxdome-northstar@example.com",
+      "Assignee": "Sam Rivera",
+      "Estimated Tax Liability": "$14600",
+      "Owners": 2,
+      "Status": "Active"
+    },
+    {
+      "accountId": "taxdome-account-2002",
+      "externalEntityType": "account",
+      "externalUrl": "https://example.taxdome.com/accounts/2002",
+      "Client Name": "Hudson Retail Corp (TEST)",
+      "Tax ID": "99-0002002",
+      "State / Jurisdiction": "NY",
+      "Entity Type": "C-Corp",
+      "Email": "test+taxdome-hudson@example.com",
+      "Assignee": "Nora Lee",
+      "Estimated Tax Liability": "$23100",
+      "Owners": 1,
+      "Status": "Active"
+    }
+  ],
+  "proconnect": [
+    {
+      "id": "pto-return-3001",
+      "externalEntityType": "return",
+      "webUrl": "https://proconnect.intuit.com/app/tax/returns/3001",
+      "Client Name": "Cedar Medical PLLC (TEST)",
+      "Tax ID": "99-0003001",
+      "State": "FL",
+      "Entity Type": "LLC",
+      "Email": "test+proconnect-cedar@example.com",
+      "Estimated Tax Due": "$6800",
+      "Owner Count": 3,
+      "Return Status": "Not started"
+    }
+  ],
+  "soraban": [
+    {
+      "id": "soraban-organizer-4001",
+      "externalEntityType": "organizer",
+      "url": "https://app.soraban.com/organizers/4001",
+      "Client Name": "Evergreen Dental LLC (TEST)",
+      "Tax ID": "99-0004001",
+      "State": "WA",
+      "Entity Type": "LLC",
+      "Email": "test+soraban-evergreen@example.com",
+      "Organizer Status": "Documents received",
+      "Missing Items": ["K-1", "Estimated tax payment confirmation"]
+    }
+  ],
+  "safesend": [
+    {
+      "id": "safesend-delivery-5001",
+      "externalEntityType": "delivery",
+      "url": "https://app.safesend.com/deliveries/5001",
+      "Client Name": "Harbor Architecture Inc (TEST)",
+      "Tax ID": "99-0005001",
+      "State": "CA",
+      "Entity Type": "S-Corp",
+      "Email": "test+safesend-harbor@example.com",
+      "Estimated Tax Due": "$12400",
+      "Owner Count": 2,
+      "Delivery Status": "Delivered",
+      "Signature Status": "Awaiting taxpayer signature",
+      "Payment Status": "Not paid",
+      "Form Status": "8879 pending"
+    }
+  ]
+}

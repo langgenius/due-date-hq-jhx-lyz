@@ -39,6 +39,7 @@ type ImportHistoryDrawerProps = {
 }
 
 type PendingRecovery =
+  | { kind: 'draft'; batchId: string }
   | { kind: 'batch'; batchId: string }
   | { kind: 'client'; batchId: string; client: ClientPublic }
 
@@ -73,6 +74,7 @@ export function ImportHistoryDrawer({
   const queryClient = useQueryClient()
   const permission = useFirmPermission()
   const canRevertMigration = permission.can('migration.revert')
+  const canRunMigration = permission.can('migration.run')
   const [pendingRecovery, setPendingRecovery] = useState<PendingRecovery | null>(null)
   const batchesQuery = useQuery({
     ...orpc.migration.listBatches.queryOptions({ input: { limit: 50 } }),
@@ -114,12 +116,31 @@ export function ImportHistoryDrawer({
       },
     }),
   )
+  const discardDraft = useMutation(
+    orpc.migration.discardDraft.mutationOptions({
+      onSuccess: () => {
+        refreshAfterRecovery()
+        setPendingRecovery(null)
+        toast.success(t`Draft import discarded`)
+      },
+      onError: (error) => {
+        toast.error(t`Could not discard draft import`, {
+          description: rpcErrorMessage(error) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
 
   const batches = batchesQuery.data?.batches ?? []
-  const recoveryPending = revert.isPending || singleUndo.isPending
+  const recoveryPending = revert.isPending || singleUndo.isPending || discardDraft.isPending
+  const hasRevertibleBatch = batches.some(isBatchRevertible)
 
   const handleConfirmRecovery = useCallback(() => {
     if (!pendingRecovery) return
+    if (pendingRecovery.kind === 'draft') {
+      discardDraft.mutate({ batchId: pendingRecovery.batchId })
+      return
+    }
     if (pendingRecovery.kind === 'batch') {
       revert.mutate({ batchId: pendingRecovery.batchId })
       return
@@ -128,7 +149,7 @@ export function ImportHistoryDrawer({
       batchId: pendingRecovery.batchId,
       clientId: pendingRecovery.client.id,
     })
-  }, [pendingRecovery, revert, singleUndo])
+  }, [discardDraft, pendingRecovery, revert, singleUndo])
 
   return (
     <>
@@ -183,7 +204,7 @@ export function ImportHistoryDrawer({
 
             {!batchesQuery.isLoading && batches.length > 0 ? (
               <div className="grid gap-4">
-                {!canRevertMigration ? (
+                {!canRevertMigration && hasRevertibleBatch ? (
                   <PermissionInlineNotice
                     permission="migration.revert"
                     currentRole={permission.firm?.role}
@@ -193,6 +214,7 @@ export function ImportHistoryDrawer({
                 ) : null}
                 {batches.map((batch) => {
                   const canRevertBatch = canRevertMigration && isBatchRevertible(batch)
+                  const canDiscardDraft = canRunMigration && batch.status === 'draft'
                   return (
                     <Card key={batch.id}>
                       <CardHeader className="flex flex-row items-start justify-between gap-4">
@@ -221,7 +243,7 @@ export function ImportHistoryDrawer({
                         </div>
                         <BatchClients
                           batchId={batch.id}
-                          enabled={open}
+                          enabled={open && batch.status === 'applied'}
                           canUndo={canRevertMigration && batch.status === 'applied'}
                           recoveryPending={recoveryPending}
                           onViewClient={onViewClient}
@@ -230,20 +252,37 @@ export function ImportHistoryDrawer({
                           }
                         />
                         <div className="flex justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setPendingRecovery({
-                                kind: 'batch',
-                                batchId: batch.id,
-                              })
-                            }
-                            disabled={!canRevertBatch || recoveryPending}
-                          >
-                            <RotateCcwIcon data-icon="inline-start" />
-                            <Trans>Revert batch</Trans>
-                          </Button>
+                          {batch.status === 'draft' ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                setPendingRecovery({
+                                  kind: 'draft',
+                                  batchId: batch.id,
+                                })
+                              }
+                              disabled={!canDiscardDraft || recoveryPending}
+                            >
+                              <Trash2Icon data-icon="inline-start" />
+                              <Trans>Discard draft</Trans>
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                setPendingRecovery({
+                                  kind: 'batch',
+                                  batchId: batch.id,
+                                })
+                              }
+                              disabled={!canRevertBatch || recoveryPending}
+                            >
+                              <RotateCcwIcon data-icon="inline-start" />
+                              <Trans>Revert batch</Trans>
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -266,6 +305,8 @@ export function ImportHistoryDrawer({
             <AlertDialogTitle>
               {pendingRecovery?.kind === 'client' ? (
                 <Trans>Undo this imported client?</Trans>
+              ) : pendingRecovery?.kind === 'draft' ? (
+                <Trans>Discard this draft import?</Trans>
               ) : (
                 <Trans>Revert this import batch?</Trans>
               )}
@@ -275,6 +316,11 @@ export function ImportHistoryDrawer({
                 <Trans>
                   This removes the client and deadlines created by this import. Use Clients to edit
                   facts instead.
+                </Trans>
+              ) : pendingRecovery?.kind === 'draft' ? (
+                <Trans>
+                  This clears the unfinished draft so you can start a new import. No clients or
+                  deadlines have been created yet.
                 </Trans>
               ) : (
                 <Trans>
@@ -296,6 +342,8 @@ export function ImportHistoryDrawer({
             >
               {pendingRecovery?.kind === 'client' ? (
                 <Trans>Undo client</Trans>
+              ) : pendingRecovery?.kind === 'draft' ? (
+                <Trans>Discard draft</Trans>
               ) : (
                 <Trans>Revert batch</Trans>
               )}

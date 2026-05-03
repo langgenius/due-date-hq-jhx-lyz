@@ -186,25 +186,18 @@ export function WizardShell({
 
         <Stepper current={step} />
 
-        <div
-          className={cn(
-            'relative min-h-0 px-6',
-            transition ? 'shrink-0 overflow-hidden py-6' : 'flex-1 overflow-y-auto',
-          )}
-          aria-busy={busy || undefined}
-        >
+        {transition ? (
+          <div className="relative min-h-[300px] flex-1" aria-busy={busy || undefined}>
+            <ProcessingOverlay transition={transition} />
+          </div>
+        ) : (
           <div
-            aria-hidden={transition ? true : undefined}
-            inert={transition ? true : undefined}
-            className={cn(
-              'transition-opacity',
-              transition ? 'pointer-events-none absolute inset-x-6 top-0 opacity-0' : 'opacity-100',
-            )}
+            className="relative min-h-0 flex-1 overflow-y-auto px-6"
+            aria-busy={busy || undefined}
           >
             {children}
           </div>
-          {transition ? <ProcessingOverlay transition={transition} /> : null}
-        </div>
+        )}
 
         <footer className="flex h-12 shrink-0 items-center justify-end gap-4 border-divider-subtle px-4">
           <Button
@@ -265,72 +258,80 @@ export function WizardShell({
 function ProcessingOverlay({ transition }: { transition: WizardTransitionState }) {
   const copy = transitionCopy(transition.phase)
   const activeIndex = Math.min(Math.max(transition.activeIndex, 0), copy.steps.length - 1)
-  const progress = `${((activeIndex + 1) / copy.steps.length) * 100}%`
+  const progressValue = Math.round((activeIndex / copy.steps.length) * 100)
 
   return (
-    <div className="grid min-h-[300px] place-items-center bg-components-panel-bg/85">
-      <section
-        role="status"
-        aria-live="polite"
-        className="w-full max-w-[520px] rounded-lg border border-state-accent-active bg-background-body p-4 shadow-overlay"
-      >
-        <div className="flex items-start gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-md bg-state-accent-hover-alt text-text-accent">
-            <LoaderCircleIcon className="size-5 animate-spin" aria-hidden />
-          </span>
-          <div className="min-w-0">
-            <h3 className="text-md font-semibold text-text-primary">{copy.title}</h3>
-            <p className="mt-1 text-sm text-text-secondary">{copy.description}</p>
+    <div className="absolute inset-0 overflow-y-auto bg-components-panel-bg/85">
+      <div className="grid min-h-full place-items-center px-6 py-6">
+        <section
+          role="status"
+          aria-live="polite"
+          className="w-full max-w-[520px] rounded-lg border border-state-accent-active bg-background-body p-4 shadow-overlay"
+        >
+          <div className="flex items-start gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-md bg-state-accent-hover-alt text-text-accent">
+              <LoaderCircleIcon className="size-5 animate-spin" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <h3 className="text-md font-semibold text-text-primary">{copy.title}</h3>
+              <p className="mt-1 text-sm text-text-secondary">{copy.description}</p>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-4 h-1 overflow-hidden rounded-full bg-state-accent-active">
           <div
-            className="h-full rounded-full bg-state-accent-solid transition-[width] duration-500 ease-out"
-            style={{ width: progress }}
-          />
-        </div>
+            className="mt-4 h-1 overflow-hidden rounded-full bg-state-accent-hover-alt"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progressValue}
+          >
+            <div
+              className="h-full rounded-full bg-state-accent-solid transition-[width] duration-500 ease-out"
+              style={{ width: `${progressValue}%` }}
+            />
+          </div>
 
-        <ol className="mt-4 grid gap-2">
-          {copy.steps.map((step, index) => {
-            const complete = index < activeIndex
-            const active = index === activeIndex
-            return (
-              <li
-                key={step.key}
-                className={cn(
-                  'flex min-h-8 items-center gap-2 rounded-md border px-2.5 text-sm transition-colors',
-                  active
-                    ? 'border-state-accent-active bg-state-accent-hover text-text-primary'
-                    : complete
-                      ? 'border-divider-regular bg-background-body text-text-secondary'
-                      : 'border-divider-subtle bg-background-default-subtle text-text-tertiary',
-                )}
-              >
-                <span
+          <ol className="mt-4 grid gap-2">
+            {copy.steps.map((step, index) => {
+              const complete = index < activeIndex
+              const active = index === activeIndex
+              return (
+                <li
+                  key={step.key}
                   className={cn(
-                    'grid size-5 shrink-0 place-items-center rounded-sm border',
+                    'flex min-h-8 items-center gap-2 rounded-md border px-2.5 text-sm transition-colors',
                     active
-                      ? 'border-state-accent-solid bg-state-accent-solid text-text-primary-on-surface'
+                      ? 'border-state-accent-active bg-state-accent-hover text-text-primary'
                       : complete
-                        ? 'border-state-success-solid bg-state-success-hover text-text-success'
-                        : 'border-divider-regular bg-background-body text-text-muted',
+                        ? 'border-divider-regular bg-background-body text-text-secondary'
+                        : 'border-divider-subtle bg-background-default-subtle text-text-tertiary',
                   )}
                 >
-                  {complete ? (
-                    <CheckIcon className="size-3.5" aria-hidden />
-                  ) : active ? (
-                    <LoaderCircleIcon className="size-3.5 animate-spin" aria-hidden />
-                  ) : (
-                    <span className="size-1.5 rounded-full bg-current" aria-hidden />
-                  )}
-                </span>
-                <span className="truncate">{step.label}</span>
-              </li>
-            )
-          })}
-        </ol>
-      </section>
+                  <span
+                    className={cn(
+                      'grid size-5 shrink-0 place-items-center rounded-sm border',
+                      active
+                        ? 'border-state-accent-solid bg-state-accent-solid text-text-primary-on-surface'
+                        : complete
+                          ? 'border-state-success-solid bg-state-success-hover text-text-success'
+                          : 'border-divider-regular bg-background-body text-text-muted',
+                    )}
+                  >
+                    {complete ? (
+                      <CheckIcon className="size-3.5" aria-hidden />
+                    ) : active ? (
+                      <LoaderCircleIcon className="size-3.5 animate-spin" aria-hidden />
+                    ) : (
+                      <span className="size-1.5 rounded-full bg-current" aria-hidden />
+                    )}
+                  </span>
+                  <span className="truncate">{step.label}</span>
+                </li>
+              )
+            })}
+          </ol>
+        </section>
+      </div>
     </div>
   )
 }

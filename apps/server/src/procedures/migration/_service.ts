@@ -196,7 +196,7 @@ export class MigrationService {
     if (existing) {
       throw new ORPCError('CONFLICT', {
         message:
-          'Another import is currently in progress. Resume from Settings › Imports History or cancel it before starting a new one.',
+          'Another import is currently in progress. Open Clients › Import history and discard the draft before starting a new one.',
       })
     }
 
@@ -791,6 +791,30 @@ export class MigrationService {
       revertibleUntil: plan.revertExpiresAt.toISOString(),
       exposureSummary: summarizeCommitPlanExposure(plan),
     }
+  }
+
+  async discardDraft(batchId: string): Promise<{ discardedAt: string }> {
+    const batch = await this.requireBatch(batchId)
+    if (batch.status !== 'draft') {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'Only draft imports can be discarded.',
+      })
+    }
+
+    const discardedAt = new Date()
+    await this.deps.scoped.migration.updateBatch(batchId, { status: 'failed' })
+    await this.deps.scoped.audit.write({
+      actorId: this.deps.userId,
+      entityType: 'migration_batch',
+      entityId: batchId,
+      action: 'migration.discarded',
+      after: {
+        previousStatus: batch.status,
+        discardedAt: discardedAt.toISOString(),
+      },
+    })
+
+    return { discardedAt: discardedAt.toISOString() }
   }
 
   private async filterExistingExternalClients(

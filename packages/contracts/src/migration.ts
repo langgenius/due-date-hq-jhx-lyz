@@ -353,6 +353,7 @@ export const migrationContract = oc.router({
   applyDefaultMatrix: oc.input(ApplyDefaultMatrixInput).output(DryRunSummarySchema),
   dryRun: oc.input(BatchIdInput).output(DryRunSummarySchema),
   apply: oc.input(BatchIdInput).output(ApplyResultSchema),
+  discardDraft: oc.input(BatchIdInput).output(z.object({ discardedAt: z.iso.datetime() })),
   revert: oc.input(BatchIdInput).output(z.object({ revertedAt: z.iso.datetime() })),
   singleUndo: oc
     .input(z.object({ batchId: EntityIdSchema, clientId: EntityIdSchema }))

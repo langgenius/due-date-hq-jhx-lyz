@@ -214,6 +214,8 @@ export type NewAuditEvidencePackage = typeof auditEvidencePackage.$inferInsert
 export const MIGRATION_AUDIT_ACTIONS = [
   'migration.batch.created',
   'migration.raw_uploaded',
+  'migration.staging_rows.created',
+  'migration.discarded',
   'migration.imported',
   'migration.reverted',
   'migration.single_undo',

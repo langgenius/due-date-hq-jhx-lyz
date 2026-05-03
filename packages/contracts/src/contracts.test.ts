@@ -730,6 +730,7 @@ describe('@duedatehq/contracts', () => {
         'stageExternalRows',
         'cloneStagingRows',
         'applyDefaultMatrix',
+        'discardDraft',
         'listErrors',
       ]),
     )
@@ -773,6 +774,7 @@ describe('@duedatehq/contracts', () => {
     expect(AuditActionSchema.parse('migration.staging_rows.created')).toBe(
       'migration.staging_rows.created',
     )
+    expect(AuditActionSchema.parse('migration.discarded')).toBe('migration.discarded')
     expect(PulseAuditActionSchema.parse('pulse.apply')).toBe('pulse.apply')
     expect(PulseAuditActionSchema.parse('pulse.dismiss')).toBe('pulse.dismiss')
     expect(PulseAuditActionSchema.parse('pulse.quarantine')).toBe('pulse.quarantine')

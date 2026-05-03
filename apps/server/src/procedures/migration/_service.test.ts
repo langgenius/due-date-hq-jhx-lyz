@@ -1024,6 +1024,21 @@ describe('MigrationService.createBatch', () => {
       code: 'CONFLICT',
     })
   })
+
+  it('discards a draft batch so a new import can start', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const first = await service.createBatch({ source: 'paste' })
+    const discarded = await service.discardDraft(first.id)
+    const second = await service.createBatch({ source: 'csv' })
+
+    expect(discarded.discardedAt).toEqual(expect.any(String))
+    expect(state.batches.get(first.id)?.status).toBe('failed')
+    expect(second.status).toBe('draft')
+    expect(state.audits.some((a) => a.action === 'migration.discarded')).toBe(true)
+  })
 })
 
 describe('MigrationService.uploadRaw + runMapper happy path', () => {

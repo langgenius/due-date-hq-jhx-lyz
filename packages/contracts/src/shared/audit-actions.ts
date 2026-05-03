@@ -4,6 +4,7 @@ export const MigrationAuditActions = [
   'migration.batch.created',
   'migration.raw_uploaded',
   'migration.staging_rows.created',
+  'migration.discarded',
   'migration.imported',
   'migration.reverted',
   'migration.single_undo',

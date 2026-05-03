@@ -1462,6 +1462,10 @@ msgstr "Could not disable calendar subscription"
 msgid "Could not disable two-factor authentication"
 msgstr "Could not disable two-factor authentication"
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Could not discard draft import"
+msgstr "Could not discard draft import"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Could not load audit events"
 msgstr "Could not load audit events"
@@ -2006,6 +2010,10 @@ msgstr "Disable MFA"
 msgid "Disabled cells"
 msgstr "Disabled cells"
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Discard draft"
+msgstr "Discard draft"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Discard import"
 msgstr "Discard import"
@@ -2013,6 +2021,10 @@ msgstr "Discard import"
 #: src/features/migration/WizardShell.tsx
 msgid "Discard import?"
 msgstr "Discard import?"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Discard this draft import?"
+msgstr "Discard this draft import?"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
 #: src/features/pulse/OpsPulsePage.tsx
@@ -2038,6 +2050,10 @@ msgstr "Dollar exposure is hidden for your current role."
 #: src/features/audit/audit-log-page.tsx
 msgid "Download latest"
 msgstr "Download latest"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Draft import discarded"
+msgstr "Draft import discarded"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB"
@@ -6067,6 +6083,10 @@ msgstr "This action conflicts with the current state. Refresh and try again."
 #: src/features/pulse/lib/error-mapping.ts
 msgid "This alert is no longer available."
 msgstr "This alert is no longer available."
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "This clears the unfinished draft so you can start a new import. No clients or deadlines have been created yet."
+msgstr "This clears the unfinished draft so you can start a new import. No clients or deadlines have been created yet."
 
 #: src/routes/workboard.tsx
 msgid "This is an internal decision record. It does not update the due date or confirm an authority filing. Payment may still be due by the original date."
