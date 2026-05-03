@@ -10,9 +10,18 @@ import { pricingStructuredData } from '../lib/structured-data'
 const t = en
 const ctaHref = getCtaHref()
 const checkoutHrefs = {
-  solo: getAppHref('/billing/checkout?plan=solo&interval=monthly'),
-  pro: getAppHref('/billing/checkout?plan=pro&interval=monthly'),
-  team: getAppHref('/billing/checkout?plan=team&interval=monthly'),
+  solo: {
+    monthly: getAppHref('/billing/checkout?plan=solo&interval=monthly'),
+    yearly: getAppHref('/billing/checkout?plan=solo&interval=yearly'),
+  },
+  pro: {
+    monthly: getAppHref('/billing/checkout?plan=pro&interval=monthly'),
+    yearly: getAppHref('/billing/checkout?plan=pro&interval=yearly'),
+  },
+  team: {
+    monthly: getAppHref('/billing/checkout?plan=team&interval=monthly'),
+    yearly: getAppHref('/billing/checkout?plan=team&interval=yearly'),
+  },
 }
 const pathname = '/pricing'
 ---

@@ -74,6 +74,8 @@ PULSE_OPS_TOKEN=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 # Required for self-serve checkout enablement.
+# Yearly recurring prices should match the annual offers:
+# Solo 37200 cents/year, Pro 75600 cents/year, Team 142800 cents/year.
 STRIPE_PRICE_PRO_MONTHLY=
 STRIPE_PRICE_PRO_YEARLY=
 # Optional self-serve tiers. Checkout is available when the matching price exists.

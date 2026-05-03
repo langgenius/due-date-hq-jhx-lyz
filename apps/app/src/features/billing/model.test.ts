@@ -2,10 +2,15 @@ import { SMART_PRIORITY_DEFAULT_PROFILE, type FirmPublic } from '@duedatehq/cont
 import { describe, expect, it } from 'vitest'
 import {
   activeFirmEntitlementLimit,
+  billingPlanMonthlyEquivalent,
+  billingPlanYearlyAnnualPrice,
+  billingPlanYearlySavings,
   canCreateAdditionalFirm,
   isSelfServeBillingPlan,
   ownedActiveFirms,
   paidPlanActive,
+  serializeBillingQuery,
+  subscriptionBillingIntervalToUi,
 } from './model'
 
 function firm(overrides: Partial<FirmPublic> = {}): FirmPublic {
@@ -66,5 +71,25 @@ describe('billing firm entitlement model', () => {
     expect(paidPlanActive(firm({ plan: 'pro' }))).toBe(true)
     expect(paidPlanActive(firm({ plan: 'team' }))).toBe(true)
     expect(paidPlanActive(firm({ plan: 'firm' }))).toBe(true)
+  })
+
+  it('serializes checkout links with the selected billing interval', () => {
+    expect(serializeBillingQuery('/billing/checkout', { plan: 'pro', interval: 'yearly' })).toBe(
+      '/billing/checkout?plan=pro&interval=yearly',
+    )
+  })
+
+  it('keeps annual plan math aligned with public pricing', () => {
+    expect(billingPlanMonthlyEquivalent('solo', 'monthly')).toBe(39)
+    expect(billingPlanMonthlyEquivalent('solo', 'yearly')).toBe(31)
+    expect(billingPlanMonthlyEquivalent('pro', 'yearly')).toBe(63)
+    expect(billingPlanYearlyAnnualPrice('team')).toBe(1428)
+    expect(billingPlanYearlySavings('pro')).toBe(192)
+  })
+
+  it('maps provider billing intervals to billing UI intervals', () => {
+    expect(subscriptionBillingIntervalToUi('month')).toBe('monthly')
+    expect(subscriptionBillingIntervalToUi('year')).toBe('yearly')
+    expect(subscriptionBillingIntervalToUi(null)).toBe('monthly')
   })
 })

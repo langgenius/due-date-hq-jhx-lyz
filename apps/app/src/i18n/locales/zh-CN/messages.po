@@ -306,33 +306,6 @@ msgstr "/ 月"
 msgid "© {0} DueDateHQ Inc."
 msgstr "© {0} DueDateHQ Inc."
 
-#: src/routes/billing.checkout.tsx
-msgid "$119"
-msgstr "$119"
-
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-msgid "$149"
-msgstr "$149"
-
-#: src/routes/billing.checkout.tsx
-msgid "$31"
-msgstr "$31"
-
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-msgid "$39"
-msgstr "$39"
-
-#: src/routes/billing.checkout.tsx
-msgid "$63"
-msgstr "$63"
-
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-msgid "$79"
-msgstr "$79"
-
 #: src/features/pulse/AlertsListPage.tsx
 msgid "0 active"
 msgstr "0 条活跃"
@@ -654,6 +627,14 @@ msgstr "已激活"
 msgid "Already applied"
 msgstr "已应用"
 
+#: src/routes/billing.tsx
+msgid "Annual contract"
+msgstr "年度合同"
+
+#: src/routes/billing.checkout.tsx
+msgid "Annual contract · From $3,828/year"
+msgstr "年度合同 · $3,828/年起"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Annual rolling"
 msgstr "年度滚动"
@@ -875,8 +856,21 @@ msgid "Bearer token"
 msgstr "Bearer token"
 
 #: src/routes/billing.checkout.tsx
-msgid "Billed yearly with 20% discount"
-msgstr "按年计费，享 20% 折扣"
+#: src/routes/billing.tsx
+msgid "Billed yearly"
+msgstr "按年支付"
+
+#: src/routes/billing.checkout.tsx
+msgid "Billed yearly · Save $192/year"
+msgstr "按年支付 · 每年省 $192"
+
+#: src/routes/billing.checkout.tsx
+msgid "Billed yearly · Save $360/year"
+msgstr "按年支付 · 每年省 $360"
+
+#: src/routes/billing.checkout.tsx
+msgid "Billed yearly · Save $96/year"
+msgstr "按年支付 · 每年省 $96"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
@@ -888,6 +882,10 @@ msgstr "账单"
 #: src/routes/billing.tsx
 msgid "Billing controls"
 msgstr "账单控制"
+
+#: src/routes/billing.tsx
+msgid "Billing interval"
+msgstr "账单周期"
 
 #: src/routes/billing.tsx
 msgid "Billing portal could not open"
@@ -2330,6 +2328,11 @@ msgstr "公式"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
+msgid "From $319"
+msgstr "$319 起"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
 msgid "From $399"
 msgstr "$399 起"
 
@@ -2963,6 +2966,7 @@ msgid "Model"
 msgstr "模型"
 
 #: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
 msgid "Monthly"
 msgstr "月付"
 
@@ -4768,6 +4772,22 @@ msgstr "样例"
 msgid "Save"
 msgstr "保存"
 
+#: src/routes/billing.tsx
+msgid "Save $192/year"
+msgstr "每年省 $192"
+
+#: src/routes/billing.tsx
+msgid "Save $360/year"
+msgstr "每年省 $360"
+
+#: src/routes/billing.tsx
+msgid "Save $96/year"
+msgstr "每年省 $96"
+
+#: src/routes/billing.tsx
+msgid "Save about 20%"
+msgstr "约省 20%"
+
 #: src/routes/practice.tsx
 #: src/routes/workboard.tsx
 msgid "Save changes"
@@ -4780,6 +4800,10 @@ msgstr "保存当前视图"
 #: src/routes/workboard.tsx
 msgid "Save decision"
 msgstr "保存决策"
+
+#: src/routes/billing.tsx
+msgid "Save from $960/year"
+msgstr "每年省 $960 起"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Save jurisdiction"
@@ -5390,6 +5414,14 @@ msgstr "已暂停"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Switch practice, current {0}"
 msgstr "切换事务所，当前为 {0}"
+
+#: src/routes/billing.tsx
+msgid "Switch to monthly"
+msgstr "切换到月付"
+
+#: src/routes/billing.tsx
+msgid "Switch to yearly"
+msgstr "切换到年付"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-event-drawer.tsx
@@ -6073,6 +6105,7 @@ msgid "XLSX"
 msgstr "XLSX"
 
 #: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
 msgid "Yearly"
 msgstr "年付"
 

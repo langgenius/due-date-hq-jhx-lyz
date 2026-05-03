@@ -101,21 +101,31 @@ describe('@duedatehq/auth permissions', () => {
       STRIPE_SECRET_KEY: 'sk_test_123',
       STRIPE_WEBHOOK_SECRET: 'whsec_123',
       STRIPE_PRICE_SOLO_MONTHLY: 'price_solo_monthly',
+      STRIPE_PRICE_SOLO_YEARLY: 'price_solo_yearly',
       STRIPE_PRICE_PRO_MONTHLY: 'price_pro_monthly',
+      STRIPE_PRICE_PRO_YEARLY: 'price_pro_yearly',
       STRIPE_PRICE_TEAM_MONTHLY: 'price_team_monthly',
+      STRIPE_PRICE_TEAM_YEARLY: 'price_team_yearly',
     })
 
     expect(isStripeConfigured(env)).toBe(true)
     expect(
       stripeBillingPlans(env).map((plan) => ({
         name: plan.name,
+        monthly: plan.priceId,
+        yearly: plan.annualDiscountPriceId,
         seats: plan.limits?.seats,
       })),
     ).toEqual([
-      { name: 'solo', seats: 1 },
-      { name: 'pro', seats: 3 },
-      { name: 'team', seats: 10 },
+      { name: 'solo', monthly: 'price_solo_monthly', yearly: 'price_solo_yearly', seats: 1 },
+      { name: 'pro', monthly: 'price_pro_monthly', yearly: 'price_pro_yearly', seats: 3 },
+      { name: 'team', monthly: 'price_team_monthly', yearly: 'price_team_yearly', seats: 10 },
     ])
+    expect(billingCheckoutConfig(env).plans).toEqual({
+      solo: { monthly: true, yearly: true },
+      pro: { monthly: true, yearly: true },
+      team: { monthly: true, yearly: true },
+    })
   })
 
   it('leaves Solo and Team checkout disabled when their price ids are absent', () => {

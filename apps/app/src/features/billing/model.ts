@@ -10,6 +10,40 @@ export type BillingPlan = (typeof BILLING_PLANS)[number]
 export type SelfServeBillingPlan = (typeof SELF_SERVE_BILLING_PLANS)[number]
 export type BillingInterval = (typeof BILLING_INTERVALS)[number]
 
+export interface BillingPlanPricing {
+  monthlyPriceUsd: number
+  yearlyMonthlyPriceUsd: number
+  yearlyAnnualPriceUsd: number
+  yearlySavingsUsd: number
+}
+
+export const BILLING_PLAN_PRICING = {
+  solo: {
+    monthlyPriceUsd: 39,
+    yearlyMonthlyPriceUsd: 31,
+    yearlyAnnualPriceUsd: 372,
+    yearlySavingsUsd: 96,
+  },
+  pro: {
+    monthlyPriceUsd: 79,
+    yearlyMonthlyPriceUsd: 63,
+    yearlyAnnualPriceUsd: 756,
+    yearlySavingsUsd: 192,
+  },
+  team: {
+    monthlyPriceUsd: 149,
+    yearlyMonthlyPriceUsd: 119,
+    yearlyAnnualPriceUsd: 1428,
+    yearlySavingsUsd: 360,
+  },
+  firm: {
+    monthlyPriceUsd: 399,
+    yearlyMonthlyPriceUsd: 319,
+    yearlyAnnualPriceUsd: 3828,
+    yearlySavingsUsd: 960,
+  },
+} as const satisfies Record<BillingPlan, BillingPlanPricing>
+
 export const billingSearchParamsParsers = {
   plan: parseAsStringLiteral(BILLING_PLANS).withDefault(SELF_SERVE_BILLING_PLAN),
   interval: parseAsStringLiteral(BILLING_INTERVALS).withDefault('monthly'),
@@ -43,6 +77,23 @@ export function parseBillingPlan(value: string | null): BillingPlan {
 
 export function parseBillingInterval(value: string | null): BillingInterval {
   return isBillingInterval(value) ? value : 'monthly'
+}
+
+export function billingPlanMonthlyEquivalent(plan: BillingPlan, interval: BillingInterval): number {
+  const pricing = BILLING_PLAN_PRICING[plan]
+  return interval === 'yearly' ? pricing.yearlyMonthlyPriceUsd : pricing.monthlyPriceUsd
+}
+
+export function billingPlanYearlyAnnualPrice(plan: BillingPlan): number {
+  return BILLING_PLAN_PRICING[plan].yearlyAnnualPriceUsd
+}
+
+export function billingPlanYearlySavings(plan: BillingPlan): number {
+  return BILLING_PLAN_PRICING[plan].yearlySavingsUsd
+}
+
+export function subscriptionBillingIntervalToUi(value: string | null | undefined): BillingInterval {
+  return value === 'year' ? 'yearly' : 'monthly'
 }
 
 export function serializeBillingQuery(

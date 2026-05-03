@@ -96,6 +96,39 @@ test('AC: E2E-BILLING-CHECKOUT-EXISTING-SUBSCRIPTION includes subscriptionId on 
   expectCallbackUrl(payload.returnUrl, '/billing')
 })
 
+test('AC: E2E-BILLING-CHECKOUT-CONFIG blocks missing yearly Stripe prices', async ({
+  authenticatedPage,
+  billingPage,
+}) => {
+  await authenticatedPage.route('**/rpc/firms/billingCheckoutConfig', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        json: {
+          stripeConfigured: true,
+          plans: {
+            solo: { monthly: true, yearly: true },
+            pro: { monthly: true, yearly: true },
+            team: { monthly: true, yearly: false },
+          },
+        },
+      }),
+    })
+  })
+  await authenticatedPage.route('**/api/auth/subscription/upgrade', async () => {
+    throw new Error('Missing yearly price must not call subscription.upgrade')
+  })
+
+  await billingPage.gotoCheckout('/billing/checkout?plan=team&interval=yearly')
+
+  await expect(billingPage.checkoutHeading).toBeVisible({ timeout: 10_000 })
+  await expect(
+    authenticatedPage.getByRole('alert').filter({ hasText: 'Checkout is not configured' }),
+  ).toBeVisible()
+  await expect(billingPage.continueToSecureCheckoutButton).toBeDisabled()
+})
+
 test.describe('coordinator checkout', () => {
   test.use({ authRole: 'coordinator' })
 

@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import type { ComponentProps, ReactNode } from 'react'
+import { useState, type ComponentProps, type ReactNode } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
@@ -29,10 +29,13 @@ import { cn } from '@duedatehq/ui/lib/utils'
 import { createBillingPortal } from '@/features/billing/api'
 import {
   activeFirmEntitlementLimit,
+  billingPlanMonthlyEquivalent,
   billingPlanHref,
   isFirmOwner,
   ownedActiveFirms,
   paidPlanActive,
+  subscriptionBillingIntervalToUi,
+  type BillingInterval,
   type BillingPlan,
 } from '@/features/billing/model'
 import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
@@ -46,6 +49,7 @@ type PlanCard = {
   priceSuffix?: string
   priceKind?: 'numeric' | 'text'
   cadence: string
+  savings: string | undefined
   seats: string
   firms: string
   description: string
@@ -56,15 +60,31 @@ type PlanCard = {
   disabled?: boolean
 }
 
-function usePlanCards(): PlanCard[] {
+function usePlanCards(interval: BillingInterval): PlanCard[] {
   const { t } = useLingui()
+  const monthly = interval === 'monthly'
+  const cadence = monthly ? t`Monthly billing` : t`Billed yearly`
+
+  function price(plan: BillingPlan): string {
+    return `$${billingPlanMonthlyEquivalent(plan, interval).toLocaleString('en-US')}`
+  }
+
+  function savings(plan: BillingPlan): string | undefined {
+    if (monthly) return undefined
+    if (plan === 'solo') return t`Save $96/year`
+    if (plan === 'pro') return t`Save $192/year`
+    if (plan === 'team') return t`Save $360/year`
+    return t`Save from $960/year`
+  }
+
   return [
     {
       id: 'solo',
       name: t`Solo`,
-      price: t`$39`,
+      price: price('solo'),
       priceSuffix: t`/ mo`,
-      cadence: t`Monthly billing`,
+      cadence,
+      savings: savings('solo'),
       seats: t`1 owner seat`,
       firms: t`1 practice workspace`,
       description: t`For solo owners running one practice workspace.`,
@@ -75,14 +95,15 @@ function usePlanCards(): PlanCard[] {
         t`Migration and rules preview`,
       ],
       cta: t`Start Solo`,
-      href: billingPlanHref('solo', 'monthly'),
+      href: billingPlanHref('solo', interval),
     },
     {
       id: 'pro',
       name: t`Pro`,
-      price: t`$79`,
+      price: price('pro'),
       priceSuffix: t`/ mo`,
-      cadence: t`Monthly billing`,
+      cadence,
+      savings: savings('pro'),
       seats: t`3 seats included`,
       firms: t`1 production practice`,
       description: t`For small practices that need shared deadline operations.`,
@@ -94,14 +115,15 @@ function usePlanCards(): PlanCard[] {
       ],
       cta: t`Upgrade to Pro`,
       badge: t`Recommended`,
-      href: billingPlanHref('pro', 'monthly'),
+      href: billingPlanHref('pro', interval),
     },
     {
       id: 'team',
       name: t`Team`,
-      price: t`$149`,
+      price: price('team'),
       priceSuffix: t`/ mo`,
-      cadence: t`Monthly billing`,
+      cadence,
+      savings: savings('team'),
       seats: t`10 seats included`,
       firms: t`1 production practice`,
       description: t`For practices coordinating a larger operations team.`,
@@ -112,15 +134,16 @@ function usePlanCards(): PlanCard[] {
         t`Manager-ready practice operations`,
       ],
       cta: t`Upgrade to Team`,
-      href: billingPlanHref('team', 'monthly'),
+      href: billingPlanHref('team', interval),
     },
     {
       id: 'firm',
       name: t`Enterprise`,
-      price: t`From $399`,
+      price: interval === 'yearly' ? t`From $319` : t`From $399`,
       priceKind: 'text',
       priceSuffix: t`/ mo`,
-      cadence: t`Custom agreement`,
+      cadence: interval === 'yearly' ? t`Annual contract` : t`Custom agreement`,
+      savings: savings('firm'),
       seats: t`10+ seats`,
       firms: t`Multiple practices/offices`,
       description: t`For multi-practice operations, API access, and custom coverage.`,
@@ -131,14 +154,15 @@ function usePlanCards(): PlanCard[] {
         t`Priority onboarding and audit exports`,
       ],
       cta: t`Contact sales`,
-      href: billingPlanHref('firm', 'monthly'),
+      href: billingPlanHref('firm', interval),
     },
   ]
 }
 
 export function BillingRoute() {
   const { t } = useLingui()
-  const planCards = usePlanCards()
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly')
+  const planCards = usePlanCards(billingInterval)
   const { firmsQuery, currentFirm } = useCurrentFirm()
   const firms = firmsQuery.data ?? (currentFirm ? [currentFirm] : [])
   const activeFirmCount = ownedActiveFirms(firms).length
@@ -150,6 +174,9 @@ export function BillingRoute() {
   const subscriptionsQuery = useBillingSubscriptions(currentFirm)
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
     ['active', 'trialing', 'past_due', 'paused'].includes(subscription.status),
+  )
+  const activeSubscriptionInterval = subscriptionBillingIntervalToUi(
+    activeSubscription?.billingInterval,
   )
   const owner = isFirmOwner(currentFirm)
   const currentPlanName = currentFirm
@@ -387,17 +414,25 @@ export function BillingRoute() {
               <Trans>Choose a workspace tier</Trans>
             </h2>
           </div>
-          <p className="max-w-[520px] text-sm text-text-secondary">
+          <p className="text-sm text-text-secondary">
             <Trans>
               Self-serve Solo, Pro, and Team changes use secure checkout and include one active
               practice.
             </Trans>
           </p>
+          <BillingIntervalToggle value={billingInterval} onChange={setBillingInterval} />
         </header>
 
         <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
           {planCards.map((plan) => (
-            <PlanOption key={plan.id} plan={plan} currentPlan={currentFirm?.plan} owner={owner} />
+            <PlanOption
+              key={plan.id}
+              plan={plan}
+              interval={billingInterval}
+              currentPlan={currentFirm?.plan}
+              currentInterval={activeSubscriptionInterval}
+              owner={owner}
+            />
           ))}
         </div>
       </section>
@@ -491,20 +526,91 @@ function ControlRow({
   )
 }
 
+function BillingIntervalToggle({
+  value,
+  onChange,
+}: {
+  value: BillingInterval
+  onChange: (value: BillingInterval) => void
+}) {
+  const { t } = useLingui()
+
+  return (
+    <div
+      role="group"
+      aria-label={t`Billing interval`}
+      className="inline-flex h-11 w-fit max-w-full items-center rounded-lg border border-divider-regular bg-background-default p-1"
+    >
+      <button
+        type="button"
+        aria-pressed={value === 'monthly'}
+        onClick={() => onChange('monthly')}
+        className={cn(
+          'inline-flex h-9 min-w-24 items-center justify-center rounded-md px-3 text-sm font-medium text-text-secondary transition-colors',
+          value === 'monthly'
+            ? 'bg-accent-default text-primary-foreground shadow-sm'
+            : 'hover:bg-state-base-hover hover:text-text-primary',
+        )}
+      >
+        <Trans>Monthly</Trans>
+      </button>
+      <button
+        type="button"
+        aria-pressed={value === 'yearly'}
+        onClick={() => onChange('yearly')}
+        className={cn(
+          'inline-flex h-9 min-w-40 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-text-secondary transition-colors',
+          value === 'yearly'
+            ? 'bg-accent-default text-primary-foreground shadow-sm'
+            : 'hover:bg-state-base-hover hover:text-text-primary',
+        )}
+      >
+        <span>
+          <Trans>Yearly</Trans>
+        </span>
+        <Badge
+          variant="success"
+          className={cn(
+            'font-mono text-[10px]',
+            value === 'yearly' && 'bg-white/20 text-primary-foreground',
+          )}
+        >
+          <Trans>Save about 20%</Trans>
+        </Badge>
+      </button>
+    </div>
+  )
+}
+
 function PlanOption({
   plan,
+  interval,
   currentPlan,
+  currentInterval,
   owner,
 }: {
   plan: PlanCard
+  interval: BillingInterval
   currentPlan: BillingPlan | undefined
+  currentInterval: BillingInterval
   owner: boolean
 }) {
-  const current = plan.id === currentPlan
+  const samePlan = plan.id === currentPlan
+  const current = samePlan && interval === currentInterval
   const lowerThanCurrent = currentPlan ? PLAN_RANK[plan.id] < PLAN_RANK[currentPlan] : false
   const disabled = plan.disabled || current || lowerThanCurrent || !owner
   const highlighted = plan.id === 'pro'
   const priceKind = plan.priceKind ?? 'numeric'
+  const actionLabel =
+    samePlan && !current ? (
+      interval === 'yearly' ? (
+        <Trans>Switch to yearly</Trans>
+      ) : (
+        <Trans>Switch to monthly</Trans>
+      )
+    ) : (
+      plan.cta
+    )
 
   return (
     <Card
@@ -543,17 +649,25 @@ function PlanOption({
               </span>
             ) : null}
           </div>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary">
-            <span>{plan.cadence}</span>
-            <span aria-hidden>·</span>
-            <span>{plan.firms}</span>
-            <span
-              aria-hidden
-              className="text-2xl font-black leading-none text-state-destructive-solid"
-            >
-              ·
-            </span>
-            <span>{plan.seats}</span>
+          <div className="grid gap-2 text-sm text-text-secondary">
+            <div className="flex flex-wrap items-center gap-2">
+              <span>{plan.cadence}</span>
+              {plan.savings ? (
+                <Badge variant="success" className="font-mono text-[10px]">
+                  {plan.savings}
+                </Badge>
+              ) : null}
+            </div>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span>{plan.firms}</span>
+              <span
+                aria-hidden
+                className="text-2xl font-black leading-none text-state-destructive-solid"
+              >
+                ·
+              </span>
+              <span>{plan.seats}</span>
+            </div>
           </div>
         </div>
         <div className="h-px w-full bg-divider-regular" aria-hidden />
@@ -578,7 +692,7 @@ function PlanOption({
             )}
           >
             <CreditCardIcon data-icon="inline-start" />
-            {plan.cta}
+            {actionLabel}
             <ArrowRightIcon data-icon="inline-end" />
           </Link>
         ) : (
@@ -593,7 +707,7 @@ function PlanOption({
 
 function CurrentPlanRibbon() {
   return (
-    <div className="pointer-events-none absolute top-0 right-0 z-10 h-28 w-28" aria-hidden="true">
+    <div className="pointer-events-none absolute -top-2 -right-2 z-10 h-28 w-28" aria-hidden="true">
       <span className="absolute top-8 -right-10 flex h-8 w-40 rotate-45 items-center justify-center bg-state-destructive-solid text-[10px] leading-none font-bold text-components-button-destructive-primary-text uppercase shadow-sm">
         <Trans>current</Trans>
       </span>

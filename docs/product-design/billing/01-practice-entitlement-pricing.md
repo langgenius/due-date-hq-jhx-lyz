@@ -17,12 +17,16 @@ inside that container; advanced multi-workspace needs belong to the Enterprise t
 
 ## Pricing Shape
 
-| Plan       | Price                 | Customer-facing practice limit        | Included seats        | Primary buyer                                  | Product promise                                                                               |
-| ---------- | --------------------- | ------------------------------------- | --------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Solo       | $39/mo                | 1 active practice                     | 1 owner seat          | Solo CPA or single-owner practice              | Run one live practice workspace with source-backed deadline evidence.                         |
-| Pro        | $79/mo                | 1 active practice                     | 3 seats               | Small CPA practice                             | Run one production practice with shared deadline operations.                                  |
-| Team       | $149/mo               | 1 active practice                     | 10 seats              | Larger single-practice operations team         | Coordinate a larger team inside one production practice workspace.                            |
-| Enterprise | from $399/mo / custom | Multiple active practices by contract | 10+ seats by contract | Multi-office or operationally complex practice | Manage multiple practices/offices, API/SSO, audit exports, coverage planning, and onboarding. |
+| Plan       | Monthly price         | Annual offer                        | Customer-facing practice limit        | Included seats        | Primary buyer                                  | Product promise                                                                               |
+| ---------- | --------------------- | ----------------------------------- | ------------------------------------- | --------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Solo       | $39/mo                | $31/mo billed yearly ($372/year)    | 1 active practice                     | 1 owner seat          | Solo CPA or single-owner practice              | Run one live practice workspace with source-backed deadline evidence.                         |
+| Pro        | $79/mo                | $63/mo billed yearly ($756/year)    | 1 active practice                     | 3 seats               | Small CPA practice                             | Run one production practice with shared deadline operations.                                  |
+| Team       | $149/mo               | $119/mo billed yearly ($1,428/year) | 1 active practice                     | 10 seats              | Larger single-practice operations team         | Coordinate a larger team inside one production practice workspace.                            |
+| Enterprise | from $399/mo / custom | from $319/mo equivalent annually    | Multiple active practices by contract | 10+ seats by contract | Multi-office or operationally complex practice | Manage multiple practices/offices, API/SSO, audit exports, coverage planning, and onboarding. |
+
+Annual self-serve offers use an approximately 20% discount versus paying monthly for 12 months:
+Solo saves $96/year, Pro saves $192/year, and Team saves $360/year. Enterprise remains
+sales-assisted; annual pricing is quoted by contract rather than exposed as self-serve checkout.
 
 `active firm` means `firm_profile.status = 'active'` and `deleted_at IS NULL`. Soft-deleted firms
 do not count toward the entitlement. Suspended firms are inaccessible and should not be marketed as
@@ -59,10 +63,10 @@ usable entitlement.
 
 Pricing cards must show both seats and practice/workspace limits:
 
-- Solo: `$39/mo · 1 practice workspace · 1 owner seat`
-- Pro: `$79/mo · 1 production practice · 3 seats included`
-- Team: `$149/mo · 1 production practice · 10 seats included`
-- Enterprise: `from $399/mo / custom · multiple practices/offices · 10+ seats`
+- Solo: `$39/mo` or `$31/mo billed yearly · Save $96/year · 1 practice workspace · 1 owner seat`
+- Pro: `$79/mo` or `$63/mo billed yearly · Save $192/year · 1 production practice · 3 seats included`
+- Team: `$149/mo` or `$119/mo billed yearly · Save $360/year · 1 production practice · 10 seats included`
+- Enterprise: `from $399/mo` or `from $319/mo equivalent annually · multiple practices/offices · 10+ seats`
 
 FAQ must include "Can I create multiple practices?" with the answer:
 
@@ -79,6 +83,9 @@ The Billing page must show current entitlement usage:
 - Subscription status remains payment-provider backed, but quota display is app-owned.
 
 Plan cards in the app must mirror public pricing. They should not only list seats.
+The Billing page defaults to monthly, offers a Monthly/Yearly toggle, and allows an owner to switch
+the same self-serve plan between monthly and yearly intervals when the current subscription interval
+does not already match the selected option.
 
 ### Practice Switcher
 

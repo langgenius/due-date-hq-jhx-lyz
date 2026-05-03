@@ -306,33 +306,6 @@ msgstr "/ mo"
 msgid "© {0} DueDateHQ Inc."
 msgstr "© {0} DueDateHQ Inc."
 
-#: src/routes/billing.checkout.tsx
-msgid "$119"
-msgstr "$119"
-
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-msgid "$149"
-msgstr "$149"
-
-#: src/routes/billing.checkout.tsx
-msgid "$31"
-msgstr "$31"
-
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-msgid "$39"
-msgstr "$39"
-
-#: src/routes/billing.checkout.tsx
-msgid "$63"
-msgstr "$63"
-
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-msgid "$79"
-msgstr "$79"
-
 #: src/features/pulse/AlertsListPage.tsx
 msgid "0 active"
 msgstr "0 active"
@@ -654,6 +627,14 @@ msgstr "Already active"
 msgid "Already applied"
 msgstr "Already applied"
 
+#: src/routes/billing.tsx
+msgid "Annual contract"
+msgstr "Annual contract"
+
+#: src/routes/billing.checkout.tsx
+msgid "Annual contract · From $3,828/year"
+msgstr "Annual contract · From $3,828/year"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Annual rolling"
 msgstr "Annual rolling"
@@ -875,8 +856,21 @@ msgid "Bearer token"
 msgstr "Bearer token"
 
 #: src/routes/billing.checkout.tsx
-msgid "Billed yearly with 20% discount"
-msgstr "Billed yearly with 20% discount"
+#: src/routes/billing.tsx
+msgid "Billed yearly"
+msgstr "Billed yearly"
+
+#: src/routes/billing.checkout.tsx
+msgid "Billed yearly · Save $192/year"
+msgstr "Billed yearly · Save $192/year"
+
+#: src/routes/billing.checkout.tsx
+msgid "Billed yearly · Save $360/year"
+msgstr "Billed yearly · Save $360/year"
+
+#: src/routes/billing.checkout.tsx
+msgid "Billed yearly · Save $96/year"
+msgstr "Billed yearly · Save $96/year"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
@@ -888,6 +882,10 @@ msgstr "Billing"
 #: src/routes/billing.tsx
 msgid "Billing controls"
 msgstr "Billing controls"
+
+#: src/routes/billing.tsx
+msgid "Billing interval"
+msgstr "Billing interval"
 
 #: src/routes/billing.tsx
 msgid "Billing portal could not open"
@@ -2330,6 +2328,11 @@ msgstr "Formula"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
+msgid "From $319"
+msgstr "From $319"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
 msgid "From $399"
 msgstr "From $399"
 
@@ -2963,6 +2966,7 @@ msgid "Model"
 msgstr "Model"
 
 #: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
 msgid "Monthly"
 msgstr "Monthly"
 
@@ -4768,6 +4772,22 @@ msgstr "Sample"
 msgid "Save"
 msgstr "Save"
 
+#: src/routes/billing.tsx
+msgid "Save $192/year"
+msgstr "Save $192/year"
+
+#: src/routes/billing.tsx
+msgid "Save $360/year"
+msgstr "Save $360/year"
+
+#: src/routes/billing.tsx
+msgid "Save $96/year"
+msgstr "Save $96/year"
+
+#: src/routes/billing.tsx
+msgid "Save about 20%"
+msgstr "Save about 20%"
+
 #: src/routes/practice.tsx
 #: src/routes/workboard.tsx
 msgid "Save changes"
@@ -4780,6 +4800,10 @@ msgstr "Save current view"
 #: src/routes/workboard.tsx
 msgid "Save decision"
 msgstr "Save decision"
+
+#: src/routes/billing.tsx
+msgid "Save from $960/year"
+msgstr "Save from $960/year"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Save jurisdiction"
@@ -5390,6 +5414,14 @@ msgstr "Suspended"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Switch practice, current {0}"
 msgstr "Switch practice, current {0}"
+
+#: src/routes/billing.tsx
+msgid "Switch to monthly"
+msgstr "Switch to monthly"
+
+#: src/routes/billing.tsx
+msgid "Switch to yearly"
+msgstr "Switch to yearly"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-event-drawer.tsx
@@ -6073,6 +6105,7 @@ msgid "XLSX"
 msgstr "XLSX"
 
 #: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
 msgid "Yearly"
 msgstr "Yearly"
 

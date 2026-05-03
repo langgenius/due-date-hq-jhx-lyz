@@ -1,22 +1,27 @@
 ---
-import type { PricingCheckoutPlan, PricingCopy, PricingPlanCopy } from '../i18n/types'
+import type {
+  PricingBillingInterval,
+  PricingCheckoutPlan,
+  PricingCopy,
+  PricingPlanCopy,
+} from '../i18n/types'
 
 interface Props {
   t: PricingCopy
   appHref: string
-  checkoutHrefs: Record<PricingCheckoutPlan, string>
+  checkoutHrefs: Record<PricingCheckoutPlan, Record<PricingBillingInterval, string>>
 }
 
 const { t, appHref, checkoutHrefs } = Astro.props
 
-function hrefFor(plan: PricingPlanCopy): string {
-  if (plan.hrefKind === 'checkout') return checkoutHrefs[plan.checkoutPlan ?? 'pro']
+function hrefFor(plan: PricingPlanCopy, interval: PricingBillingInterval): string {
+  if (plan.hrefKind === 'checkout') return checkoutHrefs[plan.checkoutPlan ?? 'pro'][interval]
   if (plan.hrefKind === 'app') return appHref
   return 'mailto:sales@duedatehq.com?subject=DueDateHQ%20Enterprise'
 }
 ---
 
-<section class="bg-bg-canvas">
+<section class="bg-bg-canvas" data-pricing-root data-billing-interval="monthly">
   <div class="mx-auto max-w-[1440px] px-20 py-20">
     <!-- Hero — Figma: pad 80/80/56/80, gap 20 -->
     <div>
@@ -49,17 +54,49 @@ function hrefFor(plan: PricingPlanCopy): string {
             {t.plansHeader.title}
           </h2>
         </div>
-        <span
-          class="font-mono text-[11px] font-medium tracking-[0.13em] text-text-secondary"
-        >
-          {t.plansHeader.note}
-        </span>
+        <div class="flex flex-wrap items-center justify-end gap-3">
+          <span
+            class="font-mono text-[11px] font-medium tracking-[0.13em] text-text-secondary"
+          >
+            {t.plansHeader.note}
+          </span>
+          <div
+            role="group"
+            aria-label={t.billingToggle.ariaLabel}
+            class="inline-flex h-11 max-w-full items-center rounded-lg border border-border-default bg-bg-elevated p-1"
+          >
+            <button
+              type="button"
+              data-pricing-billing-toggle="monthly"
+              aria-pressed="true"
+              class="inline-flex h-9 min-w-24 items-center justify-center rounded-md bg-accent-default px-3 text-[13px] font-medium text-primary-foreground shadow-sm transition-colors"
+            >
+              {t.billingToggle.monthly}
+            </button>
+            <button
+              type="button"
+              data-pricing-billing-toggle="yearly"
+              aria-pressed="false"
+              class="inline-flex h-9 min-w-40 items-center justify-center gap-2 rounded-md px-3 text-[13px] font-medium text-text-secondary transition-colors hover:bg-bg-panel hover:text-text-primary"
+            >
+              <span>{t.billingToggle.yearly}</span>
+              <span
+                data-pricing-billing-badge
+                class="rounded-sm bg-accent-tint px-2 py-0.5 font-mono text-[10px] font-medium text-text-accent"
+              >
+                {t.billingToggle.yearlyBadge}
+              </span>
+            </button>
+          </div>
+        </div>
       </header>
 
       <div class="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
         {
           t.plans.map((plan) => {
             const isRecommended = Boolean(plan.badge)
+            const monthlyHref = hrefFor(plan, 'monthly')
+            const yearlyHref = hrefFor(plan, 'yearly')
             return (
               <article
                 class:list={[
@@ -93,12 +130,31 @@ function hrefFor(plan: PricingPlanCopy): string {
                           plan.priceKind === 'text' ? 'font-sans' : 'font-mono font-bold',
                         ]}
                       >
-                        {plan.price}
+                        <span
+                          data-pricing-price
+                          data-monthly={plan.price}
+                          data-yearly={plan.yearlyPrice ?? plan.price}
+                        >
+                          {plan.price}
+                        </span>
                       </span>
-                      <span class="text-[13px] leading-[1.4] text-text-secondary">
+                      <span
+                        data-pricing-cadence
+                        data-monthly={plan.cadence}
+                        data-yearly={plan.yearlyCadence ?? plan.cadence}
+                        class="text-[13px] leading-[1.4] text-text-secondary"
+                      >
                         {plan.cadence}
                       </span>
                     </div>
+                    {plan.yearlySavings ? (
+                      <p
+                        data-pricing-savings
+                        class="hidden font-mono text-[11px] font-medium tracking-[0.06em] text-text-accent"
+                      >
+                        {plan.yearlySavings}
+                      </p>
+                    ) : null}
                     <p class="font-mono text-[11px] font-medium tracking-[0.06em] text-text-muted">
                       {plan.seats}
                     </p>
@@ -122,7 +178,10 @@ function hrefFor(plan: PricingPlanCopy): string {
                 </div>
 
                 <a
-                  href={hrefFor(plan)}
+                  href={monthlyHref}
+                  data-pricing-cta
+                  data-href-monthly={monthlyHref}
+                  data-href-yearly={yearlyHref}
                   class:list={[
                     'mt-10 inline-flex h-11 items-center justify-center gap-1.5 rounded-md px-3.5 text-[13px] font-medium transition-colors',
                     isRecommended
@@ -173,3 +232,66 @@ function hrefFor(plan: PricingPlanCopy): string {
     </section>
   </div>
 </section>
+
+<script>
+  type PricingInterval = 'monthly' | 'yearly'
+
+  function setPricingInterval(root: HTMLElement, interval: PricingInterval) {
+    root.dataset.billingInterval = interval
+
+    root.querySelectorAll<HTMLElement>('[data-pricing-billing-toggle]').forEach((button) => {
+      const pressed = button.dataset.pricingBillingToggle === interval
+      button.setAttribute('aria-pressed', String(pressed))
+      button.classList.toggle('bg-accent-default', pressed)
+      button.classList.toggle('text-primary-foreground', pressed)
+      button.classList.toggle('shadow-sm', pressed)
+      button.classList.toggle('text-text-secondary', !pressed)
+      button.classList.toggle('hover:bg-bg-panel', !pressed)
+      button.classList.toggle('hover:text-text-primary', !pressed)
+
+      const badge = button.querySelector<HTMLElement>('[data-pricing-billing-badge]')
+      badge?.classList.toggle('bg-white/20', pressed)
+      badge?.classList.toggle('text-primary-foreground', pressed)
+      badge?.classList.toggle('bg-accent-tint', !pressed)
+      badge?.classList.toggle('text-text-accent', !pressed)
+    })
+
+    root.querySelectorAll<HTMLElement>('[data-pricing-price]').forEach((node) => {
+      const next = interval === 'yearly' ? node.dataset.yearly : node.dataset.monthly
+      if (next) node.textContent = next
+    })
+
+    root.querySelectorAll<HTMLElement>('[data-pricing-cadence]').forEach((node) => {
+      const next = interval === 'yearly' ? node.dataset.yearly : node.dataset.monthly
+      if (next) node.textContent = next
+    })
+
+    root.querySelectorAll<HTMLElement>('[data-pricing-savings]').forEach((node) => {
+      node.classList.toggle('hidden', interval !== 'yearly')
+    })
+
+    root.querySelectorAll<HTMLAnchorElement>('[data-pricing-cta]').forEach((link) => {
+      const next = interval === 'yearly' ? link.dataset.hrefYearly : link.dataset.hrefMonthly
+      if (next) link.setAttribute('href', next)
+    })
+  }
+
+  function initPricingBillingToggles() {
+    document.querySelectorAll<HTMLElement>('[data-pricing-root]').forEach((root) => {
+      root.querySelectorAll<HTMLElement>('[data-pricing-billing-toggle]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const interval = button.dataset.pricingBillingToggle
+          if (interval === 'monthly' || interval === 'yearly') {
+            setPricingInterval(root, interval)
+          }
+        })
+      })
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPricingBillingToggles, { once: true })
+  } else {
+    initPricingBillingToggles()
+  }
+</script>

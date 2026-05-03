@@ -246,14 +246,18 @@ export interface FinalCtaCopy {
 }
 
 export type PricingCheckoutPlan = 'solo' | 'pro' | 'team'
+export type PricingBillingInterval = 'monthly' | 'yearly'
 
 export interface PricingPlanCopy {
   name: string
   badge?: string
   price: string
+  yearlyPrice?: string
   /** When 'text' the price is rendered with Inter (e.g. "Custom"); 'numeric' uses Geist Mono. */
   priceKind?: 'numeric' | 'text'
   cadence: string
+  yearlyCadence?: string
+  yearlySavings?: string
   description: string
   seats: string
   cta: string
@@ -275,6 +279,12 @@ export interface PricingCopy {
     eyebrow: string
     title: string
     note: string
+  }
+  billingToggle: {
+    ariaLabel: string
+    monthly: string
+    yearly: string
+    yearlyBadge: string
   }
   plans: PricingPlanCopy[]
   faqHeader: {

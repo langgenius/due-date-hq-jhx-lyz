@@ -32,10 +32,12 @@ import { cn } from '@duedatehq/ui/lib/utils'
 
 import { createCheckout } from '@/features/billing/api'
 import {
+  billingPlanMonthlyEquivalent,
   billingSearchParamsParsers,
   isSelfServeBillingPlan,
   isFirmOwner,
   serializeBillingQuery,
+  subscriptionBillingIntervalToUi,
   type BillingInterval,
   type BillingPlan,
 } from '@/features/billing/model'
@@ -59,13 +61,25 @@ type PlanView = {
 
 function usePlanView(plan: BillingPlan, interval: BillingInterval): PlanView {
   const { t } = useLingui()
+  const price = `$${billingPlanMonthlyEquivalent(plan, interval).toLocaleString('en-US')}`
+
+  function intervalNote(): string {
+    if (plan === 'firm') {
+      return interval === 'yearly' ? t`Annual contract · From $3,828/year` : t`Custom agreement`
+    }
+    if (interval === 'monthly') return t`Monthly billing`
+    if (plan === 'solo') return t`Billed yearly · Save $96/year`
+    if (plan === 'pro') return t`Billed yearly · Save $192/year`
+    if (plan === 'team') return t`Billed yearly · Save $360/year`
+    return t`Billed yearly`
+  }
 
   if (plan === 'solo') {
     return {
       label: t`Solo`,
-      price: interval === 'yearly' ? t`$31` : t`$39`,
+      price,
       priceSuffix: t`/ mo`,
-      priceNote: interval === 'yearly' ? t`Billed yearly with 20% discount` : t`Monthly billing`,
+      priceNote: intervalNote(),
       seatLimit: 1,
       firmLimit: t`1 active practice`,
       summary: t`For solo owners running one practice workspace.`,
@@ -77,9 +91,9 @@ function usePlanView(plan: BillingPlan, interval: BillingInterval): PlanView {
   if (plan === 'pro') {
     return {
       label: t`Pro`,
-      price: interval === 'yearly' ? t`$63` : t`$79`,
+      price,
       priceSuffix: t`/ mo`,
-      priceNote: interval === 'yearly' ? t`Billed yearly with 20% discount` : t`Monthly billing`,
+      priceNote: intervalNote(),
       seatLimit: 3,
       firmLimit: t`1 active practice`,
       summary: t`For small practices that need shared deadline operations.`,
@@ -91,9 +105,9 @@ function usePlanView(plan: BillingPlan, interval: BillingInterval): PlanView {
   if (plan === 'team') {
     return {
       label: t`Team`,
-      price: interval === 'yearly' ? t`$119` : t`$149`,
+      price,
       priceSuffix: t`/ mo`,
-      priceNote: interval === 'yearly' ? t`Billed yearly with 20% discount` : t`Monthly billing`,
+      priceNote: intervalNote(),
       seatLimit: 10,
       firmLimit: t`1 active practice`,
       summary: t`For practices coordinating a larger operations team.`,
@@ -104,9 +118,9 @@ function usePlanView(plan: BillingPlan, interval: BillingInterval): PlanView {
 
   return {
     label: t`Enterprise`,
-    price: t`From $399`,
+    price: interval === 'yearly' ? t`From $319` : t`From $399`,
     priceSuffix: t`/ mo`,
-    priceNote: t`Custom agreement`,
+    priceNote: intervalNote(),
     seatLimit: 10,
     firmLimit: t`Multiple practices/offices`,
     summary: t`For multi-practice operations, API access, and custom coverage.`,
@@ -138,6 +152,9 @@ export function BillingCheckoutRoute() {
   const checkoutConfigQuery = useBillingCheckoutConfig(Boolean(currentFirm))
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
     ['active', 'trialing', 'past_due', 'paused'].includes(subscription.status),
+  )
+  const activeSubscriptionInterval = subscriptionBillingIntervalToUi(
+    activeSubscription?.billingInterval,
   )
   const subscriptionsReady = !subscriptionsQuery.isPending && !subscriptionsQuery.isError
   const checkoutConfigured = checkoutConfiguredFor(checkoutConfigQuery.data, plan, interval)
@@ -194,7 +211,10 @@ export function BillingCheckoutRoute() {
   }
 
   const owner = isFirmOwner(currentFirm)
-  const alreadyOnPlan = activeSubscription?.plan === plan && currentFirm.plan === plan
+  const alreadyOnPlan =
+    activeSubscription?.plan === plan &&
+    currentFirm.plan === plan &&
+    activeSubscriptionInterval === interval
   const selfServe = view.selfServe && isSelfServeBillingPlan(plan)
   const checkoutUnavailable = selfServe && checkoutConfigQuery.isSuccess && !checkoutConfigured
   const currentPlanLabel =
