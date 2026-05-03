@@ -1,5 +1,6 @@
 import type { FirmPlan, FirmRole, FirmStatus, InvitationStatus, MemberStatus } from './shared'
 import type { AuditEventInput } from './audit'
+import type { SmartPriorityProfile } from './priority'
 
 export interface TenantContext {
   readonly firmId: string
@@ -22,6 +23,7 @@ export interface FirmMembershipRow {
   role: FirmRole
   ownerUserId: string
   coordinatorCanSeeDollars: boolean
+  smartPriorityProfile: SmartPriorityProfile
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -31,6 +33,31 @@ export interface FirmUpdateInput {
   name: string
   timezone: string
   coordinatorCanSeeDollars?: boolean
+  smartPriorityProfile?: SmartPriorityProfile
+}
+
+export interface FirmSmartPriorityPreviewInput {
+  smartPriorityProfile: SmartPriorityProfile
+  asOfDate: string
+  limit: number
+}
+
+export interface FirmSmartPriorityPreviewRow {
+  obligationId: string
+  clientName: string
+  taxType: string
+  currentDueDate: Date
+  currentScore: number
+  previewScore: number
+  scoreDelta: number
+  currentRank: number | null
+  previewRank: number
+  rankDelta: number | null
+}
+
+export interface FirmSmartPriorityPreviewOutput {
+  asOfDate: string
+  rows: FirmSmartPriorityPreviewRow[]
 }
 
 export interface MemberRow {
@@ -90,6 +117,10 @@ export interface FirmsRepo {
   listOwnedActive(userId: string): Promise<FirmMembershipRow[]>
   findActiveForUser(userId: string, firmId: string): Promise<FirmMembershipRow | undefined>
   updateProfile(firmId: string, input: FirmUpdateInput): Promise<void>
+  previewSmartPriorityProfile(
+    firmId: string,
+    input: FirmSmartPriorityPreviewInput,
+  ): Promise<FirmSmartPriorityPreviewOutput>
   softDelete(firmId: string): Promise<void>
   listBillingSubscriptions(firmId: string): Promise<FirmBillingSubscriptionRow[]>
   setActiveSession(sessionId: string, userId: string, firmId: string | null): Promise<void>

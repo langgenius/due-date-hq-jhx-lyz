@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { FirmPublic } from '@duedatehq/contracts'
+import { SMART_PRIORITY_DEFAULT_PROFILE, type FirmPublic } from '@duedatehq/contracts'
 import { activateOrCreateOnboardingFirm, type OnboardingFirmGateway } from './onboarding-firm-flow'
 
 function firm(overrides: Partial<FirmPublic> = {}): FirmPublic {
@@ -14,6 +14,7 @@ function firm(overrides: Partial<FirmPublic> = {}): FirmPublic {
     role: 'owner',
     ownerUserId: 'user_1',
     coordinatorCanSeeDollars: false,
+    smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
     isCurrent: false,
     createdAt: '2026-04-29T00:00:00.000Z',
     updatedAt: '2026-04-29T00:00:00.000Z',

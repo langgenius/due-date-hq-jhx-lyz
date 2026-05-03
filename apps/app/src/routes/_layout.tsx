@@ -2,7 +2,7 @@ import { useCallback, useSyncExternalStore } from 'react'
 import { useLoaderData, useMatches } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useLingui } from '@lingui/react/macro'
-import type { FirmPublic } from '@duedatehq/contracts'
+import { SMART_PRIORITY_DEFAULT_PROFILE, type FirmPublic } from '@duedatehq/contracts'
 
 import type { ThemePreference } from '@duedatehq/ui/theme'
 
@@ -137,6 +137,7 @@ function pickCurrentFirm(firms: FirmPublic[] | undefined, user: AuthUser): FirmP
     role: 'owner',
     ownerUserId: user.id,
     coordinatorCanSeeDollars: false,
+    smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
     isCurrent: true,
     createdAt: new Date(0).toISOString(),
     updatedAt: new Date(0).toISOString(),

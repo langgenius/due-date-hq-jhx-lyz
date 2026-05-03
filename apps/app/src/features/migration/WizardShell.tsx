@@ -22,6 +22,7 @@ import {
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { useAppHotkey, isEditableEventTarget } from '@/components/patterns/keyboard-shell'
+import { ConceptLabel } from '@/features/concepts/concept-help'
 
 import { Stepper } from './Stepper'
 import type { StepIndex } from './state'
@@ -152,7 +153,9 @@ export function WizardShell({
               </span>
               <span aria-hidden>/</span>
               <span>
-                <Trans>Import</Trans>
+                <ConceptLabel concept="migrationCopilot">
+                  <Trans>Import</Trans>
+                </ConceptLabel>
               </span>
               <span aria-hidden>/</span>
               <span className="text-text-secondary">

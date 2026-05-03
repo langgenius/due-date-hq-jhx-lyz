@@ -8,6 +8,8 @@ import { Button } from '@duedatehq/ui/components/ui/button'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { ConceptLabel } from '@/features/concepts/concept-help'
+
 import type { CoverageCellState } from './rules-console-model'
 
 type FilterOption<T extends string> = {
@@ -161,14 +163,18 @@ export function CoverageCell({ state }: { state: CoverageCellState }) {
 
 export function CoverageLegend() {
   return (
-    <div className="flex h-4 flex-wrap items-center gap-x-7 gap-y-1 text-xs text-text-tertiary">
+    <div className="flex flex-wrap items-center gap-x-7 gap-y-1 text-xs text-text-tertiary">
       <span className="inline-flex items-center gap-2">
         <ToneDot tone="success" />
-        <Trans>verified — reminder will fire</Trans>
+        <ConceptLabel concept="verifiedRule">
+          <Trans>verified — reminder will fire</Trans>
+        </ConceptLabel>
       </span>
       <span className="inline-flex items-center gap-2">
         <ToneDot tone="warning" />
-        <Trans>review — needs CPA confirmation</Trans>
+        <ConceptLabel concept="requiresReview">
+          <Trans>review — needs CPA confirmation</Trans>
+        </ConceptLabel>
       </span>
       <span className="inline-flex items-center gap-2">
         <ToneDot tone="disabled" />

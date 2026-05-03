@@ -11,11 +11,15 @@ import { ErrorCodes } from './errors'
 import {
   FirmBillingSubscriptionPublicSchema,
   FirmCreateInputSchema,
+  FirmPublicSchema,
+  FirmSmartPriorityPreviewInputSchema,
+  FirmSmartPriorityPreviewOutputSchema,
   FirmUpdateInputSchema,
   US_FIRM_TIMEZONE_OPTIONS,
   USFirmTimezoneSchema,
   firmsContract,
 } from './firms'
+import { SMART_PRIORITY_DEFAULT_PROFILE, SmartPriorityProfileSchema } from './priority'
 import {
   ClientBulkAssigneeUpdateInputSchema,
   ClientBulkAssigneeUpdateOutputSchema,
@@ -168,6 +172,7 @@ describe('@duedatehq/contracts', () => {
       'create',
       'switchActive',
       'updateCurrent',
+      'previewSmartPriorityProfile',
       'listSubscriptions',
       'softDeleteCurrent',
     ])
@@ -190,7 +195,69 @@ describe('@duedatehq/contracts', () => {
     expect(() =>
       FirmUpdateInputSchema.parse({ name: 'Bright CPA', timezone: 'Europe/London' }),
     ).toThrow()
+    expect(
+      FirmUpdateInputSchema.parse({
+        name: 'Bright CPA',
+        timezone: 'America/New_York',
+        smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
+      }).smartPriorityProfile?.weights.exposure,
+    ).toBe(45)
     expect(FirmCreateInputSchema.parse({ name: 'Bright CPA' }).timezone).toBe('America/New_York')
+    expect(
+      FirmPublicSchema.parse({
+        id: 'firm_123',
+        name: 'Bright CPA',
+        slug: 'bright-cpa',
+        plan: 'pro',
+        seatLimit: 5,
+        timezone: 'America/New_York',
+        status: 'active',
+        role: 'owner',
+        ownerUserId: 'user_123',
+        coordinatorCanSeeDollars: false,
+        smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
+        isCurrent: true,
+        createdAt: '2026-04-28T00:00:00.000Z',
+        updatedAt: '2026-04-28T00:00:00.000Z',
+        deletedAt: null,
+      }).smartPriorityProfile.weights.urgency,
+    ).toBe(25)
+    expect(() =>
+      SmartPriorityProfileSchema.parse({
+        ...SMART_PRIORITY_DEFAULT_PROFILE,
+        weights: { ...SMART_PRIORITY_DEFAULT_PROFILE.weights, readiness: 6 },
+      }),
+    ).toThrow()
+    expect(() =>
+      SmartPriorityProfileSchema.parse({
+        ...SMART_PRIORITY_DEFAULT_PROFILE,
+        urgencyWindowDays: 0,
+      }),
+    ).toThrow()
+    expect(
+      FirmSmartPriorityPreviewInputSchema.parse({
+        smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
+      }).limit,
+    ).toBe(8)
+    expect(
+      FirmSmartPriorityPreviewOutputSchema.parse({
+        asOfDate: '2026-05-03',
+        rows: [
+          {
+            obligationId: 'obligation_1',
+            clientName: 'Bright Client',
+            taxType: 'federal_1065',
+            currentDueDate: '2026-05-10',
+            currentScore: 36.3,
+            previewScore: 40.1,
+            scoreDelta: 3.8,
+            currentRank: 2,
+            previewRank: 1,
+            rankDelta: 1,
+          },
+        ],
+      }).rows[0]?.previewRank,
+    ).toBe(1)
 
     const subscription = FirmBillingSubscriptionPublicSchema.parse({
       id: 'sub_123',

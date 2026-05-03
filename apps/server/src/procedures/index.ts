@@ -41,6 +41,7 @@ export const router = os.router({
     create: firmsHandlers.create,
     switchActive: firmsHandlers.switchActive,
     updateCurrent: firmsHandlers.updateCurrent,
+    previewSmartPriorityProfile: firmsHandlers.previewSmartPriorityProfile,
     listSubscriptions: firmsHandlers.listSubscriptions,
     softDeleteCurrent: firmsHandlers.softDeleteCurrent,
   },

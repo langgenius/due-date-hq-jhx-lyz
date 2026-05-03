@@ -81,11 +81,17 @@ export type {
   SmartPriorityBreakdown,
   SmartPriorityFactor,
   SmartPriorityFactorKey,
+  SmartPriorityProfile,
+  SmartPriorityWeights,
 } from './priority'
 export {
+  SMART_PRIORITY_DEFAULT_PROFILE,
   SmartPriorityBreakdownSchema,
   SmartPriorityFactorKeySchema,
   SmartPriorityFactorSchema,
+  SmartPriorityProfileSchema,
+  SmartPriorityProfileVersionSchema,
+  SmartPriorityWeightsSchema,
 } from './priority'
 
 export type {
@@ -119,6 +125,9 @@ export type {
   FirmPlan,
   FirmPublic,
   FirmRole,
+  FirmSmartPriorityPreviewInput,
+  FirmSmartPriorityPreviewOutput,
+  FirmSmartPriorityPreviewRow,
   FirmsContract,
   FirmStatus,
   FirmUpdateInput,
@@ -128,6 +137,9 @@ export {
   FirmBillingSubscriptionPublicSchema,
   FirmCreateInputSchema,
   FirmPlanSchema,
+  FirmSmartPriorityPreviewInputSchema,
+  FirmSmartPriorityPreviewOutputSchema,
+  FirmSmartPriorityPreviewRowSchema,
   FirmPublicSchema,
   FirmRoleSchema,
   firmsContract,

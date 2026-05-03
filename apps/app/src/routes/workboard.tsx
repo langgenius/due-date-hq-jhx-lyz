@@ -128,6 +128,7 @@ import {
   tableHeaderFilterTrigger,
   type TableFilterOption,
 } from '@/components/patterns/table-header-filter'
+import { ConceptLabel } from '@/features/concepts/concept-help'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
@@ -977,7 +978,7 @@ export function WorkboardRoute() {
       },
       {
         id: 'smartPriority',
-        header: t`Priority`,
+        header: () => <ConceptLabel concept="smartPriority">{t`Priority`}</ConceptLabel>,
         cell: ({ row: tableRow }) => (
           <SmartPriorityBadge smartPriority={tableRow.original.smartPriority} />
         ),
@@ -1226,7 +1227,7 @@ export function WorkboardRoute() {
       },
       {
         accessorKey: 'evidenceCount',
-        header: t`Evidence`,
+        header: () => <ConceptLabel concept="evidence">{t`Evidence`}</ConceptLabel>,
         cell: ({ row: tableRow }) => (
           <Button
             variant="ghost"
@@ -1599,7 +1600,9 @@ export function WorkboardRoute() {
         <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-semibold leading-tight text-text-primary">
-              <Trans>Obligation queue</Trans>
+              <ConceptLabel concept="obligation">
+                <Trans>Obligation queue</Trans>
+              </ConceptLabel>
             </h1>
             <p className="max-w-180 text-md text-text-secondary">
               <Trans>
@@ -1688,7 +1691,9 @@ export function WorkboardRoute() {
       <Card>
         <CardHeader>
           <CardTitle>
-            <Trans>Queue controls</Trans>
+            <ConceptLabel concept="workboard">
+              <Trans>Queue controls</Trans>
+            </ConceptLabel>
           </CardTitle>
           <CardDescription>
             <Trans>
@@ -2864,7 +2869,9 @@ function WorkboardDetailDrawer({
                     <div className="rounded-lg border border-divider-regular p-3">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <span className="text-sm font-medium text-text-primary">
-                          <Trans>Smart Priority</Trans>
+                          <ConceptLabel concept="smartPriority">
+                            <Trans>Smart Priority</Trans>
+                          </ConceptLabel>
                         </span>
                         <SmartPriorityBadge smartPriority={row.smartPriority} align="end" />
                       </div>
@@ -2889,7 +2896,7 @@ function WorkboardDetailDrawer({
                       onRefresh={() => requestDeadlineTipMutation.mutate({ obligationId: row.id })}
                     />
                     <DetailRow
-                      label={<Trans>Exposure</Trans>}
+                      label={<ConceptLabel concept="exposure">{t`Exposure`}</ConceptLabel>}
                       value={
                         row.exposureStatus === 'ready' && row.estimatedExposureCents !== null
                           ? formatCents(row.estimatedExposureCents)
@@ -2954,6 +2961,11 @@ function WorkboardDetailDrawer({
               </TabsContent>
               <TabsContent value="evidence">
                 <div className="grid gap-3">
+                  <div className="text-sm font-medium text-text-primary">
+                    <ConceptLabel concept="evidence">
+                      <Trans>Evidence</Trans>
+                    </ConceptLabel>
+                  </div>
                   {detail.matchedRule ? (
                     <div className="rounded-lg border border-divider-regular p-3">
                       <p className="font-medium">{detail.matchedRule.title}</p>
@@ -2982,6 +2994,11 @@ function WorkboardDetailDrawer({
               </TabsContent>
               <TabsContent value="audit">
                 <div className="grid gap-3">
+                  <div className="text-sm font-medium text-text-primary">
+                    <ConceptLabel concept="auditTrail">
+                      <Trans>Audit</Trans>
+                    </ConceptLabel>
+                  </div>
                   {detail.auditEvents.length > 0 ? (
                     detail.auditEvents.map((event) => (
                       <div key={event.id} className="rounded-lg border border-divider-regular p-3">
@@ -3052,7 +3069,9 @@ function DeadlineTipPanel({
         <div className="flex items-center gap-2">
           <FileSearchIcon className="size-4 text-text-secondary" aria-hidden />
           <span className="text-sm font-medium text-text-primary">
-            <Trans>Deadline Tip</Trans>
+            <ConceptLabel concept="deadlineTip">
+              <Trans>Deadline Tip</Trans>
+            </ConceptLabel>
           </span>
           {isPreparing ? (
             <Badge variant="warning">

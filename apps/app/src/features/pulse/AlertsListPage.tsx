@@ -19,6 +19,7 @@ import {
 } from '@duedatehq/ui/components/ui/select'
 
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { ConceptLabel } from '@/features/concepts/concept-help'
 
 import { usePulseDrawer } from './DrawerProvider'
 import { usePulseListHistoryQueryOptions, usePulseSourceHealthQueryOptions } from './api'
@@ -85,10 +86,12 @@ export function AlertsListPage() {
               <Trans>Alerts</Trans>
             </h1>
             <p className="max-w-[640px] text-md text-text-secondary">
-              <Trans>
-                Regulatory Pulse signals that match your practice's clients. Review, batch-apply
-                due-date changes, snooze, or revisit closed alerts.
-              </Trans>
+              <ConceptLabel concept="pulse">
+                <Trans>
+                  Regulatory Pulse signals that match your practice's clients. Review, batch-apply
+                  due-date changes, snooze, or revisit closed alerts.
+                </Trans>
+              </ConceptLabel>
             </p>
           </div>
           {!alertsQuery.isLoading ? (

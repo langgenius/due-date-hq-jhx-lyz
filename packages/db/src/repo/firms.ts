@@ -1,8 +1,19 @@
-import { and, asc, desc, eq, ne, isNull } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, isNull, ne } from 'drizzle-orm'
+import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
+import { rankSmartPriorities, type SmartPriorityProfile } from '@duedatehq/core/priority'
+import type {
+  FirmSmartPriorityPreviewInput,
+  FirmSmartPriorityPreviewOutput,
+} from '@duedatehq/ports/tenants'
 import { createAuditWriter, type AuditEventInput } from '../audit-writer'
 import type { Db } from '../client'
+import { evidenceLink } from '../schema/audit'
 import { member, organization, session, subscription } from '../schema/auth'
+import { client } from '../schema/clients'
 import { firmProfile, type FirmProfile } from '../schema/firm'
+import { obligationInstance, type ObligationStatus } from '../schema/obligations'
+import { listActiveOverlayDueDates } from './overlay'
+import { fromSmartPriorityProfile, toSmartPriorityProfile } from './priority-profile'
 
 export type FirmRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
 
@@ -17,6 +28,7 @@ export interface FirmMembershipRow {
   role: FirmRole
   ownerUserId: string
   coordinatorCanSeeDollars: boolean
+  smartPriorityProfile: SmartPriorityProfile
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -26,6 +38,7 @@ export interface FirmUpdateInput {
   name: string
   timezone: string
   coordinatorCanSeeDollars?: boolean
+  smartPriorityProfile?: SmartPriorityProfile
 }
 
 export interface FirmBillingSubscriptionRow {
@@ -73,13 +86,26 @@ function toMembershipRow(row: {
   role: string
   ownerUserId: string
   coordinatorCanSeeDollars: boolean
+  smartPriorityProfileJson: string | null
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
 }): FirmMembershipRow {
   return {
-    ...row,
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    plan: row.plan,
+    seatLimit: row.seatLimit,
+    timezone: row.timezone,
+    status: row.status,
     role: normalizeRole(row.role),
+    ownerUserId: row.ownerUserId,
+    coordinatorCanSeeDollars: row.coordinatorCanSeeDollars,
+    smartPriorityProfile: toSmartPriorityProfile(row.smartPriorityProfileJson),
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    deletedAt: row.deletedAt,
   }
 }
 
@@ -96,6 +122,7 @@ function baseFirmSelect(db: Db) {
       role: member.role,
       ownerUserId: firmProfile.ownerUserId,
       coordinatorCanSeeDollars: firmProfile.coordinatorCanSeeDollars,
+      smartPriorityProfileJson: firmProfile.smartPriorityProfileJson,
       createdAt: firmProfile.createdAt,
       updatedAt: firmProfile.updatedAt,
       deletedAt: firmProfile.deletedAt,
@@ -105,8 +132,51 @@ function baseFirmSelect(db: Db) {
     .innerJoin(organization, eq(organization.id, firmProfile.id))
 }
 
+const PREVIEW_MAX_READ_ROWS = 1000
+const PREVIEW_EVIDENCE_BATCH_SIZE = 90
+
+function roundScoreDelta(value: number): number {
+  return Math.round(value * 10) / 10
+}
+
 export function makeFirmsRepo(db: Db) {
   const audit = createAuditWriter(db)
+
+  async function listEvidenceCounts(
+    firmId: string,
+    obligationIds: string[],
+  ): Promise<Map<string, number>> {
+    if (obligationIds.length === 0) return new Map()
+    const reads = []
+    for (let i = 0; i < obligationIds.length; i += PREVIEW_EVIDENCE_BATCH_SIZE) {
+      const chunk = obligationIds.slice(i, i + PREVIEW_EVIDENCE_BATCH_SIZE)
+      reads.push(
+        db
+          .select({
+            obligationInstanceId: evidenceLink.obligationInstanceId,
+          })
+          .from(evidenceLink)
+          .where(
+            and(eq(evidenceLink.firmId, firmId), inArray(evidenceLink.obligationInstanceId, chunk)),
+          ),
+      )
+    }
+    const counts = new Map<string, number>()
+    for (const row of (await Promise.all(reads)).flat()) {
+      if (!row.obligationInstanceId) continue
+      counts.set(row.obligationInstanceId, (counts.get(row.obligationInstanceId) ?? 0) + 1)
+    }
+    return counts
+  }
+
+  async function loadSmartPriorityProfile(firmId: string): Promise<SmartPriorityProfile> {
+    const [row] = await db
+      .select({ smartPriorityProfileJson: firmProfile.smartPriorityProfileJson })
+      .from(firmProfile)
+      .where(eq(firmProfile.id, firmId))
+      .limit(1)
+    return toSmartPriorityProfile(row?.smartPriorityProfileJson)
+  }
 
   return {
     async listMine(userId: string): Promise<FirmMembershipRow[]> {
@@ -166,10 +236,91 @@ export function makeFirmsRepo(db: Db) {
       if (input.coordinatorCanSeeDollars !== undefined) {
         patch.coordinatorCanSeeDollars = input.coordinatorCanSeeDollars
       }
+      if (input.smartPriorityProfile !== undefined) {
+        patch.smartPriorityProfileJson = fromSmartPriorityProfile(input.smartPriorityProfile)
+      }
       await Promise.all([
         db.update(firmProfile).set(patch).where(eq(firmProfile.id, firmId)),
         db.update(organization).set({ name: input.name }).where(eq(organization.id, firmId)),
       ])
+    },
+
+    async previewSmartPriorityProfile(
+      firmId: string,
+      input: FirmSmartPriorityPreviewInput,
+    ): Promise<FirmSmartPriorityPreviewOutput> {
+      const currentProfile = await loadSmartPriorityProfile(firmId)
+      const previewProfile = toSmartPriorityProfile(input.smartPriorityProfile)
+      const rawRows = await db
+        .select({
+          obligationId: obligationInstance.id,
+          clientName: client.name,
+          taxType: obligationInstance.taxType,
+          currentDueDate: obligationInstance.currentDueDate,
+          status: obligationInstance.status,
+          estimatedExposureCents: obligationInstance.estimatedExposureCents,
+          exposureStatus: obligationInstance.exposureStatus,
+          importanceWeight: client.importanceWeight,
+          lateFilingCountLast12mo: client.lateFilingCountLast12mo,
+        })
+        .from(obligationInstance)
+        .innerJoin(client, eq(obligationInstance.clientId, client.id))
+        .where(
+          and(
+            eq(obligationInstance.firmId, firmId),
+            eq(client.firmId, firmId),
+            inArray(obligationInstance.status, [
+              ...OPEN_OBLIGATION_STATUSES,
+            ] satisfies ObligationStatus[]),
+          ),
+        )
+        .orderBy(asc(obligationInstance.currentDueDate), asc(obligationInstance.id))
+        .limit(PREVIEW_MAX_READ_ROWS)
+
+      const obligationIds = rawRows.map((row) => row.obligationId)
+      const [overlayDueDates, evidenceCounts] = await Promise.all([
+        listActiveOverlayDueDates(db, firmId, obligationIds),
+        listEvidenceCounts(firmId, obligationIds),
+      ])
+      const priorityInputs = rawRows.map((row) =>
+        Object.assign({}, row, {
+          obligationId: row.obligationId,
+          currentDueDate: overlayDueDates.get(row.obligationId) ?? row.currentDueDate,
+          asOfDate: input.asOfDate,
+          importanceWeight: row.importanceWeight ?? 2,
+          lateFilingCountLast12mo: row.lateFilingCountLast12mo ?? 0,
+          evidenceCount: evidenceCounts.get(row.obligationId) ?? 0,
+        }),
+      )
+
+      const currentById = new Map(
+        rankSmartPriorities(priorityInputs, currentProfile).map(({ row, smartPriority }) => [
+          row.obligationId,
+          smartPriority,
+        ]),
+      )
+      const previewRows = rankSmartPriorities(priorityInputs, previewProfile).slice(0, input.limit)
+
+      return {
+        asOfDate: input.asOfDate,
+        rows: previewRows.map(({ row, smartPriority }) => {
+          const current = currentById.get(row.obligationId)
+          const currentRank = current?.rank ?? null
+          const previewRank = smartPriority.rank!
+          return {
+            obligationId: row.obligationId,
+            clientName: row.clientName,
+            taxType: row.taxType,
+            currentDueDate: row.currentDueDate,
+            currentScore: current?.score ?? 0,
+            previewScore: smartPriority.score,
+            scoreDelta: roundScoreDelta(smartPriority.score - (current?.score ?? 0)),
+            currentRank,
+            previewRank,
+            rankDelta: currentRank === null ? null : currentRank - previewRank,
+          }
+        }),
+      }
     },
 
     async listBillingSubscriptions(firmId: string): Promise<FirmBillingSubscriptionRow[]> {

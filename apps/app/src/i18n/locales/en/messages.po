@@ -366,6 +366,50 @@ msgstr "4 verified · 1 candidate watch"
 msgid "5 seats included"
 msgstr "5 seats included"
 
+#: src/features/concepts/concept-help.tsx
+msgid "A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the queue."
+msgstr "A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the queue."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A deadline rule that has been reviewed and can generate customer-facing reminders when it matches a client."
+msgstr "A deadline rule that has been reviewed and can generate customer-facing reminders when it matches a client."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A dry run that shows which obligations rules would create for a client before anything is written to the workboard."
+msgstr "A dry run that shows which obligations rules would create for a client before anything is written to the workboard."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A high-permission practice role. In client tax inputs, owner count separately means the number of equity owners used for exposure calculations."
+msgstr "A high-permission practice role. In client tax inputs, owner count separately means the number of equity owners used for exposure calculations."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A model confidence signal for extracted or matched information. Low confidence means the source should be reviewed before applying changes."
+msgstr "A model confidence signal for extracted or matched information. Low confidence means the source should be reviewed before applying changes."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A possible rule or change that is still waiting for operations review. Candidate rules do not update client deadlines or send reminders."
+msgstr "A possible rule or change that is still waiting for operations review. Candidate rules do not update client deadlines or send reminders."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A regulatory change signal detected from watched official sources. Matching client deadlines still need review before changes are applied."
+msgstr "A regulatory change signal detected from watched official sources. Matching client deadlines still need review before changes are applied."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A risk-window view of open obligations so the team can decide what to handle first this week or month."
+msgstr "A risk-window view of open obligations so the team can decide what to handle first this week or month."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A row still needs a trusted source before it should be treated as fully reviewable or cited in AI output."
+msgstr "A row still needs a trusted source before it should be treated as fully reviewable or cited in AI output."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A short explanation for one deadline, generated only from verified deadline context and source-backed evidence."
+msgstr "A short explanation for one deadline, generated only from verified deadline context and source-backed evidence."
+
+#: src/features/concepts/concept-help.tsx
+msgid "A specific compliance deadline generated from client facts and verified rules. It is more structured than a generic task."
+msgstr "A specific compliance deadline generated from client facts and verified rules. It is more structured than a generic task."
+
 #: src/routes/accept-invite.tsx
 #: src/routes/route-summary.ts
 msgid "Accept invitation"
@@ -472,6 +516,10 @@ msgstr "AI"
 msgid "AI {percent}%"
 msgstr "AI {percent}%"
 
+#: src/features/concepts/concept-help.tsx
+msgid "AI confidence"
+msgstr "AI confidence"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "AI guard failed"
 msgstr "AI guard failed"
@@ -488,6 +536,7 @@ msgstr "AI Mapper unavailable — using fallback"
 msgid "AI refused request"
 msgstr "AI refused request"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/dashboard.tsx
 msgid "AI weekly brief"
 msgstr "AI weekly brief"
@@ -737,6 +786,10 @@ msgstr "Audit package"
 msgid "Audit timeline"
 msgstr "Audit timeline"
 
+#: src/features/concepts/concept-help.tsx
+msgid "Audit trail"
+msgstr "Audit trail"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Auth"
 msgstr "Auth"
@@ -859,12 +912,17 @@ msgid "C corp"
 msgstr "C corp"
 
 #: src/features/migration/WizardShell.tsx
+#: src/routes/practice.tsx
 msgid "Calculate preview"
 msgstr "Calculate preview"
 
 #: src/routes/workboard.tsx
 msgid "Calculated"
 msgstr "Calculated"
+
+#: src/routes/practice.tsx
+msgid "Calculating…"
+msgstr "Calculating…"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -893,6 +951,10 @@ msgstr "Candidate"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Candidate · never generates user reminders."
 msgstr "Candidate · never generates user reminders."
+
+#: src/features/concepts/concept-help.tsx
+msgid "Candidate rule"
+msgstr "Candidate rule"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Candidates"
@@ -1065,6 +1127,7 @@ msgid "Client import undone"
 msgstr "Client import undone"
 
 #: src/features/clients/CreateClientDialog.tsx
+#: src/routes/practice.tsx
 msgid "Client importance"
 msgstr "Client importance"
 
@@ -1221,6 +1284,10 @@ msgstr "Copy URI"
 msgid "Could not accept invitation"
 msgstr "Could not accept invitation"
 
+#: src/routes/practice.tsx
+msgid "Could not calculate preview."
+msgstr "Could not calculate preview."
+
 #: src/routes/account.security.tsx
 msgid "Could not copy to clipboard"
 msgstr "Could not copy to clipboard"
@@ -1312,6 +1379,10 @@ msgstr "Could not undo client"
 #: src/routes/practice.tsx
 msgid "Could not update practice."
 msgstr "Could not update practice."
+
+#: src/routes/practice.tsx
+msgid "Could not update Smart Priority."
+msgstr "Could not update Smart Priority."
 
 #: src/routes/account.security.tsx
 #: src/routes/two-factor.tsx
@@ -1492,6 +1563,7 @@ msgstr "County"
 msgid "County must be 120 characters or fewer"
 msgstr "County must be 120 characters or fewer"
 
+#: src/features/concepts/concept-help.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "Coverage"
@@ -1635,6 +1707,7 @@ msgstr "Deadline status changed"
 msgid "Deadline status changed from {previous} to {next}"
 msgstr "Deadline status changed from {previous} to {next}"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/workboard.tsx
 msgid "Deadline Tip"
 msgstr "Deadline Tip"
@@ -1642,6 +1715,10 @@ msgstr "Deadline Tip"
 #: src/routes/workboard.tsx
 msgid "Deadline tip refresh queued"
 msgstr "Deadline tip refresh queued"
+
+#: src/routes/practice.tsx
+msgid "Deadline urgency"
+msgstr "Deadline urgency"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "deadlines"
@@ -1666,6 +1743,10 @@ msgstr "Decision"
 #: src/routes/workboard.tsx
 msgid "Decision memo"
 msgstr "Decision memo"
+
+#: src/features/concepts/concept-help.tsx
+msgid "Default Matrix"
+msgstr "Default Matrix"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Default Matrix applied"
@@ -1746,6 +1827,10 @@ msgstr "Dismiss"
 msgid "Dismissed"
 msgstr "Dismissed"
 
+#: src/routes/practice.tsx
+msgid "Dollar exposure"
+msgstr "Dollar exposure"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Download latest"
 msgstr "Download latest"
@@ -1757,6 +1842,10 @@ msgstr "Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB"
 #: src/features/migration/Stepper.tsx
 msgid "Dry-Run"
 msgstr "Dry-Run"
+
+#: src/routes/practice.tsx
+msgid "Due"
+msgstr "Due"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/pulse/components/PulseStructuredFields.tsx
@@ -1803,6 +1892,10 @@ msgstr "DueDateHQ field"
 #: src/routes/readiness.tsx
 msgid "DueDateHQ readiness portal"
 msgstr "DueDateHQ readiness portal"
+
+#: src/features/concepts/concept-help.tsx
+msgid "DueDateHQ's deterministic ordering score for deadline work. It combines dollar exposure, urgency, client importance, late filing history, and readiness pressure."
+msgstr "DueDateHQ's deterministic ordering score for deadline work. It combines dollar exposure, urgency, client importance, late filing history, and readiness pressure."
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
@@ -1923,6 +2016,7 @@ msgstr "Event stream"
 msgid "events"
 msgstr "events"
 
+#: src/features/concepts/concept-help.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -1932,6 +2026,10 @@ msgstr "Evidence"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Evidence chain"
 msgstr "Evidence chain"
+
+#: src/features/concepts/concept-help.tsx
+msgid "Evidence gap"
+msgstr "Evidence gap"
 
 #: src/routes/dashboard.tsx
 msgid "Evidence gaps"
@@ -1967,6 +2065,11 @@ msgstr "Expired {0}"
 msgid "Expires {0}"
 msgstr "Expires {0}"
 
+#. placeholder {0}: copy.title
+#: src/features/concepts/concept-help.tsx
+msgid "Explain {0}"
+msgstr "Explain {0}"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Export"
 msgstr "Export"
@@ -1975,10 +2078,15 @@ msgstr "Export"
 msgid "Export ready"
 msgstr "Export ready"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Exposure"
 msgstr "Exposure"
+
+#: src/routes/practice.tsx
+msgid "Exposure cap"
+msgstr "Exposure cap"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Exposure preview"
@@ -2016,6 +2124,10 @@ msgstr "Fact profile"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Fact readiness"
 msgstr "Fact readiness"
+
+#: src/routes/practice.tsx
+msgid "Factor weights"
+msgstr "Factor weights"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -2291,6 +2403,10 @@ msgstr "Import reverted"
 msgid "Import undone"
 msgstr "Import undone"
 
+#: src/features/concepts/concept-help.tsx
+msgid "Import-time suggestions for tax types based on entity type and jurisdiction when the uploaded rows do not provide tax types."
+msgstr "Import-time suggestions for tax types based on entity type and jurisdiction when the uploaded rows do not provide tax types."
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Importance"
 msgstr "Importance"
@@ -2449,6 +2565,14 @@ msgstr "Last 7d"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Last success {0} · next check {1} · failures {2}"
 msgstr "Last success {0} · next check {1} · failures {2}"
+
+#: src/routes/practice.tsx
+msgid "Late filing cap"
+msgstr "Late filing cap"
+
+#: src/routes/practice.tsx
+msgid "Late filing history"
+msgstr "Late filing history"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
@@ -2752,6 +2876,10 @@ msgstr "Migration"
 msgid "Migration and rules preview"
 msgstr "Migration and rules preview"
 
+#: src/features/concepts/concept-help.tsx
+msgid "Migration Copilot"
+msgstr "Migration Copilot"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
@@ -3053,6 +3181,10 @@ msgstr "No obligations in this window."
 msgid "No obligations match these filters."
 msgstr "No obligations match these filters."
 
+#: src/routes/practice.tsx
+msgid "No open obligations available for preview."
+msgstr "No open obligations available for preview."
+
 #: src/features/workload/workload-page.tsx
 msgid "No open obligations match the workload window."
 msgstr "No open obligations match the workload window."
@@ -3235,8 +3367,10 @@ msgid "Notifications, {unreadCount} unread"
 msgstr "Notifications, {unreadCount} unread"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/concepts/concept-help.tsx
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/practice.tsx
 msgid "Obligation"
 msgstr "Obligation"
 
@@ -3248,6 +3382,7 @@ msgstr "Obligation detail"
 msgid "Obligation evidence"
 msgstr "Obligation evidence"
 
+#: src/features/concepts/concept-help.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Obligation Preview"
 msgstr "Obligation Preview"
@@ -3320,6 +3455,10 @@ msgstr "Only practice owners can change plans or open the portal."
 #: src/routes/billing.checkout.tsx
 msgid "Only practice owners can start or change a subscription."
 msgstr "Only practice owners can start or change a subscription."
+
+#: src/routes/practice.tsx
+msgid "Only the practice owner can change Smart Priority settings."
+msgstr "Only the practice owner can change Smart Priority settings."
 
 #: src/routes/billing.checkout.tsx
 msgid "Only the practice owner can start or change a subscription."
@@ -3461,6 +3600,7 @@ msgstr "Overdue"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/concepts/concept-help.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/billing.tsx
 #: src/routes/practice.tsx
@@ -3483,6 +3623,7 @@ msgid "Owner count"
 msgstr "Owner count"
 
 #: src/routes/billing.checkout.tsx
+#: src/routes/practice.tsx
 msgid "Owner permission required"
 msgstr "Owner permission required"
 
@@ -3600,6 +3741,7 @@ msgstr "Penalty inputs changed"
 msgid "Penalty inputs saved"
 msgstr "Penalty inputs saved"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/dashboard.tsx
 msgid "Penalty Radar"
 msgstr "Penalty Radar"
@@ -3697,6 +3839,7 @@ msgstr "Portal link copied"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/audit/audit-log-labels.ts
 #: src/features/audit/audit-log-page.tsx
+#: src/features/concepts/concept-help.tsx
 #: src/features/members/members-page.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -3787,6 +3930,10 @@ msgstr "Practice updated"
 msgid "Practice workspaces"
 msgstr "Practice workspaces"
 
+#: src/routes/practice.tsx
+msgid "Practice-wide weights for deterministic deadline ranking."
+msgstr "Practice-wide weights for deterministic deadline ranking."
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Practices"
 msgstr "Practices"
@@ -3823,6 +3970,15 @@ msgstr "Preparing your mapping"
 #: src/features/audit/audit-log-labels.ts
 msgid "Preset"
 msgstr "Preset"
+
+#. placeholder {0}: preview.asOfDate
+#: src/routes/practice.tsx
+msgid "Preview as of {0}"
+msgstr "Preview as of {0}"
+
+#: src/routes/practice.tsx
+msgid "Preview recalculates open obligations without saving changes."
+msgstr "Preview recalculates open obligations without saving changes."
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
@@ -3873,6 +4029,7 @@ msgid "Provider hosted"
 msgstr "Provider hosted"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/concepts/concept-help.tsx
 msgid "Pulse"
 msgstr "Pulse"
 
@@ -3996,6 +4153,10 @@ msgstr "Queue controls"
 msgid "Queued"
 msgstr "Queued"
 
+#: src/routes/practice.tsx
+msgid "Rank"
+msgstr "Rank"
+
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Raw"
 msgstr "Raw"
@@ -4046,6 +4207,7 @@ msgstr "Read-only view"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/concepts/concept-help.tsx
 #: src/routes/workboard.tsx
 msgid "Readiness"
 msgstr "Readiness"
@@ -4057,6 +4219,10 @@ msgstr "Readiness check"
 #: src/routes/workboard.tsx
 msgid "Readiness link created"
 msgstr "Readiness link created"
+
+#: src/routes/practice.tsx
+msgid "Readiness pressure"
+msgstr "Readiness pressure"
 
 #: src/routes/workboard.tsx
 msgid "Readiness request revoked"
@@ -4184,6 +4350,10 @@ msgstr "reminder ready"
 msgid "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgstr "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 
+#: src/features/concepts/concept-help.tsx
+msgid "Reminder-ready"
+msgstr "Reminder-ready"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "reminder-ready across MVP scope"
 msgstr "reminder-ready across MVP scope"
@@ -4224,6 +4394,10 @@ msgstr "Required for rule applicability."
 msgid "Required for rules and Pulse matching."
 msgstr "Required for rules and Pulse matching."
 
+#: src/features/concepts/concept-help.tsx
+msgid "Requires review"
+msgstr "Requires review"
+
 #. placeholder {0}: requiresReview.length
 #: src/features/rules/generation-preview-tab.tsx
 msgid "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
@@ -4246,6 +4420,10 @@ msgstr "Reset"
 #: src/features/audit/audit-log-page.tsx
 msgid "Reset filters to return to the latest practice-wide events."
 msgstr "Reset filters to return to the latest practice-wide events."
+
+#: src/routes/practice.tsx
+msgid "Reset to default"
+msgstr "Reset to default"
 
 #: src/routes/billing.cancel.tsx
 msgid "Restart checkout"
@@ -4380,6 +4558,7 @@ msgstr "Revoke source"
 msgid "Revoked"
 msgstr "Revoked"
 
+#: src/features/concepts/concept-help.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/workboard.tsx
 msgid "Risk"
@@ -4566,6 +4745,10 @@ msgstr "Save normalized values"
 msgid "Save risk inputs"
 msgstr "Save risk inputs"
 
+#: src/routes/practice.tsx
+msgid "Save Smart Priority"
+msgstr "Save Smart Priority"
+
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Save these recovery codes now"
 msgstr "Save these recovery codes now"
@@ -4634,6 +4817,7 @@ msgid "Scope"
 msgstr "Scope"
 
 #: src/features/priority/SmartPriorityBadge.tsx
+#: src/routes/practice.tsx
 msgid "Score"
 msgstr "Score"
 
@@ -4902,10 +5086,16 @@ msgstr "Signing out…"
 msgid "Skipped rows"
 msgstr "Skipped rows"
 
+#: src/features/concepts/concept-help.tsx
 #: src/features/priority/SmartPriorityBadge.tsx
+#: src/routes/practice.tsx
 #: src/routes/workboard.tsx
 msgid "Smart Priority"
 msgstr "Smart Priority"
+
+#: src/routes/practice.tsx
+msgid "Smart Priority saved"
+msgstr "Smart Priority saved"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Snapshot retry queued"
@@ -4961,6 +5151,7 @@ msgstr "Something went wrong on our side. Please try again shortly."
 msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Sort"
 msgstr "Sort"
@@ -5216,6 +5407,10 @@ msgstr "That resource belongs to a different practice."
 msgid "The 24h undo window has expired for this alert."
 msgstr "The 24h undo window has expired for this alert."
 
+#: src/features/concepts/concept-help.tsx
+msgid "The active CPA firm workspace. Settings, clients, deadlines, members, billing, and audit logs are scoped to the selected practice."
+msgstr "The active CPA firm workspace. Settings, clients, deadlines, members, billing, and audit logs are scoped to the selected practice."
+
 #: src/routes/billing.success.tsx
 msgid "The billing cache and subscription status now agree."
 msgstr "The billing cache and subscription status now agree."
@@ -5223,6 +5418,22 @@ msgstr "The billing cache and subscription status now agree."
 #: src/routes/billing.tsx
 msgid "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
 msgstr "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue."
+msgstr "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
+msgstr "The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The estimated dollars at risk if a deadline is missed. Rows without enough tax inputs show as needing input or unsupported."
+msgstr "The estimated dollars at risk if a deadline is missed. Rows without enough tax inputs show as needing input or unsupported."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The jurisdictions, entity types, and tax types currently backed by watched sources and verified rules."
+msgstr "The jurisdictions, entity types, and tax types currently backed by watched sources and verified rules."
 
 #: src/routes/workboard.tsx
 msgid "The memo is stored on the audit trail for the bulk status change."
@@ -5232,6 +5443,14 @@ msgstr "The memo is stored on the audit trail for the bulk status change."
 msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
 msgstr "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
 
+#: src/features/concepts/concept-help.tsx
+msgid "The official source, quote, or audit record that supports a rule, deadline, AI explanation, or Pulse change."
+msgstr "The official source, quote, or audit record that supports a rule, deadline, AI explanation, or Pulse change."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The operating surface for deadline work: filter, sort, assign owners, update status, and open evidence for each obligation."
+msgstr "The operating surface for deadline work: filter, sort, assign owners, update status, and open evidence for each obligation."
+
 #: src/routes/billing.tsx
 msgid "The payment provider is the source of truth; DueDateHQ caches the active plan."
 msgstr "The payment provider is the source of truth; DueDateHQ caches the active plan."
@@ -5239,6 +5458,10 @@ msgstr "The payment provider is the source of truth; DueDateHQ caches the active
 #: src/routes/practice.tsx
 msgid "The practice will be removed from your account. Audit history stays retained for compliance."
 msgstr "The practice will be removed from your account. Audit history stays retained for compliance."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The practice-scoped record of who changed what, when it changed, and what evidence or reason was attached."
+msgstr "The practice-scoped record of who changed what, when it changed, and what evidence or reason was attached."
 
 #: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."
@@ -5251,6 +5474,14 @@ msgstr "The secure checkout has redirected back to DueDateHQ. We are confirming 
 #: src/routes/billing.cancel.tsx
 msgid "The selected plan is still available from Billing."
 msgstr "The selected plan is still available from Billing."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The stored deadline risk view, mainly based on due date pressure, penalty exposure, readiness, and evidence status."
+msgstr "The stored deadline risk view, mainly based on due date pressure, penalty exposure, readiness, and evidence status."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The system found a possible deadline, but a CPA or operations reviewer must confirm it before it is treated as final."
+msgstr "The system found a possible deadline, but a CPA or operations reviewer must confirm it before it is treated as final."
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
@@ -5283,6 +5514,10 @@ msgstr "This is what your team and clients will see."
 #: src/routes/dashboard.tsx
 msgid "This Month"
 msgstr "This Month"
+
+#: src/features/concepts/concept-help.tsx
+msgid "This obligation comes from a verified rule and can trigger the 30, 7, and 1-day reminder schedule."
+msgstr "This obligation comes from a verified rule and can trigger the 30, 7, and 1-day reminder schedule."
 
 #: src/routes/billing.success.tsx
 msgid "This page will keep checking. You can also return to Billing and refresh later."
@@ -5355,6 +5590,11 @@ msgstr "Token required"
 msgid "Too many requests. Please try again in a moment."
 msgstr "Too many requests. Please try again in a moment."
 
+#: src/routes/practice.tsx
+msgid "Total"
+msgstr "Total"
+
+#: src/features/concepts/concept-help.tsx
 #: src/routes/dashboard.tsx
 msgid "Triage queue"
 msgstr "Triage queue"
@@ -5505,6 +5745,10 @@ msgstr "Upgrade to Pro"
 msgid "Upload rows"
 msgstr "Upload rows"
 
+#: src/routes/practice.tsx
+msgid "Urgency window"
+msgstr "Urgency window"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use a 2-letter state code"
 msgstr "Use a 2-letter state code"
@@ -5567,6 +5811,10 @@ msgstr "Verified at"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Verified by"
 msgstr "Verified by"
+
+#: src/features/concepts/concept-help.tsx
+msgid "Verified rule"
+msgstr "Verified rule"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Verified rules"
@@ -5696,6 +5944,10 @@ msgstr "What stays in DueDateHQ"
 msgid "Where is your data coming from?"
 msgstr "Where is your data coming from?"
 
+#: src/features/concepts/concept-help.tsx
+msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
+msgstr "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
+
 #: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "Work email"
@@ -5707,6 +5959,7 @@ msgstr "Workbench"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/concepts/concept-help.tsx
 #: src/routes/route-summary.ts
 #: src/routes/workboard.tsx
 msgid "Workboard"

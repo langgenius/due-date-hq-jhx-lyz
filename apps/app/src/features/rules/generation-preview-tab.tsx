@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -29,6 +29,7 @@ import {
 } from '@duedatehq/ui/components/ui/select'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { ConceptLabel } from '@/features/concepts/concept-help'
 import { orpc } from '@/lib/rpc'
 
 import {
@@ -436,7 +437,11 @@ function PreviewResultsCard({
     <SectionFrame>
       <PreviewGroupHeader
         tone="success"
-        label={t`REMINDER READY — ${reminderReady.length} obligation, will fire 30 / 7 / 1-day reminders`}
+        label={
+          <ConceptLabel concept="reminderReady">
+            {t`REMINDER READY — ${reminderReady.length} obligation, will fire 30 / 7 / 1-day reminders`}
+          </ConceptLabel>
+        }
       />
       {reminderReady.map((row) => (
         <PreviewResultRow
@@ -447,7 +452,11 @@ function PreviewResultsCard({
       ))}
       <PreviewGroupHeader
         tone="review"
-        label={t`REQUIRES REVIEW — ${requiresReview.length} items for CPA confirmation, never auto-reminded`}
+        label={
+          <ConceptLabel concept="requiresReview">
+            {t`REQUIRES REVIEW — ${requiresReview.length} items for CPA confirmation, never auto-reminded`}
+          </ConceptLabel>
+        }
       />
       {requiresReview.map((row) => (
         <PreviewResultRow
@@ -460,9 +469,9 @@ function PreviewResultsCard({
   )
 }
 
-function PreviewGroupHeader({ tone, label }: { tone: 'success' | 'review'; label: string }) {
+function PreviewGroupHeader({ tone, label }: { tone: 'success' | 'review'; label: ReactNode }) {
   return (
-    <div className="flex h-8 items-center gap-2 border-b border-divider-regular bg-background-subtle px-4">
+    <div className="flex min-h-8 items-center gap-2 border-b border-divider-regular bg-background-subtle px-4 py-1">
       <ToneDot tone={tone} />
       <span
         className={cn(

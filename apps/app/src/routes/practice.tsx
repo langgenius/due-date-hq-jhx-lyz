@@ -2,9 +2,22 @@ import { useState, type SyntheticEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { AlertCircleIcon, Building2Icon, Trash2Icon } from 'lucide-react'
+import {
+  AlertCircleIcon,
+  Building2Icon,
+  CalculatorIcon,
+  RotateCcwIcon,
+  SlidersHorizontalIcon,
+  Trash2Icon,
+} from 'lucide-react'
 import { toast } from 'sonner'
-import type { FirmPublic } from '@duedatehq/contracts'
+import {
+  SMART_PRIORITY_DEFAULT_PROFILE,
+  type FirmPublic,
+  type FirmSmartPriorityPreviewOutput,
+  type SmartPriorityFactorKey,
+  type SmartPriorityProfile,
+} from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import {
   AlertDialog,
@@ -28,9 +41,65 @@ import {
 import { Input } from '@duedatehq/ui/components/ui/input'
 import { Label } from '@duedatehq/ui/components/ui/label'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@duedatehq/ui/components/ui/table'
+import { ConceptHelp, ConceptLabel } from '@/features/concepts/concept-help'
 import { FirmTimezoneSelect, resolveUSFirmTimezone } from '@/features/firm/timezone-select'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+
+const PRIORITY_FACTOR_KEYS = [
+  'exposure',
+  'urgency',
+  'importance',
+  'history',
+  'readiness',
+] as const satisfies readonly SmartPriorityFactorKey[]
+
+const MIN_EXPOSURE_CAP_CENTS = 1
+const MAX_EXPOSURE_CAP_CENTS = 1_000_000_000
+const MIN_URGENCY_WINDOW_DAYS = 1
+const MAX_URGENCY_WINDOW_DAYS = 365
+const MIN_HISTORY_CAP_COUNT = 1
+const MAX_HISTORY_CAP_COUNT = 20
+
+function clonePriorityProfile(profile: SmartPriorityProfile): SmartPriorityProfile {
+  return {
+    version: profile.version,
+    weights: { ...profile.weights },
+    exposureCapCents: profile.exposureCapCents,
+    urgencyWindowDays: profile.urgencyWindowDays,
+    historyCapCount: profile.historyCapCount,
+  }
+}
+
+function samePriorityProfile(a: SmartPriorityProfile, b: SmartPriorityProfile): boolean {
+  return (
+    a.exposureCapCents === b.exposureCapCents &&
+    a.urgencyWindowDays === b.urgencyWindowDays &&
+    a.historyCapCount === b.historyCapCount &&
+    PRIORITY_FACTOR_KEYS.every((key) => a.weights[key] === b.weights[key])
+  )
+}
+
+function priorityWeightTotal(profile: SmartPriorityProfile): number {
+  return PRIORITY_FACTOR_KEYS.reduce((sum, key) => sum + profile.weights[key], 0)
+}
+
+function parseWholeNumber(value: string): number {
+  const parsed = Number.parseInt(value, 10)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+function formatSigned(value: number): string {
+  return value > 0 ? `+${value}` : `${value}`
+}
 
 export function PracticeRoute() {
   const currentQuery = useQuery(orpc.firms.getCurrent.queryOptions({ input: undefined }))
@@ -82,6 +151,15 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
   const [timezone, setTimezone] = useState(originalTimezone)
   const [error, setError] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [savedPriorityProfile, setSavedPriorityProfile] = useState(() =>
+    clonePriorityProfile(firm.smartPriorityProfile),
+  )
+  const [priorityProfile, setPriorityProfile] = useState(() =>
+    clonePriorityProfile(firm.smartPriorityProfile),
+  )
+  const [priorityPreview, setPriorityPreview] = useState<FirmSmartPriorityPreviewOutput | null>(
+    null,
+  )
 
   const updateMutation = useMutation(
     orpc.firms.updateCurrent.mutationOptions({
@@ -96,6 +174,43 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
         const message = rpcErrorMessage(err) ?? t`Please try again.`
         setError(message)
         toast.error(t`Could not update practice.`, {
+          description: message,
+        })
+      },
+    }),
+  )
+
+  const priorityUpdateMutation = useMutation(
+    orpc.firms.updateCurrent.mutationOptions({
+      onSuccess: (updatedFirm) => {
+        const nextProfile = clonePriorityProfile(updatedFirm.smartPriorityProfile)
+        setSavedPriorityProfile(nextProfile)
+        setPriorityProfile(clonePriorityProfile(nextProfile))
+        setPriorityPreview(null)
+        setError(null)
+        void queryClient.invalidateQueries({ queryKey: orpc.firms.key() })
+        toast.success(t`Smart Priority saved`, {
+          description: updatedFirm.name,
+        })
+      },
+      onError: (err) => {
+        const message = rpcErrorMessage(err) ?? t`Please try again.`
+        setError(message)
+        toast.error(t`Could not update Smart Priority.`, {
+          description: message,
+        })
+      },
+    }),
+  )
+
+  const previewMutation = useMutation(
+    orpc.firms.previewSmartPriorityProfile.mutationOptions({
+      onSuccess: (result) => {
+        setPriorityPreview(result)
+      },
+      onError: (err) => {
+        const message = rpcErrorMessage(err) ?? t`Please try again.`
+        toast.error(t`Could not calculate preview.`, {
           description: message,
         })
       },
@@ -128,7 +243,60 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
     updateMutation.mutate({ name: trimmed, timezone })
   }
 
+  function updatePriorityWeight(key: SmartPriorityFactorKey, value: string) {
+    const weight = parseWholeNumber(value)
+    setPriorityPreview(null)
+    setPriorityProfile((current) => ({
+      ...current,
+      weights: {
+        ...current.weights,
+        [key]: weight,
+      },
+    }))
+  }
+
+  function updatePriorityNumber(
+    key: 'exposureCapCents' | 'urgencyWindowDays' | 'historyCapCount',
+    value: string,
+  ) {
+    const parsed = parseWholeNumber(value)
+    setPriorityPreview(null)
+    setPriorityProfile((current) => ({
+      ...current,
+      [key]: key === 'exposureCapCents' ? parsed * 100 : parsed,
+    }))
+  }
+
+  function resetPriorityProfile() {
+    setPriorityPreview(null)
+    setPriorityProfile(clonePriorityProfile(SMART_PRIORITY_DEFAULT_PROFILE))
+  }
+
+  function calculatePriorityPreview() {
+    previewMutation.mutate({ smartPriorityProfile: priorityProfile })
+  }
+
+  function savePriorityProfile() {
+    const trimmed = name.trim()
+    priorityUpdateMutation.mutate({
+      name: trimmed.length >= 2 ? trimmed : firm.name,
+      timezone,
+      smartPriorityProfile: priorityProfile,
+    })
+  }
+
   const dirty = name.trim() !== firm.name || timezone !== originalTimezone
+  const canEditPriority = firm.role === 'owner'
+  const weightTotal = priorityWeightTotal(priorityProfile)
+  const priorityValid =
+    weightTotal === 100 &&
+    priorityProfile.exposureCapCents >= MIN_EXPOSURE_CAP_CENTS &&
+    priorityProfile.exposureCapCents <= MAX_EXPOSURE_CAP_CENTS &&
+    priorityProfile.urgencyWindowDays >= MIN_URGENCY_WINDOW_DAYS &&
+    priorityProfile.urgencyWindowDays <= MAX_URGENCY_WINDOW_DAYS &&
+    priorityProfile.historyCapCount >= MIN_HISTORY_CAP_COUNT &&
+    priorityProfile.historyCapCount <= MAX_HISTORY_CAP_COUNT
+  const priorityDirty = !samePriorityProfile(priorityProfile, savedPriorityProfile)
   const currentPlan = firm.plan === 'firm' ? t`Firm` : firm.plan === 'pro' ? t`Pro` : t`Solo`
   const currentRole =
     firm.role === 'owner'
@@ -140,6 +308,13 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
           : t`Coordinator`
   const firmSummary = t`Active practice · ${{ currentPlan }} plan · ${firm.seatLimit} seat limit`
   const firmSummaryLabel = t`Active practice summary`
+  const priorityFactorLabels: Record<SmartPriorityFactorKey, string> = {
+    exposure: t`Dollar exposure`,
+    urgency: t`Deadline urgency`,
+    importance: t`Client importance`,
+    history: t`Late filing history`,
+    readiness: t`Readiness pressure`,
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-4 py-6 md:px-6">
@@ -220,6 +395,172 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
 
       <Card>
         <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <SlidersHorizontalIcon className="size-4" aria-hidden />
+            <ConceptLabel concept="smartPriority">
+              <Trans>Smart Priority</Trans>
+            </ConceptLabel>
+          </CardTitle>
+          <CardDescription>
+            <Trans>Practice-wide weights for deterministic deadline ranking.</Trans>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-5">
+          <div className="grid gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5">
+                <Label>
+                  <Trans>Factor weights</Trans>
+                </Label>
+                <ConceptHelp concept="smartPriority" />
+              </div>
+              <span
+                className={
+                  weightTotal === 100
+                    ? 'font-mono text-xs tabular-nums text-text-secondary'
+                    : 'font-mono text-xs tabular-nums text-text-destructive'
+                }
+              >
+                <Trans>Total</Trans> {weightTotal}%
+              </span>
+            </div>
+            <div className="grid gap-3 md:grid-cols-5">
+              {PRIORITY_FACTOR_KEYS.map((key) => (
+                <div key={key} className="grid gap-1.5">
+                  <Label htmlFor={`priority-weight-${key}`}>{priorityFactorLabels[key]}</Label>
+                  <Input
+                    id={`priority-weight-${key}`}
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={priorityProfile.weights[key]}
+                    onChange={(event) => updatePriorityWeight(key, event.target.value)}
+                    disabled={!canEditPriority || priorityUpdateMutation.isPending}
+                    className="font-mono tabular-nums"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="priority-exposure-cap">
+                  <Trans>Exposure cap</Trans>
+                </Label>
+                <ConceptHelp concept="exposure" />
+              </div>
+              <Input
+                id="priority-exposure-cap"
+                type="number"
+                min={1}
+                max={MAX_EXPOSURE_CAP_CENTS / 100}
+                value={Math.round(priorityProfile.exposureCapCents / 100)}
+                onChange={(event) => updatePriorityNumber('exposureCapCents', event.target.value)}
+                disabled={!canEditPriority || priorityUpdateMutation.isPending}
+                className="font-mono tabular-nums"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="priority-urgency-window">
+                  <Trans>Urgency window</Trans>
+                </Label>
+                <ConceptHelp concept="smartPriority" />
+              </div>
+              <Input
+                id="priority-urgency-window"
+                type="number"
+                min={MIN_URGENCY_WINDOW_DAYS}
+                max={MAX_URGENCY_WINDOW_DAYS}
+                value={priorityProfile.urgencyWindowDays}
+                onChange={(event) => updatePriorityNumber('urgencyWindowDays', event.target.value)}
+                disabled={!canEditPriority || priorityUpdateMutation.isPending}
+                className="font-mono tabular-nums"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="priority-history-cap">
+                  <Trans>Late filing cap</Trans>
+                </Label>
+                <ConceptHelp concept="smartPriority" />
+              </div>
+              <Input
+                id="priority-history-cap"
+                type="number"
+                min={MIN_HISTORY_CAP_COUNT}
+                max={MAX_HISTORY_CAP_COUNT}
+                value={priorityProfile.historyCapCount}
+                onChange={(event) => updatePriorityNumber('historyCapCount', event.target.value)}
+                disabled={!canEditPriority || priorityUpdateMutation.isPending}
+                className="font-mono tabular-nums"
+              />
+            </div>
+          </div>
+
+          {!canEditPriority ? (
+            <Alert>
+              <AlertCircleIcon />
+              <AlertTitle>
+                <Trans>Owner permission required</Trans>
+              </AlertTitle>
+              <AlertDescription>
+                <Trans>Only the practice owner can change Smart Priority settings.</Trans>
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          {canEditPriority ? (
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="text-xs text-text-tertiary">
+                <Trans>Preview recalculates open obligations without saving changes.</Trans>
+              </div>
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={resetPriorityProfile}
+                  disabled={priorityUpdateMutation.isPending}
+                >
+                  <RotateCcwIcon className="size-4" aria-hidden />
+                  <Trans>Reset to default</Trans>
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={calculatePriorityPreview}
+                  disabled={!priorityValid || previewMutation.isPending}
+                >
+                  <CalculatorIcon className="size-4" aria-hidden />
+                  {previewMutation.isPending ? (
+                    <Trans>Calculating…</Trans>
+                  ) : (
+                    <Trans>Calculate preview</Trans>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={savePriorityProfile}
+                  disabled={!priorityValid || !priorityDirty || priorityUpdateMutation.isPending}
+                >
+                  {priorityUpdateMutation.isPending ? (
+                    <Trans>Saving…</Trans>
+                  ) : (
+                    <Trans>Save Smart Priority</Trans>
+                  )}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
+          {priorityPreview ? <PriorityPreviewTable preview={priorityPreview} /> : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>
             <Trans>Delete practice</Trans>
           </CardTitle>
@@ -269,6 +610,67 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  )
+}
+
+function PriorityPreviewTable({ preview }: { preview: FirmSmartPriorityPreviewOutput }) {
+  if (preview.rows.length === 0) {
+    return (
+      <div className="rounded-md border border-divider-subtle bg-background-section px-3 py-2 text-sm text-text-secondary">
+        <Trans>No open obligations available for preview.</Trans>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid gap-2">
+      <div className="text-xs text-text-tertiary">
+        <Trans>Preview as of {preview.asOfDate}</Trans>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>
+              <Trans>Obligation</Trans>
+            </TableHead>
+            <TableHead>
+              <Trans>Due</Trans>
+            </TableHead>
+            <TableHead className="text-right">
+              <Trans>Score</Trans>
+            </TableHead>
+            <TableHead className="text-right">
+              <Trans>Rank</Trans>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {preview.rows.map((row) => (
+            <TableRow key={row.obligationId}>
+              <TableCell>
+                <div className="grid gap-0.5">
+                  <span className="font-medium text-text-primary">{row.clientName}</span>
+                  <span className="text-text-tertiary">{row.taxType}</span>
+                </div>
+              </TableCell>
+              <TableCell className="font-mono tabular-nums text-text-secondary">
+                {row.currentDueDate}
+              </TableCell>
+              <TableCell className="text-right font-mono tabular-nums">
+                {row.previewScore.toFixed(1)}
+                <span className="ml-2 text-text-tertiary">({formatSigned(row.scoreDelta)})</span>
+              </TableCell>
+              <TableCell className="text-right font-mono tabular-nums">
+                #{row.previewRank}
+                {row.rankDelta === null ? null : (
+                  <span className="ml-2 text-text-tertiary">({formatSigned(row.rankDelta)})</span>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }

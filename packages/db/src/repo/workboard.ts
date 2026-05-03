@@ -5,6 +5,7 @@ import type { SmartPriorityBreakdown } from '@duedatehq/ports/priority'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
+import { firmProfile } from '../schema/firm'
 import {
   obligationInstance,
   type ObligationReadiness,
@@ -12,6 +13,7 @@ import {
 } from '../schema/obligations'
 import { workboardSavedView, type WorkboardDensity } from '../schema/workboard'
 import { listActiveOverlayDueDates } from './overlay'
+import { toSmartPriorityProfile } from './priority-profile'
 
 /**
  * workboard — read model joining obligation_instance + client.
@@ -408,6 +410,15 @@ function isAfterCursor(
 }
 
 export function makeWorkboardRepo(db: Db, firmId: string) {
+  async function loadSmartPriorityProfile() {
+    const [row] = await db
+      .select({ smartPriorityProfileJson: firmProfile.smartPriorityProfileJson })
+      .from(firmProfile)
+      .where(eq(firmProfile.id, firmId))
+      .limit(1)
+    return toSmartPriorityProfile(row?.smartPriorityProfileJson)
+  }
+
   async function listEvidenceCounts(obligationIds: string[]): Promise<Map<string, number>> {
     if (obligationIds.length === 0) return new Map()
     const reads = []
@@ -438,12 +449,12 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
     rawRows: WorkboardRawJoinedRow[],
     input: Pick<WorkboardListInput, 'asOfDate'> = {},
   ): Promise<WorkboardListRow[]> {
-    const overlayDueDates = await listActiveOverlayDueDates(
-      db,
-      firmId,
-      rawRows.map((row) => row.id),
-    )
-    const evidenceCounts = await listEvidenceCounts(rawRows.map((row) => row.id))
+    const obligationIds = rawRows.map((row) => row.id)
+    const [overlayDueDates, evidenceCounts, smartPriorityProfile] = await Promise.all([
+      listActiveOverlayDueDates(db, firmId, obligationIds),
+      listEvidenceCounts(obligationIds),
+      loadSmartPriorityProfile(),
+    ])
     const asOfDate = getAsOfDate(input)
     const asOfDateOnly = asOfDate.toISOString().slice(0, 10)
     const rowDrafts = rawRows.map((row) => {
@@ -465,6 +476,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           importanceWeight: row.importanceWeight ?? 2,
           lateFilingCountLast12mo: row.lateFilingCountLast12mo ?? 0,
         })),
+        smartPriorityProfile,
       ).map(({ row, smartPriority }) => [row.id, smartPriority]),
     )
 

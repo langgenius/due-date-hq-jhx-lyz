@@ -23,6 +23,7 @@ import type {
   PulseDetail,
   PulseSourceHealth,
 } from '@duedatehq/contracts'
+import { SMART_PRIORITY_DEFAULT_PROFILE } from '@duedatehq/contracts'
 
 import { orpc } from '@/lib/rpc'
 
@@ -67,6 +68,7 @@ const MOCK_FIRM: FirmPublic = {
   role: 'owner',
   ownerUserId: 'user_mock_001',
   coordinatorCanSeeDollars: false,
+  smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
   isCurrent: true,
   createdAt: ISO_NOW,
   updatedAt: ISO_NOW,

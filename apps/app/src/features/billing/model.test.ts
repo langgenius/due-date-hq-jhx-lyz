@@ -1,4 +1,4 @@
-import type { FirmPublic } from '@duedatehq/contracts'
+import { SMART_PRIORITY_DEFAULT_PROFILE, type FirmPublic } from '@duedatehq/contracts'
 import { describe, expect, it } from 'vitest'
 import { activeFirmEntitlementLimit, canCreateAdditionalFirm, ownedActiveFirms } from './model'
 
@@ -14,6 +14,7 @@ function firm(overrides: Partial<FirmPublic> = {}): FirmPublic {
     role: 'owner',
     ownerUserId: 'user_1',
     coordinatorCanSeeDollars: false,
+    smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
     isCurrent: true,
     createdAt: '2026-05-02T00:00:00.000Z',
     updatedAt: '2026-05-02T00:00:00.000Z',

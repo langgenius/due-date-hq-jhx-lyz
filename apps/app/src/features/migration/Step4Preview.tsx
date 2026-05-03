@@ -4,6 +4,7 @@ import { CheckCircle2Icon, PlayIcon, ShieldCheckIcon } from 'lucide-react'
 import type { DryRunSummary } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { ConceptLabel } from '@/features/concepts/concept-help'
 import { formatCents } from '@/lib/utils'
 
 import { formatMigrationErrorMessage, useMappingTargetLabels } from './mapping-target-labels'
@@ -75,7 +76,9 @@ export function Step4Preview({ summary }: Step4Props) {
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
-            <Trans>Audit log captures every AI decision</Trans>
+            <ConceptLabel concept="auditTrail">
+              <Trans>Audit log captures every AI decision</Trans>
+            </ConceptLabel>
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
@@ -86,7 +89,9 @@ export function Step4Preview({ summary }: Step4Props) {
 
       <section className="grid gap-3 rounded-lg border border-divider-regular bg-background-section p-3">
         <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
-          <Trans>Exposure preview</Trans>
+          <ConceptLabel concept="exposure">
+            <Trans>Exposure preview</Trans>
+          </ConceptLabel>
         </h3>
         {exposure ? (
           <>

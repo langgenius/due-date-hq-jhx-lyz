@@ -353,8 +353,9 @@ Vectorize 仍是检索层：
 | Migration Normalizer    | P0     | 字段枚举值                               | 归一值 + confidence                            | 字典 + fuzzy + 手动编辑                                  |
 
 Smart Priority 必须保持纯函数。排序、badge、popover 和 Weekly Brief ordering 都使用同一份
-`packages/core/src/priority` 结果；AI 不解释或改写排序，只能在 Brief / Insight 文案中引用已经
-计算好的分数和来源标签。
+`packages/core/src/priority` 结果；Practice 级 `smartPriorityProfile` 只改变 deterministic
+权重/阈值，不引入模型决策。AI 不解释或改写排序，只能在 Brief / Insight 文案中引用已经计算好的
+分数和来源标签。
 
 ---
 
@@ -472,7 +473,7 @@ provider 失败或 AI budget 影响。
 
 Brief prompt 的输入必须来自 server-side Dashboard snapshot、Evidence、Rules source metadata
 和 approved Pulse；AI 不重新查询数据库、不决定排序、不写 obligation。Smart Priority 仍是纯函数，
-AI 只解释排序结果。
+即使 firm owner 调整了 profile，AI 也只解释排序结果。
 
 Dashboard 前端消费结构化 citation：`ref + obligationId + evidence(sourceType/sourceId/sourceUrl)`。
 ready brief 的 citation chip 打开 evidence drawer，drawer 可跳转到 Workboard 对应 obligation 或

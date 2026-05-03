@@ -44,10 +44,16 @@ function createFakeDb(rows: FakeRow[]) {
   const overlayFrom = vi.fn(() => ({ innerJoin: overlayInnerJoin }))
   const evidenceWhere = vi.fn(async () => [])
   const evidenceFrom = vi.fn(() => ({ where: evidenceWhere }))
+  const profileLimit = vi.fn(async () => [])
+  const profileWhere = vi.fn(() => ({ limit: profileLimit }))
+  const profileFrom = vi.fn(() => ({ where: profileWhere }))
   const select = vi.fn((shape?: Record<string, unknown>) => {
     if (shape && 'overrideDueDate' in shape) return { from: overlayFrom }
     if (shape && Object.keys(shape).length === 1 && 'obligationInstanceId' in shape) {
       return { from: evidenceFrom }
+    }
+    if (shape && Object.keys(shape).length === 1 && 'smartPriorityProfileJson' in shape) {
+      return { from: profileFrom }
     }
     return { from }
   })

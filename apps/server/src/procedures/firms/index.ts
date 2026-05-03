@@ -36,6 +36,7 @@ function toFirmPublic(row: FirmRow, currentFirmId: string | null | undefined): F
     role: row.role,
     ownerUserId: row.ownerUserId,
     coordinatorCanSeeDollars: row.coordinatorCanSeeDollars,
+    smartPriorityProfile: row.smartPriorityProfile,
     isCurrent: row.id === currentFirmId,
     createdAt: toIso(row.createdAt),
     updatedAt: toIso(row.updatedAt),
@@ -45,6 +46,23 @@ function toFirmPublic(row: FirmRow, currentFirmId: string | null | undefined): F
 
 function toNullableIso(value: Date | null): string | null {
   return value ? toIso(value) : null
+}
+
+function dateInTimezone(timezone: string, date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+  const year = parts.find((part) => part.type === 'year')?.value
+  const month = parts.find((part) => part.type === 'month')?.value
+  const day = parts.find((part) => part.type === 'day')?.value
+  return `${year}-${month}-${day}`
+}
+
+function toDateOnly(value: Date): string {
+  return value.toISOString().slice(0, 10)
 }
 
 function toBillingSubscriptionPublic(
@@ -230,6 +248,9 @@ const updateCurrent = os.firms.updateCurrent.handler(async ({ input, context }) 
     ...(input.coordinatorCanSeeDollars !== undefined
       ? { coordinatorCanSeeDollars: input.coordinatorCanSeeDollars }
       : {}),
+    ...(input.smartPriorityProfile !== undefined
+      ? { smartPriorityProfile: input.smartPriorityProfile }
+      : {}),
   })
   const after = await firms.findActiveForUser(userId, activeFirmId)
   if (!after) {
@@ -248,16 +269,49 @@ const updateCurrent = os.firms.updateCurrent.handler(async ({ input, context }) 
       name: before.name,
       timezone: before.timezone,
       coordinatorCanSeeDollars: before.coordinatorCanSeeDollars,
+      smartPriorityProfile: before.smartPriorityProfile,
     },
     after: {
       name: after.name,
       timezone: after.timezone,
       coordinatorCanSeeDollars: after.coordinatorCanSeeDollars,
+      smartPriorityProfile: after.smartPriorityProfile,
     },
   })
 
   return toFirmPublic(after, activeFirmId)
 })
+
+const previewSmartPriorityProfile = os.firms.previewSmartPriorityProfile.handler(
+  async ({ input, context }) => {
+    const { firms, session, userId } = requireSession(context)
+    const activeFirmId = session.activeOrganizationId
+    if (!activeFirmId) {
+      throw new ORPCError('UNAUTHORIZED', { message: ErrorCodes.TENANT_MISSING })
+    }
+
+    const current = await firms.findActiveForUser(userId, activeFirmId)
+    if (!current) {
+      throw new ORPCError('NOT_FOUND', { message: ErrorCodes.FIRM_NOT_FOUND })
+    }
+    if (!isOwner(current, userId)) {
+      throw new ORPCError('FORBIDDEN', { message: ErrorCodes.FIRM_FORBIDDEN })
+    }
+
+    const asOfDate = input.asOfDate ?? dateInTimezone(current.timezone)
+    const result = await firms.previewSmartPriorityProfile(activeFirmId, {
+      smartPriorityProfile: input.smartPriorityProfile,
+      asOfDate,
+      limit: input.limit ?? 8,
+    })
+    return {
+      asOfDate: result.asOfDate,
+      rows: result.rows.map((row) =>
+        Object.assign({}, row, { currentDueDate: toDateOnly(row.currentDueDate) }),
+      ),
+    }
+  },
+)
 
 const listSubscriptions = os.firms.listSubscriptions.handler(async ({ context }) => {
   const { firms, session, userId } = requireSession(context)
@@ -314,6 +368,7 @@ export const firmsHandlers = {
   create,
   switchActive,
   updateCurrent,
+  previewSmartPriorityProfile,
   listSubscriptions,
   softDeleteCurrent,
 }

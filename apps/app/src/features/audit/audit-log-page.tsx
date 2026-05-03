@@ -36,6 +36,7 @@ import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { ConceptLabel } from '@/features/concepts/concept-help'
 import { resolveUSFirmTimezone } from '@/features/firm/timezone-select'
 
 import { AuditEventDrawer } from './audit-event-drawer'
@@ -323,7 +324,9 @@ function AuditExportButton() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              <Trans>Audit evidence package</Trans>
+              <ConceptLabel concept="auditTrail">
+                <Trans>Audit evidence package</Trans>
+              </ConceptLabel>
             </DialogTitle>
             <DialogDescription>
               <Trans>
@@ -503,7 +506,9 @@ export function AuditLogPage() {
         <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl leading-tight font-semibold text-text-primary">
-              <Trans>Audit log</Trans>
+              <ConceptLabel concept="auditTrail">
+                <Trans>Audit log</Trans>
+              </ConceptLabel>
             </h1>
             <p className="max-w-180 text-md text-text-secondary">
               <Trans>Review practice-wide write events, what changed, and actor metadata.</Trans>
@@ -614,7 +619,9 @@ export function AuditLogPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            <Trans>Event stream</Trans>
+            <ConceptLabel concept="auditTrail">
+              <Trans>Event stream</Trans>
+            </ConceptLabel>
           </CardTitle>
           <CardDescription>
             <Trans>Newest practice-scoped audit events appear first.</Trans>

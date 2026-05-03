@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 
@@ -14,6 +14,7 @@ import {
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { orpc } from '@/lib/rpc'
+import { ConceptLabel } from '@/features/concepts/concept-help'
 
 import { COVERAGE_MATRIX, ENTITY_COLUMNS, RULE_JURISDICTIONS } from './rules-console-model'
 import {
@@ -33,7 +34,7 @@ function CoverageStatusPill({
   label,
 }: {
   jurisdiction: RuleJurisdiction
-  label: string
+  label: ReactNode
 }) {
   // FED's "candidate watch" pill uses the *review* blue token,
   // not `text-text-accent`. The latter is reserved
@@ -64,7 +65,7 @@ function StatCell({
   caption,
   emphasis,
 }: {
-  label: string
+  label: ReactNode
   value: number
   caption: string
   emphasis?: 'accent' | 'warning'
@@ -151,23 +152,23 @@ export function CoverageTab() {
       <SectionFrame>
         <div className="grid grid-cols-2 divide-y divide-divider-regular sm:grid-cols-4 sm:divide-x sm:divide-y-0">
           <StatCell
-            label={t`Verified rules`}
+            label={<ConceptLabel concept="verifiedRule">{t`Verified rules`}</ConceptLabel>}
             value={stats.verified}
             caption={t`reminder-ready across MVP scope`}
           />
           <StatCell
-            label={t`Candidates`}
+            label={<ConceptLabel concept="candidateRule">{t`Candidates`}</ConceptLabel>}
             value={stats.candidates}
             caption={t`pending ops review`}
             {...(stats.candidates > 0 ? { emphasis: 'accent' as const } : {})}
           />
           <StatCell
-            label={t`Sources watched`}
+            label={<ConceptLabel concept="evidence">{t`Sources watched`}</ConceptLabel>}
             value={stats.sources}
             caption={t`official channels under monitor`}
           />
           <StatCell
-            label={t`Jurisdictions`}
+            label={<ConceptLabel concept="coverage">{t`Jurisdictions`}</ConceptLabel>}
             value={stats.jurisdictions}
             caption={t`${stats.fullyCovered} fully covered · ${stats.jurisdictions - stats.fullyCovered} with open candidates`}
           />

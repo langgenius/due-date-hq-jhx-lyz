@@ -82,20 +82,21 @@ packages/db/
 > 来源：ADR [`0010-firm-profile-vs-organization.md`](../adr/0010-firm-profile-vs-organization.md)。
 > Schema：`packages/db/src/schema/firm.ts`；migration `0001_tidy_shiva.sql`。
 
-| 字段                      | 类型                                               | 备注                                                                                                      |
-| ------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `id`                      | `text PK · FK → organization.id ON DELETE CASCADE` | PK 复用 organization.id；删 org → 级联删 firm_profile                                                     |
-| `name`                    | `text NOT NULL`                                    | 镜像 organization.name；P1 可分离 legal/display                                                           |
-| `plan`                    | `text NOT NULL DEFAULT 'solo'`                     | PRD §3.6.1；enum `solo / firm / pro` 在 drizzle schema + TS 层校验（见下）                                |
-| `seat_limit`              | `integer NOT NULL DEFAULT 1`                       | UI affordance；写时由 plan 决定（P1）                                                                     |
-| `timezone`                | `text NOT NULL DEFAULT 'America/New_York'`         | P0 ICP 假设（PRD §2.1）；P1 onboarding 让用户选                                                           |
-| `owner_user_id`           | `text NOT NULL · FK → user.id ON DELETE RESTRICT`  | 删 user 前必须先转 owner 或软删 firm                                                                      |
-| `status`                  | `text NOT NULL DEFAULT 'active'`                   | enum `active / suspended / deleted`（drizzle+TS 层）；tenantMiddleware 拒 non-active → `TENANT_SUSPENDED` |
-| `billing_customer_id`     | `text NULL`                                        | Stripe customer cache；Better Auth `subscription` / Stripe webhook 仍是事实来源                           |
-| `billing_subscription_id` | `text NULL`                                        | Stripe subscription cache；用于业务 plan/seat 快读，不替代 subscription 表                                |
-| `created_at`              | `integer (ms) NOT NULL`                            |                                                                                                           |
-| `updated_at`              | `integer (ms) NOT NULL`                            | drizzle `$onUpdate` 触发                                                                                  |
-| `deleted_at`              | `integer (ms) NULL`                                | PRD §3.6.8 软删 30d grace                                                                                 |
+| 字段                          | 类型                                               | 备注                                                                                                      |
+| ----------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `id`                          | `text PK · FK → organization.id ON DELETE CASCADE` | PK 复用 organization.id；删 org → 级联删 firm_profile                                                     |
+| `name`                        | `text NOT NULL`                                    | 镜像 organization.name；P1 可分离 legal/display                                                           |
+| `plan`                        | `text NOT NULL DEFAULT 'solo'`                     | PRD §3.6.1；enum `solo / firm / pro` 在 drizzle schema + TS 层校验（见下）                                |
+| `seat_limit`                  | `integer NOT NULL DEFAULT 1`                       | UI affordance；写时由 plan 决定（P1）                                                                     |
+| `timezone`                    | `text NOT NULL DEFAULT 'America/New_York'`         | P0 ICP 假设（PRD §2.1）；P1 onboarding 让用户选                                                           |
+| `owner_user_id`               | `text NOT NULL · FK → user.id ON DELETE RESTRICT`  | 删 user 前必须先转 owner 或软删 firm                                                                      |
+| `status`                      | `text NOT NULL DEFAULT 'active'`                   | enum `active / suspended / deleted`（drizzle+TS 层）；tenantMiddleware 拒 non-active → `TENANT_SUSPENDED` |
+| `billing_customer_id`         | `text NULL`                                        | Stripe customer cache；Better Auth `subscription` / Stripe webhook 仍是事实来源                           |
+| `billing_subscription_id`     | `text NULL`                                        | Stripe subscription cache；用于业务 plan/seat 快读，不替代 subscription 表                                |
+| `smart_priority_profile_json` | `text JSON NULL`                                   | Practice 级 Smart Priority 配置；NULL = `smart-priority-profile-v1` 默认权重和阈值                        |
+| `created_at`                  | `integer (ms) NOT NULL`                            |                                                                                                           |
+| `updated_at`                  | `integer (ms) NOT NULL`                            | drizzle `$onUpdate` 触发                                                                                  |
+| `deleted_at`                  | `integer (ms) NULL`                                | PRD §3.6.8 软删 30d grace                                                                                 |
 
 **与 `organization` 的关系**：
 
@@ -430,9 +431,11 @@ Activation Slice v1 新增 tenant-scoped `dashboard` repo，服务 `dashboard.lo
 - due window：默认 `asOfDate` 来自 firm timezone，`windowDays=7`，含第 7 天边界
 - needs review：`status='review'`
 - evidence gap：open obligation 且没有 evidence
-- top rows：按 Smart Priority 排序；Smart Priority 是 `packages/core/src/priority` 纯函数，基于
+- top rows：按 Smart Priority 排序；Smart Priority 是 `packages/core/src/priority` 纯函数，默认基于
   exposure 45%、urgency 25%、client importance 15%、late-filing history 10%、readiness/waiting 5%
-  计算 score、rank、factor contributions 和 source labels。overdue / 0-2 天仍映射为
+  计算 score、rank、factor contributions 和 source labels。Owner 可在 Practice profile 保存
+  firm-level `smartPriorityProfile`，只调整五个权重和 exposure/urgency/history 归一化阈值；AI 不参与排序。
+  overdue / 0-2 天仍映射为
   `critical`，3-7 天 `high`，`review` 或 8-14 天 `medium`，其他 open `neutral`
 - triage tabs：`dashboard.load.triageTabs` 在同一次 repo 聚合中产出 `this_week`（逾期和 0-7
   天）、`this_month`（8-30 天）、`long_term`（31-180 天）；每行只进入最紧急的一个 tab，金额

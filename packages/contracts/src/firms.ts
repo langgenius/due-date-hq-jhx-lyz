@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
+import { SmartPriorityProfileSchema } from './priority'
 import { TenantIdSchema } from './shared/ids'
 
 export const FirmPlanSchema = z.enum(['solo', 'firm', 'pro'])
@@ -104,6 +105,7 @@ export const FirmPublicSchema = z.object({
   role: FirmRoleSchema,
   ownerUserId: z.string().min(1),
   coordinatorCanSeeDollars: z.boolean(),
+  smartPriorityProfile: SmartPriorityProfileSchema,
   isCurrent: z.boolean(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
@@ -119,6 +121,31 @@ export const FirmUpdateInputSchema = z.object({
   name: z.string().trim().min(2).max(120),
   timezone: USFirmTimezoneSchema,
   coordinatorCanSeeDollars: z.boolean().optional(),
+  smartPriorityProfile: SmartPriorityProfileSchema.optional(),
+})
+
+export const FirmSmartPriorityPreviewInputSchema = z.object({
+  smartPriorityProfile: SmartPriorityProfileSchema,
+  asOfDate: z.iso.date().optional(),
+  limit: z.number().int().min(1).max(20).default(8).optional(),
+})
+
+export const FirmSmartPriorityPreviewRowSchema = z.object({
+  obligationId: z.string().min(1),
+  clientName: z.string().min(1),
+  taxType: z.string().min(1),
+  currentDueDate: z.iso.date(),
+  currentScore: z.number().min(0),
+  previewScore: z.number().min(0),
+  scoreDelta: z.number(),
+  currentRank: z.number().int().positive().nullable(),
+  previewRank: z.number().int().positive(),
+  rankDelta: z.number().int().nullable(),
+})
+
+export const FirmSmartPriorityPreviewOutputSchema = z.object({
+  asOfDate: z.iso.date(),
+  rows: z.array(FirmSmartPriorityPreviewRowSchema),
 })
 
 export const FirmBillingSubscriptionPublicSchema = z.object({
@@ -149,6 +176,9 @@ export const firmsContract = oc.router({
   create: oc.input(FirmCreateInputSchema).output(FirmPublicSchema),
   switchActive: oc.input(z.object({ firmId: TenantIdSchema })).output(FirmPublicSchema),
   updateCurrent: oc.input(FirmUpdateInputSchema).output(FirmPublicSchema),
+  previewSmartPriorityProfile: oc
+    .input(FirmSmartPriorityPreviewInputSchema)
+    .output(FirmSmartPriorityPreviewOutputSchema),
   listSubscriptions: oc.input(z.undefined()).output(z.array(FirmBillingSubscriptionPublicSchema)),
   softDeleteCurrent: oc
     .input(z.undefined())
@@ -160,6 +190,9 @@ export type FirmBillingSubscriptionPublic = z.infer<typeof FirmBillingSubscripti
 export type FirmPlan = z.infer<typeof FirmPlanSchema>
 export type FirmPublic = z.infer<typeof FirmPublicSchema>
 export type FirmRole = z.infer<typeof FirmRoleSchema>
+export type FirmSmartPriorityPreviewInput = z.infer<typeof FirmSmartPriorityPreviewInputSchema>
+export type FirmSmartPriorityPreviewOutput = z.infer<typeof FirmSmartPriorityPreviewOutputSchema>
+export type FirmSmartPriorityPreviewRow = z.infer<typeof FirmSmartPriorityPreviewRowSchema>
 export type FirmStatus = z.infer<typeof FirmStatusSchema>
 export type FirmUpdateInput = z.infer<typeof FirmUpdateInputSchema>
 export type FirmsContract = typeof firmsContract

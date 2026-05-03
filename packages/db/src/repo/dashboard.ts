@@ -16,13 +16,16 @@ import type {
 } from '@duedatehq/ports/shared'
 import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
 import { rankSmartPriorities } from '@duedatehq/core/priority'
+import type { SmartPriorityProfile } from '@duedatehq/core/priority'
 import type { SmartPriorityBreakdown } from '@duedatehq/ports/priority'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client } from '../schema/clients'
 import { dashboardBrief } from '../schema/dashboard'
+import { firmProfile } from '../schema/firm'
 import { obligationInstance, type ObligationStatus } from '../schema/obligations'
 import { listActiveOverlayDueDates } from './overlay'
+import { toSmartPriorityProfile } from './priority-profile'
 
 const OPEN_STATUSES = [...OPEN_OBLIGATION_STATUSES] satisfies ObligationStatus[]
 const EVIDENCE_BATCH_SIZE = 90
@@ -293,6 +296,7 @@ export function composeDashboardLoad(
   rows: DashboardRawRow[],
   evidenceRows: DashboardEvidenceRow[],
   input: DashboardLoadInput,
+  smartPriorityProfile?: SmartPriorityProfile | null,
 ): DashboardLoadResult {
   const windowDays = input.windowDays ?? 7
   const topLimit = input.topLimit ?? 8
@@ -351,6 +355,7 @@ export function composeDashboardLoad(
         lateFilingCountLast12mo: row.lateFilingCountLast12mo ?? 0,
       }),
     ),
+    smartPriorityProfile,
   ).map(({ row, smartPriority }) =>
     Object.assign({}, row, {
       smartPriority,
@@ -436,6 +441,15 @@ function normalizeBrief(
 }
 
 export function makeDashboardRepo(db: Db, firmId: string) {
+  async function loadSmartPriorityProfile() {
+    const [row] = await db
+      .select({ smartPriorityProfileJson: firmProfile.smartPriorityProfileJson })
+      .from(firmProfile)
+      .where(eq(firmProfile.id, firmId))
+      .limit(1)
+    return toSmartPriorityProfile(row?.smartPriorityProfileJson)
+  }
+
   function briefScopePredicate(scope: DashboardBriefScope, userId?: string | null) {
     if (scope === 'me') {
       return userId ? eq(dashboardBrief.userId, userId) : isNull(dashboardBrief.userId)
@@ -572,18 +586,18 @@ export function makeDashboardRepo(db: Db, firmId: string) {
         .orderBy(asc(obligationInstance.currentDueDate), asc(obligationInstance.id))
         .limit(1000)
 
-      const evidenceRows = await listEvidenceByObligations(rows.map((row) => row.obligationId))
-      const overlayDueDates = await listActiveOverlayDueDates(
-        db,
-        firmId,
-        rows.map((row) => row.obligationId),
-      )
+      const obligationIds = rows.map((row) => row.obligationId)
+      const [evidenceRows, overlayDueDates, smartPriorityProfile] = await Promise.all([
+        listEvidenceByObligations(obligationIds),
+        listActiveOverlayDueDates(db, firmId, obligationIds),
+        loadSmartPriorityProfile(),
+      ])
       const overlayRows = rows.map((row) =>
         Object.assign({}, row, {
           currentDueDate: overlayDueDates.get(row.obligationId) ?? row.currentDueDate,
         }),
       )
-      const result = composeDashboardLoad(overlayRows, evidenceRows, input)
+      const result = composeDashboardLoad(overlayRows, evidenceRows, input, smartPriorityProfile)
       return {
         ...result,
         brief: await findLatestBrief({

@@ -65,6 +65,7 @@ import {
   TableHeaderMultiFilter,
   type TableFilterOption,
 } from '@/components/patterns/table-header-filter'
+import { ConceptLabel } from '@/features/concepts/concept-help'
 import { severityRowClass } from '@/features/dashboard/severity-row'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
@@ -644,14 +645,22 @@ function DashboardMetricStrip({
         },
         {
           id: 'evidence',
-          label: <Trans>Evidence gaps</Trans>,
+          label: (
+            <ConceptLabel concept="evidenceGap">
+              <Trans>Evidence gaps</Trans>
+            </ConceptLabel>
+          ),
           value: String(summary.evidenceGapCount),
           detail: <Trans>Rows that still need a source before review.</Trans>,
           valueClassName: 'text-severity-medium',
         },
         {
           id: 'exposure',
-          label: <Trans>Penalty Radar</Trans>,
+          label: (
+            <ConceptLabel concept="penaltyRadar">
+              <Trans>Penalty Radar</Trans>
+            </ConceptLabel>
+          ),
           value: formatCents(summary.totalExposureCents),
           detail: (
             <Trans>
@@ -768,7 +777,9 @@ function DashboardTriagePanel({
     <Card className="min-w-0">
       <CardHeader>
         <CardTitle>
-          <Trans>Triage queue</Trans>
+          <ConceptLabel concept="triageQueue">
+            <Trans>Triage queue</Trans>
+          </ConceptLabel>
         </CardTitle>
         <CardDescription>
           <Trans>This Week, This Month, and Long-term risk windows from server aggregation.</Trans>
@@ -880,7 +891,7 @@ function DashboardTriageTable({
     () => [
       {
         id: 'smartPriority',
-        header: t`Priority`,
+        header: () => <ConceptLabel concept="smartPriority">{t`Priority`}</ConceptLabel>,
         enableSorting: false,
         cell: ({ row }) => <SmartPriorityBadge smartPriority={row.original.smartPriority} />,
       },
@@ -1232,7 +1243,9 @@ function DashboardBriefPanel({
           <div className="flex flex-wrap items-center gap-2">
             <SparklesIcon className="size-4 text-text-accent" aria-hidden />
             <span className="text-md font-semibold text-text-primary">
-              <Trans>AI weekly brief</Trans>
+              <ConceptLabel concept="aiWeeklyBrief">
+                <Trans>AI weekly brief</Trans>
+              </ConceptLabel>
             </span>
             {statusLabel ? (
               <Badge

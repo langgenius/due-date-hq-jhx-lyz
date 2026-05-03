@@ -5,6 +5,8 @@ import type { PulseAlertPublic } from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { ConceptLabel } from '@/features/concepts/concept-help'
+
 import { isVeryLowPulseConfidence, PulseConfidenceBadge } from './PulseConfidenceBadge'
 import { PulseSourceBadge } from './PulseSourceBadge'
 import { PulseSourceStatusBadge } from './PulseSourceStatusBadge'
@@ -90,7 +92,9 @@ export function PulseAlertCard({
       {veryLowConfidence ? (
         <p className="flex items-center gap-1.5 pl-4 text-sm font-medium text-text-destructive">
           <AlertTriangleIcon className="size-4 shrink-0" aria-hidden />
-          <Trans>Low AI confidence. Review source details before applying.</Trans>
+          <ConceptLabel concept="aiConfidence">
+            <Trans>Low AI confidence. Review source details before applying.</Trans>
+          </ConceptLabel>
         </p>
       ) : null}
 

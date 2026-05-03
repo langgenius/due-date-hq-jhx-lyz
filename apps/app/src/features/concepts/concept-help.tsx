@@ -1,0 +1,261 @@
+import type { ReactNode } from 'react'
+import { CircleHelpIcon } from 'lucide-react'
+import { useLingui } from '@lingui/react/macro'
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from '@duedatehq/ui/components/ui/popover'
+import { cn } from '@duedatehq/ui/lib/utils'
+
+export type ConceptId =
+  | 'smartPriority'
+  | 'penaltyRadar'
+  | 'exposure'
+  | 'readiness'
+  | 'obligation'
+  | 'evidence'
+  | 'evidenceGap'
+  | 'pulse'
+  | 'verifiedRule'
+  | 'candidateRule'
+  | 'defaultMatrix'
+  | 'migrationCopilot'
+  | 'workboard'
+  | 'triageQueue'
+  | 'aiWeeklyBrief'
+  | 'deadlineTip'
+  | 'auditTrail'
+  | 'obligationPreview'
+  | 'reminderReady'
+  | 'requiresReview'
+  | 'coverage'
+  | 'practice'
+  | 'owner'
+  | 'risk'
+  | 'aiConfidence'
+
+type ConceptCopy = {
+  title: string
+  description: string
+}
+
+type ConceptHelpProps = {
+  concept: ConceptId
+  className?: string
+  side?: 'top' | 'right' | 'bottom' | 'left'
+  align?: 'start' | 'center' | 'end'
+}
+
+type ConceptLabelProps = ConceptHelpProps & {
+  children: ReactNode
+  labelClassName?: string
+}
+
+function useConceptCopy(concept: ConceptId): ConceptCopy {
+  const { t } = useLingui()
+
+  switch (concept) {
+    case 'smartPriority':
+      return {
+        title: t`Smart Priority`,
+        description: t`DueDateHQ's deterministic ordering score for deadline work. It combines dollar exposure, urgency, client importance, late filing history, and readiness pressure.`,
+      }
+    case 'penaltyRadar':
+      return {
+        title: t`Penalty Radar`,
+        description: t`The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice.`,
+      }
+    case 'exposure':
+      return {
+        title: t`Exposure`,
+        description: t`The estimated dollars at risk if a deadline is missed. Rows without enough tax inputs show as needing input or unsupported.`,
+      }
+    case 'readiness':
+      return {
+        title: t`Readiness`,
+        description: t`Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs.`,
+      }
+    case 'obligation':
+      return {
+        title: t`Obligation`,
+        description: t`A specific compliance deadline generated from client facts and verified rules. It is more structured than a generic task.`,
+      }
+    case 'evidence':
+      return {
+        title: t`Evidence`,
+        description: t`The official source, quote, or audit record that supports a rule, deadline, AI explanation, or Pulse change.`,
+      }
+    case 'evidenceGap':
+      return {
+        title: t`Evidence gap`,
+        description: t`A row still needs a trusted source before it should be treated as fully reviewable or cited in AI output.`,
+      }
+    case 'pulse':
+      return {
+        title: t`Pulse`,
+        description: t`A regulatory change signal detected from watched official sources. Matching client deadlines still need review before changes are applied.`,
+      }
+    case 'verifiedRule':
+      return {
+        title: t`Verified rule`,
+        description: t`A deadline rule that has been reviewed and can generate customer-facing reminders when it matches a client.`,
+      }
+    case 'candidateRule':
+      return {
+        title: t`Candidate rule`,
+        description: t`A possible rule or change that is still waiting for operations review. Candidate rules do not update client deadlines or send reminders.`,
+      }
+    case 'defaultMatrix':
+      return {
+        title: t`Default Matrix`,
+        description: t`Import-time suggestions for tax types based on entity type and jurisdiction when the uploaded rows do not provide tax types.`,
+      }
+    case 'migrationCopilot':
+      return {
+        title: t`Migration Copilot`,
+        description: t`The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue.`,
+      }
+    case 'workboard':
+      return {
+        title: t`Workboard`,
+        description: t`The operating surface for deadline work: filter, sort, assign owners, update status, and open evidence for each obligation.`,
+      }
+    case 'triageQueue':
+      return {
+        title: t`Triage queue`,
+        description: t`A risk-window view of open obligations so the team can decide what to handle first this week or month.`,
+      }
+    case 'aiWeeklyBrief':
+      return {
+        title: t`AI weekly brief`,
+        description: t`A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the queue.`,
+      }
+    case 'deadlineTip':
+      return {
+        title: t`Deadline Tip`,
+        description: t`A short explanation for one deadline, generated only from verified deadline context and source-backed evidence.`,
+      }
+    case 'auditTrail':
+      return {
+        title: t`Audit trail`,
+        description: t`The practice-scoped record of who changed what, when it changed, and what evidence or reason was attached.`,
+      }
+    case 'obligationPreview':
+      return {
+        title: t`Obligation Preview`,
+        description: t`A dry run that shows which obligations rules would create for a client before anything is written to the workboard.`,
+      }
+    case 'reminderReady':
+      return {
+        title: t`Reminder-ready`,
+        description: t`This obligation comes from a verified rule and can trigger the 30, 7, and 1-day reminder schedule.`,
+      }
+    case 'requiresReview':
+      return {
+        title: t`Requires review`,
+        description: t`The system found a possible deadline, but a CPA or operations reviewer must confirm it before it is treated as final.`,
+      }
+    case 'coverage':
+      return {
+        title: t`Coverage`,
+        description: t`The jurisdictions, entity types, and tax types currently backed by watched sources and verified rules.`,
+      }
+    case 'practice':
+      return {
+        title: t`Practice`,
+        description: t`The active CPA firm workspace. Settings, clients, deadlines, members, billing, and audit logs are scoped to the selected practice.`,
+      }
+    case 'owner':
+      return {
+        title: t`Owner`,
+        description: t`A high-permission practice role. In client tax inputs, owner count separately means the number of equity owners used for exposure calculations.`,
+      }
+    case 'risk':
+      return {
+        title: t`Risk`,
+        description: t`The stored deadline risk view, mainly based on due date pressure, penalty exposure, readiness, and evidence status.`,
+      }
+    case 'aiConfidence':
+      return {
+        title: t`AI confidence`,
+        description: t`A model confidence signal for extracted or matched information. Low confidence means the source should be reviewed before applying changes.`,
+      }
+    default: {
+      const exhaustive: never = concept
+      void exhaustive
+      throw new Error('Unknown concept')
+    }
+  }
+}
+
+export function ConceptHelp({
+  concept,
+  className,
+  side = 'top',
+  align = 'center',
+}: ConceptHelpProps) {
+  const { t } = useLingui()
+  const copy = useConceptCopy(concept)
+
+  return (
+    <Popover>
+      <PopoverTrigger
+        openOnHover
+        delay={150}
+        closeDelay={80}
+        render={
+          <button
+            type="button"
+            aria-label={t`Explain ${copy.title}`}
+            className={cn(
+              'inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-text-tertiary outline-none transition-colors',
+              'hover:bg-state-base-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
+              className,
+            )}
+          />
+        }
+      >
+        <CircleHelpIcon className="size-3.5" aria-hidden />
+      </PopoverTrigger>
+      <PopoverContent side={side} align={align} className="w-72 gap-2 p-3">
+        <PopoverHeader>
+          <PopoverTitle>{copy.title}</PopoverTitle>
+          <PopoverDescription className="text-xs leading-relaxed text-text-secondary">
+            {copy.description}
+          </PopoverDescription>
+        </PopoverHeader>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+export function ConceptLabel({
+  concept,
+  children,
+  className,
+  labelClassName,
+  side,
+  align,
+}: ConceptLabelProps) {
+  const helpProps: ConceptHelpProps = { concept }
+
+  if (side !== undefined) {
+    helpProps.side = side
+  }
+
+  if (align !== undefined) {
+    helpProps.align = align
+  }
+
+  return (
+    <span className={cn('inline-flex min-w-0 items-center gap-1.5 align-middle', className)}>
+      <span className={cn('min-w-0', labelClassName)}>{children}</span>
+      <ConceptHelp {...helpProps} />
+    </span>
+  )
+}

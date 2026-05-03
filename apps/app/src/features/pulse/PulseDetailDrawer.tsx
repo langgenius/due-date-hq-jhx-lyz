@@ -20,6 +20,7 @@ import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { ConceptLabel } from '@/features/concepts/concept-help'
 
 import { AffectedClientsTable } from './components/AffectedClientsTable'
 import { isVeryLowPulseConfidence, PulseConfidenceBadge } from './components/PulseConfidenceBadge'
@@ -265,7 +266,9 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 <Alert variant="destructive">
                   <AlertCircleIcon />
                   <AlertTitle>
-                    <Trans>Low AI confidence</Trans>
+                    <ConceptLabel concept="aiConfidence">
+                      <Trans>Low AI confidence</Trans>
+                    </ConceptLabel>
                   </AlertTitle>
                   <AlertDescription>
                     <Trans>
@@ -307,7 +310,9 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
               <section className="flex flex-col gap-3">
                 <header className="flex items-baseline justify-between">
                   <h3 className="text-md font-semibold text-text-primary">
-                    <Trans>Affected clients</Trans>
+                    <ConceptLabel concept="pulse">
+                      <Trans>Affected clients</Trans>
+                    </ConceptLabel>
                   </h3>
                   {stats ? <SelectionSummary stats={stats} /> : null}
                 </header>

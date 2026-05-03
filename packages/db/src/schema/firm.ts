@@ -72,6 +72,7 @@ export const firmProfile = sqliteTable('firm_profile', {
   coordinatorCanSeeDollars: integer('coordinator_can_see_dollars', { mode: 'boolean' })
     .notNull()
     .default(false),
+  smartPriorityProfileJson: text('smart_priority_profile_json'),
 
   createdAt: integer('created_at', { mode: 'timestamp_ms' })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)

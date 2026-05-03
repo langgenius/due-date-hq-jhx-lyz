@@ -9,6 +9,7 @@ import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { useAppHotkey } from '@/components/patterns/keyboard-shell'
+import { ConceptLabel } from '@/features/concepts/concept-help'
 
 import type { NormalizeState } from './state'
 import type { MatrixApplicationView } from './matrix-view'
@@ -217,7 +218,9 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
       className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-background-section p-3"
     >
       <h3 className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase">
-        <Trans>Suggested tax types (from entity × state matrix)</Trans>
+        <ConceptLabel concept="defaultMatrix">
+          <Trans>Suggested tax types (from entity × state matrix)</Trans>
+        </ConceptLabel>
       </h3>
       <p className="text-sm text-text-secondary">
         <Trans>

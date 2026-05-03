@@ -52,6 +52,7 @@ describe('firm_profile schema', () => {
         'billing_customer_id',
         'billing_subscription_id',
         'coordinator_can_see_dollars',
+        'smart_priority_profile_json',
         'created_at',
         'updated_at',
         'deleted_at',
@@ -62,6 +63,7 @@ describe('firm_profile schema', () => {
     expect(byName.id?.getSQLType()).toBe('text')
     expect(byName.seat_limit?.getSQLType()).toBe('integer')
     expect(byName.coordinator_can_see_dollars?.getSQLType()).toBe('integer')
+    expect(byName.smart_priority_profile_json?.getSQLType()).toBe('text')
     expect(byName.created_at?.getSQLType()).toBe('integer')
     expect(byName.deleted_at?.getSQLType()).toBe('integer')
   })
@@ -127,6 +129,7 @@ describe('firm_profile schema', () => {
       billingCustomerId: null,
       billingSubscriptionId: null,
       coordinatorCanSeeDollars: false,
+      smartPriorityProfileJson: null,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,

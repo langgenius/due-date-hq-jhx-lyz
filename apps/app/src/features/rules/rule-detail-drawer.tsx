@@ -18,6 +18,8 @@ import {
 } from '@duedatehq/ui/components/ui/sheet'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { ConceptLabel } from '@/features/concepts/concept-help'
+
 import {
   formatEnumLabel,
   humanizeDueDateLogic,
@@ -99,7 +101,9 @@ function RuleStatusInline({ status }: { status: ObligationRule['status'] }) {
     return (
       <span className="inline-flex items-center gap-1.5 text-status-review">
         <ToneDot tone="review" />
-        <Trans>Candidate</Trans>
+        <ConceptLabel concept="candidateRule">
+          <Trans>Candidate</Trans>
+        </ConceptLabel>
       </span>
     )
   }
@@ -114,7 +118,9 @@ function RuleStatusInline({ status }: { status: ObligationRule['status'] }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-text-secondary">
       <ToneDot tone="success" />
-      <Trans>Verified</Trans>
+      <ConceptLabel concept="verifiedRule">
+        <Trans>Verified</Trans>
+      </ConceptLabel>
     </span>
   )
 }

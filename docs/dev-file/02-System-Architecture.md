@@ -79,7 +79,7 @@
 | **obligations**                 | `apps/server/src/procedures/obligations`                                   | §5.2 · §8.1                                      | rule + client                                       | ObligationInstance                                                                            |
 | **overlay**（Phase 1）          | `packages/core/overlay`                                                    | §6D.2                                            | ExceptionRule                                       | 派生 `current_due_date`                                                                       |
 | **penalty**                     | `packages/core/penalty`                                                    | §7.5                                             | obligation + assumptions                            | ExposureReport                                                                                |
-| **priority**                    | `packages/core/priority`                                                   | §6.4                                             | open obligations                                    | 打分 + 因子分解                                                                               |
+| **priority**                    | `packages/core/priority`                                                   | §6.4                                             | open obligations + firm Smart Priority profile      | 打分 + 因子分解                                                                               |
 | **dashboard**                   | `apps/server/src/procedures/dashboard` + `jobs/dashboard-brief`            | §5.1                                             | firm + scope                                        | Triage Tabs + 物化 AI Brief 上下文                                                            |
 | **workboard**                   | `apps/server/src/procedures/workboard`                                     | §5.2                                             | filter + sort + page                                | Table rows                                                                                    |
 | **pulse**                       | `apps/server/src/procedures/pulse` + `jobs/pulse` + `packages/ingest`      | §6.3 · [11](./11-Pulse-Ingest-Source-Catalog.md) | HTML / RSS / JSON API / email signal（源清单见 11） | Pulse + （Phase 1）ExceptionRule                                                              |
@@ -205,7 +205,7 @@ Worker ── POST /rpc/dashboard/load ──► Hono → RPCHandler
                                                 ▼
                                            procedures/dashboard.load
                                            → scoped.obligations.triageTabs()
-                                           → core.priority.score()
+                                           → core.priority.score(profile)
                                                 │
                                                 ▼
                                            响应 JSON 回前端

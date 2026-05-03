@@ -1,0 +1,1 @@
+ALTER TABLE `firm_profile` ADD `smart_priority_profile_json` text;

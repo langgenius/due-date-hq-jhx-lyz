@@ -69,7 +69,7 @@ export function SmartPriorityBadge({
                     </p>
                   </div>
                   <span className="font-mono tabular-nums text-text-secondary">
-                    +{factor.contribution.toFixed(1)}
+                    {Math.round(factor.weight * 100)}% · +{factor.contribution.toFixed(1)}
                   </span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-background-section">
