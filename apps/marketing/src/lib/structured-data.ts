@@ -97,7 +97,7 @@ function productDocument(pricing: PricingCopy, pathname: string): JsonLdDocument
       name: plan.name,
       price: plan.priceKind === 'numeric' ? plan.price.replace(/[^0-9.]/g, '') : undefined,
       priceCurrency: plan.priceKind === 'numeric' ? 'USD' : undefined,
-      description: plan.description,
+      description: `${plan.description} ${plan.aiLabel}: ${plan.aiDescription}`,
     })),
   }
 }

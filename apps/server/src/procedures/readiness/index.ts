@@ -113,7 +113,7 @@ async function publicRequest(input: {
 
 const generateChecklist = os.readiness.generateChecklist.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
-  const { scoped, userId } = requireTenant(context)
+  const { scoped, userId, tenant } = requireTenant(context)
   const obligation = await scoped.obligations.findById(input.obligationId)
   if (!obligation) {
     throw new ORPCError('NOT_FOUND', {
@@ -136,6 +136,7 @@ const generateChecklist = os.readiness.generateChecklist.handler(async ({ input,
     'readiness-checklist@v1',
     promptInput,
     AiReadinessChecklistOutputSchema,
+    { plan: tenant.plan, firmId: tenant.firmId, taskKind: 'readiness' },
   )
   const checklist = normalizeChecklist(
     aiResult.result ? aiResult.result.items : fallbackChecklist(obligation.taxType),

@@ -1,4 +1,5 @@
 import { createAI } from '@duedatehq/ai'
+import type { BillingPlan } from '@duedatehq/core/plan-entitlements'
 import { createDb, firmSchema, scoped } from '@duedatehq/db'
 import { eq } from 'drizzle-orm'
 import * as z from 'zod'
@@ -149,14 +150,17 @@ function formatBriefText(output: BriefOutput, sources: BriefSource[]): string {
   return lines.join('\n')
 }
 
-async function loadFirmTimezone(env: Env, firmId: string): Promise<string | null> {
+async function loadFirmContext(
+  env: Env,
+  firmId: string,
+): Promise<{ timezone: string; plan: BillingPlan } | null> {
   const db = createDb(env.DB)
   const [firm] = await db
-    .select({ timezone: firmSchema.firmProfile.timezone })
+    .select({ timezone: firmSchema.firmProfile.timezone, plan: firmSchema.firmProfile.plan })
     .from(firmSchema.firmProfile)
     .where(eq(firmSchema.firmProfile.id, firmId))
     .limit(1)
-  return firm?.timezone ?? null
+  return firm ?? null
 }
 
 export async function consumeDashboardBriefRefresh(body: unknown, env: Env): Promise<void> {
@@ -168,10 +172,10 @@ async function refreshDashboardBrief(
   message: DashboardBriefRefreshMessage,
   env: Env,
 ): Promise<void> {
-  const timezone = await loadFirmTimezone(env, message.firmId)
-  if (!timezone) return
+  const firm = await loadFirmContext(env, message.firmId)
+  if (!firm) return
 
-  const asOfDate = message.asOfDate ?? dateInTimezone(timezone)
+  const asOfDate = message.asOfDate ?? dateInTimezone(firm.timezone)
   const now = new Date()
   const db = createDb(env.DB)
   const repo = scoped(db, message.firmId)
@@ -240,7 +244,11 @@ async function refreshDashboardBrief(
           : null,
       })),
     }
-    const aiResult = await ai.runPrompt('brief@v1', aiInput, BriefOutputSchema)
+    const aiResult = await ai.runPrompt('brief@v1', aiInput, BriefOutputSchema, {
+      plan: firm.plan,
+      firmId: message.firmId,
+      taskKind: 'brief',
+    })
 
     if (aiResult.refusal || !aiResult.result) {
       const recorded = await repo.ai.recordRun({

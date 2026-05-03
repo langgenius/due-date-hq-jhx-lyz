@@ -1,4 +1,6 @@
+import { ORPCError } from '@orpc/server'
 import type { AuditEvidencePackagePublic, AuditEventPublic } from '@duedatehq/contracts'
+import { planHasFeature } from '@duedatehq/core/plan-entitlements'
 import { signAuditPackageDownload } from '../../routes/signed-url'
 import { requireTenant } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
@@ -89,7 +91,12 @@ const list = os.audit.list.handler(async ({ input, context }) => {
 const requestEvidencePackage = os.audit.requestEvidencePackage.handler(
   async ({ input, context }) => {
     await requireCurrentFirmRole(context, ['owner'])
-    const { scoped, userId } = requireTenant(context)
+    const { scoped, userId, tenant } = requireTenant(context)
+    if (!planHasFeature(tenant.plan, 'auditExport')) {
+      throw new ORPCError('FORBIDDEN', {
+        message: 'Audit export packages require Team or Enterprise.',
+      })
+    }
     if (!scoped.audit.createEvidencePackage || !scoped.audit.getEvidencePackage) {
       throw new Error('Audit package repo methods are not available.')
     }
@@ -118,7 +125,12 @@ const requestEvidencePackage = os.audit.requestEvidencePackage.handler(
 
 const getEvidencePackage = os.audit.getEvidencePackage.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, ['owner'])
-  const { scoped } = requireTenant(context)
+  const { scoped, tenant } = requireTenant(context)
+  if (!planHasFeature(tenant.plan, 'auditExport')) {
+    throw new ORPCError('FORBIDDEN', {
+      message: 'Audit export packages require Team or Enterprise.',
+    })
+  }
   if (!scoped.audit.getEvidencePackage) {
     throw new Error('Audit package repo methods are not available.')
   }
@@ -128,7 +140,12 @@ const getEvidencePackage = os.audit.getEvidencePackage.handler(async ({ input, c
 
 const listEvidencePackages = os.audit.listEvidencePackages.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, ['owner'])
-  const { scoped } = requireTenant(context)
+  const { scoped, tenant } = requireTenant(context)
+  if (!planHasFeature(tenant.plan, 'auditExport')) {
+    throw new ORPCError('FORBIDDEN', {
+      message: 'Audit export packages require Team or Enterprise.',
+    })
+  }
   if (!scoped.audit.listEvidencePackages) {
     throw new Error('Audit package repo methods are not available.')
   }
@@ -138,7 +155,12 @@ const listEvidencePackages = os.audit.listEvidencePackages.handler(async ({ inpu
 
 const createDownloadUrl = os.audit.createDownloadUrl.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, ['owner'])
-  const { scoped } = requireTenant(context)
+  const { scoped, tenant } = requireTenant(context)
+  if (!planHasFeature(tenant.plan, 'auditExport')) {
+    throw new ORPCError('FORBIDDEN', {
+      message: 'Audit export packages require Team or Enterprise.',
+    })
+  }
   if (!scoped.audit.getEvidencePackage) {
     throw new Error('Audit package repo methods are not available.')
   }

@@ -31,11 +31,22 @@ export const WorkloadOwnerRowSchema = WorkloadSummarySchema.omit({ unassigned: t
 })
 export type WorkloadOwnerRow = z.infer<typeof WorkloadOwnerRowSchema>
 
+export const WorkloadManagerInsightsSchema = z.object({
+  capacityOwnerLabel: z.string().min(1).nullable(),
+  capacityLoadScore: z.number().int().min(0).max(100),
+  capacityOpen: z.number().int().min(0),
+  unassignedOpen: z.number().int().min(0),
+  waitingOpen: z.number().int().min(0),
+  reviewOpen: z.number().int().min(0),
+})
+export type WorkloadManagerInsights = z.infer<typeof WorkloadManagerInsightsSchema>
+
 export const WorkloadLoadOutputSchema = z.object({
   asOfDate: z.iso.date(),
   windowDays: z.number().int().min(1).max(WorkloadWindowMaxDays),
   summary: WorkloadSummarySchema,
   rows: z.array(WorkloadOwnerRowSchema),
+  managerInsights: WorkloadManagerInsightsSchema.nullable(),
 })
 export type WorkloadLoadOutput = z.infer<typeof WorkloadLoadOutputSchema>
 

@@ -570,6 +570,9 @@ const en: LandingCopy = {
         yearlySavings: 'Save $96/year',
         description: 'For one owner running a single practice workspace.',
         seats: '1 PRACTICE WORKSPACE · 1 OWNER SEAT',
+        aiLabel: 'Basic AI',
+        aiDescription: 'Source-backed previews and lightweight migration help for one owner.',
+        aiFeatures: ['Preview-only AI assistance', 'Source-constrained summaries'],
         cta: 'Start Solo',
         hrefKind: 'checkout',
         checkoutPlan: 'solo',
@@ -591,6 +594,10 @@ const en: LandingCopy = {
         yearlySavings: 'Save $192/year',
         description: 'For small CPA practices that need shared deadline operations.',
         seats: '1 PRODUCTION PRACTICE · 3 SEATS',
+        aiLabel: 'Practice AI included',
+        aiDescription:
+          'Dashboard briefs, Pulse summaries, client risk summaries, deadline tips, and production migration AI.',
+        aiFeatures: ['Full practice AI workflows', 'Same AI capability as Team'],
         cta: 'Upgrade to Pro',
         hrefKind: 'checkout',
         checkoutPlan: 'pro',
@@ -611,6 +618,10 @@ const en: LandingCopy = {
         yearlySavings: 'Save $360/year',
         description: 'For practices coordinating a larger operations team.',
         seats: '1 PRODUCTION PRACTICE · 10 SEATS',
+        aiLabel: 'Same Practice AI as Pro · built for 10-seat operations',
+        aiDescription:
+          'The same practice AI tier as Pro, paired with team-scale management and review workflows.',
+        aiFeatures: ['Same AI capability as Pro', 'Team-scale fair-use protection'],
         cta: 'Upgrade to Team',
         hrefKind: 'checkout',
         checkoutPlan: 'team',
@@ -631,6 +642,10 @@ const en: LandingCopy = {
         yearlySavings: 'Save from $960/year',
         description: 'For multi-practice operations, API access, and custom coverage.',
         seats: 'MULTIPLE PRACTICES/OFFICES · 10+ SEATS',
+        aiLabel: 'Custom AI and coverage by contract',
+        aiDescription:
+          'Contract-level model routing, custom coverage, and audit-grade AI controls.',
+        aiFeatures: ['Custom AI routing', 'Contract coverage and audit controls'],
         cta: 'Contact sales',
         hrefKind: 'contact',
         features: [

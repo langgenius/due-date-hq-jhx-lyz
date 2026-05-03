@@ -10,9 +10,16 @@ import { genericOAuth, microsoftEntraId } from 'better-auth/plugins/generic-oaut
 import { organization } from 'better-auth/plugins/organization'
 import { twoFactor } from 'better-auth/plugins/two-factor'
 import { APIError } from 'better-auth/api'
+import {
+  isBillingPlan,
+  planSeatLimit as corePlanSeatLimit,
+  type BillingPlan,
+} from '@duedatehq/core/plan-entitlements'
 import StripeClient from 'stripe'
 import type { AuthEmailSender } from './email'
 import { accessControl, roles } from './permissions'
+
+export { planSeatLimit } from '@duedatehq/core/plan-entitlements'
 
 export type AuthEnv = {
   AUTH_SECRET: string
@@ -70,7 +77,6 @@ export interface CreateAuthPluginsOptions {
  */
 export type DatabaseHooks = NonNullable<BetterAuthOptions['databaseHooks']>
 
-export type BillingPlan = 'solo' | 'pro' | 'team' | 'firm'
 export type SelfServeBillingPlan = Exclude<BillingPlan, 'firm'>
 
 export type BillingCheckoutConfig = {
@@ -161,10 +167,6 @@ function isMicrosoftConfigured(env: AuthEnv): env is AuthEnv & {
   return Boolean(env.MICROSOFT_CLIENT_ID && env.MICROSOFT_CLIENT_SECRET)
 }
 
-function isBillingPlanName(value: string): value is BillingPlan {
-  return value === 'solo' || value === 'pro' || value === 'team' || value === 'firm'
-}
-
 export function stripeBillingPlans(env: AuthEnv): StripePlan[] {
   const plans: StripePlan[] = []
 
@@ -173,7 +175,7 @@ export function stripeBillingPlans(env: AuthEnv): StripePlan[] {
       name: 'solo',
       priceId: env.STRIPE_PRICE_SOLO_MONTHLY,
       annualDiscountPriceId: env.STRIPE_PRICE_SOLO_YEARLY,
-      limits: { seats: 1 },
+      limits: { seats: corePlanSeatLimit('solo') },
       freeTrial: { days: 14 },
     })
   }
@@ -182,7 +184,7 @@ export function stripeBillingPlans(env: AuthEnv): StripePlan[] {
     name: 'pro',
     priceId: env.STRIPE_PRICE_PRO_MONTHLY,
     annualDiscountPriceId: env.STRIPE_PRICE_PRO_YEARLY,
-    limits: { seats: 3 },
+    limits: { seats: corePlanSeatLimit('pro') },
     freeTrial: { days: 14 },
   })
 
@@ -191,7 +193,7 @@ export function stripeBillingPlans(env: AuthEnv): StripePlan[] {
       name: 'team',
       priceId: env.STRIPE_PRICE_TEAM_MONTHLY,
       annualDiscountPriceId: env.STRIPE_PRICE_TEAM_YEARLY,
-      limits: { seats: 10 },
+      limits: { seats: corePlanSeatLimit('team') },
     })
   }
 
@@ -200,7 +202,7 @@ export function stripeBillingPlans(env: AuthEnv): StripePlan[] {
       name: 'firm',
       priceId: env.STRIPE_PRICE_FIRM_MONTHLY,
       annualDiscountPriceId: env.STRIPE_PRICE_FIRM_YEARLY,
-      limits: { seats: 10 },
+      limits: { seats: corePlanSeatLimit('firm') },
     })
   }
 
@@ -228,13 +230,6 @@ export function billingCheckoutConfig(env: AuthEnv): BillingCheckoutConfig {
   }
 }
 
-export function planSeatLimit(plan: BillingPlan): number {
-  if (plan === 'firm') return 10
-  if (plan === 'team') return 10
-  if (plan === 'pro') return 3
-  return 1
-}
-
 function activeBillingPlan(subscription: Subscription): BillingPlan {
   if (
     subscription.status === 'active' ||
@@ -242,7 +237,7 @@ function activeBillingPlan(subscription: Subscription): BillingPlan {
     subscription.status === 'past_due' ||
     subscription.status === 'paused'
   ) {
-    return isBillingPlanName(subscription.plan) ? subscription.plan : 'pro'
+    return isBillingPlan(subscription.plan) ? subscription.plan : 'pro'
   }
   return 'solo'
 }
@@ -252,7 +247,7 @@ function syncInput(subscription: Subscription): StripeSubscriptionSyncInput {
   return {
     referenceId: subscription.referenceId,
     plan,
-    seatLimit: planSeatLimit(plan),
+    seatLimit: corePlanSeatLimit(plan),
     stripeCustomerId: subscription.stripeCustomerId,
     stripeSubscriptionId: subscription.stripeSubscriptionId,
     status: subscription.status,

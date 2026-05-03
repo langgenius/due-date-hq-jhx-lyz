@@ -1,5 +1,6 @@
 import { ORPCError } from '@orpc/server'
 import { billingCheckoutConfig } from '@duedatehq/auth'
+import { planHasFeature } from '@duedatehq/core/plan-entitlements'
 import { slugifyPracticeName } from '@duedatehq/core/practice-name'
 import {
   ErrorCodes,
@@ -95,7 +96,7 @@ export function canCreateAdditionalFirm(
   ownedActiveFirms: ReadonlyArray<Pick<FirmRow, 'plan'>>,
 ): boolean {
   if (ownedActiveFirms.length < SELF_SERVE_ACTIVE_FIRM_LIMIT) return true
-  return ownedActiveFirms.some((firm) => firm.plan === 'firm')
+  return ownedActiveFirms.some((firm) => planHasFeature(firm.plan, 'multiplePractices'))
 }
 
 function readObjectString(value: object, key: 'message' | 'status'): string | undefined {

@@ -290,6 +290,9 @@ export interface PricingPlanCopy {
   yearlySavings?: string
   description: string
   seats: string
+  aiLabel: string
+  aiDescription: string
+  aiFeatures: string[]
   cta: string
   hrefKind: 'checkout' | 'app' | 'contact'
   checkoutPlan?: PricingCheckoutPlan

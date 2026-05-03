@@ -389,6 +389,7 @@ export type {
   WorkloadContract,
   WorkloadLoadInput,
   WorkloadLoadOutput,
+  WorkloadManagerInsights,
   WorkloadOwnerKind,
   WorkloadOwnerRow,
   WorkloadSummary,
@@ -396,6 +397,7 @@ export type {
 export {
   WorkloadLoadInputSchema,
   WorkloadLoadOutputSchema,
+  WorkloadManagerInsightsSchema,
   WorkloadOwnerKindSchema,
   WorkloadOwnerRowSchema,
   WorkloadSummarySchema,

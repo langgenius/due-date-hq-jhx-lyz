@@ -5,6 +5,7 @@ import {
   type PulseAlertPublic,
   type PulseSourceHealth,
 } from '@duedatehq/contracts'
+import { planHasFeature } from '@duedatehq/core/plan-entitlements'
 import { livePulseAdapters } from '@duedatehq/ingest/adapters'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { requireTenant, type RpcContext } from '../_context'
@@ -156,6 +157,12 @@ function mapPulseError(error: unknown): never {
   throw error
 }
 
+function assertProductionPulse(plan: Parameters<typeof planHasFeature>[0]): void {
+  if (!planHasFeature(plan, 'productionPulse')) {
+    throw new ORPCError('FORBIDDEN', { message: 'Production Pulse actions require Pro or above.' })
+  }
+}
+
 const listAlerts = os.pulse.listAlerts.handler(async ({ input, context }) => {
   const { scoped } = requireTenant(context)
   const opts = input?.limit === undefined ? {} : { limit: input.limit }
@@ -220,6 +227,7 @@ const getDetail = os.pulse.getDetail.handler(async ({ input, context }) => {
 const apply = os.pulse.apply.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
+  assertProductionPulse(tenant.plan)
   try {
     const result = await withPulseMutationLock(
       context,
@@ -259,6 +267,7 @@ const apply = os.pulse.apply.handler(async ({ input, context }) => {
 const dismiss = os.pulse.dismiss.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
+  assertProductionPulse(tenant.plan)
   try {
     const result = await scoped.pulse.dismiss({ alertId: input.alertId, userId })
     await enqueueDashboardBriefRefresh(context.env, {
@@ -274,6 +283,7 @@ const dismiss = os.pulse.dismiss.handler(async ({ input, context }) => {
 const snooze = os.pulse.snooze.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
+  assertProductionPulse(tenant.plan)
   try {
     const result = await scoped.pulse.snooze({
       alertId: input.alertId,
@@ -293,6 +303,7 @@ const snooze = os.pulse.snooze.handler(async ({ input, context }) => {
 const revert = os.pulse.revert.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
+  assertProductionPulse(tenant.plan)
   try {
     const detail = await scoped.pulse.getDetail(input.alertId)
     const result = await withPulseMutationLock(
@@ -322,6 +333,7 @@ const revert = os.pulse.revert.handler(async ({ input, context }) => {
 const reactivate = os.pulse.reactivate.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
+  assertProductionPulse(tenant.plan)
   try {
     const result = await scoped.pulse.reactivate({ alertId: input.alertId, userId })
     await enqueueDashboardBriefRefresh(context.env, {

@@ -16,9 +16,9 @@ AI 包不导入数据库，也不负责最终业务写入。server 调用 AI 后
 | `packages/ai/src/guard.ts`     | mapper 和 pulse output guard                            |
 | `packages/ai/src/pii.ts`       | migration input redaction                               |
 | `packages/ai/src/trace.ts`     | trace shape                                             |
-| `packages/ai/src/budget.ts`    | budget policy 占位                                      |
+| `packages/ai/src/budget.ts`    | 按 firm/plan/task 的隐藏 fair-use 计数                  |
 | `packages/ai/src/retriever.ts` | retrieval 占位                                          |
-| `packages/ai/src/router.ts`    | model routing 占位                                      |
+| `packages/ai/src/router.ts`    | plan tier 与 prompt task 的模型路由                     |
 
 ## 主要功能
 
@@ -167,10 +167,22 @@ flowchart TB
 
 ## 当前限制
 
-- `budget.ts`、`retriever.ts`、`router.ts` 仍是占位。
+- `retriever.ts` 仍是占位。
 - Prompt registry inline，修改 prompt 需要重新构建部署。
 - AI 输出的可信度依赖 schema 和少量 guard，仍需要 server 业务校验。
 - Dashboard brief 防税务建议的校验在 server job 层完成，不在 AI 包内完全解决。
+
+## 会员 AI 分层
+
+| Plan       | AI tier    | 行为                                                                |
+| ---------- | ---------- | ------------------------------------------------------------------- |
+| Solo       | basic      | 轻量模型路由和较低隐藏 fair-use，用于 preview、基础迁移和来源摘要。 |
+| Pro        | practice   | 完整 practice AI。                                                  |
+| Team       | practice   | 与 Pro 相同 AI tier；Team 差异来自席位、管理视图、批量运营和审计。  |
+| Enterprise | enterprise | 合同级模型路由、定制 coverage、BYOK/provider 选项和审计级控制。     |
+
+`AI_GATEWAY_MODEL_BASIC`、`AI_GATEWAY_MODEL_PRACTICE`、`AI_GATEWAY_MODEL_ENTERPRISE`
+可按环境覆盖；未配置时回退到 `AI_GATEWAY_MODEL`。
 
 ## 后续演进关注点
 

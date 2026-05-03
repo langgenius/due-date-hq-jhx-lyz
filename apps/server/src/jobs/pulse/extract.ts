@@ -17,6 +17,9 @@ export async function extractPulseSnapshot(
     | 'AI_GATEWAY_PROVIDER'
     | 'AI_GATEWAY_PROVIDER_API_KEY'
     | 'AI_GATEWAY_MODEL'
+    | 'AI_GATEWAY_MODEL_BASIC'
+    | 'AI_GATEWAY_MODEL_PRACTICE'
+    | 'AI_GATEWAY_MODEL_ENTERPRISE'
     | 'DB'
     | 'R2_PULSE'
   >,
@@ -45,12 +48,15 @@ export async function extractPulseSnapshot(
 
   const rawText = await raw.text()
   const ai = createAI(env)
-  const result = await ai.extractPulse({
-    sourceId: snapshot.sourceId,
-    title: snapshot.title,
-    officialSourceUrl: snapshot.officialSourceUrl,
-    rawText,
-  })
+  const result = await ai.extractPulse(
+    {
+      sourceId: snapshot.sourceId,
+      title: snapshot.title,
+      officialSourceUrl: snapshot.officialSourceUrl,
+      rawText,
+    },
+    { taskKind: 'pulse' },
+  )
   const aiOutputId = crypto.randomUUID()
   const llmLogId = crypto.randomUUID()
   await Promise.all([

@@ -54,7 +54,7 @@ import { cn } from '@duedatehq/ui/lib/utils'
 import { initialsFromName } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-import { canCreateAdditionalFirm, ownedActiveFirms } from '@/features/billing/model'
+import { canCreateAdditionalFirm, ownedActiveFirms, paidPlanActive } from '@/features/billing/model'
 import { usePulseListAlertsQueryOptions } from '@/features/pulse/api'
 import { DEFAULT_US_FIRM_TIMEZONE, FirmTimezoneSelect } from '@/features/firm/timezone-select'
 import { FIRM_SWITCHER_HOTKEY } from '@/components/patterns/keyboard-shell/display'
@@ -390,7 +390,7 @@ function useNavItems(firm: FirmPublic): NavConfig {
   const { t } = useLingui()
   const pulseCount = usePulseAlertCount()
   const pulseBadge = pulseCount > 0 ? String(pulseCount) : undefined
-  const workloadPaid = firm.plan === 'firm' || firm.plan === 'team' || firm.plan === 'pro'
+  const workloadPaid = paidPlanActive(firm)
   return useMemo<NavConfig>(
     () => ({
       operations: [

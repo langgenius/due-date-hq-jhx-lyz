@@ -1,5 +1,6 @@
 import { parseAsStringLiteral, type inferParserType } from 'nuqs'
 import type { FirmPublic } from '@duedatehq/contracts'
+import { activePracticeLimitForPlan, planHasFeature } from '@duedatehq/core/plan-entitlements'
 
 export const BILLING_PLANS = ['solo', 'pro', 'team', 'firm'] as const
 export const SELF_SERVE_BILLING_PLANS = ['solo', 'pro', 'team'] as const
@@ -119,7 +120,7 @@ export function isFirmOwner(firm: FirmPublic | null | undefined): boolean {
 }
 
 export function paidPlanActive(firm: FirmPublic | null | undefined): boolean {
-  return firm?.plan === 'firm' || firm?.plan === 'team' || firm?.plan === 'pro'
+  return firm ? planHasFeature(firm.plan, 'sharedDeadlineOperations') : false
 }
 
 export function ownedActiveFirms(firms: ReadonlyArray<FirmPublic>): FirmPublic[] {
@@ -130,7 +131,13 @@ export function ownedActiveFirms(firms: ReadonlyArray<FirmPublic>): FirmPublic[]
 
 export function activeFirmEntitlementLimit(firms: ReadonlyArray<FirmPublic>): number | null {
   const owned = ownedActiveFirms(firms)
-  return owned.some((firm) => firm.plan === 'firm') ? null : 1
+  if (owned.some((firm) => activePracticeLimitForPlan(firm.plan) === null)) {
+    return null
+  }
+  return owned.reduce(
+    (limit, firm) => Math.max(limit, activePracticeLimitForPlan(firm.plan) ?? 1),
+    1,
+  )
 }
 
 export function canCreateAdditionalFirm(firms: ReadonlyArray<FirmPublic>): boolean {

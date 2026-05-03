@@ -150,6 +150,58 @@ describe('@duedatehq/ai', () => {
     expect(request).not.toHaveProperty('gatewayApiKey')
   })
 
+  it('routes Solo to basic, Pro and Team to the same practice model, and Enterprise to custom', async () => {
+    callGatewayMock.mockResolvedValue({
+      output: { ok: true },
+      model: 'routed-model',
+    })
+    const ai = createAI({
+      ...CONFIGURED_ENV,
+      AI_GATEWAY_MODEL_BASIC: 'basic-model',
+      AI_GATEWAY_MODEL_PRACTICE: 'practice-model',
+      AI_GATEWAY_MODEL_ENTERPRISE: 'enterprise-model',
+    })
+    const schema = z.object({ ok: z.boolean() })
+
+    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'solo' })
+    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'pro' })
+    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'team' })
+    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'firm' })
+
+    expect(callGatewayMock.mock.calls.map((call) => call[0].model)).toEqual([
+      'basic-model',
+      'practice-model',
+      'practice-model',
+      'enterprise-model',
+    ])
+  })
+
+  it('returns AI_BUDGET_EXCEEDED before calling the gateway when fair-use is exhausted', async () => {
+    const ai = createAI({
+      ...CONFIGURED_ENV,
+      CACHE: {
+        async get() {
+          return '5'
+        },
+        async put() {
+          throw new Error('put should not run')
+        },
+      },
+    })
+
+    const result = await ai.runPrompt(
+      'normalizer-entity@v1',
+      { values: ['LLC'] },
+      z.object({ ok: z.boolean() }),
+      { plan: 'solo', firmId: 'firm-1', taskKind: 'migration' },
+    )
+
+    expect(result.result).toBeNull()
+    expect(result.refusal?.code).toBe('AI_BUDGET_EXCEEDED')
+    expect(result.trace.guardResult).toBe('budget_exceeded')
+    expect(callGatewayMock).not.toHaveBeenCalled()
+  })
+
   it('returns GUARD_REJECTED when mapper EIN hit rate fails', async () => {
     callGatewayMock.mockResolvedValueOnce({
       output: {

@@ -37,4 +37,7 @@ export interface AiPorts {
   aiGatewaySlug: string
   aiGatewayApiKey: string
   aiGatewayModel: string
+  aiGatewayModelBasic?: string
+  aiGatewayModelPractice?: string
+  aiGatewayModelEnterprise?: string
 }

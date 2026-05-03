@@ -6,6 +6,7 @@ import {
   type EntityType,
   type InferTaxTypesResult,
 } from '@duedatehq/core/default-matrix'
+import type { BillingPlan } from '@duedatehq/core/plan-entitlements'
 import { parseTabular, type ParsedTabular, type TabularKind } from '@duedatehq/core/csv-parser'
 import { normalizeEntityType, normalizeState } from '@duedatehq/core/normalize-dict'
 import { summarizePenaltyExposure } from '@duedatehq/core/penalty'
@@ -128,6 +129,7 @@ export interface MigrationDeps {
   scoped: ScopedRepo
   ai: AI
   userId: string
+  plan?: BillingPlan
   rawBucket?: R2Bucket
 }
 
@@ -145,6 +147,14 @@ export interface UploadRawInput {
 
 export class MigrationService {
   constructor(private readonly deps: MigrationDeps) {}
+
+  private migrationAiRouting() {
+    return {
+      firmId: this.deps.scoped.firmId,
+      taskKind: 'migration' as const,
+      ...(this.deps.plan ? { plan: this.deps.plan } : {}),
+    }
+  }
 
   // ---------------------------------------------------------------------
   // Step 1 — batch + raw input
@@ -285,6 +295,7 @@ export class MigrationService {
         firm_id_hash: this.deps.scoped.firmId,
       },
       MapperOutputSchema,
+      this.migrationAiRouting(),
     )
     const { aiOutputId } = await this.recordAiRun('migration_map', batchId, aiResult)
 
@@ -842,6 +853,7 @@ export class MigrationService {
       'normalizer-entity@v1',
       { values: rawValues },
       EntityNormalizerSchema,
+      this.migrationAiRouting(),
     )
     const { aiOutputId } = await this.recordAiRun('migration_normalize', batchId, aiResult)
 
@@ -901,6 +913,7 @@ export class MigrationService {
       'normalizer-tax-types@v1',
       { values: rawValues },
       TaxTypesNormalizerSchema,
+      this.migrationAiRouting(),
     )
     const { aiOutputId } = await this.recordAiRun('migration_normalize', batchId, aiResult)
 

@@ -13,7 +13,8 @@ the weekly manager questions quickly:
 - where to jump in Workboard to triage the underlying rows.
 
 Solo remains the personal deadline workbench. Pro, Team, and Enterprise add shared deadline
-operations.
+operations. Team and Enterprise add manager operations on top: capacity pressure, unassigned risk,
+review pressure, and team-level triage signals.
 The sidebar entry stays visible for all plans because it communicates the paid expansion path, but
 Solo users see a locked paid hint and a route-level upgrade panel instead of an active workload
 table.
@@ -59,6 +60,8 @@ Plan access:
 - `solo`: sidebar item is visible but disabled with a `Pro` paid tag; direct `/workload` route shows
   an upgrade panel;
 - `pro` / `team` / `firm` (Enterprise): route is enabled and calls `workload.load`;
+- `team` / `firm` (Enterprise): response includes `managerInsights`; Pro gets the same core
+  workload table without the manager operations panel;
 - server returns `FORBIDDEN` for `solo` even if a client calls the API directly.
 
 Role access for V1 is broad within paid firms: all active members can view the read-only workload
@@ -131,6 +134,14 @@ the execution surface.
     review: number
     loadScore: number
   }>
+  managerInsights: null | {
+    capacityOwnerLabel: string | null
+    capacityLoadScore: number
+    capacityOpen: number
+    unassignedOpen: number
+    waitingOpen: number
+    reviewOpen: number
+  }
 }
 ```
 

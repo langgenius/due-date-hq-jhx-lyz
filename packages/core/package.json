@@ -19,6 +19,7 @@
     "./csv-parser": "./src/csv-parser/index.ts",
     "./pii": "./src/pii/index.ts",
     "./normalize-dict": "./src/normalize-dict/index.ts",
+    "./plan-entitlements": "./src/plan-entitlements/index.ts",
     "./practice-name": "./src/practice-name.ts"
   },
   "scripts": {

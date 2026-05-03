@@ -9,6 +9,7 @@ import {
   CreditCardIcon,
   ExternalLinkIcon,
   ShieldCheckIcon,
+  SparklesIcon,
 } from 'lucide-react'
 
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
@@ -52,6 +53,9 @@ type PlanCard = {
   savings: string | undefined
   seats: string
   firms: string
+  aiLabel: string
+  aiDescription: string
+  aiFeatures: string[]
   description: string
   features: string[]
   cta: string
@@ -87,6 +91,9 @@ function usePlanCards(interval: BillingInterval): PlanCard[] {
       savings: savings('solo'),
       seats: t`1 owner seat`,
       firms: t`1 practice workspace`,
+      aiLabel: t`Basic AI`,
+      aiDescription: t`Source-backed previews and lightweight migration help for one owner.`,
+      aiFeatures: [t`Preview-only AI assistance`, t`Source-constrained summaries`],
       description: t`For solo owners running one practice workspace.`,
       features: [
         t`1 practice workspace`,
@@ -106,6 +113,9 @@ function usePlanCards(interval: BillingInterval): PlanCard[] {
       savings: savings('pro'),
       seats: t`3 seats included`,
       firms: t`1 production practice`,
+      aiLabel: t`Practice AI included`,
+      aiDescription: t`Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI.`,
+      aiFeatures: [t`Full practice AI workflows`, t`Same AI capability as Team`],
       description: t`For small practices that need shared deadline operations.`,
       features: [
         t`1 production practice`,
@@ -126,6 +136,9 @@ function usePlanCards(interval: BillingInterval): PlanCard[] {
       savings: savings('team'),
       seats: t`10 seats included`,
       firms: t`1 production practice`,
+      aiLabel: t`Same Practice AI as Pro`,
+      aiDescription: t`The same practice AI tier as Pro, paired with team-scale management and review workflows.`,
+      aiFeatures: [t`Same AI capability as Pro`, t`Team-scale fair-use protection`],
       description: t`For practices coordinating a larger operations team.`,
       features: [
         t`1 production practice`,
@@ -146,6 +159,9 @@ function usePlanCards(interval: BillingInterval): PlanCard[] {
       savings: savings('firm'),
       seats: t`10+ seats`,
       firms: t`Multiple practices/offices`,
+      aiLabel: t`Custom AI and coverage by contract`,
+      aiDescription: t`Contract-level model routing, custom coverage, and audit-grade AI controls.`,
+      aiFeatures: [t`Custom AI routing`, t`Contract coverage and audit controls`],
       description: t`For multi-practice operations, API access, and custom coverage.`,
       features: [
         t`Multiple practices/offices`,
@@ -615,7 +631,7 @@ function PlanOption({
   return (
     <Card
       className={cn(
-        'relative h-full min-h-[560px]',
+        'relative h-full min-h-[660px]',
         highlighted && !current
           ? 'border-state-accent-active bg-background-default shadow-sm'
           : undefined,
@@ -658,17 +674,43 @@ function PlanOption({
                 </Badge>
               ) : null}
             </div>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <div className="grid gap-1.5">
               <span>{plan.firms}</span>
-              <span
-                aria-hidden
-                className="text-2xl font-black leading-none text-state-destructive-solid"
-              >
-                ·
+              <span className="inline-flex min-w-0 items-center gap-2">
+                <span
+                  aria-hidden
+                  className="size-1.5 shrink-0 rounded-full bg-state-destructive-solid"
+                />
+                <span className="min-w-0 truncate">{plan.seats}</span>
               </span>
-              <span>{plan.seats}</span>
             </div>
           </div>
+        </div>
+        <div className="grid h-[180px] grid-rows-[1fr_auto] gap-3 overflow-hidden rounded-lg border border-state-accent-active-alt bg-components-panel-bg p-3 shadow-xs">
+          <div className="flex min-w-0 items-start gap-2.5">
+            <span className="grid size-8 shrink-0 place-items-center rounded-md bg-state-accent-hover-alt text-text-accent">
+              <SparklesIcon className="size-4" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <p className="line-clamp-2 text-sm leading-5 font-semibold text-text-primary">
+                {plan.aiLabel}
+              </p>
+              <p className="mt-1 line-clamp-2 text-xs leading-5 text-text-secondary">
+                {plan.aiDescription}
+              </p>
+            </div>
+          </div>
+          <ul className="flex flex-wrap gap-1.5 text-[11px] leading-4 text-text-secondary">
+            {plan.aiFeatures.map((feature) => (
+              <li
+                key={feature}
+                className="inline-flex min-h-6 max-w-full items-center gap-1.5 rounded-sm border border-divider-regular bg-background-default px-2 py-1"
+              >
+                <CheckIcon className="size-3 shrink-0 text-text-accent" aria-hidden />
+                <span className="min-w-0 truncate">{feature}</span>
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="h-px w-full bg-divider-regular" aria-hidden />
         <ul className="grid min-h-[168px] content-start gap-3 text-sm leading-5 text-text-secondary">

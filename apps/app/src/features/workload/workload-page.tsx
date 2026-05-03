@@ -1,9 +1,10 @@
 import { Link } from 'react-router'
+import type { ReactNode } from 'react'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRightIcon, ClipboardListIcon, LockKeyholeIcon, RefreshCwIcon } from 'lucide-react'
 
-import type { WorkloadOwnerRow } from '@duedatehq/contracts'
+import type { WorkloadManagerInsights, WorkloadOwnerRow } from '@duedatehq/contracts'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -114,6 +115,8 @@ export function WorkloadPage() {
         <MetricCard label={t`Unassigned`} value={data?.summary.unassigned} intent="warning" />
       </div>
 
+      {data?.managerInsights ? <ManagerInsights insights={data.managerInsights} /> : null}
+
       <Card>
         <CardHeader>
           <CardTitle>
@@ -187,6 +190,56 @@ function WorkloadUpgradePanel() {
         </CardContent>
       </Card>
     </section>
+  )
+}
+
+function ManagerInsights({ insights }: { insights: WorkloadManagerInsights }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          <Trans>Manager operations</Trans>
+        </CardTitle>
+        <CardDescription>
+          <Trans>
+            Team and Enterprise plans add capacity pressure, unassigned risk, and review pressure
+            signals for weekly workload triage.
+          </Trans>
+        </CardDescription>
+        <CardAction>
+          <Badge variant="info">
+            <Trans>Team+</Trans>
+          </Badge>
+        </CardAction>
+      </CardHeader>
+      <CardContent className="grid gap-3 md:grid-cols-4">
+        <ManagerInsightMetric
+          label={<Trans>Capacity pressure</Trans>}
+          value={
+            insights.capacityOwnerLabel ? (
+              `${insights.capacityOwnerLabel} · ${insights.capacityOpen}`
+            ) : (
+              <Trans>No assigned work</Trans>
+            )
+          }
+        />
+        <ManagerInsightMetric
+          label={<Trans>Unassigned risk</Trans>}
+          value={String(insights.unassignedOpen)}
+        />
+        <ManagerInsightMetric label={<Trans>Waiting</Trans>} value={String(insights.waitingOpen)} />
+        <ManagerInsightMetric label={<Trans>Review</Trans>} value={String(insights.reviewOpen)} />
+      </CardContent>
+    </Card>
+  )
+}
+
+function ManagerInsightMetric({ label, value }: { label: ReactNode; value: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-divider-regular bg-background-subtle p-4">
+      <p className="text-xs font-medium uppercase text-text-tertiary">{label}</p>
+      <p className="mt-2 truncate text-sm font-semibold text-text-primary">{value}</p>
+    </div>
   )
 }
 

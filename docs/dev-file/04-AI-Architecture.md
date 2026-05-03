@@ -97,7 +97,10 @@ AI_GATEWAY_API_KEY=
 - `AI_GATEWAY_PROVIDER=openrouter`：使用 Cloudflare AI Gateway 的 OpenRouter Provider Native
   路径。
 - `AI_GATEWAY_PROVIDER_API_KEY`：OpenRouter token；这是本路径唯一必需的密钥。
-- `AI_GATEWAY_MODEL`：经 Cloudflare AI Gateway 调用的模型 id；由部署环境配置，不写死在 prompt。
+- `AI_GATEWAY_MODEL`：经 Cloudflare AI Gateway 调用的 fallback 模型 id；由部署环境配置，
+  不写死在 prompt。
+- `AI_GATEWAY_MODEL_BASIC` / `AI_GATEWAY_MODEL_PRACTICE` / `AI_GATEWAY_MODEL_ENTERPRISE`：
+  可选的 plan-tier 模型覆盖；未配置时回退到 `AI_GATEWAY_MODEL`。
 - `AI_GATEWAY_API_KEY`：仅在启用 Cloudflare Authenticated Gateway 或切回 Unified provider 时使用；
   OpenRouter Provider Native 默认留空。
 - 不再配置第三方 tracing SDK keys。
@@ -119,6 +122,18 @@ AI_GATEWAY_API_KEY=
 | Pulse Extract                 | quality-json | 官方公告结构化抽取，低置信进人工 review              |
 | Ask DueDateHQ                 | quality-json | NL → DSL，禁止直接 SQL                               |
 | Embedding                     | embedding    | 规则 chunk / pulse chunk 写入 Vectorize              |
+
+会员计划路由：
+
+| Plan       | AI tier    | 产品承诺                                                                   |
+| ---------- | ---------- | -------------------------------------------------------------------------- |
+| Solo       | basic      | 带来源的 preview 和轻量 AI 辅助。                                          |
+| Pro        | practice   | 完整 practice AI：brief、Pulse 摘要、客户风险摘要、deadline tip、迁移 AI。 |
+| Team       | practice   | 与 Pro 相同的 AI 能力；Team 差异来自团队管理、席位、批量运营和审计能力。   |
+| Enterprise | enterprise | 合同级模型路由、custom coverage、BYOK/provider 选项和审计级控制。          |
+
+Pro 和 Team 必须保持同一 AI tier。Team 可以因为包含更多席位而拥有更高的 aggregate
+fair-use 保护，但 Billing 文案不能暗示 Team 有更强模型或更深 AI 推理能力。
 
 ---
 

@@ -77,6 +77,9 @@ export interface Env extends WorkerBindings, ServerEnv {
   AI_GATEWAY_PROVIDER: string
   AI_GATEWAY_PROVIDER_API_KEY: string
   AI_GATEWAY_MODEL: string
+  AI_GATEWAY_MODEL_BASIC?: string
+  AI_GATEWAY_MODEL_PRACTICE?: string
+  AI_GATEWAY_MODEL_ENTERPRISE?: string
   VAPID_PUBLIC_KEY: string
   VAPID_PRIVATE_KEY: string
   VAPID_SUBJECT: string

@@ -1,5 +1,6 @@
 import { APIError } from 'better-auth/api'
 import { and, count, eq, gt, isNull } from 'drizzle-orm'
+import { planHasFeature } from '@duedatehq/core/plan-entitlements'
 import { authSchema, firmSchema, type Db } from '@duedatehq/db'
 import { createAuditWriter } from '@duedatehq/db/audit-writer'
 import type { OrganizationHooks } from '@duedatehq/auth'
@@ -161,7 +162,7 @@ export function buildAllowUserToCreateOrganization(db: Db) {
       )
 
     if (ownedActiveFirms.length === 0) return true
-    return ownedActiveFirms.some((firm) => firm.plan === 'firm')
+    return ownedActiveFirms.some((firm) => planHasFeature(firm.plan, 'multiplePractices'))
   }
 }
 

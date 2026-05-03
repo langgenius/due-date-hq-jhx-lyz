@@ -681,8 +681,17 @@ describe('@duedatehq/contracts', () => {
           loadScore: 100,
         },
       ],
+      managerInsights: {
+        capacityOwnerLabel: 'Sarah',
+        capacityLoadScore: 100,
+        capacityOpen: 2,
+        unassignedOpen: 1,
+        waitingOpen: 1,
+        reviewOpen: 0,
+      },
     })
     expect(output.rows[0]?.ownerLabel).toBe('Sarah')
+    expect(output.managerInsights?.capacityOwnerLabel).toBe('Sarah')
   })
 
   it('freezes migration.listErrors stages', () => {

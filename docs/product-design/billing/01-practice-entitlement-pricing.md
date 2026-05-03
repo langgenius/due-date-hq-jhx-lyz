@@ -17,12 +17,12 @@ inside that container; advanced multi-workspace needs belong to the Enterprise t
 
 ## Pricing Shape
 
-| Plan       | Monthly price         | Annual offer                        | Customer-facing practice limit        | Included seats        | Primary buyer                                  | Product promise                                                                               |
-| ---------- | --------------------- | ----------------------------------- | ------------------------------------- | --------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Solo       | $39/mo                | $31/mo billed yearly ($372/year)    | 1 active practice                     | 1 owner seat          | Solo CPA or single-owner practice              | Run one live practice workspace with source-backed deadline evidence.                         |
-| Pro        | $79/mo                | $63/mo billed yearly ($756/year)    | 1 active practice                     | 3 seats               | Small CPA practice                             | Run one production practice with shared deadline operations.                                  |
-| Team       | $149/mo               | $119/mo billed yearly ($1,428/year) | 1 active practice                     | 10 seats              | Larger single-practice operations team         | Coordinate a larger team inside one production practice workspace.                            |
-| Enterprise | from $399/mo / custom | from $319/mo equivalent annually    | Multiple active practices by contract | 10+ seats by contract | Multi-office or operationally complex practice | Manage multiple practices/offices, API/SSO, audit exports, coverage planning, and onboarding. |
+| Plan       | Monthly price         | Annual offer                        | Customer-facing practice limit        | Included seats        | AI capability                   | Primary buyer                                  | Product promise                                                                               |
+| ---------- | --------------------- | ----------------------------------- | ------------------------------------- | --------------------- | ------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Solo       | $39/mo                | $31/mo billed yearly ($372/year)    | 1 active practice                     | 1 owner seat          | Basic AI                        | Solo CPA or single-owner practice              | Run one live practice workspace with source-backed deadline evidence.                         |
+| Pro        | $79/mo                | $63/mo billed yearly ($756/year)    | 1 active practice                     | 3 seats               | Practice AI                     | Small CPA practice                             | Run one production practice with shared deadline operations.                                  |
+| Team       | $149/mo               | $119/mo billed yearly ($1,428/year) | 1 active practice                     | 10 seats              | Same Practice AI as Pro         | Larger single-practice operations team         | Coordinate a larger team inside one production practice workspace.                            |
+| Enterprise | from $399/mo / custom | from $319/mo equivalent annually    | Multiple active practices by contract | 10+ seats by contract | Custom AI and coverage contract | Multi-office or operationally complex practice | Manage multiple practices/offices, API/SSO, audit exports, coverage planning, and onboarding. |
 
 Annual self-serve offers use an approximately 20% discount versus paying monthly for 12 months:
 Solo saves $96/year, Pro saves $192/year, and Team saves $360/year. Enterprise remains
@@ -56,6 +56,9 @@ usable entitlement.
 6. Members cannot create practices on behalf of a paid practice unless they are creating a separate
    practice they will own. That separate practice still counts against their own entitlement state.
 7. Invitations and member management remain seat-limited per active practice.
+8. Pro and Team use the same Practice AI tier. Team can have higher aggregate fair-use protection
+   because it includes more seats, but it must not be marketed as a stronger AI model tier.
+9. Enterprise may use custom AI routing, custom coverage, and audit-grade AI controls by contract.
 
 ## Product Surfaces
 
@@ -67,6 +70,13 @@ Pricing cards must show both seats and practice/workspace limits:
 - Pro: `$79/mo` or `$63/mo billed yearly · Save $192/year · 1 production practice · 3 seats included`
 - Team: `$149/mo` or `$119/mo billed yearly · Save $360/year · 1 production practice · 10 seats included`
 - Enterprise: `from $399/mo` or `from $319/mo equivalent annually · multiple practices/offices · 10+ seats`
+
+Pricing cards must also show the AI capability:
+
+- Solo: `Basic AI`
+- Pro: `Practice AI included`
+- Team: `Same Practice AI as Pro · built for 10-seat operations`
+- Enterprise: `Custom AI and coverage by contract`
 
 FAQ must include "Can I create multiple practices?" with the answer:
 

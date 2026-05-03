@@ -25,10 +25,11 @@ async function buildService(
   allowedRoles: readonly Role[],
 ): Promise<MigrationService> {
   await requireCurrentFirmRole(ctx, allowedRoles)
-  const { scoped, userId } = requireTenant(ctx)
+  const { scoped, userId, tenant } = requireTenant(ctx)
   return new MigrationService({
     scoped,
     userId,
+    plan: tenant.plan,
     ai: createAI(ctx.env),
     rawBucket: ctx.env.R2_MIGRATION,
   })

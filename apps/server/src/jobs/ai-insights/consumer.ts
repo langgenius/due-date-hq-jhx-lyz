@@ -1,4 +1,5 @@
 import { createAI } from '@duedatehq/ai'
+import type { BillingPlan } from '@duedatehq/core/plan-entitlements'
 import { createDb, firmSchema, scoped } from '@duedatehq/db'
 import {
   AiInsightCitationSchema,
@@ -90,14 +91,17 @@ function citationsFromSources(sources: InsightSource[]): AiInsightCitation[] {
   )
 }
 
-async function loadFirmTimezone(env: Env, firmId: string): Promise<string | null> {
+async function loadFirmContext(
+  env: Env,
+  firmId: string,
+): Promise<{ timezone: string; plan: BillingPlan } | null> {
   const db = createDb(env.DB)
   const [firm] = await db
-    .select({ timezone: firmSchema.firmProfile.timezone })
+    .select({ timezone: firmSchema.firmProfile.timezone, plan: firmSchema.firmProfile.plan })
     .from(firmSchema.firmProfile)
     .where(eq(firmSchema.firmProfile.id, firmId))
     .limit(1)
-  return firm?.timezone ?? null
+  return firm ?? null
 }
 
 async function buildClientRiskSnapshot(
@@ -276,10 +280,10 @@ export async function consumeAiInsightRefresh(body: unknown, env: Env): Promise<
 }
 
 async function refreshAiInsight(message: AiInsightRefreshMessage, env: Env): Promise<void> {
-  const timezone = await loadFirmTimezone(env, message.firmId)
-  if (!timezone) return
+  const firm = await loadFirmContext(env, message.firmId)
+  if (!firm) return
 
-  const asOfDate = message.asOfDate ?? dateInTimezone(timezone)
+  const asOfDate = message.asOfDate ?? dateInTimezone(firm.timezone)
   const now = new Date()
   const expiresAt = new Date(now.getTime() + INSIGHT_TTL_MS)
   const db = createDb(env.DB)
@@ -349,6 +353,7 @@ async function refreshAiInsight(message: AiInsightRefreshMessage, env: Env): Pro
       promptNameForKind(message.kind),
       aiInput,
       InsightOutputSchema,
+      { plan: firm.plan, firmId: message.firmId, taskKind: 'insight' },
     )
 
     if (aiResult.refusal || !aiResult.result) {

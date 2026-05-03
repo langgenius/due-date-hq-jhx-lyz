@@ -847,6 +847,10 @@ msgstr "Backup codes copied"
 msgid "Basic"
 msgstr "Basic"
 
+#: src/routes/billing.tsx
+msgid "Basic AI"
+msgstr "Basic AI"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Batch rollback trace retained for 24 hours"
 msgstr "Batch rollback trace retained for 24 hours"
@@ -976,6 +980,10 @@ msgstr "Candidate rule"
 #: src/features/rules/coverage-tab.tsx
 msgid "Candidates"
 msgstr "Candidates"
+
+#: src/features/workload/workload-page.tsx
+msgid "Capacity pressure"
+msgstr "Capacity pressure"
 
 #: src/routes/billing.tsx
 msgid "Card numbers and invoice payment details never enter the app database."
@@ -1286,6 +1294,14 @@ msgstr "Continue with Microsoft"
 #: src/routes/billing.tsx
 msgid "contract"
 msgstr "contract"
+
+#: src/routes/billing.tsx
+msgid "Contract coverage and audit controls"
+msgstr "Contract coverage and audit controls"
+
+#: src/routes/billing.tsx
+msgid "Contract-level model routing, custom coverage, and audit-grade AI controls."
+msgstr "Contract-level model routing, custom coverage, and audit-grade AI controls."
 
 #: src/features/audit/audit-log-labels.ts
 #: src/routes/practice.tsx
@@ -1684,6 +1700,14 @@ msgstr "Currently available shortcuts and reserved keyboard slots."
 msgid "Custom agreement"
 msgstr "Custom agreement"
 
+#: src/routes/billing.tsx
+msgid "Custom AI and coverage by contract"
+msgstr "Custom AI and coverage by contract"
+
+#: src/routes/billing.tsx
+msgid "Custom AI routing"
+msgstr "Custom AI routing"
+
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Dark"
 msgstr "Dark"
@@ -1693,6 +1717,10 @@ msgstr "Dark"
 #: src/routes/route-summary.ts
 msgid "Dashboard"
 msgstr "Dashboard"
+
+#: src/routes/billing.tsx
+msgid "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
+msgstr "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
 
 #: src/routes/dashboard.tsx
 msgid "Dashboard risk summary will appear after clients and obligations are generated."
@@ -2336,6 +2364,10 @@ msgstr "From $319"
 msgid "From $399"
 msgstr "From $399"
 
+#: src/routes/billing.tsx
+msgid "Full practice AI workflows"
+msgstr "Full practice AI workflows"
+
 #: src/routes/practice.tsx
 msgid "General"
 msgstr "General"
@@ -2779,6 +2811,10 @@ msgstr "Manage practice seats, roles, and invitations."
 msgid "Manager"
 msgstr "Manager"
 
+#: src/features/workload/workload-page.tsx
+msgid "Manager operations"
+msgstr "Manager operations"
+
 #: src/routes/billing.tsx
 msgid "Manager-ready practice operations"
 msgstr "Manager-ready practice operations"
@@ -3107,6 +3143,10 @@ msgstr "No alerts match these filters."
 #: src/routes/workboard.tsx
 msgid "No assignable members"
 msgstr "No assignable members"
+
+#: src/features/workload/workload-page.tsx
+msgid "No assigned work"
+msgstr "No assigned work"
 
 #: src/routes/workboard.tsx
 msgid "No assignees"
@@ -3906,6 +3946,10 @@ msgid "Practice"
 msgstr "Practice"
 
 #: src/routes/billing.tsx
+msgid "Practice AI included"
+msgstr "Practice AI included"
+
+#: src/routes/billing.tsx
 msgid "Practice billing stays scoped to the selected practice."
 msgstr "Practice billing stays scoped to the selected practice."
 
@@ -4036,6 +4080,10 @@ msgstr "Preview as of {0}"
 #: src/routes/practice.tsx
 msgid "Preview recalculates open obligations without saving changes."
 msgstr "Preview recalculates open obligations without saving changes."
+
+#: src/routes/billing.tsx
+msgid "Preview-only AI assistance"
+msgstr "Preview-only AI assistance"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
@@ -4764,6 +4812,18 @@ msgstr "S corp"
 msgid "Safety"
 msgstr "Safety"
 
+#: src/routes/billing.tsx
+msgid "Same AI capability as Pro"
+msgstr "Same AI capability as Pro"
+
+#: src/routes/billing.tsx
+msgid "Same AI capability as Team"
+msgstr "Same AI capability as Team"
+
+#: src/routes/billing.tsx
+msgid "Same Practice AI as Pro · built for 10-seat operations"
+msgstr "Same Practice AI as Pro · built for 10-seat operations"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Sample"
 msgstr "Sample"
@@ -5276,6 +5336,14 @@ msgstr "Source timeline"
 msgid "Source-backed evidence"
 msgstr "Source-backed evidence"
 
+#: src/routes/billing.tsx
+msgid "Source-backed previews and lightweight migration help for one owner."
+msgstr "Source-backed previews and lightweight migration help for one owner."
+
+#: src/routes/billing.tsx
+msgid "Source-constrained summaries"
+msgstr "Source-constrained summaries"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "Source-defined cal"
 msgstr "Source-defined cal"
@@ -5473,6 +5541,10 @@ msgstr "TAX YEAR"
 msgid "Team"
 msgstr "Team"
 
+#: src/features/workload/workload-page.tsx
+msgid "Team and Enterprise plans add capacity pressure, unassigned risk, and review pressure signals for weekly workload triage."
+msgstr "Team and Enterprise plans add capacity pressure, unassigned risk, and review pressure signals for weekly workload triage."
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Team member"
 msgstr "Team member"
@@ -5495,6 +5567,14 @@ msgstr "Team workload is available on Pro and above"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Team workload is available on Pro, Team, and Enterprise plans."
 msgstr "Team workload is available on Pro, Team, and Enterprise plans."
+
+#: src/routes/billing.tsx
+msgid "Team-scale fair-use protection"
+msgstr "Team-scale fair-use protection"
+
+#: src/features/workload/workload-page.tsx
+msgid "Team+"
+msgstr "Team+"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -5573,6 +5653,10 @@ msgstr "The practice-scoped record of who changed what, when it changed, and wha
 #: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."
 msgstr "The request was invalid. Please review your input and try again."
+
+#: src/routes/billing.tsx
+msgid "The same practice AI tier as Pro, paired with team-scale management and review workflows."
+msgstr "The same practice AI tier as Pro, paired with team-scale management and review workflows."
 
 #: src/routes/billing.success.tsx
 msgid "The secure checkout has redirected back to DueDateHQ. We are confirming the subscription."
@@ -5757,6 +5841,10 @@ msgstr "Unable to start Microsoft sign-in"
 #: src/routes/workboard.tsx
 msgid "Unassigned"
 msgstr "Unassigned"
+
+#: src/features/workload/workload-page.tsx
+msgid "Unassigned risk"
+msgstr "Unassigned risk"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Unassigned work"

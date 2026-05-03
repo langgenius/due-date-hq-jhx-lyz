@@ -847,6 +847,10 @@ msgstr "备用码已复制"
 msgid "Basic"
 msgstr "基础"
 
+#: src/routes/billing.tsx
+msgid "Basic AI"
+msgstr "基础 AI"
+
 #: src/features/migration/Step4Preview.tsx
 msgid "Batch rollback trace retained for 24 hours"
 msgstr "保留 24 小时批次回滚追踪"
@@ -976,6 +980,10 @@ msgstr "候选规则"
 #: src/features/rules/coverage-tab.tsx
 msgid "Candidates"
 msgstr "Candidate"
+
+#: src/features/workload/workload-page.tsx
+msgid "Capacity pressure"
+msgstr "产能压力"
 
 #: src/routes/billing.tsx
 msgid "Card numbers and invoice payment details never enter the app database."
@@ -1286,6 +1294,14 @@ msgstr "使用 Microsoft 继续"
 #: src/routes/billing.tsx
 msgid "contract"
 msgstr "合同约定"
+
+#: src/routes/billing.tsx
+msgid "Contract coverage and audit controls"
+msgstr "合同级覆盖与审计控制"
+
+#: src/routes/billing.tsx
+msgid "Contract-level model routing, custom coverage, and audit-grade AI controls."
+msgstr "合同级模型路由、自定义覆盖范围和审计级 AI 控制。"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/routes/practice.tsx
@@ -1684,6 +1700,14 @@ msgstr "当前可用的快捷键与已预留的键盘位。"
 msgid "Custom agreement"
 msgstr "自定义协议"
 
+#: src/routes/billing.tsx
+msgid "Custom AI and coverage by contract"
+msgstr "合同约定的定制 AI 与覆盖范围"
+
+#: src/routes/billing.tsx
+msgid "Custom AI routing"
+msgstr "定制 AI 路由"
+
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Dark"
 msgstr "深色"
@@ -1693,6 +1717,10 @@ msgstr "深色"
 #: src/routes/route-summary.ts
 msgid "Dashboard"
 msgstr "仪表盘"
+
+#: src/routes/billing.tsx
+msgid "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
+msgstr "Dashboard brief、Pulse 摘要、客户风险摘要和生产迁移 AI。"
 
 #: src/routes/dashboard.tsx
 msgid "Dashboard risk summary will appear after clients and obligations are generated."
@@ -2336,6 +2364,10 @@ msgstr "$319 起"
 msgid "From $399"
 msgstr "$399 起"
 
+#: src/routes/billing.tsx
+msgid "Full practice AI workflows"
+msgstr "完整事务所 AI 工作流"
+
 #: src/routes/practice.tsx
 msgid "General"
 msgstr "常规"
@@ -2779,6 +2811,10 @@ msgstr "管理事务所席位、角色和邀请。"
 msgid "Manager"
 msgstr "管理员"
 
+#: src/features/workload/workload-page.tsx
+msgid "Manager operations"
+msgstr "管理者运营"
+
 #: src/routes/billing.tsx
 msgid "Manager-ready practice operations"
 msgstr "面向管理员的事务所运营"
@@ -3107,6 +3143,10 @@ msgstr "没有提醒匹配这些筛选条件。"
 #: src/routes/workboard.tsx
 msgid "No assignable members"
 msgstr "没有可分配成员"
+
+#: src/features/workload/workload-page.tsx
+msgid "No assigned work"
+msgstr "暂无已分配工作"
 
 #: src/routes/workboard.tsx
 msgid "No assignees"
@@ -3906,6 +3946,10 @@ msgid "Practice"
 msgstr "事务所"
 
 #: src/routes/billing.tsx
+msgid "Practice AI included"
+msgstr "已包含 Practice AI"
+
+#: src/routes/billing.tsx
 msgid "Practice billing stays scoped to the selected practice."
 msgstr "事务所账单始终限定在所选事务所。"
 
@@ -4036,6 +4080,10 @@ msgstr "预览基于 {0}"
 #: src/routes/practice.tsx
 msgid "Preview recalculates open obligations without saving changes."
 msgstr "预览会重新计算未完成义务，不会保存更改。"
+
+#: src/routes/billing.tsx
+msgid "Preview-only AI assistance"
+msgstr "仅预览 AI 辅助"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
@@ -4764,6 +4812,18 @@ msgstr "S 公司"
 msgid "Safety"
 msgstr "安全保障"
 
+#: src/routes/billing.tsx
+msgid "Same AI capability as Pro"
+msgstr "与 Pro 相同的 AI 能力"
+
+#: src/routes/billing.tsx
+msgid "Same AI capability as Team"
+msgstr "与 Team 相同的 AI 能力"
+
+#: src/routes/billing.tsx
+msgid "Same Practice AI as Pro · built for 10-seat operations"
+msgstr "与 Pro 相同的 Practice AI · 为 10 席位运营打造"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "Sample"
 msgstr "样例"
@@ -5276,6 +5336,14 @@ msgstr "来源时间线"
 msgid "Source-backed evidence"
 msgstr "带来源的证据"
 
+#: src/routes/billing.tsx
+msgid "Source-backed previews and lightweight migration help for one owner."
+msgstr "带来源的预览，以及适合单个负责人的轻量迁移辅助。"
+
+#: src/routes/billing.tsx
+msgid "Source-constrained summaries"
+msgstr "来源约束摘要"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "Source-defined cal"
 msgstr "来源定义日历"
@@ -5473,6 +5541,10 @@ msgstr "税务年度"
 msgid "Team"
 msgstr "团队"
 
+#: src/features/workload/workload-page.tsx
+msgid "Team and Enterprise plans add capacity pressure, unassigned risk, and review pressure signals for weekly workload triage."
+msgstr "Team 和 Enterprise 计划会为每周工作负载分诊增加产能压力、未分配风险和复核压力信号。"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Team member"
 msgstr "团队成员"
@@ -5495,6 +5567,14 @@ msgstr "Team workload 适用于 Pro 及以上计划"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Team workload is available on Pro, Team, and Enterprise plans."
 msgstr "Team workload 适用于 Pro、Team 和 Enterprise 计划。"
+
+#: src/routes/billing.tsx
+msgid "Team-scale fair-use protection"
+msgstr "团队规模的合理使用保护"
+
+#: src/features/workload/workload-page.tsx
+msgid "Team+"
+msgstr "Team+"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -5573,6 +5653,10 @@ msgstr "事务所范围内记录谁在何时改了什么，以及附带了哪些
 #: src/lib/i18n-error.ts
 msgid "The request was invalid. Please review your input and try again."
 msgstr "请求无效，请检查输入后重试。"
+
+#: src/routes/billing.tsx
+msgid "The same practice AI tier as Pro, paired with team-scale management and review workflows."
+msgstr "与 Pro 相同的事务所 AI 档位，并搭配团队规模的管理和复核工作流。"
 
 #: src/routes/billing.success.tsx
 msgid "The secure checkout has redirected back to DueDateHQ. We are confirming the subscription."
@@ -5757,6 +5841,10 @@ msgstr "无法启动 Microsoft 登录"
 #: src/routes/workboard.tsx
 msgid "Unassigned"
 msgstr "未分配"
+
+#: src/features/workload/workload-page.tsx
+msgid "Unassigned risk"
+msgstr "未分配风险"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Unassigned work"

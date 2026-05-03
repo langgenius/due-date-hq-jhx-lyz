@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { planHasFeature } from '@duedatehq/core/plan-entitlements'
 import type { Env, ContextVars } from '../env'
 import { signAuditPackageDownload } from './signed-url'
 
@@ -21,9 +22,11 @@ export const auditDownloadRoute = new Hono<{
 
   const userId = c.get('userId')
   const firmId = c.get('firmId')
+  const tenant = c.get('tenantContext')
   const members = c.get('members')
   const scoped = c.get('scoped')
-  if (!userId || !firmId || !members || !scoped) return c.text('Unauthorized', 401)
+  if (!userId || !firmId || !tenant || !members || !scoped) return c.text('Unauthorized', 401)
+  if (!planHasFeature(tenant.plan, 'auditExport')) return c.text('Forbidden', 403)
   const member = await members.findMembership(firmId, userId)
   if (!member || member.status !== 'active' || member.role !== 'owner') {
     return c.text('Forbidden', 403)

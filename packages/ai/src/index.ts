@@ -1,4 +1,5 @@
 import type * as z from 'zod'
+import { consumeAiBudget, type AiBudgetKv } from './budget'
 import { callGateway, type GatewayRequest } from './gateway'
 import {
   GuardRejection,
@@ -9,19 +10,31 @@ import {
 import { redactMigrationInput } from './pii'
 import { PulseExtractOutputSchema, type PulseExtractInput, type PulseExtractOutput } from './pulse'
 import { loadPrompt, type PromptName } from './prompter'
+import {
+  aiTierForPlan,
+  modelForAiTier,
+  taskKindForPrompt,
+  type AiModelRoutingEnv,
+  type AiRoutingInput,
+} from './router'
 import { createTrace, type AiTrace } from './trace'
 
-export interface AiEnv {
+export interface AiEnv extends AiModelRoutingEnv {
   AI_GATEWAY_ACCOUNT_ID?: string
   AI_GATEWAY_SLUG?: string
   AI_GATEWAY_API_KEY?: string
-  AI_GATEWAY_MODEL?: string
   AI_GATEWAY_PROVIDER?: string
   AI_GATEWAY_PROVIDER_API_KEY?: string
+  CACHE?: AiBudgetKv
 }
 
 export interface AiRefusal {
-  code: 'AI_UNAVAILABLE' | 'GUARD_REJECTED' | 'SCHEMA_INVALID' | 'AI_GATEWAY_ERROR'
+  code:
+    | 'AI_UNAVAILABLE'
+    | 'AI_BUDGET_EXCEEDED'
+    | 'GUARD_REJECTED'
+    | 'SCHEMA_INVALID'
+    | 'AI_GATEWAY_ERROR'
   message: string
 }
 
@@ -93,16 +106,20 @@ export function createAI(env: AiEnv = {}) {
     name: PromptName,
     input: unknown,
     schema: z.ZodType<TOut>,
+    routing: AiRoutingInput = {},
   ): Promise<AiRunResult<TOut>> {
     const prompt = loadPrompt(name)
     const startedAt = Date.now()
     const redacted = redactMigrationInput(input)
     const inputHash = await hashInput(redacted.input)
+    const taskKind = routing.taskKind ?? taskKindForPrompt(name)
+    const aiTier = aiTierForPlan(routing.plan)
+    const selectedModel = modelForAiTier(env, aiTier)
 
     if (
       !env.AI_GATEWAY_ACCOUNT_ID ||
       !env.AI_GATEWAY_SLUG ||
-      !env.AI_GATEWAY_MODEL ||
+      !selectedModel ||
       (gatewayProvider(env) === 'openrouter' && !env.AI_GATEWAY_PROVIDER_API_KEY) ||
       (gatewayProvider(env) === 'unified' && !env.AI_GATEWAY_API_KEY)
     ) {
@@ -121,11 +138,33 @@ export function createAI(env: AiEnv = {}) {
     }
 
     try {
+      const budget = await consumeAiBudget({
+        taskKind,
+        ...(env.CACHE ? { kv: env.CACHE } : {}),
+        ...(routing.firmId ? { firmId: routing.firmId } : {}),
+        ...(routing.plan ? { plan: routing.plan } : {}),
+      })
+      if (!budget.allowed) {
+        return refusal(
+          'AI_BUDGET_EXCEEDED',
+          'The practice reached its AI fair-use limit for today.',
+          createTrace({
+            promptVersion: name,
+            model: selectedModel,
+            latencyMs: Date.now() - startedAt,
+            guardResult: 'budget_exceeded',
+            inputHash,
+            refusalCode: 'AI_BUDGET_EXCEEDED',
+          }),
+          selectedModel,
+        )
+      }
+
       const provider = gatewayProvider(env)
       const gatewayRequest = {
         accountId: env.AI_GATEWAY_ACCOUNT_ID,
         slug: env.AI_GATEWAY_SLUG,
-        model: env.AI_GATEWAY_MODEL,
+        model: selectedModel,
         prompt: prompt.text,
         input: redacted.input,
         schema,
@@ -187,13 +226,13 @@ export function createAI(env: AiEnv = {}) {
           error.message,
           createTrace({
             promptVersion: name,
-            model: env.AI_GATEWAY_MODEL ?? prompt.modelTier,
+            model: selectedModel ?? prompt.modelTier,
             latencyMs: Date.now() - startedAt,
             guardResult: 'guard_rejected',
             inputHash,
             refusalCode: 'GUARD_REJECTED',
           }),
-          env.AI_GATEWAY_MODEL ?? prompt.modelTier,
+          selectedModel ?? prompt.modelTier,
         )
       }
 
@@ -202,20 +241,26 @@ export function createAI(env: AiEnv = {}) {
         error instanceof Error ? error.message : 'AI gateway request failed.',
         createTrace({
           promptVersion: name,
-          model: env.AI_GATEWAY_MODEL ?? prompt.modelTier,
+          model: selectedModel ?? prompt.modelTier,
           latencyMs: Date.now() - startedAt,
           guardResult: 'schema_fail',
           inputHash,
           refusalCode: 'AI_GATEWAY_ERROR',
         }),
-        env.AI_GATEWAY_MODEL ?? prompt.modelTier,
+        selectedModel ?? prompt.modelTier,
       )
     }
   }
 
   return {
-    extractPulse(input: PulseExtractInput): Promise<AiRunResult<PulseExtractOutput>> {
-      return runPrompt('pulse-extract@v1', input, PulseExtractOutputSchema)
+    extractPulse(
+      input: PulseExtractInput,
+      routing: AiRoutingInput = {},
+    ): Promise<AiRunResult<PulseExtractOutput>> {
+      return runPrompt('pulse-extract@v1', input, PulseExtractOutputSchema, {
+        ...routing,
+        taskKind: routing.taskKind ?? 'pulse',
+      })
     },
     runPrompt,
     runStreaming: runPrompt,
