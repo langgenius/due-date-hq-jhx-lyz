@@ -973,35 +973,35 @@ Done/Applied: Dify green-600 (#079455) ← only for completed
 
 ---
 
-## 15. Brand Mark — Penalty Radar Pulse
+## 15. Brand Mark — Clearing D
 
 > 设计稿单一事实源：Figma 文件 `ssejugriUJkW9vbcBzmRgd`，frame `DueDateHQ — Brand Icon (Design Spec)`（node `98:2`）。
 > 代码资产：`packages/ui/src/assets/brand/`。
-> 同步纪律：所有修改必须先动 Figma `98:2`，再 `node.exportAsync({ format: 'SVG_STRING' })` 回灌；禁止本地手改几何。
+> 同步纪律：Figma 文件可写时，所有修改应先动 `98:2`，再 `node.exportAsync({ format: 'SVG_STRING' })` 回灌；同时保持两个 app 的 public favicon 副本与 `brand-favicon.svg` 一致。
 
 ### 15.1 设计语义
 
-把产品三层语义压成一个 256×256 的几何符号：
+把产品语义压成一个 fintech / accounting workbench 风格的 256×256 几何符号：
 
-| 元素                                | 产品语义                          | 视觉                                     |
-| ----------------------------------- | --------------------------------- | ---------------------------------------- |
-| 圆角方块外壳                        | "HQ" 工作台 / Glass-Box           | radius 56（≈ `--radius-lg` 12px scaled） |
-| 1px 发丝圆环 + 12/3/6/9 刻度        | Due Date 表盘                     | hairline 同 `--border-default` 语言      |
-| 横贯中心的 1px 水平线               | Workbench 表格行 / dashboard 基线 | 与 §4.1 Risk Row 同族                    |
-| Dify UI blue 弧线（−90°→−15°，75°） | Penalty Radar 在扫描截止日        | `--accent-default`                       |
-| 弧端 blue 实心圆点                  | 风险被命中那一刻的 pulse 信号     | 与 §4.3 Pulse Banner 同语言              |
+| 元素                    | 产品语义                                | 视觉                                            |
+| ----------------------- | --------------------------------------- | ----------------------------------------------- |
+| 圆角方块外壳            | fintech app / HQ 工作台                 | radius 54，深 midnight navy                     |
+| 银色 `D` monogram       | DueDateHQ 产品识别                      | 大单形状，Cash App / Stripe 式小尺寸强识别      |
+| D 内部 ledger ticks     | 会计账本 / source-backed working papers | brass 主 tick + 两条 muted silver 账本行        |
+| Cyan deadline pulse dot | 截止日风险被命中                        | 单一高记忆信号色；与 Penalty Radar 语义保持关联 |
+| Pulse halo（256 only）  | 风险提醒的可见度                        | 仅大尺寸保留；favicon 删除以避免小尺寸糊掉      |
 
-刻意避开的（呼应 §0 / §2.4 / §9 禁用清单）：渐变、阴影（除 `--shadow-subtle`）、纯黑 dark 背景、绿色"OK"语义、emoji 装饰、`>12px` 圆角胶囊。
+刻意避开的（呼应 §0 / §2.4 / §9 禁用清单）：渐变、阴影（除 `--shadow-subtle`）、纯黑 dark 背景、绿色"OK"语义、emoji 装饰、泛用日历图标、`>12px` 圆角胶囊。
 
 ### 15.2 资产文件
 
 | 文件                                                  | viewBox | Tile      | Accent    | 用在哪                                      |
 | ----------------------------------------------------- | ------- | --------- | --------- | ------------------------------------------- |
-| `packages/ui/src/assets/brand/brand-mark.svg`         | 256×256 | `#0A2540` | `#155aef` | OG image / 邮件 hero / ≥ 64 px 大露出       |
-| `packages/ui/src/assets/brand/brand-favicon.svg`      | 32×32   | `#0A2540` | `#155aef` | Browser favicon / ≤ 32 px 内嵌品牌（light） |
-| `packages/ui/src/assets/brand/brand-favicon-dark.svg` | 32×32   | `#222225` | `#5289ff` | ≤ 32 px 内嵌品牌（dark）                    |
+| `packages/ui/src/assets/brand/brand-mark.svg`         | 256×256 | `#071421` | `#35D5FF` | OG image / 邮件 hero / ≥ 64 px 大露出       |
+| `packages/ui/src/assets/brand/brand-favicon.svg`      | 32×32   | `#071421` | `#35D5FF` | Browser favicon / ≤ 32 px 内嵌品牌（light） |
+| `packages/ui/src/assets/brand/brand-favicon-dark.svg` | 32×32   | `#08111F` | `#55DEFF` | ≤ 32 px 内嵌品牌（dark）                    |
 
-完整版（256）含 1px 发丝元素，落到 ≤ 32 px 全部 sub-pixel 化；favicon 简化版只保留 tile + 弧 + dot 三件套，stroke 8% / dot ø 16%（相对 tile 边长），16 px 仍可读。颜色对齐 §2.2 / §2.3 已有 semantic role，**不**新增 token。
+完整版（256）含 pulse halo；favicon 简化版删除 halo，保留 tile + `D` + ledger ticks + dot。颜色是 brand asset 内部硬编码，不作为通用 UI token 暴露；UI 状态仍使用 §2.2 / §2.3 的 semantic tokens，**不**把 cyan / brass 扩散到业务组件里。
 
 ### 15.3 主题策略
 
@@ -1010,7 +1010,7 @@ Done/Applied: Dify green-600 (#079455) ← only for completed
 | `<link rel="icon">` favicon        | 否         | 仅 ship light 一份；浏览器 tab 不跟 app 主题，navy tile 在所有 tab 背景下都可读 |
 | 内嵌 `<img>`（app / marketing UI） | 是         | 双 `<img>` + Tailwind `dark:hidden` / `hidden dark:block`；零 JS、零水化抖动    |
 
-### 15.4 当前使用点（截至 v1.0）
+### 15.4 当前使用点（截至 Clearing D rollout）
 
 | 位置                                                                | Figma 节点        | 代码                                          |
 | ------------------------------------------------------------------- | ----------------- | --------------------------------------------- |
