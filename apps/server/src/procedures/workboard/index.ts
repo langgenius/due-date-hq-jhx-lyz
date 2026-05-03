@@ -89,7 +89,10 @@ function normalizeNullableText(value: string | null): string | null {
   return normalized ? normalized : null
 }
 
-function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow {
+function toRow(
+  row: RawRow,
+  opts: { hideDollars?: boolean; hideSmartPriorityFactors?: boolean } = {},
+): WorkboardRow {
   return {
     id: row.id,
     firmId: row.firmId,
@@ -112,9 +115,11 @@ function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow 
     estimatedTaxDueCents: opts.hideDollars ? null : row.estimatedTaxDueCents,
     estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,
     exposureStatus: row.exposureStatus,
-    penaltyBreakdown: parsePenaltyBreakdown(row.penaltyBreakdownJson),
-    penaltyFormulaVersion: row.penaltyFormulaVersion,
-    exposureCalculatedAt: row.exposureCalculatedAt?.toISOString() ?? null,
+    penaltyBreakdown: opts.hideDollars ? [] : parsePenaltyBreakdown(row.penaltyBreakdownJson),
+    penaltyFormulaVersion: opts.hideDollars ? null : row.penaltyFormulaVersion,
+    exposureCalculatedAt: opts.hideDollars
+      ? null
+      : (row.exposureCalculatedAt?.toISOString() ?? null),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     clientName: row.clientName,
@@ -123,7 +128,9 @@ function toRow(row: RawRow, opts: { hideDollars?: boolean } = {}): WorkboardRow 
     assigneeName: row.assigneeName?.trim() || null,
     daysUntilDue: row.daysUntilDue,
     evidenceCount: row.evidenceCount,
-    smartPriority: row.smartPriority,
+    smartPriority: opts.hideSmartPriorityFactors
+      ? { ...row.smartPriority, factors: [] }
+      : row.smartPriority,
   }
 }
 
@@ -338,6 +345,7 @@ const list = os.workboard.list.handler(async ({ input, context }) => {
   const { scoped, tenant, userId } = requireTenant(context)
   const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
   const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
+  const hideSmartPriorityFactors = actor?.role !== 'owner'
 
   const repoInput: NonNullable<Parameters<typeof scoped.workboard.list>[0]> = {}
   if (input.status !== undefined) repoInput.status = input.status
@@ -370,7 +378,7 @@ const list = os.workboard.list.handler(async ({ input, context }) => {
   const result = await scoped.workboard.list(repoInput)
 
   return {
-    rows: result.rows.map((row) => toRow(row, { hideDollars })),
+    rows: result.rows.map((row) => toRow(row, { hideDollars, hideSmartPriorityFactors })),
     nextCursor: result.nextCursor,
   }
 })
@@ -379,6 +387,7 @@ const getDetail = os.workboard.getDetail.handler(async ({ input, context }) => {
   const { scoped, tenant, userId } = requireTenant(context)
   const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
   const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
+  const hideSmartPriorityFactors = actor?.role !== 'owner'
   const rows = await scoped.workboard.listByIds([input.obligationId], {
     asOfDate: input.asOfDate ?? dateInTimezone(tenant.timezone),
   })
@@ -388,7 +397,7 @@ const getDetail = os.workboard.getDetail.handler(async ({ input, context }) => {
       message: `Obligation ${input.obligationId} not found in current firm.`,
     })
   }
-  const row = toRow(rawRow, { hideDollars })
+  const row = toRow(rawRow, { hideDollars, hideSmartPriorityFactors })
   const [evidenceRows, auditResult, readinessRows] = await Promise.all([
     scoped.evidence.listByObligation(input.obligationId),
     scoped.audit.list({
@@ -494,6 +503,7 @@ const exportSelected = os.workboard.exportSelected.handler(async ({ input, conte
   const { scoped } = requireTenant(context)
   const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
   const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
+  const hideSmartPriorityFactors = actor?.role !== 'owner'
   const selectedIds = [...new Set(input.ids)]
   const rawRows = await scoped.workboard.listByIds(selectedIds, {
     asOfDate: dateInTimezone(tenant.timezone),
@@ -503,7 +513,7 @@ const exportSelected = os.workboard.exportSelected.handler(async ({ input, conte
       message: 'One or more selected obligations were not found in the current firm.',
     })
   }
-  const rows = rawRows.map((row) => toRow(row, { hideDollars }))
+  const rows = rawRows.map((row) => toRow(row, { hideDollars, hideSmartPriorityFactors }))
   const { id: auditId } = await scoped.audit.write({
     actorId: userId,
     entityType: 'workboard_export',

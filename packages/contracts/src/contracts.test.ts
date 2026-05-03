@@ -224,8 +224,27 @@ describe('@duedatehq/contracts', () => {
         createdAt: '2026-04-28T00:00:00.000Z',
         updatedAt: '2026-04-28T00:00:00.000Z',
         deletedAt: null,
-      }).smartPriorityProfile.weights.urgency,
+      }).smartPriorityProfile?.weights.urgency,
     ).toBe(25)
+    expect(
+      FirmPublicSchema.parse({
+        id: 'firm_123',
+        name: 'Bright CPA',
+        slug: 'bright-cpa',
+        plan: 'pro',
+        seatLimit: 5,
+        timezone: 'America/New_York',
+        status: 'active',
+        role: 'manager',
+        ownerUserId: 'user_123',
+        coordinatorCanSeeDollars: false,
+        smartPriorityProfile: null,
+        isCurrent: true,
+        createdAt: '2026-04-28T00:00:00.000Z',
+        updatedAt: '2026-04-28T00:00:00.000Z',
+        deletedAt: null,
+      }).smartPriorityProfile,
+    ).toBeNull()
     expect(() =>
       SmartPriorityProfileSchema.parse({
         ...SMART_PRIORITY_DEFAULT_PROFILE,

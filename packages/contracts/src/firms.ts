@@ -105,7 +105,7 @@ export const FirmPublicSchema = z.object({
   role: FirmRoleSchema,
   ownerUserId: z.string().min(1),
   coordinatorCanSeeDollars: z.boolean(),
-  smartPriorityProfile: SmartPriorityProfileSchema,
+  smartPriorityProfile: SmartPriorityProfileSchema.nullable(),
   isCurrent: z.boolean(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),

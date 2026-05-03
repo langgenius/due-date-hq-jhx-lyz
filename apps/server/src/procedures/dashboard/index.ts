@@ -55,7 +55,10 @@ function toDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
-function toTopRow(row: DashboardRepoTopRow, opts: { hideDollars?: boolean } = {}): DashboardTopRow {
+function toTopRow(
+  row: DashboardRepoTopRow,
+  opts: { hideDollars?: boolean; hideSmartPriorityFactors?: boolean } = {},
+): DashboardTopRow {
   return {
     obligationId: row.obligationId,
     clientId: row.clientId,
@@ -68,7 +71,9 @@ function toTopRow(row: DashboardRepoTopRow, opts: { hideDollars?: boolean } = {}
     penaltyFormulaVersion: row.penaltyFormulaVersion,
     severity: row.severity,
     evidenceCount: row.evidenceCount,
-    smartPriority: row.smartPriority,
+    smartPriority: opts.hideSmartPriorityFactors
+      ? { ...row.smartPriority, factors: [] }
+      : row.smartPriority,
     primaryEvidence: row.primaryEvidence
       ? {
           id: row.primaryEvidence.id,
@@ -125,6 +130,7 @@ const load = os.dashboard.load.handler(async ({ input, context }) => {
 
   const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
   const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
+  const hideSmartPriorityFactors = actor?.role !== 'owner'
 
   return {
     asOfDate: result.asOfDate,
@@ -133,13 +139,13 @@ const load = os.dashboard.load.handler(async ({ input, context }) => {
       ...result.summary,
       totalExposureCents: hideDollars ? 0 : result.summary.totalExposureCents,
     },
-    topRows: result.topRows.map((row) => toTopRow(row, { hideDollars })),
+    topRows: result.topRows.map((row) => toTopRow(row, { hideDollars, hideSmartPriorityFactors })),
     triageTabs: result.triageTabs.map((tab) => ({
       key: tab.key,
       label: tab.label,
       count: tab.count,
       totalExposureCents: hideDollars ? 0 : tab.totalExposureCents,
-      rows: tab.rows.map((row) => toTopRow(row, { hideDollars })),
+      rows: tab.rows.map((row) => toTopRow(row, { hideDollars, hideSmartPriorityFactors })),
     })),
     facets: result.facets,
     brief: toBriefPublic(result.brief),

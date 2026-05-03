@@ -6,6 +6,7 @@ import {
   ErrorCodes,
   type FirmBillingSubscriptionPublic,
   type FirmPublic,
+  type SmartPriorityProfile,
 } from '@duedatehq/contracts'
 import type { FirmBillingSubscriptionRow } from '@duedatehq/ports/tenants'
 import { createWorkerAuth } from '../../auth'
@@ -16,7 +17,11 @@ const MAX_RETRIES_ON_SLUG_COLLISION = 1
 const SLUG_CONFLICT_PATTERN = /unique|already exists|slug/i
 const SELF_SERVE_ACTIVE_FIRM_LIMIT = 1
 
-type FirmRow = Omit<FirmPublic, 'isCurrent' | 'createdAt' | 'updatedAt' | 'deletedAt'> & {
+type FirmRow = Omit<
+  FirmPublic,
+  'isCurrent' | 'smartPriorityProfile' | 'createdAt' | 'updatedAt' | 'deletedAt'
+> & {
+  smartPriorityProfile: SmartPriorityProfile
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -26,7 +31,18 @@ function toIso(value: Date): string {
   return value.toISOString()
 }
 
-function toFirmPublic(row: FirmRow, currentFirmId: string | null | undefined): FirmPublic {
+export function canReadSmartPriorityProfile(
+  row: Pick<FirmRow, 'role' | 'ownerUserId'>,
+  userId: string,
+): boolean {
+  return isOwner(row, userId)
+}
+
+function toFirmPublic(
+  row: FirmRow,
+  currentFirmId: string | null | undefined,
+  userId: string,
+): FirmPublic {
   return {
     id: row.id,
     name: row.name,
@@ -38,7 +54,9 @@ function toFirmPublic(row: FirmRow, currentFirmId: string | null | undefined): F
     role: row.role,
     ownerUserId: row.ownerUserId,
     coordinatorCanSeeDollars: row.coordinatorCanSeeDollars,
-    smartPriorityProfile: row.smartPriorityProfile,
+    smartPriorityProfile: canReadSmartPriorityProfile(row, userId)
+      ? row.smartPriorityProfile
+      : null,
     isCurrent: row.id === currentFirmId,
     createdAt: toIso(row.createdAt),
     updatedAt: toIso(row.updatedAt),
@@ -84,7 +102,7 @@ function toBillingSubscriptionPublic(
   }
 }
 
-function isOwner(row: FirmRow, userId: string): boolean {
+function isOwner(row: Pick<FirmRow, 'role' | 'ownerUserId'>, userId: string): boolean {
   return row.role === 'owner' || row.ownerUserId === userId
 }
 
@@ -159,7 +177,7 @@ async function createOrganizationWithRetry(input: {
 const listMine = os.firms.listMine.handler(async ({ context }) => {
   const { firms, session, userId } = requireSession(context)
   const rows = await firms.listMine(userId)
-  return rows.map((row) => toFirmPublic(row, session.activeOrganizationId))
+  return rows.map((row) => toFirmPublic(row, session.activeOrganizationId, userId))
 })
 
 const getCurrent = os.firms.getCurrent.handler(async ({ context }) => {
@@ -167,7 +185,7 @@ const getCurrent = os.firms.getCurrent.handler(async ({ context }) => {
   const activeFirmId = session.activeOrganizationId
   if (!activeFirmId) return null
   const row = await firms.findActiveForUser(userId, activeFirmId)
-  return row ? toFirmPublic(row, activeFirmId) : null
+  return row ? toFirmPublic(row, activeFirmId, userId) : null
 })
 
 const create = os.firms.create.handler(async ({ input, context }) => {
@@ -205,7 +223,7 @@ const create = os.firms.create.handler(async ({ input, context }) => {
     after: { name: row.name, timezone: row.timezone },
   })
 
-  return toFirmPublic(row, firmId)
+  return toFirmPublic(row, firmId, userId)
 })
 
 const switchActive = os.firms.switchActive.handler(async ({ input, context }) => {
@@ -226,7 +244,7 @@ const switchActive = os.firms.switchActive.handler(async ({ input, context }) =>
     action: 'firm.switched',
   })
 
-  return toFirmPublic(row, input.firmId)
+  return toFirmPublic(row, input.firmId, userId)
 })
 
 const updateCurrent = os.firms.updateCurrent.handler(async ({ input, context }) => {
@@ -281,7 +299,7 @@ const updateCurrent = os.firms.updateCurrent.handler(async ({ input, context }) 
     },
   })
 
-  return toFirmPublic(after, activeFirmId)
+  return toFirmPublic(after, activeFirmId, userId)
 })
 
 const previewSmartPriorityProfile = os.firms.previewSmartPriorityProfile.handler(

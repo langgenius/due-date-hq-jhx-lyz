@@ -17,6 +17,7 @@ import type {
   CalendarPrivacyMode,
   CalendarSubscriptionPublic,
   CalendarSubscriptionScope,
+  FirmRole,
 } from '@duedatehq/contracts'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -42,6 +43,7 @@ import {
   canManageFirmCalendar,
 } from '@/features/calendar/calendar-model'
 import { useCurrentFirm } from '@/features/billing/use-billing-data'
+import { PermissionObscuredContent } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
@@ -177,6 +179,7 @@ export function CalendarPage() {
                 regenerateMutation.isPending ||
                 disableMutation.isPending
               }
+              currentRole={currentFirm?.role}
             />
           ))}
         </div>
@@ -208,6 +211,7 @@ function CalendarSubscriptionCard({
   config,
   subscription,
   pending,
+  currentRole,
   onEnable,
   onRegenerate,
   onDisable,
@@ -215,15 +219,18 @@ function CalendarSubscriptionCard({
   config: CalendarCardConfig
   subscription: CalendarSubscriptionPublic | null
   pending: boolean
+  currentRole: FirmRole | null | undefined
   onEnable: (privacyMode: CalendarPrivacyMode) => void
   onRegenerate: (id: string) => void
   onDisable: (id: string) => void
 }) {
   const { t } = useLingui()
   const activeSubscription =
-    subscription?.status === 'active' && subscription.feedUrl ? subscription : null
+    !config.locked && subscription?.status === 'active' && subscription.feedUrl
+      ? subscription
+      : null
   const feedUrl = activeSubscription?.feedUrl ?? null
-  const privacyMode = subscription?.privacyMode ?? 'redacted'
+  const privacyMode = config.locked ? 'redacted' : (subscription?.privacyMode ?? 'redacted')
   const appleCalendarUrl = feedUrl ? appleCalendarSubscriptionUrl(feedUrl) : null
 
   return (
@@ -249,13 +256,19 @@ function CalendarSubscriptionCard({
           </Badge>
         </CardAction>
       </CardHeader>
-      <CardContent className="grid gap-4">
+      <CardContent>
         {config.locked ? (
-          <div className="rounded-md border border-divider-regular bg-background-subtle p-4 text-sm text-text-secondary">
-            <Trans>Only owners and managers can enable the firm-wide calendar feed.</Trans>
-          </div>
+          <PermissionObscuredContent
+            locked
+            permission="firm.calendar.manage"
+            currentRole={currentRole}
+            fallback={<CalendarSubscriptionRedactedContent />}
+            notice={<Trans>Only owners and managers can enable the firm-wide calendar feed.</Trans>}
+          >
+            <CalendarSubscriptionRedactedContent />
+          </PermissionObscuredContent>
         ) : (
-          <>
+          <div className="grid gap-4">
             <div className="grid gap-2">
               <span className="text-sm font-medium text-text-primary">
                 <Trans>Privacy</Trans>
@@ -371,10 +384,30 @@ function CalendarSubscriptionCard({
                 </>
               )}
             </div>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>
+  )
+}
+
+function CalendarSubscriptionRedactedContent() {
+  return (
+    <div className="grid gap-4 p-4">
+      <div className="grid gap-2">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-9 w-full" />
+      </div>
+      <div className="grid gap-2 rounded-md border border-divider-regular bg-background-subtle p-3">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+        <Skeleton className="h-4 w-2/3" />
+      </div>
+      <div className="flex gap-2">
+        <Skeleton className="h-8 w-36" />
+        <Skeleton className="h-8 w-32" />
+      </div>
+    </div>
   )
 }
 

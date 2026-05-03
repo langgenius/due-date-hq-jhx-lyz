@@ -59,6 +59,11 @@ export function SmartPriorityBadge({
             </span>
           </div>
           <div className="grid gap-2">
+            {smartPriority.factors.length === 0 ? (
+              <div className="rounded-md border border-divider-subtle bg-background-section px-3 py-2 text-xs text-text-secondary">
+                <Trans>Hidden by role</Trans>
+              </div>
+            ) : null}
             {smartPriority.factors.map((factor) => (
               <div key={factor.key} className="grid gap-1">
                 <div className="flex items-start justify-between gap-3 text-xs">

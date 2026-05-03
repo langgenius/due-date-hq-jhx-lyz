@@ -2885,6 +2885,11 @@ function WorkboardDetailDrawer({
                         <SmartPriorityBadge smartPriority={row.smartPriority} align="end" />
                       </div>
                       <div className="grid gap-2">
+                        {row.smartPriority.factors.length === 0 ? (
+                          <div className="rounded-md border border-divider-subtle bg-background-section px-3 py-2 text-xs text-text-secondary">
+                            <Trans>Hidden by role</Trans>
+                          </div>
+                        ) : null}
                         {row.smartPriority.factors.map((factor) => (
                           <div key={factor.key} className="flex justify-between gap-3 text-xs">
                             <span className="min-w-0 truncate text-text-secondary">

@@ -202,7 +202,7 @@ export function PermissionInlineNotice({
   const currentRoleLabel = roleLabel(currentRole, i18n)
   const requiredRoleText = requiredRolesLabel(permission, i18n)
   return (
-    <Alert>
+    <Alert variant="destructive">
       <LockKeyholeIcon />
       <AlertTitle>
         <Trans>Read-only view</Trans>
@@ -215,6 +215,51 @@ export function PermissionInlineNotice({
         )}
       </AlertDescription>
     </Alert>
+  )
+}
+
+export function PermissionObscuredContent({
+  locked,
+  permission,
+  currentRole,
+  fallback,
+  notice,
+  children,
+}: {
+  locked: boolean
+  permission: FirmPermission
+  currentRole: FirmRole | null | undefined
+  fallback: ReactNode
+  notice?: ReactNode | undefined
+  children: ReactNode
+}) {
+  const { i18n } = useLingui()
+  const currentRoleLabel = roleLabel(currentRole, i18n)
+  const requiredRoleText = requiredRolesLabel(permission, i18n)
+
+  if (!locked) return <>{children}</>
+
+  return (
+    <div className="relative overflow-hidden rounded-lg border border-state-destructive-hover-alt bg-state-destructive-hover">
+      <div aria-hidden className="pointer-events-none select-none blur-sm">
+        {fallback}
+      </div>
+      <div className="absolute inset-0 grid place-items-center bg-state-destructive-hover/85 p-4 backdrop-blur-sm">
+        <Alert variant="destructive" className="max-w-lg bg-components-card-bg">
+          <LockKeyholeIcon />
+          <AlertTitle>
+            <Trans>Read-only view</Trans>
+          </AlertTitle>
+          <AlertDescription>
+            {notice ?? (
+              <Trans>
+                Current role: {currentRoleLabel}. Required: {requiredRoleText}.
+              </Trans>
+            )}
+          </AlertDescription>
+        </Alert>
+      </div>
+    </div>
   )
 }
 
