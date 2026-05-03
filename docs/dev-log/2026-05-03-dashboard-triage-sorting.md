@@ -17,6 +17,7 @@ Exposure could not be reordered inside the active triage window.
 - Kept default server ordering untouched until the user chooses a sort.
 - Deadline sorts earliest first by default; Severity and Exposure sort highest-risk first by
   default.
+- Changed the triage queue footer CTA to the primary blue button treatment.
 
 ## Design alignment
 

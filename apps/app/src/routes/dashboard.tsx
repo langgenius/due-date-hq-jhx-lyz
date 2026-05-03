@@ -830,7 +830,7 @@ function DashboardTriagePanel({
       </CardContent>
       <CardFooter className="justify-end gap-2 border-t border-divider-regular">
         <Button
-          variant="outline"
+          variant="primary"
           size="sm"
           disabled={!selectedTab}
           onClick={() => selectedTab && onOpenWorkboard(selectedTab.key)}
