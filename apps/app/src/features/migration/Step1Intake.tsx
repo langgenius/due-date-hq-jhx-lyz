@@ -391,7 +391,7 @@ export function Step1Intake({
           selected={intake.mode === 'previous_sync'}
           onClick={() => onMode('previous_sync')}
         >
-          <Trans>Previous sync</Trans>
+          <Trans>Reuse provider import</Trans>
         </SourceModeButton>
       </div>
 
@@ -432,7 +432,7 @@ export function Step1Intake({
               aria-label={t`Paste provider JSON records`}
               value={intake.integrationRawText}
               onChange={(event) => handleIntegrationText(event.target.value)}
-              placeholder={t`Paste a JSON array from your provider sync. Each object becomes one Migration staging row.`}
+              placeholder={t`Paste a JSON array from your provider export or integration. Each object becomes one Migration staging row.`}
               className="h-[180px] resize-y bg-background-body font-mono text-base tabular-nums"
             />
           </div>
@@ -448,7 +448,7 @@ export function Step1Intake({
       {intake.mode === 'previous_sync' ? (
         <div className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-components-panel-bg p-3">
           <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
-            <Trans>Reuse staged provider rows</Trans>
+            <Trans>Choose a previous provider import</Trans>
           </span>
           {previousSyncBatches.length > 0 ? (
             <div className="grid gap-2">
@@ -474,7 +474,7 @@ export function Step1Intake({
             </div>
           ) : (
             <p className="text-md text-text-secondary">
-              <Trans>No previous provider syncs are available yet.</Trans>
+              <Trans>No previous provider imports are available yet.</Trans>
             </p>
           )}
         </div>

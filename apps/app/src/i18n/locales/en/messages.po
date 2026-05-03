@@ -1167,6 +1167,10 @@ msgstr "Checkout is not configured"
 msgid "Checkout, cards, invoices, and portal sessions stay with the processor."
 msgstr "Checkout, cards, invoices, and portal sessions stay with the processor."
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Choose a previous provider import"
+msgstr "Choose a previous provider import"
+
 #: src/routes/billing.tsx
 msgid "Choose a workspace tier"
 msgstr "Choose a workspace tier"
@@ -3518,8 +3522,8 @@ msgid "No prepared brief yet"
 msgstr "No prepared brief yet"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "No previous provider syncs are available yet."
-msgstr "No previous provider syncs are available yet."
+msgid "No previous provider imports are available yet."
+msgstr "No previous provider imports are available yet."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/workboard.tsx
@@ -4036,8 +4040,8 @@ msgid "Paste / Upload"
 msgstr "Paste / Upload"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste a JSON array from your provider sync. Each object becomes one Migration staging row."
-msgstr "Paste a JSON array from your provider sync. Each object becomes one Migration staging row."
+msgid "Paste a JSON array from your provider export or integration. Each object becomes one Migration staging row."
+msgstr "Paste a JSON array from your provider export or integration. Each object becomes one Migration staging row."
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste a JSON array of provider records."
@@ -4378,10 +4382,6 @@ msgstr "Previous month"
 #: src/features/audit/audit-log-page.tsx
 msgid "Previous page"
 msgstr "Previous page"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Previous sync"
-msgstr "Previous sync"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Previous years"
@@ -4889,8 +4889,8 @@ msgid "Return to dashboard"
 msgstr "Return to dashboard"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Reuse staged provider rows"
-msgstr "Reuse staged provider rows"
+msgid "Reuse provider import"
+msgstr "Reuse provider import"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Revert batch"

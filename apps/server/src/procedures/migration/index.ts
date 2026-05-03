@@ -68,11 +68,17 @@ const uploadRaw = os.migration.uploadRaw.handler(async ({ input, context }) => {
   return service.uploadRaw(out)
 })
 
-const stageExternalRows = os.migration.stageExternalRows.handler(async ({ input, context }) => {
+export async function stageExternalRowsForMigration(
+  input: Parameters<MigrationService['stageExternalRows']>[0] & { context: RpcContext },
+) {
+  const { context, ...stageInput } = input
   const service = await buildService(context, MIGRATION_RUN_ROLES)
-  const { tenant } = requireTenant(context)
-  requireGuidedMigrationReview(tenant.plan)
-  return service.stageExternalRows({
+  return service.stageExternalRows(stageInput)
+}
+
+const stageExternalRows = os.migration.stageExternalRows.handler(async ({ input, context }) => {
+  return stageExternalRowsForMigration({
+    context,
     batchId: input.batchId,
     provider: input.provider,
     rows: input.rows,
