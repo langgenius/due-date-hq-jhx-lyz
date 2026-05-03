@@ -6,7 +6,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { Loader2Icon } from 'lucide-react'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
-import { signInWithGoogle, signInWithMicrosoft } from '@/lib/auth'
+import { signInWithGoogle, signInWithMicrosoft, startGoogleOneTap } from '@/lib/auth'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -51,7 +51,17 @@ const MicrosoftIcon = ({ className }: { className?: string }) => (
 
 const USER_CANCELED = /cancel|popup|closed/i
 
-async function authCapabilities(): Promise<{ providers: { google: boolean; microsoft: boolean } }> {
+type AuthCapabilities = {
+  providers: {
+    google: boolean
+    microsoft: boolean
+  }
+  publicClientIds?: {
+    google?: string
+  }
+}
+
+async function authCapabilities(): Promise<AuthCapabilities> {
   const response = await fetch('/api/auth-capabilities', { credentials: 'include' })
   if (!response.ok) return { providers: { google: true, microsoft: false } }
   return response.json()
@@ -69,9 +79,25 @@ export function LoginRoute() {
     staleTime: 60_000,
   })
   const microsoftEnabled = capabilitiesQuery.data?.providers.microsoft ?? false
+  const googleClientId = capabilitiesQuery.data?.publicClientIds?.google
 
   const [submittingProvider, setSubmittingProvider] = useState<'google' | 'microsoft' | null>(null)
   const [, startTransition] = useTransition()
+  useQuery({
+    queryKey: ['auth-one-tap', googleClientId, redirectTo],
+    queryFn: async () => {
+      if (!googleClientId) return null
+      await startGoogleOneTap({
+        clientId: googleClientId,
+        callbackURL: redirectTo,
+      })
+      return null
+    },
+    enabled: Boolean(googleClientId) && submittingProvider === null,
+    retry: false,
+    staleTime: Number.POSITIVE_INFINITY,
+    refetchOnWindowFocus: false,
+  })
 
   async function handleGoogleSignIn() {
     setSubmittingProvider('google')

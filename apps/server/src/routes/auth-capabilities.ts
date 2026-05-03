@@ -10,5 +10,8 @@ export const authCapabilitiesRoute = new Hono<{
       google: true,
       microsoft: Boolean(c.env.MICROSOFT_CLIENT_ID && c.env.MICROSOFT_CLIENT_SECRET),
     },
+    publicClientIds: {
+      google: c.env.GOOGLE_CLIENT_ID,
+    },
   }),
 )

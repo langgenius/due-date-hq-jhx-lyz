@@ -16,6 +16,30 @@ describe('@duedatehq/server app', () => {
     })
   })
 
+  it('exposes public auth capabilities without leaking OAuth secrets', async () => {
+    const app = createApp()
+    const response = await app.request(
+      '/api/auth-capabilities',
+      {},
+      {
+        ENV: 'development',
+        GOOGLE_CLIENT_ID: 'google-client-id',
+        GOOGLE_CLIENT_SECRET: 'google-client-secret',
+      },
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({
+      providers: {
+        google: true,
+        microsoft: false,
+      },
+      publicClientIds: {
+        google: 'google-client-id',
+      },
+    })
+  })
+
   it('does not expose the e2e session route outside development', async () => {
     const app = createApp()
     const response = await app.request('/api/e2e/session', { method: 'POST' }, { ENV: 'staging' })

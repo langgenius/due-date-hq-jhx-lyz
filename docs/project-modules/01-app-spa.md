@@ -8,25 +8,26 @@
 
 ## 关键路径
 
-| 路径                                             | 职责                                                       |
-| ------------------------------------------------ | ---------------------------------------------------------- |
-| `apps/app/src/main.tsx`                          | React root、QueryClient、i18n、tooltip、router、toaster    |
-| `apps/app/src/router.tsx`                        | 路由表、loader gating、locale handoff、404                 |
-| `apps/app/src/lib/rpc.ts`                        | oRPC client、locale header、credentials                    |
-| `apps/app/src/lib/auth.ts`                       | Better Auth client、organization/stripe plugins            |
-| `apps/app/src/routes/_layout.tsx`                | 登录后应用框架、practice/session 数据加载                  |
-| `apps/app/src/components/patterns/app-shell.tsx` | Sidebar、header、mobile shell、pending indicator           |
-| `apps/app/src/features/migration`                | Migration Copilot 四步向导                                 |
-| `apps/app/src/features/pulse`                    | Pulse alert 列表、详情 drawer、apply/dismiss/snooze/revert |
-| `apps/app/src/features/evidence`                 | Evidence drawer 和审计时间线                               |
-| `apps/app/src/routes/workboard.tsx`              | Workboard 表格、过滤、状态更新、罚金输入                   |
-| `apps/app/src/routes/rules.tsx`                  | Rules Console                                              |
+| 路径                                             | 职责                                                            |
+| ------------------------------------------------ | --------------------------------------------------------------- |
+| `apps/app/src/main.tsx`                          | React root、QueryClient、i18n、tooltip、router、toaster         |
+| `apps/app/src/router.tsx`                        | 路由表、loader gating、locale handoff、404                      |
+| `apps/app/src/lib/rpc.ts`                        | oRPC client、locale header、credentials                         |
+| `apps/app/src/lib/auth.ts`                       | Better Auth client、One Tap helper、organization/stripe plugins |
+| `apps/app/src/routes/_layout.tsx`                | 登录后应用框架、practice/session 数据加载                       |
+| `apps/app/src/components/patterns/app-shell.tsx` | Sidebar、header、mobile shell、pending indicator                |
+| `apps/app/src/features/migration`                | Migration Copilot 四步向导                                      |
+| `apps/app/src/features/pulse`                    | Pulse alert 列表、详情 drawer、apply/dismiss/snooze/revert      |
+| `apps/app/src/features/evidence`                 | Evidence drawer 和审计时间线                                    |
+| `apps/app/src/routes/workboard.tsx`              | Workboard 表格、过滤、状态更新、罚金输入                        |
+| `apps/app/src/routes/rules.tsx`                  | Rules Console                                                   |
 
 ## 主要功能
 
 ### 登录、onboarding 与 practice identity/switching
 
 - 使用 Better Auth client 调用 `/api/auth`。
+- `/login` 先通过 `/api/auth-capabilities` 读取公开的 Google Client ID，再触发 Google One Tap；原 Google OAuth 按钮保留为 fallback。
 - React Router loaders 区分 guest、onboarding 和 protected route。
 - 登录后根据 active organization 加载 practice context。
 - 支持成员、事务所设置、active practice 切换和 owner-only 管理动作。
@@ -118,7 +119,7 @@ flowchart TB
 - `router.tsx` 定义全部页面和 loader。
 - `main.tsx` 创建全局 `QueryClient`，默认 `staleTime` 60 秒，关闭 window focus refetch。
 - `lib/rpc.ts` 统一设置 `/rpc` base path、locale header 和 cookie credentials。
-- `lib/auth.ts` 统一 Better Auth plugins 和 locale-aware fetch。
+- `lib/auth.ts` 统一 Better Auth plugins、Google One Tap callback 和 locale-aware fetch。
 
 ### 应用 Shell
 
@@ -154,7 +155,7 @@ flowchart LR
 | Server state      | TanStack Query + oRPC queryOptions/mutationOptions |
 | URL state         | `nuqs` parsers                                     |
 | Global UI state   | Provider + context，必要时 useSyncExternalStore    |
-| Auth/session      | Better Auth client + route loader                  |
+| Auth/session      | Better Auth client + route loader + Google One Tap |
 | Theme             | `@duedatehq/ui/theme` shared store                 |
 | Optimistic update | 针对成员、通知、workboard 状态等局部 query cache   |
 

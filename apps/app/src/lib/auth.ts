@@ -1,5 +1,10 @@
 import { createAuthClient } from 'better-auth/react'
-import { genericOAuthClient, organizationClient, twoFactorClient } from 'better-auth/client/plugins'
+import {
+  genericOAuthClient,
+  oneTapClient,
+  organizationClient,
+  twoFactorClient,
+} from 'better-auth/client/plugins'
 import { stripeClient } from '@better-auth/stripe/client'
 
 import { attachLocaleHeader } from '@/i18n/i18n'
@@ -40,6 +45,37 @@ export function signInWithGoogle(callbackURL = '/') {
   return authClient.signIn.social({
     provider: 'google',
     callbackURL: absolute,
+  })
+}
+
+export function startGoogleOneTap(input: {
+  clientId: string
+  callbackURL?: string
+  onPromptNotification?: (notification?: unknown) => void
+}) {
+  const absolute = new URL(input.callbackURL ?? '/', window.location.origin).toString()
+  const oneTapAuthClient = createAuthClient({
+    baseURL: `${window.location.origin}/api/auth`,
+    plugins: [
+      oneTapClient({
+        clientId: input.clientId,
+        context: 'signin',
+        promptOptions: {
+          maxAttempts: 1,
+        },
+      }),
+    ],
+    fetchOptions: {
+      onRequest: (context) => {
+        attachLocaleHeader(context.headers)
+      },
+    },
+  })
+
+  return oneTapAuthClient.oneTap({
+    callbackURL: absolute,
+    context: 'signin',
+    onPromptNotification: input.onPromptNotification,
   })
 }
 

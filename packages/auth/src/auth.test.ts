@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   billingCheckoutConfig,
+  createAuthPlugins,
   isStripeConfigured,
   planSeatLimit,
   stripeBillingPlans,
@@ -126,6 +127,10 @@ describe('@duedatehq/auth permissions', () => {
       pro: { monthly: true, yearly: true },
       team: { monthly: true, yearly: true },
     })
+  })
+
+  it('registers Google One Tap without adding auth schema requirements', () => {
+    expect(createAuthPlugins({}, authEnv()).map((plugin) => plugin.id)).toContain('one-tap')
   })
 
   it('leaves Solo and Team checkout disabled when their price ids are absent', () => {

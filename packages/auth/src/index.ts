@@ -9,6 +9,7 @@ import {
 import { genericOAuth, microsoftEntraId } from 'better-auth/plugins/generic-oauth'
 import { organization } from 'better-auth/plugins/organization'
 import { twoFactor } from 'better-auth/plugins/two-factor'
+import { oneTap } from 'better-auth/plugins'
 import { APIError } from 'better-auth/api'
 import {
   isBillingPlan,
@@ -320,6 +321,7 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: Aut
       issuer: 'DueDateHQ',
       allowPasswordless: true,
     }),
+    oneTap(),
   ] as const
 
   const microsoftPlugins =

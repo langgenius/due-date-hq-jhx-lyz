@@ -25,7 +25,7 @@
 
 | 插件                                       | 用途                                                    |
 | ------------------------------------------ | ------------------------------------------------------- |
-| `socialProviders.google`                   | Google OAuth 登录                                       |
+| `socialProviders.google` + `oneTap`        | Google OAuth 登录与 Google One Tap ID token callback    |
 | `genericOAuth.microsoft-entra-id`          | Microsoft Entra ID / Microsoft 365 登录                 |
 | `organization`                             | 多租户（= Firm）+ Member + Invitation + Active-org 切换 |
 | 自定义 Access Control（`organization.ac`） | 四角色权限矩阵                                          |

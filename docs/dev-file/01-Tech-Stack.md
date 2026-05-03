@@ -430,7 +430,7 @@ ENV=development
 # ───────── Auth ─────────
 AUTH_SECRET=        # openssl rand -base64 32
 AUTH_URL=http://localhost:8787
-GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_ID=   # public OAuth client id; Worker exposes it through /api/auth-capabilities for One Tap
 GOOGLE_CLIENT_SECRET=
 
 # ───────── AI SDK（经 Cloudflare AI Gateway）─────────

@@ -38,6 +38,7 @@ APP_URL=http://localhost:5173
 # AUTH_SECRET · `openssl rand -base64 32`   (min 32 chars — validated by Zod)
 # Google Console → Credentials → OAuth 2.0 Client IDs
 #   Redirect URI must include: {AUTH_URL}/api/auth/callback/google
+#   Authorized JavaScript origins must include APP_URL for Google One Tap.
 AUTH_SECRET=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
