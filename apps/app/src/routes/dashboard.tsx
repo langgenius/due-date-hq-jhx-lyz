@@ -68,7 +68,7 @@ import {
 } from '@/components/patterns/table-header-filter'
 import { ConceptLabel } from '@/features/concepts/concept-help'
 import { severityRowClass } from '@/features/dashboard/severity-row'
-import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
+import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'

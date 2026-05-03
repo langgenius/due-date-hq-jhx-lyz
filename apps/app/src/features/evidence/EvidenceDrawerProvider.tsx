@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ExternalLinkIcon, FileSearchIcon } from 'lucide-react'
 import { Trans, useLingui } from '@lingui/react/macro'
@@ -21,26 +21,21 @@ import { formatDateTimeWithTimezone } from '@/lib/utils'
 import { buildAuditChangeView } from '@/features/audit/audit-change-view'
 import { useAuditActionLabels, useAuditChangeLabels } from '@/features/audit/audit-log-labels'
 import { formatAuditActionLabel } from '@/features/audit/audit-log-model'
+import {
+  EvidenceDrawerContext,
+  type EvidenceDrawerContextValue,
+  type OpenEvidenceInput,
+} from '@/features/evidence/EvidenceDrawerContext'
 import { useReadinessLabels, useStatusLabels } from '@/features/workboard/status-control'
-
-export interface OpenEvidenceInput {
-  obligationId: string
-  label: string
-  focusEvidenceId?: string | null
-}
-
-interface EvidenceDrawerContextValue {
-  openEvidence: (input: OpenEvidenceInput) => void
-  closeEvidence: () => void
-}
-
-const EvidenceDrawerContext = createContext<EvidenceDrawerContextValue | null>(null)
 
 export function EvidenceDrawerProvider({ children }: { children: ReactNode }) {
   const [request, setRequest] = useState<OpenEvidenceInput | null>(null)
   const openEvidence = useCallback((input: OpenEvidenceInput) => setRequest(input), [])
   const closeEvidence = useCallback(() => setRequest(null), [])
-  const value = useMemo(() => ({ openEvidence, closeEvidence }), [closeEvidence, openEvidence])
+  const value = useMemo<EvidenceDrawerContextValue>(
+    () => ({ openEvidence, closeEvidence }),
+    [closeEvidence, openEvidence],
+  )
 
   return (
     <EvidenceDrawerContext.Provider value={value}>
@@ -48,12 +43,6 @@ export function EvidenceDrawerProvider({ children }: { children: ReactNode }) {
       <EvidenceDrawer request={request} onClose={closeEvidence} />
     </EvidenceDrawerContext.Provider>
   )
-}
-
-export function useEvidenceDrawer(): EvidenceDrawerContextValue {
-  const context = useContext(EvidenceDrawerContext)
-  if (!context) throw new Error('useEvidenceDrawer must be used within EvidenceDrawerProvider')
-  return context
 }
 
 function EvidenceDrawer({

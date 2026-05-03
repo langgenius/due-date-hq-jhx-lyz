@@ -129,7 +129,7 @@ import {
   type TableFilterOption,
 } from '@/components/patterns/table-header-filter'
 import { ConceptLabel } from '@/features/concepts/concept-help'
-import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerProvider'
+import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
