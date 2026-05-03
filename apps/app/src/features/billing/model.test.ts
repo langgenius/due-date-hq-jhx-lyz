@@ -42,7 +42,7 @@ describe('billing firm entitlement model', () => {
     expect(canCreateAdditionalFirm([firm({ plan: 'pro' })])).toBe(false)
   })
 
-  it('treats Firm plan as contract-limited for additional firms', () => {
+  it('treats the Enterprise tier as contract-limited for additional firms', () => {
     expect(activeFirmEntitlementLimit([firm({ plan: 'firm' })])).toBeNull()
     expect(canCreateAdditionalFirm([firm({ plan: 'firm' })])).toBe(true)
   })

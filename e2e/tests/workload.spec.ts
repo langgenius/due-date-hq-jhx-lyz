@@ -3,7 +3,7 @@ import { seedBillingSubscription } from '../fixtures/billing'
 import { expect, test } from '../fixtures/test'
 
 // Feature: Team workload
-// PRD: Firm shared deadline operations
+// PRD: Enterprise shared deadline operations
 // AC: E2E-WORKLOAD-SOLO-UPGRADE, E2E-WORKLOAD-FIRM-METRICS, E2E-WORKLOAD-WORKBOARD-LINKS
 
 test.skip(
@@ -13,6 +13,10 @@ test.skip(
 
 test.describe('seeded team workload', () => {
   test.use({ authSeed: 'workboard' })
+
+  test.beforeEach(async ({ authenticatedPage }) => {
+    await authenticatedPage.clock.setFixedTime(new Date('2026-04-30T12:00:00.000Z'))
+  })
 
   test('AC: E2E-WORKLOAD-SOLO-UPGRADE keeps Solo locked but discoverable', async ({
     appShellPage,

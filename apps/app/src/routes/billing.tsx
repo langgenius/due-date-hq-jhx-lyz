@@ -95,7 +95,7 @@ function usePlanCards(): PlanCard[] {
     },
     {
       id: 'firm',
-      name: t`Firm`,
+      name: t`Enterprise`,
       price: t`Contact sales`,
       priceKind: 'text',
       cadence: t`Annual agreement`,
@@ -131,7 +131,7 @@ export function BillingRoute() {
   const owner = isFirmOwner(currentFirm)
   const currentPlanName = currentFirm
     ? currentFirm.plan === 'firm'
-      ? t`Firm`
+      ? t`Enterprise`
       : currentFirm.plan === 'pro'
         ? t`Pro`
         : t`Solo`
@@ -386,7 +386,7 @@ export function BillingRoute() {
               <Trans>Checkout and portal sessions are hosted by the payment provider.</Trans>
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-3 text-sm leading-6 text-text-secondary md:grid-cols-2">
+          <CardContent className="grid max-w-[680px] gap-2 text-sm leading-6 text-text-secondary">
             <p>
               <Trans>Paid subscriptions bill the practice, not an individual user.</Trans>
             </p>

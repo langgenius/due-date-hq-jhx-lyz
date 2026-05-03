@@ -133,10 +133,12 @@ const DASHBOARD_EVIDENCE_FILTERS = [
   'needs',
   'linked',
 ] as const satisfies readonly DashboardEvidenceFilter[]
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 
 const dashboardSearchParamsParsers = {
+  asOfDate: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
   triage: parseAsStringLiteral(TRIAGE_TAB_KEYS)
     .withDefault('this_week')
     .withOptions(REPLACE_HISTORY_OPTIONS),
@@ -375,14 +377,16 @@ export function DashboardRoute() {
   const evidenceFilterLabels = useEvidenceFilterLabels()
   const statusLabels = useStatusLabels()
   const [
-    { triage, client, taxType, due, status: statusFilter, severity, exposure, evidence },
+    { asOfDate, triage, client, taxType, due, status: statusFilter, severity, exposure, evidence },
     setDashboardQuery,
   ] = useQueryStates(dashboardSearchParamsParsers)
+  const dashboardAsOfDate = ISO_DATE_RE.test(asOfDate) ? asOfDate : null
   const clientQuery = useMemo(() => cleanEntityIdFilters(client), [client])
   const taxTypeQuery = useMemo(() => cleanStringFilters(taxType), [taxType])
   const dashboardTableInput = useMemo<DashboardLoadInput>(
     () => ({
       topLimit: 20,
+      ...(dashboardAsOfDate ? { asOfDate: dashboardAsOfDate } : {}),
       ...(clientQuery.length > 0 ? { clientIds: clientQuery } : {}),
       ...(taxTypeQuery.length > 0 ? { taxTypes: taxTypeQuery } : {}),
       ...(due.length > 0 ? { dueBuckets: due } : {}),
@@ -391,7 +395,7 @@ export function DashboardRoute() {
       ...(exposure.length > 0 ? { exposureStatus: exposure } : {}),
       ...(evidence.length > 0 ? { evidence } : {}),
     }),
-    [clientQuery, due, evidence, exposure, severity, statusFilter, taxTypeQuery],
+    [clientQuery, dashboardAsOfDate, due, evidence, exposure, severity, statusFilter, taxTypeQuery],
   )
   const dashboardQuery = useQuery({
     ...orpc.dashboard.load.queryOptions({ input: dashboardTableInput }),

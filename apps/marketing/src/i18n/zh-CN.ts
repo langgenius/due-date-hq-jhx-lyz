@@ -466,7 +466,7 @@ const zhCN: LandingCopy = {
       eyebrow: 'PRICING',
       title: '只为你能看清的截止日风险付费。',
       description:
-        '先用 Solo 评估一个 practice 工作区；当这个 practice 需要多人协作时升级到 Pro；需要多个办公室或多个工作区时再与我们定制 Firm。',
+        '先用 Solo 评估一个 practice 工作区；当这个 practice 需要多人协作时升级到 Pro；需要多个办公室或多个工作区时再与我们定制 Enterprise。',
       note: 'Solo 无需信用卡 · DueDateHQ 不保存卡号',
     },
     plansHeader: {
@@ -504,7 +504,7 @@ const zhCN: LandingCopy = {
         ],
       },
       {
-        name: 'Firm',
+        name: 'Enterprise',
         price: 'Custom',
         priceKind: 'text',
         cadence: '年度协议',
@@ -542,7 +542,7 @@ const zhCN: LandingCopy = {
       {
         question: '我可以创建多个 practice 吗？',
         answer:
-          'Solo 和 Pro 包含 1 个 active practice 工作区。额外 practice、办公室，或 demo/production 分离属于 Firm 计划。',
+          'Solo 和 Pro 包含 1 个 active practice 工作区。额外 practice、办公室，或 demo/production 分离属于 Enterprise 计划。',
       },
     ],
   },

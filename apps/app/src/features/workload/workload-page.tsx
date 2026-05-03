@@ -73,7 +73,7 @@ export function WorkloadPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="grid gap-1">
           <p className="text-sm text-text-secondary">
-            <Trans>Shared deadline operations for Pro and Firm plans.</Trans>
+            <Trans>Shared deadline operations for Pro and Enterprise plans.</Trans>
           </p>
           <p className="font-mono text-xs tabular-nums text-text-muted">
             <Trans>

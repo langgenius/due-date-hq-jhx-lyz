@@ -30,10 +30,10 @@ export function BillingSuccessRoute() {
   const activated = currentFirm?.plan === expectedPlan && activeSubscription?.plan === expectedPlan
   const statusError = firmsQuery.isError || subscriptionsQuery.isError
   const expectedPlanName =
-    expectedPlan === 'firm' ? t`Firm` : expectedPlan === 'pro' ? t`Pro` : t`Solo`
+    expectedPlan === 'firm' ? t`Enterprise` : expectedPlan === 'pro' ? t`Pro` : t`Solo`
   const activePlanName =
     activeSubscription?.plan === 'firm'
-      ? t`Firm`
+      ? t`Enterprise`
       : activeSubscription?.plan === 'pro'
         ? t`Pro`
         : activeSubscription?.plan

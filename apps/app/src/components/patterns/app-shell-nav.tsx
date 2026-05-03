@@ -91,7 +91,7 @@ function roleLabel(role: FirmPublic['role'], t: ReturnType<typeof useLingui>['t'
 }
 
 function planLabel(plan: FirmPublic['plan'], t: ReturnType<typeof useLingui>['t']): string {
-  if (plan === 'firm') return t`Firm`
+  if (plan === 'firm') return t`Enterprise`
   if (plan === 'pro') return t`Pro`
   return t`Solo`
 }
@@ -298,7 +298,7 @@ function AddFirmDialog({
             <DialogDescription>
               <Trans>
                 Your current plan includes one active practice. Additional practices are available
-                on the Firm plan.
+                on the Enterprise plan.
               </Trans>
             </DialogDescription>
           )}
@@ -416,7 +416,7 @@ function useNavItems(firm: FirmPublic): NavConfig {
             ? {}
             : {
                 tag: t`Pro`,
-                disabledReason: t`Team workload is available on Pro and Firm plans.`,
+                disabledReason: t`Team workload is available on Pro and Enterprise plans.`,
               }),
         },
       ],

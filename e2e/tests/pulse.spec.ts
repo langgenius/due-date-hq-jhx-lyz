@@ -50,8 +50,12 @@ test.describe('seeded Pulse alerts', () => {
     await expect(auditPage.eventRowFor('pulse.apply')).toBeVisible()
     await expect(auditPage.eventRowFor('pulse.apply')).toContainText('Pulse applied')
 
-    await appShellPage.goto('/')
-    await expect(authenticatedPage.getByText('Next deadlines', { exact: true })).toBeVisible()
+    await appShellPage.goto('/?asOfDate=2026-05-03&triage=long_term')
+    await expect(authenticatedPage.getByText('Due this week', { exact: true })).toBeVisible()
+    await expect(authenticatedPage.getByRole('tab', { name: /Long-term/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
     await expect(authenticatedPage.getByRole('row', { name: /Arbor & Vale LLC/ })).toContainText(
       '2026-10-15',
     )

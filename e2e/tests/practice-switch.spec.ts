@@ -39,7 +39,7 @@ test('AC: E2E-PRACTICE-CREATE-GATE blocks extra self-serve practice creation', a
   ).toBeVisible()
 })
 
-test('AC: E2E-PRACTICE-CREATE-SWITCH creates a separate practice on the Firm plan', async ({
+test('AC: E2E-PRACTICE-CREATE-SWITCH creates a separate practice on the Enterprise plan', async ({
   authenticatedPage,
   authSession,
   request,
@@ -55,7 +55,7 @@ test('AC: E2E-PRACTICE-CREATE-SWITCH creates a separate practice on the Firm pla
     authenticatedPage.getByRole('heading', { name: 'Practice profile', level: 1 }),
   ).toBeVisible()
   await expect(authenticatedPage.getByLabel('Practice name')).toHaveValue('E2E Practice')
-  await expectActiveFirmSummary(authenticatedPage, { plan: 'Firm', seatLimit: 10 })
+  await expectActiveFirmSummary(authenticatedPage, { plan: 'Enterprise', seatLimit: 10 })
 
   await authenticatedPage.getByRole('button', { name: /Switch practice/ }).click()
   await authenticatedPage.getByRole('menuitem', { name: 'Add practice' }).click()

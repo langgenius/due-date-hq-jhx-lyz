@@ -69,7 +69,7 @@ function usePlanView(plan: BillingPlan, interval: BillingInterval): PlanView {
     }
   }
   return {
-    label: t`Firm`,
+    label: t`Enterprise`,
     price: t`Contact sales`,
     priceSuffix: '',
     priceNote: t`Annual agreement`,
@@ -101,7 +101,7 @@ export function BillingCheckoutRoute() {
       if (!currentFirm) throw new Error(t`No active practice is selected.`)
       if (!subscriptionsReady) throw new Error(t`Billing status is not ready yet.`)
       if (!isSelfServeBillingPlan(plan))
-        throw new Error(t`Firm plan changes require sales support.`)
+        throw new Error(t`Enterprise plan changes require sales support.`)
       return createCheckout({
         plan,
         annual: interval === 'yearly',
@@ -147,7 +147,7 @@ export function BillingCheckoutRoute() {
   const alreadyOnPlan = activeSubscription?.plan === plan && currentFirm.plan === plan
   const selfServe = view.selfServe && isSelfServeBillingPlan(plan)
   const currentPlanLabel =
-    currentFirm.plan === 'firm' ? t`Firm` : currentFirm.plan === 'pro' ? t`Pro` : t`Solo`
+    currentFirm.plan === 'firm' ? t`Enterprise` : currentFirm.plan === 'pro' ? t`Pro` : t`Solo`
 
   return (
     <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 px-4 py-6 md:px-6">
@@ -303,8 +303,8 @@ export function BillingCheckoutRoute() {
             {!selfServe ? (
               <span className="text-sm text-text-tertiary">
                 <Trans>
-                  Firm is a sales-assisted plan for multiple practices or offices. Contact sales
-                  from Billing.
+                  Enterprise is a sales-assisted plan for multiple practices or offices. Contact
+                  sales from Billing.
                 </Trans>
               </span>
             ) : null}
@@ -318,7 +318,7 @@ export function BillingCheckoutRoute() {
             </CardTitle>
             <CardDescription>
               <Trans>
-                Pro applies to one production practice. Firm plan covers multiple practices by
+                Pro applies to one production practice. Enterprise plan covers multiple practices by
                 contract.
               </Trans>
             </CardDescription>

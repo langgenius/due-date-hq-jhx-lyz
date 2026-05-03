@@ -483,7 +483,7 @@ const en: LandingCopy = {
       eyebrow: 'PRICING',
       title: 'Pay for the deadline risk you can actually see.',
       description:
-        'Start with one practice workspace on Solo, move to Pro when that practice needs shared operations, and talk to us about Firm when multiple offices or workspaces become operational requirements.',
+        'Start with one practice workspace on Solo, move to Pro when that practice needs shared operations, and talk to us about Enterprise when multiple offices or workspaces become operational requirements.',
       note: 'No credit card required for Solo · DueDateHQ never stores card numbers',
     },
     plansHeader: {
@@ -526,7 +526,7 @@ const en: LandingCopy = {
         ],
       },
       {
-        name: 'Firm',
+        name: 'Enterprise',
         price: 'Custom',
         priceKind: 'text',
         cadence: 'annual agreement',
@@ -566,7 +566,7 @@ const en: LandingCopy = {
       {
         question: 'Can I create multiple practices?',
         answer:
-          'Solo and Pro include one active practice workspace. Additional practices, offices, or demo/production separation are available on the Firm plan.',
+          'Solo and Pro include one active practice workspace. Additional practices, offices, or demo/production separation are available on the Enterprise plan.',
       },
     ],
   },

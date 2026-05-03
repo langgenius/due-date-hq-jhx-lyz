@@ -115,17 +115,17 @@ packages/db/
 
 - `packages/db/src/repo/firms.ts` 是跨 firm 的只读/管理入口，用于 `listMine / getCurrent / switchActive / create / update / softDelete`。它只按 `userId + active member` 查询用户可访问 firm，不暴露任意 `firmId` 读取。
 - 普通业务数据仍必须走 `scoped(db, firmId)`；firm 管理 repo 是身份/租户选择层的例外，不允许业务 procedure 用它读取 tenant-scoped rows。
-- `organizationLimit` 已放开以支持一个用户属于多个 internal firm；这是 identity / tenant-selection foundation，不是 pricing entitlement。产品口径见 `docs/product-design/billing/01-practice-entitlement-pricing.md`：Solo / Pro 默认只包含 1 个 active practice workspace，Firm plan 才包含多个 practices / offices。`firms.create` 与 Better Auth `allowUserToCreateOrganization` 已按 owned active firm count enforce；Solo / Pro 超限返回 `FIRM_LIMIT_EXCEEDED`，Firm plan 可创建多个 active practices。
+- `organizationLimit` 已放开以支持一个用户属于多个 internal firm；这是 identity / tenant-selection foundation，不是 pricing entitlement。产品口径见 `docs/product-design/billing/01-practice-entitlement-pricing.md`：Solo / Pro 默认只包含 1 个 active practice workspace，Enterprise plan（存储 enum 仍为 `firm`）才包含多个 practices / offices。`firms.create` 与 Better Auth `allowUserToCreateOrganization` 已按 owned active firm count enforce；Solo / Pro 超限返回 `FIRM_LIMIT_EXCEEDED`，Enterprise plan 可创建多个 active practices。
 - Seat usage 写时口径：`active members + pending non-expired invitations <= firm_profile.seat_limit`。`member.status='suspended'` 不占 seat，但 tenant middleware 会拒绝该成员访问业务 RPC。
 - `firm_profile.status='deleted'` 是当前 firm 删除路径；不会调用 Better Auth hard delete，避免 `organization -> firm_profile -> business data` 级联物理删除。
 
 **Pricing entitlement 口径（2026-05-02）**：
 
-| Plan | Active firm entitlement | Seat entitlement | Notes                                                               |
-| ---- | ----------------------- | ---------------- | ------------------------------------------------------------------- |
-| Solo | 1 active firm           | 1 owner seat     | 免费评估 / 单人事务所；不能无限新建免费 practice workspace。        |
-| Pro  | 1 active firm           | 5 seats          | 一个生产事务所 workspace 的多人运营；额外 practice 进入 Firm plan。 |
-| Firm | contract-defined        | 10+ seats        | 多办公室 / 多品牌 / demo-production 分离等复杂 workspace 需求。     |
+| Plan       | Active firm entitlement | Seat entitlement | Notes                                                                              |
+| ---------- | ----------------------- | ---------------- | ---------------------------------------------------------------------------------- |
+| Solo       | 1 active firm           | 1 owner seat     | 免费评估 / 单人事务所；不能无限新建免费 practice workspace。                       |
+| Pro        | 1 active firm           | 5 seats          | 一个生产事务所 workspace 的多人运营；额外 practice 进入 Enterprise plan。          |
+| Enterprise | contract-defined        | 10+ seats        | 多办公室 / 多品牌 / demo-production 分离等复杂 workspace 需求；存储值仍为 `firm`。 |
 
 `active firm` 口径是 `firm_profile.status='active' AND deleted_at IS NULL`；soft-deleted firm 不计入 entitlement。Seat limit 仍是每个 active firm 内部的 member/invitation 限制，不替代 active firm count。
 

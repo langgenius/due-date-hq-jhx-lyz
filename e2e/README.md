@@ -69,7 +69,7 @@ Billing e2e uses two layers:
   owner permissions, Better Auth payload contracts, and app-visible subscription state.
 - **Webhook state simulation** uses the development-only `/api/e2e/billing/subscription` helper. It inserts a
   Better Auth `subscription` row and updates the `firm_profile` billing cache, matching the post-webhook facts
-  the app depends on. Workload and Members specs also use this helper to exercise Firm-plan product surfaces
+  the app depends on. Workload and Members specs also use this helper to exercise Enterprise-tier product surfaces
   without making Stripe network calls. Staging/production return 404 for all `/api/e2e/*` routes.
 
 Do not assert Stripe-hosted Checkout DOM in the default suite. A future real Stripe test should be tagged

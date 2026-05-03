@@ -113,14 +113,14 @@ checkout / billing settings 或工程文档中表达。
 
 Pricing 文案必须把 practice/workspace 数量作为一等 entitlement，不能只写 seat：
 
-| Plan | Public entitlement copy                                     | Product meaning                                               |
-| ---- | ----------------------------------------------------------- | ------------------------------------------------------------- |
-| Solo | `1 practice workspace · 1 owner seat`                       | 免费计划只包含一个 active practice；适合评估或单人 practice。 |
-| Pro  | `1 production practice · 5 seats included`                  | 自助付费计划仍只包含一个生产 practice workspace。             |
-| Firm | `Multiple practices/offices · 10+ seats · custom agreement` | 多 practice / 多办公室 / demo-production 分离走 sales。       |
+| Plan       | Public entitlement copy                                     | Product meaning                                               |
+| ---------- | ----------------------------------------------------------- | ------------------------------------------------------------- |
+| Solo       | `1 practice workspace · 1 owner seat`                       | 免费计划只包含一个 active practice；适合评估或单人 practice。 |
+| Pro        | `1 production practice · 5 seats included`                  | 自助付费计划仍只包含一个生产 practice workspace。             |
+| Enterprise | `Multiple practices/offices · 10+ seats · custom agreement` | 多 practice / 多办公室 / demo-production 分离走 sales。       |
 
 FAQ 必须解释 "Can I create multiple practices?"：Solo 和 Pro 包含 1 个 active practice workspace；
-additional practices / offices / demo-production separation 属于 Firm plan。公开页不要暗示
+additional practices / offices / demo-production separation 属于 Enterprise plan。公开页不要暗示
 Solo 可以创建多个免费 workspace，也不要把 `organizationLimit`、Better Auth organization
 或内部 entitlement 字段名写给客户。
 
@@ -132,15 +132,15 @@ Pricing handoff 由 Playwright 覆盖：本地 e2e 会单独启动 Astro preview
 
 Marketing 只埋公开站事件，不读取 app session。
 
-| Event                               | 触发               |
-| ----------------------------------- | ------------------ |
-| `marketing.hero_cta.clicked`        | Hero primary CTA   |
-| `marketing.secondary_cta.clicked`   | Hero secondary CTA |
-| `marketing.workflow_section.viewed` | Workflow 进入视口  |
-| `marketing.final_cta.clicked`       | 页尾 CTA           |
-| `marketing.pricing.checkout`        | Pricing Pro CTA    |
-| `marketing.pricing.app`             | Pricing Solo CTA   |
-| `marketing.pricing.contact`         | Pricing Firm CTA   |
+| Event                               | 触发                   |
+| ----------------------------------- | ---------------------- |
+| `marketing.hero_cta.clicked`        | Hero primary CTA       |
+| `marketing.secondary_cta.clicked`   | Hero secondary CTA     |
+| `marketing.workflow_section.viewed` | Workflow 进入视口      |
+| `marketing.final_cta.clicked`       | 页尾 CTA               |
+| `marketing.pricing.checkout`        | Pricing Pro CTA        |
+| `marketing.pricing.app`             | Pricing Solo CTA       |
+| `marketing.pricing.contact`         | Pricing Enterprise CTA |
 
 事件命名不进 Lingui catalog。若 PostHog 尚未接入 marketing，先保留 data attribute 和文档契约。
 

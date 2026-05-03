@@ -1956,6 +1956,22 @@ msgstr "Enter penalty inputs"
 msgid "Enter the code from your authenticator app."
 msgstr "Enter the code from your authenticator app."
 
+#: src/components/patterns/app-shell.tsx
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.success.tsx
+#: src/routes/billing.tsx
+#: src/routes/practice.tsx
+msgid "Enterprise"
+msgstr "Enterprise"
+
+#: src/routes/billing.checkout.tsx
+msgid "Enterprise is a sales-assisted plan for multiple practices or offices. Contact sales from Billing."
+msgstr "Enterprise is a sales-assisted plan for multiple practices or offices. Contact sales from Billing."
+
+#: src/routes/billing.checkout.tsx
+msgid "Enterprise plan changes require sales support."
+msgstr "Enterprise plan changes require sales support."
+
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-table.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -2218,22 +2234,9 @@ msgstr "Filter by source"
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "Filter by time range, action category, action, actor, or entity type."
 
-#: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.success.tsx
-#: src/routes/billing.tsx
-#: src/routes/practice.tsx
 msgid "Firm"
 msgstr "Firm"
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm is a sales-assisted plan for multiple practices or offices. Contact sales from Billing."
-msgstr "Firm is a sales-assisted plan for multiple practices or offices. Contact sales from Billing."
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm plan changes require sales support."
-msgstr "Firm plan changes require sales support."
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -4021,8 +4024,8 @@ msgid "Pro"
 msgstr "Pro"
 
 #: src/routes/billing.checkout.tsx
-msgid "Pro applies to one production practice. Firm plan covers multiple practices by contract."
-msgstr "Pro applies to one production practice. Firm plan covers multiple practices by contract."
+msgid "Pro applies to one production practice. Enterprise plan covers multiple practices by contract."
+msgstr "Pro applies to one production practice. Enterprise plan covers multiple practices by contract."
 
 #: src/routes/billing.tsx
 msgid "Provider hosted"
@@ -4993,8 +4996,8 @@ msgid "Shared deadline operations for a growing CPA practice."
 msgstr "Shared deadline operations for a growing CPA practice."
 
 #: src/features/workload/workload-page.tsx
-msgid "Shared deadline operations for Pro and Firm plans."
-msgstr "Shared deadline operations for Pro and Firm plans."
+msgid "Shared deadline operations for Pro and Enterprise plans."
+msgstr "Shared deadline operations for Pro and Enterprise plans."
 
 #. placeholder {0}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
@@ -5386,8 +5389,8 @@ msgid "Team workload is available on Pro"
 msgstr "Team workload is available on Pro"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Team workload is available on Pro and Firm plans."
-msgstr "Team workload is available on Pro and Firm plans."
+msgid "Team workload is available on Pro and Enterprise plans."
+msgstr "Team workload is available on Pro and Enterprise plans."
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -6026,8 +6029,8 @@ msgid "Your column"
 msgstr "Your column"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Your current plan includes one active practice. Additional practices are available on the Firm plan."
-msgstr "Your current plan includes one active practice. Additional practices are available on the Firm plan."
+msgid "Your current plan includes one active practice. Additional practices are available on the Enterprise plan."
+msgstr "Your current plan includes one active practice. Additional practices are available on the Enterprise plan."
 
 #: src/features/migration/WizardShell.tsx
 msgid "Your pasted data and unsaved edits in this wizard will be lost."

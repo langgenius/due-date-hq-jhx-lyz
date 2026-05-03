@@ -1956,6 +1956,22 @@ msgstr "填写罚金输入项"
 msgid "Enter the code from your authenticator app."
 msgstr "输入身份验证器应用中的代码。"
 
+#: src/components/patterns/app-shell.tsx
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.success.tsx
+#: src/routes/billing.tsx
+#: src/routes/practice.tsx
+msgid "Enterprise"
+msgstr "Enterprise"
+
+#: src/routes/billing.checkout.tsx
+msgid "Enterprise is a sales-assisted plan for multiple practices or offices. Contact sales from Billing."
+msgstr "Enterprise 是面向多个事务所或办公室的销售协助计划。请在 Billing 联系销售。"
+
+#: src/routes/billing.checkout.tsx
+msgid "Enterprise plan changes require sales support."
+msgstr "Enterprise 计划变更需要销售支持。"
+
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-table.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -2218,22 +2234,9 @@ msgstr "按来源筛选"
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "按时间范围、操作分类、操作、执行人或实体类型筛选。"
 
-#: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.success.tsx
-#: src/routes/billing.tsx
-#: src/routes/practice.tsx
 msgid "Firm"
 msgstr "Firm"
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm is a sales-assisted plan for multiple practices or offices. Contact sales from Billing."
-msgstr "Firm 是面向多个事务所或办公室的销售协助计划。请在 Billing 联系销售。"
-
-#: src/routes/billing.checkout.tsx
-msgid "Firm plan changes require sales support."
-msgstr "Firm 计划变更需要销售支持。"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -4021,8 +4024,8 @@ msgid "Pro"
 msgstr "Pro"
 
 #: src/routes/billing.checkout.tsx
-msgid "Pro applies to one production practice. Firm plan covers multiple practices by contract."
-msgstr "Pro 适用于 1 个生产事务所。Firm 计划按合同覆盖多个事务所。"
+msgid "Pro applies to one production practice. Enterprise plan covers multiple practices by contract."
+msgstr "Pro 适用于 1 个生产事务所。Enterprise 计划按合同覆盖多个事务所。"
 
 #: src/routes/billing.tsx
 msgid "Provider hosted"
@@ -4993,8 +4996,8 @@ msgid "Shared deadline operations for a growing CPA practice."
 msgstr "适合成长中的 CPA 事务所共享截止日运营。"
 
 #: src/features/workload/workload-page.tsx
-msgid "Shared deadline operations for Pro and Firm plans."
-msgstr "Pro 和 Firm 计划可使用共享截止日运营。"
+msgid "Shared deadline operations for Pro and Enterprise plans."
+msgstr "Pro 和 Enterprise 计划可使用共享截止日运营。"
 
 #. placeholder {0}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
@@ -5386,8 +5389,8 @@ msgid "Team workload is available on Pro"
 msgstr "Team workload 可在 Pro 使用"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Team workload is available on Pro and Firm plans."
-msgstr "Team workload 适用于 Pro 和 Firm 计划。"
+msgid "Team workload is available on Pro and Enterprise plans."
+msgstr "Team workload 适用于 Pro 和 Enterprise 计划。"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -6026,8 +6029,8 @@ msgid "Your column"
 msgstr "你的列"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Your current plan includes one active practice. Additional practices are available on the Firm plan."
-msgstr "你当前的计划包含 1 个 active 事务所。额外事务所属于 Firm 计划。"
+msgid "Your current plan includes one active practice. Additional practices are available on the Enterprise plan."
+msgstr "你当前的计划包含 1 个 active 事务所。额外事务所属于 Enterprise 计划。"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Your pasted data and unsaved edits in this wizard will be lost."
