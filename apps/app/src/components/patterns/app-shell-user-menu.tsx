@@ -39,12 +39,16 @@ import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 type DemoRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
+type DemoPlan = 'solo' | 'pro' | 'team'
 
 type DemoAccount = {
+  id: string
   userId: string
+  firmId: string
   name: string
   email: string
   role: DemoRole
+  plan: DemoPlan
 }
 
 type DemoAccountsResponse = {
@@ -57,14 +61,21 @@ function isDemoRole(value: unknown): value is DemoRole {
   return value === 'owner' || value === 'manager' || value === 'preparer' || value === 'coordinator'
 }
 
+function isDemoPlan(value: unknown): value is DemoPlan {
+  return value === 'solo' || value === 'pro' || value === 'team'
+}
+
 function isDemoAccount(value: unknown): value is DemoAccount {
   if (!value || typeof value !== 'object') return false
   const input = value as Partial<Record<keyof DemoAccount, unknown>>
   return (
+    typeof input.id === 'string' &&
     typeof input.userId === 'string' &&
+    typeof input.firmId === 'string' &&
     typeof input.name === 'string' &&
     typeof input.email === 'string' &&
-    isDemoRole(input.role)
+    isDemoRole(input.role) &&
+    isDemoPlan(input.plan)
   )
 }
 
@@ -96,11 +107,14 @@ export function currentPathForDemoSwitch(input: {
   return `${input.pathname || '/'}${input.search}${input.hash}`
 }
 
-export function demoAccountSwitchHref(role: DemoRole, redirectTo: string): string {
-  const params = new URLSearchParams({
-    role,
-    redirectTo: redirectTo || '/',
-  })
+export function demoAccountSwitchHref(account: DemoAccount | DemoRole, redirectTo: string): string {
+  const params = new URLSearchParams()
+  if (typeof account === 'string') {
+    params.set('role', account)
+  } else {
+    params.set('account', account.id)
+  }
+  params.set('redirectTo', redirectTo || '/')
   return `/api/e2e/demo-login?${params.toString()}`
 }
 
@@ -110,9 +124,18 @@ const DEMO_ROLE_LABELS = {
   preparer: msg`Preparer`,
   coordinator: msg`Coordinator`,
 } as const
+const DEMO_PLAN_LABELS = {
+  solo: msg`Solo`,
+  pro: msg`Pro`,
+  team: msg`Team`,
+} as const
 
 function demoRoleLabel(role: DemoRole, i18n: I18n): string {
   return i18n._(DEMO_ROLE_LABELS[role])
+}
+
+function demoPlanLabel(plan: DemoPlan, i18n: I18n): string {
+  return i18n._(DEMO_PLAN_LABELS[plan])
 }
 
 function UserMenuTrigger({
@@ -267,7 +290,7 @@ function DemoAccountMenuItems({
             className="flex items-center justify-between gap-3"
             render={
               <a
-                href={demoAccountSwitchHref(account.role, currentPath)}
+                href={demoAccountSwitchHref(account, currentPath)}
                 aria-label={t`Switch demo account to ${account.name}`}
               />
             }
@@ -275,7 +298,8 @@ function DemoAccountMenuItems({
             <span className="flex min-w-0 flex-col leading-tight">
               <span className="truncate text-sm font-medium text-text-primary">{account.name}</span>
               <span className="truncate text-xs text-text-tertiary">
-                {demoRoleLabel(account.role, i18n)} · {account.email}
+                {demoPlanLabel(account.plan, i18n)} · {demoRoleLabel(account.role, i18n)} ·{' '}
+                {account.email}
               </span>
             </span>
             {selected ? (

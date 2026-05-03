@@ -1,7 +1,21 @@
-import { useId, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
+import {
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+  type ReactNode,
+} from 'react'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { LoaderCircleIcon, LockIcon, UploadCloudIcon } from 'lucide-react'
 import readXlsxFile, { type SheetData } from 'read-excel-file/browser'
+import type {
+  MigrationBatch,
+  MigrationExternalEntityType,
+  MigrationExternalStagingRowInput,
+  MigrationIntegrationProvider,
+} from '@duedatehq/contracts'
 
 import { parseTabular, TabularParseError } from '@duedatehq/core/csv-parser'
 import { detectSsnColumns } from '@duedatehq/core/pii'
@@ -10,7 +24,13 @@ import { Textarea } from '@duedatehq/ui/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 import { cn } from '@duedatehq/ui/lib/utils'
 
-import { PRESET_IDS, type IntakeState, type PresetId } from './state'
+import {
+  INTEGRATION_PROVIDERS,
+  PRESET_IDS,
+  type IntakeMode,
+  type IntakeState,
+  type PresetId,
+} from './state'
 
 const MAX_FILE_BYTES = 2 * 1024 * 1024
 
@@ -20,6 +40,22 @@ const PRESET_LABELS: Record<PresetId, string> = {
   karbon: 'Karbon',
   quickbooks: 'QuickBooks',
   file_in_time: 'File In Time',
+}
+
+const PROVIDER_LABELS: Record<MigrationIntegrationProvider, string> = {
+  karbon: 'Karbon API',
+  taxdome: 'TaxDome Zapier',
+  soraban: 'Soraban API',
+  safesend: 'SafeSend API',
+  proconnect: 'ProConnect export',
+}
+
+const PROVIDER_DEFAULT_ENTITY: Record<MigrationIntegrationProvider, MigrationExternalEntityType> = {
+  karbon: 'work_item',
+  taxdome: 'account',
+  soraban: 'organizer',
+  safesend: 'delivery',
+  proconnect: 'return',
 }
 
 function hasDraggedFiles(event: DragEvent<HTMLElement>) {
@@ -50,6 +86,16 @@ interface Step1Props {
     },
   ) => void
   onPreset: (preset: PresetId | null) => void
+  previousSyncBatches: MigrationBatch[]
+  onMode: (mode: IntakeMode) => void
+  onIntegrationProvider: (provider: MigrationIntegrationProvider) => void
+  onIntegrationRows: (args: {
+    rawText: string
+    tabularText: string
+    rows: MigrationExternalStagingRowInput[]
+    parseError: string | null
+  }) => void
+  onPreviousSync: (batchId: string | null) => void
   onParsed: (args: {
     rowCount: number
     truncated: boolean
@@ -62,7 +108,18 @@ interface Step1Props {
  * Step 1 Intake — Paste / Upload / Preset chips + SSN block + bad row banner.
  * Authority: docs/product-design/migration-copilot/02-ux-4step-wizard.md §4.
  */
-export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }: Step1Props) {
+export function Step1Intake({
+  intake,
+  onText,
+  onPreset,
+  previousSyncBatches,
+  onMode,
+  onIntegrationProvider,
+  onIntegrationRows,
+  onPreviousSync,
+  onParsed,
+  onParseError,
+}: Step1Props) {
   const { t } = useLingui()
   const pasteId = useId()
   const uploadHintId = useId()
@@ -71,6 +128,25 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
   const fileReadSerialRef = useRef(0)
   const [isFileDragActive, setIsFileDragActive] = useState(false)
   const [isReadingFile, setIsReadingFile] = useState(false)
+
+  function handleIntegrationText(text: string) {
+    try {
+      const rows = parseIntegrationRows(text, intake.integrationProvider)
+      onIntegrationRows({
+        rawText: text,
+        tabularText: integrationRowsToTabularText(rows, intake.integrationProvider),
+        rows,
+        parseError: rows.length === 0 ? t`Add at least one provider record to continue.` : null,
+      })
+    } catch (err) {
+      onIntegrationRows({
+        rawText: text,
+        tabularText: '',
+        rows: [],
+        parseError: err instanceof Error ? err.message : t`Paste a JSON array of provider records.`,
+      })
+    }
+  }
 
   function resetParsedRows() {
     onParsed({ rowCount: 0, truncated: false, ssnBlockedColumnIndexes: [] })
@@ -298,102 +374,215 @@ export function Step1Intake({ intake, onText, onPreset, onParsed, onParseError }
         </p>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor={pasteId}
-          className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase"
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t`Import source type`}>
+        <SourceModeButton
+          selected={intake.mode === 'paste' || intake.mode === 'upload'}
+          onClick={() => onMode('paste')}
         >
-          <Trans>Paste rows</Trans>
-        </label>
-        <div className="rounded-lg border border-divider-regular bg-components-panel-bg p-1 shadow-subtle">
-          <Textarea
-            id={pasteId}
-            aria-label={t`Paste client data`}
-            aria-describedby="paste-hint"
-            value={intake.rawText}
-            onChange={(e) => handleTextChange(e.target.value)}
-            placeholder={t`Paste here — any shape, we'll figure it out. Include the header row if you have one.`}
-            className="h-[142px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
-          />
-        </div>
+          <Trans>Paste / Upload</Trans>
+        </SourceModeButton>
+        <SourceModeButton
+          selected={intake.mode === 'integration'}
+          onClick={() => onMode('integration')}
+        >
+          <Trans>Connect platform</Trans>
+        </SourceModeButton>
+        <SourceModeButton
+          selected={intake.mode === 'previous_sync'}
+          onClick={() => onMode('previous_sync')}
+        >
+          <Trans>Previous sync</Trans>
+        </SourceModeButton>
       </div>
 
-      <div className="flex items-center gap-3">
-        <span aria-hidden className="h-px flex-1 bg-divider-regular" />
-        <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
-          <Trans>or</Trans>
-        </span>
-        <span aria-hidden className="h-px flex-1 bg-divider-regular" />
-      </div>
-
-      <div
-        role="button"
-        tabIndex={0}
-        onDrop={handleDrop}
-        onDragEnter={handleFileDragEnter}
-        onDragOver={handleFileDragOver}
-        onDragLeave={handleFileDragLeave}
-        onClick={() => fileInputRef.current?.click()}
-        aria-describedby={uploadHintId}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            fileInputRef.current?.click()
-          }
-        }}
-        className={cn(
-          'flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-md transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
-          isFileDragActive || isReadingFile
-            ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
-            : 'border-divider-deep bg-components-panel-bg text-text-secondary hover:border-state-accent-solid hover:bg-state-accent-hover-alt',
-        )}
-      >
-        {isReadingFile ? (
-          <LoaderCircleIcon className="size-5 animate-spin text-text-accent" aria-hidden />
-        ) : (
-          <UploadCloudIcon
-            className={cn('size-5', isFileDragActive ? 'text-text-accent' : 'text-text-tertiary')}
-            aria-hidden
-          />
-        )}
-        <span id={uploadHintId}>
-          <Trans>Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB</Trans>
-        </span>
-        {isReadingFile ? (
-          <span role="status" aria-live="polite" className="font-mono text-md text-text-accent">
-            <Trans>Reading file…</Trans>
-          </span>
-        ) : intake.fileName ? (
-          <span className="font-mono text-md text-text-secondary tabular-nums">
-            {intake.fileName}
-          </span>
-        ) : null}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".csv,.tsv,.xlsx,text/csv,text/tab-separated-values,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          className="hidden"
-          onClick={(event) => event.stopPropagation()}
-          onChange={handleFilePicked}
-        />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
-          <Trans>I&apos;m coming from… (optional)</Trans>
-        </span>
-        <div className="flex flex-wrap gap-2">
-          {PRESET_IDS.map((id) => (
-            <PresetChip
-              key={id}
-              id={id}
-              label={PRESET_LABELS[id]}
-              selected={intake.preset === id}
-              onToggle={() => onPreset(intake.preset === id ? null : id)}
+      {intake.mode === 'integration' ? (
+        <div className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-components-panel-bg p-3">
+          <div className="flex flex-col gap-2">
+            <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
+              <Trans>Provider</Trans>
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {INTEGRATION_PROVIDERS.map((provider) => (
+                <button
+                  key={provider}
+                  type="button"
+                  aria-pressed={intake.integrationProvider === provider}
+                  onClick={() => onIntegrationProvider(provider)}
+                  className={cn(
+                    'inline-flex h-9 cursor-pointer items-center rounded-md border px-3 text-md font-medium transition-colors',
+                    intake.integrationProvider === provider
+                      ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
+                      : 'border-divider-regular bg-background-body text-text-secondary hover:border-state-accent-solid hover:text-text-accent',
+                  )}
+                >
+                  {PROVIDER_LABELS[provider]}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor={`${pasteId}-integration`}
+              className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase"
+            >
+              <Trans>Provider JSON records</Trans>
+            </label>
+            <Textarea
+              id={`${pasteId}-integration`}
+              aria-label={t`Paste provider JSON records`}
+              value={intake.integrationRawText}
+              onChange={(event) => handleIntegrationText(event.target.value)}
+              placeholder={t`Paste a JSON array from your provider sync. Each object becomes one Migration staging row.`}
+              className="h-[180px] resize-y bg-background-body font-mono text-base tabular-nums"
             />
-          ))}
+          </div>
+          <p className="text-sm text-text-tertiary">
+            <Trans>
+              Connected records enter the same AI mapper and dry-run flow as CSV imports, while
+              keeping provider IDs for future status sync.
+            </Trans>
+          </p>
         </div>
-      </div>
+      ) : null}
+
+      {intake.mode === 'previous_sync' ? (
+        <div className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-components-panel-bg p-3">
+          <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
+            <Trans>Reuse staged provider rows</Trans>
+          </span>
+          {previousSyncBatches.length > 0 ? (
+            <div className="grid gap-2">
+              {previousSyncBatches.map((batch) => (
+                <button
+                  key={batch.id}
+                  type="button"
+                  onClick={() => onPreviousSync(batch.id)}
+                  aria-pressed={intake.previousSyncBatchId === batch.id}
+                  className={cn(
+                    'flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-md border px-3 py-2 text-left transition-colors',
+                    intake.previousSyncBatchId === batch.id
+                      ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
+                      : 'border-divider-regular bg-background-body text-text-secondary hover:border-state-accent-solid hover:text-text-accent',
+                  )}
+                >
+                  <span className="font-medium">{batch.source.replace('integration_', '')}</span>
+                  <span className="font-mono text-xs text-text-tertiary tabular-nums">
+                    {batch.rowCount} rows · {new Date(batch.createdAt).toLocaleDateString()}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-md text-text-secondary">
+              <Trans>No previous provider syncs are available yet.</Trans>
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      {intake.mode === 'paste' || intake.mode === 'upload' ? (
+        <>
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor={pasteId}
+              className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase"
+            >
+              <Trans>Paste rows</Trans>
+            </label>
+            <div className="rounded-lg border border-divider-regular bg-components-panel-bg p-1 shadow-subtle">
+              <Textarea
+                id={pasteId}
+                aria-label={t`Paste client data`}
+                aria-describedby="paste-hint"
+                value={intake.rawText}
+                onChange={(e) => handleTextChange(e.target.value)}
+                placeholder={t`Paste here — any shape, we'll figure it out. Include the header row if you have one.`}
+                className="h-[142px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="h-px flex-1 bg-divider-regular" />
+            <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
+              <Trans>or</Trans>
+            </span>
+            <span aria-hidden className="h-px flex-1 bg-divider-regular" />
+          </div>
+
+          <div
+            role="button"
+            tabIndex={0}
+            onDrop={handleDrop}
+            onDragEnter={handleFileDragEnter}
+            onDragOver={handleFileDragOver}
+            onDragLeave={handleFileDragLeave}
+            onClick={() => fileInputRef.current?.click()}
+            aria-describedby={uploadHintId}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                fileInputRef.current?.click()
+              }
+            }}
+            className={cn(
+              'flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-md transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+              isFileDragActive || isReadingFile
+                ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
+                : 'border-divider-deep bg-components-panel-bg text-text-secondary hover:border-state-accent-solid hover:bg-state-accent-hover-alt',
+            )}
+          >
+            {isReadingFile ? (
+              <LoaderCircleIcon className="size-5 animate-spin text-text-accent" aria-hidden />
+            ) : (
+              <UploadCloudIcon
+                className={cn(
+                  'size-5',
+                  isFileDragActive ? 'text-text-accent' : 'text-text-tertiary',
+                )}
+                aria-hidden
+              />
+            )}
+            <span id={uploadHintId}>
+              <Trans>Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB</Trans>
+            </span>
+            {isReadingFile ? (
+              <span role="status" aria-live="polite" className="font-mono text-md text-text-accent">
+                <Trans>Reading file…</Trans>
+              </span>
+            ) : intake.fileName ? (
+              <span className="font-mono text-md text-text-secondary tabular-nums">
+                {intake.fileName}
+              </span>
+            ) : null}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.tsv,.xlsx,text/csv,text/tab-separated-values,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              className="hidden"
+              onClick={(event) => event.stopPropagation()}
+              onChange={handleFilePicked}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
+              <Trans>I&apos;m coming from… (optional)</Trans>
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {PRESET_IDS.map((id) => (
+                <PresetChip
+                  key={id}
+                  id={id}
+                  label={PRESET_LABELS[id]}
+                  selected={intake.preset === id}
+                  onToggle={() => onPreset(intake.preset === id ? null : id)}
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      ) : null}
 
       <p id="paste-hint" className="flex items-center gap-1.5 text-sm text-text-tertiary">
         <LockIcon className="size-4" aria-hidden />
@@ -503,6 +692,162 @@ function PresetChip({ id, label, selected, onToggle }: PresetChipProps) {
     )
   }
   return chip
+}
+
+interface SourceModeButtonProps {
+  selected: boolean
+  onClick: () => void
+  children: ReactNode
+}
+
+function SourceModeButton({ selected, onClick, children }: SourceModeButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={cn(
+        'inline-flex h-9 cursor-pointer items-center rounded-md border px-3 text-md font-medium transition-colors',
+        selected
+          ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
+          : 'border-divider-regular bg-background-body text-text-secondary hover:border-state-accent-solid hover:text-text-accent',
+      )}
+    >
+      {children}
+    </button>
+  )
+}
+
+function parseIntegrationRows(
+  text: string,
+  provider: MigrationIntegrationProvider,
+): MigrationExternalStagingRowInput[] {
+  if (!text.trim()) return []
+  const parsed = JSON.parse(text) as unknown
+  const records = integrationRecords(parsed)
+  if (!records) {
+    throw new Error('Paste a JSON array or an object with a records array.')
+  }
+  return records.map((record, index) => {
+    const rawJson = toPlainRecord(record)
+    if (!rawJson) {
+      throw new Error(`Record ${index + 1} must be a JSON object.`)
+    }
+    return {
+      externalId: pickString(rawJson, [
+        'externalId',
+        'external_id',
+        'id',
+        'Id',
+        'ID',
+        'workId',
+        'work_id',
+        'accountId',
+        'account_id',
+      ]),
+      externalUrl: pickUrl(rawJson, [
+        'externalUrl',
+        'external_url',
+        'url',
+        'Url',
+        'permalink',
+        'webUrl',
+      ]),
+      externalEntityType: inferExternalEntityType(rawJson, provider),
+      rawJson,
+    }
+  })
+}
+
+function integrationRecords(value: unknown): unknown[] | null {
+  if (Array.isArray(value)) return value
+  const record = toPlainRecord(value)
+  if (!record) return null
+  const records = record.records
+  return Array.isArray(records) ? records : null
+}
+
+function toPlainRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const out: Record<string, unknown> = {}
+  for (const [key, item] of Object.entries(value)) out[key] = item
+  return out
+}
+
+function inferExternalEntityType(
+  rawJson: Record<string, unknown>,
+  provider: MigrationIntegrationProvider,
+): MigrationExternalEntityType {
+  const explicit = pickString(rawJson, ['externalEntityType', 'external_entity_type', 'type'])
+  if (isExternalEntityType(explicit)) return explicit
+  return PROVIDER_DEFAULT_ENTITY[provider]
+}
+
+function pickString(rawJson: Record<string, unknown>, keys: readonly string[]): string | undefined {
+  for (const key of keys) {
+    const value = rawJson[key]
+    if (typeof value === 'string' && value.trim()) return value.trim()
+    if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  }
+  return undefined
+}
+
+function pickUrl(rawJson: Record<string, unknown>, keys: readonly string[]): string | undefined {
+  const value = pickString(rawJson, keys)
+  if (!value) return undefined
+  return /^https?:\/\//i.test(value) ? value : undefined
+}
+
+function isExternalEntityType(value: string | undefined): value is MigrationExternalEntityType {
+  return (
+    value === 'account' ||
+    value === 'contact' ||
+    value === 'organization' ||
+    value === 'work_item' ||
+    value === 'client' ||
+    value === 'return' ||
+    value === 'organizer' ||
+    value === 'delivery' ||
+    value === 'signature' ||
+    value === 'payment' ||
+    value === 'unknown'
+  )
+}
+
+function integrationRowsToTabularText(
+  rows: readonly MigrationExternalStagingRowInput[],
+  provider: MigrationIntegrationProvider,
+): string {
+  if (rows.length === 0) return ''
+  const rawHeaders = Array.from(
+    new Set(rows.flatMap((row) => Object.keys(row.rawJson).filter((key) => key.trim()))),
+  ).toSorted((a, b) => a.localeCompare(b))
+  const headers = [
+    'External Provider',
+    'External Entity Type',
+    'External ID',
+    'External URL',
+    ...rawHeaders,
+  ]
+  const body = rows.map((row) =>
+    [
+      provider,
+      row.externalEntityType ?? 'unknown',
+      row.externalId ?? '',
+      row.externalUrl ?? '',
+      ...rawHeaders.map((header) => stringifyIntegrationCell(row.rawJson[header])),
+    ].join('\t'),
+  )
+  return [headers.join('\t'), ...body].join('\n')
+}
+
+function stringifyIntegrationCell(value: unknown): string {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'string') return value.replaceAll('\t', ' ').replaceAll('\n', ' ')
+  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+    return String(value)
+  }
+  return JSON.stringify(value).replaceAll('\t', ' ').replaceAll('\n', ' ')
 }
 
 function friendlyParseError(error: TabularParseError): string {

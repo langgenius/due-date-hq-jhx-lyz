@@ -20,6 +20,7 @@ type CommitClient = CommitImportInput['clients'][number]
 type CommitObligation = CommitImportInput['obligations'][number]
 type CommitEvidence = CommitImportInput['evidence'][number]
 type CommitAudit = CommitImportInput['audits'][number]
+type CommitExternalReference = NonNullable<CommitImportInput['externalReferences']>[number]
 
 interface BuildCommitPlanInput {
   batchId: string
@@ -48,6 +49,7 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
   const clients: CommitClient[] = []
   const obligations: CommitObligation[] = []
   const evidence: CommitEvidence[] = []
+  const externalReferences: CommitExternalReference[] = []
   const sourceById = new Map(listRuleSources().map((source) => [source.id, source]))
 
   const skippedRows = new Set<number>()
@@ -95,6 +97,26 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
       migrationBatchId: batchId,
     }
     clients.push(clientRow)
+    const externalRow = payload.externalStagingRows?.find((item) => item.rowIndex === rowIndex)
+    if (externalRow) {
+      externalReferences.push(
+        buildExternalReference({
+          firmId,
+          batchId,
+          provider: externalRow.provider,
+          internalEntityType: 'client',
+          internalEntityId: clientId,
+          externalEntityType: externalRow.externalEntityType,
+          externalId: externalRow.externalId,
+          externalUrl: externalRow.externalUrl,
+          metadataJson: {
+            stagingRowId: externalRow.stagingRowId,
+            rowHash: externalRow.rowHash,
+          },
+          appliedAt,
+        }),
+      )
+    }
 
     if (!isRuleGenerationState(facts.state) || facts.taxTypes.length === 0) continue
 
@@ -140,6 +162,27 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
         penaltyFormulaVersion: exposure.formulaVersion,
         exposureCalculatedAt: appliedAt,
       })
+      if (externalRow) {
+        externalReferences.push(
+          buildExternalReference({
+            firmId,
+            batchId,
+            provider: externalRow.provider,
+            internalEntityType: 'obligation',
+            internalEntityId: obligationId,
+            externalEntityType: externalRow.externalEntityType,
+            externalId: externalRow.externalId,
+            externalUrl: externalRow.externalUrl,
+            metadataJson: {
+              stagingRowId: externalRow.stagingRowId,
+              rowHash: externalRow.rowHash,
+              sourceClientId: clientId,
+              taxType: preview.taxType,
+            },
+            appliedAt,
+          }),
+        )
+      }
 
       const primaryEvidence = preview.evidence[0]
       const sourceId = primaryEvidence?.sourceId ?? preview.sourceIds[0] ?? preview.ruleId
@@ -218,10 +261,38 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
     obligations,
     evidence,
     audits,
+    externalReferences,
     successCount: clients.length,
     skippedCount: skippedRows.size,
     appliedAt,
     revertExpiresAt,
+  }
+}
+
+function buildExternalReference(input: {
+  firmId: string
+  batchId: string
+  provider: CommitExternalReference['provider']
+  internalEntityType: CommitExternalReference['internalEntityType']
+  internalEntityId: string
+  externalEntityType: CommitExternalReference['externalEntityType']
+  externalId: string
+  externalUrl: string | null
+  metadataJson: unknown
+  appliedAt: Date
+}): CommitExternalReference {
+  return {
+    id: crypto.randomUUID(),
+    firmId: input.firmId,
+    provider: input.provider,
+    migrationBatchId: input.batchId,
+    internalEntityType: input.internalEntityType,
+    internalEntityId: input.internalEntityId,
+    externalEntityType: input.externalEntityType,
+    externalId: input.externalId,
+    externalUrl: input.externalUrl,
+    metadataJson: input.metadataJson,
+    lastSyncedAt: input.appliedAt,
   }
 }
 

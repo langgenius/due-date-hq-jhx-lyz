@@ -183,6 +183,13 @@
       "when": 1777800235600,
       "tag": "0025_modern_leo",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1777802400000,
+      "tag": "0026_migration_first_integrations",
+      "breakpoints": true
     }
   ]
 }

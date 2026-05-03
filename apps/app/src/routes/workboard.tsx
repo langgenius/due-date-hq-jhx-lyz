@@ -35,6 +35,7 @@ import {
   PinIcon,
   SaveIcon,
   SearchIcon,
+  SparklesIcon,
   Trash2Icon,
   XIcon,
 } from 'lucide-react'
@@ -134,6 +135,7 @@ import { ConceptLabel } from '@/features/concepts/concept-help'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { useFirmPermission } from '@/features/permissions/permission-gate'
+import { billingPlanHref, paidPlanActive } from '@/features/billing/model'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
   ALL_READINESSES,
@@ -488,6 +490,7 @@ export function WorkboardRoute() {
   const { openWizard } = useMigrationWizard()
   const permission = useFirmPermission()
   const canRunMigration = permission.can('migration.run')
+  const practiceAiEnabled = paidPlanActive(permission.firm)
   const { openEvidence } = useEvidenceDrawer()
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const statusLabels = useStatusLabels()
@@ -2074,6 +2077,7 @@ export function WorkboardRoute() {
         onTabChange={(nextTab) => void setWorkboardQuery({ tab: nextTab })}
         onClose={() => void setWorkboardQuery({ drawer: null, id: null })}
         onNeedsInput={setPenaltyRow}
+        practiceAiEnabled={practiceAiEnabled}
       />
       <PenaltyInputDialog
         row={penaltyRow}
@@ -2356,12 +2360,14 @@ function WorkboardDetailDrawer({
   onTabChange,
   onClose,
   onNeedsInput,
+  practiceAiEnabled,
 }: {
   obligationId: string | null
   activeTab: WorkboardDetailTab
   onTabChange: (tab: WorkboardDetailTab) => void
   onClose: () => void
   onNeedsInput: (row: WorkboardRow) => void
+  practiceAiEnabled: boolean
 }) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
@@ -2637,14 +2643,26 @@ function WorkboardDetailDrawer({
                 <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
                   <div className="grid gap-3">
                     <div className="flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => generateChecklistMutation.mutate({ obligationId: row.id })}
-                        disabled={generateChecklistMutation.isPending}
-                      >
-                        <RefreshCwIcon data-icon="inline-start" />
-                        <Trans>Generate checklist</Trans>
-                      </Button>
+                      {practiceAiEnabled ? (
+                        <Button
+                          size="sm"
+                          onClick={() => generateChecklistMutation.mutate({ obligationId: row.id })}
+                          disabled={generateChecklistMutation.isPending}
+                        >
+                          <RefreshCwIcon data-icon="inline-start" />
+                          <Trans>Generate checklist</Trans>
+                        </Button>
+                      ) : (
+                        <Button
+                          nativeButton={false}
+                          size="sm"
+                          variant="outline"
+                          render={<Link to={billingPlanHref('pro', 'monthly')} />}
+                        >
+                          <SparklesIcon data-icon="inline-start" />
+                          <Trans>Upgrade</Trans>
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="outline"
@@ -2907,6 +2925,7 @@ function WorkboardDetailDrawer({
                       isLoading={deadlineTipQuery.isLoading}
                       isPreparing={deadlineTipPreparing}
                       isTimedOut={deadlineTipRefreshTimedOut}
+                      canRefresh={practiceAiEnabled}
                       onRefresh={() => requestDeadlineTipMutation.mutate({ obligationId: row.id })}
                     />
                     <DetailRow
@@ -3059,12 +3078,14 @@ function DeadlineTipPanel({
   isLoading,
   isPreparing,
   isTimedOut,
+  canRefresh,
   onRefresh,
 }: {
   insight: AiInsightPublic | null
   isLoading: boolean
   isPreparing: boolean
   isTimedOut: boolean
+  canRefresh: boolean
   onRefresh: () => void
 }) {
   const hasPreviousTip = Boolean(insight?.generatedAt)
@@ -3095,16 +3116,28 @@ function DeadlineTipPanel({
             <InsightStatusBadge status={insight.status} />
           ) : null}
         </div>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          disabled={isPreparing}
-          onClick={onRefresh}
-        >
-          <RefreshCwIcon data-icon="inline-start" />
-          {buttonLabel}
-        </Button>
+        {canRefresh ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={isPreparing}
+            onClick={onRefresh}
+          >
+            <RefreshCwIcon data-icon="inline-start" />
+            {buttonLabel}
+          </Button>
+        ) : (
+          <Button
+            nativeButton={false}
+            size="sm"
+            variant="outline"
+            render={<Link to={billingPlanHref('pro', 'monthly')} />}
+          >
+            <SparklesIcon data-icon="inline-start" />
+            <Trans>Upgrade</Trans>
+          </Button>
+        )}
       </div>
       {isLoading ? (
         <div className="text-sm text-text-tertiary">

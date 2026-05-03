@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react'
+import { Link } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   flexRender,
@@ -78,6 +79,8 @@ import {
 import { formatDateTimeWithTimezone } from '@/lib/utils'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { billingPlanHref, paidPlanActive } from '@/features/billing/model'
+import { useCurrentFirm } from '@/features/billing/use-billing-data'
 
 import {
   CLIENT_ENTITY_TYPES,
@@ -735,6 +738,8 @@ function ClientProfileSheet({
 }) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
+  const { currentFirm } = useCurrentFirm()
+  const practiceAiEnabled = paidPlanActive(currentFirm)
   const insightClientId = client?.id ?? '00000000-0000-4000-8000-000000000000'
   const riskSummaryQuery = useQuery({
     ...orpc.clients.getRiskSummary.queryOptions({ input: { clientId: insightClientId } }),
@@ -858,6 +863,7 @@ function ClientProfileSheet({
                 insight={riskSummaryQuery.data ?? null}
                 isLoading={riskSummaryQuery.isLoading}
                 isRefreshing={requestRiskSummaryMutation.isPending}
+                canRefresh={practiceAiEnabled}
                 onRefresh={() =>
                   requestRiskSummaryMutation.mutate({
                     clientId: client.id,
@@ -1073,11 +1079,13 @@ function ClientRiskSummaryPanel({
   insight,
   isLoading,
   isRefreshing,
+  canRefresh,
   onRefresh,
 }: {
   insight: AiInsightPublic | null
   isLoading: boolean
   isRefreshing: boolean
+  canRefresh: boolean
   onRefresh: () => void
 }) {
   return (
@@ -1091,16 +1099,28 @@ function ClientRiskSummaryPanel({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {insight ? <InsightStatusBadge status={insight.status} /> : null}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={isRefreshing}
-            onClick={onRefresh}
-          >
-            <RefreshCwIcon data-icon="inline-start" />
-            {isRefreshing ? <Trans>Queued</Trans> : <Trans>Refresh</Trans>}
-          </Button>
+          {canRefresh ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isRefreshing}
+              onClick={onRefresh}
+            >
+              <RefreshCwIcon data-icon="inline-start" />
+              {isRefreshing ? <Trans>Queued</Trans> : <Trans>Refresh</Trans>}
+            </Button>
+          ) : (
+            <Button
+              nativeButton={false}
+              variant="outline"
+              size="sm"
+              render={<Link to={billingPlanHref('pro', 'monthly')} />}
+            >
+              <SparklesIcon data-icon="inline-start" />
+              <Trans>Upgrade</Trans>
+            </Button>
+          )}
         </div>
       </div>
       {isLoading ? (

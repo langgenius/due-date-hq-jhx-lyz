@@ -1,19 +1,26 @@
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, inArray } from 'drizzle-orm'
 import type { BatchItem } from 'drizzle-orm/batch'
 import type { Db } from '../client'
 import { auditEvent, evidenceLink, type NewAuditEvent, type NewEvidenceLink } from '../schema/audit'
 import { client, type NewClient } from '../schema/clients'
 import {
+  externalReference,
   migrationBatch,
   migrationError,
   migrationMapping,
   migrationNormalization,
+  migrationStagingRow,
+  type ExternalReference,
   type MigrationBatch,
   type MigrationBatchStatus,
   type MigrationError,
+  type MigrationExternalEntityType,
+  type MigrationIntegrationProvider,
   type MigrationMapping,
   type MigrationNormalization,
   type MigrationSource,
+  type MigrationStagingRow,
+  type NewExternalReference,
   type NewMigrationError,
   type NewMigrationMapping,
   type NewMigrationNormalization,
@@ -30,6 +37,10 @@ const MAPPING_BATCH_SIZE = Math.floor(100 / MAPPING_COLS) // = 11
 const NORM_BATCH_SIZE = Math.floor(100 / 10)
 // migration_error has 7 columns → 14/batch.
 const ERROR_BATCH_SIZE = Math.floor(100 / 7) // = 14
+// migration_staging_row has 10 columns → 10/batch.
+const STAGING_ROW_BATCH_SIZE = Math.floor(100 / 10)
+// external_reference has 14 columns → 7/batch.
+const EXTERNAL_REF_BATCH_SIZE = Math.floor(100 / 14)
 // client has 17 columns -> 5/batch.
 const CLIENT_BATCH_SIZE = Math.floor(100 / 17)
 // obligation_instance has 18 columns -> 5/batch.
@@ -74,10 +85,28 @@ export interface CommitImportInput {
   obligations: NewObligationInstance[]
   evidence: NewEvidenceLink[]
   audits: NewAuditEvent[]
+  externalReferences?: NewExternalReference[]
   successCount: number
   skippedCount: number
   appliedAt: Date
   revertExpiresAt: Date
+}
+
+export interface CreateStagingRowInput {
+  id?: string
+  provider: MigrationIntegrationProvider
+  externalEntityType: MigrationExternalEntityType
+  externalId: string
+  externalUrl?: string | null
+  rowIndex: number
+  rowHash: string
+  rawRowJson: unknown
+}
+
+export interface FindExternalReferencesInput {
+  provider: MigrationIntegrationProvider
+  externalIds: string[]
+  internalEntityType?: 'client' | 'obligation' | 'return_project'
 }
 
 export interface RevertImportInput {
@@ -251,6 +280,79 @@ export function makeMigrationRepo(db: Db, firmId: string) {
       return rows.length
     },
 
+    async createStagingRows(batchId: string, rows: CreateStagingRowInput[]): Promise<number> {
+      if (rows.length === 0) return 0
+      await assertBatchInFirm(batchId)
+      const values = rows.map((row) => ({
+        id: row.id ?? crypto.randomUUID(),
+        firmId,
+        batchId,
+        provider: row.provider,
+        externalEntityType: row.externalEntityType,
+        externalId: row.externalId,
+        externalUrl: row.externalUrl ?? null,
+        rowIndex: row.rowIndex,
+        rowHash: row.rowHash,
+        rawRowJson: row.rawRowJson,
+      }))
+      const writes = []
+      for (let i = 0; i < values.length; i += STAGING_ROW_BATCH_SIZE) {
+        writes.push(
+          db.insert(migrationStagingRow).values(values.slice(i, i + STAGING_ROW_BATCH_SIZE)),
+        )
+      }
+      await Promise.all(writes)
+      return values.length
+    },
+
+    async listStagingRows(batchId: string): Promise<MigrationStagingRow[]> {
+      const rows = await db
+        .select()
+        .from(migrationStagingRow)
+        .innerJoin(migrationBatch, eq(migrationStagingRow.batchId, migrationBatch.id))
+        .where(and(eq(migrationBatch.firmId, firmId), eq(migrationStagingRow.batchId, batchId)))
+        .orderBy(migrationStagingRow.rowIndex)
+
+      return rows.map((row) => row.migration_staging_row)
+    },
+
+    async createExternalReferences(
+      refs: Array<Omit<NewExternalReference, 'id' | 'firmId' | 'createdAt' | 'updatedAt'>>,
+    ): Promise<number> {
+      if (refs.length === 0) return 0
+      const values = refs.map((ref) => ({
+        id: crypto.randomUUID(),
+        firmId,
+        ...ref,
+      }))
+      const writes = []
+      for (let i = 0; i < values.length; i += EXTERNAL_REF_BATCH_SIZE) {
+        writes.push(
+          db.insert(externalReference).values(values.slice(i, i + EXTERNAL_REF_BATCH_SIZE)),
+        )
+      }
+      await Promise.all(writes)
+      return values.length
+    },
+
+    async findExternalReferences(input: FindExternalReferencesInput): Promise<ExternalReference[]> {
+      const externalIds = Array.from(new Set(input.externalIds.filter((id) => id.trim())))
+      if (externalIds.length === 0) return []
+      return db
+        .select()
+        .from(externalReference)
+        .where(
+          and(
+            eq(externalReference.firmId, firmId),
+            eq(externalReference.provider, input.provider),
+            inArray(externalReference.externalId, externalIds),
+            input.internalEntityType
+              ? eq(externalReference.internalEntityType, input.internalEntityType)
+              : undefined,
+          ),
+        )
+    },
+
     async commitImport(input: CommitImportInput): Promise<void> {
       await assertBatchInFirm(input.batchId)
       const queries: BatchItem<'sqlite'>[] = []
@@ -275,6 +377,13 @@ export function makeMigrationRepo(db: Db, firmId: string) {
 
       for (let i = 0; i < input.audits.length; i += AUDIT_BATCH_SIZE) {
         queries.push(db.insert(auditEvent).values(input.audits.slice(i, i + AUDIT_BATCH_SIZE)))
+      }
+
+      const refs = input.externalReferences ?? []
+      for (let i = 0; i < refs.length; i += EXTERNAL_REF_BATCH_SIZE) {
+        queries.push(
+          db.insert(externalReference).values(refs.slice(i, i + EXTERNAL_REF_BATCH_SIZE)),
+        )
       }
 
       queries.push(
@@ -353,6 +462,17 @@ export function makeMigrationRepo(db: Db, firmId: string) {
 
       queries.push(
         db
+          .delete(externalReference)
+          .where(
+            and(
+              eq(externalReference.firmId, firmId),
+              eq(externalReference.migrationBatchId, input.batchId),
+            ),
+          ),
+      )
+
+      queries.push(
+        db
           .update(migrationBatch)
           .set({
             status: 'reverted',
@@ -414,6 +534,7 @@ export function makeMigrationRepo(db: Db, firmId: string) {
       ]
 
       if (obligationsToDelete.length > 0) {
+        const obligationIds = obligationsToDelete.map((row) => row.id)
         queries.push(
           db
             .delete(obligationInstance)
@@ -425,7 +546,28 @@ export function makeMigrationRepo(db: Db, firmId: string) {
               ),
             ),
         )
+        queries.push(
+          db
+            .delete(externalReference)
+            .where(
+              and(
+                eq(externalReference.firmId, firmId),
+                inArray(externalReference.internalEntityId, obligationIds),
+              ),
+            ),
+        )
       }
+
+      queries.push(
+        db
+          .delete(externalReference)
+          .where(
+            and(
+              eq(externalReference.firmId, firmId),
+              eq(externalReference.internalEntityId, input.clientId),
+            ),
+          ),
+      )
 
       queries.push(
         db

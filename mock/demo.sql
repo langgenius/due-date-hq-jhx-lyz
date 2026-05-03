@@ -3,22 +3,22 @@
 
 BEGIN TRANSACTION;
 
-DELETE FROM client_email_suppression WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM reminder WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM in_app_notification WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM email_outbox WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM notification_preference WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM dashboard_brief WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM ai_insight_cache WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM llm_log WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM ai_output WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM audit_evidence_package WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM evidence_link WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM audit_event WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM obligation_exception_application WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM exception_rule WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM pulse_application WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM pulse_firm_alert WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
+DELETE FROM client_email_suppression WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM reminder WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM in_app_notification WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM email_outbox WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM notification_preference WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM dashboard_brief WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM ai_insight_cache WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM llm_log WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM ai_output WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM audit_evidence_package WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM evidence_link WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM audit_event WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM obligation_exception_application WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM exception_rule WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM pulse_application WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM pulse_firm_alert WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
 DELETE FROM pulse_source_signal WHERE id LIKE 'mock_%';
 DELETE FROM pulse_source_snapshot WHERE id LIKE 'mock_%';
 DELETE FROM pulse
@@ -32,40 +32,49 @@ WHERE id LIKE 'mock_%'
     '40000000-0000-4000-8000-000000000006',
     '40000000-0000-4000-8000-000000000007'
   );
-DELETE FROM obligation_instance WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM client WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
+DELETE FROM obligation_instance WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM client WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
 DELETE FROM migration_error
 WHERE batch_id LIKE 'mock_migration_%'
-  OR batch_id IN (SELECT id FROM migration_batch WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo'));
+  OR batch_id IN (SELECT id FROM migration_batch WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team'));
 DELETE FROM migration_normalization
 WHERE batch_id LIKE 'mock_migration_%'
-  OR batch_id IN (SELECT id FROM migration_batch WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo'));
+  OR batch_id IN (SELECT id FROM migration_batch WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team'));
 DELETE FROM migration_mapping
 WHERE batch_id LIKE 'mock_migration_%'
-  OR batch_id IN (SELECT id FROM migration_batch WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo'));
-DELETE FROM migration_batch WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM subscription WHERE reference_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM invitation WHERE organization_id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM member WHERE organization_id IN ('mock_firm_brightline', 'mock_firm_solo');
+  OR batch_id IN (SELECT id FROM migration_batch WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team'));
+DELETE FROM migration_batch WHERE firm_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM subscription WHERE reference_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM invitation WHERE organization_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM member WHERE organization_id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
 DELETE FROM session WHERE user_id IN (
   'mock_user_owner_sarah',
   'mock_user_manager_miguel',
   'mock_user_preparer_avery',
-  'mock_user_coordinator_jules'
+  'mock_user_coordinator_jules',
+  'mock_user_plan_solo',
+  'mock_user_plan_pro',
+  'mock_user_plan_team'
 );
 DELETE FROM account WHERE user_id IN (
   'mock_user_owner_sarah',
   'mock_user_manager_miguel',
   'mock_user_preparer_avery',
-  'mock_user_coordinator_jules'
+  'mock_user_coordinator_jules',
+  'mock_user_plan_solo',
+  'mock_user_plan_pro',
+  'mock_user_plan_team'
 );
-DELETE FROM firm_profile WHERE id IN ('mock_firm_brightline', 'mock_firm_solo');
-DELETE FROM organization WHERE id IN ('mock_firm_brightline', 'mock_firm_solo');
+DELETE FROM firm_profile WHERE id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
+DELETE FROM organization WHERE id IN ('mock_firm_brightline', 'mock_firm_solo', 'mock_firm_plan_solo', 'mock_firm_plan_pro', 'mock_firm_plan_team');
 DELETE FROM user WHERE id IN (
   'mock_user_owner_sarah',
   'mock_user_manager_miguel',
   'mock_user_preparer_avery',
-  'mock_user_coordinator_jules'
+  'mock_user_coordinator_jules',
+  'mock_user_plan_solo',
+  'mock_user_plan_pro',
+  'mock_user_plan_team'
 );
 
 INSERT INTO user (id, name, email, email_verified, image, created_at, updated_at)
@@ -73,12 +82,18 @@ VALUES
   ('mock_user_owner_sarah', 'Sarah Martinez', 'sarah.demo@duedatehq.test', 1, NULL, CAST(unixepoch('2026-05-01 08:00:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:00:00') * 1000 AS INTEGER)),
   ('mock_user_manager_miguel', 'Miguel Chen', 'miguel.manager@duedatehq.test', 1, NULL, CAST(unixepoch('2026-05-01 08:01:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:01:00') * 1000 AS INTEGER)),
   ('mock_user_preparer_avery', 'Avery Patel', 'avery.preparer@duedatehq.test', 1, NULL, CAST(unixepoch('2026-05-01 08:02:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:02:00') * 1000 AS INTEGER)),
-  ('mock_user_coordinator_jules', 'Jules Rivera', 'jules.coordinator@duedatehq.test', 1, NULL, CAST(unixepoch('2026-05-01 08:03:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:03:00') * 1000 AS INTEGER));
+  ('mock_user_coordinator_jules', 'Jules Rivera', 'jules.coordinator@duedatehq.test', 1, NULL, CAST(unixepoch('2026-05-01 08:03:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:03:00') * 1000 AS INTEGER)),
+  ('mock_user_plan_solo', 'Sofia Solo', 'sofia.solo@duedatehq.test', 1, NULL, CAST(unixepoch('2026-05-01 08:04:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:04:00') * 1000 AS INTEGER)),
+  ('mock_user_plan_pro', 'Priya Pro', 'priya.pro@duedatehq.test', 1, NULL, CAST(unixepoch('2026-05-01 08:05:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:05:00') * 1000 AS INTEGER)),
+  ('mock_user_plan_team', 'Taylor Team', 'taylor.team@duedatehq.test', 1, NULL, CAST(unixepoch('2026-05-01 08:06:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:06:00') * 1000 AS INTEGER));
 
 INSERT INTO organization (id, name, slug, logo, stripe_customer_id, created_at, metadata)
 VALUES
   ('mock_firm_brightline', 'Brightline Demo CPA', 'brightline-demo-cpa', NULL, 'cus_mock_brightline', CAST(unixepoch('2026-05-01 08:05:00') * 1000 AS INTEGER), NULL),
-  ('mock_firm_solo', 'Archive Solo Practice', 'archive-solo-practice', NULL, NULL, CAST(unixepoch('2026-05-01 08:06:00') * 1000 AS INTEGER), NULL);
+  ('mock_firm_solo', 'Archive Solo Practice', 'archive-solo-practice', NULL, NULL, CAST(unixepoch('2026-05-01 08:06:00') * 1000 AS INTEGER), NULL),
+  ('mock_firm_plan_solo', 'Solo Plan Demo CPA', 'solo-plan-demo-cpa', NULL, 'cus_mock_plan_solo', CAST(unixepoch('2026-05-01 08:07:00') * 1000 AS INTEGER), NULL),
+  ('mock_firm_plan_pro', 'Pro Plan Demo CPA', 'pro-plan-demo-cpa', NULL, 'cus_mock_plan_pro', CAST(unixepoch('2026-05-01 08:08:00') * 1000 AS INTEGER), NULL),
+  ('mock_firm_plan_team', 'Team Plan Demo CPA', 'team-plan-demo-cpa', NULL, 'cus_mock_plan_team', CAST(unixepoch('2026-05-01 08:09:00') * 1000 AS INTEGER), NULL);
 
 INSERT INTO member (id, organization_id, user_id, role, created_at, status)
 VALUES
@@ -86,13 +101,19 @@ VALUES
   ('mock_member_manager_miguel', 'mock_firm_brightline', 'mock_user_manager_miguel', 'manager', CAST(unixepoch('2026-05-01 08:11:00') * 1000 AS INTEGER), 'active'),
   ('mock_member_preparer_avery', 'mock_firm_brightline', 'mock_user_preparer_avery', 'preparer', CAST(unixepoch('2026-05-01 08:12:00') * 1000 AS INTEGER), 'active'),
   ('mock_member_coordinator_jules', 'mock_firm_brightline', 'mock_user_coordinator_jules', 'coordinator', CAST(unixepoch('2026-05-01 08:13:00') * 1000 AS INTEGER), 'active'),
-  ('mock_member_solo_sarah', 'mock_firm_solo', 'mock_user_owner_sarah', 'owner', CAST(unixepoch('2026-05-01 08:14:00') * 1000 AS INTEGER), 'active');
+  ('mock_member_solo_sarah', 'mock_firm_solo', 'mock_user_owner_sarah', 'owner', CAST(unixepoch('2026-05-01 08:14:00') * 1000 AS INTEGER), 'active'),
+  ('mock_member_plan_solo', 'mock_firm_plan_solo', 'mock_user_plan_solo', 'owner', CAST(unixepoch('2026-05-01 08:15:00') * 1000 AS INTEGER), 'active'),
+  ('mock_member_plan_pro', 'mock_firm_plan_pro', 'mock_user_plan_pro', 'owner', CAST(unixepoch('2026-05-01 08:16:00') * 1000 AS INTEGER), 'active'),
+  ('mock_member_plan_team', 'mock_firm_plan_team', 'mock_user_plan_team', 'owner', CAST(unixepoch('2026-05-01 08:17:00') * 1000 AS INTEGER), 'active');
 
 INSERT INTO firm_profile
   (id, name, plan, seat_limit, timezone, owner_user_id, status, billing_customer_id, billing_subscription_id, coordinator_can_see_dollars, created_at, updated_at, deleted_at)
 VALUES
   ('mock_firm_brightline', 'Brightline Demo CPA', 'pro', 5, 'America/Los_Angeles', 'mock_user_owner_sarah', 'active', 'cus_mock_brightline', 'sub_mock_brightline_pro', 0, CAST(unixepoch('2026-05-01 08:05:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:20:00') * 1000 AS INTEGER), NULL),
-  ('mock_firm_solo', 'Archive Solo Practice', 'solo', 1, 'America/New_York', 'mock_user_owner_sarah', 'active', NULL, NULL, 0, CAST(unixepoch('2026-05-01 08:06:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:21:00') * 1000 AS INTEGER), NULL);
+  ('mock_firm_solo', 'Archive Solo Practice', 'solo', 1, 'America/New_York', 'mock_user_owner_sarah', 'active', NULL, NULL, 0, CAST(unixepoch('2026-05-01 08:06:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:21:00') * 1000 AS INTEGER), NULL),
+  ('mock_firm_plan_solo', 'Solo Plan Demo CPA', 'solo', 1, 'America/New_York', 'mock_user_plan_solo', 'active', 'cus_mock_plan_solo', 'sub_mock_plan_solo', 0, CAST(unixepoch('2026-05-01 08:07:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:22:00') * 1000 AS INTEGER), NULL),
+  ('mock_firm_plan_pro', 'Pro Plan Demo CPA', 'pro', 3, 'America/Chicago', 'mock_user_plan_pro', 'active', 'cus_mock_plan_pro', 'sub_mock_plan_pro', 0, CAST(unixepoch('2026-05-01 08:08:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:23:00') * 1000 AS INTEGER), NULL),
+  ('mock_firm_plan_team', 'Team Plan Demo CPA', 'team', 10, 'America/Los_Angeles', 'mock_user_plan_team', 'active', 'cus_mock_plan_team', 'sub_mock_plan_team', 1, CAST(unixepoch('2026-05-01 08:09:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:24:00') * 1000 AS INTEGER), NULL);
 
 INSERT INTO invitation (id, organization_id, email, role, status, expires_at, created_at, inviter_id)
 VALUES
@@ -102,7 +123,10 @@ VALUES
 INSERT INTO subscription
   (id, plan, reference_id, stripe_customer_id, stripe_subscription_id, status, period_start, period_end, trial_start, trial_end, cancel_at_period_end, cancel_at, canceled_at, ended_at, seats, billing_interval, stripe_schedule_id, created_at, updated_at)
 VALUES
-  ('mock_subscription_brightline_pro', 'pro', 'mock_firm_brightline', 'cus_mock_brightline', 'sub_mock_brightline_pro', 'active', CAST(unixepoch('2026-05-01 00:00:00') * 1000 AS INTEGER), CAST(unixepoch('2026-06-01 00:00:00') * 1000 AS INTEGER), NULL, NULL, 0, NULL, NULL, NULL, 5, 'month', NULL, CAST(unixepoch('2026-05-01 08:30:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:30:00') * 1000 AS INTEGER));
+  ('mock_subscription_brightline_pro', 'pro', 'mock_firm_brightline', 'cus_mock_brightline', 'sub_mock_brightline_pro', 'active', CAST(unixepoch('2026-05-01 00:00:00') * 1000 AS INTEGER), CAST(unixepoch('2026-06-01 00:00:00') * 1000 AS INTEGER), NULL, NULL, 0, NULL, NULL, NULL, 5, 'month', NULL, CAST(unixepoch('2026-05-01 08:30:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:30:00') * 1000 AS INTEGER)),
+  ('mock_subscription_plan_solo', 'solo', 'mock_firm_plan_solo', 'cus_mock_plan_solo', 'sub_mock_plan_solo', 'active', CAST(unixepoch('2026-05-01 00:00:00') * 1000 AS INTEGER), CAST(unixepoch('2026-06-01 00:00:00') * 1000 AS INTEGER), NULL, NULL, 0, NULL, NULL, NULL, 1, 'month', NULL, CAST(unixepoch('2026-05-01 08:31:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:31:00') * 1000 AS INTEGER)),
+  ('mock_subscription_plan_pro', 'pro', 'mock_firm_plan_pro', 'cus_mock_plan_pro', 'sub_mock_plan_pro', 'active', CAST(unixepoch('2026-05-01 00:00:00') * 1000 AS INTEGER), CAST(unixepoch('2026-06-01 00:00:00') * 1000 AS INTEGER), NULL, NULL, 0, NULL, NULL, NULL, 3, 'month', NULL, CAST(unixepoch('2026-05-01 08:32:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:32:00') * 1000 AS INTEGER)),
+  ('mock_subscription_plan_team', 'team', 'mock_firm_plan_team', 'cus_mock_plan_team', 'sub_mock_plan_team', 'active', CAST(unixepoch('2026-05-01 00:00:00') * 1000 AS INTEGER), CAST(unixepoch('2026-06-01 00:00:00') * 1000 AS INTEGER), NULL, NULL, 0, NULL, NULL, NULL, 10, 'month', NULL, CAST(unixepoch('2026-05-01 08:33:00') * 1000 AS INTEGER), CAST(unixepoch('2026-05-01 08:33:00') * 1000 AS INTEGER));
 
 INSERT INTO migration_batch
   (id, firm_id, user_id, source, raw_input_r2_key, raw_input_file_name, raw_input_content_type, raw_input_size_bytes, mapping_json, preset_used, row_count, success_count, skipped_count, ai_global_confidence, status, applied_at, revert_expires_at, reverted_at, created_at, updated_at)

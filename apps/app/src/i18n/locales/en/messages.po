@@ -508,6 +508,10 @@ msgstr "Actor id"
 msgid "Add a manual client record to the active practice directory."
 msgstr "Add a manual client record to the active practice directory."
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Add at least one provider record to continue."
+msgstr "Add at least one provider record to continue."
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Add context for the reviewer"
 msgstr "Add context for the reviewer"
@@ -1343,6 +1347,14 @@ msgstr "Confirm checkout"
 msgid "Confirming subscription"
 msgstr "Confirming subscription"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Connect platform"
+msgstr "Connect platform"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Connected records enter the same AI mapper and dry-run flow as CSV imports, while keeping provider IDs for future status sync."
+msgstr "Connected records enter the same AI mapper and dry-run flow as CSV imports, while keeping provider IDs for future status sync."
+
 #: src/routes/billing.tsx
 msgid "Contact sales"
 msgstr "Contact sales"
@@ -1619,6 +1631,10 @@ msgstr "Couldn't queue risk summary"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't reactivate alert"
 msgstr "Couldn't reactivate alert"
+
+#: src/routes/dashboard.tsx
+msgid "Couldn't refresh brief"
+msgstr "Couldn't refresh brief"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't request review"
@@ -2643,6 +2659,10 @@ msgstr "Import normalization confirmed"
 msgid "Import reverted"
 msgstr "Import reverted"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Import source type"
+msgstr "Import source type"
+
 #: src/features/migration/Wizard.tsx
 msgid "Import undone"
 msgstr "Import undone"
@@ -3245,6 +3265,10 @@ msgstr "Needs review"
 msgid "Needs state"
 msgstr "Needs state"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Needs-review Pulse matches can be confirmed on Team and Enterprise plans."
+msgstr "Needs-review Pulse matches can be confirmed on Team and Enterprise plans."
+
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "neutral"
@@ -3492,6 +3516,10 @@ msgstr "No practice selected"
 #: src/routes/dashboard.tsx
 msgid "No prepared brief yet"
 msgstr "No prepared brief yet"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "No previous provider syncs are available yet."
+msgstr "No previous provider syncs are available yet."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/workboard.tsx
@@ -4004,12 +4032,28 @@ msgid "Partnership"
 msgstr "Partnership"
 
 #: src/features/migration/Step1Intake.tsx
+msgid "Paste / Upload"
+msgstr "Paste / Upload"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste a JSON array from your provider sync. Each object becomes one Migration staging row."
+msgstr "Paste a JSON array from your provider sync. Each object becomes one Migration staging row."
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste a JSON array of provider records."
+msgstr "Paste a JSON array of provider records."
+
+#: src/features/migration/Step1Intake.tsx
 msgid "Paste client data"
 msgstr "Paste client data"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste here — any shape, we'll figure it out. Include the header row if you have one."
 msgstr "Paste here — any shape, we'll figure it out. Include the header row if you have one."
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste provider JSON records"
+msgstr "Paste provider JSON records"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste rows"
@@ -4331,6 +4375,10 @@ msgstr "Previous"
 msgid "Previous page"
 msgstr "Previous page"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Previous sync"
+msgstr "Previous sync"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Previous years"
 msgstr "Previous years"
@@ -4348,6 +4396,10 @@ msgstr "Priority"
 msgid "Priority onboarding and audit exports"
 msgstr "Priority onboarding and audit exports"
 
+#: src/features/pulse/lib/error-mapping.ts
+msgid "Priority Pulse matching and review confirmation require Team or above."
+msgstr "Priority Pulse matching and review confirmation require Team or above."
+
 #: src/features/calendar/calendar-page.tsx
 msgid "Privacy"
 msgstr "Privacy"
@@ -4357,6 +4409,7 @@ msgid "Privacy mode"
 msgstr "Privacy mode"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
@@ -4365,9 +4418,21 @@ msgstr "Privacy mode"
 msgid "Pro"
 msgstr "Pro"
 
+#: src/features/pulse/lib/error-mapping.ts
+msgid "Production Pulse actions require Pro or above."
+msgstr "Production Pulse actions require Pro or above."
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Provider"
+msgstr "Provider"
+
 #: src/routes/billing.tsx
 msgid "Provider hosted"
 msgstr "Provider hosted"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Provider JSON records"
+msgstr "Provider JSON records"
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/concepts/concept-help.tsx
@@ -4822,6 +4887,10 @@ msgstr "Return home"
 #: src/features/permissions/permission-gate.tsx
 msgid "Return to dashboard"
 msgstr "Return to dashboard"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Reuse staged provider rows"
+msgstr "Reuse staged provider rows"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Revert batch"
@@ -5531,6 +5600,7 @@ msgid "Sole prop"
 msgstr "Sole prop"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
@@ -5830,8 +5900,10 @@ msgid "TAX YEAR"
 msgstr "TAX YEAR"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/app-shell-user-menu.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
 #: src/routes/billing.tsx
@@ -5846,6 +5918,10 @@ msgstr "Team and Enterprise plans add capacity pressure, unassigned risk, and re
 #: src/features/audit/audit-log-labels.ts
 msgid "Team member"
 msgstr "Team member"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Team review required"
+msgstr "Team review required"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
@@ -6230,6 +6306,9 @@ msgid "Updated {0}"
 msgstr "Updated {0}"
 
 #: src/components/patterns/app-shell.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Upgrade"
 msgstr "Upgrade"
 

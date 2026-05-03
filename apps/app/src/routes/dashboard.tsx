@@ -23,7 +23,7 @@ import {
 } from '@tanstack/react-table'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { parseAsArrayOf, parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import type {
@@ -71,6 +71,7 @@ import { severityRowClass } from '@/features/dashboard/severity-row'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { useFirmPermission } from '@/features/permissions/permission-gate'
+import { billingPlanHref, paidPlanActive } from '@/features/billing/model'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
@@ -381,6 +382,7 @@ export function DashboardRoute() {
   const permission = useFirmPermission()
   const canRunMigration = permission.can('migration.run')
   const canSeeDollars = permission.can('dollars.read')
+  const practiceAiEnabled = paidPlanActive(permission.firm)
   const { openEvidence } = useEvidenceDrawer()
   const severityLabels = useSeverityLabels()
   const triageTabLabels = useTriageTabLabels()
@@ -434,6 +436,11 @@ export function DashboardRoute() {
     orpc.dashboard.requestBriefRefresh.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't refresh brief`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
       },
     }),
   )
@@ -567,6 +574,7 @@ export function DashboardRoute() {
         summary={data?.summary ?? null}
         isLoading={dashboardQuery.isLoading}
         isQueued={isBriefQueued}
+        canRefresh={practiceAiEnabled}
         onOpenEvidence={(citation) => {
           const citedRow = topRows.find((item) => item.obligationId === citation.obligationId)
           openEvidence({
@@ -1256,6 +1264,7 @@ function DashboardBriefPanel({
   summary,
   isLoading,
   isQueued,
+  canRefresh,
   onOpenEvidence,
   onRefresh,
 }: {
@@ -1268,6 +1277,7 @@ function DashboardBriefPanel({
   } | null
   isLoading: boolean
   isQueued: boolean
+  canRefresh: boolean
   onOpenEvidence: (citation: DashboardBriefCitation) => void
   onRefresh: () => void
 }) {
@@ -1320,21 +1330,34 @@ function DashboardBriefPanel({
             <Trans>Prepared in the background from the latest dashboard risk snapshot.</Trans>
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onRefresh}
-          disabled={refreshDisabled}
-          aria-label={t`Refresh AI weekly brief`}
-          className="shrink-0"
-        >
-          <RefreshCwIcon data-icon="inline-start" />
-          {isQueued || brief?.status === 'pending' ? (
-            <Trans>Queued</Trans>
-          ) : (
-            <Trans>Refresh brief</Trans>
-          )}
-        </Button>
+        {canRefresh ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={refreshDisabled}
+            aria-label={t`Refresh AI weekly brief`}
+            className="shrink-0"
+          >
+            <RefreshCwIcon data-icon="inline-start" />
+            {isQueued || brief?.status === 'pending' ? (
+              <Trans>Queued</Trans>
+            ) : (
+              <Trans>Refresh brief</Trans>
+            )}
+          </Button>
+        ) : (
+          <Button
+            nativeButton={false}
+            variant="outline"
+            size="sm"
+            className="shrink-0"
+            render={<Link to={billingPlanHref('pro', 'monthly')} />}
+          >
+            <SparklesIcon data-icon="inline-start" />
+            <Trans>Upgrade</Trans>
+          </Button>
+        )}
       </div>
       <div>
         {isLoading ? (

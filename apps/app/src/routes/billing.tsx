@@ -25,6 +25,7 @@ import {
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { createBillingPortal } from '@/features/billing/api'
@@ -725,12 +726,12 @@ function PlanOption({
               <SparklesIcon className="size-4" aria-hidden />
             </span>
             <div className="min-w-0">
-              <p className="line-clamp-2 text-sm leading-5 font-semibold text-text-primary">
+              <TooltipText className="line-clamp-2 text-sm leading-5 font-semibold text-text-primary">
                 {plan.aiLabel}
-              </p>
-              <p className="mt-1 line-clamp-2 text-xs leading-5 text-text-secondary">
+              </TooltipText>
+              <TooltipText className="mt-1 line-clamp-2 text-xs leading-5 text-text-secondary">
                 {plan.aiDescription}
-              </p>
+              </TooltipText>
             </div>
           </div>
           <ul className="flex flex-wrap gap-1.5 text-[11px] leading-4 text-text-secondary">
@@ -740,7 +741,7 @@ function PlanOption({
                 className="inline-flex min-h-6 max-w-full items-center gap-1.5 rounded-sm border border-divider-regular bg-background-default px-2 py-1"
               >
                 <CheckIcon className="size-3 shrink-0 text-text-accent" aria-hidden />
-                <span className="min-w-0 truncate">{feature}</span>
+                <TooltipText className="min-w-0 truncate">{feature}</TooltipText>
               </li>
             ))}
           </ul>
@@ -777,6 +778,17 @@ function PlanOption({
         )}
       </CardFooter>
     </Card>
+  )
+}
+
+function TooltipText({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger render={<span className={className}>{children}</span>} />
+      <TooltipContent className="block max-w-[280px] whitespace-normal text-left leading-5">
+        {children}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 

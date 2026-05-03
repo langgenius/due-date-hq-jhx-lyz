@@ -6,6 +6,8 @@ import type {
   NormalizationRow,
   DryRunSummary,
   MigrationSource,
+  MigrationExternalStagingRowInput,
+  MigrationIntegrationProvider,
 } from '@duedatehq/contracts'
 
 /**
@@ -20,9 +22,10 @@ import type {
 
 export type StepIndex = 1 | 2 | 3 | 4
 
-export type IntakeMode = 'paste' | 'upload'
+export type IntakeMode = 'paste' | 'upload' | 'integration' | 'previous_sync'
 
 export type PresetId = 'taxdome' | 'drake' | 'karbon' | 'quickbooks' | 'file_in_time'
+export type IntegrationProvider = MigrationIntegrationProvider
 
 export interface IntakeState {
   mode: IntakeMode
@@ -34,6 +37,10 @@ export interface IntakeState {
   contentType: string | null
   sizeBytes: number
   preset: PresetId | null
+  integrationProvider: IntegrationProvider
+  integrationRawText: string
+  integrationRows: MigrationExternalStagingRowInput[]
+  previousSyncBatchId: string | null
   /** Header indexes blocked by SSN regex on the client side. */
   ssnBlockedColumnIndexes: number[]
   rowCount: number
@@ -95,6 +102,10 @@ export const INITIAL_STATE: WizardState = {
     contentType: null,
     sizeBytes: 0,
     preset: null,
+    integrationProvider: 'karbon',
+    integrationRawText: '',
+    integrationRows: [],
+    previousSyncBatchId: null,
     ssnBlockedColumnIndexes: [],
     rowCount: 0,
     truncated: false,
@@ -122,6 +133,15 @@ export type WizardAction =
       sizeBytes?: number
     }
   | { type: 'INTAKE_PRESET'; preset: PresetId | null }
+  | { type: 'INTAKE_INTEGRATION_PROVIDER'; provider: IntegrationProvider }
+  | {
+      type: 'INTAKE_INTEGRATION_ROWS'
+      rawText: string
+      tabularText: string
+      rows: MigrationExternalStagingRowInput[]
+      parseError: string | null
+    }
+  | { type: 'INTAKE_PREVIOUS_SYNC'; batchId: string | null }
   | {
       type: 'INTAKE_PARSED'
       rowCount: number
@@ -172,6 +192,52 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
       }
     case 'INTAKE_PRESET':
       return { ...state, intake: { ...state.intake, preset: action.preset } }
+    case 'INTAKE_INTEGRATION_PROVIDER':
+      return {
+        ...state,
+        intake: {
+          ...state.intake,
+          integrationProvider: action.provider,
+          integrationRows: [],
+          integrationRawText: '',
+          rawText: '',
+          rowCount: 0,
+          parseError: null,
+          submitError: null,
+        },
+      }
+    case 'INTAKE_INTEGRATION_ROWS':
+      return {
+        ...state,
+        intake: {
+          ...state.intake,
+          mode: 'integration',
+          integrationRawText: action.rawText,
+          integrationRows: action.rows,
+          rawText: action.tabularText,
+          fileName: `${state.intake.integrationProvider}-integration.json`,
+          fileKind: 'csv',
+          contentType: 'application/json',
+          sizeBytes: action.rawText.length,
+          rowCount: action.rows.length,
+          truncated: false,
+          ssnBlockedColumnIndexes: [],
+          parseError: action.parseError,
+          submitError: null,
+        },
+      }
+    case 'INTAKE_PREVIOUS_SYNC':
+      return {
+        ...state,
+        intake: {
+          ...state.intake,
+          mode: 'previous_sync',
+          previousSyncBatchId: action.batchId,
+          rowCount: action.batchId ? 1 : 0,
+          parseError: null,
+          submitError: null,
+        },
+      }
     case 'INTAKE_PARSED':
       return {
         ...state,
@@ -268,4 +334,20 @@ export const PRESET_TO_SOURCE: Record<PresetId, MigrationSource> = {
   karbon: 'preset_karbon',
   quickbooks: 'preset_quickbooks',
   file_in_time: 'preset_file_in_time',
+}
+
+export const INTEGRATION_PROVIDERS: ReadonlyArray<IntegrationProvider> = [
+  'karbon',
+  'taxdome',
+  'soraban',
+  'safesend',
+  'proconnect',
+]
+
+export const PROVIDER_TO_SOURCE: Record<IntegrationProvider, MigrationSource> = {
+  taxdome: 'integration_taxdome_zapier',
+  karbon: 'integration_karbon_api',
+  soraban: 'integration_soraban_api',
+  safesend: 'integration_safesend_api',
+  proconnect: 'integration_proconnect_export',
 }

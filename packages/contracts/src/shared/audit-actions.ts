@@ -3,6 +3,7 @@ import * as z from 'zod'
 export const MigrationAuditActions = [
   'migration.batch.created',
   'migration.raw_uploaded',
+  'migration.staging_rows.created',
   'migration.imported',
   'migration.reverted',
   'migration.single_undo',

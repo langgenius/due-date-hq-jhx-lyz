@@ -78,6 +78,16 @@ Pricing cards must also show the AI capability:
 - Team: `Same Practice AI as Pro · built for 10-seat operations`
 - Enterprise: `Custom AI and coverage by contract`
 
+Runtime gates must match that copy:
+
+- Solo can view deterministic previews and cached/fallback summaries, but manual practice AI
+  refresh/generation actions open a Pro upgrade path instead of queueing AI.
+- Pro unlocks Dashboard brief refresh, client risk summary refresh, deadline tip refresh,
+  readiness checklist generation, production Pulse actions, and production migration AI.
+- Team keeps the same Practice AI model tier as Pro, and adds Team-only operations such as
+  priority Pulse review confirmations, guided integration migration review, audit export, and
+  larger team workload protection.
+
 FAQ must include "Can I create multiple practices?" with the answer:
 
 > Solo, Pro, and Team include one active practice workspace. Additional practices, offices, or

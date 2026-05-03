@@ -6,8 +6,9 @@ import type { ContextVars, Env } from '../env'
 
 type SeedMode = 'empty' | 'workboard' | 'pulse'
 type DemoRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
+type DemoPlan = 'solo' | 'pro' | 'team'
 type SeedRole = DemoRole
-type BillingPlan = 'solo' | 'pro' | 'team' | 'firm'
+type BillingPlan = DemoPlan | 'firm'
 type BillingStatus = 'active' | 'trialing' | 'past_due' | 'paused'
 type BillingInterval = 'month' | 'year'
 
@@ -27,38 +28,84 @@ const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
 const DEMO_FIRM_ID = 'mock_firm_brightline'
 const DEMO_ACCOUNTS = [
   {
+    id: 'brightline-owner',
     role: 'owner',
     userId: 'mock_user_owner_sarah',
+    firmId: DEMO_FIRM_ID,
+    plan: 'pro',
     name: 'Sarah Martinez',
     email: 'sarah.demo@duedatehq.test',
   },
   {
+    id: 'brightline-manager',
     role: 'manager',
     userId: 'mock_user_manager_miguel',
+    firmId: DEMO_FIRM_ID,
+    plan: 'pro',
     name: 'Miguel Chen',
     email: 'miguel.manager@duedatehq.test',
   },
   {
+    id: 'brightline-preparer',
     role: 'preparer',
     userId: 'mock_user_preparer_avery',
+    firmId: DEMO_FIRM_ID,
+    plan: 'pro',
     name: 'Avery Patel',
     email: 'avery.preparer@duedatehq.test',
   },
   {
+    id: 'brightline-coordinator',
     role: 'coordinator',
     userId: 'mock_user_coordinator_jules',
+    firmId: DEMO_FIRM_ID,
+    plan: 'pro',
     name: 'Jules Rivera',
     email: 'jules.coordinator@duedatehq.test',
   },
+  {
+    id: 'plan-solo',
+    role: 'owner',
+    userId: 'mock_user_plan_solo',
+    firmId: 'mock_firm_plan_solo',
+    plan: 'solo',
+    name: 'Sofia Solo',
+    email: 'sofia.solo@duedatehq.test',
+  },
+  {
+    id: 'plan-pro',
+    role: 'owner',
+    userId: 'mock_user_plan_pro',
+    firmId: 'mock_firm_plan_pro',
+    plan: 'pro',
+    name: 'Priya Pro',
+    email: 'priya.pro@duedatehq.test',
+  },
+  {
+    id: 'plan-team',
+    role: 'owner',
+    userId: 'mock_user_plan_team',
+    firmId: 'mock_firm_plan_team',
+    plan: 'team',
+    name: 'Taylor Team',
+    email: 'taylor.team@duedatehq.test',
+  },
 ] as const satisfies readonly {
+  id: string
   role: DemoRole
   userId: string
+  firmId: string
+  plan: DemoPlan
   name: string
   email: string
 }[]
 
+type DemoAccountId = (typeof DEMO_ACCOUNTS)[number]['id']
+
+const DEMO_ACCOUNT_IDS = DEMO_ACCOUNTS.map((account) => account.id)
 const DEMO_USER_IDS = DEMO_ACCOUNTS.map((account) => account.userId)
 const DEMO_ROLES = DEMO_ACCOUNTS.map((account) => account.role)
+const DEMO_FIRM_IDS = Array.from(new Set(DEMO_ACCOUNTS.map((account) => account.firmId)))
 const DEMO_DATA_MISSING = 'Demo data is missing. Run `pnpm db:seed:demo` first.'
 
 function hasE2ESeedAccess(c: { env: Env; req: { header(name: string): string | undefined } }) {
@@ -73,9 +120,18 @@ export function isDemoRole(value: unknown): value is DemoRole {
   return value === 'owner' || value === 'manager' || value === 'preparer' || value === 'coordinator'
 }
 
+export function isDemoAccountId(value: unknown): value is DemoAccountId {
+  return typeof value === 'string' && (DEMO_ACCOUNT_IDS as readonly string[]).includes(value)
+}
+
 export function readDemoRoleParam(value: string | null): DemoRole | null {
   if (value === null || value.length === 0) return 'owner'
   return isDemoRole(value) ? value : null
+}
+
+export function readDemoAccountParam(value: string | null): DemoAccountId | null {
+  if (value === null || value.length === 0) return null
+  return isDemoAccountId(value) ? value : null
 }
 
 export function pickSafeDemoRedirect(raw: string | null, fallback = '/'): string {
@@ -87,6 +143,10 @@ function demoAccountForRole(role: DemoRole) {
   return DEMO_ACCOUNTS.find((account) => account.role === role) ?? DEMO_ACCOUNTS[0]
 }
 
+function demoAccountForId(accountId: DemoAccountId) {
+  return DEMO_ACCOUNTS.find((account) => account.id === accountId) ?? null
+}
+
 function roleLabel(role: DemoRole): string {
   if (role === 'owner') return 'Owner'
   if (role === 'manager') return 'Manager'
@@ -94,9 +154,9 @@ function roleLabel(role: DemoRole): string {
   return 'Coordinator'
 }
 
-function orderDemoAccounts<T extends { userId: string }>(rows: T[]): T[] {
-  const byUserId = new Map(rows.map((row) => [row.userId, row]))
-  return DEMO_USER_IDS.map((userId) => byUserId.get(userId)).filter((row): row is T => Boolean(row))
+function orderDemoAccounts<T extends { id: string }>(rows: T[]): T[] {
+  const byId = new Map(rows.map((row) => [row.id, row]))
+  return DEMO_ACCOUNT_IDS.map((id) => byId.get(id)).filter((row): row is T => Boolean(row))
 }
 
 export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().post(
@@ -235,12 +295,15 @@ e2eRoute.get('/demo-login', async (c) => {
   }
 
   const requestUrl = new URL(c.req.url)
-  const role = readDemoRoleParam(requestUrl.searchParams.get('role'))
-  if (!role) {
-    return c.json({ error: 'Invalid demo role.' }, 400)
-  }
+  const accountParam = requestUrl.searchParams.get('account')
+  const accountId = readDemoAccountParam(accountParam)
+  if (accountParam !== null && !accountId) return c.json({ error: 'Invalid demo account.' }, 400)
 
-  const demoAccount = demoAccountForRole(role)
+  const role = accountParam === null ? readDemoRoleParam(requestUrl.searchParams.get('role')) : null
+  if (accountParam === null && !role) return c.json({ error: 'Invalid demo role.' }, 400)
+
+  const demoAccount = accountId ? demoAccountForId(accountId) : demoAccountForRole(role ?? 'owner')
+  if (!demoAccount) return c.json({ error: 'Invalid demo account.' }, 400)
   const db = createDb(c.env.DB)
   const [demoMember] = await db
     .select({
@@ -252,20 +315,20 @@ e2eRoute.get('/demo-login', async (c) => {
     .innerJoin(authSchema.user, eq(authSchema.user.id, authSchema.member.userId))
     .where(
       and(
-        eq(authSchema.member.organizationId, DEMO_FIRM_ID),
+        eq(authSchema.member.organizationId, demoAccount.firmId),
         eq(authSchema.member.userId, demoAccount.userId),
-        eq(authSchema.member.role, role),
+        eq(authSchema.member.role, demoAccount.role),
         eq(authSchema.member.status, 'active'),
       ),
     )
     .limit(1)
   const [demoFirm] = await db
-    .select({ id: firmSchema.firmProfile.id })
+    .select({ id: firmSchema.firmProfile.id, plan: firmSchema.firmProfile.plan })
     .from(firmSchema.firmProfile)
-    .where(eq(firmSchema.firmProfile.id, DEMO_FIRM_ID))
+    .where(eq(firmSchema.firmProfile.id, demoAccount.firmId))
     .limit(1)
 
-  if (!demoMember || !demoFirm) {
+  if (!demoMember || !demoFirm || demoFirm.plan !== demoAccount.plan) {
     return c.text(DEMO_DATA_MISSING, 409)
   }
 
@@ -277,7 +340,7 @@ e2eRoute.get('/demo-login', async (c) => {
     id: sessionId,
     token,
     userId: demoAccount.userId,
-    activeOrganizationId: DEMO_FIRM_ID,
+    activeOrganizationId: demoAccount.firmId,
     twoFactorVerified: true,
     expiresAt,
     createdAt: now,
@@ -312,24 +375,29 @@ e2eRoute.get('/demo-accounts', async (c) => {
   }
 
   const db = createDb(c.env.DB)
-  const [demoFirm] = await db
+  const demoFirms = await db
     .select({ id: firmSchema.firmProfile.id })
     .from(firmSchema.firmProfile)
-    .where(eq(firmSchema.firmProfile.id, DEMO_FIRM_ID))
-    .limit(1)
+    .where(inArray(firmSchema.firmProfile.id, DEMO_FIRM_IDS))
 
   const rows = await db
     .select({
       userId: authSchema.user.id,
       name: authSchema.user.name,
       email: authSchema.user.email,
+      firmId: authSchema.member.organizationId,
       role: authSchema.member.role,
+      plan: firmSchema.firmProfile.plan,
     })
     .from(authSchema.member)
     .innerJoin(authSchema.user, eq(authSchema.user.id, authSchema.member.userId))
+    .innerJoin(
+      firmSchema.firmProfile,
+      eq(firmSchema.firmProfile.id, authSchema.member.organizationId),
+    )
     .where(
       and(
-        eq(authSchema.member.organizationId, DEMO_FIRM_ID),
+        inArray(authSchema.member.organizationId, DEMO_FIRM_IDS),
         eq(authSchema.member.status, 'active'),
         inArray(authSchema.member.userId, DEMO_USER_IDS),
         inArray(authSchema.member.role, DEMO_ROLES),
@@ -337,10 +405,30 @@ e2eRoute.get('/demo-accounts', async (c) => {
     )
 
   const accounts = orderDemoAccounts(
-    rows.filter((row): row is (typeof rows)[number] & { role: DemoRole } => isDemoRole(row.role)),
+    rows
+      .map((row) => {
+        const account = DEMO_ACCOUNTS.find(
+          (item) =>
+            item.userId === row.userId &&
+            item.firmId === row.firmId &&
+            item.role === row.role &&
+            item.plan === row.plan,
+        )
+        if (!account || !isDemoRole(row.role)) return null
+        return {
+          id: account.id,
+          userId: row.userId,
+          firmId: row.firmId,
+          name: row.name,
+          email: row.email,
+          role: row.role,
+          plan: account.plan,
+        }
+      })
+      .filter((row): row is NonNullable<typeof row> => Boolean(row)),
   )
 
-  if (!demoFirm || accounts.length !== DEMO_ACCOUNTS.length) {
+  if (demoFirms.length !== DEMO_FIRM_IDS.length || accounts.length !== DEMO_ACCOUNTS.length) {
     return c.text(DEMO_DATA_MISSING, 409)
   }
 

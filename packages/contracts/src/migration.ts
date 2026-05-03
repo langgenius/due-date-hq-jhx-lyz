@@ -12,6 +12,33 @@ export const MigrationSourceSchema = z.enum([
   'preset_karbon',
   'preset_quickbooks',
   'preset_file_in_time',
+  'integration_taxdome_zapier',
+  'integration_karbon_api',
+  'integration_soraban_api',
+  'integration_safesend_api',
+  'integration_proconnect_export',
+])
+
+export const MigrationIntegrationProviderSchema = z.enum([
+  'taxdome',
+  'karbon',
+  'soraban',
+  'safesend',
+  'proconnect',
+])
+
+export const MigrationExternalEntityTypeSchema = z.enum([
+  'account',
+  'contact',
+  'organization',
+  'work_item',
+  'client',
+  'return',
+  'organizer',
+  'delivery',
+  'signature',
+  'payment',
+  'unknown',
 ])
 
 export const MigrationBatchStatusSchema = z.enum([
@@ -142,6 +169,48 @@ export const MigrationListErrorsInputSchema = z.object({
 })
 export type MigrationListErrorsInput = z.infer<typeof MigrationListErrorsInputSchema>
 
+export const MigrationExternalStagingRowInputSchema = z.object({
+  externalId: z.string().min(1).max(256).optional(),
+  externalUrl: z.url().nullable().optional(),
+  externalEntityType: MigrationExternalEntityTypeSchema.default('unknown').optional(),
+  rawJson: z.record(z.string(), z.unknown()),
+})
+export type MigrationExternalStagingRowInput = z.infer<
+  typeof MigrationExternalStagingRowInputSchema
+>
+
+export const MigrationStagingRowSchema = z.object({
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  batchId: EntityIdSchema,
+  provider: MigrationIntegrationProviderSchema,
+  externalEntityType: MigrationExternalEntityTypeSchema,
+  externalId: z.string().min(1),
+  externalUrl: z.url().nullable(),
+  rowIndex: z.number().int().min(0),
+  rowHash: z.string().min(1),
+  rawRowJson: z.unknown(),
+  createdAt: z.iso.datetime(),
+})
+export type MigrationStagingRow = z.infer<typeof MigrationStagingRowSchema>
+
+export const MigrationExternalReferenceSchema = z.object({
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  provider: MigrationIntegrationProviderSchema,
+  migrationBatchId: EntityIdSchema.nullable(),
+  internalEntityType: z.enum(['client', 'obligation', 'return_project']),
+  internalEntityId: EntityIdSchema,
+  externalEntityType: MigrationExternalEntityTypeSchema,
+  externalId: z.string().min(1),
+  externalUrl: z.url().nullable(),
+  metadataJson: z.unknown().nullable(),
+  lastSyncedAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+})
+export type MigrationExternalReference = z.infer<typeof MigrationExternalReferenceSchema>
+
 /**
  * Mapper fallback channel marker.
  * - `null` → AI returned a structured response, mappings reflect AI output.
@@ -202,6 +271,26 @@ const ApplyDefaultMatrixInput = BatchIdInput.extend({
   matrixSelections: z.array(MatrixSelectionSchema).optional(),
 })
 
+export const MigrationStageExternalRowsInputSchema = BatchIdInput.extend({
+  provider: MigrationIntegrationProviderSchema,
+  rows: z.array(MigrationExternalStagingRowInputSchema).min(1).max(1000),
+})
+export type MigrationStageExternalRowsInput = z.infer<typeof MigrationStageExternalRowsInputSchema>
+
+export const MigrationStageExternalRowsOutputSchema = z.object({
+  batch: MigrationBatchSchema,
+  rowCount: z.number().int().min(0),
+  headers: z.array(z.string()),
+})
+export type MigrationStageExternalRowsOutput = z.infer<
+  typeof MigrationStageExternalRowsOutputSchema
+>
+
+export const MigrationCloneStagingRowsInputSchema = z.object({
+  sourceBatchId: EntityIdSchema,
+})
+export type MigrationCloneStagingRowsInput = z.infer<typeof MigrationCloneStagingRowsInputSchema>
+
 export const migrationContract = oc.router({
   createBatch: oc
     .input(
@@ -242,6 +331,15 @@ export const migrationContract = oc.router({
       }),
     )
     .output(z.object({ rawInputR2Key: z.string() })),
+  stageExternalRows: oc
+    .input(MigrationStageExternalRowsInputSchema)
+    .output(MigrationStageExternalRowsOutputSchema),
+  cloneStagingRows: oc
+    .input(MigrationCloneStagingRowsInputSchema)
+    .output(MigrationStageExternalRowsOutputSchema),
+  listStagingRows: oc
+    .input(BatchIdInput)
+    .output(z.object({ rows: z.array(MigrationStagingRowSchema) })),
   runMapper: oc.input(BatchIdInput).output(MapperRunOutputSchema),
   confirmMapping: oc
     .input(z.object({ batchId: EntityIdSchema, mappings: z.array(MappingRowSchema) }))
@@ -287,6 +385,8 @@ export const migrationContract = oc.router({
 export type MigrationBatch = z.infer<typeof MigrationBatchSchema>
 export type MigrationSource = z.infer<typeof MigrationSourceSchema>
 export type MigrationBatchStatus = z.infer<typeof MigrationBatchStatusSchema>
+export type MigrationIntegrationProvider = z.infer<typeof MigrationIntegrationProviderSchema>
+export type MigrationExternalEntityType = z.infer<typeof MigrationExternalEntityTypeSchema>
 export type MappingRow = z.infer<typeof MappingRowSchema>
 export type NormalizationRow = z.infer<typeof NormalizationRowSchema>
 export type MigrationError = z.infer<typeof MigrationErrorSchema>

@@ -1,8 +1,8 @@
 import type { MappingRow, MappingTarget } from '@duedatehq/contracts'
 
 /**
- * Preset-Profile fallback mappings — used when the AI Mapper is unavailable
- * (`AI_UNAVAILABLE` refusal) and the user picked a Preset Profile in Step 1.
+ * Preset-Profile fallback mappings — used when the AI Mapper is not used or
+ * unavailable and the user picked a Preset Profile in Step 1.
  *
  * Authority:
  *   - docs/product-design/migration-copilot/04-ai-prompts.md §2.1 (preset boost)
@@ -151,7 +151,7 @@ export function buildAllIgnoreMappings(headers: readonly string[], batchId: stri
     sourceHeader: header,
     targetField: 'IGNORE' as MappingTarget,
     confidence: null,
-    reasoning: 'AI unavailable and no preset selected — please map manually.',
+    reasoning: 'No AI mapping available and no preset selected — please map manually.',
     userOverridden: false,
     model: null,
     promptVersion: PRESET_VERSION,

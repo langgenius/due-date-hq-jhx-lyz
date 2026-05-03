@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 
 import type { FirmPublic, FirmRole, PulseFirmAlertStatus, PulseStatus } from '@duedatehq/contracts'
 import type { PulseDetail } from '@duedatehq/contracts'
+import { planHasFeature } from '@duedatehq/core/plan-entitlements'
 import { hasFirmPermission } from '@duedatehq/core/permissions'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Button } from '@duedatehq/ui/components/ui/button'
@@ -88,14 +89,15 @@ export function canRequestPulseReview(input: {
 function usePulsePermissions(): {
   role: FirmRole | null
   canApply: boolean
+  canConfirmReviewMatches: boolean
 } {
   const queryClient = useQueryClient()
   const firms = queryClient.getQueryData<FirmPublic[]>(
     orpc.firms.listMine.queryKey({ input: undefined }),
   )
-  if (!firms) return { role: null, canApply: false }
+  if (!firms) return { role: null, canApply: false, canConfirmReviewMatches: false }
   const current = firms.find((firm) => firm.isCurrent) ?? firms[0]
-  if (!current) return { role: null, canApply: false }
+  if (!current) return { role: null, canApply: false, canConfirmReviewMatches: false }
   return {
     role: current.role,
     canApply: hasFirmPermission({
@@ -103,6 +105,7 @@ function usePulsePermissions(): {
       permission: 'pulse.apply',
       coordinatorCanSeeDollars: current.coordinatorCanSeeDollars,
     }),
+    canConfirmReviewMatches: planHasFeature(current.plan, 'priorityPulseMatching'),
   }
 }
 
@@ -117,6 +120,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
   const detail = detailQuery.data
   const permissions = usePulsePermissions()
   const canApply = permissions.canApply
+  const canConfirmReviewMatches = permissions.canConfirmReviewMatches
   const invalidate = usePulseInvalidation()
 
   const [selection, setSelection] = useState<Set<string>>(() => new Set())
@@ -150,6 +154,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
   )
 
   const handleToggleNeedsReviewConfirmation = (obligationId: string, confirmed: boolean) => {
+    if (!canConfirmReviewMatches) return
     setConfirmedReviewIds((current) => {
       const next = new Set(current)
       if (confirmed) next.add(obligationId)
@@ -377,6 +382,21 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 </Alert>
               ) : null}
 
+              {!canConfirmReviewMatches &&
+              detail.affectedClients.some((row) => row.matchStatus === 'needs_review') ? (
+                <Alert>
+                  <ShieldAlertIcon />
+                  <AlertTitle>
+                    <Trans>Team review required</Trans>
+                  </AlertTitle>
+                  <AlertDescription>
+                    <Trans>
+                      Needs-review Pulse matches can be confirmed on Team and Enterprise plans.
+                    </Trans>
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+
               <section className="flex flex-col gap-3">
                 <header className="flex items-baseline justify-between">
                   <h3 className="text-md font-semibold text-text-primary">
@@ -392,6 +412,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                   confirmedReviewIds={confirmedReviewIds}
                   onChangeSelection={setSelection}
                   onToggleNeedsReviewConfirmation={handleToggleNeedsReviewConfirmation}
+                  canConfirmReviewMatches={canConfirmReviewMatches}
                   readOnly={!canApply}
                 />
               </section>
@@ -408,11 +429,13 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
               sourceStatus={detail.alert.sourceStatus}
               selectionCount={stats?.selectedCount ?? 0}
               canApply={canApply}
-              canRequestReview={canRequestPulseReview({
-                role: permissions.role,
-                alertStatus: detail.alert.status,
-                sourceStatus: detail.alert.sourceStatus,
-              })}
+              canRequestReview={
+                canRequestPulseReview({
+                  role: permissions.role,
+                  alertStatus: detail.alert.status,
+                  sourceStatus: detail.alert.sourceStatus,
+                }) && canConfirmReviewMatches
+              }
               isMutating={isMutating}
               onApply={() =>
                 applyMutation.mutate({

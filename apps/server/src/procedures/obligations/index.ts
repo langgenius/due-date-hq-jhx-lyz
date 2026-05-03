@@ -6,6 +6,7 @@ import {
   OBLIGATION_STATUS_WRITE_ROLES,
   requireCurrentFirmRole,
 } from '../_permissions'
+import { requirePracticeAiWorkflow } from '../_plan-gates'
 import { os } from '../_root'
 import { dateInTimezone, toAiInsightPublic } from '../_ai-insights'
 import { enqueueAiInsightRefresh } from '../../jobs/ai-insights/enqueue'
@@ -306,6 +307,7 @@ const getDeadlineTip = os.obligations.getDeadlineTip.handler(async ({ input, con
 const requestDeadlineTipRefresh = os.obligations.requestDeadlineTipRefresh.handler(
   async ({ input, context }) => {
     const { scoped, tenant } = requireTenant(context)
+    requirePracticeAiWorkflow(tenant.plan)
     const obligation = await scoped.obligations.findById(input.obligationId)
     if (!obligation) {
       throw new ORPCError('NOT_FOUND', {

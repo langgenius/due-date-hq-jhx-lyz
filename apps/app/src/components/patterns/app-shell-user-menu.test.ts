@@ -23,4 +23,21 @@ describe('app shell demo account switcher helpers', () => {
       '/api/e2e/demo-login?role=manager&redirectTo=%2Fworkboard%3Fowner%3Dunassigned%23row-1',
     )
   })
+
+  it('builds demo account switch hrefs with account ids for plan accounts', () => {
+    expect(
+      demoAccountSwitchHref(
+        {
+          id: 'plan-team',
+          userId: 'mock_user_plan_team',
+          firmId: 'mock_firm_plan_team',
+          name: 'Taylor Team',
+          email: 'taylor.team@duedatehq.test',
+          role: 'owner',
+          plan: 'team',
+        },
+        '/billing',
+      ),
+    ).toBe('/api/e2e/demo-login?account=plan-team&redirectTo=%2Fbilling')
+  })
 })

@@ -64,7 +64,14 @@ import {
   WorkloadWindowMaxDays,
   workloadContract,
 } from './workload'
-import { MatrixSelectionSchema, MigrationErrorStageSchema, migrationContract } from './migration'
+import {
+  MatrixSelectionSchema,
+  MigrationErrorStageSchema,
+  MigrationIntegrationProviderSchema,
+  MigrationSourceSchema,
+  MigrationStageExternalRowsInputSchema,
+  migrationContract,
+} from './migration'
 import {
   MemberAssigneeOptionSchema,
   MemberInviteInputSchema,
@@ -718,8 +725,37 @@ describe('@duedatehq/contracts', () => {
   it('freezes migration.listErrors stages', () => {
     expect(MigrationErrorStageSchema.options).toEqual(['mapping', 'normalize', 'matrix', 'all'])
     expect(Object.keys(migrationContract)).toEqual(
-      expect.arrayContaining(['runMapper', 'applyDefaultMatrix', 'listErrors']),
+      expect.arrayContaining([
+        'runMapper',
+        'stageExternalRows',
+        'cloneStagingRows',
+        'applyDefaultMatrix',
+        'listErrors',
+      ]),
     )
+    expect(MigrationSourceSchema.options).toEqual(
+      expect.arrayContaining(['integration_taxdome_zapier', 'integration_karbon_api']),
+    )
+    expect(MigrationIntegrationProviderSchema.options).toEqual([
+      'taxdome',
+      'karbon',
+      'soraban',
+      'safesend',
+      'proconnect',
+    ])
+    expect(
+      MigrationStageExternalRowsInputSchema.parse({
+        batchId: '11111111-1111-4111-8111-111111111111',
+        provider: 'karbon',
+        rows: [
+          {
+            externalId: 'work_123',
+            externalEntityType: 'work_item',
+            rawJson: { 'Organization Name': 'Acme LLC', State: 'CA' },
+          },
+        ],
+      }).rows[0]?.externalEntityType,
+    ).toBe('work_item')
   })
 
   it('accepts explicit Default Matrix cell selections', () => {
@@ -734,6 +770,9 @@ describe('@duedatehq/contracts', () => {
 
   it('allows migration and Pulse audit strings used by batch apply', () => {
     expect(AuditActionSchema.parse('migration.batch.created')).toBe('migration.batch.created')
+    expect(AuditActionSchema.parse('migration.staging_rows.created')).toBe(
+      'migration.staging_rows.created',
+    )
     expect(PulseAuditActionSchema.parse('pulse.apply')).toBe('pulse.apply')
     expect(PulseAuditActionSchema.parse('pulse.dismiss')).toBe('pulse.dismiss')
     expect(PulseAuditActionSchema.parse('pulse.quarantine')).toBe('pulse.quarantine')

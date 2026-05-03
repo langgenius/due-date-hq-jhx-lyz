@@ -32,6 +32,11 @@ interface MigrationBatchRow {
     | 'preset_karbon'
     | 'preset_quickbooks'
     | 'preset_file_in_time'
+    | 'integration_taxdome_zapier'
+    | 'integration_karbon_api'
+    | 'integration_soraban_api'
+    | 'integration_safesend_api'
+    | 'integration_proconnect_export'
   rawInputR2Key: string | null
   rawInputFileName: string | null
   rawInputContentType: string | null
@@ -67,6 +72,56 @@ function buildScopedRepo(firmId: string) {
     id: string
     clientId: string
     migrationBatchId: string | null | undefined
+  }> = []
+  const stagingRows: Array<{
+    id: string
+    batchId: string
+    firmId: string
+    provider: 'taxdome' | 'karbon' | 'soraban' | 'safesend' | 'proconnect'
+    externalEntityType:
+      | 'account'
+      | 'contact'
+      | 'organization'
+      | 'work_item'
+      | 'client'
+      | 'return'
+      | 'organizer'
+      | 'delivery'
+      | 'signature'
+      | 'payment'
+      | 'unknown'
+    externalId: string
+    externalUrl: string | null
+    rowIndex: number
+    rowHash: string
+    rawRowJson: unknown
+    createdAt: Date
+  }> = []
+  const externalRefs: Array<{
+    id: string
+    firmId: string
+    provider: 'taxdome' | 'karbon' | 'soraban' | 'safesend' | 'proconnect'
+    migrationBatchId: string | null
+    internalEntityType: 'client' | 'obligation' | 'return_project'
+    internalEntityId: string
+    externalEntityType:
+      | 'account'
+      | 'contact'
+      | 'organization'
+      | 'work_item'
+      | 'client'
+      | 'return'
+      | 'organizer'
+      | 'delivery'
+      | 'signature'
+      | 'payment'
+      | 'unknown'
+    externalId: string
+    externalUrl: string | null
+    metadataJson: unknown
+    lastSyncedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
   }> = []
   const mappings: Array<{ batchId: string; sourceHeader: string; targetField: string }> = []
   const normalizations: Array<{ batchId: string; field: string; rawValue: string }> = []
@@ -217,6 +272,68 @@ function buildScopedRepo(firmId: string) {
         })
       return rows.length
     },
+    async createStagingRows(
+      batchId: string,
+      rows: Parameters<MigrationRepo['createStagingRows']>[1],
+    ) {
+      const b = batches.get(batchId)
+      if (!b || b.firmId !== firmId) throw new Error('cross firm')
+      const now = new Date()
+      for (const row of rows) {
+        stagingRows.push({
+          id: row.id ?? crypto.randomUUID(),
+          firmId,
+          batchId,
+          provider: row.provider,
+          externalEntityType: row.externalEntityType,
+          externalId: row.externalId,
+          externalUrl: row.externalUrl ?? null,
+          rowIndex: row.rowIndex,
+          rowHash: row.rowHash,
+          rawRowJson: row.rawRowJson,
+          createdAt: now,
+        })
+      }
+      return rows.length
+    },
+    async listStagingRows(batchId: string) {
+      const b = batches.get(batchId)
+      if (!b || b.firmId !== firmId) return []
+      return stagingRows
+        .filter((row) => row.batchId === batchId)
+        .toSorted((left, right) => left.rowIndex - right.rowIndex)
+    },
+    async createExternalReferences(rows) {
+      const now = new Date()
+      for (const row of rows) {
+        externalRefs.push({
+          id: row.id ?? crypto.randomUUID(),
+          firmId,
+          provider: row.provider,
+          migrationBatchId: row.migrationBatchId ?? null,
+          internalEntityType: row.internalEntityType,
+          internalEntityId: row.internalEntityId,
+          externalEntityType: row.externalEntityType,
+          externalId: row.externalId,
+          externalUrl: row.externalUrl ?? null,
+          metadataJson: row.metadataJson ?? null,
+          lastSyncedAt: row.lastSyncedAt ?? null,
+          createdAt: now,
+          updatedAt: now,
+        })
+      }
+      return rows.length
+    },
+    async findExternalReferences(input) {
+      const ids = new Set(input.externalIds)
+      return externalRefs.filter(
+        (row) =>
+          row.firmId === firmId &&
+          row.provider === input.provider &&
+          ids.has(row.externalId) &&
+          (input.internalEntityType ? row.internalEntityType === input.internalEntityType : true),
+      )
+    },
     async listMappings() {
       return []
     },
@@ -268,6 +385,24 @@ function buildScopedRepo(firmId: string) {
       }
       for (const item of input.audits) {
         audits.push({ action: item.action, firmId, entityId: item.entityId })
+      }
+      const now = new Date()
+      for (const item of input.externalReferences ?? []) {
+        externalRefs.push({
+          id: item.id,
+          firmId,
+          provider: item.provider,
+          migrationBatchId: item.migrationBatchId ?? null,
+          internalEntityType: item.internalEntityType,
+          internalEntityId: item.internalEntityId,
+          externalEntityType: item.externalEntityType,
+          externalId: item.externalId,
+          externalUrl: item.externalUrl ?? null,
+          metadataJson: item.metadataJson ?? null,
+          lastSyncedAt: item.lastSyncedAt ?? null,
+          createdAt: now,
+          updatedAt: now,
+        })
       }
       batches.set(input.batchId, {
         ...b,
@@ -543,6 +678,8 @@ function buildScopedRepo(firmId: string) {
       errors,
       importedClients,
       importedObligations,
+      stagingRows,
+      externalRefs,
       aiRuns,
     },
     repo,
@@ -610,6 +747,14 @@ function buildAi(rawResult?: unknown): AI {
     runPrompt('pulse-extract@v1', input, PulseExtractOutputSchema)
 
   return { extractPulse, runPrompt, runStreaming: runPrompt }
+}
+
+const failingRunPrompt: AI['runPrompt'] = async () => {
+  throw new Error('AI should not be called for this plan.')
+}
+
+function buildFailingAi(): AI {
+  return { ...buildAi(), runPrompt: failingRunPrompt, runStreaming: failingRunPrompt }
 }
 
 const SAMPLE_CSV = `Client Name,Tax ID,State,Entity Type,Email
@@ -834,6 +979,42 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
     expect(result.mappings.every((m) => m.targetField === 'IGNORE')).toBe(true)
   })
 
+  it('uses preset mapper fallback for Solo without calling production migration AI', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildFailingAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER, plan: 'solo' })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({ batchId: batch.id, kind: 'csv', text: SAMPLE_CSV })
+
+    const result = await service.runMapper(batch.id)
+
+    expect(result.meta?.fallback).toBe('preset')
+    expect(result.mappings.some((mapping) => mapping.targetField === 'client.name')).toBe(true)
+    expect(state.aiRuns.some((run) => run.kind === 'migration_map')).toBe(true)
+    expect(result.mappings.every((mapping) => mapping.model === null)).toBe(true)
+  })
+
+  it('uses deterministic normalizer fallback for Solo without calling production migration AI', async () => {
+    const { repo } = buildScopedRepo(FIRM)
+    const ai = buildFailingAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER, plan: 'solo' })
+
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({ batchId: batch.id, kind: 'csv', text: SAMPLE_CSV })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(batch.id, mapper.mappings)
+
+    const result = await service.runNormalizer(batch.id)
+
+    expect(
+      result.normalizations.some(
+        (row) => row.field === 'entity_type' && row.rawValue === 'LLC' && row.normalizedValue,
+      ),
+    ).toBe(true)
+    expect(result.normalizations.every((row) => row.model === null)).toBe(true)
+  })
+
   it('forces SSN-flagged columns to IGNORE even on the AI happy path', async () => {
     const { repo } = buildScopedRepo(FIRM)
     const ai = buildAi({
@@ -855,6 +1036,97 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
 
     const updated = await service.getBatch(batch.id)
     expect(updated?.mappingJson).toEqual(expect.objectContaining({ ssnBlockedColumns: [1, 2] }))
+  })
+})
+
+describe('MigrationService integration staging', () => {
+  it('routes Karbon staging rows through mapper, normalizer, apply, and external refs', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'integration_karbon_api' })
+    const staged = await service.stageExternalRows({
+      batchId: batch.id,
+      provider: 'karbon',
+      rows: [
+        {
+          externalId: 'karbon-work-1',
+          externalEntityType: 'work_item',
+          externalUrl: 'https://app.karbonhq.com/work/karbon-work-1',
+          rawJson: {
+            'Organization Name': 'Acme LLC',
+            'Tax ID': '12-3456789',
+            State: 'CA',
+            'Entity Type': 'LLC',
+            'Tax Return Type': 'Form 1120-S',
+            'Contact Email': 'acme@example.com',
+          },
+        },
+      ],
+    })
+
+    expect(staged.rowCount).toBe(1)
+    expect(state.stagingRows).toHaveLength(1)
+    expect(staged.headers).toEqual(expect.arrayContaining(['External ID', 'Organization Name']))
+
+    const mapper = await service.runMapper(batch.id)
+    const mappings = mapper.mappings.map((mapping) =>
+      Object.assign({}, mapping, {
+        targetField:
+          mapping.sourceHeader === 'Organization Name'
+            ? ('client.name' as const)
+            : mapping.sourceHeader === 'Tax ID'
+              ? ('client.ein' as const)
+              : mapping.sourceHeader === 'State'
+                ? ('client.state' as const)
+                : mapping.sourceHeader === 'Entity Type'
+                  ? ('client.entity_type' as const)
+                  : mapping.sourceHeader === 'Contact Email'
+                    ? ('client.email' as const)
+                    : ('IGNORE' as const),
+        userOverridden: true,
+      }),
+    )
+    await service.confirmMapping(batch.id, mappings)
+    const normalizer = await service.runNormalizer(batch.id)
+    await service.confirmNormalization(batch.id, normalizer.normalizations)
+    await service.applyDefaultMatrix(batch.id)
+
+    const applied = await service.apply(batch.id)
+
+    expect(applied.clientCount).toBe(1)
+    expect(applied.obligationCount).toBeGreaterThan(0)
+    expect(state.externalRefs.some((ref) => ref.internalEntityType === 'client')).toBe(true)
+    expect(state.externalRefs.some((ref) => ref.internalEntityType === 'obligation')).toBe(true)
+    expect(state.externalRefs.every((ref) => ref.provider === 'karbon')).toBe(true)
+  })
+
+  it('clones previous staging rows without calling the provider again', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const source = await service.createBatch({ source: 'integration_taxdome_zapier' })
+    await service.stageExternalRows({
+      batchId: source.id,
+      provider: 'taxdome',
+      rows: [
+        {
+          externalId: 'taxdome-account-1',
+          externalEntityType: 'account',
+          rawJson: { 'Client Name': 'Bright Studio', State: 'NY', 'Entity Type': 'S-Corp' },
+        },
+      ],
+    })
+    await repo.migration.updateBatch(source.id, { status: 'failed' })
+
+    const cloned = await service.cloneStagingRows(source.id)
+
+    expect(cloned.batch.id).not.toBe(source.id)
+    expect(cloned.batch.source).toBe('integration_taxdome_zapier')
+    expect(cloned.rowCount).toBe(1)
+    expect(state.stagingRows.filter((row) => row.batchId === cloned.batch.id)).toHaveLength(1)
   })
 })
 

@@ -39,6 +39,11 @@ export type MigrationSource =
   | 'preset_karbon'
   | 'preset_quickbooks'
   | 'preset_file_in_time'
+  | 'integration_taxdome_zapier'
+  | 'integration_karbon_api'
+  | 'integration_soraban_api'
+  | 'integration_safesend_api'
+  | 'integration_proconnect_export'
 
 export type MigrationBatchStatus =
   | 'draft'

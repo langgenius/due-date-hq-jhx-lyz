@@ -3,6 +3,7 @@ import type { ClientsRepo } from '@duedatehq/ports/clients'
 import type { MembersRepo } from '@duedatehq/ports/tenants'
 import { requireTenant } from '../_context'
 import { CLIENT_WRITE_ROLES, requireCurrentFirmRole } from '../_permissions'
+import { requirePracticeAiWorkflow } from '../_plan-gates'
 import { os } from '../_root'
 import { dateInTimezone, toAiInsightPublic } from '../_ai-insights'
 import { enqueueAiInsightRefresh } from '../../jobs/ai-insights/enqueue'
@@ -430,6 +431,7 @@ const getRiskSummary = os.clients.getRiskSummary.handler(async ({ input, context
 const requestRiskSummaryRefresh = os.clients.requestRiskSummaryRefresh.handler(
   async ({ input, context }) => {
     const { scoped, tenant } = requireTenant(context)
+    requirePracticeAiWorkflow(tenant.plan)
     const client = await scoped.clients.findById(input.clientId)
     if (!client) {
       throw new ORPCError('NOT_FOUND', {

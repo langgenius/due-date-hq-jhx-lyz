@@ -4,6 +4,7 @@ import type { ReadinessChecklistItem, ReadinessGenerateChecklistOutput } from '@
 import * as z from 'zod'
 import { requireTenant } from '../_context'
 import { OBLIGATION_STATUS_WRITE_ROLES, requireCurrentFirmRole } from '../_permissions'
+import { requirePracticeAiWorkflow } from '../_plan-gates'
 import { os } from '../_root'
 import { signReadinessPortalToken, sha256Hex } from '../../lib/readiness-token'
 import { toReadinessRequestPublic } from './_public'
@@ -114,6 +115,7 @@ async function publicRequest(input: {
 const generateChecklist = os.readiness.generateChecklist.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
   const { scoped, userId, tenant } = requireTenant(context)
+  requirePracticeAiWorkflow(tenant.plan)
   const obligation = await scoped.obligations.findById(input.obligationId)
   if (!obligation) {
     throw new ORPCError('NOT_FOUND', {

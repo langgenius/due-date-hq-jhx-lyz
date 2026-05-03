@@ -17,6 +17,11 @@ const MESSAGE_BY_CODE: Partial<Record<ErrorCode, MessageDescriptor>> = {
   [ErrorCodes.MEMBER_FORBIDDEN]: msg`Only Owners and Managers can apply Pulse changes.`,
 }
 
+const MESSAGE_BY_RAW: Record<string, MessageDescriptor> = {
+  'Production Pulse actions require Pro or above.': msg`Production Pulse actions require Pro or above.`,
+  'Priority Pulse matching and review confirmation require Team or above.': msg`Priority Pulse matching and review confirmation require Team or above.`,
+}
+
 const FALLBACK = msg`Something went wrong. Please try again.`
 
 function isErrorCode(value: string): value is ErrorCode {
@@ -28,6 +33,7 @@ export function pulseErrorDescriptor(error: unknown): MessageDescriptor {
   if (raw && isErrorCode(raw)) {
     return MESSAGE_BY_CODE[raw] ?? FALLBACK
   }
+  if (raw && MESSAGE_BY_RAW[raw]) return MESSAGE_BY_RAW[raw]
   return FALLBACK
 }
 

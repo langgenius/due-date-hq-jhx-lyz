@@ -7,6 +7,7 @@ import {
 import type { DashboardBriefRow } from '@duedatehq/ports/dashboard'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { requireTenant } from '../_context'
+import { requirePracticeAiWorkflow } from '../_plan-gates'
 import { os } from '../_root'
 
 interface DashboardRepoTopRow {
@@ -154,6 +155,7 @@ const load = os.dashboard.load.handler(async ({ input, context }) => {
 
 const requestBriefRefresh = os.dashboard.requestBriefRefresh.handler(async ({ input, context }) => {
   const { scoped, tenant, userId } = requireTenant(context)
+  requirePracticeAiWorkflow(tenant.plan)
   const scope = input?.scope ?? 'firm'
   const asOfDate = dateInTimezone(tenant.timezone)
   const queued = await enqueueDashboardBriefRefresh(context.env, {

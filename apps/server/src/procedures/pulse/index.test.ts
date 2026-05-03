@@ -66,7 +66,11 @@ function pulseDetail(status: Status = 'matched', sourceStatus: SourceStatus = 'a
   }
 }
 
-function contextFor(role: Role, detail = pulseDetail()) {
+function contextFor(
+  role: Role,
+  detail = pulseDetail(),
+  plan: 'solo' | 'pro' | 'team' | 'firm' = 'team',
+) {
   const actor = member(role)
   const notificationsCreate = vi.fn(async () => ({ id: crypto.randomUUID() }))
   const notificationsEnqueueEmail = vi.fn(async (_input: EnqueueEmailInput) => ({
@@ -96,7 +100,7 @@ function contextFor(role: Role, detail = pulseDetail()) {
       tenantContext: {
         firmId: 'firm_1',
         timezone: 'America/New_York',
-        plan: 'pro',
+        plan,
         seatLimit: 5,
         status: 'active',
         ownerUserId: 'user_owner',
@@ -208,6 +212,23 @@ describe('requestPulseReview', () => {
         reason: 'role',
       }),
     )
+    expect(auditWrite).not.toHaveBeenCalledWith(
+      expect.objectContaining({ action: 'pulse.review_requested' }),
+    )
+  })
+
+  it('requires Team or Enterprise for review requests', async () => {
+    const { context, notificationsCreate, notificationsEnqueueEmail, auditWrite } = contextFor(
+      'preparer',
+      pulseDetail(),
+      'pro',
+    )
+
+    await expect(requestPulseReview({ context, alertId: 'alert_1' })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    })
+    expect(notificationsCreate).not.toHaveBeenCalled()
+    expect(notificationsEnqueueEmail).not.toHaveBeenCalled()
     expect(auditWrite).not.toHaveBeenCalledWith(
       expect.objectContaining({ action: 'pulse.review_requested' }),
     )

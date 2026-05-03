@@ -135,6 +135,16 @@ AI_GATEWAY_API_KEY=
 Pro 和 Team 必须保持同一 AI tier。Team 可以因为包含更多席位而拥有更高的 aggregate
 fair-use 保护，但 Billing 文案不能暗示 Team 有更强模型或更深 AI 推理能力。
 
+实现约束：
+
+- Solo 只能使用 preview / basic AI。手动触发的 practice AI workflows（Dashboard brief、
+  Client Risk Summary、Deadline Tip、Readiness Checklist）必须在 procedure 层拒绝，并在
+  前端显示 Pro 升级入口。
+- Migration Mapper / Normalizer 在 Solo 下不得调用 production migration AI；应写入本地
+  deterministic run trace，并使用 preset / dictionary fallback 继续导入流程。
+- Team 不改变 AI tier，但解锁 `priorityPulseMatching`、`guidedMigrationReview`、`auditExport`
+  等运营和审计差异。
+
 ---
 
 ## 3. AI SDK 调用模式

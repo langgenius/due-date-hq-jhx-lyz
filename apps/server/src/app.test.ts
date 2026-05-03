@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createApp } from './app'
-import { pickSafeDemoRedirect, readDemoRoleParam } from './routes/e2e'
+import { pickSafeDemoRedirect, readDemoAccountParam, readDemoRoleParam } from './routes/e2e'
 
 describe('@duedatehq/server app', () => {
   it('serves the public health route', async () => {
@@ -84,6 +84,18 @@ describe('@duedatehq/server app', () => {
     await expect(response.json()).resolves.toEqual({ error: 'Invalid demo role.' })
   })
 
+  it('rejects unknown demo login accounts before touching demo data', async () => {
+    const app = createApp()
+    const response = await app.request(
+      '/api/e2e/demo-login?account=enterprise',
+      {},
+      { ENV: 'development' },
+    )
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({ error: 'Invalid demo account.' })
+  })
+
   it('parses supported demo roles and defaults missing role to owner', () => {
     expect(readDemoRoleParam(null)).toBe('owner')
     expect(readDemoRoleParam('')).toBe('owner')
@@ -92,6 +104,15 @@ describe('@duedatehq/server app', () => {
     expect(readDemoRoleParam('preparer')).toBe('preparer')
     expect(readDemoRoleParam('coordinator')).toBe('coordinator')
     expect(readDemoRoleParam('admin')).toBeNull()
+  })
+
+  it('parses supported demo account ids without defaulting', () => {
+    expect(readDemoAccountParam(null)).toBeNull()
+    expect(readDemoAccountParam('')).toBeNull()
+    expect(readDemoAccountParam('plan-solo')).toBe('plan-solo')
+    expect(readDemoAccountParam('plan-pro')).toBe('plan-pro')
+    expect(readDemoAccountParam('plan-team')).toBe('plan-team')
+    expect(readDemoAccountParam('enterprise')).toBeNull()
   })
 
   it('keeps demo login redirects inside the app', () => {
