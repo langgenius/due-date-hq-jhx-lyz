@@ -47,6 +47,8 @@
 - 邀请邮件由 `sendInvitationEmail` hook 经 Resend 发出
 - `RESEND_API_KEY` 仅在实际发送 auth email 时必需；development 缺 key 时打印到
   console，非 development 的发送路径会失败
+- Resend delivery callback 只在配置 `RESEND_WEBHOOK_SECRET` 后启用；`/api/webhook/resend`
+  使用原始 payload 与 Svix headers 验签后才回写 `email_outbox` 状态
 - 接受：点链接 → `/accept-invite?id=...` → 登录后调用 `/api/auth/organization/accept-invitation`
 - 拒绝 / 撤销：`cancelInvitation` / `rejectInvitation`
 - 过期：默认 14 天

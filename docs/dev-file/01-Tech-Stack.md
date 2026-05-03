@@ -444,7 +444,8 @@ AI_GATEWAY_API_KEY=           # 仅 Authenticated Gateway / Unified provider 需
 # ───────── Mail ─────────
 # Optional until a runtime path actually sends auth or product email.
 RESEND_API_KEY=
-EMAIL_FROM=noreply@duedatehq.com
+RESEND_WEBHOOK_SECRET=
+EMAIL_FROM=noreply@langgenius.app
 
 # ───────── Observability ─────────
 SENTRY_DSN=
@@ -463,16 +464,16 @@ environment secrets 或 `wrangler secret put` 写入 Worker secrets。前端 SPA
 
 ## 5. 风险与降级矩阵
 
-| 依赖                | 挂了怎么办                                                                                                                                           |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D1 主区             | 读路径可用 D1 Session / read replica 降级；写路径停止关键变更并进入只读模式，必要时把用户意图写 Queue/R2 outbox 后人工确认重放                       |
-| Vectorize           | RAG 降级为 D1 FTS5 全文检索兜底（精度下降但可用）                                                                                                    |
-| AI SDK / AI Gateway | `packages/ai` 返回 structured refusal；Migration mapper 无 AI 时降级到 preset / all-ignore，normalizer 走本地字典兜底，业务模块不直接碰 provider key |
-| Resend              | 写 `email_outbox` + Queue 重试；用户 in-app 通知兜底。`RESEND_API_KEY` 可先不配，但实际发邮件路径必须配置。                                          |
-| KV                  | 限流退化为 DB 计数（~200ms 成本）；缓存退化为直查                                                                                                    |
-| Queues              | 紧急降级为 `scheduled()` 里直接处理，牺牲并行度                                                                                                      |
-| R2                  | PDF 降级为同步生成 + stream 返回                                                                                                                     |
-| Worker 单区故障     | Cloudflare 全球自动路由；无需人工介入                                                                                                                |
+| 依赖                | 挂了怎么办                                                                                                                                                                                                      |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1 主区             | 读路径可用 D1 Session / read replica 降级；写路径停止关键变更并进入只读模式，必要时把用户意图写 Queue/R2 outbox 后人工确认重放                                                                                  |
+| Vectorize           | RAG 降级为 D1 FTS5 全文检索兜底（精度下降但可用）                                                                                                                                                               |
+| AI SDK / AI Gateway | `packages/ai` 返回 structured refusal；Migration mapper 无 AI 时降级到 preset / all-ignore，normalizer 走本地字典兜底，业务模块不直接碰 provider key                                                            |
+| Resend              | 写 `email_outbox` + Queue 重试；用户 in-app 通知兜底。`RESEND_API_KEY` 可先不配，但实际发邮件路径必须配置；退信/失败回写还需要 `RESEND_WEBHOOK_SECRET` 和 `https://app.due.langgenius.app/api/webhook/resend`。 |
+| KV                  | 限流退化为 DB 计数（~200ms 成本）；缓存退化为直查                                                                                                                                                               |
+| Queues              | 紧急降级为 `scheduled()` 里直接处理，牺牲并行度                                                                                                                                                                 |
+| R2                  | PDF 降级为同步生成 + stream 返回                                                                                                                                                                                |
+| Worker 单区故障     | Cloudflare 全球自动路由；无需人工介入                                                                                                                                                                           |
 
 ---
 

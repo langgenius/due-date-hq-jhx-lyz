@@ -55,9 +55,12 @@ MICROSOFT_TENANT_ID=common
 # ═════════════════════════════════════════════════════════════════════════════
 # RESEND_API_KEY may be blank for login + organization bootstrap. Auth email
 # sending still requires it outside development; development prints to console.
+# RESEND_WEBHOOK_SECRET is required only when enabling delivery callbacks at
+# /api/webhook/resend. Staging sends from noreply@langgenius.app, so the
+# langgenius.app sending domain must be verified in Resend before real sends.
 RESEND_API_KEY=
 RESEND_WEBHOOK_SECRET=
-EMAIL_FROM=noreply@duedatehq.com
+EMAIL_FROM=noreply@langgenius.app
 
 # ═════════════════════════════════════════════════════════════════════════════
 # [Optional until Pulse ops review] Internal ops · Pulse review API
