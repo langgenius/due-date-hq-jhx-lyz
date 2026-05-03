@@ -661,6 +661,10 @@ msgstr "API access by contract"
 msgid "Apple Calendar"
 msgstr "Apple Calendar"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Apple Calendar requires HTTPS"
+msgstr "Apple Calendar requires HTTPS"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Applicability"
 msgstr "Applicability"
@@ -851,6 +855,10 @@ msgstr "Back to billing"
 #: src/routes/billing.cancel.tsx
 msgid "Back to Billing"
 msgstr "Back to Billing"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Back to Workboard"
+msgstr "Back to Workboard"
 
 #: src/routes/account.security.tsx
 msgid "Backup codes copied"
@@ -3752,7 +3760,6 @@ msgstr "Open the Migration Copilot wizard."
 msgid "Open the obligation queue."
 msgstr "Open the obligation queue."
 
-#: src/features/calendar/calendar-page.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Open Workboard"
 msgstr "Open Workboard"
@@ -6098,6 +6105,10 @@ msgstr "Urgency window"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use a 2-letter state code"
 msgstr "Use a 2-letter state code"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple Calendar subscriptions."
+msgstr "Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple Calendar subscriptions."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use a whole number from 0 to 99"

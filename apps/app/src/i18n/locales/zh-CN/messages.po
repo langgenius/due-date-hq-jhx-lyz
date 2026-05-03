@@ -661,6 +661,10 @@ msgstr "API 访问按合同提供"
 msgid "Apple Calendar"
 msgstr "Apple Calendar"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Apple Calendar requires HTTPS"
+msgstr "Apple Calendar 需要 HTTPS"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Applicability"
 msgstr "适用范围"
@@ -851,6 +855,10 @@ msgstr "返回账单"
 #: src/routes/billing.cancel.tsx
 msgid "Back to Billing"
 msgstr "返回账单"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Back to Workboard"
+msgstr "返回 Workboard"
 
 #: src/routes/account.security.tsx
 msgid "Backup codes copied"
@@ -3752,7 +3760,6 @@ msgstr "打开 Migration Copilot 向导。"
 msgid "Open the obligation queue."
 msgstr "打开义务队列。"
 
-#: src/features/calendar/calendar-page.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Open Workboard"
 msgstr "打开 Workboard"
@@ -6098,6 +6105,10 @@ msgstr "紧急窗口"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use a 2-letter state code"
 msgstr "请输入两位州代码"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple Calendar subscriptions."
+msgstr "请使用已部署的应用 URL，或受信任的本地 HTTPS tunnel，来直接订阅 Apple Calendar。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use a whole number from 0 to 99"

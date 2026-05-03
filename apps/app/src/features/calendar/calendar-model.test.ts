@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { calendarWebcalUrl, canManageFirmCalendar } from './calendar-model'
+import {
+  appleCalendarSubscriptionUrl,
+  calendarWebcalUrl,
+  canManageFirmCalendar,
+} from './calendar-model'
 
 describe('calendar model', () => {
   it('builds webcal links from http and https feed URLs', () => {
@@ -9,6 +13,14 @@ describe('calendar model', () => {
     expect(calendarWebcalUrl('http://localhost:8787/api/ics/token')).toBe(
       'webcal://localhost:8787/api/ics/token',
     )
+  })
+
+  it('only builds Apple Calendar direct-subscribe links for HTTPS feeds', () => {
+    expect(appleCalendarSubscriptionUrl('https://app.duedatehq.com/api/ics/token.ics')).toBe(
+      'webcal://app.duedatehq.com/api/ics/token.ics',
+    )
+    expect(appleCalendarSubscriptionUrl('http://localhost:8787/api/ics/token.ics')).toBeNull()
+    expect(appleCalendarSubscriptionUrl('not-a-url')).toBeNull()
   })
 
   it('limits firm calendar management to owner and manager roles', () => {

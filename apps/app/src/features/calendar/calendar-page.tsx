@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  ArrowLeftIcon,
   CalendarDaysIcon,
   CopyIcon,
   ExternalLinkIcon,
@@ -36,7 +37,10 @@ import {
 } from '@duedatehq/ui/components/ui/select'
 import { Separator } from '@duedatehq/ui/components/ui/separator'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
-import { canManageFirmCalendar, calendarWebcalUrl } from '@/features/calendar/calendar-model'
+import {
+  appleCalendarSubscriptionUrl,
+  canManageFirmCalendar,
+} from '@/features/calendar/calendar-model'
 import { useCurrentFirm } from '@/features/billing/use-billing-data'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -147,9 +151,9 @@ export function CalendarPage() {
             <Trans>ICS is one-way: external calendar edits never update DueDateHQ.</Trans>
           </p>
         </div>
-        <Button variant="primary" size="sm" render={<Link to="/workboard" />}>
-          <CalendarDaysIcon data-icon="inline-start" />
-          <Trans>Open Workboard</Trans>
+        <Button variant="secondary" size="sm" render={<Link to="/workboard" />}>
+          <ArrowLeftIcon data-icon="inline-start" />
+          <Trans>Back to Workboard</Trans>
         </Button>
       </div>
 
@@ -220,7 +224,7 @@ function CalendarSubscriptionCard({
     subscription?.status === 'active' && subscription.feedUrl ? subscription : null
   const feedUrl = activeSubscription?.feedUrl ?? null
   const privacyMode = subscription?.privacyMode ?? 'redacted'
-  const webcalUrl = feedUrl ? calendarWebcalUrl(feedUrl) : null
+  const appleCalendarUrl = feedUrl ? appleCalendarSubscriptionUrl(feedUrl) : null
 
   return (
     <Card>
@@ -311,10 +315,25 @@ function CalendarSubscriptionCard({
                     <CopyIcon data-icon="inline-start" />
                     <Trans>Copy URL</Trans>
                   </Button>
-                  <Button variant="outline" size="sm" render={<a href={webcalUrl ?? undefined} />}>
-                    <ExternalLinkIcon data-icon="inline-start" />
-                    <Trans>Apple Calendar</Trans>
-                  </Button>
+                  {appleCalendarUrl ? (
+                    <Button variant="outline" size="sm" render={<a href={appleCalendarUrl} />}>
+                      <ExternalLinkIcon data-icon="inline-start" />
+                      <Trans>Apple Calendar</Trans>
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        toast.error(t`Apple Calendar requires HTTPS`, {
+                          description: t`Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple Calendar subscriptions.`,
+                        })
+                      }
+                    >
+                      <ExternalLinkIcon data-icon="inline-start" />
+                      <Trans>Apple Calendar</Trans>
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
