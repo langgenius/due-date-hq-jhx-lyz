@@ -6,7 +6,7 @@ import type { ContextVars, Env } from '../env'
 
 type SeedMode = 'empty' | 'workboard' | 'pulse'
 type SeedRole = 'owner' | 'coordinator'
-type BillingPlan = 'firm' | 'pro'
+type BillingPlan = 'solo' | 'pro' | 'team' | 'firm'
 type BillingStatus = 'active' | 'trialing' | 'past_due' | 'paused'
 type BillingInterval = 'month' | 'year'
 
@@ -203,7 +203,7 @@ e2eRoute.post('/billing/subscription', async (c) => {
     input.interval === 'year'
       ? new Date(now.getTime() + 366 * 24 * 60 * 60 * 1000)
       : new Date(now.getTime() + 31 * 24 * 60 * 60 * 1000)
-  const seatLimit = input.plan === 'firm' ? 10 : 5
+  const seatLimit = billingSeatLimit(input.plan)
   const customerId = `cus_e2e_${input.firmId.replace(/[^a-zA-Z0-9_]/g, '_')}`
   const stripeSubscriptionId = `sub_e2e_${crypto.randomUUID().replaceAll('-', '')}`
 
@@ -300,7 +300,7 @@ async function readBillingRequest(request: Request): Promise<{
     }
     return {
       firmId: typeof input.firmId === 'string' ? input.firmId : null,
-      plan: input.plan === 'firm' ? 'firm' : 'pro',
+      plan: isBillingPlan(input.plan) ? input.plan : 'pro',
       status: isBillingStatus(input.status) ? input.status : 'active',
       interval: input.interval === 'year' ? 'year' : 'month',
     }
@@ -311,6 +311,16 @@ async function readBillingRequest(request: Request): Promise<{
 
 function isBillingStatus(value: unknown): value is BillingStatus {
   return value === 'active' || value === 'trialing' || value === 'past_due' || value === 'paused'
+}
+
+function isBillingPlan(value: unknown): value is BillingPlan {
+  return value === 'solo' || value === 'pro' || value === 'team' || value === 'firm'
+}
+
+function billingSeatLimit(plan: BillingPlan): number {
+  if (plan === 'solo') return 1
+  if (plan === 'pro') return 3
+  return 10
 }
 
 function buildStableSuffix(value: string | undefined): string {

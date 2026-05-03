@@ -73,10 +73,15 @@ PULSE_OPS_TOKEN=
 # Then copy the printed whsec_* value into STRIPE_WEBHOOK_SECRET.
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
-# Required for self-serve Pro checkout.
+# Required for self-serve checkout enablement.
 STRIPE_PRICE_PRO_MONTHLY=
 STRIPE_PRICE_PRO_YEARLY=
-# Optional for sales-assisted Firm subscriptions.
+# Optional self-serve tiers. Checkout is available when the matching price exists.
+STRIPE_PRICE_SOLO_MONTHLY=
+STRIPE_PRICE_SOLO_YEARLY=
+STRIPE_PRICE_TEAM_MONTHLY=
+STRIPE_PRICE_TEAM_YEARLY=
+# Optional for sales-assisted Enterprise subscriptions.
 STRIPE_PRICE_FIRM_MONTHLY=
 STRIPE_PRICE_FIRM_YEARLY=
 

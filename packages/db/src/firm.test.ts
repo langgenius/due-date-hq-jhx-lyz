@@ -91,7 +91,7 @@ describe('firm_profile schema', () => {
   it('declares the plan and status enums (drizzle-side enum values)', () => {
     const planCol = findColumn('plan') as AnySQLiteColumn & { enumValues?: readonly string[] }
     const statusCol = findColumn('status') as AnySQLiteColumn & { enumValues?: readonly string[] }
-    expect(planCol.enumValues).toEqual(['solo', 'firm', 'pro'])
+    expect(planCol.enumValues).toEqual(['solo', 'pro', 'team', 'firm'])
     expect(statusCol.enumValues).toEqual(['active', 'suspended', 'deleted'])
   })
 

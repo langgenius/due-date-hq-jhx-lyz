@@ -15,7 +15,16 @@ test.skip(
 test('AC: E2E-BILLING-PRICING-DEEPLINK sends Pro CTA to protected checkout', async ({ page }) => {
   await page.goto(`${marketingBaseURL}/pricing`)
 
-  const proCta = page.locator('[data-event="marketing.pricing.checkout"]')
+  await expect(page.getByRole('link', { name: 'Start Solo' })).toHaveAttribute(
+    'href',
+    checkoutHrefPattern('solo'),
+  )
+  await expect(page.getByRole('link', { name: 'Upgrade to Team' })).toHaveAttribute(
+    'href',
+    checkoutHrefPattern('team'),
+  )
+
+  const proCta = page.getByRole('link', { name: 'Upgrade to Pro' })
   await expect(proCta).toHaveAttribute('href', checkoutHrefPattern())
 
   await proCta.click()
@@ -32,8 +41,8 @@ test('AC: E2E-BILLING-PRICING-LOCALE preserves zh-CN handoff before auth redirec
 }) => {
   await page.goto(`${marketingBaseURL}/zh-CN/pricing`)
 
-  const proCta = page.locator('[data-event="marketing.pricing.checkout"]')
-  await expect(proCta).toHaveAttribute('href', checkoutHrefPattern('zh-CN'))
+  const proCta = page.getByRole('link', { name: '升级到 Pro' })
+  await expect(proCta).toHaveAttribute('href', checkoutHrefPattern('pro', 'zh-CN'))
 
   await proCta.click()
   await page.waitForURL('**/login?**')
@@ -45,10 +54,12 @@ test('AC: E2E-BILLING-PRICING-LOCALE preserves zh-CN handoff before auth redirec
   await expect(page.evaluate(() => window.localStorage.getItem('lng'))).resolves.toBe('zh-CN')
 })
 
-function checkoutHrefPattern(locale?: 'zh-CN'): RegExp {
+function checkoutHrefPattern(plan: 'solo' | 'pro' | 'team' = 'pro', locale?: 'zh-CN'): RegExp {
   const escapedOrigin = escapeRegExp(new URL(appBaseURL).origin)
   const localePart = locale ? '&lng=zh-CN' : ''
-  return new RegExp(`^${escapedOrigin}/billing/checkout\\?plan=pro&interval=monthly${localePart}$`)
+  return new RegExp(
+    `^${escapedOrigin}/billing/checkout\\?plan=${plan}&interval=monthly${localePart}$`,
+  )
 }
 
 function escapeRegExp(value: string): string {

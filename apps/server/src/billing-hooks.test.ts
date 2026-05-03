@@ -135,6 +135,29 @@ describe('buildBillingHooks', () => {
     )
   })
 
+  it('writes Team plan and seat limit from subscription sync input', async () => {
+    const { db, set } = makeUpdateDb()
+    const hooks = buildBillingHooks(db)
+
+    await hooks.syncSubscription({
+      referenceId: 'firm_1',
+      plan: 'team',
+      seatLimit: 10,
+      stripeCustomerId: 'cus_team',
+      stripeSubscriptionId: 'sub_team',
+      status: 'active' as never,
+    })
+
+    expect(set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        plan: 'team',
+        seatLimit: 10,
+        billingCustomerId: 'cus_team',
+        billingSubscriptionId: 'sub_team',
+      }),
+    )
+  })
+
   it('suspends over-limit non-owners and cancels excess pending invitations', async () => {
     const { db, set } = makeOverLimitUpdateDb()
     const hooks = buildBillingHooks(db)

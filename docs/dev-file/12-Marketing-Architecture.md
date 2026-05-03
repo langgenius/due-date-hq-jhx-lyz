@@ -76,8 +76,8 @@ Homepage 只讲一个 offer：
 > **Marketing copy 铁律**：landing 文案禁止出现具体技术栈或框架名（"Better Auth"、"Cloudflare D1"、"Resend"、"WISP"、"PII back-fill" 等）。CPA 决策人不识别也不在乎技术栈；要用业务语言（per-firm 隔离、evidence-first AI、audit log 可导出）替代。架构边界仍由 §11 非目标约束代码侧不依赖 Better Auth session — 但**不外露 token 名**。
 
 `/pricing` 已作为静态 Astro 页面进入首版支付闭环：公开页只负责转化和 SEO，
-不读取 app session、不发起 Stripe API、不保存任何支付状态。付费 CTA deep link 到
-SaaS app 的 `/billing/checkout?plan=pro&interval=monthly`；未登录用户由 app
+不读取 app session、不发起 Stripe API、不保存任何支付状态。自助付费 CTA deep link 到
+SaaS app 的 `/billing/checkout?plan={solo|pro|team}&interval=monthly`；未登录用户由 app
 自己的 auth/onboarding loader 接管后再回到 checkout。后续可以追加 `/rules`、
 `/state/[state]`、`/blog`，但不为不存在的内容搭复杂 CMS。
 
@@ -90,15 +90,15 @@ GEO v1 已将公开内容扩展为静态 Astro 页面：`/rules`、`/state-cover
 `apps/marketing/src/components/Pricing.astro` 的视觉布局严格对齐 Figma `Marketing
 → DueDateHQ — Pricing (Marketing)` frame 与 DESIGN.md：
 
-- 三档套餐分节：**Hero**（PRICING eyebrow + display-large title + 760 px 描述 +
+- 四档套餐分节：**Hero**（PRICING eyebrow + display-large title + 760 px 描述 +
   mono note）、**Plans Header**（PLANS eyebrow + 22 px 副标题 + `USD PRICING ·
-OWNER-APPROVED UPGRADES` 右侧 mono 备注）、**Plans Row**（3 列 `lg:grid-cols-3`，
+OWNER-APPROVED UPGRADES` 右侧 mono 备注）、**Plans Row**（2 列 tablet、4 列 desktop，
   cards stretch 等高）、**FAQ**（FAQ eyebrow + 24 px heading + 3 列 panel）。
 - 卡片必须 flat：`rounded-xl` + `p-8` + 上下分组 `gap-7` + CTA 与内容之间 `mt-10`
   呼吸距离。Recommended 套餐用 `border-[1.5px] border-accent-default` 与 accent
   CTA 区分，**禁止** drop shadow / 顶部 stripe / 渐变 / decorative chrome。
-- 价格走 token 区分：数字 (`$0` / `$99`) 用 `font-mono font-bold text-[40px]`，
-  非数字 (`Custom`) 用 `font-sans font-semibold text-[40px]`；席位/试用提示走
+- 价格走 token 区分：数字 (`$39` / `$79` / `$149`) 用 `font-mono font-bold text-[40px]`，
+  非纯数字 (`From $399`) 用 `font-sans font-semibold text-[40px]`；席位/试用提示走
   Geist Mono 11 px `tracking-[0.06em]` `text-text-muted`。
 - Feature ✓ icon 用 `size-4 rounded-sm bg-accent-tint text-text-accent`，**不**
   使用 `bg-status-done`（DESIGN.md 把 status-done 限定为 filed/done/applied 状态，
@@ -113,15 +113,16 @@ checkout / billing settings 或工程文档中表达。
 
 Pricing 文案必须把 practice/workspace 数量作为一等 entitlement，不能只写 seat：
 
-| Plan       | Public entitlement copy                                     | Product meaning                                               |
-| ---------- | ----------------------------------------------------------- | ------------------------------------------------------------- |
-| Solo       | `1 practice workspace · 1 owner seat`                       | 免费计划只包含一个 active practice；适合评估或单人 practice。 |
-| Pro        | `1 production practice · 5 seats included`                  | 自助付费计划仍只包含一个生产 practice workspace。             |
-| Enterprise | `Multiple practices/offices · 10+ seats · custom agreement` | 多 practice / 多办公室 / demo-production 分离走 sales。       |
+| Plan       | Public entitlement copy                                          | Product meaning                                                      |
+| ---------- | ---------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Solo       | `$39/mo · 1 practice workspace · 1 owner seat`                   | 付费低档只包含一个 active practice；trial/demo 与生产账单分开处理。  |
+| Pro        | `$79/mo · 1 production practice · 3 seats included`              | 自助付费计划仍只包含一个生产 practice workspace。                    |
+| Team       | `$149/mo · 1 production practice · 10 seats included`            | 完整自助 Team 计划；适合更大运营团队，但仍只有一个 active practice。 |
+| Enterprise | `from $399/mo / custom · multiple practices/offices · 10+ seats` | 多 practice / 多办公室 / API / SSO / demo-production 分离走 sales。  |
 
-FAQ 必须解释 "Can I create multiple practices?"：Solo 和 Pro 包含 1 个 active practice workspace；
+FAQ 必须解释 "Can I create multiple practices?"：Solo、Pro 和 Team 包含 1 个 active practice workspace；
 additional practices / offices / demo-production separation 属于 Enterprise plan。公开页不要暗示
-Solo 可以创建多个免费 workspace，也不要把 `organizationLimit`、Better Auth organization
+Solo 可以创建多个 workspace，也不要把 `organizationLimit`、Better Auth organization
 或内部 entitlement 字段名写给客户。
 
 Pricing handoff 由 Playwright 覆盖：本地 e2e 会单独启动 Astro preview，并用
@@ -132,15 +133,15 @@ Pricing handoff 由 Playwright 覆盖：本地 e2e 会单独启动 Astro preview
 
 Marketing 只埋公开站事件，不读取 app session。
 
-| Event                               | 触发                   |
-| ----------------------------------- | ---------------------- |
-| `marketing.hero_cta.clicked`        | Hero primary CTA       |
-| `marketing.secondary_cta.clicked`   | Hero secondary CTA     |
-| `marketing.workflow_section.viewed` | Workflow 进入视口      |
-| `marketing.final_cta.clicked`       | 页尾 CTA               |
-| `marketing.pricing.checkout`        | Pricing Pro CTA        |
-| `marketing.pricing.app`             | Pricing Solo CTA       |
-| `marketing.pricing.contact`         | Pricing Enterprise CTA |
+| Event                               | 触发                      |
+| ----------------------------------- | ------------------------- |
+| `marketing.hero_cta.clicked`        | Hero primary CTA          |
+| `marketing.secondary_cta.clicked`   | Hero secondary CTA        |
+| `marketing.workflow_section.viewed` | Workflow 进入视口         |
+| `marketing.final_cta.clicked`       | 页尾 CTA                  |
+| `marketing.pricing.checkout`        | Pricing Solo/Pro/Team CTA |
+| `marketing.pricing.app`             | Pricing Solo CTA          |
+| `marketing.pricing.contact`         | Pricing Enterprise CTA    |
 
 事件命名不进 Lingui catalog。若 PostHog 尚未接入 marketing，先保留 data attribute 和文档契约。
 

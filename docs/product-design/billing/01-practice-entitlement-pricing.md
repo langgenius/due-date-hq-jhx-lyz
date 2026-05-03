@@ -17,11 +17,12 @@ inside that container; advanced multi-workspace needs belong to the Enterprise t
 
 ## Pricing Shape
 
-| Plan       | Customer-facing practice limit        | Included seats        | Primary buyer                                  | Product promise                                                                               |
-| ---------- | ------------------------------------- | --------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Solo       | 1 active practice                     | 1 owner seat          | Solo CPA or evaluator                          | Evaluate the workbench with one real or sample practice workspace.                            |
-| Pro        | 1 active practice                     | 5 seats               | Growing CPA practice                           | Run one production practice with shared deadline operations.                                  |
-| Enterprise | Multiple active practices by contract | 10+ seats by contract | Multi-office or operationally complex practice | Manage multiple practices/offices, audit exports, coverage planning, and priority onboarding. |
+| Plan       | Price                 | Customer-facing practice limit        | Included seats        | Primary buyer                                  | Product promise                                                                               |
+| ---------- | --------------------- | ------------------------------------- | --------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Solo       | $39/mo                | 1 active practice                     | 1 owner seat          | Solo CPA or single-owner practice              | Run one live practice workspace with source-backed deadline evidence.                         |
+| Pro        | $79/mo                | 1 active practice                     | 3 seats               | Small CPA practice                             | Run one production practice with shared deadline operations.                                  |
+| Team       | $149/mo               | 1 active practice                     | 10 seats              | Larger single-practice operations team         | Coordinate a larger team inside one production practice workspace.                            |
+| Enterprise | from $399/mo / custom | Multiple active practices by contract | 10+ seats by contract | Multi-office or operationally complex practice | Manage multiple practices/offices, API/SSO, audit exports, coverage planning, and onboarding. |
 
 `active firm` means `firm_profile.status = 'active'` and `deleted_at IS NULL`. Soft-deleted firms
 do not count toward the entitlement. Suspended firms are inaccessible and should not be marketed as
@@ -39,16 +40,18 @@ usable entitlement.
 
 ## Entitlement Rules
 
-1. Solo users may create or keep one active practice.
-2. Pro subscriptions apply to one active practice and unlock 5 seats plus paid operations surfaces for
-   that practice.
-3. Enterprise subscriptions are sales-assisted and may include multiple active practices. The
+1. Solo users may create or keep one active practice and one owner seat.
+2. Pro subscriptions apply to one active practice and unlock 3 seats plus paid operations surfaces
+   for that practice.
+3. Team subscriptions apply to one active practice and unlock 10 seats plus larger-team operations
+   affordances for that practice.
+4. Enterprise subscriptions are sales-assisted and may include multiple active practices. The
    allowed count is part of the contract, not a public self-serve slider in v1.
-4. Owners can always view existing practices they belong to, but creating a new practice past entitlement
+5. Owners can always view existing practices they belong to, but creating a new practice past entitlement
    opens an upgrade/contact-sales gate instead of creating a free Solo tenant.
-5. Members cannot create practices on behalf of a paid practice unless they are creating a separate
+6. Members cannot create practices on behalf of a paid practice unless they are creating a separate
    practice they will own. That separate practice still counts against their own entitlement state.
-6. Invitations and member management remain seat-limited per active practice.
+7. Invitations and member management remain seat-limited per active practice.
 
 ## Product Surfaces
 
@@ -56,22 +59,23 @@ usable entitlement.
 
 Pricing cards must show both seats and practice/workspace limits:
 
-- Solo: `1 practice workspace · 1 owner seat`
-- Pro: `1 production practice · 5 seats included`
-- Enterprise: `Multiple practices/offices · 10+ seats · custom agreement`
+- Solo: `$39/mo · 1 practice workspace · 1 owner seat`
+- Pro: `$79/mo · 1 production practice · 3 seats included`
+- Team: `$149/mo · 1 production practice · 10 seats included`
+- Enterprise: `from $399/mo / custom · multiple practices/offices · 10+ seats`
 
 FAQ must include "Can I create multiple practices?" with the answer:
 
-> Solo and Pro include one active practice workspace. Additional practices, offices, or demo/production
-> separation are available on the Enterprise plan.
+> Solo, Pro, and Team include one active practice workspace. Additional practices, offices, or
+> demo/production separation are available on the Enterprise plan.
 
 ### App Billing
 
 The Billing page must show current entitlement usage:
 
-- Plan: Solo / Pro / Enterprise
+- Plan: Solo / Pro / Team / Enterprise
 - Seats: `used / limit`
-- Practices: `active / included` for Solo and Pro; `active / contract` for Enterprise
+- Practices: `active / included` for Solo, Pro, and Team; `active / contract` for Enterprise
 - Subscription status remains payment-provider backed, but quota display is app-owned.
 
 Plan cards in the app must mirror public pricing. They should not only list seats.
@@ -100,7 +104,8 @@ practice workspace can be created.
 
 The visible app copy uses Practice for customer-facing tenant identity and Enterprise as the
 sales-assisted plan name while keeping `firm` as the internal persistence/RPC noun and stored plan
-enum value.
+enum value. `team` is now a real stored self-serve plan value; `firm` continues to mean
+Enterprise and is not renamed in persisted data.
 
 ## Options Considered
 

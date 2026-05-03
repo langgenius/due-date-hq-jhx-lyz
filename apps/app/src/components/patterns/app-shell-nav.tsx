@@ -92,6 +92,7 @@ function roleLabel(role: FirmPublic['role'], t: ReturnType<typeof useLingui>['t'
 
 function planLabel(plan: FirmPublic['plan'], t: ReturnType<typeof useLingui>['t']): string {
   if (plan === 'firm') return t`Enterprise`
+  if (plan === 'team') return t`Team`
   if (plan === 'pro') return t`Pro`
   return t`Solo`
 }
@@ -314,8 +315,8 @@ function AddFirmDialog({
               </p>
               <p className="mt-1 text-sm leading-5 text-text-secondary">
                 <Trans>
-                  Solo and Pro include one active practice workspace. Contact sales for multiple
-                  practices, offices, or demo/production separation.
+                  Solo, Pro, and Team include one active practice workspace. Contact sales for
+                  multiple practices, offices, or demo/production separation.
                 </Trans>
               </p>
             </div>
@@ -389,7 +390,7 @@ function useNavItems(firm: FirmPublic): NavConfig {
   const { t } = useLingui()
   const pulseCount = usePulseAlertCount()
   const pulseBadge = pulseCount > 0 ? String(pulseCount) : undefined
-  const workloadPaid = firm.plan === 'firm' || firm.plan === 'pro'
+  const workloadPaid = firm.plan === 'firm' || firm.plan === 'team' || firm.plan === 'pro'
   return useMemo<NavConfig>(
     () => ({
       operations: [
@@ -416,7 +417,7 @@ function useNavItems(firm: FirmPublic): NavConfig {
             ? {}
             : {
                 tag: t`Pro`,
-                disabledReason: t`Team workload is available on Pro and Enterprise plans.`,
+                disabledReason: t`Team workload is available on Pro, Team, and Enterprise plans.`,
               }),
         },
       ],

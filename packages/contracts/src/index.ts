@@ -120,11 +120,13 @@ export {
 } from './audit'
 
 export type {
+  FirmBillingCheckoutConfig,
   FirmBillingSubscriptionPublic,
   FirmCreateInput,
   FirmPlan,
   FirmPublic,
   FirmRole,
+  FirmSelfServeBillingPlan,
   FirmSmartPriorityPreviewInput,
   FirmSmartPriorityPreviewOutput,
   FirmSmartPriorityPreviewRow,
@@ -134,9 +136,11 @@ export type {
   USFirmTimezone,
 } from './firms'
 export {
+  FirmBillingCheckoutConfigSchema,
   FirmBillingSubscriptionPublicSchema,
   FirmCreateInputSchema,
   FirmPlanSchema,
+  FirmSelfServeBillingPlanSchema,
   FirmSmartPriorityPreviewInputSchema,
   FirmSmartPriorityPreviewOutputSchema,
   FirmSmartPriorityPreviewRowSchema,

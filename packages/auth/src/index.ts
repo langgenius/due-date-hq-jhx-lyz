@@ -28,8 +28,12 @@ export type AuthEnv = {
   STRIPE_WEBHOOK_SECRET?: string | undefined
   STRIPE_PRICE_FIRM_MONTHLY?: string | undefined
   STRIPE_PRICE_FIRM_YEARLY?: string | undefined
+  STRIPE_PRICE_SOLO_MONTHLY?: string | undefined
+  STRIPE_PRICE_SOLO_YEARLY?: string | undefined
   STRIPE_PRICE_PRO_MONTHLY?: string | undefined
   STRIPE_PRICE_PRO_YEARLY?: string | undefined
+  STRIPE_PRICE_TEAM_MONTHLY?: string | undefined
+  STRIPE_PRICE_TEAM_YEARLY?: string | undefined
   ENV: 'development' | 'staging' | 'production'
 }
 
@@ -66,7 +70,13 @@ export interface CreateAuthPluginsOptions {
  */
 export type DatabaseHooks = NonNullable<BetterAuthOptions['databaseHooks']>
 
-export type BillingPlan = 'solo' | 'firm' | 'pro'
+export type BillingPlan = 'solo' | 'pro' | 'team' | 'firm'
+export type SelfServeBillingPlan = Exclude<BillingPlan, 'firm'>
+
+export type BillingCheckoutConfig = {
+  stripeConfigured: boolean
+  plans: Record<SelfServeBillingPlan, { monthly: boolean; yearly: boolean }>
+}
 
 export interface StripeSubscriptionSyncInput {
   referenceId: string
@@ -136,7 +146,7 @@ function trustedOrigins(env: AuthEnv): string[] {
   return Array.from(new Set([toOrigin(env.AUTH_URL), toOrigin(env.APP_URL)].filter(isString)))
 }
 
-function isStripeConfigured(env: AuthEnv): env is AuthEnv & {
+export function isStripeConfigured(env: AuthEnv): env is AuthEnv & {
   STRIPE_SECRET_KEY: string
   STRIPE_WEBHOOK_SECRET: string
   STRIPE_PRICE_PRO_MONTHLY: string
@@ -151,16 +161,39 @@ function isMicrosoftConfigured(env: AuthEnv): env is AuthEnv & {
   return Boolean(env.MICROSOFT_CLIENT_ID && env.MICROSOFT_CLIENT_SECRET)
 }
 
-function stripePlans(env: AuthEnv): StripePlan[] {
-  const plans: StripePlan[] = [
-    {
-      name: 'pro',
-      priceId: env.STRIPE_PRICE_PRO_MONTHLY,
-      annualDiscountPriceId: env.STRIPE_PRICE_PRO_YEARLY,
-      limits: { seats: 5 },
+function isBillingPlanName(value: string): value is BillingPlan {
+  return value === 'solo' || value === 'pro' || value === 'team' || value === 'firm'
+}
+
+export function stripeBillingPlans(env: AuthEnv): StripePlan[] {
+  const plans: StripePlan[] = []
+
+  if (env.STRIPE_PRICE_SOLO_MONTHLY || env.STRIPE_PRICE_SOLO_YEARLY) {
+    plans.push({
+      name: 'solo',
+      priceId: env.STRIPE_PRICE_SOLO_MONTHLY,
+      annualDiscountPriceId: env.STRIPE_PRICE_SOLO_YEARLY,
+      limits: { seats: 1 },
       freeTrial: { days: 14 },
-    },
-  ]
+    })
+  }
+
+  plans.push({
+    name: 'pro',
+    priceId: env.STRIPE_PRICE_PRO_MONTHLY,
+    annualDiscountPriceId: env.STRIPE_PRICE_PRO_YEARLY,
+    limits: { seats: 3 },
+    freeTrial: { days: 14 },
+  })
+
+  if (env.STRIPE_PRICE_TEAM_MONTHLY || env.STRIPE_PRICE_TEAM_YEARLY) {
+    plans.push({
+      name: 'team',
+      priceId: env.STRIPE_PRICE_TEAM_MONTHLY,
+      annualDiscountPriceId: env.STRIPE_PRICE_TEAM_YEARLY,
+      limits: { seats: 10 },
+    })
+  }
 
   if (env.STRIPE_PRICE_FIRM_MONTHLY || env.STRIPE_PRICE_FIRM_YEARLY) {
     plans.push({
@@ -174,9 +207,31 @@ function stripePlans(env: AuthEnv): StripePlan[] {
   return plans
 }
 
-function planSeatLimit(plan: BillingPlan): number {
+export function billingCheckoutConfig(env: AuthEnv): BillingCheckoutConfig {
+  const stripeConfigured = isStripeConfigured(env)
+  return {
+    stripeConfigured,
+    plans: {
+      solo: {
+        monthly: stripeConfigured && Boolean(env.STRIPE_PRICE_SOLO_MONTHLY),
+        yearly: stripeConfigured && Boolean(env.STRIPE_PRICE_SOLO_YEARLY),
+      },
+      pro: {
+        monthly: stripeConfigured && Boolean(env.STRIPE_PRICE_PRO_MONTHLY),
+        yearly: stripeConfigured && Boolean(env.STRIPE_PRICE_PRO_YEARLY),
+      },
+      team: {
+        monthly: stripeConfigured && Boolean(env.STRIPE_PRICE_TEAM_MONTHLY),
+        yearly: stripeConfigured && Boolean(env.STRIPE_PRICE_TEAM_YEARLY),
+      },
+    },
+  }
+}
+
+export function planSeatLimit(plan: BillingPlan): number {
   if (plan === 'firm') return 10
-  if (plan === 'pro') return 5
+  if (plan === 'team') return 10
+  if (plan === 'pro') return 3
   return 1
 }
 
@@ -187,7 +242,7 @@ function activeBillingPlan(subscription: Subscription): BillingPlan {
     subscription.status === 'past_due' ||
     subscription.status === 'paused'
   ) {
-    return subscription.plan === 'firm' ? 'firm' : 'pro'
+    return isBillingPlanName(subscription.plan) ? subscription.plan : 'pro'
   }
   return 'solo'
 }
@@ -296,7 +351,7 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: Aut
       stripeWebhookSecret,
       subscription: {
         enabled: true,
-        plans: stripePlans(env),
+        plans: stripeBillingPlans(env),
         authorizeReference: async ({ user, session, referenceId, action }) =>
           opts.stripeBilling?.hooks.authorizeReference({
             userId: user.id,

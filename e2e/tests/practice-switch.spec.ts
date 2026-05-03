@@ -28,7 +28,9 @@ test('AC: E2E-PRACTICE-CREATE-GATE blocks extra self-serve practice creation', a
   const dialog = authenticatedPage.getByRole('dialog', { name: 'Add practice' })
   await expect(dialog).toBeVisible()
   await expect(dialog.getByText('1 of 1 included')).toBeVisible()
-  await expect(dialog.getByText(/Solo and Pro include one active practice workspace/)).toBeVisible()
+  await expect(
+    dialog.getByText(/Solo, Pro, and Team include one active practice workspace/),
+  ).toBeVisible()
   await expect(dialog.getByLabel('Practice name')).toBeHidden()
 
   await dialog.getByRole('link', { name: 'Review plans' }).click()
@@ -37,6 +39,27 @@ test('AC: E2E-PRACTICE-CREATE-GATE blocks extra self-serve practice creation', a
   await expect(
     authenticatedPage.getByText('1 of 1 active practices', { exact: true }),
   ).toBeVisible()
+})
+
+test('AC: E2E-PRACTICE-CREATE-GATE keeps Team limited to one active practice', async ({
+  authenticatedPage,
+  authSession,
+  request,
+}) => {
+  await seedBillingSubscription(request, { firmId: authSession.firmId, plan: 'team' })
+  await authenticatedPage.goto('/practice')
+
+  await expectActiveFirmSummary(authenticatedPage, { plan: 'Team', seatLimit: 10 })
+
+  await authenticatedPage.getByRole('button', { name: /Switch practice/ }).click()
+  await authenticatedPage.getByRole('menuitem', { name: 'Add practice' }).click()
+
+  const dialog = authenticatedPage.getByRole('dialog', { name: 'Add practice' })
+  await expect(dialog).toBeVisible()
+  await expect(
+    dialog.getByText(/Solo, Pro, and Team include one active practice workspace/),
+  ).toBeVisible()
+  await expect(dialog.getByLabel('Practice name')).toBeHidden()
 })
 
 test('AC: E2E-PRACTICE-CREATE-SWITCH creates a separate practice on the Enterprise plan', async ({
@@ -89,8 +112,12 @@ async function expectActiveFirmSummary(
   expected: { plan: string; seatLimit: number },
 ): Promise<void> {
   const summary = page.getByRole('note', { name: 'Active practice summary' })
-  await expect(summary).toContainText(new RegExp(`\\b${escapeRegExp(expected.plan)}\\b`))
-  await expect(summary).toContainText(new RegExp(`\\b${expected.seatLimit}\\b`))
+  await expect(summary).toContainText(new RegExp(`\\b${escapeRegExp(expected.plan)}\\b`), {
+    timeout: 10_000,
+  })
+  await expect(summary).toContainText(new RegExp(`\\b${expected.seatLimit}\\b`), {
+    timeout: 10_000,
+  })
 }
 
 function slugBody(value: string): string {

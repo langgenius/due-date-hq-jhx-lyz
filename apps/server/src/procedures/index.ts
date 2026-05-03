@@ -43,6 +43,7 @@ export const router = os.router({
     updateCurrent: firmsHandlers.updateCurrent,
     previewSmartPriorityProfile: firmsHandlers.previewSmartPriorityProfile,
     listSubscriptions: firmsHandlers.listSubscriptions,
+    billingCheckoutConfig: firmsHandlers.billingCheckoutConfig,
     softDeleteCurrent: firmsHandlers.softDeleteCurrent,
   },
   clients: {

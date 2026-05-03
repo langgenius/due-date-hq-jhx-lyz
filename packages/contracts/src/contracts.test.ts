@@ -9,8 +9,10 @@ import {
 } from './audit'
 import { ErrorCodes } from './errors'
 import {
+  FirmBillingCheckoutConfigSchema,
   FirmBillingSubscriptionPublicSchema,
   FirmCreateInputSchema,
+  FirmPlanSchema,
   FirmPublicSchema,
   FirmSmartPriorityPreviewInputSchema,
   FirmSmartPriorityPreviewOutputSchema,
@@ -174,6 +176,7 @@ describe('@duedatehq/contracts', () => {
       'updateCurrent',
       'previewSmartPriorityProfile',
       'listSubscriptions',
+      'billingCheckoutConfig',
       'softDeleteCurrent',
     ])
 
@@ -192,6 +195,7 @@ describe('@duedatehq/contracts', () => {
       ]),
     )
     expect(USFirmTimezoneSchema.options).not.toContain('Pacific/Johnston')
+    expect(FirmPlanSchema.options).toEqual(['solo', 'pro', 'team', 'firm'])
     expect(() =>
       FirmUpdateInputSchema.parse({ name: 'Bright CPA', timezone: 'Europe/London' }),
     ).toThrow()
@@ -274,13 +278,23 @@ describe('@duedatehq/contracts', () => {
       cancelAt: null,
       canceledAt: null,
       endedAt: null,
-      seats: 5,
+      seats: 3,
       billingInterval: 'month',
       stripeScheduleId: null,
       createdAt: '2026-04-28T00:00:00.000Z',
       updatedAt: '2026-04-28T00:00:00.000Z',
     })
     expect(subscription.referenceId).toBe('firm_123')
+
+    const checkoutConfig = FirmBillingCheckoutConfigSchema.parse({
+      stripeConfigured: true,
+      plans: {
+        solo: { monthly: false, yearly: false },
+        pro: { monthly: true, yearly: true },
+        team: { monthly: true, yearly: false },
+      },
+    })
+    expect(checkoutConfig.plans.team.monthly).toBe(true)
   })
 
   it('freezes members gateway contracts', () => {

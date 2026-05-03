@@ -169,6 +169,13 @@
       "when": 1777787737862,
       "tag": "0023_magical_tiger_shark",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1777792016544,
+      "tag": "0024_team_self_serve_billing_plan",
+      "breakpoints": true
     }
   ]
 }

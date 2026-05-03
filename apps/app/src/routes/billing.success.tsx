@@ -30,13 +30,21 @@ export function BillingSuccessRoute() {
   const activated = currentFirm?.plan === expectedPlan && activeSubscription?.plan === expectedPlan
   const statusError = firmsQuery.isError || subscriptionsQuery.isError
   const expectedPlanName =
-    expectedPlan === 'firm' ? t`Enterprise` : expectedPlan === 'pro' ? t`Pro` : t`Solo`
+    expectedPlan === 'firm'
+      ? t`Enterprise`
+      : expectedPlan === 'team'
+        ? t`Team`
+        : expectedPlan === 'pro'
+          ? t`Pro`
+          : t`Solo`
   const activePlanName =
     activeSubscription?.plan === 'firm'
       ? t`Enterprise`
-      : activeSubscription?.plan === 'pro'
-        ? t`Pro`
-        : activeSubscription?.plan
+      : activeSubscription?.plan === 'team'
+        ? t`Team`
+        : activeSubscription?.plan === 'pro'
+          ? t`Pro`
+          : activeSubscription?.plan
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">

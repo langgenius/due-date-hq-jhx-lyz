@@ -39,13 +39,17 @@ describe('validateServerEnv', () => {
       runtimeEnv({
         STRIPE_SECRET_KEY: 'sk_test_123',
         STRIPE_WEBHOOK_SECRET: 'whsec_stripe',
+        STRIPE_PRICE_SOLO_MONTHLY: 'price_solo_monthly',
         STRIPE_PRICE_PRO_MONTHLY: 'price_pro_monthly',
+        STRIPE_PRICE_TEAM_MONTHLY: 'price_team_monthly',
       }),
     )
 
     expect(env.STRIPE_SECRET_KEY).toBe('sk_test_123')
     expect(env.STRIPE_WEBHOOK_SECRET).toBe('whsec_stripe')
+    expect(env.STRIPE_PRICE_SOLO_MONTHLY).toBe('price_solo_monthly')
     expect(env.STRIPE_PRICE_PRO_MONTHLY).toBe('price_pro_monthly')
+    expect(env.STRIPE_PRICE_TEAM_MONTHLY).toBe('price_team_monthly')
   })
 
   it('keeps Microsoft OAuth optional but validates paired credentials', () => {

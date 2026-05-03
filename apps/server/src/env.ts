@@ -26,8 +26,12 @@ const serverEnvSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
   STRIPE_PRICE_FIRM_MONTHLY: z.string().min(1).optional(),
   STRIPE_PRICE_FIRM_YEARLY: z.string().min(1).optional(),
+  STRIPE_PRICE_SOLO_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_SOLO_YEARLY: z.string().min(1).optional(),
   STRIPE_PRICE_PRO_MONTHLY: z.string().min(1).optional(),
   STRIPE_PRICE_PRO_YEARLY: z.string().min(1).optional(),
+  STRIPE_PRICE_TEAM_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_TEAM_YEARLY: z.string().min(1).optional(),
 })
 
 function assertMicrosoftOAuthPair(env: ServerEnv) {
@@ -104,8 +108,12 @@ export function validateServerEnv(runtimeEnv: ServerEnvInput): ServerEnv {
       STRIPE_WEBHOOK_SECRET: runtimeEnv.STRIPE_WEBHOOK_SECRET,
       STRIPE_PRICE_FIRM_MONTHLY: runtimeEnv.STRIPE_PRICE_FIRM_MONTHLY,
       STRIPE_PRICE_FIRM_YEARLY: runtimeEnv.STRIPE_PRICE_FIRM_YEARLY,
+      STRIPE_PRICE_SOLO_MONTHLY: runtimeEnv.STRIPE_PRICE_SOLO_MONTHLY,
+      STRIPE_PRICE_SOLO_YEARLY: runtimeEnv.STRIPE_PRICE_SOLO_YEARLY,
       STRIPE_PRICE_PRO_MONTHLY: runtimeEnv.STRIPE_PRICE_PRO_MONTHLY,
       STRIPE_PRICE_PRO_YEARLY: runtimeEnv.STRIPE_PRICE_PRO_YEARLY,
+      STRIPE_PRICE_TEAM_MONTHLY: runtimeEnv.STRIPE_PRICE_TEAM_MONTHLY,
+      STRIPE_PRICE_TEAM_YEARLY: runtimeEnv.STRIPE_PRICE_TEAM_YEARLY,
     },
     emptyStringAsUndefined: true,
   })

@@ -2,9 +2,9 @@
 
 ## Product Intent
 
-Team Workload is the paid shared-operations surface for Pro and Enterprise plans. It is not a
-task-management module. It summarizes the existing obligation queue so a small CPA practice can
-answer the weekly manager questions quickly:
+Team Workload is the paid shared-operations surface for Pro, Team, and Enterprise plans. It is not
+a task-management module. It summarizes the existing obligation queue so a CPA practice can answer
+the weekly manager questions quickly:
 
 - who owns the most open deadline work;
 - who has due-soon or overdue obligations this week;
@@ -12,7 +12,8 @@ answer the weekly manager questions quickly:
 - which obligations are unassigned and should not be missed;
 - where to jump in Workboard to triage the underlying rows.
 
-Solo remains the personal deadline workbench. Pro and Enterprise add shared deadline operations.
+Solo remains the personal deadline workbench. Pro, Team, and Enterprise add shared deadline
+operations.
 The sidebar entry stays visible for all plans because it communicates the paid expansion path, but
 Solo users see a locked paid hint and a route-level upgrade panel instead of an active workload
 table.
@@ -57,7 +58,7 @@ Plan access:
 
 - `solo`: sidebar item is visible but disabled with a `Pro` paid tag; direct `/workload` route shows
   an upgrade panel;
-- `firm` (Enterprise) / `pro`: route is enabled and calls `workload.load`;
+- `pro` / `team` / `firm` (Enterprise): route is enabled and calls `workload.load`;
 - server returns `FORBIDDEN` for `solo` even if a client calls the API directly.
 
 Role access for V1 is broad within paid firms: all active members can view the read-only workload

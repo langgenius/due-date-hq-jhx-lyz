@@ -42,7 +42,9 @@ function makeOwnerBootstrapDb(memberCount: number): Db {
   return { select } as unknown as Db
 }
 
-function makeOrganizationCreationGateDb(rows: Array<{ plan: 'solo' | 'pro' | 'firm' }>): Db {
+function makeOrganizationCreationGateDb(
+  rows: Array<{ plan: 'solo' | 'pro' | 'team' | 'firm' }>,
+): Db {
   const where = vi.fn(async () => rows)
   const innerJoin = vi.fn(() => ({ where }))
   const from = vi.fn(() => ({ innerJoin }))
@@ -244,7 +246,7 @@ describe('buildAllowUserToCreateOrganization', () => {
     await expect(gate({ id: 'user_1' })).resolves.toBe(true)
   })
 
-  it('blocks extra Solo and Pro firm creation through Better Auth native endpoints', async () => {
+  it('blocks extra Solo, Pro, and Team firm creation through Better Auth native endpoints', async () => {
     await expect(
       buildAllowUserToCreateOrganization(makeOrganizationCreationGateDb([{ plan: 'solo' }]))({
         id: 'user_1',
@@ -252,6 +254,11 @@ describe('buildAllowUserToCreateOrganization', () => {
     ).resolves.toBe(false)
     await expect(
       buildAllowUserToCreateOrganization(makeOrganizationCreationGateDb([{ plan: 'pro' }]))({
+        id: 'user_1',
+      }),
+    ).resolves.toBe(false)
+    await expect(
+      buildAllowUserToCreateOrganization(makeOrganizationCreationGateDb([{ plan: 'team' }]))({
         id: 'user_1',
       }),
     ).resolves.toBe(false)

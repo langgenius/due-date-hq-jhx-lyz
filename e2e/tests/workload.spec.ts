@@ -34,7 +34,7 @@ test.describe('seeded team workload', () => {
 
     await expect(authenticatedPage).toHaveURL(/\/workload$/)
     await expect(workloadPage.upgradeHeading).toBeVisible()
-    await expect(workloadPage.upgradeToProLink).toHaveAttribute('href', '/billing')
+    await expect(workloadPage.upgradePlanLink).toHaveAttribute('href', '/billing')
     await expect(workloadPage.openWorkboardLink).toHaveAttribute('href', '/workboard')
   })
 

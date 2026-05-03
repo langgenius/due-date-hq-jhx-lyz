@@ -73,7 +73,7 @@ export function WorkloadPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="grid gap-1">
           <p className="text-sm text-text-secondary">
-            <Trans>Shared deadline operations for Pro and Enterprise plans.</Trans>
+            <Trans>Shared deadline operations for Pro, Team, and Enterprise plans.</Trans>
           </p>
           <p className="font-mono text-xs tabular-nums text-text-muted">
             <Trans>
@@ -162,13 +162,13 @@ function WorkloadUpgradePanel() {
             >
               <LockKeyholeIcon className="size-4" />
             </span>
-            <Trans>Team workload is available on Pro</Trans>
+            <Trans>Team workload is available on Pro and above</Trans>
           </CardTitle>
           <CardDescription>
             <Trans>
-              Solo is the personal deadline workbench. Pro adds shared deadline operations:
-              owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump
-              links for weekly triage.
+              Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline
+              operations: owner-level workload, unassigned risk, waiting and review pressure, and
+              Workboard jump links for weekly triage.
             </Trans>
           </CardDescription>
           <CardAction>
@@ -179,7 +179,7 @@ function WorkloadUpgradePanel() {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button render={<Link to="/billing" />}>
-            <Trans>Upgrade to Pro</Trans>
+            <Trans>Upgrade plan</Trans>
           </Button>
           <Button variant="outline" render={<Link to="/workboard" />}>
             <Trans>Open Workboard</Trans>

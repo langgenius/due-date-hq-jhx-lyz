@@ -297,7 +297,14 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
     priorityProfile.historyCapCount >= MIN_HISTORY_CAP_COUNT &&
     priorityProfile.historyCapCount <= MAX_HISTORY_CAP_COUNT
   const priorityDirty = !samePriorityProfile(priorityProfile, savedPriorityProfile)
-  const currentPlan = firm.plan === 'firm' ? t`Enterprise` : firm.plan === 'pro' ? t`Pro` : t`Solo`
+  const currentPlan =
+    firm.plan === 'firm'
+      ? t`Enterprise`
+      : firm.plan === 'team'
+        ? t`Team`
+        : firm.plan === 'pro'
+          ? t`Pro`
+          : t`Solo`
   const currentRole =
     firm.role === 'owner'
       ? t`Owner`

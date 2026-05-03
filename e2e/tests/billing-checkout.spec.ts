@@ -19,7 +19,7 @@ test('AC: E2E-BILLING-CHECKOUT-PAYLOAD starts organization checkout with stable 
   const checkout = await interceptCheckout(authenticatedPage)
 
   await billingPage.gotoCheckout()
-  await expect(billingPage.checkoutHeading).toBeVisible()
+  await expect(billingPage.checkoutHeading).toBeVisible({ timeout: 10_000 })
   await expect(billingPage.continueToSecureCheckoutButton).toBeEnabled()
 
   await billingPage.continueToSecureCheckoutButton.click()
@@ -30,7 +30,7 @@ test('AC: E2E-BILLING-CHECKOUT-PAYLOAD starts organization checkout with stable 
     annual: false,
     referenceId: authSession.firmId,
     customerType: 'organization',
-    seats: 5,
+    seats: 3,
     disableRedirect: true,
   })
   expect(payload).not.toHaveProperty('subscriptionId')
@@ -38,6 +38,31 @@ test('AC: E2E-BILLING-CHECKOUT-PAYLOAD starts organization checkout with stable 
   expectCallbackUrl(payload.cancelUrl, '/billing/cancel')
   expectCallbackUrl(payload.returnUrl, '/billing')
   await expect(authenticatedPage).toHaveURL(/\/billing\/success\?plan=pro&interval=monthly$/)
+})
+
+test('AC: E2E-BILLING-CHECKOUT-PAYLOAD supports Team checkout', async ({
+  authenticatedPage,
+  authSession,
+  billingPage,
+}) => {
+  const checkout = await interceptCheckout(authenticatedPage, {
+    redirectPath: '/billing/success?plan=team&interval=monthly',
+  })
+
+  await billingPage.gotoCheckout('/billing/checkout?plan=team&interval=monthly')
+  await expect(billingPage.checkoutHeading).toBeVisible({ timeout: 10_000 })
+  await billingPage.continueToSecureCheckoutButton.click()
+
+  const payload = await checkout.nextPayload()
+  expect(payload).toMatchObject({
+    plan: 'team',
+    annual: false,
+    referenceId: authSession.firmId,
+    customerType: 'organization',
+    seats: 10,
+    disableRedirect: true,
+  })
+  await expect(authenticatedPage).toHaveURL(/\/billing\/success\?plan=team&interval=monthly$/)
 })
 
 test('AC: E2E-BILLING-CHECKOUT-EXISTING-SUBSCRIPTION includes subscriptionId on plan changes', async ({
@@ -52,7 +77,7 @@ test('AC: E2E-BILLING-CHECKOUT-EXISTING-SUBSCRIPTION includes subscriptionId on 
   })
 
   await billingPage.gotoCheckout('/billing/checkout?plan=pro&interval=yearly')
-  await expect(billingPage.checkoutHeading).toBeVisible()
+  await expect(billingPage.checkoutHeading).toBeVisible({ timeout: 10_000 })
 
   await billingPage.continueToSecureCheckoutButton.click()
 
@@ -63,7 +88,7 @@ test('AC: E2E-BILLING-CHECKOUT-EXISTING-SUBSCRIPTION includes subscriptionId on 
     referenceId: authSession.firmId,
     subscriptionId: seeded.subscription.stripeSubscriptionId,
     customerType: 'organization',
-    seats: 5,
+    seats: 3,
     disableRedirect: true,
   })
   expectCallbackUrl(payload.successUrl, '/billing/success')
@@ -84,7 +109,7 @@ test.describe('coordinator checkout', () => {
 
     await billingPage.gotoCheckout()
 
-    await expect(billingPage.checkoutHeading).toBeVisible()
+    await expect(billingPage.checkoutHeading).toBeVisible({ timeout: 10_000 })
     await expect(billingPage.ownerPermissionAlert).toBeVisible()
     await expect(billingPage.continueToSecureCheckoutButton).toBeDisabled()
   })
@@ -119,7 +144,7 @@ async function interceptCheckout(
 async function seedBillingSubscription(
   request: APIRequestContext,
   firmId: string,
-  plan: 'firm' | 'pro' = 'pro',
+  plan: 'solo' | 'pro' | 'team' | 'firm' = 'pro',
 ): Promise<{
   subscription: { stripeSubscriptionId: string }
 }> {
@@ -131,7 +156,7 @@ function expectCallbackUrl(value: unknown, pathname: string): void {
   const url = new URL(String(value))
   expect(url.pathname).toBe(pathname)
   if (pathname.startsWith('/billing/')) {
-    expect(url.searchParams.get('plan')).toMatch(/^(firm|pro)$/)
+    expect(url.searchParams.get('plan')).toMatch(/^(solo|pro|team|firm)$/)
     expect(url.searchParams.get('interval')).toMatch(/^(monthly|yearly)$/)
   }
 }

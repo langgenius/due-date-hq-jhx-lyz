@@ -306,23 +306,42 @@ msgstr "/ mo"
 msgid "© {0} DueDateHQ Inc."
 msgstr "© {0} DueDateHQ Inc."
 
-#: src/routes/billing.tsx
-msgid "$0"
-msgstr "$0"
+#: src/routes/billing.checkout.tsx
+msgid "$119"
+msgstr "$119"
 
 #: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "$149"
+msgstr "$149"
+
+#: src/routes/billing.checkout.tsx
+msgid "$31"
+msgstr "$31"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "$39"
+msgstr "$39"
+
+#: src/routes/billing.checkout.tsx
+msgid "$63"
+msgstr "$63"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
 msgid "$79"
 msgstr "$79"
-
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-msgid "$99"
-msgstr "$99"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "0 active"
 msgstr "0 active"
 
+#: src/routes/billing.checkout.tsx
+msgid "1 active practice"
+msgstr "1 active practice"
+
+#: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "1 owner seat"
 msgstr "1 owner seat"
@@ -331,10 +350,14 @@ msgstr "1 owner seat"
 msgid "1 practice workspace"
 msgstr "1 practice workspace"
 
-#: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "1 production practice"
 msgstr "1 production practice"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "10 seats included"
+msgstr "10 seats included"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -353,6 +376,11 @@ msgstr "3 basic · 2 review"
 msgid "3 basic · 4 review"
 msgstr "3 basic · 4 review"
 
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "3 seats included"
+msgstr "3 seats included"
+
 #: src/features/rules/rules-console.tsx
 msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
 msgstr "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
@@ -360,11 +388,6 @@ msgstr "31 official channels we watch for rule changes — health, cadence, and 
 #: src/features/rules/coverage-tab.tsx
 msgid "4 verified · 1 candidate watch"
 msgstr "4 verified · 1 candidate watch"
-
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-msgid "5 seats included"
-msgstr "5 seats included"
 
 #: src/features/concepts/concept-help.tsx
 msgid "A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the queue."
@@ -631,11 +654,6 @@ msgstr "Already active"
 msgid "Already applied"
 msgstr "Already applied"
 
-#: src/routes/billing.checkout.tsx
-#: src/routes/billing.tsx
-msgid "Annual agreement"
-msgstr "Annual agreement"
-
 #: src/features/rules/rule-library-tab.tsx
 msgid "Annual rolling"
 msgstr "Annual rolling"
@@ -643,6 +661,11 @@ msgstr "Annual rolling"
 #: src/routes/readiness.tsx
 msgid "Answer each item so your CPA can confirm filing readiness."
 msgstr "Answer each item so your CPA can confirm filing readiness."
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "API access by contract"
+msgstr "API access by contract"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Applicability"
@@ -759,10 +782,6 @@ msgstr "Audit export ready"
 msgid "Audit export requested"
 msgstr "Audit export requested"
 
-#: src/routes/billing.tsx
-msgid "Audit exports and coverage planning"
-msgstr "Audit exports and coverage planning"
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Audit filters"
 msgstr "Audit filters"
@@ -856,8 +875,8 @@ msgid "Bearer token"
 msgstr "Bearer token"
 
 #: src/routes/billing.checkout.tsx
-msgid "Billed yearly"
-msgstr "Billed yearly"
+msgid "Billed yearly with 20% discount"
+msgstr "Billed yearly with 20% discount"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
@@ -1040,8 +1059,24 @@ msgid "Checkout canceled"
 msgstr "Checkout canceled"
 
 #: src/routes/billing.checkout.tsx
+msgid "Checkout configuration could not load"
+msgstr "Checkout configuration could not load"
+
+#: src/routes/billing.checkout.tsx
+msgid "Checkout configuration could not load."
+msgstr "Checkout configuration could not load."
+
+#: src/routes/billing.checkout.tsx
+msgid "Checkout configuration is not ready yet."
+msgstr "Checkout configuration is not ready yet."
+
+#: src/routes/billing.checkout.tsx
 msgid "Checkout could not start"
 msgstr "Checkout could not start"
+
+#: src/routes/billing.checkout.tsx
+msgid "Checkout is not configured"
+msgstr "Checkout is not configured"
 
 #: src/routes/billing.tsx
 msgid "Checkout, cards, invoices, and portal sessions stay with the processor."
@@ -1056,8 +1091,8 @@ msgid "Choose another plan"
 msgstr "Choose another plan"
 
 #: src/routes/billing.tsx
-msgid "Choose Pro to start the hosted checkout flow."
-msgstr "Choose Pro to start the hosted checkout flow."
+msgid "Choose Solo, Pro, or Team to start the hosted checkout flow."
+msgstr "Choose Solo, Pro, or Team to start the hosted checkout flow."
 
 #: src/routes/workboard.tsx
 msgid "Clear"
@@ -1227,7 +1262,6 @@ msgstr "Confirm checkout"
 msgid "Confirming subscription"
 msgstr "Confirming subscription"
 
-#: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Contact sales"
 msgstr "Contact sales"
@@ -1626,14 +1660,13 @@ msgstr "critical"
 msgid "CSV"
 msgstr "CSV"
 
-#: src/routes/account.security.tsx
 #: src/routes/billing.tsx
+msgid "current"
+msgstr "current"
+
+#: src/routes/account.security.tsx
 msgid "Current"
 msgstr "Current"
-
-#: src/routes/billing.tsx
-msgid "Current baseline"
-msgstr "Current baseline"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -1647,6 +1680,11 @@ msgstr "Current status"
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "Currently available shortcuts and reserved keyboard slots."
 msgstr "Currently available shortcuts and reserved keyboard slots."
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "Custom agreement"
+msgstr "Custom agreement"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Dark"
@@ -2244,21 +2282,29 @@ msgstr "Firm"
 msgid "Florida"
 msgstr "Florida"
 
+#: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
-msgid "For evaluating the deadline workbench with one owner."
-msgstr "For evaluating the deadline workbench with one owner."
+msgid "For multi-practice operations, API access, and custom coverage."
+msgstr "For multi-practice operations, API access, and custom coverage."
 
 #: src/routes/billing.checkout.tsx
-msgid "For growing CPA practices that need shared deadline operations."
-msgstr "For growing CPA practices that need shared deadline operations."
-
-#: src/routes/billing.checkout.tsx
-msgid "For practices that need audit exports, coverage expansion, and priority onboarding."
-msgstr "For practices that need audit exports, coverage expansion, and priority onboarding."
+#: src/routes/billing.tsx
+msgid "For practices coordinating a larger operations team."
+msgstr "For practices coordinating a larger operations team."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "for Pulse matching"
 msgstr "for Pulse matching"
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "For small practices that need shared deadline operations."
+msgstr "For small practices that need shared deadline operations."
+
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "For solo owners running one practice workspace."
+msgstr "For solo owners running one practice workspace."
 
 #: src/routes/_entry-layout.tsx
 msgid "For US CPA practices"
@@ -2282,9 +2328,10 @@ msgstr "Forms"
 msgid "Formula"
 msgstr "Formula"
 
+#: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
-msgid "Free baseline"
-msgstr "Free baseline"
+msgid "From $399"
+msgstr "From $399"
 
 #: src/routes/practice.tsx
 msgid "General"
@@ -2728,6 +2775,10 @@ msgstr "Manage practice seats, roles, and invitations."
 #: src/routes/practice.tsx
 msgid "Manager"
 msgstr "Manager"
+
+#: src/routes/billing.tsx
+msgid "Manager-ready practice operations"
+msgstr "Manager-ready practice operations"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -3790,7 +3841,6 @@ msgid "Pinned"
 msgstr "Pinned"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/billing.tsx
 msgid "Plan"
 msgstr "Plan"
 
@@ -4005,14 +4055,9 @@ msgstr "Primary navigation"
 msgid "Priority"
 msgstr "Priority"
 
-#: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
-msgid "Priority onboarding"
-msgstr "Priority onboarding"
-
-#: src/routes/billing.tsx
-msgid "Priority onboarding, audit exports, and higher coverage needs."
-msgstr "Priority onboarding, audit exports, and higher coverage needs."
+msgid "Priority onboarding and audit exports"
+msgstr "Priority onboarding and audit exports"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
@@ -4022,10 +4067,6 @@ msgstr "Priority onboarding, audit exports, and higher coverage needs."
 #: src/routes/practice.tsx
 msgid "Pro"
 msgstr "Pro"
-
-#: src/routes/billing.checkout.tsx
-msgid "Pro applies to one production practice. Enterprise plan covers multiple practices by contract."
-msgstr "Pro applies to one production practice. Enterprise plan covers multiple practices by contract."
 
 #: src/routes/billing.tsx
 msgid "Provider hosted"
@@ -4427,6 +4468,14 @@ msgstr "Reset filters to return to the latest practice-wide events."
 #: src/routes/practice.tsx
 msgid "Reset to default"
 msgstr "Reset to default"
+
+#: src/routes/dashboard.tsx
+msgid "Resolve"
+msgstr "Resolve"
+
+#: src/routes/dashboard.tsx
+msgid "Resolve needs review clients"
+msgstr "Resolve needs review clients"
 
 #: src/routes/billing.cancel.tsx
 msgid "Restart checkout"
@@ -4933,8 +4982,8 @@ msgid "Selected plan"
 msgstr "Selected plan"
 
 #: src/routes/billing.tsx
-msgid "Self-serve Pro changes use secure checkout and include one production practice."
-msgstr "Self-serve Pro changes use secure checkout and include one production practice."
+msgid "Self-serve Solo, Pro, and Team changes use secure checkout and include one active practice."
+msgstr "Self-serve Solo, Pro, and Team changes use secure checkout and include one active practice."
 
 #: src/features/members/members-page.tsx
 msgid "Send a 7-day magic link to add a member to this practice."
@@ -4991,13 +5040,9 @@ msgstr "Severity"
 msgid "Shared deadline operations"
 msgstr "Shared deadline operations"
 
-#: src/routes/billing.tsx
-msgid "Shared deadline operations for a growing CPA practice."
-msgstr "Shared deadline operations for a growing CPA practice."
-
 #: src/features/workload/workload-page.tsx
-msgid "Shared deadline operations for Pro and Enterprise plans."
-msgstr "Shared deadline operations for Pro and Enterprise plans."
+msgid "Shared deadline operations for Pro, Team, and Enterprise plans."
+msgstr "Shared deadline operations for Pro, Team, and Enterprise plans."
 
 #. placeholder {0}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
@@ -5130,13 +5175,17 @@ msgstr "Sole prop"
 msgid "Solo"
 msgstr "Solo"
 
-#: src/components/patterns/app-shell-nav.tsx
-msgid "Solo and Pro include one active practice workspace. Contact sales for multiple practices, offices, or demo/production separation."
-msgstr "Solo and Pro include one active practice workspace. Contact sales for multiple practices, offices, or demo/production separation."
-
 #: src/features/workload/workload-page.tsx
-msgid "Solo is the personal deadline workbench. Pro adds shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
-msgstr "Solo is the personal deadline workbench. Pro adds shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
+msgid "Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
+msgstr "Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
+
+#: src/routes/billing.checkout.tsx
+msgid "Solo, Pro, and Team each apply to one active practice. Enterprise covers multiple practices by contract."
+msgstr "Solo, Pro, and Team each apply to one active practice. Enterprise covers multiple practices by contract."
+
+#: src/components/patterns/app-shell-nav.tsx
+msgid "Solo, Pro, and Team include one active practice workspace. Contact sales for multiple practices, offices, or demo/production separation."
+msgstr "Solo, Pro, and Team include one active practice workspace. Contact sales for multiple practices, offices, or demo/production separation."
 
 #: src/features/pulse/lib/error-mapping.ts
 msgid "Some obligations have changed since you opened this alert. Refresh to load the latest list."
@@ -5198,6 +5247,7 @@ msgstr "Source revoked"
 msgid "Source timeline"
 msgstr "Source timeline"
 
+#: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Source-backed evidence"
 msgstr "Source-backed evidence"
@@ -5223,11 +5273,19 @@ msgstr "Sources watched"
 msgid "SSN-like columns blocked"
 msgstr "SSN-like columns blocked"
 
+#: src/routes/billing.tsx
+msgid "SSO and custom coverage"
+msgstr "SSO and custom coverage"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Stale"
 msgstr "Stale"
+
+#: src/routes/billing.tsx
+msgid "Start Solo"
+msgstr "Start Solo"
 
 #: src/routes/dashboard.tsx
 msgid "Start with the money and deadline pressure, then work the evidence-backed triage queue."
@@ -5282,6 +5340,10 @@ msgstr "Still preparing. You can leave this page and check back later."
 #: src/routes/billing.success.tsx
 msgid "Still waiting on confirmation"
 msgstr "Still waiting on confirmation"
+
+#: src/routes/billing.checkout.tsx
+msgid "Stripe price id is missing for this plan."
+msgstr "Stripe price id is missing for this plan."
 
 #: src/routes/readiness.tsx
 msgid "Submit readiness response"
@@ -5370,7 +5432,12 @@ msgstr "Tax year"
 msgid "TAX YEAR"
 msgstr "TAX YEAR"
 
+#: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.success.tsx
+#: src/routes/billing.tsx
+#: src/routes/practice.tsx
 msgid "Team"
 msgstr "Team"
 
@@ -5384,13 +5451,18 @@ msgstr "Team member"
 msgid "Team workload"
 msgstr "Team workload"
 
+#: src/routes/billing.checkout.tsx
+#: src/routes/billing.tsx
+msgid "Team workload and shared triage"
+msgstr "Team workload and shared triage"
+
 #: src/features/workload/workload-page.tsx
-msgid "Team workload is available on Pro"
-msgstr "Team workload is available on Pro"
+msgid "Team workload is available on Pro and above"
+msgstr "Team workload is available on Pro and above"
 
 #: src/components/patterns/app-shell-nav.tsx
-msgid "Team workload is available on Pro and Enterprise plans."
-msgstr "Team workload is available on Pro and Enterprise plans."
+msgid "Team workload is available on Pro, Team, and Enterprise plans."
+msgstr "Team workload is available on Pro, Team, and Enterprise plans."
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -5736,13 +5808,17 @@ msgid "Upgrade"
 msgstr "Upgrade"
 
 #: src/features/members/members-page.tsx
+#: src/features/workload/workload-page.tsx
 msgid "Upgrade plan"
 msgstr "Upgrade plan"
 
-#: src/features/workload/workload-page.tsx
 #: src/routes/billing.tsx
 msgid "Upgrade to Pro"
 msgstr "Upgrade to Pro"
+
+#: src/routes/billing.tsx
+msgid "Upgrade to Team"
+msgstr "Upgrade to Team"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Upload rows"

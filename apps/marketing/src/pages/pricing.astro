@@ -9,7 +9,11 @@ import { pricingStructuredData } from '../lib/structured-data'
 
 const t = en
 const ctaHref = getCtaHref()
-const checkoutHref = getAppHref('/billing/checkout?plan=pro&interval=monthly')
+const checkoutHrefs = {
+  solo: getAppHref('/billing/checkout?plan=solo&interval=monthly'),
+  pro: getAppHref('/billing/checkout?plan=pro&interval=monthly'),
+  team: getAppHref('/billing/checkout?plan=team&interval=monthly'),
+}
 const pathname = '/pricing'
 ---
 
@@ -23,7 +27,7 @@ const pathname = '/pricing'
 >
   <TopNav t={t.nav} ctaHref={ctaHref} />
   <main>
-    <Pricing t={t.pricing} appHref={ctaHref} checkoutHref={checkoutHref} />
+    <Pricing t={t.pricing} appHref={ctaHref} checkoutHrefs={checkoutHrefs} />
   </main>
   <Footer t={t.footer} enHref="/pricing" zhHref="/zh-CN/pricing" currentLocale="en" />
 </BaseLayout>

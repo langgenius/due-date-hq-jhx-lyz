@@ -15,7 +15,12 @@ const localWorkerCommand = [
     '--var AI_GATEWAY_API_KEY:',
     '--var STRIPE_SECRET_KEY:stripe_e2e_secret',
     '--var STRIPE_WEBHOOK_SECRET:stripe_e2e_webhook_secret',
+    '--var STRIPE_PRICE_SOLO_MONTHLY:price_solo_monthly_e2e',
+    '--var STRIPE_PRICE_SOLO_YEARLY:price_solo_yearly_e2e',
     '--var STRIPE_PRICE_PRO_MONTHLY:price_pro_monthly_e2e',
+    '--var STRIPE_PRICE_PRO_YEARLY:price_pro_yearly_e2e',
+    '--var STRIPE_PRICE_TEAM_MONTHLY:price_team_monthly_e2e',
+    '--var STRIPE_PRICE_TEAM_YEARLY:price_team_yearly_e2e',
   ].join(' '),
 ].join(' && ')
 

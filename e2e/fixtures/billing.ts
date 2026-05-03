@@ -1,6 +1,6 @@
 import type { APIRequestContext } from '@playwright/test'
 
-export type E2EBillingPlan = 'firm' | 'pro'
+export type E2EBillingPlan = 'solo' | 'pro' | 'team' | 'firm'
 export type E2EBillingInterval = 'month' | 'year'
 
 export async function seedBillingSubscription(

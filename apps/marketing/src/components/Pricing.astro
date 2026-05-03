@@ -1,16 +1,16 @@
 ---
-import type { PricingCopy, PricingPlanCopy } from '../i18n/types'
+import type { PricingCheckoutPlan, PricingCopy, PricingPlanCopy } from '../i18n/types'
 
 interface Props {
   t: PricingCopy
   appHref: string
-  checkoutHref: string
+  checkoutHrefs: Record<PricingCheckoutPlan, string>
 }
 
-const { t, appHref, checkoutHref } = Astro.props
+const { t, appHref, checkoutHrefs } = Astro.props
 
 function hrefFor(plan: PricingPlanCopy): string {
-  if (plan.hrefKind === 'checkout') return checkoutHref
+  if (plan.hrefKind === 'checkout') return checkoutHrefs[plan.checkoutPlan ?? 'pro']
   if (plan.hrefKind === 'app') return appHref
   return 'mailto:sales@duedatehq.com?subject=DueDateHQ%20Enterprise'
 }
@@ -56,7 +56,7 @@ function hrefFor(plan: PricingPlanCopy): string {
         </span>
       </header>
 
-      <div class="grid items-stretch gap-4 lg:grid-cols-3">
+      <div class="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
         {
           t.plans.map((plan) => {
             const isRecommended = Boolean(plan.badge)

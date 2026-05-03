@@ -1,11 +1,13 @@
 import { parseAsStringLiteral, type inferParserType } from 'nuqs'
 import type { FirmPublic } from '@duedatehq/contracts'
 
-export const BILLING_PLANS = ['firm', 'pro'] as const
+export const BILLING_PLANS = ['solo', 'pro', 'team', 'firm'] as const
+export const SELF_SERVE_BILLING_PLANS = ['solo', 'pro', 'team'] as const
 export const BILLING_INTERVALS = ['monthly', 'yearly'] as const
 export const SELF_SERVE_BILLING_PLAN = 'pro' as const
 
 export type BillingPlan = (typeof BILLING_PLANS)[number]
+export type SelfServeBillingPlan = (typeof SELF_SERVE_BILLING_PLANS)[number]
 export type BillingInterval = (typeof BILLING_INTERVALS)[number]
 
 export const billingSearchParamsParsers = {
@@ -28,7 +30,7 @@ export interface BillingPlanInfo {
 }
 
 export function isBillingPlan(value: string | null): value is BillingPlan {
-  return value === 'firm' || value === 'pro'
+  return value === 'solo' || value === 'pro' || value === 'team' || value === 'firm'
 }
 
 export function isBillingInterval(value: string | null): value is BillingInterval {
@@ -57,8 +59,8 @@ export function billingPlanHref(plan: BillingPlan, interval: BillingInterval): s
   return serializeBillingQuery('/billing/checkout', { plan, interval })
 }
 
-export function isSelfServeBillingPlan(plan: BillingPlan): boolean {
-  return plan === SELF_SERVE_BILLING_PLAN
+export function isSelfServeBillingPlan(plan: BillingPlan): plan is SelfServeBillingPlan {
+  return (SELF_SERVE_BILLING_PLANS as readonly BillingPlan[]).includes(plan)
 }
 
 export function isFirmOwner(firm: FirmPublic | null | undefined): boolean {
@@ -66,7 +68,7 @@ export function isFirmOwner(firm: FirmPublic | null | undefined): boolean {
 }
 
 export function paidPlanActive(firm: FirmPublic | null | undefined): boolean {
-  return firm?.plan === 'firm' || firm?.plan === 'pro'
+  return firm?.plan === 'firm' || firm?.plan === 'team' || firm?.plan === 'pro'
 }
 
 export function ownedActiveFirms(firms: ReadonlyArray<FirmPublic>): FirmPublic[] {

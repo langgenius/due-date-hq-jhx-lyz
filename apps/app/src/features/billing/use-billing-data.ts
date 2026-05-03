@@ -21,3 +21,10 @@ export function useBillingSubscriptions(firm: FirmPublic | null, poll = false) {
     refetchInterval: poll ? 2500 : false,
   })
 }
+
+export function useBillingCheckoutConfig(enabled = true) {
+  return useQuery({
+    ...orpc.firms.billingCheckoutConfig.queryOptions({ input: undefined }),
+    enabled,
+  })
+}

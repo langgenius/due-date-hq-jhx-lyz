@@ -245,6 +245,8 @@ export interface FinalCtaCopy {
   trust: string
 }
 
+export type PricingCheckoutPlan = 'solo' | 'pro' | 'team'
+
 export interface PricingPlanCopy {
   name: string
   badge?: string
@@ -256,6 +258,7 @@ export interface PricingPlanCopy {
   seats: string
   cta: string
   hrefKind: 'checkout' | 'app' | 'contact'
+  checkoutPlan?: PricingCheckoutPlan
   features: string[]
 }
 

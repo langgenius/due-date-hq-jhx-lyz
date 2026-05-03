@@ -1,6 +1,12 @@
 import { SMART_PRIORITY_DEFAULT_PROFILE, type FirmPublic } from '@duedatehq/contracts'
 import { describe, expect, it } from 'vitest'
-import { activeFirmEntitlementLimit, canCreateAdditionalFirm, ownedActiveFirms } from './model'
+import {
+  activeFirmEntitlementLimit,
+  canCreateAdditionalFirm,
+  isSelfServeBillingPlan,
+  ownedActiveFirms,
+  paidPlanActive,
+} from './model'
 
 function firm(overrides: Partial<FirmPublic> = {}): FirmPublic {
   return {
@@ -40,10 +46,25 @@ describe('billing firm entitlement model', () => {
     expect(activeFirmEntitlementLimit([firm({ plan: 'solo' })])).toBe(1)
     expect(canCreateAdditionalFirm([firm({ plan: 'solo' })])).toBe(false)
     expect(canCreateAdditionalFirm([firm({ plan: 'pro' })])).toBe(false)
+    expect(canCreateAdditionalFirm([firm({ plan: 'team' })])).toBe(false)
   })
 
   it('treats the Enterprise tier as contract-limited for additional firms', () => {
     expect(activeFirmEntitlementLimit([firm({ plan: 'firm' })])).toBeNull()
     expect(canCreateAdditionalFirm([firm({ plan: 'firm' })])).toBe(true)
+  })
+
+  it('treats Solo, Pro, and Team as self-serve checkout plans', () => {
+    expect(isSelfServeBillingPlan('solo')).toBe(true)
+    expect(isSelfServeBillingPlan('pro')).toBe(true)
+    expect(isSelfServeBillingPlan('team')).toBe(true)
+    expect(isSelfServeBillingPlan('firm')).toBe(false)
+  })
+
+  it('recognizes Team as a paid operations plan', () => {
+    expect(paidPlanActive(firm({ plan: 'solo' }))).toBe(false)
+    expect(paidPlanActive(firm({ plan: 'pro' }))).toBe(true)
+    expect(paidPlanActive(firm({ plan: 'team' }))).toBe(true)
+    expect(paidPlanActive(firm({ plan: 'firm' }))).toBe(true)
   })
 })

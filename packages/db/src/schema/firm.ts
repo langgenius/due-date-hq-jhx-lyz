@@ -35,7 +35,7 @@ export const firmProfile = sqliteTable('firm_profile', {
 
   // Pricing tier — drives membershipLimit / billing later. Default 'solo'
   // matches PRD §3.6.1 (Solo plan as P0 default).
-  plan: text('plan', { enum: ['solo', 'firm', 'pro'] })
+  plan: text('plan', { enum: ['solo', 'pro', 'team', 'firm'] })
     .notNull()
     .default('solo'),
 

@@ -40,7 +40,7 @@ import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-
 type BadgeVariant = ComponentProps<typeof Badge>['variant']
 
 type PlanCard = {
-  id: 'solo' | BillingPlan
+  id: BillingPlan
   name: string
   price: string
   priceSuffix?: string
@@ -62,53 +62,76 @@ function usePlanCards(): PlanCard[] {
     {
       id: 'solo',
       name: t`Solo`,
-      price: t`$0`,
-      cadence: t`Free baseline`,
+      price: t`$39`,
+      priceSuffix: t`/ mo`,
+      cadence: t`Monthly billing`,
       seats: t`1 owner seat`,
       firms: t`1 practice workspace`,
-      description: t`For evaluating the deadline workbench with one owner.`,
+      description: t`For solo owners running one practice workspace.`,
       features: [
         t`1 practice workspace`,
-        t`Migration and rules preview`,
+        t`1 owner seat`,
         t`Source-backed evidence`,
+        t`Migration and rules preview`,
       ],
-      cta: t`Current baseline`,
-      disabled: true,
+      cta: t`Start Solo`,
+      href: billingPlanHref('solo', 'monthly'),
     },
     {
       id: 'pro',
       name: t`Pro`,
-      price: t`$99`,
+      price: t`$79`,
       priceSuffix: t`/ mo`,
       cadence: t`Monthly billing`,
-      seats: t`5 seats included`,
+      seats: t`3 seats included`,
       firms: t`1 production practice`,
-      description: t`Shared deadline operations for a growing CPA practice.`,
+      description: t`For small practices that need shared deadline operations.`,
       features: [
         t`1 production practice`,
-        t`Shared deadline operations`,
+        t`3 seats included`,
         t`Pulse and workboard access`,
+        t`Shared deadline operations`,
       ],
       cta: t`Upgrade to Pro`,
       badge: t`Recommended`,
       href: billingPlanHref('pro', 'monthly'),
     },
     {
+      id: 'team',
+      name: t`Team`,
+      price: t`$149`,
+      priceSuffix: t`/ mo`,
+      cadence: t`Monthly billing`,
+      seats: t`10 seats included`,
+      firms: t`1 production practice`,
+      description: t`For practices coordinating a larger operations team.`,
+      features: [
+        t`1 production practice`,
+        t`10 seats included`,
+        t`Team workload and shared triage`,
+        t`Manager-ready practice operations`,
+      ],
+      cta: t`Upgrade to Team`,
+      href: billingPlanHref('team', 'monthly'),
+    },
+    {
       id: 'firm',
       name: t`Enterprise`,
-      price: t`Contact sales`,
+      price: t`From $399`,
       priceKind: 'text',
-      cadence: t`Annual agreement`,
+      priceSuffix: t`/ mo`,
+      cadence: t`Custom agreement`,
       seats: t`10+ seats`,
       firms: t`Multiple practices/offices`,
-      description: t`Priority onboarding, audit exports, and higher coverage needs.`,
+      description: t`For multi-practice operations, API access, and custom coverage.`,
       features: [
         t`Multiple practices/offices`,
-        t`Priority onboarding`,
-        t`Audit exports and coverage planning`,
+        t`API access by contract`,
+        t`SSO and custom coverage`,
+        t`Priority onboarding and audit exports`,
       ],
       cta: t`Contact sales`,
-      disabled: true,
+      href: billingPlanHref('firm', 'monthly'),
     },
   ]
 }
@@ -132,9 +155,11 @@ export function BillingRoute() {
   const currentPlanName = currentFirm
     ? currentFirm.plan === 'firm'
       ? t`Enterprise`
-      : currentFirm.plan === 'pro'
-        ? t`Pro`
-        : t`Solo`
+      : currentFirm.plan === 'team'
+        ? t`Team`
+        : currentFirm.plan === 'pro'
+          ? t`Pro`
+          : t`Solo`
     : '—'
   const seatLimit = currentFirm ? t`${currentFirm.seatLimit} seat limit` : '—'
   const subscriptionStatus = activeSubscription?.status ?? t`No paid subscription`
@@ -254,12 +279,12 @@ export function BillingRoute() {
                     </p>
                   </div>
                 </div>
-                <div className="grid gap-3 md:grid-cols-5">
-                  <Metric
+                <div className="flex w-fit max-w-full flex-wrap gap-3">
+                  {/* <Metric
                     label={<Trans>Plan</Trans>}
                     value={currentFirm?.plan ?? '—'}
                     name={`Plan: ${currentFirm?.plan ?? 'none'}`}
-                  />
+                  /> */}
                   <Metric
                     label={<Trans>Seat limit</Trans>}
                     value={String(currentFirm?.seatLimit ?? '—')}
@@ -304,7 +329,7 @@ export function BillingRoute() {
               </span>
             ) : !activeSubscription ? (
               <span className="text-sm text-text-tertiary">
-                <Trans>Choose Pro to start the hosted checkout flow.</Trans>
+                <Trans>Choose Solo, Pro, or Team to start the hosted checkout flow.</Trans>
               </span>
             ) : (
               <span className="text-sm text-text-tertiary">
@@ -364,12 +389,13 @@ export function BillingRoute() {
           </div>
           <p className="max-w-[520px] text-sm text-text-secondary">
             <Trans>
-              Self-serve Pro changes use secure checkout and include one production practice.
+              Self-serve Solo, Pro, and Team changes use secure checkout and include one active
+              practice.
             </Trans>
           </p>
         </header>
 
-        <div className="grid items-stretch gap-4 xl:grid-cols-3">
+        <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
           {planCards.map((plan) => (
             <PlanOption key={plan.id} plan={plan} currentPlan={currentFirm?.plan} owner={owner} />
           ))}
@@ -423,12 +449,19 @@ function billingStatusVariant(status: string | undefined): BadgeVariant {
   return 'info'
 }
 
+const PLAN_RANK: Record<BillingPlan, number> = {
+  solo: 0,
+  pro: 1,
+  team: 2,
+  firm: 3,
+}
+
 function Metric({ label, value, name }: { label: ReactNode; value: string; name: string }) {
   return (
     <div
       role="group"
       aria-label={name}
-      className="rounded-lg border border-divider-regular bg-background-default p-4"
+      className="inline-flex min-w-0 max-w-full flex-none flex-col rounded-lg border border-divider-regular bg-background-default p-4"
     >
       <span className="text-xs font-medium uppercase text-text-tertiary">{label}</span>
       <p className="mt-2 truncate text-md font-semibold text-text-primary">{value}</p>
@@ -464,38 +497,37 @@ function PlanOption({
   owner,
 }: {
   plan: PlanCard
-  currentPlan: string | undefined
+  currentPlan: BillingPlan | undefined
   owner: boolean
 }) {
   const current = plan.id === currentPlan
-  const disabled = plan.disabled || current || !owner
+  const lowerThanCurrent = currentPlan ? PLAN_RANK[plan.id] < PLAN_RANK[currentPlan] : false
+  const disabled = plan.disabled || current || lowerThanCurrent || !owner
   const highlighted = plan.id === 'pro'
   const priceKind = plan.priceKind ?? 'numeric'
 
   return (
     <Card
       className={cn(
-        'h-full min-h-[420px]',
-        highlighted ? 'border-state-accent-active bg-background-default shadow-sm' : undefined,
+        'relative h-full min-h-[560px]',
+        highlighted && !current
+          ? 'border-state-accent-active bg-background-default shadow-sm'
+          : undefined,
+        current ? 'border-state-success-active bg-state-success-hover shadow-md' : undefined,
       )}
     >
-      <CardHeader className="min-h-[112px] content-start">
+      {current ? <CurrentPlanRibbon /> : null}
+      <CardHeader className={cn('min-h-[132px] content-start', current ? 'pr-28' : undefined)}>
         <CardTitle>{plan.name}</CardTitle>
-        <CardDescription className="line-clamp-2 min-h-10 leading-5">
+        <CardDescription className="line-clamp-3 min-h-[72px] leading-6">
           {plan.description}
         </CardDescription>
         <CardAction>
-          {current ? (
-            <Badge variant="success">
-              <Trans>Current</Trans>
-            </Badge>
-          ) : plan.badge ? (
-            <Badge variant="info">{plan.badge}</Badge>
-          ) : null}
+          {!current && plan.badge ? <Badge variant="info">{plan.badge}</Badge> : null}
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-5">
-        <div className="grid min-h-[92px] content-start gap-2">
+        <div className="grid min-h-[116px] content-start gap-3">
           <div className="flex min-h-10 flex-wrap items-baseline gap-2">
             <span
               className={cn(
@@ -515,15 +547,20 @@ function PlanOption({
             <span>{plan.cadence}</span>
             <span aria-hidden>·</span>
             <span>{plan.firms}</span>
-            <span aria-hidden>·</span>
+            <span
+              aria-hidden
+              className="text-2xl font-black leading-none text-state-destructive-solid"
+            >
+              ·
+            </span>
             <span>{plan.seats}</span>
           </div>
         </div>
         <div className="h-px w-full bg-divider-regular" aria-hidden />
-        <ul className="grid gap-3 text-sm leading-5 text-text-secondary">
+        <ul className="grid min-h-[168px] content-start gap-3 text-sm leading-5 text-text-secondary">
           {plan.features.map((feature) => (
-            <li key={feature} className="flex items-center gap-2.5">
-              <span className="grid size-5 shrink-0 place-items-center rounded-sm bg-background-subtle text-text-accent">
+            <li key={feature} className="flex items-start gap-2.5">
+              <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-sm bg-background-subtle text-text-accent">
                 <CheckIcon className="size-3.5" aria-hidden />
               </span>
               <span>{feature}</span>
@@ -531,7 +568,7 @@ function PlanOption({
           ))}
         </ul>
       </CardContent>
-      <CardFooter className="border-t border-divider-regular">
+      <CardFooter className="min-h-[76px] flex-col items-stretch justify-center border-t border-divider-regular">
         {plan.href && !disabled ? (
           <Link
             to={plan.href}
@@ -551,5 +588,15 @@ function PlanOption({
         )}
       </CardFooter>
     </Card>
+  )
+}
+
+function CurrentPlanRibbon() {
+  return (
+    <div className="pointer-events-none absolute top-0 right-0 z-10 h-28 w-28" aria-hidden="true">
+      <span className="absolute top-8 -right-10 flex h-8 w-40 rotate-45 items-center justify-center bg-state-destructive-solid text-[10px] leading-none font-bold text-components-button-destructive-primary-text uppercase shadow-sm">
+        <Trans>current</Trans>
+      </span>
+    </div>
   )
 }

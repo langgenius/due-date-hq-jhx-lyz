@@ -1,5 +1,25 @@
 import { describe, expect, it } from 'vitest'
+import {
+  billingCheckoutConfig,
+  isStripeConfigured,
+  planSeatLimit,
+  stripeBillingPlans,
+  type AuthEnv,
+} from './index'
 import { roles, statement } from './permissions'
+
+function authEnv(overrides: Partial<AuthEnv> = {}): AuthEnv {
+  return {
+    AUTH_SECRET: '0123456789abcdefghijklmnopqrstuvwxyz',
+    AUTH_URL: 'https://api.duedatehq.test',
+    APP_URL: 'https://app.duedatehq.test',
+    EMAIL_FROM: 'noreply@duedatehq.test',
+    GOOGLE_CLIENT_ID: 'google-client-id',
+    GOOGLE_CLIENT_SECRET: 'google-client-secret',
+    ENV: 'production',
+    ...overrides,
+  }
+}
 
 describe('@duedatehq/auth permissions', () => {
   it('keeps business-domain resources on the statement', () => {
@@ -67,5 +87,52 @@ describe('@duedatehq/auth permissions', () => {
     const manager = roles.manager.statements as Record<string, readonly string[] | undefined>
     expect(manager.member).toBeUndefined()
     expect(manager.invitation).toBeUndefined()
+  })
+
+  it('keeps billing seat limits aligned with public plans', () => {
+    expect(planSeatLimit('solo')).toBe(1)
+    expect(planSeatLimit('pro')).toBe(3)
+    expect(planSeatLimit('team')).toBe(10)
+    expect(planSeatLimit('firm')).toBe(10)
+  })
+
+  it('requires Pro checkout config and registers optional Solo and Team prices', () => {
+    const env = authEnv({
+      STRIPE_SECRET_KEY: 'sk_test_123',
+      STRIPE_WEBHOOK_SECRET: 'whsec_123',
+      STRIPE_PRICE_SOLO_MONTHLY: 'price_solo_monthly',
+      STRIPE_PRICE_PRO_MONTHLY: 'price_pro_monthly',
+      STRIPE_PRICE_TEAM_MONTHLY: 'price_team_monthly',
+    })
+
+    expect(isStripeConfigured(env)).toBe(true)
+    expect(
+      stripeBillingPlans(env).map((plan) => ({
+        name: plan.name,
+        seats: plan.limits?.seats,
+      })),
+    ).toEqual([
+      { name: 'solo', seats: 1 },
+      { name: 'pro', seats: 3 },
+      { name: 'team', seats: 10 },
+    ])
+  })
+
+  it('leaves Solo and Team checkout disabled when their price ids are absent', () => {
+    const env = authEnv({
+      STRIPE_SECRET_KEY: 'sk_test_123',
+      STRIPE_WEBHOOK_SECRET: 'whsec_123',
+      STRIPE_PRICE_PRO_MONTHLY: 'price_pro_monthly',
+    })
+
+    expect(stripeBillingPlans(env).map((plan) => plan.name)).toEqual(['pro'])
+    expect(billingCheckoutConfig(env)).toEqual({
+      stripeConfigured: true,
+      plans: {
+        solo: { monthly: false, yearly: false },
+        pro: { monthly: true, yearly: false },
+        team: { monthly: false, yearly: false },
+      },
+    })
   })
 })

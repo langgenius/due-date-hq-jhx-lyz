@@ -1,6 +1,7 @@
 import {
   AlertCircleIcon,
   ArrowDownIcon,
+  ArrowRightIcon,
   ArrowUpDownIcon,
   ArrowUpIcon,
   ArrowUpRightIcon,
@@ -566,7 +567,11 @@ export function DashboardRoute() {
         onRefresh={() => refreshBriefMutation.mutate({ scope: 'firm' })}
       />
 
-      <DashboardMetricStrip isLoading={dashboardQuery.isLoading} summary={data?.summary ?? null} />
+      <DashboardMetricStrip
+        isLoading={dashboardQuery.isLoading}
+        summary={data?.summary ?? null}
+        onResolveNeedsReview={() => void navigate('/workboard?status=review')}
+      />
 
       <section>
         <DashboardTriagePanel
@@ -620,10 +625,13 @@ export function DashboardRoute() {
 function DashboardMetricStrip({
   isLoading,
   summary,
+  onResolveNeedsReview,
 }: {
   isLoading: boolean
   summary: DashboardSummary | null
+  onResolveNeedsReview: () => void
 }) {
+  const { t } = useLingui()
   const metrics = summary
     ? [
         {
@@ -692,9 +700,24 @@ function DashboardMetricStrip({
         : metrics.map((metric) => (
             <Card key={metric.id} size="sm">
               <CardContent className="grid gap-2">
-                <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-                  {metric.label}
-                </span>
+                <div className="flex min-w-0 items-center justify-between gap-2">
+                  <span className="min-w-0 text-xs font-medium uppercase tracking-wider text-text-tertiary">
+                    {metric.label}
+                  </span>
+                  {metric.id === 'review' ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="xs"
+                      aria-label={t`Resolve needs review clients`}
+                      className="-mr-1 h-6 px-1.5 text-xs text-text-accent hover:bg-state-accent-hover hover:text-text-accent"
+                      onClick={onResolveNeedsReview}
+                    >
+                      <Trans>Resolve</Trans>
+                      <ArrowRightIcon data-icon="inline-end" className="size-3" aria-hidden />
+                    </Button>
+                  ) : null}
+                </div>
                 <span
                   className={cn(
                     'font-mono text-3xl font-semibold tabular-nums',

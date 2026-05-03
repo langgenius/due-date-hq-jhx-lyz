@@ -3,7 +3,7 @@ import * as z from 'zod'
 import { SmartPriorityProfileSchema } from './priority'
 import { TenantIdSchema } from './shared/ids'
 
-export const FirmPlanSchema = z.enum(['solo', 'firm', 'pro'])
+export const FirmPlanSchema = z.enum(['solo', 'pro', 'team', 'firm'])
 export const FirmStatusSchema = z.enum(['active', 'suspended', 'deleted'])
 export const FirmRoleSchema = z.enum(['owner', 'manager', 'preparer', 'coordinator'])
 export const US_FIRM_TIMEZONES = [
@@ -170,6 +170,17 @@ export const FirmBillingSubscriptionPublicSchema = z.object({
   updatedAt: z.iso.datetime(),
 })
 
+export const FirmSelfServeBillingPlanSchema = z.enum(['solo', 'pro', 'team'])
+
+export const FirmBillingCheckoutConfigSchema = z.object({
+  stripeConfigured: z.boolean(),
+  plans: z.object({
+    solo: z.object({ monthly: z.boolean(), yearly: z.boolean() }),
+    pro: z.object({ monthly: z.boolean(), yearly: z.boolean() }),
+    team: z.object({ monthly: z.boolean(), yearly: z.boolean() }),
+  }),
+})
+
 export const firmsContract = oc.router({
   listMine: oc.input(z.undefined()).output(z.array(FirmPublicSchema)),
   getCurrent: oc.input(z.undefined()).output(FirmPublicSchema.nullable()),
@@ -180,16 +191,19 @@ export const firmsContract = oc.router({
     .input(FirmSmartPriorityPreviewInputSchema)
     .output(FirmSmartPriorityPreviewOutputSchema),
   listSubscriptions: oc.input(z.undefined()).output(z.array(FirmBillingSubscriptionPublicSchema)),
+  billingCheckoutConfig: oc.input(z.undefined()).output(FirmBillingCheckoutConfigSchema),
   softDeleteCurrent: oc
     .input(z.undefined())
     .output(z.object({ nextFirmId: TenantIdSchema.nullable() })),
 })
 
 export type FirmCreateInput = z.infer<typeof FirmCreateInputSchema>
+export type FirmBillingCheckoutConfig = z.infer<typeof FirmBillingCheckoutConfigSchema>
 export type FirmBillingSubscriptionPublic = z.infer<typeof FirmBillingSubscriptionPublicSchema>
 export type FirmPlan = z.infer<typeof FirmPlanSchema>
 export type FirmPublic = z.infer<typeof FirmPublicSchema>
 export type FirmRole = z.infer<typeof FirmRoleSchema>
+export type FirmSelfServeBillingPlan = z.infer<typeof FirmSelfServeBillingPlanSchema>
 export type FirmSmartPriorityPreviewInput = z.infer<typeof FirmSmartPriorityPreviewInputSchema>
 export type FirmSmartPriorityPreviewOutput = z.infer<typeof FirmSmartPriorityPreviewOutputSchema>
 export type FirmSmartPriorityPreviewRow = z.infer<typeof FirmSmartPriorityPreviewRowSchema>

@@ -1,4 +1,5 @@
 import { ORPCError } from '@orpc/server'
+import { billingCheckoutConfig } from '@duedatehq/auth'
 import { slugifyPracticeName } from '@duedatehq/core/practice-name'
 import {
   ErrorCodes,
@@ -330,6 +331,11 @@ const listSubscriptions = os.firms.listSubscriptions.handler(async ({ context })
   return subscriptions.map(toBillingSubscriptionPublic)
 })
 
+const billingCheckoutConfigHandler = os.firms.billingCheckoutConfig.handler(async ({ context }) => {
+  requireSession(context)
+  return billingCheckoutConfig(context.env)
+})
+
 const softDeleteCurrent = os.firms.softDeleteCurrent.handler(async ({ context }) => {
   const { firms, session, userId } = requireSession(context)
   const activeFirmId = session.activeOrganizationId
@@ -370,5 +376,6 @@ export const firmsHandlers = {
   updateCurrent,
   previewSmartPriorityProfile,
   listSubscriptions,
+  billingCheckoutConfig: billingCheckoutConfigHandler,
   softDeleteCurrent,
 }

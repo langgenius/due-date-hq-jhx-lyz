@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router'
 import type { ReactNode } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
+import type { FirmBillingCheckoutConfig } from '@duedatehq/contracts'
 import { useQueryStates } from 'nuqs'
 import {
   AlertCircleIcon,
@@ -38,7 +39,11 @@ import {
   type BillingInterval,
   type BillingPlan,
 } from '@/features/billing/model'
-import { useBillingSubscriptions, useCurrentFirm } from '@/features/billing/use-billing-data'
+import {
+  useBillingCheckoutConfig,
+  useBillingSubscriptions,
+  useCurrentFirm,
+} from '@/features/billing/use-billing-data'
 
 type PlanView = {
   label: string
@@ -55,34 +60,72 @@ type PlanView = {
 function usePlanView(plan: BillingPlan, interval: BillingInterval): PlanView {
   const { t } = useLingui()
 
-  if (plan === 'pro') {
+  if (plan === 'solo') {
     return {
-      label: t`Pro`,
-      price: interval === 'yearly' ? t`$79` : t`$99`,
+      label: t`Solo`,
+      price: interval === 'yearly' ? t`$31` : t`$39`,
       priceSuffix: t`/ mo`,
-      priceNote: interval === 'yearly' ? t`Billed yearly` : t`Monthly billing`,
-      seatLimit: 5,
-      firmLimit: t`1 production practice`,
-      summary: t`For growing CPA practices that need shared deadline operations.`,
-      bullets: [t`1 production practice`, t`5 seats included`, t`Shared deadline operations`],
+      priceNote: interval === 'yearly' ? t`Billed yearly with 20% discount` : t`Monthly billing`,
+      seatLimit: 1,
+      firmLimit: t`1 active practice`,
+      summary: t`For solo owners running one practice workspace.`,
+      bullets: [t`1 active practice`, t`1 owner seat`, t`Source-backed evidence`],
       selfServe: true,
     }
   }
+
+  if (plan === 'pro') {
+    return {
+      label: t`Pro`,
+      price: interval === 'yearly' ? t`$63` : t`$79`,
+      priceSuffix: t`/ mo`,
+      priceNote: interval === 'yearly' ? t`Billed yearly with 20% discount` : t`Monthly billing`,
+      seatLimit: 3,
+      firmLimit: t`1 active practice`,
+      summary: t`For small practices that need shared deadline operations.`,
+      bullets: [t`1 active practice`, t`3 seats included`, t`Shared deadline operations`],
+      selfServe: true,
+    }
+  }
+
+  if (plan === 'team') {
+    return {
+      label: t`Team`,
+      price: interval === 'yearly' ? t`$119` : t`$149`,
+      priceSuffix: t`/ mo`,
+      priceNote: interval === 'yearly' ? t`Billed yearly with 20% discount` : t`Monthly billing`,
+      seatLimit: 10,
+      firmLimit: t`1 active practice`,
+      summary: t`For practices coordinating a larger operations team.`,
+      bullets: [t`1 active practice`, t`10 seats included`, t`Team workload and shared triage`],
+      selfServe: true,
+    }
+  }
+
   return {
     label: t`Enterprise`,
-    price: t`Contact sales`,
-    priceSuffix: '',
-    priceNote: t`Annual agreement`,
+    price: t`From $399`,
+    priceSuffix: t`/ mo`,
+    priceNote: t`Custom agreement`,
     seatLimit: 10,
     firmLimit: t`Multiple practices/offices`,
-    summary: t`For practices that need audit exports, coverage expansion, and priority onboarding.`,
-    bullets: [t`Multiple practices/offices`, t`10+ seats`, t`Priority onboarding`],
+    summary: t`For multi-practice operations, API access, and custom coverage.`,
+    bullets: [t`Multiple practices/offices`, t`10+ seats`, t`API access by contract`],
     selfServe: false,
   }
 }
 
 function checkoutUrl(path: string, plan: BillingPlan, interval: BillingInterval): string {
   return new URL(serializeBillingQuery(path, { plan, interval }), window.location.origin).toString()
+}
+
+function checkoutConfiguredFor(
+  config: FirmBillingCheckoutConfig | undefined,
+  plan: BillingPlan,
+  interval: BillingInterval,
+): boolean {
+  if (!config || !isSelfServeBillingPlan(plan)) return false
+  return config.plans[plan][interval]
 }
 
 export function BillingCheckoutRoute() {
@@ -92,16 +135,23 @@ export function BillingCheckoutRoute() {
   const view = usePlanView(plan, interval)
   const { firmsQuery, currentFirm } = useCurrentFirm()
   const subscriptionsQuery = useBillingSubscriptions(currentFirm)
+  const checkoutConfigQuery = useBillingCheckoutConfig(Boolean(currentFirm))
   const activeSubscription = subscriptionsQuery.data?.find((subscription) =>
     ['active', 'trialing', 'past_due', 'paused'].includes(subscription.status),
   )
   const subscriptionsReady = !subscriptionsQuery.isPending && !subscriptionsQuery.isError
+  const checkoutConfigured = checkoutConfiguredFor(checkoutConfigQuery.data, plan, interval)
   const checkoutMutation = useMutation({
     mutationFn: async () => {
       if (!currentFirm) throw new Error(t`No active practice is selected.`)
       if (!subscriptionsReady) throw new Error(t`Billing status is not ready yet.`)
       if (!isSelfServeBillingPlan(plan))
         throw new Error(t`Enterprise plan changes require sales support.`)
+      if (checkoutConfigQuery.isPending)
+        throw new Error(t`Checkout configuration is not ready yet.`)
+      if (checkoutConfigQuery.isError) throw new Error(t`Checkout configuration could not load.`)
+      if (!checkoutConfiguredFor(checkoutConfigQuery.data, plan, interval))
+        throw new Error(t`Stripe price id is missing for this plan.`)
       return createCheckout({
         plan,
         annual: interval === 'yearly',
@@ -146,8 +196,15 @@ export function BillingCheckoutRoute() {
   const owner = isFirmOwner(currentFirm)
   const alreadyOnPlan = activeSubscription?.plan === plan && currentFirm.plan === plan
   const selfServe = view.selfServe && isSelfServeBillingPlan(plan)
+  const checkoutUnavailable = selfServe && checkoutConfigQuery.isSuccess && !checkoutConfigured
   const currentPlanLabel =
-    currentFirm.plan === 'firm' ? t`Enterprise` : currentFirm.plan === 'pro' ? t`Pro` : t`Solo`
+    currentFirm.plan === 'firm'
+      ? t`Enterprise`
+      : currentFirm.plan === 'team'
+        ? t`Team`
+        : currentFirm.plan === 'pro'
+          ? t`Pro`
+          : t`Solo`
 
   return (
     <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 px-4 py-6 md:px-6">
@@ -173,7 +230,7 @@ export function BillingCheckoutRoute() {
               </p>
             </div>
           </div>
-          <Badge variant="info" className="font-mono tabular-nums">
+          <Badge variant="info" className="font-mono tabular-nums text-xs">
             <Trans>Secure checkout</Trans>
           </Badge>
         </div>
@@ -198,6 +255,28 @@ export function BillingCheckoutRoute() {
             <Trans>Billing status could not load</Trans>
           </AlertTitle>
           <AlertDescription>{subscriptionsQuery.error.message}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {checkoutConfigQuery.isError ? (
+        <Alert variant="destructive">
+          <AlertCircleIcon />
+          <AlertTitle>
+            <Trans>Checkout configuration could not load</Trans>
+          </AlertTitle>
+          <AlertDescription>{checkoutConfigQuery.error.message}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {checkoutUnavailable ? (
+        <Alert>
+          <AlertCircleIcon />
+          <AlertTitle>
+            <Trans>Checkout is not configured</Trans>
+          </AlertTitle>
+          <AlertDescription>
+            <Trans>Stripe price id is missing for this plan.</Trans>
+          </AlertDescription>
         </Alert>
       ) : null}
 
@@ -284,9 +363,12 @@ export function BillingCheckoutRoute() {
                 !owner ||
                 !subscriptionsReady ||
                 checkoutMutation.isPending ||
+                checkoutConfigQuery.isPending ||
+                checkoutConfigQuery.isError ||
                 subscriptionsQuery.isFetching ||
                 alreadyOnPlan ||
-                !selfServe
+                !selfServe ||
+                checkoutUnavailable
               }
               onClick={() => checkoutMutation.mutate()}
             >
@@ -318,8 +400,8 @@ export function BillingCheckoutRoute() {
             </CardTitle>
             <CardDescription>
               <Trans>
-                Pro applies to one production practice. Enterprise plan covers multiple practices by
-                contract.
+                Solo, Pro, and Team each apply to one active practice. Enterprise covers multiple
+                practices by contract.
               </Trans>
             </CardDescription>
           </CardHeader>
