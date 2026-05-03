@@ -1,14 +1,29 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
-import { AlertCircleIcon, MailIcon, RotateCcwIcon, ShieldAlertIcon } from 'lucide-react'
+import {
+  AlertCircleIcon,
+  MailIcon,
+  MessageSquareIcon,
+  RotateCcwIcon,
+  ShieldAlertIcon,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
-import type { FirmPublic, PulseFirmAlertStatus, PulseStatus } from '@duedatehq/contracts'
+import type { FirmPublic, FirmRole, PulseFirmAlertStatus, PulseStatus } from '@duedatehq/contracts'
 import type { PulseDetail } from '@duedatehq/contracts'
 import { hasFirmPermission } from '@duedatehq/core/permissions'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
 import { Button } from '@duedatehq/ui/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@duedatehq/ui/components/ui/dialog'
+import { Label } from '@duedatehq/ui/components/ui/label'
 import {
   Sheet,
   SheetContent,
@@ -18,6 +33,7 @@ import {
   SheetTitle,
 } from '@duedatehq/ui/components/ui/sheet'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { Textarea } from '@duedatehq/ui/components/ui/textarea'
 
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -43,6 +59,10 @@ const REVERTABLE_STATUSES: ReadonlySet<PulseFirmAlertStatus> = new Set([
   'applied',
   'partially_applied',
 ])
+const REVIEW_UNAVAILABLE_STATUSES: ReadonlySet<PulseFirmAlertStatus> = new Set([
+  'dismissed',
+  'reverted',
+])
 
 function drawerTone(status: PulseFirmAlertStatus, confidence: number): PulsingDotTone {
   if (isVeryLowPulseConfidence(confidence)) return 'error'
@@ -51,21 +71,39 @@ function drawerTone(status: PulseFirmAlertStatus, confidence: number): PulsingDo
   return 'disabled'
 }
 
-// Read RBAC from the firms cache the layout already primed. The ApplyCTA stays
+export function canRequestPulseReview(input: {
+  role: FirmRole | null | undefined
+  alertStatus: PulseFirmAlertStatus
+  sourceStatus: PulseStatus
+}): boolean {
+  return (
+    input.role === 'preparer' &&
+    input.sourceStatus !== 'source_revoked' &&
+    !REVIEW_UNAVAILABLE_STATUSES.has(input.alertStatus)
+  )
+}
+
+// Read RBAC from the firms cache the layout already primed. The Apply CTA stays
 // disabled until we know the user is Owner / Manager (matches server permissions).
-function useCanApply(): boolean {
+function usePulsePermissions(): {
+  role: FirmRole | null
+  canApply: boolean
+} {
   const queryClient = useQueryClient()
   const firms = queryClient.getQueryData<FirmPublic[]>(
     orpc.firms.listMine.queryKey({ input: undefined }),
   )
-  if (!firms) return false
+  if (!firms) return { role: null, canApply: false }
   const current = firms.find((firm) => firm.isCurrent) ?? firms[0]
-  if (!current) return false
-  return hasFirmPermission({
+  if (!current) return { role: null, canApply: false }
+  return {
     role: current.role,
-    permission: 'pulse.apply',
-    coordinatorCanSeeDollars: current.coordinatorCanSeeDollars,
-  })
+    canApply: hasFirmPermission({
+      role: current.role,
+      permission: 'pulse.apply',
+      coordinatorCanSeeDollars: current.coordinatorCanSeeDollars,
+    }),
+  }
 }
 
 // Pulse detail drawer: AI summary + structured fields + affected clients + apply
@@ -73,15 +111,19 @@ function useCanApply(): boolean {
 // evidence + email outbox in one transaction (see packages/db/src/repo/pulse.ts).
 export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) {
   const { t, i18n } = useLingui()
+  const queryClient = useQueryClient()
   const open = alertId !== null
   const detailQuery = useQuery(usePulseDetailQueryOptions(alertId))
   const detail = detailQuery.data
-  const canApply = useCanApply()
+  const permissions = usePulsePermissions()
+  const canApply = permissions.canApply
   const invalidate = usePulseInvalidation()
 
   const [selection, setSelection] = useState<Set<string>>(() => new Set())
   const [confirmedReviewIds, setConfirmedReviewIds] = useState<Set<string>>(() => new Set())
   const [resetKey, setResetKey] = useState<string | null>(null)
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false)
+  const [reviewNote, setReviewNote] = useState('')
 
   // Re-derive default selection when the loaded alert changes — without
   // useEffect, per project rule. Render-time setState bails out after one update.
@@ -89,11 +131,15 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
   if (detail && resetKey !== nextResetKey) {
     setSelection(defaultSelection(detail.affectedClients))
     setConfirmedReviewIds(new Set())
+    setReviewDialogOpen(false)
+    setReviewNote('')
     setResetKey(nextResetKey)
   }
   if (!open && resetKey !== null) {
     setSelection(new Set())
     setConfirmedReviewIds(new Set())
+    setReviewDialogOpen(false)
+    setReviewNote('')
     setResetKey(null)
   }
 
@@ -208,10 +254,30 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
     }),
   )
 
+  const requestReviewMutation = useMutation(
+    orpc.pulse.requestReview.mutationOptions({
+      onSuccess: () => {
+        setReviewDialogOpen(false)
+        setReviewNote('')
+        void queryClient.invalidateQueries({ queryKey: orpc.notifications.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.pulse.key() })
+        toast.success(t`Review requested`, {
+          description: t`Owner and manager notifications and emails were queued.`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't request review`, {
+          description: i18n._(pulseErrorDescriptor(err)),
+        })
+      },
+    }),
+  )
+
   const isMutating =
     applyMutation.isPending ||
     dismissMutation.isPending ||
     reactivateMutation.isPending ||
+    requestReviewMutation.isPending ||
     revertMutation.isPending ||
     snoozeMutation.isPending
 
@@ -342,6 +408,11 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
               sourceStatus={detail.alert.sourceStatus}
               selectionCount={stats?.selectedCount ?? 0}
               canApply={canApply}
+              canRequestReview={canRequestPulseReview({
+                role: permissions.role,
+                alertStatus: detail.alert.status,
+                sourceStatus: detail.alert.sourceStatus,
+              })}
               isMutating={isMutating}
               onApply={() =>
                 applyMutation.mutate({
@@ -361,6 +432,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
               }
               onRevert={() => revertMutation.mutate({ alertId: detail.alert.id })}
               onReactivate={() => reactivateMutation.mutate({ alertId: detail.alert.id })}
+              onRequestReview={() => setReviewDialogOpen(true)}
               onCopyDraft={() => {
                 void navigator.clipboard.writeText(buildClientEmailDraft(detail)).then(
                   () => toast.success(t`Client email draft copied`),
@@ -371,6 +443,21 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
           ) : null}
         </SheetFooter>
       </SheetContent>
+      {detail ? (
+        <PulseReviewRequestDialog
+          open={reviewDialogOpen}
+          note={reviewNote}
+          pending={requestReviewMutation.isPending}
+          onOpenChange={setReviewDialogOpen}
+          onChangeNote={setReviewNote}
+          onSubmit={() =>
+            requestReviewMutation.mutate({
+              alertId: detail.alert.id,
+              ...(reviewNote.trim() ? { note: reviewNote } : {}),
+            })
+          }
+        />
+      ) : null}
     </Sheet>
   )
 }
@@ -380,24 +467,28 @@ function DrawerActions({
   sourceStatus,
   selectionCount,
   canApply,
+  canRequestReview,
   isMutating,
   onApply,
   onDismiss,
   onSnooze,
   onRevert,
   onReactivate,
+  onRequestReview,
   onCopyDraft,
 }: {
   alertStatus: PulseFirmAlertStatus
   sourceStatus: PulseStatus
   selectionCount: number
   canApply: boolean
+  canRequestReview: boolean
   isMutating: boolean
   onApply: () => void
   onDismiss: () => void
   onSnooze: () => void
   onRevert: () => void
   onReactivate: () => void
+  onRequestReview: () => void
   onCopyDraft: () => void
 }) {
   const showRevert = REVERTABLE_STATUSES.has(alertStatus)
@@ -411,6 +502,12 @@ function DrawerActions({
         <MailIcon data-icon="inline-start" />
         <Trans>Copy client email draft</Trans>
       </Button>
+      {canRequestReview ? (
+        <Button size="sm" disabled={isMutating} onClick={onRequestReview}>
+          <MessageSquareIcon data-icon="inline-start" />
+          <Trans>Request review</Trans>
+        </Button>
+      ) : null}
       {showRevert ? (
         <Button
           variant="outline"
@@ -451,6 +548,7 @@ function DrawerActions({
       </Button>
       <Button
         size="sm"
+        variant={canRequestReview ? 'outline' : undefined}
         disabled={!canApply || isMutating || isClosed || selectionCount === 0}
         onClick={onApply}
         aria-busy={isMutating || undefined}
@@ -462,6 +560,78 @@ function DrawerActions({
         )}
       </Button>
     </div>
+  )
+}
+
+function PulseReviewRequestDialog({
+  open,
+  note,
+  pending,
+  onOpenChange,
+  onChangeNote,
+  onSubmit,
+}: {
+  open: boolean
+  note: string
+  pending: boolean
+  onOpenChange: (open: boolean) => void
+  onChangeNote: (note: string) => void
+  onSubmit: () => void
+}) {
+  const { t } = useLingui()
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[440px]">
+        <form
+          className="grid gap-4"
+          onSubmit={(event) => {
+            event.preventDefault()
+            onSubmit()
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>
+              <Trans>Request Pulse review</Trans>
+            </DialogTitle>
+            <DialogDescription>
+              <Trans>
+                Ask an Owner or Manager to review and apply this Pulse. This does not change any
+                deadlines.
+              </Trans>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2">
+            <Label htmlFor="pulse-review-note">
+              <Trans>Optional note</Trans>
+            </Label>
+            <Textarea
+              id="pulse-review-note"
+              value={note}
+              maxLength={500}
+              disabled={pending}
+              placeholder={t`Add context for the reviewer`}
+              onChange={(event) => onChangeNote(event.target.value)}
+            />
+            <p className="text-xs text-text-tertiary">
+              <Trans>{note.length}/500 characters</Trans>
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={pending}
+              onClick={() => onOpenChange(false)}
+            >
+              <Trans>Cancel</Trans>
+            </Button>
+            <Button type="submit" disabled={pending}>
+              {pending ? <Trans>Sending…</Trans> : <Trans>Send request</Trans>}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

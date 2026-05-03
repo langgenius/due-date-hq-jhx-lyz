@@ -1,3 +1,4 @@
+import type { APIRequestContext, Cookie, Page } from '@playwright/test'
 import { expect, test } from '../fixtures/test'
 
 // Feature: Pulse regulatory alert loop
@@ -90,4 +91,81 @@ test.describe('seeded Pulse alerts', () => {
       await expect(drawer.getByRole('button', { name: 'Snooze 24h' })).toBeDisabled()
     })
   })
+
+  test.describe('preparer role', () => {
+    test.use({ authRole: 'preparer' })
+
+    test('AC: E2E-PULSE-REQUEST-REVIEW notifies Owner/Manager without applying', async ({
+      appShellPage,
+      authSession,
+      authenticatedPage,
+      request,
+    }) => {
+      await appShellPage.goto()
+
+      await authenticatedPage.getByRole('button', { name: 'Review', exact: true }).click()
+      const drawer = authenticatedPage.getByRole('dialog')
+
+      await expect(drawer.getByText('Read-only view')).toBeVisible()
+      await expect(drawer.getByRole('button', { name: /Apply to 1 client/ })).toBeDisabled()
+      await expect(drawer.getByRole('button', { name: 'Dismiss' })).toBeDisabled()
+      await expect(drawer.getByRole('button', { name: 'Snooze 24h' })).toBeDisabled()
+      await expect(drawer.getByRole('button', { name: 'Request review' })).toBeVisible()
+
+      await drawer.getByRole('button', { name: 'Request review' }).click()
+      const requestDialog = authenticatedPage.getByRole('dialog', { name: 'Request Pulse review' })
+      await requestDialog
+        .getByLabel('Optional note')
+        .fill('Please confirm LA County applicability.')
+      await requestDialog.getByRole('button', { name: 'Send request' }).click()
+      await expect(authenticatedPage.getByText('Review requested')).toBeVisible()
+
+      await switchToE2ERole({
+        request,
+        page: authenticatedPage,
+        firmId: authSession.firmId,
+        role: 'owner',
+      })
+      await authenticatedPage.goto('/notifications')
+      const notification = authenticatedPage
+        .getByRole('article')
+        .filter({ hasText: 'Review requested: IRS CA storm relief' })
+      await expect(notification).toContainText('E2E Preparer requested Owner/Manager review')
+      await expect(notification).toContainText('Please confirm LA County applicability.')
+
+      await notification.getByRole('link', { name: 'Open' }).click()
+      await expect(authenticatedPage).toHaveURL(/\/alerts\?alert=/)
+      await expect(
+        authenticatedPage.getByRole('dialog').getByRole('heading', { name: /IRS CA storm relief/ }),
+      ).toBeVisible()
+    })
+  })
 })
+
+async function switchToE2ERole(input: {
+  request: APIRequestContext
+  page: Page
+  firmId: string
+  role: 'owner' | 'manager'
+}) {
+  const response = await input.request.post('/api/e2e/switch-role', {
+    data: { firmId: input.firmId, role: input.role },
+    headers: e2eSeedHeaders(),
+  })
+  expect(response.ok()).toBe(true)
+  const body: unknown = await response.json()
+  if (!isSwitchRoleResponse(body)) {
+    throw new Error('Invalid e2e switch-role response.')
+  }
+  await input.page.context().addCookies([body.cookie])
+}
+
+function e2eSeedHeaders(): Record<string, string> {
+  return process.env.E2E_SEED_TOKEN ? { Authorization: `Bearer ${process.env.E2E_SEED_TOKEN}` } : {}
+}
+
+function isSwitchRoleResponse(value: unknown): value is { cookie: Cookie } {
+  if (!value || typeof value !== 'object') return false
+  const cookie = (value as { cookie?: unknown }).cookie
+  return Boolean(cookie && typeof cookie === 'object')
+}

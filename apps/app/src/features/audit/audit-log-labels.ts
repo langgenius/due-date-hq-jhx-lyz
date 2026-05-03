@@ -71,6 +71,7 @@ export function useAuditActionLabels(): AuditActionLabels {
       pulseReactivate: t`Pulse reactivated`,
       pulseReject: t`Pulse rejected`,
       pulseRevert: t`Pulse reverted`,
+      pulseReviewRequested: t`Pulse review requested`,
       pulseSnooze: t`Pulse snoozed`,
       pulseSourceRevoked: t`Pulse source revoked`,
       roleCheck: t`Permission checked`,

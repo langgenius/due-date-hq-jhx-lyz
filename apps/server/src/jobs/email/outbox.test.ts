@@ -109,6 +109,7 @@ describe('flushEmailOutbox', () => {
         to: ['owner@example.com'],
         subject: 'Pulse deadline update applied',
       }),
+      { idempotencyKey: 'email-outbox/outbox_1' },
     )
     expect(dbMocks.set).toHaveBeenCalledWith(expect.objectContaining({ status: 'sending' }))
     expect(dbMocks.set).toHaveBeenCalledWith(expect.objectContaining({ status: 'sent' }))
@@ -156,6 +157,43 @@ describe('flushEmailOutbox', () => {
           'Bright Studio S-Corp: 2026-03-15 -> 2026-10-15 (needs review)',
         ),
       }),
+      { idempotencyKey: 'email-outbox/outbox_2' },
+    )
+  })
+
+  it('sends Pulse review request emails with the queued subject and text', async () => {
+    dbMocks.setRows([
+      {
+        id: 'outbox_3',
+        firmId: 'firm_1',
+        externalId: 'pulse-review:firm_1:alert_1:req_1',
+        type: 'pulse_review_request',
+        status: 'pending',
+        payloadJson: {
+          recipients: ['owner@example.com', 'manager@example.com'],
+          subject: 'Review requested: IRS CA storm relief',
+          text: 'Avery Patel requested Owner/Manager review for this Pulse.',
+        },
+        createdAt: new Date('2026-05-03T00:00:00.000Z'),
+        sentAt: null,
+        failedAt: null,
+        failureReason: null,
+      },
+    ])
+
+    await flushEmailOutbox({
+      DB: {} as D1Database,
+      EMAIL_FROM: 'noreply@example.com',
+      RESEND_API_KEY: 're_test',
+    } satisfies Pick<Env, 'DB' | 'EMAIL_FROM' | 'RESEND_API_KEY'>)
+
+    expect(sendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: ['owner@example.com', 'manager@example.com'],
+        subject: 'Review requested: IRS CA storm relief',
+        text: 'Avery Patel requested Owner/Manager review for this Pulse.',
+      }),
+      { idempotencyKey: 'email-outbox/outbox_3' },
     )
   })
 })

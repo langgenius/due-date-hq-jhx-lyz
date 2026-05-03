@@ -96,22 +96,25 @@ async function processOutboxRow(
   await db.update(emailOutbox).set({ status: 'sending' }).where(eq(emailOutbox.id, row.id))
 
   try {
-    const { error } = await resend.emails.send({
-      from: env.EMAIL_FROM,
-      to: recipients,
-      subject:
-        row.type === 'pulse_digest'
-          ? pulseDigestSubject(row.payloadJson)
-          : genericSubject(row.payloadJson, 'DueDateHQ notification'),
-      text:
-        row.type === 'pulse_digest'
-          ? pulseDigestText(row.payloadJson)
-          : genericText(row.payloadJson, 'You have a new DueDateHQ notification.'),
-      tags: [
-        { name: 'outbox_id', value: row.id },
-        { name: 'external_id', value: row.externalId },
-      ],
-    })
+    const { error } = await resend.emails.send(
+      {
+        from: env.EMAIL_FROM,
+        to: recipients,
+        subject:
+          row.type === 'pulse_digest'
+            ? pulseDigestSubject(row.payloadJson)
+            : genericSubject(row.payloadJson, 'DueDateHQ notification'),
+        text:
+          row.type === 'pulse_digest'
+            ? pulseDigestText(row.payloadJson)
+            : genericText(row.payloadJson, 'You have a new DueDateHQ notification.'),
+        tags: [
+          { name: 'outbox_id', value: row.id },
+          { name: 'external_id', value: row.externalId },
+        ],
+      },
+      { idempotencyKey: `email-outbox/${row.id}` },
+    )
     if (error) throw new Error(error.message)
     await db
       .update(emailOutbox)

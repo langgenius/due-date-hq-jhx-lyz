@@ -183,6 +183,11 @@ msgstr "{0} unsupported"
 msgid "{0} will lose access to this practice. Audit history stays retained."
 msgstr "{0} will lose access to this practice. Audit history stays retained."
 
+#. placeholder {0}: note.length
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "{0}/500 characters"
+msgstr "{0}/500 characters"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "{action} recorded"
 msgstr "{action} recorded"
@@ -503,6 +508,10 @@ msgstr "Actor id"
 msgid "Add a manual client record to the active practice directory."
 msgstr "Add a manual client record to the active practice directory."
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Add context for the reviewer"
+msgstr "Add context for the reviewer"
+
 #: src/routes/workboard.tsx
 msgid "Add item"
 msgstr "Add item"
@@ -726,6 +735,10 @@ msgstr "As of {asOfDate} · next {windowDays} days"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask"
 msgstr "Ask"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Ask an Owner or Manager to review and apply this Pulse. This does not change any deadlines."
+msgstr "Ask an Owner or Manager to review and apply this Pulse. This does not change any deadlines."
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask DueDateHQ"
@@ -1016,6 +1029,7 @@ msgstr "California"
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/practice.tsx
 #: src/routes/workboard.tsx
 msgid "Cancel"
@@ -1605,6 +1619,10 @@ msgstr "Couldn't queue risk summary"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't reactivate alert"
 msgstr "Couldn't reactivate alert"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't request review"
+msgstr "Couldn't request review"
 
 #: src/routes/workboard.tsx
 msgid "Couldn't revoke request"
@@ -2532,7 +2550,9 @@ msgstr "Healthy"
 msgid "Hidden"
 msgstr "Hidden"
 
+#: src/features/priority/SmartPriorityBadge.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Hidden by role"
 msgstr "Hidden by role"
 
@@ -3862,6 +3882,7 @@ msgstr "Operations command"
 msgid "Ops token"
 msgstr "Ops token"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/readiness.tsx
 msgid "Optional note"
 msgstr "Optional note"
@@ -3905,6 +3926,10 @@ msgstr "Overdue"
 #: src/routes/workboard.tsx
 msgid "Owner"
 msgstr "Owner"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Owner and manager notifications and emails were queued."
+msgstr "Owner and manager notifications and emails were queued."
 
 #: src/routes/billing.checkout.tsx
 msgid "Owner approval required"
@@ -4425,6 +4450,10 @@ msgid "Pulse reverted"
 msgstr "Pulse reverted"
 
 #: src/features/audit/audit-log-labels.ts
+msgid "Pulse review requested"
+msgstr "Pulse review requested"
+
+#: src/features/audit/audit-log-labels.ts
 msgid "Pulse snoozed"
 msgstr "Pulse snoozed"
 
@@ -4707,6 +4736,14 @@ msgstr "Rename view"
 msgid "Request export"
 msgstr "Request export"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Request Pulse review"
+msgstr "Request Pulse review"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Request review"
+msgstr "Request review"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Required for reject, quarantine, and source revoke decisions"
 msgstr "Required for reject, quarantine, and source revoke decisions"
@@ -4838,6 +4875,10 @@ msgstr "Review practice-wide audit events."
 #: src/features/audit/audit-log-page.tsx
 msgid "Review practice-wide write events, what changed, and actor metadata."
 msgstr "Review practice-wide write events, what changed, and actor metadata."
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Review requested"
+msgstr "Review requested"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review risk and operating pressure."
@@ -5314,7 +5355,12 @@ msgstr "Send invite"
 msgid "Send readiness check"
 msgstr "Send readiness check"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Send request"
+msgstr "Send request"
+
 #: src/features/members/members-page.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Sending…"
 msgstr "Sending…"
 
@@ -5969,6 +6015,10 @@ msgstr "This page will keep checking. You can also return to Billing and refresh
 #: src/routes/billing.checkout.tsx
 msgid "This practice already has the selected plan."
 msgstr "This practice already has the selected plan."
+
+#: src/features/pulse/lib/error-mapping.ts
+msgid "This Pulse alert is closed and cannot be sent for review."
+msgstr "This Pulse alert is closed and cannot be sent for review."
 
 #: src/routes/readiness.tsx
 msgid "This readiness link is expired, revoked, or invalid."

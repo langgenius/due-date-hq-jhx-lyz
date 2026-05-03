@@ -107,6 +107,7 @@ export const router = os.router({
     snooze: pulseHandlers.snooze,
     revert: pulseHandlers.revert,
     reactivate: pulseHandlers.reactivate,
+    requestReview: pulseHandlers.requestReview,
   },
   migration: {
     createBatch: migrationHandlers.createBatch,

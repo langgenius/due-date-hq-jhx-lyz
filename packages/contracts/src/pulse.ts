@@ -125,6 +125,12 @@ export const PulseSnoozeInputSchema = z.object({
 })
 export type PulseSnoozeInput = z.infer<typeof PulseSnoozeInputSchema>
 
+export const PulseRequestReviewInputSchema = z.object({
+  alertId: EntityIdSchema,
+  note: z.string().trim().max(500).optional(),
+})
+export type PulseRequestReviewInput = z.infer<typeof PulseRequestReviewInputSchema>
+
 export const PulseApplyOutputSchema = z.object({
   alert: PulseAlertPublicSchema,
   appliedCount: z.number().int().min(0),
@@ -156,6 +162,13 @@ export const PulseRevertOutputSchema = z.object({
 })
 export type PulseRevertOutput = z.infer<typeof PulseRevertOutputSchema>
 
+export const PulseRequestReviewOutputSchema = z.object({
+  notificationCount: z.number().int().min(0),
+  emailCount: z.number().int().min(0),
+  auditId: EntityIdSchema,
+})
+export type PulseRequestReviewOutput = z.infer<typeof PulseRequestReviewOutputSchema>
+
 export const pulseContract = oc.router({
   listAlerts: oc
     .input(PulseListAlertsInputSchema)
@@ -172,5 +185,6 @@ export const pulseContract = oc.router({
   snooze: oc.input(PulseSnoozeInputSchema).output(PulseSnoozeOutputSchema),
   revert: oc.input(PulseAlertIdInputSchema).output(PulseRevertOutputSchema),
   reactivate: oc.input(PulseAlertIdInputSchema).output(PulseReactivateOutputSchema),
+  requestReview: oc.input(PulseRequestReviewInputSchema).output(PulseRequestReviewOutputSchema),
 })
 export type PulseContract = typeof pulseContract

@@ -201,6 +201,7 @@ export function makeNotificationsRepo(db: Db, firmId: string) {
       externalId: string
       type:
         | 'pulse_digest'
+        | 'pulse_review_request'
         | 'deadline_reminder'
         | 'client_deadline_reminder'
         | 'audit_evidence_package_ready'

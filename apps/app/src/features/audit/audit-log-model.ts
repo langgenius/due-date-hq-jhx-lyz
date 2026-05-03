@@ -103,6 +103,7 @@ export const AUDIT_ACTION_LABEL_KEYS = {
   'pulse.reactivate': 'pulseReactivate',
   'pulse.reject': 'pulseReject',
   'pulse.revert': 'pulseRevert',
+  'pulse.review_requested': 'pulseReviewRequested',
   'pulse.snooze': 'pulseSnooze',
   'pulse.source_revoked': 'pulseSourceRevoked',
   'role.check': 'roleCheck',

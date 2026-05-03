@@ -37,6 +37,20 @@ describe('@duedatehq/server app', () => {
     expect(response.status).toBe(404)
   })
 
+  it('does not expose the e2e role switch route outside development', async () => {
+    const app = createApp()
+    const response = await app.request(
+      '/api/e2e/switch-role',
+      {
+        method: 'POST',
+        body: JSON.stringify({ firmId: 'e2e_firm_1', role: 'owner' }),
+      },
+      { ENV: 'staging' },
+    )
+
+    expect(response.status).toBe(404)
+  })
+
   it('does not expose demo routes in production even with the seed token', async () => {
     const app = createApp()
     const env = {
@@ -47,9 +61,19 @@ describe('@duedatehq/server app', () => {
 
     const login = await app.request('/api/e2e/demo-login', init, env)
     const accounts = await app.request('/api/e2e/demo-accounts', init, env)
+    const switchRole = await app.request(
+      '/api/e2e/switch-role',
+      {
+        ...init,
+        method: 'POST',
+        body: JSON.stringify({ firmId: 'e2e_firm_1', role: 'owner' }),
+      },
+      env,
+    )
 
     expect(login.status).toBe(404)
     expect(accounts.status).toBe(404)
+    expect(switchRole.status).toBe(404)
   })
 
   it('rejects unknown demo login roles before touching demo data', async () => {

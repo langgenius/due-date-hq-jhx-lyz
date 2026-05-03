@@ -10,6 +10,7 @@ export type EmailOutboxStatus = (typeof EMAIL_OUTBOX_STATUSES)[number]
 
 export const EMAIL_OUTBOX_TYPES = [
   'pulse_digest',
+  'pulse_review_request',
   'deadline_reminder',
   'client_deadline_reminder',
   'audit_evidence_package_ready',

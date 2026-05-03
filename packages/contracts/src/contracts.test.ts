@@ -91,6 +91,8 @@ import {
   PulseApplyInputSchema,
   PulseApplyOutputSchema,
   PulseFirmAlertStatusSchema,
+  PulseRequestReviewInputSchema,
+  PulseRequestReviewOutputSchema,
   pulseContract,
 } from './pulse'
 import {
@@ -739,6 +741,7 @@ describe('@duedatehq/contracts', () => {
     expect(PulseAuditActionSchema.parse('pulse.snooze')).toBe('pulse.snooze')
     expect(AuditActionSchema.parse('pulse.revert')).toBe('pulse.revert')
     expect(AuditActionSchema.parse('pulse.reactivate')).toBe('pulse.reactivate')
+    expect(AuditActionSchema.parse('pulse.review_requested')).toBe('pulse.review_requested')
     expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')
     expect(AuditActionSchema.parse('penalty.override')).toBe('penalty.override')
     expect(EvidenceSourceTypeSchema.parse('penalty_override')).toBe('penalty_override')
@@ -755,6 +758,7 @@ describe('@duedatehq/contracts', () => {
       'snooze',
       'revert',
       'reactivate',
+      'requestReview',
     ])
     expect(PulseFirmAlertStatusSchema.options).toEqual([
       'matched',
@@ -816,6 +820,20 @@ describe('@duedatehq/contracts', () => {
       revertExpiresAt: '2026-04-16T18:00:00.000Z',
     })
     expect(apply.appliedCount).toBe(1)
+
+    const requestReviewInput = PulseRequestReviewInputSchema.parse({
+      alertId: alert.id,
+      note: ' Please review LA County applicability. ',
+    })
+    expect(requestReviewInput.note).toBe('Please review LA County applicability.')
+
+    const requestReview = PulseRequestReviewOutputSchema.parse({
+      notificationCount: 2,
+      emailCount: 2,
+      auditId: '99999999-9999-4999-8999-999999999999',
+    })
+    expect(requestReview.notificationCount).toBe(2)
+    expect(requestReview.emailCount).toBe(2)
   })
 
   it('freezes evidence.listByObligation public shape', () => {

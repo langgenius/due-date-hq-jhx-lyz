@@ -183,6 +183,11 @@ msgstr "{0} 个暂不支持"
 msgid "{0} will lose access to this practice. Audit history stays retained."
 msgstr "{0} 将失去对该事务所的访问权限。审计历史会保留。"
 
+#. placeholder {0}: note.length
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "{0}/500 characters"
+msgstr "{0}/500 个字符"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "{action} recorded"
 msgstr "已记录 {action}"
@@ -503,6 +508,10 @@ msgstr "执行人 ID"
 msgid "Add a manual client record to the active practice directory."
 msgstr "添加手动客户记录到当前事务所目录。"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Add context for the reviewer"
+msgstr "补充给审核人的说明"
+
 #: src/routes/workboard.tsx
 msgid "Add item"
 msgstr "添加项目"
@@ -726,6 +735,10 @@ msgstr "截至 {asOfDate} · 未来 {windowDays} 天"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask"
 msgstr "提问"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Ask an Owner or Manager to review and apply this Pulse. This does not change any deadlines."
+msgstr "请求 Owner 或 Manager 审核并应用此 Pulse。这不会更改任何截止日。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Ask DueDateHQ"
@@ -1016,6 +1029,7 @@ msgstr "加利福尼亚"
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/practice.tsx
 #: src/routes/workboard.tsx
 msgid "Cancel"
@@ -1605,6 +1619,10 @@ msgstr "无法排队生成风险摘要"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't reactivate alert"
 msgstr "无法重新激活提醒"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't request review"
+msgstr "无法请求审核"
 
 #: src/routes/workboard.tsx
 msgid "Couldn't revoke request"
@@ -2532,7 +2550,9 @@ msgstr "健康"
 msgid "Hidden"
 msgstr "已隐藏"
 
+#: src/features/priority/SmartPriorityBadge.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
 msgid "Hidden by role"
 msgstr "因角色隐藏"
 
@@ -3862,6 +3882,7 @@ msgstr "运营指挥台"
 msgid "Ops token"
 msgstr "Ops token"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/readiness.tsx
 msgid "Optional note"
 msgstr "可选备注"
@@ -3905,6 +3926,10 @@ msgstr "已逾期"
 #: src/routes/workboard.tsx
 msgid "Owner"
 msgstr "负责人"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Owner and manager notifications and emails were queued."
+msgstr "已为 Owner 和 Manager 创建通知并排队发送邮件。"
 
 #: src/routes/billing.checkout.tsx
 msgid "Owner approval required"
@@ -4425,6 +4450,10 @@ msgid "Pulse reverted"
 msgstr "Pulse 已回滚"
 
 #: src/features/audit/audit-log-labels.ts
+msgid "Pulse review requested"
+msgstr "已请求 Pulse 审核"
+
+#: src/features/audit/audit-log-labels.ts
 msgid "Pulse snoozed"
 msgstr "Pulse 已暂缓"
 
@@ -4707,6 +4736,14 @@ msgstr "重命名视图"
 msgid "Request export"
 msgstr "请求导出"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Request Pulse review"
+msgstr "请求 Pulse 审核"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Request review"
+msgstr "请求审核"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Required for reject, quarantine, and source revoke decisions"
 msgstr "拒绝、隔离和撤销来源时必填"
@@ -4838,6 +4875,10 @@ msgstr "查看事务所范围内的审计事件。"
 #: src/features/audit/audit-log-page.tsx
 msgid "Review practice-wide write events, what changed, and actor metadata."
 msgstr "查看事务所范围内的写入事件、变更内容和执行人元数据。"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Review requested"
+msgstr "已请求审核"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review risk and operating pressure."
@@ -5314,7 +5355,12 @@ msgstr "发送邀请"
 msgid "Send readiness check"
 msgstr "发送准备状态检查"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Send request"
+msgstr "发送请求"
+
 #: src/features/members/members-page.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Sending…"
 msgstr "发送中…"
 
@@ -5969,6 +6015,10 @@ msgstr "此页面会继续检查。你也可以返回账单页稍后刷新。"
 #: src/routes/billing.checkout.tsx
 msgid "This practice already has the selected plan."
 msgstr "此事务所已经是所选计划。"
+
+#: src/features/pulse/lib/error-mapping.ts
+msgid "This Pulse alert is closed and cannot be sent for review."
+msgstr "此 Pulse 提醒已关闭，无法发送审核请求。"
 
 #: src/routes/readiness.tsx
 msgid "This readiness link is expired, revoked, or invalid."

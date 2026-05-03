@@ -187,6 +187,7 @@ export const AUDIT_CHANGE_PRESENTERS: Record<KnownAuditAction, AuditChangePresen
   'pulse.reactivate': pulseAlertPresenter,
   'pulse.reject': pulseOpsPresenter,
   'pulse.revert': pulseDueDatePresenter,
+  'pulse.review_requested': genericPresenter,
   'pulse.snooze': pulseAlertPresenter,
   'pulse.source_revoked': pulseOpsPresenter,
   'role.check': genericPresenter,

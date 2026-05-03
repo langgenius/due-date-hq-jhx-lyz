@@ -3,7 +3,9 @@ import {
   ErrorCodes,
   type PulseAffectedClient,
   type PulseAlertPublic,
+  type PulseFirmAlertStatus,
   type PulseSourceHealth,
+  type PulseStatus,
 } from '@duedatehq/contracts'
 import { planHasFeature } from '@duedatehq/core/plan-entitlements'
 import { livePulseAdapters } from '@duedatehq/ingest/adapters'
@@ -63,6 +65,11 @@ interface PulseAffectedClientRow {
 type PulseRepoErrorShape = Error & {
   code: 'not_found' | 'conflict' | 'revert_expired' | 'no_eligible'
 }
+
+const REVIEW_UNAVAILABLE_ALERT_STATUSES: ReadonlySet<PulseFirmAlertStatus> = new Set([
+  'dismissed',
+  'reverted',
+])
 
 function pulseRepoErrorCode(error: unknown): PulseRepoErrorShape['code'] | null {
   if (!(error instanceof Error) || !('code' in error)) return null
@@ -161,6 +168,47 @@ function assertProductionPulse(plan: Parameters<typeof planHasFeature>[0]): void
   if (!planHasFeature(plan, 'productionPulse')) {
     throw new ORPCError('FORBIDDEN', { message: 'Production Pulse actions require Pro or above.' })
   }
+}
+
+export function isPulseReviewRequestAvailable(input: {
+  alertStatus: PulseFirmAlertStatus
+  sourceStatus: PulseStatus
+}): boolean {
+  return (
+    input.sourceStatus !== 'source_revoked' &&
+    !REVIEW_UNAVAILABLE_ALERT_STATUSES.has(input.alertStatus)
+  )
+}
+
+function normalizeReviewNote(value: string | undefined): string | null {
+  const note = value?.trim()
+  return note ? note : null
+}
+
+function pulseReviewNotificationBody(input: {
+  requesterName: string
+  note: string | null
+}): string {
+  const base = `${input.requesterName} requested Owner/Manager review for this Pulse.`
+  return input.note ? `${base} Note: ${input.note}` : base
+}
+
+function uniqueEmails(values: string[]): string[] {
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)))
+}
+
+function pulseReviewEmailText(input: {
+  alertTitle: string
+  requesterName: string
+  note: string | null
+  alertUrl: string
+}): string {
+  const lines = [
+    `${input.requesterName} requested Owner/Manager review for this Pulse: ${input.alertTitle}.`,
+  ]
+  if (input.note) lines.push('', `Note: ${input.note}`)
+  lines.push('', `Open Pulse review: ${input.alertUrl}`)
+  return lines.join('\n')
 }
 
 const listAlerts = os.pulse.listAlerts.handler(async ({ input, context }) => {
@@ -346,6 +394,132 @@ const reactivate = os.pulse.reactivate.handler(async ({ input, context }) => {
   }
 })
 
+export async function requestPulseReview(input: {
+  context: RpcContext
+  alertId: string
+  note?: string | undefined
+}): Promise<{ notificationCount: number; emailCount: number; auditId: string }> {
+  const { members, tenant, userId } = await requireCurrentFirmRole(input.context, [
+    'owner',
+    'manager',
+    'preparer',
+  ])
+  const { scoped } = requireTenant(input.context)
+  const { notifications } = scoped
+  if (!notifications) {
+    throw new Error('Notifications repo methods are not available.')
+  }
+
+  try {
+    const detail = await scoped.pulse.getDetail(input.alertId)
+    const alert = toAlertPublic(detail.alert)
+    if (
+      !isPulseReviewRequestAvailable({
+        alertStatus: alert.status,
+        sourceStatus: alert.sourceStatus,
+      })
+    ) {
+      throw new ORPCError('CONFLICT', { message: ErrorCodes.PULSE_REVIEW_UNAVAILABLE })
+    }
+
+    const note = normalizeReviewNote(input.note)
+    const actor = await members.findMembership(tenant.firmId, userId)
+    const requesterName = actor?.name ?? 'A preparer'
+    const reviewRequestId = crypto.randomUUID()
+    const recipients = (await members.listMembers(tenant.firmId)).filter(
+      (member) =>
+        member.status === 'active' &&
+        member.userId !== userId &&
+        (member.role === 'owner' || member.role === 'manager'),
+    )
+    const href = `/alerts?alert=${encodeURIComponent(alert.id)}`
+    const subject = `Review requested: ${alert.title}`
+    await Promise.all(
+      recipients.map((recipient) =>
+        notifications.create({
+          userId: recipient.userId,
+          type: 'pulse_alert',
+          entityType: 'pulse_firm_alert',
+          entityId: alert.id,
+          title: subject,
+          body: pulseReviewNotificationBody({ requesterName, note }),
+          href,
+          metadataJson: {
+            kind: 'pulse_review_request',
+            alertId: alert.id,
+            pulseId: alert.pulseId,
+            requestedBy: userId,
+            requestedByName: requesterName,
+            reviewRequestId,
+            note,
+          },
+        }),
+      ),
+    )
+
+    const emailRecipients = uniqueEmails(recipients.map((recipient) => recipient.email))
+    let emailCount = 0
+    if (emailRecipients.length > 0) {
+      const alertUrl = new URL(href, input.context.env.APP_URL).toString()
+      const queuedEmail = await notifications.enqueueEmail({
+        externalId: `pulse-review:${tenant.firmId}:${alert.id}:${reviewRequestId}`,
+        type: 'pulse_review_request',
+        payloadJson: {
+          recipients: emailRecipients,
+          subject,
+          text: pulseReviewEmailText({
+            alertTitle: alert.title,
+            requesterName,
+            note,
+            alertUrl,
+          }),
+          alertId: alert.id,
+          pulseId: alert.pulseId,
+          href,
+          requestedBy: userId,
+          requestedByName: requesterName,
+          reviewRequestId,
+          note,
+        },
+      })
+      if (queuedEmail.created) {
+        emailCount = emailRecipients.length
+        await input.context.env.EMAIL_QUEUE.send({ type: 'email.flush' }).catch(() => undefined)
+      }
+    }
+
+    const { id: auditId } = await scoped.audit.write({
+      actorId: userId,
+      entityType: 'pulse_firm_alert',
+      entityId: alert.id,
+      action: 'pulse.review_requested',
+      after: {
+        alertId: alert.id,
+        pulseId: alert.pulseId,
+        requestedBy: userId,
+        requestedByName: requesterName,
+        recipientCount: recipients.length,
+        emailCount,
+        reviewRequestId,
+        note,
+      },
+    })
+
+    return { notificationCount: recipients.length, emailCount, auditId }
+  } catch (error) {
+    if (error instanceof ORPCError) throw error
+    return mapPulseError(error)
+  }
+}
+
+const requestReview = os.pulse.requestReview.handler(async ({ input, context }) =>
+  requestPulseReview({
+    context,
+    alertId: input.alertId,
+    ...(input.note !== undefined ? { note: input.note } : {}),
+  }),
+)
+
 export const pulseHandlers = {
   listAlerts,
   listHistory,
@@ -356,4 +530,5 @@ export const pulseHandlers = {
   snooze,
   revert,
   reactivate,
+  requestReview,
 }

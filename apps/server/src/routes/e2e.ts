@@ -17,6 +17,11 @@ interface E2ESeedRequest {
   testId?: string
 }
 
+interface E2ESwitchRoleRequest {
+  firmId: string | null
+  role: DemoRole | null
+}
+
 const COOKIE_NAME = 'duedatehq.session_token'
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
 const DEMO_FIRM_ID = 'mock_firm_brightline'
@@ -114,6 +119,7 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
     const token = `e2e_token_${suffix}_${crypto.randomUUID().replaceAll('-', '')}`
     const userName = role === 'owner' ? 'E2E Owner' : `E2E ${roleLabel(role)}`
     const userEmail = `${suffix}@e2e.duedatehq.test`
+    const firmPlan: BillingPlan = seed === 'pulse' ? 'pro' : 'solo'
     const db = createDb(c.env.DB)
 
     await db.insert(authSchema.user).values({
@@ -170,8 +176,8 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
     await db.insert(firmSchema.firmProfile).values({
       id: firmId,
       name: 'E2E Practice',
-      plan: 'solo',
-      seatLimit: 1,
+      plan: firmPlan,
+      seatLimit: billingSeatLimit(firmPlan),
       timezone: 'America/New_York',
       ownerUserId,
       status: 'active',
@@ -341,6 +347,89 @@ e2eRoute.get('/demo-accounts', async (c) => {
   return c.json({ accounts })
 })
 
+e2eRoute.post('/switch-role', async (c) => {
+  if (!hasE2ESeedAccess(c)) {
+    return c.notFound()
+  }
+
+  const input = await readSwitchRoleRequest(c.req.raw)
+  if (!input.firmId || !input.role) {
+    return c.json({ error: 'firmId and role are required' }, 400)
+  }
+  if (!input.firmId.startsWith('e2e_firm_')) {
+    return c.json({ error: 'Only E2E firms can be switched by this route.' }, 400)
+  }
+
+  const db = createDb(c.env.DB)
+  const [member] = await db
+    .select({
+      userId: authSchema.user.id,
+      name: authSchema.user.name,
+      email: authSchema.user.email,
+      firmId: authSchema.member.organizationId,
+    })
+    .from(authSchema.member)
+    .innerJoin(authSchema.user, eq(authSchema.user.id, authSchema.member.userId))
+    .where(
+      and(
+        eq(authSchema.member.organizationId, input.firmId),
+        eq(authSchema.member.role, input.role),
+        eq(authSchema.member.status, 'active'),
+      ),
+    )
+    .limit(1)
+  const [firm] = await db
+    .select({ id: firmSchema.firmProfile.id })
+    .from(firmSchema.firmProfile)
+    .where(eq(firmSchema.firmProfile.id, input.firmId))
+    .limit(1)
+
+  if (!member || !firm) {
+    return c.json({ error: 'No active member found for that firm and role.' }, 404)
+  }
+
+  const now = new Date()
+  const expiresAt = new Date(now.getTime() + SESSION_MAX_AGE_SECONDS * 1000)
+  const sessionId = `e2e_switch_session_${crypto.randomUUID().replaceAll('-', '')}`
+  const token = `e2e_switch_token_${crypto.randomUUID().replaceAll('-', '')}`
+  await db.insert(authSchema.session).values({
+    id: sessionId,
+    token,
+    userId: member.userId,
+    activeOrganizationId: input.firmId,
+    twoFactorVerified: true,
+    expiresAt,
+    createdAt: now,
+    updatedAt: now,
+    ipAddress: '127.0.0.1',
+    userAgent: 'Playwright E2E role switch',
+  })
+
+  const requestUrl = new URL(c.req.url)
+  const signedToken = `${token}.${await makeSignature(token, c.env.AUTH_SECRET)}`
+  const cookie = {
+    name: COOKIE_NAME,
+    value: signedToken,
+    domain: requestUrl.hostname,
+    path: '/',
+    httpOnly: true,
+    secure: requestUrl.protocol === 'https:',
+    sameSite: 'Lax' as const,
+    expires: Math.floor(expiresAt.getTime() / 1000),
+  }
+  c.header('Set-Cookie', serializeCookie(cookie))
+  return c.json({
+    user: {
+      id: member.userId,
+      name: member.name ?? roleLabel(input.role),
+      email: member.email,
+    },
+    firmId: input.firmId,
+    role: input.role,
+    cookie,
+  })
+})
+
 e2eRoute.post('/billing/subscription', async (c) => {
   if (!hasE2ESeedAccess(c)) {
     return c.notFound()
@@ -432,6 +521,20 @@ async function readSeedRequest(request: Request): Promise<E2ESeedRequest> {
     }
   } catch {
     return {}
+  }
+}
+
+async function readSwitchRoleRequest(request: Request): Promise<E2ESwitchRoleRequest> {
+  try {
+    const raw: unknown = await request.json()
+    if (!raw || typeof raw !== 'object') return { firmId: null, role: null }
+    const input = raw as { firmId?: unknown; role?: unknown }
+    return {
+      firmId: typeof input.firmId === 'string' ? input.firmId : null,
+      role: isDemoRole(input.role) ? input.role : null,
+    }
+  } catch {
+    return { firmId: null, role: null }
   }
 }
 
