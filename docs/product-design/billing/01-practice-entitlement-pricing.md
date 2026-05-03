@@ -83,9 +83,10 @@ Runtime gates must match that copy:
 - Solo can view deterministic previews and cached/fallback summaries, but manual practice AI
   refresh/generation actions open a Pro upgrade path instead of queueing AI.
 - Pro unlocks Dashboard brief refresh, client risk summary refresh, deadline tip refresh,
-  readiness checklist generation, production Pulse actions, and production migration AI.
+  readiness checklist generation, production Pulse actions including needs-review confirmation and
+  review requests, and production migration AI.
 - Team keeps the same Practice AI model tier as Pro, and adds Team-only operations such as
-  priority Pulse review confirmations, guided integration migration review, audit export, and
+  priority Pulse matching, guided integration migration review, audit export, and
   larger team workload protection.
 
 FAQ must include "Can I create multiple practices?" with the answer:

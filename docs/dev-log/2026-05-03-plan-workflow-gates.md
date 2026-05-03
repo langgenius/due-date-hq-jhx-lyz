@@ -15,11 +15,10 @@ runtime enforcement for production practice AI and Team-only review workflows.
 
 - Added shared server plan gate helpers and applied them to Dashboard brief refresh, client risk
   summary refresh, deadline tip refresh, readiness checklist generation, Pulse production actions,
-  Pulse needs-review confirmation, Pulse review requests, and guided integration migration review.
+  Pulse review requests, and guided integration migration review.
 - Kept Solo migration imports usable by skipping production migration AI and writing deterministic
   mapper / normalizer traces with preset and dictionary fallback.
-- Added Pro upgrade CTAs for manual practice AI triggers and Team labels for Pulse review
-  confirmation controls.
+- Added Pro upgrade CTAs for manual practice AI triggers.
 - Updated billing and AI architecture docs so plan copy and runtime gates describe the same product.
 
 ## Validation

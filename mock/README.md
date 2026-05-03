@@ -35,3 +35,6 @@ That development-only helper signs in as `Sarah Martinez` and activates
 - Members: owner, manager, preparer, coordinator, and pending invitations.
 - Billing: active Pro subscription for the primary demo firm.
 - Audit/Notifications: cross-category audit events, a ready evidence package, reminders, email outbox, and in-app notifications.
+- Plan accounts: Sofia Solo, Priya Pro, and Taylor Team each have plan-specific clients,
+  obligations, dashboard briefs, imports, evidence, audit events, notifications, readiness
+  requests, calendar subscriptions, saved Workboard views, and Pulse alert matches.

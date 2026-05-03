@@ -24,7 +24,6 @@ interface AffectedClientsTableProps {
   confirmedReviewIds: ReadonlySet<string>
   onChangeSelection: (next: Set<string>) => void
   onToggleNeedsReviewConfirmation: (obligationId: string, confirmed: boolean) => void
-  canConfirmReviewMatches: boolean
   /** When true, all controls are read-only (e.g. RBAC denies apply). */
   readOnly?: boolean
 }
@@ -38,7 +37,6 @@ export function AffectedClientsTable({
   confirmedReviewIds,
   onChangeSelection,
   onToggleNeedsReviewConfirmation,
-  canConfirmReviewMatches,
   readOnly = false,
 }: AffectedClientsTableProps) {
   const { t } = useLingui()
@@ -120,7 +118,7 @@ export function AffectedClientsTable({
                       <Checkbox
                         aria-label={t`Confirm ${row.clientName} applies to this relief`}
                         checked={reviewConfirmed}
-                        disabled={readOnly || !canConfirmReviewMatches}
+                        disabled={readOnly}
                         onCheckedChange={(value) =>
                           onToggleNeedsReviewConfirmation(row.obligationId, value)
                         }
@@ -128,11 +126,6 @@ export function AffectedClientsTable({
                       <span>
                         <Trans>Confirm applies</Trans>
                       </span>
-                      {!canConfirmReviewMatches ? (
-                        <Badge variant="outline">
-                          <Trans>Team</Trans>
-                        </Badge>
-                      ) : null}
                     </label>
                   ) : null}
                 </div>

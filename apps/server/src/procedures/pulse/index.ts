@@ -11,7 +11,7 @@ import { livePulseAdapters } from '@duedatehq/ingest/adapters'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { requireTenant, type RpcContext } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
-import { requirePriorityPulseMatching, requireProductionPulse } from '../_plan-gates'
+import { requireProductionPulse } from '../_plan-gates'
 import { os } from '../_root'
 import { recalculateObligationExposure } from '../_penalty-exposure'
 
@@ -270,9 +270,6 @@ const apply = os.pulse.apply.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
   requireProductionPulse(tenant.plan)
-  if ((input.confirmedObligationIds ?? []).length > 0) {
-    requirePriorityPulseMatching(tenant.plan)
-  }
   try {
     const result = await withPulseMutationLock(
       context,
@@ -402,7 +399,7 @@ export async function requestPulseReview(input: {
     'preparer',
   ])
   const { scoped } = requireTenant(input.context)
-  requirePriorityPulseMatching(tenant.plan)
+  requireProductionPulse(tenant.plan)
   const { notifications } = scoped
   if (!notifications) {
     throw new Error('Notifications repo methods are not available.')

@@ -3265,10 +3265,6 @@ msgstr "Needs review"
 msgid "Needs state"
 msgstr "Needs state"
 
-#: src/features/pulse/PulseDetailDrawer.tsx
-msgid "Needs-review Pulse matches can be confirmed on Team and Enterprise plans."
-msgstr "Needs-review Pulse matches can be confirmed on Team and Enterprise plans."
-
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "neutral"
@@ -4395,10 +4391,6 @@ msgstr "Priority"
 #: src/routes/billing.tsx
 msgid "Priority onboarding and audit exports"
 msgstr "Priority onboarding and audit exports"
-
-#: src/features/pulse/lib/error-mapping.ts
-msgid "Priority Pulse matching and review confirmation require Team or above."
-msgstr "Priority Pulse matching and review confirmation require Team or above."
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Privacy"
@@ -5903,7 +5895,6 @@ msgstr "TAX YEAR"
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-page.tsx
-#: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
 #: src/routes/billing.tsx
@@ -5918,10 +5909,6 @@ msgstr "Team and Enterprise plans add capacity pressure, unassigned risk, and re
 #: src/features/audit/audit-log-labels.ts
 msgid "Team member"
 msgstr "Team member"
-
-#: src/features/pulse/PulseDetailDrawer.tsx
-msgid "Team review required"
-msgstr "Team review required"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx

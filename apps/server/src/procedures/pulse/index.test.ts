@@ -217,19 +217,19 @@ describe('requestPulseReview', () => {
     )
   })
 
-  it('requires Team or Enterprise for review requests', async () => {
+  it('allows Pro users to request Pulse review', async () => {
     const { context, notificationsCreate, notificationsEnqueueEmail, auditWrite } = contextFor(
       'preparer',
       pulseDetail(),
       'pro',
     )
 
-    await expect(requestPulseReview({ context, alertId: 'alert_1' })).rejects.toMatchObject({
-      code: 'FORBIDDEN',
-    })
-    expect(notificationsCreate).not.toHaveBeenCalled()
-    expect(notificationsEnqueueEmail).not.toHaveBeenCalled()
-    expect(auditWrite).not.toHaveBeenCalledWith(
+    await expect(requestPulseReview({ context, alertId: 'alert_1' })).resolves.toEqual(
+      expect.objectContaining({ notificationCount: 2, emailCount: 2 }),
+    )
+    expect(notificationsCreate).toHaveBeenCalledTimes(2)
+    expect(notificationsEnqueueEmail).toHaveBeenCalledTimes(1)
+    expect(auditWrite).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'pulse.review_requested' }),
     )
   })

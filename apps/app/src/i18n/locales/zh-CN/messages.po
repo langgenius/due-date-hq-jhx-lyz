@@ -3265,10 +3265,6 @@ msgstr "需复核"
 msgid "Needs state"
 msgstr "需要州信息"
 
-#: src/features/pulse/PulseDetailDrawer.tsx
-msgid "Needs-review Pulse matches can be confirmed on Team and Enterprise plans."
-msgstr "需要复核的 Pulse 匹配只能在 Team 和 Enterprise 计划中确认。"
-
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "常规"
@@ -4395,10 +4391,6 @@ msgstr "优先级"
 #: src/routes/billing.tsx
 msgid "Priority onboarding and audit exports"
 msgstr "优先 onboarding 与审计导出"
-
-#: src/features/pulse/lib/error-mapping.ts
-msgid "Priority Pulse matching and review confirmation require Team or above."
-msgstr "Priority Pulse 匹配和复核确认需要 Team 或更高计划。"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Privacy"
@@ -5903,7 +5895,6 @@ msgstr "税务年度"
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-page.tsx
-#: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
 #: src/routes/billing.tsx
@@ -5918,10 +5909,6 @@ msgstr "Team 和 Enterprise 计划会为每周工作负载分诊增加产能压�
 #: src/features/audit/audit-log-labels.ts
 msgid "Team member"
 msgstr "团队成员"
-
-#: src/features/pulse/PulseDetailDrawer.tsx
-msgid "Team review required"
-msgstr "需要 Team 复核"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
