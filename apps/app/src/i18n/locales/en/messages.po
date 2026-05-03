@@ -84,11 +84,6 @@ msgstr "{0} clients · {1} obligations removed"
 msgid "{0} clients, {1} obligations, {2} exposure, {3} need input"
 msgstr "{0} clients, {1} obligations, {2} exposure, {3} need input"
 
-#. placeholder {0}: summary.dueThisWeekCount
-#: src/routes/dashboard.tsx
-msgid "{0} due this week"
-msgstr "{0} due this week"
-
 #. placeholder {0}: stats.fullyCovered
 #. placeholder {1}: stats.jurisdictions - stats.fullyCovered
 #: src/features/rules/coverage-tab.tsx
@@ -137,6 +132,13 @@ msgstr "{0} open obligations, {1} due this week, and {2} need review."
 #: src/features/migration/Step4Preview.tsx
 msgid "{0} ready"
 msgstr "{0} ready"
+
+#. placeholder {0}: summary.exposureReadyCount
+#. placeholder {1}: summary.exposureNeedsInputCount
+#. placeholder {2}: summary.exposureUnsupportedCount
+#: src/routes/dashboard.tsx
+msgid "{0} ready · {1} needs input · {2} unsupported"
+msgstr "{0} ready · {1} needs input · {2} unsupported"
 
 #. placeholder {0}: result.updatedCount
 #: src/routes/workboard.tsx
@@ -1588,10 +1590,6 @@ msgstr "Dashboard"
 msgid "Dashboard risk summary will appear after clients and obligations are generated."
 msgstr "Dashboard risk summary will appear after clients and obligations are generated."
 
-#: src/routes/dashboard.tsx
-msgid "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
-msgstr "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
-
 #: src/routes/workboard.tsx
 msgid "Days"
 msgstr "Days"
@@ -1896,14 +1894,6 @@ msgstr "Entity types"
 msgid "Entry"
 msgstr "Entry"
 
-#: src/routes/dashboard.tsx
-msgid "Estimated dollars where formulas are ready."
-msgstr "Estimated dollars where formulas are ready."
-
-#: src/routes/dashboard.tsx
-msgid "Estimated exposure for obligations with ready penalty formulas."
-msgstr "Estimated exposure for obligations with ready penalty formulas."
-
 #: src/routes/workboard.tsx
 msgid "Estimated tax due"
 msgstr "Estimated tax due"
@@ -1950,10 +1940,6 @@ msgstr "Evidence gaps"
 #: src/routes/dashboard.tsx
 msgid "Evidence linked"
 msgstr "Evidence linked"
-
-#: src/routes/dashboard.tsx
-msgid "Evidence-backed obligations ordered by server priority."
-msgstr "Evidence-backed obligations ordered by server priority."
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Exception"
@@ -2205,10 +2191,6 @@ msgstr "Generate deadlines"
 msgid "Generating your deadline queue"
 msgstr "Generating your deadline queue"
 
-#: src/routes/dashboard.tsx
-msgid "Glass-box threshold is active"
-msgstr "Glass-box threshold is active"
-
 #: src/routes/billing.success.tsx
 msgid "Go to Dashboard"
 msgstr "Go to Dashboard"
@@ -2267,10 +2249,6 @@ msgstr "Import clients"
 #: src/features/migration/WizardShell.tsx
 msgid "Import clients · Step {step} of 4"
 msgstr "Import clients · Step {step} of 4"
-
-#: src/routes/dashboard.tsx
-msgid "Import clients to generate real obligation risk."
-msgstr "Import clients to generate real obligation risk."
 
 #: src/features/migration/Wizard.tsx
 msgid "Import complete"
@@ -2512,10 +2490,6 @@ msgstr "Load"
 #: src/routes/workboard.tsx
 msgid "Load more"
 msgstr "Load more"
-
-#: src/routes/dashboard.tsx
-msgid "Loading"
-msgstr "Loading"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Loading alerts…"
@@ -2918,10 +2892,6 @@ msgstr "Next 30 days"
 msgid "Next 7 days"
 msgstr "Next 7 days"
 
-#: src/routes/dashboard.tsx
-msgid "Next deadlines"
-msgstr "Next deadlines"
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Next page"
 msgstr "Next page"
@@ -3286,10 +3256,6 @@ msgstr "Obligation Preview"
 msgid "Obligation queue"
 msgstr "Obligation queue"
 
-#: src/routes/dashboard.tsx
-msgid "obligations"
-msgstr "obligations"
-
 #: src/features/rules/coverage-tab.tsx
 msgid "official channels under monitor"
 msgstr "official channels under monitor"
@@ -3399,10 +3365,6 @@ msgid "Open member actions"
 msgstr "Open member actions"
 
 #: src/routes/dashboard.tsx
-msgid "open obligations"
-msgstr "open obligations"
-
-#: src/routes/dashboard.tsx
 msgid "Open obligations"
 msgstr "Open obligations"
 
@@ -3416,10 +3378,6 @@ msgstr "Open official source: {0}"
 #: src/routes/workboard.tsx
 msgid "Open portal"
 msgstr "Open portal"
-
-#: src/routes/dashboard.tsx
-msgid "Open risk"
-msgstr "Open risk"
 
 #. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
@@ -3445,7 +3403,6 @@ msgid "Open the obligation queue."
 msgstr "Open the obligation queue."
 
 #: src/features/workload/workload-page.tsx
-#: src/routes/dashboard.tsx
 msgid "Open Workboard"
 msgstr "Open Workboard"
 
@@ -3464,10 +3421,6 @@ msgstr "Opening checkout…"
 #: src/routes/billing.tsx
 msgid "Opening…"
 msgstr "Opening…"
-
-#: src/routes/dashboard.tsx
-msgid "Operational closure"
-msgstr "Operational closure"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/pulse/AlertsListPage.tsx
@@ -3634,10 +3587,6 @@ msgstr "Payment year start"
 #: src/routes/workboard.tsx
 msgid "PDF zip"
 msgstr "PDF zip"
-
-#: src/routes/dashboard.tsx
-msgid "Penalty exposure"
-msgstr "Penalty exposure"
 
 #: src/routes/workboard.tsx
 msgid "Penalty inputs"
@@ -5038,10 +4987,6 @@ msgstr "Source excerpt"
 msgid "Source excerpt copied"
 msgstr "Source excerpt copied"
 
-#: src/routes/dashboard.tsx
-msgid "source gaps"
-msgstr "source gaps"
-
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source needs attention · {label}"
 msgstr "Source needs attention · {label}"
@@ -5743,10 +5688,6 @@ msgstr "Welcome back to the workbench."
 msgid "What changed"
 msgstr "What changed"
 
-#: src/routes/dashboard.tsx
-msgid "What has to move before the dashboard can go quiet."
-msgstr "What has to move before the dashboard can go quiet."
-
 #: src/routes/billing.tsx
 msgid "What stays in DueDateHQ"
 msgstr "What stays in DueDateHQ"
@@ -5758,10 +5699,6 @@ msgstr "Where is your data coming from?"
 #: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "Work email"
-
-#: src/routes/dashboard.tsx
-msgid "Work from evidence first; status updates are audited automatically."
-msgstr "Work from evidence first; status updates are audited automatically."
 
 #: src/features/migration/WizardShell.tsx
 #: src/routes/route-summary.ts

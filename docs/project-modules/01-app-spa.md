@@ -33,7 +33,7 @@
 
 ### Dashboard
 
-- 展示 penalty radar、risk pulse、queue stats、top obligations。
+- 展示 AI brief、Pulse banner、顶部风险 metrics 和唯一的 Dashboard triage queue。
 - `DashboardBriefPanel` 可触发 AI brief refresh，server 侧有队列、debounce 和 daily limit。
 - `PulseAlertsBanner` 把可处理的政府更新带入首页。
 

@@ -84,11 +84,6 @@ msgstr "已移除 {0} 个客户 · {1} 条截止日"
 msgid "{0} clients, {1} obligations, {2} exposure, {3} need input"
 msgstr "{0} 个客户，{1} 个事项，{2} exposure，{3} 个需要补输入"
 
-#. placeholder {0}: summary.dueThisWeekCount
-#: src/routes/dashboard.tsx
-msgid "{0} due this week"
-msgstr "本周到期 {0} 项"
-
 #. placeholder {0}: stats.fullyCovered
 #. placeholder {1}: stats.jurisdictions - stats.fullyCovered
 #: src/features/rules/coverage-tab.tsx
@@ -137,6 +132,13 @@ msgstr "{0} 条未关闭义务，{1} 条本周到期，{2} 条需要复核。"
 #: src/features/migration/Step4Preview.tsx
 msgid "{0} ready"
 msgstr "{0} 个已就绪"
+
+#. placeholder {0}: summary.exposureReadyCount
+#. placeholder {1}: summary.exposureNeedsInputCount
+#. placeholder {2}: summary.exposureUnsupportedCount
+#: src/routes/dashboard.tsx
+msgid "{0} ready · {1} needs input · {2} unsupported"
+msgstr "{0} 个已就绪 · {1} 个需要输入 · {2} 个不支持"
 
 #. placeholder {0}: result.updatedCount
 #: src/routes/workboard.tsx
@@ -1588,10 +1590,6 @@ msgstr "仪表盘"
 msgid "Dashboard risk summary will appear after clients and obligations are generated."
 msgstr "生成客户和义务后，Dashboard 风险摘要会显示在这里。"
 
-#: src/routes/dashboard.tsx
-msgid "Dashboard rows are sourced from obligations and evidence links, not demo arrays."
-msgstr "仪表盘行来自义务与 evidence 链接，不再使用 demo 数组。"
-
 #: src/routes/workboard.tsx
 msgid "Days"
 msgstr "天数"
@@ -1896,14 +1894,6 @@ msgstr "实体类型"
 msgid "Entry"
 msgstr "入口"
 
-#: src/routes/dashboard.tsx
-msgid "Estimated dollars where formulas are ready."
-msgstr "已具备计算公式的预计风险金额。"
-
-#: src/routes/dashboard.tsx
-msgid "Estimated exposure for obligations with ready penalty formulas."
-msgstr "已具备罚金公式的义务预计敞口。"
-
 #: src/routes/workboard.tsx
 msgid "Estimated tax due"
 msgstr "预计应纳税额"
@@ -1950,10 +1940,6 @@ msgstr "证据缺口"
 #: src/routes/dashboard.tsx
 msgid "Evidence linked"
 msgstr "已关联证据"
-
-#: src/routes/dashboard.tsx
-msgid "Evidence-backed obligations ordered by server priority."
-msgstr "按服务端优先级排序的证据支撑义务。"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Exception"
@@ -2205,10 +2191,6 @@ msgstr "生成截止日"
 msgid "Generating your deadline queue"
 msgstr "正在生成你的截止日队列"
 
-#: src/routes/dashboard.tsx
-msgid "Glass-box threshold is active"
-msgstr "透明化门槛已启用"
-
 #: src/routes/billing.success.tsx
 msgid "Go to Dashboard"
 msgstr "前往仪表盘"
@@ -2267,10 +2249,6 @@ msgstr "导入客户"
 #: src/features/migration/WizardShell.tsx
 msgid "Import clients · Step {step} of 4"
 msgstr "导入客户 · 第 {step} 步 / 共 4 步"
-
-#: src/routes/dashboard.tsx
-msgid "Import clients to generate real obligation risk."
-msgstr "导入客户即可生成真实义务风险。"
 
 #: src/features/migration/Wizard.tsx
 msgid "Import complete"
@@ -2512,10 +2490,6 @@ msgstr "负载"
 #: src/routes/workboard.tsx
 msgid "Load more"
 msgstr "加载更多"
-
-#: src/routes/dashboard.tsx
-msgid "Loading"
-msgstr "加载中"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Loading alerts…"
@@ -2918,10 +2892,6 @@ msgstr "未来 30 天"
 msgid "Next 7 days"
 msgstr "未来 7 天"
 
-#: src/routes/dashboard.tsx
-msgid "Next deadlines"
-msgstr "下一批截止日"
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Next page"
 msgstr "下一页"
@@ -3286,10 +3256,6 @@ msgstr "事项预览"
 msgid "Obligation queue"
 msgstr "义务队列"
 
-#: src/routes/dashboard.tsx
-msgid "obligations"
-msgstr "义务"
-
 #: src/features/rules/coverage-tab.tsx
 msgid "official channels under monitor"
 msgstr "正在监听的官方渠道"
@@ -3399,10 +3365,6 @@ msgid "Open member actions"
 msgstr "打开成员操作"
 
 #: src/routes/dashboard.tsx
-msgid "open obligations"
-msgstr "未关闭义务"
-
-#: src/routes/dashboard.tsx
 msgid "Open obligations"
 msgstr "未关闭义务"
 
@@ -3416,10 +3378,6 @@ msgstr "打开官方来源：{0}"
 #: src/routes/workboard.tsx
 msgid "Open portal"
 msgstr "打开门户"
-
-#: src/routes/dashboard.tsx
-msgid "Open risk"
-msgstr "待处理风险"
 
 #. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
@@ -3445,7 +3403,6 @@ msgid "Open the obligation queue."
 msgstr "打开义务队列。"
 
 #: src/features/workload/workload-page.tsx
-#: src/routes/dashboard.tsx
 msgid "Open Workboard"
 msgstr "打开 Workboard"
 
@@ -3464,10 +3421,6 @@ msgstr "正在打开支付…"
 #: src/routes/billing.tsx
 msgid "Opening…"
 msgstr "正在打开…"
-
-#: src/routes/dashboard.tsx
-msgid "Operational closure"
-msgstr "运营闭环"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/pulse/AlertsListPage.tsx
@@ -3634,10 +3587,6 @@ msgstr "缴款税年开始"
 #: src/routes/workboard.tsx
 msgid "PDF zip"
 msgstr "PDF 压缩包"
-
-#: src/routes/dashboard.tsx
-msgid "Penalty exposure"
-msgstr "罚金敞口"
 
 #: src/routes/workboard.tsx
 msgid "Penalty inputs"
@@ -5038,10 +4987,6 @@ msgstr "原文摘录"
 msgid "Source excerpt copied"
 msgstr "原文摘录已复制"
 
-#: src/routes/dashboard.tsx
-msgid "source gaps"
-msgstr "来源缺失"
-
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source needs attention · {label}"
 msgstr "来源需要处理 · {label}"
@@ -5743,10 +5688,6 @@ msgstr "欢迎回到工作台。"
 msgid "What changed"
 msgstr "变更内容"
 
-#: src/routes/dashboard.tsx
-msgid "What has to move before the dashboard can go quiet."
-msgstr "哪些事项完成后，仪表盘才能安静下来。"
-
 #: src/routes/billing.tsx
 msgid "What stays in DueDateHQ"
 msgstr "DueDateHQ 保留什么"
@@ -5758,10 +5699,6 @@ msgstr "你的数据从哪里来？"
 #: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "工作邮箱"
-
-#: src/routes/dashboard.tsx
-msgid "Work from evidence first; status updates are audited automatically."
-msgstr "先从证据入手；状态更新会自动进入审计轨迹。"
 
 #: src/features/migration/WizardShell.tsx
 #: src/routes/route-summary.ts
