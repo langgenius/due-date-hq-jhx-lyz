@@ -3316,6 +3316,10 @@ msgstr "未来 30 天"
 msgid "Next 7 days"
 msgstr "未来 7 天"
 
+#: src/routes/workboard.tsx
+msgid "Next month"
+msgstr "下个月"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Next page"
 msgstr "下一页"
@@ -4367,6 +4371,10 @@ msgstr "仅预览 AI 辅助"
 msgid "Previous"
 msgstr "上一页"
 
+#: src/routes/workboard.tsx
+msgid "Previous month"
+msgstr "上个月"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Previous page"
 msgstr "上一页"
@@ -5392,6 +5400,10 @@ msgstr "请选择客户后再次应用。"
 msgid "Select clients to apply"
 msgstr "请选择客户后再应用"
 
+#: src/routes/workboard.tsx
+msgid "Select date"
+msgstr "选择日期"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Select tax year {value}"
 msgstr "选择税年 {value}"
@@ -6012,6 +6024,7 @@ msgid "The practice-scoped record of who changed what, when it changed, and what
 msgstr "事务所范围内记录谁在何时改了什么，以及附带了哪些证据或原因。"
 
 #: src/lib/i18n-error.ts
+#: src/routes/workboard.tsx
 msgid "The request was invalid. Please review your input and try again."
 msgstr "请求无效，请检查输入后重试。"
 

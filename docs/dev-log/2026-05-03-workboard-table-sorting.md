@@ -16,12 +16,15 @@ did not expose direct sorting controls for the operational columns users scan mo
 - Added compact header sort buttons for Due date and Exposure.
 - Preserved server-side pagination semantics by extending repo comparison and cursor handling for
   Exposure sorting.
+- Follow-up: Workboard data rows now use the pointer cursor to match their click-to-open behavior.
 
 ## Design alignment
 
 - No DESIGN.md or token contract changes were needed.
 - Header sort buttons reuse the same compact ghost icon affordance added to Dashboard, alongside the
   existing header filter controls.
+- The row cursor change only clarifies an existing row action; no design token or stable docs update
+  is needed.
 
 ## Validation
 
