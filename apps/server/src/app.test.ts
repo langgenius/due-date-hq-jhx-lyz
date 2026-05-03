@@ -33,6 +33,7 @@ describe('@duedatehq/server app', () => {
       providers: {
         google: true,
         microsoft: false,
+        emailOtp: true,
       },
       publicClientIds: {
         google: 'google-client-id',

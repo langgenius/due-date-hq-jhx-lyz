@@ -982,7 +982,7 @@ msgstr "批量状态已更新"
 
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
-msgstr "登录即表示你同意 <termsLink>服务条款</termsLink> 与 <privacyLink>隐私政策</privacyLink>。登录遇到问题？请联系 <supportLink>support@duedatehq.com</supportLink>。"
+msgstr "登录即表示您同意 <termsLink>条款</termsLink> 和 <privacyLink>隐私政策</privacyLink>。登录遇到问题？请发送邮件至 <supportLink>support@duedatehq.com</supportLink>。"
 
 #: src/routes/clients.tsx
 msgid "C corp"
@@ -1069,6 +1069,7 @@ msgid "Card numbers and invoice payment details never enter the app database."
 msgstr "卡号和发票支付详情不会进入应用数据库。"
 
 #: src/features/audit/audit-log-table.tsx
+#: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Change"
 msgstr "变更"
 
@@ -1301,6 +1302,10 @@ msgstr "关闭向导"
 msgid "Code"
 msgstr "错误代码"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Code sent to"
+msgstr "验证码已发送至"
+
 #: src/routes/workboard.tsx
 msgid "Columns"
 msgstr "列"
@@ -1522,6 +1527,10 @@ msgstr "无法撤销会话"
 msgid "Could not run obligation preview."
 msgstr "无法运行事项预览。"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Could not send the code"
+msgstr "无法发送验证码"
+
 #: src/routes/account.security.tsx
 msgid "Could not start authenticator setup"
 msgstr "无法开始身份验证器设置"
@@ -1550,6 +1559,7 @@ msgstr "无法更新事务所。"
 msgid "Could not update Smart Priority."
 msgstr "无法更新 Smart Priority。"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/routes/account.security.tsx
 #: src/routes/two-factor.tsx
 msgid "Could not verify the code"
@@ -2148,6 +2158,10 @@ msgstr "可应用"
 msgid "Email"
 msgstr "邮箱"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Email me a code"
+msgstr "发送验证码"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Enable"
 msgstr "启用"
@@ -2166,11 +2180,15 @@ msgstr "已启用单元格"
 
 #: src/routes/login.tsx
 msgid "Encrypted · 7-day session · SSO-ready"
-msgstr "已加密 · 7 天会话 · SSO-ready"
+msgstr "全程加密 · 7 天会话 · 支持 SSO"
 
 #: src/routes/onboarding.tsx
 msgid "Encrypted · Auto-saves · Renamable later"
 msgstr "全程加密 · 自动保存 · 可随时重命名"
+
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Enter a valid email address"
+msgstr "请输入有效的邮箱地址"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Enter execute · Esc close · {commandShortcut} toggle"
@@ -2179,6 +2197,10 @@ msgstr "Enter 执行 · Esc 关闭 · {commandShortcut} 切换"
 #: src/routes/workboard.tsx
 msgid "Enter penalty inputs"
 msgstr "填写罚金输入项"
+
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Enter the 6-digit code."
+msgstr "请输入 6 位验证码。"
 
 #: src/routes/two-factor.tsx
 msgid "Enter the code from your authenticator app."
@@ -3939,6 +3961,11 @@ msgstr "可选备注"
 msgid "or"
 msgstr "或"
 
+#: src/routes/accept-invite.tsx
+#: src/routes/login.tsx
+msgid "or continue with SSO"
+msgstr "或使用 SSO 继续"
+
 #: src/routes/clients.tsx
 msgid "Other"
 msgstr "其他"
@@ -4850,6 +4877,7 @@ msgstr "需要复核"
 msgid "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
 msgstr "需要复核 — {0} 项待 CPA 确认，不会自动提醒"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/features/members/members-page.tsx
 msgid "Resend"
 msgstr "重发"
@@ -5539,8 +5567,8 @@ msgid "Sign in to accept this invitation."
 msgstr "登录后接受此邀请。"
 
 #: src/routes/login.tsx
-msgid "Sign in with Google to access your practice's deadline queue and evidence-backed recommendations."
-msgstr "使用 Google 登录，进入你事务所的截止日期队列与可溯源建议。"
+msgid "Sign in with your work email or SSO to access your practice's deadline queue and evidence-backed recommendations."
+msgstr "使用工作邮箱或 SSO 登录，访问事务所的截止日队列和有证据支持的建议。"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out"
@@ -5999,6 +6027,10 @@ msgstr "账单门户会在支付服务商处打开，用于查看发票、支付
 msgid "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue."
 msgstr "客户导入流程：映射列、规范化值、预览截止日，并创建初始截止日队列。"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "The code expires in 5 minutes."
+msgstr "验证码将在 5 分钟后过期。"
+
 #: src/features/concepts/concept-help.tsx
 msgid "The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
 msgstr "当前截止日队列的估算金额敞口，用于确定处理优先级，但不是官方罚金通知。"
@@ -6389,6 +6421,7 @@ msgstr "每个 (辖区, 实体类型) 组合是否可验证"
 msgid "Verification"
 msgstr "核验"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/routes/account-security-two-factor-setup.tsx
 #: src/routes/two-factor.tsx
 msgid "Verification code"
@@ -6435,6 +6468,10 @@ msgstr "验证"
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Verify and enable"
 msgstr "验证并启用"
+
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Verify code"
+msgstr "验证验证码"
 
 #: src/components/patterns/app-shell.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
@@ -6556,6 +6593,7 @@ msgstr "你的数据从哪里来？"
 msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 msgstr "该截止日是否具备推进所需条件，例如客户资料、复核、证据或风险输入。"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "工作邮箱"
@@ -6629,6 +6667,10 @@ msgstr "请先登录后继续。"
 #: src/features/migration/Step4Preview.tsx
 msgid "You're about to create"
 msgstr "你即将创建"
+
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "you@firm.com"
+msgstr "you@firm.com"
 
 #: src/lib/i18n-error.ts
 msgid "Your account isn't linked to a practice yet."

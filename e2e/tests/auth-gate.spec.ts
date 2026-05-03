@@ -9,6 +9,8 @@ test('AC: E2E-SMOKE-LOGIN renders the login entry', async ({ loginPage, page }) 
 
   await expect(page).toHaveURL(/\/login$/)
   await expect(loginPage.heading).toBeVisible()
+  await expect(loginPage.emailInput).toBeVisible()
+  await expect(loginPage.emailButton).toBeEnabled()
   await expect(loginPage.googleButton).toBeEnabled()
   await expect(loginPage.microsoftButton).toHaveCount(0)
   await expect(loginPage.footerStatus).toBeVisible()

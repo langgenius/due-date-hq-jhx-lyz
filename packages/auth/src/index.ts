@@ -9,7 +9,7 @@ import {
 import { genericOAuth, microsoftEntraId } from 'better-auth/plugins/generic-oauth'
 import { organization } from 'better-auth/plugins/organization'
 import { twoFactor } from 'better-auth/plugins/two-factor'
-import { oneTap } from 'better-auth/plugins'
+import { emailOTP, oneTap } from 'better-auth/plugins'
 import { APIError } from 'better-auth/api'
 import {
   isBillingPlan,
@@ -21,6 +21,19 @@ import type { AuthEmailSender } from './email'
 import { accessControl, roles } from './permissions'
 
 export { planSeatLimit } from '@duedatehq/core/plan-entitlements'
+
+export const SIGN_IN_OTP_EXPIRES_IN_SECONDS = 300
+export const SIGN_IN_OTP_EXPIRES_IN_MINUTES = SIGN_IN_OTP_EXPIRES_IN_SECONDS / 60
+export const EMAIL_OTP_RATE_LIMIT_CUSTOM_RULES = {
+  '/email-otp/send-verification-otp': {
+    window: 60,
+    max: 3,
+  },
+  '/sign-in/email-otp': {
+    window: 60,
+    max: 5,
+  },
+} as const
 
 export type AuthEnv = {
   AUTH_SECRET: string
@@ -259,6 +272,14 @@ function isKnownFirmRole(role: string): boolean {
   return role === 'owner' || role === 'manager' || role === 'preparer' || role === 'coordinator'
 }
 
+function assertSignInOtpType(type: string) {
+  if (type !== 'sign-in') {
+    throw new APIError('BAD_REQUEST', {
+      message: 'Unsupported email OTP type.',
+    })
+  }
+}
+
 export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: AuthEnv) {
   const { email, organizationHooks } = opts
   const organizationPlugin = organization({
@@ -322,6 +343,27 @@ export function createAuthPlugins(opts: CreateAuthPluginsOptions = {}, env?: Aut
       allowPasswordless: true,
     }),
     oneTap(),
+    emailOTP({
+      otpLength: 6,
+      expiresIn: SIGN_IN_OTP_EXPIRES_IN_SECONDS,
+      disableSignUp: false,
+      rateLimit: {
+        window: 60,
+        max: 5,
+      },
+      generateOTP: ({ type }) => {
+        assertSignInOtpType(type)
+        return undefined
+      },
+      sendVerificationOTP: async ({ email: to, otp, type }) => {
+        assertSignInOtpType(type)
+        await email?.sendSignInOtpEmail({
+          to,
+          otp,
+          expiresInMinutes: SIGN_IN_OTP_EXPIRES_IN_MINUTES,
+        })
+      },
+    }),
   ] as const
 
   const microsoftPlugins =
@@ -425,6 +467,7 @@ export function createAuth(deps: CreateAuthDeps) {
       storage: 'database',
       window: 60,
       max: 100,
+      customRules: EMAIL_OTP_RATE_LIMIT_CUSTOM_RULES,
     },
     session: {
       expiresIn: 60 * 60 * 24 * 7,

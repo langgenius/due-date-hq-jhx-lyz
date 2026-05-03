@@ -1,5 +1,6 @@
 import { createAuthClient } from 'better-auth/react'
 import {
+  emailOTPClient,
   genericOAuthClient,
   oneTapClient,
   organizationClient,
@@ -21,6 +22,7 @@ export const authClient = createAuthClient({
   plugins: [
     organizationClient(),
     twoFactorClient({ twoFactorPage: '/two-factor' }),
+    emailOTPClient(),
     genericOAuthClient(),
     stripeClient({ subscription: true }),
   ],
@@ -85,6 +87,54 @@ export function signInWithMicrosoft(callbackURL = '/') {
     providerId: 'microsoft-entra-id',
     callbackURL: absolute,
   })
+}
+
+type AuthClientError = {
+  message?: string
+  statusText?: string
+  code?: string
+}
+
+function isAuthClientError(value: unknown): value is AuthClientError {
+  return typeof value === 'object' && value !== null
+}
+
+function assertNoAuthClientError(result: unknown, fallback: string) {
+  if (!result || typeof result !== 'object' || !('error' in result)) return
+  const error = Reflect.get(result, 'error')
+  if (!isAuthClientError(error)) return
+  throw new Error(error.message || error.statusText || error.code || fallback)
+}
+
+export function displayNameFromEmail(email: string): string {
+  const local = email.split('@')[0]?.trim() ?? ''
+  const words = local
+    .replace(/[+._-]+/g, ' ')
+    .replace(/\d+/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+
+  if (words.length === 0) return email.trim().toLowerCase()
+  return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+}
+
+export async function sendEmailSignInCode(email: string) {
+  const result = await authClient.emailOtp.sendVerificationOtp({
+    email,
+    type: 'sign-in',
+  })
+  assertNoAuthClientError(result, 'Could not send the sign-in code')
+  return result
+}
+
+export async function signInWithEmailCode(input: { email: string; otp: string; name?: string }) {
+  const result = await authClient.signIn.emailOtp({
+    email: input.email,
+    otp: input.otp,
+    name: input.name ?? displayNameFromEmail(input.email),
+  })
+  assertNoAuthClientError(result, 'Could not verify the sign-in code')
+  return result
 }
 
 export function initialsFromName(value: string | null | undefined): string {

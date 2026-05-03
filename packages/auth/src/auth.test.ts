@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest'
 import {
   billingCheckoutConfig,
   createAuthPlugins,
+  EMAIL_OTP_RATE_LIMIT_CUSTOM_RULES,
   isStripeConfigured,
   planSeatLimit,
+  SIGN_IN_OTP_EXPIRES_IN_SECONDS,
   stripeBillingPlans,
   type AuthEnv,
 } from './index'
@@ -20,6 +22,23 @@ function authEnv(overrides: Partial<AuthEnv> = {}): AuthEnv {
     ENV: 'production',
     ...overrides,
   }
+}
+
+type RateLimitRule = {
+  pathMatcher: (path: string) => boolean
+  window: number
+  max: number
+}
+
+function isRateLimitRule(value: unknown): value is RateLimitRule {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'pathMatcher' in value &&
+    typeof Reflect.get(value, 'pathMatcher') === 'function' &&
+    typeof Reflect.get(value, 'window') === 'number' &&
+    typeof Reflect.get(value, 'max') === 'number'
+  )
 }
 
 describe('@duedatehq/auth permissions', () => {
@@ -131,6 +150,39 @@ describe('@duedatehq/auth permissions', () => {
 
   it('registers Google One Tap without adding auth schema requirements', () => {
     expect(createAuthPlugins({}, authEnv()).map((plugin) => plugin.id)).toContain('one-tap')
+  })
+
+  it('registers Email OTP sign-in with self-serve signup and scoped rate limits', () => {
+    const emailOtp = createAuthPlugins({}, authEnv()).find((plugin) => plugin.id === 'email-otp')
+    const options = emailOtp && 'options' in emailOtp ? Reflect.get(emailOtp, 'options') : undefined
+    const rateLimit =
+      emailOtp && 'rateLimit' in emailOtp ? Reflect.get(emailOtp, 'rateLimit') : undefined
+    const signInRule = Array.isArray(rateLimit)
+      ? rateLimit.find((rule) => isRateLimitRule(rule) && rule.pathMatcher('/sign-in/email-otp'))
+      : undefined
+
+    expect(emailOtp).toBeTruthy()
+    expect(options).toMatchObject({
+      otpLength: 6,
+      expiresIn: SIGN_IN_OTP_EXPIRES_IN_SECONDS,
+      disableSignUp: false,
+    })
+    expect(signInRule).toEqual(
+      expect.objectContaining({
+        window: 60,
+        max: 5,
+      }),
+    )
+    expect(EMAIL_OTP_RATE_LIMIT_CUSTOM_RULES).toMatchObject({
+      '/email-otp/send-verification-otp': {
+        window: 60,
+        max: 3,
+      },
+      '/sign-in/email-otp': {
+        window: 60,
+        max: 5,
+      },
+    })
   })
 
   it('leaves Solo and Team checkout disabled when their price ids are absent', () => {

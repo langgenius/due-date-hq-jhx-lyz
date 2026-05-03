@@ -1,11 +1,13 @@
 import { useState, useTransition } from 'react'
-import { useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Loader2Icon } from 'lucide-react'
 
 import { Button } from '@duedatehq/ui/components/ui/button'
+import { EmailOtpSignInForm } from '@/features/auth/email-otp-sign-in-form'
+import { authCapabilities } from '@/lib/auth-capabilities'
 import { signInWithGoogle, signInWithMicrosoft, startGoogleOneTap } from '@/lib/auth'
 import { cn } from '@duedatehq/ui/lib/utils'
 
@@ -55,34 +57,40 @@ type AuthCapabilities = {
   providers: {
     google: boolean
     microsoft: boolean
+    emailOtp: boolean
   }
   publicClientIds?: {
     google?: string
   }
 }
 
-async function authCapabilities(): Promise<AuthCapabilities> {
-  const response = await fetch('/api/auth-capabilities', { credentials: 'include' })
-  if (!response.ok) return { providers: { google: true, microsoft: false } }
-  return response.json()
+function isInAppPath(value: string | null): value is string {
+  return !!value && value.startsWith('/') && !value.startsWith('//')
 }
 
 export function LoginRoute() {
   // Authed users never reach this component — the /login loader redirects them
   // to the post-login target before render.
   const [search] = useSearchParams()
-  const redirectTo = search.get('redirectTo') || '/'
+  const navigate = useNavigate()
+  const redirectToParam = search.get('redirectTo')
+  const redirectTo = isInAppPath(redirectToParam) ? redirectToParam : '/'
   const { t } = useLingui()
   const capabilitiesQuery = useQuery({
     queryKey: ['auth-capabilities'],
-    queryFn: authCapabilities,
+    queryFn: authCapabilities as () => Promise<AuthCapabilities>,
     staleTime: 60_000,
   })
   const microsoftEnabled = capabilitiesQuery.data?.providers.microsoft ?? false
+  const emailOtpEnabled = capabilitiesQuery.data?.providers.emailOtp ?? true
   const googleClientId = capabilitiesQuery.data?.publicClientIds?.google
 
   const [submittingProvider, setSubmittingProvider] = useState<'google' | 'microsoft' | null>(null)
+  const [emailFlowActive, setEmailFlowActive] = useState(false)
+  const [emailBusy, setEmailBusy] = useState(false)
   const [, startTransition] = useTransition()
+  const socialDisabled = submittingProvider !== null || emailBusy
+
   useQuery({
     queryKey: ['auth-one-tap', googleClientId, redirectTo],
     queryFn: async () => {
@@ -93,7 +101,8 @@ export function LoginRoute() {
       })
       return null
     },
-    enabled: Boolean(googleClientId) && submittingProvider === null,
+    enabled:
+      Boolean(googleClientId) && submittingProvider === null && !emailFlowActive && !emailBusy,
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,
     refetchOnWindowFocus: false,
@@ -128,32 +137,42 @@ export function LoginRoute() {
 
   return (
     <div className="flex w-full max-w-[400px] flex-col">
-      <span className="inline-flex w-fit items-center gap-2 rounded-full bg-accent-tint px-2.5 py-1 font-mono text-[11px] tracking-[0.16em] text-accent-text">
-        <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-accent-default" />
-        <Trans>SIGN IN</Trans>
-      </span>
-
       {/* min-h reserves the English 2-line height so the button below stays
           pinned regardless of locale. `whitespace-pre-line` lets locale catalogs
           inject a soft `\n` at a natural break point (zh-CN does this; en lets
           the browser wrap on its own). */}
-      <h1 className="mt-5 min-h-[2lh] whitespace-pre-line text-[28px] font-semibold leading-[1.15] tracking-tight text-text-primary">
-        <Trans>Welcome back to the workbench.</Trans>
+      <h1 className="mt-4 min-h-[2lh] whitespace-pre-line text-[28px] font-semibold leading-[1.15] tracking-tight text-text-primary">
+        <Trans>Welcome to the workbench.</Trans>
       </h1>
 
       <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">
         <Trans>
-          Sign in with Google to access your practice&apos;s deadline queue and evidence-backed
-          recommendations.
+          Sign in with your work email or SSO to access your practice&apos;s deadline queue and
+          evidence-backed recommendations.
         </Trans>
       </p>
+
+      {emailOtpEnabled ? (
+        <>
+          <EmailOtpSignInForm
+            className="mt-8"
+            disabled={submittingProvider !== null}
+            onInteraction={() => setEmailFlowActive(true)}
+            onPendingChange={setEmailBusy}
+            onSignedIn={() => navigate(redirectTo, { replace: true })}
+          />
+        </>
+      ) : null}
 
       <Button
         variant="outline"
         size="lg"
-        className="mt-8 h-11 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel"
+        className={cn(
+          'h-8 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel',
+          emailOtpEnabled ? 'mt-3' : 'mt-8',
+        )}
         onClick={handleGoogleSignIn}
-        disabled={submittingProvider !== null}
+        disabled={socialDisabled}
         aria-busy={submittingProvider === 'google'}
       >
         {submittingProvider === 'google' ? (
@@ -176,7 +195,7 @@ export function LoginRoute() {
           size="lg"
           className="mt-3 h-11 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel"
           onClick={handleMicrosoftSignIn}
-          disabled={submittingProvider !== null}
+          disabled={socialDisabled}
           aria-busy={submittingProvider === 'microsoft'}
         >
           {submittingProvider === 'microsoft' ? (

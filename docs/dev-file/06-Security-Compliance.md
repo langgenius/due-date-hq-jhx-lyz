@@ -25,6 +25,7 @@
 
 | 插件                                       | 用途                                                    |
 | ------------------------------------------ | ------------------------------------------------------- |
+| `emailOTP`                                 | 邮箱验证码 passwordless 登录/注册；仅开放 sign-in OTP   |
 | `socialProviders.google` + `oneTap`        | Google OAuth 登录与 Google One Tap ID token callback    |
 | `genericOAuth.microsoft-entra-id`          | Microsoft Entra ID / Microsoft 365 登录                 |
 | `organization`                             | 多租户（= Firm）+ Member + Invitation + Active-org 切换 |
@@ -38,6 +39,7 @@
 - `session.activeOrganizationId` = 当前 Firm；前端切换 / 创建 / 删除 Firm 必须走 DueDateHQ `firms.*` gateway，服务端再按需调用 Better Auth organization API 或写 session
 - 双设备会话允许；Account Security 列所有 session，可撤销单个 session 或其他 session
 - 已启用 MFA 的用户登录时走 DueDateHQ `/two-factor` challenge；项目接口权限只由 tenant + role 决定，不因为 MFA 开/关额外拦截
+- Email OTP 只允许 `type='sign-in'`，验证码 6 位、5 分钟过期；新邮箱验证通过后自助注册并进入 onboarding。验证码存入 Better Auth `verification` 表，限流走 `rate_limit` 表，无新增 auth schema。
 
 ### 2.3 Invitation 流
 
@@ -49,7 +51,7 @@
   console，非 development 的发送路径会失败
 - Resend delivery callback 只在配置 `RESEND_WEBHOOK_SECRET` 后启用；`/api/webhook/resend`
   使用原始 payload 与 Svix headers 验签后才回写 `email_outbox` 状态
-- 接受：点链接 → `/accept-invite?id=...` → 登录后调用 `/api/auth/organization/accept-invitation`
+- 接受：点链接 → `/accept-invite?id=...` → Email OTP 或 SSO 登录后调用 `/api/auth/organization/accept-invitation`
 - 拒绝 / 撤销：`cancelInvitation` / `rejectInvitation`
 - 过期：默认 14 天
 

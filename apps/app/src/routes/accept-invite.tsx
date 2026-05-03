@@ -14,8 +14,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
+import { FieldSeparator } from '@duedatehq/ui/components/ui/field'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { EmailOtpSignInForm } from '@/features/auth/email-otp-sign-in-form'
 import { authClient, signInWithGoogle, signInWithMicrosoft } from '@/lib/auth'
+import { authCapabilities } from '@/lib/auth-capabilities'
 
 type InvitationPreview = {
   id: string
@@ -23,19 +26,6 @@ type InvitationPreview = {
   role: string
   organizationName: string
   inviterEmail: string
-}
-
-type AuthCapabilities = {
-  providers: {
-    google: boolean
-    microsoft: boolean
-  }
-}
-
-async function authCapabilities(): Promise<AuthCapabilities> {
-  const response = await fetch('/api/auth-capabilities', { credentials: 'include' })
-  if (!response.ok) return { providers: { google: true, microsoft: false } }
-  return response.json()
 }
 
 async function fetchInvitation(id: string): Promise<InvitationPreview> {
@@ -68,8 +58,10 @@ export function AcceptInviteRoute() {
   const [search] = useSearchParams()
   const id = search.get('id') || ''
   const session = authClient.useSession()
-  const signedIn = Boolean(session.data)
+  const [emailSignedIn, setEmailSignedIn] = useState(false)
+  const signedIn = Boolean(session.data) || emailSignedIn
   const [submitting, setSubmitting] = useState<'accept' | 'google' | 'microsoft' | null>(null)
+  const [emailBusy, setEmailBusy] = useState(false)
   const inviteQuery = useQuery({
     queryKey: ['invitation', id],
     queryFn: () => fetchInvitation(id),
@@ -84,6 +76,8 @@ export function AcceptInviteRoute() {
 
   const currentPath = `/accept-invite?id=${encodeURIComponent(id)}`
   const microsoftEnabled = capabilitiesQuery.data?.providers.microsoft ?? false
+  const emailOtpEnabled = capabilitiesQuery.data?.providers.emailOtp ?? true
+  const providerDisabled = submitting !== null || emailBusy
 
   async function handleAccept() {
     setSubmitting('accept')
@@ -165,11 +159,26 @@ export function AcceptInviteRoute() {
           ) : null}
 
           {!signedIn ? (
-            <div className="grid gap-2">
+            <div className="grid gap-3">
+              {emailOtpEnabled ? (
+                <>
+                  <EmailOtpSignInForm
+                    disabled={submitting !== null}
+                    onPendingChange={setEmailBusy}
+                    onSignedIn={async () => {
+                      setEmailSignedIn(true)
+                      await inviteQuery.refetch()
+                    }}
+                  />
+                  <FieldSeparator>
+                    <Trans>or continue with SSO</Trans>
+                  </FieldSeparator>
+                </>
+              ) : null}
               <Button
                 variant="outline"
                 onClick={() => void handleProvider('google')}
-                disabled={submitting !== null}
+                disabled={providerDisabled}
               >
                 {submitting === 'google' ? (
                   <Loader2Icon className="size-4 animate-spin" aria-hidden />
@@ -180,7 +189,7 @@ export function AcceptInviteRoute() {
                 <Button
                   variant="outline"
                   onClick={() => void handleProvider('microsoft')}
-                  disabled={submitting !== null}
+                  disabled={providerDisabled}
                 >
                   {submitting === 'microsoft' ? (
                     <Loader2Icon className="size-4 animate-spin" aria-hidden />

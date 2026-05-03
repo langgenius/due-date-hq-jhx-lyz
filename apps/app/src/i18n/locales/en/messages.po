@@ -1069,6 +1069,7 @@ msgid "Card numbers and invoice payment details never enter the app database."
 msgstr "Card numbers and invoice payment details never enter the app database."
 
 #: src/features/audit/audit-log-table.tsx
+#: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Change"
 msgstr "Change"
 
@@ -1301,6 +1302,10 @@ msgstr "Close wizard"
 msgid "Code"
 msgstr "Code"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Code sent to"
+msgstr "Code sent to"
+
 #: src/routes/workboard.tsx
 msgid "Columns"
 msgstr "Columns"
@@ -1522,6 +1527,10 @@ msgstr "Could not revoke session"
 msgid "Could not run obligation preview."
 msgstr "Could not run obligation preview."
 
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Could not send the code"
+msgstr "Could not send the code"
+
 #: src/routes/account.security.tsx
 msgid "Could not start authenticator setup"
 msgstr "Could not start authenticator setup"
@@ -1550,6 +1559,7 @@ msgstr "Could not update practice."
 msgid "Could not update Smart Priority."
 msgstr "Could not update Smart Priority."
 
+#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/routes/account.security.tsx
 #: src/routes/two-factor.tsx
 msgid "Could not verify the code"
@@ -2148,6 +2158,10 @@ msgstr "Eligible"
 msgid "Email"
 msgstr "Email"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Email me a code"
+msgstr "Email me a code"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Enable"
 msgstr "Enable"
@@ -2172,6 +2186,10 @@ msgstr "Encrypted · 7-day session · SSO-ready"
 msgid "Encrypted · Auto-saves · Renamable later"
 msgstr "Encrypted · Auto-saves · Renamable later"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Enter a valid email address"
+msgstr "Enter a valid email address"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Enter execute · Esc close · {commandShortcut} toggle"
 msgstr "Enter execute · Esc close · {commandShortcut} toggle"
@@ -2179,6 +2197,10 @@ msgstr "Enter execute · Esc close · {commandShortcut} toggle"
 #: src/routes/workboard.tsx
 msgid "Enter penalty inputs"
 msgstr "Enter penalty inputs"
+
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Enter the 6-digit code."
+msgstr "Enter the 6-digit code."
 
 #: src/routes/two-factor.tsx
 msgid "Enter the code from your authenticator app."
@@ -3939,6 +3961,11 @@ msgstr "Optional note"
 msgid "or"
 msgstr "or"
 
+#: src/routes/accept-invite.tsx
+#: src/routes/login.tsx
+msgid "or continue with SSO"
+msgstr "or continue with SSO"
+
 #: src/routes/clients.tsx
 msgid "Other"
 msgstr "Other"
@@ -4850,6 +4877,7 @@ msgstr "Requires review"
 msgid "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
 msgstr "REQUIRES REVIEW — {0} items for CPA confirmation, never auto-reminded"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/features/members/members-page.tsx
 msgid "Resend"
 msgstr "Resend"
@@ -5539,8 +5567,8 @@ msgid "Sign in to accept this invitation."
 msgstr "Sign in to accept this invitation."
 
 #: src/routes/login.tsx
-msgid "Sign in with Google to access your practice's deadline queue and evidence-backed recommendations."
-msgstr "Sign in with Google to access your practice's deadline queue and evidence-backed recommendations."
+msgid "Sign in with your work email or SSO to access your practice's deadline queue and evidence-backed recommendations."
+msgstr "Sign in with your work email or SSO to access your practice's deadline queue and evidence-backed recommendations."
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out"
@@ -5999,6 +6027,10 @@ msgstr "The billing portal opens with the payment provider for invoices, payment
 msgid "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue."
 msgstr "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue."
 
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "The code expires in 5 minutes."
+msgstr "The code expires in 5 minutes."
+
 #: src/features/concepts/concept-help.tsx
 msgid "The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
 msgstr "The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
@@ -6389,6 +6421,7 @@ msgstr "verifiable per (jurisdiction, entity) pair"
 msgid "Verification"
 msgstr "Verification"
 
+#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/routes/account-security-two-factor-setup.tsx
 #: src/routes/two-factor.tsx
 msgid "Verification code"
@@ -6435,6 +6468,10 @@ msgstr "Verify"
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Verify and enable"
 msgstr "Verify and enable"
+
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Verify code"
+msgstr "Verify code"
 
 #: src/components/patterns/app-shell.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
@@ -6556,6 +6593,7 @@ msgstr "Where is your data coming from?"
 msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 msgstr "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 
+#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "Work email"
@@ -6629,6 +6667,10 @@ msgstr "You need to sign in to continue."
 #: src/features/migration/Step4Preview.tsx
 msgid "You're about to create"
 msgstr "You're about to create"
+
+#: src/features/auth/email-otp-sign-in-form.tsx
+msgid "you@firm.com"
+msgstr "you@firm.com"
 
 #: src/lib/i18n-error.ts
 msgid "Your account isn't linked to a practice yet."

@@ -31,7 +31,7 @@ function createEmailSender(env: ServerEnv): AuthEmailSender {
     to: string
     subject: string
     html: string
-    idempotencyKey: string
+    idempotencyKey?: string
   }): Promise<void> {
     if (!env.RESEND_API_KEY) {
       if (env.ENV === 'development') {
@@ -42,14 +42,15 @@ function createEmailSender(env: ServerEnv): AuthEmailSender {
     }
 
     const resend = new Resend(env.RESEND_API_KEY)
+    const payload = {
+      from: env.EMAIL_FROM,
+      to: [input.to],
+      subject: input.subject,
+      html: input.html,
+    }
     const { error } = await resend.emails.send(
-      {
-        from: env.EMAIL_FROM,
-        to: [input.to],
-        subject: input.subject,
-        html: input.html,
-      },
-      { idempotencyKey: input.idempotencyKey },
+      payload,
+      input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : undefined,
     )
 
     if (error) {
@@ -76,6 +77,19 @@ function createEmailSender(env: ServerEnv): AuthEmailSender {
         subject,
         idempotencyKey: `auth-invitation/${message.invitationId}`,
         html: `<p>${body}</p><p><a href="${escapeHtml(url)}">${cta}</a></p>`,
+      })
+    },
+    async sendSignInOtpEmail(message) {
+      const locale = getRequestLocale()
+      const subject = translate(locale, 'signInOtp.subject')
+      const body = translate(locale, 'signInOtp.body', {
+        otp: escapeHtml(message.otp),
+        expiresInMinutes: String(message.expiresInMinutes),
+      })
+      await sendEmail({
+        to: message.to,
+        subject,
+        html: `<p>${body}</p>`,
       })
     },
   }

@@ -3,7 +3,12 @@ import type { Locale } from '@duedatehq/i18n'
 // Minimal per-locale message catalogue for server-rendered content (currently
 // just transactional emails). Keep values free of HTML so callers can escape
 // inserted variables before concatenation.
-type MessageKey = 'invitation.subject' | 'invitation.body' | 'invitation.cta'
+type MessageKey =
+  | 'invitation.subject'
+  | 'invitation.body'
+  | 'invitation.cta'
+  | 'signInOtp.subject'
+  | 'signInOtp.body'
 
 type MessageTable = Record<MessageKey, string>
 
@@ -12,11 +17,17 @@ const CATALOGS: Record<Locale, MessageTable> = {
     'invitation.subject': 'Join {organizationName} on DueDateHQ',
     'invitation.body': '{inviterName} invited you to join {organizationName} as {role}.',
     'invitation.cta': 'Accept invitation',
+    'signInOtp.subject': 'Your DueDateHQ sign-in code',
+    'signInOtp.body':
+      'Your DueDateHQ sign-in code is {otp}. It expires in {expiresInMinutes} minutes.',
   },
   'zh-CN': {
     'invitation.subject': '加入 {organizationName} 的 DueDateHQ 工作区',
     'invitation.body': '{inviterName} 邀请您以 {role} 身份加入 {organizationName}。',
     'invitation.cta': '接受邀请',
+    'signInOtp.subject': '您的 DueDateHQ 登录验证码',
+    'signInOtp.body':
+      '您的 DueDateHQ 登录验证码是 {otp}。验证码将在 {expiresInMinutes} 分钟后过期。',
   },
 }
 

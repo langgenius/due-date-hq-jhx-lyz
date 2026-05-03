@@ -2,6 +2,8 @@ import type { Locator, Page } from '@playwright/test'
 
 export class LoginPage {
   readonly heading: Locator
+  readonly emailInput: Locator
+  readonly emailButton: Locator
   readonly googleButton: Locator
   readonly microsoftButton: Locator
   readonly languageButton: Locator
@@ -10,6 +12,12 @@ export class LoginPage {
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', {
       name: /Welcome back to the workbench|欢迎回到工作台/,
+    })
+
+    this.emailInput = page.getByLabel(/Work email|工作邮箱/)
+
+    this.emailButton = page.getByRole('button', {
+      name: /Email me a code|发送验证码/,
     })
 
     this.googleButton = page.getByRole('button', {
