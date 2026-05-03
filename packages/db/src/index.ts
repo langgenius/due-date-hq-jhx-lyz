@@ -1,5 +1,6 @@
 import * as authSchema from './schema/auth'
 import * as auditSchema from './schema/audit'
+import * as calendarSchema from './schema/calendar'
 import * as dashboardSchema from './schema/dashboard'
 import * as firmSchema from './schema/firm'
 import * as notificationSchema from './schema/notifications'
@@ -9,11 +10,13 @@ import { makeFirmsRepo } from './repo/firms'
 import { makeMembersRepo } from './repo/members'
 import { makePulseOpsRepo } from './repo/pulse'
 import { makeReadinessPortalRepo } from './repo/readiness'
+import { makeCalendarFeedRepo, makeCalendarRepo } from './repo/calendar'
 
 export { createDb } from './client'
 export { scoped } from './scoped'
 export { authSchema }
 export { auditSchema }
+export { calendarSchema }
 export { dashboardSchema }
 // firmSchema is exposed at the main entry (parallel to authSchema) so the
 // auth-layer code paths that legitimately need to write firm_profile —
@@ -26,6 +29,8 @@ export { notificationSchema }
 export { readinessSchema }
 export { workboardSchema }
 export { makeFirmsRepo }
+export { makeCalendarRepo }
+export { makeCalendarFeedRepo }
 export { makeMembersRepo }
 export { makePulseOpsRepo }
 export { makeReadinessPortalRepo }

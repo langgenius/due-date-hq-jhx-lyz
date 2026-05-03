@@ -7,6 +7,7 @@ export class WorkboardPage {
   readonly sortSelect: Locator
   readonly statusFilterTrigger: Locator
   readonly savedViewsButton: Locator
+  readonly calendarSyncLink: Locator
   readonly columnsButton: Locator
   readonly compactTab: Locator
   readonly comfortableTab: Locator
@@ -18,6 +19,7 @@ export class WorkboardPage {
     this.sortSelect = page.getByRole('combobox').first()
     this.statusFilterTrigger = page.getByRole('button', { name: /^Status(?:\s+\d+)?$/ })
     this.savedViewsButton = page.getByRole('button', { name: 'Saved views' })
+    this.calendarSyncLink = page.getByRole('link', { name: 'Calendar sync' })
     this.columnsButton = page.getByRole('button', { name: 'Columns' })
     this.compactTab = page.getByRole('tab', { name: 'Compact' })
     this.comfortableTab = page.getByRole('tab', { name: 'Comfortable' })

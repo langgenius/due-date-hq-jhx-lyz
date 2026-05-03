@@ -16,6 +16,7 @@ vi.mock('@/lib/auth', () => ({
 
 // Import after the mock so the loaders pick up the stubbed authClient.
 const {
+  calendarAliasLoader,
   dashboardAliasLoader,
   guestLoader,
   importsAliasLoader,
@@ -145,6 +146,15 @@ describe('importsAliasLoader', () => {
     await expectRedirectTo(
       Promise.resolve().then(() => importsAliasLoader()),
       '/clients?importHistory=open',
+    )
+  })
+})
+
+describe('calendarAliasLoader', () => {
+  it('redirects /calendar to the Workboard calendar sync page', async () => {
+    await expectRedirectTo(
+      Promise.resolve().then(() => calendarAliasLoader()),
+      '/workboard/calendar',
     )
   })
 })

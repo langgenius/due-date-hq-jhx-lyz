@@ -329,6 +329,24 @@ function buildScoped(firmId: string, rows: Row[]) {
         return unused('aiInsights.markFailed')
       },
     },
+    calendar: {
+      firmId,
+      async listForUser() {
+        return unused('calendar.listForUser')
+      },
+      async upsert() {
+        return unused('calendar.upsert')
+      },
+      async find() {
+        return unused('calendar.find')
+      },
+      async regenerate() {
+        return unused('calendar.regenerate')
+      },
+      async disable() {
+        return unused('calendar.disable')
+      },
+    },
     clients,
     dashboard: {
       firmId,

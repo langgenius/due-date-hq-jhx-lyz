@@ -4,6 +4,7 @@ export type { Db }
 export type { FirmProfile, NewFirmProfile } from './schema/firm'
 export type { AiRepo } from '@duedatehq/ports/ai'
 export type { AiInsightsRepo } from '@duedatehq/ports/ai-insights'
+export type { CalendarFeedRepo, CalendarRepo } from '@duedatehq/ports/calendar'
 export type { AuditRepo } from '@duedatehq/ports/audit'
 export type { ClientsRepo } from '@duedatehq/ports/clients'
 export type { DashboardRepo } from '@duedatehq/ports/dashboard'

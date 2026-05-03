@@ -176,6 +176,13 @@
       "when": 1777792016544,
       "tag": "0024_team_self_serve_billing_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1777800235600,
+      "tag": "0025_modern_leo",
+      "breakpoints": true
     }
   ]
 }

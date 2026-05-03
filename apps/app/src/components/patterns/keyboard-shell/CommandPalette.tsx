@@ -5,6 +5,7 @@ import {
   BellIcon,
   BotIcon,
   Building2Icon,
+  CalendarDaysIcon,
   CalendarClockIcon,
   ClipboardListIcon,
   CreditCardIcon,
@@ -144,6 +145,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         group: 'navigate',
         icon: ScaleIcon,
         onSelect: () => navigate('/audit'),
+      },
+      {
+        id: 'calendar-sync',
+        label: t`Calendar sync`,
+        description: t`Manage external deadline calendar feeds.`,
+        group: 'actions',
+        icon: CalendarDaysIcon,
+        onSelect: () => navigate('/workboard/calendar'),
       },
       {
         id: 'migration',

@@ -14,14 +14,17 @@ much visual noise for a plan card state.
 
 ## Change
 
-- Replaced the bow marker with a simple red diagonal ribbon in the top-right corner.
+- Replaced the bow marker with a simple diagonal `current` marker in the top-right corner.
+- Recolored the active plan card from success green to the selected/current accent treatment.
+- Recolored the marker from destructive red to a stronger accent surface with inverted text.
+- Changed the plan seat indicator dot from destructive red to a neutral divider tone.
 - Reused the existing `current` translation key.
-- Kept the active plan card's existing success border and background state.
 
 ## Docs Check
 
-No DESIGN.md or product documentation update was needed. This is a visual polish change to the
-existing Billing plan option state.
+No DESIGN.md or product documentation update was needed. The Billing plan option now uses the
+existing selected/current accent tokens instead of success/destructive colors, which keeps it
+aligned with the documented semantic color rules.
 
 ## Validation
 

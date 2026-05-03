@@ -467,6 +467,24 @@ function buildScopedRepo(firmId: string) {
         return unexpectedRepoCall('aiInsights.markFailed')
       },
     },
+    calendar: {
+      firmId,
+      async listForUser() {
+        return unexpectedRepoCall('calendar.listForUser')
+      },
+      async upsert() {
+        return unexpectedRepoCall('calendar.upsert')
+      },
+      async find() {
+        return unexpectedRepoCall('calendar.find')
+      },
+      async regenerate() {
+        return unexpectedRepoCall('calendar.regenerate')
+      },
+      async disable() {
+        return unexpectedRepoCall('calendar.disable')
+      },
+    },
     clients,
     dashboard: {
       firmId,

@@ -2,6 +2,7 @@ import type { Db } from './client'
 import { makeAiInsightsRepo } from './repo/ai-insights'
 import { makeAiRepo } from './repo/ai'
 import { makeAuditRepo } from './repo/audit'
+import { makeCalendarRepo } from './repo/calendar'
 import { makeClientsRepo } from './repo/clients'
 import { makeDashboardRepo } from './repo/dashboard'
 import { makeEvidenceRepo } from './repo/evidence'
@@ -35,6 +36,7 @@ export function scoped(db: Db, firmId: string): ScopedRepo {
     firmId,
     ai: makeAiRepo(db, firmId),
     aiInsights: makeAiInsightsRepo(db, firmId),
+    calendar: makeCalendarRepo(db, firmId),
     clients: makeClientsRepo(db, firmId),
     dashboard: makeDashboardRepo(db, firmId),
     obligations: makeObligationsRepo(db, firmId),

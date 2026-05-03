@@ -13,6 +13,7 @@ import { authRoute } from './routes/auth'
 import { auditDownloadRoute } from './routes/audit-download'
 import { e2eRoute } from './routes/e2e'
 import { healthRoute } from './routes/health'
+import { icsRoute } from './routes/ics'
 import { notificationsRoute } from './routes/notifications'
 import { opsPulseRoute } from './routes/ops-pulse'
 import { readinessRoute } from './routes/readiness'
@@ -107,6 +108,9 @@ export function createApp() {
   app.route('/api/webhook/resend', resendWebhook)
 
   app.route('/api/notifications', notificationsRoute)
+
+  app.use('/api/ics/*', rateLimitMiddleware)
+  app.route('/api/ics', icsRoute)
 
   app.use('/api/readiness/*', rateLimitMiddleware)
   app.route('/api/readiness', readinessRoute)

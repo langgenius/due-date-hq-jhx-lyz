@@ -32,6 +32,7 @@ apps/app/
 │   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
 │   │   ├── workboard.tsx
+│   │   ├── calendar.tsx          ← Workboard 二级 Calendar sync 页（canonical `/workboard/calendar`；`/calendar` 旧链接重定向）
 │   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、Sheet 档案；使用 clients.listByFirm / clients.create）
 │   │   ├── audit.tsx             ← Audit Log 管理页（firm-wide write events；使用 audit.list）
 │   │   ├── practice.tsx          ← active practice profile（name / timezone / soft-delete）
@@ -443,7 +444,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **每一个 protected layout（当前的 RootLayout，未来的 Workload Console 等）通过 `<AppShell>` 拼装**，不要在 layout 文件里直接拷贝 `SidebarProvider + Sidebar + SidebarInset` 三件套
 - **Sidebar 不暴露 `collapsible` prop**：desktop 永远 220px，`<md` 自动 Sheet 折叠；这是产品决定不是配置项
 - **selected nav 视觉是 bg-only**（`bg-state-base-hover-alt` + `text-text-primary` + Inter Semi Bold）—— 严禁 accent border 或 accent-tint 出现在 selected 态，否则与 DESIGN §1.2「颜色只为风险服务」冲突。`SidebarMenuButton` 的 cva variants 里**根本不提供** `accent` 变体，把约束写进类型
-- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag?, disabledReason? }`。当前 sidebar IA 是 `Operations`（Dashboard / Workboard / Alerts / Team workload）、`Clients`（Clients facts）、`Practice`（Practice profile / Rules / Members / Billing / Audit log）。Alerts 使用 `RadioTower` icon，表达 Pulse regulatory signal workbench；右上角 `Bell` 只表达个人通知收件箱，避免两个入口都像“消息提醒”。Team workload 是付费 Operations surface：Solo 可见但禁用并显示 `Pro` hint，Pro/Enterprise 启用 `/workload`；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
+- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag?, disabledReason? }`。当前 sidebar IA 是 `Operations`（Dashboard / Workboard / Alerts / Team workload）、`Clients`（Clients facts）、`Practice`（Practice profile / Rules / Members / Billing / Audit log）。Calendar sync 是 Workboard 的二级低频出口，canonical URL 是 `/workboard/calendar`，旧 `/calendar` 只做重定向；它不进入 sidebar 一级导航。Alerts 使用 `RadioTower` icon，表达 Pulse regulatory signal workbench；右上角 `Bell` 只表达个人通知收件箱，避免两个入口都像“消息提醒”。Team workload 是付费 Operations surface：Solo 可见但禁用并显示 `Pro` hint，Pro/Enterprise 启用 `/workload`；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
 - **Practice switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上。`Add practice` 是 plan-gated secondary creation action：在 active practice entitlement 内打开创建 dialog，超出 Solo / Pro 的 1 active practice 限制时打开 upgrade / contact-sales gate，而不是继续创建免费 Solo tenant。内部组件名和 RPC 仍可沿用 firm。
 - **Import clients / history 不做一等导航**：Import 是 activation/setup path，把 CPA 已有客户表带入 weekly triage；启动入口在 `/clients` 页面 header / empty state、Dashboard 空状态和 Command Palette action。Import history 是低频 batch recovery，放在 `/clients` header 的弱入口并打开右侧 drawer；历史 `/imports` URL 仅兼容重定向到 `/clients?importHistory=open`。Sidebar 不承载导入或导入历史。
 - **Plan status 入口在 sidebar footer**：`AppShell` 在 user menu 上方展示当前 practice 的 `Solo / Pro / Enterprise`、seat count 和 `Upgrade / Manage / View` 动作，统一链接 `/billing`。这只是 subscription 状态入口；完整 pricing / checkout / portal 和 active practice entitlement usage 仍在 Billing 页面。

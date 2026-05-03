@@ -430,12 +430,6 @@ export function BillingRoute() {
               <Trans>Choose a workspace tier</Trans>
             </h2>
           </div>
-          <p className="text-sm text-text-secondary">
-            <Trans>
-              Self-serve Solo, Pro, and Team changes use secure checkout and include one active
-              practice.
-            </Trans>
-          </p>
           <BillingIntervalToggle value={billingInterval} onChange={setBillingInterval} />
         </header>
 
@@ -635,7 +629,7 @@ function PlanOption({
         highlighted && !current
           ? 'border-state-accent-active bg-background-default shadow-sm'
           : undefined,
-        current ? 'border-state-success-active bg-state-success-hover shadow-md' : undefined,
+        current ? 'border-state-accent-active-alt bg-accent-tint shadow-sm' : undefined,
       )}
     >
       {current ? <CurrentPlanRibbon /> : null}
@@ -677,10 +671,7 @@ function PlanOption({
             <div className="grid gap-1.5">
               <span>{plan.firms}</span>
               <span className="inline-flex min-w-0 items-center gap-2">
-                <span
-                  aria-hidden
-                  className="size-1.5 shrink-0 rounded-full bg-state-destructive-solid"
-                />
+                <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-divider-deep" />
                 <span className="min-w-0 truncate">{plan.seats}</span>
               </span>
             </div>
@@ -750,7 +741,7 @@ function PlanOption({
 function CurrentPlanRibbon() {
   return (
     <div className="pointer-events-none absolute -top-2 -right-2 z-10 h-28 w-28" aria-hidden="true">
-      <span className="absolute top-8 -right-10 flex h-8 w-40 rotate-45 items-center justify-center bg-state-destructive-solid text-[10px] leading-none font-bold text-components-button-destructive-primary-text uppercase shadow-sm">
+      <span className="absolute top-8 -right-10 flex h-8 w-40 rotate-45 items-center justify-center bg-accent-default text-[10px] leading-none font-bold text-primary-foreground uppercase shadow-sm">
         <Trans>current</Trans>
       </span>
     </div>

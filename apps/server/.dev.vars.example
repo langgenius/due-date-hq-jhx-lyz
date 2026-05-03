@@ -23,7 +23,7 @@
 # [Required] App · environment + URLs
 # ═════════════════════════════════════════════════════════════════════════════
 # ENV       · development | staging | production
-# AUTH_URL  · origin of THIS Worker (where /api/auth/* is served)
+# AUTH_URL  · origin of THIS Worker (where /api/auth/* and public API feeds are served)
 # APP_URL   · origin of the browser-facing SPA; used for
 #              (a) Better Auth trustedOrigins whitelist
 #              (b) absolute links inside outbound emails

@@ -382,6 +382,10 @@ msgstr "事务所中的高权限角色。在客户税务输入里，owner count 
 msgid "A model confidence signal for extracted or matched information. Low confidence means the source should be reviewed before applying changes."
 msgstr "模型对抽取或匹配结果的置信信号。置信度低表示应用前应先复核来源。"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "A personal feed for deadlines assigned to you."
+msgstr "订阅分配给你的截止日。"
+
 #: src/features/concepts/concept-help.tsx
 msgid "A possible rule or change that is still waiting for operations review. Candidate rules do not update client deadlines or send reminders."
 msgstr "仍等待运营复核的潜在规则或变更。候选规则不会更新客户截止日，也不会发送提醒。"
@@ -444,6 +448,7 @@ msgid "Actions"
 msgstr "操作"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/calendar/calendar-page.tsx
 #: src/features/members/members-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Active"
@@ -594,6 +599,10 @@ msgstr "全部实体类型"
 msgid "All ignored"
 msgstr "全部忽略"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "All open firm deadlines for owner and manager planning."
+msgstr "面向 Owner 和 Manager 规划的全事务所未关闭截止日。"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "All review-flagged"
 msgstr "全部复核"
@@ -647,6 +656,10 @@ msgstr "请回答每个项目，方便您的 CPA 确认申报准备状态。"
 #: src/routes/billing.tsx
 msgid "API access by contract"
 msgstr "API 访问按合同提供"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Apple Calendar"
+msgstr "Apple Calendar"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Applicability"
@@ -944,6 +957,28 @@ msgstr "已计算"
 #: src/routes/practice.tsx
 msgid "Calculating…"
 msgstr "正在计算…"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Calendar subscription disabled"
+msgstr "日历订阅已停用"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Calendar subscription updated"
+msgstr "日历订阅已更新"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/route-summary.ts
+#: src/routes/workboard.tsx
+msgid "Calendar sync"
+msgstr "日历同步"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Calendar URL copied"
+msgstr "日历 URL 已复制"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Calendar URL regenerated"
+msgstr "日历 URL 已重新生成"
 
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
@@ -1328,6 +1363,10 @@ msgstr "复制原文摘录"
 msgid "Copy URI"
 msgstr "复制 URI"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Copy URL"
+msgstr "复制 URL"
+
 #: src/routes/accept-invite.tsx
 msgid "Could not accept invitation"
 msgstr "无法接受邀请"
@@ -1335,6 +1374,10 @@ msgstr "无法接受邀请"
 #: src/routes/practice.tsx
 msgid "Could not calculate preview."
 msgstr "无法计算预览。"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Could not copy calendar URL"
+msgstr "无法复制日历 URL"
 
 #: src/routes/account.security.tsx
 msgid "Could not copy to clipboard"
@@ -1351,6 +1394,10 @@ msgstr "无法创建你的事务所"
 #: src/routes/practice.tsx
 msgid "Could not delete practice."
 msgstr "无法删除事务所。"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Could not disable calendar subscription"
+msgstr "无法停用日历订阅"
 
 #: src/routes/account.security.tsx
 msgid "Could not disable two-factor authentication"
@@ -1388,6 +1435,10 @@ msgstr "无法加载团队负载"
 msgid "Could not mark notification read"
 msgstr "无法将通知标记为已读"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Could not regenerate calendar URL"
+msgstr "无法重新生成日历 URL"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Could not request export."
 msgstr "无法请求导出。"
@@ -1423,6 +1474,10 @@ msgstr "无法切换事务所。"
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Could not undo client"
 msgstr "无法撤销客户"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Could not update calendar subscription"
+msgstr "无法更新日历订阅"
 
 #: src/routes/practice.tsx
 msgid "Could not update practice."
@@ -1645,6 +1700,7 @@ msgstr "开始 checkout 前请先创建或选择事务所。"
 msgid "Create practice"
 msgstr "创建事务所"
 
+#: src/features/calendar/calendar-page.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Created"
 msgstr "创建时间"
@@ -1858,6 +1914,7 @@ msgstr "确定性"
 msgid "Digest queued for owners and managers; delivery depends on email config"
 msgstr "Digest 已加入队列并发送给 Owner 和 Manager；送达取决于邮件配置"
 
+#: src/features/calendar/calendar-page.tsx
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Disable"
 msgstr "停用"
@@ -1995,6 +2052,14 @@ msgstr "邮箱"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Enable"
 msgstr "启用"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Enable full feed"
+msgstr "启用完整订阅源"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Enable redacted feed"
+msgstr "启用脱敏订阅源"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Enabled cells"
@@ -2302,6 +2367,10 @@ msgstr "按时间范围、操作分类、操作、执行人或实体类型筛选
 msgid "Firm"
 msgstr "Firm"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Firm-wide calendar"
+msgstr "全事务所日历"
+
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -2364,6 +2433,10 @@ msgstr "$319 起"
 msgid "From $399"
 msgstr "$399 起"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Full client names"
+msgstr "显示完整客户名"
+
 #: src/routes/billing.tsx
 msgid "Full practice AI workflows"
 msgstr "完整事务所 AI 工作流"
@@ -2392,6 +2465,14 @@ msgstr "正在生成你的截止日队列"
 msgid "Go to Dashboard"
 msgstr "前往仪表盘"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Google Calendar"
+msgstr "Google Calendar"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Google Calendar uses the copied HTTPS URL from its web app. Apple Calendar can open the webcal link directly."
+msgstr "Google Calendar 需要在网页端使用复制的 HTTPS URL。Apple Calendar 可以直接打开 webcal 链接。"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "have jurisdiction facts"
 msgstr "已具备辖区事实"
@@ -2413,6 +2494,10 @@ msgstr "高"
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
 msgstr "我正在从…迁移过来（可选）"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "ICS is one-way: external calendar edits never update DueDateHQ."
+msgstr "ICS 是单向订阅：外部日历编辑不会更新 DueDateHQ。"
 
 #: src/features/migration/mapping-target-labels.ts
 msgid "Ignore this column"
@@ -2644,6 +2729,10 @@ msgstr "最近 30 天"
 msgid "Last 7d"
 msgstr "最近 7 天"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Last accessed"
+msgstr "上次访问"
+
 #. placeholder {0}: source.lastSuccessAt ?? 'never'
 #. placeholder {1}: source.nextCheckAt ?? 'paused'
 #. placeholder {2}: source.consecutiveFailures
@@ -2801,6 +2890,10 @@ msgstr "管理账单"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Manage client facts and readiness."
 msgstr "管理客户事实与就绪度。"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Manage external deadline calendar feeds."
+msgstr "管理外部截止日日历订阅源。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Manage practice seats, roles, and invitations."
@@ -3020,6 +3113,10 @@ msgstr "多个事务所/办公室"
 msgid "Multiple values"
 msgstr "多个值"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "My deadlines"
+msgstr "我的截止日"
+
 #: src/routes/onboarding.tsx
 msgid "My Practice"
 msgstr "我的事务所"
@@ -3070,6 +3167,10 @@ msgstr "需要州信息"
 #: src/routes/dashboard.tsx
 msgid "neutral"
 msgstr "常规"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Never"
+msgstr "从未"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
@@ -3410,6 +3511,10 @@ msgstr "未计算"
 msgid "Not decided"
 msgstr "未决策"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Not enabled"
+msgstr "未启用"
+
 #: src/routes/workboard.tsx
 msgid "Not entered"
 msgstr "未填写"
@@ -3542,6 +3647,10 @@ msgstr "引导对话轮次已打开"
 msgid "Only Owners and Managers can apply Pulse changes."
 msgstr "仅 Owner 与 Manager 可应用监管提醒。"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Only owners and managers can enable the firm-wide calendar feed."
+msgstr "只有 Owner 和 Manager 可以启用全事务所日历订阅源。"
+
 #: src/routes/billing.tsx
 msgid "Only owners can manage billing."
 msgstr "只有 Owner 可以管理账单。"
@@ -3631,6 +3740,10 @@ msgstr "打开来源"
 msgid "Open source {0}"
 msgstr "打开来源 {0}"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Open the Apple Calendar link"
+msgstr "打开 Apple Calendar 链接"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
 msgstr "打开 Migration Copilot 向导。"
@@ -3639,6 +3752,7 @@ msgstr "打开 Migration Copilot 向导。"
 msgid "Open the obligation queue."
 msgstr "打开义务队列。"
 
+#: src/features/calendar/calendar-page.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Open Workboard"
 msgstr "打开 Workboard"
@@ -3685,9 +3799,17 @@ msgstr "或"
 msgid "Other"
 msgstr "其他"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Other calendars -> From URL"
+msgstr "其他日历 -> 通过 URL 添加"
+
 #: src/routes/account.security.tsx
 msgid "Other sessions revoked"
 msgstr "其他会话已撤销"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Outlook"
+msgstr "Outlook"
 
 #: src/features/notifications/notifications-page.tsx
 #: src/features/workload/workload-page.tsx
@@ -3909,6 +4031,7 @@ msgstr "请至少输入 2 个字符。"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/calendar/calendar-page.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/migration/Wizard.tsx
@@ -4110,6 +4233,14 @@ msgstr "优先级"
 #: src/routes/billing.tsx
 msgid "Priority onboarding and audit exports"
 msgstr "优先 onboarding 与审计导出"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Privacy"
+msgstr "隐私"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Privacy mode"
+msgstr "隐私模式"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell.tsx
@@ -4389,6 +4520,10 @@ msgstr "恢复误导入的批次。单个客户资料请在“客户”中编辑
 msgid "Recovery codes"
 msgstr "恢复码"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Redacted client names"
+msgstr "隐藏客户名"
+
 #: src/routes/login.tsx
 msgid "Redirecting to Google…"
 msgstr "正在跳转到 Google…"
@@ -4420,6 +4555,10 @@ msgstr "刷新置信度"
 #: src/features/migration/WizardShell.tsx
 msgid "Refreshing the AI mapping"
 msgstr "正在刷新 AI 映射"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Regenerate URL"
+msgstr "重新生成 URL"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
@@ -4821,8 +4960,8 @@ msgid "Same AI capability as Team"
 msgstr "与 Team 相同的 AI 能力"
 
 #: src/routes/billing.tsx
-msgid "Same Practice AI as Pro · built for 10-seat operations"
-msgstr "与 Pro 相同的 Practice AI · 为 10 席位运营打造"
+msgid "Same Practice AI as Pro"
+msgstr "与 Pro 相同的事务所 AI"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Sample"
@@ -5064,10 +5203,6 @@ msgstr "已选事项"
 #: src/routes/billing.checkout.tsx
 msgid "Selected plan"
 msgstr "已选计划"
-
-#: src/routes/billing.tsx
-msgid "Self-serve Solo, Pro, and Team changes use secure checkout and include one active practice."
-msgstr "Solo、Pro 和 Team 的自助变更使用安全 checkout，并包含 1 个活跃事务所。"
 
 #: src/features/members/members-page.tsx
 msgid "Send a 7-day magic link to add a member to this practice."
@@ -5441,9 +5576,21 @@ msgstr "此计划缺少 Stripe price id。"
 msgid "Submit readiness response"
 msgstr "提交准备状态回复"
 
+#: src/features/calendar/calendar-page.tsx
+msgid "Subscribe from Google Calendar, Apple Calendar, or Outlook. DueDateHQ remains the source of truth for deadline changes."
+msgstr "可从 Google Calendar、Apple Calendar 或 Outlook 订阅。截止日变更仍以 DueDateHQ 为准。"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Subscribe from web calendar URL"
+msgstr "通过网页日历 URL 订阅"
+
 #: src/routes/billing.success.tsx
 msgid "Subscription active"
 msgstr "订阅已激活"
+
+#: src/features/calendar/calendar-page.tsx
+msgid "Subscription notes"
+msgstr "订阅说明"
 
 #: src/routes/billing.tsx
 msgid "Subscription overview"

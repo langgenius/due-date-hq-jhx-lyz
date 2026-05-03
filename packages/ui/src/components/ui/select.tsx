@@ -98,7 +98,7 @@ function SelectContent({
           className={cn(
             overlayPopupBaseClassName,
             overlayPopupAnimationClassName,
-            'relative isolate w-(--anchor-width) min-w-36 data-[align-trigger=true]:transition-none',
+            'relative isolate w-max min-w-(--anchor-width) max-w-[calc(100vw-2rem)] data-[align-trigger=true]:transition-none',
             className,
           )}
           {...props}
@@ -144,7 +144,7 @@ function SelectItem({
       )}
       {...props}
     >
-      <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
+      <SelectPrimitive.ItemText className="flex flex-1 items-center gap-2 whitespace-nowrap">
         {children}
       </SelectPrimitive.ItemText>
       {indicatorAtStart ? (
@@ -156,7 +156,7 @@ function SelectItem({
       ) : (
         <SelectPrimitive.ItemIndicator
           render={
-            <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center text-text-accent" />
+            <span className="pointer-events-none absolute top-1/2 right-2 flex size-4 -translate-y-1/2 items-center justify-center text-text-accent" />
           }
         >
           <CheckIcon className="pointer-events-none" />

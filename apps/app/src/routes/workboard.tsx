@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState, type HTMLAttributes, type ReactNode } from 'react'
+import { Link } from 'react-router'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import {
   flexRender,
@@ -18,6 +19,7 @@ import {
   ArrowDownIcon,
   ArrowUpDownIcon,
   ArrowUpIcon,
+  CalendarDaysIcon,
   ChevronDownIcon,
   Columns3Icon,
   CopyIcon,
@@ -1611,6 +1613,10 @@ export function WorkboardRoute() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button variant="primary" size="sm" render={<Link to="/workboard/calendar" />}>
+              <CalendarDaysIcon data-icon="inline-start" />
+              <Trans>Calendar sync</Trans>
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={

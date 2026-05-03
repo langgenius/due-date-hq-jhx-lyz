@@ -75,6 +75,7 @@ test.describe('seeded workboard', () => {
     await workboardPage.goto()
 
     await expect(workboardPage.heading).toBeVisible()
+    await expect(workboardPage.calendarSyncLink).toHaveAttribute('href', '/workboard/calendar')
     await expect(authenticatedPage.getByText('Arbor & Vale LLC')).toBeVisible()
     await expect(authenticatedPage.getByText('Northstar Dental Group')).toBeVisible()
 

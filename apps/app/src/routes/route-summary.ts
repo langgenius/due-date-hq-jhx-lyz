@@ -19,6 +19,7 @@ export const routeSummaries = {
   onboarding: { eyebrow: msg`Entry`, title: msg`Create practice` },
   dashboard: { eyebrow: msg`Operations`, title: msg`Dashboard` },
   workboard: { eyebrow: msg`Workbench`, title: msg`Workboard` },
+  calendarSync: { eyebrow: msg`Workboard`, title: msg`Calendar sync` },
   workload: { eyebrow: msg`Operations`, title: msg`Team workload` },
   alerts: { eyebrow: msg`Operations`, title: msg`Alerts` },
   notifications: { eyebrow: msg`Operations`, title: msg`Notifications` },

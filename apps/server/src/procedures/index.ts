@@ -1,4 +1,5 @@
 import { auditHandlers } from './audit'
+import { calendarHandlers } from './calendar'
 import { clientsHandlers } from './clients'
 import { dashboardHandlers } from './dashboard'
 import { evidenceHandlers } from './evidence'
@@ -34,6 +35,12 @@ export const router = os.router({
     getEvidencePackage: auditHandlers.getEvidencePackage,
     listEvidencePackages: auditHandlers.listEvidencePackages,
     createDownloadUrl: auditHandlers.createDownloadUrl,
+  },
+  calendar: {
+    listSubscriptions: calendarHandlers.listSubscriptions,
+    upsertSubscription: calendarHandlers.upsertSubscription,
+    regenerateSubscription: calendarHandlers.regenerateSubscription,
+    disableSubscription: calendarHandlers.disableSubscription,
   },
   firms: {
     listMine: firmsHandlers.listMine,

@@ -29,6 +29,9 @@ test('AC: E2E-AUTH-SHELL renders the protected dashboard shell', async ({
   await expect(appShellPage.primaryNavigation).toBeVisible()
   await expect(appShellPage.dashboardLink).toHaveAttribute('aria-current', 'page')
   await expect(
+    appShellPage.primaryNavigation.getByRole('link', { name: /^Calendar$/ }),
+  ).toHaveCount(0)
+  await expect(
     authenticatedPage.getByRole('heading', { name: 'Deadline risk workbench' }),
   ).toBeVisible()
   await expect(authenticatedPage.getByText('Due this week', { exact: true })).toBeVisible()
@@ -49,6 +52,7 @@ test('AC: E2E-AUTH-COMMANDS navigates and opens implemented actions', async ({
     [
       'Dashboard',
       'Workboard',
+      'Calendar sync',
       'Alerts',
       'Team workload',
       'Clients',
@@ -59,6 +63,13 @@ test('AC: E2E-AUTH-COMMANDS navigates and opens implemented actions', async ({
       'Audit log',
     ].map((label) => expect(appShellPage.commandItem(label)).toBeVisible()),
   )
+  await expect(appShellPage.commandDialog.getByText('Calendar', { exact: true })).toHaveCount(0)
+  await appShellPage.commandItem('Calendar sync').click()
+
+  await expect(authenticatedPage).toHaveURL(/\/workboard\/calendar$/)
+  await expect(authenticatedPage.getByText('Subscription notes')).toBeVisible()
+
+  await appShellPage.openCommandPalette()
   await appShellPage.commandItem('Rules').click()
 
   await expect(authenticatedPage).toHaveURL(/\/rules$/)

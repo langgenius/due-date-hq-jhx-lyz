@@ -6,6 +6,7 @@
 
 import { oc } from '@orpc/contract'
 import { auditContract } from './audit'
+import { calendarContract } from './calendar'
 import { clientsContract } from './clients'
 import { obligationsContract } from './obligations'
 import { dashboardContract } from './dashboard'
@@ -23,6 +24,7 @@ import { securityContract } from './security'
 
 export const appContract = oc.router({
   audit: auditContract,
+  calendar: calendarContract,
   firms: firmsContract,
   clients: clientsContract,
   obligations: obligationsContract,
@@ -40,6 +42,25 @@ export const appContract = oc.router({
 })
 
 export type AppContract = typeof appContract
+
+export type {
+  CalendarContract,
+  CalendarPrivacyMode,
+  CalendarSubscriptionByIdInput,
+  CalendarSubscriptionPublic,
+  CalendarSubscriptionScope,
+  CalendarSubscriptionStatus,
+  CalendarUpsertSubscriptionInput,
+} from './calendar'
+export {
+  calendarContract,
+  CalendarPrivacyModeSchema,
+  CalendarSubscriptionByIdInputSchema,
+  CalendarSubscriptionPublicSchema,
+  CalendarSubscriptionScopeSchema,
+  CalendarSubscriptionStatusSchema,
+  CalendarUpsertSubscriptionInputSchema,
+} from './calendar'
 
 export type {
   EnableTwoFactorOutput,

@@ -88,6 +88,10 @@ function importsAliasLoader() {
   throw redirect('/clients?importHistory=open')
 }
 
+function calendarAliasLoader() {
+  throw redirect('/workboard/calendar')
+}
+
 // Only reachable when unauthenticated. If the session resolves, bounce to the
 // post-login target (honouring ?redirectTo=... but only for in-app paths).
 async function guestLoader(args: LoaderFunctionArgs) {
@@ -262,6 +266,21 @@ export function createAppRouter() {
               },
             },
             {
+              path: 'workboard/calendar',
+              handle: routeHandle(routeSummaries.calendarSync),
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { CalendarRoute } = await import('@/routes/calendar')
+
+                return { Component: CalendarRoute }
+              },
+            },
+            {
+              path: 'calendar',
+              loader: calendarAliasLoader,
+              HydrateFallback: RouteHydrateFallback,
+            },
+            {
               path: 'workload',
               handle: routeHandle(routeSummaries.workload),
               HydrateFallback: RouteHydrateFallback,
@@ -420,6 +439,7 @@ export function createAppRouter() {
 // Exported for unit tests.
 export {
   dashboardAliasLoader,
+  calendarAliasLoader,
   guestLoader,
   importsAliasLoader,
   onboardingLoader,
