@@ -1,13 +1,25 @@
 import {
   AlertCircleIcon,
+  ArrowDownIcon,
+  ArrowUpDownIcon,
+  ArrowUpIcon,
   ArrowUpRightIcon,
   FileSearchIcon,
   RefreshCwIcon,
   SparklesIcon,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
+import {
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type Column,
+  type ColumnDef,
+  type SortingFn,
+  type SortingState,
+} from '@tanstack/react-table'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { parseAsArrayOf, parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
 import { useNavigate } from 'react-router'
@@ -185,6 +197,29 @@ const severityDot: Record<DashboardSeverity, 'error' | 'warning' | 'disabled' | 
   medium: 'disabled',
   neutral: 'normal',
 }
+const severitySortValue: Record<DashboardSeverity, number> = {
+  critical: 3,
+  high: 2,
+  medium: 1,
+  neutral: 0,
+}
+
+const dashboardDateSortingFn: SortingFn<DashboardTopRow> = (rowA, rowB, columnId) =>
+  rowA.getValue<string>(columnId).localeCompare(rowB.getValue<string>(columnId))
+
+const dashboardExposureSortingFn: SortingFn<DashboardTopRow> = (rowA, rowB) =>
+  exposureSortValue(rowA.original) - exposureSortValue(rowB.original)
+
+const dashboardSeveritySortingFn: SortingFn<DashboardTopRow> = (rowA, rowB, columnId) =>
+  severitySortValue[rowA.getValue<DashboardSeverity>(columnId)] -
+  severitySortValue[rowB.getValue<DashboardSeverity>(columnId)]
+
+function exposureSortValue(row: DashboardTopRow): number {
+  if (row.exposureStatus === 'ready' && row.estimatedExposureCents !== null) {
+    return row.estimatedExposureCents
+  }
+  return -1
+}
 
 function useSeverityLabels(): Record<DashboardSeverity, string> {
   const { t } = useLingui()
@@ -261,6 +296,42 @@ function ExposureBadge({ row }: { row: DashboardTopRow }) {
     <Badge variant="outline">
       <Trans>unsupported</Trans>
     </Badge>
+  )
+}
+
+function DashboardSortableFilterHeader({
+  children,
+  column,
+  sortLabel,
+}: {
+  children: ReactNode
+  column: Column<DashboardTopRow>
+  sortLabel: string
+}) {
+  const sortDirection = column.getIsSorted()
+  const SortIcon =
+    sortDirection === 'asc'
+      ? ArrowUpIcon
+      : sortDirection === 'desc'
+        ? ArrowDownIcon
+        : ArrowUpDownIcon
+
+  return (
+    <div className="flex min-w-0 items-center gap-1">
+      {children}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        aria-label={sortLabel}
+        aria-pressed={sortDirection !== false}
+        data-active={sortDirection !== false ? true : undefined}
+        className="size-7 text-text-tertiary hover:text-text-primary data-[active=true]:text-text-accent"
+        onClick={column.getToggleSortingHandler()}
+      >
+        <SortIcon className="size-3.5" aria-hidden />
+      </Button>
+    </div>
   )
 }
 
@@ -799,6 +870,7 @@ function DashboardTriageTable({
 }) {
   const { t } = useLingui()
   const [openHeaderFilter, setOpenHeaderFilter] = useState<string | null>(null)
+  const [sorting, setSorting] = useState<SortingState>([])
 
   function setHeaderFilterOpen(filterId: string, nextOpen: boolean) {
     setOpenHeaderFilter((current) => (nextOpen ? filterId : current === filterId ? null : current))
@@ -809,10 +881,12 @@ function DashboardTriageTable({
       {
         id: 'smartPriority',
         header: t`Priority`,
+        enableSorting: false,
         cell: ({ row }) => <SmartPriorityBadge smartPriority={row.original.smartPriority} />,
       },
       {
         accessorKey: 'clientName',
+        enableSorting: false,
         header: () => (
           <TableHeaderMultiFilter
             trigger="header"
@@ -834,6 +908,7 @@ function DashboardTriageTable({
       },
       {
         accessorKey: 'taxType',
+        enableSorting: false,
         header: () => (
           <TableHeaderMultiFilter
             trigger="header"
@@ -853,22 +928,30 @@ function DashboardTriageTable({
       },
       {
         accessorKey: 'currentDueDate',
-        header: () => (
-          <TableHeaderMultiFilter
-            trigger="header"
-            label={t`Deadline`}
-            open={openHeaderFilter === 'due'}
-            onOpenChange={(nextOpen) => setHeaderFilterOpen('due', nextOpen)}
-            options={filterOptions.due}
-            selected={filterState.due}
-            disabled={filtersDisabled}
-            emptyLabel={t`No deadline windows`}
-            onSelectedChange={(nextDue) => {
-              const typedDue = nextDue.filter(isDashboardDueBucket)
-              onFilterChange({ due: typedDue.length > 0 ? typedDue : null })
-            }}
-          />
-        ),
+        enableSorting: true,
+        sortingFn: dashboardDateSortingFn,
+        sortDescFirst: false,
+        header: ({ column }) => {
+          const label = t`Deadline`
+          return (
+            <DashboardSortableFilterHeader column={column} sortLabel={`${t`Sort`} ${label}`}>
+              <TableHeaderMultiFilter
+                trigger="header"
+                label={label}
+                open={openHeaderFilter === 'due'}
+                onOpenChange={(nextOpen) => setHeaderFilterOpen('due', nextOpen)}
+                options={filterOptions.due}
+                selected={filterState.due}
+                disabled={filtersDisabled}
+                emptyLabel={t`No deadline windows`}
+                onSelectedChange={(nextDue) => {
+                  const typedDue = nextDue.filter(isDashboardDueBucket)
+                  onFilterChange({ due: typedDue.length > 0 ? typedDue : null })
+                }}
+              />
+            </DashboardSortableFilterHeader>
+          )
+        },
         cell: ({ row }) => (
           <div className="flex items-center gap-2 font-mono tabular-nums">
             <DashboardCountdownBadge
@@ -880,6 +963,7 @@ function DashboardTriageTable({
       },
       {
         accessorKey: 'status',
+        enableSorting: false,
         header: () => (
           <TableHeaderMultiFilter
             trigger="header"
@@ -911,22 +995,30 @@ function DashboardTriageTable({
       },
       {
         accessorKey: 'severity',
-        header: () => (
-          <TableHeaderMultiFilter
-            trigger="header"
-            label={t`Severity`}
-            open={openHeaderFilter === 'severity'}
-            onOpenChange={(nextOpen) => setHeaderFilterOpen('severity', nextOpen)}
-            options={filterOptions.severity}
-            selected={filterState.severity}
-            disabled={filtersDisabled}
-            emptyLabel={t`No severities`}
-            onSelectedChange={(nextSeverity) => {
-              const typedSeverity = nextSeverity.filter(isDashboardSeverity)
-              onFilterChange({ severity: typedSeverity.length > 0 ? typedSeverity : null })
-            }}
-          />
-        ),
+        enableSorting: true,
+        sortingFn: dashboardSeveritySortingFn,
+        sortDescFirst: true,
+        header: ({ column }) => {
+          const label = t`Severity`
+          return (
+            <DashboardSortableFilterHeader column={column} sortLabel={`${t`Sort`} ${label}`}>
+              <TableHeaderMultiFilter
+                trigger="header"
+                label={label}
+                open={openHeaderFilter === 'severity'}
+                onOpenChange={(nextOpen) => setHeaderFilterOpen('severity', nextOpen)}
+                options={filterOptions.severity}
+                selected={filterState.severity}
+                disabled={filtersDisabled}
+                emptyLabel={t`No severities`}
+                onSelectedChange={(nextSeverity) => {
+                  const typedSeverity = nextSeverity.filter(isDashboardSeverity)
+                  onFilterChange({ severity: typedSeverity.length > 0 ? typedSeverity : null })
+                }}
+              />
+            </DashboardSortableFilterHeader>
+          )
+        },
         cell: ({ row }) => (
           <Badge
             variant={severityVariant[row.original.severity]}
@@ -939,26 +1031,35 @@ function DashboardTriageTable({
       },
       {
         accessorKey: 'estimatedExposureCents',
-        header: () => (
-          <TableHeaderMultiFilter
-            trigger="header"
-            label={t`Exposure`}
-            open={openHeaderFilter === 'exposure'}
-            onOpenChange={(nextOpen) => setHeaderFilterOpen('exposure', nextOpen)}
-            options={filterOptions.exposure}
-            selected={filterState.exposure}
-            disabled={filtersDisabled}
-            emptyLabel={t`No exposure states`}
-            onSelectedChange={(nextExposure) => {
-              const typedExposure = nextExposure.filter(isDashboardExposureStatus)
-              onFilterChange({ exposure: typedExposure.length > 0 ? typedExposure : null })
-            }}
-          />
-        ),
+        enableSorting: true,
+        sortingFn: dashboardExposureSortingFn,
+        sortDescFirst: true,
+        header: ({ column }) => {
+          const label = t`Exposure`
+          return (
+            <DashboardSortableFilterHeader column={column} sortLabel={`${t`Sort`} ${label}`}>
+              <TableHeaderMultiFilter
+                trigger="header"
+                label={label}
+                open={openHeaderFilter === 'exposure'}
+                onOpenChange={(nextOpen) => setHeaderFilterOpen('exposure', nextOpen)}
+                options={filterOptions.exposure}
+                selected={filterState.exposure}
+                disabled={filtersDisabled}
+                emptyLabel={t`No exposure states`}
+                onSelectedChange={(nextExposure) => {
+                  const typedExposure = nextExposure.filter(isDashboardExposureStatus)
+                  onFilterChange({ exposure: typedExposure.length > 0 ? typedExposure : null })
+                }}
+              />
+            </DashboardSortableFilterHeader>
+          )
+        },
         cell: ({ row }) => <ExposureBadge row={row.original} />,
       },
       {
         accessorKey: 'evidenceCount',
+        enableSorting: false,
         header: () => (
           <TableHeaderMultiFilter
             trigger="header"
@@ -1011,9 +1112,14 @@ function DashboardTriageTable({
   const table = useReactTable({
     data: rows,
     columns,
+    state: {
+      sorting,
+    },
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getRowId: (row) => row.obligationId,
     manualFiltering: true,
+    onSortingChange: setSorting,
   })
   const tableRows = table.getRowModel().rows
   const visibleColumnCount = table.getVisibleLeafColumns().length
@@ -1025,7 +1131,19 @@ function DashboardTriageTable({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} colSpan={header.colSpan}>
+                <TableHead
+                  key={header.id}
+                  colSpan={header.colSpan}
+                  aria-sort={
+                    header.column.getIsSorted() === 'asc'
+                      ? 'ascending'
+                      : header.column.getIsSorted() === 'desc'
+                        ? 'descending'
+                        : header.column.getCanSort()
+                          ? 'none'
+                          : undefined
+                  }
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())}

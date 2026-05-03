@@ -22,13 +22,18 @@ import { listActiveOverlayDueDates } from './overlay'
  *   - Keeps the join SQL out of the obligation write path, so future
  *     overlay logic (Phase 1) can replace this read alone.
  *
- * Cursor format: base64(`${ISO_DATE}|${id}`). Decoded into (currentDueDate,
- * id) for keyset pagination. We only paginate on the primary sort column
- * (currentDueDate); `updated_desc` falls back to offset-less single page in
- * Demo Sprint (limit caps at 100 per request).
+ * Cursor format: base64(`${score}|${ISO_DATE}|${exposureSortValue}|${id}`).
+ * `updated_desc` falls back to offset-less single page in Demo Sprint (limit
+ * caps at 100 per request).
  */
 
-export type WorkboardSort = 'smart_priority' | 'due_asc' | 'due_desc' | 'updated_desc'
+export type WorkboardSort =
+  | 'smart_priority'
+  | 'due_asc'
+  | 'due_desc'
+  | 'exposure_desc'
+  | 'exposure_asc'
+  | 'updated_desc'
 export type WorkboardReadiness = ObligationReadiness
 
 export interface WorkboardListInput {
@@ -228,28 +233,41 @@ function addDays(date: Date, days: number): Date {
 }
 
 function encodeCursor(
-  row: Pick<WorkboardListRow, 'currentDueDate' | 'id' | 'smartPriority'>,
+  row: Pick<
+    WorkboardListRow,
+    'currentDueDate' | 'estimatedExposureCents' | 'exposureStatus' | 'id' | 'smartPriority'
+  >,
 ): string {
   const iso = row.currentDueDate.toISOString()
-  return Buffer.from(`${row.smartPriority.score}|${iso}|${row.id}`, 'utf8').toString('base64url')
+  return Buffer.from(
+    `${row.smartPriority.score}|${iso}|${exposureSortValue(row)}|${row.id}`,
+    'utf8',
+  ).toString('base64url')
 }
 
 function decodeCursor(cursor: string): {
   currentDueDate: Date
+  exposureSortValue: number | null
   id: string
   smartPriorityScore: number | null
 } | null {
   try {
     const raw = Buffer.from(cursor, 'base64url').toString('utf8')
     const parts = raw.split('|')
-    const [scoreValue, iso, id] =
-      parts.length === 3 ? parts : [null, parts[0] ?? '', parts[1] ?? '']
+    const [scoreValue, iso, exposureValue, id] =
+      parts.length === 4
+        ? parts
+        : parts.length === 3
+          ? [parts[0] ?? '', parts[1] ?? '', null, parts[2] ?? '']
+          : [null, parts[0] ?? '', null, parts[1] ?? '']
     if (!iso || !id) return null
     const d = new Date(iso)
     if (Number.isNaN(d.getTime())) return null
     const score = scoreValue === null ? Number.NaN : Number(scoreValue)
+    const exposure = exposureValue === null ? Number.NaN : Number(exposureValue)
     return {
       currentDueDate: d,
+      exposureSortValue: Number.isFinite(exposure) ? exposure : null,
       id,
       smartPriorityScore: Number.isFinite(score) ? score : null,
     }
@@ -327,16 +345,36 @@ function compareRows(a: WorkboardListRow, b: WorkboardListRow, sort: WorkboardSo
     if (updatedDelta !== 0) return updatedDelta
     return b.id.localeCompare(a.id)
   }
+  if (sort === 'exposure_desc' || sort === 'exposure_asc') {
+    const direction = sort === 'exposure_desc' ? -1 : 1
+    const exposureDelta = exposureSortValue(a) - exposureSortValue(b)
+    if (exposureDelta !== 0) return exposureDelta * direction
+    return a.id.localeCompare(b.id) * direction
+  }
   const direction = sort === 'due_desc' ? -1 : 1
   const dateDelta = a.currentDueDate.getTime() - b.currentDueDate.getTime()
   if (dateDelta !== 0) return dateDelta * direction
   return a.id.localeCompare(b.id) * direction
 }
 
+function exposureSortValue(
+  row: Pick<WorkboardListRow, 'estimatedExposureCents' | 'exposureStatus'>,
+): number {
+  if (row.exposureStatus === 'ready' && row.estimatedExposureCents !== null) {
+    return row.estimatedExposureCents
+  }
+  return -1
+}
+
 function isAfterCursor(
   row: WorkboardListRow,
   sort: WorkboardSort,
-  cursor: { currentDueDate: Date; id: string; smartPriorityScore: number | null },
+  cursor: {
+    currentDueDate: Date
+    exposureSortValue: number | null
+    id: string
+    smartPriorityScore: number | null
+  },
 ): boolean {
   if (sort === 'updated_desc') return true
   if (sort === 'smart_priority') {
@@ -355,6 +393,14 @@ function isAfterCursor(
         },
       ) > 0
     )
+  }
+  if (sort === 'exposure_desc' || sort === 'exposure_asc') {
+    if (cursor.exposureSortValue === null) return true
+    const exposureDelta = exposureSortValue(row) - cursor.exposureSortValue
+    if (sort === 'exposure_desc') {
+      return exposureDelta < 0 || (exposureDelta === 0 && row.id < cursor.id)
+    }
+    return exposureDelta > 0 || (exposureDelta === 0 && row.id > cursor.id)
   }
   const dateDelta = row.currentDueDate.getTime() - cursor.currentDueDate.getTime()
   if (sort === 'due_desc') return dateDelta < 0 || (dateDelta === 0 && row.id < cursor.id)
@@ -496,12 +542,17 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         filters.push(sql`${client.name} like ${needle} escape '\\'`)
       }
 
+      const exposureSortSql = sql<number>`case when ${obligationInstance.exposureStatus} = 'ready' and ${obligationInstance.estimatedExposureCents} is not null then ${obligationInstance.estimatedExposureCents} else -1 end`
       const orderBy =
         sort === 'due_desc'
           ? [desc(obligationInstance.currentDueDate), desc(obligationInstance.id)]
-          : sort === 'updated_desc'
-            ? [desc(obligationInstance.updatedAt), desc(obligationInstance.id)]
-            : [asc(obligationInstance.currentDueDate), asc(obligationInstance.id)]
+          : sort === 'exposure_desc'
+            ? [desc(exposureSortSql), desc(obligationInstance.id)]
+            : sort === 'exposure_asc'
+              ? [asc(exposureSortSql), asc(obligationInstance.id)]
+              : sort === 'updated_desc'
+                ? [desc(obligationInstance.updatedAt), desc(obligationInstance.id)]
+                : [asc(obligationInstance.currentDueDate), asc(obligationInstance.id)]
 
       const rawRows = await db
         .select({

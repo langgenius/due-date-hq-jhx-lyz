@@ -19,11 +19,19 @@ import { EntityIdSchema, TenantIdSchema } from './shared/ids'
  * live in `obligationsContract` (createBatch, updateDueDate, updateStatus)
  * to keep one canonical write path per entity.
  *
- * Cursor pagination follows D1 100-bound-param budget — we encode
- * `(currentDueDate, id)` so the next page query only needs 2 extra params.
+ * Cursor pagination follows D1 100-bound-param budget — we encode the active
+ * sort value plus stable row identity so the next page query does not need a
+ * wide parameter payload.
  */
 
-export const WorkboardSortSchema = z.enum(['smart_priority', 'due_asc', 'due_desc', 'updated_desc'])
+export const WorkboardSortSchema = z.enum([
+  'smart_priority',
+  'due_asc',
+  'due_desc',
+  'exposure_desc',
+  'exposure_asc',
+  'updated_desc',
+])
 export type WorkboardSort = z.infer<typeof WorkboardSortSchema>
 export const WorkboardDensitySchema = z.enum(['comfortable', 'compact'])
 export type WorkboardDensity = z.infer<typeof WorkboardDensitySchema>

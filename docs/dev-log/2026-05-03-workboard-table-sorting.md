@@ -1,0 +1,32 @@
+---
+title: 'Workboard table sorting'
+date: 2026-05-03
+area: workboard
+---
+
+## Context
+
+Workboard already had URL-backed server sorting through the toolbar select, but the table headers
+did not expose direct sorting controls for the operational columns users scan most often.
+
+## Changes
+
+- Added Workboard sort values for Exposure high-to-low and low-to-high.
+- Kept Due date sorting on the existing server-backed `due_asc` / `due_desc` sort values.
+- Added compact header sort buttons for Due date and Exposure.
+- Preserved server-side pagination semantics by extending repo comparison and cursor handling for
+  Exposure sorting.
+
+## Design alignment
+
+- No DESIGN.md or token contract changes were needed.
+- Header sort buttons reuse the same compact ghost icon affordance added to Dashboard, alongside the
+  existing header filter controls.
+
+## Validation
+
+- `pnpm check`
+- `pnpm --filter @duedatehq/db test -- --run src/repo/workboard.test.ts`
+- `pnpm --filter @duedatehq/contracts test -- --run src/contracts.test.ts`
+- `pnpm --filter @duedatehq/app test`
+- `pnpm --filter @duedatehq/app build`

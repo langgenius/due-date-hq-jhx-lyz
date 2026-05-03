@@ -15,6 +15,9 @@ import {
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   AlertTriangleIcon,
+  ArrowDownIcon,
+  ArrowUpDownIcon,
+  ArrowUpIcon,
   ChevronDownIcon,
   Columns3Icon,
   CopyIcon,
@@ -157,6 +160,8 @@ const ALL_SORTS = [
   'smart_priority',
   'due_asc',
   'due_desc',
+  'exposure_desc',
+  'exposure_asc',
   'updated_desc',
 ] as const satisfies readonly WorkboardSort[]
 const OWNER_FILTERS = ['unassigned'] as const
@@ -270,6 +275,8 @@ function useSortLabels(): Record<WorkboardSort, string> {
       smart_priority: t`Smart Priority`,
       due_asc: t`Due date — earliest first`,
       due_desc: t`Due date — latest first`,
+      exposure_desc: `${t`Exposure`} ↓`,
+      exposure_asc: `${t`Exposure`} ↑`,
       updated_desc: t`Recently updated`,
     }),
     [t],
@@ -279,12 +286,44 @@ function useSortLabels(): Record<WorkboardSort, string> {
 function getSortingState(sort: WorkboardSort): SortingState {
   if (sort === 'smart_priority') return [{ id: 'smartPriority', desc: true }]
   if (sort === 'due_desc') return [{ id: 'currentDueDate', desc: true }]
+  if (sort === 'exposure_desc') return [{ id: 'estimatedExposureCents', desc: true }]
+  if (sort === 'exposure_asc') return [{ id: 'estimatedExposureCents', desc: false }]
   if (sort === 'updated_desc') return [{ id: 'updatedAt', desc: true }]
   return [{ id: 'currentDueDate', desc: false }]
 }
 
 function withDefaultSortCleared(sort: WorkboardSort): WorkboardSort | null {
   return sort === DEFAULT_SORT ? null : sort
+}
+
+function nextHeaderSort({
+  currentSort,
+  ascSort,
+  descSort,
+  firstSort,
+}: {
+  currentSort: WorkboardSort
+  ascSort: WorkboardSort
+  descSort: WorkboardSort
+  firstSort: WorkboardSort
+}): WorkboardSort {
+  if (currentSort !== ascSort && currentSort !== descSort) return firstSort
+  if (currentSort === firstSort) return firstSort === ascSort ? descSort : ascSort
+  return DEFAULT_SORT
+}
+
+function workboardColumnAriaSort(columnId: string, sort: WorkboardSort) {
+  if (columnId === 'currentDueDate') {
+    if (sort === 'due_asc') return 'ascending'
+    if (sort === 'due_desc') return 'descending'
+    return 'none'
+  }
+  if (columnId === 'estimatedExposureCents') {
+    if (sort === 'exposure_asc') return 'ascending'
+    if (sort === 'exposure_desc') return 'descending'
+    return 'none'
+  }
+  return undefined
 }
 
 function withDefaultDensityCleared(density: WorkboardDensity): WorkboardDensity | null {
@@ -904,6 +943,15 @@ export function WorkboardRoute() {
   const readinessUpdatePending =
     updateReadinessMutation.isPending || bulkReadinessMutation.isPending
   const workflowUpdatePending = statusUpdatePending || readinessUpdatePending
+  const changeSort = useCallback(
+    (nextSort: WorkboardSort) => {
+      void setWorkboardQuery({
+        sort: withDefaultSortCleared(nextSort),
+        row: null,
+      })
+    },
+    [setWorkboardQuery],
+  )
 
   const columns = useMemo<ColumnDef<WorkboardRow>[]>(
     () => [
@@ -1063,7 +1111,23 @@ export function WorkboardRoute() {
       },
       {
         accessorKey: 'currentDueDate',
-        header: t`Due date`,
+        header: () => {
+          const label = t`Due date`
+          return (
+            <WorkboardSortableHeader
+              sort={sort}
+              ascSort="due_asc"
+              descSort="due_desc"
+              firstSort="due_asc"
+              sortLabel={`${t`Sort`} ${label}`}
+              onSortChange={changeSort}
+            >
+              <span className="-mx-2 inline-flex h-7 items-center rounded-md px-2 text-xs font-medium tracking-wider whitespace-nowrap text-text-tertiary uppercase">
+                {label}
+              </span>
+            </WorkboardSortableHeader>
+          )
+        },
         cell: (info) => formatDate(info.getValue<string>()),
         meta: { cellClassName: 'font-mono text-xs tabular-nums' },
       },
@@ -1095,26 +1159,38 @@ export function WorkboardRoute() {
       },
       {
         accessorKey: 'estimatedExposureCents',
-        header: () => (
-          <RangeHeaderFilterDropdown
-            label={t`Exposure`}
-            minLabel={t`Minimum dollars at risk`}
-            maxLabel={t`Maximum dollars at risk`}
-            minPlaceholder={t`Min $`}
-            maxPlaceholder={t`Max $`}
-            minValue={riskMin}
-            maxValue={riskMax}
-            inputMode="numeric"
-            min={0}
-            onCommit={(nextMin, nextMax) =>
-              void setWorkboardQuery({
-                riskMin: integerFromInput(nextMin, 0),
-                riskMax: integerFromInput(nextMax, 0),
-                row: null,
-              })
-            }
-          />
-        ),
+        header: () => {
+          const label = t`Exposure`
+          return (
+            <WorkboardSortableHeader
+              sort={sort}
+              ascSort="exposure_asc"
+              descSort="exposure_desc"
+              firstSort="exposure_desc"
+              sortLabel={`${t`Sort`} ${label}`}
+              onSortChange={changeSort}
+            >
+              <RangeHeaderFilterDropdown
+                label={label}
+                minLabel={t`Minimum dollars at risk`}
+                maxLabel={t`Maximum dollars at risk`}
+                minPlaceholder={t`Min $`}
+                maxPlaceholder={t`Max $`}
+                minValue={riskMin}
+                maxValue={riskMax}
+                inputMode="numeric"
+                min={0}
+                onCommit={(nextMin, nextMax) =>
+                  void setWorkboardQuery({
+                    riskMin: integerFromInput(nextMin, 0),
+                    riskMax: integerFromInput(nextMax, 0),
+                    row: null,
+                  })
+                }
+              />
+            </WorkboardSortableHeader>
+          )
+        },
         cell: ({ row: tableRow }) => (
           <ExposurePill row={tableRow.original} onNeedsInput={setPenaltyRow} />
         ),
@@ -1204,6 +1280,7 @@ export function WorkboardRoute() {
       },
     ],
     [
+      changeSort,
       clientOptions,
       clientQuery,
       countyOptions,
@@ -1222,6 +1299,7 @@ export function WorkboardRoute() {
       riskMin,
       setHeaderFilterOpen,
       setWorkboardQuery,
+      sort,
       stateOptions,
       stateQuery,
       statusLabels,
@@ -1719,6 +1797,8 @@ export function WorkboardRoute() {
                   <SelectItem value="smart_priority">{sortLabels.smart_priority}</SelectItem>
                   <SelectItem value="due_asc">{sortLabels.due_asc}</SelectItem>
                   <SelectItem value="due_desc">{sortLabels.due_desc}</SelectItem>
+                  <SelectItem value="exposure_desc">{sortLabels.exposure_desc}</SelectItem>
+                  <SelectItem value="exposure_asc">{sortLabels.exposure_asc}</SelectItem>
                   <SelectItem value="updated_desc">{sortLabels.updated_desc}</SelectItem>
                 </SelectContent>
               </Select>
@@ -1894,6 +1974,7 @@ export function WorkboardRoute() {
                             key={header.id}
                             className={meta?.headerClassName}
                             colSpan={header.colSpan}
+                            aria-sort={workboardColumnAriaSort(header.column.id, sort)}
                           >
                             {header.isPlaceholder
                               ? null
@@ -2103,6 +2184,48 @@ function ExposurePill({
     <Badge variant="outline" className={WORKBOARD_TABLE_PILL_CLASSNAME}>
       <Trans>unsupported</Trans>
     </Badge>
+  )
+}
+
+function WorkboardSortableHeader({
+  children,
+  sort,
+  ascSort,
+  descSort,
+  firstSort,
+  sortLabel,
+  onSortChange,
+}: {
+  children: ReactNode
+  sort: WorkboardSort
+  ascSort: WorkboardSort
+  descSort: WorkboardSort
+  firstSort: WorkboardSort
+  sortLabel: string
+  onSortChange: (sort: WorkboardSort) => void
+}) {
+  const direction = sort === ascSort ? 'asc' : sort === descSort ? 'desc' : false
+  const SortIcon =
+    direction === 'asc' ? ArrowUpIcon : direction === 'desc' ? ArrowDownIcon : ArrowUpDownIcon
+
+  return (
+    <div className="flex min-w-0 items-center gap-1">
+      {children}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        aria-label={sortLabel}
+        aria-pressed={direction !== false}
+        data-active={direction !== false ? true : undefined}
+        className="size-7 text-text-tertiary hover:text-text-primary data-[active=true]:text-text-accent"
+        onClick={() =>
+          onSortChange(nextHeaderSort({ currentSort: sort, ascSort, descSort, firstSort }))
+        }
+      >
+        <SortIcon className="size-3.5" aria-hidden />
+      </Button>
+    </div>
   )
 }
 

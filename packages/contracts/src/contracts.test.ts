@@ -471,6 +471,8 @@ describe('@duedatehq/contracts', () => {
       'smart_priority',
       'due_asc',
       'due_desc',
+      'exposure_desc',
+      'exposure_asc',
       'updated_desc',
     ])
     expect(WorkboardDensitySchema.options).toEqual(['comfortable', 'compact'])
