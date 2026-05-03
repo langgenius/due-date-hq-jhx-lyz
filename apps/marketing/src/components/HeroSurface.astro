@@ -1,5 +1,18 @@
 ---
 import type { HeroSurfaceCopy } from '../i18n/types'
+import {
+  marketingBadgeBase as badgeBase,
+  marketingBadgeTone as badgeTone,
+  marketingGhostButtonSm,
+  marketingSeverityBadgeTone,
+  marketingSeverityDot,
+  marketingSeverityRow,
+  marketingStatusDot as statusDot,
+  marketingTable,
+  marketingTableHeaderControl,
+  marketingTableHeaderGroup,
+  marketingTableSortButton,
+} from '../lib/marketing-table-styles'
 import KbdHint from './primitives/KbdHint.astro'
 
 interface Props {
@@ -7,38 +20,6 @@ interface Props {
 }
 
 const { t } = Astro.props
-
-const rowTint: Record<'critical' | 'high' | 'medium', string> = {
-  critical: 'bg-components-badge-bg-red-soft hover:bg-components-badge-bg-red-soft',
-  high: 'bg-components-badge-bg-warning-soft hover:bg-components-badge-bg-warning-soft',
-  medium: 'bg-components-badge-bg-gray-soft hover:bg-components-badge-bg-gray-soft',
-}
-
-const badgeBase =
-  'inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-badge font-medium whitespace-nowrap transition-colors'
-
-const badgeTone = {
-  destructive: 'bg-components-badge-bg-red-soft text-text-destructive',
-  warning: 'bg-components-badge-bg-warning-soft text-text-warning',
-  info: 'bg-components-badge-bg-blue-soft text-text-accent',
-  success: 'bg-components-badge-bg-green-soft text-text-success',
-  secondary: 'bg-components-badge-bg-gray-soft text-text-secondary',
-  outline: 'border-divider-regular text-text-secondary',
-}
-
-const statusDot = {
-  success: 'bg-components-badge-status-light-success-bg shadow-status-indicator-green',
-  warning: 'bg-components-badge-status-light-warning-bg shadow-status-indicator-warning',
-  error: 'bg-components-badge-status-light-error-bg shadow-status-indicator-red',
-  normal: 'bg-components-badge-status-light-normal-bg shadow-status-indicator-blue',
-  disabled: 'bg-components-badge-status-light-disabled-bg shadow-status-indicator-gray',
-}
-
-const severityDot: Record<'critical' | 'high' | 'medium', keyof typeof statusDot> = {
-  critical: 'error',
-  high: 'warning',
-  medium: 'disabled',
-}
 ---
 
 <div class="relative overflow-hidden rounded-xl border border-components-card-border bg-components-card-bg shadow-overlay">
@@ -130,68 +111,99 @@ const severityDot: Record<'critical' | 'high' | 'medium', keyof typeof statusDot
     <span class="font-mono text-xs text-text-tertiary">{t.liveLabel}</span>
   </div>
 
-  <div class="overflow-x-auto">
-    <div class="min-w-[960px]">
-      <div class="grid h-9 grid-cols-[1.1fr_1.8fr_0.75fr_1.35fr_1.25fr_1.05fr_1fr_1.2fr] items-center gap-3 border-b border-divider-regular px-4 text-xs font-medium tracking-wider text-text-tertiary uppercase">
-        <span class="-mx-2 inline-flex h-7 max-w-32 items-center gap-1 rounded-md px-2">
-          {t.table.headers.priority}
-          <span aria-hidden class="text-text-quaternary">↕</span>
-        </span>
-        <span class="-mx-2 inline-flex h-7 max-w-40 items-center gap-1 rounded-md px-2">
-          {t.table.headers.client}
-          <span aria-hidden class="text-text-quaternary">⌄</span>
-        </span>
-        <span>{t.table.headers.form}</span>
-        <span class="-mx-2 inline-flex h-7 max-w-36 items-center gap-1 rounded-md px-2">
-          {t.table.headers.due}
-          <span aria-hidden class="text-text-quaternary">↕</span>
-        </span>
-        <span class="-mx-2 inline-flex h-7 max-w-36 items-center gap-1 rounded-md px-2">
-          {t.table.headers.status}
-          <span aria-hidden class="text-text-quaternary">⌄</span>
-        </span>
-        <span>{t.table.headers.severity}</span>
-        <span class="-mx-2 inline-flex h-7 max-w-36 items-center justify-end gap-1 rounded-md px-2 text-right">
-          {t.table.headers.exposure}
-          <span aria-hidden class="text-text-quaternary">↕</span>
-        </span>
-        <span>{t.table.headers.evidence}</span>
-      </div>
-      {t.table.rows.slice(0, 4).map((row) => (
-        <div class:list={['grid h-9 grid-cols-[1.1fr_1.8fr_0.75fr_1.35fr_1.25fr_1.05fr_1fr_1.2fr] items-center gap-3 border-b border-divider-subtle px-4 text-xs transition-colors last:border-b-0', rowTint[row.severity]]}>
-          <span class:list={[badgeBase, badgeTone[row.priorityTone], 'font-mono tabular-nums']}>
-            {row.priorityScore}
-            {row.priorityRank && <span>{row.priorityRank}</span>}
-          </span>
-          <div class="flex min-w-0 items-center gap-3">
-            <div class="min-w-0 leading-tight">
-              <div class="truncate text-xs font-medium text-text-primary">{row.client}</div>
-              <div class="font-mono text-xs text-text-tertiary">{row.ein}</div>
-            </div>
-          </div>
-          <span class="font-mono text-xs text-text-secondary">{row.form}</span>
-          <span class="flex min-w-0 items-center gap-2 font-mono text-xs tabular-nums text-text-secondary">
-            <span class:list={[badgeBase, badgeTone[row.severity === 'medium' ? 'outline' : 'warning'], 'min-w-16 justify-start font-mono']}>
-              {row.daysLeft}
+  <div class={marketingTable.container}>
+    <table class:list={[marketingTable.table, 'min-w-[980px]']}>
+      <thead class={marketingTable.header}>
+        <tr class={marketingTable.row}>
+          <th class:list={[marketingTable.head, 'w-[12%]']}>
+            <span class:list={[marketingTableHeaderControl, 'max-w-32']}>
+              {t.table.headers.priority}
+              <span aria-hidden class="text-text-quaternary">↕</span>
             </span>
-            <span>{row.due}</span>
-          </span>
-          <span class:list={[badgeBase, badgeTone[row.statusTone]]}>
-            <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[row.statusDotTone]]}></span>
-            {row.status}
-          </span>
-          <span class:list={[badgeBase, badgeTone[row.severity === 'critical' ? 'destructive' : row.severity === 'high' ? 'warning' : 'secondary'], 'uppercase tracking-wide']}>
-            <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[severityDot[row.severity]]]}></span>
-            {row.severityLabel}
-          </span>
-          <span class:list={[badgeBase, badgeTone[row.exposureTone], 'ml-auto font-mono tabular-nums']}>{row.exposure}</span>
-          <span class:list={[badgeBase, badgeTone[row.evidenceTone], 'font-mono']}>
-            <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot.normal]}></span>
-            {row.evidence}
-          </span>
-        </div>
-      ))}
-    </div>
+          </th>
+          <th class:list={[marketingTable.head, 'w-[20%]']}>
+            <span class={marketingTableHeaderControl}>
+              {t.table.headers.client}
+              <span aria-hidden class="text-text-quaternary">⌄</span>
+            </span>
+          </th>
+          <th class:list={[marketingTable.head, 'w-[10%]']}>{t.table.headers.form}</th>
+          <th class:list={[marketingTable.head, 'w-[17%]']}>
+            <div class={marketingTableHeaderGroup}>
+              <span class:list={[marketingTableHeaderControl, 'max-w-32']}>
+                {t.table.headers.due}
+                <span aria-hidden class="text-text-quaternary">⌄</span>
+              </span>
+              <span aria-hidden class={marketingTableSortButton}>↕</span>
+            </div>
+          </th>
+          <th class:list={[marketingTable.head, 'w-[14%]']}>
+            <span class:list={[marketingTableHeaderControl, 'max-w-36']}>
+              {t.table.headers.status}
+              <span aria-hidden class="text-text-quaternary">⌄</span>
+            </span>
+          </th>
+          <th class:list={[marketingTable.head, 'w-[12%]']}>{t.table.headers.severity}</th>
+          <th class:list={[marketingTable.head, 'w-[11%] text-right']}>
+            <div class:list={[marketingTableHeaderGroup, 'justify-end']}>
+              <span class:list={[marketingTableHeaderControl, 'max-w-36 justify-end text-right']}>
+                {t.table.headers.exposure}
+                <span aria-hidden class="text-text-quaternary">⌄</span>
+              </span>
+              <span aria-hidden class={marketingTableSortButton}>↕</span>
+            </div>
+          </th>
+          <th class:list={[marketingTable.head, 'w-[14%]']}>{t.table.headers.evidence}</th>
+        </tr>
+      </thead>
+      <tbody class={marketingTable.body}>
+        {t.table.rows.slice(0, 4).map((row) => (
+          <tr class:list={[marketingTable.row, marketingSeverityRow[row.severity]]}>
+            <td class={marketingTable.cell}>
+              <span class:list={[badgeBase, badgeTone[row.priorityTone], 'font-mono tabular-nums']}>
+                {row.priorityScore}
+                {row.priorityRank && <span>{row.priorityRank}</span>}
+              </span>
+            </td>
+            <td class:list={[marketingTable.cell, 'font-medium']}>
+              <div class="min-w-0 leading-tight">
+                <div class="truncate text-xs text-text-primary">{row.client}</div>
+                <div class="font-mono text-xs text-text-tertiary">{row.ein}</div>
+              </div>
+            </td>
+            <td class:list={[marketingTable.cell, 'font-mono text-xs text-text-secondary']}>{row.form}</td>
+            <td class={marketingTable.cell}>
+              <div class="flex items-center gap-2 font-mono tabular-nums">
+                <span class:list={[badgeBase, badgeTone[row.severity === 'medium' ? 'outline' : 'warning'], 'min-w-18 justify-start font-mono text-xs tabular-nums']}>
+                  {row.daysLeft}
+                </span>
+                <span class="text-xs text-text-secondary">{row.due}</span>
+              </div>
+            </td>
+            <td class={marketingTable.cell}>
+              <span class:list={[badgeBase, badgeTone[row.statusTone], 'h-6 cursor-default text-xs']}>
+                <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[row.statusDotTone]]}></span>
+                {row.status}
+              </span>
+            </td>
+            <td class={marketingTable.cell}>
+              <span class:list={[badgeBase, badgeTone[marketingSeverityBadgeTone[row.severity]], 'h-7 px-2.5 text-xs uppercase tracking-wide']}>
+                <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[marketingSeverityDot[row.severity]]]}></span>
+                {row.severityLabel}
+              </span>
+            </td>
+            <td class:list={[marketingTable.cell, 'text-right']}>
+              <span class:list={[badgeBase, badgeTone[row.exposureTone], 'ml-auto font-mono tabular-nums']}>{row.exposure}</span>
+            </td>
+            <td class={marketingTable.cell}>
+              <span class:list={[marketingGhostButtonSm, 'max-w-36 justify-start']}>
+                <span class="truncate">{row.evidence}</span>
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   </div>
 
   <div class="flex items-center gap-4 border-t border-divider-subtle px-4 py-2.5">

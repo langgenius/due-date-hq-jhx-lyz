@@ -5,6 +5,7 @@
 /* Tailwind 4 source globs — keep in sync with the marketing src layout. */
 @source '../../../../packages/ui/src';
 @source '../components';
+@source '../lib';
 @source '../layouts';
 @source '../pages';
 

@@ -1,5 +1,14 @@
 ---
-import type { ProblemCopy, MarketingBadgeTone, MarketingStatusDotTone } from '../i18n/types'
+import type { ProblemCopy } from '../i18n/types'
+import {
+  marketingBadgeBase as badgeBase,
+  marketingBadgeTone as badgeTone,
+  marketingSeverityBadgeTone,
+  marketingSeverityDot,
+  marketingSeverityRow,
+  marketingStatusDot as statusDot,
+  marketingTable,
+} from '../lib/marketing-table-styles'
 import SectionEyebrow from './primitives/SectionEyebrow.astro'
 
 interface Props {
@@ -7,44 +16,6 @@ interface Props {
 }
 
 const { t } = Astro.props
-
-const badgeBase =
-  'inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-badge font-medium whitespace-nowrap transition-colors'
-
-const badgeTone: Record<MarketingBadgeTone, string> = {
-  destructive: 'bg-components-badge-bg-red-soft text-text-destructive',
-  warning: 'bg-components-badge-bg-warning-soft text-text-warning',
-  info: 'bg-components-badge-bg-blue-soft text-text-accent',
-  success: 'bg-components-badge-bg-green-soft text-text-success',
-  secondary: 'bg-components-badge-bg-gray-soft text-text-secondary',
-  outline: 'border-divider-regular text-text-secondary',
-}
-
-const statusDot: Record<MarketingStatusDotTone, string> = {
-  success: 'bg-components-badge-status-light-success-bg shadow-status-indicator-green',
-  warning: 'bg-components-badge-status-light-warning-bg shadow-status-indicator-warning',
-  error: 'bg-components-badge-status-light-error-bg shadow-status-indicator-red',
-  normal: 'bg-components-badge-status-light-normal-bg shadow-status-indicator-blue',
-  disabled: 'bg-components-badge-status-light-disabled-bg shadow-status-indicator-gray',
-}
-
-const severityPillTone: Record<'critical' | 'high' | 'medium', MarketingBadgeTone> = {
-  critical: 'destructive',
-  high: 'warning',
-  medium: 'secondary',
-}
-
-const rowTint: Record<'critical' | 'high' | 'medium', string> = {
-  critical: 'bg-components-badge-bg-red-soft hover:bg-components-badge-bg-red-soft',
-  high: 'bg-components-badge-bg-warning-soft hover:bg-components-badge-bg-warning-soft',
-  medium: 'bg-components-badge-bg-gray-soft hover:bg-components-badge-bg-gray-soft',
-}
-
-const severityDot: Record<'critical' | 'high' | 'medium', MarketingStatusDotTone> = {
-  critical: 'error',
-  high: 'warning',
-  medium: 'disabled',
-}
 ---
 
 <section class="border-b border-border-default bg-bg-canvas">
@@ -68,8 +39,8 @@ const severityDot: Record<'critical' | 'high' | 'medium', MarketingStatusDotTone
       {t.cards.map((card) => (
         <article class="rounded-xl border border-components-card-border bg-components-card-bg p-4">
           <div class="flex items-center justify-between">
-            <span class:list={[badgeBase, badgeTone[severityPillTone[card.severity]], 'font-mono tracking-[0.08em]']}>
-              <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[severityDot[card.severity]]]}></span>
+            <span class:list={[badgeBase, badgeTone[marketingSeverityBadgeTone[card.severity]], 'font-mono tracking-[0.08em]']}>
+              <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[marketingSeverityDot[card.severity]]]}></span>
               {card.tag}
             </span>
             <span class="font-mono text-xs text-text-tertiary">{card.cadence}</span>
@@ -81,16 +52,26 @@ const severityDot: Record<'critical' | 'high' | 'medium', MarketingStatusDotTone
               <span class="font-medium text-text-primary">{card.listTitle}</span>
               <span class="font-mono text-xs text-text-tertiary">{card.listSummary}</span>
             </div>
-            {card.rows.map((row) => (
-              <div class:list={['flex h-9 items-center gap-3 border-b border-divider-subtle px-3 text-xs transition-colors last:border-b-0 hover:bg-state-base-hover', row.severity && rowTint[row.severity]]}>
-                <span class:list={[badgeBase, badgeTone[row.pillTone ?? 'outline'], 'max-w-[112px] font-mono']}>
-                  <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[row.dotTone ?? (row.severity ? severityDot[row.severity] : 'normal')]]}></span>
-                  <span class="truncate">{row.pill}</span>
-                </span>
-                <span class="min-w-0 flex-1 truncate text-text-secondary">{row.text}</span>
-                <span class:list={[badgeBase, badgeTone[row.severity ? severityPillTone[row.severity] : 'outline'], 'font-mono']}>{row.date}</span>
-              </div>
-            ))}
+            <table class:list={[marketingTable.table, 'table-fixed']}>
+              <tbody class={marketingTable.body}>
+                {card.rows.map((row) => (
+                  <tr class:list={[marketingTable.row, row.severity && marketingSeverityRow[row.severity]]}>
+                    <td class:list={[marketingTable.compactCell, 'w-[36%]']}>
+                      <span class:list={[badgeBase, badgeTone[row.pillTone ?? 'outline'], 'max-w-[112px] font-mono']}>
+                        <span class:list={['inline-block size-2 shrink-0 rounded-full', statusDot[row.dotTone ?? (row.severity ? marketingSeverityDot[row.severity] : 'normal')]]}></span>
+                        <span class="truncate">{row.pill}</span>
+                      </span>
+                    </td>
+                    <td class:list={[marketingTable.compactCell, 'min-w-0 text-text-secondary']}>
+                      <span class="block truncate">{row.text}</span>
+                    </td>
+                    <td class:list={[marketingTable.compactCell, 'w-[28%] text-right']}>
+                      <span class:list={[badgeBase, badgeTone[row.severity ? marketingSeverityBadgeTone[row.severity] : 'outline'], 'ml-auto font-mono']}>{row.date}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </article>
       ))}
