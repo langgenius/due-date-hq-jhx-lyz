@@ -18,6 +18,9 @@ runtime enforcement for production practice AI and Team-only review workflows.
   Pulse review requests, and guided integration migration review.
 - Kept Solo migration imports AI-assisted by routing Mapper / Normalizer through the Solo basic AI
   tier. Preset and dictionary fallback now only cover AI-unavailable paths.
+- Added Solo migration onboarding credit in the AI budget: 30 migration AI requests per firm per day
+  for the first 7 days before the first successful import, then 15 migration AI requests per firm per
+  day.
 - Added Pro upgrade CTAs for manual practice AI triggers.
 - Updated billing and AI architecture docs so plan copy and runtime gates describe the same product.
 

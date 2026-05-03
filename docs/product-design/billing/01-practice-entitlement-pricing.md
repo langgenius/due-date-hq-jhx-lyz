@@ -81,8 +81,10 @@ Pricing cards must also show the AI capability:
 Runtime gates must match that copy:
 
 - Solo can use basic Migration Mapper / Normalizer AI for the activation import flow, plus
-  deterministic previews and cached/fallback summaries. Other manual practice AI refresh/generation
-  actions open a Pro upgrade path instead of queueing AI.
+  deterministic previews and cached/fallback summaries. Solo migration gets an onboarding credit:
+  30 migration AI requests per firm per day for the first 7 days before the first successful import,
+  then 15 migration AI requests per firm per day. Other manual practice AI refresh/generation actions
+  open a Pro upgrade path instead of queueing AI.
 - Pro unlocks Dashboard brief refresh, client risk summary refresh, deadline tip refresh,
   readiness checklist generation, production Pulse actions including needs-review confirmation and
   review requests, and production migration AI.

@@ -143,6 +143,10 @@ export function createAI(env: AiEnv = {}) {
         ...(env.CACHE ? { kv: env.CACHE } : {}),
         ...(routing.firmId ? { firmId: routing.firmId } : {}),
         ...(routing.plan ? { plan: routing.plan } : {}),
+        ...(routing.firmCreatedAt ? { firmCreatedAt: routing.firmCreatedAt } : {}),
+        ...(routing.migrationOnboardingCompleted !== undefined
+          ? { migrationOnboardingCompleted: routing.migrationOnboardingCompleted }
+          : {}),
       })
       if (!budget.allowed) {
         return refusal(

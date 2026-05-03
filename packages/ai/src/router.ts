@@ -17,6 +17,8 @@ export interface AiRoutingInput {
   plan?: BillingPlan
   taskKind?: AiTaskKind
   firmId?: string
+  firmCreatedAt?: Date | string
+  migrationOnboardingCompleted?: boolean
 }
 
 export function taskKindForPrompt(prompt: PromptName): AiTaskKind {

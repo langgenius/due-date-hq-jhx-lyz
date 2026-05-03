@@ -749,10 +749,16 @@ function buildAi(rawResult?: unknown): AI {
   return { extractPulse, runPrompt, runStreaming: runPrompt }
 }
 
-function buildCountingMigrationAi(): { ai: AI; calls: string[] } {
+function buildCountingMigrationAi(): {
+  ai: AI
+  calls: string[]
+  routings: Array<Parameters<AI['runPrompt']>[3]>
+} {
   const calls: string[] = []
-  const runPrompt: AI['runPrompt'] = async (name, _input, schema) => {
+  const routings: Array<Parameters<AI['runPrompt']>[3]> = []
+  const runPrompt: AI['runPrompt'] = async (name, _input, schema, routing) => {
     calls.push(name)
+    routings.push(routing)
     const result =
       name === 'mapper@v1'
         ? {
@@ -833,7 +839,7 @@ function buildCountingMigrationAi(): { ai: AI; calls: string[] } {
   const extractPulse: AI['extractPulse'] = async (input) =>
     runPrompt('pulse-extract@v1', input, PulseExtractOutputSchema)
 
-  return { ai: { extractPulse, runPrompt, runStreaming: runPrompt }, calls }
+  return { ai: { extractPulse, runPrompt, runStreaming: runPrompt }, calls, routings }
 }
 
 const SAMPLE_CSV = `Client Name,Tax ID,State,Entity Type,Email
@@ -1060,8 +1066,15 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
 
   it('routes Solo mapper through basic migration AI instead of deterministic-only fallback', async () => {
     const { repo, state } = buildScopedRepo(FIRM)
-    const { ai, calls } = buildCountingMigrationAi()
-    const service = new MigrationService({ scoped: repo, ai, userId: USER, plan: 'solo' })
+    const { ai, calls, routings } = buildCountingMigrationAi()
+    const firmCreatedAt = new Date('2026-05-01T00:00:00.000Z')
+    const service = new MigrationService({
+      scoped: repo,
+      ai,
+      userId: USER,
+      plan: 'solo',
+      firmCreatedAt,
+    })
 
     const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
     await service.uploadRaw({ batchId: batch.id, kind: 'csv', text: SAMPLE_CSV })
@@ -1073,6 +1086,12 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
     expect(result.mappings.some((mapping) => mapping.targetField === 'client.name')).toBe(true)
     expect(state.aiRuns.some((run) => run.kind === 'migration_map')).toBe(true)
     expect(result.mappings.every((mapping) => mapping.model === 'fast-json-test-model')).toBe(true)
+    expect(routings[0]).toMatchObject({
+      plan: 'solo',
+      firmCreatedAt,
+      migrationOnboardingCompleted: false,
+      taskKind: 'migration',
+    })
   })
 
   it('routes Solo normalizer through basic migration AI', async () => {
@@ -1097,6 +1116,32 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
           row.model === 'fast-json-test-model',
       ),
     ).toBe(true)
+  })
+
+  it('marks Solo migration onboarding complete after any successful import attempt', async () => {
+    const { repo, state } = buildScopedRepo(FIRM)
+    const { ai, routings } = buildCountingMigrationAi()
+    const service = new MigrationService({
+      scoped: repo,
+      ai,
+      userId: USER,
+      plan: 'solo',
+      firmCreatedAt: new Date('2026-05-01T00:00:00.000Z'),
+    })
+
+    const prior = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    state.batches.set(prior.id, {
+      ...state.batches.get(prior.id)!,
+      status: 'reverted',
+      appliedAt: new Date('2026-05-02T00:00:00.000Z'),
+      revertedAt: new Date('2026-05-02T01:00:00.000Z'),
+    })
+    const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
+    await service.uploadRaw({ batchId: batch.id, kind: 'csv', text: SAMPLE_CSV })
+
+    await service.runMapper(batch.id)
+
+    expect(routings[0]).toMatchObject({ migrationOnboardingCompleted: true })
   })
 
   it('forces SSN-flagged columns to IGNORE even on the AI happy path', async () => {

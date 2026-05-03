@@ -181,7 +181,7 @@ describe('@duedatehq/ai', () => {
       ...CONFIGURED_ENV,
       CACHE: {
         async get() {
-          return '5'
+          return '15'
         },
         async put() {
           throw new Error('put should not run')

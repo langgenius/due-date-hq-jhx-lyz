@@ -198,6 +198,7 @@ describe('tenantMiddleware', () => {
         timezone: 'America/New_York',
         status: 'active',
         ownerUserId: 'user_owner',
+        createdAt: '1970-01-01T00:00:00.000Z',
       },
     })
     expect(dbMocks.scoped).toHaveBeenCalledWith(expect.anything(), 'firm_123')

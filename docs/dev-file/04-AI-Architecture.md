@@ -140,9 +140,10 @@ fair-use 保护，但 Billing 文案不能暗示 Team 有更强模型或更深 A
 - Solo 只能使用 preview / basic AI。手动触发的非迁移 practice AI workflows（Dashboard
   brief、Client Risk Summary、Deadline Tip、Readiness Checklist）必须在 procedure 层拒绝，
   并在前端显示 Pro 升级入口。
-- Migration 是核心 activation flow：Solo 的 Mapper / Normalizer 必须调用 basic tier AI，
-  但仍受 Solo 的低 daily limit 和人工确认约束。AI 不可用时才降级到 preset / dictionary
-  fallback，并继续写入 trace。
+- Migration 是核心 activation flow：Solo 的 Mapper / Normalizer 必须调用 basic tier AI。
+  新 practice 在创建后 7 天内、且尚未完成首次真实导入前，Solo migration 享有 onboarding
+  credit（30 req / firm / day）；首次成功导入后或窗口结束后回到 Solo migration 标准额度
+  （15 req / firm / day）。AI 不可用时才降级到 preset / dictionary fallback，并继续写入 trace。
 - Pro 的 Production Pulse 包含 needs-review 确认和 review request；Team 不改变 AI tier，
   但解锁 `priorityPulseMatching`、`guidedMigrationReview`、`auditExport` 等更高阶运营和审计差异。
 
@@ -436,9 +437,9 @@ pulse application。Phase 0 Demo 可直接 UPDATE `current_due_date`；完整 MV
 | Deadline Tip                  | 50（缓存 per-rule 7d）                                                                    |
 | Pulse Extract                 | ops/admin 触发，不计普通用户 cap                                                          |
 | Ask                           | 30（付费可升）                                                                            |
-| Migration Mapper / Normalizer | 20 req / firm / day                                                                       |
+| Migration Mapper / Normalizer | Solo onboarding 30 req / firm / day；Solo standard 15；Pro 50；Team 150；Enterprise 500   |
 
-KV 保存预算计数。超限返回 `rate_limited` + 明确 message。
+KV 按 firm + day + task kind 保存预算计数。超限返回 `rate_limited` + 明确 message。
 
 ### 10.2 Trace payload
 

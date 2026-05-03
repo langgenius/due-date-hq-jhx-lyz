@@ -140,6 +140,7 @@ export interface MigrationDeps {
   ai: AI
   userId: string
   plan?: BillingPlan
+  firmCreatedAt?: Date
   rawBucket?: R2Bucket
 }
 
@@ -158,11 +159,27 @@ export interface UploadRawInput {
 export class MigrationService {
   constructor(private readonly deps: MigrationDeps) {}
 
-  private migrationAiRouting() {
+  private migrationOnboardingCompleted?: Promise<boolean>
+
+  private hasCompletedMigrationOnboarding(): Promise<boolean> {
+    this.migrationOnboardingCompleted ??= this.deps.scoped.migration
+      .listByFirm()
+      .then((batches) =>
+        batches.some((batch) => batch.status === 'applied' || batch.appliedAt !== null),
+      )
+    return this.migrationOnboardingCompleted
+  }
+
+  private async migrationAiRouting() {
+    const migrationOnboardingCompleted =
+      this.deps.plan === 'solo' ? await this.hasCompletedMigrationOnboarding() : undefined
+
     return {
       firmId: this.deps.scoped.firmId,
       taskKind: 'migration' as const,
       ...(this.deps.plan ? { plan: this.deps.plan } : {}),
+      ...(this.deps.firmCreatedAt ? { firmCreatedAt: this.deps.firmCreatedAt } : {}),
+      ...(migrationOnboardingCompleted !== undefined ? { migrationOnboardingCompleted } : {}),
     }
   }
 
@@ -421,7 +438,7 @@ export class MigrationService {
         firm_id_hash: this.deps.scoped.firmId,
       },
       MapperOutputSchema,
-      this.migrationAiRouting(),
+      await this.migrationAiRouting(),
     )
     const recorded = await this.recordAiRun('migration_map', batchId, aiResult)
     aiOutputId = recorded.aiOutputId
@@ -1037,7 +1054,7 @@ export class MigrationService {
       'normalizer-entity@v1',
       { values: rawValues },
       EntityNormalizerSchema,
-      this.migrationAiRouting(),
+      await this.migrationAiRouting(),
     )
     const { aiOutputId } = await this.recordAiRun('migration_normalize', batchId, aiResult)
 
@@ -1096,7 +1113,7 @@ export class MigrationService {
       'normalizer-tax-types@v1',
       { values: rawValues },
       TaxTypesNormalizerSchema,
-      this.migrationAiRouting(),
+      await this.migrationAiRouting(),
     )
     const { aiOutputId } = await this.recordAiRun('migration_normalize', batchId, aiResult)
 

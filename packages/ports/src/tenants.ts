@@ -10,6 +10,7 @@ export interface TenantContext {
   readonly status: FirmStatus
   readonly ownerUserId: string
   readonly coordinatorCanSeeDollars: boolean
+  readonly createdAt?: Date
 }
 
 export interface FirmMembershipRow {

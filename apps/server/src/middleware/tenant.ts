@@ -107,6 +107,7 @@ export const tenantMiddleware = createMiddleware<{
     status: profile.status,
     ownerUserId: profile.ownerUserId,
     coordinatorCanSeeDollars: profile.coordinatorCanSeeDollars,
+    createdAt: profile.createdAt,
   }
   c.set('tenantContext', tenant)
   c.set('authSessions', createAuthSessionsRepo(db))
