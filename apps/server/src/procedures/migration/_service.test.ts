@@ -671,6 +671,9 @@ function buildScopedRepo(firmId: string) {
       async listVerified() {
         return []
       },
+      async listTemporaryRules() {
+        return []
+      },
       async getDecision() {
         return null
       },

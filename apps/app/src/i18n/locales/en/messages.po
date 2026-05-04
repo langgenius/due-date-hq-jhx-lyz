@@ -173,8 +173,11 @@ msgid "{0} selected · {1} eligible · {2} need review"
 msgstr "{0} selected · {1} eligible · {2} need review"
 
 #. placeholder {0}: filteredAlerts.length
+#. placeholder {0}: filteredRules.length
 #. placeholder {1}: alerts.length
+#. placeholder {1}: rules.length
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/rules/temporary-rules-tab.tsx
 msgid "{0} shown · {1} total"
 msgstr "{0} shown · {1} total"
 
@@ -229,10 +232,6 @@ msgstr "{count} additional fields changed"
 #: src/routes/workboard.tsx
 msgid "{days, plural, one {# day} other {# days}}"
 msgstr "{days, plural, one {# day} other {# days}}"
-
-#: src/routes/dashboard.tsx
-msgid "{days} days left"
-msgstr "{days} days left"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "{durationMonths} months"
@@ -337,10 +336,6 @@ msgstr "0 active"
 #: src/routes/billing.checkout.tsx
 msgid "1 active practice"
 msgstr "1 active practice"
-
-#: src/routes/dashboard.tsx
-msgid "1 day left"
-msgstr "1 day left"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -495,6 +490,7 @@ msgstr "Actions"
 #: src/features/calendar/calendar-page.tsx
 #: src/features/members/members-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/rules/temporary-rules-tab.tsx
 msgid "Active"
 msgstr "Active"
 
@@ -625,6 +621,7 @@ msgstr "Alert status"
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
+#: src/features/rules/temporary-rules-tab.tsx
 msgid "All"
 msgstr "All"
 
@@ -748,6 +745,10 @@ msgstr "Applicability review · needs CPA confirmation at generation time."
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Applied"
 msgstr "Applied"
+
+#: src/features/rules/rules-console.tsx
+msgid "Applied Pulse exceptions that are currently changing obligation due dates. Review scope, source evidence, active obligation count, and open the Pulse detail when a temporary rule needs revert or follow-up."
+msgstr "Applied Pulse exceptions that are currently changing obligation due dates. Review scope, source evidence, active obligation count, and open the Pulse detail when a temporary rule needs revert or follow-up."
 
 #. placeholder {0}: result.appliedCount
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -1557,6 +1558,10 @@ msgstr "Could not load rules coverage."
 msgid "Could not load team workload"
 msgstr "Could not load team workload"
 
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Could not load temporary rules."
+msgstr "Could not load temporary rules."
+
 #: src/features/notifications/notifications-page.tsx
 msgid "Could not mark notification read"
 msgstr "Could not mark notification read"
@@ -2127,14 +2132,6 @@ msgstr "Dismissed"
 msgid "Does the extension also cover payment?"
 msgstr "Does the extension also cover payment?"
 
-#: src/routes/practice.tsx
-msgid "Dollar exposure"
-msgstr "Dollar exposure"
-
-#: src/routes/dashboard.tsx
-msgid "Dollar exposure is hidden for your current role."
-msgstr "Dollar exposure is hidden for your current role."
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Download latest"
 msgstr "Download latest"
@@ -2156,6 +2153,8 @@ msgid "Due"
 msgstr "Due"
 
 #. placeholder {0}: formatDate(currentDueDate)
+#. placeholder {0}: rule.overrideDueDate
+#: src/features/rules/temporary-rules-tab.tsx
 #: src/routes/workboard.tsx
 msgid "Due {0}"
 msgstr "Due {0}"
@@ -2195,10 +2194,6 @@ msgstr "Due date logic"
 msgid "Due date logic is invalid."
 msgstr "Due date logic is invalid."
 
-#: src/routes/dashboard.tsx
-msgid "due now"
-msgstr "due now"
-
 #: src/features/workload/workload-page.tsx
 msgid "Due soon"
 msgstr "Due soon"
@@ -2206,6 +2201,10 @@ msgstr "Due soon"
 #: src/routes/dashboard.tsx
 msgid "Due this week"
 msgstr "Due this week"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Due-date extension"
+msgstr "Due-date extension"
 
 #: src/routes/billing.checkout.tsx
 msgid "DueDateHQ does not store card numbers or invoice payment data."
@@ -2220,8 +2219,8 @@ msgid "DueDateHQ readiness portal"
 msgstr "DueDateHQ readiness portal"
 
 #: src/features/concepts/concept-help.tsx
-msgid "DueDateHQ's deterministic ordering score for deadline work. It combines dollar exposure, urgency, client importance, late filing history, and readiness pressure."
-msgstr "DueDateHQ's deterministic ordering score for deadline work. It combines dollar exposure, urgency, client importance, late filing history, and readiness pressure."
+msgid "DueDateHQ's deterministic ordering score for deadline work. It combines projected risk, urgency, client importance, late filing history, and readiness pressure."
+msgstr "DueDateHQ's deterministic ordering score for deadline work. It combines projected risk, urgency, client importance, late filing history, and readiness pressure."
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Duration months"
@@ -2457,14 +2456,6 @@ msgstr "Export"
 #: src/routes/workboard.tsx
 msgid "Export ready"
 msgstr "Export ready"
-
-#: src/features/concepts/concept-help.tsx
-msgid "Exposure"
-msgstr "Exposure"
-
-#: src/routes/practice.tsx
-msgid "Exposure cap"
-msgstr "Exposure cap"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Exposure preview"
@@ -3014,6 +3005,7 @@ msgstr "Last 7d"
 msgid "Last accessed"
 msgstr "Last accessed"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/practice.tsx
 msgid "Late filing cap"
 msgstr "Late filing cap"
@@ -3106,6 +3098,10 @@ msgstr "Loading rules coverage."
 #: src/features/workload/workload-page.tsx
 msgid "Loading team workload"
 msgstr "Loading team workload"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Loading temporary rules."
+msgstr "Loading temporary rules."
 
 #: src/features/workload/workload-page.tsx
 msgid "Loading workload metrics…"
@@ -3424,14 +3420,6 @@ msgid "Need help"
 msgstr "Need help"
 
 #: src/routes/dashboard.tsx
-msgid "needs CPA review"
-msgstr "needs CPA review"
-
-#: src/routes/dashboard.tsx
-msgid "needs evidence"
-msgstr "needs evidence"
-
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Needs evidence"
 msgstr "Needs evidence"
@@ -3449,10 +3437,6 @@ msgstr "needs input"
 #: src/routes/workboard.tsx
 msgid "Needs input"
 msgstr "Needs input"
-
-#: src/routes/dashboard.tsx
-msgid "needs projected-risk input"
-msgstr "needs projected-risk input"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/Step3Normalize.tsx
@@ -3763,6 +3747,10 @@ msgstr "No subscription changes were made. You can restart checkout when ready."
 #: src/features/rules/generation-preview-tab.tsx
 msgid "No tax types selected."
 msgstr "No tax types selected."
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "No temporary rules yet"
+msgstr "No temporary rules yet"
 
 #: src/features/firm/timezone-select.tsx
 msgid "No timezone found."
@@ -4098,6 +4086,10 @@ msgstr "Open Obligations"
 msgid "Open Obligations."
 msgstr "Open Obligations."
 
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Open official source"
+msgstr "Open official source"
+
 #. placeholder {0}: evidenceSource.title
 #. placeholder {0}: source.title
 #: src/features/rules/generation-preview-tab.tsx
@@ -4108,6 +4100,10 @@ msgstr "Open official source: {0}"
 #: src/routes/workboard.tsx
 msgid "Open portal"
 msgstr "Open portal"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Open Pulse detail"
+msgstr "Open Pulse detail"
 
 #. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
@@ -4373,6 +4369,10 @@ msgstr "Penalty sources"
 #: src/features/migration/mapping-target-labels.ts
 msgid "Penalty tax due"
 msgstr "Penalty tax due"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Penalty waiver"
+msgstr "Penalty waiver"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -4691,10 +4691,21 @@ msgstr "Production Pulse actions require Pro or above."
 msgid "Projected 90-day risk"
 msgstr "Projected 90-day risk"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/practice.tsx
 #: src/routes/workboard.tsx
 msgid "Projected risk"
 msgstr "Projected risk"
+
+#: src/features/concepts/concept-help.tsx
+#: src/routes/practice.tsx
+msgid "Projected risk cap"
+msgstr "Projected risk cap"
+
+#: src/routes/dashboard.tsx
+msgid "Projected risk dollars are hidden for your current role."
+msgstr "Projected risk dollars are hidden for your current role."
 
 #: src/routes/workboard.tsx
 msgid "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
@@ -4867,10 +4878,6 @@ msgstr "Read columns"
 #: src/features/migration/WizardShell.tsx
 msgid "Read field values"
 msgstr "Read field values"
-
-#: src/features/rules/rules-console-primitives.tsx
-msgid "READ-ONLY"
-msgstr "READ-ONLY"
 
 #: src/features/permissions/permission-gate.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -5148,6 +5155,10 @@ msgstr "Restart checkout"
 msgid "Resulting readiness"
 msgstr "Resulting readiness"
 
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Retracted"
+msgstr "Retracted"
+
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/clients.tsx
@@ -5183,6 +5194,7 @@ msgstr "Revert until"
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
+#: src/features/rules/temporary-rules-tab.tsx
 msgid "Reverted"
 msgstr "Reverted"
 
@@ -5932,10 +5944,6 @@ msgstr "Source heading"
 msgid "Source heading and excerpt are required."
 msgstr "Source heading and excerpt are required."
 
-#: src/routes/dashboard.tsx
-msgid "source linked"
-msgstr "source linked"
-
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source needs attention · {label}"
 msgstr "Source needs attention · {label}"
@@ -6231,6 +6239,14 @@ msgstr "Team-scale fair-use protection"
 msgid "Team+"
 msgstr "Team+"
 
+#: src/features/rules/rules-console.tsx
+msgid "Temporary Rules"
+msgstr "Temporary Rules"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Temporary rules appear here after an owner or manager applies a Pulse Change to matched obligations."
+msgstr "Temporary rules appear here after an owner or manager applies a Pulse Change to matched obligations."
+
 #: src/features/migration/Step1Intake.tsx
 msgid "That file doesn't contain any rows. Upload a CSV, TSV, or XLSX with a header and at least one data row."
 msgstr "That file doesn't contain any rows. Upload a CSV, TSV, or XLSX with a header and at least one data row."
@@ -6264,8 +6280,8 @@ msgid "The code expires in 5 minutes."
 msgstr "The code expires in 5 minutes."
 
 #: src/features/concepts/concept-help.tsx
-msgid "The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
-msgstr "The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
+msgid "The dollar amount where projected risk reaches the maximum Smart Priority contribution. Higher values still display, but do not add more score from this factor."
+msgstr "The dollar amount where projected risk reaches the maximum Smart Priority contribution. Higher values still display, but do not add more score from this factor."
 
 #: src/features/concepts/concept-help.tsx
 msgid "The estimated dollars at risk if a deadline is missed. Rows without enough tax inputs show as needing input or unsupported."
@@ -6275,9 +6291,17 @@ msgstr "The estimated dollars at risk if a deadline is missed. Rows without enou
 msgid "The jurisdictions, entity types, and tax types currently backed by watched sources and verified rules."
 msgstr "The jurisdictions, entity types, and tax types currently backed by watched sources and verified rules."
 
+#: src/features/concepts/concept-help.tsx
+msgid "The late-filing count where history reaches its maximum Smart Priority contribution. Higher counts still display, but do not add more score from this factor."
+msgstr "The late-filing count where history reaches its maximum Smart Priority contribution. Higher counts still display, but do not add more score from this factor."
+
 #: src/routes/workboard.tsx
 msgid "The memo is stored on the audit trail for the bulk status change."
 msgstr "The memo is stored on the audit trail for the bulk status change."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The number of days before a deadline where urgency reaches its maximum Smart Priority contribution."
+msgstr "The number of days before a deadline where urgency reaches its maximum Smart Priority contribution."
 
 #: src/features/migration/Step4Preview.tsx
 msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
@@ -6302,6 +6326,10 @@ msgstr "The practice will be removed from your account. Audit history stays reta
 #: src/features/concepts/concept-help.tsx
 msgid "The practice-scoped record of who changed what, when it changed, and what evidence or reason was attached."
 msgstr "The practice-scoped record of who changed what, when it changed, and what evidence or reason was attached."
+
+#: src/features/concepts/concept-help.tsx
+msgid "The projected risk across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
+msgstr "The projected risk across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
 
 #: src/lib/i18n-error.ts
 #: src/routes/workboard.tsx
@@ -6634,6 +6662,7 @@ msgstr "Upgrade to Team"
 msgid "Upload rows"
 msgstr "Upload rows"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/practice.tsx
 msgid "Urgency window"
 msgstr "Urgency window"
@@ -6773,10 +6802,6 @@ msgstr "WA subtotal minus credits"
 msgid "Waiting"
 msgstr "Waiting"
 
-#: src/routes/dashboard.tsx
-msgid "waiting on client"
-msgstr "waiting on client"
-
 #: src/features/workboard/status-control.tsx
 msgid "Waiting on client"
 msgstr "Waiting on client"
@@ -6863,16 +6888,6 @@ msgstr "Where is your data coming from?"
 #: src/features/concepts/concept-help.tsx
 msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 msgstr "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
-
-#. placeholder {0}: primary.label
-#. placeholder {1}: primary.rawValue
-#: src/routes/dashboard.tsx
-msgid "Why: {0} ({1})"
-msgstr "Why: {0} ({1})"
-
-#: src/routes/dashboard.tsx
-msgid "Why: {deadlineDriver}"
-msgstr "Why: {deadlineDriver}"
 
 #: src/features/migration/mapping-target-labels.ts
 msgid "Withholding report count"

@@ -173,8 +173,11 @@ msgid "{0} selected · {1} eligible · {2} need review"
 msgstr "已选 {0} · 可应用 {1} · 待确认 {2}"
 
 #. placeholder {0}: filteredAlerts.length
+#. placeholder {0}: filteredRules.length
 #. placeholder {1}: alerts.length
+#. placeholder {1}: rules.length
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/rules/temporary-rules-tab.tsx
 msgid "{0} shown · {1} total"
 msgstr "显示 {0} · 共 {1}"
 
@@ -229,10 +232,6 @@ msgstr "另有 {count} 个字段已变更"
 #: src/routes/workboard.tsx
 msgid "{days, plural, one {# day} other {# days}}"
 msgstr "{days, plural, other {# 天}}"
-
-#: src/routes/dashboard.tsx
-msgid "{days} days left"
-msgstr "还剩 {days} 天"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "{durationMonths} months"
@@ -337,10 +336,6 @@ msgstr "0 条活跃"
 #: src/routes/billing.checkout.tsx
 msgid "1 active practice"
 msgstr "1 个活跃事务所"
-
-#: src/routes/dashboard.tsx
-msgid "1 day left"
-msgstr "还剩 1 天"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -495,6 +490,7 @@ msgstr "操作"
 #: src/features/calendar/calendar-page.tsx
 #: src/features/members/members-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/rules/temporary-rules-tab.tsx
 msgid "Active"
 msgstr "活跃"
 
@@ -625,6 +621,7 @@ msgstr "提醒状态"
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
+#: src/features/rules/temporary-rules-tab.tsx
 msgid "All"
 msgstr "全部"
 
@@ -748,6 +745,10 @@ msgstr "适用性复核 · 在生成义务时需要 CPA 确认。"
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Applied"
 msgstr "已应用"
+
+#: src/features/rules/rules-console.tsx
+msgid "Applied Pulse exceptions that are currently changing obligation due dates. Review scope, source evidence, active obligation count, and open the Pulse detail when a temporary rule needs revert or follow-up."
+msgstr "当前正在改变义务截止日的已应用 Pulse 例外。可查看范围、来源证据、活跃义务数量，并在临时规则需要撤销或跟进时打开 Pulse 详情。"
 
 #. placeholder {0}: result.appliedCount
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -1557,6 +1558,10 @@ msgstr "无法加载规则覆盖。"
 msgid "Could not load team workload"
 msgstr "无法加载团队负载"
 
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Could not load temporary rules."
+msgstr "无法加载临时规则。"
+
 #: src/features/notifications/notifications-page.tsx
 msgid "Could not mark notification read"
 msgstr "无法将通知标记为已读"
@@ -2127,14 +2132,6 @@ msgstr "已忽略"
 msgid "Does the extension also cover payment?"
 msgstr "延期是否也覆盖付款？"
 
-#: src/routes/practice.tsx
-msgid "Dollar exposure"
-msgstr "金额敞口"
-
-#: src/routes/dashboard.tsx
-msgid "Dollar exposure is hidden for your current role."
-msgstr "当前角色无法查看金额风险。"
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Download latest"
 msgstr "下载最新包"
@@ -2156,6 +2153,8 @@ msgid "Due"
 msgstr "到期日"
 
 #. placeholder {0}: formatDate(currentDueDate)
+#. placeholder {0}: rule.overrideDueDate
+#: src/features/rules/temporary-rules-tab.tsx
 #: src/routes/workboard.tsx
 msgid "Due {0}"
 msgstr "到期 {0}"
@@ -2195,10 +2194,6 @@ msgstr "截止日逻辑"
 msgid "Due date logic is invalid."
 msgstr "截止日逻辑无效。"
 
-#: src/routes/dashboard.tsx
-msgid "due now"
-msgstr "现在到期"
-
 #: src/features/workload/workload-page.tsx
 msgid "Due soon"
 msgstr "即将到期"
@@ -2206,6 +2201,10 @@ msgstr "即将到期"
 #: src/routes/dashboard.tsx
 msgid "Due this week"
 msgstr "本周到期"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Due-date extension"
+msgstr "截止日延期"
 
 #: src/routes/billing.checkout.tsx
 msgid "DueDateHQ does not store card numbers or invoice payment data."
@@ -2220,8 +2219,8 @@ msgid "DueDateHQ readiness portal"
 msgstr "DueDateHQ 准备状态门户"
 
 #: src/features/concepts/concept-help.tsx
-msgid "DueDateHQ's deterministic ordering score for deadline work. It combines dollar exposure, urgency, client importance, late filing history, and readiness pressure."
-msgstr "DueDateHQ 用于截止日工作的确定性排序分数，综合金额敞口、紧急度、客户重要性、历史延误和就绪压力。"
+msgid "DueDateHQ's deterministic ordering score for deadline work. It combines projected risk, urgency, client importance, late filing history, and readiness pressure."
+msgstr "DueDateHQ 用于截止日工作的确定性排序分数，综合预计风险、紧急度、客户重要性、历史延误和就绪压力。"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Duration months"
@@ -2457,14 +2456,6 @@ msgstr "导出"
 #: src/routes/workboard.tsx
 msgid "Export ready"
 msgstr "导出已就绪"
-
-#: src/features/concepts/concept-help.tsx
-msgid "Exposure"
-msgstr "Exposure"
-
-#: src/routes/practice.tsx
-msgid "Exposure cap"
-msgstr "敞口封顶"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Exposure preview"
@@ -3014,6 +3005,7 @@ msgstr "最近 7 天"
 msgid "Last accessed"
 msgstr "上次访问"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/practice.tsx
 msgid "Late filing cap"
 msgstr "迟报封顶"
@@ -3106,6 +3098,10 @@ msgstr "正在加载规则覆盖。"
 #: src/features/workload/workload-page.tsx
 msgid "Loading team workload"
 msgstr "正在加载团队负载"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Loading temporary rules."
+msgstr "正在加载临时规则。"
 
 #: src/features/workload/workload-page.tsx
 msgid "Loading workload metrics…"
@@ -3424,14 +3420,6 @@ msgid "Need help"
 msgstr "需要帮助"
 
 #: src/routes/dashboard.tsx
-msgid "needs CPA review"
-msgstr "需要 CPA 复核"
-
-#: src/routes/dashboard.tsx
-msgid "needs evidence"
-msgstr "需要证据"
-
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Needs evidence"
 msgstr "需补证据"
@@ -3449,10 +3437,6 @@ msgstr "需要输入"
 #: src/routes/workboard.tsx
 msgid "Needs input"
 msgstr "需要输入"
-
-#: src/routes/dashboard.tsx
-msgid "needs projected-risk input"
-msgstr "需要预计风险输入"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/Step3Normalize.tsx
@@ -3763,6 +3747,10 @@ msgstr "订阅没有发生变化。准备好后可以重新开始支付。"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "No tax types selected."
 msgstr "未选择税种。"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "No temporary rules yet"
+msgstr "暂无临时规则"
 
 #: src/features/firm/timezone-select.tsx
 msgid "No timezone found."
@@ -4098,6 +4086,10 @@ msgstr "打开义务"
 msgid "Open Obligations."
 msgstr "打开义务。"
 
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Open official source"
+msgstr "打开官方来源"
+
 #. placeholder {0}: evidenceSource.title
 #. placeholder {0}: source.title
 #: src/features/rules/generation-preview-tab.tsx
@@ -4108,6 +4100,10 @@ msgstr "打开官方来源：{0}"
 #: src/routes/workboard.tsx
 msgid "Open portal"
 msgstr "打开门户"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Open Pulse detail"
+msgstr "打开 Pulse 详情"
 
 #. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
@@ -4373,6 +4369,10 @@ msgstr "Penalty 来源"
 #: src/features/migration/mapping-target-labels.ts
 msgid "Penalty tax due"
 msgstr "Penalty 应缴税额"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Penalty waiver"
+msgstr "罚金豁免"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -4691,10 +4691,21 @@ msgstr "Production Pulse 操作需要 Pro 或更高计划。"
 msgid "Projected 90-day risk"
 msgstr "预计 90 天风险"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/practice.tsx
 #: src/routes/workboard.tsx
 msgid "Projected risk"
 msgstr "预计风险"
+
+#: src/features/concepts/concept-help.tsx
+#: src/routes/practice.tsx
+msgid "Projected risk cap"
+msgstr "预计风险上限"
+
+#: src/routes/dashboard.tsx
+msgid "Projected risk dollars are hidden for your current role."
+msgstr "当前角色无法查看预计风险金额。"
 
 #: src/routes/workboard.tsx
 msgid "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
@@ -4867,10 +4878,6 @@ msgstr "读取字段"
 #: src/features/migration/WizardShell.tsx
 msgid "Read field values"
 msgstr "读取字段值"
-
-#: src/features/rules/rules-console-primitives.tsx
-msgid "READ-ONLY"
-msgstr "只读"
 
 #: src/features/permissions/permission-gate.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -5148,6 +5155,10 @@ msgstr "重新开始支付"
 msgid "Resulting readiness"
 msgstr "最终准备状态"
 
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Retracted"
+msgstr "已撤回"
+
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/clients.tsx
@@ -5183,6 +5194,7 @@ msgstr "可回滚至"
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
+#: src/features/rules/temporary-rules-tab.tsx
 msgid "Reverted"
 msgstr "已撤销"
 
@@ -5932,10 +5944,6 @@ msgstr "来源标题"
 msgid "Source heading and excerpt are required."
 msgstr "来源标题和摘录为必填项。"
 
-#: src/routes/dashboard.tsx
-msgid "source linked"
-msgstr "已关联来源"
-
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source needs attention · {label}"
 msgstr "来源需要处理 · {label}"
@@ -6231,6 +6239,14 @@ msgstr "团队规模的合理使用保护"
 msgid "Team+"
 msgstr "Team+"
 
+#: src/features/rules/rules-console.tsx
+msgid "Temporary Rules"
+msgstr "临时规则"
+
+#: src/features/rules/temporary-rules-tab.tsx
+msgid "Temporary rules appear here after an owner or manager applies a Pulse Change to matched obligations."
+msgstr "Owner 或 Manager 将 Pulse Change 应用到匹配义务后，临时规则会显示在这里。"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "That file doesn't contain any rows. Upload a CSV, TSV, or XLSX with a header and at least one data row."
 msgstr "这个文件不包含任何数据行。请上传带有表头且至少包含一条数据行的 CSV、TSV 或 XLSX。"
@@ -6264,8 +6280,8 @@ msgid "The code expires in 5 minutes."
 msgstr "验证码将在 5 分钟后过期。"
 
 #: src/features/concepts/concept-help.tsx
-msgid "The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
-msgstr "当前截止日队列的估算金额敞口，用于确定处理优先级，但不是官方罚金通知。"
+msgid "The dollar amount where projected risk reaches the maximum Smart Priority contribution. Higher values still display, but do not add more score from this factor."
+msgstr "预计风险达到 Smart Priority 最高贡献值的金额。更高金额仍会显示，但不会再从这个因子增加更多分数。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "The estimated dollars at risk if a deadline is missed. Rows without enough tax inputs show as needing input or unsupported."
@@ -6275,9 +6291,17 @@ msgstr "如果错过截止日，估算的风险金额。缺少税务输入的行
 msgid "The jurisdictions, entity types, and tax types currently backed by watched sources and verified rules."
 msgstr "当前由受监控来源和已核验规则支持的辖区、实体类型和税种。"
 
+#: src/features/concepts/concept-help.tsx
+msgid "The late-filing count where history reaches its maximum Smart Priority contribution. Higher counts still display, but do not add more score from this factor."
+msgstr "历史延误达到 Smart Priority 最高贡献值的迟交次数。更高次数仍会显示，但不会再从这个因子增加更多分数。"
+
 #: src/routes/workboard.tsx
 msgid "The memo is stored on the audit trail for the bulk status change."
 msgstr "该备注会记录在这次批量状态变更的审计轨迹中。"
+
+#: src/features/concepts/concept-help.tsx
+msgid "The number of days before a deadline where urgency reaches its maximum Smart Priority contribution."
+msgstr "截止日前多少天内，紧急度达到 Smart Priority 的最高贡献值。"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
@@ -6302,6 +6326,10 @@ msgstr "该事务所会从你的账户中移除。审计历史会保留以满足
 #: src/features/concepts/concept-help.tsx
 msgid "The practice-scoped record of who changed what, when it changed, and what evidence or reason was attached."
 msgstr "事务所范围内记录谁在何时改了什么，以及附带了哪些证据或原因。"
+
+#: src/features/concepts/concept-help.tsx
+msgid "The projected risk across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
+msgstr "当前截止日队列中的预计风险。它用于帮助安排工作优先级，但不是正式罚金通知。"
 
 #: src/lib/i18n-error.ts
 #: src/routes/workboard.tsx
@@ -6634,6 +6662,7 @@ msgstr "升级到 Team"
 msgid "Upload rows"
 msgstr "上传行数据"
 
+#: src/features/concepts/concept-help.tsx
 #: src/routes/practice.tsx
 msgid "Urgency window"
 msgstr "紧急窗口"
@@ -6773,10 +6802,6 @@ msgstr "WA 扣除抵免后的小计"
 msgid "Waiting"
 msgstr "等待中"
 
-#: src/routes/dashboard.tsx
-msgid "waiting on client"
-msgstr "等待客户"
-
 #: src/features/workboard/status-control.tsx
 msgid "Waiting on client"
 msgstr "等待客户回复"
@@ -6863,16 +6888,6 @@ msgstr "你的数据从哪里来？"
 #: src/features/concepts/concept-help.tsx
 msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 msgstr "该截止日是否具备推进所需条件，例如客户资料、复核、证据或风险输入。"
-
-#. placeholder {0}: primary.label
-#. placeholder {1}: primary.rawValue
-#: src/routes/dashboard.tsx
-msgid "Why: {0} ({1})"
-msgstr "原因：{0}（{1}）"
-
-#: src/routes/dashboard.tsx
-msgid "Why: {deadlineDriver}"
-msgstr "原因：{deadlineDriver}"
 
 #: src/features/migration/mapping-target-labels.ts
 msgid "Withholding report count"

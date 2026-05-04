@@ -300,6 +300,9 @@ function buildScopedRepo(input: {
       async listVerified() {
         return []
       },
+      async listTemporaryRules() {
+        return []
+      },
       async getDecision() {
         return null
       },

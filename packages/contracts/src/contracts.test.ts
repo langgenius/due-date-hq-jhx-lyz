@@ -108,6 +108,7 @@ import {
   RuleGenerationPreviewInputSchema,
   RuleCoverageRowSchema,
   RuleSourceSchema,
+  TemporaryRuleSchema,
   rulesContract,
 } from './rules'
 
@@ -1124,6 +1125,7 @@ describe('@duedatehq/contracts', () => {
     expect(Object.keys(rulesContract)).toEqual([
       'listSources',
       'listRules',
+      'listTemporaryRules',
       'listReviewDecisions',
       'verifyCandidate',
       'rejectCandidate',
@@ -1146,6 +1148,30 @@ describe('@duedatehq/contracts', () => {
       lastReviewedOn: '2026-04-27',
     })
     expect(source.jurisdiction).toBe('FED')
+
+    const temporaryRule = TemporaryRuleSchema.parse({
+      id: 'exception-1',
+      alertId: 'alert-1',
+      sourcePulseId: 'pulse-1',
+      title: 'IRS disaster relief for Los Angeles County',
+      sourceUrl: 'https://www.irs.gov/newsroom/disaster-relief',
+      sourceExcerpt: 'Affected taxpayers have until June 15 to file.',
+      jurisdiction: 'CA',
+      counties: ['Los Angeles'],
+      affectedForms: ['1040'],
+      affectedEntityTypes: ['individual'],
+      overrideType: 'extend_due_date',
+      overrideDueDate: '2026-06-15',
+      effectiveFrom: '2026-04-25',
+      effectiveUntil: null,
+      status: 'active',
+      appliedObligationCount: 2,
+      activeObligationCount: 2,
+      revertedObligationCount: 0,
+      firstAppliedAt: '2026-05-04T10:00:00.000Z',
+      lastActivityAt: '2026-05-04T10:00:00.000Z',
+    })
+    expect(temporaryRule.status).toBe('active')
     expect(
       RuleSourceSchema.parse({
         ...source,

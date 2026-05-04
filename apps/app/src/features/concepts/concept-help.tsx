@@ -14,6 +14,9 @@ import { cn } from '@duedatehq/ui/lib/utils'
 
 export type ConceptId =
   | 'smartPriority'
+  | 'projectedRiskCap'
+  | 'urgencyWindow'
+  | 'lateFilingCap'
   | 'penaltyRadar'
   | 'exposure'
   | 'readiness'
@@ -63,16 +66,31 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'smartPriority':
       return {
         title: t`Smart Priority`,
-        description: t`DueDateHQ's deterministic ordering score for deadline work. It combines dollar exposure, urgency, client importance, late filing history, and readiness pressure.`,
+        description: t`DueDateHQ's deterministic ordering score for deadline work. It combines projected risk, urgency, client importance, late filing history, and readiness pressure.`,
+      }
+    case 'projectedRiskCap':
+      return {
+        title: t`Projected risk cap`,
+        description: t`The dollar amount where projected risk reaches the maximum Smart Priority contribution. Higher values still display, but do not add more score from this factor.`,
+      }
+    case 'urgencyWindow':
+      return {
+        title: t`Urgency window`,
+        description: t`The number of days before a deadline where urgency reaches its maximum Smart Priority contribution.`,
+      }
+    case 'lateFilingCap':
+      return {
+        title: t`Late filing cap`,
+        description: t`The late-filing count where history reaches its maximum Smart Priority contribution. Higher counts still display, but do not add more score from this factor.`,
       }
     case 'penaltyRadar':
       return {
         title: t`Penalty Radar`,
-        description: t`The estimated dollar exposure across the current deadline queue. It helps prioritize work, but it is not an official penalty notice.`,
+        description: t`The projected risk across the current deadline queue. It helps prioritize work, but it is not an official penalty notice.`,
       }
     case 'exposure':
       return {
-        title: t`Exposure`,
+        title: t`Projected risk`,
         description: t`The estimated dollars at risk if a deadline is missed. Rows without enough tax inputs show as needing input or unsupported.`,
       }
     case 'readiness':

@@ -327,6 +327,33 @@ export const RuleReviewDecisionSchema = z.object({
 })
 export type RuleReviewDecision = z.infer<typeof RuleReviewDecisionSchema>
 
+export const TemporaryRuleStatusSchema = z.enum(['active', 'reverted', 'retracted'])
+export type TemporaryRuleStatus = z.infer<typeof TemporaryRuleStatusSchema>
+
+export const TemporaryRuleSchema = z.object({
+  id: z.string().min(1),
+  alertId: z.string().min(1).nullable(),
+  sourcePulseId: z.string().min(1).nullable(),
+  title: z.string().min(1),
+  sourceUrl: z.url().nullable(),
+  sourceExcerpt: z.string().nullable(),
+  jurisdiction: z.string().min(1),
+  counties: z.array(z.string()),
+  affectedForms: z.array(z.string()),
+  affectedEntityTypes: z.array(z.string()),
+  overrideType: z.enum(['extend_due_date', 'waive_penalty']),
+  overrideDueDate: z.iso.date().nullable(),
+  effectiveFrom: z.iso.date().nullable(),
+  effectiveUntil: z.iso.date().nullable(),
+  status: TemporaryRuleStatusSchema,
+  appliedObligationCount: z.number().int().min(0),
+  activeObligationCount: z.number().int().min(0),
+  revertedObligationCount: z.number().int().min(0),
+  firstAppliedAt: z.iso.datetime().nullable(),
+  lastActivityAt: z.iso.datetime(),
+})
+export type TemporaryRule = z.infer<typeof TemporaryRuleSchema>
+
 export const RulesReviewListInputSchema = z
   .object({
     status: RuleReviewDecisionStatusSchema.optional(),
@@ -379,6 +406,7 @@ export type RuleSourcesListInput = z.infer<typeof RuleSourcesListInputSchema>
 export const rulesContract = oc.router({
   listSources: oc.input(RuleSourcesListInputSchema).output(z.array(RuleSourceSchema)),
   listRules: oc.input(RulesListInputSchema).output(z.array(ObligationRuleSchema)),
+  listTemporaryRules: oc.input(z.undefined()).output(z.array(TemporaryRuleSchema)),
   listReviewDecisions: oc
     .input(RulesReviewListInputSchema)
     .output(z.array(RuleReviewDecisionSchema)),

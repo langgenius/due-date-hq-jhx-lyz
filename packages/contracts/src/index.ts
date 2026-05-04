@@ -493,6 +493,8 @@ export type {
   RulesListInput,
   RulesReviewListInput,
   RuleSourcesListInput,
+  TemporaryRule,
+  TemporaryRuleStatus,
 } from './rules'
 export {
   AcquisitionMethodSchema,
@@ -532,6 +534,8 @@ export {
   SourceCadenceSchema,
   SourceHealthStatusSchema,
   SourcePrioritySchema,
+  TemporaryRuleSchema,
+  TemporaryRuleStatusSchema,
 } from './rules'
 
 export type {

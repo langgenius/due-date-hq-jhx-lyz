@@ -4,6 +4,7 @@ import {
   type ObligationGenerationPreview,
   type RuleReviewDecision,
   type RuleSource,
+  type TemporaryRule,
 } from '@duedatehq/contracts'
 import {
   getMvpRuleCoverage,
@@ -15,7 +16,7 @@ import {
   type RuleJurisdiction,
   type RuleStatus,
 } from '@duedatehq/core/rules'
-import type { RuleReviewDecisionRow } from '@duedatehq/ports/rules'
+import type { RuleReviewDecisionRow, TemporaryRuleRow } from '@duedatehq/ports/rules'
 import { requireTenant, type RpcContext } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
@@ -43,6 +44,10 @@ function toDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
+function toDateOnlyOrNull(date: Date | null): string | null {
+  return date ? toDateOnly(date) : null
+}
+
 function parseDecisionRule(row: RuleReviewDecisionRow): CoreObligationRule | null {
   if (row.status !== 'verified' || !row.ruleJson) return null
   const parsed = ObligationRuleSchema.safeParse(row.ruleJson)
@@ -60,6 +65,31 @@ function toReviewDecision(row: RuleReviewDecisionRow): RuleReviewDecision {
     reviewNote: row.reviewNote,
     reviewedBy: row.reviewedBy,
     reviewedAt: row.reviewedAt.toISOString(),
+  }
+}
+
+function toTemporaryRule(row: TemporaryRuleRow): TemporaryRule {
+  return {
+    id: row.id,
+    alertId: row.alertId,
+    sourcePulseId: row.sourcePulseId,
+    title: row.title,
+    sourceUrl: row.sourceUrl,
+    sourceExcerpt: row.sourceExcerpt,
+    jurisdiction: row.jurisdiction,
+    counties: row.counties,
+    affectedForms: row.affectedForms,
+    affectedEntityTypes: row.affectedEntityTypes,
+    overrideType: row.overrideType,
+    overrideDueDate: toDateOnlyOrNull(row.overrideDueDate),
+    effectiveFrom: toDateOnlyOrNull(row.effectiveFrom),
+    effectiveUntil: toDateOnlyOrNull(row.effectiveUntil),
+    status: row.status,
+    appliedObligationCount: row.appliedObligationCount,
+    activeObligationCount: row.activeObligationCount,
+    revertedObligationCount: row.revertedObligationCount,
+    firstAppliedAt: row.firstAppliedAt ? row.firstAppliedAt.toISOString() : null,
+    lastActivityAt: row.lastActivityAt.toISOString(),
   }
 }
 
@@ -125,6 +155,11 @@ const listReviewDecisions = os.rules.listReviewDecisions.handler(async ({ input,
   const { scoped } = requireTenant(context)
   const rows = await scoped.rules.listDecisions(input?.status)
   return rows.map(toReviewDecision)
+})
+
+const listTemporaryRules = os.rules.listTemporaryRules.handler(async ({ context }) => {
+  const { scoped } = requireTenant(context)
+  return (await scoped.rules.listTemporaryRules()).map(toTemporaryRule)
 })
 
 const verifyCandidate = os.rules.verifyCandidate.handler(async ({ input, context }) => {
@@ -281,6 +316,7 @@ const previewObligations = os.rules.previewObligations.handler(async ({ input, c
 export const rulesHandlers = {
   listSources,
   listRules,
+  listTemporaryRules,
   listReviewDecisions,
   verifyCandidate,
   rejectCandidate,

@@ -415,6 +415,9 @@ function buildScoped(firmId: string, rows: Row[]) {
       async listVerified() {
         return []
       },
+      async listTemporaryRules() {
+        return []
+      },
       async getDecision() {
         return null
       },

@@ -159,6 +159,7 @@ export const router = os.router({
   rules: {
     listSources: rulesHandlers.listSources,
     listRules: rulesHandlers.listRules,
+    listTemporaryRules: rulesHandlers.listTemporaryRules,
     listReviewDecisions: rulesHandlers.listReviewDecisions,
     verifyCandidate: rulesHandlers.verifyCandidate,
     rejectCandidate: rulesHandlers.rejectCandidate,

@@ -524,8 +524,8 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 ## 6A. Rules Console
 
-- `/rules` 的五个 P0 tab（`coverage` / `sources` / `library` /
-  `pulse` / `preview`）由 `nuqs` 管理 URL state，使用 `tab` 参数持久化当前二级视图。
+- `/rules` 的六个 P0 tab（`coverage` / `sources` / `library` /
+  `pulse` / `temporary` / `preview`）由 `nuqs` 管理 URL state，使用 `tab` 参数持久化当前二级视图。
   `rulesConsoleSearchParamsParsers` 是模块级 query contract，`RulesTab` 从
   `inferParserType` 推导。
 - 缺省或非法 `tab` 回落到 `coverage`，避免无效 URL 打断受保护路由加载。
@@ -537,6 +537,9 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - Pulse Changes tab 承接原 firm alert review queue。Owner / Manager 在这里 review
   受影响客户、apply 临时 exception、dismiss noise、revisit closed changes；通知深链使用
   `/rules?tab=pulse&alert=<id>` 打开对应 drawer。
+- Temporary Rules tab 直接展示已 apply 的 Pulse-backed `exception_rule` overlays：active /
+  reverted / retracted 状态、覆盖辖区与 forms、override due date、active obligation count、
+  official source link，以及回到 Pulse detail 的 revert/follow-up 入口。
 
 ## 6B. 高频 Query 输入
 

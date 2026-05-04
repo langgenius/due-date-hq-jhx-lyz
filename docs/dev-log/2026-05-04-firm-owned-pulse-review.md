@@ -17,6 +17,9 @@ no longer has a separate internal Ops Review surface.
   pressure onto the Rules nav item.
 - Updated Pulse notification deep links to open `/rules?tab=pulse&alert=<id>` instead of the
   deleted Alerts route.
+- Added Rules > Temporary Rules as the explicit second-level view for Pulse-backed
+  `exception_rule` overlays, including active/reverted/retracted status, obligation counts, source
+  links, and Pulse detail access for revert/follow-up.
 - Updated Rules Console and concept copy from Ops Review language to firm/owner/manager review.
 - Updated module docs and the ingest stuck runbook to describe the new source ingest →
   Rules > Pulse Changes review flow.
@@ -24,7 +27,9 @@ no longer has a separate internal Ops Review surface.
 ## Validation
 
 - `pnpm --filter @duedatehq/db test -- pulse`
-- `pnpm --filter @duedatehq/app test -- rules-console-model PulseDetailDrawer coverage-tab`
+- `pnpm --filter @duedatehq/contracts test -- contracts`
+- `pnpm --filter @duedatehq/app test -- rules-console-model`
+- `pnpm --filter @duedatehq/app test -- PulseDetailDrawer coverage-tab`
 - `pnpm --filter @duedatehq/server test -- pulse extract app`
 - `pnpm --filter @duedatehq/app i18n:extract`
 - `pnpm --filter @duedatehq/app i18n:compile`

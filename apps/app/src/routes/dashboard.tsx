@@ -661,7 +661,7 @@ function DashboardMetricStrip({
               {summary.exposureUnsupportedCount} unsupported
             </Trans>
           ) : (
-            <Trans>Dollar exposure is hidden for your current role.</Trans>
+            <Trans>Projected risk dollars are hidden for your current role.</Trans>
           ),
           valueClassName: canSeeDollars ? 'text-text-primary' : 'text-text-muted',
         },
@@ -676,7 +676,7 @@ function DashboardMetricStrip({
               {summary.accruedPenaltyUnsupportedCount} unsupported
             </Trans>
           ) : (
-            <Trans>Dollar exposure is hidden for your current role.</Trans>
+            <Trans>Projected risk dollars are hidden for your current role.</Trans>
           ),
           valueClassName: canSeeDollars ? 'text-severity-critical' : 'text-text-muted',
         },

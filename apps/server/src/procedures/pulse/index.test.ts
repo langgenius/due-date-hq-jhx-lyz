@@ -160,7 +160,7 @@ describe('requestPulseReview', () => {
           type: 'pulse_alert',
           entityType: 'pulse_firm_alert',
           entityId: 'alert_1',
-          href: '/alerts?alert=alert_1',
+          href: '/rules?tab=pulse&alert=alert_1',
           title: 'Review requested: IRS CA storm relief',
           body: expect.stringContaining('Note: Please confirm LA County applicability.'),
         }),
@@ -178,7 +178,9 @@ describe('requestPulseReview', () => {
       expect(emailInput.payloadJson.recipients).toHaveLength(count)
       expect(emailInput.payloadJson.subject).toBe('Review requested: IRS CA storm relief')
       expect(emailInput.payloadJson.text).toContain('requested Owner/Manager review for this Pulse')
-      expect(emailInput.payloadJson.text).toContain('https://app.test/alerts?alert=alert_1')
+      expect(emailInput.payloadJson.text).toContain(
+        'https://app.test/rules?tab=pulse&alert=alert_1',
+      )
       expect(emailInput.payloadJson.text).toContain('Note: Please confirm LA County applicability.')
       expect(emailQueueSend).toHaveBeenCalledWith({ type: 'email.flush' })
       expect(auditWrite).toHaveBeenCalledWith(

@@ -344,7 +344,7 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
   const firmSummary = t`Active practice · ${{ currentPlan }} plan · ${firm.seatLimit} seat limit`
   const firmSummaryLabel = t`Active practice summary`
   const priorityFactorLabels: Record<SmartPriorityFactorKey, string> = {
-    exposure: t`Dollar exposure`,
+    exposure: t`Projected risk`,
     urgency: t`Deadline urgency`,
     importance: t`Client importance`,
     history: t`Late filing history`,
@@ -499,9 +499,9 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
                 <div className="grid gap-1.5">
                   <div className="flex items-center gap-1.5">
                     <Label htmlFor="priority-exposure-cap">
-                      <Trans>Exposure cap</Trans>
+                      <Trans>Projected risk cap</Trans>
                     </Label>
-                    <ConceptHelp concept="exposure" />
+                    <ConceptHelp concept="projectedRiskCap" />
                   </div>
                   <Input
                     id="priority-exposure-cap"
@@ -521,7 +521,7 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
                     <Label htmlFor="priority-urgency-window">
                       <Trans>Urgency window</Trans>
                     </Label>
-                    <ConceptHelp concept="smartPriority" />
+                    <ConceptHelp concept="urgencyWindow" />
                   </div>
                   <Input
                     id="priority-urgency-window"
@@ -541,7 +541,7 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
                     <Label htmlFor="priority-history-cap">
                       <Trans>Late filing cap</Trans>
                     </Label>
-                    <ConceptHelp concept="smartPriority" />
+                    <ConceptHelp concept="lateFilingCap" />
                   </div>
                   <Input
                     id="priority-history-cap"

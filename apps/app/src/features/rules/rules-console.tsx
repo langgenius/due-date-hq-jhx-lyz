@@ -12,6 +12,7 @@ import { GenerationPreviewTab } from './generation-preview-tab'
 import { RuleLibraryTab } from './rule-library-tab'
 import { RulesPageHeader } from './rules-console-primitives'
 import { SourcesTab } from './sources-tab'
+import { TemporaryRulesTab } from './temporary-rules-tab'
 import {
   isRulesTab,
   rulesConsoleSearchParamsParsers,
@@ -55,6 +56,7 @@ function RulesTabPanel({ activeTab }: { activeTab: RulesTab }) {
   if (activeTab === 'sources') return <SourcesTab />
   if (activeTab === 'library') return <RuleLibraryTab />
   if (activeTab === 'pulse') return <PulseChangesTab embedded />
+  if (activeTab === 'temporary') return <TemporaryRulesTab />
   return <GenerationPreviewTab />
 }
 
@@ -74,6 +76,7 @@ export function RulesConsole() {
       sources: t`Sources`,
       library: t`Rule Library`,
       pulse: t`Pulse Changes`,
+      temporary: t`Temporary Rules`,
       preview: t`Obligation Preview`,
     }),
     [t],
@@ -85,6 +88,7 @@ export function RulesConsole() {
       sources: t`Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; owners and managers review changes via the candidate flow before promotion.`,
       library: t`Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders.`,
       pulse: t`Source-backed government changes that may affect client deadlines. Owners and managers review affected clients, apply temporary exceptions, dismiss noise, or revisit closed changes here.`,
+      temporary: t`Applied Pulse exceptions that are currently changing obligation due dates. Review scope, source evidence, active obligation count, and open the Pulse detail when a temporary rule needs revert or follow-up.`,
       preview: t`Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded.`,
     }),
     [t],
