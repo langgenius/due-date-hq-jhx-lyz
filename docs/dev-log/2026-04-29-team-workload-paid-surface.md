@@ -7,8 +7,9 @@ date: 2026-04-29
 
 ## Decision
 
-`Team workload` is no longer treated as a hidden future route. It remains a persistent Operations
-sidebar signal because shared deadline operations are the main Pro/Firm value proposition.
+`Team workload` is no longer treated as a hidden future route. It remains a persistent Practice
+sidebar signal because team capacity and assignment pressure are the main Pro/Firm value
+proposition.
 
 Plan behavior:
 

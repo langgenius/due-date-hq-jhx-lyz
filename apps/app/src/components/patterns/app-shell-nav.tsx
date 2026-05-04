@@ -411,6 +411,17 @@ function useNavItems(firm: FirmPublic): NavConfig {
           end: false,
         },
         {
+          href: '/rules',
+          label: t`Rules`,
+          icon: FileCheck2Icon,
+          end: false,
+          ...(pulseBadge !== undefined ? { badge: pulseBadge } : {}),
+        },
+      ],
+      clients: [{ href: '/clients', label: t`Clients`, icon: UsersIcon, end: false }],
+      practice: [
+        { href: '/practice', label: t`Practice profile`, icon: Building2Icon, end: false },
+        {
           href: '/workload',
           label: t`Team workload`,
           icon: ClipboardListIcon,
@@ -421,17 +432,6 @@ function useNavItems(firm: FirmPublic): NavConfig {
                 tag: t`Pro`,
                 disabledReason: t`Team workload is available on Pro, Team, and Enterprise plans.`,
               }),
-        },
-      ],
-      clients: [{ href: '/clients', label: t`Clients`, icon: UsersIcon, end: false }],
-      practice: [
-        { href: '/practice', label: t`Practice profile`, icon: Building2Icon, end: false },
-        {
-          href: '/rules',
-          label: t`Rules`,
-          icon: FileCheck2Icon,
-          end: false,
-          ...(pulseBadge !== undefined ? { badge: pulseBadge } : {}),
         },
         { href: '/members', label: t`Members`, icon: UsersIcon, end: false },
         { href: '/billing', label: t`Billing`, icon: CreditCardIcon, end: false },

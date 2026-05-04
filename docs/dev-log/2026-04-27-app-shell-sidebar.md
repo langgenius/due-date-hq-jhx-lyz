@@ -9,7 +9,7 @@ date: 2026-04-27
 >
 > **2026-04-27 follow-up：** Settings 父项的 collapsible 交互在落地后被简化为非交互 section header（无 hover bg、静态 chevron-down、子项常驻），相关代码（`ExpandableNavMenuItem` / `defaultSubItemHref` / `Collapse {0}` / `Expand {0}`）已删除。详见 `docs/dev-log/2026-04-27-sidebar-settings-flatten.md`。本文件 §5 关于 "Expandable parent 左对齐" 的条目仅作历史保留——`SidebarMenuButton` 的 `text-left` 默认在其他 trigger 上仍然生效，但 Settings 父项不再走 `<button>` 路径。
 >
-> **2026-04-29 follow-up：** Sidebar IA 从历史 `MAIN / MANAGE / ADMIN` 收敛为 `Operations / Clients / Organization`。`Import clients` 不再作为 footer 常驻 CTA；它是 activation/setup path，入口回到 `/clients`、Dashboard empty state 和 Command Palette。Team workload 改为付费可见 surface：Solo 显示 locked `Pro` hint，Pro/Firm 启用 route。详见 `docs/dev-log/2026-04-29-sidebar-ia-import-semantics.md` 和 `docs/dev-log/2026-04-29-team-workload-paid-surface.md`。
+> **2026-04-29 follow-up，2026-05-04 refined：** Sidebar IA 从历史 `MAIN / MANAGE / ADMIN` 收敛为 `Operations / Clients / Practice`。`Import clients` 不再作为 footer 常驻 CTA；它是 activation/setup path，入口回到 `/clients`、Dashboard empty state 和 Command Palette。Rules 归入 Operations，承载规则引擎、来源变更和 Pulse badge；Team workload 归入 Practice，作为付费可见的团队容量 surface：Solo 显示 locked `Pro` hint，Pro/Firm 启用 route。详见 `docs/dev-log/2026-04-29-sidebar-ia-import-semantics.md` 和 `docs/dev-log/2026-04-29-team-workload-paid-surface.md`。
 >
 > **2026-05-02 follow-up：** Dashboard / Workboard nav badges were removed because their `12` / `34` values were hardcoded placeholders, not tenant-scoped counts. Sidebar badges should only appear when backed by a real source, as with the dynamic Alerts count.
 
