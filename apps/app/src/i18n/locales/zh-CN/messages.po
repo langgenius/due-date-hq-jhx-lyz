@@ -642,8 +642,8 @@ msgid "All categories"
 msgstr "所有分类"
 
 #: src/features/pulse/PulseAlertsBanner.tsx
-msgid "All clear · Watching {label}"
-msgstr "全部正常 · 正在监控 {label}"
+msgid "All clear · Monitoring official tax deadline sources"
+msgstr "全部正常 · 正在监控官方税务截止日来源"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "All clear. We're watching configured Pulse sources; new matches will appear here."
@@ -1142,9 +1142,16 @@ msgid "Change status for {0}"
 msgstr "修改 {0} 的状态"
 
 #: src/features/pulse/AlertsListPage.tsx
-#: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Checking {label}…"
 msgstr "正在检查 {label}…"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Checking official tax source health…"
+msgstr "正在检查官方税务来源健康状态…"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Checking Pulse source health…"
+msgstr "正在检查 Pulse 来源健康状态…"
 
 #: src/features/workload/workload-page.tsx
 msgid "Checking the active practice plan before loading workload metrics."
@@ -2785,6 +2792,10 @@ msgstr "已隐藏"
 #: src/routes/workboard.tsx
 msgid "Hidden by role"
 msgstr "因角色隐藏"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Hide"
+msgstr "隐藏"
 
 #: src/routes/dashboard.tsx
 msgid "high"

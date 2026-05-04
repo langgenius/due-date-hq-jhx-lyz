@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { ChevronRightIcon, RefreshCwIcon } from 'lucide-react'
@@ -10,6 +11,7 @@ import { cn } from '@duedatehq/ui/lib/utils'
 
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { useFirmPermission } from '@/features/permissions/permission-gate'
 
 import { usePulseDrawer } from './DrawerProvider'
 import {
@@ -30,9 +32,13 @@ import { sourcesNeedingAttention, summarizePulseSources } from './lib/source-hea
 export function PulseAlertsBanner() {
   const alertsQuery = useQuery(usePulseListAlertsQueryOptions(5))
   const sourceHealthQuery = useQuery(usePulseSourceHealthQueryOptions())
+  const permission = useFirmPermission()
   const alerts = alertsQuery.data?.alerts ?? []
   const sourceHealth = sourceHealthQuery.data?.sources ?? []
-  const attentionSources = sourcesNeedingAttention(sourceHealth)
+  const [hiddenSourceIssueKeys, setHiddenSourceIssueKeys] = useState(readHiddenSourceIssueKeys)
+  const attentionSources = sourcesNeedingAttention(sourceHealth).filter(
+    (source) => !hiddenSourceIssueKeys.includes(sourceIssueKey(source)),
+  )
   const hasAlerts = alerts.length > 0
   const isChecking = alertsQuery.isLoading || (!hasAlerts && alertsQuery.isFetching)
   const refreshAction = (
@@ -65,14 +71,24 @@ export function PulseAlertsBanner() {
           label={<AttentionLabel sources={attentionSources} />}
           meta={<PulseMetaTimestamp iso={newestCheckedAt(attentionSources)} />}
           actions={
-            <RetrySourceHealthButton
-              source={attentionSources[0]}
-              isFetching={alertsQuery.isFetching || sourceHealthQuery.isFetching}
-              onRefresh={() => {
-                void alertsQuery.refetch()
-                void sourceHealthQuery.refetch()
-              }}
-            />
+            <span className="flex items-center gap-1">
+              <RetrySourceHealthButton
+                source={attentionSources[0]}
+                isFetching={alertsQuery.isFetching || sourceHealthQuery.isFetching}
+                onRefresh={() => {
+                  void alertsQuery.refetch()
+                  void sourceHealthQuery.refetch()
+                }}
+              />
+              {permission.can('pulse.apply') ? (
+                <HideSourceAttentionButton
+                  sources={attentionSources}
+                  onHide={(keys) => {
+                    setHiddenSourceIssueKeys((current) => storeHiddenSourceIssueKeys(current, keys))
+                  }}
+                />
+              ) : null}
+            </span>
           }
         />
       )
@@ -100,6 +116,35 @@ export function PulseAlertsBanner() {
       }}
     />
   )
+}
+
+const HIDDEN_SOURCE_ISSUES_STORAGE_KEY = 'duedatehq:pulse:hidden-source-issues'
+
+function sourceIssueKey(source: PulseSourceHealth): string {
+  return [source.sourceId, source.healthStatus, source.lastError ?? ''].join('|')
+}
+
+function readHiddenSourceIssueKeys(): string[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = window.localStorage.getItem(HIDDEN_SOURCE_ISSUES_STORAGE_KEY)
+    const parsed: unknown = raw ? JSON.parse(raw) : []
+    return Array.isArray(parsed)
+      ? parsed.filter((value): value is string => typeof value === 'string')
+      : []
+  } catch {
+    return []
+  }
+}
+
+function storeHiddenSourceIssueKeys(current: string[], keys: readonly string[]): string[] {
+  const next = Array.from(new Set([...current, ...keys])).slice(-50)
+  try {
+    window.localStorage.setItem(HIDDEN_SOURCE_ISSUES_STORAGE_KEY, JSON.stringify(next))
+  } catch {
+    // Ignore storage failures; the in-memory state still hides the current banner.
+  }
+  return next
 }
 
 interface PulseStripProps {
@@ -334,24 +379,46 @@ function RetrySourceHealthButton({
   )
 }
 
+function HideSourceAttentionButton({
+  sources,
+  onHide,
+}: {
+  sources: readonly PulseSourceHealth[]
+  onHide: (keys: string[]) => void
+}) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      onClick={() => onHide(sources.map(sourceIssueKey))}
+    >
+      <Trans>Hide</Trans>
+    </Button>
+  )
+}
+
 function sourceLabel(sources: readonly PulseSourceHealth[]): string {
   return summarizePulseSources(sources)
 }
 
 function LoadingLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
-  const label = sourceLabel(sources)
+  const sourceCount = sources.length
   return (
     <span className="truncate text-text-tertiary">
-      <Trans>Checking {label}…</Trans>
+      {sourceCount > 0 ? (
+        <Trans>Checking official tax source health…</Trans>
+      ) : (
+        <Trans>Checking Pulse source health…</Trans>
+      )}
     </span>
   )
 }
 
-function WatchingLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
-  const label = sourceLabel(sources)
+function WatchingLabel({ sources: _sources }: { sources: readonly PulseSourceHealth[] }) {
   return (
     <span className="truncate text-text-secondary">
-      <Trans>All clear · Watching {label}</Trans>
+      <Trans>All clear · Monitoring official tax deadline sources</Trans>
     </span>
   )
 }

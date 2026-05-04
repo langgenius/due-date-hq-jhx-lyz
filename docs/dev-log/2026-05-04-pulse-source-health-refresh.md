@@ -39,6 +39,13 @@ so `pulse_source_state` changes were invisible until a full page reload.
 - Kept Pulse banner polling active in background tabs and ordered active banner alerts by firm-alert
   update time first, so newly generated or reactivated Pulse alerts are surfaced even when their
   official publication date is older than an existing open alert.
+- Added a banner-level `Hide` action for source health issues. This only hides the current
+  `(source, status, lastError)` locally on the Dashboard so a known source drift, such as a
+  robots.txt block, does not permanently occupy the banner while real Pulse alerts can still
+  surface. The action is visible only to Owner/Manager roles. The source incident remains unresolved
+  until ops fixes, disables, or replaces the source.
+- Replaced the normal Pulse banner source list with a concise all-clear summary so broad source
+  coverage no longer renders noisy strings like `IRS + CA FTB + ... + 55 more`.
 
 ## Docs Check
 
@@ -56,3 +63,4 @@ so `pulse_source_state` changes were invisible until a full page reload.
 - `pnpm --filter @duedatehq/app test -- src/features/pulse/lib/source-health-labels.test.ts`
 - `pnpm --filter @duedatehq/app i18n:extract`
 - `pnpm --filter @duedatehq/app i18n:compile`
+- `pnpm exec vp check --fix apps/app/src/features/pulse/PulseAlertsBanner.tsx`

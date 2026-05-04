@@ -642,8 +642,8 @@ msgid "All categories"
 msgstr "All categories"
 
 #: src/features/pulse/PulseAlertsBanner.tsx
-msgid "All clear · Watching {label}"
-msgstr "All clear · Watching {label}"
+msgid "All clear · Monitoring official tax deadline sources"
+msgstr "All clear · Monitoring official tax deadline sources"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "All clear. We're watching configured Pulse sources; new matches will appear here."
@@ -1142,9 +1142,16 @@ msgid "Change status for {0}"
 msgstr "Change status for {0}"
 
 #: src/features/pulse/AlertsListPage.tsx
-#: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Checking {label}…"
 msgstr "Checking {label}…"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Checking official tax source health…"
+msgstr "Checking official tax source health…"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Checking Pulse source health…"
+msgstr "Checking Pulse source health…"
 
 #: src/features/workload/workload-page.tsx
 msgid "Checking the active practice plan before loading workload metrics."
@@ -2785,6 +2792,10 @@ msgstr "Hidden"
 #: src/routes/workboard.tsx
 msgid "Hidden by role"
 msgstr "Hidden by role"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Hide"
+msgstr "Hide"
 
 #: src/routes/dashboard.tsx
 msgid "high"
