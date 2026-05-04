@@ -22,6 +22,7 @@ export function useAuditActionLabels(): AuditActionLabels {
       clientAssigneeUpdated: t`Client assignee changed`,
       clientBatchCreated: t`Client batch created`,
       clientCreated: t`Client created`,
+      clientDeleted: t`Client deleted`,
       exportAuditPackageDownloaded: t`Audit export downloaded`,
       exportAuditPackageFailed: t`Audit export failed`,
       exportAuditPackageReady: t`Audit export ready`,

@@ -637,6 +637,8 @@ export {
 export {
   AuditActions,
   AuditActionSchema,
+  ClientAuditActions,
+  ClientAuditActionSchema,
   PenaltyAuditActions,
   PenaltyAuditActionSchema,
   RulesAuditActions,
@@ -648,6 +650,7 @@ export {
 } from './shared/audit-actions'
 export type {
   AuditAction,
+  ClientAuditAction,
   MigrationAuditAction,
   PenaltyAuditAction,
   RulesAuditAction,

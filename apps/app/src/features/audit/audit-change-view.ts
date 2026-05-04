@@ -138,6 +138,7 @@ export const AUDIT_CHANGE_PRESENTERS: Record<KnownAuditAction, AuditChangePresen
   'client.assignee.updated': clientAssigneePresenter,
   'client.batch_created': (context) => countPresenter(context, 'count', 'clients'),
   'client.created': genericPresenter,
+  'client.deleted': genericPresenter,
   'export.audit_package.downloaded': genericPresenter,
   'export.audit_package.failed': genericPresenter,
   'export.audit_package.ready': exportPackageReadyPresenter,

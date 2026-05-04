@@ -1,17 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Trans, useLingui } from '@lingui/react/macro'
+import { useLingui } from '@lingui/react/macro'
 import { ExternalLinkIcon } from 'lucide-react'
 
-import type { RuleJurisdiction, RuleSource } from '@duedatehq/contracts'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@duedatehq/ui/components/ui/select'
+import type { RuleSource } from '@duedatehq/contracts'
 import {
   Table,
   TableBody,
@@ -22,6 +14,10 @@ import {
 } from '@duedatehq/ui/components/ui/table'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import {
+  TableHeaderMultiFilter,
+  type TableFilterOption,
+} from '@/components/patterns/table-header-filter'
 import { orpc } from '@/lib/rpc'
 
 import {
@@ -30,7 +26,6 @@ import {
   countSourcesByHealth,
   filterSources,
   jurisdictionLabel,
-  RULE_JURISDICTIONS,
   type SourceHealthFilter,
 } from './rules-console-model'
 import {
@@ -42,7 +37,7 @@ import {
   TableFooterBar,
 } from './rules-console-primitives'
 
-type JurisdictionFilter = 'ALL' | RuleJurisdiction
+type SourceHeaderFilterId = 'jurisdiction' | 'sourceType' | 'cadence' | 'method'
 
 const DEFAULT_VISIBLE_SOURCE_ROWS = 12
 const EMPTY_SOURCE_ROWS: RuleSource[] = []
@@ -50,16 +45,50 @@ const EMPTY_SOURCE_ROWS: RuleSource[] = []
 export function SourcesTab() {
   const { t } = useLingui()
   const [healthFilter, setHealthFilter] = useState<SourceHealthFilter>('all')
-  const [jurisdictionFilter, setJurisdictionFilter] = useState<JurisdictionFilter>('ALL')
+  const [jurisdictionFilters, setJurisdictionFilters] = useState<string[]>([])
+  const [sourceTypeFilters, setSourceTypeFilters] = useState<string[]>([])
+  const [cadenceFilters, setCadenceFilters] = useState<string[]>([])
+  const [methodFilters, setMethodFilters] = useState<string[]>([])
+  const [openHeaderFilter, setOpenHeaderFilter] = useState<SourceHeaderFilterId | null>(null)
   const [showAll, setShowAll] = useState(false)
 
-  const queryInput = jurisdictionFilter === 'ALL' ? undefined : { jurisdiction: jurisdictionFilter }
-  const sourcesQuery = useQuery(orpc.rules.listSources.queryOptions({ input: queryInput }))
+  const sourcesQuery = useQuery(orpc.rules.listSources.queryOptions({ input: undefined }))
 
   const rows = useMemo(() => sourcesQuery.data ?? EMPTY_SOURCE_ROWS, [sourcesQuery.data])
   const counts = useMemo(() => countSourcesByHealth(rows), [rows])
-  const filteredRows = useMemo(() => filterSources(rows, healthFilter), [healthFilter, rows])
+  const filteredRows = useMemo(
+    () =>
+      filterSources(rows, healthFilter).filter(
+        (source) =>
+          matchesSelected(source.jurisdiction, jurisdictionFilters) &&
+          matchesSelected(source.sourceType, sourceTypeFilters) &&
+          matchesSelected(source.cadence, cadenceFilters) &&
+          matchesSelected(source.acquisitionMethod, methodFilters),
+      ),
+    [cadenceFilters, healthFilter, jurisdictionFilters, methodFilters, rows, sourceTypeFilters],
+  )
   const visibleRows = showAll ? filteredRows : filteredRows.slice(0, DEFAULT_VISIBLE_SOURCE_ROWS)
+  const jurisdictionOptions = useMemo(
+    () => sourceFilterOptions(rows, (source) => source.jurisdiction, jurisdictionLabel),
+    [rows],
+  )
+  const sourceTypeOptions = useMemo(
+    () => sourceFilterOptions(rows, (source) => source.sourceType, compactSourceType),
+    [rows],
+  )
+  const cadenceOptions = useMemo(
+    () =>
+      sourceFilterOptions(
+        rows,
+        (source) => source.cadence,
+        (cadence) => cadence.replace('_', '-'),
+      ),
+    [rows],
+  )
+  const methodOptions = useMemo(
+    () => sourceFilterOptions(rows, (source) => source.acquisitionMethod, compactAcquisitionMethod),
+    [rows],
+  )
 
   const filterOptions = useMemo(
     () => [
@@ -82,10 +111,20 @@ export function SourcesTab() {
 
   const footerNote = t`Showing ${visibleRows.length} of ${filteredRows.length} · click any row to open the official source ↗`
   const showAllAction = t`Show all ${filteredRows.length} →`
+  const emptyFilterLabel = t`No options`
+
+  function setHeaderFilterOpen(filterId: SourceHeaderFilterId, nextOpen: boolean) {
+    setOpenHeaderFilter((current) => (nextOpen ? filterId : current === filterId ? null : current))
+  }
+
+  function updateHeaderFilter(setter: (values: string[]) => void, values: string[]) {
+    setter(values)
+    setShowAll(false)
+  }
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-4">
         <FilterChips
           options={filterOptions}
           value={healthFilter}
@@ -94,33 +133,70 @@ export function SourcesTab() {
             setShowAll(false)
           }}
         />
-        <JurisdictionFilterSelect
-          value={jurisdictionFilter}
-          onValueChange={setJurisdictionFilter}
-        />
       </div>
       <SectionFrame>
         {/*
-          Column widths mirror Figma 219:2 (Sources table) 1:1 — the six
-          right-hand columns sum to 408 px (50+78+78+78+82+42); SOURCE has no
-          explicit width so it auto-fills the remaining ~470 px on the 880 px
-          settings content column (Figma value = 472 px) and shrinks first on
-          narrower viewports. `table-fixed` is what makes the column widths
-          authoritative — without it `table-layout: auto` lets long values
-          like "email_subscription" or NY Article 9-A titles widen the table
-          past the SectionFrame after **Show all**. Body cells override the
-          default `px-3` so badges and text sit flush at the Figma
-          x-coordinates instead of being inset by cell padding.
+          `table-fixed` keeps source rows stable when long values such as
+          "email_subscription" or NY Article 9-A titles appear. After adding
+          header filters, the right-hand columns need enough width for label +
+          active-count badge + chevron; SOURCE auto-fills the remaining space
+          and shrinks first on narrower viewports.
         */}
         <Table className="table-fixed">
           <TableHeader className="bg-background-subtle">
             <TableRow className="hover:bg-transparent">
               <TableHead className="px-4">SOURCE</TableHead>
-              <TableHead className="w-[50px] px-0">JUR</TableHead>
-              <TableHead className="w-[78px] px-0">TYPE</TableHead>
-              <TableHead className="w-[78px] px-0">CADENCE</TableHead>
-              <TableHead className="w-[78px] px-0">METHOD</TableHead>
-              <TableHead className="w-[82px] px-0">HEALTH</TableHead>
+              <TableHead className="w-[76px] px-2">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`JUR`}
+                  open={openHeaderFilter === 'jurisdiction'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('jurisdiction', nextOpen)}
+                  options={jurisdictionOptions}
+                  selected={jurisdictionFilters}
+                  emptyLabel={emptyFilterLabel}
+                  searchable
+                  searchPlaceholder={t`Filter jurisdictions`}
+                  onSelectedChange={(next) => updateHeaderFilter(setJurisdictionFilters, next)}
+                />
+              </TableHead>
+              <TableHead className="w-[104px] px-2">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`TYPE`}
+                  open={openHeaderFilter === 'sourceType'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('sourceType', nextOpen)}
+                  options={sourceTypeOptions}
+                  selected={sourceTypeFilters}
+                  emptyLabel={emptyFilterLabel}
+                  onSelectedChange={(next) => updateHeaderFilter(setSourceTypeFilters, next)}
+                />
+              </TableHead>
+              <TableHead className="w-[116px] px-2">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`CADENCE`}
+                  open={openHeaderFilter === 'cadence'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('cadence', nextOpen)}
+                  options={cadenceOptions}
+                  selected={cadenceFilters}
+                  emptyLabel={emptyFilterLabel}
+                  onSelectedChange={(next) => updateHeaderFilter(setCadenceFilters, next)}
+                />
+              </TableHead>
+              <TableHead className="w-[112px] px-2">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`METHOD`}
+                  open={openHeaderFilter === 'method'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('method', nextOpen)}
+                  options={methodOptions}
+                  selected={methodFilters}
+                  emptyLabel={emptyFilterLabel}
+                  onSelectedChange={(next) => updateHeaderFilter(setMethodFilters, next)}
+                />
+              </TableHead>
+              <TableHead className="w-[112px] px-2">HEALTH</TableHead>
               <TableHead className="w-[42px] px-0" />
             </TableRow>
           </TableHeader>
@@ -144,49 +220,24 @@ export function SourcesTab() {
   )
 }
 
-function JurisdictionFilterSelect({
-  value,
-  onValueChange,
-}: {
-  value: JurisdictionFilter
-  onValueChange: (value: JurisdictionFilter) => void
-}) {
-  const { t } = useLingui()
-  return (
-    <div className="flex shrink-0 items-center gap-2 text-sm text-text-tertiary">
-      <span>
-        <Trans>Jurisdiction:</Trans>
-      </span>
-      <Select
-        value={value}
-        onValueChange={(next) => {
-          if (isJurisdictionFilter(next)) {
-            onValueChange(next)
-          }
-        }}
-      >
-        <SelectTrigger size="sm" className="h-7 min-w-24 bg-transparent px-2 text-sm shadow-none">
-          <SelectValue>{value === 'ALL' ? t`All` : jurisdictionLabel(value)}</SelectValue>
-        </SelectTrigger>
-        <SelectContent align="end">
-          <SelectGroup>
-            <SelectItem value="ALL">{t`All`}</SelectItem>
-            {RULE_JURISDICTIONS.map((jurisdiction) => (
-              <SelectItem key={jurisdiction} value={jurisdiction}>
-                {jurisdictionLabel(jurisdiction)}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </div>
-  )
+function matchesSelected(value: string, selected: readonly string[]): boolean {
+  return selected.length === 0 || selected.includes(value)
 }
 
-function isJurisdictionFilter(value: string | null): value is JurisdictionFilter {
-  if (value === 'ALL') return true
-  if (typeof value !== 'string') return false
-  return (RULE_JURISDICTIONS as readonly string[]).includes(value)
+function sourceFilterOptions<T extends string>(
+  sources: readonly RuleSource[],
+  getValue: (source: RuleSource) => T,
+  getLabel: (value: T) => string,
+): TableFilterOption[] {
+  const counts = new Map<T, number>()
+  for (const source of sources) {
+    const value = getValue(source)
+    counts.set(value, (counts.get(value) ?? 0) + 1)
+  }
+
+  return Array.from(counts.entries())
+    .map(([value, count]) => ({ value, label: getLabel(value), count }))
+    .toSorted((left, right) => left.label.localeCompare(right.label))
 }
 
 function SourceRow({ source }: { source: RuleSource }) {
@@ -241,15 +292,15 @@ function SourceRow({ source }: { source: RuleSource }) {
       <TableCell className="px-0 py-1.5">
         <JurisdictionCode code={source.jurisdiction} />
       </TableCell>
-      <TableCell className="px-0 py-1.5 text-xs text-text-secondary">
+      <TableCell className="px-2 py-1.5 text-xs text-text-secondary">
         {compactSourceType(source.sourceType)}
       </TableCell>
-      <TableCell className="px-0 py-1.5 text-xs text-text-secondary">
+      <TableCell className="px-2 py-1.5 text-xs text-text-secondary">
         {source.cadence.replace('_', '-')}
       </TableCell>
       <TableCell
         className={cn(
-          'px-0 py-1.5 text-xs',
+          'px-2 py-1.5 text-xs',
           isManualReview ? 'text-severity-medium' : 'text-text-secondary',
         )}
         title={
@@ -258,7 +309,7 @@ function SourceRow({ source }: { source: RuleSource }) {
       >
         {compactAcquisitionMethod(source.acquisitionMethod)}
       </TableCell>
-      <TableCell className="px-0 py-1.5">
+      <TableCell className="px-2 py-1.5">
         <HealthBadge health={source.healthStatus} />
       </TableCell>
       <TableCell className="px-0 py-1.5 text-center">

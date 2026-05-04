@@ -1019,6 +1019,10 @@ msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacy
 msgid "C corp"
 msgstr "C corp"
 
+#: src/features/rules/sources-tab.tsx
+msgid "CADENCE"
+msgstr "CADENCE"
+
 #: src/features/migration/WizardShell.tsx
 #: src/routes/practice.tsx
 msgid "Calculate preview"
@@ -1055,6 +1059,7 @@ msgid "Calendar URL regenerated"
 msgstr "Calendar URL regenerated"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
@@ -1268,6 +1273,11 @@ msgstr "Client batch created"
 #: src/routes/clients.tsx
 msgid "Client created"
 msgstr "Client created"
+
+#: src/features/audit/audit-log-labels.ts
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Client deleted"
+msgstr "Client deleted"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Client email draft copied"
@@ -1647,6 +1657,10 @@ msgstr "Couldn't copy source excerpt"
 #: src/routes/clients.tsx
 msgid "Couldn't create client"
 msgstr "Couldn't create client"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't delete client"
+msgstr "Couldn't delete client"
 
 #: src/routes/workboard.tsx
 msgid "Couldn't delete view"
@@ -2046,9 +2060,25 @@ msgstr "Default Matrix applies these suggestions only where imported rows do not
 msgid "Degraded"
 msgstr "Degraded"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Delete"
+msgstr "Delete"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Delete client"
+msgstr "Delete client"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Delete client record"
+msgstr "Delete client record"
+
 #: src/routes/practice.tsx
 msgid "Delete practice"
 msgstr "Delete practice"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Delete this client?"
+msgstr "Delete this client?"
 
 #: src/routes/practice.tsx
 msgid "Delete this practice?"
@@ -2597,6 +2627,10 @@ msgstr "Filter by source"
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "Filter by time range, action category, action, actor, or entity type."
 
+#: src/features/rules/sources-tab.tsx
+msgid "Filter jurisdictions"
+msgstr "Filter jurisdictions"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Firm"
 msgstr "Firm"
@@ -2942,6 +2976,10 @@ msgstr "JSON handoff source"
 msgid "JSON handoff still needs review"
 msgstr "JSON handoff still needs review"
 
+#: src/features/rules/sources-tab.tsx
+msgid "JUR"
+msgstr "JUR"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Jurisdiction"
@@ -2960,7 +2998,6 @@ msgid "JURISDICTION SUMMARY"
 msgstr "JURISDICTION SUMMARY"
 
 #: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
 msgid "Jurisdiction:"
 msgstr "Jurisdiction:"
 
@@ -3319,6 +3356,10 @@ msgstr "Members are managed by the practice owner. Contact the owner if you need
 msgid "Members could not load"
 msgstr "Members could not load"
 
+#: src/features/rules/sources-tab.tsx
+msgid "METHOD"
+msgstr "METHOD"
+
 #: src/routes/account.security.tsx
 msgid "MFA enabled"
 msgstr "MFA enabled"
@@ -3673,6 +3714,10 @@ msgstr "No open obligations available for preview."
 #: src/features/workload/workload-page.tsx
 msgid "No open obligations match the workload window."
 msgstr "No open obligations match the workload window."
+
+#: src/features/rules/sources-tab.tsx
+msgid "No options"
+msgstr "No options"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No owners"
@@ -6424,6 +6469,10 @@ msgstr "This removes every client and deadline created by this import. Use Clien
 msgid "This removes the client and deadlines created by this import. Use Clients to edit facts instead."
 msgstr "This removes the client and deadlines created by this import. Use Clients to edit facts instead."
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "This removes the client from active practice views and records an audit event."
+msgstr "This removes the client from active practice views and records an audit event."
+
 #: src/features/migration/Wizard.tsx
 msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 msgstr "This removes the clients and deadlines created by this import. Other practice data will not be changed."
@@ -6455,6 +6504,11 @@ msgstr "This week"
 #: src/routes/dashboard.tsx
 msgid "This Week"
 msgstr "This Week"
+
+#. placeholder {0}: client?.name ?? 'this client'
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "This will remove {0} from the active client directory, dashboard, and obligations workboard. The audit log will keep the deletion record."
+msgstr "This will remove {0} from the active client directory, dashboard, and obligations workboard. The audit log will keep the deletion record."
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Tier"
@@ -6536,6 +6590,10 @@ msgstr "TX current-year franchise tax"
 #: src/features/migration/mapping-target-labels.ts
 msgid "TX prior-year franchise tax"
 msgstr "TX prior-year franchise tax"
+
+#: src/features/rules/sources-tab.tsx
+msgid "TYPE"
+msgstr "TYPE"
 
 #: src/features/migration/mapping-target-labels.ts
 msgid "UI wage report count"

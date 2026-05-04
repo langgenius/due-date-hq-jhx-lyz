@@ -529,7 +529,11 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
       const sort: WorkboardSort = input.sort ?? 'smart_priority'
       const limit = Math.min(Math.max(input.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT)
 
-      const filters: SQL[] = [eq(obligationInstance.firmId, firmId)]
+      const filters: SQL[] = [
+        eq(obligationInstance.firmId, firmId),
+        eq(client.firmId, firmId),
+        isNull(client.deletedAt),
+      ]
 
       if (input.status && input.status.length > 0) {
         filters.push(inArray(obligationInstance.status, input.status))
@@ -737,6 +741,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
               and(
                 eq(obligationInstance.firmId, firmId),
                 eq(client.firmId, firmId),
+                isNull(client.deletedAt),
                 inArray(obligationInstance.id, chunk),
               ),
             ),
@@ -763,7 +768,13 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         })
         .from(obligationInstance)
         .innerJoin(client, eq(obligationInstance.clientId, client.id))
-        .where(eq(obligationInstance.firmId, firmId))
+        .where(
+          and(
+            eq(obligationInstance.firmId, firmId),
+            eq(client.firmId, firmId),
+            isNull(client.deletedAt),
+          ),
+        )
         .orderBy(asc(client.name), asc(obligationInstance.taxType))
         .limit(MAX_READ_ROWS)
 

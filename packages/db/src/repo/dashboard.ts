@@ -676,6 +676,7 @@ export function makeDashboardRepo(db: Db, firmId: string) {
           and(
             eq(obligationInstance.firmId, firmId),
             eq(client.firmId, firmId),
+            isNull(client.deletedAt),
             inArray(obligationInstance.status, OPEN_STATUSES),
           ),
         )

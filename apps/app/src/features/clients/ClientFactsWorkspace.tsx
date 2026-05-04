@@ -27,6 +27,7 @@ import {
   RefreshCwIcon,
   ShieldAlertIcon,
   SparklesIcon,
+  Trash2Icon,
   UsersRoundIcon,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -36,6 +37,16 @@ import type {
   ClientJurisdictionUpdateInput,
   ClientPublic,
 } from '@duedatehq/contracts'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@duedatehq/ui/components/ui/alert-dialog'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
@@ -136,6 +147,8 @@ type ClientFactsWorkspaceProps = {
   onProfileOpenChange: (open: boolean) => void
   onImport: () => void
   canImport: boolean
+  canDelete: boolean
+  onClientDeleted: () => void
 }
 
 const metricToneClassName = {
@@ -169,9 +182,31 @@ export function ClientFactsWorkspace({
   onProfileOpenChange,
   onImport,
   canImport,
+  canDelete,
+  onClientDeleted,
 }: ClientFactsWorkspaceProps) {
   const { t } = useLingui()
+  const queryClient = useQueryClient()
   const [openHeaderFilter, setOpenHeaderFilter] = useState<string | null>(null)
+  const deleteClientMutation = useMutation(
+    orpc.clients.delete.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.getDetail.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.facets.key() })
+        onProfileOpenChange(false)
+        onClientDeleted()
+        toast.success(t`Client deleted`)
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't delete client`, {
+          description: rpcErrorMessage(err) ?? t`Please try again.`,
+        })
+      },
+    }),
+  )
   const metrics = useMemo<ClientMetric[]>(
     () => [
       {
@@ -618,6 +653,9 @@ export function ClientFactsWorkspace({
           client={activeClient}
           entityLabels={entityLabels}
           readiness={activeClient ? factsModel.readinessById.get(activeClient.id) : undefined}
+          canDelete={canDelete}
+          isDeleting={deleteClientMutation.isPending}
+          onDelete={(clientId) => deleteClientMutation.mutate({ id: clientId })}
         />
       </section>
     </>
@@ -729,15 +767,22 @@ function ClientProfileSheet({
   client,
   entityLabels,
   readiness,
+  canDelete,
+  isDeleting,
+  onDelete,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   client: ClientPublic | null
   entityLabels: Record<ClientEntityType, string>
   readiness: ClientReadiness | undefined
+  canDelete: boolean
+  isDeleting: boolean
+  onDelete: (clientId: string) => void
 }) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const { currentFirm } = useCurrentFirm()
   const practiceAiEnabled = paidPlanActive(currentFirm)
   const insightClientId = client?.id ?? '00000000-0000-4000-8000-000000000000'
@@ -881,6 +926,31 @@ function ClientProfileSheet({
                   {client.notes || <Trans>No notes.</Trans>}
                 </p>
               </div>
+
+              <div className="rounded-md border border-state-destructive-hover-alt bg-state-destructive-hover p-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium text-text-primary">
+                      <Trans>Delete client record</Trans>
+                    </span>
+                    <p className="mt-1 text-sm text-text-destructive-secondary">
+                      <Trans>
+                        This removes the client from active practice views and records an audit
+                        event.
+                      </Trans>
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="destructive-secondary"
+                    disabled={!canDelete || isDeleting}
+                    onClick={() => setDeleteDialogOpen(true)}
+                  >
+                    <Trash2Icon data-icon="inline-start" />
+                    <Trans>Delete</Trans>
+                  </Button>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="flex min-h-[220px] items-center justify-center rounded-md border border-dashed border-divider-regular p-6 text-center text-sm text-text-tertiary">
@@ -889,6 +959,37 @@ function ClientProfileSheet({
           )}
         </div>
       </SheetContent>
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              <Trans>Delete this client?</Trans>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <Trans>
+                This will remove {client?.name ?? 'this client'} from the active client directory,
+                dashboard, and obligations workboard. The audit log will keep the deletion record.
+              </Trans>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel size="sm" disabled={isDeleting}>
+              <Trans>Cancel</Trans>
+            </AlertDialogCancel>
+            <AlertDialogAction
+              size="sm"
+              variant="destructive-primary"
+              disabled={!client || !canDelete || isDeleting}
+              onClick={() => {
+                if (client) onDelete(client.id)
+              }}
+            >
+              <Trash2Icon data-icon="inline-start" />
+              <Trans>Delete client</Trans>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sheet>
   )
 }

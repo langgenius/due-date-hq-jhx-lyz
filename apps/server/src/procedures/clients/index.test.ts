@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { ClientRow } from './_serializers'
-import { rereadCreatedClientBatch } from './index'
+import { deleteClientRecord, rereadCreatedClientBatch } from './index'
 
 function makeClient(overrides: Partial<ClientRow> = {}): ClientRow {
   const now = new Date('2026-04-29T00:00:00.000Z')
@@ -46,5 +46,55 @@ describe('clients procedure batch reread', () => {
     ).rejects.toMatchObject({
       code: 'INTERNAL_SERVER_ERROR',
     })
+  })
+})
+
+describe('clients procedure delete', () => {
+  it('soft-deletes the client and writes an audit event', async () => {
+    const client = makeClient({ id: 'client_1', name: 'Acme LLC', state: 'CA' })
+    const findById = vi.fn(async () => client)
+    const softDelete = vi.fn(async () => {})
+    const write = vi.fn(async () => ({ id: 'audit_1' }))
+
+    const result = await deleteClientRecord({
+      clients: { findById, softDelete },
+      audit: { write },
+      clientId: 'client_1',
+      actorId: 'user_1',
+      deletedAt: new Date('2026-05-04T00:00:00.000Z'),
+    })
+
+    expect(result.auditId).toBe('audit_1')
+    expect(softDelete).toHaveBeenCalledWith('client_1')
+    expect(write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorId: 'user_1',
+        entityType: 'client',
+        entityId: 'client_1',
+        action: 'client.deleted',
+        before: expect.objectContaining({ id: 'client_1', name: 'Acme LLC', state: 'CA' }),
+        after: { deletedAt: '2026-05-04T00:00:00.000Z' },
+      }),
+    )
+  })
+
+  it('fails when the client is not in the current firm', async () => {
+    const findById = vi.fn(async () => undefined)
+    const softDelete = vi.fn(async () => {})
+    const write = vi.fn(async () => ({ id: 'audit_1' }))
+
+    await expect(
+      deleteClientRecord({
+        clients: { findById, softDelete },
+        audit: { write },
+        clientId: 'missing_client',
+        actorId: 'user_1',
+      }),
+    ).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    })
+
+    expect(softDelete).not.toHaveBeenCalled()
+    expect(write).not.toHaveBeenCalled()
   })
 })

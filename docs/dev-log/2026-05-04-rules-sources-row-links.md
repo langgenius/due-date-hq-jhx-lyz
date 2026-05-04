@@ -8,6 +8,8 @@ Area: rules
   `RuleSource.url`, matching the trailing external-link icon.
 - Kept the row-level click handler as a larger mouse target, but the primary visible source text
   no longer depends on the programmatic `window.open` path.
+- Added header multi-filters for `JUR`, `TYPE`, `CADENCE`, and `METHOD`; Sources now fetches the
+  full source registry once and applies health + header filters client-side.
 
 ## Verification
 

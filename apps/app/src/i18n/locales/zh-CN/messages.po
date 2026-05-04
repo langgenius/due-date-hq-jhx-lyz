@@ -1019,6 +1019,10 @@ msgstr "登录即表示您同意 <termsLink>条款</termsLink> 和 <privacyLink>
 msgid "C corp"
 msgstr "C 公司"
 
+#: src/features/rules/sources-tab.tsx
+msgid "CADENCE"
+msgstr "频率"
+
 #: src/features/migration/WizardShell.tsx
 #: src/routes/practice.tsx
 msgid "Calculate preview"
@@ -1055,6 +1059,7 @@ msgid "Calendar URL regenerated"
 msgstr "日历 URL 已重新生成"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
@@ -1268,6 +1273,11 @@ msgstr "客户批次已创建"
 #: src/routes/clients.tsx
 msgid "Client created"
 msgstr "客户已创建"
+
+#: src/features/audit/audit-log-labels.ts
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Client deleted"
+msgstr "客户已删除"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Client email draft copied"
@@ -1647,6 +1657,10 @@ msgstr "无法复制原文摘录"
 #: src/routes/clients.tsx
 msgid "Couldn't create client"
 msgstr "无法创建客户"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't delete client"
+msgstr "无法删除客户"
 
 #: src/routes/workboard.tsx
 msgid "Couldn't delete view"
@@ -2046,9 +2060,25 @@ msgstr "Default Matrix 仅在导入行未包含税种时应用这些建议。"
 msgid "Degraded"
 msgstr "降级"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Delete"
+msgstr "删除"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Delete client"
+msgstr "删除客户"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Delete client record"
+msgstr "删除客户记录"
+
 #: src/routes/practice.tsx
 msgid "Delete practice"
 msgstr "删除事务所"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Delete this client?"
+msgstr "删除这个客户？"
 
 #: src/routes/practice.tsx
 msgid "Delete this practice?"
@@ -2597,6 +2627,10 @@ msgstr "按来源筛选"
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "按时间范围、操作分类、操作、执行人或实体类型筛选。"
 
+#: src/features/rules/sources-tab.tsx
+msgid "Filter jurisdictions"
+msgstr "筛选辖区"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Firm"
 msgstr "Firm"
@@ -2942,6 +2976,10 @@ msgstr "JSON 交接来源"
 msgid "JSON handoff still needs review"
 msgstr "JSON 交接仍需复核"
 
+#: src/features/rules/sources-tab.tsx
+msgid "JUR"
+msgstr "辖区"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Jurisdiction"
@@ -2960,7 +2998,6 @@ msgid "JURISDICTION SUMMARY"
 msgstr "辖区汇总"
 
 #: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
 msgid "Jurisdiction:"
 msgstr "辖区："
 
@@ -3319,6 +3356,10 @@ msgstr "成员由事务所负责人管理。需要邀请成员或变更角色时
 msgid "Members could not load"
 msgstr "无法加载成员"
 
+#: src/features/rules/sources-tab.tsx
+msgid "METHOD"
+msgstr "方式"
+
 #: src/routes/account.security.tsx
 msgid "MFA enabled"
 msgstr "MFA 已启用"
@@ -3673,6 +3714,10 @@ msgstr "没有可预览的未完成义务。"
 #: src/features/workload/workload-page.tsx
 msgid "No open obligations match the workload window."
 msgstr "当前负载窗口内没有匹配的未完成义务。"
+
+#: src/features/rules/sources-tab.tsx
+msgid "No options"
+msgstr "没有选项"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No owners"
@@ -6424,6 +6469,10 @@ msgstr "这会移除此导入创建的所有客户和截止日。请改用“客
 msgid "This removes the client and deadlines created by this import. Use Clients to edit facts instead."
 msgstr "这会移除此导入创建的客户和截止日。请改用“客户”来编辑资料。"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "This removes the client from active practice views and records an audit event."
+msgstr "这会从当前事务所视图中移除该客户，并记录一条审计事件。"
+
 #: src/features/migration/Wizard.tsx
 msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 msgstr "这会移除此导入创建的客户和截止日。其他事务所数据不会被更改。"
@@ -6455,6 +6504,11 @@ msgstr "本周"
 #: src/routes/dashboard.tsx
 msgid "This Week"
 msgstr "本周"
+
+#. placeholder {0}: client?.name ?? 'this client'
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "This will remove {0} from the active client directory, dashboard, and obligations workboard. The audit log will keep the deletion record."
+msgstr "这会从当前客户目录、仪表盘和截止日工作台中移除 {0}。审计日志会保留删除记录。"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Tier"
@@ -6536,6 +6590,10 @@ msgstr "TX 当年 franchise tax"
 #: src/features/migration/mapping-target-labels.ts
 msgid "TX prior-year franchise tax"
 msgstr "TX 上年 franchise tax"
+
+#: src/features/rules/sources-tab.tsx
+msgid "TYPE"
+msgstr "类型"
 
 #: src/features/migration/mapping-target-labels.ts
 msgid "UI wage report count"

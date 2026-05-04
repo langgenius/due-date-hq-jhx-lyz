@@ -25,6 +25,8 @@ import { SMART_PRIORITY_DEFAULT_PROFILE, SmartPriorityProfileSchema } from './pr
 import {
   ClientBulkAssigneeUpdateInputSchema,
   ClientBulkAssigneeUpdateOutputSchema,
+  ClientDeleteInputSchema,
+  ClientDeleteOutputSchema,
   ClientJurisdictionUpdateOutputSchema,
   ClientJurisdictionUpdateSchema,
   clientsContract,
@@ -537,6 +539,19 @@ describe('@duedatehq/contracts', () => {
     expect(output.updatedCount).toBe(1)
   })
 
+  it('exposes clients.delete for audited client removal', () => {
+    expect(Object.keys(clientsContract)).toEqual(expect.arrayContaining(['delete']))
+    const input = ClientDeleteInputSchema.parse({
+      id: '22222222-2222-4222-8222-222222222222',
+    })
+    expect(input.id).toBe('22222222-2222-4222-8222-222222222222')
+    const output = ClientDeleteOutputSchema.parse({
+      deleted: true,
+      auditId: '33333333-3333-4333-8333-333333333333',
+    })
+    expect(output.deleted).toBe(true)
+  })
+
   it('exposes clients.updateJurisdiction for existing client fact edits', () => {
     expect(Object.keys(clientsContract)).toEqual(expect.arrayContaining(['updateJurisdiction']))
     const input = ClientJurisdictionUpdateSchema.parse({
@@ -799,6 +814,7 @@ describe('@duedatehq/contracts', () => {
     expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')
     expect(AuditActionSchema.parse('penalty.override')).toBe('penalty.override')
     expect(EvidenceSourceTypeSchema.parse('penalty_override')).toBe('penalty_override')
+    expect(AuditActionSchema.parse('client.deleted')).toBe('client.deleted')
     expect(AuditActionSchema.parse('rules.published')).toBe('rules.published')
     expect(AuditActionSchema.parse('rules.review.rejected')).toBe('rules.review.rejected')
   })

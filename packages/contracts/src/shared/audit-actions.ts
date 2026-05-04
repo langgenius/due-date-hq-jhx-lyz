@@ -30,6 +30,14 @@ export const PulseAuditActions = [
 
 export const PenaltyAuditActions = ['penalty.override'] as const
 export const RulesAuditActions = ['rules.published', 'rules.review.rejected'] as const
+export const ClientAuditActions = [
+  'client.assignee.updated',
+  'client.batch_created',
+  'client.created',
+  'client.deleted',
+  'client.jurisdiction.updated',
+  'client.risk_profile.updated',
+] as const
 export const AuthAuditActions = [
   'auth.denied',
   'auth.login.success',
@@ -51,6 +59,7 @@ export const AuditActions = [
   ...PulseAuditActions,
   ...PenaltyAuditActions,
   ...RulesAuditActions,
+  ...ClientAuditActions,
   ...AuthAuditActions,
   ...ExportAuditActions,
 ] as const
@@ -66,6 +75,9 @@ export type PenaltyAuditAction = z.infer<typeof PenaltyAuditActionSchema>
 
 export const RulesAuditActionSchema = z.enum(RulesAuditActions)
 export type RulesAuditAction = z.infer<typeof RulesAuditActionSchema>
+
+export const ClientAuditActionSchema = z.enum(ClientAuditActions)
+export type ClientAuditAction = z.infer<typeof ClientAuditActionSchema>
 
 export const AuthAuditActionSchema = z.enum(AuthAuditActions)
 export type AuthAuditAction = z.infer<typeof AuthAuditActionSchema>

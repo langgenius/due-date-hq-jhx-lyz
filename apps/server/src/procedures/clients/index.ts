@@ -38,6 +38,57 @@ export async function rereadCreatedClientBatch(
   return rows
 }
 
+export async function deleteClientRecord(input: {
+  clients: Pick<ClientsRepo, 'findById' | 'softDelete'>
+  audit: {
+    write(event: {
+      actorId: string
+      entityType: string
+      entityId: string
+      action: string
+      before?: unknown
+      after?: unknown
+      reason?: string
+    }): Promise<{ id: string }>
+  }
+  clientId: string
+  actorId: string
+  deletedAt?: Date
+}): Promise<{ auditId: string }> {
+  const before = await input.clients.findById(input.clientId)
+  if (!before) {
+    throw new ORPCError('NOT_FOUND', {
+      message: `Client ${input.clientId} not found in current firm.`,
+    })
+  }
+
+  const deletedAt = input.deletedAt ?? new Date()
+  await input.clients.softDelete(input.clientId)
+  const { id: auditId } = await input.audit.write({
+    actorId: input.actorId,
+    entityType: 'client',
+    entityId: input.clientId,
+    action: 'client.deleted',
+    before: {
+      id: before.id,
+      name: before.name,
+      email: before.email,
+      ein: before.ein,
+      state: before.state,
+      county: before.county,
+      entityType: before.entityType,
+      assigneeId: before.assigneeId,
+      assigneeName: before.assigneeName,
+      migrationBatchId: before.migrationBatchId,
+    },
+    after: {
+      deletedAt: deletedAt.toISOString(),
+    },
+  })
+
+  return { auditId }
+}
+
 async function shouldHideDollars(context: Parameters<typeof requireTenant>[0]): Promise<boolean> {
   const { members } = context.vars
   const { tenant, userId } = requireTenant(context)
@@ -512,6 +563,19 @@ const bulkUpdateAssignee = os.clients.bulkUpdateAssignee.handler(async ({ input,
   }
 })
 
+const deleteClient = os.clients.delete.handler(async ({ input, context }) => {
+  const { userId } = await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
+  const { scoped } = requireTenant(context)
+  const { auditId } = await deleteClientRecord({
+    clients: scoped.clients,
+    audit: scoped.audit,
+    clientId: input.id,
+    actorId: userId,
+  })
+
+  return { deleted: true as const, auditId }
+})
+
 export const clientsHandlers = {
   create,
   createBatch,
@@ -523,4 +587,5 @@ export const clientsHandlers = {
   getRiskSummary,
   requestRiskSummaryRefresh,
   bulkUpdateAssignee,
+  delete: deleteClient,
 }

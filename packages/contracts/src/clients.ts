@@ -124,6 +124,15 @@ export const ClientBulkAssigneeUpdateOutputSchema = z.object({
 })
 export type ClientBulkAssigneeUpdateOutput = z.infer<typeof ClientBulkAssigneeUpdateOutputSchema>
 
+export const ClientDeleteInputSchema = z.object({ id: EntityIdSchema })
+export type ClientDeleteInput = z.infer<typeof ClientDeleteInputSchema>
+
+export const ClientDeleteOutputSchema = z.object({
+  deleted: z.literal(true),
+  auditId: EntityIdSchema,
+})
+export type ClientDeleteOutput = z.infer<typeof ClientDeleteOutputSchema>
+
 export const clientsContract = oc.router({
   create: oc.input(ClientCreateInputSchema).output(ClientPublicSchema),
   createBatch: oc
@@ -149,6 +158,7 @@ export const clientsContract = oc.router({
   bulkUpdateAssignee: oc
     .input(ClientBulkAssigneeUpdateInputSchema)
     .output(ClientBulkAssigneeUpdateOutputSchema),
+  delete: oc.input(ClientDeleteInputSchema).output(ClientDeleteOutputSchema),
 })
 
 export type ClientIdentity = z.infer<typeof ClientIdentitySchema>

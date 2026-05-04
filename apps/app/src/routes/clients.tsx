@@ -83,6 +83,7 @@ export function ClientsRoute() {
   const { openWizard } = useMigrationWizard()
   const permission = useFirmPermission()
   const canRunMigration = permission.can('migration.run')
+  const canDeleteClients = permission.can('client.write')
   const entityLabels = useEntityLabels()
   const [profileOpen, setProfileOpen] = useState(false)
   const [
@@ -266,6 +267,10 @@ export function ClientsRoute() {
     [createMutation],
   )
 
+  const handleClientDeleted = useCallback(() => {
+    void setClientsQuery({ client: null, clients: null })
+  }, [setClientsQuery])
+
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
@@ -346,6 +351,8 @@ export function ClientsRoute() {
         onProfileOpenChange={setProfileOpen}
         onImport={openWizard}
         canImport={canRunMigration}
+        canDelete={canDeleteClients}
+        onClientDeleted={handleClientDeleted}
       />
     </div>
   )

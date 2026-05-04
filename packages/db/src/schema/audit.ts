@@ -247,6 +247,16 @@ export type PenaltyAuditAction = (typeof PENALTY_AUDIT_ACTIONS)[number]
 export const RULES_AUDIT_ACTIONS = ['rules.published', 'rules.review.rejected'] as const
 export type RulesAuditAction = (typeof RULES_AUDIT_ACTIONS)[number]
 
+export const CLIENT_AUDIT_ACTIONS = [
+  'client.assignee.updated',
+  'client.batch_created',
+  'client.created',
+  'client.deleted',
+  'client.jurisdiction.updated',
+  'client.risk_profile.updated',
+] as const
+export type ClientAuditAction = (typeof CLIENT_AUDIT_ACTIONS)[number]
+
 export const AUTH_AUDIT_ACTIONS = [
   'auth.denied',
   'auth.login.success',
@@ -271,6 +281,7 @@ export const AUDIT_ACTIONS = [
   ...PULSE_AUDIT_ACTIONS,
   ...PENALTY_AUDIT_ACTIONS,
   ...RULES_AUDIT_ACTIONS,
+  ...CLIENT_AUDIT_ACTIONS,
   ...AUTH_AUDIT_ACTIONS,
   ...EXPORT_AUDIT_ACTIONS,
 ] as const

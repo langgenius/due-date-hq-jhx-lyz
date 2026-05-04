@@ -36,8 +36,11 @@ export function PulseAlertsBanner() {
   const isChecking = alertsQuery.isLoading || (!hasAlerts && alertsQuery.isFetching)
   const refreshAction = (
     <RefreshAlertsButton
-      isFetching={alertsQuery.isFetching}
-      onRefresh={() => void alertsQuery.refetch()}
+      isFetching={alertsQuery.isFetching || sourceHealthQuery.isFetching}
+      onRefresh={() => {
+        void alertsQuery.refetch()
+        void sourceHealthQuery.refetch()
+      }}
     />
   )
 
@@ -80,8 +83,11 @@ export function PulseAlertsBanner() {
   return (
     <ActivePulseStrip
       alerts={alerts}
-      isFetching={alertsQuery.isFetching}
-      onRefresh={() => void alertsQuery.refetch()}
+      isFetching={alertsQuery.isFetching || sourceHealthQuery.isFetching}
+      onRefresh={() => {
+        void alertsQuery.refetch()
+        void sourceHealthQuery.refetch()
+      }}
     />
   )
 }

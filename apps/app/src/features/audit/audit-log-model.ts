@@ -54,6 +54,7 @@ export const AUDIT_ACTION_LABEL_KEYS = {
   'client.assignee.updated': 'clientAssigneeUpdated',
   'client.batch_created': 'clientBatchCreated',
   'client.created': 'clientCreated',
+  'client.deleted': 'clientDeleted',
   'export.audit_package.downloaded': 'exportAuditPackageDownloaded',
   'export.audit_package.failed': 'exportAuditPackageFailed',
   'export.audit_package.ready': 'exportAuditPackageReady',

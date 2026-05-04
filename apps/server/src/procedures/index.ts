@@ -65,6 +65,7 @@ export const router = os.router({
     getRiskSummary: clientsHandlers.getRiskSummary,
     requestRiskSummaryRefresh: clientsHandlers.requestRiskSummaryRefresh,
     bulkUpdateAssignee: clientsHandlers.bulkUpdateAssignee,
+    delete: clientsHandlers.delete,
   },
   obligations: {
     createBatch: obligationsHandlers.createBatch,
