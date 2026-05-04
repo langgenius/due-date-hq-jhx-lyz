@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
   type ChangeEvent,
+  type ClipboardEvent,
   type DragEvent,
   type ReactNode,
 } from 'react'
@@ -148,6 +149,22 @@ export function Step1Intake({
     }
   }
 
+  function handleIntegrationPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const pastedText = event.clipboardData.getData('text')
+    if (!pastedText.trim()) return
+
+    const target = event.currentTarget
+    const nextText =
+      target.value.slice(0, target.selectionStart) +
+      pastedText +
+      target.value.slice(target.selectionEnd)
+    const normalizedText = normalizeIntegrationJsonText(nextText)
+    if (!normalizedText) return
+
+    event.preventDefault()
+    handleIntegrationText(normalizedText)
+  }
+
   function resetParsedRows() {
     onParsed({ rowCount: 0, truncated: false, ssnBlockedColumnIndexes: [] })
   }
@@ -209,6 +226,22 @@ export function Step1Intake({
       contentType: null,
       sizeBytes: 0,
     })
+  }
+
+  function handleRowsPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const pastedText = event.clipboardData.getData('text')
+    if (!pastedText.trim()) return
+
+    const target = event.currentTarget
+    const nextText =
+      target.value.slice(0, target.selectionStart) +
+      pastedText +
+      target.value.slice(target.selectionEnd)
+    const normalizedText = normalizePastedRowsText(nextText)
+    if (!normalizedText) return
+
+    event.preventDefault()
+    handleTextChange(normalizedText)
   }
 
   const ssnBlockedHeaders = useMemo(() => {
@@ -432,6 +465,7 @@ export function Step1Intake({
               aria-label={t`Paste provider JSON records`}
               value={intake.integrationRawText}
               onChange={(event) => handleIntegrationText(event.target.value)}
+              onPaste={handleIntegrationPaste}
               placeholder={t`Paste a JSON array from your provider export or integration. Each object becomes one Migration staging row.`}
               className="h-[180px] resize-y bg-background-body font-mono text-base tabular-nums"
             />
@@ -496,6 +530,7 @@ export function Step1Intake({
                 aria-describedby="paste-hint"
                 value={intake.rawText}
                 onChange={(e) => handleTextChange(e.target.value)}
+                onPaste={handleRowsPaste}
                 placeholder={t`Paste here — any shape, we'll figure it out. Include the header row if you have one.`}
                 className="h-[142px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
               />
@@ -718,13 +753,12 @@ function SourceModeButton({ selected, onClick, children }: SourceModeButtonProps
   )
 }
 
-function parseIntegrationRows(
+export function parseIntegrationRows(
   text: string,
   provider: MigrationIntegrationProvider,
 ): MigrationExternalStagingRowInput[] {
   if (!text.trim()) return []
-  const parsed = JSON.parse(text) as unknown
-  const records = integrationRecords(parsed)
+  const records = parseIntegrationRecords(text)
   if (!records) {
     throw new Error('Paste a JSON array or an object with a records array.')
   }
@@ -759,12 +793,233 @@ function parseIntegrationRows(
   })
 }
 
-function integrationRecords(value: unknown): unknown[] | null {
-  if (Array.isArray(value)) return value
+export function normalizeIntegrationJsonText(text: string): string | null {
+  try {
+    const records = parseIntegrationRecords(text)
+    return records ? JSON.stringify(records, null, 2) : null
+  } catch {
+    return null
+  }
+}
+
+function parseIntegrationRecords(text: string): unknown[] | null {
+  const parsed = parseFlexibleJsonInput(text)
+  return integrationRecords(parsed)
+}
+
+export function normalizePastedRowsText(text: string): string | null {
+  const cleaned = stripMarkdownCodeFence(text).trim()
+  if (!cleaned) return null
+
+  const jsonTable = parseJsonRowsToTabularText(cleaned)
+  if (jsonTable) return jsonTable
+
+  try {
+    const parsed = parseTabular(cleaned, { kind: 'paste' })
+    if (parsed.rowCount === 0) return null
+    return tabularToTsv(parsed.headers, parsed.rows)
+  } catch {
+    return null
+  }
+}
+
+function parseJsonRowsToTabularText(text: string): string | null {
+  try {
+    const parsed = parseFlexibleJsonInput(text)
+    const records = jsonTabularRecords(parsed)
+    return records && records.length > 0 ? recordsToTabularText(records) : null
+  } catch {
+    return null
+  }
+}
+
+function parseFlexibleJsonInput(text: string): unknown {
+  const cleaned = stripMarkdownCodeFence(text).trim()
+  const candidates = [cleaned, stripTrailingJsonCommas(cleaned)]
+
+  let firstError: unknown
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate) as unknown
+    } catch (err) {
+      firstError ??= err
+    }
+
+    const sequence = parseJsonSequence(candidate)
+    if (sequence) return sequence.length === 1 ? sequence[0] : sequence
+  }
+
+  throw firstError instanceof Error ? firstError : new Error('Invalid JSON input.')
+}
+
+function stripMarkdownCodeFence(text: string): string {
+  const trimmed = text.trim().replace(/^\uFEFF/, '')
+  const match = /^```[^\r\n]*\s*([\s\S]*?)\s*```$/i.exec(trimmed)
+  return match ? (match[1] ?? '') : trimmed
+}
+
+function stripTrailingJsonCommas(text: string): string {
+  return text.replace(/,\s*([}\]])/g, '$1')
+}
+
+function parseJsonSequence(text: string): unknown[] | null {
+  const values: unknown[] = []
+  let cursor = 0
+
+  while (cursor < text.length) {
+    cursor = skipJsonSequenceSeparators(text, cursor, values.length > 0)
+    if (cursor >= text.length) break
+
+    const startChar = text[cursor]
+    if (startChar !== '{' && startChar !== '[') return null
+
+    const end = findJsonValueEnd(text, cursor)
+    if (end === -1) return null
+
+    try {
+      values.push(JSON.parse(text.slice(cursor, end + 1)) as unknown)
+    } catch {
+      return null
+    }
+    cursor = end + 1
+  }
+
+  return values.length > 0 ? values : null
+}
+
+function skipJsonSequenceSeparators(text: string, cursor: number, allowComma: boolean): number {
+  let index = cursor
+  while (index < text.length) {
+    const char = text[index] ?? ''
+    if (/\s/.test(char)) {
+      index += 1
+      continue
+    }
+    if (allowComma && char === ',') {
+      index += 1
+      allowComma = false
+      continue
+    }
+    break
+  }
+  return index
+}
+
+function findJsonValueEnd(text: string, start: number): number {
+  const stack: string[] = []
+  let inString = false
+  let escaped = false
+
+  for (let index = start; index < text.length; index += 1) {
+    const char = text[index] ?? ''
+
+    if (inString) {
+      if (escaped) {
+        escaped = false
+      } else if (char === '\\') {
+        escaped = true
+      } else if (char === '"') {
+        inString = false
+      }
+      continue
+    }
+
+    if (char === '"') {
+      inString = true
+      continue
+    }
+    if (char === '{') {
+      stack.push('}')
+      continue
+    }
+    if (char === '[') {
+      stack.push(']')
+      continue
+    }
+    if (char === '}' || char === ']') {
+      if (stack.pop() !== char) return -1
+      if (stack.length === 0) return index
+    }
+  }
+
+  return -1
+}
+
+function jsonTabularRecords(value: unknown): Record<string, unknown>[] | null {
+  if (Array.isArray(value)) {
+    const records: Record<string, unknown>[] = []
+    for (const item of value) {
+      const record = toPlainRecord(item)
+      if (record) {
+        records.push(record)
+        continue
+      }
+
+      const nested = jsonTabularRecords(item)
+      if (!nested) return null
+      records.push(...nested)
+    }
+    return records
+  }
+
   const record = toPlainRecord(value)
   if (!record) return null
-  const records = record.records
-  return Array.isArray(records) ? records : null
+  for (const key of ['records', 'items', 'data', 'results', 'rows']) {
+    const records = record[key]
+    if (Array.isArray(records)) return jsonTabularRecords(records)
+  }
+  return [record]
+}
+
+function recordsToTabularText(records: readonly Record<string, unknown>[]): string {
+  const headers = Array.from(
+    new Set(records.flatMap((record) => Object.keys(record).filter((key) => key.trim()))),
+  )
+  return tabularToTsv(
+    headers,
+    records.map((record) => headers.map((header) => stringifyRowsCell(record[header]))),
+  )
+}
+
+function tabularToTsv(headers: readonly string[], rows: readonly (readonly unknown[])[]): string {
+  return [
+    headers.map((header) => stringifyRowsCell(header)).join('\t'),
+    ...rows.map((row) => row.map((cell) => stringifyRowsCell(cell)).join('\t')),
+  ].join('\n')
+}
+
+function stringifyRowsCell(value: unknown): string {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'string') return value.replaceAll('\t', ' ').replaceAll('\n', ' ')
+  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+    return String(value)
+  }
+  return JSON.stringify(value).replaceAll('\t', ' ').replaceAll('\n', ' ')
+}
+
+function integrationRecords(value: unknown): unknown[] | null {
+  if (Array.isArray(value)) {
+    const records: unknown[] = []
+    for (const item of value) {
+      if (toPlainRecord(item)) {
+        records.push(item)
+        continue
+      }
+
+      const nested = integrationRecords(item)
+      if (!nested) return null
+      records.push(...nested)
+    }
+    return records
+  }
+
+  const record = toPlainRecord(value)
+  if (!record) return null
+  for (const key of ['records', 'items', 'data', 'results']) {
+    const records = record[key]
+    if (Array.isArray(records)) return integrationRecords(records)
+  }
+  return [record]
 }
 
 function toPlainRecord(value: unknown): Record<string, unknown> | null {
