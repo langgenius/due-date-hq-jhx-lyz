@@ -39,7 +39,7 @@ signal 的 `officialSourceUrl` 必须指向具体公告、bulletin、declaration
 当前 adapters 覆盖：
 
 - IRS disaster/newsroom/guidance。
-- TX Comptroller RSS。
+- TX Comptroller 官方 News Releases HTML 列表链接（source id 暂保留 `tx.cpa.rss` 以兼容已有状态）。
 - CA FTB newsroom/tax news/CDTFA。
 - NY DTF press。
 - FL DOR tips。

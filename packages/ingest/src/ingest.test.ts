@@ -67,29 +67,23 @@ describe('@duedatehq/ingest', () => {
     )
   })
 
-  it('discovers the TX Comptroller GovDelivery feed from the official RSS directory', async () => {
+  it('parses tax-relevant TX Comptroller news releases from the official HTML page', async () => {
     const fetchedUrls: string[] = []
     const ctx: IngestCtx = {
       async fetch(input) {
         const url = String(input)
         fetchedUrls.push(url)
         if (url.endsWith('/robots.txt')) return new Response('', { status: 404 })
-        if (url === 'https://comptroller.texas.gov/about/media-center/rss/') {
+        if (url === 'https://comptroller.texas.gov/about/media-center/news/') {
           return new Response(
-            '<a href="https://public.govdelivery.com/accounts/TXCOMPT/subscriber/new?topic_id=TXCOMPT_70">Texas Comptroller News in English</a>',
+            '<nav><a href="/taxes/sales/">Sales Tax</a><a href="/taxes/franchise/">Franchise Tax</a></nav><main><a href="/about/media-center/news/20260408-texas-businesses-april-15-is-deadline-for-filing-property-tax-renditions-1775577720312">Texas businesses: April 15 is deadline for filing property tax renditions</a></main>',
             { headers: { 'content-type': 'text/html' } },
-          )
-        }
-        if (url === 'https://public.govdelivery.com/topics/TXCOMPT_70/feed.rss') {
-          return new Response(
-            '<rss><channel><item><title>Texas tax deadline extension</title><link>https://content.govdelivery.com/accounts/TXCOMPT/bulletins/abc123</link><pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate><description>Deadline relief.</description></item></channel></rss>',
-            { headers: { 'content-type': 'application/rss+xml' } },
           )
         }
         throw new Error(`unexpected fetch ${url}`)
       },
       async getSourceState() {
-        return null
+        return { etag: '"stale-etag"', lastModified: 'Wed, 15 Apr 2026 00:00:00 GMT' }
       },
       async archiveRaw({ sourceId, externalId, fetchedAt, body }) {
         return {
@@ -102,18 +96,23 @@ describe('@duedatehq/ingest', () => {
     const snapshots = await txComptrollerRssAdapter.fetch(ctx)
     const items = await txComptrollerRssAdapter.parse(snapshots[0]!, ctx)
 
-    expect(fetchedUrls).toContain('https://comptroller.texas.gov/about/media-center/rss/')
-    expect(fetchedUrls).not.toContain(
-      'https://public.govdelivery.com/accounts/TXCOMPT/subscriber/new?topic_id=TXCOMPT_70',
-    )
+    expect(fetchedUrls).toContain('https://comptroller.texas.gov/about/media-center/news/')
+    expect(fetchedUrls).toEqual([
+      'https://comptroller.texas.gov/robots.txt',
+      'https://comptroller.texas.gov/about/media-center/news/',
+    ])
+    expect(fetchedUrls).not.toContain('https://public.govdelivery.com/topics/TXCOMPT_1/feed.rss')
+    expect(fetchedUrls).not.toContain('https://comptroller.texas.gov/taxes/sales/')
+    expect(fetchedUrls).not.toContain('https://comptroller.texas.gov/taxes/franchise/')
     expect(snapshots[0]).toMatchObject({
       sourceId: 'tx.cpa.rss',
-      contentType: 'application/rss+xml',
+      contentType: 'text/html',
     })
     expect(items[0]).toMatchObject({
       sourceId: 'tx.cpa.rss',
-      title: 'Texas tax deadline extension',
-      officialSourceUrl: 'https://content.govdelivery.com/accounts/TXCOMPT/bulletins/abc123',
+      title: 'Texas businesses: April 15 is deadline for filing property tax renditions',
+      officialSourceUrl:
+        'https://comptroller.texas.gov/about/media-center/news/20260408-texas-businesses-april-15-is-deadline-for-filing-property-tax-renditions-1775577720312',
     })
   })
 

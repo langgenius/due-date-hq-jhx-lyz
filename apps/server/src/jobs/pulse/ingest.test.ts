@@ -4,7 +4,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SourceAdapter } from '@duedatehq/ingest/types'
 import type { Env } from '../../env'
-import { runPulseIngest } from './ingest'
+import { createPoliteFetch, runPulseIngest } from './ingest'
 
 const { dbMocks, repoMocks } = vi.hoisted(() => {
   const repo = {
@@ -131,5 +131,17 @@ describe('runPulseIngest', () => {
         error: expect.stringContaining('selector_drift'),
       }),
     )
+  })
+})
+
+describe('createPoliteFetch', () => {
+  it('does not spend the per-host crawl delay on robots.txt checks', async () => {
+    const fetchImpl = vi.fn(async () => new Response('ok'))
+    const politeFetch = createPoliteFetch(fetchImpl as unknown as typeof fetch)
+
+    await politeFetch('https://comptroller.texas.gov/robots.txt')
+    await politeFetch('https://comptroller.texas.gov/about/media-center/news/')
+
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
   })
 })

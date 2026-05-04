@@ -391,7 +391,7 @@ Smart Priority 必须保持纯函数。排序、badge、popover 和 Weekly Brief
 ### 8.1 Ingest（Cron Trigger）
 
 - 每 30 分钟运行 `jobs/pulse/ingest.ts`
-- 抓取源：IRS Disaster Relief、TX Comptroller RSS / GovDelivery、CA FTB Newsroom / Tax News、NY DTF Press archive 等
+- 抓取源：IRS Disaster Relief、TX Comptroller News Releases / GovDelivery email、CA FTB Newsroom / Tax News、NY DTF Press archive 等
 - 抓取 → hash 比对 → 新内容入库 snapshot → 投递 Queue
 
 ### 8.2 Extract（Queue Consumer）

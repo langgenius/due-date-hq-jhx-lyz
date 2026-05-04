@@ -40,7 +40,7 @@ const SOURCE_LABELS: Record<string, string> = {
   'ca.ftb.newsroom': 'CA FTB Newsroom',
   'ca.ftb.tax_news': 'CA FTB Tax News',
   'ca.cdtfa.news': 'CA CDTFA News',
-  'tx.cpa.rss': 'TX Comptroller RSS',
+  'tx.cpa.rss': 'TX Comptroller News',
   'fl.dor.tips': 'FL DOR Tax Tips',
   'wa.dor.news': 'WA DOR News',
   'wa.dor.whats_new': 'WA DOR What’s New',

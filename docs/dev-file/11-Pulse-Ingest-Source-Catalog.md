@@ -73,7 +73,7 @@
 | `ca.ftb.tax_news`  | CA    | `https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/index.html`    | HTML archive + email         | 60 min  | 中         | 低       |
 | `ca.cdtfa.news`    | CA    | `https://www.cdtfa.ca.gov/news/`                                   | HTML list/detail             | 120 min | 中         | 低       |
 | `ny.dtf.press`     | NY    | `https://www.tax.ny.gov/press/`                                    | HTML yearly archive + email  | 120 min | 中         | 低       |
-| `tx.cpa.rss`       | TX    | `https://comptroller.texas.gov/about/media-center/rss/`            | RSS / GovDelivery + detail   | 60 min  | 高         | 低       |
+| `tx.cpa.rss`       | TX    | `https://comptroller.texas.gov/about/media-center/news/`           | HTML list links              | 60 min  | 高         | 低       |
 | `fl.dor.tips`      | FL    | `https://floridarevenue.com/taxes/tips/Pages/default.aspx`         | HTML list/detail + email     | 120 min | 中         | 中       |
 | `wa.dor.news`      | WA    | `https://dor.wa.gov/about/news-releases`                           | HTML list/detail + subscribe | 120 min | 中         | 低       |
 | `wa.dor.whats_new` | WA    | `https://dor.wa.gov/about/whats-new`                               | HTML list/detail + subscribe | 120 min | 中         | 低       |
@@ -88,7 +88,11 @@
 - TX 无州所得税 → `irs.*` + `tx.cpa.rss`（Franchise / Sales）足够
 - CA 所得税（FTB）与销售税（CDTFA）是**两个独立源**，不可合并
 - 不再把 NY DTF 当作 RSS 金标；先按 press archive HTML + email 兜底实现，只有复核到官方 feed endpoint 后才启用 RSS adapter
-- TX Comptroller 官方 RSS / GovDelivery 当前更适合作为 `e2e 回归测试的金标 fixture`
+- TX Comptroller source id 暂保留 `tx.cpa.rss` 以兼容已有 `pulse_source_state`；实际抓取官方
+  News Releases HTML。官方 RSS 目录页列出的 GovDelivery topic feed 被
+  `public.govdelivery.com/robots.txt` 禁止 crawler 抓取，只能作为邮件订阅 / inbound email 信号。
+  TX adapter 在 retry 路径只抓列表页并保留详情 `officialSourceUrl`，避免同步 source health
+  refresh 串行拉详情页导致超时。
 
 ### 3.3 Disaster Signal（T2 预判层）
 
@@ -149,14 +153,14 @@ export const RATE_LIMIT = {
 
 ### 4.2 按源分级的反爬预案
 
-| 源类型                          | 风险                        | 预案                                                                                        |
-| ------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------- |
-| `irs.disaster` / `irs.newsroom` | 几乎不封，但偶发 WAF 503    | 403/503 时退避 15min；连续 3 次失败 → Sentry + 邮件 ops；灾害延期以 `irs.disaster` 为准     |
-| `ca.ftb.*` / `ca.cdtfa.news`    | 偶尔触发 Akamai Bot Manager | 加官方 `Referer`；失败降级到 `raw HTML fetch via Browserless (Phase 2)`                     |
-| `ny.dtf.press`                  | HTML archive 结构可能调整   | 不假设 RSS；HTML selector fallback + NY Email Services 兜底                                 |
-| `tx.cpa.rss`                    | RSS 稳定但内容需二次过滤    | RSS / GovDelivery first；detail HTML fallback；按 tax relevance filter 过滤                 |
-| `fl.dor.tips` / `wa.dor.*`      | 中风险，页面结构年度改版    | 每条 selector 必须附 **selector fallback chain**（见 §6.2），失败 → 官方邮件兜底 / 人工录入 |
-| `fema.*` / `weather.*`          | 官方 API，稳定              | 标准 REST + 指数退避                                                                        |
+| 源类型                          | 风险                                                     | 预案                                                                                                                                               |
+| ------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `irs.disaster` / `irs.newsroom` | 几乎不封，但偶发 WAF 503                                 | 403/503 时退避 15min；连续 3 次失败 → Sentry + 邮件 ops；灾害延期以 `irs.disaster` 为准                                                            |
+| `ca.ftb.*` / `ca.cdtfa.news`    | 偶尔触发 Akamai Bot Manager                              | 加官方 `Referer`；失败降级到 `raw HTML fetch via Browserless (Phase 2)`                                                                            |
+| `ny.dtf.press`                  | HTML archive 结构可能调整                                | 不假设 RSS；HTML selector fallback + NY Email Services 兜底                                                                                        |
+| `tx.cpa.rss`                    | 官方新闻页可抓；GovDelivery topic feed robots-disallowed | 抓 Comptroller 官方 News Releases HTML 列表链接；GovDelivery 仅用于人工订阅 / inbound email，不作为 crawler endpoint；按 tax relevance filter 过滤 |
+| `fl.dor.tips` / `wa.dor.*`      | 中风险，页面结构年度改版                                 | 每条 selector 必须附 **selector fallback chain**（见 §6.2），失败 → 官方邮件兜底 / 人工录入                                                        |
+| `fema.*` / `weather.*`          | 官方 API，稳定                                           | 标准 REST + 指数退避                                                                                                                               |
 
 ### 4.3 Cloudflare Worker 出口 IP 的风险
 
@@ -164,7 +168,7 @@ export const RATE_LIMIT = {
 
 **缓解：**
 
-- **Phase 0 Demo**：2 源（IRS Disaster + TX Comptroller RSS），直接从 Worker fetch
+- **Phase 0 Demo**：2 源（IRS Disaster + TX Comptroller News Releases），直接从 Worker fetch
 - **Phase 1 5 州**：引入 `fetch` proxy 层，失败时 fallback 到 **Cloudflare Workers 官方的 egress 池 (`undici` + `fetcher` binding)**
 - **Phase 2 扩 15 源**：若仍被挑战，引入 **Browserless.io / ScrapingBee** 作为最后一跳（成本 ~$50/月，只对触发 WAF 的源走）
 

@@ -16,7 +16,7 @@ export const sourceFixtureBodies = {
   'ny.dtf.press':
     '<article><h1>NY DTF clarifies pass-through entity tax election window</h1></article>',
   'tx.cpa.rss':
-    '<rss><channel><item><title>Texas tax deadline extension</title><link>https://comptroller.texas.gov/tax-relief</link><pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate><description>Deadline relief.</description></item></channel></rss>',
+    '<main><a href="/about/media-center/news/20260408-texas-businesses-april-15-is-deadline-for-filing-property-tax-renditions-1775577720312">Texas businesses: April 15 is deadline for filing property tax renditions</a></main>',
   'fl.dor.tips':
     '<main><a href="/taxes/tips/disaster-relief">Florida DOR tax tip disaster relief</a></main>',
   'wa.dor.news':

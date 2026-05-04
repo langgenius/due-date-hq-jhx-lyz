@@ -78,7 +78,7 @@ function nextCheckAt(from: Date, intervalMs: number): Date {
   return new Date(from.getTime() + intervalMs)
 }
 
-function createPoliteFetch(fetchImpl: typeof fetch): typeof fetch {
+export function createPoliteFetch(fetchImpl: typeof fetch): typeof fetch {
   const locks = new Map<string, Promise<void>>()
   const lastFetchAt = new Map<string, number>()
 
@@ -87,6 +87,15 @@ function createPoliteFetch(fetchImpl: typeof fetch): typeof fetch {
       input instanceof Request ? new URL(input.url) : input instanceof URL ? input : new URL(input)
     const host = url.host
     const previous = locks.get(host) ?? Promise.resolve()
+    if (url.pathname === '/robots.txt') {
+      locks.set(
+        host,
+        previous.catch(() => undefined).then(() => undefined),
+      )
+      await previous
+      return fetchImpl(input, init)
+    }
+
     const run = previous.then(async () => {
       const last = lastFetchAt.get(host) ?? 0
       const waitMs = Math.max(0, RATE_LIMIT.minIntervalMs - (Date.now() - last))
