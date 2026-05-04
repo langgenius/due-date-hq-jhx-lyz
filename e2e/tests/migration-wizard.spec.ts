@@ -53,10 +53,7 @@ test('AC: E2E-MIGRATION-IMPORT-UNDO imports from the wizard and reverts from toa
   await expect(migrationWizardPage.dialog).toBeVisible()
   await migrationWizardPage.presetButton('TaxDome').click()
   await migrationWizardPage.pasteRows(
-    [
-      'Client Name,EIN,State,Entity Type,Tax Types',
-      `${importedClient},12-3456789,CA,C Corp,federal_1120; ca_100_franchise`,
-    ].join('\n'),
+    ['Account Name\tState\tType', `${importedClient}\tCA\tLLC`].join('\n'),
   )
 
   await migrationWizardPage.continue()
@@ -104,8 +101,8 @@ test('AC: E2E-MIGRATION-EXPOSURE imports tax inputs into Dashboard and Evidence 
   await migrationWizardPage.presetButton('TaxDome').click()
   await migrationWizardPage.pasteRows(
     [
-      'Client Name,EIN,State,Entity Type,Estimated Tax Due,Owner Count',
-      `${importedClient},12-3456789,CA,C Corp,"$75,000",1`,
+      'Account Name\tState\tType\tEstimated Tax Due\tOwner Count',
+      `${importedClient}\tCA\tLLC\t75000\t1`,
     ].join('\n'),
   )
 
@@ -113,6 +110,8 @@ test('AC: E2E-MIGRATION-EXPOSURE imports tax inputs into Dashboard and Evidence 
   await expect(
     authenticatedPage.getByRole('heading', { name: 'AI mapped your columns — review and confirm' }),
   ).toBeVisible({ timeout: AI_STEP_TIMEOUT })
+  await migrationWizardPage.mapColumn('Estimated Tax Due', 'Estimated tax liability')
+  await migrationWizardPage.mapColumn('Owner Count', 'Owner count')
 
   await migrationWizardPage.continue()
   await expect(

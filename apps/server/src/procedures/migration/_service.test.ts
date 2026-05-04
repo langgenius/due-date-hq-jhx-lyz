@@ -554,6 +554,15 @@ function buildScopedRepo(firmId: string) {
     async listSourceStates() {
       return unexpectedRepoCall('pulse.listSourceStates')
     },
+    async listSourceSignals() {
+      return unexpectedRepoCall('pulse.listSourceSignals')
+    },
+    async getSourceSignal() {
+      return unexpectedRepoCall('pulse.getSourceSignal')
+    },
+    async reviewSourceSignalForRule() {
+      return unexpectedRepoCall('pulse.reviewSourceSignalForRule')
+    },
     async getDetail() {
       return unexpectedRepoCall('pulse.getDetail')
     },

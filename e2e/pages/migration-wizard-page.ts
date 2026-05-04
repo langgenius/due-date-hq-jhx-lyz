@@ -27,6 +27,12 @@ export class MigrationWizardPage {
     await this.page.getByRole('button', { name: 'Continue' }).click()
   }
 
+  async mapColumn(sourceHeader: string, targetLabel: string) {
+    const row = this.page.getByRole('row').filter({ hasText: sourceHeader })
+    await row.getByRole('button', { name: 'Edit' }).click()
+    await this.page.getByRole('menuitemradio', { name: targetLabel }).click()
+  }
+
   async importAndGenerate() {
     await this.page.getByRole('button', { name: 'Import & Generate' }).click()
   }

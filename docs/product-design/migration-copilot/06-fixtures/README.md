@@ -12,7 +12,7 @@
 
 | 文件                                                                                   | 行数（数据）       | 列数 | 覆盖场景                                                                                  | 期望 mapping 置信度均值 | 期望 EIN 识别率          | 故意坏行数 |
 | -------------------------------------------------------------------------------------- | ------------------ | ---- | ----------------------------------------------------------------------------------------- | ----------------------- | ------------------------ | ---------- |
-| [`./taxdome-30clients.csv`](./taxdome-30clients.csv)                                   | 30                 | 8    | TaxDome 导出 · 全字段干净 · CA+NY 8 实体型混合                                            | ≥ 95%                   | 100%                     | 0          |
+| [`./taxdome-30clients.csv`](./taxdome-30clients.csv)                                   | 30                 | 9    | TaxDome 导出 · 全字段干净 · CA+NY 8 实体型混合 · 含未来 deadline                          | ≥ 95%                   | 100%                     | 0          |
 | [`./drake-30clients.csv`](./drake-30clients.csv)                                       | 30                 | 7    | Drake 导出 · 全字段 · 含 2 坏行触发 needs_review / normalize                              | ≥ 95%                   | 100%                     | 2          |
 | [`./karbon-20clients.csv`](./karbon-20clients.csv)                                     | 20                 | 5    | Karbon 导出 · 缺 tax_types 列 → 走 Default Matrix                                         | ≥ 85%                   | 100%                     | 1          |
 | [`./quickbooks-20clients.csv`](./quickbooks-20clients.csv)                             | 20                 | 4    | QuickBooks 仅元数据 · state 全称需归一                                                    | ≥ 80%                   | 95%                      | 2          |
@@ -21,7 +21,7 @@
 | [`./taxdome-exposure-3clients.csv`](./taxdome-exposure-3clients.csv)                   | 3                  | 9    | TaxDome exposure 专用 · 含 Estimated Tax Due / Owner Count，验证 penalty preview 可计算   | ≥ 85% fallback          | 100%                     | 0          |
 | [`./integration-provider-json-samples.json`](./integration-provider-json-samples.json) | 8 provider records | JSON | JSON handoff 手工测试 · API/Zapier/转换后 report records                                  | N/A                     | 100%                     | 0          |
 
-**总 Preset fixture 行数 = 133** · **Agent demo 行数 = 52** · **Preset 列数合计 = 42**
+**总 Preset fixture 行数 = 133** · **Agent demo 行数 = 52** · **Preset 列数合计 = 43**
 
 #### `integration-provider-json-samples.json`
 
@@ -37,10 +37,11 @@
 
 #### `taxdome-30clients.csv`
 
-- 列：`Client Name, Tax ID, Entity Type, State, Tax Return Type, Assignee, Email, Notes`
+- 列：`Client Name, Tax ID, Entity Type, State, Tax Return Type, Assignee, Email, Deadline, Notes`
 - 30 行：10 LLC / 6 S-Corp / 4 Partnership / 4 C-Corp / 2 Sole Prop / 2 Trust / 2 Individual
 - 辖区：16 CA + 14 NY
 - EIN 段：`99-0000001` ~ `99-0000030`
+- Deadline：以 `2026-05-04` 为基准，10 条分布在未来一周内，10 条分布在未来一个月内，10 条分布在更远未来
 - 验证：Preset 自动识别 + AI Mapping 置信度均值 ≥ 95% + EIN 识别率 = 100%（双指标 T-S2-01，见 [`../10-conflict-resolutions.md#3-t-s2-01-双指标口径`](../10-conflict-resolutions.md#3-t-s2-01-双指标口径)）
 
 #### `taxdome-exposure-3clients.csv`

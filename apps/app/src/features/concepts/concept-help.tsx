@@ -52,6 +52,7 @@ type ConceptHelpProps = {
   className?: string
   side?: 'top' | 'right' | 'bottom' | 'left'
   align?: 'start' | 'center' | 'end'
+  triggerLabel?: string
 }
 
 type ConceptLabelProps = ConceptHelpProps & {
@@ -216,9 +217,11 @@ export function ConceptHelp({
   className,
   side = 'top',
   align = 'center',
+  triggerLabel,
 }: ConceptHelpProps) {
   const { t } = useLingui()
   const copy = useConceptCopy(concept)
+  const label = triggerLabel ?? copy.title
 
   return (
     <Popover>
@@ -229,7 +232,7 @@ export function ConceptHelp({
         render={
           <button
             type="button"
-            aria-label={t`Explain ${copy.title}`}
+            aria-label={t`Explain ${label}`}
             className={cn(
               'inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-text-tertiary outline-none transition-colors',
               'hover:bg-state-base-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
@@ -261,6 +264,10 @@ export function ConceptLabel({
   align,
 }: ConceptLabelProps) {
   const helpProps: ConceptHelpProps = { concept }
+
+  if (typeof children === 'string') {
+    helpProps.triggerLabel = children
+  }
 
   if (side !== undefined) {
     helpProps.side = side

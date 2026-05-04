@@ -256,6 +256,15 @@ function buildScopedRepo(input: {
       async listSourceStates() {
         return unused('pulse.listSourceStates')
       },
+      async listSourceSignals() {
+        return unused('pulse.listSourceSignals')
+      },
+      async getSourceSignal() {
+        return unused('pulse.getSourceSignal')
+      },
+      async reviewSourceSignalForRule() {
+        return unused('pulse.reviewSourceSignalForRule')
+      },
       async getDetail() {
         return unused('pulse.getDetail')
       },

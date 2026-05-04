@@ -45,3 +45,10 @@ Result: 13 passed, 3 failed, 1 skipped. The failures were existing route/test-da
 infotip change: `pulse.spec.ts` still expected the removed `Next deadlines` surface,
 `workboard.spec.ts` expected a seeded Dashboard row that was not present after current triage data,
 and `migration-wizard.spec.ts` timed out waiting for AI normalization.
+
+## Follow-up
+
+- `ConceptLabel` now uses string children as the popover trigger accessible label, so inline copy
+  like `Exposure` can remain distinct from the glossary title `Projected risk`.
+- Validation: `pnpm --filter @duedatehq/app exec vp test src/features/concepts/concept-help.test.tsx`;
+  `pnpm exec vp run ci`.

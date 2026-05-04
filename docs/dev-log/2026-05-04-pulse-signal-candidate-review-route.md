@@ -31,3 +31,9 @@ client deadlines.
 - `pnpm --filter @duedatehq/server test -- rule-source-adapters.test.ts pulse/index.test.ts`
 - `pnpm --filter @duedatehq/db test -- pulse`
 - `pnpm exec vp check packages/contracts/src/pulse.ts packages/contracts/src/rules.ts packages/contracts/src/index.ts packages/contracts/src/contracts.test.ts packages/ports/src/pulse.ts packages/db/src/schema/pulse.ts packages/db/src/repo/pulse.ts apps/server/src/procedures/pulse/index.ts apps/server/src/procedures/index.ts apps/server/src/procedures/rules/index.ts apps/server/src/jobs/pulse/rule-source-adapters.ts apps/server/src/jobs/pulse/rule-source-adapters.test.ts`
+
+## Follow-up
+
+- Updated server procedure test doubles to include `listSourceSignals`, `getSourceSignal`, and
+  `reviewSourceSignalForRule` after the `PulseRepo` source-signal contract expanded.
+- Validation: `pnpm exec vp check`; `pnpm exec vp run ci`.

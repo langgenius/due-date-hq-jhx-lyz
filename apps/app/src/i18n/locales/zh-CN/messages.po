@@ -2359,6 +2359,7 @@ msgid "Entity"
 msgstr "实体"
 
 #: src/features/rules/generation-preview-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "ENTITY"
 msgstr "实体"
 
@@ -2627,6 +2628,7 @@ msgstr "按来源筛选"
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "按时间范围、操作分类、操作、执行人或实体类型筛选。"
 
+#: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Filter jurisdictions"
 msgstr "筛选辖区"
@@ -2976,6 +2978,7 @@ msgstr "JSON 交接来源"
 msgid "JSON handoff still needs review"
 msgstr "JSON 交接仍需复核"
 
+#: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "JUR"
 msgstr "辖区"
@@ -2996,10 +2999,6 @@ msgstr "辖区已保存"
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION SUMMARY"
 msgstr "辖区汇总"
-
-#: src/features/rules/rule-library-tab.tsx
-msgid "Jurisdiction:"
-msgstr "辖区："
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Jurisdictions"
@@ -3526,6 +3525,7 @@ msgid "Newest practice-scoped audit events appear first."
 msgstr "最新的事务所范围审计事件会优先显示。"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/rules/rules-console-primitives.tsx
 msgid "Next"
 msgstr "下一页"
 
@@ -3546,6 +3546,7 @@ msgid "Next month"
 msgstr "下个月"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/rules/rules-console-primitives.tsx
 msgid "Next page"
 msgstr "下一页"
 
@@ -3715,6 +3716,7 @@ msgstr "没有可预览的未完成义务。"
 msgid "No open obligations match the workload window."
 msgstr "当前负载窗口内没有匹配的未完成义务。"
 
+#: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "No options"
 msgstr "没有选项"
@@ -4297,6 +4299,10 @@ msgstr "负责人已更新"
 msgid "Page {pageNumber}"
 msgstr "第 {pageNumber} 页"
 
+#: src/features/rules/rules-console-primitives.tsx
+msgid "Page {pageNumber} of {pageCount}"
+msgstr "第 {pageNumber} 页，共 {pageCount} 页"
+
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "未找到页面"
@@ -4509,6 +4515,7 @@ msgstr "请至少输入 2 个字符。"
 #: src/features/migration/Wizard.tsx
 #: src/features/notifications/notifications-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/accept-invite.tsx
 #: src/routes/clients.tsx
@@ -4682,6 +4689,7 @@ msgstr "仅预览 AI 辅助"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/rules/rules-console-primitives.tsx
 msgid "Previous"
 msgstr "上一页"
 
@@ -4690,6 +4698,7 @@ msgid "Previous month"
 msgstr "上个月"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/rules/rules-console-primitives.tsx
 msgid "Previous page"
 msgstr "上一页"
 
@@ -5817,27 +5826,13 @@ msgstr "Pro、Team 和 Enterprise 计划支持共享截止日运营。"
 msgid "Shareholder count"
 msgstr "股东数量"
 
-#. placeholder {0}: filteredRows.length
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Show all {0} →"
-msgstr "显示全部 {0} →"
-
-#. placeholder {0}: visibleRows.length
-#. placeholder {1}: filteredRows.length
-#: src/features/rules/rule-library-tab.tsx
-msgid "Showing {0} of {1} · click any row to open rule detail · candidate rows do not generate user reminders"
-msgstr "显示 {0} / {1} · 点击任意行打开规则详情 · 候选行不生成用户提醒"
-
-#. placeholder {0}: visibleRows.length
-#. placeholder {1}: filteredRows.length
-#: src/features/rules/sources-tab.tsx
-msgid "Showing {0} of {1} · click any row to open the official source ↗"
-msgstr "显示 {0} / {1} · 点击任意行打开官方来源 ↗"
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events"
 msgstr "显示 {firstItemNumber}-{lastItemNumber}，共加载 {loadedCount} 条事件"
+
+#: src/features/rules/rules-console-primitives.tsx
+msgid "Showing {firstItemNumber}-{lastItemNumber} of {totalCount}"
+msgstr "显示 {firstItemNumber}-{lastItemNumber}，共 {totalCount} 条"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "showing selected client entity groups; Other remains manual review"
@@ -5973,6 +5968,14 @@ msgstr "来源"
 msgid "Source"
 msgstr "来源"
 
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Source checked"
+msgstr "来源已检查"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Source checked, but still needs attention"
+msgstr "来源已检查，但仍需处理"
+
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Source excerpt"
 msgstr "原文摘录"
@@ -5996,6 +5999,10 @@ msgstr "来源需要处理 · {label}"
 #: src/routes/workboard.tsx
 msgid "Source or confirmation reference"
 msgstr "来源或确认引用"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Source recovered"
+msgstr "来源已恢复"
 
 #: src/features/pulse/components/PulseSourceStatusBadge.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -6087,6 +6094,10 @@ msgstr "覆盖州"
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Status"
+msgstr "状态"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "STATUS"
 msgstr "状态"
 
 #: src/routes/workboard.tsx
@@ -6512,6 +6523,10 @@ msgstr "这会从当前客户目录、仪表盘和截止日工作台中移除 {0
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Tier"
+msgstr "层级"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "TIER"
 msgstr "层级"
 
 #: src/features/audit/audit-log-table.tsx

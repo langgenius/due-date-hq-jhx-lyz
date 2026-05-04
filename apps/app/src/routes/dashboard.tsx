@@ -823,7 +823,7 @@ function DashboardNextCheck({ row, asOfDate }: { row: DashboardTopRow; asOfDate:
         : 'text-text-secondary'
 
   return (
-    <div className={cn('max-w-64 text-sm leading-5', tone)}>
+    <div className={cn('max-w-72 whitespace-normal text-sm leading-5', tone)}>
       {row.status === 'waiting_on_client' ? (
         <Trans>Follow up for client materials.</Trans>
       ) : row.evidenceCount === 0 ? (
@@ -1286,6 +1286,13 @@ function DashboardTriageTable({
                 <TableHead
                   key={header.id}
                   colSpan={header.colSpan}
+                  className={
+                    header.column.id === 'nextCheck'
+                      ? 'w-72'
+                      : header.column.id === 'taxType'
+                        ? 'w-36'
+                        : undefined
+                  }
                   aria-sort={
                     header.column.getIsSorted() === 'asc'
                       ? 'ascending'
@@ -1336,9 +1343,11 @@ function DashboardTriageTable({
                     className={
                       cell.column.id === 'clientName'
                         ? 'font-medium'
-                        : cell.column.id === 'taxType'
-                          ? 'text-text-secondary'
-                          : undefined
+                        : cell.column.id === 'nextCheck'
+                          ? 'w-72 max-w-72 whitespace-normal'
+                          : cell.column.id === 'taxType'
+                            ? 'w-36 text-text-secondary'
+                            : undefined
                     }
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

@@ -2359,6 +2359,7 @@ msgid "Entity"
 msgstr "Entity"
 
 #: src/features/rules/generation-preview-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "ENTITY"
 msgstr "ENTITY"
 
@@ -2627,6 +2628,7 @@ msgstr "Filter by source"
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "Filter by time range, action category, action, actor, or entity type."
 
+#: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Filter jurisdictions"
 msgstr "Filter jurisdictions"
@@ -2976,6 +2978,7 @@ msgstr "JSON handoff source"
 msgid "JSON handoff still needs review"
 msgstr "JSON handoff still needs review"
 
+#: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "JUR"
 msgstr "JUR"
@@ -2996,10 +2999,6 @@ msgstr "Jurisdiction saved"
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION SUMMARY"
 msgstr "JURISDICTION SUMMARY"
-
-#: src/features/rules/rule-library-tab.tsx
-msgid "Jurisdiction:"
-msgstr "Jurisdiction:"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Jurisdictions"
@@ -3526,6 +3525,7 @@ msgid "Newest practice-scoped audit events appear first."
 msgstr "Newest practice-scoped audit events appear first."
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/rules/rules-console-primitives.tsx
 msgid "Next"
 msgstr "Next"
 
@@ -3546,6 +3546,7 @@ msgid "Next month"
 msgstr "Next month"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/rules/rules-console-primitives.tsx
 msgid "Next page"
 msgstr "Next page"
 
@@ -3715,6 +3716,7 @@ msgstr "No open obligations available for preview."
 msgid "No open obligations match the workload window."
 msgstr "No open obligations match the workload window."
 
+#: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "No options"
 msgstr "No options"
@@ -4297,6 +4299,10 @@ msgstr "Owners updated"
 msgid "Page {pageNumber}"
 msgstr "Page {pageNumber}"
 
+#: src/features/rules/rules-console-primitives.tsx
+msgid "Page {pageNumber} of {pageCount}"
+msgstr "Page {pageNumber} of {pageCount}"
+
 #: src/routes/error.tsx
 msgid "Page not found"
 msgstr "Page not found"
@@ -4509,6 +4515,7 @@ msgstr "Please enter at least 2 characters."
 #: src/features/migration/Wizard.tsx
 #: src/features/notifications/notifications-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/accept-invite.tsx
 #: src/routes/clients.tsx
@@ -4682,6 +4689,7 @@ msgstr "Preview-only AI assistance"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/rules/rules-console-primitives.tsx
 msgid "Previous"
 msgstr "Previous"
 
@@ -4690,6 +4698,7 @@ msgid "Previous month"
 msgstr "Previous month"
 
 #: src/features/audit/audit-log-page.tsx
+#: src/features/rules/rules-console-primitives.tsx
 msgid "Previous page"
 msgstr "Previous page"
 
@@ -5817,27 +5826,13 @@ msgstr "Shared deadline operations for Pro, Team, and Enterprise plans."
 msgid "Shareholder count"
 msgstr "Shareholder count"
 
-#. placeholder {0}: filteredRows.length
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Show all {0} →"
-msgstr "Show all {0} →"
-
-#. placeholder {0}: visibleRows.length
-#. placeholder {1}: filteredRows.length
-#: src/features/rules/rule-library-tab.tsx
-msgid "Showing {0} of {1} · click any row to open rule detail · candidate rows do not generate user reminders"
-msgstr "Showing {0} of {1} · click any row to open rule detail · candidate rows do not generate user reminders"
-
-#. placeholder {0}: visibleRows.length
-#. placeholder {1}: filteredRows.length
-#: src/features/rules/sources-tab.tsx
-msgid "Showing {0} of {1} · click any row to open the official source ↗"
-msgstr "Showing {0} of {1} · click any row to open the official source ↗"
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events"
 msgstr "Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events"
+
+#: src/features/rules/rules-console-primitives.tsx
+msgid "Showing {firstItemNumber}-{lastItemNumber} of {totalCount}"
+msgstr "Showing {firstItemNumber}-{lastItemNumber} of {totalCount}"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "showing selected client entity groups; Other remains manual review"
@@ -5973,6 +5968,14 @@ msgstr "source"
 msgid "Source"
 msgstr "Source"
 
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Source checked"
+msgstr "Source checked"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Source checked, but still needs attention"
+msgstr "Source checked, but still needs attention"
+
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Source excerpt"
 msgstr "Source excerpt"
@@ -5996,6 +5999,10 @@ msgstr "Source needs attention · {label}"
 #: src/routes/workboard.tsx
 msgid "Source or confirmation reference"
 msgstr "Source or confirmation reference"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
+msgid "Source recovered"
+msgstr "Source recovered"
 
 #: src/features/pulse/components/PulseSourceStatusBadge.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -6088,6 +6095,10 @@ msgstr "States covered"
 #: src/routes/workboard.tsx
 msgid "Status"
 msgstr "Status"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "STATUS"
+msgstr "STATUS"
 
 #: src/routes/workboard.tsx
 msgid "Status changes write an audit row in the same call so the trail stays trustworthy."
@@ -6513,6 +6524,10 @@ msgstr "This will remove {0} from the active client directory, dashboard, and ob
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Tier"
 msgstr "Tier"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "TIER"
+msgstr "TIER"
 
 #: src/features/audit/audit-log-table.tsx
 msgid "Time"

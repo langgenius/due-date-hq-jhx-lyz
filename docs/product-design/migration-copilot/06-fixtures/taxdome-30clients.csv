@@ -1,31 +1,31 @@
-Client Name,Tax ID,Entity Type,State,Tax Return Type,Assignee,Email,Notes
-Marin Harbor Analytics LLC (TEST),99-0000001,LLC,CA,Form 1065 + CA LLC,Jordan Park,test+1@example.com,Extension accepted
-Redwood Field Services LLC (TEST),99-0000002,LLC,CA,Form 1065 + CA LLC,Jordan Park,test+2@example.com,Awaiting K-1 packet
-Silvergate Design Studio LLC (TEST),99-0000003,LLC,CA,Form 1065 + CA LLC,Riley Chen,test+3@example.com,Multi-member LLC
-Hillcrest Bakery Group LLC (TEST),99-0000004,LLC,CA,Form 1065 + CA LLC,Riley Chen,test+4@example.com,Cash-basis books
-Juniper Coffee Roasters LLC (TEST),99-0000005,LLC,CA,Form 1065 + CA LLC,Morgan Lee,test+5@example.com,Payroll tie-out pending
-Pacific Home Repair LLC (TEST),99-0000006,LLC,CA,Form 1065 + CA LLC,Morgan Lee,test+6@example.com,Extension estimate paid
-Oakline Advisory Inc (TEST),99-0000007,S-Corp,CA,Form 1120-S,Taylor Kim,test+7@example.com,Shareholder wages review
-Framehouse Films Inc (TEST),99-0000008,S-Corp,CA,Form 1120-S,Taylor Kim,test+8@example.com,Cost basis schedule pending
-Relay Grid Systems Inc (TEST),99-0000009,S-Corp,CA,Form 1120-S,Jordan Park,test+9@example.com,Ready for partner review
-Granite Ridge Partners (TEST),99-0000010,Partnership,CA,Form 1065,Parker Vu,test+10@example.com,Partner capital rollforward
-Meridian Bay Advisors (TEST),99-0000011,Partnership,CA,Form 1065,Parker Vu,test+11@example.com,Foreign disclosure check
-Ember Street Retail Inc (TEST),99-0000012,C-Corp,CA,Form 1120,Sam Rivera,test+12@example.com,Inventory reserve review
-Orbit Works Robotics Inc (TEST),99-0000013,C-Corp,CA,Form 1120,Sam Rivera,test+13@example.com,R&D credit workbook
-Riley Chen Studio (TEST),99-0000014,Sole Prop,CA,Schedule C,Morgan Lee,test+14@example.com,1099 cleanup in progress
-Lee Family Education Trust (TEST),99-0000015,Trust,CA,Form 1041,Taylor Kim,test+15@example.com,Beneficiary address update
-Taylor Nguyen Household (TEST),99-0000016,Individual,CA,Form 1040,Jordan Park,test+16@example.com,Extension filed
-Hudson Market Holdings LLC (TEST),99-0000017,LLC,NY,Form 1065,Parker Vu,test+17@example.com,Rental activity schedules
-Brookline Freight LLC (TEST),99-0000018,LLC,NY,Form 1065,Parker Vu,test+18@example.com,Asset additions pending
-Queens Auto Collective LLC (TEST),99-0000019,LLC,NY,Form 1065,Riley Chen,test+19@example.com,Sales tax tie-out noted
-Northpoint Media Lab LLC (TEST),99-0000020,LLC,NY,Form 1065,Riley Chen,test+20@example.com,Partner review scheduled
-Lumen House Studios Inc (TEST),99-0000021,S-Corp,NY,Form 1120-S,Taylor Kim,test+21@example.com,Owner health insurance review
-Willow Creek Services Inc (TEST),99-0000022,S-Corp,NY,Form 1120-S,Taylor Kim,test+22@example.com,Bank rec through March
-Vesta Breadworks Inc (TEST),99-0000023,S-Corp,NY,Form 1120-S,Morgan Lee,test+23@example.com,Meals classification cleanup
-Anchorline Consulting Group (TEST),99-0000024,Partnership,NY,Form 1065,Parker Vu,test+24@example.com,New partner admitted
-Ivy Dental Management PC (TEST),99-0000025,Partnership,NY,Form 1065,Parker Vu,test+25@example.com,Entity election memo attached
-Umbra Lighting Supply Inc (TEST),99-0000026,C-Corp,NY,Form 1120,Sam Rivera,test+26@example.com,Apportionment workbook ready
-Xenon Capital Strategies Inc (TEST),99-0000027,C-Corp,NY,Form 1120,Sam Rivera,test+27@example.com,Extension payment posted
-Jordan Smith Creative (TEST),99-0000028,Sole Prop,NY,Schedule C,Morgan Lee,test+28@example.com,Home office worksheet needed
-Parker Family Legacy Trust (TEST),99-0000029,Trust,NY,Form 1041,Taylor Kim,test+29@example.com,Distribution schedule pending
-Alex Kim Household (TEST),99-0000030,Individual,NY,Form 1040,Jordan Park,test+30@example.com,Waiting on brokerage 1099
+Client Name,Tax ID,Entity Type,State,Tax Return Type,Assignee,Email,Deadline,Notes
+Marin Harbor Analytics LLC (TEST),99-0000001,LLC,CA,Form 1065 + CA LLC,Jordan Park,test+1@example.com,2026-05-04,Extension accepted
+Redwood Field Services LLC (TEST),99-0000002,LLC,CA,Form 1065 + CA LLC,Jordan Park,test+2@example.com,2026-05-05,Awaiting K-1 packet
+Silvergate Design Studio LLC (TEST),99-0000003,LLC,CA,Form 1065 + CA LLC,Riley Chen,test+3@example.com,2026-05-06,Multi-member LLC
+Hillcrest Bakery Group LLC (TEST),99-0000004,LLC,CA,Form 1065 + CA LLC,Riley Chen,test+4@example.com,2026-05-07,Cash-basis books
+Juniper Coffee Roasters LLC (TEST),99-0000005,LLC,CA,Form 1065 + CA LLC,Morgan Lee,test+5@example.com,2026-05-08,Payroll tie-out pending
+Pacific Home Repair LLC (TEST),99-0000006,LLC,CA,Form 1065 + CA LLC,Morgan Lee,test+6@example.com,2026-05-09,Extension estimate paid
+Oakline Advisory Inc (TEST),99-0000007,S-Corp,CA,Form 1120-S,Taylor Kim,test+7@example.com,2026-05-10,Shareholder wages review
+Framehouse Films Inc (TEST),99-0000008,S-Corp,CA,Form 1120-S,Taylor Kim,test+8@example.com,2026-05-11,Cost basis schedule pending
+Relay Grid Systems Inc (TEST),99-0000009,S-Corp,CA,Form 1120-S,Jordan Park,test+9@example.com,2026-05-11,Ready for partner review
+Granite Ridge Partners (TEST),99-0000010,Partnership,CA,Form 1065,Parker Vu,test+10@example.com,2026-05-11,Partner capital rollforward
+Meridian Bay Advisors (TEST),99-0000011,Partnership,CA,Form 1065,Parker Vu,test+11@example.com,2026-05-13,Foreign disclosure check
+Ember Street Retail Inc (TEST),99-0000012,C-Corp,CA,Form 1120,Sam Rivera,test+12@example.com,2026-05-15,Inventory reserve review
+Orbit Works Robotics Inc (TEST),99-0000013,C-Corp,CA,Form 1120,Sam Rivera,test+13@example.com,2026-05-18,R&D credit workbook
+Riley Chen Studio (TEST),99-0000014,Sole Prop,CA,Schedule C,Morgan Lee,test+14@example.com,2026-05-20,1099 cleanup in progress
+Lee Family Education Trust (TEST),99-0000015,Trust,CA,Form 1041,Taylor Kim,test+15@example.com,2026-05-22,Beneficiary address update
+Taylor Nguyen Household (TEST),99-0000016,Individual,CA,Form 1040,Jordan Park,test+16@example.com,2026-05-25,Extension filed
+Hudson Market Holdings LLC (TEST),99-0000017,LLC,NY,Form 1065,Parker Vu,test+17@example.com,2026-05-27,Rental activity schedules
+Brookline Freight LLC (TEST),99-0000018,LLC,NY,Form 1065,Parker Vu,test+18@example.com,2026-05-29,Asset additions pending
+Queens Auto Collective LLC (TEST),99-0000019,LLC,NY,Form 1065,Riley Chen,test+19@example.com,2026-06-01,Sales tax tie-out noted
+Northpoint Media Lab LLC (TEST),99-0000020,LLC,NY,Form 1065,Riley Chen,test+20@example.com,2026-06-03,Partner review scheduled
+Lumen House Studios Inc (TEST),99-0000021,S-Corp,NY,Form 1120-S,Taylor Kim,test+21@example.com,2026-06-15,Owner health insurance review
+Willow Creek Services Inc (TEST),99-0000022,S-Corp,NY,Form 1120-S,Taylor Kim,test+22@example.com,2026-06-22,Bank rec through March
+Vesta Breadworks Inc (TEST),99-0000023,S-Corp,NY,Form 1120-S,Morgan Lee,test+23@example.com,2026-07-01,Meals classification cleanup
+Anchorline Consulting Group (TEST),99-0000024,Partnership,NY,Form 1065,Parker Vu,test+24@example.com,2026-07-15,New partner admitted
+Ivy Dental Management PC (TEST),99-0000025,Partnership,NY,Form 1065,Parker Vu,test+25@example.com,2026-08-03,Entity election memo attached
+Umbra Lighting Supply Inc (TEST),99-0000026,C-Corp,NY,Form 1120,Sam Rivera,test+26@example.com,2026-09-15,Apportionment workbook ready
+Xenon Capital Strategies Inc (TEST),99-0000027,C-Corp,NY,Form 1120,Sam Rivera,test+27@example.com,2026-10-15,Extension payment posted
+Jordan Smith Creative (TEST),99-0000028,Sole Prop,NY,Schedule C,Morgan Lee,test+28@example.com,2026-11-16,Home office worksheet needed
+Parker Family Legacy Trust (TEST),99-0000029,Trust,NY,Form 1041,Taylor Kim,test+29@example.com,2026-12-15,Distribution schedule pending
+Alex Kim Household (TEST),99-0000030,Individual,NY,Form 1040,Jordan Park,test+30@example.com,2027-01-15,Waiting on brokerage 1099
