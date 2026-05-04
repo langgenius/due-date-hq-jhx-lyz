@@ -5,11 +5,13 @@ import * as dashboardSchema from './schema/dashboard'
 import * as firmSchema from './schema/firm'
 import * as notificationSchema from './schema/notifications'
 import * as readinessSchema from './schema/readiness'
+import * as rulesSchema from './schema/rules'
 import * as workboardSchema from './schema/workboard'
 import { makeFirmsRepo } from './repo/firms'
 import { makeMembersRepo } from './repo/members'
 import { makePulseOpsRepo } from './repo/pulse'
 import { makeReadinessPortalRepo } from './repo/readiness'
+import { makeRulesRepo } from './repo/rules'
 import { makeCalendarFeedRepo, makeCalendarRepo } from './repo/calendar'
 
 export { createDb } from './client'
@@ -27,6 +29,7 @@ export { dashboardSchema }
 export { firmSchema }
 export { notificationSchema }
 export { readinessSchema }
+export { rulesSchema }
 export { workboardSchema }
 export { makeFirmsRepo }
 export { makeCalendarRepo }
@@ -34,6 +37,7 @@ export { makeCalendarFeedRepo }
 export { makeMembersRepo }
 export { makePulseOpsRepo }
 export { makeReadinessPortalRepo }
+export { makeRulesRepo }
 export type {
   Db,
   ScopedRepo,

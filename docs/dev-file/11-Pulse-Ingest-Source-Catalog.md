@@ -35,7 +35,7 @@
 
 **规则：** 只有 T1 可以直接进入 `pending_review → approved → banner`；T2/T3 仅能触发"去 T1 查验"的 worker 任务，自身不出现在 Evidence Chain。GovDelivery 属于官方投递渠道，但 Evidence 仍必须回链到 `.gov` canonical page；邮件正文只作为内部信号与快照。
 
-**当前实现状态（2026-04-30）：**
+**当前实现状态（2026-05-04）：**
 
 - `SourceAdapter.canCreatePulse !== false` 的源会写 `pulse_source_snapshot` 并投递
   `PULSE_QUEUE { type: 'pulse.extract', snapshotId }`，后续经 AI Extract 进入
@@ -44,8 +44,9 @@
   `signal_type='anticipated_pulse'`，不进入 Evidence Chain、不创建 firm alert。
 - FEMA 当前按 `canCreatePulse=false` 落地；它只能作为 IRS/州 T1 命中后的置信度辅助信号。
 - Rules registry 已登记 50 州 + DC 的官方 tax agency 与 UI/workforce agency source seed。
-  这些新增源默认是 `manual_review + degraded`，用于候选规则和 ops source catalog；只有接入
-  `packages/ingest` live adapter 并通过 fixture/health gate 后，才进入自动 Pulse ingest。
+  `apps/server/src/jobs/pulse/rule-source-adapters.ts` 会把带 `candidate_review` 的 rule
+  sources 接入 `pulse_source_state` / `pulse_source_signal`。这些 source signals 只供 ops
+  review，不自动创建客户 Pulse、不进入 user-facing Evidence Chain。
 
 ---
 

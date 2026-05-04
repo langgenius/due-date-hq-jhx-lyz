@@ -1,6 +1,8 @@
-import { useMemo } from 'react'
-import { Trans } from '@lingui/react/macro'
+import { useMemo, useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Trans, useLingui } from '@lingui/react/macro'
 import { TriangleAlertIcon } from 'lucide-react'
+import { toast } from 'sonner'
 
 import type {
   ObligationRule,
@@ -8,7 +10,15 @@ import type {
   RuleEvidenceAuthorityRole,
   RuleSource,
 } from '@duedatehq/contracts'
+import {
+  CoverageStatusSchema,
+  DueDateLogicSchema,
+  ExtensionPolicySchema,
+  RuleQualityChecklistSchema,
+  RuleTierSchema,
+} from '@duedatehq/contracts'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
+import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Sheet,
   SheetContent,
@@ -16,9 +26,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@duedatehq/ui/components/ui/sheet'
+import { Textarea } from '@duedatehq/ui/components/ui/textarea'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { ConceptLabel } from '@/features/concepts/concept-help'
+import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
 
 import {
   formatEnumLabel,
@@ -70,11 +83,307 @@ function RuleDetailContent({ rule }: { rule: ObligationRule }) {
           <DueDateLogicSection rule={rule} />
           <ExtensionSection rule={rule} />
           <ReviewReasonsSection rule={rule} />
+          <CandidateReviewSection key={rule.id} rule={rule} sourceLookup={sourceLookup} />
           <EvidenceSection rule={rule} sourceLookup={sourceLookup} />
           <VerificationSection rule={rule} />
         </div>
       </div>
     </>
+  )
+}
+
+function CandidateReviewSection({
+  rule,
+  sourceLookup,
+}: {
+  rule: ObligationRule
+  sourceLookup: ReadonlyMap<string, RuleSource>
+}) {
+  if (rule.status !== 'candidate') return null
+  return <CandidateReviewForm rule={rule} sourceLookup={sourceLookup} />
+}
+
+function parseJsonInput(value: string): { ok: true; value: unknown } | { ok: false } {
+  try {
+    return { ok: true, value: JSON.parse(value) }
+  } catch {
+    return { ok: false }
+  }
+}
+
+function CandidateReviewForm({
+  rule,
+  sourceLookup,
+}: {
+  rule: ObligationRule
+  sourceLookup: ReadonlyMap<string, RuleSource>
+}) {
+  const { t } = useLingui()
+  const queryClient = useQueryClient()
+  const primaryEvidence = rule.evidence[0]
+  const [sourceId, setSourceId] = useState(primaryEvidence?.sourceId ?? rule.sourceIds[0] ?? '')
+  const [sourceHeading, setSourceHeading] = useState(
+    primaryEvidence?.locator.heading ?? t`Official due date page`,
+  )
+  const [sourceExcerpt, setSourceExcerpt] = useState(primaryEvidence?.sourceExcerpt ?? '')
+  const [dueDateLogicJson, setDueDateLogicJson] = useState(
+    JSON.stringify(rule.dueDateLogic, null, 2),
+  )
+  const [extensionPolicyJson, setExtensionPolicyJson] = useState(
+    JSON.stringify(rule.extensionPolicy, null, 2),
+  )
+  const [ruleTier, setRuleTier] = useState<ObligationRule['ruleTier']>('basic')
+  const [coverageStatus, setCoverageStatus] = useState<ObligationRule['coverageStatus']>('full')
+  const [requiresReview, setRequiresReview] = useState(false)
+  const [reviewNote, setReviewNote] = useState('')
+  const [formError, setFormError] = useState<string | null>(null)
+
+  const invalidateRules = () => {
+    void queryClient.invalidateQueries({ queryKey: orpc.rules.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+  }
+
+  const verifyMutation = useMutation(
+    orpc.rules.verifyCandidate.mutationOptions({
+      onSuccess: () => {
+        invalidateRules()
+        toast.success(t`Candidate verified`)
+      },
+      onError: (error) => {
+        toast.error(t`Couldn't verify candidate`, {
+          description: rpcErrorMessage(error) ?? t`Please check the review fields.`,
+        })
+      },
+    }),
+  )
+  const rejectMutation = useMutation(
+    orpc.rules.rejectCandidate.mutationOptions({
+      onSuccess: () => {
+        invalidateRules()
+        toast.success(t`Candidate rejected`)
+      },
+      onError: (error) => {
+        toast.error(t`Couldn't reject candidate`, {
+          description: rpcErrorMessage(error) ?? t`Please add a review note.`,
+        })
+      },
+    }),
+  )
+
+  const sourceOptions = rule.sourceIds
+    .map((id) => sourceLookup.get(id))
+    .filter((source): source is RuleSource => source !== undefined)
+
+  const submitVerify = () => {
+    setFormError(null)
+    const dueDateLogicValue = parseJsonInput(dueDateLogicJson)
+    const extensionPolicyValue = parseJsonInput(extensionPolicyJson)
+    if (!dueDateLogicValue.ok) {
+      setFormError(t`Due date logic is invalid.`)
+      return
+    }
+    if (!extensionPolicyValue.ok) {
+      setFormError(t`Extension policy is invalid.`)
+      return
+    }
+    const dueDateLogic = DueDateLogicSchema.safeParse(dueDateLogicValue.value)
+    const extensionPolicy = ExtensionPolicySchema.safeParse(extensionPolicyValue.value)
+    const parsedRuleTier = RuleTierSchema.safeParse(ruleTier)
+    const parsedCoverageStatus = CoverageStatusSchema.safeParse(coverageStatus)
+    const quality = RuleQualityChecklistSchema.parse({
+      filingPaymentDistinguished: true,
+      extensionHandled: true,
+      calendarFiscalSpecified: true,
+      holidayRolloverHandled: true,
+      crossVerified: true,
+      exceptionChannel: true,
+    })
+    if (!dueDateLogic.success) {
+      setFormError(t`Due date logic is invalid.`)
+      return
+    }
+    if (!extensionPolicy.success) {
+      setFormError(t`Extension policy is invalid.`)
+      return
+    }
+    if (!parsedRuleTier.success || !parsedCoverageStatus.success) {
+      setFormError(t`Review status is invalid.`)
+      return
+    }
+
+    verifyMutation.mutate({
+      ruleId: rule.id,
+      sourceId,
+      sourceHeading,
+      sourceExcerpt,
+      dueDateLogic: dueDateLogic.data,
+      extensionPolicy: extensionPolicy.data,
+      ruleTier: parsedRuleTier.data,
+      coverageStatus: parsedCoverageStatus.data,
+      requiresApplicabilityReview: requiresReview,
+      quality,
+      nextReviewOn: `${new Date().getFullYear()}-11-15`,
+      ...(reviewNote.trim() ? { reviewNote: reviewNote.trim() } : {}),
+    })
+  }
+
+  const submitReject = () => {
+    const reason = reviewNote.trim()
+    rejectMutation.mutate({
+      ruleId: rule.id,
+      reason: reason || t`Rejected during rules review.`,
+    })
+  }
+
+  return (
+    <section className="flex flex-col gap-3 rounded-md border border-state-accent-active-alt bg-background-default px-3 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <SectionLabel>
+          <Trans>Ops review</Trans>
+        </SectionLabel>
+        <span className="text-xs text-status-review">
+          <Trans>Candidate</Trans>
+        </span>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+          <span>
+            <Trans>Official source</Trans>
+          </span>
+          <select
+            value={sourceId}
+            onChange={(event) => setSourceId(event.target.value)}
+            className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
+          >
+            {sourceOptions.map((source) => (
+              <option key={source.id} value={source.id}>
+                {source.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+          <span>
+            <Trans>Source heading</Trans>
+          </span>
+          <input
+            value={sourceHeading}
+            onChange={(event) => setSourceHeading(event.target.value)}
+            className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
+          />
+        </label>
+      </div>
+      <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+        <span>
+          <Trans>Official excerpt</Trans>
+        </span>
+        <Textarea
+          value={sourceExcerpt}
+          onChange={(event) => setSourceExcerpt(event.target.value)}
+          className="min-h-20 text-xs"
+        />
+      </label>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+          <span>
+            <Trans>Due date logic JSON</Trans>
+          </span>
+          <Textarea
+            value={dueDateLogicJson}
+            onChange={(event) => setDueDateLogicJson(event.target.value)}
+            className="min-h-32 font-mono text-[11px]"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+          <span>
+            <Trans>Extension policy JSON</Trans>
+          </span>
+          <Textarea
+            value={extensionPolicyJson}
+            onChange={(event) => setExtensionPolicyJson(event.target.value)}
+            className="min-h-32 font-mono text-[11px]"
+          />
+        </label>
+      </div>
+      <div className="grid gap-3 md:grid-cols-3">
+        <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+          <span>
+            <Trans>Tier</Trans>
+          </span>
+          <select
+            value={ruleTier}
+            onChange={(event) => {
+              const parsed = RuleTierSchema.safeParse(event.target.value)
+              if (parsed.success) setRuleTier(parsed.data)
+            }}
+            className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
+          >
+            <option value="basic">basic</option>
+            <option value="annual_rolling">annual_rolling</option>
+            <option value="applicability_review">applicability_review</option>
+            <option value="exception">exception</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+          <span>
+            <Trans>Coverage</Trans>
+          </span>
+          <select
+            value={coverageStatus}
+            onChange={(event) => {
+              const parsed = CoverageStatusSchema.safeParse(event.target.value)
+              if (parsed.success) setCoverageStatus(parsed.data)
+            }}
+            className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
+          >
+            <option value="full">full</option>
+            <option value="manual">manual</option>
+            <option value="skeleton">skeleton</option>
+          </select>
+        </label>
+        <label className="flex items-end gap-2 pb-1 text-xs text-text-secondary">
+          <input
+            type="checkbox"
+            checked={requiresReview}
+            onChange={(event) => setRequiresReview(event.target.checked)}
+            className="size-4"
+          />
+          <span>
+            <Trans>Requires applicability review</Trans>
+          </span>
+        </label>
+      </div>
+      <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+        <span>
+          <Trans>Review note</Trans>
+        </span>
+        <Textarea
+          value={reviewNote}
+          onChange={(event) => setReviewNote(event.target.value)}
+          className="min-h-16 text-xs"
+        />
+      </label>
+      {formError ? <p className="text-xs font-medium text-severity-high">{formError}</p> : null}
+      <div className="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={submitReject}
+          disabled={rejectMutation.isPending || verifyMutation.isPending}
+        >
+          <Trans>Reject</Trans>
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={submitVerify}
+          disabled={verifyMutation.isPending || rejectMutation.isPending}
+        >
+          <Trans>Verify candidate</Trans>
+        </Button>
+      </div>
+    </section>
   )
 }
 

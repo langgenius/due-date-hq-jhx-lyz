@@ -21,6 +21,7 @@
     "./priority": "./src/priority.ts",
     "./pulse": "./src/pulse.ts",
     "./readiness": "./src/readiness.ts",
+    "./rules": "./src/rules.ts",
     "./scoped": "./src/scoped.ts",
     "./shared": "./src/shared.ts",
     "./tenants": "./src/tenants.ts",

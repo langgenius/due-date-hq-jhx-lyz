@@ -7,8 +7,8 @@ import {
   type PulseSourceHealth,
   type PulseStatus,
 } from '@duedatehq/contracts'
-import { livePulseAdapters } from '@duedatehq/ingest/adapters'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
+import { liveRegulatorySourceAdapters } from '../../jobs/pulse/rule-source-adapters'
 import { requireTenant, type RpcContext } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
 import { requireProductionPulse } from '../_plan-gates'
@@ -226,7 +226,7 @@ const listSourceHealth = os.pulse.listSourceHealth.handler(async ({ context }) =
   const persisted = new Map(
     (await scoped.pulse.listSourceStates()).map((row) => [row.sourceId, row]),
   )
-  const sources: PulseSourceHealth[] = livePulseAdapters.map((adapter) => {
+  const sources: PulseSourceHealth[] = liveRegulatorySourceAdapters.map((adapter) => {
     const state = persisted.get(adapter.id)
     return {
       sourceId: adapter.id,

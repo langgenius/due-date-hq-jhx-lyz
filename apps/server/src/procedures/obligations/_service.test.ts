@@ -402,6 +402,21 @@ function buildScoped(firmId: string, rows: Row[]) {
         return unused('readiness.submitResponses')
       },
     },
+    rules: {
+      firmId,
+      async listDecisions() {
+        return []
+      },
+      async listVerified() {
+        return []
+      },
+      async getDecision() {
+        return null
+      },
+      async upsertDecision() {
+        return unused('rules.upsertDecision')
+      },
+    },
     migration,
     evidence,
     audit,

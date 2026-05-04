@@ -1,12 +1,12 @@
 import { createDb, makePulseOpsRepo } from '@duedatehq/db'
 import { createSourceFetcherRegistry } from '@duedatehq/ingest'
 import { hashText } from '@duedatehq/ingest/http'
-import { livePulseAdapters } from '@duedatehq/ingest/adapters'
 import { RATE_LIMIT } from '@duedatehq/ingest/http'
 import type { IngestCtx, SourceAdapter } from '@duedatehq/ingest/types'
 import type { Env } from '../../env'
 import { createBrowserlessFetch } from './browserless'
 import { emitSourceIdleAlerts, recordPulseMetric } from './metrics'
+import { liveRegulatorySourceAdapters } from './rule-source-adapters'
 
 export interface PulseExtractQueueMessage {
   type: 'pulse.extract'
@@ -243,7 +243,7 @@ export async function runPulseIngest(
     Env,
     'DB' | 'R2_PULSE' | 'PULSE_QUEUE' | 'PULSE_BROWSERLESS_URL' | 'PULSE_BROWSERLESS_TOKEN'
   >,
-  adapters: readonly SourceAdapter[] = livePulseAdapters,
+  adapters: readonly SourceAdapter[] = liveRegulatorySourceAdapters,
 ): Promise<{
   snapshots: number
   signals: number

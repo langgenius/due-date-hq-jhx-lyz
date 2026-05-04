@@ -3,10 +3,12 @@ import { inferTaxTypes, type EntityType } from '@duedatehq/core/default-matrix'
 import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
 import {
   findRuleById,
+  listObligationRules,
   listRuleSources,
   previewObligationsFromRules,
   STATE_RULE_JURISDICTIONS,
   type ObligationGenerationPreview,
+  type ObligationRule,
   type RuleGenerationState,
 } from '@duedatehq/core/rules'
 import { validateEin } from '@duedatehq/core/pii'
@@ -28,6 +30,7 @@ interface BuildCommitPlanInput {
   firmId: string
   userId: string
   payload: MappingJsonPayload
+  rules?: readonly ObligationRule[]
 }
 
 function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
@@ -52,6 +55,8 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
   const evidence: CommitEvidence[] = []
   const externalReferences: CommitExternalReference[] = []
   const sourceById = new Map(listRuleSources().map((source) => [source.id, source]))
+  const runtimeRules = input.rules ?? listObligationRules({ includeCandidates: true })
+  const ruleById = new Map(runtimeRules.map((rule) => [rule.id, rule]))
 
   const skippedRows = new Set<number>()
   const rowErrors = validateRows(
@@ -130,6 +135,7 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
         taxYearStart: '2026-01-01',
         taxYearEnd: '2025-12-31',
       },
+      rules: runtimeRules,
     })
 
     for (const preview of uniqueConcretePreviews(previews)) {
@@ -150,7 +156,8 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
         firmId,
         clientId,
         taxType: preview.taxType,
-        taxYear: findRuleById(preview.ruleId)?.taxYear ?? 2026,
+        taxYear:
+          ruleById.get(preview.ruleId)?.taxYear ?? findRuleById(preview.ruleId)?.taxYear ?? 2026,
         baseDueDate: dueDate,
         currentDueDate: dueDate,
         status,

@@ -11,9 +11,14 @@ import { parseTabular, type ParsedTabular, type TabularKind } from '@duedatehq/c
 import { normalizeEntityType, normalizeState } from '@duedatehq/core/normalize-dict'
 import { summarizePenaltyExposure } from '@duedatehq/core/penalty'
 import {
+  listObligationRules,
+  type ObligationRule as CoreObligationRule,
+} from '@duedatehq/core/rules'
+import {
   DryRunSummarySchema,
   MappingRowSchema,
   NormalizationRowSchema,
+  ObligationRuleSchema,
   type DryRunSummary,
   type MapperFallback,
   type MapperRunOutput,
@@ -45,6 +50,7 @@ import type {
   MappingJsonPayload,
   MatrixApplicationEntry,
 } from './_types'
+import { toCoreRule } from '../rules/runtime'
 
 /**
  * MigrationService — orchestrates Migration Copilot's 4-step import flow.
@@ -76,6 +82,22 @@ import type {
 const MAX_SAMPLE_ROWS = 5
 const TAX_TYPE_DICT_VERSION = 'dictionary-tax-types@v1'
 const TAX_TYPE_DICT_CONFIDENCE = 0.85
+
+async function runtimeRulesForFirm(scoped: ScopedRepo): Promise<readonly CoreObligationRule[]> {
+  const byId = new Map(
+    listObligationRules({ includeCandidates: true }).map((rule) => [rule.id, rule]),
+  )
+
+  for (const decision of await scoped.rules.listVerified()) {
+    const parsed = ObligationRuleSchema.safeParse(decision.ruleJson)
+    if (parsed.success) {
+      const rule: CoreObligationRule = toCoreRule(parsed.data)
+      byId.set(rule.id, rule)
+    }
+  }
+
+  return [...byId.values()]
+}
 
 const MapperOutputSchema = z.object({
   mappings: z.array(
@@ -766,12 +788,14 @@ export class MigrationService {
     }
 
     const payload = (batch.mappingJson ?? {}) as MappingJsonPayload
+    const rules = await runtimeRulesForFirm(this.deps.scoped)
     const plan = await this.filterExistingExternalClients(
       buildCommitPlan({
         batchId,
         firmId: this.deps.scoped.firmId,
         userId: this.deps.userId,
         payload,
+        rules,
       }),
     )
 

@@ -287,6 +287,21 @@ function buildScopedRepo(input: {
         return unused('readiness.submitResponses')
       },
     },
+    rules: {
+      firmId: FIRM_ID,
+      async listDecisions() {
+        return []
+      },
+      async listVerified() {
+        return []
+      },
+      async getDecision() {
+        return null
+      },
+      async upsertDecision() {
+        return unused('rules.upsertDecision')
+      },
+    },
     migration: {
       firmId: FIRM_ID,
       async createBatch() {

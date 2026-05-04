@@ -1094,9 +1094,17 @@ msgstr "Candidate"
 msgid "Candidate · never generates user reminders."
 msgstr "Candidate · never generates user reminders."
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Candidate rejected"
+msgstr "Candidate rejected"
+
 #: src/features/concepts/concept-help.tsx
 msgid "Candidate rule"
 msgstr "Candidate rule"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Candidate verified"
+msgstr "Candidate verified"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Candidates"
@@ -1721,6 +1729,10 @@ msgstr "Couldn't queue risk summary"
 msgid "Couldn't reactivate alert"
 msgstr "Couldn't reactivate alert"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Couldn't reject candidate"
+msgstr "Couldn't reject candidate"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't request review"
 msgstr "Couldn't request review"
@@ -1799,6 +1811,10 @@ msgstr "Couldn't update status"
 msgid "Couldn't update view"
 msgstr "Couldn't update view"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Couldn't verify candidate"
+msgstr "Couldn't verify candidate"
+
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Counties"
 msgstr "Counties"
@@ -1815,6 +1831,7 @@ msgid "County must be 120 characters or fewer"
 msgstr "County must be 120 characters or fewer"
 
 #: src/features/concepts/concept-help.tsx
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "Coverage"
@@ -2180,6 +2197,14 @@ msgstr "Due date changed"
 msgid "Due date logic"
 msgstr "Due date logic"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Due date logic is invalid."
+msgstr "Due date logic is invalid."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Due date logic JSON"
+msgstr "Due date logic JSON"
+
 #: src/routes/dashboard.tsx
 msgid "due now"
 msgstr "due now"
@@ -2467,6 +2492,14 @@ msgstr "Extension decision saved"
 #: src/routes/workboard.tsx
 msgid "Extension memo"
 msgstr "Extension memo"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Extension policy is invalid."
+msgstr "Extension policy is invalid."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Extension policy JSON"
+msgstr "Extension policy JSON"
 
 #: src/routes/workboard.tsx
 msgid "Extension source"
@@ -3859,6 +3892,18 @@ msgstr "official channels under monitor"
 msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
 msgstr "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Official due date page"
+msgstr "Official due date page"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Official excerpt"
+msgstr "Official excerpt"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Official source"
+msgstr "Official source"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "Official sources · candidate rules"
 msgstr "Official sources · candidate rules"
@@ -4062,6 +4107,10 @@ msgstr "Operations"
 #: src/routes/dashboard.tsx
 msgid "Operations command"
 msgstr "Operations command"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Ops review"
+msgstr "Ops review"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Ops token"
@@ -4332,6 +4381,14 @@ msgstr "Plan options"
 #: src/routes/billing.checkout.tsx
 msgid "Plan summary"
 msgstr "Plan summary"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Please add a review note."
+msgstr "Please add a review note."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Please check the review fields."
+msgstr "Please check the review fields."
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
@@ -4914,6 +4971,7 @@ msgid "Regulatory Pulse signals that match your practice's clients. Review, batc
 msgstr "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
 
 #: src/features/pulse/OpsPulsePage.tsx
+#: src/features/rules/rule-detail-drawer.tsx
 msgid "Reject"
 msgstr "Reject"
 
@@ -4924,6 +4982,10 @@ msgstr "Reject extension decision"
 #: src/features/audit/audit-log-labels.ts
 msgid "Rejected"
 msgstr "Rejected"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Rejected during rules review."
+msgstr "Rejected during rules review."
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "reminder ready"
@@ -4989,6 +5051,10 @@ msgstr "Required for rules and Pulse matching."
 #: src/features/permissions/permission-gate.tsx
 msgid "Required: {requiredRoleText}"
 msgstr "Required: {requiredRoleText}"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Requires applicability review"
+msgstr "Requires applicability review"
 
 #: src/features/concepts/concept-help.tsx
 msgid "Requires review"
@@ -5103,6 +5169,10 @@ msgstr "Review"
 msgid "review — needs CPA confirmation"
 msgstr "review — needs CPA confirmation"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Review note"
+msgstr "Review note"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Review pending Pulse extracts, inspect source health, reconcile signals, and retry failed snapshots. This page uses the token-protected ops API."
 msgstr "Review pending Pulse extracts, inspect source health, reconcile signals, and retry failed snapshots. This page uses the token-protected ops API."
@@ -5142,6 +5212,10 @@ msgstr "Review source coverage, rule inventory, and obligation preview."
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source-backed Pulse alerts."
 msgstr "Review source-backed Pulse alerts."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Review status is invalid."
+msgstr "Review status is invalid."
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review team capacity and risk pressure."
@@ -5834,6 +5908,10 @@ msgstr "Source excerpt"
 msgid "Source excerpt copied"
 msgstr "Source excerpt copied"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Source heading"
+msgstr "Source heading"
+
 #: src/routes/dashboard.tsx
 msgid "source linked"
 msgstr "source linked"
@@ -6307,6 +6385,10 @@ msgstr "This week"
 msgid "This Week"
 msgstr "This Week"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Tier"
+msgstr "Tier"
+
 #: src/features/audit/audit-log-table.tsx
 msgid "Time"
 msgstr "Time"
@@ -6588,6 +6670,10 @@ msgstr "Verify"
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Verify and enable"
 msgstr "Verify and enable"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Verify candidate"
+msgstr "Verify candidate"
 
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Verify code"

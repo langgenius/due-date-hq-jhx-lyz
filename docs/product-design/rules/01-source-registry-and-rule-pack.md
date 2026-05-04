@@ -34,7 +34,7 @@ MVP 的风险边界是：**AI 可以加速抽取，不能替代核验；candidat
 | `WA`                     | 4       | 3              | 0          | combined excise monthly / quarterly / annual；WA DOR sources are manual-review degraded         |
 | 50 州 + `DC` source seed | 102     | 0              | 408        | 每辖区登记官方 tax agency + UI/workforce agency；8 个主税种 domain 先进入 review-only candidate |
 
-代码里的 verified subset 仍只对已人工核验的规则生成 reminder-ready obligation。新增 50 州 + DC 规则先以 `candidate` + `source_defined_calendar` 落地：它们能出现在 Rules Console、Migration review 和 evidence trail 中，但不会自动生成用户提醒，直到 ops 逐条核验并发布为 verified rule。
+代码里的 verified subset 仍只对已人工核验的规则生成 reminder-ready obligation。新增 50 州 + DC 规则先以 `candidate` + `source_defined_calendar` 落地：它们能出现在 Rules Console、Migration review 和 evidence trail 中，但不会自动生成用户提醒。Ops 可在 Rule detail 的 review 面板中基于官方 source excerpt、due-date logic、extension policy 和 coverage status 发布 firm-scoped verified decision。
 
 当前代码 registry 合计 133 个官方 source。Federal source 已从单一 Pub 509 + 7004
 扩展为 Pub 509、Form 1065 instructions、Form 1120-S instructions、Form 1120
@@ -418,8 +418,8 @@ type ObligationGenerationPreview = {
 2. Parser 提取表格、标题、日期、原文段落。
 3. AI 可把长文转成 candidate payload，但输出必须带 locator 与 source excerpt。
 4. Ops 在 Rules Console 审核 candidate。
-5. Verified 后发布 `ObligationRule(version)`。
-6. Rule pack 发布后触发 obligation generation preview。
+5. Verified 后写入 `rule_review_decision`，runtime 将该 decision merge 回 Rules API 与 preview。
+6. 发布后的 verified decision 触发 obligation generation preview；Migration apply 同样消费 firm-scoped verified rules。
 
 ### 5.2 Exception 采集
 
@@ -436,7 +436,7 @@ watch_changed
   -> candidate_created
   -> pending_review
   -> verified
-  -> published
+  -> published_decision
   -> consumed_by_obligations
 ```
 
@@ -463,7 +463,7 @@ MVP 的用户提醒只消费 `obligation_instance`，不直接消费 `RuleCandid
 
 ## 7. 验收标准
 
-- Source Registry 当前代码覆盖 Federal 7 源、CA 5 源、NY 6 源、TX 6 源、FL 3 源、WA 4 源；扩到完整 registry 前不能把未登记来源显示为 covered。
+- Source Registry 当前代码覆盖 Federal + 50 州 + DC；新增州源先进入 source signal / candidate review，不能直接显示为 reminder-ready verified coverage。
 - 初始 Rule Pack 至少包含本文件 §3 的 rule IDs。
 - 每条 verified rule 至少有 1 个 primary official source；高风险/extension/payment rule 需要 2 个 source 或明确 cross-check note。
 - 每条 rule 都有 `dueDateLogic`、`eventType`、`ruleTier`、`qualityChecklist`。
@@ -473,9 +473,10 @@ MVP 的用户提醒只消费 `obligation_instance`，不直接消费 `RuleCandid
 
 ## 8. 变更记录
 
-| 版本 | 日期       | 作者  | 摘要                                                             |
-| ---- | ---------- | ----- | ---------------------------------------------------------------- |
-| v0.5 | 2026-04-27 | Codex | Source health checker 移出 core，改为 repo-level ops script。    |
-| v0.4 | 2026-04-27 | Codex | 新增 rule-to-obligation preview contract 与 reminderReady 边界。 |
-| v0.3 | 2026-04-27 | Codex | 官方来源复核后同步 source health、规则状态与 DueDateLogic DSL。  |
-| v0.1 | 2026-04-27 | Codex | 新增 MVP source registry、初始 rule pack、结构化模型和通知边界。 |
+| 版本 | 日期       | 作者  | 摘要                                                                   |
+| ---- | ---------- | ----- | ---------------------------------------------------------------------- |
+| v0.6 | 2026-05-04 | Codex | 扩展 50 州 + DC source-backed candidates，并补 rules verify workflow。 |
+| v0.5 | 2026-04-27 | Codex | Source health checker 移出 core，改为 repo-level ops script。          |
+| v0.4 | 2026-04-27 | Codex | 新增 rule-to-obligation preview contract 与 reminderReady 边界。       |
+| v0.3 | 2026-04-27 | Codex | 官方来源复核后同步 source health、规则状态与 DueDateLogic DSL。        |
+| v0.1 | 2026-04-27 | Codex | 新增 MVP source registry、初始 rule pack、结构化模型和通知边界。       |

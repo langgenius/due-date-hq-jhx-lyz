@@ -11,6 +11,7 @@ import * as obligationsSchema from './schema/obligations'
 import * as overlaySchema from './schema/overlay'
 import * as pulseSchema from './schema/pulse'
 import * as readinessSchema from './schema/readiness'
+import * as rulesSchema from './schema/rules'
 import * as workboardSchema from './schema/workboard'
 
 const schema = {
@@ -26,6 +27,7 @@ const schema = {
   ...overlaySchema,
   ...pulseSchema,
   ...readinessSchema,
+  ...rulesSchema,
   ...workboardSchema,
 }
 

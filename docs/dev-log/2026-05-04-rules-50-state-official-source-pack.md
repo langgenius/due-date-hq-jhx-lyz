@@ -29,7 +29,6 @@ Rules 之前只把 `FED/CA/NY/TX/FL/WA` 暴露给 contract、Rules Console 和 r
 - `pnpm --filter @duedatehq/server test -- migration`
 - `pnpm --filter @duedatehq/app test -- rules-console-model`
 
-## 后续 / 未闭环
+## 后续闭环
 
-- 为高优先州逐步补 source-specific ingest adapter 和 fixture。
-- 将 candidate rule 按 ops review 批次提升为 verified，并补充具体 due-date locator、source excerpt 和 extension policy。
+- 后续变更在同日 `Rules candidate verify workflow` dev log 继续记录：官方 source snapshot/diff 和 candidate verify/reject 写路径已补上。

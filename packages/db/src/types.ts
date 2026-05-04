@@ -14,6 +14,7 @@ export type { NotificationsRepo } from '@duedatehq/ports/notifications'
 export type { ObligationsRepo } from '@duedatehq/ports/obligations'
 export type { PulseRepo } from '@duedatehq/ports/pulse'
 export type { ReadinessRepo } from '@duedatehq/ports/readiness'
+export type { RulesRepo } from '@duedatehq/ports/rules'
 export type { ScopedRepo } from '@duedatehq/ports/scoped'
 export type {
   FirmMembershipRow,

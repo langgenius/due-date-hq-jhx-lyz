@@ -663,6 +663,21 @@ function buildScopedRepo(firmId: string) {
         return unexpectedRepoCall('readiness.submitResponses')
       },
     },
+    rules: {
+      firmId,
+      async listDecisions() {
+        return []
+      },
+      async listVerified() {
+        return []
+      },
+      async getDecision() {
+        return null
+      },
+      async upsertDecision() {
+        return unexpectedRepoCall('rules.upsertDecision')
+      },
+    },
     migration,
     evidence,
     audit,

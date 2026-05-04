@@ -312,6 +312,54 @@ export const ObligationGenerationPreviewSchema = z.object({
 })
 export type ObligationGenerationPreview = z.infer<typeof ObligationGenerationPreviewSchema>
 
+export const RuleReviewDecisionStatusSchema = z.enum(['verified', 'rejected'])
+export type RuleReviewDecisionStatus = z.infer<typeof RuleReviewDecisionStatusSchema>
+
+export const RuleReviewDecisionSchema = z.object({
+  id: z.string().min(1),
+  ruleId: z.string().min(1),
+  baseVersion: z.number().int().positive(),
+  status: RuleReviewDecisionStatusSchema,
+  rule: ObligationRuleSchema.nullable(),
+  reviewNote: z.string().nullable(),
+  reviewedBy: z.string().min(1),
+  reviewedAt: z.string().datetime(),
+})
+export type RuleReviewDecision = z.infer<typeof RuleReviewDecisionSchema>
+
+export const RulesReviewListInputSchema = z
+  .object({
+    status: RuleReviewDecisionStatusSchema.optional(),
+  })
+  .optional()
+export type RulesReviewListInput = z.infer<typeof RulesReviewListInputSchema>
+
+export const RuleVerifyCandidateInputSchema = z.object({
+  ruleId: z.string().min(1),
+  sourceId: z.string().min(1),
+  sourceHeading: z.string().min(1),
+  sourceExcerpt: z.string().min(1),
+  sourceUpdatedOn: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  dueDateLogic: DueDateLogicSchema,
+  extensionPolicy: ExtensionPolicySchema,
+  ruleTier: RuleTierSchema,
+  coverageStatus: CoverageStatusSchema,
+  requiresApplicabilityReview: z.boolean(),
+  quality: RuleQualityChecklistSchema,
+  nextReviewOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  reviewNote: z.string().trim().max(1000).optional(),
+})
+export type RuleVerifyCandidateInput = z.infer<typeof RuleVerifyCandidateInputSchema>
+
+export const RuleRejectCandidateInputSchema = z.object({
+  ruleId: z.string().min(1),
+  reason: z.string().trim().min(1).max(1000),
+})
+export type RuleRejectCandidateInput = z.infer<typeof RuleRejectCandidateInputSchema>
+
 export const RulesListInputSchema = z
   .object({
     jurisdiction: RuleJurisdictionSchema.optional(),
@@ -331,6 +379,11 @@ export type RuleSourcesListInput = z.infer<typeof RuleSourcesListInputSchema>
 export const rulesContract = oc.router({
   listSources: oc.input(RuleSourcesListInputSchema).output(z.array(RuleSourceSchema)),
   listRules: oc.input(RulesListInputSchema).output(z.array(ObligationRuleSchema)),
+  listReviewDecisions: oc
+    .input(RulesReviewListInputSchema)
+    .output(z.array(RuleReviewDecisionSchema)),
+  verifyCandidate: oc.input(RuleVerifyCandidateInputSchema).output(RuleReviewDecisionSchema),
+  rejectCandidate: oc.input(RuleRejectCandidateInputSchema).output(RuleReviewDecisionSchema),
   coverage: oc.input(z.undefined()).output(z.array(RuleCoverageRowSchema)),
   previewObligations: oc
     .input(RuleGenerationPreviewInputSchema)

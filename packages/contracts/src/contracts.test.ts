@@ -1106,6 +1106,9 @@ describe('@duedatehq/contracts', () => {
     expect(Object.keys(rulesContract)).toEqual([
       'listSources',
       'listRules',
+      'listReviewDecisions',
+      'verifyCandidate',
+      'rejectCandidate',
       'coverage',
       'previewObligations',
     ])

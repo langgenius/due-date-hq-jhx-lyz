@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { createDb, makePulseOpsRepo } from '@duedatehq/db'
-import { livePulseAdapters } from '@duedatehq/ingest/adapters'
+import { liveRegulatorySourceAdapters } from '../jobs/pulse/rule-source-adapters'
 import type { ContextVars, Env } from '../env'
 
 type OpsPulseEnv = Pick<Env, 'DB' | 'R2_PULSE' | 'PULSE_QUEUE' | 'PULSE_OPS_TOKEN'>
@@ -81,7 +81,7 @@ function serializeSignal(
 function serializeSourceState(
   row: Awaited<ReturnType<ReturnType<typeof makePulseOpsRepo>['listSourceStates']>>[number],
 ) {
-  const adapter = livePulseAdapters.find((item) => item.id === row.sourceId)
+  const adapter = liveRegulatorySourceAdapters.find((item) => item.id === row.sourceId)
   return {
     ...row,
     label: adapter?.id ?? row.sourceId,

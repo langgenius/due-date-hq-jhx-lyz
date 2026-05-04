@@ -1,0 +1,82 @@
+import type { ObligationRule as ContractObligationRule } from '@duedatehq/contracts'
+import type {
+  DueDateLogic,
+  ExtensionPolicy,
+  ObligationRule as CoreObligationRule,
+  RuleEvidence,
+  RuleEvidenceLocator,
+} from '@duedatehq/core/rules'
+
+export function toContractDueDateLogic(
+  logic: DueDateLogic,
+): ContractObligationRule['dueDateLogic'] {
+  if (logic.kind === 'period_table') {
+    return {
+      ...logic,
+      periods: logic.periods.map((period) => ({ ...period })),
+    }
+  }
+
+  return { ...logic }
+}
+
+export function toContractRule(rule: CoreObligationRule): ContractObligationRule {
+  return {
+    ...rule,
+    entityApplicability: [...rule.entityApplicability],
+    dueDateLogic: toContractDueDateLogic(rule.dueDateLogic),
+    sourceIds: [...rule.sourceIds],
+    evidence: rule.evidence.map((item) => ({ ...item })),
+    quality: { ...rule.quality },
+    extensionPolicy: { ...rule.extensionPolicy },
+  }
+}
+
+function toCoreExtensionPolicy(policy: ContractObligationRule['extensionPolicy']): ExtensionPolicy {
+  return {
+    available: policy.available,
+    ...(policy.formName !== undefined ? { formName: policy.formName } : {}),
+    ...(policy.durationMonths !== undefined ? { durationMonths: policy.durationMonths } : {}),
+    paymentExtended: policy.paymentExtended,
+    notes: policy.notes,
+  }
+}
+
+function toCoreLocator(
+  locator: ContractObligationRule['evidence'][number]['locator'],
+): RuleEvidenceLocator {
+  return {
+    kind: locator.kind,
+    ...(locator.heading !== undefined ? { heading: locator.heading } : {}),
+    ...(locator.selector !== undefined ? { selector: locator.selector } : {}),
+    ...(locator.pdfPage !== undefined ? { pdfPage: locator.pdfPage } : {}),
+    ...(locator.tableLabel !== undefined ? { tableLabel: locator.tableLabel } : {}),
+    ...(locator.rowLabel !== undefined ? { rowLabel: locator.rowLabel } : {}),
+  }
+}
+
+function toCoreEvidence(evidence: ContractObligationRule['evidence'][number]): RuleEvidence {
+  return {
+    sourceId: evidence.sourceId,
+    authorityRole: evidence.authorityRole,
+    locator: toCoreLocator(evidence.locator),
+    summary: evidence.summary,
+    sourceExcerpt: evidence.sourceExcerpt,
+    retrievedAt: evidence.retrievedAt,
+    ...(evidence.sourceUpdatedOn !== undefined
+      ? { sourceUpdatedOn: evidence.sourceUpdatedOn }
+      : {}),
+  }
+}
+
+export function toCoreRule(rule: ContractObligationRule): CoreObligationRule {
+  return {
+    ...rule,
+    entityApplicability: [...rule.entityApplicability],
+    dueDateLogic: rule.dueDateLogic,
+    extensionPolicy: toCoreExtensionPolicy(rule.extensionPolicy),
+    sourceIds: [...rule.sourceIds],
+    evidence: rule.evidence.map(toCoreEvidence),
+    quality: { ...rule.quality },
+  }
+}

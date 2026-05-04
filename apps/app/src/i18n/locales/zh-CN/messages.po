@@ -1094,9 +1094,17 @@ msgstr "候选"
 msgid "Candidate · never generates user reminders."
 msgstr "候选规则 · 从不生成用户提醒。"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Candidate rejected"
+msgstr "候选规则已拒绝"
+
 #: src/features/concepts/concept-help.tsx
 msgid "Candidate rule"
 msgstr "候选规则"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Candidate verified"
+msgstr "候选规则已验证"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Candidates"
@@ -1721,6 +1729,10 @@ msgstr "无法排队生成风险摘要"
 msgid "Couldn't reactivate alert"
 msgstr "无法重新激活提醒"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Couldn't reject candidate"
+msgstr "无法拒绝候选规则"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't request review"
 msgstr "无法请求审核"
@@ -1799,6 +1811,10 @@ msgstr "状态更新失败"
 msgid "Couldn't update view"
 msgstr "无法更新视图"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Couldn't verify candidate"
+msgstr "无法验证候选规则"
+
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Counties"
 msgstr "县"
@@ -1815,6 +1831,7 @@ msgid "County must be 120 characters or fewer"
 msgstr "县名不能超过 120 个字符"
 
 #: src/features/concepts/concept-help.tsx
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "覆盖"
@@ -2180,6 +2197,14 @@ msgstr "截止日已更改"
 msgid "Due date logic"
 msgstr "截止日逻辑"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Due date logic is invalid."
+msgstr "截止日逻辑无效。"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Due date logic JSON"
+msgstr "截止日逻辑 JSON"
+
 #: src/routes/dashboard.tsx
 msgid "due now"
 msgstr "现在到期"
@@ -2467,6 +2492,14 @@ msgstr "延期决策已保存"
 #: src/routes/workboard.tsx
 msgid "Extension memo"
 msgstr "延期备注"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Extension policy is invalid."
+msgstr "延期政策无效。"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Extension policy JSON"
+msgstr "延期政策 JSON"
 
 #: src/routes/workboard.tsx
 msgid "Extension source"
@@ -3859,6 +3892,18 @@ msgstr "正在监听的官方渠道"
 msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
 msgstr "用于监听规则变更的官方渠道，按来源展示健康状态、频率和采集方式。点击任一行会在新标签页打开官方页面。失败或降级的来源不会静默更新已验证规则；变更需先进入候选流程并由运营复核后才能发布。"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Official due date page"
+msgstr "官方截止日页面"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Official excerpt"
+msgstr "官方摘录"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Official source"
+msgstr "官方来源"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "Official sources · candidate rules"
 msgstr "官方来源 · 候选规则"
@@ -4062,6 +4107,10 @@ msgstr "运营"
 #: src/routes/dashboard.tsx
 msgid "Operations command"
 msgstr "运营指挥台"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Ops review"
+msgstr "运营审核"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Ops token"
@@ -4332,6 +4381,14 @@ msgstr "计划选项"
 #: src/routes/billing.checkout.tsx
 msgid "Plan summary"
 msgstr "计划摘要"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Please add a review note."
+msgstr "请添加审核备注。"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Please check the review fields."
+msgstr "请检查审核字段。"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
@@ -4914,6 +4971,7 @@ msgid "Regulatory Pulse signals that match your practice's clients. Review, batc
 msgstr "匹配你事务所客户的监管 Pulse 信号。复核、批量应用截止日变更、暂缓，或重新查看已关闭提醒。"
 
 #: src/features/pulse/OpsPulsePage.tsx
+#: src/features/rules/rule-detail-drawer.tsx
 msgid "Reject"
 msgstr "拒绝"
 
@@ -4924,6 +4982,10 @@ msgstr "拒绝延期决策"
 #: src/features/audit/audit-log-labels.ts
 msgid "Rejected"
 msgstr "已拒绝"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Rejected during rules review."
+msgstr "在规则审核中被拒绝。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "reminder ready"
@@ -4989,6 +5051,10 @@ msgstr "规则生成与 Pulse 匹配必需。"
 #: src/features/permissions/permission-gate.tsx
 msgid "Required: {requiredRoleText}"
 msgstr "需要：{requiredRoleText}"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Requires applicability review"
+msgstr "需要适用性审核"
 
 #: src/features/concepts/concept-help.tsx
 msgid "Requires review"
@@ -5103,6 +5169,10 @@ msgstr "查看"
 msgid "review — needs CPA confirmation"
 msgstr "复核 —— 需 CPA 确认"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Review note"
+msgstr "审核备注"
+
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Review pending Pulse extracts, inspect source health, reconcile signals, and retry failed snapshots. This page uses the token-protected ops API."
 msgstr "复核待处理的 Pulse 提取结果、检查来源健康状态、核对信号并重试失败快照。此页面使用 token 保护的 ops API。"
@@ -5142,6 +5212,10 @@ msgstr "查看来源覆盖、规则清单与事项预览。"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source-backed Pulse alerts."
 msgstr "查看有来源依据的 Pulse 提醒。"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Review status is invalid."
+msgstr "审核状态无效。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review team capacity and risk pressure."
@@ -5834,6 +5908,10 @@ msgstr "原文摘录"
 msgid "Source excerpt copied"
 msgstr "原文摘录已复制"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Source heading"
+msgstr "来源标题"
+
 #: src/routes/dashboard.tsx
 msgid "source linked"
 msgstr "已关联来源"
@@ -6307,6 +6385,10 @@ msgstr "本周"
 msgid "This Week"
 msgstr "本周"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Tier"
+msgstr "层级"
+
 #: src/features/audit/audit-log-table.tsx
 msgid "Time"
 msgstr "时间"
@@ -6588,6 +6670,10 @@ msgstr "验证"
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Verify and enable"
 msgstr "验证并启用"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Verify candidate"
+msgstr "验证候选规则"
 
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Verify code"
