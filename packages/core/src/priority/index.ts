@@ -166,7 +166,7 @@ function exposureFactor(
   const normalized = clamp(cents / profile.exposureCapCents)
   return {
     key: 'exposure',
-    label: 'Dollar exposure',
+    label: 'Projected risk',
     weight,
     rawValue:
       input.exposureStatus === 'ready' ? `$${Math.round(cents / 100)}` : input.exposureStatus,

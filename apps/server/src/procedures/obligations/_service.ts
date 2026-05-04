@@ -14,6 +14,7 @@ import type {
 } from '@duedatehq/contracts'
 import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
+import { calculateAccruedPenalty } from '../_penalty-exposure'
 
 interface ObligationRow {
   id: string
@@ -42,6 +43,14 @@ interface ObligationRow {
   updatedAt: Date
 }
 
+interface ClientPenaltyFacts {
+  id: string
+  entityType?: string | null
+  state?: string | null
+  estimatedTaxLiabilityCents?: number | null
+  equityOwnerCount?: number | null
+}
+
 function toIsoDate(d: Date): string {
   return d.toISOString().slice(0, 10)
 }
@@ -50,7 +59,22 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-export function toObligationPublic(row: ObligationRow): ObligationInstancePublic {
+export function toObligationPublic(
+  row: ObligationRow,
+  opts: { client?: ClientPenaltyFacts | null | undefined; asOfDate?: string | Date } = {},
+): ObligationInstancePublic {
+  const penaltyAsOfDate =
+    opts.asOfDate instanceof Date
+      ? opts.asOfDate.toISOString().slice(0, 10)
+      : (opts.asOfDate ?? new Date().toISOString().slice(0, 10))
+  const accrued = opts.client
+    ? calculateAccruedPenalty(opts.client, row, penaltyAsOfDate)
+    : {
+        accruedPenaltyCents: null,
+        accruedPenaltyStatus: 'unsupported' as const,
+        accruedPenaltyBreakdown: [],
+        penaltyAsOfDate,
+      }
   return {
     id: row.id,
     firmId: row.firmId,
@@ -74,6 +98,10 @@ export function toObligationPublic(row: ObligationRow): ObligationInstancePublic
     estimatedExposureCents: row.estimatedExposureCents,
     exposureStatus: row.exposureStatus,
     penaltyBreakdown: parsePenaltyBreakdown(row.penaltyBreakdownJson),
+    accruedPenaltyCents: accrued.accruedPenaltyCents,
+    accruedPenaltyStatus: accrued.accruedPenaltyStatus,
+    accruedPenaltyBreakdown: accrued.accruedPenaltyBreakdown,
+    penaltyAsOfDate: accrued.penaltyAsOfDate,
     penaltyFormulaVersion: row.penaltyFormulaVersion,
     exposureCalculatedAt: row.exposureCalculatedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
@@ -115,6 +143,14 @@ function bulkReadinessForStatus(
   return defaultReadinessForStatus(status, undefined)
 }
 
+async function toObligationPublicFromScoped(
+  scoped: ScopedRepo,
+  row: ObligationRow,
+): Promise<ObligationInstancePublic> {
+  const client = await scoped.clients.findById(row.clientId)
+  return toObligationPublic(row, { client })
+}
+
 /**
  * updateObligationStatus — extracted from the procedure handler so it can be
  * unit-tested with an in-memory scoped repo + audit writer.
@@ -141,7 +177,7 @@ export async function updateObligationStatus(
 
   if (before.status === input.status) {
     return {
-      obligation: toObligationPublic(before),
+      obligation: await toObligationPublicFromScoped(scoped, before),
       auditId: '00000000-0000-0000-0000-000000000000',
     }
   }
@@ -176,7 +212,7 @@ export async function updateObligationStatus(
   const { id: auditId } = await scoped.audit.write(auditPayload)
 
   return {
-    obligation: toObligationPublic(after),
+    obligation: await toObligationPublicFromScoped(scoped, after),
     auditId,
   }
 }
@@ -246,7 +282,7 @@ export async function updateObligationReadiness(
 
   if (before.readiness === input.readiness) {
     return {
-      obligation: toObligationPublic(before),
+      obligation: await toObligationPublicFromScoped(scoped, before),
       auditId: '00000000-0000-0000-0000-000000000000',
     }
   }
@@ -280,7 +316,7 @@ export async function updateObligationReadiness(
   const { id: auditId } = await scoped.audit.write(auditPayload)
 
   return {
-    obligation: toObligationPublic(after),
+    obligation: await toObligationPublicFromScoped(scoped, after),
     auditId,
   }
 }
@@ -365,7 +401,7 @@ export async function decideObligationExtension(
   })
 
   return {
-    obligation: toObligationPublic(after),
+    obligation: await toObligationPublicFromScoped(scoped, after),
     auditId,
     evidenceId: evidence.id,
   }

@@ -33,6 +33,11 @@ msgstr "{0, plural, other {# 条活跃}}"
 msgid "{0, plural, one {# day late} other {# days late}}"
 msgstr "{0, plural, other {逾期 # 天}}"
 
+#. placeholder {0}: value.length
+#: src/routes/workboard.tsx
+msgid "{0, plural, one {# item} other {# items}}"
+msgstr "{0, plural, other {# 项}}"
+
 #. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
 #: src/features/migration/Step2Mapping.tsx
@@ -120,6 +125,13 @@ msgstr "{0} 个需要输入"
 #: src/features/migration/Wizard.tsx
 msgid "{0} obligations still need penalty inputs."
 msgstr "{0} 个事项仍需要 penalty 输入。"
+
+#. placeholder {0}: summary.accruedPenaltyReadyCount
+#. placeholder {1}: summary.accruedPenaltyNeedsInputCount
+#. placeholder {2}: summary.accruedPenaltyUnsupportedCount
+#: src/routes/dashboard.tsx
+msgid "{0} overdue ready · {1} needs input · {2} unsupported"
+msgstr "{0} 个逾期可计算 · {1} 个需补输入 · {2} 个暂不支持"
 
 #. placeholder {0}: exposure.readyCount
 #: src/features/migration/Step4Preview.tsx
@@ -370,6 +382,11 @@ msgstr "包含 3 个席位"
 msgid "4 verified · 1 candidate watch"
 msgstr "4 已核验 · 1 候选观察"
 
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "90-day projected risk"
+msgstr "90 天预计风险"
+
 #: src/features/concepts/concept-help.tsx
 msgid "A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the queue."
 msgstr "基于最新仪表盘风险快照在后台生成的解释。AI 解释优先级，队列仍由确定性数据驱动。"
@@ -440,6 +457,25 @@ msgstr "账号"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Account menu for {0}"
 msgstr "{0} 的账户菜单"
+
+#. placeholder {0}: formatCents(row.accruedPenaltyCents)
+#. placeholder {1}: row.penaltyAsOfDate
+#: src/routes/workboard.tsx
+msgid "Accrued {0} as of {1}"
+msgstr "截至 {1} 已发生 {0}"
+
+#: src/routes/workboard.tsx
+msgid "Accrued needs input"
+msgstr "已发生罚金需补输入"
+
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "Accrued penalty"
+msgstr "已发生罚金"
+
+#: src/routes/workboard.tsx
+msgid "Accrued unsupported"
+msgstr "已发生罚金暂不支持"
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/audit/audit-log-table.tsx
@@ -513,13 +549,13 @@ msgstr "至少添加一条服务商记录才能继续。"
 msgid "Add context for the reviewer"
 msgstr "补充给审核人的说明"
 
-#: src/routes/dashboard.tsx
-msgid "Add exposure inputs before ranking by dollars."
-msgstr "先补充风险金额输入，再按金额排序。"
-
 #: src/routes/workboard.tsx
 msgid "Add item"
 msgstr "添加项目"
+
+#: src/routes/dashboard.tsx
+msgid "Add penalty inputs before ranking by projected risk."
+msgstr "先补充罚金输入，再按预计风险排序。"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Add practice"
@@ -528,6 +564,10 @@ msgstr "添加事务所"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Affected clients"
 msgstr "受影响客户"
+
+#: src/routes/workboard.tsx
+msgid "After"
+msgstr "之后"
 
 #: src/features/workload/workload-page.tsx
 msgid "Aggregated from open obligations and client owner labels. Open any row in Workboard to triage the underlying deadlines."
@@ -556,6 +596,10 @@ msgstr "AI 已识别你的列 —— 请审阅并确认"
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI 映射器不可用 —— 已使用降级方案"
+
+#: src/routes/workboard.tsx
+msgid "AI readiness checklist"
+msgstr "AI 准备状态清单"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "AI refused request"
@@ -911,6 +955,10 @@ msgstr "保留 24 小时批次回滚追踪"
 msgid "Bearer token"
 msgstr "Bearer token"
 
+#: src/routes/workboard.tsx
+msgid "Before"
+msgstr "之前"
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Billed yearly"
@@ -1122,6 +1170,10 @@ msgstr "清单项目说明"
 msgid "Checklist item label"
 msgstr "清单项目名称"
 
+#: src/routes/workboard.tsx
+msgid "Checklist items"
+msgstr "清单项目"
+
 #: src/routes/route-summary.ts
 msgid "Checkout"
 msgstr "支付"
@@ -1174,6 +1226,7 @@ msgstr "选择其他计划"
 msgid "Choose Solo, Pro, or Team to start the hosted checkout flow."
 msgstr "选择 Solo、Pro 或 Team 以开始托管 checkout 流程。"
 
+#: src/components/primitives/iso-date-picker.tsx
 #: src/routes/workboard.tsx
 msgid "Clear"
 msgstr "清除"
@@ -1224,6 +1277,10 @@ msgstr "客户已创建"
 msgid "Client email draft copied"
 msgstr "客户邮件草稿已复制"
 
+#: src/routes/workboard.tsx
+msgid "Client email on file"
+msgstr "客户邮箱已记录"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/clients.tsx
 msgid "Client facts"
@@ -1250,6 +1307,14 @@ msgstr "客户重要性"
 #: src/features/migration/mapping-target-labels.ts
 msgid "Client name"
 msgstr "客户名称"
+
+#: src/routes/workboard.tsx
+msgid "Client portal visitor"
+msgstr "客户 portal 访问者"
+
+#: src/routes/workboard.tsx
+msgid "Client readiness response"
+msgstr "客户准备状态回复"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Client reminder"
@@ -1984,6 +2049,10 @@ msgstr "删除这个事务所？"
 msgid "Delete view"
 msgstr "删除视图"
 
+#: src/routes/workboard.tsx
+msgid "Delivery"
+msgstr "发送"
+
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Demo account"
 msgstr "演示账号"
@@ -1998,6 +2067,7 @@ msgid "Detail"
 msgstr "详情"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/routes/workboard.tsx
 msgid "Details updated"
 msgstr "详情已更新"
 
@@ -2078,6 +2148,11 @@ msgstr "试运行"
 #: src/routes/practice.tsx
 msgid "Due"
 msgstr "到期日"
+
+#. placeholder {0}: formatDate(currentDueDate)
+#: src/routes/workboard.tsx
+msgid "Due {0}"
+msgstr "到期 {0}"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/pulse/components/PulseStructuredFields.tsx
@@ -2277,6 +2352,11 @@ msgstr "预计应纳税额"
 msgid "ETA"
 msgstr "预计日期"
 
+#. placeholder {0}: formatDate(response.etaDate)
+#: src/routes/workboard.tsx
+msgid "ETA {0}"
+msgstr "预计 {0}"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Event"
 msgstr "事项"
@@ -2356,8 +2436,6 @@ msgid "Export ready"
 msgstr "导出已就绪"
 
 #: src/features/concepts/concept-help.tsx
-#: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Exposure"
 msgstr "Exposure"
 
@@ -3283,6 +3361,7 @@ msgid "Navigate"
 msgstr "导航"
 
 #: src/routes/readiness.tsx
+#: src/routes/workboard.tsx
 msgid "Need help"
 msgstr "需要帮助"
 
@@ -3299,10 +3378,6 @@ msgstr "需要证据"
 msgid "Needs evidence"
 msgstr "需补证据"
 
-#: src/routes/dashboard.tsx
-msgid "needs exposure input"
-msgstr "需要风险金额输入"
-
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Needs facts"
 msgstr "需要补充事实"
@@ -3316,6 +3391,10 @@ msgstr "需要输入"
 #: src/routes/workboard.tsx
 msgid "Needs input"
 msgstr "需要输入"
+
+#: src/routes/dashboard.tsx
+msgid "needs projected-risk input"
+msgstr "需要预计风险输入"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/Step3Normalize.tsx
@@ -3379,7 +3458,7 @@ msgstr "未来 7 天"
 msgid "Next check"
 msgstr "下一步检查"
 
-#: src/routes/workboard.tsx
+#: src/components/primitives/iso-date-picker.tsx
 msgid "Next month"
 msgstr "下个月"
 
@@ -3436,6 +3515,10 @@ msgstr "此事项尚无审计事件。"
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events yet."
 msgstr "暂无审计事件。"
+
+#: src/routes/workboard.tsx
+msgid "No client email on file"
+msgstr "未记录客户邮箱"
 
 #: src/routes/workboard.tsx
 msgid "No client response yet."
@@ -3691,6 +3774,7 @@ msgstr "未填写"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/members/members-page.tsx
+#: src/routes/workboard.tsx
 msgid "Not recorded"
 msgstr "未记录"
 
@@ -3708,6 +3792,7 @@ msgid "Not started"
 msgstr "未开始"
 
 #: src/routes/readiness.tsx
+#: src/routes/workboard.tsx
 msgid "Not yet"
 msgstr "尚未准备好"
 
@@ -3956,6 +4041,10 @@ msgstr "打开你的身份验证器应用，添加新账户，然后扫描此二
 msgid "Open your personal notification inbox."
 msgstr "打开你的个人通知收件箱。"
 
+#: src/routes/workboard.tsx
+msgid "Opened by"
+msgstr "打开者"
+
 #: src/routes/billing.checkout.tsx
 msgid "Opening checkout…"
 msgstr "正在打开支付…"
@@ -4181,7 +4270,6 @@ msgid "Penalty inputs saved"
 msgstr "Penalty 输入已保存"
 
 #: src/features/concepts/concept-help.tsx
-#: src/routes/dashboard.tsx
 msgid "Penalty Radar"
 msgstr "Penalty Radar"
 
@@ -4439,7 +4527,7 @@ msgstr "仅预览 AI 辅助"
 msgid "Previous"
 msgstr "上一页"
 
-#: src/routes/workboard.tsx
+#: src/components/primitives/iso-date-picker.tsx
 msgid "Previous month"
 msgstr "上个月"
 
@@ -4485,6 +4573,19 @@ msgstr "Pro"
 #: src/features/pulse/lib/error-mapping.ts
 msgid "Production Pulse actions require Pro or above."
 msgstr "Production Pulse 操作需要 Pro 或更高计划。"
+
+#: src/routes/workboard.tsx
+msgid "Projected 90-day risk"
+msgstr "预计 90 天风险"
+
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "Projected risk"
+msgstr "预计风险"
+
+#: src/routes/workboard.tsx
+msgid "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
+msgstr "预计风险反映最新保存的罚金计算。已发生罚金按所选截至日期动态计算。"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Provider"
@@ -4694,6 +4795,10 @@ msgstr "准备状态检查"
 msgid "Readiness link created"
 msgstr "准备状态链接已创建"
 
+#: src/routes/workboard.tsx
+msgid "Readiness portal opened"
+msgstr "准备状态 portal 已打开"
+
 #: src/routes/practice.tsx
 msgid "Readiness pressure"
 msgstr "准备状态压力"
@@ -4707,6 +4812,7 @@ msgid "Readiness request sent"
 msgstr "准备状态请求已发送"
 
 #: src/routes/readiness.tsx
+#: src/routes/workboard.tsx
 msgid "Readiness response submitted"
 msgstr "准备状态回复已提交"
 
@@ -4778,6 +4884,10 @@ msgstr "正在跳转到 Google…"
 #: src/routes/login.tsx
 msgid "Redirecting to Microsoft…"
 msgstr "正在跳转到 Microsoft…"
+
+#: src/routes/workboard.tsx
+msgid "Reference"
+msgstr "引用"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
@@ -4920,9 +5030,17 @@ msgstr "处理"
 msgid "Resolve needs review clients"
 msgstr "处理需要复核的客户"
 
+#: src/routes/workboard.tsx
+msgid "Responses"
+msgstr "回复"
+
 #: src/routes/billing.cancel.tsx
 msgid "Restart checkout"
 msgstr "重新开始支付"
+
+#: src/routes/workboard.tsx
+msgid "Resulting readiness"
+msgstr "最终准备状态"
 
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -5078,10 +5196,6 @@ msgstr "风险输入"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Risk inputs saved"
 msgstr "风险输入已保存"
-
-#: src/routes/workboard.tsx
-msgid "Risk reflects the latest stored penalty calculation."
-msgstr "风险反映最近一次已保存的罚金计算。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Risk summary refresh queued"
@@ -5456,7 +5570,7 @@ msgstr "请选择客户后再次应用。"
 msgid "Select clients to apply"
 msgstr "请选择客户后再应用"
 
-#: src/routes/workboard.tsx
+#: src/components/primitives/iso-date-picker.tsx
 msgid "Select date"
 msgstr "选择日期"
 

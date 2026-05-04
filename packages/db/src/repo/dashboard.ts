@@ -15,6 +15,8 @@ import type {
   ExposureStatus,
 } from '@duedatehq/ports/shared'
 import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
+import { estimateAccruedPenalty } from '@duedatehq/core/penalty'
+import type { PenaltyBreakdownItem } from '@duedatehq/core/penalty'
 import { rankSmartPriorities } from '@duedatehq/core/priority'
 import type { SmartPriorityProfile } from '@duedatehq/core/priority'
 import type { SmartPriorityBreakdown } from '@duedatehq/ports/priority'
@@ -96,11 +98,19 @@ export interface DashboardRawRow {
   estimatedExposureCents: number | null
   exposureStatus: ExposureStatus
   penaltyFormulaVersion: string | null
+  clientState: string | null
+  clientEntityType: string | null
+  clientEstimatedTaxLiabilityCents: number | null
+  clientEquityOwnerCount: number | null
   importanceWeight?: number
   lateFilingCountLast12mo?: number
 }
 
 export interface DashboardTopRow extends DashboardRawRow {
+  accruedPenaltyCents: number | null
+  accruedPenaltyStatus: ExposureStatus
+  accruedPenaltyBreakdown: PenaltyBreakdownItem[]
+  penaltyAsOfDate: string
   severity: DashboardSeverity
   evidenceCount: number
   primaryEvidence: DashboardEvidenceRow | null
@@ -127,6 +137,10 @@ export interface DashboardLoadResult {
     exposureReadyCount: number
     exposureNeedsInputCount: number
     exposureUnsupportedCount: number
+    totalAccruedPenaltyCents: number
+    accruedPenaltyReadyCount: number
+    accruedPenaltyNeedsInputCount: number
+    accruedPenaltyUnsupportedCount: number
   }
   topRows: DashboardTopRow[]
   triageTabs: DashboardTriageTab[]
@@ -320,13 +334,29 @@ export function composeDashboardLoad(
   let exposureReadyCount = 0
   let exposureNeedsInputCount = 0
   let exposureUnsupportedCount = 0
+  let totalAccruedPenaltyCents = 0
+  let accruedPenaltyReadyCount = 0
+  let accruedPenaltyNeedsInputCount = 0
+  let accruedPenaltyUnsupportedCount = 0
   const asOf = parseDateOnly(input.asOfDate).getTime()
   const topRowDrafts: Array<Omit<DashboardTopRow, 'smartPriority'>> = []
 
   for (const row of rows) {
     const days = daysUntilDueFromDate(row.currentDueDate, input.asOfDate)
     const inUrgentWindow = days <= windowDays
+    const isOverdue = days < 0
     const evidence = evidenceByObligation.get(row.obligationId) ?? []
+    const accrued = estimateAccruedPenalty(
+      {
+        jurisdiction: row.clientState,
+        taxType: row.taxType,
+        entityType: row.clientEntityType,
+        dueDate: row.currentDueDate,
+        estimatedTaxLiabilityCents: row.clientEstimatedTaxLiabilityCents,
+        equityOwnerCount: row.clientEquityOwnerCount,
+      },
+      { asOfDate: input.asOfDate },
+    )
     if (inUrgentWindow) dueThisWeekCount += 1
     if (row.status === 'review') needsReviewCount += 1
     if (evidence.length === 0) evidenceGapCount += 1
@@ -338,9 +368,21 @@ export function composeDashboardLoad(
     } else if (inUrgentWindow && row.exposureStatus === 'unsupported') {
       exposureUnsupportedCount += 1
     }
+    if (isOverdue && accrued.status === 'ready') {
+      accruedPenaltyReadyCount += 1
+      totalAccruedPenaltyCents += accrued.estimatedExposureCents ?? 0
+    } else if (isOverdue && accrued.status === 'needs_input') {
+      accruedPenaltyNeedsInputCount += 1
+    } else if (isOverdue && accrued.status === 'unsupported') {
+      accruedPenaltyUnsupportedCount += 1
+    }
 
     topRowDrafts.push({
       ...row,
+      accruedPenaltyCents: accrued.estimatedExposureCents,
+      accruedPenaltyStatus: accrued.status,
+      accruedPenaltyBreakdown: accrued.breakdown,
+      penaltyAsOfDate: input.asOfDate,
       severity: severityForDueDate(row.currentDueDate, input.asOfDate, row.status),
       evidenceCount: evidence.length,
       primaryEvidence: evidence[0] ?? null,
@@ -399,6 +441,10 @@ export function composeDashboardLoad(
       exposureReadyCount,
       exposureNeedsInputCount,
       exposureUnsupportedCount,
+      totalAccruedPenaltyCents,
+      accruedPenaltyReadyCount,
+      accruedPenaltyNeedsInputCount,
+      accruedPenaltyUnsupportedCount,
     },
     topRows: topRows.slice(0, topLimit),
     triageTabs: [
@@ -571,6 +617,10 @@ export function makeDashboardRepo(db: Db, firmId: string) {
           estimatedExposureCents: obligationInstance.estimatedExposureCents,
           exposureStatus: obligationInstance.exposureStatus,
           penaltyFormulaVersion: obligationInstance.penaltyFormulaVersion,
+          clientState: client.state,
+          clientEntityType: client.entityType,
+          clientEstimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents,
+          clientEquityOwnerCount: client.equityOwnerCount,
           importanceWeight: client.importanceWeight,
           lateFilingCountLast12mo: client.lateFilingCountLast12mo,
         })

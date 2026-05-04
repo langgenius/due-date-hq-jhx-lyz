@@ -200,8 +200,8 @@ feature 语义留在 members vertical 内。
 - 动作受限：按钮、dropdown、command palette 项保留但 disabled，右侧显示所需角色 badge 或
   inline note。Members、Billing、Audit 等整页 gate 必须在权限不足时禁用对应 RPC query，
   不能先请求再把 403 当 UI 状态处理。
-- `$ exposure` 对 coordinator 默认显示 `Hidden by role`；只有 firm 开启
-  `coordinatorCanSeeDollars` 时才展示金额。
+- projected risk / accrued penalty 金额对 coordinator 默认显示 `Hidden by role`；只有 firm 开启
+  `coordinatorCanSeeDollars` 时才展示金额和 breakdown。
 
 ---
 
@@ -219,9 +219,10 @@ feature 语义留在 members vertical 内。
 Activation Slice v1 约束：Dashboard 不再维护本地 fake risk rows / queue stats / pulse items。
 `apps/app/src/routes/dashboard.tsx` 直接消费
 `useQuery(orpc.dashboard.load.queryOptions({ input: {} }))`，只负责 loading / error / empty /
-real-data 呈现；open risk、due window、needs review、evidence gap、Penalty Radar exposure
-和 severity 都由 server aggregation 统一计算。Penalty Radar 的首屏金额口径是
-overdue + next-seven-day ready exposure；Dashboard 只保留一个 row-level 操作表
+real-data 呈现；open risk、due window、needs review、evidence gap、Penalty Radar projected risk
+和 severity 都由 server aggregation 统一计算。Penalty Radar 的首屏主金额口径是
+overdue + next-seven-day ready 90-day projected risk；accrued penalty 作为辅助指标，只聚合
+overdue open obligations；Dashboard 只保留一个 row-level 操作表
 `Triage queue`，默认选中 `This Week` 并使用同一组 urgent rows。`Needs review` 进入顶部
 metrics，不再用单独的 `Operational closure` 面板重复 summary count。前端只渲染
 `ready / needs_input / unsupported`，不在 render 里补算或伪造金额。
@@ -500,7 +501,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   Workboard readiness 目前由 read model 派生：`waiting_on_client → waiting`，`review` 或
   exposure 非 ready → `needs_review`，其余为 `ready`。等独立 readiness state machine
   落地后替换此派生字段。
-- **表头筛选**：Client / Owner / State / County / Tax type / Days / Exposure /
+- **表头筛选**：Client / Owner / State / County / Tax type / Days / Projected risk /
   Readiness / Status 的筛选入口直接挂在 TanStack Table header 上；顶部控制区只保留搜索、排序、
   Reset 和少量 triage 快捷 chip，避免 Workboard 出现两套筛选面。
 - **搜索防抖**：Workboard 搜索是客户端 TanStack Query fetching，不是 React Router

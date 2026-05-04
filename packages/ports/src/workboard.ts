@@ -4,7 +4,7 @@ import type {
   WorkboardReadiness,
   WorkboardSort,
 } from './shared'
-import type { ObligationInstanceRow } from './obligations'
+import type { ObligationInstanceRow, PenaltyBreakdownItem } from './obligations'
 import type { SmartPriorityBreakdown } from './priority'
 
 export interface WorkboardListInput {
@@ -41,6 +41,10 @@ export interface WorkboardListRow extends ObligationInstanceRow {
   readiness: WorkboardReadiness
   daysUntilDue: number
   evidenceCount: number
+  accruedPenaltyCents: number | null
+  accruedPenaltyStatus: ObligationInstanceRow['exposureStatus']
+  accruedPenaltyBreakdown: PenaltyBreakdownItem[]
+  penaltyAsOfDate: string
   smartPriority: SmartPriorityBreakdown
 }
 

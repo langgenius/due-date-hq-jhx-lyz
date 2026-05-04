@@ -222,9 +222,9 @@ Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 
 | `extension_decision ∈ (not_considered, applied, rejected)`                                         | Workboard detail 的内部延期决策；`applied` 可把 obligation status 标记为 `extended`                   |
 | `extension_memo` / `extension_source` / `extension_expected_due_date`                              | 内部说明和来源；不会修改 `current_due_date`，也不表示已向税务机关 filing                              |
 | `extension_decided_at` / `extension_decided_by_user_id`                                            | 决策时间和操作者                                                                                      |
-| `estimated_tax_due_cents` / `estimated_exposure_cents`                                             | Penalty Radar 预聚合；缺输入时 exposure 为 NULL                                                       |
-| `exposure_status ∈ (ready, needs_input, unsupported)`                                              | Dashboard / Workboard triage badge                                                                    |
-| `penalty_breakdown_json` / `penalty_formula_version` / `exposure_calculated_at`                    | 可解释公式、版本和重算时间                                                                            |
+| `estimated_tax_due_cents` / `estimated_exposure_cents`                                             | Penalty Radar 90-day projected risk 预聚合；缺输入时 projected risk 为 NULL                           |
+| `exposure_status ∈ (ready, needs_input, unsupported)`                                              | Dashboard / Workboard projected-risk triage badge                                                     |
+| `penalty_breakdown_json` / `penalty_formula_version` / `exposure_calculated_at`                    | projected risk 的可解释公式、版本和重算时间；accrued penalty 不落库，按 `asOfDate` 运行时派生         |
 | `assignee_id` / `notes`                                                                            |                                                                                                       |
 | `migration_batch_id`                                                                               |                                                                                                       |
 | `last_changed_by`                                                                                  |                                                                                                       |
@@ -439,10 +439,12 @@ Activation Slice v1 新增 tenant-scoped `dashboard` repo，服务 `dashboard.lo
   overdue / 0-2 天仍映射为
   `critical`，3-7 天 `high`，`review` 或 8-14 天 `medium`，其他 open `neutral`
 - triage tabs：`dashboard.load.triageTabs` 在同一次 repo 聚合中产出 `this_week`（逾期和 0-7
-  天）、`this_month`（8-30 天）、`long_term`（31-180 天）；每行只进入最紧急的一个 tab，金额
-  合计只计入 ready exposure
-- exposure：只聚合 due window 内 `exposure_status='ready'` 的
+  天）、`this_month`（8-30 天）、`long_term`（31-180 天）；每行只进入最紧急的一个 tab，主金额
+  合计只计入 ready projected risk
+- projected risk：只聚合 due window 内 `exposure_status='ready'` 的
   `estimated_exposure_cents`；`needs_input` / `unsupported` 分别计数，不显示 fake `$0`
+- accrued penalty：不持久化；Dashboard / Workboard response 按 `asOfDate` + `current_due_date`
+  动态计算，只把 overdue open obligations 计入 Dashboard `totalAccruedPenaltyCents`
 
 Penalty / exposure 金额只来自 explicit user input、demo fixture seed 或 verified rule
 metadata。`clients.updatePenaltyInputs` 写 `penalty.override` audit 和

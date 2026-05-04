@@ -1,6 +1,7 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { EvidencePublicSchema } from './evidence'
+import { PenaltyBreakdownItemSchema } from './obligations'
 import { SmartPriorityBreakdownSchema } from './priority'
 import { ExposureStatusSchema, ObligationStatusSchema } from './shared/enums'
 import { EntityIdSchema } from './shared/ids'
@@ -92,6 +93,10 @@ export const DashboardSummarySchema = z.object({
   exposureReadyCount: z.number().int().min(0),
   exposureNeedsInputCount: z.number().int().min(0),
   exposureUnsupportedCount: z.number().int().min(0),
+  totalAccruedPenaltyCents: z.number().int().min(0),
+  accruedPenaltyReadyCount: z.number().int().min(0),
+  accruedPenaltyNeedsInputCount: z.number().int().min(0),
+  accruedPenaltyUnsupportedCount: z.number().int().min(0),
 })
 export type DashboardSummary = z.infer<typeof DashboardSummarySchema>
 
@@ -104,6 +109,10 @@ export const DashboardTopRowSchema = z.object({
   status: ObligationStatusSchema,
   estimatedExposureCents: z.number().int().min(0).nullable(),
   exposureStatus: ExposureStatusSchema,
+  accruedPenaltyCents: z.number().int().min(0).nullable(),
+  accruedPenaltyStatus: ExposureStatusSchema,
+  accruedPenaltyBreakdown: z.array(PenaltyBreakdownItemSchema),
+  penaltyAsOfDate: z.iso.date(),
   penaltyFormulaVersion: z.string().nullable(),
   severity: DashboardSeveritySchema,
   evidenceCount: z.number().int().min(0),

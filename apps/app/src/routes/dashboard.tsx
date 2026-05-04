@@ -653,11 +653,7 @@ function DashboardMetricStrip({
         },
         {
           id: 'exposure',
-          label: (
-            <ConceptLabel concept="penaltyRadar">
-              <Trans>Penalty Radar</Trans>
-            </ConceptLabel>
-          ),
+          label: <Trans>90-day projected risk</Trans>,
           value: canSeeDollars ? formatCents(summary.totalExposureCents) : t`Hidden by role`,
           detail: canSeeDollars ? (
             <Trans>
@@ -669,11 +665,26 @@ function DashboardMetricStrip({
           ),
           valueClassName: canSeeDollars ? 'text-text-primary' : 'text-text-muted',
         },
+        {
+          id: 'accrued',
+          label: <Trans>Accrued penalty</Trans>,
+          value: canSeeDollars ? formatCents(summary.totalAccruedPenaltyCents) : t`Hidden by role`,
+          detail: canSeeDollars ? (
+            <Trans>
+              {summary.accruedPenaltyReadyCount} overdue ready ·{' '}
+              {summary.accruedPenaltyNeedsInputCount} needs input ·{' '}
+              {summary.accruedPenaltyUnsupportedCount} unsupported
+            </Trans>
+          ) : (
+            <Trans>Dollar exposure is hidden for your current role.</Trans>
+          ),
+          valueClassName: canSeeDollars ? 'text-severity-critical' : 'text-text-muted',
+        },
       ]
     : []
 
   return (
-    <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+    <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
       {isLoading
         ? [0, 1, 2, 3, 4].map((item) => (
             <Card key={item} size="sm">
@@ -811,7 +822,7 @@ function DashboardPriorityDrivers({
         : row.evidenceCount === 0
           ? t`needs evidence`
           : row.exposureStatus === 'needs_input'
-            ? t`needs exposure input`
+            ? t`needs projected-risk input`
             : row.status === 'review'
               ? t`needs CPA review`
               : canSeeDollars &&
@@ -889,7 +900,7 @@ function DashboardNextCheck({ row, asOfDate }: { row: DashboardTopRow; asOfDate:
       ) : row.evidenceCount === 0 ? (
         <Trans>Attach a source before review.</Trans>
       ) : row.exposureStatus === 'needs_input' ? (
-        <Trans>Add exposure inputs before ranking by dollars.</Trans>
+        <Trans>Add penalty inputs before ranking by projected risk.</Trans>
       ) : row.status === 'review' ? (
         <Trans>Complete CPA review and close the row.</Trans>
       ) : days <= 0 ? (
@@ -1252,7 +1263,7 @@ function DashboardTriageTable({
         sortingFn: dashboardExposureSortingFn,
         sortDescFirst: true,
         header: ({ column }) => {
-          const label = t`Exposure`
+          const label = t`Projected risk`
           return (
             <DashboardSortableFilterHeader column={column} sortLabel={`${t`Sort`} ${label}`}>
               <TableHeaderMultiFilter

@@ -19,6 +19,10 @@ interface DashboardRepoTopRow {
   status: DashboardTopRow['status']
   estimatedExposureCents: number | null
   exposureStatus: DashboardTopRow['exposureStatus']
+  accruedPenaltyCents: number | null
+  accruedPenaltyStatus: DashboardTopRow['accruedPenaltyStatus']
+  accruedPenaltyBreakdown: DashboardTopRow['accruedPenaltyBreakdown']
+  penaltyAsOfDate: string
   penaltyFormulaVersion: string | null
   severity: DashboardTopRow['severity']
   evidenceCount: number
@@ -69,6 +73,10 @@ function toTopRow(
     status: row.status,
     estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,
     exposureStatus: row.exposureStatus,
+    accruedPenaltyCents: opts.hideDollars ? null : row.accruedPenaltyCents,
+    accruedPenaltyStatus: row.accruedPenaltyStatus,
+    accruedPenaltyBreakdown: opts.hideDollars ? [] : row.accruedPenaltyBreakdown,
+    penaltyAsOfDate: row.penaltyAsOfDate,
     penaltyFormulaVersion: row.penaltyFormulaVersion,
     severity: row.severity,
     evidenceCount: row.evidenceCount,
@@ -139,6 +147,7 @@ const load = os.dashboard.load.handler(async ({ input, context }) => {
     summary: {
       ...result.summary,
       totalExposureCents: hideDollars ? 0 : result.summary.totalExposureCents,
+      totalAccruedPenaltyCents: hideDollars ? 0 : result.summary.totalAccruedPenaltyCents,
     },
     topRows: result.topRows.map((row) => toTopRow(row, { hideDollars, hideSmartPriorityFactors })),
     triageTabs: result.triageTabs.map((tab) => ({

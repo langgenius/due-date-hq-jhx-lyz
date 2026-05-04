@@ -22,7 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
-import { Input } from '@duedatehq/ui/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -32,6 +31,7 @@ import {
 } from '@duedatehq/ui/components/ui/select'
 import { Separator } from '@duedatehq/ui/components/ui/separator'
 import { Textarea } from '@duedatehq/ui/components/ui/textarea'
+import { IsoDatePicker } from '@/components/primitives/iso-date-picker'
 import { formatDate } from '@/lib/utils'
 
 interface ResponseDraft {
@@ -206,11 +206,10 @@ export function ReadinessPortalRoute() {
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                    <Input
-                      type="date"
-                      aria-label={t`ETA`}
+                    <IsoDatePicker
+                      ariaLabel={t`ETA`}
                       value={response?.etaDate ?? ''}
-                      onChange={(event) => updateResponse(item.id, { etaDate: event.target.value })}
+                      onValueChange={(etaDate) => updateResponse(item.id, { etaDate })}
                     />
                     <Textarea
                       aria-label={t`Note`}

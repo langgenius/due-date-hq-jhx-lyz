@@ -10,7 +10,9 @@ import {
 } from '@duedatehq/contracts'
 import type { FirmBillingSubscriptionRow } from '@duedatehq/ports/tenants'
 import { createWorkerAuth } from '../../auth'
-import { requireSession } from '../_context'
+import { requireSession, requireTenant } from '../_context'
+import { requireCurrentFirmRole } from '../_permissions'
+import { recalculateFirmProjectedExposure } from '../_penalty-exposure'
 import { os } from '../_root'
 
 const MAX_RETRIES_ON_SLUG_COLLISION = 1
@@ -333,6 +335,20 @@ const previewSmartPriorityProfile = os.firms.previewSmartPriorityProfile.handler
   },
 )
 
+const backfillPenaltyExposure = os.firms.backfillPenaltyExposure.handler(async ({ context }) => {
+  const { tenant, userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { scoped } = requireTenant(context)
+  const recalculatedObligationCount = await recalculateFirmProjectedExposure(scoped)
+  await scoped.audit.write({
+    actorId: userId,
+    entityType: 'firm',
+    entityId: tenant.firmId,
+    action: 'penalty.exposure.backfilled',
+    after: { recalculatedObligationCount },
+  })
+  return { recalculatedObligationCount }
+})
+
 const listSubscriptions = os.firms.listSubscriptions.handler(async ({ context }) => {
   const { firms, session, userId } = requireSession(context)
   const activeFirmId = session.activeOrganizationId
@@ -394,6 +410,7 @@ export const firmsHandlers = {
   switchActive,
   updateCurrent,
   previewSmartPriorityProfile,
+  backfillPenaltyExposure,
   listSubscriptions,
   billingCheckoutConfig: billingCheckoutConfigHandler,
   softDeleteCurrent,

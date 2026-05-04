@@ -49,6 +49,7 @@ export const router = os.router({
     switchActive: firmsHandlers.switchActive,
     updateCurrent: firmsHandlers.updateCurrent,
     previewSmartPriorityProfile: firmsHandlers.previewSmartPriorityProfile,
+    backfillPenaltyExposure: firmsHandlers.backfillPenaltyExposure,
     listSubscriptions: firmsHandlers.listSubscriptions,
     billingCheckoutConfig: firmsHandlers.billingCheckoutConfig,
     softDeleteCurrent: firmsHandlers.softDeleteCurrent,

@@ -10,7 +10,7 @@ import {
   type RuleGenerationState,
 } from '@duedatehq/core/rules'
 import { validateEin } from '@duedatehq/core/pii'
-import { estimatePenaltyExposure } from '@duedatehq/core/penalty'
+import { estimateProjectedExposure } from '@duedatehq/core/penalty'
 import type { MappingRow, MappingTarget, NormalizationRow } from '@duedatehq/contracts'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
 import { validateRows } from './_deterministic'
@@ -135,7 +135,7 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
     for (const preview of uniqueConcretePreviews(previews)) {
       const obligationId = crypto.randomUUID()
       const dueDate = new Date(`${preview.dueDate}T00:00:00.000Z`)
-      const exposure = estimatePenaltyExposure({
+      const exposure = estimateProjectedExposure({
         jurisdiction: preview.jurisdiction,
         taxType: preview.taxType,
         entityType: facts.entityType,

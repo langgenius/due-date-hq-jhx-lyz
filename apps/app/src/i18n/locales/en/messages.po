@@ -33,6 +33,11 @@ msgstr "{0, plural, one {# active} other {# active}}"
 msgid "{0, plural, one {# day late} other {# days late}}"
 msgstr "{0, plural, one {# day late} other {# days late}}"
 
+#. placeholder {0}: value.length
+#: src/routes/workboard.tsx
+msgid "{0, plural, one {# item} other {# items}}"
+msgstr "{0, plural, one {# item} other {# items}}"
+
 #. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
 #: src/features/migration/Step2Mapping.tsx
@@ -120,6 +125,13 @@ msgstr "{0} needs input"
 #: src/features/migration/Wizard.tsx
 msgid "{0} obligations still need penalty inputs."
 msgstr "{0} obligations still need penalty inputs."
+
+#. placeholder {0}: summary.accruedPenaltyReadyCount
+#. placeholder {1}: summary.accruedPenaltyNeedsInputCount
+#. placeholder {2}: summary.accruedPenaltyUnsupportedCount
+#: src/routes/dashboard.tsx
+msgid "{0} overdue ready · {1} needs input · {2} unsupported"
+msgstr "{0} overdue ready · {1} needs input · {2} unsupported"
 
 #. placeholder {0}: exposure.readyCount
 #: src/features/migration/Step4Preview.tsx
@@ -370,6 +382,11 @@ msgstr "3 seats included"
 msgid "4 verified · 1 candidate watch"
 msgstr "4 verified · 1 candidate watch"
 
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "90-day projected risk"
+msgstr "90-day projected risk"
+
 #: src/features/concepts/concept-help.tsx
 msgid "A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the queue."
 msgstr "A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the queue."
@@ -440,6 +457,25 @@ msgstr "Account"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Account menu for {0}"
 msgstr "Account menu for {0}"
+
+#. placeholder {0}: formatCents(row.accruedPenaltyCents)
+#. placeholder {1}: row.penaltyAsOfDate
+#: src/routes/workboard.tsx
+msgid "Accrued {0} as of {1}"
+msgstr "Accrued {0} as of {1}"
+
+#: src/routes/workboard.tsx
+msgid "Accrued needs input"
+msgstr "Accrued needs input"
+
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "Accrued penalty"
+msgstr "Accrued penalty"
+
+#: src/routes/workboard.tsx
+msgid "Accrued unsupported"
+msgstr "Accrued unsupported"
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/audit/audit-log-table.tsx
@@ -513,13 +549,13 @@ msgstr "Add at least one provider record to continue."
 msgid "Add context for the reviewer"
 msgstr "Add context for the reviewer"
 
-#: src/routes/dashboard.tsx
-msgid "Add exposure inputs before ranking by dollars."
-msgstr "Add exposure inputs before ranking by dollars."
-
 #: src/routes/workboard.tsx
 msgid "Add item"
 msgstr "Add item"
+
+#: src/routes/dashboard.tsx
+msgid "Add penalty inputs before ranking by projected risk."
+msgstr "Add penalty inputs before ranking by projected risk."
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Add practice"
@@ -528,6 +564,10 @@ msgstr "Add practice"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Affected clients"
 msgstr "Affected clients"
+
+#: src/routes/workboard.tsx
+msgid "After"
+msgstr "After"
 
 #: src/features/workload/workload-page.tsx
 msgid "Aggregated from open obligations and client owner labels. Open any row in Workboard to triage the underlying deadlines."
@@ -556,6 +596,10 @@ msgstr "AI mapped your columns — review and confirm"
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI Mapper unavailable — using fallback"
+
+#: src/routes/workboard.tsx
+msgid "AI readiness checklist"
+msgstr "AI readiness checklist"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "AI refused request"
@@ -911,6 +955,10 @@ msgstr "Batch rollback trace retained for 24 hours"
 msgid "Bearer token"
 msgstr "Bearer token"
 
+#: src/routes/workboard.tsx
+msgid "Before"
+msgstr "Before"
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Billed yearly"
@@ -1122,6 +1170,10 @@ msgstr "Checklist item description"
 msgid "Checklist item label"
 msgstr "Checklist item label"
 
+#: src/routes/workboard.tsx
+msgid "Checklist items"
+msgstr "Checklist items"
+
 #: src/routes/route-summary.ts
 msgid "Checkout"
 msgstr "Checkout"
@@ -1174,6 +1226,7 @@ msgstr "Choose another plan"
 msgid "Choose Solo, Pro, or Team to start the hosted checkout flow."
 msgstr "Choose Solo, Pro, or Team to start the hosted checkout flow."
 
+#: src/components/primitives/iso-date-picker.tsx
 #: src/routes/workboard.tsx
 msgid "Clear"
 msgstr "Clear"
@@ -1224,6 +1277,10 @@ msgstr "Client created"
 msgid "Client email draft copied"
 msgstr "Client email draft copied"
 
+#: src/routes/workboard.tsx
+msgid "Client email on file"
+msgstr "Client email on file"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/clients.tsx
 msgid "Client facts"
@@ -1250,6 +1307,14 @@ msgstr "Client importance"
 #: src/features/migration/mapping-target-labels.ts
 msgid "Client name"
 msgstr "Client name"
+
+#: src/routes/workboard.tsx
+msgid "Client portal visitor"
+msgstr "Client portal visitor"
+
+#: src/routes/workboard.tsx
+msgid "Client readiness response"
+msgstr "Client readiness response"
 
 #: src/features/notifications/notifications-page.tsx
 msgid "Client reminder"
@@ -1984,6 +2049,10 @@ msgstr "Delete this practice?"
 msgid "Delete view"
 msgstr "Delete view"
 
+#: src/routes/workboard.tsx
+msgid "Delivery"
+msgstr "Delivery"
+
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Demo account"
 msgstr "Demo account"
@@ -1998,6 +2067,7 @@ msgid "Detail"
 msgstr "Detail"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/routes/workboard.tsx
 msgid "Details updated"
 msgstr "Details updated"
 
@@ -2078,6 +2148,11 @@ msgstr "Dry-Run"
 #: src/routes/practice.tsx
 msgid "Due"
 msgstr "Due"
+
+#. placeholder {0}: formatDate(currentDueDate)
+#: src/routes/workboard.tsx
+msgid "Due {0}"
+msgstr "Due {0}"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/pulse/components/PulseStructuredFields.tsx
@@ -2277,6 +2352,11 @@ msgstr "Estimated tax liability"
 msgid "ETA"
 msgstr "ETA"
 
+#. placeholder {0}: formatDate(response.etaDate)
+#: src/routes/workboard.tsx
+msgid "ETA {0}"
+msgstr "ETA {0}"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Event"
 msgstr "Event"
@@ -2356,8 +2436,6 @@ msgid "Export ready"
 msgstr "Export ready"
 
 #: src/features/concepts/concept-help.tsx
-#: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
 msgid "Exposure"
 msgstr "Exposure"
 
@@ -3283,6 +3361,7 @@ msgid "Navigate"
 msgstr "Navigate"
 
 #: src/routes/readiness.tsx
+#: src/routes/workboard.tsx
 msgid "Need help"
 msgstr "Need help"
 
@@ -3299,10 +3378,6 @@ msgstr "needs evidence"
 msgid "Needs evidence"
 msgstr "Needs evidence"
 
-#: src/routes/dashboard.tsx
-msgid "needs exposure input"
-msgstr "needs exposure input"
-
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Needs facts"
 msgstr "Needs facts"
@@ -3316,6 +3391,10 @@ msgstr "needs input"
 #: src/routes/workboard.tsx
 msgid "Needs input"
 msgstr "Needs input"
+
+#: src/routes/dashboard.tsx
+msgid "needs projected-risk input"
+msgstr "needs projected-risk input"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/Step3Normalize.tsx
@@ -3379,7 +3458,7 @@ msgstr "Next 7 days"
 msgid "Next check"
 msgstr "Next check"
 
-#: src/routes/workboard.tsx
+#: src/components/primitives/iso-date-picker.tsx
 msgid "Next month"
 msgstr "Next month"
 
@@ -3436,6 +3515,10 @@ msgstr "No audit events recorded for this obligation."
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events yet."
 msgstr "No audit events yet."
+
+#: src/routes/workboard.tsx
+msgid "No client email on file"
+msgstr "No client email on file"
 
 #: src/routes/workboard.tsx
 msgid "No client response yet."
@@ -3691,6 +3774,7 @@ msgstr "Not entered"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/members/members-page.tsx
+#: src/routes/workboard.tsx
 msgid "Not recorded"
 msgstr "Not recorded"
 
@@ -3708,6 +3792,7 @@ msgid "Not started"
 msgstr "Not started"
 
 #: src/routes/readiness.tsx
+#: src/routes/workboard.tsx
 msgid "Not yet"
 msgstr "Not yet"
 
@@ -3956,6 +4041,10 @@ msgstr "Open your authenticator app, add a new account, then scan this code. Use
 msgid "Open your personal notification inbox."
 msgstr "Open your personal notification inbox."
 
+#: src/routes/workboard.tsx
+msgid "Opened by"
+msgstr "Opened by"
+
 #: src/routes/billing.checkout.tsx
 msgid "Opening checkout…"
 msgstr "Opening checkout…"
@@ -4181,7 +4270,6 @@ msgid "Penalty inputs saved"
 msgstr "Penalty inputs saved"
 
 #: src/features/concepts/concept-help.tsx
-#: src/routes/dashboard.tsx
 msgid "Penalty Radar"
 msgstr "Penalty Radar"
 
@@ -4439,7 +4527,7 @@ msgstr "Preview-only AI assistance"
 msgid "Previous"
 msgstr "Previous"
 
-#: src/routes/workboard.tsx
+#: src/components/primitives/iso-date-picker.tsx
 msgid "Previous month"
 msgstr "Previous month"
 
@@ -4485,6 +4573,19 @@ msgstr "Pro"
 #: src/features/pulse/lib/error-mapping.ts
 msgid "Production Pulse actions require Pro or above."
 msgstr "Production Pulse actions require Pro or above."
+
+#: src/routes/workboard.tsx
+msgid "Projected 90-day risk"
+msgstr "Projected 90-day risk"
+
+#: src/routes/dashboard.tsx
+#: src/routes/workboard.tsx
+msgid "Projected risk"
+msgstr "Projected risk"
+
+#: src/routes/workboard.tsx
+msgid "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
+msgstr "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Provider"
@@ -4694,6 +4795,10 @@ msgstr "Readiness check"
 msgid "Readiness link created"
 msgstr "Readiness link created"
 
+#: src/routes/workboard.tsx
+msgid "Readiness portal opened"
+msgstr "Readiness portal opened"
+
 #: src/routes/practice.tsx
 msgid "Readiness pressure"
 msgstr "Readiness pressure"
@@ -4707,6 +4812,7 @@ msgid "Readiness request sent"
 msgstr "Readiness request sent"
 
 #: src/routes/readiness.tsx
+#: src/routes/workboard.tsx
 msgid "Readiness response submitted"
 msgstr "Readiness response submitted"
 
@@ -4778,6 +4884,10 @@ msgstr "Redirecting to Google…"
 #: src/routes/login.tsx
 msgid "Redirecting to Microsoft…"
 msgstr "Redirecting to Microsoft…"
+
+#: src/routes/workboard.tsx
+msgid "Reference"
+msgstr "Reference"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
@@ -4920,9 +5030,17 @@ msgstr "Resolve"
 msgid "Resolve needs review clients"
 msgstr "Resolve needs review clients"
 
+#: src/routes/workboard.tsx
+msgid "Responses"
+msgstr "Responses"
+
 #: src/routes/billing.cancel.tsx
 msgid "Restart checkout"
 msgstr "Restart checkout"
+
+#: src/routes/workboard.tsx
+msgid "Resulting readiness"
+msgstr "Resulting readiness"
 
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -5078,10 +5196,6 @@ msgstr "Risk inputs"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Risk inputs saved"
 msgstr "Risk inputs saved"
-
-#: src/routes/workboard.tsx
-msgid "Risk reflects the latest stored penalty calculation."
-msgstr "Risk reflects the latest stored penalty calculation."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Risk summary refresh queued"
@@ -5456,7 +5570,7 @@ msgstr "Select clients and apply again."
 msgid "Select clients to apply"
 msgstr "Select clients to apply"
 
-#: src/routes/workboard.tsx
+#: src/components/primitives/iso-date-picker.tsx
 msgid "Select date"
 msgstr "Select date"
 

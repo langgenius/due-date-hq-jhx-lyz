@@ -1,5 +1,7 @@
 import { and, asc, desc, eq, gte, inArray, isNull, lte, or, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
+import { estimateAccruedPenalty } from '@duedatehq/core/penalty'
+import type { PenaltyBreakdownItem } from '@duedatehq/core/penalty'
 import { compareSmartPriority, rankSmartPriorities } from '@duedatehq/core/priority'
 import type { SmartPriorityBreakdown } from '@duedatehq/ports/priority'
 import type { Db } from '../client'
@@ -95,6 +97,10 @@ export interface WorkboardListRow {
   assigneeName: string | null
   daysUntilDue: number
   evidenceCount: number
+  accruedPenaltyCents: number | null
+  accruedPenaltyStatus: 'ready' | 'needs_input' | 'unsupported'
+  accruedPenaltyBreakdown: PenaltyBreakdownItem[]
+  penaltyAsOfDate: string
   smartPriority: SmartPriorityBreakdown
 }
 
@@ -186,6 +192,9 @@ interface WorkboardRawJoinedRow {
   clientState: string | null
   clientCounty: string | null
   assigneeName: string | null
+  clientEntityType: string
+  clientEstimatedTaxLiabilityCents: number | null
+  clientEquityOwnerCount: number | null
   importanceWeight: number
   lateFilingCountLast12mo: number
 }
@@ -460,12 +469,27 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
     const asOfDateOnly = asOfDate.toISOString().slice(0, 10)
     const rowDrafts = rawRows.map((row) => {
       const currentDueDate = overlayDueDates.get(row.id) ?? row.currentDueDate
+      const accrued = estimateAccruedPenalty(
+        {
+          jurisdiction: row.clientState,
+          taxType: row.taxType,
+          entityType: row.clientEntityType,
+          dueDate: currentDueDate,
+          estimatedTaxLiabilityCents: row.clientEstimatedTaxLiabilityCents,
+          equityOwnerCount: row.clientEquityOwnerCount,
+        },
+        { asOfDate: asOfDateOnly },
+      )
       return Object.assign({}, row, {
         currentDueDate,
         evidenceCount: evidenceCounts.get(row.id) ?? 0,
         clientState: normalizeStateCode(row.clientState),
         clientCounty: normalizeNullableText(row.clientCounty),
         daysUntilDue: daysUntilDue(currentDueDate, asOfDate),
+        accruedPenaltyCents: accrued.estimatedExposureCents,
+        accruedPenaltyStatus: accrued.status,
+        accruedPenaltyBreakdown: accrued.breakdown,
+        penaltyAsOfDate: asOfDateOnly,
       })
     })
     const priorityById = new Map(
@@ -602,6 +626,9 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           clientState: client.state,
           clientCounty: client.county,
           assigneeName: client.assigneeName,
+          clientEntityType: client.entityType,
+          clientEstimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents,
+          clientEquityOwnerCount: client.equityOwnerCount,
           importanceWeight: client.importanceWeight,
           lateFilingCountLast12mo: client.lateFilingCountLast12mo,
         })
@@ -679,6 +706,9 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
               clientState: client.state,
               clientCounty: client.county,
               assigneeName: client.assigneeName,
+              clientEntityType: client.entityType,
+              clientEstimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents,
+              clientEquityOwnerCount: client.equityOwnerCount,
               importanceWeight: client.importanceWeight,
               lateFilingCountLast12mo: client.lateFilingCountLast12mo,
             })

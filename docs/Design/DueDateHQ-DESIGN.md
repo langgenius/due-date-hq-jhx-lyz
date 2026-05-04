@@ -321,12 +321,12 @@ display timezone and may show UTC as secondary audit metadata.
 - Selected：`background: var(--accent-tint)` + 2px 左 `--accent-default`
 - **行内操作区** `[Apply]` `[Start]` 用 `text-accent-default`，hover underline
 
-| Row kind            | Severity bar (left)                  | Background                      | 触发条件                                   |
-| ------------------- | ------------------------------------ | ------------------------------- | ------------------------------------------ |
-| `risk-row-critical` | `2px solid var(--severity-critical)` | `var(--severity-critical-tint)` | `days_left ≤ 2` 或 `exposure > $10,000`    |
-| `risk-row-high`     | `2px solid var(--severity-high)`     | `var(--severity-high-tint)`     | `3 ≤ days_left ≤ 7` 或 `exposure > $3,000` |
-| `risk-row-upcoming` | `2px solid var(--severity-medium)`   | `var(--severity-medium-tint)`   | `8 ≤ days_left ≤ 30`                       |
-| Neutral row         | —（仅 `--border-subtle` 1px 底线）   | 透明                            | `days_left > 30` 或 `status = OK`          |
+| Row kind            | Severity bar (left)                  | Background                      | 触发条件                                       |
+| ------------------- | ------------------------------------ | ------------------------------- | ---------------------------------------------- |
+| `risk-row-critical` | `2px solid var(--severity-critical)` | `var(--severity-critical-tint)` | `days_left ≤ 2` 或 projected risk > $10,000    |
+| `risk-row-high`     | `2px solid var(--severity-high)`     | `var(--severity-high-tint)`     | `3 ≤ days_left ≤ 7` 或 projected risk > $3,000 |
+| `risk-row-upcoming` | `2px solid var(--severity-medium)`   | `var(--severity-medium-tint)`   | `8 ≤ days_left ≤ 30`                           |
+| Neutral row         | —（仅 `--border-subtle` 1px 底线）   | 透明                            | `days_left > 30` 或 `status = OK`              |
 
 ### 4.2 Hero Metric（Dashboard 顶部 $ 风险聚合）
 

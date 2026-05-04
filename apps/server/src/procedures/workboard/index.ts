@@ -43,6 +43,10 @@ interface RawRow {
   estimatedExposureCents: number | null
   exposureStatus: WorkboardRow['exposureStatus']
   penaltyBreakdownJson: unknown
+  accruedPenaltyCents: number | null
+  accruedPenaltyStatus: WorkboardRow['accruedPenaltyStatus']
+  accruedPenaltyBreakdown: WorkboardRow['accruedPenaltyBreakdown']
+  penaltyAsOfDate: string
   penaltyFormulaVersion: string | null
   exposureCalculatedAt: Date | null
   createdAt: Date
@@ -116,6 +120,10 @@ function toRow(
     estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,
     exposureStatus: row.exposureStatus,
     penaltyBreakdown: opts.hideDollars ? [] : parsePenaltyBreakdown(row.penaltyBreakdownJson),
+    accruedPenaltyCents: opts.hideDollars ? null : row.accruedPenaltyCents,
+    accruedPenaltyStatus: row.accruedPenaltyStatus,
+    accruedPenaltyBreakdown: opts.hideDollars ? [] : row.accruedPenaltyBreakdown,
+    penaltyAsOfDate: row.penaltyAsOfDate,
     penaltyFormulaVersion: opts.hideDollars ? null : row.penaltyFormulaVersion,
     exposureCalculatedAt: opts.hideDollars
       ? null
@@ -288,6 +296,8 @@ function rowsToCsv(rows: WorkboardRow[]): string {
     row.daysUntilDue,
     row.estimatedExposureCents === null ? '' : row.estimatedExposureCents,
     row.exposureStatus,
+    row.accruedPenaltyCents === null ? '' : row.accruedPenaltyCents,
+    row.accruedPenaltyStatus,
     row.status,
     row.readiness,
     row.evidenceCount,
@@ -301,8 +311,10 @@ function rowsToCsv(rows: WorkboardRow[]): string {
       'Tax type',
       'Current due',
       'Days until due',
-      'Exposure cents',
-      'Exposure status',
+      'Projected risk cents',
+      'Projected risk status',
+      'Accrued penalty cents',
+      'Accrued penalty status',
       'Status',
       'Readiness',
       'Evidence count',
@@ -333,7 +345,11 @@ async function buildClientPdf(clientName: string, rows: WorkboardRow[]): Promise
       row.estimatedExposureCents === null
         ? row.exposureStatus
         : `$${row.estimatedExposureCents / 100}`
-    return `${row.taxType} | due ${row.currentDueDate} | ${row.status} | ${exposure}`
+    const accrued =
+      row.accruedPenaltyCents === null
+        ? row.accruedPenaltyStatus
+        : `$${row.accruedPenaltyCents / 100}`
+    return `${row.taxType} | due ${row.currentDueDate} | ${row.status} | projected ${exposure} | accrued ${accrued}`
   })
   lines.forEach((line, index) => {
     page.drawText(line.slice(0, 92), { x: 72, y: 660 - index * 20, font, size: 10 })

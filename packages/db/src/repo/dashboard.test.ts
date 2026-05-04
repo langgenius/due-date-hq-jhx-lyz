@@ -21,6 +21,10 @@ describe('dashboard aggregation', () => {
           estimatedExposureCents: null,
           exposureStatus: 'needs_input',
           penaltyFormulaVersion: null,
+          clientState: 'CA',
+          clientEntityType: 'c_corp',
+          clientEstimatedTaxLiabilityCents: null,
+          clientEquityOwnerCount: null,
         },
         {
           obligationId: 'oi_week',
@@ -32,6 +36,10 @@ describe('dashboard aggregation', () => {
           estimatedExposureCents: 125_000,
           exposureStatus: 'ready',
           penaltyFormulaVersion: 'penalty-v1-2026q2',
+          clientState: 'NY',
+          clientEntityType: 'c_corp',
+          clientEstimatedTaxLiabilityCents: 1_000_000,
+          clientEquityOwnerCount: null,
         },
         {
           obligationId: 'oi_later',
@@ -43,6 +51,10 @@ describe('dashboard aggregation', () => {
           estimatedExposureCents: null,
           exposureStatus: 'unsupported',
           penaltyFormulaVersion: null,
+          clientState: null,
+          clientEntityType: 'c_corp',
+          clientEstimatedTaxLiabilityCents: 1_000_000,
+          clientEquityOwnerCount: null,
         },
         {
           obligationId: 'oi_day_7',
@@ -54,6 +66,10 @@ describe('dashboard aggregation', () => {
           estimatedExposureCents: 80_000,
           exposureStatus: 'ready',
           penaltyFormulaVersion: 'penalty-v1-2026q2',
+          clientState: null,
+          clientEntityType: 'c_corp',
+          clientEstimatedTaxLiabilityCents: 1_000_000,
+          clientEquityOwnerCount: null,
         },
       ],
       [
@@ -84,6 +100,10 @@ describe('dashboard aggregation', () => {
       exposureReadyCount: 2,
       exposureNeedsInputCount: 1,
       exposureUnsupportedCount: 0,
+      totalAccruedPenaltyCents: 0,
+      accruedPenaltyReadyCount: 0,
+      accruedPenaltyNeedsInputCount: 0,
+      accruedPenaltyUnsupportedCount: 1,
     })
     expect(result.topRows[0]!.obligationId).toBe('oi_week')
     expect(result.topRows[0]!.severity).toBe('high')
@@ -134,6 +154,10 @@ describe('dashboard aggregation', () => {
         estimatedExposureCents: Number(estimatedExposureCents),
         exposureStatus: 'ready' as const,
         penaltyFormulaVersion: 'penalty-v1-2026q2',
+        clientState: null,
+        clientEntityType: 'c_corp',
+        clientEstimatedTaxLiabilityCents: 1_000_000,
+        clientEquityOwnerCount: null,
       })),
       [],
       { asOfDate: AS_OF, windowDays: 7, topLimit: 20 },
@@ -168,6 +192,10 @@ describe('dashboard aggregation', () => {
         estimatedExposureCents: null,
         exposureStatus: 'needs_input' as const,
         penaltyFormulaVersion: null,
+        clientState: 'CA',
+        clientEntityType: 'c_corp',
+        clientEstimatedTaxLiabilityCents: null,
+        clientEquityOwnerCount: null,
       },
       {
         obligationId: 'oi_week',
@@ -179,6 +207,10 @@ describe('dashboard aggregation', () => {
         estimatedExposureCents: 125_000,
         exposureStatus: 'ready' as const,
         penaltyFormulaVersion: 'penalty-v1-2026q2',
+        clientState: 'NY',
+        clientEntityType: 'c_corp',
+        clientEstimatedTaxLiabilityCents: 1_000_000,
+        clientEquityOwnerCount: null,
       },
       {
         obligationId: 'oi_day_7',
@@ -190,6 +222,10 @@ describe('dashboard aggregation', () => {
         estimatedExposureCents: 80_000,
         exposureStatus: 'ready' as const,
         penaltyFormulaVersion: 'penalty-v1-2026q2',
+        clientState: null,
+        clientEntityType: 'c_corp',
+        clientEstimatedTaxLiabilityCents: 1_000_000,
+        clientEquityOwnerCount: null,
       },
       {
         obligationId: 'oi_later',
@@ -201,6 +237,10 @@ describe('dashboard aggregation', () => {
         estimatedExposureCents: null,
         exposureStatus: 'unsupported' as const,
         penaltyFormulaVersion: null,
+        clientState: null,
+        clientEntityType: 'c_corp',
+        clientEstimatedTaxLiabilityCents: 1_000_000,
+        clientEquityOwnerCount: null,
       },
     ]
     const evidenceRows = [

@@ -21,8 +21,6 @@ import {
   ArrowUpIcon,
   CalendarDaysIcon,
   ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   Columns3Icon,
   CopyIcon,
   DownloadIcon,
@@ -51,7 +49,6 @@ import {
 } from 'nuqs'
 import { toast } from 'sonner'
 
-import { INTL_LOCALE } from '@duedatehq/i18n'
 import {
   WORKBOARD_SEARCH_MAX_LENGTH,
   WORKBOARD_FILTER_MAX_SELECTIONS,
@@ -101,7 +98,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@duedatehq/ui/components/ui/dialog'
-import { Popover, PopoverContent, PopoverTrigger } from '@duedatehq/ui/components/ui/popover'
 import { Separator } from '@duedatehq/ui/components/ui/separator'
 import {
   Select,
@@ -137,6 +133,7 @@ import {
   tableHeaderFilterTrigger,
   type TableFilterOption,
 } from '@/components/patterns/table-header-filter'
+import { IsoDatePicker, isValidIsoDate } from '@/components/primitives/iso-date-picker'
 import { ConceptLabel } from '@/features/concepts/concept-help'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
@@ -154,7 +151,6 @@ import {
   type ObligationReadiness,
   type ObligationStatus,
 } from '@/features/workboard/status-control'
-import { currentLocale } from '@/i18n/i18n'
 import { queryInputUrlUpdateRateLimit, useDebouncedQueryInput } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -208,11 +204,6 @@ const WORKBOARD_ROW_CONTROL_SELECTOR =
   'button,a[href],input,label,select,textarea,[role="button"],[role="checkbox"],[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"],[role="option"],[role="radio"],[role="tab"],[data-slot="checkbox"]'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const STATE_CODE_RE = /^[A-Z]{2}$/
-const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
-const CALENDAR_DAY_MS = 24 * 60 * 60 * 1000
-const CALENDAR_GRID_DAY_COUNT = 42
-const CALENDAR_WEEKDAY_COUNT = 7
-const CALENDAR_WEEKDAY_ANCHOR_UTC = Date.UTC(2026, 0, 4)
 const ReadinessChecklistItemsSchema = ReadinessChecklistItemSchema.array().min(1).max(8)
 
 interface GeneratedReadinessChecklistDraft {
@@ -251,58 +242,6 @@ function latestGeneratedReadinessChecklistDraft(
   }
 
   return latest
-}
-
-function padDatePart(value: number): string {
-  return String(value).padStart(2, '0')
-}
-
-function isoDateFromUtcDate(date: Date): string {
-  return `${date.getUTCFullYear()}-${padDatePart(date.getUTCMonth() + 1)}-${padDatePart(date.getUTCDate())}`
-}
-
-function isValidIsoDate(value: string): boolean {
-  if (!ISO_DATE_RE.test(value)) return false
-
-  const year = Number(value.slice(0, 4))
-  const month = Number(value.slice(5, 7))
-  const day = Number(value.slice(8, 10))
-  const date = new Date(Date.UTC(year, month - 1, day))
-  return (
-    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
-  )
-}
-
-function parseIsoDate(value: string): Date | null {
-  if (!isValidIsoDate(value)) return null
-  return new Date(
-    Date.UTC(Number(value.slice(0, 4)), Number(value.slice(5, 7)) - 1, Number(value.slice(8, 10))),
-  )
-}
-
-function startOfUtcMonth(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1))
-}
-
-function addUtcMonths(date: Date, months: number): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, 1))
-}
-
-function visibleCalendarMonth(value: string): Date {
-  return startOfUtcMonth(parseIsoDate(value) ?? new Date())
-}
-
-function buildCalendarDays(month: Date): Date[] {
-  const monthStart = startOfUtcMonth(month)
-  const gridStartTime = monthStart.getTime() - monthStart.getUTCDay() * CALENDAR_DAY_MS
-  return Array.from(
-    { length: CALENDAR_GRID_DAY_COUNT },
-    (_, index) => new Date(gridStartTime + index * CALENDAR_DAY_MS),
-  )
-}
-
-function appIntlLocale(): string {
-  return INTL_LOCALE[currentLocale()]
 }
 
 type DueDaysTone = {
@@ -381,8 +320,8 @@ function useSortLabels(): Record<WorkboardSort, string> {
       smart_priority: t`Smart Priority`,
       due_asc: t`Due date — earliest first`,
       due_desc: t`Due date — latest first`,
-      exposure_desc: `${t`Exposure`} ↓`,
-      exposure_asc: `${t`Exposure`} ↑`,
+      exposure_desc: `${t`Projected risk`} ↓`,
+      exposure_asc: `${t`Projected risk`} ↑`,
       updated_desc: t`Recently updated`,
     }),
     [t],
@@ -656,7 +595,7 @@ export function WorkboardRoute() {
       taxType: t`Tax type`,
       currentDueDate: t`Due date`,
       daysUntilDue: t`Days`,
-      estimatedExposureCents: t`Exposure`,
+      estimatedExposureCents: t`Projected risk`,
       readiness: t`Readiness`,
       evidenceCount: t`Evidence`,
       status: t`Status`,
@@ -1286,7 +1225,7 @@ export function WorkboardRoute() {
       {
         accessorKey: 'estimatedExposureCents',
         header: () => {
-          const label = t`Exposure`
+          const label = t`Projected risk`
           return (
             <WorkboardSortableHeader
               sort={sort}
@@ -2302,13 +2241,29 @@ function ExposurePill({
   onNeedsInput: (row: WorkboardRow) => void
 }) {
   if (row.exposureStatus === 'ready' && row.estimatedExposureCents !== null) {
+    const showAccrued = row.daysUntilDue < 0
     return (
-      <Badge
-        variant="warning"
-        className={`${WORKBOARD_TABLE_PILL_CLASSNAME} font-mono tabular-nums`}
-      >
-        {formatCents(row.estimatedExposureCents)}
-      </Badge>
+      <div className="grid min-w-0 gap-1">
+        <Badge
+          variant="warning"
+          className={`${WORKBOARD_TABLE_PILL_CLASSNAME} font-mono tabular-nums`}
+        >
+          {formatCents(row.estimatedExposureCents)}
+        </Badge>
+        {showAccrued ? (
+          <span className="text-[11px] leading-none text-text-tertiary">
+            {row.accruedPenaltyStatus === 'ready' && row.accruedPenaltyCents !== null ? (
+              <Trans>
+                Accrued {formatCents(row.accruedPenaltyCents)} as of {row.penaltyAsOfDate}
+              </Trans>
+            ) : row.accruedPenaltyStatus === 'needs_input' ? (
+              <Trans>Accrued needs input</Trans>
+            ) : (
+              <Trans>Accrued unsupported</Trans>
+            )}
+          </span>
+        ) : null}
+      </div>
     )
   }
   if (row.exposureStatus === 'needs_input') {
@@ -2479,169 +2434,6 @@ function RangeHeaderFilterDropdown({
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
-
-function ExpectedExtendedDueDatePicker({
-  value,
-  invalid,
-  onValueChange,
-}: {
-  value: string
-  invalid: boolean
-  onValueChange: (value: string) => void
-}) {
-  const { t } = useLingui()
-  const [open, setOpen] = useState(false)
-  const [visibleMonth, setVisibleMonth] = useState(() => visibleCalendarMonth(value))
-  const locale = appIntlLocale()
-  const selectedDate = parseIsoDate(value)
-  const selectedIsoDate = selectedDate ? isoDateFromUtcDate(selectedDate) : null
-  const todayIsoDate = isoDateFromUtcDate(new Date())
-  const calendarDays = useMemo(() => buildCalendarDays(visibleMonth), [visibleMonth])
-  const monthLabelFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        month: 'long',
-        numberingSystem: 'latn',
-        timeZone: 'UTC',
-        year: 'numeric',
-      }),
-    [locale],
-  )
-  const weekdayLabelFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        numberingSystem: 'latn',
-        timeZone: 'UTC',
-        weekday: 'short',
-      }),
-    [locale],
-  )
-  const dayLabelFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        day: 'numeric',
-        numberingSystem: 'latn',
-        timeZone: 'UTC',
-      }),
-    [locale],
-  )
-  const weekdays = useMemo(
-    () =>
-      Array.from({ length: CALENDAR_WEEKDAY_COUNT }, (_, index) =>
-        weekdayLabelFormatter.format(
-          new Date(CALENDAR_WEEKDAY_ANCHOR_UTC + index * CALENDAR_DAY_MS),
-        ),
-      ),
-    [weekdayLabelFormatter],
-  )
-
-  function changeOpen(nextOpen: boolean) {
-    setOpen(nextOpen)
-    if (nextOpen) setVisibleMonth(visibleCalendarMonth(value))
-  }
-
-  function selectDate(date: Date) {
-    onValueChange(isoDateFromUtcDate(date))
-    setOpen(false)
-  }
-
-  return (
-    <Popover open={open} onOpenChange={changeOpen}>
-      <PopoverTrigger
-        render={
-          <button
-            type="button"
-            aria-label={t`Expected extended due date`}
-            aria-expanded={open}
-            aria-invalid={invalid || undefined}
-            className={cn(
-              'flex h-8 w-full min-w-0 items-center justify-between gap-2 rounded-lg border border-transparent bg-components-input-bg-normal px-3 py-1 text-sm text-components-input-text-filled transition-colors outline-none',
-              'hover:bg-components-input-bg-hover',
-              'focus-visible:border-components-input-border-active focus-visible:bg-components-input-bg-active focus-visible:ring-2 focus-visible:ring-state-accent-active-alt',
-              'aria-invalid:border-components-input-border-destructive aria-invalid:bg-components-input-bg-destructive aria-invalid:ring-2 aria-invalid:ring-state-destructive-active',
-            )}
-          >
-            <span
-              className={cn(
-                'min-w-0 truncate font-mono tabular-nums',
-                value
-                  ? 'text-components-input-text-filled'
-                  : 'text-components-input-text-placeholder',
-              )}
-            >
-              {value || t`Select date`}
-            </span>
-            <CalendarDaysIcon className="size-4 shrink-0 text-text-tertiary" aria-hidden />
-          </button>
-        }
-      />
-      <PopoverContent align="start" className="w-72 gap-3 p-3">
-        <div className="flex items-center justify-between gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t`Previous month`}
-            onClick={() => setVisibleMonth((current) => addUtcMonths(current, -1))}
-          >
-            <ChevronLeftIcon aria-hidden />
-          </Button>
-          <div className="text-sm font-medium text-text-primary">
-            {monthLabelFormatter.format(visibleMonth)}
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t`Next month`}
-            onClick={() => setVisibleMonth((current) => addUtcMonths(current, 1))}
-          >
-            <ChevronRightIcon aria-hidden />
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-medium text-text-tertiary uppercase">
-          {weekdays.map((weekday) => (
-            <div key={weekday}>{weekday}</div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-7 gap-1">
-          {calendarDays.map((date) => {
-            const isoDate = isoDateFromUtcDate(date)
-            const selected = isoDate === selectedIsoDate
-            const currentMonth = date.getUTCMonth() === visibleMonth.getUTCMonth()
-            return (
-              <Button
-                key={isoDate}
-                type="button"
-                variant={selected ? 'accent' : 'ghost'}
-                size="xs"
-                aria-pressed={selected}
-                className={cn(
-                  'h-8 rounded-md px-0 font-mono text-xs tabular-nums',
-                  !currentMonth && !selected ? 'text-text-muted' : undefined,
-                  isoDate === todayIsoDate && !selected ? 'border-divider-regular' : undefined,
-                )}
-                onClick={() => selectDate(date)}
-              >
-                {dayLabelFormatter.format(date)}
-              </Button>
-            )
-          })}
-        </div>
-
-        {value ? (
-          <div className="border-t border-divider-subtle pt-3">
-            <Button type="button" variant="ghost" size="xs" onClick={() => onValueChange('')}>
-              <Trans>Clear</Trans>
-            </Button>
-          </div>
-        ) : null}
-      </PopoverContent>
-    </Popover>
   )
 }
 
@@ -3213,9 +3005,10 @@ function WorkboardDetailDrawer({
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                    <ExpectedExtendedDueDatePicker
+                    <IsoDatePicker
                       value={extensionDraft.expectedExtendedDueDate}
                       invalid={expectedExtendedDueDateInvalid}
+                      ariaLabel={t`Expected extended due date`}
                       onValueChange={(expectedExtendedDueDate) =>
                         setExtensionDraft((current) => ({ ...current, expectedExtendedDueDate }))
                       }
@@ -3305,11 +3098,21 @@ function WorkboardDetailDrawer({
                       onRefresh={() => requestDeadlineTipMutation.mutate({ obligationId: row.id })}
                     />
                     <DetailRow
-                      label={<ConceptLabel concept="exposure">{t`Exposure`}</ConceptLabel>}
+                      label={
+                        <ConceptLabel concept="exposure">{t`90-day projected risk`}</ConceptLabel>
+                      }
                       value={
                         row.exposureStatus === 'ready' && row.estimatedExposureCents !== null
                           ? formatCents(row.estimatedExposureCents)
                           : row.exposureStatus
+                      }
+                    />
+                    <DetailRow
+                      label={<Trans>Accrued penalty</Trans>}
+                      value={
+                        row.accruedPenaltyStatus === 'ready' && row.accruedPenaltyCents !== null
+                          ? `${formatCents(row.accruedPenaltyCents)} · ${row.penaltyAsOfDate}`
+                          : row.accruedPenaltyStatus
                       }
                     />
                     <DetailRow
@@ -3335,9 +3138,12 @@ function WorkboardDetailDrawer({
                     <Separator />
                     {row.penaltyBreakdown.length > 0 ? (
                       <div className="grid gap-2">
+                        <p className="text-xs font-medium text-text-secondary">
+                          <Trans>Projected 90-day risk</Trans>
+                        </p>
                         {row.penaltyBreakdown.map((item) => (
                           <div
-                            key={item.key}
+                            key={`projected-${item.key}`}
                             className="grid gap-1 rounded-lg border border-divider-regular p-3"
                           >
                             <div className="flex justify-between gap-3">
@@ -3353,6 +3159,25 @@ function WorkboardDetailDrawer({
                         <Trans>No penalty breakdown is available yet.</Trans>
                       </EmptyPanel>
                     )}
+                    {row.accruedPenaltyBreakdown.length > 0 ? (
+                      <div className="grid gap-2">
+                        <p className="text-xs font-medium text-text-secondary">
+                          <Trans>Accrued penalty</Trans>
+                        </p>
+                        {row.accruedPenaltyBreakdown.map((item) => (
+                          <div
+                            key={`accrued-${item.key}`}
+                            className="grid gap-1 rounded-lg border border-divider-regular p-3"
+                          >
+                            <div className="flex justify-between gap-3">
+                              <span className="font-medium">{item.label}</span>
+                              <span className="font-mono">{formatCents(item.amountCents)}</span>
+                            </div>
+                            <span className="text-xs text-text-tertiary">{item.formula}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                   <div className="content-start rounded-lg border border-divider-regular p-3">
                     {row.exposureStatus === 'needs_input' ? (
@@ -3362,7 +3187,10 @@ function WorkboardDetailDrawer({
                       </Button>
                     ) : (
                       <p className="text-xs text-text-secondary">
-                        <Trans>Risk reflects the latest stored penalty calculation.</Trans>
+                        <Trans>
+                          Projected risk reflects the latest stored penalty calculation. Accrued
+                          penalty is calculated for the selected as-of date.
+                        </Trans>
                       </p>
                     )}
                   </div>
@@ -3410,21 +3238,7 @@ function WorkboardDetailDrawer({
                   </div>
                   {detail.auditEvents.length > 0 ? (
                     detail.auditEvents.map((event) => (
-                      <div key={event.id} className="rounded-lg border border-divider-regular p-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="font-medium">{event.action}</span>
-                          <span className="text-xs text-text-tertiary">
-                            {new Date(event.createdAt).toLocaleString()}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs text-text-secondary">
-                          {event.actorLabel ?? t`System or client portal`}
-                        </p>
-                        {event.reason ? (
-                          <p className="mt-2 text-sm text-text-secondary">{event.reason}</p>
-                        ) : null}
-                        <AuditJsonSummary before={event.beforeJson} after={event.afterJson} />
-                      </div>
+                      <WorkboardAuditEventCard key={event.id} event={event} />
                     ))
                   ) : (
                     <EmptyPanel>
@@ -3630,30 +3444,142 @@ function AlertPanel({ children }: { children: ReactNode }) {
   )
 }
 
-function EvidenceInlineItem({
-  item,
-}: {
-  item: {
-    id: string
-    sourceType: string
-    sourceUrl: string | null
-    rawValue: string | null
-    normalizedValue: string | null
-    appliedAt: string
+type WorkboardEvidenceItem = {
+  id: string
+  sourceType: string
+  sourceUrl: string | null
+  rawValue: string | null
+  normalizedValue: string | null
+  appliedAt: string
+}
+
+type WorkboardAuditEvent = WorkboardDetail['auditEvents'][number]
+
+type ReadinessResponseEvidenceItem = {
+  itemId: string
+  status: 'ready' | 'not_yet' | 'need_help'
+  note: string | null
+  etaDate: string | null
+}
+
+type AuditSummaryRow = {
+  id: string
+  label: ReactNode
+  value: ReactNode
+}
+
+function readJsonRecord(value: string | null): Record<string, unknown> | null {
+  if (!value) return null
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+    return Object.fromEntries(Object.entries(parsed))
+  } catch {
+    return null
   }
-}) {
+}
+
+function readUnknownRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  return Object.fromEntries(Object.entries(value))
+}
+
+function readRecordString(record: Record<string, unknown> | null, key: string): string | null {
+  const value = record?.[key]
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function readRecordNumber(record: Record<string, unknown> | null, key: string): number | null {
+  const value = record?.[key]
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function humanizeToken(value: string): string {
+  const normalized = value
+    .replace(/[._-]+/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .trim()
+  if (!normalized) return value
+  return normalized
+    .split(/\s+/)
+    .map((word, index) => {
+      const lower = word.toLowerCase()
+      if (['ai', 'api', 'ein', 'id', 'ip', 'ssn', 'url'].includes(lower)) return lower.toUpperCase()
+      return index === 0 ? `${lower.charAt(0).toUpperCase()}${lower.slice(1)}` : lower
+    })
+    .join(' ')
+}
+
+function shortReference(value: string | null): string | null {
+  if (!value) return null
+  return value.length <= 12 ? value : value.slice(0, 8)
+}
+
+function parseReadinessResponseEvidence(
+  value: string | null,
+): ReadinessResponseEvidenceItem[] | null {
+  if (!value) return null
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (!Array.isArray(parsed)) return null
+    const responses = parsed
+      .map((entry): ReadinessResponseEvidenceItem | null => {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return null
+        const record = Object.fromEntries(Object.entries(entry))
+        const itemId = readRecordString(record, 'itemId')
+        const status = readRecordString(record, 'status')
+        if (!itemId || (status !== 'ready' && status !== 'not_yet' && status !== 'need_help')) {
+          return null
+        }
+        return {
+          itemId,
+          status,
+          note: readRecordString(record, 'note'),
+          etaDate: readRecordString(record, 'etaDate'),
+        }
+      })
+      .filter((entry): entry is ReadinessResponseEvidenceItem => entry !== null)
+    return responses.length === parsed.length ? responses : null
+  } catch {
+    return null
+  }
+}
+
+function evidenceSourceLabel(sourceType: string): ReactNode {
+  if (sourceType === 'readiness_checklist_ai') return <Trans>AI readiness checklist</Trans>
+  if (sourceType === 'readiness_client_response') return <Trans>Client readiness response</Trans>
+  return sourceType
+}
+
+function EvidenceInlineItem({ item }: { item: WorkboardEvidenceItem }) {
+  const checklist =
+    item.sourceType === 'readiness_checklist_ai'
+      ? parseGeneratedReadinessChecklist(item.normalizedValue)
+      : null
+  const readinessResponses =
+    item.sourceType === 'readiness_client_response'
+      ? parseReadinessResponseEvidence(item.rawValue)
+      : null
+
   return (
     <div className="rounded-lg border border-divider-regular p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="font-medium">{item.sourceType}</span>
+        <span className="font-medium">{evidenceSourceLabel(item.sourceType)}</span>
         <span className="text-xs text-text-tertiary">
           {new Date(item.appliedAt).toLocaleString()}
         </span>
       </div>
-      {item.normalizedValue ? (
-        <p className="mt-1 break-words text-sm text-text-secondary">{item.normalizedValue}</p>
+      {checklist ? (
+        <ReadinessChecklistEvidence checklist={checklist} context={readJsonRecord(item.rawValue)} />
+      ) : readinessResponses ? (
+        <ReadinessClientResponseEvidence
+          responses={readinessResponses}
+          summary={readJsonRecord(item.normalizedValue)}
+        />
+      ) : item.normalizedValue ? (
+        <p className="mt-2 break-words text-sm text-text-secondary">{item.normalizedValue}</p>
       ) : item.rawValue ? (
-        <p className="mt-1 break-words text-sm text-text-secondary">{item.rawValue}</p>
+        <p className="mt-2 break-words text-sm text-text-secondary">{item.rawValue}</p>
       ) : null}
       {item.sourceUrl ? (
         <Button
@@ -3670,21 +3596,322 @@ function EvidenceInlineItem({
   )
 }
 
-function AuditJsonSummary({ before, after }: { before: unknown; after: unknown }) {
-  if (before === null && after === null) return null
+function ReadinessChecklistEvidence({
+  checklist,
+  context,
+}: {
+  checklist: ReadinessChecklistItem[]
+  context: Record<string, unknown> | null
+}) {
+  const taxType = readRecordString(context, 'taxType')
+  const entityType = readRecordString(context, 'entityType')
+  const state = readRecordString(context, 'state')
+  const currentDueDate = readRecordString(context, 'currentDueDate')
+
   return (
-    <div className="mt-2 grid gap-2 text-xs">
-      {before !== null ? (
-        <pre className="max-h-32 overflow-auto rounded-md bg-background-section p-2">
-          {JSON.stringify(before, null, 2)}
-        </pre>
+    <div className="mt-3 grid gap-3">
+      {taxType || entityType || state || currentDueDate ? (
+        <div className="flex flex-wrap gap-2 text-xs text-text-tertiary">
+          {taxType ? <Badge variant="outline">{taxType}</Badge> : null}
+          {entityType ? <Badge variant="outline">{entityType}</Badge> : null}
+          {state ? <Badge variant="outline">{state}</Badge> : null}
+          {currentDueDate ? (
+            <Badge variant="outline">
+              <Trans>Due {formatDate(currentDueDate)}</Trans>
+            </Badge>
+          ) : null}
+        </div>
       ) : null}
-      {after !== null ? (
-        <pre className="max-h-32 overflow-auto rounded-md bg-background-section p-2">
-          {JSON.stringify(after, null, 2)}
-        </pre>
-      ) : null}
+      <ol className="grid gap-2">
+        {checklist.map((entry, index) => (
+          <li
+            key={entry.id}
+            className="grid gap-1 border-t border-divider-subtle pt-2 first:border-0 first:pt-0"
+          >
+            <div className="flex min-w-0 gap-2">
+              <span className="font-mono text-xs text-text-tertiary">{index + 1}.</span>
+              <span className="min-w-0 font-medium text-text-primary">{entry.label}</span>
+            </div>
+            {entry.description ? (
+              <p className="pl-6 text-sm text-text-secondary">{entry.description}</p>
+            ) : null}
+            {entry.reason || entry.sourceHint ? (
+              <div className="flex flex-wrap gap-2 pl-6 text-xs text-text-tertiary">
+                {entry.reason ? <span>{entry.reason}</span> : null}
+                {entry.sourceHint ? <Badge variant="secondary">{entry.sourceHint}</Badge> : null}
+              </div>
+            ) : null}
+          </li>
+        ))}
+      </ol>
     </div>
+  )
+}
+
+function ReadinessClientResponseEvidence({
+  responses,
+  summary,
+}: {
+  responses: ReadinessResponseEvidenceItem[]
+  summary: Record<string, unknown> | null
+}) {
+  const readiness = readRecordString(summary, 'readiness')
+
+  return (
+    <div className="mt-3 grid gap-3">
+      {readiness ? (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-text-secondary">
+            <Trans>Resulting readiness</Trans>
+          </span>
+          <Badge variant="outline">{humanizeToken(readiness)}</Badge>
+        </div>
+      ) : null}
+      <ol className="grid gap-2">
+        {responses.map((response) => (
+          <li
+            key={response.itemId}
+            className="grid gap-1 border-t border-divider-subtle pt-2 first:border-0 first:pt-0"
+          >
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <span className="font-medium text-text-primary">
+                {humanizeToken(response.itemId)}
+              </span>
+              <ReadinessResponseStatusBadge status={response.status} />
+            </div>
+            {response.etaDate ? (
+              <p className="text-xs text-text-tertiary">
+                <Trans>ETA {formatDate(response.etaDate)}</Trans>
+              </p>
+            ) : null}
+            {response.note ? <p className="text-sm text-text-secondary">{response.note}</p> : null}
+          </li>
+        ))}
+      </ol>
+    </div>
+  )
+}
+
+function ReadinessResponseStatusBadge({
+  status,
+}: {
+  status: ReadinessResponseEvidenceItem['status']
+}) {
+  if (status === 'ready') {
+    return (
+      <Badge variant="success">
+        <Trans>Ready</Trans>
+      </Badge>
+    )
+  }
+  if (status === 'need_help') {
+    return (
+      <Badge variant="warning">
+        <Trans>Need help</Trans>
+      </Badge>
+    )
+  }
+  return (
+    <Badge variant="outline">
+      <Trans>Not yet</Trans>
+    </Badge>
+  )
+}
+
+function WorkboardAuditEventCard({ event }: { event: WorkboardAuditEvent }) {
+  const { t } = useLingui()
+  const readinessLabels = useReadinessLabels()
+
+  return (
+    <div className="rounded-lg border border-divider-regular p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="font-medium">
+          {readinessAuditActionLabel(event.action) ?? event.action}
+        </span>
+        <span className="text-xs text-text-tertiary">
+          {new Date(event.createdAt).toLocaleString()}
+        </span>
+      </div>
+      <p className="mt-1 text-xs text-text-secondary">
+        {event.actorLabel ?? t`System or client portal`}
+      </p>
+      {event.reason ? <p className="mt-2 text-sm text-text-secondary">{event.reason}</p> : null}
+      <AuditPayloadSummary event={event} readinessLabels={readinessLabels} />
+    </div>
+  )
+}
+
+function readinessAuditActionLabel(action: string): ReactNode | null {
+  if (action === 'readiness.request.sent') return <Trans>Readiness request sent</Trans>
+  if (action === 'readiness.request.revoked') return <Trans>Readiness request revoked</Trans>
+  if (action === 'readiness.portal.opened') return <Trans>Readiness portal opened</Trans>
+  if (action === 'readiness.client_response') return <Trans>Readiness response submitted</Trans>
+  return null
+}
+
+function AuditPayloadSummary({
+  event,
+  readinessLabels,
+}: {
+  event: WorkboardAuditEvent
+  readinessLabels: Record<string, string>
+}) {
+  const readinessRows = readinessAuditRows(event, readinessLabels)
+  if (readinessRows) return <AuditSummaryRows rows={readinessRows} />
+
+  const before = auditPayloadRows(event.beforeJson)
+  const after = auditPayloadRows(event.afterJson)
+  if (before.length === 0 && after.length === 0) return null
+
+  return (
+    <div className="mt-3 grid gap-3">
+      {before.length > 0 ? (
+        <AuditSummarySection title={<Trans>Before</Trans>} rows={before} />
+      ) : null}
+      {after.length > 0 ? <AuditSummarySection title={<Trans>After</Trans>} rows={after} /> : null}
+    </div>
+  )
+}
+
+function readinessAuditRows(
+  event: WorkboardAuditEvent,
+  readinessLabels: Record<string, string>,
+): AuditSummaryRow[] | null {
+  const before = readUnknownRecord(event.beforeJson)
+  const after = readUnknownRecord(event.afterJson)
+  const requestId = shortReference(
+    readRecordString(after, 'requestId') ?? readRecordString(before, 'requestId'),
+  )
+
+  if (event.action === 'readiness.request.sent') {
+    const checklistCount = readRecordNumber(after, 'checklistCount')
+    const recipientEmail = readRecordString(after, 'recipientEmail')
+    return [
+      ...(checklistCount === null
+        ? []
+        : [{ id: 'checklistCount', label: <Trans>Checklist items</Trans>, value: checklistCount }]),
+      ...(recipientEmail
+        ? [
+            {
+              id: 'delivery',
+              label: <Trans>Delivery</Trans>,
+              value:
+                recipientEmail === 'present' ? (
+                  <Trans>Client email on file</Trans>
+                ) : (
+                  <Trans>No client email on file</Trans>
+                ),
+            },
+          ]
+        : []),
+      ...(requestId
+        ? [{ id: 'reference', label: <Trans>Reference</Trans>, value: requestId }]
+        : []),
+    ]
+  }
+
+  if (event.action === 'readiness.request.revoked') {
+    const previousStatus = readRecordString(before, 'status')
+    const nextStatus = readRecordString(after, 'status')
+    return [
+      ...(previousStatus || nextStatus
+        ? [
+            {
+              id: 'status',
+              label: <Trans>Status</Trans>,
+              value: `${previousStatus ? humanizeToken(previousStatus) : '-'} -> ${
+                nextStatus ? humanizeToken(nextStatus) : '-'
+              }`,
+            },
+          ]
+        : []),
+      ...(requestId
+        ? [{ id: 'reference', label: <Trans>Reference</Trans>, value: requestId }]
+        : []),
+    ]
+  }
+
+  if (event.action === 'readiness.portal.opened') {
+    return [
+      {
+        id: 'openedBy',
+        label: <Trans>Opened by</Trans>,
+        value: <Trans>Client portal visitor</Trans>,
+      },
+      ...(requestId
+        ? [{ id: 'reference', label: <Trans>Reference</Trans>, value: requestId }]
+        : []),
+    ]
+  }
+
+  if (event.action === 'readiness.client_response') {
+    const readiness = readRecordString(after, 'readiness')
+    const responseCount = readRecordNumber(after, 'responseCount')
+    return [
+      ...(readiness
+        ? [
+            {
+              id: 'readiness',
+              label: <Trans>Readiness</Trans>,
+              value: readinessLabels[readiness] ?? humanizeToken(readiness),
+            },
+          ]
+        : []),
+      ...(responseCount === null
+        ? []
+        : [{ id: 'responseCount', label: <Trans>Responses</Trans>, value: responseCount }]),
+      ...(requestId
+        ? [{ id: 'reference', label: <Trans>Reference</Trans>, value: requestId }]
+        : []),
+    ]
+  }
+
+  return null
+}
+
+function auditPayloadRows(value: unknown): AuditSummaryRow[] {
+  const record = readUnknownRecord(value)
+  if (!record) return []
+  return Object.entries(record)
+    .filter(([key]) => !key.endsWith('Id') && key !== 'id')
+    .slice(0, 6)
+    .map(([key, entry]) => ({
+      id: key,
+      label: humanizeToken(key),
+      value: auditPayloadValue(entry),
+    }))
+}
+
+function auditPayloadValue(value: unknown): ReactNode {
+  if (value === null || value === undefined || value === '') return <Trans>Not recorded</Trans>
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (Array.isArray(value)) {
+    return <Plural value={value.length} one="# item" other="# items" />
+  }
+  return <Trans>Details updated</Trans>
+}
+
+function AuditSummarySection({ title, rows }: { title: ReactNode; rows: AuditSummaryRow[] }) {
+  return (
+    <div className="grid gap-2">
+      <p className="text-xs font-medium uppercase tracking-wider text-text-tertiary">{title}</p>
+      <AuditSummaryRows rows={rows} />
+    </div>
+  )
+}
+
+function AuditSummaryRows({ rows }: { rows: AuditSummaryRow[] }) {
+  if (rows.length === 0) return null
+  return (
+    <dl className="mt-3 grid gap-2 text-xs">
+      {rows.map((row) => (
+        <div key={row.id} className="grid grid-cols-[112px_1fr] gap-3">
+          <dt className="font-medium text-text-tertiary">{row.label}</dt>
+          <dd className="break-words text-text-secondary">{row.value}</dd>
+        </div>
+      ))}
+    </dl>
   )
 }
 

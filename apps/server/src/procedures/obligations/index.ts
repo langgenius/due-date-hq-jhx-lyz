@@ -62,7 +62,7 @@ interface ObligationRow {
 
 const createBatch = os.obligations.createBatch.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, MIGRATION_RUN_ROLES)
-  const { scoped, userId } = requireTenant(context)
+  const { scoped, tenant, userId } = requireTenant(context)
 
   const repoInputs = input.obligations.map((o) => {
     const repoInput: {
@@ -114,9 +114,11 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
   // groups input by client; fan out per unique clientId in parallel.
   const uniqueClients = Array.from(new Set(input.obligations.map((o) => o.clientId)))
   const idSet = new Set(ids)
-  const rowSets = await Promise.all(
-    uniqueClients.map((cid) => scoped.obligations.listByClient(cid)),
-  )
+  const [clients, rowSets] = await Promise.all([
+    scoped.clients.findManyByIds(uniqueClients),
+    Promise.all(uniqueClients.map((cid) => scoped.obligations.listByClient(cid))),
+  ])
+  const clientById = new Map(clients.map((client) => [client.id, client]))
   const allRows: ObligationRow[] = rowSets.flat().filter((row) => idSet.has(row.id))
 
   if (allRows.length !== ids.length) {
@@ -126,13 +128,22 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
     })
   }
 
-  return { obligations: allRows.map(toObligationPublic) }
+  const asOfDate = dateInTimezone(tenant.timezone)
+  return {
+    obligations: allRows.map((row) =>
+      toObligationPublic(row, { client: clientById.get(row.clientId), asOfDate }),
+    ),
+  }
 })
 
 const listByClient = os.obligations.listByClient.handler(async ({ input, context }) => {
-  const { scoped } = requireTenant(context)
-  const rows = await scoped.obligations.listByClient(input.clientId)
-  return rows.map(toObligationPublic)
+  const { scoped, tenant } = requireTenant(context)
+  const [client, rows] = await Promise.all([
+    scoped.clients.findById(input.clientId),
+    scoped.obligations.listByClient(input.clientId),
+  ])
+  const asOfDate = dateInTimezone(tenant.timezone)
+  return rows.map((row) => toObligationPublic(row, { client, asOfDate }))
 })
 
 const updateDueDate = os.obligations.updateDueDate.handler(async ({ input, context }) => {
@@ -177,7 +188,8 @@ const updateDueDate = os.obligations.updateDueDate.handler(async ({ input, conte
     reason: 'due_date_update',
   }).catch(() => false)
 
-  return toObligationPublic(after)
+  const client = await scoped.clients.findById(after.clientId)
+  return toObligationPublic(after, { client, asOfDate: dateInTimezone(tenant.timezone) })
 })
 
 const updateStatus = os.obligations.updateStatus.handler(async ({ input, context }) => {
