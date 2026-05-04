@@ -10,6 +10,7 @@ import type { SmartPriorityBreakdown } from './priority'
 export interface WorkboardListInput {
   status?: ObligationInstanceRow['status'][]
   search?: string
+  obligationIds?: string[]
   clientIds?: string[]
   states?: string[]
   counties?: string[]

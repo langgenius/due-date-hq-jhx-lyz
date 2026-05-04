@@ -41,6 +41,7 @@ export type WorkboardReadiness = ObligationReadiness
 export interface WorkboardListInput {
   status?: ObligationStatus[]
   search?: string
+  obligationIds?: string[]
   clientIds?: string[]
   states?: string[]
   counties?: string[]
@@ -501,6 +502,11 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         filters.push(inArray(obligationInstance.status, input.status))
       }
 
+      const obligationIds = uniqueNonEmpty(input.obligationIds)
+      if (obligationIds.length > 0) {
+        filters.push(inArray(obligationInstance.id, obligationIds))
+      }
+
       const clientIds = uniqueNonEmpty(input.clientIds)
       if (clientIds.length > 0) {
         filters.push(inArray(obligationInstance.clientId, clientIds))
@@ -608,6 +614,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
       const decodedCursor =
         sort !== 'updated_desc' && input.cursor ? decodeCursor(input.cursor) : null
       const rows = (await hydrateRows(rawRows, input))
+        .filter((row) => (obligationIds.length > 0 ? obligationIds.includes(row.id) : true))
         .filter((row) => isWithinDueFilter(row, input))
         .filter((row) => isWithinDaysRange(row, input))
         .filter((row) =>

@@ -6,10 +6,8 @@ import {
   ArrowUpIcon,
   ArrowUpRightIcon,
   FileSearchIcon,
-  RefreshCwIcon,
-  SparklesIcon,
 } from 'lucide-react'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   flexRender,
@@ -31,7 +29,6 @@ import type {
   DashboardEvidenceFilter,
   DashboardFacetsOutput,
   DashboardLoadInput,
-  DashboardBriefPublic,
   DashboardSeverity,
   DashboardSummary,
   DashboardTopRow,
@@ -71,7 +68,6 @@ import { severityRowClass } from '@/features/dashboard/severity-row'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { useFirmPermission } from '@/features/permissions/permission-gate'
-import { billingPlanHref, paidPlanActive } from '@/features/billing/model'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
@@ -81,7 +77,7 @@ import {
 } from '@/features/workboard/status-control'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-import { formatCents, formatDate, formatDateTimeWithTimezone } from '@/lib/utils'
+import { formatCents, formatDate } from '@/lib/utils'
 
 type DashboardExposureStatus = DashboardTopRow['exposureStatus']
 type DashboardStatusFilter = 'pending' | 'in_progress' | 'waiting_on_client' | 'review'
@@ -112,7 +108,6 @@ type DashboardQueryPatch = Partial<{
   exposure: DashboardExposureStatus[] | null
   evidence: DashboardEvidenceFilter[] | null
 }>
-type DashboardBriefCitation = NonNullable<DashboardBriefPublic['citations']>[number]
 const TRIAGE_TAB_KEYS = ['this_week', 'this_month', 'long_term'] as const
 const DASHBOARD_DUE_BUCKETS = [
   'overdue',
@@ -138,6 +133,8 @@ const DASHBOARD_EVIDENCE_FILTERS = [
 ] as const satisfies readonly DashboardEvidenceFilter[]
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const DASHBOARD_ROW_CONTROL_SELECTOR =
+  'button,a[href],input,label,select,textarea,[role="button"],[role="checkbox"],[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"],[role="option"],[role="radio"],[role="tab"],[data-slot="checkbox"]'
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 
 const dashboardSearchParamsParsers = {
@@ -215,6 +212,9 @@ const dashboardDateSortingFn: SortingFn<DashboardTopRow> = (rowA, rowB, columnId
 
 const dashboardExposureSortingFn: SortingFn<DashboardTopRow> = (rowA, rowB) =>
   exposureSortValue(rowA.original) - exposureSortValue(rowB.original)
+
+const dashboardPrioritySortingFn: SortingFn<DashboardTopRow> = (rowA, rowB) =>
+  rowA.original.smartPriority.score - rowB.original.smartPriority.score
 
 const dashboardSeveritySortingFn: SortingFn<DashboardTopRow> = (rowA, rowB, columnId) =>
   severitySortValue[rowA.getValue<DashboardSeverity>(columnId)] -
@@ -382,7 +382,6 @@ export function DashboardRoute() {
   const permission = useFirmPermission()
   const canRunMigration = permission.can('migration.run')
   const canSeeDollars = permission.can('dollars.read')
-  const practiceAiEnabled = paidPlanActive(permission.firm)
   const { openEvidence } = useEvidenceDrawer()
   const severityLabels = useSeverityLabels()
   const triageTabLabels = useTriageTabLabels()
@@ -432,30 +431,9 @@ export function DashboardRoute() {
       },
     }),
   )
-  const refreshBriefMutation = useMutation(
-    orpc.dashboard.requestBriefRefresh.mutationOptions({
-      onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-      },
-      onError: (err) => {
-        toast.error(t`Couldn't refresh brief`, {
-          description: rpcErrorMessage(err) ?? t`Please try again.`,
-        })
-      },
-    }),
-  )
   const data = dashboardQuery.data
-  const refreshSubmittedAt = refreshBriefMutation.submittedAt
-  const briefSettledAfterRefresh =
-    refreshSubmittedAt > 0 && data?.brief?.generatedAt
-      ? Date.parse(data.brief.generatedAt) >= refreshSubmittedAt
-      : false
-  const isBriefQueued =
-    refreshBriefMutation.isPending ||
-    (refreshBriefMutation.data?.queued === true && !briefSettledAfterRefresh)
 
   const triageTabs = data?.triageTabs ?? []
-  const topRows = data?.topRows ?? []
   const selectedTriageTab = triageTabs.find((tab) => tab.key === triage) ?? triageTabs[0] ?? null
   const facets = data?.facets
   const clientOptions = useMemo<TableFilterOption[]>(
@@ -568,24 +546,6 @@ export function DashboardRoute() {
         <PulseAlertsBanner />
       </div>
 
-      <DashboardBriefPanel
-        brief={data?.brief ?? null}
-        topRows={topRows}
-        summary={data?.summary ?? null}
-        isLoading={dashboardQuery.isLoading}
-        isQueued={isBriefQueued}
-        canRefresh={practiceAiEnabled}
-        onOpenEvidence={(citation) => {
-          const citedRow = topRows.find((item) => item.obligationId === citation.obligationId)
-          openEvidence({
-            obligationId: citation.obligationId,
-            label: citedRow ? `${citedRow.clientName} - ${citedRow.taxType}` : t`Obligation`,
-            focusEvidenceId: citation.evidence?.id ?? null,
-          })
-        }}
-        onRefresh={() => refreshBriefMutation.mutate({ scope: 'firm' })}
-      />
-
       <DashboardMetricStrip
         isLoading={dashboardQuery.isLoading}
         summary={data?.summary ?? null}
@@ -628,6 +588,7 @@ export function DashboardRoute() {
           onFilterChange={(patch) => void setDashboardQuery(patch)}
           onOpenWizard={openWizard}
           onOpenWorkboard={(key) => void navigate(workboardHrefForTriage(key))}
+          onOpenObligation={(row) => void navigate(workboardHrefForObligation(row))}
           onOpenEvidence={(row) =>
             openEvidence({
               obligationId: row.obligationId,
@@ -766,6 +727,39 @@ function workboardHrefForTriage(key: DashboardTriageTabKey): string {
   return '/workboard?daysMin=31&daysMax=180'
 }
 
+function workboardHrefForObligation(row: DashboardTopRow): string {
+  const params = new URLSearchParams({
+    obligation: row.obligationId,
+    row: row.obligationId,
+    drawer: 'obligation',
+    id: row.obligationId,
+    tab: 'readiness',
+  })
+  return `/workboard?${params.toString()}`
+}
+
+function clientProfileHref(clientId: string): string {
+  const params = new URLSearchParams({ clients: clientId, client: clientId })
+  return `/clients?${params.toString()}`
+}
+
+function isDashboardRowControlClick(target: EventTarget | null, rowElement: HTMLElement): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  const control = target.closest(DASHBOARD_ROW_CONTROL_SELECTOR)
+  return control !== null && control !== rowElement
+}
+
+function handleDashboardTriageRowKeyDown(
+  event: KeyboardEvent<HTMLTableRowElement>,
+  row: DashboardTopRow,
+  onOpenObligation: (row: DashboardTopRow) => void,
+) {
+  if (event.key !== 'Enter' && event.key !== ' ') return
+  if (isDashboardRowControlClick(event.target, event.currentTarget)) return
+  event.preventDefault()
+  onOpenObligation(row)
+}
+
 function daysUntilDueFromAsOf(dueDate: string, asOfDate: string | null): number {
   const asOf = new Date(`${asOfDate ?? new Date().toISOString().slice(0, 10)}T00:00:00.000Z`)
   const due = new Date(`${dueDate}T00:00:00.000Z`)
@@ -787,6 +781,128 @@ function DashboardCountdownBadge({ days }: { days: number }) {
   )
 }
 
+function priorityDrivers(row: DashboardTopRow): DashboardTopRow['smartPriority']['factors'] {
+  return row.smartPriority.factors
+    .filter((factor) => factor.contribution > 0)
+    .toSorted((a, b) => b.contribution - a.contribution)
+    .slice(0, 2)
+}
+
+function DashboardPriorityDrivers({
+  row,
+  asOfDate,
+  canSeeDollars,
+}: {
+  row: DashboardTopRow
+  asOfDate: string | null
+  canSeeDollars: boolean
+}) {
+  const { t } = useLingui()
+  const drivers = priorityDrivers(row)
+  const [primary, secondary] = drivers
+
+  if (!primary) {
+    const days = daysUntilDueFromAsOf(row.currentDueDate, asOfDate)
+    const deadlineDriver =
+      days <= 0 ? t`due now` : days === 1 ? t`1 day left` : t`${days} days left`
+    const rowDriver =
+      row.status === 'waiting_on_client'
+        ? t`waiting on client`
+        : row.evidenceCount === 0
+          ? t`needs evidence`
+          : row.exposureStatus === 'needs_input'
+            ? t`needs exposure input`
+            : row.status === 'review'
+              ? t`needs CPA review`
+              : canSeeDollars &&
+                  row.exposureStatus === 'ready' &&
+                  row.estimatedExposureCents !== null
+                ? formatCents(row.estimatedExposureCents)
+                : t`source linked`
+
+    return (
+      <span className="text-xs leading-5 text-text-tertiary">
+        <Trans>Why: {deadlineDriver}</Trans>
+        {' · '}
+        <span>{rowDriver}</span>
+      </span>
+    )
+  }
+
+  return (
+    <span className="text-xs leading-5 text-text-tertiary">
+      <Trans>
+        Why: {primary.label} ({primary.rawValue})
+      </Trans>
+      {secondary ? (
+        <>
+          {' · '}
+          <span>
+            {secondary.label} ({secondary.rawValue})
+          </span>
+        </>
+      ) : null}
+    </span>
+  )
+}
+
+function DashboardClientCell({
+  row,
+  asOfDate,
+  canSeeDollars,
+}: {
+  row: DashboardTopRow
+  asOfDate: string | null
+  canSeeDollars: boolean
+}) {
+  const { t } = useLingui()
+
+  return (
+    <div className="grid min-w-56 gap-1">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <Link
+          to={clientProfileHref(row.clientId)}
+          aria-label={t`Open fact profile for ${row.clientName}`}
+          className="min-w-0 max-w-64 truncate font-medium text-text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
+        >
+          {row.clientName}
+        </Link>
+      </div>
+      <DashboardPriorityDrivers row={row} asOfDate={asOfDate} canSeeDollars={canSeeDollars} />
+    </div>
+  )
+}
+
+function DashboardNextCheck({ row, asOfDate }: { row: DashboardTopRow; asOfDate: string | null }) {
+  const days = daysUntilDueFromAsOf(row.currentDueDate, asOfDate)
+  const tone =
+    row.status === 'waiting_on_client' || row.exposureStatus === 'needs_input'
+      ? 'text-severity-high'
+      : row.evidenceCount === 0 || row.status === 'review' || days <= 2
+        ? 'text-severity-critical'
+        : 'text-text-secondary'
+
+  return (
+    <div className={cn('max-w-64 text-sm leading-5', tone)}>
+      {row.status === 'waiting_on_client' ? (
+        <Trans>Follow up for client materials.</Trans>
+      ) : row.evidenceCount === 0 ? (
+        <Trans>Attach a source before review.</Trans>
+      ) : row.exposureStatus === 'needs_input' ? (
+        <Trans>Add exposure inputs before ranking by dollars.</Trans>
+      ) : row.status === 'review' ? (
+        <Trans>Complete CPA review and close the row.</Trans>
+      ) : days <= 0 ? (
+        <Trans>Confirm filing or payment status today.</Trans>
+      ) : days <= 2 ? (
+        <Trans>Verify owner, source, and filing cutoff.</Trans>
+      ) : (
+        <Trans>Open evidence and confirm the source still matches.</Trans>
+      )}
+    </div>
+  )
+}
+
 function DashboardTriagePanel({
   isLoading,
   asOfDate,
@@ -805,6 +921,7 @@ function DashboardTriagePanel({
   onFilterChange,
   onOpenWizard,
   onOpenWorkboard,
+  onOpenObligation,
   onOpenEvidence,
   onChangeStatus,
 }: {
@@ -825,6 +942,7 @@ function DashboardTriagePanel({
   onFilterChange: (patch: DashboardQueryPatch) => void
   onOpenWizard: () => void
   onOpenWorkboard: (key: DashboardTriageTabKey) => void
+  onOpenObligation: (row: DashboardTopRow) => void
   onOpenEvidence: (row: DashboardTopRow) => void
   onChangeStatus: (row: DashboardTopRow, status: ObligationStatus) => void
 }) {
@@ -839,7 +957,10 @@ function DashboardTriagePanel({
           </ConceptLabel>
         </CardTitle>
         <CardDescription>
-          <Trans>This Week, This Month, and Long-term risk windows from server aggregation.</Trans>
+          <Trans>
+            Work each risk window with deterministic priority, row-level drivers, and the next
+            check.
+          </Trans>
         </CardDescription>
         <CardAction>
           {selectedTab ? (
@@ -890,6 +1011,7 @@ function DashboardTriagePanel({
                   statusDisabled={statusDisabled}
                   canSeeDollars={canSeeDollars}
                   onFilterChange={onFilterChange}
+                  onOpenObligation={onOpenObligation}
                   onOpenEvidence={onOpenEvidence}
                   onChangeStatus={onChangeStatus}
                 />
@@ -924,6 +1046,7 @@ function DashboardTriageTable({
   statusDisabled,
   canSeeDollars,
   onFilterChange,
+  onOpenObligation,
   onOpenEvidence,
   onChangeStatus,
 }: {
@@ -937,6 +1060,7 @@ function DashboardTriageTable({
   statusDisabled: boolean
   canSeeDollars: boolean
   onFilterChange: (patch: DashboardQueryPatch) => void
+  onOpenObligation: (row: DashboardTopRow) => void
   onOpenEvidence: (row: DashboardTopRow) => void
   onChangeStatus: (row: DashboardTopRow, status: ObligationStatus) => void
 }) {
@@ -952,8 +1076,17 @@ function DashboardTriageTable({
     () => [
       {
         id: 'smartPriority',
-        header: () => <ConceptLabel concept="smartPriority">{t`Priority`}</ConceptLabel>,
-        enableSorting: false,
+        enableSorting: true,
+        sortingFn: dashboardPrioritySortingFn,
+        sortDescFirst: true,
+        header: ({ column }) => {
+          const label = t`Priority`
+          return (
+            <DashboardSortableFilterHeader column={column} sortLabel={`${t`Sort`} ${label}`}>
+              <ConceptLabel concept="smartPriority">{label}</ConceptLabel>
+            </DashboardSortableFilterHeader>
+          )
+        },
         cell: ({ row }) => <SmartPriorityBadge smartPriority={row.original.smartPriority} />,
       },
       {
@@ -976,7 +1109,19 @@ function DashboardTriageTable({
             }
           />
         ),
-        cell: (info) => info.getValue<string>(),
+        cell: ({ row }) => (
+          <DashboardClientCell
+            row={row.original}
+            asOfDate={asOfDate}
+            canSeeDollars={canSeeDollars}
+          />
+        ),
+      },
+      {
+        id: 'nextCheck',
+        enableSorting: false,
+        header: () => <Trans>Next check</Trans>,
+        cell: ({ row }) => <DashboardNextCheck row={row.original} asOfDate={asOfDate} />,
       },
       {
         accessorKey: 'taxType',
@@ -1199,7 +1344,7 @@ function DashboardTriageTable({
 
   return (
     <div className="overflow-x-auto">
-      <Table className="min-w-[980px]">
+      <Table className="min-w-[1280px]">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -1234,7 +1379,23 @@ function DashboardTriageTable({
             </TableRow>
           ) : (
             tableRows.map((tableRow) => (
-              <TableRow key={tableRow.id} className={severityRowClass(tableRow.original.severity)}>
+              <TableRow
+                key={tableRow.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`${t`Obligation detail`}: ${tableRow.original.clientName} ${tableRow.original.taxType}`}
+                className={cn(
+                  'cursor-pointer outline-none hover:bg-state-base-hover focus-visible:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt focus-visible:ring-inset',
+                  severityRowClass(tableRow.original.severity),
+                )}
+                onClick={(event) => {
+                  if (isDashboardRowControlClick(event.target, event.currentTarget)) return
+                  onOpenObligation(tableRow.original)
+                }}
+                onKeyDown={(event) =>
+                  handleDashboardTriageRowKeyDown(event, tableRow.original, onOpenObligation)
+                }
+              >
                 {tableRow.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
@@ -1254,198 +1415,6 @@ function DashboardTriageTable({
           )}
         </TableBody>
       </Table>
-    </div>
-  )
-}
-
-function DashboardBriefPanel({
-  brief,
-  topRows,
-  summary,
-  isLoading,
-  isQueued,
-  canRefresh,
-  onOpenEvidence,
-  onRefresh,
-}: {
-  brief: DashboardBriefPublic | null
-  topRows: DashboardTopRow[]
-  summary: {
-    openObligationCount: number
-    dueThisWeekCount: number
-    needsReviewCount: number
-  } | null
-  isLoading: boolean
-  isQueued: boolean
-  canRefresh: boolean
-  onOpenEvidence: (citation: DashboardBriefCitation) => void
-  onRefresh: () => void
-}) {
-  const { t } = useLingui()
-  const fallback = summary
-    ? t`${summary.openObligationCount} open obligations, ${summary.dueThisWeekCount} due this week, and ${summary.needsReviewCount} need review.`
-    : t`Dashboard risk summary will appear after clients and obligations are generated.`
-  const isReady = brief?.status === 'ready' || brief?.status === 'stale'
-  const statusLabel =
-    isQueued || brief?.status === 'pending'
-      ? t`Queued`
-      : brief?.status === 'stale'
-        ? t`Stale`
-        : brief?.status === 'ready'
-          ? t`Ready`
-          : null
-  const refreshDisabled = isQueued || brief?.status === 'pending'
-
-  const updatedLabel = brief?.generatedAt
-    ? t`Updated ${formatDateTimeWithTimezone(brief.generatedAt)}`
-    : t`No prepared brief yet`
-
-  return (
-    <section className="grid gap-3 rounded-xl border border-components-card-border bg-components-card-bg px-4 py-3 text-md text-text-primary shadow-xs">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <SparklesIcon className="size-4 text-text-accent" aria-hidden />
-            <span className="text-md font-semibold text-text-primary">
-              <ConceptLabel concept="aiWeeklyBrief">
-                <Trans>AI weekly brief</Trans>
-              </ConceptLabel>
-            </span>
-            {statusLabel ? (
-              <Badge
-                variant={
-                  isQueued || brief?.status === 'pending'
-                    ? 'warning'
-                    : brief?.status === 'stale'
-                      ? 'warning'
-                      : 'outline'
-                }
-              >
-                {statusLabel}
-              </Badge>
-            ) : null}
-            <span className="font-mono text-xs tabular-nums text-text-muted">{updatedLabel}</span>
-          </div>
-          <p className="mt-1 text-sm text-text-tertiary">
-            <Trans>Prepared in the background from the latest dashboard risk snapshot.</Trans>
-          </p>
-        </div>
-        {canRefresh ? (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            disabled={refreshDisabled}
-            aria-label={t`Refresh AI weekly brief`}
-            className="shrink-0"
-          >
-            <RefreshCwIcon data-icon="inline-start" />
-            {isQueued || brief?.status === 'pending' ? (
-              <Trans>Queued</Trans>
-            ) : (
-              <Trans>Refresh brief</Trans>
-            )}
-          </Button>
-        ) : (
-          <Button
-            nativeButton={false}
-            variant="outline"
-            size="sm"
-            className="shrink-0"
-            render={<Link to={billingPlanHref('pro', 'monthly')} />}
-          >
-            <SparklesIcon data-icon="inline-start" />
-            <Trans>Upgrade</Trans>
-          </Button>
-        )}
-      </div>
-      <div>
-        {isLoading ? (
-          <div className="flex items-center gap-2 text-sm text-text-secondary">
-            <span className="size-2 rounded-full bg-divider-deep" aria-hidden />
-            <Trans>Checking for the latest prepared brief…</Trans>
-          </div>
-        ) : isQueued || brief?.status === 'pending' ? (
-          <div className="flex items-center gap-2 text-sm text-text-secondary">
-            <span
-              className="size-2 rounded-full bg-components-badge-status-light-warning-bg"
-              aria-hidden
-            />
-            <Trans>Brief is being prepared. The risk table is ready now.</Trans>
-          </div>
-        ) : isReady && brief?.text ? (
-          <div className="flex flex-col gap-4">
-            <div className="whitespace-pre-wrap text-sm leading-6 text-text-primary">
-              {brief.text}
-            </div>
-            <DashboardBriefCitations
-              citations={brief.citations ?? []}
-              topRows={topRows}
-              onSelectCitation={onOpenEvidence}
-            />
-          </div>
-        ) : (
-          <div className="text-sm leading-6 text-text-secondary">{fallback}</div>
-        )}
-      </div>
-    </section>
-  )
-}
-
-function DashboardBriefCitations({
-  citations,
-  topRows,
-  onSelectCitation,
-}: {
-  citations: NonNullable<DashboardBriefPublic['citations']>
-  topRows: DashboardTopRow[]
-  onSelectCitation: (citation: DashboardBriefCitation) => void
-}) {
-  const { t } = useLingui()
-  if (citations.length === 0) return null
-  const rowsById = new Map(topRows.map((row) => [row.obligationId, row]))
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {citations.map((citation) => {
-        const row = rowsById.get(citation.obligationId)
-        const label = row ? row.clientName : t`Obligation`
-        return (
-          <div key={`${citation.ref}:${citation.obligationId}`} className="flex items-center gap-1">
-            <Badge
-              variant="outline"
-              render={
-                <button
-                  type="button"
-                  onClick={() => onSelectCitation(citation)}
-                  aria-label={t`Open evidence for ${label}`}
-                />
-              }
-            >
-              <FileSearchIcon data-icon="inline-start" />
-              {`[${citation.ref}] ${label}`}
-            </Badge>
-            {citation.evidence?.sourceUrl ? (
-              <Badge
-                variant="link"
-                render={
-                  <a
-                    href={citation.evidence.sourceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={t`Open source ${citation.evidence.sourceType}`}
-                  />
-                }
-              >
-                <ArrowUpRightIcon data-icon="inline-start" />
-                {citation.evidence.sourceType}
-              </Badge>
-            ) : citation.evidence ? (
-              <Badge variant="secondary">{citation.evidence.sourceType}</Badge>
-            ) : null}
-          </div>
-        )
-      })}
     </div>
   )
 }

@@ -118,6 +118,18 @@ describe('makeWorkboardRepo.list', () => {
     expect(fake.limit).toHaveBeenCalledWith(1000)
   })
 
+  it('filters the queue to explicit obligation ids', async () => {
+    const fake = createFakeDb([
+      makeRow({ id: 'target-obligation' }),
+      makeRow({ id: 'other-obligation' }),
+    ])
+    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+
+    const result = await repo.list({ obligationIds: ['target-obligation'] })
+
+    expect(result.rows.map((row) => row.id)).toEqual(['target-obligation'])
+  })
+
   it('emits nextCursor when more rows exist (sentinel detection)', async () => {
     const rows: FakeRow[] = []
     for (let i = 0; i < 6; i += 1) {

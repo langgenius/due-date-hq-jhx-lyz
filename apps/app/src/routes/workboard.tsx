@@ -55,8 +55,10 @@ import { INTL_LOCALE } from '@duedatehq/i18n'
 import {
   WORKBOARD_SEARCH_MAX_LENGTH,
   WORKBOARD_FILTER_MAX_SELECTIONS,
+  ReadinessChecklistItemSchema,
   WorkboardDetailTabSchema,
   type MemberAssigneeOption,
+  type WorkboardDetail,
   type WorkboardColumnVisibility,
   type ReadinessChecklistItem,
   type WorkboardDetailTab,
@@ -211,9 +213,44 @@ const CALENDAR_DAY_MS = 24 * 60 * 60 * 1000
 const CALENDAR_GRID_DAY_COUNT = 42
 const CALENDAR_WEEKDAY_COUNT = 7
 const CALENDAR_WEEKDAY_ANCHOR_UTC = Date.UTC(2026, 0, 4)
+const ReadinessChecklistItemsSchema = ReadinessChecklistItemSchema.array().min(1).max(8)
+
+interface GeneratedReadinessChecklistDraft {
+  items: ReadinessChecklistItem[]
+  createdAtMs: number
+}
 
 function isWorkboardDetailTab(value: string): value is WorkboardDetailTab {
   return WorkboardDetailTabSchema.safeParse(value).success
+}
+
+function parseGeneratedReadinessChecklist(value: string | null): ReadinessChecklistItem[] | null {
+  if (!value) return null
+  try {
+    const parsed = ReadinessChecklistItemsSchema.safeParse(JSON.parse(value))
+    return parsed.success ? parsed.data : null
+  } catch {
+    return null
+  }
+}
+
+function latestGeneratedReadinessChecklistDraft(
+  evidence: WorkboardDetail['evidence'],
+): GeneratedReadinessChecklistDraft | null {
+  let latest: GeneratedReadinessChecklistDraft | null = null
+
+  for (const item of evidence) {
+    if (item.sourceType !== 'readiness_checklist_ai') continue
+    const checklist = parseGeneratedReadinessChecklist(item.normalizedValue)
+    if (!checklist) continue
+    const createdAtMs = Date.parse(item.appliedAt)
+    const normalizedCreatedAtMs = Number.isFinite(createdAtMs) ? createdAtMs : 0
+    if (!latest || normalizedCreatedAtMs > latest.createdAtMs) {
+      latest = { items: checklist, createdAtMs: normalizedCreatedAtMs }
+    }
+  }
+
+  return latest
 }
 
 function padDatePart(value: number): string {
@@ -291,6 +328,7 @@ export const workboardSearchParamsParsers = {
   status: parseAsArrayOf(parseAsStringLiteral(ALL_STATUSES))
     .withDefault([])
     .withOptions(REPLACE_HISTORY_OPTIONS),
+  obligation: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
   client: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
   state: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
   county: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
@@ -481,6 +519,7 @@ function savedViewQueryPatch(query: unknown): Partial<WorkboardSearchParams> {
   return {
     q: typeof query.q === 'string' ? query.q : '',
     status: stringArrayFromUnknown(query.status).filter(isObligationStatus),
+    obligation: null,
     client: cleanEntityIdFilters(stringArrayFromUnknown(query.client)),
     state: cleanStateFilters(stringArrayFromUnknown(query.state)),
     county: cleanStringFilters(stringArrayFromUnknown(query.county)),
@@ -562,6 +601,7 @@ export function WorkboardRoute() {
     {
       q: searchInput,
       status: statusFilter,
+      obligation,
       client: clientFilter,
       state: stateFilter,
       county: countyFilter,
@@ -624,6 +664,10 @@ export function WorkboardRoute() {
     [t],
   )
   const statusQuery = useMemo(() => [...statusFilter], [statusFilter])
+  const obligationQuery = useMemo(
+    () => cleanEntityIdFilters(obligation ? [obligation] : []),
+    [obligation],
+  )
   const clientQuery = useMemo(() => cleanEntityIdFilters(clientFilter), [clientFilter])
   const stateQuery = useMemo(() => cleanStateFilters(stateFilter), [stateFilter])
   const countyQuery = useMemo(() => cleanStringFilters(countyFilter), [countyFilter])
@@ -715,6 +759,7 @@ export function WorkboardRoute() {
     () => ({
       ...(statusQuery.length > 0 ? { status: statusQuery } : {}),
       ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      ...(obligationQuery.length > 0 ? { obligationIds: obligationQuery } : {}),
       ...(clientQuery.length > 0 ? { clientIds: clientQuery } : {}),
       ...(stateQuery.length > 0 ? { states: stateQuery } : {}),
       ...(countyQuery.length > 0 ? { counties: countyQuery } : {}),
@@ -738,6 +783,7 @@ export function WorkboardRoute() {
     [
       statusQuery,
       debouncedSearch,
+      obligationQuery,
       clientQuery,
       stateQuery,
       countyQuery,
@@ -762,6 +808,7 @@ export function WorkboardRoute() {
     () => ({
       q: searchInput,
       status: statusFilter,
+      obligation: null,
       client: clientFilter,
       state: stateFilter,
       county: countyFilter,
@@ -985,7 +1032,8 @@ export function WorkboardRoute() {
     [rows],
   )
   const activeRow = (row ? rowsById.get(row) : null) ?? rows[0] ?? null
-  const activeDetailId = drawer === 'obligation' && detailId ? detailId : null
+  const activeDetailId =
+    drawer === 'obligation' && detailId && rowsById.has(detailId) ? detailId : null
 
   const onRowSelectionChange = useCallback(
     (updater: Updater<RowSelectionState>) => {
@@ -1018,6 +1066,7 @@ export function WorkboardRoute() {
     (nextSort: WorkboardSort) => {
       void setWorkboardQuery({
         sort: withDefaultSortCleared(nextSort),
+        obligation: null,
         row: null,
       })
     },
@@ -1071,6 +1120,7 @@ export function WorkboardRoute() {
             onSelectedChange={(nextClient) =>
               void setWorkboardQuery({
                 client: nextClient.length > 0 ? nextClient : null,
+                obligation: null,
                 row: null,
               })
             }
@@ -1100,6 +1150,7 @@ export function WorkboardRoute() {
                 owner: isUnassigned ? 'unassigned' : null,
                 assignee: null,
                 assignees: !isUnassigned && nextAssignee.length > 0 ? nextAssignee : null,
+                obligation: null,
                 row: null,
               })
             }}
@@ -1124,6 +1175,7 @@ export function WorkboardRoute() {
               void setWorkboardQuery({
                 state: nextState.length > 0 ? nextState : null,
                 county: null,
+                obligation: null,
                 row: null,
               })
             }
@@ -1149,6 +1201,7 @@ export function WorkboardRoute() {
             onSelectedChange={(nextCounty) =>
               void setWorkboardQuery({
                 county: nextCounty.length > 0 ? nextCounty : null,
+                obligation: null,
                 row: null,
               })
             }
@@ -1172,6 +1225,7 @@ export function WorkboardRoute() {
             onSelectedChange={(nextTaxType) =>
               void setWorkboardQuery({
                 taxType: nextTaxType.length > 0 ? nextTaxType : null,
+                obligation: null,
                 row: null,
               })
             }
@@ -1220,6 +1274,7 @@ export function WorkboardRoute() {
               void setWorkboardQuery({
                 daysMin: integerFromInput(nextMin),
                 daysMax: integerFromInput(nextMax),
+                obligation: null,
                 row: null,
               })
             }
@@ -1255,6 +1310,7 @@ export function WorkboardRoute() {
                   void setWorkboardQuery({
                     riskMin: integerFromInput(nextMin, 0),
                     riskMax: integerFromInput(nextMax, 0),
+                    obligation: null,
                     row: null,
                   })
                 }
@@ -1281,6 +1337,7 @@ export function WorkboardRoute() {
               const typedReadiness = nextReadiness.filter(isObligationReadiness)
               void setWorkboardQuery({
                 readiness: typedReadiness.length > 0 ? typedReadiness : null,
+                obligation: null,
                 row: null,
               })
             }}
@@ -1332,6 +1389,7 @@ export function WorkboardRoute() {
               const typedStatus = nextStatus.filter(isObligationStatus)
               void setWorkboardQuery({
                 status: typedStatus.length > 0 ? typedStatus : null,
+                obligation: null,
                 row: null,
               })
             }}
@@ -1596,6 +1654,7 @@ export function WorkboardRoute() {
       density: withDefaultDensityCleared(viewToApply.density),
       hide: hidden.length > 0 ? hidden : null,
       view: viewToApply.id,
+      obligation: null,
       row: null,
     })
     setRowSelection({})
@@ -1795,6 +1854,7 @@ export function WorkboardRoute() {
                   void setWorkboardQuery(
                     {
                       q: nextSearch || null,
+                      obligation: null,
                       row: null,
                     },
                     nextSearch === ''
@@ -1865,6 +1925,7 @@ export function WorkboardRoute() {
                   if (typeof value !== 'string' || !isWorkboardSort(value)) return
                   void setWorkboardQuery({
                     sort: withDefaultSortCleared(value),
+                    obligation: null,
                     row: null,
                   })
                 }}
@@ -1894,6 +1955,7 @@ export function WorkboardRoute() {
                   due: null,
                   daysMin: null,
                   daysMax: 7,
+                  obligation: null,
                   row: null,
                 })
               }
@@ -1908,6 +1970,7 @@ export function WorkboardRoute() {
               onClick={() =>
                 void setWorkboardQuery({
                   exposure: exposure === 'needs_input' ? null : 'needs_input',
+                  obligation: null,
                   row: null,
                 })
               }
@@ -1922,6 +1985,7 @@ export function WorkboardRoute() {
               onClick={() =>
                 void setWorkboardQuery({
                   evidence: evidence === 'needs' ? null : 'needs',
+                  obligation: null,
                   row: null,
                 })
               }
@@ -2681,10 +2745,17 @@ function WorkboardDetailDrawer({
     (activeDeadlineTipRefresh && !deadlineTipLatestRefreshSettled && !deadlineTipRefreshTimedOut),
   )
   const latestRequest = detail?.readinessRequests[0] ?? null
-  const checklist =
-    row && checklistDraft?.obligationId === row.id
-      ? checklistDraft.items
-      : (latestRequest?.checklist ?? EMPTY_CHECKLIST)
+  const generatedChecklistDraft = useMemo(
+    () => (detail ? latestGeneratedReadinessChecklistDraft(detail.evidence) : null),
+    [detail],
+  )
+  const localChecklistDraft =
+    row && checklistDraft?.obligationId === row.id ? checklistDraft.items : null
+  const latestRequestCreatedAtMs = latestRequest ? Date.parse(latestRequest.createdAt) : 0
+  const storedChecklist =
+    generatedChecklistDraft && generatedChecklistDraft.createdAtMs > latestRequestCreatedAtMs
+      ? generatedChecklistDraft.items
+      : (latestRequest?.checklist ?? generatedChecklistDraft?.items ?? null)
   const expectedExtendedDueDateInvalid =
     extensionDraft.expectedExtendedDueDate !== '' &&
     !isValidIsoDate(extensionDraft.expectedExtendedDueDate)
@@ -2709,8 +2780,8 @@ function WorkboardDetailDrawer({
 
   const generateChecklistMutation = useMutation(
     orpc.readiness.generateChecklist.mutationOptions({
-      onSuccess: (result) => {
-        if (row) setChecklistDraft({ obligationId: row.id, items: result.checklist })
+      onSuccess: (result, variables) => {
+        setChecklistDraft({ obligationId: variables.obligationId, items: result.checklist })
         invalidateDetail()
         toast.success(result.degraded ? t`Fallback checklist ready` : t`Checklist generated`)
       },
@@ -2721,10 +2792,51 @@ function WorkboardDetailDrawer({
       },
     }),
   )
+  const shouldAutoGenerateChecklist = Boolean(
+    row &&
+    practiceAiEnabled &&
+    !latestRequest &&
+    !generatedChecklistDraft &&
+    !localChecklistDraft &&
+    !generateChecklistMutation.isPending,
+  )
+  const autoGenerateChecklistMutationOptions = orpc.readiness.generateChecklist.mutationOptions()
+  const autoGenerateChecklistQuery = useQuery({
+    queryKey: ['workboard', 'readiness-checklist', 'auto-generate', row?.id ?? null],
+    queryFn: async () => {
+      const activeObligationId = row?.id
+      const mutationFn = autoGenerateChecklistMutationOptions.mutationFn
+      if (!activeObligationId || !mutationFn) throw new Error('Checklist generation unavailable.')
+      const result = await mutationFn(
+        { obligationId: activeObligationId },
+        {
+          client: queryClient,
+          meta: autoGenerateChecklistMutationOptions.meta,
+        },
+      )
+      invalidateDetail()
+      return { obligationId: activeObligationId, result }
+    },
+    enabled: shouldAutoGenerateChecklist,
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: 30 * 60 * 1000,
+    retry: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  })
+  const autoGeneratedChecklist =
+    row && autoGenerateChecklistQuery.data?.obligationId === row.id
+      ? autoGenerateChecklistQuery.data.result.checklist
+      : null
+  const checklist =
+    localChecklistDraft ?? autoGeneratedChecklist ?? storedChecklist ?? EMPTY_CHECKLIST
+  const checklistGenerating =
+    generateChecklistMutation.isPending || autoGenerateChecklistQuery.isFetching
   const sendRequestMutation = useMutation(
     orpc.readiness.sendRequest.mutationOptions({
-      onSuccess: (result) => {
-        if (row) setChecklistDraft({ obligationId: row.id, items: result.request.checklist })
+      onSuccess: (result, variables) => {
+        setChecklistDraft({ obligationId: variables.obligationId, items: result.request.checklist })
         invalidateDetail()
         toast.success(result.emailQueued ? t`Readiness request sent` : t`Readiness link created`)
       },
@@ -2882,10 +2994,17 @@ function WorkboardDetailDrawer({
                         <Button
                           size="sm"
                           onClick={() => generateChecklistMutation.mutate({ obligationId: row.id })}
-                          disabled={generateChecklistMutation.isPending}
+                          disabled={checklistGenerating}
                         >
-                          <RefreshCwIcon data-icon="inline-start" />
-                          <Trans>Generate checklist</Trans>
+                          <RefreshCwIcon
+                            data-icon="inline-start"
+                            className={cn(checklistGenerating ? 'animate-spin' : undefined)}
+                          />
+                          {checklistGenerating ? (
+                            <Trans>Preparing</Trans>
+                          ) : (
+                            <Trans>Generate checklist</Trans>
+                          )}
                         </Button>
                       ) : (
                         <Button
@@ -2902,7 +3021,7 @@ function WorkboardDetailDrawer({
                         size="sm"
                         variant="outline"
                         onClick={addChecklistItem}
-                        disabled={checklist.length >= 8}
+                        disabled={checklistGenerating || checklist.length >= 8}
                       >
                         <Trans>Add item</Trans>
                       </Button>
@@ -2921,11 +3040,37 @@ function WorkboardDetailDrawer({
                       </Button>
                     </div>
                     {checklist.length === 0 ? (
-                      <EmptyPanel>
-                        <Trans>
-                          Generate a checklist or add items before sending a portal link.
-                        </Trans>
-                      </EmptyPanel>
+                      autoGenerateChecklistQuery.isFetching ? (
+                        <div className="grid gap-3 rounded-lg border border-dashed border-divider-regular p-4 text-sm text-text-secondary">
+                          <div className="flex items-center gap-2">
+                            <RefreshCwIcon className="size-4 animate-spin" aria-hidden />
+                            <span>
+                              <Trans>Preparing</Trans>
+                            </span>
+                          </div>
+                        </div>
+                      ) : autoGenerateChecklistQuery.isError ? (
+                        <EmptyPanel>
+                          <div className="flex flex-wrap items-center justify-center gap-2">
+                            <span>
+                              <Trans>Couldn't generate checklist</Trans>
+                            </span>
+                            <Button
+                              size="xs"
+                              variant="outline"
+                              onClick={() => void autoGenerateChecklistQuery.refetch()}
+                            >
+                              <Trans>Retry</Trans>
+                            </Button>
+                          </div>
+                        </EmptyPanel>
+                      ) : (
+                        <EmptyPanel>
+                          <Trans>
+                            Generate a checklist or add items before sending a portal link.
+                          </Trans>
+                        </EmptyPanel>
+                      )
                     ) : (
                       checklist.map((item, index) => (
                         <div

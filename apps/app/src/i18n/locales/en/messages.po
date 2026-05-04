@@ -121,13 +121,6 @@ msgstr "{0} needs input"
 msgid "{0} obligations still need penalty inputs."
 msgstr "{0} obligations still need penalty inputs."
 
-#. placeholder {0}: summary.openObligationCount
-#. placeholder {1}: summary.dueThisWeekCount
-#. placeholder {2}: summary.needsReviewCount
-#: src/routes/dashboard.tsx
-msgid "{0} open obligations, {1} due this week, and {2} need review."
-msgstr "{0} open obligations, {1} due this week, and {2} need review."
-
 #. placeholder {0}: exposure.readyCount
 #: src/features/migration/Step4Preview.tsx
 msgid "{0} ready"
@@ -224,6 +217,10 @@ msgstr "{count} additional fields changed"
 #: src/routes/workboard.tsx
 msgid "{days, plural, one {# day} other {# days}}"
 msgstr "{days, plural, one {# day} other {# days}}"
+
+#: src/routes/dashboard.tsx
+msgid "{days} days left"
+msgstr "{days} days left"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "{durationMonths} months"
@@ -328,6 +325,10 @@ msgstr "0 active"
 #: src/routes/billing.checkout.tsx
 msgid "1 active practice"
 msgstr "1 active practice"
+
+#: src/routes/dashboard.tsx
+msgid "1 day left"
+msgstr "1 day left"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -512,6 +513,10 @@ msgstr "Add at least one provider record to continue."
 msgid "Add context for the reviewer"
 msgstr "Add context for the reviewer"
 
+#: src/routes/dashboard.tsx
+msgid "Add exposure inputs before ranking by dollars."
+msgstr "Add exposure inputs before ranking by dollars."
+
 #: src/routes/workboard.tsx
 msgid "Add item"
 msgstr "Add item"
@@ -557,7 +562,6 @@ msgid "AI refused request"
 msgstr "AI refused request"
 
 #: src/features/concepts/concept-help.tsx
-#: src/routes/dashboard.tsx
 msgid "AI weekly brief"
 msgstr "AI weekly brief"
 
@@ -761,6 +765,10 @@ msgstr "Assignee"
 msgid "at risk this week"
 msgstr "at risk this week"
 
+#: src/routes/dashboard.tsx
+msgid "Attach a source before review."
+msgstr "Attach a source before review."
+
 #: src/routes/workboard.tsx
 msgid "Audit"
 msgstr "Audit"
@@ -960,10 +968,6 @@ msgstr "Billing status could not load"
 msgid "Billing status is not ready yet."
 msgstr "Billing status is not ready yet."
 
-#: src/routes/dashboard.tsx
-msgid "Brief is being prepared. The risk table is ready now."
-msgstr "Brief is being prepared. The risk table is ready now."
-
 #: src/features/migration/WizardShell.tsx
 msgid "Building the import preview"
 msgstr "Building the import preview"
@@ -1093,10 +1097,6 @@ msgstr "Change status for {0}"
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Checking {label}…"
 msgstr "Checking {label}…"
-
-#: src/routes/dashboard.tsx
-msgid "Checking for the latest prepared brief…"
-msgstr "Checking for the latest prepared brief…"
 
 #: src/features/workload/workload-page.tsx
 msgid "Checking the active practice plan before loading workload metrics."
@@ -1324,6 +1324,10 @@ msgstr "Command palette"
 msgid "Compact"
 msgstr "Compact"
 
+#: src/routes/dashboard.tsx
+msgid "Complete CPA review and close the row."
+msgstr "Complete CPA review and close the row."
+
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step2Mapping.tsx
 msgid "Confidence"
@@ -1341,6 +1345,10 @@ msgstr "Confirm applies"
 #: src/routes/billing.checkout.tsx
 msgid "Confirm checkout"
 msgstr "Confirm checkout"
+
+#: src/routes/dashboard.tsx
+msgid "Confirm filing or payment status today."
+msgstr "Confirm filing or payment status today."
 
 #: src/routes/billing.success.tsx
 msgid "Confirming subscription"
@@ -1648,10 +1656,6 @@ msgstr "Couldn't queue risk summary"
 msgid "Couldn't reactivate alert"
 msgstr "Couldn't reactivate alert"
 
-#: src/routes/dashboard.tsx
-msgid "Couldn't refresh brief"
-msgstr "Couldn't refresh brief"
-
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't request review"
 msgstr "Couldn't request review"
@@ -1868,10 +1872,6 @@ msgstr "Dashboard"
 #: src/routes/billing.tsx
 msgid "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
 msgstr "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
-
-#: src/routes/dashboard.tsx
-msgid "Dashboard risk summary will appear after clients and obligations are generated."
-msgstr "Dashboard risk summary will appear after clients and obligations are generated."
 
 #: src/routes/workboard.tsx
 msgid "Days"
@@ -2104,6 +2104,10 @@ msgstr "Due date changed"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Due date logic"
 msgstr "Due date logic"
+
+#: src/routes/dashboard.tsx
+msgid "due now"
+msgstr "due now"
 
 #: src/features/workload/workload-page.tsx
 msgid "Due soon"
@@ -2492,6 +2496,10 @@ msgstr "Firm"
 #: src/features/calendar/calendar-page.tsx
 msgid "Firm-wide calendar"
 msgstr "Firm-wide calendar"
+
+#: src/routes/dashboard.tsx
+msgid "Follow up for client materials."
+msgstr "Follow up for client materials."
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -3279,9 +3287,21 @@ msgid "Need help"
 msgstr "Need help"
 
 #: src/routes/dashboard.tsx
+msgid "needs CPA review"
+msgstr "needs CPA review"
+
+#: src/routes/dashboard.tsx
+msgid "needs evidence"
+msgstr "needs evidence"
+
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Needs evidence"
 msgstr "Needs evidence"
+
+#: src/routes/dashboard.tsx
+msgid "needs exposure input"
+msgstr "needs exposure input"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Needs facts"
@@ -3354,6 +3374,10 @@ msgstr "Next 30 days"
 #: src/routes/dashboard.tsx
 msgid "Next 7 days"
 msgstr "Next 7 days"
+
+#: src/routes/dashboard.tsx
+msgid "Next check"
+msgstr "Next check"
 
 #: src/routes/workboard.tsx
 msgid "Next month"
@@ -3552,10 +3576,6 @@ msgstr "No pending Pulse extracts."
 msgid "No practice selected"
 msgstr "No practice selected"
 
-#: src/routes/dashboard.tsx
-msgid "No prepared brief yet"
-msgstr "No prepared brief yet"
-
 #: src/features/migration/Step1Intake.tsx
 msgid "No previous provider imports are available yet."
 msgstr "No previous provider imports are available yet."
@@ -3720,11 +3740,11 @@ msgstr "Notifications, {unreadCount} unread"
 #: src/features/audit/audit-log-page.tsx
 #: src/features/concepts/concept-help.tsx
 #: src/features/evidence/EvidenceDrawerProvider.tsx
-#: src/routes/dashboard.tsx
 #: src/routes/practice.tsx
 msgid "Obligation"
 msgstr "Obligation"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Obligation detail"
 msgstr "Obligation detail"
@@ -3858,6 +3878,10 @@ msgstr "Open Billing"
 msgid "Open billing for {plan} plan"
 msgstr "Open billing for {plan} plan"
 
+#: src/routes/dashboard.tsx
+msgid "Open evidence and confirm the source still matches."
+msgstr "Open evidence and confirm the source still matches."
+
 #. placeholder {0}: row.original.clientName
 #. placeholder {0}: tableRow.original.clientName
 #: src/routes/dashboard.tsx
@@ -3865,12 +3889,10 @@ msgstr "Open billing for {plan} plan"
 msgid "Open evidence for {0}"
 msgstr "Open evidence for {0}"
 
-#: src/routes/dashboard.tsx
-msgid "Open evidence for {label}"
-msgstr "Open evidence for {label}"
-
+#. placeholder {0}: row.clientName
 #. placeholder {0}: row.original.name
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/dashboard.tsx
 msgid "Open fact profile for {0}"
 msgstr "Open fact profile for {0}"
 
@@ -3906,11 +3928,6 @@ msgstr "Open rule detail: {0}"
 #: src/routes/workboard.tsx
 msgid "Open source"
 msgstr "Open source"
-
-#. placeholder {0}: citation.evidence.sourceType
-#: src/routes/dashboard.tsx
-msgid "Open source {0}"
-msgstr "Open source {0}"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Open the Apple Calendar link"
@@ -4376,10 +4393,6 @@ msgstr "Practices"
 msgid "Preferences"
 msgstr "Preferences"
 
-#: src/routes/dashboard.tsx
-msgid "Prepared in the background from the latest dashboard risk snapshot."
-msgstr "Prepared in the background from the latest dashboard risk snapshot."
-
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
@@ -4610,7 +4623,6 @@ msgid "Queue controls"
 msgstr "Queue controls"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/dashboard.tsx
 msgid "Queued"
 msgstr "Queued"
 
@@ -4774,14 +4786,6 @@ msgstr "Redirecting to Microsoft…"
 #: src/routes/workboard.tsx
 msgid "Refresh"
 msgstr "Refresh"
-
-#: src/routes/dashboard.tsx
-msgid "Refresh AI weekly brief"
-msgstr "Refresh AI weekly brief"
-
-#: src/routes/dashboard.tsx
-msgid "Refresh brief"
-msgstr "Refresh brief"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Refresh confidence"
@@ -5716,6 +5720,10 @@ msgstr "Source excerpt"
 msgid "Source excerpt copied"
 msgstr "Source excerpt copied"
 
+#: src/routes/dashboard.tsx
+msgid "source linked"
+msgstr "source linked"
+
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source needs attention · {label}"
 msgstr "Source needs attention · {label}"
@@ -5772,7 +5780,6 @@ msgid "SSO and custom coverage"
 msgstr "SSO and custom coverage"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Stale"
 msgstr "Stale"
@@ -6186,10 +6193,6 @@ msgstr "This week"
 msgid "This Week"
 msgstr "This Week"
 
-#: src/routes/dashboard.tsx
-msgid "This Week, This Month, and Long-term risk windows from server aggregation."
-msgstr "This Week, This Month, and Long-term risk windows from server aggregation."
-
 #: src/features/audit/audit-log-table.tsx
 msgid "Time"
 msgstr "Time"
@@ -6356,16 +6359,13 @@ msgstr "Update the active practice's name and timezone."
 msgid "Updated"
 msgstr "Updated"
 
-#. placeholder {0}: formatDateTimeWithTimezone(brief.generatedAt)
 #. placeholder {0}: formatDateTimeWithTimezone(insight.generatedAt)
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Updated {0}"
 msgstr "Updated {0}"
 
 #: src/components/patterns/app-shell.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Upgrade"
 msgstr "Upgrade"
@@ -6479,6 +6479,10 @@ msgstr "Verify and enable"
 msgid "Verify code"
 msgstr "Verify code"
 
+#: src/routes/dashboard.tsx
+msgid "Verify owner, source, and filing cutoff."
+msgstr "Verify owner, source, and filing cutoff."
+
 #: src/components/patterns/app-shell.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "View"
@@ -6509,6 +6513,10 @@ msgstr "Visible columns"
 #: src/features/workload/workload-page.tsx
 msgid "Waiting"
 msgstr "Waiting"
+
+#: src/routes/dashboard.tsx
+msgid "waiting on client"
+msgstr "waiting on client"
 
 #: src/features/workboard/status-control.tsx
 msgid "Waiting on client"
@@ -6592,6 +6600,20 @@ msgstr "Where is your data coming from?"
 #: src/features/concepts/concept-help.tsx
 msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 msgstr "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
+
+#. placeholder {0}: primary.label
+#. placeholder {1}: primary.rawValue
+#: src/routes/dashboard.tsx
+msgid "Why: {0} ({1})"
+msgstr "Why: {0} ({1})"
+
+#: src/routes/dashboard.tsx
+msgid "Why: {deadlineDriver}"
+msgstr "Why: {deadlineDriver}"
+
+#: src/routes/dashboard.tsx
+msgid "Work each risk window with deterministic priority, row-level drivers, and the next check."
+msgstr "Work each risk window with deterministic priority, row-level drivers, and the next check."
 
 #: src/features/members/members-page.tsx
 msgid "Work email"

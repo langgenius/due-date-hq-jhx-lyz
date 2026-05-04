@@ -350,6 +350,7 @@ const list = os.workboard.list.handler(async ({ input, context }) => {
   const repoInput: NonNullable<Parameters<typeof scoped.workboard.list>[0]> = {}
   if (input.status !== undefined) repoInput.status = input.status
   if (input.search !== undefined) repoInput.search = input.search
+  if (input.obligationIds !== undefined) repoInput.obligationIds = input.obligationIds
   if (input.clientIds !== undefined) repoInput.clientIds = input.clientIds
   if (input.states !== undefined) repoInput.states = input.states
   if (input.counties !== undefined) repoInput.counties = input.counties

@@ -121,13 +121,6 @@ msgstr "{0} 个需要输入"
 msgid "{0} obligations still need penalty inputs."
 msgstr "{0} 个事项仍需要 penalty 输入。"
 
-#. placeholder {0}: summary.openObligationCount
-#. placeholder {1}: summary.dueThisWeekCount
-#. placeholder {2}: summary.needsReviewCount
-#: src/routes/dashboard.tsx
-msgid "{0} open obligations, {1} due this week, and {2} need review."
-msgstr "{0} 条未关闭义务，{1} 条本周到期，{2} 条需要复核。"
-
 #. placeholder {0}: exposure.readyCount
 #: src/features/migration/Step4Preview.tsx
 msgid "{0} ready"
@@ -224,6 +217,10 @@ msgstr "另有 {count} 个字段已变更"
 #: src/routes/workboard.tsx
 msgid "{days, plural, one {# day} other {# days}}"
 msgstr "{days, plural, other {# 天}}"
+
+#: src/routes/dashboard.tsx
+msgid "{days} days left"
+msgstr "还剩 {days} 天"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "{durationMonths} months"
@@ -328,6 +325,10 @@ msgstr "0 条活跃"
 #: src/routes/billing.checkout.tsx
 msgid "1 active practice"
 msgstr "1 个活跃事务所"
+
+#: src/routes/dashboard.tsx
+msgid "1 day left"
+msgstr "还剩 1 天"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -512,6 +513,10 @@ msgstr "至少添加一条服务商记录才能继续。"
 msgid "Add context for the reviewer"
 msgstr "补充给审核人的说明"
 
+#: src/routes/dashboard.tsx
+msgid "Add exposure inputs before ranking by dollars."
+msgstr "先补充风险金额输入，再按金额排序。"
+
 #: src/routes/workboard.tsx
 msgid "Add item"
 msgstr "添加项目"
@@ -557,7 +562,6 @@ msgid "AI refused request"
 msgstr "AI 已拒绝请求"
 
 #: src/features/concepts/concept-help.tsx
-#: src/routes/dashboard.tsx
 msgid "AI weekly brief"
 msgstr "AI 每周简报"
 
@@ -761,6 +765,10 @@ msgstr "经办人"
 msgid "at risk this week"
 msgstr "本周 at risk"
 
+#: src/routes/dashboard.tsx
+msgid "Attach a source before review."
+msgstr "复核前先关联来源。"
+
 #: src/routes/workboard.tsx
 msgid "Audit"
 msgstr "审计"
@@ -960,10 +968,6 @@ msgstr "无法加载账单状态"
 msgid "Billing status is not ready yet."
 msgstr "账单状态尚未准备好。"
 
-#: src/routes/dashboard.tsx
-msgid "Brief is being prepared. The risk table is ready now."
-msgstr "简报正在后台准备中。风险表现在已经可用。"
-
 #: src/features/migration/WizardShell.tsx
 msgid "Building the import preview"
 msgstr "正在生成导入预览"
@@ -1093,10 +1097,6 @@ msgstr "修改 {0} 的状态"
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Checking {label}…"
 msgstr "正在检查 {label}…"
-
-#: src/routes/dashboard.tsx
-msgid "Checking for the latest prepared brief…"
-msgstr "正在检查最新生成的简报…"
 
 #: src/features/workload/workload-page.tsx
 msgid "Checking the active practice plan before loading workload metrics."
@@ -1324,6 +1324,10 @@ msgstr "命令面板"
 msgid "Compact"
 msgstr "紧凑"
 
+#: src/routes/dashboard.tsx
+msgid "Complete CPA review and close the row."
+msgstr "完成 CPA 复核并关闭该行。"
+
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step2Mapping.tsx
 msgid "Confidence"
@@ -1341,6 +1345,10 @@ msgstr "确认适用"
 #: src/routes/billing.checkout.tsx
 msgid "Confirm checkout"
 msgstr "确认支付"
+
+#: src/routes/dashboard.tsx
+msgid "Confirm filing or payment status today."
+msgstr "今天确认申报或付款状态。"
 
 #: src/routes/billing.success.tsx
 msgid "Confirming subscription"
@@ -1648,10 +1656,6 @@ msgstr "无法排队生成风险摘要"
 msgid "Couldn't reactivate alert"
 msgstr "无法重新激活提醒"
 
-#: src/routes/dashboard.tsx
-msgid "Couldn't refresh brief"
-msgstr "无法刷新简报"
-
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't request review"
 msgstr "无法请求审核"
@@ -1868,10 +1872,6 @@ msgstr "仪表盘"
 #: src/routes/billing.tsx
 msgid "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
 msgstr "Dashboard brief、Pulse 摘要、客户风险摘要和生产迁移 AI。"
-
-#: src/routes/dashboard.tsx
-msgid "Dashboard risk summary will appear after clients and obligations are generated."
-msgstr "生成客户和义务后，Dashboard 风险摘要会显示在这里。"
 
 #: src/routes/workboard.tsx
 msgid "Days"
@@ -2104,6 +2104,10 @@ msgstr "截止日已更改"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Due date logic"
 msgstr "截止日逻辑"
+
+#: src/routes/dashboard.tsx
+msgid "due now"
+msgstr "现在到期"
 
 #: src/features/workload/workload-page.tsx
 msgid "Due soon"
@@ -2492,6 +2496,10 @@ msgstr "Firm"
 #: src/features/calendar/calendar-page.tsx
 msgid "Firm-wide calendar"
 msgstr "全事务所日历"
+
+#: src/routes/dashboard.tsx
+msgid "Follow up for client materials."
+msgstr "跟进客户材料。"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -3279,9 +3287,21 @@ msgid "Need help"
 msgstr "需要帮助"
 
 #: src/routes/dashboard.tsx
+msgid "needs CPA review"
+msgstr "需要 CPA 复核"
+
+#: src/routes/dashboard.tsx
+msgid "needs evidence"
+msgstr "需要证据"
+
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Needs evidence"
 msgstr "需补证据"
+
+#: src/routes/dashboard.tsx
+msgid "needs exposure input"
+msgstr "需要风险金额输入"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Needs facts"
@@ -3354,6 +3374,10 @@ msgstr "未来 30 天"
 #: src/routes/dashboard.tsx
 msgid "Next 7 days"
 msgstr "未来 7 天"
+
+#: src/routes/dashboard.tsx
+msgid "Next check"
+msgstr "下一步检查"
 
 #: src/routes/workboard.tsx
 msgid "Next month"
@@ -3552,10 +3576,6 @@ msgstr "没有待复核的 Pulse 提取结果。"
 msgid "No practice selected"
 msgstr "未选择事务所"
 
-#: src/routes/dashboard.tsx
-msgid "No prepared brief yet"
-msgstr "还没有生成好的简报"
-
 #: src/features/migration/Step1Intake.tsx
 msgid "No previous provider imports are available yet."
 msgstr "暂无可复用的平台导入记录。"
@@ -3720,11 +3740,11 @@ msgstr "通知 · {unreadCount} 条未读"
 #: src/features/audit/audit-log-page.tsx
 #: src/features/concepts/concept-help.tsx
 #: src/features/evidence/EvidenceDrawerProvider.tsx
-#: src/routes/dashboard.tsx
 #: src/routes/practice.tsx
 msgid "Obligation"
 msgstr "义务"
 
+#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Obligation detail"
 msgstr "事项详情"
@@ -3858,6 +3878,10 @@ msgstr "打开账单"
 msgid "Open billing for {plan} plan"
 msgstr "打开 {plan} 计划的账单"
 
+#: src/routes/dashboard.tsx
+msgid "Open evidence and confirm the source still matches."
+msgstr "打开证据并确认来源仍然匹配。"
+
 #. placeholder {0}: row.original.clientName
 #. placeholder {0}: tableRow.original.clientName
 #: src/routes/dashboard.tsx
@@ -3865,12 +3889,10 @@ msgstr "打开 {plan} 计划的账单"
 msgid "Open evidence for {0}"
 msgstr "打开 {0} 的证据"
 
-#: src/routes/dashboard.tsx
-msgid "Open evidence for {label}"
-msgstr "打开 {label} 的证据"
-
+#. placeholder {0}: row.clientName
 #. placeholder {0}: row.original.name
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/dashboard.tsx
 msgid "Open fact profile for {0}"
 msgstr "打开 {0} 的事实档案"
 
@@ -3906,11 +3928,6 @@ msgstr "打开规则详情：{0}"
 #: src/routes/workboard.tsx
 msgid "Open source"
 msgstr "打开来源"
-
-#. placeholder {0}: citation.evidence.sourceType
-#: src/routes/dashboard.tsx
-msgid "Open source {0}"
-msgstr "打开来源 {0}"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Open the Apple Calendar link"
@@ -4376,10 +4393,6 @@ msgstr "事务所"
 msgid "Preferences"
 msgstr "偏好设置"
 
-#: src/routes/dashboard.tsx
-msgid "Prepared in the background from the latest dashboard risk snapshot."
-msgstr "基于最新 Dashboard 风险快照在后台生成。"
-
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
@@ -4610,7 +4623,6 @@ msgid "Queue controls"
 msgstr "队列控制"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/dashboard.tsx
 msgid "Queued"
 msgstr "已入队"
 
@@ -4774,14 +4786,6 @@ msgstr "正在跳转到 Microsoft…"
 #: src/routes/workboard.tsx
 msgid "Refresh"
 msgstr "刷新"
-
-#: src/routes/dashboard.tsx
-msgid "Refresh AI weekly brief"
-msgstr "刷新 AI 每周简报"
-
-#: src/routes/dashboard.tsx
-msgid "Refresh brief"
-msgstr "刷新简报"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Refresh confidence"
@@ -5716,6 +5720,10 @@ msgstr "原文摘录"
 msgid "Source excerpt copied"
 msgstr "原文摘录已复制"
 
+#: src/routes/dashboard.tsx
+msgid "source linked"
+msgstr "已关联来源"
+
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source needs attention · {label}"
 msgstr "来源需要处理 · {label}"
@@ -5772,7 +5780,6 @@ msgid "SSO and custom coverage"
 msgstr "SSO 与自定义覆盖"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Stale"
 msgstr "已过期"
@@ -6186,10 +6193,6 @@ msgstr "本周"
 msgid "This Week"
 msgstr "本周"
 
-#: src/routes/dashboard.tsx
-msgid "This Week, This Month, and Long-term risk windows from server aggregation."
-msgstr "来自服务端聚合的本周、本月和长期风险窗口。"
-
 #: src/features/audit/audit-log-table.tsx
 msgid "Time"
 msgstr "时间"
@@ -6356,16 +6359,13 @@ msgstr "更新当前事务所的名称和时区。"
 msgid "Updated"
 msgstr "更新时间"
 
-#. placeholder {0}: formatDateTimeWithTimezone(brief.generatedAt)
 #. placeholder {0}: formatDateTimeWithTimezone(insight.generatedAt)
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Updated {0}"
 msgstr "更新于 {0}"
 
 #: src/components/patterns/app-shell.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Upgrade"
 msgstr "升级"
@@ -6479,6 +6479,10 @@ msgstr "验证并启用"
 msgid "Verify code"
 msgstr "验证验证码"
 
+#: src/routes/dashboard.tsx
+msgid "Verify owner, source, and filing cutoff."
+msgstr "核对负责人、来源和申报截止时间。"
+
 #: src/components/patterns/app-shell.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "View"
@@ -6509,6 +6513,10 @@ msgstr "可见列"
 #: src/features/workload/workload-page.tsx
 msgid "Waiting"
 msgstr "等待中"
+
+#: src/routes/dashboard.tsx
+msgid "waiting on client"
+msgstr "等待客户"
 
 #: src/features/workboard/status-control.tsx
 msgid "Waiting on client"
@@ -6592,6 +6600,20 @@ msgstr "你的数据从哪里来？"
 #: src/features/concepts/concept-help.tsx
 msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 msgstr "该截止日是否具备推进所需条件，例如客户资料、复核、证据或风险输入。"
+
+#. placeholder {0}: primary.label
+#. placeholder {1}: primary.rawValue
+#: src/routes/dashboard.tsx
+msgid "Why: {0} ({1})"
+msgstr "原因：{0}（{1}）"
+
+#: src/routes/dashboard.tsx
+msgid "Why: {deadlineDriver}"
+msgstr "原因：{deadlineDriver}"
+
+#: src/routes/dashboard.tsx
+msgid "Work each risk window with deterministic priority, row-level drivers, and the next check."
+msgstr "按确定性优先级、行级原因和下一步检查处理每个风险窗口。"
 
 #: src/features/members/members-page.tsx
 msgid "Work email"

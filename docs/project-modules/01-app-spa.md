@@ -34,8 +34,9 @@
 
 ### Dashboard
 
-- 展示 AI brief、Pulse banner、顶部风险 metrics 和唯一的 Dashboard triage queue。
-- `DashboardBriefPanel` 可触发 AI brief refresh，server 侧有队列、debounce 和 daily limit。
+- 展示 Pulse banner、顶部风险 metrics 和唯一的 Dashboard triage queue。
+- Dashboard 不再渲染独立 AI weekly brief；分诊解释下沉到 Triage queue 行内的 Smart Priority
+  drivers、Focus rank 和 Next check。
 - `PulseAlertsBanner` 把可处理的政府更新带入首页。
 
 ### Workboard
@@ -45,6 +46,8 @@
   `q/status/assignee/owner/due/dueWithin/exposure/evidence/asOf/sort/row/drawer/id/tab`。
 - 支持义务状态更新、客户罚金输入更新、证据 drawer、键盘选择，以及五 tab 的义务详情
   drawer（Readiness / Extension / Risk / Evidence / Audit）。
+- Readiness tab 会复用已发送 request 或最新 AI checklist evidence；如果两者都不存在，打开
+  drawer 时自动生成一次默认 checklist。
 - `/readiness/:token` 是公开客户 portal route，脱离受保护 app shell，只展示客户安全字段并提交
   readiness response。
 - coordinator 角色在 practice 设置禁止时隐藏 dollar exposure。
@@ -87,7 +90,7 @@
 
 ## 创新点
 
-- **操作台优先**：首页不是静态报表，而是把风险、Pulse、任务、证据入口和 AI brief 放到同一个工作语境。
+- **操作台优先**：首页不是静态报表，而是把风险、Pulse、任务、下一步检查和证据入口放到同一个工作语境。
 - **URL 可复现工作状态**：Workboard 和 Rules Console 用 URL query 保存筛选、排序和选中行，便于团队共享上下文。
 - **全局证据 drawer**：证据不是单独页面，而是嵌入在 dashboard/workboard/pulse 等工作流里，降低解释成本。
 - **键盘工作流**：命令面板、快捷键导航、帮助层和表格选择服务于高频后台操作。

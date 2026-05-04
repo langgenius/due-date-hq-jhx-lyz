@@ -50,6 +50,7 @@ const WorkboardFilterValueSchema = z.string().trim().min(1).max(WORKBOARD_FILTER
 export const WorkboardListInputSchema = z.object({
   status: z.array(ObligationStatusSchema).max(8).optional(),
   search: z.string().max(WORKBOARD_SEARCH_MAX_LENGTH).optional(),
+  obligationIds: z.array(EntityIdSchema).max(WORKBOARD_FILTER_MAX_SELECTIONS).optional(),
   clientIds: z.array(EntityIdSchema).max(WORKBOARD_FILTER_MAX_SELECTIONS).optional(),
   states: z.array(StateCodeSchema).max(WORKBOARD_FILTER_MAX_SELECTIONS).optional(),
   counties: z.array(WorkboardFilterValueSchema).max(WORKBOARD_FILTER_MAX_SELECTIONS).optional(),
