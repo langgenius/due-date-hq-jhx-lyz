@@ -13,11 +13,9 @@ import { enqueueAiInsightRefresh } from '../../jobs/ai-insights/enqueue'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { recalculateObligationExposure } from '../_penalty-exposure'
 import {
-  bulkUpdateObligationReadiness,
   bulkUpdateObligationStatus,
   decideObligationExtension,
   toObligationPublic,
-  updateObligationReadiness,
   updateObligationStatus,
 } from './_service'
 import { runAnnualRollover } from './_annual-rollover'
@@ -90,7 +88,6 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       baseDueDate: Date
       currentDueDate: Date
       status?: ObligationInstancePublic['status']
-      readiness?: ObligationInstancePublic['readiness']
       migrationBatchId: string | null
       estimatedTaxDueCents?: number | null
       estimatedExposureCents?: number | null
@@ -129,7 +126,6 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       exposureCalculatedAt: o.exposureCalculatedAt ? new Date(o.exposureCalculatedAt) : null,
     }
     if (o.status !== undefined) repoInput.status = o.status
-    if (o.readiness !== undefined) repoInput.readiness = o.readiness
     return repoInput
   })
 
@@ -289,23 +285,6 @@ const bulkUpdateStatus = os.obligations.bulkUpdateStatus.handler(async ({ input,
   return result
 })
 
-const updateReadiness = os.obligations.updateReadiness.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
-  const { scoped, tenant, userId } = requireTenant(context)
-  const result = await updateObligationReadiness(scoped, userId, input)
-  await enqueueDashboardBriefRefresh(context.env, {
-    firmId: tenant.firmId,
-    reason: 'readiness_change',
-  }).catch(() => false)
-  await enqueueAiInsightRefresh(context.env, {
-    firmId: tenant.firmId,
-    kind: 'deadline_tip',
-    subjectId: input.id,
-    reason: 'readiness_change',
-  }).catch(() => false)
-  return result
-})
-
 const decideExtension = os.obligations.decideExtension.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
   const { scoped, tenant, userId } = requireTenant(context)
@@ -322,21 +301,6 @@ const decideExtension = os.obligations.decideExtension.handler(async ({ input, c
   }).catch(() => false)
   return result
 })
-
-const bulkUpdateReadiness = os.obligations.bulkUpdateReadiness.handler(
-  async ({ input, context }) => {
-    await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
-    const { scoped, tenant, userId } = requireTenant(context)
-    const result = await bulkUpdateObligationReadiness(scoped, userId, input)
-    if (result.updatedCount > 0) {
-      await enqueueDashboardBriefRefresh(context.env, {
-        firmId: tenant.firmId,
-        reason: 'readiness_change',
-      }).catch(() => false)
-    }
-    return result
-  },
-)
 
 function deadlineTipFallback(obligationId: string) {
   return [
@@ -441,9 +405,7 @@ export const obligationsHandlers = {
   listByClient,
   updateStatus,
   bulkUpdateStatus,
-  updateReadiness,
   decideExtension,
-  bulkUpdateReadiness,
   getDeadlineTip,
   requestDeadlineTipRefresh,
 }

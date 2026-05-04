@@ -148,14 +148,6 @@ test.describe('seeded obligations', () => {
     await expect(authenticatedPage.getByText(/Audit [a-f0-9-]{8}/)).toBeVisible()
     await expect(obligationQueuePage.statusSelectFor('Arbor & Vale LLC')).toContainText('Filed')
 
-    await obligationQueuePage.readinessSelectFor('Arbor & Vale LLC').click()
-    await obligationQueuePage.readinessChangeOption('Waiting').click()
-
-    await expect(authenticatedPage.getByText('Readiness updated')).toBeVisible()
-    await expect(obligationQueuePage.readinessSelectFor('Arbor & Vale LLC')).toContainText(
-      'Waiting',
-    )
-
     await authenticatedPage.keyboard.press('P')
     await expect(obligationQueuePage.statusSelectFor('Arbor & Vale LLC')).toContainText('Paid')
   })
@@ -207,14 +199,6 @@ test.describe('seeded obligations', () => {
     await authenticatedPage.getByRole('menuitem', { name: 'E2E Owner' }).click()
     await expect(authenticatedPage.getByText('Owners updated')).toBeVisible()
     await expect(obligationQueuePage.rowFor('Arbor & Vale LLC')).toContainText('E2E Owner')
-
-    await obligationQueuePage.selectRow('Arbor & Vale LLC').click()
-    await authenticatedPage.getByRole('button', { name: 'Change readiness', exact: true }).click()
-    await authenticatedPage.getByRole('menuitem', { name: 'Needs review' }).click()
-    await expect(authenticatedPage.getByText('Bulk readiness updated')).toBeVisible()
-    await expect(obligationQueuePage.readinessSelectFor('Arbor & Vale LLC')).toContainText(
-      'Needs review',
-    )
 
     await obligationQueuePage.selectRow('Arbor & Vale LLC').click()
     await obligationQueuePage.selectRow('Northstar Dental Group').click()

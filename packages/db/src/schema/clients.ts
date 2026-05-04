@@ -6,8 +6,8 @@ import { firmProfile } from './firm'
  * client — the CPA firm's tenant-scoped customer record.
  *
  * Layering (docs/dev-file/03-Data-Model.md §2.2):
- *   - Demo Sprint subset only. Coordinator-visible billing mirrors and
- *     readiness_status are deliberately deferred — D1 ALTER TABLE is cheap.
+ *   - Demo Sprint subset only. Coordinator-visible billing mirrors are
+ *     deliberately deferred — D1 ALTER TABLE is cheap.
  *   - `firm_id` FK goes to `firm_profile.id` (which === organization.id ===
  *     firmId). Scoped repo factory (`scoped.ts`) is the only way procedures
  *     reach this table.

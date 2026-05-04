@@ -74,7 +74,6 @@ export interface ObligationCreateInput {
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
-  readiness?: ObligationReadiness
   migrationBatchId?: string | null
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null
@@ -127,7 +126,7 @@ export interface ObligationsRepo {
       penaltyFactsVersion?: string | null
     },
   ): Promise<void>
-  updateStatus(id: string, status: ObligationStatus, readiness?: ObligationReadiness): Promise<void>
+  updateStatus(id: string, status: ObligationStatus): Promise<void>
   updateExtensionDecision(
     id: string,
     patch: {
@@ -138,15 +137,8 @@ export interface ObligationsRepo {
       decidedAt: Date
       decidedByUserId: string
       status?: ObligationStatus
-      readiness?: ObligationReadiness
     },
   ): Promise<void>
-  updateStatusMany(
-    ids: string[],
-    status: ObligationStatus,
-    readiness?: ObligationReadiness,
-  ): Promise<void>
-  updateReadiness(id: string, readiness: ObligationReadiness): Promise<void>
-  updateReadinessMany(ids: string[], readiness: ObligationReadiness): Promise<void>
+  updateStatusMany(ids: string[], status: ObligationStatus): Promise<void>
   deleteByBatch(batchId: string): Promise<number>
 }

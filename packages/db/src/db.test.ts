@@ -33,7 +33,6 @@ describe('@duedatehq/db', () => {
     expect(typeof repo.obligations.findById).toBe('function')
     expect(typeof repo.obligations.findManyByIds).toBe('function')
     expect(typeof repo.obligations.updateStatusMany).toBe('function')
-    expect(typeof repo.obligations.updateReadinessMany).toBe('function')
     expect(typeof repo.obligationQueue.list).toBe('function')
     expect(typeof repo.obligationQueue.facets).toBe('function')
     expect(typeof repo.obligationQueue.listSavedViews).toBe('function')

@@ -12,6 +12,7 @@ import { calendarSubscription } from '../schema/calendar'
 import { client } from '../schema/clients'
 import { firmProfile } from '../schema/firm'
 import { obligationInstance } from '../schema/obligations'
+import { loadDerivedReadinessByObligation } from './readiness-derived'
 
 const OPEN_STATUSES = [...OPEN_OBLIGATION_STATUSES]
 
@@ -213,7 +214,7 @@ export function makeCalendarFeedRepo(db: Db) {
         filters.push(or(...assigneeFilters)!)
       }
 
-      return db
+      const rows = await db
         .select({
           id: obligationInstance.id,
           clientId: client.id,
@@ -224,7 +225,6 @@ export function makeCalendarFeedRepo(db: Db) {
           taxType: obligationInstance.taxType,
           taxYear: obligationInstance.taxYear,
           status: obligationInstance.status,
-          readiness: obligationInstance.readiness,
           currentDueDate: obligationInstance.currentDueDate,
           updatedAt: obligationInstance.updatedAt,
         })
@@ -233,6 +233,14 @@ export function makeCalendarFeedRepo(db: Db) {
         .where(and(...filters))
         .orderBy(asc(obligationInstance.currentDueDate), asc(obligationInstance.id))
         .limit(input.limit)
+      const readinessById = await loadDerivedReadinessByObligation(
+        db,
+        subscription.firmId,
+        new Map(rows.map((row) => [row.id, row.status])),
+      )
+      return rows.map((row) =>
+        Object.assign({}, row, { readiness: readinessById.get(row.id) ?? 'ready' }),
+      )
     },
 
     async markAccessed(id: string, accessedAt: Date): Promise<void> {

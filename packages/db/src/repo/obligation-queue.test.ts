@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { ObligationStatus, ReadinessResponseStatus } from '@duedatehq/core/obligation-workflow'
 import type { Db } from '../client'
 import { makeObligationQueueRepo, normalizeObligationQueueSearch } from './obligation-queue'
-import type { ObligationReadiness, ObligationStatus } from '../schema/obligations'
 
 interface FakeRow {
   id: string
@@ -12,7 +12,6 @@ interface FakeRow {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
-  readiness: ObligationReadiness
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -28,11 +27,30 @@ interface FakeRow {
   assigneeName: string | null
 }
 
+interface FakeReadinessRequest {
+  id: string
+  obligationInstanceId: string
+  status: 'sent' | 'opened' | 'responded' | 'revoked' | 'expired'
+  updatedAt: Date
+  createdAt: Date
+}
+
+interface FakeReadinessResponse {
+  requestId: string
+  status: ReadinessResponseStatus
+}
+
 /**
  * Fake Drizzle chain — only what makeObligationQueueRepo.list calls actually walks.
  * Order: select().from().innerJoin().leftJoin().where().orderBy().limit() => Promise<rows>.
  */
-function createFakeDb(rows: FakeRow[]) {
+function createFakeDb(
+  rows: FakeRow[],
+  options: {
+    readinessRequests?: FakeReadinessRequest[]
+    readinessResponses?: FakeReadinessResponse[]
+  } = {},
+) {
   const limit = vi.fn(async (_n: number) => rows)
   const orderBy = vi.fn(() => ({ limit }))
   const where = vi.fn(() => ({ orderBy }))
@@ -48,12 +66,31 @@ function createFakeDb(rows: FakeRow[]) {
   const profileLimit = vi.fn(async () => [])
   const profileWhere = vi.fn(() => ({ limit: profileLimit }))
   const profileFrom = vi.fn(() => ({ where: profileWhere }))
+  const readinessRequestOrderBy = vi.fn(async () => options.readinessRequests ?? [])
+  const readinessRequestWhere = vi.fn(() => ({ orderBy: readinessRequestOrderBy }))
+  const readinessRequestFrom = vi.fn(() => ({ where: readinessRequestWhere }))
+  const readinessResponseWhere = vi.fn(async () => options.readinessResponses ?? [])
+  const readinessResponseFrom = vi.fn(() => ({ where: readinessResponseWhere }))
   const select = vi.fn((shape?: Record<string, unknown>) => {
+    const keys = Object.keys(shape ?? {})
+    if (
+      keys.length === 5 &&
+      keys.includes('id') &&
+      keys.includes('obligationInstanceId') &&
+      keys.includes('status') &&
+      keys.includes('updatedAt') &&
+      keys.includes('createdAt')
+    ) {
+      return { from: readinessRequestFrom }
+    }
+    if (keys.length === 2 && keys.includes('requestId') && keys.includes('status')) {
+      return { from: readinessResponseFrom }
+    }
     if (shape && 'overrideDueDate' in shape) return { from: overlayFrom }
-    if (shape && Object.keys(shape).length === 1 && 'obligationInstanceId' in shape) {
+    if (keys.length === 1 && keys.includes('obligationInstanceId')) {
       return { from: evidenceFrom }
     }
-    if (shape && Object.keys(shape).length === 1 && 'smartPriorityProfileJson' in shape) {
+    if (keys.length === 1 && keys.includes('smartPriorityProfileJson')) {
       return { from: profileFrom }
     }
     return { from }
@@ -83,7 +120,6 @@ function makeRow(over: Partial<FakeRow> = {}): FakeRow {
     baseDueDate: over.baseDueDate ?? due,
     currentDueDate: due,
     status: over.status ?? 'pending',
-    readiness: over.readiness ?? 'ready',
     migrationBatchId: over.migrationBatchId ?? null,
     estimatedTaxDueCents: over.estimatedTaxDueCents ?? null,
     estimatedExposureCents: over.estimatedExposureCents ?? null,
@@ -215,34 +251,45 @@ describe('makeObligationQueueRepo.list', () => {
     })
   })
 
-  it('uses persisted readiness and filters by days until due after overlay-safe row shaping', async () => {
-    const fake = createFakeDb([
-      makeRow({
-        id: 'ready',
-        currentDueDate: new Date('2026-04-20T00:00:00.000Z'),
-        exposureStatus: 'ready',
-      }),
-      makeRow({
-        id: 'waiting',
-        currentDueDate: new Date('2026-04-22T00:00:00.000Z'),
-        status: 'waiting_on_client',
-        readiness: 'waiting',
-        exposureStatus: 'ready',
-      }),
-      makeRow({
-        id: 'review',
-        currentDueDate: new Date('2026-05-01T00:00:00.000Z'),
-        status: 'review',
-        readiness: 'needs_review',
-        exposureStatus: 'ready',
-      }),
-      makeRow({
-        id: 'needs-input',
-        currentDueDate: new Date('2026-04-18T00:00:00.000Z'),
-        readiness: 'needs_review',
-        exposureStatus: 'needs_input',
-      }),
-    ])
+  it('uses derived readiness and filters by days until due after overlay-safe row shaping', async () => {
+    const fake = createFakeDb(
+      [
+        makeRow({
+          id: 'ready',
+          currentDueDate: new Date('2026-04-20T00:00:00.000Z'),
+          exposureStatus: 'ready',
+        }),
+        makeRow({
+          id: 'waiting',
+          currentDueDate: new Date('2026-04-22T00:00:00.000Z'),
+          status: 'waiting_on_client',
+          exposureStatus: 'ready',
+        }),
+        makeRow({
+          id: 'review',
+          currentDueDate: new Date('2026-05-01T00:00:00.000Z'),
+          status: 'review',
+          exposureStatus: 'ready',
+        }),
+        makeRow({
+          id: 'needs-input',
+          currentDueDate: new Date('2026-04-18T00:00:00.000Z'),
+          exposureStatus: 'needs_input',
+        }),
+      ],
+      {
+        readinessRequests: [
+          {
+            id: 'request-needs-input',
+            obligationInstanceId: 'needs-input',
+            status: 'responded',
+            updatedAt: new Date('2026-04-16T00:00:00.000Z'),
+            createdAt: new Date('2026-04-16T00:00:00.000Z'),
+          },
+        ],
+        readinessResponses: [{ requestId: 'request-needs-input', status: 'need_help' }],
+      },
+    )
     const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     const result = await repo.list({

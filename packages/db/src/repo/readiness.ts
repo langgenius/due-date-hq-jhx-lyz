@@ -1,4 +1,5 @@
 import { and, desc, eq, inArray } from 'drizzle-orm'
+import { deriveObligationReadiness } from '@duedatehq/core/obligation-workflow'
 import type { ObligationReadiness } from '@duedatehq/ports/shared'
 import type { Db } from '../client'
 import { client } from '../schema/clients'
@@ -26,10 +27,11 @@ export interface ReadinessPortalRequestRow {
 function normalizeReadinessFromResponses(
   responses: Array<{ status: 'ready' | 'not_yet' | 'need_help' }>,
 ): ObligationReadiness {
-  if (responses.length === 0) return 'waiting'
-  if (responses.some((response) => response.status === 'need_help')) return 'needs_review'
-  if (responses.every((response) => response.status === 'ready')) return 'ready'
-  return 'waiting'
+  return deriveObligationReadiness({
+    status: 'in_progress',
+    requestStatus: 'responded',
+    responseStatuses: responses.map((response) => response.status),
+  })
 }
 
 export function makeReadinessPortalRepo(db: Db) {
@@ -240,15 +242,6 @@ export function makeReadinessRepo(db: Db, firmId: string) {
             and(
               eq(clientReadinessRequest.firmId, firmId),
               eq(clientReadinessRequest.id, input.requestId),
-            ),
-          ),
-        db
-          .update(obligationInstance)
-          .set({ readiness })
-          .where(
-            and(
-              eq(obligationInstance.firmId, firmId),
-              eq(obligationInstance.id, input.obligationInstanceId),
             ),
           ),
       ])

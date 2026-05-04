@@ -17,7 +17,6 @@ type ObligationReadiness = ObligationInstancePublic['readiness']
 type StatusLabels = Record<ObligationStatus, string>
 type ReadinessLabels = Record<ObligationReadiness, string>
 type StatusControlRow = Pick<ObligationQueueRow, 'clientName' | 'status'> & { id: string }
-type ReadinessControlRow = Pick<ObligationQueueRow, 'clientName' | 'readiness'> & { id: string }
 
 const ALL_STATUSES = [
   'pending',
@@ -29,12 +28,6 @@ const ALL_STATUSES = [
   'extended',
   'not_applicable',
 ] as const satisfies readonly ObligationStatus[]
-
-const ALL_READINESSES = [
-  'ready',
-  'waiting',
-  'needs_review',
-] as const satisfies readonly ObligationReadiness[]
 
 const STATUS_VARIANT: Record<
   ObligationStatus,
@@ -64,30 +57,8 @@ const STATUS_DOT: Record<
   not_applicable: 'disabled',
 }
 
-const READINESS_VARIANT: Record<
-  ObligationReadiness,
-  'destructive' | 'info' | 'secondary' | 'outline' | 'success' | 'warning'
-> = {
-  ready: 'success',
-  waiting: 'info',
-  needs_review: 'warning',
-}
-
-const READINESS_DOT: Record<
-  ObligationReadiness,
-  'error' | 'normal' | 'disabled' | 'warning' | 'success'
-> = {
-  ready: 'success',
-  waiting: 'normal',
-  needs_review: 'warning',
-}
-
 function isObligationStatus(value: string): value is ObligationStatus {
   return (ALL_STATUSES as readonly string[]).includes(value)
-}
-
-function isObligationReadiness(value: string): value is ObligationReadiness {
-  return (ALL_READINESSES as readonly string[]).includes(value)
 }
 
 function useStatusLabels(): StatusLabels {
@@ -176,69 +147,9 @@ function ObligationQueueStatusControl({
   )
 }
 
-function ObligationQueueReadinessControl({
-  row,
-  labels,
-  disabled,
-  onChange,
-}: {
-  row: ReadinessControlRow
-  labels: ReadinessLabels
-  disabled: boolean
-  onChange: (id: string, readiness: ObligationReadiness) => void
-}) {
-  const { t } = useLingui()
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <button
-            type="button"
-            aria-label={t`Change readiness for ${row.clientName}`}
-            disabled={disabled}
-            className={cn(
-              badgeVariants({ variant: READINESS_VARIANT[row.readiness] }),
-              'h-6 cursor-pointer text-xs outline-none hover:ring-2 hover:ring-state-accent-active-alt focus-visible:ring-2 focus-visible:ring-state-accent-active-alt disabled:cursor-not-allowed disabled:opacity-50',
-            )}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <BadgeStatusDot tone={READINESS_DOT[row.readiness]} />
-            {labels[row.readiness]}
-          </button>
-        }
-      />
-      <DropdownMenuContent className="min-w-48" align="start">
-        <DropdownMenuRadioGroup
-          value={row.readiness}
-          onValueChange={(value) => {
-            if (typeof value !== 'string' || !isObligationReadiness(value)) return
-            if (value === row.readiness) return
-            onChange(row.id, value)
-          }}
-        >
-          {ALL_READINESSES.map((readiness) => (
-            <DropdownMenuRadioItem
-              key={readiness}
-              value={readiness}
-              className="gap-2"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <BadgeStatusDot tone={READINESS_DOT[readiness]} />
-              <span>{labels[readiness]}</span>
-            </DropdownMenuRadioItem>
-          ))}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
-
 export {
-  ALL_READINESSES,
   ALL_STATUSES,
-  ObligationQueueReadinessControl,
   ObligationQueueStatusControl,
-  isObligationReadiness,
   isObligationStatus,
   useReadinessLabels,
   useStatusLabels,

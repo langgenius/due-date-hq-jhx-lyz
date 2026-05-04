@@ -1,5 +1,4 @@
 import { ObligationRuleSchema, type AnnualRolloverOutput } from '@duedatehq/contracts'
-import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
 import {
   listObligationRules,
   listRuleSources,
@@ -337,7 +336,6 @@ export async function runAnnualRollover(input: {
           baseDueDate: dueDate,
           currentDueDate: dueDate,
           status: targetStatus,
-          readiness: defaultReadinessForStatus(targetStatus, undefined),
           estimatedTaxDueCents: exposure.estimatedTaxDueCents,
           estimatedExposureCents: exposure.estimatedExposureCents,
           exposureStatus: exposure.status,

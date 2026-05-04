@@ -6,9 +6,6 @@ import { firmProfile } from './firm'
 export const EXPOSURE_STATUSES = ['ready', 'needs_input', 'unsupported'] as const
 export type ExposureStatus = (typeof EXPOSURE_STATUSES)[number]
 
-export const OBLIGATION_READINESSES = ['ready', 'waiting', 'needs_review'] as const
-export type ObligationReadiness = (typeof OBLIGATION_READINESSES)[number]
-
 export const OBLIGATION_EXTENSION_DECISIONS = ['not_considered', 'applied', 'rejected'] as const
 export type ObligationExtensionDecision = (typeof OBLIGATION_EXTENSION_DECISIONS)[number]
 
@@ -31,7 +28,8 @@ export type ObligationExtensionDecision = (typeof OBLIGATION_EXTENSION_DECISIONS
  *     import and manual edits also write here. Phase 1: this column becomes
  *     generated/virtual from base + overlays.
  *
- * status/readiness workflow: full P0-16 surface with flexible corrective transitions.
+ * status workflow: full P0-16 surface with flexible corrective transitions.
+ * Readiness is derived from status plus client readiness request responses.
  */
 export const obligationInstance = sqliteTable(
   'obligation_instance',
@@ -80,9 +78,6 @@ export const obligationInstance = sqliteTable(
     })
       .notNull()
       .default('pending'),
-    readiness: text('readiness_status', { enum: OBLIGATION_READINESSES })
-      .notNull()
-      .default('ready'),
     extensionDecision: text('extension_decision', { enum: OBLIGATION_EXTENSION_DECISIONS })
       .notNull()
       .default('not_considered'),
@@ -122,7 +117,6 @@ export const obligationInstance = sqliteTable(
     // Dashboard tabs: This Week / This Month / All — scan by firm + status +
     // soonest due first.
     index('idx_oi_firm_status_due').on(table.firmId, table.status, table.currentDueDate),
-    index('idx_oi_firm_readiness_due').on(table.firmId, table.readiness, table.currentDueDate),
     // Penalty Radar / Obligations triage: sort open obligations by exposure.
     index('idx_oi_firm_due_exposure').on(
       table.firmId,

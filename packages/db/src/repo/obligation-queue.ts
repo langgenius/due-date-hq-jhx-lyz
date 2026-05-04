@@ -3,19 +3,17 @@ import type { SQL } from 'drizzle-orm'
 import { estimateAccruedPenalty } from '@duedatehq/core/penalty'
 import type { PenaltyBreakdownItem } from '@duedatehq/core/penalty'
 import { compareSmartPriority, rankSmartPriorities } from '@duedatehq/core/priority'
+import type { ObligationReadiness } from '@duedatehq/core/obligation-workflow'
 import type { SmartPriorityBreakdown } from '@duedatehq/ports/priority'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client, clientFilingProfile } from '../schema/clients'
 import { firmProfile } from '../schema/firm'
-import {
-  obligationInstance,
-  type ObligationReadiness,
-  type ObligationStatus,
-} from '../schema/obligations'
+import { obligationInstance, type ObligationStatus } from '../schema/obligations'
 import { obligationSavedView, type ObligationQueueDensity } from '../schema/obligation-saved-view'
 import { listActiveOverlayDueDates } from './overlay'
 import { toSmartPriorityProfile } from './priority-profile'
+import { loadDerivedReadinessByObligation } from './readiness-derived'
 
 /**
  * Obligations read model joining obligation_instance + client.
@@ -189,7 +187,6 @@ interface ObligationQueueRawJoinedRow {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
-  readiness: ObligationQueueReadiness
   extensionDecision: 'not_considered' | 'applied' | 'rejected'
   extensionMemo: string | null
   extensionSource: string | null
@@ -486,11 +483,14 @@ export function makeObligationQueueRepo(db: Db, firmId: string) {
     input: Pick<ObligationQueueListInput, 'asOfDate'> = {},
   ): Promise<ObligationQueueListRow[]> {
     const obligationIds = rawRows.map((row) => row.id)
-    const [overlayDueDates, evidenceCounts, smartPriorityProfile] = await Promise.all([
-      listActiveOverlayDueDates(db, firmId, obligationIds),
-      listEvidenceCounts(obligationIds),
-      loadSmartPriorityProfile(),
-    ])
+    const statuses = new Map(rawRows.map((row) => [row.id, row.status]))
+    const [overlayDueDates, evidenceCounts, readinessById, smartPriorityProfile] =
+      await Promise.all([
+        listActiveOverlayDueDates(db, firmId, obligationIds),
+        listEvidenceCounts(obligationIds),
+        loadDerivedReadinessByObligation(db, firmId, statuses),
+        loadSmartPriorityProfile(),
+      ])
     const asOfDate = getAsOfDate(input)
     const asOfDateOnly = asOfDate.toISOString().slice(0, 10)
     const rowDrafts = rawRows.map((row) => {
@@ -507,6 +507,7 @@ export function makeObligationQueueRepo(db: Db, firmId: string) {
       )
       return Object.assign({}, row, {
         currentDueDate,
+        readiness: readinessById.get(row.id) ?? 'ready',
         evidenceCount: evidenceCounts.get(row.id) ?? 0,
         clientState: normalizeStateCode(row.clientState),
         clientCounty: normalizeNullableText(row.clientCounty),
@@ -598,10 +599,6 @@ export function makeObligationQueueRepo(db: Db, firmId: string) {
         filters.push(eq(obligationInstance.exposureStatus, input.exposureStatus))
       }
 
-      if (input.readiness && input.readiness.length > 0) {
-        filters.push(inArray(obligationInstance.readiness, input.readiness))
-      }
-
       if (input.minExposureCents !== undefined) {
         filters.push(gte(obligationInstance.estimatedExposureCents, input.minExposureCents))
       }
@@ -644,7 +641,6 @@ export function makeObligationQueueRepo(db: Db, firmId: string) {
           baseDueDate: obligationInstance.baseDueDate,
           currentDueDate: obligationInstance.currentDueDate,
           status: obligationInstance.status,
-          readiness: obligationInstance.readiness,
           extensionDecision: obligationInstance.extensionDecision,
           extensionMemo: obligationInstance.extensionMemo,
           extensionSource: obligationInstance.extensionSource,
@@ -739,7 +735,6 @@ export function makeObligationQueueRepo(db: Db, firmId: string) {
               baseDueDate: obligationInstance.baseDueDate,
               currentDueDate: obligationInstance.currentDueDate,
               status: obligationInstance.status,
-              readiness: obligationInstance.readiness,
               extensionDecision: obligationInstance.extensionDecision,
               extensionMemo: obligationInstance.extensionMemo,
               extensionSource: obligationInstance.extensionSource,

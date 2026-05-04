@@ -14,6 +14,9 @@ export type ObligationStatus = (typeof OBLIGATION_STATUSES)[number]
 export const OBLIGATION_READINESSES = ['ready', 'waiting', 'needs_review'] as const
 export type ObligationReadiness = (typeof OBLIGATION_READINESSES)[number]
 
+export const READINESS_RESPONSE_STATUSES = ['ready', 'not_yet', 'need_help'] as const
+export type ReadinessResponseStatus = (typeof READINESS_RESPONSE_STATUSES)[number]
+
 export const OPEN_OBLIGATION_STATUSES = [
   'pending',
   'in_progress',
@@ -71,4 +74,29 @@ export function defaultReadinessForStatus(
   if (status === 'review') return 'needs_review'
   if (isClosedObligationStatus(status)) return 'ready'
   return currentReadiness ?? 'ready'
+}
+
+export function deriveObligationReadiness(input: {
+  status: ObligationStatus
+  requestStatus?: 'sent' | 'opened' | 'responded' | 'revoked' | 'expired' | null
+  responseStatuses?: readonly ReadinessResponseStatus[]
+}): ObligationReadiness {
+  if (isClosedObligationStatus(input.status)) return 'ready'
+
+  const responseStatuses = input.responseStatuses ?? []
+  if (responseStatuses.length > 0) {
+    if (responseStatuses.some((status) => status === 'need_help')) return 'needs_review'
+    if (responseStatuses.every((status) => status === 'ready')) return 'ready'
+    return 'waiting'
+  }
+
+  if (
+    input.requestStatus === 'sent' ||
+    input.requestStatus === 'opened' ||
+    input.requestStatus === 'responded'
+  ) {
+    return 'waiting'
+  }
+
+  return defaultReadinessForStatus(input.status, undefined)
 }

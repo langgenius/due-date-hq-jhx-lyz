@@ -498,9 +498,9 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   active row，避免用 effect 追踪派生状态。
 - **Filter facets**：`obligations.facets` 返回 client / state / county / tax type /
   assignee 的服务器端选项和计数；county option 带 `state`，前端按已选 state 做联动展示。
-  Obligations readiness 目前由 read model 派生：`waiting_on_client → waiting`，`review` 或
-  exposure 非 ready → `needs_review`，其余为 `ready`。等独立 readiness state machine
-  落地后替换此派生字段。
+  Obligations readiness 由 read model 派生：closed status → `ready`；最新 Readiness Portal
+  response 可产出 `ready` / `waiting` / `needs_review`；无 response 时由
+  `waiting_on_client → waiting`、`review → needs_review`、其余 open status → `ready` 派生。
 - **表头筛选**：Client / Owner / State / County / Tax type / Days / Projected risk /
   Readiness / Status 的筛选入口直接挂在 TanStack Table header 上；顶部控制区只保留搜索、排序、
   Reset 和少量 triage 快捷 chip，避免 Obligations 出现两套筛选面。

@@ -1,17 +1,16 @@
 import { and, asc, eq, gte, inArray, isNotNull, isNull, lt } from 'drizzle-orm'
-import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
+import type { ObligationReadiness, ObligationStatus } from '@duedatehq/core/obligation-workflow'
 import type { Db } from '../client'
 import { client, clientFilingProfile } from '../schema/clients'
 import {
   obligationInstance,
   type ExposureStatus,
   type ObligationInstance,
-  type ObligationReadiness,
-  type ObligationStatus,
 } from '../schema/obligations'
 import { listActiveOverlayDueDates } from './overlay'
+import { loadDerivedReadinessByObligation } from './readiness-derived'
 
-const COLS_PER_OI_ROW = 27
+const COLS_PER_OI_ROW = 26
 const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 3
 const CLIENT_ASSERT_BATCH_SIZE = 90
 const OI_LOOKUP_IDS_PER_BATCH = 90
@@ -31,7 +30,6 @@ export interface ObligationCreateInput {
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
-  readiness?: ObligationReadiness
   migrationBatchId?: string | null
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null
@@ -57,6 +55,17 @@ function isFederalTaxType(taxType: string): boolean {
 }
 
 export function makeObligationsRepo(db: Db, firmId: string) {
+  async function hydrateObligationRows<T extends ObligationInstance>(
+    rows: T[],
+  ): Promise<Array<T & { readiness: ObligationReadiness }>> {
+    const statuses = new Map(rows.map((row) => [row.id, row.status]))
+    const readinessById = await loadDerivedReadinessByObligation(db, firmId, statuses)
+    return rows.map((row) => ({
+      ...row,
+      readiness: readinessById.get(row.id) ?? 'ready',
+    }))
+  }
+
   async function applyOverlayDueDates<T extends { id: string; currentDueDate: Date }>(
     rows: T[],
   ): Promise<T[]> {
@@ -179,38 +188,34 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         loadClientsInFirm(inputs.map((input) => input.clientId)),
         loadProfilesInFirm(inputs),
       ])
-      const rows = inputs.map((i) => {
-        const status = i.status ?? ('pending' as const)
-        return {
-          id: i.id ?? crypto.randomUUID(),
-          firmId,
-          clientId: i.clientId,
-          clientFilingProfileId: i.clientFilingProfileId ?? null,
-          taxType: i.taxType,
-          taxYear: i.taxYear ?? null,
-          ruleId: i.ruleId ?? null,
-          ruleVersion: i.ruleVersion ?? null,
-          rulePeriod: i.rulePeriod ?? null,
-          generationSource: i.generationSource ?? null,
-          jurisdiction: resolveJurisdiction(i, { clientsById, profilesById }),
-          baseDueDate: i.baseDueDate,
-          currentDueDate: i.currentDueDate ?? i.baseDueDate,
-          status,
-          readiness: i.readiness ?? defaultReadinessForStatus(status, undefined),
-          migrationBatchId: i.migrationBatchId ?? null,
-          estimatedTaxDueCents: i.estimatedTaxDueCents ?? null,
-          estimatedExposureCents: i.estimatedExposureCents ?? null,
-          exposureStatus: i.exposureStatus ?? ('needs_input' as const),
-          penaltyFactsJson: i.penaltyFactsJson ?? null,
-          penaltyFactsVersion: i.penaltyFactsVersion ?? null,
-          penaltyBreakdownJson: i.penaltyBreakdownJson ?? null,
-          penaltyFormulaVersion: i.penaltyFormulaVersion ?? null,
-          missingPenaltyFactsJson: i.missingPenaltyFactsJson ?? null,
-          penaltySourceRefsJson: i.penaltySourceRefsJson ?? null,
-          penaltyFormulaLabel: i.penaltyFormulaLabel ?? null,
-          exposureCalculatedAt: i.exposureCalculatedAt ?? null,
-        }
-      })
+      const rows = inputs.map((i) => ({
+        id: i.id ?? crypto.randomUUID(),
+        firmId,
+        clientId: i.clientId,
+        clientFilingProfileId: i.clientFilingProfileId ?? null,
+        taxType: i.taxType,
+        taxYear: i.taxYear ?? null,
+        ruleId: i.ruleId ?? null,
+        ruleVersion: i.ruleVersion ?? null,
+        rulePeriod: i.rulePeriod ?? null,
+        generationSource: i.generationSource ?? null,
+        jurisdiction: resolveJurisdiction(i, { clientsById, profilesById }),
+        baseDueDate: i.baseDueDate,
+        currentDueDate: i.currentDueDate ?? i.baseDueDate,
+        status: i.status ?? ('pending' as const),
+        migrationBatchId: i.migrationBatchId ?? null,
+        estimatedTaxDueCents: i.estimatedTaxDueCents ?? null,
+        estimatedExposureCents: i.estimatedExposureCents ?? null,
+        exposureStatus: i.exposureStatus ?? ('needs_input' as const),
+        penaltyFactsJson: i.penaltyFactsJson ?? null,
+        penaltyFactsVersion: i.penaltyFactsVersion ?? null,
+        penaltyBreakdownJson: i.penaltyBreakdownJson ?? null,
+        penaltyFormulaVersion: i.penaltyFormulaVersion ?? null,
+        missingPenaltyFactsJson: i.missingPenaltyFactsJson ?? null,
+        penaltySourceRefsJson: i.penaltySourceRefsJson ?? null,
+        penaltyFormulaLabel: i.penaltyFormulaLabel ?? null,
+        exposureCalculatedAt: i.exposureCalculatedAt ?? null,
+      }))
       const writes = []
       for (let i = 0; i < rows.length; i += OI_BATCH_SIZE) {
         writes.push(db.insert(obligationInstance).values(rows.slice(i, i + OI_BATCH_SIZE)))
@@ -219,17 +224,21 @@ export function makeObligationsRepo(db: Db, firmId: string) {
       return { ids: rows.map((r) => r.id) }
     },
 
-    async findById(id: string): Promise<ObligationInstance | undefined> {
+    async findById(
+      id: string,
+    ): Promise<(ObligationInstance & { readiness: ObligationReadiness }) | undefined> {
       const rows = await db
         .select()
         .from(obligationInstance)
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
         .limit(1)
-      const [row] = await applyOverlayDueDates(rows)
+      const [row] = await hydrateObligationRows(await applyOverlayDueDates(rows))
       return row
     },
 
-    async findManyByIds(ids: string[]): Promise<ObligationInstance[]> {
+    async findManyByIds(
+      ids: string[],
+    ): Promise<Array<ObligationInstance & { readiness: ObligationReadiness }>> {
       if (ids.length === 0) return []
       const uniqueIds = [...new Set(ids)]
       const reads = []
@@ -244,7 +253,9 @@ export function makeObligationsRepo(db: Db, firmId: string) {
             ),
         )
       }
-      const rows = await applyOverlayDueDates((await Promise.all(reads)).flat())
+      const rows = await hydrateObligationRows(
+        await applyOverlayDueDates((await Promise.all(reads)).flat()),
+      )
       const byId = new Map(rows.map((row) => [row.id, row]))
       return uniqueIds.flatMap((id) => {
         const row = byId.get(id)
@@ -252,7 +263,9 @@ export function makeObligationsRepo(db: Db, firmId: string) {
       })
     },
 
-    async listByClient(clientId: string): Promise<ObligationInstance[]> {
+    async listByClient(
+      clientId: string,
+    ): Promise<Array<ObligationInstance & { readiness: ObligationReadiness }>> {
       const rows = await db
         .select()
         .from(obligationInstance)
@@ -260,12 +273,14 @@ export function makeObligationsRepo(db: Db, firmId: string) {
           and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.clientId, clientId)),
         )
         .orderBy(asc(obligationInstance.currentDueDate))
-      return (await applyOverlayDueDates(rows)).toSorted(
+      return (await hydrateObligationRows(await applyOverlayDueDates(rows))).toSorted(
         (a, b) => a.currentDueDate.getTime() - b.currentDueDate.getTime(),
       )
     },
 
-    async listByBatch(batchId: string): Promise<ObligationInstance[]> {
+    async listByBatch(
+      batchId: string,
+    ): Promise<Array<ObligationInstance & { readiness: ObligationReadiness }>> {
       const rows = await db
         .select()
         .from(obligationInstance)
@@ -275,13 +290,13 @@ export function makeObligationsRepo(db: Db, firmId: string) {
             eq(obligationInstance.migrationBatchId, batchId),
           ),
         )
-      return applyOverlayDueDates(rows)
+      return hydrateObligationRows(await applyOverlayDueDates(rows))
     },
 
     async listAnnualRolloverSeeds(input: {
       sourceFilingYear: number
       clientIds?: string[]
-    }): Promise<ObligationInstance[]> {
+    }): Promise<Array<ObligationInstance & { readiness: ObligationReadiness }>> {
       const yearStart = new Date(Date.UTC(input.sourceFilingYear, 0, 1))
       const nextYearStart = new Date(Date.UTC(input.sourceFilingYear + 1, 0, 1))
       const filters = [
@@ -298,7 +313,7 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         .from(obligationInstance)
         .where(and(...filters))
         .orderBy(asc(obligationInstance.clientId), asc(obligationInstance.taxType))
-      return rows
+      return hydrateObligationRows(rows)
     },
 
     async listGeneratedByClientAndTaxYears(input: {
@@ -382,16 +397,10 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
     },
 
-    async updateStatus(
-      id: string,
-      status: ObligationStatus,
-      readiness?: ObligationReadiness,
-    ): Promise<void> {
-      const patch: { status: ObligationStatus; readiness?: ObligationReadiness } = { status }
-      if (readiness !== undefined) patch.readiness = readiness
+    async updateStatus(id: string, status: ObligationStatus): Promise<void> {
       await db
         .update(obligationInstance)
-        .set(patch)
+        .set({ status })
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
     },
 
@@ -405,7 +414,6 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         decidedAt: Date
         decidedByUserId: string
         status?: ObligationStatus
-        readiness?: ObligationReadiness
       },
     ): Promise<void> {
       await db
@@ -418,43 +426,11 @@ export function makeObligationsRepo(db: Db, firmId: string) {
           extensionDecidedAt: patch.decidedAt,
           extensionDecidedByUserId: patch.decidedByUserId,
           ...(patch.status !== undefined ? { status: patch.status } : {}),
-          ...(patch.readiness !== undefined ? { readiness: patch.readiness } : {}),
         })
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
     },
 
-    async updateStatusMany(
-      ids: string[],
-      status: ObligationStatus,
-      readiness?: ObligationReadiness,
-    ): Promise<void> {
-      if (ids.length === 0) return
-      const uniqueIds = [...new Set(ids)]
-      const patch: { status: ObligationStatus; readiness?: ObligationReadiness } = { status }
-      if (readiness !== undefined) patch.readiness = readiness
-      const writes = []
-      for (let i = 0; i < uniqueIds.length; i += OI_UPDATE_IDS_PER_BATCH) {
-        const chunk = uniqueIds.slice(i, i + OI_UPDATE_IDS_PER_BATCH)
-        writes.push(
-          db
-            .update(obligationInstance)
-            .set(patch)
-            .where(
-              and(eq(obligationInstance.firmId, firmId), inArray(obligationInstance.id, chunk)),
-            ),
-        )
-      }
-      await Promise.all(writes)
-    },
-
-    async updateReadiness(id: string, readiness: ObligationReadiness): Promise<void> {
-      await db
-        .update(obligationInstance)
-        .set({ readiness })
-        .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
-    },
-
-    async updateReadinessMany(ids: string[], readiness: ObligationReadiness): Promise<void> {
+    async updateStatusMany(ids: string[], status: ObligationStatus): Promise<void> {
       if (ids.length === 0) return
       const uniqueIds = [...new Set(ids)]
       const writes = []
@@ -463,7 +439,7 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         writes.push(
           db
             .update(obligationInstance)
-            .set({ readiness })
+            .set({ status })
             .where(
               and(eq(obligationInstance.firmId, firmId), inArray(obligationInstance.id, chunk)),
             ),

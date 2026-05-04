@@ -34,12 +34,8 @@ import {
 import {
   AnnualRolloverInputSchema,
   AnnualRolloverOutputSchema,
-  ObligationBulkReadinessUpdateInputSchema,
-  ObligationBulkReadinessUpdateOutputSchema,
   ObligationBulkStatusUpdateInputSchema,
   ObligationBulkStatusUpdateOutputSchema,
-  ObligationReadinessUpdateInputSchema,
-  ObligationReadinessUpdateOutputSchema,
   ObligationStatusUpdateInputSchema,
   ObligationStatusUpdateOutputSchema,
   obligationsContract,
@@ -437,9 +433,7 @@ describe('@duedatehq/contracts', () => {
         'updateDueDate',
         'updateStatus',
         'bulkUpdateStatus',
-        'updateReadiness',
         'decideExtension',
-        'bulkUpdateReadiness',
         'listByClient',
       ]),
     )
@@ -508,30 +502,7 @@ describe('@duedatehq/contracts', () => {
     })
     expect(bulkOutput.updatedCount).toBe(1)
 
-    const readinessInput = ObligationReadinessUpdateInputSchema.parse({
-      id: '11111111-1111-4111-8111-111111111111',
-      readiness: 'waiting',
-      reason: 'waiting on K-1',
-    })
-    expect(readinessInput.readiness).toBe('waiting')
-
-    const readinessOutput = ObligationReadinessUpdateOutputSchema.parse({
-      obligation: { ...output.obligation, readiness: 'waiting' },
-      auditId: '33333333-3333-4333-8333-333333333333',
-    })
-    expect(readinessOutput.obligation.readiness).toBe('waiting')
-
-    const bulkReadinessInput = ObligationBulkReadinessUpdateInputSchema.parse({
-      ids: ['11111111-1111-4111-8111-111111111111'],
-      readiness: 'needs_review',
-      reason: 'CPA review',
-    })
-    expect(bulkReadinessInput.readiness).toBe('needs_review')
-    const bulkReadinessOutput = ObligationBulkReadinessUpdateOutputSchema.parse({
-      updatedCount: 1,
-      auditIds: ['33333333-3333-4333-8333-333333333333'],
-    })
-    expect(bulkReadinessOutput.updatedCount).toBe(1)
+    expect(output.obligation.readiness).toBe('ready')
   })
 
   it('exposes annual rollover preview and create schemas', () => {

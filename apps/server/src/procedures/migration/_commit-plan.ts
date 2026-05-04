@@ -1,6 +1,5 @@
 import { ORPCError } from '@orpc/server'
 import { inferTaxTypes, type EntityType } from '@duedatehq/core/default-matrix'
-import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
 import {
   findRuleById,
   listObligationRules,
@@ -262,7 +261,6 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
           baseDueDate: dueDate,
           currentDueDate: dueDate,
           status,
-          readiness: defaultReadinessForStatus(status, undefined),
           migrationBatchId: batchId,
           estimatedTaxDueCents: exposure.estimatedTaxDueCents,
           estimatedExposureCents: exposure.estimatedExposureCents,

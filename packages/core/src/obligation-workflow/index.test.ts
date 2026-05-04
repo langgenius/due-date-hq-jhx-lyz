@@ -3,6 +3,7 @@ import {
   CLOSED_OBLIGATION_STATUSES,
   OBLIGATION_STATUS_DISPLAY_KEYS,
   OPEN_OBLIGATION_STATUSES,
+  deriveObligationReadiness,
   defaultReadinessForStatus,
   isClosedObligationStatus,
   isOpenObligationStatus,
@@ -55,5 +56,38 @@ describe('obligation workflow state model', () => {
       paid: 'ready',
       not_applicable: 'ready',
     })
+  })
+
+  it('derives readiness from status plus the latest readiness portal state', () => {
+    expect(deriveObligationReadiness({ status: 'pending' })).toBe('ready')
+    expect(deriveObligationReadiness({ status: 'waiting_on_client' })).toBe('waiting')
+    expect(deriveObligationReadiness({ status: 'review' })).toBe('needs_review')
+    expect(deriveObligationReadiness({ status: 'paid', responseStatuses: ['need_help'] })).toBe(
+      'ready',
+    )
+    expect(deriveObligationReadiness({ status: 'in_progress', requestStatus: 'sent' })).toBe(
+      'waiting',
+    )
+    expect(
+      deriveObligationReadiness({
+        status: 'in_progress',
+        requestStatus: 'responded',
+        responseStatuses: ['ready', 'ready'],
+      }),
+    ).toBe('ready')
+    expect(
+      deriveObligationReadiness({
+        status: 'in_progress',
+        requestStatus: 'responded',
+        responseStatuses: ['ready', 'not_yet'],
+      }),
+    ).toBe('waiting')
+    expect(
+      deriveObligationReadiness({
+        status: 'in_progress',
+        requestStatus: 'responded',
+        responseStatuses: ['need_help'],
+      }),
+    ).toBe('needs_review')
   })
 })

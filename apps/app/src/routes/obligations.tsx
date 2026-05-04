@@ -141,14 +141,10 @@ import { useFirmPermission } from '@/features/permissions/permission-gate'
 import { billingPlanHref, paidPlanActive } from '@/features/billing/model'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
-  ALL_READINESSES,
   ALL_STATUSES,
-  ObligationQueueReadinessControl,
   ObligationQueueStatusControl,
-  isObligationReadiness,
   useStatusLabels,
   useReadinessLabels,
-  type ObligationReadiness,
   type ObligationStatus,
 } from '@/features/obligations/status-control'
 import { queryInputUrlUpdateRateLimit, useDebouncedQueryInput } from '@/lib/query-rate-limit'
@@ -179,7 +175,6 @@ const EXPOSURE_FILTERS = ['ready', 'needs_input', 'unsupported'] as const
 const EVIDENCE_FILTERS = ['needs'] as const
 const DETAIL_DRAWERS = ['obligation'] as const
 const DETAIL_TABS = ['readiness', 'extension', 'risk', 'evidence', 'audit'] as const
-const READINESS_FILTERS = ALL_READINESSES
 const DENSITY_OPTIONS = [
   'comfortable',
   'compact',
@@ -288,9 +283,6 @@ export const obligationQueueSearchParamsParsers = {
   tab: parseAsStringLiteral(DETAIL_TABS)
     .withDefault('readiness')
     .withOptions({ ...REPLACE_HISTORY_OPTIONS, clearOnDefault: false }),
-  readiness: parseAsArrayOf(parseAsStringLiteral(READINESS_FILTERS))
-    .withDefault([])
-    .withOptions(REPLACE_HISTORY_OPTIONS),
   riskMin: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
   riskMax: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
   daysMin: parseAsInteger.withOptions(REPLACE_HISTORY_OPTIONS),
@@ -498,7 +490,6 @@ function savedViewQueryPatch(query: unknown): Partial<ObligationQueueSearchParam
         ? query.exposure
         : null,
     evidence: query.evidence === 'needs' ? 'needs' : null,
-    readiness: stringArrayFromUnknown(query.readiness).filter(isObligationReadiness),
     riskMin: typeof query.riskMin === 'number' ? query.riskMin : null,
     riskMax: typeof query.riskMax === 'number' ? query.riskMax : null,
     daysMin: typeof query.daysMin === 'number' ? query.daysMin : null,
@@ -561,7 +552,6 @@ export function ObligationQueueRoute() {
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const statusLabels = useStatusLabels()
   const sortLabels = useSortLabels()
-  const readinessLabels = useReadinessLabels()
   const [
     {
       q: searchInput,
@@ -581,7 +571,6 @@ export function ObligationQueueRoute() {
       drawer,
       id: detailId,
       tab: detailTab,
-      readiness: readinessFilter,
       riskMin,
       riskMax,
       daysMin,
@@ -622,7 +611,6 @@ export function ObligationQueueRoute() {
       currentDueDate: t`Due date`,
       daysUntilDue: t`Days`,
       estimatedExposureCents: t`Projected risk`,
-      readiness: t`Readiness`,
       evidenceCount: t`Evidence`,
       status: t`Status`,
     }),
@@ -646,7 +634,6 @@ export function ObligationQueueRoute() {
     () => cleanStringFilters([...(assigneeNameQuery ? [assigneeNameQuery] : []), ...assigneeQuery]),
     [assigneeNameQuery, assigneeQuery],
   )
-  const readinessQuery = useMemo(() => [...readinessFilter], [readinessFilter])
   const minExposureCents = useMemo(() => dollarsToCents(riskMin), [riskMin])
   const maxExposureCents = useMemo(() => dollarsToCents(riskMax), [riskMax])
   const minDaysUntilDue = useMemo(() => daysFilterValue(daysMin), [daysMin])
@@ -704,14 +691,6 @@ export function ObligationQueueRoute() {
     () => (owner === 'unassigned' ? [UNASSIGNED_OWNER_OPTION] : combinedAssigneeQuery),
     [combinedAssigneeQuery, owner],
   )
-  const readinessOptions = useMemo<FilterOption[]>(
-    () =>
-      READINESS_FILTERS.map((readiness) => ({
-        value: readiness,
-        label: readinessLabels[readiness],
-      })),
-    [readinessLabels],
-  )
   const statusOptions = useMemo<FilterOption[]>(
     () =>
       ALL_STATUSES.map((status) => ({
@@ -737,7 +716,6 @@ export function ObligationQueueRoute() {
       ...(due ? { due } : {}),
       ...(dueWithin && dueWithin > 0 && dueWithin <= 30 ? { dueWithinDays: dueWithin } : {}),
       ...(exposure ? { exposureStatus: exposure } : {}),
-      ...(readinessQuery.length > 0 ? { readiness: readinessQuery } : {}),
       ...(minExposureCents !== undefined ? { minExposureCents } : {}),
       ...(maxExposureCents !== undefined ? { maxExposureCents } : {}),
       ...(minDaysUntilDue !== undefined ? { minDaysUntilDue } : {}),
@@ -761,7 +739,6 @@ export function ObligationQueueRoute() {
       due,
       dueWithin,
       exposure,
-      readinessQuery,
       minExposureCents,
       maxExposureCents,
       minDaysUntilDue,
@@ -787,7 +764,6 @@ export function ObligationQueueRoute() {
       dueWithin,
       exposure,
       evidence,
-      readiness: readinessFilter,
       riskMin,
       riskMax,
       daysMin,
@@ -807,7 +783,6 @@ export function ObligationQueueRoute() {
       dueWithin,
       evidence,
       exposure,
-      readinessFilter,
       riskMax,
       riskMin,
       searchInput,
@@ -854,24 +829,6 @@ export function ObligationQueueRoute() {
       },
     }),
   )
-  const updateReadinessMutation = useMutation(
-    orpc.obligations.updateReadiness.mutationOptions({
-      onSuccess: (result) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
-        toast.success(t`Readiness updated`, {
-          description: t`Audit ${result.auditId.slice(0, 8)}`,
-        })
-      },
-      onError: (err) => {
-        toast.error(t`Couldn't update readiness`, {
-          description: rpcErrorMessage(err) ?? t`Please try again.`,
-        })
-      },
-    }),
-  )
   const bulkStatusMutation = useMutation(
     orpc.obligations.bulkUpdateStatus.mutationOptions({
       onSuccess: (result) => {
@@ -880,24 +837,6 @@ export function ObligationQueueRoute() {
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         setRowSelection({})
         toast.success(t`Bulk status updated`, {
-          description: t`${result.updatedCount} rows changed`,
-        })
-      },
-      onError: (err) => {
-        toast.error(t`Couldn't update selected rows`, {
-          description: rpcErrorMessage(err) ?? t`Please try again.`,
-        })
-      },
-    }),
-  )
-  const bulkReadinessMutation = useMutation(
-    orpc.obligations.bulkUpdateReadiness.mutationOptions({
-      onSuccess: (result) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
-        setRowSelection({})
-        toast.success(t`Bulk readiness updated`, {
           description: t`${result.updatedCount} rows changed`,
         })
       },
@@ -1019,16 +958,7 @@ export function ObligationQueueRoute() {
     },
     [updateStatusMutation],
   )
-  const updateReadiness = useCallback(
-    (input: { id: string; readiness: ObligationReadiness }) => {
-      updateReadinessMutation.mutate(input)
-    },
-    [updateReadinessMutation],
-  )
   const statusUpdatePending = updateStatusMutation.isPending || bulkStatusMutation.isPending
-  const readinessUpdatePending =
-    updateReadinessMutation.isPending || bulkReadinessMutation.isPending
-  const workflowUpdatePending = statusUpdatePending || readinessUpdatePending
   const changeSort = useCallback(
     (nextSort: ObligationQueueSort) => {
       void setObligationQueueQuery({
@@ -1290,36 +1220,6 @@ export function ObligationQueueRoute() {
         ),
       },
       {
-        accessorKey: 'readiness',
-        header: () => (
-          <TableHeaderMultiFilter
-            trigger="header"
-            label={t`Readiness`}
-            open={openHeaderFilter === 'readiness'}
-            onOpenChange={(nextOpen) => setHeaderFilterOpen('readiness', nextOpen)}
-            options={readinessOptions}
-            selected={readinessQuery}
-            emptyLabel={t`No readiness states`}
-            onSelectedChange={(nextReadiness) => {
-              const typedReadiness = nextReadiness.filter(isObligationReadiness)
-              void setObligationQueueQuery({
-                readiness: typedReadiness.length > 0 ? typedReadiness : null,
-                obligation: null,
-                row: null,
-              })
-            }}
-          />
-        ),
-        cell: (info) => (
-          <ObligationQueueReadinessControl
-            row={info.row.original}
-            labels={readinessLabels}
-            disabled={workflowUpdatePending}
-            onChange={(id, readiness) => updateReadiness({ id, readiness })}
-          />
-        ),
-      },
-      {
         accessorKey: 'evidenceCount',
         header: () => <ConceptLabel concept="evidence">{t`Evidence`}</ConceptLabel>,
         cell: ({ row: tableRow }) => (
@@ -1388,9 +1288,6 @@ export function ObligationQueueRoute() {
       openEvidence,
       ownerOptions,
       ownerQuery,
-      readinessLabels,
-      readinessOptions,
-      readinessQuery,
       riskMax,
       riskMin,
       setHeaderFilterOpen,
@@ -1405,9 +1302,7 @@ export function ObligationQueueRoute() {
       t,
       taxTypeOptions,
       taxTypeQuery,
-      updateReadiness,
       updateStatus,
-      workflowUpdatePending,
     ],
   )
 
@@ -1666,14 +1561,6 @@ export function ObligationQueueRoute() {
     })
   }
 
-  function changeSelectedReadiness(readiness: ObligationReadiness) {
-    if (selectedIds.length === 0) return
-    bulkReadinessMutation.mutate({
-      ids: selectedIds,
-      readiness,
-    })
-  }
-
   function changeSelectedAssignee(assigneeId: string | null) {
     if (selectedClientIds.length === 0) return
     bulkAssigneeMutation.mutate({
@@ -1800,8 +1687,7 @@ export function ObligationQueueRoute() {
           </CardTitle>
           <CardDescription>
             <Trans>
-              Use table headers to filter by client, geography, form, readiness, owner, risk, and
-              timing.
+              Use table headers to filter by client, geography, form, owner, risk, and timing.
             </Trans>
           </CardDescription>
           <CardAction>
@@ -1977,26 +1863,6 @@ export function ObligationQueueRoute() {
                   {ALL_STATUSES.map((status) => (
                     <DropdownMenuItem key={status} onClick={() => changeSelectedStatus(status)}>
                       {statusLabels[status]}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button variant="outline" size="sm">
-                      <Trans>Change readiness</Trans>
-                      <ChevronDownIcon data-icon="inline-end" />
-                    </Button>
-                  }
-                />
-                <DropdownMenuContent align="start">
-                  {ALL_READINESSES.map((readiness) => (
-                    <DropdownMenuItem
-                      key={readiness}
-                      onClick={() => changeSelectedReadiness(readiness)}
-                    >
-                      {readinessLabels[readiness]}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>

@@ -1037,10 +1037,6 @@ msgid "Building the import preview"
 msgstr "正在生成导入预览"
 
 #: src/routes/obligations.tsx
-msgid "Bulk readiness updated"
-msgstr "批量就绪度已更新"
-
-#: src/routes/obligations.tsx
 msgid "Bulk status updated"
 msgstr "批量状态已更新"
 
@@ -1151,15 +1147,6 @@ msgstr "变更"
 #: src/routes/obligations.tsx
 msgid "Change assignee"
 msgstr "更改负责人"
-
-#: src/routes/obligations.tsx
-msgid "Change readiness"
-msgstr "更改就绪度"
-
-#. placeholder {0}: row.clientName
-#: src/features/obligations/status-control.tsx
-msgid "Change readiness for {0}"
-msgstr "更改 {0} 的就绪度"
 
 #: src/features/members/members-page.tsx
 msgid "Change role"
@@ -1849,10 +1836,6 @@ msgstr "无法撤销该应用"
 #: src/routes/obligations.tsx
 msgid "Couldn't update owners"
 msgstr "无法更新负责人"
-
-#: src/routes/obligations.tsx
-msgid "Couldn't update readiness"
-msgstr "无法更新就绪度"
 
 #: src/routes/obligations.tsx
 msgid "Couldn't update selected rows"
@@ -3882,7 +3865,6 @@ msgid "No previous provider imports are available yet."
 msgstr "暂无可复用的平台导入记录。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/obligations.tsx
 msgid "No readiness states"
 msgstr "没有就绪状态"
 
@@ -5158,10 +5140,6 @@ msgstr "准备状态请求已发送"
 #: src/routes/readiness.tsx
 msgid "Readiness response submitted"
 msgstr "准备状态回复已提交"
-
-#: src/routes/obligations.tsx
-msgid "Readiness updated"
-msgstr "就绪度已更新"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Reading file…"
@@ -7045,8 +7023,8 @@ msgid "Use a whole number from 0 to 99"
 msgstr "请输入 0 到 99 之间的整数"
 
 #: src/routes/obligations.tsx
-msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
-msgstr "使用表格表头按客户、辖区、表单、就绪度、负责人、风险和时间筛选。"
+msgid "Use table headers to filter by client, geography, form, owner, risk, and timing."
+msgstr "使用表头按客户、地区、表单、负责人、风险和时间筛选。"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Used to show extension guidance on obligations matched to this rule. It does not change client records, file an extension, or update due dates automatically."

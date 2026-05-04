@@ -245,7 +245,7 @@ Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 
 | `current_due_date`                                                                                 | Stored legacy/base value；Pulse read models derive effective current date from base + active overlays                                       |
 | `filing_due_date` / `payment_due_date`                                                             |                                                                                                                                             |
 | `status ∈ (pending, in_progress, done, extended, paid, waiting_on_client, review, not_applicable)` | `done` 保留既有 filed/done wire value；UI 显示为 Filed；`done/extended/paid/not_applicable` 是 closed                                       |
-| `readiness_status ∈ (ready, waiting, needs_review)`                                                | 独立持久状态；status 写入会按 P0-16 默认规则同步，之后可由用户单独纠正                                                                      |
+| `readiness ∈ (ready, waiting, needs_review)`                                                       | 非持久派生状态；closed status → ready，最新 Readiness Portal response 优先，其次由 `waiting_on_client` / `review` status 派生               |
 | `extension_decision ∈ (not_considered, applied, rejected)`                                         | Obligations detail 的内部延期决策；`applied` 可把 obligation status 标记为 `extended`                                                       |
 | `extension_memo` / `extension_source` / `extension_expected_due_date`                              | 内部说明和来源；不会修改 `current_due_date`，也不表示已向税务机关 filing                                                                    |
 | `extension_decided_at` / `extension_decided_by_user_id`                                            | 决策时间和操作者                                                                                                                            |
@@ -318,8 +318,8 @@ Drizzle schema: `packages/db/src/schema/readiness.ts`。
 
 公开 `/api/readiness/:token` GET/POST 只返回客户安全字段，不暴露 EIN、金额、内部 notes、
 member id 或 raw audit JSON。POST 响应会写 `readiness.client_response` audit、
-`readiness_client_response` evidence，并把 obligation `readiness_status` 归一到
-`ready | waiting | needs_review`。
+`readiness_client_response` evidence。Obligation queue / detail 读取时从 latest request response
+和 obligation status 派生 `ready | waiting | needs_review`，不再写入 obligation 行。
 
 ### 2.3 Pulse 链路
 

@@ -6,13 +6,8 @@ import type {
   ObligationReadiness,
   ObligationStatus,
 } from '@duedatehq/ports/shared'
-import {
-  bulkUpdateObligationReadiness,
-  bulkUpdateObligationStatus,
-  toObligationPublic,
-  updateObligationReadiness,
-  updateObligationStatus,
-} from './_service'
+import { deriveObligationReadiness } from '@duedatehq/core/obligation-workflow'
+import { bulkUpdateObligationStatus, toObligationPublic, updateObligationStatus } from './_service'
 
 interface Row {
   id: string
@@ -115,36 +110,30 @@ function buildScoped(firmId: string, rows: Row[]) {
     },
     async updateDueDate() {},
     async updateExposure() {},
-    async updateStatus(id: string, status: Row['status'], readiness?: Row['readiness']) {
+    async updateStatus(id: string, status: Row['status']) {
       const row = map.get(id)
       if (!row) throw new Error('not found')
-      map.set(id, { ...row, status, readiness: readiness ?? row.readiness, updatedAt: new Date() })
+      map.set(id, {
+        ...row,
+        status,
+        readiness: deriveObligationReadiness({ status }),
+        updatedAt: new Date(),
+      })
     },
-    async updateStatusMany(ids: string[], status: Row['status'], readiness?: Row['readiness']) {
+    async updateStatusMany(ids: string[], status: Row['status']) {
       for (const id of ids) {
         const row = map.get(id)
         if (row) {
           map.set(id, {
             ...row,
             status,
-            readiness: readiness ?? row.readiness,
+            readiness: deriveObligationReadiness({ status }),
             updatedAt: new Date(),
           })
         }
       }
     },
     async updateExtensionDecision() {},
-    async updateReadiness(id: string, readiness: Row['readiness']) {
-      const row = map.get(id)
-      if (!row) throw new Error('not found')
-      map.set(id, { ...row, readiness, updatedAt: new Date() })
-    },
-    async updateReadinessMany(ids: string[], readiness: Row['readiness']) {
-      for (const id of ids) {
-        const row = map.get(id)
-        if (row) map.set(id, { ...row, readiness, updatedAt: new Date() })
-      }
-    },
     async deleteByBatch() {
       return 0
     },
@@ -649,7 +638,7 @@ describe('updateObligationStatus', () => {
     ])
   })
 
-  it('syncs default readiness when status implies waiting or review', async () => {
+  it('returns derived readiness when status implies waiting or review', async () => {
     const { repo, audits, map } = buildScoped(FIRM, [
       makeRow({ status: 'in_progress', readiness: 'ready' }),
     ])
@@ -688,98 +677,5 @@ describe('updateObligationStatus', () => {
     })
 
     expect(audits[0]).not.toHaveProperty('reason')
-  })
-})
-
-describe('updateObligationReadiness', () => {
-  it('updates readiness and writes a single audit row carrying before/after', async () => {
-    const { repo, audits, map } = buildScoped(FIRM, [makeRow()])
-
-    const result = await updateObligationReadiness(repo, 'user_1', {
-      id: ROW_ID,
-      readiness: 'waiting',
-      reason: 'waiting on documents',
-    })
-
-    expect(result.obligation.readiness).toBe('waiting')
-    expect(result.auditId).toBe('audit-1')
-    expect(map.get(ROW_ID)?.readiness).toBe('waiting')
-    expect(audits).toEqual([
-      expect.objectContaining({
-        action: 'obligation.readiness.updated',
-        actorId: 'user_1',
-        entityType: 'obligation_instance',
-        entityId: ROW_ID,
-        before: { readiness: 'ready' },
-        after: { readiness: 'waiting' },
-        reason: 'waiting on documents',
-      }),
-    ])
-  })
-
-  it('is a no-op when before === after (no audit row)', async () => {
-    const { repo, audits } = buildScoped(FIRM, [makeRow({ readiness: 'needs_review' })])
-
-    const result = await updateObligationReadiness(repo, 'user_1', {
-      id: ROW_ID,
-      readiness: 'needs_review',
-    })
-
-    expect(result.obligation.readiness).toBe('needs_review')
-    expect(result.auditId).toBe('00000000-0000-0000-0000-000000000000')
-    expect(audits).toHaveLength(0)
-  })
-
-  it('bulk-updates changed rows and writes per-obligation audit rows', async () => {
-    const rowA = makeRow()
-    const rowB = makeRow({
-      id: '33333333-3333-4333-8333-333333333333',
-      readiness: 'waiting',
-    })
-    const rowC = makeRow({
-      id: '44444444-4444-4444-8444-444444444444',
-      readiness: 'needs_review',
-    })
-    const { repo, audits, map } = buildScoped(FIRM, [rowA, rowB, rowC])
-
-    const result = await bulkUpdateObligationReadiness(repo, 'user_1', {
-      ids: [rowA.id, rowB.id, rowC.id],
-      readiness: 'needs_review',
-      reason: 'batch review',
-    })
-
-    expect(result.updatedCount).toBe(2)
-    expect(result.auditIds).toEqual(['audit-1', 'audit-2'])
-    expect(map.get(rowA.id)?.readiness).toBe('needs_review')
-    expect(map.get(rowB.id)?.readiness).toBe('needs_review')
-    expect(audits).toEqual([
-      expect.objectContaining({
-        action: 'obligation.readiness.updated',
-        entityId: rowA.id,
-        before: { readiness: 'ready' },
-        after: { readiness: 'needs_review' },
-        reason: 'batch review',
-      }),
-      expect.objectContaining({
-        action: 'obligation.readiness.updated',
-        entityId: rowB.id,
-        before: { readiness: 'waiting' },
-        after: { readiness: 'needs_review' },
-        reason: 'batch review',
-      }),
-    ])
-  })
-
-  it('throws NOT_FOUND when the obligation does not belong to the firm', async () => {
-    const { repo, audits } = buildScoped(FIRM, [])
-
-    await expect(
-      updateObligationReadiness(repo, 'user_1', {
-        id: ROW_ID,
-        readiness: 'waiting',
-      }),
-    ).rejects.toMatchObject({ code: 'NOT_FOUND' })
-
-    expect(audits).toHaveLength(0)
   })
 })

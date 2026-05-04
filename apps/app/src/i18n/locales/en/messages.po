@@ -1037,10 +1037,6 @@ msgid "Building the import preview"
 msgstr "Building the import preview"
 
 #: src/routes/obligations.tsx
-msgid "Bulk readiness updated"
-msgstr "Bulk readiness updated"
-
-#: src/routes/obligations.tsx
 msgid "Bulk status updated"
 msgstr "Bulk status updated"
 
@@ -1151,15 +1147,6 @@ msgstr "Change"
 #: src/routes/obligations.tsx
 msgid "Change assignee"
 msgstr "Change assignee"
-
-#: src/routes/obligations.tsx
-msgid "Change readiness"
-msgstr "Change readiness"
-
-#. placeholder {0}: row.clientName
-#: src/features/obligations/status-control.tsx
-msgid "Change readiness for {0}"
-msgstr "Change readiness for {0}"
 
 #: src/features/members/members-page.tsx
 msgid "Change role"
@@ -1849,10 +1836,6 @@ msgstr "Couldn't undo Pulse"
 #: src/routes/obligations.tsx
 msgid "Couldn't update owners"
 msgstr "Couldn't update owners"
-
-#: src/routes/obligations.tsx
-msgid "Couldn't update readiness"
-msgstr "Couldn't update readiness"
 
 #: src/routes/obligations.tsx
 msgid "Couldn't update selected rows"
@@ -3882,7 +3865,6 @@ msgid "No previous provider imports are available yet."
 msgstr "No previous provider imports are available yet."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/obligations.tsx
 msgid "No readiness states"
 msgstr "No readiness states"
 
@@ -5158,10 +5140,6 @@ msgstr "Readiness request sent"
 #: src/routes/readiness.tsx
 msgid "Readiness response submitted"
 msgstr "Readiness response submitted"
-
-#: src/routes/obligations.tsx
-msgid "Readiness updated"
-msgstr "Readiness updated"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Reading file…"
@@ -7045,8 +7023,8 @@ msgid "Use a whole number from 0 to 99"
 msgstr "Use a whole number from 0 to 99"
 
 #: src/routes/obligations.tsx
-msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
-msgstr "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
+msgid "Use table headers to filter by client, geography, form, owner, risk, and timing."
+msgstr "Use table headers to filter by client, geography, form, owner, risk, and timing."
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Used to show extension guidance on obligations matched to this rule. It does not change client records, file an extension, or update due dates automatically."

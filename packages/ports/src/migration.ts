@@ -2,7 +2,6 @@ import type {
   ClientEntityType,
   MigrationBatchStatus,
   MigrationSource,
-  ObligationReadiness,
   ObligationStatus,
 } from './shared'
 
@@ -229,7 +228,6 @@ export interface CommitObligationInput {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
-  readiness: ObligationReadiness
   migrationBatchId?: string | null
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null
