@@ -33,11 +33,11 @@
 - breakdown。
 - reason 和 explanation。
 
-当前规则覆盖 federal 1065/1120S owner-month、1120/estimated、CA、NY、FL、TX、WA 等常见场景。`summarizePenaltyExposure` 可汇总总暴露金额和 top obligations。
+当前规则覆盖 federal 1065/1120S owner-month、1120/estimated、CA、NY、FL、TX、WA 等 verified 场景；同时登记 50 州 + DC 官方税务与 UI/劳工来源，并为各州主税种生成 review-only candidate rules。`summarizePenaltyExposure` 可汇总总暴露金额和 top obligations。
 
 ### 规则库与规则预览
 
-`rules` 模块维护 MVP jurisdictions、source registry 和 obligation rules。它支持：
+`rules` 模块维护 `FED + 50 states + DC` jurisdictions、source registry 和 obligation rules。它支持：
 
 - list rule sources。
 - list obligation rules。

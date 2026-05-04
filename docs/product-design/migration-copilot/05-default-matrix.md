@@ -49,9 +49,14 @@ function infer(entity_type, state):
   cell   = yaml.rules.find(r -> r.key == {entity_type, state})
   fedset = yaml.federal_overlay.by_entity_type[entity_type]
   if cell is null:
-    return { tax_types: fedset, needs_review: true, reason: 'state_not_in_demo_sprint_seed' }
+    state_review_types = generated_review_only_state_tax_types(entity_type, state)
+    return { tax_types: dedup(fedset ++ state_review_types), needs_review: true, reason: 'state_rules_require_review' }
   return { tax_types: dedup(cell.tax_types ++ fedset), needs_review: cell.needs_review ?? false }
 ```
+
+2026-05-04 update: runtime matrix now accepts 50 states + DC. CA/NY retain verified explicit
+cells; other jurisdictions add source-backed review-only tax types from the full rules registry
+instead of falling back to federal-only.
 
 ### 2.1 每条 tax_type ID 的形式化定义
 

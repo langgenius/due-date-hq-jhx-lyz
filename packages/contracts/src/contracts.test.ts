@@ -1220,7 +1220,7 @@ describe('@duedatehq/contracts', () => {
         client: {
           id: 'client_unsupported_state',
           entityType: 'llc',
-          state: 'MA',
+          state: 'XX',
           taxTypes: ['federal_1065_or_1040'],
         },
       }),

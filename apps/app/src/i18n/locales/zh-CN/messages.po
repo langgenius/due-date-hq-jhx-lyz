@@ -352,10 +352,6 @@ msgstr "包含 10 个席位"
 msgid "10+ seats"
 msgstr "10+ 个席位"
 
-#: src/features/rules/rules-console.tsx
-msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
-msgstr "26 条 obligation 规则 — 25 条已核验、1 条候选（联邦灾害救济观察）。点击任意行打开规则详情，包含截止日逻辑、延期政策，以及指向官方来源的证据。候选行从不触发用户提醒。"
-
 #: src/features/rules/coverage-tab.tsx
 msgid "3 basic · 2 review"
 msgstr "3 基础 · 2 复核"
@@ -368,10 +364,6 @@ msgstr "3 基础 · 4 复核"
 #: src/routes/billing.tsx
 msgid "3 seats included"
 msgstr "包含 3 个席位"
-
-#: src/features/rules/rules-console.tsx
-msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
-msgstr "我们监控规则变更的 31 个官方渠道 — 每个来源都附带健康度、巡检频率与采集方式。点击任意行在新标签页打开官方页面。失败或降级的来源不会静默更新已核验规则；运营在 candidate 流程中复核变更后才会发布。"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "4 verified · 1 candidate watch"
@@ -507,6 +499,10 @@ msgstr "执行人 ID"
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Add a manual client record to the active practice directory."
 msgstr "添加手动客户记录到当前事务所目录。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Add a state to at least one client before running obligation preview."
+msgstr "先为至少一个客户添加州信息，再运行义务预览。"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Add at least one provider record to continue."
@@ -1023,12 +1019,6 @@ msgstr "日历 URL 已复制"
 msgid "Calendar URL regenerated"
 msgstr "日历 URL 已重新生成"
 
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "California"
-msgstr "加利福尼亚"
-
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
@@ -1205,6 +1195,10 @@ msgstr "点击更多以更改角色、暂停或移除"
 msgid "Client"
 msgstr "客户"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "CLIENT"
+msgstr "客户"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Client assignee changed"
 msgstr "客户经办人已更改"
@@ -1238,10 +1232,6 @@ msgstr "客户事实"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Client facts, risk inputs, and cached AI summary."
 msgstr "客户事实、风险输入和缓存的 AI 摘要。"
-
-#: src/features/rules/generation-preview-tab.tsx
-msgid "CLIENT ID"
-msgstr "客户 ID"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Client import batch"
@@ -1474,6 +1464,14 @@ msgstr "无法丢弃导入草稿"
 #: src/features/audit/audit-log-page.tsx
 msgid "Could not load audit events"
 msgstr "无法加载审计事件"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Could not load client tax types."
+msgstr "无法加载客户税种。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Could not load clients for preview."
+msgstr "无法加载用于预览的客户。"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Could not load import history"
@@ -1751,6 +1749,10 @@ msgstr "县名不能超过 120 个字符"
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "覆盖"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Create a client before running obligation preview."
+msgstr "先创建客户，再运行义务预览。"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Create a separate practice with its own clients, deadlines, audit trail, and settings."
@@ -2159,6 +2161,10 @@ msgid "Email"
 msgstr "邮箱"
 
 #: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Email address"
+msgstr "邮箱地址"
+
+#: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Email me a code"
 msgstr "发送验证码"
 
@@ -2415,12 +2421,6 @@ msgstr "失败"
 msgid "Fallback checklist ready"
 msgstr "备用清单已准备好"
 
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Federal"
-msgstr "联邦"
-
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Field"
 msgstr "字段"
@@ -2492,12 +2492,6 @@ msgstr "Firm"
 #: src/features/calendar/calendar-page.tsx
 msgid "Firm-wide calendar"
 msgstr "全事务所日历"
-
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Florida"
-msgstr "佛罗里达"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -2929,6 +2923,14 @@ msgstr "加载更多"
 msgid "Loading alerts…"
 msgstr "正在加载提醒…"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Loading client tax types."
+msgstr "正在加载客户税种。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Loading clients for preview."
+msgstr "正在加载用于预览的客户。"
+
 #: src/routes/workboard.tsx
 msgid "Loading deadline tip…"
 msgstr "正在加载截止日提示…"
@@ -3304,6 +3306,7 @@ msgid "Needs review"
 msgstr "需复核"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/rules/generation-preview-tab.tsx
 msgid "Needs state"
 msgstr "需要州信息"
 
@@ -3335,12 +3338,6 @@ msgstr "新席位上限"
 #: src/routes/workboard.tsx
 msgid "New workboard view"
 msgstr "新的工作台视图"
-
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "New York"
-msgstr "纽约"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Newest practice-scoped audit events appear first."
@@ -3745,9 +3742,21 @@ msgstr "事项预览"
 msgid "Obligation queue"
 msgstr "义务队列"
 
+#: src/features/rules/rules-console.tsx
+msgid "Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
+msgstr "义务规则包括已验证模板，以及覆盖 50 州和 DC 的仅供复核候选规则。点击任一行可打开规则详情，查看截止日逻辑、延期政策和官方来源证据。候选行永远不会触发用户提醒。"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "official channels under monitor"
 msgstr "正在监听的官方渠道"
+
+#: src/features/rules/rules-console.tsx
+msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+msgstr "用于监听规则变更的官方渠道，按来源展示健康状态、频率和采集方式。点击任一行会在新标签页打开官方页面。失败或降级的来源不会静默更新已验证规则；变更需先进入候选流程并由运营复核后才能发布。"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Official sources · candidate rules"
+msgstr "官方来源 · 候选规则"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Onboarding dry run previewed"
@@ -3962,7 +3971,6 @@ msgid "or"
 msgstr "或"
 
 #: src/routes/accept-invite.tsx
-#: src/routes/login.tsx
 msgid "or continue with SSO"
 msgstr "或使用 SSO 继续"
 
@@ -5558,10 +5566,6 @@ msgstr "正在显示上一版提示，同时准备最新版。"
 msgid "Sign in"
 msgstr "登录"
 
-#: src/routes/login.tsx
-msgid "SIGN IN"
-msgstr "登录"
-
 #: src/routes/accept-invite.tsx
 msgid "Sign in to accept this invitation."
 msgstr "登录后接受此邀请。"
@@ -5752,8 +5756,8 @@ msgid "Sources"
 msgstr "来源"
 
 #: src/features/rules/rules-console.tsx
-msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Obligation Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
-msgstr "Sources 是我们监控的官方原料（31 个）。Rules 是我们加工出的截止日模板（26 条 · 25 已核验 · 1 候选）。Obligation Preview 展示规则会为某个客户生成什么 obligation —— 可提醒的 obligation 只来自已核验规则。"
+msgid "Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until ops publishes source-backed dates."
+msgstr "来源为联邦、州和 DC 官方材料。已验证规则可以生成可提醒义务；候选规则在运营发布有来源支撑的日期前仅用于复核。"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Sources watched"
@@ -5939,6 +5943,14 @@ msgstr "税种"
 msgid "TAX TYPES"
 msgstr "税种"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Tax types from existing obligations."
+msgstr "税种来自现有义务。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Tax types inferred from the Default Matrix."
+msgstr "税种由 Default Matrix 推断。"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Tax year"
 msgstr "税年"
@@ -5992,12 +6004,6 @@ msgstr "团队规模的合理使用保护"
 #: src/features/workload/workload-page.tsx
 msgid "Team+"
 msgstr "Team+"
-
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Texas"
-msgstr "德克萨斯"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "That file doesn't contain any rows. Upload a CSV, TSV, or XLSX with a header and at least one data row."
@@ -6508,12 +6514,6 @@ msgstr "等待中"
 msgid "Waiting on client"
 msgstr "等待客户回复"
 
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Washington"
-msgstr "华盛顿"
-
 #: src/features/migration/Step1Intake.tsx
 msgid "We block SSN-like patterns before sending anything to the AI."
 msgstr "在向 AI 发送任何内容前，我们会先拦截疑似 SSN 的模式。"
@@ -6574,8 +6574,8 @@ msgid "Webhook confirmed"
 msgstr "Webhook 确认"
 
 #: src/routes/login.tsx
-msgid "Welcome back to the workbench."
-msgstr "欢迎回到工作台。"
+msgid "Welcome to the workbench."
+msgstr "欢迎来到工作台。"
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "What changed"
@@ -6593,7 +6593,6 @@ msgstr "你的数据从哪里来？"
 msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 msgstr "该截止日是否具备推进所需条件，例如客户资料、复核、证据或风险输入。"
 
-#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "工作邮箱"

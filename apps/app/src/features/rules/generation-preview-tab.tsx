@@ -12,10 +12,14 @@ import {
 } from 'lucide-react'
 
 import type {
+  ClientPublic,
+  ObligationInstancePublic,
   ObligationGenerationPreview,
+  RuleGenerationState,
   RuleGenerationPreviewInput,
   RuleSource,
 } from '@duedatehq/contracts'
+import { inferTaxTypes } from '@duedatehq/core/default-matrix'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@duedatehq/ui/components/ui/popover'
@@ -33,15 +37,17 @@ import { ConceptLabel } from '@/features/concepts/concept-help'
 import { orpc } from '@/lib/rpc'
 
 import {
-  DEFAULT_PREVIEW_FORM_VALUES,
-  DEFAULT_PREVIEW_INPUT,
   formatEnumLabel,
   groupPreviewRows,
-  PREVIEW_CLIENT_OPTIONS,
+  isPreviewGenerationState,
+  PREVIEW_ENTITY_OPTIONS,
+  previewCalendarYearFromObligations,
   previewCalendarYearFromFormDates,
   previewCalendarYearToFormDates,
+  previewFormValuesForClient,
   previewFormSchema,
   previewFormToInput,
+  previewTaxTypesFromObligations,
   RULE_GENERATION_STATES,
   type PreviewFormValues,
 } from './rules-console-model'
@@ -49,17 +55,141 @@ import { QueryPanelState, SectionFrame, ToneDot } from './rules-console-primitiv
 import { SourceExternalLink } from './source-external-link'
 import { useSourceLookup } from './use-source-lookup'
 
-const ENTITY_OPTIONS = ['llc', 'partnership', 's_corp', 'c_corp'] as const
+const CLIENT_LIST_LIMIT = 500
 const TAX_YEAR_GRID_SIZE = 10
+const EMPTY_CLIENTS: ClientPublic[] = []
+const EMPTY_OBLIGATIONS: ObligationInstancePublic[] = []
+
+type PreviewReadyClient = ClientPublic & { state: RuleGenerationState }
+type TaxTypeSource = 'obligations' | 'default_matrix'
+
+function isPreviewReadyClient(client: ClientPublic): client is PreviewReadyClient {
+  return isPreviewGenerationState(client.state)
+}
+
+function taxTypesForClient(
+  client: PreviewReadyClient,
+  obligations: readonly ObligationInstancePublic[],
+): { taxTypes: string[]; source: TaxTypeSource } {
+  const obligationTaxTypes = previewTaxTypesFromObligations(obligations)
+  if (obligationTaxTypes.length > 0) {
+    return { taxTypes: obligationTaxTypes, source: 'obligations' }
+  }
+
+  return {
+    taxTypes: inferTaxTypes(client.entityType, client.state).taxTypes,
+    source: 'default_matrix',
+  }
+}
 
 export function GenerationPreviewTab() {
   const { t } = useLingui()
-  const [previewInput, setPreviewInput] =
-    useState<RuleGenerationPreviewInput>(DEFAULT_PREVIEW_INPUT)
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
+  const clientsQuery = useQuery(
+    orpc.clients.listByFirm.queryOptions({ input: { limit: CLIENT_LIST_LIMIT } }),
+  )
+
+  if (clientsQuery.isLoading) {
+    return <QueryPanelState state="loading" message={t`Loading clients for preview.`} />
+  }
+
+  if (clientsQuery.isError) {
+    return <QueryPanelState state="error" message={t`Could not load clients for preview.`} />
+  }
+
+  const clients = clientsQuery.data ?? EMPTY_CLIENTS
+  const previewReadyClients = clients.filter(isPreviewReadyClient)
+  const activeClient =
+    (selectedClientId
+      ? previewReadyClients.find((client) => client.id === selectedClientId)
+      : null) ??
+    previewReadyClients[0] ??
+    null
+
+  if (clients.length === 0) {
+    return (
+      <RulesPreviewEmptyState message={t`Create a client before running obligation preview.`} />
+    )
+  }
+
+  if (!activeClient) {
+    return (
+      <RulesPreviewEmptyState
+        message={t`Add a state to at least one client before running obligation preview.`}
+      />
+    )
+  }
+
+  return (
+    <GenerationPreviewClientWorkbench
+      key={activeClient.id}
+      clients={clients}
+      activeClient={activeClient}
+      onSelectClient={setSelectedClientId}
+    />
+  )
+}
+
+function GenerationPreviewClientWorkbench({
+  clients,
+  activeClient,
+  onSelectClient,
+}: {
+  clients: readonly ClientPublic[]
+  activeClient: PreviewReadyClient
+  onSelectClient: (clientId: string) => void
+}) {
+  const { t } = useLingui()
+  const obligationsQuery = useQuery(
+    orpc.obligations.listByClient.queryOptions({ input: { clientId: activeClient.id } }),
+  )
+
+  if (obligationsQuery.isLoading) {
+    return <QueryPanelState state="loading" message={t`Loading client tax types.`} />
+  }
+
+  if (obligationsQuery.isError) {
+    return <QueryPanelState state="error" message={t`Could not load client tax types.`} />
+  }
+
+  const obligations = obligationsQuery.data ?? EMPTY_OBLIGATIONS
+  const { taxTypes, source } = taxTypesForClient(activeClient, obligations)
+  const defaultValues = previewFormValuesForClient({
+    client: activeClient,
+    taxTypes,
+    calendarYear: previewCalendarYearFromObligations(obligations),
+  })
+
+  return (
+    <GenerationPreviewForm
+      key={`${activeClient.id}-${defaultValues.taxTypes}-${defaultValues.taxYearStart}`}
+      clients={clients}
+      defaultValues={defaultValues}
+      taxTypeSource={source}
+      onSelectClient={onSelectClient}
+    />
+  )
+}
+
+function GenerationPreviewForm({
+  clients,
+  defaultValues,
+  taxTypeSource,
+  onSelectClient,
+}: {
+  clients: readonly ClientPublic[]
+  defaultValues: PreviewFormValues
+  taxTypeSource: TaxTypeSource
+  onSelectClient: (clientId: string) => void
+}) {
+  const { t } = useLingui()
+  const [previewInput, setPreviewInput] = useState<RuleGenerationPreviewInput>(() =>
+    previewFormToInput(defaultValues),
+  )
 
   const form = useForm<PreviewFormValues>({
     resolver: zodResolver(previewFormSchema),
-    defaultValues: DEFAULT_PREVIEW_FORM_VALUES,
+    defaultValues,
   })
 
   const previewQuery = useQuery(
@@ -92,6 +222,8 @@ export function GenerationPreviewTab() {
   )
 
   const groups = useMemo(() => groupPreviewRows(previewQuery.data ?? []), [previewQuery.data])
+  const selectedClientLabel =
+    clients.find((client) => client.id === clientIdValue)?.name ?? clientIdValue
 
   return (
     <div className="flex flex-col gap-6">
@@ -103,43 +235,36 @@ export function GenerationPreviewTab() {
           })}
         >
           <div className="grid grid-cols-[220px_110px_110px_220px_120px] gap-3">
-            <PreviewField label={t`CLIENT ID`}>
+            <PreviewField label={t`CLIENT`}>
               <Select
                 value={clientIdValue}
                 onValueChange={(value) => {
-                  const clientOption = PREVIEW_CLIENT_OPTIONS.find(
-                    (option) => option.clientId === value,
-                  )
-                  if (!clientOption) return
-                  form.setValue('clientId', clientOption.clientId, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                  form.setValue('entityType', clientOption.entityType, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                  form.setValue('state', clientOption.state, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                  form.setValue('taxTypes', clientOption.taxTypes, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
+                  const client = clients.find((item) => item.id === value)
+                  if (!client || !isPreviewReadyClient(client)) return
+                  onSelectClient(client.id)
                 }}
               >
                 <SelectTrigger
                   className="h-8 w-full rounded-md font-mono text-xs"
                   aria-invalid={Boolean(form.formState.errors.clientId)}
                 >
-                  <SelectValue>{clientIdValue}</SelectValue>
+                  <SelectValue>{selectedClientLabel}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {PREVIEW_CLIENT_OPTIONS.map((option) => (
-                      <SelectItem key={option.clientId} value={option.clientId}>
-                        {option.clientId}
+                    {clients.map((client) => (
+                      <SelectItem
+                        key={client.id}
+                        value={client.id}
+                        disabled={!isPreviewReadyClient(client)}
+                      >
+                        <span className="flex min-w-0 flex-col leading-tight">
+                          <span className="truncate">{client.name}</span>
+                          <span className="font-mono text-[11px] text-text-tertiary">
+                            {client.state ?? t`Needs state`} ·{' '}
+                            {previewEntityLabel(client.entityType)}
+                          </span>
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -163,7 +288,7 @@ export function GenerationPreviewTab() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {ENTITY_OPTIONS.map((entity) => (
+                    {PREVIEW_ENTITY_OPTIONS.map((entity) => (
                       <SelectItem key={entity} value={entity}>
                         {previewEntityLabel(entity)}
                       </SelectItem>
@@ -247,6 +372,13 @@ export function GenerationPreviewTab() {
               )}
               <Input id="preview-tax-types" className="sr-only" {...form.register('taxTypes')} />
             </div>
+            <span className="text-xs text-text-tertiary">
+              {taxTypeSource === 'obligations' ? (
+                <Trans>Tax types from existing obligations.</Trans>
+              ) : (
+                <Trans>Tax types inferred from the Default Matrix.</Trans>
+              )}
+            </span>
           </PreviewField>
         </form>
       </SectionFrame>
@@ -262,6 +394,14 @@ export function GenerationPreviewTab() {
         />
       )}
     </div>
+  )
+}
+
+function RulesPreviewEmptyState({ message }: { message: string }) {
+  return (
+    <SectionFrame className="px-4 py-6">
+      <p className="text-sm text-text-secondary">{message}</p>
+    </SectionFrame>
   )
 }
 
@@ -416,7 +556,7 @@ function previewEntityLabel(entity: PreviewFormValues['entityType']): string {
 
 function isEntityOption(value: string | null): value is PreviewFormValues['entityType'] {
   if (typeof value !== 'string') return false
-  return (ENTITY_OPTIONS as readonly string[]).includes(value)
+  return (PREVIEW_ENTITY_OPTIONS as readonly string[]).includes(value)
 }
 
 function isGenerationState(value: string | null): value is PreviewFormValues['state'] {

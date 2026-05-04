@@ -43,6 +43,9 @@
 - `canCreatePulse=false` 的 T2/T3 源只写 `pulse_source_signal`，
   `signal_type='anticipated_pulse'`，不进入 Evidence Chain、不创建 firm alert。
 - FEMA 当前按 `canCreatePulse=false` 落地；它只能作为 IRS/州 T1 命中后的置信度辅助信号。
+- Rules registry 已登记 50 州 + DC 的官方 tax agency 与 UI/workforce agency source seed。
+  这些新增源默认是 `manual_review + degraded`，用于候选规则和 ops source catalog；只有接入
+  `packages/ingest` live adapter 并通过 fixture/health gate 后，才进入自动 Pulse ingest。
 
 ---
 

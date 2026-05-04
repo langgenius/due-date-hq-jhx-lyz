@@ -29,6 +29,7 @@ import {
   compactSourceType,
   countSourcesByHealth,
   filterSources,
+  jurisdictionLabel,
   RULE_JURISDICTIONS,
   type SourceHealthFilter,
 } from './rules-console-model'
@@ -151,18 +152,6 @@ function JurisdictionFilterSelect({
   onValueChange: (value: JurisdictionFilter) => void
 }) {
   const { t } = useLingui()
-  const labels = useMemo<Record<JurisdictionFilter, string>>(
-    () => ({
-      ALL: t`All`,
-      FED: t`Federal`,
-      CA: t`California`,
-      NY: t`New York`,
-      TX: t`Texas`,
-      FL: t`Florida`,
-      WA: t`Washington`,
-    }),
-    [t],
-  )
   return (
     <div className="flex shrink-0 items-center gap-2 text-sm text-text-tertiary">
       <span>
@@ -177,14 +166,14 @@ function JurisdictionFilterSelect({
         }}
       >
         <SelectTrigger size="sm" className="h-7 min-w-24 bg-transparent px-2 text-sm shadow-none">
-          <SelectValue>{labels[value]}</SelectValue>
+          <SelectValue>{value === 'ALL' ? t`All` : jurisdictionLabel(value)}</SelectValue>
         </SelectTrigger>
         <SelectContent align="end">
           <SelectGroup>
-            <SelectItem value="ALL">{labels.ALL}</SelectItem>
+            <SelectItem value="ALL">{t`All`}</SelectItem>
             {RULE_JURISDICTIONS.map((jurisdiction) => (
               <SelectItem key={jurisdiction} value={jurisdiction}>
-                {labels[jurisdiction]}
+                {jurisdictionLabel(jurisdiction)}
               </SelectItem>
             ))}
           </SelectGroup>

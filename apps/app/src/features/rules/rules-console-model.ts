@@ -3,8 +3,12 @@ import { parseAsStringLiteral, type inferParserType } from 'nuqs'
 
 import {
   RuleGenerationPreviewInputSchema,
+  RuleGenerationStateValues,
+  RuleJurisdictionValues,
+  type ClientPublic,
   type DueDateLogic,
   type ObligationGenerationPreview,
+  type ObligationInstancePublic,
   type ObligationRule,
   type RuleEvidenceAuthorityRole,
   type RuleGenerationPreviewInput,
@@ -36,19 +40,84 @@ export type CoverageCellState = 'verified' | 'review' | 'none'
 // pay re-extraction cost for non-React modules).
 export const RULES_TABS: ReadonlyArray<{ value: RulesTab; count?: number }> = [
   { value: 'coverage' },
-  { value: 'sources', count: 31 },
-  { value: 'library', count: 26 },
+  { value: 'sources' },
+  { value: 'library' },
   { value: 'preview' },
 ]
 
-export const RULE_JURISDICTIONS: RuleJurisdiction[] = ['FED', 'CA', 'NY', 'TX', 'FL', 'WA']
-export const RULE_GENERATION_STATES: RuleGenerationState[] = ['CA', 'NY', 'TX', 'FL', 'WA']
+export const RULE_JURISDICTIONS: RuleJurisdiction[] = [...RuleJurisdictionValues]
+export const RULE_GENERATION_STATES: RuleGenerationState[] = [...RuleGenerationStateValues]
 export const ENTITY_COLUMNS = ['llc', 'partnership', 's_corp', 'c_corp'] as const
+export type CoverageEntityColumn = (typeof ENTITY_COLUMNS)[number]
+type EntityCoverageState = Record<CoverageEntityColumn, CoverageCellState>
 
-export const COVERAGE_MATRIX: Record<
-  RuleJurisdiction,
-  Record<(typeof ENTITY_COLUMNS)[number], CoverageCellState>
-> = {
+export const RULE_JURISDICTION_LABELS: Record<string, string> = {
+  FED: 'Federal',
+  AL: 'Alabama',
+  AK: 'Alaska',
+  AZ: 'Arizona',
+  AR: 'Arkansas',
+  CA: 'California',
+  CO: 'Colorado',
+  CT: 'Connecticut',
+  DE: 'Delaware',
+  DC: 'District of Columbia',
+  FL: 'Florida',
+  GA: 'Georgia',
+  HI: 'Hawaii',
+  ID: 'Idaho',
+  IL: 'Illinois',
+  IN: 'Indiana',
+  IA: 'Iowa',
+  KS: 'Kansas',
+  KY: 'Kentucky',
+  LA: 'Louisiana',
+  ME: 'Maine',
+  MD: 'Maryland',
+  MA: 'Massachusetts',
+  MI: 'Michigan',
+  MN: 'Minnesota',
+  MS: 'Mississippi',
+  MO: 'Missouri',
+  MT: 'Montana',
+  NE: 'Nebraska',
+  NV: 'Nevada',
+  NH: 'New Hampshire',
+  NJ: 'New Jersey',
+  NM: 'New Mexico',
+  NY: 'New York',
+  NC: 'North Carolina',
+  ND: 'North Dakota',
+  OH: 'Ohio',
+  OK: 'Oklahoma',
+  OR: 'Oregon',
+  PA: 'Pennsylvania',
+  RI: 'Rhode Island',
+  SC: 'South Carolina',
+  SD: 'South Dakota',
+  TN: 'Tennessee',
+  TX: 'Texas',
+  UT: 'Utah',
+  VT: 'Vermont',
+  VA: 'Virginia',
+  WA: 'Washington',
+  WV: 'West Virginia',
+  WI: 'Wisconsin',
+  WY: 'Wyoming',
+}
+
+export function jurisdictionLabel(jurisdiction: string): string {
+  return RULE_JURISDICTION_LABELS[jurisdiction] ?? jurisdiction
+}
+
+const REVIEW_COVERAGE: EntityCoverageState = {
+  llc: 'review',
+  partnership: 'review',
+  s_corp: 'review',
+  c_corp: 'review',
+}
+
+const COVERAGE_OVERRIDES: Partial<Record<RuleJurisdiction, EntityCoverageState>> = {
   FED: { llc: 'review', partnership: 'review', s_corp: 'verified', c_corp: 'verified' },
   CA: { llc: 'review', partnership: 'none', s_corp: 'verified', c_corp: 'verified' },
   NY: { llc: 'review', partnership: 'review', s_corp: 'review', c_corp: 'verified' },
@@ -57,21 +126,29 @@ export const COVERAGE_MATRIX: Record<
   WA: { llc: 'review', partnership: 'review', s_corp: 'review', c_corp: 'review' },
 }
 
-export const DEFAULT_PREVIEW_INPUT: RuleGenerationPreviewInput = {
-  client: {
-    id: 'cli_demo_acme_llc',
-    entityType: 'llc',
-    state: 'CA',
-    taxTypes: ['federal_1065_or_1040', 'ca_llc_franchise_min_800', 'ca_llc_fee_gross_receipts'],
-    taxYearStart: '2026-01-01',
-    taxYearEnd: '2025-12-31',
-  },
+export function coverageCellState(
+  jurisdiction: RuleJurisdiction,
+  entity: CoverageEntityColumn,
+): CoverageCellState {
+  return (COVERAGE_OVERRIDES[jurisdiction] ?? REVIEW_COVERAGE)[entity]
 }
+
+export const PREVIEW_ENTITY_OPTIONS = [
+  'llc',
+  's_corp',
+  'partnership',
+  'c_corp',
+  'sole_prop',
+  'trust',
+  'individual',
+  'other',
+] as const satisfies readonly ClientPublic['entityType'][]
+export const DEFAULT_PREVIEW_CALENDAR_YEAR = 2026
 
 export const previewFormSchema = z.object({
   clientId: z.string().min(1),
-  entityType: z.enum(['llc', 'partnership', 's_corp', 'c_corp']),
-  state: z.enum(['CA', 'NY', 'TX', 'FL', 'WA']),
+  entityType: z.enum(PREVIEW_ENTITY_OPTIONS),
+  state: z.enum(RuleGenerationStateValues),
   taxYearStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   taxYearEnd: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   taxTypes: z.string().min(1),
@@ -79,39 +156,43 @@ export const previewFormSchema = z.object({
 
 export type PreviewFormValues = z.infer<typeof previewFormSchema>
 
-export type PreviewClientOption = Pick<
-  PreviewFormValues,
-  'clientId' | 'entityType' | 'state' | 'taxTypes'
->
+export function isPreviewGenerationState(
+  value: string | null | undefined,
+): value is RuleGenerationState {
+  return (
+    typeof value === 'string' && (RuleGenerationStateValues as readonly string[]).includes(value)
+  )
+}
 
-export const PREVIEW_CLIENT_OPTIONS = [
-  {
-    clientId: DEFAULT_PREVIEW_INPUT.client.id,
-    entityType: 'llc',
-    state: 'CA',
-    taxTypes: DEFAULT_PREVIEW_INPUT.client.taxTypes.join(', '),
-  },
-  {
-    clientId: 'cli_demo_hudson_scorp',
-    entityType: 's_corp',
-    state: 'NY',
-    taxTypes: ['federal_1120s', 'ny_ct3s', 'ny_ptet_optional'].join(', '),
-  },
-  {
-    clientId: 'cli_demo_suncoast_c_corp',
-    entityType: 'c_corp',
-    state: 'FL',
-    taxTypes: ['fl_f1120', 'fl_cit_estimated_tax'].join(', '),
-  },
-] as const satisfies readonly PreviewClientOption[]
+export function previewTaxTypesFromObligations(
+  obligations: readonly Pick<ObligationInstancePublic, 'taxType'>[],
+): string[] {
+  return Array.from(new Set(obligations.map((obligation) => obligation.taxType).filter(Boolean)))
+}
 
-export const DEFAULT_PREVIEW_FORM_VALUES: PreviewFormValues = {
-  clientId: PREVIEW_CLIENT_OPTIONS[0].clientId,
-  entityType: PREVIEW_CLIENT_OPTIONS[0].entityType,
-  state: PREVIEW_CLIENT_OPTIONS[0].state,
-  taxYearStart: DEFAULT_PREVIEW_INPUT.client.taxYearStart ?? '2026-01-01',
-  taxYearEnd: DEFAULT_PREVIEW_INPUT.client.taxYearEnd ?? '2025-12-31',
-  taxTypes: PREVIEW_CLIENT_OPTIONS[0].taxTypes,
+export function previewCalendarYearFromObligations(
+  obligations: readonly Pick<ObligationInstancePublic, 'taxYear'>[],
+): number {
+  const years = obligations
+    .map((obligation) => obligation.taxYear)
+    .filter((year): year is number => typeof year === 'number')
+  return years.length > 0 ? Math.max(...years) : DEFAULT_PREVIEW_CALENDAR_YEAR
+}
+
+export function previewFormValuesForClient(input: {
+  client: Pick<ClientPublic, 'id' | 'entityType' | 'state'>
+  taxTypes: readonly string[]
+  calendarYear?: number
+}): PreviewFormValues {
+  const dates = previewCalendarYearToFormDates(input.calendarYear ?? DEFAULT_PREVIEW_CALENDAR_YEAR)
+  return previewFormSchema.parse({
+    clientId: input.client.id,
+    entityType: input.client.entityType,
+    state: input.client.state,
+    taxYearStart: dates.taxYearStart,
+    taxYearEnd: dates.taxYearEnd,
+    taxTypes: input.taxTypes.join(', '),
+  })
 }
 
 export function previewCalendarYearToFormDates(
@@ -132,7 +213,7 @@ export function previewCalendarYearFromFormDates(
   const endYear = parseIsoYear(values.taxYearEnd)
   if (endYear !== null) return endYear + 1
 
-  return parseIsoYear(DEFAULT_PREVIEW_FORM_VALUES.taxYearStart) ?? 2026
+  return DEFAULT_PREVIEW_CALENDAR_YEAR
 }
 
 export function isRulesTab(value: string): value is RulesTab {

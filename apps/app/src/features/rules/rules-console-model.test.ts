@@ -3,17 +3,19 @@ import { describe, expect, it } from 'vitest'
 import {
   countRulesByFilter,
   countSourcesByHealth,
-  DEFAULT_PREVIEW_FORM_VALUES,
+  DEFAULT_PREVIEW_CALENDAR_YEAR,
   DEFAULT_RULES_TAB,
   filterRules,
   filterSources,
   groupPreviewRows,
   humanizeDueDateLogic,
   isRulesTab,
-  PREVIEW_CLIENT_OPTIONS,
+  previewCalendarYearFromObligations,
   previewCalendarYearFromFormDates,
   previewCalendarYearToFormDates,
+  previewFormValuesForClient,
   previewFormToInput,
+  previewTaxTypesFromObligations,
   RULES_TAB_VALUES,
 } from './rules-console-model'
 
@@ -26,9 +28,15 @@ describe('rules console model', () => {
   })
 
   it('converts preview form values into contract input', () => {
-    expect(previewFormToInput(DEFAULT_PREVIEW_FORM_VALUES)).toEqual({
+    const values = previewFormValuesForClient({
+      client: { id: 'cli_real_acme', entityType: 'llc', state: 'CA' },
+      taxTypes: ['federal_1065_or_1040', 'ca_llc_franchise_min_800', 'ca_llc_fee_gross_receipts'],
+      calendarYear: 2026,
+    })
+
+    expect(previewFormToInput(values)).toEqual({
       client: {
-        id: 'cli_demo_acme_llc',
+        id: 'cli_real_acme',
         entityType: 'llc',
         state: 'CA',
         taxTypes: ['federal_1065_or_1040', 'ca_llc_franchise_min_800', 'ca_llc_fee_gross_receipts'],
@@ -38,24 +46,30 @@ describe('rules console model', () => {
     })
   })
 
-  it('keeps preview client options parseable by the form contract', () => {
-    expect(PREVIEW_CLIENT_OPTIONS.map((option) => option.clientId)).toEqual([
-      'cli_demo_acme_llc',
-      'cli_demo_hudson_scorp',
-      'cli_demo_suncoast_c_corp',
+  it('derives preview tax types and calendar year from existing obligations', () => {
+    const obligations = [
+      { taxType: 'federal_1120s', taxYear: 2025 },
+      { taxType: 'ny_ct3s', taxYear: 2026 },
+      { taxType: 'federal_1120s', taxYear: 2026 },
+      { taxType: 'ny_ptet_optional', taxYear: null },
+    ]
+
+    expect(previewTaxTypesFromObligations(obligations)).toEqual([
+      'federal_1120s',
+      'ny_ct3s',
+      'ny_ptet_optional',
     ])
-    expect(
-      PREVIEW_CLIENT_OPTIONS.map((option) =>
-        previewFormToInput({
-          ...DEFAULT_PREVIEW_FORM_VALUES,
-          ...option,
-        }),
-      ),
-    ).toHaveLength(3)
+    expect(previewCalendarYearFromObligations(obligations)).toBe(2026)
+    expect(previewCalendarYearFromObligations([])).toBe(DEFAULT_PREVIEW_CALENDAR_YEAR)
   })
 
   it('maps the preview calendar year to rule-engine date inputs', () => {
-    expect(previewCalendarYearFromFormDates(DEFAULT_PREVIEW_FORM_VALUES)).toBe(2026)
+    expect(
+      previewCalendarYearFromFormDates({
+        taxYearStart: '2026-01-01',
+        taxYearEnd: '2025-12-31',
+      }),
+    ).toBe(2026)
     expect(previewCalendarYearFromFormDates({ taxYearStart: '', taxYearEnd: '2025-12-31' })).toBe(
       2026,
     )

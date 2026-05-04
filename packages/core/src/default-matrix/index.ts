@@ -12,6 +12,8 @@
  *   source_type='default_inference_by_entity_state' + matrix_version='v1.0'.
  */
 
+import { STATE_RULE_JURISDICTIONS } from '../rules'
+
 export type EntityType =
   | 'llc'
   | 's_corp'
@@ -29,7 +31,7 @@ export interface InferTaxTypesResult {
   taxTypes: string[]
   needsReview: boolean
   /** Reason code when needsReview = true; absent on happy path. */
-  reason?: 'state_not_in_demo_sprint_seed' | 'entity_type_other'
+  reason?: 'state_not_in_demo_sprint_seed' | 'state_rules_require_review' | 'entity_type_other'
   matrixVersion: MatrixVersion
   /** Source URLs from ops sign-off; empty for fallback cells. */
   sourceUrls: readonly string[]
@@ -218,8 +220,37 @@ const FEDERAL_OVERLAY: Record<EntityType, readonly string[]> = {
   other: ['federal'],
 }
 
+const STATE_CODES = new Set<string>(STATE_RULE_JURISDICTIONS)
+
 function dedup(items: readonly string[]): string[] {
   return Array.from(new Set(items))
+}
+
+function genericStateTaxTypes(entityType: EntityType, state: string): string[] {
+  if (!STATE_CODES.has(state) || entityType === 'other') return []
+
+  const prefix = state.toLowerCase()
+  const individual = [
+    `${prefix}_state_individual_income_tax`,
+    `${prefix}_state_individual_estimated_tax`,
+  ]
+  const recurring = [
+    `${prefix}_state_sales_use_tax`,
+    `${prefix}_state_withholding_tax`,
+    `${prefix}_state_ui_wage_report`,
+  ]
+  const business = [`${prefix}_state_business_income_franchise_tax`, ...recurring]
+  const passThrough = [`${prefix}_state_pte_composite_ptet`]
+
+  if (entityType === 'individual') return individual
+  if (entityType === 'sole_prop') return [...individual, ...recurring]
+  if (entityType === 'trust') return [`${prefix}_state_fiduciary_income_tax`]
+  if (entityType === 'c_corp') return business
+  if (entityType === 'llc' || entityType === 'partnership' || entityType === 's_corp') {
+    return [...business, ...passThrough]
+  }
+
+  return []
 }
 
 /**
@@ -236,10 +267,11 @@ export function inferTaxTypes(entityType: EntityType, state: string): InferTaxTy
   const stateCell = RULES[entityType]?.[state]
 
   if (!stateCell) {
+    const stateTaxTypes = genericStateTaxTypes(entityType, state)
     return {
-      taxTypes: dedup(fed),
+      taxTypes: dedup([...fed, ...stateTaxTypes]),
       needsReview: true,
-      reason: entityType === 'other' ? 'entity_type_other' : 'state_not_in_demo_sprint_seed',
+      reason: entityType === 'other' ? 'entity_type_other' : 'state_rules_require_review',
       matrixVersion: MATRIX_VERSION,
       sourceUrls: [],
       confidence: entityType === 'other' ? 0.5 : 0.7,

@@ -2,9 +2,65 @@ import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { EntityTypeSchema } from './shared/enums'
 
-export const RuleJurisdictionSchema = z.enum(['FED', 'CA', 'NY', 'TX', 'FL', 'WA'])
+export const RuleGenerationStateValues = [
+  'AL',
+  'AK',
+  'AZ',
+  'AR',
+  'CA',
+  'CO',
+  'CT',
+  'DE',
+  'DC',
+  'FL',
+  'GA',
+  'HI',
+  'ID',
+  'IL',
+  'IN',
+  'IA',
+  'KS',
+  'KY',
+  'LA',
+  'ME',
+  'MD',
+  'MA',
+  'MI',
+  'MN',
+  'MS',
+  'MO',
+  'MT',
+  'NE',
+  'NV',
+  'NH',
+  'NJ',
+  'NM',
+  'NY',
+  'NC',
+  'ND',
+  'OH',
+  'OK',
+  'OR',
+  'PA',
+  'RI',
+  'SC',
+  'SD',
+  'TN',
+  'TX',
+  'UT',
+  'VT',
+  'VA',
+  'WA',
+  'WV',
+  'WI',
+  'WY',
+] as const
+
+export const RuleJurisdictionValues = ['FED', ...RuleGenerationStateValues] as const
+
+export const RuleJurisdictionSchema = z.enum(RuleJurisdictionValues)
 export type RuleJurisdiction = z.infer<typeof RuleJurisdictionSchema>
-export const RuleGenerationStateSchema = z.enum(['CA', 'NY', 'TX', 'FL', 'WA'])
+export const RuleGenerationStateSchema = z.enum(RuleGenerationStateValues)
 export type RuleGenerationState = z.infer<typeof RuleGenerationStateSchema>
 
 export const RuleSourceTypeSchema = z.enum([

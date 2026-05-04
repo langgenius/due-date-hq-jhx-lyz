@@ -5,6 +5,7 @@ import {
   findRuleById,
   listRuleSources,
   previewObligationsFromRules,
+  STATE_RULE_JURISDICTIONS,
   type ObligationGenerationPreview,
   type RuleGenerationState,
 } from '@duedatehq/core/rules'
@@ -424,7 +425,9 @@ function parsePositiveInteger(value: string | null): number | null {
 }
 
 function isRuleGenerationState(value: string | null): value is RuleGenerationState {
-  return value === 'CA' || value === 'NY' || value === 'TX' || value === 'FL' || value === 'WA'
+  return (
+    typeof value === 'string' && (STATE_RULE_JURISDICTIONS as readonly string[]).includes(value)
+  )
 }
 
 function uniqueConcretePreviews(

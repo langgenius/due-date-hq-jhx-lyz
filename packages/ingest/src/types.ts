@@ -1,20 +1,7 @@
 export type SourceTier = 'T1' | 'T2' | 'T3'
 export type SourceJurisdiction = string
 
-export type SourceId =
-  | 'irs.disaster'
-  | 'irs.newsroom'
-  | 'irs.guidance'
-  | 'tx.cpa.rss'
-  | 'ny.dtf.press'
-  | 'ca.ftb.newsroom'
-  | 'ca.ftb.tax_news'
-  | 'ca.cdtfa.news'
-  | 'fl.dor.tips'
-  | 'wa.dor.news'
-  | 'wa.dor.whats_new'
-  | 'ma.dor.press'
-  | 'fema.declarations'
+export type SourceId = string
 
 export interface SourceStateHint {
   etag: string | null

@@ -22,22 +22,21 @@ MVP 的风险边界是：**AI 可以加速抽取，不能替代核验；candidat
 ## 1.1 当前代码实现
 
 第一版结构化数据已经落到 `packages/core/src/rules/index.ts`，以
-`@duedatehq/core/rules` 暴露，并通过 `rules.*` oRPC contract 接入 server。当前代码实现是本文件的 MVP seed subset：
+`@duedatehq/core/rules` 暴露，并通过 `rules.*` oRPC contract 接入 server。当前代码实现已经从 6 辖区 seed 扩展为 `FED + 50 states + DC` 的官方 source-connected registry：
 
-| Jurisdiction | Sources | Verified rules | Candidates | 当前重点                                                                                |
-| ------------ | ------- | -------------- | ---------- | --------------------------------------------------------------------------------------- |
-| `FED`        | 7       | 4              | 1          | 1065、1120-S、1120、corporate estimated tax、disaster relief candidate watch            |
-| `CA`         | 5       | 5              | 0          | LLC Form 568、LLC annual tax、LLC estimated fee、100S、100                              |
-| `NY`         | 6       | 7              | 0          | IT-204、IT-204-LL、CT-3、CT-3-S、PTET election / estimates / return-extension           |
-| `TX`         | 6       | 4              | 0          | franchise annual report、PIR/OIR、extension、no-tax-due threshold review                |
-| `FL`         | 3       | 2              | 0          | F-1120、corporate estimated tax                                                         |
-| `WA`         | 4       | 3              | 0          | combined excise monthly / quarterly / annual；WA DOR sources are manual-review degraded |
+| Jurisdiction             | Sources | Verified rules | Candidates | 当前重点                                                                                        |
+| ------------------------ | ------- | -------------- | ---------- | ----------------------------------------------------------------------------------------------- |
+| `FED`                    | 7       | 4              | 1          | 1065、1120-S、1120、corporate estimated tax、disaster relief candidate watch                    |
+| `CA`                     | 5       | 5              | 0          | LLC Form 568、LLC annual tax、LLC estimated fee、100S、100                                      |
+| `NY`                     | 6       | 7              | 0          | IT-204、IT-204-LL、CT-3、CT-3-S、PTET election / estimates / return-extension                   |
+| `TX`                     | 6       | 4              | 0          | franchise annual report、PIR/OIR、extension、no-tax-due threshold review                        |
+| `FL`                     | 3       | 2              | 0          | F-1120、corporate estimated tax                                                                 |
+| `WA`                     | 4       | 3              | 0          | combined excise monthly / quarterly / annual；WA DOR sources are manual-review degraded         |
+| 50 州 + `DC` source seed | 102     | 0              | 408        | 每辖区登记官方 tax agency + UI/workforce agency；8 个主税种 domain 先进入 review-only candidate |
 
-本文件下方的完整 source registry 与 rule pack 仍保留产品目标口径；代码里的
-seed 先覆盖 14 天 MVP 能生成、解释和提醒的最小 verified subset。后续新增
-规则时，以 `packages/core/src/rules/index.ts` 为结构化数据源，并同步更新本表。
+代码里的 verified subset 仍只对已人工核验的规则生成 reminder-ready obligation。新增 50 州 + DC 规则先以 `candidate` + `source_defined_calendar` 落地：它们能出现在 Rules Console、Migration review 和 evidence trail 中，但不会自动生成用户提醒，直到 ops 逐条核验并发布为 verified rule。
 
-当前代码 registry 合计 31 个官方 source。Federal source 已从单一 Pub 509 + 7004
+当前代码 registry 合计 133 个官方 source。Federal source 已从单一 Pub 509 + 7004
 扩展为 Pub 509、Form 1065 instructions、Form 1120-S instructions、Form 1120
 instructions、Form 7004 instructions、IRS disaster relief、FEMA early warning，避免
 只用综合日历解释具体表单 deadline。
@@ -58,7 +57,7 @@ Rule-to-obligation preview 已落地：
 - API 入口：`rules.previewObligations`。
 - 输入：客户 `entityType`、`state`、`taxTypes`、`taxYearStart`、`taxYearEnd` 和可选 holiday list。
 - 输入约束：`entityType` 使用真实 client entity enum（含 `other`，不含 rule-only 的
-  `any_business`）；`state` 只接受 MVP client states：`CA`、`NY`、`TX`、`FL`、`WA`。
+  `any_business`）；`state` 接受 50 州 + `DC`。
 - 输出：`ruleId`、`ruleVersion`、`matchedTaxType`、`period`、`dueDate`、`sourceIds`、`evidence`、`requiresReview`、`reviewReasons`、`reminderReady`。
 - 只有 `reminderReady=true` 的 preview 才能进入后续 reminder scheduling；review-only preview 只允许页面展示来源、证据和 CPA 检查项。
 

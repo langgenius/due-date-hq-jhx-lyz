@@ -21,11 +21,18 @@ describe('inferTaxTypes', () => {
     expect(result.needsReview).toBe(false)
   })
 
-  it('uncovered state (MA) falls back to federal-only with needs_review', () => {
+  it('expanded states add review-only state tax types with needs_review', () => {
     const result = inferTaxTypes('llc', 'MA')
-    expect(result.taxTypes).toEqual(['federal_1065_or_1040'])
+    expect(result.taxTypes).toEqual([
+      'federal_1065_or_1040',
+      'ma_state_business_income_franchise_tax',
+      'ma_state_sales_use_tax',
+      'ma_state_withholding_tax',
+      'ma_state_ui_wage_report',
+      'ma_state_pte_composite_ptet',
+    ])
     expect(result.needsReview).toBe(true)
-    expect(result.reason).toBe('state_not_in_demo_sprint_seed')
+    expect(result.reason).toBe('state_rules_require_review')
     expect(result.sourceUrls).toEqual([])
   })
 

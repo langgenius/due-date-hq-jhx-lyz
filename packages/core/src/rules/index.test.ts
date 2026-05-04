@@ -10,25 +10,41 @@ import {
   OBLIGATION_RULES,
   previewObligationsFromRules,
   RULE_SOURCES,
+  STATE_RULE_JURISDICTIONS,
 } from './index'
 
-const OFFICIAL_HOSTS = new Set([
+const LEGACY_VERIFIED_RULE_JURISDICTIONS = new Set(['FED', 'CA', 'NY', 'TX', 'FL', 'WA'])
+const OFFICIAL_NON_GOV_HOSTS = new Set([
   'www.irs.gov',
   'www.fema.gov',
-  'www.ftb.ca.gov',
-  'www.tax.ny.gov',
-  'comptroller.texas.gov',
   'floridarevenue.com',
-  'dor.wa.gov',
+  'www.floridajobs.org',
+  'www.laworks.net',
+  'www.marylandtaxes.gov',
+  'www.jobsnd.com',
+  'www.revenue.state.mn.us',
+  'workforcewv.org',
+  'uimn.org',
 ])
 
 function expectUnique(ids: readonly string[]) {
   expect(new Set(ids).size).toBe(ids.length)
 }
 
+function isOfficialHost(host: string): boolean {
+  return (
+    host === 'irs.gov' ||
+    host.endsWith('.irs.gov') ||
+    host.endsWith('.gov') ||
+    host.endsWith('.us') ||
+    OFFICIAL_NON_GOV_HOSTS.has(host)
+  )
+}
+
 describe('@duedatehq/core/rules', () => {
   it('keeps MVP jurisdiction scope explicit', () => {
-    expect(MVP_RULE_JURISDICTIONS).toEqual(['FED', 'CA', 'NY', 'TX', 'FL', 'WA'])
+    expect(MVP_RULE_JURISDICTIONS).toEqual(['FED', ...STATE_RULE_JURISDICTIONS])
+    expect(STATE_RULE_JURISDICTIONS).toHaveLength(51)
   })
 
   it('stores only official source URLs in the MVP registry', () => {
@@ -36,9 +52,7 @@ describe('@duedatehq/core/rules', () => {
 
     for (const source of RULE_SOURCES) {
       const url = new URL(source.url)
-      expect(OFFICIAL_HOSTS.has(url.host), `${source.id} uses unofficial host ${url.host}`).toBe(
-        true,
-      )
+      expect(isOfficialHost(url.host), `${source.id} uses unofficial host ${url.host}`).toBe(true)
       expect(['healthy', 'degraded']).toContain(source.healthStatus)
       expect(source.notificationChannels.length).toBeGreaterThan(0)
     }
@@ -92,18 +106,25 @@ describe('@duedatehq/core/rules', () => {
     }
   })
 
-  it('covers every MVP jurisdiction with verified rules and source watches', () => {
+  it('covers every US jurisdiction with official sources and safe rule states', () => {
     const coverage = getMvpRuleCoverage()
 
     expect(coverage).toHaveLength(MVP_RULE_JURISDICTIONS.length)
 
     for (const row of coverage) {
       expect(row.sourceCount, `${row.jurisdiction} has no sources`).toBeGreaterThan(0)
-      expect(row.verifiedRuleCount, `${row.jurisdiction} has no verified rules`).toBeGreaterThan(0)
       expect(
         row.highPrioritySourceCount,
         `${row.jurisdiction} lacks priority sources`,
       ).toBeGreaterThan(0)
+      if (LEGACY_VERIFIED_RULE_JURISDICTIONS.has(row.jurisdiction)) {
+        expect(row.verifiedRuleCount, `${row.jurisdiction} has no verified rules`).toBeGreaterThan(
+          0,
+        )
+      } else {
+        expect(row.verifiedRuleCount, `${row.jurisdiction} should start review-only`).toBe(0)
+        expect(row.candidateCount, `${row.jurisdiction} has no candidate rules`).toBeGreaterThan(0)
+      }
     }
   })
 

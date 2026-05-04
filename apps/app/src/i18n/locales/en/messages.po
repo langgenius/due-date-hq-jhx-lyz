@@ -352,10 +352,6 @@ msgstr "10 seats included"
 msgid "10+ seats"
 msgstr "10+ seats"
 
-#: src/features/rules/rules-console.tsx
-msgid "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
-msgstr "26 obligation rules — 25 verified, 1 candidate (FED disaster relief watch). Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
-
 #: src/features/rules/coverage-tab.tsx
 msgid "3 basic · 2 review"
 msgstr "3 basic · 2 review"
@@ -368,10 +364,6 @@ msgstr "3 basic · 4 review"
 #: src/routes/billing.tsx
 msgid "3 seats included"
 msgstr "3 seats included"
-
-#: src/features/rules/rules-console.tsx
-msgid "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
-msgstr "31 official channels we watch for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "4 verified · 1 candidate watch"
@@ -507,6 +499,10 @@ msgstr "Actor id"
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Add a manual client record to the active practice directory."
 msgstr "Add a manual client record to the active practice directory."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Add a state to at least one client before running obligation preview."
+msgstr "Add a state to at least one client before running obligation preview."
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Add at least one provider record to continue."
@@ -1023,12 +1019,6 @@ msgstr "Calendar URL copied"
 msgid "Calendar URL regenerated"
 msgstr "Calendar URL regenerated"
 
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "California"
-msgstr "California"
-
 #: src/components/patterns/app-shell-nav.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/members/members-page.tsx
@@ -1205,6 +1195,10 @@ msgstr "Click more to change role, suspend, or remove"
 msgid "Client"
 msgstr "Client"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "CLIENT"
+msgstr "CLIENT"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Client assignee changed"
 msgstr "Client assignee changed"
@@ -1238,10 +1232,6 @@ msgstr "Client facts"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Client facts, risk inputs, and cached AI summary."
 msgstr "Client facts, risk inputs, and cached AI summary."
-
-#: src/features/rules/generation-preview-tab.tsx
-msgid "CLIENT ID"
-msgstr "CLIENT ID"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Client import batch"
@@ -1474,6 +1464,14 @@ msgstr "Could not discard draft import"
 #: src/features/audit/audit-log-page.tsx
 msgid "Could not load audit events"
 msgstr "Could not load audit events"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Could not load client tax types."
+msgstr "Could not load client tax types."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Could not load clients for preview."
+msgstr "Could not load clients for preview."
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Could not load import history"
@@ -1751,6 +1749,10 @@ msgstr "County must be 120 characters or fewer"
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "Coverage"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Create a client before running obligation preview."
+msgstr "Create a client before running obligation preview."
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Create a separate practice with its own clients, deadlines, audit trail, and settings."
@@ -2159,6 +2161,10 @@ msgid "Email"
 msgstr "Email"
 
 #: src/features/auth/email-otp-sign-in-form.tsx
+msgid "Email address"
+msgstr "Email address"
+
+#: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Email me a code"
 msgstr "Email me a code"
 
@@ -2415,12 +2421,6 @@ msgstr "Failing"
 msgid "Fallback checklist ready"
 msgstr "Fallback checklist ready"
 
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Federal"
-msgstr "Federal"
-
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Field"
 msgstr "Field"
@@ -2492,12 +2492,6 @@ msgstr "Firm"
 #: src/features/calendar/calendar-page.tsx
 msgid "Firm-wide calendar"
 msgstr "Firm-wide calendar"
-
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Florida"
-msgstr "Florida"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -2929,6 +2923,14 @@ msgstr "Load more"
 msgid "Loading alerts…"
 msgstr "Loading alerts…"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Loading client tax types."
+msgstr "Loading client tax types."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Loading clients for preview."
+msgstr "Loading clients for preview."
+
 #: src/routes/workboard.tsx
 msgid "Loading deadline tip…"
 msgstr "Loading deadline tip…"
@@ -3304,6 +3306,7 @@ msgid "Needs review"
 msgstr "Needs review"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/rules/generation-preview-tab.tsx
 msgid "Needs state"
 msgstr "Needs state"
 
@@ -3335,12 +3338,6 @@ msgstr "New seat limit"
 #: src/routes/workboard.tsx
 msgid "New workboard view"
 msgstr "New workboard view"
-
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "New York"
-msgstr "New York"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Newest practice-scoped audit events appear first."
@@ -3745,9 +3742,21 @@ msgstr "Obligation Preview"
 msgid "Obligation queue"
 msgstr "Obligation queue"
 
+#: src/features/rules/rules-console.tsx
+msgid "Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
+msgstr "Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
+
 #: src/features/rules/coverage-tab.tsx
 msgid "official channels under monitor"
 msgstr "official channels under monitor"
+
+#: src/features/rules/rules-console.tsx
+msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+msgstr "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Official sources · candidate rules"
+msgstr "Official sources · candidate rules"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Onboarding dry run previewed"
@@ -3962,7 +3971,6 @@ msgid "or"
 msgstr "or"
 
 #: src/routes/accept-invite.tsx
-#: src/routes/login.tsx
 msgid "or continue with SSO"
 msgstr "or continue with SSO"
 
@@ -5558,10 +5566,6 @@ msgstr "Showing the previous tip while the latest one is being prepared."
 msgid "Sign in"
 msgstr "Sign in"
 
-#: src/routes/login.tsx
-msgid "SIGN IN"
-msgstr "SIGN IN"
-
 #: src/routes/accept-invite.tsx
 msgid "Sign in to accept this invitation."
 msgstr "Sign in to accept this invitation."
@@ -5752,8 +5756,8 @@ msgid "Sources"
 msgstr "Sources"
 
 #: src/features/rules/rules-console.tsx
-msgid "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Obligation Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
-msgstr "Sources are the official materials we watch (31). Rules are the structured deadline templates we generate (26 · 25 verified · 1 candidate). Obligation Preview shows what rules generate for a given client — reminder-ready obligations come only from verified rules."
+msgid "Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until ops publishes source-backed dates."
+msgstr "Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until ops publishes source-backed dates."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Sources watched"
@@ -5939,6 +5943,14 @@ msgstr "Tax types"
 msgid "TAX TYPES"
 msgstr "TAX TYPES"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Tax types from existing obligations."
+msgstr "Tax types from existing obligations."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Tax types inferred from the Default Matrix."
+msgstr "Tax types inferred from the Default Matrix."
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Tax year"
 msgstr "Tax year"
@@ -5992,12 +6004,6 @@ msgstr "Team-scale fair-use protection"
 #: src/features/workload/workload-page.tsx
 msgid "Team+"
 msgstr "Team+"
-
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Texas"
-msgstr "Texas"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "That file doesn't contain any rows. Upload a CSV, TSV, or XLSX with a header and at least one data row."
@@ -6508,12 +6514,6 @@ msgstr "Waiting"
 msgid "Waiting on client"
 msgstr "Waiting on client"
 
-#: src/features/rules/coverage-tab.tsx
-#: src/features/rules/rule-library-tab.tsx
-#: src/features/rules/sources-tab.tsx
-msgid "Washington"
-msgstr "Washington"
-
 #: src/features/migration/Step1Intake.tsx
 msgid "We block SSN-like patterns before sending anything to the AI."
 msgstr "We block SSN-like patterns before sending anything to the AI."
@@ -6574,8 +6574,8 @@ msgid "Webhook confirmed"
 msgstr "Webhook confirmed"
 
 #: src/routes/login.tsx
-msgid "Welcome back to the workbench."
-msgstr "Welcome back to the workbench."
+msgid "Welcome to the workbench."
+msgstr "Welcome to the workbench."
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "What changed"
@@ -6593,7 +6593,6 @@ msgstr "Where is your data coming from?"
 msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 msgstr "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 
-#: src/features/auth/email-otp-sign-in-form.tsx
 #: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "Work email"

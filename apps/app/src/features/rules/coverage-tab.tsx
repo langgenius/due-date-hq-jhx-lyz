@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 
@@ -16,7 +16,12 @@ import { cn } from '@duedatehq/ui/lib/utils'
 import { orpc } from '@/lib/rpc'
 import { ConceptLabel } from '@/features/concepts/concept-help'
 
-import { COVERAGE_MATRIX, ENTITY_COLUMNS, RULE_JURISDICTIONS } from './rules-console-model'
+import {
+  coverageCellState,
+  ENTITY_COLUMNS,
+  jurisdictionLabel,
+  RULE_JURISDICTIONS,
+} from './rules-console-model'
 import {
   CoverageCell,
   CoverageLegend,
@@ -103,32 +108,14 @@ export function CoverageTab() {
   const { t } = useLingui()
   const coverageQuery = useQuery(orpc.rules.coverage.queryOptions({ input: undefined }))
 
-  // i18n labels live next to the component (Lingui extracts the macros at
-  // build-time). They are wrapped in `useMemo` so the localized record stays
-  // referentially stable until the active locale changes.
-  const jurisdictionLabels = useMemo<Record<RuleJurisdiction, string>>(
-    () => ({
-      FED: t`Federal`,
-      CA: t`California`,
-      NY: t`New York`,
-      TX: t`Texas`,
-      FL: t`Florida`,
-      WA: t`Washington`,
-    }),
-    [t],
-  )
-
-  const coverageStatusLabels = useMemo<Record<RuleJurisdiction, string>>(
-    () => ({
-      FED: t`4 verified · 1 candidate watch`,
-      CA: t`3 basic · 2 review`,
-      NY: t`3 basic · 4 review`,
-      TX: t`All review-flagged`,
-      FL: t`Source-defined cal`,
-      WA: t`Filing-frequency review`,
-    }),
-    [t],
-  )
+  const coverageStatusLabels: Partial<Record<RuleJurisdiction, string>> = {
+    FED: t`4 verified · 1 candidate watch`,
+    CA: t`3 basic · 2 review`,
+    NY: t`3 basic · 4 review`,
+    TX: t`All review-flagged`,
+    FL: t`Source-defined cal`,
+    WA: t`Filing-frequency review`,
+  }
 
   if (coverageQuery.isLoading) {
     return <QueryPanelState state="loading" message={t`Loading rules coverage.`} />
@@ -216,7 +203,7 @@ export function CoverageTab() {
                       <JurisdictionCode code={row.jurisdiction} />
                     </TableCell>
                     <TableCell className="py-2 text-xs font-medium">
-                      {jurisdictionLabels[row.jurisdiction]}
+                      {jurisdictionLabel(row.jurisdiction)}
                     </TableCell>
                     <TableCell className="py-2 text-right font-mono text-xs tabular-nums">
                       {row.verifiedRuleCount}
@@ -238,7 +225,10 @@ export function CoverageTab() {
                     <TableCell className="py-2">
                       <CoverageStatusPill
                         jurisdiction={row.jurisdiction}
-                        label={coverageStatusLabels[row.jurisdiction]}
+                        label={
+                          coverageStatusLabels[row.jurisdiction] ??
+                          t`Official sources · candidate rules`
+                        }
                       />
                     </TableCell>
                   </TableRow>
@@ -273,11 +263,11 @@ export function CoverageTab() {
                 {RULE_JURISDICTIONS.map((jurisdiction) => (
                   <TableRow key={jurisdiction} className="h-11 hover:bg-transparent">
                     <TableCell className="py-2 text-xs font-medium">
-                      {jurisdictionLabels[jurisdiction]}
+                      {jurisdictionLabel(jurisdiction)}
                     </TableCell>
                     {ENTITY_COLUMNS.map((entity) => (
                       <TableCell key={entity} className="py-2 text-center">
-                        <CoverageCell state={COVERAGE_MATRIX[jurisdiction][entity]} />
+                        <CoverageCell state={coverageCellState(jurisdiction, entity)} />
                       </TableCell>
                     ))}
                   </TableRow>
