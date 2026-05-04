@@ -192,9 +192,9 @@ function isJurisdictionFilter(value: string | null): value is JurisdictionFilter
 function SourceRow({ source }: { source: RuleSource }) {
   const { t } = useLingui()
 
-  // The whole row is a click target for mouse users — opens the official
-  // page in a new tab. Keyboard / screen-reader users tab to the trailing
-  // <a> instead, which carries the canonical aria-label and href.
+  // Keep every interactive affordance on this row pointed at the exact
+  // RuleSource.url from the registry. The title and trailing icon are native
+  // anchors; the row-level handler is only a larger mouse target.
   const openSource = useCallback(() => {
     if (typeof window === 'undefined') return
     window.open(source.url, '_blank', 'noopener,noreferrer')
@@ -224,8 +224,19 @@ function SourceRow({ source }: { source: RuleSource }) {
       className="h-10 cursor-pointer hover:bg-state-base-hover"
     >
       <TableCell className="px-4 py-1.5">
-        <span className="block truncate text-xs font-medium text-text-primary">{source.title}</span>
-        <span className="block truncate font-mono text-xs text-text-tertiary">{source.id}</span>
+        <a
+          href={source.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={t`Open official source: ${source.title}`}
+          onClick={(event) => event.stopPropagation()}
+          className="block min-w-0 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
+        >
+          <span className="block truncate text-xs font-medium text-text-primary">
+            {source.title}
+          </span>
+          <span className="block truncate font-mono text-xs text-text-tertiary">{source.id}</span>
+        </a>
       </TableCell>
       <TableCell className="px-0 py-1.5">
         <JurisdictionCode code={source.jurisdiction} />
