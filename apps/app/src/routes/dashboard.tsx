@@ -601,7 +601,7 @@ export function DashboardRoute() {
           onFilterChange={(patch) => void setDashboardQuery(patch)}
           onOpenWizard={openWizard}
           onOpenWorkboard={(key) => void navigate(workboardHrefForTriage(key))}
-          onOpenObligation={(row) => void navigate(workboardHrefForObligation(row))}
+          onOpenObligation={(row) => void navigate(workboardHrefForObligationFilter(row))}
           onOpenEvidence={(row) =>
             openEvidence({
               obligationId: row.obligationId,
@@ -630,76 +630,82 @@ function DashboardMetricStrip({
   onResolveNeedsReview: () => void
 }) {
   const { t } = useLingui()
-  const metrics = summary
-    ? [
-        {
-          id: 'open',
-          label: <Trans>Open obligations</Trans>,
-          value: String(summary.openObligationCount),
-          detail: <Trans>Active client deadlines in the operating window.</Trans>,
-          valueClassName: 'text-text-primary',
-        },
-        {
-          id: 'due',
-          label: <Trans>Due this week</Trans>,
-          value: String(summary.dueThisWeekCount),
-          detail: <Trans>Includes overdue and next-seven-day obligations.</Trans>,
-          valueClassName: 'text-severity-critical',
-        },
-        {
-          id: 'review',
-          label: <Trans>Needs review</Trans>,
-          value: String(summary.needsReviewCount),
-          detail: <Trans>Rows waiting for final human action.</Trans>,
-          valueClassName: 'text-severity-high',
-        },
-        {
-          id: 'evidence',
-          label: (
-            <ConceptLabel concept="evidenceGap">
-              <Trans>Evidence gaps</Trans>
-            </ConceptLabel>
-          ),
-          value: String(summary.evidenceGapCount),
-          detail: <Trans>Rows that still need a source before review.</Trans>,
-          valueClassName: 'text-severity-medium',
-        },
-        {
-          id: 'exposure',
-          label: <Trans>90-day projected risk</Trans>,
-          value: canSeeDollars ? formatCents(summary.totalExposureCents) : t`Hidden by role`,
-          detail: canSeeDollars ? (
-            <Trans>
-              {summary.exposureReadyCount} ready · {summary.exposureNeedsInputCount} needs input ·{' '}
-              {summary.exposureUnsupportedCount} unsupported
-            </Trans>
-          ) : (
-            <Trans>Projected risk dollars are hidden for your current role.</Trans>
-          ),
-          valueClassName: canSeeDollars ? 'text-text-primary' : 'text-text-muted',
-        },
-        {
-          id: 'accrued',
-          label: <Trans>Accrued penalty</Trans>,
-          value: canSeeDollars ? formatCents(summary.totalAccruedPenaltyCents) : t`Hidden by role`,
-          detail: canSeeDollars ? (
-            <Trans>
-              {summary.accruedPenaltyReadyCount} overdue ready ·{' '}
-              {summary.accruedPenaltyNeedsInputCount} needs input ·{' '}
-              {summary.accruedPenaltyUnsupportedCount} unsupported
-            </Trans>
-          ) : (
-            <Trans>Projected risk dollars are hidden for your current role.</Trans>
-          ),
-          valueClassName: canSeeDollars ? 'text-severity-critical' : 'text-text-muted',
-        },
-      ]
-    : []
+  const metrics = (
+    summary
+      ? [
+          {
+            id: 'open',
+            label: <Trans>Open obligations</Trans>,
+            value: String(summary.openObligationCount),
+            detail: <Trans>Active client deadlines in the operating window.</Trans>,
+            valueClassName: 'text-text-primary',
+          },
+          {
+            id: 'due',
+            label: <Trans>Due this week</Trans>,
+            value: String(summary.dueThisWeekCount),
+            detail: <Trans>Includes overdue and next-seven-day obligations.</Trans>,
+            valueClassName: 'text-severity-critical',
+          },
+          {
+            id: 'review',
+            label: <Trans>Needs review</Trans>,
+            value: String(summary.needsReviewCount),
+            detail: <Trans>Rows waiting for final human action.</Trans>,
+            valueClassName: 'text-severity-high',
+          },
+          {
+            id: 'evidence',
+            label: (
+              <ConceptLabel concept="evidenceGap">
+                <Trans>Evidence gaps</Trans>
+              </ConceptLabel>
+            ),
+            value: String(summary.evidenceGapCount),
+            detail: <Trans>Rows that still need a source before review.</Trans>,
+            valueClassName: 'text-severity-medium',
+          },
+          {
+            id: 'exposure',
+            label: <Trans>90-day projected risk</Trans>,
+            value: canSeeDollars ? formatCents(summary.totalExposureCents) : t`Hidden by role`,
+            hiddenWhenZeroCents: summary.totalExposureCents,
+            detail: canSeeDollars ? (
+              <Trans>
+                {summary.exposureReadyCount} ready · {summary.exposureNeedsInputCount} needs input ·{' '}
+                {summary.exposureUnsupportedCount} unsupported
+              </Trans>
+            ) : (
+              <Trans>Projected risk dollars are hidden for your current role.</Trans>
+            ),
+            valueClassName: canSeeDollars ? 'text-text-primary' : 'text-text-muted',
+          },
+          {
+            id: 'accrued',
+            label: <Trans>Accrued penalty</Trans>,
+            value: canSeeDollars
+              ? formatCents(summary.totalAccruedPenaltyCents)
+              : t`Hidden by role`,
+            hiddenWhenZeroCents: summary.totalAccruedPenaltyCents,
+            detail: canSeeDollars ? (
+              <Trans>
+                {summary.accruedPenaltyReadyCount} overdue ready ·{' '}
+                {summary.accruedPenaltyNeedsInputCount} needs input ·{' '}
+                {summary.accruedPenaltyUnsupportedCount} unsupported
+              </Trans>
+            ) : (
+              <Trans>Projected risk dollars are hidden for your current role.</Trans>
+            ),
+            valueClassName: canSeeDollars ? 'text-severity-critical' : 'text-text-muted',
+          },
+        ]
+      : []
+  ).filter((metric) => metric.hiddenWhenZeroCents !== 0)
 
   return (
-    <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+    <section className="grid gap-3 sm:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]">
       {isLoading
-        ? [0, 1, 2, 3, 4].map((item) => (
+        ? [0, 1, 2, 3, 4, 5].map((item) => (
             <Card key={item} size="sm">
               <CardContent className="grid gap-3">
                 <Skeleton className="h-3 w-24" />
@@ -751,13 +757,9 @@ function workboardHrefForTriage(key: DashboardTriageTabKey): string {
   return '/workboard?daysMin=31&daysMax=180'
 }
 
-function workboardHrefForObligation(row: DashboardTopRow): string {
+function workboardHrefForObligationFilter(row: DashboardTopRow): string {
   const params = new URLSearchParams({
     obligation: row.obligationId,
-    row: row.obligationId,
-    drawer: 'obligation',
-    id: row.obligationId,
-    tab: 'readiness',
   })
   return `/workboard?${params.toString()}`
 }
@@ -1343,7 +1345,7 @@ function DashboardTriageTable({
                 key={tableRow.id}
                 role="button"
                 tabIndex={0}
-                aria-label={`${t`Obligation detail`}: ${tableRow.original.clientName} ${tableRow.original.taxType}`}
+                aria-label={`${t`Open obligations`}: ${tableRow.original.clientName} ${tableRow.original.taxType}`}
                 className={cn(
                   'cursor-pointer outline-none hover:bg-state-base-hover focus-visible:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt focus-visible:ring-inset',
                   severityRowClass(tableRow.original.severity),
