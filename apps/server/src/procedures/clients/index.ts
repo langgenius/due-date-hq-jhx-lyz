@@ -21,7 +21,7 @@ import { toClientPublic, type ClientCreateInputForRepo, type ClientRow } from '.
  *
  * Scope (Day 3): unblock Migration Step 4 commit so JHX Day 4 can flip the
  * `Import & Generate` CTA on without touching contracts again. We expose
- * create / createBatch / get / listByFirm. Workboard mutation paths
+ * create / createBatch / get / listByFirm. Obligations mutation paths
  * (status workflow / due_date update) belong to LYZ Day 3 and stay stub.
  */
 

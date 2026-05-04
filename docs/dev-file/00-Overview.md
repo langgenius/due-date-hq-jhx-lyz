@@ -166,7 +166,7 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 | --------------------------------------------------- | ----------------------- | -------------------------------------- |
 | Dashboard 首屏（SPA 回访热启动 · chunk cache 命中） | ≤ 300ms                 | PRD §5.1 · Story S1-AC1                |
 | Dashboard 首屏（冷启动 · SPA bundle）               | ≤ 1.5s                  | 同上                                   |
-| Workboard 筛选响应 P95                              | < 1s @ 1000 obligations | PRD §5.2.3 · S1-AC3                    |
+| Obligations 筛选响应 P95                            | < 1s @ 1000 obligations | PRD §5.2.3 · S1-AC3                    |
 | Pulse 抓取 → Dashboard Banner                       | ≤ 24h                   | PRD §6.3 · S3-AC1                      |
 | AI Q&A 响应 P95                                     | < 3s                    | PRD §6.6                               |
 | Worker CPU / 单请求                                 | ≤ 30s（付费 5min 上限） | Cloudflare 平台约束                    |

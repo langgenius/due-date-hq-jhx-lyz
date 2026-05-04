@@ -337,9 +337,9 @@ D1 无 RLS 能力，不依赖 DB 级防护。
 
 ## 8. 性能架构要点
 
-- Dashboard / Workboard 查询结果由 Worker 内存 + KV **分层缓存**；TTL 60s，写时主动 invalidate
+- Dashboard / Obligations 查询结果由 Worker 内存 + KV **分层缓存**；TTL 60s，写时主动 invalidate
 - Penalty Radar 顶栏 $ 聚合由一条 SQL 完成（复合索引 § 03.3），不在前端二次求和
-- Workboard 走服务端分页（50 行/页）+ 前端 TanStack Table 虚拟化
+- Obligations 走服务端分页（50 行/页）+ 前端 TanStack Table 虚拟化
 - AI 调用全部异步；Weekly Brief 后台 Queue 物化到 `dashboard_brief`，Dashboard 首屏不等待模型
 - Streaming 只用于 Ask / future agent surfaces，不用于 Dashboard Brief 首屏
 - 大对象（PDF / migration raw / audit zip）存 R2，API 只返 signed URL

@@ -61,7 +61,7 @@ sequenceDiagram
 | 3     | Odometer Roll          | 1000–1500  | 顶栏 `$0 → total_exposure_cents`（90-day projected risk），`{typography.hero-metric}` + tabular-nums；linear-interpolate + `cubic-bezier(0.4, 0, 0.2, 1)` |
 | 4     | Settle & Navigate      | 500        | 卡片 fade-out；Radar 数字 hold `{colors.text-primary}`；触发 `onComplete` → `navigate("/?tab=this-week&focus=top-1")`                                     |
 
-- Phase 1 启动同时 TanStack Query 预热 Dashboard / Workboard 的数据（Cache warm-up）；目标：动画结束跳 Dashboard 时首帧命中 cache，Dashboard first paint ≤ 300ms。
+- Phase 1 启动同时 TanStack Query 预热 Dashboard / Obligations 的数据（Cache warm-up）；目标：动画结束跳 Dashboard 时首帧命中 cache，Dashboard first paint ≤ 300ms。
 - Phase 3 的 `target` = `summary.total_exposure_cents`（后端 `rpc.migration.apply` 返回，单位 cents），口径是 90-day projected risk，不展示 accrued penalty。
 - 总时长硬上限 6000ms，若 Phase 2 因粒子数超限（> 50）延长，则 Phase 4 压到 300ms 以保 6s 封顶。
 
@@ -293,7 +293,7 @@ Toast（红色，常驻 12s 可手动关闭）
 
 ---
 
-## 9. 与 Workboard / Dashboard 的交接
+## 9. 与 Obligations / Dashboard 的交接
 
 ### 9.1 跳转目标 URL
 
@@ -324,7 +324,7 @@ Toast（红色，常驻 12s 可手动关闭）
 Demo Sprint 本轮只做上述最小闭环；以下 hook 在 Phase 0 MVP（4 周全量）阶段逐项补齐，不在本 Sprint 展开：
 
 - **Penalty Radar 分层动画**：Critical / High / Upcoming 三层分别对应 3 组不同目的位，粒子按 severity 分色爬升（`{colors.severity-critical}` / `{colors.severity-high}` / `{colors.severity-medium}`），Odometer 分 3 个子金额 stagger 到位
-- **Pulse Apply 连动 Genesis 余震**：Pulse Batch Apply 成功后在 Workboard 播弱化版 Genesis（粒子 ≤ 10 颗 + 2s），与 PRD Part2A §7.5.6.3 "Mark Filed" halo pulse 区分
+- **Pulse Apply 连动 Genesis 余震**：Pulse Batch Apply 成功后在 Obligations 播弱化版 Genesis（粒子 ≤ 10 颗 + 2s），与 PRD Part2A §7.5.6.3 "Mark Filed" halo pulse 区分
 - **Confetti 彩蛋**：若 apply 后 `total_exposure_cents = 0` → 触发 Zero Week 彩蛋（对齐 PRD Part2A §7.5.6.4）
 - **Firm 历史对比**：Odometer settle 后在 Radar 右侧加 sparkline 展示"首次 Firm 纪录"注脚
 - **Demo Day 可观测性**：在 Phase 3 末埋一条 `migration.genesis.target_value` 事件，便于现场 Demo 后回放验算

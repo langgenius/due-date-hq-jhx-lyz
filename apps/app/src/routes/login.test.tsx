@@ -64,7 +64,7 @@ async function renderLogin(initialEntry = '/login') {
   await render(
     <Routes>
       <Route path="/login" element={<LoginRoute />} />
-      <Route path="/workboard" element={<div>Workboard target</div>} />
+      <Route path="/workboard" element={<div>Obligations target</div>} />
     </Routes>,
     initialEntry,
   )
@@ -179,7 +179,7 @@ describe('LoginRoute email OTP', () => {
     changeInput(codeInput, '123456')
     clickButton('Verify code')
 
-    await waitForText('Workboard target')
+    await waitForText('Obligations target')
     expect(authMocks.signInWithEmailCode).toHaveBeenCalledWith({
       email: 'alex@example.com',
       otp: '123456',

@@ -18,10 +18,10 @@ import { listActiveOverlayDueDates } from './overlay'
 import { toSmartPriorityProfile } from './priority-profile'
 
 /**
- * workboard — read model joining obligation_instance + client.
+ * Obligations read model joining obligation_instance + client.
  *
  * Why this lives in its own repo (and not in obligations):
- *   - The workboard query crosses two tables (obligation + client.name) and
+ *   - The obligation queue query crosses two tables (obligation + client.name) and
  *     is read-only. obligations.* stays focused on writes + per-client reads.
  *   - Keeps the join SQL out of the obligation write path, so future
  *     overlay logic (Phase 1) can replace this read alone.

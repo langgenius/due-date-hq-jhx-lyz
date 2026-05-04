@@ -179,7 +179,7 @@ export const obligationsContract = oc.router({
    * Update one obligation's status. Handler must read `before`, write the
    * row, and append an `obligation.status.updated` audit row carrying both
    * `before` and `after` payloads. Returns the updated row + audit id so
-   * the workboard UI can surface the audit reference inline.
+   * the Obligations UI can surface the audit reference inline.
    */
   updateStatus: oc
     .input(ObligationStatusUpdateInputSchema)

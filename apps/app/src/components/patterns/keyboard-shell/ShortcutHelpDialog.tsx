@@ -53,7 +53,7 @@ const CATEGORY_LABELS: Record<ShortcutCategory, string> = {
   global: 'Global',
   navigate: 'Navigate',
   practice: 'Practice',
-  workboard: 'Workboard',
+  workboard: 'Obligations',
   wizard: 'Wizard',
   reserved: 'Reserved',
 }

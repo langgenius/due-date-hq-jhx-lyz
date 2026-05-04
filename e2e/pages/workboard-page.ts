@@ -13,7 +13,7 @@ export class WorkboardPage {
   readonly comfortableTab: Locator
 
   constructor(readonly page: Page) {
-    this.heading = page.getByRole('heading', { name: 'Obligation queue' })
+    this.heading = page.getByRole('heading', { name: 'Obligations' })
     this.searchInput = page.getByLabel('Search obligations')
     this.resetButton = page.getByRole('button', { name: 'Reset' })
     this.sortSelect = page.getByRole('combobox').first()

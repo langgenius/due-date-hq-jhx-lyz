@@ -19,7 +19,7 @@
 Paste / CSV
   -> AI / preset mapper + normalizer
   -> Import & Generate
-  -> Workboard 出现真实 obligations
+  -> Obligations 出现真实 obligations
   -> Dashboard 读取 server aggregation 的真实风险摘要
   -> evidence / audit / ai trace 可追溯
   -> E2E 覆盖 import + undo 主闭环
@@ -33,12 +33,12 @@ Paste / CSV
 
 按 git 历史和当前实现看，最近主线集中在 4 件事：
 
-| 方向                   | 已完成内容                                                                                                                                     |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Migration 主链路       | 4 步 Wizard、CSV / paste intake、preset / AI mapping、normalization、Default Matrix、dry-run、apply、revert、toast undo、bad-row errors 已跑通 |
-| Penalty / Live Genesis | MVP penalty engine、Migration exposure preview、Live Genesis 金额动画和 Dashboard / Workboard exposure read model 已接入                       |
-| Workboard / Dashboard  | `workboard.list` server read model、triage filters、exposure pill、Evidence entry、Penalty Radar 和 status update audit toast 已就位           |
-| AI / evidence 安全底座 | OpenRouter Provider Native 收敛；`ai_output` / `llm_log` 落库；SSN / ITIN-like 列进 AI 前剔除，Step 2 补回 forced `IGNORE`；fallback 稳定      |
+| 方向                    | 已完成内容                                                                                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Migration 主链路        | 4 步 Wizard、CSV / paste intake、preset / AI mapping、normalization、Default Matrix、dry-run、apply、revert、toast undo、bad-row errors 已跑通 |
+| Penalty / Live Genesis  | MVP penalty engine、Migration exposure preview、Live Genesis 金额动画和 Dashboard / Obligations exposure read model 已接入                     |
+| Obligations / Dashboard | `workboard.list` server read model、triage filters、exposure pill、Evidence entry、Penalty Radar 和 status update audit toast 已就位           |
+| AI / evidence 安全底座  | OpenRouter Provider Native 收敛；`ai_output` / `llm_log` 落库；SSN / ITIN-like 列进 AI 前剔除，Step 2 补回 forced `IGNORE`；fallback 稳定      |
 
 关键提交脉络：
 
@@ -46,8 +46,8 @@ Paste / CSV
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `414a69b feat: add migration import undo`                  | Migration apply / revert / undo toast 主流程                                          |
 | `3328bda test: cover migration import undo e2e`            | 用 Playwright 覆盖导入和撤销                                                          |
-| `5408ab1 fix: use infinite query for workboard pagination` | Workboard 分页和 query 结构稳定                                                       |
-| `a5a17c2 fix: debounce workboard search [contract]`        | Workboard 搜索体验和 contract 调整                                                    |
+| `5408ab1 fix: use infinite query for workboard pagination` | Obligations 分页和 query 结构稳定                                                     |
+| `a5a17c2 fix: debounce workboard search [contract]`        | Obligations 搜索体验和 contract 调整                                                  |
 | `cef20d1 feat: add activation slice v1`                    | AI trace / redaction、Dashboard server aggregation、evidence read、E2E 隔离、文档同步 |
 
 ---
@@ -61,24 +61,24 @@ Paste / CSV
 | DB Core + Scoped Repos   | 基本完成        | clients / obligations / migration / workboard / dashboard / evidence / ai trace repo 已有主路径                    |
 | AI Orchestrator          | v1 可用         | OpenRouter provider path 可用；无 key / schema fail / guard reject 有 stable refusal；暂未做 RAG / Agent tool loop |
 | Migration Copilot        | v1 主闭环完成   | UX polish、fixture golden tests、exposure preview、Live Genesis 已进主线；import report / history 仍可后补         |
-| Workboard                | v1 triage 可用  | 真实 rows、quick filters、status update、audit toast、Evidence drawer 入口、penalty input editor 已有              |
+| Obligations              | v1 triage 可用  | 真实 rows、quick filters、status update、audit toast、Evidence drawer 入口、penalty input editor 已有              |
 | Dashboard                | v1 风险首屏完成 | 已不再 mock；Penalty Radar、exposure breakdown、top-row Evidence 入口已接入；仍缺 source-backed Brief polish       |
 | Evidence / Audit         | v1 可见闭环     | Evidence drawer 读取 obligation evidence + audit timeline；write path 覆盖 migration / penalty override / status   |
 | Pulse Pipeline           | 后端/前端 MVP   | fixture-backed review/apply/revert 已入主线；真抓 cron 和更完整 Overlay 仍是后续硬化                               |
 | Demo Data                | 部分完成        | 需要幂等 seed、demo profile 隔离、部署/录屏数据稳定性                                                              |
-| E2E / Quality            | 主路径可用      | Import undo、Workboard、Rules console、auth shell 已覆盖；本地 E2E 默认不复用开发者手动 server                     |
+| E2E / Quality            | 主路径可用      | Import undo、Obligations、Rules console、auth shell 已覆盖；本地 E2E 默认不复用开发者手动 server                   |
 
 ---
 
 ## 4. 对 PRD / Demo 叙事的进度
 
-| Demo 叙事                | 当前状态                                                                            | 缺口                                                   |
-| ------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Migration + Live Genesis | 导入、exposure preview、Live Genesis 和进入 Dashboard 已完成                        | 还缺 import report / history 这类管理型细节            |
-| Triage Workbench         | Workboard + Dashboard 真实 obligations、Penalty Radar、Evidence drawer 已完成第一版 | Dashboard Brief 解释层还可继续 polish                  |
-| Glass-Box Brief          | 后端 evidence/ai trace 底座已打好                                                   | 尚未实现 source-backed brief；这是下一批 AI 增强优先级 |
-| Pulse Apply              | fixture pipeline / apply / revert 已能演示                                          | 真抓 cron、source drift 和 ops review 继续硬化         |
-| Demo Readiness           | 主链路可演                                                                          | seed、部署 checklist、Plan B、录屏脚本还要补           |
+| Demo 叙事                | 当前状态                                                                              | 缺口                                                   |
+| ------------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Migration + Live Genesis | 导入、exposure preview、Live Genesis 和进入 Dashboard 已完成                          | 还缺 import report / history 这类管理型细节            |
+| Triage Workbench         | Obligations + Dashboard 真实 obligations、Penalty Radar、Evidence drawer 已完成第一版 | Dashboard Brief 解释层还可继续 polish                  |
+| Glass-Box Brief          | 后端 evidence/ai trace 底座已打好                                                     | 尚未实现 source-backed brief；这是下一批 AI 增强优先级 |
+| Pulse Apply              | fixture pipeline / apply / revert 已能演示                                            | 真抓 cron、source drift 和 ops review 继续硬化         |
+| Demo Readiness           | 主链路可演                                                                            | seed、部署 checklist、Plan B、录屏脚本还要补           |
 
 ---
 
@@ -171,10 +171,10 @@ AI_GATEWAY_API_KEY=
 
 如果搭档今天接进来，先看这 5 个点：
 
-1. **主闭环已经能跑**：从 Migration paste 到 exposure preview / Live Genesis，再到 Dashboard / Workboard 真实 obligation 和 Undo import。
+1. **主闭环已经能跑**：从 Migration paste 到 exposure preview / Live Genesis，再到 Dashboard / Obligations 真实 obligation 和 Undo import。
 2. **AI 现在只在 Migration 用**：配置 OpenRouter key 后 mapper/normalizer 会走模型；无 key 时稳定 fallback。
 3. **Dashboard 已不是 mock**：首屏数据来自 server aggregation，Penalty Radar 金额只来自输入 / fixture / rule metadata。
-4. **Evidence drawer 已接入主入口**：Workboard `E`、row action、Dashboard top rows 和 Brief citation 都走同一个 drawer。
+4. **Evidence drawer 已接入主入口**：Obligations `E`、row action、Dashboard top rows 和 Brief citation 都走同一个 drawer。
 5. **E2E 默认隔离 AI key**：不要为了测试去改 `.dev.vars`；需要复用已有 server 才显式设置 `E2E_REUSE_EXISTING_SERVER=1`。
 
 ---
@@ -218,7 +218,7 @@ AI_GATEWAY_API_KEY=
 
 1. **先巩固 Activation，不扩散入口**：当前核心价值是“导入即看到真实 deadline 风险”。
 2. **AI 只增强可信链路**：AI 负责降低导入摩擦和解释证据，不直接生成 due date，不替用户做危险写入。
-3. **Server-first 风险口径**：Dashboard / Workboard 共享 server aggregation，不在前端重复业务计算。
+3. **Server-first 风险口径**：Dashboard / Obligations 共享 server aggregation，不在前端重复业务计算。
 4. **Evidence 优先于文案**：Brief、Tip、Pulse 都必须 source-backed；没有 citation 就降级。
 5. **不伪造金额**：Penalty / exposure 只吃显式输入、fixture seed 或 verified rule metadata；缺输入显示 `needs input`。
 6. **Pulse 先 fixture 后真抓**：真抓是 stretch，不阻塞 Demo 主线。

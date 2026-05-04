@@ -14,7 +14,7 @@ export class AppShellPage {
   constructor(readonly page: Page) {
     this.primaryNavigation = page.getByRole('navigation', { name: 'Primary navigation' })
     this.dashboardLink = page.getByRole('link', { name: /Dashboard/ })
-    this.workboardLink = page.getByRole('link', { name: /Workboard/ })
+    this.workboardLink = page.getByRole('link', { name: /Obligations/ })
     this.clientsLink = page.getByRole('link', { name: 'Clients' })
     this.rulesLink = page.getByRole('link', { name: 'Rules' })
     this.importClientsButton = page

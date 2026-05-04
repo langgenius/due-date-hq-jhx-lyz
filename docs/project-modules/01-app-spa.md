@@ -2,7 +2,7 @@
 
 ## 功能定位
 
-`apps/app` 是 DueDateHQ 的主产品前端，基于 Vite、React 19、React Router 7、TanStack Query、oRPC client、Better Auth client 和 `@duedatehq/ui` 构建。它承载事务所用户的日常操作：登录、onboarding、dashboard、workboard、导入、Pulse、审计、规则预览、成员、事务所设置和计费。
+`apps/app` 是 DueDateHQ 的主产品前端，基于 Vite、React 19、React Router 7、TanStack Query、oRPC client、Better Auth client 和 `@duedatehq/ui` 构建。它承载事务所用户的日常操作：登录、onboarding、dashboard、Obligations（`/workboard`）、导入、Pulse、审计、规则预览、成员、事务所设置和计费。
 
 前端的核心职责不是保存业务事实，而是把 server 合约暴露的状态组织成高效、可审计、可键盘操作的工作台。
 
@@ -19,7 +19,7 @@
 | `apps/app/src/features/migration`                | Migration Copilot 四步向导                                      |
 | `apps/app/src/features/pulse`                    | Pulse alert 列表、详情 drawer、apply/dismiss/snooze/revert      |
 | `apps/app/src/features/evidence`                 | Evidence drawer 和审计时间线                                    |
-| `apps/app/src/routes/workboard.tsx`              | Workboard 表格、过滤、状态更新、罚金输入                        |
+| `apps/app/src/routes/workboard.tsx`              | Obligations 表格、过滤、状态更新、罚金输入                      |
 | `apps/app/src/routes/rules.tsx`                  | Rules Console                                                   |
 
 ## 主要功能
@@ -39,7 +39,7 @@
   drivers、Focus rank 和 Next check。
 - `PulseAlertsBanner` 把可处理的政府更新带入首页。
 
-### Workboard
+### Obligations
 
 - 使用 TanStack Table 和 infinite query。
 - URL query 由 `nuqs` 管理，支持
@@ -91,8 +91,8 @@
 ## 创新点
 
 - **操作台优先**：首页不是静态报表，而是把风险、Pulse、任务、下一步检查和证据入口放到同一个工作语境。
-- **URL 可复现工作状态**：Workboard 和 Rules Console 用 URL query 保存筛选、排序和选中行，便于团队共享上下文。
-- **全局证据 drawer**：证据不是单独页面，而是嵌入在 dashboard/workboard/pulse 等工作流里，降低解释成本。
+- **URL 可复现工作状态**：Obligations 和 Rules Console 用 URL query 保存筛选、排序和选中行，便于团队共享上下文。
+- **全局证据 drawer**：证据不是单独页面，而是嵌入在 dashboard/Obligations/pulse 等工作流里，降低解释成本。
 - **键盘工作流**：命令面板、快捷键导航、帮助层和表格选择服务于高频后台操作。
 - **无 React `useEffect` 约束下的架构**：依赖 route loader、TanStack Query、render-time keyed reset、external store 和受控状态完成常见副作用场景。
 
@@ -160,7 +160,7 @@ flowchart LR
 | Global UI state   | Provider + context，必要时 useSyncExternalStore    |
 | Auth/session      | Better Auth client + route loader + Google One Tap |
 | Theme             | `@duedatehq/ui/theme` shared store                 |
-| Optimistic update | 针对成员、通知、workboard 状态等局部 query cache   |
+| Optimistic update | 针对成员、通知、Obligations 状态等局部 query cache |
 
 ## 架构图
 
@@ -211,6 +211,6 @@ flowchart TB
 ## 后续演进关注点
 
 - Migration Wizard 可继续拆出更细的 feature model，减少 route/provider 对 mutation 细节的了解。
-- Workboard 的 filter schema 可以从 contracts 派生更多类型，降低 URL state 和 server filter 漂移。
+- Obligations 的 filter schema 可以从 contracts 派生更多类型，降低 URL state 和 server filter 漂移。
 - Pulse drawer 可补更强的来源 diff 可视化，帮助用户比较变更前后截止日。
 - Billing 相关页面需要随当前 billing contract/procedure 完成度持续同步。

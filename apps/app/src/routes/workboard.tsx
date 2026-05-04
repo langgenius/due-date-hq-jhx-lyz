@@ -1472,7 +1472,7 @@ export function WorkboardRoute() {
     meta: {
       id: 'workboard.next-row',
       name: 'Next row',
-      description: 'Move the active Workboard row down.',
+      description: 'Move the active Obligations row down.',
       category: 'workboard',
       scope: 'route',
     },
@@ -1484,7 +1484,7 @@ export function WorkboardRoute() {
     meta: {
       id: 'workboard.previous-row',
       name: 'Previous row',
-      description: 'Move the active Workboard row up.',
+      description: 'Move the active Obligations row up.',
       category: 'workboard',
       scope: 'route',
     },
@@ -1671,7 +1671,7 @@ export function WorkboardRoute() {
     bulkAssigneeMutation.mutate({
       clientIds: selectedClientIds,
       assigneeId,
-      reason: t`Workboard bulk owner change`,
+      reason: t`Obligations bulk owner change`,
     })
   }
 
@@ -1684,13 +1684,13 @@ export function WorkboardRoute() {
     <div className="flex flex-col gap-6 p-4 md:p-6">
       <header className="flex flex-col gap-2">
         <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-          <Trans>Workboard</Trans>
+          <Trans>Obligations</Trans>
         </span>
         <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-semibold leading-tight text-text-primary">
               <ConceptLabel concept="obligation">
-                <Trans>Obligation queue</Trans>
+                <Trans>Obligations</Trans>
               </ConceptLabel>
             </h1>
             <p className="max-w-180 text-md text-text-secondary">
@@ -1715,7 +1715,9 @@ export function WorkboardRoute() {
               />
               <DropdownMenuContent className="w-72" align="end">
                 <DropdownMenuItem
-                  onClick={() => setSavedViewDraft({ mode: 'create', name: t`New workboard view` })}
+                  onClick={() =>
+                    setSavedViewDraft({ mode: 'create', name: t`New obligation view` })
+                  }
                 >
                   <SaveIcon data-icon="inline-start" />
                   <Trans>Save current view</Trans>
@@ -2991,7 +2993,7 @@ function WorkboardDetailDrawer({
                         }
                       />
                       <DetailRow
-                        label={<Trans>Official form</Trans>}
+                        label={<Trans>Official form or method</Trans>}
                         value={detail.matchedRule?.extensionPolicy.formName ?? t`Not specified`}
                       />
                       <DetailRow
@@ -4050,7 +4052,7 @@ function PenaltyInputDialog({
       id: row.clientId,
       ...(taxDue !== null ? { estimatedTaxLiabilityCents: taxDue } : {}),
       ...(ownerCount !== null ? { equityOwnerCount: ownerCount } : {}),
-      reason: t`Workboard needs-input update`,
+      reason: t`Obligation needs-input update`,
     })
   }
 

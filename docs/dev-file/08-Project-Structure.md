@@ -690,7 +690,7 @@ vp run -r dev
 | §3 Story S1/S2/S3   | E2E 10 条核心路径（§07.5.4）                                                                                                |
 | §3.6 Team           | `packages/auth` Organization plugin                                                                                         |
 | §5.1 Dashboard      | `apps/app/src/routes/dashboard.tsx` + `apps/server/src/procedures/dashboard` + `packages/db/src/repo/dashboard.ts`          |
-| §5.2 Workboard      | `apps/app/src/routes/workboard.tsx` + `features/workboard/`                                                                 |
+| §5.2 Obligations    | `apps/app/src/routes/workboard.tsx` + `features/workboard/`                                                                 |
 | §5.5 Evidence Mode  | `apps/app/src/components/patterns/evidence-drawer/` + `packages/db/evidence-writer`                                         |
 | §6.1 Rule Engine    | `packages/db/seed/rules.ts` + `packages/core/date-logic`                                                                    |
 | §6.2 Glass-Box      | `packages/ai/guard.ts`                                                                                                      |

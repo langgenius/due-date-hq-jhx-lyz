@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { isThisWeekFilterActive, nextThisWeekFilterPatch } from './workboard'
 
-describe('workboard quick filters', () => {
+describe('obligations quick filters', () => {
   it('applies the this week days filter when inactive', () => {
     expect(nextThisWeekFilterPatch(null, null)).toEqual({
       dueWithin: null,

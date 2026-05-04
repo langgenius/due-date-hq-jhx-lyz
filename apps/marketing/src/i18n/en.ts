@@ -605,7 +605,7 @@ const en: LandingCopy = {
           '1 production practice',
           '3 seats included',
           'Shared deadline operations',
-          'Pulse and workboard access',
+          'Pulse and Obligations access',
         ],
       },
       {
@@ -669,7 +669,7 @@ const en: LandingCopy = {
       {
         question: 'What does Pro add over Solo?',
         answer:
-          'Pro adds a three-seat shared workspace, Pulse monitoring, and the workboard views a small practice needs for deadline operations.',
+          'Pro adds a three-seat shared workspace, Pulse monitoring, and the Obligations views a small practice needs for deadline operations.',
       },
       {
         question: 'When should I choose Team?',
@@ -856,7 +856,7 @@ const en: LandingCopy = {
           },
           {
             title: 'Operational handoff',
-            body: 'Relevant changes can surface in dashboard, workboard, and email workflows after review.',
+            body: 'Relevant changes can surface in dashboard, Obligations, and email workflows after review.',
           },
         ],
       },
@@ -925,7 +925,7 @@ const en: LandingCopy = {
           },
           {
             title: 'Operational routing',
-            body: 'Reviewed signals can surface as dashboard or workboard actions when firm data indicates possible impact.',
+            body: 'Reviewed signals can surface as dashboard or Obligations actions when firm data indicates possible impact.',
           },
         ],
         limitations: [
@@ -1051,7 +1051,7 @@ const en: LandingCopy = {
           },
           {
             title: 'Review handoff',
-            body: 'Reviewed signals can become workboard actions for CPA teams managing affected clients.',
+            body: 'Reviewed signals can become Obligations actions for CPA teams managing affected clients.',
           },
         ],
         limitations: [
@@ -1169,7 +1169,7 @@ const en: LandingCopy = {
         coveredSignals: [
           {
             title: 'Deadline operations',
-            body: 'Signals are evaluated for operational impact before they become dashboard or workboard items.',
+            body: 'Signals are evaluated for operational impact before they become dashboard or Obligations items.',
           },
           {
             title: 'Applicability context',

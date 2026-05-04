@@ -23,7 +23,7 @@ That development-only helper signs in as `Sarah Martinez` and activates
 ## Coverage
 
 - Dashboard: open obligations, due-this-week counts, exposure states, evidence gaps, and an AI brief.
-- Workboard: pending, in-progress, review, waiting, done, overdue, unassigned, and missing-evidence rows.
+- Obligations: pending, in-progress, review, waiting, done, overdue, unassigned, and missing-evidence rows.
 - Team workload: Pro-plan firm with assigned and unassigned owner load.
 - Alerts/Pulse: one apply-ready IRS alert, one applied CA FTB overlay, one low-confidence NY DTF
   advisory, one sub-50% FL DOR bulletin, source health, snapshots, and signals. The seeded alerts
@@ -37,4 +37,4 @@ That development-only helper signs in as `Sarah Martinez` and activates
 - Audit/Notifications: cross-category audit events, a ready evidence package, reminders, email outbox, and in-app notifications.
 - Plan accounts: Sofia Solo, Priya Pro, and Taylor Team each have plan-specific clients,
   obligations, dashboard briefs, imports, evidence, audit events, notifications, readiness
-  requests, calendar subscriptions, saved Workboard views, and Pulse alert matches.
+  requests, calendar subscriptions, saved Obligations views, and Pulse alert matches.

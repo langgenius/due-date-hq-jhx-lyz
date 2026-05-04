@@ -22,8 +22,8 @@ export const NAVIGATION_SHORTCUTS = [
     id: 'nav.workboard',
     sequence: ['G', 'W'],
     path: '/workboard',
-    name: 'Go to Workboard',
-    description: 'Navigate to the Workboard.',
+    name: 'Go to Obligations',
+    description: 'Navigate to Obligations.',
     displayKeys: 'G then W',
   },
   {

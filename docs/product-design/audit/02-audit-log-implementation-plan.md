@@ -230,7 +230,7 @@ Tasks:
 Risk:
 
 - E2E seed may not yet create enough audit rows. If so, add the smallest
-  development-only seed path or re-use existing Workboard status mutation in setup.
+  development-only seed path or re-use existing Obligations status mutation in setup.
 
 Validation:
 

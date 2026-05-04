@@ -87,7 +87,7 @@ accepted · 2026-04-27
 Figma `Design Tokens — DueDateHQ` (`ssejugriUJkW9vbcBzmRgd`) 与 Figma `App Page` canvas 必须执行：
 
 - **Token 文件**：副标题改为 _"Mirrors `packages/ui/src/styles/tokens/*.css` (Dify token tree). Atom YAML legacy aliases shown for reference only."_；颜色 / spacing / components 三段 swatch 追加 Dify 命名集合（`text/*`、`background/*`、`divider/*`、`state/*`、`components/*`）；保留 legacy 别名 swatch 但加灰底标 _"legacy alias"_。
-- **App Page canvas**：补 Migration Wizard 4 帧（Step 1 Intake / Step 2 Mapping / Step 3 Normalize / Step 4 Dry-Run）+ Dashboard 主帧 + Workboard 主帧，全部用 Dify token 变量绑定 fill / stroke / typography。
+- **App Page canvas**：补 Migration Wizard 4 帧（Step 1 Intake / Step 2 Mapping / Step 3 Normalize / Step 4 Dry-Run）+ Dashboard 主帧 + Obligations 主帧，全部用 Dify token 变量绑定 fill / stroke / typography。
 - 落地工单见 _Follow-ups_ F1 / F2。
 
 ### D5 · 文档收口
@@ -110,7 +110,7 @@ Figma `Design Tokens — DueDateHQ` (`ssejugriUJkW9vbcBzmRgd`) 与 Figma `App Pa
 - Atom YAML / DueDateHQ-DESIGN.md 仍然存在，任何新人或外部 AI 看到 _"Single source of truth"_ 字样仍可能被误导 — 缓解：D5 在三段加 banner，front-matter 加 `supersededBy`
 - legacy 别名继续保留意味着 `semantic-light.css` 末尾的兼容段不会立刻清空 — 接受，避免一次性大改的回归风险；PR 触及自然清理
 - Figma 镜像追加 Dify swatch 的工作量集中在 F1（Token 文件）+ F2（App Page），由 design-to-code skill 拉起一次性写入
-- 暗色 mode 仍然双链：`/DESIGN.md` `colorsDark:` + `semantic-dark.css`。本 ADR 不动暗色，等 P1 Pulse Workboard 真正进入暗色调试再单独拉 ADR
+- 暗色 mode 仍然双链：`/DESIGN.md` `colorsDark:` + `semantic-dark.css`。本 ADR 不动暗色，等 P1 Pulse Obligations 真正进入暗色调试再单独拉 ADR
 
 ## 迁移计划（Migration plan）
 
@@ -118,7 +118,7 @@ Figma `Design Tokens — DueDateHQ` (`ssejugriUJkW9vbcBzmRgd`) 与 Figma `App Pa
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ------- |
 | **本 PR**                 | (a) 写本 ADR (b) DESIGN.md §2.5/§3.2/§14 加 banner (c) `Stepper.tsx` / `WizardShell.tsx` 文件头注释指向新源 (d) `/DESIGN.md` front-matter `supersededBy` | 当前 chat              | Day 4   |
 | **F1 · Figma Token 文件** | 副标题改 + 追加 Dify swatch 集合（colors / spacing / components 三段）；legacy alias 段加灰底标                                                          | 设计 + Figma MCP skill | Day 4–5 |
-| **F2 · Figma App Page**   | 补 4 帧 Migration Wizard + Dashboard + Workboard 主帧，全部走 Dify variable                                                                              | 设计 + Figma MCP skill | Day 4–5 |
+| **F2 · Figma App Page**   | 补 4 帧 Migration Wizard + Dashboard + Obligations 主帧，全部走 Dify variable                                                                            | 设计 + Figma MCP skill | Day 4–5 |
 | **F3 · 全局组件迁移**     | dashboard `_layout.tsx` / migration features 中残留的 legacy 名 → Dify 命名（自然 touch 时一次一个 PR）                                                  | 后续 sprint            | P1      |
 | **F4 · YAML 收尾**        | `/DESIGN.md` `components.stepper` 段加 `supersededBy: ADR-0014` 字段；后续不再扩展                                                                       | 后续 sprint            | P1      |
 

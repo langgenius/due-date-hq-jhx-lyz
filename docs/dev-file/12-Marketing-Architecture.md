@@ -13,7 +13,7 @@
 | 站点       | 域名                                         | 用户心智                     | 主要任务                                  |
 | ---------- | -------------------------------------------- | ---------------------------- | ----------------------------------------- |
 | Marketing  | `https://duedatehq.com`                      | 了解产品、建立信任、点击试用 | 首页、pricing、SEO meta、OG、后续 content |
-| SaaS App   | `https://app.duedatehq.com`                  | 登录后处理截止日风险         | Login、onboarding、dashboard、workboard   |
+| SaaS App   | `https://app.duedatehq.com`                  | 登录后处理截止日风险         | Login、onboarding、dashboard、Obligations |
 | Worker API | `https://app.duedatehq.com/api/*` / `/rpc/*` | 产品后端                     | Better Auth、oRPC、webhook、health        |
 
 用户路径：

@@ -322,11 +322,11 @@ describe('audit-log-model', () => {
       pulseAlert: 'Pulse alert',
       rule: 'Rule',
       ruleSource: 'Rule source',
-      workboardExport: 'Workboard export',
-      workboardSavedView: 'Saved workboard view',
+      workboardExport: 'Obligations export',
+      workboardSavedView: 'Saved obligation view',
     } satisfies AuditEntityTypeLabels
 
-    expect(formatAuditEntityTypeLabel('workboard_saved_view', labels)).toBe('Saved workboard view')
+    expect(formatAuditEntityTypeLabel('workboard_saved_view', labels)).toBe('Saved obligation view')
     expect(formatAuditEntityTypeLabel('obligation_instance', labels)).toBe('Deadline')
     expect(humanizeAuditEntityType('custom_ai_output')).toBe('Custom AI output')
   })
@@ -355,11 +355,11 @@ describe('audit-log-model', () => {
           beforeJson: null,
           afterJson: { name: 'Pinned high-risk clients' },
         },
-        'Saved workboard view',
+        'Saved obligation view',
       ),
     ).toEqual({
       primary: 'Pinned high-risk clients',
-      secondary: 'Saved workboard view · 33333333...3333',
+      secondary: 'Saved obligation view · 33333333...3333',
     })
 
     expect(

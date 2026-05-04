@@ -30,7 +30,7 @@
 | AI Q&A                 | §6.5 DSL 中间层（安全）                                            | F-19 直接 NL→SQL + parser 校验                           | **融合**：DSL 外层 + SQL 白名单内层，双保险（§7.7）                                             |
 | 证据链纪律             | Evidence Mode + `EvidenceLink` 表                                  | SourceBadge + source excerpt                             | **采纳 v1.0 Evidence Mode**，并强制每条 Pulse 结构化字段附 source excerpt（Competitor 做法）    |
 | EIN 字段               | 未显式                                                             | 未显式                                                   | **新增**：客户模型加 `ein`，Migration AI Mapper 显式识别（Story S2 AC#2）                       |
-| 县筛选                 | 仅 Pulse 匹配用                                                    | 未列                                                     | **新增**：Workboard 与 Ask 均支持 county 维度                                                   |
+| 县筛选                 | 仅 Pulse 匹配用                                                    | 未列                                                     | **新增**：Obligations 与 Ask 均支持 county 维度                                                 |
 | Pulse 通知             | Banner + email 分散                                                | Banner + email 分散                                      | **显式耦合**：每条 approved Pulse 触发同一事务内发 Banner + Email Digest（§6.3.4）              |
 | 日历能力               | ICS 单向订阅（P1）                                                 | 未做                                                     | **采纳 ICS 订阅，提升到 P1 首发**                                                               |
 | Default Tax Types 兜底 | §6A.3A 矩阵（优秀）                                                | 无                                                       | **保留并扩展到 50 州骨架**（§6A.5）                                                             |
@@ -71,7 +71,7 @@
 **IS**
 
 - 云端多租户 SaaS Web App，浏览器即开即用
-- **Deadline-first workboard**：首页不是 CRM、不是月历，而是按风险排序的本周处理清单
+- **Deadline-first Obligations**：首页不是 CRM、不是月历，而是按风险排序的本周处理清单
 - **Glass-Box AI 副驾**：AI 负责解释、排序、起草；CPA 保留专业判断
 - **审计可追溯系统**：所有 deadline / 规则 / AI 输出 / 客户状态变更均留痕
 - **迁移友好**：Excel / CSV / Google Sheets / 粘贴 30 分钟内完成 30 客户导入
@@ -152,8 +152,8 @@
 | AC #   | 验收标准                                               | 覆盖功能（v2.0 章节）                                                   | 验收测试 ID |
 | ------ | ------------------------------------------------------ | ----------------------------------------------------------------------- | ----------- |
 | S1-AC1 | 登录后默认看板按 "本周到期 / 本月预警 / 长期计划" 分组 | Dashboard Triage Tabs（§5.1.2）                                         | T-S1-01     |
-| S1-AC2 | 本周到期项必须显示具体倒计时（精确到天）               | TriageCard 倒计时徽章 + Workboard Days 列（§5.1.3 / §5.2.2）            | T-S1-02     |
-| S1-AC3 | 支持按客户 / 州 / 表单类型快速筛选，< 1 秒响应         | Workboard Filters（§5.2.3）+ 索引（§8.2）                               | T-S1-03     |
+| S1-AC2 | 本周到期项必须显示具体倒计时（精确到天）               | TriageCard 倒计时徽章 + Obligations Days 列（§5.1.3 / §5.2.2）          | T-S1-02     |
+| S1-AC3 | 支持按客户 / 州 / 表单类型快速筛选，< 1 秒响应         | Obligations Filters（§5.2.3）+ 索引（§8.2）                             | T-S1-03     |
 | S1-AC4 | 每个截止日支持一键标记"已完成 / 已延期 / 进行中"       | 行内状态下拉（§5.2.4）                                                  | T-S1-04     |
 | S1-AC5 | 整个分诊流程可在 5 分钟内完成                          | Smart Priority + Weekly Brief + Penalty 顶栏 合力（§6.4 / §6.1 / §6.5） | T-S1-05     |
 
@@ -408,7 +408,7 @@ Audit event: team.member.joined
 
 ### 3.6.5 视图层：My work / Firm-wide
 
-Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
+Dashboard、Obligations、Alerts 三处首屏顶部加 **View Scope Toggle**：
 
 ```
 [ ●  Firm-wide  ]  [   My work   ]      (Owner / Manager 默认 Firm-wide)
@@ -466,7 +466,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 - **Load Bar %** 基于 open count 相对全 firm top-quartile 线性归一
 - **Unassigned 行永远置底但不可折叠**（防漏）
 - 点击任一成员行 → 右侧 drawer 展示其 open obligations list（可就地 reassign）
-- Heatmap 点击某格 → Workboard 自动按 `due_date = :date AND assignee = :member` 筛选
+- Heatmap 点击某格 → Obligations 自动按 `due_date = :date AND assignee = :member` 筛选
 
 ### 3.6.8 数据边界边案
 
@@ -518,7 +518,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | P0-9  | Obligation Instances                             | `state × entity_type × tax_types` 生成全年 instances                                                                                                                                                            | S2-AC4         |
 | P0-10 | **Dashboard（Story S1 主屏）**                   | 顶栏 Penalty Radar + Pulse Banner + **三段时间 Tabs（This Week / This Month / Long-term）**                                                                                                                     | S1-AC1, S3-AC3 |
 | P0-11 | 倒计时徽章 + Days 列                             | 每个 obligation 显示精确到天的倒计时                                                                                                                                                                            | S1-AC2         |
-| P0-12 | **Workboard（表格视图）**                        | 多列可见 + Saved Views + 批量操作 + 密度切换                                                                                                                                                                    | —              |
+| P0-12 | **Obligations（表格视图）**                      | 多列可见 + Saved Views + 批量操作 + 密度切换                                                                                                                                                                    | —              |
 | P0-13 | **筛选器（< 1s 响应）**                          | Client / State / **County** / **Form/Tax Type** / Status / Readiness / Assignee / $ At Risk / Days                                                                                                              | S1-AC3         |
 | P0-14 | **行内一键标状态**                               | 每行 `[status ▾]` 下拉 + 键盘 F/X/I                                                                                                                                                                             | S1-AC4         |
 | P0-15 | Obligation Detail 抽屉                           | readiness / extension / risk / evidence / audit 五标签                                                                                                                                                          | —              |
@@ -554,7 +554,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | P1-17     | Public SEO Pages                              | `/state/california` / `/pulse` 公开页                                                                                                        | GTM                 |
 | P1-18     | **Team Seats & Invitations**                  | Owner 邀请 / 撤销 / role 修改；席位受 plan 限制（§3.6.4）                                                                                    | Team                |
 | P1-19     | **RBAC 四角色权限矩阵强制**                   | oRPC procedure middleware + scoped repo 双层（§3.6.3）；前端仅做可见性收敛，不作为安全边界                                                   | Team                |
-| P1-20     | **View Scope Toggle**                         | Dashboard / Workboard / Alerts 三处 My work / Firm-wide 切换 + URL 持久化（§3.6.5）                                                          | Team                |
+| P1-20     | **View Scope Toggle**                         | Dashboard / Obligations / Alerts 三处 My work / Firm-wide 切换 + URL 持久化（§3.6.5）                                                        | Team                |
 | P1-21     | **Manager Workload View**                     | 成员负载表 + 30 天 heatmap + Bulk reassign（§3.6.7）                                                                                         | Team                |
 | P1-22     | **Firm-wide Audit Log 页**                    | 全 firm write 操作时间线 + 过滤 + 导出（§3.6 + §13）                                                                                         | Team                |
 | P1-23     | **Concurrency & Conflict UX**                 | Last-write-wins + toast / Pulse advisory lock / Migration 串行（§3.6.6）                                                                     | Team                |
@@ -609,7 +609,7 @@ Dashboard、Workboard、Alerts 三处首屏顶部加 **View Scope Toggle**：
 │  🔴 Acme LLC · CA Franchise · 3d · $4,200 · [Working ▾] [· · ·]  │
 │  🟠 Bright Studio · 1120-S · 5d · $2,800 · [Waiting ▾] [· · ·]  │
 │  🟠 Zen Holdings · Q1 Est · 7d · $1,650 · [Not started ▾]       │
-│  [Open full Workboard →]                                          │
+│  [Open full Obligations →]                                          │
 ├──────────────────────────────────────────────────────────────────┤
 │  AI Weekly Brief (Glass-Box, with citations)                     │  ← Layer 4 · Brief
 │  Top 3 to touch first:                                            │
@@ -684,7 +684,7 @@ Tabs 之上加一行 scope 切换（Solo Plan 下该行不渲染）：
 
 `< 768px`：堆叠纵向，保留 Penalty Radar + Pulse Banner + Triage Tabs 三层；Ask 输入框折叠为 Cmd-K 按钮。
 
-### 5.2 Workboard（表格视图 · 对齐 S1-AC3 / AC4）
+### 5.2 Obligations（表格视图 · 对齐 S1-AC3 / AC4）
 
 #### 5.2.1 目标
 
@@ -1201,7 +1201,7 @@ Batch Apply 后 24h 内 owner 可一键 Revert，写反向 audit event + 恢复 
 
 #### 6.4.1 为什么存在
 
-Story S1 AC#5 要求 "5 分钟完成分诊"；仅有三段 Tabs 不够——Tab 内仍可能 15 行，CPA 需要明确的排序依据。Smart Priority Engine 是 Dashboard Triage Tab / Workboard 默认排序 / Weekly Brief 客户顺序 **三处共用的同一个打分函数**。
+Story S1 AC#5 要求 "5 分钟完成分诊"；仅有三段 Tabs 不够——Tab 内仍可能 15 行，CPA 需要明确的排序依据。Smart Priority Engine 是 Dashboard Triage Tab / Obligations 默认排序 / Weekly Brief 客户顺序 **三处共用的同一个打分函数**。
 
 #### 6.4.2 打分函数（纯函数、可解释、零幻觉）
 
@@ -1303,7 +1303,7 @@ AI SDK Layer 3 · Summarize in one sentence with [source] chips
   - PII re-filled after AI output
   ↓
 Render
-  - Table preview (first 10 rows + "Open all in Workboard" deep link)
+  - Table preview (first 10 rows + "Open all in Obligations" deep link)
   - Saved View + CSV Export
   - Evidence drawer: DSL + SQL + row count
 ```

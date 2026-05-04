@@ -15,7 +15,7 @@ another analytics feed. It lets the firm answer a narrow compliance question:
 > What changed, who caused it, when did it happen, and what user-facing fields moved?
 
 This page turns the existing append-only audit writer into a user-visible management
-surface. It should make Workboard status changes, Migration imports/reverts, client
+surface. It should make Obligations status changes, Migration imports/reverts, client
 batch creation, and future Pulse/Team writes reviewable without exposing raw database
 access.
 
@@ -81,7 +81,7 @@ Route:
 - AppShell route summary: eyebrow `Practice`, title `Audit log`.
 
 The page is a data workbench, not a settings form. It follows the same full-width
-route container pattern as Dashboard, Workboard, and Rules Console.
+route container pattern as Dashboard, Obligations, and Rules Console.
 
 ## 5. Page Layout
 
@@ -141,7 +141,7 @@ Pagination:
 - Keep the ACTION badge compact (`text-xs`) and render the same readable action label used
   by the filter.
 - Render common raw entity types such as `workboard_saved_view` as user-facing labels such
-  as `Saved workboard view`; unknown types fall back to humanized text.
+  as `Saved obligation view`; unknown types fall back to humanized text.
 - When audit payloads include names or stable business identifiers, table rows should show
   those values as the primary Entity text and move raw ids to secondary metadata.
 
@@ -272,7 +272,7 @@ Rendering:
 - Use existing `Button`, `Select`, `Badge`, `Table`, `Sheet`/`Dialog` primitives.
 - Use Lucide icons for row detail, filter, reset, and disabled export.
 - Audit filter select menus show selected options with a checkbox-style square indicator on
-  the left, matching the Workboard table header filter indicator instead of a trailing check mark.
+  the left, matching the Obligations table header filter indicator instead of a trailing check mark.
 - Do not introduce a new UI primitive unless an existing primitive cannot express the
   required accessibility behavior.
 
@@ -290,7 +290,7 @@ Error:
 Empty:
 
 - If filters are active: `No audit events match these filters.` with `Reset filters`.
-- If no filters: `No audit events yet.` with secondary text pointing users to Workboard
+- If no filters: `No audit events yet.` with secondary text pointing users to Obligations
   status updates or client import as the current audit-producing workflows.
 
 ## 11. Security And Compliance

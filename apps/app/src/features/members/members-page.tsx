@@ -107,7 +107,7 @@ export function MembersPageRoute() {
             teammates or change roles.
           </Trans>
         }
-        secondaryAction={{ label: <Trans>Open Workboard</Trans>, to: '/workboard' }}
+        secondaryAction={{ label: <Trans>Open Obligations</Trans>, to: '/workboard' }}
       >
         <MembersSkeleton />
       </PermissionGate>

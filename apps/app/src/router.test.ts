@@ -151,7 +151,7 @@ describe('importsAliasLoader', () => {
 })
 
 describe('calendarAliasLoader', () => {
-  it('redirects /calendar to the Workboard calendar sync page', async () => {
+  it('redirects /calendar to the Obligations calendar sync page', async () => {
     await expectRedirectTo(
       Promise.resolve().then(() => calendarAliasLoader()),
       '/workboard/calendar',

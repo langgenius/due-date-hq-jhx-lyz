@@ -122,8 +122,8 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
       }
     case 'workboard':
       return {
-        title: t`Workboard`,
-        description: t`The operating surface for deadline work: filter, sort, assign owners, update status, and open evidence for each obligation.`,
+        title: t`Obligations`,
+        description: t`The operating surface for obligation work: filter, sort, assign owners, update status, and open evidence for each obligation.`,
       }
     case 'triageQueue':
       return {
@@ -148,7 +148,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'obligationPreview':
       return {
         title: t`Obligation Preview`,
-        description: t`A dry run that shows which obligations rules would create for a client before anything is written to the workboard.`,
+        description: t`A dry run that shows which obligations rules would create for a client before anything is written to the obligation queue.`,
       }
     case 'reminderReady':
       return {

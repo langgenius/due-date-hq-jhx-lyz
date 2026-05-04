@@ -503,7 +503,7 @@ Brief prompt 的输入必须来自 server-side Dashboard snapshot、Evidence、R
 即使 firm owner 调整了 profile，AI 也只解释排序结果。
 
 Dashboard 前端消费结构化 citation：`ref + obligationId + evidence(sourceType/sourceId/sourceUrl)`。
-ready brief 的 citation chip 打开 evidence drawer，drawer 可跳转到 Workboard 对应 obligation 或
+ready brief 的 citation chip 打开 evidence drawer，drawer 可跳转到 Obligations 对应 obligation 或
 打开官方 source URL。手动 refresh 只返回 queued 状态；UI 立即显示 pending，并在 pending / queued
 期间禁用刷新按钮。
 
@@ -512,7 +512,7 @@ ready brief 的 citation chip 打开 evidence drawer，drawer 可跳转到 Workb
 P0-17 的 Client Risk Summary 和 Deadline Tip 走同一条 async cache path：
 
 ```text
-Client profile / Workboard drawer refresh
+Client profile / Obligations drawer refresh
   -> enqueue ai.insight.refresh on DASHBOARD_QUEUE
   -> KV debounce by firm + kind + subject + asOfDate
   -> Queue consumer loads tenant-scoped deterministic snapshot

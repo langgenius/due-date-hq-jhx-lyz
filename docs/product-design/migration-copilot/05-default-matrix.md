@@ -178,7 +178,7 @@ Suggested tax types (inferred from entity × state)
   [✓ Apply to all] applies only where imported rows do not already include tax types.
 ```
 
-- ⚠️ 徽章 = `needs_review`，客户仍可导入，但 Workboard 上该客户带黄色标记（对齐 PRD §6A.3 "非阻塞"原则）
+- ⚠️ 徽章 = `needs_review`，客户仍可导入，但 Obligations 上该客户带黄色标记（对齐 PRD §6A.3 "非阻塞"原则）
 - `Apply to all` 取消后，后端将该 cell 写入 `mapping_json.matrixApplied[].enabled=false`；`dryRun` 和 `apply` 都不得为该 cell 缺 `tax_types` 的客户 fallback 自动推断
 - Phase 0 可追加完整逐行 tax type override；DDL cut 先提供逐 cell 取消，避免对每个 client 暴露过重表格编辑面
 

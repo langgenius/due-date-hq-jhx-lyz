@@ -15,7 +15,7 @@ import {
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 /**
- * Workboard is the firm-wide obligation queue. Read-only here; mutations
+ * Obligations is the firm-wide obligation queue. Read-only here; mutations
  * live in `obligationsContract` (createBatch, updateDueDate, updateStatus)
  * to keep one canonical write path per entity.
  *

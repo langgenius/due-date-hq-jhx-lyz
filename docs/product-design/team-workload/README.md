@@ -10,7 +10,7 @@ the weekly manager questions quickly:
 - who has due-soon or overdue obligations this week;
 - which waiting-on-client or review items need manager attention;
 - which obligations are unassigned and should not be missed;
-- where to jump in Workboard to triage the underlying rows.
+- where to jump in Obligations to triage the underlying rows.
 
 Solo remains the personal deadline workbench. Pro, Team, and Enterprise add shared deadline
 operations. Team and Enterprise add manager operations on top: capacity pressure, unassigned risk,
@@ -26,7 +26,7 @@ V1 is intentionally read-only:
 - aggregate open obligations by owner label;
 - include `open`, `dueSoon`, `overdue`, `waiting`, `review`, and `loadScore`;
 - always show the `Unassigned` row when matching obligations exist;
-- deep-link every metric back to Workboard with matching filters;
+- deep-link every metric back to Obligations with matching filters;
 - enforce plan access on the server and avoid fetching workload data for Solo in the UI.
 
 V1 does not add reassignment, scheduling, time tracking, performance reporting, document collection,
@@ -36,7 +36,7 @@ client portal workflows, or a separate task table.
 
 Current schema has no formal `obligation_instance.assignee_user_id`. Client records can now bind
 new manual assignments to an active team member through `client.assignee_id` (`user.id`), while
-`client.assignee_name` remains the denormalized owner label for display, Workboard filters, and
+`client.assignee_name` remains the denormalized owner label for display, Obligations filters, and
 imported/free-text historical rows. V1 uses the label as the workload owner source:
 
 - `client.assignee_id` present: assignment is member-backed, with `client.assignee_name` storing the
@@ -49,7 +49,7 @@ imported/free-text historical rows. V1 uses the label as the workload owner sour
 - due soon means `0 <= current_due_date - as_of_date <= windowDays`;
 - overdue means `current_due_date < as_of_date`.
 
-This keeps Team Workload a read model over Workboard data. A later assignment slice should add
+This keeps Team Workload a read model over Obligations data. A later assignment slice should add
 `obligation_instance.assignee_user_id`, `obligation.reassigned` audit events, and bulk reassignment
 without changing this page's user-facing purpose.
 
@@ -92,9 +92,9 @@ Main table:
 | Waiting  | Open obligations in `waiting_on_client`                    |
 | Review   | Open obligations in `review`                               |
 | Load     | Percent normalized against the largest assigned open count |
-| Action   | Opens Workboard with matching filters                      |
+| Action   | Opens Obligations with matching filters                    |
 
-Deep links use Workboard URL state so the workload page stays an overview, and Workboard remains
+Deep links use Obligations URL state so the workload page stays an overview, and Obligations remains
 the execution surface.
 
 ## API Shape
@@ -145,7 +145,7 @@ the execution surface.
 }
 ```
 
-Workboard gains the filters needed for deep links:
+Obligations gains the filters needed for deep links:
 
 - `assigneeName`;
 - `owner=unassigned`;
@@ -158,8 +158,8 @@ Workboard gains the filters needed for deep links:
 - Direct `/workload` navigation on Solo shows an upgrade panel linked to Billing.
 - Pro/Enterprise users can open `/workload` and see server-computed metrics.
 - `Unassigned` is visible when any open obligation has no owner label.
-- Clicking a workload row opens Workboard filtered to the same owner/unassigned set.
-- Clicking due/overdue-oriented controls opens Workboard with due filters.
+- Clicking a workload row opens Obligations filtered to the same owner/unassigned set.
+- Clicking due/overdue-oriented controls opens Obligations with due filters.
 - No new task tables, time-tracking fields, or reassignment workflow are introduced in V1.
 
 ## E2E Coverage
@@ -167,6 +167,6 @@ Workboard gains the filters needed for deep links:
 `e2e/tests/workload.spec.ts` locks the V1 product loop:
 
 - Solo sees the paid Team Workload sidebar signal and direct-route upgrade panel.
-- Enterprise-tier sessions load server-computed owner metrics from seeded Workboard obligations.
+- Enterprise-tier sessions load server-computed owner metrics from seeded Obligations obligations.
 - `Unassigned` appears when an open obligation lacks an owner label.
-- Owner and due-risk links land on Workboard with matching URL filters.
+- Owner and due-risk links land on Obligations with matching URL filters.

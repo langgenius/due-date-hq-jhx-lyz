@@ -79,7 +79,7 @@ msgstr "{0} 个可用席位"
 #. placeholder {1}: pendingRevert.obligationCount
 #: src/features/migration/Wizard.tsx
 msgid "{0} clients · {1} obligations removed"
-msgstr "已移除 {0} 个客户 · {1} 条截止日"
+msgstr "已移除 {0} 个客户 · {1} 条义务"
 
 #. placeholder {0}: result.clientCount
 #. placeholder {1}: result.obligationCount
@@ -87,7 +87,7 @@ msgstr "已移除 {0} 个客户 · {1} 条截止日"
 #. placeholder {3}: exposure.needsInputCount
 #: src/features/migration/Wizard.tsx
 msgid "{0} clients, {1} obligations, {2} exposure, {3} need input"
-msgstr "{0} 个客户，{1} 个事项，{2} exposure，{3} 个需要补输入"
+msgstr "{0} 个客户，{1} 条义务，{2} 风险暴露，{3} 个需要补输入"
 
 #. placeholder {0}: stats.fullyCovered
 #. placeholder {1}: stats.jurisdictions - stats.fullyCovered
@@ -124,7 +124,7 @@ msgstr "{0} 个需要输入"
 #. placeholder {0}: genesis.needsInputCount
 #: src/features/migration/Wizard.tsx
 msgid "{0} obligations still need penalty inputs."
-msgstr "{0} 个事项仍需要 penalty 输入。"
+msgstr "{0} 条义务仍需要罚金输入。"
 
 #. placeholder {0}: summary.accruedPenaltyReadyCount
 #. placeholder {1}: summary.accruedPenaltyNeedsInputCount
@@ -396,8 +396,8 @@ msgid "A deadline rule that has been reviewed and can generate customer-facing r
 msgstr "已复核的截止日规则；匹配客户后可生成面向客户的提醒。"
 
 #: src/features/concepts/concept-help.tsx
-msgid "A dry run that shows which obligations rules would create for a client before anything is written to the workboard."
-msgstr "写入工作台前，预演规则会为某个客户创建哪些义务。"
+msgid "A dry run that shows which obligations rules would create for a client before anything is written to the obligation queue."
+msgstr "一次试运行，用来查看规则会为某个客户创建哪些义务，且不会写入义务队列。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "A high-permission practice role. In client tax inputs, owner count separately means the number of equity owners used for exposure calculations."
@@ -570,8 +570,8 @@ msgid "After"
 msgstr "之后"
 
 #: src/features/workload/workload-page.tsx
-msgid "Aggregated from open obligations and client owner labels. Open any row in Workboard to triage the underlying deadlines."
-msgstr "基于未完成义务和客户负责人标签聚合。打开任一行即可在 Workboard 分诊底层截止日。"
+msgid "Aggregated from open obligations and client owner labels. Open any row in Obligations to triage the underlying deadlines."
+msgstr "基于未关闭义务和客户负责人标签汇总。打开“义务”中的任意行即可分诊对应截止日。"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "AI"
@@ -746,7 +746,7 @@ msgstr "适用性复核"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Applicability review · needs CPA confirmation at generation time."
-msgstr "适用性复核 · 在生成 obligation 时需要 CPA 确认。"
+msgstr "适用性复核 · 在生成义务时需要 CPA 确认。"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/ImportHistoryDrawer.tsx
@@ -928,8 +928,8 @@ msgid "Back to Billing"
 msgstr "返回账单"
 
 #: src/features/calendar/calendar-page.tsx
-msgid "Back to Workboard"
-msgstr "返回 Workboard"
+msgid "Back to Obligations"
+msgstr "返回义务"
 
 #: src/routes/account.security.tsx
 msgid "Backup codes copied"
@@ -1235,6 +1235,7 @@ msgid "Choose Solo, Pro, or Team to start the hosted checkout flow."
 msgstr "选择 Solo、Pro 或 Team 以开始托管 checkout 流程。"
 
 #: src/components/primitives/iso-date-picker.tsx
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/workboard.tsx
 msgid "Clear"
 msgstr "清除"
@@ -1375,7 +1376,7 @@ msgstr "列"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can power the penalty exposure preview."
-msgstr "名为 Estimated tax due、Estimated tax liability、Owner count 或 Owners 的列可用于 penalty exposure 预览。"
+msgstr "名为 Estimated tax due、Estimated tax liability、Owner count 或 Owners 的列可用于罚金风险暴露预览。"
 
 #: src/routes/workboard.tsx
 msgid "Comfortable"
@@ -1604,7 +1605,7 @@ msgstr "无法撤销会话"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Could not run obligation preview."
-msgstr "无法运行事项预览。"
+msgstr "无法运行义务预览。"
 
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Could not send the code"
@@ -2487,11 +2488,11 @@ msgstr "敞口封顶"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Exposure preview"
-msgstr "Exposure 预览"
+msgstr "风险暴露预览"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Exposure readiness appears after mapping and Default Matrix are confirmed."
-msgstr "完成字段映射并确认 Default Matrix 后，会显示 exposure readiness。"
+msgstr "完成字段映射并确认 Default Matrix 后，会显示风险暴露准备情况。"
 
 #: src/features/workboard/status-control.tsx
 msgid "Extended"
@@ -2677,6 +2678,10 @@ msgstr "面向美国注册会计师事务所"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Form"
 msgstr "表单"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Form 7004, automatic extension, portal request, or source-defined process"
+msgstr "Form 7004、自动延期、portal request 或来源定义的流程"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Format"
@@ -3002,8 +3007,8 @@ msgid "Keep import"
 msgstr "保留导入"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Keeps workboard follow-up accountable."
-msgstr "确保工作台跟进有负责人。"
+msgid "Keeps obligation follow-up accountable."
+msgstr "用于确保义务后续跟进可追责。"
 
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "Keyboard shortcuts"
@@ -3112,7 +3117,7 @@ msgstr "正在加载义务详情…"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Loading obligation preview."
-msgstr "正在加载事项预览。"
+msgstr "正在加载义务预览。"
 
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Loading pending Pulse extracts…"
@@ -3527,13 +3532,13 @@ msgstr "新客户"
 msgid "New client imports will appear here when you need batch recovery."
 msgstr "需要批量恢复时，新的客户导入会显示在这里。"
 
+#: src/routes/workboard.tsx
+msgid "New obligation view"
+msgstr "新义务视图"
+
 #: src/routes/billing.checkout.tsx
 msgid "New seat limit"
 msgstr "新席位上限"
-
-#: src/routes/workboard.tsx
-msgid "New workboard view"
-msgstr "新的工作台视图"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Newest practice-scoped audit events appear first."
@@ -3607,7 +3612,7 @@ msgstr "没有审计事件匹配这些筛选条件。"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "No audit events recorded for this obligation."
-msgstr "此事项尚无审计事件。"
+msgstr "此义务尚无审计事件。"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events yet."
@@ -3707,6 +3712,10 @@ msgstr "没有匹配规则"
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this practice."
 msgstr "该事务所没有匹配客户。"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "No matching suggestion."
+msgstr "没有匹配的建议。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
@@ -3932,24 +3941,48 @@ msgstr "义务"
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Obligation detail"
-msgstr "事项详情"
+msgstr "义务详情"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Obligation evidence"
-msgstr "事项证据"
+msgstr "义务证据"
+
+#: src/routes/workboard.tsx
+msgid "Obligation needs-input update"
+msgstr "义务需补输入更新"
 
 #: src/features/concepts/concept-help.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Obligation Preview"
-msgstr "事项预览"
-
-#: src/routes/workboard.tsx
-msgid "Obligation queue"
-msgstr "义务队列"
+msgstr "义务预览"
 
 #: src/features/rules/rules-console.tsx
 msgid "Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
 msgstr "义务规则包括已验证模板，以及覆盖 50 州和 DC 的仅供复核候选规则。点击任一行可打开规则详情，查看截止日逻辑、延期政策和官方来源证据。候选行永远不会触发用户提醒。"
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Obligation status updates and client imports will appear here when they write audit rows."
+msgstr "义务状态更新和客户导入在写入审计记录后会显示在这里。"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/concepts/concept-help.tsx
+#: src/routes/route-summary.ts
+#: src/routes/workboard.tsx
+msgid "Obligations"
+msgstr "义务"
+
+#: src/routes/workboard.tsx
+msgid "Obligations bulk owner change"
+msgstr "义务批量负责人变更"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Obligations export"
+msgstr "义务导出"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Obligations exported"
+msgstr "义务已导出"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Official calendar"
@@ -3972,12 +4005,12 @@ msgid "Official excerpt"
 msgstr "官方摘录"
 
 #: src/features/rules/rule-detail-drawer.tsx
-msgid "Official extension form"
-msgstr "官方延期表格"
+msgid "Official extension form or method"
+msgstr "官方延期表格或方式"
 
 #: src/routes/workboard.tsx
-msgid "Official form"
-msgstr "官方表格"
+msgid "Official form or method"
+msgstr "官方表格或方式"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Official source"
@@ -4106,8 +4139,8 @@ msgid "Open fact profile for {0}"
 msgstr "打开 {0} 的事实档案"
 
 #: src/routes/dashboard.tsx
-msgid "Open full Workboard"
-msgstr "打开完整工作台"
+msgid "Open full Obligations"
+msgstr "打开完整义务列表"
 
 #: src/features/members/members-page.tsx
 msgid "Open member actions"
@@ -4116,6 +4149,17 @@ msgstr "打开成员操作"
 #: src/routes/dashboard.tsx
 msgid "Open obligations"
 msgstr "未关闭义务"
+
+#: src/features/audit/audit-log-page.tsx
+#: src/features/members/members-page.tsx
+#: src/features/workload/workload-page.tsx
+#: src/routes/billing.tsx
+msgid "Open Obligations"
+msgstr "打开义务"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open Obligations."
+msgstr "打开义务。"
 
 #. placeholder {0}: evidenceSource.title
 #. placeholder {0}: source.title
@@ -4145,17 +4189,6 @@ msgstr "打开 Apple Calendar 链接"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
 msgstr "打开 Migration Copilot 向导。"
-
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Open the obligation queue."
-msgstr "打开义务队列。"
-
-#: src/features/audit/audit-log-page.tsx
-#: src/features/members/members-page.tsx
-#: src/features/workload/workload-page.tsx
-#: src/routes/billing.tsx
-msgid "Open Workboard"
-msgstr "打开 Workboard"
 
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Open your authenticator app, add a new account, then scan this code. Use the setup URI if scanning is not available."
@@ -4779,8 +4812,8 @@ msgid "Pulse alert: {0}"
 msgstr "监管提醒：{0}"
 
 #: src/routes/billing.tsx
-msgid "Pulse and workboard access"
-msgstr "Pulse 与 workboard 访问权限"
+msgid "Pulse and Obligations access"
+msgstr "Pulse 与义务访问权限"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Pulse application"
@@ -5319,7 +5352,7 @@ msgstr "查看已登录的浏览器，并撤销过期访问。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source coverage, rule inventory, and obligation preview."
-msgstr "查看来源覆盖、规则清单与事项预览。"
+msgstr "查看来源覆盖、规则清单与义务预览。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source-backed Pulse alerts."
@@ -5613,6 +5646,10 @@ msgid "Save view"
 msgstr "保存视图"
 
 #: src/features/audit/audit-log-labels.ts
+msgid "Saved obligation view"
+msgstr "已保存义务视图"
+
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/workboard.tsx
 msgid "Saved view created"
 msgstr "已创建保存视图"
@@ -5642,10 +5679,6 @@ msgstr "已保存视图"
 #: src/routes/workboard.tsx
 msgid "Saved views store filters, sort, visible columns, and density."
 msgstr "保存视图会存储筛选、排序、可见列和密度。"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Saved workboard view"
-msgstr "已保存的工作台视图"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Saving normalized values, applying the Default Matrix, and calculating totals."
@@ -5782,7 +5815,7 @@ msgstr "选择税年 {value}"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Selected obligation"
-msgstr "已选事项"
+msgstr "已选义务"
 
 #: src/routes/billing.checkout.tsx
 msgid "Selected plan"
@@ -5982,8 +6015,8 @@ msgid "Solo"
 msgstr "Solo"
 
 #: src/features/workload/workload-page.tsx
-msgid "Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
-msgstr "Solo 是个人截止日工作台。Pro、Team 和 Enterprise 增加共享截止日运营：负责人级工作负载、未分派风险、等待与复核压力，以及用于每周分诊的 Workboard 跳转链接。"
+msgid "Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Obligations jump links for weekly triage."
+msgstr "Solo 是个人截止日工作台。Pro、Team 和 Enterprise 增加共享截止日运营：负责人级工作负载、未分配风险、等待与复核压力，以及用于每周分诊的义务跳转链接。"
 
 #: src/routes/billing.checkout.tsx
 msgid "Solo, Pro, and Team each apply to one active practice. Enterprise covers multiple practices by contract."
@@ -6214,6 +6247,10 @@ msgstr "建议清洗后的值"
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "建议税种（来自实体 × 州矩阵）"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Suggestions"
+msgstr "建议"
+
 #: src/features/members/members-page.tsx
 msgid "Suspend access"
 msgstr "暂停访问"
@@ -6393,8 +6430,8 @@ msgid "The official source, quote, or audit record that supports a rule, deadlin
 msgstr "支撑规则、截止日、AI 解释或 Pulse 变更的官方来源、摘录或审计记录。"
 
 #: src/features/concepts/concept-help.tsx
-msgid "The operating surface for deadline work: filter, sort, assign owners, update status, and open evidence for each obligation."
-msgstr "处理截止日工作的操作界面：筛选、排序、分配负责人、更新状态，并打开每项义务的证据。"
+msgid "The operating surface for obligation work: filter, sort, assign owners, update status, and open evidence for each obligation."
+msgstr "处理义务工作的操作界面：筛选、排序、分配负责人、更新状态，并打开每项义务的证据。"
 
 #: src/routes/billing.tsx
 msgid "The payment provider is the source of truth; DueDateHQ caches the active plan."
@@ -6487,7 +6524,7 @@ msgstr "此准备状态链接已过期、已撤销或无效。"
 
 #: src/routes/workboard.tsx
 msgid "This records an internal decision for this obligation. It does not update the due date, change client records, or confirm an authority filing. Payment may still be due by the original date."
-msgstr "这会为该 obligation 记录一个内部决策。它不会更新 due date、修改客户资料，也不代表已向官方提交延期。付款可能仍需在原始日期前完成。"
+msgstr "这会为该义务记录一个内部决策。它不会更新截止日、修改客户资料，也不代表已向官方提交延期。付款可能仍需在原始日期前完成。"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "This removes every client and deadline created by this import. Use Clients to edit individual records instead."
@@ -6765,7 +6802,7 @@ msgstr "使用表格表头按客户、辖区、表单、就绪度、负责人、
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Used to show extension guidance on obligations matched to this rule. It does not change client records, file an extension, or update due dates automatically."
-msgstr "用于在匹配到这条规则的 obligation 上展示延期指引。它不会修改客户资料、提交延期申请或自动更新 due date。"
+msgstr "用于在匹配到这条规则的义务上展示延期指引。它不会修改客户资料、提交延期申请或自动更新截止日。"
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "User agent hash"
@@ -6996,37 +7033,8 @@ msgid "Work email"
 msgstr "工作邮箱"
 
 #: src/features/migration/WizardShell.tsx
-#: src/routes/route-summary.ts
 msgid "Workbench"
 msgstr "工作台"
-
-#: src/components/patterns/app-shell-nav.tsx
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/features/concepts/concept-help.tsx
-#: src/routes/route-summary.ts
-#: src/routes/workboard.tsx
-msgid "Workboard"
-msgstr "工作台"
-
-#: src/routes/workboard.tsx
-msgid "Workboard bulk owner change"
-msgstr "工作台批量负责人变更"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Workboard export"
-msgstr "工作台导出"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Workboard exported"
-msgstr "Workboard 已导出"
-
-#: src/routes/workboard.tsx
-msgid "Workboard needs-input update"
-msgstr "Workboard 需要输入更新"
-
-#: src/features/audit/audit-log-page.tsx
-msgid "Workboard status updates and client imports will appear here when they write audit rows."
-msgstr "工作台状态更新和客户导入在写入审计记录后会显示在这里。"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Working…"

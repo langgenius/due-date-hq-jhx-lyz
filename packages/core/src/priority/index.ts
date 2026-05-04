@@ -264,7 +264,7 @@ function readinessFactor(
     rawValue,
     normalized,
     contribution: roundScore(normalized * weight * 100),
-    sourceLabel: 'Workboard status',
+    sourceLabel: 'Obligations status',
   }
 }
 

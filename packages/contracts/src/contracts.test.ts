@@ -517,7 +517,7 @@ describe('@duedatehq/contracts', () => {
     expect(bulkReadinessOutput.updatedCount).toBe(1)
   })
 
-  it('exposes clients.bulkUpdateAssignee for Workboard bulk owner changes', () => {
+  it('exposes clients.bulkUpdateAssignee for Obligations bulk owner changes', () => {
     expect(Object.keys(clientsContract)).toEqual(
       expect.arrayContaining(['bulkUpdateAssignee', 'updatePenaltyInputs']),
     )

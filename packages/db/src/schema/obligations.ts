@@ -26,7 +26,7 @@ export type ObligationExtensionDecision = (typeof OBLIGATION_EXTENSION_DECISIONS
  * Base vs current due date:
  *   - `base_due_date` — the statutory date for this (tax_type, tax_year);
  *     written at create-time and never mutated.
- *   - `current_due_date` — what the Dashboard / Workboard show. Pulse apply
+ *   - `current_due_date` — what the Dashboard / Obligations show. Pulse apply
  *     in Demo Sprint directly UPDATEs this value (no overlay); migration
  *     import and manual edits also write here. Phase 1: this column becomes
  *     generated/virtual from base + overlays.
@@ -112,14 +112,14 @@ export const obligationInstance = sqliteTable(
     // soonest due first.
     index('idx_oi_firm_status_due').on(table.firmId, table.status, table.currentDueDate),
     index('idx_oi_firm_readiness_due').on(table.firmId, table.readiness, table.currentDueDate),
-    // Penalty Radar / Workboard triage: sort open obligations by exposure.
+    // Penalty Radar / Obligations triage: sort open obligations by exposure.
     index('idx_oi_firm_due_exposure').on(
       table.firmId,
       table.currentDueDate,
       table.exposureStatus,
       table.estimatedExposureCents,
     ),
-    // Workboard P0 filters: tax form/type and dollar-at-risk range.
+    // Obligations P0 filters: tax form/type and dollar-at-risk range.
     index('idx_oi_firm_tax_type_due').on(table.firmId, table.taxType, table.currentDueDate),
     index('idx_oi_firm_exposure_amount').on(table.firmId, table.estimatedExposureCents),
     // Client detail page drawer.

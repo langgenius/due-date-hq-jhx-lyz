@@ -155,7 +155,7 @@ export function CalendarPage() {
         </div>
         <Button variant="secondary" size="sm" render={<Link to="/workboard" />}>
           <ArrowLeftIcon data-icon="inline-start" />
-          <Trans>Back to Workboard</Trans>
+          <Trans>Back to Obligations</Trans>
         </Button>
       </div>
 

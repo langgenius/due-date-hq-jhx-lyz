@@ -72,8 +72,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       },
       {
         id: 'workboard',
-        label: t`Workboard`,
-        description: t`Open the obligation queue.`,
+        label: t`Obligations`,
+        description: t`Open Obligations.`,
         group: 'navigate',
         icon: CalendarClockIcon,
         onSelect: () => navigate('/workboard'),

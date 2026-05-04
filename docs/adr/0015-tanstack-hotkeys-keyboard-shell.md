@@ -4,7 +4,7 @@ Date: 2026-04-27
 
 ## Context
 
-PRD v2 defines keyboard-first behavior across global actions, navigation sequences, Workboard
+PRD v2 defines keyboard-first behavior across global actions, navigation sequences, Obligations
 operations, and Migration Wizard overlays. The implementation previously had no app-level shortcut
 registry, so future shortcuts would either duplicate `keydown` listeners or drift from the `?` help
 surface.
@@ -48,5 +48,5 @@ Use `@tanstack/react-hotkeys@0.10.0` as the only keyboard shortcut engine for `a
   deduplication, stale-closure handling, sequence parsing, and registry introspection.
 - **`react-hotkeys-hook`**: viable, but TanStack Hotkeys gives a smaller product fit for this stack:
   typed hotkeys, sequence manager, metadata, singleton registry, and platform-aware `Mod` formatting.
-- **Only implement Command Palette**: rejected because Workboard and Wizard already have route/overlay
+- **Only implement Command Palette**: rejected because Obligations and Wizard already have route/overlay
   shortcuts; a palette-only implementation would not solve keyboard-first operations or `?` help.

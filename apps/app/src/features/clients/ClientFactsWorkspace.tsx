@@ -1246,7 +1246,7 @@ function ClientFactChecklist({
       <FactCheckRow
         isComplete={Boolean(client.assigneeName)}
         label={<Trans>Owner</Trans>}
-        detail={<Trans>Keeps workboard follow-up accountable.</Trans>}
+        detail={<Trans>Keeps obligation follow-up accountable.</Trans>}
       />
     </div>
   )

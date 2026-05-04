@@ -542,7 +542,7 @@ export function AuditLogPage() {
             practice owner if you need audit access.
           </Trans>
         }
-        secondaryAction={{ label: <Trans>Open Workboard</Trans>, to: '/workboard' }}
+        secondaryAction={{ label: <Trans>Open Obligations</Trans>, to: '/workboard' }}
       >
         <div />
       </PermissionGate>
@@ -714,7 +714,7 @@ export function AuditLogPage() {
                   <Trans>Reset filters to return to the latest practice-wide events.</Trans>
                 ) : (
                   <Trans>
-                    Workboard status updates and client imports will appear here when they write
+                    Obligation status updates and client imports will appear here when they write
                     audit rows.
                   </Trans>
                 )}

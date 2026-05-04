@@ -42,6 +42,9 @@ entered.
   and official sources without adding a new top-level dollar metric.
 - Extended `pnpm rules:check-sources` so penalty formula catalog entries must include official URL,
   excerpt, effective date, and last-reviewed date.
+- Clarified the user manual wording for Dashboard `Projected Risk` / Penalty Radar so users
+  understand it as a 90-day estimated exposure queue, not an official penalty notice or fake `$0`
+  when facts are missing.
 
 ## Boundary
 

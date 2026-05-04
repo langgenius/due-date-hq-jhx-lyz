@@ -29,7 +29,7 @@ import {
  *   - docs/dev-file/06 §4.1 (procedures call scoped repo only)
  *
  * Scope (Day 3): unblock Migration Step 4 commit. We expose createBatch,
- * listByClient, and updateStatus (LYZ workboard). `updateDueDate` belongs
+ * listByClient, and updateStatus (LYZ Obligations). `updateDueDate` belongs
  * to the pulse-apply path (Day 5+) and stays a stub.
  */
 

@@ -1,7 +1,7 @@
 import { expect, test } from '../fixtures/test'
 
-// Feature: Workboard obligation queue
-// PRD: S1 protected workboard entry
+// Feature: Obligations queue
+// PRD: S1 protected Obligations entry
 // AC: E2E-WORKBOARD-FILTERS, E2E-WORKBOARD-STATUS
 
 test.skip(
@@ -9,10 +9,10 @@ test.skip(
   'local e2e auth seed is not available on external targets',
 )
 
-test.describe('seeded workboard', () => {
+test.describe('seeded obligations', () => {
   test.use({ authSeed: 'workboard' })
 
-  test('AC: E2E-DASHBOARD-TRIAGE syncs tabs to URL and opens matching Workboard view', async ({
+  test('AC: E2E-DASHBOARD-TRIAGE syncs tabs to URL and opens matching Obligations view', async ({
     authenticatedPage,
   }) => {
     await authenticatedPage.goto('/')
@@ -30,7 +30,7 @@ test.describe('seeded workboard', () => {
       'true',
     )
 
-    await authenticatedPage.getByRole('button', { name: 'Open full Workboard' }).click()
+    await authenticatedPage.getByRole('button', { name: 'Open full Obligations' }).click()
     await expect(authenticatedPage).toHaveURL(/\/workboard\?daysMin=8&daysMax=30$/)
   })
 

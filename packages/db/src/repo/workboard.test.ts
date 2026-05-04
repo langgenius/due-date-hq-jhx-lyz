@@ -255,7 +255,7 @@ describe('makeWorkboardRepo.list', () => {
     expect(result.rows.map((row) => row.readiness)).toEqual(['needs_review', 'ready'])
   })
 
-  it('aggregates workboard facet options for client, geography, form, and assignee filters', async () => {
+  it('aggregates obligation facet options for client, geography, form, and assignee filters', async () => {
     const fake = createFakeDb([
       makeRow({
         id: 'a',

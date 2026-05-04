@@ -124,13 +124,13 @@ export function WorkloadPage() {
           </CardTitle>
           <CardDescription>
             <Trans>
-              Aggregated from open obligations and client owner labels. Open any row in Workboard to
-              triage the underlying deadlines.
+              Aggregated from open obligations and client owner labels. Open any row in Obligations
+              to triage the underlying deadlines.
             </Trans>
           </CardDescription>
           <CardAction>
             <Button variant="outline" size="sm" render={<Link to="/workboard" />}>
-              <Trans>Open Workboard</Trans>
+              <Trans>Open Obligations</Trans>
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
           </CardAction>
@@ -171,7 +171,7 @@ function WorkloadUpgradePanel() {
             <Trans>
               Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline
               operations: owner-level workload, unassigned risk, waiting and review pressure, and
-              Workboard jump links for weekly triage.
+              Obligations jump links for weekly triage.
             </Trans>
           </CardDescription>
           <CardAction>
@@ -185,7 +185,7 @@ function WorkloadUpgradePanel() {
             <Trans>Upgrade plan</Trans>
           </Button>
           <Button variant="outline" render={<Link to="/workboard" />}>
-            <Trans>Open Workboard</Trans>
+            <Trans>Open Obligations</Trans>
           </Button>
         </CardContent>
       </Card>

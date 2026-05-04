@@ -129,7 +129,7 @@ confidence-badge-low:
 这是本文件的**硬裁定**（回灌到 DueDateHQ-DESIGN §14.7 与 ADR 0011 Decision III）：
 
 - **数据质量类 `needs_review`**（Mapper 低置信 / Normalizer 冲突 / Default Matrix 非种子辖区）→ `{colors.severity-medium}`（黄 · severity-medium），使用 `confidence-badge-low` 的色系
-- **工作流态 Review**（Workboard "Needs review" 状态列 / Client Detail 的 review 抽屉）→ `{colors.status-review}`（紫 · violet-600）
+- **工作流态 Review**（Obligations "Needs review" 状态列 / Client Detail 的 review 抽屉）→ `{colors.status-review}`（紫 · violet-600）
 
 两者**绝不混用**。依据：
 

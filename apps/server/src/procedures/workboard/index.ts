@@ -16,7 +16,7 @@ import { signReadinessPortalToken } from '../../lib/readiness-token'
 import { toReadinessRequestPublic } from '../readiness/_public'
 
 /**
- * workboard.* — read-only firm-wide obligation queue.
+ * workboard.* — internal API namespace for the firm-wide Obligations queue.
  *
  * Mutations (status / due date) live in `obligationsContract` so each
  * entity has exactly one canonical write surface.
@@ -389,7 +389,7 @@ async function buildClientPdf(clientName: string, rows: WorkboardRow[]): Promise
   const page = pdf.addPage([612, 792])
   const font = await pdf.embedFont(StandardFonts.Helvetica)
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold)
-  page.drawText('DueDateHQ Workboard Export', { x: 72, y: 720, font: bold, size: 16 })
+  page.drawText('DueDateHQ Obligations Export', { x: 72, y: 720, font: bold, size: 16 })
   page.drawText(clientName, { x: 72, y: 692, font: bold, size: 12 })
   const lines = rows.slice(0, 24).map((row) => {
     const exposure =

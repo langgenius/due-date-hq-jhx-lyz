@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { MinusIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
+import { CheckIcon, MinusIcon, PlusIcon, TriangleAlertIcon, XIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 import type {
@@ -109,6 +109,17 @@ type ConcreteDueDateKind = 'fixed_date' | 'tax_year_end' | 'tax_year_begin'
 type HolidayRollover = 'source_adjusted' | 'next_business_day'
 type ReviewExtensionPolicy = ObligationRule['extensionPolicy']
 
+const EXTENSION_METHOD_SUGGESTIONS = [
+  'Form 7004',
+  'Form IT-370-PF',
+  'Form F-7004',
+  'automatic extension',
+  'portal request',
+  'payment voucher',
+  'source-defined process',
+  'Texas franchise tax extension',
+] as const
+
 function initialPublishMode(rule: ObligationRule): PublishMode {
   return rule.coverageStatus === 'full' && rule.dueDateLogic.kind !== 'source_defined_calendar'
     ? 'reminder_ready'
@@ -149,6 +160,12 @@ function steppedIntegerString(value: string, min: number, max: number, delta: -1
 function sourceDefinedDescription(rule: ObligationRule, heading: string): string {
   if (rule.dueDateLogic.kind === 'source_defined_calendar') return rule.dueDateLogic.description
   return `${rule.title}: ${heading}`
+}
+
+function filterExtensionMethodSuggestions(value: string): readonly string[] {
+  const query = value.trim().toLowerCase()
+  if (!query) return EXTENSION_METHOD_SUGGESTIONS
+  return EXTENSION_METHOD_SUGGESTIONS.filter((option) => option.toLowerCase().includes(query))
 }
 
 function CandidateReviewForm({
@@ -550,17 +567,17 @@ function CandidateReviewForm({
             </p>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+            <div className="flex flex-col gap-1 text-xs text-text-tertiary">
               <span>
-                <Trans>Official extension form</Trans>
+                <Trans>Official extension form or method</Trans>
               </span>
-              <input
+              <ExtensionMethodCombobox
                 value={extensionFormName}
-                onChange={(event) => setExtensionFormName(event.target.value)}
+                onValueChange={setExtensionFormName}
                 disabled={!extensionAvailable}
-                className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary disabled:text-text-tertiary"
+                ariaLabel={t`Official extension form or method`}
               />
-            </label>
+            </div>
             <div className="flex flex-col gap-1 text-xs text-text-tertiary">
               <span>
                 <Trans>Duration months</Trans>
@@ -675,6 +692,121 @@ function CandidateReviewForm({
         </Button>
       </div>
     </section>
+  )
+}
+
+function ExtensionMethodCombobox({
+  value,
+  onValueChange,
+  disabled,
+  ariaLabel,
+}: {
+  value: string
+  onValueChange: (value: string) => void
+  disabled?: boolean
+  ariaLabel: string
+}) {
+  const { t } = useLingui()
+  const listboxId = useId()
+  const [open, setOpen] = useState(false)
+  const suggestions = useMemo(() => filterExtensionMethodSuggestions(value), [value])
+  const hasValue = value.length > 0
+
+  function changeOpen(nextOpen: boolean) {
+    setOpen(disabled ? false : nextOpen)
+  }
+
+  function selectSuggestion(nextValue: string) {
+    onValueChange(nextValue === value ? '' : nextValue)
+    setOpen(false)
+  }
+
+  return (
+    <div
+      className="relative"
+      onBlur={(event) => {
+        const nextTarget = event.relatedTarget
+        if (!(nextTarget instanceof Node) || !event.currentTarget.contains(nextTarget)) {
+          changeOpen(false)
+        }
+      }}
+    >
+      <input
+        value={value}
+        role="combobox"
+        aria-label={ariaLabel}
+        aria-autocomplete="list"
+        aria-controls={listboxId}
+        aria-expanded={open && !disabled}
+        placeholder={t`Form 7004, automatic extension, portal request, or source-defined process`}
+        disabled={disabled}
+        onFocus={() => changeOpen(true)}
+        onChange={(event) => {
+          onValueChange(event.target.value)
+          changeOpen(true)
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') changeOpen(false)
+        }}
+        className={cn(
+          'h-8 w-full rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary outline-none transition-colors placeholder:text-text-placeholder focus-visible:border-components-input-border-active focus-visible:ring-2 focus-visible:ring-state-accent-active-alt disabled:text-text-tertiary',
+          hasValue ? 'pr-8' : undefined,
+        )}
+      />
+      {hasValue ? (
+        <button
+          type="button"
+          aria-label={t`Clear`}
+          disabled={disabled}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => {
+            onValueChange('')
+            changeOpen(false)
+          }}
+          className="absolute right-1 top-1/2 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-sm text-text-tertiary transition-colors hover:bg-background-subtle hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-state-accent-active-alt disabled:pointer-events-none disabled:opacity-50"
+        >
+          <XIcon className="size-3.5" aria-hidden />
+        </button>
+      ) : null}
+      {open && !disabled ? (
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 overflow-hidden rounded-md border border-components-panel-border bg-components-panel-bg p-1 text-text-primary shadow-overlay">
+          <div className="px-2 py-1 text-xs font-medium uppercase tracking-wider text-text-tertiary">
+            <Trans>Suggestions</Trans>
+          </div>
+          <div id={listboxId} role="listbox" className="max-h-56 overflow-y-auto">
+            {suggestions.length === 0 ? (
+              <div className="px-2 py-3 text-sm text-text-tertiary">
+                <Trans>No matching suggestion.</Trans>
+              </div>
+            ) : (
+              suggestions.map((suggestion) => {
+                const selected = suggestion === value
+                return (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    role="option"
+                    aria-selected={selected}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => selectSuggestion(suggestion)}
+                    className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-background-subtle focus-visible:bg-background-subtle focus-visible:outline-none"
+                  >
+                    <span className="truncate">{suggestion}</span>
+                    <CheckIcon
+                      className={cn(
+                        'size-4 text-text-accent',
+                        selected ? 'opacity-100' : 'opacity-0',
+                      )}
+                      aria-hidden
+                    />
+                  </button>
+                )
+              })
+            )}
+          </div>
+        </div>
+      ) : null}
+    </div>
   )
 }
 

@@ -12,7 +12,7 @@ test.skip(
 test.describe('seeded audit trail', () => {
   test.use({ authSeed: 'workboard' })
 
-  test('AC: E2E-AUDIT-WORKBOARD-STATUS-DETAIL traces a Workboard write into audit detail', async ({
+  test('AC: E2E-AUDIT-WORKBOARD-STATUS-DETAIL traces an Obligations write into audit detail', async ({
     auditPage,
     authenticatedPage,
     workboardPage,

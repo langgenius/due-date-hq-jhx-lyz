@@ -49,7 +49,7 @@ export const client = sqliteTable(
     email: text('email'),
     notes: text('notes'),
     // Team member binding stores auth user.id. `assignee_name` remains a
-    // denormalized display/import label so Workboard and migration rows keep
+    // denormalized display/import label so Obligations and migration rows keep
     // working when historical free-text assignments have no member match.
     assigneeId: text('assignee_id'),
     assigneeName: text('assignee_name'),
@@ -85,13 +85,13 @@ export const client = sqliteTable(
   (table) => [
     // Dashboard / Clients page primary listing by firm, newest first.
     index('idx_client_firm_time').on(table.firmId, table.createdAt),
-    // Workboard filters by entity_type within firm.
+    // Obligations filters by entity_type within firm.
     index('idx_client_firm_entity').on(table.firmId, table.entityType),
-    // Workboard P0 filters: state → county drilldown and assignee ownership.
+    // Obligations P0 filters: state → county drilldown and assignee ownership.
     index('idx_client_firm_state_county').on(table.firmId, table.state, table.county),
     index('idx_client_firm_assignee_id').on(table.firmId, table.assigneeId),
     index('idx_client_firm_assignee').on(table.firmId, table.assigneeName),
-    // Dashboard / Workboard penalty input triage.
+    // Dashboard / Obligations penalty input triage.
     index('idx_client_firm_penalty_inputs').on(
       table.firmId,
       table.estimatedTaxLiabilityCents,

@@ -71,12 +71,12 @@ DueDateHQ 的模型执行层只依赖 **Vercel AI SDK Core**，运行在 Cloudfl
 
 | 组件                | 功能语义                                                                                               | 对应场景                             |
 | ------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------ |
-| **Risk Row**        | 客户 + 义务 + 倒计时 + $ 敞口 + Status + 行内操作；Critical / High 行带 2px 左边框 + tint 背景         | Workboard / Dashboard 表格行         |
+| **Risk Row**        | 客户 + 义务 + 倒计时 + $ 敞口 + Status + 行内操作；Critical / High 行带 2px 左边框 + tint 背景         | Obligations / Dashboard 表格行       |
 | **Hero Metric**     | Dashboard 顶部 `$142,300 · AT RISK · NEXT 7 DAYS`（Geist Mono Bold 56px），靠排版层级而非容器          | Dashboard Layer 1 · Penalty Radar    |
 | **Pulse Banner**    | 暖黄 tint + 1px 琥珀边框，源标题 + 受影响客户数 + `[Review]` `[Dismiss]`                               | Dashboard Layer 2 · Story S3         |
 | **Triage Tabs**     | This Week / This Month / Long-term 三段，每段带 `count + $` 数字，选中态下边 2px indigo 边框           | Dashboard Layer 3 · Story S1 AC1     |
 | **Evidence Chip**   | 极小 mono 10px 徽章 `[IRS.GOV]`，hover 500ms 延迟弹 Verbatim Quote Popover；**DueDateHQ 独占设计资产** | 所有 AI 输出 / 规则字段 / Pulse 条目 |
-| **Penalty Pill**    | `$28,400 at risk` 单元，hover 分解 late-file + late-pay + interest + state surcharge                   | Obligation Detail / Workboard 行     |
+| **Penalty Pill**    | `$28,400 at risk` 单元，hover 分解 late-file + late-pay + interest + state surcharge                   | Obligation Detail / Obligations 行   |
 | **Command Palette** | `⌘K` 三合一（Search / Ask / Navigate），560px 居中浮层，每条结果标快捷键                               | 全局                                 |
 | **Source Badge**    | `🔗 CA FTB · ✓ Human verified · 2d ago`，信任符号，比 Evidence Chip 信息量大                           | Obligation Detail 底部               |
 
@@ -113,7 +113,7 @@ DueDateHQ 的模型执行层只依赖 **Vercel AI SDK Core**，运行在 Cloudfl
 - Desktop (≥ 1280px)：三栏
 - Laptop (1024–1279)：两栏
 - Tablet (768–1023)：单栏 + 可折叠侧栏
-- Mobile (< 768)：只读优先 + Dashboard 顶三段 + Workboard 简化卡片
+- Mobile (< 768)：只读优先 + Dashboard 顶三段 + Obligations 简化卡片
 
 ---
 
@@ -122,7 +122,7 @@ DueDateHQ 的模型执行层只依赖 **Vercel AI SDK Core**，运行在 Cloudfl
 ```
 App (after login)
  ├─ Dashboard (Home)                         ← Story S1 主屏
- ├─ Workboard                                ← 高密度表格
+ ├─ Obligations                                ← 高密度表格
  ├─ Clients
  │   ├─ List (table)
  │   ├─ + Add clients ▾
@@ -162,7 +162,7 @@ App (after login)
      └─ About
 ```
 
-一级导航 P0（Solo）：Dashboard / Workboard / Clients / Alerts / Rules / Settings — 6 项。
+一级导航 P0（Solo）：Dashboard / Obligations / Clients / Alerts / Rules / Settings — 6 项。
 一级导航 P1（Team）增加：**Team Workload**（Owner/Manager 可见）+ **Audit Log**（Owner/Manager 可见）= 最多 8 项。
 不建 Intake / Review / Extension 独立导航——它们是 obligation 的状态层。
 
@@ -888,7 +888,7 @@ Presenter: "Thank you."
 | W3  | IRC §7216 and Why Your AI Notes Must Be Auditable                | 合规叙事             |
 | W4  | A CPA's Guide to Disaster Relief Deadlines                       | Pulse 叙事           |
 | W4  | Penalty Math: How Much a Missed 1120-S Actually Costs            | Penalty 叙事         |
-| W5  | From Excel to Workboard: 30-min CPA Migration Guide              | Migration 叙事       |
+| W5  | From Excel to Obligations: 30-min CPA Migration Guide            | Migration 叙事       |
 | W5  | Building a WISP in a Day                                         | 合规叙事             |
 | W6  | How a Client Self-Service Portal Cut My Monday Calls by 80%      | Readiness 差异化叙事 |
 | W6  | I Let an AI Agent Onboard My CPA Practice — Here's What Happened | Agent 差异化叙事     |

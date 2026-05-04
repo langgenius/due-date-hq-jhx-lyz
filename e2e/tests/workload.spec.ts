@@ -68,7 +68,7 @@ test.describe('seeded team workload', () => {
     ])
   })
 
-  test('AC: E2E-WORKLOAD-WORKBOARD-LINKS deep-links workload triage into Workboard', async ({
+  test('AC: E2E-WORKLOAD-WORKBOARD-LINKS deep-links workload triage into Obligations', async ({
     authSession,
     authenticatedPage,
     request,

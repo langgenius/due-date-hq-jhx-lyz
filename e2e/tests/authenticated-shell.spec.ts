@@ -51,7 +51,7 @@ test('AC: E2E-AUTH-COMMANDS navigates and opens implemented actions', async ({
   await Promise.all(
     [
       'Dashboard',
-      'Workboard',
+      'Obligations',
       'Calendar sync',
       'Alerts',
       'Team workload',
@@ -68,10 +68,9 @@ test('AC: E2E-AUTH-COMMANDS navigates and opens implemented actions', async ({
 
   await expect(authenticatedPage).toHaveURL(/\/workboard\/calendar$/)
   await expect(authenticatedPage.getByText('Subscription notes')).toBeVisible()
-  await expect(authenticatedPage.getByRole('link', { name: 'Back to Workboard' })).toHaveAttribute(
-    'href',
-    '/workboard',
-  )
+  await expect(
+    authenticatedPage.getByRole('link', { name: 'Back to Obligations' }),
+  ).toHaveAttribute('href', '/workboard')
 
   await appShellPage.openCommandPalette()
   await appShellPage.commandItem('Rules').click()

@@ -143,7 +143,7 @@ Verified by DueDateHQ Glass-Box engine as of 2026-04-23.
 
 **实现：**
 
-- 入口：Client Detail → `Export PDF`；Workboard bulk `Export selected as PDF`
+- 入口：Client Detail → `Export PDF`；Obligations bulk `Export selected as PDF`
 - 技术：`@react-pdf/renderer`，S3 存储，邮件链接 24h 过期
 - 不嵌入 AI narrative；只嵌入 **已 human-verified 的 rule + penalty 数字**（避免把模型幻觉送客户）
 - 每条 obligation 右下 QR 码回链到在线 Evidence Mode
@@ -216,7 +216,7 @@ function estimateExposure(o: ObligationInstance, c: Client): ExposureReport {
 #### 7.5.4 UI 呈现
 
 - **Dashboard 顶栏聚合**：`This week: $X at risk` + up/down 箭头 + 上周对比
-- **每条 TriageCard / Workboard 行**：`$X at risk` 胶囊，hover 显示细分
+- **每条 TriageCard / Obligations 行**：`$X at risk` 胶囊，hover 显示细分
 - **What-If Simulator**（P1-9 配套）：滑块 30 / 60 / 90 / 180 天 → 实时敞口曲线
 - **"Needs input" 降级**：未填 `estimated_tax_liability` 时，胶囊显示 `needs input` 而非 `$0`，点击打开 Edit 对话框
 
@@ -380,24 +380,24 @@ Total this week: −$15,150
 
 ### 7.7 Keyboard Shortcuts（P1-15）
 
-| 键             | 动作                       | 范围              |
-| -------------- | -------------------------- | ----------------- |
-| `?`            | 显示所有快捷键             | 全局              |
-| `Cmd/Ctrl + K` | 命令面板                   | 全局              |
-| `Cmd/Ctrl + E` | Evidence Mode for selected | 全局              |
-| `/`            | 聚焦 Ask 输入框            | 全局              |
-| `J / K`        | 上下行                     | Workboard / Lists |
-| `Enter`        | 打开详情                   | Workboard         |
-| `E`            | 展开 Evidence              | 列表              |
-| `F`            | Mark Filed                 | 列表              |
-| `X`            | Mark Extended              | 列表              |
-| `I`            | Mark In progress           | 列表              |
-| `W`            | Mark Waiting on client     | 列表              |
-| `G then D`     | 跳 Dashboard               | 全局              |
-| `G then W`     | 跳 Workboard               | 全局              |
-| `G then C`     | 跳 Clients                 | 全局              |
-| `G then A`     | 跳 Alerts                  | 全局              |
-| `G then T`     | 跳 Team workload           | 全局              |
+| 键             | 动作                       | 范围                |
+| -------------- | -------------------------- | ------------------- |
+| `?`            | 显示所有快捷键             | 全局                |
+| `Cmd/Ctrl + K` | 命令面板                   | 全局                |
+| `Cmd/Ctrl + E` | Evidence Mode for selected | 全局                |
+| `/`            | 聚焦 Ask 输入框            | 全局                |
+| `J / K`        | 上下行                     | Obligations / Lists |
+| `Enter`        | 打开详情                   | Obligations         |
+| `E`            | 展开 Evidence              | 列表                |
+| `F`            | Mark Filed                 | 列表                |
+| `X`            | Mark Extended              | 列表                |
+| `I`            | Mark In progress           | 列表                |
+| `W`            | Mark Waiting on client     | 列表                |
+| `G then D`     | 跳 Dashboard               | 全局                |
+| `G then W`     | 跳 Obligations             | 全局                |
+| `G then C`     | 跳 Clients                 | 全局                |
+| `G then A`     | 跳 Alerts                  | 全局                |
+| `G then T`     | 跳 Team workload           | 全局                |
 
 ### 7.8 PWA 壳 与 Native Wrappers（交付形态补强）
 
@@ -834,7 +834,7 @@ Active firm count 是 account / subscription / contract 层的 product entitleme
 ### 8.2 关键索引（S1-AC3 < 1s 响应保障）
 
 ```sql
--- Dashboard / Workboard 核心查询
+-- Dashboard / Obligations 核心查询
 CREATE INDEX idx_obligation_firm_due ON obligation_instance (firm_id, current_due_date);
 CREATE INDEX idx_obligation_firm_status_due ON obligation_instance (firm_id, status, current_due_date);
 CREATE INDEX idx_obligation_firm_tax_due ON obligation_instance (firm_id, tax_type, current_due_date);

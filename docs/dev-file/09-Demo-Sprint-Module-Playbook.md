@@ -87,20 +87,20 @@
 
 ## 4. 模块总览
 
-| 模块                   | Owner | Owns                                                                                                        | Exposes                                                                 | Consumes                                                                        | Does not own                                                            |
-| ---------------------- | ----- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Platform Foundation    | Alice | Cloudflare 单 Worker 运行底座、routing、bindings、local runtime                                             | Worker app shell、binding registry、runtime config                      | Tech stack、DevOps gates                                                        | 任何业务规则                                                            |
-| Web Shell + UI System  | Bob   | App shell、navigation、layout slots、UI primitives、global interaction shell                                | Workbench shell、drawer stack、command shell、dashboard slots           | Platform、oRPC client contract                                                  | 业务数据写入                                                            |
-| Auth + Tenant Scope    | Alice | session、active firm、Owner-only demo auth、tenant context                                                  | authenticated context、tenant scoped context、auth errors               | DB Core、Security rules                                                         | 完整 Phase 1 RBAC UI                                                    |
-| DB Core + Scoped Repos | Bob   | D1 schema semantics、tenant-scoped repo factory、audit/evidence writers                                     | scoped domain repos、transaction-aware writers                          | Auth tenant context、D1 constraints                                             | procedure orchestration、UI state                                       |
-| AI Orchestrator        | Alice | AI SDK execution via Cloudflare AI Gateway、prompt execution、guard、trace、PII redaction、retrieval facade | structured AI result、streaming result、retrieval result、trace payload | Vectorize/KV/writer/tracer ports                                                | DB writes、business permission decisions                                |
-| Migration Copilot      | Alice | CSV intake、mapping、normalization、batch apply/revert、Live Genesis story                                  | imported clients/obligations event、migration audit/evidence            | AI Orchestrator、DB Core、Client/Obligation facade                              | Workboard layout、Dashboard layout                                      |
-| Client + Workboard     | Bob   | client CRUD、obligation generation、workboard operations、status workflow                                   | client facade、obligation generation facade、workboard query result     | DB Core、Audit/Evidence, UI System                                              | Migration import UX、Pulse apply logic                                  |
-| Dashboard + Brief      | Bob   | risk summary、triage tabs、penalty/priority explanation、weekly brief render + citation routing             | dashboard slots、risk query result、brief stream render                 | Workboard data、AI Orchestrator (brief stream + citation refs)、Evidence facade | Pulse matching/apply、Migration import、AI 语义解释、brief summary 自拼 |
-| Evidence + Audit Trail | Bob   | evidence chain display、audit event integrity、before/after diff                                            | write evidence/audit facade、open evidence action、audit query          | DB Core、Auth actor context                                                     | AI extraction, business action decisions                                |
-| Pulse Pipeline         | Alice | source ingest demo data、extraction, match, review, batch apply/revert, digest email                        | pulse event、affected clients result、apply result、dashboard extension | AI Orchestrator、DB Core、Evidence/Audit、Dashboard slot                        | Dashboard layout、Workboard table internals                             |
-| Demo Data + Polish     | Bob   | deterministic demo profile、seed idempotency、demo polish                                                   | demo profile, command palette entries                                   | DB Core、Audit, Analytics                                                       | Real billing, SEO site                                                  |
-| DevOps + Quality Gates | Alice | CI, hooks, quality scripts, deploy discipline, migration safety                                             | required checks, deploy pipeline, quality commands                      | All modules                                                                     | Business acceptance decisions                                           |
+| 模块                   | Owner | Owns                                                                                                        | Exposes                                                                  | Consumes                                                                          | Does not own                                                            |
+| ---------------------- | ----- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Platform Foundation    | Alice | Cloudflare 单 Worker 运行底座、routing、bindings、local runtime                                             | Worker app shell、binding registry、runtime config                       | Tech stack、DevOps gates                                                          | 任何业务规则                                                            |
+| Web Shell + UI System  | Bob   | App shell、navigation、layout slots、UI primitives、global interaction shell                                | Workbench shell、drawer stack、command shell、dashboard slots            | Platform、oRPC client contract                                                    | 业务数据写入                                                            |
+| Auth + Tenant Scope    | Alice | session、active firm、Owner-only demo auth、tenant context                                                  | authenticated context、tenant scoped context、auth errors                | DB Core、Security rules                                                           | 完整 Phase 1 RBAC UI                                                    |
+| DB Core + Scoped Repos | Bob   | D1 schema semantics、tenant-scoped repo factory、audit/evidence writers                                     | scoped domain repos、transaction-aware writers                           | Auth tenant context、D1 constraints                                               | procedure orchestration、UI state                                       |
+| AI Orchestrator        | Alice | AI SDK execution via Cloudflare AI Gateway、prompt execution、guard、trace、PII redaction、retrieval facade | structured AI result、streaming result、retrieval result、trace payload  | Vectorize/KV/writer/tracer ports                                                  | DB writes、business permission decisions                                |
+| Migration Copilot      | Alice | CSV intake、mapping、normalization、batch apply/revert、Live Genesis story                                  | imported clients/obligations event、migration audit/evidence             | AI Orchestrator、DB Core、Client/Obligation facade                                | Obligations layout、Dashboard layout                                    |
+| Client + Obligations   | Bob   | client CRUD、obligation generation、obligation operations、status workflow                                  | client facade、obligation generation facade、obligation queue read model | DB Core、Audit/Evidence, UI System                                                | Migration import UX、Pulse apply logic                                  |
+| Dashboard + Brief      | Bob   | risk summary、triage tabs、penalty/priority explanation、weekly brief render + citation routing             | dashboard slots、risk query result、brief stream render                  | Obligations data、AI Orchestrator (brief stream + citation refs)、Evidence facade | Pulse matching/apply、Migration import、AI 语义解释、brief summary 自拼 |
+| Evidence + Audit Trail | Bob   | evidence chain display、audit event integrity、before/after diff                                            | write evidence/audit facade、open evidence action、audit query           | DB Core、Auth actor context                                                       | AI extraction, business action decisions                                |
+| Pulse Pipeline         | Alice | source ingest demo data、extraction, match, review, batch apply/revert, digest email                        | pulse event、affected clients result、apply result、dashboard extension  | AI Orchestrator、DB Core、Evidence/Audit、Dashboard slot                          | Dashboard layout、Obligations table internals                           |
+| Demo Data + Polish     | Bob   | deterministic demo profile、seed idempotency、demo polish                                                   | demo profile, command palette entries                                    | DB Core、Audit, Analytics                                                         | Real billing, SEO site                                                  |
+| DevOps + Quality Gates | Alice | CI, hooks, quality scripts, deploy discipline, migration safety                                             | required checks, deploy pipeline, quality commands                       | All modules                                                                       | Business acceptance decisions                                           |
 
 ---
 
@@ -311,7 +311,7 @@
 
 **Does not own**
 
-- Workboard table behavior。
+- Obligations table behavior。
 - Dashboard risk computation。
 - Core obligation generation internals。
 
@@ -322,21 +322,21 @@
 - AI mapping/normalization is double-checked by deterministic validators。
 - Revert is tied to the migration batch boundary。
 
-### 5.7 Client + Workboard
+### 5.7 Client + Obligations
 
 **Owns**
 
 - Client lifecycle。
 - Obligation generation from rules/default matrix/date logic。
-- Workboard query, filters, sorting, pagination。
-- Workboard status workflow。
-- Workboard keyboard operations。
+- Obligations query, filters, sorting, pagination。
+- Obligations status workflow。
+- Obligations keyboard operations。
 
 **Exposes**
 
 - Client create/update facade。
 - Obligation generation facade。
-- Workboard query result。
+- Obligations query result。
 - Status mutation result。
 
 **Consumes**
@@ -354,7 +354,7 @@
 **DoD**
 
 - Manual client creation and migrated clients converge to the same domain model。
-- Workboard does not care where a client came from。
+- Obligations does not care where a client came from。
 - Status changes are auditable and undoable。
 
 ### 5.8 Dashboard + Brief
@@ -377,7 +377,7 @@
 
 **Consumes**
 
-- Workboard/obligation read model。
+- Obligations/obligation read model。
 - AI Orchestrator for Brief。
 - Evidence open action。
 - Pulse extension through slot。
@@ -461,7 +461,7 @@
 **Does not own**
 
 - Dashboard layout。
-- Workboard row rendering。
+- Obligations row rendering。
 - Core evidence drawer internals。
 
 **DoD**
@@ -506,7 +506,7 @@
 
 - Real billing。
 - SEO marketing site。
-- Business logic correctness of Migration/Pulse/Workboard。
+- Business logic correctness of Migration/Pulse/Obligations。
 
 **DoD**
 
@@ -557,12 +557,12 @@
 
 | Contract                   | Provider                                                                               | Consumers                              | Rule                                                                                                                                                                                          |
 | -------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Client Domain Contract     | Client + Workboard                                                                     | Migration、Dashboard、Pulse、Demo Seed | 新字段优先 optional；client identity 不由 consumer 自造。Frozen: ✓ 2026-04-24 via local pre-work                                                                                              |
-| Obligation Domain Contract | Client + Workboard                                                                     | Migration、Dashboard、Pulse、Evidence  | due date 变更必须可审计。Frozen: ✓ 2026-04-24 via local pre-work                                                                                                                              |
+| Client Domain Contract     | Client + Obligations                                                                   | Migration、Dashboard、Pulse、Demo Seed | 新字段优先 optional；client identity 不由 consumer 自造。Frozen: ✓ 2026-04-24 via local pre-work                                                                                              |
+| Obligation Domain Contract | Client + Obligations                                                                   | Migration、Dashboard、Pulse、Evidence  | due date 变更必须可审计。Frozen: ✓ 2026-04-24 via local pre-work                                                                                                                              |
 | Tenant Context Contract    | Auth + Tenant Scope                                                                    | All server modules                     | `firmId` 来自 session，不来自 input                                                                                                                                                           |
 | AI Execution Contract      | AI Orchestrator                                                                        | Migration、Pulse、Brief                | output 必须 schema-validated + guarded。Frozen: ✓ 2026-04-24 via local pre-work                                                                                                               |
 | Brief Composition Contract | AI Orchestrator (stream + citation refs) · Dashboard + Brief (render + citation click) | —                                      | Provider 保证 stream chunk schema 稳定、每个 citation ref 指向真实 evidence；Consumer 只渲染和 route，不改写 AI 语义、不自拼 summary；citation click 调 Evidence drawer facade，不自绘 source |
-| Audit/Evidence Contract    | Evidence + Audit Trail                                                                 | Migration、Pulse、Workboard、AI        | dangerous write 必须同事务写 audit/evidence。Frozen: ✓ 2026-04-24 via local pre-work                                                                                                          |
+| Audit/Evidence Contract    | Evidence + Audit Trail                                                                 | Migration、Pulse、Obligations、AI      | dangerous write 必须同事务写 audit/evidence。Frozen: ✓ 2026-04-24 via local pre-work                                                                                                          |
 | Dashboard Slot Contract    | Dashboard + Brief                                                                      | Pulse                                  | consumer 只挂 slot，不改宿主布局                                                                                                                                                              |
 | Demo Profile Contract      | Demo Data                                                                              | All demo modules                       | seed 幂等且按 profile 隔离                                                                                                                                                                    |
 
@@ -578,7 +578,7 @@ flowchart TD
   DB["DB Core + Scoped Repos"]
   AI["AI Orchestrator"]
   Migration["Migration Copilot"]
-  Workboard["Client + Workboard"]
+  Obligations["Client + Obligations"]
   Dashboard["Dashboard + Brief"]
   Evidence["Evidence + Audit Trail"]
   Pulse["Pulse Pipeline"]
@@ -590,11 +590,11 @@ flowchart TD
   Platform --> AI
   Platform --> WebShell
   Auth --> Migration
-  Auth --> Workboard
+  Auth --> Obligations
   Auth --> Dashboard
   Auth --> Pulse
   DB --> Migration
-  DB --> Workboard
+  DB --> Obligations
   DB --> Dashboard
   DB --> Evidence
   DB --> Pulse
@@ -602,16 +602,16 @@ flowchart TD
   AI --> Dashboard
   AI --> Pulse
   WebShell --> Migration
-  WebShell --> Workboard
+  WebShell --> Obligations
   WebShell --> Dashboard
   Evidence --> Migration
-  Evidence --> Workboard
+  Evidence --> Obligations
   Evidence --> Dashboard
   Evidence --> Pulse
-  Workboard --> Migration
-  Workboard --> Dashboard
+  Obligations --> Migration
+  Obligations --> Dashboard
   Dashboard --> Pulse
-  Demo --> Workboard
+  Demo --> Obligations
   Demo --> Dashboard
   DevOps --> Platform
 ```
@@ -619,7 +619,7 @@ flowchart TD
 并行方式：
 
 - Foundation modules 先冻结 exposes，再让 feature modules 并行消费。
-- Migration 和 Client + Workboard 可并行，通过 Client/Obligation contract 汇合。
+- Migration 和 Client + Obligations 可并行，通过 Client/Obligation contract 汇合。
 - Pulse 和 Dashboard 可并行，通过 Dashboard Slot contract + Brief Composition Contract 汇合。
 
 ### 7.1 Foundation Freeze Signatures（2 人 AI 辅助并行的必要前置）
@@ -791,7 +791,7 @@ pnpm db:seed:demo -- --profile local
 1. 登录成功，active firm 正确。
 2. Dashboard 可加载。
 3. Evidence drawer 可打开。
-4. Workboard 能修改一条 status。
+4. Obligations 能修改一条 status。
 5. Migration 或 Pulse 的受影响流程可端到端走通。
 6. Audit trail 能看到对应事件。
 7. Demo profile 可重建且不清空其他 profile。

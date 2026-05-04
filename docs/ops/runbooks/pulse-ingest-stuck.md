@@ -100,7 +100,7 @@ node scripts/pulse-ops.mjs source-revoke <source_id> <actor_id> "Source takedown
 - `pnpm --filter @duedatehq/server test -- pulse ingest ops queue`
 - Confirm `pulse_source_state.health_status='healthy'` after the next successful run.
 - Confirm no customer-visible alert was generated from `pulse_source_signal` alone.
-- Confirm Workboard/Dashboard dates are derived from active overlay applications after a Pulse apply.
+- Confirm Obligations/Dashboard dates are derived from active overlay applications after a Pulse apply.
 
 ## Post-Mortem Notes
 

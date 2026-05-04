@@ -302,7 +302,7 @@ display timezone and may show UTC as secondary audit metadata.
 
 ## 4. Component Stylings
 
-### 4.1 Risk Row（Workboard / Dashboard 表格行）
+### 4.1 Risk Row（Obligations / Dashboard 表格行）
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -397,7 +397,7 @@ display timezone and may show UTC as secondary audit metadata.
 │  → APPLY · 5 critical filings · ↵ to confirm  │
 │  → FILTER: show only $>$10,000                │
 │  → ASK: "What's my CA exposure this week?"    │
-│  → NAV: Workboard · Clients · Rules           │
+│  → NAV: Obligations · Clients · Rules           │
 ├───────────────────────────────────────────────┤
 │  ↵ execute · esc close · ⌘K toggle            │
 └───────────────────────────────────────────────┘
@@ -472,15 +472,15 @@ shadcn `Sidebar`（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `
 
 #### 三段式结构（顶到底）
 
-| Slot                                        | 高              | 内容                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **PendingBar**（route-owned）               | 2               | idle 几乎不可见；导航中 accent-default 段从左滑出                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Practice identity / switcher**（trigger） | 56              | 24px navy brand tile + practice name (Body·Medium) + role/seat eyebrow (Numeric/Small) + ChevronsUpDown 堆叠图标。Popover 内 `Add practice` 是 plan-gated secondary action：entitlement 内打开创建 dialog，超出 Solo / Pro 的 1 active practice 限制时打开 Billing / Contact sales gate。内部组件名可继续沿用 `FirmSwitcher`，但可见文案使用 Practice。                                                                                                                                                                                                                                                                                                         |
-| Hairline `border/default`                   | 1               | 与右侧 route header 底边在同一 Y 处 collinear                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **SidebarContent**（nav body, flex 1）      | —               | 三个 group：`OPERATIONS`（Dashboard / Workboard / Alerts / Team workload）、`CLIENTS`（Clients facts）、`PRACTICE`（Practice profile / Rules / Members / Billing / Audit log）。Calendar sync 是 Workboard header 的二级入口（`/workboard/calendar`），不是 sidebar 一级项。Alerts 使用 `RadioTower`，表达正在监听的 regulatory signal / Pulse workbench；右上角 `Bell` 保留给个人 notification center。Team workload 是 paid operations surface：Solo 显示 locked `Pro` hint，Pro/Enterprise 启用。Rules 使用 `FileCheck2`，表达 verified rules / source-backed deadline templates，不使用通用 settings gear。主导航按工作心智组织，不按工程模块或权限表命名。 |
-| **Plan status**                             | 48 + 12 padding | `CreditCard` icon + 当前 `Solo / Pro / Enterprise` + seat count + `Upgrade / Manage / View` action chip，链接 `/billing`。这是持久 subscription 状态入口，不是 pricing 卡片；完整 Billing 页面展示 seats 和 active practices 两个 entitlement 维度。使用 `bg-background-section`、8px card radius、brand/accent icon tile 和 action chip，让它比普通 nav item 更像账户状态卡，但不进入营销视觉。                                                                                                                                                                                                                                                                |
-| Hairline `border/default`                   | 1               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **User row**                                | 56              | 28px 头像 + 右下 6px `status-done` 绿点（包 surface-panel 环 = ring 效果） + Body·Medium name + Numeric/Small email + 右端 chevron。点击展开 popover 含 sign-out / theme / locale                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Slot                                        | 高              | 内容                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **PendingBar**（route-owned）               | 2               | idle 几乎不可见；导航中 accent-default 段从左滑出                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Practice identity / switcher**（trigger） | 56              | 24px navy brand tile + practice name (Body·Medium) + role/seat eyebrow (Numeric/Small) + ChevronsUpDown 堆叠图标。Popover 内 `Add practice` 是 plan-gated secondary action：entitlement 内打开创建 dialog，超出 Solo / Pro 的 1 active practice 限制时打开 Billing / Contact sales gate。内部组件名可继续沿用 `FirmSwitcher`，但可见文案使用 Practice。                                                                                                                                                                                                                                                                                                             |
+| Hairline `border/default`                   | 1               | 与右侧 route header 底边在同一 Y 处 collinear                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **SidebarContent**（nav body, flex 1）      | —               | 三个 group：`OPERATIONS`（Dashboard / Obligations / Alerts / Team workload）、`CLIENTS`（Clients facts）、`PRACTICE`（Practice profile / Rules / Members / Billing / Audit log）。Calendar sync 是 Obligations header 的二级入口（`/workboard/calendar`），不是 sidebar 一级项。Alerts 使用 `RadioTower`，表达正在监听的 regulatory signal / Pulse workbench；右上角 `Bell` 保留给个人 notification center。Team workload 是 paid operations surface：Solo 显示 locked `Pro` hint，Pro/Enterprise 启用。Rules 使用 `FileCheck2`，表达 verified rules / source-backed deadline templates，不使用通用 settings gear。主导航按工作心智组织，不按工程模块或权限表命名。 |
+| **Plan status**                             | 48 + 12 padding | `CreditCard` icon + 当前 `Solo / Pro / Enterprise` + seat count + `Upgrade / Manage / View` action chip，链接 `/billing`。这是持久 subscription 状态入口，不是 pricing 卡片；完整 Billing 页面展示 seats 和 active practices 两个 entitlement 维度。使用 `bg-background-section`、8px card radius、brand/accent icon tile 和 action chip，让它比普通 nav item 更像账户状态卡，但不进入营销视觉。                                                                                                                                                                                                                                                                    |
+| Hairline `border/default`                   | 1               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **User row**                                | 56              | 28px 头像 + 右下 6px `status-done` 绿点（包 surface-panel 环 = ring 效果） + Body·Medium name + Numeric/Small email + 右端 chevron。点击展开 popover 含 sign-out / theme / locale                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 #### Mobile（< 768px）
 
@@ -546,33 +546,33 @@ profile。
 ### 5.2 Grid
 
 - Container max-width：`1440px`，左右 auto margin
-- Dashboard / Workboard：全宽，不限 max-width
+- Dashboard / Obligations：全宽，不限 max-width
 - Practice **forms**（Practice profile `/practice`）：max-width `880px` — 单对象编辑、字段稀疏，窄列让眼动距离短
 - Practice **team data surfaces**（Members `/members`）：max-width `1172px` — 与 Figma `Members` 对齐；页头 80px、KPI strip 96px、成员表 36px 行、邀请表 56px 行，承载 Owner-only 成员管理、seat usage、pending invitations、操作菜单和邀请 modal。满席时顶栏 `Invite member` 仍可打开 modal 用于解释原因，最终 `Send invite` 禁用并由 server seat guard 兜底。按钮上的 `Mod+I` 标签必须由真实 route-scoped hotkey 支撑，并通过 keyboard help registry 可发现；所有可见 shortcut label 必须走 keyboard shell 的 TanStack `formatForDisplay` 包装，不允许显示未接线或手写平台判断的快捷键。
 - Billing **commerce / status surfaces**（`/billing`）：max-width
   `1180px` — 需要同时展示当前状态、权限提示和 plan 对比，但仍应比 Dashboard /
-  Workboard 更收敛，避免账单页面像运营工作台一样铺满。
+  Obligations 更收敛，避免账单页面像运营工作台一样铺满。
 - Billing checkout（`/billing/checkout`）：max-width `1120px`，主卡承载 plan summary
   和支付边界，右侧只放 practice context 核对信息；公开文案使用 payment provider /
   processor 口径，不把第三方实现细节当成套餐卖点。
-- Practice **data surfaces / ops workbench**（Rules `/rules`、Audit log `/audit`、未来的 Team workload）：全宽，不限 max-width，与 Workboard 同源——这一类页面即使路由段不同，内容都是表格 / 矩阵 / drawer，与 form 不同语义。判定规则：**按内容形态而不是 URL 段决定宽度**
+- Practice **data surfaces / ops workbench**（Rules `/rules`、Audit log `/audit`、未来的 Team workload）：全宽，不限 max-width，与 Obligations 同源——这一类页面即使路由段不同，内容都是表格 / 矩阵 / drawer，与 form 不同语义。判定规则：**按内容形态而不是 URL 段决定宽度**
 - Content body 段落（页头描述、policy 长文）：max-width `1080px`，约 ~135 个英文字符／行，短段落可读区间
 - Drawer：400px（right slide-in），modal max-width `640px`
 
 ### 5.3 Density 三档
 
-| Density                 | Row height | Table padding-y | 适用                             |
-| ----------------------- | ---------- | --------------- | -------------------------------- |
-| **Compact**             | 32px       | 6px             | Workboard（File In Time 老用户） |
-| **Comfortable**（默认） | 36px       | 8px             | Dashboard / Client list          |
-| **Spacious**            | 40px       | 10px            | Demo / onboarding                |
+| Density                 | Row height | Table padding-y | 适用                               |
+| ----------------------- | ---------- | --------------- | ---------------------------------- |
+| **Compact**             | 32px       | 6px             | Obligations（File In Time 老用户） |
+| **Comfortable**（默认） | 36px       | 8px             | Dashboard / Client list            |
+| **Spacious**            | 40px       | 10px            | Demo / onboarding                  |
 
 切换：User menu → Profile → 持久化到 `user.preferences.density` → CSS variable `--row-height`。
 
 ### 5.4 Max information, minimum chrome
 
 - Dashboard 首屏必须能看见：Pulse Banner + Hero 数字 + ≥ 8 行客户
-- Workboard 首屏必须能看见：≥ 12 行
+- Obligations 首屏必须能看见：≥ 12 行
 - 侧栏不折叠（Drawer 除外）
 
 ---
@@ -676,7 +676,7 @@ AI 输出的任何内容，如果没有 `source_url + verified_at + source_excer
 - AI 输出必带 Evidence Chip
 - 暗色模式使用 `--bg-canvas: #1D1D20`（Dify dark body），不是纯黑
 - 批量操作（Bulk actions）有 `[Undo]` 500ms toast
-- 表格行数 ≥ 10 行可见（Workboard ≥ 12 行）
+- 表格行数 ≥ 10 行可见（Obligations ≥ 12 行）
 
 ### ❌ Don't
 
@@ -707,12 +707,12 @@ AI 输出的任何内容，如果没有 `source_url + verified_at + source_excer
 
 ### 10.2 降级策略
 
-| 断点      | Dashboard                                 | Workboard  | Sidebar       |
-| --------- | ----------------------------------------- | ---------- | ------------- |
-| ≥ 1280px  | 三栏 + 右 Pulse 面板                      | 全 14 列   | 固定 220px    |
-| 1024–1279 | 两栏，Pulse 下沉                          | 默认 10 列 | 固定 220px    |
-| 768–1023  | 单栏纵向                                  | 精简 6 列  | 折叠为 Drawer |
-| < 768     | 只读优先：Hero + Triage Tabs + Top 5 rows | 卡片化     | 底部 Tab Bar  |
+| 断点      | Dashboard                                 | Obligations | Sidebar       |
+| --------- | ----------------------------------------- | ----------- | ------------- |
+| ≥ 1280px  | 三栏 + 右 Pulse 面板                      | 全 14 列    | 固定 220px    |
+| 1024–1279 | 两栏，Pulse 下沉                          | 默认 10 列  | 固定 220px    |
+| 768–1023  | 单栏纵向                                  | 精简 6 列   | 折叠为 Drawer |
+| < 768     | 只读优先：Hero + Triage Tabs + Top 5 rows | 卡片化      | 底部 Tab Bar  |
 
 ### 10.3 触控目标
 
@@ -773,7 +773,7 @@ Done/Applied: Dify green-600 (#079455) ← only for completed
 | 本文件章节               | 对应                                           |
 | ------------------------ | ---------------------------------------------- |
 | §1 / §2 / §3             | PRD v2.0 §1.3（设计原则）+ §10.1（视觉语言）   |
-| §4.1 Risk Row            | PRD v2.0 §5.2 Workboard                        |
+| §4.1 Risk Row            | PRD v2.0 §5.2 Obligations                      |
 | §4.2 Hero Metric         | PRD v2.0 §5.1.1 Layer 1 Penalty Radar          |
 | §4.3 Pulse Banner        | PRD v2.0 §5.1.4 + §6.3                         |
 | §4.4 Evidence Chip       | PRD v2.0 §5.5 Evidence Mode + §6.2 Glass-Box   |
@@ -952,19 +952,19 @@ Done/Applied: Dify green-600 (#079455) ← only for completed
 **Keyboard Shell 层级**
 
 - App 只允许一个 keyboard shell：`apps/app/src/components/patterns/keyboard-shell`，基于 TanStack Hotkeys 注册全局、导航序列、route/list、overlay 四层快捷键
-- 导航序列只给高频运营路径：`G then D/W/C/A/T` 分别进入 Dashboard / Workboard / Clients / Alerts / Team workload；Practice profile / Billing / Audit 等一级页通过 Command Palette 进入
+- 导航序列只给高频运营路径：`G then D/W/C/A/T` 分别进入 Dashboard / Obligations / Clients / Alerts / Team workload；Practice profile / Billing / Audit 等一级页通过 Command Palette 进入
 - `?` 帮助浮层从注册表生成，并追加 reserved slots；不得手写第二份静态快捷键表
-- Wizard / Dialog / Command Palette 打开时压住导航序列和 Workboard 裸字母键
+- Wizard / Dialog / Command Palette 打开时压住导航序列和 Obligations 裸字母键
 - **全局 `A` 不占用**；Step 3 仅在 Suggested tax types cell 焦点内注册局部 `A`
 
 ### 14.7 needs_review 用色语义（权威裁定）
 
 这是本册的**硬裁定**（写入 ADR 0011 Decision III · 详见 `../product-design/migration-copilot/09-design-system-deltas.md` §3.4）：
 
-| 场景                          | 色 token                   | 解释                                                                                                          |
-| ----------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **数据质量类 `needs_review`** | `{colors.severity-medium}` | Mapper 低置信 / Normalizer 冲突 / Default Matrix 非种子辖区；属风险域 → 走 severity-medium 黄                 |
-| **工作流态 Review**           | `{colors.status-review}`   | Workboard "Needs review" 状态列 / Client Detail review 抽屉；属状态域 → 走 status-review 紫（已在 §2.2 定义） |
+| 场景                          | 色 token                   | 解释                                                                                                            |
+| ----------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **数据质量类 `needs_review`** | `{colors.severity-medium}` | Mapper 低置信 / Normalizer 冲突 / Default Matrix 非种子辖区；属风险域 → 走 severity-medium 黄                   |
+| **工作流态 Review**           | `{colors.status-review}`   | Obligations "Needs review" 状态列 / Client Detail review 抽屉；属状态域 → 走 status-review 紫（已在 §2.2 定义） |
 
 **两者绝不混用**。依据：
 

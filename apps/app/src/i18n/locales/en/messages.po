@@ -396,8 +396,8 @@ msgid "A deadline rule that has been reviewed and can generate customer-facing r
 msgstr "A deadline rule that has been reviewed and can generate customer-facing reminders when it matches a client."
 
 #: src/features/concepts/concept-help.tsx
-msgid "A dry run that shows which obligations rules would create for a client before anything is written to the workboard."
-msgstr "A dry run that shows which obligations rules would create for a client before anything is written to the workboard."
+msgid "A dry run that shows which obligations rules would create for a client before anything is written to the obligation queue."
+msgstr "A dry run that shows which obligations rules would create for a client before anything is written to the obligation queue."
 
 #: src/features/concepts/concept-help.tsx
 msgid "A high-permission practice role. In client tax inputs, owner count separately means the number of equity owners used for exposure calculations."
@@ -570,8 +570,8 @@ msgid "After"
 msgstr "After"
 
 #: src/features/workload/workload-page.tsx
-msgid "Aggregated from open obligations and client owner labels. Open any row in Workboard to triage the underlying deadlines."
-msgstr "Aggregated from open obligations and client owner labels. Open any row in Workboard to triage the underlying deadlines."
+msgid "Aggregated from open obligations and client owner labels. Open any row in Obligations to triage the underlying deadlines."
+msgstr "Aggregated from open obligations and client owner labels. Open any row in Obligations to triage the underlying deadlines."
 
 #: src/features/audit/audit-log-page.tsx
 msgid "AI"
@@ -928,8 +928,8 @@ msgid "Back to Billing"
 msgstr "Back to Billing"
 
 #: src/features/calendar/calendar-page.tsx
-msgid "Back to Workboard"
-msgstr "Back to Workboard"
+msgid "Back to Obligations"
+msgstr "Back to Obligations"
 
 #: src/routes/account.security.tsx
 msgid "Backup codes copied"
@@ -1235,6 +1235,7 @@ msgid "Choose Solo, Pro, or Team to start the hosted checkout flow."
 msgstr "Choose Solo, Pro, or Team to start the hosted checkout flow."
 
 #: src/components/primitives/iso-date-picker.tsx
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/workboard.tsx
 msgid "Clear"
 msgstr "Clear"
@@ -2678,6 +2679,10 @@ msgstr "For US CPA practices"
 msgid "Form"
 msgstr "Form"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Form 7004, automatic extension, portal request, or source-defined process"
+msgstr "Form 7004, automatic extension, portal request, or source-defined process"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Format"
 msgstr "Format"
@@ -3002,8 +3007,8 @@ msgid "Keep import"
 msgstr "Keep import"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Keeps workboard follow-up accountable."
-msgstr "Keeps workboard follow-up accountable."
+msgid "Keeps obligation follow-up accountable."
+msgstr "Keeps obligation follow-up accountable."
 
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "Keyboard shortcuts"
@@ -3527,13 +3532,13 @@ msgstr "New client"
 msgid "New client imports will appear here when you need batch recovery."
 msgstr "New client imports will appear here when you need batch recovery."
 
+#: src/routes/workboard.tsx
+msgid "New obligation view"
+msgstr "New obligation view"
+
 #: src/routes/billing.checkout.tsx
 msgid "New seat limit"
 msgstr "New seat limit"
-
-#: src/routes/workboard.tsx
-msgid "New workboard view"
-msgstr "New workboard view"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Newest practice-scoped audit events appear first."
@@ -3707,6 +3712,10 @@ msgstr "No matched rule"
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this practice."
 msgstr "No matching clients in this practice."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "No matching suggestion."
+msgstr "No matching suggestion."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
@@ -3938,18 +3947,42 @@ msgstr "Obligation detail"
 msgid "Obligation evidence"
 msgstr "Obligation evidence"
 
+#: src/routes/workboard.tsx
+msgid "Obligation needs-input update"
+msgstr "Obligation needs-input update"
+
 #: src/features/concepts/concept-help.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Obligation Preview"
 msgstr "Obligation Preview"
 
-#: src/routes/workboard.tsx
-msgid "Obligation queue"
-msgstr "Obligation queue"
-
 #: src/features/rules/rules-console.tsx
 msgid "Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
 msgstr "Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
+
+#: src/features/audit/audit-log-page.tsx
+msgid "Obligation status updates and client imports will appear here when they write audit rows."
+msgstr "Obligation status updates and client imports will appear here when they write audit rows."
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/concepts/concept-help.tsx
+#: src/routes/route-summary.ts
+#: src/routes/workboard.tsx
+msgid "Obligations"
+msgstr "Obligations"
+
+#: src/routes/workboard.tsx
+msgid "Obligations bulk owner change"
+msgstr "Obligations bulk owner change"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Obligations export"
+msgstr "Obligations export"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Obligations exported"
+msgstr "Obligations exported"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Official calendar"
@@ -3972,12 +4005,12 @@ msgid "Official excerpt"
 msgstr "Official excerpt"
 
 #: src/features/rules/rule-detail-drawer.tsx
-msgid "Official extension form"
-msgstr "Official extension form"
+msgid "Official extension form or method"
+msgstr "Official extension form or method"
 
 #: src/routes/workboard.tsx
-msgid "Official form"
-msgstr "Official form"
+msgid "Official form or method"
+msgstr "Official form or method"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Official source"
@@ -4106,8 +4139,8 @@ msgid "Open fact profile for {0}"
 msgstr "Open fact profile for {0}"
 
 #: src/routes/dashboard.tsx
-msgid "Open full Workboard"
-msgstr "Open full Workboard"
+msgid "Open full Obligations"
+msgstr "Open full Obligations"
 
 #: src/features/members/members-page.tsx
 msgid "Open member actions"
@@ -4116,6 +4149,17 @@ msgstr "Open member actions"
 #: src/routes/dashboard.tsx
 msgid "Open obligations"
 msgstr "Open obligations"
+
+#: src/features/audit/audit-log-page.tsx
+#: src/features/members/members-page.tsx
+#: src/features/workload/workload-page.tsx
+#: src/routes/billing.tsx
+msgid "Open Obligations"
+msgstr "Open Obligations"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Open Obligations."
+msgstr "Open Obligations."
 
 #. placeholder {0}: evidenceSource.title
 #. placeholder {0}: source.title
@@ -4145,17 +4189,6 @@ msgstr "Open the Apple Calendar link"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
 msgstr "Open the Migration Copilot wizard."
-
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Open the obligation queue."
-msgstr "Open the obligation queue."
-
-#: src/features/audit/audit-log-page.tsx
-#: src/features/members/members-page.tsx
-#: src/features/workload/workload-page.tsx
-#: src/routes/billing.tsx
-msgid "Open Workboard"
-msgstr "Open Workboard"
 
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Open your authenticator app, add a new account, then scan this code. Use the setup URI if scanning is not available."
@@ -4779,8 +4812,8 @@ msgid "Pulse alert: {0}"
 msgstr "Pulse alert: {0}"
 
 #: src/routes/billing.tsx
-msgid "Pulse and workboard access"
-msgstr "Pulse and workboard access"
+msgid "Pulse and Obligations access"
+msgstr "Pulse and Obligations access"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Pulse application"
@@ -5613,6 +5646,10 @@ msgid "Save view"
 msgstr "Save view"
 
 #: src/features/audit/audit-log-labels.ts
+msgid "Saved obligation view"
+msgstr "Saved obligation view"
+
+#: src/features/audit/audit-log-labels.ts
 #: src/routes/workboard.tsx
 msgid "Saved view created"
 msgstr "Saved view created"
@@ -5642,10 +5679,6 @@ msgstr "Saved views"
 #: src/routes/workboard.tsx
 msgid "Saved views store filters, sort, visible columns, and density."
 msgstr "Saved views store filters, sort, visible columns, and density."
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Saved workboard view"
-msgstr "Saved workboard view"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Saving normalized values, applying the Default Matrix, and calculating totals."
@@ -5982,8 +6015,8 @@ msgid "Solo"
 msgstr "Solo"
 
 #: src/features/workload/workload-page.tsx
-msgid "Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
-msgstr "Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Workboard jump links for weekly triage."
+msgid "Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Obligations jump links for weekly triage."
+msgstr "Solo is the personal deadline workbench. Pro, Team, and Enterprise add shared deadline operations: owner-level workload, unassigned risk, waiting and review pressure, and Obligations jump links for weekly triage."
 
 #: src/routes/billing.checkout.tsx
 msgid "Solo, Pro, and Team each apply to one active practice. Enterprise covers multiple practices by contract."
@@ -6214,6 +6247,10 @@ msgstr "Suggest clean values"
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "Suggested tax types (from entity × state matrix)"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Suggestions"
+msgstr "Suggestions"
+
 #: src/features/members/members-page.tsx
 msgid "Suspend access"
 msgstr "Suspend access"
@@ -6393,8 +6430,8 @@ msgid "The official source, quote, or audit record that supports a rule, deadlin
 msgstr "The official source, quote, or audit record that supports a rule, deadline, AI explanation, or Pulse change."
 
 #: src/features/concepts/concept-help.tsx
-msgid "The operating surface for deadline work: filter, sort, assign owners, update status, and open evidence for each obligation."
-msgstr "The operating surface for deadline work: filter, sort, assign owners, update status, and open evidence for each obligation."
+msgid "The operating surface for obligation work: filter, sort, assign owners, update status, and open evidence for each obligation."
+msgstr "The operating surface for obligation work: filter, sort, assign owners, update status, and open evidence for each obligation."
 
 #: src/routes/billing.tsx
 msgid "The payment provider is the source of truth; DueDateHQ caches the active plan."
@@ -6996,37 +7033,8 @@ msgid "Work email"
 msgstr "Work email"
 
 #: src/features/migration/WizardShell.tsx
-#: src/routes/route-summary.ts
 msgid "Workbench"
 msgstr "Workbench"
-
-#: src/components/patterns/app-shell-nav.tsx
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/features/concepts/concept-help.tsx
-#: src/routes/route-summary.ts
-#: src/routes/workboard.tsx
-msgid "Workboard"
-msgstr "Workboard"
-
-#: src/routes/workboard.tsx
-msgid "Workboard bulk owner change"
-msgstr "Workboard bulk owner change"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Workboard export"
-msgstr "Workboard export"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Workboard exported"
-msgstr "Workboard exported"
-
-#: src/routes/workboard.tsx
-msgid "Workboard needs-input update"
-msgstr "Workboard needs-input update"
-
-#: src/features/audit/audit-log-page.tsx
-msgid "Workboard status updates and client imports will appear here when they write audit rows."
-msgstr "Workboard status updates and client imports will appear here when they write audit rows."
 
 #: src/features/migration/WizardShell.tsx
 msgid "Working…"

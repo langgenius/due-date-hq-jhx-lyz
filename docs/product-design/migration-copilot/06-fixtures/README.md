@@ -60,7 +60,7 @@
 - 20 行；EIN 段 `99-0000201` ~ `99-0000220`
 - 无 `State / Entity Type / Tax Types` 列 → 缺 `tax_types` 全量走 Default Matrix fallback（federal-only + needs_review）
 - **坏行 #1**：row 13（Meridian Advisors）Country = `US / CA / Los Angeles County` → Country 列归一告警（不阻塞）
-- 验证：S2-AC4 在缺 tax_types 场景的**兜底路径**（全部客户进 `needs_review`，但导入不阻塞，Workboard 展示 federal 兜底 obligations + 黄色徽章）
+- 验证：S2-AC4 在缺 tax_types 场景的**兜底路径**（全部客户进 `needs_review`，但导入不阻塞，Obligations 展示 federal 兜底 obligations + 黄色徽章）
 
 #### `quickbooks-20clients.csv`
 

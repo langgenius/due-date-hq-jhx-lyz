@@ -582,7 +582,7 @@ const zhCN: LandingCopy = {
           '1 个生产 practice',
           '包含 3 个席位',
           '共享截止日运营',
-          'Pulse 与 workboard 访问权限',
+          'Pulse 与 Obligations 访问权限',
         ],
       },
       {
@@ -644,7 +644,7 @@ const zhCN: LandingCopy = {
       {
         question: 'Pro 比 Solo 多什么？',
         answer:
-          'Pro 增加 3 席共享工作区、Pulse 监控和小型 practice 管理截止日运营所需的 workboard 视图。',
+          'Pro 增加 3 席共享工作区、Pulse 监控和小型 practice 管理截止日运营所需的 Obligations 视图。',
       },
       {
         question: '什么时候选择 Team？',
@@ -830,7 +830,7 @@ const zhCN: LandingCopy = {
           },
           {
             title: '运营交接',
-            body: '相关变更复核后，可以出现在 dashboard、workboard 和邮件工作流中。',
+            body: '相关变更复核后，可以出现在 dashboard、Obligations 和邮件工作流中。',
           },
         ],
       },
@@ -897,7 +897,7 @@ const zhCN: LandingCopy = {
           },
           {
             title: '运营路由',
-            body: '当事务所数据提示可能受影响时，已复核信号可以出现在 dashboard 或 workboard 动作中。',
+            body: '当事务所数据提示可能受影响时，已复核信号可以出现在 dashboard 或 Obligations 动作中。',
           },
         ],
         limitations: [
@@ -1018,7 +1018,7 @@ const zhCN: LandingCopy = {
           },
           {
             title: '复核交接',
-            body: '已复核信号可以成为 CPA 团队管理受影响客户的 workboard 动作。',
+            body: '已复核信号可以成为 CPA 团队管理受影响客户的 Obligations 动作。',
           },
         ],
         limitations: [
@@ -1132,7 +1132,7 @@ const zhCN: LandingCopy = {
         coveredSignals: [
           {
             title: '截止日运营',
-            body: '信号在成为 dashboard 或 workboard 项目前会被评估运营影响。',
+            body: '信号在成为 dashboard 或 Obligations 项目前会被评估运营影响。',
           },
           {
             title: '适用性上下文',

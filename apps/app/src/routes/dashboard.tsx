@@ -1038,7 +1038,7 @@ function DashboardTriagePanel({
           disabled={!selectedTab}
           onClick={() => selectedTab && onOpenWorkboard(selectedTab.key)}
         >
-          <Trans>Open full Workboard</Trans>
+          <Trans>Open full Obligations</Trans>
           <ArrowUpRightIcon data-icon="inline-end" />
         </Button>
       </CardFooter>
