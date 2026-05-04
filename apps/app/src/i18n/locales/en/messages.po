@@ -253,10 +253,6 @@ msgstr "{ignoredCount, plural, one {# column is currently ignored.} other {# col
 msgid "{impacted, plural, one {# client} other {# clients}}"
 msgstr "{impacted, plural, one {# client} other {# clients}}"
 
-#: src/features/pulse/AlertsListPage.tsx
-msgid "{label} returned degraded or failing health on the latest checked run. Existing alerts remain reviewable."
-msgstr "{label} returned degraded or failing health on the latest checked run. Existing alerts remain reviewable."
-
 #: src/features/migration/Step2Mapping.tsx
 msgid "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
 msgstr "{lowConfCount, plural, one {# column needs your review} other {# columns need your review}}"
@@ -306,6 +302,10 @@ msgstr "{selectionCount, plural, one {Apply to # client} other {Apply to # clien
 #: src/features/migration/Step4Preview.tsx
 msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
 msgstr "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "{sourceCount, plural, one {# source needs attention. Alerts remain reviewable.} other {# sources need attention. Alerts remain reviewable.}}"
+msgstr "{sourceCount, plural, one {# source needs attention. Alerts remain reviewable.} other {# sources need attention. Alerts remain reviewable.}}"
 
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "{totalImpact, plural, one {# client} other {# clients}}"

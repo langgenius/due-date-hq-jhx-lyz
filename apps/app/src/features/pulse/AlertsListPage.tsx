@@ -25,6 +25,11 @@ import { usePulseDrawer } from './DrawerProvider'
 import { usePulseListHistoryQueryOptions, usePulseSourceHealthQueryOptions } from './api'
 import { PulseAlertCard } from './components/PulseAlertCard'
 import { PulsingDot } from './components/PulsingDot'
+import {
+  enabledPulseSourceCount,
+  sourcesNeedingAttention,
+  summarizePulseSources,
+} from './lib/source-health-labels'
 
 const STATUS_FILTER_OPTIONS = [
   'all',
@@ -225,31 +230,15 @@ function isBreathingAlertRow(alert: PulseAlertPublic): boolean {
 // dot on the lead row, then two ghost rows with mono shimmer bars. No solid
 // gray blocks — the page should look like it's listening, not waiting.
 function sourceLabel(sources: readonly PulseSourceHealth[]): string {
-  const enabled = sources.filter((source) => source.enabled && source.healthStatus !== 'paused')
-  if (enabled.length === 0) return 'configured Pulse sources'
-  return enabled
-    .map((source) => {
-      if (source.sourceId.startsWith('irs.')) return 'IRS'
-      if (source.sourceId.startsWith('ca.ftb.')) return 'CA FTB'
-      if (source.sourceId.startsWith('ca.cdtfa.')) return 'CA CDTFA'
-      if (source.sourceId === 'ny.dtf.press') return 'NY'
-      if (source.sourceId === 'tx.cpa.rss') return 'TX'
-      if (source.sourceId === 'fl.dor.tips') return 'FL'
-      if (source.sourceId.startsWith('wa.dor.')) return 'WA'
-      if (source.sourceId === 'ma.dor.press') return 'MA'
-      if (source.sourceId === 'fema.declarations') return 'FEMA'
-      return source.label
-    })
-    .filter((label, index, labels) => labels.indexOf(label) === index)
-    .join(' + ')
+  return summarizePulseSources(sources, { emptyLabel: 'configured Pulse sources' })
 }
 
 function enabledSourceCount(sources: readonly PulseSourceHealth[]): number {
-  return sources.filter((source) => source.enabled && source.healthStatus !== 'paused').length
+  return enabledPulseSourceCount(sources)
 }
 
 function SourceAttentionAlert({ sources }: { sources: readonly PulseSourceHealth[] }) {
-  const label = sourceLabel(sources)
+  const sourceCount = sources.length
   return (
     <Alert variant="warning">
       <AlertTriangleIcon />
@@ -257,10 +246,11 @@ function SourceAttentionAlert({ sources }: { sources: readonly PulseSourceHealth
         <Trans>Pulse source needs attention</Trans>
       </AlertTitle>
       <AlertDescription>
-        <Trans>
-          {label} returned degraded or failing health on the latest checked run. Existing alerts
-          remain reviewable.
-        </Trans>
+        <Plural
+          value={sourceCount}
+          one="# source needs attention. Alerts remain reviewable."
+          other="# sources need attention. Alerts remain reviewable."
+        />
       </AlertDescription>
     </Alert>
   )
@@ -295,15 +285,6 @@ function statusFilterLabel(filter: PulseStatusFilter): React.ReactNode {
   if (filter === 'dismissed') return <Trans>Dismissed</Trans>
   if (filter === 'reverted') return <Trans>Reverted</Trans>
   return <Trans>Snoozed</Trans>
-}
-
-function sourcesNeedingAttention(sources: readonly PulseSourceHealth[]): PulseSourceHealth[] {
-  return sources.filter(
-    (source) =>
-      source.enabled &&
-      source.lastCheckedAt !== null &&
-      (source.healthStatus === 'degraded' || source.healthStatus === 'failing'),
-  )
 }
 
 function SkeletonList({ sources }: { sources: readonly PulseSourceHealth[] }) {

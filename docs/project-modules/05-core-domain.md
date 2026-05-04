@@ -8,18 +8,18 @@
 
 ## 关键路径
 
-| 路径                               | 职责                                          |
-| ---------------------------------- | --------------------------------------------- |
-| `packages/core/src/penalty`        | 罚金暴露估算与汇总                            |
-| `packages/core/src/rules`          | 规则来源、obligation rules、coverage、preview |
-| `packages/core/src/date-logic`     | due date logic 展开                           |
-| `packages/core/src/default-matrix` | entity/state 到 tax type 的默认推导           |
-| `packages/core/src/overlay`        | due date overlay 应用                         |
-| `packages/core/src/csv-parser`     | CSV/TSV/paste parser                          |
-| `packages/core/src/normalize-dict` | entity/state 字典归一化                       |
-| `packages/core/src/pii`            | PII/SSN 检测                                  |
-| `packages/core/src/priority`       | Smart Priority scoring 占位                   |
-| `packages/core/src/practice-name`  | 事务所名称 helper                             |
+| 路径                               | 职责                                                  |
+| ---------------------------------- | ----------------------------------------------------- |
+| `packages/core/src/penalty`        | 罚金暴露估算与汇总                                    |
+| `packages/core/src/rules`          | 规则来源、obligation rules、coverage、preview         |
+| `packages/core/src/date-logic`     | due date logic 展开                                   |
+| `packages/core/src/default-matrix` | entity/state 到 tax type 的默认推导                   |
+| `packages/core/src/overlay`        | due date overlay 应用                                 |
+| `packages/core/src/csv-parser`     | CSV/TSV/paste parser                                  |
+| `packages/core/src/normalize-dict` | entity/state 字典归一化                               |
+| `packages/core/src/pii`            | PII/SSN 检测                                          |
+| `packages/core/src/priority`       | Smart Priority scoring、factor decomposition、ranking |
+| `packages/core/src/practice-name`  | 事务所名称 helper                                     |
 
 ## 主要功能
 
@@ -173,7 +173,7 @@ flowchart TB
 
 ## 当前限制
 
-- `priority` 当前仍是注释占位，Smart Priority scoring 尚未实现。
+- Smart Priority scoring 已落地；后续重点是继续让 Dashboard / Obligations / Workload 的解释口径保持一致。
 - 罚金规则覆盖是 MVP 范围，不是完整税法引擎。
 - default matrix 对部分州/实体的 confidence 低，需要人工 review。
 - xlsx 解析在核心 parser 中明确不支持，浏览器侧如需 Excel 需要单独适配。

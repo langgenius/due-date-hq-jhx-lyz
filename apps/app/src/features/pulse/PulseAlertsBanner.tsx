@@ -19,6 +19,7 @@ import {
 } from './api'
 import { PulsingDot, type PulsingDotTone } from './components/PulsingDot'
 import { pulseErrorDescriptor } from './lib/error-mapping'
+import { sourcesNeedingAttention, summarizePulseSources } from './lib/source-health-labels'
 
 // Pulse banner — a single-line "heartbeat" strip that lives at the top of
 // the dashboard. Calm by default (a green pulsing dot + the watcher list);
@@ -334,23 +335,7 @@ function RetrySourceHealthButton({
 }
 
 function sourceLabel(sources: readonly PulseSourceHealth[]): string {
-  const enabled = sources.filter((source) => source.enabled && source.healthStatus !== 'paused')
-  if (enabled.length === 0) return 'configured sources'
-  return enabled
-    .map((source) => {
-      if (source.sourceId.startsWith('irs.')) return 'IRS'
-      if (source.sourceId.startsWith('ca.ftb.')) return 'CA FTB'
-      if (source.sourceId.startsWith('ca.cdtfa.')) return 'CA CDTFA'
-      if (source.sourceId === 'ny.dtf.press') return 'NY'
-      if (source.sourceId === 'tx.cpa.rss') return 'TX'
-      if (source.sourceId === 'fl.dor.tips') return 'FL'
-      if (source.sourceId.startsWith('wa.dor.')) return 'WA'
-      if (source.sourceId === 'ma.dor.press') return 'MA'
-      if (source.sourceId === 'fema.declarations') return 'FEMA'
-      return source.label
-    })
-    .filter((label, index, labels) => labels.indexOf(label) === index)
-    .join(' + ')
+  return summarizePulseSources(sources)
 }
 
 function LoadingLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
@@ -419,15 +404,6 @@ function newestCheckedAt(sources: readonly PulseSourceHealth[]): string | null {
     }
   }
   return newest
-}
-
-function sourcesNeedingAttention(sources: readonly PulseSourceHealth[]): PulseSourceHealth[] {
-  return sources.filter(
-    (source) =>
-      source.enabled &&
-      source.lastCheckedAt !== null &&
-      (source.healthStatus === 'degraded' || source.healthStatus === 'failing'),
-  )
 }
 
 function sourceErrorLabel(sources: readonly PulseSourceHealth[]): string | null {

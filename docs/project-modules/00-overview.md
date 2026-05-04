@@ -228,16 +228,16 @@ erDiagram
 
 ## 当前实现状态
 
-| 区域             | 状态             | 说明                                                                                                      |
-| ---------------- | ---------------- | --------------------------------------------------------------------------------------------------------- |
-| 前端主工作台     | 已实现           | Dashboard、Obligations、Migration、Pulse、Audit、Rules、Members、Billing 等路由存在                       |
-| Server API       | 已实现           | Hono + oRPC + REST + queue/scheduled/email handlers                                                       |
-| 数据模型         | 已实现并持续扩展 | Drizzle schema 覆盖 auth、firm、client、obligation、migration、pulse、audit、notifications                |
-| AI 能力          | 部分实现         | mapper、normalizer、brief、pulse extract 已有；router/retriever/budget 仍是占位                           |
-| Pulse ingest     | 部分实现         | adapter/fetcher 框架完整，source 覆盖多州和 IRS；抽取成功后直接进入 Rules > Pulse Changes review 流程     |
-| Marketing        | 已实现           | 双语 Astro 站点和 SEO/structured data                                                                     |
-| Billing          | 开发中           | Better Auth Stripe plugin 和 billing route 已有；当前工作区有 billing audit procedure/contract 未提交变更 |
-| Priority scoring | 占位             | `packages/core/src/priority` 仍是注释占位                                                                 |
+| 区域             | 状态             | 说明                                                                                                         |
+| ---------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ |
+| 前端主工作台     | 已实现           | Dashboard、Obligations、Migration、Pulse、Audit、Rules、Members、Billing 等路由存在                          |
+| Server API       | 已实现           | Hono + oRPC + REST + queue/scheduled/email handlers                                                          |
+| 数据模型         | 已实现并持续扩展 | Drizzle schema 覆盖 auth、firm、client、obligation、migration、pulse、audit、notifications                   |
+| AI 能力          | 部分实现         | mapper、normalizer、brief、pulse extract 已有；router/retriever/budget 仍是占位                              |
+| Pulse ingest     | 部分实现         | adapter/fetcher 框架完整，source 覆盖多州和 IRS；抽取成功后直接进入 Rules > Pulse Changes review 流程        |
+| Marketing        | 已实现           | 双语 Astro 站点和 SEO/structured data                                                                        |
+| Billing          | 已实现并持续扩展 | Billing route、checkout/success/cancel、subscription cache、plan entitlement 和 provider portal flow 已接入  |
+| Priority scoring | 已实现           | `packages/core/src/priority` 已实现 Smart Priority scoring、factor decomposition、ranking 与 profile preview |
 
 ## 运行与验证
 

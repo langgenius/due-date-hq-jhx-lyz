@@ -33,6 +33,9 @@ so `pulse_source_state` changes were invisible until a full page reload.
   index page as evidence. FEMA declarations now link to `/disaster/{number}` detail pages.
 - Surfaced source `lastError` inline in the Dashboard Pulse warning strip so `Source needs attention`
   explains why the source still needs attention after refresh.
+- Shortened the no-alert source health warning copy from a full source-list sentence to a
+  count-based status, and capped shared Pulse source labels so broad degraded runs render as
+  `CA FTB + TX + ... + N more` instead of overflowing with every source id.
 
 ## Docs Check
 
@@ -47,3 +50,6 @@ so `pulse_source_state` changes were invisible until a full page reload.
 - `pnpm --filter @duedatehq/ingest test`
 - `pnpm exec vp check --fix apps/app/src/features/pulse/PulseAlertsBanner.tsx packages/ingest/src/adapters/index.ts packages/ingest/src/ingest.test.ts`
 - `pnpm exec vp check --fix packages/ingest/src/adapters/index.ts packages/ingest/src/ingest.test.ts`
+- `pnpm --filter @duedatehq/app test -- src/features/pulse/lib/source-health-labels.test.ts`
+- `pnpm --filter @duedatehq/app i18n:extract`
+- `pnpm --filter @duedatehq/app i18n:compile`

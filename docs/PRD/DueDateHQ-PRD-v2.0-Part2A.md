@@ -300,7 +300,7 @@ New overdue（定时任务）      顶栏 +$Z，红色短促 shake +
 | 💪 **Big Drop**        | 单次操作使 $ 减少 > $10,000    | 半屏 confetti + Toast `$10k+ wiped in one move.`                                              |
 | 🔥 **Firm Best**       | 本周总额低于 firm 历史同期最低 | Sparkline 上 firm-best 线位置高亮 + 弱庆祝                                                    |
 
-**每周最多展示 1 次全屏 confetti，避免滥情。** Settings 可关闭庆祝（"Focus mode"）。
+**每周最多展示 1 次全屏 confetti，避免滥情。** 未来用户偏好 surface 可关闭庆祝（"Focus mode"）。
 
 ##### 7.5.6.5 Scoreboard Feed（类 Strava Activity Feed）
 
@@ -396,7 +396,6 @@ Total this week: −$15,150
 | `G then D`     | 跳 Dashboard               | 全局                |
 | `G then W`     | 跳 Obligations             | 全局                |
 | `G then C`     | 跳 Clients                 | 全局                |
-| `G then A`     | 跳 Alerts                  | 全局                |
 | `G then T`     | 跳 Team workload           | 全局                |
 
 ### 7.8 PWA 壳 与 Native Wrappers（交付形态补强）
@@ -571,8 +570,8 @@ the web does.
 
 ```
 Firm (tenant)
-  id, name, slug, timezone, plan (solo/firm/pro),
-  seat_limit,                        -- Solo 1 / Pro 5 / Firm 10+ contract-defined
+  id, name, slug, timezone, plan (solo/pro/team/firm),
+  seat_limit,                        -- Solo 1 / Pro 3 / Team 10 / Enterprise contract-defined
   owner_user_id,                     -- FK to User，转让时修改
   default_assignee_strategy,         -- owner | round_robin | none
   coordinator_can_see_dollars,       -- bool, default false
@@ -829,7 +828,7 @@ Event (analytics)
 ```
 
 Active firm count 是 account / subscription / contract 层的 product entitlement，不是
-单个 `firm_profile` 行内字段：Solo / Pro = 1 active firm，Firm = contract-defined。
+单个 `firm_profile` 行内字段：Solo / Pro / Team = 1 active firm，Enterprise (`firm`) = contract-defined。
 
 ### 8.2 关键索引（S1-AC3 < 1s 响应保障）
 

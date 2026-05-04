@@ -59,7 +59,7 @@ DueDateHQ 的模型执行层只依赖 **Vercel AI SDK Core**，运行在 Cloudfl
 
 - **风格定位**：**Ramp × Linear · Light Workbench** —— CPA 的专业工作台，非金融 App、非营销站、非编辑刊物
 - **字体**：Inter（正文 + UI）+ Geist Mono / JetBrains Mono（数字 / 金额 / 日期 / EIN / 规则 ID / 官方 URL · `tabular-nums` 强制）
-- **主色**：Navy `#0A2540`（主文字 · Stripe Dashboard 同源权威感）+ Indigo `#5B5BD6`（Linear accent · 仅用于 CTA / focus / selected nav）
+- **主色**：Dify gray `#101828` 做主文字，Dify UI blue `#155aef` 仅用于 CTA / focus / selected nav；完整 token 以 DESIGN.md 与 `packages/ui` CSS tokens 为准
 - **风险色系（唯一允许"鲜艳"的地方）**：Critical red `#DC2626` / High orange `#EA580C` / Medium yellow `#CA8A04` / Neutral slate `#475569`（**灰色 = OK**，绿色仅用于 Filed / Applied 完成态）
 - **暗色模式**：浅色的镜像反色（暖色近黑 `#0D0E11`，禁用纯黑 `#000`），一等公民；方向 B 的 Bloomberg 终端风**不采纳**为 MVP 范围
 - **分层**：1px 发丝线 `#E5E7EB` 优先；zero shadow by default；只有 Drawer / Modal 才加极小阴影
@@ -69,16 +69,16 @@ DueDateHQ 的模型执行层只依赖 **Vercel AI SDK Core**，运行在 Cloudfl
 
 ### 10.2 关键组件（语义 · 详细规格见 DESIGN.md §4）
 
-| 组件                | 功能语义                                                                                               | 对应场景                             |
-| ------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------ |
-| **Risk Row**        | 客户 + 义务 + 倒计时 + $ 敞口 + Status + 行内操作；Critical / High 行带 2px 左边框 + tint 背景         | Obligations / Dashboard 表格行       |
-| **Hero Metric**     | Dashboard 顶部 `$142,300 · AT RISK · NEXT 7 DAYS`（Geist Mono Bold 56px），靠排版层级而非容器          | Dashboard Layer 1 · Penalty Radar    |
-| **Pulse Banner**    | 暖黄 tint + 1px 琥珀边框，源标题 + 受影响客户数 + `[Review]` `[Dismiss]`                               | Dashboard Layer 2 · Story S3         |
-| **Triage Tabs**     | This Week / This Month / Long-term 三段，每段带 `count + $` 数字，选中态下边 2px indigo 边框           | Dashboard Layer 3 · Story S1 AC1     |
-| **Evidence Chip**   | 极小 mono 10px 徽章 `[IRS.GOV]`，hover 500ms 延迟弹 Verbatim Quote Popover；**DueDateHQ 独占设计资产** | 所有 AI 输出 / 规则字段 / Pulse 条目 |
-| **Penalty Pill**    | `$28,400 at risk` 单元，hover 分解 late-file + late-pay + interest + state surcharge                   | Obligation Detail / Obligations 行   |
-| **Command Palette** | `⌘K` 三合一（Search / Ask / Navigate），560px 居中浮层，每条结果标快捷键                               | 全局                                 |
-| **Source Badge**    | `🔗 CA FTB · ✓ Human verified · 2d ago`，信任符号，比 Evidence Chip 信息量大                           | Obligation Detail 底部               |
+| 组件                | 功能语义                                                                                                     | 对应场景                             |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| **Risk Row**        | 客户 + 义务 + 倒计时 + $ 敞口 + Status + 行内操作；Critical / High 行带 2px 左边框 + tint 背景               | Obligations / Dashboard 表格行       |
+| **Hero Metric**     | Dashboard 顶部 `$142,300 · AT RISK · NEXT 7 DAYS`（Geist Mono Bold 56px），靠排版层级而非容器                | Dashboard Layer 1 · Penalty Radar    |
+| **Pulse Banner**    | 暖黄 tint + 1px 琥珀边框，源标题 + 受影响客户数 + `[Review]` `[Dismiss]`                                     | Dashboard Layer 2 · Story S3         |
+| **Triage Tabs**     | This Week / This Month / Long-term 三段，每段带 `count + $` 数字，选中态使用 DESIGN.md 定义的 selected token | Dashboard Layer 3 · Story S1 AC1     |
+| **Evidence Chip**   | 极小 mono 10px 徽章 `[IRS.GOV]`，hover 500ms 延迟弹 Verbatim Quote Popover；**DueDateHQ 独占设计资产**       | 所有 AI 输出 / 规则字段 / Pulse 条目 |
+| **Penalty Pill**    | `$28,400 at risk` 单元，hover 分解 late-file + late-pay + interest + state surcharge                         | Obligation Detail / Obligations 行   |
+| **Command Palette** | `⌘K` 三合一（Search / Ask / Navigate），560px 居中浮层，每条结果标快捷键                                     | 全局                                 |
+| **Source Badge**    | `🔗 CA FTB · ✓ Human verified · 2d ago`，信任符号，比 Evidence Chip 信息量大                                 | Obligation Detail 底部               |
 
 ### 10.3 交互原则
 
@@ -121,8 +121,8 @@ DueDateHQ 的模型执行层只依赖 **Vercel AI SDK Core**，运行在 Cloudfl
 
 ```
 App (after login)
- ├─ Dashboard (Home)                         ← Story S1 主屏
- ├─ Obligations                                ← 高密度表格
+ ├─ Dashboard (Home, `/`)                    ← Story S1 主屏
+ ├─ Obligations (`/workboard`)                ← 高密度表格；Calendar sync 是二级出口 `/workboard/calendar`
  ├─ Clients
  │   ├─ List (table)
  │   ├─ + Add clients ▾
@@ -135,35 +135,26 @@ App (after login)
  │       ├─ Audit
  │       ├─ Documents (P1)
  │       └─ [Export PDF]                     ← Client PDF Report
- ├─ Alerts (Regulatory Pulse)                ← Story S3
- ├─ Rules (read-only + Quality Badge + Cross-verified)  ← §5.7 + §6D
- ├─ Team Workload (P1 · Owner/Manager only)  ← §3.6.7
- ├─ Audit Log (P1 · Firm-wide, Owner/Manager)← §3.6 + §13.2
- ├─ Reports (P1)
+ ├─ Notifications (`/notifications`)         ← 个人 in-app notification inbox
+ ├─ Rules (`/rules`)                         ← Rule Library + Source health + Pulse Changes tab
+ ├─ Practice profile (`/practice`)           ← active practice name / timezone / delete
+ ├─ Team Workload (`/workload`)              ← paid Operations surface
+ ├─ Members (`/members`)                     ← 成员 / 邀请 / role / seat usage
+ ├─ Billing (`/billing`)                     ← plan / checkout / portal / entitlement usage
+ ├─ Audit Log (`/audit`)                     ← firm-wide write 操作时间线
+ ├─ Account security (`/account/security`)   ← MFA / sessions
  ├─ Cmd-K
  │   ├─ Search
  │   ├─ Ask ✨
  │   └─ Navigate
  ├─ Practice Switcher (sidebar top · 多 practice membership 时显示；Add practice 受 plan gate)  ← §3.6.4
- └─ Settings
-     ├─ Profile (per-user)
-     ├─ Notifications (per-user, 含 Team 路由偏好 §7.1.4)
-     ├─ Imports (history + Undo)             ← Migration 回溯
-     ├─ Ask History
-     ├─ ICS Calendar Feed                    ← P1 订阅链接
-     ├─ Priority weights (Pro only, Owner)
-     ├─ Team (P1 · Owner only)               ← 成员 / 邀请 / role / 转让 §3.6.4
-     │   ├─ Members list
-     │   ├─ Pending invitations
-     │   ├─ Seat usage (3/5 seats used)
-     │   └─ Transfer ownership
-     ├─ Billing (P1 · Owner only)
-     ├─ Security (WISP)
-     └─ About
+ └─ Import history (`/imports` legacy alias) ← redirects to `/clients?importHistory=open`
 ```
 
-一级导航 P0（Solo）：Dashboard / Obligations / Clients / Alerts / Rules / Settings — 6 项。
-一级导航 P1（Team）增加：**Team Workload**（Owner/Manager 可见）+ **Audit Log**（Owner/Manager 可见）= 最多 8 项。
+当前 sidebar IA：Operations（Dashboard / Obligations / Team workload）、Clients（Clients facts）、
+Practice（Practice profile / Rules / Members / Billing / Audit log）。Notifications 在右上角 bell 和
+`/notifications` route；Pulse Changes 合并到 Rules 的二级 tab，Rules 入口承载待处理 Pulse badge。
+没有独立 `Alerts` / `Reports` / 聚合 `Settings` 一级路由。
 不建 Intake / Review / Extension 独立导航——它们是 obligation 的状态层。
 
 **公开页面（无需登录，SEO + 获客 + Rules-as-Asset 公开承诺）：**
@@ -270,7 +261,7 @@ Public 页面相互 cross-link，形成 Rule Library → Source Registry → Ver
 
 - HTTPS 全站（Cloudflare Workers / custom domain）
 - TLS 1.2+ / encryption at rest（Cloudflare D1 / R2 / KV 平台能力；应用层敏感 secret 另行 AES-GCM）
-- Auth：Google OAuth + 会话 7 天
+- Auth：Email OTP passwordless 是默认入口；Google One Tap / Google OAuth 作为 SSO fallback；Microsoft Entra ID OAuth 可选；会话 7 天
 - MFA：7 天 Demo 不强制；真实试点 / 4 周 MVP 对 Owner 强制 TOTP；Team 版 Manager 在 P1 强制，Preparer/Coordinator 建议开启
 - **RBAC 双层校验**（§3.6.3）：P0 强制 tenant isolation + Owner-only 写路径；P1 启用 oRPC procedure permission middleware + scoped repo 双层校验；前端按 role 渲染只是体验层
 - Tenant 强隔离：所有 query 必须带 `firm_id` where
@@ -461,12 +452,13 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 
 ### 15.1 定价（保持 §1.1 锚点）
 
-| Plan  | 价格                     | 目标       | 包含                                             |
-| ----- | ------------------------ | ---------- | ------------------------------------------------ |
-| Solo  | **$39 / mo**             | 独立 CPA   | 全 P0 能力，100 clients                          |
-| Firm  | $99 / mo                 | 2–5 人小所 | + 5 席 + assignee + 共享视图                     |
-| Pro   | $199 / mo                | 6–10 人    | + SSO + API + 优先支持 + 2000 clients + 权重调整 |
-| Trial | **14 天免费 · 无信用卡** | 全部新用户 | 全功能                                           |
+| Plan       | 价格                     | 目标                | 包含                                                                      |
+| ---------- | ------------------------ | ------------------- | ------------------------------------------------------------------------- |
+| Solo       | **$39 / mo**             | 独立 CPA            | 1 practice workspace · 1 owner seat · Basic AI                            |
+| Pro        | $79 / mo                 | 成长中的小事务所    | 1 production practice · 3 seats · Practice AI included                    |
+| Team       | $149 / mo                | 10-seat operations  | 1 production practice · 10 seats · same Practice AI as Pro                |
+| Enterprise | from $399 / mo           | 多办公室 / 复杂运营 | multiple practices/offices · 10+ seats · custom AI / coverage by contract |
+| Trial      | **14 天免费 · 无信用卡** | 全部新用户          | 全功能试用                                                                |
 
 **锚点论证（Pitch 30 秒版）：**
 

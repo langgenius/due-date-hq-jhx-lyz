@@ -43,7 +43,7 @@ DueDateHQ 的税务规则、截止日、罚金风险估算和 AI brief 用于事
 
 **模块功能**
 
-登录模块让用户通过 Google SSO 进入 DueDateHQ。首次登录后，Onboarding 页面会创建或激活事务所，并把用户带入主操作台。新建事务所后，应用可自动打开 Migration Copilot，帮助用户把第一批客户导入系统。
+登录模块让用户通过 work email 验证码或 SSO 进入 DueDateHQ。默认入口是 Email OTP passwordless 登录/注册；Google One Tap / Google OAuth 作为 SSO fallback；Microsoft Entra ID OAuth 在配置后可用。首次登录后，Onboarding 页面会创建或激活事务所，并把用户带入主操作台。新建事务所后，应用可自动打开 Migration Copilot，帮助用户把第一批客户导入系统。
 
 **适用用户**
 
@@ -54,7 +54,7 @@ DueDateHQ 的税务规则、截止日、罚金风险估算和 AI brief 用于事
 **如何使用**
 
 1. 打开应用登录页。
-2. 点击 `Continue with Google`，完成 Google 授权。
+2. 输入 work email，提交后填写 6 位验证码；也可点击 `Continue with Google` 使用 Google OAuth。
 3. 首次使用时，在 `Set up your practice` 页面确认或修改事务所名称。
 4. 点击 `Continue` 创建或激活事务所。
 5. 进入主操作台后，根据需要运行 Migration Copilot 导入客户。
@@ -80,7 +80,7 @@ Practice switcher 用于在多个 practice 之间切换 active practice；新建
 
 1. 在左侧 sidebar 顶部点击当前 practice 名称。
 2. 在 `Practices` 列表中选择目标 practice。
-3. 如需新建独立租户，点击 `Add practice`，输入 practice name 和 timezone；Solo/Pro 超出 1 个 active practice 时会看到 Billing / Contact sales gate。
+3. 如需新建独立租户，点击 `Add practice`，输入 practice name 和 timezone；Solo/Pro/Team 超出 1 个 active practice 时会看到 Billing / Contact sales gate，Enterprise 可按合同支持多个 practice。
 4. 在底部账户菜单中切换 `Language`、`Theme`，或点击 `Sign out` 退出。
 
 **关联模块**
@@ -290,14 +290,14 @@ Team Workload 按负责人聚合 open obligations、due soon、overdue、waiting
 
 **适用用户**
 
-- Pro 和 Firm 计划用户。
+- Pro、Team 和 Enterprise 计划用户。
 - Solo 计划会看到升级提示。
 - Owner、Manager、Preparer 可用于团队排队和分工。
 
 **如何使用**
 
 1. 从 sidebar 点击 `Team workload`。
-2. 如果当前 firm 是 Solo，点击 `Upgrade to Pro` 或回到 Obligations。
+2. 如果当前 firm 是 Solo，点击升级入口或回到 Obligations。
 3. 查看顶部指标：Open、Due soon、Overdue、Waiting、Review、Unassigned。
 4. 在 `Owner workload` 表中查看每个负责人的工作量和 load score。
 5. 点击数字或 `Open` 跳转到带筛选条件的 Obligations。
@@ -305,7 +305,7 @@ Team Workload 按负责人聚合 open obligations、due soon、overdue、waiting
 
 **关联模块**
 
-- Billing：Pro/Firm 计划解锁。
+- Billing：Pro、Team 和 Enterprise 计划解锁。
 - Obligations：所有行操作最终回到 Obligations triage。
 - Members：负责人来自成员和客户 owner label。
 
@@ -538,7 +538,7 @@ Members 页面管理 firm 成员、角色、席位、邀请、暂停、恢复和
 
 **模块功能**
 
-Billing 页面展示当前 firm 的订阅状态、plan、seat limit、billing role、计划选项和支付模型。自助 Pro 订阅使用 hosted checkout；支付方式和发票由支付 provider 管理。
+Billing 页面展示当前 firm 的订阅状态、plan、seat limit、billing role、计划选项和支付模型。Solo、Pro、Team 是 self-serve checkout 计划；Enterprise（内部 `firm` 枚举）是 sales-assisted。支付方式和发票由支付 provider 管理。
 
 **适用用户**
 
@@ -556,14 +556,14 @@ Billing 页面展示当前 firm 的订阅状态、plan、seat limit、billing ro
    - Subscription status
    - Billing role
 3. Owner 且已有 active subscription 时，点击 `Manage billing` 打开 provider portal。
-4. Owner 可在 plan options 中选择 Pro 自助 checkout。
+4. Owner 可在 plan options 中选择 Solo、Pro 或 Team 自助 checkout。
 5. Checkout success 页面会等待 webhook 确认后显示激活状态。
-6. 需要 Firm annual agreement 时，当前页面显示 contact sales 状态，不是自助购买入口。
+6. 需要 Enterprise annual agreement 或多 practice/offices 时，当前页面显示 contact sales 状态，不是自助购买入口。
 
 **关联模块**
 
 - Members：seat limit 影响邀请。
-- Team Workload：Pro/Firm 解锁。
+- Team Workload：Pro、Team 和 Enterprise 解锁。
 - Auth billing plugin：`08-auth-identity.md`
 
 ### Practice profile
@@ -607,7 +607,7 @@ Marketing site 是公开营销站，介绍 DueDateHQ 的定位、价格、规则
 **如何使用**
 
 1. 打开 marketing 站首页了解产品价值。
-2. 使用 pricing 页面了解 Solo、Pro、Firm 的定位。
+2. 使用 pricing 页面了解 Solo、Pro、Team、Enterprise 的定位。
 3. 使用 rules、state coverage、state detail、guides 页面查看公开覆盖说明。
 4. 通过 CTA 进入 app 登录或联系流程。
 5. 可切换中英文页面。

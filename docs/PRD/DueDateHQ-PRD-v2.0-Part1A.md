@@ -20,22 +20,22 @@
 
 ### 0.1 两份前作的核心判断与差距
 
-| 维度                   | v1.0 主 PRD（Glass-Box Copilot）                                   | v1.0 Competitor PRD（FileInTime Replacement）            | v2.0 的处理                                                                                     |
-| ---------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| 核心叙事               | Clarity Engine™（Glass-Box + Pulse + Penalty）+ Migration Copilot™ | Autopilot Regulatory Radar + AI Migration Copilot        | **继承 v1.0 叙事**（更利于 Demo 记忆），融入 Competitor 的工程细节                              |
-| AC 可追溯性            | §3.4 有矩阵，但偏章节映射                                          | §14.1 对比 v0.3 边界，AC 散落 §5                         | **前置 AC Traceability Matrix**（§3.5），每条 AC → 功能 + 验收测试编号                          |
-| 时间分组命名           | This Week / This Month / Long-term（对齐 Story S1 AC#1）           | Critical / High / Upcoming（需语义映射）                 | **采用 v1.0 命名**，并叠加风险色条（Critical/High）作为段内次级视觉                             |
-| Penalty 引擎           | Penalty Radar™（顶栏 $ 聚合 + What-If）                            | F-18 Penalty Forecaster（硬编码表 + `needs input` 降级） | **融合**：Radar 的 UX + Forecaster 的计算表（§7.5）                                             |
-| AI Smart Priority      | §6.4 纯函数打分（权重固定）                                        | F-5b 段内 AI 排序 + 硬排 fallback                        | **采纳 v1.0 纯函数版**（可解释、零幻觉），**但允许用户在 Settings 里切 AI tie-breaker**（§7.4） |
-| AI Q&A                 | §6.5 DSL 中间层（安全）                                            | F-19 直接 NL→SQL + parser 校验                           | **融合**：DSL 外层 + SQL 白名单内层，双保险（§7.7）                                             |
-| 证据链纪律             | Evidence Mode + `EvidenceLink` 表                                  | SourceBadge + source excerpt                             | **采纳 v1.0 Evidence Mode**，并强制每条 Pulse 结构化字段附 source excerpt（Competitor 做法）    |
-| EIN 字段               | 未显式                                                             | 未显式                                                   | **新增**：客户模型加 `ein`，Migration AI Mapper 显式识别（Story S2 AC#2）                       |
-| 县筛选                 | 仅 Pulse 匹配用                                                    | 未列                                                     | **新增**：Obligations 与 Ask 均支持 county 维度                                                 |
-| Pulse 通知             | Banner + email 分散                                                | Banner + email 分散                                      | **显式耦合**：每条 approved Pulse 触发同一事务内发 Banner + Email Digest（§6.3.4）              |
-| 日历能力               | ICS 单向订阅（P1）                                                 | 未做                                                     | **采纳 ICS 订阅，提升到 P1 首发**                                                               |
-| Default Tax Types 兜底 | §6A.3A 矩阵（优秀）                                                | 无                                                       | **保留并扩展到 50 州骨架**（§6A.5）                                                             |
-| Undo 时限              | 24h                                                                | 7 天                                                     | **融合**：全量 Revert 24h；单客户级 Undo 7 天（§6A.7）                                          |
-| 50 州覆盖策略          | MVP 只 5 州，其他黑名单                                            | 同                                                       | **保留 MVP 5 州**，但**规则表结构必须能承接 50 州**（§6.1.6）                                   |
+| 维度                   | v1.0 主 PRD（Glass-Box Copilot）                                   | v1.0 Competitor PRD（FileInTime Replacement）            | v2.0 的处理                                                                                  |
+| ---------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 核心叙事               | Clarity Engine™（Glass-Box + Pulse + Penalty）+ Migration Copilot™ | Autopilot Regulatory Radar + AI Migration Copilot        | **继承 v1.0 叙事**（更利于 Demo 记忆），融入 Competitor 的工程细节                           |
+| AC 可追溯性            | §3.4 有矩阵，但偏章节映射                                          | §14.1 对比 v0.3 边界，AC 散落 §5                         | **前置 AC Traceability Matrix**（§3.5），每条 AC → 功能 + 验收测试编号                       |
+| 时间分组命名           | This Week / This Month / Long-term（对齐 Story S1 AC#1）           | Critical / High / Upcoming（需语义映射）                 | **采用 v1.0 命名**，并叠加风险色条（Critical/High）作为段内次级视觉                          |
+| Penalty 引擎           | Penalty Radar™（顶栏 $ 聚合 + What-If）                            | F-18 Penalty Forecaster（硬编码表 + `needs input` 降级） | **融合**：Radar 的 UX + Forecaster 的计算表（§7.5）                                          |
+| AI Smart Priority      | §6.4 纯函数打分（权重固定）                                        | F-5b 段内 AI 排序 + 硬排 fallback                        | **采纳 v1.0 纯函数版**（可解释、零幻觉），**可在未来配置 surface 切 AI tie-breaker**（§7.4） |
+| AI Q&A                 | §6.5 DSL 中间层（安全）                                            | F-19 直接 NL→SQL + parser 校验                           | **融合**：DSL 外层 + SQL 白名单内层，双保险（§7.7）                                          |
+| 证据链纪律             | Evidence Mode + `EvidenceLink` 表                                  | SourceBadge + source excerpt                             | **采纳 v1.0 Evidence Mode**，并强制每条 Pulse 结构化字段附 source excerpt（Competitor 做法） |
+| EIN 字段               | 未显式                                                             | 未显式                                                   | **新增**：客户模型加 `ein`，Migration AI Mapper 显式识别（Story S2 AC#2）                    |
+| 县筛选                 | 仅 Pulse 匹配用                                                    | 未列                                                     | **新增**：Obligations 与 Ask 均支持 county 维度                                              |
+| Pulse 通知             | Banner + email 分散                                                | Banner + email 分散                                      | **显式耦合**：每条 approved Pulse 触发同一事务内发 Banner + Email Digest（§6.3.4）           |
+| 日历能力               | ICS 单向订阅（P1）                                                 | 未做                                                     | **采纳 ICS 订阅，提升到 P1 首发**                                                            |
+| Default Tax Types 兜底 | §6A.3A 矩阵（优秀）                                                | 无                                                       | **保留并扩展到 50 州骨架**（§6A.5）                                                          |
+| Undo 时限              | 24h                                                                | 7 天                                                     | **融合**：全量 Revert 24h；单客户级 Undo 7 天（§6A.7）                                       |
+| 50 州覆盖策略          | MVP 只 5 州，其他黑名单                                            | 同                                                       | **保留 MVP 5 州**，但**规则表结构必须能承接 50 州**（§6.1.6）                                |
 
 ### 0.2 v2.0 的产品一句话
 
@@ -55,16 +55,16 @@
 
 ### 1.1 竞品坐标
 
-| 维度     | File In Time             | TaxDome / Karbon / Canopy | **DueDateHQ v2.0**                              |
-| -------- | ------------------------ | ------------------------- | ----------------------------------------------- |
-| 核心定位 | Desktop deadline tracker | All-in-one firm OS        | **Deadline intelligence copilot**               |
-| 部署     | Windows 桌面 + 网络盘    | Cloud SaaS                | Cloud-native SaaS + ICS 单向订阅                |
-| 规则更新 | 年度维护包               | 用户自维护                | **24h 内 AI 捕获 → 人工复核 → 发布**            |
-| AI 能力  | 无                       | 点缀型                    | **Glass-Box，强制 provenance + 美元敞口 + Ask** |
-| 风险表达 | 红色字体                 | 天数                      | **美元敞口 + 风险因子分解 + Penalty 规则链接**  |
-| 目标用户 | 传统小所                 | 中大型事务所              | **独立 CPA + 1–10 人事务所**                    |
-| 迁移摩擦 | 结构化 CSV               | 人工录入 / 顾问协助       | **Paste-anywhere + AI Mapper + 24h Revert**     |
-| 价格锚点 | ~$199/user/年 + 维护     | $600–1,500/席/年          | **Solo $0 / Pro $99 / Firm Custom**             |
+| 维度     | File In Time             | TaxDome / Karbon / Canopy | **DueDateHQ v2.0**                                        |
+| -------- | ------------------------ | ------------------------- | --------------------------------------------------------- |
+| 核心定位 | Desktop deadline tracker | All-in-one firm OS        | **Deadline intelligence copilot**                         |
+| 部署     | Windows 桌面 + 网络盘    | Cloud SaaS                | Cloud-native SaaS + ICS 单向订阅                          |
+| 规则更新 | 年度维护包               | 用户自维护                | **24h 内 AI 捕获 → 人工复核 → 发布**                      |
+| AI 能力  | 无                       | 点缀型                    | **Glass-Box，强制 provenance + 美元敞口 + Ask**           |
+| 风险表达 | 红色字体                 | 天数                      | **美元敞口 + 风险因子分解 + Penalty 规则链接**            |
+| 目标用户 | 传统小所                 | 中大型事务所              | **独立 CPA + 1–10 人事务所**                              |
+| 迁移摩擦 | 结构化 CSV               | 人工录入 / 顾问协助       | **Paste-anywhere + AI Mapper + 24h Revert**               |
+| 价格锚点 | ~$199/user/年 + 维护     | $600–1,500/席/年          | **Solo $39 / Pro $79 / Team $149 / Enterprise from $399** |
 
 ### 1.2 DueDateHQ IS / IS NOT
 
@@ -96,7 +96,7 @@
 6. **Dollar-aware.** 风险表达单位优先用美元，其次才是天数。
 7. **Source-anchored.** 每条规则、每个日期都有 `source_url` + `verified_by` + `verified_at` + `source_excerpt`。
 8. **Keyboard-first.** 所有高频操作必须有键盘快捷键。
-9. **Ramp × Linear · Light Workbench.** 视觉方向为"CPA 专业工作台"——浅色为主 / 深 navy `#0A2540` + indigo `#5B5BD6` accent / Inter + Geist Mono tabular-nums / 1px 发丝线分层 / zero shadow / 风险只用灰-黄-橙-红四档（不用绿表示 OK）。**UI 单一事实源 = `[docs/Design/DueDateHQ-DESIGN.md](../Design/DueDateHQ-DESIGN.md)`**；所有组件与 token 以该文档为准，本 PRD 的 UI 描述仅表达功能语义。
+9. **Ramp × Linear · Light Workbench.** 视觉方向为"CPA 专业工作台"——浅色为主 / Dify gray `#101828` 主文字 + Dify UI blue `#155aef` accent / Inter + Geist Mono tabular-nums / 1px 发丝线分层 / zero shadow / 风险只用灰-黄-橙-红四档（不用绿表示 OK）。**UI 单一事实源 = `[docs/Design/DueDateHQ-DESIGN.md](../Design/DueDateHQ-DESIGN.md)`**；所有组件与 token 以该文档为准，本 PRD 的 UI 描述仅表达功能语义。
 
 ---
 
@@ -121,7 +121,7 @@
 
 > 周一 8:00，Sarah（Solo CPA，85 客户）打开 laptop，只 15 分钟喝咖啡。她需要 5 分钟知道：本周谁最急、为什么急、敞口多少钱、下一步做什么。
 
-→ 命中：Dashboard 三段时间分组 + Penalty Radar + Smart Priority + Weekly Brief
+→ 命中：Dashboard 三段时间分组 + Penalty Radar + Smart Priority row drivers；Weekly Brief 作为后台物化 / 邮件摘要，不在 Dashboard 首屏渲染独立卡片
 
 #### 场景 B · The 30-Minute Migration（Story S2 · P0）
 
@@ -149,13 +149,13 @@
 
 > **作为** 服务 80 客户的独立 CPA，**我希望** 周一早 8 点打开电脑 30 秒内看到本周需要行动的截止日期，**这样** 我立即决定本周优先级，不需要在 Excel / Outlook / 手写笔记之间切换。
 
-| AC #   | 验收标准                                               | 覆盖功能（v2.0 章节）                                                   | 验收测试 ID |
-| ------ | ------------------------------------------------------ | ----------------------------------------------------------------------- | ----------- |
-| S1-AC1 | 登录后默认看板按 "本周到期 / 本月预警 / 长期计划" 分组 | Dashboard Triage Tabs（§5.1.2）                                         | T-S1-01     |
-| S1-AC2 | 本周到期项必须显示具体倒计时（精确到天）               | TriageCard 倒计时徽章 + Obligations Days 列（§5.1.3 / §5.2.2）          | T-S1-02     |
-| S1-AC3 | 支持按客户 / 州 / 表单类型快速筛选，< 1 秒响应         | Obligations Filters（§5.2.3）+ 索引（§8.2）                             | T-S1-03     |
-| S1-AC4 | 每个截止日支持一键标记"已完成 / 已延期 / 进行中"       | 行内状态下拉（§5.2.4）                                                  | T-S1-04     |
-| S1-AC5 | 整个分诊流程可在 5 分钟内完成                          | Smart Priority + Weekly Brief + Penalty 顶栏 合力（§6.4 / §6.1 / §6.5） | T-S1-05     |
+| AC #   | 验收标准                                               | 覆盖功能（v2.0 章节）                                                                                | 验收测试 ID |
+| ------ | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- | ----------- |
+| S1-AC1 | 登录后默认看板按 "本周到期 / 本月预警 / 长期计划" 分组 | Dashboard Triage Tabs（§5.1.2）                                                                      | T-S1-01     |
+| S1-AC2 | 本周到期项必须显示具体倒计时（精确到天）               | TriageCard 倒计时徽章 + Obligations Days 列（§5.1.3 / §5.2.2）                                       | T-S1-02     |
+| S1-AC3 | 支持按客户 / 州 / 表单类型快速筛选，< 1 秒响应         | Obligations Filters（§5.2.3）+ 索引（§8.2）                                                          | T-S1-03     |
+| S1-AC4 | 每个截止日支持一键标记"已完成 / 已延期 / 进行中"       | 行内状态下拉（§5.2.4）                                                                               | T-S1-04     |
+| S1-AC5 | 整个分诊流程可在 5 分钟内完成                          | Smart Priority 行内解释 + Penalty 顶栏合力；Weekly Brief 仅作为异步 / 邮件摘要（§6.4 / §6.1 / §6.5） | T-S1-05     |
 
 ### 3.2 故事 S2（P0 · CORE）— 30 分钟导入 30 客户
 
@@ -208,18 +208,18 @@
 | 错过截止日罚款责任由 CPA 承担，无保障 | 高     | —   | §7.5 Penalty Radar + §5.5 Evidence Mode + §13 合规 SLA |
 | 现有专业工具定价不友好                | 中     | —   | §11.1 Pricing                                          |
 | 从竞品迁移需手工录入                  | 中     | ✦   | §6A Migration Copilot 全链路                           |
-| 申报季加班仍担心遗漏                  | 中     | —   | Dashboard + Pulse + Weekly Brief 合力                  |
+| 申报季加班仍担心遗漏                  | 中     | —   | Dashboard + Pulse + 异步 / 邮件 Weekly Brief 合力      |
 
 **Gains（严重度 高 / 中）全覆盖：**
 
-| 条目                                | 严重度 | ✦   | v2.0 覆盖章节                                    |
-| ----------------------------------- | ------ | --- | ------------------------------------------------ |
-| 每周一 5 分钟完成分诊               | 高     | —   | §5.1 Dashboard + §6.4 Smart Priority             |
-| "没漏掉什么"的心理踏实感            | 高     | —   | §6.1 Weekly Brief + §5.5 Evidence + §7.5 Penalty |
-| 州税法变更第一时间获知 + 受影响客户 | 高     | ✦   | §6.3 Pulse + §5.1 Banner + §6.3.4 Email          |
-| 工具上手 ≤ 30 分钟                  | 中     | —   | §6A Migration + §12.2 KPI                        |
-| 对客户呈现专业形象                  | 中     | —   | §7.6 Client PDF Report + §7.7 Ask                |
-| 能承接更多多州客户不增风险          | 低     | —   | §6.1 Rule Engine 50 州骨架 + §6.3 Pulse 持续扩源 |
+| 条目                                | 严重度 | ✦   | v2.0 覆盖章节                                                                   |
+| ----------------------------------- | ------ | --- | ------------------------------------------------------------------------------- |
+| 每周一 5 分钟完成分诊               | 高     | —   | §5.1 Dashboard + §6.4 Smart Priority                                            |
+| "没漏掉什么"的心理踏实感            | 高     | —   | §5.1 Dashboard triage + §5.5 Evidence + §7.5 Penalty；Weekly Brief 作为异步摘要 |
+| 州税法变更第一时间获知 + 受影响客户 | 高     | ✦   | §6.3 Pulse + §5.1 Banner + §6.3.4 Email                                         |
+| 工具上手 ≤ 30 分钟                  | 中     | —   | §6A Migration + §12.2 KPI                                                       |
+| 对客户呈现专业形象                  | 中     | —   | §7.6 Client PDF Report + §7.7 Ask                                               |
+| 能承接更多多州客户不增风险          | 低     | —   | §6.1 Rule Engine 50 州骨架 + §6.3 Pulse 持续扩源                                |
 
 **Pain Relievers / Gain Creators**（严重度 高）全在 §6–§7 有对应实现章节，不再重复列。
 
@@ -247,28 +247,29 @@
 | Hono context          | `c.var.tenantContext`（plan/seatLimit/...）/ `c.var.firmId`（保留）   | 见 dev-file/02 §middleware                                                                |
 | PRD / dev-file 行文   | `Firm`                                                                | 与代码对齐；不替换历史 134 处                                                             |
 | 用户可见 EN（默认）   | `Practice`                                                            | onboarding 标题/字段、错误信息、空态、营销文案                                            |
-| 用户可见 EN（管理类） | `Firm`                                                                | Settings 顶层 H1、权限、计费、SSO policy                                                  |
+| 用户可见 EN（管理类） | `Firm`                                                                | 权限、计费、SSO policy 等管理语境                                                         |
 | 用户可见 ZH（统一）   | 事务所                                                                | 不区分 Practice/Firm                                                                      |
 | 不动的专名            | `Google Workspace` / `pnpm "workspace:*"` / 类 `Slack workspace` 类比 | 保持原样                                                                                  |
 
 ### 3.6.1 定位与前置约束
 
-> **2026-05-02 pricing entitlement update**：本节的 P0/P1 切分保留历史 PRD 语境；
+> **2026-05-04 pricing entitlement update**：本节的 P0/P1 切分保留历史 PRD 语境；
 > 当前 accepted 产品口径以 `docs/product-design/billing/01-practice-entitlement-pricing.md`
-> 为准。`pro` 是 $99/mo self-serve paid tier（1 active firm + 5 seats），`firm` 是
-> sales-assisted custom tier（multiple active firms/offices + 10+ seats）。Firm switcher
-> 的 multi-firm foundation 已落地，但 active firm count 仍是待实现的 pricing gate。
+> 为准。`solo` / `pro` / `team` 是 self-serve paid tiers，分别为 $39 / $79 / $149 per month；
+> `firm` 是持久化枚举，用户可见名称为 Enterprise，sales-assisted from $399/mo，可按合同包含
+> multiple active practices/offices 与 10+ seats。Firm switcher 的 multi-firm foundation 已落地；
+> active practice count 由 plan entitlement gate 控制。
 
-| 层级                                          | P0（Solo · Pro Plan $99）                       | P1（Firm Custom）                     |
-| --------------------------------------------- | ----------------------------------------------- | ------------------------------------- |
-| **数据架构**（Firm = tenant，User 归属 Firm） | **已就位**                                      | 无需改动                              |
-| **成员管理**（邀请 / 席位 / 离职）            | 单 Owner 账号                                   | **全量**                              |
-| **RBAC 执行**（四角色权限矩阵）               | `role` 字段存在但**不做权限校验**（Owner 全权） | **全量强制校验**                      |
-| **视图切换**（My work / Firm-wide）           | 只有 Firm-wide（单人=自己的）                   | **双视图 + URL 持久化**               |
-| **工作负载页**（Workload View）               | ❌                                              | **Manager 可见**                      |
-| **Firm-wide Audit Log 页**                    | 简化版（单客户 Audit Tab）                      | **全量 Firm 级页面**                  |
-| **并发编辑与冲突处理**                        | 单用户无冲突                                    | **last-write-wins + 提示 + 乐观锁**   |
-| **多事务所用户**（一人多 Firm）               | 支持 membership / switch；创建受 plan gate 限制 | **支持（UserFirmMembership 多对多）** |
+| 层级                                          | 当前 self-serve（Solo / Pro / Team）               | Enterprise（内部 `firm`）             |
+| --------------------------------------------- | -------------------------------------------------- | ------------------------------------- |
+| **数据架构**（Firm = tenant，User 归属 Firm） | **已就位**                                         | 无需改动                              |
+| **成员管理**（邀请 / 席位 / 离职）            | Pro 3 seats；Team 10 seats                         | **合同席位 / 10+ seats**              |
+| **RBAC 执行**（四角色权限矩阵）               | **已通过 procedure permission + scoped repo 强制** | **同一权限模型 + 合同特性**           |
+| **视图切换**（My work / Firm-wide）           | 当前主队列以 firm-wide / assignee 筛选为主         | **可继续扩展共享视图策略**            |
+| **工作负载页**（Workload View）               | Pro / Team 付费 surface；Solo 可见升级提示         | **启用**                              |
+| **Firm-wide Audit Log 页**                    | **已作为 `/audit` route 落地**                     | **启用 / 可扩展导出合同能力**         |
+| **并发编辑与冲突处理**                        | 单用户无冲突                                       | **last-write-wins + 提示 + 乐观锁**   |
+| **多事务所用户**（一人多 Firm）               | 支持 membership / switch；创建受 plan gate 限制    | **支持（UserFirmMembership 多对多）** |
 
 **核心原则**：数据模型在 **P0 就必须支持 Team**（`firm_id` 作为所有业务数据的 tenant key，User 通过 `firm_id` 归属 Firm），但**权限校验和 Team UI 是 P1**。这是可向前兼容的最薄切片——MVP 不会因为"将来要支持 Team"而增加 P0 复杂度，但不会因为 MVP 走错数据模型而在 P1 重构。
 
@@ -276,8 +277,8 @@
 
 ```
 Firm (tenant)
-  id, name, timezone, plan (solo|firm|pro),
-  seat_limit,                    -- Solo 1 / Pro 5 / Firm 10+ contract-defined
+  id, name, timezone, plan (solo|pro|team|firm),
+  seat_limit,                    -- Solo 1 / Pro 3 / Team 10 / Enterprise contract-defined
   owner_user_id,                 -- Firm 的主负责人（转让时修改）
   created_at, deleted_at (soft)
 
@@ -300,7 +301,7 @@ TeamInvitation
 ```
 
 Active firm count 是 account / subscription / contract 层的 product entitlement，不是
-单个 `firm_profile` 行内字段：Solo / Pro = 1 active firm，Firm = contract-defined。
+单个 `firm_profile` 行内字段：Solo / Pro / Team = 1 active firm，Enterprise (`firm`) = contract-defined。
 
 **⚠ Deprecated as of 2026-04-24** — `User.firm_id` shortcut 字段从未在代码中启用：当前实现走 Better Auth `member` 多对多 + `firmId == session.activeOrganizationId == firm_profile.id`（见 ADR 0010）。本段保留为历史口径，不要在新代码里依赖。
 
@@ -310,43 +311,43 @@ Active firm count 是 account / subscription / contract 层的 product entitleme
 
 ### 3.6.3 RBAC 权限矩阵（P1 · 四角色）
 
-| 操作                            | Owner | Manager | Preparer                               | Coordinator                                                                         |
-| ------------------------------- | ----- | ------- | -------------------------------------- | ----------------------------------------------------------------------------------- |
-| **账户与席位**                  |       |         |                                        |                                                                                     |
-| 邀请 / 撤销成员                 | ✓     | —       | —                                      | —                                                                                   |
-| 修改他人 role                   | ✓     | —       | —                                      | —                                                                                   |
-| 转让 Firm Owner                 | ✓     | —       | —                                      | —                                                                                   |
-| Billing                         | ✓     | —       | —                                      | —                                                                                   |
-| 删除 Firm                       | ✓     | —       | —                                      | —                                                                                   |
-| **客户与 obligations**          |       |         |                                        |                                                                                     |
-| 查看全部客户                    | ✓     | ✓       | ✓                                      | ✓                                                                                   |
-| 创建 / 编辑客户档案             | ✓     | ✓       | ✓                                      | —                                                                                   |
-| 删除客户（软删）                | ✓     | ✓       | —                                      | —                                                                                   |
-| 改 status / readiness（任意）   | ✓     | ✓       | ✓ 仅 `assignee=me` 或 Manager 分派给我 | —                                                                                   |
-| 改 extension decision           | ✓     | ✓       | ✓ 仅 assignee                          | —                                                                                   |
-| 覆盖 `estimated_tax_liability`  | ✓     | ✓       | ✓ 仅 assignee                          | —                                                                                   |
-| Assign / Reassign               | ✓     | ✓       | —                                      | —                                                                                   |
-| **Migration**                   |       |         |                                        |                                                                                     |
-| Import                          | ✓     | ✓       | —                                      | —                                                                                   |
-| **Revert (24h full batch)**     | ✓     | ✓       | —                                      | —                                                                                   |
-| Revert 单客户（7d）             | ✓     | ✓       | —                                      | —                                                                                   |
-| **Regulatory Pulse**            |       |         |                                        |                                                                                     |
-| 查看 Pulse Feed                 | ✓     | ✓       | ✓                                      | ✓                                                                                   |
-| Batch Apply                     | ✓     | ✓       | —                                      | —                                                                                   |
-| Revert Pulse Apply（24h）       | ✓     | ✓       | —                                      | —                                                                                   |
-| Dismiss / Snooze                | ✓     | ✓       | —                                      | —                                                                                   |
-| **规则与证据**                  |       |         |                                        |                                                                                     |
-| 查看 Rules                      | ✓     | ✓       | ✓                                      | ✓                                                                                   |
-| Report Issue on Rule            | ✓     | ✓       | ✓                                      | ✓                                                                                   |
-| 看 Penalty $ 敞口               | ✓     | ✓       | ✓                                      | **—**（$ 是 commercial-sensitive，Coordinator 默认隐藏，可 Owner 在 Settings 开启） |
-| 改 Priority Weights（Pro only） | ✓     | —       | —                                      | —                                                                                   |
-| **报告与审计**                  |       |         |                                        |                                                                                     |
-| Export 客户 PDF                 | ✓     | ✓       | ✓                                      | ✓                                                                                   |
-| 查看 Firm-wide Audit Log        | ✓     | ✓       | —                                      | —                                                                                   |
-| 查看他人 Audit Log              | ✓     | ✓       | 仅自己                                 | 仅自己                                                                              |
-| **AI Ask**                      |       |         |                                        |                                                                                     |
-| Ask DueDateHQ                   | ✓     | ✓       | ✓                                      | ✓（可选开启）                                                                       |
-| Ask 含 $ 敞口字段               | ✓     | ✓       | ✓                                      | —                                                                                   |
+| 操作                            | Owner | Manager | Preparer                               | Coordinator                                                                                |
+| ------------------------------- | ----- | ------- | -------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **账户与席位**                  |       |         |                                        |                                                                                            |
+| 邀请 / 撤销成员                 | ✓     | —       | —                                      | —                                                                                          |
+| 修改他人 role                   | ✓     | —       | —                                      | —                                                                                          |
+| 转让 Firm Owner                 | ✓     | —       | —                                      | —                                                                                          |
+| Billing                         | ✓     | —       | —                                      | —                                                                                          |
+| 删除 Firm                       | ✓     | —       | —                                      | —                                                                                          |
+| **客户与 obligations**          |       |         |                                        |                                                                                            |
+| 查看全部客户                    | ✓     | ✓       | ✓                                      | ✓                                                                                          |
+| 创建 / 编辑客户档案             | ✓     | ✓       | ✓                                      | —                                                                                          |
+| 删除客户（软删）                | ✓     | ✓       | —                                      | —                                                                                          |
+| 改 status / readiness（任意）   | ✓     | ✓       | ✓ 仅 `assignee=me` 或 Manager 分派给我 | —                                                                                          |
+| 改 extension decision           | ✓     | ✓       | ✓ 仅 assignee                          | —                                                                                          |
+| 覆盖 `estimated_tax_liability`  | ✓     | ✓       | ✓ 仅 assignee                          | —                                                                                          |
+| Assign / Reassign               | ✓     | ✓       | —                                      | —                                                                                          |
+| **Migration**                   |       |         |                                        |                                                                                            |
+| Import                          | ✓     | ✓       | —                                      | —                                                                                          |
+| **Revert (24h full batch)**     | ✓     | ✓       | —                                      | —                                                                                          |
+| Revert 单客户（7d）             | ✓     | ✓       | —                                      | —                                                                                          |
+| **Regulatory Pulse**            |       |         |                                        |                                                                                            |
+| 查看 Pulse Feed                 | ✓     | ✓       | ✓                                      | ✓                                                                                          |
+| Batch Apply                     | ✓     | ✓       | —                                      | —                                                                                          |
+| Revert Pulse Apply（24h）       | ✓     | ✓       | —                                      | —                                                                                          |
+| Dismiss / Snooze                | ✓     | ✓       | —                                      | —                                                                                          |
+| **规则与证据**                  |       |         |                                        |                                                                                            |
+| 查看 Rules                      | ✓     | ✓       | ✓                                      | ✓                                                                                          |
+| Report Issue on Rule            | ✓     | ✓       | ✓                                      | ✓                                                                                          |
+| 看 Penalty $ 敞口               | ✓     | ✓       | ✓                                      | **—**（$ 是 commercial-sensitive，Coordinator 默认隐藏，可 Owner 在 practice policy 开启） |
+| 改 Priority Weights（Pro only） | ✓     | —       | —                                      | —                                                                                          |
+| **报告与审计**                  |       |         |                                        |                                                                                            |
+| Export 客户 PDF                 | ✓     | ✓       | ✓                                      | ✓                                                                                          |
+| 查看 Firm-wide Audit Log        | ✓     | ✓       | —                                      | —                                                                                          |
+| 查看他人 Audit Log              | ✓     | ✓       | 仅自己                                 | 仅自己                                                                                     |
+| **AI Ask**                      |       |         |                                        |                                                                                            |
+| Ask DueDateHQ                   | ✓     | ✓       | ✓                                      | ✓（可选开启）                                                                              |
+| Ask 含 $ 敞口字段               | ✓     | ✓       | ✓                                      | —                                                                                          |
 
 **权限边界原则：** Revert 是操作纠错能力，因此 Owner / Manager 都可执行；Owner-only 保留给所有权、账户、billing、role 和全 firm export 等不可由日常运营角色承担的能力。
 
@@ -403,12 +404,12 @@ Audit event: team.member.joined
 - 登录成功后如 user has ≥ 2 active memberships → 进入最近 active practice；sidebar 顶部 Practice
   switcher 可切换（类似 Slack / Notion workspace picker），全局快捷键 `Cmd+Shift+O` 保留。
 - URL 不含 `firm_slug`；当前 firm 来自 `session.activeOrganizationId`，刷新保留在 session。
-- `Add practice` 是 plan-gated action：Solo / Pro 超过 1 active practice 时进入 Billing / Contact sales gate，
-  Firm plan 依据合同允许多个 active firms / offices。
+- `Add practice` 是 plan-gated action：Solo / Pro / Team 超过 1 active practice 时进入 Billing / Contact sales gate，
+  Enterprise (`firm`) plan 依据合同允许多个 active firms / offices。
 
 ### 3.6.5 视图层：My work / Firm-wide
 
-Dashboard、Obligations、Alerts 三处首屏顶部加 **View Scope Toggle**：
+Dashboard、Obligations、Rules > Pulse Changes 三处首屏顶部加 **View Scope Toggle**：
 
 ```
 [ ●  Firm-wide  ]  [   My work   ]      (Owner / Manager 默认 Firm-wide)
@@ -492,12 +493,12 @@ Dashboard、Obligations、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | T-TM-04 | Owner 查看 Firm-wide Audit Log                        | 看到最近 24h 所有成员所有 write 操作                                        |
 | T-TM-05 | 两人同时改同一 obligation status                      | Last-write-wins + toast 提示前序变更                                        |
 | T-TM-06 | 两人同时 Apply 同一 Pulse                             | 第 2 人被锁 + 友好提示                                                      |
-| T-TM-07 | 席位 5 已满，Owner 试邀第 6 人                        | 按钮灰化 + "Upgrade plan" 链接                                              |
+| T-TM-07 | 当前 plan seat limit 已满，Owner 试邀下一位成员       | 按钮灰化 + "Upgrade plan" 链接                                              |
 | T-TM-08 | Owner suspend 带 open obligations 的 Preparer         | 强制先 reassign；否则 suspend 阻塞                                          |
 | T-TM-09 | Owner 转让 ownership 给 Manager                       | 新 Owner 权限立即生效，原 Owner 降 Manager，邮件通知双方                    |
 | T-TM-10 | Coordinator 试看 `$ at risk`                          | 胶囊显示 `—`；Ask 结果中该字段留空                                          |
 | T-TM-11 | Preparer 已登录两个 Firm，切换 Firm                   | URL / 数据 / assignee 作用域立即切换                                        |
-| T-TM-12 | Plan 从 Pro 降到 Solo，超额 4 人                      | 4 人自动 suspend；Owner 收邮件警告；30 天内可恢复                           |
+| T-TM-12 | Plan 从 Pro / Team 降到 Solo 后出现超额成员           | 超额成员自动 suspend；Owner 收邮件警告；30 天内可恢复                       |
 
 ---
 
@@ -554,7 +555,7 @@ Dashboard、Obligations、Alerts 三处首屏顶部加 **View Scope Toggle**：
 | P1-17     | Public SEO Pages                              | `/state/california` / `/pulse` 公开页                                                                                                        | GTM                 |
 | P1-18     | **Team Seats & Invitations**                  | Owner 邀请 / 撤销 / role 修改；席位受 plan 限制（§3.6.4）                                                                                    | Team                |
 | P1-19     | **RBAC 四角色权限矩阵强制**                   | oRPC procedure middleware + scoped repo 双层（§3.6.3）；前端仅做可见性收敛，不作为安全边界                                                   | Team                |
-| P1-20     | **View Scope Toggle**                         | Dashboard / Obligations / Alerts 三处 My work / Firm-wide 切换 + URL 持久化（§3.6.5）                                                        | Team                |
+| P1-20     | **View Scope Toggle**                         | Dashboard / Obligations / Rules > Pulse Changes 三处 My work / Firm-wide 切换 + URL 持久化（§3.6.5）                                         | Team                |
 | P1-21     | **Manager Workload View**                     | 成员负载表 + 30 天 heatmap + Bulk reassign（§3.6.7）                                                                                         | Team                |
 | P1-22     | **Firm-wide Audit Log 页**                    | 全 firm write 操作时间线 + 过滤 + 导出（§3.6 + §13）                                                                                         | Team                |
 | P1-23     | **Concurrency & Conflict UX**                 | Last-write-wins + toast / Pulse advisory lock / Migration 串行（§3.6.6）                                                                     | Team                |
@@ -611,12 +612,10 @@ Dashboard、Obligations、Alerts 三处首屏顶部加 **View Scope Toggle**：
 │  🟠 Zen Holdings · Q1 Est · 7d · $1,650 · [Not started ▾]       │
 │  [Open full Obligations →]                                          │
 ├──────────────────────────────────────────────────────────────────┤
-│  AI Weekly Brief (Glass-Box, with citations)                     │  ← Layer 4 · Brief
-│  Top 3 to touch first:                                            │
-│  1. Acme LLC (CA Franchise Tax, $4,200 at risk) ← source [FTB]   │
-│  2. Bright Studio S-Corp (1120-S, 5 days) ← source [IRS]         │
-│  3. Zen Holdings (Q1 Est. Tax, waiting on client) ← source [IRS] │
-│  [Evidence Mode]  [Regenerate]  [Copy to Slack]                  │
+│  Row-level Smart Priority drivers + Next check                    │  ← Layer 4 · Triage explanation
+│  Weekly Brief is materialized in the background for email /       │
+│  async summary surfaces; the Dashboard does not render a          │
+│  standalone brief card in the current SPA.                        │
 ├──────────────────────────────────────────────────────────────────┤
 │  Ask DueDateHQ (P1 · §6.6)                                        │  ← Layer 5 · Ask
 │  > Which clients owe CA PTE this month?                          │
@@ -778,7 +777,7 @@ Tabs 之上加一行 scope 切换（Solo Plan 下该行不渲染）：
 
 ### 5.4 Pulse Detail Drawer（Story S3 · S3-AC4 / AC5）
 
-从 Dashboard Banner 或左侧 `Alerts` 入口进入。
+从 Dashboard Banner 或 `Rules > Pulse Changes` 入口进入。
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -926,7 +925,7 @@ CPA 可以点 `Report issue` 触发人工复核流。
 
 hover 展开逐源 health + 下周 / 下季度的 ops review 时间点。
 
-### 5.8 Alerts（Pulse 历史）
+### 5.8 Rules > Pulse Changes（Pulse 历史）
 
 所有历史 Pulse 公告的时间线视图：
 
@@ -942,9 +941,9 @@ hover 展开逐源 health + 下周 / 下季度的 ops review 时间点。
 - `Clients` 页右上 `+ Add clients ▾` → `Import file / Paste / Add one`
 - `Cmd+K → import clients`
 
-### 5.10 Settings
+### 5.10 Account / Practice Surfaces
 
-- Profile / Notifications / Imports History（含 Undo）/ Ask History / Billing / Team（P1）/ About / WISP / Privacy
+- Practice profile / Notifications / Import history（含 Undo）/ Members / Billing / Account security / Audit Log
 
 ---
 
@@ -983,7 +982,7 @@ Ops/Tax expert edits rule draft
   → Second-person review + sign-off
   → Rule set version++
   → Affected ObligationInstances get [Rule updated, review] flag
-  → User sees "1 rule updated recently" in Dashboard Alerts tab
+  → User sees "1 rule updated recently" in Rules > Pulse Changes
 ```
 
 #### 6.1.6 为什么要 50 州骨架而非只 5 州
@@ -1246,7 +1245,7 @@ Rank #1 — Acme LLC · CA Franchise
 
 #### 6.4.5 可选 AI Tie-breaker（P1）
 
-Settings 中开关：`Use AI for tie-breaking` → 仅当 top-5 打分相差 < 5% 时调用 AI SDK 给出排序理由（不改变打分）。这让 Weekly Brief 的"Top 3 to touch first"和 Dashboard 列表 100% 一致，避免割裂感。
+未来配置 surface 中开关：`Use AI for tie-breaking` → 仅当 top-5 打分相差 < 5% 时调用 AI SDK 给出排序理由（不改变打分）。这让异步 Weekly Brief 的"Top 3 to touch first"和 Dashboard 列表 100% 一致，避免割裂感。
 
 ### 6.5 Penalty Radar™（美元敞口引擎）
 
