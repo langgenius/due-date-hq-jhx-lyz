@@ -107,6 +107,7 @@ async function ingestAdapter(
   ctx: IngestCtx,
   repo: ReturnType<typeof makePulseOpsRepo>,
   queue: Pick<Queue, 'send'>,
+  opts: { force?: boolean } = {},
 ): Promise<IngestCounts> {
   const checkedAt = new Date()
   const state = await repo.ensureSourceState({
@@ -116,7 +117,10 @@ async function ingestAdapter(
     cadenceMs: adapter.cronIntervalMs,
     now: checkedAt,
   })
-  if (!state.enabled || (state.nextCheckAt && state.nextCheckAt.getTime() > checkedAt.getTime())) {
+  if (
+    !state.enabled ||
+    (!opts.force && state.nextCheckAt && state.nextCheckAt.getTime() > checkedAt.getTime())
+  ) {
     return { snapshots: 0, signals: 0, queued: 0, duplicates: 0, failures: 0 }
   }
 
@@ -244,6 +248,7 @@ export async function runPulseIngest(
     'DB' | 'R2_PULSE' | 'PULSE_QUEUE' | 'PULSE_BROWSERLESS_URL' | 'PULSE_BROWSERLESS_TOKEN'
   >,
   adapters: readonly SourceAdapter[] = liveRegulatorySourceAdapters,
+  opts: { force?: boolean } = {},
 ): Promise<{
   snapshots: number
   signals: number
@@ -268,7 +273,7 @@ export async function runPulseIngest(
   }
 
   const results = await Promise.all(
-    adapters.map((adapter) => ingestAdapter(adapter, ctx, repo, env.PULSE_QUEUE)),
+    adapters.map((adapter) => ingestAdapter(adapter, ctx, repo, env.PULSE_QUEUE, opts)),
   )
   const counts = sumCounts(results)
   emitSourceIdleAlerts(await repo.listSourceStates())

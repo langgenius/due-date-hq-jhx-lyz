@@ -824,6 +824,7 @@ describe('@duedatehq/contracts', () => {
       'listAlerts',
       'listHistory',
       'listSourceHealth',
+      'retrySourceHealth',
       'getDetail',
       'apply',
       'dismiss',

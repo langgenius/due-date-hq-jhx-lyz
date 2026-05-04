@@ -111,6 +111,8 @@ export const PulseSourceHealthSchema = z.object({
 export type PulseSourceHealth = z.infer<typeof PulseSourceHealthSchema>
 
 export const PulseAlertIdInputSchema = z.object({ alertId: EntityIdSchema })
+export const PulseSourceHealthInputSchema = z.object({ sourceId: z.string().min(1) })
+export type PulseSourceHealthInput = z.infer<typeof PulseSourceHealthInputSchema>
 
 export const PulseApplyInputSchema = z.object({
   alertId: EntityIdSchema,
@@ -178,6 +180,9 @@ export const pulseContract = oc.router({
     .output(z.object({ alerts: z.array(PulseAlertPublicSchema) })),
   listSourceHealth: oc
     .input(z.undefined())
+    .output(z.object({ sources: z.array(PulseSourceHealthSchema) })),
+  retrySourceHealth: oc
+    .input(PulseSourceHealthInputSchema)
     .output(z.object({ sources: z.array(PulseSourceHealthSchema) })),
   getDetail: oc.input(PulseAlertIdInputSchema).output(PulseDetailSchema),
   apply: oc.input(PulseApplyInputSchema).output(PulseApplyOutputSchema),

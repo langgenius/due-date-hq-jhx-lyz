@@ -8,6 +8,7 @@ import {
   type PulseStatus,
 } from '@duedatehq/contracts'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
+import { runPulseIngest } from '../../jobs/pulse/ingest'
 import { liveRegulatorySourceAdapters } from '../../jobs/pulse/rule-source-adapters'
 import { requireTenant, type RpcContext } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
@@ -221,8 +222,9 @@ const listHistory = os.pulse.listHistory.handler(async ({ input, context }) => {
   return { alerts: alerts.map(toAlertPublic) }
 })
 
-const listSourceHealth = os.pulse.listSourceHealth.handler(async ({ context }) => {
-  const { scoped } = requireTenant(context)
+async function listSourceHealthForScopedRepo(
+  scoped: ReturnType<typeof requireTenant>['scoped'],
+): Promise<{ sources: PulseSourceHealth[] }> {
   const persisted = new Map(
     (await scoped.pulse.listSourceStates()).map((row) => [row.sourceId, row]),
   )
@@ -242,6 +244,23 @@ const listSourceHealth = os.pulse.listSourceHealth.handler(async ({ context }) =
     }
   })
   return { sources }
+}
+
+const listSourceHealth = os.pulse.listSourceHealth.handler(async ({ context }) => {
+  const { scoped } = requireTenant(context)
+  return listSourceHealthForScopedRepo(scoped)
+})
+
+const retrySourceHealth = os.pulse.retrySourceHealth.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { scoped } = requireTenant(context)
+  const adapter = liveRegulatorySourceAdapters.find((candidate) => candidate.id === input.sourceId)
+  if (!adapter) {
+    throw new ORPCError('NOT_FOUND', { message: ErrorCodes.PULSE_NOT_FOUND })
+  }
+
+  await runPulseIngest(context.env, [adapter], { force: true })
+  return listSourceHealthForScopedRepo(scoped)
 })
 
 const getDetail = os.pulse.getDetail.handler(async ({ input, context }) => {
@@ -519,6 +538,7 @@ export const pulseHandlers = {
   listAlerts,
   listHistory,
   listSourceHealth,
+  retrySourceHealth,
   getDetail,
   apply,
   dismiss,

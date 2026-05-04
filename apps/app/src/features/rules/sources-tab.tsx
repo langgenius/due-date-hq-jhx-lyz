@@ -34,12 +34,12 @@ import {
   JurisdictionCode,
   QueryPanelState,
   SectionFrame,
-  TableFooterBar,
+  TablePaginationFooter,
 } from './rules-console-primitives'
 
 type SourceHeaderFilterId = 'jurisdiction' | 'sourceType' | 'cadence' | 'method'
 
-const DEFAULT_VISIBLE_SOURCE_ROWS = 12
+const SOURCE_PAGE_SIZE = 25
 const EMPTY_SOURCE_ROWS: RuleSource[] = []
 
 export function SourcesTab() {
@@ -50,7 +50,7 @@ export function SourcesTab() {
   const [cadenceFilters, setCadenceFilters] = useState<string[]>([])
   const [methodFilters, setMethodFilters] = useState<string[]>([])
   const [openHeaderFilter, setOpenHeaderFilter] = useState<SourceHeaderFilterId | null>(null)
-  const [showAll, setShowAll] = useState(false)
+  const [pageIndex, setPageIndex] = useState(0)
 
   const sourcesQuery = useQuery(orpc.rules.listSources.queryOptions({ input: undefined }))
 
@@ -67,7 +67,12 @@ export function SourcesTab() {
       ),
     [cadenceFilters, healthFilter, jurisdictionFilters, methodFilters, rows, sourceTypeFilters],
   )
-  const visibleRows = showAll ? filteredRows : filteredRows.slice(0, DEFAULT_VISIBLE_SOURCE_ROWS)
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / SOURCE_PAGE_SIZE))
+  const currentPageIndex = Math.min(pageIndex, pageCount - 1)
+  const pageStartIndex = currentPageIndex * SOURCE_PAGE_SIZE
+  const visibleRows = filteredRows.slice(pageStartIndex, pageStartIndex + SOURCE_PAGE_SIZE)
+  const firstItemNumber = filteredRows.length > 0 ? pageStartIndex + 1 : 0
+  const lastItemNumber = pageStartIndex + visibleRows.length
   const jurisdictionOptions = useMemo(
     () => sourceFilterOptions(rows, (source) => source.jurisdiction, jurisdictionLabel),
     [rows],
@@ -109,8 +114,6 @@ export function SourcesTab() {
     return <QueryPanelState state="error" message={t`Could not load rule sources.`} />
   }
 
-  const footerNote = t`Showing ${visibleRows.length} of ${filteredRows.length} · click any row to open the official source ↗`
-  const showAllAction = t`Show all ${filteredRows.length} →`
   const emptyFilterLabel = t`No options`
 
   function setHeaderFilterOpen(filterId: SourceHeaderFilterId, nextOpen: boolean) {
@@ -119,7 +122,7 @@ export function SourcesTab() {
 
   function updateHeaderFilter(setter: (values: string[]) => void, values: string[]) {
     setter(values)
-    setShowAll(false)
+    setPageIndex(0)
   }
 
   return (
@@ -130,7 +133,7 @@ export function SourcesTab() {
           value={healthFilter}
           onValueChange={(value) => {
             setHealthFilter(value)
-            setShowAll(false)
+            setPageIndex(0)
           }}
         />
       </div>
@@ -206,15 +209,15 @@ export function SourcesTab() {
             ))}
           </TableBody>
         </Table>
-        {filteredRows.length > visibleRows.length ? (
-          <TableFooterBar
-            note={footerNote}
-            action={showAllAction}
-            onAction={() => setShowAll(true)}
-          />
-        ) : (
-          <TableFooterBar note={footerNote} />
-        )}
+        <TablePaginationFooter
+          pageIndex={currentPageIndex}
+          pageCount={pageCount}
+          firstItemNumber={firstItemNumber}
+          lastItemNumber={lastItemNumber}
+          totalCount={filteredRows.length}
+          onPreviousPage={() => setPageIndex(Math.max(0, currentPageIndex - 1))}
+          onNextPage={() => setPageIndex(Math.min(pageCount - 1, currentPageIndex + 1))}
+        />
       </SectionFrame>
     </div>
   )

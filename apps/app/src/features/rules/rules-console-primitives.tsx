@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { AlertCircleIcon } from 'lucide-react'
+import { AlertCircleIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
 import { Trans, useLingui } from '@lingui/react/macro'
 
 import type { RuleSource } from '@duedatehq/contracts'
@@ -225,6 +225,70 @@ export function TableFooterBar({
           {action}
         </button>
       ) : null}
+    </div>
+  )
+}
+
+export function TablePaginationFooter({
+  pageIndex,
+  pageCount,
+  firstItemNumber,
+  lastItemNumber,
+  totalCount,
+  onPreviousPage,
+  onNextPage,
+}: {
+  pageIndex: number
+  pageCount: number
+  firstItemNumber: number
+  lastItemNumber: number
+  totalCount: number
+  onPreviousPage: () => void
+  onNextPage: () => void
+}) {
+  const { t } = useLingui()
+  const pageNumber = pageIndex + 1
+  const hasPreviousPage = pageIndex > 0
+  const hasNextPage = pageIndex + 1 < pageCount
+
+  return (
+    <div className="flex min-h-10 flex-col gap-2 bg-background-subtle px-3 py-2 text-xs text-text-tertiary sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="font-medium text-text-primary">
+          <Trans>
+            Page {pageNumber} of {pageCount}
+          </Trans>
+        </span>
+        <span>
+          <Trans>
+            Showing {firstItemNumber}-{lastItemNumber} of {totalCount}
+          </Trans>
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="xs"
+          onClick={onPreviousPage}
+          disabled={!hasPreviousPage}
+          aria-label={t`Previous page`}
+        >
+          <ChevronLeftIcon data-icon="inline-start" />
+          <Trans>Previous</Trans>
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="xs"
+          onClick={onNextPage}
+          disabled={!hasNextPage}
+          aria-label={t`Next page`}
+        >
+          <Trans>Next</Trans>
+          <ChevronRightIcon data-icon="inline-end" />
+        </Button>
+      </div>
     </div>
   )
 }

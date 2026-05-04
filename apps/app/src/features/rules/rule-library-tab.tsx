@@ -1,16 +1,8 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Trans, useLingui } from '@lingui/react/macro'
+import { useLingui } from '@lingui/react/macro'
 
-import type { ObligationRule, RuleJurisdiction } from '@duedatehq/contracts'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@duedatehq/ui/components/ui/select'
+import type { ObligationRule } from '@duedatehq/contracts'
 import {
   Table,
   TableBody,
@@ -21,6 +13,10 @@ import {
 } from '@duedatehq/ui/components/ui/table'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import {
+  TableHeaderMultiFilter,
+  type TableFilterOption,
+} from '@/components/patterns/table-header-filter'
 import { orpc } from '@/lib/rpc'
 
 import { RuleDetailDrawer } from './rule-detail-drawer'
@@ -28,7 +24,6 @@ import {
   countRulesByFilter,
   filterRules,
   jurisdictionLabel,
-  RULE_JURISDICTIONS,
   type RuleLibraryFilter,
 } from './rules-console-model'
 import {
@@ -36,37 +31,87 @@ import {
   JurisdictionCode,
   QueryPanelState,
   SectionFrame,
-  TableFooterBar,
+  TablePaginationFooter,
   ToneDot,
 } from './rules-console-primitives'
 
-type JurisdictionFilter = 'ALL' | RuleJurisdiction
+type RuleHeaderFilterId = 'jurisdiction' | 'entity' | 'tier' | 'status'
 type TierKey = ObligationRule['ruleTier']
 type StatusKey = ObligationRule['status']
 
-const DEFAULT_VISIBLE_RULE_ROWS = 13
+const RULE_PAGE_SIZE = 25
 const EMPTY_RULE_ROWS: ObligationRule[] = []
 
 export function RuleLibraryTab() {
   const { t } = useLingui()
   const [libraryFilter, setLibraryFilter] = useState<RuleLibraryFilter>('all')
-  const [jurisdictionFilter, setJurisdictionFilter] = useState<JurisdictionFilter>('ALL')
-  const [showAll, setShowAll] = useState(false)
+  const [jurisdictionFilters, setJurisdictionFilters] = useState<string[]>([])
+  const [entityFilters, setEntityFilters] = useState<string[]>([])
+  const [tierFilters, setTierFilters] = useState<string[]>([])
+  const [statusFilters, setStatusFilters] = useState<string[]>([])
+  const [openHeaderFilter, setOpenHeaderFilter] = useState<RuleHeaderFilterId | null>(null)
+  const [pageIndex, setPageIndex] = useState(0)
   const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null)
 
-  const queryInput = {
-    includeCandidates: true,
-    ...(jurisdictionFilter === 'ALL' ? {} : { jurisdiction: jurisdictionFilter }),
-  }
-  const rulesQuery = useQuery(orpc.rules.listRules.queryOptions({ input: queryInput }))
+  const rulesQuery = useQuery(
+    orpc.rules.listRules.queryOptions({ input: { includeCandidates: true } }),
+  )
 
   const rows = useMemo(() => rulesQuery.data ?? EMPTY_RULE_ROWS, [rulesQuery.data])
   const counts = useMemo(() => countRulesByFilter(rows), [rows])
-  const filteredRows = useMemo(() => filterRules(rows, libraryFilter), [libraryFilter, rows])
-  const visibleRows = showAll ? filteredRows : filteredRows.slice(0, DEFAULT_VISIBLE_RULE_ROWS)
+  const tierLabels = useRuleTierLabels()
+  const statusLabels = useRuleStatusLabels()
+  const filteredRows = useMemo(
+    () =>
+      filterRules(rows, libraryFilter).filter(
+        (rule) =>
+          matchesSelected(rule.jurisdiction, jurisdictionFilters) &&
+          matchesAnySelected(rule.entityApplicability, entityFilters) &&
+          matchesSelected(rule.ruleTier, tierFilters) &&
+          matchesSelected(rule.status, statusFilters),
+      ),
+    [entityFilters, jurisdictionFilters, libraryFilter, rows, statusFilters, tierFilters],
+  )
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / RULE_PAGE_SIZE))
+  const currentPageIndex = Math.min(pageIndex, pageCount - 1)
+  const pageStartIndex = currentPageIndex * RULE_PAGE_SIZE
+  const visibleRows = filteredRows.slice(pageStartIndex, pageStartIndex + RULE_PAGE_SIZE)
+  const firstItemNumber = filteredRows.length > 0 ? pageStartIndex + 1 : 0
+  const lastItemNumber = pageStartIndex + visibleRows.length
   const selectedRule = useMemo(
     () => (selectedRuleId ? (rows.find((rule) => rule.id === selectedRuleId) ?? null) : null),
     [rows, selectedRuleId],
+  )
+  const jurisdictionOptions = useMemo(
+    () => ruleFilterOptions(rows, (rule) => [rule.jurisdiction], jurisdictionLabel),
+    [rows],
+  )
+  const entityOptions = useMemo(
+    () =>
+      ruleFilterOptions(
+        rows,
+        (rule) => rule.entityApplicability,
+        (entity) => entity.replaceAll('_', ' '),
+      ),
+    [rows],
+  )
+  const tierOptions = useMemo(
+    () =>
+      ruleFilterOptions(
+        rows,
+        (rule) => [rule.ruleTier],
+        (tier) => tierLabels[tier],
+      ),
+    [rows, tierLabels],
+  )
+  const statusOptions = useMemo(
+    () =>
+      ruleFilterOptions(
+        rows,
+        (rule) => [rule.status],
+        (status) => statusLabels[status],
+      ),
+    [rows, statusLabels],
   )
 
   const handleRuleSelect = useCallback((rule: ObligationRule) => setSelectedRuleId(rule.id), [])
@@ -97,34 +142,84 @@ export function RuleLibraryTab() {
     return <QueryPanelState state="error" message={t`Could not load rule library.`} />
   }
 
-  const footerNote = t`Showing ${visibleRows.length} of ${filteredRows.length} · click any row to open rule detail · candidate rows do not generate user reminders`
-  const showAllAction = t`Show all ${filteredRows.length} →`
+  const emptyFilterLabel = t`No options`
+
+  function setHeaderFilterOpen(filterId: RuleHeaderFilterId, nextOpen: boolean) {
+    setOpenHeaderFilter((current) => (nextOpen ? filterId : current === filterId ? null : current))
+  }
+
+  function updateHeaderFilter(setter: (values: string[]) => void, values: string[]) {
+    setter(values)
+    setPageIndex(0)
+  }
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-4">
         <FilterChips
           options={filterOptions}
           value={libraryFilter}
           onValueChange={(value) => {
             setLibraryFilter(value)
-            setShowAll(false)
+            setPageIndex(0)
           }}
-        />
-        <JurisdictionFilterSelect
-          value={jurisdictionFilter}
-          onValueChange={setJurisdictionFilter}
         />
       </div>
       <SectionFrame>
         <Table>
           <TableHeader className="bg-background-subtle">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[52px]">JUR</TableHead>
+              <TableHead className="w-[82px] px-3">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`JUR`}
+                  open={openHeaderFilter === 'jurisdiction'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('jurisdiction', nextOpen)}
+                  options={jurisdictionOptions}
+                  selected={jurisdictionFilters}
+                  emptyLabel={emptyFilterLabel}
+                  searchable
+                  searchPlaceholder={t`Filter jurisdictions`}
+                  onSelectedChange={(next) => updateHeaderFilter(setJurisdictionFilters, next)}
+                />
+              </TableHead>
               <TableHead>RULE ID</TableHead>
-              <TableHead className="w-[170px]">ENTITY</TableHead>
-              <TableHead className="w-[180px]">TIER</TableHead>
-              <TableHead className="w-[120px]">STATUS</TableHead>
+              <TableHead className="w-[190px] px-3">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`ENTITY`}
+                  open={openHeaderFilter === 'entity'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('entity', nextOpen)}
+                  options={entityOptions}
+                  selected={entityFilters}
+                  emptyLabel={emptyFilterLabel}
+                  onSelectedChange={(next) => updateHeaderFilter(setEntityFilters, next)}
+                />
+              </TableHead>
+              <TableHead className="w-[210px] px-3">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`TIER`}
+                  open={openHeaderFilter === 'tier'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('tier', nextOpen)}
+                  options={tierOptions}
+                  selected={tierFilters}
+                  emptyLabel={emptyFilterLabel}
+                  onSelectedChange={(next) => updateHeaderFilter(setTierFilters, next)}
+                />
+              </TableHead>
+              <TableHead className="w-[140px] px-3">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`STATUS`}
+                  open={openHeaderFilter === 'status'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('status', nextOpen)}
+                  options={statusOptions}
+                  selected={statusFilters}
+                  emptyLabel={emptyFilterLabel}
+                  onSelectedChange={(next) => updateHeaderFilter(setStatusFilters, next)}
+                />
+              </TableHead>
               <TableHead className="w-8" />
             </TableRow>
           </TableHeader>
@@ -134,15 +229,15 @@ export function RuleLibraryTab() {
             ))}
           </TableBody>
         </Table>
-        {filteredRows.length > visibleRows.length ? (
-          <TableFooterBar
-            note={footerNote}
-            action={showAllAction}
-            onAction={() => setShowAll(true)}
-          />
-        ) : (
-          <TableFooterBar note={footerNote} />
-        )}
+        <TablePaginationFooter
+          pageIndex={currentPageIndex}
+          pageCount={pageCount}
+          firstItemNumber={firstItemNumber}
+          lastItemNumber={lastItemNumber}
+          totalCount={filteredRows.length}
+          onPreviousPage={() => setPageIndex(Math.max(0, currentPageIndex - 1))}
+          onNextPage={() => setPageIndex(Math.min(pageCount - 1, currentPageIndex + 1))}
+        />
       </SectionFrame>
       <RuleDetailDrawer
         rule={selectedRule}
@@ -151,6 +246,31 @@ export function RuleLibraryTab() {
       />
     </div>
   )
+}
+
+function matchesSelected(value: string, selected: readonly string[]): boolean {
+  return selected.length === 0 || selected.includes(value)
+}
+
+function matchesAnySelected(values: readonly string[], selected: readonly string[]): boolean {
+  return selected.length === 0 || values.some((value) => selected.includes(value))
+}
+
+function ruleFilterOptions<T extends string>(
+  rules: readonly ObligationRule[],
+  getValues: (rule: ObligationRule) => readonly T[],
+  getLabel: (value: T) => string,
+): TableFilterOption[] {
+  const counts = new Map<T, number>()
+  for (const rule of rules) {
+    for (const value of getValues(rule)) {
+      counts.set(value, (counts.get(value) ?? 0) + 1)
+    }
+  }
+
+  return Array.from(counts.entries())
+    .map(([value, count]) => ({ value, label: getLabel(value), count }))
+    .toSorted((left, right) => left.label.localeCompare(right.label))
 }
 
 function RuleRow({
@@ -202,15 +322,7 @@ function RuleRow({
 }
 
 function StatusCell({ status }: { status: StatusKey }) {
-  const { t } = useLingui()
-  const label = useMemo<Record<StatusKey, string>>(
-    () => ({
-      verified: t`Verified`,
-      candidate: t`Candidate`,
-      deprecated: t`Deprecated`,
-    }),
-    [t],
-  )
+  const label = useRuleStatusLabels()
   return (
     <span className="inline-flex items-center gap-2 text-xs font-medium text-text-primary">
       <ToneDot tone={status === 'candidate' ? 'review' : 'success'} />
@@ -220,16 +332,7 @@ function StatusCell({ status }: { status: StatusKey }) {
 }
 
 function TierBadge({ tier, needsReview }: { tier: TierKey; needsReview: boolean }) {
-  const { t } = useLingui()
-  const tierLabels = useMemo<Record<TierKey, string>>(
-    () => ({
-      basic: t`Basic`,
-      annual_rolling: t`Annual rolling`,
-      exception: t`Exception`,
-      applicability_review: t`Applicability review`,
-    }),
-    [t],
-  )
+  const tierLabels = useRuleTierLabels()
   const className = {
     basic: 'bg-background-subtle text-text-secondary',
     annual_rolling: 'bg-accent-tint text-text-accent',
@@ -253,47 +356,27 @@ function TierBadge({ tier, needsReview }: { tier: TierKey; needsReview: boolean 
   )
 }
 
-function JurisdictionFilterSelect({
-  value,
-  onValueChange,
-}: {
-  value: JurisdictionFilter
-  onValueChange: (value: JurisdictionFilter) => void
-}) {
+function useRuleTierLabels(): Record<TierKey, string> {
   const { t } = useLingui()
-  return (
-    <div className="flex shrink-0 items-center gap-2 text-sm text-text-tertiary">
-      <span>
-        <Trans>Jurisdiction:</Trans>
-      </span>
-      <Select
-        value={value}
-        onValueChange={(next) => {
-          if (isJurisdictionFilter(next)) {
-            onValueChange(next)
-          }
-        }}
-      >
-        <SelectTrigger size="sm" className="h-7 min-w-24 bg-transparent px-2 text-sm shadow-none">
-          <SelectValue>{value === 'ALL' ? t`All` : jurisdictionLabel(value)}</SelectValue>
-        </SelectTrigger>
-        <SelectContent align="end">
-          <SelectGroup>
-            <SelectItem value="ALL">{t`All`}</SelectItem>
-            {RULE_JURISDICTIONS.map((jurisdiction) => (
-              <SelectItem key={jurisdiction} value={jurisdiction}>
-                {jurisdictionLabel(jurisdiction)}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </div>
+  return useMemo(
+    () => ({
+      basic: t`Basic`,
+      annual_rolling: t`Annual rolling`,
+      exception: t`Exception`,
+      applicability_review: t`Applicability review`,
+    }),
+    [t],
   )
 }
 
-function isJurisdictionFilter(value: string | null): value is JurisdictionFilter {
-  if (value === 'ALL') return true
-  if (typeof value !== 'string') return false
-  return (RULE_JURISDICTIONS as readonly string[]).includes(value)
+function useRuleStatusLabels(): Record<StatusKey, string> {
+  const { t } = useLingui()
+  return useMemo(
+    () => ({
+      verified: t`Verified`,
+      candidate: t`Candidate`,
+      deprecated: t`Deprecated`,
+    }),
+    [t],
+  )
 }

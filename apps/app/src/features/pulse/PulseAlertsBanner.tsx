@@ -63,7 +63,16 @@ export function PulseAlertsBanner() {
           active
           label={<AttentionLabel sources={attentionSources} />}
           meta={<PulseMetaTimestamp iso={newestCheckedAt(attentionSources)} />}
-          actions={refreshAction}
+          actions={
+            <RetrySourceHealthButton
+              source={attentionSources[0]}
+              isFetching={alertsQuery.isFetching || sourceHealthQuery.isFetching}
+              onRefresh={() => {
+                void alertsQuery.refetch()
+                void sourceHealthQuery.refetch()
+              }}
+            />
+          }
         />
       )
     }
@@ -268,6 +277,45 @@ function RefreshAlertsButton({
         <Trans>Refresh</Trans>
       </TooltipContent>
     </Tooltip>
+  )
+}
+
+function RetrySourceHealthButton({
+  source,
+  isFetching,
+  onRefresh,
+}: {
+  source: PulseSourceHealth | undefined
+  isFetching: boolean
+  onRefresh: () => void
+}) {
+  const { t } = useLingui()
+  const invalidate = usePulseInvalidation()
+  const retryMutation = useMutation(
+    orpc.pulse.retrySourceHealth.mutationOptions({
+      onSuccess: () => {
+        invalidate()
+        onRefresh()
+      },
+      onError: (err) => {
+        toast.error(t`Please try again.`, {
+          description: rpcErrorMessage(err) ?? undefined,
+        })
+      },
+    }),
+  )
+
+  return (
+    <RefreshAlertsButton
+      isFetching={isFetching || retryMutation.isPending}
+      onRefresh={() => {
+        if (!source) {
+          onRefresh()
+          return
+        }
+        retryMutation.mutate({ sourceId: source.sourceId })
+      }}
+    />
   )
 }
 
