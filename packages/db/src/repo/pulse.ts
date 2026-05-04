@@ -1015,7 +1015,7 @@ export function makePulseRepo(db: Db, firmId: string) {
             ),
           ),
         )
-        .orderBy(desc(pulse.publishedAt), desc(pulseFirmAlert.updatedAt))
+        .orderBy(desc(pulseFirmAlert.updatedAt), desc(pulse.publishedAt))
         .limit(limit)
 
       return rows.map((row) => toAlert(row))

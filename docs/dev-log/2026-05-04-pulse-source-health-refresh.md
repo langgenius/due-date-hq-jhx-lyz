@@ -36,6 +36,9 @@ so `pulse_source_state` changes were invisible until a full page reload.
 - Shortened the no-alert source health warning copy from a full source-list sentence to a
   count-based status, and capped shared Pulse source labels so broad degraded runs render as
   `CA FTB + TX + ... + N more` instead of overflowing with every source id.
+- Kept Pulse banner polling active in background tabs and ordered active banner alerts by firm-alert
+  update time first, so newly generated or reactivated Pulse alerts are surfaced even when their
+  official publication date is older than an existing open alert.
 
 ## Docs Check
 

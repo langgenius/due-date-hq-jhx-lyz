@@ -28,6 +28,7 @@ export function usePulseListAlertsQueryOptions(limit?: number) {
       input: limit === undefined ? undefined : { limit },
     }),
     refetchInterval: PULSE_ACTIVE_ALERTS_REFETCH_INTERVAL_MS,
+    refetchIntervalInBackground: true,
   }
 }
 
@@ -43,6 +44,7 @@ export function usePulseSourceHealthQueryOptions() {
       input: undefined,
     }),
     refetchInterval: PULSE_SOURCE_HEALTH_REFETCH_INTERVAL_MS,
+    refetchIntervalInBackground: true,
   }
 }
 
