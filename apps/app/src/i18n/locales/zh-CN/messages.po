@@ -582,8 +582,12 @@ msgid "AI guard failed"
 msgstr "AI 防护检查失败"
 
 #: src/features/migration/Step2Mapping.tsx
-msgid "AI mapped your columns — review and confirm"
-msgstr "AI 已识别你的列 —— 请审阅并确认"
+msgid "AI Mapper"
+msgstr "AI 映射"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "AI Mapper means AI suggested the fields."
+msgstr "AI Mapper 表示 AI 建议了字段。"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI Mapper unavailable — using fallback"
@@ -1358,10 +1362,6 @@ msgstr "关闭"
 #: src/features/migration/WizardShell.tsx
 msgid "Close wizard"
 msgstr "关闭向导"
-
-#: src/features/migration/Step2Mapping.tsx
-msgid "Code"
-msgstr "错误代码"
 
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Code sent to"
@@ -2479,6 +2479,18 @@ msgstr "{0} 过期"
 msgid "Explain {label}"
 msgstr "解释 {label}"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Explain AI Mapper"
+msgstr "解释 AI Mapper"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Explain Manual mapping"
+msgstr "解释 Manual mapping"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Explain Preset mapping"
+msgstr "解释 Preset mapping"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Export"
 msgstr "导出"
@@ -3212,6 +3224,14 @@ msgstr "面向管理员的事务所运营"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Manual"
 msgstr "手动"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Manual mapping"
+msgstr "手动映射"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Manual mapping means no AI or preset result was available."
+msgstr "Manual mapping 表示没有可用的 AI 或 preset 结果。"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Manual review"
@@ -4673,6 +4693,14 @@ msgstr "正在准备字段映射"
 msgid "Preset"
 msgstr "预设"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Preset mapping"
+msgstr "Preset 映射"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Preset mapping means AI was unavailable and the selected preset filled defaults."
+msgstr "Preset mapping 表示 AI 不可用，已使用所选 preset 的默认映射。"
+
 #. placeholder {0}: preview.asOfDate
 #: src/routes/practice.tsx
 msgid "Preview as of {0}"
@@ -5269,6 +5297,10 @@ msgstr "查看"
 #: src/features/rules/rules-console-primitives.tsx
 msgid "review — needs CPA confirmation"
 msgstr "复核 —— 需 CPA 确认"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Review and confirm column mapping"
+msgstr "请审阅并确认字段映射"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Review note"
@@ -6322,6 +6354,10 @@ msgstr "该提醒的 24 小时撤销窗口已过期。"
 #: src/features/concepts/concept-help.tsx
 msgid "The active CPA firm workspace. Settings, clients, deadlines, members, billing, and audit logs are scoped to the selected practice."
 msgstr "当前 CPA 事务所工作区。设置、客户、截止日、成员、账单和审计日志都限定在所选事务所内。"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "The AI mapper runs first. Selecting a preset adds source context and provides a preset mapping fallback if AI is unavailable."
+msgstr "AI mapper 会先运行。选择 preset 会增加来源上下文，并在 AI 不可用时提供 preset 映射兜底。"
 
 #: src/routes/billing.success.tsx
 msgid "The billing cache and subscription status now agree."

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { AI } from '@duedatehq/ai'
 import { PulseExtractOutputSchema } from '@duedatehq/ai'
 import type { MappingTarget } from '@duedatehq/contracts'
+import { validateNormalizedRows } from './_deterministic'
 import { PRESET_FALLBACK_CONFIDENCE, PRESET_VERSION } from './_preset-mappings'
 import { MigrationService, type MigrationDeps } from './_service'
 
@@ -916,23 +917,15 @@ const PRESET_GOLDENS: FixtureGoldenCase[] = [
     clients: 30,
     expectedEinInvalid: 0,
     expectedMappings: {
-      'Client Name': 'IGNORE',
-      'Tax ID': 'IGNORE',
-      'Entity Type': 'IGNORE',
+      'Account Name': 'client.name',
+      'Account Type': 'IGNORE',
       State: 'client.state',
-      'Tax Return Type': 'IGNORE',
-      Assignee: 'client.assignee_name',
+      'Team Members': 'client.assignee_name',
       Email: 'client.email',
-      Notes: 'client.notes',
-    },
-    importMappings: {
-      'Client Name': 'client.name',
       'Tax ID': 'client.ein',
-      'Entity Type': 'client.entity_type',
-      State: 'client.state',
+      'Tax Entity Type': 'client.entity_type',
       'Tax Return Type': 'client.tax_types',
-      Assignee: 'client.assignee_name',
-      Email: 'client.email',
+      Deadline: 'IGNORE',
       Notes: 'client.notes',
     },
   },
@@ -1031,6 +1024,27 @@ const PRESET_GOLDENS: FixtureGoldenCase[] = [
     },
   },
 ]
+
+describe('Migration deterministic validation copy', () => {
+  it('does not expose internal enum wording for unrecognized entity types', () => {
+    const errors = validateNormalizedRows([
+      {
+        rowIndex: 13,
+        rawRow: { 'Entity Type': 'sole-prop' },
+        state: 'CA',
+        entityType: 'sole-prop',
+      },
+    ])
+
+    expect(errors).toHaveLength(1)
+    expect(errors[0]?.errorCode).toBe('ENTITY_ENUM')
+    expect(errors[0]?.errorMessage).toBe(
+      'We could not recognize the entity type. Review the mapped entity type before import.',
+    )
+    expect(errors[0]?.errorMessage).not.toContain('enum')
+    expect(errors[0]?.errorMessage).not.toContain('sole-prop')
+  })
+})
 
 const MESSY_EXPECTED_MAPPINGS: Record<string, MappingTarget> = {
   Client: 'client.name',
@@ -1214,6 +1228,32 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
           row.model === 'fast-json-test-model',
       ),
     ).toBe(true)
+  })
+
+  it('normalizes entity aliases and defaults unknown entity values to reviewable Other', async () => {
+    const { repo } = buildScopedRepo(FIRM)
+    const ai = buildAi()
+    const service = new MigrationService({ scoped: repo, ai, userId: USER })
+
+    const batch = await service.createBatch({ source: 'paste' })
+    const csv = `Client Name,Tax ID,State,Entity Type\nAlias Co,99-0000001,CA,sole-prop\nUnknown Co,99-0000002,NY,strange entity`
+    await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: csv })
+    const mapper = await service.runMapper(batch.id)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
+
+    const result = await service.runNormalizer(batch.id)
+    const entityRows = result.normalizations.filter((row) => row.field === 'entity_type')
+
+    expect(entityRows.find((row) => row.rawValue === 'sole-prop')?.normalizedValue).toBe(
+      'sole_prop',
+    )
+    expect(entityRows.find((row) => row.rawValue === 'strange entity')).toMatchObject({
+      normalizedValue: 'other',
+      confidence: 0.25,
+    })
   })
 
   it('marks Solo migration onboarding complete after any successful import attempt', async () => {
@@ -1431,7 +1471,7 @@ describe('MigrationService fixture golden tests', () => {
     const mapper = await service.runMapper(batch.id)
     expectFixtureMappings(mapper.mappings, {
       'Client Name': 'IGNORE',
-      'Tax ID': 'IGNORE',
+      'Tax ID': 'client.ein',
       'Entity Type': 'IGNORE',
       State: 'client.state',
       'Estimated Tax Due': 'IGNORE',

@@ -240,6 +240,9 @@ Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wi
 - 超 1000 行前端**只**读取前 1000 行 + 顶部 Banner（见线框）
 - SSN 正则 `\d{3}-\d{2}-\d{4}`；命中列强制 `IGNORE` 并将表格列头边框替换为 `{colors.severity-critical}`（Step 2 透传给 Mapper 结果行）
 - Preset chips：5 个顺序固定 **TaxDome · Drake · Karbon · QuickBooks · File In Time**（对齐 [`./10-conflict-resolutions.md#2-5-preset-含-file-in-time`](./10-conflict-resolutions.md#2-5-preset-含-file-in-time)）
+- Preset chips 下方必须说明能力顺序：AI Mapper 先运行；Preset 作为来源上下文传入 AI，
+  并在 AI 不可用时作为 preset mapping fallback。用户不能被迫从 UI 猜测当前使用的是
+  AI 还是 preset。
 - File In Time chip hover：弹出 tooltip（宽 240px，`{rounded.md}`，阴影 Level 3）
 
   ```
@@ -253,25 +256,26 @@ Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wi
 
 ### 4.4 文案表（EN + zh-CN + Lingui 宏）
 
-| 字段                      | EN 原文                                                                                                    | zh-CN 对照                                                                     | 宏                                            |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------- |
-| Title                     | `Import clients · Step 1 of 4`                                                                             | `导入客户 · 第 1 步 / 共 4 步`                                                 | `<Trans>`                                     |
-| Subtitle                  | `Where is your data coming from?`                                                                          | `你的数据从哪里来？`                                                           | `<Trans>`                                     |
-| Paste placeholder         | `Paste here — any shape, we'll figure it out. Include the header row if you have one.`                     | `粘贴到这里 —— 任何格式都行，我们会自动识别。如果有表头也请一并粘贴。`         | `` t`...` ``（textarea placeholder 用函数式） |
-| Upload hint               | `Drop CSV / TSV / XLSX here or choose file · max 1000 rows · 2 MB`                                         | `把 CSV / TSV / XLSX 拖到这里或点击上传 · 最多 1000 行 · 2 MB`                 | `<Trans>`                                     |
-| Upload reading            | `Reading file…`                                                                                            | `正在读取文件…`                                                                | `<Trans>`                                     |
-| Preset label              | `I'm coming from…`                                                                                         | `我正在从…迁移过来`                                                            | `<Trans>`                                     |
-| FIT tooltip               | `Coming from File In Time? We'll map available calendar fields and flag gaps before generating deadlines.` | `正在从 File In Time 迁移？我们会映射可用日历字段，并在生成截止日前标记缺口。` | `<Trans>`                                     |
-| SSN banner                | `We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI.`             | `为了保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。`                   | `<Trans>`                                     |
-| Row overflow warning      | `We imported the first 1000 rows. Split your file to import more.`                                         | `我们只读取了前 1000 行。请拆分文件后再次导入。`                               | `<Plural>`（按 rows 数）                      |
-| Primary CTA               | `Continue →`                                                                                               | `下一步 →`                                                                     | `<Trans>`                                     |
-| Secondary CTA             | `← Back`                                                                                                   | `← 返回`                                                                       | `<Trans>`                                     |
-| Error banner (parse fail) | `We couldn't read that file. Try exporting as CSV.`                                                        | `无法读取该文件。请先导出为 CSV 再试。`                                        | `<Trans>`                                     |
-| Error banner (no rows)    | `We found a header, but no data rows. Add at least one client row to continue.`                            | `找到了表头，但没有数据行。请至少添加一条客户记录后继续。`                     | `` t`...` ``                                  |
-| Empty state               | `Paste or upload to continue.`                                                                             | `请粘贴或上传数据以继续。`                                                     | `<Trans>`                                     |
-| Close confirm title       | `Discard import?`                                                                                          | `要丢弃此次导入吗？`                                                           | `<Trans>`                                     |
-| Close confirm body        | `Your pasted data and unsaved edits in this wizard will be lost.`                                          | `你粘贴的数据和向导中未保存的修改将会丢失。`                                   | `<Trans>`                                     |
-| Close confirm CTAs        | `Keep editing` / `Discard import`                                                                          | `继续编辑` / `丢弃导入`                                                        | `<Trans>`                                     |
+| 字段                      | EN 原文                                                                                                                         | zh-CN 对照                                                                                 | 宏                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------- |
+| Title                     | `Import clients · Step 1 of 4`                                                                                                  | `导入客户 · 第 1 步 / 共 4 步`                                                             | `<Trans>`                                     |
+| Subtitle                  | `Where is your data coming from?`                                                                                               | `你的数据从哪里来？`                                                                       | `<Trans>`                                     |
+| Paste placeholder         | `Paste here — any shape, we'll figure it out. Include the header row if you have one.`                                          | `粘贴到这里 —— 任何格式都行，我们会自动识别。如果有表头也请一并粘贴。`                     | `` t`...` ``（textarea placeholder 用函数式） |
+| Upload hint               | `Drop CSV / TSV / XLSX here or choose file · max 1000 rows · 2 MB`                                                              | `把 CSV / TSV / XLSX 拖到这里或点击上传 · 最多 1000 行 · 2 MB`                             | `<Trans>`                                     |
+| Upload reading            | `Reading file…`                                                                                                                 | `正在读取文件…`                                                                            | `<Trans>`                                     |
+| Preset label              | `I'm coming from…`                                                                                                              | `我正在从…迁移过来`                                                                        | `<Trans>`                                     |
+| Preset helper             | `The AI mapper runs first. Selecting a preset adds source context and provides a preset mapping fallback if AI is unavailable.` | `AI mapper 会先运行。选择 preset 会增加来源上下文，并在 AI 不可用时提供 preset 映射兜底。` | `<Trans>`                                     |
+| FIT tooltip               | `Coming from File In Time? We'll map available calendar fields and flag gaps before generating deadlines.`                      | `正在从 File In Time 迁移？我们会映射可用日历字段，并在生成截止日前标记缺口。`             | `<Trans>`                                     |
+| SSN banner                | `We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI.`                                  | `为了保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。`                               | `<Trans>`                                     |
+| Row overflow warning      | `We imported the first 1000 rows. Split your file to import more.`                                                              | `我们只读取了前 1000 行。请拆分文件后再次导入。`                                           | `<Plural>`（按 rows 数）                      |
+| Primary CTA               | `Continue →`                                                                                                                    | `下一步 →`                                                                                 | `<Trans>`                                     |
+| Secondary CTA             | `← Back`                                                                                                                        | `← 返回`                                                                                   | `<Trans>`                                     |
+| Error banner (parse fail) | `We couldn't read that file. Try exporting as CSV.`                                                                             | `无法读取该文件。请先导出为 CSV 再试。`                                                    | `<Trans>`                                     |
+| Error banner (no rows)    | `We found a header, but no data rows. Add at least one client row to continue.`                                                 | `找到了表头，但没有数据行。请至少添加一条客户记录后继续。`                                 | `` t`...` ``                                  |
+| Empty state               | `Paste or upload to continue.`                                                                                                  | `请粘贴或上传数据以继续。`                                                                 | `<Trans>`                                     |
+| Close confirm title       | `Discard import?`                                                                                                               | `要丢弃此次导入吗？`                                                                       | `<Trans>`                                     |
+| Close confirm body        | `Your pasted data and unsaved edits in this wizard will be lost.`                                                               | `你粘贴的数据和向导中未保存的修改将会丢失。`                                               | `<Trans>`                                     |
+| Close confirm CTAs        | `Keep editing` / `Discard import`                                                                                               | `继续编辑` / `丢弃导入`                                                                    | `<Trans>`                                     |
 
 ### 4.5 键盘 / a11y
 
@@ -334,7 +338,7 @@ Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wi
 │  Import clients · Step 2 of 4                             [Close ×]  │
 │  ①──────② · · · ③ · · · ④                                            │
 ├──────────────────────────────────────────────────────────────────────┤
-│  AI mapped your columns — review and confirm                         │   ← {typography.title}
+│  Review and confirm column mapping                 [AI Mapper]       │   ← {typography.title} + capability badge
 │  Average confidence 92% · EIN detected 100%              [Re-run AI] │   ← 右侧 button-secondary；数值走 {typography.numeric}
 │                                                          [Export ▼]  │
 │                                                                      │
@@ -364,17 +368,17 @@ Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wi
 ```
 ┌─ Popover · 宽 240px · Level 3 ────────────────┐
 │  Map "Resp" to…                               │
-│   ○ Client name                               │
-│   ○ EIN                                       │
-│   ○ State                                     │
-│   ○ County                                    │
-│   ○ Entity type                               │
-│   ○ Tax types                                 │
-│   ○ Email                                     │
 │   ● Assignee          ← 当前选中              │
+│   ○ Client name                               │
+│   ○ County                                    │
+│   ○ EIN                                       │
+│   ○ Email                                     │
+│   ○ Entity type                               │
 │   ○ Estimated tax liability                   │
-│   ○ Owner count                               │
 │   ○ Notes                                     │
+│   ○ Owner count                               │
+│   ○ Tax types                                 │
+│   ○ …                                         │
 │   ──────────────────────────                  │
 │   ○ Ignore this column                        │
 └───────────────────────────────────────────────┘
@@ -382,6 +386,8 @@ Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wi
 
 - UI 只展示用户可读字段名（Client name / EIN / State / Entity type 等）；`client.*`
   target 仅保留在内部 contract / audit payload 中。
+- Edit 下拉内的可选字段按当前语言下用户可见 label 字母序排列；`Ignore this column`
+  始终保留在分隔线后，作为最后的独立动作。
 - 边缘项：`IGNORE`（分组线分隔；`{colors.text-muted}`）
 
 **行 hover Popover（AI reasoning）**：
@@ -410,9 +416,16 @@ Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wi
 
 ### 5.4 fallback_preset 态 Banner
 
+Step 2 标题右侧始终显示 capability badge，三种 badge 均使用 destructive/red 视觉。
+badge 右侧必须有红色问号 icon；hover / focus 后展示该 badge 对应解释文案：
+
+- `AI Mapper`：`AI Mapper means AI suggested the fields.`
+- `Preset mapping`：`Preset mapping means AI was unavailable and the selected preset filled defaults.`
+- `Manual mapping`：`Manual mapping means no AI or preset result was available.`
+
 ```
 ┌─ role="alert" · aria-live="assertive" ──────────────────────────────┐
-│  ⚠ We couldn't reach AI. Using your {preset} default mapping —       │   ← 背景 {colors.severity-medium-tint}；边框 {colors.severity-medium-border}
+│  ⚠ We couldn't reach AI. Using your {preset} default mapping —       │   ← destructive/red alert；AI 不可用时必须红色提示
 │     review and edit as needed.                                       │     文本 {colors.text-primary}
 └──────────────────────────────────────────────────────────────────────┘
 ```
@@ -428,20 +441,24 @@ Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wi
 
 ### 5.6 文案表（EN + zh-CN + Lingui 宏）
 
-| 字段                              | EN 原文                                                                                  | zh-CN 对照                                              | 宏                          |
-| --------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------- | --------------------------- |
-| Title                             | `AI mapped your columns — review and confirm`                                            | `AI 已识别你的列 —— 请审阅并确认`                       | `<Trans>`                   |
-| Subtitle（metrics）               | `Average confidence {avg}% · EIN detected {einPct}%`                                     | `平均置信度 {avg}% · EIN 识别率 {einPct}%`              | `<Trans>` + `<Plural>` 可选 |
-| Primary CTA                       | `Continue →`                                                                             | `下一步 →`                                              | `<Trans>`                   |
-| Secondary CTA                     | `Re-run AI` / `Re-run AI with my overrides`                                              | `重新运行 AI` / `带上我的修改重跑 AI`                   | `<Trans>`                   |
-| Export menu                       | `Export mapping ▼` → `Download JSON` / `Copy to clipboard`                               | `导出映射 ▼` → `下载 JSON` / `复制到剪贴板`             | `<Trans>`                   |
-| Low-conf banner                   | `{count, plural, one {# column needs your review} other {# columns need your review}}`   | `{count} 列需要你复核`                                  | `<Plural>`                  |
-| Fallback banner                   | `We couldn't reach AI. Using your {preset} default mapping — review and edit as needed.` | `无法连接 AI，已使用 {preset} 默认映射 —— 请按需修改。` | `<Trans>`                   |
-| Error state                       | `Something went wrong while mapping. Retry?`                                             | `字段映射失败，要重试吗？`                              | `<Trans>`                   |
-| Reasoning popover title           | `Why this mapping?`                                                                      | `AI 为什么这样映射？`                                   | `<Trans>`                   |
-| Row hover: Sample after transform | `Sample after transform`                                                                 | `转换后样例`                                            | `<Trans>`                   |
-| Edit popover title                | `Map "{column}" to…`                                                                     | `把 "{column}" 映射到…`                                 | `<Trans>`                   |
-| Edit popover: ignore              | `Ignore this column`                                                                     | `忽略该列`                                              | `<Trans>`                   |
+| 字段                              | EN 原文                                                                                  | zh-CN 对照                                                      | 宏                          |
+| --------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------- |
+| Title                             | `Review and confirm column mapping`                                                      | `请审阅并确认字段映射`                                          | `<Trans>`                   |
+| Capability badge                  | `AI Mapper` / `Preset mapping` / `Manual mapping`                                        | `AI 映射` / `Preset 映射` / `手动映射`                          | `<Trans>`                   |
+| Capability helper · AI            | `AI Mapper means AI suggested the fields.`                                               | `AI Mapper 表示 AI 建议了字段。`                                | `<Trans>`                   |
+| Capability helper · Preset        | `Preset mapping means AI was unavailable and the selected preset filled defaults.`       | `Preset mapping 表示 AI 不可用，已使用所选 preset 的默认映射。` | `<Trans>`                   |
+| Capability helper · Manual        | `Manual mapping means no AI or preset result was available.`                             | `Manual mapping 表示没有可用的 AI 或 preset 结果。`             | `<Trans>`                   |
+| Subtitle（metrics）               | `Average confidence {avg}% · EIN detected {einPct}%`                                     | `平均置信度 {avg}% · EIN 识别率 {einPct}%`                      | `<Trans>` + `<Plural>` 可选 |
+| Primary CTA                       | `Continue →`                                                                             | `下一步 →`                                                      | `<Trans>`                   |
+| Secondary CTA                     | `Re-run AI` / `Re-run AI with my overrides`                                              | `重新运行 AI` / `带上我的修改重跑 AI`                           | `<Trans>`                   |
+| Export menu                       | `Export mapping ▼` → `Download JSON` / `Copy to clipboard`                               | `导出映射 ▼` → `下载 JSON` / `复制到剪贴板`                     | `<Trans>`                   |
+| Low-conf banner                   | `{count, plural, one {# column needs your review} other {# columns need your review}}`   | `{count} 列需要你复核`                                          | `<Plural>`                  |
+| Fallback banner                   | `We couldn't reach AI. Using your {preset} default mapping — review and edit as needed.` | `无法连接 AI，已使用 {preset} 默认映射 —— 请按需修改。`         | `<Trans>`                   |
+| Error state                       | `Something went wrong while mapping. Retry?`                                             | `字段映射失败，要重试吗？`                                      | `<Trans>`                   |
+| Reasoning popover title           | `Why this mapping?`                                                                      | `AI 为什么这样映射？`                                           | `<Trans>`                   |
+| Row hover: Sample after transform | `Sample after transform`                                                                 | `转换后样例`                                                    | `<Trans>`                   |
+| Edit popover title                | `Map "{column}" to…`                                                                     | `把 "{column}" 映射到…`                                         | `<Trans>`                   |
+| Edit popover: ignore              | `Ignore this column`                                                                     | `忽略该列`                                                      | `<Trans>`                   |
 
 ### 5.7 键盘 / a11y
 

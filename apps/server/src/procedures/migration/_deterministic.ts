@@ -143,7 +143,7 @@ export function validateRows(
         rowIndex,
         rawRow,
         errorCode: 'EIN_INVALID',
-        errorMessage: `EIN value ${einValue} does not match \`##-#######\` pattern.`,
+        errorMessage: 'The EIN does not match the expected ##-####### format.',
       })
     }
   })
@@ -153,8 +153,9 @@ export function validateRows(
 
 /**
  * Post-normalize validator: after Step 3, state must be a 2-letter code and
- * entity_type must be in the 8-item enum. Anything else gets recorded but
- * does not abort Step 4 commit (the row is excluded with errorCode).
+ * entity_type must be one of the supported import values. Anything else gets
+ * recorded but does not abort Step 4 commit (the row is excluded with
+ * errorCode).
  */
 export interface NormalizedRowCheckInput {
   rowIndex: number
@@ -173,7 +174,7 @@ export function validateNormalizedRows(
         rowIndex: r.rowIndex,
         rawRow: r.rawRow,
         errorCode: 'STATE_FORMAT',
-        errorMessage: `State value '${r.state}' is not a 2-letter US code after normalize.`,
+        errorMessage: 'The state should be a two-letter US state code.',
       })
     }
     if (r.entityType !== null && !ENTITY_ENUM.has(r.entityType)) {
@@ -181,7 +182,8 @@ export function validateNormalizedRows(
         rowIndex: r.rowIndex,
         rawRow: r.rawRow,
         errorCode: 'ENTITY_ENUM',
-        errorMessage: `Entity type '${r.entityType}' is outside the 8-item enum.`,
+        errorMessage:
+          'We could not recognize the entity type. Review the mapped entity type before import.',
       })
     }
   }

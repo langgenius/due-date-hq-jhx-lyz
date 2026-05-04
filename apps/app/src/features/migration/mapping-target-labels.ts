@@ -35,6 +35,7 @@ export const SELECTABLE_MAPPING_TARGETS = [
   'penalty.ui_wage_report_count',
   'client.notes',
 ] satisfies ReadonlyArray<MappingTarget>
+export type SelectableMappingTarget = (typeof SELECTABLE_MAPPING_TARGETS)[number]
 
 export type MappingTargetLabels = Record<MappingTarget, string>
 
@@ -84,8 +85,29 @@ export function formatMigrationErrorMessage(
   if (error.errorCode === 'EMPTY_NAME') {
     return 'Row is missing a client name value.'
   }
+  if (error.errorCode === 'EIN_INVALID') {
+    return 'The EIN does not match the expected ##-####### format.'
+  }
+  if (error.errorCode === 'STATE_FORMAT') {
+    return 'The state should be a two-letter US state code.'
+  }
+  if (error.errorCode === 'ENTITY_ENUM') {
+    return 'We could not recognize the entity type. Review the mapped entity type before import.'
+  }
 
   return replaceInternalTargetNames(error.errorMessage, labels)
+}
+
+export function getAlphabetizedMappingTargets(
+  labels: MappingTargetLabels,
+): SelectableMappingTarget[] {
+  return SELECTABLE_MAPPING_TARGETS.toSorted((a, b) => {
+    const byLabel = labels[a].localeCompare(labels[b], undefined, {
+      sensitivity: 'base',
+      numeric: true,
+    })
+    return byLabel === 0 ? a.localeCompare(b) : byLabel
+  })
 }
 
 function replaceInternalTargetNames(message: string, labels: MappingTargetLabels) {

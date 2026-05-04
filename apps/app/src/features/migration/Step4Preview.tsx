@@ -170,9 +170,6 @@ export function Step4Preview({ summary }: Step4Props) {
                 <span className="font-mono text-xs tabular-nums text-text-secondary">
                   row {err.rowIndex + 1}
                 </span>
-                <span className="font-mono text-xs tabular-nums text-text-tertiary">
-                  {err.errorCode}
-                </span>
                 <span className="text-sm">{formatMigrationErrorMessage(err, targetLabels)}</span>
               </li>
             ))}

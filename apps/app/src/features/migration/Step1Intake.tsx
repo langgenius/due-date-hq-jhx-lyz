@@ -650,6 +650,12 @@ export function Step1Intake({
                 />
               ))}
             </div>
+            <p className="text-sm text-text-tertiary">
+              <Trans>
+                The AI mapper runs first. Selecting a preset adds source context and provides a
+                preset mapping fallback if AI is unavailable.
+              </Trans>
+            </p>
           </div>
         </>
       ) : null}

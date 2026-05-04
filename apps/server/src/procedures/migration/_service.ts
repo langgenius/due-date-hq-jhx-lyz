@@ -1134,16 +1134,17 @@ export class MigrationService {
         aiOutputId,
         rows: rawValues.map((raw) => {
           const hit = hits.get(raw)
+          const normalized = resolveEntityNormalization(raw, hit ?? null)
           return {
             id: crypto.randomUUID(),
             batchId,
             field: 'entity_type',
             rawValue: raw,
-            normalizedValue: hit?.normalized ?? null,
-            confidence: hit?.confidence ?? null,
+            normalizedValue: normalized.value,
+            confidence: normalized.confidence,
             model: aiResult.model,
             promptVersion: 'normalizer-entity@v1',
-            reasoning: hit?.reasoning ?? null,
+            reasoning: normalized.reasoning,
             userOverridden: false,
             createdAt: now,
           } satisfies NormalizationRow
@@ -1154,17 +1155,17 @@ export class MigrationService {
     return {
       aiOutputId,
       rows: rawValues.map((raw) => {
-        const hit = normalizeEntityType(raw)
+        const normalized = resolveEntityNormalization(raw, null)
         return {
           id: crypto.randomUUID(),
           batchId,
           field: 'entity_type',
           rawValue: raw,
-          normalizedValue: hit?.normalized ?? null,
-          confidence: hit?.confidence ?? null,
+          normalizedValue: normalized.value,
+          confidence: normalized.confidence,
           model: null,
-          promptVersion: hit?.promptVersion ?? PRESET_VERSION,
-          reasoning: hit ? 'Local dictionary fallback.' : 'No dictionary match.',
+          promptVersion: normalized.promptVersion,
+          reasoning: normalized.reasoning,
           userOverridden: false,
           createdAt: now,
         } satisfies NormalizationRow
@@ -1400,6 +1401,54 @@ function collectColumn(idx: number | undefined, rows: string[][]): string[] {
     }
   }
   return Array.from(out)
+}
+
+function resolveEntityNormalization(
+  raw: string,
+  hit: EntityNormalizerResult | null,
+): {
+  value: EntityType
+  confidence: number
+  promptVersion: string
+  reasoning: string
+} {
+  if (hit) {
+    const normalized = canonicalizeEntityType(hit.normalized)
+    if (normalized) {
+      return {
+        value: normalized,
+        confidence: hit.confidence,
+        promptVersion: 'normalizer-entity@v1',
+        reasoning: hit.reasoning,
+      }
+    }
+  }
+
+  const dictionaryHit = normalizeEntityType(raw)
+  if (dictionaryHit) {
+    return {
+      value: dictionaryHit.normalized,
+      confidence: dictionaryHit.confidence,
+      promptVersion: dictionaryHit.promptVersion,
+      reasoning: hit
+        ? `${hit.reasoning} Local dictionary corrected the entity type.`
+        : 'Local dictionary fallback.',
+    }
+  }
+
+  return {
+    value: 'other',
+    confidence: 0.25,
+    promptVersion: hit ? 'normalizer-entity@v1' : PRESET_VERSION,
+    reasoning: hit
+      ? `${hit.reasoning} Marked as Other for review.`
+      : 'No entity type match; marked as Other for review.',
+  }
+}
+
+function canonicalizeEntityType(value: string): EntityType | null {
+  if (isEntityType(value)) return value
+  return normalizeEntityType(value)?.normalized ?? null
 }
 
 function normalizeTaxTypesDictionary(raw: string): string[] {

@@ -12,7 +12,7 @@
 
 | 文件                                                                                   | 行数（数据）       | 列数 | 覆盖场景                                                                                  | 期望 mapping 置信度均值 | 期望 EIN 识别率          | 故意坏行数 |
 | -------------------------------------------------------------------------------------- | ------------------ | ---- | ----------------------------------------------------------------------------------------- | ----------------------- | ------------------------ | ---------- |
-| [`./taxdome-30clients.csv`](./taxdome-30clients.csv)                                   | 30                 | 9    | TaxDome 导出 · 全字段干净 · CA+NY 8 实体型混合 · 含未来 deadline                          | ≥ 95%                   | 100%                     | 0          |
+| [`./taxdome-30clients.csv`](./taxdome-30clients.csv)                                   | 30                 | 10   | TaxDome account import · 真实 account 字段 + custom tax fields · 含 mixed deadline        | ≥ 95%                   | 100%                     | 0          |
 | [`./drake-30clients.csv`](./drake-30clients.csv)                                       | 30                 | 7    | Drake 导出 · 全字段 · 含 2 坏行触发 needs_review / normalize                              | ≥ 95%                   | 100%                     | 2          |
 | [`./karbon-20clients.csv`](./karbon-20clients.csv)                                     | 20                 | 5    | Karbon 导出 · 缺 tax_types 列 → 走 Default Matrix                                         | ≥ 85%                   | 100%                     | 1          |
 | [`./quickbooks-20clients.csv`](./quickbooks-20clients.csv)                             | 20                 | 4    | QuickBooks 仅元数据 · state 全称需归一                                                    | ≥ 80%                   | 95%                      | 2          |
@@ -21,7 +21,7 @@
 | [`./taxdome-exposure-3clients.csv`](./taxdome-exposure-3clients.csv)                   | 3                  | 9    | TaxDome exposure 专用 · 含 Estimated Tax Due / Owner Count，验证 penalty preview 可计算   | ≥ 85% fallback          | 100%                     | 0          |
 | [`./integration-provider-json-samples.json`](./integration-provider-json-samples.json) | 8 provider records | JSON | JSON handoff 手工测试 · API/Zapier/转换后 report records                                  | N/A                     | 100%                     | 0          |
 
-**总 Preset fixture 行数 = 133** · **Agent demo 行数 = 52** · **Preset 列数合计 = 43**
+**总 Preset fixture 行数 = 133** · **Agent demo 行数 = 52** · **Preset 列数合计 = 44**
 
 #### `integration-provider-json-samples.json`
 
@@ -37,11 +37,15 @@
 
 #### `taxdome-30clients.csv`
 
-- 列：`Client Name, Tax ID, Entity Type, State, Tax Return Type, Assignee, Email, Deadline, Notes`
-- 30 行：10 LLC / 6 S-Corp / 4 Partnership / 4 C-Corp / 2 Sole Prop / 2 Trust / 2 Individual
+- 列：`Account Name, Account Type, State, Team Members, Email, Tax ID, Tax Entity Type, Tax Return Type, Deadline, Notes`
+- 30 行：10 LLC / 6 S-Corp / 4 Partnership / 4 C-Corp / 2 Sole Proprietor / 2 Trust / 2 Individual
 - 辖区：16 CA + 14 NY
 - EIN 段：`99-0000001` ~ `99-0000030`
-- Deadline：以 `2026-05-04` 为基准，10 条分布在未来一周内，10 条分布在未来一个月内，10 条分布在更远未来
+- TaxDome 真实字段口径：`Account Name` / `Account Type` / `State` / `Team Members` / `Email` / `Notes` 对齐 TaxDome account/contact import；`Tax ID` / `Tax Entity Type` / `Tax Return Type` / `Deadline` 作为 account custom fields
+- Account Type：仅使用 TaxDome 的 `Company` / `Individual` / `Other`，不再承载 LLC / S-Corp / Sole Proprietor 等内部 tax entity
+- Tax Entity Type：使用 Default Matrix 可归一值；sole-prop 行写作 `Sole Proprietor`，归一为内部枚举 `sole_prop`
+- Deadline：以 `2026-05-04` 为基准，5 条 overdue、1 条 today、8 条 30 天内、9 条 2026 下半年、7 条 2027 长期未来；日期格式使用 TaxDome US import 常见的 `MM/DD/YYYY`
+- 注意：`Deadline` 是 vendor calendar fixture column；当前 Migration import contract 仍由 `Tax Return Type` / Default Matrix / verified rules 生成正式 obligations，除非导入映射目标后续扩展出 due-date 字段
 - 验证：Preset 自动识别 + AI Mapping 置信度均值 ≥ 95% + EIN 识别率 = 100%（双指标 T-S2-01，见 [`../10-conflict-resolutions.md#3-t-s2-01-双指标口径`](../10-conflict-resolutions.md#3-t-s2-01-双指标口径)）
 
 #### `taxdome-exposure-3clients.csv`
@@ -154,13 +158,15 @@ rg -nE "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}" . | rg -v "@example\.com
 ```json
 {
   "mappings": [
-    { "source": "Client Name", "target": "client.name" },
-    { "source": "Tax ID", "target": "client.ein" },
-    { "source": "Entity Type", "target": "client.entity_type" },
+    { "source": "Account Name", "target": "client.name" },
+    { "source": "Account Type", "target": "IGNORE" },
     { "source": "State", "target": "client.state" },
-    { "source": "Tax Return Type", "target": "client.tax_types" },
-    { "source": "Assignee", "target": "client.assignee_name" },
+    { "source": "Team Members", "target": "client.assignee_name" },
     { "source": "Email", "target": "client.email" },
+    { "source": "Tax ID", "target": "client.ein" },
+    { "source": "Tax Entity Type", "target": "client.entity_type" },
+    { "source": "Tax Return Type", "target": "client.tax_types" },
+    { "source": "Deadline", "target": "IGNORE" },
     { "source": "Notes", "target": "client.notes" }
   ]
 }

@@ -1,5 +1,13 @@
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
-import { ChevronDownIcon, RefreshCwIcon, StarIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
+import {
+  ChevronDownIcon,
+  CircleHelpIcon,
+  ListChecksIcon,
+  RefreshCwIcon,
+  SparklesIcon,
+  StarIcon,
+} from 'lucide-react'
 
 import {
   MappingTargetSchema,
@@ -8,8 +16,10 @@ import {
   type MigrationError,
 } from '@duedatehq/contracts'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
+import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,8 +41,8 @@ import {
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import {
-  SELECTABLE_MAPPING_TARGETS,
   formatMigrationErrorMessage,
+  getAlphabetizedMappingTargets,
   useMappingTargetLabels,
 } from './mapping-target-labels'
 import type { MapperState } from './state'
@@ -95,9 +105,12 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
   return (
     <div className="flex flex-col gap-4 py-5">
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold text-text-primary">
-          <Trans>AI mapped your columns — review and confirm</Trans>
-        </h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-lg font-semibold text-text-primary">
+            <Trans>Review and confirm column mapping</Trans>
+          </h2>
+          <MappingCapabilityBadge mapping={mapping} />
+        </div>
         <div className="flex items-center justify-between gap-3">
           <p className="text-md text-text-secondary">
             {avgConfidence !== null ? (
@@ -127,7 +140,7 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
       </div>
 
       {mapping.status === 'fallback' ? (
-        <Alert role="alert" aria-live="assertive">
+        <Alert variant="destructive" role="alert" aria-live="assertive">
           <AlertTitle>
             <Trans>AI Mapper unavailable — using fallback</Trans>
           </AlertTitle>
@@ -256,6 +269,96 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
 
 type Tier = 'high' | 'medium' | 'low' | 'none'
 
+function MappingCapabilityBadge({ mapping }: { mapping: MapperState }) {
+  const { t } = useLingui()
+
+  if (mapping.status === 'fallback' && mapping.fallback === 'preset') {
+    return (
+      <MappingCapabilityHelp
+        label={t`Explain Preset mapping`}
+        title={t`Preset mapping means AI was unavailable and the selected preset filled defaults.`}
+        badge={
+          <Badge variant="destructive">
+            <ListChecksIcon data-icon="inline-start" />
+            <Trans>Preset mapping</Trans>
+          </Badge>
+        }
+      >
+        <Trans>
+          Preset mapping means AI was unavailable and the selected preset filled defaults.
+        </Trans>
+      </MappingCapabilityHelp>
+    )
+  }
+
+  if (mapping.status === 'fallback' && mapping.fallback === 'all_ignore') {
+    return (
+      <MappingCapabilityHelp
+        label={t`Explain Manual mapping`}
+        title={t`Manual mapping means no AI or preset result was available.`}
+        badge={
+          <Badge variant="destructive">
+            <BadgeStatusDot tone="error" />
+            <Trans>Manual mapping</Trans>
+          </Badge>
+        }
+      >
+        <Trans>Manual mapping means no AI or preset result was available.</Trans>
+      </MappingCapabilityHelp>
+    )
+  }
+
+  return (
+    <MappingCapabilityHelp
+      label={t`Explain AI Mapper`}
+      title={t`AI Mapper means AI suggested the fields.`}
+      badge={
+        <Badge variant="destructive">
+          <SparklesIcon data-icon="inline-start" />
+          <Trans>AI Mapper</Trans>
+        </Badge>
+      }
+    >
+      <Trans>AI Mapper means AI suggested the fields.</Trans>
+    </MappingCapabilityHelp>
+  )
+}
+
+function MappingCapabilityHelp({
+  badge,
+  label,
+  title,
+  children,
+}: {
+  badge: ReactNode
+  label: string
+  title: string
+  children: ReactNode
+}) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      {badge}
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <button
+              type="button"
+              aria-label={label}
+              title={title}
+              className="inline-flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-md text-text-destructive outline-none transition-colors hover:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
+            >
+              <CircleHelpIcon className="size-3.5" aria-hidden />
+            </button>
+          }
+        />
+        <TooltipContent className="max-w-[280px] text-text-destructive whitespace-normal">
+          {children}
+        </TooltipContent>
+      </Tooltip>
+    </span>
+  )
+}
+
 function confidenceTier(c: number | null, target: MappingTarget): Tier {
   if (target === 'IGNORE') return 'none'
   if (c === null) return 'none'
@@ -334,9 +437,6 @@ function BadRowsPanel({
               <TableHead className="w-[80px]">
                 <Trans>Row</Trans>
               </TableHead>
-              <TableHead className="w-[160px]">
-                <Trans>Code</Trans>
-              </TableHead>
               <TableHead>
                 <Trans>Reason</Trans>
               </TableHead>
@@ -346,9 +446,6 @@ function BadRowsPanel({
             {errors.map((err) => (
               <TableRow key={err.id}>
                 <TableCell className="font-mono text-xs tabular-nums">{err.rowIndex + 1}</TableCell>
-                <TableCell className="font-mono text-xs uppercase tracking-wide text-text-warning">
-                  {err.errorCode}
-                </TableCell>
                 <TableCell className="text-text-secondary">
                   {formatMigrationErrorMessage(err, targetLabels)}
                 </TableCell>
@@ -362,6 +459,8 @@ function BadRowsPanel({
 }
 
 function EditPopover({ current, sourceHeader, targetLabels, onChange }: EditPopoverProps) {
+  const alphabetizedTargets = getAlphabetizedMappingTargets(targetLabels)
+
   // Base UI types `onValueChange` as `(value: any) => void`; validate the
   // payload at runtime to keep the public API strictly typed.
   function handleValueChange(next: unknown) {
@@ -386,7 +485,7 @@ function EditPopover({ current, sourceHeader, targetLabels, onChange }: EditPopo
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuRadioGroup value={current} onValueChange={handleValueChange}>
-          {SELECTABLE_MAPPING_TARGETS.map((target) => (
+          {alphabetizedTargets.map((target) => (
             <DropdownMenuRadioItem key={target} value={target} className="text-sm">
               {targetLabels[target]}
             </DropdownMenuRadioItem>

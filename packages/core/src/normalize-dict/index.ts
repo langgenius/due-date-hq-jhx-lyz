@@ -39,6 +39,7 @@ const ENTITY_DICT: Record<string, EntityNormalized> = {
   'l.l.c': 'llc',
 
   's-corp': 's_corp',
+  's-corporation': 's_corp',
   's corp': 's_corp',
   s_corp: 's_corp',
   s_corporation: 's_corp',
@@ -48,6 +49,7 @@ const ENTITY_DICT: Record<string, EntityNormalized> = {
   scorp: 's_corp',
 
   'c-corp': 'c_corp',
+  'c-corporation': 'c_corp',
   'c corp': 'c_corp',
   c_corp: 'c_corp',
   c_corporation: 'c_corp',
@@ -64,10 +66,16 @@ const ENTITY_DICT: Record<string, EntityNormalized> = {
   lp: 'partnership',
 
   'sole proprietor': 'sole_prop',
+  'sole proprietorship': 'sole_prop',
+  'sole prop': 'sole_prop',
+  'sole-prop': 'sole_prop',
   sole_prop: 'sole_prop',
   soleprop: 'sole_prop',
   schc: 'sole_prop',
+  'sched c': 'sole_prop',
+  'sched. c': 'sole_prop',
   'schedule c': 'sole_prop',
+  'schedule c filer': 'sole_prop',
 
   trust: 'trust',
   'living trust': 'trust',
