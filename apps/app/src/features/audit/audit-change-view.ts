@@ -196,6 +196,7 @@ export const AUDIT_CHANGE_PRESENTERS: Record<KnownAuditAction, AuditChangePresen
   'rule.verified': genericPresenter,
   'rules.candidate.created': genericPresenter,
   'rules.published': genericPresenter,
+  'rules.review.rejected': genericPresenter,
   'rules.review.required': genericPresenter,
   'rules.source.changed': genericPresenter,
   'workboard.exported': workboardExportPresenter,

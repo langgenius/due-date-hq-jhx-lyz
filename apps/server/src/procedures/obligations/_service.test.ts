@@ -32,8 +32,13 @@ interface Row {
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
   exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+  penaltyFactsJson: unknown
+  penaltyFactsVersion: string | null
   penaltyBreakdownJson: unknown
   penaltyFormulaVersion: string | null
+  missingPenaltyFactsJson: unknown
+  penaltySourceRefsJson: unknown
+  penaltyFormulaLabel: string | null
   exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -450,8 +455,13 @@ function makeRow(over: Partial<Row> = {}): Row {
     estimatedTaxDueCents: null,
     estimatedExposureCents: null,
     exposureStatus: 'needs_input',
+    penaltyFactsJson: null,
+    penaltyFactsVersion: null,
     penaltyBreakdownJson: [],
     penaltyFormulaVersion: null,
+    missingPenaltyFactsJson: [],
+    penaltySourceRefsJson: [],
+    penaltyFormulaLabel: null,
     exposureCalculatedAt: null,
     createdAt: now,
     updatedAt: now,

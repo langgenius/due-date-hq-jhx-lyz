@@ -24,22 +24,27 @@ MVP 的风险边界是：**AI 可以加速抽取，不能替代核验；candidat
 第一版结构化数据已经落到 `packages/core/src/rules/index.ts`，以
 `@duedatehq/core/rules` 暴露，并通过 `rules.*` oRPC contract 接入 server。当前代码实现已经从 6 辖区 seed 扩展为 `FED + 50 states + DC` 的官方 source-connected registry：
 
-| Jurisdiction             | Sources | Verified rules | Candidates | 当前重点                                                                                        |
-| ------------------------ | ------- | -------------- | ---------- | ----------------------------------------------------------------------------------------------- |
-| `FED`                    | 7       | 4              | 1          | 1065、1120-S、1120、corporate estimated tax、disaster relief candidate watch                    |
-| `CA`                     | 5       | 5              | 0          | LLC Form 568、LLC annual tax、LLC estimated fee、100S、100                                      |
-| `NY`                     | 6       | 7              | 0          | IT-204、IT-204-LL、CT-3、CT-3-S、PTET election / estimates / return-extension                   |
-| `TX`                     | 6       | 4              | 0          | franchise annual report、PIR/OIR、extension、no-tax-due threshold review                        |
-| `FL`                     | 3       | 2              | 0          | F-1120、corporate estimated tax                                                                 |
-| `WA`                     | 4       | 3              | 0          | combined excise monthly / quarterly / annual；WA DOR sources are manual-review degraded         |
-| 50 州 + `DC` source seed | 102     | 0              | 408        | 每辖区登记官方 tax agency + UI/workforce agency；8 个主税种 domain 先进入 review-only candidate |
+| Jurisdiction             | Sources | Verified rules | Candidates | 当前重点                                                                                                                           |
+| ------------------------ | ------- | -------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `FED`                    | 7       | 4              | 1          | 1065、1120-S、1120、corporate estimated tax、disaster relief candidate watch                                                       |
+| `CA`                     | 5       | 5              | 0          | LLC Form 568、LLC annual tax、LLC estimated fee、100S、100                                                                         |
+| `NY`                     | 6       | 7              | 0          | IT-204、IT-204-LL、CT-3、CT-3-S、PTET election / estimates / return-extension                                                      |
+| `TX`                     | 6       | 4              | 0          | franchise annual report、PIR/OIR、extension、no-tax-due threshold review                                                           |
+| `FL`                     | 3       | 2              | 0          | F-1120、corporate estimated tax                                                                                                    |
+| `WA`                     | 4       | 3              | 0          | combined excise monthly / quarterly / annual；WA DOR sources are manual-review degraded                                            |
+| 50 州 + `DC` source seed | 148     | 0              | 408        | 每辖区登记官方 tax agency + UI/workforce agency；46 个 income-tax 具体页面单独登记；8 个主税种 domain 先进入 review-only candidate |
 
 代码里的 verified subset 仍只对已人工核验的规则生成 reminder-ready obligation。新增 50 州 + DC 规则先以 `candidate` + `source_defined_calendar` 落地：它们能出现在 Rules Console、Migration review 和 evidence trail 中，但不会自动生成用户提醒。Ops 可在 Rule detail 的 review 面板中基于官方 source excerpt、due-date logic、extension policy 和 coverage status 发布 firm-scoped verified decision。
 
-当前代码 registry 合计 133 个官方 source。Federal source 已从单一 Pub 509 + 7004
+当前代码 registry 合计 179 个官方 source。Federal source 已从单一 Pub 509 + 7004
 扩展为 Pub 509、Form 1065 instructions、Form 1120-S instructions、Form 1120
 instructions、Form 7004 instructions、IRS disaster relief、FEMA early warning，避免
 只用综合日历解释具体表单 deadline。
+
+50 州 + DC 的 candidate source 不再只用 agency homepage。Income、estimated、
+fiduciary、business-income/franchise 和 PTE candidate 优先引用州级 income-tax
+具体页面；只有 sales/use、withholding 等尚未逐州细分的 domain 继续使用 broader
+tax agency source。
 
 本轮核验后的降级规则：
 

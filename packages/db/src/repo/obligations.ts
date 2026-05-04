@@ -11,7 +11,7 @@ import {
 } from '../schema/obligations'
 import { listActiveOverlayDueDates } from './overlay'
 
-const COLS_PER_OI_ROW = 18
+const COLS_PER_OI_ROW = 23
 const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 5
 const CLIENT_ASSERT_BATCH_SIZE = 90
 const OI_LOOKUP_IDS_PER_BATCH = 90
@@ -30,8 +30,13 @@ export interface ObligationCreateInput {
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null
   exposureStatus?: ExposureStatus
+  penaltyFactsJson?: unknown
+  penaltyFactsVersion?: string | null
   penaltyBreakdownJson?: unknown
   penaltyFormulaVersion?: string | null
+  missingPenaltyFactsJson?: unknown
+  penaltySourceRefsJson?: unknown
+  penaltyFormulaLabel?: string | null
   exposureCalculatedAt?: Date | null
 }
 
@@ -101,8 +106,13 @@ export function makeObligationsRepo(db: Db, firmId: string) {
           estimatedTaxDueCents: i.estimatedTaxDueCents ?? null,
           estimatedExposureCents: i.estimatedExposureCents ?? null,
           exposureStatus: i.exposureStatus ?? ('needs_input' as const),
+          penaltyFactsJson: i.penaltyFactsJson ?? null,
+          penaltyFactsVersion: i.penaltyFactsVersion ?? null,
           penaltyBreakdownJson: i.penaltyBreakdownJson ?? null,
           penaltyFormulaVersion: i.penaltyFormulaVersion ?? null,
+          missingPenaltyFactsJson: i.missingPenaltyFactsJson ?? null,
+          penaltySourceRefsJson: i.penaltySourceRefsJson ?? null,
+          penaltyFormulaLabel: i.penaltyFormulaLabel ?? null,
           exposureCalculatedAt: i.exposureCalculatedAt ?? null,
         }
       })
@@ -193,12 +203,20 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         exposureStatus: ExposureStatus
         penaltyBreakdownJson: unknown
         penaltyFormulaVersion: string | null
+        missingPenaltyFactsJson: unknown
+        penaltySourceRefsJson: unknown
+        penaltyFormulaLabel: string | null
         exposureCalculatedAt: Date | null
+        penaltyFactsJson?: unknown
+        penaltyFactsVersion?: string | null
       },
     ): Promise<void> {
+      const set: typeof patch = { ...patch }
+      if (patch.penaltyFactsJson === undefined) delete set.penaltyFactsJson
+      if (patch.penaltyFactsVersion === undefined) delete set.penaltyFactsVersion
       await db
         .update(obligationInstance)
-        .set(patch)
+        .set(set)
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))
     },
 

@@ -1373,7 +1373,7 @@ describe('MigrationService fixture golden tests', () => {
     const dryRun = await service.applyDefaultMatrix(batch.id)
     expect(dryRun.exposurePreview?.totalExposureCents).toBeGreaterThan(0)
     expect(dryRun.exposurePreview?.readyCount).toBeGreaterThan(0)
-    expect(dryRun.exposurePreview?.needsInputCount).toBe(0)
+    expect(dryRun.exposurePreview?.needsInputCount).toBeGreaterThan(0)
 
     const applied = await service.apply(batch.id)
     expect(applied.exposureSummary.totalExposureCents).toBe(

@@ -102,8 +102,8 @@ describe('dashboard aggregation', () => {
       exposureUnsupportedCount: 0,
       totalAccruedPenaltyCents: 0,
       accruedPenaltyReadyCount: 0,
-      accruedPenaltyNeedsInputCount: 0,
-      accruedPenaltyUnsupportedCount: 1,
+      accruedPenaltyNeedsInputCount: 1,
+      accruedPenaltyUnsupportedCount: 0,
     })
     expect(result.topRows[0]!.obligationId).toBe('oi_week')
     expect(result.topRows[0]!.severity).toBe('high')

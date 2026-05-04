@@ -16,7 +16,7 @@ import type {
 } from '@duedatehq/ports/shared'
 import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
 import { estimateAccruedPenalty } from '@duedatehq/core/penalty'
-import type { PenaltyBreakdownItem } from '@duedatehq/core/penalty'
+import type { PenaltyBreakdownItem, PenaltySourceRef } from '@duedatehq/core/penalty'
 import { rankSmartPriorities } from '@duedatehq/core/priority'
 import type { SmartPriorityProfile } from '@duedatehq/core/priority'
 import type { SmartPriorityBreakdown } from '@duedatehq/ports/priority'
@@ -98,6 +98,11 @@ export interface DashboardRawRow {
   estimatedExposureCents: number | null
   exposureStatus: ExposureStatus
   penaltyFormulaVersion: string | null
+  penaltyFactsJson?: unknown
+  penaltyFactsVersion?: string | null
+  missingPenaltyFactsJson?: unknown
+  penaltySourceRefsJson?: unknown
+  penaltyFormulaLabel?: string | null
   clientState: string | null
   clientEntityType: string | null
   clientEstimatedTaxLiabilityCents: number | null
@@ -107,6 +112,10 @@ export interface DashboardRawRow {
 }
 
 export interface DashboardTopRow extends DashboardRawRow {
+  missingPenaltyFacts: string[]
+  penaltySourceRefs: PenaltySourceRef[]
+  penaltyFormulaLabel: string | null
+  penaltyFactsVersion: string | null
   accruedPenaltyCents: number | null
   accruedPenaltyStatus: ExposureStatus
   accruedPenaltyBreakdown: PenaltyBreakdownItem[]
@@ -225,6 +234,33 @@ function enumFacetOptions<T extends string>(
   counts: Map<string, number>,
 ): Array<DashboardFacetOption & { value: T }> {
   return values.map((value) => ({ value, label: value, count: counts.get(value) ?? 0 }))
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function parseStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === 'string' && item.length > 0)
+}
+
+function parsePenaltySourceRefs(value: unknown): PenaltySourceRef[] {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((item) => {
+    if (!isRecord(item)) return []
+    const { label, url, sourceExcerpt, effectiveDate, lastReviewedDate } = item
+    if (
+      typeof label !== 'string' ||
+      typeof url !== 'string' ||
+      typeof sourceExcerpt !== 'string' ||
+      typeof effectiveDate !== 'string' ||
+      typeof lastReviewedDate !== 'string'
+    ) {
+      return []
+    }
+    return [{ label, url, sourceExcerpt, effectiveDate, lastReviewedDate }]
+  })
 }
 
 function matchesDashboardFilters(
@@ -352,8 +388,7 @@ export function composeDashboardLoad(
         taxType: row.taxType,
         entityType: row.clientEntityType,
         dueDate: row.currentDueDate,
-        estimatedTaxLiabilityCents: row.clientEstimatedTaxLiabilityCents,
-        equityOwnerCount: row.clientEquityOwnerCount,
+        penaltyFactsJson: row.penaltyFactsJson,
       },
       { asOfDate: input.asOfDate },
     )
@@ -383,6 +418,10 @@ export function composeDashboardLoad(
       accruedPenaltyStatus: accrued.status,
       accruedPenaltyBreakdown: accrued.breakdown,
       penaltyAsOfDate: input.asOfDate,
+      missingPenaltyFacts: parseStringArray(row.missingPenaltyFactsJson),
+      penaltySourceRefs: parsePenaltySourceRefs(row.penaltySourceRefsJson),
+      penaltyFormulaLabel: row.penaltyFormulaLabel ?? null,
+      penaltyFactsVersion: row.penaltyFactsVersion ?? null,
       severity: severityForDueDate(row.currentDueDate, input.asOfDate, row.status),
       evidenceCount: evidence.length,
       primaryEvidence: evidence[0] ?? null,
@@ -617,6 +656,11 @@ export function makeDashboardRepo(db: Db, firmId: string) {
           estimatedExposureCents: obligationInstance.estimatedExposureCents,
           exposureStatus: obligationInstance.exposureStatus,
           penaltyFormulaVersion: obligationInstance.penaltyFormulaVersion,
+          penaltyFactsJson: obligationInstance.penaltyFactsJson,
+          penaltyFactsVersion: obligationInstance.penaltyFactsVersion,
+          missingPenaltyFactsJson: obligationInstance.missingPenaltyFactsJson,
+          penaltySourceRefsJson: obligationInstance.penaltySourceRefsJson,
+          penaltyFormulaLabel: obligationInstance.penaltyFormulaLabel,
           clientState: client.state,
           clientEntityType: client.entityType,
           clientEstimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents,

@@ -340,7 +340,7 @@ packages/db/
 ```
 packages/core/
 ├── src/
-│   ├── penalty/                    # Federal + CA penalty 计算
+│   ├── penalty/                    # Source-backed penalty catalog + formula evaluators
 │   ├── priority/                   # Smart Priority 打分 + 因子分解
 │   ├── date-logic/                 # DueDateLogic DSL 求值
 │   ├── overlay/                    # ExceptionRule 叠加（Phase 1）

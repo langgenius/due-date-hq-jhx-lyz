@@ -26,6 +26,13 @@ const OFFICIAL_NON_GOV_HOSTS = new Set([
   'workforcewv.org',
   'uimn.org',
 ])
+const STATE_INCOME_CANDIDATE_TAX_TYPE_SUFFIXES = [
+  '_state_individual_income_tax',
+  '_state_individual_estimated_tax',
+  '_state_fiduciary_income_tax',
+  '_state_business_income_franchise_tax',
+  '_state_pte_composite_ptet',
+] as const
 
 function expectUnique(ids: readonly string[]) {
   expect(new Set(ids).size).toBe(ids.length)
@@ -104,6 +111,36 @@ describe('@duedatehq/core/rules', () => {
         ).toBe(true)
       }
     }
+  })
+
+  it('routes state income-review candidates to state-specific income sources', () => {
+    const sourcesById = new Map(RULE_SOURCES.map((source) => [source.id, source]))
+    const incomeSourceJurisdictions = new Set(
+      RULE_SOURCES.filter((source) => source.id.endsWith('.income_tax')).map(
+        (source) => source.jurisdiction,
+      ),
+    )
+
+    for (const rule of OBLIGATION_RULES) {
+      const isStateIncomeReviewRule =
+        rule.status === 'candidate' &&
+        STATE_INCOME_CANDIDATE_TAX_TYPE_SUFFIXES.some((suffix) => rule.taxType.endsWith(suffix))
+
+      if (!isStateIncomeReviewRule || !incomeSourceJurisdictions.has(rule.jurisdiction)) continue
+
+      const expectedSourceId = `${rule.jurisdiction.toLowerCase()}.income_tax`
+      expect(rule.sourceIds, `${rule.id} should use a specific income source`).toEqual([
+        expectedSourceId,
+      ])
+      expect(sourcesById.get(expectedSourceId), `${rule.id} income source is missing`).toBeDefined()
+    }
+
+    expect(findRuleById('wv.individual_income_return.candidate.2026')?.sourceIds).toEqual([
+      'wv.income_tax',
+    ])
+    expect(sourcesById.get('wv.income_tax')?.url).toBe(
+      'https://tax.wv.gov/Individuals/Pages/Individuals.aspx',
+    )
   })
 
   it('covers every US jurisdiction with official sources and safe rule states', () => {

@@ -635,6 +635,8 @@ export {
   AuditActionSchema,
   PenaltyAuditActions,
   PenaltyAuditActionSchema,
+  RulesAuditActions,
+  RulesAuditActionSchema,
   MigrationAuditActions,
   MigrationAuditActionSchema,
   PulseAuditActions,
@@ -644,6 +646,7 @@ export type {
   AuditAction,
   MigrationAuditAction,
   PenaltyAuditAction,
+  RulesAuditAction,
   PulseAuditAction,
 } from './shared/audit-actions'
 export { EvidenceSourceTypes, EvidenceSourceTypeSchema } from './shared/evidence-source-types'

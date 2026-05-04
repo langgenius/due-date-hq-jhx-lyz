@@ -7,7 +7,7 @@ import type {
   ExposureStatus,
   ObligationStatus,
 } from './shared'
-import type { PenaltyBreakdownItem } from './obligations'
+import type { PenaltyBreakdownItem, PenaltySourceRef } from './obligations'
 import type { SmartPriorityBreakdown } from './priority'
 
 export type DashboardTriageTabKey = 'this_week' | 'this_month' | 'long_term'
@@ -51,6 +51,10 @@ export interface DashboardTopRow {
   status: ObligationStatus
   estimatedExposureCents: number | null
   exposureStatus: ExposureStatus
+  missingPenaltyFacts: string[]
+  penaltySourceRefs: PenaltySourceRef[]
+  penaltyFormulaLabel: string | null
+  penaltyFactsVersion: string | null
   accruedPenaltyCents: number | null
   accruedPenaltyStatus: ExposureStatus
   accruedPenaltyBreakdown: PenaltyBreakdownItem[]

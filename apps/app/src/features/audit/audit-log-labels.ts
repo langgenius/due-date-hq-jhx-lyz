@@ -80,6 +80,7 @@ export function useAuditActionLabels(): AuditActionLabels {
       ruleVerified: t`Rule verified`,
       rulesCandidateCreated: t`Rule candidate created`,
       rulesPublished: t`Rules published`,
+      rulesReviewRejected: t`Rule candidate rejected`,
       rulesReviewRequired: t`Rule review required`,
       rulesSourceChanged: t`Rule source changed`,
       workboardExported: t`Workboard exported`,

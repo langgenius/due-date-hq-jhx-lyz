@@ -86,8 +86,13 @@ export interface WorkboardListRow {
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
   exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+  penaltyFactsJson: unknown
+  penaltyFactsVersion: string | null
   penaltyBreakdownJson: unknown
   penaltyFormulaVersion: string | null
+  missingPenaltyFactsJson: unknown
+  penaltySourceRefsJson: unknown
+  penaltyFormulaLabel: string | null
   exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -183,8 +188,13 @@ interface WorkboardRawJoinedRow {
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
   exposureStatus: 'ready' | 'needs_input' | 'unsupported'
+  penaltyFactsJson: unknown
+  penaltyFactsVersion: string | null
   penaltyBreakdownJson: unknown
   penaltyFormulaVersion: string | null
+  missingPenaltyFactsJson: unknown
+  penaltySourceRefsJson: unknown
+  penaltyFormulaLabel: string | null
   exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -475,8 +485,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           taxType: row.taxType,
           entityType: row.clientEntityType,
           dueDate: currentDueDate,
-          estimatedTaxLiabilityCents: row.clientEstimatedTaxLiabilityCents,
-          equityOwnerCount: row.clientEquityOwnerCount,
+          penaltyFactsJson: row.penaltyFactsJson,
         },
         { asOfDate: asOfDateOnly },
       )
@@ -617,8 +626,13 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
           estimatedExposureCents: obligationInstance.estimatedExposureCents,
           exposureStatus: obligationInstance.exposureStatus,
+          penaltyFactsJson: obligationInstance.penaltyFactsJson,
+          penaltyFactsVersion: obligationInstance.penaltyFactsVersion,
           penaltyBreakdownJson: obligationInstance.penaltyBreakdownJson,
           penaltyFormulaVersion: obligationInstance.penaltyFormulaVersion,
+          missingPenaltyFactsJson: obligationInstance.missingPenaltyFactsJson,
+          penaltySourceRefsJson: obligationInstance.penaltySourceRefsJson,
+          penaltyFormulaLabel: obligationInstance.penaltyFormulaLabel,
           exposureCalculatedAt: obligationInstance.exposureCalculatedAt,
           createdAt: obligationInstance.createdAt,
           updatedAt: obligationInstance.updatedAt,
@@ -697,8 +711,13 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
               estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
               estimatedExposureCents: obligationInstance.estimatedExposureCents,
               exposureStatus: obligationInstance.exposureStatus,
+              penaltyFactsJson: obligationInstance.penaltyFactsJson,
+              penaltyFactsVersion: obligationInstance.penaltyFactsVersion,
               penaltyBreakdownJson: obligationInstance.penaltyBreakdownJson,
               penaltyFormulaVersion: obligationInstance.penaltyFormulaVersion,
+              missingPenaltyFactsJson: obligationInstance.missingPenaltyFactsJson,
+              penaltySourceRefsJson: obligationInstance.penaltySourceRefsJson,
+              penaltyFormulaLabel: obligationInstance.penaltyFormulaLabel,
               exposureCalculatedAt: obligationInstance.exposureCalculatedAt,
               createdAt: obligationInstance.createdAt,
               updatedAt: obligationInstance.updatedAt,

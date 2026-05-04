@@ -12,6 +12,9 @@ author: 'Codex'
 - Rules RPC 新增 `listReviewDecisions`、`verifyCandidate`、`rejectCandidate`。
 - Rules runtime 会把 firm 已发布的 verified decision merge 回 `listRules`、`coverage`、`previewObligations`；Migration apply 也会读取这些 firm-verified rules。
 - Rules Console 的 rule detail drawer 增加 Ops review 面板，可基于官方 source excerpt、due-date logic、extension policy、coverage status 完成 verify/reject。
+- Ops review 的 extension policy 编辑不再要求手写 JSON；`Duration months` 改为 1-24 月数字 stepper。`Extension form` 继续保留自由输入，因为当前 contract 没有稳定枚举，seed 里只有少数明确表格名。
+- Extension policy 文案改为 rule-level 语义：`This rule allows an extension`，并明确说明它不会修改客户资料、不会提交延期申请、也不会自动更新 due date。Workboard 的 Extension tab 同步改为记录 internal decision 的文案，避免误解为已经向官方申请延期。
+- Ops review 在 `Reminder-ready → specific date` 下的 due date 输入改用项目统一的 `IsoDatePicker`，与 Workboard obligation detail 的 Extension tab 日期选择器保持一致。
 - 新增 server-side `ruleSourceAdapters`，把 rule source registry 里带 `candidate_review` 的官方 sources 接入 Pulse source-state/signal 机制；这会记录 source snapshot/diff signal，但不会自动生成客户 Pulse 或 reminder。
 
 ## 关键边界
@@ -23,3 +26,6 @@ author: 'Codex'
 ## 验证
 
 - `pnpm check:fix`
+- `pnpm --filter @duedatehq/app i18n:extract`
+- `pnpm --filter @duedatehq/app i18n:compile`
+- `pnpm exec vp check apps/app/src/features/rules/rule-detail-drawer.tsx apps/app/src/routes/workboard.tsx apps/app/src/i18n/locales/en/messages.ts apps/app/src/i18n/locales/zh-CN/messages.ts`

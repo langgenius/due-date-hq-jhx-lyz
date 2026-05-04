@@ -12,7 +12,12 @@ import {
   type RuleGenerationState,
 } from '@duedatehq/core/rules'
 import { validateEin } from '@duedatehq/core/pii'
-import { estimateProjectedExposure } from '@duedatehq/core/penalty'
+import {
+  buildPenaltyFactsFromLegacy,
+  estimateProjectedExposure,
+  PENALTY_FACTS_VERSION,
+  type PenaltyFacts,
+} from '@duedatehq/core/penalty'
 import type { MappingRow, MappingTarget, NormalizationRow } from '@duedatehq/contracts'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
 import { validateRows } from './_deterministic'
@@ -141,14 +146,19 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
     for (const preview of uniqueConcretePreviews(previews)) {
       const obligationId = crypto.randomUUID()
       const dueDate = new Date(`${preview.dueDate}T00:00:00.000Z`)
+      const penaltyFacts = buildPenaltyFactsFromLegacy({
+        taxType: preview.taxType,
+        estimatedTaxLiabilityCents: facts.estimatedTaxLiabilityCents,
+        equityOwnerCount: facts.equityOwnerCount,
+      })
+      penaltyFacts.facts = { ...penaltyFacts.facts, ...facts.penaltyFacts }
       const exposure = estimateProjectedExposure({
         jurisdiction: preview.jurisdiction,
         taxType: preview.taxType,
         entityType: facts.entityType,
         dueDate,
         asOfDate: appliedAt,
-        estimatedTaxLiabilityCents: facts.estimatedTaxLiabilityCents,
-        equityOwnerCount: facts.equityOwnerCount,
+        penaltyFactsJson: penaltyFacts,
       })
       const status = preview.requiresReview ? 'review' : 'pending'
       obligations.push({
@@ -166,8 +176,13 @@ function buildCommitPlan(input: BuildCommitPlanInput): CommitImportInput {
         estimatedTaxDueCents: exposure.estimatedTaxDueCents,
         estimatedExposureCents: exposure.estimatedExposureCents,
         exposureStatus: exposure.status,
+        penaltyFactsJson: penaltyFacts,
+        penaltyFactsVersion: PENALTY_FACTS_VERSION,
         penaltyBreakdownJson: exposure.breakdown,
         penaltyFormulaVersion: exposure.formulaVersion,
+        missingPenaltyFactsJson: exposure.missingPenaltyFacts,
+        penaltySourceRefsJson: exposure.penaltySourceRefs,
+        penaltyFormulaLabel: exposure.penaltyFormulaLabel,
         exposureCalculatedAt: appliedAt,
       })
       if (externalRow) {
@@ -324,6 +339,7 @@ interface ClientImportFacts {
   assigneeName: string | null
   estimatedTaxLiabilityCents: number | null
   equityOwnerCount: number | null
+  penaltyFacts: PenaltyFacts
   taxTypes: string[]
 }
 
@@ -335,6 +351,29 @@ function rowToClientFacts(input: RowToClientFactsInput): ClientImportFacts {
   const rawTaxTypes = readMappedValue(input, 'client.tax_types')
   const rawEstimatedTaxLiability = readMappedValue(input, 'client.estimated_tax_liability')
   const rawEquityOwnerCount = readMappedValue(input, 'client.equity_owner_count')
+  const rawPenaltyTaxDue = readMappedValue(input, 'penalty.tax_due')
+  const rawPaymentsAndCredits = readMappedValue(input, 'penalty.payments_and_credits')
+  const rawFilingFrequency = readMappedValue(input, 'penalty.filing_frequency')
+  const rawPeriodStart = readMappedValue(input, 'penalty.period_start')
+  const rawPeriodEnd = readMappedValue(input, 'penalty.period_end')
+  const rawInstallments = readMappedValue(input, 'penalty.installments')
+  const rawMemberCount = readMappedValue(input, 'penalty.member_count')
+  const rawPartnerCount = readMappedValue(input, 'penalty.partner_count')
+  const rawShareholderCount = readMappedValue(input, 'penalty.shareholder_count')
+  const rawGrossReceipts = readMappedValue(input, 'penalty.gross_receipts')
+  const rawReceiptsBand = readMappedValue(input, 'penalty.receipts_band')
+  const rawAnnualReportNoTaxDue = readMappedValue(input, 'penalty.annual_report_no_tax_due')
+  const rawWaSubtotalMinusCredits = readMappedValue(input, 'penalty.wa_subtotal_minus_credits')
+  const rawTxPriorYearFranchiseTax = readMappedValue(input, 'penalty.tx_prior_year_franchise_tax')
+  const rawTxCurrentYearFranchiseTax = readMappedValue(
+    input,
+    'penalty.tx_current_year_franchise_tax',
+  )
+  const rawFlTentativeTax = readMappedValue(input, 'penalty.fl_tentative_tax')
+  const rawNyPtetElectionMade = readMappedValue(input, 'penalty.ny_ptet_election_made')
+  const rawNyPtetPayments = readMappedValue(input, 'penalty.ny_ptet_payments')
+  const rawWithholdingReportCount = readMappedValue(input, 'penalty.withholding_report_count')
+  const rawUiWageReportCount = readMappedValue(input, 'penalty.ui_wage_report_count')
   const state = normalizeMappedValue(input.normalizations, 'state', rawState)
   const entity = normalizeMappedValue(input.normalizations, 'entity_type', rawEntity)
   const entityCandidate = entity ?? ''
@@ -361,6 +400,28 @@ function rowToClientFacts(input: RowToClientFactsInput): ClientImportFacts {
     assigneeName: readMappedValue(input, 'client.assignee_name'),
     estimatedTaxLiabilityCents: parseMoneyCents(rawEstimatedTaxLiability),
     equityOwnerCount: parsePositiveInteger(rawEquityOwnerCount),
+    penaltyFacts: compactPenaltyFacts({
+      taxDueCents: parseMoneyCents(rawPenaltyTaxDue),
+      paymentsAndCreditsCents: parseMoneyCents(rawPaymentsAndCredits),
+      filingFrequency: rawFilingFrequency,
+      periodStart: normalizeIsoDate(rawPeriodStart),
+      periodEnd: normalizeIsoDate(rawPeriodEnd),
+      installments: parseInstallments(rawInstallments),
+      memberCount: parsePositiveInteger(rawMemberCount),
+      partnerCount: parsePositiveInteger(rawPartnerCount),
+      shareholderCount: parsePositiveInteger(rawShareholderCount),
+      grossReceiptsCents: parseMoneyCents(rawGrossReceipts),
+      receiptsBand: rawReceiptsBand,
+      annualReportNoTaxDueStatus: parseBoolean(rawAnnualReportNoTaxDue),
+      waSubtotalMinusCreditsCents: parseMoneyCents(rawWaSubtotalMinusCredits),
+      txPriorYearFranchiseTaxCents: parseMoneyCents(rawTxPriorYearFranchiseTax),
+      txCurrentYearFranchiseTaxCents: parseMoneyCents(rawTxCurrentYearFranchiseTax),
+      flTentativeTaxCents: parseMoneyCents(rawFlTentativeTax),
+      nyPtetElectionMade: parseBoolean(rawNyPtetElectionMade),
+      nyPtetPaymentsCents: parseMoneyCents(rawNyPtetPayments),
+      withholdingReportCount: parsePositiveInteger(rawWithholdingReportCount),
+      uiWageReportCount: parsePositiveInteger(rawUiWageReportCount),
+    }),
     taxTypes: Array.from(new Set(taxTypes.filter((value) => value.length > 0))),
   }
 }
@@ -413,13 +474,81 @@ function normalizeEmail(value: string | null): string | null {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : null
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
 function parseMoneyCents(value: string | null): number | null {
   if (!value) return null
   const normalized = value.replace(/[$,\s]/g, '')
   if (!/^-?\d+(\.\d{1,2})?$/.test(normalized)) return null
   const dollars = Number(normalized)
-  if (!Number.isFinite(dollars) || dollars <= 0) return null
+  if (!Number.isFinite(dollars) || dollars < 0) return null
   return Math.round(dollars * 100)
+}
+
+function parseBoolean(value: string | null): boolean | null {
+  if (!value) return null
+  const normalized = value.trim().toLowerCase()
+  if (['true', 'yes', 'y', '1', 'no tax due', 'elected'].includes(normalized)) return true
+  if (['false', 'no', 'n', '0', 'not elected'].includes(normalized)) return false
+  return null
+}
+
+function normalizeIsoDate(value: string | null): string | null {
+  if (!value) return null
+  const direct = value.trim()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(direct)) return direct
+  const parsed = new Date(direct)
+  if (Number.isNaN(parsed.getTime())) return null
+  return parsed.toISOString().slice(0, 10)
+}
+
+function parseInstallments(value: string | null): PenaltyInstallmentFacts | null {
+  if (!value) return null
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (!Array.isArray(parsed)) return null
+    return parsed.flatMap((item) => {
+      if (!isRecord(item)) return []
+      return [
+        {
+          dueDate: typeof item.dueDate === 'string' ? normalizeIsoDate(item.dueDate) : null,
+          requiredPaymentCents:
+            typeof item.requiredPaymentCents === 'number'
+              ? item.requiredPaymentCents
+              : parseMoneyCents(
+                  typeof item.requiredPayment === 'string' ? item.requiredPayment : null,
+                ),
+          paidCents:
+            typeof item.paidCents === 'number'
+              ? item.paidCents
+              : parseMoneyCents(typeof item.paid === 'string' ? item.paid : null),
+          paidDate: typeof item.paidDate === 'string' ? normalizeIsoDate(item.paidDate) : null,
+          annualRateBps:
+            typeof item.annualRateBps === 'number'
+              ? item.annualRateBps
+              : parsePositiveInteger(
+                  typeof item.annualRateBps === 'string' ? item.annualRateBps : null,
+                ),
+        },
+      ]
+    })
+  } catch {
+    return null
+  }
+}
+
+type PenaltyInstallmentFacts = NonNullable<PenaltyFacts['installments']>
+
+function compactPenaltyFacts(facts: PenaltyFacts): PenaltyFacts {
+  const result: PenaltyFacts = {}
+  for (const [key, value] of Object.entries(facts)) {
+    if (value !== null && value !== undefined && value !== '') {
+      Object.assign(result, { [key]: value })
+    }
+  }
+  return result
 }
 
 function parsePositiveInteger(value: string | null): number | null {

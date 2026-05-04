@@ -197,6 +197,7 @@ const PAGE_SIZE = 50
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 const DAYS_FILTER_MIN = -3650
 const DAYS_FILTER_MAX = 3650
+const THIS_WEEK_MAX_DAYS = 7
 const UNASSIGNED_OWNER_OPTION = '__unassigned__'
 const WORKBOARD_TABLE_PILL_CLASSNAME = 'text-xs'
 const NON_HIDEABLE_COLUMNS = new Set(['select'])
@@ -304,6 +305,25 @@ export const workboardSearchParamsParsers = {
 } as const
 
 export type WorkboardSearchParams = inferParserType<typeof workboardSearchParamsParsers>
+
+export function isThisWeekFilterActive(daysMin: number | null, daysMax: number | null): boolean {
+  return daysMin === null && daysMax === THIS_WEEK_MAX_DAYS
+}
+
+export function nextThisWeekFilterPatch(
+  daysMin: number | null,
+  daysMax: number | null,
+): Partial<WorkboardSearchParams> {
+  const isActive = isThisWeekFilterActive(daysMin, daysMax)
+  return {
+    dueWithin: null,
+    due: null,
+    daysMin: null,
+    daysMax: isActive ? null : THIS_WEEK_MAX_DAYS,
+    obligation: null,
+    row: null,
+  }
+}
 
 function isWorkboardSort(value: string): value is WorkboardSort {
   return ALL_SORTS.some((sortOption) => sortOption === value)
@@ -1412,6 +1432,7 @@ export function WorkboardRoute() {
   const selectedRows = table.getSelectedRowModel().rows.map((selectedRow) => selectedRow.original)
   const selectedIds = selectedRows.map((selectedRow) => selectedRow.id)
   const selectedClientIds = [...new Set(selectedRows.map((selectedRow) => selectedRow.clientId))]
+  const thisWeekFilterActive = isThisWeekFilterActive(daysMin, daysMax)
 
   const moveActiveRow = useCallback(
     (direction: 1 | -1) => {
@@ -1888,18 +1909,9 @@ export function WorkboardRoute() {
             <button
               type="button"
               className="cursor-pointer focus-visible:outline-none"
-              onClick={() =>
-                void setWorkboardQuery({
-                  dueWithin: null,
-                  due: null,
-                  daysMin: null,
-                  daysMax: 7,
-                  obligation: null,
-                  row: null,
-                })
-              }
+              onClick={() => void setWorkboardQuery(nextThisWeekFilterPatch(daysMin, daysMax))}
             >
-              <Badge variant={daysMax === 7 && daysMin === null ? 'default' : 'ghost'}>
+              <Badge variant={thisWeekFilterActive ? 'default' : 'ghost'}>
                 <Trans>This week</Trans>
               </Badge>
             </button>
@@ -2964,25 +2976,26 @@ function WorkboardDetailDrawer({
                   <div className="grid gap-3">
                     <AlertPanel>
                       <Trans>
-                        This is an internal decision record. It does not update the due date or
-                        confirm an authority filing. Payment may still be due by the original date.
+                        This records an internal decision for this obligation. It does not update
+                        the due date, change client records, or confirm an authority filing. Payment
+                        may still be due by the original date.
                       </Trans>
                     </AlertPanel>
                     <div className="grid gap-2 rounded-lg border border-divider-regular p-3">
                       <DetailRow
-                        label={<Trans>Policy</Trans>}
+                        label={<Trans>Rule extension policy</Trans>}
                         value={
                           detail.matchedRule?.extensionPolicy.available
-                            ? t`Available`
-                            : t`Not available or unknown`
+                            ? t`Rule allows extension`
+                            : t`No rule extension or unknown`
                         }
                       />
                       <DetailRow
-                        label={<Trans>Form</Trans>}
+                        label={<Trans>Official form</Trans>}
                         value={detail.matchedRule?.extensionPolicy.formName ?? t`Not specified`}
                       />
                       <DetailRow
-                        label={<Trans>Notes</Trans>}
+                        label={<Trans>Rule notes</Trans>}
                         value={detail.matchedRule?.extensionPolicy.notes ?? t`No matched rule`}
                       />
                     </div>
@@ -2998,17 +3011,17 @@ function WorkboardDetailDrawer({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="applied">
-                          <Trans>Apply internal extension decision</Trans>
+                          <Trans>Record internal decision: extension applied</Trans>
                         </SelectItem>
                         <SelectItem value="rejected">
-                          <Trans>Reject extension decision</Trans>
+                          <Trans>Record internal decision: extension rejected</Trans>
                         </SelectItem>
                       </SelectContent>
                     </Select>
                     <IsoDatePicker
                       value={extensionDraft.expectedExtendedDueDate}
                       invalid={expectedExtendedDueDateInvalid}
-                      ariaLabel={t`Expected extended due date`}
+                      ariaLabel={t`Expected extended due date (reference only)`}
                       onValueChange={(expectedExtendedDueDate) =>
                         setExtensionDraft((current) => ({ ...current, expectedExtendedDueDate }))
                       }
@@ -3034,14 +3047,14 @@ function WorkboardDetailDrawer({
                       onClick={saveExtensionDecision}
                       disabled={decideExtensionMutation.isPending}
                     >
-                      <Trans>Save decision</Trans>
+                      <Trans>Save internal decision</Trans>
                     </Button>
                   </div>
                   <div className="grid content-start gap-3 rounded-lg border border-divider-regular p-3">
                     <DetailRow label={<Trans>Current status</Trans>} value={row.status} />
                     <DetailRow label={<Trans>Decision</Trans>} value={row.extensionDecision} />
                     <DetailRow
-                      label={<Trans>Expected date</Trans>}
+                      label={<Trans>Expected extended date</Trans>}
                       value={
                         row.extensionExpectedDueDate
                           ? formatDate(row.extensionExpectedDueDate)
@@ -3125,7 +3138,15 @@ function WorkboardDetailDrawer({
                     />
                     <DetailRow
                       label={<Trans>Formula</Trans>}
-                      value={row.penaltyFormulaVersion ?? t`Not calculated`}
+                      value={
+                        row.penaltyFormulaLabel
+                          ? `${row.penaltyFormulaLabel} · ${row.penaltyFormulaVersion ?? t`Not calculated`}`
+                          : (row.penaltyFormulaVersion ?? t`Not calculated`)
+                      }
+                    />
+                    <DetailRow
+                      label={<Trans>Facts</Trans>}
+                      value={row.penaltyFactsVersion ?? t`Not entered`}
                     />
                     <DetailRow
                       label={<Trans>Calculated</Trans>}
@@ -3136,22 +3157,27 @@ function WorkboardDetailDrawer({
                       }
                     />
                     <Separator />
+                    {row.missingPenaltyFacts.length > 0 ? (
+                      <div className="grid gap-2 rounded-lg border border-divider-regular p-3">
+                        <p className="text-xs font-medium text-text-secondary">
+                          <Trans>Missing penalty facts</Trans>
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {row.missingPenaltyFacts.map((fact) => (
+                            <Badge key={fact} variant="outline" className="text-[11px]">
+                              {fact}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                     {row.penaltyBreakdown.length > 0 ? (
                       <div className="grid gap-2">
                         <p className="text-xs font-medium text-text-secondary">
                           <Trans>Projected 90-day risk</Trans>
                         </p>
                         {row.penaltyBreakdown.map((item) => (
-                          <div
-                            key={`projected-${item.key}`}
-                            className="grid gap-1 rounded-lg border border-divider-regular p-3"
-                          >
-                            <div className="flex justify-between gap-3">
-                              <span className="font-medium">{item.label}</span>
-                              <span className="font-mono">{formatCents(item.amountCents)}</span>
-                            </div>
-                            <span className="text-xs text-text-tertiary">{item.formula}</span>
-                          </div>
+                          <PenaltyBreakdownCard key={`projected-${item.key}`} item={item} />
                         ))}
                       </div>
                     ) : (
@@ -3165,18 +3191,12 @@ function WorkboardDetailDrawer({
                           <Trans>Accrued penalty</Trans>
                         </p>
                         {row.accruedPenaltyBreakdown.map((item) => (
-                          <div
-                            key={`accrued-${item.key}`}
-                            className="grid gap-1 rounded-lg border border-divider-regular p-3"
-                          >
-                            <div className="flex justify-between gap-3">
-                              <span className="font-medium">{item.label}</span>
-                              <span className="font-mono">{formatCents(item.amountCents)}</span>
-                            </div>
-                            <span className="text-xs text-text-tertiary">{item.formula}</span>
-                          </div>
+                          <PenaltyBreakdownCard key={`accrued-${item.key}`} item={item} />
                         ))}
                       </div>
+                    ) : null}
+                    {row.penaltySourceRefs.length > 0 ? (
+                      <PenaltySourceList sourceRefs={row.penaltySourceRefs} />
                     ) : null}
                   </div>
                   <div className="content-start rounded-lg border border-divider-regular p-3">
@@ -3261,6 +3281,74 @@ function EmptyPanel({ children }: { children: ReactNode }) {
       {children}
     </div>
   )
+}
+
+function PenaltyBreakdownCard({ item }: { item: WorkboardRow['penaltyBreakdown'][number] }) {
+  const inputs = item.inputs ? Object.entries(item.inputs) : []
+  const sourceRefs = item.sourceRefs ?? []
+  return (
+    <div className="grid gap-2 rounded-lg border border-divider-regular p-3">
+      <div className="flex justify-between gap-3">
+        <span className="font-medium">{item.label}</span>
+        <span className="font-mono">{formatCents(item.amountCents)}</span>
+      </div>
+      <span className="text-xs text-text-tertiary">{item.formula}</span>
+      {inputs.length > 0 ? (
+        <div className="grid gap-1 text-[11px] text-text-tertiary">
+          {inputs.map(([key, value]) => (
+            <div key={key} className="flex justify-between gap-3">
+              <span>{key}</span>
+              <span className="font-mono text-text-secondary">
+                {formatPenaltyInputValue(value)}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {sourceRefs.length > 0 ? <PenaltySourceList sourceRefs={sourceRefs} compact /> : null}
+    </div>
+  )
+}
+
+function PenaltySourceList({
+  sourceRefs,
+  compact = false,
+}: {
+  sourceRefs: WorkboardRow['penaltySourceRefs']
+  compact?: boolean
+}) {
+  return (
+    <div
+      className={compact ? 'grid gap-1' : 'grid gap-2 rounded-lg border border-divider-regular p-3'}
+    >
+      {!compact ? (
+        <p className="text-xs font-medium text-text-secondary">
+          <Trans>Penalty sources</Trans>
+        </p>
+      ) : null}
+      {sourceRefs.map((source) => (
+        <a
+          key={`${source.label}-${source.url}`}
+          href={source.url}
+          target="_blank"
+          rel="noreferrer"
+          className="grid gap-0.5 text-xs text-accent-strong hover:underline"
+        >
+          <span>{source.label}</span>
+          {!compact ? (
+            <span className="text-[11px] text-text-tertiary">{source.sourceExcerpt}</span>
+          ) : null}
+        </a>
+      ))}
+    </div>
+  )
+}
+
+function formatPenaltyInputValue(value: string | number | boolean | null): string {
+  if (value === null) return 'null'
+  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  if (typeof value === 'number') return Number.isInteger(value) ? `${value}` : value.toFixed(2)
+  return value
 }
 
 function DeadlineTipPanel({

@@ -711,6 +711,10 @@ msgstr "Annual contract"
 msgid "Annual contract · From $3,828/year"
 msgstr "Annual contract · From $3,828/year"
 
+#: src/features/migration/mapping-target-labels.ts
+msgid "Annual report no-tax-due flag"
+msgstr "Annual report no-tax-due flag"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Annual rolling"
 msgstr "Annual rolling"
@@ -759,10 +763,6 @@ msgstr "Applied to {0} clients"
 #: src/features/migration/WizardShell.tsx
 msgid "Apply Default Matrix"
 msgstr "Apply Default Matrix"
-
-#: src/routes/workboard.tsx
-msgid "Apply internal extension decision"
-msgstr "Apply internal extension decision"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
@@ -909,10 +909,6 @@ msgstr "Authenticator setup started"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Auto-link open signals"
 msgstr "Auto-link open signals"
-
-#: src/routes/workboard.tsx
-msgid "Available"
-msgstr "Available"
 
 #. placeholder {0}: einDetected ? '100%' : '0%'
 #: src/features/migration/Step2Mapping.tsx
@@ -1225,6 +1221,10 @@ msgstr "Choose a previous provider import"
 #: src/routes/billing.tsx
 msgid "Choose a workspace tier"
 msgstr "Choose a workspace tier"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Choose an official source."
+msgstr "Choose an official source."
 
 #: src/routes/billing.checkout.tsx
 msgid "Choose another plan"
@@ -1955,6 +1955,10 @@ msgstr "Dashboard"
 msgid "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
 msgstr "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Day of month"
+msgstr "Day of month"
+
 #: src/routes/workboard.tsx
 msgid "Days"
 msgstr "Days"
@@ -2036,6 +2040,10 @@ msgstr "Decision"
 #: src/routes/workboard.tsx
 msgid "Decision memo"
 msgstr "Decision memo"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Decrease duration months"
+msgstr "Decrease duration months"
 
 #: src/features/concepts/concept-help.tsx
 msgid "Default Matrix"
@@ -2138,6 +2146,10 @@ msgstr "Dismiss"
 msgid "Dismissed"
 msgstr "Dismissed"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Does the extension also cover payment?"
+msgstr "Does the extension also cover payment?"
+
 #: src/routes/practice.tsx
 msgid "Dollar exposure"
 msgstr "Dollar exposure"
@@ -2173,6 +2185,7 @@ msgstr "Due {0}"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/pulse/components/PulseStructuredFields.tsx
+#: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/workboard.tsx
 msgid "Due date"
 msgstr "Due date"
@@ -2184,6 +2197,10 @@ msgstr "Due date — earliest first"
 #: src/routes/workboard.tsx
 msgid "Due date — latest first"
 msgstr "Due date — latest first"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Due date basis"
+msgstr "Due date basis"
 
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Due date change"
@@ -2200,10 +2217,6 @@ msgstr "Due date logic"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Due date logic is invalid."
 msgstr "Due date logic is invalid."
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Due date logic JSON"
-msgstr "Due date logic JSON"
 
 #: src/routes/dashboard.tsx
 msgid "due now"
@@ -2232,6 +2245,10 @@ msgstr "DueDateHQ readiness portal"
 #: src/features/concepts/concept-help.tsx
 msgid "DueDateHQ's deterministic ordering score for deadline work. It combines dollar exposure, urgency, client importance, late filing history, and readiness pressure."
 msgstr "DueDateHQ's deterministic ordering score for deadline work. It combines dollar exposure, urgency, client importance, late filing history, and readiness pressure."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Duration months"
+msgstr "Duration months"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
@@ -2426,12 +2443,12 @@ msgid "Exception"
 msgstr "Exception"
 
 #: src/routes/workboard.tsx
-msgid "Expected date"
-msgstr "Expected date"
+msgid "Expected extended date"
+msgstr "Expected extended date"
 
 #: src/routes/workboard.tsx
-msgid "Expected extended due date"
-msgstr "Expected extended due date"
+msgid "Expected extended due date (reference only)"
+msgstr "Expected extended due date (reference only)"
 
 #: src/features/members/members-page.tsx
 msgid "Expired"
@@ -2485,6 +2502,10 @@ msgstr "Extended"
 msgid "Extension"
 msgstr "Extension"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Extension also covers payment."
+msgstr "Extension also covers payment."
+
 #: src/routes/workboard.tsx
 msgid "Extension decision saved"
 msgstr "Extension decision saved"
@@ -2494,12 +2515,12 @@ msgid "Extension memo"
 msgstr "Extension memo"
 
 #: src/features/rules/rule-detail-drawer.tsx
-msgid "Extension policy is invalid."
-msgstr "Extension policy is invalid."
+msgid "Extension note"
+msgstr "Extension note"
 
 #: src/features/rules/rule-detail-drawer.tsx
-msgid "Extension policy JSON"
-msgstr "Extension policy JSON"
+msgid "Extension policy is invalid."
+msgstr "Extension policy is invalid."
 
 #: src/routes/workboard.tsx
 msgid "Extension source"
@@ -2516,6 +2537,10 @@ msgstr "Fact readiness"
 #: src/routes/practice.tsx
 msgid "Factor weights"
 msgstr "Factor weights"
+
+#: src/routes/workboard.tsx
+msgid "Facts"
+msgstr "Facts"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
@@ -2576,9 +2601,9 @@ msgstr "files"
 msgid "Files"
 msgstr "Files"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Filing only — payment NOT extended."
-msgstr "Filing only — payment NOT extended."
+#: src/features/migration/mapping-target-labels.ts
+msgid "Filing frequency"
+msgstr "Filing frequency"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Filing year end"
@@ -2587,6 +2612,10 @@ msgstr "Filing year end"
 #: src/features/rules/coverage-tab.tsx
 msgid "Filing-frequency review"
 msgstr "Filing-frequency review"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Filing-only extension; payment is not extended."
+msgstr "Filing-only extension; payment is not extended."
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Filter by alert status"
@@ -2607,6 +2636,10 @@ msgstr "Firm"
 #: src/features/calendar/calendar-page.tsx
 msgid "Firm-wide calendar"
 msgstr "Firm-wide calendar"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "FL tentative tax"
+msgstr "FL tentative tax"
 
 #: src/routes/dashboard.tsx
 msgid "Follow up for client materials."
@@ -2642,7 +2675,6 @@ msgstr "For US CPA practices"
 
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-detail-drawer.tsx
-#: src/routes/workboard.tsx
 msgid "Form"
 msgstr "Form"
 
@@ -2708,6 +2740,10 @@ msgstr "Google Calendar"
 msgid "Google Calendar uses the copied HTTPS URL from its web app. Apple Calendar can open the webcal link directly."
 msgstr "Google Calendar uses the copied HTTPS URL from its web app. Apple Calendar can open the webcal link directly."
 
+#: src/features/migration/mapping-target-labels.ts
+msgid "Gross receipts"
+msgstr "Gross receipts"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "have jurisdiction facts"
 msgstr "have jurisdiction facts"
@@ -2743,6 +2779,10 @@ msgstr "I'm coming from… (optional)"
 #: src/features/calendar/calendar-page.tsx
 msgid "ICS is one-way: external calendar edits never update DueDateHQ."
 msgstr "ICS is one-way: external calendar edits never update DueDateHQ."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "If unchecked, treat this as filing-only; payment may still be due on the original date."
+msgstr "If unchecked, treat this as filing-only; payment may still be due on the original date."
 
 #: src/features/migration/mapping-target-labels.ts
 msgid "Ignore this column"
@@ -2862,6 +2902,10 @@ msgstr "Inbox"
 msgid "Includes overdue and next-seven-day obligations."
 msgstr "Includes overdue and next-seven-day obligations."
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Increase duration months"
+msgstr "Increase duration months"
+
 #: src/routes/clients.tsx
 msgid "Individual"
 msgstr "Individual"
@@ -2873,6 +2917,10 @@ msgstr "Input client facts → dry-run rules engine → see which obligations wo
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Inspect raw"
 msgstr "Inspect raw"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Installments"
+msgstr "Installments"
 
 #: src/features/migration/Stepper.tsx
 msgid "Intake"
@@ -3177,6 +3225,10 @@ msgstr "Manager-ready practice operations"
 msgid "Manual"
 msgstr "Manual"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Manual review"
+msgstr "Manual review"
+
 #: src/features/rules/sources-tab.tsx
 msgid "Manual review source · click to open the official page"
 msgstr "Manual review source · click to open the official page"
@@ -3262,6 +3314,10 @@ msgstr "Member accepted"
 #: src/features/members/members-page.tsx
 msgid "Member action failed"
 msgstr "Member action failed"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Member count"
+msgstr "Member count"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Member invitation"
@@ -3350,6 +3406,10 @@ msgstr "Minimum days until due"
 msgid "Minimum dollars at risk"
 msgstr "Minimum dollars at risk"
 
+#: src/routes/workboard.tsx
+msgid "Missing penalty facts"
+msgstr "Missing penalty facts"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "missing rule inputs"
 msgstr "missing rule inputs"
@@ -3357,6 +3417,10 @@ msgstr "missing rule inputs"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Model"
 msgstr "Model"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Month offset"
+msgstr "Month offset"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -3619,10 +3683,6 @@ msgstr "No export packages yet."
 msgid "No exposure states"
 msgstr "No exposure states"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "No extension available."
-msgstr "No extension available."
-
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "No failed snapshots."
 msgstr "No failed snapshots."
@@ -3714,6 +3774,10 @@ msgid "no rule — not in MVP scope"
 msgstr "no rule — not in MVP scope"
 
 #: src/routes/workboard.tsx
+msgid "No rule extension or unknown"
+msgstr "No rule extension or unknown"
+
+#: src/routes/workboard.tsx
 msgid "No saved views"
 msgstr "No saved views"
 
@@ -3784,10 +3848,6 @@ msgid "Not applicable"
 msgstr "Not applicable"
 
 #: src/routes/workboard.tsx
-msgid "Not available or unknown"
-msgstr "Not available or unknown"
-
-#: src/routes/workboard.tsx
 msgid "Not calculated"
 msgstr "Not calculated"
 
@@ -3836,7 +3896,6 @@ msgstr "Note"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
-#: src/routes/workboard.tsx
 msgid "Notes"
 msgstr "Notes"
 
@@ -3854,6 +3913,14 @@ msgstr "Notifications"
 #: src/components/patterns/app-shell.tsx
 msgid "Notifications, {unreadCount} unread"
 msgstr "Notifications, {unreadCount} unread"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "NY PTET election made"
+msgstr "NY PTET election made"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "NY PTET payments"
+msgstr "NY PTET payments"
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/concepts/concept-help.tsx
@@ -3884,6 +3951,10 @@ msgstr "Obligation queue"
 msgid "Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
 msgstr "Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders."
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Official calendar"
+msgstr "Official calendar"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "official channels under monitor"
 msgstr "official channels under monitor"
@@ -3899,6 +3970,14 @@ msgstr "Official due date page"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Official excerpt"
 msgstr "Official excerpt"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Official extension form"
+msgstr "Official extension form"
+
+#: src/routes/workboard.tsx
+msgid "Official form"
+msgstr "Official form"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Official source"
@@ -4237,6 +4316,10 @@ msgstr "Paid subscriptions bill the practice, not an individual user."
 msgid "Partially applied"
 msgstr "Partially applied"
 
+#: src/features/migration/mapping-target-labels.ts
+msgid "Partner count"
+msgstr "Partner count"
+
 #: src/routes/clients.tsx
 msgid "Partnership"
 msgstr "Partnership"
@@ -4290,10 +4373,6 @@ msgstr "Payment confirmation can take a few seconds."
 msgid "Payment details stay with the processor"
 msgstr "Payment details stay with the processor"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Payment is extended along with filing."
-msgstr "Payment is extended along with filing."
-
 #: src/routes/billing.tsx
 msgid "Payment model"
 msgstr "Payment model"
@@ -4301,6 +4380,10 @@ msgstr "Payment model"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Payment year start"
 msgstr "Payment year start"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Payments and credits"
+msgstr "Payments and credits"
 
 #: src/routes/workboard.tsx
 msgid "PDF zip"
@@ -4326,6 +4409,14 @@ msgstr "Penalty Radar"
 msgid "Penalty readiness is computed from the confirmed tax type plus any estimated tax due and owner count columns mapped in Step 2."
 msgstr "Penalty readiness is computed from the confirmed tax type plus any estimated tax due and owner count columns mapped in Step 2."
 
+#: src/routes/workboard.tsx
+msgid "Penalty sources"
+msgstr "Penalty sources"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Penalty tax due"
+msgstr "Penalty tax due"
+
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/members/members-page.tsx
@@ -4349,6 +4440,14 @@ msgstr "pending ops review"
 #: src/features/pulse/OpsPulsePage.tsx
 msgid "Pending review"
 msgstr "Pending review"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Period end"
+msgstr "Period end"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Period start"
+msgstr "Period start"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Permission checked"
@@ -4415,10 +4514,6 @@ msgstr "Please enter at least 2 characters."
 #: src/routes/workboard.tsx
 msgid "Please try again."
 msgstr "Please try again."
-
-#: src/routes/workboard.tsx
-msgid "Policy"
-msgstr "Policy"
 
 #: src/routes/workboard.tsx
 msgid "Portal link copied"
@@ -4655,6 +4750,14 @@ msgstr "Provider hosted"
 #: src/features/migration/Step1Intake.tsx
 msgid "Provider JSON records"
 msgstr "Provider JSON records"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Publish evidence, but generated deadlines still require CPA review."
+msgstr "Publish evidence, but generated deadlines still require CPA review."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Publish mode"
+msgstr "Publish mode"
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/concepts/concept-help.tsx
@@ -4910,6 +5013,10 @@ msgstr "Reason"
 msgid "Reason for review actions"
 msgstr "Reason for review actions"
 
+#: src/features/migration/mapping-target-labels.ts
+msgid "Receipts band"
+msgstr "Receipts band"
+
 #: src/routes/workboard.tsx
 msgid "Recently updated"
 msgstr "Recently updated"
@@ -4921,6 +5028,14 @@ msgstr "Recommended"
 #: src/features/migration/WizardShell.tsx
 msgid "Record audit trail"
 msgstr "Record audit trail"
+
+#: src/routes/workboard.tsx
+msgid "Record internal decision: extension applied"
+msgstr "Record internal decision: extension applied"
+
+#: src/routes/workboard.tsx
+msgid "Record internal decision: extension rejected"
+msgstr "Record internal decision: extension rejected"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
@@ -4975,10 +5090,6 @@ msgstr "Regulatory Pulse signals that match your practice's clients. Review, bat
 msgid "Reject"
 msgstr "Reject"
 
-#: src/routes/workboard.tsx
-msgid "Reject extension decision"
-msgstr "Reject extension decision"
-
 #: src/features/audit/audit-log-labels.ts
 msgid "Rejected"
 msgstr "Rejected"
@@ -4997,6 +5108,7 @@ msgid "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgstr "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 
 #: src/features/concepts/concept-help.tsx
+#: src/features/rules/rule-detail-drawer.tsx
 msgid "Reminder-ready"
 msgstr "Reminder-ready"
 
@@ -5317,9 +5429,17 @@ msgstr "Rows waiting for final human action."
 msgid "Rule"
 msgstr "Rule"
 
+#: src/routes/workboard.tsx
+msgid "Rule allows extension"
+msgstr "Rule allows extension"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule candidate created"
 msgstr "Rule candidate created"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Rule candidate rejected"
+msgstr "Rule candidate rejected"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule cells"
@@ -5329,6 +5449,10 @@ msgstr "Rule cells"
 msgid "Rule detail and evidence"
 msgstr "Rule detail and evidence"
 
+#: src/routes/workboard.tsx
+msgid "Rule extension policy"
+msgstr "Rule extension policy"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule issue reported"
 msgstr "Rule issue reported"
@@ -5336,6 +5460,10 @@ msgstr "Rule issue reported"
 #: src/features/rules/rules-console.tsx
 msgid "Rule Library"
 msgstr "Rule Library"
+
+#: src/routes/workboard.tsx
+msgid "Rule notes"
+msgstr "Rule notes"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule review required"
@@ -5448,13 +5576,13 @@ msgstr "Save changes"
 msgid "Save current view"
 msgstr "Save current view"
 
-#: src/routes/workboard.tsx
-msgid "Save decision"
-msgstr "Save decision"
-
 #: src/routes/billing.tsx
 msgid "Save from $960/year"
 msgstr "Save from $960/year"
+
+#: src/routes/workboard.tsx
+msgid "Save internal decision"
+msgstr "Save internal decision"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Save jurisdiction"
@@ -5724,15 +5852,15 @@ msgstr "Shared deadline operations"
 msgid "Shared deadline operations for Pro, Team, and Enterprise plans."
 msgstr "Shared deadline operations for Pro, Team, and Enterprise plans."
 
+#: src/features/migration/mapping-target-labels.ts
+msgid "Shareholder count"
+msgstr "Shareholder count"
+
 #. placeholder {0}: filteredRows.length
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Show all {0} →"
 msgstr "Show all {0} →"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Show raw value"
-msgstr "Show raw value"
 
 #. placeholder {0}: visibleRows.length
 #. placeholder {1}: filteredRows.length
@@ -5911,6 +6039,10 @@ msgstr "Source excerpt copied"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Source heading"
 msgstr "Source heading"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Source heading and excerpt are required."
+msgstr "Source heading and excerpt are required."
 
 #: src/routes/dashboard.tsx
 msgid "source linked"
@@ -6325,10 +6457,6 @@ msgstr "This alert is no longer available."
 msgid "This clears the unfinished draft so you can start a new import. No clients or deadlines have been created yet."
 msgstr "This clears the unfinished draft so you can start a new import. No clients or deadlines have been created yet."
 
-#: src/routes/workboard.tsx
-msgid "This is an internal decision record. It does not update the due date or confirm an authority filing. Payment may still be due by the original date."
-msgstr "This is an internal decision record. It does not update the due date or confirm an authority filing. Payment may still be due by the original date."
-
 #: src/routes/onboarding.tsx
 msgid "This is what your team and clients will see."
 msgstr "This is what your team and clients will see."
@@ -6357,6 +6485,10 @@ msgstr "This Pulse alert is closed and cannot be sent for review."
 msgid "This readiness link is expired, revoked, or invalid."
 msgstr "This readiness link is expired, revoked, or invalid."
 
+#: src/routes/workboard.tsx
+msgid "This records an internal decision for this obligation. It does not update the due date, change client records, or confirm an authority filing. Payment may still be due by the original date."
+msgstr "This records an internal decision for this obligation. It does not update the due date, change client records, or confirm an authority filing. Payment may still be due by the original date."
+
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "This removes every client and deadline created by this import. Use Clients to edit individual records instead."
 msgstr "This removes every client and deadline created by this import. Use Clients to edit individual records instead."
@@ -6368,6 +6500,18 @@ msgstr "This removes the client and deadlines created by this import. Use Client
 #: src/features/migration/Wizard.tsx
 msgid "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 msgstr "This removes the clients and deadlines created by this import. Other practice data will not be changed."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "This rule allows an extension"
+msgstr "This rule allows an extension"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "This rule allows an extension."
+msgstr "This rule allows an extension."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "This rule does not allow an extension."
+msgstr "This rule does not allow an extension."
 
 #: src/routes/practice.tsx
 msgid "This soft-deletes the active practice. If another practice is available, you will be moved there."
@@ -6461,6 +6605,18 @@ msgstr "Two-factor verification"
 #: src/routes/two-factor.tsx
 msgid "Two-factor verification complete"
 msgstr "Two-factor verification complete"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "TX current-year franchise tax"
+msgstr "TX current-year franchise tax"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "TX prior-year franchise tax"
+msgstr "TX prior-year franchise tax"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "UI wage report count"
+msgstr "UI wage report count"
 
 #: src/routes/login.tsx
 msgid "Unable to start Google sign-in"
@@ -6591,6 +6747,10 @@ msgstr "Urgency window"
 msgid "Use a 2-letter state code"
 msgstr "Use a 2-letter state code"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Use a concrete due date calculation and allow reminder-ready previews."
+msgstr "Use a concrete due date calculation and allow reminder-ready previews."
+
 #: src/features/calendar/calendar-page.tsx
 msgid "Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple Calendar subscriptions."
 msgstr "Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple Calendar subscriptions."
@@ -6602,6 +6762,10 @@ msgstr "Use a whole number from 0 to 99"
 #: src/routes/workboard.tsx
 msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
 msgstr "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Used to show extension guidance on obligations matched to this rule. It does not change client records, file an extension, or update due dates automatically."
+msgstr "Used to show extension guidance on obligations matched to this rule. It does not change client records, file an extension, or update due dates automatically."
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "User agent hash"
@@ -6709,6 +6873,10 @@ msgstr "View billing"
 msgid "Visible columns"
 msgstr "Visible columns"
 
+#: src/features/migration/mapping-target-labels.ts
+msgid "WA subtotal minus credits"
+msgstr "WA subtotal minus credits"
+
 #: src/features/workboard/status-control.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Waiting"
@@ -6781,6 +6949,10 @@ msgstr "We'll figure out the shape — paste or upload, your call."
 msgid "Webhook confirmed"
 msgstr "Webhook confirmed"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Weekend or holiday handling"
+msgstr "Weekend or holiday handling"
+
 #: src/routes/login.tsx
 msgid "Welcome to the workbench."
 msgstr "Welcome to the workbench."
@@ -6810,6 +6982,10 @@ msgstr "Why: {0} ({1})"
 #: src/routes/dashboard.tsx
 msgid "Why: {deadlineDriver}"
 msgstr "Why: {deadlineDriver}"
+
+#: src/features/migration/mapping-target-labels.ts
+msgid "Withholding report count"
+msgstr "Withholding report count"
 
 #: src/routes/dashboard.tsx
 msgid "Work each risk window with deterministic priority, row-level drivers, and the next check."

@@ -112,6 +112,7 @@ export const AUDIT_ACTION_LABEL_KEYS = {
   'rule.verified': 'ruleVerified',
   'rules.candidate.created': 'rulesCandidateCreated',
   'rules.published': 'rulesPublished',
+  'rules.review.rejected': 'rulesReviewRejected',
   'rules.review.required': 'rulesReviewRequired',
   'rules.source.changed': 'rulesSourceChanged',
   'workboard.exported': 'workboardExported',

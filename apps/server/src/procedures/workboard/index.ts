@@ -43,6 +43,10 @@ interface RawRow {
   estimatedExposureCents: number | null
   exposureStatus: WorkboardRow['exposureStatus']
   penaltyBreakdownJson: unknown
+  missingPenaltyFactsJson: unknown
+  penaltySourceRefsJson: unknown
+  penaltyFormulaLabel: string | null
+  penaltyFactsVersion: string | null
   accruedPenaltyCents: number | null
   accruedPenaltyStatus: WorkboardRow['accruedPenaltyStatus']
   accruedPenaltyBreakdown: WorkboardRow['accruedPenaltyBreakdown']
@@ -120,6 +124,10 @@ function toRow(
     estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,
     exposureStatus: row.exposureStatus,
     penaltyBreakdown: opts.hideDollars ? [] : parsePenaltyBreakdown(row.penaltyBreakdownJson),
+    missingPenaltyFacts: opts.hideDollars ? [] : parseStringArray(row.missingPenaltyFactsJson),
+    penaltySourceRefs: opts.hideDollars ? [] : parsePenaltySourceRefs(row.penaltySourceRefsJson),
+    penaltyFormulaLabel: opts.hideDollars ? null : row.penaltyFormulaLabel,
+    penaltyFactsVersion: opts.hideDollars ? null : row.penaltyFactsVersion,
     accruedPenaltyCents: opts.hideDollars ? null : row.accruedPenaltyCents,
     accruedPenaltyStatus: row.accruedPenaltyStatus,
     accruedPenaltyBreakdown: opts.hideDollars ? [] : row.accruedPenaltyBreakdown,
@@ -211,8 +219,51 @@ function parsePenaltyBreakdown(value: unknown): WorkboardRow['penaltyBreakdown']
         label,
         amountCents,
         formula,
+        inputs: parsePenaltyInputs(item.inputs),
+        sourceRefs: parsePenaltySourceRefs(item.sourceRefs),
       },
     ]
+  })
+}
+
+function parseStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === 'string' && item.length > 0)
+}
+
+function parsePenaltyInputs(
+  value: unknown,
+): Record<string, string | number | boolean | null> | undefined {
+  if (!isRecord(value)) return undefined
+  const result: Record<string, string | number | boolean | null> = {}
+  for (const [key, item] of Object.entries(value)) {
+    if (
+      typeof item === 'string' ||
+      typeof item === 'number' ||
+      typeof item === 'boolean' ||
+      item === null
+    ) {
+      result[key] = item
+    }
+  }
+  return Object.keys(result).length > 0 ? result : undefined
+}
+
+function parsePenaltySourceRefs(value: unknown): WorkboardRow['penaltySourceRefs'] {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((item) => {
+    if (!isRecord(item)) return []
+    const { label, url, sourceExcerpt, effectiveDate, lastReviewedDate } = item
+    if (
+      typeof label !== 'string' ||
+      typeof url !== 'string' ||
+      typeof sourceExcerpt !== 'string' ||
+      typeof effectiveDate !== 'string' ||
+      typeof lastReviewedDate !== 'string'
+    ) {
+      return []
+    }
+    return [{ label, url, sourceExcerpt, effectiveDate, lastReviewedDate }]
   })
 }
 

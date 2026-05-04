@@ -1,17 +1,17 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { TriangleAlertIcon } from 'lucide-react'
+import { MinusIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 import type {
+  DueDateLogic,
   ObligationRule,
   RuleEvidence,
   RuleEvidenceAuthorityRole,
   RuleSource,
 } from '@duedatehq/contracts'
 import {
-  CoverageStatusSchema,
   DueDateLogicSchema,
   ExtensionPolicySchema,
   RuleQualityChecklistSchema,
@@ -29,6 +29,7 @@ import {
 import { Textarea } from '@duedatehq/ui/components/ui/textarea'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { IsoDatePicker, isValidIsoDate } from '@/components/primitives/iso-date-picker'
 import { ConceptLabel } from '@/features/concepts/concept-help'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -103,12 +104,51 @@ function CandidateReviewSection({
   return <CandidateReviewForm rule={rule} sourceLookup={sourceLookup} />
 }
 
-function parseJsonInput(value: string): { ok: true; value: unknown } | { ok: false } {
-  try {
-    return { ok: true, value: JSON.parse(value) }
-  } catch {
-    return { ok: false }
-  }
+type PublishMode = 'manual' | 'reminder_ready'
+type ConcreteDueDateKind = 'fixed_date' | 'tax_year_end' | 'tax_year_begin'
+type HolidayRollover = 'source_adjusted' | 'next_business_day'
+type ReviewExtensionPolicy = ObligationRule['extensionPolicy']
+
+function initialPublishMode(rule: ObligationRule): PublishMode {
+  return rule.coverageStatus === 'full' && rule.dueDateLogic.kind !== 'source_defined_calendar'
+    ? 'reminder_ready'
+    : 'manual'
+}
+
+function initialConcreteDueDateKind(rule: ObligationRule): ConcreteDueDateKind {
+  if (rule.dueDateLogic.kind === 'fixed_date') return 'fixed_date'
+  if (rule.dueDateLogic.kind === 'nth_day_after_tax_year_begin') return 'tax_year_begin'
+  return 'tax_year_end'
+}
+
+function defaultFixedDate(rule: ObligationRule): string {
+  return `${rule.applicableYear}-04-15`
+}
+
+function intInRange(value: string, min: number, max: number): number | null {
+  const parsed = Number.parseInt(value, 10)
+  return Number.isInteger(parsed) && parsed >= min && parsed <= max ? parsed : null
+}
+
+function positiveIntegerString(value: string): string {
+  return value.replace(/\D/g, '')
+}
+
+function clampedIntegerString(value: string, min: number, max: number): string {
+  const parsed = Number.parseInt(value, 10)
+  if (!Number.isInteger(parsed)) return ''
+  return String(Math.min(max, Math.max(min, parsed)))
+}
+
+function steppedIntegerString(value: string, min: number, max: number, delta: -1 | 1): string {
+  const parsed = Number.parseInt(value, 10)
+  const base = Number.isInteger(parsed) ? parsed : delta > 0 ? min - 1 : min + 1
+  return String(Math.min(max, Math.max(min, base + delta)))
+}
+
+function sourceDefinedDescription(rule: ObligationRule, heading: string): string {
+  if (rule.dueDateLogic.kind === 'source_defined_calendar') return rule.dueDateLogic.description
+  return `${rule.title}: ${heading}`
 }
 
 function CandidateReviewForm({
@@ -126,17 +166,44 @@ function CandidateReviewForm({
     primaryEvidence?.locator.heading ?? t`Official due date page`,
   )
   const [sourceExcerpt, setSourceExcerpt] = useState(primaryEvidence?.sourceExcerpt ?? '')
-  const [dueDateLogicJson, setDueDateLogicJson] = useState(
-    JSON.stringify(rule.dueDateLogic, null, 2),
+  const [publishMode, setPublishMode] = useState<PublishMode>(() => initialPublishMode(rule))
+  const [concreteDueDateKind, setConcreteDueDateKind] = useState<ConcreteDueDateKind>(() =>
+    initialConcreteDueDateKind(rule),
   )
-  const [extensionPolicyJson, setExtensionPolicyJson] = useState(
-    JSON.stringify(rule.extensionPolicy, null, 2),
+  const [fixedDate, setFixedDate] = useState(
+    rule.dueDateLogic.kind === 'fixed_date' ? rule.dueDateLogic.date : defaultFixedDate(rule),
   )
+  const [fixedHolidayRollover, setFixedHolidayRollover] =
+    useState<HolidayRollover>('next_business_day')
+  const [monthOffset, setMonthOffset] = useState(
+    rule.dueDateLogic.kind === 'nth_day_after_tax_year_end' ||
+      rule.dueDateLogic.kind === 'nth_day_after_tax_year_begin'
+      ? String(rule.dueDateLogic.monthOffset)
+      : '4',
+  )
+  const [dayOfMonth, setDayOfMonth] = useState(
+    rule.dueDateLogic.kind === 'nth_day_after_tax_year_end' ||
+      rule.dueDateLogic.kind === 'nth_day_after_tax_year_begin'
+      ? String(rule.dueDateLogic.day)
+      : '15',
+  )
+  const [extensionAvailable, setExtensionAvailable] = useState(rule.extensionPolicy.available)
+  const [extensionFormName, setExtensionFormName] = useState(rule.extensionPolicy.formName ?? '')
+  const [extensionDurationMonths, setExtensionDurationMonths] = useState(
+    rule.extensionPolicy.durationMonths ? String(rule.extensionPolicy.durationMonths) : '',
+  )
+  const [extensionPaymentExtended, setExtensionPaymentExtended] = useState(
+    rule.extensionPolicy.paymentExtended,
+  )
+  const [extensionNotes, setExtensionNotes] = useState(rule.extensionPolicy.notes)
   const [ruleTier, setRuleTier] = useState<ObligationRule['ruleTier']>('basic')
-  const [coverageStatus, setCoverageStatus] = useState<ObligationRule['coverageStatus']>('full')
   const [requiresReview, setRequiresReview] = useState(false)
   const [reviewNote, setReviewNote] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
+  const coverageStatus: ObligationRule['coverageStatus'] =
+    publishMode === 'manual' ? 'manual' : 'full'
+  const effectiveRequiresReview = publishMode === 'manual' ? true : requiresReview
+  const fixedDateInvalid = fixedDate.trim() !== '' && !isValidIsoDate(fixedDate.trim())
 
   const invalidateRules = () => {
     void queryClient.invalidateQueries({ queryKey: orpc.rules.key() })
@@ -174,22 +241,75 @@ function CandidateReviewForm({
     .map((id) => sourceLookup.get(id))
     .filter((source): source is RuleSource => source !== undefined)
 
+  const buildDueDateLogic = (): DueDateLogic | null => {
+    if (publishMode === 'manual') {
+      return {
+        kind: 'source_defined_calendar',
+        description: sourceDefinedDescription(rule, sourceHeading.trim() || t`Official calendar`),
+        holidayRollover: 'source_adjusted',
+      }
+    }
+
+    if (concreteDueDateKind === 'fixed_date') {
+      return {
+        kind: 'fixed_date',
+        date: fixedDate.trim(),
+        holidayRollover: fixedHolidayRollover,
+      }
+    }
+
+    const parsedMonthOffset = intInRange(monthOffset, 1, 12)
+    const parsedDay = intInRange(dayOfMonth, 1, 31)
+    if (!parsedMonthOffset || !parsedDay) return null
+
+    return {
+      kind:
+        concreteDueDateKind === 'tax_year_begin'
+          ? 'nth_day_after_tax_year_begin'
+          : 'nth_day_after_tax_year_end',
+      monthOffset: parsedMonthOffset,
+      day: parsedDay,
+      holidayRollover: 'next_business_day',
+    }
+  }
+
+  const buildExtensionPolicy = (): ReviewExtensionPolicy | null => {
+    const notes = extensionNotes.trim()
+    if (!notes) return null
+    if (!extensionAvailable) {
+      return {
+        available: false,
+        paymentExtended: false,
+        notes,
+      }
+    }
+
+    const durationMonths =
+      extensionDurationMonths.trim().length > 0 ? intInRange(extensionDurationMonths, 1, 24) : null
+    if (extensionDurationMonths.trim().length > 0 && durationMonths === null) return null
+
+    return {
+      available: true,
+      ...(extensionFormName.trim() ? { formName: extensionFormName.trim() } : {}),
+      ...(durationMonths !== null ? { durationMonths } : {}),
+      paymentExtended: extensionPaymentExtended,
+      notes,
+    }
+  }
+
   const submitVerify = () => {
     setFormError(null)
-    const dueDateLogicValue = parseJsonInput(dueDateLogicJson)
-    const extensionPolicyValue = parseJsonInput(extensionPolicyJson)
-    if (!dueDateLogicValue.ok) {
-      setFormError(t`Due date logic is invalid.`)
+    if (!sourceId) {
+      setFormError(t`Choose an official source.`)
       return
     }
-    if (!extensionPolicyValue.ok) {
-      setFormError(t`Extension policy is invalid.`)
+    if (!sourceHeading.trim() || !sourceExcerpt.trim()) {
+      setFormError(t`Source heading and excerpt are required.`)
       return
     }
-    const dueDateLogic = DueDateLogicSchema.safeParse(dueDateLogicValue.value)
-    const extensionPolicy = ExtensionPolicySchema.safeParse(extensionPolicyValue.value)
+    const dueDateLogic = DueDateLogicSchema.safeParse(buildDueDateLogic())
+    const extensionPolicy = ExtensionPolicySchema.safeParse(buildExtensionPolicy())
     const parsedRuleTier = RuleTierSchema.safeParse(ruleTier)
-    const parsedCoverageStatus = CoverageStatusSchema.safeParse(coverageStatus)
     const quality = RuleQualityChecklistSchema.parse({
       filingPaymentDistinguished: true,
       extensionHandled: true,
@@ -206,7 +326,7 @@ function CandidateReviewForm({
       setFormError(t`Extension policy is invalid.`)
       return
     }
-    if (!parsedRuleTier.success || !parsedCoverageStatus.success) {
+    if (!parsedRuleTier.success) {
       setFormError(t`Review status is invalid.`)
       return
     }
@@ -214,13 +334,13 @@ function CandidateReviewForm({
     verifyMutation.mutate({
       ruleId: rule.id,
       sourceId,
-      sourceHeading,
-      sourceExcerpt,
+      sourceHeading: sourceHeading.trim(),
+      sourceExcerpt: sourceExcerpt.trim(),
       dueDateLogic: dueDateLogic.data,
       extensionPolicy: extensionPolicy.data,
       ruleTier: parsedRuleTier.data,
-      coverageStatus: parsedCoverageStatus.data,
-      requiresApplicabilityReview: requiresReview,
+      coverageStatus,
+      requiresApplicabilityReview: effectiveRequiresReview,
       quality,
       nextReviewOn: `${new Date().getFullYear()}-11-15`,
       ...(reviewNote.trim() ? { reviewNote: reviewNote.trim() } : {}),
@@ -255,6 +375,9 @@ function CandidateReviewForm({
             onChange={(event) => setSourceId(event.target.value)}
             className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
           >
+            {sourceOptions.length === 0 && sourceId ? (
+              <option value={sourceId}>{sourceId}</option>
+            ) : null}
             {sourceOptions.map((source) => (
               <option key={source.id} value={source.id}>
                 {source.title}
@@ -283,25 +406,201 @@ function CandidateReviewForm({
           className="min-h-20 text-xs"
         />
       </label>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-2">
+        <span className="text-xs font-medium uppercase text-text-tertiary">
+          <Trans>Publish mode</Trans>
+        </span>
+        <div className="grid gap-2 md:grid-cols-2">
+          <label className="flex cursor-pointer gap-2 rounded-md border border-divider-regular p-3 text-sm">
+            <input
+              type="radio"
+              checked={publishMode === 'manual'}
+              onChange={() => setPublishMode('manual')}
+              className="mt-0.5 size-4"
+            />
+            <span className="grid gap-1">
+              <span className="font-medium text-text-primary">
+                <Trans>Manual review</Trans>
+              </span>
+              <span className="text-xs text-text-tertiary">
+                <Trans>Publish evidence, but generated deadlines still require CPA review.</Trans>
+              </span>
+            </span>
+          </label>
+          <label className="flex cursor-pointer gap-2 rounded-md border border-divider-regular p-3 text-sm">
+            <input
+              type="radio"
+              checked={publishMode === 'reminder_ready'}
+              onChange={() => setPublishMode('reminder_ready')}
+              className="mt-0.5 size-4"
+            />
+            <span className="grid gap-1">
+              <span className="font-medium text-text-primary">
+                <Trans>Reminder-ready</Trans>
+              </span>
+              <span className="text-xs text-text-tertiary">
+                <Trans>
+                  Use a concrete due date calculation and allow reminder-ready previews.
+                </Trans>
+              </span>
+            </span>
+          </label>
+        </div>
+      </div>
+      {publishMode === 'reminder_ready' ? (
+        <div className="grid gap-3 rounded-md border border-divider-subtle bg-background-subtle p-3">
+          <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+            <span>
+              <Trans>Due date basis</Trans>
+            </span>
+            <select
+              value={concreteDueDateKind}
+              onChange={(event) => {
+                const next = event.target.value
+                if (next === 'fixed_date' || next === 'tax_year_end' || next === 'tax_year_begin') {
+                  setConcreteDueDateKind(next)
+                }
+              }}
+              className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
+            >
+              <option value="fixed_date">specific date</option>
+              <option value="tax_year_end">after tax year end</option>
+              <option value="tax_year_begin">after tax year begin</option>
+            </select>
+          </label>
+          {concreteDueDateKind === 'fixed_date' ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="flex flex-col gap-1 text-xs text-text-tertiary">
+                <span>
+                  <Trans>Due date</Trans>
+                </span>
+                <IsoDatePicker
+                  value={fixedDate}
+                  invalid={fixedDateInvalid}
+                  ariaLabel={t`Due date`}
+                  onValueChange={setFixedDate}
+                />
+              </div>
+              <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+                <span>
+                  <Trans>Weekend or holiday handling</Trans>
+                </span>
+                <select
+                  value={fixedHolidayRollover}
+                  onChange={(event) => {
+                    const next = event.target.value
+                    if (next === 'source_adjusted' || next === 'next_business_day') {
+                      setFixedHolidayRollover(next)
+                    }
+                  }}
+                  className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
+                >
+                  <option value="next_business_day">next business day</option>
+                  <option value="source_adjusted">already adjusted by source</option>
+                </select>
+              </label>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+                <span>
+                  <Trans>Month offset</Trans>
+                </span>
+                <input
+                  inputMode="numeric"
+                  value={monthOffset}
+                  onChange={(event) => setMonthOffset(event.target.value)}
+                  className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+                <span>
+                  <Trans>Day of month</Trans>
+                </span>
+                <input
+                  inputMode="numeric"
+                  value={dayOfMonth}
+                  onChange={(event) => setDayOfMonth(event.target.value)}
+                  className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
+                />
+              </label>
+            </div>
+          )}
+        </div>
+      ) : null}
+      <div className="grid gap-3 rounded-md border border-divider-subtle bg-background-subtle p-3">
+        <div className="grid gap-3">
+          <div className="grid gap-1">
+            <label className="flex items-center gap-2 text-xs text-text-secondary">
+              <input
+                type="checkbox"
+                checked={extensionAvailable}
+                onChange={(event) => setExtensionAvailable(event.target.checked)}
+                className="size-4"
+              />
+              <span>
+                <Trans>This rule allows an extension</Trans>
+              </span>
+            </label>
+            <p className="pl-6 text-xs text-text-tertiary">
+              <Trans>
+                Used to show extension guidance on obligations matched to this rule. It does not
+                change client records, file an extension, or update due dates automatically.
+              </Trans>
+            </p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+              <span>
+                <Trans>Official extension form</Trans>
+              </span>
+              <input
+                value={extensionFormName}
+                onChange={(event) => setExtensionFormName(event.target.value)}
+                disabled={!extensionAvailable}
+                className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary disabled:text-text-tertiary"
+              />
+            </label>
+            <div className="flex flex-col gap-1 text-xs text-text-tertiary">
+              <span>
+                <Trans>Duration months</Trans>
+              </span>
+              <DurationMonthsStepper
+                value={extensionDurationMonths}
+                onChange={setExtensionDurationMonths}
+                disabled={!extensionAvailable}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="grid gap-1">
+          <label className="flex items-center gap-2 text-xs text-text-secondary">
+            <input
+              type="checkbox"
+              checked={extensionPaymentExtended}
+              onChange={(event) => setExtensionPaymentExtended(event.target.checked)}
+              disabled={!extensionAvailable}
+              className="size-4"
+            />
+            <span>
+              <Trans>Does the extension also cover payment?</Trans>
+            </span>
+          </label>
+          <p className="pl-6 text-xs text-text-tertiary">
+            <Trans>
+              If unchecked, treat this as filing-only; payment may still be due on the original
+              date.
+            </Trans>
+          </p>
+        </div>
         <label className="flex flex-col gap-1 text-xs text-text-tertiary">
           <span>
-            <Trans>Due date logic JSON</Trans>
+            <Trans>Extension note</Trans>
           </span>
           <Textarea
-            value={dueDateLogicJson}
-            onChange={(event) => setDueDateLogicJson(event.target.value)}
-            className="min-h-32 font-mono text-[11px]"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-text-tertiary">
-          <span>
-            <Trans>Extension policy JSON</Trans>
-          </span>
-          <Textarea
-            value={extensionPolicyJson}
-            onChange={(event) => setExtensionPolicyJson(event.target.value)}
-            className="min-h-32 font-mono text-[11px]"
+            value={extensionNotes}
+            onChange={(event) => setExtensionNotes(event.target.value)}
+            className="min-h-16 text-xs"
           />
         </label>
       </div>
@@ -324,28 +623,20 @@ function CandidateReviewForm({
             <option value="exception">exception</option>
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-xs text-text-tertiary">
+        <div className="flex flex-col gap-1 text-xs text-text-tertiary">
           <span>
             <Trans>Coverage</Trans>
           </span>
-          <select
-            value={coverageStatus}
-            onChange={(event) => {
-              const parsed = CoverageStatusSchema.safeParse(event.target.value)
-              if (parsed.success) setCoverageStatus(parsed.data)
-            }}
-            className="h-8 rounded-md border border-divider-regular bg-background-default px-2 text-sm text-text-primary"
-          >
-            <option value="full">full</option>
-            <option value="manual">manual</option>
-            <option value="skeleton">skeleton</option>
-          </select>
-        </label>
+          <span className="inline-flex h-8 items-center rounded-md border border-divider-regular bg-background-subtle px-2 text-sm text-text-primary">
+            {coverageStatus}
+          </span>
+        </div>
         <label className="flex items-end gap-2 pb-1 text-xs text-text-secondary">
           <input
             type="checkbox"
-            checked={requiresReview}
+            checked={effectiveRequiresReview}
             onChange={(event) => setRequiresReview(event.target.checked)}
+            disabled={publishMode === 'manual'}
             className="size-4"
           />
           <span>
@@ -384,6 +675,64 @@ function CandidateReviewForm({
         </Button>
       </div>
     </section>
+  )
+}
+
+function DurationMonthsStepper({
+  value,
+  onChange,
+  disabled = false,
+}: {
+  value: string
+  onChange: (value: string) => void
+  disabled?: boolean
+}) {
+  const { t } = useLingui()
+  const min = 1
+  const max = 24
+  const parsed = Number.parseInt(value, 10)
+  const hasParsedValue = Number.isInteger(parsed)
+  const canDecrease = !disabled && hasParsedValue && parsed > min
+  const canIncrease = !disabled && (!hasParsedValue || parsed < max)
+
+  return (
+    <div
+      className={cn(
+        'flex h-8 w-full overflow-hidden rounded-md border border-divider-regular bg-background-default text-sm text-text-primary',
+        disabled
+          ? 'bg-components-input-bg-disabled text-components-input-text-filled-disabled'
+          : '',
+      )}
+    >
+      <button
+        type="button"
+        aria-label={t`Decrease duration months`}
+        onClick={() => onChange(steppedIntegerString(value, min, max, -1))}
+        disabled={!canDecrease}
+        className="flex h-full w-8 shrink-0 items-center justify-center border-r border-divider-regular text-text-secondary transition-colors hover:bg-background-default-hover disabled:cursor-not-allowed disabled:text-text-disabled disabled:hover:bg-transparent"
+      >
+        <MinusIcon className="size-3.5" aria-hidden />
+      </button>
+      <input
+        inputMode="numeric"
+        pattern="[0-9]*"
+        value={value}
+        onChange={(event) => onChange(positiveIntegerString(event.target.value))}
+        onBlur={() => onChange(clampedIntegerString(value, min, max))}
+        disabled={disabled}
+        aria-label={t`Duration months`}
+        className="h-full min-w-0 flex-1 bg-transparent px-2 text-center text-sm text-inherit outline-none disabled:cursor-not-allowed"
+      />
+      <button
+        type="button"
+        aria-label={t`Increase duration months`}
+        onClick={() => onChange(steppedIntegerString(value, min, max, 1))}
+        disabled={!canIncrease}
+        className="flex h-full w-8 shrink-0 items-center justify-center border-l border-divider-regular text-text-secondary transition-colors hover:bg-background-default-hover disabled:cursor-not-allowed disabled:text-text-disabled disabled:hover:bg-transparent"
+      >
+        <PlusIcon className="size-3.5" aria-hidden />
+      </button>
+    </div>
   )
 }
 
@@ -497,21 +846,12 @@ function EventRow({ rule }: { rule: ObligationRule }) {
 
 function DueDateLogicSection({ rule }: { rule: ObligationRule }) {
   const summary = useMemo(() => humanizeDueDateLogic(rule.dueDateLogic), [rule.dueDateLogic])
-  const rawJson = useMemo(() => JSON.stringify(rule.dueDateLogic, null, 2), [rule.dueDateLogic])
   return (
     <section className="flex flex-col gap-2">
       <SectionLabel>
         <Trans>Due date logic</Trans>
       </SectionLabel>
       <p className="text-base text-text-primary">{summary}</p>
-      <details className="group">
-        <summary className="cursor-pointer text-xs text-text-tertiary hover:text-text-secondary">
-          <Trans>Show raw value</Trans>
-        </summary>
-        <pre className="mt-2 overflow-x-auto rounded-md bg-background-subtle px-3 py-2 font-mono text-[11px] leading-relaxed text-text-secondary">
-          {rawJson}
-        </pre>
-      </details>
     </section>
   )
 }
@@ -526,6 +866,9 @@ function ExtensionSection({ rule }: { rule: ObligationRule }) {
       </SectionLabel>
       {extensionPolicy.available ? (
         <div className="flex flex-col gap-1.5">
+          <p className="text-base text-text-primary">
+            <Trans>This rule allows an extension.</Trans>
+          </p>
           <div className="flex flex-wrap items-center gap-2 text-base text-text-primary">
             {extensionPolicy.formName ? (
               <span className="font-medium">{extensionPolicy.formName}</span>
@@ -539,12 +882,12 @@ function ExtensionSection({ rule }: { rule: ObligationRule }) {
           <div className="text-sm">
             {extensionPolicy.paymentExtended ? (
               <span className="inline-flex items-center gap-1.5 text-text-secondary">
-                <Trans>Payment is extended along with filing.</Trans>
+                <Trans>Extension also covers payment.</Trans>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 font-medium text-severity-medium">
                 <TriangleAlertIcon className="size-3.5 shrink-0" aria-hidden />
-                <Trans>Filing only — payment NOT extended.</Trans>
+                <Trans>Filing-only extension; payment is not extended.</Trans>
               </span>
             )}
           </div>
@@ -553,7 +896,7 @@ function ExtensionSection({ rule }: { rule: ObligationRule }) {
       ) : (
         <div className="flex flex-col gap-1.5 text-base">
           <span className="text-text-secondary">
-            <Trans>No extension available.</Trans>
+            <Trans>This rule does not allow an extension.</Trans>
           </span>
           <p className="text-xs text-text-tertiary">{extensionPolicy.notes}</p>
         </div>

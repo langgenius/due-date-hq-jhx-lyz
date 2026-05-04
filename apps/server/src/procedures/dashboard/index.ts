@@ -19,6 +19,10 @@ interface DashboardRepoTopRow {
   status: DashboardTopRow['status']
   estimatedExposureCents: number | null
   exposureStatus: DashboardTopRow['exposureStatus']
+  missingPenaltyFacts: string[]
+  penaltySourceRefs: DashboardTopRow['penaltySourceRefs']
+  penaltyFormulaLabel: string | null
+  penaltyFactsVersion: string | null
   accruedPenaltyCents: number | null
   accruedPenaltyStatus: DashboardTopRow['accruedPenaltyStatus']
   accruedPenaltyBreakdown: DashboardTopRow['accruedPenaltyBreakdown']
@@ -73,11 +77,15 @@ function toTopRow(
     status: row.status,
     estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,
     exposureStatus: row.exposureStatus,
+    missingPenaltyFacts: opts.hideDollars ? [] : row.missingPenaltyFacts,
+    penaltySourceRefs: opts.hideDollars ? [] : row.penaltySourceRefs,
+    penaltyFormulaLabel: opts.hideDollars ? null : row.penaltyFormulaLabel,
+    penaltyFactsVersion: opts.hideDollars ? null : row.penaltyFactsVersion,
     accruedPenaltyCents: opts.hideDollars ? null : row.accruedPenaltyCents,
     accruedPenaltyStatus: row.accruedPenaltyStatus,
     accruedPenaltyBreakdown: opts.hideDollars ? [] : row.accruedPenaltyBreakdown,
     penaltyAsOfDate: row.penaltyAsOfDate,
-    penaltyFormulaVersion: row.penaltyFormulaVersion,
+    penaltyFormulaVersion: opts.hideDollars ? null : row.penaltyFormulaVersion,
     severity: row.severity,
     evidenceCount: row.evidenceCount,
     smartPriority: opts.hideSmartPriorityFactors

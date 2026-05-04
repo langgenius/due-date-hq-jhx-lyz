@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { PENALTY_FORMULA_VERSION } from '@duedatehq/core/penalty'
+import { PENALTY_FACTS_VERSION, PENALTY_FORMULA_VERSION } from '@duedatehq/core/penalty'
 import type { ClientRow } from '@duedatehq/ports/clients'
 import type { ObligationInstanceRow } from '@duedatehq/ports/obligations'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
-import { calculateObligationExposure, recalculateFirmProjectedExposure } from './_penalty-exposure'
+import { backfillPenaltyFactsAndExposure } from './_penalty-exposure'
 
-type ExposurePatch = ReturnType<typeof calculateObligationExposure>
+type ExposurePatch = Parameters<ScopedRepo['obligations']['updateExposure']>[1]
 
 const FIRM_ID = 'firm_penalty_backfill'
 const CREATED_AT = new Date('2026-03-01T00:00:00.000Z')
@@ -61,8 +61,13 @@ function makeObligation(over: Partial<ObligationInstanceRow>): ObligationInstanc
     estimatedTaxDueCents: null,
     estimatedExposureCents: 12_345,
     exposureStatus: 'ready',
+    penaltyFactsJson: null,
+    penaltyFactsVersion: null,
     penaltyBreakdownJson: [],
     penaltyFormulaVersion: 'penalty-v1-2026q2',
+    missingPenaltyFactsJson: [],
+    penaltySourceRefsJson: [],
+    penaltyFormulaLabel: null,
     exposureCalculatedAt: new Date('2026-03-20T00:00:00.000Z'),
     createdAt: CREATED_AT,
     updatedAt: CREATED_AT,
@@ -75,7 +80,7 @@ function normalizeUpdates(updates: Array<{ id: string; patch: ExposurePatch }>) 
     id,
     patch: {
       ...patch,
-      exposureCalculatedAt: patch.exposureCalculatedAt.toISOString(),
+      exposureCalculatedAt: patch.exposureCalculatedAt?.toISOString() ?? null,
     },
   }))
 }
@@ -389,8 +394,8 @@ function buildScopedRepo(input: {
   }
 }
 
-describe('recalculateFirmProjectedExposure', () => {
-  it('backfills v2 projected exposure for firm obligations idempotently', async () => {
+describe('backfillPenaltyFactsAndExposure', () => {
+  it('backfills v3 penalty facts and projected exposure idempotently', async () => {
     const now = new Date('2026-04-01T00:00:00.000Z')
     const clients = [
       makeClient({
@@ -433,7 +438,7 @@ describe('recalculateFirmProjectedExposure', () => {
     const updates: Array<{ id: string; patch: ExposurePatch }> = []
     const scoped = buildScopedRepo({ clients, obligationsByClient, updates })
 
-    await expect(recalculateFirmProjectedExposure(scoped, now)).resolves.toBe(2)
+    await expect(backfillPenaltyFactsAndExposure(scoped, now)).resolves.toBe(2)
 
     expect(updates).toHaveLength(2)
     expect(updates[0]?.patch).toMatchObject({
@@ -441,18 +446,26 @@ describe('recalculateFirmProjectedExposure', () => {
       estimatedExposureCents: 153_000,
       exposureStatus: 'ready',
       penaltyFormulaVersion: PENALTY_FORMULA_VERSION,
+      penaltyFactsVersion: PENALTY_FACTS_VERSION,
+      penaltyFormulaLabel: 'Federal Form 1065 late partnership return penalty',
+    })
+    expect(updates[0]?.patch.penaltyFactsJson).toMatchObject({
+      version: PENALTY_FACTS_VERSION,
+      facts: { partnerCount: 2 },
     })
     expect(updates[1]?.patch).toMatchObject({
-      estimatedTaxDueCents: null,
+      estimatedTaxDueCents: 1_000_000,
       estimatedExposureCents: null,
-      exposureStatus: 'unsupported',
+      exposureStatus: 'needs_input',
       penaltyFormulaVersion: PENALTY_FORMULA_VERSION,
+      missingPenaltyFactsJson: ['installments'],
+      penaltyFactsVersion: PENALTY_FACTS_VERSION,
     })
 
     const firstRun = normalizeUpdates(updates)
     updates.length = 0
 
-    await expect(recalculateFirmProjectedExposure(scoped, now)).resolves.toBe(2)
+    await expect(backfillPenaltyFactsAndExposure(scoped, now)).resolves.toBe(2)
     expect(normalizeUpdates(updates)).toEqual(firstRun)
   })
 })

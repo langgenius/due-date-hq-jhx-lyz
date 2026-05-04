@@ -43,8 +43,8 @@ const STAGING_ROW_BATCH_SIZE = Math.floor(100 / 10)
 const EXTERNAL_REF_BATCH_SIZE = Math.floor(100 / 14)
 // client has 17 columns -> 5/batch.
 const CLIENT_BATCH_SIZE = Math.floor(100 / 17)
-// obligation_instance has 18 columns -> 5/batch.
-const OBLIGATION_BATCH_SIZE = Math.floor(100 / 18)
+// obligation_instance has 23 columns -> 4/batch.
+const OBLIGATION_BATCH_SIZE = Math.floor(100 / 23)
 // evidence_link has 17 columns → 5/batch.
 const EVIDENCE_BATCH_SIZE = Math.floor(100 / 17)
 // audit_event has 12 columns → 8/batch.

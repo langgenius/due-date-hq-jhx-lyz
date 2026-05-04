@@ -462,6 +462,10 @@ describe('@duedatehq/contracts', () => {
         estimatedExposureCents: null,
         exposureStatus: 'needs_input',
         penaltyBreakdown: [],
+        missingPenaltyFacts: [],
+        penaltySourceRefs: [],
+        penaltyFormulaLabel: null,
+        penaltyFactsVersion: null,
         accruedPenaltyCents: 0,
         accruedPenaltyStatus: 'ready',
         accruedPenaltyBreakdown: [],
@@ -792,6 +796,8 @@ describe('@duedatehq/contracts', () => {
     expect(EvidenceSourceTypeSchema.parse('pulse_apply')).toBe('pulse_apply')
     expect(AuditActionSchema.parse('penalty.override')).toBe('penalty.override')
     expect(EvidenceSourceTypeSchema.parse('penalty_override')).toBe('penalty_override')
+    expect(AuditActionSchema.parse('rules.published')).toBe('rules.published')
+    expect(AuditActionSchema.parse('rules.review.rejected')).toBe('rules.review.rejected')
   })
 
   it('freezes Pulse demo backend contracts', () => {
@@ -962,11 +968,15 @@ describe('@duedatehq/contracts', () => {
           status: 'pending',
           estimatedExposureCents: 80000,
           exposureStatus: 'ready',
+          missingPenaltyFacts: [],
+          penaltySourceRefs: [],
+          penaltyFormulaLabel: 'California LLC annual tax penalty',
+          penaltyFactsVersion: 'penalty-facts-v1',
           accruedPenaltyCents: 0,
           accruedPenaltyStatus: 'ready',
           accruedPenaltyBreakdown: [],
           penaltyAsOfDate: '2026-04-28',
-          penaltyFormulaVersion: 'penalty-v2-2026q2',
+          penaltyFormulaVersion: 'penalty-v3-allstates-2026q2',
           severity: 'critical',
           evidenceCount: 1,
           smartPriority: {
@@ -1007,11 +1017,15 @@ describe('@duedatehq/contracts', () => {
               status: 'pending',
               estimatedExposureCents: 80000,
               exposureStatus: 'ready',
+              missingPenaltyFacts: [],
+              penaltySourceRefs: [],
+              penaltyFormulaLabel: 'California LLC annual tax penalty',
+              penaltyFactsVersion: 'penalty-facts-v1',
               accruedPenaltyCents: 0,
               accruedPenaltyStatus: 'ready',
               accruedPenaltyBreakdown: [],
               penaltyAsOfDate: '2026-04-28',
-              penaltyFormulaVersion: 'penalty-v2-2026q2',
+              penaltyFormulaVersion: 'penalty-v3-allstates-2026q2',
               severity: 'critical',
               evidenceCount: 1,
               smartPriority: {

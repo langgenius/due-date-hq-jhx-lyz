@@ -1,6 +1,8 @@
 import {
+  buildPenaltyFactsFromLegacy,
   estimateAccruedPenalty,
   estimateProjectedExposure,
+  PENALTY_FACTS_VERSION,
   type PenaltyEngineResult,
 } from '@duedatehq/core/penalty'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
@@ -17,6 +19,8 @@ interface ObligationPenaltyFacts {
   id: string
   taxType: string
   currentDueDate: Date
+  penaltyFactsJson?: unknown
+  penaltyFactsVersion?: string | null
 }
 
 export function calculateObligationExposure(
@@ -30,8 +34,7 @@ export function calculateObligationExposure(
     entityType: client.entityType,
     dueDate: obligation.currentDueDate,
     asOfDate: now,
-    estimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents ?? null,
-    equityOwnerCount: client.equityOwnerCount ?? null,
+    penaltyFactsJson: obligation.penaltyFactsJson,
   })
   return toExposurePatch(result, now)
 }
@@ -48,8 +51,7 @@ export function calculateAccruedPenalty(
       entityType: client.entityType,
       dueDate: obligation.currentDueDate,
       asOfDate,
-      estimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents ?? null,
-      equityOwnerCount: client.equityOwnerCount ?? null,
+      penaltyFactsJson: obligation.penaltyFactsJson,
     },
     { asOfDate },
   )
@@ -78,6 +80,47 @@ export async function recalculateClientExposure(
     ),
   )
   return obligations.length
+}
+
+export async function backfillPenaltyFactsAndExposure(
+  scoped: ScopedRepo,
+  now = new Date(),
+): Promise<number> {
+  const clients = await scoped.clients.listByFirm()
+  let recalculated = 0
+  await Promise.all(
+    clients.map(async (client) => {
+      const obligations = await scoped.obligations.listByClient(client.id)
+      await Promise.all(
+        obligations.map((obligation) => {
+          const factsJson =
+            obligation.penaltyFactsVersion === PENALTY_FACTS_VERSION && obligation.penaltyFactsJson
+              ? obligation.penaltyFactsJson
+              : buildPenaltyFactsFromLegacy({
+                  taxType: obligation.taxType,
+                  estimatedTaxDueCents: obligation.estimatedTaxDueCents,
+                  estimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents,
+                  equityOwnerCount: client.equityOwnerCount,
+                })
+          const result = estimateProjectedExposure({
+            jurisdiction: client.state,
+            taxType: obligation.taxType,
+            entityType: client.entityType,
+            dueDate: obligation.currentDueDate,
+            asOfDate: now,
+            penaltyFactsJson: factsJson,
+          })
+          recalculated += 1
+          return scoped.obligations.updateExposure(obligation.id, {
+            ...toExposurePatch(result, now),
+            penaltyFactsJson: factsJson,
+            penaltyFactsVersion: PENALTY_FACTS_VERSION,
+          })
+        }),
+      )
+    }),
+  )
+  return recalculated
 }
 
 export async function recalculateObligationExposure(
@@ -113,6 +156,9 @@ function toExposurePatch(result: PenaltyEngineResult, now: Date) {
     exposureStatus: result.status,
     penaltyBreakdownJson: result.breakdown,
     penaltyFormulaVersion: result.formulaVersion,
+    missingPenaltyFactsJson: result.missingPenaltyFacts,
+    penaltySourceRefsJson: result.penaltySourceRefs,
+    penaltyFormulaLabel: result.penaltyFormulaLabel,
     exposureCalculatedAt: now,
   }
 }

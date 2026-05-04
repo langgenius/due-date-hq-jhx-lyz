@@ -362,6 +362,12 @@ interface StateRuleSourceSeed {
   employerAgencyUrl: string
 }
 
+interface StateIncomeTaxSourceSeed {
+  jurisdiction: RuleGenerationState
+  title: string
+  url: string
+}
+
 export const STATE_RULE_SOURCE_SEEDS = [
   {
     jurisdiction: 'AL',
@@ -773,17 +779,264 @@ export const STATE_RULE_SOURCE_SEEDS = [
   },
 ] as const satisfies readonly StateRuleSourceSeed[]
 
-type StateRuleSourceIds = Readonly<{ taxAgency: string; employerAgency: string }>
+const STATE_INCOME_TAX_SOURCE_SEEDS = [
+  {
+    jurisdiction: 'AL',
+    title: 'Alabama Department of Revenue Individual & Corporate Tax',
+    url: 'https://www.revenue.alabama.gov/individual-corporate/',
+  },
+  {
+    jurisdiction: 'AK',
+    title: 'Alaska Department of Revenue Corporate Net Income Tax',
+    url: 'https://tax.alaska.gov/programs/programs/index.aspx?10001',
+  },
+  {
+    jurisdiction: 'AZ',
+    title: 'Arizona Department of Revenue Individuals',
+    url: 'https://azdor.gov/individuals',
+  },
+  {
+    jurisdiction: 'AR',
+    title: 'Arkansas Department of Finance and Administration Income Tax',
+    url: 'https://www.dfa.arkansas.gov/income-tax/',
+  },
+  {
+    jurisdiction: 'CA',
+    title: 'California FTB Due Dates for Individuals',
+    url: 'https://www.ftb.ca.gov/file/when-to-file/due-dates-personal.html',
+  },
+  {
+    jurisdiction: 'CO',
+    title: 'Colorado Department of Revenue Individual Income Tax',
+    url: 'https://tax.colorado.gov/individual-income-tax',
+  },
+  {
+    jurisdiction: 'CT',
+    title: 'Connecticut DRS Individual Income Tax',
+    url: 'https://portal.ct.gov/drs/individuals/individuals-tax-page',
+  },
+  {
+    jurisdiction: 'DE',
+    title: 'Delaware Division of Revenue Personal Income Tax',
+    url: 'https://revenue.delaware.gov/personal-income-tax/',
+  },
+  {
+    jurisdiction: 'DC',
+    title: 'DC OTR Individual Income Tax',
+    url: 'https://otr.cfo.dc.gov/page/individual-income-tax',
+  },
+  {
+    jurisdiction: 'FL',
+    title: 'Florida DOR Corporate Income Tax',
+    url: 'https://floridarevenue.com/taxes/taxesfees/Pages/corporate.aspx',
+  },
+  {
+    jurisdiction: 'GA',
+    title: 'Georgia Department of Revenue Individual Taxes',
+    url: 'https://dor.georgia.gov/taxes/individual-taxes',
+  },
+  {
+    jurisdiction: 'HI',
+    title: 'Hawaii Department of Taxation Individual Income Tax',
+    url: 'https://tax.hawaii.gov/forms/a1_b1_1indinc/',
+  },
+  {
+    jurisdiction: 'ID',
+    title: 'Idaho State Tax Commission Individual Income Tax',
+    url: 'https://tax.idaho.gov/taxes/income-tax/individual-income/',
+  },
+  {
+    jurisdiction: 'IL',
+    title: 'Illinois DOR Due Dates for Filing Returns',
+    url: 'https://tax.illinois.gov/individuals/filingrequirements/duedate.html',
+  },
+  {
+    jurisdiction: 'IN',
+    title: 'Indiana DOR Individual Income Taxes',
+    url: 'https://www.in.gov/dor/individual-income-taxes/',
+  },
+  {
+    jurisdiction: 'IA',
+    title: 'Iowa Department of Revenue Individual Income Tax',
+    url: 'https://tax.iowa.gov/individual-income-tax',
+  },
+  {
+    jurisdiction: 'KS',
+    title: 'Kansas Department of Revenue Individual Income Tax',
+    url: 'https://www.ksrevenue.gov/perstaxtypesii.html',
+  },
+  {
+    jurisdiction: 'KY',
+    title: 'Kentucky Department of Revenue Individual Income Tax',
+    url: 'https://revenue.ky.gov/Individual/Pages/default.aspx',
+  },
+  {
+    jurisdiction: 'LA',
+    title: 'Louisiana Department of Revenue Individual Income Tax',
+    url: 'https://revenue.louisiana.gov/IndividualIncomeTax',
+  },
+  {
+    jurisdiction: 'ME',
+    title: 'Maine Revenue Services Individual Income Tax',
+    url: 'https://www.maine.gov/revenue/taxes/individual-income-tax',
+  },
+  {
+    jurisdiction: 'MD',
+    title: 'Comptroller of Maryland Individual Income Tax',
+    url: 'https://www.marylandtaxes.gov/individual/income/index.php',
+  },
+  {
+    jurisdiction: 'MA',
+    title: 'Massachusetts DOR Due Dates',
+    url: 'https://www.mass.gov/info-details/dor-due-dates',
+  },
+  {
+    jurisdiction: 'MI',
+    title: 'Michigan Department of Treasury Individual Income Tax',
+    url: 'https://www.michigan.gov/taxes/iit',
+  },
+  {
+    jurisdiction: 'MN',
+    title: 'Minnesota Department of Revenue Individual Income Tax',
+    url: 'https://www.revenue.state.mn.us/individual-income-tax',
+  },
+  {
+    jurisdiction: 'MS',
+    title: 'Mississippi Department of Revenue Individual Income Tax',
+    url: 'https://www.dor.ms.gov/individual',
+  },
+  {
+    jurisdiction: 'MO',
+    title: 'Missouri Department of Revenue Individual Income Tax',
+    url: 'https://dor.mo.gov/taxation/individual/',
+  },
+  {
+    jurisdiction: 'MT',
+    title: 'Montana Department of Revenue Individual Income Tax',
+    url: 'https://mtrevenue.gov/taxes/individual-income-tax/',
+  },
+  {
+    jurisdiction: 'NE',
+    title: 'Nebraska Department of Revenue Individual Income Tax',
+    url: 'https://revenue.nebraska.gov/individuals/individual-income-tax',
+  },
+  {
+    jurisdiction: 'NH',
+    title: 'New Hampshire DRA Interest and Dividends Tax FAQs',
+    url: 'https://www.revenue.nh.gov/resource-center/frequently-asked-questions/interest-dividends-tax-faqs',
+  },
+  {
+    jurisdiction: 'NJ',
+    title: 'New Jersey Division of Taxation Individual Income Tax',
+    url: 'https://www.nj.gov/treasury/taxation/njit1.shtml',
+  },
+  {
+    jurisdiction: 'NM',
+    title: 'New Mexico Taxation and Revenue Individuals',
+    url: 'https://www.tax.newmexico.gov/individuals/',
+  },
+  {
+    jurisdiction: 'NY',
+    title: 'New York Tax Department 2026 Tax Filing Dates',
+    url: 'https://www.tax.ny.gov/help/calendar/2026.htm',
+  },
+  {
+    jurisdiction: 'NC',
+    title: 'North Carolina DOR Individual Income Tax',
+    url: 'https://www.ncdor.gov/taxes-forms/individual-income-tax',
+  },
+  {
+    jurisdiction: 'ND',
+    title: 'North Dakota Office of State Tax Commissioner Individual Income Tax',
+    url: 'https://www.tax.nd.gov/individual',
+  },
+  {
+    jurisdiction: 'OH',
+    title: 'Ohio Department of Taxation Annual Filing',
+    url: 'https://tax.ohio.gov/individual/resources/annual-filing',
+  },
+  {
+    jurisdiction: 'OK',
+    title: 'Oklahoma Tax Commission Individuals',
+    url: 'https://oklahoma.gov/tax/individuals.html',
+  },
+  {
+    jurisdiction: 'OR',
+    title: 'Oregon DOR Individuals',
+    url: 'https://www.oregon.gov/dor/programs/individuals/Pages/default.aspx',
+  },
+  {
+    jurisdiction: 'PA',
+    title: 'Pennsylvania DOR Personal Income Tax',
+    url: 'https://www.pa.gov/agencies/revenue/resources/tax-types-and-information/pit.html',
+  },
+  {
+    jurisdiction: 'RI',
+    title: 'Rhode Island Division of Taxation Personal Income Tax',
+    url: 'https://tax.ri.gov/tax-sections/personal-income-tax',
+  },
+  {
+    jurisdiction: 'SC',
+    title: 'South Carolina DOR Individual Income Tax',
+    url: 'https://dor.sc.gov/tax/individual-income',
+  },
+  {
+    jurisdiction: 'TN',
+    title: 'Tennessee Department of Revenue Hall Income Tax',
+    url: 'https://www.tn.gov/revenue/taxes/hall-income-tax.html',
+  },
+  {
+    jurisdiction: 'UT',
+    title: 'Utah State Tax Commission Individual Income Tax',
+    url: 'https://incometax.utah.gov/',
+  },
+  {
+    jurisdiction: 'VT',
+    title: 'Vermont Department of Taxes Individuals',
+    url: 'https://tax.vermont.gov/individuals',
+  },
+  {
+    jurisdiction: 'VA',
+    title: 'Virginia Tax When to File',
+    url: 'https://www.tax.virginia.gov/when-to-file',
+  },
+  {
+    jurisdiction: 'WV',
+    title: 'West Virginia Tax Division Individuals',
+    url: 'https://tax.wv.gov/Individuals/Pages/Individuals.aspx',
+  },
+  {
+    jurisdiction: 'WI',
+    title: 'Wisconsin DOR Individuals',
+    url: 'https://www.revenue.wi.gov/Pages/Individuals/home.aspx',
+  },
+] as const satisfies readonly StateIncomeTaxSourceSeed[]
+
+const STATE_INCOME_TAX_SOURCE_BY_JURISDICTION = new Map<
+  RuleGenerationState,
+  StateIncomeTaxSourceSeed
+>(STATE_INCOME_TAX_SOURCE_SEEDS.map((seed) => [seed.jurisdiction, seed]))
+
+type StateRuleSourceIds = Readonly<{
+  taxAgency: string
+  incomeTax: string
+  employerAgency: string
+}>
 
 export const STATE_RULE_SOURCE_IDS = new Map<RuleGenerationState, StateRuleSourceIds>(
   STATE_RULE_SOURCE_SEEDS.map((seed): readonly [RuleGenerationState, StateRuleSourceIds] => [
     seed.jurisdiction,
     {
       taxAgency: `${seed.jurisdiction.toLowerCase()}.tax_agency`,
+      incomeTax: `${seed.jurisdiction.toLowerCase()}.income_tax`,
       employerAgency: `${seed.jurisdiction.toLowerCase()}.employer_ui_agency`,
     },
   ]),
 )
+
+function hasStateIncomeTaxSource(jurisdiction: RuleGenerationState): boolean {
+  return STATE_INCOME_TAX_SOURCE_BY_JURISDICTION.has(jurisdiction)
+}
 
 function stateRuleSourceIds(jurisdiction: RuleGenerationState): StateRuleSourceIds {
   const ids = STATE_RULE_SOURCE_IDS.get(jurisdiction)
@@ -791,23 +1044,45 @@ function stateRuleSourceIds(jurisdiction: RuleGenerationState): StateRuleSourceI
   return ids
 }
 
-export const STATE_OFFICIAL_SOURCES = STATE_RULE_SOURCE_SEEDS.flatMap<RuleSource>((seed) => [
-  {
-    id: stateRuleSourceIds(seed.jurisdiction).taxAgency,
-    jurisdiction: seed.jurisdiction,
-    title: seed.taxAgencyTitle,
-    url: seed.taxAgencyUrl,
-    sourceType: 'due_dates',
-    acquisitionMethod: 'manual_review',
-    cadence: 'pre_season',
-    priority: 'high',
-    healthStatus: 'degraded',
-    isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
-    lastReviewedOn: VERIFIED_AT,
-  },
-  {
-    id: stateRuleSourceIds(seed.jurisdiction).employerAgency,
+export const STATE_OFFICIAL_SOURCES = STATE_RULE_SOURCE_SEEDS.flatMap<RuleSource>((seed) => {
+  const ids = stateRuleSourceIds(seed.jurisdiction)
+  const incomeTaxSource = STATE_INCOME_TAX_SOURCE_BY_JURISDICTION.get(seed.jurisdiction)
+  const sources: RuleSource[] = [
+    {
+      id: ids.taxAgency,
+      jurisdiction: seed.jurisdiction,
+      title: seed.taxAgencyTitle,
+      url: seed.taxAgencyUrl,
+      sourceType: 'due_dates',
+      acquisitionMethod: 'manual_review',
+      cadence: 'pre_season',
+      priority: 'high',
+      healthStatus: 'degraded',
+      isEarlyWarning: false,
+      notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
+      lastReviewedOn: VERIFIED_AT,
+    },
+  ]
+
+  if (incomeTaxSource) {
+    sources.push({
+      id: ids.incomeTax,
+      jurisdiction: seed.jurisdiction,
+      title: incomeTaxSource.title,
+      url: incomeTaxSource.url,
+      sourceType: 'instructions',
+      acquisitionMethod: 'manual_review',
+      cadence: 'pre_season',
+      priority: 'high',
+      healthStatus: 'degraded',
+      isEarlyWarning: false,
+      notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
+      lastReviewedOn: VERIFIED_AT,
+    })
+  }
+
+  sources.push({
+    id: ids.employerAgency,
     jurisdiction: seed.jurisdiction,
     title: seed.employerAgencyTitle,
     url: seed.employerAgencyUrl,
@@ -819,8 +1094,10 @@ export const STATE_OFFICIAL_SOURCES = STATE_RULE_SOURCE_SEEDS.flatMap<RuleSource
     isEarlyWarning: false,
     notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
     lastReviewedOn: VERIFIED_AT,
-  },
-])
+  })
+
+  return sources
+})
 
 export const RULE_SOURCES = [
   ...STATE_OFFICIAL_SOURCES,
@@ -1401,7 +1678,7 @@ interface StateCandidateRuleDomain {
   isFiling: boolean
   isPayment: boolean
   entityApplicability: readonly EntityApplicability[]
-  sourceKind: 'taxAgency' | 'employerAgency'
+  sourceKind: 'taxAgency' | 'incomeTax' | 'employerAgency'
   reviewReason: string
 }
 
@@ -1415,7 +1692,7 @@ const STATE_CANDIDATE_RULE_DOMAINS = [
     isFiling: true,
     isPayment: false,
     entityApplicability: ['individual'],
-    sourceKind: 'taxAgency',
+    sourceKind: 'incomeTax',
     reviewReason:
       'Confirm state personal income tax filing requirement, due date, extension, and no-tax status where applicable.',
   },
@@ -1428,7 +1705,7 @@ const STATE_CANDIDATE_RULE_DOMAINS = [
     isFiling: false,
     isPayment: true,
     entityApplicability: ['individual', 'sole_prop'],
-    sourceKind: 'taxAgency',
+    sourceKind: 'incomeTax',
     reviewReason:
       'Confirm state estimated tax thresholds, installment schedule, weekend/holiday rollover, and no-tax status where applicable.',
   },
@@ -1441,7 +1718,7 @@ const STATE_CANDIDATE_RULE_DOMAINS = [
     isFiling: true,
     isPayment: false,
     entityApplicability: ['trust'],
-    sourceKind: 'taxAgency',
+    sourceKind: 'incomeTax',
     reviewReason:
       'Confirm state fiduciary income tax filing requirement, due date, extension, and beneficiary reporting requirements.',
   },
@@ -1454,7 +1731,7 @@ const STATE_CANDIDATE_RULE_DOMAINS = [
     isFiling: true,
     isPayment: false,
     entityApplicability: ['llc', 'partnership', 's_corp', 'c_corp', 'any_business'],
-    sourceKind: 'taxAgency',
+    sourceKind: 'incomeTax',
     reviewReason:
       'Confirm entity-specific income, franchise, gross receipts, B&O, CAT, or business privilege tax rules before publishing deadlines.',
   },
@@ -1467,7 +1744,7 @@ const STATE_CANDIDATE_RULE_DOMAINS = [
     isFiling: true,
     isPayment: false,
     entityApplicability: ['llc', 'partnership', 's_corp'],
-    sourceKind: 'taxAgency',
+    sourceKind: 'incomeTax',
     reviewReason:
       'Confirm whether the state has composite return, PTE election, owner consent, and payment due-date requirements.',
   },
@@ -1512,11 +1789,22 @@ const STATE_CANDIDATE_RULE_DOMAINS = [
   },
 ] as const satisfies readonly StateCandidateRuleDomain[]
 
+function sourceIdForStateCandidateRule(
+  seed: (typeof STATE_RULE_SOURCE_SEEDS)[number],
+  domain: StateCandidateRuleDomain,
+): string {
+  const ids = stateRuleSourceIds(seed.jurisdiction)
+  if (domain.sourceKind === 'incomeTax' && !hasStateIncomeTaxSource(seed.jurisdiction)) {
+    return ids.taxAgency
+  }
+  return ids[domain.sourceKind]
+}
+
 function buildStateCandidateRule(
   seed: (typeof STATE_RULE_SOURCE_SEEDS)[number],
   domain: StateCandidateRuleDomain,
 ): ObligationRule {
-  const sourceId = stateRuleSourceIds(seed.jurisdiction)[domain.sourceKind]
+  const sourceId = sourceIdForStateCandidateRule(seed, domain)
   return {
     id: `${seed.jurisdiction.toLowerCase()}.${domain.slug}.candidate.2026`,
     title: `${seed.name} ${domain.title}`,

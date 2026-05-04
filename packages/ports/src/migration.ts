@@ -228,8 +228,13 @@ export interface CommitObligationInput {
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null
   exposureStatus?: 'ready' | 'needs_input' | 'unsupported'
+  penaltyFactsJson?: unknown
+  penaltyFactsVersion?: string | null
   penaltyBreakdownJson?: unknown
   penaltyFormulaVersion?: string | null
+  missingPenaltyFactsJson?: unknown
+  penaltySourceRefsJson?: unknown
+  penaltyFormulaLabel?: string | null
   exposureCalculatedAt?: Date | null
 }
 

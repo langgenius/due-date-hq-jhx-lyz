@@ -53,7 +53,7 @@ const CATEGORY_PREFIXES: Record<Exclude<AuditActionCategory, 'system'>, readonly
   client: ['client.'],
   obligation: ['obligation.'],
   migration: ['migration.'],
-  rules: ['rule.'],
+  rules: ['rule.', 'rules.'],
   auth: ['auth.'],
   team: ['team.', 'member.', 'firm.owner.'],
   pulse: ['pulse.'],

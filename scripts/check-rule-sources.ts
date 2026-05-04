@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { execFile } from 'node:child_process'
+import { listPenaltyFormulaCatalog } from '../packages/core/src/penalty/index.ts'
 import { RULE_SOURCES, type RuleSource } from '../packages/core/src/rules/index.ts'
 
 type CheckedMethod = 'HEAD' | 'GET'
@@ -34,6 +35,27 @@ const SOURCE_FETCH_HEADERS = {
   'user-agent':
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
 } as const
+
+const OFFICIAL_NON_GOV_HOSTS = new Set([
+  'floridarevenue.com',
+  'www.floridajobs.org',
+  'www.laworks.net',
+  'www.marylandtaxes.gov',
+  'www.jobsnd.com',
+  'www.revenue.state.mn.us',
+  'workforcewv.org',
+  'uimn.org',
+])
+
+function isOfficialHost(host: string): boolean {
+  return (
+    host === 'irs.gov' ||
+    host.endsWith('.irs.gov') ||
+    host.endsWith('.gov') ||
+    host.endsWith('.us') ||
+    OFFICIAL_NON_GOV_HOSTS.has(host)
+  )
+}
 
 function runCurl(args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -139,6 +161,8 @@ async function checkWithRetry(source: RuleSource): Promise<RuleSourceHealthResul
 }
 
 const results = await Promise.all(RULE_SOURCES.map(checkWithRetry))
+const penaltyCatalog = listPenaltyFormulaCatalog()
+const penaltySourceFailures: string[] = []
 
 for (const result of results) {
   const status =
@@ -151,8 +175,41 @@ for (const result of results) {
   console.log(`${result.sourceId}\t${status}\t${result.checkedUrl}`)
 }
 
+for (const formula of penaltyCatalog) {
+  if (formula.sourceRefs.length === 0) {
+    penaltySourceFailures.push(`${formula.taxType}: missing source refs`)
+    continue
+  }
+
+  for (const source of formula.sourceRefs) {
+    const url = new URL(source.url)
+    if (!isOfficialHost(url.host)) {
+      penaltySourceFailures.push(`${formula.taxType}: unofficial penalty source ${source.url}`)
+    }
+    if (!source.sourceExcerpt.trim()) {
+      penaltySourceFailures.push(`${formula.taxType}: missing source excerpt for ${source.label}`)
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(source.effectiveDate)) {
+      penaltySourceFailures.push(`${formula.taxType}: invalid effective date for ${source.label}`)
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(source.lastReviewedDate)) {
+      penaltySourceFailures.push(`${formula.taxType}: invalid review date for ${source.label}`)
+    }
+  }
+
+  console.log(
+    `${formula.taxType}\tpenalty-source-ok\t${formula.sourceRefs
+      .map((source) => source.url)
+      .join(',')}`,
+  )
+}
+
 const failed = results.filter((result) => result.status === 'failed')
 
-if (failed.length > 0) {
+for (const failure of penaltySourceFailures) {
+  console.error(failure)
+}
+
+if (failed.length > 0 || penaltySourceFailures.length > 0) {
   process.exitCode = 1
 }

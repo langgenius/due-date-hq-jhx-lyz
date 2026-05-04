@@ -244,6 +244,9 @@ export type PulseAuditAction = (typeof PULSE_AUDIT_ACTIONS)[number]
 export const PENALTY_AUDIT_ACTIONS = ['penalty.override'] as const
 export type PenaltyAuditAction = (typeof PENALTY_AUDIT_ACTIONS)[number]
 
+export const RULES_AUDIT_ACTIONS = ['rules.published', 'rules.review.rejected'] as const
+export type RulesAuditAction = (typeof RULES_AUDIT_ACTIONS)[number]
+
 export const AUTH_AUDIT_ACTIONS = [
   'auth.denied',
   'auth.login.success',
@@ -267,6 +270,7 @@ export const AUDIT_ACTIONS = [
   ...MIGRATION_AUDIT_ACTIONS,
   ...PULSE_AUDIT_ACTIONS,
   ...PENALTY_AUDIT_ACTIONS,
+  ...RULES_AUDIT_ACTIONS,
   ...AUTH_AUDIT_ACTIONS,
   ...EXPORT_AUDIT_ACTIONS,
 ] as const

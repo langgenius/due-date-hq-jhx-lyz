@@ -43,7 +43,8 @@
 - `canCreatePulse=false` 的 T2/T3 源只写 `pulse_source_signal`，
   `signal_type='anticipated_pulse'`，不进入 Evidence Chain、不创建 firm alert。
 - FEMA 当前按 `canCreatePulse=false` 落地；它只能作为 IRS/州 T1 命中后的置信度辅助信号。
-- Rules registry 已登记 50 州 + DC 的官方 tax agency 与 UI/workforce agency source seed。
+- Rules registry 已登记 50 州 + DC 的官方 tax agency、income-tax 具体页面与
+  UI/workforce agency source seed。
   `apps/server/src/jobs/pulse/rule-source-adapters.ts` 会把带 `candidate_review` 的 rule
   sources 接入 `pulse_source_state` / `pulse_source_signal`。这些 source signals 只供 ops
   review，不自动创建客户 Pulse、不进入 user-facing Evidence Chain。

@@ -1,7 +1,7 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { EvidencePublicSchema } from './evidence'
-import { PenaltyBreakdownItemSchema } from './obligations'
+import { PenaltyBreakdownItemSchema, PenaltySourceRefSchema } from './obligations'
 import { SmartPriorityBreakdownSchema } from './priority'
 import { ExposureStatusSchema, ObligationStatusSchema } from './shared/enums'
 import { EntityIdSchema } from './shared/ids'
@@ -109,6 +109,10 @@ export const DashboardTopRowSchema = z.object({
   status: ObligationStatusSchema,
   estimatedExposureCents: z.number().int().min(0).nullable(),
   exposureStatus: ExposureStatusSchema,
+  missingPenaltyFacts: z.array(z.string().min(1)),
+  penaltySourceRefs: z.array(PenaltySourceRefSchema),
+  penaltyFormulaLabel: z.string().nullable(),
+  penaltyFactsVersion: z.string().nullable(),
   accruedPenaltyCents: z.number().int().min(0).nullable(),
   accruedPenaltyStatus: ExposureStatusSchema,
   accruedPenaltyBreakdown: z.array(PenaltyBreakdownItemSchema),

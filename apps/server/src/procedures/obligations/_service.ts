@@ -36,8 +36,13 @@ interface ObligationRow {
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
   exposureStatus: ObligationInstancePublic['exposureStatus']
+  penaltyFactsJson: unknown
+  penaltyFactsVersion: string | null
   penaltyBreakdownJson: unknown
   penaltyFormulaVersion: string | null
+  missingPenaltyFactsJson: unknown
+  penaltySourceRefsJson: unknown
+  penaltyFormulaLabel: string | null
   exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -98,6 +103,10 @@ export function toObligationPublic(
     estimatedExposureCents: row.estimatedExposureCents,
     exposureStatus: row.exposureStatus,
     penaltyBreakdown: parsePenaltyBreakdown(row.penaltyBreakdownJson),
+    missingPenaltyFacts: parseStringArray(row.missingPenaltyFactsJson),
+    penaltySourceRefs: parsePenaltySourceRefs(row.penaltySourceRefsJson),
+    penaltyFormulaLabel: row.penaltyFormulaLabel,
+    penaltyFactsVersion: row.penaltyFactsVersion,
     accruedPenaltyCents: accrued.accruedPenaltyCents,
     accruedPenaltyStatus: accrued.accruedPenaltyStatus,
     accruedPenaltyBreakdown: accrued.accruedPenaltyBreakdown,
@@ -131,8 +140,51 @@ function parsePenaltyBreakdown(value: unknown): ObligationInstancePublic['penalt
         label,
         amountCents,
         formula,
+        inputs: parsePenaltyInputs(item.inputs),
+        sourceRefs: parsePenaltySourceRefs(item.sourceRefs),
       },
     ]
+  })
+}
+
+function parseStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === 'string' && item.length > 0)
+}
+
+function parsePenaltyInputs(
+  value: unknown,
+): Record<string, string | number | boolean | null> | undefined {
+  if (!isRecord(value)) return undefined
+  const result: Record<string, string | number | boolean | null> = {}
+  for (const [key, item] of Object.entries(value)) {
+    if (
+      typeof item === 'string' ||
+      typeof item === 'number' ||
+      typeof item === 'boolean' ||
+      item === null
+    ) {
+      result[key] = item
+    }
+  }
+  return Object.keys(result).length > 0 ? result : undefined
+}
+
+function parsePenaltySourceRefs(value: unknown): ObligationInstancePublic['penaltySourceRefs'] {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((item) => {
+    if (!isRecord(item)) return []
+    const { label, url, sourceExcerpt, effectiveDate, lastReviewedDate } = item
+    if (
+      typeof label !== 'string' ||
+      typeof url !== 'string' ||
+      typeof sourceExcerpt !== 'string' ||
+      typeof effectiveDate !== 'string' ||
+      typeof lastReviewedDate !== 'string'
+    ) {
+      return []
+    }
+    return [{ label, url, sourceExcerpt, effectiveDate, lastReviewedDate }]
   })
 }
 

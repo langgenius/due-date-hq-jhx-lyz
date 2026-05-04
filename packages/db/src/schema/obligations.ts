@@ -90,8 +90,13 @@ export const obligationInstance = sqliteTable(
     exposureStatus: text('exposure_status', { enum: EXPOSURE_STATUSES })
       .notNull()
       .default('needs_input'),
+    penaltyFactsJson: text('penalty_facts_json', { mode: 'json' }).$type<unknown>(),
+    penaltyFactsVersion: text('penalty_facts_version'),
     penaltyBreakdownJson: text('penalty_breakdown_json', { mode: 'json' }).$type<unknown>(),
     penaltyFormulaVersion: text('penalty_formula_version'),
+    missingPenaltyFactsJson: text('missing_penalty_facts_json', { mode: 'json' }).$type<unknown>(),
+    penaltySourceRefsJson: text('penalty_source_refs_json', { mode: 'json' }).$type<unknown>(),
+    penaltyFormulaLabel: text('penalty_formula_label'),
     exposureCalculatedAt: integer('exposure_calculated_at', { mode: 'timestamp_ms' }),
 
     createdAt: integer('created_at', { mode: 'timestamp_ms' })

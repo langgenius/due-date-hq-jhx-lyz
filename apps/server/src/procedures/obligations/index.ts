@@ -53,8 +53,13 @@ interface ObligationRow {
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
   exposureStatus: ObligationInstancePublic['exposureStatus']
+  penaltyFactsJson: unknown
+  penaltyFactsVersion: string | null
   penaltyBreakdownJson: unknown
   penaltyFormulaVersion: string | null
+  missingPenaltyFactsJson: unknown
+  penaltySourceRefsJson: unknown
+  penaltyFormulaLabel: string | null
   exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -77,8 +82,13 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       estimatedTaxDueCents?: number | null
       estimatedExposureCents?: number | null
       exposureStatus?: ObligationInstancePublic['exposureStatus']
+      penaltyFactsJson?: unknown
+      penaltyFactsVersion?: string | null
       penaltyBreakdownJson?: unknown
       penaltyFormulaVersion?: string | null
+      missingPenaltyFactsJson?: unknown
+      penaltySourceRefsJson?: unknown
+      penaltyFormulaLabel?: string | null
       exposureCalculatedAt?: Date | null
     } = {
       clientId: o.clientId,
@@ -90,8 +100,13 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       estimatedTaxDueCents: o.estimatedTaxDueCents ?? null,
       estimatedExposureCents: o.estimatedExposureCents ?? null,
       exposureStatus: o.exposureStatus ?? 'needs_input',
+      penaltyFactsJson: o.penaltyFacts ?? null,
+      penaltyFactsVersion: o.penaltyFactsVersion ?? null,
       penaltyBreakdownJson: o.penaltyBreakdown ?? [],
       penaltyFormulaVersion: o.penaltyFormulaVersion ?? null,
+      missingPenaltyFactsJson: o.missingPenaltyFacts ?? [],
+      penaltySourceRefsJson: o.penaltySourceRefs ?? [],
+      penaltyFormulaLabel: o.penaltyFormulaLabel ?? null,
       exposureCalculatedAt: o.exposureCalculatedAt ? new Date(o.exposureCalculatedAt) : null,
     }
     if (o.status !== undefined) repoInput.status = o.status

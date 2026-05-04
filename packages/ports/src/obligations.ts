@@ -10,6 +10,16 @@ export interface PenaltyBreakdownItem {
   label: string
   amountCents: number
   formula: string
+  inputs?: Record<string, string | number | boolean | null>
+  sourceRefs?: PenaltySourceRef[]
+}
+
+export interface PenaltySourceRef {
+  label: string
+  url: string
+  sourceExcerpt: string
+  effectiveDate: string
+  lastReviewedDate: string
 }
 
 export interface ObligationInstanceRow {
@@ -32,8 +42,13 @@ export interface ObligationInstanceRow {
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
   exposureStatus: ExposureStatus
+  penaltyFactsJson: unknown
+  penaltyFactsVersion: string | null
   penaltyBreakdownJson: unknown
   penaltyFormulaVersion: string | null
+  missingPenaltyFactsJson: unknown
+  penaltySourceRefsJson: unknown
+  penaltyFormulaLabel: string | null
   exposureCalculatedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -52,8 +67,13 @@ export interface ObligationCreateInput {
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null
   exposureStatus?: ExposureStatus
+  penaltyFactsJson?: unknown
+  penaltyFactsVersion?: string | null
   penaltyBreakdownJson?: unknown
   penaltyFormulaVersion?: string | null
+  missingPenaltyFactsJson?: unknown
+  penaltySourceRefsJson?: unknown
+  penaltyFormulaLabel?: string | null
   exposureCalculatedAt?: Date | null
 }
 
@@ -73,7 +93,12 @@ export interface ObligationsRepo {
       exposureStatus: ExposureStatus
       penaltyBreakdownJson: unknown
       penaltyFormulaVersion: string | null
+      missingPenaltyFactsJson: unknown
+      penaltySourceRefsJson: unknown
+      penaltyFormulaLabel: string | null
       exposureCalculatedAt: Date | null
+      penaltyFactsJson?: unknown
+      penaltyFactsVersion?: string | null
     },
   ): Promise<void>
   updateStatus(id: string, status: ObligationStatus, readiness?: ObligationReadiness): Promise<void>
