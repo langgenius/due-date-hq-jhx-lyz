@@ -26,12 +26,15 @@ PII 防护改由以下四道闸守住（对齐 PRD Part1B §6A.9 / Part2B §9.3 
 
 ### 2.1 输入契约
 
-| 字段           | 类型                                                                 | 必填 | 说明                                                                                                                      |
-| -------------- | -------------------------------------------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------- |
-| `header`       | `string[]`                                                           | 是   | 原始表头（CSV 第 1 行）；允许空字符串元素（空白列）；前端先去首尾空白                                                     |
-| `sample_rows`  | `string[][]`                                                         | 是   | 前 5 行数据样本；每行数组长度必须 = `header.length`；单元格全为 `string`                                                  |
-| `preset`       | `'taxdome' \| 'drake' \| 'karbon' \| 'quickbooks' \| 'file_in_time'` | 否   | 可选强先验；命中时 Prompt 在 system 段追加 Preset 模板的典型列映射提示，置信度从 ~75% 跳到 ≥ 95%（对齐 PRD Part1B §6A.4） |
-| `firm_id_hash` | `string`                                                             | 是   | 供 AI SDK telemetry / internal trace / rate limit 计数；不落 prompt 原文                                                  |
+| 字段           | 类型                                                                 | 必填 | 说明                                                                                     |
+| -------------- | -------------------------------------------------------------------- | ---- | ---------------------------------------------------------------------------------------- |
+| `header`       | `string[]`                                                           | 是   | 原始表头（CSV 第 1 行）；允许空字符串元素（空白列）；前端先去首尾空白                    |
+| `sample_rows`  | `string[][]`                                                         | 是   | 前 5 行数据样本；每行数组长度必须 = `header.length`；单元格全为 `string`                 |
+| `preset`       | `'taxdome' \| 'drake' \| 'karbon' \| 'quickbooks' \| 'file_in_time'` | 否   | 可选先验；只使用公开导出 / 批量更新资料可确认的平台字段。详见下方 preset fallback 约束。 |
+| `firm_id_hash` | `string`                                                             | 是   | 供 AI SDK telemetry / internal trace / rate limit 计数；不落 prompt 原文                 |
+
+Preset fallback 不得自动命中税额、罚金、owner count 等客户自定义或 demo fixture 字段；这些字段需由
+AI 样本判断或用户手动确认。
 
 ### 2.2 目标字段 Schema（严格 9 字段 + `IGNORE`）
 

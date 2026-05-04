@@ -241,6 +241,7 @@ async function listSourceHealthForScopedRepo(
       lastSuccessAt: toIsoOrNull(state?.lastSuccessAt ?? null),
       nextCheckAt: toIsoOrNull(state?.nextCheckAt ?? null),
       consecutiveFailures: state?.consecutiveFailures ?? 0,
+      lastError: state?.lastError ?? null,
     }
   })
   return { sources }

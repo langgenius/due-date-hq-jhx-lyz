@@ -293,7 +293,21 @@ function RetrySourceHealthButton({
   const invalidate = usePulseInvalidation()
   const retryMutation = useMutation(
     orpc.pulse.retrySourceHealth.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (data) => {
+        const updatedSource = data.sources.find(
+          (candidate) => candidate.sourceId === source?.sourceId,
+        )
+        if (updatedSource?.healthStatus === 'healthy') {
+          toast.success(t`Source recovered`, {
+            description: updatedSource.label,
+          })
+        } else if (updatedSource) {
+          toast.warning(t`Source checked, but still needs attention`, {
+            description: updatedSource.lastError ?? updatedSource.label,
+          })
+        } else {
+          toast.success(t`Source checked`)
+        }
         invalidate()
         onRefresh()
       },
@@ -359,9 +373,21 @@ function WatchingLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
 
 function AttentionLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
   const label = sourceLabel(sources)
+  const error = sourceErrorLabel(sources)
   return (
     <span className="truncate text-text-secondary">
       <Trans>Source needs attention · {label}</Trans>
+      {error ? (
+        <>
+          <span aria-hidden className="text-text-tertiary">
+            {' '}
+            ·{' '}
+          </span>
+          <span className="text-text-tertiary" title={error}>
+            {error}
+          </span>
+        </>
+      ) : null}
     </span>
   )
 }
@@ -402,6 +428,14 @@ function sourcesNeedingAttention(sources: readonly PulseSourceHealth[]): PulseSo
       source.lastCheckedAt !== null &&
       (source.healthStatus === 'degraded' || source.healthStatus === 'failing'),
   )
+}
+
+function sourceErrorLabel(sources: readonly PulseSourceHealth[]): string | null {
+  const errors = sources
+    .map((source) => source.lastError?.trim())
+    .filter((error): error is string => Boolean(error))
+  if (errors.length === 0) return null
+  return errors.filter((error, index) => errors.indexOf(error) === index).join(' · ')
 }
 
 function newestPublishedAt(alerts: readonly PulseAlertPublic[]): string | null {

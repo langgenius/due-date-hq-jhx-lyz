@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { hashText } from './http'
 import { runFixtureAdapter, sourceFixtureBodies } from './fixtures'
-import { livePulseAdapters, nyDtfPressFixtureAdapter } from './adapters'
+import { livePulseAdapters, nyDtfPressFixtureAdapter, txComptrollerRssAdapter } from './adapters'
 import { createSourceFetcherRegistry } from './fetcher'
 import { extractLinks, pickSelector } from './selectors'
 import type { IngestCtx } from './types'
@@ -58,6 +58,56 @@ describe('@duedatehq/ingest', () => {
     expect(Object.keys(sourceFixtureBodies).toSorted()).toEqual(
       livePulseAdapters.map((adapter) => adapter.id).toSorted(),
     )
+  })
+
+  it('discovers the TX Comptroller GovDelivery feed from the official RSS directory', async () => {
+    const fetchedUrls: string[] = []
+    const ctx: IngestCtx = {
+      async fetch(input) {
+        const url = String(input)
+        fetchedUrls.push(url)
+        if (url.endsWith('/robots.txt')) return new Response('', { status: 404 })
+        if (url === 'https://comptroller.texas.gov/about/media-center/rss/') {
+          return new Response(
+            '<a href="https://public.govdelivery.com/accounts/TXCOMPT/subscriber/new?topic_id=TXCOMPT_70">Texas Comptroller News in English</a>',
+            { headers: { 'content-type': 'text/html' } },
+          )
+        }
+        if (
+          url ===
+          'https://public.govdelivery.com/accounts/TXCOMPT/subscriber/new?topic_id=TXCOMPT_70'
+        ) {
+          return new Response(
+            '<rss><channel><item><title>Texas tax deadline extension</title><link>https://content.govdelivery.com/accounts/TXCOMPT/bulletins/abc123</link><pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate><description>Deadline relief.</description></item></channel></rss>',
+            { headers: { 'content-type': 'application/rss+xml' } },
+          )
+        }
+        throw new Error(`unexpected fetch ${url}`)
+      },
+      async getSourceState() {
+        return null
+      },
+      async archiveRaw({ sourceId, externalId, fetchedAt, body }) {
+        return {
+          r2Key: `${sourceId}/${externalId}/${fetchedAt.toISOString()}.xml`,
+          contentHash: await hashText(body),
+        }
+      },
+    }
+
+    const snapshots = await txComptrollerRssAdapter.fetch(ctx)
+    const items = await txComptrollerRssAdapter.parse(snapshots[0]!, ctx)
+
+    expect(fetchedUrls).toContain('https://comptroller.texas.gov/about/media-center/rss/')
+    expect(snapshots[0]).toMatchObject({
+      sourceId: 'tx.cpa.rss',
+      contentType: 'application/rss+xml',
+    })
+    expect(items[0]).toMatchObject({
+      sourceId: 'tx.cpa.rss',
+      title: 'Texas tax deadline extension',
+      officialSourceUrl: 'https://content.govdelivery.com/accounts/TXCOMPT/bulletins/abc123',
+    })
   })
 
   it('routes browserless adapters through the configured fetch implementation', async () => {

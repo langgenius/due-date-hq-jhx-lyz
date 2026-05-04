@@ -6,7 +6,9 @@ import type { IngestCtx, ParsedItem, SourceAdapter } from '../types'
 const IRS_DISASTER_URL = 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations'
 const IRS_NEWSROOM_URL = 'https://www.irs.gov/newsroom'
 const IRS_GUIDANCE_URL = 'https://www.irs.gov/newsroom/irs-guidance'
-const TX_CPA_RSS_URL = 'https://comptroller.texas.gov/about/media-center/rss/'
+const TX_CPA_RSS_DIRECTORY_URL = 'https://comptroller.texas.gov/about/media-center/rss/'
+const TX_CPA_GOVDELIVERY_FALLBACK_URL =
+  'https://public.govdelivery.com/accounts/TXCOMPT/subscriber/new?topic_id=TXCOMPT_70'
 const NY_DTF_PRESS_URL = 'https://www.tax.ny.gov/press/'
 const CA_FTB_NEWSROOM_URL = 'https://www.ftb.ca.gov/about-ftb/newsroom/index.html'
 const CA_FTB_TAX_NEWS_URL = 'https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/index.html'
@@ -85,6 +87,59 @@ function parsedItemsFromLinks(input: {
       }
     }),
   )
+}
+
+function firstGovDeliveryFeedUrl(html: string): string {
+  const links = extractLinks(html, TX_CPA_RSS_DIRECTORY_URL)
+  const englishFeed = links.find(
+    (link) =>
+      /public\.govdelivery\.com\/accounts\/TXCOMPT/i.test(link.href) &&
+      /english|news/i.test(link.text),
+  )
+  const anyFeed = links.find((link) =>
+    /public\.govdelivery\.com\/accounts\/TXCOMPT/i.test(link.href),
+  )
+  return englishFeed?.href ?? anyFeed?.href ?? TX_CPA_GOVDELIVERY_FALLBACK_URL
+}
+
+function rssItemsFromGovDelivery(input: { sourceId: string; rss: string }): ParsedItem[] {
+  const items = Array.from(input.rss.matchAll(/<item\b[\s\S]*?<\/item>/gi))
+  return items.slice(0, 20).map((match) => {
+    const item = match[0]
+    const title = stripHtml(
+      /<title>([\s\S]*?)<\/title>/i.exec(item)?.[1] ?? 'TX Comptroller update',
+    )
+    const link = stripHtml(
+      /<link>([\s\S]*?)<\/link>/i.exec(item)?.[1] ?? TX_CPA_GOVDELIVERY_FALLBACK_URL,
+    )
+    const pubDate = stripHtml(/<pubDate>([\s\S]*?)<\/pubDate>/i.exec(item)?.[1] ?? '')
+    const description = stripHtml(
+      /<description>([\s\S]*?)<\/description>/i.exec(item)?.[1] ?? title,
+    )
+    const parsedDate = new Date(pubDate)
+    return {
+      sourceId: input.sourceId,
+      externalId: stableExternalId(link || TX_CPA_GOVDELIVERY_FALLBACK_URL),
+      title,
+      publishedAt: Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate,
+      officialSourceUrl: link || TX_CPA_GOVDELIVERY_FALLBACK_URL,
+      rawText: textExcerpt(`${title}\n\n${description}`),
+    }
+  })
+}
+
+function govDeliveryBulletinsFromHtml(input: { sourceId: string; html: string }): ParsedItem[] {
+  return extractLinks(input.html, TX_CPA_GOVDELIVERY_FALLBACK_URL)
+    .filter((link) => /content\.govdelivery\.com\/accounts\/TXCOMPT\/bulletins\//i.test(link.href))
+    .slice(0, 20)
+    .map((link) => ({
+      sourceId: input.sourceId,
+      externalId: stableExternalId(link.href),
+      title: link.text || 'TX Comptroller bulletin',
+      publishedAt: publishedAtFromText(`${link.text} ${input.html}`),
+      officialSourceUrl: link.href,
+      rawText: textExcerpt(`${link.text}\n\n${stripHtml(input.html)}`),
+    }))
 }
 
 export const irsDisasterAdapter: SourceAdapter = {
@@ -172,32 +227,27 @@ export const txComptrollerRssAdapter: SourceAdapter = {
   tier: 'T1',
   cronIntervalMs: 60 * 60 * 1000,
   jurisdiction: 'TX',
+  fetcher: 'govdelivery',
   async fetch(ctx) {
-    return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: TX_CPA_RSS_URL })]
+    const directoryResponse = await ctx.fetch(TX_CPA_RSS_DIRECTORY_URL, {
+      headers: DEFAULT_HEADERS,
+    })
+    if (!directoryResponse.ok) {
+      throw new Error(`Pulse source fetch failed for ${this.id}: ${directoryResponse.status}`)
+    }
+    const directoryHtml = await directoryResponse.text()
+    return [
+      await fetchTextSnapshot(ctx, {
+        sourceId: this.id,
+        url: firstGovDeliveryFeedUrl(directoryHtml),
+      }),
+    ]
   },
   async parse(snapshot) {
     if (snapshot.notModified) return []
-    const items = Array.from(snapshot.body.matchAll(/<item\b[\s\S]*?<\/item>/gi))
-    return items.slice(0, 20).map((match) => {
-      const item = match[0]
-      const title = stripHtml(
-        /<title>([\s\S]*?)<\/title>/i.exec(item)?.[1] ?? 'TX Comptroller update',
-      )
-      const link = stripHtml(/<link>([\s\S]*?)<\/link>/i.exec(item)?.[1] ?? TX_CPA_RSS_URL)
-      const pubDate = stripHtml(/<pubDate>([\s\S]*?)<\/pubDate>/i.exec(item)?.[1] ?? '')
-      const description = stripHtml(
-        /<description>([\s\S]*?)<\/description>/i.exec(item)?.[1] ?? title,
-      )
-      const parsedDate = new Date(pubDate)
-      return {
-        sourceId: this.id,
-        externalId: stableExternalId(link || TX_CPA_RSS_URL),
-        title,
-        publishedAt: Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate,
-        officialSourceUrl: link || TX_CPA_RSS_URL,
-        rawText: textExcerpt(`${title}\n\n${description}`),
-      }
-    })
+    const rssItems = rssItemsFromGovDelivery({ sourceId: this.id, rss: snapshot.body })
+    if (rssItems.length > 0) return rssItems
+    return govDeliveryBulletinsFromHtml({ sourceId: this.id, html: snapshot.body })
   },
 }
 

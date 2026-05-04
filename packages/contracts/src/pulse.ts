@@ -107,6 +107,7 @@ export const PulseSourceHealthSchema = z.object({
   lastSuccessAt: z.iso.datetime().nullable(),
   nextCheckAt: z.iso.datetime().nullable(),
   consecutiveFailures: z.number().int().min(0),
+  lastError: z.string().nullable(),
 })
 export type PulseSourceHealth = z.infer<typeof PulseSourceHealthSchema>
 

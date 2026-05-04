@@ -182,6 +182,7 @@ describe('makePulseRepo', () => {
       [ELIGIBLE],
       [],
       [],
+      [],
       [{ email: 'owner@example.com' }],
       [{ ...ALERT, matchedCount: 0 }],
     ])
@@ -202,6 +203,34 @@ describe('makePulseRepo', () => {
     expect(batchStatements).toHaveLength(7)
     expect(batchStatements.filter((statement) => isKind(statement, 'insert'))).toHaveLength(6)
     expect(batchStatements.filter((statement) => isKind(statement, 'update'))).toHaveLength(1)
+  })
+
+  it('reactivates a reverted compatibility application when reapplying after undo', async () => {
+    const { db, batchStatements } = fakeDb([
+      [ALERT],
+      [ELIGIBLE],
+      [],
+      [],
+      [ELIGIBLE],
+      [],
+      [],
+      [{ id: 'app-1', obligationId: 'oi-eligible' }],
+      [{ email: 'owner@example.com' }],
+      [{ ...ALERT, matchedCount: 0 }],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    const result = await repo.apply({
+      alertId: 'alert-1',
+      obligationIds: ['oi-eligible'],
+      userId: 'user-1',
+      now: new Date('2026-04-15T18:30:00.000Z'),
+    })
+
+    expect(result.applicationIds).toEqual(['app-1'])
+    expect(batchStatements).toHaveLength(7)
+    expect(batchStatements.filter((statement) => isKind(statement, 'insert'))).toHaveLength(5)
+    expect(batchStatements.filter((statement) => isKind(statement, 'update'))).toHaveLength(2)
   })
 
   it('rejects apply when the requested obligation was already applied', async () => {
@@ -307,6 +336,7 @@ describe('makePulseRepo', () => {
       [],
       [],
       [NEEDS_REVIEW],
+      [],
       [],
       [],
       [{ email: 'manager@example.com' }],

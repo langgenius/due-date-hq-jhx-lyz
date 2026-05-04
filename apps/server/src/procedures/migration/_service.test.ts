@@ -865,6 +865,14 @@ Acme LLC,12-3456789,CA,LLC,acme@example.com
 Bright Studio,98-7654321,NY,S-Corp,bright@example.com
 Lake Holdings,11-2233445,CA,Partnership,lake@example.com`
 
+const SAMPLE_CONFIRMED_MAPPINGS: Record<string, MappingTarget> = {
+  'Client Name': 'client.name',
+  'Tax ID': 'client.ein',
+  State: 'client.state',
+  'Entity Type': 'client.entity_type',
+  Email: 'client.email',
+}
+
 const FIXTURE_DIR = new URL(
   '../../../../../docs/product-design/migration-copilot/06-fixtures/',
   import.meta.url,
@@ -887,6 +895,7 @@ interface FixtureGoldenCase {
   file: string
   clients: number
   expectedMappings: Record<string, MappingTarget>
+  importMappings?: Record<string, MappingTarget>
   expectedEinInvalid: number
 }
 
@@ -898,6 +907,16 @@ const PRESET_GOLDENS: FixtureGoldenCase[] = [
     clients: 30,
     expectedEinInvalid: 0,
     expectedMappings: {
+      'Client Name': 'IGNORE',
+      'Tax ID': 'IGNORE',
+      'Entity Type': 'IGNORE',
+      State: 'client.state',
+      'Tax Return Type': 'IGNORE',
+      Assignee: 'client.assignee_name',
+      Email: 'client.email',
+      Notes: 'client.notes',
+    },
+    importMappings: {
       'Client Name': 'client.name',
       'Tax ID': 'client.ein',
       'Entity Type': 'client.entity_type',
@@ -918,6 +937,15 @@ const PRESET_GOLDENS: FixtureGoldenCase[] = [
       'Client ID': 'IGNORE',
       Name: 'client.name',
       EIN: 'client.ein',
+      Entity: 'IGNORE',
+      State: 'client.state',
+      'Return Type': 'client.entity_type',
+      Staff: 'IGNORE',
+    },
+    importMappings: {
+      'Client ID': 'IGNORE',
+      Name: 'client.name',
+      EIN: 'client.ein',
       Entity: 'client.entity_type',
       State: 'client.state',
       'Return Type': 'client.tax_types',
@@ -934,6 +962,13 @@ const PRESET_GOLDENS: FixtureGoldenCase[] = [
       'Organization Name': 'client.name',
       'Tax ID': 'client.ein',
       Country: 'IGNORE',
+      'Primary Contact': 'IGNORE',
+      'Contact Email': 'IGNORE',
+    },
+    importMappings: {
+      'Organization Name': 'client.name',
+      'Tax ID': 'client.ein',
+      Country: 'IGNORE',
       'Primary Contact': 'client.assignee_name',
       'Contact Email': 'client.email',
     },
@@ -945,6 +980,12 @@ const PRESET_GOLDENS: FixtureGoldenCase[] = [
     clients: 20,
     expectedEinInvalid: 0,
     expectedMappings: {
+      Customer: 'client.name',
+      'Tax ID': 'IGNORE',
+      'Billing State': 'client.state',
+      Terms: 'IGNORE',
+    },
+    importMappings: {
       Customer: 'client.name',
       'Tax ID': 'client.ein',
       'Billing State': 'client.state',
@@ -958,6 +999,17 @@ const PRESET_GOLDENS: FixtureGoldenCase[] = [
     clients: 30,
     expectedEinInvalid: 0,
     expectedMappings: {
+      Client: 'client.name',
+      Service: 'IGNORE',
+      'Due Date': 'IGNORE',
+      Status: 'IGNORE',
+      Staff: 'IGNORE',
+      Entity: 'IGNORE',
+      State: 'client.state',
+      County: 'IGNORE',
+      Notes: 'IGNORE',
+    },
+    importMappings: {
       Client: 'client.name',
       Service: 'client.tax_types',
       'Due Date': 'IGNORE',
@@ -1072,9 +1124,10 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
 
     expect(result.meta?.fallback).toBe('preset')
     expect(result.mappings.length).toBeGreaterThan(0)
-    // The TaxDome preset maps "Client Name" → client.name
+    // TaxDome's public export docs use Account Name, not this fixture's
+    // "Client Name", so the preset fallback leaves it for user review.
     const nameMap = result.mappings.find((m) => m.sourceHeader === 'Client Name')
-    expect(nameMap?.targetField).toBe('client.name')
+    expect(nameMap?.targetField).toBe('IGNORE')
     expect(state.evidences.some((e) => e.sourceType === 'ai_mapper')).toBe(true)
     expect(state.aiRuns.some((run) => run.kind === 'migration_map')).toBe(true)
     expect(
@@ -1135,7 +1188,10 @@ describe('MigrationService.uploadRaw + runMapper happy path', () => {
     const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
     await service.uploadRaw({ batchId: batch.id, kind: 'csv', text: SAMPLE_CSV })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
 
     const result = await service.runNormalizer(batch.id)
 
@@ -1314,7 +1370,10 @@ describe('MigrationService fixture golden tests', () => {
       expect(mapper.meta?.fallback).toBe('preset')
       expectFixtureMappings(mapper.mappings, golden.expectedMappings)
 
-      await service.confirmMapping(batch.id, mapper.mappings)
+      await service.confirmMapping(
+        batch.id,
+        overrideFixtureMappings(mapper.mappings, golden.importMappings ?? golden.expectedMappings),
+      )
       const dryRun = await service.dryRun(batch.id)
 
       expect(dryRun.clientsToCreate).toBe(golden.clients)
@@ -1362,14 +1421,24 @@ describe('MigrationService fixture golden tests', () => {
 
     const mapper = await service.runMapper(batch.id)
     expectFixtureMappings(mapper.mappings, {
-      'Client Name': 'client.name',
-      'Tax ID': 'client.ein',
-      'Entity Type': 'client.entity_type',
+      'Client Name': 'IGNORE',
+      'Tax ID': 'IGNORE',
+      'Entity Type': 'IGNORE',
       State: 'client.state',
-      'Estimated Tax Due': 'client.estimated_tax_liability',
-      'Owner Count': 'client.equity_owner_count',
+      'Estimated Tax Due': 'IGNORE',
+      'Owner Count': 'IGNORE',
     })
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, {
+        'Client Name': 'client.name',
+        'Tax ID': 'client.ein',
+        'Entity Type': 'client.entity_type',
+        State: 'client.state',
+        'Estimated Tax Due': 'client.estimated_tax_liability',
+        'Owner Count': 'client.equity_owner_count',
+      }),
+    )
     const normalizer = await service.runNormalizer(batch.id)
     await service.confirmNormalization(batch.id, normalizer.normalizations)
 
@@ -1400,7 +1469,10 @@ describe('MigrationService.confirmMapping deterministic checks', () => {
     const csv = `Client Name,Tax ID\nAcme LLC,12-3456789\nBad Row,not-an-ein\nGood Co,99-1234567`
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: csv })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
 
     const einErrors = state.errors.filter((e) => e.errorCode === 'EIN_INVALID')
     expect(einErrors).toHaveLength(1)
@@ -1421,7 +1493,10 @@ describe('MigrationService.confirmMapping deterministic checks', () => {
     const csv = `Client Name,Tax ID\nAcme LLC,12-3456789\nBad Row,not-an-ein`
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: csv })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
 
     const summary = await service.dryRun(batch.id)
     expect(
@@ -1468,7 +1543,10 @@ describe('MigrationService.dryRun with Default Matrix', () => {
     const csv = `Client Name,Tax ID,State,Entity Type\nAcme LLC,12-3456789,CA,LLC\nBright Studio,98-7654321,NY,S-Corp`
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: csv })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
 
     const summary = await service.dryRun(batch.id)
     expect(summary.clientsToCreate).toBe(2)
@@ -1484,7 +1562,10 @@ describe('MigrationService.dryRun with Default Matrix', () => {
     const csv = `Client Name,Tax ID,State,Entity Type,Email\nAcme LLC,12-3456789,CA,LLC,acme@example.com`
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: csv })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
     const normalizer = await service.runNormalizer(batch.id)
     await service.confirmNormalization(batch.id, normalizer.normalizations)
 
@@ -1521,7 +1602,10 @@ describe('MigrationService.apply', () => {
       text: SAMPLE_CSV,
     })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
     const normalizer = await service.runNormalizer(batch.id)
     await service.confirmNormalization(batch.id, normalizer.normalizations)
     await service.applyDefaultMatrix(batch.id)
@@ -1553,7 +1637,10 @@ Acme LLC,12-3456789,CA,LLC,acme@example.com
 ,98-7654321,NY,S-Corp,blank@example.com`,
     })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
     const normalizer = await service.runNormalizer(batch.id)
     await service.confirmNormalization(batch.id, normalizer.normalizations)
     await service.applyDefaultMatrix(batch.id)
@@ -1573,7 +1660,10 @@ Acme LLC,12-3456789,CA,LLC,acme@example.com
     const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
     const normalizer = await service.runNormalizer(batch.id)
     await service.confirmNormalization(batch.id, normalizer.normalizations)
     await service.applyDefaultMatrix(batch.id)
@@ -1592,7 +1682,10 @@ describe('MigrationService.revert', () => {
     const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
     const normalizer = await service.runNormalizer(batch.id)
     await service.confirmNormalization(batch.id, normalizer.normalizations)
     await service.applyDefaultMatrix(batch.id)
@@ -1616,7 +1709,10 @@ describe('MigrationService.revert', () => {
     const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
     const normalizer = await service.runNormalizer(batch.id)
     await service.confirmNormalization(batch.id, normalizer.normalizations)
     await service.applyDefaultMatrix(batch.id)
@@ -1650,7 +1746,10 @@ describe('MigrationService.singleUndo', () => {
     const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
     const normalizer = await service.runNormalizer(batch.id)
     await service.confirmNormalization(batch.id, normalizer.normalizations)
     await service.applyDefaultMatrix(batch.id)
@@ -1674,7 +1773,10 @@ describe('MigrationService.singleUndo', () => {
     const batch = await service.createBatch({ source: 'preset_taxdome', presetUsed: 'taxdome' })
     await service.uploadRaw({ batchId: batch.id, kind: 'paste', text: SAMPLE_CSV })
     const mapper = await service.runMapper(batch.id)
-    await service.confirmMapping(batch.id, mapper.mappings)
+    await service.confirmMapping(
+      batch.id,
+      overrideFixtureMappings(mapper.mappings, SAMPLE_CONFIRMED_MAPPINGS),
+    )
     const normalizer = await service.runNormalizer(batch.id)
     await service.confirmNormalization(batch.id, normalizer.normalizations)
     await service.applyDefaultMatrix(batch.id)

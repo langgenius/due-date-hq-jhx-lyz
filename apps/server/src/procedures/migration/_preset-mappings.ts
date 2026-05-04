@@ -7,7 +7,8 @@ import type { MappingRow, MappingTarget } from '@duedatehq/contracts'
  * Authority:
  *   - docs/product-design/migration-copilot/04-ai-prompts.md §2.1 (preset boost)
  *   - docs/product-design/migration-copilot/02-ux-4step-wizard.md §5.4 (fallback banner)
- *   - docs/product-design/migration-copilot/06-fixtures/* (canonical column names)
+ *   - Public export / bulk-update docs for each supported source. Keep this
+ *     list to fields those sources expose, not demo fixture enrichment fields.
  *
  * Confidence is fixed at 0.85 for fallback rows so the UI tags them Medium —
  * not High. Prompt version is `preset@v1` so audit / evidence drawer can
@@ -19,129 +20,72 @@ export const PRESET_FALLBACK_CONFIDENCE = 0.85
 
 export type PresetId = 'taxdome' | 'drake' | 'karbon' | 'quickbooks' | 'file_in_time'
 
-const PRESET_MAPPINGS: Record<PresetId, Record<string, MappingTarget>> = {
+const PRESET_MAPPINGS = {
   taxdome: {
-    'Client Name': 'client.name',
-    Name: 'client.name',
-    EIN: 'client.ein',
-    'Tax ID': 'client.ein',
-    State: 'client.state',
-    'State / Jurisdiction': 'client.state',
-    County: 'client.county',
-    'Entity Type': 'client.entity_type',
-    Entity: 'client.entity_type',
-    'Tax Types': 'client.tax_types',
-    'Tax Return Type': 'client.tax_types',
-    Email: 'client.email',
-    Assignee: 'client.assignee_name',
-    'Estimated Tax Due': 'client.estimated_tax_liability',
-    'Estimated Tax Liability': 'client.estimated_tax_liability',
-    'Penalty Tax Due': 'penalty.tax_due',
-    Payments: 'penalty.payments_and_credits',
-    'Payments and Credits': 'penalty.payments_and_credits',
-    Frequency: 'penalty.filing_frequency',
-    'Filing Frequency': 'penalty.filing_frequency',
-    'Period Start': 'penalty.period_start',
-    'Period End': 'penalty.period_end',
-    Installments: 'penalty.installments',
-    'Owner Count': 'client.equity_owner_count',
-    Owners: 'client.equity_owner_count',
-    Members: 'penalty.member_count',
-    Partners: 'penalty.partner_count',
-    Shareholders: 'penalty.shareholder_count',
-    'Gross Receipts': 'penalty.gross_receipts',
-    'Receipts Band': 'penalty.receipts_band',
-    'No Tax Due': 'penalty.annual_report_no_tax_due',
-    'WA Subtotal Minus Credits': 'penalty.wa_subtotal_minus_credits',
-    'TX Prior Year Franchise Tax': 'penalty.tx_prior_year_franchise_tax',
-    'TX Current Year Franchise Tax': 'penalty.tx_current_year_franchise_tax',
-    'FL Tentative Tax': 'penalty.fl_tentative_tax',
-    'NY PTET Election': 'penalty.ny_ptet_election_made',
-    'NY PTET Payments': 'penalty.ny_ptet_payments',
-    'Withholding Report Count': 'penalty.withholding_report_count',
-    'UI Wage Report Count': 'penalty.ui_wage_report_count',
-    Notes: 'client.notes',
-    Status: 'IGNORE',
-    SSN: 'IGNORE',
+    'account name': 'client.name',
+    'contact name': 'client.name',
+    'company name': 'client.name',
+    name: 'client.name',
+    state: 'client.state',
+    'state/province': 'client.state',
+    type: 'client.entity_type',
+    'account type': 'client.entity_type',
+    email: 'client.email',
+    'email address': 'client.email',
+    assignee: 'client.assignee_name',
+    'assigned team members': 'client.assignee_name',
+    notes: 'client.notes',
   },
   drake: {
-    Name: 'client.name',
-    'Taxpayer Name': 'client.name',
-    'Last Name': 'client.name',
-    EIN: 'client.ein',
-    State: 'client.state',
-    Resident: 'client.state',
-    Entity: 'client.entity_type',
-    'Entity Type': 'client.entity_type',
-    'Return Type': 'client.tax_types',
-    Email: 'client.email',
-    Staff: 'client.assignee_name',
-    Preparer: 'client.assignee_name',
-    'Estimated Tax Due': 'client.estimated_tax_liability',
-    'Penalty Tax Due': 'penalty.tax_due',
-    Payments: 'penalty.payments_and_credits',
-    'Owner Count': 'client.equity_owner_count',
-    'Gross Receipts': 'penalty.gross_receipts',
-    'WA Subtotal Minus Credits': 'penalty.wa_subtotal_minus_credits',
-    Memo: 'client.notes',
-    SSN: 'IGNORE',
+    'client name': 'client.name',
+    name: 'client.name',
+    'taxpayer name': 'client.name',
+    ein: 'client.ein',
+    'id number': 'client.ein',
+    'taxpayer id': 'client.ein',
+    state: 'client.state',
+    'return type': 'client.entity_type',
+    email: 'client.email',
+    'email address': 'client.email',
+    'taxpayer email address': 'client.email',
   },
   karbon: {
-    'Organization Name': 'client.name',
-    'Customer Name': 'client.name',
-    Name: 'client.name',
-    'Tax ID': 'client.ein',
-    'Tax Number': 'client.ein',
-    State: 'client.state',
-    Type: 'client.entity_type',
-    'Primary Contact': 'client.assignee_name',
-    Owner: 'client.assignee_name',
-    'Contact Email': 'client.email',
-    Email: 'client.email',
-    'Estimated Tax Due': 'client.estimated_tax_liability',
-    'Penalty Tax Due': 'penalty.tax_due',
-    Payments: 'penalty.payments_and_credits',
-    'Owner Count': 'client.equity_owner_count',
-    'Gross Receipts': 'penalty.gross_receipts',
-    Description: 'client.notes',
+    name: 'client.name',
+    'organization name': 'client.name',
+    'person/organization name': 'client.name',
+    'legal name': 'client.name',
+    'associated organization': 'client.name',
+    'tax id': 'client.ein',
+    state: 'client.state',
+    'entity type': 'client.entity_type',
+    email: 'client.email',
+    'client owner': 'client.assignee_name',
+    'client manager': 'client.assignee_name',
+    'client owner & manager': 'client.assignee_name',
+    owner: 'client.assignee_name',
+    manager: 'client.assignee_name',
   },
   quickbooks: {
-    'Display Name': 'client.name',
-    Customer: 'client.name',
-    'Tax ID': 'client.ein',
-    'Billing State': 'client.state',
-    State: 'client.state',
-    'Customer Type': 'client.entity_type',
-    Email: 'client.email',
-    'Estimated Tax Due': 'client.estimated_tax_liability',
-    'Penalty Tax Due': 'penalty.tax_due',
-    Payments: 'penalty.payments_and_credits',
-    'Owner Count': 'client.equity_owner_count',
-    'Gross Receipts': 'penalty.gross_receipts',
-    Notes: 'client.notes',
+    customer: 'client.name',
+    name: 'client.name',
+    company: 'client.name',
+    'company name': 'client.name',
+    'display name': 'client.name',
+    state: 'client.state',
+    'billing state': 'client.state',
+    'customer type': 'client.entity_type',
+    email: 'client.email',
+    'email address': 'client.email',
+    note: 'client.notes',
+    notes: 'client.notes',
   },
   file_in_time: {
-    Client: 'client.name',
-    'Client Name': 'client.name',
-    EIN: 'client.ein',
-    State: 'client.state',
-    Entity: 'client.entity_type',
-    'Entity Type': 'client.entity_type',
-    Service: 'client.tax_types',
-    Returns: 'client.tax_types',
-    Staff: 'client.assignee_name',
-    Assignee: 'client.assignee_name',
-    Email: 'client.email',
-    County: 'client.county',
-    'Estimated Tax Due': 'client.estimated_tax_liability',
-    'Penalty Tax Due': 'penalty.tax_due',
-    Payments: 'penalty.payments_and_credits',
-    'Owner Count': 'client.equity_owner_count',
-    'Gross Receipts': 'penalty.gross_receipts',
-    'No Tax Due': 'penalty.annual_report_no_tax_due',
-    Notes: 'client.notes',
+    client: 'client.name',
+    name: 'client.name',
+    'company name': 'client.name',
+    state: 'client.state',
   },
-}
+} satisfies Record<PresetId, Record<string, MappingTarget>>
 
 /**
  * Build mapping rows for a given preset against the actual headers we saw.
@@ -153,12 +97,11 @@ export function buildPresetMappings(
   headers: readonly string[],
   batchId: string,
 ): MappingRow[] {
-  const dict = PRESET_MAPPINGS[preset]
+  const dict: Record<string, MappingTarget> = PRESET_MAPPINGS[preset]
   const now = new Date().toISOString()
 
   return headers.map((header) => {
-    const trimmed = header.trim()
-    const target = dict[trimmed] ?? dict[trimmed.toLowerCase()] ?? ('IGNORE' as MappingTarget)
+    const target = dict[normalizePresetHeader(header)] ?? ('IGNORE' as MappingTarget)
     const isHit = target !== 'IGNORE'
     return {
       id: crypto.randomUUID(),
@@ -193,6 +136,10 @@ export function buildAllIgnoreMappings(headers: readonly string[], batchId: stri
     promptVersion: PRESET_VERSION,
     createdAt: now,
   }))
+}
+
+function normalizePresetHeader(header: string): string {
+  return header.trim().replace(/\s+/g, ' ').toLowerCase()
 }
 
 export function isPresetId(value: string | null | undefined): value is PresetId {

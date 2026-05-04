@@ -320,6 +320,7 @@ const SOURCE_HEALTH: PulseSourceHealth[] = [
     lastSuccessAt: '2026-04-29T00:00:00.000Z',
     nextCheckAt: '2026-04-29T01:00:00.000Z',
     consecutiveFailures: 0,
+    lastError: null,
   },
 ]
 

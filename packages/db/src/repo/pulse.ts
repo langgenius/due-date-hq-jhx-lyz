@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNull, lte, or } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lte, or } from 'drizzle-orm'
 import type { BatchItem } from 'drizzle-orm/batch'
 import type { Db } from '../client'
 import { auditEvent, evidenceLink, type NewAuditEvent, type NewEvidenceLink } from '../schema/audit'
@@ -783,6 +783,31 @@ export function makePulseRepo(db: Db, firmId: string) {
     return new Set(rows.map((row) => row.obligationId))
   }
 
+  async function listRevertedApplicationIds(
+    pulseId: string,
+    obligationIds: readonly string[],
+  ): Promise<Map<string, string>> {
+    if (obligationIds.length === 0) return new Map()
+
+    const rows = await db
+      .select({
+        id: pulseApplication.id,
+        obligationId: pulseApplication.obligationInstanceId,
+      })
+      .from(pulseApplication)
+      .where(
+        and(
+          eq(pulseApplication.firmId, firmId),
+          eq(pulseApplication.pulseId, pulseId),
+          inArray(pulseApplication.obligationInstanceId, obligationIds),
+          isNotNull(pulseApplication.revertedAt),
+        ),
+      )
+      .orderBy(asc(pulseApplication.appliedAt))
+
+    return new Map(rows.map((row) => [row.obligationId, row.id]))
+  }
+
   async function listFreshEligibleRows(
     alert: AlertJoinedRow,
     obligationIds: readonly string[],
@@ -1082,6 +1107,10 @@ export function makePulseRepo(db: Db, firmId: string) {
         }
       }
       const eligible = await listFreshEligibleRows(alert, requestedIds, confirmedReviewIds)
+      const reactivatedApplicationIds = await listRevertedApplicationIds(
+        alert.pulseId,
+        eligible.map((row) => row.obligationId),
+      )
 
       const revertExpiresAt = new Date(now.getTime() + REVERT_WINDOW_MS)
       const exceptionRuleId = crypto.randomUUID()
@@ -1106,7 +1135,7 @@ export function makePulseRepo(db: Db, firmId: string) {
         verbatimQuote: alert.verbatimQuote,
       }
       const applications: NewPulseApplication[] = eligible.map((row) => ({
-        id: crypto.randomUUID(),
+        id: reactivatedApplicationIds.get(row.obligationId) ?? crypto.randomUUID(),
         pulseId: alert.pulseId,
         obligationInstanceId: row.obligationId,
         clientId: row.clientId,
@@ -1116,6 +1145,9 @@ export function makePulseRepo(db: Db, firmId: string) {
         beforeDueDate: row.currentDueDate,
         afterDueDate: alert.parsedNewDueDate,
       }))
+      const newApplications = applications.filter(
+        (row) => !reactivatedApplicationIds.has(row.obligationInstanceId),
+      )
       const exceptionApplications: NewObligationExceptionApplication[] = eligible.map((row) => ({
         id: crypto.randomUUID(),
         firmId,
@@ -1218,8 +1250,33 @@ export function makePulseRepo(db: Db, firmId: string) {
       for (const chunk of chunkRows(exceptionApplications, EXCEPTION_APPLICATION_BATCH_SIZE)) {
         queries.push(db.insert(obligationExceptionApplication).values(chunk))
       }
-      for (const chunk of chunkRows(applications, APPLICATION_BATCH_SIZE)) {
+      for (const chunk of chunkRows(newApplications, APPLICATION_BATCH_SIZE)) {
         queries.push(db.insert(pulseApplication).values(chunk))
+      }
+      for (const chunk of chunkRows(
+        Array.from(reactivatedApplicationIds.values()),
+        APPLICATION_BATCH_SIZE,
+      )) {
+        queries.push(
+          db
+            .update(pulseApplication)
+            .set({
+              appliedBy: input.userId,
+              appliedAt: now,
+              revertedBy: null,
+              revertedAt: null,
+              beforeDueDate: alert.parsedOriginalDueDate,
+              afterDueDate: alert.parsedNewDueDate,
+            })
+            .where(
+              and(
+                eq(pulseApplication.firmId, firmId),
+                eq(pulseApplication.pulseId, alert.pulseId),
+                inArray(pulseApplication.id, chunk),
+                isNotNull(pulseApplication.revertedAt),
+              ),
+            ),
+        )
       }
       for (const chunk of chunkRows(evidence, EVIDENCE_BATCH_SIZE)) {
         queries.push(db.insert(evidenceLink).values(chunk))
