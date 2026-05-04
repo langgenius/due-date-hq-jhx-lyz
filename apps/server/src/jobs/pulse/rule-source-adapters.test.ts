@@ -52,6 +52,34 @@ describe('rule source adapters', () => {
     }
   })
 
+  it('uses generated rule-source adapters for the expanded state coverage, not only explicit adapters', () => {
+    const promotedGeneratedJurisdictions = new Set(
+      ruleSourceAdapters
+        .filter((adapter) => adapter.canCreatePulse !== false)
+        .map((adapter) => adapter.jurisdiction),
+    )
+
+    expect(promotedGeneratedJurisdictions.size).toBeGreaterThanOrEqual(45)
+    expect([...promotedGeneratedJurisdictions]).toEqual(
+      expect.arrayContaining(['AL', 'AK', 'DC', 'ND', 'WY']),
+    )
+  })
+
+  it('only promotes concrete basis sources from the rules registry into the extract queue', () => {
+    const sourcesById = new Map(listRuleSources().map((source) => [source.id, source]))
+
+    for (const adapter of ruleSourceAdapters.filter(
+      (candidate) => candidate.canCreatePulse !== false,
+    )) {
+      const source = sourcesById.get(adapter.id)
+      expect(source, `${adapter.id} should map back to a rule source`).toBeDefined()
+      if (!source) continue
+      expect(source.sourceType, `${adapter.id} should not promote an index source`).not.toMatch(
+        /^(news|subscription|early_warning)$/,
+      )
+    }
+  })
+
   it('keeps lower-priority rule source adapters signal-only', () => {
     const source = listRuleSources().find(
       (candidate) =>

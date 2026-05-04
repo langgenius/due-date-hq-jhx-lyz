@@ -579,23 +579,27 @@ export const STATE_RULE_SOURCE_SEEDS = [
 const STATE_INCOME_TAX_SOURCE_SEEDS = [
   {
     jurisdiction: 'AL',
-    title: 'Alabama Department of Revenue Individual & Corporate Tax',
-    url: 'https://www.revenue.alabama.gov/individual-corporate/',
+    title: 'Alabama DOR Individual Income Tax Return Filing FAQ',
+    url: 'https://www.revenue.alabama.gov/faqs/when-should-i-file-my-alabama-individual-income-tax-return/',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'AK',
-    title: 'Alaska Department of Revenue Corporate Net Income Tax',
-    url: 'https://tax.alaska.gov/programs/programs/index.aspx?10001',
+    title: 'Alaska Tax Facts',
+    url: 'https://www.commerce.alaska.gov/web/dcra/OfficeoftheStateAssessor/AlaskaTaxFacts',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'AZ',
-    title: 'Arizona Department of Revenue Individuals',
-    url: 'https://azdor.gov/individuals',
+    title: 'Arizona Department of Revenue Individual Income Tax Highlights',
+    url: 'https://azdor.gov/forms/individual-income-tax-highlights',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'AR',
-    title: 'Arkansas Department of Finance and Administration Income Tax',
-    url: 'https://www.dfa.arkansas.gov/income-tax/',
+    title: 'Arkansas DFA Individual Income Tax Deadlines and Extensions',
+    url: 'https://www.dfa.arkansas.gov/office/taxes/income-tax-administration/individual-income-tax/deadlines-extensions/',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'CA',
@@ -624,13 +628,17 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
   },
   {
     jurisdiction: 'FL',
-    title: 'Florida DOR Corporate Income Tax',
-    url: 'https://floridarevenue.com/taxes/taxesfees/Pages/corporate.aspx',
+    title: 'Florida DOR Tax Information for New Residents',
+    url: 'https://floridarevenue.com/Forms_library/current/brochure/gt800025.pdf',
+    sourceType: 'publication',
+    acquisitionMethod: 'pdf_watch',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'GA',
-    title: 'Georgia Department of Revenue Individual Taxes',
-    url: 'https://dor.georgia.gov/taxes/individual-taxes',
+    title: 'Georgia DOR Filing Georgia State Individual Income Tax Return',
+    url: 'https://dor.georgia.gov/taxes/filing-georgia-state-individual-income-tax-return',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'HI',
@@ -665,7 +673,7 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
   {
     jurisdiction: 'KY',
     title: 'Kentucky Department of Revenue Individual Income Tax',
-    url: 'https://revenue.ky.gov/Individual/Pages/default.aspx',
+    url: 'https://revenue.ky.gov/Individual/Individual-Income-Tax/Pages/default.aspx',
   },
   {
     jurisdiction: 'LA',
@@ -679,8 +687,9 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
   },
   {
     jurisdiction: 'MD',
-    title: 'Comptroller of Maryland Individual Income Tax',
-    url: 'https://www.marylandtaxes.gov/individual/income/index.php',
+    title: 'Comptroller of Maryland iFile Individual Income Tax Help',
+    url: 'https://interactive.marylandtaxes.gov/Individuals/iFile_ChooseForm/Help/iih_geninfo.asp',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'MA',
@@ -699,8 +708,8 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
   },
   {
     jurisdiction: 'MS',
-    title: 'Mississippi Department of Revenue Individual Income Tax',
-    url: 'https://www.dor.ms.gov/individual',
+    title: 'Mississippi DOR Individual Income Tax FAQs',
+    url: 'https://www.dor.ms.gov/individual/individual-income-tax-faqs',
   },
   {
     jurisdiction: 'MO',
@@ -734,8 +743,9 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
   },
   {
     jurisdiction: 'NM',
-    title: 'New Mexico Taxation and Revenue Individuals',
-    url: 'https://www.tax.newmexico.gov/individuals/',
+    title: 'New Mexico Taxation and Revenue Personal Income Tax Information Overview',
+    url: 'https://www.tax.newmexico.gov/individuals/personal-income-tax-information-overview/',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'NY',
@@ -749,8 +759,8 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
   },
   {
     jurisdiction: 'ND',
-    title: 'North Dakota Office of State Tax Commissioner Individual Income Tax',
-    url: 'https://www.tax.nd.gov/individual',
+    title: 'North Dakota Office of State Tax Commissioner Individual Income Tax Deadlines',
+    url: 'https://www.tax.nd.gov/individual-income-tax-deadlines',
   },
   {
     jurisdiction: 'OH',
@@ -759,13 +769,13 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
   },
   {
     jurisdiction: 'OK',
-    title: 'Oklahoma Tax Commission Individuals',
-    url: 'https://oklahoma.gov/tax/individuals.html',
+    title: 'Oklahoma Tax Commission Individual Income Tax Help Center',
+    url: 'https://oklahoma.gov/tax/helpcenter/income-tax.html',
   },
   {
     jurisdiction: 'OR',
-    title: 'Oregon DOR Individuals',
-    url: 'https://www.oregon.gov/dor/programs/individuals/Pages/default.aspx',
+    title: 'Oregon DOR Personal Income Tax',
+    url: 'https://www.oregon.gov/dor/programs/individuals/pages/pit.aspx',
   },
   {
     jurisdiction: 'PA',
@@ -794,13 +804,17 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
   },
   {
     jurisdiction: 'UT',
-    title: 'Utah State Tax Commission Individual Income Tax',
-    url: 'https://incometax.utah.gov/',
+    title: 'Utah State Tax Commission Individual Income Tax Due Date',
+    url: 'https://tax.utah.gov/event/individual-corporate-partnership-income-tax-due-date-jan-dec-2025/',
+    sourceType: 'calendar',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'VT',
-    title: 'Vermont Department of Taxes Individuals',
-    url: 'https://tax.vermont.gov/individuals',
+    title: 'Vermont Income Tax Returns by Individuals, Trusts, and Estates Statute',
+    url: 'https://legislature.vermont.gov/statutes/section/32/151/05861',
+    sourceType: 'publication',
+    candidateDomainSlugs: ['individual_income_return'],
   },
   {
     jurisdiction: 'VA',
@@ -814,8 +828,8 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
   },
   {
     jurisdiction: 'WI',
-    title: 'Wisconsin DOR Individuals',
-    url: 'https://www.revenue.wi.gov/Pages/Individuals/home.aspx',
+    title: 'Wisconsin DOR Individual Income Tax',
+    url: 'https://www.revenue.wi.gov/Pages/Individuals/income.aspx',
   },
   {
     jurisdiction: 'WY',

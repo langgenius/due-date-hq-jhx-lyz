@@ -30,6 +30,7 @@ const STATE_INCOME_CANDIDATE_TAX_TYPE_SUFFIXES = [
   '_state_individual_income_tax',
   '_state_individual_estimated_tax',
 ] as const
+const IMPRECISE_INCOME_SOURCE_PATHS = new Set(['/', '/individuals', '/income-tax'])
 
 function expectUnique(ids: readonly string[]) {
   expect(new Set(ids).size).toBe(ids.length)
@@ -43,6 +44,15 @@ function isOfficialHost(host: string): boolean {
     host.endsWith('.us') ||
     OFFICIAL_NON_GOV_HOSTS.has(host)
   )
+}
+
+function isPreciseIncomeSourceUrl(url: string): boolean {
+  const parsed = new URL(url)
+  const pathname = parsed.pathname.toLowerCase().replace(/\/+$/, '') || '/'
+  if (IMPRECISE_INCOME_SOURCE_PATHS.has(pathname)) return false
+  if (pathname.endsWith('/home.aspx')) return false
+  if (pathname === '/individual/pages/default.aspx') return false
+  return true
 }
 
 describe('@duedatehq/core/rules', () => {
@@ -141,6 +151,21 @@ describe('@duedatehq/core/rules', () => {
     expect(sourcesById.get('wv.income_tax')?.url).toBe(
       'https://tax.wv.gov/Individuals/Pages/Individuals.aspx',
     )
+    expect(sourcesById.get('wi.income_tax')?.url).toBe(
+      'https://www.revenue.wi.gov/Pages/Individuals/income.aspx',
+    )
+  })
+
+  it('keeps generated state income sources concrete enough for Pulse watch', () => {
+    for (const source of RULE_SOURCES.filter((candidate) => candidate.id.endsWith('.income_tax'))) {
+      expect(
+        isPreciseIncomeSourceUrl(source.url),
+        `${source.id} should not use an agency homepage or generic index URL`,
+      ).toBe(true)
+      expect(source.title, `${source.id} should name a tax-specific source`).toMatch(
+        /income|tax|filing|deadline|resident|facts|due/i,
+      )
+    }
   })
 
   it('does not generate source-backed candidates for domains without precise sources', () => {

@@ -14,6 +14,14 @@ const SOURCE_INDEX_IDS = new Set([
   'fl.tips',
   'wa.news',
 ])
+const PULSE_BASIS_SOURCE_TYPES = new Set<RuleSource['sourceType']>([
+  'publication',
+  'instructions',
+  'due_dates',
+  'calendar',
+  'emergency_relief',
+  'form',
+])
 function intervalForCadence(cadence: RuleSource['cadence']): number {
   const hour = 60 * 60 * 1000
   const day = 24 * hour
@@ -61,7 +69,9 @@ function parsedItemForSourceSnapshot(
 
 export function isRuleSourcePulsePromoted(source: RuleSource): boolean {
   return (
-    source.jurisdiction !== 'FED' && (source.priority === 'critical' || source.priority === 'high')
+    source.jurisdiction !== 'FED' &&
+    PULSE_BASIS_SOURCE_TYPES.has(source.sourceType) &&
+    (source.priority === 'critical' || source.priority === 'high')
   )
 }
 
