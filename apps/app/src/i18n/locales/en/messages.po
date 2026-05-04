@@ -645,8 +645,12 @@ msgid "All clear · Watching {label}"
 msgstr "All clear · Watching {label}"
 
 #: src/features/pulse/AlertsListPage.tsx
-msgid "All clear. We're watching {label}; new matches will appear here."
-msgstr "All clear. We're watching {label}; new matches will appear here."
+msgid "All clear. We're watching configured Pulse sources; new matches will appear here."
+msgstr "All clear. We're watching configured Pulse sources; new matches will appear here."
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All clear. We're watching official federal and state sources ({count, plural, one {# source} other {# sources}}); new matches will appear here."
+msgstr "All clear. We're watching official federal and state sources ({count, plural, one {# source} other {# sources}}); new matches will appear here."
 
 #: src/features/audit/audit-log-page.tsx
 msgid "All entity types"
@@ -3609,6 +3613,7 @@ msgid "No eligible obligations are selected."
 msgstr "No eligible obligations are selected."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/dashboard.tsx
 msgid "No email"
 msgstr "No email"
 

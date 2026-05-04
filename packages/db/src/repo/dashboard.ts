@@ -92,6 +92,7 @@ export interface DashboardRawRow {
   obligationId: string
   clientId: string
   clientName: string
+  clientEmail: string | null
   taxType: string
   currentDueDate: Date
   status: ObligationStatus
@@ -650,6 +651,7 @@ export function makeDashboardRepo(db: Db, firmId: string) {
           obligationId: obligationInstance.id,
           clientId: obligationInstance.clientId,
           clientName: client.name,
+          clientEmail: client.email,
           taxType: obligationInstance.taxType,
           currentDueDate: obligationInstance.currentDueDate,
           status: obligationInstance.status,

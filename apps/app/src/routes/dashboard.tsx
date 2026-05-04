@@ -792,80 +792,7 @@ function DashboardCountdownBadge({ days }: { days: number }) {
   )
 }
 
-function priorityDrivers(row: DashboardTopRow): DashboardTopRow['smartPriority']['factors'] {
-  return row.smartPriority.factors
-    .filter((factor) => factor.contribution > 0)
-    .toSorted((a, b) => b.contribution - a.contribution)
-    .slice(0, 2)
-}
-
-function DashboardPriorityDrivers({
-  row,
-  asOfDate,
-  canSeeDollars,
-}: {
-  row: DashboardTopRow
-  asOfDate: string | null
-  canSeeDollars: boolean
-}) {
-  const { t } = useLingui()
-  const drivers = priorityDrivers(row)
-  const [primary, secondary] = drivers
-
-  if (!primary) {
-    const days = daysUntilDueFromAsOf(row.currentDueDate, asOfDate)
-    const deadlineDriver =
-      days <= 0 ? t`due now` : days === 1 ? t`1 day left` : t`${days} days left`
-    const rowDriver =
-      row.status === 'waiting_on_client'
-        ? t`waiting on client`
-        : row.evidenceCount === 0
-          ? t`needs evidence`
-          : row.exposureStatus === 'needs_input'
-            ? t`needs projected-risk input`
-            : row.status === 'review'
-              ? t`needs CPA review`
-              : canSeeDollars &&
-                  row.exposureStatus === 'ready' &&
-                  row.estimatedExposureCents !== null
-                ? formatCents(row.estimatedExposureCents)
-                : t`source linked`
-
-    return (
-      <span className="text-xs leading-5 text-text-tertiary">
-        <Trans>Why: {deadlineDriver}</Trans>
-        {' · '}
-        <span>{rowDriver}</span>
-      </span>
-    )
-  }
-
-  return (
-    <span className="text-xs leading-5 text-text-tertiary">
-      <Trans>
-        Why: {primary.label} ({primary.rawValue})
-      </Trans>
-      {secondary ? (
-        <>
-          {' · '}
-          <span>
-            {secondary.label} ({secondary.rawValue})
-          </span>
-        </>
-      ) : null}
-    </span>
-  )
-}
-
-function DashboardClientCell({
-  row,
-  asOfDate,
-  canSeeDollars,
-}: {
-  row: DashboardTopRow
-  asOfDate: string | null
-  canSeeDollars: boolean
-}) {
+function DashboardClientCell({ row }: { row: DashboardTopRow }) {
   const { t } = useLingui()
 
   return (
@@ -879,7 +806,9 @@ function DashboardClientCell({
           {row.clientName}
         </Link>
       </div>
-      <DashboardPriorityDrivers row={row} asOfDate={asOfDate} canSeeDollars={canSeeDollars} />
+      <span className="truncate text-xs leading-5 text-text-tertiary">
+        {row.clientEmail ?? t`No email`}
+      </span>
     </div>
   )
 }
@@ -1120,13 +1049,7 @@ function DashboardTriageTable({
             }
           />
         ),
-        cell: ({ row }) => (
-          <DashboardClientCell
-            row={row.original}
-            asOfDate={asOfDate}
-            canSeeDollars={canSeeDollars}
-          />
-        ),
+        cell: ({ row }) => <DashboardClientCell row={row.original} />,
       },
       {
         id: 'nextCheck',

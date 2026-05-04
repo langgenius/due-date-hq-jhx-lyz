@@ -104,6 +104,7 @@ export const DashboardTopRowSchema = z.object({
   obligationId: EntityIdSchema,
   clientId: EntityIdSchema,
   clientName: z.string().min(1),
+  clientEmail: z.email().nullable(),
   taxType: z.string().min(1),
   currentDueDate: z.iso.date(),
   status: ObligationStatusSchema,

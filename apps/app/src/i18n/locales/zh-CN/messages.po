@@ -645,8 +645,12 @@ msgid "All clear · Watching {label}"
 msgstr "全部正常 · 正在监控 {label}"
 
 #: src/features/pulse/AlertsListPage.tsx
-msgid "All clear. We're watching {label}; new matches will appear here."
-msgstr "全部正常。我们正在监控 {label}；新的匹配会显示在这里。"
+msgid "All clear. We're watching configured Pulse sources; new matches will appear here."
+msgstr "全部正常。我们正在监控已配置的 Pulse 来源；新的匹配会显示在这里。"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All clear. We're watching official federal and state sources ({count, plural, one {# source} other {# sources}}); new matches will appear here."
+msgstr "全部正常。我们正在监控官方联邦和州来源（{count, plural, one {# 个来源} other {# 个来源}}）；新的匹配会显示在这里。"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "All entity types"
@@ -3609,6 +3613,7 @@ msgid "No eligible obligations are selected."
 msgstr "没有选中可应用的义务。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/routes/dashboard.tsx
 msgid "No email"
 msgstr "无邮箱"
 

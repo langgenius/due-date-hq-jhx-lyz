@@ -46,6 +46,7 @@ export interface DashboardTopRow {
   obligationId: string
   clientId: string
   clientName: string
+  clientEmail: string | null
   taxType: string
   currentDueDate: Date
   status: ObligationStatus

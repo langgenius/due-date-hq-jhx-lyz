@@ -140,6 +140,13 @@ should feel like a vital sign, always present but never noisy.
 - `DESIGN.md` and `docs/Design/DueDateHQ-DESIGN.md` now document the breathing
   motion contract for Pulse Banner.
 
+## Iteration 5 — Compact All-Clear Copy
+
+- Rules Pulse empty state now summarizes watched coverage as official federal
+  and state sources with a source count instead of rendering every source id.
+- Source-specific labels remain in loading and attention states, where the
+  concrete source names help diagnose a small set of active source issues.
+
 ## Validation
 
 - `pnpm --filter @duedatehq/app exec tsgo --noEmit` — passed.

@@ -244,6 +244,10 @@ function sourceLabel(sources: readonly PulseSourceHealth[]): string {
     .join(' + ')
 }
 
+function enabledSourceCount(sources: readonly PulseSourceHealth[]): number {
+  return sources.filter((source) => source.enabled && source.healthStatus !== 'paused').length
+}
+
 function SourceAttentionAlert({ sources }: { sources: readonly PulseSourceHealth[] }) {
   const label = sourceLabel(sources)
   return (
@@ -357,12 +361,22 @@ function SkeletonRow({
 }
 
 function EmptyState({ sources }: { sources: readonly PulseSourceHealth[] }) {
-  const label = sourceLabel(sources)
+  const count = enabledSourceCount(sources)
   return (
     <div className="flex items-center gap-3 rounded-md border border-dashed border-divider-regular bg-background-default px-4 py-5 text-md text-text-secondary">
       <PulsingDot tone="success" active />
       <span className="flex-1">
-        <Trans>All clear. We're watching {label}; new matches will appear here.</Trans>
+        {count > 0 ? (
+          <Trans>
+            All clear. We're watching official federal and state sources (
+            <Plural value={count} one="# source" other="# sources" />
+            ); new matches will appear here.
+          </Trans>
+        ) : (
+          <Trans>
+            All clear. We're watching configured Pulse sources; new matches will appear here.
+          </Trans>
+        )}
       </span>
     </div>
   )

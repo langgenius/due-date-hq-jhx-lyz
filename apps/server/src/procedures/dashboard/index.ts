@@ -14,6 +14,7 @@ interface DashboardRepoTopRow {
   obligationId: string
   clientId: string
   clientName: string
+  clientEmail?: string | null
   taxType: string
   currentDueDate: Date
   status: DashboardTopRow['status']
@@ -72,6 +73,7 @@ function toTopRow(
     obligationId: row.obligationId,
     clientId: row.clientId,
     clientName: row.clientName,
+    clientEmail: row.clientEmail ?? null,
     taxType: row.taxType,
     currentDueDate: toDateOnly(row.currentDueDate),
     status: row.status,
