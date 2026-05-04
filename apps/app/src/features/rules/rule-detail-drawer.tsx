@@ -164,7 +164,7 @@ function sourceDefinedDescription(rule: ObligationRule, heading: string): string
 
 function filterExtensionMethodSuggestions(value: string): readonly string[] {
   const query = value.trim().toLowerCase()
-  if (!query) return EXTENSION_METHOD_SUGGESTIONS
+  if (!query) return []
   return EXTENSION_METHOD_SUGGESTIONS.filter((option) => option.toLowerCase().includes(query))
 }
 
@@ -711,6 +711,7 @@ function ExtensionMethodCombobox({
   const [open, setOpen] = useState(false)
   const suggestions = useMemo(() => filterExtensionMethodSuggestions(value), [value])
   const hasValue = value.length > 0
+  const showSuggestions = open && !disabled && suggestions.length > 0
 
   function changeOpen(nextOpen: boolean) {
     setOpen(disabled ? false : nextOpen)
@@ -737,7 +738,7 @@ function ExtensionMethodCombobox({
         aria-label={ariaLabel}
         aria-autocomplete="list"
         aria-controls={listboxId}
-        aria-expanded={open && !disabled}
+        aria-expanded={showSuggestions}
         placeholder={t`Form 7004, automatic extension, portal request, or source-defined process`}
         disabled={disabled}
         onFocus={() => changeOpen(true)}
@@ -768,41 +769,35 @@ function ExtensionMethodCombobox({
           <XIcon className="size-3.5" aria-hidden />
         </button>
       ) : null}
-      {open && !disabled ? (
+      {showSuggestions ? (
         <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 overflow-hidden rounded-md border border-components-panel-border bg-components-panel-bg p-1 text-text-primary shadow-overlay">
           <div className="px-2 py-1 text-xs font-medium uppercase tracking-wider text-text-tertiary">
             <Trans>Suggestions</Trans>
           </div>
           <div id={listboxId} role="listbox" className="max-h-56 overflow-y-auto">
-            {suggestions.length === 0 ? (
-              <div className="px-2 py-3 text-sm text-text-tertiary">
-                <Trans>No matching suggestion.</Trans>
-              </div>
-            ) : (
-              suggestions.map((suggestion) => {
-                const selected = suggestion === value
-                return (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    role="option"
-                    aria-selected={selected}
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => selectSuggestion(suggestion)}
-                    className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-background-subtle focus-visible:bg-background-subtle focus-visible:outline-none"
-                  >
-                    <span className="truncate">{suggestion}</span>
-                    <CheckIcon
-                      className={cn(
-                        'size-4 text-text-accent',
-                        selected ? 'opacity-100' : 'opacity-0',
-                      )}
-                      aria-hidden
-                    />
-                  </button>
-                )
-              })
-            )}
+            {suggestions.map((suggestion) => {
+              const selected = suggestion === value
+              return (
+                <button
+                  key={suggestion}
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => selectSuggestion(suggestion)}
+                  className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-background-subtle focus-visible:bg-background-subtle focus-visible:outline-none"
+                >
+                  <span className="truncate">{suggestion}</span>
+                  <CheckIcon
+                    className={cn(
+                      'size-4 text-text-accent',
+                      selected ? 'opacity-100' : 'opacity-0',
+                    )}
+                    aria-hidden
+                  />
+                </button>
+              )
+            })}
           </div>
         </div>
       ) : null}
