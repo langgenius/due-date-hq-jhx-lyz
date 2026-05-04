@@ -7,8 +7,7 @@ const IRS_DISASTER_URL = 'https://www.irs.gov/newsroom/tax-relief-in-disaster-si
 const IRS_NEWSROOM_URL = 'https://www.irs.gov/newsroom'
 const IRS_GUIDANCE_URL = 'https://www.irs.gov/newsroom/irs-guidance'
 const TX_CPA_RSS_DIRECTORY_URL = 'https://comptroller.texas.gov/about/media-center/rss/'
-const TX_CPA_GOVDELIVERY_FALLBACK_URL =
-  'https://public.govdelivery.com/accounts/TXCOMPT/subscriber/new?topic_id=TXCOMPT_70'
+const TX_CPA_GOVDELIVERY_FALLBACK_URL = 'https://public.govdelivery.com/topics/TXCOMPT_1/feed.rss'
 const NY_DTF_PRESS_URL = 'https://www.tax.ny.gov/press/'
 const CA_FTB_NEWSROOM_URL = 'https://www.ftb.ca.gov/about-ftb/newsroom/index.html'
 const CA_FTB_TAX_NEWS_URL = 'https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/index.html'
@@ -17,8 +16,6 @@ const FL_DOR_TIPS_URL = 'https://floridarevenue.com/taxes/tips/Pages/default.asp
 const WA_DOR_NEWS_URL = 'https://dor.wa.gov/about/news-releases'
 const WA_DOR_WHATS_NEW_URL = 'https://dor.wa.gov/about/whats-new'
 const MA_DOR_PRESS_URL = 'https://www.mass.gov/info-details/dor-press-releases-and-reports'
-const FEMA_DECLARATIONS_URL =
-  'https://www.fema.gov/openfema-data-page/disaster-declarations-summaries-v2'
 const FEMA_API_URL =
   'https://www.fema.gov/openfema-data-hub/arcgis/rest/services/public/DisasterDeclarationsSummaries_v2/FeatureServer/0/query?where=declarationDate%20%3E%3D%20CURRENT_TIMESTAMP%20-%2090&outFields=disasterNumber,state,declarationTitle,incidentType,declarationDate,incidentBeginDate,designatedArea&f=json&resultRecordCount=50&orderByFields=declarationDate%20DESC'
 
@@ -102,16 +99,26 @@ function firstGovDeliveryFeedUrl(html: string): string {
   return englishFeed?.href ?? anyFeed?.href ?? TX_CPA_GOVDELIVERY_FALLBACK_URL
 }
 
+function normalizeGovDeliveryFeedUrl(url: string): string {
+  const parsed = new URL(url)
+  if (parsed.hostname !== 'public.govdelivery.com') return url
+  if (parsed.pathname.endsWith('/feed.rss')) return url
+
+  const topicId = parsed.searchParams.get('topic_id')
+  if (!topicId) return url
+  return new URL(`/topics/${topicId}/feed.rss`, parsed.origin).toString()
+}
+
 function rssItemsFromGovDelivery(input: { sourceId: string; rss: string }): ParsedItem[] {
   const items = Array.from(input.rss.matchAll(/<item\b[\s\S]*?<\/item>/gi))
-  return items.slice(0, 20).map((match) => {
+  return items.slice(0, 20).flatMap((match) => {
     const item = match[0]
     const title = stripHtml(
       /<title>([\s\S]*?)<\/title>/i.exec(item)?.[1] ?? 'TX Comptroller update',
     )
-    const link = stripHtml(
-      /<link>([\s\S]*?)<\/link>/i.exec(item)?.[1] ?? TX_CPA_GOVDELIVERY_FALLBACK_URL,
-    )
+    const link = stripHtml(/<link>([\s\S]*?)<\/link>/i.exec(item)?.[1] ?? '')
+    if (!link) return []
+
     const pubDate = stripHtml(/<pubDate>([\s\S]*?)<\/pubDate>/i.exec(item)?.[1] ?? '')
     const description = stripHtml(
       /<description>([\s\S]*?)<\/description>/i.exec(item)?.[1] ?? title,
@@ -119,10 +126,10 @@ function rssItemsFromGovDelivery(input: { sourceId: string; rss: string }): Pars
     const parsedDate = new Date(pubDate)
     return {
       sourceId: input.sourceId,
-      externalId: stableExternalId(link || TX_CPA_GOVDELIVERY_FALLBACK_URL),
+      externalId: stableExternalId(link),
       title,
       publishedAt: Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate,
-      officialSourceUrl: link || TX_CPA_GOVDELIVERY_FALLBACK_URL,
+      officialSourceUrl: link,
       rawText: textExcerpt(`${title}\n\n${description}`),
     }
   })
@@ -155,16 +162,7 @@ export const irsDisasterAdapter: SourceAdapter = {
     const links = extractLinks(snapshot.body, IRS_DISASTER_URL).filter((link) =>
       /relief|disaster|storm|wildfire|flood|tax/i.test(`${link.text} ${link.href}`),
     )
-    if (links.length === 0) {
-      return [
-        parsedItemFromHtml({
-          sourceId: this.id,
-          sourceUrl: IRS_DISASTER_URL,
-          title: 'IRS disaster tax relief update',
-          html: snapshot.body,
-        }),
-      ]
-    }
+    if (links.length === 0) return []
 
     return Promise.all(
       links.slice(0, 10).map(async (link) => {
@@ -239,7 +237,7 @@ export const txComptrollerRssAdapter: SourceAdapter = {
     return [
       await fetchTextSnapshot(ctx, {
         sourceId: this.id,
-        url: firstGovDeliveryFeedUrl(directoryHtml),
+        url: normalizeGovDeliveryFeedUrl(firstGovDeliveryFeedUrl(directoryHtml)),
       }),
     ]
   },
@@ -268,15 +266,7 @@ export const caFtbNewsroomAdapter: SourceAdapter = {
       ctx,
       limit: 12,
     })
-    if (items.length > 0) return items
-    return [
-      parsedItemFromHtml({
-        sourceId: this.id,
-        sourceUrl: CA_FTB_NEWSROOM_URL,
-        title: 'CA FTB newsroom update',
-        html: snapshot.body,
-      }),
-    ]
+    return items
   },
 }
 
@@ -297,15 +287,7 @@ export const caFtbTaxNewsAdapter: SourceAdapter = {
       ctx,
       limit: 12,
     })
-    if (items.length > 0) return items
-    return [
-      parsedItemFromHtml({
-        sourceId: this.id,
-        sourceUrl: CA_FTB_TAX_NEWS_URL,
-        title: 'CA FTB tax news update',
-        html: snapshot.body,
-      }),
-    ]
+    return items
   },
 }
 
@@ -326,15 +308,7 @@ export const caCdtfaNewsAdapter: SourceAdapter = {
       ctx,
       limit: 12,
     })
-    if (items.length > 0) return items
-    return [
-      parsedItemFromHtml({
-        sourceId: this.id,
-        sourceUrl: CA_CDTFA_NEWS_URL,
-        title: 'CA CDTFA news update',
-        html: snapshot.body,
-      }),
-    ]
+    return items
   },
 }
 
@@ -355,15 +329,7 @@ export const nyDtfPressAdapter: SourceAdapter = {
       ctx,
       limit: 12,
     })
-    if (items.length > 0) return items
-    return [
-      parsedItemFromHtml({
-        sourceId: this.id,
-        sourceUrl: NY_DTF_PRESS_URL,
-        title: 'NY DTF press update',
-        html: snapshot.body,
-      }),
-    ]
+    return items
   },
 }
 
@@ -385,15 +351,7 @@ export const flDorTipsAdapter: SourceAdapter = {
       ctx,
       limit: 12,
     })
-    if (items.length > 0) return items
-    return [
-      parsedItemFromHtml({
-        sourceId: this.id,
-        sourceUrl: FL_DOR_TIPS_URL,
-        title: 'FL DOR tax tip update',
-        html: snapshot.body,
-      }),
-    ]
+    return items
   },
 }
 
@@ -415,15 +373,7 @@ export const waDorNewsAdapter: SourceAdapter = {
       ctx,
       limit: 12,
     })
-    if (items.length > 0) return items
-    return [
-      parsedItemFromHtml({
-        sourceId: this.id,
-        sourceUrl: WA_DOR_NEWS_URL,
-        title: 'WA DOR news update',
-        html: snapshot.body,
-      }),
-    ]
+    return items
   },
 }
 
@@ -445,15 +395,7 @@ export const waDorWhatsNewAdapter: SourceAdapter = {
       ctx,
       limit: 12,
     })
-    if (items.length > 0) return items
-    return [
-      parsedItemFromHtml({
-        sourceId: this.id,
-        sourceUrl: WA_DOR_WHATS_NEW_URL,
-        title: 'WA DOR what is new update',
-        html: snapshot.body,
-      }),
-    ]
+    return items
   },
 }
 
@@ -474,15 +416,7 @@ export const maDorPressAdapter: SourceAdapter = {
       ctx,
       limit: 12,
     })
-    if (items.length > 0) return items
-    return [
-      parsedItemFromHtml({
-        sourceId: this.id,
-        sourceUrl: MA_DOR_PRESS_URL,
-        title: 'MA DOR press update',
-        html: snapshot.body,
-      }),
-    ]
+    return items
   },
 }
 
@@ -529,7 +463,7 @@ export const femaDeclarationsAdapter: SourceAdapter = {
     return features
       .filter(isFemaFeature)
       .slice(0, 20)
-      .map((feature) => {
+      .flatMap((feature) => {
         const attrs = feature.attributes
         const state = typeof attrs.state === 'string' ? attrs.state : 'US'
         const area =
@@ -541,7 +475,9 @@ export const femaDeclarationsAdapter: SourceAdapter = {
         const disasterNumber =
           typeof attrs.disasterNumber === 'number' || typeof attrs.disasterNumber === 'string'
             ? String(attrs.disasterNumber)
-            : stableExternalId(FEMA_DECLARATIONS_URL)
+            : null
+        if (!disasterNumber) return []
+
         const incidentType = typeof attrs.incidentType === 'string' ? attrs.incidentType : 'unknown'
         const publishedAt = femaDate(attrs.declarationDate)
         return {
@@ -549,7 +485,7 @@ export const femaDeclarationsAdapter: SourceAdapter = {
           externalId: `fema-${disasterNumber}`,
           title,
           publishedAt,
-          officialSourceUrl: FEMA_DECLARATIONS_URL,
+          officialSourceUrl: `https://www.fema.gov/disaster/${encodeURIComponent(disasterNumber)}`,
           jurisdiction: state,
           rawText: textExcerpt(
             [

@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { listRuleSources, MVP_RULE_JURISDICTIONS } from '@duedatehq/core/rules'
 import { livePulseAdapters } from '@duedatehq/ingest/adapters'
-import { liveRegulatorySourceAdapters, ruleSourceAdapters } from './rule-source-adapters'
+import {
+  isRuleSourceAdapterEligible,
+  liveRegulatorySourceAdapters,
+  ruleSourceAdapters,
+} from './rule-source-adapters'
 
 describe('rule source adapters', () => {
   it('adds source-signal adapters for every candidate-review rule source without duplicating live adapters', () => {
@@ -9,6 +13,7 @@ describe('rule source adapters', () => {
     const candidateReviewSources = listRuleSources()
       .filter((source) => source.notificationChannels.includes('candidate_review'))
       .filter((source) => !liveIds.has(source.id))
+      .filter(isRuleSourceAdapterEligible)
 
     expect(ruleSourceAdapters.map((adapter) => adapter.id).toSorted()).toEqual(
       candidateReviewSources.map((source) => source.id).toSorted(),

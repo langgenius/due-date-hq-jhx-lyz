@@ -5,6 +5,15 @@ import { stripHtml } from '@duedatehq/ingest/selectors'
 import type { ParsedItem, SourceAdapter } from '@duedatehq/ingest/types'
 
 const EXISTING_ADAPTER_IDS = new Set(livePulseAdapters.map((adapter) => adapter.id))
+const SOURCE_INDEX_IDS = new Set([
+  'fed.irs_disaster_relief',
+  'fed.fema_disaster_declarations',
+  'ca.ftb_emergency_tax_relief',
+  'ca.ftb_tax_news',
+  'ny.email_services',
+  'fl.tips',
+  'wa.news',
+])
 
 function intervalForCadence(cadence: RuleSource['cadence']): number {
   const hour = 60 * 60 * 1000
@@ -68,9 +77,14 @@ export function createRuleSourceAdapter(source: RuleSource): SourceAdapter {
   }
 }
 
+export function isRuleSourceAdapterEligible(source: RuleSource): boolean {
+  if (!source.notificationChannels.includes('candidate_review')) return false
+  if (EXISTING_ADAPTER_IDS.has(source.id)) return false
+  return !SOURCE_INDEX_IDS.has(source.id)
+}
+
 export const ruleSourceAdapters = listRuleSources()
-  .filter((source) => source.notificationChannels.includes('candidate_review'))
-  .filter((source) => !EXISTING_ADAPTER_IDS.has(source.id))
+  .filter(isRuleSourceAdapterEligible)
   .map(createRuleSourceAdapter)
 
 export const liveRegulatorySourceAdapters = [...livePulseAdapters, ...ruleSourceAdapters] as const

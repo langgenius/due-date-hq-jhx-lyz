@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { hashText } from './http'
 import { runFixtureAdapter, sourceFixtureBodies } from './fixtures'
-import { livePulseAdapters, nyDtfPressFixtureAdapter, txComptrollerRssAdapter } from './adapters'
+import {
+  caFtbNewsroomAdapter,
+  femaDeclarationsAdapter,
+  irsDisasterAdapter,
+  livePulseAdapters,
+  nyDtfPressFixtureAdapter,
+  txComptrollerRssAdapter,
+} from './adapters'
 import { createSourceFetcherRegistry } from './fetcher'
 import { extractLinks, pickSelector } from './selectors'
 import type { IngestCtx } from './types'
@@ -73,10 +80,7 @@ describe('@duedatehq/ingest', () => {
             { headers: { 'content-type': 'text/html' } },
           )
         }
-        if (
-          url ===
-          'https://public.govdelivery.com/accounts/TXCOMPT/subscriber/new?topic_id=TXCOMPT_70'
-        ) {
+        if (url === 'https://public.govdelivery.com/topics/TXCOMPT_70/feed.rss') {
           return new Response(
             '<rss><channel><item><title>Texas tax deadline extension</title><link>https://content.govdelivery.com/accounts/TXCOMPT/bulletins/abc123</link><pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate><description>Deadline relief.</description></item></channel></rss>',
             { headers: { 'content-type': 'application/rss+xml' } },
@@ -99,6 +103,9 @@ describe('@duedatehq/ingest', () => {
     const items = await txComptrollerRssAdapter.parse(snapshots[0]!, ctx)
 
     expect(fetchedUrls).toContain('https://comptroller.texas.gov/about/media-center/rss/')
+    expect(fetchedUrls).not.toContain(
+      'https://public.govdelivery.com/accounts/TXCOMPT/subscriber/new?topic_id=TXCOMPT_70',
+    )
     expect(snapshots[0]).toMatchObject({
       sourceId: 'tx.cpa.rss',
       contentType: 'application/rss+xml',
@@ -107,6 +114,78 @@ describe('@duedatehq/ingest', () => {
       sourceId: 'tx.cpa.rss',
       title: 'Texas tax deadline extension',
       officialSourceUrl: 'https://content.govdelivery.com/accounts/TXCOMPT/bulletins/abc123',
+    })
+  })
+
+  it('does not promote source index pages when no detail link is parsed', async () => {
+    const ctx: IngestCtx = {
+      async fetch() {
+        throw new Error('detail fetch should not run without links')
+      },
+      async archiveRaw() {
+        throw new Error('archive should not run in parser-only test')
+      },
+    }
+    const fetchedAt = new Date('2026-04-30T00:00:00.000Z')
+
+    await expect(
+      caFtbNewsroomAdapter.parse(
+        {
+          sourceId: 'ca.ftb.newsroom',
+          fetchedAt,
+          contentHash: 'hash',
+          r2Key: 'raw.html',
+          body: '<main><h1>Newsroom</h1><p>No tax deadline links here.</p></main>',
+          contentType: 'text/html',
+          etag: null,
+          lastModified: null,
+        },
+        ctx,
+      ),
+    ).resolves.toEqual([])
+    await expect(
+      irsDisasterAdapter.parse(
+        {
+          sourceId: 'irs.disaster',
+          fetchedAt,
+          contentHash: 'hash',
+          r2Key: 'raw.html',
+          body: '<main><h1>Tax relief in disaster situations</h1></main>',
+          contentType: 'text/html',
+          etag: null,
+          lastModified: null,
+        },
+        ctx,
+      ),
+    ).resolves.toEqual([])
+  })
+
+  it('links FEMA declaration items to the declaration detail page', async () => {
+    const items = await femaDeclarationsAdapter.parse(
+      {
+        sourceId: 'fema.declarations',
+        fetchedAt: new Date('2026-04-30T00:00:00.000Z'),
+        contentHash: 'hash',
+        r2Key: 'raw.json',
+        body: sourceFixtureBodies['fema.declarations'],
+        contentType: 'application/json',
+        etag: null,
+        lastModified: null,
+      },
+      {
+        async fetch() {
+          throw new Error('FEMA parse should not fetch')
+        },
+        async archiveRaw() {
+          throw new Error('archive should not run in parser-only test')
+        },
+      },
+    )
+
+    expect(items[0]).toMatchObject({
+      sourceId: 'fema.declarations',
+      externalId: 'fema-9999',
+      officialSourceUrl: 'https://www.fema.gov/disaster/9999',
     })
   })
 

@@ -5,6 +5,9 @@
 `packages/ingest` 是 Pulse 的来源接入层。它定义 source adapter interface、HTTP fetch helper、robots/conditional fetch、HTML/RSS selector 工具和一组政府来源 adapters。server 的 scheduled job 使用它抓取 IRS、州税务机构、FEMA 等来源，生成 snapshot 和 signal，再进入 AI extraction 和 firm alert fan-out。
 
 该模块不负责最终业务应用，不写 tenant obligation。它只把外部来源转换成可追踪的来源快照和候选信号。
+新闻索引页、RSS 目录和数据集首页只允许作为 acquisition channel；写入 Pulse snapshot /
+signal 的 `officialSourceUrl` 必须指向具体公告、bulletin、declaration detail 或同等粒度的
+官方来源。
 
 ## 关键路径
 

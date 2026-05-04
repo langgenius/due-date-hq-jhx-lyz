@@ -356,426 +356,223 @@ const RULE_TAX_TYPE_ALIASES: Record<
 interface StateRuleSourceSeed {
   jurisdiction: RuleGenerationState
   name: string
-  taxAgencyTitle: string
-  taxAgencyUrl: string
-  employerAgencyTitle: string
-  employerAgencyUrl: string
 }
+
+type StateCandidateRuleSlug = 'individual_income_return' | 'individual_estimated_tax'
 
 interface StateIncomeTaxSourceSeed {
   jurisdiction: RuleGenerationState
   title: string
   url: string
+  sourceType?: RuleSourceType
+  acquisitionMethod?: AcquisitionMethod
+  candidateDomainSlugs?: readonly StateCandidateRuleSlug[]
 }
 
 export const STATE_RULE_SOURCE_SEEDS = [
   {
     jurisdiction: 'AL',
     name: 'Alabama',
-    taxAgencyTitle: 'Alabama Department of Revenue',
-    taxAgencyUrl: 'https://www.revenue.alabama.gov/',
-    employerAgencyTitle: 'Alabama Department of Labor',
-    employerAgencyUrl: 'https://www.labor.alabama.gov/',
   },
   {
     jurisdiction: 'AK',
     name: 'Alaska',
-    taxAgencyTitle: 'Alaska Department of Revenue Tax Division',
-    taxAgencyUrl: 'https://tax.alaska.gov/',
-    employerAgencyTitle: 'Alaska Department of Labor and Workforce Development',
-    employerAgencyUrl: 'https://labor.alaska.gov/',
   },
   {
     jurisdiction: 'AZ',
     name: 'Arizona',
-    taxAgencyTitle: 'Arizona Department of Revenue',
-    taxAgencyUrl: 'https://azdor.gov/',
-    employerAgencyTitle: 'Arizona Department of Economic Security',
-    employerAgencyUrl: 'https://des.az.gov/',
   },
   {
     jurisdiction: 'AR',
     name: 'Arkansas',
-    taxAgencyTitle: 'Arkansas Department of Finance and Administration',
-    taxAgencyUrl: 'https://www.dfa.arkansas.gov/',
-    employerAgencyTitle: 'Arkansas Division of Workforce Services',
-    employerAgencyUrl: 'https://dws.arkansas.gov/',
   },
   {
     jurisdiction: 'CA',
     name: 'California',
-    taxAgencyTitle: 'California Franchise Tax Board',
-    taxAgencyUrl: 'https://www.ftb.ca.gov/',
-    employerAgencyTitle: 'California Employment Development Department',
-    employerAgencyUrl: 'https://edd.ca.gov/',
   },
   {
     jurisdiction: 'CO',
     name: 'Colorado',
-    taxAgencyTitle: 'Colorado Department of Revenue Taxation Division',
-    taxAgencyUrl: 'https://tax.colorado.gov/',
-    employerAgencyTitle: 'Colorado Department of Labor and Employment',
-    employerAgencyUrl: 'https://cdle.colorado.gov/',
   },
   {
     jurisdiction: 'CT',
     name: 'Connecticut',
-    taxAgencyTitle: 'Connecticut Department of Revenue Services',
-    taxAgencyUrl: 'https://portal.ct.gov/drs',
-    employerAgencyTitle: 'Connecticut Department of Labor',
-    employerAgencyUrl: 'https://portal.ct.gov/dol',
   },
   {
     jurisdiction: 'DE',
     name: 'Delaware',
-    taxAgencyTitle: 'Delaware Division of Revenue',
-    taxAgencyUrl: 'https://revenue.delaware.gov/',
-    employerAgencyTitle: 'Delaware Department of Labor',
-    employerAgencyUrl: 'https://labor.delaware.gov/',
   },
   {
     jurisdiction: 'DC',
     name: 'District of Columbia',
-    taxAgencyTitle: 'DC Office of Tax and Revenue',
-    taxAgencyUrl: 'https://otr.cfo.dc.gov/',
-    employerAgencyTitle: 'DC Department of Employment Services',
-    employerAgencyUrl: 'https://does.dc.gov/',
   },
   {
     jurisdiction: 'FL',
     name: 'Florida',
-    taxAgencyTitle: 'Florida Department of Revenue',
-    taxAgencyUrl: 'https://floridarevenue.com/',
-    employerAgencyTitle: 'Florida Department of Commerce Reemployment Assistance',
-    employerAgencyUrl: 'https://www.floridajobs.org/',
   },
   {
     jurisdiction: 'GA',
     name: 'Georgia',
-    taxAgencyTitle: 'Georgia Department of Revenue',
-    taxAgencyUrl: 'https://dor.georgia.gov/',
-    employerAgencyTitle: 'Georgia Department of Labor',
-    employerAgencyUrl: 'https://dol.georgia.gov/',
   },
   {
     jurisdiction: 'HI',
     name: 'Hawaii',
-    taxAgencyTitle: 'Hawaii Department of Taxation',
-    taxAgencyUrl: 'https://tax.hawaii.gov/',
-    employerAgencyTitle: 'Hawaii Department of Labor and Industrial Relations',
-    employerAgencyUrl: 'https://labor.hawaii.gov/',
   },
   {
     jurisdiction: 'ID',
     name: 'Idaho',
-    taxAgencyTitle: 'Idaho State Tax Commission',
-    taxAgencyUrl: 'https://tax.idaho.gov/',
-    employerAgencyTitle: 'Idaho Department of Labor',
-    employerAgencyUrl: 'https://labor.idaho.gov/',
   },
   {
     jurisdiction: 'IL',
     name: 'Illinois',
-    taxAgencyTitle: 'Illinois Department of Revenue',
-    taxAgencyUrl: 'https://tax.illinois.gov/',
-    employerAgencyTitle: 'Illinois Department of Employment Security',
-    employerAgencyUrl: 'https://ides.illinois.gov/',
   },
   {
     jurisdiction: 'IN',
     name: 'Indiana',
-    taxAgencyTitle: 'Indiana Department of Revenue',
-    taxAgencyUrl: 'https://www.in.gov/dor/',
-    employerAgencyTitle: 'Indiana Department of Workforce Development',
-    employerAgencyUrl: 'https://www.in.gov/dwd/',
   },
   {
     jurisdiction: 'IA',
     name: 'Iowa',
-    taxAgencyTitle: 'Iowa Department of Revenue',
-    taxAgencyUrl: 'https://revenue.iowa.gov/',
-    employerAgencyTitle: 'Iowa Workforce Development',
-    employerAgencyUrl: 'https://workforce.iowa.gov/',
   },
   {
     jurisdiction: 'KS',
     name: 'Kansas',
-    taxAgencyTitle: 'Kansas Department of Revenue',
-    taxAgencyUrl: 'https://www.ksrevenue.gov/',
-    employerAgencyTitle: 'Kansas Department of Labor',
-    employerAgencyUrl: 'https://www.dol.ks.gov/',
   },
   {
     jurisdiction: 'KY',
     name: 'Kentucky',
-    taxAgencyTitle: 'Kentucky Department of Revenue',
-    taxAgencyUrl: 'https://revenue.ky.gov/',
-    employerAgencyTitle: 'Kentucky Career Center Office of Unemployment Insurance',
-    employerAgencyUrl: 'https://kcc.ky.gov/',
   },
   {
     jurisdiction: 'LA',
     name: 'Louisiana',
-    taxAgencyTitle: 'Louisiana Department of Revenue',
-    taxAgencyUrl: 'https://revenue.louisiana.gov/',
-    employerAgencyTitle: 'Louisiana Workforce Commission',
-    employerAgencyUrl: 'https://www.laworks.net/',
   },
   {
     jurisdiction: 'ME',
     name: 'Maine',
-    taxAgencyTitle: 'Maine Revenue Services',
-    taxAgencyUrl: 'https://www.maine.gov/revenue/',
-    employerAgencyTitle: 'Maine Department of Labor',
-    employerAgencyUrl: 'https://www.maine.gov/labor/',
   },
   {
     jurisdiction: 'MD',
     name: 'Maryland',
-    taxAgencyTitle: 'Comptroller of Maryland',
-    taxAgencyUrl: 'https://www.marylandtaxes.gov/',
-    employerAgencyTitle: 'Maryland Department of Labor',
-    employerAgencyUrl: 'https://labor.maryland.gov/',
   },
   {
     jurisdiction: 'MA',
     name: 'Massachusetts',
-    taxAgencyTitle: 'Massachusetts Department of Revenue',
-    taxAgencyUrl: 'https://www.mass.gov/orgs/massachusetts-department-of-revenue',
-    employerAgencyTitle: 'Massachusetts Department of Unemployment Assistance',
-    employerAgencyUrl: 'https://www.mass.gov/orgs/department-of-unemployment-assistance',
   },
   {
     jurisdiction: 'MI',
     name: 'Michigan',
-    taxAgencyTitle: 'Michigan Department of Treasury',
-    taxAgencyUrl: 'https://www.michigan.gov/treasury',
-    employerAgencyTitle: 'Michigan Unemployment Insurance Agency',
-    employerAgencyUrl: 'https://www.michigan.gov/leo/bureaus-agencies/uia',
   },
   {
     jurisdiction: 'MN',
     name: 'Minnesota',
-    taxAgencyTitle: 'Minnesota Department of Revenue',
-    taxAgencyUrl: 'https://www.revenue.state.mn.us/',
-    employerAgencyTitle: 'Minnesota Unemployment Insurance Program',
-    employerAgencyUrl: 'https://uimn.org/',
   },
   {
     jurisdiction: 'MS',
     name: 'Mississippi',
-    taxAgencyTitle: 'Mississippi Department of Revenue',
-    taxAgencyUrl: 'https://www.dor.ms.gov/',
-    employerAgencyTitle: 'Mississippi Department of Employment Security',
-    employerAgencyUrl: 'https://mdes.ms.gov/',
   },
   {
     jurisdiction: 'MO',
     name: 'Missouri',
-    taxAgencyTitle: 'Missouri Department of Revenue',
-    taxAgencyUrl: 'https://dor.mo.gov/',
-    employerAgencyTitle: 'Missouri Department of Labor and Industrial Relations',
-    employerAgencyUrl: 'https://labor.mo.gov/',
   },
   {
     jurisdiction: 'MT',
     name: 'Montana',
-    taxAgencyTitle: 'Montana Department of Revenue',
-    taxAgencyUrl: 'https://mtrevenue.gov/',
-    employerAgencyTitle: 'Montana Department of Labor and Industry',
-    employerAgencyUrl: 'https://dli.mt.gov/',
   },
   {
     jurisdiction: 'NE',
     name: 'Nebraska',
-    taxAgencyTitle: 'Nebraska Department of Revenue',
-    taxAgencyUrl: 'https://revenue.nebraska.gov/',
-    employerAgencyTitle: 'Nebraska Department of Labor',
-    employerAgencyUrl: 'https://dol.nebraska.gov/',
   },
   {
     jurisdiction: 'NV',
     name: 'Nevada',
-    taxAgencyTitle: 'Nevada Department of Taxation',
-    taxAgencyUrl: 'https://tax.nv.gov/',
-    employerAgencyTitle: 'Nevada Department of Employment, Training and Rehabilitation',
-    employerAgencyUrl: 'https://detr.nv.gov/',
   },
   {
     jurisdiction: 'NH',
     name: 'New Hampshire',
-    taxAgencyTitle: 'New Hampshire Department of Revenue Administration',
-    taxAgencyUrl: 'https://www.revenue.nh.gov/',
-    employerAgencyTitle: 'New Hampshire Employment Security',
-    employerAgencyUrl: 'https://www.nhes.nh.gov/',
   },
   {
     jurisdiction: 'NJ',
     name: 'New Jersey',
-    taxAgencyTitle: 'New Jersey Division of Taxation',
-    taxAgencyUrl: 'https://www.nj.gov/treasury/taxation/',
-    employerAgencyTitle: 'New Jersey Department of Labor and Workforce Development',
-    employerAgencyUrl: 'https://www.nj.gov/labor/',
   },
   {
     jurisdiction: 'NM',
     name: 'New Mexico',
-    taxAgencyTitle: 'New Mexico Taxation and Revenue Department',
-    taxAgencyUrl: 'https://www.tax.newmexico.gov/',
-    employerAgencyTitle: 'New Mexico Department of Workforce Solutions',
-    employerAgencyUrl: 'https://www.dws.state.nm.us/',
   },
   {
     jurisdiction: 'NY',
     name: 'New York',
-    taxAgencyTitle: 'New York Department of Taxation and Finance',
-    taxAgencyUrl: 'https://www.tax.ny.gov/',
-    employerAgencyTitle: 'New York Department of Labor',
-    employerAgencyUrl: 'https://dol.ny.gov/',
   },
   {
     jurisdiction: 'NC',
     name: 'North Carolina',
-    taxAgencyTitle: 'North Carolina Department of Revenue',
-    taxAgencyUrl: 'https://www.ncdor.gov/',
-    employerAgencyTitle: 'North Carolina Division of Employment Security',
-    employerAgencyUrl: 'https://www.des.nc.gov/',
   },
   {
     jurisdiction: 'ND',
     name: 'North Dakota',
-    taxAgencyTitle: 'North Dakota Office of State Tax Commissioner',
-    taxAgencyUrl: 'https://www.tax.nd.gov/',
-    employerAgencyTitle: 'North Dakota Job Service',
-    employerAgencyUrl: 'https://www.jobsnd.com/',
   },
   {
     jurisdiction: 'OH',
     name: 'Ohio',
-    taxAgencyTitle: 'Ohio Department of Taxation',
-    taxAgencyUrl: 'https://tax.ohio.gov/',
-    employerAgencyTitle: 'Ohio Department of Job and Family Services',
-    employerAgencyUrl: 'https://jfs.ohio.gov/',
   },
   {
     jurisdiction: 'OK',
     name: 'Oklahoma',
-    taxAgencyTitle: 'Oklahoma Tax Commission',
-    taxAgencyUrl: 'https://oklahoma.gov/tax.html',
-    employerAgencyTitle: 'Oklahoma Employment Security Commission',
-    employerAgencyUrl: 'https://oklahoma.gov/oesc.html',
   },
   {
     jurisdiction: 'OR',
     name: 'Oregon',
-    taxAgencyTitle: 'Oregon Department of Revenue',
-    taxAgencyUrl: 'https://www.oregon.gov/dor/',
-    employerAgencyTitle: 'Oregon Employment Department',
-    employerAgencyUrl: 'https://www.oregon.gov/employ/',
   },
   {
     jurisdiction: 'PA',
     name: 'Pennsylvania',
-    taxAgencyTitle: 'Pennsylvania Department of Revenue',
-    taxAgencyUrl: 'https://www.pa.gov/agencies/revenue.html',
-    employerAgencyTitle: 'Pennsylvania Department of Labor and Industry',
-    employerAgencyUrl: 'https://www.pa.gov/agencies/dli.html',
   },
   {
     jurisdiction: 'RI',
     name: 'Rhode Island',
-    taxAgencyTitle: 'Rhode Island Division of Taxation',
-    taxAgencyUrl: 'https://tax.ri.gov/',
-    employerAgencyTitle: 'Rhode Island Department of Labor and Training',
-    employerAgencyUrl: 'https://dlt.ri.gov/',
   },
   {
     jurisdiction: 'SC',
     name: 'South Carolina',
-    taxAgencyTitle: 'South Carolina Department of Revenue',
-    taxAgencyUrl: 'https://dor.sc.gov/',
-    employerAgencyTitle: 'South Carolina Department of Employment and Workforce',
-    employerAgencyUrl: 'https://dew.sc.gov/',
   },
   {
     jurisdiction: 'SD',
     name: 'South Dakota',
-    taxAgencyTitle: 'South Dakota Department of Revenue',
-    taxAgencyUrl: 'https://dor.sd.gov/',
-    employerAgencyTitle: 'South Dakota Department of Labor and Regulation',
-    employerAgencyUrl: 'https://dlr.sd.gov/',
   },
   {
     jurisdiction: 'TN',
     name: 'Tennessee',
-    taxAgencyTitle: 'Tennessee Department of Revenue',
-    taxAgencyUrl: 'https://www.tn.gov/revenue.html',
-    employerAgencyTitle: 'Tennessee Department of Labor and Workforce Development',
-    employerAgencyUrl: 'https://www.tn.gov/workforce.html',
   },
   {
     jurisdiction: 'TX',
     name: 'Texas',
-    taxAgencyTitle: 'Texas Comptroller of Public Accounts',
-    taxAgencyUrl: 'https://comptroller.texas.gov/',
-    employerAgencyTitle: 'Texas Workforce Commission',
-    employerAgencyUrl: 'https://www.twc.texas.gov/',
   },
   {
     jurisdiction: 'UT',
     name: 'Utah',
-    taxAgencyTitle: 'Utah State Tax Commission',
-    taxAgencyUrl: 'https://tax.utah.gov/',
-    employerAgencyTitle: 'Utah Department of Workforce Services',
-    employerAgencyUrl: 'https://jobs.utah.gov/',
   },
   {
     jurisdiction: 'VT',
     name: 'Vermont',
-    taxAgencyTitle: 'Vermont Department of Taxes',
-    taxAgencyUrl: 'https://tax.vermont.gov/',
-    employerAgencyTitle: 'Vermont Department of Labor',
-    employerAgencyUrl: 'https://labor.vermont.gov/',
   },
   {
     jurisdiction: 'VA',
     name: 'Virginia',
-    taxAgencyTitle: 'Virginia Tax',
-    taxAgencyUrl: 'https://www.tax.virginia.gov/',
-    employerAgencyTitle: 'Virginia Employment Commission',
-    employerAgencyUrl: 'https://www.vec.virginia.gov/',
   },
   {
     jurisdiction: 'WA',
     name: 'Washington',
-    taxAgencyTitle: 'Washington Department of Revenue',
-    taxAgencyUrl: 'https://dor.wa.gov/',
-    employerAgencyTitle: 'Washington Employment Security Department',
-    employerAgencyUrl: 'https://esd.wa.gov/',
   },
   {
     jurisdiction: 'WV',
     name: 'West Virginia',
-    taxAgencyTitle: 'West Virginia Tax Division',
-    taxAgencyUrl: 'https://tax.wv.gov/',
-    employerAgencyTitle: 'WorkForce West Virginia',
-    employerAgencyUrl: 'https://workforcewv.org/',
   },
   {
     jurisdiction: 'WI',
     name: 'Wisconsin',
-    taxAgencyTitle: 'Wisconsin Department of Revenue',
-    taxAgencyUrl: 'https://www.revenue.wi.gov/',
-    employerAgencyTitle: 'Wisconsin Department of Workforce Development',
-    employerAgencyUrl: 'https://dwd.wisconsin.gov/',
   },
   {
     jurisdiction: 'WY',
     name: 'Wyoming',
-    taxAgencyTitle: 'Wyoming Department of Revenue',
-    taxAgencyUrl: 'https://revenue.wyo.gov/',
-    employerAgencyTitle: 'Wyoming Department of Workforce Services',
-    employerAgencyUrl: 'https://dws.wyo.gov/',
   },
 ] as const satisfies readonly StateRuleSourceSeed[]
 
@@ -921,6 +718,11 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
     url: 'https://revenue.nebraska.gov/individuals/individual-income-tax',
   },
   {
+    jurisdiction: 'NV',
+    title: 'Nevada Department of Taxation Income Tax in Nevada',
+    url: 'https://tax.nv.gov/about-nevada-department-of-taxation/income-tax-in-nevada/',
+  },
+  {
     jurisdiction: 'NH',
     title: 'New Hampshire DRA Interest and Dividends Tax FAQs',
     url: 'https://www.revenue.nh.gov/resource-center/frequently-asked-questions/interest-dividends-tax-faqs',
@@ -981,6 +783,11 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
     url: 'https://dor.sc.gov/tax/individual-income',
   },
   {
+    jurisdiction: 'SD',
+    title: 'South Dakota DOR Taxes for Individuals',
+    url: 'https://dor.sd.gov/individuals/taxes/',
+  },
+  {
     jurisdiction: 'TN',
     title: 'Tennessee Department of Revenue Hall Income Tax',
     url: 'https://www.tn.gov/revenue/taxes/hall-income-tax.html',
@@ -1010,6 +817,13 @@ const STATE_INCOME_TAX_SOURCE_SEEDS = [
     title: 'Wisconsin DOR Individuals',
     url: 'https://www.revenue.wi.gov/Pages/Individuals/home.aspx',
   },
+  {
+    jurisdiction: 'WY',
+    title: 'Wyoming Constitution Taxation and Revenue',
+    url: 'https://sos.wyo.gov/Forms/Publications/WYConstitution.pdf',
+    sourceType: 'publication',
+    acquisitionMethod: 'pdf_watch',
+  },
 ] as const satisfies readonly StateIncomeTaxSourceSeed[]
 
 const STATE_INCOME_TAX_SOURCE_BY_JURISDICTION = new Map<
@@ -1018,25 +832,17 @@ const STATE_INCOME_TAX_SOURCE_BY_JURISDICTION = new Map<
 >(STATE_INCOME_TAX_SOURCE_SEEDS.map((seed) => [seed.jurisdiction, seed]))
 
 type StateRuleSourceIds = Readonly<{
-  taxAgency: string
   incomeTax: string
-  employerAgency: string
 }>
 
 export const STATE_RULE_SOURCE_IDS = new Map<RuleGenerationState, StateRuleSourceIds>(
   STATE_RULE_SOURCE_SEEDS.map((seed): readonly [RuleGenerationState, StateRuleSourceIds] => [
     seed.jurisdiction,
     {
-      taxAgency: `${seed.jurisdiction.toLowerCase()}.tax_agency`,
       incomeTax: `${seed.jurisdiction.toLowerCase()}.income_tax`,
-      employerAgency: `${seed.jurisdiction.toLowerCase()}.employer_ui_agency`,
     },
   ]),
 )
-
-function hasStateIncomeTaxSource(jurisdiction: RuleGenerationState): boolean {
-  return STATE_INCOME_TAX_SOURCE_BY_JURISDICTION.has(jurisdiction)
-}
 
 function stateRuleSourceIds(jurisdiction: RuleGenerationState): StateRuleSourceIds {
   const ids = STATE_RULE_SOURCE_IDS.get(jurisdiction)
@@ -1047,22 +853,7 @@ function stateRuleSourceIds(jurisdiction: RuleGenerationState): StateRuleSourceI
 export const STATE_OFFICIAL_SOURCES = STATE_RULE_SOURCE_SEEDS.flatMap<RuleSource>((seed) => {
   const ids = stateRuleSourceIds(seed.jurisdiction)
   const incomeTaxSource = STATE_INCOME_TAX_SOURCE_BY_JURISDICTION.get(seed.jurisdiction)
-  const sources: RuleSource[] = [
-    {
-      id: ids.taxAgency,
-      jurisdiction: seed.jurisdiction,
-      title: seed.taxAgencyTitle,
-      url: seed.taxAgencyUrl,
-      sourceType: 'due_dates',
-      acquisitionMethod: 'manual_review',
-      cadence: 'pre_season',
-      priority: 'high',
-      healthStatus: 'degraded',
-      isEarlyWarning: false,
-      notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
-      lastReviewedOn: VERIFIED_AT,
-    },
-  ]
+  const sources: RuleSource[] = []
 
   if (incomeTaxSource) {
     sources.push({
@@ -1070,8 +861,8 @@ export const STATE_OFFICIAL_SOURCES = STATE_RULE_SOURCE_SEEDS.flatMap<RuleSource
       jurisdiction: seed.jurisdiction,
       title: incomeTaxSource.title,
       url: incomeTaxSource.url,
-      sourceType: 'instructions',
-      acquisitionMethod: 'manual_review',
+      sourceType: incomeTaxSource.sourceType ?? 'instructions',
+      acquisitionMethod: incomeTaxSource.acquisitionMethod ?? 'manual_review',
       cadence: 'pre_season',
       priority: 'high',
       healthStatus: 'degraded',
@@ -1080,21 +871,6 @@ export const STATE_OFFICIAL_SOURCES = STATE_RULE_SOURCE_SEEDS.flatMap<RuleSource
       lastReviewedOn: VERIFIED_AT,
     })
   }
-
-  sources.push({
-    id: ids.employerAgency,
-    jurisdiction: seed.jurisdiction,
-    title: seed.employerAgencyTitle,
-    url: seed.employerAgencyUrl,
-    sourceType: 'due_dates',
-    acquisitionMethod: 'manual_review',
-    cadence: 'pre_season',
-    priority: 'medium',
-    healthStatus: 'degraded',
-    isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
-    lastReviewedOn: VERIFIED_AT,
-  })
 
   return sources
 })
@@ -1670,7 +1446,7 @@ const PENDING_REVIEW_QUALITY: RuleQualityChecklist = {
 }
 
 interface StateCandidateRuleDomain {
-  slug: string
+  slug: StateCandidateRuleSlug
   title: string
   taxType: string
   formName: string
@@ -1678,9 +1454,13 @@ interface StateCandidateRuleDomain {
   isFiling: boolean
   isPayment: boolean
   entityApplicability: readonly EntityApplicability[]
-  sourceKind: 'taxAgency' | 'incomeTax' | 'employerAgency'
   reviewReason: string
 }
+
+const DEFAULT_INCOME_CANDIDATE_DOMAIN_SLUGS = [
+  'individual_income_return',
+  'individual_estimated_tax',
+] as const satisfies readonly StateCandidateRuleSlug[]
 
 const STATE_CANDIDATE_RULE_DOMAINS = [
   {
@@ -1692,7 +1472,6 @@ const STATE_CANDIDATE_RULE_DOMAINS = [
     isFiling: true,
     isPayment: false,
     entityApplicability: ['individual'],
-    sourceKind: 'incomeTax',
     reviewReason:
       'Confirm state personal income tax filing requirement, due date, extension, and no-tax status where applicable.',
   },
@@ -1705,106 +1484,32 @@ const STATE_CANDIDATE_RULE_DOMAINS = [
     isFiling: false,
     isPayment: true,
     entityApplicability: ['individual', 'sole_prop'],
-    sourceKind: 'incomeTax',
     reviewReason:
       'Confirm state estimated tax thresholds, installment schedule, weekend/holiday rollover, and no-tax status where applicable.',
-  },
-  {
-    slug: 'fiduciary_income_return',
-    title: 'fiduciary income tax return applicability',
-    taxType: 'state_fiduciary_income_tax',
-    formName: 'State fiduciary income tax return',
-    eventType: 'filing',
-    isFiling: true,
-    isPayment: false,
-    entityApplicability: ['trust'],
-    sourceKind: 'incomeTax',
-    reviewReason:
-      'Confirm state fiduciary income tax filing requirement, due date, extension, and beneficiary reporting requirements.',
-  },
-  {
-    slug: 'business_income_franchise',
-    title: 'business income, franchise, or gross receipts return',
-    taxType: 'state_business_income_franchise_tax',
-    formName: 'State business income/franchise tax return',
-    eventType: 'filing',
-    isFiling: true,
-    isPayment: false,
-    entityApplicability: ['llc', 'partnership', 's_corp', 'c_corp', 'any_business'],
-    sourceKind: 'incomeTax',
-    reviewReason:
-      'Confirm entity-specific income, franchise, gross receipts, B&O, CAT, or business privilege tax rules before publishing deadlines.',
-  },
-  {
-    slug: 'pte_composite_ptet',
-    title: 'pass-through, composite, or elective PTE tax',
-    taxType: 'state_pte_composite_ptet',
-    formName: 'State pass-through/composite/PTE tax filing',
-    eventType: 'election',
-    isFiling: true,
-    isPayment: false,
-    entityApplicability: ['llc', 'partnership', 's_corp'],
-    sourceKind: 'incomeTax',
-    reviewReason:
-      'Confirm whether the state has composite return, PTE election, owner consent, and payment due-date requirements.',
-  },
-  {
-    slug: 'sales_use_tax',
-    title: 'sales and use tax recurring return',
-    taxType: 'state_sales_use_tax',
-    formName: 'State sales/use tax return',
-    eventType: 'filing',
-    isFiling: true,
-    isPayment: true,
-    entityApplicability: ['any_business'],
-    sourceKind: 'taxAgency',
-    reviewReason:
-      'Confirm seller nexus, assigned filing frequency, zero-return requirement, and source-defined due dates.',
-  },
-  {
-    slug: 'withholding_tax',
-    title: 'employer withholding recurring return',
-    taxType: 'state_withholding_tax',
-    formName: 'State employer withholding return',
-    eventType: 'filing',
-    isFiling: true,
-    isPayment: true,
-    entityApplicability: ['any_business'],
-    sourceKind: 'taxAgency',
-    reviewReason:
-      'Confirm employer withholding registration, assigned filing frequency, deposit schedule, and annual reconciliation requirements.',
-  },
-  {
-    slug: 'ui_wage_report',
-    title: 'unemployment insurance wage report',
-    taxType: 'state_ui_wage_report',
-    formName: 'State unemployment insurance wage report',
-    eventType: 'filing',
-    isFiling: true,
-    isPayment: true,
-    entityApplicability: ['any_business'],
-    sourceKind: 'employerAgency',
-    reviewReason:
-      'Confirm unemployment insurance registration, quarterly wage report due date, contribution payment rules, and agency-specific filing channel.',
   },
 ] as const satisfies readonly StateCandidateRuleDomain[]
 
 function sourceIdForStateCandidateRule(
   seed: (typeof STATE_RULE_SOURCE_SEEDS)[number],
   domain: StateCandidateRuleDomain,
-): string {
+): string | null {
   const ids = stateRuleSourceIds(seed.jurisdiction)
-  if (domain.sourceKind === 'incomeTax' && !hasStateIncomeTaxSource(seed.jurisdiction)) {
-    return ids.taxAgency
-  }
-  return ids[domain.sourceKind]
+  const source = STATE_INCOME_TAX_SOURCE_BY_JURISDICTION.get(seed.jurisdiction)
+  if (!source) return null
+
+  const supportedSlugs = source.candidateDomainSlugs ?? DEFAULT_INCOME_CANDIDATE_DOMAIN_SLUGS
+  if (!supportedSlugs.includes(domain.slug)) return null
+
+  return ids.incomeTax
 }
 
 function buildStateCandidateRule(
   seed: (typeof STATE_RULE_SOURCE_SEEDS)[number],
   domain: StateCandidateRuleDomain,
-): ObligationRule {
+): ObligationRule | null {
   const sourceId = sourceIdForStateCandidateRule(seed, domain)
+  if (!sourceId) return null
+
   return {
     id: `${seed.jurisdiction.toLowerCase()}.${domain.slug}.candidate.2026`,
     title: `${seed.name} ${domain.title}`,
@@ -1849,7 +1554,10 @@ function buildStateCandidateRule(
 }
 
 export const STATE_CANDIDATE_RULES = STATE_RULE_SOURCE_SEEDS.flatMap((seed) =>
-  STATE_CANDIDATE_RULE_DOMAINS.map((domain) => buildStateCandidateRule(seed, domain)),
+  STATE_CANDIDATE_RULE_DOMAINS.flatMap((domain) => {
+    const rule = buildStateCandidateRule(seed, domain)
+    return rule ? [rule] : []
+  }),
 )
 
 export const OBLIGATION_RULES = [

@@ -24,6 +24,13 @@ so `pulse_source_state` changes were invisible until a full page reload.
 - Updated `tx.cpa.rss` to discover the English GovDelivery feed from the Texas Comptroller's
   official RSS directory page, then parse GovDelivery RSS items / bulletin links instead of treating
   the directory HTML as RSS.
+- Normalized legacy GovDelivery subscriber links such as
+  `/accounts/TXCOMPT/subscriber/new?topic_id=...` into `/topics/.../feed.rss` before fetching, so a
+  Pulse banner retry no longer hits the robots-blocked subscription form.
+- Tightened Pulse parsing so source indexes, newsroom landing pages, RSS directories, and FEMA
+  dataset pages are acquisition channels only. Parsed Pulse items now need a detail URL; if a
+  changed source produces no detail item, ingest records selector drift instead of writing the
+  index page as evidence. FEMA declarations now link to `/disaster/{number}` detail pages.
 - Surfaced source `lastError` inline in the Dashboard Pulse warning strip so `Source needs attention`
   explains why the source still needs attention after refresh.
 
@@ -39,3 +46,4 @@ so `pulse_source_state` changes were invisible until a full page reload.
 - `pnpm --filter @duedatehq/server test -- ingest.test.ts`
 - `pnpm --filter @duedatehq/ingest test`
 - `pnpm exec vp check --fix apps/app/src/features/pulse/PulseAlertsBanner.tsx packages/ingest/src/adapters/index.ts packages/ingest/src/ingest.test.ts`
+- `pnpm exec vp check --fix packages/ingest/src/adapters/index.ts packages/ingest/src/ingest.test.ts`

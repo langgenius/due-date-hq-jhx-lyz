@@ -29,9 +29,6 @@ const OFFICIAL_NON_GOV_HOSTS = new Set([
 const STATE_INCOME_CANDIDATE_TAX_TYPE_SUFFIXES = [
   '_state_individual_income_tax',
   '_state_individual_estimated_tax',
-  '_state_fiduciary_income_tax',
-  '_state_business_income_franchise_tax',
-  '_state_pte_composite_ptet',
 ] as const
 
 function expectUnique(ids: readonly string[]) {
@@ -60,6 +57,9 @@ describe('@duedatehq/core/rules', () => {
     for (const source of RULE_SOURCES) {
       const url = new URL(source.url)
       expect(isOfficialHost(url.host), `${source.id} uses unofficial host ${url.host}`).toBe(true)
+      expect(source.id, `${source.id} is an imprecise agency-level source`).not.toMatch(
+        /\.(tax_agency|employer_ui_agency)$/,
+      )
       expect(['healthy', 'degraded']).toContain(source.healthStatus)
       expect(source.notificationChannels.length).toBeGreaterThan(0)
     }
@@ -141,6 +141,26 @@ describe('@duedatehq/core/rules', () => {
     expect(sourcesById.get('wv.income_tax')?.url).toBe(
       'https://tax.wv.gov/Individuals/Pages/Individuals.aspx',
     )
+  })
+
+  it('does not generate source-backed candidates for domains without precise sources', () => {
+    const coarseCandidateTaxTypeFragments = [
+      '_state_fiduciary_income_tax',
+      '_state_business_income_franchise_tax',
+      '_state_pte_composite_ptet',
+      '_state_sales_use_tax',
+      '_state_withholding_tax',
+      '_state_ui_wage_report',
+    ]
+
+    for (const rule of OBLIGATION_RULES) {
+      if (rule.status !== 'candidate') continue
+
+      expect(
+        coarseCandidateTaxTypeFragments.some((fragment) => rule.taxType.endsWith(fragment)),
+        `${rule.id} should wait for a precise domain source before generation`,
+      ).toBe(false)
+    }
   })
 
   it('covers every US jurisdiction with official sources and safe rule states', () => {

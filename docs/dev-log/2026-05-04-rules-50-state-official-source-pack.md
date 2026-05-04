@@ -13,14 +13,14 @@ Rules 之前只把 `FED/CA/NY/TX/FL/WA` 暴露给 contract、Rules Console 和 r
 ## 做了什么
 
 - 将 rules jurisdiction 从 6 个扩展为 `FED + 50 states + DC`，同步 core、contracts、server migration commit plan 和 Rules Console。
-- 在 `@duedatehq/core/rules` 登记每个州/DC 的官方 tax agency 和 UI/workforce agency source seed，新增 source 默认 `manual_review + degraded`，避免未验证来源被伪装成自动 watcher。
-- 为每个州/DC 生成 8 个 review-only candidate domains：individual income、individual estimated tax、fiduciary、business income/franchise/gross receipts、PTE/composite/PTET、sales/use、withholding、UI wage report。
+- 在 `@duedatehq/core/rules` 登记每个州/DC 的官方 source seed；后续精度修正已经移除 tax agency homepage 和 UI/workforce homepage，source 必须精确到 tax-topic、publication、calendar、form 或具体公告。
+- 当前只为有精确 tax-topic source 的领域生成 review-only candidate。Individual income / estimated tax 已保留；fiduciary、business income/franchise/gross receipts、PTE/composite/PTET、sales/use、withholding、UI wage report 等领域在逐州补齐精确 source 前不再生成 source-backed candidate。
 - 扩展 Default Matrix：非 CA/NY verified cells 现在返回 federal overlay + state review-only tax types，而不是 federal-only demo fallback。
 - 更新 Rules Console 文案和 coverage model，去掉 31/26 这类旧静态计数。
 
 ## 为什么这样做
 
-税务 deadline 是高风险数据，不能在没有逐条官方日期核验时直接发布 `verified` rule 或 reminder-ready obligation。新增州先成为 source-backed candidate：内部可见、可审核、有官方入口，但不会触发客户提醒。
+税务 deadline 是高风险数据，不能在没有逐条官方日期核验时直接发布 `verified` rule 或 reminder-ready obligation。新增州先成为 precision-gated source-backed candidate：内部可见、可审核、有官方入口，但不会触发客户提醒。没有精确 source 的领域宁可不生成 candidate，也不再用机构首页顶替。
 
 ## 验证
 
