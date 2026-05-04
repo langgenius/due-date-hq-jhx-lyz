@@ -1388,8 +1388,8 @@ msgid "Comfortable"
 msgstr "Comfortable"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
-msgstr "Coming from File In Time? We'll migrate your full-year calendar in one shot."
+msgid "Coming from File In Time? We'll map available calendar fields and flag gaps before generating deadlines."
+msgstr "Coming from File In Time? We'll map available calendar fields and flag gaps before generating deadlines."
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Coming soon"
@@ -1432,14 +1432,6 @@ msgstr "Confirm filing or payment status today."
 #: src/routes/billing.success.tsx
 msgid "Confirming subscription"
 msgstr "Confirming subscription"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Connect platform"
-msgstr "Connect platform"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Connected records enter the same AI mapper and dry-run flow as CSV imports, while keeping provider IDs for future status sync."
-msgstr "Connected records enter the same AI mapper and dry-run flow as CSV imports, while keeping provider IDs for future status sync."
 
 #: src/routes/billing.tsx
 msgid "Contact sales"
@@ -2243,6 +2235,10 @@ msgstr "DueDateHQ does not store card numbers or invoice payment data."
 #: src/features/migration/Step2Mapping.tsx
 msgid "DueDateHQ field"
 msgstr "DueDateHQ field"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "DueDateHQ generates obligations only when the imported facts support them. Missing entity type, state, tax type, tax year, payment status, or extension status stays in needs review."
+msgstr "DueDateHQ generates obligations only when the imported facts support them. Missing entity type, state, tax type, tax year, payment status, or extension status stays in needs review."
 
 #: src/routes/readiness.tsx
 msgid "DueDateHQ readiness portal"
@@ -4367,8 +4363,8 @@ msgid "Paste / Upload"
 msgstr "Paste / Upload"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste a JSON array from your provider export or integration. Each object becomes one Migration staging row."
-msgstr "Paste a JSON array from your provider export or integration. Each object becomes one Migration staging row."
+msgid "Paste a JSON array from a provider export, report, or integration handoff. Each object becomes one Migration staging row."
+msgstr "Paste a JSON array from a provider export, report, or integration handoff. Each object becomes one Migration staging row."
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste a JSON array of provider records."
@@ -4383,8 +4379,8 @@ msgid "Paste here — any shape, we'll figure it out. Include the header row if 
 msgstr "Paste here — any shape, we'll figure it out. Include the header row if you have one."
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste provider JSON records"
-msgstr "Paste provider JSON records"
+msgid "Paste provider export records"
+msgstr "Paste provider export records"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste rows"
@@ -4782,16 +4778,28 @@ msgid "Projected risk reflects the latest stored penalty calculation. Accrued pe
 msgstr "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Provider"
-msgstr "Provider"
+msgid "Provider data source"
+msgstr "Provider data source"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Provider data still needs review"
+msgstr "Provider data still needs review"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Provider export"
+msgstr "Provider export"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Provider export records"
+msgstr "Provider export records"
 
 #: src/routes/billing.tsx
 msgid "Provider hosted"
 msgstr "Provider hosted"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Provider JSON records"
-msgstr "Provider JSON records"
+msgid "Provider records enter the same AI mapper and dry-run flow as CSV imports, while keeping external IDs for future audit and status matching."
+msgstr "Provider records enter the same AI mapper and dry-run flow as CSV imports, while keeping external IDs for future audit and status matching."
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Publish evidence, but generated deadlines still require CPA review."

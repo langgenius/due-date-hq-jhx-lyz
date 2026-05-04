@@ -1388,8 +1388,8 @@ msgid "Comfortable"
 msgstr "舒适"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Coming from File In Time? We'll migrate your full-year calendar in one shot."
-msgstr "正在从 File In Time 迁移？我们将一次性把全年日历迁过来。"
+msgid "Coming from File In Time? We'll map available calendar fields and flag gaps before generating deadlines."
+msgstr "正在从 File In Time 迁移？我们会映射可用日历字段，并在生成截止日前标记缺口。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Coming soon"
@@ -1432,14 +1432,6 @@ msgstr "今天确认申报或付款状态。"
 #: src/routes/billing.success.tsx
 msgid "Confirming subscription"
 msgstr "正在确认订阅"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Connect platform"
-msgstr "连接平台"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Connected records enter the same AI mapper and dry-run flow as CSV imports, while keeping provider IDs for future status sync."
-msgstr "已连接的记录会进入与 CSV 导入相同的 AI 映射和 dry-run 流程，同时保留服务商 ID 以便后续状态同步。"
 
 #: src/routes/billing.tsx
 msgid "Contact sales"
@@ -2243,6 +2235,10 @@ msgstr "DueDateHQ 不保存卡号或发票支付数据。"
 #: src/features/migration/Step2Mapping.tsx
 msgid "DueDateHQ field"
 msgstr "DueDateHQ 字段"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "DueDateHQ generates obligations only when the imported facts support them. Missing entity type, state, tax type, tax year, payment status, or extension status stays in needs review."
+msgstr "DueDateHQ 只会在导入事实足够支撑时生成义务。缺少实体类型、州、税种、税年、付款状态或延期状态的记录会停留在待复核。"
 
 #: src/routes/readiness.tsx
 msgid "DueDateHQ readiness portal"
@@ -4367,8 +4363,8 @@ msgid "Paste / Upload"
 msgstr "粘贴 / 上传"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste a JSON array from your provider export or integration. Each object becomes one Migration staging row."
-msgstr "粘贴来自服务商导出或集成的 JSON 数组。每个对象都会变成一条 Migration 暂存行。"
+msgid "Paste a JSON array from a provider export, report, or integration handoff. Each object becomes one Migration staging row."
+msgstr "粘贴来自服务商导出、报表或集成交接的 JSON 数组。每个对象都会成为一条迁移暂存行。"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste a JSON array of provider records."
@@ -4383,8 +4379,8 @@ msgid "Paste here — any shape, we'll figure it out. Include the header row if 
 msgstr "粘贴到这里 —— 任何格式都行，我们会自动识别。如果有表头也请一并粘贴。"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste provider JSON records"
-msgstr "粘贴服务商 JSON 记录"
+msgid "Paste provider export records"
+msgstr "粘贴服务商导出记录"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste rows"
@@ -4782,16 +4778,28 @@ msgid "Projected risk reflects the latest stored penalty calculation. Accrued pe
 msgstr "预计风险反映最新保存的罚金计算。已发生罚金按所选截至日期动态计算。"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Provider"
-msgstr "服务商"
+msgid "Provider data source"
+msgstr "服务商数据来源"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Provider data still needs review"
+msgstr "服务商数据仍需复核"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Provider export"
+msgstr "服务商导出"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Provider export records"
+msgstr "服务商导出记录"
 
 #: src/routes/billing.tsx
 msgid "Provider hosted"
 msgstr "服务商托管"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Provider JSON records"
-msgstr "服务商 JSON 记录"
+msgid "Provider records enter the same AI mapper and dry-run flow as CSV imports, while keeping external IDs for future audit and status matching."
+msgstr "服务商记录会进入与 CSV 导入相同的 AI 映射和干运行流程，同时保留外部 ID 供未来审计和状态匹配使用。"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Publish evidence, but generated deadlines still require CPA review."

@@ -5,8 +5,16 @@ import {
   normalizePastedRowsText,
   parseIntegrationRows,
 } from './Step1Intake'
+import { PROVIDER_CAPABILITY_BY_PROVIDER } from './provider-capabilities'
 
 describe('provider integration intake parsing', () => {
+  it('labels Soraban as a routed export path, not a direct API', () => {
+    expect(PROVIDER_CAPABILITY_BY_PROVIDER.soraban.label).toBe(
+      'Soraban via Karbon/Zapier or uploaded export',
+    )
+    expect(PROVIDER_CAPABILITY_BY_PROVIDER.soraban.label).not.toContain('API')
+  })
+
   it('parses standard provider arrays', () => {
     const rows = parseIntegrationRows('[{"id":"acct_1","name":"Acme"}]', 'taxdome')
 

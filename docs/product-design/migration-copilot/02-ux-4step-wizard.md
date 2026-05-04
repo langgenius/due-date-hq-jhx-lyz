@@ -244,8 +244,8 @@ Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wi
 
   ```
   ┌─ Tooltip · 200ms delay ───────────────────────────┐
-  │  Coming from File In Time? We'll migrate your     │   ← 文本 {colors.text-secondary}
-  │  full-year calendar in one shot.                  │
+  │  Coming from File In Time? We'll map available    │   ← 文本 {colors.text-secondary}
+  │  calendar fields and flag gaps before deadlines.  │
   └───────────────────────────────────────────────────┘
   ```
 
@@ -253,25 +253,25 @@ Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wi
 
 ### 4.4 文案表（EN + zh-CN + Lingui 宏）
 
-| 字段                      | EN 原文                                                                                        | zh-CN 对照                                                             | 宏                                            |
-| ------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------- |
-| Title                     | `Import clients · Step 1 of 4`                                                                 | `导入客户 · 第 1 步 / 共 4 步`                                         | `<Trans>`                                     |
-| Subtitle                  | `Where is your data coming from?`                                                              | `你的数据从哪里来？`                                                   | `<Trans>`                                     |
-| Paste placeholder         | `Paste here — any shape, we'll figure it out. Include the header row if you have one.`         | `粘贴到这里 —— 任何格式都行，我们会自动识别。如果有表头也请一并粘贴。` | `` t`...` ``（textarea placeholder 用函数式） |
-| Upload hint               | `Drop CSV / TSV / XLSX here or choose file · max 1000 rows · 2 MB`                             | `把 CSV / TSV / XLSX 拖到这里或点击上传 · 最多 1000 行 · 2 MB`         | `<Trans>`                                     |
-| Upload reading            | `Reading file…`                                                                                | `正在读取文件…`                                                        | `<Trans>`                                     |
-| Preset label              | `I'm coming from…`                                                                             | `我正在从…迁移过来`                                                    | `<Trans>`                                     |
-| FIT tooltip               | `Coming from File In Time? We'll migrate your full-year calendar in one shot.`                 | `正在从 File In Time 迁移？我们一次性把全年日历迁过来。`               | `<Trans>`                                     |
-| SSN banner                | `We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI.` | `为了保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。`           | `<Trans>`                                     |
-| Row overflow warning      | `We imported the first 1000 rows. Split your file to import more.`                             | `我们只读取了前 1000 行。请拆分文件后再次导入。`                       | `<Plural>`（按 rows 数）                      |
-| Primary CTA               | `Continue →`                                                                                   | `下一步 →`                                                             | `<Trans>`                                     |
-| Secondary CTA             | `← Back`                                                                                       | `← 返回`                                                               | `<Trans>`                                     |
-| Error banner (parse fail) | `We couldn't read that file. Try exporting as CSV.`                                            | `无法读取该文件。请先导出为 CSV 再试。`                                | `<Trans>`                                     |
-| Error banner (no rows)    | `We found a header, but no data rows. Add at least one client row to continue.`                | `找到了表头，但没有数据行。请至少添加一条客户记录后继续。`             | `` t`...` ``                                  |
-| Empty state               | `Paste or upload to continue.`                                                                 | `请粘贴或上传数据以继续。`                                             | `<Trans>`                                     |
-| Close confirm title       | `Discard import?`                                                                              | `要丢弃此次导入吗？`                                                   | `<Trans>`                                     |
-| Close confirm body        | `Your pasted data and unsaved edits in this wizard will be lost.`                              | `你粘贴的数据和向导中未保存的修改将会丢失。`                           | `<Trans>`                                     |
-| Close confirm CTAs        | `Keep editing` / `Discard import`                                                              | `继续编辑` / `丢弃导入`                                                | `<Trans>`                                     |
+| 字段                      | EN 原文                                                                                                    | zh-CN 对照                                                                     | 宏                                            |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------- |
+| Title                     | `Import clients · Step 1 of 4`                                                                             | `导入客户 · 第 1 步 / 共 4 步`                                                 | `<Trans>`                                     |
+| Subtitle                  | `Where is your data coming from?`                                                                          | `你的数据从哪里来？`                                                           | `<Trans>`                                     |
+| Paste placeholder         | `Paste here — any shape, we'll figure it out. Include the header row if you have one.`                     | `粘贴到这里 —— 任何格式都行，我们会自动识别。如果有表头也请一并粘贴。`         | `` t`...` ``（textarea placeholder 用函数式） |
+| Upload hint               | `Drop CSV / TSV / XLSX here or choose file · max 1000 rows · 2 MB`                                         | `把 CSV / TSV / XLSX 拖到这里或点击上传 · 最多 1000 行 · 2 MB`                 | `<Trans>`                                     |
+| Upload reading            | `Reading file…`                                                                                            | `正在读取文件…`                                                                | `<Trans>`                                     |
+| Preset label              | `I'm coming from…`                                                                                         | `我正在从…迁移过来`                                                            | `<Trans>`                                     |
+| FIT tooltip               | `Coming from File In Time? We'll map available calendar fields and flag gaps before generating deadlines.` | `正在从 File In Time 迁移？我们会映射可用日历字段，并在生成截止日前标记缺口。` | `<Trans>`                                     |
+| SSN banner                | `We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI.`             | `为了保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。`                   | `<Trans>`                                     |
+| Row overflow warning      | `We imported the first 1000 rows. Split your file to import more.`                                         | `我们只读取了前 1000 行。请拆分文件后再次导入。`                               | `<Plural>`（按 rows 数）                      |
+| Primary CTA               | `Continue →`                                                                                               | `下一步 →`                                                                     | `<Trans>`                                     |
+| Secondary CTA             | `← Back`                                                                                                   | `← 返回`                                                                       | `<Trans>`                                     |
+| Error banner (parse fail) | `We couldn't read that file. Try exporting as CSV.`                                                        | `无法读取该文件。请先导出为 CSV 再试。`                                        | `<Trans>`                                     |
+| Error banner (no rows)    | `We found a header, but no data rows. Add at least one client row to continue.`                            | `找到了表头，但没有数据行。请至少添加一条客户记录后继续。`                     | `` t`...` ``                                  |
+| Empty state               | `Paste or upload to continue.`                                                                             | `请粘贴或上传数据以继续。`                                                     | `<Trans>`                                     |
+| Close confirm title       | `Discard import?`                                                                                          | `要丢弃此次导入吗？`                                                           | `<Trans>`                                     |
+| Close confirm body        | `Your pasted data and unsaved edits in this wizard will be lost.`                                          | `你粘贴的数据和向导中未保存的修改将会丢失。`                                   | `<Trans>`                                     |
+| Close confirm CTAs        | `Keep editing` / `Discard import`                                                                          | `继续编辑` / `丢弃导入`                                                        | `<Trans>`                                     |
 
 ### 4.5 键盘 / a11y
 

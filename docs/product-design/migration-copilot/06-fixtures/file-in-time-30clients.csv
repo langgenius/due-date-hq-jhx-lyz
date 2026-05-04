@@ -1,31 +1,31 @@
 Client,Service,Due Date,Status,Staff,Entity,State,County,Notes
-Acme LLC (TEST),Form 1065,2026-03-16,In Progress,Jordan Park,LLC,CA,Los Angeles,
-Beacon Consulting Inc (TEST),Form 1120-S,2026-03-16,Not Started,Riley Chen,S-Corp,CA,Orange,
-Cedar Capital LLC (TEST),CA Franchise,2026-04-15,Filed,Morgan Lee,LLC,CA,San Diego,
-Dune Logistics LLC (TEST),Form 1065,2026-03-16,In Progress,Taylor Kim,LLC,NY,Kings,
-Ember Retail Inc (TEST),Form 1120,2026-04-15,Not Started,Parker Vu,C-Corp,NY,Queens,
-Flux Labs LLC (TEST),Form 1065,2026-03-16,In Progress,Sam Rivera,LLC,CA,San Francisco,
-Granite Partners (TEST),Form 1065,2026-03-16,Waiting on Client,Jordan Park,Partnership,CA,Alameda,
-Harbor Bakery LLC (TEST),Form 1065,2026-03-16,Not Started,Riley Chen,LLC,CA,Santa Clara,
-Ivy Dental PC (TEST),Form 1065,2026-03-16,In Progress,Morgan Lee,Partnership,NY,Nassau,Minority partners
-Juno Films Inc (TEST),Form 1120-S,2026-03-16,Not Started,Taylor Kim,S-Corp,CA,Los Angeles,
-Kite Coffee LLC (TEST),Form 1065,2026-03-16,In Progress,Parker Vu,LLC,NY,Suffolk,
-Lumen Studios Inc (TEST),NY CT-3-S,2026-03-16,Filed,Sam Rivera,S-Corp,NY,New York,
-Meridian Advisors (TEST),Form 1065,2026-03-16,In Progress,Jordan Park,Partnership,CA,Sacramento,
-North Star Cleaning LLC (TEST),Form 1065,2026-03-16,Not Started,Riley Chen,LLC,CA,Riverside,
-Orbit Robotics Inc (TEST),Form 1120,2026-04-15,In Progress,Morgan Lee,C-Corp,CA,Santa Clara,
-Palette Design LLC (TEST),Form 1065,2026-03-16,Not Started,Taylor Kim,LLC,NY,Westchester,
-Quartz Auto Body LLC (TEST),Form 1065,2026-03-16,In Progress,Parker Vu,LLC,NY,Erie,
-Relay Tech Inc (TEST),Form 1120-S,2026-03-16,In Progress,Sam Rivera,S-Corp,CA,San Mateo,
-Sable Media LLC (TEST),Form 1065,2026-03-16,Not Started,Jordan Park,LLC,NY,Monroe,
-Tidewater Marine Inc (TEST),Form 1120,2026-04-15,In Progress,Riley Chen,C-Corp,NY,Nassau,
-Umbra Lighting Inc (TEST),Form 1120,2026-04-15,Not Started,Morgan Lee,C-Corp,NY,Queens,
-Vesta Bakery Inc (TEST),Form 1120-S,2026-03-16,Filed,Taylor Kim,S-Corp,NY,Kings,
-Willow Creek Inc (TEST),Form 1120-S,2026-03-16,In Progress,Parker Vu,S-Corp,NY,Bronx,
-Xenon Capital Inc (TEST),Form 1120,2026-04-15,Not Started,Sam Rivera,C-Corp,CA,Contra Costa,
-Yarrow Farms (TEST),Form 1065,2026-03-16,Not Started,Jordan Park,Partnership,NY,Albany,
-Zephyr Marketing LLC (TEST),Form 1065,2026-03-16,In Progress,Riley Chen,LLC,CA,Sacramento,
-Anchor Consulting (TEST),Form 1065,2026-03-16,Waiting on Client,Morgan Lee,Partnership,CA,Alameda,
-Morgan Lee Trust (TEST),Form 1041,2026-04-15,Not Started,Taylor Kim,Trust,CA,Los Angeles,
-Riley Chen (TEST),Schedule C,2026-04-15,In Progress,Parker Vu,Sole Prop,NY,Kings,
-Taylor Nguyen (TEST),Form 1040,2026-04-15,Not Started,Sam Rivera,Individual,CA,Orange,
+Marin Harbor Analytics LLC (TEST),Form 1065,2026-09-15,In Progress,Jordan Park,LLC,CA,Los Angeles,Extension filed
+Oakline Advisory Inc (TEST),Form 1120-S,2026-09-15,Waiting on Client,Riley Chen,S-Corp,CA,Orange,Shareholder basis package
+Redwood Field Services LLC (TEST),CA Franchise,2026-06-15,Ready for Review,Morgan Lee,LLC,CA,San Diego,Q2 estimate workflow
+Brookline Freight LLC (TEST),Form 1065,2026-09-15,In Progress,Taylor Kim,LLC,NY,Kings,Asset additions pending
+Ember Street Retail Inc (TEST),Form 1120,2026-10-15,Not Started,Parker Vu,C-Corp,NY,Queens,Inventory count requested
+Silvergate Design Studio LLC (TEST),Form 1065,2026-09-15,In Progress,Sam Rivera,LLC,CA,San Francisco,Book cleanup in progress
+Granite Ridge Partners (TEST),Form 1065,2026-09-15,Waiting on Client,Jordan Park,Partnership,CA,Alameda,Partner confirmations
+Hillcrest Bakery Group LLC (TEST),Form 1065,2026-09-15,Not Started,Riley Chen,LLC,CA,Santa Clara,Extension payment posted
+Ivy Dental Management PC (TEST),Form 1065,2026-09-15,In Progress,Morgan Lee,Partnership,NY,Nassau,Minority partners
+Framehouse Films Inc (TEST),Form 1120-S,2026-09-15,Ready for Review,Taylor Kim,S-Corp,CA,Los Angeles,Production cost schedule
+Juniper Coffee Roasters LLC (TEST),Form 1065,2026-09-15,In Progress,Parker Vu,LLC,NY,Suffolk,Payroll tie-out pending
+Lumen House Studios Inc (TEST),NY CT-3-S,2026-09-15,Filed,Sam Rivera,S-Corp,NY,New York,Extension accepted
+Meridian Bay Advisors (TEST),Form 1065,2026-09-15,In Progress,Jordan Park,Partnership,CA,Sacramento,Foreign disclosure check
+Pacific Home Repair LLC (TEST),Form 1065,2026-09-15,Not Started,Riley Chen,LLC,CA,Riverside,Waiting on bank exports
+Orbit Works Robotics Inc (TEST),Form 1120,2026-10-15,In Progress,Morgan Lee,C-Corp,CA,Santa Clara,R&D credit workbook
+Park Slope Design LLC (TEST),Form 1065,2026-09-15,Not Started,Taylor Kim,LLC,NY,Westchester,Books received
+Queens Auto Collective LLC (TEST),Form 1065,2026-09-15,In Progress,Parker Vu,LLC,NY,Erie,Sales tax tie-out noted
+Relay Grid Systems Inc (TEST),Form 1120-S,2026-09-15,In Progress,Sam Rivera,S-Corp,CA,San Mateo,Owner wages review
+Northpoint Media Lab LLC (TEST),Form 1065,2026-09-15,Not Started,Jordan Park,LLC,NY,Monroe,Waiting on 1099 cleanup
+Tideway Marine Services Inc (TEST),Form 1120,2026-10-15,In Progress,Riley Chen,C-Corp,NY,Nassau,Depreciation schedule
+Umbra Lighting Supply Inc (TEST),Form 1120,2026-10-15,Not Started,Morgan Lee,C-Corp,NY,Queens,Apportionment workbook
+Vesta Breadworks Inc (TEST),Form 1120-S,2026-04-15,Filed,Taylor Kim,S-Corp,NY,Kings,Filed before original deadline
+Willow Creek Services Inc (TEST),Form 1120-S,2026-09-15,In Progress,Parker Vu,S-Corp,NY,Bronx,Extension accepted
+Xenon Capital Strategies Inc (TEST),Form 1120,2026-10-15,Not Started,Sam Rivera,C-Corp,CA,Contra Costa,Q3 board package pending
+Yarrow Valley Farms (TEST),Form 1065,2026-09-15,Not Started,Jordan Park,Partnership,NY,Albany,Partner capital cleanup
+Zephyr Growth Marketing LLC (TEST),Form 1065,2026-09-15,In Progress,Riley Chen,LLC,CA,Sacramento,Accrual review pending
+Anchorline Consulting Group (TEST),Form 1065,2026-04-15,Filed,Morgan Lee,Partnership,CA,Alameda,Original return filed
+Lee Family Education Trust (TEST),Form 1041,2026-10-15,Not Started,Taylor Kim,Trust,CA,Los Angeles,Beneficiary packet due
+Riley Chen Studio (TEST),Schedule C,2026-10-15,In Progress,Parker Vu,Sole Prop,NY,Kings,Home office worksheet needed
+Taylor Nguyen Household (TEST),Form 1040,2026-10-15,Not Started,Sam Rivera,Individual,CA,Orange,Extension accepted

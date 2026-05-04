@@ -32,6 +32,11 @@ import {
   type IntakeState,
   type PresetId,
 } from './state'
+import {
+  PROVIDER_CAPABILITY_BY_PROVIDER,
+  PROVIDER_CAPABILITY_TIER_LABELS,
+  type ProviderCapabilityTier,
+} from './provider-capabilities'
 
 const MAX_FILE_BYTES = 2 * 1024 * 1024
 
@@ -41,14 +46,6 @@ const PRESET_LABELS: Record<PresetId, string> = {
   karbon: 'Karbon',
   quickbooks: 'QuickBooks',
   file_in_time: 'File In Time',
-}
-
-const PROVIDER_LABELS: Record<MigrationIntegrationProvider, string> = {
-  karbon: 'Karbon API',
-  taxdome: 'TaxDome Zapier',
-  soraban: 'Soraban API',
-  safesend: 'SafeSend API',
-  proconnect: 'ProConnect export',
 }
 
 const PROVIDER_DEFAULT_ENTITY: Record<MigrationIntegrationProvider, MigrationExternalEntityType> = {
@@ -256,6 +253,15 @@ export function Step1Intake({
     }
   }, [intake.ssnBlockedColumnIndexes, intake.rawText])
 
+  const integrationProvidersByTier = useMemo(() => {
+    const groups = new Map<ProviderCapabilityTier, MigrationIntegrationProvider[]>()
+    for (const provider of INTEGRATION_PROVIDERS) {
+      const tier = PROVIDER_CAPABILITY_BY_PROVIDER[provider].tier
+      groups.set(tier, [...(groups.get(tier) ?? []), provider])
+    }
+    return groups
+  }, [])
+
   function resetFileDragState() {
     fileDragDepthRef.current = 0
     setIsFileDragActive(false)
@@ -418,7 +424,7 @@ export function Step1Intake({
           selected={intake.mode === 'integration'}
           onClick={() => onMode('integration')}
         >
-          <Trans>Connect platform</Trans>
+          <Trans>Provider export</Trans>
         </SourceModeButton>
         <SourceModeButton
           selected={intake.mode === 'previous_sync'}
@@ -432,48 +438,76 @@ export function Step1Intake({
         <div className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-components-panel-bg p-3">
           <div className="flex flex-col gap-2">
             <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
-              <Trans>Provider</Trans>
+              <Trans>Provider data source</Trans>
             </span>
-            <div className="flex flex-wrap gap-2">
-              {INTEGRATION_PROVIDERS.map((provider) => (
-                <button
-                  key={provider}
-                  type="button"
-                  aria-pressed={intake.integrationProvider === provider}
-                  onClick={() => onIntegrationProvider(provider)}
-                  className={cn(
-                    'inline-flex h-9 cursor-pointer items-center rounded-md border px-3 text-md font-medium transition-colors',
-                    intake.integrationProvider === provider
-                      ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
-                      : 'border-divider-regular bg-background-body text-text-secondary hover:border-state-accent-solid hover:text-text-accent',
-                  )}
-                >
-                  {PROVIDER_LABELS[provider]}
-                </button>
+            <div className="flex flex-col gap-3">
+              {Array.from(integrationProvidersByTier.entries()).map(([tier, providers]) => (
+                <div key={tier} className="flex flex-col gap-1.5">
+                  <span className="text-xs font-medium text-text-tertiary">
+                    {PROVIDER_CAPABILITY_TIER_LABELS[tier]}
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {providers.map((provider) => {
+                      const capability = PROVIDER_CAPABILITY_BY_PROVIDER[provider]
+                      return (
+                        <button
+                          key={provider}
+                          type="button"
+                          aria-pressed={intake.integrationProvider === provider}
+                          onClick={() => onIntegrationProvider(provider)}
+                          title={capability.helper}
+                          className={cn(
+                            'inline-flex min-h-9 cursor-pointer items-center rounded-md border px-3 py-1 text-left text-md font-medium transition-colors',
+                            intake.integrationProvider === provider
+                              ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
+                              : 'border-divider-regular bg-background-body text-text-secondary hover:border-state-accent-solid hover:text-text-accent',
+                          )}
+                        >
+                          {capability.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
               ))}
             </div>
+            <p className="text-sm text-text-tertiary">
+              {PROVIDER_CAPABILITY_BY_PROVIDER[intake.integrationProvider].helper}
+            </p>
           </div>
+          <Alert variant="warning">
+            <AlertTitle>
+              <Trans>Provider data still needs review</Trans>
+            </AlertTitle>
+            <AlertDescription>
+              <Trans>
+                DueDateHQ generates obligations only when the imported facts support them. Missing
+                entity type, state, tax type, tax year, payment status, or extension status stays in
+                needs review.
+              </Trans>
+            </AlertDescription>
+          </Alert>
           <div className="flex flex-col gap-2">
             <label
               htmlFor={`${pasteId}-integration`}
               className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase"
             >
-              <Trans>Provider JSON records</Trans>
+              <Trans>Provider export records</Trans>
             </label>
             <Textarea
               id={`${pasteId}-integration`}
-              aria-label={t`Paste provider JSON records`}
+              aria-label={t`Paste provider export records`}
               value={intake.integrationRawText}
               onChange={(event) => handleIntegrationText(event.target.value)}
               onPaste={handleIntegrationPaste}
-              placeholder={t`Paste a JSON array from your provider export or integration. Each object becomes one Migration staging row.`}
+              placeholder={t`Paste a JSON array from a provider export, report, or integration handoff. Each object becomes one Migration staging row.`}
               className="h-[180px] resize-y bg-background-body font-mono text-base tabular-nums"
             />
           </div>
           <p className="text-sm text-text-tertiary">
             <Trans>
-              Connected records enter the same AI mapper and dry-run flow as CSV imports, while
-              keeping provider IDs for future status sync.
+              Provider records enter the same AI mapper and dry-run flow as CSV imports, while
+              keeping external IDs for future audit and status matching.
             </Trans>
           </p>
         </div>
@@ -720,7 +754,8 @@ function PresetChip({ id, label, selected, onToggle }: PresetChipProps) {
         <TooltipTrigger render={chip} />
         <TooltipContent className="max-w-[240px]">
           <Trans>
-            Coming from File In Time? We&apos;ll migrate your full-year calendar in one shot.
+            Coming from File In Time? We&apos;ll map available calendar fields and flag gaps before
+            generating deadlines.
           </Trans>
         </TooltipContent>
       </Tooltip>
