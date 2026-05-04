@@ -2475,10 +2475,9 @@ msgstr "Expired {0}"
 msgid "Expires {0}"
 msgstr "Expires {0}"
 
-#. placeholder {0}: copy.title
 #: src/features/concepts/concept-help.tsx
-msgid "Explain {0}"
-msgstr "Explain {0}"
+msgid "Explain {label}"
+msgstr "Explain {label}"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Export"
@@ -5812,6 +5811,11 @@ msgstr "Setup URI copied"
 #: src/routes/dashboard.tsx
 msgid "Severity"
 msgstr "Severity"
+
+#. placeholder {0}: severityLabels[row.original.severity]
+#: src/routes/dashboard.tsx
+msgid "Severity: {0}"
+msgstr "Severity: {0}"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx

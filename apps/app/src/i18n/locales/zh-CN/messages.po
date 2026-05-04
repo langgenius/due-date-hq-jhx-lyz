@@ -2475,10 +2475,9 @@ msgstr "已过期 {0}"
 msgid "Expires {0}"
 msgstr "{0} 过期"
 
-#. placeholder {0}: copy.title
 #: src/features/concepts/concept-help.tsx
-msgid "Explain {0}"
-msgstr "解释 {0}"
+msgid "Explain {label}"
+msgstr "解释 {label}"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Export"
@@ -5812,6 +5811,11 @@ msgstr "设置 URI 已复制"
 #: src/routes/dashboard.tsx
 msgid "Severity"
 msgstr "严重程度"
+
+#. placeholder {0}: severityLabels[row.original.severity]
+#: src/routes/dashboard.tsx
+msgid "Severity: {0}"
+msgstr "严重程度：{0}"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx

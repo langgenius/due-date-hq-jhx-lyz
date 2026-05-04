@@ -312,6 +312,19 @@ function ExposureBadge({ row, canSeeDollars }: { row: DashboardTopRow; canSeeDol
   )
 }
 
+function DashboardCellButton({ children, label }: { children: ReactNode; label: string }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className="inline-flex cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
+      onClick={(event) => event.stopPropagation()}
+    >
+      {children}
+    </button>
+  )
+}
+
 function DashboardSortableFilterHeader({
   children,
   column,
@@ -1171,13 +1184,15 @@ function DashboardTriageTable({
           )
         },
         cell: ({ row }) => (
-          <Badge
-            variant={severityVariant[row.original.severity]}
-            className="h-7 px-2.5 text-xs uppercase tracking-wide"
-          >
-            <BadgeStatusDot tone={severityDot[row.original.severity]} />
-            {severityLabels[row.original.severity]}
-          </Badge>
+          <DashboardCellButton label={t`Severity: ${severityLabels[row.original.severity]}`}>
+            <Badge
+              variant={severityVariant[row.original.severity]}
+              className="h-7 px-2.5 text-xs uppercase tracking-wide"
+            >
+              <BadgeStatusDot tone={severityDot[row.original.severity]} />
+              {severityLabels[row.original.severity]}
+            </Badge>
+          </DashboardCellButton>
         ),
       },
       {
@@ -1206,7 +1221,11 @@ function DashboardTriageTable({
             </DashboardSortableFilterHeader>
           )
         },
-        cell: ({ row }) => <ExposureBadge row={row.original} canSeeDollars={canSeeDollars} />,
+        cell: ({ row }) => (
+          <DashboardCellButton label={t`Projected risk`}>
+            <ExposureBadge row={row.original} canSeeDollars={canSeeDollars} />
+          </DashboardCellButton>
+        ),
       },
       {
         accessorKey: 'evidenceCount',

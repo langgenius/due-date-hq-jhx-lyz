@@ -31,7 +31,7 @@ export function SmartPriorityBadge({
         render={
           <button
             type="button"
-            className="inline-flex max-w-full items-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
+            className="inline-flex max-w-full cursor-pointer items-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-state-accent-active-alt"
           />
         }
       >
