@@ -4,6 +4,7 @@ import {
   type PulseAffectedClient,
   type PulseAlertPublic,
   type PulseFirmAlertStatus,
+  type PulseSourceSignal,
   type PulseSourceHealth,
   type PulseStatus,
 } from '@duedatehq/contracts'
@@ -61,6 +62,23 @@ interface PulseAffectedClientRow {
   status: PulseAffectedClient['status']
   matchStatus: PulseAffectedClient['matchStatus']
   reason: string | null
+}
+
+interface PulseSourceSignalRow {
+  id: string
+  sourceId: string
+  externalId: string
+  title: string
+  officialSourceUrl: string
+  publishedAt: Date
+  fetchedAt: Date
+  tier: string
+  jurisdiction: string
+  signalType: string
+  status: PulseSourceSignal['status']
+  linkedPulseId: string | null
+  reviewedRuleId: string | null
+  reviewDecisionId: string | null
 }
 
 type PulseRepoErrorShape = Error & {
@@ -122,6 +140,25 @@ function toAffectedClientPublic(row: PulseAffectedClientRow): PulseAffectedClien
     status: row.status,
     matchStatus: row.matchStatus,
     reason: row.reason,
+  }
+}
+
+function toSourceSignalPublic(row: PulseSourceSignalRow): PulseSourceSignal {
+  return {
+    id: row.id,
+    sourceId: row.sourceId,
+    externalId: row.externalId,
+    title: row.title,
+    officialSourceUrl: row.officialSourceUrl,
+    publishedAt: row.publishedAt.toISOString(),
+    fetchedAt: row.fetchedAt.toISOString(),
+    tier: row.tier === 'T2' || row.tier === 'T3' ? row.tier : 'T1',
+    jurisdiction: row.jurisdiction,
+    signalType: row.signalType,
+    status: row.status,
+    linkedPulseId: row.linkedPulseId,
+    reviewedRuleId: row.reviewedRuleId,
+    reviewDecisionId: row.reviewDecisionId,
   }
 }
 
@@ -250,6 +287,21 @@ async function listSourceHealthForScopedRepo(
 const listSourceHealth = os.pulse.listSourceHealth.handler(async ({ context }) => {
   const { scoped } = requireTenant(context)
   return listSourceHealthForScopedRepo(scoped)
+})
+
+const listSourceSignals = os.pulse.listSourceSignals.handler(async ({ input, context }) => {
+  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { scoped } = requireTenant(context)
+  const opts: Parameters<typeof scoped.pulse.listSourceSignals>[0] =
+    input === undefined
+      ? {}
+      : {
+          ...(input.limit !== undefined ? { limit: input.limit } : {}),
+          ...(input.status !== undefined ? { status: input.status } : {}),
+        }
+  return {
+    signals: (await scoped.pulse.listSourceSignals(opts)).map(toSourceSignalPublic),
+  }
 })
 
 const retrySourceHealth = os.pulse.retrySourceHealth.handler(async ({ input, context }) => {
@@ -539,6 +591,7 @@ export const pulseHandlers = {
   listAlerts,
   listHistory,
   listSourceHealth,
+  listSourceSignals,
   retrySourceHealth,
   getDetail,
   apply,

@@ -103,6 +103,7 @@ export const router = os.router({
     listAlerts: pulseHandlers.listAlerts,
     listHistory: pulseHandlers.listHistory,
     listSourceHealth: pulseHandlers.listSourceHealth,
+    listSourceSignals: pulseHandlers.listSourceSignals,
     retrySourceHealth: pulseHandlers.retrySourceHealth,
     getDetail: pulseHandlers.getDetail,
     apply: pulseHandlers.apply,

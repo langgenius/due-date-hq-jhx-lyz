@@ -62,6 +62,25 @@ export interface PulseSourceStateRow {
   lastModified: string | null
 }
 
+export interface PulseSourceSignalRow {
+  id: string
+  sourceId: string
+  externalId: string
+  title: string
+  officialSourceUrl: string
+  publishedAt: Date
+  fetchedAt: Date
+  contentHash: string
+  rawR2Key: string
+  tier: string
+  jurisdiction: string
+  signalType: string
+  status: 'open' | 'linked' | 'reviewed' | 'dismissed'
+  linkedPulseId: string | null
+  reviewedRuleId: string | null
+  reviewDecisionId: string | null
+}
+
 export interface PulseSeedInput {
   pulseId?: string
   alertId?: string
@@ -133,6 +152,16 @@ export interface PulseRepo {
   listAlerts(opts?: { limit?: number }): Promise<PulseAlertRow[]>
   listHistory(opts?: { limit?: number; status?: PulseAlertRow['status'] }): Promise<PulseAlertRow[]>
   listSourceStates(): Promise<PulseSourceStateRow[]>
+  listSourceSignals(opts?: {
+    limit?: number
+    status?: PulseSourceSignalRow['status']
+  }): Promise<PulseSourceSignalRow[]>
+  getSourceSignal(signalId: string): Promise<PulseSourceSignalRow | null>
+  reviewSourceSignalForRule(input: {
+    signalId: string
+    ruleId: string
+    reviewDecisionId: string
+  }): Promise<PulseSourceSignalRow>
   getDetail(alertId: string): Promise<PulseDetailRow>
   apply(input: PulseApplyInput): Promise<PulseApplyResult>
   dismiss(input: PulseAlertActionInput): Promise<PulseDismissResult>

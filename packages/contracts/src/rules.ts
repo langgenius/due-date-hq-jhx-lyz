@@ -1,6 +1,7 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { EntityTypeSchema } from './shared/enums'
+import { EntityIdSchema } from './shared/ids'
 
 export const RuleGenerationStateValues = [
   'AL',
@@ -364,6 +365,7 @@ export type RulesReviewListInput = z.infer<typeof RulesReviewListInputSchema>
 export const RuleVerifyCandidateInputSchema = z.object({
   ruleId: z.string().min(1),
   sourceId: z.string().min(1),
+  sourceSignalId: EntityIdSchema.optional(),
   sourceHeading: z.string().min(1),
   sourceExcerpt: z.string().min(1),
   sourceUpdatedOn: z

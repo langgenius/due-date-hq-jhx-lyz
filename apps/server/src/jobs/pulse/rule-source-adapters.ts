@@ -14,7 +14,6 @@ const SOURCE_INDEX_IDS = new Set([
   'fl.tips',
   'wa.news',
 ])
-
 function intervalForCadence(cadence: RuleSource['cadence']): number {
   const hour = 60 * 60 * 1000
   const day = 24 * hour
@@ -60,13 +59,19 @@ function parsedItemForSourceSnapshot(
   }
 }
 
+export function isRuleSourcePulsePromoted(source: RuleSource): boolean {
+  return (
+    source.jurisdiction !== 'FED' && (source.priority === 'critical' || source.priority === 'high')
+  )
+}
+
 export function createRuleSourceAdapter(source: RuleSource): SourceAdapter {
   return {
     id: source.id,
     tier: tierForPriority(source.priority),
     cronIntervalMs: intervalForCadence(source.cadence),
     jurisdiction: source.jurisdiction,
-    canCreatePulse: false,
+    canCreatePulse: isRuleSourcePulsePromoted(source),
     async fetch(ctx) {
       return [await fetchTextSnapshot(ctx, { sourceId: source.id, url: source.url })]
     },

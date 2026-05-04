@@ -232,8 +232,10 @@ export interface PulseSourceSignalRow {
   tier: string
   jurisdiction: string
   signalType: string
-  status: 'open' | 'linked' | 'dismissed'
+  status: 'open' | 'linked' | 'reviewed' | 'dismissed'
   linkedPulseId: string | null
+  reviewedRuleId: string | null
+  reviewDecisionId: string | null
 }
 
 export interface PulseReviewRow {
@@ -468,6 +470,8 @@ function toSourceSignal(row: PulseSourceSignal): PulseSourceSignalRow {
     signalType: row.signalType,
     status: row.status,
     linkedPulseId: row.linkedPulseId,
+    reviewedRuleId: row.reviewedRuleId,
+    reviewDecisionId: row.reviewDecisionId,
   }
 }
 
@@ -1065,6 +1069,27 @@ export function makePulseRepo(db: Db, firmId: string) {
     async listSourceStates(): Promise<PulseSourceStateRow[]> {
       const rows = await db.select().from(pulseSourceState).orderBy(asc(pulseSourceState.sourceId))
       return rows.map(toSourceState)
+    },
+
+    async listSourceSignals(
+      opts: PulseSourceSignalListInput = {},
+    ): Promise<PulseSourceSignalRow[]> {
+      const ops = makePulseOpsRepo(db)
+      return ops.listSourceSignals(opts)
+    },
+
+    async getSourceSignal(signalId: string): Promise<PulseSourceSignalRow | null> {
+      const ops = makePulseOpsRepo(db)
+      return ops.getSourceSignal(signalId)
+    },
+
+    async reviewSourceSignalForRule(input: {
+      signalId: string
+      ruleId: string
+      reviewDecisionId: string
+    }): Promise<PulseSourceSignalRow> {
+      const ops = makePulseOpsRepo(db)
+      return ops.reviewSourceSignalForRule(input)
     },
 
     async getDetail(alertId: string): Promise<PulseDetailRow> {
@@ -2229,6 +2254,15 @@ export function makePulseOpsRepo(db: Db) {
       return rows.map(toSourceSignal)
     },
 
+    async getSourceSignal(signalId: string): Promise<PulseSourceSignalRow | null> {
+      const rows = await db
+        .select()
+        .from(pulseSourceSignal)
+        .where(eq(pulseSourceSignal.id, signalId))
+        .limit(1)
+      return rows[0] ? toSourceSignal(rows[0]) : null
+    },
+
     async linkSourceSignal(input: {
       signalId: string
       pulseId: string
@@ -2262,6 +2296,24 @@ export function makePulseOpsRepo(db: Db) {
       const row = rows[0]
       if (!row) throw new PulseRepoError('not_found')
       return toSourceSignal(row)
+    },
+
+    async reviewSourceSignalForRule(input: {
+      signalId: string
+      ruleId: string
+      reviewDecisionId: string
+    }): Promise<PulseSourceSignalRow> {
+      await db
+        .update(pulseSourceSignal)
+        .set({
+          status: 'reviewed',
+          reviewedRuleId: input.ruleId,
+          reviewDecisionId: input.reviewDecisionId,
+        })
+        .where(eq(pulseSourceSignal.id, input.signalId))
+      const row = await this.getSourceSignal(input.signalId)
+      if (!row) throw new PulseRepoError('not_found')
+      return row
     },
 
     async linkOpenSignalsToPulses(

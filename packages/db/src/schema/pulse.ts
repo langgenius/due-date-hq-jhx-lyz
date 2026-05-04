@@ -36,7 +36,7 @@ export type PulseSourceSnapshotStatus = (typeof PULSE_SOURCE_SNAPSHOT_STATUSES)[
 export const PULSE_SOURCE_HEALTH_STATUSES = ['healthy', 'degraded', 'failing', 'paused'] as const
 export type PulseSourceHealthStatus = (typeof PULSE_SOURCE_HEALTH_STATUSES)[number]
 
-export const PULSE_SOURCE_SIGNAL_STATUSES = ['open', 'linked', 'dismissed'] as const
+export const PULSE_SOURCE_SIGNAL_STATUSES = ['open', 'linked', 'reviewed', 'dismissed'] as const
 export type PulseSourceSignalStatus = (typeof PULSE_SOURCE_SIGNAL_STATUSES)[number]
 
 /**
@@ -191,6 +191,8 @@ export const pulseSourceSignal = sqliteTable(
     signalType: text('signal_type').notNull().default('anticipated_pulse'),
     status: text('status', { enum: PULSE_SOURCE_SIGNAL_STATUSES }).notNull().default('open'),
     linkedPulseId: text('linked_pulse_id').references(() => pulse.id, { onDelete: 'set null' }),
+    reviewedRuleId: text('reviewed_rule_id'),
+    reviewDecisionId: text('review_decision_id'),
 
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
       .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)

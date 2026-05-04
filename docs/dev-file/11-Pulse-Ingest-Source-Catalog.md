@@ -46,8 +46,10 @@
 - Rules registry 已登记 50 州 + DC 的官方 tax agency、income-tax 具体页面与
   UI/workforce agency source seed。
   `apps/server/src/jobs/pulse/rule-source-adapters.ts` 会把带 `candidate_review` 的 rule
-  sources 接入 `pulse_source_state` / `pulse_source_signal`。这些 source signals 只供 canonical
-  source verification，不自动创建客户 Pulse、不进入 user-facing Evidence Chain。
+  sources 接入 `pulse_source_state`。其中每个州/DC 的 high/critical official source 已升级为
+  Pulse-producing adapter：写 `pulse_source_snapshot` 并进入 `pulse.extract`。medium/low 辅助源
+  仍只写 `pulse_source_signal`；Owner/Manager 可在 candidate rule verification 时把 open signal
+  标记为 `reviewed` 并关联到 firm-scoped review decision。
 
 ---
 

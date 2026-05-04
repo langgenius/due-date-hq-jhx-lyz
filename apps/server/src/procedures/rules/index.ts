@@ -179,6 +179,29 @@ const verifyCandidate = os.rules.verifyCandidate.handler(async ({ input, context
       message: 'Official source jurisdiction does not match the candidate rule.',
     })
   }
+  const sourceSignal = input.sourceSignalId
+    ? await scoped.pulse.getSourceSignal(input.sourceSignalId)
+    : null
+  if (input.sourceSignalId && !sourceSignal) {
+    throw new ORPCError('NOT_FOUND', { message: 'Source signal was not found.' })
+  }
+  if (sourceSignal) {
+    if (sourceSignal.status !== 'open') {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'Only open source signals can be attached to candidate verification.',
+      })
+    }
+    if (sourceSignal.sourceId !== input.sourceId) {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'Source signal does not match the selected official source.',
+      })
+    }
+    if (sourceSignal.jurisdiction !== base.jurisdiction && sourceSignal.jurisdiction !== 'FED') {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'Source signal jurisdiction does not match the candidate rule.',
+      })
+    }
+  }
   if (
     input.coverageStatus === 'full' &&
     !input.requiresApplicabilityReview &&
@@ -233,13 +256,25 @@ const verifyCandidate = os.rules.verifyCandidate.handler(async ({ input, context
     reviewedBy: userId,
     reviewedAt,
   })
+  if (sourceSignal) {
+    await scoped.pulse.reviewSourceSignalForRule({
+      signalId: sourceSignal.id,
+      ruleId: base.id,
+      reviewDecisionId: row.id,
+    })
+  }
   await scoped.audit.write({
     actorId: userId,
     entityType: 'rule',
     entityId: base.id,
     action: 'rules.published',
     before: { status: base.status, version: base.version },
-    after: { status: 'verified', version: verifiedRule.version, sourceId: input.sourceId },
+    after: {
+      status: 'verified',
+      version: verifiedRule.version,
+      sourceId: input.sourceId,
+      ...(sourceSignal ? { sourceSignalId: sourceSignal.id } : {}),
+    },
     ...(input.reviewNote !== undefined ? { reason: input.reviewNote } : {}),
   })
   return toReviewDecision(row)

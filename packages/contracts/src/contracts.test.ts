@@ -102,6 +102,7 @@ import {
   PulseFirmAlertStatusSchema,
   PulseRequestReviewInputSchema,
   PulseRequestReviewOutputSchema,
+  PulseSourceSignalSchema,
   pulseContract,
 } from './pulse'
 import {
@@ -110,6 +111,7 @@ import {
   RuleGenerationPreviewInputSchema,
   RuleCoverageRowSchema,
   RuleSourceSchema,
+  RuleVerifyCandidateInputSchema,
   TemporaryRuleSchema,
   rulesContract,
 } from './rules'
@@ -824,6 +826,7 @@ describe('@duedatehq/contracts', () => {
       'listAlerts',
       'listHistory',
       'listSourceHealth',
+      'listSourceSignals',
       'retrySourceHealth',
       'getDetail',
       'apply',
@@ -907,6 +910,24 @@ describe('@duedatehq/contracts', () => {
     })
     expect(requestReview.notificationCount).toBe(2)
     expect(requestReview.emailCount).toBe(2)
+
+    const sourceSignal = PulseSourceSignalSchema.parse({
+      id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      sourceId: 'ca.income_tax',
+      externalId: 'source-url-hash',
+      title: 'CA individual income tax source changed',
+      officialSourceUrl: 'https://www.ftb.ca.gov/file/personal/',
+      publishedAt: '2026-05-04T10:00:00.000Z',
+      fetchedAt: '2026-05-04T10:01:00.000Z',
+      tier: 'T1',
+      jurisdiction: 'CA',
+      signalType: 'anticipated_pulse',
+      status: 'reviewed',
+      linkedPulseId: null,
+      reviewedRuleId: 'ca.individual_income_return.candidate.2026',
+      reviewDecisionId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    })
+    expect(sourceSignal.status).toBe('reviewed')
   })
 
   it('freezes evidence.listByObligation public shape', () => {
@@ -1200,6 +1221,37 @@ describe('@duedatehq/contracts', () => {
         acquisitionMethod: 'email_subscription',
       }).sourceType,
     ).toBe('subscription')
+
+    const verifyInput = RuleVerifyCandidateInputSchema.parse({
+      ruleId: 'ca.individual_income_return.candidate.2026',
+      sourceId: 'ca.income_tax',
+      sourceSignalId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+      sourceHeading: 'Personal filing due dates',
+      sourceExcerpt: 'California personal income tax returns are due April 15.',
+      dueDateLogic: {
+        kind: 'fixed_date',
+        date: '2026-04-15',
+        holidayRollover: 'source_adjusted',
+      },
+      extensionPolicy: {
+        available: false,
+        paymentExtended: false,
+        notes: 'No extension policy verified for this candidate.',
+      },
+      ruleTier: 'basic',
+      coverageStatus: 'full',
+      requiresApplicabilityReview: false,
+      quality: {
+        filingPaymentDistinguished: true,
+        extensionHandled: true,
+        calendarFiscalSpecified: true,
+        holidayRolloverHandled: true,
+        crossVerified: true,
+        exceptionChannel: true,
+      },
+      nextReviewOn: '2027-01-15',
+    })
+    expect(verifyInput.sourceSignalId).toBe('cccccccc-cccc-4ccc-8ccc-cccccccccccc')
 
     const rule = ObligationRuleSchema.parse({
       id: 'fed.1065.return.2025',
