@@ -20,12 +20,14 @@ interface ObligationRow {
   id: string
   firmId: string
   clientId: string
+  clientFilingProfileId?: string | null
   taxType: string
   taxYear: number | null
   ruleId?: string | null
   ruleVersion?: number | null
   rulePeriod?: string | null
   generationSource?: ObligationInstancePublic['generationSource']
+  jurisdiction?: string | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationInstancePublic['status']
@@ -88,12 +90,14 @@ export function toObligationPublic(
     id: row.id,
     firmId: row.firmId,
     clientId: row.clientId,
+    clientFilingProfileId: row.clientFilingProfileId ?? null,
     taxType: row.taxType,
     taxYear: row.taxYear,
     ruleId: row.ruleId ?? null,
     ruleVersion: row.ruleVersion ?? null,
     rulePeriod: row.rulePeriod ?? null,
     generationSource: row.generationSource ?? null,
+    jurisdiction: row.jurisdiction ?? null,
     baseDueDate: toIsoDate(row.baseDueDate),
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,

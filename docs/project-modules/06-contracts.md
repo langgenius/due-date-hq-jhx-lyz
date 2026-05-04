@@ -45,6 +45,19 @@
 - enum 与 discriminated union。
 - nullable/optional 字段。
 
+Clients contract now exposes filing jurisdictions as first-class DTOs:
+
+- `ClientFilingProfilePublic` carries `state/counties/taxTypes/isPrimary/source/archivedAt`.
+- `ClientPublic.filingProfiles` is always present; `client.state/county` remain compatibility
+  mirrors for primary profile display.
+- `clients.replaceFilingProfiles` replaces active profiles for one client, archives removed states,
+  and returns the re-serialized client.
+- `ObligationInstancePublic` includes `jurisdiction` and nullable `clientFilingProfileId`, so app
+  surfaces no longer infer obligation geography from `ClientPublic.state`.
+
+Migration mapping adds `client.filing_states` for multi-state import. `client.state` still works as a
+legacy/single-state mapping target, but commit planning treats both targets as filing profile input.
+
 ### 错误码
 
 `errors.ts` 将可预期业务错误集中成稳定码，例如：

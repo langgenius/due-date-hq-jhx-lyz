@@ -276,7 +276,7 @@ packages/contracts/
 │   │   ├── obligation.ts
 │   │   └── enums.ts
 │   ├── clients.ts                  # clients 域契约
-│   ├── obligations.ts
+│   ├── obligations.ts              # includes obligation jurisdiction/profile DTOs
 │   ├── dashboard.ts
 │   ├── workboard.ts
 │   ├── pulse.ts
@@ -290,6 +290,8 @@ packages/contracts/
 - 只依赖 `zod` 和 `@orpc/contract`
 - **不得**引入 `@orpc/server` / `hono` / `drizzle-orm` 等后端依赖（否则前端 bundle 污染）
 - 所有 schema 必须既可作 input 又可作 output 校验（避免字段漂移）
+- `clients.ts` owns `ClientFilingProfile*` DTOs and `clients.replaceFilingProfiles`；app/server
+  不得从 DB row 直接推断多州 profile shape。
 
 ### 4.4 `packages/db`
 
@@ -309,6 +311,7 @@ packages/db/
 │   │   └── index.ts
 │   ├── repo/
 │   │   ├── clients.ts
+│   │   ├── client-filing-profiles.ts
 │   │   ├── obligations.ts
 │   │   ├── pulse.ts
 │   │   ├── migration.ts
@@ -333,6 +336,8 @@ packages/db/
 - `exports` 仅暴露 `scoped` / `client` / `audit-writer` / `evidence-writer` / `types` / schema 导入要显式 `@duedatehq/db/schema/<domain>`（只给 migration / seed / writer 内部用）；repo / tenant 类型由 `@duedatehq/ports/<domain>` 定义，`@duedatehq/db/types` 仅做兼容转出
 - `schema/auth.ts` 不再通过 `@better-auth/cli generate` 自动覆盖；它包含手工维护的 `(organization_id, user_id)` unique index、`member.status` 附加字段，以及与 `firm_profile` 配套的身份层约束。后续 schema 变更走 `pnpm db:generate` 并人工 review migration。
 - `schema/firm.ts` 是业务租户层；`firm_profile.id` 复用 `organization.id`，业务表统一用 `firm_id -> firm_profile.id`。
+- `repo/client-filing-profiles.ts` 是客户多州报税事实的唯一写入口；`client.state/county`
+  由 primary profile mirror，不作为规则生成事实来源。
 - oxlint 限制：`apps/server/src/procedures/**` 禁止 import `@duedatehq/db` 或 `@duedatehq/db/schema/*`；规则在 `vite.config.ts` 的 `lint.rules.no-restricted-imports` override 中维护。
 
 ### 4.5 `packages/core`

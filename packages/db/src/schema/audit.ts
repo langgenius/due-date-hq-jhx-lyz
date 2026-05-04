@@ -256,6 +256,7 @@ export const CLIENT_AUDIT_ACTIONS = [
   'client.batch_created',
   'client.created',
   'client.deleted',
+  'client.filing_profiles.replaced',
   'client.jurisdiction.updated',
   'client.risk_profile.updated',
 ] as const

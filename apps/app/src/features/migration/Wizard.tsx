@@ -771,8 +771,12 @@ function buildMatrixPreview(input: BuildMatrixPreviewInput): MatrixApplicationVi
     (r) => r.targetField === 'client.entity_type',
   )?.sourceHeader
   const stateHeader = input.mappings.find((r) => r.targetField === 'client.state')?.sourceHeader
+  const filingStatesHeader = input.mappings.find(
+    (r) => r.targetField === 'client.filing_states',
+  )?.sourceHeader
   const entityIdx = entityHeader ? headerToIndex.get(entityHeader) : undefined
   const stateIdx = stateHeader ? headerToIndex.get(stateHeader) : undefined
+  const filingStatesIdx = filingStatesHeader ? headerToIndex.get(filingStatesHeader) : undefined
   const taxHeader = input.mappings.find((r) => r.targetField === 'client.tax_types')?.sourceHeader
   const taxIdx = taxHeader ? headerToIndex.get(taxHeader) : undefined
 
@@ -790,13 +794,19 @@ function buildMatrixPreview(input: BuildMatrixPreviewInput): MatrixApplicationVi
 
     const rawEntity = entityIdx !== undefined ? (row[entityIdx] ?? '').trim() : ''
     const rawState = stateIdx !== undefined ? (row[stateIdx] ?? '').trim() : ''
+    const rawFilingStates = filingStatesIdx !== undefined ? (row[filingStatesIdx] ?? '').trim() : ''
     const entity = entityMap.get(rawEntity) ?? rawEntity.toLowerCase()
-    const normalizedState = stateMap.get(rawState) ?? rawState.toUpperCase()
     if (!entity) continue
-    const key = `${entity}::${normalizedState}`
-    const existing = counts.get(key)
-    if (existing) existing.count += 1
-    else counts.set(key, { entity, state: normalizedState, count: 1 })
+    const states = uniqueStrings([
+      ...splitStateList(rawState, stateMap),
+      ...splitStateList(rawFilingStates, stateMap),
+    ])
+    for (const normalizedState of states) {
+      const key = `${entity}::${normalizedState}`
+      const existing = counts.get(key)
+      if (existing) existing.count += 1
+      else counts.set(key, { entity, state: normalizedState, count: 1 })
+    }
   }
 
   const out: MatrixApplicationView[] = []
@@ -815,6 +825,21 @@ function buildMatrixPreview(input: BuildMatrixPreviewInput): MatrixApplicationVi
     })
   }
   return out
+}
+
+function splitStateList(raw: string, normalizations: ReadonlyMap<string, string | null>): string[] {
+  if (!raw) return []
+  return raw
+    .split(/[;,|/]/)
+    .map((token) => {
+      const trimmed = token.trim()
+      return normalizations.get(trimmed) ?? trimmed.toUpperCase()
+    })
+    .filter((state) => /^[A-Z]{2}$/.test(state))
+}
+
+function uniqueStrings(values: readonly string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean)))
 }
 
 function buildMatrixSelections(

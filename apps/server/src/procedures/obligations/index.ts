@@ -38,12 +38,14 @@ interface ObligationRow {
   id: string
   firmId: string
   clientId: string
+  clientFilingProfileId: string | null
   taxType: string
   taxYear: number | null
   ruleId: string | null
   ruleVersion: number | null
   rulePeriod: string | null
   generationSource: ObligationInstancePublic['generationSource']
+  jurisdiction: string | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationInstancePublic['status']
@@ -77,12 +79,14 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
   const repoInputs = input.obligations.map((o) => {
     const repoInput: {
       clientId: string
+      clientFilingProfileId?: string | null
       taxType: string
       taxYear: number | null
       ruleId?: string | null
       ruleVersion?: number | null
       rulePeriod?: string | null
       generationSource?: ObligationInstancePublic['generationSource']
+      jurisdiction?: string | null
       baseDueDate: Date
       currentDueDate: Date
       status?: ObligationInstancePublic['status']
@@ -101,12 +105,14 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       exposureCalculatedAt?: Date | null
     } = {
       clientId: o.clientId,
+      clientFilingProfileId: o.clientFilingProfileId ?? null,
       taxType: o.taxType,
       taxYear: o.taxYear ?? null,
       ruleId: o.ruleId ?? null,
       ruleVersion: o.ruleVersion ?? null,
       rulePeriod: o.rulePeriod ?? null,
       generationSource: o.generationSource ?? null,
+      jurisdiction: o.jurisdiction ?? null,
       baseDueDate: new Date(o.baseDueDate),
       currentDueDate: o.currentDueDate ? new Date(o.currentDueDate) : new Date(o.baseDueDate),
       migrationBatchId: o.migrationBatchId ?? null,

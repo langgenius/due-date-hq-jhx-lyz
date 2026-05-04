@@ -18,12 +18,14 @@ interface Row {
   id: string
   firmId: string
   clientId: string
+  clientFilingProfileId: string | null
   taxType: string
   taxYear: number | null
   ruleId: string | null
   ruleVersion: number | null
   rulePeriod: string | null
   generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
+  jurisdiction: string | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -52,6 +54,27 @@ interface Row {
 
 function unused(name: string): never {
   throw new Error(`Unexpected repo call in updateStatus test: ${name}`)
+}
+
+function unusedFilingProfilesRepo(firmId: string): ScopedRepo['filingProfiles'] {
+  return {
+    firmId,
+    async createBatch() {
+      return unused('filingProfiles.createBatch')
+    },
+    async listByClient() {
+      return unused('filingProfiles.listByClient')
+    },
+    async listByClients() {
+      return unused('filingProfiles.listByClients')
+    },
+    async replaceForClient() {
+      return unused('filingProfiles.replaceForClient')
+    },
+    async deleteByBatch() {
+      return unused('filingProfiles.deleteByBatch')
+    },
+  }
 }
 
 function buildScoped(firmId: string, rows: Row[]) {
@@ -343,6 +366,7 @@ function buildScoped(firmId: string, rows: Row[]) {
 
   const repo: ScopedRepo = {
     firmId,
+    filingProfiles: unusedFilingProfilesRepo(firmId),
     ai: {
       firmId,
       async recordRun() {
@@ -463,12 +487,14 @@ function makeRow(over: Partial<Row> = {}): Row {
     id: ROW_ID,
     firmId: FIRM,
     clientId: '22222222-2222-4222-8222-222222222222',
+    clientFilingProfileId: null,
     taxType: '1040',
     taxYear: 2026,
     ruleId: null,
     ruleVersion: null,
     rulePeriod: null,
     generationSource: null,
+    jurisdiction: 'FED',
     baseDueDate: now,
     currentDueDate: now,
     status: 'pending',

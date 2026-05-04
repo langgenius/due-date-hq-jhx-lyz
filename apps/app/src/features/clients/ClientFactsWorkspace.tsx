@@ -34,7 +34,7 @@ import { toast } from 'sonner'
 
 import type {
   AiInsightPublic,
-  ClientJurisdictionUpdateInput,
+  ClientFilingProfilesReplaceInput,
   ClientPublic,
 } from '@duedatehq/contracts'
 import {
@@ -98,6 +98,7 @@ import {
   CLIENT_READINESS_FILTERS,
   CLIENT_SOURCE_FILTERS,
   CLIENT_UNASSIGNED_OWNER_FILTER,
+  getClientFilingStates,
   getClientSourceType,
   type ClientEntityType,
   type ClientFactsModel,
@@ -157,6 +158,15 @@ const metricToneClassName = {
   neutral: 'bg-background-section text-text-secondary',
 } satisfies Record<ClientMetric['tone'], string>
 const STATE_CODE_RE = /^[A-Z]{2}$/
+
+function formatFilingJurisdictions(client: ClientPublic): string {
+  const states = getClientFilingStates(client)
+  if (states.length === 0) return 'N/A'
+  const primary = client.filingProfiles.find((profile) => profile.isPrimary)
+  const primaryCounty = primary?.counties[0] ?? client.county
+  const suffix = states.length > 1 ? ` +${states.length - 1}` : ''
+  return [states[0], primaryCounty].filter(Boolean).join(' / ') + suffix
+}
 
 export function ClientFactsWorkspace({
   clients,
@@ -285,7 +295,9 @@ export function ClientFactsWorkspace({
   const stateOptions = useMemo<FilterOption[]>(() => {
     const counts = new Map<string, number>()
     for (const client of clients) {
-      if (client.state) counts.set(client.state, (counts.get(client.state) ?? 0) + 1)
+      for (const state of getClientFilingStates(client)) {
+        counts.set(state, (counts.get(state) ?? 0) + 1)
+      }
     }
     return factsModel.stateOptions.map((state) => ({
       value: state,
@@ -418,7 +430,7 @@ export function ClientFactsWorkspace({
         ),
         cell: ({ row }) => (
           <span className="whitespace-nowrap font-mono tabular-nums">
-            {[row.original.state, row.original.county].filter(Boolean).join(' / ') || 'N/A'}
+            {formatFilingJurisdictions(row.original)}
           </span>
         ),
         meta: {
@@ -541,7 +553,7 @@ export function ClientFactsWorkspace({
                 </CardTitle>
                 <CardDescription>
                   <Trans>
-                    Search, segment, and inspect the facts that feed rules, risk, and Pulse
+                    Search, segment, and inspect the filing facts that feed rules, risk, and Pulse
                     matching.
                   </Trans>
                 </CardDescription>
@@ -806,8 +818,8 @@ function ClientProfileSheet({
       },
     }),
   )
-  const updateJurisdictionMutation = useMutation(
-    orpc.clients.updateJurisdiction.mutationOptions({
+  const replaceFilingProfilesMutation = useMutation(
+    orpc.clients.replaceFilingProfiles.mutationOptions({
       onSuccess: (result) => {
         void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
@@ -815,10 +827,10 @@ function ClientProfileSheet({
         void queryClient.invalidateQueries({ queryKey: orpc.workboard.getDetail.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.workboard.facets.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.clients.getRiskSummary.key() })
-        toast.success(t`Jurisdiction saved`, { description: result.client.name })
+        toast.success(t`Filing jurisdictions saved`, { description: result.client.name })
       },
       onError: (err) => {
-        toast.error(t`Couldn't save jurisdiction`, {
+        toast.error(t`Couldn't save filing jurisdictions`, {
           description: rpcErrorMessage(err) ?? t`Please try again.`,
         })
       },
@@ -870,7 +882,7 @@ function ClientProfileSheet({
               <div className="flex flex-wrap gap-2">
                 <ClientReadinessBadge readiness={readiness} compact={false} />
                 <Badge variant="outline" className="font-mono tabular-nums">
-                  {[client.state, client.county].filter(Boolean).join(' / ') || 'N/A'}
+                  {formatFilingJurisdictions(client)}
                 </Badge>
               </div>
 
@@ -893,8 +905,8 @@ function ClientProfileSheet({
               <ClientJurisdictionPanel
                 key={`${client.id}:jurisdiction`}
                 client={client}
-                isSaving={updateJurisdictionMutation.isPending}
-                onSave={(input) => updateJurisdictionMutation.mutate(input)}
+                isSaving={replaceFilingProfilesMutation.isPending}
+                onSave={(input) => replaceFilingProfilesMutation.mutate(input)}
               />
 
               <ClientRiskInputsPanel
@@ -1013,54 +1025,174 @@ function ClientJurisdictionPanel({
 }: {
   client: ClientPublic
   isSaving: boolean
-  onSave: (input: ClientJurisdictionUpdateInput) => void
+  onSave: (input: ClientFilingProfilesReplaceInput) => void
 }) {
   const { t } = useLingui()
-  const [state, setState] = useState(client.state ?? '')
-  const [county, setCounty] = useState(client.county ?? '')
-  const normalizedState = state.trim().toUpperCase() || null
-  const normalizedCounty = county.trim() || null
-  const stateInvalid = normalizedState !== null && !STATE_CODE_RE.test(normalizedState)
-  const countyInvalid = county.trim().length > 120
-  const hasChanges = normalizedState !== client.state || normalizedCounty !== client.county
+  const primaryProfile =
+    client.filingProfiles.find((profile) => profile.isPrimary) ?? client.filingProfiles[0] ?? null
+  const [statesText, setStatesText] = useState(getClientFilingStates(client).join(', '))
+  const [countiesText, setCountiesText] = useState(
+    (primaryProfile?.counties ?? (client.county ? [client.county] : [])).join(', '),
+  )
+  const normalizedStates = Array.from(
+    new Set(
+      statesText
+        .split(/[;,|]/)
+        .map((state) => state.trim().toUpperCase())
+        .filter(Boolean),
+    ),
+  )
+  const normalizedCounties = Array.from(
+    new Set(
+      countiesText
+        .split(/[;,|]/)
+        .map((county) => county.trim())
+        .filter(Boolean),
+    ),
+  )
+  const stateInvalid = normalizedStates.some((state) => !STATE_CODE_RE.test(state))
+  const countyInvalid = normalizedCounties.some((county) => county.length > 120)
+  const profileByState = new Map(client.filingProfiles.map((profile) => [profile.state, profile]))
+  const nextProfiles = normalizedStates.map((state, index) => {
+    const existing = profileByState.get(state)
+    return {
+      state,
+      counties: index === 0 ? normalizedCounties : (existing?.counties ?? []),
+      taxTypes: existing?.taxTypes ?? [],
+      isPrimary: index === 0,
+      source: 'manual' as const,
+    }
+  })
+  const currentSignature = JSON.stringify(
+    client.filingProfiles
+      .map((profile) => ({
+        state: profile.state,
+        counties: profile.counties,
+        taxTypes: profile.taxTypes,
+        isPrimary: profile.isPrimary,
+      }))
+      .toSorted((a, b) => a.state.localeCompare(b.state)),
+  )
+  const nextSignature = JSON.stringify(
+    nextProfiles
+      .map((profile) => ({
+        state: profile.state,
+        counties: profile.counties,
+        taxTypes: profile.taxTypes,
+        isPrimary: profile.isPrimary,
+      }))
+      .toSorted((a, b) => a.state.localeCompare(b.state)),
+  )
+  const hasChanges = currentSignature !== nextSignature
 
   return (
     <div className="grid gap-3 rounded-md border border-divider-regular p-3">
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-          <Trans>Jurisdiction facts</Trans>
+          <Trans>Filing jurisdictions</Trans>
         </span>
         <MapPinnedIcon className="size-4 text-text-tertiary" aria-hidden />
       </div>
-      <div className="grid gap-3 sm:grid-cols-[96px_minmax(0,1fr)]">
+      <div className="flex flex-wrap gap-1.5">
+        {client.filingProfiles.length > 0 ? (
+          client.filingProfiles.map((profile) => (
+            <Badge key={profile.id} variant={profile.isPrimary ? 'default' : 'outline'}>
+              {profile.state}
+              {profile.isPrimary ? ` ${t`primary`}` : ''}
+            </Badge>
+          ))
+        ) : (
+          <Badge variant="outline">
+            <Trans>Needs filing state</Trans>
+          </Badge>
+        )}
+      </div>
+      {client.filingProfiles.length > 0 ? (
+        <div className="overflow-x-auto rounded-md border border-divider-subtle">
+          <Table className="min-w-[520px] table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[92px]">
+                  <Trans>State</Trans>
+                </TableHead>
+                <TableHead>
+                  <Trans>Counties</Trans>
+                </TableHead>
+                <TableHead>
+                  <Trans>Tax types</Trans>
+                </TableHead>
+                <TableHead className="w-[132px]">
+                  <Trans>Status</Trans>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {client.filingProfiles
+                .toSorted(
+                  (a, b) =>
+                    Number(b.isPrimary) - Number(a.isPrimary) || a.state.localeCompare(b.state),
+                )
+                .map((profile) => {
+                  const sourceLabel =
+                    profile.source === 'imported'
+                      ? t`Imported`
+                      : profile.source === 'demo_seed'
+                        ? t`Demo seed`
+                        : profile.source === 'backfill'
+                          ? t`Backfilled`
+                          : t`Manual`
+                  return (
+                    <TableRow key={profile.id}>
+                      <TableCell>
+                        <span className="font-mono tabular-nums">{profile.state}</span>
+                      </TableCell>
+                      <TableCell className="truncate">
+                        {profile.counties.length > 0 ? profile.counties.join(', ') : t`Any county`}
+                      </TableCell>
+                      <TableCell className="truncate">
+                        {profile.taxTypes.length > 0
+                          ? profile.taxTypes.join(', ')
+                          : t`Needs tax type review`}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={profile.taxTypes.length > 0 ? 'outline' : 'warning'}>
+                          {sourceLabel}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+            </TableBody>
+          </Table>
+        </div>
+      ) : null}
+      <div className="grid gap-3">
         <Field>
-          <FieldLabel htmlFor="client-jurisdiction-state">
-            <Trans>State</Trans>
+          <FieldLabel htmlFor="client-jurisdiction-states">
+            <Trans>Filing states</Trans>
           </FieldLabel>
           <Input
-            id="client-jurisdiction-state"
+            id="client-jurisdiction-states"
             className="font-mono uppercase tabular-nums"
-            placeholder="WA"
-            maxLength={2}
-            value={state}
+            placeholder="WA, CA"
+            value={statesText}
             aria-invalid={stateInvalid}
-            onChange={(event) => setState(event.target.value.toUpperCase())}
+            onChange={(event) => setStatesText(event.target.value.toUpperCase())}
           />
-          {stateInvalid ? <FieldError>{t`Use a 2-letter state code`}</FieldError> : null}
+          {stateInvalid ? <FieldError>{t`Use 2-letter state codes`}</FieldError> : null}
         </Field>
         <Field>
-          <FieldLabel htmlFor="client-jurisdiction-county">
-            <Trans>County</Trans>
+          <FieldLabel htmlFor="client-jurisdiction-counties">
+            <Trans>Primary counties</Trans>
           </FieldLabel>
           <Input
-            id="client-jurisdiction-county"
-            maxLength={120}
-            value={county}
+            id="client-jurisdiction-counties"
+            value={countiesText}
             aria-invalid={countyInvalid}
-            onChange={(event) => setCounty(event.target.value)}
+            onChange={(event) => setCountiesText(event.target.value)}
           />
           {countyInvalid ? (
-            <FieldError>{t`County must be 120 characters or fewer`}</FieldError>
+            <FieldError>{t`Each county must be 120 characters or fewer`}</FieldError>
           ) : null}
         </Field>
       </div>
@@ -1071,13 +1203,12 @@ function ClientJurisdictionPanel({
         onClick={() =>
           onSave({
             id: client.id,
-            state: normalizedState,
-            county: normalizedCounty,
-            reason: 'Fact profile jurisdiction edit',
+            profiles: nextProfiles,
+            reason: 'Fact profile filing jurisdiction edit',
           })
         }
       >
-        {isSaving ? t`Saving...` : t`Save jurisdiction`}
+        {isSaving ? t`Saving...` : t`Save filing jurisdictions`}
       </Button>
     </div>
   )
@@ -1331,7 +1462,7 @@ function ClientFactChecklist({
       </span>
       <FactCheckRow
         isComplete={!readiness?.missingRequiredFacts.includes('state')}
-        label={<Trans>State jurisdiction</Trans>}
+        label={<Trans>Filing jurisdiction</Trans>}
         detail={<Trans>Required for rules and Pulse matching.</Trans>}
       />
       <FactCheckRow

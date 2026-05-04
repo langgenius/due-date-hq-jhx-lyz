@@ -22,6 +22,9 @@ Added the first manual annual rollover path under `Rules Console > Obligation Pr
   a Dashboard brief refresh when generation creates obligations.
 - Added the Annual Rollover UI panel with source/target filing year controls, optional client
   filter, preview/generate actions, summary counts, row dispositions, and Workboard links.
+- Added inline help tooltips to every Annual Rollover summary metric and result-table column so
+  first-time users can interpret counts, dispositions, skipped reasons, and Workboard links in
+  place.
 - Kept the all-clients filter sentinel internal-only; the Select trigger now renders the localized
   `All clients` label instead of `__all_clients__`.
 - Normalized missing generation metadata from legacy obligation rows to `null` in the public DTO so
@@ -44,6 +47,9 @@ current client-level risk inputs instead of copying prior-year payment or penalt
 - Passed: `pnpm --filter @duedatehq/app i18n:extract`
 - Passed: `pnpm --filter @duedatehq/app i18n:compile`
 - Passed: `pnpm --filter @duedatehq/server test -- src/procedures/obligations/_service.test.ts`
+- Passed: `pnpm check apps/app/src/features/rules/generation-preview-tab.tsx apps/app/src/features/rules/generation-preview-tab.test.tsx apps/app/src/i18n/locales/en/messages.po apps/app/src/i18n/locales/en/messages.ts apps/app/src/i18n/locales/zh-CN/messages.po apps/app/src/i18n/locales/zh-CN/messages.ts docs/dev-log/2026-05-04-annual-rollover.md`
+- Note: latest full `pnpm check` is currently blocked by separate client filing profile worktree
+  changes outside the Annual Rollover UI files.
 - Passed: targeted `pnpm check:fix` on touched source and docs files
 - Passed: `pnpm test`
 - Passed: `pnpm check`

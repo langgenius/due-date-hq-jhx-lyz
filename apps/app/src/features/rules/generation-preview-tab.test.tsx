@@ -77,6 +77,22 @@ const clients: ClientPublic[] = [
     estimatedTaxLiabilitySource: 'manual',
     equityOwnerCount: 2,
     migrationBatchId: null,
+    filingProfiles: [
+      {
+        id: '33333333-3333-4333-8333-333333333333',
+        firmId: 'firm_123',
+        clientId: '22222222-2222-4222-8222-222222222222',
+        state: 'CA',
+        counties: [],
+        taxTypes: ['ca_100'],
+        isPrimary: true,
+        source: 'manual',
+        migrationBatchId: null,
+        archivedAt: null,
+        createdAt: '2026-05-04T00:00:00.000Z',
+        updatedAt: '2026-05-04T00:00:00.000Z',
+      },
+    ],
     createdAt: '2026-05-04T00:00:00.000Z',
     updatedAt: '2026-05-04T00:00:00.000Z',
     deletedAt: null,
@@ -232,6 +248,18 @@ describe('AnnualRolloverPanel', () => {
     expect(targetInput?.value).toBe(String(sourceYear + 1))
     expect(document.body.textContent).toContain('Seeds')
     expect(document.body.textContent).toContain('Will create')
+  })
+
+  it('renders help tooltips for annual rollover metrics and result columns', async () => {
+    await renderPanel()
+    await waitForText('CA Form 100 annual filing')
+
+    const helpButtons = Array.from(document.querySelectorAll('button[aria-label^="About "]'))
+
+    expect(helpButtons.map((button) => button.getAttribute('aria-label'))).toEqual(
+      expect.arrayContaining(['About Seeds', 'About Status', 'About Workboard']),
+    )
+    expect(helpButtons).toHaveLength(14)
   })
 
   it('generates rollover obligations and shows the Workboard link state', async () => {

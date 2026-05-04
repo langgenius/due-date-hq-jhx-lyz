@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm'
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import { firmProfile } from './firm'
 
 /**
@@ -102,15 +102,81 @@ export const client = sqliteTable(
   ],
 )
 
-export const clientRelations = relations(client, ({ one }) => ({
+export const CLIENT_FILING_PROFILE_SOURCES = [
+  'manual',
+  'imported',
+  'demo_seed',
+  'backfill',
+] as const
+export type ClientFilingProfileSource = (typeof CLIENT_FILING_PROFILE_SOURCES)[number]
+
+export const clientFilingProfile = sqliteTable(
+  'client_filing_profile',
+  {
+    id: text('id').primaryKey(),
+    firmId: text('firm_id')
+      .notNull()
+      .references(() => firmProfile.id, { onDelete: 'cascade' }),
+    clientId: text('client_id')
+      .notNull()
+      .references(() => client.id, { onDelete: 'cascade' }),
+    state: text('state').notNull(),
+    countiesJson: text('counties_json', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    taxTypesJson: text('tax_types_json', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    isPrimary: integer('is_primary', { mode: 'boolean' }).notNull().default(false),
+    source: text('source', { enum: CLIENT_FILING_PROFILE_SOURCES }).notNull().default('manual'),
+    migrationBatchId: text('migration_batch_id'),
+    archivedAt: integer('archived_at', { mode: 'timestamp_ms' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_cfp_firm_client').on(table.firmId, table.clientId),
+    index('idx_cfp_firm_state').on(table.firmId, table.state),
+    index('idx_cfp_batch').on(table.migrationBatchId),
+    uniqueIndex('uq_cfp_client_state_active')
+      .on(table.clientId, table.state)
+      .where(sql`archived_at is null`),
+    uniqueIndex('uq_cfp_client_primary_active')
+      .on(table.clientId)
+      .where(sql`is_primary = 1 and archived_at is null`),
+  ],
+)
+
+export const clientRelations = relations(client, ({ one, many }) => ({
   firm: one(firmProfile, {
     fields: [client.firmId],
     references: [firmProfile.id],
+  }),
+  filingProfiles: many(clientFilingProfile),
+}))
+
+export const clientFilingProfileRelations = relations(clientFilingProfile, ({ one }) => ({
+  firm: one(firmProfile, {
+    fields: [clientFilingProfile.firmId],
+    references: [firmProfile.id],
+  }),
+  client: one(client, {
+    fields: [clientFilingProfile.clientId],
+    references: [client.id],
   }),
 }))
 
 export type Client = typeof client.$inferSelect
 export type NewClient = typeof client.$inferInsert
+export type ClientFilingProfile = typeof clientFilingProfile.$inferSelect
+export type NewClientFilingProfile = typeof clientFilingProfile.$inferInsert
 
 // Exported for the AI Field Mapper contract + runtime guard. Keep this in sync
 // with `ClientEntityType` in packages/contracts/src/clients.ts and the Zod

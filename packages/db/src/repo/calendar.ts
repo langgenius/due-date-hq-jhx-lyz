@@ -218,7 +218,7 @@ export function makeCalendarFeedRepo(db: Db) {
           id: obligationInstance.id,
           clientId: client.id,
           clientName: client.name,
-          clientState: client.state,
+          clientState: obligationInstance.jurisdiction,
           clientCounty: client.county,
           assigneeName: client.assigneeName,
           taxType: obligationInstance.taxType,

@@ -218,8 +218,14 @@ export interface CommitObligationInput {
   id: string
   firmId: string
   clientId: string
+  clientFilingProfileId?: string | null
   taxType: string
   taxYear?: number | null
+  ruleId?: string | null
+  ruleVersion?: number | null
+  rulePeriod?: string | null
+  generationSource?: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
+  jurisdiction?: string | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -236,6 +242,18 @@ export interface CommitObligationInput {
   penaltySourceRefsJson?: unknown
   penaltyFormulaLabel?: string | null
   exposureCalculatedAt?: Date | null
+}
+
+export interface CommitClientFilingProfileInput {
+  id: string
+  firmId: string
+  clientId: string
+  state: string
+  countiesJson: string[]
+  taxTypesJson: string[]
+  isPrimary: boolean
+  source: 'manual' | 'imported' | 'demo_seed' | 'backfill'
+  migrationBatchId?: string | null
 }
 
 export interface CommitEvidenceInput {
@@ -275,6 +293,7 @@ export interface CommitAuditInput {
 export interface CommitImportInput {
   batchId: string
   clients: CommitClientInput[]
+  filingProfiles: CommitClientFilingProfileInput[]
   obligations: CommitObligationInput[]
   evidence: CommitEvidenceInput[]
   audits: CommitAuditInput[]

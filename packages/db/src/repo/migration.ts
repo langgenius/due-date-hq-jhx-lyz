@@ -2,7 +2,12 @@ import { and, desc, eq, inArray } from 'drizzle-orm'
 import type { BatchItem } from 'drizzle-orm/batch'
 import type { Db } from '../client'
 import { auditEvent, evidenceLink, type NewAuditEvent, type NewEvidenceLink } from '../schema/audit'
-import { client, type NewClient } from '../schema/clients'
+import {
+  client,
+  clientFilingProfile,
+  type NewClient,
+  type NewClientFilingProfile,
+} from '../schema/clients'
 import {
   externalReference,
   migrationBatch,
@@ -43,8 +48,10 @@ const STAGING_ROW_BATCH_SIZE = Math.floor(100 / 10)
 const EXTERNAL_REF_BATCH_SIZE = Math.floor(100 / 14)
 // client has 17 columns -> 5/batch.
 const CLIENT_BATCH_SIZE = Math.floor(100 / 17)
-// obligation_instance has 23 columns -> 4/batch.
-const OBLIGATION_BATCH_SIZE = Math.floor(100 / 23)
+// client_filing_profile has 12 columns -> 8/batch.
+const FILING_PROFILE_BATCH_SIZE = Math.floor(100 / 12)
+// obligation_instance has 29 columns -> 3/batch.
+const OBLIGATION_BATCH_SIZE = Math.floor(100 / 29)
 // evidence_link has 17 columns → 5/batch.
 const EVIDENCE_BATCH_SIZE = Math.floor(100 / 17)
 // audit_event has 12 columns → 8/batch.
@@ -82,6 +89,7 @@ export interface UpdateBatchPatch {
 export interface CommitImportInput {
   batchId: string
   clients: NewClient[]
+  filingProfiles: NewClientFilingProfile[]
   obligations: NewObligationInstance[]
   evidence: NewEvidenceLink[]
   audits: NewAuditEvent[]
@@ -361,6 +369,14 @@ export function makeMigrationRepo(db: Db, firmId: string) {
         queries.push(db.insert(client).values(input.clients.slice(i, i + CLIENT_BATCH_SIZE)))
       }
 
+      for (let i = 0; i < input.filingProfiles.length; i += FILING_PROFILE_BATCH_SIZE) {
+        queries.push(
+          db
+            .insert(clientFilingProfile)
+            .values(input.filingProfiles.slice(i, i + FILING_PROFILE_BATCH_SIZE)),
+        )
+      }
+
       for (let i = 0; i < input.obligations.length; i += OBLIGATION_BATCH_SIZE) {
         queries.push(
           db
@@ -427,6 +443,15 @@ export function makeMigrationRepo(db: Db, firmId: string) {
         .select({ id: client.id })
         .from(client)
         .where(and(eq(client.firmId, firmId), eq(client.migrationBatchId, input.batchId)))
+      const profilesToDelete = await db
+        .select({ id: clientFilingProfile.id })
+        .from(clientFilingProfile)
+        .where(
+          and(
+            eq(clientFilingProfile.firmId, firmId),
+            eq(clientFilingProfile.migrationBatchId, input.batchId),
+          ),
+        )
 
       const queries: BatchItem<'sqlite'>[] = [
         db.insert(evidenceLink).values(migrationRevertEvidence(input, firmId, 'batch')),
@@ -447,6 +472,19 @@ export function makeMigrationRepo(db: Db, firmId: string) {
               and(
                 eq(obligationInstance.firmId, firmId),
                 eq(obligationInstance.migrationBatchId, input.batchId),
+              ),
+            ),
+        )
+      }
+
+      if (profilesToDelete.length > 0) {
+        queries.push(
+          db
+            .delete(clientFilingProfile)
+            .where(
+              and(
+                eq(clientFilingProfile.firmId, firmId),
+                eq(clientFilingProfile.migrationBatchId, input.batchId),
               ),
             ),
         )
@@ -522,6 +560,17 @@ export function makeMigrationRepo(db: Db, firmId: string) {
           ),
         )
 
+      const profilesToDelete = await db
+        .select({ id: clientFilingProfile.id })
+        .from(clientFilingProfile)
+        .where(
+          and(
+            eq(clientFilingProfile.firmId, firmId),
+            eq(clientFilingProfile.clientId, input.clientId),
+            eq(clientFilingProfile.migrationBatchId, input.batchId),
+          ),
+        )
+
       const queries: BatchItem<'sqlite'>[] = [
         db.insert(evidenceLink).values(migrationRevertEvidence(input, firmId, input.clientId)),
         db.insert(auditEvent).values(
@@ -553,6 +602,20 @@ export function makeMigrationRepo(db: Db, firmId: string) {
               and(
                 eq(externalReference.firmId, firmId),
                 inArray(externalReference.internalEntityId, obligationIds),
+              ),
+            ),
+        )
+      }
+
+      if (profilesToDelete.length > 0) {
+        queries.push(
+          db
+            .delete(clientFilingProfile)
+            .where(
+              and(
+                eq(clientFilingProfile.firmId, firmId),
+                eq(clientFilingProfile.clientId, input.clientId),
+                eq(clientFilingProfile.migrationBatchId, input.batchId),
               ),
             ),
         )

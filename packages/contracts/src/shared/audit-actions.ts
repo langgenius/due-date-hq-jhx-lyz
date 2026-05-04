@@ -39,6 +39,7 @@ export const ClientAuditActions = [
   'client.batch_created',
   'client.created',
   'client.deleted',
+  'client.filing_profiles.replaced',
   'client.jurisdiction.updated',
   'client.risk_profile.updated',
 ] as const

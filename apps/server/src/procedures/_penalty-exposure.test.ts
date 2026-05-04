@@ -14,6 +14,27 @@ function unused(name: string): never {
   throw new Error(`Unexpected repo call in penalty exposure test: ${name}`)
 }
 
+function unusedFilingProfilesRepo(firmId: string): ScopedRepo['filingProfiles'] {
+  return {
+    firmId,
+    async createBatch() {
+      return unused('filingProfiles.createBatch')
+    },
+    async listByClient() {
+      return unused('filingProfiles.listByClient')
+    },
+    async listByClients() {
+      return unused('filingProfiles.listByClients')
+    },
+    async replaceForClient() {
+      return unused('filingProfiles.replaceForClient')
+    },
+    async deleteByBatch() {
+      return unused('filingProfiles.deleteByBatch')
+    },
+  }
+}
+
 function makeClient(over: Partial<ClientRow>): ClientRow {
   return {
     id: 'client',
@@ -45,12 +66,14 @@ function makeObligation(over: Partial<ObligationInstanceRow>): ObligationInstanc
     id: 'obligation',
     firmId: FIRM_ID,
     clientId: 'client',
+    clientFilingProfileId: null,
     taxType: 'federal_1065',
     taxYear: 2026,
     ruleId: null,
     ruleVersion: null,
     rulePeriod: null,
     generationSource: null,
+    jurisdiction: 'FED',
     baseDueDate: new Date('2026-03-15T00:00:00.000Z'),
     currentDueDate: new Date('2026-03-15T00:00:00.000Z'),
     status: 'pending',
@@ -96,6 +119,7 @@ function buildScopedRepo(input: {
 }): ScopedRepo {
   return {
     firmId: FIRM_ID,
+    filingProfiles: unusedFilingProfilesRepo(FIRM_ID),
     ai: {
       firmId: FIRM_ID,
       async recordRun() {

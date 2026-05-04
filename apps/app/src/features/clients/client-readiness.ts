@@ -72,11 +72,18 @@ export function getClientSourceType(client: ClientPublic): ClientSourceType {
   return client.migrationBatchId ? 'imported' : 'manual'
 }
 
+export function getClientFilingStates(client: ClientPublic): string[] {
+  const profileStates = client.filingProfiles.map((profile) => profile.state)
+  return Array.from(
+    new Set([...profileStates, client.state].filter((state): state is string => Boolean(state))),
+  )
+}
+
 export function getClientReadiness(client: ClientPublic): ClientReadiness {
   const missingRequiredFacts: RequiredClientFact[] = []
   const optionalGaps: OptionalClientFact[] = []
 
-  if (!client.state) missingRequiredFacts.push('state')
+  if (getClientFilingStates(client).length === 0) missingRequiredFacts.push('state')
   if (!client.entityType) missingRequiredFacts.push('entityType')
   if (!client.ein) optionalGaps.push('ein')
   if (!client.assigneeName) optionalGaps.push('owner')
@@ -113,7 +120,7 @@ export function buildClientFactsModel(clients: ClientPublic[]): ClientFactsModel
     else summary.manual += 1
 
     if (client.assigneeName) summary.assigned += 1
-    if (client.state) states.add(client.state)
+    for (const state of getClientFilingStates(client)) states.add(state)
   }
 
   const stateOptions = Array.from(states).toSorted()
@@ -132,6 +139,12 @@ export function getClientSearchHaystack(client: ClientPublic): string {
     client.ein,
     client.state,
     client.county,
+    ...client.filingProfiles.flatMap((profile) => [
+      profile.state,
+      ...profile.counties,
+      ...profile.taxTypes,
+      profile.source,
+    ]),
     client.entityType,
     client.email,
     client.assigneeName,
@@ -162,7 +175,10 @@ export function filterClients(clients: ClientPublic[], filters: ClientFilters): 
     if (entityFilterSet.size > 0 && !entityFilterSet.has(client.entityType)) {
       return false
     }
-    if (stateFilterSet.size > 0 && (!client.state || !stateFilterSet.has(client.state))) {
+    if (
+      stateFilterSet.size > 0 &&
+      !getClientFilingStates(client).some((state) => stateFilterSet.has(state))
+    ) {
       return false
     }
     if (readinessFilterSet.size > 0 && !readinessFilterSet.has(getClientReadiness(client).status)) {

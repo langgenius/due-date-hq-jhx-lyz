@@ -30,14 +30,15 @@ interface FakeRow {
 
 /**
  * Fake Drizzle chain — only what makeWorkboardRepo.list calls actually walks.
- * Order: select().from().innerJoin().where().orderBy().limit() => Promise<rows>.
+ * Order: select().from().innerJoin().leftJoin().where().orderBy().limit() => Promise<rows>.
  */
 function createFakeDb(rows: FakeRow[]) {
   const limit = vi.fn(async (_n: number) => rows)
   const orderBy = vi.fn(() => ({ limit }))
   const where = vi.fn(() => ({ orderBy }))
-  const innerJoin = vi.fn(() => ({ where }))
-  const from = vi.fn(() => ({ innerJoin }))
+  const leftJoin = vi.fn(() => ({ where }))
+  const innerJoin = vi.fn(() => ({ leftJoin, where }))
+  const from = vi.fn(() => ({ innerJoin, leftJoin }))
   const overlayOrderBy = vi.fn(async () => [])
   const overlayWhere = vi.fn(() => ({ orderBy: overlayOrderBy }))
   const overlayInnerJoin = vi.fn(() => ({ where: overlayWhere }))
@@ -66,6 +67,7 @@ function createFakeDb(rows: FakeRow[]) {
     orderBy,
     limit,
     overlayOrderBy,
+    leftJoin,
   }
 }
 

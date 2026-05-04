@@ -3,7 +3,7 @@ import type { BatchItem } from 'drizzle-orm/batch'
 import type { Db } from '../client'
 import { auditEvent, evidenceLink, type NewAuditEvent, type NewEvidenceLink } from '../schema/audit'
 import { member, user } from '../schema/auth'
-import { client, type ClientEntityType } from '../schema/clients'
+import { client, clientFilingProfile, type ClientEntityType } from '../schema/clients'
 import {
   emailOutbox,
   inAppNotification,
@@ -311,6 +311,7 @@ interface CandidateRow {
   clientName: string
   state: string | null
   county: string | null
+  counties: string[] | null
   entityType: ClientEntityType
   taxType: string
   currentDueDate: Date
@@ -328,6 +329,7 @@ interface ApplicationRow {
   clientName: string
   state: string | null
   county: string | null
+  counties: string[] | null
   entityType: ClientEntityType
   taxType: string
   currentDueDate: Date
@@ -343,6 +345,7 @@ interface AllFirmCandidateRow {
   obligationId: string
   currentDueDate: Date
   county: string | null
+  counties: string[] | null
 }
 
 interface AlertRecipientRow {
@@ -362,6 +365,7 @@ interface PulseDigestObligationRow {
   clientName: string
   state: string | null
   county: string | null
+  counties: string[] | null
   taxType: string
   currentDueDate: Date
   matchStatus: 'eligible' | 'needs_review'
@@ -525,6 +529,25 @@ function normalizeCountyName(value: string): string {
     .trim()
 }
 
+function countyValues(row: { county: string | null; counties: string[] | null }): string[] {
+  const profileCounties = Array.isArray(row.counties) ? row.counties : []
+  const values = profileCounties.length > 0 ? profileCounties : row.county ? [row.county] : []
+  return values.map((value) => value.trim()).filter((value) => value.length > 0)
+}
+
+function displayCounty(row: { county: string | null; counties: string[] | null }): string | null {
+  return countyValues(row)[0] ?? null
+}
+
+function rowMatchesCounty(
+  row: { county: string | null; counties: string[] | null },
+  counties: ReadonlySet<string>,
+): 'match' | 'missing' | 'miss' {
+  const values = countyValues(row)
+  if (values.length === 0) return 'missing'
+  return values.some((value) => counties.has(normalizeCountyName(value))) ? 'match' : 'miss'
+}
+
 export function makePulseRepo(db: Db, firmId: string) {
   async function getAlert(
     alertId: string,
@@ -609,8 +632,9 @@ export function makePulseRepo(db: Db, firmId: string) {
         obligationId: obligationInstance.id,
         clientId: client.id,
         clientName: client.name,
-        state: client.state,
+        state: obligationInstance.jurisdiction,
         county: client.county,
+        counties: clientFilingProfile.countiesJson,
         entityType: client.entityType,
         taxType: obligationInstance.taxType,
         currentDueDate: obligationInstance.currentDueDate,
@@ -618,11 +642,15 @@ export function makePulseRepo(db: Db, firmId: string) {
       })
       .from(obligationInstance)
       .innerJoin(client, eq(obligationInstance.clientId, client.id))
+      .leftJoin(
+        clientFilingProfile,
+        eq(obligationInstance.clientFilingProfileId, clientFilingProfile.id),
+      )
       .where(
         and(
           eq(obligationInstance.firmId, firmId),
           eq(client.firmId, firmId),
-          eq(client.state, alert.parsedJurisdiction),
+          eq(obligationInstance.jurisdiction, alert.parsedJurisdiction),
           inArray(client.entityType, entityTypes),
           inArray(obligationInstance.taxType, forms),
           inArray(obligationInstance.status, OPEN_STATUSES),
@@ -641,7 +669,7 @@ export function makePulseRepo(db: Db, firmId: string) {
             clientId: row.clientId,
             clientName: row.clientName,
             state: row.state,
-            county: row.county,
+            county: displayCounty(row),
             entityType: row.entityType,
             taxType: row.taxType,
             currentDueDate: row.currentDueDate,
@@ -652,13 +680,14 @@ export function makePulseRepo(db: Db, firmId: string) {
           }
         }
         if (counties.size > 0) {
-          if (!row.county) {
+          const countyMatch = rowMatchesCounty(row, counties)
+          if (countyMatch === 'missing') {
             return {
               obligationId: row.obligationId,
               clientId: row.clientId,
               clientName: row.clientName,
               state: row.state,
-              county: row.county,
+              county: displayCounty(row),
               entityType: row.entityType,
               taxType: row.taxType,
               currentDueDate: row.currentDueDate,
@@ -668,7 +697,7 @@ export function makePulseRepo(db: Db, firmId: string) {
               reason: 'Client county is missing; confirm county applicability before applying.',
             }
           }
-          if (!counties.has(normalizeCountyName(row.county))) return null
+          if (countyMatch === 'miss') return null
         }
 
         return {
@@ -676,7 +705,7 @@ export function makePulseRepo(db: Db, firmId: string) {
           clientId: row.clientId,
           clientName: row.clientName,
           state: row.state,
-          county: row.county,
+          county: displayCounty(row),
           entityType: row.entityType,
           taxType: row.taxType,
           currentDueDate: row.currentDueDate,
@@ -696,8 +725,9 @@ export function makePulseRepo(db: Db, firmId: string) {
         obligationId: pulseApplication.obligationInstanceId,
         clientId: pulseApplication.clientId,
         clientName: client.name,
-        state: client.state,
+        state: obligationInstance.jurisdiction,
         county: client.county,
+        counties: clientFilingProfile.countiesJson,
         entityType: client.entityType,
         taxType: obligationInstance.taxType,
         currentDueDate: obligationInstance.currentDueDate,
@@ -713,6 +743,10 @@ export function makePulseRepo(db: Db, firmId: string) {
         eq(pulseApplication.obligationInstanceId, obligationInstance.id),
       )
       .innerJoin(client, eq(pulseApplication.clientId, client.id))
+      .leftJoin(
+        clientFilingProfile,
+        eq(obligationInstance.clientFilingProfileId, clientFilingProfile.id),
+      )
       .where(and(eq(pulseApplication.firmId, firmId), eq(pulseApplication.pulseId, pulseId)))
       .orderBy(asc(client.name), asc(pulseApplication.appliedAt))
 
@@ -727,7 +761,7 @@ export function makePulseRepo(db: Db, firmId: string) {
       clientId: row.clientId,
       clientName: row.clientName,
       state: row.state,
-      county: row.county,
+      county: displayCounty(row),
       entityType: row.entityType,
       taxType: row.taxType,
       currentDueDate: overlays.get(row.obligationId) ?? row.currentDueDate,
@@ -746,8 +780,9 @@ export function makePulseRepo(db: Db, firmId: string) {
         obligationId: obligationInstance.id,
         clientId: client.id,
         clientName: client.name,
-        state: client.state,
+        state: obligationInstance.jurisdiction,
         county: client.county,
+        counties: clientFilingProfile.countiesJson,
         entityType: client.entityType,
         taxType: obligationInstance.taxType,
         currentDueDate: obligationInstance.currentDueDate,
@@ -755,6 +790,10 @@ export function makePulseRepo(db: Db, firmId: string) {
       })
       .from(obligationInstance)
       .innerJoin(client, eq(obligationInstance.clientId, client.id))
+      .leftJoin(
+        clientFilingProfile,
+        eq(obligationInstance.clientFilingProfileId, clientFilingProfile.id),
+      )
       .where(
         and(
           eq(obligationInstance.firmId, firmId),
@@ -840,9 +879,10 @@ export function makePulseRepo(db: Db, firmId: string) {
         throw new PulseRepoError('conflict')
       }
       if (counties.size > 0) {
-        if (!row.county) {
+        const countyMatch = rowMatchesCounty(row, counties)
+        if (countyMatch === 'missing') {
           if (!confirmedReviewIds.has(row.obligationId)) throw new PulseRepoError('conflict')
-        } else if (!counties.has(normalizeCountyName(row.county))) {
+        } else if (countyMatch === 'miss') {
           throw new PulseRepoError('conflict')
         }
       }
@@ -852,7 +892,7 @@ export function makePulseRepo(db: Db, firmId: string) {
         clientId: row.clientId,
         clientName: row.clientName,
         state: row.state,
-        county: row.county,
+        county: displayCounty(row),
         entityType: row.entityType,
         taxType: row.taxType,
         currentDueDate: row.currentDueDate,
@@ -1670,12 +1710,17 @@ export function makePulseOpsRepo(db: Db) {
         obligationId: obligationInstance.id,
         currentDueDate: obligationInstance.currentDueDate,
         county: client.county,
+        counties: clientFilingProfile.countiesJson,
       })
       .from(obligationInstance)
       .innerJoin(client, eq(obligationInstance.clientId, client.id))
+      .leftJoin(
+        clientFilingProfile,
+        eq(obligationInstance.clientFilingProfileId, clientFilingProfile.id),
+      )
       .where(
         and(
-          eq(client.state, row.parsedJurisdiction),
+          eq(obligationInstance.jurisdiction, row.parsedJurisdiction),
           inArray(client.entityType, entityTypes),
           inArray(obligationInstance.taxType, forms),
           inArray(obligationInstance.status, OPEN_STATUSES),
@@ -1703,8 +1748,9 @@ export function makePulseOpsRepo(db: Db) {
           const currentDueDate = overlays.get(candidate.obligationId) ?? candidate.currentDueDate
           if (!sameTimestamp(currentDueDate, row.parsedOriginalDueDate)) continue
           if (counties.size > 0) {
-            if (!candidate.county) count.needsReviewCount += 1
-            else if (counties.has(normalizeCountyName(candidate.county))) count.matchedCount += 1
+            const countyMatch = rowMatchesCounty(candidate, counties)
+            if (countyMatch === 'missing') count.needsReviewCount += 1
+            else if (countyMatch === 'match') count.matchedCount += 1
           } else {
             count.matchedCount += 1
           }
@@ -1951,18 +1997,23 @@ export function makePulseOpsRepo(db: Db) {
         obligationId: obligationInstance.id,
         clientId: client.id,
         clientName: client.name,
-        state: client.state,
+        state: obligationInstance.jurisdiction,
         county: client.county,
+        counties: clientFilingProfile.countiesJson,
         taxType: obligationInstance.taxType,
         currentDueDate: obligationInstance.currentDueDate,
       })
       .from(obligationInstance)
       .innerJoin(client, eq(obligationInstance.clientId, client.id))
+      .leftJoin(
+        clientFilingProfile,
+        eq(obligationInstance.clientFilingProfileId, clientFilingProfile.id),
+      )
       .where(
         and(
           eq(obligationInstance.firmId, firmId),
           eq(client.firmId, firmId),
-          eq(client.state, row.parsedJurisdiction),
+          eq(obligationInstance.jurisdiction, row.parsedJurisdiction),
           inArray(client.entityType, entityTypes),
           inArray(obligationInstance.taxType, forms),
           inArray(obligationInstance.status, OPEN_STATUSES),
@@ -1982,20 +2033,22 @@ export function makePulseOpsRepo(db: Db) {
         const currentDueDate = overlays.get(candidate.obligationId) ?? candidate.currentDueDate
         if (!sameTimestamp(currentDueDate, row.parsedOriginalDueDate)) return null
         if (counties.size > 0) {
-          if (!candidate.county) {
+          const countyMatch = rowMatchesCounty(candidate, counties)
+          if (countyMatch === 'missing') {
             return {
               obligationId: candidate.obligationId,
               clientId: candidate.clientId,
               clientName: candidate.clientName,
               state: candidate.state,
-              county: candidate.county,
+              county: displayCounty(candidate),
+              counties: candidate.counties,
               taxType: candidate.taxType,
               currentDueDate,
               matchStatus: 'needs_review',
               reason: 'Client county is missing; confirm county applicability before applying.',
             }
           }
-          if (!counties.has(normalizeCountyName(candidate.county))) return null
+          if (countyMatch === 'miss') return null
         }
 
         return {
@@ -2003,7 +2056,8 @@ export function makePulseOpsRepo(db: Db) {
           clientId: candidate.clientId,
           clientName: candidate.clientName,
           state: candidate.state,
-          county: candidate.county,
+          county: displayCounty(candidate),
+          counties: candidate.counties,
           taxType: candidate.taxType,
           currentDueDate,
           matchStatus: 'eligible',

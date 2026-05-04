@@ -663,7 +663,7 @@ export function makeDashboardRepo(db: Db, firmId: string) {
           missingPenaltyFactsJson: obligationInstance.missingPenaltyFactsJson,
           penaltySourceRefsJson: obligationInstance.penaltySourceRefsJson,
           penaltyFormulaLabel: obligationInstance.penaltyFormulaLabel,
-          clientState: client.state,
+          clientState: obligationInstance.jurisdiction,
           clientEntityType: client.entityType,
           clientEstimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents,
           clientEquityOwnerCount: client.equityOwnerCount,

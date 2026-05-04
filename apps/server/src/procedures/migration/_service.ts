@@ -107,6 +107,7 @@ const MapperOutputSchema = z.object({
         'client.name',
         'client.ein',
         'client.state',
+        'client.filing_states',
         'client.county',
         'client.entity_type',
         'client.tax_types',
@@ -1381,11 +1382,17 @@ function collectValuesByField(
 
   const entityIdx = mappings.find((m) => m.targetField === 'client.entity_type')?.sourceHeader
   const stateIdx = mappings.find((m) => m.targetField === 'client.state')?.sourceHeader
+  const filingStatesIdx = mappings.find(
+    (m) => m.targetField === 'client.filing_states',
+  )?.sourceHeader
   const taxIdx = mappings.find((m) => m.targetField === 'client.tax_types')?.sourceHeader
 
   return {
     entityValues: collectColumn(headerToIndex.get(entityIdx ?? ''), rows),
-    stateValues: collectColumn(headerToIndex.get(stateIdx ?? ''), rows),
+    stateValues: [
+      ...collectColumn(headerToIndex.get(stateIdx ?? ''), rows),
+      ...collectColumn(headerToIndex.get(filingStatesIdx ?? ''), rows),
+    ],
     taxTypeValues: collectColumn(headerToIndex.get(taxIdx ?? ''), rows),
   }
 }
@@ -1670,6 +1677,9 @@ function computeMatrixApplication(
   const stateIdx = headerToIndex.get(
     mappings.find((m) => m.targetField === 'client.state')?.sourceHeader ?? '',
   )
+  const filingStatesIdx = headerToIndex.get(
+    mappings.find((m) => m.targetField === 'client.filing_states')?.sourceHeader ?? '',
+  )
   const taxIdx = headerToIndex.get(
     mappings.find((m) => m.targetField === 'client.tax_types')?.sourceHeader ?? '',
   )
@@ -1690,13 +1700,19 @@ function computeMatrixApplication(
 
     const rawEntity = entityIdx !== undefined ? (row[entityIdx] ?? '').trim() : ''
     const rawState = stateIdx !== undefined ? (row[stateIdx] ?? '').trim() : ''
+    const rawFilingStates = filingStatesIdx !== undefined ? (row[filingStatesIdx] ?? '').trim() : ''
     const entity = entityMap.get(rawEntity) ?? rawEntity.toLowerCase()
-    const state = stateMap.get(rawState) ?? rawState.toUpperCase()
     if (!entity) continue
-    const key = `${entity}::${state}`
-    const cell = cellCounts.get(key)
-    if (cell) cell.count += 1
-    else cellCounts.set(key, { entityType: entity, state, count: 1 })
+    const states = uniqueStrings([
+      ...splitStateList(rawState, stateMap),
+      ...splitStateList(rawFilingStates, stateMap),
+    ])
+    for (const state of states) {
+      const key = `${entity}::${state}`
+      const cell = cellCounts.get(key)
+      if (cell) cell.count += 1
+      else cellCounts.set(key, { entityType: entity, state, count: 1 })
+    }
   }
 
   const out: MatrixApplicationEntry[] = []
@@ -1716,6 +1732,21 @@ function computeMatrixApplication(
     })
   }
   return out
+}
+
+function splitStateList(raw: string, normalizations: ReadonlyMap<string, string | null>): string[] {
+  if (!raw) return []
+  return raw
+    .split(/[;,|/]/)
+    .map((token) => {
+      const trimmed = token.trim()
+      return normalizations.get(trimmed) ?? trimmed.toUpperCase()
+    })
+    .filter((state) => /^[A-Z]{2}$/.test(state))
+}
+
+function uniqueStrings(values: readonly string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean)))
 }
 
 function isEntityType(value: string): value is EntityType {

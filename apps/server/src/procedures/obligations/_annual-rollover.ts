@@ -28,6 +28,8 @@ type AnnualRolloverMode = 'preview' | 'create'
 
 type SourceBucket = {
   clientId: string
+  jurisdiction: string | null
+  clientFilingProfileId: string | null
   taxType: string
   sourceObligationIds: string[]
 }
@@ -47,11 +49,18 @@ function rolloverDates(targetFilingYear: number): { taxYearStart: string; taxYea
 
 function keyForDuplicate(input: {
   clientId: string
+  jurisdiction: string | null
   ruleId: string
   taxYear: number | null
   rulePeriod: string
 }): string {
-  return `${input.clientId}::${input.ruleId}::${input.taxYear ?? ''}::${input.rulePeriod}`
+  return [
+    input.clientId,
+    input.jurisdiction ?? '',
+    input.ruleId,
+    input.taxYear ?? '',
+    input.rulePeriod,
+  ].join('::')
 }
 
 async function listRuntimeRules(
@@ -77,11 +86,13 @@ function groupSeedBuckets(
 ): SourceBucket[] {
   const buckets = new Map<string, SourceBucket>()
   for (const seed of seeds) {
-    const key = `${seed.clientId}::${seed.taxType}`
+    const key = `${seed.clientId}::${seed.jurisdiction ?? ''}::${seed.taxType}`
     const current =
       buckets.get(key) ??
       ({
         clientId: seed.clientId,
+        jurisdiction: seed.jurisdiction,
+        clientFilingProfileId: seed.clientFilingProfileId,
         taxType: seed.taxType,
         sourceObligationIds: [],
       } satisfies SourceBucket)
@@ -170,6 +181,7 @@ export async function runAnnualRollover(input: {
       .map((row) => [
         keyForDuplicate({
           clientId: row.clientId,
+          jurisdiction: row.jurisdiction,
           ruleId: row.ruleId!,
           taxYear: row.taxYear,
           rulePeriod: row.rulePeriod!,
@@ -184,11 +196,11 @@ export async function runAnnualRollover(input: {
   for (const clientId of new Set(buckets.map((bucket) => bucket.clientId))) {
     const client = clientById.get(clientId)
     const clientBuckets = buckets.filter((bucket) => bucket.clientId === clientId)
-    if (!client || !isRuleGenerationState(client.state)) {
+    if (!client) {
       for (const bucket of clientBuckets) {
         rows.push({
           clientId,
-          clientName: client?.name ?? clientId,
+          clientName: clientId,
           taxType: bucket.taxType,
           sourceObligationIds: bucket.sourceObligationIds,
           preview: null,
@@ -196,33 +208,48 @@ export async function runAnnualRollover(input: {
           targetStatus: null,
           duplicateObligationId: null,
           createdObligationId: null,
-          skippedReason: client ? 'client_state_missing' : 'client_not_found',
+          skippedReason: 'client_not_found',
         })
       }
       continue
     }
 
     const { taxYearStart, taxYearEnd } = rolloverDates(input.params.targetFilingYear)
-    const previews = previewObligationsFromRules({
-      client: {
-        id: client.id,
-        entityType: client.entityType,
-        state: client.state,
-        taxTypes: clientBuckets.map((bucket) => bucket.taxType),
-        taxYearStart,
-        taxYearEnd,
-      },
-      rules: runtimeRules,
-    })
-    const previewsByMatchedTaxType = new Map<string, ObligationGenerationPreview[]>()
-    for (const preview of previews) {
-      const list = previewsByMatchedTaxType.get(preview.matchedTaxType) ?? []
-      list.push(preview)
-      previewsByMatchedTaxType.set(preview.matchedTaxType, list)
-    }
-
     for (const bucket of clientBuckets) {
-      const matchedPreviews = previewsByMatchedTaxType.get(bucket.taxType) ?? []
+      const generationState =
+        isRuleGenerationState(bucket.jurisdiction) || bucket.jurisdiction === 'FED'
+          ? bucket.jurisdiction === 'FED'
+            ? client.state
+            : bucket.jurisdiction
+          : client.state
+      if (!isRuleGenerationState(generationState)) {
+        rows.push({
+          clientId: client.id,
+          clientName: client.name,
+          taxType: bucket.taxType,
+          sourceObligationIds: bucket.sourceObligationIds,
+          preview: null,
+          disposition: 'missing_verified_rule',
+          targetStatus: null,
+          duplicateObligationId: null,
+          createdObligationId: null,
+          skippedReason: 'client_state_missing',
+        })
+        continue
+      }
+
+      const matchedPreviews = previewObligationsFromRules({
+        client: {
+          id: client.id,
+          entityType: client.entityType,
+          state: generationState,
+          taxTypes: [bucket.taxType],
+          taxYearStart,
+          taxYearEnd,
+        },
+        rules: runtimeRules,
+      }).filter((preview) => preview.matchedTaxType === bucket.taxType)
+
       if (matchedPreviews.length === 0) {
         rows.push({
           clientId: client.id,
@@ -245,6 +272,7 @@ export async function runAnnualRollover(input: {
           ? duplicates.get(
               keyForDuplicate({
                 clientId: client.id,
+                jurisdiction: preview.jurisdiction,
                 ruleId: rule.id,
                 taxYear: rule.taxYear,
                 rulePeriod: preview.period,
@@ -297,12 +325,15 @@ export async function runAnnualRollover(input: {
         })
         createInputs.push({
           clientId: client.id,
+          clientFilingProfileId:
+            preview.jurisdiction === 'FED' ? null : bucket.clientFilingProfileId,
           taxType: preview.taxType,
           taxYear: rule.taxYear,
           ruleId: rule.id,
           ruleVersion: preview.ruleVersion,
           rulePeriod: preview.period,
           generationSource: 'annual_rollover',
+          jurisdiction: preview.jurisdiction,
           baseDueDate: dueDate,
           currentDueDate: dueDate,
           status: targetStatus,

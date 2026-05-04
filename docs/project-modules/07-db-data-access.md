@@ -8,16 +8,17 @@
 
 ## 关键路径
 
-| 路径                              | 职责                                         |
-| --------------------------------- | -------------------------------------------- |
-| `packages/db/src/client.ts`       | Drizzle D1 client 和 schema 聚合             |
-| `packages/db/src/scoped.ts`       | `scoped(db, firmId)` 租户仓储工厂            |
-| `packages/db/src/schema`          | Drizzle schema                               |
-| `packages/db/src/repo`            | repo implementations                         |
-| `packages/db/src/repo/firms.ts`   | firm/session/active organization data access |
-| `packages/db/src/repo/members.ts` | membership/invitation/seat usage             |
-| `packages/db/src/repo/pulse.ts`   | firm pulse alert 和 ops source state         |
-| `packages/db/src/repo/audit.ts`   | append-only audit 和 evidence package        |
+| 路径                                             | 职责                                                   |
+| ------------------------------------------------ | ------------------------------------------------------ |
+| `packages/db/src/client.ts`                      | Drizzle D1 client 和 schema 聚合                       |
+| `packages/db/src/scoped.ts`                      | `scoped(db, firmId)` 租户仓储工厂                      |
+| `packages/db/src/schema`                         | Drizzle schema                                         |
+| `packages/db/src/repo`                           | repo implementations                                   |
+| `packages/db/src/repo/firms.ts`                  | firm/session/active organization data access           |
+| `packages/db/src/repo/members.ts`                | membership/invitation/seat usage                       |
+| `packages/db/src/repo/client-filing-profiles.ts` | 客户多州 filing profile CRUD、archive 和 legacy mirror |
+| `packages/db/src/repo/pulse.ts`                  | firm pulse alert 和 ops source state                   |
+| `packages/db/src/repo/audit.ts`                  | append-only audit 和 evidence package                  |
 
 ## 主要数据域
 
@@ -38,9 +39,17 @@
 ### Client 与 obligation
 
 - `client`
+- `client_filing_profile`
 - `obligation_instance`
 
-义务记录包含 base/current due date、status、tax type、tax year、罚金暴露字段、迁移 batch 和删除时间。
+`client_filing_profile` 是客户真实报税辖区事实来源：一个客户可以有多个 active filing state
+profile，同州只允许一个 active profile，最多一个 primary profile。`client.state/county` 只做
+primary profile 的兼容镜像。
+
+义务记录包含 base/current due date、status、tax type、tax year、jurisdiction、
+`client_filing_profile_id`、罚金暴露字段、迁移 batch 和删除时间。Workboard、Dashboard、
+Calendar、Readiness、Pulse 和 penalty exposure 读 obligation jurisdiction，而不是直接读
+legacy client state。
 
 ### Migration
 
@@ -136,7 +145,9 @@ erDiagram
   organization ||--o{ member : members
   organization ||--o{ invitation : invites
   firm_profile ||--o{ client : owns
+  client ||--o{ client_filing_profile : has
   client ||--o{ obligation_instance : has
+  client_filing_profile ||--o{ obligation_instance : scopes
   firm_profile ||--o{ migration_batch : imports
   migration_batch ||--o{ migration_mapping : maps
   migration_batch ||--o{ migration_normalization : normalizes
@@ -149,18 +160,19 @@ erDiagram
 
 ## Repo 能力概览
 
-| Repo            | 能力                                                                                                                       |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `clients`       | create/createBatch/find/list/updateJurisdiction/updatePenaltyInputs/softDelete/deleteByBatch                               |
-| `obligations`   | createBatch/list/updateDueDate/updateExposure/updateStatus/deleteByBatch                                                   |
-| `migration`     | batch lifecycle、mapping、normalization、errors、commit/revert                                                             |
-| `audit`         | write/writeBatch/list/create package/mark package state                                                                    |
-| `evidence`      | write/writeBatch/listByObligation                                                                                          |
-| `dashboard`     | load snapshot、brief cache、pending/ready/failed state                                                                     |
-| `pulse`         | alert lifecycle、history、source health、apply/dismiss/snooze/revert                                                       |
-| `notifications` | in-app notification、email outbox、preferences、suppression；Pulse alert 到达写入个人通知，但业务生命周期仍归 `pulse` repo |
-| `firms`         | organization/firm profile/current firm/switch/update/soft delete                                                           |
-| `members`       | list/invite/update role/status/seat usage                                                                                  |
+| Repo             | 能力                                                                                                                              |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `clients`        | create/createBatch/find/list/updateJurisdiction/updatePenaltyInputs/softDelete/deleteByBatch                                      |
+| `filingProfiles` | createBatch/listByClient/listByClients/replaceForClient/deleteByBatch；所有方法 tenant-scoped，并维护 primary mirror              |
+| `obligations`    | createBatch/list/updateDueDate/updateExposure/updateStatus/deleteByBatch；create 前校验 client/profile 同 firm，并写 jurisdiction |
+| `migration`      | batch lifecycle、mapping、normalization、errors、commit/revert；commit/revert 同步处理 filing profiles                            |
+| `audit`          | write/writeBatch/list/create package/mark package state                                                                           |
+| `evidence`       | write/writeBatch/listByObligation                                                                                                 |
+| `dashboard`      | load snapshot、brief cache、pending/ready/failed state                                                                            |
+| `pulse`          | alert lifecycle、history、source health、apply/dismiss/snooze/revert                                                              |
+| `notifications`  | in-app notification、email outbox、preferences、suppression；Pulse alert 到达写入个人通知，但业务生命周期仍归 `pulse` repo        |
+| `firms`          | organization/firm profile/current firm/switch/update/soft delete                                                                  |
+| `members`        | list/invite/update role/status/seat usage                                                                                         |
 
 ## 架构图
 

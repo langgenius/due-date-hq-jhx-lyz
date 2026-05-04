@@ -2,6 +2,7 @@ import type { AiRepo } from './ai'
 import type { AiInsightsRepo } from './ai-insights'
 import type { CalendarRepo } from './calendar'
 import type { AuditRepo } from './audit'
+import type { ClientFilingProfilesRepo } from './client-filing-profiles'
 import type { ClientsRepo } from './clients'
 import type { DashboardRepo } from './dashboard'
 import type { EvidenceRepo } from './evidence'
@@ -19,6 +20,7 @@ export interface ScopedRepo {
   readonly ai: AiRepo
   readonly aiInsights: AiInsightsRepo
   readonly calendar: CalendarRepo
+  readonly filingProfiles: ClientFilingProfilesRepo
   readonly clients: ClientsRepo
   readonly dashboard: DashboardRepo
   readonly obligations: ObligationsRepo

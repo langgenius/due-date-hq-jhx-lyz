@@ -7,6 +7,7 @@ const labels: MappingTargetLabels = {
   'client.name': 'Client name',
   'client.ein': 'EIN',
   'client.state': 'State',
+  'client.filing_states': 'Filing states',
   'client.county': 'County',
   'client.entity_type': 'Entity type',
   'client.tax_types': 'Tax types',

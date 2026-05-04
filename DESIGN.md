@@ -246,6 +246,12 @@ components:
     backgroundColor: '{colors.severity-medium-tint}'
     textColor: '{colors.text-primary}'
     rounded: '{rounded.md}'
+  filing-jurisdictions-panel:
+    backgroundColor: '{colors.surface-elevated}'
+    textColor: '{colors.text-primary}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+    borderColor: '{colors.border-default}'
   evidence-chip:
     backgroundColor: '{colors.surface-elevated}'
     textColor: '{colors.text-secondary}'
@@ -516,6 +522,12 @@ Do not use pill buttons, circular decorative controls, or radius above 12px. **B
 Use shadcn Base UI `base-vega` primitives as the foundation. Project-specific components belong above them in this order: `routes -> features -> patterns -> primitives -> ui -> lib`.
 
 Primary buttons use indigo and are reserved for the most important action on a surface. Risk rows encode severity with both label and color. Evidence chips are mandatory for AI output, rules, Pulse entries, and cited numeric claims. Command palette, drawer, and toast behavior must remain keyboard-friendly.
+
+Clients `Fact profile` uses a `Filing jurisdictions` panel for multi-state client facts. The panel is
+a compact bordered work surface, not a nested card: state chips show primary vs secondary filing
+states, and the embedded table lists counties, tax types, and source/review status with 11-13px
+workbench typography. The Clients table jurisdiction column should render the primary filing state
+and first county, plus a `+N` suffix for additional active filing states.
 
 The login surface keeps one explicit Google button as the visible fallback while Google One Tap is allowed to appear as browser-owned chrome. The One Tap prompt must not displace the button, add an explanatory in-app panel, or introduce a second branded CTA; if Google does not display the prompt, the page remains visually identical and fully usable.
 

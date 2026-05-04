@@ -26,6 +26,25 @@ function makeClient(overrides: Partial<ClientPublic> = {}): ClientPublic {
     estimatedTaxLiabilitySource: null,
     equityOwnerCount: null,
     migrationBatchId: null,
+    filingProfiles:
+      overrides.state !== null
+        ? [
+            {
+              id: 'profile_1',
+              firmId: 'firm_1',
+              clientId: overrides.id ?? 'client_1',
+              state: overrides.state ?? 'CA',
+              counties: overrides.county ? [overrides.county] : [],
+              taxTypes: [],
+              isPrimary: true,
+              source: 'manual',
+              migrationBatchId: null,
+              archivedAt: null,
+              createdAt: '2026-04-29T00:00:00.000Z',
+              updatedAt: '2026-04-29T00:00:00.000Z',
+            },
+          ]
+        : [],
     createdAt: '2026-04-29T00:00:00.000Z',
     updatedAt: '2026-04-29T00:00:00.000Z',
     deletedAt: null,

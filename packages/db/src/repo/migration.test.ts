@@ -82,10 +82,11 @@ describe('makeMigrationRepo', () => {
     })
 
     expect(result).toEqual({ clientCount: 1, obligationCount: 2 })
-    expect(batchStatements).toHaveLength(6)
+    expect(batchStatements).toHaveLength(7)
     expect(batchStatements).toEqual([
       expect.objectContaining({ kind: 'insert' }),
       expect.objectContaining({ kind: 'insert' }),
+      expect.objectContaining({ kind: 'delete' }),
       expect.objectContaining({ kind: 'delete' }),
       expect.objectContaining({ kind: 'delete' }),
       expect.objectContaining({ kind: 'delete' }),

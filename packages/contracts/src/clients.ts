@@ -7,6 +7,40 @@ import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 export const ClientImportanceWeightSchema = z.number().int().min(1).max(3)
 export type ClientImportanceWeight = z.infer<typeof ClientImportanceWeightSchema>
 
+export const ClientFilingProfileSourceSchema = z.enum([
+  'manual',
+  'imported',
+  'demo_seed',
+  'backfill',
+])
+export type ClientFilingProfileSource = z.infer<typeof ClientFilingProfileSourceSchema>
+
+export const ClientFilingProfilePublicSchema = z.object({
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  clientId: EntityIdSchema,
+  state: StateCodeSchema,
+  counties: z.array(z.string().trim().min(1).max(120)),
+  taxTypes: z.array(z.string().trim().min(1).max(120)),
+  isPrimary: z.boolean(),
+  source: ClientFilingProfileSourceSchema,
+  migrationBatchId: EntityIdSchema.nullable(),
+  archivedAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+})
+export type ClientFilingProfilePublic = z.infer<typeof ClientFilingProfilePublicSchema>
+
+export const ClientFilingProfileInputSchema = z.object({
+  state: StateCodeSchema,
+  counties: z.array(z.string().trim().min(1).max(120)).optional(),
+  taxTypes: z.array(z.string().trim().min(1).max(120)).optional(),
+  isPrimary: z.boolean().optional(),
+  source: ClientFilingProfileSourceSchema.optional(),
+  migrationBatchId: EntityIdSchema.nullable().optional(),
+})
+export type ClientFilingProfileInput = z.infer<typeof ClientFilingProfileInputSchema>
+
 export const ClientIdentitySchema = z.object({
   id: EntityIdSchema,
   name: z.string().min(1),
@@ -39,6 +73,7 @@ export const ClientCreateInputSchema = z.object({
   estimatedTaxLiabilitySource: z.enum(['manual', 'imported', 'demo_seed']).nullable().optional(),
   equityOwnerCount: z.number().int().positive().nullable().optional(),
   migrationBatchId: EntityIdSchema.nullable().optional(),
+  filingProfiles: z.array(ClientFilingProfileInputSchema).max(25).optional(),
 })
 
 export const ClientPublicSchema = ClientIdentitySchema.extend({
@@ -53,6 +88,7 @@ export const ClientPublicSchema = ClientIdentitySchema.extend({
   estimatedTaxLiabilitySource: z.enum(['manual', 'imported', 'demo_seed']).nullable(),
   equityOwnerCount: z.number().int().positive().nullable(),
   migrationBatchId: EntityIdSchema.nullable(),
+  filingProfiles: z.array(ClientFilingProfilePublicSchema),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().nullable(),
@@ -84,6 +120,22 @@ export const ClientJurisdictionUpdateOutputSchema = z.object({
   auditId: EntityIdSchema,
 })
 export type ClientJurisdictionUpdateOutput = z.infer<typeof ClientJurisdictionUpdateOutputSchema>
+
+export const ClientFilingProfilesReplaceSchema = z.object({
+  id: EntityIdSchema,
+  profiles: z.array(ClientFilingProfileInputSchema).max(25),
+  reason: z.string().max(280).optional(),
+})
+export type ClientFilingProfilesReplaceInput = z.infer<typeof ClientFilingProfilesReplaceSchema>
+
+export const ClientFilingProfilesReplaceOutputSchema = z.object({
+  client: ClientPublicSchema,
+  recalculatedObligationCount: z.number().int().min(0),
+  auditId: EntityIdSchema,
+})
+export type ClientFilingProfilesReplaceOutput = z.infer<
+  typeof ClientFilingProfilesReplaceOutputSchema
+>
 
 export const ClientRiskProfileUpdateSchema = z.object({
   id: EntityIdSchema,
@@ -148,6 +200,9 @@ export const clientsContract = oc.router({
   updateJurisdiction: oc
     .input(ClientJurisdictionUpdateSchema)
     .output(ClientJurisdictionUpdateOutputSchema),
+  replaceFilingProfiles: oc
+    .input(ClientFilingProfilesReplaceSchema)
+    .output(ClientFilingProfilesReplaceOutputSchema),
   updateRiskProfile: oc
     .input(ClientRiskProfileUpdateSchema)
     .output(ClientRiskProfileUpdateOutputSchema),

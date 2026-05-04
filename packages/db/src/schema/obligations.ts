@@ -1,6 +1,6 @@
 import { relations, sql } from 'drizzle-orm'
 import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
-import { client } from './clients'
+import { client, clientFilingProfile } from './clients'
 import { firmProfile } from './firm'
 
 export const EXPOSURE_STATUSES = ['ready', 'needs_input', 'unsupported'] as const
@@ -43,6 +43,10 @@ export const obligationInstance = sqliteTable(
     clientId: text('client_id')
       .notNull()
       .references(() => client.id, { onDelete: 'cascade' }),
+    clientFilingProfileId: text('client_filing_profile_id').references(
+      () => clientFilingProfile.id,
+      { onDelete: 'set null' },
+    ),
 
     // Free text string matching the AI Normalizer tax_types enum
     // (docs/product-design/migration-copilot/05-default-matrix.v1.0.yaml).
@@ -57,6 +61,7 @@ export const obligationInstance = sqliteTable(
     generationSource: text('generation_source', {
       enum: ['migration', 'manual', 'annual_rollover', 'pulse'],
     }),
+    jurisdiction: text('jurisdiction'),
 
     baseDueDate: integer('base_due_date', { mode: 'timestamp_ms' }).notNull(),
     currentDueDate: integer('current_due_date', { mode: 'timestamp_ms' }).notNull(),
@@ -129,9 +134,22 @@ export const obligationInstance = sqliteTable(
     index('idx_oi_firm_tax_type_due').on(table.firmId, table.taxType, table.currentDueDate),
     index('idx_oi_firm_exposure_amount').on(table.firmId, table.estimatedExposureCents),
     uniqueIndex('uq_oi_generated_rule_period')
-      .on(table.firmId, table.clientId, table.ruleId, table.taxYear, table.rulePeriod)
+      .on(
+        table.firmId,
+        table.clientId,
+        table.jurisdiction,
+        table.ruleId,
+        table.taxYear,
+        table.rulePeriod,
+      )
       .where(sql`rule_id is not null and tax_year is not null and rule_period is not null`),
     index('idx_oi_firm_rule_tax_year').on(table.firmId, table.ruleId, table.taxYear),
+    index('idx_oi_firm_jurisdiction_due').on(
+      table.firmId,
+      table.jurisdiction,
+      table.currentDueDate,
+    ),
+    index('idx_oi_profile').on(table.clientFilingProfileId),
     // Client detail page drawer.
     index('idx_oi_client').on(table.clientId),
     // 24h revert path mirror of idx_client_batch.
@@ -147,6 +165,10 @@ export const obligationInstanceRelations = relations(obligationInstance, ({ one 
   client: one(client, {
     fields: [obligationInstance.clientId],
     references: [client.id],
+  }),
+  filingProfile: one(clientFilingProfile, {
+    fields: [obligationInstance.clientFilingProfileId],
+    references: [clientFilingProfile.id],
   }),
 }))
 

@@ -33,12 +33,14 @@ export const ObligationInstancePublicSchema = z.object({
   id: EntityIdSchema,
   firmId: TenantIdSchema,
   clientId: EntityIdSchema,
+  clientFilingProfileId: EntityIdSchema.nullable(),
   taxType: z.string().min(1),
   taxYear: z.number().int().min(1900).max(2100).nullable(),
   ruleId: z.string().min(1).nullable(),
   ruleVersion: z.number().int().positive().nullable(),
   rulePeriod: z.string().min(1).nullable(),
   generationSource: z.enum(['migration', 'manual', 'annual_rollover', 'pulse']).nullable(),
+  jurisdiction: z.string().min(1).nullable(),
   baseDueDate: z.iso.date(),
   currentDueDate: z.iso.date(),
   status: ObligationStatusSchema,
@@ -70,6 +72,7 @@ export const ObligationInstancePublicSchema = z.object({
 
 export const ObligationCreateInputSchema = z.object({
   clientId: EntityIdSchema,
+  clientFilingProfileId: EntityIdSchema.nullable().optional(),
   taxType: z.string().min(1),
   taxYear: z.number().int().min(1900).max(2100).nullable().optional(),
   ruleId: z.string().min(1).nullable().optional(),
@@ -79,6 +82,7 @@ export const ObligationCreateInputSchema = z.object({
     .enum(['migration', 'manual', 'annual_rollover', 'pulse'])
     .nullable()
     .optional(),
+  jurisdiction: z.string().trim().min(1).nullable().optional(),
   baseDueDate: z.iso.date(),
   currentDueDate: z.iso.date().optional(),
   status: ObligationStatusSchema.optional(),

@@ -11,6 +11,7 @@
     "./ai": "./src/ai.ts",
     "./ai-insights": "./src/ai-insights.ts",
     "./calendar": "./src/calendar.ts",
+    "./client-filing-profiles": "./src/client-filing-profiles.ts",
     "./audit": "./src/audit.ts",
     "./clients": "./src/clients.ts",
     "./dashboard": "./src/dashboard.ts",

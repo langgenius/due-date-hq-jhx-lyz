@@ -26,12 +26,14 @@ export interface ObligationInstanceRow {
   id: string
   firmId: string
   clientId: string
+  clientFilingProfileId: string | null
   taxType: string
   taxYear: number | null
   ruleId: string | null
   ruleVersion: number | null
   rulePeriod: string | null
   generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
+  jurisdiction: string | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -61,12 +63,14 @@ export interface ObligationInstanceRow {
 export interface ObligationCreateInput {
   id?: string
   clientId: string
+  clientFilingProfileId?: string | null
   taxType: string
   taxYear?: number | null
   ruleId?: string | null
   ruleVersion?: number | null
   rulePeriod?: string | null
   generationSource?: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
+  jurisdiction?: string | null
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
@@ -100,6 +104,7 @@ export interface ObligationsRepo {
     Array<{
       id: string
       clientId: string
+      jurisdiction: string | null
       ruleId: string | null
       taxYear: number | null
       rulePeriod: string | null

@@ -59,7 +59,9 @@ Rules Console 和 server procedure 基于这些纯函数构建只读规则工作
 
 ### 默认矩阵
 
-`default-matrix` 根据 entity type 和 state 推导初始 tax types。Demo Sprint 中 CA/NY 有显式 cell，其他州结合 federal overlay、confidence 和 needsReview 提示。
+`default-matrix` 根据 entity type 和 filing profile state 推导初始 tax types。多州客户会对每个
+active filing profile 单独推断州级 tax types；federal overlay 只在生成阶段去重为一组联邦义务。
+Demo Sprint 中 CA/NY 有显式 cell，其他州结合 federal overlay、confidence 和 needsReview 提示。
 
 ### 导入解析
 

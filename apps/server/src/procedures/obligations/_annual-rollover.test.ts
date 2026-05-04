@@ -43,12 +43,14 @@ function makeSeed(overrides: Partial<ObligationInstanceRow> = {}): ObligationIns
     id: '11111111-1111-4111-8111-111111111111',
     firmId: FIRM_ID,
     clientId: CLIENT_ID,
+    clientFilingProfileId: null,
     taxType: 'ca_100',
     taxYear: 2025,
     ruleId: null,
     ruleVersion: null,
     rulePeriod: null,
     generationSource: null,
+    jurisdiction: 'CA',
     baseDueDate: due,
     currentDueDate: due,
     status: 'paid',
@@ -140,6 +142,7 @@ function makeScoped(input: {
   duplicates?: Array<{
     id: string
     clientId: string
+    jurisdiction: string | null
     ruleId: string | null
     taxYear: number | null
     rulePeriod: string | null
@@ -242,6 +245,7 @@ describe('runAnnualRollover', () => {
         {
           id: 'existing_obligation',
           clientId: CLIENT_ID,
+          jurisdiction: 'CA',
           ruleId: 'ca_100_2027',
           taxYear: 2026,
           rulePeriod: 'default',

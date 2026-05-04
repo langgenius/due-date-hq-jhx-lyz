@@ -435,6 +435,10 @@ msgstr "A short explanation for one deadline, generated only from verified deadl
 msgid "A specific compliance deadline generated from client facts and verified rules. It is more structured than a generic task."
 msgstr "A specific compliance deadline generated from client facts and verified rules. It is more structured than a generic task."
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "About {label}"
+msgstr "About {label}"
+
 #: src/routes/accept-invite.tsx
 #: src/routes/route-summary.ts
 msgid "Accept invitation"
@@ -739,6 +743,10 @@ msgstr "Annual rollover generated"
 msgid "Answer each item so your CPA can confirm filing readiness."
 msgstr "Answer each item so your CPA can confirm filing readiness."
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Any county"
+msgstr "Any county"
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "API access by contract"
@@ -942,6 +950,10 @@ msgstr "Back to Billing"
 #: src/features/calendar/calendar-page.tsx
 msgid "Back to Obligations"
 msgstr "Back to Obligations"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Backfilled"
+msgstr "Backfilled"
 
 #: src/routes/account.security.tsx
 msgid "Backup codes copied"
@@ -1397,6 +1409,10 @@ msgstr "Close"
 msgid "Close wizard"
 msgstr "Close wizard"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as seeds."
+msgstr "Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as seeds."
+
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Code sent to"
 msgstr "Code sent to"
@@ -1786,8 +1802,8 @@ msgid "Couldn't save extension decision"
 msgstr "Couldn't save extension decision"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Couldn't save jurisdiction"
-msgstr "Couldn't save jurisdiction"
+msgid "Couldn't save filing jurisdictions"
+msgstr "Couldn't save filing jurisdictions"
 
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't save mapping"
@@ -1855,20 +1871,16 @@ msgstr "Couldn't update view"
 msgid "Couldn't verify candidate"
 msgstr "Couldn't verify candidate"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Counties"
 msgstr "Counties"
 
-#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
 #: src/routes/workboard.tsx
 msgid "County"
 msgstr "County"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "County must be 120 characters or fewer"
-msgstr "County must be 120 characters or fewer"
 
 #: src/features/concepts/concept-help.tsx
 #: src/features/rules/rule-detail-drawer.tsx
@@ -2143,6 +2155,10 @@ msgstr "Delivery"
 msgid "Demo account"
 msgstr "Demo account"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Demo seed"
+msgstr "Demo seed"
+
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 msgid "Deprecated"
@@ -2316,6 +2332,10 @@ msgstr "Duration months"
 #: src/routes/onboarding.tsx
 msgid "e.g. Bright CPA Practice"
 msgstr "e.g. Bright CPA Practice"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Each county must be 120 characters or fewer"
+msgstr "Each county must be 120 characters or fewer"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Edit"
@@ -2670,6 +2690,23 @@ msgstr "Files"
 #: src/features/migration/mapping-target-labels.ts
 msgid "Filing frequency"
 msgstr "Filing frequency"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Filing jurisdiction"
+msgstr "Filing jurisdiction"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Filing jurisdictions"
+msgstr "Filing jurisdictions"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Filing jurisdictions saved"
+msgstr "Filing jurisdictions saved"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/migration/mapping-target-labels.ts
+msgid "Filing states"
+msgstr "Filing states"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Filing year end"
@@ -3066,14 +3103,6 @@ msgstr "JUR"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Jurisdiction"
 msgstr "Jurisdiction"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Jurisdiction facts"
-msgstr "Jurisdiction facts"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Jurisdiction saved"
-msgstr "Jurisdiction saved"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION SUMMARY"
@@ -3567,6 +3596,10 @@ msgstr "Needs evidence"
 msgid "Needs facts"
 msgstr "Needs facts"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Needs filing state"
+msgstr "Needs filing state"
+
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "needs input"
@@ -3589,6 +3622,10 @@ msgstr "Needs review"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Needs state"
 msgstr "Needs state"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Needs tax type review"
+msgstr "Needs tax type review"
 
 #: src/routes/dashboard.tsx
 msgid "neutral"
@@ -4050,6 +4087,10 @@ msgstr "Obligation status updates and client imports will appear here when they 
 msgid "Obligations"
 msgstr "Obligations"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Obligations actually created after Generate runs. Preview results show zero here until generation succeeds."
+msgstr "Obligations actually created after Generate runs. Preview results show zero here until generation succeeds."
+
 #: src/routes/workboard.tsx
 msgid "Obligations bulk owner change"
 msgstr "Obligations bulk owner change"
@@ -4300,6 +4341,10 @@ msgstr "Opening checkout…"
 #: src/routes/billing.tsx
 msgid "Opening…"
 msgstr "Opening…"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Opens the existing duplicate obligation or the newly created obligation after Generate succeeds."
+msgstr "Opens the existing duplicate obligation or the newly created obligation after Generate succeeds."
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/route-summary.ts
@@ -4836,6 +4881,14 @@ msgstr "Previous page"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Previous years"
 msgstr "Previous years"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "primary"
+msgstr "primary"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Primary counties"
+msgstr "Primary counties"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
@@ -5531,9 +5584,25 @@ msgstr "Rows"
 msgid "Rows needing attention"
 msgstr "Rows needing attention"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Rows skipped because the target client, rule, tax year, and period already have an obligation."
+msgstr "Rows skipped because the target client, rule, tax year, and period already have an obligation."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Rows that cannot be created, usually because the target year lacks a verified rule or concrete due date."
+msgstr "Rows that cannot be created, usually because the target year lacks a verified rule or concrete due date."
+
 #: src/routes/dashboard.tsx
 msgid "Rows that still need a source before review."
 msgstr "Rows that still need a source before review."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Rows that will create pending obligations because a verified target-year rule produced a concrete due date."
+msgstr "Rows that will create pending obligations because a verified target-year rule produced a concrete due date."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Rows that will create review obligations because the verified rule requires CPA confirmation."
+msgstr "Rows that will create review obligations because the verified rule requires CPA confirmation."
 
 #: src/routes/dashboard.tsx
 msgid "Rows waiting for final human action."
@@ -5690,6 +5759,10 @@ msgstr "Save changes"
 msgid "Save current view"
 msgstr "Save current view"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Save filing jurisdictions"
+msgstr "Save filing jurisdictions"
+
 #: src/routes/billing.tsx
 msgid "Save from $960/year"
 msgstr "Save from $960/year"
@@ -5697,10 +5770,6 @@ msgstr "Save from $960/year"
 #: src/routes/workboard.tsx
 msgid "Save internal decision"
 msgstr "Save internal decision"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Save jurisdiction"
-msgstr "Save jurisdiction"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Save mapping"
@@ -5825,8 +5894,8 @@ msgid "Search, ask, or navigate..."
 msgstr "Search, ask, or navigate..."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Search, segment, and inspect the facts that feed rules, risk, and Pulse matching."
-msgstr "Search, segment, and inspect the facts that feed rules, risk, and Pulse matching."
+msgid "Search, segment, and inspect the filing facts that feed rules, risk, and Pulse matching."
+msgstr "Search, segment, and inspect the filing facts that feed rules, risk, and Pulse matching."
 
 #: src/features/audit/audit-log-labels.ts
 #: src/routes/billing.tsx
@@ -6239,10 +6308,6 @@ msgstr "State"
 msgid "STATE"
 msgstr "STATE"
 
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "State jurisdiction"
-msgstr "State jurisdiction"
-
 #: src/features/migration/Step3Normalize.tsx
 msgid "States"
 msgstr "States"
@@ -6252,6 +6317,7 @@ msgid "States covered"
 msgstr "States covered"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -6408,6 +6474,7 @@ msgstr "Tax due"
 msgid "Tax type"
 msgstr "Tax type"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/migration/mapping-target-labels.ts
 msgid "Tax types"
 msgstr "Tax types"
@@ -6518,9 +6585,17 @@ msgstr "The billing portal opens with the payment provider for invoices, payment
 msgid "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue."
 msgstr "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue."
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The client whose closed source-year obligation is being considered for next-year generation."
+msgstr "The client whose closed source-year obligation is being considered for next-year generation."
+
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "The code expires in 5 minutes."
 msgstr "The code expires in 5 minutes."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The concrete due date calculated from the verified target-year rule. A dash means nothing will be created."
+msgstr "The concrete due date calculated from the verified target-year rule. A dash means nothing will be created."
 
 #: src/features/concepts/concept-help.tsx
 msgid "The dollar amount where projected risk reaches the maximum Smart Priority contribution. Higher values still display, but do not add more score from this factor."
@@ -6537,6 +6612,10 @@ msgstr "The jurisdictions, entity types, and tax types currently backed by watch
 #: src/features/concepts/concept-help.tsx
 msgid "The late-filing count where history reaches its maximum Smart Priority contribution. Higher counts still display, but do not add more score from this factor."
 msgstr "The late-filing count where history reaches its maximum Smart Priority contribution. Higher counts still display, but do not add more score from this factor."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The matched verified rule and period, or the reason this row is duplicate or skipped."
+msgstr "The matched verified rule and period, or the reason this row is duplicate or skipped."
 
 #: src/routes/workboard.tsx
 msgid "The memo is stored on the audit trail for the bulk status change."
@@ -6579,6 +6658,10 @@ msgstr "The projected risk across the current deadline queue. It helps prioritiz
 msgid "The request was invalid. Please review your input and try again."
 msgstr "The request was invalid. Please review your input and try again."
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The rollover disposition for this row: create, review, duplicate, missing rule, or missing due date."
+msgstr "The rollover disposition for this row: create, review, duplicate, missing rule, or missing due date."
+
 #: src/routes/billing.tsx
 msgid "The same practice AI tier as Pro, paired with team-scale management and review workflows."
 msgstr "The same practice AI tier as Pro, paired with team-scale management and review workflows."
@@ -6591,6 +6674,10 @@ msgstr "The secure checkout has redirected back to DueDateHQ. We are confirming 
 msgid "The selected plan is still available from Billing."
 msgstr "The selected plan is still available from Billing."
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The status assigned if this row is generated: pending for reminder-ready rows or review for CPA-confirmation rows."
+msgstr "The status assigned if this row is generated: pending for reminder-ready rows or review for CPA-confirmation rows."
+
 #: src/features/concepts/concept-help.tsx
 msgid "The stored deadline risk view, mainly based on due date pressure, penalty exposure, readiness, and evidence status."
 msgstr "The stored deadline risk view, mainly based on due date pressure, penalty exposure, readiness, and evidence status."
@@ -6598,6 +6685,10 @@ msgstr "The stored deadline risk view, mainly based on due date pressure, penalt
 #: src/features/concepts/concept-help.tsx
 msgid "The system found a possible deadline, but a CPA, owner, or manager must confirm it before it is treated as final."
 msgstr "The system found a possible deadline, but a CPA, owner, or manager must confirm it before it is treated as final."
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The tax form or obligation type carried forward from the source-year seed obligation."
+msgstr "The tax form or obligation type carried forward from the source-year seed obligation."
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
@@ -6865,7 +6956,12 @@ msgstr "Undo this imported client?"
 msgid "Unexpected route error"
 msgstr "Unexpected route error"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Unique clients represented by the source-year seed obligations in this preview."
+msgstr "Unique clients represented by the source-year seed obligations in this preview."
+
 #: src/features/permissions/permission-gate.tsx
+#: src/features/rules/generation-preview-tab.tsx
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -6932,8 +7028,8 @@ msgid "Urgency window"
 msgstr "Urgency window"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Use a 2-letter state code"
-msgstr "Use a 2-letter state code"
+msgid "Use 2-letter state codes"
+msgstr "Use 2-letter state codes"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Use a concrete due date calculation and allow reminder-ready previews."

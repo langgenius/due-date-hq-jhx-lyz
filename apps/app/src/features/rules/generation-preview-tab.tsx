@@ -9,6 +9,7 @@ import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  CircleHelpIcon,
   CornerDownLeftIcon,
   RotateCcwIcon,
 } from 'lucide-react'
@@ -36,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@duedatehq/ui/components/ui/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 import { cn } from '@duedatehq/ui/lib/utils'
 
 import { ConceptLabel } from '@/features/concepts/concept-help'
@@ -612,37 +614,73 @@ function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
   return (
     <div className="overflow-hidden rounded-md border border-divider-regular">
       <div className="grid grid-cols-7 gap-0 border-b border-divider-regular bg-background-subtle">
-        <RolloverMetric label={t`Seeds`} value={result.summary.seedObligationCount} />
-        <RolloverMetric label={t`Clients`} value={result.summary.clientCount} />
-        <RolloverMetric label={t`Will create`} value={result.summary.willCreateCount} />
-        <RolloverMetric label={t`Review`} value={result.summary.reviewCount} />
-        <RolloverMetric label={t`Duplicates`} value={result.summary.duplicateCount} />
-        <RolloverMetric label={t`Skipped`} value={result.summary.skippedCount} />
-        <RolloverMetric label={t`Created`} value={result.summary.createdCount} />
+        <RolloverMetric
+          label={t`Seeds`}
+          value={result.summary.seedObligationCount}
+          description={t`Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as seeds.`}
+        />
+        <RolloverMetric
+          label={t`Clients`}
+          value={result.summary.clientCount}
+          description={t`Unique clients represented by the source-year seed obligations in this preview.`}
+        />
+        <RolloverMetric
+          label={t`Will create`}
+          value={result.summary.willCreateCount}
+          description={t`Rows that will create pending obligations because a verified target-year rule produced a concrete due date.`}
+        />
+        <RolloverMetric
+          label={t`Review`}
+          value={result.summary.reviewCount}
+          description={t`Rows that will create review obligations because the verified rule requires CPA confirmation.`}
+        />
+        <RolloverMetric
+          label={t`Duplicates`}
+          value={result.summary.duplicateCount}
+          description={t`Rows skipped because the target client, rule, tax year, and period already have an obligation.`}
+        />
+        <RolloverMetric
+          label={t`Skipped`}
+          value={result.summary.skippedCount}
+          description={t`Rows that cannot be created, usually because the target year lacks a verified rule or concrete due date.`}
+        />
+        <RolloverMetric
+          label={t`Created`}
+          value={result.summary.createdCount}
+          description={t`Obligations actually created after Generate runs. Preview results show zero here until generation succeeds.`}
+        />
       </div>
       <div className="max-h-[420px] overflow-auto">
         <div className="grid min-w-[920px] grid-cols-[132px_180px_160px_96px_120px_1fr_120px] border-b border-divider-regular bg-background-default px-3 py-2 text-[11px] font-medium uppercase tracking-[0.08em] text-text-muted">
-          <span>
-            <Trans>Status</Trans>
-          </span>
-          <span>
-            <Trans>Client</Trans>
-          </span>
-          <span>
-            <Trans>Tax type</Trans>
-          </span>
-          <span>
-            <Trans>Due date</Trans>
-          </span>
-          <span>
-            <Trans>Target</Trans>
-          </span>
-          <span>
-            <Trans>Rule / reason</Trans>
-          </span>
-          <span className="text-right">
-            <Trans>Workboard</Trans>
-          </span>
+          <RolloverColumnHeader
+            label={t`Status`}
+            description={t`The rollover disposition for this row: create, review, duplicate, missing rule, or missing due date.`}
+          />
+          <RolloverColumnHeader
+            label={t`Client`}
+            description={t`The client whose closed source-year obligation is being considered for next-year generation.`}
+          />
+          <RolloverColumnHeader
+            label={t`Tax type`}
+            description={t`The tax form or obligation type carried forward from the source-year seed obligation.`}
+          />
+          <RolloverColumnHeader
+            label={t`Due date`}
+            description={t`The concrete due date calculated from the verified target-year rule. A dash means nothing will be created.`}
+          />
+          <RolloverColumnHeader
+            label={t`Target`}
+            description={t`The status assigned if this row is generated: pending for reminder-ready rows or review for CPA-confirmation rows.`}
+          />
+          <RolloverColumnHeader
+            label={t`Rule / reason`}
+            description={t`The matched verified rule and period, or the reason this row is duplicate or skipped.`}
+          />
+          <RolloverColumnHeader
+            label={t`Workboard`}
+            description={t`Opens the existing duplicate obligation or the newly created obligation after Generate succeeds.`}
+            align="right"
+          />
         </div>
         {result.rows.length === 0 ? (
           <div className="px-3 py-4 text-sm text-text-secondary">
@@ -697,14 +735,67 @@ function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
   )
 }
 
-function RolloverMetric({ label, value }: { label: string; value: number }) {
+function RolloverMetric({
+  label,
+  value,
+  description,
+}: {
+  label: string
+  value: number
+  description: string
+}) {
   return (
     <div className="min-w-0 border-r border-divider-subtle px-3 py-2 last:border-r-0">
-      <div className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-text-muted">
-        {label}
+      <div className="flex min-w-0 items-center gap-1 text-[10px] font-medium uppercase tracking-[0.08em] text-text-muted">
+        <span className="truncate">{label}</span>
+        <RolloverHelpTooltip label={label} description={description} />
       </div>
       <div className="font-mono text-lg font-semibold tabular-nums text-text-primary">{value}</div>
     </div>
+  )
+}
+
+function RolloverColumnHeader({
+  label,
+  description,
+  align = 'left',
+}: {
+  label: string
+  description: string
+  align?: 'left' | 'right'
+}) {
+  return (
+    <span
+      className={cn(
+        'flex min-w-0 items-center gap-1',
+        align === 'right' && 'justify-end text-right',
+      )}
+    >
+      <span className="truncate">{label}</span>
+      <RolloverHelpTooltip label={label} description={description} />
+    </span>
+  )
+}
+
+function RolloverHelpTooltip({ label, description }: { label: string; description: string }) {
+  const { t } = useLingui()
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <button
+            type="button"
+            aria-label={t`About ${label}`}
+            className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-text-tertiary transition hover:bg-background-muted hover:text-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-state-accent-solid"
+          >
+            <CircleHelpIcon className="size-3.5" aria-hidden />
+          </button>
+        }
+      />
+      <TooltipContent className="max-w-[280px] whitespace-normal text-left leading-5">
+        {description}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 

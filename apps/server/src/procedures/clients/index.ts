@@ -1,4 +1,9 @@
 import { ORPCError } from '@orpc/server'
+import type { ClientFilingProfileInput } from '@duedatehq/contracts'
+import type {
+  ClientFilingProfileInput as ClientFilingProfileRepoInput,
+  ClientFilingProfileReplaceInput as ClientFilingProfileRepoReplaceInput,
+} from '@duedatehq/ports/client-filing-profiles'
 import type { ClientsRepo } from '@duedatehq/ports/clients'
 import type { MembersRepo } from '@duedatehq/ports/tenants'
 import { requireTenant } from '../_context'
@@ -9,7 +14,12 @@ import { dateInTimezone, toAiInsightPublic } from '../_ai-insights'
 import { enqueueAiInsightRefresh } from '../../jobs/ai-insights/enqueue'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { recalculateClientExposure } from '../_penalty-exposure'
-import { toClientPublic, type ClientCreateInputForRepo, type ClientRow } from './_serializers'
+import {
+  toClientPublic,
+  type ClientCreateInputForRepo,
+  type ClientFilingProfileRow,
+  type ClientRow,
+} from './_serializers'
 
 /**
  * clients.* — Demo Sprint subset of the Client Domain Contract.
@@ -102,6 +112,77 @@ function nullableText(value: string | null | undefined): string | null {
   return next ? next : null
 }
 
+function normalizeStringList(values: readonly string[] | undefined): string[] {
+  return Array.from(
+    new Set((values ?? []).map((value) => value.trim()).filter((value) => value.length > 0)),
+  )
+}
+
+function buildFilingProfileRows(
+  clientId: string,
+  input: {
+    state?: string | null | undefined
+    county?: string | null | undefined
+    migrationBatchId?: string | null | undefined
+    filingProfiles?: ClientFilingProfileInput[] | undefined
+  },
+): ClientFilingProfileRepoInput[] {
+  const explicit = input.filingProfiles ?? []
+  const profileInputs =
+    explicit.length > 0
+      ? explicit
+      : input.state
+        ? [
+            {
+              state: input.state,
+              counties: input.county ? [input.county] : [],
+              isPrimary: true,
+            },
+          ]
+        : []
+
+  const byState = new Map<string, ClientFilingProfileRepoInput>()
+  for (const profile of profileInputs) {
+    const state = profile.state.trim().toUpperCase()
+    const current = byState.get(state)
+    byState.set(state, {
+      clientId,
+      state,
+      counties: normalizeStringList([...(current?.counties ?? []), ...(profile.counties ?? [])]),
+      taxTypes: normalizeStringList([...(current?.taxTypes ?? []), ...(profile.taxTypes ?? [])]),
+      isPrimary: Boolean(current?.isPrimary || profile.isPrimary),
+      source: profile.source ?? current?.source ?? 'manual',
+      migrationBatchId:
+        profile.migrationBatchId ?? current?.migrationBatchId ?? input.migrationBatchId ?? null,
+    })
+  }
+
+  const rows = [...byState.values()]
+  const primaryIndex = rows.findIndex((row) => row.isPrimary)
+  const fallbackPrimary = primaryIndex >= 0 ? primaryIndex : 0
+  return rows.map((row, index) => Object.assign(row, { isPrimary: index === fallbackPrimary }))
+}
+
+function buildReplacementProfiles(
+  profiles: ClientFilingProfileInput[],
+): ClientFilingProfileRepoReplaceInput[] {
+  return profiles.map((profile) => ({
+    state: profile.state,
+    counties: normalizeStringList(profile.counties),
+    taxTypes: normalizeStringList(profile.taxTypes),
+    isPrimary: profile.isPrimary ?? false,
+    source: profile.source ?? 'manual',
+    migrationBatchId: profile.migrationBatchId ?? null,
+  }))
+}
+
+function filingProfilesByClientId(
+  rows: Map<string, ClientFilingProfileRow[]>,
+  clientId: string,
+): ClientFilingProfileRow[] {
+  return rows.get(clientId) ?? []
+}
+
 async function resolveClientAssignees(
   members: MembersRepo,
   firmId: string,
@@ -170,7 +251,14 @@ const create = os.clients.create.handler(async ({ input, context }) => {
   }
 
   const { id } = await scoped.clients.create(repoInput)
-  const row = await scoped.clients.findById(id)
+  const filingProfileInputs = buildFilingProfileRows(id, input)
+  if (filingProfileInputs.length > 0) {
+    await scoped.filingProfiles.createBatch(filingProfileInputs)
+  }
+  const [row, filingProfiles] = await Promise.all([
+    scoped.clients.findById(id),
+    scoped.filingProfiles.listByClient(id),
+  ])
   if (!row) {
     throw new ORPCError('INTERNAL_SERVER_ERROR', {
       message: 'Created client could not be re-read.',
@@ -184,7 +272,7 @@ const create = os.clients.create.handler(async ({ input, context }) => {
     action: 'client.created',
   })
 
-  return toClientPublic(row)
+  return toClientPublic(row, { filingProfiles })
 })
 
 const createBatch = os.clients.createBatch.handler(async ({ input, context }) => {
@@ -211,6 +299,12 @@ const createBatch = os.clients.createBatch.handler(async ({ input, context }) =>
   }))
 
   const { ids } = await scoped.clients.createBatch(repoInputs)
+  const filingProfileInputs = ids.flatMap((id, index) =>
+    buildFilingProfileRows(id, input.clients[index]!),
+  )
+  if (filingProfileInputs.length > 0) {
+    await scoped.filingProfiles.createBatch(filingProfileInputs)
+  }
 
   // Single aggregated audit row to keep the audit feed readable; per-row
   // evidence_link write is the caller's job (Migration Step 4 commit).
@@ -222,23 +316,39 @@ const createBatch = os.clients.createBatch.handler(async ({ input, context }) =>
     after: { count: ids.length },
   })
 
-  const rows = await rereadCreatedClientBatch(scoped.clients, ids)
+  const [rows, profilesByClient] = await Promise.all([
+    rereadCreatedClientBatch(scoped.clients, ids),
+    scoped.filingProfiles.listByClients(ids),
+  ])
 
-  return { clients: rows.map((row) => toClientPublic(row)) }
+  return {
+    clients: rows.map((row) =>
+      toClientPublic(row, { filingProfiles: filingProfilesByClientId(profilesByClient, row.id) }),
+    ),
+  }
 })
 
 const get = os.clients.get.handler(async ({ input, context }) => {
   const { scoped } = requireTenant(context)
-  const row = await scoped.clients.findById(input.id)
+  const [row, filingProfiles] = await Promise.all([
+    scoped.clients.findById(input.id),
+    scoped.filingProfiles.listByClient(input.id),
+  ])
   const hideDollars = await shouldHideDollars(context)
-  return row ? toClientPublic(row, { hideDollars }) : null
+  return row ? toClientPublic(row, { hideDollars, filingProfiles }) : null
 })
 
 const listByFirm = os.clients.listByFirm.handler(async ({ input, context }) => {
   const { scoped } = requireTenant(context)
   const rows = await scoped.clients.listByFirm(input?.limit ? { limit: input.limit } : {})
+  const profilesByClient = await scoped.filingProfiles.listByClients(rows.map((row) => row.id))
   const hideDollars = await shouldHideDollars(context)
-  return rows.map((row) => toClientPublic(row, { hideDollars }))
+  return rows.map((row) =>
+    toClientPublic(row, {
+      hideDollars,
+      filingProfiles: filingProfilesByClientId(profilesByClient, row.id),
+    }),
+  )
 })
 
 const updateJurisdiction = os.clients.updateJurisdiction.handler(async ({ input, context }) => {
@@ -250,13 +360,26 @@ const updateJurisdiction = os.clients.updateJurisdiction.handler(async ({ input,
       message: `Client ${input.id} not found in current firm.`,
     })
   }
+  const beforeProfiles = await scoped.filingProfiles.listByClient(input.id)
 
-  await scoped.clients.updateJurisdiction(input.id, {
-    state: input.state,
-    county: nullableText(input.county),
-  })
+  await scoped.filingProfiles.replaceForClient(
+    input.id,
+    input.state
+      ? [
+          {
+            state: input.state,
+            counties: input.county ? [input.county] : [],
+            isPrimary: true,
+            source: 'manual',
+          },
+        ]
+      : [],
+  )
   const recalculatedObligationCount = await recalculateClientExposure(scoped, input.id)
-  const after = await scoped.clients.findById(input.id)
+  const [after, afterProfiles] = await Promise.all([
+    scoped.clients.findById(input.id),
+    scoped.filingProfiles.listByClient(input.id),
+  ])
   if (!after) {
     throw new ORPCError('INTERNAL_SERVER_ERROR', {
       message: 'Updated client could not be re-read.',
@@ -271,10 +394,24 @@ const updateJurisdiction = os.clients.updateJurisdiction.handler(async ({ input,
     before: {
       state: before.state,
       county: before.county,
+      filingProfiles: beforeProfiles.map((profile) => ({
+        id: profile.id,
+        state: profile.state,
+        counties: profile.counties,
+        taxTypes: profile.taxTypes,
+        isPrimary: profile.isPrimary,
+      })),
     },
     after: {
       state: after.state,
       county: after.county,
+      filingProfiles: afterProfiles.map((profile) => ({
+        id: profile.id,
+        state: profile.state,
+        counties: profile.counties,
+        taxTypes: profile.taxTypes,
+        isPrimary: profile.isPrimary,
+      })),
       recalculatedObligationCount,
     },
     ...(input.reason !== undefined ? { reason: input.reason } : {}),
@@ -295,11 +432,88 @@ const updateJurisdiction = os.clients.updateJurisdiction.handler(async ({ input,
 
   const hideDollars = await shouldHideDollars(context)
   return {
-    client: toClientPublic(after, { hideDollars }),
+    client: toClientPublic(after, { hideDollars, filingProfiles: afterProfiles }),
     recalculatedObligationCount,
     auditId,
   }
 })
+
+const replaceFilingProfiles = os.clients.replaceFilingProfiles.handler(
+  async ({ input, context }) => {
+    await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
+    const { scoped, tenant, userId } = requireTenant(context)
+    const [before, beforeProfiles] = await Promise.all([
+      scoped.clients.findById(input.id),
+      scoped.filingProfiles.listByClient(input.id),
+    ])
+    if (!before) {
+      throw new ORPCError('NOT_FOUND', {
+        message: `Client ${input.id} not found in current firm.`,
+      })
+    }
+
+    const afterProfiles = await scoped.filingProfiles.replaceForClient(
+      input.id,
+      buildReplacementProfiles(input.profiles),
+    )
+    const recalculatedObligationCount = await recalculateClientExposure(scoped, input.id)
+    const after = await scoped.clients.findById(input.id)
+    if (!after) {
+      throw new ORPCError('INTERNAL_SERVER_ERROR', {
+        message: 'Updated client could not be re-read.',
+      })
+    }
+
+    const { id: auditId } = await scoped.audit.write({
+      actorId: userId,
+      entityType: 'client',
+      entityId: input.id,
+      action: 'client.filing_profiles.replaced',
+      before: {
+        filingProfiles: beforeProfiles.map((profile) => ({
+          id: profile.id,
+          state: profile.state,
+          counties: profile.counties,
+          taxTypes: profile.taxTypes,
+          isPrimary: profile.isPrimary,
+        })),
+      },
+      after: {
+        state: after.state,
+        county: after.county,
+        filingProfiles: afterProfiles.map((profile) => ({
+          id: profile.id,
+          state: profile.state,
+          counties: profile.counties,
+          taxTypes: profile.taxTypes,
+          isPrimary: profile.isPrimary,
+        })),
+        recalculatedObligationCount,
+      },
+      ...(input.reason !== undefined ? { reason: input.reason } : {}),
+    })
+
+    await Promise.all([
+      enqueueDashboardBriefRefresh(context.env, {
+        firmId: tenant.firmId,
+        reason: 'client_facts_change',
+      }).catch(() => false),
+      enqueueAiInsightRefresh(context.env, {
+        firmId: tenant.firmId,
+        kind: 'client_risk_summary',
+        subjectId: input.id,
+        reason: 'client_jurisdiction_update',
+      }).catch(() => false),
+    ])
+
+    const hideDollars = await shouldHideDollars(context)
+    return {
+      client: toClientPublic(after, { hideDollars, filingProfiles: afterProfiles }),
+      recalculatedObligationCount,
+      auditId,
+    }
+  },
+)
 
 const updatePenaltyInputs = os.clients.updatePenaltyInputs.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, CLIENT_WRITE_ROLES)
@@ -322,7 +536,10 @@ const updatePenaltyInputs = os.clients.updatePenaltyInputs.handler(async ({ inpu
     ...(input.equityOwnerCount !== undefined ? { equityOwnerCount: input.equityOwnerCount } : {}),
   })
   const recalculatedObligationCount = await recalculateClientExposure(scoped, input.id)
-  const after = await scoped.clients.findById(input.id)
+  const [after, filingProfiles] = await Promise.all([
+    scoped.clients.findById(input.id),
+    scoped.filingProfiles.listByClient(input.id),
+  ])
   if (!after) {
     throw new ORPCError('INTERNAL_SERVER_ERROR', {
       message: 'Updated client could not be re-read.',
@@ -370,8 +587,9 @@ const updatePenaltyInputs = os.clients.updatePenaltyInputs.handler(async ({ inpu
     reason: 'penalty_override',
   }).catch(() => false)
 
+  const hideDollars = await shouldHideDollars(context)
   return {
-    client: toClientPublic(after),
+    client: toClientPublic(after, { hideDollars, filingProfiles }),
     recalculatedObligationCount,
   }
 })
@@ -392,7 +610,10 @@ const updateRiskProfile = os.clients.updateRiskProfile.handler(async ({ input, c
       ? { lateFilingCountLast12mo: input.lateFilingCountLast12mo }
       : {}),
   })
-  const after = await scoped.clients.findById(input.id)
+  const [after, filingProfiles] = await Promise.all([
+    scoped.clients.findById(input.id),
+    scoped.filingProfiles.listByClient(input.id),
+  ])
   if (!after) {
     throw new ORPCError('INTERNAL_SERVER_ERROR', {
       message: 'Updated client could not be re-read.',
@@ -428,8 +649,9 @@ const updateRiskProfile = os.clients.updateRiskProfile.handler(async ({ input, c
     }).catch(() => false),
   ])
 
+  const hideDollars = await shouldHideDollars(context)
   return {
-    client: toClientPublic(after),
+    client: toClientPublic(after, { hideDollars, filingProfiles }),
     auditId,
   }
 })
@@ -582,6 +804,7 @@ export const clientsHandlers = {
   get,
   listByFirm,
   updateJurisdiction,
+  replaceFilingProfiles,
   updatePenaltyInputs,
   updateRiskProfile,
   getRiskSummary,

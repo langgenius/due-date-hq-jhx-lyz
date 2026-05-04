@@ -1,4 +1,4 @@
-import type { ClientPublic } from '@duedatehq/contracts'
+import type { ClientFilingProfilePublic, ClientPublic } from '@duedatehq/contracts'
 
 /**
  * Drizzle row → contract schema serializer for `client`.
@@ -58,7 +58,42 @@ export interface ClientCreateInputForRepo {
   migrationBatchId?: string | null
 }
 
-export function toClientPublic(row: ClientRow, opts: { hideDollars?: boolean } = {}): ClientPublic {
+export interface ClientFilingProfileRow {
+  id: string
+  firmId: string
+  clientId: string
+  state: string
+  counties: string[]
+  taxTypes: string[]
+  isPrimary: boolean
+  source: ClientFilingProfilePublic['source']
+  migrationBatchId: string | null
+  archivedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+function toClientFilingProfilePublic(row: ClientFilingProfileRow): ClientFilingProfilePublic {
+  return {
+    id: row.id,
+    firmId: row.firmId,
+    clientId: row.clientId,
+    state: row.state,
+    counties: row.counties,
+    taxTypes: row.taxTypes,
+    isPrimary: row.isPrimary,
+    source: row.source,
+    migrationBatchId: row.migrationBatchId,
+    archivedAt: row.archivedAt?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  }
+}
+
+export function toClientPublic(
+  row: ClientRow,
+  opts: { hideDollars?: boolean; filingProfiles?: ClientFilingProfileRow[] } = {},
+): ClientPublic {
   return {
     id: row.id,
     firmId: row.firmId,
@@ -77,6 +112,7 @@ export function toClientPublic(row: ClientRow, opts: { hideDollars?: boolean } =
     estimatedTaxLiabilitySource: opts.hideDollars ? null : row.estimatedTaxLiabilitySource,
     equityOwnerCount: row.equityOwnerCount,
     migrationBatchId: row.migrationBatchId,
+    filingProfiles: (opts.filingProfiles ?? []).map(toClientFilingProfilePublic),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     deletedAt: row.deletedAt ? row.deletedAt.toISOString() : null,

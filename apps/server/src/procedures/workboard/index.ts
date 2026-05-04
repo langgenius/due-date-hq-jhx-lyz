@@ -26,12 +26,14 @@ interface RawRow {
   id: string
   firmId: string
   clientId: string
+  clientFilingProfileId: string | null
   taxType: string
   taxYear: number | null
   ruleId: string | null
   ruleVersion: number | null
   rulePeriod: string | null
   generationSource: WorkboardRow['generationSource']
+  jurisdiction: string | null
   baseDueDate: Date
   currentDueDate: Date
   status: WorkboardRow['status']
@@ -109,12 +111,14 @@ function toRow(
     id: row.id,
     firmId: row.firmId,
     clientId: row.clientId,
+    clientFilingProfileId: row.clientFilingProfileId,
     taxType: row.taxType,
     taxYear: row.taxYear,
     ruleId: row.ruleId,
     ruleVersion: row.ruleVersion,
     rulePeriod: row.rulePeriod,
     generationSource: row.generationSource,
+    jurisdiction: row.jurisdiction,
     baseDueDate: toIsoDate(row.baseDueDate),
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,

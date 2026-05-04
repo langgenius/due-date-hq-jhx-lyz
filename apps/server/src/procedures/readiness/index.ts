@@ -131,7 +131,7 @@ const generateChecklist = os.readiness.generateChecklist.handler(async ({ input,
   const promptInput = {
     taxType: obligation.taxType,
     entityType: client.entityType,
-    state: client.state,
+    state: obligation.jurisdiction ?? client.state,
     currentDueDate: obligation.currentDueDate.toISOString().slice(0, 10),
   }
   const aiResult = await ai.runPrompt(

@@ -18,6 +18,7 @@ interface ClientPenaltyFacts {
 interface ObligationPenaltyFacts {
   id: string
   taxType: string
+  jurisdiction?: string | null
   currentDueDate: Date
   penaltyFactsJson?: unknown
   penaltyFactsVersion?: string | null
@@ -29,7 +30,7 @@ export function calculateObligationExposure(
   now = new Date(),
 ): ReturnType<typeof toExposurePatch> {
   const result = estimateProjectedExposure({
-    jurisdiction: client.state,
+    jurisdiction: obligation.jurisdiction ?? client.state,
     taxType: obligation.taxType,
     entityType: client.entityType,
     dueDate: obligation.currentDueDate,
@@ -46,7 +47,7 @@ export function calculateAccruedPenalty(
 ) {
   const result = estimateAccruedPenalty(
     {
-      jurisdiction: client.state,
+      jurisdiction: obligation.jurisdiction ?? client.state,
       taxType: obligation.taxType,
       entityType: client.entityType,
       dueDate: obligation.currentDueDate,
@@ -103,7 +104,7 @@ export async function backfillPenaltyFactsAndExposure(
                   equityOwnerCount: client.equityOwnerCount,
                 })
           const result = estimateProjectedExposure({
-            jurisdiction: client.state,
+            jurisdiction: obligation.jurisdiction ?? client.state,
             taxType: obligation.taxType,
             entityType: client.entityType,
             dueDate: obligation.currentDueDate,

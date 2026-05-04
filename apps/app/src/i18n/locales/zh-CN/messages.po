@@ -435,6 +435,10 @@ msgstr "针对单个截止日的简短解释，只基于已核验截止日上下
 msgid "A specific compliance deadline generated from client facts and verified rules. It is more structured than a generic task."
 msgstr "由客户事实和已核验规则生成的具体合规截止事项，比普通任务更结构化。"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "About {label}"
+msgstr "关于 {label}"
+
 #: src/routes/accept-invite.tsx
 #: src/routes/route-summary.ts
 msgid "Accept invitation"
@@ -739,6 +743,10 @@ msgstr "年度滚转已生成"
 msgid "Answer each item so your CPA can confirm filing readiness."
 msgstr "请回答每个项目，方便您的 CPA 确认申报准备状态。"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Any county"
+msgstr "任意县"
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "API access by contract"
@@ -942,6 +950,10 @@ msgstr "返回账单"
 #: src/features/calendar/calendar-page.tsx
 msgid "Back to Obligations"
 msgstr "返回义务"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Backfilled"
+msgstr "已回填"
 
 #: src/routes/account.security.tsx
 msgid "Backup codes copied"
@@ -1397,6 +1409,10 @@ msgstr "关闭"
 msgid "Close wizard"
 msgstr "关闭向导"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as seeds."
+msgstr "符合滚动条件的来源年度已关闭义务。只有 done、paid 和 extended 行会计为种子。"
+
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Code sent to"
 msgstr "验证码已发送至"
@@ -1786,8 +1802,8 @@ msgid "Couldn't save extension decision"
 msgstr "无法保存延期决策"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Couldn't save jurisdiction"
-msgstr "无法保存辖区"
+msgid "Couldn't save filing jurisdictions"
+msgstr "无法保存报税辖区"
 
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't save mapping"
@@ -1855,20 +1871,16 @@ msgstr "无法更新视图"
 msgid "Couldn't verify candidate"
 msgstr "无法验证候选规则"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Counties"
 msgstr "县"
 
-#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
 #: src/routes/workboard.tsx
 msgid "County"
 msgstr "县"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "County must be 120 characters or fewer"
-msgstr "县名不能超过 120 个字符"
 
 #: src/features/concepts/concept-help.tsx
 #: src/features/rules/rule-detail-drawer.tsx
@@ -2143,6 +2155,10 @@ msgstr "发送"
 msgid "Demo account"
 msgstr "演示账号"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Demo seed"
+msgstr "演示种子"
+
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 msgid "Deprecated"
@@ -2316,6 +2332,10 @@ msgstr "延期月数"
 #: src/routes/onboarding.tsx
 msgid "e.g. Bright CPA Practice"
 msgstr "例如：Bright CPA Practice"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Each county must be 120 characters or fewer"
+msgstr "每个县名最多 120 个字符"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Edit"
@@ -2670,6 +2690,23 @@ msgstr "文件"
 #: src/features/migration/mapping-target-labels.ts
 msgid "Filing frequency"
 msgstr "申报频率"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Filing jurisdiction"
+msgstr "报税辖区"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Filing jurisdictions"
+msgstr "报税辖区"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Filing jurisdictions saved"
+msgstr "报税辖区已保存"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/migration/mapping-target-labels.ts
+msgid "Filing states"
+msgstr "报税州"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Filing year end"
@@ -3066,14 +3103,6 @@ msgstr "辖区"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Jurisdiction"
 msgstr "管辖范围"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Jurisdiction facts"
-msgstr "辖区信息"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Jurisdiction saved"
-msgstr "辖区已保存"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "JURISDICTION SUMMARY"
@@ -3567,6 +3596,10 @@ msgstr "需补证据"
 msgid "Needs facts"
 msgstr "需要补充事实"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Needs filing state"
+msgstr "需要报税州"
+
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "needs input"
@@ -3589,6 +3622,10 @@ msgstr "需复核"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Needs state"
 msgstr "需要州信息"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Needs tax type review"
+msgstr "需要复核税种"
 
 #: src/routes/dashboard.tsx
 msgid "neutral"
@@ -4050,6 +4087,10 @@ msgstr "义务状态更新和客户导入在写入审计记录后会显示在这
 msgid "Obligations"
 msgstr "义务"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Obligations actually created after Generate runs. Preview results show zero here until generation succeeds."
+msgstr "点击 Generate 后实际创建的义务数量。在生成成功前，Preview 结果这里显示为 0。"
+
 #: src/routes/workboard.tsx
 msgid "Obligations bulk owner change"
 msgstr "义务批量负责人变更"
@@ -4300,6 +4341,10 @@ msgstr "正在打开支付…"
 #: src/routes/billing.tsx
 msgid "Opening…"
 msgstr "正在打开…"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Opens the existing duplicate obligation or the newly created obligation after Generate succeeds."
+msgstr "打开已存在的重复义务，或在 Generate 成功后打开新创建的义务。"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/route-summary.ts
@@ -4836,6 +4881,14 @@ msgstr "上一页"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Previous years"
 msgstr "上一组年份"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "primary"
+msgstr "主"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Primary counties"
+msgstr "主州县"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Primary navigation"
@@ -5531,9 +5584,25 @@ msgstr "行数"
 msgid "Rows needing attention"
 msgstr "需要处理的行"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Rows skipped because the target client, rule, tax year, and period already have an obligation."
+msgstr "因目标客户、规则、税年和期间已存在义务而跳过的行。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Rows that cannot be created, usually because the target year lacks a verified rule or concrete due date."
+msgstr "无法创建的行，通常是因为目标年度缺少已核验规则或具体截止日。"
+
 #: src/routes/dashboard.tsx
 msgid "Rows that still need a source before review."
 msgstr "复核前仍需补充来源的行。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Rows that will create pending obligations because a verified target-year rule produced a concrete due date."
+msgstr "将创建为 pending 义务的行，因为目标年度已核验规则生成了具体截止日。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Rows that will create review obligations because the verified rule requires CPA confirmation."
+msgstr "将创建为 review 义务的行，因为已核验规则要求 CPA 确认。"
 
 #: src/routes/dashboard.tsx
 msgid "Rows waiting for final human action."
@@ -5690,6 +5759,10 @@ msgstr "保存更改"
 msgid "Save current view"
 msgstr "保存当前视图"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Save filing jurisdictions"
+msgstr "保存报税辖区"
+
 #: src/routes/billing.tsx
 msgid "Save from $960/year"
 msgstr "每年省 $960 起"
@@ -5697,10 +5770,6 @@ msgstr "每年省 $960 起"
 #: src/routes/workboard.tsx
 msgid "Save internal decision"
 msgstr "保存内部决策"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Save jurisdiction"
-msgstr "保存辖区"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Save mapping"
@@ -5825,8 +5894,8 @@ msgid "Search, ask, or navigate..."
 msgstr "搜索、提问或导航..."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Search, segment, and inspect the facts that feed rules, risk, and Pulse matching."
-msgstr "搜索、分组并查看驱动规则、风险和 Pulse 匹配的客户事实。"
+msgid "Search, segment, and inspect the filing facts that feed rules, risk, and Pulse matching."
+msgstr "搜索、分组并检查用于规则、风险和 Pulse 匹配的报税事实。"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/routes/billing.tsx
@@ -6239,10 +6308,6 @@ msgstr "州"
 msgid "STATE"
 msgstr "州"
 
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "State jurisdiction"
-msgstr "州辖区"
-
 #: src/features/migration/Step3Normalize.tsx
 msgid "States"
 msgstr "州"
@@ -6252,6 +6317,7 @@ msgid "States covered"
 msgstr "覆盖州"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -6408,6 +6474,7 @@ msgstr "应缴税款"
 msgid "Tax type"
 msgstr "税种"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/migration/mapping-target-labels.ts
 msgid "Tax types"
 msgstr "税种"
@@ -6518,9 +6585,17 @@ msgstr "账单门户会在支付服务商处打开，用于查看发票、支付
 msgid "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue."
 msgstr "客户导入流程：映射列、规范化值、预览截止日，并创建初始截止日队列。"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The client whose closed source-year obligation is being considered for next-year generation."
+msgstr "其来源年度已关闭义务正在被用于生成下一年度义务的客户。"
+
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "The code expires in 5 minutes."
 msgstr "验证码将在 5 分钟后过期。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The concrete due date calculated from the verified target-year rule. A dash means nothing will be created."
+msgstr "根据目标年度已核验规则计算出的具体截止日。横线表示不会创建任何义务。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "The dollar amount where projected risk reaches the maximum Smart Priority contribution. Higher values still display, but do not add more score from this factor."
@@ -6537,6 +6612,10 @@ msgstr "当前由受监控来源和已核验规则支持的辖区、实体类型
 #: src/features/concepts/concept-help.tsx
 msgid "The late-filing count where history reaches its maximum Smart Priority contribution. Higher counts still display, but do not add more score from this factor."
 msgstr "历史延误达到 Smart Priority 最高贡献值的迟交次数。更高次数仍会显示，但不会再从这个因子增加更多分数。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The matched verified rule and period, or the reason this row is duplicate or skipped."
+msgstr "匹配到的已核验规则和期间，或该行重复/跳过的原因。"
 
 #: src/routes/workboard.tsx
 msgid "The memo is stored on the audit trail for the bulk status change."
@@ -6579,6 +6658,10 @@ msgstr "当前截止日队列中的预计风险。它用于帮助安排工作优
 msgid "The request was invalid. Please review your input and try again."
 msgstr "请求无效，请检查输入后重试。"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The rollover disposition for this row: create, review, duplicate, missing rule, or missing due date."
+msgstr "该行的滚动处理结果：创建、复核、重复、缺少规则或缺少截止日。"
+
 #: src/routes/billing.tsx
 msgid "The same practice AI tier as Pro, paired with team-scale management and review workflows."
 msgstr "与 Pro 相同的事务所 AI 档位，并搭配团队规模的管理和复核工作流。"
@@ -6591,6 +6674,10 @@ msgstr "安全支付已重定向回 DueDateHQ。我们正在确认订阅。"
 msgid "The selected plan is still available from Billing."
 msgstr "所选计划仍可在账单页中使用。"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The status assigned if this row is generated: pending for reminder-ready rows or review for CPA-confirmation rows."
+msgstr "如果生成该行，将分配的状态：可提醒行是 pending，需要 CPA 确认的行是 review。"
+
 #: src/features/concepts/concept-help.tsx
 msgid "The stored deadline risk view, mainly based on due date pressure, penalty exposure, readiness, and evidence status."
 msgstr "已保存的截止日风险视图，主要基于截止日压力、罚金敞口、就绪度和证据状态。"
@@ -6598,6 +6685,10 @@ msgstr "已保存的截止日风险视图，主要基于截止日压力、罚金
 #: src/features/concepts/concept-help.tsx
 msgid "The system found a possible deadline, but a CPA, owner, or manager must confirm it before it is treated as final."
 msgstr "系统发现了一个可能的截止日，但必须由 CPA、Owner 或 Manager 确认后才会视为最终结果。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "The tax form or obligation type carried forward from the source-year seed obligation."
+msgstr "从来源年度种子义务继承过来的税表或义务类型。"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
@@ -6865,7 +6956,12 @@ msgstr "撤销这个导入的客户？"
 msgid "Unexpected route error"
 msgstr "路由出现意外错误"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Unique clients represented by the source-year seed obligations in this preview."
+msgstr "本次 preview 的来源年度种子义务涉及的唯一客户数量。"
+
 #: src/features/permissions/permission-gate.tsx
+#: src/features/rules/generation-preview-tab.tsx
 msgid "Unknown"
 msgstr "未知"
 
@@ -6932,8 +7028,8 @@ msgid "Urgency window"
 msgstr "紧急窗口"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Use a 2-letter state code"
-msgstr "请输入两位州代码"
+msgid "Use 2-letter state codes"
+msgstr "使用 2 位州代码"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Use a concrete due date calculation and allow reminder-ready previews."

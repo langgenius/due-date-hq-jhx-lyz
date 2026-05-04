@@ -6,7 +6,7 @@ import { compareSmartPriority, rankSmartPriorities } from '@duedatehq/core/prior
 import type { SmartPriorityBreakdown } from '@duedatehq/ports/priority'
 import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
-import { client } from '../schema/clients'
+import { client, clientFilingProfile } from '../schema/clients'
 import { firmProfile } from '../schema/firm'
 import {
   obligationInstance,
@@ -70,12 +70,14 @@ export interface WorkboardListRow {
   id: string
   firmId: string
   clientId: string
+  clientFilingProfileId: string | null
   taxType: string
   taxYear: number | null
   ruleId: string | null
   ruleVersion: number | null
   rulePeriod: string | null
   generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
+  jurisdiction: string | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -176,12 +178,14 @@ interface WorkboardRawJoinedRow {
   id: string
   firmId: string
   clientId: string
+  clientFilingProfileId: string | null
   taxType: string
   taxYear: number | null
   ruleId: string | null
   ruleVersion: number | null
   rulePeriod: string | null
   generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
+  jurisdiction: string | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -542,6 +546,9 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         eq(client.firmId, firmId),
         isNull(client.deletedAt),
       ]
+      const clientCountySql = sql<
+        string | null
+      >`coalesce(json_extract(${clientFilingProfile.countiesJson}, '$[0]'), ${client.county})`
 
       if (input.status && input.status.length > 0) {
         filters.push(inArray(obligationInstance.status, input.status))
@@ -561,12 +568,12 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         .map((value) => normalizeStateCode(value))
         .filter((value): value is string => value !== null)
       if (states.length > 0) {
-        filters.push(inArray(client.state, states))
+        filters.push(inArray(obligationInstance.jurisdiction, states))
       }
 
       const counties = uniqueNonEmpty(input.counties)
       if (counties.length > 0) {
-        filters.push(inArray(client.county, counties))
+        filters.push(inArray(clientCountySql, counties))
       }
 
       const taxTypes = uniqueNonEmpty(input.taxTypes)
@@ -622,12 +629,14 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           id: obligationInstance.id,
           firmId: obligationInstance.firmId,
           clientId: obligationInstance.clientId,
+          clientFilingProfileId: obligationInstance.clientFilingProfileId,
           taxType: obligationInstance.taxType,
           taxYear: obligationInstance.taxYear,
           ruleId: obligationInstance.ruleId,
           ruleVersion: obligationInstance.ruleVersion,
           rulePeriod: obligationInstance.rulePeriod,
           generationSource: obligationInstance.generationSource,
+          jurisdiction: obligationInstance.jurisdiction,
           baseDueDate: obligationInstance.baseDueDate,
           currentDueDate: obligationInstance.currentDueDate,
           status: obligationInstance.status,
@@ -653,8 +662,8 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           createdAt: obligationInstance.createdAt,
           updatedAt: obligationInstance.updatedAt,
           clientName: client.name,
-          clientState: client.state,
-          clientCounty: client.county,
+          clientState: obligationInstance.jurisdiction,
+          clientCounty: clientCountySql,
           assigneeName: client.assigneeName,
           clientEntityType: client.entityType,
           clientEstimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents,
@@ -664,6 +673,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         })
         .from(obligationInstance)
         .innerJoin(client, eq(obligationInstance.clientId, client.id))
+        .leftJoin(
+          clientFilingProfile,
+          eq(obligationInstance.clientFilingProfileId, clientFilingProfile.id),
+        )
         .where(and(...filters))
         .orderBy(...orderBy)
         .limit(MAX_READ_ROWS)
@@ -711,12 +724,14 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
               id: obligationInstance.id,
               firmId: obligationInstance.firmId,
               clientId: obligationInstance.clientId,
+              clientFilingProfileId: obligationInstance.clientFilingProfileId,
               taxType: obligationInstance.taxType,
               taxYear: obligationInstance.taxYear,
               ruleId: obligationInstance.ruleId,
               ruleVersion: obligationInstance.ruleVersion,
               rulePeriod: obligationInstance.rulePeriod,
               generationSource: obligationInstance.generationSource,
+              jurisdiction: obligationInstance.jurisdiction,
               baseDueDate: obligationInstance.baseDueDate,
               currentDueDate: obligationInstance.currentDueDate,
               status: obligationInstance.status,
@@ -742,8 +757,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
               createdAt: obligationInstance.createdAt,
               updatedAt: obligationInstance.updatedAt,
               clientName: client.name,
-              clientState: client.state,
-              clientCounty: client.county,
+              clientState: obligationInstance.jurisdiction,
+              clientCounty: sql<
+                string | null
+              >`coalesce(json_extract(${clientFilingProfile.countiesJson}, '$[0]'), ${client.county})`,
               assigneeName: client.assigneeName,
               clientEntityType: client.entityType,
               clientEstimatedTaxLiabilityCents: client.estimatedTaxLiabilityCents,
@@ -753,6 +770,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
             })
             .from(obligationInstance)
             .innerJoin(client, eq(obligationInstance.clientId, client.id))
+            .leftJoin(
+              clientFilingProfile,
+              eq(obligationInstance.clientFilingProfileId, clientFilingProfile.id),
+            )
             .where(
               and(
                 eq(obligationInstance.firmId, firmId),
@@ -777,13 +798,19 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         .select({
           clientId: obligationInstance.clientId,
           clientName: client.name,
-          clientState: client.state,
-          clientCounty: client.county,
+          clientState: obligationInstance.jurisdiction,
+          clientCounty: sql<
+            string | null
+          >`coalesce(json_extract(${clientFilingProfile.countiesJson}, '$[0]'), ${client.county})`,
           taxType: obligationInstance.taxType,
           assigneeName: client.assigneeName,
         })
         .from(obligationInstance)
         .innerJoin(client, eq(obligationInstance.clientId, client.id))
+        .leftJoin(
+          clientFilingProfile,
+          eq(obligationInstance.clientFilingProfileId, clientFilingProfile.id),
+        )
         .where(
           and(
             eq(obligationInstance.firmId, firmId),

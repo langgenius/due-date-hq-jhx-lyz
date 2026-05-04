@@ -85,6 +85,15 @@ Root router 覆盖：
 - apply 写入 client/obligation/evidence/audit。
 - revert 和 single undo。
 
+多州导入由 commit plan 负责归并：
+
+- 支持一行内的 filing state 列表，以及同一客户多行一州的导入形态。
+- 合并 key 优先 EIN，其次 normalized name + email。
+- 每个客户创建 active `client_filing_profile` rows；`client.state/county` 只写 primary mirror。
+- 州级 tax types 按 profile 推断或归属，联邦 obligations 在同一客户/年度/期间下去重。
+- apply/revert/single undo 在同一 batch 里处理 clients、filing profiles、obligations、evidence、
+  external references 和 audit。
+
 ### Pulse service
 
 Pulse API 负责 firm alert 生命周期：
@@ -93,6 +102,10 @@ Pulse API 负责 firm alert 生命周期：
 - apply/dismiss/snooze/revert。
 - apply/revert 使用 KV lock 防止重复并发操作。
 - 修改 obligation 后重算 exposure，写 audit/evidence，并 enqueue dashboard brief。
+
+Pulse matching reads obligation `jurisdiction` and filing profile counties. Archived filing profiles
+do not participate in new matches, but previously-created obligations remain auditable rows and can
+be marked `not_applicable` manually.
 
 ### Dashboard brief job
 

@@ -1,7 +1,7 @@
-import { and, asc, eq, gte, inArray, isNotNull, lt } from 'drizzle-orm'
+import { and, asc, eq, gte, inArray, isNotNull, isNull, lt } from 'drizzle-orm'
 import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
 import type { Db } from '../client'
-import { client } from '../schema/clients'
+import { client, clientFilingProfile } from '../schema/clients'
 import {
   obligationInstance,
   type ExposureStatus,
@@ -12,7 +12,7 @@ import {
 import { listActiveOverlayDueDates } from './overlay'
 
 const COLS_PER_OI_ROW = 27
-const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 5
+const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 3
 const CLIENT_ASSERT_BATCH_SIZE = 90
 const OI_LOOKUP_IDS_PER_BATCH = 90
 const OI_UPDATE_IDS_PER_BATCH = 90
@@ -20,12 +20,14 @@ const OI_UPDATE_IDS_PER_BATCH = 90
 export interface ObligationCreateInput {
   id?: string
   clientId: string
+  clientFilingProfileId?: string | null
   taxType: string
   taxYear?: number | null
   ruleId?: string | null
   ruleVersion?: number | null
   rulePeriod?: string | null
   generationSource?: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
+  jurisdiction?: string | null
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
@@ -44,6 +46,16 @@ export interface ObligationCreateInput {
   exposureCalculatedAt?: Date | null
 }
 
+function normalizeJurisdiction(value: string | null | undefined): string | null {
+  const jurisdiction = value?.trim().toUpperCase() ?? ''
+  if (jurisdiction === 'FED') return jurisdiction
+  return /^[A-Z]{2}$/.test(jurisdiction) ? jurisdiction : null
+}
+
+function isFederalTaxType(taxType: string): boolean {
+  return taxType.trim().toLowerCase().startsWith('federal')
+}
+
 export function makeObligationsRepo(db: Db, firmId: string) {
   async function applyOverlayDueDates<T extends { id: string; currentDueDate: Date }>(
     rows: T[],
@@ -59,25 +71,27 @@ export function makeObligationsRepo(db: Db, firmId: string) {
     }))
   }
 
-  async function assertClientsInFirm(clientIds: string[]): Promise<void> {
+  async function loadClientsInFirm(
+    clientIds: string[],
+  ): Promise<Map<string, { id: string; state: string | null }>> {
     const uniqueIds = Array.from(new Set(clientIds))
-    if (uniqueIds.length === 0) return
+    if (uniqueIds.length === 0) return new Map()
 
     const checks = []
     for (let i = 0; i < uniqueIds.length; i += CLIENT_ASSERT_BATCH_SIZE) {
       const chunk = uniqueIds.slice(i, i + CLIENT_ASSERT_BATCH_SIZE)
       checks.push(
         db
-          .select({ id: client.id })
+          .select({ id: client.id, state: client.state })
           .from(client)
           .where(and(eq(client.firmId, firmId), inArray(client.id, chunk))),
       )
     }
 
     const resultSets = await Promise.all(checks)
-    const found = new Set<string>()
+    const found = new Map<string, { id: string; state: string | null }>()
     for (const rows of resultSets) {
-      for (const row of rows) found.add(row.id)
+      for (const row of rows) found.set(row.id, row)
     }
 
     const missing = uniqueIds.filter((id) => !found.has(id))
@@ -86,6 +100,74 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         `Cannot create obligations for clients outside the current firm: ${missing.join(', ')}`,
       )
     }
+    return found
+  }
+
+  async function loadProfilesInFirm(
+    inputs: readonly ObligationCreateInput[],
+  ): Promise<Map<string, { id: string; clientId: string; state: string }>> {
+    const expectedClientByProfile = new Map<string, string>()
+    for (const input of inputs) {
+      if (!input.clientFilingProfileId) continue
+      const current = expectedClientByProfile.get(input.clientFilingProfileId)
+      if (current && current !== input.clientId) {
+        throw new Error('Cannot attach one filing profile to obligations for multiple clients.')
+      }
+      expectedClientByProfile.set(input.clientFilingProfileId, input.clientId)
+    }
+
+    const profileIds = [...expectedClientByProfile.keys()]
+    if (profileIds.length === 0) return new Map()
+
+    const reads = []
+    for (let i = 0; i < profileIds.length; i += OI_LOOKUP_IDS_PER_BATCH) {
+      const chunk = profileIds.slice(i, i + OI_LOOKUP_IDS_PER_BATCH)
+      reads.push(
+        db
+          .select({
+            id: clientFilingProfile.id,
+            clientId: clientFilingProfile.clientId,
+            state: clientFilingProfile.state,
+          })
+          .from(clientFilingProfile)
+          .where(
+            and(
+              eq(clientFilingProfile.firmId, firmId),
+              inArray(clientFilingProfile.id, chunk),
+              isNull(clientFilingProfile.archivedAt),
+            ),
+          ),
+      )
+    }
+
+    const found = new Map((await Promise.all(reads)).flat().map((row) => [row.id, row]))
+    const invalid = profileIds.filter((id) => {
+      const row = found.get(id)
+      return !row || row.clientId !== expectedClientByProfile.get(id)
+    })
+    if (invalid.length > 0) {
+      throw new Error(
+        `Cannot create obligations for filing profiles outside the current firm/client: ${invalid.join(', ')}`,
+      )
+    }
+    return found
+  }
+
+  function resolveJurisdiction(
+    input: ObligationCreateInput,
+    opts: {
+      clientsById: Map<string, { id: string; state: string | null }>
+      profilesById: Map<string, { id: string; clientId: string; state: string }>
+    },
+  ): string | null {
+    return (
+      normalizeJurisdiction(input.jurisdiction) ??
+      (input.clientFilingProfileId
+        ? opts.profilesById.get(input.clientFilingProfileId)?.state
+        : null) ??
+      (isFederalTaxType(input.taxType) ? 'FED' : null) ??
+      normalizeJurisdiction(opts.clientsById.get(input.clientId)?.state)
+    )
   }
 
   return {
@@ -93,19 +175,24 @@ export function makeObligationsRepo(db: Db, firmId: string) {
 
     async createBatch(inputs: ObligationCreateInput[]): Promise<{ ids: string[] }> {
       if (inputs.length === 0) return { ids: [] }
-      await assertClientsInFirm(inputs.map((input) => input.clientId))
+      const [clientsById, profilesById] = await Promise.all([
+        loadClientsInFirm(inputs.map((input) => input.clientId)),
+        loadProfilesInFirm(inputs),
+      ])
       const rows = inputs.map((i) => {
         const status = i.status ?? ('pending' as const)
         return {
           id: i.id ?? crypto.randomUUID(),
           firmId,
           clientId: i.clientId,
+          clientFilingProfileId: i.clientFilingProfileId ?? null,
           taxType: i.taxType,
           taxYear: i.taxYear ?? null,
           ruleId: i.ruleId ?? null,
           ruleVersion: i.ruleVersion ?? null,
           rulePeriod: i.rulePeriod ?? null,
           generationSource: i.generationSource ?? null,
+          jurisdiction: resolveJurisdiction(i, { clientsById, profilesById }),
           baseDueDate: i.baseDueDate,
           currentDueDate: i.currentDueDate ?? i.baseDueDate,
           status,
@@ -221,6 +308,7 @@ export function makeObligationsRepo(db: Db, firmId: string) {
       Array<{
         id: string
         clientId: string
+        jurisdiction: string | null
         ruleId: string | null
         taxYear: number | null
         rulePeriod: string | null
@@ -238,6 +326,7 @@ export function makeObligationsRepo(db: Db, firmId: string) {
             .select({
               id: obligationInstance.id,
               clientId: obligationInstance.clientId,
+              jurisdiction: obligationInstance.jurisdiction,
               ruleId: obligationInstance.ruleId,
               taxYear: obligationInstance.taxYear,
               rulePeriod: obligationInstance.rulePeriod,

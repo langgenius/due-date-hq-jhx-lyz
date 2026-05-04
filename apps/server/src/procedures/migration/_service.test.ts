@@ -63,6 +63,27 @@ function unexpectedRepoCall(name: string): never {
   throw new Error(`Unexpected test repo call: ${name}`)
 }
 
+function unusedFilingProfilesRepo(firmId: string): ScopedRepo['filingProfiles'] {
+  return {
+    firmId,
+    async createBatch() {
+      return unexpectedRepoCall('filingProfiles.createBatch')
+    },
+    async listByClient() {
+      return unexpectedRepoCall('filingProfiles.listByClient')
+    },
+    async listByClients() {
+      return unexpectedRepoCall('filingProfiles.listByClients')
+    },
+    async replaceForClient() {
+      return unexpectedRepoCall('filingProfiles.replaceForClient')
+    },
+    async deleteByBatch() {
+      return unexpectedRepoCall('filingProfiles.deleteByBatch')
+    },
+  }
+}
+
 function buildScopedRepo(firmId: string) {
   const batches = new Map<string, MigrationBatchRow>()
   const audits: Array<{ action: string; firmId: string; entityId: string }> = []
@@ -592,6 +613,7 @@ function buildScopedRepo(firmId: string) {
 
   const repo: ScopedRepo = {
     firmId,
+    filingProfiles: unusedFilingProfilesRepo(firmId),
     ai: {
       firmId,
       async recordRun(input) {
