@@ -35,14 +35,6 @@ export const NAVIGATION_SHORTCUTS = [
     displayKeys: 'G then C',
   },
   {
-    id: 'nav.alerts',
-    sequence: ['G', 'A'],
-    path: '/alerts',
-    name: 'Go to Alerts',
-    description: 'Navigate to Pulse alerts.',
-    displayKeys: 'G then A',
-  },
-  {
     id: 'nav.workload',
     sequence: ['G', 'T'],
     path: '/workload',

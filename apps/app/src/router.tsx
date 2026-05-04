@@ -291,16 +291,6 @@ export function createAppRouter() {
               },
             },
             {
-              path: 'alerts',
-              handle: routeHandle(routeSummaries.alerts),
-              HydrateFallback: RouteHydrateFallback,
-              lazy: async () => {
-                const { AlertsRoute } = await import('@/routes/alerts')
-
-                return { Component: AlertsRoute }
-              },
-            },
-            {
               path: 'notifications',
               handle: routeHandle(routeSummaries.notifications),
               HydrateFallback: RouteHydrateFallback,

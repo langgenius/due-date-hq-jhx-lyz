@@ -58,7 +58,7 @@ describe('rules console model', () => {
 
   it('guards tab values from the shared literal tuple', () => {
     expect(DEFAULT_RULES_TAB).toBe('coverage')
-    expect(RULES_TAB_VALUES).toEqual(['coverage', 'sources', 'library', 'preview'])
+    expect(RULES_TAB_VALUES).toEqual(['coverage', 'sources', 'library', 'pulse', 'preview'])
     expect(RULES_TAB_VALUES.every(isRulesTab)).toBe(true)
     expect(isRulesTab('publish')).toBe(false)
   })

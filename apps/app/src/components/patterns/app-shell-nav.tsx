@@ -14,7 +14,6 @@ import {
   FileCheck2Icon,
   LayoutDashboardIcon,
   PlusIcon,
-  RadioTowerIcon,
   ScaleIcon,
   UsersIcon,
   type LucideIcon,
@@ -412,13 +411,6 @@ function useNavItems(firm: FirmPublic): NavConfig {
           end: false,
         },
         {
-          href: '/alerts',
-          label: t`Alerts`,
-          icon: RadioTowerIcon,
-          end: false,
-          ...(pulseBadge !== undefined ? { badge: pulseBadge } : {}),
-        },
-        {
           href: '/workload',
           label: t`Team workload`,
           icon: ClipboardListIcon,
@@ -434,7 +426,13 @@ function useNavItems(firm: FirmPublic): NavConfig {
       clients: [{ href: '/clients', label: t`Clients`, icon: UsersIcon, end: false }],
       practice: [
         { href: '/practice', label: t`Practice profile`, icon: Building2Icon, end: false },
-        { href: '/rules', label: t`Rules`, icon: FileCheck2Icon, end: false },
+        {
+          href: '/rules',
+          label: t`Rules`,
+          icon: FileCheck2Icon,
+          end: false,
+          ...(pulseBadge !== undefined ? { badge: pulseBadge } : {}),
+        },
         { href: '/members', label: t`Members`, icon: UsersIcon, end: false },
         { href: '/billing', label: t`Billing`, icon: CreditCardIcon, end: false },
         { href: '/audit', label: t`Audit log`, icon: ScaleIcon, end: false },

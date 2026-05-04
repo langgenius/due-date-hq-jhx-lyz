@@ -245,7 +245,7 @@ SourceAdapter.fetch()  ──► raw 存 R2_PULSE ──► T1 入 PULSE_QUEUE {
                                         ▼
                                  写 pulse（status=approved）
                                         │
-                                  firm review（Alerts UI）
+                                  firm review（Rules > Pulse Changes）
                                         │
                                         ▼
                                  Match Engine

@@ -22,7 +22,7 @@ interface PulseAlertCardProps {
   compact?: boolean
 }
 
-// Single Pulse alert row used by the /alerts history page. Keeps the same
+// Single Pulse alert row used by Rules > Pulse Changes. Keeps the same
 // hairline / monospace metadata language as the dashboard strip — flat row
 // with a pulsing dot, mono source label, body title, mono impact count, and
 // a thin action set on the right.

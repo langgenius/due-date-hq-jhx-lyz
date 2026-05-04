@@ -17,7 +17,7 @@ import {
   type RuleSource,
 } from '@duedatehq/contracts'
 
-export const RULES_TAB_VALUES = ['coverage', 'sources', 'library', 'preview'] as const
+export const RULES_TAB_VALUES = ['coverage', 'sources', 'library', 'pulse', 'preview'] as const
 export const DEFAULT_RULES_TAB = 'coverage'
 export const rulesConsoleSearchParamsParsers = {
   tab: parseAsStringLiteral(RULES_TAB_VALUES)
@@ -42,6 +42,7 @@ export const RULES_TABS: ReadonlyArray<{ value: RulesTab; count?: number }> = [
   { value: 'coverage' },
   { value: 'sources' },
   { value: 'library' },
+  { value: 'pulse' },
   { value: 'preview' },
 ]
 

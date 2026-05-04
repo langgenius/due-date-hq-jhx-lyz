@@ -66,7 +66,7 @@ export function RootLayout() {
 
         PulseDrawerProvider lives inside KeyboardProvider so the drawer's Sheet
         can portal cleanly over the whole layout. It exposes `usePulseDrawer`
-        to the dashboard banner and the /alerts route.
+        to the dashboard banner and Rules > Pulse Changes.
       */}
       <KeyboardProvider
         themePreference={themePreference}

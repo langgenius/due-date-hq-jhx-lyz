@@ -399,8 +399,8 @@ Smart Priority 必须保持纯函数。排序、badge、popover 和 Weekly Brief
 - Queue 消费者调用 `packages/ai/extractPulse`
 - AI SDK structured output 产出受限 JSON
 - 后置 guard 校验 source excerpt 必须能定位回 raw text
-- `confidence < 0.7` 仍进入 firm Alerts review，但 UI 必须高亮低置信度和 source excerpt
-- `confidence ≥ 0.7` 进入 firm Alerts review，由 owner/manager apply/dismiss/snooze
+- `confidence < 0.7` 仍进入 Rules > Pulse Changes，但 UI 必须高亮低置信度和 source excerpt
+- `confidence ≥ 0.7` 进入 Rules > Pulse Changes，由 owner/manager apply/dismiss/snooze
 
 ### 8.3 Match（服务端确定性）
 

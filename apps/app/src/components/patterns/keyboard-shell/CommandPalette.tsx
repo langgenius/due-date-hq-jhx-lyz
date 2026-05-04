@@ -11,7 +11,6 @@ import {
   CreditCardIcon,
   FileCheck2Icon,
   LayoutDashboardIcon,
-  RadioTowerIcon,
   ScaleIcon,
   UploadCloudIcon,
   UsersIcon,
@@ -77,14 +76,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         group: 'navigate',
         icon: CalendarClockIcon,
         onSelect: () => navigate('/workboard'),
-      },
-      {
-        id: 'alerts',
-        label: t`Alerts`,
-        description: t`Review source-backed Pulse alerts.`,
-        group: 'navigate',
-        icon: RadioTowerIcon,
-        onSelect: () => navigate('/alerts'),
       },
       {
         id: 'notifications',

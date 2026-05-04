@@ -147,7 +147,7 @@ flowchart TB
   subgraph Server["apps/server jobs"]
     Cron["runPulseIngest"]
     Extract["pulse.extract queue"]
-    Alerts["firm Alerts review"]
+    PulseChanges["Rules > Pulse Changes"]
   end
 
   Sources["Government sources"]
@@ -163,7 +163,7 @@ flowchart TB
   Cron --> D1
   Cron --> Extract
   Extract --> AI
-  Extract --> Alerts
+  Extract --> PulseChanges
 ```
 
 ## 数据流与审计关系

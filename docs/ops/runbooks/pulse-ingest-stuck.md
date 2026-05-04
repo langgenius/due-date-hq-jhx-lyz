@@ -7,7 +7,7 @@ This runbook covers `PULSE_QUEUE`, `R2_PULSE`, `pulse_source_state`,
 
 ## Triggers
 
-- Dashboard or `/alerts` shows `Source needs attention`.
+- Dashboard or Rules > Pulse Changes shows `Source needs attention`.
 - `pulse_source_state.health_status` is `degraded` or `failing`.
 - `pulse_source_snapshot.parse_status` stays `pending_extract`, `extracting`, or `failed`.
 - FEMA/GovDelivery style signals appear in `pulse_source_signal` but no T1 Pulse follows.
@@ -48,7 +48,7 @@ limit 20;
 
 - Bad extraction or source mismatch: pause the affected source, mark the bad Pulse/source snapshot
   for engineering review, and notify affected firm owners/managers if an alert already reached
-  `/alerts`.
+  Rules > Pulse Changes.
 
 - T2 signal without T1 follow-up: leave `pulse_source_signal.status='open'`, verify the matching
   IRS/state canonical source, and only allow firm alerts from T1 evidence.

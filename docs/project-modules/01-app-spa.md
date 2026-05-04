@@ -65,7 +65,7 @@
 
 ### Pulse
 
-- `/alerts` 面向事务所用户，承载 owner/manager 对 Pulse 影响客户的 review/apply/dismiss/snooze。
+- `/rules?tab=pulse` 面向事务所用户，承载 owner/manager 对 Pulse 影响客户的 review/apply/dismiss/snooze。
 - Pulse detail drawer 展示来源状态、置信度、结构化字段、影响客户、安全 checklist 和操作按钮。
 - apply/revert/reactivate 会触发 server 端锁或状态流、数据更新、罚金重算、audit/evidence 和
   dashboard queue；undo 后 alert 回到 `matched`，历史 `reverted` alert 可重新激活再 apply。
@@ -83,7 +83,7 @@
 
 ### 通知、成员、计费和设置
 
-- Notifications：未读数、mark read、mark all read、preferences 和 `href` 深链跳转；Pulse 到达通知只负责把用户带到 `/alerts` 决策工作台，不在通知中心承载 apply/dismiss/revert。
+- Notifications：未读数、mark read、mark all read、preferences 和 `href` 深链跳转；Pulse 到达通知只负责把用户带到 Rules > Pulse Changes 决策工作台，不在通知中心承载 apply/dismiss/revert。
 - Members：owner-only invite、cancel/resend、role update、suspend/reactivate/remove。
 - Firm：名称、时区、coordinator dollar visibility、soft delete。
 - Billing：plan、checkout、success/cancel 和 audit pay intent。

@@ -5,6 +5,8 @@ import { useQueryState } from 'nuqs'
 import { Tabs, TabsList, TabsTrigger } from '@duedatehq/ui/components/ui/tabs'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { PulseChangesTab } from '@/features/pulse/AlertsListPage'
+
 import { CoverageTab } from './coverage-tab'
 import { GenerationPreviewTab } from './generation-preview-tab'
 import { RuleLibraryTab } from './rule-library-tab'
@@ -52,6 +54,7 @@ function RulesTabPanel({ activeTab }: { activeTab: RulesTab }) {
   if (activeTab === 'coverage') return <CoverageTab />
   if (activeTab === 'sources') return <SourcesTab />
   if (activeTab === 'library') return <RuleLibraryTab />
+  if (activeTab === 'pulse') return <PulseChangesTab embedded />
   return <GenerationPreviewTab />
 }
 
@@ -70,6 +73,7 @@ export function RulesConsole() {
       coverage: t`Coverage`,
       sources: t`Sources`,
       library: t`Rule Library`,
+      pulse: t`Pulse Changes`,
       preview: t`Obligation Preview`,
     }),
     [t],
@@ -80,6 +84,7 @@ export function RulesConsole() {
       coverage: t`Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until an owner or manager publishes source-backed dates.`,
       sources: t`Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; owners and managers review changes via the candidate flow before promotion.`,
       library: t`Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders.`,
+      pulse: t`Source-backed government changes that may affect client deadlines. Owners and managers review affected clients, apply temporary exceptions, dismiss noise, or revisit closed changes here.`,
       preview: t`Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded.`,
     }),
     [t],

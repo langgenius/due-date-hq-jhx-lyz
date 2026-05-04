@@ -56,7 +56,6 @@ describe('keyboard shell utilities', () => {
       ['nav.dashboard', '/', 'G then D'],
       ['nav.workboard', '/workboard', 'G then W'],
       ['nav.clients', '/clients', 'G then C'],
-      ['nav.alerts', '/alerts', 'G then A'],
       ['nav.workload', '/workload', 'G then T'],
     ])
   })

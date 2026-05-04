@@ -11,6 +11,9 @@
 - Tightened the Step 1 mode again after review: normal provider CSV/XLSX exports stay on
   Paste / Upload + preset, while the provider-specific choices are only for JSON handoff records
   from API/Zapier/converted reports.
+- Updated `integration-provider-json-samples.json` so fixture records now describe JSON handoff
+  sources explicitly: Karbon API/export, TaxDome Zapier, ProConnect/SafeSend converted reports,
+  and Soraban routed/manual handoff.
 - Updated Migration docs, the user manual, and the prior integration foundation log to preserve the
   reality-based export/handoff scope.
 

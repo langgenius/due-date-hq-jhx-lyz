@@ -39,9 +39,14 @@ type PulseStatusFilter = (typeof STATUS_FILTER_OPTIONS)[number]
 const EMPTY_ALERTS: readonly PulseAlertPublic[] = []
 const EMPTY_SOURCES: readonly PulseSourceHealth[] = []
 
-// `/alerts` route — Pulse history timeline. Uses the same hairline / mono
-// language as the dashboard strip; no oversized cards, no chrome shadows.
-export function AlertsListPage() {
+interface PulseChangesTabProps {
+  embedded?: boolean
+}
+
+// Pulse Changes — source-backed rule-change timeline used inside Rules.
+// Uses the same hairline / mono language as the dashboard strip; no oversized
+// cards, no chrome shadows.
+export function PulseChangesTab({ embedded = false }: PulseChangesTabProps) {
   const { t } = useLingui()
   const { openDrawer } = usePulseDrawer()
   const [statusFilter, setStatusFilter] = useState<PulseStatusFilter>('all')
@@ -74,41 +79,43 @@ export function AlertsListPage() {
   const filtersActive = statusFilter !== 'all' || sourceFilter !== 'all'
 
   return (
-    <div className="flex flex-col gap-5 p-4 md:p-6">
-      <header className="flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-          <Trans>Operations</Trans>
-        </span>
-        <div className="flex items-end justify-between gap-3">
-          <div className="flex flex-col gap-1">
-            <h1 className="flex items-center gap-2 text-2xl font-semibold leading-tight text-text-primary">
-              <PulsingDot tone={isEmpty ? 'success' : 'warning'} active />
-              <Trans>Alerts</Trans>
-            </h1>
-            <p className="max-w-[640px] text-md text-text-secondary">
-              <ConceptLabel concept="pulse">
-                <Trans>
-                  Regulatory Pulse signals that match your practice's clients. Review, batch-apply
-                  due-date changes, snooze, or revisit closed alerts.
-                </Trans>
-              </ConceptLabel>
-            </p>
+    <div className={embedded ? 'flex flex-col gap-5' : 'flex flex-col gap-5 p-4 md:p-6'}>
+      {!embedded ? (
+        <header className="flex flex-col gap-2">
+          <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+            <Trans>Practice</Trans>
+          </span>
+          <div className="flex items-end justify-between gap-3">
+            <div className="flex flex-col gap-1">
+              <h1 className="flex items-center gap-2 text-2xl font-semibold leading-tight text-text-primary">
+                <PulsingDot tone={isEmpty ? 'success' : 'warning'} active />
+                <Trans>Pulse Changes</Trans>
+              </h1>
+              <p className="max-w-[640px] text-md text-text-secondary">
+                <ConceptLabel concept="pulse">
+                  <Trans>
+                    Regulatory Pulse signals that match your practice's clients. Review, batch-apply
+                    due-date changes, snooze, or revisit closed changes.
+                  </Trans>
+                </ConceptLabel>
+              </p>
+            </div>
+            {!alertsQuery.isLoading ? (
+              <span className="hidden font-mono text-xs tabular-nums text-text-tertiary md:inline">
+                {alerts.length === 0 ? (
+                  <Trans>0 active</Trans>
+                ) : filtersActive ? (
+                  <Trans>
+                    {filteredAlerts.length} shown · {alerts.length} total
+                  </Trans>
+                ) : (
+                  <Plural value={alerts.length} one="# active" other="# active" />
+                )}
+              </span>
+            ) : null}
           </div>
-          {!alertsQuery.isLoading ? (
-            <span className="hidden font-mono text-xs tabular-nums text-text-tertiary md:inline">
-              {alerts.length === 0 ? (
-                <Trans>0 active</Trans>
-              ) : filtersActive ? (
-                <Trans>
-                  {filteredAlerts.length} shown · {alerts.length} total
-                </Trans>
-              ) : (
-                <Plural value={alerts.length} one="# active" other="# active" />
-              )}
-            </span>
-          ) : null}
-        </div>
-      </header>
+        </header>
+      ) : null}
 
       {alertsQuery.isError ? (
         <Alert variant="destructive">

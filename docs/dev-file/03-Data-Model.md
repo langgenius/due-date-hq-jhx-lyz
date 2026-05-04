@@ -333,7 +333,7 @@ member id 或 raw audit JSON。POST 响应会写 `readiness.client_response` aud
 | `status ∈ (open, linked, dismissed)` / `linked_pulse_id`                       | T1 原文落地后可关联到正式 `pulse` 提升置信度 |
 
 `pulse_source_signal` 明确不进入 Evidence Chain，也不会创建 `pulse_firm_alert`；只有
-T1 `pulse_source_snapshot → pulse.approved` 才能触达 Alerts / Email。
+T1 `pulse_source_snapshot → pulse.approved` 才能触达 Rules > Pulse Changes / Email。
 
 ### 2.4 Migration
 

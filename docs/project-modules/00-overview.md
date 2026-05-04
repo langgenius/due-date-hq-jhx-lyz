@@ -234,7 +234,7 @@ erDiagram
 | Server API       | 已实现           | Hono + oRPC + REST + queue/scheduled/email handlers                                                       |
 | 数据模型         | 已实现并持续扩展 | Drizzle schema 覆盖 auth、firm、client、obligation、migration、pulse、audit、notifications                |
 | AI 能力          | 部分实现         | mapper、normalizer、brief、pulse extract 已有；router/retriever/budget 仍是占位                           |
-| Pulse ingest     | 部分实现         | adapter/fetcher 框架完整，source 覆盖多州和 IRS；抽取成功后直接进入 firm Alerts review 流程               |
+| Pulse ingest     | 部分实现         | adapter/fetcher 框架完整，source 覆盖多州和 IRS；抽取成功后直接进入 Rules > Pulse Changes review 流程     |
 | Marketing        | 已实现           | 双语 Astro 站点和 SEO/structured data                                                                     |
 | Billing          | 开发中           | Better Auth Stripe plugin 和 billing route 已有；当前工作区有 billing audit procedure/contract 未提交变更 |
 | Priority scoring | 占位             | `packages/core/src/priority` 仍是注释占位                                                                 |
