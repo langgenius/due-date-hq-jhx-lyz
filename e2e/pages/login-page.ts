@@ -11,10 +11,10 @@ export class LoginPage {
 
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', {
-      name: /Welcome back to the workbench|欢迎回到工作台/,
+      name: /Welcome (?:back )?to the workbench\.?|欢迎回到工作台/,
     })
 
-    this.emailInput = page.getByLabel(/Work email|工作邮箱/)
+    this.emailInput = page.getByLabel(/(?:Work )?Email address|工作邮箱/)
 
     this.emailButton = page.getByRole('button', {
       name: /Email me a code|发送验证码/,

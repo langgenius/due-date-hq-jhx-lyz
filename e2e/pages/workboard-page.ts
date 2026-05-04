@@ -74,7 +74,10 @@ export class WorkboardPage {
   }
 
   rowFor(clientName: string) {
-    return this.page.getByRole('row', { name: new RegExp(clientName) })
+    const escapedName = escapeRegex(clientName)
+    return this.page
+      .getByRole('row', { name: new RegExp(escapedName) })
+      .or(this.page.getByRole('button', { name: new RegExp(`Obligation detail: ${escapedName}`) }))
   }
 
   async openDetailFor(clientName: string) {

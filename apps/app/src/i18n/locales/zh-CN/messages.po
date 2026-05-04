@@ -633,6 +633,7 @@ msgstr "提醒状态"
 msgid "Alerts"
 msgstr "提醒"
 
+#: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "All"
@@ -1023,6 +1024,10 @@ msgstr "批量就绪度已更新"
 #: src/routes/workboard.tsx
 msgid "Bulk status updated"
 msgstr "批量状态已更新"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Business"
+msgstr "企业"
 
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -2361,6 +2366,14 @@ msgstr "实体"
 msgid "ENTITY"
 msgstr "实体"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "ENTITY COVERAGE"
+msgstr "实体覆盖"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Entity coverage view"
+msgstr "实体覆盖视图"
+
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Entity id"
 msgstr "实体 ID"
@@ -2972,10 +2985,6 @@ msgstr "IP 哈希"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Jurisdiction"
 msgstr "管辖范围"
-
-#: src/features/rules/coverage-tab.tsx
-msgid "JURISDICTION × ENTITY"
-msgstr "辖区 × 实体类型"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Jurisdiction facts"
@@ -3712,10 +3721,6 @@ msgstr "没有匹配规则"
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this practice."
 msgstr "该事务所没有匹配客户。"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "No matching suggestion."
-msgstr "没有匹配的建议。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
@@ -4489,6 +4494,10 @@ msgstr "权限已检查"
 #: src/features/permissions/permission-gate.tsx
 msgid "Permission required"
 msgstr "需要权限"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Personal & fiduciary"
+msgstr "个人与信托"
 
 #: src/routes/workboard.tsx
 msgid "Pin view"
@@ -5911,6 +5920,10 @@ msgstr "显示 {0} / {1} · 点击任意行打开官方来源 ↗"
 msgid "Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events"
 msgstr "显示 {firstItemNumber}-{lastItemNumber}，共加载 {loadedCount} 条事件"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "showing selected client entity groups; Other remains manual review"
+msgstr "显示所选客户实体组；Other 仍保留为人工复核"
+
 #: src/routes/workboard.tsx
 msgid "Showing the previous tip while the latest one is being prepared."
 msgstr "正在显示上一版提示，同时准备最新版。"
@@ -6815,10 +6828,6 @@ msgstr "UTC 时间"
 #: src/routes/clients.tsx
 msgid "Validate the practice client facts that generate obligations, dashboard risk, and Pulse matches."
 msgstr "核验事务所客户事实，这些事实会生成义务、仪表盘风险和 Pulse 匹配。"
-
-#: src/features/rules/coverage-tab.tsx
-msgid "verifiable per (jurisdiction, entity) pair"
-msgstr "每个 (辖区, 实体类型) 组合是否可验证"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Verification"

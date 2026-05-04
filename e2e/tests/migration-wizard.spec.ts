@@ -128,7 +128,7 @@ test('AC: E2E-MIGRATION-EXPOSURE imports tax inputs into Dashboard and Evidence 
 
   await expect(authenticatedPage.getByText('Import complete')).toBeVisible()
   await expect(authenticatedPage).toHaveURL(/\/$/)
-  await expect(authenticatedPage.getByText('Penalty Radar')).toBeVisible()
+  await expect(authenticatedPage.getByText('90-day projected risk')).toBeVisible()
   await expect(authenticatedPage.getByText(/\$[1-9][\d,.]*\.\d{2}/).first()).toBeVisible()
 
   await appShellPage.workboardLink.click()

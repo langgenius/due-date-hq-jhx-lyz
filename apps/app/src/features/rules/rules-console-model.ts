@@ -47,8 +47,15 @@ export const RULES_TABS: ReadonlyArray<{ value: RulesTab; count?: number }> = [
 
 export const RULE_JURISDICTIONS: RuleJurisdiction[] = [...RuleJurisdictionValues]
 export const RULE_GENERATION_STATES: RuleGenerationState[] = [...RuleGenerationStateValues]
-export const ENTITY_COLUMNS = ['llc', 'partnership', 's_corp', 'c_corp'] as const
-export type CoverageEntityColumn = (typeof ENTITY_COLUMNS)[number]
+export const ENTITY_COLUMN_GROUPS = {
+  business: ['llc', 'partnership', 's_corp', 'c_corp', 'sole_prop'],
+  personal: ['individual', 'trust'],
+  all: ['individual', 'trust', 'llc', 'partnership', 's_corp', 'c_corp', 'sole_prop'],
+} as const
+export const COVERAGE_ENTITY_GROUPS = ['business', 'personal', 'all'] as const
+export const DEFAULT_COVERAGE_ENTITY_GROUP = 'business'
+export type CoverageEntityGroup = (typeof COVERAGE_ENTITY_GROUPS)[number]
+export type CoverageEntityColumn = (typeof ENTITY_COLUMN_GROUPS)['all'][number]
 type EntityCoverageState = Record<CoverageEntityColumn, CoverageCellState>
 
 export const RULE_JURISDICTION_LABELS: Record<string, string> = {
@@ -115,15 +122,66 @@ const REVIEW_COVERAGE: EntityCoverageState = {
   partnership: 'review',
   s_corp: 'review',
   c_corp: 'review',
+  sole_prop: 'review',
+  individual: 'review',
+  trust: 'review',
 }
 
 const COVERAGE_OVERRIDES: Partial<Record<RuleJurisdiction, EntityCoverageState>> = {
-  FED: { llc: 'review', partnership: 'review', s_corp: 'verified', c_corp: 'verified' },
-  CA: { llc: 'review', partnership: 'none', s_corp: 'verified', c_corp: 'verified' },
-  NY: { llc: 'review', partnership: 'review', s_corp: 'review', c_corp: 'verified' },
-  TX: { llc: 'review', partnership: 'review', s_corp: 'review', c_corp: 'review' },
-  FL: { llc: 'none', partnership: 'none', s_corp: 'none', c_corp: 'review' },
-  WA: { llc: 'review', partnership: 'review', s_corp: 'review', c_corp: 'review' },
+  FED: {
+    llc: 'review',
+    partnership: 'review',
+    s_corp: 'verified',
+    c_corp: 'verified',
+    sole_prop: 'review',
+    individual: 'review',
+    trust: 'review',
+  },
+  CA: {
+    llc: 'review',
+    partnership: 'none',
+    s_corp: 'verified',
+    c_corp: 'verified',
+    sole_prop: 'review',
+    individual: 'review',
+    trust: 'review',
+  },
+  NY: {
+    llc: 'review',
+    partnership: 'review',
+    s_corp: 'review',
+    c_corp: 'verified',
+    sole_prop: 'review',
+    individual: 'review',
+    trust: 'review',
+  },
+  TX: {
+    llc: 'review',
+    partnership: 'review',
+    s_corp: 'review',
+    c_corp: 'review',
+    sole_prop: 'review',
+    individual: 'review',
+    trust: 'review',
+  },
+  FL: {
+    llc: 'none',
+    partnership: 'none',
+    s_corp: 'none',
+    c_corp: 'review',
+    sole_prop: 'review',
+    individual: 'review',
+    trust: 'review',
+  },
+  WA: {
+    llc: 'review',
+    partnership: 'review',
+    s_corp: 'review',
+    c_corp: 'review',
+    sole_prop: 'review',
+    individual: 'review',
+    trust: 'review',
+  },
 }
 
 export function coverageCellState(

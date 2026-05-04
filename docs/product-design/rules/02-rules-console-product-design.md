@@ -5,7 +5,7 @@
 > 下游：
 >
 > - [`docs/dev-log/2026-04-27-rules-console-shell.md`](../../dev-log/2026-04-27-rules-console-shell.md) 已把本册第 3 节 IA 收敛为 4-tab 只读 P0 壳（Coverage / Sources / Rule Library / Generation Preview）并在 Figma 定稿。Candidates / Publish Preview 两 tab 留给 P1。
-> - [`docs/dev-log/2026-04-28-rules-console-fullwidth-coverage.md`](../../dev-log/2026-04-28-rules-console-fullwidth-coverage.md) 把页面布局从"居中 880px settings 列"改成"全宽 ops workbench"，Coverage tab 重做为 KPI 条 + 左 7/12 汇总表 + 右 5/12 矩阵；header 段落 max-w 放宽到 1080。
+> - [`docs/dev-log/2026-04-28-rules-console-fullwidth-coverage.md`](../../dev-log/2026-04-28-rules-console-fullwidth-coverage.md) 把页面布局从"居中 880px settings 列"改成"全宽 ops workbench"，Coverage tab 重做为 KPI 条 + 左右双栏表格；header 段落 max-w 放宽到 1080。
 >
 > 目标：定义 rules 如何沉淀成真实页面，让内部团队完成 source watch、candidate review、rule publish，并把 verified rules 安全地交给产品消费
 
@@ -67,7 +67,7 @@ the default tab.
 
 给内部团队一个一眼可见的 coverage map，避免“以为覆盖了，其实只是 federal fallback”。
 
-### 4.2 布局（v0.5 · 2026-04-28，全宽 ops workbench）
+### 4.2 布局（v1.1 · 2026-05-04，全宽 ops workbench）
 
 > 取代了 v0.1 的"居中 880px 单列上下叠两表"。判定依据：Coverage tab 内容 100% 是表格 + 矩阵 + KPI，是 ops 数据界面而不是 settings form——按 `DESIGN.md` §5.2 新规则走 Obligations 同源的全宽布局。详见 [`2026-04-28-rules-console-fullwidth-coverage.md`](../../dev-log/2026-04-28-rules-console-fullwidth-coverage.md)。
 
@@ -78,11 +78,17 @@ the default tab.
    - Candidates · sum(candidateCount)（>0 时数字走 `text-status-review` 紫色，0 时不强调）
    - Sources watched · sum(sourceCount)
    - Jurisdictions · rows.length，caption 动态："N fully covered · M with open candidates"
-2. **Jurisdiction summary**（`xl:col-span-7`）
+2. **Jurisdiction summary**（`xl:col-span-6`）
    - JUR · NAME · VERIFIED · CANDIDATE · SOURCES · STATUS（数字列右对齐，金融报表惯例）
+   - NAME 固定 90px 并截断长辖区名，避免 summary 表挤压右侧 entity coverage 矩阵。
    - STATUS pill 颜色规则不变：FED candidate watch 用 `accent`，TX/FL/WA review 用 `severity-medium`，CA/NY basic+review 用 `background-subtle`
-3. **Jurisdiction × Entity 矩阵**（`xl:col-span-5`）
-   - 6 jurisdictions × 4 entity（LLC / PARTNERSHIP / S-CORP / C-CORP），每格 `text-center`，dot + label
+3. **Entity Coverage 矩阵**（`xl:col-span-6`）
+   - 右上 segmented control 本地切换展示列，不写入 URL：
+     - Business（默认）：LLC / Partnership / S-Corp / C-Corp / Sole prop
+     - Personal & fiduciary：Individual / Trust
+     - All：Individual / Trust / LLC / Partnership / S-Corp / C-Corp / Sole prop
+   - `Other` 是人工复核兜底类型，不作为普通 coverage 列展示；说明文案固定提醒 `Other remains manual review`。
+   - All 视图列数更多，表格保持横向滚动，避免挤压或换行破坏扫描体验。
    - 下方挂 `CoverageLegend`（verified / review / no rule）
 
 `< xl` 断点下 2、3 自动 stack 回单列，阅读顺序与 v0.1 一致。
@@ -379,6 +385,7 @@ AI Tip 只能使用 verified rule 和 source summary：
 
 | 版本 | 日期       | 作者  | 摘要                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ---- | ---------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v1.1 | 2026-05-04 | Codex | Coverage 右侧矩阵从固定 4 列改为本地 segmented control：Business 默认显示 LLC / Partnership / S-Corp / C-Corp / Sole prop，Personal & fiduciary 显示 Individual / Trust，All 先显示 Individual / Trust 再显示 business entity；`Other` 只保留为人工复核兜底说明，不进入矩阵列。详见 `docs/dev-log/2026-05-04-rules-coverage-entity-matrix.md`。                                                                                                                                                                                                               |
 | v1.0 | 2026-05-04 | Codex | Rules candidate verify 的 `Official extension form or method` 明确为自由输入优先的 autocomplete：默认不显示下拉，只有输入内容接近常见官方表格或办理方式时才展示建议；选择建议不会锁死字段，已选建议可再次点击或清空取消。详见 `docs/dev-log/2026-05-04-rules-candidate-verify-workflow.md`。                                                                                                                                                                                                                                                                  |
 | v0.9 | 2026-05-04 | Codex | Rules candidate verify 的 reminder-ready specific date 输入复用项目统一 `IsoDatePicker`，与 Obligations obligation detail 的 Extension tab 日期选择器保持一致，避免同一工作流出现两套日期 UI。详见 `docs/dev-log/2026-05-04-rules-candidate-verify-workflow.md`。                                                                                                                                                                                                                                                                                             |
 | v0.8 | 2026-05-04 | Codex | Rules candidate verify 的 Ops review 表单细化 extension policy 输入：`Duration months` 采用 1-24 月数字 stepper，避免非数字输入；`Extension form` 暂不改下拉，因为当前 contract 没有稳定枚举，规则 seed 只有少数明确表格名，人工复核仍需要保留自由输入。详见 `docs/dev-log/2026-05-04-rules-candidate-verify-workflow.md`。                                                                                                                                                                                                                                   |

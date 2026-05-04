@@ -49,12 +49,18 @@ test.describe('seeded obligations', () => {
         .filter({ hasText: new RegExp(`^${name}$`) })
         .locator('button')
         .first()
+    const dashboardRow = (clientName: string) =>
+      triageTable.getByRole('row', { name: new RegExp(clientName) }).or(
+        triageTable.getByRole('button', {
+          name: new RegExp(`Obligation detail: ${clientName}`),
+        }),
+      )
 
     await dashboardHeaderButton('Status').click()
     await authenticatedPage.getByRole('menuitemcheckbox', { name: /Needs review/ }).click()
     await expect(authenticatedPage).toHaveURL(/\/\?status=review$/)
-    await expect(triageTable.getByRole('row', { name: /Northstar Dental Group/ })).toBeVisible()
-    await expect(triageTable.getByRole('row', { name: /Arbor & Vale LLC/ })).toBeHidden()
+    await expect(dashboardRow('Northstar Dental Group')).toBeVisible()
+    await expect(dashboardRow('Arbor & Vale LLC')).toBeHidden()
     await expect(
       authenticatedPage.getByRole('menuitemcheckbox', { name: /Needs review/ }),
     ).toBeVisible()
@@ -63,8 +69,8 @@ test.describe('seeded obligations', () => {
     await dashboardHeaderButton('Deadline').click()
     await authenticatedPage.getByRole('menuitemcheckbox', { name: /Today/ }).click()
     await expect(authenticatedPage).toHaveURL(/\/\?due=today$/)
-    await expect(triageTable.getByRole('row', { name: /Unassigned Foundry LLC/ })).toBeVisible()
-    await expect(triageTable.getByRole('row', { name: /Arbor & Vale LLC/ })).toBeHidden()
+    await expect(dashboardRow('Unassigned Foundry LLC')).toBeVisible()
+    await expect(dashboardRow('Arbor & Vale LLC')).toBeHidden()
     await expect(authenticatedPage.getByRole('menuitemcheckbox', { name: /Today/ })).toBeVisible()
   })
 

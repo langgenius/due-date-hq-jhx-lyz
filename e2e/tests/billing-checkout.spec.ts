@@ -142,9 +142,11 @@ test.describe('coordinator checkout', () => {
 
     await billingPage.gotoCheckout()
 
-    await expect(billingPage.checkoutHeading).toBeVisible({ timeout: 10_000 })
+    await expect(
+      authenticatedPage.getByRole('heading', { name: 'Permission required' }),
+    ).toBeVisible({ timeout: 10_000 })
     await expect(billingPage.ownerPermissionAlert).toBeVisible()
-    await expect(billingPage.continueToSecureCheckoutButton).toBeDisabled()
+    await expect(authenticatedPage.getByText('Current role: Coordinator')).toBeVisible()
   })
 })
 

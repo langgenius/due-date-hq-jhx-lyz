@@ -9,6 +9,8 @@ test.skip(
   'local e2e auth seed is not available on external targets',
 )
 
+test.use({ authSeed: 'workboard' })
+
 test('AC: E2E-RULES-TABS persists implemented tab state', async ({
   authenticatedPage,
   rulesConsolePage,
@@ -20,12 +22,14 @@ test('AC: E2E-RULES-TABS persists implemented tab state', async ({
 
   await rulesConsolePage.sourcesTab.click()
   await expect(authenticatedPage).toHaveURL(/\/rules\?tab=sources$/)
+  await authenticatedPage.getByRole('button', { name: /^Healthy\s+\d+$/ }).click()
   await expect(
     authenticatedPage.getByText('IRS Publication 509 (2026), Tax Calendars'),
   ).toBeVisible()
 
   await rulesConsolePage.libraryTab.click()
   await expect(authenticatedPage).toHaveURL(/\/rules\?tab=library$/)
+  await authenticatedPage.getByRole('button', { name: /^Verified\s+\d+$/ }).click()
   await expect(authenticatedPage.getByText('fed.1065.return.2025')).toBeVisible()
 })
 
@@ -35,6 +39,7 @@ test('AC: E2E-RULES-DETAIL opens a shipped rule detail drawer', async ({
 }) => {
   await rulesConsolePage.goto()
   await rulesConsolePage.libraryTab.click()
+  await authenticatedPage.getByRole('button', { name: /^Verified\s+\d+$/ }).click()
   await authenticatedPage
     .getByRole('button', {
       name: /Open rule detail: Federal Form 1065 return for partnerships/,
@@ -58,6 +63,8 @@ test('AC: E2E-RULES-PREVIEW runs the implemented obligation preview', async ({
   await rulesConsolePage.previewTab.click()
 
   await expect(authenticatedPage).toHaveURL(/\/rules\?tab=preview$/)
+  await authenticatedPage.getByRole('combobox').first().click()
+  await authenticatedPage.getByRole('option', { name: /Arbor & Vale LLC/ }).click()
   await authenticatedPage.getByRole('button', { name: /Run preview/ }).click()
 
   await expect(authenticatedPage.getByText(/REMINDER READY/)).toBeVisible()

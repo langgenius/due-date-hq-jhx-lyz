@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  coverageCellState,
+  COVERAGE_ENTITY_GROUPS,
   countRulesByFilter,
+  ENTITY_COLUMN_GROUPS,
   countSourcesByHealth,
   DEFAULT_PREVIEW_CALENDAR_YEAR,
   DEFAULT_RULES_TAB,
@@ -20,6 +23,39 @@ import {
 } from './rules-console-model'
 
 describe('rules console model', () => {
+  it('defines coverage entity groups without exposing the manual other fallback', () => {
+    expect(COVERAGE_ENTITY_GROUPS).toEqual(['business', 'personal', 'all'])
+    expect(ENTITY_COLUMN_GROUPS.business).toEqual([
+      'llc',
+      'partnership',
+      's_corp',
+      'c_corp',
+      'sole_prop',
+    ])
+    expect(ENTITY_COLUMN_GROUPS.personal).toEqual(['individual', 'trust'])
+    expect(ENTITY_COLUMN_GROUPS.all).toEqual([
+      'individual',
+      'trust',
+      'llc',
+      'partnership',
+      's_corp',
+      'c_corp',
+      'sole_prop',
+    ])
+    expect(ENTITY_COLUMN_GROUPS.all).not.toContain('other')
+  })
+
+  it('returns valid coverage states for every displayable entity', () => {
+    const validStates = ['verified', 'review', 'none']
+
+    for (const entity of ENTITY_COLUMN_GROUPS.all) {
+      expect(validStates).toContain(coverageCellState('CA', entity))
+    }
+    expect(coverageCellState('FED', 'sole_prop')).toBe('review')
+    expect(coverageCellState('FED', 'individual')).toBe('review')
+    expect(coverageCellState('FED', 'trust')).toBe('review')
+  })
+
   it('guards tab values from the shared literal tuple', () => {
     expect(DEFAULT_RULES_TAB).toBe('coverage')
     expect(RULES_TAB_VALUES).toEqual(['coverage', 'sources', 'library', 'preview'])

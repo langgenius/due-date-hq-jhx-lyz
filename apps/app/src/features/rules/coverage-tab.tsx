@@ -1,8 +1,9 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 
 import type { RuleCoverageRow, RuleJurisdiction } from '@duedatehq/contracts'
+import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Table,
   TableBody,
@@ -18,9 +19,12 @@ import { ConceptLabel } from '@/features/concepts/concept-help'
 
 import {
   coverageCellState,
-  ENTITY_COLUMNS,
+  DEFAULT_COVERAGE_ENTITY_GROUP,
+  ENTITY_COLUMN_GROUPS,
   jurisdictionLabel,
   RULE_JURISDICTIONS,
+  type CoverageEntityColumn,
+  type CoverageEntityGroup,
 } from './rules-console-model'
 import {
   CoverageCell,
@@ -33,6 +37,19 @@ import {
 } from './rules-console-primitives'
 
 type StatusTone = 'candidate' | 'basicReview' | 'review'
+
+function entityLabel(entity: CoverageEntityColumn): string {
+  const labels: Record<CoverageEntityColumn, string> = {
+    llc: 'LLC',
+    partnership: 'Partnership',
+    s_corp: 'S-Corp',
+    c_corp: 'C-Corp',
+    sole_prop: 'Sole prop',
+    individual: 'Individual',
+    trust: 'Trust',
+  }
+  return labels[entity]
+}
 
 function CoverageStatusPill({
   jurisdiction,
@@ -106,6 +123,7 @@ function aggregateCoverage(rows: readonly RuleCoverageRow[]) {
 
 export function CoverageTab() {
   const { t } = useLingui()
+  const [entityGroup, setEntityGroup] = useState<CoverageEntityGroup>(DEFAULT_COVERAGE_ENTITY_GROUP)
   const coverageQuery = useQuery(orpc.rules.coverage.queryOptions({ input: undefined }))
 
   const coverageStatusLabels: Partial<Record<RuleJurisdiction, string>> = {
@@ -127,6 +145,12 @@ export function CoverageTab() {
 
   const rows = coverageQuery.data ?? []
   const stats = aggregateCoverage(rows)
+  const entityColumns = ENTITY_COLUMN_GROUPS[entityGroup]
+  const entityGroupOptions: Array<{ value: CoverageEntityGroup; label: string }> = [
+    { value: 'business', label: t`Business` },
+    { value: 'personal', label: t`Personal & fiduciary` },
+    { value: 'all', label: t`All` },
+  ]
 
   return (
     <div className="flex flex-col gap-6">
@@ -164,22 +188,24 @@ export function CoverageTab() {
 
       {/*
         Two-column ops layout:
-        - Left (col-span-7): per-jurisdiction summary — the substantive table
+        - Left (col-span-6): per-jurisdiction summary — the substantive table
           where each row carries V/C/SRC counts plus the human-readable STATUS
           pill. This is the primary "what is the state per jurisdiction"
           answer the page exists to surface.
-        - Right (col-span-5): jurisdiction × entity matrix — a denser
+        - Right (col-span-6): jurisdiction × entity matrix — a denser
           "scanner" view that confirms which (jurisdiction, entity) pairs
           actually generate verifiable obligations vs. fall back to review.
         On viewports narrower than the `xl` breakpoint they stack with the
         summary on top — same reading order as the original 880 px column.
       */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-        <section className="flex flex-col gap-2 xl:col-span-7">
-          <div className="flex items-baseline justify-between">
-            <SectionLabel>
-              <Trans>JURISDICTION SUMMARY</Trans>
-            </SectionLabel>
+        <section className="flex flex-col gap-2 xl:col-span-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-baseline justify-between">
+              <SectionLabel>
+                <Trans>JURISDICTION SUMMARY</Trans>
+              </SectionLabel>
+            </div>
             <span className="text-xs text-text-tertiary">
               <Trans>verified · candidate · sources · current state</Trans>
             </span>
@@ -189,7 +215,7 @@ export function CoverageTab() {
               <TableHeader className="bg-background-subtle">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-[64px]">JUR</TableHead>
-                  <TableHead>NAME</TableHead>
+                  <TableHead className="w-[90px]">NAME</TableHead>
                   <TableHead className="w-[88px] text-right">VERIFIED</TableHead>
                   <TableHead className="w-[96px] text-right">CANDIDATE</TableHead>
                   <TableHead className="w-[88px] text-right">SOURCES</TableHead>
@@ -202,7 +228,7 @@ export function CoverageTab() {
                     <TableCell className="py-2">
                       <JurisdictionCode code={row.jurisdiction} />
                     </TableCell>
-                    <TableCell className="py-2 text-xs font-medium">
+                    <TableCell className="w-[90px] max-w-[90px] truncate py-2 text-xs font-medium">
                       {jurisdictionLabel(row.jurisdiction)}
                     </TableCell>
                     <TableCell className="py-2 text-right font-mono text-xs tabular-nums">
@@ -238,23 +264,51 @@ export function CoverageTab() {
           </SectionFrame>
         </section>
 
-        <section className="flex flex-col gap-2 xl:col-span-5">
-          <div className="flex items-baseline justify-between">
-            <SectionLabel>
-              <Trans>JURISDICTION × ENTITY</Trans>
-            </SectionLabel>
+        <section className="flex flex-col gap-2 xl:col-span-6">
+          <div className="relative flex flex-col gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <SectionLabel>
+                <Trans>ENTITY COVERAGE</Trans>
+              </SectionLabel>
+              <div
+                className="inline-flex max-w-full flex-wrap items-center gap-1 rounded-md border border-divider-regular bg-background-subtle p-1 xl:absolute xl:top-0 xl:right-0"
+                aria-label={t`Entity coverage view`}
+              >
+                {entityGroupOptions.map((option) => {
+                  const active = option.value === entityGroup
+                  return (
+                    <Button
+                      key={option.value}
+                      type="button"
+                      size="xs"
+                      variant="ghost"
+                      className={cn(
+                        'h-6 rounded px-2 text-xs shadow-none',
+                        active
+                          ? 'bg-background-default text-text-primary shadow-xs hover:bg-background-default'
+                          : 'text-text-secondary hover:bg-background-default',
+                      )}
+                      aria-pressed={active}
+                      onClick={() => setEntityGroup(option.value)}
+                    >
+                      {option.label}
+                    </Button>
+                  )
+                })}
+              </div>
+            </div>
             <span className="text-xs text-text-tertiary">
-              <Trans>verifiable per (jurisdiction, entity) pair</Trans>
+              <Trans>showing selected client entity groups; Other remains manual review</Trans>
             </span>
           </div>
           <SectionFrame>
-            <Table>
+            <Table className={entityGroup === 'all' ? 'min-w-[760px]' : 'min-w-[560px]'}>
               <TableHeader className="bg-background-subtle">
                 <TableRow className="hover:bg-transparent">
                   <TableHead>JURISDICTION</TableHead>
-                  {ENTITY_COLUMNS.map((entity) => (
+                  {entityColumns.map((entity) => (
                     <TableHead key={entity} className="text-center">
-                      {entity.replaceAll('_', '-').toUpperCase()}
+                      {entityLabel(entity)}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -265,7 +319,7 @@ export function CoverageTab() {
                     <TableCell className="py-2 text-xs font-medium">
                       {jurisdictionLabel(jurisdiction)}
                     </TableCell>
-                    {ENTITY_COLUMNS.map((entity) => (
+                    {entityColumns.map((entity) => (
                       <TableCell key={entity} className="py-2 text-center">
                         <CoverageCell state={coverageCellState(jurisdiction, entity)} />
                       </TableCell>

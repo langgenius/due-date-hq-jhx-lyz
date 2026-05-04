@@ -57,9 +57,7 @@ test.describe('seeded Pulse alerts', () => {
       'aria-selected',
       'true',
     )
-    await expect(authenticatedPage.getByRole('row', { name: /Arbor & Vale LLC/ })).toContainText(
-      '2026-10-15',
-    )
+    await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('2026-10-15')
 
     await appShellPage.goto('/alerts')
     await authenticatedPage.getByRole('button', { name: 'Review' }).first().click()

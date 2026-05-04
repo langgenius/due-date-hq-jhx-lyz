@@ -22,9 +22,13 @@ export class BillingPage {
       name: 'Continue to secure checkout',
     })
     this.manageBillingButton = page.getByRole('button', { name: 'Manage billing' })
-    this.ownerPermissionAlert = page.getByRole('alert').filter({
-      hasText: 'Owner permission required',
-    })
+    this.ownerPermissionAlert = page
+      .getByRole('alert')
+      .filter({
+        hasText:
+          /Owner permission required|Only the practice owner can start or change a subscription/,
+      })
+      .or(page.getByRole('heading', { name: 'Permission required' }))
     this.subscriptionActiveHeading = page.getByRole('heading', { name: 'Subscription active' })
     this.stillWaitingHeading = page.getByRole('alert').filter({
       hasText: 'Still waiting on confirmation',

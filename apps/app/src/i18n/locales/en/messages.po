@@ -633,6 +633,7 @@ msgstr "Alert status"
 msgid "Alerts"
 msgstr "Alerts"
 
+#: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "All"
@@ -1023,6 +1024,10 @@ msgstr "Bulk readiness updated"
 #: src/routes/workboard.tsx
 msgid "Bulk status updated"
 msgstr "Bulk status updated"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Business"
+msgstr "Business"
 
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -2361,6 +2366,14 @@ msgstr "Entity"
 msgid "ENTITY"
 msgstr "ENTITY"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "ENTITY COVERAGE"
+msgstr "ENTITY COVERAGE"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Entity coverage view"
+msgstr "Entity coverage view"
+
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Entity id"
 msgstr "Entity id"
@@ -2972,10 +2985,6 @@ msgstr "IP hash"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Jurisdiction"
 msgstr "Jurisdiction"
-
-#: src/features/rules/coverage-tab.tsx
-msgid "JURISDICTION × ENTITY"
-msgstr "JURISDICTION × ENTITY"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Jurisdiction facts"
@@ -3712,10 +3721,6 @@ msgstr "No matched rule"
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this practice."
 msgstr "No matching clients in this practice."
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "No matching suggestion."
-msgstr "No matching suggestion."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
@@ -4489,6 +4494,10 @@ msgstr "Permission checked"
 #: src/features/permissions/permission-gate.tsx
 msgid "Permission required"
 msgstr "Permission required"
+
+#: src/features/rules/coverage-tab.tsx
+msgid "Personal & fiduciary"
+msgstr "Personal & fiduciary"
 
 #: src/routes/workboard.tsx
 msgid "Pin view"
@@ -5911,6 +5920,10 @@ msgstr "Showing {0} of {1} · click any row to open the official source ↗"
 msgid "Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events"
 msgstr "Showing {firstItemNumber}-{lastItemNumber} of {loadedCount} loaded events"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "showing selected client entity groups; Other remains manual review"
+msgstr "showing selected client entity groups; Other remains manual review"
+
 #: src/routes/workboard.tsx
 msgid "Showing the previous tip while the latest one is being prepared."
 msgstr "Showing the previous tip while the latest one is being prepared."
@@ -6815,10 +6828,6 @@ msgstr "UTC time"
 #: src/routes/clients.tsx
 msgid "Validate the practice client facts that generate obligations, dashboard risk, and Pulse matches."
 msgstr "Validate the practice client facts that generate obligations, dashboard risk, and Pulse matches."
-
-#: src/features/rules/coverage-tab.tsx
-msgid "verifiable per (jurisdiction, entity) pair"
-msgstr "verifiable per (jurisdiction, entity) pair"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Verification"
