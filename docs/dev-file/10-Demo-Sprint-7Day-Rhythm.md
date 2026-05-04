@@ -77,7 +77,7 @@ Paste / CSV
 | Migration + Live Genesis | 导入、exposure preview、Live Genesis 和进入 Dashboard 已完成                          | 还缺 import report / history 这类管理型细节            |
 | Triage Workbench         | Obligations + Dashboard 真实 obligations、Penalty Radar、Evidence drawer 已完成第一版 | Dashboard Brief 解释层还可继续 polish                  |
 | Glass-Box Brief          | 后端 evidence/ai trace 底座已打好                                                     | 尚未实现 source-backed brief；这是下一批 AI 增强优先级 |
-| Pulse Apply              | fixture pipeline / apply / revert 已能演示                                            | 真抓 cron、source drift 和 ops review 继续硬化         |
+| Pulse Apply              | fixture pipeline / apply / revert 已能演示                                            | 真抓 cron、source drift 和 firm review 继续硬化        |
 | Demo Readiness           | 主链路可演                                                                            | seed、部署 checklist、Plan B、录屏脚本还要补           |
 
 ---
@@ -152,10 +152,10 @@ AI_GATEWAY_API_KEY=
 
 ### P1 · 再做
 
-| 优先级 | 任务                            | 原因                                                             |
-| ------ | ------------------------------- | ---------------------------------------------------------------- |
-| 5      | Pulse true-source hardening     | MVP 已能演示；真抓、source drift、ops review 继续按 catalog 硬化 |
-| 6      | Audit export / evidence package | 可信链路的 Phase 1 增强，不阻塞 Demo                             |
+| 优先级 | 任务                            | 原因                                                              |
+| ------ | ------------------------------- | ----------------------------------------------------------------- |
+| 5      | Pulse true-source hardening     | MVP 已能演示；真抓、source drift、firm review 继续按 catalog 硬化 |
+| 6      | Audit export / evidence package | 可信链路的 Phase 1 增强，不阻塞 Demo                              |
 
 ### 暂不做
 

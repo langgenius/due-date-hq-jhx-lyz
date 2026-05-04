@@ -510,6 +510,47 @@ describe('makePulseRepo', () => {
 })
 
 describe('makePulseOpsRepo', () => {
+  it('publishes extracted pulses directly to firm review', async () => {
+    const extractedPulse = {
+      id: 'pulse-created',
+      status: 'approved' as const,
+      parsedForms: [],
+      parsedEntityTypes: [],
+    }
+    const { db, batchStatements } = fakeDb([[extractedPulse], [extractedPulse], []])
+
+    const result = await makePulseOpsRepo(db).createPulseForFirmReviewFromExtract({
+      snapshotId: 'snapshot-1',
+      source: 'irs.disaster',
+      sourceUrl: 'https://www.irs.gov/newsroom/tax-relief-in-disaster-situations',
+      publishedAt: new Date('2026-04-15T17:00:00.000Z'),
+      aiSummary: 'IRS CA storm relief',
+      verbatimQuote:
+        'Individuals and businesses in Los Angeles County have until October 15, 2026.',
+      parsedJurisdiction: 'CA',
+      parsedCounties: ['Los Angeles County'],
+      parsedForms: [],
+      parsedEntityTypes: [],
+      parsedOriginalDueDate: new Date('2026-03-15T00:00:00.000Z'),
+      parsedNewDueDate: new Date('2026-10-15T00:00:00.000Z'),
+      parsedEffectiveFrom: new Date('2026-04-15T00:00:00.000Z'),
+      confidence: 0.94,
+      requiresHumanReview: true,
+    })
+
+    expect(result.alertCount).toBe(0)
+    expect(
+      batchStatements.some((statement) =>
+        statementHasValue(statement, { status: 'approved', requiresHumanReview: true }),
+      ),
+    ).toBe(true)
+    expect(
+      batchStatements.some((statement) =>
+        statementHasValue(statement, { parseStatus: 'extracted', failureReason: null }),
+      ),
+    ).toBe(true)
+  })
+
   it('does not write synthetic ops actor ids into user foreign keys', async () => {
     const approvedPulse = {
       id: 'pulse-approve',

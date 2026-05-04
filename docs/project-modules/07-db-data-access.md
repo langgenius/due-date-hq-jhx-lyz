@@ -68,7 +68,7 @@
 - `pulse_firm_alert`
 - `pulse_application`
 
-覆盖 source ingestion、ops review、firm fan-out、apply/revert 记录。
+覆盖 source ingestion、firm review fan-out、apply/revert 记录。
 
 ### AI、dashboard、notifications、overlay
 

@@ -33,21 +33,21 @@
 | **T2** | 政府官方衍生信号（API / 第三方转发 / 跨域联动） | `Signal` badge              | 0.7（需 T1 交叉验证）  | FEMA API / GovDelivery / broad newsroom |
 | **T3** | 商业聚合 / 行业协会 / 邮件订阅解析              | `Reference` badge（隐藏源） | 0.5（仅作触发器）      | FTA / AICPA / Checkpoint / Avalara      |
 
-**规则：** 只有 T1 可以直接进入 `pending_review → approved → banner`；T2/T3 仅能触发"去 T1 查验"的 worker 任务，自身不出现在 Evidence Chain。GovDelivery 属于官方投递渠道，但 Evidence 仍必须回链到 `.gov` canonical page；邮件正文只作为内部信号与快照。
+**规则：** 只有 T1 可以直接进入 `approved → firm Alerts`；T2/T3 仅能触发"去 T1 查验"的 worker 任务，自身不出现在 Evidence Chain。GovDelivery 属于官方投递渠道，但 Evidence 仍必须回链到 `.gov` canonical page；邮件正文只作为内部信号与快照。
 
 **当前实现状态（2026-05-04）：**
 
 - `SourceAdapter.canCreatePulse !== false` 的源会写 `pulse_source_snapshot` 并投递
   `PULSE_QUEUE { type: 'pulse.extract', snapshotId }`，后续经 AI Extract 进入
-  `pulse.status='pending_review'`。
+  `pulse.status='approved'` 并 fan-out 到匹配 firm 的 Alerts review queue。
 - `canCreatePulse=false` 的 T2/T3 源只写 `pulse_source_signal`，
   `signal_type='anticipated_pulse'`，不进入 Evidence Chain、不创建 firm alert。
 - FEMA 当前按 `canCreatePulse=false` 落地；它只能作为 IRS/州 T1 命中后的置信度辅助信号。
 - Rules registry 已登记 50 州 + DC 的官方 tax agency、income-tax 具体页面与
   UI/workforce agency source seed。
   `apps/server/src/jobs/pulse/rule-source-adapters.ts` 会把带 `candidate_review` 的 rule
-  sources 接入 `pulse_source_state` / `pulse_source_signal`。这些 source signals 只供 ops
-  review，不自动创建客户 Pulse、不进入 user-facing Evidence Chain。
+  sources 接入 `pulse_source_state` / `pulse_source_signal`。这些 source signals 只供 canonical
+  source verification，不自动创建客户 Pulse、不进入 user-facing Evidence Chain。
 
 ---
 
@@ -232,7 +232,7 @@ pulse.ingest.confidence_avg_24h   (gauge,     label: source_id)
 
 1. 运营用 `pulse-ingest@duedatehq.com` 订阅该州 DOR 的 GovDelivery 邮件列表
 2. Cloudflare Email Routing 把该邮箱路由到 Worker
-3. Worker 解析 email body → 生成内部 `Signal` → 再查找 `.gov` canonical page → 进入 `pending_review`
+3. Worker 解析 email body → 生成内部 `Signal` → 再查找 `.gov` canonical page → 进入 firm Alerts review
 
 **优点：** 用户主动订阅、零反爬、低工程维护成本。
 **缺点：** 延迟高（取决于 DOR 发信间隔，通常 1-24h），做**最后一道兜底**而非主路径。

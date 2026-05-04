@@ -170,7 +170,7 @@ export function CoverageTab() {
           <StatCell
             label={<ConceptLabel concept="candidateRule">{t`Candidates`}</ConceptLabel>}
             value={stats.candidates}
-            caption={t`pending ops review`}
+            caption={t`pending firm review`}
             {...(stats.candidates > 0 ? { emphasis: 'accent' as const } : {})}
           />
           <StatCell

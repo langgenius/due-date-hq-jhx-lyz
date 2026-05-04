@@ -292,16 +292,16 @@ member id 或 raw audit JSON。POST 响应会写 `readiness.client_response` aud
 
 **pulse**
 
-| 字段                                                                                     | 备注                                          |
-| ---------------------------------------------------------------------------------------- | --------------------------------------------- |
-| `id` / `source` / `source_url` / `raw_r2_key`                                            | 原文存 R2                                     |
-| `published_at`                                                                           |                                               |
-| `ai_summary` / `verbatim_quote`                                                          |                                               |
-| `parsed_jurisdiction` / `parsed_counties[]` / `parsed_forms[]` / `parsed_entity_types[]` | JSON                                          |
-| `parsed_original_due_date` / `parsed_new_due_date` / `parsed_effective_from`             |                                               |
-| `confidence`                                                                             | 0–1                                           |
-| `status ∈ (pending_review, approved, rejected, quarantined, source_revoked)`             | 全局 ops 复核状态；不得表达某 firm 是否已应用 |
-| `reviewed_by` / `reviewed_at` / `requires_human_review`                                  |                                               |
+| 字段                                                                                     | 备注                                              |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `id` / `source` / `source_url` / `raw_r2_key`                                            | 原文存 R2                                         |
+| `published_at`                                                                           |                                                   |
+| `ai_summary` / `verbatim_quote`                                                          |                                                   |
+| `parsed_jurisdiction` / `parsed_counties[]` / `parsed_forms[]` / `parsed_entity_types[]` | JSON                                              |
+| `parsed_original_due_date` / `parsed_new_due_date` / `parsed_effective_from`             |                                                   |
+| `confidence`                                                                             | 0–1                                               |
+| `status ∈ (pending_review, approved, rejected, quarantined, source_revoked)`             | 全局 source lifecycle；不得表达某 firm 是否已应用 |
+| `reviewed_by` / `reviewed_at` / `requires_human_review`                                  | 历史字段保留；firm 是否处理看 `pulse_firm_alert`  |
 
 **pulse_firm_alert**
 
@@ -328,12 +328,12 @@ member id 或 raw audit JSON。POST 响应会写 `readiness.client_response` aud
 | 字段                                                                           | 备注                                         |
 | ------------------------------------------------------------------------------ | -------------------------------------------- |
 | `id` / `source_id` / `external_id` / `content_hash`                            | T2/T3 信号去重键；不创建客户可见 Pulse       |
-| `title` / `official_source_url` / `published_at` / `fetched_at` / `raw_r2_key` | 原文仍存 R2，供 ops 交叉验证                 |
+| `title` / `official_source_url` / `published_at` / `fetched_at` / `raw_r2_key` | 原文仍存 R2，供 canonical source 验证        |
 | `tier` / `jurisdiction` / `signal_type='anticipated_pulse'`                    | FEMA/GovDelivery 等预判信号                  |
 | `status ∈ (open, linked, dismissed)` / `linked_pulse_id`                       | T1 原文落地后可关联到正式 `pulse` 提升置信度 |
 
 `pulse_source_signal` 明确不进入 Evidence Chain，也不会创建 `pulse_firm_alert`；只有
-T1 `pulse_source_snapshot → pulse.pending_review → approve` 才能触达 Banner / Email。
+T1 `pulse_source_snapshot → pulse.approved` 才能触达 Alerts / Email。
 
 ### 2.4 Migration
 

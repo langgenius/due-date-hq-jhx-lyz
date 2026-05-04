@@ -108,7 +108,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'candidateRule':
       return {
         title: t`Candidate rule`,
-        description: t`A possible rule or change that is still waiting for operations review. Candidate rules do not update client deadlines or send reminders.`,
+        description: t`A possible rule or change that is still waiting for owner or manager review. Candidate rules do not update client deadlines or send reminders.`,
       }
     case 'defaultMatrix':
       return {
@@ -158,7 +158,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'requiresReview':
       return {
         title: t`Requires review`,
-        description: t`The system found a possible deadline, but a CPA or operations reviewer must confirm it before it is treated as final.`,
+        description: t`The system found a possible deadline, but a CPA, owner, or manager must confirm it before it is treated as final.`,
       }
     case 'coverage':
       return {

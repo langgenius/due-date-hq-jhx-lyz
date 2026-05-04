@@ -243,12 +243,12 @@ SourceAdapter.fetch()  ──► raw 存 R2_PULSE ──► T1 入 PULSE_QUEUE {
                                  Glass-Box Guard 校验
                                         │
                                         ▼
-                                 写 pulse（status=pending_review）
+                                 写 pulse（status=approved）
                                         │
-                                  人工 review（Dashboard UI）
+                                  firm review（Alerts UI）
                                         │
                                         ▼
-                                 pulse.approve → Match Engine
+                                 Match Engine
                                         │
                                         ▼
                                  Dashboard Banner + Email Outbox

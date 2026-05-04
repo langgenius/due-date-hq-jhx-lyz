@@ -15,7 +15,6 @@ import { e2eRoute } from './routes/e2e'
 import { healthRoute } from './routes/health'
 import { icsRoute } from './routes/ics'
 import { notificationsRoute } from './routes/notifications'
-import { opsPulseRoute } from './routes/ops-pulse'
 import { readinessRoute } from './routes/readiness'
 import { resendWebhook } from './webhooks/resend'
 import { rpcHandler } from './rpc'
@@ -98,10 +97,6 @@ export function createApp() {
   // /api/e2e/* — Playwright bootstrap. Development is open locally; staging
   // requires E2E_SEED_TOKEN; production always returns 404.
   app.route('/api/e2e', e2eRoute)
-
-  // /api/ops/pulse/* — token-protected internal review API. This is deliberately
-  // outside the public oRPC contract and is intended for ops scripts only.
-  app.route('/api/ops/pulse', opsPulseRoute)
 
   // /api/webhook/* — external callbacks. Provider signature verification is required
   // before side effects; IP allowlists are defense-in-depth when supported.

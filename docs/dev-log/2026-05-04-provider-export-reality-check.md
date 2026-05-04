@@ -2,13 +2,15 @@
 
 ## Summary
 
-- Reworded Migration Step 1 to "Provider export" so the UI describes
-  provider exports, reports, and integration handoff payloads instead of implying universal direct
-  API sync.
-- Added a frontend provider capability registry for user-facing labels, tiers, and helper copy.
+- Reworded Migration Step 1 to distinguish normal provider CSV/XLSX exports from JSON handoff
+  records, instead of implying universal direct API sync.
+- Added a frontend provider capability registry for JSON handoff labels, tiers, and helper copy.
   Soraban is now shown as a Karbon/Zapier/uploaded-export path, not as a direct API commitment.
 - Added review copy that generated obligations require supporting imported facts; missing entity,
   jurisdiction, tax type, tax year, payment, or extension facts remain in review.
+- Tightened the Step 1 mode again after review: normal provider CSV/XLSX exports stay on
+  Paste / Upload + preset, while the provider-specific choices are only for JSON handoff records
+  from API/Zapier/converted reports.
 - Updated Migration docs, the user manual, and the prior integration foundation log to preserve the
   reality-based export/handoff scope.
 

@@ -36,68 +36,31 @@ order by fetched_at desc
 limit 20;
 ```
 
-3. If a raw snapshot exists, inspect it through the ops route:
-
-```bash
-PULSE_OPS_BASE_URL=https://<worker-host> \
-PULSE_OPS_TOKEN=<token> \
-node scripts/pulse-ops.mjs show <pulse_id>
-```
+3. If a raw snapshot exists, inspect the `raw_r2_key` object in `R2_PULSE` and compare it against
+   the official source URL recorded on the snapshot.
 
 ## Recovery
 
 - `selector_drift`: compare the stored raw text with the adapter selectors, patch
   `packages/ingest/src/adapters/index.ts`, add or update a fixture, then re-run ingest tests.
-- `pending_extract` / transient AI failure: retry the snapshot after confirming the raw source is
-  still official.
+- `pending_extract` / transient AI failure: retry the extract queue after confirming the raw source
+  is still official.
 
-```bash
-PULSE_OPS_BASE_URL=https://<worker-host> \
-PULSE_OPS_TOKEN=<token> \
-node scripts/pulse-ops.mjs retry-snapshot <snapshot_id>
-```
-
-- Bad extraction or source mismatch: quarantine the Pulse instead of approving. Use a stable
-  internal actor id and record the reason.
-
-```bash
-PULSE_OPS_BASE_URL=https://<worker-host> \
-PULSE_OPS_TOKEN=<token> \
-node scripts/pulse-ops.mjs quarantine <pulse_id> <actor_id> "Source excerpt mismatch"
-```
+- Bad extraction or source mismatch: pause the affected source, mark the bad Pulse/source snapshot
+  for engineering review, and notify affected firm owners/managers if an alert already reached
+  `/alerts`.
 
 - T2 signal without T1 follow-up: leave `pulse_source_signal.status='open'`, verify the matching
-  IRS/state canonical source, and only create/approve a Pulse from T1 evidence. To inspect and link
-  signals:
+  IRS/state canonical source, and only allow firm alerts from T1 evidence.
 
-```bash
-PULSE_OPS_BASE_URL=https://<worker-host> \
-PULSE_OPS_TOKEN=<token> \
-node scripts/pulse-ops.mjs signals open
-
-PULSE_OPS_BASE_URL=https://<worker-host> \
-PULSE_OPS_TOKEN=<token> \
-node scripts/pulse-ops.mjs link-signal <signal_id> <pulse_id>
-```
-
-- Source takedown or revoked source: disable future ingest first, then revoke unreconciled Pulse
-  rows from that source. This preserves historical snapshots/Evidence while marking pending or
-  approved global Pulse rows as `source_revoked`.
-
-```bash
-PULSE_OPS_BASE_URL=https://<worker-host> \
-PULSE_OPS_TOKEN=<token> \
-node scripts/pulse-ops.mjs source-disable <source_id>
-
-PULSE_OPS_BASE_URL=https://<worker-host> \
-PULSE_OPS_TOKEN=<token> \
-node scripts/pulse-ops.mjs source-revoke <source_id> <actor_id> "Source takedown"
-```
+- Source takedown or revoked source: disable future ingest first, then mark unreconciled Pulse rows
+  from that source as `source_revoked`. This preserves historical snapshots/Evidence while blocking
+  new apply/dismiss/snooze actions on affected alerts.
 
 ## Validation
 
 - `pnpm --filter @duedatehq/ingest test`
-- `pnpm --filter @duedatehq/server test -- pulse ingest ops queue`
+- `pnpm --filter @duedatehq/server test -- pulse ingest queue`
 - Confirm `pulse_source_state.health_status='healthy'` after the next successful run.
 - Confirm no customer-visible alert was generated from `pulse_source_signal` alone.
 - Confirm Obligations/Dashboard dates are derived from active overlay applications after a Pulse apply.

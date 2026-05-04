@@ -373,7 +373,7 @@ Vectorize 仍是检索层：
 | Client Risk Summary     | P0     | 单客户 top obligations + source snippets | async cached sections + source chips           | 纯 SQL 聚合 `3 upcoming, 1 critical`                     |
 | Deadline Tip            | P0     | 单 obligation + evidence/source snippets | async cached What / Why / Prepare              | deterministic fallback sections                          |
 | Smart Priority          | P0     | open obligations + client risk fields    | score、rank、factor contribution、source label | **纯函数零 AI SDK 调用**                                 |
-| Pulse Source Translator | P0     | 官方公告原文                             | 结构化 JSON + summary + source excerpt         | 置信度 < 0.7 标记 `pending_review`                       |
+| Pulse Source Translator | P0     | 官方公告原文                             | 结构化 JSON + summary + source excerpt         | 低置信度在 firm review 中高亮，owner/manager 决策        |
 | Ask DueDateHQ           | P1     | 自然语言 query                           | DSL + 表格 + 一句话 + citations                | 预设模板 5 条兜底                                        |
 | AI Draft Client Email   | P1     | Pulse + 受影响客户                       | 邮件草稿                                       | 固定模板                                                 |
 | Migration Field Mapper  | P0     | 表头 + 前 5 行样本                       | mapping JSON                                   | Preset profile + 手动下拉                                |
@@ -392,15 +392,15 @@ Smart Priority 必须保持纯函数。排序、badge、popover 和 Weekly Brief
 
 - 每 30 分钟运行 `jobs/pulse/ingest.ts`
 - 抓取源：IRS Disaster Relief、TX Comptroller RSS / GovDelivery、CA FTB Newsroom / Tax News、NY DTF Press archive 等
-- 抓取 → hash 比对 → 新内容入库 `pulse(status=pending_review)` → 投递 Queue
+- 抓取 → hash 比对 → 新内容入库 snapshot → 投递 Queue
 
 ### 8.2 Extract（Queue Consumer）
 
 - Queue 消费者调用 `packages/ai/extractPulse`
 - AI SDK structured output 产出受限 JSON
 - 后置 guard 校验 source excerpt 必须能定位回 raw text
-- `confidence < 0.7` 保持 `pending_review`
-- `confidence ≥ 0.7` 仍需 ops approve 才进入用户 banner
+- `confidence < 0.7` 仍进入 firm Alerts review，但 UI 必须高亮低置信度和 source excerpt
+- `confidence ≥ 0.7` 进入 firm Alerts review，由 owner/manager apply/dismiss/snooze
 
 ### 8.3 Match（服务端确定性）
 

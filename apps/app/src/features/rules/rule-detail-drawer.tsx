@@ -376,7 +376,7 @@ function CandidateReviewForm({
     <section className="flex flex-col gap-3 rounded-md border border-state-accent-active-alt bg-background-default px-3 py-3">
       <div className="flex items-center justify-between gap-3">
         <SectionLabel>
-          <Trans>Ops review</Trans>
+          <Trans>Firm review</Trans>
         </SectionLabel>
         <span className="text-xs text-status-review">
           <Trans>Candidate</Trans>

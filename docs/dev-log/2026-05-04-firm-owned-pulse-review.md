@@ -1,0 +1,26 @@
+# Firm-Owned Pulse Review
+
+## Context
+
+Pulse review is now owned by the firm. Owner and Manager users make the decision to apply,
+dismiss, snooze, or later revisit a government-source Pulse from `/alerts`; the product no longer
+has a separate internal Ops Review surface.
+
+## Changes
+
+- Pulse extraction now creates an approved source-backed Pulse and fans it out to matching firm
+  alerts immediately, queueing owner/manager notifications and digest payloads for firm review.
+- Removed the customer app `/ops/pulse` route, the hidden `OpsPulsePage`, the mounted
+  `/api/ops/pulse/*` route, and `PULSE_OPS_TOKEN` configuration.
+- Updated Rules Console and concept copy from Ops Review language to firm/owner/manager review.
+- Updated module docs and the ingest stuck runbook to describe the new source ingest →
+  firm Alerts review flow.
+
+## Validation
+
+- `pnpm --filter @duedatehq/db test -- pulse`
+- `pnpm --filter @duedatehq/app test -- rules-console-model PulseDetailDrawer coverage-tab`
+- `pnpm --filter @duedatehq/server test -- pulse extract app`
+- `pnpm --filter @duedatehq/app i18n:extract`
+- `pnpm --filter @duedatehq/app i18n:compile`
+- `pnpm check`

@@ -117,7 +117,7 @@ export async function extractPulseSnapshot(
     return { pulseId: null, status: 'failed' }
   }
 
-  const created = await repo.createPendingPulseFromExtract({
+  const created = await repo.createPulseForFirmReviewFromExtract({
     snapshotId,
     aiOutputId,
     source: snapshot.sourceId,

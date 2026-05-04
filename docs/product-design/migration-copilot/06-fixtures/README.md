@@ -10,25 +10,25 @@
 
 ## 1. 文件清单
 
-| 文件                                                                                   | 行数（数据）       | 列数 | 覆盖场景                                                                                            | 期望 mapping 置信度均值 | 期望 EIN 识别率          | 故意坏行数 |
-| -------------------------------------------------------------------------------------- | ------------------ | ---- | --------------------------------------------------------------------------------------------------- | ----------------------- | ------------------------ | ---------- |
-| [`./taxdome-30clients.csv`](./taxdome-30clients.csv)                                   | 30                 | 8    | TaxDome 导出 · 全字段干净 · CA+NY 8 实体型混合                                                      | ≥ 95%                   | 100%                     | 0          |
-| [`./drake-30clients.csv`](./drake-30clients.csv)                                       | 30                 | 7    | Drake 导出 · 全字段 · 含 2 坏行触发 needs_review / normalize                                        | ≥ 95%                   | 100%                     | 2          |
-| [`./karbon-20clients.csv`](./karbon-20clients.csv)                                     | 20                 | 5    | Karbon 导出 · 缺 tax_types 列 → 走 Default Matrix                                                   | ≥ 85%                   | 100%                     | 1          |
-| [`./quickbooks-20clients.csv`](./quickbooks-20clients.csv)                             | 20                 | 4    | QuickBooks 仅元数据 · state 全称需归一                                                              | ≥ 80%                   | 95%                      | 2          |
-| [`./file-in-time-30clients.csv`](./file-in-time-30clients.csv)                         | 30                 | 9    | File In Time 独有列（service / due date / status / staff / county）· 期望 preset 自动识别           | ≥ 90%                   | N/A（无 EIN 列）         | 0          |
-| [`./messy-excel-agent-demo.csv`](./messy-excel-agent-demo.csv)                         | 52                 | 11   | Agent Demo 现场演出 · entity 多种写法 / state 混用 / EIN 含空格 / 缺列 / 多余列                     | 70 – 85%（故意低）      | 85 – 95%（故意部分失败） | ≥ 8        |
-| [`./taxdome-exposure-3clients.csv`](./taxdome-exposure-3clients.csv)                   | 3                  | 9    | TaxDome exposure 专用 · 含 Estimated Tax Due / Owner Count，验证 penalty preview 可计算             | ≥ 85% fallback          | 100%                     | 0          |
-| [`./integration-provider-json-samples.json`](./integration-provider-json-samples.json) | 8 provider records | JSON | Provider export / handoff 手工测试 · Karbon / TaxDome / ProConnect / Soraban / SafeSend JSON arrays | N/A                     | 100%                     | 0          |
+| 文件                                                                                   | 行数（数据）       | 列数 | 覆盖场景                                                                                  | 期望 mapping 置信度均值 | 期望 EIN 识别率          | 故意坏行数 |
+| -------------------------------------------------------------------------------------- | ------------------ | ---- | ----------------------------------------------------------------------------------------- | ----------------------- | ------------------------ | ---------- |
+| [`./taxdome-30clients.csv`](./taxdome-30clients.csv)                                   | 30                 | 8    | TaxDome 导出 · 全字段干净 · CA+NY 8 实体型混合                                            | ≥ 95%                   | 100%                     | 0          |
+| [`./drake-30clients.csv`](./drake-30clients.csv)                                       | 30                 | 7    | Drake 导出 · 全字段 · 含 2 坏行触发 needs_review / normalize                              | ≥ 95%                   | 100%                     | 2          |
+| [`./karbon-20clients.csv`](./karbon-20clients.csv)                                     | 20                 | 5    | Karbon 导出 · 缺 tax_types 列 → 走 Default Matrix                                         | ≥ 85%                   | 100%                     | 1          |
+| [`./quickbooks-20clients.csv`](./quickbooks-20clients.csv)                             | 20                 | 4    | QuickBooks 仅元数据 · state 全称需归一                                                    | ≥ 80%                   | 95%                      | 2          |
+| [`./file-in-time-30clients.csv`](./file-in-time-30clients.csv)                         | 30                 | 9    | File In Time 独有列（service / due date / status / staff / county）· 期望 preset 自动识别 | ≥ 90%                   | N/A（无 EIN 列）         | 0          |
+| [`./messy-excel-agent-demo.csv`](./messy-excel-agent-demo.csv)                         | 52                 | 11   | Agent Demo 现场演出 · entity 多种写法 / state 混用 / EIN 含空格 / 缺列 / 多余列           | 70 – 85%（故意低）      | 85 – 95%（故意部分失败） | ≥ 8        |
+| [`./taxdome-exposure-3clients.csv`](./taxdome-exposure-3clients.csv)                   | 3                  | 9    | TaxDome exposure 专用 · 含 Estimated Tax Due / Owner Count，验证 penalty preview 可计算   | ≥ 85% fallback          | 100%                     | 0          |
+| [`./integration-provider-json-samples.json`](./integration-provider-json-samples.json) | 8 provider records | JSON | JSON handoff 手工测试 · Karbon / TaxDome / ProConnect / Soraban / SafeSend JSON arrays    | N/A                     | 100%                     | 0          |
 
 **总 Preset fixture 行数 = 133** · **Agent demo 行数 = 52** · **Preset 列数合计 = 42**
 
 #### `integration-provider-json-samples.json`
 
 - 顶层 key：`karbon` / `taxdome` / `proconnect` / `soraban` / `safesend`
-- 使用方式：复制某个 key 下的数组，粘贴到 Migration Step 1 的 `Provider export` 文本框
+- 使用方式：复制某个 key 下的数组，粘贴到 Migration Step 1 的 `JSON handoff` 文本框
 - 覆盖：integration staging row、provider external id/url、Default Matrix fallback、status-only provider 字段
-- 现实口径：这些 fixture 验证 export / handoff payload 能进入 Migration pipeline，不代表已接入
+- 现实口径：这些 fixture 验证 JSON handoff payload 能进入 Migration pipeline，不代表已接入
   对应平台的直接 OAuth/API 全量同步。
 - 安全性：客户名带 `(TEST)`，EIN 使用 `99-*` 测试段，email 使用 `example.com`
 

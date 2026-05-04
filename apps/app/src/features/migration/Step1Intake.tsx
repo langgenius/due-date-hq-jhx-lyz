@@ -424,7 +424,7 @@ export function Step1Intake({
           selected={intake.mode === 'integration'}
           onClick={() => onMode('integration')}
         >
-          <Trans>Provider export</Trans>
+          <Trans>JSON handoff</Trans>
         </SourceModeButton>
         <SourceModeButton
           selected={intake.mode === 'previous_sync'}
@@ -438,7 +438,7 @@ export function Step1Intake({
         <div className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-components-panel-bg p-3">
           <div className="flex flex-col gap-2">
             <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
-              <Trans>Provider data source</Trans>
+              <Trans>JSON handoff source</Trans>
             </span>
             <div className="flex flex-col gap-3">
               {Array.from(integrationProvidersByTier.entries()).map(([tier, providers]) => (
@@ -477,13 +477,13 @@ export function Step1Intake({
           </div>
           <Alert variant="warning">
             <AlertTitle>
-              <Trans>Provider data still needs review</Trans>
+              <Trans>JSON handoff still needs review</Trans>
             </AlertTitle>
             <AlertDescription>
               <Trans>
-                DueDateHQ generates obligations only when the imported facts support them. Missing
-                entity type, state, tax type, tax year, payment status, or extension status stays in
-                needs review.
+                Most provider exports are CSV or XLSX. Use Paste / Upload with a preset for those.
+                This JSON handoff path is for API, Zapier, or converted report records, and
+                generated obligations still require enough imported facts.
               </Trans>
             </AlertDescription>
           </Alert>
@@ -492,22 +492,23 @@ export function Step1Intake({
               htmlFor={`${pasteId}-integration`}
               className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase"
             >
-              <Trans>Provider export records</Trans>
+              <Trans>Provider JSON records</Trans>
             </label>
             <Textarea
               id={`${pasteId}-integration`}
-              aria-label={t`Paste provider export records`}
+              aria-label={t`Paste provider JSON records`}
               value={intake.integrationRawText}
               onChange={(event) => handleIntegrationText(event.target.value)}
               onPaste={handleIntegrationPaste}
-              placeholder={t`Paste a JSON array from a provider export, report, or integration handoff. Each object becomes one Migration staging row.`}
+              placeholder={t`Paste JSON records from an API, Zapier flow, or converted provider report. For CSV/XLSX exports, switch to Paste / Upload and choose a preset.`}
               className="h-[180px] resize-y bg-background-body font-mono text-base tabular-nums"
             />
           </div>
           <p className="text-sm text-text-tertiary">
             <Trans>
-              Provider records enter the same AI mapper and dry-run flow as CSV imports, while
-              keeping external IDs for future audit and status matching.
+              These choices tag JSON records with provider source, infer external entity type, and
+              keep external IDs for future audit and status matching. They do not turn CSV exports
+              into JSON.
             </Trans>
           </p>
         </div>

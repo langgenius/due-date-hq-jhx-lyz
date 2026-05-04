@@ -181,7 +181,7 @@ migration.imported
   → dashboard.first_week_operating_loop.ready
 ```
 
-如果存在 approved Pulse 匹配新导入客户，Dashboard Banner 展示受影响客户；如果只是 pending_review Pulse，不进入 Apply 集合，只进 review strip。
+如果存在 approved Pulse 匹配新导入客户，Dashboard Banner 展示受影响客户并深链到 firm Alerts review。
 
 ### 4.4 约束
 

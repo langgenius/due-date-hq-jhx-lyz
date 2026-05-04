@@ -77,8 +77,8 @@ export function RulesConsole() {
 
   const tabDescriptions = useMemo<Record<RulesTab, string>>(
     () => ({
-      coverage: t`Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until ops publishes source-backed dates.`,
-      sources: t`Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion.`,
+      coverage: t`Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until an owner or manager publishes source-backed dates.`,
+      sources: t`Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; owners and managers review changes via the candidate flow before promotion.`,
       library: t`Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders.`,
       preview: t`Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded.`,
     }),

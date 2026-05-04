@@ -1796,6 +1796,66 @@ export function makePulseOpsRepo(db: Db) {
     })
   }
 
+  async function queueFirmPulseReviewMessages(
+    approvedPulse: Pulse,
+    alerts: readonly {
+      id: string
+      firmId: string
+      matchedCount: number
+      needsReviewCount: number
+    }[],
+    now: Date,
+  ): Promise<void> {
+    if (alerts.length === 0) return
+
+    const reviewEmails = await Promise.all(
+      alerts.map(
+        async (alert): Promise<NewEmailOutbox> => ({
+          id: crypto.randomUUID(),
+          firmId: alert.firmId,
+          externalId: `pulse-review:${alert.firmId}:${approvedPulse.id}:${now.getTime()}`,
+          type: 'pulse_digest',
+          status: 'pending',
+          payloadJson: {
+            event: 'pulse_ready_for_firm_review',
+            recipients: await listFirmPulseDigestRecipients(alert.firmId),
+            alertId: alert.id,
+            pulseId: approvedPulse.id,
+            source: approvedPulse.source,
+            sourceUrl: approvedPulse.sourceUrl,
+            summary: approvedPulse.aiSummary,
+            readyAt: now.toISOString(),
+            matchedCount: alert.matchedCount,
+            needsReviewCount: alert.needsReviewCount,
+            obligations: (await listApprovedDigestObligations(approvedPulse, alert.firmId)).map(
+              (obligation) => ({
+                obligationId: obligation.obligationId,
+                clientId: obligation.clientId,
+                clientName: obligation.clientName,
+                state: obligation.state,
+                county: obligation.county,
+                currentDueDate: toDateOnly(obligation.currentDueDate),
+                newDueDate: toDateOnly(approvedPulse.parsedNewDueDate),
+                taxType: obligation.taxType,
+                matchStatus: obligation.matchStatus,
+                reason: obligation.reason,
+              }),
+            ),
+          },
+        }),
+      ),
+    )
+    const reviewNotifications = await buildPulseAlertNotifications(approvedPulse, alerts, now)
+    const writes: BatchItem<'sqlite'>[] = []
+    for (const chunk of chunkRows(reviewEmails, EMAIL_BATCH_SIZE)) {
+      writes.push(db.insert(emailOutbox).values(chunk))
+    }
+    for (const chunk of chunkRows(reviewNotifications, NOTIFICATION_BATCH_SIZE)) {
+      writes.push(db.insert(inAppNotification).values(chunk))
+    }
+    if (writes.length > 0) await db.batch(toNonEmptyBatch(writes))
+  }
+
   async function listApprovedDigestObligations(
     row: Pulse,
     firmId: string,
@@ -2292,7 +2352,9 @@ export function makePulseOpsRepo(db: Db) {
         .where(eq(pulseSourceSnapshot.id, snapshotId))
     },
 
-    async createPendingPulseFromExtract(input: PulseExtractInput): Promise<{ pulseId: string }> {
+    async createPulseForFirmReviewFromExtract(
+      input: PulseExtractInput,
+    ): Promise<{ pulseId: string; alertCount: number }> {
       const pulseId = crypto.randomUUID()
       const pulseRow: NewPulse = {
         id: pulseId,
@@ -2310,7 +2372,7 @@ export function makePulseOpsRepo(db: Db) {
         parsedNewDueDate: input.parsedNewDueDate,
         parsedEffectiveFrom: input.parsedEffectiveFrom ?? null,
         confidence: input.confidence,
-        status: 'pending_review',
+        status: 'approved',
         reviewedBy: null,
         reviewedAt: null,
         requiresHumanReview: input.requiresHumanReview ?? true,
@@ -2328,7 +2390,20 @@ export function makePulseOpsRepo(db: Db) {
           })
           .where(eq(pulseSourceSnapshot.id, input.snapshotId)),
       ])
-      return { pulseId }
+      const inserted = await getPulse(pulseId)
+      if (!inserted) throw new PulseRepoError('not_found')
+      const alertCount = await refreshFirmAlertsForPulse(pulseId)
+      const alerts = await db
+        .select({
+          id: pulseFirmAlert.id,
+          firmId: pulseFirmAlert.firmId,
+          matchedCount: pulseFirmAlert.matchedCount,
+          needsReviewCount: pulseFirmAlert.needsReviewCount,
+        })
+        .from(pulseFirmAlert)
+        .where(eq(pulseFirmAlert.pulseId, pulseId))
+      await queueFirmPulseReviewMessages(inserted, alerts, new Date())
+      return { pulseId, alertCount }
     },
 
     async listPendingPulses(opts: { limit?: number } = {}): Promise<PulseReviewRow[]> {

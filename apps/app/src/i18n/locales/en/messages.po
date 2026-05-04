@@ -412,8 +412,8 @@ msgid "A personal feed for deadlines assigned to you."
 msgstr "A personal feed for deadlines assigned to you."
 
 #: src/features/concepts/concept-help.tsx
-msgid "A possible rule or change that is still waiting for operations review. Candidate rules do not update client deadlines or send reminders."
-msgstr "A possible rule or change that is still waiting for operations review. Candidate rules do not update client deadlines or send reminders."
+msgid "A possible rule or change that is still waiting for owner or manager review. Candidate rules do not update client deadlines or send reminders."
+msgstr "A possible rule or change that is still waiting for owner or manager review. Candidate rules do not update client deadlines or send reminders."
 
 #: src/features/concepts/concept-help.tsx
 msgid "A regulatory change signal detected from watched official sources. Matching client deadlines still need review before changes are applied."
@@ -528,10 +528,6 @@ msgstr "Active sessions"
 #: src/features/audit/audit-log-table.tsx
 msgid "Actor"
 msgstr "Actor"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Actor id"
-msgstr "Actor id"
 
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Add a manual client record to the active practice directory."
@@ -773,10 +769,6 @@ msgstr "Apply to all"
 msgid "Apply view"
 msgstr "Apply view"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Approve"
-msgstr "Approve"
-
 #: src/features/workload/workload-page.tsx
 msgid "As of {asOfDate} · next {windowDays} days"
 msgstr "As of {asOfDate} · next {windowDays} days"
@@ -907,10 +899,6 @@ msgstr "Authenticator setup QR code"
 msgid "Authenticator setup started"
 msgstr "Authenticator setup started"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Auto-link open signals"
-msgstr "Auto-link open signals"
-
 #. placeholder {0}: einDetected ? '100%' : '0%'
 #: src/features/migration/Step2Mapping.tsx
 msgid "Average confidence <0>{avgConfidence}%</0> · EIN detected <1>{0}</1>"
@@ -947,10 +935,6 @@ msgstr "Basic AI"
 #: src/features/migration/Step4Preview.tsx
 msgid "Batch rollback trace retained for 24 hours"
 msgstr "Batch rollback trace retained for 24 hours"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Bearer token"
-msgstr "Bearer token"
 
 #: src/routes/workboard.tsx
 msgid "Before"
@@ -2103,7 +2087,6 @@ msgid "Digest queued for owners and managers; delivery depends on email config"
 msgstr "Digest queued for owners and managers; delivery depends on email config"
 
 #: src/features/calendar/calendar-page.tsx
-#: src/features/pulse/OpsPulsePage.tsx
 msgid "Disable"
 msgstr "Disable"
 
@@ -2132,7 +2115,6 @@ msgid "Discard this draft import?"
 msgstr "Discard this draft import?"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
-#: src/features/pulse/OpsPulsePage.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Dismiss"
@@ -2236,10 +2218,6 @@ msgstr "DueDateHQ does not store card numbers or invoice payment data."
 msgid "DueDateHQ field"
 msgstr "DueDateHQ field"
 
-#: src/features/migration/Step1Intake.tsx
-msgid "DueDateHQ generates obligations only when the imported facts support them. Missing entity type, state, tax type, tax year, payment status, or extension status stays in needs review."
-msgstr "DueDateHQ generates obligations only when the imported facts support them. Missing entity type, state, tax type, tax year, payment status, or extension status stays in needs review."
-
 #: src/routes/readiness.tsx
 msgid "DueDateHQ readiness portal"
 msgstr "DueDateHQ readiness portal"
@@ -2290,10 +2268,6 @@ msgstr "Email address"
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Email me a code"
 msgstr "Email me a code"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Enable"
-msgstr "Enable"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Enable full feed"
@@ -2558,10 +2532,6 @@ msgstr "Facts"
 msgid "Failed"
 msgstr "Failed"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Failed snapshots"
-msgstr "Failed snapshots"
-
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Failing"
@@ -2642,6 +2612,10 @@ msgstr "Filter by time range, action category, action, actor, or entity type."
 #: src/features/audit/audit-log-labels.ts
 msgid "Firm"
 msgstr "Firm"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Firm review"
+msgstr "Firm review"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Firm-wide calendar"
@@ -2928,10 +2902,6 @@ msgstr "Individual"
 msgid "Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded."
 msgstr "Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded."
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Inspect raw"
-msgstr "Inspect raw"
-
 #: src/features/migration/mapping-target-labels.ts
 msgid "Installments"
 msgstr "Installments"
@@ -2939,11 +2909,6 @@ msgstr "Installments"
 #: src/features/migration/Stepper.tsx
 msgid "Intake"
 msgstr "Intake"
-
-#: src/features/pulse/OpsPulsePage.tsx
-#: src/routes/route-summary.ts
-msgid "Internal operations"
-msgstr "Internal operations"
 
 #: src/routes/accept-invite.tsx
 msgid "Invitation accepted"
@@ -2976,6 +2941,18 @@ msgstr "Invite member"
 #: src/features/audit/audit-event-drawer.tsx
 msgid "IP hash"
 msgstr "IP hash"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "JSON handoff"
+msgstr "JSON handoff"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "JSON handoff source"
+msgstr "JSON handoff source"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "JSON handoff still needs review"
+msgstr "JSON handoff still needs review"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
@@ -3040,13 +3017,6 @@ msgstr "Last 7d"
 msgid "Last accessed"
 msgstr "Last accessed"
 
-#. placeholder {0}: source.lastSuccessAt ?? 'never'
-#. placeholder {1}: source.nextCheckAt ?? 'paused'
-#. placeholder {2}: source.consecutiveFailures
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Last success {0} · next check {1} · failures {2}"
-msgstr "Last success {0} · next check {1} · failures {2}"
-
 #: src/routes/practice.tsx
 msgid "Late filing cap"
 msgstr "Late filing cap"
@@ -3071,10 +3041,6 @@ msgstr "Latest status"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Light"
 msgstr "Light"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Link"
-msgstr "Link"
 
 #: src/routes/readiness.tsx
 msgid "Link unavailable"
@@ -3112,10 +3078,6 @@ msgstr "Loading clients for preview."
 msgid "Loading deadline tip…"
 msgstr "Loading deadline tip…"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Loading failed snapshots…"
-msgstr "Loading failed snapshots…"
-
 #: src/routes/workboard.tsx
 msgid "Loading obligation detail…"
 msgstr "Loading obligation detail…"
@@ -3123,10 +3085,6 @@ msgstr "Loading obligation detail…"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Loading obligation preview."
 msgstr "Loading obligation preview."
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Loading pending Pulse extracts…"
-msgstr "Loading pending Pulse extracts…"
 
 #: src/routes/workboard.tsx
 msgid "Loading queue…"
@@ -3147,14 +3105,6 @@ msgstr "Loading rule sources."
 #: src/features/rules/coverage-tab.tsx
 msgid "Loading rules coverage."
 msgstr "Loading rules coverage."
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Loading source health…"
-msgstr "Loading source health…"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Loading source signals…"
-msgstr "Loading source signals…"
 
 #: src/features/workload/workload-page.tsx
 msgid "Loading team workload"
@@ -3442,6 +3392,10 @@ msgstr "Monthly"
 msgid "Monthly billing"
 msgstr "Monthly billing"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Most provider exports are CSV or XLSX. Use Paste / Upload with a preset for those. This JSON handoff path is for API, Zapier, or converted report records, and generated obligations still require enough imported facts."
+msgstr "Most provider exports are CSV or XLSX. Use Paste / Upload with a preset for those. This JSON handoff path is for API, Zapier, or converted report records, and generated obligations still require enough imported facts."
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Multiple practices/offices"
@@ -3693,10 +3647,6 @@ msgstr "No export packages yet."
 msgid "No exposure states"
 msgstr "No exposure states"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "No failed snapshots."
-msgstr "No failed snapshots."
-
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "No forms"
@@ -3754,10 +3704,6 @@ msgstr "No paid subscription"
 msgid "No penalty breakdown is available yet."
 msgstr "No penalty breakdown is available yet."
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "No pending Pulse extracts."
-msgstr "No pending Pulse extracts."
-
 #: src/routes/billing.checkout.tsx
 msgid "No practice selected"
 msgstr "No practice selected"
@@ -3798,14 +3744,6 @@ msgstr "No seats are available. Upgrade or suspend a member before inviting."
 #: src/routes/dashboard.tsx
 msgid "No severities"
 msgstr "No severities"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "No signals found."
-msgstr "No signals found."
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "No source state has been recorded."
-msgstr "No source state has been recorded."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No source types"
@@ -3994,8 +3932,8 @@ msgid "official channels under monitor"
 msgstr "official channels under monitor"
 
 #: src/features/rules/rules-console.tsx
-msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
-msgstr "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
+msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; owners and managers review changes via the candidate flow before promotion."
+msgstr "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; owners and managers review changes via the candidate flow before promotion."
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Official due date page"
@@ -4221,14 +4159,6 @@ msgstr "Operations"
 msgid "Operations command"
 msgstr "Operations command"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Ops review"
-msgstr "Ops review"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Ops token"
-msgstr "Ops token"
-
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/readiness.tsx
 msgid "Optional note"
@@ -4363,10 +4293,6 @@ msgid "Paste / Upload"
 msgstr "Paste / Upload"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste a JSON array from a provider export, report, or integration handoff. Each object becomes one Migration staging row."
-msgstr "Paste a JSON array from a provider export, report, or integration handoff. Each object becomes one Migration staging row."
-
-#: src/features/migration/Step1Intake.tsx
 msgid "Paste a JSON array of provider records."
 msgstr "Paste a JSON array of provider records."
 
@@ -4379,16 +4305,16 @@ msgid "Paste here — any shape, we'll figure it out. Include the header row if 
 msgstr "Paste here — any shape, we'll figure it out. Include the header row if you have one."
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste provider export records"
-msgstr "Paste provider export records"
+msgid "Paste JSON records from an API, Zapier flow, or converted provider report. For CSV/XLSX exports, switch to Paste / Upload and choose a preset."
+msgstr "Paste JSON records from an API, Zapier flow, or converted provider report. For CSV/XLSX exports, switch to Paste / Upload and choose a preset."
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste provider JSON records"
+msgstr "Paste provider JSON records"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste rows"
 msgstr "Paste rows"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Paste the configured PULSE_OPS_TOKEN to load the internal workbench."
-msgstr "Paste the configured PULSE_OPS_TOKEN to load the internal workbench."
 
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
@@ -4458,6 +4384,10 @@ msgstr "Penalty tax due"
 msgid "Pending"
 msgstr "Pending"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "pending firm review"
+msgstr "pending firm review"
+
 #: src/features/members/members-page.tsx
 msgid "Pending invitations"
 msgstr "Pending invitations"
@@ -4466,12 +4396,7 @@ msgstr "Pending invitations"
 msgid "Pending invites"
 msgstr "Pending invites"
 
-#: src/features/rules/coverage-tab.tsx
-msgid "pending ops review"
-msgstr "pending ops review"
-
 #: src/features/audit/audit-log-labels.ts
-#: src/features/pulse/OpsPulsePage.tsx
 msgid "Pending review"
 msgstr "Pending review"
 
@@ -4777,29 +4702,13 @@ msgstr "Projected risk"
 msgid "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
 msgstr "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
 
-#: src/features/migration/Step1Intake.tsx
-msgid "Provider data source"
-msgstr "Provider data source"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Provider data still needs review"
-msgstr "Provider data still needs review"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Provider export"
-msgstr "Provider export"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Provider export records"
-msgstr "Provider export records"
-
 #: src/routes/billing.tsx
 msgid "Provider hosted"
 msgstr "Provider hosted"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Provider records enter the same AI mapper and dry-run flow as CSV imports, while keeping external IDs for future audit and status matching."
-msgstr "Provider records enter the same AI mapper and dry-run flow as CSV imports, while keeping external IDs for future audit and status matching."
+msgid "Provider JSON records"
+msgstr "Provider JSON records"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Publish evidence, but generated deadlines still require CPA review."
@@ -4813,10 +4722,6 @@ msgstr "Publish mode"
 #: src/features/concepts/concept-help.tsx
 msgid "Pulse"
 msgstr "Pulse"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Pulse {action} queued"
-msgstr "Pulse {action} queued"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/notifications/notifications-page.tsx
@@ -4855,23 +4760,6 @@ msgstr "Pulse dismissed"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Pulse evidence linked to each obligation"
 msgstr "Pulse evidence linked to each obligation"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Pulse id for manual link"
-msgstr "Pulse id for manual link"
-
-#: src/features/pulse/OpsPulsePage.tsx
-#: src/routes/route-summary.ts
-msgid "Pulse Ops"
-msgstr "Pulse Ops"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Pulse ops action failed"
-msgstr "Pulse ops action failed"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Pulse ops credentials saved locally"
-msgstr "Pulse ops credentials saved locally"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Pulse quarantined"
@@ -4920,10 +4808,6 @@ msgstr "Pulse update extracted"
 #: src/features/notifications/notifications-page.tsx
 msgid "Pulse updates"
 msgstr "Pulse updates"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Quarantine"
-msgstr "Quarantine"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Quarantined"
@@ -5059,10 +4943,6 @@ msgstr "Ready to import"
 msgid "Reason"
 msgstr "Reason"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Reason for review actions"
-msgstr "Reason for review actions"
-
 #: src/features/migration/mapping-target-labels.ts
 msgid "Receipts band"
 msgstr "Receipts band"
@@ -5135,7 +5015,6 @@ msgstr "Regenerate URL"
 msgid "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
 msgstr "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
 
-#: src/features/pulse/OpsPulsePage.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Reject"
 msgstr "Reject"
@@ -5197,10 +5076,6 @@ msgstr "Request Pulse review"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Request review"
 msgstr "Request review"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Required for reject, quarantine, and source revoke decisions"
-msgstr "Required for reject, quarantine, and source revoke decisions"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Required for rule applicability."
@@ -5278,10 +5153,6 @@ msgstr "Resulting readiness"
 msgid "Retry"
 msgstr "Retry"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Retry extract"
-msgstr "Retry extract"
-
 #: src/routes/error.tsx
 msgid "Return home"
 msgstr "Return home"
@@ -5334,10 +5205,6 @@ msgstr "review — needs CPA confirmation"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Review note"
 msgstr "Review note"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Review pending Pulse extracts, inspect source health, reconcile signals, and retry failed snapshots. This page uses the token-protected ops API."
-msgstr "Review pending Pulse extracts, inspect source health, reconcile signals, and retry failed snapshots. This page uses the token-protected ops API."
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Review plans"
@@ -5410,10 +5277,6 @@ msgstr "Revoke"
 #: src/routes/workboard.tsx
 msgid "Revoke request"
 msgstr "Revoke request"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Revoke source"
-msgstr "Revoke source"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Revoked"
@@ -5596,10 +5459,6 @@ msgstr "Same Practice AI as Pro"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Sample"
 msgstr "Sample"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Save"
-msgstr "Save"
 
 #: src/routes/billing.tsx
 msgid "Save $192/year"
@@ -5802,10 +5661,6 @@ msgstr "Select {0}"
 msgid "Select a client to inspect the record."
 msgstr "Select a client to inspect the record."
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Select a Pulse to inspect raw source text."
-msgstr "Select a Pulse to inspect raw source text."
-
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Select all eligible obligations"
 msgstr "Select all eligible obligations"
@@ -5968,18 +5823,6 @@ msgstr "Sign-in failed"
 msgid "Sign-in succeeded"
 msgstr "Sign-in succeeded"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Signal action queued"
-msgstr "Signal action queued"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Signal link pass queued"
-msgstr "Signal link pass queued"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Signals"
-msgstr "Signals"
-
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signed in"
 msgstr "Signed in"
@@ -6002,10 +5845,6 @@ msgstr "Smart Priority"
 #: src/routes/practice.tsx
 msgid "Smart Priority saved"
 msgstr "Smart Priority saved"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Snapshot retry queued"
-msgstr "Snapshot retry queued"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Snooze 24h"
@@ -6078,10 +5917,6 @@ msgstr "source"
 msgid "Source"
 msgstr "Source"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Source action queued"
-msgstr "Source action queued"
-
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Source excerpt"
 msgstr "Source excerpt"
@@ -6136,14 +5971,13 @@ msgstr "Source-constrained summaries"
 msgid "Source-defined cal"
 msgstr "Source-defined cal"
 
-#: src/features/pulse/OpsPulsePage.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Sources"
 msgstr "Sources"
 
 #: src/features/rules/rules-console.tsx
-msgid "Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until ops publishes source-backed dates."
-msgstr "Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until ops publishes source-backed dates."
+msgid "Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until an owner or manager publishes source-backed dates."
+msgstr "Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until an owner or manager publishes source-backed dates."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Sources watched"
@@ -6488,8 +6322,8 @@ msgid "The stored deadline risk view, mainly based on due date pressure, penalty
 msgstr "The stored deadline risk view, mainly based on due date pressure, penalty exposure, readiness, and evidence status."
 
 #: src/features/concepts/concept-help.tsx
-msgid "The system found a possible deadline, but a CPA or operations reviewer must confirm it before it is treated as final."
-msgstr "The system found a possible deadline, but a CPA or operations reviewer must confirm it before it is treated as final."
+msgid "The system found a possible deadline, but a CPA, owner, or manager must confirm it before it is treated as final."
+msgstr "The system found a possible deadline, but a CPA, owner, or manager must confirm it before it is treated as final."
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
@@ -6498,6 +6332,10 @@ msgstr "Theme"
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "then"
 msgstr "then"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "These choices tag JSON records with provider source, infer external entity type, and keep external IDs for future audit and status matching. They do not turn CSV exports into JSON."
+msgstr "These choices tag JSON records with provider source, infer external entity type, and keep external IDs for future audit and status matching. They do not turn CSV exports into JSON."
 
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "They are only shown during setup. Store them somewhere private before verification."
@@ -6609,10 +6447,6 @@ msgstr "Timezone"
 #: src/routes/workboard.tsx
 msgid "Today"
 msgstr "Today"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Token required"
-msgstr "Token required"
 
 #: src/lib/i18n-error.ts
 msgid "Too many requests. Please try again in a moment."

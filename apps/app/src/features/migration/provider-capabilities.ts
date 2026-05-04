@@ -31,17 +31,17 @@ const TAXDOME_CAPABILITY = {
 
 const PROCONNECT_CAPABILITY = {
   provider: 'proconnect',
-  label: 'ProConnect export',
+  label: 'ProConnect export handoff',
   tier: 'supported_export_preset',
-  helper: 'Use Intuit reporting exports for e-filed return data where available.',
+  helper: 'Use JSON records prepared from Intuit reporting exports for e-filed return data.',
   recommended: true,
 } satisfies ProviderCapability
 
 const SAFESEND_CAPABILITY = {
   provider: 'safesend',
-  label: 'SafeSend report export',
+  label: 'SafeSend report handoff',
   tier: 'supported_export_preset',
-  helper: 'Use Returns, Organizers, or Reminder Management report exports.',
+  helper: 'Use JSON records prepared from Returns, Organizers, or Reminder Management reports.',
   recommended: false,
 } satisfies ProviderCapability
 
@@ -73,7 +73,7 @@ export const PROVIDER_CAPABILITY_BY_PROVIDER: Record<
 }
 
 export const PROVIDER_CAPABILITY_TIER_LABELS: Record<ProviderCapabilityTier, string> = {
-  supported_export_preset: 'Supported export preset',
-  supported_integration_handoff: 'Supported integration handoff',
-  partner_manual_only: 'Partner/manual only',
+  supported_export_preset: 'Report/export handoff',
+  supported_integration_handoff: 'API/Zapier handoff',
+  partner_manual_only: 'Partner/manual handoff',
 }

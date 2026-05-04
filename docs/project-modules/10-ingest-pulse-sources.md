@@ -2,7 +2,7 @@
 
 ## 功能定位
 
-`packages/ingest` 是 Pulse 的来源接入层。它定义 source adapter interface、HTTP fetch helper、robots/conditional fetch、HTML/RSS selector 工具和一组政府来源 adapters。server 的 scheduled job 使用它抓取 IRS、州税务机构、FEMA 等来源，生成 snapshot 和 signal，再进入 AI extraction、ops review 和 firm alert fan-out。
+`packages/ingest` 是 Pulse 的来源接入层。它定义 source adapter interface、HTTP fetch helper、robots/conditional fetch、HTML/RSS selector 工具和一组政府来源 adapters。server 的 scheduled job 使用它抓取 IRS、州税务机构、FEMA 等来源，生成 snapshot 和 signal，再进入 AI extraction 和 firm alert fan-out。
 
 该模块不负责最终业务应用，不写 tenant obligation。它只把外部来源转换成可追踪的来源快照和候选信号。
 
@@ -147,7 +147,7 @@ flowchart TB
   subgraph Server["apps/server jobs"]
     Cron["runPulseIngest"]
     Extract["pulse.extract queue"]
-    Ops["ops review"]
+    Alerts["firm Alerts review"]
   end
 
   Sources["Government sources"]
@@ -163,7 +163,7 @@ flowchart TB
   Cron --> D1
   Cron --> Extract
   Extract --> AI
-  Extract --> Ops
+  Extract --> Alerts
 ```
 
 ## 数据流与审计关系
@@ -172,8 +172,8 @@ flowchart TB
 2. 保存 source snapshot 和 source state。
 3. parse 生成 source signal。
 4. queue 调用 AI 抽取 structured Pulse candidate。
-5. ops review 批准或拒绝。
-6. 批准后 fan-out 到 firm alert。
+5. 抽取成功后 fan-out 到 firm alert。
+6. firm owner/manager review 后 apply/dismiss/snooze。
 7. firm 用户 apply/revert 时写 audit/evidence。
 
 `packages/ingest` 只覆盖第 1 到第 3 步，后续步骤由 server/jobs/procedures 负责。

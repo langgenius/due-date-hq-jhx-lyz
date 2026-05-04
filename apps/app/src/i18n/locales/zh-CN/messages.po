@@ -412,8 +412,8 @@ msgid "A personal feed for deadlines assigned to you."
 msgstr "订阅分配给你的截止日。"
 
 #: src/features/concepts/concept-help.tsx
-msgid "A possible rule or change that is still waiting for operations review. Candidate rules do not update client deadlines or send reminders."
-msgstr "仍等待运营复核的潜在规则或变更。候选规则不会更新客户截止日，也不会发送提醒。"
+msgid "A possible rule or change that is still waiting for owner or manager review. Candidate rules do not update client deadlines or send reminders."
+msgstr "一条仍在等待 Owner 或 Manager 复核的可能规则或变更。候选规则不会更新客户截止日，也不会发送提醒。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "A regulatory change signal detected from watched official sources. Matching client deadlines still need review before changes are applied."
@@ -528,10 +528,6 @@ msgstr "活跃会话"
 #: src/features/audit/audit-log-table.tsx
 msgid "Actor"
 msgstr "执行人"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Actor id"
-msgstr "执行人 ID"
 
 #: src/features/clients/CreateClientDialog.tsx
 msgid "Add a manual client record to the active practice directory."
@@ -773,10 +769,6 @@ msgstr "全部应用"
 msgid "Apply view"
 msgstr "应用视图"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Approve"
-msgstr "批准"
-
 #: src/features/workload/workload-page.tsx
 msgid "As of {asOfDate} · next {windowDays} days"
 msgstr "截至 {asOfDate} · 未来 {windowDays} 天"
@@ -907,10 +899,6 @@ msgstr "身份验证器设置二维码"
 msgid "Authenticator setup started"
 msgstr "身份验证器设置已开始"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Auto-link open signals"
-msgstr "自动链接未处理信号"
-
 #. placeholder {0}: einDetected ? '100%' : '0%'
 #: src/features/migration/Step2Mapping.tsx
 msgid "Average confidence <0>{avgConfidence}%</0> · EIN detected <1>{0}</1>"
@@ -947,10 +935,6 @@ msgstr "基础 AI"
 #: src/features/migration/Step4Preview.tsx
 msgid "Batch rollback trace retained for 24 hours"
 msgstr "保留 24 小时批次回滚追踪"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Bearer token"
-msgstr "Bearer token"
 
 #: src/routes/workboard.tsx
 msgid "Before"
@@ -2103,7 +2087,6 @@ msgid "Digest queued for owners and managers; delivery depends on email config"
 msgstr "Digest 已加入队列并发送给 Owner 和 Manager；送达取决于邮件配置"
 
 #: src/features/calendar/calendar-page.tsx
-#: src/features/pulse/OpsPulsePage.tsx
 msgid "Disable"
 msgstr "停用"
 
@@ -2132,7 +2115,6 @@ msgid "Discard this draft import?"
 msgstr "丢弃这个导入草稿？"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
-#: src/features/pulse/OpsPulsePage.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Dismiss"
@@ -2236,10 +2218,6 @@ msgstr "DueDateHQ 不保存卡号或发票支付数据。"
 msgid "DueDateHQ field"
 msgstr "DueDateHQ 字段"
 
-#: src/features/migration/Step1Intake.tsx
-msgid "DueDateHQ generates obligations only when the imported facts support them. Missing entity type, state, tax type, tax year, payment status, or extension status stays in needs review."
-msgstr "DueDateHQ 只会在导入事实足够支撑时生成义务。缺少实体类型、州、税种、税年、付款状态或延期状态的记录会停留在待复核。"
-
 #: src/routes/readiness.tsx
 msgid "DueDateHQ readiness portal"
 msgstr "DueDateHQ 准备状态门户"
@@ -2290,10 +2268,6 @@ msgstr "邮箱地址"
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Email me a code"
 msgstr "发送验证码"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Enable"
-msgstr "启用"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Enable full feed"
@@ -2558,10 +2532,6 @@ msgstr "事实"
 msgid "Failed"
 msgstr "失败"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Failed snapshots"
-msgstr "失败快照"
-
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Failing"
@@ -2642,6 +2612,10 @@ msgstr "按时间范围、操作分类、操作、执行人或实体类型筛选
 #: src/features/audit/audit-log-labels.ts
 msgid "Firm"
 msgstr "Firm"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Firm review"
+msgstr "事务所复核"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Firm-wide calendar"
@@ -2928,10 +2902,6 @@ msgstr "个人"
 msgid "Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded."
 msgstr "输入客户事实 → 干运行规则引擎 → 查看会生成哪些义务。提醒就绪的义务会触发 30 / 7 / 1 天提醒；待复核项需 CPA 确认，绝不会自动提醒。"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Inspect raw"
-msgstr "查看原文"
-
 #: src/features/migration/mapping-target-labels.ts
 msgid "Installments"
 msgstr "分期付款"
@@ -2939,11 +2909,6 @@ msgstr "分期付款"
 #: src/features/migration/Stepper.tsx
 msgid "Intake"
 msgstr "入料"
-
-#: src/features/pulse/OpsPulsePage.tsx
-#: src/routes/route-summary.ts
-msgid "Internal operations"
-msgstr "内部运营"
 
 #: src/routes/accept-invite.tsx
 msgid "Invitation accepted"
@@ -2976,6 +2941,18 @@ msgstr "邀请成员"
 #: src/features/audit/audit-event-drawer.tsx
 msgid "IP hash"
 msgstr "IP 哈希"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "JSON handoff"
+msgstr "JSON 交接"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "JSON handoff source"
+msgstr "JSON 交接来源"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "JSON handoff still needs review"
+msgstr "JSON 交接仍需复核"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
@@ -3040,13 +3017,6 @@ msgstr "最近 7 天"
 msgid "Last accessed"
 msgstr "上次访问"
 
-#. placeholder {0}: source.lastSuccessAt ?? 'never'
-#. placeholder {1}: source.nextCheckAt ?? 'paused'
-#. placeholder {2}: source.consecutiveFailures
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Last success {0} · next check {1} · failures {2}"
-msgstr "上次成功 {0} · 下次检查 {1} · 失败 {2}"
-
 #: src/routes/practice.tsx
 msgid "Late filing cap"
 msgstr "迟报封顶"
@@ -3071,10 +3041,6 @@ msgstr "最新状态"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Light"
 msgstr "浅色"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Link"
-msgstr "链接"
 
 #: src/routes/readiness.tsx
 msgid "Link unavailable"
@@ -3112,10 +3078,6 @@ msgstr "正在加载用于预览的客户。"
 msgid "Loading deadline tip…"
 msgstr "正在加载截止日提示…"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Loading failed snapshots…"
-msgstr "正在加载失败快照…"
-
 #: src/routes/workboard.tsx
 msgid "Loading obligation detail…"
 msgstr "正在加载义务详情…"
@@ -3123,10 +3085,6 @@ msgstr "正在加载义务详情…"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Loading obligation preview."
 msgstr "正在加载义务预览。"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Loading pending Pulse extracts…"
-msgstr "正在加载待复核 Pulse 提取结果…"
 
 #: src/routes/workboard.tsx
 msgid "Loading queue…"
@@ -3147,14 +3105,6 @@ msgstr "正在加载规则来源。"
 #: src/features/rules/coverage-tab.tsx
 msgid "Loading rules coverage."
 msgstr "正在加载规则覆盖。"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Loading source health…"
-msgstr "正在加载来源健康状态…"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Loading source signals…"
-msgstr "正在加载来源信号…"
 
 #: src/features/workload/workload-page.tsx
 msgid "Loading team workload"
@@ -3442,6 +3392,10 @@ msgstr "月付"
 msgid "Monthly billing"
 msgstr "按月计费"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Most provider exports are CSV or XLSX. Use Paste / Upload with a preset for those. This JSON handoff path is for API, Zapier, or converted report records, and generated obligations still require enough imported facts."
+msgstr "大多数服务商导出是 CSV 或 XLSX。请对这些文件使用“粘贴 / 上传”并选择 preset。JSON 交接路径只适用于 API、Zapier 或已转换报表记录，生成义务仍需要足够的导入事实支撑。"
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Multiple practices/offices"
@@ -3693,10 +3647,6 @@ msgstr "暂无导出包。"
 msgid "No exposure states"
 msgstr "没有风险暴露状态"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "No failed snapshots."
-msgstr "没有失败快照。"
-
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "No forms"
@@ -3754,10 +3704,6 @@ msgstr "无付费订阅"
 msgid "No penalty breakdown is available yet."
 msgstr "尚无可用的罚金明细。"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "No pending Pulse extracts."
-msgstr "没有待复核的 Pulse 提取结果。"
-
 #: src/routes/billing.checkout.tsx
 msgid "No practice selected"
 msgstr "未选择事务所"
@@ -3798,14 +3744,6 @@ msgstr "没有可用席位。请先升级或暂停一名成员再邀请。"
 #: src/routes/dashboard.tsx
 msgid "No severities"
 msgstr "没有严重性"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "No signals found."
-msgstr "未找到信号。"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "No source state has been recorded."
-msgstr "尚未记录来源状态。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No source types"
@@ -3994,8 +3932,8 @@ msgid "official channels under monitor"
 msgstr "正在监听的官方渠道"
 
 #: src/features/rules/rules-console.tsx
-msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; ops review changes via the candidate flow before promotion."
-msgstr "用于监听规则变更的官方渠道，按来源展示健康状态、频率和采集方式。点击任一行会在新标签页打开官方页面。失败或降级的来源不会静默更新已验证规则；变更需先进入候选流程并由运营复核后才能发布。"
+msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; owners and managers review changes via the candidate flow before promotion."
+msgstr "用于监听规则变化的官方渠道，包括每个来源的健康状态、频率和获取方式。点击任意行可在新标签页打开官方页面。失败或降级的来源永远不会静默更新已验证规则；Owner 和 Manager 会通过候选流程复核变更后再发布。"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Official due date page"
@@ -4221,14 +4159,6 @@ msgstr "运营"
 msgid "Operations command"
 msgstr "运营指挥台"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Ops review"
-msgstr "运营审核"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Ops token"
-msgstr "Ops token"
-
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/readiness.tsx
 msgid "Optional note"
@@ -4363,10 +4293,6 @@ msgid "Paste / Upload"
 msgstr "粘贴 / 上传"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste a JSON array from a provider export, report, or integration handoff. Each object becomes one Migration staging row."
-msgstr "粘贴来自服务商导出、报表或集成交接的 JSON 数组。每个对象都会成为一条迁移暂存行。"
-
-#: src/features/migration/Step1Intake.tsx
 msgid "Paste a JSON array of provider records."
 msgstr "粘贴服务商记录的 JSON 数组。"
 
@@ -4379,16 +4305,16 @@ msgid "Paste here — any shape, we'll figure it out. Include the header row if 
 msgstr "粘贴到这里 —— 任何格式都行，我们会自动识别。如果有表头也请一并粘贴。"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste provider export records"
-msgstr "粘贴服务商导出记录"
+msgid "Paste JSON records from an API, Zapier flow, or converted provider report. For CSV/XLSX exports, switch to Paste / Upload and choose a preset."
+msgstr "粘贴来自 API、Zapier 流程或已转换服务商报表的 JSON records。CSV/XLSX 导出请切换到“粘贴 / 上传”并选择 preset。"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste provider JSON records"
+msgstr "粘贴服务商 JSON records"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste rows"
 msgstr "粘贴行数据"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Paste the configured PULSE_OPS_TOKEN to load the internal workbench."
-msgstr "粘贴已配置的 PULSE_OPS_TOKEN 以加载内部工作台。"
 
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
@@ -4458,6 +4384,10 @@ msgstr "Penalty 应缴税额"
 msgid "Pending"
 msgstr "待处理"
 
+#: src/features/rules/coverage-tab.tsx
+msgid "pending firm review"
+msgstr "待事务所复核"
+
 #: src/features/members/members-page.tsx
 msgid "Pending invitations"
 msgstr "待处理邀请"
@@ -4466,12 +4396,7 @@ msgstr "待处理邀请"
 msgid "Pending invites"
 msgstr "待处理邀请"
 
-#: src/features/rules/coverage-tab.tsx
-msgid "pending ops review"
-msgstr "等待 ops 复核"
-
 #: src/features/audit/audit-log-labels.ts
-#: src/features/pulse/OpsPulsePage.tsx
 msgid "Pending review"
 msgstr "待复核"
 
@@ -4777,29 +4702,13 @@ msgstr "预计风险"
 msgid "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
 msgstr "预计风险反映最新保存的罚金计算。已发生罚金按所选截至日期动态计算。"
 
-#: src/features/migration/Step1Intake.tsx
-msgid "Provider data source"
-msgstr "服务商数据来源"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Provider data still needs review"
-msgstr "服务商数据仍需复核"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Provider export"
-msgstr "服务商导出"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Provider export records"
-msgstr "服务商导出记录"
-
 #: src/routes/billing.tsx
 msgid "Provider hosted"
 msgstr "服务商托管"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Provider records enter the same AI mapper and dry-run flow as CSV imports, while keeping external IDs for future audit and status matching."
-msgstr "服务商记录会进入与 CSV 导入相同的 AI 映射和干运行流程，同时保留外部 ID 供未来审计和状态匹配使用。"
+msgid "Provider JSON records"
+msgstr "服务商 JSON records"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Publish evidence, but generated deadlines still require CPA review."
@@ -4813,10 +4722,6 @@ msgstr "发布模式"
 #: src/features/concepts/concept-help.tsx
 msgid "Pulse"
 msgstr "动态"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Pulse {action} queued"
-msgstr "Pulse {action} 已入队"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/notifications/notifications-page.tsx
@@ -4855,23 +4760,6 @@ msgstr "Pulse 已忽略"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Pulse evidence linked to each obligation"
 msgstr "为每条义务关联监管证据"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Pulse id for manual link"
-msgstr "用于手动链接的 Pulse ID"
-
-#: src/features/pulse/OpsPulsePage.tsx
-#: src/routes/route-summary.ts
-msgid "Pulse Ops"
-msgstr "Pulse Ops"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Pulse ops action failed"
-msgstr "Pulse ops 操作失败"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Pulse ops credentials saved locally"
-msgstr "Pulse ops 凭证已保存在本地"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Pulse quarantined"
@@ -4920,10 +4808,6 @@ msgstr "Pulse 更新已抽取"
 #: src/features/notifications/notifications-page.tsx
 msgid "Pulse updates"
 msgstr "Pulse 更新"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Quarantine"
-msgstr "隔离"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Quarantined"
@@ -5059,10 +4943,6 @@ msgstr "准备就绪，开始导入"
 msgid "Reason"
 msgstr "原因"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Reason for review actions"
-msgstr "复核操作原因"
-
 #: src/features/migration/mapping-target-labels.ts
 msgid "Receipts band"
 msgstr "收入区间"
@@ -5135,7 +5015,6 @@ msgstr "重新生成 URL"
 msgid "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
 msgstr "匹配你事务所客户的监管 Pulse 信号。复核、批量应用截止日变更、暂缓，或重新查看已关闭提醒。"
 
-#: src/features/pulse/OpsPulsePage.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Reject"
 msgstr "拒绝"
@@ -5197,10 +5076,6 @@ msgstr "请求 Pulse 审核"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Request review"
 msgstr "请求审核"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Required for reject, quarantine, and source revoke decisions"
-msgstr "拒绝、隔离和撤销来源时必填"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Required for rule applicability."
@@ -5278,10 +5153,6 @@ msgstr "最终准备状态"
 msgid "Retry"
 msgstr "重试"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Retry extract"
-msgstr "重试提取"
-
 #: src/routes/error.tsx
 msgid "Return home"
 msgstr "返回首页"
@@ -5334,10 +5205,6 @@ msgstr "复核 —— 需 CPA 确认"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Review note"
 msgstr "审核备注"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Review pending Pulse extracts, inspect source health, reconcile signals, and retry failed snapshots. This page uses the token-protected ops API."
-msgstr "复核待处理的 Pulse 提取结果、检查来源健康状态、核对信号并重试失败快照。此页面使用 token 保护的 ops API。"
 
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Review plans"
@@ -5410,10 +5277,6 @@ msgstr "撤销"
 #: src/routes/workboard.tsx
 msgid "Revoke request"
 msgstr "撤销请求"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Revoke source"
-msgstr "撤销来源"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Revoked"
@@ -5596,10 +5459,6 @@ msgstr "与 Pro 相同的事务所 AI"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Sample"
 msgstr "样例"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Save"
-msgstr "保存"
 
 #: src/routes/billing.tsx
 msgid "Save $192/year"
@@ -5802,10 +5661,6 @@ msgstr "选择 {0}"
 msgid "Select a client to inspect the record."
 msgstr "选择一个客户以查看记录。"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Select a Pulse to inspect raw source text."
-msgstr "选择一个 Pulse 以查看来源原文。"
-
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Select all eligible obligations"
 msgstr "选择全部可应用义务"
@@ -5968,18 +5823,6 @@ msgstr "登录失败"
 msgid "Sign-in succeeded"
 msgstr "登录成功"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Signal action queued"
-msgstr "信号操作已入队"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Signal link pass queued"
-msgstr "信号自动链接任务已入队"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Signals"
-msgstr "信号"
-
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signed in"
 msgstr "已登录"
@@ -6002,10 +5845,6 @@ msgstr "智能优先级"
 #: src/routes/practice.tsx
 msgid "Smart Priority saved"
 msgstr "Smart Priority 已保存"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Snapshot retry queued"
-msgstr "快照重试已入队"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Snooze 24h"
@@ -6078,10 +5917,6 @@ msgstr "来源"
 msgid "Source"
 msgstr "来源"
 
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Source action queued"
-msgstr "来源操作已入队"
-
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Source excerpt"
 msgstr "原文摘录"
@@ -6136,14 +5971,13 @@ msgstr "来源约束摘要"
 msgid "Source-defined cal"
 msgstr "来源定义日历"
 
-#: src/features/pulse/OpsPulsePage.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Sources"
 msgstr "来源"
 
 #: src/features/rules/rules-console.tsx
-msgid "Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until ops publishes source-backed dates."
-msgstr "来源为联邦、州和 DC 官方材料。已验证规则可以生成可提醒义务；候选规则在运营发布有来源支撑的日期前仅用于复核。"
+msgid "Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until an owner or manager publishes source-backed dates."
+msgstr "来源是联邦、州和 DC 的官方材料。已验证规则可以生成可提醒的义务；候选规则在 Owner 或 Manager 发布有来源支持的日期前仅供复核。"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Sources watched"
@@ -6488,8 +6322,8 @@ msgid "The stored deadline risk view, mainly based on due date pressure, penalty
 msgstr "已保存的截止日风险视图，主要基于截止日压力、罚金敞口、就绪度和证据状态。"
 
 #: src/features/concepts/concept-help.tsx
-msgid "The system found a possible deadline, but a CPA or operations reviewer must confirm it before it is treated as final."
-msgstr "系统发现可能的截止日，但需要 CPA 或运营复核确认后才会视为最终结果。"
+msgid "The system found a possible deadline, but a CPA, owner, or manager must confirm it before it is treated as final."
+msgstr "系统发现了一个可能的截止日，但必须由 CPA、Owner 或 Manager 确认后才会视为最终结果。"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Theme"
@@ -6498,6 +6332,10 @@ msgstr "主题"
 #: src/components/patterns/keyboard-shell/ShortcutHelpDialog.tsx
 msgid "then"
 msgstr "然后"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "These choices tag JSON records with provider source, infer external entity type, and keep external IDs for future audit and status matching. They do not turn CSV exports into JSON."
+msgstr "这些选择会为 JSON records 标记服务商来源、推断外部实体类型，并保留外部 ID 供未来审计和状态匹配使用。它们不会把 CSV 导出变成 JSON。"
 
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "They are only shown during setup. Store them somewhere private before verification."
@@ -6609,10 +6447,6 @@ msgstr "时区"
 #: src/routes/workboard.tsx
 msgid "Today"
 msgstr "今天"
-
-#: src/features/pulse/OpsPulsePage.tsx
-msgid "Token required"
-msgstr "需要 token"
 
 #: src/lib/i18n-error.ts
 msgid "Too many requests. Please try again in a moment."

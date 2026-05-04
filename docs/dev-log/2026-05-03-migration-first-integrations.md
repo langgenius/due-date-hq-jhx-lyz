@@ -10,8 +10,8 @@
   sync commitments for every vendor.
 - Added `migration_staging_row` for provider JSON provenance and `external_reference` for durable
   links from imported DueDateHQ clients/obligations back to provider objects.
-- Step 1 now supports Paste / Upload, Provider export JSON records, and Reuse provider import.
-- Adjusted entitlement handling so provider export staging is part of the activation migration
+- Step 1 now supports Paste / Upload, JSON handoff records, and Reuse provider import.
+- Adjusted entitlement handling so JSON handoff staging is part of the activation migration
   flow instead of a Team-only guided review; Reuse provider import and staging review remain Team+.
 - Added draft discard from Clients › Import history and corrected the stale Settings › Imports
   History conflict message.
