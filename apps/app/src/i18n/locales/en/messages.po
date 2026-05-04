@@ -622,13 +622,6 @@ msgstr "Alert snoozed"
 msgid "Alert status"
 msgstr "Alert status"
 
-#: src/components/patterns/app-shell-nav.tsx
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-#: src/features/pulse/AlertsListPage.tsx
-#: src/routes/route-summary.ts
-msgid "Alerts"
-msgstr "Alerts"
-
 #: src/features/rules/coverage-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -4150,7 +4143,6 @@ msgid "Opening…"
 msgstr "Opening…"
 
 #: src/components/patterns/app-shell-nav.tsx
-#: src/features/pulse/AlertsListPage.tsx
 #: src/routes/route-summary.ts
 msgid "Operations"
 msgstr "Operations"
@@ -4487,6 +4479,7 @@ msgstr "Portal link copied"
 #: src/features/audit/audit-log-page.tsx
 #: src/features/concepts/concept-help.tsx
 #: src/features/members/members-page.tsx
+#: src/features/pulse/AlertsListPage.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 #: src/routes/practice.tsx
@@ -4753,6 +4746,11 @@ msgstr "Pulse approved"
 msgid "Pulse changed due date from {previous} to {next}"
 msgstr "Pulse changed due date from {previous} to {next}"
 
+#: src/features/pulse/AlertsListPage.tsx
+#: src/features/rules/rules-console.tsx
+msgid "Pulse Changes"
+msgstr "Pulse Changes"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Pulse dismissed"
 msgstr "Pulse dismissed"
@@ -5012,8 +5010,8 @@ msgid "Regenerate URL"
 msgstr "Regenerate URL"
 
 #: src/features/pulse/AlertsListPage.tsx
-msgid "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
-msgstr "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed alerts."
+msgid "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed changes."
+msgstr "Regulatory Pulse signals that match your practice's clients. Review, batch-apply due-date changes, snooze, or revisit closed changes."
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Reject"
@@ -5237,10 +5235,6 @@ msgstr "Review signed-in browsers and revoke stale access."
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source coverage, rule inventory, and obligation preview."
 msgstr "Review source coverage, rule inventory, and obligation preview."
-
-#: src/components/patterns/keyboard-shell/CommandPalette.tsx
-msgid "Review source-backed Pulse alerts."
-msgstr "Review source-backed Pulse alerts."
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Review status is invalid."
@@ -5958,6 +5952,10 @@ msgstr "Source timeline"
 #: src/routes/billing.tsx
 msgid "Source-backed evidence"
 msgstr "Source-backed evidence"
+
+#: src/features/rules/rules-console.tsx
+msgid "Source-backed government changes that may affect client deadlines. Owners and managers review affected clients, apply temporary exceptions, dismiss noise, or revisit closed changes here."
+msgstr "Source-backed government changes that may affect client deadlines. Owners and managers review affected clients, apply temporary exceptions, dismiss noise, or revisit closed changes here."
 
 #: src/routes/billing.tsx
 msgid "Source-backed previews and lightweight migration help for one owner."

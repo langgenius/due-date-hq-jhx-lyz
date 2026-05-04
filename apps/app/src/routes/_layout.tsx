@@ -138,6 +138,7 @@ function pickCurrentFirm(firms: FirmPublic[] | undefined, user: AuthUser): FirmP
     ownerUserId: user.id,
     coordinatorCanSeeDollars: false,
     smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
+    openObligationCount: 0,
     isCurrent: true,
     createdAt: new Date(0).toISOString(),
     updatedAt: new Date(0).toISOString(),

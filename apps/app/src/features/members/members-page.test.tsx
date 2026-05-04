@@ -59,6 +59,7 @@ function firm(overrides: Partial<FirmPublic> = {}): FirmPublic {
     ownerUserId: 'user_1',
     coordinatorCanSeeDollars: false,
     smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
+    openObligationCount: 0,
     isCurrent: true,
     createdAt: '2026-05-03T00:00:00.000Z',
     updatedAt: '2026-05-03T00:00:00.000Z',

@@ -25,6 +25,7 @@ export interface FirmMembershipRow {
   ownerUserId: string
   coordinatorCanSeeDollars: boolean
   smartPriorityProfile: SmartPriorityProfile
+  openObligationCount: number
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null

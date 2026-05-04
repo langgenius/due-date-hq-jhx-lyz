@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull, ne } from 'drizzle-orm'
+import { and, asc, count, desc, eq, inArray, isNull, ne } from 'drizzle-orm'
 import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
 import { rankSmartPriorities, type SmartPriorityProfile } from '@duedatehq/core/priority'
 import type {
@@ -29,6 +29,7 @@ export interface FirmMembershipRow {
   ownerUserId: string
   coordinatorCanSeeDollars: boolean
   smartPriorityProfile: SmartPriorityProfile
+  openObligationCount: number
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -87,6 +88,7 @@ function toMembershipRow(row: {
   ownerUserId: string
   coordinatorCanSeeDollars: boolean
   smartPriorityProfileJson: string | null
+  openObligationCount?: number
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -103,6 +105,7 @@ function toMembershipRow(row: {
     ownerUserId: row.ownerUserId,
     coordinatorCanSeeDollars: row.coordinatorCanSeeDollars,
     smartPriorityProfile: toSmartPriorityProfile(row.smartPriorityProfileJson),
+    openObligationCount: row.openObligationCount ?? 0,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     deletedAt: row.deletedAt,
@@ -178,6 +181,38 @@ export function makeFirmsRepo(db: Db) {
     return toSmartPriorityProfile(row?.smartPriorityProfileJson)
   }
 
+  async function countOpenObligations(firmId: string): Promise<number> {
+    const [row] = await db
+      .select({ value: count() })
+      .from(obligationInstance)
+      .where(
+        and(
+          eq(obligationInstance.firmId, firmId),
+          inArray(obligationInstance.status, [
+            ...OPEN_OBLIGATION_STATUSES,
+          ] satisfies ObligationStatus[]),
+        ),
+      )
+    return row?.value ?? 0
+  }
+
+  async function listOpenObligationCounts(firmIds: string[]): Promise<Map<string, number>> {
+    if (firmIds.length === 0) return new Map()
+    const rows = await db
+      .select({ firmId: obligationInstance.firmId, value: count() })
+      .from(obligationInstance)
+      .where(
+        and(
+          inArray(obligationInstance.firmId, firmIds),
+          inArray(obligationInstance.status, [
+            ...OPEN_OBLIGATION_STATUSES,
+          ] satisfies ObligationStatus[]),
+        ),
+      )
+      .groupBy(obligationInstance.firmId)
+    return new Map(rows.map((row) => [row.firmId, row.value]))
+  }
+
   return {
     async listMine(userId: string): Promise<FirmMembershipRow[]> {
       const rows = await baseFirmSelect(db)
@@ -190,7 +225,10 @@ export function makeFirmsRepo(db: Db) {
           ),
         )
         .orderBy(desc(firmProfile.updatedAt), asc(firmProfile.name))
-      return rows.map(toMembershipRow)
+      const counts = await listOpenObligationCounts(rows.map((row) => row.id))
+      return rows.map((row) =>
+        toMembershipRow({ ...row, openObligationCount: counts.get(row.id) ?? 0 }),
+      )
     },
 
     async listOwnedActive(userId: string): Promise<FirmMembershipRow[]> {
@@ -205,7 +243,10 @@ export function makeFirmsRepo(db: Db) {
           ),
         )
         .orderBy(desc(firmProfile.updatedAt), asc(firmProfile.name))
-      return rows.map(toMembershipRow)
+      const counts = await listOpenObligationCounts(rows.map((row) => row.id))
+      return rows.map((row) =>
+        toMembershipRow({ ...row, openObligationCount: counts.get(row.id) ?? 0 }),
+      )
     },
 
     async findActiveForUser(
@@ -223,7 +264,11 @@ export function makeFirmsRepo(db: Db) {
           ),
         )
         .limit(1)
-      return rows[0] ? toMembershipRow(rows[0]) : undefined
+      if (!rows[0]) return undefined
+      return toMembershipRow({
+        ...rows[0],
+        openObligationCount: await countOpenObligations(rows[0].id),
+      })
     },
 
     async updateProfile(firmId: string, input: FirmUpdateInput): Promise<void> {

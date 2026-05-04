@@ -475,7 +475,7 @@
 
 **Phase 0 不再作为独立模块交付。** 原来由这个模块覆盖的能力已分流：
 
-- **用户通知** → Notification center 的 in-app rows + Pulse Pipeline 的 Email Outbox（Resend）+ Web Shell 的 in-app toast / Dashboard banner slot。Pulse alert 到达会深链到 `/alerts`，真正的 apply / dismiss / snooze / revert 仍在 Alerts 工作台完成。
+- **用户通知** → Notification center 的 in-app rows + Pulse Pipeline 的 Email Outbox（Resend）+ Web Shell 的 in-app toast / Dashboard banner slot。Pulse alert 到达会深链到 `/rules?tab=pulse&alert=<id>`，真正的 apply / dismiss / snooze / revert 在 Rules > Pulse Changes 完成。
 - **Installable / Dock 驻留** → 推迟到 Phase 2 Tauri menu bar widget 统一覆盖。
 - **Badge / Web Push** → 不做；与对齐 `00-Overview.md §7` 和 `01-Tech-Stack.md §2.1` 的否决矩阵。
 

@@ -69,6 +69,7 @@ const MOCK_FIRM: FirmPublic = {
   ownerUserId: 'user_mock_001',
   coordinatorCanSeeDollars: false,
   smartPriorityProfile: SMART_PRIORITY_DEFAULT_PROFILE,
+  openObligationCount: 5,
   isCurrent: true,
   createdAt: ISO_NOW,
   updatedAt: ISO_NOW,

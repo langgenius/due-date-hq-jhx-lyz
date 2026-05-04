@@ -106,6 +106,7 @@ export const FirmPublicSchema = z.object({
   ownerUserId: z.string().min(1),
   coordinatorCanSeeDollars: z.boolean(),
   smartPriorityProfile: SmartPriorityProfileSchema.nullable(),
+  openObligationCount: z.number().int().min(0),
   isCurrent: z.boolean(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),

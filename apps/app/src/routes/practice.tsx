@@ -50,6 +50,7 @@ import {
   TableHeader,
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 import { ConceptHelp, ConceptLabel } from '@/features/concepts/concept-help'
 import { FirmTimezoneSelect, resolveUSFirmTimezone } from '@/features/firm/timezone-select'
 import {
@@ -322,6 +323,8 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
     priorityProfile.historyCapCount >= MIN_HISTORY_CAP_COUNT &&
     priorityProfile.historyCapCount <= MAX_HISTORY_CAP_COUNT
   const priorityDirty = !samePriorityProfile(priorityProfile, savedPriorityProfile)
+  const previewDisabledReason =
+    firm.openObligationCount === 0 ? t`No open obligations available for preview.` : null
   const currentPlan =
     firm.plan === 'firm'
       ? t`Enterprise`
@@ -569,19 +572,34 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
                     <RotateCcwIcon className="size-4" aria-hidden />
                     <Trans>Reset to default</Trans>
                   </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={calculatePriorityPreview}
-                    disabled={!priorityValid || previewMutation.isPending}
-                  >
-                    <CalculatorIcon className="size-4" aria-hidden />
-                    {previewMutation.isPending ? (
-                      <Trans>Calculating…</Trans>
-                    ) : (
-                      <Trans>Calculate preview</Trans>
-                    )}
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span className="inline-flex">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={calculatePriorityPreview}
+                            disabled={
+                              !priorityValid ||
+                              previewMutation.isPending ||
+                              Boolean(previewDisabledReason)
+                            }
+                          >
+                            <CalculatorIcon className="size-4" aria-hidden />
+                            {previewMutation.isPending ? (
+                              <Trans>Calculating…</Trans>
+                            ) : (
+                              <Trans>Calculate preview</Trans>
+                            )}
+                          </Button>
+                        </span>
+                      }
+                    />
+                    {previewDisabledReason ? (
+                      <TooltipContent>{previewDisabledReason}</TooltipContent>
+                    ) : null}
+                  </Tooltip>
                   <Button
                     type="button"
                     onClick={savePriorityProfile}

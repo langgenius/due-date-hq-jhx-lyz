@@ -59,6 +59,7 @@ function toFirmPublic(
     smartPriorityProfile: canReadSmartPriorityProfile(row, userId)
       ? row.smartPriorityProfile
       : null,
+    openObligationCount: row.openObligationCount,
     isCurrent: row.id === currentFirmId,
     createdAt: toIso(row.createdAt),
     updatedAt: toIso(row.updatedAt),
