@@ -113,7 +113,7 @@ src/i18n/
 - `src/lib/rpc.ts` + `src/lib/auth.ts` —— 两处都通过 `attachLocaleHeader(headers)`
   注入来自 `@duedatehq/i18n` 的 `LOCALE_HEADER`，避免字面量散落在多处。
 
-已替换所有硬编码文案的路由：`_layout`、`login`、`dashboard`、`workboard`、
+已替换所有硬编码文案的路由：`_layout`、`login`、`dashboard`、`obligations`、
 `settings`、`error`。语言切换器位于 `UserMenu` 下的 `DropdownMenuSub`，在
 侧边栏 panel 与顶栏 compact 两种形态下都可见。`activateLocale()` 内部会把
 `<html lang>` 同步到当前 locale，满足无障碍需求。

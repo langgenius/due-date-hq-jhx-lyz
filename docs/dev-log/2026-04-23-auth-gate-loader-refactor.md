@@ -43,7 +43,7 @@ updates:
 1. **两个顶级路由组 + 两个 loader**：
    - `/login` 挂 `guestLoader`：session 命中则 `throw redirect(redirectTo || '/')`；`redirectTo` 只接受以 `/` 开头的 in-app 路径（防 open redirect）。
    - `/` 挂 `protectedLoader`（路由 id = `protected`）：session 未命中则 `throw redirect('/login?redirectTo=<当前 pathname+search>')`；命中返回 `{ user }`。
-2. **`shouldRevalidate`**：同 pathname 内的子路由切换跳过 session 重取；form 提交走默认。避免在 `/` ↔ `/workboard` ↔ `/settings` 之间来回点时每次打 `/api/auth/get-session`。
+2. **`shouldRevalidate`**：同 pathname 内的子路由切换跳过 session 重取；form 提交走默认。避免在 `/` ↔ `/obligations` ↔ `/settings` 之间来回点时每次打 `/api/auth/get-session`。
 3. **`HydrateFallback: ShellSkeleton`**：初次 loader 期间 RR 自动渲染骨架屏，取代原来组件里的 `if (isPending) return <ShellSkeleton />`。
 4. **受保护组件不再订阅 `useSession`**：`RootLayout` 用 `useLoaderData<{ user }>()` 直接拿 user。这样 sign-out 清 better-auth store 时没有任何组件会因此 re-render。
 5. **Sign-out 改用 `useTransition` async action**：
@@ -93,7 +93,7 @@ pnpm --filter @duedatehq/app exec vp test --run   # 既有单测全绿
 
 手工验证路径（需本地跑 `apps/server` + `apps/app`）：
 
-- 未登录访问 `/`、`/workboard`、`/settings` → 自动跳 `/login?redirectTo=<路径>`
+- 未登录访问 `/`、`/obligations`、`/settings` → 自动跳 `/login?redirectTo=<路径>`
 - 未登录访问 `/` → 跳 `/login`（不带 `redirectTo`）
 - `/login` 输错 `?redirectTo=https://evil.com` → 被 fallback 为 `/`
 - 已登录访问 `/login` → 直接跳回 `redirectTo` 或 `/`

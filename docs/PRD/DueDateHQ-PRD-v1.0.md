@@ -1425,7 +1425,7 @@ Render
   /evidence                 Evidence Mode 抽屉组件（复用）
   /penalty                  Penalty Radar 徽章 + 顶栏
   /pulse                    Alert feed + apply panel
-  /workboard                TanStack Table 封装
+  /obligations                TanStack Table 封装
 /components
   ...
   /migration                Intake / Mapper / Normalize / Preview / Genesis animation

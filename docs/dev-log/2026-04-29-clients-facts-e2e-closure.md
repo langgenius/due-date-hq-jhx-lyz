@@ -10,14 +10,14 @@ author: 'Codex'
 
 The Clients surface had browser coverage for shell navigation and manual client
 creation, but the new facts workbench needed product-loop coverage for the data
-that feeds rules, Workboard accountability, Dashboard risk, and Pulse matching.
+that feeds rules, Obligations accountability, Dashboard risk, and Pulse matching.
 
 ## Changes
 
 - Extended `e2e/pages/clients-page.ts` with stable actions and locators for
   entity/state filters, KPI cards, filtered empty state, and the Fact Profile
   Sheet.
-- Expanded `e2e/tests/clients.spec.ts` with seeded `workboard` coverage:
+- Expanded `e2e/tests/clients.spec.ts` with seeded `obligations` coverage:
   - readiness KPI summary for four ready manual clients
   - row-level facts for source, entity, jurisdiction, owner, and unassigned owner
   - entity/state/search URL filters plus no-results empty state
@@ -36,7 +36,7 @@ that feeds rules, Workboard accountability, Dashboard risk, and Pulse matching.
 ## Follow-ups
 
 - Add a dedicated Clients seed for missing required facts so the warning/readiness
-  path can be tested without destabilizing Workboard fixtures.
+  path can be tested without destabilizing Obligations fixtures.
 - Add import convergence coverage from `/clients` into Migration apply, then back
-  to Clients and Workboard to prove imported and manual clients share the same
+  to Clients and Obligations to prove imported and manual clients share the same
   product model.

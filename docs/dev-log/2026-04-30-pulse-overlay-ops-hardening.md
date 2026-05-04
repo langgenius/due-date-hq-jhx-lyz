@@ -21,7 +21,7 @@ manual SQL or the narrow review CLI.
   applications instead of directly updating `obligation_instance.current_due_date`.
 - Changed Pulse revert to expire active exception applications and retract the source-backed
   exception rule, while keeping `pulse_application` as the audit/revert index.
-- Updated Workboard, Dashboard, and obligation read repos to derive visible current due dates from
+- Updated Obligations, Dashboard, and obligation read repos to derive visible current due dates from
   base obligation rows plus active overlays.
 - Split `pulse_approved` and `pulse_applied` digest rendering so review-available emails no longer
   read the applied payload shape or use the wrong subject.
@@ -48,5 +48,5 @@ manual SQL or the narrow review CLI.
 
 - `pnpm --filter @duedatehq/ingest test`
 - `pnpm --filter @duedatehq/contracts test`
-- `pnpm --filter @duedatehq/db test -- pulse workboard`
+- `pnpm --filter @duedatehq/db test -- pulse obligations`
 - `pnpm --filter @duedatehq/server test -- pulse ingest ops queue outbox`

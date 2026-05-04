@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test'
 
-export class WorkboardPage {
+export class ObligationQueuePage {
   readonly heading: Locator
   readonly searchInput: Locator
   readonly resetButton: Locator
@@ -25,7 +25,7 @@ export class WorkboardPage {
     this.comfortableTab = page.getByRole('tab', { name: 'Comfortable' })
   }
 
-  async goto(path = '/workboard') {
+  async goto(path = '/obligations') {
     await this.page.goto(path)
   }
 

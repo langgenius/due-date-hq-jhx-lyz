@@ -12,7 +12,7 @@ import type { ObligationsRepo } from './obligations'
 import type { PulseRepo } from './pulse'
 import type { ReadinessRepo } from './readiness'
 import type { RulesRepo } from './rules'
-import type { WorkboardRepo } from './workboard'
+import type { ObligationQueueRepo } from './obligation-queue'
 import type { WorkloadRepo } from './workload'
 
 export interface ScopedRepo {
@@ -24,7 +24,7 @@ export interface ScopedRepo {
   readonly clients: ClientsRepo
   readonly dashboard: DashboardRepo
   readonly obligations: ObligationsRepo
-  readonly workboard: WorkboardRepo
+  readonly obligationQueue: ObligationQueueRepo
   readonly workload: WorkloadRepo
   readonly pulse: PulseRepo
   readonly readiness: ReadinessRepo

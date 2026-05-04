@@ -4,7 +4,7 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { authSchema, createDb, firmSchema, scoped } from '@duedatehq/db'
 import type { ContextVars, Env } from '../env'
 
-type SeedMode = 'empty' | 'workboard' | 'pulse'
+type SeedMode = 'empty' | 'obligations' | 'pulse'
 type DemoRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
 type DemoPlan = 'solo' | 'pro' | 'team'
 type SeedRole = DemoRole
@@ -262,9 +262,9 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
     const seeded =
       seed === 'pulse'
         ? await seedPulse(db, firmId, userId)
-        : seed === 'workboard'
-          ? await seedWorkboard(db, firmId)
-          : { workboardRows: [] }
+        : seed === 'obligations'
+          ? await seedObligationQueue(db, firmId)
+          : { obligationQueueRows: [] }
     const signedToken = `${token}.${await makeSignature(token, c.env.AUTH_SECRET)}`
     const requestUrl = new URL(c.req.url)
     const cookie = {
@@ -603,7 +603,7 @@ async function readSeedRequest(request: Request): Promise<E2ESeedRequest> {
     const role = (raw as { role?: unknown }).role
     const testId = (raw as { testId?: unknown }).testId
     return {
-      seed: seed === 'pulse' || seed === 'workboard' ? seed : 'empty',
+      seed: seed === 'pulse' || seed === 'obligations' ? seed : 'empty',
       role: isDemoRole(role) ? role : 'owner',
       ...(typeof testId === 'string' ? { testId } : {}),
     }
@@ -678,7 +678,7 @@ function buildStableSuffix(value: string | undefined): string {
   return `${titleSlug || 'session'}_${randomSlug}`
 }
 
-async function seedWorkboard(db: ReturnType<typeof createDb>, firmId: string) {
+async function seedObligationQueue(db: ReturnType<typeof createDb>, firmId: string) {
   const repo = scoped(db, firmId)
   const arbor = {
     id: crypto.randomUUID(),
@@ -763,7 +763,7 @@ async function seedWorkboard(db: ReturnType<typeof createDb>, firmId: string) {
   ])
 
   return {
-    workboardRows: [
+    obligationQueueRows: [
       { clientName: arbor.name, status: 'pending' },
       { clientName: northstar.name, status: 'review' },
       { clientName: copperline.name, status: 'waiting_on_client' },
@@ -928,7 +928,7 @@ async function seedPulse(db: ReturnType<typeof createDb>, firmId: string, userId
   ])
 
   return {
-    workboardRows: [
+    obligationQueueRows: [
       { clientName: arbor.name, status: 'pending' },
       { clientName: bright.name, status: 'review' },
       { clientName: northstar.name, status: 'pending' },

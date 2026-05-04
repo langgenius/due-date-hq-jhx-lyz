@@ -30,7 +30,7 @@ Settings 前缀：Rules、Members、Billing 和 firm profile 都挂在二级 Set
 - AppShell `Organization` group 增加 `Firm profile`，并使用 `Building2` icon；Rules 使用
   `FileCheck2`，Billing 使用 `CreditCard`，Members 使用 `Users`，Audit log 使用 `Scale`。
 - User menu 移除 firm profile 入口，避免把 firm-level profile 误表达成 user account profile。
-- Cmd-K `Navigate` 直接列出一级页面：Dashboard、Workboard、Alerts、Team workload、Clients、
+- Cmd-K `Navigate` 直接列出一级页面：Dashboard、Obligations、Alerts、Team workload、Clients、
   Firm profile、Rules、Members、Billing、Audit log；删除聚合 Settings 命令。
 - E2E page objects 和 URL 断言改为一级路径。
 - 更新稳定架构文档、设计规范、E2E 文档和 Rules product design。

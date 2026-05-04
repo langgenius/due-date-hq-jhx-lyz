@@ -64,7 +64,7 @@ async function renderLogin(initialEntry = '/login') {
   await render(
     <Routes>
       <Route path="/login" element={<LoginRoute />} />
-      <Route path="/workboard" element={<div>Obligations target</div>} />
+      <Route path="/obligations" element={<div>Obligations target</div>} />
     </Routes>,
     initialEntry,
   )
@@ -167,7 +167,7 @@ describe('LoginRoute email OTP', () => {
   })
 
   it('verifies the code and navigates to redirectTo', async () => {
-    await renderLogin('/login?redirectTo=/workboard')
+    await renderLogin('/login?redirectTo=/obligations')
     await waitForText('Email me a code')
 
     const emailInput = requireInput(document.querySelector<HTMLInputElement>('input[type="email"]'))

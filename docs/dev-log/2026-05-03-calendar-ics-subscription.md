@@ -3,7 +3,7 @@
 ## Summary
 
 - Added lightweight one-way calendar subscriptions for DueDateHQ deadlines.
-- Added Calendar sync as a Workboard secondary page with `My deadlines` and Owner/Manager-only
+- Added Calendar sync as a Obligations secondary page with `My deadlines` and Owner/Manager-only
   `Firm-wide calendar` feeds.
 - Added tokenized `/api/ics/:token` feed generation for Google Calendar, Apple Calendar, and
   Outlook subscription flows.
@@ -17,7 +17,7 @@
 - Added privacy modes: redacted client names by default, optional full client names.
 - Fixed the shared Select layout so popups expand to fit option labels while trailing check
   indicators keep their own space.
-- Updated the Calendar page's Workboard shortcut to use the primary blue button style.
+- Updated the Calendar page's Obligations shortcut to use the primary blue button style.
 - Calendar subscription URLs now use the Worker/API origin (`AUTH_URL`) instead of the SPA origin
   (`APP_URL`), so local Apple Calendar subscriptions open `localhost:8787` directly instead of
   `localhost:5173`.
@@ -30,12 +30,12 @@
   direct `http://localhost:<port>` subscription URLs. The app now only generates Apple Calendar
   direct-subscribe `webcal://` links for HTTPS feeds; local HTTP dev feeds show an explanatory
   toast instead of launching a failing Calendar request.
-- Calendar sync now uses `/workboard/calendar` as the canonical app URL. The old `/calendar`
+- Calendar sync now uses `/obligations/calendar` as the canonical app URL. The old `/calendar`
   route redirects there, and the sidebar no longer lists Calendar as an Operations peer.
-- Calendar sync now exposes an explicit secondary `Back to Workboard` action with a left-arrow
+- Calendar sync now exposes an explicit secondary `Back to Obligations` action with a left-arrow
   icon at the top of the page.
 - Authenticated shell E2E now asserts that Calendar sync keeps the return link back to
-  `/workboard`.
+  `/obligations`.
 
 ## Validation
 
@@ -48,7 +48,7 @@
 - `pnpm build` (completed; Wrangler dry-run emitted a sandbox log-file `EPERM` warning before
   continuing)
 - `pnpm check` after Select layout fix
-- `pnpm check` after Workboard shortcut style update
+- `pnpm check` after Obligations shortcut style update
 - `pnpm --filter @duedatehq/server test -- calendar`
 - `pnpm --filter @duedatehq/server test -- ics`
 - `pnpm --filter @duedatehq/app test -- calendar`
@@ -57,4 +57,4 @@
 - `pnpm --filter @duedatehq/app test -- router calendar`
 - `pnpm check`
 - `pnpm test:e2e e2e/tests/authenticated-shell.spec.ts --project=chromium --workers=1`
-- `pnpm test:e2e e2e/tests/workboard.spec.ts --project=chromium --workers=1`
+- `pnpm test:e2e e2e/tests/obligations.spec.ts --project=chromium --workers=1`

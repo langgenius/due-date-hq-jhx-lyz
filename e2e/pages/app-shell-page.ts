@@ -3,7 +3,7 @@ import type { Locator, Page } from '@playwright/test'
 export class AppShellPage {
   readonly primaryNavigation: Locator
   readonly dashboardLink: Locator
-  readonly workboardLink: Locator
+  readonly obligationQueueLink: Locator
   readonly clientsLink: Locator
   readonly rulesLink: Locator
   readonly importClientsButton: Locator
@@ -14,7 +14,7 @@ export class AppShellPage {
   constructor(readonly page: Page) {
     this.primaryNavigation = page.getByRole('navigation', { name: 'Primary navigation' })
     this.dashboardLink = page.getByRole('link', { name: /Dashboard/ })
-    this.workboardLink = page.getByRole('link', { name: /Obligations/ })
+    this.obligationQueueLink = page.getByRole('link', { name: /Obligations/ })
     this.clientsLink = page.getByRole('link', { name: 'Clients' })
     this.rulesLink = page.getByRole('link', { name: 'Rules' })
     this.importClientsButton = page

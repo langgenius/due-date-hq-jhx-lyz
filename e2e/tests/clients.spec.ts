@@ -51,7 +51,7 @@ test('AC: E2E-CLIENTS-CREATE creates a manual client through oRPC', async ({
 })
 
 test.describe('seeded client facts', () => {
-  test.use({ authSeed: 'workboard' })
+  test.use({ authSeed: 'obligations' })
 
   test('AC: E2E-CLIENTS-FACTS-SEED summarizes ready seeded clients', async ({ clientsPage }) => {
     await clientsPage.goto()

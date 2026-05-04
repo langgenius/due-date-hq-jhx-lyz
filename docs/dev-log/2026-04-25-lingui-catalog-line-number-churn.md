@@ -8,7 +8,7 @@ date: 2026-04-25
 ## Context
 
 Lingui PO catalogs include source origin comments by default. With line numbers enabled, moving code
-or adding unrelated lines can update entries such as `#: src/routes/workboard.tsx:117` even when the
+or adding unrelated lines can update entries such as `#: src/routes/obligations.tsx:117` even when the
 message and translation did not change.
 
 That makes i18n diffs noisy and increases merge conflict risk for routine UI edits.

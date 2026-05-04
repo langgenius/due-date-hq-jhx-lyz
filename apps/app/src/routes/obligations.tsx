@@ -50,21 +50,21 @@ import {
 import { toast } from 'sonner'
 
 import {
-  WORKBOARD_SEARCH_MAX_LENGTH,
-  WORKBOARD_FILTER_MAX_SELECTIONS,
+  OBLIGATION_QUEUE_SEARCH_MAX_LENGTH,
+  OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS,
   ReadinessChecklistItemSchema,
-  WorkboardDetailTabSchema,
+  ObligationQueueDetailTabSchema,
   type MemberAssigneeOption,
-  type WorkboardDetail,
-  type WorkboardColumnVisibility,
+  type ObligationQueueDetail,
+  type ObligationQueueColumnVisibility,
   type ReadinessChecklistItem,
-  type WorkboardDetailTab,
-  type WorkboardDensity,
-  type WorkboardFacetOption,
-  type WorkboardListInput,
-  type WorkboardRow,
-  type WorkboardSavedView,
-  type WorkboardSort,
+  type ObligationQueueDetailTab,
+  type ObligationQueueDensity,
+  type ObligationQueueFacetOption,
+  type ObligationQueueListInput,
+  type ObligationQueueRow,
+  type ObligationQueueSavedView,
+  type ObligationQueueSort,
   type AiInsightPublic,
 } from '@duedatehq/contracts'
 import { Badge, BadgeStatusDot } from '@duedatehq/ui/components/ui/badge'
@@ -143,14 +143,14 @@ import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
   ALL_READINESSES,
   ALL_STATUSES,
-  WorkboardReadinessControl,
-  WorkboardStatusControl,
+  ObligationQueueReadinessControl,
+  ObligationQueueStatusControl,
   isObligationReadiness,
   useStatusLabels,
   useReadinessLabels,
   type ObligationReadiness,
   type ObligationStatus,
-} from '@/features/workboard/status-control'
+} from '@/features/obligations/status-control'
 import { queryInputUrlUpdateRateLimit, useDebouncedQueryInput } from '@/lib/query-rate-limit'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -162,8 +162,8 @@ declare module '@tanstack/react-table' {
     cellClassName?: string
   }
 }
-type WorkboardCursor = NonNullable<WorkboardListInput['cursor']> | null
-type WorkboardListInputWithoutCursor = Omit<WorkboardListInput, 'cursor'>
+type ObligationQueueCursor = NonNullable<ObligationQueueListInput['cursor']> | null
+type ObligationQueueListInputWithoutCursor = Omit<ObligationQueueListInput, 'cursor'>
 
 const ALL_SORTS = [
   'smart_priority',
@@ -172,7 +172,7 @@ const ALL_SORTS = [
   'exposure_desc',
   'exposure_asc',
   'updated_desc',
-] as const satisfies readonly WorkboardSort[]
+] as const satisfies readonly ObligationQueueSort[]
 const OWNER_FILTERS = ['unassigned'] as const
 const DUE_FILTERS = ['overdue'] as const
 const EXPOSURE_FILTERS = ['ready', 'needs_input', 'unsupported'] as const
@@ -180,28 +180,31 @@ const EVIDENCE_FILTERS = ['needs'] as const
 const DETAIL_DRAWERS = ['obligation'] as const
 const DETAIL_TABS = ['readiness', 'extension', 'risk', 'evidence', 'audit'] as const
 const READINESS_FILTERS = ALL_READINESSES
-const DENSITY_OPTIONS = ['comfortable', 'compact'] as const satisfies readonly WorkboardDensity[]
-const DEFAULT_SORT: WorkboardSort = 'smart_priority'
-const DEFAULT_DENSITY: WorkboardDensity = 'comfortable'
+const DENSITY_OPTIONS = [
+  'comfortable',
+  'compact',
+] as const satisfies readonly ObligationQueueDensity[]
+const DEFAULT_SORT: ObligationQueueSort = 'smart_priority'
+const DEFAULT_DENSITY: ObligationQueueDensity = 'comfortable'
 const DEADLINE_TIP_REFRESH_POLL_INTERVAL_MS = 3_000
 const DEADLINE_TIP_REFRESH_TIMEOUT_MS = 60_000
-const EMPTY_WORKBOARD_ROWS: WorkboardRow[] = []
-const EMPTY_SAVED_VIEWS: WorkboardSavedView[] = []
+const EMPTY_OBLIGATION_QUEUE_ROWS: ObligationQueueRow[] = []
+const EMPTY_SAVED_VIEWS: ObligationQueueSavedView[] = []
 const EMPTY_ASSIGNEES: MemberAssigneeOption[] = []
 const EMPTY_CHECKLIST: ReadinessChecklistItem[] = []
 const EMPTY_FACET_OPTIONS: FilterOption[] = []
 const EMPTY_CLIENT_OPTIONS: ClientFilterOption[] = []
 const EMPTY_COUNTY_OPTIONS: CountyFilterOption[] = []
-const INITIAL_CURSOR: WorkboardCursor = null
+const INITIAL_CURSOR: ObligationQueueCursor = null
 const PAGE_SIZE = 50
 const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
 const DAYS_FILTER_MIN = -3650
 const DAYS_FILTER_MAX = 3650
 const THIS_WEEK_MAX_DAYS = 7
 const UNASSIGNED_OWNER_OPTION = '__unassigned__'
-const WORKBOARD_TABLE_PILL_CLASSNAME = 'text-xs'
+const OBLIGATION_QUEUE_TABLE_PILL_CLASSNAME = 'text-xs'
 const NON_HIDEABLE_COLUMNS = new Set(['select'])
-const WORKBOARD_ROW_CONTROL_SELECTOR =
+const OBLIGATION_QUEUE_ROW_CONTROL_SELECTOR =
   'button,a[href],input,label,select,textarea,[role="button"],[role="checkbox"],[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"],[role="option"],[role="radio"],[role="tab"],[data-slot="checkbox"]'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const STATE_CODE_RE = /^[A-Z]{2}$/
@@ -212,8 +215,8 @@ interface GeneratedReadinessChecklistDraft {
   createdAtMs: number
 }
 
-function isWorkboardDetailTab(value: string): value is WorkboardDetailTab {
-  return WorkboardDetailTabSchema.safeParse(value).success
+function isObligationQueueDetailTab(value: string): value is ObligationQueueDetailTab {
+  return ObligationQueueDetailTabSchema.safeParse(value).success
 }
 
 function parseGeneratedReadinessChecklist(value: string | null): ReadinessChecklistItem[] | null {
@@ -227,7 +230,7 @@ function parseGeneratedReadinessChecklist(value: string | null): ReadinessCheckl
 }
 
 function latestGeneratedReadinessChecklistDraft(
-  evidence: WorkboardDetail['evidence'],
+  evidence: ObligationQueueDetail['evidence'],
 ): GeneratedReadinessChecklistDraft | null {
   let latest: GeneratedReadinessChecklistDraft | null = null
 
@@ -263,7 +266,7 @@ interface CountyFilterOption extends FilterOption {
   state: string | null
 }
 
-export const workboardSearchParamsParsers = {
+export const obligationQueueSearchParamsParsers = {
   q: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
   status: parseAsArrayOf(parseAsStringLiteral(ALL_STATUSES))
     .withDefault([])
@@ -304,7 +307,7 @@ export const workboardSearchParamsParsers = {
   row: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
 } as const
 
-export type WorkboardSearchParams = inferParserType<typeof workboardSearchParamsParsers>
+export type ObligationQueueSearchParams = inferParserType<typeof obligationQueueSearchParamsParsers>
 
 export function isThisWeekFilterActive(daysMin: number | null, daysMax: number | null): boolean {
   return daysMin === null && daysMax === THIS_WEEK_MAX_DAYS
@@ -313,7 +316,7 @@ export function isThisWeekFilterActive(daysMin: number | null, daysMax: number |
 export function nextThisWeekFilterPatch(
   daysMin: number | null,
   daysMax: number | null,
-): Partial<WorkboardSearchParams> {
+): Partial<ObligationQueueSearchParams> {
   const isActive = isThisWeekFilterActive(daysMin, daysMax)
   return {
     dueWithin: null,
@@ -325,7 +328,7 @@ export function nextThisWeekFilterPatch(
   }
 }
 
-function isWorkboardSort(value: string): value is WorkboardSort {
+function isObligationQueueSort(value: string): value is ObligationQueueSort {
   return ALL_SORTS.some((sortOption) => sortOption === value)
 }
 
@@ -333,7 +336,7 @@ function isObligationStatus(value: string): value is ObligationStatus {
   return ALL_STATUSES.some((status) => status === value)
 }
 
-function useSortLabels(): Record<WorkboardSort, string> {
+function useSortLabels(): Record<ObligationQueueSort, string> {
   const { t } = useLingui()
   return useMemo(
     () => ({
@@ -348,7 +351,7 @@ function useSortLabels(): Record<WorkboardSort, string> {
   )
 }
 
-function getSortingState(sort: WorkboardSort): SortingState {
+function getSortingState(sort: ObligationQueueSort): SortingState {
   if (sort === 'smart_priority') return [{ id: 'smartPriority', desc: true }]
   if (sort === 'due_desc') return [{ id: 'currentDueDate', desc: true }]
   if (sort === 'exposure_desc') return [{ id: 'estimatedExposureCents', desc: true }]
@@ -357,7 +360,7 @@ function getSortingState(sort: WorkboardSort): SortingState {
   return [{ id: 'currentDueDate', desc: false }]
 }
 
-function withDefaultSortCleared(sort: WorkboardSort): WorkboardSort | null {
+function withDefaultSortCleared(sort: ObligationQueueSort): ObligationQueueSort | null {
   return sort === DEFAULT_SORT ? null : sort
 }
 
@@ -367,17 +370,17 @@ function nextHeaderSort({
   descSort,
   firstSort,
 }: {
-  currentSort: WorkboardSort
-  ascSort: WorkboardSort
-  descSort: WorkboardSort
-  firstSort: WorkboardSort
-}): WorkboardSort {
+  currentSort: ObligationQueueSort
+  ascSort: ObligationQueueSort
+  descSort: ObligationQueueSort
+  firstSort: ObligationQueueSort
+}): ObligationQueueSort {
   if (currentSort !== ascSort && currentSort !== descSort) return firstSort
   if (currentSort === firstSort) return firstSort === ascSort ? descSort : ascSort
   return DEFAULT_SORT
 }
 
-function workboardColumnAriaSort(columnId: string, sort: WorkboardSort) {
+function obligationQueueColumnAriaSort(columnId: string, sort: ObligationQueueSort) {
   if (columnId === 'currentDueDate') {
     if (sort === 'due_asc') return 'ascending'
     if (sort === 'due_desc') return 'descending'
@@ -391,7 +394,7 @@ function workboardColumnAriaSort(columnId: string, sort: WorkboardSort) {
   return undefined
 }
 
-function withDefaultDensityCleared(density: WorkboardDensity): WorkboardDensity | null {
+function withDefaultDensityCleared(density: ObligationQueueDensity): ObligationQueueDensity | null {
   return density === DEFAULT_DENSITY ? null : density
 }
 
@@ -402,7 +405,7 @@ function cleanStringFilters(values: readonly string[], maxLength = 120): string[
         .map((value) => value.trim())
         .filter((value) => value.length > 0 && value.length <= maxLength),
     ),
-  ].slice(0, WORKBOARD_FILTER_MAX_SELECTIONS)
+  ].slice(0, OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS)
 }
 
 function cleanEntityIdFilters(values: readonly string[]): string[] {
@@ -461,10 +464,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function isWorkboardRowControlClick(target: EventTarget | null): boolean {
+function isObligationQueueRowControlClick(target: EventTarget | null): boolean {
   if (isInteractiveEventTarget(target)) return true
   if (!(target instanceof HTMLElement)) return false
-  return Boolean(target.closest(WORKBOARD_ROW_CONTROL_SELECTOR))
+  return Boolean(target.closest(OBLIGATION_QUEUE_ROW_CONTROL_SELECTOR))
 }
 
 function stringArrayFromUnknown(value: unknown): string[] {
@@ -473,7 +476,7 @@ function stringArrayFromUnknown(value: unknown): string[] {
     : []
 }
 
-function savedViewQueryPatch(query: unknown): Partial<WorkboardSearchParams> {
+function savedViewQueryPatch(query: unknown): Partial<ObligationQueueSearchParams> {
   if (!isRecord(query)) return {}
   return {
     q: typeof query.q === 'string' ? query.q : '',
@@ -501,7 +504,10 @@ function savedViewQueryPatch(query: unknown): Partial<WorkboardSearchParams> {
     daysMin: typeof query.daysMin === 'number' ? query.daysMin : null,
     daysMax: typeof query.daysMax === 'number' ? query.daysMax : null,
     asOf: typeof query.asOf === 'string' ? query.asOf : null,
-    sort: typeof query.sort === 'string' && isWorkboardSort(query.sort) ? query.sort : DEFAULT_SORT,
+    sort:
+      typeof query.sort === 'string' && isObligationQueueSort(query.sort)
+        ? query.sort
+        : DEFAULT_SORT,
     row: null,
   }
 }
@@ -521,7 +527,7 @@ function downloadBase64File(input: {
   URL.revokeObjectURL(url)
 }
 
-function facetOptionToFilterOption(option: WorkboardFacetOption): FilterOption {
+function facetOptionToFilterOption(option: ObligationQueueFacetOption): FilterOption {
   return {
     value: option.value,
     label: option.label,
@@ -544,7 +550,7 @@ function dueDaysTone(days: number): DueDaysTone {
   return { variant: 'success', dot: 'success' }
 }
 
-export function WorkboardRoute() {
+export function ObligationQueueRoute() {
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const { openWizard } = useMigrationWizard()
@@ -587,9 +593,9 @@ export function WorkboardRoute() {
       view: activeSavedViewId,
       row,
     },
-    setWorkboardQuery,
-  ] = useQueryStates(workboardSearchParamsParsers)
-  const [penaltyRow, setPenaltyRow] = useState<WorkboardRow | null>(null)
+    setObligationQueueQuery,
+  ] = useQueryStates(obligationQueueSearchParamsParsers)
+  const [penaltyRow, setPenaltyRow] = useState<ObligationQueueRow | null>(null)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [savedViewDraft, setSavedViewDraft] = useState<{
     mode: 'create' | 'rename'
@@ -601,7 +607,7 @@ export function WorkboardRoute() {
   const [extendedMemo, setExtendedMemo] = useState('')
 
   const debouncedSearch = useDebouncedQueryInput(searchInput, {
-    maxLength: WORKBOARD_SEARCH_MAX_LENGTH,
+    maxLength: OBLIGATION_QUEUE_SEARCH_MAX_LENGTH,
   })
   const sorting = useMemo(() => getSortingState(sort), [sort])
   const columnVisibility = useMemo(() => columnVisibilityFromHidden(hiddenColumns), [hiddenColumns])
@@ -646,8 +652,10 @@ export function WorkboardRoute() {
   const minDaysUntilDue = useMemo(() => daysFilterValue(daysMin), [daysMin])
   const maxDaysUntilDue = useMemo(() => daysFilterValue(daysMax), [daysMax])
 
-  const facetsQuery = useQuery(orpc.workboard.facets.queryOptions({ input: undefined }))
-  const savedViewsQuery = useQuery(orpc.workboard.listSavedViews.queryOptions({ input: undefined }))
+  const facetsQuery = useQuery(orpc.obligations.facets.queryOptions({ input: undefined }))
+  const savedViewsQuery = useQuery(
+    orpc.obligations.listSavedViews.queryOptions({ input: undefined }),
+  )
   const assignableMembersQuery = useQuery(
     orpc.members.listAssignable.queryOptions({ input: undefined }),
   )
@@ -714,7 +722,7 @@ export function WorkboardRoute() {
   )
   const filtersDisabled = facetsQuery.isLoading
 
-  const queryInputWithoutCursor = useMemo<WorkboardListInputWithoutCursor>(
+  const queryInputWithoutCursor = useMemo<ObligationQueueListInputWithoutCursor>(
     () => ({
       ...(statusQuery.length > 0 ? { status: statusQuery } : {}),
       ...(debouncedSearch ? { search: debouncedSearch } : {}),
@@ -810,13 +818,13 @@ export function WorkboardRoute() {
       owner,
     ],
   )
-  const currentSavedColumnVisibility = useMemo<WorkboardColumnVisibility>(
+  const currentSavedColumnVisibility = useMemo<ObligationQueueColumnVisibility>(
     () => Object.fromEntries(hiddenColumns.map((columnId) => [columnId, false])),
     [hiddenColumns],
   )
 
   const listQuery = useInfiniteQuery(
-    orpc.workboard.list.infiniteOptions({
+    orpc.obligations.list.infiniteOptions({
       initialPageParam: INITIAL_CURSOR,
       input: (cursor) => ({
         ...queryInputWithoutCursor,
@@ -829,7 +837,7 @@ export function WorkboardRoute() {
   const updateStatusMutation = useMutation(
     orpc.obligations.updateStatus.mutationOptions({
       onSuccess: (result) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
@@ -849,7 +857,7 @@ export function WorkboardRoute() {
   const updateReadinessMutation = useMutation(
     orpc.obligations.updateReadiness.mutationOptions({
       onSuccess: (result) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
@@ -867,7 +875,7 @@ export function WorkboardRoute() {
   const bulkStatusMutation = useMutation(
     orpc.obligations.bulkUpdateStatus.mutationOptions({
       onSuccess: (result) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         setRowSelection({})
@@ -885,7 +893,7 @@ export function WorkboardRoute() {
   const bulkReadinessMutation = useMutation(
     orpc.obligations.bulkUpdateReadiness.mutationOptions({
       onSuccess: (result) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         setRowSelection({})
@@ -903,7 +911,7 @@ export function WorkboardRoute() {
   const bulkAssigneeMutation = useMutation(
     orpc.clients.bulkUpdateAssignee.mutationOptions({
       onSuccess: (result) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.workload.load.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         setRowSelection({})
@@ -919,7 +927,7 @@ export function WorkboardRoute() {
     }),
   )
   const exportMutation = useMutation(
-    orpc.workboard.exportSelected.mutationOptions({
+    orpc.obligations.exportSelected.mutationOptions({
       onSuccess: (result) => {
         downloadBase64File(result)
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
@@ -935,10 +943,10 @@ export function WorkboardRoute() {
     }),
   )
   const createSavedViewMutation = useMutation(
-    orpc.workboard.createSavedView.mutationOptions({
+    orpc.obligations.createSavedView.mutationOptions({
       onSuccess: (view) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.listSavedViews.key() })
-        void setWorkboardQuery({ view: view.id })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.listSavedViews.key() })
+        void setObligationQueueQuery({ view: view.id })
         setSavedViewDraft(null)
         toast.success(t`Saved view created`)
       },
@@ -950,9 +958,9 @@ export function WorkboardRoute() {
     }),
   )
   const updateSavedViewMutation = useMutation(
-    orpc.workboard.updateSavedView.mutationOptions({
+    orpc.obligations.updateSavedView.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.listSavedViews.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.listSavedViews.key() })
         setSavedViewDraft(null)
         toast.success(t`Saved view updated`)
       },
@@ -964,10 +972,10 @@ export function WorkboardRoute() {
     }),
   )
   const deleteSavedViewMutation = useMutation(
-    orpc.workboard.deleteSavedView.mutationOptions({
+    orpc.obligations.deleteSavedView.mutationOptions({
       onSuccess: (result) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.listSavedViews.key() })
-        if (activeSavedViewId === result.id) void setWorkboardQuery({ view: null })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.listSavedViews.key() })
+        if (activeSavedViewId === result.id) void setObligationQueueQuery({ view: null })
         toast.success(t`Saved view deleted`)
       },
       onError: (err) => {
@@ -979,7 +987,7 @@ export function WorkboardRoute() {
   )
 
   const rows = useMemo(
-    () => listQuery.data?.pages.flatMap((page) => page.rows) ?? EMPTY_WORKBOARD_ROWS,
+    () => listQuery.data?.pages.flatMap((page) => page.rows) ?? EMPTY_OBLIGATION_QUEUE_ROWS,
     [listQuery.data?.pages],
   )
   const isInitialLoading = listQuery.isLoading
@@ -987,7 +995,7 @@ export function WorkboardRoute() {
   const keyboardEnabled = rows.length > 0 && !shortcutsBlocked
 
   const rowsById = useMemo(
-    () => new Map(rows.map((workboardRow) => [workboardRow.id, workboardRow])),
+    () => new Map(rows.map((obligationQueueRow) => [obligationQueueRow.id, obligationQueueRow])),
     [rows],
   )
   const activeRow = (row ? rowsById.get(row) : null) ?? rows[0] ?? null
@@ -1022,17 +1030,17 @@ export function WorkboardRoute() {
     updateReadinessMutation.isPending || bulkReadinessMutation.isPending
   const workflowUpdatePending = statusUpdatePending || readinessUpdatePending
   const changeSort = useCallback(
-    (nextSort: WorkboardSort) => {
-      void setWorkboardQuery({
+    (nextSort: ObligationQueueSort) => {
+      void setObligationQueueQuery({
         sort: withDefaultSortCleared(nextSort),
         obligation: null,
         row: null,
       })
     },
-    [setWorkboardQuery],
+    [setObligationQueueQuery],
   )
 
-  const columns = useMemo<ColumnDef<WorkboardRow>[]>(
+  const columns = useMemo<ColumnDef<ObligationQueueRow>[]>(
     () => [
       {
         id: 'select',
@@ -1077,7 +1085,7 @@ export function WorkboardRoute() {
             searchable
             searchPlaceholder={t`Search clients`}
             onSelectedChange={(nextClient) =>
-              void setWorkboardQuery({
+              void setObligationQueueQuery({
                 client: nextClient.length > 0 ? nextClient : null,
                 obligation: null,
                 row: null,
@@ -1105,7 +1113,7 @@ export function WorkboardRoute() {
             onSelectedChange={(nextOwner) => {
               const isUnassigned = nextOwner.includes(UNASSIGNED_OWNER_OPTION)
               const nextAssignee = nextOwner.filter((value) => value !== UNASSIGNED_OWNER_OPTION)
-              void setWorkboardQuery({
+              void setObligationQueueQuery({
                 owner: isUnassigned ? 'unassigned' : null,
                 assignee: null,
                 assignees: !isUnassigned && nextAssignee.length > 0 ? nextAssignee : null,
@@ -1131,7 +1139,7 @@ export function WorkboardRoute() {
             disabled={filtersDisabled}
             emptyLabel={t`No states`}
             onSelectedChange={(nextState) =>
-              void setWorkboardQuery({
+              void setObligationQueueQuery({
                 state: nextState.length > 0 ? nextState : null,
                 county: null,
                 obligation: null,
@@ -1158,7 +1166,7 @@ export function WorkboardRoute() {
             searchable
             searchPlaceholder={t`Search counties`}
             onSelectedChange={(nextCounty) =>
-              void setWorkboardQuery({
+              void setObligationQueueQuery({
                 county: nextCounty.length > 0 ? nextCounty : null,
                 obligation: null,
                 row: null,
@@ -1182,7 +1190,7 @@ export function WorkboardRoute() {
             disabled={filtersDisabled}
             emptyLabel={t`No forms`}
             onSelectedChange={(nextTaxType) =>
-              void setWorkboardQuery({
+              void setObligationQueueQuery({
                 taxType: nextTaxType.length > 0 ? nextTaxType : null,
                 obligation: null,
                 row: null,
@@ -1198,7 +1206,7 @@ export function WorkboardRoute() {
         header: () => {
           const label = t`Due date`
           return (
-            <WorkboardSortableHeader
+            <ObligationQueueSortableHeader
               sort={sort}
               ascSort="due_asc"
               descSort="due_desc"
@@ -1209,7 +1217,7 @@ export function WorkboardRoute() {
               <span className="-mx-2 inline-flex h-7 items-center rounded-md px-2 text-xs font-medium tracking-wider whitespace-nowrap text-text-tertiary uppercase">
                 {label}
               </span>
-            </WorkboardSortableHeader>
+            </ObligationQueueSortableHeader>
           )
         },
         cell: (info) => formatDate(info.getValue<string>()),
@@ -1230,7 +1238,7 @@ export function WorkboardRoute() {
             min={DAYS_FILTER_MIN}
             max={DAYS_FILTER_MAX}
             onCommit={(nextMin, nextMax) =>
-              void setWorkboardQuery({
+              void setObligationQueueQuery({
                 daysMin: integerFromInput(nextMin),
                 daysMax: integerFromInput(nextMax),
                 obligation: null,
@@ -1247,7 +1255,7 @@ export function WorkboardRoute() {
         header: () => {
           const label = t`Projected risk`
           return (
-            <WorkboardSortableHeader
+            <ObligationQueueSortableHeader
               sort={sort}
               ascSort="exposure_asc"
               descSort="exposure_desc"
@@ -1266,7 +1274,7 @@ export function WorkboardRoute() {
                 inputMode="numeric"
                 min={0}
                 onCommit={(nextMin, nextMax) =>
-                  void setWorkboardQuery({
+                  void setObligationQueueQuery({
                     riskMin: integerFromInput(nextMin, 0),
                     riskMax: integerFromInput(nextMax, 0),
                     obligation: null,
@@ -1274,7 +1282,7 @@ export function WorkboardRoute() {
                   })
                 }
               />
-            </WorkboardSortableHeader>
+            </ObligationQueueSortableHeader>
           )
         },
         cell: ({ row: tableRow }) => (
@@ -1294,7 +1302,7 @@ export function WorkboardRoute() {
             emptyLabel={t`No readiness states`}
             onSelectedChange={(nextReadiness) => {
               const typedReadiness = nextReadiness.filter(isObligationReadiness)
-              void setWorkboardQuery({
+              void setObligationQueueQuery({
                 readiness: typedReadiness.length > 0 ? typedReadiness : null,
                 obligation: null,
                 row: null,
@@ -1303,7 +1311,7 @@ export function WorkboardRoute() {
           />
         ),
         cell: (info) => (
-          <WorkboardReadinessControl
+          <ObligationQueueReadinessControl
             row={info.row.original}
             labels={readinessLabels}
             disabled={workflowUpdatePending}
@@ -1346,7 +1354,7 @@ export function WorkboardRoute() {
             emptyLabel={t`All statuses`}
             onSelectedChange={(nextStatus) => {
               const typedStatus = nextStatus.filter(isObligationStatus)
-              void setWorkboardQuery({
+              void setObligationQueueQuery({
                 status: typedStatus.length > 0 ? typedStatus : null,
                 obligation: null,
                 row: null,
@@ -1355,10 +1363,10 @@ export function WorkboardRoute() {
           />
         ),
         cell: ({ row: tableRow }) => {
-          const workboardRow = tableRow.original
+          const obligationQueueRow = tableRow.original
           return (
-            <WorkboardStatusControl
-              row={workboardRow}
+            <ObligationQueueStatusControl
+              row={obligationQueueRow}
               labels={statusLabels}
               disabled={statusUpdatePending}
               onChange={(id, status) => updateStatus({ id, status })}
@@ -1386,7 +1394,7 @@ export function WorkboardRoute() {
       riskMax,
       riskMin,
       setHeaderFilterOpen,
-      setWorkboardQuery,
+      setObligationQueueQuery,
       sort,
       stateOptions,
       stateQuery,
@@ -1414,14 +1422,14 @@ export function WorkboardRoute() {
     enableMultiRowSelection: true,
     enableRowSelection: true,
     getCoreRowModel: getCoreRowModel(),
-    getRowId: (workboardRow) => workboardRow.id,
+    getRowId: (obligationQueueRow) => obligationQueueRow.id,
     manualFiltering: true,
     manualPagination: true,
     manualSorting: true,
     onColumnVisibilityChange: (updater) => {
       const nextVisibility = functionalUpdate(updater, columnVisibility)
       const nextHidden = hiddenFromColumnVisibility(nextVisibility)
-      void setWorkboardQuery({ hide: nextHidden.length > 0 ? nextHidden : null })
+      void setObligationQueueQuery({ hide: nextHidden.length > 0 ? nextHidden : null })
     },
     onRowSelectionChange,
   })
@@ -1446,9 +1454,9 @@ export function WorkboardRoute() {
           ? 0
           : Math.min(currentRows.length - 1, Math.max(0, currentIndex + direction))
       const nextRowId = currentRows[nextIndex]?.original.id ?? null
-      void setWorkboardQuery({ row: nextRowId })
+      void setObligationQueueQuery({ row: nextRowId })
     },
-    [activeRow?.id, setWorkboardQuery, table],
+    [activeRow?.id, setObligationQueueQuery, table],
   )
 
   const updateActiveRowStatus = useCallback(
@@ -1470,10 +1478,10 @@ export function WorkboardRoute() {
     enabled: keyboardEnabled,
     requireReset: true,
     meta: {
-      id: 'workboard.next-row',
+      id: 'obligations.next-row',
       name: 'Next row',
       description: 'Move the active Obligations row down.',
-      category: 'workboard',
+      category: 'obligations',
       scope: 'route',
     },
   })
@@ -1482,10 +1490,10 @@ export function WorkboardRoute() {
     enabled: keyboardEnabled,
     requireReset: true,
     meta: {
-      id: 'workboard.previous-row',
+      id: 'obligations.previous-row',
       name: 'Previous row',
       description: 'Move the active Obligations row up.',
-      category: 'workboard',
+      category: 'obligations',
       scope: 'route',
     },
   })
@@ -1495,7 +1503,7 @@ export function WorkboardRoute() {
     (event) => {
       if (isInteractiveEventTarget(event.target)) return
       if (!activeRow) return
-      void setWorkboardQuery({
+      void setObligationQueueQuery({
         drawer: 'obligation',
         id: activeRow.id,
         tab: detailTab,
@@ -1505,10 +1513,10 @@ export function WorkboardRoute() {
       enabled: keyboardEnabled,
       requireReset: true,
       meta: {
-        id: 'workboard.open-detail',
+        id: 'obligations.open-detail',
         name: 'Open detail',
         description: 'Open the active obligation detail drawer.',
-        category: 'workboard',
+        category: 'obligations',
         scope: 'route',
       },
     },
@@ -1528,10 +1536,10 @@ export function WorkboardRoute() {
       enabled: keyboardEnabled,
       requireReset: true,
       meta: {
-        id: 'workboard.open-evidence',
+        id: 'obligations.open-evidence',
         name: 'Open evidence',
         description: 'Open evidence for the active row.',
-        category: 'workboard',
+        category: 'obligations',
         scope: 'route',
       },
     },
@@ -1541,10 +1549,10 @@ export function WorkboardRoute() {
     enabled: keyboardEnabled,
     requireReset: true,
     meta: {
-      id: 'workboard.mark-filed',
+      id: 'obligations.mark-filed',
       name: 'Mark filed',
       description: 'Mark the active row as filed.',
-      category: 'workboard',
+      category: 'obligations',
       scope: 'route',
     },
   })
@@ -1553,10 +1561,10 @@ export function WorkboardRoute() {
     enabled: keyboardEnabled,
     requireReset: true,
     meta: {
-      id: 'workboard.mark-paid',
+      id: 'obligations.mark-paid',
       name: 'Mark paid',
       description: 'Mark the active row as paid.',
-      category: 'workboard',
+      category: 'obligations',
       scope: 'route',
     },
   })
@@ -1565,10 +1573,10 @@ export function WorkboardRoute() {
     enabled: keyboardEnabled,
     requireReset: true,
     meta: {
-      id: 'workboard.mark-extended',
+      id: 'obligations.mark-extended',
       name: 'Mark extended',
       description: 'Mark the active row as extended.',
-      category: 'workboard',
+      category: 'obligations',
       scope: 'route',
     },
   })
@@ -1577,10 +1585,10 @@ export function WorkboardRoute() {
     enabled: keyboardEnabled,
     requireReset: true,
     meta: {
-      id: 'workboard.mark-in-progress',
+      id: 'obligations.mark-in-progress',
       name: 'Mark in progress',
       description: 'Mark the active row as in progress.',
-      category: 'workboard',
+      category: 'obligations',
       scope: 'route',
     },
   })
@@ -1589,10 +1597,10 @@ export function WorkboardRoute() {
     enabled: keyboardEnabled,
     requireReset: true,
     meta: {
-      id: 'workboard.mark-waiting',
+      id: 'obligations.mark-waiting',
       name: 'Mark waiting on client',
       description: 'Mark the active row as waiting on client.',
-      category: 'workboard',
+      category: 'obligations',
       scope: 'route',
     },
   })
@@ -1602,14 +1610,14 @@ export function WorkboardRoute() {
     void listQuery.fetchNextPage()
   }
 
-  function resetWorkboard() {
-    void setWorkboardQuery(null)
+  function resetObligationQueue() {
+    void setObligationQueueQuery(null)
     setRowSelection({})
   }
 
-  function applySavedView(viewToApply: WorkboardSavedView) {
+  function applySavedView(viewToApply: ObligationQueueSavedView) {
     const hidden = hiddenFromColumnVisibility(viewToApply.columnVisibility)
-    void setWorkboardQuery({
+    void setObligationQueueQuery({
       ...savedViewQueryPatch(viewToApply.query),
       density: withDefaultDensityCleared(viewToApply.density),
       hide: hidden.length > 0 ? hidden : null,
@@ -1700,7 +1708,7 @@ export function WorkboardRoute() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="primary" size="sm" render={<Link to="/workboard/calendar" />}>
+            <Button variant="primary" size="sm" render={<Link to="/obligations/calendar" />}>
               <CalendarDaysIcon data-icon="inline-start" />
               <Trans>Calendar sync</Trans>
             </Button>
@@ -1775,7 +1783,7 @@ export function WorkboardRoute() {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="outline" size="sm" onClick={resetWorkboard}>
+            <Button variant="outline" size="sm" onClick={resetObligationQueue}>
               <FilterIcon data-icon="inline-start" />
               <Trans>Reset</Trans>
             </Button>
@@ -1786,7 +1794,7 @@ export function WorkboardRoute() {
       <Card>
         <CardHeader>
           <CardTitle>
-            <ConceptLabel concept="workboard">
+            <ConceptLabel concept="obligations">
               <Trans>Queue controls</Trans>
             </ConceptLabel>
           </CardTitle>
@@ -1813,7 +1821,7 @@ export function WorkboardRoute() {
                 value={searchInput}
                 onChange={(event) => {
                   const nextSearch = event.target.value
-                  void setWorkboardQuery(
+                  void setObligationQueueQuery(
                     {
                       q: nextSearch || null,
                       obligation: null,
@@ -1831,7 +1839,7 @@ export function WorkboardRoute() {
                 value={density}
                 onValueChange={(value) => {
                   if (value !== 'comfortable' && value !== 'compact') return
-                  void setWorkboardQuery({ density: withDefaultDensityCleared(value) })
+                  void setObligationQueueQuery({ density: withDefaultDensityCleared(value) })
                 }}
               >
                 <TabsList>
@@ -1884,8 +1892,8 @@ export function WorkboardRoute() {
               <Select
                 value={sort}
                 onValueChange={(value) => {
-                  if (typeof value !== 'string' || !isWorkboardSort(value)) return
-                  void setWorkboardQuery({
+                  if (typeof value !== 'string' || !isObligationQueueSort(value)) return
+                  void setObligationQueueQuery({
                     sort: withDefaultSortCleared(value),
                     obligation: null,
                     row: null,
@@ -1911,7 +1919,9 @@ export function WorkboardRoute() {
             <button
               type="button"
               className="cursor-pointer focus-visible:outline-none"
-              onClick={() => void setWorkboardQuery(nextThisWeekFilterPatch(daysMin, daysMax))}
+              onClick={() =>
+                void setObligationQueueQuery(nextThisWeekFilterPatch(daysMin, daysMax))
+              }
             >
               <Badge variant={thisWeekFilterActive ? 'default' : 'ghost'}>
                 <Trans>This week</Trans>
@@ -1921,7 +1931,7 @@ export function WorkboardRoute() {
               type="button"
               className="cursor-pointer focus-visible:outline-none"
               onClick={() =>
-                void setWorkboardQuery({
+                void setObligationQueueQuery({
                   exposure: exposure === 'needs_input' ? null : 'needs_input',
                   obligation: null,
                   row: null,
@@ -1936,7 +1946,7 @@ export function WorkboardRoute() {
               type="button"
               className="cursor-pointer focus-visible:outline-none"
               onClick={() =>
-                void setWorkboardQuery({
+                void setObligationQueueQuery({
                   evidence: evidence === 'needs' ? null : 'needs',
                   obligation: null,
                   row: null,
@@ -2070,7 +2080,7 @@ export function WorkboardRoute() {
                             key={header.id}
                             className={meta?.headerClassName}
                             colSpan={header.colSpan}
-                            aria-sort={workboardColumnAriaSort(header.column.id, sort)}
+                            aria-sort={obligationQueueColumnAriaSort(header.column.id, sort)}
                           >
                             {header.isPlaceholder
                               ? null
@@ -2100,11 +2110,11 @@ export function WorkboardRoute() {
                             : 'cursor-pointer'
                         }
                         onClick={(event) => {
-                          if (isWorkboardRowControlClick(event.target)) {
-                            void setWorkboardQuery({ row: tableRow.original.id })
+                          if (isObligationQueueRowControlClick(event.target)) {
+                            void setObligationQueueQuery({ row: tableRow.original.id })
                             return
                           }
-                          void setWorkboardQuery({
+                          void setObligationQueueQuery({
                             row: tableRow.original.id,
                             drawer: 'obligation',
                             id: tableRow.original.id,
@@ -2152,11 +2162,11 @@ export function WorkboardRoute() {
           )}
         </CardContent>
       </Card>
-      <WorkboardDetailDrawer
+      <ObligationQueueDetailDrawer
         obligationId={activeDetailId}
         activeTab={detailTab}
-        onTabChange={(nextTab) => void setWorkboardQuery({ tab: nextTab })}
-        onClose={() => void setWorkboardQuery({ drawer: null, id: null })}
+        onTabChange={(nextTab) => void setObligationQueueQuery({ tab: nextTab })}
+        onClose={() => void setObligationQueueQuery({ drawer: null, id: null })}
         onNeedsInput={setPenaltyRow}
         practiceAiEnabled={practiceAiEnabled}
       />
@@ -2164,7 +2174,7 @@ export function WorkboardRoute() {
         row={penaltyRow}
         onClose={() => setPenaltyRow(null)}
         onSaved={() => {
-          void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+          void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
           void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         }}
       />
@@ -2251,8 +2261,8 @@ function ExposurePill({
   row,
   onNeedsInput,
 }: {
-  row: WorkboardRow
-  onNeedsInput: (row: WorkboardRow) => void
+  row: ObligationQueueRow
+  onNeedsInput: (row: ObligationQueueRow) => void
 }) {
   if (row.exposureStatus === 'ready' && row.estimatedExposureCents !== null) {
     const showAccrued = row.daysUntilDue < 0
@@ -2260,7 +2270,7 @@ function ExposurePill({
       <div className="grid min-w-0 gap-1">
         <Badge
           variant="warning"
-          className={`${WORKBOARD_TABLE_PILL_CLASSNAME} font-mono tabular-nums`}
+          className={`${OBLIGATION_QUEUE_TABLE_PILL_CLASSNAME} font-mono tabular-nums`}
         >
           {formatCents(row.estimatedExposureCents)}
         </Badge>
@@ -2296,13 +2306,13 @@ function ExposurePill({
     )
   }
   return (
-    <Badge variant="outline" className={WORKBOARD_TABLE_PILL_CLASSNAME}>
+    <Badge variant="outline" className={OBLIGATION_QUEUE_TABLE_PILL_CLASSNAME}>
       <Trans>unsupported</Trans>
     </Badge>
   )
 }
 
-function WorkboardSortableHeader({
+function ObligationQueueSortableHeader({
   children,
   sort,
   ascSort,
@@ -2312,12 +2322,12 @@ function WorkboardSortableHeader({
   onSortChange,
 }: {
   children: ReactNode
-  sort: WorkboardSort
-  ascSort: WorkboardSort
-  descSort: WorkboardSort
-  firstSort: WorkboardSort
+  sort: ObligationQueueSort
+  ascSort: ObligationQueueSort
+  descSort: ObligationQueueSort
+  firstSort: ObligationQueueSort
   sortLabel: string
-  onSortChange: (sort: WorkboardSort) => void
+  onSortChange: (sort: ObligationQueueSort) => void
 }) {
   const direction = sort === ascSort ? 'asc' : sort === descSort ? 'desc' : false
   const SortIcon =
@@ -2349,7 +2359,7 @@ function DueDaysPill({ days }: { days: number }) {
   return (
     <Badge
       variant={tone.variant}
-      className={`${WORKBOARD_TABLE_PILL_CLASSNAME} min-w-18 justify-start font-mono tabular-nums ${tone.badgeClassName ?? ''}`}
+      className={`${OBLIGATION_QUEUE_TABLE_PILL_CLASSNAME} min-w-18 justify-start font-mono tabular-nums ${tone.badgeClassName ?? ''}`}
     >
       <BadgeStatusDot tone={tone.dot} className={`size-1.5 ${tone.dotClassName ?? ''}`} />
       {days === 0 ? (
@@ -2451,7 +2461,7 @@ function RangeHeaderFilterDropdown({
   )
 }
 
-function WorkboardDetailDrawer({
+function ObligationQueueDetailDrawer({
   obligationId,
   activeTab,
   onTabChange,
@@ -2460,10 +2470,10 @@ function WorkboardDetailDrawer({
   practiceAiEnabled,
 }: {
   obligationId: string | null
-  activeTab: WorkboardDetailTab
-  onTabChange: (tab: WorkboardDetailTab) => void
+  activeTab: ObligationQueueDetailTab
+  onTabChange: (tab: ObligationQueueDetailTab) => void
   onClose: () => void
-  onNeedsInput: (row: WorkboardRow) => void
+  onNeedsInput: (row: ObligationQueueRow) => void
   practiceAiEnabled: boolean
 }) {
   const { t } = useLingui()
@@ -2486,7 +2496,7 @@ function WorkboardDetailDrawer({
   const activeDeadlineTipRefresh =
     obligationId && deadlineTipRefresh?.obligationId === obligationId ? deadlineTipRefresh : null
   const detailQuery = useQuery({
-    ...orpc.workboard.getDetail.queryOptions({
+    ...orpc.obligations.getDetail.queryOptions({
       input: { obligationId: obligationId ?? '' },
     }),
     enabled: obligationId !== null,
@@ -2577,8 +2587,8 @@ function WorkboardDetailDrawer({
   }
 
   function invalidateDetail() {
-    void queryClient.invalidateQueries({ queryKey: orpc.workboard.getDetail.key() })
-    void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDetail.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
@@ -2608,7 +2618,7 @@ function WorkboardDetailDrawer({
   )
   const autoGenerateChecklistMutationOptions = orpc.readiness.generateChecklist.mutationOptions()
   const autoGenerateChecklistQuery = useQuery({
-    queryKey: ['workboard', 'readiness-checklist', 'auto-generate', row?.id ?? null],
+    queryKey: ['obligations', 'readiness-checklist', 'auto-generate', row?.id ?? null],
     queryFn: async () => {
       const activeObligationId = row?.id
       const mutationFn = autoGenerateChecklistMutationOptions.mutationFn
@@ -2772,7 +2782,7 @@ function WorkboardDetailDrawer({
             <Tabs
               value={activeTab}
               onValueChange={(value) => {
-                if (isWorkboardDetailTab(value)) onTabChange(value)
+                if (isObligationQueueDetailTab(value)) onTabChange(value)
               }}
             >
               <TabsList className="mb-4 flex w-full flex-wrap justify-start">
@@ -3260,7 +3270,7 @@ function WorkboardDetailDrawer({
                   </div>
                   {detail.auditEvents.length > 0 ? (
                     detail.auditEvents.map((event) => (
-                      <WorkboardAuditEventCard key={event.id} event={event} />
+                      <ObligationQueueAuditEventCard key={event.id} event={event} />
                     ))
                   ) : (
                     <EmptyPanel>
@@ -3285,7 +3295,7 @@ function EmptyPanel({ children }: { children: ReactNode }) {
   )
 }
 
-function PenaltyBreakdownCard({ item }: { item: WorkboardRow['penaltyBreakdown'][number] }) {
+function PenaltyBreakdownCard({ item }: { item: ObligationQueueRow['penaltyBreakdown'][number] }) {
   const inputs = item.inputs ? Object.entries(item.inputs) : []
   const sourceRefs = item.sourceRefs ?? []
   return (
@@ -3316,7 +3326,7 @@ function PenaltySourceList({
   sourceRefs,
   compact = false,
 }: {
-  sourceRefs: WorkboardRow['penaltySourceRefs']
+  sourceRefs: ObligationQueueRow['penaltySourceRefs']
   compact?: boolean
 }) {
   return (
@@ -3534,7 +3544,7 @@ function AlertPanel({ children }: { children: ReactNode }) {
   )
 }
 
-type WorkboardEvidenceItem = {
+type ObligationQueueEvidenceItem = {
   id: string
   sourceType: string
   sourceUrl: string | null
@@ -3543,7 +3553,7 @@ type WorkboardEvidenceItem = {
   appliedAt: string
 }
 
-type WorkboardAuditEvent = WorkboardDetail['auditEvents'][number]
+type ObligationQueueAuditEvent = ObligationQueueDetail['auditEvents'][number]
 
 type ReadinessResponseEvidenceItem = {
   itemId: string
@@ -3641,7 +3651,7 @@ function evidenceSourceLabel(sourceType: string): ReactNode {
   return sourceType
 }
 
-function EvidenceInlineItem({ item }: { item: WorkboardEvidenceItem }) {
+function EvidenceInlineItem({ item }: { item: ObligationQueueEvidenceItem }) {
   const checklist =
     item.sourceType === 'readiness_checklist_ai'
       ? parseGeneratedReadinessChecklist(item.normalizedValue)
@@ -3808,7 +3818,7 @@ function ReadinessResponseStatusBadge({
   )
 }
 
-function WorkboardAuditEventCard({ event }: { event: WorkboardAuditEvent }) {
+function ObligationQueueAuditEventCard({ event }: { event: ObligationQueueAuditEvent }) {
   const { t } = useLingui()
   const readinessLabels = useReadinessLabels()
 
@@ -3843,7 +3853,7 @@ function AuditPayloadSummary({
   event,
   readinessLabels,
 }: {
-  event: WorkboardAuditEvent
+  event: ObligationQueueAuditEvent
   readinessLabels: Record<string, string>
 }) {
   const readinessRows = readinessAuditRows(event, readinessLabels)
@@ -3864,7 +3874,7 @@ function AuditPayloadSummary({
 }
 
 function readinessAuditRows(
-  event: WorkboardAuditEvent,
+  event: ObligationQueueAuditEvent,
   readinessLabels: Record<string, string>,
 ): AuditSummaryRow[] | null {
   const before = readUnknownRecord(event.beforeJson)
@@ -4019,7 +4029,7 @@ function PenaltyInputDialog({
   onClose,
   onSaved,
 }: {
-  row: WorkboardRow | null
+  row: ObligationQueueRow | null
   onClose: () => void
   onSaved: () => void
 }) {

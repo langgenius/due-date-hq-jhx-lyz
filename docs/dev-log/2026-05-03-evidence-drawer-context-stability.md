@@ -4,7 +4,7 @@
 
 - Moved the Evidence drawer context and hook into `EvidenceDrawerContext.ts`, matching the
   existing Migration wizard pattern where the context identity lives outside the provider module.
-- Updated Dashboard and Workboard to consume `useEvidenceDrawer` from the stable context module.
+- Updated Dashboard and Obligations to consume `useEvidenceDrawer` from the stable context module.
 
 ## Validation
 

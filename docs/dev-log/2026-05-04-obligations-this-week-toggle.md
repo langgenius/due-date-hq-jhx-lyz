@@ -1,12 +1,12 @@
 ---
-title: 'Workboard this week filter toggle'
+title: 'Obligations this week filter toggle'
 date: 2026-05-04
-area: workboard
+area: obligations
 ---
 
 ## Context
 
-The Workboard toolbar quick filter `This week` applied the seven-day upper-bound days filter, but
+The Obligations toolbar quick filter `This week` applied the seven-day upper-bound days filter, but
 clicking it again wrote the same URL state instead of clearing the filter. That made the chip behave
 unlike the neighboring quick filters.
 
@@ -24,5 +24,5 @@ unlike the neighboring quick filters.
 
 ## Validation
 
-- `pnpm --filter @duedatehq/app test -- src/routes/workboard.test.ts`
-- `pnpm exec vp check apps/app/src/routes/workboard.tsx apps/app/src/routes/workboard.test.ts docs/dev-log/2026-05-04-workboard-this-week-toggle.md`
+- `pnpm --filter @duedatehq/app test -- src/routes/obligations.test.ts`
+- `pnpm exec vp check apps/app/src/routes/obligations.tsx apps/app/src/routes/obligations.test.ts docs/dev-log/2026-05-04-obligations-this-week-toggle.md`

@@ -203,8 +203,8 @@ export function AnnualRolloverPanel({ clients }: { clients: readonly ClientPubli
     orpc.obligations.createAnnualRollover.mutationOptions({
       onSuccess: (result) => {
         void queryClient.invalidateQueries({ queryKey: orpc.obligations.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.facets.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.facets.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         setPreviewInput(currentInput)
@@ -267,7 +267,7 @@ export function AnnualRolloverPanel({ clients }: { clients: readonly ClientPubli
               nativeButton={false}
               variant="outline"
               size="sm"
-              render={<Link to={workboardHref(createdIds[0]!)} />}
+              render={<Link to={obligationQueueHref(createdIds[0]!)} />}
             >
               <Trans>Open first created obligation</Trans>
             </Button>
@@ -677,7 +677,7 @@ function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
             description={t`The matched verified rule and period, or the reason this row is duplicate or skipped.`}
           />
           <RolloverColumnHeader
-            label={t`Workboard`}
+            label={t`Obligations`}
             description={t`Opens the existing duplicate obligation or the newly created obligation after Generate succeeds.`}
             align="right"
           />
@@ -718,7 +718,7 @@ function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
                       nativeButton={false}
                       variant="ghost"
                       size="xs"
-                      render={<Link to={workboardHref(obligationId)} />}
+                      render={<Link to={obligationQueueHref(obligationId)} />}
                     >
                       <Trans>Open</Trans>
                     </Button>
@@ -851,8 +851,8 @@ function boundedYear(raw: string, fallback: number, min: number, max: number): n
   return Math.min(Math.max(next, min), max)
 }
 
-function workboardHref(obligationId: string): string {
-  return `/workboard?${new URLSearchParams({ obligation: obligationId }).toString()}`
+function obligationQueueHref(obligationId: string): string {
+  return `/obligations?${new URLSearchParams({ obligation: obligationId }).toString()}`
 }
 
 function rolloverCreatedIds(result: AnnualRolloverOutput | undefined): string[] {

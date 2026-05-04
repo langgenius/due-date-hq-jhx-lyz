@@ -19,7 +19,7 @@ implementation and permissions vocabulary instead of the user's workflow vocabul
 ## Decision
 
 - Sidebar groups are now:
-  - `Operations`: Dashboard, Workboard, Alerts, `Rules`.
+  - `Operations`: Dashboard, Obligations, Alerts, `Rules`.
   - `Clients`: Clients facts.
   - `Practice`: Practice profile, paid `Team workload`, Members, Billing, Audit log.
 - `Team workload` remains visible for all plans because it is the Pro/Firm expansion path; Solo sees

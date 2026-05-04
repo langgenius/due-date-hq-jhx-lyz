@@ -108,7 +108,7 @@ describe('pickSafeRedirect', () => {
 
   it('accepts in-app paths only (must start with single /)', () => {
     expect(pickSafeRedirect('/dashboard')).toBe('/dashboard')
-    expect(pickSafeRedirect('/workboard?scope=me')).toBe('/workboard?scope=me')
+    expect(pickSafeRedirect('/obligations?scope=me')).toBe('/obligations?scope=me')
   })
 
   it('honours a custom fallback', () => {
@@ -154,7 +154,7 @@ describe('calendarAliasLoader', () => {
   it('redirects /calendar to the Obligations calendar sync page', async () => {
     await expectRedirectTo(
       Promise.resolve().then(() => calendarAliasLoader()),
-      '/workboard/calendar',
+      '/obligations/calendar',
     )
   })
 })
@@ -187,16 +187,16 @@ describe('protectedLoader', () => {
   it('redirects to /login with redirectTo when no session', async () => {
     getSession.mockResolvedValueOnce({ data: null })
     await expectRedirectTo(
-      protectedLoader(makeArgs('http://localhost/workboard?scope=me')),
-      '/login?redirectTo=%2Fworkboard%3Fscope%3Dme',
+      protectedLoader(makeArgs('http://localhost/obligations?scope=me')),
+      '/login?redirectTo=%2Fobligations%3Fscope%3Dme',
     )
   })
 
   it('consumes and drops a valid locale handoff when redirecting unauthenticated users', async () => {
     getSession.mockResolvedValueOnce({ data: null })
     await expectRedirectTo(
-      protectedLoader(makeArgs('http://localhost/workboard?scope=me&lng=zh-CN')),
-      '/login?redirectTo=%2Fworkboard%3Fscope%3Dme',
+      protectedLoader(makeArgs('http://localhost/obligations?scope=me&lng=zh-CN')),
+      '/login?redirectTo=%2Fobligations%3Fscope%3Dme',
     )
     expect(window.localStorage.getItem('lng')).toBe('zh-CN')
     expect(currentLocale()).toBe('zh-CN')
@@ -233,8 +233,8 @@ describe('protectedLoader', () => {
       data: makeSession('firm_1', { twoFactorEnabled: true, twoFactorVerified: false }),
     })
     await expectRedirectTo(
-      protectedLoader(makeArgs('http://localhost/workboard?scope=me')),
-      '/two-factor?redirectTo=%2Fworkboard%3Fscope%3Dme',
+      protectedLoader(makeArgs('http://localhost/obligations?scope=me')),
+      '/two-factor?redirectTo=%2Fobligations%3Fscope%3Dme',
     )
   })
 
@@ -280,8 +280,8 @@ describe('onboardingLoader', () => {
   it('redirects to redirectTo (or /) when an active practice already exists', async () => {
     getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
     await expectRedirectTo(
-      onboardingLoader(makeArgs('http://localhost/onboarding?redirectTo=/workboard')),
-      '/workboard',
+      onboardingLoader(makeArgs('http://localhost/onboarding?redirectTo=/obligations')),
+      '/obligations',
     )
 
     getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })

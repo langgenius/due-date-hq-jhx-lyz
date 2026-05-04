@@ -12,7 +12,7 @@ import * as overlaySchema from './schema/overlay'
 import * as pulseSchema from './schema/pulse'
 import * as readinessSchema from './schema/readiness'
 import * as rulesSchema from './schema/rules'
-import * as workboardSchema from './schema/workboard'
+import * as obligationSavedViewSchema from './schema/obligation-saved-view'
 
 const schema = {
   ...aiSchema,
@@ -28,7 +28,7 @@ const schema = {
   ...pulseSchema,
   ...readinessSchema,
   ...rulesSchema,
-  ...workboardSchema,
+  ...obligationSavedViewSchema,
 }
 
 export type Db = DrizzleD1Database<typeof schema>

@@ -667,7 +667,7 @@ flowchart TD
 ```
 type/feat · type/fix · type/chore · type/docs · contract
 module/platform · module/web-shell · module/auth · module/db · module/ai
-module/migration · module/workboard · module/dashboard · module/evidence
+module/migration · module/obligations · module/dashboard · module/evidence
 module/pulse · module/demo · module/devops
 owner/alice · owner/bob
 priority/p0-demo · priority/p1-stretch

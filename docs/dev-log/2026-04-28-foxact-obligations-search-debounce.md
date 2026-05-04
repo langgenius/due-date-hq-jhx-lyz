@@ -1,16 +1,16 @@
 ---
-title: 'Foxact Workboard Search Debounce'
+title: 'Foxact Obligations Search Debounce'
 date: 2026-04-28
 author: 'Codex'
 updates:
-  - note: '2026-04-29 helper renamed from search-specific Workboard defaults to generic query input debounce.'
+  - note: '2026-04-29 helper renamed from search-specific Obligations defaults to generic query input debounce.'
 ---
 
-# Foxact Workboard Search Debounce
+# Foxact Obligations Search Debounce
 
 ## 背景
 
-`/workboard` 的搜索框会进入 `orpc.workboard.list`，筛选 / 排序 / 分页都由服务端
+`/obligations` 的搜索框会进入 `orpc.obligations.list`，筛选 / 排序 / 分页都由服务端
 read model 处理。之前代码用 `useDeferredValue(searchInput.trim())` 参与 React
 Query input，但 `useDeferredValue` 只调整 React 渲染优先级，不能保证“用户停止输入
 N ms 后再发请求”。nuqs 官方文档也明确区分：
@@ -23,7 +23,7 @@ N ms 后再发请求”。nuqs 官方文档也明确区分：
 
 本次扫描了 app 与 ui 包里可疑的 timing / browser hook 使用点：
 
-- `apps/app/src/routes/workboard.tsx`：唯一直接把搜索输入接到客户端 query input 的位置，需要
+- `apps/app/src/routes/obligations.tsx`：唯一直接把搜索输入接到客户端 query input 的位置，需要
   `useDebouncedValue`。
 - `apps/app/src/lib/theme-preference-store.ts` 与 i18n provider：使用
   `useSyncExternalStore` 订阅外部 store / storage / media query，不能用普通 debounce 或
@@ -42,14 +42,14 @@ N ms 后再发请求”。nuqs 官方文档也明确区分：
   - `QUERY_INPUT_DEBOUNCE_MS = 350`
   - `queryInputUrlUpdateRateLimit = debounce(350)`，用于 nuqs URL 写入降频
   - `useDebouncedQueryInput(value, { maxLength })`，底层使用 `foxact/use-debounced-value`
-- Workboard 搜索输入继续即时显示 `nuqs` state；`workboard.list` input 改为使用
+- Obligations 搜索输入继续即时显示 `nuqs` state；`obligations.list` input 改为使用
   debounced search。清空搜索时立即返回空查询，避免“清空后还等 350ms”。
-- `WorkboardListInputSchema.search` 上限收紧为 64 字符，并导出
-  `WORKBOARD_SEARCH_MAX_LENGTH` 给 app 层裁剪使用。
-- `packages/db/src/repo/workboard.ts` 在进入 D1 `LIKE` 前 normalize 搜索词、过滤不适合
+- `ObligationQueueListInputSchema.search` 上限收紧为 64 字符，并导出
+  `OBLIGATIONS_SEARCH_MAX_LENGTH` 给 app 层裁剪使用。
+- `packages/db/src/repo/obligations.ts` 在进入 D1 `LIKE` 前 normalize 搜索词、过滤不适合
   客户名搜索的复杂标点、转义 LIKE wildcard，避免任意用户输入触发 SQLite pattern
   编译错误并冒成 500。
-- Workboard sort/status select trigger 显式渲染 Lingui label，避免 Base UI trigger
+- Obligations sort/status select trigger 显式渲染 Lingui label，避免 Base UI trigger
   回退展示 raw value。
 - 更新 `docs/dev-file/01-Tech-Stack.md` 与 `docs/dev-file/05-Frontend-Architecture.md`。
 
@@ -63,12 +63,12 @@ Vercel 规则侧重点：
   同步第二份状态。
 
 TanStack Query 的 query input 应该包含实际影响请求的变量。把 debounced search 放进
-`orpc.workboard.list.infiniteOptions({ input })`，让 query key 与请求参数保持一致。
+`orpc.obligations.list.infiniteOptions({ input })`，让 query key 与请求参数保持一致。
 
 ## 验证
 
 - `pnpm install`
-- `pnpm exec vp check apps/app/src/lib/query-rate-limit.ts apps/app/src/routes/workboard.tsx apps/app/src/features/workboard/status-control.tsx docs/dev-file/01-Tech-Stack.md docs/dev-file/05-Frontend-Architecture.md docs/dev-log/2026-04-28-workboard-tanstack-table-url-state.md docs/dev-log/2026-04-28-foxact-workboard-search-debounce.md pnpm-workspace.yaml apps/app/package.json`
+- `pnpm exec vp check apps/app/src/lib/query-rate-limit.ts apps/app/src/routes/obligations.tsx apps/app/src/features/obligations/status-control.tsx docs/dev-file/01-Tech-Stack.md docs/dev-file/05-Frontend-Architecture.md docs/dev-log/2026-04-28-obligations-tanstack-table-url-state.md docs/dev-log/2026-04-28-foxact-obligations-search-debounce.md pnpm-workspace.yaml apps/app/package.json`
 - `pnpm --filter @duedatehq/app exec tsc --noEmit --pretty false`
 - `pnpm --filter @duedatehq/app test -- --run`
 - `pnpm --filter @duedatehq/db test -- --run`

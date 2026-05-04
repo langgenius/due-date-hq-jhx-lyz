@@ -4,7 +4,7 @@ export class WorkloadPage {
   readonly upgradeHeading: Locator
   readonly ownerWorkloadHeading: Locator
   readonly upgradePlanLink: Locator
-  readonly openWorkboardLink: Locator
+  readonly openObligationQueueLink: Locator
 
   constructor(readonly page: Page) {
     this.upgradeHeading = page.getByText('Team workload is available on Pro and above', {
@@ -12,7 +12,7 @@ export class WorkloadPage {
     })
     this.ownerWorkloadHeading = page.getByText('Owner workload', { exact: true })
     this.upgradePlanLink = page.getByRole('link', { name: 'Upgrade plan' })
-    this.openWorkboardLink = page.getByRole('link', { name: 'Open Obligations' })
+    this.openObligationQueueLink = page.getByRole('link', { name: 'Open Obligations' })
   }
 
   async goto(path = '/workload') {

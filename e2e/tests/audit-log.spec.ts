@@ -2,7 +2,7 @@ import { expect, test } from '../fixtures/test'
 
 // Feature: Audit log
 // PRD: Firm-wide audit trail
-// AC: E2E-AUDIT-WORKBOARD-STATUS-DETAIL
+// AC: E2E-AUDIT-OBLIGATIONS-STATUS-DETAIL
 
 test.skip(
   Boolean(process.env.E2E_BASE_URL),
@@ -10,17 +10,17 @@ test.skip(
 )
 
 test.describe('seeded audit trail', () => {
-  test.use({ authSeed: 'workboard' })
+  test.use({ authSeed: 'obligations' })
 
-  test('AC: E2E-AUDIT-WORKBOARD-STATUS-DETAIL traces an Obligations write into audit detail', async ({
+  test('AC: E2E-AUDIT-OBLIGATIONS-STATUS-DETAIL traces an Obligations write into audit detail', async ({
     auditPage,
     authenticatedPage,
-    workboardPage,
+    obligationQueuePage,
   }) => {
-    await workboardPage.goto()
+    await obligationQueuePage.goto()
 
-    await workboardPage.statusSelectFor('Arbor & Vale LLC').click()
-    await workboardPage.statusChangeOption('Filed').click()
+    await obligationQueuePage.statusSelectFor('Arbor & Vale LLC').click()
+    await obligationQueuePage.statusChangeOption('Filed').click()
 
     await expect(authenticatedPage.getByText('Status updated')).toBeVisible()
 

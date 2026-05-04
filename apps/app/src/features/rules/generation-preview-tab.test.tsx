@@ -41,10 +41,8 @@ vi.mock('@/lib/rpc', () => ({
           queryFn: () => rpcMocks.previewAnnualRollover(input),
         }),
       },
-    },
-    workboard: {
-      facets: { key: () => ['workboard', 'facets'] },
-      list: { key: () => ['workboard', 'list'] },
+      facets: { key: () => ['obligations', 'facets'] },
+      list: { key: () => ['obligations', 'list'] },
     },
   },
 }))
@@ -257,12 +255,12 @@ describe('AnnualRolloverPanel', () => {
     const helpButtons = Array.from(document.querySelectorAll('button[aria-label^="About "]'))
 
     expect(helpButtons.map((button) => button.getAttribute('aria-label'))).toEqual(
-      expect.arrayContaining(['About Seeds', 'About Status', 'About Workboard']),
+      expect.arrayContaining(['About Seeds', 'About Status', 'About Obligations']),
     )
     expect(helpButtons).toHaveLength(14)
   })
 
-  it('generates rollover obligations and shows the Workboard link state', async () => {
+  it('generates rollover obligations and shows the Obligations link state', async () => {
     await renderPanel()
     await waitForText('CA Form 100 annual filing')
 

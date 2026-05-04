@@ -37,7 +37,7 @@ Hono 负责 HTTP route/middleware 边界，oRPC 负责 procedure 边界。统一
 - `pnpm --filter @duedatehq/server test -- app.test.ts`：通过。
 - `pnpm --filter @duedatehq/server test -- app.test.ts middleware/logger.test.ts`：通过。
 - `pnpm --filter @duedatehq/server exec tsc --noEmit`：本次改动相关类型错误已清理；命令仍被既有
-  `packages/db/src/repo/workboard.ts` 的 `Buffer` 类型错误阻塞。
+  `packages/db/src/repo/obligations.ts` 的 `Buffer` 类型错误阻塞。
 
 ## 后续 / 未闭环
 

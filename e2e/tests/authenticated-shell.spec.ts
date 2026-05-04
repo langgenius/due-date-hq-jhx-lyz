@@ -11,12 +11,12 @@ test.skip(
 
 test('AC: E2E-AUTH-GUEST-REDIRECT sends signed-in guests to their target', async ({
   authenticatedPage,
-  workboardPage,
+  obligationQueuePage,
 }) => {
-  await authenticatedPage.goto('/login?redirectTo=/workboard')
+  await authenticatedPage.goto('/login?redirectTo=/obligations')
 
-  await expect(authenticatedPage).toHaveURL(/\/workboard$/)
-  await expect(workboardPage.heading).toBeVisible()
+  await expect(authenticatedPage).toHaveURL(/\/obligations$/)
+  await expect(obligationQueuePage.heading).toBeVisible()
 })
 
 test('AC: E2E-AUTH-SHELL renders the protected dashboard shell', async ({
@@ -66,11 +66,11 @@ test('AC: E2E-AUTH-COMMANDS navigates and opens implemented actions', async ({
   await expect(appShellPage.commandDialog.getByText('Calendar', { exact: true })).toHaveCount(0)
   await appShellPage.commandItem('Calendar sync').click()
 
-  await expect(authenticatedPage).toHaveURL(/\/workboard\/calendar$/)
+  await expect(authenticatedPage).toHaveURL(/\/obligations\/calendar$/)
   await expect(authenticatedPage.getByText('Subscription notes')).toBeVisible()
   await expect(
     authenticatedPage.getByRole('link', { name: 'Back to Obligations' }),
-  ).toHaveAttribute('href', '/workboard')
+  ).toHaveAttribute('href', '/obligations')
 
   await appShellPage.openCommandPalette()
   await appShellPage.commandItem('Rules').click()

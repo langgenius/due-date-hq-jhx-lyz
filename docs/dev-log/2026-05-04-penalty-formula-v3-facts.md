@@ -36,9 +36,9 @@ entered.
   underpayment rates are present.
 - Kept remaining generic `xx_state_*` tax types explicitly `unsupported` until each state/program
   formula is entered with official source refs. This prevents accidental federal fallback.
-- Extended obligation, Workboard, Dashboard, migration import, and maintenance backfill paths to
+- Extended obligation, Obligations, Dashboard, migration import, and maintenance backfill paths to
   carry the new fact/source metadata.
-- Updated Workboard detail breakdowns to show formula label, fact version, missing facts, inputs,
+- Updated Obligations detail breakdowns to show formula label, fact version, missing facts, inputs,
   and official sources without adding a new top-level dollar metric.
 - Extended `pnpm rules:check-sources` so penalty formula catalog entries must include official URL,
   excerpt, effective date, and last-reviewed date.
@@ -60,7 +60,7 @@ than an estimated or federal-derived amount.
 - `pnpm --filter @duedatehq/core test -- penalty`
 - `pnpm --filter @duedatehq/contracts test`
 - `pnpm --filter @duedatehq/server test -- src/procedures/_penalty-exposure src/procedures/obligations migration`
-- `pnpm --filter @duedatehq/db test -- dashboard workboard`
+- `pnpm --filter @duedatehq/db test -- dashboard obligations`
 - `pnpm --filter @duedatehq/app i18n:extract`
 - `pnpm --filter @duedatehq/app i18n:compile`
 - `pnpm db:migrate:local`

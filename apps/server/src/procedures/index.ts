@@ -7,12 +7,12 @@ import { firmsHandlers } from './firms'
 import { migrationHandlers } from './migration'
 import { membersHandlers } from './members'
 import { notificationsHandlers } from './notifications'
+import { obligationQueueHandlers } from './obligation-queue'
 import { obligationsHandlers } from './obligations'
 import { pulseHandlers } from './pulse'
 import { readinessHandlers } from './readiness'
 import { rulesHandlers } from './rules'
 import { securityHandlers } from './security'
-import { workboardHandlers } from './workboard'
 import { workloadHandlers } from './workload'
 import { os } from './_root'
 
@@ -69,6 +69,14 @@ export const router = os.router({
     delete: clientsHandlers.delete,
   },
   obligations: {
+    list: obligationQueueHandlers.list,
+    getDetail: obligationQueueHandlers.getDetail,
+    facets: obligationQueueHandlers.facets,
+    listSavedViews: obligationQueueHandlers.listSavedViews,
+    createSavedView: obligationQueueHandlers.createSavedView,
+    updateSavedView: obligationQueueHandlers.updateSavedView,
+    deleteSavedView: obligationQueueHandlers.deleteSavedView,
+    exportSelected: obligationQueueHandlers.exportSelected,
     createBatch: obligationsHandlers.createBatch,
     previewAnnualRollover: obligationsHandlers.previewAnnualRollover,
     createAnnualRollover: obligationsHandlers.createAnnualRollover,
@@ -88,16 +96,6 @@ export const router = os.router({
   },
   evidence: {
     listByObligation: evidenceHandlers.listByObligation,
-  },
-  workboard: {
-    list: workboardHandlers.list,
-    getDetail: workboardHandlers.getDetail,
-    facets: workboardHandlers.facets,
-    listSavedViews: workboardHandlers.listSavedViews,
-    createSavedView: workboardHandlers.createSavedView,
-    updateSavedView: workboardHandlers.updateSavedView,
-    deleteSavedView: workboardHandlers.deleteSavedView,
-    exportSelected: workboardHandlers.exportSelected,
   },
   workload: {
     load: workloadHandlers.load,

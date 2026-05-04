@@ -405,7 +405,7 @@ function useNavItems(firm: FirmPublic): NavConfig {
       operations: [
         { href: '/', label: t`Dashboard`, icon: LayoutDashboardIcon, end: true },
         {
-          href: '/workboard',
+          href: '/obligations',
           label: t`Obligations`,
           icon: CalendarClockIcon,
           end: false,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isThisWeekFilterActive, nextThisWeekFilterPatch } from './workboard'
+import { isThisWeekFilterActive, nextThisWeekFilterPatch } from './obligations'
 
 describe('obligations quick filters', () => {
   it('applies the this week days filter when inactive', () => {

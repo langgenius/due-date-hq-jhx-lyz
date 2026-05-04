@@ -46,7 +46,7 @@ browser-level QA.
 - Replaced the demo seed stub with an idempotent D1 seed that creates a Sarah
   Demo CPA firm, clients/obligations, one matched Pulse alert, and one applied
   revertable Pulse alert.
-- Added Pulse E2E coverage for Dashboard banner → drawer → apply → Workboard
+- Added Pulse E2E coverage for Dashboard banner → drawer → apply → Obligations
   date change → audit/evidence visibility → undo, plus Coordinator read-only
   RBAC.
 

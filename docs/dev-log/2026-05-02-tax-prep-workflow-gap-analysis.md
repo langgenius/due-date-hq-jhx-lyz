@@ -16,6 +16,6 @@ Added a Chinese gap analysis under `docs/project-modules` comparing DueDateHQ's 
 ## Notes
 
 - The report treats DueDateHQ as a deadline/risk/evidence operations console and calls out what is missing for a full tax prep production workflow.
-- It also records that the current worktree has uncommitted readiness/extension work that is partly implemented but not yet fully closed by migration, public portal, Workboard detail routing, UI, or end-to-end validation.
+- It also records that the current worktree has uncommitted readiness/extension work that is partly implemented but not yet fully closed by migration, public portal, Obligations detail routing, UI, or end-to-end validation.
 - No product behavior, runtime code, API contract, database schema, or design tokens were changed by this documentation task.
 - `docs/Design/DueDateHQ-DESIGN.md` did not need updates because this is analysis-only documentation and does not alter UI behavior or visual rules.

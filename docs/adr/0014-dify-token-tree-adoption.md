@@ -19,7 +19,7 @@ accepted · 2026-04-27
    - `packages/ui/src/styles/tokens/{primitives,semantic-light,semantic-dark}.css`
    - `packages/ui/AGENTS.md` § _Page Typography & Spacing_ + § _Border Radius: Figma Token → Tailwind Class_ 钦定 page-level recipe
    - 命名空间：`text-text-*` / `bg-background-*` / `border-divider-*` / `bg-state-*` / `bg-components-*`，全部由 `@theme inline` 暴露成 Tailwind utility
-   - 实际生效面：`apps/app` 全部 dashboard / workboard / migration / settings 路由、`@duedatehq/ui` 全部 shadcn 组件均已挂在这套 token 上
+   - 实际生效面：`apps/app` 全部 dashboard / obligations / migration / settings 路由、`@duedatehq/ui` 全部 shadcn 组件均已挂在这套 token 上
 
 两条链对**同一物理像素**给出了不同的契约值，已经在 review 与 design-to-code 工作流里产生具体误导：
 

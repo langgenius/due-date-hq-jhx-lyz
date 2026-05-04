@@ -10,7 +10,7 @@ author: 'Codex'
 
 Post-activation still had four visible gaps: dollar exposure was not computable, evidence was
 written but not explorable, Migration review did not show exposure readiness, and Dashboard /
-Workboard triage still centered on counts instead of actionable risk.
+Obligations triage still centered on counts instead of actionable risk.
 
 ## Change
 
@@ -18,11 +18,11 @@ Workboard triage still centered on counts instead of actionable risk.
   and obligation instances, with `ready / needs_input / unsupported` instead of fake `$0`.
 - Recomputed exposure on Migration apply, penalty input update, Pulse apply/revert, and manual
   due-date update.
-- Added app-level Evidence drawer wiring for Workboard `E`, row actions, Dashboard top rows, and
+- Added app-level Evidence drawer wiring for Obligations `E`, row actions, Dashboard top rows, and
   Brief citations.
-- Added Migration exposure preview, Live Genesis, reduced-motion fallback, Dashboard/Workboard
+- Added Migration exposure preview, Live Genesis, reduced-motion fallback, Dashboard/Obligations
   cache preheat, and preset fixture golden tests.
-- Added Dashboard Penalty Radar and Workboard triage polish: exposure pills, needs-input editor,
+- Added Dashboard Penalty Radar and Obligations triage polish: exposure pills, needs-input editor,
   evidence counts, quick filters, and detail drawer entry.
 
 ## Why

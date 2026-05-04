@@ -29,12 +29,12 @@ msgstr "{0, plural, other {# 条活跃}}"
 
 #. placeholder {0}: Math.abs(days)
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{0, plural, one {# day late} other {# days late}}"
 msgstr "{0, plural, other {逾期 # 天}}"
 
 #. placeholder {0}: value.length
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{0, plural, one {# item} other {# items}}"
 msgstr "{0, plural, other {# 项}}"
 
@@ -51,7 +51,7 @@ msgid "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 msgstr "{0, plural, other {# 行已准备就绪可以导入}}"
 
 #. placeholder {0}: selectedIds.length
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{0, plural, one {# selected} other {# selected}}"
 msgstr "{0, plural, one {已选 # 项} other {已选 # 项}}"
 
@@ -151,7 +151,7 @@ msgid "{0} ready · {1} needs input · {2} unsupported"
 msgstr "{0} 个已就绪 · {1} 个需要输入 · {2} 个不支持"
 
 #. placeholder {0}: result.updatedCount
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{0} rows changed"
 msgstr "已变更 {0} 行"
 
@@ -234,7 +234,7 @@ msgid "{count} additional fields changed"
 msgstr "另有 {count} 个字段已变更"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{days, plural, one {# day} other {# days}}"
 msgstr "{days, plural, other {# 天}}"
 
@@ -316,11 +316,11 @@ msgstr "{sourceCount, plural, other {# 个来源需处理。现有提醒仍可�
 msgid "{totalImpact, plural, one {# client} other {# clients}}"
 msgstr "{totalImpact, plural, other {# 个客户}}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{totalShown, plural, one {# obligation} other {# obligations}}"
 msgstr "{totalShown, plural, other {# 条义务}}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{totalShown, plural, one {# row} other {# rows}}"
 msgstr "{totalShown, plural, other {# 行}}"
 
@@ -383,7 +383,7 @@ msgid "4 verified · 1 candidate watch"
 msgstr "4 已核验 · 1 候选观察"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "90-day projected risk"
 msgstr "90 天预计风险"
 
@@ -464,20 +464,20 @@ msgstr "{0} 的账户菜单"
 
 #. placeholder {0}: formatCents(row.accruedPenaltyCents)
 #. placeholder {1}: row.penaltyAsOfDate
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Accrued {0} as of {1}"
 msgstr "截至 {1} 已发生 {0}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Accrued needs input"
 msgstr "已发生罚金需补输入"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Accrued penalty"
 msgstr "已发生罚金"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Accrued unsupported"
 msgstr "已发生罚金暂不支持"
 
@@ -550,7 +550,7 @@ msgstr "至少添加一条服务商记录才能继续。"
 msgid "Add context for the reviewer"
 msgstr "补充给审核人的说明"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Add item"
 msgstr "添加项目"
 
@@ -566,7 +566,7 @@ msgstr "添加事务所"
 msgid "Affected clients"
 msgstr "受影响客户"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "After"
 msgstr "之后"
 
@@ -602,7 +602,7 @@ msgstr "AI Mapper 表示 AI 建议了字段。"
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI 映射器不可用 —— 已使用降级方案"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "AI readiness checklist"
 msgstr "AI 准备状态清单"
 
@@ -691,7 +691,7 @@ msgid "All sources"
 msgstr "全部来源"
 
 #: src/features/pulse/AlertsListPage.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "All statuses"
 msgstr "全部状态"
 
@@ -796,7 +796,7 @@ msgstr "应用默认矩阵"
 msgid "Apply to all"
 msgstr "全部应用"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Apply view"
 msgstr "应用视图"
 
@@ -837,13 +837,13 @@ msgstr "本周 at risk"
 msgid "Attach a source before review."
 msgstr "复核前先关联来源。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Audit"
 msgstr "审计"
 
 #. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Audit {0}"
 msgstr "审计 {0}"
 
@@ -971,7 +971,7 @@ msgstr "基础 AI"
 msgid "Batch rollback trace retained for 24 hours"
 msgstr "保留 24 小时批次回滚追踪"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Before"
 msgstr "之前"
 
@@ -1036,11 +1036,11 @@ msgstr "账单状态尚未准备好。"
 msgid "Building the import preview"
 msgstr "正在生成导入预览"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Bulk readiness updated"
 msgstr "批量就绪度已更新"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Bulk status updated"
 msgstr "批量状态已更新"
 
@@ -1065,7 +1065,7 @@ msgstr "频率"
 msgid "Calculate preview"
 msgstr "计算预览"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Calculated"
 msgstr "已计算"
 
@@ -1082,8 +1082,8 @@ msgid "Calendar subscription updated"
 msgstr "日历订阅已更新"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/obligations.tsx
 #: src/routes/route-summary.ts
-#: src/routes/workboard.tsx
 msgid "Calendar sync"
 msgstr "日历同步"
 
@@ -1101,8 +1101,8 @@ msgstr "日历 URL 已重新生成"
 #: src/features/members/members-page.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Cancel"
 msgstr "取消"
 
@@ -1148,16 +1148,16 @@ msgstr "卡号和发票支付详情不会进入应用数据库。"
 msgid "Change"
 msgstr "变更"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Change assignee"
 msgstr "更改负责人"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Change readiness"
 msgstr "更改就绪度"
 
 #. placeholder {0}: row.clientName
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Change readiness for {0}"
 msgstr "更改 {0} 的就绪度"
 
@@ -1165,12 +1165,12 @@ msgstr "更改 {0} 的就绪度"
 msgid "Change role"
 msgstr "更改角色"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Change status"
 msgstr "更改状态"
 
 #. placeholder {0}: row.clientName
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Change status for {0}"
 msgstr "修改 {0} 的状态"
 
@@ -1194,23 +1194,23 @@ msgstr "加载工作负载指标前正在检查当前事务所计划。"
 msgid "Checklist"
 msgstr "清单"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist generated"
 msgstr "清单已生成"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist item"
 msgstr "清单项目"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist item description"
 msgstr "清单项目说明"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist item label"
 msgstr "清单项目名称"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist items"
 msgstr "清单项目"
 
@@ -1272,7 +1272,7 @@ msgstr "选择 Solo、Pro 或 Team 以开始托管 checkout 流程。"
 
 #: src/components/primitives/iso-date-picker.tsx
 #: src/features/rules/rule-detail-drawer.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Clear"
 msgstr "清除"
 
@@ -1290,7 +1290,7 @@ msgstr "点击更多以更改角色、暂停或移除"
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client"
 msgstr "客户"
 
@@ -1328,7 +1328,7 @@ msgstr "客户已删除"
 msgid "Client email draft copied"
 msgstr "客户邮件草稿已复制"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client email on file"
 msgstr "客户邮箱已记录"
 
@@ -1363,11 +1363,11 @@ msgstr "客户重要性"
 msgid "Client name"
 msgstr "客户名称"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client portal visitor"
 msgstr "客户 portal 访问者"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client readiness response"
 msgstr "客户准备状态回复"
 
@@ -1379,7 +1379,7 @@ msgstr "客户提醒"
 msgid "Client Risk Summary"
 msgstr "客户风险摘要"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client-facing detail"
 msgstr "给客户看的说明"
 
@@ -1417,7 +1417,7 @@ msgstr "符合滚动条件的来源年度已关闭义务。只有 done、paid �
 msgid "Code sent to"
 msgstr "验证码已发送至"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Columns"
 msgstr "列"
 
@@ -1425,7 +1425,7 @@ msgstr "列"
 msgid "Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can power the penalty exposure preview."
 msgstr "名为 Estimated tax due、Estimated tax liability、Owner count 或 Owners 的列可用于罚金风险暴露预览。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Comfortable"
 msgstr "舒适"
 
@@ -1441,7 +1441,7 @@ msgstr "即将推出"
 msgid "Command palette"
 msgstr "命令面板"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Compact"
 msgstr "紧凑"
 
@@ -1526,7 +1526,7 @@ msgstr "复制"
 msgid "Copy client email draft"
 msgstr "复制客户邮件草稿"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Copy link"
 msgstr "复制链接"
 
@@ -1720,7 +1720,7 @@ msgstr "无法创建客户"
 msgid "Couldn't delete client"
 msgstr "无法删除客户"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't delete view"
 msgstr "无法删除视图"
 
@@ -1729,11 +1729,11 @@ msgstr "无法删除视图"
 msgid "Couldn't dismiss alert"
 msgstr "无法忽略该提醒"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't export selected rows"
 msgstr "无法导出所选行"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't generate checklist"
 msgstr "无法生成清单"
 
@@ -1753,11 +1753,11 @@ msgstr "无法加载客户"
 msgid "Couldn't load dashboard"
 msgstr "无法加载仪表盘"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't load obligation detail."
 msgstr "无法加载义务详情。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't load the queue."
 msgstr "无法加载队列。"
 
@@ -1769,11 +1769,11 @@ msgstr "无法加载该提醒"
 msgid "Couldn't parse the input"
 msgstr "无法解析输入内容"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't prepare the latest tip. Showing fallback or previous content."
 msgstr "无法生成最新提示。正在显示兜底内容或上一版内容。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't queue deadline tip"
 msgstr "无法排队生成截止日提示"
 
@@ -1793,11 +1793,11 @@ msgstr "无法拒绝候选规则"
 msgid "Couldn't request review"
 msgstr "无法请求审核"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't revoke request"
 msgstr "无法撤销请求"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't save extension decision"
 msgstr "无法保存延期决策"
 
@@ -1809,7 +1809,7 @@ msgstr "无法保存报税辖区"
 msgid "Couldn't save mapping"
 msgstr "保存字段映射失败"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't save penalty inputs"
 msgstr "无法保存 penalty 输入"
 
@@ -1817,11 +1817,11 @@ msgstr "无法保存 penalty 输入"
 msgid "Couldn't save risk inputs"
 msgstr "无法保存风险输入"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't save view"
 msgstr "无法保存视图"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't send readiness request"
 msgstr "无法发送准备状态请求"
 
@@ -1846,24 +1846,24 @@ msgstr "无法撤销导入"
 msgid "Couldn't undo Pulse"
 msgstr "无法撤销该应用"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update owners"
 msgstr "无法更新负责人"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update readiness"
 msgstr "无法更新就绪度"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update selected rows"
 msgstr "无法更新所选行"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update status"
 msgstr "状态更新失败"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update view"
 msgstr "无法更新视图"
 
@@ -1878,7 +1878,7 @@ msgstr "县"
 
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "County"
 msgstr "县"
 
@@ -1952,7 +1952,7 @@ msgid "critical"
 msgstr "紧急"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "CSV"
 msgstr "CSV"
 
@@ -1977,7 +1977,7 @@ msgstr "当前角色：{currentRoleLabel}"
 msgid "Current role: {currentRoleLabel}. Required: {requiredRoleText}."
 msgstr "当前角色：{currentRoleLabel}。需要：{requiredRoleText}。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Current status"
 msgstr "当前状态"
 
@@ -2016,7 +2016,7 @@ msgstr "Dashboard brief、Pulse 摘要、客户风险摘要和生产迁移 AI。
 msgid "Day of month"
 msgstr "月份中的日期"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Days"
 msgstr "天数"
 
@@ -2062,11 +2062,11 @@ msgid "Deadline status changed from {previous} to {next}"
 msgstr "截止日状态从 {previous} 变更为 {next}"
 
 #: src/features/concepts/concept-help.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Deadline Tip"
 msgstr "截止日提示"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Deadline tip refresh queued"
 msgstr "截止日提示刷新已排队"
 
@@ -2086,15 +2086,15 @@ msgstr "截止日"
 msgid "Deadlines created"
 msgstr "截止日已创建"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Decided at"
 msgstr "决策时间"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Decision"
 msgstr "决策"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Decision memo"
 msgstr "决策备注"
 
@@ -2143,11 +2143,11 @@ msgstr "删除这个客户？"
 msgid "Delete this practice?"
 msgstr "删除这个事务所？"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Delete view"
 msgstr "删除视图"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Delivery"
 msgstr "发送"
 
@@ -2169,7 +2169,7 @@ msgid "Detail"
 msgstr "详情"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Details updated"
 msgstr "详情已更新"
 
@@ -2248,7 +2248,7 @@ msgstr "到期日"
 #. placeholder {0}: formatDate(currentDueDate)
 #. placeholder {0}: rule.overrideDueDate
 #: src/features/rules/temporary-rules-tab.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Due {0}"
 msgstr "到期 {0}"
 
@@ -2256,15 +2256,15 @@ msgstr "到期 {0}"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Due date"
 msgstr "到期日"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Due date — earliest first"
 msgstr "到期日 — 最早优先"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Due date — latest first"
 msgstr "到期日 — 最晚优先"
 
@@ -2399,7 +2399,7 @@ msgstr "请输入有效的邮箱地址"
 msgid "Enter execute · Esc close · {commandShortcut} toggle"
 msgstr "Enter 执行 · Esc 关闭 · {commandShortcut} 切换"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Enter penalty inputs"
 msgstr "填写罚金输入项"
 
@@ -2468,7 +2468,7 @@ msgstr "实体类型"
 msgid "Entry"
 msgstr "入口"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Estimated tax due"
 msgstr "预计应纳税额"
 
@@ -2482,7 +2482,7 @@ msgid "ETA"
 msgstr "预计日期"
 
 #. placeholder {0}: formatDate(response.etaDate)
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "ETA {0}"
 msgstr "预计 {0}"
 
@@ -2505,7 +2505,7 @@ msgstr "事件"
 #: src/features/concepts/concept-help.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Evidence"
 msgstr "证据"
 
@@ -2529,11 +2529,11 @@ msgstr "已关联证据"
 msgid "Exception"
 msgstr "例外"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Expected extended date"
 msgstr "预计延期后日期"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Expected extended due date (reference only)"
 msgstr "预计延期后截止日期（仅供参考）"
 
@@ -2571,7 +2571,7 @@ msgstr "解释 Preset mapping"
 msgid "Export"
 msgstr "导出"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Export ready"
 msgstr "导出已就绪"
 
@@ -2583,12 +2583,12 @@ msgstr "风险暴露预览"
 msgid "Exposure readiness appears after mapping and Default Matrix are confirmed."
 msgstr "完成字段映射并确认 Default Matrix 后，会显示风险暴露准备情况。"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Extended"
 msgstr "已延期"
 
 #: src/features/rules/rule-detail-drawer.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Extension"
 msgstr "延期"
 
@@ -2596,11 +2596,11 @@ msgstr "延期"
 msgid "Extension also covers payment."
 msgstr "延期也覆盖付款。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Extension decision saved"
 msgstr "延期决策已保存"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Extension memo"
 msgstr "延期备注"
 
@@ -2612,7 +2612,7 @@ msgstr "延期说明"
 msgid "Extension policy is invalid."
 msgstr "延期政策无效。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Extension source"
 msgstr "延期来源"
 
@@ -2628,13 +2628,13 @@ msgstr "事实就绪度"
 msgid "Factor weights"
 msgstr "因子权重"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Facts"
 msgstr "事实"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Failed"
 msgstr "失败"
 
@@ -2643,7 +2643,7 @@ msgstr "失败"
 msgid "Failing"
 msgstr "失败"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Fallback checklist ready"
 msgstr "备用清单已准备好"
 
@@ -2675,7 +2675,7 @@ msgstr "文件大小"
 msgid "File type"
 msgstr "文件类型"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Filed"
 msgstr "已申报"
 
@@ -2802,7 +2802,7 @@ msgstr "格式"
 msgid "Forms"
 msgstr "表格"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Formula"
 msgstr "公式"
 
@@ -2832,11 +2832,11 @@ msgstr "常规"
 msgid "Generate"
 msgstr "生成"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Generate a checklist or add items before sending a portal link."
 msgstr "发送门户链接前，请先生成清单或添加项目。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Generate checklist"
 msgstr "生成清单"
 
@@ -2883,7 +2883,7 @@ msgstr "已隐藏"
 
 #: src/features/priority/SmartPriorityBadge.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Hidden by role"
 msgstr "因角色隐藏"
 
@@ -3014,7 +3014,7 @@ msgstr "正在导入…"
 msgid "Improves identity matching and audit review."
 msgstr "提升身份匹配与审计复核质量。"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "In progress"
 msgstr "进行中"
 
@@ -3163,7 +3163,7 @@ msgstr "迟报历史"
 msgid "Late filings, 12mo"
 msgstr "近 12 个月迟交次数"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Latest request"
 msgstr "最新请求"
 
@@ -3191,7 +3191,7 @@ msgstr "LLC"
 msgid "Load"
 msgstr "负载"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Load more"
 msgstr "加载更多"
 
@@ -3211,11 +3211,11 @@ msgstr "正在加载客户税种。"
 msgid "Loading clients for preview."
 msgstr "正在加载用于预览的客户。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Loading deadline tip…"
 msgstr "正在加载截止日提示…"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Loading obligation detail…"
 msgstr "正在加载义务详情…"
 
@@ -3223,7 +3223,7 @@ msgstr "正在加载义务详情…"
 msgid "Loading obligation preview."
 msgstr "正在加载义务预览。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Loading queue…"
 msgstr "队列加载中…"
 
@@ -3260,7 +3260,7 @@ msgid "Loading..."
 msgstr "加载中..."
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Loading…"
 msgstr "加载中…"
 
@@ -3359,7 +3359,7 @@ msgstr "字段映射"
 msgid "Mark all read"
 msgstr "全部标记已读"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Mark extended"
 msgstr "标记已延期"
 
@@ -3367,7 +3367,7 @@ msgstr "标记已延期"
 msgid "Mark read"
 msgstr "标记已读"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Mark selected extended"
 msgstr "将所选项标记为已延期"
 
@@ -3383,19 +3383,19 @@ msgstr "已匹配"
 msgid "Matched clients"
 msgstr "已匹配客户"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Max $"
 msgstr "最高 $"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Max days"
 msgstr "最大天数"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Maximum days until due"
 msgstr "距离截止日的最大天数"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Maximum dollars at risk"
 msgstr "最高风险金额"
 
@@ -3503,19 +3503,19 @@ msgstr "Migration Copilot"
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "迁移助手向导 —— 粘贴或上传客户名单，审阅 AI 映射，规范化数据，并在提交前预览导入结果。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Min $"
 msgstr "最低 $"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Min days"
 msgstr "最小天数"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Minimum days until due"
 msgstr "距离截止日的最小天数"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Minimum dollars at risk"
 msgstr "最低风险金额"
 
@@ -3523,7 +3523,7 @@ msgstr "最低风险金额"
 msgid "Missing due date"
 msgstr "缺少截止日"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Missing penalty facts"
 msgstr "缺少 penalty 事实"
 
@@ -3582,13 +3582,13 @@ msgstr "名称"
 msgid "Navigate"
 msgstr "导航"
 
+#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
-#: src/routes/workboard.tsx
 msgid "Need help"
 msgstr "需要帮助"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Needs evidence"
 msgstr "需补证据"
 
@@ -3601,19 +3601,19 @@ msgid "Needs filing state"
 msgstr "需要报税州"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "needs input"
 msgstr "需要输入"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Needs input"
 msgstr "需要输入"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/Step3Normalize.tsx
+#: src/features/obligations/status-control.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
-#: src/features/workboard/status-control.tsx
 #: src/routes/dashboard.tsx
 msgid "Needs review"
 msgstr "需复核"
@@ -3648,7 +3648,7 @@ msgstr "新客户"
 msgid "New client imports will appear here when you need batch recovery."
 msgstr "需要批量恢复时，新的客户导入会显示在这里。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "New obligation view"
 msgstr "新义务视图"
 
@@ -3708,7 +3708,7 @@ msgstr "未选择当前事务所。"
 msgid "No alerts match these filters."
 msgstr "没有提醒匹配这些筛选条件。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No assignable members"
 msgstr "没有可分配成员"
 
@@ -3716,11 +3716,11 @@ msgstr "没有可分配成员"
 msgid "No assigned work"
 msgstr "暂无已分配工作"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No assignees"
 msgstr "没有经办人"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No audit events are attached to this obligation."
 msgstr "此义务尚未关联审计事件。"
 
@@ -3736,17 +3736,17 @@ msgstr "此义务尚无审计事件。"
 msgid "No audit events yet."
 msgstr "暂无审计事件。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No client email on file"
 msgstr "未记录客户邮箱"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No client response yet."
 msgstr "客户尚未回复。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No clients"
 msgstr "没有客户"
 
@@ -3766,7 +3766,7 @@ msgstr "没有已关闭的来源年度义务匹配本次滚转预览。"
 msgid "No commands found."
 msgstr "未找到命令。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No counties"
 msgstr "没有县"
 
@@ -3795,7 +3795,7 @@ msgstr "没有实体"
 msgid "No evidence linked yet"
 msgstr "尚未关联证据"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No evidence links are attached to this obligation."
 msgstr "此义务尚未关联证据链接。"
 
@@ -3812,7 +3812,7 @@ msgid "No exposure states"
 msgstr "没有风险暴露状态"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No forms"
 msgstr "没有表单"
 
@@ -3824,7 +3824,7 @@ msgstr "尚未生成义务。"
 msgid "No import batches yet"
 msgstr "尚无导入批次"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No matched rule"
 msgstr "没有匹配规则"
 
@@ -3844,7 +3844,7 @@ msgstr "暂无通知。"
 msgid "No obligations in this window."
 msgstr "该时间窗口内没有义务事项。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No obligations match these filters."
 msgstr "没有义务符合当前筛选。"
 
@@ -3869,7 +3869,7 @@ msgstr "没有负责人"
 msgid "No paid subscription"
 msgstr "无付费订阅"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No penalty breakdown is available yet."
 msgstr "尚无可用的罚金明细。"
 
@@ -3882,7 +3882,7 @@ msgid "No previous provider imports are available yet."
 msgstr "暂无可复用的平台导入记录。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No readiness states"
 msgstr "没有就绪状态"
 
@@ -3898,11 +3898,11 @@ msgstr "无规则"
 msgid "no rule — not in MVP scope"
 msgstr "无规则 —— 不在 MVP 范围"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No rule extension or unknown"
 msgstr "规则未允许延期或未知"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No saved views"
 msgstr "没有已保存视图"
 
@@ -3923,7 +3923,7 @@ msgid "No state"
 msgstr "无州信息"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No states"
 msgstr "没有州"
 
@@ -3952,7 +3952,7 @@ msgid "No user-facing field change was recorded."
 msgstr "未记录面向用户的字段变更。"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "None"
 msgstr "无"
 
@@ -3968,15 +3968,15 @@ msgstr "归一化"
 msgid "Normalizer warning"
 msgstr "规范化警告"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Not applicable"
 msgstr "不适用"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not calculated"
 msgstr "未计算"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not decided"
 msgstr "未决策"
 
@@ -3984,7 +3984,7 @@ msgstr "未决策"
 msgid "Not enabled"
 msgstr "未启用"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not entered"
 msgstr "未填写"
 
@@ -3992,25 +3992,25 @@ msgstr "未填写"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/members/members-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not recorded"
 msgstr "未记录"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not set"
 msgstr "未设置"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not specified"
 msgstr "未指定"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Not started"
 msgstr "未开始"
 
+#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
-#: src/routes/workboard.tsx
 msgid "Not yet"
 msgstr "尚未准备好"
 
@@ -4054,7 +4054,7 @@ msgstr "NY PTET 付款"
 msgid "Obligation"
 msgstr "义务"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Obligation detail"
 msgstr "义务详情"
 
@@ -4062,7 +4062,7 @@ msgstr "义务详情"
 msgid "Obligation evidence"
 msgstr "义务证据"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Obligation needs-input update"
 msgstr "义务需补输入更新"
 
@@ -4082,8 +4082,9 @@ msgstr "义务状态更新和客户导入在写入审计记录后会显示在这
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/concepts/concept-help.tsx
+#: src/features/rules/generation-preview-tab.tsx
+#: src/routes/obligations.tsx
 #: src/routes/route-summary.ts
-#: src/routes/workboard.tsx
 msgid "Obligations"
 msgstr "义务"
 
@@ -4091,7 +4092,7 @@ msgstr "义务"
 msgid "Obligations actually created after Generate runs. Preview results show zero here until generation succeeds."
 msgstr "点击 Generate 后实际创建的义务数量。在生成成功前，Preview 结果这里显示为 0。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Obligations bulk owner change"
 msgstr "义务批量负责人变更"
 
@@ -4127,7 +4128,7 @@ msgstr "官方摘录"
 msgid "Official extension form or method"
 msgstr "官方延期表格或方式"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Official form or method"
 msgstr "官方表格或方式"
 
@@ -4228,7 +4229,7 @@ msgstr "只有当前事务所 Owner 可以创建或变更订阅。"
 #: src/features/notifications/notifications-page.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Open"
 msgstr "展开"
 
@@ -4247,7 +4248,7 @@ msgstr "打开证据并确认来源仍然匹配。"
 #. placeholder {0}: row.original.clientName
 #. placeholder {0}: tableRow.original.clientName
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Open evidence for {0}"
 msgstr "打开 {0} 的证据"
 
@@ -4296,7 +4297,7 @@ msgstr "打开官方来源"
 msgid "Open official source: {0}"
 msgstr "打开官方来源：{0}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Open portal"
 msgstr "打开门户"
 
@@ -4310,7 +4311,7 @@ msgid "Open rule detail: {0}"
 msgstr "打开规则详情：{0}"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Open source"
 msgstr "打开来源"
 
@@ -4330,7 +4331,7 @@ msgstr "打开你的身份验证器应用，添加新账户，然后扫描此二
 msgid "Open your personal notification inbox."
 msgstr "打开你的个人通知收件箱。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Opened by"
 msgstr "打开者"
 
@@ -4399,8 +4400,8 @@ msgstr "已逾期"
 #: src/features/permissions/permission-gate.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/billing.tsx
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Owner"
 msgstr "负责人"
 
@@ -4418,7 +4419,7 @@ msgstr "Owner 授权"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/mapping-target-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Owner count"
 msgstr "所有者数量"
 
@@ -4447,7 +4448,7 @@ msgstr "仅 Owner 可操作。邀请团队成员、变更角色并管理席位�
 msgid "Owners need MFA before sensitive production actions."
 msgstr "Owner 在执行敏感生产操作前需要启用 MFA。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Owners updated"
 msgstr "负责人已更新"
 
@@ -4463,7 +4464,7 @@ msgstr "第 {pageNumber} 页，共 {pageCount} 页"
 msgid "Page not found"
 msgstr "未找到页面"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Paid"
 msgstr "已支付"
 
@@ -4545,11 +4546,11 @@ msgstr "缴款税年开始"
 msgid "Payments and credits"
 msgstr "付款和抵免"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "PDF zip"
 msgstr "PDF 压缩包"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty inputs"
 msgstr "Penalty 输入"
 
@@ -4557,7 +4558,7 @@ msgstr "Penalty 输入"
 msgid "Penalty inputs changed"
 msgstr "Penalty 输入已更改"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty inputs saved"
 msgstr "Penalty 输入已保存"
 
@@ -4569,7 +4570,7 @@ msgstr "Penalty Radar"
 msgid "Penalty readiness is computed from the confirmed tax type plus any estimated tax due and owner count columns mapped in Step 2."
 msgstr "Penalty readiness 会根据已确认的税种，以及 Step 2 映射出的预计应纳税额和所有者数量列计算。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty sources"
 msgstr "Penalty 来源"
 
@@ -4584,7 +4585,7 @@ msgstr "罚金豁免"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/members/members-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Pending"
 msgstr "待处理"
 
@@ -4624,7 +4625,7 @@ msgstr "需要权限"
 msgid "Personal & fiduciary"
 msgstr "个人与信托"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Pin view"
 msgstr "置顶视图"
 
@@ -4677,13 +4678,13 @@ msgstr "请至少输入 2 个字符。"
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/login.tsx
+#: src/routes/obligations.tsx
 #: src/routes/onboarding.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Please try again."
 msgstr "请稍后重试。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Portal link copied"
 msgstr "门户链接已复制"
 
@@ -4810,7 +4811,7 @@ msgstr "偏好设置"
 msgid "Preparer"
 msgstr "经办人"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Preparing"
 msgstr "准备中"
 
@@ -4818,7 +4819,7 @@ msgstr "准备中"
 msgid "Preparing normalization"
 msgstr "正在准备规范化"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Preparing tip from verified deadline context."
 msgstr "正在基于已验证的截止日上下文准备提示。"
 
@@ -4895,7 +4896,7 @@ msgid "Primary navigation"
 msgstr "主导航"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Priority"
 msgstr "优先级"
 
@@ -4925,14 +4926,14 @@ msgstr "Pro"
 msgid "Production Pulse actions require Pro or above."
 msgstr "Production Pulse 操作需要 Pro 或更高计划。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Projected 90-day risk"
 msgstr "预计 90 天风险"
 
 #: src/features/concepts/concept-help.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Projected risk"
 msgstr "预计风险"
 
@@ -4945,7 +4946,7 @@ msgstr "预计风险上限"
 msgid "Projected risk dollars are hidden for your current role."
 msgstr "当前角色无法查看预计风险金额。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
 msgstr "预计风险反映最新保存的罚金计算。已发生罚金按所选截至日期动态计算。"
 
@@ -5065,7 +5066,7 @@ msgstr "Pulse 更新"
 msgid "Quarantined"
 msgstr "已隔离"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Queue controls"
 msgstr "队列控制"
 
@@ -5125,7 +5126,7 @@ msgstr "只读视图"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/concepts/concept-help.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness"
 msgstr "就绪度"
 
@@ -5133,11 +5134,11 @@ msgstr "就绪度"
 msgid "Readiness check"
 msgstr "准备状态检查"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness link created"
 msgstr "准备状态链接已创建"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness portal opened"
 msgstr "准备状态 portal 已打开"
 
@@ -5145,20 +5146,20 @@ msgstr "准备状态 portal 已打开"
 msgid "Readiness pressure"
 msgstr "准备状态压力"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness request revoked"
 msgstr "准备状态请求已撤销"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness request sent"
 msgstr "准备状态请求已发送"
 
+#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
-#: src/routes/workboard.tsx
 msgid "Readiness response submitted"
 msgstr "准备状态回复已提交"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness updated"
 msgstr "就绪度已更新"
 
@@ -5167,10 +5168,10 @@ msgid "Reading file…"
 msgstr "正在读取文件…"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
-#: src/routes/workboard.tsx
 msgid "Ready"
 msgstr "已就绪"
 
@@ -5195,7 +5196,7 @@ msgstr "原因"
 msgid "Receipts band"
 msgstr "收入区间"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Recently updated"
 msgstr "最近更新"
 
@@ -5207,11 +5208,11 @@ msgstr "推荐"
 msgid "Record audit trail"
 msgstr "记录审计轨迹"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Record internal decision: extension applied"
 msgstr "记录内部决策：已按延期处理"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Record internal decision: extension rejected"
 msgstr "记录内部决策：不按延期处理"
 
@@ -5235,7 +5236,7 @@ msgstr "正在跳转到 Google…"
 msgid "Redirecting to Microsoft…"
 msgstr "正在跳转到 Microsoft…"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Reference"
 msgstr "引用"
 
@@ -5243,7 +5244,7 @@ msgstr "引用"
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Refresh"
 msgstr "刷新"
 
@@ -5293,7 +5294,7 @@ msgstr "提醒就绪"
 msgid "reminder-ready across MVP scope"
 msgstr "MVP 范围内可触发提醒"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Remove checklist item"
 msgstr "删除检查项"
 
@@ -5305,11 +5306,11 @@ msgstr "从事务所移除"
 msgid "Remove member?"
 msgstr "移除成员？"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rename saved view"
 msgstr "重命名已保存视图"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rename view"
 msgstr "重命名视图"
 
@@ -5361,7 +5362,7 @@ msgstr "已预留"
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Reset"
 msgstr "重置"
 
@@ -5381,7 +5382,7 @@ msgstr "处理"
 msgid "Resolve needs review clients"
 msgstr "处理需要复核的客户"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Responses"
 msgstr "回复"
 
@@ -5389,7 +5390,7 @@ msgstr "回复"
 msgid "Restart checkout"
 msgstr "重新开始支付"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Resulting readiness"
 msgstr "最终准备状态"
 
@@ -5401,7 +5402,7 @@ msgstr "已撤回"
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Retry"
 msgstr "重试"
 
@@ -5528,7 +5529,7 @@ msgstr "复核中"
 msgid "Revoke"
 msgstr "撤销"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Revoke request"
 msgstr "撤销请求"
 
@@ -5538,7 +5539,7 @@ msgstr "已撤销"
 
 #: src/features/concepts/concept-help.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Risk"
 msgstr "风险"
 
@@ -5616,7 +5617,7 @@ msgstr "规则"
 msgid "Rule / reason"
 msgstr "规则 / 原因"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rule allows extension"
 msgstr "规则允许申请延期"
 
@@ -5636,7 +5637,7 @@ msgstr "规则单元格"
 msgid "Rule detail and evidence"
 msgstr "规则详情与证据"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rule extension policy"
 msgstr "规则延期政策"
 
@@ -5648,7 +5649,7 @@ msgstr "规则问题已报告"
 msgid "Rule Library"
 msgstr "规则库"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rule notes"
 msgstr "规则备注"
 
@@ -5686,7 +5687,7 @@ msgstr "规则已发布"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Run migration"
 msgstr "运行迁移"
 
@@ -5702,7 +5703,7 @@ msgstr "运行预览"
 msgid "Run the mapper to see confidence stats."
 msgstr "运行映射器以查看置信度统计。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Run the migration wizard to import a CSV of clients, or change the filters above."
 msgstr "运行迁移向导导入客户 CSV，或调整上方筛选条件。"
 
@@ -5750,12 +5751,12 @@ msgstr "每年省 $96"
 msgid "Save about 20%"
 msgstr "约省 20%"
 
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Save changes"
 msgstr "保存更改"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Save current view"
 msgstr "保存当前视图"
 
@@ -5767,7 +5768,7 @@ msgstr "保存报税辖区"
 msgid "Save from $960/year"
 msgstr "每年省 $960 起"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Save internal decision"
 msgstr "保存内部决策"
 
@@ -5791,7 +5792,7 @@ msgstr "保存 Smart Priority"
 msgid "Save these recovery codes now"
 msgstr "立即保存这些恢复码"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Save view"
 msgstr "保存视图"
 
@@ -5800,21 +5801,21 @@ msgid "Saved obligation view"
 msgstr "已保存义务视图"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved view created"
 msgstr "已创建保存视图"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved view deleted"
 msgstr "已删除保存视图"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved view name"
 msgstr "保存视图名称"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved view updated"
 msgstr "已更新保存视图"
 
@@ -5822,11 +5823,11 @@ msgstr "已更新保存视图"
 msgid "Saved view updated: {name}"
 msgstr "保存视图已更新：{name}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved views"
 msgstr "已保存视图"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved views store filters, sort, visible columns, and density."
 msgstr "保存视图会存储筛选、排序、可见列和密度。"
 
@@ -5859,21 +5860,21 @@ msgstr "范围"
 msgid "Score"
 msgstr "分数"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Search assignees"
 msgstr "搜索经办人"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Search clients"
 msgstr "搜索客户"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Search counties"
 msgstr "搜索县"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Search obligations"
 msgstr "搜索义务"
 
@@ -5931,7 +5932,7 @@ msgstr "种子"
 #. placeholder {0}: row.clientName
 #. placeholder {0}: tableRow.original.clientName
 #: src/features/pulse/components/AffectedClientsTable.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Select {0}"
 msgstr "选择 {0}"
 
@@ -5943,7 +5944,7 @@ msgstr "选择一个客户以查看记录。"
 msgid "Select all eligible obligations"
 msgstr "选择全部可应用义务"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Select all visible rows"
 msgstr "选择所有可见行"
 
@@ -5979,7 +5980,7 @@ msgstr "发送 7 天有效的 magic link，将成员添加到该事务所。"
 msgid "Send invite"
 msgstr "发送邀请"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Send readiness check"
 msgstr "发送准备状态检查"
 
@@ -6056,7 +6057,7 @@ msgstr "显示 {firstItemNumber}-{lastItemNumber}，共 {totalCount} 条"
 msgid "showing selected client entity groups; Other remains manual review"
 msgstr "显示所选客户实体组；Other 仍保留为人工复核"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Showing the previous tip while the latest one is being prepared."
 msgstr "正在显示上一版提示，同时准备最新版。"
 
@@ -6110,8 +6111,8 @@ msgstr "已跳过行"
 
 #: src/features/concepts/concept-help.tsx
 #: src/features/priority/SmartPriorityBadge.tsx
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Smart Priority"
 msgstr "智能优先级"
 
@@ -6176,7 +6177,7 @@ msgid "Something went wrong. Please try again."
 msgstr "出现异常，请重试。"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Sort"
 msgstr "排序"
 
@@ -6226,7 +6227,7 @@ msgstr "来源标题和摘录为必填项。"
 msgid "Source needs attention · {label}"
 msgstr "来源需要处理 · {label}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Source or confirmation reference"
 msgstr "来源或确认引用"
 
@@ -6285,7 +6286,7 @@ msgid "SSO and custom coverage"
 msgstr "SSO 与自定义覆盖"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Stale"
 msgstr "已过期"
 
@@ -6300,7 +6301,7 @@ msgstr "先看金额和截止日压力，再处理有证据支撑的分诊队列
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "State"
 msgstr "州"
 
@@ -6320,7 +6321,7 @@ msgstr "覆盖州"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Status"
 msgstr "状态"
 
@@ -6328,12 +6329,12 @@ msgstr "状态"
 msgid "STATUS"
 msgstr "状态"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Status changes write an audit row in the same call so the trail stays trustworthy."
 msgstr "状态变更会在同一次调用中写入审计记录，确保审计链可信。"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Status updated"
 msgstr "状态已更新"
 
@@ -6341,7 +6342,7 @@ msgstr "状态已更新"
 msgid "Step {step} / 4"
 msgstr "第 {step} 步 / 共 4 步"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Still preparing. You can leave this page and check back later."
 msgstr "仍在准备中。你可以离开此页面，稍后再回来查看。"
 
@@ -6439,7 +6440,7 @@ msgstr "跟随系统"
 msgid "System notification"
 msgstr "系统通知"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "System or client portal"
 msgstr "系统或客户门户"
 
@@ -6463,14 +6464,14 @@ msgstr "目标申报年度必须正好比来源申报年度晚一年。"
 msgid "Target filing year must be the next year after source filing year."
 msgstr "目标申报年度必须是来源申报年度的下一年。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Tax due"
 msgstr "应缴税款"
 
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Tax type"
 msgstr "税种"
 
@@ -6617,7 +6618,7 @@ msgstr "历史延误达到 Smart Priority 最高贡献值的迟交次数。更�
 msgid "The matched verified rule and period, or the reason this row is duplicate or skipped."
 msgstr "匹配到的已核验规则和期间，或该行重复/跳过的原因。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "The memo is stored on the audit trail for the bulk status change."
 msgstr "该备注会记录在这次批量状态变更的审计轨迹中。"
 
@@ -6654,7 +6655,7 @@ msgid "The projected risk across the current deadline queue. It helps prioritize
 msgstr "当前截止日队列中的预计风险。它用于帮助安排工作优先级，但不是正式罚金通知。"
 
 #: src/lib/i18n-error.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "The request was invalid. Please review your input and try again."
 msgstr "请求无效，请检查输入后重试。"
 
@@ -6746,7 +6747,7 @@ msgstr "此 Pulse 提醒已关闭，无法发送审核请求。"
 msgid "This readiness link is expired, revoked, or invalid."
 msgstr "此准备状态链接已过期、已撤销或无效。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "This records an internal decision for this obligation. It does not update the due date, change client records, or confirm an authority filing. Payment may still be due by the original date."
 msgstr "这会为该义务记录一个内部决策。它不会更新截止日、修改客户资料，也不代表已向官方提交延期。付款可能仍需在原始日期前完成。"
 
@@ -6786,7 +6787,7 @@ msgstr "这会软删除当前事务所。如果还有其他可用事务所，你
 msgid "This source is no longer trusted. The historical alert remains visible, but new apply, dismiss, snooze, and undo actions are disabled."
 msgstr "此来源不再受信任。历史提醒仍可查看，但新的应用、忽略、暂缓和撤销操作已停用。"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "This week"
 msgstr "本周"
 
@@ -6796,8 +6797,8 @@ msgstr "本周"
 
 #. placeholder {0}: client?.name ?? 'this client'
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "This will remove {0} from the active client directory, dashboard, and obligations workboard. The audit log will keep the deletion record."
-msgstr "这会从当前客户目录、仪表盘和截止日工作台中移除 {0}。审计日志会保留删除记录。"
+msgid "This will remove {0} from the active client directory, dashboard, and Obligations. The audit log will keep the deletion record."
+msgstr "这会将 {0} 从活跃客户目录、仪表盘和义务中移除。审计日志会保留删除记录。"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Tier"
@@ -6822,7 +6823,7 @@ msgid "Timezone"
 msgstr "时区"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Today"
 msgstr "今天"
 
@@ -6907,7 +6908,7 @@ msgstr "无法启动 Microsoft 登录"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Unassigned"
 msgstr "未分配"
 
@@ -6969,12 +6970,12 @@ msgstr "未知"
 msgid "Unknown browser"
 msgstr "未知浏览器"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Unpin view"
 msgstr "取消置顶视图"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "unsupported"
 msgstr "不支持"
 
@@ -6982,7 +6983,7 @@ msgstr "不支持"
 msgid "Unsupported"
 msgstr "暂不支持"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Update active view"
 msgstr "更新当前视图"
 
@@ -6995,13 +6996,13 @@ msgid "Updated"
 msgstr "更新时间"
 
 #. placeholder {0}: formatDateTimeWithTimezone(insight.generatedAt)
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Updated {0}"
 msgstr "更新于 {0}"
 
 #: src/components/patterns/app-shell.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Upgrade"
 msgstr "升级"
 
@@ -7043,7 +7044,7 @@ msgstr "请使用已部署的应用 URL，或受信任的本地 HTTPS tunnel，�
 msgid "Use a whole number from 0 to 99"
 msgstr "请输入 0 到 99 之间的整数"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
 msgstr "使用表格表头按客户、辖区、表单、就绪度、负责人、风险和时间筛选。"
 
@@ -7149,7 +7150,7 @@ msgstr "查看审计日志"
 msgid "View billing"
 msgstr "查看账单"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Visible columns"
 msgstr "可见列"
 
@@ -7157,12 +7158,12 @@ msgstr "可见列"
 msgid "WA subtotal minus credits"
 msgstr "WA 扣除抵免后的小计"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Waiting"
 msgstr "等待中"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Waiting on client"
 msgstr "等待客户回复"
 
@@ -7267,10 +7268,6 @@ msgstr "工作邮箱"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Workbench"
-msgstr "工作台"
-
-#: src/features/rules/generation-preview-tab.tsx
-msgid "Workboard"
 msgstr "工作台"
 
 #: src/features/migration/WizardShell.tsx

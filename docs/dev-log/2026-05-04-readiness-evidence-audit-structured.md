@@ -22,11 +22,11 @@ events hard to scan.
 ## Design alignment
 
 - No DESIGN.md or token changes were needed.
-- The display keeps the existing compact Workboard detail card language while avoiding raw JSON for
+- The display keeps the existing compact Obligations detail card language while avoiding raw JSON for
   common readiness artifacts.
 
 ## Validation
 
-- `pnpm exec vp check apps/app/src/routes/workboard.tsx`
+- `pnpm exec vp check apps/app/src/routes/obligations.tsx`
 - `pnpm --filter @duedatehq/app i18n:extract`
 - `pnpm --filter @duedatehq/app i18n:compile`

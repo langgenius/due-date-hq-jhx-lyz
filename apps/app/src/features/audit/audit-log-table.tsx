@@ -12,7 +12,7 @@ import {
   TableRow,
 } from '@duedatehq/ui/components/ui/table'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
-import { useReadinessLabels, useStatusLabels } from '@/features/workboard/status-control'
+import { useReadinessLabels, useStatusLabels } from '@/features/obligations/status-control'
 
 import { buildAuditChangeView } from './audit-change-view'
 import {

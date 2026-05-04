@@ -75,16 +75,16 @@ export type AuditActionCategory =
   | 'ai'
   | 'system'
 
-export type WorkboardSort =
+export type ObligationQueueSort =
   | 'smart_priority'
   | 'due_asc'
   | 'due_desc'
   | 'exposure_desc'
   | 'exposure_asc'
   | 'updated_desc'
-export type WorkboardOwnerFilter = 'unassigned'
-export type WorkboardDueFilter = 'overdue'
-export type WorkboardReadiness = ObligationReadiness
+export type ObligationQueueOwnerFilter = 'unassigned'
+export type ObligationQueueDueFilter = 'overdue'
+export type ObligationQueueReadiness = ObligationReadiness
 export type DashboardSeverity = 'critical' | 'high' | 'medium' | 'neutral'
 export type DashboardDueBucket = 'overdue' | 'today' | 'next_7_days' | 'next_30_days' | 'long_term'
 export type DashboardEvidenceFilter = 'needs' | 'linked'

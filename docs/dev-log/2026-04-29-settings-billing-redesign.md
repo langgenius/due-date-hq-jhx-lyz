@@ -32,7 +32,7 @@ Owner: Codex
 - 写回 `docs/dev-file/05-Frontend-Architecture.md` 和 `docs/Design/DueDateHQ-DESIGN.md`，
   明确 billing 是 settings 下的 commerce / status surface，宽度为 1180px。
 - Follow-up 调整 marketing `/pricing` 和 app billing / checkout 文案：公开套餐卡只讲
-  workspace、Pulse、workboard、evidence 等产品能力，不把 test-mode、Stripe-hosted、
+  workspace、Pulse、obligations、evidence 等产品能力，不把 test-mode、Stripe-hosted、
   sandbox 或 founder 邮箱当作卖点；Firm / Pro 的 CTA 和 features 在两边保持一致。
 - Follow-up 重排 `/billing/checkout`：左侧主卡改为明确的 plan summary（套餐、价格、
   计费周期、包含能力、支付边界），右侧 firm context 改为核对清单；CTA 统一为 secure

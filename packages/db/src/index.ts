@@ -6,7 +6,7 @@ import * as firmSchema from './schema/firm'
 import * as notificationSchema from './schema/notifications'
 import * as readinessSchema from './schema/readiness'
 import * as rulesSchema from './schema/rules'
-import * as workboardSchema from './schema/workboard'
+import * as obligationSavedViewSchema from './schema/obligation-saved-view'
 import { makeFirmsRepo } from './repo/firms'
 import { makeMembersRepo } from './repo/members'
 import { makePulseOpsRepo } from './repo/pulse'
@@ -30,7 +30,7 @@ export { firmSchema }
 export { notificationSchema }
 export { readinessSchema }
 export { rulesSchema }
-export { workboardSchema }
+export { obligationSavedViewSchema }
 export { makeFirmsRepo }
 export { makeCalendarRepo }
 export { makeCalendarFeedRepo }

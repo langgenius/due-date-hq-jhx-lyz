@@ -1,15 +1,15 @@
 ---
-title: 'Sync Lingui source references after app shell and workboard extraction'
+title: 'Sync Lingui source references after app shell and obligations extraction'
 date: 2026-04-28
 author: 'Codex'
 ---
 
-# Sync Lingui Source References After App Shell and Workboard Extraction
+# Sync Lingui Source References After App Shell and Obligations Extraction
 
 ## Context
 
 The authenticated E2E coverage commit landed after extracting app shell navigation, user menu, and
-workboard status controls into focused modules. Lingui message content stayed valid, but the
+obligations status controls into focused modules. Lingui message content stayed valid, but the
 committed catalogs still pointed those messages at their pre-extraction source files.
 
 ## Change

@@ -1,4 +1,4 @@
-# 2026-05-02 Dashboard Triage + Workboard P0 Completion
+# 2026-05-02 Dashboard Triage + Obligations P0 Completion
 
 ## What changed
 
@@ -6,14 +6,14 @@
   `long_term`, computed after overlay due dates and evidence counts are applied. `this_week`
   includes overdue rows; each row appears in only one triage window.
 - Dashboard UI now URL-syncs `triage` and renders the three main triage tabs with count,
-  exposure total, countdown, status control, evidence entry, and a Workboard deep link.
-- Workboard now supports multi-row selection while preserving URL-backed active row navigation.
+  exposure total, countdown, status control, evidence entry, and a Obligations deep link.
+- Obligations now supports multi-row selection while preserving URL-backed active row navigation.
   The bulk bar can update status, mark selected rows extended with an audit memo, change
   client-level assignee, export CSV, export per-client PDF zip, and clear selection.
-- Workboard Saved Views are persisted in D1 via `workboard_saved_view`, including filters/sort,
+- Obligations Saved Views are persisted in D1 via `obligation_saved_view`, including filters/sort,
   column visibility, density, and pin state. The UI can save, apply, update, rename, pin, and
   delete views.
-- Workboard density and column visibility are controlled TanStack table state and synced to URL.
+- Obligations density and column visibility are controlled TanStack table state and synced to URL.
 
 ## Backend notes
 
@@ -22,17 +22,17 @@
 - Bulk status writes one audit row per changed obligation and queues one Dashboard brief refresh
   for the operation.
 - Bulk assignee writes one batch audit row and updates the unique selected client rows.
-- `workboard.exportSelected` respects coordinator dollar hiding, writes `workboard.exported`
+- `obligations.exportSelected` respects coordinator dollar hiding, writes `obligations.exported`
   audit metadata, returns base64 CSV or a zip of one generated PDF per selected client.
 
 ## Validation
 
-- Added contract coverage for new dashboard triage, Workboard Saved Views, bulk status, bulk
+- Added contract coverage for new dashboard triage, Obligations Saved Views, bulk status, bulk
   assignee, export schemas, and expanded status enum.
 - Added DB coverage for Dashboard triage window boundaries.
 - Added server unit coverage for bulk status audit writes.
-- Added e2e coverage for Dashboard triage URL sync/deep link plus Workboard saved views,
+- Added e2e coverage for Dashboard triage URL sync/deep link plus Obligations saved views,
   density, column visibility, bulk assignee, CSV/PDF zip export, and extended memo flow.
-- Updated the Pulse apply/revert E2E to validate `pulse_apply` through the Workboard evidence
+- Updated the Pulse apply/revert E2E to validate `pulse_apply` through the Obligations evidence
   drawer and Audit log while Dashboard assertions now verify the resulting deadline row in the
   current `Next deadlines` / `Triage queue` UI instead of the removed Evidence checks tab.

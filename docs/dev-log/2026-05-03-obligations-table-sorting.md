@@ -1,22 +1,22 @@
 ---
-title: 'Workboard table sorting'
+title: 'Obligations table sorting'
 date: 2026-05-03
-area: workboard
+area: obligations
 ---
 
 ## Context
 
-Workboard already had URL-backed server sorting through the toolbar select, but the table headers
+Obligations already had URL-backed server sorting through the toolbar select, but the table headers
 did not expose direct sorting controls for the operational columns users scan most often.
 
 ## Changes
 
-- Added Workboard sort values for Exposure high-to-low and low-to-high.
+- Added Obligations sort values for Exposure high-to-low and low-to-high.
 - Kept Due date sorting on the existing server-backed `due_asc` / `due_desc` sort values.
 - Added compact header sort buttons for Due date and Exposure.
 - Preserved server-side pagination semantics by extending repo comparison and cursor handling for
   Exposure sorting.
-- Follow-up: Workboard data rows now use the pointer cursor to match their click-to-open behavior.
+- Follow-up: Obligations data rows now use the pointer cursor to match their click-to-open behavior.
 
 ## Design alignment
 
@@ -29,7 +29,7 @@ did not expose direct sorting controls for the operational columns users scan mo
 ## Validation
 
 - `pnpm check`
-- `pnpm --filter @duedatehq/db test -- --run src/repo/workboard.test.ts`
+- `pnpm --filter @duedatehq/db test -- --run src/repo/obligations.test.ts`
 - `pnpm --filter @duedatehq/contracts test -- --run src/contracts.test.ts`
 - `pnpm --filter @duedatehq/app test`
 - `pnpm --filter @duedatehq/app build`

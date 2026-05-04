@@ -1,45 +1,45 @@
 ---
-title: 'Workboard TanStack Table URL State'
+title: 'Obligations TanStack Table URL State'
 date: 2026-04-28
 author: 'Codex'
 updates:
   - note: 'Replaced URL cursor paging with oRPC infinite query pageParam consumption after page feedback.'
 ---
 
-# Workboard TanStack Table URL State
+# Obligations TanStack Table URL State
 
 ## 背景
 
-Workboard 是 PRD 和 `docs/dev-file/05-Frontend-Architecture.md` 明确要求的高密度表格面。实现迁移前，`apps/app/src/routes/workboard.tsx` 直接手写 `<Table>` rows，并把 `statusFilter`、`searchInput`、`sort`、cursor stack 和 active row 放在组件 state 里。这样能跑当前 4 列队列，但和后续 10–20 列、自定义列、批量选择、Saved Views 的方向不一致。
+Obligations 是 PRD 和 `docs/dev-file/05-Frontend-Architecture.md` 明确要求的高密度表格面。实现迁移前，`apps/app/src/routes/obligations.tsx` 直接手写 `<Table>` rows，并把 `statusFilter`、`searchInput`、`sort`、cursor stack 和 active row 放在组件 state 里。这样能跑当前 4 列队列，但和后续 10–20 列、自定义列、批量选择、Saved Views 的方向不一致。
 
 本次实现前重新核对了 TanStack Table v8 官方文档和项目内 `vercel-react-best-practices`。官方推荐 server-side 场景使用 `useReactTable` + `getCoreRowModel()`，开启 `manualPagination` / `manualSorting` / `manualFiltering`，并保持 `data` / `columns` 引用稳定；Vercel 规则侧重点是避免派生状态 effect、使用稳定 memo/callback、避免输入导致重渲染阻塞。
 
 ## 做了什么
 
-- `apps/app/src/routes/workboard.tsx`
+- `apps/app/src/routes/obligations.tsx`
   - 接入 `useReactTable`、`getCoreRowModel`、`flexRender`。
-  - 将列定义集中为稳定 `ColumnDef<WorkboardRow>[]`，继续复用现有 `@duedatehq/ui/components/ui/table` 语义 table primitive。
-  - 开启 `manualFiltering`、`manualSorting`、`manualPagination`，让筛选 / 排序 / cursor pagination 继续由 `workboard.list` 服务端 read model 负责。
+  - 将列定义集中为稳定 `ColumnDef<ObligationQueueRow>[]`，继续复用现有 `@duedatehq/ui/components/ui/table` 语义 table primitive。
+  - 开启 `manualFiltering`、`manualSorting`、`manualPagination`，让筛选 / 排序 / cursor pagination 继续由 `obligations.list` 服务端 read model 负责。
   - 使用 `nuqs` 管 `q/status/sort/row`，替代本地 filter/sort/active-row state。
   - 2026-04-28 follow-up：`q/status/sort/row` 收敛为模块级
-    `workboardSearchParamsParsers`，并导出 `WorkboardSearchParams =
-inferParserType<typeof workboardSearchParamsParsers>`；`history: 'replace'`
+    `obligationsSearchParamsParsers`，并导出 `ObligationsSearchParams =
+inferParserType<typeof obligationsSearchParamsParsers>`；`history: 'replace'`
     也移到 parser contract 上，避免未来 serializer / loader 复用时漏掉 URL 行为。
-  - 2026-04-28 follow-up：移除 URL `cursor`。`workboard.list` 分页仍由后端
-    contract 负责；前端改为 `useInfiniteQuery(orpc.workboard.list.infiniteOptions(...))`
+  - 2026-04-28 follow-up：移除 URL `cursor`。`obligations.list` 分页仍由后端
+    contract 负责；前端改为 `useInfiniteQuery(orpc.obligations.list.infiniteOptions(...))`
     消费 `pageParam` / `nextCursor`，`Load more` 追加 `data.pages[].rows`，不再把下一页替换当前页。
   - 2026-04-28 follow-up：搜索是客户端 TanStack Query fetching，不再用
     `useDeferredValue` 当作请求防抖。输入框继续读 `nuqs` 即时 state；实际
-    `workboard.list` input 读 `foxact/use-debounced-value` 产出的 debounced state。
+    `obligations.list` input 读 `foxact/use-debounced-value` 产出的 debounced state。
     `nuqs/debounce` 只用于 URL 写入降频。
-  - 2026-04-28 follow-up：Workboard sort/status 的 Base UI Select trigger 显式渲染
+  - 2026-04-28 follow-up：Obligations sort/status 的 Base UI Select trigger 显式渲染
     Lingui label，避免触发器回退展示 `due_asc` 这类 raw value。
-  - 2026-04-28 follow-up：Workboard 搜索 contract 上限收紧为 64 字符；DB repo
+  - 2026-04-28 follow-up：Obligations 搜索 contract 上限收紧为 64 字符；DB repo
     在进入 D1 `LIKE` 前 normalize 并 escape pattern，避免复杂用户输入冒成 500。
   - 使用 TanStack row selection state 表达 active row，`J/K` 快捷键和点击行都会写回 URL 中的 `row`。
 
 - `docs/dev-file/05-Frontend-Architecture.md`
-  - 将 Workboard 表格章节从计划项更新为当前实现口径。
+  - 将 Obligations 表格章节从计划项更新为当前实现口径。
   - 明确当前是 cursor pagination；cursor 属于 oRPC infinite query 的
     `pageParam`，不是 URL state 或 page index。接口没有 `rowCount` 前不使用页码式
     `rowCount/pageCount` 控件。
@@ -50,25 +50,25 @@ inferParserType<typeof workboardSearchParamsParsers>`；`history: 'replace'`
 TanStack Table 在这里的价值不是替换样式组件，而是把表格状态、列模型、row model、row selection 统一到一个 headless table instance。当前代码仍保持轻量：不引入全局 DataTable 抽象，不迁移 Dashboard / Rules / Migration 的小型展示表，也不提前引入虚拟化。
 
 分页现在走 TanStack Query v5 的 infinite query 形态，但不手写 fetcher 或 query
-key：`orpc.workboard.list.infiniteOptions()` 负责从 contract 推导输入 / 输出类型。
+key：`orpc.obligations.list.infiniteOptions()` 负责从 contract 推导输入 / 输出类型。
 后端仍负责 cursor pagination，前端只把 infinite query 传入的 `pageParam` 作为
 `cursor` 发给后端，再用后端返回的 `nextCursor` 作为下一页参数。这样 `Load more`
 追加已加载 pages，而不是把 URL cursor 改成下一页后整表替换。
 
 官方 page-based 示例使用 `rowCount` 或 `pageCount`，但当前 D1 read model 是 cursor
-pagination，`workboard.list` 只返回 `nextCursor`。等后端需要页码、总数或 Saved
+pagination，`obligations.list` 只返回 `nextCursor`。等后端需要页码、总数或 Saved
 Views 时，再扩展 contract。
 
 ## 验证
 
-- `pnpm exec vp fmt --write apps/app/src/routes/workboard.tsx docs/dev-file/05-Frontend-Architecture.md`
-- `pnpm exec vp fmt --check apps/app/src/routes/workboard.tsx docs/dev-file/05-Frontend-Architecture.md docs/dev-log/2026-04-28-workboard-tanstack-table-url-state.md`
+- `pnpm exec vp fmt --write apps/app/src/routes/obligations.tsx docs/dev-file/05-Frontend-Architecture.md`
+- `pnpm exec vp fmt --check apps/app/src/routes/obligations.tsx docs/dev-file/05-Frontend-Architecture.md docs/dev-log/2026-04-28-obligations-tanstack-table-url-state.md`
 - `pnpm --filter @duedatehq/app test -- --run`
 - `pnpm --filter @duedatehq/app exec tsc --noEmit --pretty false`
-- 2026-04-28 follow-up：`pnpm exec vp check apps/app/src/routes/workboard.tsx`
-- 2026-04-28 follow-up：`pnpm exec vp fmt --check apps/app/src/routes/workboard.tsx`
+- 2026-04-28 follow-up：`pnpm exec vp check apps/app/src/routes/obligations.tsx`
+- 2026-04-28 follow-up：`pnpm exec vp fmt --check apps/app/src/routes/obligations.tsx`
 
-`fmt --check` 通过；app 测试 8 files / 49 tests 通过。`tsc` 中 Workboard 相关类型通过；随后修复了既有 `packages/ui/src/components/ui/sidebar.tsx` Base UI `render` prop 类型错误，并重新跑通：
+`fmt --check` 通过；app 测试 8 files / 49 tests 通过。`tsc` 中 Obligations 相关类型通过；随后修复了既有 `packages/ui/src/components/ui/sidebar.tsx` Base UI `render` prop 类型错误，并重新跑通：
 
 - `packages/ui/src/components/ui/sidebar.tsx:302`
 - `packages/ui/src/components/ui/sidebar.tsx:355`
@@ -79,5 +79,5 @@ Views 时，再扩展 contract。
 ## 后续 / 未闭环
 
 - 真正 optimistic status rollback 尚未做，当前仍是 mutation 成功后 invalidate + toast audit id。
-- 批量选择、列可见性、自定义列、Saved Views 需要在后续 PRD workboard 扩列时继续走 TanStack controlled state。
-- 如果 `workboard.list` 未来返回 `rowCount`，可以改为官方推荐的 `rowCount` / page controls；否则保持 cursor infinite query。
+- 批量选择、列可见性、自定义列、Saved Views 需要在后续 PRD obligations 扩列时继续走 TanStack controlled state。
+- 如果 `obligations.list` 未来返回 `rowCount`，可以改为官方推荐的 `rowCount` / page controls；否则保持 cursor infinite query。

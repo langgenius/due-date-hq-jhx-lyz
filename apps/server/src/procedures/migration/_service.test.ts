@@ -538,7 +538,7 @@ function buildScopedRepo(firmId: string) {
     },
   }
 
-  const workboard: ScopedRepo['workboard'] = {
+  const obligationQueue: ScopedRepo['obligationQueue'] = {
     firmId,
     async list() {
       return { rows: [], nextCursor: null }
@@ -553,10 +553,10 @@ function buildScopedRepo(firmId: string) {
       return []
     },
     async createSavedView() {
-      return unexpectedRepoCall('workboard.createSavedView')
+      return unexpectedRepoCall('obligations.createSavedView')
     },
     async updateSavedView() {
-      return unexpectedRepoCall('workboard.updateSavedView')
+      return unexpectedRepoCall('obligations.updateSavedView')
     },
     async deleteSavedView() {},
   }
@@ -681,7 +681,7 @@ function buildScopedRepo(firmId: string) {
       },
     },
     obligations,
-    workboard,
+    obligationQueue,
     workload,
     pulse,
     readiness: {

@@ -117,10 +117,10 @@ export const AUDIT_ACTION_LABEL_KEYS = {
   'rules.review.rejected': 'rulesReviewRejected',
   'rules.review.required': 'rulesReviewRequired',
   'rules.source.changed': 'rulesSourceChanged',
-  'workboard.exported': 'workboardExported',
-  'workboard.saved_view.created': 'workboardSavedViewCreated',
-  'workboard.saved_view.deleted': 'workboardSavedViewDeleted',
-  'workboard.saved_view.updated': 'workboardSavedViewUpdated',
+  'obligations.exported': 'obligationQueueExported',
+  'obligations.saved_view.created': 'obligationQueueSavedViewCreated',
+  'obligations.saved_view.deleted': 'obligationQueueSavedViewDeleted',
+  'obligations.saved_view.updated': 'obligationQueueSavedViewUpdated',
 } as const
 
 export type AuditActionLabelKey =
@@ -173,8 +173,8 @@ export type AuditEntityTypeLabels = {
   pulseAlert: string
   rule: string
   ruleSource: string
-  workboardExport: string
-  workboardSavedView: string
+  obligationQueueExport: string
+  obligationQueueSavedView: string
 }
 
 const AUDIT_ENTITY_TYPE_LABEL_KEYS = {
@@ -194,8 +194,8 @@ const AUDIT_ENTITY_TYPE_LABEL_KEYS = {
   pulse_application: 'pulseApplication',
   pulse_firm_alert: 'pulseAlert',
   rule_source: 'ruleSource',
-  workboard_export: 'workboardExport',
-  workboard_saved_view: 'workboardSavedView',
+  obligations_export: 'obligationQueueExport',
+  obligation_saved_view: 'obligationQueueSavedView',
 } as const satisfies Record<string, keyof AuditEntityTypeLabels>
 
 type KnownAuditEntityType = keyof typeof AUDIT_ENTITY_TYPE_LABEL_KEYS

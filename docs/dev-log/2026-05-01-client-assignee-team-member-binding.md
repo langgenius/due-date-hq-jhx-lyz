@@ -7,7 +7,7 @@
 - Added `members.listAssignable`, a read-only RPC for active team members that is available to
   client write roles instead of reusing the Owner-only team management endpoint.
 - Added `client.assignee_id` for member-backed assignments while preserving `client.assignee_name`
-  as the display/import compatibility label used by Workboard and Team Workload.
+  as the display/import compatibility label used by Obligations and Team Workload.
 
 ## Notes
 

@@ -18,9 +18,9 @@ regression.
 - Updated login page selectors to accept the current welcome heading and email field label.
 - Refreshed billing, members, and RBAC assertions for the current Pro seat limit and permission
   surfaces.
-- Made workboard row helpers cover both full table rows and dashboard triage buttons.
+- Made obligations row helpers cover both full table rows and dashboard triage buttons.
 - Updated Pulse and migration wizard assertions for current dashboard copy.
-- Adjusted Rules Console E2E setup to use seeded workboard data, explicit status filters, and a
+- Adjusted Rules Console E2E setup to use seeded obligations data, explicit status filters, and a
   selected preview client before running simulations.
 
 ## Verification

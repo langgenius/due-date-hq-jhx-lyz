@@ -2,7 +2,7 @@ import { expect, test } from '../fixtures/test'
 
 // Feature: Obligations queue
 // PRD: S1 protected Obligations entry
-// AC: E2E-WORKBOARD-FILTERS, E2E-WORKBOARD-STATUS
+// AC: E2E-OBLIGATIONS-FILTERS, E2E-OBLIGATIONS-STATUS
 
 test.skip(
   Boolean(process.env.E2E_BASE_URL),
@@ -10,7 +10,7 @@ test.skip(
 )
 
 test.describe('seeded obligations', () => {
-  test.use({ authSeed: 'workboard' })
+  test.use({ authSeed: 'obligations' })
 
   test('AC: E2E-DASHBOARD-TRIAGE syncs tabs to URL and opens matching Obligations view', async ({
     authenticatedPage,
@@ -31,7 +31,7 @@ test.describe('seeded obligations', () => {
     )
 
     await authenticatedPage.getByRole('button', { name: 'Open full Obligations' }).click()
-    await expect(authenticatedPage).toHaveURL(/\/workboard\?daysMin=8&daysMax=30$/)
+    await expect(authenticatedPage).toHaveURL(/\/obligations\?daysMin=8&daysMax=30$/)
   })
 
   test('AC: E2E-DASHBOARD-FILTERS keeps header filters open while updating table data', async ({
@@ -74,46 +74,49 @@ test.describe('seeded obligations', () => {
     await expect(authenticatedPage.getByRole('menuitemcheckbox', { name: /Today/ })).toBeVisible()
   })
 
-  test('AC: E2E-WORKBOARD-FILTERS searches, filters, and sorts real queue rows', async ({
+  test('AC: E2E-OBLIGATIONS-FILTERS searches, filters, and sorts real queue rows', async ({
     authenticatedPage,
-    workboardPage,
+    obligationQueuePage,
   }) => {
-    await workboardPage.goto()
+    await obligationQueuePage.goto()
 
-    await expect(workboardPage.heading).toBeVisible()
-    await expect(workboardPage.calendarSyncLink).toHaveAttribute('href', '/workboard/calendar')
+    await expect(obligationQueuePage.heading).toBeVisible()
+    await expect(obligationQueuePage.calendarSyncLink).toHaveAttribute(
+      'href',
+      '/obligations/calendar',
+    )
     await expect(authenticatedPage.getByText('Arbor & Vale LLC')).toBeVisible()
     await expect(authenticatedPage.getByText('Northstar Dental Group')).toBeVisible()
 
-    await workboardPage.searchInput.fill('Arbor')
-    await expect(authenticatedPage).toHaveURL(/\/workboard\?q=Arbor$/)
+    await obligationQueuePage.searchInput.fill('Arbor')
+    await expect(authenticatedPage).toHaveURL(/\/obligations\?q=Arbor$/)
     await expect(authenticatedPage.getByText('Arbor & Vale LLC')).toBeVisible()
     await expect(authenticatedPage.getByText('Northstar Dental Group')).toBeHidden()
 
-    await workboardPage.resetButton.click()
-    await expect(authenticatedPage).toHaveURL(/\/workboard$/)
-    await workboardPage.openStatusFilter()
-    await workboardPage.statusFilterOption('Needs review').click()
-    await expect(authenticatedPage).toHaveURL(/\/workboard\?status=review$/)
+    await obligationQueuePage.resetButton.click()
+    await expect(authenticatedPage).toHaveURL(/\/obligations$/)
+    await obligationQueuePage.openStatusFilter()
+    await obligationQueuePage.statusFilterOption('Needs review').click()
+    await expect(authenticatedPage).toHaveURL(/\/obligations\?status=review$/)
     await expect(authenticatedPage.getByText('Northstar Dental Group')).toBeVisible()
     await expect(authenticatedPage.getByText('Arbor & Vale LLC')).toBeHidden()
-    await expect(workboardPage.statusFilterOption('Needs review')).toBeVisible()
+    await expect(obligationQueuePage.statusFilterOption('Needs review')).toBeVisible()
     await authenticatedPage.keyboard.press('Escape')
 
-    await workboardPage.resetButton.click()
-    await expect(authenticatedPage).toHaveURL(/\/workboard$/)
-    await workboardPage.sortSelect.click()
+    await obligationQueuePage.resetButton.click()
+    await expect(authenticatedPage).toHaveURL(/\/obligations$/)
+    await obligationQueuePage.sortSelect.click()
     await authenticatedPage.getByRole('option', { name: 'Due date — latest first' }).click()
-    await expect(authenticatedPage).toHaveURL(/\/workboard\?sort=due_desc$/)
+    await expect(authenticatedPage).toHaveURL(/\/obligations\?sort=due_desc$/)
   })
 
-  test('AC: E2E-WORKBOARD-DETAIL opens the obligation drawer from a row click', async ({
+  test('AC: E2E-OBLIGATIONS-DETAIL opens the obligation drawer from a row click', async ({
     authenticatedPage,
-    workboardPage,
+    obligationQueuePage,
   }) => {
-    await workboardPage.goto()
+    await obligationQueuePage.goto()
 
-    await workboardPage.openDetailFor('Arbor & Vale LLC')
+    await obligationQueuePage.openDetailFor('Arbor & Vale LLC')
     await expect(authenticatedPage).toHaveURL(/drawer=obligation/)
     await expect(authenticatedPage).toHaveURL(/tab=readiness/)
     await expect(authenticatedPage.getByRole('dialog', { name: /Arbor & Vale LLC/ })).toBeVisible()
@@ -132,95 +135,99 @@ test.describe('seeded obligations', () => {
     await expect(checklistLabels).toHaveCount(checklistCount)
   })
 
-  test('AC: E2E-WORKBOARD-STATUS updates status through oRPC and audit toast', async ({
+  test('AC: E2E-OBLIGATIONS-STATUS updates status through oRPC and audit toast', async ({
     authenticatedPage,
-    workboardPage,
+    obligationQueuePage,
   }) => {
-    await workboardPage.goto()
+    await obligationQueuePage.goto()
 
-    await workboardPage.statusSelectFor('Arbor & Vale LLC').click()
-    await workboardPage.statusChangeOption('Filed').click()
+    await obligationQueuePage.statusSelectFor('Arbor & Vale LLC').click()
+    await obligationQueuePage.statusChangeOption('Filed').click()
 
     await expect(authenticatedPage.getByText('Status updated')).toBeVisible()
     await expect(authenticatedPage.getByText(/Audit [a-f0-9-]{8}/)).toBeVisible()
-    await expect(workboardPage.statusSelectFor('Arbor & Vale LLC')).toContainText('Filed')
+    await expect(obligationQueuePage.statusSelectFor('Arbor & Vale LLC')).toContainText('Filed')
 
-    await workboardPage.readinessSelectFor('Arbor & Vale LLC').click()
-    await workboardPage.readinessChangeOption('Waiting').click()
+    await obligationQueuePage.readinessSelectFor('Arbor & Vale LLC').click()
+    await obligationQueuePage.readinessChangeOption('Waiting').click()
 
     await expect(authenticatedPage.getByText('Readiness updated')).toBeVisible()
-    await expect(workboardPage.readinessSelectFor('Arbor & Vale LLC')).toContainText('Waiting')
+    await expect(obligationQueuePage.readinessSelectFor('Arbor & Vale LLC')).toContainText(
+      'Waiting',
+    )
 
     await authenticatedPage.keyboard.press('P')
-    await expect(workboardPage.statusSelectFor('Arbor & Vale LLC')).toContainText('Paid')
+    await expect(obligationQueuePage.statusSelectFor('Arbor & Vale LLC')).toContainText('Paid')
   })
 
-  test('AC: E2E-WORKBOARD-COMPLETE saves a view, changes density/columns, and bulk updates rows', async ({
+  test('AC: E2E-OBLIGATIONS-COMPLETE saves a view, changes density/columns, and bulk updates rows', async ({
     authenticatedPage,
-    workboardPage,
+    obligationQueuePage,
   }) => {
-    await workboardPage.goto()
+    await obligationQueuePage.goto()
 
-    await workboardPage.compactTab.click()
-    await expect(authenticatedPage).toHaveURL(/\/workboard\?density=compact$/)
+    await obligationQueuePage.compactTab.click()
+    await expect(authenticatedPage).toHaveURL(/\/obligations\?density=compact$/)
 
-    await workboardPage.columnsButton.click()
-    await workboardPage.columnVisibilityOption('County').click()
+    await obligationQueuePage.columnsButton.click()
+    await obligationQueuePage.columnVisibilityOption('County').click()
     await authenticatedPage.keyboard.press('Escape')
     await expect(authenticatedPage).toHaveURL(/hide=clientCounty/)
 
-    await workboardPage.searchInput.fill('Arbor')
+    await obligationQueuePage.searchInput.fill('Arbor')
     await expect(authenticatedPage).toHaveURL(/q=Arbor/)
 
-    await workboardPage.savedViewsButton.click()
-    await workboardPage.savedViewMenuItem('Save current view').click()
+    await obligationQueuePage.savedViewsButton.click()
+    await obligationQueuePage.savedViewMenuItem('Save current view').click()
     await authenticatedPage.getByLabel('Saved view name').fill('E2E Arbor compact')
     await authenticatedPage.getByRole('button', { name: 'Save view' }).click()
     await expect(authenticatedPage.getByText('Saved view created')).toBeVisible()
 
-    await workboardPage.resetButton.click()
-    await expect(authenticatedPage).toHaveURL(/\/workboard$/)
-    await workboardPage.savedViewsButton.click()
-    await workboardPage.savedViewMenuItem('Apply view').click()
+    await obligationQueuePage.resetButton.click()
+    await expect(authenticatedPage).toHaveURL(/\/obligations$/)
+    await obligationQueuePage.savedViewsButton.click()
+    await obligationQueuePage.savedViewMenuItem('Apply view').click()
     await expect(authenticatedPage).toHaveURL(/q=Arbor/)
     await expect(authenticatedPage).toHaveURL(/density=compact/)
     await expect(authenticatedPage).toHaveURL(/hide=clientCounty/)
 
-    await workboardPage.savedViewsButton.click()
-    await workboardPage.savedViewMenuItem('Rename view').click()
+    await obligationQueuePage.savedViewsButton.click()
+    await obligationQueuePage.savedViewMenuItem('Rename view').click()
     await authenticatedPage.getByLabel('Saved view name').fill('E2E renamed view')
     await authenticatedPage.getByRole('button', { name: 'Save view' }).click()
     await expect(authenticatedPage.getByText('Saved view updated')).toBeVisible()
 
-    await workboardPage.savedViewsButton.click()
-    await workboardPage.savedViewMenuItem('Delete view').click()
+    await obligationQueuePage.savedViewsButton.click()
+    await obligationQueuePage.savedViewMenuItem('Delete view').click()
     await expect(authenticatedPage.getByText('Saved view deleted')).toBeVisible()
 
-    await workboardPage.resetButton.click()
-    await workboardPage.selectRow('Arbor & Vale LLC').click()
+    await obligationQueuePage.resetButton.click()
+    await obligationQueuePage.selectRow('Arbor & Vale LLC').click()
     await authenticatedPage.getByRole('button', { name: 'Change assignee' }).click()
     await authenticatedPage.getByRole('menuitem', { name: 'E2E Owner' }).click()
     await expect(authenticatedPage.getByText('Owners updated')).toBeVisible()
-    await expect(workboardPage.rowFor('Arbor & Vale LLC')).toContainText('E2E Owner')
+    await expect(obligationQueuePage.rowFor('Arbor & Vale LLC')).toContainText('E2E Owner')
 
-    await workboardPage.selectRow('Arbor & Vale LLC').click()
+    await obligationQueuePage.selectRow('Arbor & Vale LLC').click()
     await authenticatedPage.getByRole('button', { name: 'Change readiness', exact: true }).click()
     await authenticatedPage.getByRole('menuitem', { name: 'Needs review' }).click()
     await expect(authenticatedPage.getByText('Bulk readiness updated')).toBeVisible()
-    await expect(workboardPage.readinessSelectFor('Arbor & Vale LLC')).toContainText('Needs review')
+    await expect(obligationQueuePage.readinessSelectFor('Arbor & Vale LLC')).toContainText(
+      'Needs review',
+    )
 
-    await workboardPage.selectRow('Arbor & Vale LLC').click()
-    await workboardPage.selectRow('Northstar Dental Group').click()
+    await obligationQueuePage.selectRow('Arbor & Vale LLC').click()
+    await obligationQueuePage.selectRow('Northstar Dental Group').click()
     const [csvDownload] = await Promise.all([
       authenticatedPage.waitForEvent('download'),
       authenticatedPage.getByRole('button', { name: 'CSV' }).click(),
     ])
-    expect(csvDownload.suggestedFilename()).toMatch(/^workboard-\d{4}-\d{2}-\d{2}\.csv$/)
+    expect(csvDownload.suggestedFilename()).toMatch(/^obligations-\d{4}-\d{2}-\d{2}\.csv$/)
     const [zipDownload] = await Promise.all([
       authenticatedPage.waitForEvent('download'),
       authenticatedPage.getByRole('button', { name: 'PDF zip' }).click(),
     ])
-    expect(zipDownload.suggestedFilename()).toMatch(/^workboard-pdfs-\d{4}-\d{2}-\d{2}\.zip$/)
+    expect(zipDownload.suggestedFilename()).toMatch(/^obligations-pdfs-\d{4}-\d{2}-\d{2}\.zip$/)
     await authenticatedPage.getByRole('button', { name: 'Mark extended' }).click()
     await authenticatedPage.getByLabel('Extension memo').fill('E2E extension memo')
     await authenticatedPage
@@ -228,6 +235,6 @@ test.describe('seeded obligations', () => {
       .getByRole('button', { name: 'Mark extended' })
       .click()
     await expect(authenticatedPage.getByText('Bulk status updated')).toBeVisible()
-    await expect(workboardPage.statusSelectFor('Arbor & Vale LLC')).toContainText('Extended')
+    await expect(obligationQueuePage.statusSelectFor('Arbor & Vale LLC')).toContainText('Extended')
   })
 })

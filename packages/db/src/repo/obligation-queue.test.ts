@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Db } from '../client'
-import { makeWorkboardRepo, normalizeWorkboardSearch } from './workboard'
+import { makeObligationQueueRepo, normalizeObligationQueueSearch } from './obligation-queue'
 import type { ObligationReadiness, ObligationStatus } from '../schema/obligations'
 
 interface FakeRow {
@@ -29,7 +29,7 @@ interface FakeRow {
 }
 
 /**
- * Fake Drizzle chain — only what makeWorkboardRepo.list calls actually walks.
+ * Fake Drizzle chain — only what makeObligationQueueRepo.list calls actually walks.
  * Order: select().from().innerJoin().leftJoin().where().orderBy().limit() => Promise<rows>.
  */
 function createFakeDb(rows: FakeRow[]) {
@@ -100,18 +100,18 @@ function makeRow(over: Partial<FakeRow> = {}): FakeRow {
   }
 }
 
-describe('makeWorkboardRepo.list', () => {
+describe('makeObligationQueueRepo.list', () => {
   it('normalizes client search before building a LIKE query', () => {
-    expect(normalizeWorkboardSearch('  dddjkfjjjkfjksalj;flaslfkafsadfj;laksjf  ')).toBe(
+    expect(normalizeObligationQueueSearch('  dddjkfjjjkfjksalj;flaslfkafsadfj;laksjf  ')).toBe(
       'dddjkfjjjkfjksalj flaslfkafsadfj laksjf',
     )
-    expect(normalizeWorkboardSearch('%_Acme\\LLC_'.repeat(8))?.length).toBeLessThanOrEqual(64)
-    expect(normalizeWorkboardSearch(';;;')).toBeNull()
+    expect(normalizeObligationQueueSearch('%_Acme\\LLC_'.repeat(8))?.length).toBeLessThanOrEqual(64)
+    expect(normalizeObligationQueueSearch(';;;')).toBeNull()
   })
 
   it('returns rows with no nextCursor when limit is not exceeded', async () => {
     const fake = createFakeDb([makeRow({ id: 'a' }), makeRow({ id: 'b' })])
-    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+    const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     const result = await repo.list({ limit: 50 })
 
@@ -125,7 +125,7 @@ describe('makeWorkboardRepo.list', () => {
       makeRow({ id: 'target-obligation' }),
       makeRow({ id: 'other-obligation' }),
     ])
-    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+    const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     const result = await repo.list({ obligationIds: ['target-obligation'] })
 
@@ -143,7 +143,7 @@ describe('makeWorkboardRepo.list', () => {
       )
     }
     const fake = createFakeDb(rows)
-    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+    const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     const result = await repo.list({ limit: 5, sort: 'due_asc' })
 
@@ -158,7 +158,7 @@ describe('makeWorkboardRepo.list', () => {
       rows.push(makeRow({ id: `id_${i}`, updatedAt: new Date(2026, 3, 10 + i) }))
     }
     const fake = createFakeDb(rows)
-    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+    const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     const result = await repo.list({ limit: 5, sort: 'updated_desc' })
 
@@ -184,7 +184,7 @@ describe('makeWorkboardRepo.list', () => {
         estimatedExposureCents: 150_000,
       }),
     ])
-    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+    const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     await expect(repo.list({ sort: 'exposure_desc' })).resolves.toMatchObject({
       rows: [{ id: 'high' }, { id: 'low' }, { id: 'needs-input' }],
@@ -196,7 +196,7 @@ describe('makeWorkboardRepo.list', () => {
 
   it('clamps limit between 1 and 100', async () => {
     const fake = createFakeDb([])
-    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+    const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     await repo.list({ limit: 9999 })
     expect(fake.limit).toHaveBeenLastCalledWith(1000)
@@ -207,7 +207,7 @@ describe('makeWorkboardRepo.list', () => {
 
   it('decodes invalid cursor gracefully (treats as no cursor)', async () => {
     const fake = createFakeDb([])
-    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+    const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     await expect(repo.list({ cursor: '!!!not-base64!!!' })).resolves.toEqual({
       rows: [],
@@ -243,7 +243,7 @@ describe('makeWorkboardRepo.list', () => {
         exposureStatus: 'needs_input',
       }),
     ])
-    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+    const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     const result = await repo.list({
       asOfDate: '2026-04-15',
@@ -287,7 +287,7 @@ describe('makeWorkboardRepo.list', () => {
         assigneeName: 'Mina Patel',
       }),
     ])
-    const repo = makeWorkboardRepo(fake.db, 'firm_a')
+    const repo = makeObligationQueueRepo(fake.db, 'firm_a')
 
     const result = await repo.facets()
 

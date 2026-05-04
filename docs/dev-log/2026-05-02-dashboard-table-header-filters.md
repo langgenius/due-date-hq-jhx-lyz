@@ -6,7 +6,7 @@ area: dashboard
 
 ## Context
 
-Dashboard triage needed the same table-header filtering workflow as Workboard: multi-select
+Dashboard triage needed the same table-header filtering workflow as Obligations: multi-select
 checkbox menus, immediate server-backed refresh on each option click, and menus that stay open for
 continued selection.
 
@@ -18,8 +18,8 @@ continued selection.
   relying on the currently visible rows.
 - Refactored dashboard aggregation so global summary/top risk rows remain unfiltered while
   `triageTabs` reflect the selected table filters.
-- Extracted the Workboard header checkbox filter into a shared app pattern and reused it from both
-  Workboard and Dashboard.
+- Extracted the Obligations header checkbox filter into a shared app pattern and reused it from both
+  Obligations and Dashboard.
 - Converted the Dashboard triage table to TanStack Table with manual filtering and URL-backed
   `nuqs` state.
 - DESIGN.md check: no token, color, spacing, or component contract change was needed; this stays on
@@ -32,7 +32,7 @@ continued selection.
 - `pnpm --filter @duedatehq/app test`
 - `pnpm --filter @duedatehq/app i18n:extract`
 - `pnpm --filter @duedatehq/app i18n:compile`
-- `pnpm test:e2e e2e/tests/workboard.spec.ts`
+- `pnpm test:e2e e2e/tests/obligations.spec.ts`
 - `pnpm check`
 - `pnpm ready`
 

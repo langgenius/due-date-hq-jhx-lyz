@@ -13,7 +13,7 @@ import { makeObligationsRepo } from './repo/obligations'
 import { makePulseRepo } from './repo/pulse'
 import { makeReadinessRepo } from './repo/readiness'
 import { makeRulesRepo } from './repo/rules'
-import { makeWorkboardRepo } from './repo/workboard'
+import { makeObligationQueueRepo } from './repo/obligation-queue'
 import { makeWorkloadRepo } from './repo/workload'
 import type { ScopedRepo } from './types'
 
@@ -43,7 +43,7 @@ export function scoped(db: Db, firmId: string): ScopedRepo {
     clients: makeClientsRepo(db, firmId),
     dashboard: makeDashboardRepo(db, firmId),
     obligations: makeObligationsRepo(db, firmId),
-    workboard: makeWorkboardRepo(db, firmId),
+    obligationQueue: makeObligationQueueRepo(db, firmId),
     workload: makeWorkloadRepo(db, firmId),
     pulse: makePulseRepo(db, firmId),
     readiness: makeReadinessRepo(db, firmId),

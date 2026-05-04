@@ -9,7 +9,7 @@ author: 'Codex'
 ## 背景
 
 Sidebar IA 已经把 `Team workload` 提升为 `Practice` 下的付费团队容量面，但全局 `G then ...`
-导航序列仍只覆盖 Dashboard / Workboard / Clients / Alerts。与此同时，`?` 帮助浮层虽然从
+导航序列仍只覆盖 Dashboard / Obligations / Clients / Alerts。与此同时，`?` 帮助浮层虽然从
 TanStack registry 生成，但旧布局是单列列表，视觉密度低，内部滚动边界不稳定。
 
 ## 做了什么

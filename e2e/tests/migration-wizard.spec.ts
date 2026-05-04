@@ -43,7 +43,7 @@ test('AC: E2E-MIGRATION-IMPORT-UNDO imports from the wizard and reverts from toa
   appShellPage,
   authenticatedPage,
   migrationWizardPage,
-  workboardPage,
+  obligationQueuePage,
 }) => {
   const importedClient = 'Undoable Migration LLC'
 
@@ -79,17 +79,17 @@ test('AC: E2E-MIGRATION-IMPORT-UNDO imports from the wizard and reverts from toa
   await expect(migrationWizardPage.undoImportDialog).toBeVisible()
   await migrationWizardPage.confirmUndoImport()
 
-  await expect(authenticatedPage).toHaveURL(/\/workboard$/)
-  await expect(workboardPage.heading).toBeVisible()
+  await expect(authenticatedPage).toHaveURL(/\/obligations$/)
+  await expect(obligationQueuePage.heading).toBeVisible()
   await expect(authenticatedPage.getByText('Import undone')).toBeVisible()
-  await expect(workboardPage.rowFor(importedClient)).toBeHidden()
+  await expect(obligationQueuePage.rowFor(importedClient)).toBeHidden()
 })
 
 test('AC: E2E-MIGRATION-EXPOSURE imports tax inputs into Dashboard and Evidence drawer', async ({
   appShellPage,
   authenticatedPage,
   migrationWizardPage,
-  workboardPage,
+  obligationQueuePage,
 }) => {
   const importedClient = 'Exposure Migration Corp'
   await authenticatedPage.emulateMedia({ reducedMotion: 'reduce' })
@@ -130,8 +130,8 @@ test('AC: E2E-MIGRATION-EXPOSURE imports tax inputs into Dashboard and Evidence 
   await expect(authenticatedPage.getByText('90-day projected risk')).toBeVisible()
   await expect(authenticatedPage.getByText(/\$[1-9][\d,.]*\.\d{2}/).first()).toBeVisible()
 
-  await appShellPage.workboardLink.click()
-  const importedRow = workboardPage.rowFor(importedClient).first()
+  await appShellPage.obligationQueueLink.click()
+  const importedRow = obligationQueuePage.rowFor(importedClient).first()
   await expect(importedRow).toBeVisible()
   await expect(importedRow).toContainText('$')
   await importedRow.getByRole('button', { name: `Open evidence for ${importedClient}` }).click()

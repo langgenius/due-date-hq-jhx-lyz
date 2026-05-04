@@ -44,7 +44,7 @@ Root router 覆盖：
 - `clients`
 - `obligations`
 - `dashboard`
-- `workboard`
+- `obligations`
 - `workload`
 - `pulse`
 - `migration`

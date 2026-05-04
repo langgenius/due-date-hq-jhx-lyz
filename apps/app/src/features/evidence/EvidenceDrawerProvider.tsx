@@ -26,7 +26,7 @@ import {
   type EvidenceDrawerContextValue,
   type OpenEvidenceInput,
 } from '@/features/evidence/EvidenceDrawerContext'
-import { useReadinessLabels, useStatusLabels } from '@/features/workboard/status-control'
+import { useReadinessLabels, useStatusLabels } from '@/features/obligations/status-control'
 
 export function EvidenceDrawerProvider({ children }: { children: ReactNode }) {
   const [request, setRequest] = useState<OpenEvidenceInput | null>(null)

@@ -19,7 +19,7 @@
 
 ## Decision
 
-**布局判定从 URL 段切换到内容形态。** Rules Console 走 Workboard 同源的全宽
+**布局判定从 URL 段切换到内容形态。** Rules Console 走 Obligations 同源的全宽
 ops workbench 布局；Profile / Members 等真正的 settings form 仍保留 880px 列。
 
 ## Implementation
@@ -110,7 +110,7 @@ tab，因为它们共用同一 header。
 - `docs/Design/DueDateHQ-DESIGN.md` §5.2 增订三条新规则：
   - Settings **forms**（Profile / Members / Org general）：880px
   - Settings **data surfaces / ops workbench**（Rules Console、未来的
-    Audit log / Team workload）：全宽，与 Workboard 同源
+    Audit log / Team workload）：全宽，与 Obligations 同源
   - Content body 段落：max-w `1080px`
   - 判定原则：**按内容形态而不是 URL 段决定宽度**
 

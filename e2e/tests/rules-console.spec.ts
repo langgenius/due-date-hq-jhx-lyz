@@ -9,7 +9,7 @@ test.skip(
   'local e2e auth seed is not available on external targets',
 )
 
-test.use({ authSeed: 'workboard' })
+test.use({ authSeed: 'obligations' })
 
 test('AC: E2E-RULES-TABS persists implemented tab state', async ({
   authenticatedPage,

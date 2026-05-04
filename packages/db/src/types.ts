@@ -26,5 +26,5 @@ export type {
   SeatUsage,
   TenantContext,
 } from '@duedatehq/ports/tenants'
-export type { WorkboardRepo } from '@duedatehq/ports/workboard'
+export type { ObligationQueueRepo } from '@duedatehq/ports/obligation-queue'
 export type { WorkloadRepo } from '@duedatehq/ports/workload'

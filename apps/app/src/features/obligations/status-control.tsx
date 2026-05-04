@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useLingui } from '@lingui/react/macro'
 
-import type { ObligationInstancePublic, WorkboardRow } from '@duedatehq/contracts'
+import type { ObligationInstancePublic, ObligationQueueRow } from '@duedatehq/contracts'
 import { BadgeStatusDot, badgeVariants } from '@duedatehq/ui/components/ui/badge'
 import {
   DropdownMenu,
@@ -16,8 +16,8 @@ type ObligationStatus = ObligationInstancePublic['status']
 type ObligationReadiness = ObligationInstancePublic['readiness']
 type StatusLabels = Record<ObligationStatus, string>
 type ReadinessLabels = Record<ObligationReadiness, string>
-type StatusControlRow = Pick<WorkboardRow, 'clientName' | 'status'> & { id: string }
-type ReadinessControlRow = Pick<WorkboardRow, 'clientName' | 'readiness'> & { id: string }
+type StatusControlRow = Pick<ObligationQueueRow, 'clientName' | 'status'> & { id: string }
+type ReadinessControlRow = Pick<ObligationQueueRow, 'clientName' | 'readiness'> & { id: string }
 
 const ALL_STATUSES = [
   'pending',
@@ -119,7 +119,7 @@ function useReadinessLabels(): ReadinessLabels {
   )
 }
 
-function WorkboardStatusControl({
+function ObligationQueueStatusControl({
   row,
   labels,
   disabled,
@@ -176,7 +176,7 @@ function WorkboardStatusControl({
   )
 }
 
-function WorkboardReadinessControl({
+function ObligationQueueReadinessControl({
   row,
   labels,
   disabled,
@@ -236,8 +236,8 @@ function WorkboardReadinessControl({
 export {
   ALL_READINESSES,
   ALL_STATUSES,
-  WorkboardReadinessControl,
-  WorkboardStatusControl,
+  ObligationQueueReadinessControl,
+  ObligationQueueStatusControl,
   isObligationReadiness,
   isObligationStatus,
   useReadinessLabels,

@@ -26,7 +26,7 @@
     "./scoped": "./src/scoped.ts",
     "./shared": "./src/shared.ts",
     "./tenants": "./src/tenants.ts",
-    "./workboard": "./src/workboard.ts",
+    "./obligation-queue": "./src/obligation-queue.ts",
     "./workload": "./src/workload.ts"
   },
   "devDependencies": {

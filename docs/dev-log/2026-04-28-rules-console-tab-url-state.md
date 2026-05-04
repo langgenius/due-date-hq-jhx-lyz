@@ -3,7 +3,7 @@
 ## Context
 
 `/settings/rules` already uses the app-wide `NuqsAdapter`, and `nuqs` is present
-in the workspace dependency catalog. Workboard had already established the URL
+in the workspace dependency catalog. Obligations had already established the URL
 state pattern for shareable operational views, but Rules Console still kept its
 four P0 tabs in component-local state. That meant `/settings/rules` always
 returned to Coverage and could not deep-link directly to Sources, Rule Library,

@@ -21,14 +21,21 @@ Added the first manual annual rollover path under `Rules Console > Obligation Pr
 - Writes verified-rule evidence, an `obligation.annual_rollover.created` audit event, and queues
   a Dashboard brief refresh when generation creates obligations.
 - Added the Annual Rollover UI panel with source/target filing year controls, optional client
-  filter, preview/generate actions, summary counts, row dispositions, and Workboard links.
+  filter, preview/generate actions, summary counts, row dispositions, and Obligations links.
 - Added inline help tooltips to every Annual Rollover summary metric and result-table column so
-  first-time users can interpret counts, dispositions, skipped reasons, and Workboard links in
+  first-time users can interpret counts, dispositions, skipped reasons, and Obligations links in
   place.
 - Kept the all-clients filter sentinel internal-only; the Select trigger now renders the localized
   `All clients` label instead of `__all_clients__`.
 - Normalized missing generation metadata from legacy obligation rows to `null` in the public DTO so
   existing mock/demo data continues to pass `obligations.listByClient` output validation.
+- Added Brightline demo seed coverage for the default `2026 -> 2027` rollover path:
+  - 3 firm-scoped verified runtime rules in `rule_review_decision` for `federal_1120s`,
+    `federal_1065`, and `federal_1041`;
+  - 2 additional closed 2026 source-year obligations for Bright Studio S-Corp and Lakeview Medical
+    Partners, complementing the existing closed Magnolia Family Trust row;
+  - the default preview now has concrete generated rows instead of all rows falling into
+    `missing_verified_rule`.
 
 ## Notes
 
@@ -53,3 +60,7 @@ current client-level risk inputs instead of copying prior-year payment or penalt
 - Passed: targeted `pnpm check:fix` on touched source and docs files
 - Passed: `pnpm test`
 - Passed: `pnpm check`
+- Passed: `pnpm --filter @duedatehq/server test -- src/procedures/obligations/_annual-rollover.test.ts`
+- Passed: `pnpm db:seed:demo`
+- Passed: local D1 verification queries for Brightline demo 2026 closed rollover seeds and 2027
+  verified runtime rules.

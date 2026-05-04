@@ -129,7 +129,7 @@ export function WorkloadPage() {
             </Trans>
           </CardDescription>
           <CardAction>
-            <Button variant="outline" size="sm" render={<Link to="/workboard" />}>
+            <Button variant="outline" size="sm" render={<Link to="/obligations" />}>
               <Trans>Open Obligations</Trans>
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
@@ -184,7 +184,7 @@ function WorkloadUpgradePanel() {
           <Button render={<Link to="/billing" />}>
             <Trans>Upgrade plan</Trans>
           </Button>
-          <Button variant="outline" render={<Link to="/workboard" />}>
+          <Button variant="outline" render={<Link to="/obligations" />}>
             <Trans>Open Obligations</Trans>
           </Button>
         </CardContent>

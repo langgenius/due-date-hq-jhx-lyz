@@ -59,7 +59,7 @@ test.describe('role permission surfaces', () => {
   })
 
   test.describe('coordinator role', () => {
-    test.use({ authRole: 'coordinator', authSeed: 'workboard' })
+    test.use({ authRole: 'coordinator', authSeed: 'obligations' })
 
     test('AC: E2E-RBAC-COORDINATOR hides dollars and blocks Audit/Migration actions', async ({
       appShellPage,

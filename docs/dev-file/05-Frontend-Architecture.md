@@ -31,8 +31,8 @@ apps/app/
 │   │   ├── login.tsx             ← 登录页（path='/login'，loader 把已登录用户跳走，渲染在 EntryShell 内）
 │   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
-│   │   ├── workboard.tsx
-│   │   ├── calendar.tsx          ← Obligations 二级 Calendar sync 页（canonical `/workboard/calendar`；`/calendar` 旧链接重定向）
+│   │   ├── obligations.tsx
+│   │   ├── calendar.tsx          ← Obligations 二级 Calendar sync 页（canonical `/obligations/calendar`；`/calendar` 旧链接重定向）
 │   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、Sheet 档案；使用 clients.listByFirm / clients.create）
 │   │   ├── audit.tsx             ← Audit Log 管理页（firm-wide write events；使用 audit.list）
 │   │   ├── practice.tsx          ← active practice profile（name / timezone / soft-delete）
@@ -49,7 +49,7 @@ apps/app/
 │   │   ├── members/           ← settings members route surface + member role/invite model
 │   │   ├── migration/
 │   │   ├── pulse/
-│   │   ├── workboard/
+│   │   ├── obligations/
 │   │   ├── audit/
 │   │   └── evidence/
 │   ├── components/
@@ -129,7 +129,7 @@ feature 语义留在 members vertical 内。
 - Hydrate fallback 按 route group 定义，不像 error boundary 一样 root-only 收敛：
   entry route 使用 `EntryRouteHydrateFallback`（空白占位，保留 entry shell 的静态 header /
   footer，不显示 skeleton）；protected shell 初始认证 gate 使用 `ShellSkeleton`；dashboard /
-  workboard / organization 等内容 route 使用 `RouteHydrateFallback`。
+  Obligations / organization 等内容 route 使用 `RouteHydrateFallback`。
 - 页面摘要 metadata 挂在 route object 的 `handle.routeSummary` 上，类型为
   `RouteSummaryMessages`（`eyebrow` + `title`，值为 Lingui `MessageDescriptor`）。
   `RootLayout` 通过 `useMatches()` 取最深层 route summary 作为 AppShell route header；
@@ -141,7 +141,7 @@ feature 语义留在 members vertical 内。
     - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去；未登录用户先读取 `/api/auth-capabilities`，默认显示 Email OTP 表单，并用公开 Google Client ID 触发 One Tap。用户开始填写邮箱后暂停 One Tap；Google OAuth 和可选 Microsoft OAuth 按钮保留为 SSO fallback
     - `/onboarding` — `onboardingLoader` 要求有 session 且无 `activeOrganizationId`；已有 active org 直接 `redirect(redirectTo)`，无 session 跳 `/login?redirectTo=/onboarding`
       Onboarding 提交不直接调用 Better Auth organization client；它通过 DueDateHQ `firms` RPC gateway 先 `listMine` 查 active、非 deleted 的业务 firm，有则 `switchActive`，没有才 `create`。这样最后一个 firm soft-delete 后不会被 Better Auth 残留 organization 重新激活。
-  - `/` — 受保护路由组（`id: 'protected'`, `Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `workboard` / `practice` / `rules` / `members` / `billing` 等都作为它的 children；不再保留 `/settings`、`/settings/*` 或历史 `/firm` 兼容路由。`/practice` 是 Practice profile 的唯一 URL。
+  - `/` — 受保护路由组（`id: 'protected'`, `Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `/obligations` / `practice` / `rules` / `members` / `billing` 等都作为它的 children；不再保留 `/settings`、`/settings/*` 或历史 `/firm` 兼容路由。`/practice` 是 Practice profile 的唯一 URL。
     - `/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
       layout：上半区展示当前 practice plan / seat limit / active practice entitlement /
       subscription 状态和 owner-only billing portal 入口，下半区复用 marketing pricing 的
@@ -232,7 +232,7 @@ Dashboard 首屏不渲染独立 AI Weekly Brief 卡片。`dashboard.load` 仍可
 数据。Triage queue 行内展示 Focus rank、Smart Priority drivers、Next check 和 Evidence 按钮；
 证据按钮调用 app-level `EvidenceDrawerProvider.openEvidence()`，drawer 可跳到 obligation evidence
 和官方 source URL。点击 Triage queue 非控件区域直接跳转
-`/workboard?obligation=<obligationId>&row=<obligationId>&drawer=obligation&id=<obligationId>`：
+`/obligations?obligation=<obligationId>&row=<obligationId>&drawer=obligation&id=<obligationId>`：
 Obligations 先用 `obligation` 参数把 table 筛到对应 obligation，等目标行进入列表数据后再打开
 detail drawer；客户名作为独立链接跳转 `/clients?clients=<clientId>&client=<clientId>`。
 
@@ -418,13 +418,13 @@ Theme runtime 同样由 `packages/ui` 持有：
 
 ### 5.3 组件分层
 
-| 层                                     | 位置        | 职责                                                                                            |
-| -------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
-| `@duedatehq/ui/components/ui/*`        | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务、路由、session、oRPC                        |
-| `apps/app/src/components/primitives/*` | 手写        | 真正跨 feature 的 app 专属 UI primitive，不含具体业务 model                                     |
-| `apps/app/src/components/patterns/*`   | 手写        | 跨 feature 复用：app-shell / keyboard-shell / evidence-drawer / confirm-dialog                  |
-| `apps/app/src/features/<vertical>/*`   | 手写        | 特性内部：billing model / dashboard risk UI / migration-wizard / pulse-banner / workboard-table |
-| `apps/app/src/routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                  |
+| 层                                     | 位置        | 职责                                                                                              |
+| -------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| `@duedatehq/ui/components/ui/*`        | shadcn 生成 | Button / Input / Dialog 等基础 primitives，不含业务、路由、session、oRPC                          |
+| `apps/app/src/components/primitives/*` | 手写        | 真正跨 feature 的 app 专属 UI primitive，不含具体业务 model                                       |
+| `apps/app/src/components/patterns/*`   | 手写        | 跨 feature 复用：app-shell / keyboard-shell / evidence-drawer / confirm-dialog                    |
+| `apps/app/src/features/<vertical>/*`   | 手写        | 特性内部：billing model / dashboard risk UI / migration-wizard / pulse-banner / obligations-table |
+| `apps/app/src/routes/*`                | 手写        | 路由级 page 组件，拼装 feature                                                                    |
 
 **依赖方向**：route 拼装 feature；feature 可以消费 app patterns / primitives 和
 `@duedatehq/ui`。`components/primitives` 不得依赖 feature。App-shell / keyboard-shell 这类 layout
@@ -459,7 +459,7 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - **每一个 protected layout（当前的 RootLayout，未来的 Workload Console 等）通过 `<AppShell>` 拼装**，不要在 layout 文件里直接拷贝 `SidebarProvider + Sidebar + SidebarInset` 三件套
 - **Sidebar 不暴露 `collapsible` prop**：desktop 永远 220px，`<md` 自动 Sheet 折叠；这是产品决定不是配置项
 - **selected nav 视觉是 bg-only**（`bg-state-base-hover-alt` + `text-text-primary` + Inter Semi Bold）—— 严禁 accent border 或 accent-tint 出现在 selected 态，否则与 DESIGN §1.2「颜色只为风险服务」冲突。`SidebarMenuButton` 的 cva variants 里**根本不提供** `accent` 变体，把约束写进类型
-- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag?, disabledReason? }`。当前 sidebar IA 是 `Operations`（Dashboard / Obligations / Rules）、`Clients`（Clients facts）、`Practice`（Practice profile / Team workload / Members / Billing / Audit log）。Calendar sync 是 Obligations 的二级低频出口，canonical URL 是 `/workboard/calendar`，旧 `/calendar` 只做重定向；它不进入 sidebar 一级导航。Pulse Changes 合并到 Rules 的二级 tab，Rules 入口承载待处理 Pulse badge；右上角 `Bell` 只表达个人通知收件箱，避免把政府规则变更误导成普通消息提醒。Team workload 是付费 Practice surface：Solo 可见但禁用并显示 `Pro` hint，Pro/Enterprise 启用 `/workload`；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
+- **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag?, disabledReason? }`。当前 sidebar IA 是 `Operations`（Dashboard / Obligations / Rules）、`Clients`（Clients facts）、`Practice`（Practice profile / Team workload / Members / Billing / Audit log）。Calendar sync 是 Obligations 的二级低频出口，canonical URL 是 `/obligations/calendar`，旧 `/calendar` 只做重定向；它不进入 sidebar 一级导航。Pulse Changes 合并到 Rules 的二级 tab，Rules 入口承载待处理 Pulse badge；右上角 `Bell` 只表达个人通知收件箱，避免把政府规则变更误导成普通消息提醒。Team workload 是付费 Practice surface：Solo 可见但禁用并显示 `Pro` hint，Pro/Enterprise 启用 `/workload`；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
 - **Calendar sync 的 Apple 入口只对 HTTPS feed 生成 `webcal://`**：macOS Calendar 会对 `webcal://localhost:<port>` / `http://localhost:<port>` 订阅尝试 TLS 握手，本地明文 `wrangler dev` 端口会失败；本地 HTTP feed 显示解释 toast，staging/production HTTPS feed 才打开 Apple Calendar 直连。
 - **Practice switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上。`Add practice` 是 plan-gated secondary creation action：在 active practice entitlement 内打开创建 dialog，超出 Solo / Pro 的 1 active practice 限制时打开 upgrade / contact-sales gate，而不是继续创建免费 Solo tenant。内部组件名和 RPC 仍可沿用 firm。
 - **Import clients / history 不做一等导航**：Import 是 activation/setup path，把 CPA 已有客户表带入 weekly triage；启动入口在 `/clients` 页面 header / empty state、Dashboard 空状态和 Command Palette action。Import history 是低频 batch recovery，放在 `/clients` header 的弱入口并打开右侧 drawer；历史 `/imports` URL 仅兼容重定向到 `/clients?importHistory=open`。Sidebar 不承载导入或导入历史。
@@ -489,14 +489,14 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 ## 6. 表格（Obligations）
 
-- **当前落地**：`apps/app/src/routes/workboard.tsx` 使用 **TanStack Table 8** 作为 headless table state/rendering 层，继续复用 `@duedatehq/ui/components/ui/table` 的语义 `<table>` primitive。
-- **服务端数据处理**：筛选 / 排序 / 分页仍由 `workboard.list` 和 D1 read model 负责；前端 `useReactTable` 开启 `manualFiltering` / `manualSorting` / `manualPagination`，不在浏览器端二次加工服务端行。
+- **当前落地**：`apps/app/src/routes/obligations.tsx` 使用 **TanStack Table 8** 作为 headless table state/rendering 层，继续复用 `@duedatehq/ui/components/ui/table` 的语义 `<table>` primitive。
+- **服务端数据处理**：筛选 / 排序 / 分页仍由 `obligations.list` 和 D1 read model 负责；前端 `useReactTable` 开启 `manualFiltering` / `manualSorting` / `manualPagination`，不在浏览器端二次加工服务端行。
 - **URL state**：`q`、`status`、`client`、`state`、`county`、`taxType`、`assignee`
   / `assignees`、`readiness`、`riskMin` / `riskMax`、`daysMin` / `daysMax`、`sort`、
-  `row` 由 `nuqs` 管理。`workboardSearchParamsParsers` 是模块级 query contract，
-  `WorkboardSearchParams` 由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空
+  `row` 由 `nuqs` 管理。`obligationsSearchParamsParsers` 是模块级 query contract，
+  `ObligationsSearchParams` 由 `inferParserType` 推导。筛选 / 排序变化在事件处理器中同步清空
   active row，避免用 effect 追踪派生状态。
-- **Filter facets**：`workboard.facets` 返回 client / state / county / tax type /
+- **Filter facets**：`obligations.facets` 返回 client / state / county / tax type /
   assignee 的服务器端选项和计数；county option 带 `state`，前端按已选 state 做联动展示。
   Obligations readiness 目前由 read model 派生：`waiting_on_client → waiting`，`review` 或
   exposure 非 ready → `needs_review`，其余为 `ready`。等独立 readiness state machine
@@ -506,20 +506,20 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   Reset 和少量 triage 快捷 chip，避免 Obligations 出现两套筛选面。
 - **搜索防抖**：Obligations 搜索是客户端 TanStack Query fetching，不是 React Router
   loader/RSC fetching。`nuqs` 负责即时 URL state 和 URL 写入降频；实际
-  `workboard.list` input 使用 `apps/app/src/lib/query-rate-limit.ts` 中的
+  `obligations.list` input 使用 `apps/app/src/lib/query-rate-limit.ts` 中的
   `useDebouncedQueryInput()`，底层 deep import `foxact/use-debounced-value`。这符合
   nuqs 对 client-side fetching 的建议：debounce hook 返回的 state，而不是把
   `limitUrlUpdates` 当作请求防抖。搜索长度由 contract 限制为 64 字符；DB repo
   在进入 D1 `LIKE` 前会 normalize 并 escape pattern，避免用户输入触发 SQLite
   pattern 编译错误。
 - **分页形态**：当前后端是 cursor pagination（50 行 / 页）。前端通过
-  `useInfiniteQuery(orpc.workboard.list.infiniteOptions(...))` 消费 contract：
+  `useInfiniteQuery(orpc.obligations.list.infiniteOptions(...))` 消费 contract：
   `pageParam` 注入 `cursor`，`getNextPageParam` 读取后端 `nextCursor`，并把
   `data.pages[].rows` 交给 TanStack Table。浏览器 URL 不保存 cursor，因为
   cursor 是查询内部的分页游标，不是可分享的筛选状态。
 - **虚拟化时机**：`@tanstack/react-virtual` 已在依赖中保留，但当前 4 列 × 50 行不启用。等 Obligations 扩到 PRD 的 10–20 列、固定表头或长列表滚动容器时再接 row / column virtualization。
 - **后续扩展**：列可见性、自定义列、批量选择、Saved Views 应继续走 TanStack controlled state，并把可分享状态写入 URL 或服务端 saved-view 记录。
-- 行内 `[status ▾]` mutation：当前成功后 invalidate `workboard.list` 并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation lifecycle 内补本地缓存更新。
+- 行内 `[status ▾]` mutation：当前成功后 invalidate `obligations.list` 并 toast audit id；失败 toast 错误信息。需要真正 optimistic rollback 时在 mutation lifecycle 内补本地缓存更新。
 - 键盘：`J/K` 上下行 · `E` 展开 Evidence · `F/X/I/W` 改状态 · `Enter` 打开 Detail
 
 ## 6A. Rules Console
@@ -679,7 +679,7 @@ Phase 0 不做 Storybook，优先跑 Demo。
 ## 14. TODO
 
 - ~~接入 auth 时：登录态检查必须放在 app layout route 的 `loader` 或统一组件 gate 中，不要散落在各页面组件里。~~ 已在 `apps/app/src/router.tsx` 里用 `protectedLoader` / `guestLoader` 两个 loader 落地（`protected` 路由组 + 独立 `/login` 路由组），`RootLayout` 通过 `useLoaderData` 读取 `user`，不再订阅 `useSession`。
-- ~~Obligations 接真实筛选 / 分页时：筛选、排序、分页和选中项必须通过 React Router search params 或 `nuqs` 管 URL state，不要放进普通组件 state。~~ 已在 `apps/app/src/routes/workboard.tsx` 中用 `nuqs` 管 `q/status/sort/row`；后端 cursor 通过 oRPC infinite query 的 `pageParam` 消费。
+- ~~Obligations 接真实筛选 / 分页时：筛选、排序、分页和选中项必须通过 React Router search params 或 `nuqs` 管 URL state，不要放进普通组件 state。~~ 已在 `apps/app/src/routes/obligations.tsx` 中用 `nuqs` 管 `q/status/sort/row`；后端 cursor 通过 oRPC infinite query 的 `pageParam` 消费。
 
 ---
 

@@ -71,10 +71,10 @@ import { useFirmPermission } from '@/features/permissions/permission-gate'
 import { PulseAlertsBanner } from '@/features/pulse/PulseAlertsBanner'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
-  WorkboardStatusControl,
+  ObligationQueueStatusControl,
   useStatusLabels,
   type ObligationStatus,
-} from '@/features/workboard/status-control'
+} from '@/features/obligations/status-control'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { formatCents, formatDate } from '@/lib/utils'
@@ -431,7 +431,7 @@ export function DashboardRoute() {
     orpc.obligations.updateStatus.mutationOptions({
       onSuccess: (result) => {
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
         toast.success(t`Status updated`, {
           description: t`Audit ${result.auditId.slice(0, 8)}`,
@@ -529,7 +529,7 @@ export function DashboardRoute() {
             <FileSearchIcon data-icon="inline-start" />
             <Trans>Run migration</Trans>
           </Button>
-          <Button size="sm" onClick={() => void navigate('/workboard')}>
+          <Button size="sm" onClick={() => void navigate('/obligations')}>
             <Trans>Review risk queue</Trans>
             <ArrowUpRightIcon data-icon="inline-end" />
           </Button>
@@ -563,7 +563,7 @@ export function DashboardRoute() {
         isLoading={dashboardQuery.isLoading}
         summary={data?.summary ?? null}
         canSeeDollars={canSeeDollars}
-        onResolveNeedsReview={() => void navigate('/workboard?status=review')}
+        onResolveNeedsReview={() => void navigate('/obligations?status=review')}
       />
 
       <section>
@@ -600,8 +600,8 @@ export function DashboardRoute() {
           onSelect={(key) => void setDashboardQuery({ triage: key })}
           onFilterChange={(patch) => void setDashboardQuery(patch)}
           onOpenWizard={openWizard}
-          onOpenWorkboard={(key) => void navigate(workboardHrefForTriage(key))}
-          onOpenObligation={(row) => void navigate(workboardHrefForObligationFilter(row))}
+          onOpenObligationQueue={(key) => void navigate(obligationQueueHrefForTriage(key))}
+          onOpenObligation={(row) => void navigate(obligationQueueHrefForObligationFilter(row))}
           onOpenEvidence={(row) =>
             openEvidence({
               obligationId: row.obligationId,
@@ -751,17 +751,17 @@ function DashboardMetricStrip({
   )
 }
 
-function workboardHrefForTriage(key: DashboardTriageTabKey): string {
-  if (key === 'this_week') return '/workboard?daysMax=7'
-  if (key === 'this_month') return '/workboard?daysMin=8&daysMax=30'
-  return '/workboard?daysMin=31&daysMax=180'
+function obligationQueueHrefForTriage(key: DashboardTriageTabKey): string {
+  if (key === 'this_week') return '/obligations?daysMax=7'
+  if (key === 'this_month') return '/obligations?daysMin=8&daysMax=30'
+  return '/obligations?daysMin=31&daysMax=180'
 }
 
-function workboardHrefForObligationFilter(row: DashboardTopRow): string {
+function obligationQueueHrefForObligationFilter(row: DashboardTopRow): string {
   const params = new URLSearchParams({
     obligation: row.obligationId,
   })
-  return `/workboard?${params.toString()}`
+  return `/obligations?${params.toString()}`
 }
 
 function clientProfileHref(clientId: string): string {
@@ -875,7 +875,7 @@ function DashboardTriagePanel({
   onSelect,
   onFilterChange,
   onOpenWizard,
-  onOpenWorkboard,
+  onOpenObligationQueue,
   onOpenObligation,
   onOpenEvidence,
   onChangeStatus,
@@ -896,7 +896,7 @@ function DashboardTriagePanel({
   onSelect: (key: DashboardTriageTabKey) => void
   onFilterChange: (patch: DashboardQueryPatch) => void
   onOpenWizard: () => void
-  onOpenWorkboard: (key: DashboardTriageTabKey) => void
+  onOpenObligationQueue: (key: DashboardTriageTabKey) => void
   onOpenObligation: (row: DashboardTopRow) => void
   onOpenEvidence: (row: DashboardTopRow) => void
   onChangeStatus: (row: DashboardTopRow, status: ObligationStatus) => void
@@ -980,7 +980,7 @@ function DashboardTriagePanel({
           variant="primary"
           size="sm"
           disabled={!selectedTab}
-          onClick={() => selectedTab && onOpenWorkboard(selectedTab.key)}
+          onClick={() => selectedTab && onOpenObligationQueue(selectedTab.key)}
         >
           <Trans>Open full Obligations</Trans>
           <ArrowUpRightIcon data-icon="inline-end" />
@@ -1147,7 +1147,7 @@ function DashboardTriageTable({
           />
         ),
         cell: ({ row }) => (
-          <WorkboardStatusControl
+          <ObligationQueueStatusControl
             row={{
               id: row.original.obligationId,
               clientName: row.original.clientName,

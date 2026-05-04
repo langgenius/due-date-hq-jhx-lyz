@@ -14,10 +14,10 @@ import { LoginPage } from '../pages/login-page'
 import { MembersPage } from '../pages/members-page'
 import { MigrationWizardPage } from '../pages/migration-wizard-page'
 import { RulesConsolePage } from '../pages/rules-console-page'
-import { WorkboardPage } from '../pages/workboard-page'
+import { ObligationQueuePage } from '../pages/obligations-page'
 import { WorkloadPage } from '../pages/workload-page'
 
-type AuthSeedMode = 'empty' | 'workboard' | 'pulse'
+type AuthSeedMode = 'empty' | 'obligations' | 'pulse'
 type AuthRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
 
 type E2EAuthSession = {
@@ -30,7 +30,7 @@ type E2EAuthSession = {
   role: AuthRole
   cookie: Cookie
   seeded: {
-    workboardRows: Array<{
+    obligationQueueRows: Array<{
       clientName: string
       status: string
     }>
@@ -54,7 +54,7 @@ type DueDateFixtures = {
   membersPage: MembersPage
   migrationWizardPage: MigrationWizardPage
   rulesConsolePage: RulesConsolePage
-  workboardPage: WorkboardPage
+  obligationQueuePage: ObligationQueuePage
   workloadPage: WorkloadPage
 }
 
@@ -94,8 +94,8 @@ export const test = base.extend<DueDateFixtures>({
     await use(new RulesConsolePage(authenticatedPage))
   },
 
-  workboardPage: async ({ authenticatedPage }, use) => {
-    await use(new WorkboardPage(authenticatedPage))
+  obligationQueuePage: async ({ authenticatedPage }, use) => {
+    await use(new ObligationQueuePage(authenticatedPage))
   },
 
   workloadPage: async ({ authenticatedPage }, use) => {
@@ -146,7 +146,7 @@ function parseAuthSession(value: unknown): E2EAuthSession {
     typeof cookie.secure !== 'boolean' ||
     cookie.sameSite !== 'Lax' ||
     typeof cookie.expires !== 'number' ||
-    !Array.isArray(seeded.workboardRows)
+    !Array.isArray(seeded.obligationQueueRows)
   ) {
     throw new Error('Invalid e2e auth session response.')
   }
@@ -170,7 +170,7 @@ function parseAuthSession(value: unknown): E2EAuthSession {
       expires: cookie.expires,
     },
     seeded: {
-      workboardRows: seeded.workboardRows.filter(isWorkboardSeedRow),
+      obligationQueueRows: seeded.obligationQueueRows.filter(isObligationQueueSeedRow),
       pulseAlerts: Array.isArray(seeded.pulseAlerts)
         ? seeded.pulseAlerts.filter(isPulseSeedAlert)
         : [],
@@ -217,7 +217,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function isWorkboardSeedRow(value: unknown): value is { clientName: string; status: string } {
+function isObligationQueueSeedRow(value: unknown): value is { clientName: string; status: string } {
   return isRecord(value) && typeof value.clientName === 'string' && typeof value.status === 'string'
 }
 

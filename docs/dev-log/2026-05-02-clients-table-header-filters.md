@@ -7,7 +7,7 @@ area: clients
 ## Context
 
 Clients facts already had local search plus top-level entity/state filters, but the table headers
-did not match the Workboard table interaction. The page still reads from
+did not match the Obligations table interaction. The page still reads from
 `clients.listByFirm({ limit: 500 })`, so these filters stay client-side and URL-backed.
 
 ## Changes

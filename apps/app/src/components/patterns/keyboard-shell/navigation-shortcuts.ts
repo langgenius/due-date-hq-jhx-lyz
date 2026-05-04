@@ -19,9 +19,9 @@ export const NAVIGATION_SHORTCUTS = [
     displayKeys: 'G then D',
   },
   {
-    id: 'nav.workboard',
+    id: 'nav.obligations',
     sequence: ['G', 'W'],
-    path: '/workboard',
+    path: '/obligations',
     name: 'Go to Obligations',
     description: 'Navigate to Obligations.',
     displayKeys: 'G then W',

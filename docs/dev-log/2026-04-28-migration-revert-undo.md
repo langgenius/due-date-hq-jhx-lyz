@@ -28,7 +28,7 @@ Migration apply 已能把导入批次提交为 clients、obligations、evidence 
 - 前端接入最小 UI：
   - `Import complete` toast 增加 `Undo import` action。
   - 点击后用现有 `AlertDialog` 二次确认，再调用 `migration.revert`。
-  - 成功后刷新 migration/workboard query，并跳转 Workboard。
+  - 成功后刷新 migration/obligations query，并跳转 Obligations。
 - 同步 Lingui catalog，补齐 zh-CN 翻译。
 
 ## 为什么这样做

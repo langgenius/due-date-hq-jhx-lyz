@@ -7,12 +7,12 @@ area: audit
 ## Context
 
 Audit Log had already moved entity types to user-facing labels, but action values still rendered
-raw audit strings such as `workboard.saved_view.deleted`. That was useful for engineering
+raw audit strings such as `obligations.saved_view.deleted`. That was useful for engineering
 traceability but too database-like for the firm-facing compliance surface.
 
 ## Changes
 
-- Added a centralized Audit action label model for known audit actions, including Workboard,
+- Added a centralized Audit action label model for known audit actions, including Obligations,
   client, deadline, import, Pulse, team/member, firm, export, auth, permission, penalty, rules,
   and AI/onboarding actions.
 - Kept raw action strings as the stored audit value and the `audit.list`/URL filter value.

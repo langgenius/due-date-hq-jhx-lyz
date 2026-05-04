@@ -13,7 +13,7 @@
 - Split `packages/ports/src/index.ts` into concrete domain files:
   - `shared`, `tenants`, `scoped`
   - `clients`, `obligations`, `audit`, `evidence`
-  - `dashboard`, `workboard`, `workload`
+  - `dashboard`, `obligations`, `workload`
   - `migration`, `pulse`, `ai`
 - Removed the `@duedatehq/ports` root export from `packages/ports/package.json`.
 - Added explicit package exports for each concrete subpath.

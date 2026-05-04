@@ -235,29 +235,29 @@ tax type 由 Default Matrix / verified rules 按州推断。
 
 Drizzle schema: `packages/db/src/schema/obligations.ts`。Demo Sprint 暂不建 `obligation_rule` FK；Migration 直接写 `tax_type` + `base_due_date`，Phase 1 再回填 Rules-as-Asset。
 
-| 字段                                                                                               | 备注                                                                                                                                      |
-| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `id` / `firm_id` / `client_id` / `client_filing_profile_id` / `rule_id` / `rule_version`           | `client_filing_profile_id` nullable；联邦和 legacy/manual rows 可为 NULL；写入时 repo 校验 client/profile 同 firm                         |
-| `tax_year` / `rule_period` / `generation_source`                                                   | `generation_source ∈ (migration, manual, annual_rollover, pulse)`                                                                         |
-| `jurisdiction`                                                                                     | `FED` 或州码；Dashboard / Workboard / Calendar / Readiness / penalty exposure / Pulse 都读 obligation jurisdiction，而不是 `client.state` |
-| `original_due_date`                                                                                | 规则生成时的原始日期，**永不变**                                                                                                          |
-| `base_due_date`                                                                                    | base rule 最新计算值                                                                                                                      |
-| `current_due_date`                                                                                 | Stored legacy/base value；Pulse read models derive effective current date from base + active overlays                                     |
-| `filing_due_date` / `payment_due_date`                                                             |                                                                                                                                           |
-| `status ∈ (pending, in_progress, done, extended, paid, waiting_on_client, review, not_applicable)` | `done` 保留既有 filed/done wire value；UI 显示为 Filed；`done/extended/paid/not_applicable` 是 closed                                     |
-| `readiness_status ∈ (ready, waiting, needs_review)`                                                | 独立持久状态；status 写入会按 P0-16 默认规则同步，之后可由用户单独纠正                                                                    |
-| `extension_decision ∈ (not_considered, applied, rejected)`                                         | Obligations detail 的内部延期决策；`applied` 可把 obligation status 标记为 `extended`                                                     |
-| `extension_memo` / `extension_source` / `extension_expected_due_date`                              | 内部说明和来源；不会修改 `current_due_date`，也不表示已向税务机关 filing                                                                  |
-| `extension_decided_at` / `extension_decided_by_user_id`                                            | 决策时间和操作者                                                                                                                          |
-| `estimated_tax_due_cents` / `estimated_exposure_cents`                                             | Penalty Radar 90-day projected risk 预聚合；缺输入时 projected risk 为 NULL                                                               |
-| `exposure_status ∈ (ready, needs_input, unsupported)`                                              | Dashboard / Obligations projected-risk triage badge                                                                                       |
-| `penalty_facts_json` / `penalty_facts_version`                                                     | versioned obligation-level penalty facts；import/backfill 可由 legacy client inputs 预填，公式只读 facts                                  |
-| `penalty_breakdown_json` / `penalty_formula_version` / `exposure_calculated_at`                    | projected risk 的可解释公式、版本和重算时间；accrued penalty 不落库，按 `asOfDate` 运行时派生                                             |
-| `missing_penalty_facts_json` / `penalty_source_refs_json` / `penalty_formula_label`                | `needs_input` 缺失事实、官方来源和公式标签；coordinator dollar-hidden role 下随金额一起隐藏                                               |
-| `assignee_id` / `notes`                                                                            |                                                                                                                                           |
-| `migration_batch_id`                                                                               |                                                                                                                                           |
-| `last_changed_by`                                                                                  |                                                                                                                                           |
-| `created_at` / `updated_at`                                                                        |                                                                                                                                           |
+| 字段                                                                                               | 备注                                                                                                                                        |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id` / `firm_id` / `client_id` / `client_filing_profile_id` / `rule_id` / `rule_version`           | `client_filing_profile_id` nullable；联邦和 legacy/manual rows 可为 NULL；写入时 repo 校验 client/profile 同 firm                           |
+| `tax_year` / `rule_period` / `generation_source`                                                   | `generation_source ∈ (migration, manual, annual_rollover, pulse)`                                                                           |
+| `jurisdiction`                                                                                     | `FED` 或州码；Dashboard / Obligations / Calendar / Readiness / penalty exposure / Pulse 都读 obligation jurisdiction，而不是 `client.state` |
+| `original_due_date`                                                                                | 规则生成时的原始日期，**永不变**                                                                                                            |
+| `base_due_date`                                                                                    | base rule 最新计算值                                                                                                                        |
+| `current_due_date`                                                                                 | Stored legacy/base value；Pulse read models derive effective current date from base + active overlays                                       |
+| `filing_due_date` / `payment_due_date`                                                             |                                                                                                                                             |
+| `status ∈ (pending, in_progress, done, extended, paid, waiting_on_client, review, not_applicable)` | `done` 保留既有 filed/done wire value；UI 显示为 Filed；`done/extended/paid/not_applicable` 是 closed                                       |
+| `readiness_status ∈ (ready, waiting, needs_review)`                                                | 独立持久状态；status 写入会按 P0-16 默认规则同步，之后可由用户单独纠正                                                                      |
+| `extension_decision ∈ (not_considered, applied, rejected)`                                         | Obligations detail 的内部延期决策；`applied` 可把 obligation status 标记为 `extended`                                                       |
+| `extension_memo` / `extension_source` / `extension_expected_due_date`                              | 内部说明和来源；不会修改 `current_due_date`，也不表示已向税务机关 filing                                                                    |
+| `extension_decided_at` / `extension_decided_by_user_id`                                            | 决策时间和操作者                                                                                                                            |
+| `estimated_tax_due_cents` / `estimated_exposure_cents`                                             | Penalty Radar 90-day projected risk 预聚合；缺输入时 projected risk 为 NULL                                                                 |
+| `exposure_status ∈ (ready, needs_input, unsupported)`                                              | Dashboard / Obligations projected-risk triage badge                                                                                         |
+| `penalty_facts_json` / `penalty_facts_version`                                                     | versioned obligation-level penalty facts；import/backfill 可由 legacy client inputs 预填，公式只读 facts                                    |
+| `penalty_breakdown_json` / `penalty_formula_version` / `exposure_calculated_at`                    | projected risk 的可解释公式、版本和重算时间；accrued penalty 不落库，按 `asOfDate` 运行时派生                                               |
+| `missing_penalty_facts_json` / `penalty_source_refs_json` / `penalty_formula_label`                | `needs_input` 缺失事实、官方来源和公式标签；coordinator dollar-hidden role 下随金额一起隐藏                                                 |
+| `assignee_id` / `notes`                                                                            |                                                                                                                                             |
+| `migration_batch_id`                                                                               |                                                                                                                                             |
+| `last_changed_by`                                                                                  |                                                                                                                                             |
+| `created_at` / `updated_at`                                                                        |                                                                                                                                             |
 
 Generated obligation 去重键包含 jurisdiction：
 `firm_id + client_id + jurisdiction + rule_id + tax_year + rule_period`。规则生成对每个 active
@@ -600,10 +600,10 @@ CREATE UNIQUE INDEX uq_ai_insight_ready_hash
   WHERE status IN ('ready', 'pending');
 
 -- Obligations Saved Views
-CREATE INDEX idx_workboard_saved_view_firm_pin_name
-  ON workboard_saved_view(firm_id, is_pinned, name);
-CREATE INDEX idx_workboard_saved_view_creator
-  ON workboard_saved_view(firm_id, created_by_user_id);
+CREATE INDEX idx_obligation_saved_view_firm_pin_name
+  ON obligation_saved_view(firm_id, is_pinned, name);
+CREATE INDEX idx_obligation_saved_view_creator
+  ON obligation_saved_view(firm_id, created_by_user_id);
 
 -- Pulse feed
 CREATE INDEX idx_pulse_status_pub ON pulse(status, published_at DESC);

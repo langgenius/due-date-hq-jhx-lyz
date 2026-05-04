@@ -2,7 +2,7 @@
 
 ## What changed
 
-- Added `mock/demo.sql` as the full local demo dataset for Dashboard, Workboard, Workload,
+- Added `mock/demo.sql` as the full local demo dataset for Dashboard, Obligations, Workload,
   Alerts/Pulse, Clients, Imports, Members, Billing, Audit, and Notifications.
 - Kept Better Auth tenant/user rows on readable `mock_*` IDs while using stable UUIDs for
   application-owned rows that are exposed through contracts.

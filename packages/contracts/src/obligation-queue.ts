@@ -1,0 +1,257 @@
+import { oc } from '@orpc/contract'
+import * as z from 'zod'
+import { AuditEventPublicSchema } from './audit'
+import { EvidencePublicSchema } from './evidence'
+import { ObligationInstancePublicSchema } from './obligation-instance'
+import { SmartPriorityBreakdownSchema } from './priority'
+import { ClientReadinessRequestPublicSchema } from './readiness'
+import { ExtensionPolicySchema, RuleEvidenceSchema } from './rules'
+import {
+  ExposureStatusSchema,
+  ObligationReadinessSchema,
+  ObligationStatusSchema,
+  StateCodeSchema,
+} from './shared/enums'
+import { EntityIdSchema, TenantIdSchema } from './shared/ids'
+
+/**
+ * Obligations is the firm-wide obligation queue. Read-only here; mutations
+ * live in `obligationsContract` (createBatch, updateDueDate, updateStatus)
+ * to keep one canonical write path per entity.
+ *
+ * Cursor pagination follows D1 100-bound-param budget — we encode the active
+ * sort value plus stable row identity so the next page query does not need a
+ * wide parameter payload.
+ */
+
+export const ObligationQueueSortSchema = z.enum([
+  'smart_priority',
+  'due_asc',
+  'due_desc',
+  'exposure_desc',
+  'exposure_asc',
+  'updated_desc',
+])
+export type ObligationQueueSort = z.infer<typeof ObligationQueueSortSchema>
+export const ObligationQueueDensitySchema = z.enum(['comfortable', 'compact'])
+export type ObligationQueueDensity = z.infer<typeof ObligationQueueDensitySchema>
+export const ObligationQueueOwnerFilterSchema = z.enum(['unassigned'])
+export type ObligationQueueOwnerFilter = z.infer<typeof ObligationQueueOwnerFilterSchema>
+export const ObligationQueueDueFilterSchema = z.enum(['overdue'])
+export type ObligationQueueDueFilter = z.infer<typeof ObligationQueueDueFilterSchema>
+export const ObligationQueueReadinessSchema = ObligationReadinessSchema
+export type ObligationQueueReadiness = z.infer<typeof ObligationQueueReadinessSchema>
+export const OBLIGATION_QUEUE_SEARCH_MAX_LENGTH = 64
+export const OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS = 16
+export const OBLIGATION_QUEUE_FILTER_VALUE_MAX_LENGTH = 120
+
+const ObligationQueueFilterValueSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(OBLIGATION_QUEUE_FILTER_VALUE_MAX_LENGTH)
+
+export const ObligationQueueListInputSchema = z.object({
+  status: z.array(ObligationStatusSchema).max(8).optional(),
+  search: z.string().max(OBLIGATION_QUEUE_SEARCH_MAX_LENGTH).optional(),
+  obligationIds: z.array(EntityIdSchema).max(OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS).optional(),
+  clientIds: z.array(EntityIdSchema).max(OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS).optional(),
+  states: z.array(StateCodeSchema).max(OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS).optional(),
+  counties: z
+    .array(ObligationQueueFilterValueSchema)
+    .max(OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS)
+    .optional(),
+  taxTypes: z
+    .array(ObligationQueueFilterValueSchema)
+    .max(OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS)
+    .optional(),
+  assigneeName: z.string().trim().min(1).max(120).optional(),
+  assigneeNames: z
+    .array(ObligationQueueFilterValueSchema)
+    .max(OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS)
+    .optional(),
+  owner: ObligationQueueOwnerFilterSchema.optional(),
+  due: ObligationQueueDueFilterSchema.optional(),
+  dueWithinDays: z.number().int().min(1).max(30).optional(),
+  exposureStatus: ExposureStatusSchema.optional(),
+  readiness: z.array(ObligationQueueReadinessSchema).max(3).optional(),
+  minExposureCents: z.number().int().min(0).optional(),
+  maxExposureCents: z.number().int().min(0).optional(),
+  minDaysUntilDue: z.number().int().min(-3650).max(3650).optional(),
+  maxDaysUntilDue: z.number().int().min(-3650).max(3650).optional(),
+  needsEvidence: z.boolean().optional(),
+  asOfDate: z.iso.date().optional(),
+  sort: ObligationQueueSortSchema.default('smart_priority').optional(),
+  cursor: z.string().nullable().optional(),
+  limit: z.number().int().min(1).max(100).default(50).optional(),
+})
+export type ObligationQueueListInput = z.infer<typeof ObligationQueueListInputSchema>
+
+export const ObligationQueueRowSchema = ObligationInstancePublicSchema.extend({
+  clientName: z.string().min(1),
+  clientState: StateCodeSchema.nullable(),
+  clientCounty: ObligationQueueFilterValueSchema.nullable(),
+  assigneeName: z.string().min(1).nullable(),
+  readiness: ObligationQueueReadinessSchema,
+  daysUntilDue: z.number().int(),
+  evidenceCount: z.number().int().min(0),
+  smartPriority: SmartPriorityBreakdownSchema,
+})
+export type ObligationQueueRow = z.infer<typeof ObligationQueueRowSchema>
+
+export const ObligationQueueListOutputSchema = z.object({
+  rows: z.array(ObligationQueueRowSchema),
+  nextCursor: z.string().nullable(),
+})
+export type ObligationQueueListOutput = z.infer<typeof ObligationQueueListOutputSchema>
+
+export const ObligationQueueFacetOptionSchema = z.object({
+  value: ObligationQueueFilterValueSchema,
+  label: z.string().trim().min(1).max(160),
+  count: z.number().int().min(0),
+})
+export type ObligationQueueFacetOption = z.infer<typeof ObligationQueueFacetOptionSchema>
+
+export const ObligationQueueClientFacetOptionSchema = ObligationQueueFacetOptionSchema.extend({
+  value: EntityIdSchema,
+  state: StateCodeSchema.nullable(),
+  county: ObligationQueueFilterValueSchema.nullable(),
+})
+export type ObligationQueueClientFacetOption = z.infer<
+  typeof ObligationQueueClientFacetOptionSchema
+>
+
+export const ObligationQueueCountyFacetOptionSchema = ObligationQueueFacetOptionSchema.extend({
+  state: StateCodeSchema.nullable(),
+})
+export type ObligationQueueCountyFacetOption = z.infer<
+  typeof ObligationQueueCountyFacetOptionSchema
+>
+
+export const ObligationQueueFacetsOutputSchema = z.object({
+  clients: z.array(ObligationQueueClientFacetOptionSchema),
+  states: z.array(ObligationQueueFacetOptionSchema),
+  counties: z.array(ObligationQueueCountyFacetOptionSchema),
+  taxTypes: z.array(ObligationQueueFacetOptionSchema),
+  assigneeNames: z.array(ObligationQueueFacetOptionSchema),
+})
+export type ObligationQueueFacetsOutput = z.infer<typeof ObligationQueueFacetsOutputSchema>
+
+export const ObligationQueueSavedViewQuerySchema = z.record(z.string(), z.unknown())
+export type ObligationQueueSavedViewQuery = z.infer<typeof ObligationQueueSavedViewQuerySchema>
+
+export const ObligationQueueColumnVisibilitySchema = z.record(z.string(), z.boolean())
+export type ObligationQueueColumnVisibility = z.infer<typeof ObligationQueueColumnVisibilitySchema>
+
+export const ObligationQueueSavedViewSchema = z.object({
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  createdByUserId: z.string().min(1),
+  name: z.string().trim().min(1).max(80),
+  query: ObligationQueueSavedViewQuerySchema,
+  columnVisibility: ObligationQueueColumnVisibilitySchema,
+  density: ObligationQueueDensitySchema,
+  isPinned: z.boolean(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+})
+export type ObligationQueueSavedView = z.infer<typeof ObligationQueueSavedViewSchema>
+
+export const ObligationQueueCreateSavedViewInputSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  query: ObligationQueueSavedViewQuerySchema,
+  columnVisibility: ObligationQueueColumnVisibilitySchema.default({}).optional(),
+  density: ObligationQueueDensitySchema.default('comfortable').optional(),
+  isPinned: z.boolean().default(false).optional(),
+})
+export type ObligationQueueCreateSavedViewInput = z.infer<
+  typeof ObligationQueueCreateSavedViewInputSchema
+>
+
+export const ObligationQueueUpdateSavedViewInputSchema = z.object({
+  id: EntityIdSchema,
+  name: z.string().trim().min(1).max(80).optional(),
+  query: ObligationQueueSavedViewQuerySchema.optional(),
+  columnVisibility: ObligationQueueColumnVisibilitySchema.optional(),
+  density: ObligationQueueDensitySchema.optional(),
+  isPinned: z.boolean().optional(),
+})
+export type ObligationQueueUpdateSavedViewInput = z.infer<
+  typeof ObligationQueueUpdateSavedViewInputSchema
+>
+
+export const ObligationQueueDeleteSavedViewInputSchema = z.object({ id: EntityIdSchema })
+export type ObligationQueueDeleteSavedViewInput = z.infer<
+  typeof ObligationQueueDeleteSavedViewInputSchema
+>
+
+export const ObligationQueueExportSelectedInputSchema = z.object({
+  ids: z.array(EntityIdSchema).min(1).max(100),
+  format: z.enum(['csv', 'pdf_zip']),
+})
+export type ObligationQueueExportSelectedInput = z.infer<
+  typeof ObligationQueueExportSelectedInputSchema
+>
+
+export const ObligationQueueExportSelectedOutputSchema = z.object({
+  fileName: z.string().min(1),
+  contentType: z.string().min(1),
+  contentBase64: z.string().min(1),
+  auditId: EntityIdSchema,
+})
+export type ObligationQueueExportSelectedOutput = z.infer<
+  typeof ObligationQueueExportSelectedOutputSchema
+>
+
+export const ObligationQueueDetailTabSchema = z.enum([
+  'readiness',
+  'extension',
+  'risk',
+  'evidence',
+  'audit',
+])
+export type ObligationQueueDetailTab = z.infer<typeof ObligationQueueDetailTabSchema>
+
+export const ObligationQueueMatchedRuleSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  defaultTip: z.string().min(1),
+  extensionPolicy: ExtensionPolicySchema,
+  evidence: z.array(RuleEvidenceSchema),
+})
+export type ObligationQueueMatchedRule = z.infer<typeof ObligationQueueMatchedRuleSchema>
+
+export const ObligationQueueDetailInputSchema = z.object({
+  obligationId: EntityIdSchema,
+  asOfDate: z.iso.date().optional(),
+})
+export type ObligationQueueDetailInput = z.infer<typeof ObligationQueueDetailInputSchema>
+
+export const ObligationQueueDetailSchema = z.object({
+  row: ObligationQueueRowSchema,
+  matchedRule: ObligationQueueMatchedRuleSchema.nullable(),
+  evidence: z.array(EvidencePublicSchema),
+  auditEvents: z.array(AuditEventPublicSchema),
+  readinessRequests: z.array(ClientReadinessRequestPublicSchema),
+})
+export type ObligationQueueDetail = z.infer<typeof ObligationQueueDetailSchema>
+
+export const obligationQueueContract = oc.router({
+  list: oc.input(ObligationQueueListInputSchema).output(ObligationQueueListOutputSchema),
+  getDetail: oc.input(ObligationQueueDetailInputSchema).output(ObligationQueueDetailSchema),
+  facets: oc.input(z.undefined()).output(ObligationQueueFacetsOutputSchema),
+  listSavedViews: oc.input(z.undefined()).output(z.array(ObligationQueueSavedViewSchema)),
+  createSavedView: oc
+    .input(ObligationQueueCreateSavedViewInputSchema)
+    .output(ObligationQueueSavedViewSchema),
+  updateSavedView: oc
+    .input(ObligationQueueUpdateSavedViewInputSchema)
+    .output(ObligationQueueSavedViewSchema),
+  deleteSavedView: oc
+    .input(ObligationQueueDeleteSavedViewInputSchema)
+    .output(z.object({ id: EntityIdSchema })),
+  exportSelected: oc
+    .input(ObligationQueueExportSelectedInputSchema)
+    .output(ObligationQueueExportSelectedOutputSchema),
+})
+export type ObligationQueueContract = typeof obligationQueueContract

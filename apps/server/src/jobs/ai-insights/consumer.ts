@@ -113,11 +113,11 @@ async function buildClientRiskSnapshot(
   if (!client) return null
 
   const obligations = await repos.obligations.listByClient(clientId)
-  const workboardRows = await repos.workboard.listByIds(
+  const obligationQueueRows = await repos.obligationQueue.listByIds(
     obligations.map((obligation) => obligation.id),
     { asOfDate },
   )
-  const topRows = workboardRows.slice(0, 5)
+  const topRows = obligationQueueRows.slice(0, 5)
   const evidenceRows = await Promise.all(
     topRows.map((row) => repos.evidence.listByObligation(row.id)),
   )
@@ -177,27 +177,27 @@ async function buildDeadlineTipSnapshot(
 ): Promise<{ snapshot: unknown; sources: InsightSource[] } | null> {
   const obligation = await repos.obligations.findById(obligationId)
   if (!obligation) return null
-  const [client, workboardRows, evidenceRows] = await Promise.all([
+  const [client, obligationQueueRows, evidenceRows] = await Promise.all([
     repos.clients.findById(obligation.clientId),
-    repos.workboard.listByIds([obligationId], { asOfDate }),
+    repos.obligationQueue.listByIds([obligationId], { asOfDate }),
     repos.evidence.listByObligation(obligationId),
   ])
   if (!client) return null
 
-  const workboardRow = workboardRows[0]
+  const obligationQueueRow = obligationQueueRows[0]
   const obligationFacts = {
     id: obligation.id,
     taxType: obligation.taxType,
     taxYear: obligation.taxYear,
-    currentDueDate: workboardRow
-      ? toDateOnly(workboardRow.currentDueDate)
+    currentDueDate: obligationQueueRow
+      ? toDateOnly(obligationQueueRow.currentDueDate)
       : toDateOnly(obligation.currentDueDate),
     status: obligation.status,
     readiness: obligation.readiness,
     estimatedExposureCents: obligation.estimatedExposureCents,
     exposureStatus: obligation.exposureStatus,
     evidenceCount: evidenceRows.length,
-    smartPriority: workboardRow?.smartPriority ?? null,
+    smartPriority: obligationQueueRow?.smartPriority ?? null,
     extensionDecision: obligation.extensionDecision,
   }
   const clientFacts = {

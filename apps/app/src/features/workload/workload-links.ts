@@ -1,7 +1,9 @@
 import type { WorkloadOwnerRow } from '@duedatehq/contracts'
 
-export function workboardHref(params: Record<string, string | number | null | undefined>): string {
-  const url = new URL('/workboard', 'https://duedatehq.local')
+export function obligationQueueHref(
+  params: Record<string, string | number | null | undefined>,
+): string {
+  const url = new URL('/obligations', 'https://duedatehq.local')
   for (const [key, value] of Object.entries(params)) {
     if (value === null || value === undefined || value === '') continue
     url.searchParams.set(key, String(value))
@@ -10,7 +12,7 @@ export function workboardHref(params: Record<string, string | number | null | un
 }
 
 export function workloadRowHref(row: WorkloadOwnerRow): string {
-  return workboardHref(
+  return obligationQueueHref(
     row.kind === 'unassigned'
       ? { owner: 'unassigned' }
       : { assignee: row.assigneeName ?? row.ownerLabel },
@@ -22,7 +24,7 @@ export function workloadRowDueSoonHref(
   asOfDate: string,
   windowDays: number,
 ): string {
-  return workboardHref({
+  return obligationQueueHref({
     ...(row.kind === 'unassigned'
       ? { owner: 'unassigned' }
       : { assignee: row.assigneeName ?? row.ownerLabel }),
@@ -32,7 +34,7 @@ export function workloadRowDueSoonHref(
 }
 
 export function workloadRowOverdueHref(row: WorkloadOwnerRow, asOfDate: string): string {
-  return workboardHref({
+  return obligationQueueHref({
     ...(row.kind === 'unassigned'
       ? { owner: 'unassigned' }
       : { assignee: row.assigneeName ?? row.ownerLabel }),

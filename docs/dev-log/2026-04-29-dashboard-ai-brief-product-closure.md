@@ -18,7 +18,7 @@ scheduled 策略、debounce 粒度。
 - Dashboard ready brief 增加 citation chips：
   - 点击 citation 打开 Dashboard 内 Evidence Drawer。
   - Drawer 展示 obligation、source metadata。
-  - Drawer 可跳转 Workboard 对应 obligation，也可打开 official source URL。
+  - Drawer 可跳转 Obligations 对应 obligation，也可打开 official source URL。
 - 手动 `Refresh brief` 后立即进入 queued / pending UI；queued / pending 期间禁用刷新按钮。
 - `dashboard.requestBriefRefresh` 不再绕过 debounce。
 - `enqueueDashboardBriefRefresh` 的 debounce key 改为 firm + scope + user，reason 只作为

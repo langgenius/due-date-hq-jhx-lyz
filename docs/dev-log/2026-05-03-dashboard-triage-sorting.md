@@ -23,7 +23,7 @@ Exposure could not be reordered inside the active triage window.
 
 - No token, primitive, or DESIGN.md contract changes were needed.
 - The sort affordance uses existing compact ghost icon buttons, table headers, and accent active
-  state so it remains aligned with the dense dashboard/workboard table language.
+  state so it remains aligned with the dense dashboard/obligations table language.
 
 ## Validation
 

@@ -10,14 +10,14 @@ const PULSE_SOURCE_HEALTH_REFETCH_INTERVAL_MS = 60_000
 // mutation (apply, dismiss, revert) refreshes the same surfaces:
 //   - pulse.* queries (banner / detail / history)
 //   - dashboard.load (open obligations + risk summary)
-//   - workboard.list (the underlying obligations may have moved due dates)
+//   - obligations.list (the underlying obligations may have moved due dates)
 //   - audit.* (newly written audit events)
 export function usePulseInvalidation(): () => void {
   const queryClient = useQueryClient()
   return useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: orpc.pulse.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-    void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
   }, [queryClient])
 }

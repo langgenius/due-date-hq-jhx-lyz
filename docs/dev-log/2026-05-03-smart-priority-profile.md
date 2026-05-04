@@ -15,7 +15,7 @@ Smart Priority 原本固定使用 exposure / urgency / importance / history / re
 
 - 新增 `smart-priority-profile-v1`：五个整数权重、exposure cap、urgency window、history cap。
 - `firm_profile.smart_priority_profile_json` 持久化 practice 级配置，NULL 解析为默认 profile。
-- Dashboard、Workboard、Weekly Brief snapshot 继续走 `packages/core/src/priority`，但读取当前 firm profile。
+- Dashboard、Obligations、Weekly Brief snapshot 继续走 `packages/core/src/priority`，但读取当前 firm profile。
 - Practice profile 新增 Owner 可编辑的 Smart Priority 配置卡片，支持 preview 和 reset。
 
 ## 为什么这样做

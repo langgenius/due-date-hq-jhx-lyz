@@ -122,7 +122,7 @@ DueDateHQ 的模型执行层只依赖 **Vercel AI SDK Core**，运行在 Cloudfl
 ```
 App (after login)
  ├─ Dashboard (Home, `/`)                    ← Story S1 主屏
- ├─ Obligations (`/workboard`)                ← 高密度表格；Calendar sync 是二级出口 `/workboard/calendar`
+ ├─ Obligations (`/obligations`)                ← 高密度表格；Calendar sync 是二级出口 `/obligations/calendar`
  ├─ Clients
  │   ├─ List (table)
  │   ├─ + Add clients ▾

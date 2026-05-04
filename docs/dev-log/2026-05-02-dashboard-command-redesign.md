@@ -14,7 +14,7 @@ stacked widgets instead of a weekly triage workbench.
 ## Changes
 
 - Reframed the Dashboard route as a deadline risk workbench with a page title, as-of badge,
-  Workboard CTA, and Migration Copilot CTA.
+  Obligations CTA, and Migration Copilot CTA.
 - Added a compact metric strip for open obligations, due-this-week pressure, evidence gaps, and
   penalty exposure.
 - Kept AI Weekly Brief in the first screen as the explanation layer, ahead of the deterministic

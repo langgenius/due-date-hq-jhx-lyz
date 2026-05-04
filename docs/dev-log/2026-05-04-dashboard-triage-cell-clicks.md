@@ -4,7 +4,7 @@
 
 - Added pointer affordance to the Smart Priority badge trigger in the dashboard triage queue.
 - Wrapped Severity and Projected risk triage cells in focusable cell-level buttons so clicks no longer bubble into the row-level obligation detail navigation.
-- Updated dashboard triage row navigation to open the Workboard filtered to the clicked obligation
+- Updated dashboard triage row navigation to open the Obligations filtered to the clicked obligation
   only, without passing drawer query params.
 
 ## Validation

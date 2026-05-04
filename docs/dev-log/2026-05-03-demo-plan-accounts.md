@@ -32,7 +32,7 @@ plan-specific states still required manually mutating firm billing data.
   - Priya Pro: 4 clients, 6 obligations.
   - Taylor Team: 5 clients, 8 obligations.
 - Added related demo records for Dashboard briefs, AI insight cache, evidence links, Pulse alert
-  matches, import history, saved Workboard views, calendar subscriptions, readiness requests,
+  matches, import history, saved Obligations views, calendar subscriptions, readiness requests,
   audit packages, audit events, reminders, email outbox rows, notification preferences, in-app
   notifications, and client email suppressions.
 - Added Pro and Team staff/pending-invite rows so Members and Team workload surfaces have more than
@@ -58,4 +58,4 @@ now calls out the plan-account data coverage.
   - clients: Solo 3, Pro 4, Team 5.
   - obligations: Solo 4, Pro 6, Team 8.
   - Pulse alerts, dashboard briefs, import batches, audit events, notifications, readiness requests,
-    saved Workboard views, and calendar subscriptions: at least one row per plan firm.
+    saved Obligations views, and calendar subscriptions: at least one row per plan firm.

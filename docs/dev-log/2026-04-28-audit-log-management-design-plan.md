@@ -43,11 +43,11 @@ author: 'LYZ'
 
 选择 “Activation Slice 版 Firm-wide Audit Console”，而不是一次性做完 P1 合规页：
 
-| 方案                         | 收益                                                             | 代价                                                          | 结论 |
-| ---------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------- | ---- |
-| 只读 Firm-wide Audit Console | 复用现有 audit write 基础；最快闭环 Workboard/Migration 可追溯性 | 暂无导出和完整 RBAC                                           | 采用 |
-| 全量 P1 合规页               | 覆盖导出、Owner/Manager 权限、邮件附件、自审计                   | 牵出 Team/RBAC/Email attachment/Audit Package，多模块范围过大 | 暂缓 |
-| 单客户 Audit tab             | 更小                                                             | 与侧边栏 `Audit log` 入口和 PRD P1-22 不匹配                  | 放弃 |
+| 方案                         | 收益                                                               | 代价                                                          | 结论 |
+| ---------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------- | ---- |
+| 只读 Firm-wide Audit Console | 复用现有 audit write 基础；最快闭环 Obligations/Migration 可追溯性 | 暂无导出和完整 RBAC                                           | 采用 |
+| 全量 P1 合规页               | 覆盖导出、Owner/Manager 权限、邮件附件、自审计                     | 牵出 Team/RBAC/Email attachment/Audit Package，多模块范围过大 | 暂缓 |
+| 单客户 Audit tab             | 更小                                                               | 与侧边栏 `Audit log` 入口和 PRD P1-22 不匹配                  | 放弃 |
 
 核心边界：
 

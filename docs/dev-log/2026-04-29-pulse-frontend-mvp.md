@@ -22,7 +22,7 @@ container, and `apps/app/src/features/` had no `pulse` directory.
   (`routes/dashboard.tsx`).
 - Added `apps/app/src/features/pulse/` containing the full Pulse client:
   - `api.ts` centralises oRPC `queryOptions` and a `usePulseInvalidation` hook
-    that refreshes `pulse.*`, `dashboard.load`, `workboard.list`, and `audit.*`
+    that refreshes `pulse.*`, `dashboard.load`, `obligations.list`, and `audit.*`
     after every Pulse mutation.
   - `lib/error-mapping.ts` resolves `PULSE_NOT_FOUND` / `PULSE_APPLY_CONFLICT` /
     `PULSE_REVERT_EXPIRED` / `PULSE_NO_ELIGIBLE_OBLIGATIONS` /

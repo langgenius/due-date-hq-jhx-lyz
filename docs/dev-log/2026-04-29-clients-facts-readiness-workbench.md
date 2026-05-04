@@ -5,7 +5,7 @@
 The enabled sidebar `Clients` entry was already backed by the real tenant-scoped
 `clients.listByFirm` and `clients.create` oRPC paths, but the page read like a
 generic admin directory. Product docs position Clients as the firm-level fact
-directory that powers Migration, Rules preview, Workboard obligations,
+directory that powers Migration, Rules preview, Obligations obligations,
 Dashboard risk, and Pulse matching.
 
 ## Changes
@@ -39,7 +39,7 @@ Dashboard risk, and Pulse matching.
 - Follow-up e2e closure: expanded `e2e/tests/clients.spec.ts` beyond navigation
   and create to cover seeded readiness KPI, entity/state/search URL filters,
   filtered empty state, and Fact Profile Sheet inspection against the local
-  `workboard` seed.
+  `obligations` seed.
 
 ## Notes
 
@@ -48,7 +48,7 @@ Dashboard risk, and Pulse matching.
   design pass.
 - The current browser seed path covers all-ready manual clients. Imported-client
   convergence and missing-required-fact warning rows should use a dedicated
-  follow-up seed so the Workboard seed remains stable.
+  follow-up seed so the Obligations seed remains stable.
 - The workbench follows the existing React constraints: module-level components,
   derived state via render/useMemo, no `useEffect`, no raw oRPC client imports,
   and URL state through `nuqs`.

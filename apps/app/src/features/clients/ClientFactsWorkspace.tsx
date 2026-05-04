@@ -203,9 +203,9 @@ export function ClientFactsWorkspace({
       onSuccess: () => {
         void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.getDetail.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.facets.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDetail.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.facets.key() })
         onProfileOpenChange(false)
         onClientDeleted()
         toast.success(t`Client deleted`)
@@ -807,7 +807,7 @@ function ClientProfileSheet({
       onSuccess: (result) => {
         void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.clients.getRiskSummary.key() })
         toast.success(t`Risk inputs saved`, { description: result.client.name })
       },
@@ -823,9 +823,9 @@ function ClientProfileSheet({
       onSuccess: (result) => {
         void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.getDetail.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.facets.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDetail.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.facets.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.clients.getRiskSummary.key() })
         toast.success(t`Filing jurisdictions saved`, { description: result.client.name })
       },
@@ -980,7 +980,7 @@ function ClientProfileSheet({
             <AlertDialogDescription>
               <Trans>
                 This will remove {client?.name ?? 'this client'} from the active client directory,
-                dashboard, and obligations workboard. The audit log will keep the deletion record.
+                dashboard, and Obligations. The audit log will keep the deletion record.
               </Trans>
             </AlertDialogDescription>
           </AlertDialogHeader>

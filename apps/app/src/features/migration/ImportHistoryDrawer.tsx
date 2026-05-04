@@ -85,7 +85,7 @@ export function ImportHistoryDrawer({
     void queryClient.invalidateQueries({ queryKey: orpc.migration.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
     void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-    void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
   }, [queryClient])
 
   const revert = useMutation(

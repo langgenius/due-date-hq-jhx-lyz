@@ -10,7 +10,7 @@ updates:
 
 ## Context
 
-PRD and design docs already require global shortcuts, Workboard row operations, command palette
+PRD and design docs already require global shortcuts, Obligations row operations, command palette
 navigation, and Migration Wizard overlay behavior. Code had no shared keyboard shell, so the next
 implementation step needed an app-level registry before adding more route-specific shortcuts.
 
@@ -26,7 +26,7 @@ implementation step needed an app-level registry before adding more route-specif
   - `Enter` continues only when not focused in textarea/contenteditable/select
   - `Esc` opens leave confirmation
   - `A` is reserved for Step 3 Apply-to-all rows and only fires when focus is inside a matrix suggestion cell
-- Wired Workboard route shortcuts:
+- Wired Obligations route shortcuts:
   - `J/K` active row movement
   - `Enter` and `E` placeholder drawers
   - `F/X/I/W` status mutations through the existing `obligations.updateStatus` contract
@@ -52,7 +52,7 @@ pnpm check
 
 ## Follow-up
 
-- Replace Workboard `Enter` / `E` placeholders with real detail and Evidence drawer APIs when Day 6
+- Replace Obligations `Enter` / `E` placeholders with real detail and Evidence drawer APIs when Day 6
   evidence wiring lands.
 - Enable `G then C` and `G then A` when dedicated Clients and Alerts/Pulse routes exist.
 - Command Palette already links Pulse through the Dashboard `#pulse` anchor; the disabled `G then A`

@@ -26,7 +26,7 @@ workflow with page navigation and select-only filters.
   in the table and drawer instead of becoming toolbar options.
 - Changed Audit filter select menus to use a left checkbox-style selected indicator instead of the
   default trailing check mark.
-- Reused the Workboard table header filter checkbox indicator styling for Audit filter selected
+- Reused the Obligations table header filter checkbox indicator styling for Audit filter selected
   options so both table filter menus share the same check affordance.
 - Updated the table `Entity` column to show the entity name/description from audit payloads
   first, with type and shortened id as secondary metadata.

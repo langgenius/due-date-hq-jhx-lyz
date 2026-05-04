@@ -51,5 +51,5 @@ TanStack Query 接管。`mutateAsync` 只适合需要 promise composition 且同
 ## 后续 / 未闭环
 
 - `migration.apply` / `revert` / `singleUndo` 仍是 Day 4 范围。
-- imports history / dashboard / workboard 读型 RPC 接入时应优先使用 `useQuery` 或
+- imports history / dashboard / obligations 读型 RPC 接入时应优先使用 `useQuery` 或
   `useSuspenseQuery`。

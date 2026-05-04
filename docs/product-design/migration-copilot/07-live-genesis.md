@@ -308,7 +308,7 @@ Toast（红色，常驻 12s 可手动关闭）
 ### 9.2 Cache 预热
 
 - Phase 1 起（~1000ms 前）开始：`queryClient.prefetchQuery({ queryKey: ['dashboard','this-week'], queryFn: ... })`
-- 同时预热 `['dashboard','penalty-radar']` 与 `['workboard','list', { filter: 'this-week' }]`
+- 同时预热 `['dashboard','penalty-radar']` 与 `['obligations','list', { filter: 'this-week' }]`
 - Dashboard 路由挂载时：`staleTime` 设 30s，首帧必命中 cache
 
 ### 9.3 Dashboard first paint 契约

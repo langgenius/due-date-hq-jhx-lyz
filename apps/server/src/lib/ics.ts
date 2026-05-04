@@ -60,7 +60,7 @@ function rawLine(value: string): string {
 
 function appDeepLink(appUrl: string, obligationId: string): string {
   const baseUrl = appUrl.replace(/\/+$/, '')
-  return `${baseUrl}/workboard?drawer=obligation&id=${encodeURIComponent(obligationId)}`
+  return `${baseUrl}/obligations?drawer=obligation&id=${encodeURIComponent(obligationId)}`
 }
 
 function eventSummary(

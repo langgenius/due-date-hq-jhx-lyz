@@ -4,8 +4,8 @@ import { PDFDocument, StandardFonts } from 'pdf-lib'
 import type {
   AuditEventPublic,
   EvidencePublic,
-  WorkboardMatchedRule,
-  WorkboardRow,
+  ObligationQueueMatchedRule,
+  ObligationQueueRow,
 } from '@duedatehq/contracts'
 import { listObligationRules, normalizeRuleTaxTypeCandidates } from '@duedatehq/core/rules'
 import { toAuditEventPublic } from '../audit'
@@ -16,7 +16,7 @@ import { signReadinessPortalToken } from '../../lib/readiness-token'
 import { toReadinessRequestPublic } from '../readiness/_public'
 
 /**
- * workboard.* — internal API namespace for the firm-wide Obligations queue.
+ * obligations.* — internal API namespace for the firm-wide Obligations queue.
  *
  * Mutations (status / due date) live in `obligationsContract` so each
  * entity has exactly one canonical write surface.
@@ -32,13 +32,13 @@ interface RawRow {
   ruleId: string | null
   ruleVersion: number | null
   rulePeriod: string | null
-  generationSource: WorkboardRow['generationSource']
+  generationSource: ObligationQueueRow['generationSource']
   jurisdiction: string | null
   baseDueDate: Date
   currentDueDate: Date
-  status: WorkboardRow['status']
-  readiness: WorkboardRow['readiness']
-  extensionDecision: WorkboardRow['extensionDecision']
+  status: ObligationQueueRow['status']
+  readiness: ObligationQueueRow['readiness']
+  extensionDecision: ObligationQueueRow['extensionDecision']
   extensionMemo: string | null
   extensionSource: string | null
   extensionExpectedDueDate: Date | null
@@ -47,15 +47,15 @@ interface RawRow {
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
-  exposureStatus: WorkboardRow['exposureStatus']
+  exposureStatus: ObligationQueueRow['exposureStatus']
   penaltyBreakdownJson: unknown
   missingPenaltyFactsJson: unknown
   penaltySourceRefsJson: unknown
   penaltyFormulaLabel: string | null
   penaltyFactsVersion: string | null
   accruedPenaltyCents: number | null
-  accruedPenaltyStatus: WorkboardRow['accruedPenaltyStatus']
-  accruedPenaltyBreakdown: WorkboardRow['accruedPenaltyBreakdown']
+  accruedPenaltyStatus: ObligationQueueRow['accruedPenaltyStatus']
+  accruedPenaltyBreakdown: ObligationQueueRow['accruedPenaltyBreakdown']
   penaltyAsOfDate: string
   penaltyFormulaVersion: string | null
   exposureCalculatedAt: Date | null
@@ -67,7 +67,7 @@ interface RawRow {
   assigneeName: string | null
   daysUntilDue: number
   evidenceCount: number
-  smartPriority: WorkboardRow['smartPriority']
+  smartPriority: ObligationQueueRow['smartPriority']
 }
 
 interface SavedViewRow {
@@ -106,7 +106,7 @@ function normalizeNullableText(value: string | null): string | null {
 function toRow(
   row: RawRow,
   opts: { hideDollars?: boolean; hideSmartPriorityFactors?: boolean } = {},
-): WorkboardRow {
+): ObligationQueueRow {
   return {
     id: row.id,
     firmId: row.firmId,
@@ -209,7 +209,7 @@ function toSavedView(row: SavedViewRow) {
   }
 }
 
-function parsePenaltyBreakdown(value: unknown): WorkboardRow['penaltyBreakdown'] {
+function parsePenaltyBreakdown(value: unknown): ObligationQueueRow['penaltyBreakdown'] {
   if (!Array.isArray(value)) return []
   return value.flatMap((item) => {
     if (!isRecord(item)) return []
@@ -261,7 +261,7 @@ function parsePenaltyInputs(
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-function parsePenaltySourceRefs(value: unknown): WorkboardRow['penaltySourceRefs'] {
+function parsePenaltySourceRefs(value: unknown): ObligationQueueRow['penaltySourceRefs'] {
   if (!Array.isArray(value)) return []
   return value.flatMap((item) => {
     if (!isRecord(item)) return []
@@ -301,7 +301,7 @@ function dateInTimezone(timezone: string, date = new Date()): string {
   return `${year}-${month}-${day}`
 }
 
-function matchedRuleForRow(row: WorkboardRow): WorkboardMatchedRule | null {
+function matchedRuleForRow(row: ObligationQueueRow): ObligationQueueMatchedRule | null {
   const candidates = normalizeRuleTaxTypeCandidates(row.taxType).map(
     (candidate) => candidate.taxType,
   )
@@ -348,7 +348,7 @@ function csvCell(value: unknown): string {
   return `"${raw.replaceAll('"', '""')}"`
 }
 
-function rowsToCsv(rows: WorkboardRow[]): string {
+function rowsToCsv(rows: ObligationQueueRow[]): string {
   const body = rows.map((row) => [
     row.clientName,
     row.assigneeName ?? '',
@@ -396,7 +396,7 @@ function base64Text(text: string): string {
   return Buffer.from(text, 'utf8').toString('base64')
 }
 
-async function buildClientPdf(clientName: string, rows: WorkboardRow[]): Promise<Uint8Array> {
+async function buildClientPdf(clientName: string, rows: ObligationQueueRow[]): Promise<Uint8Array> {
   const pdf = await PDFDocument.create()
   const page = pdf.addPage([612, 792])
   const font = await pdf.embedFont(StandardFonts.Helvetica)
@@ -420,13 +420,13 @@ async function buildClientPdf(clientName: string, rows: WorkboardRow[]): Promise
   return pdf.save()
 }
 
-const list = os.workboard.list.handler(async ({ input, context }) => {
+const list = os.obligations.list.handler(async ({ input, context }) => {
   const { scoped, tenant, userId } = requireTenant(context)
   const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
   const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
   const hideSmartPriorityFactors = actor?.role !== 'owner'
 
-  const repoInput: NonNullable<Parameters<typeof scoped.workboard.list>[0]> = {}
+  const repoInput: NonNullable<Parameters<typeof scoped.obligationQueue.list>[0]> = {}
   if (input.status !== undefined) repoInput.status = input.status
   if (input.search !== undefined) repoInput.search = input.search
   if (input.obligationIds !== undefined) repoInput.obligationIds = input.obligationIds
@@ -455,7 +455,7 @@ const list = os.workboard.list.handler(async ({ input, context }) => {
   if (input.cursor !== undefined) repoInput.cursor = input.cursor
   if (input.limit !== undefined) repoInput.limit = input.limit
 
-  const result = await scoped.workboard.list(repoInput)
+  const result = await scoped.obligationQueue.list(repoInput)
 
   return {
     rows: result.rows.map((row) => toRow(row, { hideDollars, hideSmartPriorityFactors })),
@@ -463,12 +463,12 @@ const list = os.workboard.list.handler(async ({ input, context }) => {
   }
 })
 
-const getDetail = os.workboard.getDetail.handler(async ({ input, context }) => {
+const getDetail = os.obligations.getDetail.handler(async ({ input, context }) => {
   const { scoped, tenant, userId } = requireTenant(context)
   const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
   const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
   const hideSmartPriorityFactors = actor?.role !== 'owner'
-  const rows = await scoped.workboard.listByIds([input.obligationId], {
+  const rows = await scoped.obligationQueue.listByIds([input.obligationId], {
     asOfDate: input.asOfDate ?? dateInTimezone(tenant.timezone),
   })
   const rawRow = rows[0]
@@ -511,20 +511,20 @@ const getDetail = os.workboard.getDetail.handler(async ({ input, context }) => {
   }
 })
 
-const facets = os.workboard.facets.handler(async ({ context }) => {
+const facets = os.obligations.facets.handler(async ({ context }) => {
   const { scoped } = requireTenant(context)
-  return scoped.workboard.facets()
+  return scoped.obligationQueue.facets()
 })
 
-const listSavedViews = os.workboard.listSavedViews.handler(async ({ context }) => {
+const listSavedViews = os.obligations.listSavedViews.handler(async ({ context }) => {
   const { scoped } = requireTenant(context)
-  return (await scoped.workboard.listSavedViews()).map(toSavedView)
+  return (await scoped.obligationQueue.listSavedViews()).map(toSavedView)
 })
 
-const createSavedView = os.workboard.createSavedView.handler(async ({ input, context }) => {
+const createSavedView = os.obligations.createSavedView.handler(async ({ input, context }) => {
   const { tenant, userId } = await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
   const { scoped } = requireTenant(context)
-  const row = await scoped.workboard.createSavedView({
+  const row = await scoped.obligationQueue.createSavedView({
     name: input.name,
     createdByUserId: userId,
     queryJson: input.query,
@@ -534,18 +534,18 @@ const createSavedView = os.workboard.createSavedView.handler(async ({ input, con
   })
   await scoped.audit.write({
     actorId: userId,
-    entityType: 'workboard_saved_view',
+    entityType: 'obligation_saved_view',
     entityId: row.id,
-    action: 'workboard.saved_view.created',
+    action: 'obligations.saved_view.created',
     after: { name: row.name, firmId: tenant.firmId },
   })
   return toSavedView(row)
 })
 
-const updateSavedView = os.workboard.updateSavedView.handler(async ({ input, context }) => {
+const updateSavedView = os.obligations.updateSavedView.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
   const { scoped } = requireTenant(context)
-  const row = await scoped.workboard.updateSavedView({
+  const row = await scoped.obligationQueue.updateSavedView({
     id: input.id,
     ...(input.name !== undefined ? { name: input.name } : {}),
     ...(input.query !== undefined ? { queryJson: input.query } : {}),
@@ -557,35 +557,35 @@ const updateSavedView = os.workboard.updateSavedView.handler(async ({ input, con
   })
   await scoped.audit.write({
     actorId: userId,
-    entityType: 'workboard_saved_view',
+    entityType: 'obligation_saved_view',
     entityId: row.id,
-    action: 'workboard.saved_view.updated',
+    action: 'obligations.saved_view.updated',
     after: { name: row.name, isPinned: row.isPinned },
   })
   return toSavedView(row)
 })
 
-const deleteSavedView = os.workboard.deleteSavedView.handler(async ({ input, context }) => {
+const deleteSavedView = os.obligations.deleteSavedView.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
   const { scoped } = requireTenant(context)
-  await scoped.workboard.deleteSavedView(input.id)
+  await scoped.obligationQueue.deleteSavedView(input.id)
   await scoped.audit.write({
     actorId: userId,
-    entityType: 'workboard_saved_view',
+    entityType: 'obligation_saved_view',
     entityId: input.id,
-    action: 'workboard.saved_view.deleted',
+    action: 'obligations.saved_view.deleted',
   })
   return { id: input.id }
 })
 
-const exportSelected = os.workboard.exportSelected.handler(async ({ input, context }) => {
+const exportSelected = os.obligations.exportSelected.handler(async ({ input, context }) => {
   const { tenant, userId } = await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
   const { scoped } = requireTenant(context)
   const actor = await context.vars.members?.findMembership(tenant.firmId, userId)
   const hideDollars = actor?.role === 'coordinator' && !tenant.coordinatorCanSeeDollars
   const hideSmartPriorityFactors = actor?.role !== 'owner'
   const selectedIds = [...new Set(input.ids)]
-  const rawRows = await scoped.workboard.listByIds(selectedIds, {
+  const rawRows = await scoped.obligationQueue.listByIds(selectedIds, {
     asOfDate: dateInTimezone(tenant.timezone),
   })
   if (rawRows.length !== selectedIds.length) {
@@ -596,9 +596,9 @@ const exportSelected = os.workboard.exportSelected.handler(async ({ input, conte
   const rows = rawRows.map((row) => toRow(row, { hideDollars, hideSmartPriorityFactors }))
   const { id: auditId } = await scoped.audit.write({
     actorId: userId,
-    entityType: 'workboard_export',
+    entityType: 'obligations_export',
     entityId: selectedIds[0] ?? 'empty',
-    action: 'workboard.exported',
+    action: 'obligations.exported',
     after: {
       format: input.format,
       rowCount: rows.length,
@@ -608,14 +608,14 @@ const exportSelected = os.workboard.exportSelected.handler(async ({ input, conte
 
   if (input.format === 'csv') {
     return {
-      fileName: `workboard-${dateInTimezone(tenant.timezone)}.csv`,
+      fileName: `obligations-${dateInTimezone(tenant.timezone)}.csv`,
       contentType: 'text/csv',
       contentBase64: base64Text(rowsToCsv(rows)),
       auditId,
     }
   }
 
-  const rowsByClient = new Map<string, { clientName: string; rows: WorkboardRow[] }>()
+  const rowsByClient = new Map<string, { clientName: string; rows: ObligationQueueRow[] }>()
   for (const row of rows) {
     const bucket = rowsByClient.get(row.clientId) ?? { clientName: row.clientName, rows: [] }
     bucket.rows.push(row)
@@ -634,14 +634,14 @@ const exportSelected = os.workboard.exportSelected.handler(async ({ input, conte
   )
   const zip = zipSync(files, { level: 6 })
   return {
-    fileName: `workboard-pdfs-${dateInTimezone(tenant.timezone)}.zip`,
+    fileName: `obligations-pdfs-${dateInTimezone(tenant.timezone)}.zip`,
     contentType: 'application/zip',
     contentBase64: base64Bytes(zip),
     auditId,
   }
 })
 
-export const workboardHandlers = {
+export const obligationQueueHandlers = {
   list,
   getDetail,
   facets,

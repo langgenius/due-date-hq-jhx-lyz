@@ -7,13 +7,13 @@ area: dashboard
 ## Context
 
 The dashboard metric strip showed the firm-wide `Needs review` count, but users had to know that the
-matching operational surface was the Workboard review filter. The Figma node `348:12` adds a
+matching operational surface was the Obligations review filter. The Figma node `348:12` adds a
 right-aligned `Resolve` action to that card.
 
 ## Changes
 
 - Added a compact `Resolve` button to the dashboard `Needs review` metric card.
-- Routed the action to `/workboard?status=review`, matching the dashboard summary calculation where
+- Routed the action to `/obligations?status=review`, matching the dashboard summary calculation where
   `needsReviewCount` is counted from obligations with `status === 'review'`.
 
 ## Design Alignment

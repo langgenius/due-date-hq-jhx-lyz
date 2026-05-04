@@ -44,7 +44,7 @@ const CATEGORY_ORDER: ShortcutCategory[] = [
   'global',
   'navigate',
   'practice',
-  'workboard',
+  'obligations',
   'wizard',
   'reserved',
 ]
@@ -53,7 +53,7 @@ const CATEGORY_LABELS: Record<ShortcutCategory, string> = {
   global: 'Global',
   navigate: 'Navigate',
   practice: 'Practice',
-  workboard: 'Obligations',
+  obligations: 'Obligations',
   wizard: 'Wizard',
   reserved: 'Reserved',
 }

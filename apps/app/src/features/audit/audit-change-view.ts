@@ -202,10 +202,10 @@ export const AUDIT_CHANGE_PRESENTERS: Record<KnownAuditAction, AuditChangePresen
   'rules.review.rejected': genericPresenter,
   'rules.review.required': genericPresenter,
   'rules.source.changed': genericPresenter,
-  'workboard.exported': workboardExportPresenter,
-  'workboard.saved_view.created': savedViewPresenter,
-  'workboard.saved_view.deleted': genericPresenter,
-  'workboard.saved_view.updated': savedViewPresenter,
+  'obligations.exported': obligationQueueExportPresenter,
+  'obligations.saved_view.created': savedViewPresenter,
+  'obligations.saved_view.deleted': genericPresenter,
+  'obligations.saved_view.updated': savedViewPresenter,
 }
 
 function isKnownAuditAction(action: string): action is KnownAuditAction {
@@ -633,7 +633,7 @@ function exportPackageRequestedPresenter(context: AuditChangeContext): AuditChan
   )
 }
 
-function workboardExportPresenter(context: AuditChangeContext): AuditChangeView {
+function obligationQueueExportPresenter(context: AuditChangeContext): AuditChangeView {
   const rows = rowsForKeys(context, ['format', 'rowCount', 'clientCount'])
   return view(
     context.labels.headlines.actionRecorded(context.actionLabel),

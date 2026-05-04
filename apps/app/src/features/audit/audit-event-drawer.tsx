@@ -11,7 +11,7 @@ import {
   SheetTitle,
 } from '@duedatehq/ui/components/ui/sheet'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
-import { useReadinessLabels, useStatusLabels } from '@/features/workboard/status-control'
+import { useReadinessLabels, useStatusLabels } from '@/features/obligations/status-control'
 
 import { buildAuditChangeView, type AuditChangeView } from './audit-change-view'
 import {

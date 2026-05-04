@@ -68,7 +68,7 @@ Figma 文件 `Design Tokens — DueDateHQ`（`ssejugriUJkW9vbcBzmRgd` · 节点 
 - **Light tint 改 hex 而非保留 alpha**：DESIGN.md 与 Figma 都标的是实色 hex，而 alpha 在叠到 surface-panel `#FAFAFA` 或 surface-subtle `#F4F4F5` 上时会偏色，破坏"single source of truth"的等价关系。Dark 模式继续用 alpha 是因为 dark 表面层级更复杂，alpha 反而是 DueDateHQ-DESIGN §2.3 明确写的实现方式。
 - **Dark 入 YAML 用 `colorsDark:` 平行段而不是 `colors.{light,dark}` 嵌套**：嵌套结构会破坏现有所有 `{colors.X}` 引用（含 `09-design-system-deltas.md` 4 处、`02-ux-4step-wizard.md` 等），平行段是零破坏的最小改动。
 - **`brand/*` 用 alias 而不是新引入颜色**：Figma 的 `brand/*` 与 DESIGN.md 顶层 `primary/secondary/tertiary/neutral` 在语义上就是 text-primary / text-secondary / accent-default / surface-canvas 的别名（值 1:1 一致），写成 alias 而不是新颜色避免 dark mode 维护两份。
-- **Risk row severity bar 加字段而不是写在 prose**：YAML token 的契约是机器可读，dashboard / workboard / dry-run preview 三处 row 实现需要从 token 读 width 与 color，不能靠"读文档"。
+- **Risk row severity bar 加字段而不是写在 prose**：YAML token 的契约是机器可读，dashboard / obligations / dry-run preview 三处 row 实现需要从 token 读 width 与 color，不能靠"读文档"。
 
 ## 验证
 

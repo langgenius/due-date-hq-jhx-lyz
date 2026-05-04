@@ -21,8 +21,8 @@ server/app files without changing contracts, routes, or persistence behavior.
   `apps/app/src/components/patterns/app-shell-nav.tsx`.
 - Split account, language, theme, and sign-out menu UI into
   `apps/app/src/components/patterns/app-shell-user-menu.tsx`.
-- Extracted Workboard status labels, status constants, and the status badge/select cell into
-  `apps/app/src/features/workboard/status-control.tsx`.
+- Extracted Obligations status labels, status constants, and the status badge/select cell into
+  `apps/app/src/features/obligations/status-control.tsx`.
 
 ## Verification
 

@@ -20,12 +20,12 @@ Plan behavior:
 
 ## V1 Boundary
 
-V1 is a read-only workload read model over existing Workboard data:
+V1 is a read-only workload read model over existing Obligations data:
 
 - obligations supply due dates and status;
 - `client.assignee_name` supplies the current owner label;
 - missing owner labels aggregate into `Unassigned`;
-- every row links back to Workboard filters for execution.
+- every row links back to Obligations filters for execution.
 
 This avoids inventing a second task system. Formal member-bound assignment, reassignment, and bulk
 handoff remain a later slice once `obligation_instance.assignee_user_id` is added.
@@ -39,15 +39,15 @@ handoff remain a later slice once `obligation_instance.assignee_user_id` is adde
 ## Implementation Notes
 
 - `apps/app/src/routes/workload.tsx` stays a thin route wrapper.
-- Feature UI and Workboard deep-link helpers live under `apps/app/src/features/workload/`.
-- Workload aggregates read from existing obligation/client Workboard data and use
+- Feature UI and Obligations deep-link helpers live under `apps/app/src/features/workload/`.
+- Workload aggregates read from existing obligation/client Obligations data and use
   `client.assignee_name` as the V1 owner label.
 - Solo plan gating is enforced in both sidebar UX and the workload API handler.
 
 ## Validation
 
 - `pnpm --filter @duedatehq/contracts test`
-- `pnpm --filter @duedatehq/db test -- src/repo/workload.test.ts src/repo/workboard.test.ts`
+- `pnpm --filter @duedatehq/db test -- src/repo/workload.test.ts src/repo/obligations.test.ts`
 - `pnpm --filter @duedatehq/app i18n:compile`
 - `pnpm --filter @duedatehq/app build`
 - `pnpm check:deps`

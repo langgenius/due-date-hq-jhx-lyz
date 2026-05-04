@@ -141,8 +141,8 @@ describe('@duedatehq/server app', () => {
   })
 
   it('keeps demo login redirects inside the app', () => {
-    expect(pickSafeDemoRedirect('/workboard?owner=unassigned#row')).toBe(
-      '/workboard?owner=unassigned#row',
+    expect(pickSafeDemoRedirect('/obligations?owner=unassigned#row')).toBe(
+      '/obligations?owner=unassigned#row',
     )
     expect(pickSafeDemoRedirect('https://example.com')).toBe('/')
     expect(pickSafeDemoRedirect('//example.com')).toBe('/')

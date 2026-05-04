@@ -29,12 +29,12 @@ msgstr "{0, plural, one {# active} other {# active}}"
 
 #. placeholder {0}: Math.abs(days)
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{0, plural, one {# day late} other {# days late}}"
 msgstr "{0, plural, one {# day late} other {# days late}}"
 
 #. placeholder {0}: value.length
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{0, plural, one {# item} other {# items}}"
 msgstr "{0, plural, one {# item} other {# items}}"
 
@@ -51,7 +51,7 @@ msgid "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 msgstr "{0, plural, one {# row ready to import} other {# rows ready to import}}"
 
 #. placeholder {0}: selectedIds.length
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{0, plural, one {# selected} other {# selected}}"
 msgstr "{0, plural, one {# selected} other {# selected}}"
 
@@ -151,7 +151,7 @@ msgid "{0} ready · {1} needs input · {2} unsupported"
 msgstr "{0} ready · {1} needs input · {2} unsupported"
 
 #. placeholder {0}: result.updatedCount
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{0} rows changed"
 msgstr "{0} rows changed"
 
@@ -234,7 +234,7 @@ msgid "{count} additional fields changed"
 msgstr "{count} additional fields changed"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{days, plural, one {# day} other {# days}}"
 msgstr "{days, plural, one {# day} other {# days}}"
 
@@ -316,11 +316,11 @@ msgstr "{sourceCount, plural, one {# source needs attention. Alerts remain revie
 msgid "{totalImpact, plural, one {# client} other {# clients}}"
 msgstr "{totalImpact, plural, one {# client} other {# clients}}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{totalShown, plural, one {# obligation} other {# obligations}}"
 msgstr "{totalShown, plural, one {# obligation} other {# obligations}}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "{totalShown, plural, one {# row} other {# rows}}"
 msgstr "{totalShown, plural, one {# row} other {# rows}}"
 
@@ -383,7 +383,7 @@ msgid "4 verified · 1 candidate watch"
 msgstr "4 verified · 1 candidate watch"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "90-day projected risk"
 msgstr "90-day projected risk"
 
@@ -464,20 +464,20 @@ msgstr "Account menu for {0}"
 
 #. placeholder {0}: formatCents(row.accruedPenaltyCents)
 #. placeholder {1}: row.penaltyAsOfDate
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Accrued {0} as of {1}"
 msgstr "Accrued {0} as of {1}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Accrued needs input"
 msgstr "Accrued needs input"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Accrued penalty"
 msgstr "Accrued penalty"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Accrued unsupported"
 msgstr "Accrued unsupported"
 
@@ -550,7 +550,7 @@ msgstr "Add at least one provider record to continue."
 msgid "Add context for the reviewer"
 msgstr "Add context for the reviewer"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Add item"
 msgstr "Add item"
 
@@ -566,7 +566,7 @@ msgstr "Add practice"
 msgid "Affected clients"
 msgstr "Affected clients"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "After"
 msgstr "After"
 
@@ -602,7 +602,7 @@ msgstr "AI Mapper means AI suggested the fields."
 msgid "AI Mapper unavailable — using fallback"
 msgstr "AI Mapper unavailable — using fallback"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "AI readiness checklist"
 msgstr "AI readiness checklist"
 
@@ -691,7 +691,7 @@ msgid "All sources"
 msgstr "All sources"
 
 #: src/features/pulse/AlertsListPage.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "All statuses"
 msgstr "All statuses"
 
@@ -796,7 +796,7 @@ msgstr "Apply Default Matrix"
 msgid "Apply to all"
 msgstr "Apply to all"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Apply view"
 msgstr "Apply view"
 
@@ -837,13 +837,13 @@ msgstr "at risk this week"
 msgid "Attach a source before review."
 msgstr "Attach a source before review."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Audit"
 msgstr "Audit"
 
 #. placeholder {0}: result.auditId.slice(0, 8)
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Audit {0}"
 msgstr "Audit {0}"
 
@@ -971,7 +971,7 @@ msgstr "Basic AI"
 msgid "Batch rollback trace retained for 24 hours"
 msgstr "Batch rollback trace retained for 24 hours"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Before"
 msgstr "Before"
 
@@ -1036,11 +1036,11 @@ msgstr "Billing status is not ready yet."
 msgid "Building the import preview"
 msgstr "Building the import preview"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Bulk readiness updated"
 msgstr "Bulk readiness updated"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Bulk status updated"
 msgstr "Bulk status updated"
 
@@ -1065,7 +1065,7 @@ msgstr "CADENCE"
 msgid "Calculate preview"
 msgstr "Calculate preview"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Calculated"
 msgstr "Calculated"
 
@@ -1082,8 +1082,8 @@ msgid "Calendar subscription updated"
 msgstr "Calendar subscription updated"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/routes/obligations.tsx
 #: src/routes/route-summary.ts
-#: src/routes/workboard.tsx
 msgid "Calendar sync"
 msgstr "Calendar sync"
 
@@ -1101,8 +1101,8 @@ msgstr "Calendar URL regenerated"
 #: src/features/members/members-page.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -1148,16 +1148,16 @@ msgstr "Card numbers and invoice payment details never enter the app database."
 msgid "Change"
 msgstr "Change"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Change assignee"
 msgstr "Change assignee"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Change readiness"
 msgstr "Change readiness"
 
 #. placeholder {0}: row.clientName
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Change readiness for {0}"
 msgstr "Change readiness for {0}"
 
@@ -1165,12 +1165,12 @@ msgstr "Change readiness for {0}"
 msgid "Change role"
 msgstr "Change role"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Change status"
 msgstr "Change status"
 
 #. placeholder {0}: row.clientName
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Change status for {0}"
 msgstr "Change status for {0}"
 
@@ -1194,23 +1194,23 @@ msgstr "Checking the active practice plan before loading workload metrics."
 msgid "Checklist"
 msgstr "Checklist"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist generated"
 msgstr "Checklist generated"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist item"
 msgstr "Checklist item"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist item description"
 msgstr "Checklist item description"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist item label"
 msgstr "Checklist item label"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Checklist items"
 msgstr "Checklist items"
 
@@ -1272,7 +1272,7 @@ msgstr "Choose Solo, Pro, or Team to start the hosted checkout flow."
 
 #: src/components/primitives/iso-date-picker.tsx
 #: src/features/rules/rule-detail-drawer.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Clear"
 msgstr "Clear"
 
@@ -1290,7 +1290,7 @@ msgstr "Click more to change role, suspend, or remove"
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client"
 msgstr "Client"
 
@@ -1328,7 +1328,7 @@ msgstr "Client deleted"
 msgid "Client email draft copied"
 msgstr "Client email draft copied"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client email on file"
 msgstr "Client email on file"
 
@@ -1363,11 +1363,11 @@ msgstr "Client importance"
 msgid "Client name"
 msgstr "Client name"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client portal visitor"
 msgstr "Client portal visitor"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client readiness response"
 msgstr "Client readiness response"
 
@@ -1379,7 +1379,7 @@ msgstr "Client reminder"
 msgid "Client Risk Summary"
 msgstr "Client Risk Summary"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Client-facing detail"
 msgstr "Client-facing detail"
 
@@ -1417,7 +1417,7 @@ msgstr "Closed source-year obligations eligible for rollover. Only done, paid, a
 msgid "Code sent to"
 msgstr "Code sent to"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Columns"
 msgstr "Columns"
 
@@ -1425,7 +1425,7 @@ msgstr "Columns"
 msgid "Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can power the penalty exposure preview."
 msgstr "Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can power the penalty exposure preview."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Comfortable"
 msgstr "Comfortable"
 
@@ -1441,7 +1441,7 @@ msgstr "Coming soon"
 msgid "Command palette"
 msgstr "Command palette"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Compact"
 msgstr "Compact"
 
@@ -1526,7 +1526,7 @@ msgstr "Copy"
 msgid "Copy client email draft"
 msgstr "Copy client email draft"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Copy link"
 msgstr "Copy link"
 
@@ -1720,7 +1720,7 @@ msgstr "Couldn't create client"
 msgid "Couldn't delete client"
 msgstr "Couldn't delete client"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't delete view"
 msgstr "Couldn't delete view"
 
@@ -1729,11 +1729,11 @@ msgstr "Couldn't delete view"
 msgid "Couldn't dismiss alert"
 msgstr "Couldn't dismiss alert"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't export selected rows"
 msgstr "Couldn't export selected rows"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't generate checklist"
 msgstr "Couldn't generate checklist"
 
@@ -1753,11 +1753,11 @@ msgstr "Couldn't load clients"
 msgid "Couldn't load dashboard"
 msgstr "Couldn't load dashboard"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't load obligation detail."
 msgstr "Couldn't load obligation detail."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't load the queue."
 msgstr "Couldn't load the queue."
 
@@ -1769,11 +1769,11 @@ msgstr "Couldn't load this alert"
 msgid "Couldn't parse the input"
 msgstr "Couldn't parse the input"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't prepare the latest tip. Showing fallback or previous content."
 msgstr "Couldn't prepare the latest tip. Showing fallback or previous content."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't queue deadline tip"
 msgstr "Couldn't queue deadline tip"
 
@@ -1793,11 +1793,11 @@ msgstr "Couldn't reject candidate"
 msgid "Couldn't request review"
 msgstr "Couldn't request review"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't revoke request"
 msgstr "Couldn't revoke request"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't save extension decision"
 msgstr "Couldn't save extension decision"
 
@@ -1809,7 +1809,7 @@ msgstr "Couldn't save filing jurisdictions"
 msgid "Couldn't save mapping"
 msgstr "Couldn't save mapping"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't save penalty inputs"
 msgstr "Couldn't save penalty inputs"
 
@@ -1817,11 +1817,11 @@ msgstr "Couldn't save penalty inputs"
 msgid "Couldn't save risk inputs"
 msgstr "Couldn't save risk inputs"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't save view"
 msgstr "Couldn't save view"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't send readiness request"
 msgstr "Couldn't send readiness request"
 
@@ -1846,24 +1846,24 @@ msgstr "Couldn't undo import"
 msgid "Couldn't undo Pulse"
 msgstr "Couldn't undo Pulse"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update owners"
 msgstr "Couldn't update owners"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update readiness"
 msgstr "Couldn't update readiness"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update selected rows"
 msgstr "Couldn't update selected rows"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update status"
 msgstr "Couldn't update status"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Couldn't update view"
 msgstr "Couldn't update view"
 
@@ -1878,7 +1878,7 @@ msgstr "Counties"
 
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "County"
 msgstr "County"
 
@@ -1952,7 +1952,7 @@ msgid "critical"
 msgstr "critical"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "CSV"
 msgstr "CSV"
 
@@ -1977,7 +1977,7 @@ msgstr "Current role: {currentRoleLabel}"
 msgid "Current role: {currentRoleLabel}. Required: {requiredRoleText}."
 msgstr "Current role: {currentRoleLabel}. Required: {requiredRoleText}."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Current status"
 msgstr "Current status"
 
@@ -2016,7 +2016,7 @@ msgstr "Dashboard briefs, Pulse summaries, client risk summaries, and production
 msgid "Day of month"
 msgstr "Day of month"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Days"
 msgstr "Days"
 
@@ -2062,11 +2062,11 @@ msgid "Deadline status changed from {previous} to {next}"
 msgstr "Deadline status changed from {previous} to {next}"
 
 #: src/features/concepts/concept-help.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Deadline Tip"
 msgstr "Deadline Tip"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Deadline tip refresh queued"
 msgstr "Deadline tip refresh queued"
 
@@ -2086,15 +2086,15 @@ msgstr "Deadlines"
 msgid "Deadlines created"
 msgstr "Deadlines created"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Decided at"
 msgstr "Decided at"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Decision"
 msgstr "Decision"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Decision memo"
 msgstr "Decision memo"
 
@@ -2143,11 +2143,11 @@ msgstr "Delete this client?"
 msgid "Delete this practice?"
 msgstr "Delete this practice?"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Delete view"
 msgstr "Delete view"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Delivery"
 msgstr "Delivery"
 
@@ -2169,7 +2169,7 @@ msgid "Detail"
 msgstr "Detail"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Details updated"
 msgstr "Details updated"
 
@@ -2248,7 +2248,7 @@ msgstr "Due"
 #. placeholder {0}: formatDate(currentDueDate)
 #. placeholder {0}: rule.overrideDueDate
 #: src/features/rules/temporary-rules-tab.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Due {0}"
 msgstr "Due {0}"
 
@@ -2256,15 +2256,15 @@ msgstr "Due {0}"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Due date"
 msgstr "Due date"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Due date — earliest first"
 msgstr "Due date — earliest first"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Due date — latest first"
 msgstr "Due date — latest first"
 
@@ -2399,7 +2399,7 @@ msgstr "Enter a valid email address"
 msgid "Enter execute · Esc close · {commandShortcut} toggle"
 msgstr "Enter execute · Esc close · {commandShortcut} toggle"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Enter penalty inputs"
 msgstr "Enter penalty inputs"
 
@@ -2468,7 +2468,7 @@ msgstr "Entity types"
 msgid "Entry"
 msgstr "Entry"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Estimated tax due"
 msgstr "Estimated tax due"
 
@@ -2482,7 +2482,7 @@ msgid "ETA"
 msgstr "ETA"
 
 #. placeholder {0}: formatDate(response.etaDate)
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "ETA {0}"
 msgstr "ETA {0}"
 
@@ -2505,7 +2505,7 @@ msgstr "events"
 #: src/features/concepts/concept-help.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Evidence"
 msgstr "Evidence"
 
@@ -2529,11 +2529,11 @@ msgstr "Evidence linked"
 msgid "Exception"
 msgstr "Exception"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Expected extended date"
 msgstr "Expected extended date"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Expected extended due date (reference only)"
 msgstr "Expected extended due date (reference only)"
 
@@ -2571,7 +2571,7 @@ msgstr "Explain Preset mapping"
 msgid "Export"
 msgstr "Export"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Export ready"
 msgstr "Export ready"
 
@@ -2583,12 +2583,12 @@ msgstr "Exposure preview"
 msgid "Exposure readiness appears after mapping and Default Matrix are confirmed."
 msgstr "Exposure readiness appears after mapping and Default Matrix are confirmed."
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Extended"
 msgstr "Extended"
 
 #: src/features/rules/rule-detail-drawer.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Extension"
 msgstr "Extension"
 
@@ -2596,11 +2596,11 @@ msgstr "Extension"
 msgid "Extension also covers payment."
 msgstr "Extension also covers payment."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Extension decision saved"
 msgstr "Extension decision saved"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Extension memo"
 msgstr "Extension memo"
 
@@ -2612,7 +2612,7 @@ msgstr "Extension note"
 msgid "Extension policy is invalid."
 msgstr "Extension policy is invalid."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Extension source"
 msgstr "Extension source"
 
@@ -2628,13 +2628,13 @@ msgstr "Fact readiness"
 msgid "Factor weights"
 msgstr "Factor weights"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Facts"
 msgstr "Facts"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Failed"
 msgstr "Failed"
 
@@ -2643,7 +2643,7 @@ msgstr "Failed"
 msgid "Failing"
 msgstr "Failing"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Fallback checklist ready"
 msgstr "Fallback checklist ready"
 
@@ -2675,7 +2675,7 @@ msgstr "File size"
 msgid "File type"
 msgstr "File type"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Filed"
 msgstr "Filed"
 
@@ -2802,7 +2802,7 @@ msgstr "Format"
 msgid "Forms"
 msgstr "Forms"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Formula"
 msgstr "Formula"
 
@@ -2832,11 +2832,11 @@ msgstr "General"
 msgid "Generate"
 msgstr "Generate"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Generate a checklist or add items before sending a portal link."
 msgstr "Generate a checklist or add items before sending a portal link."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Generate checklist"
 msgstr "Generate checklist"
 
@@ -2883,7 +2883,7 @@ msgstr "Hidden"
 
 #: src/features/priority/SmartPriorityBadge.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Hidden by role"
 msgstr "Hidden by role"
 
@@ -3014,7 +3014,7 @@ msgstr "Importing…"
 msgid "Improves identity matching and audit review."
 msgstr "Improves identity matching and audit review."
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "In progress"
 msgstr "In progress"
 
@@ -3163,7 +3163,7 @@ msgstr "Late filing history"
 msgid "Late filings, 12mo"
 msgstr "Late filings, 12mo"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Latest request"
 msgstr "Latest request"
 
@@ -3191,7 +3191,7 @@ msgstr "LLC"
 msgid "Load"
 msgstr "Load"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Load more"
 msgstr "Load more"
 
@@ -3211,11 +3211,11 @@ msgstr "Loading client tax types."
 msgid "Loading clients for preview."
 msgstr "Loading clients for preview."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Loading deadline tip…"
 msgstr "Loading deadline tip…"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Loading obligation detail…"
 msgstr "Loading obligation detail…"
 
@@ -3223,7 +3223,7 @@ msgstr "Loading obligation detail…"
 msgid "Loading obligation preview."
 msgstr "Loading obligation preview."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Loading queue…"
 msgstr "Loading queue…"
 
@@ -3260,7 +3260,7 @@ msgid "Loading..."
 msgstr "Loading..."
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Loading…"
 msgstr "Loading…"
 
@@ -3359,7 +3359,7 @@ msgstr "Mapping"
 msgid "Mark all read"
 msgstr "Mark all read"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Mark extended"
 msgstr "Mark extended"
 
@@ -3367,7 +3367,7 @@ msgstr "Mark extended"
 msgid "Mark read"
 msgstr "Mark read"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Mark selected extended"
 msgstr "Mark selected extended"
 
@@ -3383,19 +3383,19 @@ msgstr "Matched"
 msgid "Matched clients"
 msgstr "Matched clients"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Max $"
 msgstr "Max $"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Max days"
 msgstr "Max days"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Maximum days until due"
 msgstr "Maximum days until due"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Maximum dollars at risk"
 msgstr "Maximum dollars at risk"
 
@@ -3503,19 +3503,19 @@ msgstr "Migration Copilot"
 msgid "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 msgstr "Migration Copilot wizard — paste or upload your client roster, review the AI mapping, normalize values, and preview the import before committing."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Min $"
 msgstr "Min $"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Min days"
 msgstr "Min days"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Minimum days until due"
 msgstr "Minimum days until due"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Minimum dollars at risk"
 msgstr "Minimum dollars at risk"
 
@@ -3523,7 +3523,7 @@ msgstr "Minimum dollars at risk"
 msgid "Missing due date"
 msgstr "Missing due date"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Missing penalty facts"
 msgstr "Missing penalty facts"
 
@@ -3582,13 +3582,13 @@ msgstr "Name"
 msgid "Navigate"
 msgstr "Navigate"
 
+#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
-#: src/routes/workboard.tsx
 msgid "Need help"
 msgstr "Need help"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Needs evidence"
 msgstr "Needs evidence"
 
@@ -3601,19 +3601,19 @@ msgid "Needs filing state"
 msgstr "Needs filing state"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "needs input"
 msgstr "needs input"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Needs input"
 msgstr "Needs input"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/Step3Normalize.tsx
+#: src/features/obligations/status-control.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
-#: src/features/workboard/status-control.tsx
 #: src/routes/dashboard.tsx
 msgid "Needs review"
 msgstr "Needs review"
@@ -3648,7 +3648,7 @@ msgstr "New client"
 msgid "New client imports will appear here when you need batch recovery."
 msgstr "New client imports will appear here when you need batch recovery."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "New obligation view"
 msgstr "New obligation view"
 
@@ -3708,7 +3708,7 @@ msgstr "No active practice is selected."
 msgid "No alerts match these filters."
 msgstr "No alerts match these filters."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No assignable members"
 msgstr "No assignable members"
 
@@ -3716,11 +3716,11 @@ msgstr "No assignable members"
 msgid "No assigned work"
 msgstr "No assigned work"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No assignees"
 msgstr "No assignees"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No audit events are attached to this obligation."
 msgstr "No audit events are attached to this obligation."
 
@@ -3736,17 +3736,17 @@ msgstr "No audit events recorded for this obligation."
 msgid "No audit events yet."
 msgstr "No audit events yet."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No client email on file"
 msgstr "No client email on file"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No client response yet."
 msgstr "No client response yet."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No clients"
 msgstr "No clients"
 
@@ -3766,7 +3766,7 @@ msgstr "No closed source-year obligations matched this rollover preview."
 msgid "No commands found."
 msgstr "No commands found."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No counties"
 msgstr "No counties"
 
@@ -3795,7 +3795,7 @@ msgstr "No entities"
 msgid "No evidence linked yet"
 msgstr "No evidence linked yet"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No evidence links are attached to this obligation."
 msgstr "No evidence links are attached to this obligation."
 
@@ -3812,7 +3812,7 @@ msgid "No exposure states"
 msgstr "No exposure states"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No forms"
 msgstr "No forms"
 
@@ -3824,7 +3824,7 @@ msgstr "No generated obligations yet."
 msgid "No import batches yet"
 msgstr "No import batches yet"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No matched rule"
 msgstr "No matched rule"
 
@@ -3844,7 +3844,7 @@ msgstr "No notifications yet."
 msgid "No obligations in this window."
 msgstr "No obligations in this window."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No obligations match these filters."
 msgstr "No obligations match these filters."
 
@@ -3869,7 +3869,7 @@ msgstr "No owners"
 msgid "No paid subscription"
 msgstr "No paid subscription"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No penalty breakdown is available yet."
 msgstr "No penalty breakdown is available yet."
 
@@ -3882,7 +3882,7 @@ msgid "No previous provider imports are available yet."
 msgstr "No previous provider imports are available yet."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No readiness states"
 msgstr "No readiness states"
 
@@ -3898,11 +3898,11 @@ msgstr "no rule"
 msgid "no rule — not in MVP scope"
 msgstr "no rule — not in MVP scope"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No rule extension or unknown"
 msgstr "No rule extension or unknown"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No saved views"
 msgstr "No saved views"
 
@@ -3923,7 +3923,7 @@ msgid "No state"
 msgstr "No state"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "No states"
 msgstr "No states"
 
@@ -3952,7 +3952,7 @@ msgid "No user-facing field change was recorded."
 msgstr "No user-facing field change was recorded."
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "None"
 msgstr "None"
 
@@ -3968,15 +3968,15 @@ msgstr "Normalized"
 msgid "Normalizer warning"
 msgstr "Normalizer warning"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Not applicable"
 msgstr "Not applicable"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not calculated"
 msgstr "Not calculated"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not decided"
 msgstr "Not decided"
 
@@ -3984,7 +3984,7 @@ msgstr "Not decided"
 msgid "Not enabled"
 msgstr "Not enabled"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not entered"
 msgstr "Not entered"
 
@@ -3992,25 +3992,25 @@ msgstr "Not entered"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/members/members-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not recorded"
 msgstr "Not recorded"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not set"
 msgstr "Not set"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Not specified"
 msgstr "Not specified"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Not started"
 msgstr "Not started"
 
+#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
-#: src/routes/workboard.tsx
 msgid "Not yet"
 msgstr "Not yet"
 
@@ -4054,7 +4054,7 @@ msgstr "NY PTET payments"
 msgid "Obligation"
 msgstr "Obligation"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Obligation detail"
 msgstr "Obligation detail"
 
@@ -4062,7 +4062,7 @@ msgstr "Obligation detail"
 msgid "Obligation evidence"
 msgstr "Obligation evidence"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Obligation needs-input update"
 msgstr "Obligation needs-input update"
 
@@ -4082,8 +4082,9 @@ msgstr "Obligation status updates and client imports will appear here when they 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/concepts/concept-help.tsx
+#: src/features/rules/generation-preview-tab.tsx
+#: src/routes/obligations.tsx
 #: src/routes/route-summary.ts
-#: src/routes/workboard.tsx
 msgid "Obligations"
 msgstr "Obligations"
 
@@ -4091,7 +4092,7 @@ msgstr "Obligations"
 msgid "Obligations actually created after Generate runs. Preview results show zero here until generation succeeds."
 msgstr "Obligations actually created after Generate runs. Preview results show zero here until generation succeeds."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Obligations bulk owner change"
 msgstr "Obligations bulk owner change"
 
@@ -4127,7 +4128,7 @@ msgstr "Official excerpt"
 msgid "Official extension form or method"
 msgstr "Official extension form or method"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Official form or method"
 msgstr "Official form or method"
 
@@ -4228,7 +4229,7 @@ msgstr "Only the practice owner can start or change a subscription."
 #: src/features/notifications/notifications-page.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Open"
 msgstr "Open"
 
@@ -4247,7 +4248,7 @@ msgstr "Open evidence and confirm the source still matches."
 #. placeholder {0}: row.original.clientName
 #. placeholder {0}: tableRow.original.clientName
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Open evidence for {0}"
 msgstr "Open evidence for {0}"
 
@@ -4296,7 +4297,7 @@ msgstr "Open official source"
 msgid "Open official source: {0}"
 msgstr "Open official source: {0}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Open portal"
 msgstr "Open portal"
 
@@ -4310,7 +4311,7 @@ msgid "Open rule detail: {0}"
 msgstr "Open rule detail: {0}"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Open source"
 msgstr "Open source"
 
@@ -4330,7 +4331,7 @@ msgstr "Open your authenticator app, add a new account, then scan this code. Use
 msgid "Open your personal notification inbox."
 msgstr "Open your personal notification inbox."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Opened by"
 msgstr "Opened by"
 
@@ -4399,8 +4400,8 @@ msgstr "Overdue"
 #: src/features/permissions/permission-gate.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/billing.tsx
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Owner"
 msgstr "Owner"
 
@@ -4418,7 +4419,7 @@ msgstr "Owner approved"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/mapping-target-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Owner count"
 msgstr "Owner count"
 
@@ -4447,7 +4448,7 @@ msgstr "Owner-only. Invite teammates, change roles, and manage seats."
 msgid "Owners need MFA before sensitive production actions."
 msgstr "Owners need MFA before sensitive production actions."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Owners updated"
 msgstr "Owners updated"
 
@@ -4463,7 +4464,7 @@ msgstr "Page {pageNumber} of {pageCount}"
 msgid "Page not found"
 msgstr "Page not found"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Paid"
 msgstr "Paid"
 
@@ -4545,11 +4546,11 @@ msgstr "Payment year start"
 msgid "Payments and credits"
 msgstr "Payments and credits"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "PDF zip"
 msgstr "PDF zip"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty inputs"
 msgstr "Penalty inputs"
 
@@ -4557,7 +4558,7 @@ msgstr "Penalty inputs"
 msgid "Penalty inputs changed"
 msgstr "Penalty inputs changed"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty inputs saved"
 msgstr "Penalty inputs saved"
 
@@ -4569,7 +4570,7 @@ msgstr "Penalty Radar"
 msgid "Penalty readiness is computed from the confirmed tax type plus any estimated tax due and owner count columns mapped in Step 2."
 msgstr "Penalty readiness is computed from the confirmed tax type plus any estimated tax due and owner count columns mapped in Step 2."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty sources"
 msgstr "Penalty sources"
 
@@ -4584,7 +4585,7 @@ msgstr "Penalty waiver"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/members/members-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Pending"
 msgstr "Pending"
 
@@ -4624,7 +4625,7 @@ msgstr "Permission required"
 msgid "Personal & fiduciary"
 msgstr "Personal & fiduciary"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Pin view"
 msgstr "Pin view"
 
@@ -4677,13 +4678,13 @@ msgstr "Please enter at least 2 characters."
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/login.tsx
+#: src/routes/obligations.tsx
 #: src/routes/onboarding.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Please try again."
 msgstr "Please try again."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Portal link copied"
 msgstr "Portal link copied"
 
@@ -4810,7 +4811,7 @@ msgstr "Preferences"
 msgid "Preparer"
 msgstr "Preparer"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Preparing"
 msgstr "Preparing"
 
@@ -4818,7 +4819,7 @@ msgstr "Preparing"
 msgid "Preparing normalization"
 msgstr "Preparing normalization"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Preparing tip from verified deadline context."
 msgstr "Preparing tip from verified deadline context."
 
@@ -4895,7 +4896,7 @@ msgid "Primary navigation"
 msgstr "Primary navigation"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Priority"
 msgstr "Priority"
 
@@ -4925,14 +4926,14 @@ msgstr "Pro"
 msgid "Production Pulse actions require Pro or above."
 msgstr "Production Pulse actions require Pro or above."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Projected 90-day risk"
 msgstr "Projected 90-day risk"
 
 #: src/features/concepts/concept-help.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Projected risk"
 msgstr "Projected risk"
 
@@ -4945,7 +4946,7 @@ msgstr "Projected risk cap"
 msgid "Projected risk dollars are hidden for your current role."
 msgstr "Projected risk dollars are hidden for your current role."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
 msgstr "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
 
@@ -5065,7 +5066,7 @@ msgstr "Pulse updates"
 msgid "Quarantined"
 msgstr "Quarantined"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Queue controls"
 msgstr "Queue controls"
 
@@ -5125,7 +5126,7 @@ msgstr "Read-only view"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/concepts/concept-help.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness"
 msgstr "Readiness"
 
@@ -5133,11 +5134,11 @@ msgstr "Readiness"
 msgid "Readiness check"
 msgstr "Readiness check"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness link created"
 msgstr "Readiness link created"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness portal opened"
 msgstr "Readiness portal opened"
 
@@ -5145,20 +5146,20 @@ msgstr "Readiness portal opened"
 msgid "Readiness pressure"
 msgstr "Readiness pressure"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness request revoked"
 msgstr "Readiness request revoked"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness request sent"
 msgstr "Readiness request sent"
 
+#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
-#: src/routes/workboard.tsx
 msgid "Readiness response submitted"
 msgstr "Readiness response submitted"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Readiness updated"
 msgstr "Readiness updated"
 
@@ -5167,10 +5168,10 @@ msgid "Reading file…"
 msgstr "Reading file…"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 #: src/routes/dashboard.tsx
+#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
-#: src/routes/workboard.tsx
 msgid "Ready"
 msgstr "Ready"
 
@@ -5195,7 +5196,7 @@ msgstr "Reason"
 msgid "Receipts band"
 msgstr "Receipts band"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Recently updated"
 msgstr "Recently updated"
 
@@ -5207,11 +5208,11 @@ msgstr "Recommended"
 msgid "Record audit trail"
 msgstr "Record audit trail"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Record internal decision: extension applied"
 msgstr "Record internal decision: extension applied"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Record internal decision: extension rejected"
 msgstr "Record internal decision: extension rejected"
 
@@ -5235,7 +5236,7 @@ msgstr "Redirecting to Google…"
 msgid "Redirecting to Microsoft…"
 msgstr "Redirecting to Microsoft…"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Reference"
 msgstr "Reference"
 
@@ -5243,7 +5244,7 @@ msgstr "Reference"
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Refresh"
 msgstr "Refresh"
 
@@ -5293,7 +5294,7 @@ msgstr "Reminder-ready"
 msgid "reminder-ready across MVP scope"
 msgstr "reminder-ready across MVP scope"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Remove checklist item"
 msgstr "Remove checklist item"
 
@@ -5305,11 +5306,11 @@ msgstr "Remove from practice"
 msgid "Remove member?"
 msgstr "Remove member?"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rename saved view"
 msgstr "Rename saved view"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rename view"
 msgstr "Rename view"
 
@@ -5361,7 +5362,7 @@ msgstr "Reserved"
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Reset"
 msgstr "Reset"
 
@@ -5381,7 +5382,7 @@ msgstr "Resolve"
 msgid "Resolve needs review clients"
 msgstr "Resolve needs review clients"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Responses"
 msgstr "Responses"
 
@@ -5389,7 +5390,7 @@ msgstr "Responses"
 msgid "Restart checkout"
 msgstr "Restart checkout"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Resulting readiness"
 msgstr "Resulting readiness"
 
@@ -5401,7 +5402,7 @@ msgstr "Retracted"
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/clients.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Retry"
 msgstr "Retry"
 
@@ -5528,7 +5529,7 @@ msgstr "Reviewing"
 msgid "Revoke"
 msgstr "Revoke"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Revoke request"
 msgstr "Revoke request"
 
@@ -5538,7 +5539,7 @@ msgstr "Revoked"
 
 #: src/features/concepts/concept-help.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Risk"
 msgstr "Risk"
 
@@ -5616,7 +5617,7 @@ msgstr "Rule"
 msgid "Rule / reason"
 msgstr "Rule / reason"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rule allows extension"
 msgstr "Rule allows extension"
 
@@ -5636,7 +5637,7 @@ msgstr "Rule cells"
 msgid "Rule detail and evidence"
 msgstr "Rule detail and evidence"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rule extension policy"
 msgstr "Rule extension policy"
 
@@ -5648,7 +5649,7 @@ msgstr "Rule issue reported"
 msgid "Rule Library"
 msgstr "Rule Library"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Rule notes"
 msgstr "Rule notes"
 
@@ -5686,7 +5687,7 @@ msgstr "Rules published"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Run migration"
 msgstr "Run migration"
 
@@ -5702,7 +5703,7 @@ msgstr "Run preview"
 msgid "Run the mapper to see confidence stats."
 msgstr "Run the mapper to see confidence stats."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Run the migration wizard to import a CSV of clients, or change the filters above."
 msgstr "Run the migration wizard to import a CSV of clients, or change the filters above."
 
@@ -5750,12 +5751,12 @@ msgstr "Save $96/year"
 msgid "Save about 20%"
 msgstr "Save about 20%"
 
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Save changes"
 msgstr "Save changes"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Save current view"
 msgstr "Save current view"
 
@@ -5767,7 +5768,7 @@ msgstr "Save filing jurisdictions"
 msgid "Save from $960/year"
 msgstr "Save from $960/year"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Save internal decision"
 msgstr "Save internal decision"
 
@@ -5791,7 +5792,7 @@ msgstr "Save Smart Priority"
 msgid "Save these recovery codes now"
 msgstr "Save these recovery codes now"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Save view"
 msgstr "Save view"
 
@@ -5800,21 +5801,21 @@ msgid "Saved obligation view"
 msgstr "Saved obligation view"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved view created"
 msgstr "Saved view created"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved view deleted"
 msgstr "Saved view deleted"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved view name"
 msgstr "Saved view name"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved view updated"
 msgstr "Saved view updated"
 
@@ -5822,11 +5823,11 @@ msgstr "Saved view updated"
 msgid "Saved view updated: {name}"
 msgstr "Saved view updated: {name}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved views"
 msgstr "Saved views"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Saved views store filters, sort, visible columns, and density."
 msgstr "Saved views store filters, sort, visible columns, and density."
 
@@ -5859,21 +5860,21 @@ msgstr "Scope"
 msgid "Score"
 msgstr "Score"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Search assignees"
 msgstr "Search assignees"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Search clients"
 msgstr "Search clients"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Search counties"
 msgstr "Search counties"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Search obligations"
 msgstr "Search obligations"
 
@@ -5931,7 +5932,7 @@ msgstr "Seeds"
 #. placeholder {0}: row.clientName
 #. placeholder {0}: tableRow.original.clientName
 #: src/features/pulse/components/AffectedClientsTable.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Select {0}"
 msgstr "Select {0}"
 
@@ -5943,7 +5944,7 @@ msgstr "Select a client to inspect the record."
 msgid "Select all eligible obligations"
 msgstr "Select all eligible obligations"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Select all visible rows"
 msgstr "Select all visible rows"
 
@@ -5979,7 +5980,7 @@ msgstr "Send a 7-day magic link to add a member to this practice."
 msgid "Send invite"
 msgstr "Send invite"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Send readiness check"
 msgstr "Send readiness check"
 
@@ -6056,7 +6057,7 @@ msgstr "Showing {firstItemNumber}-{lastItemNumber} of {totalCount}"
 msgid "showing selected client entity groups; Other remains manual review"
 msgstr "showing selected client entity groups; Other remains manual review"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Showing the previous tip while the latest one is being prepared."
 msgstr "Showing the previous tip while the latest one is being prepared."
 
@@ -6110,8 +6111,8 @@ msgstr "Skipped rows"
 
 #: src/features/concepts/concept-help.tsx
 #: src/features/priority/SmartPriorityBadge.tsx
+#: src/routes/obligations.tsx
 #: src/routes/practice.tsx
-#: src/routes/workboard.tsx
 msgid "Smart Priority"
 msgstr "Smart Priority"
 
@@ -6176,7 +6177,7 @@ msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Sort"
 msgstr "Sort"
 
@@ -6226,7 +6227,7 @@ msgstr "Source heading and excerpt are required."
 msgid "Source needs attention · {label}"
 msgstr "Source needs attention · {label}"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Source or confirmation reference"
 msgstr "Source or confirmation reference"
 
@@ -6285,7 +6286,7 @@ msgid "SSO and custom coverage"
 msgstr "SSO and custom coverage"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Stale"
 msgstr "Stale"
 
@@ -6300,7 +6301,7 @@ msgstr "Start with the money and deadline pressure, then work the evidence-backe
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "State"
 msgstr "State"
 
@@ -6320,7 +6321,7 @@ msgstr "States covered"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Status"
 msgstr "Status"
 
@@ -6328,12 +6329,12 @@ msgstr "Status"
 msgid "STATUS"
 msgstr "STATUS"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Status changes write an audit row in the same call so the trail stays trustworthy."
 msgstr "Status changes write an audit row in the same call so the trail stays trustworthy."
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Status updated"
 msgstr "Status updated"
 
@@ -6341,7 +6342,7 @@ msgstr "Status updated"
 msgid "Step {step} / 4"
 msgstr "Step {step} / 4"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Still preparing. You can leave this page and check back later."
 msgstr "Still preparing. You can leave this page and check back later."
 
@@ -6439,7 +6440,7 @@ msgstr "System"
 msgid "System notification"
 msgstr "System notification"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "System or client portal"
 msgstr "System or client portal"
 
@@ -6463,14 +6464,14 @@ msgstr "Target filing year must be exactly one year after the source filing year
 msgid "Target filing year must be the next year after source filing year."
 msgstr "Target filing year must be the next year after source filing year."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Tax due"
 msgstr "Tax due"
 
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Tax type"
 msgstr "Tax type"
 
@@ -6617,7 +6618,7 @@ msgstr "The late-filing count where history reaches its maximum Smart Priority c
 msgid "The matched verified rule and period, or the reason this row is duplicate or skipped."
 msgstr "The matched verified rule and period, or the reason this row is duplicate or skipped."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "The memo is stored on the audit trail for the bulk status change."
 msgstr "The memo is stored on the audit trail for the bulk status change."
 
@@ -6654,7 +6655,7 @@ msgid "The projected risk across the current deadline queue. It helps prioritize
 msgstr "The projected risk across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
 
 #: src/lib/i18n-error.ts
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "The request was invalid. Please review your input and try again."
 msgstr "The request was invalid. Please review your input and try again."
 
@@ -6746,7 +6747,7 @@ msgstr "This Pulse alert is closed and cannot be sent for review."
 msgid "This readiness link is expired, revoked, or invalid."
 msgstr "This readiness link is expired, revoked, or invalid."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "This records an internal decision for this obligation. It does not update the due date, change client records, or confirm an authority filing. Payment may still be due by the original date."
 msgstr "This records an internal decision for this obligation. It does not update the due date, change client records, or confirm an authority filing. Payment may still be due by the original date."
 
@@ -6786,7 +6787,7 @@ msgstr "This soft-deletes the active practice. If another practice is available,
 msgid "This source is no longer trusted. The historical alert remains visible, but new apply, dismiss, snooze, and undo actions are disabled."
 msgstr "This source is no longer trusted. The historical alert remains visible, but new apply, dismiss, snooze, and undo actions are disabled."
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "This week"
 msgstr "This week"
 
@@ -6796,8 +6797,8 @@ msgstr "This Week"
 
 #. placeholder {0}: client?.name ?? 'this client'
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "This will remove {0} from the active client directory, dashboard, and obligations workboard. The audit log will keep the deletion record."
-msgstr "This will remove {0} from the active client directory, dashboard, and obligations workboard. The audit log will keep the deletion record."
+msgid "This will remove {0} from the active client directory, dashboard, and Obligations. The audit log will keep the deletion record."
+msgstr "This will remove {0} from the active client directory, dashboard, and Obligations. The audit log will keep the deletion record."
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Tier"
@@ -6822,7 +6823,7 @@ msgid "Timezone"
 msgstr "Timezone"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Today"
 msgstr "Today"
 
@@ -6907,7 +6908,7 @@ msgstr "Unable to start Microsoft sign-in"
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Unassigned"
 msgstr "Unassigned"
 
@@ -6969,12 +6970,12 @@ msgstr "Unknown"
 msgid "Unknown browser"
 msgstr "Unknown browser"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Unpin view"
 msgstr "Unpin view"
 
 #: src/routes/dashboard.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "unsupported"
 msgstr "unsupported"
 
@@ -6982,7 +6983,7 @@ msgstr "unsupported"
 msgid "Unsupported"
 msgstr "Unsupported"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Update active view"
 msgstr "Update active view"
 
@@ -6995,13 +6996,13 @@ msgid "Updated"
 msgstr "Updated"
 
 #. placeholder {0}: formatDateTimeWithTimezone(insight.generatedAt)
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Updated {0}"
 msgstr "Updated {0}"
 
 #: src/components/patterns/app-shell.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Upgrade"
 msgstr "Upgrade"
 
@@ -7043,7 +7044,7 @@ msgstr "Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple 
 msgid "Use a whole number from 0 to 99"
 msgstr "Use a whole number from 0 to 99"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
 msgstr "Use table headers to filter by client, geography, form, readiness, owner, risk, and timing."
 
@@ -7149,7 +7150,7 @@ msgstr "View audit log"
 msgid "View billing"
 msgstr "View billing"
 
-#: src/routes/workboard.tsx
+#: src/routes/obligations.tsx
 msgid "Visible columns"
 msgstr "Visible columns"
 
@@ -7157,12 +7158,12 @@ msgstr "Visible columns"
 msgid "WA subtotal minus credits"
 msgstr "WA subtotal minus credits"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Waiting"
 msgstr "Waiting"
 
-#: src/features/workboard/status-control.tsx
+#: src/features/obligations/status-control.tsx
 msgid "Waiting on client"
 msgstr "Waiting on client"
 
@@ -7268,10 +7269,6 @@ msgstr "Work email"
 #: src/features/migration/WizardShell.tsx
 msgid "Workbench"
 msgstr "Workbench"
-
-#: src/features/rules/generation-preview-tab.tsx
-msgid "Workboard"
-msgstr "Workboard"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Working…"

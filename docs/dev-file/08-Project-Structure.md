@@ -163,7 +163,7 @@ apps/server/
 │   │   │   └── delete.ts
 │   │   ├── obligations/
 │   │   ├── dashboard/
-│   │   ├── workboard/
+│   │   ├── obligations/
 │   │   ├── pulse/
 │   │   ├── migration/
 │   │   └── notifications/
@@ -243,7 +243,7 @@ packages/ui/
 **约束：**
 
 - 只放纯 UI、品牌视觉、基础 layout primitive 和稳定 design token
-- 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属 dashboard/workboard/organization 组件
+- 不得依赖 Better Auth session、React Router、TanStack Query、oRPC 或 app 专属 dashboard/obligations/organization 组件
 - app 通过 `@duedatehq/ui/components/ui/*`、`@duedatehq/ui/lib/utils`、`@duedatehq/ui/styles/preset.css`、`@duedatehq/ui/theme*` 消费
 - 每个消费 app 的 Tailwind 入口必须 `@source` 扫描 `packages/ui/src`，否则 shadcn 组件内部 utilities 不会生成
 
@@ -278,7 +278,7 @@ packages/contracts/
 │   ├── clients.ts                  # clients 域契约
 │   ├── obligations.ts              # includes obligation jurisdiction/profile DTOs
 │   ├── dashboard.ts
-│   ├── workboard.ts
+│   ├── obligation-queue.ts
 │   ├── pulse.ts
 │   ├── migration.ts
 │   └── errors.ts                   # 自定义 ORPCError code 表
@@ -695,7 +695,7 @@ vp run -r dev
 | §3 Story S1/S2/S3   | E2E 10 条核心路径（§07.5.4）                                                                                                |
 | §3.6 Team           | `packages/auth` Organization plugin                                                                                         |
 | §5.1 Dashboard      | `apps/app/src/routes/dashboard.tsx` + `apps/server/src/procedures/dashboard` + `packages/db/src/repo/dashboard.ts`          |
-| §5.2 Obligations    | `apps/app/src/routes/workboard.tsx` + `features/workboard/`                                                                 |
+| §5.2 Obligations    | `apps/app/src/routes/obligations.tsx` + `features/obligations/`                                                             |
 | §5.5 Evidence Mode  | `apps/app/src/components/patterns/evidence-drawer/` + `packages/db/evidence-writer`                                         |
 | §6.1 Rule Engine    | `packages/db/seed/rules.ts` + `packages/core/date-logic`                                                                    |
 | §6.2 Glass-Box      | `packages/ai/guard.ts`                                                                                                      |

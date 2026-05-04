@@ -89,7 +89,7 @@ function importsAliasLoader() {
 }
 
 function calendarAliasLoader() {
-  throw redirect('/workboard/calendar')
+  throw redirect('/obligations/calendar')
 }
 
 // Only reachable when unauthenticated. If the session resolves, bounce to the
@@ -256,17 +256,17 @@ export function createAppRouter() {
               HydrateFallback: RouteHydrateFallback,
             },
             {
-              path: 'workboard',
-              handle: routeHandle(routeSummaries.workboard),
+              path: 'obligations',
+              handle: routeHandle(routeSummaries.obligations),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {
-                const { WorkboardRoute } = await import('@/routes/workboard')
+                const { ObligationQueueRoute } = await import('@/routes/obligations')
 
-                return { Component: WorkboardRoute }
+                return { Component: ObligationQueueRoute }
               },
             },
             {
-              path: 'workboard/calendar',
+              path: 'obligations/calendar',
               handle: routeHandle(routeSummaries.calendarSync),
               HydrateFallback: RouteHydrateFallback,
               lazy: async () => {

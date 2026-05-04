@@ -13,7 +13,7 @@ import type {
   MigrationBatch,
   MigrationSource,
   NormalizationRow,
-  WorkboardListInput,
+  ObligationQueueListInput,
 } from '@duedatehq/contracts'
 import {
   AlertDialog,
@@ -52,8 +52,8 @@ interface WizardProps {
   onClose: () => void
 }
 
-type WorkboardCursor = NonNullable<WorkboardListInput['cursor']> | null
-const WORKBOARD_PREFETCH_LIMIT = 50
+type ObligationQueueCursor = NonNullable<ObligationQueueListInput['cursor']> | null
+const OBLIGATION_QUEUE_PREFETCH_LIMIT = 50
 
 /**
  * Migration Copilot Wizard — controlled modal mounted once at the app shell.
@@ -86,11 +86,11 @@ export function Wizard({ open, onClose }: WizardProps) {
   const preheatOperations = useCallback(() => {
     void queryClient.prefetchQuery(orpc.dashboard.load.queryOptions({ input: {} }))
     void queryClient.prefetchInfiniteQuery(
-      orpc.workboard.list.infiniteOptions({
-        initialPageParam: null as WorkboardCursor,
+      orpc.obligations.list.infiniteOptions({
+        initialPageParam: null as ObligationQueueCursor,
         input: (cursor) => ({
           cursor,
-          limit: WORKBOARD_PREFETCH_LIMIT,
+          limit: OBLIGATION_QUEUE_PREFETCH_LIMIT,
           sort: 'due_asc',
         }),
         getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -168,7 +168,7 @@ export function Wizard({ open, onClose }: WizardProps) {
         invalidateMigration()
         void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
         preheatOperations()
       },
     }),
@@ -179,9 +179,9 @@ export function Wizard({ open, onClose }: WizardProps) {
         invalidateMigration()
         void queryClient.invalidateQueries({ queryKey: orpc.clients.listByFirm.key() })
         queryClient.removeQueries({ queryKey: orpc.dashboard.load.key() })
-        queryClient.removeQueries({ queryKey: orpc.workboard.list.key() })
+        queryClient.removeQueries({ queryKey: orpc.obligations.list.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
-        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
       },
     }),
   )
@@ -599,7 +599,7 @@ export function Wizard({ open, onClose }: WizardProps) {
             description: t`${pendingRevert.clientCount} clients · ${pendingRevert.obligationCount} obligations removed`,
           })
           setPendingRevert(null)
-          void navigate('/workboard')
+          void navigate('/obligations')
         },
       },
     )

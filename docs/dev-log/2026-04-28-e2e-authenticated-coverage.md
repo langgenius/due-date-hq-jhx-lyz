@@ -4,7 +4,7 @@
 
 The initial Playwright foundation intentionally stayed unauthenticated because Google OAuth is not
 CI-friendly and `packages/db/seed/demo.ts` is still a Phase 0 placeholder. The implemented app now has
-real protected surfaces for Dashboard, Workboard, Rules Console, and Migration Copilot Step 1, so the
+real protected surfaces for Dashboard, Obligations, Rules Console, and Migration Copilot Step 1, so the
 next useful coverage needed a deterministic local session fixture instead of testing unshipped OAuth.
 
 ## Documentation Checked
@@ -23,22 +23,22 @@ next useful coverage needed a deterministic local session fixture instead of tes
   - inserts a real Better Auth user, organization, owner member, firm profile, and session row;
   - returns a signed `duedatehq.session_token` cookie compatible with the existing
     `auth.api.getSession` loader path;
-  - optionally seeds real Workboard client/obligation rows through scoped repos.
+  - optionally seeds real Obligations client/obligation rows through scoped repos.
 - Extended `e2e/fixtures/test.ts` with:
-  - `authSeed` option (`empty` / `workboard`);
+  - `authSeed` option (`empty` / `obligations`);
   - `authSession`;
   - `authenticatedPage`;
-  - page objects for App Shell, Migration Wizard, Rules Console, and Workboard.
+  - page objects for App Shell, Migration Wizard, Rules Console, and Obligations.
 - Added shipped-behavior specs for:
   - authenticated guest redirects and dashboard shell;
   - command palette navigation and opening the implemented Migration wizard;
   - Migration Step 1 paste parsing, SSN blocking, and discard confirmation;
   - Rules Console tab URL state, rule detail drawer, and generation preview;
-  - Workboard seeded filtering, sorting, and status mutation with audit toast;
+  - Obligations seeded filtering, sorting, and status mutation with audit toast;
   - protected-route locale handoff before login redirect;
   - localized SPA 404.
 
-2026-04-28 follow-up: narrowed the Workboard status mutation assertion to the labeled status
+2026-04-28 follow-up: narrowed the Obligations status mutation assertion to the labeled status
 combobox. The row intentionally renders both a read-only status badge and an editable select value,
 so row-scoped text matching can hit duplicate `Done` labels under Playwright strict mode.
 
@@ -50,5 +50,5 @@ visible `Run migration` label, while `/clients` and Command Palette still expose
 
 The new authenticated specs are local-only and skip external `E2E_BASE_URL` targets because the
 test session minting route deliberately does not exist on staging/production. Still not covered:
-Google OAuth, full Migration apply, Pulse apply/evidence citation, Workboard detail/evidence drawers,
+Google OAuth, full Migration apply, Pulse apply/evidence citation, Obligations detail/evidence drawers,
 Clients/Audit/Members/Profile routes, and firm switching.

@@ -350,7 +350,7 @@ wrangler queues producer send duedatehq-email '{"type":"test"}' --local
 详见 §00 §8 "关键性能目标"。Sentry Performance 抽样 10%，重点 transaction：
 
 - `rpc.dashboard.load`
-- `rpc.workboard.query`
+- `rpc.obligations.query`
 - `rpc.migration.apply`
 - `rpc.pulse.batchApply`
 

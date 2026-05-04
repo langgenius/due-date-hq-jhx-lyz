@@ -122,7 +122,7 @@ PRD / 产品设计 docs 里以 `/settings/migration`、`/settings/imports`、`/s
 - `pnpm design:lint` — 0 errors / 0 warnings
 - `vp run @duedatehq/app#build` — pass
 - 手测（`pnpm dev`）：
-  - `/` / `/workboard` 行为不变
+  - `/` / `/obligations` 行为不变
   - `/settings/rules` parent 行无 hover bg；chevron 静态向下；当时 Members 为灰显 `P1` 标，后续已在 2026-04-29 落地为 `/settings/members` 可访问子项
   - 直接访问 `/settings` → loader redirect → 落到 `/settings/rules`
   - mobile（`<md`）drawer 内同款渲染：parent 不可点、子项可点

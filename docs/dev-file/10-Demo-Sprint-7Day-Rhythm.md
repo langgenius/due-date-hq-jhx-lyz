@@ -37,18 +37,18 @@ Paste / CSV
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Migration 主链路        | 4 步 Wizard、CSV / paste intake、preset / AI mapping、normalization、Default Matrix、dry-run、apply、revert、toast undo、bad-row errors 已跑通 |
 | Penalty / Live Genesis  | MVP penalty engine、Migration exposure preview、Live Genesis 金额动画和 Dashboard / Obligations exposure read model 已接入                     |
-| Obligations / Dashboard | `workboard.list` server read model、triage filters、exposure pill、Evidence entry、Penalty Radar 和 status update audit toast 已就位           |
+| Obligations / Dashboard | `obligations.list` server read model、triage filters、exposure pill、Evidence entry、Penalty Radar 和 status update audit toast 已就位         |
 | AI / evidence 安全底座  | OpenRouter Provider Native 收敛；`ai_output` / `llm_log` 落库；SSN / ITIN-like 列进 AI 前剔除，Step 2 补回 forced `IGNORE`；fallback 稳定      |
 
 关键提交脉络：
 
-| Commit                                                     | 作用                                                                                  |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `414a69b feat: add migration import undo`                  | Migration apply / revert / undo toast 主流程                                          |
-| `3328bda test: cover migration import undo e2e`            | 用 Playwright 覆盖导入和撤销                                                          |
-| `5408ab1 fix: use infinite query for workboard pagination` | Obligations 分页和 query 结构稳定                                                     |
-| `a5a17c2 fix: debounce workboard search [contract]`        | Obligations 搜索体验和 contract 调整                                                  |
-| `cef20d1 feat: add activation slice v1`                    | AI trace / redaction、Dashboard server aggregation、evidence read、E2E 隔离、文档同步 |
+| Commit                                                       | 作用                                                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `414a69b feat: add migration import undo`                    | Migration apply / revert / undo toast 主流程                                          |
+| `3328bda test: cover migration import undo e2e`              | 用 Playwright 覆盖导入和撤销                                                          |
+| `5408ab1 fix: use infinite query for obligations pagination` | Obligations 分页和 query 结构稳定                                                     |
+| `a5a17c2 fix: debounce obligations search [contract]`        | Obligations 搜索体验和 contract 调整                                                  |
+| `cef20d1 feat: add activation slice v1`                      | AI trace / redaction、Dashboard server aggregation、evidence read、E2E 隔离、文档同步 |
 
 ---
 
@@ -58,7 +58,7 @@ Paste / CSV
 | ------------------------ | --------------- | ------------------------------------------------------------------------------------------------------------------ |
 | Platform / Worker / oRPC | 基本完成        | 单 Worker app shell、`/rpc`、`/api/health`、Cloudflare bindings、dry-run deploy 路径已就位                         |
 | Auth + Tenant Scope      | 基本完成        | Better Auth、active firm、scoped repo、跨 firm 隔离测试已成为业务 repo 基线                                        |
-| DB Core + Scoped Repos   | 基本完成        | clients / obligations / migration / workboard / dashboard / evidence / ai trace repo 已有主路径                    |
+| DB Core + Scoped Repos   | 基本完成        | clients / obligations / migration / obligations / dashboard / evidence / ai trace repo 已有主路径                  |
 | AI Orchestrator          | v1 可用         | OpenRouter provider path 可用；无 key / schema fail / guard reject 有 stable refusal；暂未做 RAG / Agent tool loop |
 | Migration Copilot        | v1 主闭环完成   | UX polish、fixture golden tests、exposure preview、Live Genesis 已进主线；import report / history 仍可后补         |
 | Obligations              | v1 triage 可用  | 真实 rows、quick filters、status update、audit toast、Evidence drawer 入口、penalty input editor 已有              |

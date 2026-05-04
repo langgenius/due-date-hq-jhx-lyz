@@ -5199,8 +5199,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "workboard_saved_view": {
-      "name": "workboard_saved_view",
+    "obligation_saved_view": {
+      "name": "obligation_saved_view",
       "columns": {
         "id": {
           "name": "id",
@@ -5278,30 +5278,30 @@
         }
       },
       "indexes": {
-        "idx_workboard_saved_view_firm_pin_name": {
-          "name": "idx_workboard_saved_view_firm_pin_name",
+        "idx_obligation_saved_view_firm_pin_name": {
+          "name": "idx_obligation_saved_view_firm_pin_name",
           "columns": ["firm_id", "is_pinned", "name"],
           "isUnique": false
         },
-        "idx_workboard_saved_view_creator": {
-          "name": "idx_workboard_saved_view_creator",
+        "idx_obligation_saved_view_creator": {
+          "name": "idx_obligation_saved_view_creator",
           "columns": ["firm_id", "created_by_user_id"],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "workboard_saved_view_firm_id_firm_profile_id_fk": {
-          "name": "workboard_saved_view_firm_id_firm_profile_id_fk",
-          "tableFrom": "workboard_saved_view",
+        "obligation_saved_view_firm_id_firm_profile_id_fk": {
+          "name": "obligation_saved_view_firm_id_firm_profile_id_fk",
+          "tableFrom": "obligation_saved_view",
           "tableTo": "firm_profile",
           "columnsFrom": ["firm_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "workboard_saved_view_created_by_user_id_user_id_fk": {
-          "name": "workboard_saved_view_created_by_user_id_user_id_fk",
-          "tableFrom": "workboard_saved_view",
+        "obligation_saved_view_created_by_user_id_user_id_fk": {
+          "name": "obligation_saved_view_created_by_user_id_user_id_fk",
+          "tableFrom": "obligation_saved_view",
           "tableTo": "user",
           "columnsFrom": ["created_by_user_id"],
           "columnsTo": ["id"],

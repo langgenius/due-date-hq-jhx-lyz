@@ -140,7 +140,7 @@ Pagination:
   currently loaded rows fetches the next cursor page.
 - Keep the ACTION badge compact (`text-xs`) and render the same readable action label used
   by the filter.
-- Render common raw entity types such as `workboard_saved_view` as user-facing labels such
+- Render common raw entity types such as `obligation_saved_view` as user-facing labels such
   as `Saved obligation view`; unknown types fall back to humanized text.
 - When audit payloads include names or stable business identifiers, table rows should show
   those values as the primary Entity text and move raw ids to secondary metadata.

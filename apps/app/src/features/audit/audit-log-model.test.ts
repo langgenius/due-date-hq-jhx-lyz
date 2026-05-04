@@ -47,7 +47,7 @@ function makeChangeLabels(overrides: Partial<AuditActionLabels> = {}): AuditChan
     obligationStatusUpdated: 'Deadline status changed',
     penaltyOverride: 'Penalty inputs changed',
     pulseApply: 'Pulse applied',
-    workboardSavedViewUpdated: 'Saved view updated',
+    obligationQueueSavedViewUpdated: 'Saved view updated',
     ...overrides,
   })
 
@@ -268,7 +268,7 @@ describe('audit-log-model', () => {
     expect(
       buildAuditChangeView(
         {
-          action: 'workboard.saved_view.updated',
+          action: 'obligations.saved_view.updated',
           beforeJson: null,
           afterJson: { name: 'Pinned high-risk clients', isPinned: true },
         },
@@ -322,11 +322,13 @@ describe('audit-log-model', () => {
       pulseAlert: 'Pulse alert',
       rule: 'Rule',
       ruleSource: 'Rule source',
-      workboardExport: 'Obligations export',
-      workboardSavedView: 'Saved obligation view',
+      obligationQueueExport: 'Obligations export',
+      obligationQueueSavedView: 'Saved obligation view',
     } satisfies AuditEntityTypeLabels
 
-    expect(formatAuditEntityTypeLabel('workboard_saved_view', labels)).toBe('Saved obligation view')
+    expect(formatAuditEntityTypeLabel('obligation_saved_view', labels)).toBe(
+      'Saved obligation view',
+    )
     expect(formatAuditEntityTypeLabel('obligation_instance', labels)).toBe('Deadline')
     expect(humanizeAuditEntityType('custom_ai_output')).toBe('Custom AI output')
   })
@@ -334,10 +336,10 @@ describe('audit-log-model', () => {
   it('formats audit action labels for user-facing surfaces', () => {
     const labels = makeActionLabels({
       obligationStatusUpdated: 'Deadline status changed',
-      workboardSavedViewDeleted: 'Saved view deleted',
+      obligationQueueSavedViewDeleted: 'Saved view deleted',
     })
 
-    expect(formatAuditActionLabel('workboard.saved_view.deleted', labels)).toBe(
+    expect(formatAuditActionLabel('obligations.saved_view.deleted', labels)).toBe(
       'Saved view deleted',
     )
     expect(formatAuditActionLabel('obligation.status.updated', labels)).toBe(

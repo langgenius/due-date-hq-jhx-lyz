@@ -153,7 +153,7 @@ export function CalendarPage() {
             <Trans>ICS is one-way: external calendar edits never update DueDateHQ.</Trans>
           </p>
         </div>
-        <Button variant="secondary" size="sm" render={<Link to="/workboard" />}>
+        <Button variant="secondary" size="sm" render={<Link to="/obligations" />}>
           <ArrowLeftIcon data-icon="inline-start" />
           <Trans>Back to Obligations</Trans>
         </Button>

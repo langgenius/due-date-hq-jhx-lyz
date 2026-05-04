@@ -9,7 +9,7 @@ author: 'Codex'
 ## Context
 
 Marketing homepage product mockups were still using older hand-built table styling after the app
-Dashboard / Workboard table language moved to smaller text, Dify-aligned badge colors, header
+Dashboard / Obligations table language moved to smaller text, Dify-aligned badge colors, header
 filters, sortable headers, and 36px rows.
 
 ## Change

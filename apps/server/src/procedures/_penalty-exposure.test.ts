@@ -248,7 +248,7 @@ function buildScopedRepo(input: {
         return 0
       },
     },
-    workboard: {
+    obligationQueue: {
       firmId: FIRM_ID,
       async list() {
         return { rows: [], nextCursor: null }
@@ -263,10 +263,10 @@ function buildScopedRepo(input: {
         return []
       },
       async createSavedView() {
-        return unused('workboard.createSavedView')
+        return unused('obligations.createSavedView')
       },
       async updateSavedView() {
-        return unused('workboard.updateSavedView')
+        return unused('obligations.updateSavedView')
       },
       async deleteSavedView() {},
     },

@@ -220,7 +220,7 @@ function buildScoped(firmId: string, rows: Row[]) {
     },
   }
 
-  const workboard: ScopedRepo['workboard'] = {
+  const obligationQueue: ScopedRepo['obligationQueue'] = {
     firmId,
     async list() {
       return { rows: [], nextCursor: null }
@@ -235,10 +235,10 @@ function buildScoped(firmId: string, rows: Row[]) {
       return []
     },
     async createSavedView() {
-      return unused('workboard.createSavedView')
+      return unused('obligations.createSavedView')
     },
     async updateSavedView() {
-      return unused('workboard.updateSavedView')
+      return unused('obligations.updateSavedView')
     },
     async deleteSavedView() {},
   }
@@ -432,7 +432,7 @@ function buildScoped(firmId: string, rows: Row[]) {
       },
     },
     obligations,
-    workboard,
+    obligationQueue,
     workload,
     pulse,
     readiness: {

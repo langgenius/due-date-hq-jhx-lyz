@@ -47,21 +47,21 @@ import {
 import { ObligationReadinessSchema, ObligationStatusSchema } from './shared/enums'
 import { ClientSchema } from './shared/client'
 import {
-  WORKBOARD_FILTER_MAX_SELECTIONS,
-  WORKBOARD_SEARCH_MAX_LENGTH,
-  WorkboardCreateSavedViewInputSchema,
-  WorkboardDensitySchema,
-  WorkboardExportSelectedInputSchema,
-  WorkboardExportSelectedOutputSchema,
-  WorkboardFacetsOutputSchema,
-  WorkboardListInputSchema,
-  WorkboardOwnerFilterSchema,
-  WorkboardReadinessSchema,
-  WorkboardSavedViewSchema,
-  WorkboardSortSchema,
-  WorkboardUpdateSavedViewInputSchema,
-  workboardContract,
-} from './workboard'
+  OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS,
+  OBLIGATION_QUEUE_SEARCH_MAX_LENGTH,
+  ObligationQueueCreateSavedViewInputSchema,
+  ObligationQueueDensitySchema,
+  ObligationQueueExportSelectedInputSchema,
+  ObligationQueueExportSelectedOutputSchema,
+  ObligationQueueFacetsOutputSchema,
+  ObligationQueueListInputSchema,
+  ObligationQueueOwnerFilterSchema,
+  ObligationQueueReadinessSchema,
+  ObligationQueueSavedViewSchema,
+  ObligationQueueSortSchema,
+  ObligationQueueUpdateSavedViewInputSchema,
+  obligationQueueContract,
+} from './obligation-queue'
 import {
   WorkloadLoadInputSchema,
   WorkloadLoadOutputSchema,
@@ -691,8 +691,8 @@ describe('@duedatehq/contracts', () => {
     expect(output.recalculatedObligationCount).toBe(1)
   })
 
-  it('freezes workboard.list input shape', () => {
-    expect(Object.keys(workboardContract)).toEqual([
+  it('freezes obligations.list input shape', () => {
+    expect(Object.keys(obligationQueueContract)).toEqual([
       'list',
       'getDetail',
       'facets',
@@ -702,7 +702,7 @@ describe('@duedatehq/contracts', () => {
       'deleteSavedView',
       'exportSelected',
     ])
-    expect(WorkboardSortSchema.options).toEqual([
+    expect(ObligationQueueSortSchema.options).toEqual([
       'smart_priority',
       'due_asc',
       'due_desc',
@@ -710,10 +710,10 @@ describe('@duedatehq/contracts', () => {
       'exposure_asc',
       'updated_desc',
     ])
-    expect(WorkboardDensitySchema.options).toEqual(['comfortable', 'compact'])
-    expect(WorkboardReadinessSchema.options).toEqual(['ready', 'waiting', 'needs_review'])
+    expect(ObligationQueueDensitySchema.options).toEqual(['comfortable', 'compact'])
+    expect(ObligationQueueReadinessSchema.options).toEqual(['ready', 'waiting', 'needs_review'])
 
-    const parsed = WorkboardListInputSchema.parse({
+    const parsed = ObligationQueueListInputSchema.parse({
       status: ['pending', 'in_progress'],
       search: 'acme',
       obligationIds: ['22222222-2222-4222-8222-222222222222'],
@@ -738,20 +738,22 @@ describe('@duedatehq/contracts', () => {
       limit: 50,
     })
     expect(parsed.limit).toBe(50)
-    expect(WorkboardOwnerFilterSchema.parse('unassigned')).toBe('unassigned')
+    expect(ObligationQueueOwnerFilterSchema.parse('unassigned')).toBe('unassigned')
     expect(() =>
-      WorkboardListInputSchema.parse({ search: 'x'.repeat(WORKBOARD_SEARCH_MAX_LENGTH + 1) }),
+      ObligationQueueListInputSchema.parse({
+        search: 'x'.repeat(OBLIGATION_QUEUE_SEARCH_MAX_LENGTH + 1),
+      }),
     ).toThrow()
     expect(() =>
-      WorkboardListInputSchema.parse({
+      ObligationQueueListInputSchema.parse({
         clientIds: Array.from(
-          { length: WORKBOARD_FILTER_MAX_SELECTIONS + 1 },
+          { length: OBLIGATION_QUEUE_FILTER_MAX_SELECTIONS + 1 },
           (_, index) => `11111111-1111-4111-8111-${String(index).padStart(12, '0')}`,
         ),
       }),
     ).toThrow()
 
-    const facets = WorkboardFacetsOutputSchema.parse({
+    const facets = ObligationQueueFacetsOutputSchema.parse({
       clients: [
         {
           value: '11111111-1111-4111-8111-111111111111',
@@ -768,7 +770,7 @@ describe('@duedatehq/contracts', () => {
     })
     expect(facets.clients[0]?.state).toBe('CA')
 
-    const savedView = WorkboardSavedViewSchema.parse({
+    const savedView = ObligationQueueSavedViewSchema.parse({
       id: '55555555-5555-4555-8555-555555555555',
       firmId: 'firm_123',
       createdByUserId: 'user_123',
@@ -782,7 +784,7 @@ describe('@duedatehq/contracts', () => {
     })
     expect(savedView.isPinned).toBe(true)
     expect(
-      WorkboardCreateSavedViewInputSchema.parse({
+      ObligationQueueCreateSavedViewInputSchema.parse({
         name: 'Waiting on client',
         query: { status: ['waiting_on_client'] },
         columnVisibility: {},
@@ -790,24 +792,24 @@ describe('@duedatehq/contracts', () => {
       }).name,
     ).toBe('Waiting on client')
     expect(
-      WorkboardUpdateSavedViewInputSchema.parse({
+      ObligationQueueUpdateSavedViewInputSchema.parse({
         id: savedView.id,
         isPinned: false,
       }).isPinned,
     ).toBe(false)
-    const exportInput = WorkboardExportSelectedInputSchema.parse({
+    const exportInput = ObligationQueueExportSelectedInputSchema.parse({
       ids: ['11111111-1111-4111-8111-111111111111'],
       format: 'pdf_zip',
     })
     expect(exportInput.format).toBe('pdf_zip')
     expect(
-      WorkboardExportSelectedOutputSchema.parse({
-        fileName: 'workboard.zip',
+      ObligationQueueExportSelectedOutputSchema.parse({
+        fileName: 'obligations.zip',
         contentType: 'application/zip',
         contentBase64: 'abcd',
         auditId: '33333333-3333-4333-8333-333333333333',
       }).fileName,
-    ).toBe('workboard.zip')
+    ).toBe('obligations.zip')
   })
 
   it('freezes workload paid surface contract', () => {
@@ -1524,7 +1526,6 @@ describe('@duedatehq/contracts', () => {
         'obligations',
         'dashboard',
         'evidence',
-        'workboard',
         'workload',
         'pulse',
         'migration',

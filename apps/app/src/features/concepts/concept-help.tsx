@@ -28,7 +28,7 @@ export type ConceptId =
   | 'candidateRule'
   | 'defaultMatrix'
   | 'migrationCopilot'
-  | 'workboard'
+  | 'obligations'
   | 'triageQueue'
   | 'aiWeeklyBrief'
   | 'deadlineTip'
@@ -139,7 +139,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
         title: t`Migration Copilot`,
         description: t`The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue.`,
       }
-    case 'workboard':
+    case 'obligations':
       return {
         title: t`Obligations`,
         description: t`The operating surface for obligation work: filter, sort, assign owners, update status, and open evidence for each obligation.`,

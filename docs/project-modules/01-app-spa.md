@@ -2,7 +2,7 @@
 
 ## 功能定位
 
-`apps/app` 是 DueDateHQ 的主产品前端，基于 Vite、React 19、React Router 7、TanStack Query、oRPC client、Better Auth client 和 `@duedatehq/ui` 构建。它承载事务所用户的日常操作：登录、onboarding、dashboard、Obligations（`/workboard`）、导入、Pulse、审计、规则预览、成员、事务所设置和计费。
+`apps/app` 是 DueDateHQ 的主产品前端，基于 Vite、React 19、React Router 7、TanStack Query、oRPC client、Better Auth client 和 `@duedatehq/ui` 构建。它承载事务所用户的日常操作：登录、onboarding、dashboard、Obligations（`/obligations`）、导入、Pulse、审计、规则预览、成员、事务所设置和计费。
 
 前端的核心职责不是保存业务事实，而是把 server 合约暴露的状态组织成高效、可审计、可键盘操作的工作台。
 
@@ -19,7 +19,7 @@
 | `apps/app/src/features/migration`                | Migration Copilot 四步向导                                      |
 | `apps/app/src/features/pulse`                    | Pulse alert 列表、详情 drawer、apply/dismiss/snooze/revert      |
 | `apps/app/src/features/evidence`                 | Evidence drawer 和审计时间线                                    |
-| `apps/app/src/routes/workboard.tsx`              | Obligations 表格、过滤、状态更新、罚金输入                      |
+| `apps/app/src/routes/obligations.tsx`            | Obligations 表格、过滤、状态更新、罚金输入                      |
 | `apps/app/src/routes/rules.tsx`                  | Rules Console                                                   |
 
 ## 主要功能

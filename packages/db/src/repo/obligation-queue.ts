@@ -13,7 +13,7 @@ import {
   type ObligationReadiness,
   type ObligationStatus,
 } from '../schema/obligations'
-import { workboardSavedView, type WorkboardDensity } from '../schema/workboard'
+import { obligationSavedView, type ObligationQueueDensity } from '../schema/obligation-saved-view'
 import { listActiveOverlayDueDates } from './overlay'
 import { toSmartPriorityProfile } from './priority-profile'
 
@@ -31,16 +31,16 @@ import { toSmartPriorityProfile } from './priority-profile'
  * caps at 100 per request).
  */
 
-export type WorkboardSort =
+export type ObligationQueueSort =
   | 'smart_priority'
   | 'due_asc'
   | 'due_desc'
   | 'exposure_desc'
   | 'exposure_asc'
   | 'updated_desc'
-export type WorkboardReadiness = ObligationReadiness
+export type ObligationQueueReadiness = ObligationReadiness
 
-export interface WorkboardListInput {
+export interface ObligationQueueListInput {
   status?: ObligationStatus[]
   search?: string
   obligationIds?: string[]
@@ -54,19 +54,19 @@ export interface WorkboardListInput {
   due?: 'overdue'
   dueWithinDays?: number
   exposureStatus?: 'ready' | 'needs_input' | 'unsupported'
-  readiness?: WorkboardReadiness[]
+  readiness?: ObligationQueueReadiness[]
   minExposureCents?: number
   maxExposureCents?: number
   minDaysUntilDue?: number
   maxDaysUntilDue?: number
   needsEvidence?: boolean
   asOfDate?: string
-  sort?: WorkboardSort
+  sort?: ObligationQueueSort
   cursor?: string | null
   limit?: number
 }
 
-export interface WorkboardListRow {
+export interface ObligationQueueListRow {
   id: string
   firmId: string
   clientId: string
@@ -81,7 +81,7 @@ export interface WorkboardListRow {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
-  readiness: WorkboardReadiness
+  readiness: ObligationQueueReadiness
   extensionDecision: 'not_considered' | 'applied' | 'rejected'
   extensionMemo: string | null
   extensionSource: string | null
@@ -115,66 +115,66 @@ export interface WorkboardListRow {
   smartPriority: SmartPriorityBreakdown
 }
 
-export interface WorkboardListResult {
-  rows: WorkboardListRow[]
+export interface ObligationQueueListResult {
+  rows: ObligationQueueListRow[]
   nextCursor: string | null
 }
 
-export interface WorkboardFacetOption {
+export interface ObligationQueueFacetOption {
   value: string
   label: string
   count: number
 }
 
-export interface WorkboardClientFacetOption extends WorkboardFacetOption {
+export interface ObligationQueueClientFacetOption extends ObligationQueueFacetOption {
   state: string | null
   county: string | null
 }
 
-export interface WorkboardCountyFacetOption extends WorkboardFacetOption {
+export interface ObligationQueueCountyFacetOption extends ObligationQueueFacetOption {
   state: string | null
 }
 
-export interface WorkboardFacetsOutput {
-  clients: WorkboardClientFacetOption[]
-  states: WorkboardFacetOption[]
-  counties: WorkboardCountyFacetOption[]
-  taxTypes: WorkboardFacetOption[]
-  assigneeNames: WorkboardFacetOption[]
+export interface ObligationQueueFacetsOutput {
+  clients: ObligationQueueClientFacetOption[]
+  states: ObligationQueueFacetOption[]
+  counties: ObligationQueueCountyFacetOption[]
+  taxTypes: ObligationQueueFacetOption[]
+  assigneeNames: ObligationQueueFacetOption[]
 }
 
-export interface WorkboardSavedViewRow {
+export interface ObligationQueueSavedViewRow {
   id: string
   firmId: string
   createdByUserId: string
   name: string
   queryJson: unknown
   columnVisibilityJson: unknown
-  density: WorkboardDensity
+  density: ObligationQueueDensity
   isPinned: boolean
   createdAt: Date
   updatedAt: Date
 }
 
-export interface WorkboardSavedViewCreateInput {
+export interface ObligationQueueSavedViewCreateInput {
   name: string
   createdByUserId: string
   queryJson: unknown
   columnVisibilityJson: unknown
-  density: WorkboardDensity
+  density: ObligationQueueDensity
   isPinned: boolean
 }
 
-export interface WorkboardSavedViewUpdateInput {
+export interface ObligationQueueSavedViewUpdateInput {
   id: string
   name?: string
   queryJson?: unknown
   columnVisibilityJson?: unknown
-  density?: WorkboardDensity
+  density?: ObligationQueueDensity
   isPinned?: boolean
 }
 
-interface WorkboardRawJoinedRow {
+interface ObligationQueueRawJoinedRow {
   id: string
   firmId: string
   clientId: string
@@ -189,7 +189,7 @@ interface WorkboardRawJoinedRow {
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
-  readiness: WorkboardReadiness
+  readiness: ObligationQueueReadiness
   extensionDecision: 'not_considered' | 'applied' | 'rejected'
   extensionMemo: string | null
   extensionSource: string | null
@@ -233,7 +233,7 @@ const UNSAFE_SEARCH_CHARS_RE = /[^\p{L}\p{N}\s&'.-]+/gu
 const DAY_MS = 24 * 60 * 60 * 1000
 const STATE_CODE_RE = /^[A-Z]{2}$/
 
-export function normalizeWorkboardSearch(search: string | undefined): string | null {
+export function normalizeObligationQueueSearch(search: string | undefined): string | null {
   const normalized = (search ?? '')
     .normalize('NFKC')
     .trim()
@@ -258,7 +258,7 @@ function todayDateOnly(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-function getAsOfDate(input: Pick<WorkboardListInput, 'asOfDate'>): Date {
+function getAsOfDate(input: Pick<ObligationQueueListInput, 'asOfDate'>): Date {
   return parseDateOnly(input.asOfDate ?? todayDateOnly())
 }
 
@@ -268,7 +268,7 @@ function addDays(date: Date, days: number): Date {
 
 function encodeCursor(
   row: Pick<
-    WorkboardListRow,
+    ObligationQueueListRow,
     'currentDueDate' | 'estimatedExposureCents' | 'exposureStatus' | 'id' | 'smartPriority'
   >,
 ): string {
@@ -312,7 +312,7 @@ function decodeCursor(cursor: string): {
 
 function isWithinDueFilter(
   row: { currentDueDate: Date },
-  input: Pick<WorkboardListInput, 'due' | 'dueWithinDays' | 'asOfDate'>,
+  input: Pick<ObligationQueueListInput, 'due' | 'dueWithinDays' | 'asOfDate'>,
 ): boolean {
   const asOfDate = getAsOfDate(input)
   if (input.due === 'overdue' && row.currentDueDate.getTime() >= asOfDate.getTime()) return false
@@ -330,8 +330,8 @@ function daysUntilDue(currentDueDate: Date, asOfDate: Date): number {
 }
 
 function isWithinDaysRange(
-  row: Pick<WorkboardListRow, 'daysUntilDue'>,
-  input: Pick<WorkboardListInput, 'minDaysUntilDue' | 'maxDaysUntilDue'>,
+  row: Pick<ObligationQueueListRow, 'daysUntilDue'>,
+  input: Pick<ObligationQueueListInput, 'minDaysUntilDue' | 'maxDaysUntilDue'>,
 ): boolean {
   if (input.minDaysUntilDue !== undefined && row.daysUntilDue < input.minDaysUntilDue) return false
   if (input.maxDaysUntilDue !== undefined && row.daysUntilDue > input.maxDaysUntilDue) return false
@@ -367,7 +367,11 @@ function compareFacetLabels(
   return a.value.localeCompare(b.value)
 }
 
-function compareRows(a: WorkboardListRow, b: WorkboardListRow, sort: WorkboardSort): number {
+function compareRows(
+  a: ObligationQueueListRow,
+  b: ObligationQueueListRow,
+  sort: ObligationQueueSort,
+): number {
   if (sort === 'smart_priority') {
     return compareSmartPriority(
       { obligationId: a.id, currentDueDate: a.currentDueDate, smartPriority: a.smartPriority },
@@ -392,7 +396,7 @@ function compareRows(a: WorkboardListRow, b: WorkboardListRow, sort: WorkboardSo
 }
 
 function exposureSortValue(
-  row: Pick<WorkboardListRow, 'estimatedExposureCents' | 'exposureStatus'>,
+  row: Pick<ObligationQueueListRow, 'estimatedExposureCents' | 'exposureStatus'>,
 ): number {
   if (row.exposureStatus === 'ready' && row.estimatedExposureCents !== null) {
     return row.estimatedExposureCents
@@ -401,8 +405,8 @@ function exposureSortValue(
 }
 
 function isAfterCursor(
-  row: WorkboardListRow,
-  sort: WorkboardSort,
+  row: ObligationQueueListRow,
+  sort: ObligationQueueSort,
   cursor: {
     currentDueDate: Date
     exposureSortValue: number | null
@@ -441,7 +445,7 @@ function isAfterCursor(
   return dateDelta > 0 || (dateDelta === 0 && row.id > cursor.id)
 }
 
-export function makeWorkboardRepo(db: Db, firmId: string) {
+export function makeObligationQueueRepo(db: Db, firmId: string) {
   async function loadSmartPriorityProfile() {
     const [row] = await db
       .select({ smartPriorityProfileJson: firmProfile.smartPriorityProfileJson })
@@ -478,9 +482,9 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
   }
 
   async function hydrateRows(
-    rawRows: WorkboardRawJoinedRow[],
-    input: Pick<WorkboardListInput, 'asOfDate'> = {},
-  ): Promise<WorkboardListRow[]> {
+    rawRows: ObligationQueueRawJoinedRow[],
+    input: Pick<ObligationQueueListInput, 'asOfDate'> = {},
+  ): Promise<ObligationQueueListRow[]> {
     const obligationIds = rawRows.map((row) => row.id)
     const [overlayDueDates, evidenceCounts, smartPriorityProfile] = await Promise.all([
       listActiveOverlayDueDates(db, firmId, obligationIds),
@@ -527,7 +531,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
     )
 
     return rowDrafts.map(
-      (row): WorkboardListRow =>
+      (row): ObligationQueueListRow =>
         Object.assign({}, row, {
           smartPriority: priorityById.get(row.id)!,
         }),
@@ -537,8 +541,8 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
   return {
     firmId,
 
-    async list(input: WorkboardListInput = {}): Promise<WorkboardListResult> {
-      const sort: WorkboardSort = input.sort ?? 'smart_priority'
+    async list(input: ObligationQueueListInput = {}): Promise<ObligationQueueListResult> {
+      const sort: ObligationQueueSort = input.sort ?? 'smart_priority'
       const limit = Math.min(Math.max(input.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT)
 
       const filters: SQL[] = [
@@ -606,7 +610,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         filters.push(lte(obligationInstance.estimatedExposureCents, input.maxExposureCents))
       }
 
-      const search = normalizeWorkboardSearch(input.search)
+      const search = normalizeObligationQueueSearch(input.search)
       if (search) {
         const needle = `%${escapeLikePattern(search)}%`
         filters.push(sql`${client.name} like ${needle} escape '\\'`)
@@ -710,8 +714,8 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
 
     async listByIds(
       ids: string[],
-      input: Pick<WorkboardListInput, 'asOfDate'> = {},
-    ): Promise<WorkboardListRow[]> {
+      input: Pick<ObligationQueueListInput, 'asOfDate'> = {},
+    ): Promise<ObligationQueueListRow[]> {
       const uniqueIds = uniqueNonEmpty(ids)
       if (uniqueIds.length === 0) return []
 
@@ -793,7 +797,7 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
       })
     },
 
-    async facets(): Promise<WorkboardFacetsOutput> {
+    async facets(): Promise<ObligationQueueFacetsOutput> {
       const rawRows = await db
         .select({
           clientId: obligationInstance.clientId,
@@ -821,11 +825,11 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
         .orderBy(asc(client.name), asc(obligationInstance.taxType))
         .limit(MAX_READ_ROWS)
 
-      const clients = new Map<string, WorkboardClientFacetOption>()
-      const states = new Map<string, WorkboardFacetOption>()
-      const counties = new Map<string, WorkboardCountyFacetOption>()
-      const taxTypes = new Map<string, WorkboardFacetOption>()
-      const assigneeNames = new Map<string, WorkboardFacetOption>()
+      const clients = new Map<string, ObligationQueueClientFacetOption>()
+      const states = new Map<string, ObligationQueueFacetOption>()
+      const counties = new Map<string, ObligationQueueCountyFacetOption>()
+      const taxTypes = new Map<string, ObligationQueueFacetOption>()
+      const assigneeNames = new Map<string, ObligationQueueFacetOption>()
 
       for (const row of rawRows) {
         const clientState = normalizeStateCode(row.clientState)
@@ -901,17 +905,19 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
       }
     },
 
-    async listSavedViews(): Promise<WorkboardSavedViewRow[]> {
+    async listSavedViews(): Promise<ObligationQueueSavedViewRow[]> {
       return db
         .select()
-        .from(workboardSavedView)
-        .where(eq(workboardSavedView.firmId, firmId))
-        .orderBy(desc(workboardSavedView.isPinned), asc(workboardSavedView.name))
+        .from(obligationSavedView)
+        .where(eq(obligationSavedView.firmId, firmId))
+        .orderBy(desc(obligationSavedView.isPinned), asc(obligationSavedView.name))
     },
 
-    async createSavedView(input: WorkboardSavedViewCreateInput): Promise<WorkboardSavedViewRow> {
+    async createSavedView(
+      input: ObligationQueueSavedViewCreateInput,
+    ): Promise<ObligationQueueSavedViewRow> {
       const id = crypto.randomUUID()
-      await db.insert(workboardSavedView).values({
+      await db.insert(obligationSavedView).values({
         id,
         firmId,
         createdByUserId: input.createdByUserId,
@@ -923,15 +929,17 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
       })
       const [row] = await db
         .select()
-        .from(workboardSavedView)
-        .where(and(eq(workboardSavedView.firmId, firmId), eq(workboardSavedView.id, id)))
+        .from(obligationSavedView)
+        .where(and(eq(obligationSavedView.firmId, firmId), eq(obligationSavedView.id, id)))
         .limit(1)
       if (!row) throw new Error('Saved view could not be re-read.')
       return row
     },
 
-    async updateSavedView(input: WorkboardSavedViewUpdateInput): Promise<WorkboardSavedViewRow> {
-      const patch: Partial<typeof workboardSavedView.$inferInsert> = {}
+    async updateSavedView(
+      input: ObligationQueueSavedViewUpdateInput,
+    ): Promise<ObligationQueueSavedViewRow> {
+      const patch: Partial<typeof obligationSavedView.$inferInsert> = {}
       if (input.name !== undefined) patch.name = input.name
       if (input.queryJson !== undefined) patch.queryJson = input.queryJson
       if (input.columnVisibilityJson !== undefined) {
@@ -941,14 +949,14 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
       if (input.isPinned !== undefined) patch.isPinned = input.isPinned
       if (Object.keys(patch).length > 0) {
         await db
-          .update(workboardSavedView)
+          .update(obligationSavedView)
           .set(patch)
-          .where(and(eq(workboardSavedView.firmId, firmId), eq(workboardSavedView.id, input.id)))
+          .where(and(eq(obligationSavedView.firmId, firmId), eq(obligationSavedView.id, input.id)))
       }
       const [row] = await db
         .select()
-        .from(workboardSavedView)
-        .where(and(eq(workboardSavedView.firmId, firmId), eq(workboardSavedView.id, input.id)))
+        .from(obligationSavedView)
+        .where(and(eq(obligationSavedView.firmId, firmId), eq(obligationSavedView.id, input.id)))
         .limit(1)
       if (!row) throw new Error('Saved view not found.')
       return row
@@ -956,10 +964,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
 
     async deleteSavedView(id: string): Promise<void> {
       await db
-        .delete(workboardSavedView)
-        .where(and(eq(workboardSavedView.firmId, firmId), eq(workboardSavedView.id, id)))
+        .delete(obligationSavedView)
+        .where(and(eq(obligationSavedView.firmId, firmId), eq(obligationSavedView.id, id)))
     },
   }
 }
 
-export type WorkboardRepo = ReturnType<typeof makeWorkboardRepo>
+export type ObligationQueueRepo = ReturnType<typeof makeObligationQueueRepo>

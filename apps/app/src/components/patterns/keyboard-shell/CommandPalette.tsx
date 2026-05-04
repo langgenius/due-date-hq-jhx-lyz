@@ -70,12 +70,12 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         onSelect: () => navigate('/'),
       },
       {
-        id: 'workboard',
+        id: 'obligations',
         label: t`Obligations`,
         description: t`Open Obligations.`,
         group: 'navigate',
         icon: CalendarClockIcon,
-        onSelect: () => navigate('/workboard'),
+        onSelect: () => navigate('/obligations'),
       },
       {
         id: 'notifications',
@@ -150,7 +150,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         description: t`Manage external deadline calendar feeds.`,
         group: 'actions',
         icon: CalendarDaysIcon,
-        onSelect: () => navigate('/workboard/calendar'),
+        onSelect: () => navigate('/obligations/calendar'),
       },
       {
         id: 'migration',

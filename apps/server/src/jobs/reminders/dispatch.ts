@@ -209,7 +209,7 @@ async function writeInternalReminder(input: {
         entityId: input.obligation.obligationId,
         title,
         body,
-        href: `/workboard?obligation=${input.obligation.obligationId}`,
+        href: `/obligations?obligation=${input.obligation.obligationId}`,
         metadataJson: { offsetDays: input.offsetDays },
       })
       .onConflictDoNothing()

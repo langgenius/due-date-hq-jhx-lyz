@@ -69,11 +69,11 @@ entry surface 的加载态应该安静过渡；把内容 skeleton 放进 EntrySh
 `_auth-layout` 是 NextAuth/Clerk/shadcn templates 的行业惯例命名，**第一稿就是这个
 名字**。但仔细审视：
 
-| Route                          | session | activeOrganizationId | 状态语义               |
-| ------------------------------ | ------- | -------------------- | ---------------------- |
-| `/login`                       | ❌      | n/a                  | **pre-auth**           |
-| `/onboarding`                  | ✅      | ❌                   | **post-auth, pre-org** |
-| `/`, `/workboard`, `/settings` | ✅      | ✅                   | post-auth, post-org    |
+| Route                            | session | activeOrganizationId | 状态语义               |
+| -------------------------------- | ------- | -------------------- | ---------------------- |
+| `/login`                         | ❌      | n/a                  | **pre-auth**           |
+| `/onboarding`                    | ✅      | ❌                   | **post-auth, pre-org** |
+| `/`, `/obligations`, `/settings` | ✅      | ✅                   | post-auth, post-org    |
 
 `/onboarding` 已经走完 OAuth 是 _post-auth_ 的，把它跟 `/login` 一起命名为 "auth"
 有歧义（"auth" 在英文里 authentication / authorization 两义），新人会以为这个

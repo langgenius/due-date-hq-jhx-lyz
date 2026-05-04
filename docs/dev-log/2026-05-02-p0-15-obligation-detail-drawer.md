@@ -2,15 +2,15 @@
 
 ## Summary
 
-Implemented the full Workboard obligation detail experience behind URL state:
+Implemented the full Obligations obligation detail experience behind URL state:
 `?drawer=obligation&id=<obligationId>&tab=<readiness|extension|risk|evidence|audit>`.
-The drawer now hydrates detail through `workboard.getDetail`, opens from a row click or keyboard
+The drawer now hydrates detail through `obligations.getDetail`, opens from a row click or keyboard
 `Enter`, and exposes the five planned tabs.
 
 ## Shipped
 
 - Added `client_readiness_request` and `client_readiness_response` tables, scoped repos, token hash
-  lookup, revoke/open/submit behavior, and tenant-aware Workboard detail hydration.
+  lookup, revoke/open/submit behavior, and tenant-aware Obligations detail hydration.
 - Added obligation extension decision persistence fields and `obligations.decideExtension`.
   Applying an extension marks the obligation `extended` without mutating due dates or implying an
   authority filing.
@@ -22,11 +22,11 @@ The drawer now hydrates detail through `workboard.getDetail`, opens from a row c
   shape.
 - Added `readiness_request` email outbox support. Sending a request queues email when the client has
   an email address and always returns a copyable portal link.
-- Replaced the minimal Workboard drawer with Readiness, Extension, Risk, Evidence, and Audit tabs.
+- Replaced the minimal Obligations drawer with Readiness, Extension, Risk, Evidence, and Audit tabs.
   The Risk tab reuses the existing penalty input dialog when exposure is missing.
 - Added Readiness checklist item removal so manually added or generated draft items can be deleted
   before sending a client portal request.
-- Updated the Workboard table so a normal row click opens the detail drawer, and widened the drawer
+- Updated the Obligations table so a normal row click opens the detail drawer, and widened the drawer
   to a workflow-sized right panel on desktop.
 
 ## Validation
@@ -42,7 +42,7 @@ The drawer now hydrates detail through `workboard.getDetail`, opens from a row c
 - `pnpm --filter @duedatehq/app i18n:extract`
 - `pnpm --filter @duedatehq/app i18n:compile`
 - `pnpm db:migrate:local`
-- `E2E_REUSE_EXISTING_SERVER=1 pnpm test:e2e e2e/tests/workboard.spec.ts`
+- `E2E_REUSE_EXISTING_SERVER=1 pnpm test:e2e e2e/tests/obligations.spec.ts`
 - `pnpm --filter @duedatehq/app build`
 - `pnpm --filter @duedatehq/server build`
 
