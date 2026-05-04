@@ -112,7 +112,9 @@ test.describe('seeded client facts', () => {
     await expect(clientsPage.factProfileDialog.getByText('CA / San Diego')).toBeVisible()
     await expect(clientsPage.factProfileDialog.getByText('37-2222222')).toBeVisible()
     await expect(clientsPage.factProfileDialog.getByText('Fact readiness')).toBeVisible()
-    await expect(clientsPage.factProfileDialog.getByText('State jurisdiction')).toBeVisible()
+    await expect(
+      clientsPage.factProfileDialog.getByText('Filing jurisdictions', { exact: true }),
+    ).toBeVisible()
     await expect(clientsPage.factProfileDialog.getByText('Entity type')).toBeVisible()
     await expect(authenticatedPage).toHaveURL(/\/clients\?client=/)
   })

@@ -459,7 +459,7 @@ function NavGroups({ firm }: { firm: FirmPublic }) {
       </NavGroupSection>
       <NavGroupSection label={t`Practice`}>
         {items.practice.map((item) => (
-          <NavMenuItem key={item.href} item={item} />
+          <NavMenuItem key={item.href} item={item} disabled={Boolean(item.tag)} />
         ))}
       </NavGroupSection>
     </nav>

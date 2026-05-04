@@ -16,7 +16,7 @@ export class ClientsPage {
   constructor(readonly page: Page) {
     this.directoryTitle = page.getByRole('heading', { name: 'Client facts' })
     this.toolbar = page.locator('[data-slot="card-header"]').filter({
-      has: page.getByText('Search, segment, and inspect the facts'),
+      has: page.getByText('Search, segment, and inspect the filing facts'),
     })
     this.clientFilter = this.toolbar.getByRole('button', { name: /^Client/ })
     this.entityFilter = this.toolbar.getByRole('button', { name: /^Entity/ })
@@ -77,7 +77,9 @@ export class ClientsPage {
   }
 
   metricCard(label: string) {
-    return this.page.getByRole('group', { name: label })
+    return this.page.locator('[role="group"]').filter({
+      has: this.page.getByText(label, { exact: true }),
+    })
   }
 
   rowFor(clientName: string) {

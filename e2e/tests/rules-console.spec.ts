@@ -63,7 +63,10 @@ test('AC: E2E-RULES-PREVIEW runs the implemented obligation preview', async ({
   await rulesConsolePage.previewTab.click()
 
   await expect(authenticatedPage).toHaveURL(/\/rules\?tab=preview$/)
-  await authenticatedPage.getByRole('combobox').first().click()
+  const obligationPreviewForm = authenticatedPage.locator('form').filter({
+    has: authenticatedPage.getByRole('button', { name: /Run preview/ }),
+  })
+  await obligationPreviewForm.getByRole('combobox').first().click()
   await authenticatedPage.getByRole('option', { name: /Arbor & Vale LLC/ }).click()
   await authenticatedPage.getByRole('button', { name: /Run preview/ }).click()
 

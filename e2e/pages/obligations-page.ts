@@ -78,6 +78,7 @@ export class ObligationQueuePage {
     return this.page
       .getByRole('row', { name: new RegExp(escapedName) })
       .or(this.page.getByRole('button', { name: new RegExp(`Obligation detail: ${escapedName}`) }))
+      .or(this.page.getByRole('button', { name: new RegExp(`Open obligations: ${escapedName}`) }))
   }
 
   async openDetailFor(clientName: string) {

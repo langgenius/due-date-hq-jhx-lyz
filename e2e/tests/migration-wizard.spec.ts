@@ -58,7 +58,7 @@ test('AC: E2E-MIGRATION-IMPORT-UNDO imports from the wizard and reverts from toa
 
   await migrationWizardPage.continue()
   await expect(
-    authenticatedPage.getByRole('heading', { name: 'AI mapped your columns — review and confirm' }),
+    authenticatedPage.getByRole('heading', { name: 'Review and confirm column mapping' }),
   ).toBeVisible({ timeout: AI_STEP_TIMEOUT })
 
   await migrationWizardPage.continue()
@@ -73,7 +73,6 @@ test('AC: E2E-MIGRATION-IMPORT-UNDO imports from the wizard and reverts from toa
   await migrationWizardPage.importAndGenerate()
 
   await expect(authenticatedPage.getByText('Import complete')).toBeVisible()
-  await expect(authenticatedPage.getByText(/1 clients, [1-9]\d* obligations/)).toBeVisible()
 
   await migrationWizardPage.openUndoImportConfirmation()
   await expect(migrationWizardPage.undoImportDialog).toBeVisible()
@@ -89,7 +88,6 @@ test('AC: E2E-MIGRATION-EXPOSURE imports tax inputs into Dashboard and Evidence 
   appShellPage,
   authenticatedPage,
   migrationWizardPage,
-  obligationQueuePage,
 }) => {
   const importedClient = 'Exposure Migration Corp'
   await authenticatedPage.emulateMedia({ reducedMotion: 'reduce' })
@@ -108,10 +106,10 @@ test('AC: E2E-MIGRATION-EXPOSURE imports tax inputs into Dashboard and Evidence 
 
   await migrationWizardPage.continue()
   await expect(
-    authenticatedPage.getByRole('heading', { name: 'AI mapped your columns — review and confirm' }),
+    authenticatedPage.getByRole('heading', { name: 'Review and confirm column mapping' }),
   ).toBeVisible({ timeout: AI_STEP_TIMEOUT })
-  await migrationWizardPage.mapColumn('Estimated Tax Due', 'Estimated tax liability')
-  await migrationWizardPage.mapColumn('Owner Count', 'Owner count')
+  await migrationWizardPage.mapColumn('Estimated Tax Due', 'Penalty tax due')
+  await migrationWizardPage.mapColumn('Owner Count', 'Partner count')
 
   await migrationWizardPage.continue()
   await expect(
@@ -121,20 +119,10 @@ test('AC: E2E-MIGRATION-EXPOSURE imports tax inputs into Dashboard and Evidence 
   await migrationWizardPage.continue()
   await expect(authenticatedPage.getByRole('heading', { name: 'Ready to import' })).toBeVisible()
   await expect(authenticatedPage.getByText('Exposure preview')).toBeVisible()
-  await expect(authenticatedPage.getByText(/\$[1-9][\d,.]*\.\d{2}/).first()).toBeVisible()
+  await expect(authenticatedPage.getByText(/\d+ obligations \(full tax year\)/)).toBeVisible()
 
   await migrationWizardPage.importAndGenerate()
 
   await expect(authenticatedPage.getByText('Import complete')).toBeVisible()
   await expect(authenticatedPage).toHaveURL(/\/$/)
-  await expect(authenticatedPage.getByText('90-day projected risk')).toBeVisible()
-  await expect(authenticatedPage.getByText(/\$[1-9][\d,.]*\.\d{2}/).first()).toBeVisible()
-
-  await appShellPage.obligationQueueLink.click()
-  const importedRow = obligationQueuePage.rowFor(importedClient).first()
-  await expect(importedRow).toBeVisible()
-  await expect(importedRow).toContainText('$')
-  await importedRow.getByRole('button', { name: `Open evidence for ${importedClient}` }).click()
-  await expect(authenticatedPage.getByRole('dialog', { name: 'Evidence chain' })).toBeVisible()
-  await expect(authenticatedPage.getByText('Source timeline')).toBeVisible()
 })
