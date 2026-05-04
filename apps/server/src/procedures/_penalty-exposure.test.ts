@@ -47,6 +47,10 @@ function makeObligation(over: Partial<ObligationInstanceRow>): ObligationInstanc
     clientId: 'client',
     taxType: 'federal_1065',
     taxYear: 2026,
+    ruleId: null,
+    ruleVersion: null,
+    rulePeriod: null,
+    generationSource: null,
     baseDueDate: new Date('2026-03-15T00:00:00.000Z'),
     currentDueDate: new Date('2026-03-15T00:00:00.000Z'),
     status: 'pending',
@@ -199,6 +203,12 @@ function buildScopedRepo(input: {
         return input.obligationsByClient.get(clientId) ?? []
       },
       async listByBatch() {
+        return []
+      },
+      async listAnnualRolloverSeeds() {
+        return []
+      },
+      async listGeneratedByClientAndTaxYears() {
         return []
       },
       async updateDueDate() {},

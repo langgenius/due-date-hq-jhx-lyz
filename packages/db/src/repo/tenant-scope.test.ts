@@ -3,7 +3,7 @@ import type { Db } from '../client'
 import { makeEvidenceRepo } from './evidence'
 import { makeObligationsRepo } from './obligations'
 
-function createFakeDb(selectResponses: Array<Array<{ id: string }>>) {
+function createFakeDb(selectResponses: Array<Array<Record<string, unknown>>>) {
   const insertValues = vi.fn(async () => undefined)
   const insert = vi.fn(() => ({ values: insertValues }))
   const where = vi.fn(async () => selectResponses.shift() ?? [])
@@ -60,6 +60,52 @@ describe('tenant-scoped repo cross-reference guards', () => {
 
     expect(fake.select).toHaveBeenCalledTimes(1)
     expect(fake.insertValues).toHaveBeenCalledTimes(1)
+  })
+
+  it('persists generated rule metadata for obligations', async () => {
+    const fake = createFakeDb([[{ id: 'client_1' }]])
+    const repo = makeObligationsRepo(fake.db, 'firm_current')
+
+    await repo.createBatch([
+      {
+        clientId: 'client_1',
+        taxType: 'ca_100',
+        taxYear: 2026,
+        ruleId: 'ca_100_2027',
+        ruleVersion: 3,
+        rulePeriod: 'annual',
+        generationSource: 'annual_rollover',
+        baseDueDate: new Date('2027-04-15T00:00:00.000Z'),
+      },
+    ])
+
+    expect(fake.insertValues).toHaveBeenCalledWith([
+      expect.objectContaining({
+        ruleId: 'ca_100_2027',
+        ruleVersion: 3,
+        rulePeriod: 'annual',
+        generationSource: 'annual_rollover',
+      }),
+    ])
+  })
+
+  it('returns generated obligation rows for duplicate lookup', async () => {
+    const duplicate = {
+      id: 'oi_existing',
+      clientId: 'client_1',
+      ruleId: 'ca_100_2027',
+      taxYear: 2026,
+      rulePeriod: 'annual',
+    }
+    const fake = createFakeDb([[duplicate]])
+    const repo = makeObligationsRepo(fake.db, 'firm_current')
+
+    await expect(
+      repo.listGeneratedByClientAndTaxYears({
+        clientIds: ['client_1'],
+        taxYears: [2026],
+      }),
+    ).resolves.toEqual([duplicate])
   })
 
   it('rejects evidence writes for obligations outside the current firm', async () => {

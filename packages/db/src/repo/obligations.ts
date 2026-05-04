@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from 'drizzle-orm'
+import { and, asc, eq, gte, inArray, isNotNull, lt } from 'drizzle-orm'
 import { defaultReadinessForStatus } from '@duedatehq/core/obligation-workflow'
 import type { Db } from '../client'
 import { client } from '../schema/clients'
@@ -11,7 +11,7 @@ import {
 } from '../schema/obligations'
 import { listActiveOverlayDueDates } from './overlay'
 
-const COLS_PER_OI_ROW = 23
+const COLS_PER_OI_ROW = 27
 const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 5
 const CLIENT_ASSERT_BATCH_SIZE = 90
 const OI_LOOKUP_IDS_PER_BATCH = 90
@@ -22,6 +22,10 @@ export interface ObligationCreateInput {
   clientId: string
   taxType: string
   taxYear?: number | null
+  ruleId?: string | null
+  ruleVersion?: number | null
+  rulePeriod?: string | null
+  generationSource?: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
@@ -98,6 +102,10 @@ export function makeObligationsRepo(db: Db, firmId: string) {
           clientId: i.clientId,
           taxType: i.taxType,
           taxYear: i.taxYear ?? null,
+          ruleId: i.ruleId ?? null,
+          ruleVersion: i.ruleVersion ?? null,
+          rulePeriod: i.rulePeriod ?? null,
+          generationSource: i.generationSource ?? null,
           baseDueDate: i.baseDueDate,
           currentDueDate: i.currentDueDate ?? i.baseDueDate,
           status,
@@ -181,6 +189,71 @@ export function makeObligationsRepo(db: Db, firmId: string) {
           ),
         )
       return applyOverlayDueDates(rows)
+    },
+
+    async listAnnualRolloverSeeds(input: {
+      sourceFilingYear: number
+      clientIds?: string[]
+    }): Promise<ObligationInstance[]> {
+      const yearStart = new Date(Date.UTC(input.sourceFilingYear, 0, 1))
+      const nextYearStart = new Date(Date.UTC(input.sourceFilingYear + 1, 0, 1))
+      const filters = [
+        eq(obligationInstance.firmId, firmId),
+        inArray(obligationInstance.status, ['done', 'paid', 'extended']),
+        gte(obligationInstance.baseDueDate, yearStart),
+        lt(obligationInstance.baseDueDate, nextYearStart),
+      ]
+      const clientIds = [...new Set(input.clientIds ?? [])]
+      if (clientIds.length > 0) filters.push(inArray(obligationInstance.clientId, clientIds))
+
+      const rows = await db
+        .select()
+        .from(obligationInstance)
+        .where(and(...filters))
+        .orderBy(asc(obligationInstance.clientId), asc(obligationInstance.taxType))
+      return rows
+    },
+
+    async listGeneratedByClientAndTaxYears(input: {
+      clientIds: string[]
+      taxYears: number[]
+    }): Promise<
+      Array<{
+        id: string
+        clientId: string
+        ruleId: string | null
+        taxYear: number | null
+        rulePeriod: string | null
+      }>
+    > {
+      const clientIds = [...new Set(input.clientIds)]
+      const taxYears = [...new Set(input.taxYears)]
+      if (clientIds.length === 0 || taxYears.length === 0) return []
+
+      const reads = []
+      for (let i = 0; i < clientIds.length; i += CLIENT_ASSERT_BATCH_SIZE) {
+        const chunk = clientIds.slice(i, i + CLIENT_ASSERT_BATCH_SIZE)
+        reads.push(
+          db
+            .select({
+              id: obligationInstance.id,
+              clientId: obligationInstance.clientId,
+              ruleId: obligationInstance.ruleId,
+              taxYear: obligationInstance.taxYear,
+              rulePeriod: obligationInstance.rulePeriod,
+            })
+            .from(obligationInstance)
+            .where(
+              and(
+                eq(obligationInstance.firmId, firmId),
+                inArray(obligationInstance.clientId, chunk),
+                inArray(obligationInstance.taxYear, taxYears),
+                isNotNull(obligationInstance.ruleId),
+              ),
+            ),
+        )
+      }
+      return (await Promise.all(reads)).flat()
     },
 
     /**

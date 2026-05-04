@@ -20,6 +20,7 @@ import {
   updateObligationReadiness,
   updateObligationStatus,
 } from './_service'
+import { runAnnualRollover } from './_annual-rollover'
 
 /**
  * obligations.* — Demo Sprint subset of the Obligation Domain Contract.
@@ -39,6 +40,10 @@ interface ObligationRow {
   clientId: string
   taxType: string
   taxYear: number | null
+  ruleId: string | null
+  ruleVersion: number | null
+  rulePeriod: string | null
+  generationSource: ObligationInstancePublic['generationSource']
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationInstancePublic['status']
@@ -74,6 +79,10 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       clientId: string
       taxType: string
       taxYear: number | null
+      ruleId?: string | null
+      ruleVersion?: number | null
+      rulePeriod?: string | null
+      generationSource?: ObligationInstancePublic['generationSource']
       baseDueDate: Date
       currentDueDate: Date
       status?: ObligationInstancePublic['status']
@@ -94,6 +103,10 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       clientId: o.clientId,
       taxType: o.taxType,
       taxYear: o.taxYear ?? null,
+      ruleId: o.ruleId ?? null,
+      ruleVersion: o.ruleVersion ?? null,
+      rulePeriod: o.rulePeriod ?? null,
+      generationSource: o.generationSource ?? null,
       baseDueDate: new Date(o.baseDueDate),
       currentDueDate: o.currentDueDate ? new Date(o.currentDueDate) : new Date(o.baseDueDate),
       migrationBatchId: o.migrationBatchId ?? null,
@@ -160,6 +173,39 @@ const listByClient = os.obligations.listByClient.handler(async ({ input, context
   const asOfDate = dateInTimezone(tenant.timezone)
   return rows.map((row) => toObligationPublic(row, { client, asOfDate }))
 })
+
+const previewAnnualRollover = os.obligations.previewAnnualRollover.handler(
+  async ({ input, context }) => {
+    await requireCurrentFirmRole(context, MIGRATION_RUN_ROLES)
+    const { scoped, userId } = requireTenant(context)
+    return runAnnualRollover({
+      scoped,
+      userId,
+      params: input,
+      mode: 'preview',
+    })
+  },
+)
+
+const createAnnualRollover = os.obligations.createAnnualRollover.handler(
+  async ({ input, context }) => {
+    await requireCurrentFirmRole(context, MIGRATION_RUN_ROLES)
+    const { scoped, tenant, userId } = requireTenant(context)
+    const result = await runAnnualRollover({
+      scoped,
+      userId,
+      params: input,
+      mode: 'create',
+    })
+    if (result.summary.createdCount > 0) {
+      await enqueueDashboardBriefRefresh(context.env, {
+        firmId: tenant.firmId,
+        reason: 'annual_rollover',
+      }).catch(() => false)
+    }
+    return result
+  },
+)
 
 const updateDueDate = os.obligations.updateDueDate.handler(async ({ input, context }) => {
   await requireCurrentFirmRole(context, OBLIGATION_STATUS_WRITE_ROLES)
@@ -383,6 +429,8 @@ const requestDeadlineTipRefresh = os.obligations.requestDeadlineTipRefresh.handl
 
 export const obligationsHandlers = {
   createBatch,
+  previewAnnualRollover,
+  createAnnualRollover,
   updateDueDate,
   listByClient,
   updateStatus,

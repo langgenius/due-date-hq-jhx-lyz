@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { ObligationInstancePublicSchema } from '@duedatehq/contracts'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
 import type {
   ObligationExtensionDecision,
@@ -8,6 +9,7 @@ import type {
 import {
   bulkUpdateObligationReadiness,
   bulkUpdateObligationStatus,
+  toObligationPublic,
   updateObligationReadiness,
   updateObligationStatus,
 } from './_service'
@@ -18,6 +20,10 @@ interface Row {
   clientId: string
   taxType: string
   taxYear: number | null
+  ruleId: string | null
+  ruleVersion: number | null
+  rulePeriod: string | null
+  generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -76,6 +82,12 @@ function buildScoped(firmId: string, rows: Row[]) {
       return []
     },
     async listByBatch() {
+      return []
+    },
+    async listAnnualRolloverSeeds() {
+      return []
+    },
+    async listGeneratedByClientAndTaxYears() {
       return []
     },
     async updateDueDate() {},
@@ -453,6 +465,10 @@ function makeRow(over: Partial<Row> = {}): Row {
     clientId: '22222222-2222-4222-8222-222222222222',
     taxType: '1040',
     taxYear: 2026,
+    ruleId: null,
+    ruleVersion: null,
+    rulePeriod: null,
+    generationSource: null,
     baseDueDate: now,
     currentDueDate: now,
     status: 'pending',
@@ -480,6 +496,53 @@ function makeRow(over: Partial<Row> = {}): Row {
     ...over,
   }
 }
+
+describe('toObligationPublic', () => {
+  it('normalizes missing generation metadata from legacy rows to null', () => {
+    const legacy: Parameters<typeof toObligationPublic>[0] = { ...makeRow() }
+    delete legacy.ruleId
+    delete legacy.ruleVersion
+    delete legacy.rulePeriod
+    delete legacy.generationSource
+
+    const result = toObligationPublic(legacy, { asOfDate: '2026-04-26' })
+
+    expect(result).toMatchObject({
+      ruleId: null,
+      ruleVersion: null,
+      rulePeriod: null,
+      generationSource: null,
+    })
+    expect(() => ObligationInstancePublicSchema.parse(result)).not.toThrow()
+  })
+
+  it('keeps list output contract-valid when accrued penalty is calculated', () => {
+    const result = toObligationPublic(
+      makeRow({
+        taxType: 'federal_1065',
+        currentDueDate: new Date('2026-04-15T00:00:00.000Z'),
+        penaltyFactsJson: {
+          version: 'penalty-facts-v1',
+          facts: { partnerCount: 3 },
+        },
+      }),
+      {
+        client: {
+          id: '22222222-2222-4222-8222-222222222222',
+          state: 'CA',
+          entityType: 'llc',
+          equityOwnerCount: 3,
+        },
+        asOfDate: '2026-05-04',
+      },
+    )
+
+    expect(result.ruleId).toBeNull()
+    expect(result.generationSource).toBeNull()
+    expect(result.accruedPenaltyStatus).toBe('ready')
+    expect(() => ObligationInstancePublicSchema.parse(result)).not.toThrow()
+  })
+})
 
 describe('updateObligationStatus', () => {
   it('updates status and writes a single audit row carrying before/after', async () => {

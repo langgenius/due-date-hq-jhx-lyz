@@ -215,6 +215,12 @@ export {
 } from './clients'
 
 export type {
+  AnnualRolloverDisposition,
+  AnnualRolloverInput,
+  AnnualRolloverOutput,
+  AnnualRolloverRow,
+  AnnualRolloverSummary,
+  AnnualRolloverTargetStatus,
   DeadlineTipInput,
   DeadlineTipRefreshInput,
   DeadlineTipRefreshOutput,
@@ -235,6 +241,12 @@ export type {
   PenaltyBreakdownItem,
 } from './obligations'
 export {
+  AnnualRolloverDispositionSchema,
+  AnnualRolloverInputSchema,
+  AnnualRolloverOutputSchema,
+  AnnualRolloverRowSchema,
+  AnnualRolloverSummarySchema,
+  AnnualRolloverTargetStatusSchema,
   DeadlineTipInputSchema,
   DeadlineTipRefreshInputSchema,
   DeadlineTipRefreshOutputSchema,

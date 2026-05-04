@@ -29,7 +29,11 @@ export const PulseAuditActions = [
 ] as const
 
 export const PenaltyAuditActions = ['penalty.override'] as const
-export const RulesAuditActions = ['rules.published', 'rules.review.rejected'] as const
+export const RulesAuditActions = [
+  'rules.published',
+  'rules.review.rejected',
+  'obligation.annual_rollover.created',
+] as const
 export const ClientAuditActions = [
   'client.assignee.updated',
   'client.batch_created',

@@ -32,6 +32,8 @@ import {
   clientsContract,
 } from './clients'
 import {
+  AnnualRolloverInputSchema,
+  AnnualRolloverOutputSchema,
   ObligationBulkReadinessUpdateInputSchema,
   ObligationBulkReadinessUpdateOutputSchema,
   ObligationBulkStatusUpdateInputSchema,
@@ -430,6 +432,8 @@ describe('@duedatehq/contracts', () => {
     expect(Object.keys(obligationsContract)).toEqual(
       expect.arrayContaining([
         'createBatch',
+        'previewAnnualRollover',
+        'createAnnualRollover',
         'updateDueDate',
         'updateStatus',
         'bulkUpdateStatus',
@@ -454,6 +458,10 @@ describe('@duedatehq/contracts', () => {
         clientId: '22222222-2222-4222-8222-222222222222',
         taxType: '1040',
         taxYear: 2026,
+        ruleId: null,
+        ruleVersion: null,
+        rulePeriod: null,
+        generationSource: null,
         baseDueDate: '2026-04-15',
         currentDueDate: '2026-04-15',
         status: 'in_progress',
@@ -522,6 +530,77 @@ describe('@duedatehq/contracts', () => {
       auditIds: ['33333333-3333-4333-8333-333333333333'],
     })
     expect(bulkReadinessOutput.updatedCount).toBe(1)
+  })
+
+  it('exposes annual rollover preview and create schemas', () => {
+    expect(
+      AnnualRolloverInputSchema.parse({
+        sourceFilingYear: 2026,
+        targetFilingYear: 2027,
+        clientIds: ['22222222-2222-4222-8222-222222222222'],
+      }).targetFilingYear,
+    ).toBe(2027)
+    expect(() =>
+      AnnualRolloverInputSchema.parse({ sourceFilingYear: 2026, targetFilingYear: 2028 }),
+    ).toThrow()
+
+    const output = AnnualRolloverOutputSchema.parse({
+      summary: {
+        sourceFilingYear: 2026,
+        targetFilingYear: 2027,
+        seedObligationCount: 1,
+        clientCount: 1,
+        willCreateCount: 1,
+        reviewCount: 0,
+        duplicateCount: 0,
+        skippedCount: 0,
+        createdCount: 0,
+      },
+      rows: [
+        {
+          clientId: '22222222-2222-4222-8222-222222222222',
+          clientName: 'Acme LLC',
+          taxType: 'ca_100',
+          sourceObligationIds: ['11111111-1111-4111-8111-111111111111'],
+          preview: {
+            clientId: '22222222-2222-4222-8222-222222222222',
+            ruleId: 'ca_100_2027',
+            ruleVersion: 1,
+            ruleTitle: 'CA Form 100 annual filing',
+            jurisdiction: 'CA',
+            taxType: 'ca_100',
+            matchedTaxType: 'ca_100',
+            period: 'annual',
+            dueDate: '2027-04-15',
+            eventType: 'filing',
+            isFiling: true,
+            isPayment: false,
+            formName: 'Form 100',
+            sourceIds: ['ca-ftb-100'],
+            evidence: [
+              {
+                sourceId: 'ca-ftb-100',
+                authorityRole: 'basis',
+                locator: { kind: 'html', heading: 'Due dates' },
+                summary: 'CA Form 100 due date',
+                sourceExcerpt: 'File by the 15th day of the fourth month.',
+                retrievedAt: '2026-04-27',
+              },
+            ],
+            requiresReview: false,
+            reminderReady: true,
+            reviewReasons: [],
+          },
+          disposition: 'will_create',
+          targetStatus: 'pending',
+          duplicateObligationId: null,
+          createdObligationId: null,
+          skippedReason: null,
+        },
+      ],
+      auditId: null,
+    })
+    expect(output.rows[0]?.preview?.ruleId).toBe('ca_100_2027')
   })
 
   it('exposes clients.bulkUpdateAssignee for Obligations bulk owner changes', () => {
@@ -819,6 +898,9 @@ describe('@duedatehq/contracts', () => {
     expect(AuditActionSchema.parse('client.deleted')).toBe('client.deleted')
     expect(AuditActionSchema.parse('rules.published')).toBe('rules.published')
     expect(AuditActionSchema.parse('rules.review.rejected')).toBe('rules.review.rejected')
+    expect(AuditActionSchema.parse('obligation.annual_rollover.created')).toBe(
+      'obligation.annual_rollover.created',
+    )
   })
 
   it('freezes Pulse demo backend contracts', () => {

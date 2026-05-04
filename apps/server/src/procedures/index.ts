@@ -69,6 +69,8 @@ export const router = os.router({
   },
   obligations: {
     createBatch: obligationsHandlers.createBatch,
+    previewAnnualRollover: obligationsHandlers.previewAnnualRollover,
+    createAnnualRollover: obligationsHandlers.createAnnualRollover,
     updateDueDate: obligationsHandlers.updateDueDate,
     updateStatus: obligationsHandlers.updateStatus,
     bulkUpdateStatus: obligationsHandlers.bulkUpdateStatus,

@@ -28,6 +28,10 @@ export interface ObligationInstanceRow {
   clientId: string
   taxType: string
   taxYear: number | null
+  ruleId: string | null
+  ruleVersion: number | null
+  rulePeriod: string | null
+  generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -59,6 +63,10 @@ export interface ObligationCreateInput {
   clientId: string
   taxType: string
   taxYear?: number | null
+  ruleId?: string | null
+  ruleVersion?: number | null
+  rulePeriod?: string | null
+  generationSource?: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
@@ -84,6 +92,19 @@ export interface ObligationsRepo {
   findManyByIds(ids: string[]): Promise<ObligationInstanceRow[]>
   listByClient(clientId: string): Promise<ObligationInstanceRow[]>
   listByBatch(batchId: string): Promise<ObligationInstanceRow[]>
+  listAnnualRolloverSeeds(input: {
+    sourceFilingYear: number
+    clientIds?: string[]
+  }): Promise<ObligationInstanceRow[]>
+  listGeneratedByClientAndTaxYears(input: { clientIds: string[]; taxYears: number[] }): Promise<
+    Array<{
+      id: string
+      clientId: string
+      ruleId: string | null
+      taxYear: number | null
+      rulePeriod: string | null
+    }>
+  >
   updateDueDate(id: string, newDate: Date): Promise<void>
   updateExposure(
     id: string,

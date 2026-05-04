@@ -116,6 +116,7 @@ const COUNT_FIELD_NOUNS: Record<string, keyof AuditChangeLabels['nouns']> = {
   clientCount: 'clients',
   clientsAffected: 'clients',
   count: 'rows',
+  createdCount: 'deadlines',
   fileCount: 'files',
   matchedCount: 'clients',
   needsReviewCount: 'clients',
@@ -163,6 +164,7 @@ export const AUDIT_CHANGE_PRESENTERS: Record<KnownAuditAction, AuditChangePresen
   'migration.raw_uploaded': migrationRawUploadedPresenter,
   'migration.reverted': migrationRevertPresenter,
   'migration.single_undo': migrationRevertPresenter,
+  'obligation.annual_rollover.created': annualRolloverPresenter,
   'obligation.batch_created': (context) => countPresenter(context, 'count', 'deadlines'),
   'obligation.due_date.updated': obligationDueDatePresenter,
   'obligation.readiness.updated': obligationReadinessPresenter,
@@ -584,6 +586,16 @@ function migrationRevertPresenter(context: AuditChangeContext): AuditChangeView 
   const rows = rowsForKeys(context, ['clientCount', 'obligationCount'])
   return view(
     context.labels.headlines.actionRecorded(context.actionLabel),
+    rows,
+    appendGenericNotes(context, rows),
+  )
+}
+
+function annualRolloverPresenter(context: AuditChangeContext): AuditChangeView {
+  const rows = rowsForKeys(context, ['sourceFilingYear', 'targetFilingYear', 'createdCount'])
+  const createdCount = readNumber(context.after, 'createdCount')
+  return view(
+    context.labels.headlines.batchCreated(context.actionLabel, createdCount),
     rows,
     appendGenericNotes(context, rows),
   )

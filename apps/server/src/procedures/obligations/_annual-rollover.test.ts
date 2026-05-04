@@ -1,0 +1,311 @@
+import { describe, expect, it, vi } from 'vitest'
+import type { ObligationRule } from '@duedatehq/core/rules'
+import type { ClientRow } from '@duedatehq/ports/clients'
+import type { ObligationCreateInput, ObligationInstanceRow } from '@duedatehq/ports/obligations'
+import type { ScopedRepo } from '@duedatehq/ports/scoped'
+import { runAnnualRollover } from './_annual-rollover'
+
+const FIRM_ID = 'firm_123'
+const USER_ID = 'user_123'
+const CLIENT_ID = '22222222-2222-4222-8222-222222222222'
+
+function makeClient(overrides: Partial<ClientRow> = {}): ClientRow {
+  const now = new Date('2026-05-04T00:00:00.000Z')
+  return {
+    id: CLIENT_ID,
+    firmId: FIRM_ID,
+    name: 'Acme LLC',
+    ein: null,
+    state: 'CA',
+    county: null,
+    entityType: 'llc',
+    email: null,
+    notes: null,
+    assigneeId: null,
+    assigneeName: null,
+    importanceWeight: 3,
+    lateFilingCountLast12mo: 0,
+    estimatedTaxLiabilityCents: 250_000,
+    estimatedTaxLiabilitySource: 'manual',
+    equityOwnerCount: 2,
+    migrationBatchId: null,
+    createdAt: now,
+    updatedAt: now,
+    deletedAt: null,
+    ...overrides,
+  }
+}
+
+function makeSeed(overrides: Partial<ObligationInstanceRow> = {}): ObligationInstanceRow {
+  const now = new Date('2026-05-04T00:00:00.000Z')
+  const due = new Date('2026-04-15T00:00:00.000Z')
+  return {
+    id: '11111111-1111-4111-8111-111111111111',
+    firmId: FIRM_ID,
+    clientId: CLIENT_ID,
+    taxType: 'ca_100',
+    taxYear: 2025,
+    ruleId: null,
+    ruleVersion: null,
+    rulePeriod: null,
+    generationSource: null,
+    baseDueDate: due,
+    currentDueDate: due,
+    status: 'paid',
+    readiness: 'ready',
+    extensionDecision: 'not_considered',
+    extensionMemo: null,
+    extensionSource: null,
+    extensionExpectedDueDate: null,
+    extensionDecidedAt: null,
+    extensionDecidedByUserId: null,
+    migrationBatchId: null,
+    estimatedTaxDueCents: null,
+    estimatedExposureCents: null,
+    exposureStatus: 'needs_input',
+    penaltyFactsJson: null,
+    penaltyFactsVersion: null,
+    penaltyBreakdownJson: null,
+    penaltyFormulaVersion: null,
+    missingPenaltyFactsJson: null,
+    penaltySourceRefsJson: null,
+    penaltyFormulaLabel: null,
+    exposureCalculatedAt: null,
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  }
+}
+
+function makeRule(overrides: Partial<ObligationRule> = {}): ObligationRule {
+  return {
+    id: 'ca_100_2027',
+    title: 'CA Form 100 annual filing',
+    jurisdiction: 'CA',
+    entityApplicability: ['llc', 'c_corp', 's_corp'],
+    taxType: 'ca_100',
+    formName: 'Form 100',
+    eventType: 'filing',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2026,
+    applicableYear: 2027,
+    ruleTier: 'annual_rolling',
+    status: 'verified',
+    coverageStatus: 'full',
+    riskLevel: 'med',
+    requiresApplicabilityReview: false,
+    dueDateLogic: {
+      kind: 'fixed_date',
+      date: '2027-04-15',
+      holidayRollover: 'source_adjusted',
+    },
+    extensionPolicy: {
+      available: true,
+      durationMonths: 6,
+      paymentExtended: false,
+      notes: 'Extension available; payment not extended.',
+    },
+    sourceIds: ['ca-ftb-100'],
+    evidence: [
+      {
+        sourceId: 'ca-ftb-100',
+        authorityRole: 'basis',
+        locator: { kind: 'html', heading: 'Due dates' },
+        summary: 'CA Form 100 due date',
+        sourceExcerpt: 'File by the 15th day of the fourth month.',
+        retrievedAt: '2026-04-27',
+      },
+    ],
+    defaultTip: 'Confirm annual filing readiness before the due date.',
+    quality: {
+      filingPaymentDistinguished: true,
+      extensionHandled: true,
+      calendarFiscalSpecified: true,
+      holidayRolloverHandled: true,
+      crossVerified: true,
+      exceptionChannel: true,
+    },
+    verifiedBy: 'ops',
+    verifiedAt: '2026-04-27',
+    nextReviewOn: '2026-11-15',
+    version: 3,
+    ...overrides,
+  }
+}
+
+function makeScoped(input: {
+  seeds?: ObligationInstanceRow[]
+  clients?: ClientRow[]
+  duplicates?: Array<{
+    id: string
+    clientId: string
+    ruleId: string | null
+    taxYear: number | null
+    rulePeriod: string | null
+  }>
+}) {
+  const createdInputs: ObligationCreateInput[] = []
+  const writeEvidenceBatch = vi.fn(async (rows: unknown[]) => ({
+    ids: rows.map((_, index) => `ev_${index}`),
+  }))
+  const writeAudit = vi.fn(async () => ({ id: 'audit_1' }))
+  const obligations = {
+    listAnnualRolloverSeeds: vi.fn(async () => input.seeds ?? [makeSeed()]),
+    listGeneratedByClientAndTaxYears: vi.fn(async () => input.duplicates ?? []),
+    createBatch: vi.fn(async (rows: ObligationCreateInput[]) => {
+      createdInputs.push(...rows)
+      return { ids: rows.map((_, index) => `created_${index + 1}`) }
+    }),
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- focused service test double implements only repos used by annual rollover.
+  const scoped = {
+    firmId: FIRM_ID,
+    clients: {
+      findManyByIds: vi.fn(async () => input.clients ?? [makeClient()]),
+    },
+    obligations,
+    rules: {
+      listVerified: vi.fn(async () => []),
+    },
+    evidence: {
+      writeBatch: writeEvidenceBatch,
+    },
+    audit: {
+      write: writeAudit,
+    },
+  } as unknown as ScopedRepo
+  return { scoped, obligations, createdInputs, writeEvidenceBatch, writeAudit }
+}
+
+describe('runAnnualRollover', () => {
+  it('creates pending and review obligations from verified target-year rules', async () => {
+    const reviewRule = makeRule({
+      id: 'ca_llc_fee_2027',
+      title: 'CA LLC estimated fee',
+      taxType: 'ca_llc_estimated_fee',
+      formName: 'Form 3536',
+      requiresApplicabilityReview: true,
+    })
+    const { scoped, createdInputs, writeAudit, writeEvidenceBatch } = makeScoped({
+      seeds: [
+        makeSeed({ taxType: 'ca_100' }),
+        makeSeed({ id: '11111111-1111-4111-8111-111111111112', taxType: 'ca_llc_estimated_fee' }),
+      ],
+    })
+
+    const result = await runAnnualRollover({
+      scoped,
+      userId: USER_ID,
+      params: { sourceFilingYear: 2026, targetFilingYear: 2027 },
+      mode: 'create',
+      rules: [makeRule(), reviewRule],
+      now: new Date('2026-05-04T00:00:00.000Z'),
+    })
+
+    expect(result.summary).toMatchObject({
+      seedObligationCount: 2,
+      willCreateCount: 1,
+      reviewCount: 1,
+      createdCount: 2,
+    })
+    expect(createdInputs.map((row) => row.status)).toEqual(['pending', 'review'])
+    expect(createdInputs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ruleId: 'ca_100_2027',
+          ruleVersion: 3,
+          rulePeriod: 'default',
+          generationSource: 'annual_rollover',
+        }),
+        expect.objectContaining({
+          ruleId: 'ca_llc_fee_2027',
+          status: 'review',
+          generationSource: 'annual_rollover',
+        }),
+      ]),
+    )
+    expect(writeEvidenceBatch).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ sourceType: 'verified_rule' })]),
+    )
+    expect(writeAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'obligation.annual_rollover.created',
+        after: expect.objectContaining({ createdCount: 2 }),
+      }),
+    )
+  })
+
+  it('skips duplicate target obligations by rule id, tax year, and period', async () => {
+    const { scoped, obligations } = makeScoped({
+      duplicates: [
+        {
+          id: 'existing_obligation',
+          clientId: CLIENT_ID,
+          ruleId: 'ca_100_2027',
+          taxYear: 2026,
+          rulePeriod: 'default',
+        },
+      ],
+    })
+
+    const result = await runAnnualRollover({
+      scoped,
+      userId: USER_ID,
+      params: { sourceFilingYear: 2026, targetFilingYear: 2027 },
+      mode: 'create',
+      rules: [makeRule()],
+    })
+
+    expect(result.summary.duplicateCount).toBe(1)
+    expect(result.rows[0]).toMatchObject({
+      disposition: 'duplicate',
+      duplicateObligationId: 'existing_obligation',
+    })
+    expect(obligations.createBatch).not.toHaveBeenCalled()
+  })
+
+  it('skips source buckets without verified target-year rules', async () => {
+    const { scoped } = makeScoped({})
+
+    const result = await runAnnualRollover({
+      scoped,
+      userId: USER_ID,
+      params: { sourceFilingYear: 2026, targetFilingYear: 2027 },
+      mode: 'preview',
+      rules: [makeRule({ status: 'candidate' })],
+    })
+
+    expect(result.summary.skippedCount).toBe(1)
+    expect(result.rows[0]).toMatchObject({
+      disposition: 'missing_verified_rule',
+      skippedReason: 'no_verified_rule_for_target_year',
+    })
+  })
+
+  it('expands period-table rules into independent target rows', async () => {
+    const rule = makeRule({
+      dueDateLogic: {
+        kind: 'period_table',
+        frequency: 'quarterly',
+        holidayRollover: 'source_adjusted',
+        periods: [
+          { period: 'Q1', dueDate: '2027-04-15' },
+          { period: 'Q2', dueDate: '2027-06-15' },
+        ],
+      },
+    })
+    const { scoped } = makeScoped({})
+
+    const result = await runAnnualRollover({
+      scoped,
+      userId: USER_ID,
+      params: { sourceFilingYear: 2026, targetFilingYear: 2027 },
+      mode: 'preview',
+      rules: [rule],
+    })
+
+    expect(result.summary.willCreateCount).toBe(2)
+    expect(result.rows.map((row) => row.preview?.period)).toEqual(['Q1', 'Q2'])
+  })
+})

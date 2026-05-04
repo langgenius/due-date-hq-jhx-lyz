@@ -72,6 +72,10 @@ export interface WorkboardListRow {
   clientId: string
   taxType: string
   taxYear: number | null
+  ruleId: string | null
+  ruleVersion: number | null
+  rulePeriod: string | null
+  generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -174,6 +178,10 @@ interface WorkboardRawJoinedRow {
   clientId: string
   taxType: string
   taxYear: number | null
+  ruleId: string | null
+  ruleVersion: number | null
+  rulePeriod: string | null
+  generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -616,6 +624,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
           clientId: obligationInstance.clientId,
           taxType: obligationInstance.taxType,
           taxYear: obligationInstance.taxYear,
+          ruleId: obligationInstance.ruleId,
+          ruleVersion: obligationInstance.ruleVersion,
+          rulePeriod: obligationInstance.rulePeriod,
+          generationSource: obligationInstance.generationSource,
           baseDueDate: obligationInstance.baseDueDate,
           currentDueDate: obligationInstance.currentDueDate,
           status: obligationInstance.status,
@@ -701,6 +713,10 @@ export function makeWorkboardRepo(db: Db, firmId: string) {
               clientId: obligationInstance.clientId,
               taxType: obligationInstance.taxType,
               taxYear: obligationInstance.taxYear,
+              ruleId: obligationInstance.ruleId,
+              ruleVersion: obligationInstance.ruleVersion,
+              rulePeriod: obligationInstance.rulePeriod,
+              generationSource: obligationInstance.generationSource,
               baseDueDate: obligationInstance.baseDueDate,
               currentDueDate: obligationInstance.currentDueDate,
               status: obligationInstance.status,

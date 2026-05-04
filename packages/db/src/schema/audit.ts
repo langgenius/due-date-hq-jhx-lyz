@@ -244,7 +244,11 @@ export type PulseAuditAction = (typeof PULSE_AUDIT_ACTIONS)[number]
 export const PENALTY_AUDIT_ACTIONS = ['penalty.override'] as const
 export type PenaltyAuditAction = (typeof PENALTY_AUDIT_ACTIONS)[number]
 
-export const RULES_AUDIT_ACTIONS = ['rules.published', 'rules.review.rejected'] as const
+export const RULES_AUDIT_ACTIONS = [
+  'rules.published',
+  'rules.review.rejected',
+  'obligation.annual_rollover.created',
+] as const
 export type RulesAuditAction = (typeof RULES_AUDIT_ACTIONS)[number]
 
 export const CLIENT_AUDIT_ACTIONS = [

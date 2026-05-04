@@ -16,6 +16,7 @@ export type DashboardBriefRefreshReason =
   | 'client_facts_change'
   | 'penalty_override'
   | 'due_date_update'
+  | 'annual_rollover'
   | 'manual_refresh'
 
 export interface DashboardBriefRefreshMessage {

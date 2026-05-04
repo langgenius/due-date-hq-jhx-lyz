@@ -181,6 +181,12 @@ function buildScopedRepo(firmId: string) {
     async listByBatch() {
       return []
     },
+    async listAnnualRolloverSeeds() {
+      return []
+    },
+    async listGeneratedByClientAndTaxYears() {
+      return []
+    },
     async updateDueDate() {},
     async updateExposure() {},
     async updateStatus() {},

@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm'
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import { client } from './clients'
 import { firmProfile } from './firm'
 
@@ -51,6 +51,12 @@ export const obligationInstance = sqliteTable(
     // Optional: 4-digit tax year (e.g. '2026'). Some Demo obligations span
     // calendars; NULL means "non-year-specific" which is rare for Demo.
     taxYear: integer('tax_year'),
+    ruleId: text('rule_id'),
+    ruleVersion: integer('rule_version'),
+    rulePeriod: text('rule_period'),
+    generationSource: text('generation_source', {
+      enum: ['migration', 'manual', 'annual_rollover', 'pulse'],
+    }),
 
     baseDueDate: integer('base_due_date', { mode: 'timestamp_ms' }).notNull(),
     currentDueDate: integer('current_due_date', { mode: 'timestamp_ms' }).notNull(),
@@ -122,6 +128,10 @@ export const obligationInstance = sqliteTable(
     // Obligations P0 filters: tax form/type and dollar-at-risk range.
     index('idx_oi_firm_tax_type_due').on(table.firmId, table.taxType, table.currentDueDate),
     index('idx_oi_firm_exposure_amount').on(table.firmId, table.estimatedExposureCents),
+    uniqueIndex('uq_oi_generated_rule_period')
+      .on(table.firmId, table.clientId, table.ruleId, table.taxYear, table.rulePeriod)
+      .where(sql`rule_id is not null and tax_year is not null and rule_period is not null`),
+    index('idx_oi_firm_rule_tax_year').on(table.firmId, table.ruleId, table.taxYear),
     // Client detail page drawer.
     index('idx_oi_client').on(table.clientId),
     // 24h revert path mirror of idx_client_batch.

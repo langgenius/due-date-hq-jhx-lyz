@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
+import { Link } from 'react-router'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
@@ -9,9 +10,13 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   CornerDownLeftIcon,
+  RotateCcwIcon,
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 import type {
+  AnnualRolloverDisposition,
+  AnnualRolloverOutput,
   ClientPublic,
   ObligationInstancePublic,
   ObligationGenerationPreview,
@@ -35,6 +40,7 @@ import { cn } from '@duedatehq/ui/lib/utils'
 
 import { ConceptLabel } from '@/features/concepts/concept-help'
 import { orpc } from '@/lib/rpc'
+import { rpcErrorMessage } from '@/lib/rpc-error'
 
 import {
   formatEnumLabel,
@@ -57,6 +63,7 @@ import { useSourceLookup } from './use-source-lookup'
 
 const CLIENT_LIST_LIMIT = 500
 const TAX_YEAR_GRID_SIZE = 10
+const ALL_ROLLOVER_CLIENTS = '__all_clients__'
 const EMPTY_CLIENTS: ClientPublic[] = []
 const EMPTY_OBLIGATIONS: ObligationInstancePublic[] = []
 
@@ -161,13 +168,207 @@ function GenerationPreviewClientWorkbench({
   })
 
   return (
-    <GenerationPreviewForm
-      key={`${activeClient.id}-${defaultValues.taxTypes}-${defaultValues.taxYearStart}`}
-      clients={clients}
-      defaultValues={defaultValues}
-      taxTypeSource={source}
-      onSelectClient={onSelectClient}
-    />
+    <div className="flex flex-col gap-6">
+      <AnnualRolloverPanel clients={clients} />
+      <GenerationPreviewForm
+        key={`${activeClient.id}-${defaultValues.taxTypes}-${defaultValues.taxYearStart}`}
+        clients={clients}
+        defaultValues={defaultValues}
+        taxTypeSource={source}
+        onSelectClient={onSelectClient}
+      />
+    </div>
+  )
+}
+
+export function AnnualRolloverPanel({ clients }: { clients: readonly ClientPublic[] }) {
+  const { t } = useLingui()
+  const queryClient = useQueryClient()
+  const defaults = useMemo(() => defaultAnnualRolloverYears(), [])
+  const [sourceFilingYear, setSourceFilingYear] = useState(defaults.sourceFilingYear)
+  const [targetFilingYear, setTargetFilingYear] = useState(defaults.targetFilingYear)
+  const [selectedClientId, setSelectedClientId] = useState(ALL_ROLLOVER_CLIENTS)
+  const [previewInput, setPreviewInput] = useState(() =>
+    annualRolloverInput(defaults.sourceFilingYear, defaults.targetFilingYear, selectedClientId),
+  )
+  const currentInput = annualRolloverInput(sourceFilingYear, targetFilingYear, selectedClientId)
+  const yearsValid = targetFilingYear === sourceFilingYear + 1
+  const previewQuery = useQuery({
+    ...orpc.obligations.previewAnnualRollover.queryOptions({ input: previewInput }),
+    enabled: previewInput.targetFilingYear === previewInput.sourceFilingYear + 1,
+  })
+  const createMutation = useMutation(
+    orpc.obligations.createAnnualRollover.mutationOptions({
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.obligations.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.list.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.workboard.facets.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+        void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
+        setPreviewInput(currentInput)
+        toast.success(t`Annual rollover generated`, {
+          description: t`${result.summary.createdCount} obligations created.`,
+        })
+      },
+      onError: (error) => {
+        toast.error(t`Could not generate annual rollover`, {
+          description: rpcErrorMessage(error) ?? t`Try previewing again before generating.`,
+        })
+      },
+    }),
+  )
+
+  const result = createMutation.data ?? previewQuery.data
+  const createdIds = rolloverCreatedIds(result)
+  const createCandidateCount =
+    (result?.summary.willCreateCount ?? 0) + (result?.summary.reviewCount ?? 0)
+  const canGenerate = yearsValid && createCandidateCount > 0 && !createMutation.isPending
+  const selectedClientLabel =
+    selectedClientId === ALL_ROLLOVER_CLIENTS
+      ? t`All clients`
+      : (clients.find((client) => client.id === selectedClientId)?.name ?? t`Unknown`)
+
+  function runPreview() {
+    if (!yearsValid) {
+      toast.error(t`Target filing year must be the next year after source filing year.`)
+      return
+    }
+    createMutation.reset()
+    setPreviewInput(currentInput)
+  }
+
+  function generate() {
+    if (!canGenerate) return
+    createMutation.mutate(currentInput)
+  }
+
+  return (
+    <SectionFrame className="px-4 py-4">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-sm font-semibold text-text-primary">
+              <RotateCcwIcon className="size-4 text-text-tertiary" aria-hidden />
+              <span>
+                <Trans>Annual rollover</Trans>
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-text-secondary">
+              <Trans>
+                Preview closed source-year obligations, then create next-year obligations from
+                verified rules.
+              </Trans>
+            </p>
+          </div>
+          {createdIds.length > 0 ? (
+            <Button
+              nativeButton={false}
+              variant="outline"
+              size="sm"
+              render={<Link to={workboardHref(createdIds[0]!)} />}
+            >
+              <Trans>Open first created obligation</Trans>
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="grid grid-cols-[140px_140px_minmax(220px,1fr)_auto_auto] gap-3">
+          <PreviewField label={t`SOURCE FILING YEAR`} htmlFor="annual-source-year">
+            <Input
+              id="annual-source-year"
+              type="number"
+              min={1900}
+              max={2100}
+              value={sourceFilingYear}
+              aria-invalid={!yearsValid}
+              className="h-8 font-mono text-xs tabular-nums"
+              onChange={(event) => {
+                const next = boundedYear(event.currentTarget.value, sourceFilingYear, 1900, 2100)
+                setSourceFilingYear(next)
+                setTargetFilingYear(next + 1)
+              }}
+            />
+          </PreviewField>
+          <PreviewField label={t`TARGET FILING YEAR`} htmlFor="annual-target-year">
+            <Input
+              id="annual-target-year"
+              type="number"
+              min={1901}
+              max={2101}
+              value={targetFilingYear}
+              aria-invalid={!yearsValid}
+              className="h-8 font-mono text-xs tabular-nums"
+              onChange={(event) =>
+                setTargetFilingYear(
+                  boundedYear(event.currentTarget.value, targetFilingYear, 1901, 2101),
+                )
+              }
+            />
+          </PreviewField>
+          <PreviewField label={t`CLIENT FILTER`}>
+            <Select
+              value={selectedClientId}
+              onValueChange={(value) => {
+                if (value) setSelectedClientId(value)
+              }}
+            >
+              <SelectTrigger className="h-8 w-full rounded-md text-xs">
+                <SelectValue>{selectedClientLabel}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value={ALL_ROLLOVER_CLIENTS}>
+                    <Trans>All clients</Trans>
+                  </SelectItem>
+                  {clients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      <span className="flex min-w-0 flex-col leading-tight">
+                        <span className="truncate">{client.name}</span>
+                        <span className="font-mono text-[11px] text-text-tertiary">
+                          {client.state ?? t`No state`}
+                        </span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </PreviewField>
+          <Button
+            type="button"
+            variant="secondary"
+            className="self-end"
+            disabled={previewQuery.isFetching}
+            onClick={runPreview}
+          >
+            {previewQuery.isFetching ? <Trans>Previewing…</Trans> : <Trans>Preview</Trans>}
+          </Button>
+          <Button
+            type="button"
+            variant="accent"
+            className="self-end"
+            disabled={!canGenerate}
+            onClick={generate}
+          >
+            {createMutation.isPending ? <Trans>Generating…</Trans> : <Trans>Generate</Trans>}
+          </Button>
+        </div>
+
+        {!yearsValid ? (
+          <p className="text-xs text-severity-medium">
+            <Trans>Target filing year must be exactly one year after the source filing year.</Trans>
+          </p>
+        ) : null}
+
+        {previewQuery.isLoading ? (
+          <QueryPanelState state="loading" message={t`Loading annual rollover preview.`} />
+        ) : previewQuery.isError ? (
+          <QueryPanelState state="error" message={t`Could not run annual rollover preview.`} />
+        ) : result ? (
+          <AnnualRolloverResults result={result} />
+        ) : null}
+      </div>
+    </SectionFrame>
   )
 }
 
@@ -403,6 +604,183 @@ function RulesPreviewEmptyState({ message }: { message: string }) {
       <p className="text-sm text-text-secondary">{message}</p>
     </SectionFrame>
   )
+}
+
+function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
+  const { t } = useLingui()
+
+  return (
+    <div className="overflow-hidden rounded-md border border-divider-regular">
+      <div className="grid grid-cols-7 gap-0 border-b border-divider-regular bg-background-subtle">
+        <RolloverMetric label={t`Seeds`} value={result.summary.seedObligationCount} />
+        <RolloverMetric label={t`Clients`} value={result.summary.clientCount} />
+        <RolloverMetric label={t`Will create`} value={result.summary.willCreateCount} />
+        <RolloverMetric label={t`Review`} value={result.summary.reviewCount} />
+        <RolloverMetric label={t`Duplicates`} value={result.summary.duplicateCount} />
+        <RolloverMetric label={t`Skipped`} value={result.summary.skippedCount} />
+        <RolloverMetric label={t`Created`} value={result.summary.createdCount} />
+      </div>
+      <div className="max-h-[420px] overflow-auto">
+        <div className="grid min-w-[920px] grid-cols-[132px_180px_160px_96px_120px_1fr_120px] border-b border-divider-regular bg-background-default px-3 py-2 text-[11px] font-medium uppercase tracking-[0.08em] text-text-muted">
+          <span>
+            <Trans>Status</Trans>
+          </span>
+          <span>
+            <Trans>Client</Trans>
+          </span>
+          <span>
+            <Trans>Tax type</Trans>
+          </span>
+          <span>
+            <Trans>Due date</Trans>
+          </span>
+          <span>
+            <Trans>Target</Trans>
+          </span>
+          <span>
+            <Trans>Rule / reason</Trans>
+          </span>
+          <span className="text-right">
+            <Trans>Workboard</Trans>
+          </span>
+        </div>
+        {result.rows.length === 0 ? (
+          <div className="px-3 py-4 text-sm text-text-secondary">
+            <Trans>No closed source-year obligations matched this rollover preview.</Trans>
+          </div>
+        ) : (
+          result.rows.map((row, index) => {
+            const obligationId = row.createdObligationId ?? row.duplicateObligationId
+            return (
+              <div
+                key={`${row.clientId}-${row.taxType}-${row.preview?.ruleId ?? 'missing'}-${row.preview?.period ?? index}`}
+                className="grid min-h-12 min-w-[920px] grid-cols-[132px_180px_160px_96px_120px_1fr_120px] items-center gap-0 border-b border-divider-subtle px-3 py-2 text-xs last:border-b-0"
+              >
+                <span>
+                  <RolloverDispositionBadge disposition={row.disposition} />
+                </span>
+                <span className="min-w-0 truncate text-text-primary">{row.clientName}</span>
+                <span className="min-w-0 truncate font-mono text-[11px] text-text-secondary">
+                  {row.taxType}
+                </span>
+                <span className="font-mono text-[11px] tabular-nums text-text-secondary">
+                  {row.preview?.dueDate ?? '—'}
+                </span>
+                <span className="text-text-secondary">
+                  {row.targetStatus ? targetStatusLabel(row.targetStatus, t) : '—'}
+                </span>
+                <span className="min-w-0 truncate text-text-tertiary">
+                  {row.preview
+                    ? `${row.preview.ruleTitle} · ${row.preview.period}`
+                    : skippedReasonLabel(row.skippedReason, t)}
+                </span>
+                <span className="flex justify-end">
+                  {obligationId ? (
+                    <Button
+                      nativeButton={false}
+                      variant="ghost"
+                      size="xs"
+                      render={<Link to={workboardHref(obligationId)} />}
+                    >
+                      <Trans>Open</Trans>
+                    </Button>
+                  ) : (
+                    <span className="text-text-disabled">—</span>
+                  )}
+                </span>
+              </div>
+            )
+          })
+        )}
+      </div>
+    </div>
+  )
+}
+
+function RolloverMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="min-w-0 border-r border-divider-subtle px-3 py-2 last:border-r-0">
+      <div className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-text-muted">
+        {label}
+      </div>
+      <div className="font-mono text-lg font-semibold tabular-nums text-text-primary">{value}</div>
+    </div>
+  )
+}
+
+function RolloverDispositionBadge({ disposition }: { disposition: AnnualRolloverDisposition }) {
+  const { t } = useLingui()
+  const labels: Record<AnnualRolloverDisposition, string> = {
+    will_create: t`Will create`,
+    review: t`Review`,
+    duplicate: t`Duplicate`,
+    missing_verified_rule: t`Missing rule`,
+    missing_due_date: t`Missing due date`,
+  }
+  return (
+    <span
+      className={cn(
+        'inline-flex h-6 max-w-full items-center rounded border px-2 text-[11px] font-medium',
+        disposition === 'will_create' && 'border-status-done/20 bg-status-done/10 text-status-done',
+        disposition === 'review' &&
+          'border-status-review/20 bg-status-review/10 text-status-review',
+        disposition === 'duplicate' &&
+          'border-divider-regular bg-background-subtle text-text-muted',
+        disposition === 'missing_verified_rule' &&
+          'border-severity-medium/20 bg-severity-medium-tint text-severity-medium',
+        disposition === 'missing_due_date' &&
+          'border-severity-medium/20 bg-severity-medium-tint text-severity-medium',
+      )}
+    >
+      <span className="truncate">{labels[disposition]}</span>
+    </span>
+  )
+}
+
+function defaultAnnualRolloverYears(): { sourceFilingYear: number; targetFilingYear: number } {
+  const targetFilingYear = new Date().getFullYear() + 1
+  return { sourceFilingYear: targetFilingYear - 1, targetFilingYear }
+}
+
+function annualRolloverInput(
+  sourceFilingYear: number,
+  targetFilingYear: number,
+  selectedClientId: string,
+) {
+  return {
+    sourceFilingYear,
+    targetFilingYear,
+    ...(selectedClientId === ALL_ROLLOVER_CLIENTS ? {} : { clientIds: [selectedClientId] }),
+  }
+}
+
+function boundedYear(raw: string, fallback: number, min: number, max: number): number {
+  const next = Number(raw)
+  if (!Number.isInteger(next)) return fallback
+  return Math.min(Math.max(next, min), max)
+}
+
+function workboardHref(obligationId: string): string {
+  return `/workboard?${new URLSearchParams({ obligation: obligationId }).toString()}`
+}
+
+function rolloverCreatedIds(result: AnnualRolloverOutput | undefined): string[] {
+  return (
+    result?.rows.flatMap((row) => (row.createdObligationId ? [row.createdObligationId] : [])) ?? []
+  )
+}
+
+function targetStatusLabel(status: 'pending' | 'review', t: ReturnType<typeof useLingui>['t']) {
+  return status === 'pending' ? t`Pending` : t`Review`
+}
+
+function skippedReasonLabel(reason: string | null, t: ReturnType<typeof useLingui>['t']): string {
+  if (reason === 'client_state_missing') return t`Client state missing`
+  if (reason === 'client_not_found') return t`Client not found`
+  if (reason === 'no_verified_rule_for_target_year') return t`No verified target-year rule`
+  if (reason === 'target_obligation_already_exists') return t`Target obligation already exists`
+  if (reason === 'verified_rule_has_no_concrete_due_date') return t`No concrete due date`
+  return reason ?? t`No rule matched`
 }
 
 function TaxYearCalendarSelect({

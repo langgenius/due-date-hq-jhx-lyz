@@ -121,6 +121,11 @@ msgstr "{0} 个需要确认"
 msgid "{0} needs input"
 msgstr "{0} 个需要输入"
 
+#. placeholder {0}: result.summary.createdCount
+#: src/features/rules/generation-preview-tab.tsx
+msgid "{0} obligations created."
+msgstr "已创建 {0} 个义务。"
+
 #. placeholder {0}: genesis.needsInputCount
 #: src/features/migration/Wizard.tsx
 msgid "{0} obligations still need penalty inputs."
@@ -653,6 +658,10 @@ msgstr "全部正常。我们正在监控已配置的 Pulse 来源；新的匹�
 msgid "All clear. We're watching official federal and state sources ({count, plural, one {# source} other {# sources}}); new matches will appear here."
 msgstr "全部正常。我们正在监控官方联邦和州来源（{count, plural, one {# 个来源} other {# 个来源}}）；新的匹配会显示在这里。"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "All clients"
+msgstr "全部客户"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "All entity types"
 msgstr "全部实体类型"
@@ -713,6 +722,18 @@ msgstr "年度报告无税额标记"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Annual rolling"
 msgstr "年度滚动"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Annual rollover"
+msgstr "年度滚转"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Annual rollover created"
+msgstr "已创建年度滚转"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Annual rollover generated"
+msgstr "年度滚转已生成"
 
 #: src/routes/readiness.tsx
 msgid "Answer each item so your CPA can confirm filing readiness."
@@ -1255,6 +1276,7 @@ msgstr "点击更多以更改角色、暂停或移除"
 #: src/features/audit/audit-log-page.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
+#: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Client"
@@ -1307,6 +1329,10 @@ msgstr "客户事实"
 msgid "Client facts, risk inputs, and cached AI summary."
 msgstr "客户事实、风险输入和缓存的 AI 摘要。"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "CLIENT FILTER"
+msgstr "客户筛选"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Client import batch"
 msgstr "客户导入批次"
@@ -1352,6 +1378,7 @@ msgstr "客户"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/audit/audit-log-labels.ts
+#: src/features/rules/generation-preview-tab.tsx
 #: src/routes/clients.tsx
 #: src/routes/route-summary.ts
 msgid "Clients"
@@ -1539,6 +1566,10 @@ msgstr "无法停用两步验证"
 msgid "Could not discard draft import"
 msgstr "无法丢弃导入草稿"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Could not generate annual rollover"
+msgstr "无法生成年度滚转"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Could not load audit events"
 msgstr "无法加载审计事件"
@@ -1602,6 +1633,10 @@ msgstr "无法撤销其他会话"
 #: src/routes/account.security.tsx
 msgid "Could not revoke session"
 msgstr "无法撤销会话"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Could not run annual rollover preview."
+msgstr "无法运行年度滚转预览。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Could not run obligation preview."
@@ -1876,8 +1911,13 @@ msgstr "创建事务所"
 
 #: src/features/calendar/calendar-page.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/rules/generation-preview-tab.tsx
 msgid "Created"
 msgstr "创建时间"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Created deadlines"
+msgstr "已创建截止日"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Creating a safe import batch, uploading rows, and mapping your columns."
@@ -2198,6 +2238,7 @@ msgstr "到期 {0}"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/pulse/components/PulseStructuredFields.tsx
+#: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/workboard.tsx
 msgid "Due date"
@@ -2258,6 +2299,14 @@ msgstr "DueDateHQ 准备状态门户"
 #: src/features/concepts/concept-help.tsx
 msgid "DueDateHQ's deterministic ordering score for deadline work. It combines projected risk, urgency, client importance, late filing history, and readiness pressure."
 msgstr "DueDateHQ 用于截止日工作的确定性排序分数，综合预计风险、紧急度、客户重要性、历史延误和就绪压力。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Duplicate"
+msgstr "重复"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Duplicates"
+msgstr "重复项"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Duration months"
@@ -2742,6 +2791,10 @@ msgstr "完整事务所 AI 工作流"
 msgid "General"
 msgstr "常规"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Generate"
+msgstr "生成"
+
 #: src/routes/workboard.tsx
 msgid "Generate a checklist or add items before sending a portal link."
 msgstr "发送门户链接前，请先生成清单或添加项目。"
@@ -2757,6 +2810,10 @@ msgstr "生成截止日"
 #: src/features/migration/WizardShell.tsx
 msgid "Generating your deadline queue"
 msgstr "正在生成你的截止日队列"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Generating…"
+msgstr "正在生成…"
 
 #: src/routes/billing.success.tsx
 msgid "Go to Dashboard"
@@ -3114,6 +3171,10 @@ msgid "Loading alerts…"
 msgstr "正在加载提醒…"
 
 #: src/features/rules/generation-preview-tab.tsx
+msgid "Loading annual rollover preview."
+msgstr "正在加载年度滚转预览。"
+
+#: src/features/rules/generation-preview-tab.tsx
 msgid "Loading client tax types."
 msgstr "正在加载客户税种。"
 
@@ -3429,9 +3490,17 @@ msgstr "距离截止日的最小天数"
 msgid "Minimum dollars at risk"
 msgstr "最低风险金额"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Missing due date"
+msgstr "缺少截止日"
+
 #: src/routes/workboard.tsx
 msgid "Missing penalty facts"
 msgstr "缺少 penalty 事实"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Missing rule"
+msgstr "缺少规则"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "missing rule inputs"
@@ -3652,6 +3721,10 @@ msgstr "没有客户匹配这些筛选条件"
 msgid "No clients yet"
 msgstr "还没有客户"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "No closed source-year obligations matched this rollover preview."
+msgstr "没有已关闭的来源年度义务匹配本次滚转预览。"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "No commands found."
 msgstr "未找到命令。"
@@ -3808,6 +3881,10 @@ msgstr "没有严重性"
 msgid "No source types"
 msgstr "没有来源类型"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "No state"
+msgstr "无州信息"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/workboard.tsx
 msgid "No states"
@@ -3940,7 +4017,6 @@ msgstr "NY PTET 付款"
 msgid "Obligation"
 msgstr "义务"
 
-#: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Obligation detail"
 msgstr "义务详情"
@@ -4109,6 +4185,7 @@ msgstr "只有当前事务所 Owner 可以创建或变更订阅。"
 
 #: src/features/migration/Step2Mapping.tsx
 #: src/features/notifications/notifications-page.tsx
+#: src/features/rules/generation-preview-tab.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/workboard.tsx
 msgid "Open"
@@ -4139,6 +4216,10 @@ msgstr "打开 {0} 的证据"
 #: src/routes/dashboard.tsx
 msgid "Open fact profile for {0}"
 msgstr "打开 {0} 的事实档案"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Open first created obligation"
+msgstr "打开首个新建义务"
 
 #: src/routes/dashboard.tsx
 msgid "Open full Obligations"
@@ -4712,10 +4793,18 @@ msgstr "Preset 映射"
 msgid "Preset mapping means AI was unavailable and the selected preset filled defaults."
 msgstr "Preset mapping 表示 AI 不可用，已使用所选 preset 的默认映射。"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Preview"
+msgstr "预览"
+
 #. placeholder {0}: preview.asOfDate
 #: src/routes/practice.tsx
 msgid "Preview as of {0}"
 msgstr "预览基于 {0}"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Preview closed source-year obligations, then create next-year obligations from verified rules."
+msgstr "先预览已关闭的来源年度义务，再基于已核验规则创建下一年度义务。"
 
 #: src/routes/practice.tsx
 msgid "Preview recalculates open obligations without saving changes."
@@ -4724,6 +4813,10 @@ msgstr "预览会重新计算未完成义务，不会保存更改。"
 #: src/routes/billing.tsx
 msgid "Preview-only AI assistance"
 msgstr "仅预览 AI 辅助"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Previewing…"
+msgstr "正在预览…"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
@@ -5301,6 +5394,7 @@ msgstr "复核"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
+#: src/features/rules/generation-preview-tab.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Review"
 msgstr "查看"
@@ -5448,6 +5542,10 @@ msgstr "等待人工最终处理的行。"
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule"
 msgstr "规则"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Rule / reason"
+msgstr "规则 / 原因"
 
 #: src/routes/workboard.tsx
 msgid "Rule allows extension"
@@ -5757,6 +5855,10 @@ msgstr "安全"
 msgid "Security settings could not load"
 msgstr "无法加载安全设置"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Seeds"
+msgstr "种子"
+
 #. placeholder {0}: row.clientName
 #. placeholder {0}: tableRow.original.clientName
 #: src/features/pulse/components/AffectedClientsTable.tsx
@@ -5929,6 +6031,10 @@ msgstr "已登录"
 msgid "Signing out…"
 msgstr "正在退出…"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Skipped"
+msgstr "已跳过"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Skipped rows"
 msgstr "已跳过行"
@@ -6030,6 +6136,14 @@ msgstr "原文摘录"
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Source excerpt copied"
 msgstr "原文摘录已复制"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Source filing year"
+msgstr "来源申报年度"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "SOURCE FILING YEAR"
+msgstr "来源申报年度"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Source heading"
@@ -6138,6 +6252,7 @@ msgid "States covered"
 msgstr "覆盖州"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
 msgid "Status"
@@ -6262,10 +6377,31 @@ msgstr "系统通知"
 msgid "System or client portal"
 msgstr "系统或客户门户"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Target"
+msgstr "目标"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Target filing year"
+msgstr "目标申报年度"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "TARGET FILING YEAR"
+msgstr "目标申报年度"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Target filing year must be exactly one year after the source filing year."
+msgstr "目标申报年度必须正好比来源申报年度晚一年。"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Target filing year must be the next year after source filing year."
+msgstr "目标申报年度必须是来源申报年度的下一年。"
+
 #: src/routes/workboard.tsx
 msgid "Tax due"
 msgstr "应缴税款"
 
+#: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/workboard.tsx
@@ -6615,6 +6751,10 @@ msgstr "分诊队列"
 #: src/routes/clients.tsx
 msgid "Trust"
 msgstr "信托"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Try previewing again before generating."
+msgstr "请先重新预览再生成。"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "TSV"
@@ -7013,6 +7153,10 @@ msgstr "你的数据从哪里来？"
 msgid "Whether a deadline has what the team needs to move forward, such as client materials, review, evidence, or risk inputs."
 msgstr "该截止日是否具备推进所需条件，例如客户资料、复核、证据或风险输入。"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Will create"
+msgstr "将创建"
+
 #: src/features/migration/mapping-target-labels.ts
 msgid "Withholding report count"
 msgstr "预扣税报告数量"
@@ -7027,6 +7171,10 @@ msgstr "工作邮箱"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Workbench"
+msgstr "工作台"
+
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Workboard"
 msgstr "工作台"
 
 #: src/features/migration/WizardShell.tsx

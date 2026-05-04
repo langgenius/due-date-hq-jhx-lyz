@@ -1,6 +1,7 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { AiInsightPublicSchema } from './ai-insights'
+import { ObligationGenerationPreviewSchema } from './rules'
 import {
   ExposureStatusSchema,
   ObligationExtensionDecisionSchema,
@@ -34,6 +35,10 @@ export const ObligationInstancePublicSchema = z.object({
   clientId: EntityIdSchema,
   taxType: z.string().min(1),
   taxYear: z.number().int().min(1900).max(2100).nullable(),
+  ruleId: z.string().min(1).nullable(),
+  ruleVersion: z.number().int().positive().nullable(),
+  rulePeriod: z.string().min(1).nullable(),
+  generationSource: z.enum(['migration', 'manual', 'annual_rollover', 'pulse']).nullable(),
   baseDueDate: z.iso.date(),
   currentDueDate: z.iso.date(),
   status: ObligationStatusSchema,
@@ -67,6 +72,13 @@ export const ObligationCreateInputSchema = z.object({
   clientId: EntityIdSchema,
   taxType: z.string().min(1),
   taxYear: z.number().int().min(1900).max(2100).nullable().optional(),
+  ruleId: z.string().min(1).nullable().optional(),
+  ruleVersion: z.number().int().positive().nullable().optional(),
+  rulePeriod: z.string().min(1).nullable().optional(),
+  generationSource: z
+    .enum(['migration', 'manual', 'annual_rollover', 'pulse'])
+    .nullable()
+    .optional(),
   baseDueDate: z.iso.date(),
   currentDueDate: z.iso.date().optional(),
   status: ObligationStatusSchema.optional(),
@@ -170,10 +182,73 @@ export const DeadlineTipRefreshOutputSchema = z.object({
 })
 export type DeadlineTipRefreshOutput = z.infer<typeof DeadlineTipRefreshOutputSchema>
 
+export const AnnualRolloverInputSchema = z
+  .object({
+    sourceFilingYear: z.number().int().min(1900).max(2100),
+    targetFilingYear: z.number().int().min(1901).max(2101),
+    clientIds: z.array(EntityIdSchema).min(1).max(100).optional(),
+  })
+  .refine((input) => input.targetFilingYear === input.sourceFilingYear + 1, {
+    message: 'targetFilingYear must be the next filing year.',
+    path: ['targetFilingYear'],
+  })
+export type AnnualRolloverInput = z.infer<typeof AnnualRolloverInputSchema>
+
+export const AnnualRolloverDispositionSchema = z.enum([
+  'will_create',
+  'review',
+  'duplicate',
+  'missing_verified_rule',
+  'missing_due_date',
+])
+export type AnnualRolloverDisposition = z.infer<typeof AnnualRolloverDispositionSchema>
+
+export const AnnualRolloverTargetStatusSchema = ObligationStatusSchema.extract([
+  'pending',
+  'review',
+])
+export type AnnualRolloverTargetStatus = z.infer<typeof AnnualRolloverTargetStatusSchema>
+
+export const AnnualRolloverRowSchema = z.object({
+  clientId: EntityIdSchema,
+  clientName: z.string().min(1),
+  taxType: z.string().min(1),
+  sourceObligationIds: z.array(EntityIdSchema),
+  preview: ObligationGenerationPreviewSchema.nullable(),
+  disposition: AnnualRolloverDispositionSchema,
+  targetStatus: AnnualRolloverTargetStatusSchema.nullable(),
+  duplicateObligationId: EntityIdSchema.nullable(),
+  createdObligationId: EntityIdSchema.nullable(),
+  skippedReason: z.string().min(1).nullable(),
+})
+export type AnnualRolloverRow = z.infer<typeof AnnualRolloverRowSchema>
+
+export const AnnualRolloverSummarySchema = z.object({
+  sourceFilingYear: z.number().int().min(1900).max(2100),
+  targetFilingYear: z.number().int().min(1901).max(2101),
+  seedObligationCount: z.number().int().min(0),
+  clientCount: z.number().int().min(0),
+  willCreateCount: z.number().int().min(0),
+  reviewCount: z.number().int().min(0),
+  duplicateCount: z.number().int().min(0),
+  skippedCount: z.number().int().min(0),
+  createdCount: z.number().int().min(0),
+})
+export type AnnualRolloverSummary = z.infer<typeof AnnualRolloverSummarySchema>
+
+export const AnnualRolloverOutputSchema = z.object({
+  summary: AnnualRolloverSummarySchema,
+  rows: z.array(AnnualRolloverRowSchema),
+  auditId: EntityIdSchema.nullable(),
+})
+export type AnnualRolloverOutput = z.infer<typeof AnnualRolloverOutputSchema>
+
 export const obligationsContract = oc.router({
   createBatch: oc
     .input(z.object({ obligations: z.array(ObligationCreateInputSchema).min(1).max(1000) }))
     .output(z.object({ obligations: z.array(ObligationInstancePublicSchema) })),
+  previewAnnualRollover: oc.input(AnnualRolloverInputSchema).output(AnnualRolloverOutputSchema),
+  createAnnualRollover: oc.input(AnnualRolloverInputSchema).output(AnnualRolloverOutputSchema),
   updateDueDate: oc.input(DueDateUpdateInputSchema).output(ObligationInstancePublicSchema),
   /**
    * Update one obligation's status. Handler must read `before`, write the

@@ -80,6 +80,7 @@ export const AUDIT_ACTION_LABEL_KEYS = {
   'migration.reverted': 'migrationReverted',
   'migration.single_undo': 'migrationSingleUndo',
   'obligation.batch_created': 'obligationBatchCreated',
+  'obligation.annual_rollover.created': 'obligationAnnualRolloverCreated',
   'obligation.due_date.updated': 'obligationDueDateUpdated',
   'obligation.readiness.updated': 'obligationReadinessUpdated',
   'obligation.status.updated': 'obligationStatusUpdated',
