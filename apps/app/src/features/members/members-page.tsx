@@ -862,8 +862,7 @@ function InviteMemberDialog({
             </Select>
             <p className="text-xs leading-5 text-text-tertiary">
               <Trans>
-                Owner stays read-only. Managers can review work; preparers and coordinators have
-                scoped access.
+                Owner cannot be invited or changed here. Choose Manager, Preparer, or Coordinator.
               </Trans>
             </p>
           </div>

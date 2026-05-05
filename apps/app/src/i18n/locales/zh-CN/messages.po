@@ -4411,6 +4411,10 @@ msgstr "需要 Owner 授权"
 msgid "Owner approved"
 msgstr "Owner 授权"
 
+#: src/features/members/members-page.tsx
+msgid "Owner cannot be invited or changed here. Choose Manager, Preparer, or Coordinator."
+msgstr "不能在此邀请或变更 Owner。请选择 Manager、Preparer 或 Coordinator。"
+
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/mapping-target-labels.ts
 #: src/routes/obligations.tsx
@@ -4429,10 +4433,6 @@ msgstr "需要 Owner 权限"
 #: src/features/members/members-page.tsx
 msgid "owner read-only · self read-only"
 msgstr "Owner 只读 · 本人只读"
-
-#: src/features/members/members-page.tsx
-msgid "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
-msgstr "Owner 保持只读。Manager 可复核工作；Preparer 和 Coordinator 拥有受限访问权限。"
 
 #: src/features/workload/workload-page.tsx
 msgid "Owner workload"

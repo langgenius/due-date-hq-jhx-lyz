@@ -4411,6 +4411,10 @@ msgstr "Owner approval required"
 msgid "Owner approved"
 msgstr "Owner approved"
 
+#: src/features/members/members-page.tsx
+msgid "Owner cannot be invited or changed here. Choose Manager, Preparer, or Coordinator."
+msgstr "Owner cannot be invited or changed here. Choose Manager, Preparer, or Coordinator."
+
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/mapping-target-labels.ts
 #: src/routes/obligations.tsx
@@ -4429,10 +4433,6 @@ msgstr "Owner permission required"
 #: src/features/members/members-page.tsx
 msgid "owner read-only · self read-only"
 msgstr "owner read-only · self read-only"
-
-#: src/features/members/members-page.tsx
-msgid "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
-msgstr "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
 
 #: src/features/workload/workload-page.tsx
 msgid "Owner workload"
