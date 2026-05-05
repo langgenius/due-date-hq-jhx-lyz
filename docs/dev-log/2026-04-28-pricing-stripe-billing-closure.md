@@ -22,7 +22,8 @@ Pricing now has a full test-mode payment loop:
   parallel subscriptions for the same reference id.
 - Staging deploy now requires the Stripe test-mode runtime contract in GitHub environment
   `due-date-hq-staging`: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and
-  `STRIPE_PRICE_PRO_MONTHLY`. Optional yearly/firm price ids are passed through when present.
+  `STRIPE_PRICE_PRO_MONTHLY`. After Team became a self-serve tier, staging also requires
+  `STRIPE_PRICE_TEAM_MONTHLY`; optional yearly/firm price ids are passed through when present.
 - E2E covers the payment loop without depending on Stripe-hosted DOM: Playwright asserts pricing
   deep links, auth redirect preservation, checkout payloads, owner-only gating, cancel recovery,
   Billing Portal payloads, and webhook-backed success/settings state. The post-webhook state is seeded

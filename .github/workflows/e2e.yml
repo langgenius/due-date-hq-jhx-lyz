@@ -60,6 +60,8 @@ jobs:
           STRIPE_PRICE_FIRM_YEARLY=
           STRIPE_PRICE_PRO_MONTHLY=price_pro_monthly_e2e
           STRIPE_PRICE_PRO_YEARLY=
+          STRIPE_PRICE_TEAM_MONTHLY=price_team_monthly_e2e
+          STRIPE_PRICE_TEAM_YEARLY=
           EOF
 
       - name: Install Playwright browser

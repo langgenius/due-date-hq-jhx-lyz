@@ -32,7 +32,9 @@ plan-id layer instead of adding a display-name mapping.
   plan status, Members, Team workload, and E2E fixtures now use the same plan
   semantics.
 - CI deployment secret checks and Playwright/Wrangler E2E env injection require
-  `STRIPE_PRICE_PRO_MONTHLY`; Firm price ids remain optional.
+  `STRIPE_PRICE_PRO_MONTHLY`. Current staging additionally requires `STRIPE_PRICE_TEAM_MONTHLY`
+  because Team is now exposed as a self-serve monthly checkout option; Firm price ids remain
+  optional.
 - Current docs were updated so pricing and deployment guidance point to
   `/billing/checkout?plan=pro&interval=monthly`.
 

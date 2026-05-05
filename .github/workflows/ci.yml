@@ -128,6 +128,7 @@ jobs:
       STRIPE_PRICE_FIRM_YEARLY: ${{ secrets.STRIPE_PRICE_FIRM_YEARLY }}
       STRIPE_PRICE_PRO_MONTHLY: ${{ secrets.STRIPE_PRICE_PRO_MONTHLY }}
       STRIPE_PRICE_PRO_YEARLY: ${{ secrets.STRIPE_PRICE_PRO_YEARLY }}
+      STRIPE_PRICE_TEAM_MONTHLY: ${{ secrets.STRIPE_PRICE_TEAM_MONTHLY }}
     steps:
       - uses: actions/checkout@v6
 
@@ -157,6 +158,7 @@ jobs:
             'STRIPE_SECRET_KEY',
             'STRIPE_WEBHOOK_SECRET',
             'STRIPE_PRICE_PRO_MONTHLY',
+            'STRIPE_PRICE_TEAM_MONTHLY',
           ]
           const missing = required.filter((key) => !process.env[key])
           if (missing.length > 0) {
