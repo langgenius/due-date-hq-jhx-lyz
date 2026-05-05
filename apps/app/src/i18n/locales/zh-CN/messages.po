@@ -478,10 +478,6 @@ msgstr "由客户事实和当前事务所已生效规则生成的具体合规截
 msgid "About {label}"
 msgstr "关于 {label}"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Accept as evidence-backed, but generated deadlines still require CPA review."
-msgstr "作为有证据支持的规则接受，但生成的截止日仍需要 CPA 复核。"
-
 #: src/routes/accept-invite.tsx
 #: src/routes/route-summary.ts
 msgid "Accept invitation"
@@ -495,9 +491,17 @@ msgstr "接受规则"
 msgid "Accept selected"
 msgstr "接受所选"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Accepted as shown from rule detail review."
+msgstr "已按规则详情所示原样接受。"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "accepted by this practice"
 msgstr "已由当前事务所接受"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Accepting activates this rule exactly as shown. Reject it if the evidence, applicability, due-date logic, or extension handling should not become active."
+msgstr "接受后会按当前显示内容原样激活该规则。如果证据、适用性、截止日逻辑或延期处理不应生效，请拒绝。"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Access denied"
@@ -549,10 +553,6 @@ msgstr "操作分类"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Actions"
 msgstr "操作"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Activation mode"
-msgstr "生效模式"
 
 #: src/features/rules/rules-console-primitives.tsx
 msgid "active"
@@ -1259,6 +1259,10 @@ msgstr "从 {0} 改为 {1}"
 msgid "Changed from {before} to {after}"
 msgstr "从 {before} 改为 {after}"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Check the rule version and try again."
+msgstr "请检查规则版本后重试。"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Check the selected rows and try again."
 msgstr "请检查所选行后重试。"
@@ -1347,10 +1351,6 @@ msgstr "选择之前的平台导入"
 msgid "Choose a workspace tier"
 msgstr "选择工作区套餐"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Choose an official source."
-msgstr "请选择官方来源。"
-
 #: src/routes/billing.checkout.tsx
 msgid "Choose another plan"
 msgstr "选择其他计划"
@@ -1360,7 +1360,6 @@ msgid "Choose Solo, Pro, or Team to start the hosted checkout flow."
 msgstr "选择 Solo、Pro 或 Team 以开始托管 checkout 流程。"
 
 #: src/components/primitives/iso-date-picker.tsx
-#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/obligations.tsx
 msgid "Clear"
@@ -1990,7 +1989,6 @@ msgid "County"
 msgstr "县"
 
 #: src/features/concepts/concept-help.tsx
-#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "覆盖"
@@ -2131,10 +2129,6 @@ msgstr "Dashboard 风险"
 msgid "Data cleanup warning"
 msgstr "资料整理提醒"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Day of month"
-msgstr "月份中的日期"
-
 #: src/routes/obligations.tsx
 msgid "Days"
 msgstr "天数"
@@ -2221,10 +2215,6 @@ msgstr "决策"
 #: src/routes/obligations.tsx
 msgid "Decision memo"
 msgstr "决策备注"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Decrease duration months"
-msgstr "减少延期月数"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Default tax type suggestions apply only where imported rows do not already include tax types."
@@ -2323,10 +2313,6 @@ msgstr "忽略"
 msgid "Dismissed"
 msgstr "已忽略"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Does the extension also cover payment?"
-msgstr "延期是否也覆盖付款？"
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Download latest"
 msgstr "下载最新包"
@@ -2358,7 +2344,6 @@ msgstr "到期 {0}"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/features/rules/generation-preview-tab.tsx
-#: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/obligations.tsx
 msgid "Due date"
 msgstr "到期日"
@@ -2371,10 +2356,6 @@ msgstr "到期日 — 最早优先"
 msgid "Due date — latest first"
 msgstr "到期日 — 最晚优先"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Due date basis"
-msgstr "截止日依据"
-
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Due date change"
 msgstr "截止日变更"
@@ -2386,10 +2367,6 @@ msgstr "截止日已更改"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Due date logic"
 msgstr "截止日逻辑"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Due date logic is invalid."
-msgstr "截止日逻辑无效。"
 
 #: src/features/workload/workload-page.tsx
 msgid "Due soon"
@@ -2426,10 +2403,6 @@ msgstr "重复"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Duplicates"
 msgstr "重复项"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Duration months"
-msgstr "延期月数"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
@@ -2722,14 +2695,6 @@ msgstr "延期决策已保存"
 msgid "Extension memo"
 msgstr "延期备注"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Extension note"
-msgstr "延期说明"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Extension policy is invalid."
-msgstr "延期政策无效。"
-
 #: src/routes/obligations.tsx
 msgid "Extension source"
 msgstr "延期来源"
@@ -2904,10 +2869,6 @@ msgstr "面向美国注册会计师事务所"
 msgid "Form"
 msgstr "表单"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Form 7004, automatic extension, portal request, or source-defined process"
-msgstr "Form 7004、自动延期、portal request 或来源定义的流程"
-
 #: src/features/audit/audit-log-labels.ts
 msgid "Format"
 msgstr "格式"
@@ -3030,10 +2991,6 @@ msgstr "我正在从…迁移过来（可选）"
 #: src/features/calendar/calendar-page.tsx
 msgid "ICS is one-way: external calendar edits never update DueDateHQ."
 msgstr "ICS 是单向订阅：外部日历编辑不会更新 DueDateHQ。"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "If unchecked, treat this as filing-only; payment may still be due on the original date."
-msgstr "如果未勾选，请按仅延期申报处理；付款可能仍需在原始日期前完成。"
 
 #: src/features/migration/mapping-target-labels.ts
 msgid "Ignore this column"
@@ -3176,10 +3133,6 @@ msgstr "收件箱"
 #: src/routes/dashboard.tsx
 msgid "Includes overdue and next-seven-day obligations."
 msgstr "包含逾期和未来七天内到期的义务。"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Increase duration months"
-msgstr "增加延期月数"
 
 #: src/routes/clients.tsx
 msgid "Individual"
@@ -3492,10 +3445,6 @@ msgstr "手动映射表示没有可用的 AI 或来源模板结果。"
 msgid "Manual note"
 msgstr "手动备注"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Manual review"
-msgstr "人工复核"
-
 #: src/features/rules/sources-tab.tsx
 msgid "Manual review source · click to open the official page"
 msgstr "人工巡检来源 · 点击打开官方页面"
@@ -3692,10 +3641,6 @@ msgstr "缺少规则"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "missing rule inputs"
 msgstr "缺少规则输入"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Month offset"
-msgstr "月份偏移"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -4262,10 +4207,6 @@ msgstr "义务导出"
 msgid "Obligations exported"
 msgstr "义务已导出"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official calendar"
-msgstr "官方日历"
-
 #: src/features/rules/coverage-tab.tsx
 msgid "official channels under monitor"
 msgstr "正在监听的官方渠道"
@@ -4274,25 +4215,9 @@ msgstr "正在监听的官方渠道"
 msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Source changes create practice review tasks; they never silently update active rules."
 msgstr "用于监听规则变化的官方渠道，包括每个来源的健康状态、频率和获取方式。点击任意行会在新标签页打开官方页面。来源变化只会创建事务所审核任务，不会静默更新已生效规则。"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official due date page"
-msgstr "官方截止日页面"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official excerpt"
-msgstr "官方摘录"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official extension form or method"
-msgstr "官方延期表格或方式"
-
 #: src/routes/obligations.tsx
 msgid "Official form or method"
 msgstr "官方表格或方式"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official source"
-msgstr "官方来源"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Official sources · pending templates"
@@ -4853,14 +4778,6 @@ msgstr "计划选项"
 #: src/routes/billing.checkout.tsx
 msgid "Plan summary"
 msgstr "计划摘要"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Please add a review note."
-msgstr "请添加审核备注。"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Please check the review fields."
-msgstr "请检查审核字段。"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
@@ -5505,8 +5422,8 @@ msgid "Rejected"
 msgstr "已拒绝"
 
 #: src/features/rules/rule-detail-drawer.tsx
-msgid "Rejected during rules review."
-msgstr "在规则审核中被拒绝。"
+msgid "Rejected from rule detail review."
+msgstr "已从规则详情审核中拒绝。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "reminder ready"
@@ -5518,7 +5435,6 @@ msgid "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgstr "提醒就绪 — {0} 项义务，将触发 30 / 7 / 1 天提醒"
 
 #: src/features/concepts/concept-help.tsx
-#: src/features/rules/rule-detail-drawer.tsx
 msgid "Reminder-ready"
 msgstr "提醒就绪"
 
@@ -5565,10 +5481,6 @@ msgstr "规则生成与 Pulse 匹配必需。"
 #: src/features/permissions/permission-gate.tsx
 msgid "Required: {requiredRoleText}"
 msgstr "需要：{requiredRoleText}"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Requires applicability review"
-msgstr "需要适用性审核"
 
 #: src/features/concepts/concept-help.tsx
 msgid "Requires review"
@@ -5686,10 +5598,6 @@ msgstr "复核 —— 需 CPA 确认"
 msgid "Review and confirm column mapping"
 msgstr "请审阅并确认字段映射"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Review note"
-msgstr "审核备注"
-
 #: src/features/rules/rules-console.tsx
 msgid "Review pending templates, activate practice rules, and inspect active, rejected, or archived rule evidence in one table. Only active practice rules can generate client obligations or reminders."
 msgstr "在同一张表中复核待处理模板、启用事务所规则，并查看已生效、已拒绝或已归档规则的证据。只有已生效的事务所规则才能生成客户义务或提醒。"
@@ -5737,10 +5645,6 @@ msgstr "查看已登录的浏览器，并撤销过期访问。"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source coverage, rule inventory, and obligation preview."
 msgstr "查看来源覆盖、规则清单与义务预览。"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Review status is invalid."
-msgstr "审核状态无效。"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Review suggested"
@@ -6534,14 +6438,6 @@ msgstr "来源申报年度"
 msgid "SOURCE FILING YEAR"
 msgstr "来源申报年度"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Source heading"
-msgstr "来源标题"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Source heading and excerpt are required."
-msgstr "来源标题和摘录为必填项。"
-
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source needs attention · {label}"
 msgstr "来源需要处理 · {label}"
@@ -6728,10 +6624,6 @@ msgstr "建议清洗后的值"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "建议税种（来自实体 × 州矩阵）"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Suggestions"
-msgstr "建议"
 
 #: src/features/members/members-page.tsx
 msgid "Suspend access"
@@ -7124,10 +7016,6 @@ msgid "This removes the clients and deadlines created by this import. Other prac
 msgstr "这会移除此导入创建的客户和截止日。其他事务所数据不会被更改。"
 
 #: src/features/rules/rule-detail-drawer.tsx
-msgid "This rule allows an extension"
-msgstr "这条规则允许申请延期"
-
-#: src/features/rules/rule-detail-drawer.tsx
 msgid "This rule allows an extension."
 msgstr "这条规则允许申请延期。"
 
@@ -7151,10 +7039,6 @@ msgstr "本周"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "This will remove {0} from the active client directory, dashboard, and Obligations. The audit log will keep the deletion record."
 msgstr "这会将 {0} 从活跃客户目录、仪表盘和义务中移除。审计日志会保留删除记录。"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Tier"
-msgstr "层级"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "TIER"
@@ -7386,10 +7270,6 @@ msgstr "紧急窗口"
 msgid "Use 2-letter state codes"
 msgstr "使用 2 位州代码"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Use a concrete due date calculation and allow reminder-ready previews."
-msgstr "使用具体截止日计算，并允许生成提醒就绪的预览。"
-
 #: src/features/calendar/calendar-page.tsx
 msgid "Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple Calendar subscriptions."
 msgstr "请使用已部署的应用 URL，或受信任的本地 HTTPS tunnel，来直接订阅 Apple Calendar。"
@@ -7401,10 +7281,6 @@ msgstr "请输入 0 到 99 之间的整数"
 #: src/routes/obligations.tsx
 msgid "Use table headers to filter by client, geography, form, owner, risk, and timing."
 msgstr "使用表头按客户、地区、表单、负责人、风险和时间筛选。"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Used to show extension guidance on obligations matched to this rule. It does not change client records, file an extension, or update due dates automatically."
-msgstr "用于在匹配到这条规则的义务上展示延期指引。它不会修改客户资料、提交延期申请或自动更新截止日。"
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "User agent hash"
@@ -7541,10 +7417,6 @@ msgstr "我们会保存应用权限所需的计划和席位上限。"
 #: src/features/migration/Step1Intake.tsx
 msgid "We'll figure out the shape — paste or upload, your call."
 msgstr "粘贴或上传都行 —— 我们会自动识别格式。"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Weekend or holiday handling"
-msgstr "周末或节假日处理"
 
 #: src/routes/login.tsx
 msgid "Welcome to the workbench."

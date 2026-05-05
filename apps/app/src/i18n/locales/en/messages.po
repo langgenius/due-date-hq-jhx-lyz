@@ -478,10 +478,6 @@ msgstr "A specific compliance deadline generated from client facts and active pr
 msgid "About {label}"
 msgstr "About {label}"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Accept as evidence-backed, but generated deadlines still require CPA review."
-msgstr "Accept as evidence-backed, but generated deadlines still require CPA review."
-
 #: src/routes/accept-invite.tsx
 #: src/routes/route-summary.ts
 msgid "Accept invitation"
@@ -495,9 +491,17 @@ msgstr "Accept rule"
 msgid "Accept selected"
 msgstr "Accept selected"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Accepted as shown from rule detail review."
+msgstr "Accepted as shown from rule detail review."
+
 #: src/features/rules/coverage-tab.tsx
 msgid "accepted by this practice"
 msgstr "accepted by this practice"
+
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Accepting activates this rule exactly as shown. Reject it if the evidence, applicability, due-date logic, or extension handling should not become active."
+msgstr "Accepting activates this rule exactly as shown. Reject it if the evidence, applicability, due-date logic, or extension handling should not become active."
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Access denied"
@@ -549,10 +553,6 @@ msgstr "Action category"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Actions"
 msgstr "Actions"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Activation mode"
-msgstr "Activation mode"
 
 #: src/features/rules/rules-console-primitives.tsx
 msgid "active"
@@ -1259,6 +1259,10 @@ msgstr "Changed from {0} to {1}"
 msgid "Changed from {before} to {after}"
 msgstr "Changed from {before} to {after}"
 
+#: src/features/rules/rule-detail-drawer.tsx
+msgid "Check the rule version and try again."
+msgstr "Check the rule version and try again."
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Check the selected rows and try again."
 msgstr "Check the selected rows and try again."
@@ -1347,10 +1351,6 @@ msgstr "Choose a previous provider import"
 msgid "Choose a workspace tier"
 msgstr "Choose a workspace tier"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Choose an official source."
-msgstr "Choose an official source."
-
 #: src/routes/billing.checkout.tsx
 msgid "Choose another plan"
 msgstr "Choose another plan"
@@ -1360,7 +1360,6 @@ msgid "Choose Solo, Pro, or Team to start the hosted checkout flow."
 msgstr "Choose Solo, Pro, or Team to start the hosted checkout flow."
 
 #: src/components/primitives/iso-date-picker.tsx
-#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/obligations.tsx
 msgid "Clear"
@@ -1990,7 +1989,6 @@ msgid "County"
 msgstr "County"
 
 #: src/features/concepts/concept-help.tsx
-#: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rules-console.tsx
 msgid "Coverage"
 msgstr "Coverage"
@@ -2131,10 +2129,6 @@ msgstr "Dashboard risk"
 msgid "Data cleanup warning"
 msgstr "Data cleanup warning"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Day of month"
-msgstr "Day of month"
-
 #: src/routes/obligations.tsx
 msgid "Days"
 msgstr "Days"
@@ -2221,10 +2215,6 @@ msgstr "Decision"
 #: src/routes/obligations.tsx
 msgid "Decision memo"
 msgstr "Decision memo"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Decrease duration months"
-msgstr "Decrease duration months"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Default tax type suggestions apply only where imported rows do not already include tax types."
@@ -2323,10 +2313,6 @@ msgstr "Dismiss"
 msgid "Dismissed"
 msgstr "Dismissed"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Does the extension also cover payment?"
-msgstr "Does the extension also cover payment?"
-
 #: src/features/audit/audit-log-page.tsx
 msgid "Download latest"
 msgstr "Download latest"
@@ -2358,7 +2344,6 @@ msgstr "Due {0}"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/features/rules/generation-preview-tab.tsx
-#: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/obligations.tsx
 msgid "Due date"
 msgstr "Due date"
@@ -2371,10 +2356,6 @@ msgstr "Due date — earliest first"
 msgid "Due date — latest first"
 msgstr "Due date — latest first"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Due date basis"
-msgstr "Due date basis"
-
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Due date change"
 msgstr "Due date change"
@@ -2386,10 +2367,6 @@ msgstr "Due date changed"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Due date logic"
 msgstr "Due date logic"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Due date logic is invalid."
-msgstr "Due date logic is invalid."
 
 #: src/features/workload/workload-page.tsx
 msgid "Due soon"
@@ -2426,10 +2403,6 @@ msgstr "Duplicate"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Duplicates"
 msgstr "Duplicates"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Duration months"
-msgstr "Duration months"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
@@ -2722,14 +2695,6 @@ msgstr "Extension decision saved"
 msgid "Extension memo"
 msgstr "Extension memo"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Extension note"
-msgstr "Extension note"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Extension policy is invalid."
-msgstr "Extension policy is invalid."
-
 #: src/routes/obligations.tsx
 msgid "Extension source"
 msgstr "Extension source"
@@ -2904,10 +2869,6 @@ msgstr "For US CPA practices"
 msgid "Form"
 msgstr "Form"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Form 7004, automatic extension, portal request, or source-defined process"
-msgstr "Form 7004, automatic extension, portal request, or source-defined process"
-
 #: src/features/audit/audit-log-labels.ts
 msgid "Format"
 msgstr "Format"
@@ -3030,10 +2991,6 @@ msgstr "I'm coming from… (optional)"
 #: src/features/calendar/calendar-page.tsx
 msgid "ICS is one-way: external calendar edits never update DueDateHQ."
 msgstr "ICS is one-way: external calendar edits never update DueDateHQ."
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "If unchecked, treat this as filing-only; payment may still be due on the original date."
-msgstr "If unchecked, treat this as filing-only; payment may still be due on the original date."
 
 #: src/features/migration/mapping-target-labels.ts
 msgid "Ignore this column"
@@ -3176,10 +3133,6 @@ msgstr "Inbox"
 #: src/routes/dashboard.tsx
 msgid "Includes overdue and next-seven-day obligations."
 msgstr "Includes overdue and next-seven-day obligations."
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Increase duration months"
-msgstr "Increase duration months"
 
 #: src/routes/clients.tsx
 msgid "Individual"
@@ -3492,10 +3445,6 @@ msgstr "Manual mapping means no AI or source template result was available."
 msgid "Manual note"
 msgstr "Manual note"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Manual review"
-msgstr "Manual review"
-
 #: src/features/rules/sources-tab.tsx
 msgid "Manual review source · click to open the official page"
 msgstr "Manual review source · click to open the official page"
@@ -3692,10 +3641,6 @@ msgstr "Missing rule"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "missing rule inputs"
 msgstr "missing rule inputs"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Month offset"
-msgstr "Month offset"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -4262,10 +4207,6 @@ msgstr "Obligations export"
 msgid "Obligations exported"
 msgstr "Obligations exported"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official calendar"
-msgstr "Official calendar"
-
 #: src/features/rules/coverage-tab.tsx
 msgid "official channels under monitor"
 msgstr "official channels under monitor"
@@ -4274,25 +4215,9 @@ msgstr "official channels under monitor"
 msgid "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Source changes create practice review tasks; they never silently update active rules."
 msgstr "Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Source changes create practice review tasks; they never silently update active rules."
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official due date page"
-msgstr "Official due date page"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official excerpt"
-msgstr "Official excerpt"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official extension form or method"
-msgstr "Official extension form or method"
-
 #: src/routes/obligations.tsx
 msgid "Official form or method"
 msgstr "Official form or method"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Official source"
-msgstr "Official source"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "Official sources · pending templates"
@@ -4853,14 +4778,6 @@ msgstr "Plan options"
 #: src/routes/billing.checkout.tsx
 msgid "Plan summary"
 msgstr "Plan summary"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Please add a review note."
-msgstr "Please add a review note."
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Please check the review fields."
-msgstr "Please check the review fields."
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/routes/onboarding.tsx
@@ -5505,8 +5422,8 @@ msgid "Rejected"
 msgstr "Rejected"
 
 #: src/features/rules/rule-detail-drawer.tsx
-msgid "Rejected during rules review."
-msgstr "Rejected during rules review."
+msgid "Rejected from rule detail review."
+msgstr "Rejected from rule detail review."
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "reminder ready"
@@ -5518,7 +5435,6 @@ msgid "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgstr "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 
 #: src/features/concepts/concept-help.tsx
-#: src/features/rules/rule-detail-drawer.tsx
 msgid "Reminder-ready"
 msgstr "Reminder-ready"
 
@@ -5565,10 +5481,6 @@ msgstr "Required for rules and Pulse matching."
 #: src/features/permissions/permission-gate.tsx
 msgid "Required: {requiredRoleText}"
 msgstr "Required: {requiredRoleText}"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Requires applicability review"
-msgstr "Requires applicability review"
 
 #: src/features/concepts/concept-help.tsx
 msgid "Requires review"
@@ -5686,10 +5598,6 @@ msgstr "review — needs CPA confirmation"
 msgid "Review and confirm column mapping"
 msgstr "Review and confirm column mapping"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Review note"
-msgstr "Review note"
-
 #: src/features/rules/rules-console.tsx
 msgid "Review pending templates, activate practice rules, and inspect active, rejected, or archived rule evidence in one table. Only active practice rules can generate client obligations or reminders."
 msgstr "Review pending templates, activate practice rules, and inspect active, rejected, or archived rule evidence in one table. Only active practice rules can generate client obligations or reminders."
@@ -5737,10 +5645,6 @@ msgstr "Review signed-in browsers and revoke stale access."
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review source coverage, rule inventory, and obligation preview."
 msgstr "Review source coverage, rule inventory, and obligation preview."
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Review status is invalid."
-msgstr "Review status is invalid."
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Review suggested"
@@ -6534,14 +6438,6 @@ msgstr "Source filing year"
 msgid "SOURCE FILING YEAR"
 msgstr "SOURCE FILING YEAR"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Source heading"
-msgstr "Source heading"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Source heading and excerpt are required."
-msgstr "Source heading and excerpt are required."
-
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source needs attention · {label}"
 msgstr "Source needs attention · {label}"
@@ -6728,10 +6624,6 @@ msgstr "Suggest clean values"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "Suggested tax types (from entity × state matrix)"
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Suggestions"
-msgstr "Suggestions"
 
 #: src/features/members/members-page.tsx
 msgid "Suspend access"
@@ -7124,10 +7016,6 @@ msgid "This removes the clients and deadlines created by this import. Other prac
 msgstr "This removes the clients and deadlines created by this import. Other practice data will not be changed."
 
 #: src/features/rules/rule-detail-drawer.tsx
-msgid "This rule allows an extension"
-msgstr "This rule allows an extension"
-
-#: src/features/rules/rule-detail-drawer.tsx
 msgid "This rule allows an extension."
 msgstr "This rule allows an extension."
 
@@ -7151,10 +7039,6 @@ msgstr "This Week"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "This will remove {0} from the active client directory, dashboard, and Obligations. The audit log will keep the deletion record."
 msgstr "This will remove {0} from the active client directory, dashboard, and Obligations. The audit log will keep the deletion record."
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Tier"
-msgstr "Tier"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "TIER"
@@ -7386,10 +7270,6 @@ msgstr "Urgency window"
 msgid "Use 2-letter state codes"
 msgstr "Use 2-letter state codes"
 
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Use a concrete due date calculation and allow reminder-ready previews."
-msgstr "Use a concrete due date calculation and allow reminder-ready previews."
-
 #: src/features/calendar/calendar-page.tsx
 msgid "Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple Calendar subscriptions."
 msgstr "Use a deployed app URL or a trusted local HTTPS tunnel for direct Apple Calendar subscriptions."
@@ -7401,10 +7281,6 @@ msgstr "Use a whole number from 0 to 99"
 #: src/routes/obligations.tsx
 msgid "Use table headers to filter by client, geography, form, owner, risk, and timing."
 msgstr "Use table headers to filter by client, geography, form, owner, risk, and timing."
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Used to show extension guidance on obligations matched to this rule. It does not change client records, file an extension, or update due dates automatically."
-msgstr "Used to show extension guidance on obligations matched to this rule. It does not change client records, file an extension, or update due dates automatically."
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "User agent hash"
@@ -7541,10 +7417,6 @@ msgstr "We store the plan and seat limit needed for app permissions."
 #: src/features/migration/Step1Intake.tsx
 msgid "We'll figure out the shape — paste or upload, your call."
 msgstr "We'll figure out the shape — paste or upload, your call."
-
-#: src/features/rules/rule-detail-drawer.tsx
-msgid "Weekend or holiday handling"
-msgstr "Weekend or holiday handling"
 
 #: src/routes/login.tsx
 msgid "Welcome to the workbench."

@@ -27,6 +27,8 @@ generation 消费。独立 tab 会让用户误以为有两套审核流程。
 - `source_changed` / `Update available` 行禁止 bulk accept：前端禁用 checkbox，后端
   `previewBulkRuleImpact` / `bulkAcceptTemplates` 返回
   `source_changed_requires_review` skipped reason，强制进入单条 Rule Detail drawer。
+- 单条 Rule Detail review 默认路径从复杂编辑表单收敛为只读审阅 + Accept/Reject：
+  `Accept rule` 现在调用 `acceptTemplate`，和 bulk accept 一样按当前 template 原样激活。
 - Rule table 用 `ruleId:version:status` 做行身份，避免同一 rule 的 active v1 与 pending
   v2 在详情抽屉或 checkbox 选择上互相覆盖。
 - Active/rejected/archived 行继续作为规则台账，只能查看详情、证据和 review metadata；

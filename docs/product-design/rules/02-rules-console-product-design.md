@@ -186,7 +186,7 @@ Needs review · Active · All · Rejected · Archived · Applicability review ·
   active v1 台账行和 pending v2 `Update available` 行；v2 行来自 `source_changed`
   review task，不进入 Pulse Changes。
 - `Update available` / `source_changed` 行不能 bulk accept；checkbox 禁用，必须进入单条
-  Rule Detail drawer 对证据、due-date logic、extension policy 和 applicability 做逐条审核。
+  Rule Detail drawer 审阅证据和当前规则字段，然后原样 Accept update 或 Reject。
 - Active / rejected / archived 行不参与批量接受，只保留详情查看、编辑/归档和审计入口。
 - 点击任意行都打开 Rule Detail drawer；pending 行可以单条 accept/reject，active 行展示证据、版本、review metadata。
 
@@ -206,7 +206,7 @@ Suggested due logic:
 Quote:
   "The $800 annual tax is due..."
 
-[Preview] [Accept] [Needs more source] [Reject]
+[Accept] [Reject]
 ```
 
 ### 6.2 审核 Checklist
@@ -232,7 +232,7 @@ selected pending templates
   -> active practice rules
 ```
 
-批量确认不允许顺手编辑规则字段，也不占用常驻右栏；需要修改 due date logic、applicability、extension policy 的规则必须进入单条 review drawer。`source_changed` 行强制单条 review，后端在 bulk preview / accept 中返回 skipped。后端只信任 selected IDs + expected template versions，单次最多 100 条，冲突项跳过并返回 skipped list。
+批量确认不允许顺手编辑规则字段，也不占用常驻右栏；单条 review 同样不编辑字段，只是审阅当前规则后 Accept/Reject。需要修改 due date logic、applicability、extension policy 的情况不走默认 practice review，应 reject 或进入后续 Advanced edit / internal rule editor。`source_changed` 行强制单条 review，后端在 bulk preview / accept 中返回 skipped。后端只信任 selected IDs + expected template versions，单次最多 100 条，冲突项跳过并返回 skipped list。
 
 ## 7. Rule table ledger
 
@@ -408,6 +408,7 @@ AI Tip 只能使用 active practice rule 和 source summary：
 
 | 版本 | 日期       | 作者  | 摘要                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ---- | ---------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v1.7 | 2026-05-05 | Codex | 单条 Rule Detail review 与 bulk review 收敛为同一语义：默认只读审阅当前规则与证据，`Accept rule` 调用 `acceptTemplate` 原样激活，不再在 practice review 默认路径中编辑 due-date logic、extension、tier 或 applicability。                                                                                                                                                                                                                                                                                                                                     |
 | v1.6 | 2026-05-05 | Codex | `Update available` / `source_changed` 行禁止 bulk accept：前端禁用 checkbox，后端 bulk preview / accept 返回 skipped，强制进入单条 Rule Detail drawer 审核证据和规则字段。                                                                                                                                                                                                                                                                                                                                                                                    |
 | v1.5 | 2026-05-05 | Codex | 将批量确认从常驻右侧面板收敛为 Rules 表 selection bar + Bulk Review drawer：主表保持全宽，drawer 内承载 selected rules、preview summary、batch review note 和 Accept selected。                                                                                                                                                                                                                                                                                                                                                                               |
 | v1.4 | 2026-05-05 | Codex | 合并 Review Queue 和 Rule Library：独立 Review Queue tab 移除，Rules tab 默认进入 `Needs review` smart view，同表支持 pending selection、bulk preview / accept、active/rejected/archive 台账和 Rule Detail drawer；active v1 遇到 template v2 时主表补出 pending `Update available` 行。                                                                                                                                                                                                                                                                      |
