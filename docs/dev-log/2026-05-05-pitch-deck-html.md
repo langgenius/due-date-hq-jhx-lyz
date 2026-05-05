@@ -22,6 +22,7 @@ updates:
   - note: 'Revised the architecture slide to include concrete framework and tooling names from the live stack.'
   - note: 'Normalized header meta and logo sizing across all slides and cleaned up architecture-slide tool-name capitalization.'
   - note: 'Changed the demo-data metric cards from one row to a two-row 3/2 layout.'
+  - note: 'Added the project authors to the cover slide.'
 ---
 
 # Pitch deck HTML
@@ -85,6 +86,7 @@ hairline divider、mono tabular number 等产品语言。
   Cloudflare D1 / R2 / Queues、TanStack Query / TanStack Table、Drizzle ORM、Tailwind CSS 4、
   shadcn/ui 和 Lucide 等正式写法。
 - 根据第 3 页反馈，将 5 个 demo metric card 从一行五列改为两行布局：上排三张、下排两张。
+- 根据封面反馈，在首页主文案下方加入项目作者：姜涵煦、刘亦州。
 
 ## 后续 / 未闭环
 
