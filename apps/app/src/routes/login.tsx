@@ -137,40 +137,20 @@ export function LoginRoute() {
 
   return (
     <div className="flex w-full max-w-[400px] flex-col">
-      {/* min-h reserves the English 2-line height so the button below stays
-          pinned regardless of locale. `whitespace-pre-line` lets locale catalogs
-          inject a soft `\n` at a natural break point (zh-CN does this; en lets
-          the browser wrap on its own). */}
-      <h1 className="mt-4 min-h-[2lh] whitespace-pre-line text-[28px] font-semibold leading-[1.15] tracking-tight text-text-primary">
+      <h1 className="whitespace-pre-line text-[26px] font-semibold leading-[1.15] tracking-tight text-text-primary">
         <Trans>Welcome to the workbench.</Trans>
       </h1>
 
-      <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">
+      <p className="mt-2 text-[13px] leading-6 text-text-secondary">
         <Trans>
-          Sign in with your work email or SSO to access your practice&apos;s deadline queue and
+          Sign in with SSO or your work email to access your practice&apos;s deadline queue and
           evidence-backed recommendations.
         </Trans>
       </p>
 
-      {emailOtpEnabled ? (
-        <>
-          <EmailOtpSignInForm
-            className="mt-8"
-            disabled={submittingProvider !== null}
-            onInteraction={() => setEmailFlowActive(true)}
-            onPendingChange={setEmailBusy}
-            onSignedIn={() => navigate(redirectTo, { replace: true })}
-          />
-        </>
-      ) : null}
-
       <Button
         variant="outline"
-        size="lg"
-        className={cn(
-          'h-8 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel',
-          emailOtpEnabled ? 'mt-3' : 'mt-8',
-        )}
+        className="mt-6 w-full justify-center gap-2.5"
         onClick={handleGoogleSignIn}
         disabled={socialDisabled}
         aria-busy={submittingProvider === 'google'}
@@ -192,8 +172,7 @@ export function LoginRoute() {
       {microsoftEnabled ? (
         <Button
           variant="outline"
-          size="lg"
-          className="mt-3 h-11 w-full justify-center gap-2.5 border-border-default text-[14px] font-medium hover:border-border-strong hover:bg-bg-panel"
+          className="mt-2 w-full justify-center gap-2.5"
           onClick={handleMicrosoftSignIn}
           disabled={socialDisabled}
           aria-busy={submittingProvider === 'microsoft'}
@@ -213,12 +192,30 @@ export function LoginRoute() {
         </Button>
       ) : null}
 
-      <p className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] text-text-muted">
+      {emailOtpEnabled ? (
+        <>
+          <div className="my-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
+            <span className="h-px bg-divider-subtle" aria-hidden />
+            <span className="font-mono text-[10px] leading-none text-text-muted uppercase">
+              <Trans>or</Trans>
+            </span>
+            <span className="h-px bg-divider-subtle" aria-hidden />
+          </div>
+          <EmailOtpSignInForm
+            disabled={submittingProvider !== null}
+            onInteraction={() => setEmailFlowActive(true)}
+            onPendingChange={setEmailBusy}
+            onSignedIn={() => navigate(redirectTo, { replace: true })}
+          />
+        </>
+      ) : null}
+
+      <p className="mt-3 inline-flex items-center gap-2 font-mono text-[11px] text-text-muted">
         <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-status-done" />
         <Trans>Encrypted · 7-day session · SSO-ready</Trans>
       </p>
 
-      <p className="mt-8 text-[12px] leading-relaxed text-text-muted">
+      <p className="mt-5 text-[12px] leading-relaxed text-text-muted">
         <Trans>
           By signing in you agree to the{' '}
           <a

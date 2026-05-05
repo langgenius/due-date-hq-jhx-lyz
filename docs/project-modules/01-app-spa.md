@@ -27,7 +27,7 @@
 ### 登录、onboarding 与 practice identity/switching
 
 - 使用 Better Auth client 调用 `/api/auth`。
-- `/login` 先通过 `/api/auth-capabilities` 读取公开的 Google Client ID，再触发 Google One Tap；原 Google OAuth 按钮保留为 fallback。
+- `/login` 先通过 `/api/auth-capabilities` 读取公开的 Google Client ID，再触发 Google One Tap；Google OAuth 按钮是主入口，Microsoft OAuth 在配置后显示，Email OTP 位于 split `or` 分隔线下方作为工作邮箱 fallback。
 - React Router loaders 区分 guest、onboarding 和 protected route。
 - 登录后根据 active organization 加载 practice context。
 - 支持成员、事务所设置、active practice 切换和 owner-only 管理动作。

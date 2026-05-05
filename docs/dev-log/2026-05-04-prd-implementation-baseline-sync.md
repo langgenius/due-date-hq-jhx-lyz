@@ -4,8 +4,9 @@
 
 - Updated PRD copy to treat the current SPA implementation as the source of truth for Dashboard
   triage, sidebar IA, auth entry points, pricing tiers, and visual tokens.
-- Updated the user manual login and billing sections to match Email OTP default sign-in and the
-  Solo / Pro / Team / Enterprise plan model.
+- Updated the user manual login and billing sections to match the then-current passwordless
+  sign-in copy and the Solo / Pro / Team / Enterprise plan model. Superseded on 2026-05-05 by
+  the SSO-primary login rhythm documented in `2026-05-05-login-sso-primary-rhythm.md`.
 - Updated project-module status notes for Billing and Smart Priority so they no longer describe
   implemented code as placeholder work.
 

@@ -4344,6 +4344,7 @@ msgid "Optional note"
 msgstr "Optional note"
 
 #: src/features/migration/Step1Intake.tsx
+#: src/routes/login.tsx
 msgid "or"
 msgstr "or"
 
@@ -6048,8 +6049,8 @@ msgid "Sign in to accept this invitation."
 msgstr "Sign in to accept this invitation."
 
 #: src/routes/login.tsx
-msgid "Sign in with your work email or SSO to access your practice's deadline queue and evidence-backed recommendations."
-msgstr "Sign in with your work email or SSO to access your practice's deadline queue and evidence-backed recommendations."
+msgid "Sign in with SSO or your work email to access your practice's deadline queue and evidence-backed recommendations."
+msgstr "Sign in with SSO or your work email to access your practice's deadline queue and evidence-backed recommendations."
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out"

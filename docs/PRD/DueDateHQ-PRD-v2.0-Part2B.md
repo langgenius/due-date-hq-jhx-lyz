@@ -261,7 +261,7 @@ Public 页面相互 cross-link，形成 Rule Library → Source Registry → Ver
 
 - HTTPS 全站（Cloudflare Workers / custom domain）
 - TLS 1.2+ / encryption at rest（Cloudflare D1 / R2 / KV 平台能力；应用层敏感 secret 另行 AES-GCM）
-- Auth：Email OTP passwordless 是默认入口；Google One Tap / Google OAuth 作为 SSO fallback；Microsoft Entra ID OAuth 可选；会话 7 天
+- Auth：Google One Tap / Google OAuth 是默认 SSO 入口；Microsoft Entra ID OAuth 可选；Email OTP passwordless 作为工作邮箱 fallback；会话 7 天
 - MFA：7 天 Demo 不强制；真实试点 / 4 周 MVP 对 Owner 强制 TOTP；Team 版 Manager 在 P1 强制，Preparer/Coordinator 建议开启
 - **RBAC 双层校验**（§3.6.3）：P0 强制 tenant isolation + Owner-only 写路径；P1 启用 oRPC procedure permission middleware + scoped repo 双层校验；前端按 role 渲染只是体验层
 - Tenant 强隔离：所有 query 必须带 `firm_id` where

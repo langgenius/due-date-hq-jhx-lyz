@@ -114,7 +114,7 @@ export function EmailOtpSignInForm({
 
   if (codeSent) {
     return (
-      <form onSubmit={handleVerifySubmit} noValidate className={cn('grid gap-3', className)}>
+      <form onSubmit={handleVerifySubmit} noValidate className={cn('grid gap-2', className)}>
         <div className="rounded-lg border border-border-default bg-bg-panel px-3 py-2">
           <p className="text-[12px] text-text-muted">
             <Trans>Code sent to</Trans>
@@ -136,7 +136,7 @@ export function EmailOtpSignInForm({
           </div>
         </div>
 
-        <Field>
+        <Field className="gap-2">
           <FieldLabel htmlFor="email-otp-code">
             <Trans>Verification code</Trans>
           </FieldLabel>
@@ -166,7 +166,7 @@ export function EmailOtpSignInForm({
         <div className="grid grid-cols-[1fr_auto] gap-2">
           <Button
             type="submit"
-            className="h-11 justify-center gap-2.5 text-[14px] font-medium"
+            className="justify-center gap-2.5"
             disabled={formDisabled || normalizeCode(code).length !== 6}
             aria-busy={pendingAction === 'verify'}
           >
@@ -178,7 +178,7 @@ export function EmailOtpSignInForm({
           <Button
             type="button"
             variant="outline"
-            className="h-11 px-3 text-[13px]"
+            className="px-3"
             disabled={formDisabled}
             onClick={() => void sendCode('resend')}
             aria-busy={pendingAction === 'resend'}
@@ -195,8 +195,8 @@ export function EmailOtpSignInForm({
   }
 
   return (
-    <form onSubmit={handleSendSubmit} noValidate className={cn('grid gap-3', className)}>
-      <Field>
+    <form onSubmit={handleSendSubmit} noValidate className={cn('grid gap-2', className)}>
+      <Field className="gap-2">
         <FieldLabel htmlFor="email-otp-email">
           <Trans>Email address</Trans>
         </FieldLabel>
@@ -221,7 +221,7 @@ export function EmailOtpSignInForm({
 
       <Button
         type="submit"
-        className="h-11 w-full justify-center gap-2.5 text-[14px] font-medium"
+        className="w-full justify-center gap-2.5"
         disabled={formDisabled}
         aria-busy={pendingAction === 'send'}
       >

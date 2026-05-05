@@ -44,7 +44,7 @@ DueDateHQ 的税务规则、截止日、罚金风险估算和 AI brief 用于事
 
 **模块功能**
 
-登录模块让用户通过 work email 验证码或 SSO 进入 DueDateHQ。默认入口是 Email OTP passwordless 登录/注册；Google One Tap / Google OAuth 作为 SSO fallback；Microsoft Entra ID OAuth 在配置后可用。首次登录后，Onboarding 页面会创建或激活事务所，并把用户带入主操作台。新建事务所后，应用可自动打开 Migration Copilot，帮助用户把第一批客户导入系统。
+登录模块让用户通过 SSO 或 work email 验证码进入 DueDateHQ。默认入口是 Google One Tap / Google OAuth；Microsoft Entra ID OAuth 在配置后可用；Email OTP passwordless 登录/注册保留为工作邮箱 fallback。首次登录后，Onboarding 页面会创建或激活事务所，并把用户带入主操作台。新建事务所后，应用可自动打开 Migration Copilot，帮助用户把第一批客户导入系统。
 
 **适用用户**
 
@@ -55,7 +55,7 @@ DueDateHQ 的税务规则、截止日、罚金风险估算和 AI brief 用于事
 **如何使用**
 
 1. 打开应用登录页。
-2. 输入 work email，提交后填写 6 位验证码；也可点击 `Continue with Google` 使用 Google OAuth。
+2. 优先点击 `Continue with Google` 使用 Google OAuth；如事务所配置 Microsoft，可使用 Microsoft SSO；也可以输入 work email，提交后填写 6 位验证码。
 3. 首次使用时，在 `Set up your practice` 页面确认或修改事务所名称。
 4. 点击 `Continue` 创建或激活事务所。
 5. 进入主操作台后，根据需要运行 Migration Copilot 导入客户。

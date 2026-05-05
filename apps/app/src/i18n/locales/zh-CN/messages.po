@@ -4344,6 +4344,7 @@ msgid "Optional note"
 msgstr "可选备注"
 
 #: src/features/migration/Step1Intake.tsx
+#: src/routes/login.tsx
 msgid "or"
 msgstr "或"
 
@@ -6048,8 +6049,8 @@ msgid "Sign in to accept this invitation."
 msgstr "登录后接受此邀请。"
 
 #: src/routes/login.tsx
-msgid "Sign in with your work email or SSO to access your practice's deadline queue and evidence-backed recommendations."
-msgstr "使用工作邮箱或 SSO 登录，访问事务所的截止日队列和有证据支持的建议。"
+msgid "Sign in with SSO or your work email to access your practice's deadline queue and evidence-backed recommendations."
+msgstr "使用 SSO 或工作邮箱登录，访问事务所的截止日队列和有证据支持的建议。"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out"
