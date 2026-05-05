@@ -314,7 +314,8 @@ ai.refusal / ai.guard_failed
 - 签名：
   - 文件清单 JSON + 每个文件 sha256 → 整体清单 sha256
   - 预留 Phase 2 接 RFC 3161 TSA（可信时间戳）
-- 权限：仅 `owner` 可导出
+- 权限：仅 Team / Enterprise plan 的 `owner` 可导出；Solo / Pro 在前端禁用导出按钮，
+  hover tooltip 说明计划要求，后端仍以 plan gate + owner guard 为最终裁定
 
 ---
 

@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from '@duedatehq/ui/components/ui/select'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -50,6 +51,7 @@ import {
   categoryToInput,
   formatAuditActionLabel,
   formatAuditEntityTypeLabel,
+  getAuditExportUnavailableReason,
   isAuditCategoryOption,
   isAuditRange,
   shortenAuditId,
@@ -295,11 +297,14 @@ function AuditExportButton({ firm }: { firm: FirmPublic | null | undefined }) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const canExport = hasFirmPermission({
-    role: firm?.role,
-    permission: 'audit.export',
-    coordinatorCanSeeDollars: firm?.coordinatorCanSeeDollars,
-  })
+  const exportUnavailableReason = getAuditExportUnavailableReason(firm)
+  const canExport = exportUnavailableReason === null
+  const disabledReason =
+    exportUnavailableReason === 'plan'
+      ? t`Audit exports require the Team or Enterprise plan.`
+      : exportUnavailableReason === 'permission'
+        ? t`Only the practice owner can export audit evidence packages.`
+        : null
   const packagesQuery = useQuery({
     ...orpc.audit.listEvidencePackages.queryOptions({ input: { limit: 5 } }),
     enabled: open && canExport,
@@ -322,22 +327,38 @@ function AuditExportButton({ firm }: { firm: FirmPublic | null | undefined }) {
     }),
   )
   const latest = packagesQuery.data?.packages[0] ?? null
+  const trigger = (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => setOpen(true)}
+      disabled={!canExport}
+      aria-describedby={disabledReason ? 'audit-export-disabled-note' : undefined}
+    >
+      <DownloadIcon data-icon="inline-start" />
+      <Trans>Export</Trans>
+    </Button>
+  )
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setOpen(true)}
-        disabled={!canExport}
-        aria-describedby={!canExport ? 'audit-export-permission-note' : undefined}
-      >
-        <DownloadIcon data-icon="inline-start" />
-        <Trans>Export</Trans>
-      </Button>
-      {!canExport ? (
-        <span id="audit-export-permission-note" className="sr-only">
-          <Trans>Only the practice owner can export audit evidence packages.</Trans>
+      {disabledReason ? (
+        <Tooltip>
+          <TooltipTrigger render={<span className="inline-flex">{trigger}</span>} />
+          <TooltipContent
+            side="bottom"
+            align="end"
+            className="block max-w-[260px] whitespace-normal text-left leading-5"
+          >
+            {disabledReason}
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        trigger
+      )}
+      {disabledReason ? (
+        <span id="audit-export-disabled-note" className="sr-only">
+          {disabledReason}
         </span>
       ) : null}
       <Dialog open={open} onOpenChange={setOpen}>

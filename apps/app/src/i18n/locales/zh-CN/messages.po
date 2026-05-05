@@ -984,6 +984,10 @@ msgid "Audit export requested"
 msgstr "已请求审计导出"
 
 #: src/features/audit/audit-log-page.tsx
+msgid "Audit exports require the Team or Enterprise plan."
+msgstr "审计导出需要 Team 或 Enterprise 计划。"
+
+#: src/features/audit/audit-log-page.tsx
 msgid "Audit filters"
 msgstr "审计筛选"
 

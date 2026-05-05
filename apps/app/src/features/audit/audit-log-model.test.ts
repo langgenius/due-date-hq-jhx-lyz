@@ -11,6 +11,7 @@ import {
   formatAuditJson,
   formatAuditEntityTypeLabel,
   getAuditEntityDisplay,
+  getAuditExportUnavailableReason,
   humanizeAuditAction,
   humanizeAuditEntityType,
   isAuditCategoryOption,
@@ -141,6 +142,20 @@ function makeChangeLabels(overrides: Partial<AuditActionLabels> = {}): AuditChan
 }
 
 describe('audit-log-model', () => {
+  it('gates audit export by owner role and plan entitlement', () => {
+    const baseFirm = {
+      coordinatorCanSeeDollars: false,
+      role: 'owner' as const,
+      plan: 'team' as const,
+    }
+
+    expect(getAuditExportUnavailableReason(baseFirm)).toBeNull()
+    expect(getAuditExportUnavailableReason({ ...baseFirm, plan: 'firm' })).toBeNull()
+    expect(getAuditExportUnavailableReason({ ...baseFirm, plan: 'solo' })).toBe('plan')
+    expect(getAuditExportUnavailableReason({ ...baseFirm, plan: 'pro' })).toBe('plan')
+    expect(getAuditExportUnavailableReason({ ...baseFirm, role: 'manager' })).toBe('permission')
+  })
+
   it('validates category and range options', () => {
     expect(isAuditCategoryOption('migration')).toBe(true)
     expect(isAuditCategoryOption('unknown')).toBe(false)

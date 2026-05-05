@@ -1,4 +1,11 @@
-import type { AuditActionCategory, AuditEventPublic, AuditRange } from '@duedatehq/contracts'
+import type {
+  AuditActionCategory,
+  AuditEventPublic,
+  AuditRange,
+  FirmPublic,
+} from '@duedatehq/contracts'
+import { planHasFeature } from '@duedatehq/core/plan-entitlements'
+import { hasFirmPermission } from '@duedatehq/core/permissions'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 export const AUDIT_CATEGORY_OPTIONS = [
@@ -33,6 +40,25 @@ export function isAuditRange(value: string): value is AuditRange {
 
 export function categoryToInput(category: AuditCategoryOption): AuditActionCategory | undefined {
   return category === 'all' ? undefined : category
+}
+
+type AuditExportFirm = Pick<FirmPublic, 'coordinatorCanSeeDollars' | 'plan' | 'role'>
+
+export type AuditExportUnavailableReason = 'permission' | 'plan'
+
+export function getAuditExportUnavailableReason(
+  firm: AuditExportFirm | null | undefined,
+): AuditExportUnavailableReason | null {
+  const hasExportPermission = hasFirmPermission({
+    role: firm?.role,
+    permission: 'audit.export',
+    coordinatorCanSeeDollars: firm?.coordinatorCanSeeDollars,
+  })
+
+  if (!hasExportPermission) return 'permission'
+  if (!firm || !planHasFeature(firm.plan, 'auditExport')) return 'plan'
+
+  return null
 }
 
 export function shortenAuditId(id: string): string {

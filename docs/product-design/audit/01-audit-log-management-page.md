@@ -40,13 +40,15 @@ Missing pieces:
 
 ### Activation Slice
 
-Implement a read-only firm-wide Audit Log page:
+Implement a firm-wide Audit Log page:
 
 - Sidebar entry becomes enabled.
 - `/audit` is a protected route inside the existing AppShell.
 - Page lists audit events newest first with server-side pagination.
 - Filters are URL-backed and safe to share.
 - Users can open a row detail drawer to inspect metadata and a user-facing change summary.
+- Owners on Team and Enterprise plans can open the evidence package export dialog; lower plans keep
+  the export button disabled and explain the plan requirement in a tooltip.
 - Empty, loading, and error states are explicit.
 
 ### Deferred
@@ -55,14 +57,12 @@ These stay out of this slice:
 
 - CSV/PDF export.
 - Email attachment delivery for exports.
-- `export.audit` self-audit event.
 - Full Owner/Manager RBAC permission middleware.
 - Member multi-select backed by a Team members query.
-- Audit-Ready Evidence Package ZIP and SHA-256 manifest.
 - Firm deletion anonymization workflows.
 
-The page may show an `Export · P1` disabled affordance only if it is visually clear
-that export is not enabled. It must not fake a download.
+Standalone CSV/PDF export stays deferred. The implemented evidence package export
+generates a ZIP with report, CSV/JSON audit events, evidence CSV, and manifest.
 
 ## 4. Information Architecture
 
@@ -304,15 +304,12 @@ Rules:
 - Do not query DB directly from procedures.
 - Do not make export look available until the export pipeline exists.
 
-P0 behavior:
+Current behavior:
 
-- Existing protected route + tenant middleware is sufficient for the demo/solo slice.
-
-P1 behavior:
-
-- Add permission middleware for `audit.read`.
-- Add Owner-only guard for `audit.export`.
-- Add export self-audit event.
+- Permission middleware for `audit.read`.
+- Owner-only guard for `audit.export`.
+- Team/Enterprise plan gate for evidence package export.
+- Export self-audit events for request, ready, failure, and download.
 
 ## 12. Tests
 

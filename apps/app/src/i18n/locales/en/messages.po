@@ -984,6 +984,10 @@ msgid "Audit export requested"
 msgstr "Audit export requested"
 
 #: src/features/audit/audit-log-page.tsx
+msgid "Audit exports require the Team or Enterprise plan."
+msgstr "Audit exports require the Team or Enterprise plan."
+
+#: src/features/audit/audit-log-page.tsx
 msgid "Audit filters"
 msgstr "Audit filters"
 
