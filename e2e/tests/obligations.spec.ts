@@ -1,6 +1,6 @@
 import { expect, test } from '../fixtures/test'
 
-// Feature: Obligations queue
+// Feature: Obligations list
 // PRD: S1 protected Obligations entry
 // AC: E2E-OBLIGATIONS-FILTERS, E2E-OBLIGATIONS-STATUS
 
@@ -17,7 +17,7 @@ test.describe('seeded obligations', () => {
   }) => {
     await authenticatedPage.goto('/')
 
-    await expect(authenticatedPage.getByText('Triage queue', { exact: true })).toBeVisible()
+    await expect(authenticatedPage.getByText('Priority list', { exact: true })).toBeVisible()
     await expect(authenticatedPage.getByRole('tab', { name: /This Week/ })).toHaveAttribute(
       'aria-selected',
       'true',
@@ -41,7 +41,7 @@ test.describe('seeded obligations', () => {
 
     const triageTable = authenticatedPage
       .locator('[data-slot="card"]')
-      .filter({ has: authenticatedPage.getByText('Triage queue', { exact: true }) })
+      .filter({ has: authenticatedPage.getByText('Priority list', { exact: true }) })
       .getByRole('table')
     const dashboardHeaderButton = (name: string) =>
       triageTable
@@ -74,7 +74,7 @@ test.describe('seeded obligations', () => {
     await expect(authenticatedPage.getByRole('menuitemcheckbox', { name: /Today/ })).toBeVisible()
   })
 
-  test('AC: E2E-OBLIGATIONS-FILTERS searches, filters, and sorts real queue rows', async ({
+  test('AC: E2E-OBLIGATIONS-FILTERS searches, filters, and sorts real obligation rows', async ({
     authenticatedPage,
     obligationQueuePage,
   }) => {

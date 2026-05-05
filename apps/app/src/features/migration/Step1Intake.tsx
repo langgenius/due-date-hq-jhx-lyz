@@ -144,7 +144,10 @@ export function Step1Intake({
         rawText: text,
         tabularText: '',
         rows: [],
-        parseError: err instanceof Error ? err.message : t`Paste a JSON array of provider records.`,
+        parseError:
+          err instanceof Error
+            ? err.message
+            : t`Paste provider records in the integration handoff format.`,
       })
     }
   }
@@ -432,7 +435,7 @@ export function Step1Intake({
           selected={intake.mode === 'integration'}
           onClick={() => onMode('integration')}
         >
-          <Trans>JSON handoff</Trans>
+          <Trans>Integration records</Trans>
         </SourceModeButton>
         <SourceModeButton
           compact={compact}
@@ -447,7 +450,7 @@ export function Step1Intake({
         <div className="flex flex-col gap-3 rounded-lg border border-divider-regular bg-components-panel-bg p-3">
           <div className="flex flex-col gap-2">
             <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
-              <Trans>JSON handoff source</Trans>
+              <Trans>Integration record source</Trans>
             </span>
             <div className="flex flex-col gap-3">
               {Array.from(integrationProvidersByTier.entries()).map(([tier, providers]) => (
@@ -486,13 +489,13 @@ export function Step1Intake({
           </div>
           <Alert variant="warning">
             <AlertTitle>
-              <Trans>JSON handoff still needs review</Trans>
+              <Trans>Imported records still need review</Trans>
             </AlertTitle>
             <AlertDescription>
               <Trans>
-                Most provider exports are CSV or XLSX. Use Paste / Upload with a preset for those.
-                This JSON handoff path is for API, Zapier, or converted report records, and
-                generated obligations still require enough imported facts.
+                Most provider exports are CSV or XLSX. Use Paste / Upload with a source template for
+                those. This path is for records copied from integration tools or converted provider
+                reports, and generated obligations still require enough imported facts.
               </Trans>
             </AlertDescription>
           </Alert>
@@ -501,23 +504,22 @@ export function Step1Intake({
               htmlFor={`${pasteId}-integration`}
               className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase"
             >
-              <Trans>Provider JSON records</Trans>
+              <Trans>Provider client records</Trans>
             </label>
             <Textarea
               id={`${pasteId}-integration`}
-              aria-label={t`Paste provider JSON records`}
+              aria-label={t`Paste provider client records`}
               value={intake.integrationRawText}
               onChange={(event) => handleIntegrationText(event.target.value)}
               onPaste={handleIntegrationPaste}
-              placeholder={t`Paste JSON records from an API, Zapier flow, or converted provider report. For CSV/XLSX exports, switch to Paste / Upload and choose a preset.`}
+              placeholder={t`Paste client records from an integration tool or converted provider report. For CSV/XLSX exports, switch to Paste / Upload and choose a source template.`}
               className="h-[180px] resize-y bg-background-body font-mono text-base tabular-nums"
             />
           </div>
           <p className="text-sm text-text-tertiary">
             <Trans>
-              These choices tag JSON records with provider source, infer external entity type, and
-              keep external IDs for future audit and status matching. They do not turn CSV exports
-              into JSON.
+              These choices mark where the records came from and keep source-system IDs for future
+              audit and status matching. They do not convert CSV exports into another format.
             </Trans>
           </p>
         </div>
@@ -681,8 +683,8 @@ export function Step1Intake({
             </div>
             <p className={cn('text-sm text-text-tertiary', compact ? 'hidden xl:block' : '')}>
               <Trans>
-                The AI mapper runs first. Selecting a preset adds source context and provides a
-                preset mapping fallback if AI is unavailable.
+                The AI mapper runs first. Selecting a source template adds source context and
+                provides default suggestions if AI is unavailable.
               </Trans>
             </p>
           </div>
@@ -841,7 +843,7 @@ export function parseIntegrationRows(
   if (!text.trim()) return []
   const records = parseIntegrationRecords(text)
   if (!records) {
-    throw new Error('Paste a JSON array or an object with a records array.')
+    throw new Error('Paste provider records in the integration handoff format.')
   }
   return records.map((record, index) => {
     const rawJson = toPlainRecord(record)

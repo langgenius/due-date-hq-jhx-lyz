@@ -6,9 +6,9 @@ Status: accepted and implemented in app/server entitlement paths
 
 ## Product Thesis
 
-DueDateHQ sells a practice workspace, not an unlimited collection of free tenants. A `firm`
+DueDateHQ sells a practice workspace, not an unlimited collection of included practice workspaces. A `firm`
 is the internal billable workspace boundary: it owns clients, obligations, evidence, audit logs,
-members, timezone, billing state, and tenant isolation. Customer-facing pricing calls this a
+members, timezone, billing state, and practice data isolation. Customer-facing pricing calls this a
 practice workspace, while the implementation continues to count active firms internally.
 
 This follows the common SaaS workspace model used by products such as Notion, Slack,
@@ -28,14 +28,14 @@ Annual self-serve offers use an approximately 20% discount versus paying monthly
 Solo saves $96/year, Pro saves $192/year, and Team saves $360/year. Enterprise remains
 sales-assisted; annual pricing is quoted by contract rather than exposed as self-serve checkout.
 
-`active firm` means `firm_profile.status = 'active'` and `deleted_at IS NULL`. Soft-deleted firms
+`active firm` means `firm_profile.status = 'active'` and `deleted_at IS NULL`. Deleted practices that can still be restored
 do not count toward the entitlement. Suspended firms are inaccessible and should not be marketed as
 usable entitlement.
 
 ## Non-Goals
 
 - Do not make client count the first pricing limiter in this closure. Clients are managed objects
-  inside a practice workspace; practice count is the customer-facing tenant/workspace limiter.
+  inside a practice workspace; practice count is the customer-facing workspace limiter.
 - Do not sell "unlimited Solo practices." That lets a free user simulate many independent workspaces
   and breaks the meaning of Solo.
 - Do not turn Pro into a multi-practice plan by default. A second production practice usually represents
@@ -52,7 +52,7 @@ usable entitlement.
 4. Enterprise subscriptions are sales-assisted and may include multiple active practices. The
    allowed count is part of the contract, not a public self-serve slider in v1.
 5. Owners can always view existing practices they belong to, but creating a new practice past entitlement
-   opens an upgrade/contact-sales gate instead of creating a free Solo tenant.
+   opens an upgrade/contact-sales gate instead of creating a included Solo practice workspace.
 6. Members cannot create practices on behalf of a paid practice unless they are creating a separate
    practice they will own. That separate practice still counts against their own entitlement state.
 7. Invitations and member management remain seat-limited per active practice.
@@ -84,10 +84,10 @@ Runtime gates must match that copy:
   deterministic previews and cached/fallback summaries. Solo migration gets an onboarding credit:
   30 migration AI requests per firm per day for the first 7 days before the first successful import,
   then 15 migration AI requests per firm per day. Other manual practice AI refresh/generation actions
-  open a Pro upgrade path instead of queueing AI.
+  open a Pro upgrade path instead of starting AI work.
 - Pro unlocks Dashboard brief refresh, client risk summary refresh, deadline tip refresh,
   readiness checklist generation, production Pulse actions including needs-review confirmation and
-  review requests, and production migration AI.
+  review requests, and guided import AI for live client data.
 - Team keeps the same Practice AI model tier as Pro, and adds Team-only operations such as
   priority Pulse matching, guided integration migration review, audit export, and
   larger team workload protection.
@@ -127,13 +127,13 @@ Suggested gate copy:
 
 ## Implementation State
 
-The current implementation has per-firm plan, seat, billing, audit, tenant isolation, and active
+The current implementation has per-firm plan, seat, billing, audit, practice data isolation, and active
 firm count enforcement. In product language, that enforcement is the active practice workspace
 limit. `organizationLimit` remains open for the multi-firm identity foundation, but `firms.create`
 and Better Auth `allowUserToCreateOrganization` enforce owned active firm entitlement before a new
 practice workspace can be created.
 
-The visible app copy uses Practice for customer-facing tenant identity and Enterprise as the
+The visible app copy uses Practice for customer-facing workspace identity and Enterprise as the
 sales-assisted plan name while keeping `firm` as the internal persistence/RPC noun and stored plan
 enum value. `team` is now a real stored self-serve plan value; `firm` continues to mean
 Enterprise and is not renamed in persisted data.

@@ -15,17 +15,18 @@ export interface ProviderCapability {
 
 const KARBON_CAPABILITY = {
   provider: 'karbon',
-  label: 'Karbon API / export',
+  label: 'Karbon records / export',
   tier: 'supported_integration_handoff',
-  helper: 'Use Karbon API payloads or exported contacts/work items when available.',
+  helper: 'Use Karbon records or exported contacts/work items when available.',
   recommended: true,
 } satisfies ProviderCapability
 
 const TAXDOME_CAPABILITY = {
   provider: 'taxdome',
-  label: 'TaxDome Zapier payload',
+  label: 'TaxDome integration records',
   tier: 'supported_integration_handoff',
-  helper: 'Use Zapier account/contact payloads, or choose the TaxDome preset for CSV exports.',
+  helper:
+    'Use integration account/contact records, or choose the TaxDome source template for CSV exports.',
   recommended: true,
 } satisfies ProviderCapability
 
@@ -33,7 +34,7 @@ const PROCONNECT_CAPABILITY = {
   provider: 'proconnect',
   label: 'ProConnect export handoff',
   tier: 'supported_export_preset',
-  helper: 'Use JSON records prepared from Intuit reporting exports for e-filed return data.',
+  helper: 'Use structured records prepared from Intuit reporting exports for e-filed return data.',
   recommended: true,
 } satisfies ProviderCapability
 
@@ -41,7 +42,8 @@ const SAFESEND_CAPABILITY = {
   provider: 'safesend',
   label: 'SafeSend report handoff',
   tier: 'supported_export_preset',
-  helper: 'Use JSON records prepared from Returns, Organizers, or Reminder Management reports.',
+  helper:
+    'Use structured records prepared from Returns, Organizers, or Reminder Management reports.',
   recommended: false,
 } satisfies ProviderCapability
 
@@ -74,6 +76,6 @@ export const PROVIDER_CAPABILITY_BY_PROVIDER: Record<
 
 export const PROVIDER_CAPABILITY_TIER_LABELS: Record<ProviderCapabilityTier, string> = {
   supported_export_preset: 'Report/export handoff',
-  supported_integration_handoff: 'API/Zapier handoff',
+  supported_integration_handoff: 'Integration handoff',
   partner_manual_only: 'Partner/manual handoff',
 }

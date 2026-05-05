@@ -262,7 +262,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
         void queryClient.invalidateQueries({ queryKey: orpc.notifications.key() })
         void queryClient.invalidateQueries({ queryKey: orpc.pulse.key() })
         toast.success(t`Review requested`, {
-          description: t`Owner and manager notifications and emails were queued.`,
+          description: t`Owner and manager notifications and emails will be sent.`,
         })
       },
       onError: (err) => {
@@ -677,9 +677,7 @@ function ApplySafetyChecklist() {
     ['evidence', <Trans key="evidence">Pulse evidence linked to each obligation</Trans>],
     [
       'email',
-      <Trans key="email">
-        Digest queued for owners and managers; delivery depends on email config
-      </Trans>,
+      <Trans key="email">Owner and manager digest will be sent when email is available</Trans>,
     ],
     ['undo', <Trans key="undo">Undo available for 24 hours</Trans>],
   ]

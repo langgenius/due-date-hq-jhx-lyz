@@ -174,7 +174,7 @@ export function BillingCheckoutRoute() {
         throw new Error(t`Checkout configuration is not ready yet.`)
       if (checkoutConfigQuery.isError) throw new Error(t`Checkout configuration could not load.`)
       if (!checkoutConfiguredFor(checkoutConfigQuery.data, plan, interval))
-        throw new Error(t`Stripe price id is missing for this plan.`)
+        throw new Error(t`Checkout is temporarily unavailable for this plan. Contact support.`)
       return createCheckout({
         plan,
         annual: interval === 'yearly',
@@ -323,7 +323,7 @@ export function BillingCheckoutRoute() {
             <Trans>Checkout is not configured</Trans>
           </AlertTitle>
           <AlertDescription>
-            <Trans>Stripe price id is missing for this plan.</Trans>
+            <Trans>Checkout is temporarily unavailable for this plan. Contact support.</Trans>
           </AlertDescription>
         </Alert>
       ) : null}

@@ -515,8 +515,8 @@ export function DashboardRoute() {
             </h1>
             <p className="max-w-3xl text-md text-text-secondary">
               <Trans>
-                Start with the money and deadline pressure, then work the evidence-backed triage
-                queue.
+                Start with the money and deadline pressure, then work the evidence-backed priority
+                list.
               </Trans>
             </p>
           </div>
@@ -530,7 +530,7 @@ export function DashboardRoute() {
             <Trans>Run migration</Trans>
           </Button>
           <Button size="sm" onClick={() => void navigate('/obligations')}>
-            <Trans>Review risk queue</Trans>
+            <Trans>Review priority list</Trans>
             <ArrowUpRightIcon data-icon="inline-end" />
           </Button>
         </div>
@@ -908,7 +908,7 @@ function DashboardTriagePanel({
       <CardHeader>
         <CardTitle>
           <ConceptLabel concept="triageQueue">
-            <Trans>Triage queue</Trans>
+            <Trans>Priority list</Trans>
           </ConceptLabel>
         </CardTitle>
         <CardDescription>

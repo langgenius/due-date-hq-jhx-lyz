@@ -388,16 +388,16 @@ msgid "90-day projected risk"
 msgstr "90 天预计风险"
 
 #: src/features/concepts/concept-help.tsx
-msgid "A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the queue."
-msgstr "基于最新仪表盘风险快照在后台生成的解释。AI 解释优先级，队列仍由确定性数据驱动。"
+msgid "A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the list."
+msgstr "后台生成的最新仪表盘风险快照说明。AI 解释优先级；列表仍由确定性数据驱动。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "A deadline rule that has been reviewed and can generate customer-facing reminders when it matches a client."
 msgstr "已复核的截止日规则；匹配客户后可生成面向客户的提醒。"
 
 #: src/features/concepts/concept-help.tsx
-msgid "A dry run that shows which obligations rules would create for a client before anything is written to the obligation queue."
-msgstr "一次试运行，用来查看规则会为某个客户创建哪些义务，且不会写入义务队列。"
+msgid "A dry run that shows which obligations rules would create for a client before anything is written to the deadline list."
+msgstr "在写入截止日清单前，预览哪些义务规则会为客户生成截止日。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "A high-permission practice role. In client tax inputs, owner count separately means the number of equity owners used for exposure calculations."
@@ -412,8 +412,8 @@ msgid "A personal feed for deadlines assigned to you."
 msgstr "订阅分配给你的截止日。"
 
 #: src/features/concepts/concept-help.tsx
-msgid "A possible rule or change that is still waiting for owner or manager review. Candidate rules do not update client deadlines or send reminders."
-msgstr "一条仍在等待 Owner 或 Manager 复核的可能规则或变更。候选规则不会更新客户截止日，也不会发送提醒。"
+msgid "A possible rule or change that is still waiting for owner or manager review. Review-only rules do not update client deadlines or send reminders."
+msgstr "仍等待 Owner 或 Manager 复核的可能规则或变更。仅供复核的规则不会更新客户截止日，也不会发送提醒。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "A regulatory change signal detected from watched official sources. Matching client deadlines still need review before changes are applied."
@@ -597,10 +597,6 @@ msgstr "AI 映射"
 #: src/features/migration/Step2Mapping.tsx
 msgid "AI Mapper means AI suggested the fields."
 msgstr "AI Mapper 表示 AI 建议了字段。"
-
-#: src/features/migration/Step2Mapping.tsx
-msgid "AI Mapper unavailable — using fallback"
-msgstr "AI 映射器不可用 —— 已使用降级方案"
 
 #: src/routes/obligations.tsx
 msgid "AI readiness checklist"
@@ -789,8 +785,8 @@ msgid "Applied to {0} clients"
 msgstr "已应用至 {0} 个客户"
 
 #: src/features/migration/WizardShell.tsx
-msgid "Apply Default Matrix"
-msgstr "应用默认矩阵"
+msgid "Apply tax type suggestions"
+msgstr "应用税种建议"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Apply to all"
@@ -930,6 +926,10 @@ msgstr "身份验证器设置二维码"
 msgid "Authenticator setup started"
 msgstr "身份验证器设置已开始"
 
+#: src/features/migration/Step2Mapping.tsx
+msgid "Automatic field matching is unavailable — using default suggestions"
+msgstr "自动字段匹配暂不可用 —— 已使用默认建议"
+
 #. placeholder {0}: einDetected ? '100%' : '0%'
 #: src/features/migration/Step2Mapping.tsx
 msgid "Average confidence <0>{avgConfidence}%</0> · EIN detected <1>{0}</1>"
@@ -966,10 +966,6 @@ msgstr "基础"
 #: src/routes/billing.tsx
 msgid "Basic AI"
 msgstr "基础 AI"
-
-#: src/features/migration/Step4Preview.tsx
-msgid "Batch rollback trace retained for 24 hours"
-msgstr "保留 24 小时批次回滚追踪"
 
 #: src/routes/obligations.tsx
 msgid "Before"
@@ -1119,10 +1115,6 @@ msgstr "候选规则 · 从不生成用户提醒。"
 msgid "Candidate rejected"
 msgstr "候选规则已拒绝"
 
-#: src/features/concepts/concept-help.tsx
-msgid "Candidate rule"
-msgstr "候选规则"
-
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Candidate verified"
 msgstr "候选规则已验证"
@@ -1233,6 +1225,10 @@ msgstr "无法开始支付"
 msgid "Checkout is not configured"
 msgstr "checkout 尚未配置"
 
+#: src/routes/billing.checkout.tsx
+msgid "Checkout is temporarily unavailable for this plan. Contact support."
+msgstr "此计划暂时无法结账。请联系支持。"
+
 #: src/routes/billing.tsx
 msgid "Checkout, cards, invoices, and portal sessions stay with the processor."
 msgstr "支付、银行卡、发票和账单门户会话都保留在支付处理方。"
@@ -1326,8 +1322,8 @@ msgid "Client facts"
 msgstr "客户事实"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Client facts, risk inputs, and cached AI summary."
-msgstr "客户事实、风险输入和缓存的 AI 摘要。"
+msgid "Client facts, risk inputs, and saved AI summary."
+msgstr "客户事实、风险输入和已保存的 AI 摘要。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT FILTER"
@@ -1402,8 +1398,8 @@ msgid "Close wizard"
 msgstr "关闭向导"
 
 #: src/features/rules/generation-preview-tab.tsx
-msgid "Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as seeds."
-msgstr "符合滚动条件的来源年度已关闭义务。只有 done、paid 和 extended 行会计为种子。"
+msgid "Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as source deadlines."
+msgstr "符合滚转条件的来源年度已关闭义务。只有 done、paid 和 extended 行会计为来源截止日。"
 
 #: src/features/auth/email-otp-sign-in-form.tsx
 msgid "Code sent to"
@@ -1688,13 +1684,13 @@ msgstr "无法更新 Smart Priority。"
 msgid "Could not verify the code"
 msgstr "无法验证代码"
 
-#: src/features/migration/Wizard.tsx
-msgid "Couldn't apply Default Matrix"
-msgstr "应用默认税种矩阵失败"
-
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't apply Pulse"
 msgstr "无法应用监管提醒"
+
+#: src/features/migration/Wizard.tsx
+msgid "Couldn't apply tax type suggestions"
+msgstr "无法应用税种建议"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't copy client email draft"
@@ -1750,8 +1746,8 @@ msgid "Couldn't load obligation detail."
 msgstr "无法加载义务详情。"
 
 #: src/routes/obligations.tsx
-msgid "Couldn't load the queue."
-msgstr "无法加载队列。"
+msgid "Couldn't load obligations."
+msgstr "无法加载义务。"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't load this alert"
@@ -1762,16 +1758,8 @@ msgid "Couldn't parse the input"
 msgstr "无法解析输入内容"
 
 #: src/routes/obligations.tsx
-msgid "Couldn't prepare the latest tip. Showing fallback or previous content."
-msgstr "无法生成最新提示。正在显示兜底内容或上一版内容。"
-
-#: src/routes/obligations.tsx
-msgid "Couldn't queue deadline tip"
-msgstr "无法排队生成截止日提示"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Couldn't queue risk summary"
-msgstr "无法排队生成风险摘要"
+msgid "Couldn't prepare the latest tip. Showing the previous version when available."
+msgstr "无法准备最新提示。可用时会显示上一版。"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't reactivate alert"
@@ -1820,6 +1808,14 @@ msgstr "无法发送准备状态请求"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't snooze alert"
 msgstr "暂缓提醒失败"
+
+#: src/routes/obligations.tsx
+msgid "Couldn't start deadline tip refresh"
+msgstr "无法开始刷新截止日提示"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't start risk summary refresh"
+msgstr "无法开始刷新风险摘要"
 
 #: src/features/migration/Step1Intake.tsx
 #: src/features/migration/Wizard.tsx
@@ -1997,12 +1993,16 @@ msgid "Dashboard"
 msgstr "仪表盘"
 
 #: src/routes/billing.tsx
-msgid "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
-msgstr "Dashboard brief、Pulse 摘要、客户风险摘要和生产迁移 AI。"
+msgid "Dashboard briefs, Pulse summaries, client risk summaries, and guided import AI for live client data."
+msgstr "Dashboard brief、Pulse 摘要、客户风险摘要和正式客户数据的智能导入辅助。"
 
 #: src/routes/migration.new.tsx
 msgid "Dashboard risk"
 msgstr "Dashboard 风险"
+
+#: src/features/migration/Step3Normalize.tsx
+msgid "Data cleanup warning"
+msgstr "资料整理提醒"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Day of month"
@@ -2026,8 +2026,8 @@ msgid "Deadline due date changed from {previous} to {next}"
 msgstr "截止日从 {previous} 变更为 {next}"
 
 #: src/routes/migration.new.tsx
-msgid "Deadline queue"
-msgstr "截止日队列"
+msgid "Deadline list"
+msgstr "截止日清单"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Deadline readiness changed"
@@ -2063,8 +2063,8 @@ msgid "Deadline Tip"
 msgstr "截止日提示"
 
 #: src/routes/obligations.tsx
-msgid "Deadline tip refresh queued"
-msgstr "截止日提示刷新已排队"
+msgid "Deadline tip refresh started"
+msgstr "已开始刷新截止日提示"
 
 #: src/routes/practice.tsx
 msgid "Deadline urgency"
@@ -2098,17 +2098,9 @@ msgstr "决策备注"
 msgid "Decrease duration months"
 msgstr "减少延期月数"
 
-#: src/features/concepts/concept-help.tsx
-msgid "Default Matrix"
-msgstr "Default Matrix"
-
-#: src/features/audit/audit-log-labels.ts
-msgid "Default Matrix applied"
-msgstr "已应用 Default Matrix"
-
 #: src/features/migration/Step3Normalize.tsx
-msgid "Default Matrix applies these suggestions only where imported rows do not already include tax types."
-msgstr "Default Matrix 仅在导入行未包含税种时应用这些建议。"
+msgid "Default tax type suggestions apply only where imported rows do not already include tax types."
+msgstr "默认税种建议仅在导入行尚未包含税种时应用。"
 
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
@@ -2172,10 +2164,6 @@ msgstr "详情已更新"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Deterministic"
 msgstr "确定性"
-
-#: src/features/pulse/PulseDetailDrawer.tsx
-msgid "Digest queued for owners and managers; delivery depends on email config"
-msgstr "Digest 已加入队列并发送给 Owner 和 Manager；送达取决于邮件配置"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Disable"
@@ -2560,8 +2548,8 @@ msgid "Explain Manual mapping"
 msgstr "解释 Manual mapping"
 
 #: src/features/migration/Step2Mapping.tsx
-msgid "Explain Preset mapping"
-msgstr "解释 Preset mapping"
+msgid "Explain source template suggestions"
+msgstr "解释来源模板建议"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Export"
@@ -2576,8 +2564,8 @@ msgid "Exposure preview"
 msgstr "风险暴露预览"
 
 #: src/features/migration/Step4Preview.tsx
-msgid "Exposure readiness appears after mapping and Default Matrix are confirmed."
-msgstr "完成字段映射并确认 Default Matrix 后，会显示风险暴露准备情况。"
+msgid "Exposure readiness appears after mapping and tax type suggestions are confirmed."
+msgstr "完成字段映射并确认税种建议后，会显示风险敞口准备情况。"
 
 #: src/features/obligations/status-control.tsx
 msgid "Extended"
@@ -2841,12 +2829,12 @@ msgid "Generate deadlines"
 msgstr "生成截止日"
 
 #: src/routes/migration.new.tsx
-msgid "Generate your first deadline queue."
-msgstr "生成你的第一批截止日队列。"
+msgid "Generate your first deadline list."
+msgstr "生成你的第一份截止日清单。"
 
 #: src/features/migration/WizardShell.tsx
-msgid "Generating your deadline queue"
-msgstr "正在生成你的截止日队列"
+msgid "Generating your deadline list"
+msgstr "正在生成你的截止日清单"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Generating…"
@@ -3012,6 +3000,10 @@ msgstr "已导入"
 msgid "Imported client undone"
 msgstr "已撤销导入的客户"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Imported records still need review"
+msgstr "导入的记录仍需复核"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Importing…"
 msgstr "正在导入…"
@@ -3056,6 +3048,14 @@ msgstr "分期付款"
 msgid "Intake"
 msgstr "入料"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Integration record source"
+msgstr "集成记录来源"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Integration records"
+msgstr "集成记录"
+
 #: src/routes/accept-invite.tsx
 msgid "Invitation accepted"
 msgstr "邀请已接受"
@@ -3087,18 +3087,6 @@ msgstr "邀请成员"
 #: src/features/audit/audit-event-drawer.tsx
 msgid "IP hash"
 msgstr "IP 哈希"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "JSON handoff"
-msgstr "JSON 交接"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "JSON handoff source"
-msgstr "JSON 交接来源"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "JSON handoff still needs review"
-msgstr "JSON 交接仍需复核"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -3230,8 +3218,8 @@ msgid "Loading obligation preview."
 msgstr "正在加载义务预览。"
 
 #: src/routes/obligations.tsx
-msgid "Loading queue…"
-msgstr "队列加载中…"
+msgid "Loading obligations…"
+msgstr "正在加载义务…"
 
 #: src/routes/readiness.tsx
 msgid "Loading readiness check…"
@@ -3337,8 +3325,8 @@ msgid "Manual mapping"
 msgstr "手动映射"
 
 #: src/features/migration/Step2Mapping.tsx
-msgid "Manual mapping means no AI or preset result was available."
-msgstr "Manual mapping 表示没有可用的 AI 或 preset 结果。"
+msgid "Manual mapping means no AI or source template result was available."
+msgstr "手动映射表示没有可用的 AI 或来源模板结果。"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Manual review"
@@ -3560,8 +3548,8 @@ msgid "Monthly billing"
 msgstr "按月计费"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Most provider exports are CSV or XLSX. Use Paste / Upload with a preset for those. This JSON handoff path is for API, Zapier, or converted report records, and generated obligations still require enough imported facts."
-msgstr "大多数服务商导出是 CSV 或 XLSX。请对这些文件使用“粘贴 / 上传”并选择 preset。JSON 交接路径只适用于 API、Zapier 或已转换报表记录，生成义务仍需要足够的导入事实支撑。"
+msgid "Most provider exports are CSV or XLSX. Use Paste / Upload with a source template for those. This path is for records copied from integration tools or converted provider reports, and generated obligations still require enough imported facts."
+msgstr "多数服务商导出文件是 CSV 或 XLSX。此类文件请使用“粘贴 / 上传”并选择来源模板。此入口用于从集成工具复制或由服务商报表转换出的记录；生成义务仍需要足够的导入事实。"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -3969,10 +3957,6 @@ msgstr "规范化"
 msgid "Normalized"
 msgstr "归一化"
 
-#: src/features/migration/Step3Normalize.tsx
-msgid "Normalizer warning"
-msgstr "规范化警告"
-
 #: src/features/obligations/status-control.tsx
 msgid "Not applicable"
 msgstr "不适用"
@@ -4146,12 +4130,12 @@ msgid "Official sources · candidate rules"
 msgstr "官方来源 · 候选规则"
 
 #: src/features/audit/audit-log-labels.ts
-msgid "Onboarding dry run previewed"
-msgstr "引导试运行已预览"
+msgid "Onboarding alternate path used"
+msgstr "已使用引导备用路径"
 
 #: src/features/audit/audit-log-labels.ts
-msgid "Onboarding fallback triggered"
-msgstr "引导降级已触发"
+msgid "Onboarding dry run previewed"
+msgstr "引导试运行已预览"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Onboarding handoff chosen"
@@ -4412,8 +4396,12 @@ msgid "Owner"
 msgstr "负责人"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
-msgid "Owner and manager notifications and emails were queued."
-msgstr "已为 Owner 和 Manager 创建通知并排队发送邮件。"
+msgid "Owner and manager digest will be sent when email is available"
+msgstr "邮件可用时会发送给 Owner 和 Manager 的摘要"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Owner and manager notifications and emails will be sent."
+msgstr "将发送 Owner 和 Manager 通知与邮件。"
 
 #: src/routes/billing.checkout.tsx
 msgid "Owner approval required"
@@ -4504,24 +4492,24 @@ msgid "Paste / Upload"
 msgstr "粘贴 / 上传"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste a JSON array of provider records."
-msgstr "粘贴服务商记录的 JSON 数组。"
-
-#: src/features/migration/Step1Intake.tsx
 msgid "Paste client data"
 msgstr "粘贴客户数据"
+
+#: src/features/migration/Step1Intake.tsx
+msgid "Paste client records from an integration tool or converted provider report. For CSV/XLSX exports, switch to Paste / Upload and choose a source template."
+msgstr "粘贴来自集成工具或已转换服务商报表的客户记录。CSV/XLSX 导出请切换到“粘贴 / 上传”并选择来源模板。"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste here — any shape, we'll figure it out. Include the header row if you have one."
 msgstr "粘贴到这里 —— 任何格式都行，我们会自动识别。如果有表头也请一并粘贴。"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste JSON records from an API, Zapier flow, or converted provider report. For CSV/XLSX exports, switch to Paste / Upload and choose a preset."
-msgstr "粘贴来自 API、Zapier 流程或已转换服务商报表的 JSON records。CSV/XLSX 导出请切换到“粘贴 / 上传”并选择 preset。"
+msgid "Paste provider client records"
+msgstr "粘贴服务商客户记录"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "Paste provider JSON records"
-msgstr "粘贴服务商 JSON records"
+msgid "Paste provider records in the integration handoff format."
+msgstr "请粘贴集成交接格式的服务商记录。"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Paste rows"
@@ -4539,6 +4527,10 @@ msgstr "支付确认"
 #: src/routes/billing.success.tsx
 msgid "Payment confirmation can take a few seconds."
 msgstr "支付确认可能需要几秒钟。"
+
+#: src/routes/billing.tsx
+msgid "Payment confirmation received"
+msgstr "已收到付款确认"
 
 #: src/routes/billing.checkout.tsx
 msgid "Payment details stay with the processor"
@@ -4845,14 +4837,6 @@ msgstr "正在准备字段映射"
 msgid "Preset"
 msgstr "预设"
 
-#: src/features/migration/Step2Mapping.tsx
-msgid "Preset mapping"
-msgstr "Preset 映射"
-
-#: src/features/migration/Step2Mapping.tsx
-msgid "Preset mapping means AI was unavailable and the selected preset filled defaults."
-msgstr "Preset mapping 表示 AI 不可用，已使用所选 preset 的默认映射。"
-
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Preview"
 msgstr "预览"
@@ -4914,6 +4898,11 @@ msgstr "主导航"
 msgid "Priority"
 msgstr "优先级"
 
+#: src/features/concepts/concept-help.tsx
+#: src/routes/dashboard.tsx
+msgid "Priority list"
+msgstr "优先处理清单"
+
 #: src/routes/billing.tsx
 msgid "Priority onboarding and audit exports"
 msgstr "优先 onboarding 与审计导出"
@@ -4964,13 +4953,13 @@ msgstr "当前角色无法查看预计风险金额。"
 msgid "Projected risk reflects the latest stored penalty calculation. Accrued penalty is calculated for the selected as-of date."
 msgstr "预计风险反映最新保存的罚金计算。已发生罚金按所选截至日期动态计算。"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Provider client records"
+msgstr "服务商客户记录"
+
 #: src/routes/billing.tsx
 msgid "Provider hosted"
 msgstr "服务商托管"
-
-#: src/features/migration/Step1Intake.tsx
-msgid "Provider JSON records"
-msgstr "服务商 JSON records"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Publish evidence, but generated deadlines still require CPA review."
@@ -5190,8 +5179,8 @@ msgid "Ready for rules"
 msgstr "规则就绪"
 
 #: src/features/migration/Step4Preview.tsx
-msgid "Ready to generate your deadline queue"
-msgstr "准备生成你的截止日队列"
+msgid "Ready to generate your deadline list"
+msgstr "已准备生成你的截止日清单"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "Ready to import"
@@ -5429,18 +5418,6 @@ msgstr "返回仪表盘"
 msgid "Reuse provider import"
 msgstr "复用平台导入"
 
-#: src/features/migration/ImportHistoryDrawer.tsx
-msgid "Revert batch"
-msgstr "回滚批次"
-
-#: src/features/migration/ImportHistoryDrawer.tsx
-msgid "Revert this import batch?"
-msgstr "回滚此导入批次？"
-
-#: src/features/migration/ImportHistoryDrawer.tsx
-msgid "Revert until"
-msgstr "可回滚至"
-
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
@@ -5488,6 +5465,10 @@ msgstr "查看事务所范围内的审计事件。"
 msgid "Review practice-wide write events, what changed, and actor metadata."
 msgstr "查看事务所范围内的写入事件、变更内容和执行人元数据。"
 
+#: src/routes/dashboard.tsx
+msgid "Review priority list"
+msgstr "查看优先处理清单"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Review requested"
 msgstr "已请求审核"
@@ -5495,10 +5476,6 @@ msgstr "已请求审核"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review risk and operating pressure."
 msgstr "查看风险与运营压力。"
-
-#: src/routes/dashboard.tsx
-msgid "Review risk queue"
-msgstr "查看风险队列"
 
 #: src/routes/account.security.tsx
 msgid "Review signed-in browsers and revoke stale access."
@@ -5532,6 +5509,10 @@ msgstr "打开安全 checkout 前先确认事务所订阅。"
 msgid "Review the source excerpt and structured fields before applying this alert."
 msgstr "应用此提醒前，请复核来源摘录和结构化字段。"
 
+#: src/features/concepts/concept-help.tsx
+msgid "Review-only rule"
+msgstr "仅供复核的规则"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Reviewing"
 msgstr "复核中"
@@ -5563,8 +5544,8 @@ msgid "Risk inputs saved"
 msgstr "风险输入已保存"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Risk summary refresh queued"
-msgstr "风险摘要刷新已排队"
+msgid "Risk summary refresh started"
+msgstr "已开始刷新风险摘要"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/members/members-page.tsx
@@ -5788,8 +5769,8 @@ msgid "Save mapping"
 msgstr "保存字段映射"
 
 #: src/features/migration/WizardShell.tsx
-msgid "Save normalized values"
-msgstr "保存规范化值"
+msgid "Save organized values"
+msgstr "保存整理后的值"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Save risk inputs"
@@ -5843,8 +5824,8 @@ msgid "Saved views store filters, sort, visible columns, and density."
 msgstr "保存视图会存储筛选、排序、可见列和密度。"
 
 #: src/features/migration/WizardShell.tsx
-msgid "Saving normalized values, applying the Default Matrix, and calculating totals."
-msgstr "正在保存规范化值、应用默认矩阵并计算汇总。"
+msgid "Saving organized values, applying tax type suggestions, and calculating totals."
+msgstr "正在保存整理后的值、应用税种建议并计算总数。"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Saving your confirmed fields and grouping values for review."
@@ -5935,10 +5916,6 @@ msgstr "安全"
 #: src/routes/account.security.tsx
 msgid "Security settings could not load"
 msgstr "无法加载安全设置"
-
-#: src/features/rules/generation-preview-tab.tsx
-msgid "Seeds"
-msgstr "种子"
 
 #. placeholder {0}: row.clientName
 #. placeholder {0}: tableRow.original.clientName
@@ -6085,8 +6062,8 @@ msgid "Sign in to accept this invitation."
 msgstr "登录后接受此邀请。"
 
 #: src/routes/login.tsx
-msgid "Sign in with SSO or your work email to access your practice's deadline queue and evidence-backed recommendations."
-msgstr "使用 SSO 或工作邮箱登录，访问事务所的截止日队列和有证据支持的建议。"
+msgid "Sign in with SSO or your work email to access your practice's deadline list and evidence-backed recommendations."
+msgstr "使用 SSO 或工作邮箱登录，访问你事务所的截止日清单和有证据支持的建议。"
 
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Sign out"
@@ -6218,6 +6195,10 @@ msgstr "来源已检查"
 msgid "Source checked, but still needs attention"
 msgstr "来源已检查，但仍需处理"
 
+#: src/features/rules/generation-preview-tab.tsx
+msgid "Source deadlines"
+msgstr "来源截止日"
+
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Source excerpt"
 msgstr "原文摘录"
@@ -6258,6 +6239,14 @@ msgstr "来源已恢复"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Source revoked"
 msgstr "来源已撤销"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Source template"
+msgstr "来源模板"
+
+#: src/features/migration/Step2Mapping.tsx
+msgid "Source template suggestions mean AI was unavailable and the selected source template filled defaults."
+msgstr "来源模板建议表示 AI 不可用，已由所选来源模板填入默认映射。"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Source timeline"
@@ -6314,8 +6303,8 @@ msgid "Start Solo"
 msgstr "开始使用 Solo"
 
 #: src/routes/dashboard.tsx
-msgid "Start with the money and deadline pressure, then work the evidence-backed triage queue."
-msgstr "先看金额和截止日压力，再处理有证据支撑的分诊队列。"
+msgid "Start with the money and deadline pressure, then work the evidence-backed priority list."
+msgstr "先看金额风险和截止日压力，再处理有证据支持的优先清单。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
@@ -6368,10 +6357,6 @@ msgstr "仍在准备中。你可以离开此页面，稍后再回来查看。"
 #: src/routes/billing.success.tsx
 msgid "Still waiting on confirmation"
 msgstr "仍在等待确认"
-
-#: src/routes/billing.checkout.tsx
-msgid "Stripe price id is missing for this plan."
-msgstr "此计划缺少 Stripe price id。"
 
 #: src/routes/readiness.tsx
 msgid "Submit readiness response"
@@ -6494,6 +6479,14 @@ msgstr "应缴税款"
 msgid "Tax type"
 msgstr "税种"
 
+#: src/features/concepts/concept-help.tsx
+msgid "Tax type suggestions"
+msgstr "税种建议"
+
+#: src/features/audit/audit-log-labels.ts
+msgid "Tax type suggestions applied"
+msgstr "已应用税种建议"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/migration/mapping-target-labels.ts
 msgid "Tax types"
@@ -6508,8 +6501,8 @@ msgid "Tax types from existing obligations."
 msgstr "税种来自现有义务。"
 
 #: src/features/rules/generation-preview-tab.tsx
-msgid "Tax types inferred from the Default Matrix."
-msgstr "税种由 Default Matrix 推断。"
+msgid "Tax types inferred from suggestions."
+msgstr "税种由建议推断。"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Tax year"
@@ -6590,20 +6583,16 @@ msgid "The active CPA firm workspace. Settings, clients, deadlines, members, bil
 msgstr "当前 CPA 事务所工作区。设置、客户、截止日、成员、账单和审计日志都限定在所选事务所内。"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "The AI mapper runs first. Selecting a preset adds source context and provides a preset mapping fallback if AI is unavailable."
-msgstr "AI mapper 会先运行。选择 preset 会增加来源上下文，并在 AI 不可用时提供 preset 映射兜底。"
-
-#: src/routes/billing.success.tsx
-msgid "The billing cache and subscription status now agree."
-msgstr "账单缓存和订阅状态现在一致。"
+msgid "The AI mapper runs first. Selecting a source template adds source context and provides default suggestions if AI is unavailable."
+msgstr "AI 映射会先运行。选择来源模板会增加来源上下文，并在 AI 不可用时提供默认建议。"
 
 #: src/routes/billing.tsx
 msgid "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
 msgstr "账单门户会在支付服务商处打开，用于查看发票、支付方式和取消订阅。"
 
 #: src/features/concepts/concept-help.tsx
-msgid "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue."
-msgstr "客户导入流程：映射列、规范化值、预览截止日，并创建初始截止日队列。"
+msgid "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline list."
+msgstr "客户导入流程会映射列、整理字段值、预览截止日，并创建初始截止日清单。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "The client whose closed source-year obligation is being considered for next-year generation."
@@ -6646,8 +6635,8 @@ msgid "The number of days before a deadline where urgency reaches its maximum Sm
 msgstr "截止日前多少天内，紧急度达到 Smart Priority 的最高贡献值。"
 
 #: src/features/migration/Step4Preview.tsx
-msgid "The numbers above are computed from your confirmed mappings, Default Matrix, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
-msgstr "以上数字根据你确认的字段映射、默认税种矩阵和已验证规则计算。导入并生成会创建客户、截止日、证据和审计记录。"
+msgid "The numbers above are computed from your confirmed mappings, tax type suggestions, and verified rules. Import & Generate will create clients, deadlines, evidence, and audit records."
+msgstr "上方数字基于你确认的映射、税种建议和已核验规则计算。导入并生成会创建客户、截止日、证据和审计记录。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "The official source, quote, or audit record that supports a rule, deadline, AI explanation, or Pulse change."
@@ -6658,20 +6647,20 @@ msgid "The operating surface for obligation work: filter, sort, assign owners, u
 msgstr "处理义务工作的操作界面：筛选、排序、分配负责人、更新状态，并打开每项义务的证据。"
 
 #: src/routes/billing.tsx
-msgid "The payment provider is the source of truth; DueDateHQ caches the active plan."
-msgstr "支付服务商是事实来源；DueDateHQ 会缓存当前激活计划。"
+msgid "The payment provider manages checkout, invoices, and payment methods. DueDateHQ shows the active plan here."
+msgstr "支付服务商管理结账、发票和付款方式。DueDateHQ 在此显示当前生效计划。"
 
 #: src/routes/practice.tsx
-msgid "The practice will be removed from your account. Audit history stays retained for compliance."
-msgstr "该事务所会从你的账户中移除。审计历史会保留以满足合规要求。"
+msgid "The practice will be removed from your account. Audit history stays retained for compliance. Contact support if you need it restored later."
+msgstr "该事务所会从你的账户中移除。审计历史会为合规继续保留。如需稍后恢复，请联系支持。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "The practice-scoped record of who changed what, when it changed, and what evidence or reason was attached."
 msgstr "事务所范围内记录谁在何时改了什么，以及附带了哪些证据或原因。"
 
 #: src/features/concepts/concept-help.tsx
-msgid "The projected risk across the current deadline queue. It helps prioritize work, but it is not an official penalty notice."
-msgstr "当前截止日队列中的预计风险。它用于帮助安排工作优先级，但不是正式罚金通知。"
+msgid "The projected risk across the current deadline list. It helps prioritize work, but it is not an official penalty notice."
+msgstr "当前截止日清单的预计风险。它用于安排优先级，但不是官方罚金通知。"
 
 #: src/lib/i18n-error.ts
 #: src/routes/obligations.tsx
@@ -6719,8 +6708,8 @@ msgid "then"
 msgstr "然后"
 
 #: src/features/migration/Step1Intake.tsx
-msgid "These choices tag JSON records with provider source, infer external entity type, and keep external IDs for future audit and status matching. They do not turn CSV exports into JSON."
-msgstr "这些选择会为 JSON records 标记服务商来源、推断外部实体类型，并保留外部 ID 供未来审计和状态匹配使用。它们不会把 CSV 导出变成 JSON。"
+msgid "These choices mark where the records came from and keep source-system IDs for future audit and status matching. They do not convert CSV exports into another format."
+msgstr "这些选择会标记记录来源，并保留来源系统中的编号，方便之后审计和状态匹配。它不会把 CSV 导出转换成其他格式。"
 
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "They are only shown during setup. Store them somewhere private before verification."
@@ -6737,6 +6726,10 @@ msgstr "该提醒已不可用。"
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "This clears the unfinished draft so you can start a new import. No clients or deadlines have been created yet."
 msgstr "这会清除未完成的草稿，方便你开始新的导入。目前还没有创建任何客户或截止日。"
+
+#: src/features/migration/Step4Preview.tsx
+msgid "This import can be undone for 24 hours and keeps an audit record"
+msgstr "本次导入可在 24 小时内撤销，并会保留审计记录"
 
 #: src/routes/onboarding.tsx
 msgid "This is what your team and clients will see."
@@ -6774,6 +6767,10 @@ msgstr "这会为该义务记录一个内部决策。它不会更新截止日、
 msgid "This removes every client and deadline created by this import. Use Clients to edit individual records instead."
 msgstr "这会移除此导入创建的所有客户和截止日。请改用“客户”来编辑单条记录。"
 
+#: src/routes/practice.tsx
+msgid "This removes the active practice from your account. Audit history stays retained for compliance."
+msgstr "这会将当前事务所从你的账户中移除。审计历史会为合规继续保留。"
+
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "This removes the client and deadlines created by this import. Use Clients to edit facts instead."
 msgstr "这会移除此导入创建的客户和截止日。请改用“客户”来编辑资料。"
@@ -6797,10 +6794,6 @@ msgstr "这条规则允许申请延期。"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "This rule does not allow an extension."
 msgstr "这条规则不允许申请延期。"
-
-#: src/routes/practice.tsx
-msgid "This soft-deletes the active practice. If another practice is available, you will be moved there."
-msgstr "这会软删除当前事务所。如果还有其他可用事务所，你会被切换过去。"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "This source is no longer trusted. The historical alert remains visible, but new apply, dismiss, snooze, and undo actions are disabled."
@@ -6853,11 +6846,6 @@ msgstr "请求过于频繁，请稍后再试。"
 #: src/routes/practice.tsx
 msgid "Total"
 msgstr "合计"
-
-#: src/features/concepts/concept-help.tsx
-#: src/routes/dashboard.tsx
-msgid "Triage queue"
-msgstr "分诊队列"
 
 #: src/routes/clients.tsx
 msgid "Trust"
@@ -6957,12 +6945,24 @@ msgid "Undo available for 24 hours"
 msgstr "24 小时内可撤销"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Undo available until"
+msgstr "可撤销至"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Undo client"
 msgstr "撤销客户"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Undo full import"
+msgstr "撤销整批导入"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo import"
 msgstr "撤销导入"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Undo this import batch?"
+msgstr "要撤销这批导入吗？"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo this import?"
@@ -6977,8 +6977,8 @@ msgid "Unexpected route error"
 msgstr "路由出现意外错误"
 
 #: src/features/rules/generation-preview-tab.tsx
-msgid "Unique clients represented by the source-year seed obligations in this preview."
-msgstr "本次 preview 的来源年度种子义务涉及的唯一客户数量。"
+msgid "Unique clients represented by the source-year obligations in this preview."
+msgstr "本次预览中，上一年度义务对应的唯一客户数。"
 
 #: src/features/permissions/permission-gate.tsx
 #: src/features/rules/generation-preview-tab.tsx
@@ -7199,10 +7199,6 @@ msgstr "在向 AI 发送任何内容前，我们会先拦截疑似 SSN 的模式
 msgid "We blocked SSN-like patterns to protect your clients. Those columns won't be sent to the AI. Columns flagged: {0} → forced IGNORE."
 msgstr "为保护客户隐私，我们拦截了疑似 SSN 的列，不会发送给 AI。被拦截的列：{0} → 强制忽略。"
 
-#: src/routes/billing.tsx
-msgid "We cache the plan and seat limit for app permissions."
-msgstr "我们缓存计划和席位上限，用于应用内权限判断。"
-
 #: src/routes/billing.success.tsx
 msgid "We could not refresh billing status yet. This page will keep checking."
 msgstr "我们暂时无法刷新账单状态。此页面会继续检查。"
@@ -7217,8 +7213,8 @@ msgid "We couldn't reach AI and no preset was selected. Please map columns manua
 msgstr "无法连接 AI 且未选择预设。请在继续前手动完成字段映射。"
 
 #: src/features/migration/Step2Mapping.tsx
-msgid "We couldn't reach AI. Using your preset default mapping — review and edit as needed."
-msgstr "无法连接 AI，已使用预设默认映射 —— 请按需修改。"
+msgid "We couldn't reach AI. Using your selected source template — review and edit as needed."
+msgstr "无法连接 AI。已使用你选择的来源模板，请按需复核和编辑。"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "We couldn't read that file. Try exporting as CSV."
@@ -7234,20 +7230,20 @@ msgstr "找到了表头，但没有数据行。请至少添加一条客户记录
 
 #. placeholder {0}: normalize.rows.length
 #: src/features/migration/Step3Normalize.tsx
-msgid "We normalized {0} values — review if needed"
-msgstr "我们已规范化 {0} 个值 —— 需要的话请复核"
+msgid "We organized {0} values — review if needed"
+msgstr "已整理 {0} 个字段值 —— 需要的话请复核"
 
 #: src/routes/onboarding.tsx
 msgid "We pre-filled a name from your Google profile. You can change it now or anytime in the Practice profile."
 msgstr "我们已从你的 Google 资料预填名称。你现在可以修改，也可以稍后在事务所资料中修改。"
 
+#: src/routes/billing.tsx
+msgid "We store the plan and seat limit needed for app permissions."
+msgstr "我们会保存应用权限所需的计划和席位上限。"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "We'll figure out the shape — paste or upload, your call."
 msgstr "粘贴或上传都行 —— 我们会自动识别格式。"
-
-#: src/routes/billing.tsx
-msgid "Webhook confirmed"
-msgstr "Webhook 确认"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Weekend or holiday handling"
@@ -7369,3 +7365,7 @@ msgstr "你的事务所计划已就绪。"
 #: src/routes/migration.new.tsx
 msgid "Your practice workspace is ready. Import a spreadsheet now to turn client facts into deadlines, evidence, and the first dashboard risk view. You can skip and import later from Dashboard, Clients, or Command Palette."
 msgstr "你的事务所工作区已准备好。现在导入电子表格，把客户事实转换成截止日、证据和第一版 Dashboard 风险视图。你也可以跳过，之后从 Dashboard、客户页或命令面板再导入。"
+
+#: src/routes/billing.success.tsx
+msgid "Your subscription is confirmed and the plan is active."
+msgstr "订阅已确认，当前计划已生效。"

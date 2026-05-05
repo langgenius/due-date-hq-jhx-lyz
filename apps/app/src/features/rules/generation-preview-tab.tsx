@@ -579,7 +579,7 @@ function GenerationPreviewForm({
               {taxTypeSource === 'obligations' ? (
                 <Trans>Tax types from existing obligations.</Trans>
               ) : (
-                <Trans>Tax types inferred from the Default Matrix.</Trans>
+                <Trans>Tax types inferred from suggestions.</Trans>
               )}
             </span>
           </PreviewField>
@@ -615,14 +615,14 @@ function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
     <div className="overflow-hidden rounded-md border border-divider-regular">
       <div className="grid grid-cols-7 gap-0 border-b border-divider-regular bg-background-subtle">
         <RolloverMetric
-          label={t`Seeds`}
+          label={t`Source deadlines`}
           value={result.summary.seedObligationCount}
-          description={t`Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as seeds.`}
+          description={t`Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as source deadlines.`}
         />
         <RolloverMetric
           label={t`Clients`}
           value={result.summary.clientCount}
-          description={t`Unique clients represented by the source-year seed obligations in this preview.`}
+          description={t`Unique clients represented by the source-year obligations in this preview.`}
         />
         <RolloverMetric
           label={t`Will create`}

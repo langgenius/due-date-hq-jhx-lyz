@@ -238,7 +238,7 @@ export function ImportHistoryDrawer({
                             <Trans>Applied</Trans>: {fmt(batch.appliedAt)}
                           </span>
                           <span>
-                            <Trans>Revert until</Trans>: {fmt(batch.revertExpiresAt)}
+                            <Trans>Undo available until</Trans>: {fmt(batch.revertExpiresAt)}
                           </span>
                         </div>
                         <BatchClients
@@ -280,7 +280,7 @@ export function ImportHistoryDrawer({
                               disabled={!canRevertBatch || recoveryPending}
                             >
                               <RotateCcwIcon data-icon="inline-start" />
-                              <Trans>Revert batch</Trans>
+                              <Trans>Undo full import</Trans>
                             </Button>
                           )}
                         </div>
@@ -308,7 +308,7 @@ export function ImportHistoryDrawer({
               ) : pendingRecovery?.kind === 'draft' ? (
                 <Trans>Discard this draft import?</Trans>
               ) : (
-                <Trans>Revert this import batch?</Trans>
+                <Trans>Undo this import batch?</Trans>
               )}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-md">
@@ -345,7 +345,7 @@ export function ImportHistoryDrawer({
               ) : pendingRecovery?.kind === 'draft' ? (
                 <Trans>Discard draft</Trans>
               ) : (
-                <Trans>Revert batch</Trans>
+                <Trans>Undo full import</Trans>
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

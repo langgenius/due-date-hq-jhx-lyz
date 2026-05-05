@@ -502,7 +502,7 @@ const zhCN: LandingCopy = {
   security: {
     title: 'WHY CPAs TRUST IT',
     items: [
-      { pill: 'Per-firm', body: '数据从不跨租户' },
+      { pill: 'Per-firm', body: '数据始终留在当前事务所工作区内' },
       { pill: 'Evidence', body: '每条主张 · 来源 + 摘录' },
       { pill: 'Audit log', body: '应用 · 撤销 · 回滚均留痕' },
       { pill: 'Email-first', body: '无需客户门户库' },
@@ -573,7 +573,8 @@ const zhCN: LandingCopy = {
         description: '适合需要共享截止日运营的小型 CPA 事务所。',
         seats: '1 个生产 practice · 3 个席位',
         aiLabel: '包含 Practice AI',
-        aiDescription: '包含 Dashboard brief、Pulse 摘要、客户风险摘要、截止日提示和生产迁移 AI。',
+        aiDescription:
+          '包含 Dashboard brief、Pulse 摘要、客户风险摘要、截止日提示和正式客户数据的智能导入辅助。',
         aiFeatures: ['完整 practice AI 工作流', '与 Team 相同的 AI 能力'],
         cta: '升级到 Pro',
         hrefKind: 'checkout',

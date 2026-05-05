@@ -840,10 +840,10 @@ function ClientProfileSheet({
     orpc.clients.requestRiskSummaryRefresh.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries({ queryKey: orpc.clients.getRiskSummary.key() })
-        toast.success(t`Risk summary refresh queued`)
+        toast.success(t`Risk summary refresh started`)
       },
       onError: (err) => {
-        toast.error(t`Couldn't queue risk summary`, {
+        toast.error(t`Couldn't start risk summary refresh`, {
           description: rpcErrorMessage(err) ?? t`Please try again.`,
         })
       },
@@ -861,7 +861,7 @@ function ClientProfileSheet({
             <Trans>Fact profile</Trans>
           </SheetTitle>
           <SheetDescription>
-            <Trans>Client facts, risk inputs, and cached AI summary.</Trans>
+            <Trans>Client facts, risk inputs, and saved AI summary.</Trans>
           </SheetDescription>
         </SheetHeader>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">

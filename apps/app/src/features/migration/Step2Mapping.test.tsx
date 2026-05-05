@@ -86,14 +86,16 @@ describe('Step2Mapping capability disclosure', () => {
     )
   })
 
-  it('shows Preset mapping when AI falls back to the selected preset', () => {
+  it('shows Source template when AI uses the selected source template', () => {
     renderStep(mappingState({ status: 'fallback', fallback: 'preset' }))
 
-    expect(document.body.textContent).toContain('Preset mapping')
-    expect(document.body.textContent).toContain('AI Mapper unavailable')
-    expect(document.querySelector('button[aria-label="Explain Preset mapping"]')).toHaveProperty(
+    expect(document.body.textContent).toContain('Source template')
+    expect(document.body.textContent).toContain('Automatic field matching is unavailable')
+    expect(
+      document.querySelector('button[aria-label="Explain source template suggestions"]'),
+    ).toHaveProperty(
       'title',
-      'Preset mapping means AI was unavailable and the selected preset filled defaults.',
+      'Source template suggestions mean AI was unavailable and the selected source template filled defaults.',
     )
   })
 
@@ -103,7 +105,7 @@ describe('Step2Mapping capability disclosure', () => {
     expect(document.body.textContent).toContain('Manual mapping')
     expect(document.querySelector('button[aria-label="Explain Manual mapping"]')).toHaveProperty(
       'title',
-      'Manual mapping means no AI or preset result was available.',
+      'Manual mapping means no AI or source template result was available.',
     )
   })
 

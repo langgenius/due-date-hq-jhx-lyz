@@ -72,7 +72,7 @@ export function Step4Preview({ summary }: Step4Props) {
         <ul className="flex flex-col gap-1.5 text-md text-text-primary">
           <li className="flex items-center gap-2">
             <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
-            <Trans>Batch rollback trace retained for 24 hours</Trans>
+            <Trans>This import can be undone for 24 hours and keeps an audit record</Trans>
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle2Icon className="size-4 text-text-success" aria-hidden />
@@ -127,7 +127,7 @@ export function Step4Preview({ summary }: Step4Props) {
         ) : (
           <p className="text-sm text-text-secondary">
             <Trans>
-              Exposure readiness appears after mapping and Default Matrix are confirmed.
+              Exposure readiness appears after mapping and tax type suggestions are confirmed.
             </Trans>
           </p>
         )}
@@ -136,11 +136,11 @@ export function Step4Preview({ summary }: Step4Props) {
       <Alert role="status" aria-live="polite">
         <AlertTitle className="flex items-center gap-2">
           <ShieldCheckIcon className="size-4" aria-hidden />
-          <Trans>Ready to generate your deadline queue</Trans>
+          <Trans>Ready to generate your deadline list</Trans>
         </AlertTitle>
         <AlertDescription>
           <Trans>
-            The numbers above are computed from your confirmed mappings, Default Matrix, and
+            The numbers above are computed from your confirmed mappings, tax type suggestions, and
             verified rules. Import &amp; Generate will create clients, deadlines, evidence, and
             audit records.
           </Trans>

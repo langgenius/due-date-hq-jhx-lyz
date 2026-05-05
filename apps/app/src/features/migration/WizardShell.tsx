@@ -490,18 +490,18 @@ function transitionCopy(phase: WizardTransitionPhase): {
         title: <Trans>Building the import preview</Trans>,
         description: (
           <Trans>
-            Saving normalized values, applying the Default Matrix, and calculating totals.
+            Saving organized values, applying tax type suggestions, and calculating totals.
           </Trans>
         ),
         steps: [
-          { key: 'save-normalized-values', label: <Trans>Save normalized values</Trans> },
-          { key: 'apply-default-matrix', label: <Trans>Apply Default Matrix</Trans> },
+          { key: 'save-normalized-values', label: <Trans>Save organized values</Trans> },
+          { key: 'apply-default-matrix', label: <Trans>Apply tax type suggestions</Trans> },
           { key: 'calculate-preview', label: <Trans>Calculate preview</Trans> },
         ],
       }
     case 'import':
       return {
-        title: <Trans>Generating your deadline queue</Trans>,
+        title: <Trans>Generating your deadline list</Trans>,
         description: <Trans>Creating clients, deadlines, evidence links, and audit records.</Trans>,
         steps: [
           { key: 'create-clients', label: <Trans>Create clients</Trans> },

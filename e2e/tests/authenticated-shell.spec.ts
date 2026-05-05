@@ -35,7 +35,7 @@ test('AC: E2E-AUTH-SHELL renders the protected dashboard shell', async ({
     authenticatedPage.getByRole('heading', { name: 'Deadline risk workbench' }),
   ).toBeVisible()
   await expect(authenticatedPage.getByText('Due this week', { exact: true })).toBeVisible()
-  await expect(authenticatedPage.getByText('Triage queue', { exact: true })).toBeVisible()
+  await expect(authenticatedPage.getByText('Priority list', { exact: true })).toBeVisible()
   await expect(appShellPage.importClientsButton).toBeVisible()
 })
 

@@ -1924,11 +1924,11 @@ export function ObligationQueueRoute() {
 
           {isInitialLoading ? (
             <div className="rounded-lg border border-dashed border-divider-regular py-8 text-center text-sm text-text-tertiary">
-              <Trans>Loading queue…</Trans>
+              <Trans>Loading obligations…</Trans>
             </div>
           ) : isError ? (
             <div className="rounded-lg border border-state-destructive-border bg-state-destructive-hover p-4 text-sm text-text-destructive">
-              <Trans>Couldn't load the queue.</Trans>{' '}
+              <Trans>Couldn't load obligations.</Trans>{' '}
               <button type="button" className="underline" onClick={() => void listQuery.refetch()}>
                 <Trans>Retry</Trans>
               </button>
@@ -2378,11 +2378,11 @@ function ObligationQueueDetailDrawer({
         })
         queryClient.setQueryData(queryOptions.queryKey, result.insight)
         void queryClient.invalidateQueries({ queryKey: orpc.obligations.getDeadlineTip.key() })
-        toast.success(t`Deadline tip refresh queued`)
+        toast.success(t`Deadline tip refresh started`)
       },
       onError: (err) => {
         setDeadlineTipRefresh(null)
-        toast.error(t`Couldn't queue deadline tip`, {
+        toast.error(t`Couldn't start deadline tip refresh`, {
           description: rpcErrorMessage(err) ?? t`Please try again.`,
         })
       },
@@ -3317,7 +3317,9 @@ function DeadlineTipPanel({
           ) : null}
           {showFailedState ? (
             <AlertPanel>
-              <Trans>Couldn't prepare the latest tip. Showing fallback or previous content.</Trans>
+              <Trans>
+                Couldn't prepare the latest tip. Showing the previous version when available.
+              </Trans>
             </AlertPanel>
           ) : null}
           {insight.sections.map((section) => (

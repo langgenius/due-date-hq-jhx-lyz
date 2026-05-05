@@ -53,7 +53,7 @@ export function Step3Normalize({ normalize, matrix, onUserEdit, onToggleApplyToA
     <div className="flex flex-col gap-5 py-5">
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold text-text-primary">
-          <Trans>We normalized {normalize.rows.length} values — review if needed</Trans>
+          <Trans>We organized {normalize.rows.length} values — review if needed</Trans>
         </h2>
         {needsReviewCount > 0 ? (
           <p className="text-sm text-text-secondary">
@@ -69,7 +69,7 @@ export function Step3Normalize({ normalize, matrix, onUserEdit, onToggleApplyToA
       {normalize.errorBanner ? (
         <Alert role="alert" aria-live="assertive">
           <AlertTitle>
-            <Trans>Normalizer warning</Trans>
+            <Trans>Data cleanup warning</Trans>
           </AlertTitle>
           <AlertDescription>{normalize.errorBanner}</AlertDescription>
         </Alert>
@@ -224,8 +224,8 @@ function MatrixSection({ matrix, applyToAll, onToggle }: MatrixSectionProps) {
       </h3>
       <p className="text-sm text-text-secondary">
         <Trans>
-          Default Matrix applies these suggestions only where imported rows do not already include
-          tax types.
+          Default tax type suggestions apply only where imported rows do not already include tax
+          types.
         </Trans>
       </p>
       <p className="text-sm text-text-tertiary">

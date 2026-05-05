@@ -87,7 +87,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'penaltyRadar':
       return {
         title: t`Penalty Radar`,
-        description: t`The projected risk across the current deadline queue. It helps prioritize work, but it is not an official penalty notice.`,
+        description: t`The projected risk across the current deadline list. It helps prioritize work, but it is not an official penalty notice.`,
       }
     case 'exposure':
       return {
@@ -126,18 +126,18 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
       }
     case 'candidateRule':
       return {
-        title: t`Candidate rule`,
-        description: t`A possible rule or change that is still waiting for owner or manager review. Candidate rules do not update client deadlines or send reminders.`,
+        title: t`Review-only rule`,
+        description: t`A possible rule or change that is still waiting for owner or manager review. Review-only rules do not update client deadlines or send reminders.`,
       }
     case 'defaultMatrix':
       return {
-        title: t`Default Matrix`,
+        title: t`Tax type suggestions`,
         description: t`Import-time suggestions for tax types based on entity type and jurisdiction when the uploaded rows do not provide tax types.`,
       }
     case 'migrationCopilot':
       return {
         title: t`Migration Copilot`,
-        description: t`The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline queue.`,
+        description: t`The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline list.`,
       }
     case 'obligations':
       return {
@@ -146,13 +146,13 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
       }
     case 'triageQueue':
       return {
-        title: t`Triage queue`,
+        title: t`Priority list`,
         description: t`A risk-window view of open obligations so the team can decide what to handle first this week or month.`,
       }
     case 'aiWeeklyBrief':
       return {
         title: t`AI weekly brief`,
-        description: t`A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the queue.`,
+        description: t`A background-generated explanation of the latest dashboard risk snapshot. AI explains priorities; deterministic data still drives the list.`,
       }
     case 'deadlineTip':
       return {
@@ -167,7 +167,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'obligationPreview':
       return {
         title: t`Obligation Preview`,
-        description: t`A dry run that shows which obligations rules would create for a client before anything is written to the obligation queue.`,
+        description: t`A dry run that shows which obligations rules would create for a client before anything is written to the deadline list.`,
       }
     case 'reminderReady':
       return {

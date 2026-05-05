@@ -402,7 +402,7 @@ export function Wizard({ open, onClose, variant = 'dialog', intro }: WizardProps
     if (!batchId) return
 
     const handleError = (err: unknown) => {
-      toast.error(t`Couldn't apply Default Matrix`, {
+      toast.error(t`Couldn't apply tax type suggestions`, {
         description: rpcErrorMessage(err) ?? t`Please try again.`,
       })
     }

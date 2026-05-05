@@ -53,7 +53,7 @@ describe('provider integration intake parsing', () => {
 })
 
 describe('client rows paste normalization', () => {
-  it('turns copied JSON records into tabular rows', () => {
+  it('turns copied provider records into tabular rows', () => {
     expect(
       normalizePastedRowsText(
         '[{"Client name":"Acme LLC","State":"CA"},{"Client name":"Bright Books","State":"TX"}]',

@@ -627,8 +627,8 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
           </CardTitle>
           <CardDescription>
             <Trans>
-              This soft-deletes the active practice. If another practice is available, you will be
-              moved there.
+              This removes the active practice from your account. Audit history stays retained for
+              compliance.
             </Trans>
           </CardDescription>
         </CardHeader>
@@ -654,7 +654,7 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
             <AlertDialogDescription>
               <Trans>
                 The practice will be removed from your account. Audit history stays retained for
-                compliance.
+                compliance. Contact support if you need it restored later.
               </Trans>
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -499,7 +499,7 @@ const en: LandingCopy = {
         label: 'OFFICIAL SOURCES',
         value: '48',
         unit: '+',
-        body: 'IRS, FTB, DTF · 50-state filing authorities, mapped to a single rule schema.',
+        body: 'IRS, FTB, DTF · 50-state filing authorities, organized into one rule library.',
       },
       {
         label: 'PULSE SLA',
@@ -518,7 +518,7 @@ const en: LandingCopy = {
   security: {
     title: 'WHY CPAs TRUST IT',
     items: [
-      { pill: 'Per-firm', body: 'your data never crosses tenants' },
+      { pill: 'Per-firm', body: 'your data stays inside your practice workspace' },
       { pill: 'Evidence', body: 'every claim · source + excerpt' },
       { pill: 'Audit log', body: 'apply · undo · revert recorded' },
       { pill: 'Email-first', body: 'no client portal vault required' },
@@ -537,7 +537,7 @@ const en: LandingCopy = {
     meta: {
       title: 'DueDateHQ Pricing — Deadline intelligence for CPA practices',
       description:
-        'Simple plans for US CPA practices that need deadline risk, source-backed rules, and a shared operating queue.',
+        'Simple plans for US CPA practices that need deadline risk, source-backed rules, and a shared worklist.',
       ogImage: '/og/home.en.png',
     },
     navPricingHref: '/pricing',
@@ -596,7 +596,7 @@ const en: LandingCopy = {
         seats: '1 PRODUCTION PRACTICE · 3 SEATS',
         aiLabel: 'Practice AI included',
         aiDescription:
-          'Dashboard briefs, Pulse summaries, client risk summaries, deadline tips, and production migration AI.',
+          'Dashboard briefs, Pulse summaries, client risk summaries, deadline tips, and guided import AI for live client data.',
         aiFeatures: ['Full practice AI workflows', 'Same AI capability as Team'],
         cta: 'Upgrade to Pro',
         hrefKind: 'checkout',
@@ -1106,7 +1106,7 @@ const en: LandingCopy = {
         coveredSignals: [
           {
             title: 'Filing-surface changes',
-            body: 'Public changes to deadlines, instructions, or filing windows can enter the review queue.',
+            body: 'Public changes to deadlines, instructions, or filing windows can enter the review list.',
           },
           {
             title: 'Affected-period context',
@@ -1242,7 +1242,7 @@ const en: LandingCopy = {
             items: [
               {
                 title: 'Dollar exposure',
-                body: 'A risk queue should show which missed deadlines create meaningful penalty exposure.',
+                body: 'A risk list should show which missed deadlines create meaningful penalty exposure.',
               },
               {
                 title: 'Evidence completeness',

@@ -86,7 +86,7 @@ function MigrationActivationIntro({ onSkip }: { onSkip: () => void }) {
           />
           <ActivationOutcome
             icon={<CheckCircle2Icon aria-hidden className="size-3.5" />}
-            label={<Trans>Deadline queue</Trans>}
+            label={<Trans>Deadline list</Trans>}
           />
           <ActivationOutcome
             icon={<GaugeIcon aria-hidden className="size-3.5" />}
@@ -94,7 +94,7 @@ function MigrationActivationIntro({ onSkip }: { onSkip: () => void }) {
           />
         </div>
         <h1 className="mt-3 text-xl font-semibold tracking-tight text-text-primary">
-          <Trans>Generate your first deadline queue.</Trans>
+          <Trans>Generate your first deadline list.</Trans>
         </h1>
         <p className="mt-1 max-w-4xl text-sm leading-relaxed text-text-secondary">
           <Trans>

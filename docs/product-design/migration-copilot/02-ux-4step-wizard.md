@@ -154,13 +154,13 @@ Step 1 → 2、Step 2 → 3、Step 3 → 4、Step 4 Import 都可能等待 AI / 
 Default Matrix。等待期间不能只在底栏按钮里显示 `Working…`；Wizard body 需要盖一层
 `role="status"` 处理中面板，锁住当前内容并把用户注意力留在当前任务上。
 
-| 阶段         | 标题                             | 阶段明细                                                          |
-| ------------ | -------------------------------- | ----------------------------------------------------------------- |
-| Intake → Map | `Preparing your mapping`         | Create batch → Upload rows → Map columns                          |
-| Map → Norm   | `Preparing normalization`        | Save mapping → Read field values → Suggest clean values           |
-| Re-run Map   | `Refreshing the AI mapping`      | Read columns → Re-map fields → Refresh confidence                 |
-| Norm → Dry   | `Building the import preview`    | Save normalized values → Apply Default Matrix → Calculate preview |
-| Import       | `Generating your deadline queue` | Create clients → Generate deadlines → Record audit trail          |
+| 阶段         | 标题                            | 阶段明细                                                               |
+| ------------ | ------------------------------- | ---------------------------------------------------------------------- |
+| Intake → Map | `Preparing your mapping`        | Create batch → Upload rows → Map columns                               |
+| Map → Norm   | `Preparing normalization`       | Save mapping → Read field values → Suggest clean values                |
+| Re-run Map   | `Refreshing the AI mapping`     | Read columns → Re-map fields → Refresh confidence                      |
+| Norm → Dry   | `Building the import preview`   | Save organized values → Apply tax type suggestions → Calculate preview |
+| Import       | `Generating your deadline list` | Create clients → Generate deadlines → Record audit trail               |
 
 - 面板：`bg-background-body` + `border-state-accent-active` + `shadow-overlay`，居中但不扩大 Wizard。
 - 遮罩：仅覆盖 Wizard body，`bg-components-panel-bg/85` + `backdrop-blur-sm`；header / Stepper / footer 保持可见但按钮禁用。
@@ -428,8 +428,8 @@ Step 2 标题右侧始终显示 capability badge，三种 badge 均使用 destru
 badge 右侧必须有红色问号 icon；hover / focus 后展示该 badge 对应解释文案：
 
 - `AI Mapper`：`AI Mapper means AI suggested the fields.`
-- `Preset mapping`：`Preset mapping means AI was unavailable and the selected preset filled defaults.`
-- `Manual mapping`：`Manual mapping means no AI or preset result was available.`
+- `Source template`：`Source template suggestions mean AI was unavailable and the selected source template filled defaults.`
+- `Manual mapping`：`Manual mapping means no AI or source template result was available.`
 
 ```
 ┌─ role="alert" · aria-live="assertive" ──────────────────────────────┐
@@ -444,29 +444,29 @@ badge 右侧必须有红色问号 icon；hover / focus 后展示该 badge 对应
 ### 5.5 交互细节
 
 - `[Re-run AI]`：secondary；每次用户 override 后按钮文案变为 `[Re-run AI with my overrides]`（更新 prompt context；对齐 [`./04-ai-prompts.md`](./04-ai-prompts.md)）
-- `[Export mapping]`：下拉菜单（`Download JSON` / `Copy to clipboard`），JSON 含 mapping + confidence + reasoning + model + prompt_version；服务于 audit trail / debug
+- `[Export mapping]`：下拉菜单（`Download mapping file` / `Copy to clipboard`），文件含 mapping + confidence + reasoning + model + prompt_version；服务于 audit trail / debug
 - 冲突裁定联动：EIN 识别率 = 100%（[`./10-conflict-resolutions.md#3-t-s2-01-双指标口径`](./10-conflict-resolutions.md#3-t-s2-01-双指标口径)）；低置信度行**非阻塞**但顶部 Banner 高亮计数
 
 ### 5.6 文案表（EN + zh-CN + Lingui 宏）
 
-| 字段                              | EN 原文                                                                                  | zh-CN 对照                                                      | 宏                          |
-| --------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------- |
-| Title                             | `Review and confirm column mapping`                                                      | `请审阅并确认字段映射`                                          | `<Trans>`                   |
-| Capability badge                  | `AI Mapper` / `Preset mapping` / `Manual mapping`                                        | `AI 映射` / `Preset 映射` / `手动映射`                          | `<Trans>`                   |
-| Capability helper · AI            | `AI Mapper means AI suggested the fields.`                                               | `AI Mapper 表示 AI 建议了字段。`                                | `<Trans>`                   |
-| Capability helper · Preset        | `Preset mapping means AI was unavailable and the selected preset filled defaults.`       | `Preset mapping 表示 AI 不可用，已使用所选 preset 的默认映射。` | `<Trans>`                   |
-| Capability helper · Manual        | `Manual mapping means no AI or preset result was available.`                             | `Manual mapping 表示没有可用的 AI 或 preset 结果。`             | `<Trans>`                   |
-| Subtitle（metrics）               | `Average confidence {avg}% · EIN detected {einPct}%`                                     | `平均置信度 {avg}% · EIN 识别率 {einPct}%`                      | `<Trans>` + `<Plural>` 可选 |
-| Primary CTA                       | `Continue →`                                                                             | `下一步 →`                                                      | `<Trans>`                   |
-| Secondary CTA                     | `Re-run AI` / `Re-run AI with my overrides`                                              | `重新运行 AI` / `带上我的修改重跑 AI`                           | `<Trans>`                   |
-| Export menu                       | `Export mapping ▼` → `Download JSON` / `Copy to clipboard`                               | `导出映射 ▼` → `下载 JSON` / `复制到剪贴板`                     | `<Trans>`                   |
-| Low-conf banner                   | `{count, plural, one {# column needs your review} other {# columns need your review}}`   | `{count} 列需要你复核`                                          | `<Plural>`                  |
-| Fallback banner                   | `We couldn't reach AI. Using your {preset} default mapping — review and edit as needed.` | `无法连接 AI，已使用 {preset} 默认映射 —— 请按需修改。`         | `<Trans>`                   |
-| Error state                       | `Something went wrong while mapping. Retry?`                                             | `字段映射失败，要重试吗？`                                      | `<Trans>`                   |
-| Reasoning popover title           | `Why this mapping?`                                                                      | `AI 为什么这样映射？`                                           | `<Trans>`                   |
-| Row hover: Sample after transform | `Sample after transform`                                                                 | `转换后样例`                                                    | `<Trans>`                   |
-| Edit popover title                | `Map "{column}" to…`                                                                     | `把 "{column}" 映射到…`                                         | `<Trans>`                   |
-| Edit popover: ignore              | `Ignore this column`                                                                     | `忽略该列`                                                      | `<Trans>`                   |
+| 字段                              | EN 原文                                                                                                 | zh-CN 对照                                                   | 宏                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | --------------------------- |
+| Title                             | `Review and confirm column mapping`                                                                     | `请审阅并确认字段映射`                                       | `<Trans>`                   |
+| Capability badge                  | `AI Mapper` / `Source template` / `Manual mapping`                                                      | `AI 映射` / `来源模板` / `手动映射`                          | `<Trans>`                   |
+| Capability helper · AI            | `AI Mapper means AI suggested the fields.`                                                              | `AI Mapper 表示 AI 建议了字段。`                             | `<Trans>`                   |
+| Capability helper · Preset        | `Source template suggestions mean AI was unavailable and the selected source template filled defaults.` | `来源模板建议表示 AI 不可用，已由所选来源模板填入默认映射。` | `<Trans>`                   |
+| Capability helper · Manual        | `Manual mapping means no AI or source template result was available.`                                   | `手动映射表示没有可用的 AI 或来源模板结果。`                 | `<Trans>`                   |
+| Subtitle（metrics）               | `Average confidence {avg}% · EIN detected {einPct}%`                                                    | `平均置信度 {avg}% · EIN 识别率 {einPct}%`                   | `<Trans>` + `<Plural>` 可选 |
+| Primary CTA                       | `Continue →`                                                                                            | `下一步 →`                                                   | `<Trans>`                   |
+| Secondary CTA                     | `Re-run AI` / `Re-run AI with my overrides`                                                             | `重新运行 AI` / `带上我的修改重跑 AI`                        | `<Trans>`                   |
+| Export menu                       | `Export mapping ▼` → `Download mapping file` / `Copy to clipboard`                                      | `导出映射 ▼` → `下载映射文件` / `复制到剪贴板`               | `<Trans>`                   |
+| Low-conf banner                   | `{count, plural, one {# column needs your review} other {# columns need your review}}`                  | `{count} 列需要你复核`                                       | `<Plural>`                  |
+| Fallback banner                   | `We couldn't reach AI. Using your {preset} default mapping — review and edit as needed.`                | `无法连接 AI，已使用 {preset} 默认映射 —— 请按需修改。`      | `<Trans>`                   |
+| Error state                       | `Something went wrong while mapping. Retry?`                                                            | `字段映射失败，要重试吗？`                                   | `<Trans>`                   |
+| Reasoning popover title           | `Why this mapping?`                                                                                     | `AI 为什么这样映射？`                                        | `<Trans>`                   |
+| Row hover: Sample after transform | `Sample after transform`                                                                                | `转换后样例`                                                 | `<Trans>`                   |
+| Edit popover title                | `Map "{column}" to…`                                                                                    | `把 "{column}" 映射到…`                                      | `<Trans>`                   |
+| Edit popover: ignore              | `Ignore this column`                                                                                    | `忽略该列`                                                   | `<Trans>`                   |
 
 ### 5.7 键盘 / a11y
 
@@ -515,7 +515,7 @@ badge 右侧必须有红色问号 icon；hover / focus 后展示该 badge 对应
 │  Import clients · Step 3 of 4                             [Close ×]  │
 │  ①──────②──────③ · · · ④                                             │
 ├──────────────────────────────────────────────────────────────────────┤
-│  We normalized 47 values — review if needed                          │   ← {typography.title}
+│  We organized 47 values — review if needed                           │   ← {typography.title}
 │                                                                      │
 │  Entity types                                                        │   ← 区块标题：{typography.label} + uppercase
 │  ┌──────────────────────────────────────────────────────────────┐    │
@@ -533,7 +533,7 @@ badge 右侧必须有红色问号 icon；hover / focus 后展示该 badge 对应
 │                                                                      │
 │  Suggested tax types (from entity × state matrix)                    │   ← {typography.label}
 │  ┌──────────────────────────────────────────────────────────────┐    │
-│  │ Default Matrix applies these suggestions only where imported   │
+│  │ Default tax type suggestions apply only where imported rows    │
 │  │ rows do not already include tax types.                        │
 │  │ 12 LLC × CA clients                                          │    │
 │  │   → CA Franchise · CA LLC Fee · Fed 1065  [✓ Apply to all] [e]│    │   ← tax type chips（高 18px）
@@ -601,24 +601,24 @@ badge 右侧必须有红色问号 icon；hover / focus 后展示该 badge 对应
 
 ### 6.6 文案表（EN + zh-CN + Lingui 宏）
 
-| 字段                         | EN 原文                                                                                               | zh-CN 对照                                          | 宏                     |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ---------------------- |
-| Title                        | `We normalized {count} values — review if needed`                                                     | `我们已归一 {count} 个值 —— 需要的话请复核`         | `<Trans>` + `<Plural>` |
-| Section: Entity types        | `Entity types`                                                                                        | `实体类型`                                          | `<Trans>`              |
-| Section: States              | `States`                                                                                              | `州`                                                | `<Trans>`              |
-| Section: Suggested tax types | `Suggested tax types (from entity × state matrix)`                                                    | `建议的税种（由实体 × 州矩阵推断）`                 | `<Trans>`              |
-| Default Matrix note          | `Default Matrix applies these suggestions only where imported rows do not already include tax types.` | `Default Matrix 仅在导入行没有税种时应用这些建议。` | `<Trans>`              |
-| Apply to all toggle          | `Apply to all`                                                                                        | `全部应用`                                          | `<Trans>`              |
-| Section: Conflicts           | `Conflicts ({count})`                                                                                 | `冲突（{count}）`                                   | `<Plural>`             |
-| Needs review pill            | `Needs review`                                                                                        | `待复核`                                            | `<Trans>`              |
-| Conflict CTA: Merge          | `Merge` (tooltip `Append new fields without overwriting`)                                             | `合并` / `将新字段补齐到现有客户，不覆盖已有值`     | `<Trans>`              |
-| Conflict CTA: Overwrite      | `Overwrite` (tooltip `Replace existing values with new ones`)                                         | `覆盖` / `用新值替换已有字段`                       | `<Trans>`              |
-| Conflict CTA: Skip           | `Skip` (tooltip `Leave existing client untouched`)                                                    | `跳过` / `保留现有客户不变`                         | `<Trans>`              |
-| Conflict CTA: Create as new  | `Create as new` (tooltip `Create a new client; existing one stays`)                                   | `另存为新客户` / `新建客户，不影响现有客户`         | `<Trans>`              |
-| Fallback banner              | `We couldn't reach AI for some values. Using dictionary fallback — please review.`                    | `部分值无法调用 AI，已使用字典降级 —— 请复核。`     | `<Trans>`              |
-| Verification needed          | `Verification needed`                                                                                 | `需要人工验证`                                      | `<Trans>`              |
-| Primary CTA                  | `Continue →`                                                                                          | `下一步 →`                                          | `<Trans>`              |
-| Secondary CTA                | `← Back`                                                                                              | `← 返回`                                            | `<Trans>`              |
+| 字段                         | EN 原文                                                                                         | zh-CN 对照                                      | 宏                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------- | ---------------------- |
+| Title                        | `We organized {count} values — review if needed`                                                | `已整理 {count} 个字段值 —— 需要的话请复核`     | `<Trans>` + `<Plural>` |
+| Section: Entity types        | `Entity types`                                                                                  | `实体类型`                                      | `<Trans>`              |
+| Section: States              | `States`                                                                                        | `州`                                            | `<Trans>`              |
+| Section: Suggested tax types | `Suggested tax types (from entity × state matrix)`                                              | `建议的税种（由实体 × 州矩阵推断）`             | `<Trans>`              |
+| Default Matrix note          | `Default tax type suggestions apply only where imported rows do not already include tax types.` | `默认税种建议仅在导入行没有税种时应用。`        | `<Trans>`              |
+| Apply to all toggle          | `Apply to all`                                                                                  | `全部应用`                                      | `<Trans>`              |
+| Section: Conflicts           | `Conflicts ({count})`                                                                           | `冲突（{count}）`                               | `<Plural>`             |
+| Needs review pill            | `Needs review`                                                                                  | `待复核`                                        | `<Trans>`              |
+| Conflict CTA: Merge          | `Merge` (tooltip `Append new fields without overwriting`)                                       | `合并` / `将新字段补齐到现有客户，不覆盖已有值` | `<Trans>`              |
+| Conflict CTA: Overwrite      | `Overwrite` (tooltip `Replace existing values with new ones`)                                   | `覆盖` / `用新值替换已有字段`                   | `<Trans>`              |
+| Conflict CTA: Skip           | `Skip` (tooltip `Leave existing client untouched`)                                              | `跳过` / `保留现有客户不变`                     | `<Trans>`              |
+| Conflict CTA: Create as new  | `Create as new` (tooltip `Create a new client; existing one stays`)                             | `另存为新客户` / `新建客户，不影响现有客户`     | `<Trans>`              |
+| Fallback banner              | `We couldn't reach AI for some values. Using dictionary fallback — please review.`              | `部分值无法调用 AI，已使用字典降级 —— 请复核。` | `<Trans>`              |
+| Verification needed          | `Verification needed`                                                                           | `需要人工验证`                                  | `<Trans>`              |
+| Primary CTA                  | `Continue →`                                                                                    | `下一步 →`                                      | `<Trans>`              |
+| Secondary CTA                | `← Back`                                                                                        | `← 返回`                                        | `<Trans>`              |
 
 ### 6.7 键盘 / a11y
 
@@ -840,7 +840,7 @@ badge 右侧必须有红色问号 icon；hover / focus 后展示该 badge 对应
 ┌─ Modal · 宽 480px · Level 4 ─────────────────────────────────────────┐
 │  Delete {client_name}?                                               │
 │                                                                      │
-│  This will soft-delete {obligations} obligations.                    │
+│  This will remove {obligations} obligations from active work.         │
 │  Recoverable for 7 days from Settings.                               │
 │                                                                      │
 │                                         [Cancel]   [Delete client]   │   ← [Delete client] destructive
@@ -865,16 +865,16 @@ Toast 持久态  ──24h──>  Expired（Undo all 灰化）
 
 ### 8.5 文案表（EN + zh-CN + Lingui 宏）
 
-| 字段            | EN 原文                                                                                    | zh-CN 对照                                                         | 宏             |
-| --------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | -------------- |
-| 24h title       | `Undo import?`                                                                             | `要撤销此次导入吗？`                                               | `<Trans>`      |
-| 24h body        | `This will delete {clients} clients and {obligations} obligations. This action is logged.` | `这将删除 {clients} 个客户和 {obligations} 条义务。操作已被记录。` | `<Plural>` × 2 |
-| 24h CTAs        | `Keep import` / `Undo all`                                                                 | `保留导入` / `全部撤销`                                            | `<Trans>`      |
-| 7d title        | `Delete {client_name}?`                                                                    | `要删除 {client_name} 吗？`                                        | `<Trans>`      |
-| 7d body         | `This will soft-delete {obligations} obligations. Recoverable for 7 days from Settings.`   | `这将软删除 {obligations} 条义务。7 天内可在"设置"中恢复。`        | `<Plural>`     |
-| 7d CTAs         | `Cancel` / `Delete client`                                                                 | `取消` / `删除客户`                                                | `<Trans>`      |
-| Revert failed   | `Revert failed. Contact support.`                                                          | `撤销失败，请联系支持。`                                           | `<Trans>`      |
-| Expired tooltip | `This import can no longer be fully reverted. You can still delete individual clients.`    | `此次导入已超过 24 小时不能整体撤销。你仍可单独删除客户。`         | `<Trans>`      |
+| 字段            | EN 原文                                                                                              | zh-CN 对照                                                              | 宏             |
+| --------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------- |
+| 24h title       | `Undo import?`                                                                                       | `要撤销此次导入吗？`                                                    | `<Trans>`      |
+| 24h body        | `This will delete {clients} clients and {obligations} obligations. This action is logged.`           | `这将删除 {clients} 个客户和 {obligations} 条义务。操作已被记录。`      | `<Plural>` × 2 |
+| 24h CTAs        | `Keep import` / `Undo all`                                                                           | `保留导入` / `全部撤销`                                                 | `<Trans>`      |
+| 7d title        | `Delete {client_name}?`                                                                              | `要删除 {client_name} 吗？`                                             | `<Trans>`      |
+| 7d body         | `This will remove {obligations} obligations from active work. Recoverable for 7 days from Settings.` | `这会将 {obligations} 条义务从当前工作中移除。7 天内可在"设置"中恢复。` | `<Plural>`     |
+| 7d CTAs         | `Cancel` / `Delete client`                                                                           | `取消` / `删除客户`                                                     | `<Trans>`      |
+| Revert failed   | `Revert failed. Contact support.`                                                                    | `撤销失败，请联系支持。`                                                | `<Trans>`      |
+| Expired tooltip | `This import can no longer be fully reverted. You can still delete individual clients.`              | `此次导入已超过 24 小时不能整体撤销。你仍可单独删除客户。`              | `<Trans>`      |
 
 ### 8.6 a11y
 

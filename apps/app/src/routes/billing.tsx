@@ -116,7 +116,7 @@ function usePlanCards(interval: BillingInterval): PlanCard[] {
       seats: t`3 seats included`,
       firms: t`1 production practice`,
       aiLabel: t`Practice AI included`,
-      aiDescription: t`Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI.`,
+      aiDescription: t`Dashboard briefs, Pulse summaries, client risk summaries, and guided import AI for live client data.`,
       aiFeatures: [t`Full practice AI workflows`, t`Same AI capability as Team`],
       description: t`For small practices that need shared deadline operations.`,
       features: [
@@ -324,7 +324,8 @@ export function BillingRoute() {
             </CardTitle>
             <CardDescription>
               <Trans>
-                The payment provider is the source of truth; DueDateHQ caches the active plan.
+                The payment provider manages checkout, invoices, and payment methods. DueDateHQ
+                shows the active plan here.
               </Trans>
             </CardDescription>
             <CardAction>
@@ -449,7 +450,7 @@ export function BillingRoute() {
             />
             <ControlRow
               icon={<CheckIcon className="size-4" aria-hidden />}
-              title={<Trans>Webhook confirmed</Trans>}
+              title={<Trans>Payment confirmation received</Trans>}
               description={
                 <Trans>Plan activation appears after the provider confirms the subscription.</Trans>
               }
@@ -511,7 +512,7 @@ export function BillingRoute() {
               <Trans>What stays in DueDateHQ</Trans>
             </CardTitle>
             <CardDescription>
-              <Trans>We cache the plan and seat limit for app permissions.</Trans>
+              <Trans>We store the plan and seat limit needed for app permissions.</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2 text-sm text-text-secondary">

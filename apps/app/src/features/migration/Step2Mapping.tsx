@@ -142,12 +142,12 @@ export function Step2Mapping({ mapping, sampleByHeader, errors, onUserEdit, onRe
       {mapping.status === 'fallback' ? (
         <Alert variant="destructive" role="alert" aria-live="assertive">
           <AlertTitle>
-            <Trans>AI Mapper unavailable — using fallback</Trans>
+            <Trans>Automatic field matching is unavailable — using default suggestions</Trans>
           </AlertTitle>
           <AlertDescription>
             {mapping.fallback === 'preset' ? (
               <Trans>
-                We couldn&apos;t reach AI. Using your preset default mapping — review and edit as
+                We couldn&apos;t reach AI. Using your selected source template — review and edit as
                 needed.
               </Trans>
             ) : (
@@ -275,17 +275,18 @@ function MappingCapabilityBadge({ mapping }: { mapping: MapperState }) {
   if (mapping.status === 'fallback' && mapping.fallback === 'preset') {
     return (
       <MappingCapabilityHelp
-        label={t`Explain Preset mapping`}
-        title={t`Preset mapping means AI was unavailable and the selected preset filled defaults.`}
+        label={t`Explain source template suggestions`}
+        title={t`Source template suggestions mean AI was unavailable and the selected source template filled defaults.`}
         badge={
           <Badge variant="destructive">
             <ListChecksIcon data-icon="inline-start" />
-            <Trans>Preset mapping</Trans>
+            <Trans>Source template</Trans>
           </Badge>
         }
       >
         <Trans>
-          Preset mapping means AI was unavailable and the selected preset filled defaults.
+          Source template suggestions mean AI was unavailable and the selected source template
+          filled defaults.
         </Trans>
       </MappingCapabilityHelp>
     )
@@ -295,7 +296,7 @@ function MappingCapabilityBadge({ mapping }: { mapping: MapperState }) {
     return (
       <MappingCapabilityHelp
         label={t`Explain Manual mapping`}
-        title={t`Manual mapping means no AI or preset result was available.`}
+        title={t`Manual mapping means no AI or source template result was available.`}
         badge={
           <Badge variant="destructive">
             <BadgeStatusDot tone="error" />
@@ -303,7 +304,7 @@ function MappingCapabilityBadge({ mapping }: { mapping: MapperState }) {
           </Badge>
         }
       >
-        <Trans>Manual mapping means no AI or preset result was available.</Trans>
+        <Trans>Manual mapping means no AI or source template result was available.</Trans>
       </MappingCapabilityHelp>
     )
   }

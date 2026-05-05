@@ -143,7 +143,7 @@ export function LoginRoute() {
 
       <p className="mt-2 text-[13px] leading-6 text-text-secondary">
         <Trans>
-          Sign in with SSO or your work email to access your practice&apos;s deadline queue and
+          Sign in with SSO or your work email to access your practice&apos;s deadline list and
           evidence-backed recommendations.
         </Trans>
       </p>

@@ -104,7 +104,7 @@ export function BillingSuccessRoute() {
                 </Trans>
               </AlertTitle>
               <AlertDescription>
-                <Trans>The billing cache and subscription status now agree.</Trans>
+                <Trans>Your subscription is confirmed and the plan is active.</Trans>
               </AlertDescription>
             </Alert>
           ) : (

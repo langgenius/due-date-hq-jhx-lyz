@@ -244,7 +244,7 @@ describe('AnnualRolloverPanel', () => {
 
     expect(sourceInput?.value).toBe(String(sourceYear))
     expect(targetInput?.value).toBe(String(sourceYear + 1))
-    expect(document.body.textContent).toContain('Seeds')
+    expect(document.body.textContent).toContain('Source deadlines')
     expect(document.body.textContent).toContain('Will create')
   })
 
@@ -255,7 +255,7 @@ describe('AnnualRolloverPanel', () => {
     const helpButtons = Array.from(document.querySelectorAll('button[aria-label^="About "]'))
 
     expect(helpButtons.map((button) => button.getAttribute('aria-label'))).toEqual(
-      expect.arrayContaining(['About Seeds', 'About Status', 'About Obligations']),
+      expect.arrayContaining(['About Source deadlines', 'About Status', 'About Obligations']),
     )
     expect(helpButtons).toHaveLength(14)
   })
