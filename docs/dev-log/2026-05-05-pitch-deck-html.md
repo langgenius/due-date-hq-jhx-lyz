@@ -19,6 +19,9 @@ updates:
   - note: 'Made the roadmap slide short-term promotion route more concrete with pilot size, weekly actions, and validation signals.'
   - note: 'Replaced roadmap Phase 3 with Enterprise and multi-practice expansion after hiding Enterprise from the current billing surface.'
   - note: 'Embedded the DueDateHQ logo SVG inside the HTML so the deck can be shared as a single file.'
+  - note: 'Revised the architecture slide to include concrete framework and tooling names from the live stack.'
+  - note: 'Normalized header meta and logo sizing across all slides and cleaned up architecture-slide tool-name capitalization.'
+  - note: 'Changed the demo-data metric cards from one row to a two-row 3/2 layout.'
 ---
 
 # Pitch deck HTML
@@ -73,6 +76,15 @@ hairline divider、mono tabular number 等产品语言。
   `duedatehq-logo.svg`。
 - `pnpm exec playwright screenshot --viewport-size=1280,720 file://.../docs/pitch-deck/index.html`
   确认封面 logo 可由单个 HTML 文件正常渲染。
+- 根据第 8 页反馈，将 architecture slide 的抽象分层改为 Vite + React SPA、Cloudflare Workers /
+  Hono、Cloudflare D1 / R2 / Queues、oRPC + Zod、Drizzle ORM 等真实技术栈锚点；相关口径仍对齐
+  `docs/dev-file/01-Tech-Stack.md` 和 `docs/dev-file/02-System-Architecture.md`。
+- 根据封面页眉反馈，撤销封面右上角 deck meta 的特殊字号，让全部页面右上角 meta 保持同一字号。
+- 根据封面 logo 反馈，将全 deck 的 logo mark 统一到封面使用的尺寸。
+- 根据第 8 页技术名大小写反馈，将工具名统一为 Vite + React SPA、Cloudflare Workers、
+  Cloudflare D1 / R2 / Queues、TanStack Query / TanStack Table、Drizzle ORM、Tailwind CSS 4、
+  shadcn/ui 和 Lucide 等正式写法。
+- 根据第 3 页反馈，将 5 个 demo metric card 从一行五列改为两行布局：上排三张、下排两张。
 
 ## 后续 / 未闭环
 

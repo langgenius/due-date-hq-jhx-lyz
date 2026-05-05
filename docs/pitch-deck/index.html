@@ -117,10 +117,10 @@
       }
 
       .logo-mark {
-        width: 28px;
-        height: 28px;
+        width: 34px;
+        height: 34px;
         display: block;
-        border-radius: 7px;
+        border-radius: 9px;
       }
 
       .brand-symbols {
@@ -285,8 +285,16 @@
 
       .metric-strip {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: 12px;
+      }
+
+      .metric-strip .metric {
+        grid-column: span 2;
+      }
+
+      .metric-strip .metric:nth-child(n + 4) {
+        grid-column: span 3;
       }
 
       .metric {
@@ -906,6 +914,11 @@
 
         .arch-arrow {
           display: none;
+        }
+
+        .metric-strip .metric,
+        .metric-strip .metric:nth-child(n + 4) {
+          grid-column: auto;
         }
 
         .keyboard-hint,
@@ -1534,42 +1547,46 @@
         <div class="slide-body">
           <div>
             <div class="section-kicker">Cloudflare-first 架构</div>
-            <h2 class="slide-title">
-              小团队可维护，<span class="accent">但边界按生产系统设计。</span>
-            </h2>
+            <h2 class="slide-title">小团队可维护，<span class="accent">生产级边界。</span></h2>
           </div>
           <div class="arch" aria-label="Architecture diagram">
             <div class="arch-node">
-              <h3>产品界面</h3>
-              <p>客户、Obligations、规则变化和证据都从同一个登录后界面进入，减少团队切换成本。</p>
+              <h3>Vite + React SPA</h3>
+              <p>
+                React Router、TanStack Query / TanStack Table
+                承接客户、Obligations、规则变化和证据工作台。
+              </p>
             </div>
             <div class="arch-arrow"></div>
             <div class="arch-node">
-              <h3>边缘服务</h3>
-              <p>同一套服务处理登录、业务请求、导入和外部回调，让部署面保持简单。</p>
+              <h3>Cloudflare Workers / Hono</h3>
+              <p>Hono 挂载 /api，oRPC 挂载 /rpc，Better Auth 处理登录和 firm 权限。</p>
             </div>
             <div class="arch-arrow"></div>
             <div class="arch-node">
-              <h3>托管数据与任务</h3>
-              <p>数据、文件证据、检索索引、队列和定时任务由托管服务承载，减少自运维负担。</p>
+              <h3>Cloudflare D1 / R2 / Queues</h3>
+              <p>
+                D1 存业务数据，R2 存证据文件，Workers KV、Queues、Cron Triggers 和 Vectorize
+                承接后台任务。
+              </p>
             </div>
           </div>
           <div class="grid-4">
             <article class="feature-card">
-              <h3>接口契约</h3>
-              <p>前后端共享同一套接口约束，字段和错误语义不会在两边各自漂移。</p>
+              <h3>oRPC + Zod</h3>
+              <p>前后端共享同一套接口约束，字段、权限和错误语义不会在两边各自漂移。</p>
             </article>
             <article class="feature-card">
-              <h3>领域内核</h3>
-              <p>截止日、风险、导入和规则应用逻辑不绑死在某个界面或部署环境里。</p>
+              <h3>TypeScript Core</h3>
+              <p>截止日、风险、导入和规则应用逻辑留在 packages/core，不绑死界面或 Worker。</p>
             </article>
             <article class="feature-card">
-              <h3>数据边界</h3>
-              <p>数据访问、证据写入和审计记录集中管理，方便追踪、隔离和复核。</p>
+              <h3>Drizzle ORM + Scoped Repos</h3>
+              <p>数据访问、证据写入和审计记录集中管理，方便按 firm 追踪、隔离和复核。</p>
             </article>
             <article class="feature-card">
-              <h3>界面系统</h3>
-              <p>共享设计变量和基础组件，不让业务功能重复实现表格、状态标记和按钮。</p>
+              <h3>Tailwind CSS 4 + shadcn/ui</h3>
+              <p>共享设计变量、Base UI 原语和 Lucide 图标，不重复实现表格、状态标记和按钮。</p>
             </article>
           </div>
         </div>
