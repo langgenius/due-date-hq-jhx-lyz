@@ -23,7 +23,11 @@ test.describe('seeded Pulse alerts', () => {
   }) => {
     await appShellPage.goto()
 
-    await expect(authenticatedPage.getByText('IRS Disaster Relief')).toBeVisible()
+    await expect(
+      authenticatedPage.getByText(
+        'IRS CA storm relief extends selected filing deadlines for Los Angeles County.',
+      ),
+    ).toBeVisible()
     await authenticatedPage.getByRole('button', { name: 'Review', exact: true }).click()
 
     const drawer = authenticatedPage.getByRole('dialog')
@@ -73,31 +77,26 @@ test.describe('seeded Pulse alerts', () => {
     await expect(obligationQueuePage.rowFor('Arbor & Vale LLC')).toContainText('2026-03-15')
   })
 
-  test('AC: E2E-PULSE-PRIORITY-QUEUE lets Team managers review and apply a saved set', async ({
+  test('AC: E2E-PULSE-PRIORITY-QUEUE keeps the MVP priority queue UI hidden', async ({
     appShellPage,
     authSession,
     authenticatedPage,
-    obligationQueuePage,
     request,
   }) => {
     await seedBillingSubscription(request, { firmId: authSession.firmId, plan: 'team' })
     await appShellPage.goto('/rules?tab=pulse')
 
-    await authenticatedPage.getByRole('button', { name: 'Priority Queue' }).click()
-    await expect(authenticatedPage.getByText('IRS CA storm relief')).toBeVisible()
-    await expect(authenticatedPage.getByText('Needs review')).toBeVisible()
-
+    await expect(authenticatedPage.getByRole('button', { name: 'Priority Queue' })).toHaveCount(0)
+    await expect(authenticatedPage.getByRole('button', { name: 'All Pulse' })).toHaveCount(0)
+    await expect(
+      authenticatedPage.getByText(
+        'IRS CA storm relief extends selected filing deadlines for Los Angeles County.',
+      ),
+    ).toBeVisible()
     await authenticatedPage.getByRole('button', { name: 'Review' }).first().click()
     const drawer = authenticatedPage.getByRole('dialog')
-    await drawer.getByRole('button', { name: 'Confirm all review-needed' }).click()
-    await drawer.getByRole('button', { name: 'Save manager review' }).click()
-    await expect(authenticatedPage.getByText('Manager review saved')).toBeVisible()
-    await drawer.getByRole('button', { name: 'Apply reviewed set' }).click()
-    await expect(authenticatedPage.getByText(/Applied reviewed set to 2 clients?/)).toBeVisible()
-
-    await obligationQueuePage.goto()
-    await expect(obligationQueuePage.rowFor('Arbor & Vale LLC')).toContainText('2026-10-15')
-    await expect(obligationQueuePage.rowFor('Bright Studio S-Corp')).toContainText('2026-10-15')
+    await expect(drawer.getByText('Manager review')).toHaveCount(0)
+    await expect(drawer.getByRole('button', { name: 'Apply reviewed set' })).toHaveCount(0)
   })
 
   test.describe('coordinator role', () => {

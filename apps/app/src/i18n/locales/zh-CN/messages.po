@@ -120,8 +120,6 @@ msgid "{0} manual records"
 msgstr "{0} 条手动记录"
 
 #. placeholder {0}: alert.needsReviewCount
-#. placeholder {0}: item.alert.needsReviewCount
-#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "{0} need review"
 msgstr "{0} 个需要确认"
@@ -764,10 +762,6 @@ msgstr "全部忽略"
 #: src/features/calendar/calendar-page.tsx
 msgid "All open firm deadlines for owner and manager planning."
 msgstr "面向 Owner 和 Manager 规划的全事务所未关闭截止日。"
-
-#: src/features/pulse/AlertsListPage.tsx
-msgid "All Pulse"
-msgstr "全部 Pulse"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "All review-flagged"
@@ -1524,10 +1518,6 @@ msgstr "客户"
 msgid "Clients affected"
 msgstr "受影响客户"
 
-#: src/features/pulse/AlertsListPage.tsx
-msgid "clients may be affected"
-msgstr "个客户可能受影响"
-
 #: src/features/audit/audit-log-page.tsx
 #: src/features/migration/WizardShell.tsx
 msgid "Close"
@@ -1911,10 +1901,6 @@ msgstr "无法加载义务详情。"
 #: src/routes/obligations.tsx
 msgid "Couldn't load obligations."
 msgstr "无法加载义务。"
-
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Couldn't load priority queue"
-msgstr "无法加载优先队列"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't load this alert"
@@ -3031,17 +3017,12 @@ msgstr "高"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
-#: src/features/pulse/AlertsListPage.tsx
 msgid "High"
 msgstr "高"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "High confidence"
 msgstr "高置信度"
-
-#: src/features/pulse/AlertsListPage.tsx
-msgid "High impact"
-msgstr "高影响"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
@@ -3450,10 +3431,6 @@ msgstr "AI 置信度低"
 msgid "Low AI confidence. Review source details before applying."
 msgstr "AI 置信度低。应用前请复核来源详情。"
 
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Low confidence"
-msgstr "低置信度"
-
 #: src/components/patterns/app-shell.tsx
 msgid "Manage"
 msgstr "管理"
@@ -3800,7 +3777,6 @@ msgstr "需要输入"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/obligations/status-control.tsx
-#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
@@ -4009,10 +3985,6 @@ msgstr "没有表单"
 msgid "No generated obligations yet."
 msgstr "尚未生成义务。"
 
-#: src/features/pulse/AlertsListPage.tsx
-msgid "No high-risk Pulse alerts need manager review right now."
-msgstr "当前没有需要经理审核的高风险 Pulse 提醒。"
-
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "No import batches yet"
 msgstr "尚无导入批次"
@@ -4147,10 +4119,6 @@ msgstr "未记录面向用户的字段变更。"
 #: src/routes/obligations.tsx
 msgid "None"
 msgstr "无"
-
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Normal"
-msgstr "普通"
 
 #: src/features/migration/Stepper.tsx
 msgid "Normalize"
@@ -4467,10 +4435,6 @@ msgstr "打开门户"
 #: src/features/rules/temporary-rules-tab.tsx
 msgid "Open Pulse detail"
 msgstr "打开 Pulse 详情"
-
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Open review"
-msgstr "待审核"
 
 #. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
@@ -5144,14 +5108,6 @@ msgstr "优先 onboarding 与审计导出"
 msgid "Priority Pulse matching and review confirmation require Team or above."
 msgstr "优先 Pulse 匹配和审核确认需要 Team 或更高计划。"
 
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Priority Queue"
-msgstr "优先队列"
-
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Priority Queue requires Team"
-msgstr "优先队列需要 Team"
-
 #: src/features/calendar/calendar-page.tsx
 msgid "Privacy"
 msgstr "隐私"
@@ -5566,10 +5522,6 @@ msgstr "请求 Pulse 审核"
 msgid "Request review"
 msgstr "请求审核"
 
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Requested"
-msgstr "已请求"
-
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Required for rule applicability."
 msgstr "规则适用性判断必需。"
@@ -5683,7 +5635,6 @@ msgstr "已撤销 {0} 个客户"
 msgid "review"
 msgstr "复核"
 
-#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseAlertCard.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/rules/generation-preview-tab.tsx
@@ -5775,7 +5726,6 @@ msgstr "应用此提醒前，请复核来源摘录和结构化字段。"
 msgid "Review-only rule"
 msgstr "仅供复核的规则"
 
-#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Reviewed"
 msgstr "已审核"
@@ -6153,11 +6103,6 @@ msgstr "范围"
 msgid "Score"
 msgstr "分数"
 
-#. placeholder {0}: item.priorityScore
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Score {0}"
-msgstr "分数 {0}"
-
 #: src/routes/obligations.tsx
 msgid "Search assignees"
 msgstr "搜索经办人"
@@ -6524,10 +6469,6 @@ msgstr "来源"
 msgid "Source"
 msgstr "来源"
 
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Source attention"
-msgstr "来源需处理"
-
 #: src/features/rules/rule-library-tab.tsx
 msgid "Source changed requires single-rule review"
 msgstr "来源变更需要单条审核"
@@ -6865,10 +6806,6 @@ msgstr "税务年度"
 #: src/routes/practice.tsx
 msgid "Team"
 msgstr "团队"
-
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Team and Enterprise add priority Pulse matching, manager review, and batch confirmation for high-risk alerts."
-msgstr "Team 和 Enterprise 会为高风险提醒增加优先 Pulse 匹配、经理审核和批量确认。"
 
 #: src/features/workload/workload-page.tsx
 msgid "Team and Enterprise plans add capacity pressure, unassigned risk, and review pressure signals for weekly workload triage."
@@ -7396,10 +7333,6 @@ msgstr "上传行数据"
 #: src/routes/practice.tsx
 msgid "Urgency window"
 msgstr "紧急窗口"
-
-#: src/features/pulse/AlertsListPage.tsx
-msgid "Urgent"
-msgstr "紧急"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use 2-letter state codes"

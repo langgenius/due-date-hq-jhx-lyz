@@ -75,6 +75,7 @@ const REVIEW_UNAVAILABLE_STATUSES: ReadonlySet<PulseFirmAlertStatus> = new Set([
   'dismissed',
   'reverted',
 ])
+const SHOW_PRIORITY_REVIEW_UI = false
 
 function drawerTone(status: PulseFirmAlertStatus, confidence: number): PulsingDotTone {
   if (isVeryLowPulseConfidence(confidence)) return 'error'
@@ -124,7 +125,8 @@ function usePulsePermissions(): {
       canManagePriorityReview: false,
     }
   }
-  const priorityEnabled = planHasFeature(current.plan, 'priorityPulseMatching')
+  const priorityEnabled =
+    SHOW_PRIORITY_REVIEW_UI && planHasFeature(current.plan, 'priorityPulseMatching')
   const canApply = hasFirmPermission({
     role: current.role,
     permission: 'pulse.apply',

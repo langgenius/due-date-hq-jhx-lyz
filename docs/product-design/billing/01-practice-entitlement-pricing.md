@@ -48,8 +48,7 @@ usable entitlement.
 2. Pro subscriptions apply to one active practice and unlock 3 seats plus paid operations surfaces
    for that practice.
 3. Team subscriptions apply to one active practice and unlock 10 seats plus larger-team operations
-   affordances for that practice, including Priority Pulse queue, persistent manager review, and
-   batch confirmation for high-risk Pulse alerts.
+   affordances for that practice.
 4. Enterprise subscriptions are sales-assisted and may include multiple active practices. The
    allowed count is part of the contract, not a public self-serve slider in v1.
 5. Owners can always view existing practices they belong to, but creating a new practice past entitlement
@@ -90,9 +89,8 @@ Runtime gates must match that copy:
   readiness checklist generation, production Pulse actions including needs-review confirmation and
   review requests, and guided import AI for live client data.
 - Team keeps the same Practice AI functionality as Pro, and adds Team-only operations such as
-  Priority Pulse queue, persistent manager review, batch confirmation inside a single Pulse alert,
-  guided integration migration review, audit export, and larger team workload protection. The Team
-  Pulse value is operational control and review closure, not a stronger AI model.
+  guided integration migration review, audit export, and larger team workload protection. Team
+  value is operational control and review closure, not a stronger AI model.
 
 FAQ must include "Can I create multiple practices?" with the answer:
 
