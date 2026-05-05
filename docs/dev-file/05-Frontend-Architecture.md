@@ -28,8 +28,9 @@ apps/app/
 │   │   ├── _entry-layout.tsx     ← entry shell（顶栏 + 底栏，pathless layout route，包 /login + /onboarding；命名避开 "auth" 因为 onboarding 已在 post-auth 状态）
 │   │   ├── route-summary.ts      ← route handle metadata（AppShell route header + document title 的同一来源）
 │   │   ├── route-title.tsx       ← React 19 原生 <title> 输出，不用 effect 写 document.title
-│   │   ├── login.tsx             ← 登录页（path='/login'，loader 把已登录用户跳走，渲染在 EntryShell 内）
-│   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
+│   │   ├── login.tsx             ← 登录页（path='/login'，guest-only，渲染在 EntryShell 内）
+│   │   ├── two-factor.tsx        ← 当前 session MFA 验证页（path='/two-factor'，verification-only，渲染在 EntryShell 内）
+│   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，setup-only，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
 │   │   ├── migration.new.tsx     ← 首登客户迁移 activation route（path='/migration/new'，EntryShell 内 route-level wizard）
 │   │   ├── obligations.tsx
@@ -138,10 +139,12 @@ feature 语义留在 members vertical 内。
   `<page> | DueDateHQ`。不要再新增 pathname switch、`document.title` effect，或引入
   React Helmet 类 head 管理库。
 - 业务路由按 session/org 状态分成三个顶级 route group，并额外保留一个 public catch-all：
-  - **EntryShell（pathless layout route，`Component: EntryShell`）** — 包 `/login` + `/onboarding` 共享同一套 header / footer / locale switcher chrome。子路由各自挂自己的 loader（`guestLoader` / `onboardingLoader`），EntryShell 自身不带 loader 也不带 path，详见 `apps/app/src/routes/_entry-layout.tsx`。**命名避开 "auth"：** `/login` 是 pre-auth、`/onboarding` 是 post-auth/pre-active-org，两者唯一共性是「在用户进 dashboard shell 之前要走完的过渡 surface」 → "entry"
-    - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去；未登录用户先读取 `/api/auth-capabilities`，以 Google OAuth / One Tap 作为主入口，可选 Microsoft OAuth 在配置后显示；Email OTP 作为 `or` 分隔线下方的紧凑 fallback。用户开始填写邮箱后暂停 One Tap
-  - `/onboarding` — `onboardingLoader` 要求有 session 且无 `activeOrganizationId`；已有 active org 直接 `redirect(redirectTo)`，无 session 跳 `/login?redirectTo=/onboarding`。新建 practice 成功后跳 `/migration/new?source=onboarding`，不再通过 dashboard `location.state` 自动弹 Migration dialog。
-  - `/migration/new` — `migrationActivationLoader` 要求有 session 且已有 `activeOrganizationId`；无 session 回 `/login`，无 active practice 回 `/onboarding`，MFA 未通过回 `/two-factor`。它仍渲染在 EntryShell 内，不挂 AppShell/sidebar；EntryShell 在该 route 隐藏 footer 并让主滚动区顶部对齐，避免 footer 挤压 wizard。`source=onboarding` 的 activation-complete 判断放在 loader：当前 practice 已有 open obligations 或 applied migration batch 时，在页面渲染前直接回 Dashboard；普通手动导入入口不做这个跳转。`Skip for now` 只出现在 route header；workbench header 在 route shell 内隐藏 close/skip 控件，但 Esc 仍走 discard confirmation。完成导入或 skip 后才进入 Dashboard shell。
+  - **EntryShell（pathless layout route，`Component: EntryShell`）** — 承载进入 AppShell 前的过渡 surface：`/login`、`/two-factor`、`/accept-invite`、`/onboarding`、`/migration/new` 和 public readiness links。EntryShell 自身不带 loader 也不带 path；每个 child route 用自己的 loader 声明式决定当前 session 状态是否可访问。**命名避开 "auth"：** 这些页面不是同一种 auth 状态，而是同一种 chrome：单列、无 sidebar、在 Dashboard shell 之前。
+    - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去；如果 session 已登录但当前 MFA 未验证，则直接去 `/two-factor?redirectTo=<safe target>`；未登录用户先读取 `/api/auth-capabilities`，以 Google OAuth / One Tap 作为主入口，可选 Microsoft OAuth 在配置后显示；Email OTP 作为 `or` 分隔线下方的紧凑 fallback。用户开始填写邮箱后暂停 One Tap。
+    - `/two-factor` — `twoFactorLoader` 只允许“已登录、启用 MFA、当前 session 未验证”的状态访问；未登录回 `/login?redirectTo=/two-factor`，不需要验证或已验证的 session 直接回安全 `redirectTo`，没有 active practice 时默认回 `/onboarding`。它不是普通登录页，也不是长期可访问的 account security surface。
+    - `/accept-invite` — `acceptInviteLoader` 允许未登录用户进入 invitation sign-in surface；已登录但当前 MFA 未验证时先跳 `/two-factor?redirectTo=<invite url>`；组件通过 loader data 判断初始 signed-in 状态，Email OTP 同页成功后 revalidate route loader，再用局部 `emailSignedIn` 推进邀请预览。
+  - `/onboarding` — `onboardingLoader` 要求有 session、当前 MFA 已验证或无需 MFA，且无 `activeOrganizationId`；已有 active org 直接 `redirect(redirectTo)`，无 session 跳 `/login?redirectTo=/onboarding`，MFA 未通过先跳 `/two-factor?redirectTo=/onboarding`。新建 practice 成功后跳 `/migration/new?source=onboarding`，不再通过 dashboard `location.state` 自动弹 Migration dialog。
+  - `/migration/new` — `migrationActivationLoader` 要求有 session、当前 MFA 已验证或无需 MFA，且已有 `activeOrganizationId`；无 session 回 `/login`，MFA 未通过先回 `/two-factor`，无 active practice 回 `/onboarding`。它仍渲染在 EntryShell 内，不挂 AppShell/sidebar；EntryShell 在该 route 隐藏 footer 并让主滚动区顶部对齐，避免 footer 挤压 wizard。`source=onboarding` 的 activation-complete 判断放在 loader：当前 practice 已有 open obligations 或 applied migration batch 时，在页面渲染前直接回 Dashboard；普通手动导入入口不做这个跳转。`Skip for now` 只出现在 route header；workbench header 在 route shell 内隐藏 close/skip 控件，但 Esc 仍走 discard confirmation。完成导入或 skip 后才进入 Dashboard shell。
     Onboarding 提交不直接调用 Better Auth organization client；它通过 DueDateHQ `firms` RPC gateway 先 `listMine` 查 active、非 deleted 的业务 firm，有则 `switchActive`，没有才 `create`。这样最后一个 firm soft-delete 后不会被 Better Auth 残留 organization 重新激活。
   - `/` — 受保护路由组（`id: 'protected'`, `Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `/obligations` / `practice` / `rules` / `members` / `billing` 等都作为它的 children；不再保留 `/settings`、`/settings/*` 或历史 `/firm` 兼容路由。`/practice` 是 Practice profile 的唯一 URL。
     - `/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
@@ -167,8 +170,9 @@ feature 语义留在 members vertical 内。
 
 - 认证 gate 放在 **layout route 的 loader** 里，不放进组件渲染（避免 `<Navigate>` 造成中间帧闪烁，详见 `docs/dev-log/2026-04-23-auth-gate-loader-refactor.md`）
 - 未登录访问 `/` 树 → `protectedLoader` → `throw redirect('/login?redirectTo=<当前路径>')`
-- 已启用 MFA 但当前 session 未完成二次验证 → `protectedLoader` → `throw redirect('/two-factor?redirectTo=<当前路径>')`
-- 已登录访问 `/login` → `guestLoader` → `throw redirect(redirectTo || '/')`（`redirectTo` 只接受 `/` 开头的 in-app 路径，避免 open redirect）
+- 已启用 MFA 但当前 session 未完成二次验证 → `protectedLoader` / `onboardingLoader` / `migrationActivationLoader` → `throw redirect('/two-factor?redirectTo=<当前路径>')`
+- 直接访问 `/two-factor` → `twoFactorLoader` 只在当前 session 需要 MFA 时返回 `{ user }`；其他状态 redirect 到 login、onboarding 或安全目标
+- 已登录访问 `/login` → `guestLoader` → 已完成 MFA 的 session `redirect(redirectTo || '/')`；未完成 MFA 的 session 先 `redirect('/two-factor?redirectTo=<safe target>')`（`redirectTo` 只接受 `/` 开头的 in-app 路径，避免 open redirect）
 - 受保护页面通过 `useLoaderData<{ user }>()`（或子路由 `useRouteLoaderData('protected')`）读取 `user`，**禁止**在受保护组件里再订阅 `useSession`——否则 sign-out 清 session store 会触发中间态 re-render
 
 **URL state 约定：**

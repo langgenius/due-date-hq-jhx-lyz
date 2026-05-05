@@ -6116,11 +6116,6 @@ msgstr "已登录"
 msgid "Signing out…"
 msgstr "正在退出…"
 
-#: src/features/migration/WizardShell.tsx
-msgid "Skip"
-msgstr "跳过"
-
-#: src/features/migration/WizardShell.tsx
 #: src/routes/migration.new.tsx
 msgid "Skip for now"
 msgstr "暂时跳过"

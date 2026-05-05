@@ -33,6 +33,7 @@ vi.mock('@/lib/rpc', () => ({
 
 // Import after the mock so the loaders pick up the stubbed authClient.
 const {
+  acceptInviteLoader,
   calendarAliasLoader,
   dashboardAliasLoader,
   guestLoader,
@@ -42,6 +43,7 @@ const {
   protectedLoader,
   pickSafeRedirect,
   notFoundLoader,
+  twoFactorLoader,
 } = await import('@/router')
 const { formatDocumentTitle, getRouteSummaryMessages, routeSummaries } =
   await import('@/routes/route-summary')
@@ -260,6 +262,16 @@ describe('protectedLoader', () => {
     )
   })
 
+  it('redirects MFA-enabled sessions to two-factor before onboarding when no active practice exists', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession(null, { twoFactorEnabled: true, twoFactorVerified: false }),
+    })
+    await expectRedirectTo(
+      protectedLoader(makeArgs('http://localhost/dashboard')),
+      '/two-factor?redirectTo=%2Fdashboard',
+    )
+  })
+
   it('allows MFA-enabled sessions after current-session two-factor verification', async () => {
     getSession.mockResolvedValueOnce({
       data: makeSession('firm_1', { twoFactorEnabled: true, twoFactorVerified: true }),
@@ -323,6 +335,111 @@ describe('onboardingLoader', () => {
     const result = await onboardingLoader(makeArgs('http://localhost/onboarding'))
     expect(result).toEqual({ user: { id: 'user_1', name: 'Alex Chen', email: 'alex@example.com' } })
   })
+
+  it('redirects MFA-enabled onboarding sessions to two-factor first', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession(null, { twoFactorEnabled: true, twoFactorVerified: false }),
+    })
+    await expectRedirectTo(
+      onboardingLoader(makeArgs('http://localhost/onboarding')),
+      '/two-factor?redirectTo=%2Fonboarding',
+    )
+  })
+})
+
+describe('twoFactorLoader', () => {
+  beforeEach(() => {
+    getSession.mockReset()
+  })
+
+  it('redirects unauthenticated users to login with the two-factor redirect target', async () => {
+    getSession.mockResolvedValueOnce({ data: null })
+    await expectRedirectTo(
+      twoFactorLoader(makeArgs('http://localhost/two-factor')),
+      '/login?redirectTo=%2Ftwo-factor',
+    )
+  })
+
+  it('returns the user when the current session still needs two-factor verification', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession('firm_1', { twoFactorEnabled: true, twoFactorVerified: false }),
+    })
+    const result = await twoFactorLoader(makeArgs('http://localhost/two-factor'))
+    expect(result).toEqual({
+      user: {
+        id: 'user_1',
+        name: 'Alex Chen',
+        email: 'alex@example.com',
+        twoFactorEnabled: true,
+      },
+    })
+  })
+
+  it('redirects verified sessions away from two-factor to the safe target', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession('firm_1', { twoFactorEnabled: true, twoFactorVerified: true }),
+    })
+    await expectRedirectTo(
+      twoFactorLoader(makeArgs('http://localhost/two-factor?redirectTo=/obligations')),
+      '/obligations',
+    )
+  })
+
+  it('redirects sessions that do not need two-factor to onboarding when no practice exists', async () => {
+    getSession.mockResolvedValueOnce({ data: makeSession(null) })
+    await expectRedirectTo(twoFactorLoader(makeArgs('http://localhost/two-factor')), '/onboarding')
+  })
+
+  it('rejects unsafe or self-referential post-verification redirects', async () => {
+    getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
+    await expectRedirectTo(
+      twoFactorLoader(makeArgs('http://localhost/two-factor?redirectTo=https://evil.com')),
+      '/',
+    )
+
+    getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
+    await expectRedirectTo(
+      twoFactorLoader(makeArgs('http://localhost/two-factor?redirectTo=/two-factor')),
+      '/',
+    )
+  })
+})
+
+describe('acceptInviteLoader', () => {
+  beforeEach(() => {
+    getSession.mockReset()
+  })
+
+  it('allows unauthenticated users to reach the invitation sign-in surface', async () => {
+    getSession.mockResolvedValueOnce({ data: null })
+    const result = await acceptInviteLoader(makeArgs('http://localhost/accept-invite?id=inv_1'))
+    expect(result).toEqual({ user: null })
+  })
+
+  it('redirects MFA-enabled signed-in users to two-factor before invitation acceptance', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession('firm_1', { twoFactorEnabled: true, twoFactorVerified: false }),
+    })
+    await expectRedirectTo(
+      acceptInviteLoader(makeArgs('http://localhost/accept-invite?id=inv_1')),
+      '/two-factor?redirectTo=%2Faccept-invite%3Fid%3Dinv_1',
+    )
+  })
+
+  it('allows verified signed-in users to reach the invitation acceptance surface', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession('firm_1', { twoFactorEnabled: true, twoFactorVerified: true }),
+    })
+    const result = await acceptInviteLoader(makeArgs('http://localhost/accept-invite?id=inv_1'))
+    expect(result).toEqual({
+      user: {
+        id: 'user_1',
+        name: 'Alex Chen',
+        email: 'alex@example.com',
+        twoFactorEnabled: true,
+      },
+    })
+  })
 })
 
 describe('migrationActivationLoader', () => {
@@ -343,6 +460,16 @@ describe('migrationActivationLoader', () => {
     await expectRedirectTo(
       migrationActivationLoader(makeArgs('http://localhost/migration/new?source=onboarding')),
       '/onboarding?redirectTo=%2Fmigration%2Fnew%3Fsource%3Donboarding',
+    )
+  })
+
+  it('redirects MFA-enabled migration activation sessions to two-factor first', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession(null, { twoFactorEnabled: true, twoFactorVerified: false }),
+    })
+    await expectRedirectTo(
+      migrationActivationLoader(makeArgs('http://localhost/migration/new?source=onboarding')),
+      '/two-factor?redirectTo=%2Fmigration%2Fnew%3Fsource%3Donboarding',
     )
   })
 
@@ -423,6 +550,16 @@ describe('guestLoader', () => {
   it('redirects authed users to redirectTo (safe paths only)', async () => {
     getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
     await expectRedirectTo(guestLoader(makeArgs('http://localhost/login?redirectTo=/')), '/')
+  })
+
+  it('redirects MFA-enabled authed users from login to two-factor', async () => {
+    getSession.mockResolvedValueOnce({
+      data: makeSession('firm_1', { twoFactorEnabled: true, twoFactorVerified: false }),
+    })
+    await expectRedirectTo(
+      guestLoader(makeArgs('http://localhost/login?redirectTo=/obligations')),
+      '/two-factor?redirectTo=%2Fobligations',
+    )
   })
 
   it('consumes and drops a valid locale handoff when redirecting authed users away from login', async () => {

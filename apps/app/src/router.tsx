@@ -69,6 +69,25 @@ function pathAndQueryWithoutLocale(url: URL): string {
   return removeLocaleFromPath(`${url.pathname}${url.search}${url.hash}`)
 }
 
+function redirectParamFromUrl(url: URL, fallback: string): string {
+  return encodeURIComponent(pathAndQueryWithoutLocale(url) || fallback)
+}
+
+function twoFactorRedirect(url: URL, fallback: string): string {
+  return `/two-factor?redirectTo=${redirectParamFromUrl(url, fallback)}`
+}
+
+function safePostVerificationRedirect(session: MfaSessionShape, raw: string | null): string {
+  const fallback =
+    session.session &&
+    typeof session.session === 'object' &&
+    Reflect.get(session.session, 'activeOrganizationId')
+      ? '/'
+      : '/onboarding'
+  const target = pickSafeRedirect(raw, fallback)
+  return target === '/two-factor' || target.startsWith('/two-factor?') ? fallback : target
+}
+
 function AppRoot() {
   return (
     <NuqsAdapter>
@@ -101,10 +120,37 @@ async function guestLoader(args: LoaderFunctionArgs) {
   const url = new URL(args.request.url)
   const consumedLocale = applyRequestLocaleHandoff(url)
   if (session) {
-    throw redirect(pickSafeRedirect(url.searchParams.get('redirectTo')))
+    const target = pickSafeRedirect(url.searchParams.get('redirectTo'))
+    if (needsTwoFactorVerification(session)) {
+      throw redirect(`/two-factor?redirectTo=${encodeURIComponent(target)}`)
+    }
+    throw redirect(target)
   }
   if (consumedLocale) throw replace(pathAndQueryWithoutLocale(url))
   return null
+}
+
+async function twoFactorLoader(args: LoaderFunctionArgs) {
+  const session = await fetchSession(args)
+  const url = new URL(args.request.url)
+  const consumedLocale = applyRequestLocaleHandoff(url)
+  if (!session) throw redirect(`/login?redirectTo=${redirectParamFromUrl(url, '/two-factor')}`)
+  if (!needsTwoFactorVerification(session)) {
+    throw redirect(safePostVerificationRedirect(session, url.searchParams.get('redirectTo')))
+  }
+  if (consumedLocale) throw replace(pathAndQueryWithoutLocale(url))
+  return { user: session.user }
+}
+
+async function acceptInviteLoader(args: LoaderFunctionArgs) {
+  const session = await fetchSession(args)
+  const url = new URL(args.request.url)
+  const consumedLocale = applyRequestLocaleHandoff(url)
+  if (session && needsTwoFactorVerification(session)) {
+    throw redirect(twoFactorRedirect(url, '/accept-invite'))
+  }
+  if (consumedLocale) throw replace(pathAndQueryWithoutLocale(url))
+  return { user: session?.user ?? null }
 }
 
 // Reachable only with a valid session that has NO active organization yet —
@@ -115,6 +161,9 @@ async function onboardingLoader(args: LoaderFunctionArgs) {
   const url = new URL(args.request.url)
   const consumedLocale = applyRequestLocaleHandoff(url)
   if (!session) throw redirect('/login?redirectTo=/onboarding')
+  if (needsTwoFactorVerification(session)) {
+    throw redirect(twoFactorRedirect(url, '/onboarding'))
+  }
   if (session.session.activeOrganizationId) {
     throw redirect(pickSafeRedirect(url.searchParams.get('redirectTo')))
   }
@@ -133,11 +182,11 @@ async function migrationActivationLoader(args: LoaderFunctionArgs) {
   if (!session) {
     throw redirect(`/login?redirectTo=${encodeURIComponent(pathAndQuery || '/migration/new')}`)
   }
+  if (needsTwoFactorVerification(session)) {
+    throw redirect(twoFactorRedirect(url, '/migration/new'))
+  }
   if (!session.session.activeOrganizationId) {
     throw redirect(`/onboarding?redirectTo=${encodeURIComponent(pathAndQuery || '/migration/new')}`)
-  }
-  if (needsTwoFactorVerification(session)) {
-    throw redirect(`/two-factor?redirectTo=${encodeURIComponent(pathAndQuery || '/migration/new')}`)
   }
   if (consumedLocale) throw replace(pathAndQueryWithoutLocale(url))
   let firm: FirmPublic | null | undefined
@@ -170,7 +219,7 @@ async function readMigrationActivationGate(
 
 // Gate for every authenticated surface. Children read the user via
 // useRouteLoaderData(PROTECTED_ROUTE_ID) — never via a separate useSession call,
-// so session changes can't trigger a mid-render <Navigate>.
+// so session changes can't trigger a mid-render client redirect.
 async function protectedLoader(args: LoaderFunctionArgs) {
   const session = await fetchSession(args)
   const url = new URL(args.request.url)
@@ -180,6 +229,12 @@ async function protectedLoader(args: LoaderFunctionArgs) {
     const param =
       pathAndQuery && pathAndQuery !== '/' ? `?redirectTo=${encodeURIComponent(pathAndQuery)}` : ''
     throw redirect(`/login${param}`)
+  }
+  if (needsTwoFactorVerification(session)) {
+    const pathAndQuery = pathAndQueryWithoutLocale(url)
+    const param =
+      pathAndQuery && pathAndQuery !== '/' ? `?redirectTo=${encodeURIComponent(pathAndQuery)}` : ''
+    throw redirect(`/two-factor${param}`)
   }
   // No active firm yet → first-login onboarding. Skip the redirect when we're
   // already on /onboarding to avoid a loop (defensive — /onboarding is not a
@@ -191,12 +246,6 @@ async function protectedLoader(args: LoaderFunctionArgs) {
         ? `?redirectTo=${encodeURIComponent(pathAndQuery)}`
         : ''
     throw redirect(`/onboarding${param}`)
-  }
-  if (needsTwoFactorVerification(session)) {
-    const pathAndQuery = pathAndQueryWithoutLocale(url)
-    const param =
-      pathAndQuery && pathAndQuery !== '/' ? `?redirectTo=${encodeURIComponent(pathAndQuery)}` : ''
-    throw redirect(`/two-factor${param}`)
   }
   if (consumedLocale) throw replace(pathAndQueryWithoutLocale(url))
   return { user: session.user }
@@ -211,9 +260,8 @@ export function createAppRouter() {
         {
           // Pathless layout route — renders the shared "entry" chrome
           // (header / footer / locale switcher) once for every page users
-          // see *before* reaching the dashboard shell: `/login` (pre-auth)
-          // and `/onboarding` (post-auth, pre-active-org). Each child runs
-          // its own loader independently. See `docs/dev-log/
+          // see before reaching the dashboard shell. Each child owns its
+          // session-state loader independently. See `docs/dev-log/
           // 2026-04-26-entry-shell-extraction.md` for the naming rationale.
           Component: EntryShell,
           children: [
@@ -230,6 +278,7 @@ export function createAppRouter() {
             },
             {
               path: '/two-factor',
+              loader: twoFactorLoader,
               handle: routeHandle(routeSummaries.twoFactor),
               HydrateFallback: EntryRouteHydrateFallback,
               lazy: async () => {
@@ -240,6 +289,7 @@ export function createAppRouter() {
             },
             {
               path: '/accept-invite',
+              loader: acceptInviteLoader,
               handle: routeHandle(routeSummaries.acceptInvite),
               HydrateFallback: EntryRouteHydrateFallback,
               lazy: async () => {
@@ -474,6 +524,7 @@ export function createAppRouter() {
 
 // Exported for unit tests.
 export {
+  acceptInviteLoader,
   dashboardAliasLoader,
   calendarAliasLoader,
   guestLoader,
@@ -483,4 +534,5 @@ export {
   protectedLoader,
   pickSafeRedirect,
   notFoundLoader,
+  twoFactorLoader,
 }

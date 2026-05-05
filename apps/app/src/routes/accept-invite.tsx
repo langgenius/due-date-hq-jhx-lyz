@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { useLoaderData, useNavigate, useRevalidator, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { AlertCircleIcon, Loader2Icon, MailIcon } from 'lucide-react'
@@ -17,8 +17,12 @@ import {
 import { FieldSeparator } from '@duedatehq/ui/components/ui/field'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { EmailOtpSignInForm } from '@/features/auth/email-otp-sign-in-form'
-import { authClient, signInWithGoogle, signInWithMicrosoft } from '@/lib/auth'
+import { signInWithGoogle, signInWithMicrosoft, type AuthUser } from '@/lib/auth'
 import { authCapabilities } from '@/lib/auth-capabilities'
+
+type AcceptInviteLoaderData = {
+  user: AuthUser | null
+}
 
 type InvitationPreview = {
   id: string
@@ -53,13 +57,14 @@ async function acceptInvitation(id: string): Promise<void> {
 }
 
 export function AcceptInviteRoute() {
+  const { user } = useLoaderData<AcceptInviteLoaderData>()
   const { t } = useLingui()
   const navigate = useNavigate()
+  const revalidator = useRevalidator()
   const [search] = useSearchParams()
   const id = search.get('id') || ''
-  const session = authClient.useSession()
   const [emailSignedIn, setEmailSignedIn] = useState(false)
-  const signedIn = Boolean(session.data) || emailSignedIn
+  const signedIn = Boolean(user) || emailSignedIn
   const [submitting, setSubmitting] = useState<'accept' | 'google' | 'microsoft' | null>(null)
   const [emailBusy, setEmailBusy] = useState(false)
   const inviteQuery = useQuery({
@@ -166,6 +171,7 @@ export function AcceptInviteRoute() {
                     disabled={submitting !== null}
                     onPendingChange={setEmailBusy}
                     onSignedIn={async () => {
+                      await revalidator.revalidate()
                       setEmailSignedIn(true)
                       await inviteQuery.refetch()
                     }}

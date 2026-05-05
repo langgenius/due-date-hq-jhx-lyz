@@ -8,10 +8,11 @@ import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 
 // React Router v7 pathless layout route shared by every "entry" surface — the
 // pages users see between landing on the app and reaching the dashboard shell.
-// Today that means `/login` (pre-auth, `guestLoader`), `/onboarding`
-// (post-auth, pre-active-org, `onboardingLoader`), and `/migration/new`
-// (post-auth, active-practice, pre-dashboard activation); future entries
-// (magic link landing, SSO consent, email verification, password reset) belong here too.
+// Today that means `/login`, `/two-factor`, `/accept-invite`, `/onboarding`,
+// `/migration/new`, and public readiness links. Each child owns the loader
+// that decides whether the current session state may see that surface.
+// Future entries (magic link landing, SSO consent, email verification,
+// password reset) belong here too.
 //
 // We deliberately don't call this "_auth-layout" — `/onboarding` runs *after*
 // authentication and only blocks until the user provisions a practice, so an
