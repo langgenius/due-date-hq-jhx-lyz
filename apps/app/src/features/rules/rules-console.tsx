@@ -10,7 +10,6 @@ import { PulseChangesTab } from '@/features/pulse/AlertsListPage'
 import { CoverageTab } from './coverage-tab'
 import { GenerationPreviewTab } from './generation-preview-tab'
 import { RuleLibraryTab } from './rule-library-tab'
-import { ReviewQueueTab } from './review-queue-tab'
 import { RulesPageHeader } from './rules-console-primitives'
 import { SourcesTab } from './sources-tab'
 import { TemporaryRulesTab } from './temporary-rules-tab'
@@ -54,7 +53,6 @@ import {
 
 function RulesTabPanel({ activeTab }: { activeTab: RulesTab }) {
   if (activeTab === 'coverage') return <CoverageTab />
-  if (activeTab === 'review') return <ReviewQueueTab />
   if (activeTab === 'sources') return <SourcesTab />
   if (activeTab === 'library') return <RuleLibraryTab />
   if (activeTab === 'pulse') return <PulseChangesTab embedded />
@@ -75,9 +73,8 @@ export function RulesConsole() {
   const tabLabels = useMemo<Record<RulesTab, string>>(
     () => ({
       coverage: t`Coverage`,
-      review: t`Review Queue`,
       sources: t`Sources`,
-      library: t`Rule Library`,
+      library: t`Rules`,
       pulse: t`Pulse Changes`,
       temporary: t`Temporary Rules`,
       preview: t`Obligation Preview`,
@@ -88,9 +85,8 @@ export function RulesConsole() {
   const tabDescriptions = useMemo<Record<RulesTab, string>>(
     () => ({
       coverage: t`Sources are official federal, state, and DC materials. Only practice-accepted rules can generate reminder-ready obligations; pending templates remain review-only until an owner or manager accepts them.`,
-      review: t`Owner and manager workspace for practice rule approval. Filter pending templates, preview the selected impact, then accept only the checked rules with a batch review note.`,
       sources: t`Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Source changes create practice review tasks; they never silently update active rules.`,
-      library: t`Obligation rules include active practice rules and review-only templates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Pending rows never trigger user reminders.`,
+      library: t`Review pending templates, activate practice rules, and inspect active, rejected, or archived rule evidence in one table. Only active practice rules can generate client obligations or reminders.`,
       pulse: t`Source-backed government changes that may affect client deadlines. Owners and managers review affected clients, apply temporary exceptions, dismiss noise, or revisit closed changes here.`,
       temporary: t`Applied Pulse exceptions that are currently changing obligation due dates. Review scope, source evidence, active obligation count, and open the Pulse detail when a temporary rule needs revert or follow-up.`,
       preview: t`Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded.`,

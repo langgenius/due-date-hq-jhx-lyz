@@ -67,7 +67,7 @@ msgstr "{0, plural, one {We imported the first 1000 of # row. Split your file to
 
 #. placeholder {0}: result.accepted.length
 #. placeholder {1}: result.skipped.length
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "{0} accepted · {1} skipped."
 msgstr "{0} accepted · {1} skipped."
 
@@ -151,7 +151,7 @@ msgstr "{0} ready"
 
 #. placeholder {0}: preview.acceptReadyCount
 #. placeholder {1}: preview.estimatedObligationCount
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "{0} ready · {1} estimated obligation matches"
 msgstr "{0} ready · {1} estimated obligation matches"
 
@@ -183,7 +183,7 @@ msgid "{0} seats"
 msgstr "{0} seats"
 
 #. placeholder {0}: selectedRows.length
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "{0} selected"
 msgstr "{0} selected"
 
@@ -204,7 +204,7 @@ msgid "{0} shown · {1} total"
 msgstr "{0} shown · {1} total"
 
 #. placeholder {0}: preview.sourceCount
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "{0} sources involved"
 msgstr "{0} sources involved"
 
@@ -488,11 +488,11 @@ msgstr "Accept invitation"
 msgid "Accept rule"
 msgstr "Accept rule"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Accept selected"
 msgstr "Accept selected"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Accepted by practice owner/manager after reviewing source-backed templates."
 msgstr "Accepted by practice owner/manager after reviewing source-backed templates."
 
@@ -622,7 +622,7 @@ msgstr "Actor"
 msgid "Add a manual client record to the active practice directory."
 msgstr "Add a manual client record to the active practice directory."
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Add a review note and try again."
 msgstr "Add a review note and try again."
 
@@ -1075,11 +1075,11 @@ msgstr "Basic"
 msgid "Basic AI"
 msgstr "Basic AI"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Batch review note"
 msgstr "Batch review note"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Batch review note is required."
 msgstr "Batch review note is required."
 
@@ -1144,7 +1144,7 @@ msgstr "Billing status is not ready yet."
 msgid "Building the import preview"
 msgstr "Building the import preview"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "BULK CONFIRM"
 msgstr "BULK CONFIRM"
 
@@ -1258,7 +1258,7 @@ msgstr "Changed from {0} to {1}"
 msgid "Changed from {before} to {after}"
 msgstr "Changed from {before} to {after}"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Check the selected rows and try again."
 msgstr "Check the selected rows and try again."
 
@@ -1647,7 +1647,7 @@ msgstr "Copy URL"
 msgid "Could not accept invitation"
 msgstr "Could not accept invitation"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Could not accept selected rules"
 msgstr "Could not accept selected rules"
 
@@ -1715,10 +1715,6 @@ msgstr "Could not load notifications"
 msgid "Could not load rule library."
 msgstr "Could not load rule library."
 
-#: src/features/rules/review-queue-tab.tsx
-msgid "Could not load rule review queue."
-msgstr "Could not load rule review queue."
-
 #: src/features/rules/sources-tab.tsx
 msgid "Could not load rule sources."
 msgstr "Could not load rule sources."
@@ -1739,7 +1735,7 @@ msgstr "Could not load temporary rules."
 msgid "Could not mark notification read"
 msgstr "Could not mark notification read"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Could not preview selected rules"
 msgstr "Could not preview selected rules"
 
@@ -2533,7 +2529,7 @@ msgstr "Enterprise is a sales-assisted plan for multiple practices or offices. C
 msgid "Enterprise plan changes require sales support."
 msgstr "Enterprise plan changes require sales support."
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Entities"
 msgstr "Entities"
 
@@ -2852,7 +2848,6 @@ msgstr "Filter by source"
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "Filter by time range, action category, action, actor, or entity type."
 
-#: src/features/rules/review-queue-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Filter jurisdictions"
@@ -2916,7 +2911,7 @@ msgid "Format"
 msgstr "Format"
 
 #: src/features/pulse/components/PulseStructuredFields.tsx
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Forms"
 msgstr "Forms"
 
@@ -3240,7 +3235,6 @@ msgstr "Invite member"
 msgid "IP hash"
 msgstr "IP hash"
 
-#: src/features/rules/review-queue-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "JUR"
@@ -3256,7 +3250,7 @@ msgid "JURISDICTION SUMMARY"
 msgstr "JURISDICTION SUMMARY"
 
 #: src/features/rules/coverage-tab.tsx
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Jurisdictions"
 msgstr "Jurisdictions"
 
@@ -3387,10 +3381,6 @@ msgstr "Loading readiness check…"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Loading rule library."
 msgstr "Loading rule library."
-
-#: src/features/rules/review-queue-tab.tsx
-msgid "Loading rule review queue."
-msgstr "Loading rule review queue."
 
 #: src/features/rules/sources-tab.tsx
 msgid "Loading rule sources."
@@ -3789,6 +3779,7 @@ msgstr "Needs input"
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/obligations/status-control.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
+#: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
 msgid "Needs review"
 msgstr "Needs review"
@@ -3830,6 +3821,10 @@ msgstr "New obligation view"
 #: src/routes/billing.checkout.tsx
 msgid "New seat limit"
 msgstr "New seat limit"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "New template"
+msgstr "New template"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Newest practice-scoped audit events appear first."
@@ -4027,7 +4022,6 @@ msgstr "No open obligations available for preview."
 msgid "No open obligations match the workload window."
 msgstr "No open obligations match the workload window."
 
-#: src/features/rules/review-queue-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "No options"
@@ -4232,10 +4226,6 @@ msgstr "Obligation needs-input update"
 #: src/features/rules/rules-console.tsx
 msgid "Obligation Preview"
 msgstr "Obligation Preview"
-
-#: src/features/rules/rules-console.tsx
-msgid "Obligation rules include active practice rules and review-only templates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Pending rows never trigger user reminders."
-msgstr "Obligation rules include active practice rules and review-only templates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Pending rows never trigger user reminders."
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Obligation status updates and client imports will appear here when they write audit rows."
@@ -4477,10 +4467,6 @@ msgstr "Open rule detail: {0}"
 msgid "Open source"
 msgstr "Open source"
 
-#: src/features/rules/review-queue-tab.tsx
-msgid "Open tasks"
-msgstr "Open tasks"
-
 #: src/features/calendar/calendar-page.tsx
 msgid "Open the Apple Calendar link"
 msgstr "Open the Apple Calendar link"
@@ -4579,10 +4565,6 @@ msgstr "Owner and manager digest will be sent when email is available"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Owner and manager notifications and emails will be sent."
 msgstr "Owner and manager notifications and emails will be sent."
-
-#: src/features/rules/rules-console.tsx
-msgid "Owner and manager workspace for practice rule approval. Filter pending templates, preview the selected impact, then accept only the checked rules with a batch review note."
-msgstr "Owner and manager workspace for practice rule approval. Filter pending templates, preview the selected impact, then accept only the checked rules with a batch review note."
 
 #: src/routes/billing.checkout.tsx
 msgid "Owner approval required"
@@ -5065,7 +5047,7 @@ msgid "Preset"
 msgstr "Preset"
 
 #: src/features/rules/generation-preview-tab.tsx
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Preview"
 msgstr "Preview"
 
@@ -5082,7 +5064,7 @@ msgstr "Preview closed source-year obligations, then create next-year obligation
 msgid "Preview recalculates open obligations without saving changes."
 msgstr "Preview recalculates open obligations without saving changes."
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Preview selected rules before accepting them into production."
 msgstr "Preview selected rules before accepting them into production."
 
@@ -5387,7 +5369,6 @@ msgstr "Reading file…"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/obligations/status-control.tsx
-#: src/features/rules/review-queue-tab.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
@@ -5691,6 +5672,10 @@ msgstr "Review and confirm column mapping"
 msgid "Review note"
 msgstr "Review note"
 
+#: src/features/rules/rules-console.tsx
+msgid "Review pending templates, activate practice rules, and inspect active, rejected, or archived rule evidence in one table. Only active practice rules can generate client obligations or reminders."
+msgstr "Review pending templates, activate practice rules, and inspect active, rejected, or archived rule evidence in one table. Only active practice rules can generate client obligations or reminders."
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Review plans"
 msgstr "Review plans"
@@ -5707,11 +5692,7 @@ msgstr "Review practice-wide write events, what changed, and actor metadata."
 msgid "Review priority list"
 msgstr "Review priority list"
 
-#: src/features/rules/rules-console.tsx
-msgid "Review Queue"
-msgstr "Review Queue"
-
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Review reasons"
 msgstr "Review reasons"
 
@@ -5892,10 +5873,6 @@ msgstr "Rule extension policy"
 msgid "Rule issue reported"
 msgstr "Rule issue reported"
 
-#: src/features/rules/rules-console.tsx
-msgid "Rule Library"
-msgstr "Rule Library"
-
 #: src/routes/obligations.tsx
 msgid "Rule notes"
 msgstr "Rule notes"
@@ -5939,12 +5916,13 @@ msgstr "Rule updated"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/audit/audit-log-page.tsx
 #: src/features/rules/rules-console-primitives.tsx
+#: src/features/rules/rules-console.tsx
 #: src/routes/route-summary.ts
 msgid "Rules"
 msgstr "Rules"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Rules accepted"
 msgstr "Rules accepted"
 
@@ -6211,7 +6189,7 @@ msgstr "Select all eligible obligations"
 msgid "Select all visible rows"
 msgstr "Select all visible rows"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Select at least one pending rule."
 msgstr "Select at least one pending rule."
 
@@ -6227,8 +6205,8 @@ msgstr "Select clients to apply"
 msgid "Select date"
 msgstr "Select date"
 
-#. placeholder {0}: task.rule.title
-#: src/features/rules/review-queue-tab.tsx
+#. placeholder {0}: rule.title
+#: src/features/rules/rule-library-tab.tsx
 msgid "Select rule {0}"
 msgstr "Select rule {0}"
 
@@ -6236,13 +6214,9 @@ msgstr "Select rule {0}"
 msgid "Select tax year {value}"
 msgstr "Select tax year {value}"
 
-#: src/features/rules/review-queue-tab.tsx
-msgid "Select visible rules"
-msgstr "Select visible rules"
-
-#: src/features/rules/review-queue-tab.tsx
-msgid "Selected"
-msgstr "Selected"
+#: src/features/rules/rule-library-tab.tsx
+msgid "Select visible pending rules"
+msgstr "Select visible pending rules"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Selected obligation"
@@ -6399,7 +6373,7 @@ msgid "Skip for now"
 msgstr "Skip for now"
 
 #: src/features/rules/generation-preview-tab.tsx
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Skipped"
 msgstr "Skipped"
 
@@ -6564,7 +6538,7 @@ msgstr "Source-backed government changes that may affect client deadlines. Owner
 msgid "Source-backed previews and lightweight migration help for one owner."
 msgstr "Source-backed previews and lightweight migration help for one owner."
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Source-changed rules should be checked against evidence before accepting."
 msgstr "Source-changed rules should be checked against evidence before accepting."
 
@@ -7305,6 +7279,10 @@ msgstr "Unsupported"
 #: src/routes/obligations.tsx
 msgid "Update active view"
 msgstr "Update active view"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Update available"
+msgstr "Update available"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Update the active practice's name and timezone."

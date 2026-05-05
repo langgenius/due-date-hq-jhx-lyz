@@ -1,0 +1,36 @@
+---
+title: '2026-05-05 · Rules tab review merge'
+date: 2026-05-05
+author: 'Codex'
+---
+
+# Rules tab review merge
+
+## 背景
+
+Review Queue 和 Rule Library 都在回答同一个核心问题：当前 practice 要接受哪些
+pending template，让它们变成 active practice rules，从而允许 client obligation
+generation 消费。独立 tab 会让用户误以为有两套审核流程。
+
+## 做了什么
+
+- 移除独立 Review Queue tab；`Rules` tab 承担原 Rule Library + Review Queue。
+- `Rules` 默认进入 `Needs review` smart view，并保留 Active / All / Rejected /
+  Archived / Applicability review / Exception 视图。
+- 在同一张 rules table 中给 pending/open-task 行增加 checkbox，支持 bulk preview、
+  batch review note 和 Accept selected。
+- 当 practice 已有 active v1 但 template 升级为 v2 且存在 open `source_changed`
+  task 时，`rules.listRules(includeCandidates: true)` 现在同时返回 active v1 台账行和
+  pending v2 `Update available` 行，避免新版只存在于 review task 数据中。
+- Rule table 用 `ruleId:version:status` 做行身份，避免同一 rule 的 active v1 与 pending
+  v2 在详情抽屉或 checkbox 选择上互相覆盖。
+- Active/rejected/archived 行继续作为规则台账，只能查看详情、证据和 review metadata；
+  不参与批量接受。
+- 同步 product design 文档，把 Review Queue 改为 Rules 表内的 smart view。
+
+## 验证
+
+- `pnpm --filter @duedatehq/app test -- rules-console-model`
+- `pnpm --filter @duedatehq/app i18n:extract`
+- `pnpm --filter @duedatehq/app i18n:compile`
+- `pnpm check`

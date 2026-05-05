@@ -30,7 +30,7 @@ test('AC: E2E-RULES-TABS persists implemented tab state', async ({
 
   await rulesConsolePage.libraryTab.click()
   await expect(authenticatedPage).toHaveURL(/\/rules\?tab=library$/)
-  await authenticatedPage.getByRole('button', { name: /^Pending review\s+\d+$/ }).click()
+  await authenticatedPage.getByRole('button', { name: /^Needs review\s+\d+$/ }).click()
   await expect(
     authenticatedPage.getByText('al.individual_income_return.candidate.2026'),
   ).toBeVisible()
@@ -42,7 +42,7 @@ test('AC: E2E-RULES-DETAIL opens a shipped rule detail drawer', async ({
 }) => {
   await rulesConsolePage.goto()
   await rulesConsolePage.libraryTab.click()
-  await authenticatedPage.getByRole('button', { name: /^Pending review\s+\d+$/ }).click()
+  await authenticatedPage.getByRole('button', { name: /^Needs review\s+\d+$/ }).click()
   await authenticatedPage
     .getByRole('button', {
       name: /Open rule detail: Alabama individual income tax return applicability/,

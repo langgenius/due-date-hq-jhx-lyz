@@ -9,7 +9,7 @@ export class RulesConsolePage {
   constructor(readonly page: Page) {
     this.coverageTab = page.getByRole('tab', { name: /Coverage/ })
     this.sourcesTab = page.getByRole('tab', { name: /Sources/ })
-    this.libraryTab = page.getByRole('tab', { name: /Rule Library/ })
+    this.libraryTab = page.getByRole('tab', { name: /^Rules$/ })
     this.previewTab = page.getByRole('tab', { name: /Obligation Preview/ })
   }
 

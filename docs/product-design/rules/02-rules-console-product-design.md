@@ -7,7 +7,7 @@
 > - [`docs/dev-log/2026-04-27-rules-console-shell.md`](../../dev-log/2026-04-27-rules-console-shell.md) 已把本册第 3 节 IA 收敛为 Rules Console 壳（Coverage / Sources / Rule Library / Generation Preview）并在 Figma 定稿。
 > - [`docs/dev-log/2026-04-28-rules-console-fullwidth-coverage.md`](../../dev-log/2026-04-28-rules-console-fullwidth-coverage.md) 把页面布局从"居中 880px settings 列"改成"全宽 workbench"，Coverage tab 重做为 KPI 条 + 左右双栏表格；header 段落 max-w 放宽到 1080。
 >
-> 目标：定义 rules 如何沉淀成真实页面，让 practice owner/manager 完成 source watch、Review Queue、批量确认和 custom practice rules，并把 active practice rules 安全地交给产品消费
+> 目标：定义 rules 如何沉淀成真实页面，让 practice owner/manager 完成 source watch、Rules 表内审核、批量确认和 custom practice rules，并把 active practice rules 安全地交给产品消费
 
 ## 1. 页面定位
 
@@ -53,13 +53,12 @@ the default tab.
 
 页面使用核心 tab：
 
-| Tab                | 目的                                             | 核心动作                                    |
-| ------------------ | ------------------------------------------------ | ------------------------------------------- |
-| Coverage           | 看 Federal + CA / NY / TX / FL / WA 的覆盖完整度 | Drill into jurisdiction                     |
-| Sources            | 看 source registry 健康度和最近变化              | Check now, view snapshot                    |
-| Review Queue       | 审核 pending templates 和 source-change tasks    | Filter, select, bulk preview, accept/reject |
-| Rule Library       | 查看 practice rules + templates                  | Open rule, compare versions                 |
-| Obligation Preview | 预览规则对客户 obligations 的影响                | Run preview / annual rollover preview       |
+| Tab                | 目的                                                                           | 核心动作                                                   |
+| ------------------ | ------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| Coverage           | 看 Federal + CA / NY / TX / FL / WA 的覆盖完整度                               | Drill into jurisdiction                                    |
+| Sources            | 看 source registry 健康度和最近变化                                            | Check now, view snapshot                                   |
+| Rules              | 查看 practice rules + templates；审核 pending templates 和 source-change tasks | Smart view, select, bulk preview, accept/reject, open rule |
+| Obligation Preview | 预览规则对客户 obligations 的影响                                              | Run preview / annual rollover preview                      |
 
 ## 4. Coverage Tab
 
@@ -169,9 +168,25 @@ Review pending templates or create a custom practice rule before generating dead
 
 Source failing 只创建 practice review task，不通知客户，除非它导致 active rule 被 owner/manager 归档或替换。
 
-## 6. Review Queue Tab
+## 6. Rules Tab
 
-### 6.1 Review task row
+Rules 是单表治理面：它合并原 Review Queue 和 Rule Library。用户不需要在两个 tab 之间判断“在哪里让 rule 生效”；同一张表同时承担待审核队列、规则台账和证据入口。
+
+顶部 smart view：
+
+```text
+Needs review · Active · All · Rejected · Archived · Applicability review · Exception
+```
+
+- 默认进入 `Needs review`，即 pending/open-task rules。
+- Pending/open-task 行显示 checkbox，可批量选择、bulk preview、填写 batch review note、Accept selected。
+- 如果 practice 已有 active v1，而全局 template 已升级到 v2，Rules 表必须同时显示
+  active v1 台账行和 pending v2 `Update available` 行；v2 行来自 `source_changed`
+  review task，不进入 Pulse Changes。
+- Active / rejected / archived 行不参与批量接受，只保留详情查看、编辑/归档和审计入口。
+- 点击任意行都打开 Rule Detail drawer；pending 行可以单条 accept/reject，active 行展示证据、版本、review metadata。
+
+### 6.1 Needs review row
 
 每个 pending template / source change task 展示：
 
@@ -214,7 +229,7 @@ selected pending templates
 
 批量确认不允许顺手编辑规则字段；需要修改 due date logic、applicability、extension policy 的规则必须进入单条 review drawer。后端只信任 selected IDs + expected template versions，单次最多 100 条，冲突项跳过并返回 skipped list。
 
-## 7. Rule Library Tab
+## 7. Rule table ledger
 
 ### 7.1 列表字段
 
@@ -378,7 +393,7 @@ AI Tip 只能使用 active practice rule 和 source summary：
 
 ## 11. MVP 验收
 
-- `/rules` 的产品设计能覆盖 Coverage / Sources / Review Queue / Rule Library / Obligation Preview。
+- `/rules` 的产品设计能覆盖 Coverage / Sources / Rules / Obligation Preview。
 - 每条 rule 能追溯 source、source excerpt、quality checklist、practice review metadata。
 - Pending review 不会直接影响用户 deadline。
 - Bulk Preview 明确显示 selected rules、impacted obligations、skipped conflicts 和 reminder effect。
@@ -388,6 +403,7 @@ AI Tip 只能使用 active practice rule 和 source summary：
 
 | 版本 | 日期       | 作者  | 摘要                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ---- | ---------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v1.4 | 2026-05-05 | Codex | 合并 Review Queue 和 Rule Library：独立 Review Queue tab 移除，Rules tab 默认进入 `Needs review` smart view，同表支持 pending selection、bulk preview / accept、active/rejected/archive 台账和 Rule Detail drawer；active v1 遇到 template v2 时主表补出 pending `Update available` 行。                                                                                                                                                                                                                                                                      |
 | v1.3 | 2026-05-05 | Codex | Rules Console 改为 practice governance：新增 Review Queue、bulk preview / bulk accept，active practice rules 才能生产生成。                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | v1.2 | 2026-05-04 | Codex | Obligation Preview 增加手动 Annual Rollover 面板：先 preview 再 generate，不做 cron；closed source obligations 作为 seeds，目标年度必须有 active practice rule；duplicate / missing active rule / missing due date 都在表格中显式展示，创建后写 evidence、audit。                                                                                                                                                                                                                                                                                             |
 | v1.1 | 2026-05-04 | Codex | Coverage 右侧矩阵从固定 4 列改为本地 segmented control：Business 默认显示 LLC / Partnership / S-Corp / C-Corp / Sole prop，Personal & fiduciary 显示 Individual / Trust，All 先显示 Individual / Trust 再显示 business entity；`Other` 只保留为人工复核兜底说明，不进入矩阵列。详见 `docs/dev-log/2026-05-04-rules-coverage-entity-matrix.md`。                                                                                                                                                                                                               |

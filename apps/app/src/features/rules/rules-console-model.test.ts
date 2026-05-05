@@ -60,7 +60,6 @@ describe('rules console model', () => {
     expect(DEFAULT_RULES_TAB).toBe('coverage')
     expect(RULES_TAB_VALUES).toEqual([
       'coverage',
-      'review',
       'sources',
       'library',
       'pulse',

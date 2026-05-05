@@ -19,7 +19,6 @@ import {
 
 export const RULES_TAB_VALUES = [
   'coverage',
-  'review',
   'sources',
   'library',
   'pulse',
@@ -52,7 +51,6 @@ export type CoverageCellState = 'verified' | 'review' | 'none'
 // pay re-extraction cost for non-React modules).
 export const RULES_TABS: ReadonlyArray<{ value: RulesTab; count?: number }> = [
   { value: 'coverage' },
-  { value: 'review' },
   { value: 'sources' },
   { value: 'library' },
   { value: 'pulse' },

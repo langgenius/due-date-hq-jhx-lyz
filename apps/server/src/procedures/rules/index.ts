@@ -126,6 +126,10 @@ function pendingContractRule(rule: CoreObligationRule): ObligationRule {
   })
 }
 
+function reviewTaskKey(ruleId: string, templateVersion: number): string {
+  return `${ruleId}:${templateVersion}`
+}
+
 function reviewOnlyCoreRule(rule: CoreObligationRule): CoreObligationRule {
   return {
     ...rule,
@@ -263,11 +267,19 @@ async function listPracticeRules(input: {
   const { scoped } = requireTenant(input.context)
   const practiceRows = await scoped.rules.listPracticeRules()
   const practiceByRuleId = new Map(practiceRows.map((row) => [row.ruleId, row]))
+  const openReviewTaskKeys = new Set(
+    (await scoped.rules.listReviewTasks({ status: 'open' })).map((task) =>
+      reviewTaskKey(task.ruleId, task.templateVersion),
+    ),
+  )
   const rows: ObligationRule[] = []
 
   for (const template of templateRules()) {
     if (input.jurisdiction && template.jurisdiction !== input.jurisdiction) continue
     const practice = practiceByRuleId.get(template.id)
+    const hasOpenTemplateReviewTask = openReviewTaskKeys.has(
+      reviewTaskKey(template.id, template.version),
+    )
     if (!practice) {
       rows.push(pendingContractRule(template))
       continue
@@ -277,17 +289,28 @@ async function listPracticeRules(input: {
       ? ObligationRuleSchema.safeParse(practice.ruleJson)
       : { success: false as const }
     if (practice.status === 'active' && parsed.success) {
-      rows.push({
+      const activeRule: ObligationRule = {
         ...parsed.data,
         status: 'active',
         verifiedBy: practice.reviewedBy ?? parsed.data.verifiedBy,
         verifiedAt: practice.reviewedAt ? toDateOnly(practice.reviewedAt) : parsed.data.verifiedAt,
         version: practice.templateVersion,
-      })
+      }
+      rows.push(activeRule)
+      if (practice.templateVersion !== template.version && hasOpenTemplateReviewTask) {
+        rows.push(pendingContractRule(template))
+      }
       continue
     }
 
     rows.push(toPracticeContractRule(template, practice.status, practiceReviewMetadata(practice)))
+    if (
+      practice.status !== 'pending_review' &&
+      practice.templateVersion !== template.version &&
+      hasOpenTemplateReviewTask
+    ) {
+      rows.push(pendingContractRule(template))
+    }
   }
 
   const templateIds = new Set(templateRules().map((rule) => rule.id))

@@ -67,7 +67,7 @@ msgstr "{0, plural, other {共 # 行，我们仅读取了前 1000 行。请拆�
 
 #. placeholder {0}: result.accepted.length
 #. placeholder {1}: result.skipped.length
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "{0} accepted · {1} skipped."
 msgstr "{0} 已接受 · {1} 已跳过。"
 
@@ -151,7 +151,7 @@ msgstr "{0} 个已就绪"
 
 #. placeholder {0}: preview.acceptReadyCount
 #. placeholder {1}: preview.estimatedObligationCount
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "{0} ready · {1} estimated obligation matches"
 msgstr "{0} 条可确认 · 预计匹配 {1} 个义务"
 
@@ -183,7 +183,7 @@ msgid "{0} seats"
 msgstr "{0} 个席位"
 
 #. placeholder {0}: selectedRows.length
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "{0} selected"
 msgstr "已选择 {0} 条"
 
@@ -204,7 +204,7 @@ msgid "{0} shown · {1} total"
 msgstr "显示 {0} · 共 {1}"
 
 #. placeholder {0}: preview.sourceCount
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "{0} sources involved"
 msgstr "涉及 {0} 个来源"
 
@@ -488,11 +488,11 @@ msgstr "接受邀请"
 msgid "Accept rule"
 msgstr "接受规则"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Accept selected"
 msgstr "接受所选"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Accepted by practice owner/manager after reviewing source-backed templates."
 msgstr "事务所 owner/manager 已审核来源支持的模板并确认接受。"
 
@@ -622,7 +622,7 @@ msgstr "执行人"
 msgid "Add a manual client record to the active practice directory."
 msgstr "添加手动客户记录到当前事务所目录。"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Add a review note and try again."
 msgstr "请添加审核说明后重试。"
 
@@ -1075,11 +1075,11 @@ msgstr "基础"
 msgid "Basic AI"
 msgstr "基础 AI"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Batch review note"
 msgstr "批量审核说明"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Batch review note is required."
 msgstr "必须填写批量审核说明。"
 
@@ -1144,7 +1144,7 @@ msgstr "账单状态尚未准备好。"
 msgid "Building the import preview"
 msgstr "正在生成导入预览"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "BULK CONFIRM"
 msgstr "批量确认"
 
@@ -1258,7 +1258,7 @@ msgstr "从 {0} 改为 {1}"
 msgid "Changed from {before} to {after}"
 msgstr "从 {before} 改为 {after}"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Check the selected rows and try again."
 msgstr "请检查所选行后重试。"
 
@@ -1647,7 +1647,7 @@ msgstr "复制 URL"
 msgid "Could not accept invitation"
 msgstr "无法接受邀请"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Could not accept selected rules"
 msgstr "无法接受所选规则"
 
@@ -1715,10 +1715,6 @@ msgstr "无法加载通知"
 msgid "Could not load rule library."
 msgstr "无法加载规则库。"
 
-#: src/features/rules/review-queue-tab.tsx
-msgid "Could not load rule review queue."
-msgstr "无法加载规则审核队列。"
-
 #: src/features/rules/sources-tab.tsx
 msgid "Could not load rule sources."
 msgstr "无法加载规则来源。"
@@ -1739,7 +1735,7 @@ msgstr "无法加载临时规则。"
 msgid "Could not mark notification read"
 msgstr "无法将通知标记为已读"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Could not preview selected rules"
 msgstr "无法预览所选规则"
 
@@ -2533,7 +2529,7 @@ msgstr "Enterprise 是面向多个事务所或办公室的销售协助计划。�
 msgid "Enterprise plan changes require sales support."
 msgstr "Enterprise 计划变更需要销售支持。"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Entities"
 msgstr "实体"
 
@@ -2852,7 +2848,6 @@ msgstr "按来源筛选"
 msgid "Filter by time range, action category, action, actor, or entity type."
 msgstr "按时间范围、操作分类、操作、执行人或实体类型筛选。"
 
-#: src/features/rules/review-queue-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Filter jurisdictions"
@@ -2916,7 +2911,7 @@ msgid "Format"
 msgstr "格式"
 
 #: src/features/pulse/components/PulseStructuredFields.tsx
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Forms"
 msgstr "表格"
 
@@ -3240,7 +3235,6 @@ msgstr "邀请成员"
 msgid "IP hash"
 msgstr "IP 哈希"
 
-#: src/features/rules/review-queue-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "JUR"
@@ -3256,7 +3250,7 @@ msgid "JURISDICTION SUMMARY"
 msgstr "辖区汇总"
 
 #: src/features/rules/coverage-tab.tsx
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Jurisdictions"
 msgstr "辖区"
 
@@ -3387,10 +3381,6 @@ msgstr "正在加载准备状态检查…"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Loading rule library."
 msgstr "正在加载规则库。"
-
-#: src/features/rules/review-queue-tab.tsx
-msgid "Loading rule review queue."
-msgstr "正在加载规则审核队列。"
 
 #: src/features/rules/sources-tab.tsx
 msgid "Loading rule sources."
@@ -3789,6 +3779,7 @@ msgstr "需要输入"
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/obligations/status-control.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
+#: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
 msgid "Needs review"
 msgstr "需复核"
@@ -3830,6 +3821,10 @@ msgstr "新义务视图"
 #: src/routes/billing.checkout.tsx
 msgid "New seat limit"
 msgstr "新席位上限"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "New template"
+msgstr "新模板"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Newest practice-scoped audit events appear first."
@@ -4027,7 +4022,6 @@ msgstr "没有可预览的未完成义务。"
 msgid "No open obligations match the workload window."
 msgstr "当前负载窗口内没有匹配的未完成义务。"
 
-#: src/features/rules/review-queue-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "No options"
@@ -4232,10 +4226,6 @@ msgstr "义务需补输入更新"
 #: src/features/rules/rules-console.tsx
 msgid "Obligation Preview"
 msgstr "义务预览"
-
-#: src/features/rules/rules-console.tsx
-msgid "Obligation rules include active practice rules and review-only templates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Pending rows never trigger user reminders."
-msgstr "义务规则包含当前事务所已生效的规则，以及 50 州和 DC 的仅供审核模板。点击任意行可查看截止日逻辑、延期政策和官方来源证据。待审核行绝不会触发用户提醒。"
 
 #: src/features/audit/audit-log-page.tsx
 msgid "Obligation status updates and client imports will appear here when they write audit rows."
@@ -4477,10 +4467,6 @@ msgstr "打开规则详情：{0}"
 msgid "Open source"
 msgstr "打开来源"
 
-#: src/features/rules/review-queue-tab.tsx
-msgid "Open tasks"
-msgstr "待处理任务"
-
 #: src/features/calendar/calendar-page.tsx
 msgid "Open the Apple Calendar link"
 msgstr "打开 Apple Calendar 链接"
@@ -4579,10 +4565,6 @@ msgstr "邮件可用时会发送给 Owner 和 Manager 的摘要"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Owner and manager notifications and emails will be sent."
 msgstr "将发送 Owner 和 Manager 通知与邮件。"
-
-#: src/features/rules/rules-console.tsx
-msgid "Owner and manager workspace for practice rule approval. Filter pending templates, preview the selected impact, then accept only the checked rules with a batch review note."
-msgstr "Owner 和 manager 用于审核事务所规则的工作区。筛选待审核模板，预览所选影响，然后只通过已勾选规则并填写批量审核说明。"
 
 #: src/routes/billing.checkout.tsx
 msgid "Owner approval required"
@@ -5065,7 +5047,7 @@ msgid "Preset"
 msgstr "预设"
 
 #: src/features/rules/generation-preview-tab.tsx
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Preview"
 msgstr "预览"
 
@@ -5082,7 +5064,7 @@ msgstr "先预览已关闭的来源年度义务，再基于已生效事务所规
 msgid "Preview recalculates open obligations without saving changes."
 msgstr "预览会重新计算未完成义务，不会保存更改。"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Preview selected rules before accepting them into production."
 msgstr "在接受到生产环境前预览所选规则。"
 
@@ -5387,7 +5369,6 @@ msgstr "正在读取文件…"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/obligations/status-control.tsx
-#: src/features/rules/review-queue-tab.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
@@ -5691,6 +5672,10 @@ msgstr "请审阅并确认字段映射"
 msgid "Review note"
 msgstr "审核备注"
 
+#: src/features/rules/rules-console.tsx
+msgid "Review pending templates, activate practice rules, and inspect active, rejected, or archived rule evidence in one table. Only active practice rules can generate client obligations or reminders."
+msgstr "在同一张表中复核待处理模板、启用事务所规则，并查看已生效、已拒绝或已归档规则的证据。只有已生效的事务所规则才能生成客户义务或提醒。"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Review plans"
 msgstr "查看套餐"
@@ -5707,11 +5692,7 @@ msgstr "查看事务所范围内的写入事件、变更内容和执行人元数
 msgid "Review priority list"
 msgstr "查看优先处理清单"
 
-#: src/features/rules/rules-console.tsx
-msgid "Review Queue"
-msgstr "审核队列"
-
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Review reasons"
 msgstr "审核原因"
 
@@ -5892,10 +5873,6 @@ msgstr "规则延期政策"
 msgid "Rule issue reported"
 msgstr "规则问题已报告"
 
-#: src/features/rules/rules-console.tsx
-msgid "Rule Library"
-msgstr "规则库"
-
 #: src/routes/obligations.tsx
 msgid "Rule notes"
 msgstr "规则备注"
@@ -5939,12 +5916,13 @@ msgstr "规则已更新"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/audit/audit-log-page.tsx
 #: src/features/rules/rules-console-primitives.tsx
+#: src/features/rules/rules-console.tsx
 #: src/routes/route-summary.ts
 msgid "Rules"
 msgstr "规则"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Rules accepted"
 msgstr "规则已接受"
 
@@ -6211,7 +6189,7 @@ msgstr "选择全部可应用义务"
 msgid "Select all visible rows"
 msgstr "选择所有可见行"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Select at least one pending rule."
 msgstr "请至少选择一条待审核规则。"
 
@@ -6227,8 +6205,8 @@ msgstr "请选择客户后再应用"
 msgid "Select date"
 msgstr "选择日期"
 
-#. placeholder {0}: task.rule.title
-#: src/features/rules/review-queue-tab.tsx
+#. placeholder {0}: rule.title
+#: src/features/rules/rule-library-tab.tsx
 msgid "Select rule {0}"
 msgstr "选择规则 {0}"
 
@@ -6236,13 +6214,9 @@ msgstr "选择规则 {0}"
 msgid "Select tax year {value}"
 msgstr "选择税年 {value}"
 
-#: src/features/rules/review-queue-tab.tsx
-msgid "Select visible rules"
-msgstr "选择可见规则"
-
-#: src/features/rules/review-queue-tab.tsx
-msgid "Selected"
-msgstr "已选择"
+#: src/features/rules/rule-library-tab.tsx
+msgid "Select visible pending rules"
+msgstr "选择当前可见的待复核规则"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Selected obligation"
@@ -6399,7 +6373,7 @@ msgid "Skip for now"
 msgstr "暂时跳过"
 
 #: src/features/rules/generation-preview-tab.tsx
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Skipped"
 msgstr "已跳过"
 
@@ -6564,7 +6538,7 @@ msgstr "有来源依据、可能影响客户截止日的政府变更。Owner 和
 msgid "Source-backed previews and lightweight migration help for one owner."
 msgstr "带来源的预览，以及适合单个负责人的轻量迁移辅助。"
 
-#: src/features/rules/review-queue-tab.tsx
+#: src/features/rules/rule-library-tab.tsx
 msgid "Source-changed rules should be checked against evidence before accepting."
 msgstr "来源已变更的规则在接受前应先对照证据检查。"
 
@@ -7305,6 +7279,10 @@ msgstr "暂不支持"
 #: src/routes/obligations.tsx
 msgid "Update active view"
 msgstr "更新当前视图"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Update available"
+msgstr "有可用更新"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Update the active practice's name and timezone."
