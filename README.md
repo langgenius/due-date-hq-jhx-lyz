@@ -2,57 +2,77 @@
 
 [中文 README](./README.zh-CN.md)
 
-DueDateHQ is a source-backed deadline operations workbench for US CPA practices. It
-turns client facts, filing obligations, deadline changes, penalty exposure, team
-ownership, and audit evidence into one operating loop:
+DueDateHQ is a deadline operations workbench for US CPA practices. It turns
+client facts, filing obligations, rule changes, penalty exposure, team ownership,
+and audit evidence into one operating system for daily tax-deadline triage.
 
-1. Import or create clients.
-2. Generate and review obligations from verified rules and client facts.
-3. Triage deadline risk by due date, readiness, ownership, evidence, and projected
-   penalty exposure.
-4. Review government-source changes in Pulse before applying them to affected work.
-5. Keep an audit trail for important status, import, rule, billing, and team events.
+The product is built for practices that have outgrown spreadsheet reminders but
+still need professional review, source traceability, and a clear answer to the
+question: "What should the team handle next, and why?"
 
-This repository is an alpha product codebase. It is useful for studying and
-developing the product, but it is not tax advice, a filing system, or a replacement
-for professional review.
+## Product Loop
 
-## What Works Today
+1. Bring client data in through manual entry or Migration Copilot.
+2. Normalize client facts into filing jurisdictions, entity types, tax types, and
+   ownership.
+3. Generate obligations from verified rules and practice-reviewed facts.
+4. Triage work by due date, readiness, evidence, owner, and projected penalty risk.
+5. Review Pulse updates from official sources before applying them to affected
+   clients and obligations.
+6. Keep audit evidence for important import, rule, status, billing, and team
+   events.
 
-- Authenticated practice workbench with login, first-practice onboarding, MFA setup,
-  invitations, role-aware surfaces, practice switching, and account security.
-- Client management with filing jurisdictions, owners, contact details, import
-  history, readiness signals, and fact review.
-- Migration Copilot for CSV, TSV, XLSX, paste, and provider-export-shaped data. It
-  maps fields, flags risky inputs, previews generated clients and obligations, and
-  writes audit evidence when applied.
-- Obligation queue and Dashboard for risk triage, saved views, bulk status updates,
-  readiness, evidence drawers, projected penalty exposure, and weekly/monthly views.
-- Rules console with source registry, coverage, rule library, generation preview,
-  candidate review, and firm-scoped verification decisions.
-- Pulse pipeline for official-source monitoring, candidate extraction, review,
-  firm alerts, apply/dismiss/snooze/revert flows, and source health operations.
-- Audit, notifications, readiness portal, calendar subscription, billing checkout
-  handoff, and team workload surfaces.
-- Bilingual app and marketing site copy in English and Chinese.
+DueDateHQ is an alpha product codebase. It supports operational review and
+evidence-backed decision making, but it is not tax advice, a filing system, or a
+replacement for review by a CPA, EA, attorney, or other qualified professional.
 
-## Current Boundaries
+## What The Product Covers Today
 
-- DueDateHQ supports operational triage and evidence review. A CPA, EA, attorney,
-  or other qualified professional must verify filing, payment, extension, and client
-  communication decisions.
-- Public state coverage is currently scoped to Federal plus CA, NY, TX, FL, and WA.
-  The rule source registry contains broader state/DC scaffolding and candidates, but
-  candidate rules are not the same as verified reminder-ready coverage.
-- AI is used for mapping, summarizing, extraction, and drafting. Server-side guards,
-  structured schemas, source fields, and audit records constrain how AI output enters
-  the workflow, but human review remains required.
-- Billing, email, SSO, and AI-assisted flows are deployment-enabled integrations.
-  They should be described as available only when a deployment has those services
-  connected.
-- The repository packages are currently marked `UNLICENSED`. Add an explicit
-  `LICENSE` before publishing this as an open-source project or accepting outside
-  contributions under open-source terms.
+- **Practice workspace**: login, first-practice onboarding, MFA setup, invitations,
+  role-aware surfaces, practice switching, account security, and bilingual app copy.
+- **Client facts**: client profiles, filing jurisdictions, owners, contact details,
+  import history, readiness signals, and fact review.
+- **Migration Copilot**: CSV, TSV, XLSX, pasted tables, and provider-export-shaped
+  data with field mapping, risky-input blocking, preview, generated clients,
+  generated obligations, and audit evidence.
+- **Dashboard and obligations**: risk triage, saved views, bulk status updates,
+  readiness, evidence drawers, weekly/monthly views, and projected penalty
+  exposure.
+- **Rules and Pulse**: source registry, coverage, rule library, generation preview,
+  candidate review, firm-scoped verification decisions, official-source monitoring,
+  firm alerts, apply/dismiss/snooze/revert flows, and source-health operations.
+- **Practice operations**: audit log, notifications, readiness portal, calendar
+  subscription, billing checkout handoff, members, and team workload surfaces.
+- **Marketing site**: static bilingual public site for product, pricing, rules, and
+  state-coverage entry points.
+
+Current verified public coverage should be described as Federal plus CA, NY, TX,
+FL, and WA. The repository also contains broader state/DC source and candidate
+infrastructure, but candidates are not the same as verified reminder-ready rules.
+AI-assisted flows are used for mapping, extraction, summarization, and drafting
+inside guarded workflows; human review remains part of the product model.
+
+## Tech Stack
+
+DueDateHQ is a TypeScript pnpm monorepo deployed on Cloudflare.
+
+- **Apps**: Vite React SPA for the authenticated workbench, Cloudflare Worker API
+  for the SaaS backend, and Astro for the marketing site.
+- **Frontend**: React 19, React Router 7, TanStack Query/Table/Virtual/Hotkeys,
+  Zustand, nuqs, react-hook-form, Zod, Lingui, Tailwind 4, Base UI, shadcn/ui
+  `base-vega`, and lucide-react.
+- **API and contracts**: Hono on Cloudflare Workers with oRPC contract-first
+  boundaries shared through `packages/contracts`.
+- **Data and auth**: Cloudflare D1 with Drizzle ORM, tenant-scoped repositories,
+  better-auth Organization/Access Control, and practice-level audit records.
+- **Cloudflare platform**: Workers Assets, KV, R2, Vectorize, Queues, Cron
+  Triggers, Workflows, Rate Limiting, and Wrangler.
+- **AI and integrations**: Vercel AI SDK Core through Cloudflare AI Gateway,
+  internal guards/traces/budgets, Resend, Stripe, Sentry, and PostHog where the
+  deployment has those services configured.
+- **Quality**: Vite+ (`vp`) for workspace tasks, Vitest, Cloudflare Workers test
+  pool, Playwright, Lingui strict compilation, Drizzle Kit, and dependency
+  direction checks.
 
 ## Repository Map
 
@@ -74,21 +94,22 @@ packages/
   ui          Design tokens and reusable UI primitives
 ```
 
-Important docs:
+Useful docs:
 
-- [Project modules](./docs/project-modules/README.md) for product and module-level
-  implementation notes.
-- [User and module manual](./docs/project-modules/14-user-manual.md) for what each
-  product surface does.
+- [Project modules](./docs/project-modules/README.md) for the current product and
+  implementation map.
+- [User and module manual](./docs/project-modules/14-user-manual.md) for product
+  surfaces and common workflows.
 - [Technical overview](./docs/dev-file/00-Overview.md) for architecture and phase
   context.
-- [Architecture decisions](./docs/adr/README.md) for major decisions and tradeoffs.
+- [Tech stack](./docs/dev-file/01-Tech-Stack.md) for deeper technology decisions.
+- [Architecture decisions](./docs/adr/README.md) for major tradeoffs.
+- [Design system](./DESIGN.md) for current visual tokens and UI rules.
 - [Dev log](./docs/dev-log/README.md) for implementation history.
-- [Design system](./DESIGN.md) for current visual tokens.
 
-## For Contributors
+## Development
 
-DueDateHQ is a pnpm monorepo. The most common contributor commands are:
+Use pnpm with Node `>=22.19.0`.
 
 ```bash
 pnpm dev       # run workspace development tasks
@@ -98,26 +119,22 @@ pnpm build     # production builds
 pnpm ready     # default pre-handoff gate
 ```
 
-The codebase follows a conservative product-module workflow:
+Common module rules:
 
-- Keep business UI inside `apps/app/src/features/<vertical>/`.
+- Keep feature UI in `apps/app/src/features/<vertical>/`.
 - Keep app runtime helpers in `apps/app/src/lib`.
 - Keep pure domain logic in `packages/core`.
-- Keep shared contract/schema work in `packages/contracts`.
+- Keep shared contract and schema work in `packages/contracts`.
 - Keep tenant-aware persistence behind `packages/db` repositories.
 - Do not use React `useEffect` in app or package code.
 - Use Conventional Commits for commit messages and PR titles.
 
-For PRs, include a concise summary, validation commands, user-facing screenshots
-for UI changes, and call out migrations, dependency-direction changes, or
-security-sensitive behavior.
+Before opening a PR, include a concise summary, validation commands, screenshots
+for UI changes, and any migration, dependency-direction, environment, or
+security-sensitive notes.
 
-## Security
+## Data Handling
 
-This project handles client and practice data in product flows. Treat sample data,
-exports, screenshots, and logs as sensitive unless proven otherwise.
-
-## License
-
-No open-source license is currently declared. The workspace packages are marked
-`UNLICENSED`; all rights remain reserved until a license file is added.
+DueDateHQ product flows handle client and practice data. Treat sample data,
+exports, screenshots, logs, and AI traces as sensitive unless they are clearly
+sanitized.

@@ -2,34 +2,63 @@
 
 [English README](./README.md)
 
-DueDateHQ 是面向美国 CPA 事务所的截止日运营工作台。它把客户事实、税务义务、截止日变更、罚金风险、团队负责人和审计证据放进同一个闭环：
+DueDateHQ 是面向美国 CPA 事务所的截止日运营工作台。它把客户事实、税务义务、规则变更、
+罚金风险、团队负责人和审计证据放进同一个系统，帮助事务所每天判断：“下一步该处理什么，
+为什么？”
 
-1. 导入或创建客户。
-2. 基于已验证规则和客户事实生成并复核义务。
-3. 按截止日、资料完备度、负责人、证据和预计罚金风险做日常分诊。
-4. 在 Pulse 中复核政府来源更新，再决定是否应用到受影响工作。
-5. 为关键状态、导入、规则、计费和团队事件保留审计记录。
+这个产品适合已经不想继续依赖 spreadsheet reminder，但又需要专业复核、来源可追踪和团队
+协作节奏的事务所。
 
-这个仓库是 alpha 阶段的产品代码库，适合继续开发和研究产品实现。它不是税务建议、不是报税系统，也不能替代专业复核。
+## 产品闭环
 
-## 当前已经可用
+1. 通过手动创建或 Migration Copilot 导入客户。
+2. 将客户事实整理为 filing jurisdictions、entity types、tax types 和负责人。
+3. 基于已验证规则和事务所复核过的事实生成义务。
+4. 按截止日、资料完备度、证据、负责人和预计罚金风险做日常分诊。
+5. 在 Pulse 中复核官方来源更新，再应用到受影响的客户和义务。
+6. 为关键导入、规则、状态、计费和团队事件保留审计证据。
 
-- 已登录事务所工作台：登录、首次事务所创建、MFA 设置、邀请、角色相关界面、事务所切换和账户安全。
-- 客户管理：filing jurisdictions、负责人、联系方式、导入历史、readiness 信号和事实复核。
-- Migration Copilot：支持 CSV、TSV、XLSX、粘贴表格和供应商导出形态的数据；可做字段映射、风险输入拦截、生成预览，并在应用后写入审计证据。
-- Obligations 和 Dashboard：支持风险分诊、保存视图、批量状态更新、readiness、证据抽屉、预计罚金风险和本周/本月视图。
-- Rules Console：包含来源注册表、coverage、规则库、生成预览、候选规则复核和事务所级验证决策。
-- Pulse pipeline：支持官方来源监控、候选抽取、复核、事务所提醒、应用/忽略/稍后处理/撤销和来源健康度运营。
-- Audit、通知、readiness portal、日历订阅、计费 checkout handoff 和团队 workload 界面。
-- 应用和营销站已有英文与中文文案。
+DueDateHQ 目前是 alpha 阶段产品代码库。它支持运营复核和证据驱动的判断，但不是税务建议、
+不是报税系统，也不能替代 CPA、EA、律师或其他合格专业人士的复核。
 
-## 当前边界
+## 当前产品覆盖
 
-- DueDateHQ 用于运营分诊和证据复核。报税、付款、延期和客户沟通的最终判断仍需 CPA、EA、律师或其他合格专业人士确认。
-- 公开州覆盖当前按 Federal + CA、NY、TX、FL、WA 表达。代码中的规则来源注册表已有更广的州/DC 脚手架和候选规则，但候选规则不等于已验证、可发提醒的覆盖。
-- AI 用于字段映射、摘要、抽取和草拟。服务端通过结构化 schema、来源字段、guard 和审计记录约束 AI 输出进入工作流的方式，但仍需要人工复核。
-- 计费、邮件、SSO 和 AI 辅助流程属于部署侧启用的集成能力。对外表达时应说明这些能力需要对应服务接入后才可用。
-- 当前 workspace package 标记为 `UNLICENSED`。如果要按开源项目发布或接受外部贡献，需要先添加明确的 `LICENSE`。
+- **事务所工作区**：登录、首次事务所 onboarding、MFA 设置、邀请、角色相关界面、事务所切换、
+  账户安全和中英文 app 文案。
+- **客户事实**：客户资料、filing jurisdictions、负责人、联系方式、导入历史、readiness 信号和
+  事实复核。
+- **Migration Copilot**：支持 CSV、TSV、XLSX、粘贴表格和供应商导出形态的数据；提供字段映射、
+  风险输入拦截、导入预览、客户/义务生成和审计证据。
+- **Dashboard 与 Obligations**：风险分诊、保存视图、批量状态更新、readiness、证据抽屉、本周/
+  本月视图和预计罚金风险。
+- **Rules 与 Pulse**：来源注册表、coverage、规则库、生成预览、候选规则复核、事务所级验证决策、
+  官方来源监控、事务所提醒、应用/忽略/稍后处理/撤销和来源健康度运营。
+- **事务所运营**：审计日志、通知、readiness portal、日历订阅、计费 checkout handoff、成员和团队
+  workload 界面。
+- **营销站**：静态双语公开站，用于产品、pricing、rules 和 state coverage 入口。
+
+当前已验证的公开覆盖应按 Federal + CA、NY、TX、FL、WA 表达。仓库中也有更广的州/DC 来源和候选
+规则基础设施，但候选规则不等于已验证、可生成提醒的规则。AI 辅助流程用于字段映射、抽取、摘要和
+草拟，并受结构化 schema、guard、trace 和审计记录约束；人工复核仍是产品模型的一部分。
+
+## 技术栈
+
+DueDateHQ 是部署在 Cloudflare 上的 TypeScript pnpm monorepo。
+
+- **Apps**：Vite React SPA 承载登录后工作台，Cloudflare Worker API 承载 SaaS 后端，Astro 承载
+  marketing site。
+- **Frontend**：React 19、React Router 7、TanStack Query/Table/Virtual/Hotkeys、Zustand、nuqs、
+  react-hook-form、Zod、Lingui、Tailwind 4、Base UI、shadcn/ui `base-vega` 和 lucide-react。
+- **API 与契约**：Cloudflare Workers 上的 Hono，通过 `packages/contracts` 共享 oRPC
+  contract-first 边界。
+- **数据与身份**：Cloudflare D1、Drizzle ORM、tenant-scoped repositories、better-auth
+  Organization/Access Control 和事务所级审计记录。
+- **Cloudflare 平台**：Workers Assets、KV、R2、Vectorize、Queues、Cron Triggers、Workflows、
+  Rate Limiting 和 Wrangler。
+- **AI 与集成**：Vercel AI SDK Core 通过 Cloudflare AI Gateway 调用模型，并在内部做 guard、trace、
+  budget；Resend、Stripe、Sentry、PostHog 等能力取决于部署侧是否已配置对应服务。
+- **质量门禁**：Vite+ (`vp`) 统一 workspace 任务，Vitest、Cloudflare Workers test pool、
+  Playwright、Lingui strict compilation、Drizzle Kit 和依赖方向检查。
 
 ## 仓库结构
 
@@ -53,16 +82,17 @@ packages/
 
 重要文档：
 
-- [项目模块文档](./docs/project-modules/README.md)：按模块说明产品和实现。
-- [用户与模块使用手册](./docs/project-modules/14-user-manual.md)：说明每个产品界面能做什么。
+- [项目模块文档](./docs/project-modules/README.md)：当前产品和实现地图。
+- [用户与模块使用手册](./docs/project-modules/14-user-manual.md)：产品界面与常见工作流。
 - [技术总览](./docs/dev-file/00-Overview.md)：架构和阶段口径。
+- [技术栈](./docs/dev-file/01-Tech-Stack.md)：更完整的技术选型与理由。
 - [架构决策](./docs/adr/README.md)：主要技术决策和取舍。
+- [设计系统](./DESIGN.md)：当前视觉 token 和 UI 规则。
 - [开发日志](./docs/dev-log/README.md)：实现历史。
-- [设计系统](./DESIGN.md)：当前视觉 token。
 
-## 贡献者入口
+## 开发
 
-DueDateHQ 是 pnpm monorepo。最常用的贡献者命令是：
+使用 pnpm 和 Node `>=22.19.0`。
 
 ```bash
 pnpm dev       # 运行 workspace 开发任务
@@ -72,7 +102,7 @@ pnpm build     # 生产构建
 pnpm ready     # 默认交付前门禁
 ```
 
-这个代码库采用保守的产品模块工作流：
+常见模块规则：
 
 - 业务 UI 放在 `apps/app/src/features/<vertical>/`。
 - app runtime helper 放在 `apps/app/src/lib`。
@@ -82,12 +112,9 @@ pnpm ready     # 默认交付前门禁
 - app/package 代码不要使用 React `useEffect`。
 - Commit message 和 PR title 使用 Conventional Commits。
 
-PR 应包含简洁 summary、验证命令、UI 变更截图，并明确说明迁移、依赖方向或安全敏感行为。
+PR 应包含简洁 summary、验证命令、UI 变更截图，并明确说明迁移、依赖方向、环境变量或安全敏感行为。
 
-## 安全
+## 数据处理
 
-产品流程会处理客户和事务所数据。除非能够证明不是敏感信息，否则应把示例数据、导出、截图和日志都按敏感材料处理。
-
-## License
-
-当前没有声明开源许可证。workspace packages 标记为 `UNLICENSED`；在添加 license file 前，默认保留全部权利。
+产品流程会处理客户和事务所数据。除非能够确认已经脱敏，否则应把示例数据、导出、截图、日志和 AI
+trace 都按敏感材料处理。

@@ -25,11 +25,11 @@
 
 ## 对外 README 口径
 
-- 根 [README.md](../../README.md) 使用英文，面向公开仓库和新贡献者。
+- 根 [README.md](../../README.md) 使用英文，面向产品入口、工程入口和新贡献者。
 - 根 [README.zh-CN.md](../../README.zh-CN.md) 使用中文，内容与英文 README 对齐。
 - 当前公开州覆盖按 Federal + CA/NY/TX/FL/WA 表达；`FED + 50 states + DC` 的 broader source/candidate registry 不能等同于全量 verified coverage。
 - 第三方 provider API、公开 OpenAPI、PWA/native、SOC 2/WISP 认证等规划或可配置能力，只能在对应设计/架构文档中按未来态描述，不能在 README 中宣传为已完成。
-- 当前 workspace packages 仍为 `UNLICENSED`；公开发布前需要补充明确 license file。
+- README 应优先解释产品闭环、当前能力、边界和技术栈；不要用仓库元信息或路线图占据主要阅读空间。
 
 ## 模块地图
 
