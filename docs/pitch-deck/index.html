@@ -393,7 +393,7 @@
         font-variant-numeric: tabular-nums;
       }
 
-      .text-right {
+      .app-table .text-right {
         text-align: right;
       }
 
@@ -564,24 +564,16 @@
       }
 
       .evidence-icon {
-        position: relative;
-        width: 12px;
+        display: inline-block;
+        width: 14px;
         height: 14px;
-        border: 1px solid currentColor;
-        border-radius: 2px;
-        opacity: 0.72;
-      }
-
-      .evidence-icon::after {
-        content: '';
-        position: absolute;
-        right: -3px;
-        bottom: -3px;
-        width: 5px;
-        height: 5px;
-        border: 1px solid currentColor;
-        border-radius: 999px;
-        background: var(--background-default);
+        flex: none;
+        color: var(--text-tertiary);
+        background: currentColor;
+        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 2v6h6'/%3E%3Ccircle cx='11.5' cy='14.5' r='2.5'/%3E%3Cpath d='m13.3 16.3 2.2 2.2'/%3E%3C/svg%3E")
+          center / contain no-repeat;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 2v6h6'/%3E%3Ccircle cx='11.5' cy='14.5' r='2.5'/%3E%3Cpath d='m13.3 16.3 2.2 2.2'/%3E%3C/svg%3E")
+          center / contain no-repeat;
       }
 
       .batch-summary {
@@ -1001,11 +993,11 @@
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
-          <span class="deck-meta">Obligations table</span>
+          <span class="deck-meta">Penalty Radar™</span>
         </header>
         <div class="slide-body">
           <div>
-            <div class="section-kicker">Obligations view</div>
+            <div class="section-kicker">Penalty Radar™ · Obligations view</div>
             <h2 class="slide-title">
               Obligations 把截止日风险<span class="accent">转成可执行队列。</span>
             </h2>
@@ -1146,7 +1138,7 @@
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
-          <span class="deck-meta">Client import loop</span>
+          <span class="deck-meta">Migration Copilot</span>
         </header>
         <div class="slide-body">
           <div>
@@ -1328,11 +1320,11 @@
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
-          <span class="deck-meta">AI control boundary</span>
+          <span class="deck-meta">Glass-Box AI™</span>
         </header>
         <div class="slide-body">
           <div>
-            <div class="section-kicker">AI 边界</div>
+            <div class="section-kicker">Glass-Box AI™</div>
             <h2 class="slide-title">AI 是加速器，<span class="accent">不是最终裁判。</span></h2>
           </div>
           <div class="grid-3">
@@ -1365,19 +1357,19 @@
                 <tr>
                   <td>Migration Mapper / Normalizer</td>
                   <td class="mono">fast-json</td>
-                  <td>Structured output with trace records</td>
+                  <td>结构化输出，并保留追踪记录</td>
                   <td>Migration Copilot</td>
                 </tr>
                 <tr>
                   <td>Pulse Extract</td>
                   <td class="mono">quality-json</td>
-                  <td>Low confidence routes to manual review</td>
+                  <td>低置信度进入人工复核</td>
                   <td>Rules &gt; Pulse Changes</td>
                 </tr>
                 <tr>
                   <td>Smart Priority explanation</td>
                   <td class="mono">deterministic</td>
-                  <td>Rule-factor breakdown</td>
+                  <td>按规则因子拆解优先级</td>
                   <td>Dashboard / Obligations</td>
                 </tr>
               </tbody>
@@ -1408,48 +1400,35 @@
           </div>
           <div class="arch" aria-label="Architecture diagram">
             <div class="arch-node">
-              <h3>Vite SPA</h3>
-              <p>
-                <span class="mono">apps/app</span> 是登录后产品界面；React Router data mode +
-                TanStack Query + oRPC client。
-              </p>
+              <h3>产品界面</h3>
+              <p>客户、Obligations、规则变化和证据都从同一个登录后界面进入，减少团队切换成本。</p>
             </div>
             <div class="arch-arrow"></div>
             <div class="arch-node">
-              <h3>Cloudflare Worker</h3>
-              <p>
-                <span class="mono">apps/server</span> 托管 SPA
-                assets、/rpc、/api/auth、webhooks、health，同一个部署产物。
-              </p>
+              <h3>边缘服务</h3>
+              <p>同一套服务处理登录、业务请求、导入和外部回调，让部署面保持简单。</p>
             </div>
             <div class="arch-arrow"></div>
             <div class="arch-node">
-              <h3>Native edge services</h3>
-              <p>D1、R2、Vectorize、KV、Queues、Cron 支撑数据、证据、RAG、budget 与后台任务。</p>
+              <h3>托管数据与任务</h3>
+              <p>数据、文件证据、检索索引、队列和定时任务由托管服务承载，减少自运维负担。</p>
             </div>
           </div>
           <div class="grid-4">
             <article class="feature-card">
-              <h3>Contracts</h3>
-              <p>
-                <span class="mono">@duedatehq/contracts</span> 用 Zod + oRPC 共享前后端 API 形状。
-              </p>
+              <h3>接口契约</h3>
+              <p>前后端共享同一套接口约束，字段和错误语义不会在两边各自漂移。</p>
             </article>
             <article class="feature-card">
-              <h3>Core</h3>
-              <p>
-                <span class="mono">@duedatehq/core</span> 保持不依赖基础设施，只承载纯领域逻辑。
-              </p>
+              <h3>领域内核</h3>
+              <p>截止日、风险、导入和规则应用逻辑不绑死在某个界面或部署环境里。</p>
             </article>
             <article class="feature-card">
-              <h3>DB</h3>
-              <p>
-                Drizzle + D1；结构定义、数据访问、审计和证据写入都集中在
-                <span class="mono">@duedatehq/db</span>。
-              </p>
+              <h3>数据边界</h3>
+              <p>数据访问、证据写入和审计记录集中管理，方便追踪、隔离和复核。</p>
             </article>
             <article class="feature-card">
-              <h3>UI</h3>
+              <h3>界面系统</h3>
               <p>共享设计变量和基础组件，不让业务功能重复实现表格、状态标记和按钮。</p>
             </article>
           </div>
@@ -1474,46 +1453,32 @@
             <div class="section-kicker">安全与合规</div>
             <h2 class="slide-title">税务软件的差异化，<span class="accent">是信任边界。</span></h2>
           </div>
-          <div class="app-table-wrap">
-            <table class="app-table">
-              <caption>
-                这些不是附录里的承诺，而是已经进入文档和代码结构的系统边界。
-              </caption>
-              <thead>
-                <tr>
-                  <th>Layer</th>
-                  <th>Implementation</th>
-                  <th>Why it matters</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Session and firm</td>
-                  <td>better-auth Organization + active firm</td>
-                  <td>每个用户都在明确的事务所上下文里操作。</td>
-                </tr>
-                <tr>
-                  <td>Tenant boundary</td>
-                  <td><span class="mono">scoped(db, firmId)</span></td>
-                  <td>业务数据默认带租户边界，不依赖前端传入 firmId。</td>
-                </tr>
-                <tr>
-                  <td>Static guardrails</td>
-                  <td><span class="mono">no-restricted-imports</span> in Vite+ lint</td>
-                  <td>接口过程不能直接导入数据库结构，避免绕过租户中间件。</td>
-                </tr>
-                <tr>
-                  <td>RBAC</td>
-                  <td>owner / manager / preparer / coordinator</td>
-                  <td>Pulse 应用、回滚、账单和审计导出有不同权限语义。</td>
-                </tr>
-                <tr>
-                  <td>Audit trail</td>
-                  <td><span class="mono">audit_event</span> actor + ip_hash + ua_hash</td>
-                  <td>“谁改了截止日”可以追溯，不只是页面提示。</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="grid-3">
+            <article class="feature-card">
+              <h3>事务所上下文</h3>
+              <p>
+                用户进入产品后始终绑定当前事务所，Dashboard、Obligations 和 Pulse 都在同一个
+                Practice Context 下工作。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>权限控制</h3>
+              <p>
+                Owner、Manager、Preparer、Coordinator
+                分别承担不同操作边界，规则应用、回滚和审计导出不会混在一起。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>审计追踪</h3>
+              <p>
+                截止日更新、Pulse 应用和关键写入进入 Audit Event，保留 Actor、IP Hash、UA
+                Hash，能回看谁改了什么。
+              </p>
+            </article>
+          </div>
+          <div class="quote-panel">
+            <p>信任边界不是安全附录，而是事务所每天处理截止日风险时的默认工作方式。</p>
+            <span>这也是 DueDateHQ 和普通日历、提醒工具的关键差异。</span>
           </div>
         </div>
         <footer class="slide-footer">
@@ -1522,88 +1487,45 @@
         </footer>
       </section>
 
-      <section class="slide" aria-label="What stands out">
+      <section class="slide" aria-label="Product summary">
         <header class="slide-header">
           <span class="brand-lockup">
             <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
-          <span class="deck-meta">Product strengths</span>
+          <span class="deck-meta">Product summary</span>
         </header>
         <div class="slide-body">
           <div>
-            <div class="section-kicker">Operating model</div>
+            <div class="section-kicker">产品总结</div>
             <h2 class="slide-title">
-              DueDateHQ 把截止日风险<span class="accent">接入完整事务闭环。</span>
+              DueDateHQ 把截止日风险<span class="accent">接入可追责的事务闭环。</span>
             </h2>
           </div>
           <div class="grid-4">
             <article class="feature-card">
               <h3>Obligations control plane</h3>
-              <p>核心界面把状态、风险等级、预计风险和证据放进同一个可追责队列。</p>
+              <p>风险、状态、金额和证据在同一队列里，团队先处理真正影响交付的事项。</p>
             </article>
             <article class="feature-card">
-              <h3>Migration activation</h3>
-              <p>导入把旧客户表变成客户和申报义务，并预热 Dashboard 支撑第一周分诊。</p>
+              <h3>Migration Copilot</h3>
+              <p>从旧客户表启动事务所，直接生成客户、申报义务和本周分诊视图。</p>
             </article>
             <article class="feature-card">
-              <h3>AI guardrails</h3>
-              <p>AI 只产出结构化建议和摘要；写入仍由确定性的服务端流程控制。</p>
+              <h3>Pulse</h3>
+              <p>官方源变化进入复核、应用、回滚和审计链路，而不是停留在提醒。</p>
             </article>
             <article class="feature-card">
-              <h3>Production-shaped architecture</h3>
-              <p>Cloudflare-first、oRPC 契约、D1 仓储、租户边界和测试，让系统能解释也能维护。</p>
-            </article>
-          </div>
-          <div class="quote-panel">
-            <p>产品主线很清楚：每个截止日都应该有风险、证据、责任人和审计记录。</p>
-            <span>Obligations、Migration Copilot 和 Pulse 是同一个可控事务流程的三个部分。</span>
-          </div>
-        </div>
-        <footer class="slide-footer">
-          <span class="source-line" aria-hidden="true"></span>
-          <span class="slide-number"></span>
-        </footer>
-      </section>
-
-      <section class="slide" aria-label="Closing">
-        <header class="slide-header">
-          <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
-            <span class="brand-separator"></span>
-            <span>DueDateHQ</span>
-          </span>
-          <span class="deck-meta">Closing</span>
-        </header>
-        <div class="slide-body">
-          <div>
-            <div class="section-kicker">Product direction</div>
-            <h2 class="slide-title">
-              DueDateHQ 是 CPA 截止日工作的控制层，<span class="accent">不是另一个日历。</span>
-            </h2>
-          </div>
-          <div class="grid-4">
-            <article class="feature-card">
-              <h3>风险优先</h3>
-              <p>先看截止压力、预计风险、准备度和证据缺口，而不是先翻客户列表。</p>
-            </article>
-            <article class="feature-card">
-              <h3>导入优先</h3>
-              <p>从已有客户表启动事务所，而不是要求团队手工重建基础数据。</p>
-            </article>
-            <article class="feature-card">
-              <h3>规则可复核</h3>
-              <p>把官方源变化变成可复核、可撤销、可审计的截止日更新。</p>
-            </article>
-            <article class="feature-card">
-              <h3>信任内建</h3>
-              <p>租户边界、RBAC、证据和审计链路都放在核心流程里。</p>
+              <h3>Trust boundary</h3>
+              <p>租户边界、RBAC、证据和审计记录都内建在核心流程里。</p>
             </article>
           </div>
           <div class="quote-panel">
             <p>DueDateHQ 让截止日工作可观察、可排序、可追责。</p>
-            <span>这是我为每周都在管理风险的 CPA 事务所做的产品。</span>
+            <span
+              >这就是我做这个项目的重点：把税务截止日从静态日历，变成有证据、有优先级、有审计链路的事务管理系统。</span
+            >
           </div>
         </div>
         <footer class="slide-footer">

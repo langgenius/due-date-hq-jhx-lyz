@@ -20,6 +20,7 @@ const CONFIGURED_ENV = {
   AI_GATEWAY_SLUG: 'duedatehq',
   AI_GATEWAY_API_KEY: 'test-key',
   AI_GATEWAY_MODEL_FAST_JSON: 'fast-json-test-model',
+  AI_GATEWAY_MODEL_FAST_JSON_SOLO_ONBOARDING: 'fast-json-solo-onboarding-test-model',
   AI_GATEWAY_MODEL_FAST_JSON_SOLO: 'fast-json-solo-test-model',
   AI_GATEWAY_MODEL_FAST_JSON_PAID: 'fast-json-paid-test-model',
   AI_GATEWAY_MODEL_QUALITY_JSON: 'quality-json-test-model',
@@ -32,9 +33,10 @@ const OPENROUTER_ENV = {
   AI_GATEWAY_PROVIDER: 'openrouter',
   AI_GATEWAY_PROVIDER_API_KEY: 'test-openrouter-key',
   AI_GATEWAY_MODEL_FAST_JSON: 'google/gemini-2.5-flash-lite',
+  AI_GATEWAY_MODEL_FAST_JSON_SOLO_ONBOARDING: 'google/gemini-3.1-flash-lite-preview',
   AI_GATEWAY_MODEL_FAST_JSON_SOLO: 'google/gemini-2.5-flash-lite',
   AI_GATEWAY_MODEL_FAST_JSON_PAID: 'google/gemini-3.1-flash-lite-preview',
-  AI_GATEWAY_MODEL_QUALITY_JSON: 'deepseek/deepseek-v3.2',
+  AI_GATEWAY_MODEL_QUALITY_JSON: 'google/gemini-3-flash-preview',
   AI_GATEWAY_MODEL_REASONING: 'openai/gpt-5-mini',
 }
 
@@ -162,7 +164,7 @@ describe('@duedatehq/ai', () => {
     expect(request).not.toHaveProperty('gatewayApiKey')
   })
 
-  it('routes fast-json by billing plan and keeps quality-json task-tier based', async () => {
+  it('routes fast-json by billing plan and Solo onboarding state', async () => {
     callGatewayMock.mockResolvedValue({
       output: { ok: true },
       model: 'routed-model',
@@ -170,13 +172,21 @@ describe('@duedatehq/ai', () => {
     const ai = createAI(CONFIGURED_ENV)
     const schema = z.object({ ok: z.boolean() })
 
-    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'solo' })
+    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, {
+      plan: 'solo',
+      migrationOnboardingCompleted: false,
+    })
+    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, {
+      plan: 'solo',
+      migrationOnboardingCompleted: true,
+    })
     await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'pro' })
     await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'team' })
     await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'firm' })
     await ai.runPrompt('brief@v1', { summary: {}, sources: [] }, schema, { plan: 'firm' })
 
     expect(callGatewayMock.mock.calls.map((call) => call[0].model)).toEqual([
+      'fast-json-solo-onboarding-test-model',
       'fast-json-solo-test-model',
       'fast-json-paid-test-model',
       'fast-json-paid-test-model',

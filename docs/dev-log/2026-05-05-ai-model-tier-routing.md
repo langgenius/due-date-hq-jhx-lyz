@@ -13,8 +13,10 @@
 ## Runtime mapping
 
 - `fast-json`: Migration mapper, entity normalizer, tax-type normalizer, readiness checklist.
-  Solo uses `AI_GATEWAY_MODEL_FAST_JSON_SOLO`; Pro, Team, and Enterprise use
-  `AI_GATEWAY_MODEL_FAST_JSON_PAID`; both fall back to `AI_GATEWAY_MODEL_FAST_JSON`.
+  Solo migration onboarding uses `AI_GATEWAY_MODEL_FAST_JSON_SOLO_ONBOARDING`; after the first
+  successful client import, Solo uses `AI_GATEWAY_MODEL_FAST_JSON_SOLO`. Pro, Team, and Enterprise
+  use `AI_GATEWAY_MODEL_FAST_JSON_PAID`; all overrides fall back to
+  `AI_GATEWAY_MODEL_FAST_JSON`.
 - `quality-json`: Dashboard brief, client risk summary, deadline tip, Pulse extract.
 - `reasoning`: reserved for future complex reasoning or tool-loop prompts.
 

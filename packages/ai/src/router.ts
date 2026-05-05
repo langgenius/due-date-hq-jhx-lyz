@@ -3,6 +3,7 @@ import type { PromptName } from './prompter'
 
 export interface AiModelRoutingEnv {
   AI_GATEWAY_MODEL_FAST_JSON?: string
+  AI_GATEWAY_MODEL_FAST_JSON_SOLO_ONBOARDING?: string
   AI_GATEWAY_MODEL_FAST_JSON_SOLO?: string
   AI_GATEWAY_MODEL_FAST_JSON_PAID?: string
   AI_GATEWAY_MODEL_QUALITY_JSON?: string
@@ -40,9 +41,17 @@ export function parseModelTier(value: string): AiModelTier | null {
 
 function fastJsonModelForPlan(
   env: AiModelRoutingEnv,
-  plan: BillingPlan | undefined,
+  routing: Pick<AiRoutingInput, 'migrationOnboardingCompleted' | 'plan'>,
 ): string | undefined {
+  const { migrationOnboardingCompleted, plan } = routing
   if (plan === 'solo') {
+    if (migrationOnboardingCompleted === false) {
+      return (
+        env.AI_GATEWAY_MODEL_FAST_JSON_SOLO_ONBOARDING ??
+        env.AI_GATEWAY_MODEL_FAST_JSON_SOLO ??
+        env.AI_GATEWAY_MODEL_FAST_JSON
+      )
+    }
     return env.AI_GATEWAY_MODEL_FAST_JSON_SOLO ?? env.AI_GATEWAY_MODEL_FAST_JSON
   }
   if (plan === 'pro' || plan === 'team' || plan === 'firm') {
@@ -54,9 +63,9 @@ function fastJsonModelForPlan(
 export function modelForPromptTier(
   env: AiModelRoutingEnv,
   tier: AiModelTier,
-  routing: Pick<AiRoutingInput, 'plan'> = {},
+  routing: Pick<AiRoutingInput, 'migrationOnboardingCompleted' | 'plan'> = {},
 ): string | undefined {
-  if (tier === 'fast-json') return fastJsonModelForPlan(env, routing.plan)
+  if (tier === 'fast-json') return fastJsonModelForPlan(env, routing)
   if (tier === 'quality-json') return env.AI_GATEWAY_MODEL_QUALITY_JSON
   return env.AI_GATEWAY_MODEL_REASONING
 }

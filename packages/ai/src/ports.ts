@@ -37,6 +37,7 @@ export interface AiPorts {
   aiGatewaySlug: string
   aiGatewayApiKey: string
   aiGatewayModelFastJson: string
+  aiGatewayModelFastJsonSoloOnboarding?: string
   aiGatewayModelFastJsonSolo?: string
   aiGatewayModelFastJsonPaid?: string
   aiGatewayModelQualityJson: string
