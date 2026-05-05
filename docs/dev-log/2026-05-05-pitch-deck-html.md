@@ -18,6 +18,7 @@ updates:
   - note: 'Rewrote the roadmap slide into PWA, Ask AI, and Enterprise phases after removing Phase 0.'
   - note: 'Made the roadmap slide short-term promotion route more concrete with pilot size, weekly actions, and validation signals.'
   - note: 'Replaced roadmap Phase 3 with Enterprise and multi-practice expansion after hiding Enterprise from the current billing surface.'
+  - note: 'Embedded the DueDateHQ logo SVG inside the HTML so the deck can be shared as a single file.'
 ---
 
 # Pitch deck HTML
@@ -30,7 +31,8 @@ updates:
 ## 做了什么
 
 - 新增 `docs/pitch-deck/index.html`，做成可键盘翻页、可打印的静态 pitch deck。
-- 新增 `docs/pitch-deck/duedatehq-logo.svg`，使用项目自己的 DueDateHQ brand mark。
+- 新增 `docs/pitch-deck/duedatehq-logo.svg`，使用项目自己的 DueDateHQ brand mark；当前
+  `index.html` 已内嵌该 mark，不再依赖旁边的 SVG 文件。
 - Deck 外壳使用简洁演示规则；产品 surface 使用 DueDateHQ 产品内的表格、状态标记、风险行和证据标记。
 - 当前版本收敛为 12 页，新增成本模型页和倒数第二页的下一阶段路线图。
 - 指标、客户行、导入批次、Pulse 记录、证据和审计口径来自 `mock/demo.sql`、
@@ -67,6 +69,10 @@ hairline divider、mono tabular number 等产品语言。
   完成格式修复；随后 `vp check` 的格式阶段通过，但 lint 阶段因 HTML/Markdown 入参没有可 lint 文件而退出。
 - `pnpm exec prettier --check ...` 尝试校验格式，但当前 workspace 未安装 `prettier`，命令返回
   `Command "prettier" not found`。
+- 将 DueDateHQ logo 改为 HTML 内嵌 SVG symbol 后，用 `rg` 确认 `index.html` 不再引用
+  `duedatehq-logo.svg`。
+- `pnpm exec playwright screenshot --viewport-size=1280,720 file://.../docs/pitch-deck/index.html`
+  确认封面 logo 可由单个 HTML 文件正常渲染。
 
 ## 后续 / 未闭环
 

@@ -116,11 +116,18 @@
         user-select: none;
       }
 
-      .logo img {
+      .logo-mark {
         width: 28px;
         height: 28px;
         display: block;
         border-radius: 7px;
+      }
+
+      .brand-symbols {
+        position: absolute;
+        width: 0;
+        height: 0;
+        overflow: hidden;
       }
 
       .logo-text {
@@ -941,11 +948,43 @@
     </style>
   </head>
   <body>
+    <svg class="brand-symbols" aria-hidden="true" focusable="false">
+      <symbol id="duedatehq-logo-mark" viewBox="0 0 256 256">
+        <rect width="256" height="256" rx="54" fill="#071421" />
+        <path d="M78 56V200" stroke="#D9E4F0" stroke-width="20" stroke-linecap="round" />
+        <path
+          d="M80 56H119C166 56 196 84 196 128C196 172 166 200 119 200H80"
+          stroke="#D9E4F0"
+          stroke-width="20"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path d="M112 98H153" stroke="#B99B62" stroke-width="8" stroke-linecap="round" />
+        <path
+          d="M112 128H145"
+          stroke="#D9E4F0"
+          stroke-opacity="0.35"
+          stroke-width="7"
+          stroke-linecap="round"
+        />
+        <path
+          d="M112 158H134"
+          stroke="#D9E4F0"
+          stroke-opacity="0.22"
+          stroke-width="7"
+          stroke-linecap="round"
+        />
+        <circle cx="196" cy="128" r="15" fill="#35D5FF" />
+        <circle cx="196" cy="128" r="26" stroke="#35D5FF" stroke-opacity="0.24" stroke-width="4" />
+      </symbol>
+    </svg>
     <main class="deck" aria-label="DueDateHQ pitch deck">
       <section class="slide" data-active="true" aria-label="Cover">
         <header class="slide-header">
           <a class="logo" href="https://duedatehq.com" aria-label="DueDateHQ">
-            <img src="duedatehq-logo.svg" alt="DueDateHQ" />
+            <svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+              <use href="#duedatehq-logo-mark" />
+            </svg>
           </a>
           <span class="deck-meta">DueDateHQ product presentation · 2026-05-05</span>
         </header>
@@ -973,7 +1012,10 @@
       <section class="slide" aria-label="Positioning">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1017,7 +1059,10 @@
       <section class="slide" aria-label="Demo data">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1069,7 +1114,10 @@
       <section class="slide" aria-label="Obligations table">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1214,7 +1262,10 @@
       <section class="slide" aria-label="Migration Copilot">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1300,7 +1351,10 @@
       <section class="slide" aria-label="Pulse">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1396,7 +1450,10 @@
       <section class="slide" aria-label="Glass box AI">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1465,7 +1522,10 @@
       <section class="slide" aria-label="Architecture">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1522,7 +1582,10 @@
       <section class="slide" aria-label="Security">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1570,7 +1633,10 @@
       <section class="slide" aria-label="AI cost model">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1643,7 +1709,10 @@
       <section class="slide" aria-label="Next-stage roadmap">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
@@ -1696,7 +1765,10 @@
       <section class="slide" aria-label="Product summary">
         <header class="slide-header">
           <span class="brand-lockup">
-            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="logo"
+              ><svg class="logo-mark" viewBox="0 0 256 256" aria-hidden="true">
+                <use href="#duedatehq-logo-mark" /></svg
+            ></span>
             <span class="brand-separator"></span>
             <span>DueDateHQ</span>
           </span>
