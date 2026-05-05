@@ -28,6 +28,9 @@ export function SmartPriorityBadge({
   return (
     <Popover>
       <PopoverTrigger
+        openOnHover
+        delay={0}
+        closeDelay={120}
         render={
           <button
             type="button"

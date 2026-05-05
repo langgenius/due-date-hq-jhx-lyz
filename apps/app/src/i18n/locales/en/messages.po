@@ -182,11 +182,6 @@ msgstr "{0} seat limit"
 msgid "{0} seats"
 msgstr "{0} seats"
 
-#. placeholder {0}: selectedRows.length
-#: src/features/rules/rule-library-tab.tsx
-msgid "{0} selected"
-msgstr "{0} selected"
-
 #. placeholder {0}: stats.selectedCount
 #. placeholder {1}: stats.selectableCount
 #. placeholder {2}: stats.needsReviewCount
@@ -282,6 +277,10 @@ msgstr "{expiredCount} expired needs resend"
 msgid "{field} changed from {previous} to {next}"
 msgstr "{field} changed from {previous} to {next}"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "{hiddenRuleCount} more selected rules"
+msgstr "{hiddenRuleCount} more selected rules"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "{ignoredCount, plural, one {# column is currently ignored.} other {# columns are currently ignored.}}"
 msgstr "{ignoredCount, plural, one {# column is currently ignored.} other {# columns are currently ignored.}}"
@@ -331,6 +330,10 @@ msgstr "{role} · {plan} · {0} seat"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "{role} · {plan} · {0} seats"
 msgstr "{role} · {plan} · {0} seats"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "{selectedCount} selected"
+msgstr "{selectedCount} selected"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
@@ -491,10 +494,6 @@ msgstr "Accept rule"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Accept selected"
 msgstr "Accept selected"
-
-#: src/features/rules/rule-library-tab.tsx
-msgid "Accepted by practice owner/manager after reviewing source-backed templates."
-msgstr "Accepted by practice owner/manager after reviewing source-backed templates."
 
 #: src/features/rules/coverage-tab.tsx
 msgid "accepted by this practice"
@@ -783,6 +782,7 @@ msgstr "All systems operational"
 msgid "All time"
 msgstr "All time"
 
+#: src/features/rules/rule-library-tab.tsx
 #: src/routes/billing.checkout.tsx
 msgid "Already active"
 msgstr "Already active"
@@ -1076,8 +1076,8 @@ msgid "Basic AI"
 msgstr "Basic AI"
 
 #: src/features/rules/rule-library-tab.tsx
-msgid "Batch review note"
-msgstr "Batch review note"
+msgid "BATCH REVIEW NOTE"
+msgstr "BATCH REVIEW NOTE"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Batch review note is required."
@@ -1144,9 +1144,10 @@ msgstr "Billing status is not ready yet."
 msgid "Building the import preview"
 msgstr "Building the import preview"
 
+#. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
-msgid "BULK CONFIRM"
-msgstr "BULK CONFIRM"
+msgid "Bulk review disabled for {0}: {bulkReviewDisabledReason}"
+msgstr "Bulk review disabled for {0}: {bulkReviewDisabledReason}"
 
 #: src/routes/obligations.tsx
 msgid "Bulk status updated"
@@ -1360,6 +1361,7 @@ msgstr "Choose Solo, Pro, or Team to start the hosted checkout flow."
 
 #: src/components/primitives/iso-date-picker.tsx
 #: src/features/rules/rule-detail-drawer.tsx
+#: src/features/rules/rule-library-tab.tsx
 #: src/routes/obligations.tsx
 msgid "Clear"
 msgstr "Clear"
@@ -3203,6 +3205,10 @@ msgstr "Integration record source"
 msgid "Integration records"
 msgstr "Integration records"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Invalid template"
+msgstr "Invalid template"
+
 #: src/routes/accept-invite.tsx
 msgid "Invitation accepted"
 msgstr "Invitation accepted"
@@ -4800,6 +4806,10 @@ msgstr "Pending review"
 msgid "Pending review · never generates user reminders."
 msgstr "Pending review · never generates user reminders."
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Pending rules selected for practice review."
+msgstr "Pending rules selected for practice review."
+
 #: src/features/migration/mapping-target-labels.ts
 msgid "Period end"
 msgstr "Period end"
@@ -5051,6 +5061,10 @@ msgstr "Preset"
 msgid "Preview"
 msgstr "Preview"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "PREVIEW"
+msgstr "PREVIEW"
+
 #. placeholder {0}: preview.asOfDate
 #: src/routes/practice.tsx
 msgid "Preview as of {0}"
@@ -5063,6 +5077,10 @@ msgstr "Preview closed source-year obligations, then create next-year obligation
 #: src/routes/practice.tsx
 msgid "Preview recalculates open obligations without saving changes."
 msgstr "Preview recalculates open obligations without saving changes."
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Preview selected pending rules, add one batch note, then accept them into active practice rules."
+msgstr "Preview selected pending rules, add one batch note, then accept them into active practice rules."
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Preview selected rules before accepting them into production."
@@ -5704,6 +5722,14 @@ msgstr "Review requested"
 msgid "Review risk and operating pressure."
 msgstr "Review risk and operating pressure."
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Review selected"
+msgstr "Review selected"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Review selected rules"
+msgstr "Review selected rules"
+
 #: src/routes/account.security.tsx
 msgid "Review signed-in browsers and revoke stale access."
 msgstr "Review signed-in browsers and revoke stale access."
@@ -5751,6 +5777,10 @@ msgstr "Reviewed at"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Reviewed by"
 msgstr "Reviewed by"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Reviewed source authority and practice applicability."
+msgstr "Reviewed source authority and practice applicability."
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Reviewing"
@@ -6205,6 +6235,10 @@ msgstr "Select clients to apply"
 msgid "Select date"
 msgstr "Select date"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Select pending rules from the table."
+msgstr "Select pending rules from the table."
+
 #. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
 msgid "Select rule {0}"
@@ -6225,6 +6259,10 @@ msgstr "Selected obligation"
 #: src/routes/billing.checkout.tsx
 msgid "Selected plan"
 msgstr "Selected plan"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "SELECTED RULES"
+msgstr "SELECTED RULES"
 
 #: src/features/members/members-page.tsx
 msgid "Send a 7-day magic link to add a member to this practice."
@@ -6463,6 +6501,10 @@ msgstr "source"
 msgid "Source"
 msgstr "Source"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Source changed requires single-rule review"
+msgstr "Source changed requires single-rule review"
+
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source checked"
 msgstr "Source checked"
@@ -6537,6 +6579,14 @@ msgstr "Source-backed government changes that may affect client deadlines. Owner
 #: src/routes/billing.tsx
 msgid "Source-backed previews and lightweight migration help for one owner."
 msgstr "Source-backed previews and lightweight migration help for one owner."
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Source-changed rules are skipped from bulk accept. Review them one by one."
+msgstr "Source-changed rules are skipped from bulk accept. Review them one by one."
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Source-changed rules require single-rule review."
+msgstr "Source-changed rules require single-rule review."
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Source-changed rules should be checked against evidence before accepting."
@@ -6835,6 +6885,10 @@ msgstr "Team-scale fair-use protection"
 #: src/features/workload/workload-page.tsx
 msgid "Team+"
 msgstr "Team+"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Template not found"
+msgstr "Template not found"
 
 #: src/features/rules/rules-console.tsx
 msgid "Temporary Rules"
@@ -7389,6 +7443,10 @@ msgstr "Verify code"
 #: src/routes/dashboard.tsx
 msgid "Verify owner, source, and filing cutoff."
 msgstr "Verify owner, source, and filing cutoff."
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Version conflict"
+msgstr "Version conflict"
 
 #: src/components/patterns/app-shell.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx

@@ -182,11 +182,6 @@ msgstr "{0} 个席位上限"
 msgid "{0} seats"
 msgstr "{0} 个席位"
 
-#. placeholder {0}: selectedRows.length
-#: src/features/rules/rule-library-tab.tsx
-msgid "{0} selected"
-msgstr "已选择 {0} 条"
-
 #. placeholder {0}: stats.selectedCount
 #. placeholder {1}: stats.selectableCount
 #. placeholder {2}: stats.needsReviewCount
@@ -282,6 +277,10 @@ msgstr "{expiredCount} 个已过期，需要重发"
 msgid "{field} changed from {previous} to {next}"
 msgstr "{field} 从 {previous} 变更为 {next}"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "{hiddenRuleCount} more selected rules"
+msgstr "另有 {hiddenRuleCount} 条已选规则"
+
 #: src/features/migration/Step2Mapping.tsx
 msgid "{ignoredCount, plural, one {# column is currently ignored.} other {# columns are currently ignored.}}"
 msgstr "{ignoredCount, plural, other {# 列当前被忽略。}}"
@@ -331,6 +330,10 @@ msgstr "{role} · {plan} · {0} 个席位"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "{role} · {plan} · {0} seats"
 msgstr "{role} · {plan} · {0} 个席位"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "{selectedCount} selected"
+msgstr "已选择 {selectedCount} 条"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
@@ -491,10 +494,6 @@ msgstr "接受规则"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Accept selected"
 msgstr "接受所选"
-
-#: src/features/rules/rule-library-tab.tsx
-msgid "Accepted by practice owner/manager after reviewing source-backed templates."
-msgstr "事务所 owner/manager 已审核来源支持的模板并确认接受。"
 
 #: src/features/rules/coverage-tab.tsx
 msgid "accepted by this practice"
@@ -783,6 +782,7 @@ msgstr "所有系统运行正常"
 msgid "All time"
 msgstr "全部时间"
 
+#: src/features/rules/rule-library-tab.tsx
 #: src/routes/billing.checkout.tsx
 msgid "Already active"
 msgstr "已激活"
@@ -1076,7 +1076,7 @@ msgid "Basic AI"
 msgstr "基础 AI"
 
 #: src/features/rules/rule-library-tab.tsx
-msgid "Batch review note"
+msgid "BATCH REVIEW NOTE"
 msgstr "批量审核说明"
 
 #: src/features/rules/rule-library-tab.tsx
@@ -1144,9 +1144,10 @@ msgstr "账单状态尚未准备好。"
 msgid "Building the import preview"
 msgstr "正在生成导入预览"
 
+#. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
-msgid "BULK CONFIRM"
-msgstr "批量确认"
+msgid "Bulk review disabled for {0}: {bulkReviewDisabledReason}"
+msgstr "{0} 已禁用批量审核：{bulkReviewDisabledReason}"
 
 #: src/routes/obligations.tsx
 msgid "Bulk status updated"
@@ -1360,6 +1361,7 @@ msgstr "选择 Solo、Pro 或 Team 以开始托管 checkout 流程。"
 
 #: src/components/primitives/iso-date-picker.tsx
 #: src/features/rules/rule-detail-drawer.tsx
+#: src/features/rules/rule-library-tab.tsx
 #: src/routes/obligations.tsx
 msgid "Clear"
 msgstr "清除"
@@ -3203,6 +3205,10 @@ msgstr "集成记录来源"
 msgid "Integration records"
 msgstr "集成记录"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Invalid template"
+msgstr "模板无效"
+
 #: src/routes/accept-invite.tsx
 msgid "Invitation accepted"
 msgstr "邀请已接受"
@@ -4800,6 +4806,10 @@ msgstr "待复核"
 msgid "Pending review · never generates user reminders."
 msgstr "待审核 · 永远不会生成用户提醒。"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Pending rules selected for practice review."
+msgstr "已选择待事务所审核的规则。"
+
 #: src/features/migration/mapping-target-labels.ts
 msgid "Period end"
 msgstr "期间结束"
@@ -5051,6 +5061,10 @@ msgstr "预设"
 msgid "Preview"
 msgstr "预览"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "PREVIEW"
+msgstr "预览"
+
 #. placeholder {0}: preview.asOfDate
 #: src/routes/practice.tsx
 msgid "Preview as of {0}"
@@ -5063,6 +5077,10 @@ msgstr "先预览已关闭的来源年度义务，再基于已生效事务所规
 #: src/routes/practice.tsx
 msgid "Preview recalculates open obligations without saving changes."
 msgstr "预览会重新计算未完成义务，不会保存更改。"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Preview selected pending rules, add one batch note, then accept them into active practice rules."
+msgstr "预览所选待复核规则，添加一条批量说明，然后接受为已生效事务所规则。"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Preview selected rules before accepting them into production."
@@ -5704,6 +5722,14 @@ msgstr "已请求审核"
 msgid "Review risk and operating pressure."
 msgstr "查看风险与运营压力。"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Review selected"
+msgstr "审核所选"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Review selected rules"
+msgstr "审核所选规则"
+
 #: src/routes/account.security.tsx
 msgid "Review signed-in browsers and revoke stale access."
 msgstr "查看已登录的浏览器，并撤销过期访问。"
@@ -5751,6 +5777,10 @@ msgstr "审核时间"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Reviewed by"
 msgstr "审核人"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Reviewed source authority and practice applicability."
+msgstr "已复核官方来源和事务所适用性。"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Reviewing"
@@ -6205,6 +6235,10 @@ msgstr "请选择客户后再应用"
 msgid "Select date"
 msgstr "选择日期"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Select pending rules from the table."
+msgstr "请从表格中选择待复核规则。"
+
 #. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
 msgid "Select rule {0}"
@@ -6225,6 +6259,10 @@ msgstr "已选义务"
 #: src/routes/billing.checkout.tsx
 msgid "Selected plan"
 msgstr "已选计划"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "SELECTED RULES"
+msgstr "已选规则"
 
 #: src/features/members/members-page.tsx
 msgid "Send a 7-day magic link to add a member to this practice."
@@ -6463,6 +6501,10 @@ msgstr "来源"
 msgid "Source"
 msgstr "来源"
 
+#: src/features/rules/rule-library-tab.tsx
+msgid "Source changed requires single-rule review"
+msgstr "来源变更需要单条审核"
+
 #: src/features/pulse/PulseAlertsBanner.tsx
 msgid "Source checked"
 msgstr "来源已检查"
@@ -6537,6 +6579,14 @@ msgstr "有来源依据、可能影响客户截止日的政府变更。Owner 和
 #: src/routes/billing.tsx
 msgid "Source-backed previews and lightweight migration help for one owner."
 msgstr "带来源的预览，以及适合单个负责人的轻量迁移辅助。"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Source-changed rules are skipped from bulk accept. Review them one by one."
+msgstr "来源变更的规则已从批量接受中跳过。请逐条审核。"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Source-changed rules require single-rule review."
+msgstr "来源变更的规则需要单条审核。"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Source-changed rules should be checked against evidence before accepting."
@@ -6835,6 +6885,10 @@ msgstr "团队规模的合理使用保护"
 #: src/features/workload/workload-page.tsx
 msgid "Team+"
 msgstr "Team+"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Template not found"
+msgstr "未找到模板"
 
 #: src/features/rules/rules-console.tsx
 msgid "Temporary Rules"
@@ -7389,6 +7443,10 @@ msgstr "验证验证码"
 #: src/routes/dashboard.tsx
 msgid "Verify owner, source, and filing cutoff."
 msgstr "核对负责人、来源和申报截止时间。"
+
+#: src/features/rules/rule-library-tab.tsx
+msgid "Version conflict"
+msgstr "版本冲突"
 
 #: src/components/patterns/app-shell.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx

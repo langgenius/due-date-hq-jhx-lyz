@@ -407,6 +407,7 @@ export const RuleBulkAcceptSkipSchema = z.object({
     'rejected',
     'archived',
     'invalid_template',
+    'source_changed_requires_review',
   ]),
 })
 export type RuleBulkAcceptSkip = z.infer<typeof RuleBulkAcceptSkipSchema>

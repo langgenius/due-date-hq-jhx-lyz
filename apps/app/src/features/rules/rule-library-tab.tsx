@@ -7,6 +7,13 @@ import { toast } from 'sonner'
 import type { ObligationRule, RuleBulkImpactPreview, RuleReviewTask } from '@duedatehq/contracts'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@duedatehq/ui/components/ui/sheet'
+import {
   Table,
   TableBody,
   TableCell,
@@ -74,6 +81,7 @@ export function RuleLibraryTab() {
   const [pageIndex, setPageIndex] = useState(0)
   const [selectedRuleKey, setSelectedRuleKey] = useState<string | null>(null)
   const [selectedRuleKeys, setSelectedRuleKeys] = useState<string[]>([])
+  const [bulkDrawerOpen, setBulkDrawerOpen] = useState(false)
   const [reviewNote, setReviewNote] = useState('')
   const [preview, setPreview] = useState<RuleBulkImpactPreview | null>(null)
 
@@ -132,8 +140,6 @@ export function RuleLibraryTab() {
   )
   const allVisibleSelected =
     visibleSelectableRows.length > 0 && visibleSelectedRows.length === visibleSelectableRows.length
-  const showBulkPanel =
-    libraryFilter === 'pending_review' || selectedRows.length > 0 || preview !== null
   const selectedRule = useMemo(
     () =>
       selectedRuleKey ? (rows.find((rule) => ruleRowKey(rule) === selectedRuleKey) ?? null) : null,
@@ -180,6 +186,7 @@ export function RuleLibraryTab() {
   }, [])
   const clearBulkSelection = useCallback(() => {
     setSelectedRuleKeys([])
+    setBulkDrawerOpen(false)
     setPreview(null)
   }, [])
 
@@ -224,6 +231,7 @@ export function RuleLibraryTab() {
       onSuccess: (result) => {
         invalidateRules()
         setSelectedRuleKeys([])
+        setBulkDrawerOpen(false)
         setReviewNote('')
         setPreview(null)
         toast.success(t`Rules accepted`, {
@@ -290,6 +298,7 @@ export function RuleLibraryTab() {
       toast.error(t`Select at least one pending rule.`)
       return
     }
+    setBulkDrawerOpen(true)
     previewMutation.mutate({ rules: selections })
   }
 
@@ -306,6 +315,14 @@ export function RuleLibraryTab() {
     bulkAcceptMutation.mutate({ rules: selections, reviewNote: note })
   }
 
+  function openBulkReview() {
+    if (selections.length === 0) {
+      toast.error(t`Select at least one pending rule.`)
+      return
+    }
+    setBulkDrawerOpen(true)
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-4">
@@ -315,155 +332,125 @@ export function RuleLibraryTab() {
           onValueChange={updateLibraryFilter}
         />
       </div>
-      <div className={cn('grid gap-4', showBulkPanel && 'xl:grid-cols-[minmax(0,1fr)_360px]')}>
-        <SectionFrame>
-          <Table>
-            <TableHeader className="bg-background-subtle">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-10 px-3">
-                  <input
-                    type="checkbox"
-                    aria-label={t`Select visible pending rules`}
-                    checked={allVisibleSelected}
-                    disabled={visibleSelectableRows.length === 0}
-                    onChange={(event) => toggleVisible(event.target.checked)}
-                    className="size-4 disabled:opacity-40"
-                  />
-                </TableHead>
-                <TableHead className="w-[82px] px-3">
-                  <TableHeaderMultiFilter
-                    trigger="header"
-                    label={t`JUR`}
-                    open={openHeaderFilter === 'jurisdiction'}
-                    onOpenChange={(nextOpen) => setHeaderFilterOpen('jurisdiction', nextOpen)}
-                    options={jurisdictionOptions}
-                    selected={jurisdictionFilters}
-                    emptyLabel={emptyFilterLabel}
-                    searchable
-                    searchPlaceholder={t`Filter jurisdictions`}
-                    onSelectedChange={(next) => updateHeaderFilter(setJurisdictionFilters, next)}
-                  />
-                </TableHead>
-                <TableHead>RULE</TableHead>
-                <TableHead className="w-[160px]">FORM</TableHead>
-                <TableHead className="w-[190px] px-3">
-                  <TableHeaderMultiFilter
-                    trigger="header"
-                    label={t`ENTITY`}
-                    open={openHeaderFilter === 'entity'}
-                    onOpenChange={(nextOpen) => setHeaderFilterOpen('entity', nextOpen)}
-                    options={entityOptions}
-                    selected={entityFilters}
-                    emptyLabel={emptyFilterLabel}
-                    onSelectedChange={(next) => updateHeaderFilter(setEntityFilters, next)}
-                  />
-                </TableHead>
-                <TableHead className="w-[210px] px-3">
-                  <TableHeaderMultiFilter
-                    trigger="header"
-                    label={t`TIER`}
-                    open={openHeaderFilter === 'tier'}
-                    onOpenChange={(nextOpen) => setHeaderFilterOpen('tier', nextOpen)}
-                    options={tierOptions}
-                    selected={tierFilters}
-                    emptyLabel={emptyFilterLabel}
-                    onSelectedChange={(next) => updateHeaderFilter(setTierFilters, next)}
-                  />
-                </TableHead>
-                <TableHead className="w-[140px] px-3">
-                  <TableHeaderMultiFilter
-                    trigger="header"
-                    label={t`STATUS`}
-                    open={openHeaderFilter === 'status'}
-                    onOpenChange={(nextOpen) => setHeaderFilterOpen('status', nextOpen)}
-                    options={statusOptions}
-                    selected={statusFilters}
-                    emptyLabel={emptyFilterLabel}
-                    onSelectedChange={(next) => updateHeaderFilter(setStatusFilters, next)}
-                  />
-                </TableHead>
-                <TableHead className="w-[90px]">VERSION</TableHead>
-                <TableHead className="w-8" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {visibleRows.map((rule) => (
-                <RuleRow
-                  key={ruleRowKey(rule)}
-                  rule={rule}
-                  reviewTask={openTaskByRuleVersion.get(reviewTaskKeyForRule(rule)) ?? null}
-                  selected={
-                    selectedRuleKeys.includes(ruleRowKey(rule)) &&
-                    canBulkReviewRule(rule, openTaskByRuleVersion)
-                  }
-                  onSelectedChange={toggleRule}
-                  onSelect={handleRuleSelect}
+      {selectedRows.length > 0 ? (
+        <SelectionBar
+          selectedCount={selectedRows.length}
+          onReview={openBulkReview}
+          onClear={clearBulkSelection}
+        />
+      ) : null}
+      <SectionFrame>
+        <Table>
+          <TableHeader className="bg-background-subtle">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-10 px-3">
+                <input
+                  type="checkbox"
+                  aria-label={t`Select visible pending rules`}
+                  checked={allVisibleSelected}
+                  disabled={visibleSelectableRows.length === 0}
+                  onChange={(event) => toggleVisible(event.target.checked)}
+                  className="size-4 disabled:opacity-40"
                 />
-              ))}
-            </TableBody>
-          </Table>
-          <TablePaginationFooter
-            pageIndex={currentPageIndex}
-            pageCount={pageCount}
-            firstItemNumber={firstItemNumber}
-            lastItemNumber={lastItemNumber}
-            totalCount={filteredRows.length}
-            onPreviousPage={() => setPageIndex(Math.max(0, currentPageIndex - 1))}
-            onNextPage={() => setPageIndex(Math.min(pageCount - 1, currentPageIndex + 1))}
-          />
-        </SectionFrame>
-        {showBulkPanel ? (
-          <SectionFrame className="h-fit px-4 py-4">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between gap-3">
-                <SectionLabel>
-                  <Trans>BULK CONFIRM</Trans>
-                </SectionLabel>
-                <span className="font-mono text-xs text-text-tertiary">
-                  <Trans>{selectedRows.length} selected</Trans>
-                </span>
-              </div>
-              <BulkPreviewSummary preview={preview} />
-              <label className="flex flex-col gap-1 text-xs text-text-tertiary">
-                <span>
-                  <Trans>Batch review note</Trans>
-                </span>
-                <Textarea
-                  value={reviewNote}
-                  onChange={(event) => setReviewNote(event.target.value)}
-                  className="min-h-24 text-xs"
-                  placeholder={t`Accepted by practice owner/manager after reviewing source-backed templates.`}
+              </TableHead>
+              <TableHead className="w-[82px] px-3">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`JUR`}
+                  open={openHeaderFilter === 'jurisdiction'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('jurisdiction', nextOpen)}
+                  options={jurisdictionOptions}
+                  selected={jurisdictionFilters}
+                  emptyLabel={emptyFilterLabel}
+                  searchable
+                  searchPlaceholder={t`Filter jurisdictions`}
+                  onSelectedChange={(next) => updateHeaderFilter(setJurisdictionFilters, next)}
                 />
-              </label>
-              <div className="flex flex-wrap justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={runPreview}
-                  disabled={previewMutation.isPending || selections.length === 0}
-                >
-                  <EyeIcon data-icon="inline-start" />
-                  <Trans>Preview</Trans>
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={bulkAccept}
-                  disabled={bulkAcceptMutation.isPending || selections.length === 0}
-                >
-                  <CheckIcon data-icon="inline-start" />
-                  <Trans>Accept selected</Trans>
-                </Button>
-              </div>
-            </div>
-          </SectionFrame>
-        ) : null}
-      </div>
+              </TableHead>
+              <TableHead>RULE</TableHead>
+              <TableHead className="w-[160px]">FORM</TableHead>
+              <TableHead className="w-[190px] px-3">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`ENTITY`}
+                  open={openHeaderFilter === 'entity'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('entity', nextOpen)}
+                  options={entityOptions}
+                  selected={entityFilters}
+                  emptyLabel={emptyFilterLabel}
+                  onSelectedChange={(next) => updateHeaderFilter(setEntityFilters, next)}
+                />
+              </TableHead>
+              <TableHead className="w-[210px] px-3">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`TIER`}
+                  open={openHeaderFilter === 'tier'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('tier', nextOpen)}
+                  options={tierOptions}
+                  selected={tierFilters}
+                  emptyLabel={emptyFilterLabel}
+                  onSelectedChange={(next) => updateHeaderFilter(setTierFilters, next)}
+                />
+              </TableHead>
+              <TableHead className="w-[140px] px-3">
+                <TableHeaderMultiFilter
+                  trigger="header"
+                  label={t`STATUS`}
+                  open={openHeaderFilter === 'status'}
+                  onOpenChange={(nextOpen) => setHeaderFilterOpen('status', nextOpen)}
+                  options={statusOptions}
+                  selected={statusFilters}
+                  emptyLabel={emptyFilterLabel}
+                  onSelectedChange={(next) => updateHeaderFilter(setStatusFilters, next)}
+                />
+              </TableHead>
+              <TableHead className="w-[90px]">VERSION</TableHead>
+              <TableHead className="w-8" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {visibleRows.map((rule) => (
+              <RuleRow
+                key={ruleRowKey(rule)}
+                rule={rule}
+                reviewTask={openTaskByRuleVersion.get(reviewTaskKeyForRule(rule)) ?? null}
+                selected={
+                  selectedRuleKeys.includes(ruleRowKey(rule)) &&
+                  canBulkReviewRule(rule, openTaskByRuleVersion)
+                }
+                onSelectedChange={toggleRule}
+                onSelect={handleRuleSelect}
+              />
+            ))}
+          </TableBody>
+        </Table>
+        <TablePaginationFooter
+          pageIndex={currentPageIndex}
+          pageCount={pageCount}
+          firstItemNumber={firstItemNumber}
+          lastItemNumber={lastItemNumber}
+          totalCount={filteredRows.length}
+          onPreviousPage={() => setPageIndex(Math.max(0, currentPageIndex - 1))}
+          onNextPage={() => setPageIndex(Math.min(pageCount - 1, currentPageIndex + 1))}
+        />
+      </SectionFrame>
       <RuleDetailDrawer
         rule={selectedRule}
         open={selectedRule !== null}
         onOpenChange={handleDrawerOpenChange}
+      />
+      <BulkReviewDrawer
+        open={bulkDrawerOpen}
+        onOpenChange={setBulkDrawerOpen}
+        selectedRules={selectedRows}
+        preview={preview}
+        reviewNote={reviewNote}
+        previewPending={previewMutation.isPending}
+        acceptPending={bulkAcceptMutation.isPending}
+        onReviewNoteChange={setReviewNote}
+        onPreview={runPreview}
+        onAccept={bulkAccept}
       />
     </div>
   )
@@ -494,6 +481,160 @@ function ruleFilterOptions<T extends string>(
     .toSorted((left, right) => left.label.localeCompare(right.label))
 }
 
+function SelectionBar({
+  selectedCount,
+  onReview,
+  onClear,
+}: {
+  selectedCount: number
+  onReview: () => void
+  onClear: () => void
+}) {
+  return (
+    <SectionFrame className="flex flex-col gap-3 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-center gap-2 text-xs text-text-secondary">
+        <ToneDot tone="review" />
+        <span className="font-mono text-text-primary tabular-nums">
+          <Trans>{selectedCount} selected</Trans>
+        </span>
+        <span className="truncate">
+          <Trans>Pending rules selected for practice review.</Trans>
+        </span>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button type="button" size="sm" onClick={onReview}>
+          <Trans>Review selected</Trans>
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onClear}>
+          <Trans>Clear</Trans>
+        </Button>
+      </div>
+    </SectionFrame>
+  )
+}
+
+function BulkReviewDrawer({
+  open,
+  onOpenChange,
+  selectedRules,
+  preview,
+  reviewNote,
+  previewPending,
+  acceptPending,
+  onReviewNoteChange,
+  onPreview,
+  onAccept,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  selectedRules: ObligationRule[]
+  preview: RuleBulkImpactPreview | null
+  reviewNote: string
+  previewPending: boolean
+  acceptPending: boolean
+  onReviewNoteChange: (value: string) => void
+  onPreview: () => void
+  onAccept: () => void
+}) {
+  const { t } = useLingui()
+  const hiddenRuleCount = Math.max(0, selectedRules.length - 8)
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="data-[side=right]:w-full sm:data-[side=right]:w-[min(720px,calc(100vw-2rem))] sm:data-[side=right]:max-w-none flex flex-col gap-0 overflow-hidden p-0">
+        <SheetHeader className="gap-2 border-b border-divider-regular px-5 py-4">
+          <SheetTitle className="text-md text-text-primary">
+            <Trans>Review selected rules</Trans>
+          </SheetTitle>
+          <SheetDescription>
+            <Trans>
+              Preview selected pending rules, add one batch note, then accept them into active
+              practice rules.
+            </Trans>
+          </SheetDescription>
+        </SheetHeader>
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          <div className="flex flex-col gap-5">
+            <section className="flex flex-col gap-2">
+              <SectionLabel>
+                <Trans>SELECTED RULES</Trans>
+              </SectionLabel>
+              <div className="overflow-hidden rounded-md border border-divider-regular bg-background-subtle">
+                {selectedRules.length > 0 ? (
+                  selectedRules.slice(0, 8).map((rule) => (
+                    <div
+                      key={ruleRowKey(rule)}
+                      className="flex items-center gap-3 border-b border-divider-subtle px-3 py-2 last:border-b-0"
+                    >
+                      <JurisdictionCode code={rule.jurisdiction} />
+                      <div className="min-w-0 flex-1">
+                        <span className="block truncate text-xs font-medium text-text-primary">
+                          {rule.title}
+                        </span>
+                        <span className="block truncate font-mono text-[11px] text-text-tertiary">
+                          {rule.id}
+                        </span>
+                      </div>
+                      <span className="font-mono text-xs text-text-tertiary">v{rule.version}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-3 py-3 text-xs text-text-tertiary">
+                    <Trans>Select pending rules from the table.</Trans>
+                  </div>
+                )}
+                {hiddenRuleCount > 0 ? (
+                  <div className="border-t border-divider-subtle px-3 py-2 text-xs text-text-tertiary">
+                    <Trans>{hiddenRuleCount} more selected rules</Trans>
+                  </div>
+                ) : null}
+              </div>
+            </section>
+            <section className="flex flex-col gap-2">
+              <SectionLabel>
+                <Trans>PREVIEW</Trans>
+              </SectionLabel>
+              <BulkPreviewSummary preview={preview} />
+            </section>
+            <label className="flex flex-col gap-2">
+              <SectionLabel>
+                <Trans>BATCH REVIEW NOTE</Trans>
+              </SectionLabel>
+              <Textarea
+                value={reviewNote}
+                onChange={(event) => onReviewNoteChange(event.target.value)}
+                placeholder={t`Reviewed source authority and practice applicability.`}
+                className="min-h-24 text-xs"
+              />
+            </label>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 border-t border-divider-regular px-5 py-3 sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onPreview}
+            disabled={previewPending || selectedRules.length === 0}
+          >
+            <EyeIcon className="size-3.5" />
+            <Trans>Preview</Trans>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            onClick={onAccept}
+            disabled={acceptPending || selectedRules.length === 0}
+          >
+            <CheckIcon className="size-3.5" />
+            <Trans>Accept selected</Trans>
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
 function RuleRow({
   rule,
   reviewTask,
@@ -508,6 +649,10 @@ function RuleRow({
   onSelect: (rule: ObligationRule) => void
 }) {
   const { t } = useLingui()
+  const bulkReviewDisabledReason =
+    reviewTask?.reason === 'source_changed'
+      ? t`Source-changed rules require single-rule review.`
+      : null
   const handleClick = useCallback(() => onSelect(rule), [onSelect, rule])
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTableRowElement>) => {
@@ -531,9 +676,14 @@ function RuleRow({
       <TableCell className="px-3 py-2">
         <input
           type="checkbox"
-          aria-label={t`Select rule ${rule.title}`}
+          aria-label={
+            bulkReviewDisabledReason
+              ? t`Bulk review disabled for ${rule.title}: ${bulkReviewDisabledReason}`
+              : t`Select rule ${rule.title}`
+          }
+          title={bulkReviewDisabledReason ?? undefined}
           checked={selected}
-          disabled={!reviewTask}
+          disabled={!canBulkReviewTask(reviewTask)}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
           onChange={(event) => onSelectedChange(ruleRowKey(rule), event.target.checked)}
@@ -574,16 +724,35 @@ function canBulkReviewRule(
   rule: ObligationRule,
   openTaskByRuleVersion: ReadonlyMap<string, RuleReviewTask>,
 ): boolean {
-  return rule.status === 'pending_review' && openTaskByRuleVersion.has(reviewTaskKeyForRule(rule))
+  return (
+    rule.status === 'pending_review' &&
+    canBulkReviewTask(openTaskByRuleVersion.get(reviewTaskKeyForRule(rule)) ?? null)
+  )
+}
+
+function canBulkReviewTask(task: RuleReviewTask | null): boolean {
+  return task !== null && task.reason !== 'source_changed'
 }
 
 function BulkPreviewSummary({ preview }: { preview: RuleBulkImpactPreview | null }) {
+  const { t } = useLingui()
+
   if (!preview) {
     return (
       <div className="rounded-md border border-divider-regular bg-background-subtle px-3 py-3 text-xs text-text-tertiary">
         <Trans>Preview selected rules before accepting them into production.</Trans>
       </div>
     )
+  }
+
+  const skipReasonLabels: Record<RuleBulkImpactPreview['skipped'][number]['reason'], string> = {
+    template_not_found: t`Template not found`,
+    version_conflict: t`Version conflict`,
+    already_active: t`Already active`,
+    rejected: t`Rejected`,
+    archived: t`Archived`,
+    invalid_template: t`Invalid template`,
+    source_changed_requires_review: t`Source changed requires single-rule review`,
   }
 
   return (
@@ -619,13 +788,23 @@ function BulkPreviewSummary({ preview }: { preview: RuleBulkImpactPreview | null
           </span>
         </div>
       ) : null}
+      {preview.skipped.some((row) => row.reason === 'source_changed_requires_review') ? (
+        <div className="flex items-start gap-2 text-severity-medium">
+          <ToneDot tone="warning" />
+          <span>
+            <Trans>
+              Source-changed rules are skipped from bulk accept. Review them one by one.
+            </Trans>
+          </span>
+        </div>
+      ) : null}
       {preview.skipped.length > 0 ? (
         <div className="flex flex-col gap-1 text-severity-medium">
           <span className="inline-flex items-center gap-2 font-medium">
             <ToneDot tone="warning" />
             <Trans>Skipped</Trans>
           </span>
-          <span>{preview.skipped.map((row) => row.reason).join(', ')}</span>
+          <span>{preview.skipped.map((row) => skipReasonLabels[row.reason]).join(', ')}</span>
         </div>
       ) : null}
     </div>

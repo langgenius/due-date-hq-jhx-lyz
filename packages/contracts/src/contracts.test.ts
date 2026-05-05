@@ -106,6 +106,7 @@ import {
 import {
   ObligationRuleSchema,
   ObligationGenerationPreviewSchema,
+  RuleBulkAcceptSkipSchema,
   RuleGenerationPreviewInputSchema,
   RuleCoverageRowSchema,
   RuleSourceSchema,
@@ -867,6 +868,16 @@ describe('@duedatehq/contracts', () => {
 
   it('allows verified rule evidence for generated obligations', () => {
     expect(EvidenceSourceTypeSchema.parse('verified_rule')).toBe('verified_rule')
+  })
+
+  it('allows source-changed rules to be skipped from bulk accept', () => {
+    expect(
+      RuleBulkAcceptSkipSchema.parse({
+        ruleId: 'ca-llc-annual-tax',
+        expectedVersion: 2,
+        reason: 'source_changed_requires_review',
+      }).reason,
+    ).toBe('source_changed_requires_review')
   })
 
   it('allows migration and Pulse audit strings used by batch apply', () => {

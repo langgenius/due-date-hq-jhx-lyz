@@ -401,6 +401,15 @@ async function previewBulkImpactForSelections(
       })
       continue
     }
+    const task = taskBySelection.get(`${selection.ruleId}:${selection.expectedVersion}`)
+    if (task?.reason === 'source_changed') {
+      skipped.push({
+        ruleId: selection.ruleId,
+        expectedVersion: selection.expectedVersion,
+        reason: 'source_changed_requires_review',
+      })
+      continue
+    }
     const existing = practiceById.get(selection.ruleId)
     if (existing?.status === 'active') {
       skipped.push({
@@ -622,6 +631,12 @@ const bulkAcceptTemplates = os.rules.bulkAcceptTemplates.handler(async ({ input,
   const practiceById = new Map(
     (await scoped.rules.listPracticeRules()).map((rule) => [rule.ruleId, rule]),
   )
+  const taskBySelection = new Map(
+    (await scoped.rules.listReviewTasks({ status: 'open' })).map((task) => [
+      `${task.ruleId}:${task.templateVersion}`,
+      task,
+    ]),
+  )
   const acceptInputs: CoreObligationRule[] = []
   const skipped: RuleBulkAcceptSkip[] = []
   const reviewedAt = new Date()
@@ -641,6 +656,15 @@ const bulkAcceptTemplates = os.rules.bulkAcceptTemplates.handler(async ({ input,
         ruleId: selection.ruleId,
         expectedVersion: selection.expectedVersion,
         reason: 'version_conflict',
+      })
+      continue
+    }
+    const task = taskBySelection.get(`${selection.ruleId}:${selection.expectedVersion}`)
+    if (task?.reason === 'source_changed') {
+      skipped.push({
+        ruleId: selection.ruleId,
+        expectedVersion: selection.expectedVersion,
+        reason: 'source_changed_requires_review',
       })
       continue
     }
