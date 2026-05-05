@@ -106,6 +106,11 @@ msgstr "{0} 邀请你加入 {1}。"
 msgid "{0} is on {expectedPlanName}"
 msgstr "{0} 已启用 {expectedPlanName}"
 
+#. placeholder {0}: array.length
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "{0} items recorded"
+msgstr "已记录 {0} 项"
+
 #. placeholder {0}: factsModel.summary.manual
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "{0} manual records"
@@ -232,6 +237,10 @@ msgstr "已更新 {count} 个{noun}"
 #: src/features/audit/audit-log-labels.ts
 msgid "{count} additional fields changed"
 msgstr "另有 {count} 个字段已变更"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "{count} checklist items were suggested."
+msgstr "已建议 {count} 个清单项。"
 
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
@@ -415,6 +424,10 @@ msgstr "订阅分配给你的截止日。"
 msgid "A possible rule or change that is still waiting for owner or manager review. Review-only rules do not update client deadlines or send reminders."
 msgstr "仍等待 Owner 或 Manager 复核的可能规则或变更。仅供复核的规则不会更新客户截止日，也不会发送提醒。"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "A readiness checklist was prepared."
+msgstr "已准备就绪检查清单。"
+
 #: src/features/concepts/concept-help.tsx
 msgid "A regulatory change signal detected from watched official sources. Matching client deadlines still need review before changes are applied."
 msgstr "从受监控官方来源发现的监管变更信号。匹配到客户截止日后，应用前仍需复核。"
@@ -426,6 +439,14 @@ msgstr "按风险窗口展示未完成义务，帮助团队决定本周或本月
 #: src/features/concepts/concept-help.tsx
 msgid "A row still needs a trusted source before it should be treated as fully reviewable or cited in AI output."
 msgstr "该行还缺可信来源，暂不应视为完全可复核，也不应被 AI 引用。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "A rule change was applied."
+msgstr "已应用一项规则变更。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "A rule change was undone."
+msgstr "已撤销一项规则变更。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "A short explanation for one deadline, generated only from verified deadline context and source-backed evidence."
@@ -706,6 +727,26 @@ msgstr "已激活"
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Already applied"
 msgstr "已应用"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An extension decision was recorded."
+msgstr "已记录延期决定。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An import was undone."
+msgstr "已撤销一次导入。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An imported column was matched to DueDateHQ."
+msgstr "已将导入列匹配到 DueDateHQ。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An imported value was cleaned up."
+msgstr "已清理导入值。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An official rule supports this deadline."
+msgstr "有官方规则支持此截止日。"
 
 #: src/routes/billing.tsx
 msgid "Annual contract"
@@ -1333,8 +1374,8 @@ msgid "Client facts"
 msgstr "客户事实"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Client facts, risk inputs, and saved AI summary."
-msgstr "客户事实、风险输入和已保存的 AI 摘要。"
+msgid "Client facts, risk inputs, and cached AI summary."
+msgstr "客户事实、风险输入和缓存的 AI 摘要。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT FILTER"
@@ -1373,6 +1414,10 @@ msgstr "客户准备状态回复"
 #: src/features/notifications/notifications-page.tsx
 msgid "Client reminder"
 msgstr "客户提醒"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Client response"
+msgstr "客户回复"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Client Risk Summary"
@@ -1448,7 +1493,6 @@ msgstr "紧凑"
 msgid "Complete CPA review and close the row."
 msgstr "完成 CPA 复核并关闭该行。"
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step2Mapping.tsx
 msgid "Confidence"
 msgstr "置信度"
@@ -1469,6 +1513,10 @@ msgstr "确认支付"
 #: src/routes/dashboard.tsx
 msgid "Confirm filing or payment status today."
 msgstr "今天确认申报或付款状态。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Confirmed"
+msgstr "已确认"
 
 #: src/routes/billing.success.tsx
 msgid "Confirming subscription"
@@ -1772,6 +1820,10 @@ msgstr "无法解析输入内容"
 msgid "Couldn't prepare the latest tip. Showing the previous version when available."
 msgstr "无法准备最新提示。可用时会显示上一版。"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't queue risk summary"
+msgstr "无法排队生成风险摘要"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't reactivate alert"
 msgstr "无法重新激活提醒"
@@ -1823,10 +1875,6 @@ msgstr "暂缓提醒失败"
 #: src/routes/obligations.tsx
 msgid "Couldn't start deadline tip refresh"
 msgstr "无法开始刷新截止日提示"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Couldn't start risk summary refresh"
-msgstr "无法开始刷新风险摘要"
 
 #: src/features/migration/Step1Intake.tsx
 #: src/features/migration/Wizard.tsx
@@ -2024,6 +2072,7 @@ msgid "Days"
 msgstr "天数"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/routes/dashboard.tsx
 msgid "Deadline"
 msgstr "截止日期"
@@ -2172,10 +2221,6 @@ msgstr "详情"
 msgid "Details updated"
 msgstr "详情已更新"
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Deterministic"
-msgstr "确定性"
-
 #: src/features/calendar/calendar-page.tsx
 msgid "Disable"
 msgstr "停用"
@@ -2248,6 +2293,7 @@ msgid "Due {0}"
 msgstr "到期 {0}"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
@@ -2468,6 +2514,7 @@ msgid "Estimated tax due"
 msgstr "预计应纳税额"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/mapping-target-labels.ts
 msgid "Estimated tax liability"
 msgstr "预计应纳税额"
@@ -2505,8 +2552,8 @@ msgid "Evidence"
 msgstr "证据"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Evidence chain"
-msgstr "证据链"
+msgid "Evidence for this deadline"
+msgstr "此截止日的证据"
 
 #: src/features/concepts/concept-help.tsx
 msgid "Evidence gap"
@@ -2519,6 +2566,10 @@ msgstr "证据缺口"
 #: src/routes/dashboard.tsx
 msgid "Evidence linked"
 msgstr "已关联证据"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Evidence was added to this deadline."
+msgstr "已为此截止日添加证据。"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Exception"
@@ -2590,6 +2641,10 @@ msgstr "延期"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Extension also covers payment."
 msgstr "延期也覆盖付款。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Extension decision"
+msgstr "延期决定"
 
 #: src/routes/obligations.tsx
 msgid "Extension decision saved"
@@ -2899,6 +2954,10 @@ msgstr "高"
 msgid "High"
 msgstr "高"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "High confidence"
+msgstr "高置信度"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
 msgstr "我正在从…迁移过来（可选）"
@@ -2934,6 +2993,10 @@ msgstr "导入批次"
 #: src/features/audit/audit-log-labels.ts
 msgid "Import batch created"
 msgstr "导入批次已创建"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Import cleanup"
+msgstr "导入清理"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
@@ -2974,6 +3037,10 @@ msgstr "导入文件已上传"
 msgid "Import history"
 msgstr "导入历史"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Import mapping"
+msgstr "导入映射"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Import mapping confirmed"
 msgstr "导入映射已确认"
@@ -2991,6 +3058,7 @@ msgstr "导入已回滚"
 msgid "Import source type"
 msgstr "导入来源类型"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Wizard.tsx
 msgid "Import undone"
 msgstr "导入已撤销"
@@ -3168,6 +3236,11 @@ msgstr "迟报历史"
 msgid "Late filings, 12mo"
 msgstr "近 12 个月迟交次数"
 
+#. placeholder {0}: humanizeToken(readiness)
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Latest readiness: {0}."
+msgstr "最新就绪状态：{0}。"
+
 #: src/routes/obligations.tsx
 msgid "Latest request"
 msgstr "最新请求"
@@ -3338,6 +3411,10 @@ msgstr "手动映射"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Manual mapping means no AI or source template result was available."
 msgstr "手动映射表示没有可用的 AI 或来源模板结果。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Manual note"
+msgstr "手动备注"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Manual review"
@@ -3540,10 +3617,6 @@ msgstr "缺少规则"
 msgid "missing rule inputs"
 msgstr "缺少规则输入"
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Model"
-msgstr "模型"
-
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Month offset"
 msgstr "月份偏移"
@@ -3605,6 +3678,10 @@ msgstr "需要补充事实"
 msgid "Needs filing state"
 msgstr "需要报税州"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Needs follow-up"
+msgstr "需要跟进"
+
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
 msgid "needs input"
@@ -3616,6 +3693,7 @@ msgid "Needs input"
 msgstr "需要输入"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/obligations/status-control.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
@@ -3964,10 +4042,6 @@ msgstr "无"
 msgid "Normalize"
 msgstr "规范化"
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Normalized"
-msgstr "归一化"
-
 #: src/features/obligations/status-control.tsx
 msgid "Not applicable"
 msgstr "不适用"
@@ -3990,13 +4064,13 @@ msgstr "未填写"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-labels.ts
-#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/members/members-page.tsx
 #: src/routes/obligations.tsx
 msgid "Not recorded"
 msgstr "未记录"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/routes/obligations.tsx
 msgid "Not set"
 msgstr "未设置"
@@ -4049,7 +4123,6 @@ msgstr "NY PTET 付款"
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/concepts/concept-help.tsx
-#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/routes/practice.tsx
 msgid "Obligation"
 msgstr "义务"
@@ -4370,6 +4443,10 @@ msgstr "或"
 msgid "or continue with SSO"
 msgstr "或使用 SSO 继续"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Original entry"
+msgstr "原始条目"
+
 #: src/routes/clients.tsx
 msgid "Other"
 msgstr "其他"
@@ -4422,11 +4499,8 @@ msgstr "需要 Owner 授权"
 msgid "Owner approved"
 msgstr "Owner 授权"
 
-#: src/features/members/members-page.tsx
-msgid "Owner cannot be invited or changed here. Choose Manager, Preparer, or Coordinator."
-msgstr "不能在此邀请或变更 Owner。请选择 Manager、Preparer 或 Coordinator。"
-
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/mapping-target-labels.ts
 #: src/routes/obligations.tsx
 msgid "Owner count"
@@ -4444,6 +4518,10 @@ msgstr "需要 Owner 权限"
 #: src/features/members/members-page.tsx
 msgid "owner read-only · self read-only"
 msgstr "Owner 只读 · 本人只读"
+
+#: src/features/members/members-page.tsx
+msgid "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
+msgstr "Owner 保持只读。Manager 可以复核工作；Preparer 和 Coordinator 具有限定范围的访问权限。"
 
 #: src/features/workload/workload-page.tsx
 msgid "Owner workload"
@@ -4563,6 +4641,10 @@ msgstr "付款和抵免"
 msgid "PDF zip"
 msgstr "PDF 压缩包"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Penalty input"
+msgstr "罚金输入"
+
 #: src/routes/obligations.tsx
 msgid "Penalty inputs"
 msgstr "Penalty 输入"
@@ -4574,6 +4656,10 @@ msgstr "Penalty 输入已更改"
 #: src/routes/obligations.tsx
 msgid "Penalty inputs saved"
 msgstr "Penalty 输入已保存"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Penalty inputs were updated."
+msgstr "已更新罚金输入。"
 
 #: src/features/concepts/concept-help.tsx
 msgid "Penalty Radar"
@@ -5092,10 +5178,6 @@ msgstr "已入队"
 msgid "Rank"
 msgstr "排名"
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Raw"
-msgstr "原始值"
-
 #: src/features/migration/WizardShell.tsx
 msgid "Re-map fields"
 msgstr "重新映射字段"
@@ -5148,6 +5230,10 @@ msgstr "就绪度"
 msgid "Readiness check"
 msgstr "准备状态检查"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Readiness checklist"
+msgstr "就绪检查清单"
+
 #: src/routes/obligations.tsx
 msgid "Readiness link created"
 msgstr "准备状态链接已创建"
@@ -5184,6 +5270,10 @@ msgstr "正在读取文件…"
 #: src/routes/readiness.tsx
 msgid "Ready"
 msgstr "已就绪"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Ready answers"
+msgstr "就绪答案"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Ready for rules"
@@ -5225,6 +5315,18 @@ msgstr "记录内部决策：已按延期处理"
 #: src/routes/obligations.tsx
 msgid "Record internal decision: extension rejected"
 msgstr "记录内部决策：不按延期处理"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Recorded"
+msgstr "已记录"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Recorded as"
+msgstr "记录为"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Recorded value"
+msgstr "记录值"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
@@ -5429,6 +5531,18 @@ msgstr "返回仪表盘"
 msgid "Reuse provider import"
 msgstr "复用平台导入"
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Revert batch"
+msgstr "撤销批次"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Revert this import batch?"
+msgstr "撤销此导入批次？"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Revert until"
+msgstr "可撤销至"
+
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
@@ -5500,6 +5614,10 @@ msgstr "查看来源覆盖、规则清单与义务预览。"
 msgid "Review status is invalid."
 msgstr "审核状态无效。"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Review suggested"
+msgstr "建议复核"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review team capacity and risk pressure."
 msgstr "查看团队产能与风险压力。"
@@ -5555,8 +5673,8 @@ msgid "Risk inputs saved"
 msgstr "风险输入已保存"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Risk summary refresh started"
-msgstr "已开始刷新风险摘要"
+msgid "Risk summary refresh queued"
+msgstr "风险摘要刷新已排队"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/members/members-page.tsx
@@ -5667,6 +5785,14 @@ msgstr "规则来源"
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule source changed"
 msgstr "规则来源已更改"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Rule update"
+msgstr "规则更新"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Rule update undone"
+msgstr "规则更新已撤销"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule updated"
@@ -6215,6 +6341,7 @@ msgstr "来源已检查，但仍需处理"
 msgid "Source deadlines"
 msgstr "来源截止日"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Source excerpt"
 msgstr "原文摘录"
@@ -6263,10 +6390,6 @@ msgstr "来源模板"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Source template suggestions mean AI was unavailable and the selected source template filled defaults."
 msgstr "来源模板建议表示 AI 不可用，已由所选来源模板填入默认映射。"
-
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Source timeline"
-msgstr "来源时间线"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -6488,6 +6611,7 @@ msgstr "目标申报年度必须是来源申报年度的下一年。"
 msgid "Tax due"
 msgstr "应缴税款"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
@@ -6606,6 +6730,10 @@ msgstr "AI 映射会先运行。选择来源模板会增加来源上下文，并
 msgid "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
 msgstr "账单门户会在支付服务商处打开，用于查看发票、支付方式和取消订阅。"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "The client answered readiness questions."
+msgstr "客户已回答就绪问题。"
+
 #: src/features/concepts/concept-help.tsx
 msgid "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline list."
 msgstr "客户导入流程会映射列、整理字段值、预览截止日，并创建初始截止日清单。"
@@ -6698,6 +6826,10 @@ msgstr "安全支付已重定向回 DueDateHQ。我们正在确认订阅。"
 #: src/routes/billing.cancel.tsx
 msgid "The selected plan is still available from Billing."
 msgstr "所选计划仍可在账单页中使用。"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "The source-backed rule matched the client facts for this obligation."
+msgstr "有来源支持的规则与此义务的客户事实匹配。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "The status assigned if this row is generated: pending for reminder-ready rows or review for CPA-confirmation rows."
@@ -6961,24 +7093,12 @@ msgid "Undo available for 24 hours"
 msgstr "24 小时内可撤销"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
-msgid "Undo available until"
-msgstr "可撤销至"
-
-#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Undo client"
 msgstr "撤销客户"
-
-#: src/features/migration/ImportHistoryDrawer.tsx
-msgid "Undo full import"
-msgstr "撤销整批导入"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo import"
 msgstr "撤销导入"
-
-#: src/features/migration/ImportHistoryDrawer.tsx
-msgid "Undo this import batch?"
-msgstr "要撤销这批导入吗？"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo this import?"
@@ -7140,6 +7260,7 @@ msgid "Verified by"
 msgstr "核验人"
 
 #: src/features/concepts/concept-help.tsx
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Verified rule"
 msgstr "已核验规则"
 
@@ -7276,6 +7397,10 @@ msgstr "变更内容"
 #: src/routes/billing.tsx
 msgid "What stays in DueDateHQ"
 msgstr "DueDateHQ 保留什么"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "What this evidence says"
+msgstr "此证据说明了什么"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Where is your data coming from?"

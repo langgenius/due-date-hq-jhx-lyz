@@ -106,6 +106,11 @@ msgstr "{0} invited you to {1}."
 msgid "{0} is on {expectedPlanName}"
 msgstr "{0} is on {expectedPlanName}"
 
+#. placeholder {0}: array.length
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "{0} items recorded"
+msgstr "{0} items recorded"
+
 #. placeholder {0}: factsModel.summary.manual
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "{0} manual records"
@@ -232,6 +237,10 @@ msgstr "{count} {noun} updated"
 #: src/features/audit/audit-log-labels.ts
 msgid "{count} additional fields changed"
 msgstr "{count} additional fields changed"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "{count} checklist items were suggested."
+msgstr "{count} checklist items were suggested."
 
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
@@ -415,6 +424,10 @@ msgstr "A personal feed for deadlines assigned to you."
 msgid "A possible rule or change that is still waiting for owner or manager review. Review-only rules do not update client deadlines or send reminders."
 msgstr "A possible rule or change that is still waiting for owner or manager review. Review-only rules do not update client deadlines or send reminders."
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "A readiness checklist was prepared."
+msgstr "A readiness checklist was prepared."
+
 #: src/features/concepts/concept-help.tsx
 msgid "A regulatory change signal detected from watched official sources. Matching client deadlines still need review before changes are applied."
 msgstr "A regulatory change signal detected from watched official sources. Matching client deadlines still need review before changes are applied."
@@ -426,6 +439,14 @@ msgstr "A risk-window view of open obligations so the team can decide what to ha
 #: src/features/concepts/concept-help.tsx
 msgid "A row still needs a trusted source before it should be treated as fully reviewable or cited in AI output."
 msgstr "A row still needs a trusted source before it should be treated as fully reviewable or cited in AI output."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "A rule change was applied."
+msgstr "A rule change was applied."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "A rule change was undone."
+msgstr "A rule change was undone."
 
 #: src/features/concepts/concept-help.tsx
 msgid "A short explanation for one deadline, generated only from verified deadline context and source-backed evidence."
@@ -706,6 +727,26 @@ msgstr "Already active"
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Already applied"
 msgstr "Already applied"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An extension decision was recorded."
+msgstr "An extension decision was recorded."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An import was undone."
+msgstr "An import was undone."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An imported column was matched to DueDateHQ."
+msgstr "An imported column was matched to DueDateHQ."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An imported value was cleaned up."
+msgstr "An imported value was cleaned up."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "An official rule supports this deadline."
+msgstr "An official rule supports this deadline."
 
 #: src/routes/billing.tsx
 msgid "Annual contract"
@@ -1333,8 +1374,8 @@ msgid "Client facts"
 msgstr "Client facts"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Client facts, risk inputs, and saved AI summary."
-msgstr "Client facts, risk inputs, and saved AI summary."
+msgid "Client facts, risk inputs, and cached AI summary."
+msgstr "Client facts, risk inputs, and cached AI summary."
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT FILTER"
@@ -1373,6 +1414,10 @@ msgstr "Client readiness response"
 #: src/features/notifications/notifications-page.tsx
 msgid "Client reminder"
 msgstr "Client reminder"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Client response"
+msgstr "Client response"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Client Risk Summary"
@@ -1448,7 +1493,6 @@ msgstr "Compact"
 msgid "Complete CPA review and close the row."
 msgstr "Complete CPA review and close the row."
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step2Mapping.tsx
 msgid "Confidence"
 msgstr "Confidence"
@@ -1469,6 +1513,10 @@ msgstr "Confirm checkout"
 #: src/routes/dashboard.tsx
 msgid "Confirm filing or payment status today."
 msgstr "Confirm filing or payment status today."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Confirmed"
+msgstr "Confirmed"
 
 #: src/routes/billing.success.tsx
 msgid "Confirming subscription"
@@ -1772,6 +1820,10 @@ msgstr "Couldn't parse the input"
 msgid "Couldn't prepare the latest tip. Showing the previous version when available."
 msgstr "Couldn't prepare the latest tip. Showing the previous version when available."
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Couldn't queue risk summary"
+msgstr "Couldn't queue risk summary"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't reactivate alert"
 msgstr "Couldn't reactivate alert"
@@ -1823,10 +1875,6 @@ msgstr "Couldn't snooze alert"
 #: src/routes/obligations.tsx
 msgid "Couldn't start deadline tip refresh"
 msgstr "Couldn't start deadline tip refresh"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Couldn't start risk summary refresh"
-msgstr "Couldn't start risk summary refresh"
 
 #: src/features/migration/Step1Intake.tsx
 #: src/features/migration/Wizard.tsx
@@ -2024,6 +2072,7 @@ msgid "Days"
 msgstr "Days"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/routes/dashboard.tsx
 msgid "Deadline"
 msgstr "Deadline"
@@ -2172,10 +2221,6 @@ msgstr "Detail"
 msgid "Details updated"
 msgstr "Details updated"
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Deterministic"
-msgstr "Deterministic"
-
 #: src/features/calendar/calendar-page.tsx
 msgid "Disable"
 msgstr "Disable"
@@ -2248,6 +2293,7 @@ msgid "Due {0}"
 msgstr "Due {0}"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
@@ -2468,6 +2514,7 @@ msgid "Estimated tax due"
 msgstr "Estimated tax due"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/mapping-target-labels.ts
 msgid "Estimated tax liability"
 msgstr "Estimated tax liability"
@@ -2505,8 +2552,8 @@ msgid "Evidence"
 msgstr "Evidence"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Evidence chain"
-msgstr "Evidence chain"
+msgid "Evidence for this deadline"
+msgstr "Evidence for this deadline"
 
 #: src/features/concepts/concept-help.tsx
 msgid "Evidence gap"
@@ -2519,6 +2566,10 @@ msgstr "Evidence gaps"
 #: src/routes/dashboard.tsx
 msgid "Evidence linked"
 msgstr "Evidence linked"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Evidence was added to this deadline."
+msgstr "Evidence was added to this deadline."
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Exception"
@@ -2590,6 +2641,10 @@ msgstr "Extension"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Extension also covers payment."
 msgstr "Extension also covers payment."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Extension decision"
+msgstr "Extension decision"
 
 #: src/routes/obligations.tsx
 msgid "Extension decision saved"
@@ -2899,6 +2954,10 @@ msgstr "high"
 msgid "High"
 msgstr "High"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "High confidence"
+msgstr "High confidence"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
 msgstr "I'm coming from… (optional)"
@@ -2934,6 +2993,10 @@ msgstr "Import batch"
 #: src/features/audit/audit-log-labels.ts
 msgid "Import batch created"
 msgstr "Import batch created"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Import cleanup"
+msgstr "Import cleanup"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
@@ -2974,6 +3037,10 @@ msgstr "Import file uploaded"
 msgid "Import history"
 msgstr "Import history"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Import mapping"
+msgstr "Import mapping"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Import mapping confirmed"
 msgstr "Import mapping confirmed"
@@ -2991,6 +3058,7 @@ msgstr "Import reverted"
 msgid "Import source type"
 msgstr "Import source type"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Wizard.tsx
 msgid "Import undone"
 msgstr "Import undone"
@@ -3168,6 +3236,11 @@ msgstr "Late filing history"
 msgid "Late filings, 12mo"
 msgstr "Late filings, 12mo"
 
+#. placeholder {0}: humanizeToken(readiness)
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Latest readiness: {0}."
+msgstr "Latest readiness: {0}."
+
 #: src/routes/obligations.tsx
 msgid "Latest request"
 msgstr "Latest request"
@@ -3338,6 +3411,10 @@ msgstr "Manual mapping"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Manual mapping means no AI or source template result was available."
 msgstr "Manual mapping means no AI or source template result was available."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Manual note"
+msgstr "Manual note"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Manual review"
@@ -3540,10 +3617,6 @@ msgstr "Missing rule"
 msgid "missing rule inputs"
 msgstr "missing rule inputs"
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Model"
-msgstr "Model"
-
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Month offset"
 msgstr "Month offset"
@@ -3605,6 +3678,10 @@ msgstr "Needs facts"
 msgid "Needs filing state"
 msgstr "Needs filing state"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Needs follow-up"
+msgstr "Needs follow-up"
+
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
 msgid "needs input"
@@ -3616,6 +3693,7 @@ msgid "Needs input"
 msgstr "Needs input"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/obligations/status-control.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
@@ -3964,10 +4042,6 @@ msgstr "None"
 msgid "Normalize"
 msgstr "Normalize"
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Normalized"
-msgstr "Normalized"
-
 #: src/features/obligations/status-control.tsx
 msgid "Not applicable"
 msgstr "Not applicable"
@@ -3990,13 +4064,13 @@ msgstr "Not entered"
 
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-labels.ts
-#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/members/members-page.tsx
 #: src/routes/obligations.tsx
 msgid "Not recorded"
 msgstr "Not recorded"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/routes/obligations.tsx
 msgid "Not set"
 msgstr "Not set"
@@ -4049,7 +4123,6 @@ msgstr "NY PTET payments"
 
 #: src/features/audit/audit-log-page.tsx
 #: src/features/concepts/concept-help.tsx
-#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/routes/practice.tsx
 msgid "Obligation"
 msgstr "Obligation"
@@ -4370,6 +4443,10 @@ msgstr "or"
 msgid "or continue with SSO"
 msgstr "or continue with SSO"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Original entry"
+msgstr "Original entry"
+
 #: src/routes/clients.tsx
 msgid "Other"
 msgstr "Other"
@@ -4422,11 +4499,8 @@ msgstr "Owner approval required"
 msgid "Owner approved"
 msgstr "Owner approved"
 
-#: src/features/members/members-page.tsx
-msgid "Owner cannot be invited or changed here. Choose Manager, Preparer, or Coordinator."
-msgstr "Owner cannot be invited or changed here. Choose Manager, Preparer, or Coordinator."
-
 #: src/features/audit/audit-log-labels.ts
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/mapping-target-labels.ts
 #: src/routes/obligations.tsx
 msgid "Owner count"
@@ -4444,6 +4518,10 @@ msgstr "Owner permission required"
 #: src/features/members/members-page.tsx
 msgid "owner read-only · self read-only"
 msgstr "owner read-only · self read-only"
+
+#: src/features/members/members-page.tsx
+msgid "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
+msgstr "Owner stays read-only. Managers can review work; preparers and coordinators have scoped access."
 
 #: src/features/workload/workload-page.tsx
 msgid "Owner workload"
@@ -4563,6 +4641,10 @@ msgstr "Payments and credits"
 msgid "PDF zip"
 msgstr "PDF zip"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Penalty input"
+msgstr "Penalty input"
+
 #: src/routes/obligations.tsx
 msgid "Penalty inputs"
 msgstr "Penalty inputs"
@@ -4574,6 +4656,10 @@ msgstr "Penalty inputs changed"
 #: src/routes/obligations.tsx
 msgid "Penalty inputs saved"
 msgstr "Penalty inputs saved"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Penalty inputs were updated."
+msgstr "Penalty inputs were updated."
 
 #: src/features/concepts/concept-help.tsx
 msgid "Penalty Radar"
@@ -5092,10 +5178,6 @@ msgstr "Queued"
 msgid "Rank"
 msgstr "Rank"
 
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Raw"
-msgstr "Raw"
-
 #: src/features/migration/WizardShell.tsx
 msgid "Re-map fields"
 msgstr "Re-map fields"
@@ -5148,6 +5230,10 @@ msgstr "Readiness"
 msgid "Readiness check"
 msgstr "Readiness check"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Readiness checklist"
+msgstr "Readiness checklist"
+
 #: src/routes/obligations.tsx
 msgid "Readiness link created"
 msgstr "Readiness link created"
@@ -5184,6 +5270,10 @@ msgstr "Reading file…"
 #: src/routes/readiness.tsx
 msgid "Ready"
 msgstr "Ready"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Ready answers"
+msgstr "Ready answers"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Ready for rules"
@@ -5225,6 +5315,18 @@ msgstr "Record internal decision: extension applied"
 #: src/routes/obligations.tsx
 msgid "Record internal decision: extension rejected"
 msgstr "Record internal decision: extension rejected"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Recorded"
+msgstr "Recorded"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Recorded as"
+msgstr "Recorded as"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Recorded value"
+msgstr "Recorded value"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Recover mistaken batch imports. Edit individual client facts from Clients."
@@ -5429,6 +5531,18 @@ msgstr "Return to dashboard"
 msgid "Reuse provider import"
 msgstr "Reuse provider import"
 
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Revert batch"
+msgstr "Revert batch"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Revert this import batch?"
+msgstr "Revert this import batch?"
+
+#: src/features/migration/ImportHistoryDrawer.tsx
+msgid "Revert until"
+msgstr "Revert until"
+
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
@@ -5500,6 +5614,10 @@ msgstr "Review source coverage, rule inventory, and obligation preview."
 msgid "Review status is invalid."
 msgstr "Review status is invalid."
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Review suggested"
+msgstr "Review suggested"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Review team capacity and risk pressure."
 msgstr "Review team capacity and risk pressure."
@@ -5555,8 +5673,8 @@ msgid "Risk inputs saved"
 msgstr "Risk inputs saved"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Risk summary refresh started"
-msgstr "Risk summary refresh started"
+msgid "Risk summary refresh queued"
+msgstr "Risk summary refresh queued"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/members/members-page.tsx
@@ -5667,6 +5785,14 @@ msgstr "Rule source"
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule source changed"
 msgstr "Rule source changed"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Rule update"
+msgstr "Rule update"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Rule update undone"
+msgstr "Rule update undone"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Rule updated"
@@ -6215,6 +6341,7 @@ msgstr "Source checked, but still needs attention"
 msgid "Source deadlines"
 msgstr "Source deadlines"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/pulse/components/PulseStructuredFields.tsx
 msgid "Source excerpt"
 msgstr "Source excerpt"
@@ -6263,10 +6390,6 @@ msgstr "Source template"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Source template suggestions mean AI was unavailable and the selected source template filled defaults."
 msgstr "Source template suggestions mean AI was unavailable and the selected source template filled defaults."
-
-#: src/features/evidence/EvidenceDrawerProvider.tsx
-msgid "Source timeline"
-msgstr "Source timeline"
 
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
@@ -6488,6 +6611,7 @@ msgstr "Target filing year must be the next year after source filing year."
 msgid "Tax due"
 msgstr "Tax due"
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/routes/dashboard.tsx
@@ -6606,6 +6730,10 @@ msgstr "The AI mapper runs first. Selecting a source template adds source contex
 msgid "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
 msgstr "The billing portal opens with the payment provider for invoices, payment methods, and cancellation."
 
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "The client answered readiness questions."
+msgstr "The client answered readiness questions."
+
 #: src/features/concepts/concept-help.tsx
 msgid "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline list."
 msgstr "The client import flow that maps columns, normalizes values, previews deadlines, and creates the initial deadline list."
@@ -6698,6 +6826,10 @@ msgstr "The secure checkout has redirected back to DueDateHQ. We are confirming 
 #: src/routes/billing.cancel.tsx
 msgid "The selected plan is still available from Billing."
 msgstr "The selected plan is still available from Billing."
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "The source-backed rule matched the client facts for this obligation."
+msgstr "The source-backed rule matched the client facts for this obligation."
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "The status assigned if this row is generated: pending for reminder-ready rows or review for CPA-confirmation rows."
@@ -6961,24 +7093,12 @@ msgid "Undo available for 24 hours"
 msgstr "Undo available for 24 hours"
 
 #: src/features/migration/ImportHistoryDrawer.tsx
-msgid "Undo available until"
-msgstr "Undo available until"
-
-#: src/features/migration/ImportHistoryDrawer.tsx
 msgid "Undo client"
 msgstr "Undo client"
-
-#: src/features/migration/ImportHistoryDrawer.tsx
-msgid "Undo full import"
-msgstr "Undo full import"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo import"
 msgstr "Undo import"
-
-#: src/features/migration/ImportHistoryDrawer.tsx
-msgid "Undo this import batch?"
-msgstr "Undo this import batch?"
 
 #: src/features/migration/Wizard.tsx
 msgid "Undo this import?"
@@ -7140,6 +7260,7 @@ msgid "Verified by"
 msgstr "Verified by"
 
 #: src/features/concepts/concept-help.tsx
+#: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Verified rule"
 msgstr "Verified rule"
 
@@ -7276,6 +7397,10 @@ msgstr "What changed"
 #: src/routes/billing.tsx
 msgid "What stays in DueDateHQ"
 msgstr "What stays in DueDateHQ"
+
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "What this evidence says"
+msgstr "What this evidence says"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Where is your data coming from?"
