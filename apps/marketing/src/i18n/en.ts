@@ -1205,21 +1205,21 @@ const en: LandingCopy = {
         meta: {
           title: 'CPA Deadline Risk Guide — How firms see penalties before they happen',
           description:
-            'A practical guide to CPA deadline risk, penalty exposure, missing evidence, state filing changes, and Monday triage workflows.',
+            'How CPA teams decide which client deadline to touch first using migration data, penalty exposure, evidence, ownership, and Pulse changes.',
           ogImage: '/og/home.en.png',
         },
         hero: {
           eyebrow: 'GUIDE',
-          title: 'CPA deadline risk is an operations problem before it is a penalty.',
+          title: 'Which deadline should a CPA team touch first this week?',
           description:
-            'Small CPA practices do not miss deadlines because they lack calendars. They miss deadlines when client facts, state changes, source evidence, and team ownership drift apart during peak season.',
+            'DueDateHQ treats deadline risk as an operational ranking problem. Imported client facts, filing profiles, penalty exposure, state updates, evidence status, and owner assignment all shape what should rise to the top.',
           note: 'This guide explains operational risk patterns, not tax advice.',
         },
         sections: [
           {
             eyebrow: 'RISK MODEL',
-            title: 'The risky deadline is the one with missing context.',
-            body: 'A date on a calendar is only one part of deadline operations. CPA teams also need client entity context, filing status, jurisdiction coverage, evidence source, and owner assignment.',
+            title: 'The risky deadline is the one with missing or mismatched context.',
+            body: 'A date on a calendar is only one part of deadline operations. CPA teams also need imported client facts, filing profiles, obligation status, jurisdiction coverage, evidence source, and owner assignment.',
             items: [
               {
                 title: 'Missing client facts',
@@ -1261,19 +1261,19 @@ const en: LandingCopy = {
         },
         faq: [
           {
-            question: 'Is deadline risk only about due dates?',
+            question: 'Which deadline should a CPA team touch first?',
             answer:
-              'No. Due dates matter, but risk also depends on client facts, source quality, review status, ownership, and penalty exposure.',
+              'The first item is rarely just the earliest date. DueDateHQ ranks work using days remaining, penalty exposure, status, source quality, client context, and ownership signals.',
           },
           {
-            question: 'Why does source evidence matter?',
+            question: 'How does imported client data affect deadline risk?',
             answer:
-              'Source evidence helps a CPA team verify that a deadline or state update came from official material rather than an unsupported summary.',
+              'Migration data creates the client and obligation context the team uses for triage. Entity type, filing states, tax types, owner, and liability inputs all change the risk picture.',
           },
           {
-            question: 'What should software do first?',
+            question: 'What makes a deadline queue defensible?',
             answer:
-              'It should make the riskiest work visible, keep source evidence close to each rule, and route ambiguous items into review.',
+              'The queue should keep source evidence, penalty reasoning, client context, status changes, and audit history close to each action so the firm can explain why work was prioritized.',
           },
         ],
         cta: {
@@ -1288,21 +1288,21 @@ const en: LandingCopy = {
         meta: {
           title: 'Evidence-backed Tax Deadline Software — DueDateHQ Guide',
           description:
-            'What evidence-backed tax deadline software means for CPA teams: source URLs, excerpts, verification timestamps, human review, and audit-ready workflows.',
+            'What CPA teams should be able to prove before a deadline, Pulse change, AI suggestion, or migration action changes client work.',
           ogImage: '/og/home.en.png',
         },
         hero: {
           eyebrow: 'GUIDE',
-          title: 'Evidence-backed deadline software keeps the source next to the action.',
+          title: 'What proof should exist before deadline work changes?',
           description:
-            'For CPA operations, a filing reminder is not enough. Teams need to know why the deadline exists, which official source supports it, when it was verified, and who approved the operational change.',
+            'For CPA operations, a filing reminder is not enough. Teams need source evidence, review state, client context, AI trace where applicable, and an audit trail for apply, undo, revert, and import actions.',
           note: 'Evidence-backed workflows support review; they do not replace professional judgment.',
         },
         sections: [
           {
             eyebrow: 'DEFINITION',
             title: 'Evidence-backed means every operational claim can be inspected.',
-            body: 'The product should preserve enough source context for a reviewer to understand where a rule came from and why it entered the workflow.',
+            body: 'The product should preserve enough context for a reviewer to understand where a rule, deadline, Pulse alert, or migration-created obligation came from and why it entered the workflow.',
             items: [
               {
                 title: 'Source URL',
@@ -1344,19 +1344,19 @@ const en: LandingCopy = {
         },
         faq: [
           {
-            question: 'Is evidence-backed software the same as AI tax advice?',
+            question: 'What proof should exist before a deadline changes?',
             answer:
-              'No. Evidence-backed software keeps source context attached to workflows. It does not provide professional tax advice.',
+              'A reviewer should see the official source URL, relevant excerpt, verification metadata, client context, review state, and the audit event for the change.',
           },
           {
-            question: 'Why not let AI apply rule changes automatically?',
+            question: 'How do Pulse apply and revert actions stay auditable?',
             answer:
-              'Deadline changes can affect client obligations. DueDateHQ treats AI as an assistant and keeps operational apply actions behind review.',
+              'Pulse decisions are explicit actions. Apply, dismiss, snooze, and revert flows keep source context and write audit records so the firm can inspect what changed and why.',
           },
           {
-            question: 'What is the minimum evidence a reviewer should see?',
+            question: 'Where does AI fit in evidence-backed workflows?',
             answer:
-              'A reviewer should see the official source URL, the relevant excerpt, verification metadata, and the current review state.',
+              'AI can map imports, normalize fields, summarize source changes, or draft operational context, but review status, source evidence, and human action remain the control points.',
           },
         ],
         cta: {

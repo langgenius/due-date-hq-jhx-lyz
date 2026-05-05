@@ -22,9 +22,9 @@
 
 - 英文和中文首页。
 - Pricing 页面。
-- Rules 页面，解释规则覆盖和合规来源。
-- State coverage 总览和单州页面。
-- Guides 内容页。
+- Rules 页面，回答“申报规则如何变成带来源、已复核的事务所工作”。
+- State coverage 总览和单州页面，回答“哪些州级更新会进入 Pulse 复核并影响客户截止日工作”。
+- Guides 内容页，回答“本周先处理哪个客户截止日”和“截止日变更前应具备什么证据”。
 - SEO：canonical、alternate hreflang、sitemap、OG/Twitter metadata。
 - JSON-LD structured data。
 - CTA 连接到 app 域名，并通过 query 进行 locale handoff。
@@ -120,12 +120,12 @@ flowchart TB
 
 ## 内容模型
 
-| 内容类型       | 实现方式                           | 说明                         |
-| -------------- | ---------------------------------- | ---------------------------- |
-| Landing copy   | `src/i18n` typed dictionaries      | 英中分别维护                 |
-| State coverage | static data + dynamic Astro routes | `/states/[state]` 和中文路径 |
-| Guides         | guide data + dynamic pages         | 用于 SEO 和教育转化          |
-| CTA            | helper 生成                        | app URL 来自 public env      |
+| 内容类型       | 实现方式                           | 说明                             |
+| -------------- | ---------------------------------- | -------------------------------- |
+| Landing copy   | `src/i18n` typed dictionaries      | 英中分别维护                     |
+| State coverage | static data + dynamic Astro routes | 围绕 Pulse、客户适用性和证据复核 |
+| Guides         | guide data + dynamic pages         | 围绕分诊优先级和审计证据         |
+| CTA            | helper 生成                        | app URL 来自 public env          |
 
 ## 后续演进关注点
 

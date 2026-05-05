@@ -677,15 +677,14 @@ const zhCN: LandingCopy = {
     rules: {
       meta: {
         title: 'DueDateHQ 规则库 — 带官方来源的税务截止日覆盖',
-        description:
-          'DueDateHQ 如何用 source URL、摘录、验证时间戳和人工复核处理 IRS 与州税截止日规则。',
+        description: 'DueDateHQ 如何把 IRS 与州级申报规则转化为带来源、已复核的 CPA 截止日工作流。',
         ogImage: '/og/home.zh-CN.png',
       },
       hero: {
         eyebrow: 'RULE LIBRARY',
-        title: '截止日规则只有带来源时才值得信任。',
+        title: '一条申报规则如何变成 CPA 团队可信的工作？',
         description:
-          'DueDateHQ 把申报规则当作带证据的产品数据处理。每个公开来源信号都会进入规则工作流，并保留官方来源上下文、复核状态，以及软件覆盖与税务建议之间的边界。',
+          'DueDateHQ 把规则、来源证据、生成的截止日、Pulse 变化和人工复核放在同一条工作流里。规则只有在团队能看到官方来源、受影响客户上下文和操作历史时，才真正有用。',
         note: '覆盖页面描述软件行为，不构成专业税务建议。',
       },
       sections: [
@@ -730,23 +729,23 @@ const zhCN: LandingCopy = {
       ],
       faqHeader: {
         eyebrow: 'FAQ',
-        title: '规则库常见问题。',
+        title: '规则工作流常见问题。',
       },
       faq: [
         {
-          question: 'DueDateHQ 提供税务建议吗？',
+          question: '如果 AI 参与处理规则，事务所还能信任它吗？',
           answer:
-            '不提供。DueDateHQ 描述软件覆盖和来源处理方式。CPA 团队仍应根据 IRS 与州税务机关官方来源核验义务，并运用专业判断。',
+            '只有当规则保留官方来源上下文和复核状态时才值得信任。DueDateHQ 可以让 AI 辅助总结或分类，但来源和复核决定才是信任边界。',
         },
         {
-          question: '什么是带证据的规则？',
+          question: '规则影响 Obligations 或 Dashboard 分诊前会发生什么？',
           answer:
-            '带证据的规则会在产品工作流中保留官方 source URL、source excerpt、验证时间戳和复核状态。',
+            '规则需要来源证据、归一化的申报上下文和复核状态，之后才可能生成或更新截止日工作。产品不会根据没有支撑的信号静默改变客户工作。',
         },
         {
-          question: 'AI 可以自动应用申报规则吗？',
+          question: 'DueDateHQ 如何把规则变化连接到正确客户？',
           answer:
-            '不可以。AI 可以辅助总结和分类，但 DueDateHQ 会把截止日变更放在来源复核和人工操作之后。',
+            '它使用事务所的客户 filing profile、辖区、税种和义务记录，把已复核变化路由到可能受影响客户的 Pulse、Obligations 和分诊工作流。',
         },
       ],
       cta: {
@@ -760,14 +759,14 @@ const zhCN: LandingCopy = {
       meta: {
         title: 'DueDateHQ 州覆盖 — CA、NY、TX、FL、WA 申报信号',
         description:
-          'DueDateHQ Pulse 在 California、New York、Texas、Florida 和 Washington 的公开州税申报更新监控范围。',
+          'DueDateHQ 监控哪些州级申报更新，Pulse 如何把它们送入复核，以及 CPA 团队如何判断客户影响。',
         ogImage: '/og/home.zh-CN.png',
       },
       hero: {
         eyebrow: 'STATE COVERAGE',
-        title: '五个州的申报页面，一个证据优先的监控模型。',
+        title: '哪些州级更新会变成事务所的截止日工作？',
         description:
-          'DueDateHQ v1 公开覆盖聚焦 CA、NY、TX、FL 和 WA。覆盖表示产品监控公开州税申报信号，并把候选变更送入带来源的复核工作流。',
+          'DueDateHQ v1 公开覆盖聚焦 CA、NY、TX、FL 和 WA。覆盖表示公开州级信号可以被监控、匹配事务所客户上下文，并在影响截止日运营前进入 Pulse 复核。',
         note: '覆盖是软件监控范围，不代表每项义务都适用于每个事务所。',
       },
       statesHeader: {
@@ -818,8 +817,8 @@ const zhCN: LandingCopy = {
       ],
       sourceModel: {
         eyebrow: 'SOURCE MODEL',
-        title: 'DueDateHQ 中的覆盖是什么意思。',
-        body: '覆盖从公开监控开始，然后把候选变更送入带来源的复核。只有当 source URL、摘录、验证元数据和复核状态都存在时，信号才会成为可操作工作。',
+        title: '覆盖是一条从公开信号到客户影响复核的路径。',
+        body: '覆盖从公开监控开始，然后把候选变更送入带来源的复核。只有当来源证据、客户匹配上下文、复核决定和审计历史都存在时，信号才会成为运营工作。',
         items: [
           {
             title: '公开机构来源',
@@ -837,21 +836,23 @@ const zhCN: LandingCopy = {
       },
       faqHeader: {
         eyebrow: 'FAQ',
-        title: '州覆盖常见问题。',
+        title: '州级监控常见问题。',
       },
       faq: [
         {
-          question: '州覆盖包含美国所有辖区吗？',
+          question: 'DueDateHQ 当前监控哪些州？',
           answer:
             '不包含。v1 公开覆盖限制在 CA、NY、TX、FL 和 WA。新增辖区需要做来源复核和覆盖规划。',
         },
         {
-          question: '覆盖是否等于自动合规？',
-          answer: '不是。覆盖描述监控范围和产品工作流。CPA 团队仍负责复核适用性和申报决策。',
+          question: '州级更新如何变成事务所工作？',
+          answer:
+            '候选更新会带来源上下文进入 Pulse，先复核相关性，然后可以被应用、忽略、暂缓或回滚，并留下审计记录。',
         },
         {
-          question: '来源变化如何被展示？',
-          answer: '候选变化会带着 source URL、摘录、验证时间戳和复核状态进入运营工作流。',
+          question: '覆盖是否代表更新适用于每个客户？',
+          answer:
+            '不是。覆盖描述监控范围。适用性取决于事务所客户 filing profile、辖区、税种和专业复核。',
         },
       ],
     },
@@ -908,12 +909,14 @@ const zhCN: LandingCopy = {
         ],
         faq: [
           {
-            question: 'DueDateHQ 是 California 税务机关吗？',
-            answer: '不是。DueDateHQ 是软件。CPA 团队应根据官方 FTB 材料核验 California 义务。',
+            question: '哪些 California 信号会影响客户队列？',
+            answer:
+              'FTB 公开更新、表单说明、申报日历和延期救济公告，在可能影响截止日时间或客户适用性时，可以成为复核工作。',
           },
           {
-            question: '这个页面列出了所有 California 申报截止日吗？',
-            answer: '没有。它描述 California 覆盖的产品监控模型和来源类别。',
+            question: 'California 更新如何变成运营工作？',
+            answer:
+              'DueDateHQ 会保留官方来源、适用性线索，并匹配事务所客户上下文；信号在影响 dashboard 或 Obligations 工作前需要先复核。',
           },
         ],
       },
@@ -968,12 +971,12 @@ const zhCN: LandingCopy = {
         ],
         faq: [
           {
-            question: 'New York 覆盖包含所有税种吗？',
-            answer: '不包含。覆盖描述被监控的公开申报信号和复核工作流，而不是完整法律分类。',
+            question: '运营负责人应该关注哪些 New York 更新？',
+            answer: '公开 DTF 更新、申报日历、公告和表单级变化，是最可能形成截止日复核工作的信号。',
           },
           {
             question: 'New York 信号会自动改变客户截止日吗？',
-            answer: '不会。候选变化需要来源复核和人工操作后才能用于运营。',
+            answer: '不会。候选变化需要来源复核、客户上下文匹配和人工操作后才能用于运营。',
           },
         ],
       },
@@ -1029,13 +1032,14 @@ const zhCN: LandingCopy = {
         ],
         faq: [
           {
-            question: 'Texas 覆盖只包括 franchise tax 吗？',
+            question: '哪些 Texas 信号对截止日运营重要？',
             answer:
-              '不是。Franchise tax 是重要公开页面，但覆盖由被监控的公开申报更新和复核工作流定义。',
+              'Franchise tax 更新很重要，但工作流也会关注公开申报公告、截止日移动、救济材料和实体上下文信号。',
           },
           {
-            question: 'DueDateHQ 会向 Texas 机构申报吗？',
-            answer: '不会。DueDateHQ 支持截止日运营和来源复核；申报决策仍属于 CPA 事务所。',
+            question: 'Texas 来源信号复核后会发生什么？',
+            answer:
+              '已复核信号可以成为受影响客户的 Obligations 动作或分诊上下文；申报决策仍属于 CPA 事务所。',
           },
         ],
       },
@@ -1090,12 +1094,13 @@ const zhCN: LandingCopy = {
         ],
         faq: [
           {
-            question: 'Florida 更新可以出现在 Pulse 吗？',
-            answer: '可以，已复核公开信号在可能影响事务所截止日运营时可通过 Pulse 类工作流展示。',
+            question: '哪些 Florida 更新可以进入 Pulse？',
+            answer:
+              '公开 DOR 更新、公告、救济信息和申报窗口变化，在可能影响事务所截止日运营时可以进入 Pulse。',
           },
           {
-            question: 'DueDateHQ 会替代 Florida 来源复核吗？',
-            answer: '不会。它保留来源上下文并运营化复核，但不替代专业判断。',
+            question: 'DueDateHQ 会判断某个 Florida 客户是否适用吗？',
+            answer: '不会。它保留来源上下文并运营化复核，但适用性仍取决于客户事实和专业判断。',
           },
         ],
       },
@@ -1151,12 +1156,13 @@ const zhCN: LandingCopy = {
         ],
         faq: [
           {
-            question: 'Washington 覆盖包含私人通知吗？',
-            answer: '不包含。公开覆盖基于公开机构材料，不包括客户特定私人通信。',
+            question: 'DueDateHQ 会把哪些 Washington 信号送入复核？',
+            answer:
+              '公开 DOR 更新、到期日公告、申报窗口变化和说明更新，在影响运营时间时可以进入复核。',
           },
           {
-            question: '事务所应如何处理 Washington 信号？',
-            answer: '在改变客户工作之前，先查看附带的官方来源并判断适用性。',
+            question: '处理 Washington 信号前应该先看什么？',
+            answer: '在改变客户工作之前，先查看附带的官方来源、匹配到的客户上下文，并判断适用性。',
           },
         ],
       },
@@ -1167,21 +1173,21 @@ const zhCN: LandingCopy = {
         meta: {
           title: 'CPA 截止日风险指南 — 如何在罚款前看清风险',
           description:
-            '面向 CPA 团队的截止日风险指南：罚款敞口、证据缺口、州税变化和周一分诊工作流。',
+            'CPA 团队如何结合迁移数据、罚款敞口、证据、owner 和 Pulse 变化判断本周先处理哪个客户截止日。',
           ogImage: '/og/home.zh-CN.png',
         },
         hero: {
           eyebrow: 'GUIDE',
-          title: 'CPA 截止日风险在成为罚款前，先是运营问题。',
+          title: 'CPA 团队本周应该先处理哪个截止日？',
           description:
-            '小型 CPA 事务所错过截止日，并不是因为没有日历，而是因为客户事实、州税变化、来源证据和团队 owner 在高峰季被拆散。',
+            'DueDateHQ 把截止日风险当作运营排序问题处理。导入的客户事实、filing profile、罚款敞口、州级更新、证据状态和 owner 分配，都会影响什么应该排到最前面。',
           note: '本指南解释运营风险模式，不构成税务建议。',
         },
         sections: [
           {
             eyebrow: 'RISK MODEL',
-            title: '真正危险的截止日，是上下文缺失的截止日。',
-            body: '日历上的日期只是截止日运营的一部分。CPA 团队还需要客户实体上下文、申报状态、辖区覆盖、证据来源和 owner 分配。',
+            title: '真正危险的截止日，是上下文缺失或不匹配的截止日。',
+            body: '日历上的日期只是截止日运营的一部分。CPA 团队还需要导入的客户事实、filing profile、义务状态、辖区覆盖、证据来源和 owner 分配。',
             items: [
               {
                 title: '客户事实缺失',
@@ -1223,17 +1229,19 @@ const zhCN: LandingCopy = {
         },
         faq: [
           {
-            question: '截止日风险只和日期有关吗？',
+            question: 'CPA 团队应该先处理哪个截止日？',
             answer:
-              '不是。到期日很重要，但风险也取决于客户事实、来源质量、复核状态、owner 和罚款敞口。',
+              '第一个事项通常不只是最早到期的日期。DueDateHQ 会结合剩余天数、罚款敞口、状态、来源质量、客户上下文和 owner 信号排序。',
           },
           {
-            question: '为什么来源证据重要？',
-            answer: '来源证据帮助 CPA 团队确认截止日或州级更新来自官方材料，而不是没有支撑的摘要。',
+            question: '导入的客户数据如何影响截止日风险？',
+            answer:
+              'Migration 数据会形成分诊所需的客户和义务上下文。实体类型、申报州、税种、owner 和 liability 输入都会改变风险图景。',
           },
           {
-            question: '软件首先应该做什么？',
-            answer: '它应该让最高风险工作可见，让来源证据贴近每条规则，并把模糊事项送入复核。',
+            question: '什么样的截止日队列是可解释的？',
+            answer:
+              '队列应该把来源证据、罚款原因、客户上下文、状态变化和审计历史放在动作附近，让事务所能解释为什么先处理这件事。',
           },
         ],
         cta: {
@@ -1248,21 +1256,21 @@ const zhCN: LandingCopy = {
         meta: {
           title: '带证据的税务截止日软件 — DueDateHQ 指南',
           description:
-            '带证据的税务截止日软件对 CPA 团队意味着什么：source URL、摘录、验证时间戳、人工复核和可审计工作流。',
+            'CPA 团队在截止日、Pulse 变化、AI 建议或迁移动作改变客户工作前，应该能证明什么。',
           ogImage: '/og/home.zh-CN.png',
         },
         hero: {
           eyebrow: 'GUIDE',
-          title: '带证据的截止日软件，把来源放在动作旁边。',
+          title: '截止日工作改变前，应该先有什么证据？',
           description:
-            '对 CPA 运营来说，申报提醒不够。团队需要知道截止日为什么存在、哪个官方来源支持它、何时被验证，以及谁批准了运营变化。',
+            '对 CPA 运营来说，申报提醒不够。团队需要来源证据、复核状态、客户上下文、必要时的 AI trace，以及 apply、undo、revert 和导入动作的审计历史。',
           note: '带证据工作流支持复核，不替代专业判断。',
         },
         sections: [
           {
             eyebrow: 'DEFINITION',
             title: '带证据意味着每个运营主张都可检查。',
-            body: '产品应保留足够的来源上下文，让复核者理解规则从哪里来、为什么进入工作流。',
+            body: '产品应保留足够上下文，让复核者理解规则、截止日、Pulse alert 或迁移创建的义务从哪里来、为什么进入工作流。',
             items: [
               {
                 title: 'Source URL',
@@ -1304,17 +1312,19 @@ const zhCN: LandingCopy = {
         },
         faq: [
           {
-            question: '带证据软件等于 AI 税务建议吗？',
-            answer: '不是。带证据软件把来源上下文附着在工作流上，不提供专业税务建议。',
-          },
-          {
-            question: '为什么不让 AI 自动应用规则变化？',
+            question: '截止日改变前应该有哪些证据？',
             answer:
-              '截止日变化可能影响客户义务。DueDateHQ 把 AI 当作助手，并把运营应用动作放在复核之后。',
+              '复核者应看到官方 source URL、相关摘录、验证元数据、客户上下文、复核状态和本次变更的审计事件。',
           },
           {
-            question: '复核者至少应该看到什么证据？',
-            answer: '复核者应看到官方 source URL、相关摘录、验证元数据和当前复核状态。',
+            question: 'Pulse 应用和回滚如何保持可审计？',
+            answer:
+              'Pulse 决策是显式动作。应用、忽略、暂缓和回滚都会保留来源上下文并写入审计记录，便于事务所检查发生了什么以及为什么。',
+          },
+          {
+            question: 'AI 在带证据工作流中扮演什么角色？',
+            answer:
+              'AI 可以映射导入字段、归一化信息、总结来源变化或草拟运营上下文，但复核状态、来源证据和人工动作仍是控制点。',
           },
         ],
         cta: {
