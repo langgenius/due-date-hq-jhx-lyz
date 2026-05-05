@@ -19,6 +19,7 @@ const MESSAGE_BY_CODE: Partial<Record<ErrorCode, MessageDescriptor>> = {
 
 const MESSAGE_BY_RAW: Record<string, MessageDescriptor> = {
   'Production Pulse actions require Pro or above.': msg`Production Pulse actions require Pro or above.`,
+  'Priority Pulse matching and review confirmation require Team or above.': msg`Priority Pulse matching and review confirmation require Team or above.`,
 }
 
 const FALLBACK = msg`Something went wrong. Please try again.`

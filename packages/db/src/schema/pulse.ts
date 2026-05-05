@@ -24,6 +24,9 @@ export const PULSE_FIRM_ALERT_STATUSES = [
 ] as const
 export type PulseFirmAlertStatus = (typeof PULSE_FIRM_ALERT_STATUSES)[number]
 
+export const PULSE_PRIORITY_REVIEW_STATUSES = ['open', 'reviewed', 'applied', 'dismissed'] as const
+export type PulsePriorityReviewStatus = (typeof PULSE_PRIORITY_REVIEW_STATUSES)[number]
+
 export const PULSE_SOURCE_SNAPSHOT_STATUSES = [
   'pending_extract',
   'extracting',
@@ -245,6 +248,61 @@ export const pulseFirmAlert = sqliteTable(
   ],
 )
 
+export const pulsePriorityReview = sqliteTable(
+  'pulse_priority_review',
+  {
+    id: text('id').primaryKey(),
+    firmId: text('firm_id')
+      .notNull()
+      .references(() => firmProfile.id, { onDelete: 'cascade' }),
+    alertId: text('alert_id')
+      .notNull()
+      .references(() => pulseFirmAlert.id, { onDelete: 'cascade' }),
+    pulseId: text('pulse_id')
+      .notNull()
+      .references(() => pulse.id, { onDelete: 'cascade' }),
+    status: text('status', { enum: PULSE_PRIORITY_REVIEW_STATUSES }).notNull().default('open'),
+    priorityScore: integer('priority_score').notNull().default(0),
+    priorityReasonsJson: text('priority_reasons_json', { mode: 'json' })
+      .$type<Array<{ key: string; points: number; label: string }>>()
+      .notNull()
+      .default(sql`'[]'`),
+    selectedObligationIdsJson: text('selected_obligation_ids_json', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    confirmedObligationIdsJson: text('confirmed_obligation_ids_json', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    excludedObligationIdsJson: text('excluded_obligation_ids_json', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    note: text('note'),
+    requestedBy: text('requested_by').references(() => user.id, { onDelete: 'set null' }),
+    reviewedBy: text('reviewed_by').references(() => user.id, { onDelete: 'set null' }),
+    reviewedAt: integer('reviewed_at', { mode: 'timestamp_ms' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('uq_pulse_priority_review_firm_alert').on(table.firmId, table.alertId),
+    index('idx_pulse_priority_review_firm_status_score').on(
+      table.firmId,
+      table.status,
+      table.priorityScore,
+    ),
+    index('idx_pulse_priority_review_alert').on(table.alertId),
+    index('idx_pulse_priority_review_pulse').on(table.pulseId),
+  ],
+)
+
 export const pulseApplication = sqliteTable(
   'pulse_application',
   {
@@ -324,6 +382,29 @@ export const pulseFirmAlertRelations = relations(pulseFirmAlert, ({ one }) => ({
   }),
 }))
 
+export const pulsePriorityReviewRelations = relations(pulsePriorityReview, ({ one }) => ({
+  firm: one(firmProfile, {
+    fields: [pulsePriorityReview.firmId],
+    references: [firmProfile.id],
+  }),
+  alert: one(pulseFirmAlert, {
+    fields: [pulsePriorityReview.alertId],
+    references: [pulseFirmAlert.id],
+  }),
+  pulse: one(pulse, {
+    fields: [pulsePriorityReview.pulseId],
+    references: [pulse.id],
+  }),
+  requester: one(user, {
+    fields: [pulsePriorityReview.requestedBy],
+    references: [user.id],
+  }),
+  reviewer: one(user, {
+    fields: [pulsePriorityReview.reviewedBy],
+    references: [user.id],
+  }),
+}))
+
 export const pulseApplicationRelations = relations(pulseApplication, ({ one }) => ({
   pulse: one(pulse, {
     fields: [pulseApplication.pulseId],
@@ -361,5 +442,7 @@ export type PulseSourceSignal = typeof pulseSourceSignal.$inferSelect
 export type NewPulseSourceSignal = typeof pulseSourceSignal.$inferInsert
 export type PulseFirmAlert = typeof pulseFirmAlert.$inferSelect
 export type NewPulseFirmAlert = typeof pulseFirmAlert.$inferInsert
+export type PulsePriorityReview = typeof pulsePriorityReview.$inferSelect
+export type NewPulsePriorityReview = typeof pulsePriorityReview.$inferInsert
 export type PulseApplication = typeof pulseApplication.$inferSelect
 export type NewPulseApplication = typeof pulseApplication.$inferInsert

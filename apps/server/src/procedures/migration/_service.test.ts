@@ -614,6 +614,18 @@ function buildScopedRepo(firmId: string) {
     async getDetail() {
       return unexpectedRepoCall('pulse.getDetail')
     },
+    async listPriorityQueue() {
+      return unexpectedRepoCall('pulse.listPriorityQueue')
+    },
+    async requestPriorityReview() {
+      return unexpectedRepoCall('pulse.requestPriorityReview')
+    },
+    async reviewPriorityMatches() {
+      return unexpectedRepoCall('pulse.reviewPriorityMatches')
+    },
+    async applyReviewed() {
+      return unexpectedRepoCall('pulse.applyReviewed')
+    },
     async apply() {
       return unexpectedRepoCall('pulse.apply')
     },

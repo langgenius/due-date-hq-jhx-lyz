@@ -2,7 +2,7 @@
  * Focused Drizzle chain doubles only implement the query-builder methods used here.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { makePulseOpsRepo, makePulseRepo, PulseRepoError } from './pulse'
+import { makePulseOpsRepo, makePulseRepo, PulseRepoError, scorePulsePriority } from './pulse'
 
 const ALERT = {
   alertId: 'alert-1',
@@ -109,6 +109,38 @@ function fakeDb(selectResponses: unknown[][]) {
     directStatements,
   }
 }
+
+describe('scorePulsePriority', () => {
+  it('scores needs-review, confidence, impact, source, and request factors deterministically', () => {
+    const result = scorePulsePriority({
+      matchedCount: 4,
+      needsReviewCount: 2,
+      confidence: 0.58,
+      preparerRequested: true,
+      sourceNeedsAttention: true,
+    })
+
+    expect(result.score).toBe(153)
+    expect(result.level).toBe('urgent')
+    expect(result.reasons.map((reason) => [reason.key, reason.points])).toEqual([
+      ['preparer_requested', 30],
+      ['needs_review_matches', 60],
+      ['low_confidence', 25],
+      ['high_impact', 18],
+      ['source_attention', 20],
+    ])
+  })
+
+  it('keeps review-free high-confidence single matches at normal impact score', () => {
+    const result = scorePulsePriority({
+      matchedCount: 1,
+      needsReviewCount: 0,
+      confidence: 0.94,
+    })
+
+    expect(result).toMatchObject({ score: 3, level: 'normal' })
+  })
+})
 
 describe('makePulseRepo', () => {
   it('matches eligible clients and marks missing county rows as needs_review', async () => {
@@ -355,6 +387,69 @@ describe('makePulseRepo', () => {
     expect(result.appliedCount).toBe(1)
     expect(batchStatements).toHaveLength(7)
     expect(batchStatements.filter((statement) => isKind(statement, 'update'))).toHaveLength(1)
+  })
+
+  it('saves a manager-reviewed priority selection without applying deadlines', async () => {
+    const reviewedAt = new Date('2026-04-15T18:40:00.000Z')
+    const { db, batchStatements, directStatements } = fakeDb([
+      [ALERT],
+      [ELIGIBLE, NEEDS_REVIEW],
+      [],
+      [],
+      [],
+      [],
+      [
+        {
+          id: 'priority-1',
+          alertId: 'alert-1',
+          pulseId: 'pulse-1',
+          status: 'reviewed',
+          priorityScore: 116,
+          priorityReasonsJson: [{ key: 'needs_review_matches', points: 55, label: 'Review' }],
+          selectedObligationIdsJson: ['oi-eligible', 'oi-review'],
+          confirmedObligationIdsJson: ['oi-review'],
+          excludedObligationIdsJson: [],
+          note: 'Looks applicable.',
+          requestedBy: null,
+          reviewedBy: 'manager-1',
+          reviewedAt,
+        },
+      ],
+    ])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    const review = await repo.reviewPriorityMatches({
+      alertId: 'alert-1',
+      selectedObligationIds: ['oi-eligible', 'oi-review'],
+      confirmedObligationIds: ['oi-review'],
+      userId: 'manager-1',
+      note: 'Looks applicable.',
+      now: reviewedAt,
+    })
+
+    expect(review).toMatchObject({
+      id: 'priority-1',
+      status: 'reviewed',
+      selectedObligationIds: ['oi-eligible', 'oi-review'],
+      confirmedObligationIds: ['oi-review'],
+      reviewedBy: 'manager-1',
+    })
+    expect(batchStatements).toHaveLength(0)
+    expect(directStatements.filter((statement) => isKind(statement, 'insert'))).toHaveLength(1)
+  })
+
+  it('rejects priority manager review when a selected review row is not confirmed', async () => {
+    const { db, directStatements } = fakeDb([[ALERT], [NEEDS_REVIEW], [], []])
+    const repo = makePulseRepo(db, 'firm-1')
+
+    await expect(
+      repo.reviewPriorityMatches({
+        alertId: 'alert-1',
+        selectedObligationIds: ['oi-review'],
+        userId: 'manager-1',
+      }),
+    ).rejects.toMatchObject({ code: 'conflict' } satisfies Partial<PulseRepoError>)
+    expect(directStatements).toHaveLength(0)
   })
 
   it('rejects apply with no eligible candidates when selections are outside the alert', async () => {

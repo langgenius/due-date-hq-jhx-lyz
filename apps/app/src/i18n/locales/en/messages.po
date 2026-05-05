@@ -51,7 +51,9 @@ msgid "{0, plural, one {# selected} other {# selected}}"
 msgstr "{0, plural, one {# selected} other {# selected}}"
 
 #. placeholder {0}: row.original.evidenceCount
+#. placeholder {0}: tableRow.original.evidenceCount
 #: src/routes/dashboard.tsx
+#: src/routes/obligations.tsx
 msgid "{0, plural, one {# source} other {# sources}}"
 msgstr "{0, plural, one {# source} other {# sources}}"
 
@@ -118,6 +120,8 @@ msgid "{0} manual records"
 msgstr "{0} manual records"
 
 #. placeholder {0}: alert.needsReviewCount
+#. placeholder {0}: item.alert.needsReviewCount
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "{0} need review"
 msgstr "{0} need review"
@@ -334,6 +338,10 @@ msgstr "{role} · {plan} · {0} seats"
 #: src/features/rules/rule-library-tab.tsx
 msgid "{selectedCount} selected"
 msgstr "{selectedCount} selected"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "{selectedCount} selected · {excludedCount} excluded"
+msgstr "{selectedCount} selected · {excludedCount} excluded"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
@@ -757,6 +765,10 @@ msgstr "All ignored"
 msgid "All open firm deadlines for owner and manager planning."
 msgstr "All open firm deadlines for owner and manager planning."
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All Pulse"
+msgstr "All Pulse"
+
 #: src/features/rules/coverage-tab.tsx
 msgid "All review-flagged"
 msgstr "All review-flagged"
@@ -885,8 +897,17 @@ msgstr "Applied Pulse exceptions that are currently changing obligation due date
 
 #. placeholder {0}: result.appliedCount
 #: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Applied reviewed set to {0} clients"
+msgstr "Applied reviewed set to {0} clients"
+
+#. placeholder {0}: result.appliedCount
+#: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Applied to {0} clients"
 msgstr "Applied to {0} clients"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Apply reviewed set"
+msgstr "Apply reviewed set"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Apply tax type suggestions"
@@ -1503,6 +1524,10 @@ msgstr "Clients"
 msgid "Clients affected"
 msgstr "Clients affected"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "clients may be affected"
+msgstr "clients may be affected"
+
 #: src/features/audit/audit-log-page.tsx
 #: src/features/migration/WizardShell.tsx
 msgid "Close"
@@ -1560,6 +1585,10 @@ msgstr "Confidence"
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Confirm {0} applies to this relief"
 msgstr "Confirm {0} applies to this relief"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Confirm all review-needed"
+msgstr "Confirm all review-needed"
 
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Confirm applies"
@@ -1818,6 +1847,10 @@ msgstr "Couldn't accept rule"
 msgid "Couldn't apply Pulse"
 msgstr "Couldn't apply Pulse"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't apply reviewed set"
+msgstr "Couldn't apply reviewed set"
+
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't apply tax type suggestions"
 msgstr "Couldn't apply tax type suggestions"
@@ -1879,6 +1912,10 @@ msgstr "Couldn't load obligation detail."
 msgid "Couldn't load obligations."
 msgstr "Couldn't load obligations."
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Couldn't load priority queue"
+msgstr "Couldn't load priority queue"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't load this alert"
 msgstr "Couldn't load this alert"
@@ -1918,6 +1955,10 @@ msgstr "Couldn't save extension decision"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Couldn't save filing jurisdictions"
 msgstr "Couldn't save filing jurisdictions"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Couldn't save manager review"
+msgstr "Couldn't save manager review"
 
 #: src/features/migration/Wizard.tsx
 msgid "Couldn't save mapping"
@@ -2619,6 +2660,15 @@ msgstr "Evidence was added to this deadline."
 msgid "Exception"
 msgstr "Exception"
 
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Exclude"
+msgstr "Exclude"
+
+#. placeholder {0}: row.clientName
+#: src/features/pulse/components/AffectedClientsTable.tsx
+msgid "Exclude {0} from manager review"
+msgstr "Exclude {0} from manager review"
+
 #: src/routes/obligations.tsx
 msgid "Expected extended date"
 msgstr "Expected extended date"
@@ -2981,12 +3031,17 @@ msgstr "high"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/pulse/AlertsListPage.tsx
 msgid "High"
 msgstr "High"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "High confidence"
 msgstr "High confidence"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "High impact"
+msgstr "High impact"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "I'm coming from… (optional)"
@@ -3395,6 +3450,10 @@ msgstr "Low AI confidence"
 msgid "Low AI confidence. Review source details before applying."
 msgstr "Low AI confidence. Review source details before applying."
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Low confidence"
+msgstr "Low confidence"
+
 #: src/components/patterns/app-shell.tsx
 msgid "Manage"
 msgstr "Manage"
@@ -3426,6 +3485,14 @@ msgstr "Manager"
 #: src/features/workload/workload-page.tsx
 msgid "Manager operations"
 msgstr "Manager operations"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Manager review"
+msgstr "Manager review"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Manager review saved"
+msgstr "Manager review saved"
 
 #: src/routes/billing.tsx
 msgid "Manager-ready practice operations"
@@ -3733,6 +3800,7 @@ msgstr "Needs input"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/obligations/status-control.tsx
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
@@ -3941,6 +4009,10 @@ msgstr "No forms"
 msgid "No generated obligations yet."
 msgstr "No generated obligations yet."
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "No high-risk Pulse alerts need manager review right now."
+msgstr "No high-risk Pulse alerts need manager review right now."
+
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "No import batches yet"
 msgstr "No import batches yet"
@@ -4075,6 +4147,10 @@ msgstr "No user-facing field change was recorded."
 #: src/routes/obligations.tsx
 msgid "None"
 msgstr "None"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Normal"
+msgstr "Normal"
 
 #: src/features/migration/Stepper.tsx
 msgid "Normalize"
@@ -4314,9 +4390,9 @@ msgstr "Only the practice owner can start or change a subscription."
 
 #: src/features/migration/Step2Mapping.tsx
 #: src/features/notifications/notifications-page.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/workload/workload-page.tsx
-#: src/routes/obligations.tsx
 msgid "Open"
 msgstr "Open"
 
@@ -4391,6 +4467,10 @@ msgstr "Open portal"
 #: src/features/rules/temporary-rules-tab.tsx
 msgid "Open Pulse detail"
 msgstr "Open Pulse detail"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Open review"
+msgstr "Open review"
 
 #. placeholder {0}: rule.title
 #: src/features/rules/rule-library-tab.tsx
@@ -5060,6 +5140,18 @@ msgstr "Priority list"
 msgid "Priority onboarding and audit exports"
 msgstr "Priority onboarding and audit exports"
 
+#: src/features/pulse/lib/error-mapping.ts
+msgid "Priority Pulse matching and review confirmation require Team or above."
+msgstr "Priority Pulse matching and review confirmation require Team or above."
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Priority Queue"
+msgstr "Priority Queue"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Priority Queue requires Team"
+msgstr "Priority Queue requires Team"
+
 #: src/features/calendar/calendar-page.tsx
 msgid "Privacy"
 msgstr "Privacy"
@@ -5474,6 +5566,10 @@ msgstr "Request Pulse review"
 msgid "Request review"
 msgstr "Request review"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Requested"
+msgstr "Requested"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Required for rule applicability."
 msgstr "Required for rule applicability."
@@ -5587,6 +5683,7 @@ msgstr "Reverted {0} clients"
 msgid "review"
 msgstr "review"
 
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseAlertCard.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
 #: src/features/rules/generation-preview-tab.tsx
@@ -5677,6 +5774,11 @@ msgstr "Review the source excerpt and structured fields before applying this ale
 #: src/features/concepts/concept-help.tsx
 msgid "Review-only rule"
 msgstr "Review-only rule"
+
+#: src/features/pulse/AlertsListPage.tsx
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Reviewed"
+msgstr "Reviewed"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Reviewed at"
@@ -5955,6 +6057,10 @@ msgstr "Save from $960/year"
 msgid "Save internal decision"
 msgstr "Save internal decision"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Save manager review"
+msgstr "Save manager review"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Save mapping"
 msgstr "Save mapping"
@@ -5970,6 +6076,10 @@ msgstr "Save risk inputs"
 #: src/routes/practice.tsx
 msgid "Save Smart Priority"
 msgstr "Save Smart Priority"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Save the reviewed client set before applying when a Pulse has low confidence, review flags, or a preparer escalation."
+msgstr "Save the reviewed client set before applying when a Pulse has low confidence, review flags, or a preparer escalation."
 
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Save these recovery codes now"
@@ -6042,6 +6152,11 @@ msgstr "Scope"
 #: src/routes/practice.tsx
 msgid "Score"
 msgstr "Score"
+
+#. placeholder {0}: item.priorityScore
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Score {0}"
+msgstr "Score {0}"
 
 #: src/routes/obligations.tsx
 msgid "Search assignees"
@@ -6409,6 +6524,10 @@ msgstr "source"
 msgid "Source"
 msgstr "Source"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Source attention"
+msgstr "Source attention"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Source changed requires single-rule review"
 msgstr "Source changed requires single-rule review"
@@ -6747,6 +6866,10 @@ msgstr "TAX YEAR"
 msgid "Team"
 msgstr "Team"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Team and Enterprise add priority Pulse matching, manager review, and batch confirmation for high-risk alerts."
+msgstr "Team and Enterprise add priority Pulse matching, manager review, and batch confirmation for high-risk alerts."
+
 #: src/features/workload/workload-page.tsx
 msgid "Team and Enterprise plans add capacity pressure, unassigned risk, and review pressure signals for weekly workload triage."
 msgstr "Team and Enterprise plans add capacity pressure, unassigned risk, and review pressure signals for weekly workload triage."
@@ -6902,6 +7025,10 @@ msgstr "The projected risk across the current deadline list. It helps prioritize
 #: src/routes/obligations.tsx
 msgid "The request was invalid. Please review your input and try again."
 msgstr "The request was invalid. Please review your input and try again."
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "The reviewed client set is ready to apply."
+msgstr "The reviewed client set is ready to apply."
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "The rollover disposition for this row: create, review, duplicate, missing rule, or missing due date."
@@ -7269,6 +7396,10 @@ msgstr "Upload rows"
 #: src/routes/practice.tsx
 msgid "Urgency window"
 msgstr "Urgency window"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Urgent"
+msgstr "Urgent"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use 2-letter state codes"

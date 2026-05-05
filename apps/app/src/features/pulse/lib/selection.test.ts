@@ -4,7 +4,9 @@ import type { PulseAffectedClient } from '@duedatehq/contracts'
 
 import {
   computeSelectionStats,
+  confirmAllNeedsReview,
   defaultSelection,
+  excludeFromSelection,
   isSelectable,
   setAllSelection,
   toggleSelection,
@@ -93,5 +95,38 @@ describe('selection helpers', () => {
     const stats = computeSelectionStats(rows, new Set(['a']))
     expect(stats.selectedCount).toBe(0)
     expect(stats.selectableCount).toBe(1)
+  })
+
+  it('confirmAllNeedsReview returns only rows that need manager confirmation', () => {
+    const rows = [
+      makeRow('a', 'eligible'),
+      makeRow('b', 'needs_review'),
+      makeRow('c', 'needs_review'),
+      makeRow('d', 'already_applied'),
+    ]
+    expect([...confirmAllNeedsReview(rows)].toSorted()).toEqual(['b', 'c'])
+  })
+
+  it('excludeFromSelection removes stale selection and confirmation state', () => {
+    const result = excludeFromSelection(
+      new Set(['a', 'b']),
+      new Set(['b']),
+      new Set(['c']),
+      'b',
+      true,
+    )
+    expect([...result.selection]).toEqual(['a'])
+    expect([...result.confirmedReviewIds]).toEqual([])
+    expect([...result.excludedIds].toSorted()).toEqual(['b', 'c'])
+
+    const restored = excludeFromSelection(
+      result.selection,
+      result.confirmedReviewIds,
+      result.excludedIds,
+      'b',
+      false,
+    )
+    expect([...restored.selection]).toEqual(['a'])
+    expect([...restored.excludedIds]).toEqual(['c'])
   })
 })

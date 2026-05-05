@@ -27,6 +27,7 @@ import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 export function EntryShell() {
   const location = useLocation()
   const isMigrationActivation = location.pathname === '/migration/new'
+  const isReadinessPortal = location.pathname.startsWith('/readiness/')
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-bg-canvas text-text-primary">
@@ -35,7 +36,9 @@ export function EntryShell() {
         className={
           isMigrationActivation
             ? 'flex min-h-0 flex-1 flex-col items-center justify-start overflow-hidden px-6 py-6 lg:px-10'
-            : 'flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-12 lg:px-10'
+            : isReadinessPortal
+              ? 'flex min-h-0 flex-1 flex-col items-stretch justify-start overflow-y-auto'
+              : 'flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-12 lg:px-10'
         }
       >
         <Outlet />

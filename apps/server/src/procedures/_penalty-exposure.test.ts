@@ -300,6 +300,18 @@ function buildScopedRepo(input: {
       async getDetail() {
         return unused('pulse.getDetail')
       },
+      async listPriorityQueue() {
+        return unused('pulse.listPriorityQueue')
+      },
+      async requestPriorityReview() {
+        return unused('pulse.requestPriorityReview')
+      },
+      async reviewPriorityMatches() {
+        return unused('pulse.reviewPriorityMatches')
+      },
+      async applyReviewed() {
+        return unused('pulse.applyReviewed')
+      },
       async apply() {
         return unused('pulse.apply')
       },

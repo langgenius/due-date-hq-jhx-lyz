@@ -22,8 +22,10 @@ interface AffectedClientsTableProps {
   rows: readonly PulseAffectedClient[]
   selection: ReadonlySet<string>
   confirmedReviewIds: ReadonlySet<string>
+  excludedIds?: ReadonlySet<string> | undefined
   onChangeSelection: (next: Set<string>) => void
   onToggleNeedsReviewConfirmation: (obligationId: string, confirmed: boolean) => void
+  onToggleExcluded?: ((obligationId: string, excluded: boolean) => void) | undefined
   /** When true, all controls are read-only (e.g. RBAC denies apply). */
   readOnly?: boolean
 }
@@ -35,8 +37,10 @@ export function AffectedClientsTable({
   rows,
   selection,
   confirmedReviewIds,
+  excludedIds = new Set(),
   onChangeSelection,
   onToggleNeedsReviewConfirmation,
+  onToggleExcluded,
   readOnly = false,
 }: AffectedClientsTableProps) {
   const { t } = useLingui()
@@ -75,18 +79,19 @@ export function AffectedClientsTable({
         {rows.map((row) => {
           const checked = selection.has(row.obligationId)
           const reviewConfirmed = confirmedReviewIds.has(row.obligationId)
+          const excluded = excludedIds.has(row.obligationId)
           const selectable = isSelectable(row, confirmedReviewIds) && !readOnly
           return (
             <TableRow
               key={row.obligationId}
               data-status={row.matchStatus}
-              className={cn(!selectable && 'opacity-80')}
+              className={cn((!selectable || excluded) && 'opacity-80')}
             >
               <TableCell>
                 <Checkbox
                   aria-label={t`Select ${row.clientName}`}
                   checked={checked}
-                  disabled={!selectable}
+                  disabled={!selectable || excluded}
                   onCheckedChange={() => handleToggleRow(row)}
                 />
               </TableCell>
@@ -118,13 +123,27 @@ export function AffectedClientsTable({
                       <Checkbox
                         aria-label={t`Confirm ${row.clientName} applies to this relief`}
                         checked={reviewConfirmed}
-                        disabled={readOnly}
+                        disabled={readOnly || excluded}
                         onCheckedChange={(value) =>
                           onToggleNeedsReviewConfirmation(row.obligationId, value)
                         }
                       />
                       <span>
                         <Trans>Confirm applies</Trans>
+                      </span>
+                    </label>
+                  ) : null}
+                  {onToggleExcluded &&
+                  (row.matchStatus === 'eligible' || row.matchStatus === 'needs_review') ? (
+                    <label className="inline-flex items-center gap-2 text-xs text-text-secondary">
+                      <Checkbox
+                        aria-label={t`Exclude ${row.clientName} from manager review`}
+                        checked={excluded}
+                        disabled={readOnly}
+                        onCheckedChange={(value) => onToggleExcluded(row.obligationId, value)}
+                      />
+                      <span>
+                        <Trans>Exclude</Trans>
                       </span>
                     </label>
                   ) : null}

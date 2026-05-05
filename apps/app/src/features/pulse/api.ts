@@ -38,6 +38,15 @@ export function usePulseListHistoryQueryOptions(limit?: number) {
   })
 }
 
+export function usePulsePriorityQueueQueryOptions(limit?: number, enabled = true) {
+  return {
+    ...orpc.pulse.listPriorityQueue.queryOptions({
+      input: limit === undefined ? undefined : { limit },
+    }),
+    enabled,
+  }
+}
+
 export function usePulseSourceHealthQueryOptions() {
   return {
     ...orpc.pulse.listSourceHealth.queryOptions({

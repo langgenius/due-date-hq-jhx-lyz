@@ -81,6 +81,45 @@ export interface PulseSourceSignalRow {
   reviewDecisionId: string | null
 }
 
+export type PulsePriorityReviewStatus = 'open' | 'reviewed' | 'applied' | 'dismissed'
+export type PulsePriorityLevel = 'normal' | 'high' | 'urgent'
+export type PulsePriorityReasonKey =
+  | 'preparer_requested'
+  | 'needs_review_matches'
+  | 'low_confidence'
+  | 'high_impact'
+  | 'source_attention'
+
+export interface PulsePriorityReasonRow {
+  key: PulsePriorityReasonKey
+  points: number
+  label: string
+}
+
+export interface PulsePriorityReviewRow {
+  id: string
+  alertId: string
+  pulseId: string
+  status: PulsePriorityReviewStatus
+  priorityScore: number
+  priorityReasons: PulsePriorityReasonRow[]
+  selectedObligationIds: string[]
+  confirmedObligationIds: string[]
+  excludedObligationIds: string[]
+  note: string | null
+  requestedBy: string | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
+}
+
+export interface PulsePriorityQueueItemRow {
+  alert: PulseAlertRow
+  level: PulsePriorityLevel
+  priorityScore: number
+  priorityReasons: PulsePriorityReasonRow[]
+  review: PulsePriorityReviewRow | null
+}
+
 export interface PulseSeedInput {
   pulseId?: string
   alertId?: string
@@ -110,6 +149,16 @@ export interface PulseApplyInput {
   alertId: string
   obligationIds: string[]
   confirmedObligationIds?: string[]
+  userId: string
+  now?: Date
+}
+
+export interface PulseReviewPriorityMatchesInput {
+  alertId: string
+  selectedObligationIds: string[]
+  confirmedObligationIds?: string[]
+  excludedObligationIds?: string[]
+  note?: string | null
   userId: string
   now?: Date
 }
@@ -163,6 +212,14 @@ export interface PulseRepo {
     reviewDecisionId: string
   }): Promise<PulseSourceSignalRow>
   getDetail(alertId: string): Promise<PulseDetailRow>
+  listPriorityQueue(opts?: { limit?: number }): Promise<PulsePriorityQueueItemRow[]>
+  requestPriorityReview(input: {
+    alertId: string
+    userId: string
+    now?: Date
+  }): Promise<PulsePriorityReviewRow>
+  reviewPriorityMatches(input: PulseReviewPriorityMatchesInput): Promise<PulsePriorityReviewRow>
+  applyReviewed(input: PulseAlertActionInput): Promise<PulseApplyResult>
   apply(input: PulseApplyInput): Promise<PulseApplyResult>
   dismiss(input: PulseAlertActionInput): Promise<PulseDismissResult>
   snooze(input: PulseSnoozeInput): Promise<PulseDismissResult>

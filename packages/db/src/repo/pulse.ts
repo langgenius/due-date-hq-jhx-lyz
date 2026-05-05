@@ -22,17 +22,20 @@ import {
   pulse,
   pulseApplication,
   pulseFirmAlert,
+  pulsePriorityReview,
   pulseSourceSignal,
   pulseSourceState,
   pulseSourceSnapshot,
   type NewPulse,
   type NewPulseApplication,
   type NewPulseFirmAlert,
+  type NewPulsePriorityReview,
   type NewPulseSourceSignal,
   type NewPulseSourceState,
   type NewPulseSourceSnapshot,
   type Pulse,
   type PulseFirmAlertStatus,
+  type PulsePriorityReviewStatus,
   type PulseSourceSignal,
   type PulseSourceHealthStatus,
   type PulseSourceState,
@@ -238,6 +241,44 @@ export interface PulseSourceSignalRow {
   reviewDecisionId: string | null
 }
 
+export type PulsePriorityReasonKey =
+  | 'preparer_requested'
+  | 'needs_review_matches'
+  | 'low_confidence'
+  | 'high_impact'
+  | 'source_attention'
+export type PulsePriorityLevel = 'normal' | 'high' | 'urgent'
+
+export interface PulsePriorityReasonRow {
+  key: PulsePriorityReasonKey
+  points: number
+  label: string
+}
+
+export interface PulsePriorityReviewRow {
+  id: string
+  alertId: string
+  pulseId: string
+  status: PulsePriorityReviewStatus
+  priorityScore: number
+  priorityReasons: PulsePriorityReasonRow[]
+  selectedObligationIds: string[]
+  confirmedObligationIds: string[]
+  excludedObligationIds: string[]
+  note: string | null
+  requestedBy: string | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
+}
+
+export interface PulsePriorityQueueItemRow {
+  alert: PulseAlertRow
+  level: PulsePriorityLevel
+  priorityScore: number
+  priorityReasons: PulsePriorityReasonRow[]
+  review: PulsePriorityReviewRow | null
+}
+
 export interface PulseReviewRow {
   pulseId: string
   source: string
@@ -303,6 +344,22 @@ interface AlertJoinedRow {
   reviewedBy: string | null
   reviewedAt: Date | null
   isSample: boolean
+}
+
+interface PriorityReviewJoinedRow {
+  id: string
+  alertId: string
+  pulseId: string
+  status: PulsePriorityReviewStatus
+  priorityScore: number
+  priorityReasonsJson: unknown
+  selectedObligationIdsJson: unknown
+  confirmedObligationIdsJson: unknown
+  excludedObligationIdsJson: unknown
+  note: string | null
+  requestedBy: string | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
 }
 
 interface CandidateRow {
@@ -476,6 +533,153 @@ function toSourceSignal(row: PulseSourceSignal): PulseSourceSignalRow {
     linkedPulseId: row.linkedPulseId,
     reviewedRuleId: row.reviewedRuleId,
     reviewDecisionId: row.reviewDecisionId,
+  }
+}
+
+function priorityLevel(score: number): PulsePriorityLevel {
+  if (score >= 70) return 'urgent'
+  if (score >= 45) return 'high'
+  return 'normal'
+}
+
+function priorityReasonLabel(key: PulsePriorityReasonKey): string {
+  switch (key) {
+    case 'preparer_requested':
+      return 'Preparer requested manager review.'
+    case 'needs_review_matches':
+      return 'Affected clients need applicability confirmation.'
+    case 'low_confidence':
+      return 'Pulse extraction confidence is below the safe-review threshold.'
+    case 'high_impact':
+      return 'This Pulse affects multiple clients.'
+    case 'source_attention':
+      return 'The source health monitor needs attention.'
+  }
+  return key
+}
+
+export function scorePulsePriority(input: {
+  matchedCount: number
+  needsReviewCount: number
+  confidence: number
+  preparerRequested?: boolean
+  sourceNeedsAttention?: boolean
+}): { score: number; level: PulsePriorityLevel; reasons: PulsePriorityReasonRow[] } {
+  const reasons: PulsePriorityReasonRow[] = []
+  if (input.preparerRequested) {
+    reasons.push({
+      key: 'preparer_requested',
+      points: 30,
+      label: priorityReasonLabel('preparer_requested'),
+    })
+  }
+  if (input.needsReviewCount > 0) {
+    reasons.push({
+      key: 'needs_review_matches',
+      points: 50 + Math.min(input.needsReviewCount * 5, 25),
+      label: priorityReasonLabel('needs_review_matches'),
+    })
+  }
+  if (input.confidence < 0.5) {
+    reasons.push({
+      key: 'low_confidence',
+      points: 35,
+      label: priorityReasonLabel('low_confidence'),
+    })
+  } else if (input.confidence < 0.7) {
+    reasons.push({
+      key: 'low_confidence',
+      points: 25,
+      label: priorityReasonLabel('low_confidence'),
+    })
+  } else if (input.confidence < 0.9) {
+    reasons.push({
+      key: 'low_confidence',
+      points: 10,
+      label: priorityReasonLabel('low_confidence'),
+    })
+  }
+
+  const impactedCount = input.matchedCount + input.needsReviewCount
+  if (impactedCount > 0) {
+    reasons.push({
+      key: 'high_impact',
+      points: Math.min(impactedCount * 3, 30),
+      label: priorityReasonLabel('high_impact'),
+    })
+  }
+  if (input.sourceNeedsAttention) {
+    reasons.push({
+      key: 'source_attention',
+      points: 20,
+      label: priorityReasonLabel('source_attention'),
+    })
+  }
+
+  const score = reasons.reduce((sum, reason) => sum + reason.points, 0)
+  return { score, level: priorityLevel(score), reasons }
+}
+
+function isPriorityReasonKey(value: unknown): value is PulsePriorityReasonKey {
+  return (
+    value === 'preparer_requested' ||
+    value === 'needs_review_matches' ||
+    value === 'low_confidence' ||
+    value === 'high_impact' ||
+    value === 'source_attention'
+  )
+}
+
+function toPriorityReasons(value: unknown): PulsePriorityReasonRow[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((item): PulsePriorityReasonRow | null => {
+      if (!isRecord(item)) return null
+      const row = item
+      if (!isPriorityReasonKey(row.key) || typeof row.points !== 'number') return null
+      return {
+        key: row.key,
+        points: row.points,
+        label: typeof row.label === 'string' ? row.label : priorityReasonLabel(row.key),
+      }
+    })
+    .filter((item): item is PulsePriorityReasonRow => item !== null)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string')
+    : []
+}
+
+function uniqueStrings(values: readonly string[] | undefined): string[] {
+  return Array.from(new Set((values ?? []).map((value) => value.trim()).filter(Boolean)))
+}
+
+function normalizePriorityNote(value: string | null | undefined): string | null {
+  const note = value?.trim()
+  return note ? note.slice(0, 500) : null
+}
+
+function toPriorityReview(row: PriorityReviewJoinedRow): PulsePriorityReviewRow {
+  return {
+    id: row.id,
+    alertId: row.alertId,
+    pulseId: row.pulseId,
+    status: row.status,
+    priorityScore: row.priorityScore,
+    priorityReasons: toPriorityReasons(row.priorityReasonsJson),
+    selectedObligationIds: stringArray(row.selectedObligationIdsJson),
+    confirmedObligationIds: stringArray(row.confirmedObligationIdsJson),
+    excludedObligationIds: stringArray(row.excludedObligationIdsJson),
+    note: row.note,
+    requestedBy: row.requestedBy,
+    reviewedBy: row.reviewedBy,
+    reviewedAt: row.reviewedAt,
   }
 }
 
@@ -967,6 +1171,168 @@ export function makePulseRepo(db: Db, firmId: string) {
     return Array.from(new Set((rows as AlertRecipientRow[]).map((row) => row.email)))
   }
 
+  async function getPriorityReview(alertId: string): Promise<PulsePriorityReviewRow | null> {
+    const rows = await db
+      .select({
+        id: pulsePriorityReview.id,
+        alertId: pulsePriorityReview.alertId,
+        pulseId: pulsePriorityReview.pulseId,
+        status: pulsePriorityReview.status,
+        priorityScore: pulsePriorityReview.priorityScore,
+        priorityReasonsJson: pulsePriorityReview.priorityReasonsJson,
+        selectedObligationIdsJson: pulsePriorityReview.selectedObligationIdsJson,
+        confirmedObligationIdsJson: pulsePriorityReview.confirmedObligationIdsJson,
+        excludedObligationIdsJson: pulsePriorityReview.excludedObligationIdsJson,
+        note: pulsePriorityReview.note,
+        requestedBy: pulsePriorityReview.requestedBy,
+        reviewedBy: pulsePriorityReview.reviewedBy,
+        reviewedAt: pulsePriorityReview.reviewedAt,
+      })
+      .from(pulsePriorityReview)
+      .where(and(eq(pulsePriorityReview.firmId, firmId), eq(pulsePriorityReview.alertId, alertId)))
+      .limit(1)
+
+    return rows[0] ? toPriorityReview(rows[0] as PriorityReviewJoinedRow) : null
+  }
+
+  async function getSourceNeedsAttention(sourceId: string): Promise<boolean> {
+    const rows = await db
+      .select({ healthStatus: pulseSourceState.healthStatus })
+      .from(pulseSourceState)
+      .where(eq(pulseSourceState.sourceId, sourceId))
+      .limit(1)
+    const status = rows[0]?.healthStatus
+    return status === 'degraded' || status === 'failing'
+  }
+
+  function assertPriorityReviewableAlert(alert: AlertJoinedRow): void {
+    if (
+      alert.pulseStatus === 'source_revoked' ||
+      alert.alertStatus === 'applied' ||
+      alert.alertStatus === 'dismissed' ||
+      alert.alertStatus === 'reverted'
+    ) {
+      throw new PulseRepoError('conflict')
+    }
+  }
+
+  async function upsertPriorityReview(
+    alert: AlertJoinedRow,
+    input: {
+      status: PulsePriorityReviewStatus
+      selectedObligationIds?: string[]
+      confirmedObligationIds?: string[]
+      excludedObligationIds?: string[]
+      note?: string | null
+      requestedBy?: string | null
+      reviewedBy?: string | null
+      reviewedAt?: Date | null
+      preparerRequested?: boolean
+      sourceNeedsAttention?: boolean
+      now?: Date
+    },
+  ): Promise<PulsePriorityReviewRow> {
+    const now = input.now ?? new Date()
+    const score = scorePulsePriority({
+      matchedCount: alert.matchedCount,
+      needsReviewCount: alert.needsReviewCount,
+      confidence: alert.confidence,
+      ...(input.preparerRequested !== undefined
+        ? { preparerRequested: input.preparerRequested }
+        : {}),
+      ...(input.sourceNeedsAttention !== undefined
+        ? { sourceNeedsAttention: input.sourceNeedsAttention }
+        : {}),
+    })
+    const row: NewPulsePriorityReview = {
+      id: crypto.randomUUID(),
+      firmId,
+      alertId: alert.alertId,
+      pulseId: alert.pulseId,
+      status: input.status,
+      priorityScore: score.score,
+      priorityReasonsJson: score.reasons,
+      selectedObligationIdsJson: input.selectedObligationIds ?? [],
+      confirmedObligationIdsJson: input.confirmedObligationIds ?? [],
+      excludedObligationIdsJson: input.excludedObligationIds ?? [],
+      note: normalizePriorityNote(input.note),
+      requestedBy: input.requestedBy ?? null,
+      reviewedBy: input.reviewedBy ?? null,
+      reviewedAt: input.reviewedAt ?? null,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    await db
+      .insert(pulsePriorityReview)
+      .values(row)
+      .onConflictDoUpdate({
+        target: [pulsePriorityReview.firmId, pulsePriorityReview.alertId],
+        set: {
+          status: input.status,
+          priorityScore: score.score,
+          priorityReasonsJson: score.reasons,
+          selectedObligationIdsJson: input.selectedObligationIds ?? [],
+          confirmedObligationIdsJson: input.confirmedObligationIds ?? [],
+          excludedObligationIdsJson: input.excludedObligationIds ?? [],
+          note: normalizePriorityNote(input.note),
+          ...(input.requestedBy !== undefined ? { requestedBy: input.requestedBy } : {}),
+          ...(input.reviewedBy !== undefined ? { reviewedBy: input.reviewedBy } : {}),
+          ...(input.reviewedAt !== undefined ? { reviewedAt: input.reviewedAt } : {}),
+          updatedAt: now,
+        },
+      })
+
+    const review = await getPriorityReview(alert.alertId)
+    if (!review) throw new PulseRepoError('not_found')
+    return review
+  }
+
+  function validatePrioritySelection(
+    detail: PulseDetailRow,
+    input: {
+      selectedObligationIds: readonly string[]
+      confirmedObligationIds?: readonly string[]
+      excludedObligationIds?: readonly string[]
+    },
+  ): {
+    selectedObligationIds: string[]
+    confirmedObligationIds: string[]
+    excludedObligationIds: string[]
+  } {
+    const selectedObligationIds = uniqueStrings(input.selectedObligationIds)
+    const confirmedObligationIds = uniqueStrings(input.confirmedObligationIds)
+    const excludedObligationIds = uniqueStrings(input.excludedObligationIds)
+    if (selectedObligationIds.length === 0) throw new PulseRepoError('no_eligible')
+
+    const affectedById = new Map(detail.affectedClients.map((row) => [row.obligationId, row]))
+    const selectedSet = new Set(selectedObligationIds)
+    for (const obligationId of excludedObligationIds) {
+      if (!affectedById.has(obligationId) || selectedSet.has(obligationId)) {
+        throw new PulseRepoError('conflict')
+      }
+    }
+    for (const obligationId of confirmedObligationIds) {
+      const row = affectedById.get(obligationId)
+      if (!row || !selectedSet.has(obligationId) || row.matchStatus !== 'needs_review') {
+        throw new PulseRepoError('conflict')
+      }
+    }
+
+    const confirmedSet = new Set(confirmedObligationIds)
+    for (const obligationId of selectedObligationIds) {
+      const row = affectedById.get(obligationId)
+      if (!row || (row.matchStatus !== 'eligible' && row.matchStatus !== 'needs_review')) {
+        throw new PulseRepoError('conflict')
+      }
+      if (row.matchStatus === 'needs_review' && !confirmedSet.has(obligationId)) {
+        throw new PulseRepoError('conflict')
+      }
+    }
+
+    return { selectedObligationIds, confirmedObligationIds, excludedObligationIds }
+  }
+
   return {
     firmId,
 
@@ -1135,6 +1501,216 @@ export function makePulseRepo(db: Db, firmId: string) {
     async getDetail(alertId: string): Promise<PulseDetailRow> {
       const alert = await getAlert(alertId, { includeSourceRevoked: true })
       return buildDetail(alert)
+    },
+
+    async listPriorityQueue(opts: { limit?: number } = {}): Promise<PulsePriorityQueueItemRow[]> {
+      const limit = Math.min(Math.max(opts.limit ?? 50, 1), 100)
+      const rows = await db
+        .select({
+          alertId: pulseFirmAlert.id,
+          pulseId: pulse.id,
+          alertStatus: pulseFirmAlert.status,
+          matchedCount: pulseFirmAlert.matchedCount,
+          needsReviewCount: pulseFirmAlert.needsReviewCount,
+          source: pulse.source,
+          sourceUrl: pulse.sourceUrl,
+          publishedAt: pulse.publishedAt,
+          aiSummary: pulse.aiSummary,
+          verbatimQuote: pulse.verbatimQuote,
+          parsedJurisdiction: pulse.parsedJurisdiction,
+          parsedCounties: pulse.parsedCounties,
+          parsedForms: pulse.parsedForms,
+          parsedEntityTypes: pulse.parsedEntityTypes,
+          parsedOriginalDueDate: pulse.parsedOriginalDueDate,
+          parsedNewDueDate: pulse.parsedNewDueDate,
+          parsedEffectiveFrom: pulse.parsedEffectiveFrom,
+          confidence: pulse.confidence,
+          pulseStatus: pulse.status,
+          reviewedBy: pulse.reviewedBy,
+          reviewedAt: pulse.reviewedAt,
+          isSample: pulse.isSample,
+          sourceHealthStatus: pulseSourceState.healthStatus,
+          reviewId: pulsePriorityReview.id,
+          reviewStatus: pulsePriorityReview.status,
+          reviewPriorityScore: pulsePriorityReview.priorityScore,
+          reviewPriorityReasonsJson: pulsePriorityReview.priorityReasonsJson,
+          reviewSelectedObligationIdsJson: pulsePriorityReview.selectedObligationIdsJson,
+          reviewConfirmedObligationIdsJson: pulsePriorityReview.confirmedObligationIdsJson,
+          reviewExcludedObligationIdsJson: pulsePriorityReview.excludedObligationIdsJson,
+          reviewNote: pulsePriorityReview.note,
+          reviewRequestedBy: pulsePriorityReview.requestedBy,
+          reviewReviewedBy: pulsePriorityReview.reviewedBy,
+          reviewReviewedAt: pulsePriorityReview.reviewedAt,
+        })
+        .from(pulseFirmAlert)
+        .innerJoin(pulse, eq(pulseFirmAlert.pulseId, pulse.id))
+        .leftJoin(pulseSourceState, eq(pulse.source, pulseSourceState.sourceId))
+        .leftJoin(
+          pulsePriorityReview,
+          and(
+            eq(pulsePriorityReview.firmId, firmId),
+            eq(pulsePriorityReview.alertId, pulseFirmAlert.id),
+          ),
+        )
+        .where(
+          and(
+            eq(pulseFirmAlert.firmId, firmId),
+            eq(pulse.status, 'approved'),
+            inArray(pulseFirmAlert.status, ['matched', 'partially_applied']),
+          ),
+        )
+        .orderBy(desc(pulseFirmAlert.updatedAt), desc(pulse.publishedAt))
+        .limit(100)
+
+      return rows
+        .map((row): PulsePriorityQueueItemRow | null => {
+          const alertRow: AlertJoinedRow = {
+            alertId: row.alertId,
+            pulseId: row.pulseId,
+            alertStatus: row.alertStatus,
+            matchedCount: row.matchedCount,
+            needsReviewCount: row.needsReviewCount,
+            source: row.source,
+            sourceUrl: row.sourceUrl,
+            publishedAt: row.publishedAt,
+            aiSummary: row.aiSummary,
+            verbatimQuote: row.verbatimQuote,
+            parsedJurisdiction: row.parsedJurisdiction,
+            parsedCounties: row.parsedCounties,
+            parsedForms: row.parsedForms,
+            parsedEntityTypes: row.parsedEntityTypes,
+            parsedOriginalDueDate: row.parsedOriginalDueDate,
+            parsedNewDueDate: row.parsedNewDueDate,
+            parsedEffectiveFrom: row.parsedEffectiveFrom,
+            confidence: row.confidence,
+            pulseStatus: row.pulseStatus,
+            reviewedBy: row.reviewedBy,
+            reviewedAt: row.reviewedAt,
+            isSample: row.isSample,
+          }
+          const review =
+            row.reviewId === null
+              ? null
+              : toPriorityReview({
+                  id: row.reviewId,
+                  alertId: row.alertId,
+                  pulseId: row.pulseId,
+                  status: row.reviewStatus!,
+                  priorityScore: row.reviewPriorityScore!,
+                  priorityReasonsJson: row.reviewPriorityReasonsJson,
+                  selectedObligationIdsJson: row.reviewSelectedObligationIdsJson,
+                  confirmedObligationIdsJson: row.reviewConfirmedObligationIdsJson,
+                  excludedObligationIdsJson: row.reviewExcludedObligationIdsJson,
+                  note: row.reviewNote,
+                  requestedBy: row.reviewRequestedBy,
+                  reviewedBy: row.reviewReviewedBy,
+                  reviewedAt: row.reviewReviewedAt,
+                })
+          const score = scorePulsePriority({
+            matchedCount: row.matchedCount,
+            needsReviewCount: row.needsReviewCount,
+            confidence: row.confidence,
+            preparerRequested: review?.requestedBy !== null && review?.requestedBy !== undefined,
+            sourceNeedsAttention:
+              row.sourceHealthStatus === 'degraded' || row.sourceHealthStatus === 'failing',
+          })
+          if (score.score <= 0 && !review) return null
+          return {
+            alert: toAlert(alertRow),
+            level: score.level,
+            priorityScore: score.score,
+            priorityReasons: score.reasons,
+            review,
+          }
+        })
+        .filter((row): row is PulsePriorityQueueItemRow => row !== null)
+        .toSorted((left, right) => {
+          const scoreDelta = right.priorityScore - left.priorityScore
+          if (scoreDelta !== 0) return scoreDelta
+          return right.alert.publishedAt.getTime() - left.alert.publishedAt.getTime()
+        })
+        .slice(0, limit)
+    },
+
+    async requestPriorityReview(input: {
+      alertId: string
+      userId: string
+      now?: Date
+    }): Promise<PulsePriorityReviewRow> {
+      const alert = await getAlert(input.alertId)
+      assertPriorityReviewableAlert(alert)
+      const sourceNeedsAttention = await getSourceNeedsAttention(alert.source)
+      const current = await getPriorityReview(input.alertId)
+      return upsertPriorityReview(alert, {
+        status: 'open',
+        requestedBy: input.userId,
+        reviewedBy: null,
+        reviewedAt: null,
+        preparerRequested: true,
+        sourceNeedsAttention,
+        ...(current
+          ? {
+              selectedObligationIds: current.selectedObligationIds,
+              confirmedObligationIds: current.confirmedObligationIds,
+              excludedObligationIds: current.excludedObligationIds,
+              note: current.note,
+            }
+          : {}),
+        ...(input.now !== undefined ? { now: input.now } : {}),
+      })
+    },
+
+    async reviewPriorityMatches(input: {
+      alertId: string
+      selectedObligationIds: string[]
+      confirmedObligationIds?: string[]
+      excludedObligationIds?: string[]
+      note?: string | null
+      userId: string
+      now?: Date
+    }): Promise<PulsePriorityReviewRow> {
+      const alert = await getAlert(input.alertId)
+      assertPriorityReviewableAlert(alert)
+      const detail = await buildDetail(alert)
+      const selection = validatePrioritySelection(detail, input)
+      const sourceNeedsAttention = await getSourceNeedsAttention(alert.source)
+      const current = await getPriorityReview(input.alertId)
+      return upsertPriorityReview(alert, {
+        status: 'reviewed',
+        ...selection,
+        reviewedBy: input.userId,
+        reviewedAt: input.now ?? new Date(),
+        preparerRequested: current?.requestedBy !== null && current?.requestedBy !== undefined,
+        sourceNeedsAttention,
+        ...(input.note !== undefined ? { note: input.note } : {}),
+        ...(input.now !== undefined ? { now: input.now } : {}),
+      })
+    },
+
+    async applyReviewed(input: {
+      alertId: string
+      userId: string
+      now?: Date
+    }): Promise<PulseApplyResult> {
+      const review = await getPriorityReview(input.alertId)
+      if (!review || review.status !== 'reviewed') throw new PulseRepoError('conflict')
+      const result = await this.apply({
+        alertId: input.alertId,
+        obligationIds: review.selectedObligationIds,
+        confirmedObligationIds: review.confirmedObligationIds,
+        userId: input.userId,
+        ...(input.now !== undefined ? { now: input.now } : {}),
+      })
+      await db
+        .update(pulsePriorityReview)
+        .set({ status: 'applied', updatedAt: input.now ?? new Date() })
+        .where(
+          and(
+            eq(pulsePriorityReview.firmId, firmId),
+            eq(pulsePriorityReview.alertId, input.alertId),
+          ),
+        )
+      return result
     },
 
     async apply(input: {

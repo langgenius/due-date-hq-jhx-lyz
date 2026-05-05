@@ -4,16 +4,20 @@ import {
   type PulseAffectedClient,
   type PulseAlertPublic,
   type PulseFirmAlertStatus,
+  type PulsePriorityQueueItem,
+  type PulsePriorityReason,
+  type PulsePriorityReview,
   type PulseSourceSignal,
   type PulseSourceHealth,
   type PulseStatus,
 } from '@duedatehq/contracts'
+import { planHasFeature } from '@duedatehq/core/plan-entitlements'
 import { enqueueDashboardBriefRefresh } from '../../jobs/dashboard-brief/enqueue'
 import { runPulseIngest } from '../../jobs/pulse/ingest'
 import { liveRegulatorySourceAdapters } from '../../jobs/pulse/rule-source-adapters'
 import { requireTenant, type RpcContext } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
-import { requireProductionPulse } from '../_plan-gates'
+import { requirePriorityPulseMatching, requireProductionPulse } from '../_plan-gates'
 import { os } from '../_root'
 import { recalculateObligationExposure } from '../_penalty-exposure'
 
@@ -79,6 +83,36 @@ interface PulseSourceSignalRow {
   linkedPulseId: string | null
   reviewedRuleId: string | null
   reviewDecisionId: string | null
+}
+
+interface PulsePriorityReasonRow {
+  key: PulsePriorityReason['key']
+  points: number
+  label: string
+}
+
+interface PulsePriorityReviewRow {
+  id: string
+  alertId: string
+  pulseId: string
+  status: PulsePriorityReview['status']
+  priorityScore: number
+  priorityReasons: PulsePriorityReasonRow[]
+  selectedObligationIds: string[]
+  confirmedObligationIds: string[]
+  excludedObligationIds: string[]
+  note: string | null
+  requestedBy: string | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
+}
+
+interface PulsePriorityQueueItemRow {
+  alert: PulseAlertRow
+  level: PulsePriorityQueueItem['level']
+  priorityScore: number
+  priorityReasons: PulsePriorityReasonRow[]
+  review: PulsePriorityReviewRow | null
 }
 
 type PulseRepoErrorShape = Error & {
@@ -159,6 +193,42 @@ function toSourceSignalPublic(row: PulseSourceSignalRow): PulseSourceSignal {
     linkedPulseId: row.linkedPulseId,
     reviewedRuleId: row.reviewedRuleId,
     reviewDecisionId: row.reviewDecisionId,
+  }
+}
+
+function toPriorityReasonPublic(row: PulsePriorityReasonRow): PulsePriorityReason {
+  return {
+    key: row.key,
+    points: row.points,
+    label: row.label,
+  }
+}
+
+function toPriorityReviewPublic(row: PulsePriorityReviewRow): PulsePriorityReview {
+  return {
+    id: row.id,
+    alertId: row.alertId,
+    pulseId: row.pulseId,
+    status: row.status,
+    priorityScore: row.priorityScore,
+    priorityReasons: row.priorityReasons.map(toPriorityReasonPublic),
+    selectedObligationIds: row.selectedObligationIds,
+    confirmedObligationIds: row.confirmedObligationIds,
+    excludedObligationIds: row.excludedObligationIds,
+    note: row.note,
+    requestedBy: row.requestedBy,
+    reviewedBy: row.reviewedBy,
+    reviewedAt: row.reviewedAt ? row.reviewedAt.toISOString() : null,
+  }
+}
+
+function toPriorityQueueItemPublic(row: PulsePriorityQueueItemRow): PulsePriorityQueueItem {
+  return {
+    alert: toAlertPublic(row.alert),
+    level: row.level,
+    priorityScore: row.priorityScore,
+    priorityReasons: row.priorityReasons.map(toPriorityReasonPublic),
+    review: row.review ? toPriorityReviewPublic(row.review) : null,
   }
 }
 
@@ -338,6 +408,65 @@ const getDetail = os.pulse.getDetail.handler(async ({ input, context }) => {
   }
 })
 
+const listPriorityQueue = os.pulse.listPriorityQueue.handler(async ({ input, context }) => {
+  const { scoped, tenant } = requireTenant(context)
+  requirePriorityPulseMatching(tenant.plan)
+  const opts = input?.limit === undefined ? {} : { limit: input.limit }
+  return { items: (await scoped.pulse.listPriorityQueue(opts)).map(toPriorityQueueItemPublic) }
+})
+
+const reviewPriorityMatches = os.pulse.reviewPriorityMatches.handler(async ({ input, context }) => {
+  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { scoped, tenant } = requireTenant(context)
+  requirePriorityPulseMatching(tenant.plan)
+  try {
+    const review = await scoped.pulse.reviewPriorityMatches({
+      alertId: input.alertId,
+      selectedObligationIds: input.selectedObligationIds,
+      confirmedObligationIds: input.confirmedObligationIds ?? [],
+      excludedObligationIds: input.excludedObligationIds ?? [],
+      note: input.note ?? null,
+      userId,
+    })
+    return toPriorityReviewPublic(review)
+  } catch (error) {
+    return mapPulseError(error)
+  }
+})
+
+const applyReviewed = os.pulse.applyReviewed.handler(async ({ input, context }) => {
+  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { scoped, tenant } = requireTenant(context)
+  requirePriorityPulseMatching(tenant.plan)
+  try {
+    const detail = await scoped.pulse.getDetail(input.alertId)
+    const result = await withPulseMutationLock(
+      context,
+      { firmId: tenant.firmId, alertId: input.alertId, action: 'apply' },
+      () => scoped.pulse.applyReviewed({ alertId: input.alertId, userId }),
+    )
+    const output = {
+      alert: toAlertPublic(result.alert),
+      appliedCount: result.appliedCount,
+      auditIds: result.auditIds,
+      evidenceIds: result.evidenceIds,
+      applicationIds: result.applicationIds,
+      emailOutboxId: result.emailOutboxId,
+      revertExpiresAt: result.revertExpiresAt.toISOString(),
+    }
+    await Promise.all(
+      detail.affectedClients.map((row) => recalculateObligationExposure(scoped, row.obligationId)),
+    )
+    await enqueueDashboardBriefRefresh(context.env, {
+      firmId: tenant.firmId,
+      reason: 'pulse_apply',
+    }).catch(() => false)
+    return output
+  } catch (error) {
+    return mapPulseError(error)
+  }
+})
+
 const apply = os.pulse.apply.handler(async ({ input, context }) => {
   const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
   const { scoped, tenant } = requireTenant(context)
@@ -489,6 +618,10 @@ export async function requestPulseReview(input: {
       throw new ORPCError('CONFLICT', { message: ErrorCodes.PULSE_REVIEW_UNAVAILABLE })
     }
 
+    if (planHasFeature(tenant.plan, 'priorityPulseMatching')) {
+      await scoped.pulse.requestPriorityReview({ alertId: input.alertId, userId })
+    }
+
     const note = normalizeReviewNote(input.note)
     const actor = await members.findMembership(tenant.firmId, userId)
     const requesterName = actor?.name ?? 'A preparer'
@@ -594,6 +727,9 @@ export const pulseHandlers = {
   listSourceSignals,
   retrySourceHealth,
   getDetail,
+  listPriorityQueue,
+  reviewPriorityMatches,
+  applyReviewed,
   apply,
   dismiss,
   snooze,

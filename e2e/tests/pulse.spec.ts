@@ -1,5 +1,6 @@
 import type { APIRequestContext, Cookie, Page } from '@playwright/test'
 import { expect, test } from '../fixtures/test'
+import { seedBillingSubscription } from '../fixtures/billing'
 
 // Feature: Pulse regulatory alert loop
 // PRD: Phase 0 Pulse MVP
@@ -40,7 +41,7 @@ test.describe('seeded Pulse alerts', () => {
     const arborEvidenceButton = arborRow.getByRole('button', {
       name: 'Open evidence for Arbor & Vale LLC',
     })
-    await expect(arborEvidenceButton).toHaveText('1')
+    await expect(arborEvidenceButton).toContainText('1')
     await arborEvidenceButton.click()
     const evidenceDrawer = authenticatedPage.getByRole('dialog', {
       name: 'Evidence for this deadline',
@@ -70,6 +71,33 @@ test.describe('seeded Pulse alerts', () => {
 
     await obligationQueuePage.goto()
     await expect(obligationQueuePage.rowFor('Arbor & Vale LLC')).toContainText('2026-03-15')
+  })
+
+  test('AC: E2E-PULSE-PRIORITY-QUEUE lets Team managers review and apply a saved set', async ({
+    appShellPage,
+    authSession,
+    authenticatedPage,
+    obligationQueuePage,
+    request,
+  }) => {
+    await seedBillingSubscription(request, { firmId: authSession.firmId, plan: 'team' })
+    await appShellPage.goto('/rules?tab=pulse')
+
+    await authenticatedPage.getByRole('button', { name: 'Priority Queue' }).click()
+    await expect(authenticatedPage.getByText('IRS CA storm relief')).toBeVisible()
+    await expect(authenticatedPage.getByText('Needs review')).toBeVisible()
+
+    await authenticatedPage.getByRole('button', { name: 'Review' }).first().click()
+    const drawer = authenticatedPage.getByRole('dialog')
+    await drawer.getByRole('button', { name: 'Confirm all review-needed' }).click()
+    await drawer.getByRole('button', { name: 'Save manager review' }).click()
+    await expect(authenticatedPage.getByText('Manager review saved')).toBeVisible()
+    await drawer.getByRole('button', { name: 'Apply reviewed set' }).click()
+    await expect(authenticatedPage.getByText(/Applied reviewed set to 2 clients?/)).toBeVisible()
+
+    await obligationQueuePage.goto()
+    await expect(obligationQueuePage.rowFor('Arbor & Vale LLC')).toContainText('2026-10-15')
+    await expect(obligationQueuePage.rowFor('Bright Studio S-Corp')).toContainText('2026-10-15')
   })
 
   test.describe('coordinator role', () => {

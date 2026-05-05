@@ -40,6 +40,40 @@ export function setAllSelection(
   return defaultSelection(rows, confirmedReviewIds)
 }
 
+export function confirmAllNeedsReview(rows: readonly PulseAffectedClient[]): Set<string> {
+  return new Set(
+    rows.filter((row) => row.matchStatus === 'needs_review').map((row) => row.obligationId),
+  )
+}
+
+export function excludeFromSelection(
+  selection: ReadonlySet<string>,
+  confirmedReviewIds: ReadonlySet<string>,
+  excludedIds: ReadonlySet<string>,
+  obligationId: string,
+  excluded: boolean,
+): {
+  selection: Set<string>
+  confirmedReviewIds: Set<string>
+  excludedIds: Set<string>
+} {
+  const nextSelection = new Set(selection)
+  const nextConfirmed = new Set(confirmedReviewIds)
+  const nextExcluded = new Set(excludedIds)
+  if (excluded) {
+    nextExcluded.add(obligationId)
+    nextSelection.delete(obligationId)
+    nextConfirmed.delete(obligationId)
+  } else {
+    nextExcluded.delete(obligationId)
+  }
+  return {
+    selection: nextSelection,
+    confirmedReviewIds: nextConfirmed,
+    excludedIds: nextExcluded,
+  }
+}
+
 export interface SelectionStats {
   selectableCount: number
   selectedCount: number

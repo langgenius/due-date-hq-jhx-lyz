@@ -13,7 +13,9 @@ import { toast } from 'sonner'
 import type { FirmPublic, FirmRole, PulseFirmAlertStatus, PulseStatus } from '@duedatehq/contracts'
 import type { PulseDetail } from '@duedatehq/contracts'
 import { hasFirmPermission } from '@duedatehq/core/permissions'
+import { planHasFeature } from '@duedatehq/core/plan-entitlements'
 import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
+import { Badge } from '@duedatehq/ui/components/ui/badge'
 import { Button } from '@duedatehq/ui/components/ui/button'
 import {
   Dialog,
@@ -46,9 +48,19 @@ import { PulseSourceStatusBadge } from './components/PulseSourceStatusBadge'
 import { PulseStatusBadge } from './components/PulseStatusBadge'
 import { PulseStructuredFields } from './components/PulseStructuredFields'
 import { PulsingDot, type PulsingDotTone } from './components/PulsingDot'
-import { usePulseInvalidation, usePulseDetailQueryOptions } from './api'
+import {
+  usePulseInvalidation,
+  usePulseDetailQueryOptions,
+  usePulsePriorityQueueQueryOptions,
+} from './api'
 import { isPulseConflict, pulseErrorDescriptor } from './lib/error-mapping'
-import { computeSelectionStats, defaultSelection, type SelectionStats } from './lib/selection'
+import {
+  computeSelectionStats,
+  confirmAllNeedsReview,
+  defaultSelection,
+  excludeFromSelection,
+  type SelectionStats,
+} from './lib/selection'
 
 interface PulseDetailDrawerProps {
   alertId: string | null
@@ -88,21 +100,41 @@ export function canRequestPulseReview(input: {
 function usePulsePermissions(): {
   role: FirmRole | null
   canApply: boolean
+  canViewPriorityQueue: boolean
+  canManagePriorityReview: boolean
 } {
   const queryClient = useQueryClient()
   const firms = queryClient.getQueryData<FirmPublic[]>(
     orpc.firms.listMine.queryKey({ input: undefined }),
   )
-  if (!firms) return { role: null, canApply: false }
+  if (!firms) {
+    return {
+      role: null,
+      canApply: false,
+      canViewPriorityQueue: false,
+      canManagePriorityReview: false,
+    }
+  }
   const current = firms.find((firm) => firm.isCurrent) ?? firms[0]
-  if (!current) return { role: null, canApply: false }
+  if (!current) {
+    return {
+      role: null,
+      canApply: false,
+      canViewPriorityQueue: false,
+      canManagePriorityReview: false,
+    }
+  }
+  const priorityEnabled = planHasFeature(current.plan, 'priorityPulseMatching')
+  const canApply = hasFirmPermission({
+    role: current.role,
+    permission: 'pulse.apply',
+    coordinatorCanSeeDollars: current.coordinatorCanSeeDollars,
+  })
   return {
     role: current.role,
-    canApply: hasFirmPermission({
-      role: current.role,
-      permission: 'pulse.apply',
-      coordinatorCanSeeDollars: current.coordinatorCanSeeDollars,
-    }),
+    canApply,
+    canViewPriorityQueue: priorityEnabled,
+    canManagePriorityReview: priorityEnabled && canApply,
   }
 }
 
@@ -117,20 +149,40 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
   const detail = detailQuery.data
   const permissions = usePulsePermissions()
   const canApply = permissions.canApply
+  const priorityQueueQuery = useQuery(
+    usePulsePriorityQueueQueryOptions(100, permissions.canViewPriorityQueue),
+  )
+  const priorityReview =
+    priorityQueueQuery.data?.items.find((item) => item.alert.id === detail?.alert.id)?.review ??
+    null
   const invalidate = usePulseInvalidation()
 
   const [selection, setSelection] = useState<Set<string>>(() => new Set())
   const [confirmedReviewIds, setConfirmedReviewIds] = useState<Set<string>>(() => new Set())
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(() => new Set())
   const [resetKey, setResetKey] = useState<string | null>(null)
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false)
   const [reviewNote, setReviewNote] = useState('')
 
   // Re-derive default selection when the loaded alert changes — without
   // useEffect, per project rule. Render-time setState bails out after one update.
-  const nextResetKey = detail ? `${detail.alert.id}:${detail.affectedClients.length}` : null
+  const nextResetKey = detail
+    ? [
+        detail.alert.id,
+        detail.affectedClients.length,
+        priorityReview?.id ?? 'none',
+        priorityReview?.status ?? 'none',
+        priorityReview?.reviewedAt ?? 'none',
+      ].join(':')
+    : null
   if (detail && resetKey !== nextResetKey) {
-    setSelection(defaultSelection(detail.affectedClients))
-    setConfirmedReviewIds(new Set())
+    setSelection(
+      priorityReview
+        ? new Set(priorityReview.selectedObligationIds)
+        : defaultSelection(detail.affectedClients),
+    )
+    setConfirmedReviewIds(new Set(priorityReview?.confirmedObligationIds ?? []))
+    setExcludedIds(new Set(priorityReview?.excludedObligationIds ?? []))
     setReviewDialogOpen(false)
     setReviewNote('')
     setResetKey(nextResetKey)
@@ -138,6 +190,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
   if (!open && resetKey !== null) {
     setSelection(new Set())
     setConfirmedReviewIds(new Set())
+    setExcludedIds(new Set())
     setReviewDialogOpen(false)
     setReviewNote('')
     setResetKey(null)
@@ -160,6 +213,32 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
       const next = new Set(current)
       if (confirmed) next.add(obligationId)
       else next.delete(obligationId)
+      return next
+    })
+  }
+
+  const handleToggleExcluded = (obligationId: string, excluded: boolean) => {
+    const next = excludeFromSelection(
+      selection,
+      confirmedReviewIds,
+      excludedIds,
+      obligationId,
+      excluded,
+    )
+    setSelection(next.selection)
+    setConfirmedReviewIds(next.confirmedReviewIds)
+    setExcludedIds(next.excludedIds)
+  }
+
+  const handleConfirmAllNeedsReview = () => {
+    if (!detail) return
+    const nextConfirmed = confirmAllNeedsReview(detail.affectedClients)
+    setConfirmedReviewIds(nextConfirmed)
+    setSelection((current) => {
+      const next = new Set(current)
+      for (const obligationId of nextConfirmed) {
+        if (!excludedIds.has(obligationId)) next.add(obligationId)
+      }
       return next
     })
   }
@@ -273,9 +352,48 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
     }),
   )
 
+  const reviewPriorityMutation = useMutation(
+    orpc.pulse.reviewPriorityMatches.mutationOptions({
+      onSuccess: () => {
+        invalidate()
+        toast.success(t`Manager review saved`, {
+          description: t`The reviewed client set is ready to apply.`,
+        })
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't save manager review`, {
+          description: i18n._(pulseErrorDescriptor(err)),
+        })
+      },
+    }),
+  )
+
+  const applyReviewedMutation = useMutation(
+    orpc.pulse.applyReviewed.mutationOptions({
+      onSuccess: (result) => {
+        invalidate()
+        toast.success(t`Applied reviewed set to ${result.appliedCount} clients`, {
+          description: t`Audit + evidence written. Undo within 24h.`,
+          action: {
+            label: t`Undo`,
+            onClick: () => revertMutation.mutate({ alertId: result.alert.id }),
+          },
+        })
+        onClose()
+      },
+      onError: (err) => {
+        toast.error(t`Couldn't apply reviewed set`, {
+          description: i18n._(pulseErrorDescriptor(err)),
+        })
+      },
+    }),
+  )
+
   const isMutating =
+    applyReviewedMutation.isPending ||
     applyMutation.isPending ||
     dismissMutation.isPending ||
+    reviewPriorityMutation.isPending ||
     reactivateMutation.isPending ||
     requestReviewMutation.isPending ||
     revertMutation.isPending ||
@@ -390,11 +508,35 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                   rows={detail.affectedClients}
                   selection={selection}
                   confirmedReviewIds={confirmedReviewIds}
+                  excludedIds={excludedIds}
                   onChangeSelection={setSelection}
                   onToggleNeedsReviewConfirmation={handleToggleNeedsReviewConfirmation}
+                  onToggleExcluded={
+                    permissions.canViewPriorityQueue ? handleToggleExcluded : undefined
+                  }
                   readOnly={!canApply}
                 />
               </section>
+
+              {permissions.canViewPriorityQueue ? (
+                <ManagerReviewPanel
+                  canManage={permissions.canManagePriorityReview}
+                  reviewStatus={priorityReview?.status ?? null}
+                  selectedCount={stats?.selectedCount ?? 0}
+                  excludedCount={excludedIds.size}
+                  needsReviewCount={stats?.needsReviewCount ?? 0}
+                  isMutating={isMutating}
+                  onConfirmAll={handleConfirmAllNeedsReview}
+                  onSave={() =>
+                    reviewPriorityMutation.mutate({
+                      alertId: detail.alert.id,
+                      selectedObligationIds: Array.from(selection),
+                      confirmedObligationIds: Array.from(confirmedReviewIds),
+                      excludedObligationIds: Array.from(excludedIds),
+                    })
+                  }
+                />
+              ) : null}
 
               <ApplySafetyChecklist />
             </>
@@ -413,6 +555,8 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 alertStatus: detail.alert.status,
                 sourceStatus: detail.alert.sourceStatus,
               })}
+              canApplyReviewed={permissions.canManagePriorityReview}
+              reviewedSetReady={priorityReview?.status === 'reviewed'}
               isMutating={isMutating}
               onApply={() =>
                 applyMutation.mutate({
@@ -423,6 +567,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                   ),
                 })
               }
+              onApplyReviewed={() => applyReviewedMutation.mutate({ alertId: detail.alert.id })}
               onDismiss={() => dismissMutation.mutate({ alertId: detail.alert.id })}
               onSnooze={() =>
                 snoozeMutation.mutate({
@@ -468,8 +613,11 @@ function DrawerActions({
   selectionCount,
   canApply,
   canRequestReview,
+  canApplyReviewed,
+  reviewedSetReady,
   isMutating,
   onApply,
+  onApplyReviewed,
   onDismiss,
   onSnooze,
   onRevert,
@@ -482,8 +630,11 @@ function DrawerActions({
   selectionCount: number
   canApply: boolean
   canRequestReview: boolean
+  canApplyReviewed: boolean
+  reviewedSetReady: boolean
   isMutating: boolean
   onApply: () => void
+  onApplyReviewed: () => void
   onDismiss: () => void
   onSnooze: () => void
   onRevert: () => void
@@ -559,7 +710,83 @@ function DrawerActions({
           <Plural value={selectionCount} one="Apply to # client" other="Apply to # clients" />
         )}
       </Button>
+      {canApplyReviewed ? (
+        <Button
+          size="sm"
+          disabled={isMutating || isClosed || !reviewedSetReady}
+          onClick={onApplyReviewed}
+        >
+          <Trans>Apply reviewed set</Trans>
+        </Button>
+      ) : null}
     </div>
+  )
+}
+
+function ManagerReviewPanel({
+  canManage,
+  reviewStatus,
+  selectedCount,
+  excludedCount,
+  needsReviewCount,
+  isMutating,
+  onConfirmAll,
+  onSave,
+}: {
+  canManage: boolean
+  reviewStatus: string | null
+  selectedCount: number
+  excludedCount: number
+  needsReviewCount: number
+  isMutating: boolean
+  onConfirmAll: () => void
+  onSave: () => void
+}) {
+  return (
+    <section className="grid gap-3 rounded-md border border-divider-subtle bg-background-section p-3">
+      <header className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <h3 className="text-md font-semibold text-text-primary">
+            <Trans>Manager review</Trans>
+          </h3>
+          {reviewStatus ? (
+            <Badge variant={reviewStatus === 'reviewed' ? 'success' : 'secondary'}>
+              {reviewStatus === 'reviewed' ? <Trans>Reviewed</Trans> : <Trans>Open</Trans>}
+            </Badge>
+          ) : null}
+        </div>
+        <span className="font-mono text-xs tabular-nums text-text-tertiary">
+          <Trans>
+            {selectedCount} selected · {excludedCount} excluded
+          </Trans>
+        </span>
+      </header>
+      <p className="text-sm text-text-secondary">
+        <Trans>
+          Save the reviewed client set before applying when a Pulse has low confidence, review
+          flags, or a preparer escalation.
+        </Trans>
+      </p>
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!canManage || isMutating || needsReviewCount === 0}
+          onClick={onConfirmAll}
+        >
+          <Trans>Confirm all review-needed</Trans>
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          disabled={!canManage || isMutating || selectedCount === 0}
+          onClick={onSave}
+        >
+          <Trans>Save manager review</Trans>
+        </Button>
+      </div>
+    </section>
   )
 }
 

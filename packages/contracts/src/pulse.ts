@@ -36,6 +36,28 @@ export const PulseAffectedClientStatusSchema = z.enum([
 ])
 export type PulseAffectedClientStatus = z.infer<typeof PulseAffectedClientStatusSchema>
 
+export const PulsePriorityReviewStatusSchema = z.enum(['open', 'reviewed', 'applied', 'dismissed'])
+export type PulsePriorityReviewStatus = z.infer<typeof PulsePriorityReviewStatusSchema>
+
+export const PulsePriorityLevelSchema = z.enum(['normal', 'high', 'urgent'])
+export type PulsePriorityLevel = z.infer<typeof PulsePriorityLevelSchema>
+
+export const PulsePriorityReasonKeySchema = z.enum([
+  'preparer_requested',
+  'needs_review_matches',
+  'low_confidence',
+  'high_impact',
+  'source_attention',
+])
+export type PulsePriorityReasonKey = z.infer<typeof PulsePriorityReasonKeySchema>
+
+export const PulsePriorityReasonSchema = z.object({
+  key: PulsePriorityReasonKeySchema,
+  points: z.number().int().min(0),
+  label: z.string().min(1),
+})
+export type PulsePriorityReason = z.infer<typeof PulsePriorityReasonSchema>
+
 export const PulseAlertPublicSchema = z.object({
   id: EntityIdSchema,
   pulseId: EntityIdSchema,
@@ -84,6 +106,32 @@ export const PulseDetailSchema = z.object({
 })
 export type PulseDetail = z.infer<typeof PulseDetailSchema>
 
+export const PulsePriorityReviewSchema = z.object({
+  id: EntityIdSchema,
+  alertId: EntityIdSchema,
+  pulseId: EntityIdSchema,
+  status: PulsePriorityReviewStatusSchema,
+  priorityScore: z.number().int().min(0),
+  priorityReasons: z.array(PulsePriorityReasonSchema),
+  selectedObligationIds: z.array(EntityIdSchema),
+  confirmedObligationIds: z.array(EntityIdSchema),
+  excludedObligationIds: z.array(EntityIdSchema),
+  note: z.string().nullable(),
+  requestedBy: z.string().min(1).nullable(),
+  reviewedBy: z.string().min(1).nullable(),
+  reviewedAt: z.iso.datetime().nullable(),
+})
+export type PulsePriorityReview = z.infer<typeof PulsePriorityReviewSchema>
+
+export const PulsePriorityQueueItemSchema = z.object({
+  alert: PulseAlertPublicSchema,
+  level: PulsePriorityLevelSchema,
+  priorityScore: z.number().int().min(0),
+  priorityReasons: z.array(PulsePriorityReasonSchema),
+  review: PulsePriorityReviewSchema.nullable(),
+})
+export type PulsePriorityQueueItem = z.infer<typeof PulsePriorityQueueItemSchema>
+
 export const PulseListAlertsInputSchema = z
   .object({
     limit: z.number().int().min(1).max(20).default(5).optional(),
@@ -98,6 +146,13 @@ export const PulseListHistoryInputSchema = z
   })
   .optional()
 export type PulseListHistoryInput = z.infer<typeof PulseListHistoryInputSchema>
+
+export const PulseListPriorityQueueInputSchema = z
+  .object({
+    limit: z.number().int().min(1).max(100).default(50).optional(),
+  })
+  .optional()
+export type PulseListPriorityQueueInput = z.infer<typeof PulseListPriorityQueueInputSchema>
 
 export const PulseSourceHealthSchema = z.object({
   sourceId: z.string().min(1),
@@ -162,6 +217,15 @@ export const PulseRequestReviewInputSchema = z.object({
 })
 export type PulseRequestReviewInput = z.infer<typeof PulseRequestReviewInputSchema>
 
+export const PulseReviewPriorityMatchesInputSchema = z.object({
+  alertId: EntityIdSchema,
+  selectedObligationIds: z.array(EntityIdSchema).min(1).max(100),
+  confirmedObligationIds: z.array(EntityIdSchema).max(100).default([]).optional(),
+  excludedObligationIds: z.array(EntityIdSchema).max(100).default([]).optional(),
+  note: z.string().trim().max(500).nullable().optional(),
+})
+export type PulseReviewPriorityMatchesInput = z.infer<typeof PulseReviewPriorityMatchesInputSchema>
+
 export const PulseApplyOutputSchema = z.object({
   alert: PulseAlertPublicSchema,
   appliedCount: z.number().int().min(0),
@@ -217,6 +281,13 @@ export const pulseContract = oc.router({
     .input(PulseSourceHealthInputSchema)
     .output(z.object({ sources: z.array(PulseSourceHealthSchema) })),
   getDetail: oc.input(PulseAlertIdInputSchema).output(PulseDetailSchema),
+  listPriorityQueue: oc
+    .input(PulseListPriorityQueueInputSchema)
+    .output(z.object({ items: z.array(PulsePriorityQueueItemSchema) })),
+  reviewPriorityMatches: oc
+    .input(PulseReviewPriorityMatchesInputSchema)
+    .output(PulsePriorityReviewSchema),
+  applyReviewed: oc.input(PulseAlertIdInputSchema).output(PulseApplyOutputSchema),
   apply: oc.input(PulseApplyInputSchema).output(PulseApplyOutputSchema),
   dismiss: oc.input(PulseAlertIdInputSchema).output(PulseDismissOutputSchema),
   snooze: oc.input(PulseSnoozeInputSchema).output(PulseSnoozeOutputSchema),

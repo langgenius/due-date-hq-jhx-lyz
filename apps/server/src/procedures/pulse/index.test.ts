@@ -80,6 +80,21 @@ function contextFor(
   const emailQueueSend = vi.fn(async () => undefined)
   const auditWrite = vi.fn(async () => ({ id: 'audit_1' }))
   const getDetail = vi.fn(async () => detail)
+  const requestPriorityReview = vi.fn(async () => ({
+    id: 'priority_1',
+    alertId: 'alert_1',
+    pulseId: 'pulse_1',
+    status: 'open',
+    priorityScore: 30,
+    priorityReasons: [],
+    selectedObligationIds: [],
+    confirmedObligationIds: [],
+    excludedObligationIds: [],
+    note: null,
+    requestedBy: actor.userId,
+    reviewedBy: null,
+    reviewedAt: null,
+  }))
   const listMembers = vi.fn(async () => [
     member('owner'),
     member('manager'),
@@ -109,7 +124,7 @@ function contextFor(
       userId: actor.userId,
       scoped: {
         firmId: 'firm_1',
-        pulse: { getDetail },
+        pulse: { getDetail, requestPriorityReview },
         notifications: { create: notificationsCreate, enqueueEmail: notificationsEnqueueEmail },
         audit: { write: auditWrite },
       } as unknown as NonNullable<ContextVars['scoped']>,
@@ -127,6 +142,7 @@ function contextFor(
     emailQueueSend,
     auditWrite,
     getDetail,
+    requestPriorityReview,
     listMembers,
   }
 }
@@ -220,20 +236,34 @@ describe('requestPulseReview', () => {
   })
 
   it('allows Pro users to request Pulse review', async () => {
-    const { context, notificationsCreate, notificationsEnqueueEmail, auditWrite } = contextFor(
-      'preparer',
-      pulseDetail(),
-      'pro',
-    )
+    const {
+      context,
+      notificationsCreate,
+      notificationsEnqueueEmail,
+      auditWrite,
+      requestPriorityReview,
+    } = contextFor('preparer', pulseDetail(), 'pro')
 
     await expect(requestPulseReview({ context, alertId: 'alert_1' })).resolves.toEqual(
       expect.objectContaining({ notificationCount: 2, emailCount: 2 }),
     )
     expect(notificationsCreate).toHaveBeenCalledTimes(2)
     expect(notificationsEnqueueEmail).toHaveBeenCalledTimes(1)
+    expect(requestPriorityReview).not.toHaveBeenCalled()
     expect(auditWrite).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'pulse.review_requested' }),
     )
+  })
+
+  it('creates a Team priority review task when review is requested', async () => {
+    const { context, requestPriorityReview } = contextFor('preparer', pulseDetail(), 'team')
+
+    await requestPulseReview({ context, alertId: 'alert_1' })
+
+    expect(requestPriorityReview).toHaveBeenCalledWith({
+      alertId: 'alert_1',
+      userId: 'user_preparer',
+    })
   })
 
   it.each([

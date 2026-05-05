@@ -1241,7 +1241,11 @@ export function ObligationQueueRoute() {
             }}
           >
             <FileSearchIcon data-icon="inline-start" />
-            {tableRow.original.evidenceCount > 0 ? tableRow.original.evidenceCount : t`Open`}
+            {tableRow.original.evidenceCount > 0 ? (
+              <Plural value={tableRow.original.evidenceCount} one="# source" other="# sources" />
+            ) : (
+              t`Needs evidence`
+            )}
           </Button>
         ),
       },
