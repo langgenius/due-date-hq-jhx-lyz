@@ -621,6 +621,7 @@ export function Wizard({ open, onClose, variant = 'dialog', intro }: WizardProps
       <>
         {state.step === 1 ? (
           <Step1Intake
+            density={variant === 'route' ? 'compact' : 'comfortable'}
             intake={state.intake}
             onText={(text, fileName, options) =>
               dispatch({ type: 'INTAKE_TEXT', text, fileName, ...options })

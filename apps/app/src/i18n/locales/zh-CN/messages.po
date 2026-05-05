@@ -7038,6 +7038,10 @@ msgstr "升级到 Pro"
 msgid "Upgrade to Team"
 msgstr "升级到 Team"
 
+#: src/features/migration/Step1Intake.tsx
+msgid "Upload file"
+msgstr "上传文件"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Upload rows"
 msgstr "上传行数据"

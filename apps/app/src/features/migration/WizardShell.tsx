@@ -38,6 +38,7 @@ interface WizardFrameProps {
   step: StepIndex
   busy: boolean
   transition?: WizardTransitionState | null | undefined
+  layout?: 'dialog' | 'route' | undefined
   canContinue: boolean
   continueLabel?: ReactNode | undefined
   onBack?: (() => void) | undefined
@@ -67,6 +68,7 @@ function WizardFrame({
   step,
   busy,
   transition,
+  layout = 'dialog',
   canContinue,
   continueLabel,
   onBack,
@@ -114,7 +116,12 @@ function WizardFrame({
   )
 
   return (
-    <div className="flex max-h-[calc(100vh-4rem)] w-full flex-col gap-0 overflow-hidden rounded-xl border border-divider-regular bg-components-panel-bg p-3 shadow-overlay">
+    <div
+      className={cn(
+        'flex w-full flex-col gap-0 overflow-hidden rounded-xl border border-divider-regular bg-components-panel-bg p-3 shadow-overlay',
+        layout === 'route' ? 'min-h-0 flex-1' : 'max-h-[calc(100vh-4rem)]',
+      )}
+    >
       <div className="sr-only">
         <Trans>Import clients · Step {step} of 4</Trans>
         <Trans>
@@ -317,11 +324,12 @@ export function WizardRouteShell({
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 p-4 md:p-6">
-        {resolvedIntro}
+      <div className="mx-auto flex min-h-0 w-full max-w-[1120px] flex-1 flex-col gap-4">
+        <div className="shrink-0">{resolvedIntro}</div>
         <WizardFrame
           {...frameProps}
           hotkeysEnabled={!confirming}
+          layout="route"
           onRequestClose={requestClose}
           showCloseControl={false}
         />

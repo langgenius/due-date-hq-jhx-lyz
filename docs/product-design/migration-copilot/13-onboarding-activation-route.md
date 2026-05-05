@@ -57,13 +57,15 @@ Migration Copilot wizard 使用 workbench frame：
   firm 列表。
 - Migration wizard 的 reducer、RPC mutation、Step 组件和 apply/revert 逻辑只能有一份。
 - Route 属于 EntryShell 过渡 surface，不挂 AppShell、sidebar、practice switcher 或通知。
-- Route 使用 EntryShell header，但隐藏 EntryShell footer；滚动只发生在 main 区域，避免 footer
-  挤压 wizard。
+- Route 使用 EntryShell header，但隐藏 EntryShell footer；EntryShell main 本身不滚动，
+  `WizardRouteShell` 占满剩余视口高度，只有 wizard body 内部滚动，避免 step 切换时整页
+  滚动位置变化。
 - Route header 是唯一可见 skip 承载；route shell 仍监听 Esc，但 workbench header 不显示
   第二个 skip/close 控件。
 - Dialog 入口和 route 入口只更换 shell。
 - Dialog shell 保留给 Dashboard、Clients、Obligations empty state 和 Command Palette。
-- Route shell 使用同一个 Stepper、processing overlay、footer、discard confirmation。
+- Route shell 使用同一个 Stepper、processing overlay、footer、discard confirmation；Step 1 在
+  route shell 使用紧凑 intake 布局，paste 和 upload 在宽屏并排，减少首登导入前的内部滚动。
 - 不使用 `location.state.autoOpenMigration` 作为首登交接机制。
 
 ## 5. 验收
@@ -78,5 +80,7 @@ Migration Copilot wizard 使用 workbench frame：
 
 | 版本 | 日期       | 作者  | 摘要                                                 |
 | ---- | ---------- | ----- | ---------------------------------------------------- |
+| v1.3 | 2026-05-05 | Codex | 压缩 route shell Step 1 intake，减少首屏导入滚动     |
+| v1.2 | 2026-05-05 | Codex | 固定 route-level wizard 的视口承载与内部滚动边界     |
 | v1.1 | 2026-05-05 | Codex | 将 onboarding 来源完成态收敛到 route loader          |
 | v1.0 | 2026-05-05 | Codex | 固定首登 activation route 与 route/dialog shell 复用 |

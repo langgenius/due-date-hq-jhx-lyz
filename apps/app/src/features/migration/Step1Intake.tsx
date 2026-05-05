@@ -72,6 +72,7 @@ function formatXlsxCell(cell: unknown): string {
 }
 
 interface Step1Props {
+  density?: 'comfortable' | 'compact' | undefined
   intake: IntakeState
   onText: (
     text: string,
@@ -107,6 +108,7 @@ interface Step1Props {
  * Authority: docs/product-design/migration-copilot/02-ux-4step-wizard.md §4.
  */
 export function Step1Intake({
+  density = 'comfortable',
   intake,
   onText,
   onPreset,
@@ -126,6 +128,7 @@ export function Step1Intake({
   const fileReadSerialRef = useRef(0)
   const [isFileDragActive, setIsFileDragActive] = useState(false)
   const [isReadingFile, setIsReadingFile] = useState(false)
+  const compact = density === 'compact'
 
   function handleIntegrationText(text: string) {
     try {
@@ -397,15 +400,18 @@ export function Step1Intake({
   }
 
   return (
-    <div className="flex flex-col gap-5 pt-5 pb-5" id="wizard-step1-body">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold text-text-primary">
+    <div
+      className={cn('flex flex-col', compact ? 'gap-3 py-3' : 'gap-5 pt-5 pb-5')}
+      id="wizard-step1-body"
+    >
+      <div className={cn('flex flex-col', compact ? 'gap-0.5' : 'gap-1')}>
+        <h2 className={cn('font-semibold text-text-primary', compact ? 'text-md' : 'text-lg')}>
           <Trans>Where is your data coming from?</Trans>
         </h2>
-        <p className="text-md text-text-secondary">
+        <p className={cn('text-text-secondary', compact ? 'text-sm' : 'text-md')}>
           <Trans>We&apos;ll figure out the shape — paste or upload, your call.</Trans>
         </p>
-        <p className="text-sm text-text-tertiary">
+        <p className={cn('text-sm text-text-tertiary', compact ? 'hidden lg:block' : '')}>
           <Trans>
             Columns named Estimated tax due, Estimated tax liability, Owner count, or Owners can
             power the penalty exposure preview.
@@ -415,18 +421,21 @@ export function Step1Intake({
 
       <div className="flex flex-wrap gap-2" role="group" aria-label={t`Import source type`}>
         <SourceModeButton
+          compact={compact}
           selected={intake.mode === 'paste' || intake.mode === 'upload'}
           onClick={() => onMode('paste')}
         >
           <Trans>Paste / Upload</Trans>
         </SourceModeButton>
         <SourceModeButton
+          compact={compact}
           selected={intake.mode === 'integration'}
           onClick={() => onMode('integration')}
         >
           <Trans>JSON handoff</Trans>
         </SourceModeButton>
         <SourceModeButton
+          compact={compact}
           selected={intake.mode === 'previous_sync'}
           onClick={() => onMode('previous_sync')}
         >
@@ -550,7 +559,11 @@ export function Step1Intake({
       ) : null}
 
       {intake.mode === 'paste' || intake.mode === 'upload' ? (
-        <>
+        <div
+          className={cn(
+            compact ? 'grid min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]' : 'contents',
+          )}
+        >
           <div className="flex flex-col gap-2">
             <label
               htmlFor={pasteId}
@@ -567,12 +580,15 @@ export function Step1Intake({
                 onChange={(e) => handleTextChange(e.target.value)}
                 onPaste={handleRowsPaste}
                 placeholder={t`Paste here — any shape, we'll figure it out. Include the header row if you have one.`}
-                className="h-[142px] resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0"
+                className={cn(
+                  'resize-y border-0 bg-transparent p-2 font-mono text-base tabular-nums shadow-none focus-visible:ring-0',
+                  compact ? 'h-[104px]' : 'h-[142px]',
+                )}
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className={cn('flex items-center gap-3', compact ? 'hidden' : '')}>
             <span aria-hidden className="h-px flex-1 bg-divider-regular" />
             <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
               <Trans>or</Trans>
@@ -580,62 +596,74 @@ export function Step1Intake({
             <span aria-hidden className="h-px flex-1 bg-divider-regular" />
           </div>
 
-          <div
-            role="button"
-            tabIndex={0}
-            onDrop={handleDrop}
-            onDragEnter={handleFileDragEnter}
-            onDragOver={handleFileDragOver}
-            onDragLeave={handleFileDragLeave}
-            onClick={() => fileInputRef.current?.click()}
-            aria-describedby={uploadHintId}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                fileInputRef.current?.click()
-              }
-            }}
-            className={cn(
-              'flex h-[120px] cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-md transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
-              isFileDragActive || isReadingFile
-                ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
-                : 'border-divider-deep bg-components-panel-bg text-text-secondary hover:border-state-accent-solid hover:bg-state-accent-hover-alt',
-            )}
-          >
-            {isReadingFile ? (
-              <LoaderCircleIcon className="size-5 animate-spin text-text-accent" aria-hidden />
-            ) : (
-              <UploadCloudIcon
-                className={cn(
-                  'size-5',
-                  isFileDragActive ? 'text-text-accent' : 'text-text-tertiary',
-                )}
-                aria-hidden
-              />
-            )}
-            <span id={uploadHintId}>
-              <Trans>Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB</Trans>
-            </span>
-            {isReadingFile ? (
-              <span role="status" aria-live="polite" className="font-mono text-md text-text-accent">
-                <Trans>Reading file…</Trans>
-              </span>
-            ) : intake.fileName ? (
-              <span className="font-mono text-md text-text-secondary tabular-nums">
-                {intake.fileName}
+          <div className="flex flex-col gap-2">
+            {compact ? (
+              <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
+                <Trans>Upload file</Trans>
               </span>
             ) : null}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,.tsv,.xlsx,text/csv,text/tab-separated-values,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              className="hidden"
-              onClick={(event) => event.stopPropagation()}
-              onChange={handleFilePicked}
-            />
+            <div
+              role="button"
+              tabIndex={0}
+              onDrop={handleDrop}
+              onDragEnter={handleFileDragEnter}
+              onDragOver={handleFileDragOver}
+              onDragLeave={handleFileDragLeave}
+              onClick={() => fileInputRef.current?.click()}
+              aria-describedby={uploadHintId}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  fileInputRef.current?.click()
+                }
+              }}
+              className={cn(
+                'flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed px-3 text-center transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+                compact ? 'h-[104px] text-sm' : 'h-[120px] text-md',
+                isFileDragActive || isReadingFile
+                  ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
+                  : 'border-divider-deep bg-components-panel-bg text-text-secondary hover:border-state-accent-solid hover:bg-state-accent-hover-alt',
+              )}
+            >
+              {isReadingFile ? (
+                <LoaderCircleIcon className="size-5 animate-spin text-text-accent" aria-hidden />
+              ) : (
+                <UploadCloudIcon
+                  className={cn(
+                    'size-5',
+                    isFileDragActive ? 'text-text-accent' : 'text-text-tertiary',
+                  )}
+                  aria-hidden
+                />
+              )}
+              <span id={uploadHintId}>
+                <Trans>Drop CSV / TSV / XLSX here or click to choose · max 1000 rows · 2 MB</Trans>
+              </span>
+              {isReadingFile ? (
+                <span
+                  role="status"
+                  aria-live="polite"
+                  className="font-mono text-md text-text-accent"
+                >
+                  <Trans>Reading file…</Trans>
+                </span>
+              ) : intake.fileName ? (
+                <span className="font-mono text-md text-text-secondary tabular-nums">
+                  {intake.fileName}
+                </span>
+              ) : null}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,.tsv,.xlsx,text/csv,text/tab-separated-values,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                className="hidden"
+                onClick={(event) => event.stopPropagation()}
+                onChange={handleFilePicked}
+              />
+            </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className={cn('flex flex-col gap-2', compact ? 'xl:col-span-2' : '')}>
             <span className="font-mono text-xs tracking-[0.16em] text-text-tertiary uppercase">
               <Trans>I&apos;m coming from… (optional)</Trans>
             </span>
@@ -646,21 +674,28 @@ export function Step1Intake({
                   id={id}
                   label={PRESET_LABELS[id]}
                   selected={intake.preset === id}
+                  compact={compact}
                   onToggle={() => onPreset(intake.preset === id ? null : id)}
                 />
               ))}
             </div>
-            <p className="text-sm text-text-tertiary">
+            <p className={cn('text-sm text-text-tertiary', compact ? 'hidden xl:block' : '')}>
               <Trans>
                 The AI mapper runs first. Selecting a preset adds source context and provides a
                 preset mapping fallback if AI is unavailable.
               </Trans>
             </p>
           </div>
-        </>
+        </div>
       ) : null}
 
-      <p id="paste-hint" className="flex items-center gap-1.5 text-sm text-text-tertiary">
+      <p
+        id="paste-hint"
+        className={cn(
+          'flex items-center gap-1.5 text-text-tertiary',
+          compact ? 'text-xs' : 'text-sm',
+        )}
+      >
         <LockIcon className="size-4" aria-hidden />
         <Trans>We block SSN-like patterns before sending anything to the AI.</Trans>
       </p>
@@ -729,17 +764,19 @@ interface PresetChipProps {
   id: PresetId
   label: string
   selected: boolean
+  compact?: boolean | undefined
   onToggle: () => void
 }
 
-function PresetChip({ id, label, selected, onToggle }: PresetChipProps) {
+function PresetChip({ id, label, selected, compact = false, onToggle }: PresetChipProps) {
   const chip = (
     <button
       type="button"
       onClick={onToggle}
       aria-pressed={selected}
       className={cn(
-        'inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-md font-medium transition-colors',
+        'inline-flex cursor-pointer items-center gap-1.5 rounded-md border font-medium transition-colors',
+        compact ? 'h-8 px-2.5 text-sm' : 'h-9 px-3 text-md',
         selected
           ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
           : 'border-divider-regular bg-background-body text-text-secondary hover:border-state-accent-solid hover:text-text-accent',
@@ -773,18 +810,20 @@ function PresetChip({ id, label, selected, onToggle }: PresetChipProps) {
 
 interface SourceModeButtonProps {
   selected: boolean
+  compact?: boolean | undefined
   onClick: () => void
   children: ReactNode
 }
 
-function SourceModeButton({ selected, onClick, children }: SourceModeButtonProps) {
+function SourceModeButton({ selected, compact = false, onClick, children }: SourceModeButtonProps) {
   return (
     <button
       type="button"
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        'inline-flex h-9 cursor-pointer items-center rounded-md border px-3 text-md font-medium transition-colors',
+        'inline-flex cursor-pointer items-center rounded-md border font-medium transition-colors',
+        compact ? 'h-8 px-2.5 text-sm' : 'h-9 px-3 text-md',
         selected
           ? 'border-state-accent-solid bg-state-accent-hover-alt text-text-accent'
           : 'border-divider-regular bg-background-body text-text-secondary hover:border-state-accent-solid hover:text-text-accent',

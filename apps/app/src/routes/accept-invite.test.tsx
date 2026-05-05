@@ -1,6 +1,6 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { createMemoryRouter, RouterProvider } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -49,18 +49,24 @@ async function renderInvite() {
   document.body.append(container)
   root = createRoot(container)
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const router = createMemoryRouter(
+    [
+      {
+        path: '/accept-invite',
+        element: <AcceptInviteRoute />,
+        loader: () => ({ user: null }),
+      },
+    ],
+    { initialEntries: ['/accept-invite?id=invite_1'] },
+  )
 
   await act(async () => {
     root?.render(
-      <MemoryRouter initialEntries={['/accept-invite?id=invite_1']}>
-        <QueryClientProvider client={client}>
-          <AppI18nProvider>
-            <Routes>
-              <Route path="/accept-invite" element={<AcceptInviteRoute />} />
-            </Routes>
-          </AppI18nProvider>
-        </QueryClientProvider>
-      </MemoryRouter>,
+      <QueryClientProvider client={client}>
+        <AppI18nProvider>
+          <RouterProvider router={router} />
+        </AppI18nProvider>
+      </QueryClientProvider>,
     )
   })
 }

@@ -23,8 +23,10 @@ normal route.
   the practice already has open obligations or an applied migration batch. Manual import entries are
   still allowed to open the same route.
 - The route explains the activation step with an unframed route header and offers `Skip for now`.
-- EntryShell hides its footer and top-aligns the scroll container on `/migration/new` so the wizard
-  owns the vertical space.
+- EntryShell hides its footer and keeps `/migration/new` as a non-scrolling viewport; the route
+  shell fills the remaining height and only the wizard body scrolls.
+- Step 1 uses a compact route density so paste and upload sit side by side on wide viewports,
+  keeping first-run import usable without immediate internal scrolling.
 - `Skip for now` appears only in the route header. The workbench header hides the dialog-style
   close/skip control on the route shell, while Esc still routes through the discard confirmation.
 - The page renders the same Migration Copilot wizard in route shell form.
@@ -49,6 +51,8 @@ normal route.
 - `apps/app/src/features/migration/Wizard.tsx`
   - Reused the same reducer, RPC orchestration, Step components, Live Genesis, and revert logic
     across dialog and route shells.
+  - Passes compact Step 1 density only for the route shell; dialog imports keep the comfortable
+    wizard intake layout.
 - `apps/app/src/features/migration/WizardProvider.tsx`
   - Simplified to imperative dialog open/close only.
 

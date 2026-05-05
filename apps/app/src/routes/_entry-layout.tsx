@@ -34,7 +34,7 @@ export function EntryShell() {
       <main
         className={
           isMigrationActivation
-            ? 'flex flex-1 flex-col items-center justify-start overflow-y-auto px-6 py-6 lg:px-10'
+            ? 'flex min-h-0 flex-1 flex-col items-center justify-start overflow-hidden px-6 py-6 lg:px-10'
             : 'flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-12 lg:px-10'
         }
       >
