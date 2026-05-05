@@ -768,6 +768,85 @@
         line-height: 1.45;
       }
 
+      .cost-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+        width: 100%;
+      }
+
+      .cost-rail {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .cost-fact {
+        display: grid;
+        gap: 8px;
+        min-height: 86px;
+        padding: 16px;
+        background: var(--background-default);
+        border: 1px solid var(--divider-regular);
+        border-radius: var(--radius);
+      }
+
+      .cost-fact span {
+        color: var(--text-tertiary);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .cost-fact strong {
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 24px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .cost-fact p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .cost-table-note {
+        padding: 12px 16px 0;
+        color: var(--text-tertiary);
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+
+      .app-table.cost-table th,
+      .app-table.cost-table td {
+        height: auto;
+        white-space: normal;
+      }
+
+      .app-table.cost-table th {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+
+      .app-table.cost-table td {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        line-height: 1.35;
+      }
+
+      .app-table.cost-table .money {
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+
       .keyboard-hint {
         display: none;
       }
@@ -813,6 +892,7 @@
         .grid-4,
         .metric-strip,
         .arch,
+        .cost-layout,
         .source-grid {
           grid-template-columns: 1fr;
         }
@@ -1487,6 +1567,132 @@
         </footer>
       </section>
 
+      <section class="slide" aria-label="AI cost model">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">AI cost model</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">成本结构</div>
+            <h2 class="slide-title">AI 是可控变量，<span class="accent">不是毛利风险。</span></h2>
+          </div>
+          <div class="cost-layout">
+            <div class="app-table-wrap">
+              <div class="cost-table-note">所有金额均为月度估算；AI 上限按每日额度打满计算。</div>
+              <table class="app-table cost-table">
+                <thead>
+                  <tr>
+                    <th>Plan</th>
+                    <th>AI normal</th>
+                    <th>AI ceiling</th>
+                    <th>Total variable</th>
+                    <th>Guardrail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="client">Solo</td>
+                    <td><span class="money">$0.01-$0.10</span></td>
+                    <td>
+                      <span class="money">$0.56</span> first month /
+                      <span class="money">$0.25</span> steady
+                    </td>
+                    <td><span class="money">$1.44-$1.53</span></td>
+                    <td>首登导入阶段允许临时更高的每日额度。</td>
+                  </tr>
+                  <tr>
+                    <td class="client">Pro</td>
+                    <td><span class="money">$0.25-$1.50</span></td>
+                    <td><span class="money">$12.15</span></td>
+                    <td><span class="money">$2.84-$4.09</span></td>
+                    <td>每类 AI 任务每日最多 50 次；手动刷新 brief 每日最多 3 次。</td>
+                  </tr>
+                  <tr>
+                    <td class="client">Team</td>
+                    <td><span class="money">$1-$6</span></td>
+                    <td><span class="money">$36.46</span></td>
+                    <td><span class="money">$5.62-$10.62</span></td>
+                    <td>每类 AI 任务每日最多 150 次。</td>
+                  </tr>
+                  <tr>
+                    <td class="client">Enterprise</td>
+                    <td><span class="money">$3-$20</span> / practice</td>
+                    <td><span class="money">$121.52</span> / practice</td>
+                    <td><span class="money">$14.87-$31.87</span> / practice</td>
+                    <td>每类 AI 任务每日最多 500 次；多事务所成本按 practice 线性扩展。</td>
+                  </tr>
+                </tbody>
+                <caption>
+                  变量成本包含 Stripe 2.9% + $0.30 的卡支付处理费，以及估算模型用量。
+                </caption>
+              </table>
+            </div>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Next-stage roadmap">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">Product roadmap</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">下一阶段路线图</div>
+            <h2 class="slide-title">
+              下一步不是扩页面，<span class="accent">是把闭环推向真实试点。</span>
+            </h2>
+          </div>
+          <div class="grid-3">
+            <article class="feature-card">
+              <h3>Phase 1 · PWA</h3>
+              <p>
+                把当前 Web 产品变成可安装的工作入口：固定在桌面和 Dock， 让 Dashboard、Obligations
+                和 Evidence 在事务所日常工作里更容易被打开。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Phase 2 · Ask AI</h3>
+              <p>
+                在现有数据和证据链上做自然语言查询：可以问本周最高风险客户、截止日变化原因、
+                缺失证据和下一步动作，但回答必须带来源。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Phase 3 · Enterprise</h3>
+              <p>
+                在试点跑通后再补企业版能力：多 practice / 多 office 组织、跨事务所权限、 统一
+                billing、SSO 和审计导出，让 DueDateHQ 支持更复杂的事务所结构。
+              </p>
+            </article>
+          </div>
+          <div class="quote-panel">
+            <p>短期推广路线：先跑 3-5 家小型 CPA 事务所的真实旧客户表试点。</p>
+            <span
+              >第 1 周完成 Migration Copilot 导入和首轮分诊；第 2 周跟踪 Evidence 点击、Pulse Apply
+              和人工确认；第 3 周把高频问题收敛进 Ask AI，达标后推进 PWA 安装入口和付费试点。</span
+            >
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
       <section class="slide" aria-label="Product summary">
         <header class="slide-header">
           <span class="brand-lockup">
@@ -1505,7 +1711,7 @@
           </div>
           <div class="grid-4">
             <article class="feature-card">
-              <h3>Obligations control plane</h3>
+              <h3>Obligations Control Plane</h3>
               <p>风险、状态、金额和证据在同一队列里，团队先处理真正影响交付的事项。</p>
             </article>
             <article class="feature-card">
@@ -1517,7 +1723,7 @@
               <p>官方源变化进入复核、应用、回滚和审计链路，而不是停留在提醒。</p>
             </article>
             <article class="feature-card">
-              <h3>Trust boundary</h3>
+              <h3>Trust Boundary</h3>
               <p>租户边界、RBAC、证据和审计记录都内建在核心流程里。</p>
             </article>
           </div>

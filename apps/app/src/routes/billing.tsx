@@ -180,7 +180,7 @@ function usePlanCards(interval: BillingInterval): PlanCard[] {
 export function BillingRoute() {
   const { t } = useLingui()
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly')
-  const planCards = usePlanCards(billingInterval)
+  const planCards = usePlanCards(billingInterval).filter((plan) => plan.id !== 'firm')
   const { firmsQuery, currentFirm } = useCurrentFirm()
   const firms = firmsQuery.data ?? (currentFirm ? [currentFirm] : [])
   const canReadBilling = hasFirmPermission({
@@ -472,7 +472,7 @@ export function BillingRoute() {
           <BillingIntervalToggle value={billingInterval} onChange={setBillingInterval} />
         </header>
 
-        <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
           {planCards.map((plan) => (
             <PlanOption
               key={plan.id}

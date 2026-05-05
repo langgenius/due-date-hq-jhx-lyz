@@ -11,6 +11,13 @@ updates:
   - note: 'Applied the fifth browser review pass: right-aligned numeric table headers with their values and replaced the trust-boundary table with three audience-facing proof points.'
   - note: 'Applied the sixth browser review pass: localized AI output-rule explanations and rewrote the architecture slide to remove repo-path-heavy implementation language.'
   - note: 'Added the product capability names Penalty Radar™, Migration Copilot, and Glass-Box AI™ to their dedicated slides while keeping the final summary generic.'
+  - note: 'Inserted an AI cost model page before the final product summary, covering plan-level AI estimates and total variable cost.'
+  - note: 'Cleaned up the AI cost model copy by centralizing the monthly-cost note and localizing Guardrail and cost-card explanations.'
+  - note: 'Added a next-stage roadmap slide before the final summary, combining the product build plan with the short-term pilot route.'
+  - note: 'Adjusted the AI cost model layout so the cost table uses the page width and the supporting cards sit below it.'
+  - note: 'Rewrote the roadmap slide into PWA, Ask AI, and Enterprise phases after removing Phase 0.'
+  - note: 'Made the roadmap slide short-term promotion route more concrete with pilot size, weekly actions, and validation signals.'
+  - note: 'Replaced roadmap Phase 3 with Enterprise and multi-practice expansion after hiding Enterprise from the current billing surface.'
 ---
 
 # Pitch deck HTML
@@ -25,7 +32,7 @@ updates:
 - 新增 `docs/pitch-deck/index.html`，做成可键盘翻页、可打印的静态 pitch deck。
 - 新增 `docs/pitch-deck/duedatehq-logo.svg`，使用项目自己的 DueDateHQ brand mark。
 - Deck 外壳使用简洁演示规则；产品 surface 使用 DueDateHQ 产品内的表格、状态标记、风险行和证据标记。
-- 当前版本收敛为 10 页，最后一页把产品亮点和收束观点合并展示。
+- 当前版本收敛为 12 页，新增成本模型页和倒数第二页的下一阶段路线图。
 - 指标、客户行、导入批次、Pulse 记录、证据和审计口径来自 `mock/demo.sql`、
   `apps/app/src/routes/dashboard.tsx`、`packages/db/src/repo/dashboard.ts` 和相关 dev-file。
 
@@ -45,6 +52,19 @@ hairline divider、mono tabular number 等产品语言。
   验证表格页渲染。
 - 第四轮浏览器复核后，用 `HTMLParser` 校验 HTML，并在 Codex in-app browser 中确认 slide 数为
   10、Evidence 标记数量为 5、安全边界页中文表头存在、旧 Closing 页已删除且控制台无 error。
+- 新增成本页后，用 Node 检查 slide 数为 11，末尾顺序为
+  `Security -> AI cost model -> Product summary`。
+- `pnpm exec playwright screenshot --viewport-size=1280,720 file://.../docs/pitch-deck/index.html#slide-10`
+  验证 AI cost model 页在桌面 16:9 视口内无明显溢出。
+- 根据第 10 页批注，集中说明成本表的月度口径，并将 Guardrail 列和右侧成本说明卡改为中文解释。
+- 新增路线图页后，用 `HTMLParser` 校验 HTML，并在 Codex in-app browser 中确认 slide 数为 12、
+  新路线图页位于最终总结页之前且控制台无 error。
+- 根据第 10 页宽度批注，将成本表改为全宽布局，并把成本说明卡改为表格下方三列。
+- 根据路线图页批注，删除 Phase 0，并将路线图改为 PWA、Ask AI、Enterprise 三阶段。
+- 根据路线图页反馈，将短期推广路线改为 3-5 家小型 CPA 事务所试点、三周动作和付费试点信号。
+- 根据路线图页反馈，将 Phase 3 从 AI Assistant 改为企业版和多 practice 扩展方向。
+- `pnpm exec vp check --fix docs/pitch-deck/index.html docs/dev-log/2026-05-05-pitch-deck-html.md`
+  完成格式修复；随后 `vp check` 的格式阶段通过，但 lint 阶段因 HTML/Markdown 入参没有可 lint 文件而退出。
 - `pnpm exec prettier --check ...` 尝试校验格式，但当前 workspace 未安装 `prettier`，命令返回
   `Command "prettier" not found`。
 
