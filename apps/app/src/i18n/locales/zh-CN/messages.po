@@ -33,11 +33,6 @@ msgstr "{0, plural, other {# 条活跃}}"
 msgid "{0, plural, one {# day late} other {# days late}}"
 msgstr "{0, plural, other {逾期 # 天}}"
 
-#. placeholder {0}: value.length
-#: src/routes/obligations.tsx
-msgid "{0, plural, one {# item} other {# items}}"
-msgstr "{0, plural, other {# 项}}"
-
 #. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
 #: src/features/migration/Step2Mapping.tsx
@@ -191,6 +186,12 @@ msgstr "已选 {0} · 可应用 {1} · 待确认 {2}"
 msgid "{0} shown · {1} total"
 msgstr "显示 {0} · 共 {1}"
 
+#. placeholder {0}: row.previous
+#. placeholder {1}: row.next
+#: src/routes/obligations.tsx
+msgid "{0} to {1}"
+msgstr "{0} 到 {1}"
+
 #. placeholder {0}: exposure.unsupportedCount
 #: src/features/migration/Step4Preview.tsx
 msgid "{0} unsupported"
@@ -342,6 +343,10 @@ msgstr "/ 月"
 #: src/routes/_entry-layout.tsx
 msgid "© {0} DueDateHQ Inc."
 msgstr "© {0} DueDateHQ Inc."
+
+#: src/routes/obligations.tsx
+msgid "${rate} per owner x {owners} owners x {months} months"
+msgstr "每位所有者 ${rate} x {owners} 位所有者 x {months} 个月"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "0 active"
@@ -586,10 +591,6 @@ msgstr "添加事务所"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Affected clients"
 msgstr "受影响客户"
-
-#: src/routes/obligations.tsx
-msgid "After"
-msgstr "之后"
 
 #: src/features/workload/workload-page.tsx
 msgid "Aggregated from open obligations and client owner labels. Open any row in Obligations to triage the underlying deadlines."
@@ -1008,10 +1009,6 @@ msgstr "基础"
 msgid "Basic AI"
 msgstr "基础 AI"
 
-#: src/routes/obligations.tsx
-msgid "Before"
-msgstr "之前"
-
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Billed yearly"
@@ -1200,6 +1197,10 @@ msgstr "修改 {0} 的状态"
 msgid "Changed from {0} to {1}"
 msgstr "从 {0} 改为 {1}"
 
+#: src/routes/obligations.tsx
+msgid "Changed from {before} to {after}"
+msgstr "从 {before} 改为 {after}"
+
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Checking {label}…"
 msgstr "正在检查 {label}…"
@@ -1235,10 +1236,6 @@ msgstr "清单项目说明"
 #: src/routes/obligations.tsx
 msgid "Checklist item label"
 msgstr "清单项目名称"
-
-#: src/routes/obligations.tsx
-msgid "Checklist items"
-msgstr "清单项目"
 
 #: src/routes/route-summary.ts
 msgid "Checkout"
@@ -1315,6 +1312,10 @@ msgstr "清除搜索或筛选以返回完整事务所目录。"
 msgid "Cleared from {0}"
 msgstr "已清空，原值为 {0}"
 
+#: src/routes/obligations.tsx
+msgid "Cleared from {before}"
+msgstr "已清空，原值为 {before}"
+
 #: src/features/members/members-page.tsx
 msgid "Click more to change role, suspend, or remove"
 msgstr "点击更多以更改角色、暂停或移除"
@@ -1363,10 +1364,6 @@ msgstr "客户已删除"
 msgid "Client email draft copied"
 msgstr "客户邮件草稿已复制"
 
-#: src/routes/obligations.tsx
-msgid "Client email on file"
-msgstr "客户邮箱已记录"
-
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/clients.tsx
 #: src/routes/migration.new.tsx
@@ -1402,10 +1399,6 @@ msgstr "客户迁移会修改事务所数据、证据和审计记录。请让事
 #: src/features/migration/mapping-target-labels.ts
 msgid "Client name"
 msgstr "客户名称"
-
-#: src/routes/obligations.tsx
-msgid "Client portal visitor"
-msgstr "客户 portal 访问者"
 
 #: src/routes/obligations.tsx
 msgid "Client readiness response"
@@ -2195,10 +2188,6 @@ msgstr "删除这个事务所？"
 msgid "Delete view"
 msgstr "删除视图"
 
-#: src/routes/obligations.tsx
-msgid "Delivery"
-msgstr "发送"
-
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Demo account"
 msgstr "演示账号"
@@ -2217,7 +2206,6 @@ msgid "Detail"
 msgstr "详情"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/obligations.tsx
 msgid "Details updated"
 msgstr "详情已更新"
 
@@ -2516,6 +2504,7 @@ msgstr "预计应纳税额"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/mapping-target-labels.ts
+#: src/routes/obligations.tsx
 msgid "Estimated tax liability"
 msgstr "预计应纳税额"
 
@@ -2643,6 +2632,7 @@ msgid "Extension also covers payment."
 msgstr "延期也覆盖付款。"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Extension decision"
 msgstr "延期决定"
 
@@ -3060,6 +3050,7 @@ msgstr "导入来源类型"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Wizard.tsx
+#: src/routes/obligations.tsx
 msgid "Import undone"
 msgstr "导入已撤销"
 
@@ -3413,6 +3404,7 @@ msgid "Manual mapping means no AI or source template result was available."
 msgstr "手动映射表示没有可用的 AI 或来源模板结果。"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Manual note"
 msgstr "手动备注"
 
@@ -3631,6 +3623,14 @@ msgstr "月付"
 msgid "Monthly billing"
 msgstr "按月计费"
 
+#: src/routes/obligations.tsx
+msgid "Monthly penalty per owner"
+msgstr "每位所有者的月度罚金"
+
+#: src/routes/obligations.tsx
+msgid "Months late"
+msgstr "逾期月数"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Most provider exports are CSV or XLSX. Use Paste / Upload with a source template for those. This path is for records copied from integration tools or converted provider reports, and generated obligations still require enough imported facts."
 msgstr "多数服务商导出文件是 CSV 或 XLSX。此类文件请使用“粘贴 / 上传”并选择来源模板。此入口用于从集成工具复制或由服务商报表转换出的记录；生成义务仍需要足够的导入事实。"
@@ -3664,6 +3664,10 @@ msgstr "导航"
 #: src/routes/readiness.tsx
 msgid "Need help"
 msgstr "需要帮助"
+
+#: src/routes/obligations.tsx
+msgid "Needs {labels}"
+msgstr "需要 {labels}"
 
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
@@ -3818,10 +3822,6 @@ msgstr "此义务尚无审计事件。"
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events yet."
 msgstr "暂无审计事件。"
-
-#: src/routes/obligations.tsx
-msgid "No client email on file"
-msgstr "未记录客户邮箱"
 
 #: src/routes/obligations.tsx
 msgid "No client response yet."
@@ -4404,10 +4404,6 @@ msgstr "打开你的身份验证器应用，添加新账户，然后扫描此二
 msgid "Open your personal notification inbox."
 msgstr "打开你的个人通知收件箱。"
 
-#: src/routes/obligations.tsx
-msgid "Opened by"
-msgstr "打开者"
-
 #: src/routes/billing.checkout.tsx
 msgid "Opening checkout…"
 msgstr "正在打开支付…"
@@ -4531,6 +4527,10 @@ msgstr "负责人负载"
 msgid "Owner-only. Invite teammates, change roles, and manage seats."
 msgstr "仅 Owner 可操作。邀请团队成员、变更角色并管理席位。"
 
+#: src/routes/obligations.tsx
+msgid "Owners"
+msgstr "所有者"
+
 #: src/routes/account.security.tsx
 msgid "Owners need MFA before sensitive production actions."
 msgstr "Owner 在执行敏感生产操作前需要启用 MFA。"
@@ -4641,7 +4641,12 @@ msgstr "付款和抵免"
 msgid "PDF zip"
 msgstr "PDF 压缩包"
 
+#: src/routes/obligations.tsx
+msgid "Penalty calculation available"
+msgstr "已有罚金计算"
+
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty input"
 msgstr "罚金输入"
 
@@ -4654,10 +4659,15 @@ msgid "Penalty inputs changed"
 msgstr "Penalty 输入已更改"
 
 #: src/routes/obligations.tsx
+msgid "Penalty inputs recorded"
+msgstr "已记录罚金输入"
+
+#: src/routes/obligations.tsx
 msgid "Penalty inputs saved"
 msgstr "Penalty 输入已保存"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty inputs were updated."
 msgstr "已更新罚金输入。"
 
@@ -5238,10 +5248,6 @@ msgstr "就绪检查清单"
 msgid "Readiness link created"
 msgstr "准备状态链接已创建"
 
-#: src/routes/obligations.tsx
-msgid "Readiness portal opened"
-msgstr "准备状态 portal 已打开"
-
 #: src/routes/practice.tsx
 msgid "Readiness pressure"
 msgstr "准备状态压力"
@@ -5254,7 +5260,6 @@ msgstr "准备状态请求已撤销"
 msgid "Readiness request sent"
 msgstr "准备状态请求已发送"
 
-#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
 msgid "Readiness response submitted"
 msgstr "准备状态回复已提交"
@@ -5347,10 +5352,6 @@ msgstr "正在跳转到 Google…"
 #: src/routes/login.tsx
 msgid "Redirecting to Microsoft…"
 msgstr "正在跳转到 Microsoft…"
-
-#: src/routes/obligations.tsx
-msgid "Reference"
-msgstr "引用"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
@@ -5493,10 +5494,6 @@ msgstr "处理"
 #: src/routes/dashboard.tsx
 msgid "Resolve needs review clients"
 msgstr "处理需要复核的客户"
-
-#: src/routes/obligations.tsx
-msgid "Responses"
-msgstr "回复"
 
 #: src/routes/billing.cancel.tsx
 msgid "Restart checkout"
@@ -5787,10 +5784,12 @@ msgid "Rule source changed"
 msgstr "规则来源已更改"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Rule update"
 msgstr "规则更新"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Rule update undone"
 msgstr "规则更新已撤销"
 
@@ -6132,6 +6131,10 @@ msgstr "会话已撤销"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Set to {0}"
 msgstr "设置为 {0}"
+
+#: src/routes/obligations.tsx
+msgid "Set to {after}"
+msgstr "设置为 {after}"
 
 #: src/routes/account.security.tsx
 msgid "Set up authenticator"
@@ -7261,6 +7264,7 @@ msgstr "核验人"
 
 #: src/features/concepts/concept-help.tsx
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Verified rule"
 msgstr "已核验规则"
 

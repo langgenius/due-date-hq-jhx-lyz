@@ -134,6 +134,9 @@ import {
   type TableFilterOption,
 } from '@/components/patterns/table-header-filter'
 import { IsoDatePicker, isValidIsoDate } from '@/components/primitives/iso-date-picker'
+import { buildAuditChangeView, type AuditChangeView } from '@/features/audit/audit-change-view'
+import { useAuditActionLabels, useAuditChangeLabels } from '@/features/audit/audit-log-labels'
+import { formatAuditActionLabel } from '@/features/audit/audit-log-model'
 import { ConceptLabel } from '@/features/concepts/concept-help'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { usePracticeTimezone } from '@/features/firm/practice-timezone'
@@ -3017,18 +3020,8 @@ function ObligationQueueDetailDrawer({
                           : formatCents(row.estimatedTaxDueCents)
                       }
                     />
-                    <DetailRow
-                      label={<Trans>Formula</Trans>}
-                      value={
-                        row.penaltyFormulaLabel
-                          ? `${row.penaltyFormulaLabel} · ${row.penaltyFormulaVersion ?? t`Not calculated`}`
-                          : (row.penaltyFormulaVersion ?? t`Not calculated`)
-                      }
-                    />
-                    <DetailRow
-                      label={<Trans>Facts</Trans>}
-                      value={row.penaltyFactsVersion ?? t`Not entered`}
-                    />
+                    <DetailRow label={<Trans>Formula</Trans>} value={penaltyFormulaDisplay(row)} />
+                    <DetailRow label={<Trans>Facts</Trans>} value={penaltyFactsDisplay(row)} />
                     <DetailRow
                       label={<Trans>Calculated</Trans>}
                       value={
@@ -3046,7 +3039,7 @@ function ObligationQueueDetailDrawer({
                         <div className="flex flex-wrap gap-1">
                           {row.missingPenaltyFacts.map((fact) => (
                             <Badge key={fact} variant="outline" className="text-[11px]">
-                              {fact}
+                              {penaltyFactLabel(fact)}
                             </Badge>
                           ))}
                         </div>
@@ -3183,14 +3176,14 @@ function PenaltyBreakdownCard({ item }: { item: ObligationQueueRow['penaltyBreak
         <span className="font-medium">{item.label}</span>
         <span className="font-mono">{formatCents(item.amountCents)}</span>
       </div>
-      <span className="text-xs text-text-tertiary">{item.formula}</span>
+      <span className="text-xs text-text-tertiary">{formatPenaltyFormula(item.formula)}</span>
       {inputs.length > 0 ? (
         <div className="grid gap-1 text-[11px] text-text-tertiary">
           {inputs.map(([key, value]) => (
             <div key={key} className="flex justify-between gap-3">
-              <span>{key}</span>
+              <span>{penaltyInputLabel(key)}</span>
               <span className="font-mono text-text-secondary">
-                {formatPenaltyInputValue(value)}
+                {formatPenaltyInputValue(key, value)}
               </span>
             </div>
           ))}
@@ -3235,10 +3228,62 @@ function PenaltySourceList({
   )
 }
 
-function formatPenaltyInputValue(value: string | number | boolean | null): string {
-  if (value === null) return 'null'
+function penaltyFormulaDisplay(row: ObligationQueueRow): ReactNode {
+  if (row.penaltyFormulaLabel) return row.penaltyFormulaLabel
+  if (row.penaltyFormulaVersion) return <Trans>Penalty calculation available</Trans>
+  return <Trans>Not calculated</Trans>
+}
+
+function penaltyFactsDisplay(row: ObligationQueueRow): ReactNode {
+  if (row.missingPenaltyFacts.length > 0) {
+    const labels = row.missingPenaltyFacts.map((fact) => penaltyFactLabel(fact)).join(', ')
+    return <Trans>Needs {labels}</Trans>
+  }
+  if (row.penaltyFactsVersion) return <Trans>Penalty inputs recorded</Trans>
+  return <Trans>Not entered</Trans>
+}
+
+function penaltyFactLabel(value: string): string {
+  if (value === 'estimatedTaxLiabilityCents') return 'estimated tax liability'
+  if (value === 'equityOwnerCount') return 'owner count'
+  if (value === 'partnerCount') return 'owner count'
+  if (value === 'penaltyMonths') return 'months late'
+  if (value === 'monthlyRateCents') return 'monthly penalty rate'
+  return humanizeToken(value).toLowerCase()
+}
+
+function penaltyInputLabel(key: string): ReactNode {
+  if (key === 'partnerCount' || key === 'equityOwnerCount') return <Trans>Owners</Trans>
+  if (key === 'penaltyMonths') return <Trans>Months late</Trans>
+  if (key === 'monthlyRateCents') return <Trans>Monthly penalty per owner</Trans>
+  if (key === 'estimatedTaxLiabilityCents') return <Trans>Estimated tax liability</Trans>
+  return humanizeToken(key)
+}
+
+function formatPenaltyFormula(formula: string): ReactNode {
+  const match = formula.match(
+    /^\$(?<rate>[\d,.]+)\s*x\s*(?<owners>\d+)\s*partner\(s\)\s*x\s*(?<months>\d+)\s*month\(s\)$/,
+  )
+  const rate = match?.groups?.rate
+  const owners = match?.groups?.owners
+  const months = match?.groups?.months
+  if (rate && owners && months) {
+    return (
+      <Trans>
+        ${rate} per owner x {owners} owners x {months} months
+      </Trans>
+    )
+  }
+  return formula.replaceAll('partner(s)', 'owner(s)')
+}
+
+function formatPenaltyInputValue(key: string, value: string | number | boolean | null): ReactNode {
+  if (value === null) return <Trans>Not recorded</Trans>
   if (typeof value === 'boolean') return value ? 'true' : 'false'
-  if (typeof value === 'number') return Number.isInteger(value) ? `${value}` : value.toFixed(2)
+  if (typeof value === 'number') {
+    if (key.endsWith('Cents')) return formatCents(value)
+    return Number.isInteger(value) ? `${value}` : value.toFixed(2)
+  }
   return value
 }
 
@@ -3464,11 +3509,6 @@ function readJsonRecord(value: string | null): Record<string, unknown> | null {
   }
 }
 
-function readUnknownRecord(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-  return Object.fromEntries(Object.entries(value))
-}
-
 function readRecordString(record: Record<string, unknown> | null, key: string): string | null {
   const value = record?.[key]
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -3493,11 +3533,6 @@ function humanizeToken(value: string): string {
       return index === 0 ? `${lower.charAt(0).toUpperCase()}${lower.slice(1)}` : lower
     })
     .join(' ')
-}
-
-function shortReference(value: string | null): string | null {
-  if (!value) return null
-  return value.length <= 12 ? value : value.slice(0, 8)
 }
 
 function parseReadinessResponseEvidence(
@@ -3531,9 +3566,16 @@ function parseReadinessResponseEvidence(
 }
 
 function evidenceSourceLabel(sourceType: string): ReactNode {
+  if (sourceType === 'verified_rule') return <Trans>Verified rule</Trans>
+  if (sourceType === 'penalty_override') return <Trans>Penalty input</Trans>
+  if (sourceType === 'extension_decision') return <Trans>Extension decision</Trans>
+  if (sourceType === 'pulse_apply') return <Trans>Rule update</Trans>
+  if (sourceType === 'pulse_revert') return <Trans>Rule update undone</Trans>
+  if (sourceType === 'migration_revert') return <Trans>Import undone</Trans>
+  if (sourceType === 'user_override') return <Trans>Manual note</Trans>
   if (sourceType === 'readiness_checklist_ai') return <Trans>AI readiness checklist</Trans>
   if (sourceType === 'readiness_client_response') return <Trans>Client readiness response</Trans>
-  return sourceType
+  return humanizeToken(sourceType)
 }
 
 function EvidenceInlineItem({
@@ -3551,6 +3593,7 @@ function EvidenceInlineItem({
     item.sourceType === 'readiness_client_response'
       ? parseReadinessResponseEvidence(item.rawValue)
       : null
+  const penaltyRows = item.sourceType === 'penalty_override' ? penaltyInputEvidenceRows(item) : null
 
   return (
     <div className="rounded-lg border border-divider-regular p-3">
@@ -3560,7 +3603,14 @@ function EvidenceInlineItem({
           {formatDateTimeWithTimezone(item.appliedAt, practiceTimezone)}
         </span>
       </div>
-      {checklist ? (
+      {penaltyRows ? (
+        <div className="mt-2 grid gap-2">
+          <p className="text-sm text-text-secondary">
+            <Trans>Penalty inputs were updated.</Trans>
+          </p>
+          <AuditSummaryRows rows={penaltyRows} />
+        </div>
+      ) : checklist ? (
         <ReadinessChecklistEvidence checklist={checklist} context={readJsonRecord(item.rawValue)} />
       ) : readinessResponses ? (
         <ReadinessClientResponseEvidence
@@ -3585,6 +3635,60 @@ function EvidenceInlineItem({
       ) : null}
     </div>
   )
+}
+
+function penaltyInputEvidenceRows(item: ObligationQueueEvidenceItem): AuditSummaryRow[] {
+  const before = readJsonRecord(item.rawValue)
+  const after = readJsonRecord(item.normalizedValue)
+  return [
+    changedPenaltyEvidenceRow(
+      'estimated-tax-liability',
+      <Trans>Estimated tax liability</Trans>,
+      formatOptionalCents(readRecordNumber(before, 'estimatedTaxLiabilityCents')),
+      formatOptionalCents(readRecordNumber(after, 'estimatedTaxLiabilityCents')),
+    ),
+    changedPenaltyEvidenceRow(
+      'owner-count',
+      <Trans>Owner count</Trans>,
+      formatOptionalNumber(readRecordNumber(before, 'equityOwnerCount')),
+      formatOptionalNumber(readRecordNumber(after, 'equityOwnerCount')),
+    ),
+  ].filter((row): row is AuditSummaryRow => row !== null)
+}
+
+function changedPenaltyEvidenceRow(
+  id: string,
+  label: ReactNode,
+  before: string | null,
+  after: string | null,
+): AuditSummaryRow | null {
+  if (before === after) return null
+  if (!before && after) {
+    return { id, label, value: <Trans>Set to {after}</Trans> }
+  }
+  if (before && !after) {
+    return { id, label, value: <Trans>Cleared from {before}</Trans> }
+  }
+  if (before && after) {
+    return {
+      id,
+      label,
+      value: (
+        <Trans>
+          Changed from {before} to {after}
+        </Trans>
+      ),
+    }
+  }
+  return null
+}
+
+function formatOptionalCents(value: number | null): string | null {
+  return value === null ? null : formatCents(value)
+}
+
+function formatOptionalNumber(value: number | null): string | null {
+  return value === null ? null : String(value)
 }
 
 function ReadinessChecklistEvidence({
@@ -3717,14 +3821,17 @@ function ObligationQueueAuditEventCard({
   practiceTimezone: string
 }) {
   const { t } = useLingui()
+  const actionLabels = useAuditActionLabels()
+  const statusLabels = useStatusLabels()
   const readinessLabels = useReadinessLabels()
+  const changeLabels = useAuditChangeLabels({ actionLabels, readinessLabels, statusLabels })
+  const actionLabel = formatAuditActionLabel(event.action, actionLabels)
+  const changeView = buildAuditChangeView(event, changeLabels, practiceTimezone)
 
   return (
     <div className="rounded-lg border border-divider-regular p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="font-medium">
-          {readinessAuditActionLabel(event.action) ?? event.action}
-        </span>
+        <span className="font-medium">{actionLabel}</span>
         <span className="text-xs text-text-tertiary">
           {formatDateTimeWithTimezone(event.createdAt, practiceTimezone)}
         </span>
@@ -3733,167 +3840,32 @@ function ObligationQueueAuditEventCard({
         {event.actorLabel ?? t`System or client portal`}
       </p>
       {event.reason ? <p className="mt-2 text-sm text-text-secondary">{event.reason}</p> : null}
-      <AuditPayloadSummary event={event} readinessLabels={readinessLabels} />
+      <AuditChangeSummary changeView={changeView} />
     </div>
   )
 }
 
-function readinessAuditActionLabel(action: string): ReactNode | null {
-  if (action === 'readiness.request.sent') return <Trans>Readiness request sent</Trans>
-  if (action === 'readiness.request.revoked') return <Trans>Readiness request revoked</Trans>
-  if (action === 'readiness.portal.opened') return <Trans>Readiness portal opened</Trans>
-  if (action === 'readiness.client_response') return <Trans>Readiness response submitted</Trans>
-  return null
-}
-
-function AuditPayloadSummary({
-  event,
-  readinessLabels,
-}: {
-  event: ObligationQueueAuditEvent
-  readinessLabels: Record<string, string>
-}) {
-  const readinessRows = readinessAuditRows(event, readinessLabels)
-  if (readinessRows) return <AuditSummaryRows rows={readinessRows} />
-
-  const before = auditPayloadRows(event.beforeJson)
-  const after = auditPayloadRows(event.afterJson)
-  if (before.length === 0 && after.length === 0) return null
+function AuditChangeSummary({ changeView }: { changeView: AuditChangeView }) {
+  const rows = changeView.changes.slice(0, 4).map((row) => ({
+    id: row.field,
+    label: row.field,
+    value:
+      row.previous === row.next ? (
+        row.next
+      ) : (
+        <Trans>
+          {row.previous} to {row.next}
+        </Trans>
+      ),
+  }))
 
   return (
-    <div className="mt-3 grid gap-3">
-      {before.length > 0 ? (
-        <AuditSummarySection title={<Trans>Before</Trans>} rows={before} />
-      ) : null}
-      {after.length > 0 ? <AuditSummarySection title={<Trans>After</Trans>} rows={after} /> : null}
-    </div>
-  )
-}
-
-function readinessAuditRows(
-  event: ObligationQueueAuditEvent,
-  readinessLabels: Record<string, string>,
-): AuditSummaryRow[] | null {
-  const before = readUnknownRecord(event.beforeJson)
-  const after = readUnknownRecord(event.afterJson)
-  const requestId = shortReference(
-    readRecordString(after, 'requestId') ?? readRecordString(before, 'requestId'),
-  )
-
-  if (event.action === 'readiness.request.sent') {
-    const checklistCount = readRecordNumber(after, 'checklistCount')
-    const recipientEmail = readRecordString(after, 'recipientEmail')
-    return [
-      ...(checklistCount === null
-        ? []
-        : [{ id: 'checklistCount', label: <Trans>Checklist items</Trans>, value: checklistCount }]),
-      ...(recipientEmail
-        ? [
-            {
-              id: 'delivery',
-              label: <Trans>Delivery</Trans>,
-              value:
-                recipientEmail === 'present' ? (
-                  <Trans>Client email on file</Trans>
-                ) : (
-                  <Trans>No client email on file</Trans>
-                ),
-            },
-          ]
-        : []),
-      ...(requestId
-        ? [{ id: 'reference', label: <Trans>Reference</Trans>, value: requestId }]
-        : []),
-    ]
-  }
-
-  if (event.action === 'readiness.request.revoked') {
-    const previousStatus = readRecordString(before, 'status')
-    const nextStatus = readRecordString(after, 'status')
-    return [
-      ...(previousStatus || nextStatus
-        ? [
-            {
-              id: 'status',
-              label: <Trans>Status</Trans>,
-              value: `${previousStatus ? humanizeToken(previousStatus) : '-'} -> ${
-                nextStatus ? humanizeToken(nextStatus) : '-'
-              }`,
-            },
-          ]
-        : []),
-      ...(requestId
-        ? [{ id: 'reference', label: <Trans>Reference</Trans>, value: requestId }]
-        : []),
-    ]
-  }
-
-  if (event.action === 'readiness.portal.opened') {
-    return [
-      {
-        id: 'openedBy',
-        label: <Trans>Opened by</Trans>,
-        value: <Trans>Client portal visitor</Trans>,
-      },
-      ...(requestId
-        ? [{ id: 'reference', label: <Trans>Reference</Trans>, value: requestId }]
-        : []),
-    ]
-  }
-
-  if (event.action === 'readiness.client_response') {
-    const readiness = readRecordString(after, 'readiness')
-    const responseCount = readRecordNumber(after, 'responseCount')
-    return [
-      ...(readiness
-        ? [
-            {
-              id: 'readiness',
-              label: <Trans>Readiness</Trans>,
-              value: readinessLabels[readiness] ?? humanizeToken(readiness),
-            },
-          ]
-        : []),
-      ...(responseCount === null
-        ? []
-        : [{ id: 'responseCount', label: <Trans>Responses</Trans>, value: responseCount }]),
-      ...(requestId
-        ? [{ id: 'reference', label: <Trans>Reference</Trans>, value: requestId }]
-        : []),
-    ]
-  }
-
-  return null
-}
-
-function auditPayloadRows(value: unknown): AuditSummaryRow[] {
-  const record = readUnknownRecord(value)
-  if (!record) return []
-  return Object.entries(record)
-    .filter(([key]) => !key.endsWith('Id') && key !== 'id')
-    .slice(0, 6)
-    .map(([key, entry]) => ({
-      id: key,
-      label: humanizeToken(key),
-      value: auditPayloadValue(entry),
-    }))
-}
-
-function auditPayloadValue(value: unknown): ReactNode {
-  if (value === null || value === undefined || value === '') return <Trans>Not recorded</Trans>
-  if (typeof value === 'string') return value
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-  if (Array.isArray(value)) {
-    return <Plural value={value.length} one="# item" other="# items" />
-  }
-  return <Trans>Details updated</Trans>
-}
-
-function AuditSummarySection({ title, rows }: { title: ReactNode; rows: AuditSummaryRow[] }) {
-  return (
-    <div className="grid gap-2">
-      <p className="text-xs font-medium uppercase tracking-wider text-text-tertiary">{title}</p>
+    <div className="mt-2 grid gap-2">
+      <p className="text-sm text-text-primary">{changeView.headline}</p>
       <AuditSummaryRows rows={rows} />
+      {changeView.notes.length > 0 ? (
+        <p className="text-xs text-text-tertiary">{changeView.notes[0]}</p>
+      ) : null}
     </div>
   )
 }

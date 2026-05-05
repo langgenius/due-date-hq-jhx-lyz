@@ -33,11 +33,6 @@ msgstr "{0, plural, one {# active} other {# active}}"
 msgid "{0, plural, one {# day late} other {# days late}}"
 msgstr "{0, plural, one {# day late} other {# days late}}"
 
-#. placeholder {0}: value.length
-#: src/routes/obligations.tsx
-msgid "{0, plural, one {# item} other {# items}}"
-msgstr "{0, plural, one {# item} other {# items}}"
-
 #. placeholder {0}: errors.length
 #. placeholder {0}: summary.errors.length
 #: src/features/migration/Step2Mapping.tsx
@@ -191,6 +186,12 @@ msgstr "{0} selected · {1} eligible · {2} need review"
 msgid "{0} shown · {1} total"
 msgstr "{0} shown · {1} total"
 
+#. placeholder {0}: row.previous
+#. placeholder {1}: row.next
+#: src/routes/obligations.tsx
+msgid "{0} to {1}"
+msgstr "{0} to {1}"
+
 #. placeholder {0}: exposure.unsupportedCount
 #: src/features/migration/Step4Preview.tsx
 msgid "{0} unsupported"
@@ -342,6 +343,10 @@ msgstr "/ mo"
 #: src/routes/_entry-layout.tsx
 msgid "© {0} DueDateHQ Inc."
 msgstr "© {0} DueDateHQ Inc."
+
+#: src/routes/obligations.tsx
+msgid "${rate} per owner x {owners} owners x {months} months"
+msgstr "${rate} per owner x {owners} owners x {months} months"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "0 active"
@@ -586,10 +591,6 @@ msgstr "Add practice"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Affected clients"
 msgstr "Affected clients"
-
-#: src/routes/obligations.tsx
-msgid "After"
-msgstr "After"
 
 #: src/features/workload/workload-page.tsx
 msgid "Aggregated from open obligations and client owner labels. Open any row in Obligations to triage the underlying deadlines."
@@ -1008,10 +1009,6 @@ msgstr "Basic"
 msgid "Basic AI"
 msgstr "Basic AI"
 
-#: src/routes/obligations.tsx
-msgid "Before"
-msgstr "Before"
-
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "Billed yearly"
@@ -1200,6 +1197,10 @@ msgstr "Change status for {0}"
 msgid "Changed from {0} to {1}"
 msgstr "Changed from {0} to {1}"
 
+#: src/routes/obligations.tsx
+msgid "Changed from {before} to {after}"
+msgstr "Changed from {before} to {after}"
+
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Checking {label}…"
 msgstr "Checking {label}…"
@@ -1235,10 +1236,6 @@ msgstr "Checklist item description"
 #: src/routes/obligations.tsx
 msgid "Checklist item label"
 msgstr "Checklist item label"
-
-#: src/routes/obligations.tsx
-msgid "Checklist items"
-msgstr "Checklist items"
 
 #: src/routes/route-summary.ts
 msgid "Checkout"
@@ -1315,6 +1312,10 @@ msgstr "Clear search or filters to return to the full practice directory."
 msgid "Cleared from {0}"
 msgstr "Cleared from {0}"
 
+#: src/routes/obligations.tsx
+msgid "Cleared from {before}"
+msgstr "Cleared from {before}"
+
 #: src/features/members/members-page.tsx
 msgid "Click more to change role, suspend, or remove"
 msgstr "Click more to change role, suspend, or remove"
@@ -1363,10 +1364,6 @@ msgstr "Client deleted"
 msgid "Client email draft copied"
 msgstr "Client email draft copied"
 
-#: src/routes/obligations.tsx
-msgid "Client email on file"
-msgstr "Client email on file"
-
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/clients.tsx
 #: src/routes/migration.new.tsx
@@ -1402,10 +1399,6 @@ msgstr "Client migration changes practice data, evidence, and audit records. Ask
 #: src/features/migration/mapping-target-labels.ts
 msgid "Client name"
 msgstr "Client name"
-
-#: src/routes/obligations.tsx
-msgid "Client portal visitor"
-msgstr "Client portal visitor"
 
 #: src/routes/obligations.tsx
 msgid "Client readiness response"
@@ -2195,10 +2188,6 @@ msgstr "Delete this practice?"
 msgid "Delete view"
 msgstr "Delete view"
 
-#: src/routes/obligations.tsx
-msgid "Delivery"
-msgstr "Delivery"
-
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Demo account"
 msgstr "Demo account"
@@ -2217,7 +2206,6 @@ msgid "Detail"
 msgstr "Detail"
 
 #: src/features/audit/audit-log-labels.ts
-#: src/routes/obligations.tsx
 msgid "Details updated"
 msgstr "Details updated"
 
@@ -2516,6 +2504,7 @@ msgstr "Estimated tax due"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/mapping-target-labels.ts
+#: src/routes/obligations.tsx
 msgid "Estimated tax liability"
 msgstr "Estimated tax liability"
 
@@ -2643,6 +2632,7 @@ msgid "Extension also covers payment."
 msgstr "Extension also covers payment."
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Extension decision"
 msgstr "Extension decision"
 
@@ -3060,6 +3050,7 @@ msgstr "Import source type"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Wizard.tsx
+#: src/routes/obligations.tsx
 msgid "Import undone"
 msgstr "Import undone"
 
@@ -3413,6 +3404,7 @@ msgid "Manual mapping means no AI or source template result was available."
 msgstr "Manual mapping means no AI or source template result was available."
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Manual note"
 msgstr "Manual note"
 
@@ -3631,6 +3623,14 @@ msgstr "Monthly"
 msgid "Monthly billing"
 msgstr "Monthly billing"
 
+#: src/routes/obligations.tsx
+msgid "Monthly penalty per owner"
+msgstr "Monthly penalty per owner"
+
+#: src/routes/obligations.tsx
+msgid "Months late"
+msgstr "Months late"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Most provider exports are CSV or XLSX. Use Paste / Upload with a source template for those. This path is for records copied from integration tools or converted provider reports, and generated obligations still require enough imported facts."
 msgstr "Most provider exports are CSV or XLSX. Use Paste / Upload with a source template for those. This path is for records copied from integration tools or converted provider reports, and generated obligations still require enough imported facts."
@@ -3664,6 +3664,10 @@ msgstr "Navigate"
 #: src/routes/readiness.tsx
 msgid "Need help"
 msgstr "Need help"
+
+#: src/routes/obligations.tsx
+msgid "Needs {labels}"
+msgstr "Needs {labels}"
 
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
@@ -3818,10 +3822,6 @@ msgstr "No audit events recorded for this obligation."
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events yet."
 msgstr "No audit events yet."
-
-#: src/routes/obligations.tsx
-msgid "No client email on file"
-msgstr "No client email on file"
 
 #: src/routes/obligations.tsx
 msgid "No client response yet."
@@ -4404,10 +4404,6 @@ msgstr "Open your authenticator app, add a new account, then scan this code. Use
 msgid "Open your personal notification inbox."
 msgstr "Open your personal notification inbox."
 
-#: src/routes/obligations.tsx
-msgid "Opened by"
-msgstr "Opened by"
-
 #: src/routes/billing.checkout.tsx
 msgid "Opening checkout…"
 msgstr "Opening checkout…"
@@ -4531,6 +4527,10 @@ msgstr "Owner workload"
 msgid "Owner-only. Invite teammates, change roles, and manage seats."
 msgstr "Owner-only. Invite teammates, change roles, and manage seats."
 
+#: src/routes/obligations.tsx
+msgid "Owners"
+msgstr "Owners"
+
 #: src/routes/account.security.tsx
 msgid "Owners need MFA before sensitive production actions."
 msgstr "Owners need MFA before sensitive production actions."
@@ -4641,7 +4641,12 @@ msgstr "Payments and credits"
 msgid "PDF zip"
 msgstr "PDF zip"
 
+#: src/routes/obligations.tsx
+msgid "Penalty calculation available"
+msgstr "Penalty calculation available"
+
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty input"
 msgstr "Penalty input"
 
@@ -4654,10 +4659,15 @@ msgid "Penalty inputs changed"
 msgstr "Penalty inputs changed"
 
 #: src/routes/obligations.tsx
+msgid "Penalty inputs recorded"
+msgstr "Penalty inputs recorded"
+
+#: src/routes/obligations.tsx
 msgid "Penalty inputs saved"
 msgstr "Penalty inputs saved"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Penalty inputs were updated."
 msgstr "Penalty inputs were updated."
 
@@ -5238,10 +5248,6 @@ msgstr "Readiness checklist"
 msgid "Readiness link created"
 msgstr "Readiness link created"
 
-#: src/routes/obligations.tsx
-msgid "Readiness portal opened"
-msgstr "Readiness portal opened"
-
 #: src/routes/practice.tsx
 msgid "Readiness pressure"
 msgstr "Readiness pressure"
@@ -5254,7 +5260,6 @@ msgstr "Readiness request revoked"
 msgid "Readiness request sent"
 msgstr "Readiness request sent"
 
-#: src/routes/obligations.tsx
 #: src/routes/readiness.tsx
 msgid "Readiness response submitted"
 msgstr "Readiness response submitted"
@@ -5347,10 +5352,6 @@ msgstr "Redirecting to Google…"
 #: src/routes/login.tsx
 msgid "Redirecting to Microsoft…"
 msgstr "Redirecting to Microsoft…"
-
-#: src/routes/obligations.tsx
-msgid "Reference"
-msgstr "Reference"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/PulseAlertsBanner.tsx
@@ -5493,10 +5494,6 @@ msgstr "Resolve"
 #: src/routes/dashboard.tsx
 msgid "Resolve needs review clients"
 msgstr "Resolve needs review clients"
-
-#: src/routes/obligations.tsx
-msgid "Responses"
-msgstr "Responses"
 
 #: src/routes/billing.cancel.tsx
 msgid "Restart checkout"
@@ -5787,10 +5784,12 @@ msgid "Rule source changed"
 msgstr "Rule source changed"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Rule update"
 msgstr "Rule update"
 
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Rule update undone"
 msgstr "Rule update undone"
 
@@ -6132,6 +6131,10 @@ msgstr "Session revoked"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 msgid "Set to {0}"
 msgstr "Set to {0}"
+
+#: src/routes/obligations.tsx
+msgid "Set to {after}"
+msgstr "Set to {after}"
 
 #: src/routes/account.security.tsx
 msgid "Set up authenticator"
@@ -7261,6 +7264,7 @@ msgstr "Verified by"
 
 #: src/features/concepts/concept-help.tsx
 #: src/features/evidence/EvidenceDrawerProvider.tsx
+#: src/routes/obligations.tsx
 msgid "Verified rule"
 msgstr "Verified rule"
 
