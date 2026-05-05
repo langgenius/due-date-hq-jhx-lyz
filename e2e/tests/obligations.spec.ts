@@ -50,11 +50,18 @@ test.describe('seeded obligations', () => {
         .locator('button')
         .first()
     const dashboardRow = (clientName: string) =>
-      triageTable.getByRole('row', { name: new RegExp(clientName) }).or(
-        triageTable.getByRole('button', {
-          name: new RegExp(`Obligation detail: ${clientName}`),
-        }),
-      )
+      triageTable
+        .getByRole('row', { name: new RegExp(clientName) })
+        .or(
+          triageTable.getByRole('button', {
+            name: new RegExp(`Obligation detail: ${clientName}`),
+          }),
+        )
+        .or(
+          triageTable.getByRole('button', {
+            name: new RegExp(`Open obligations: ${clientName}`),
+          }),
+        )
 
     await dashboardHeaderButton('Status').click()
     await authenticatedPage.getByRole('menuitemcheckbox', { name: /Needs review/ }).click()

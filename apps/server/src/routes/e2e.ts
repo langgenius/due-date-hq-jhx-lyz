@@ -4,7 +4,7 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { authSchema, createDb, firmSchema, scoped } from '@duedatehq/db'
 import type { ContextVars, Env } from '../env'
 
-type SeedMode = 'empty' | 'obligations' | 'pulse'
+type SeedMode = 'empty' | 'obligations' | 'pulse' | 'mfa'
 type DemoRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
 type DemoPlan = 'solo' | 'pro' | 'team'
 type SeedRole = DemoRole
@@ -154,6 +154,19 @@ function roleLabel(role: DemoRole): string {
   return 'Coordinator'
 }
 
+function dateInTimezone(timezone: string, date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date)
+}
+
+function dateOnlyToUtcDate(value: string): Date {
+  return new Date(`${value}T00:00:00.000Z`)
+}
+
 function orderDemoAccounts<T extends { id: string }>(rows: T[]): T[] {
   const byId = new Map(rows.map((row) => [row.id, row]))
   return DEMO_ACCOUNT_IDS.map((id) => byId.get(id)).filter((row): row is T => Boolean(row))
@@ -187,6 +200,7 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
       name: userName,
       email: userEmail,
       emailVerified: true,
+      twoFactorEnabled: seed === 'mfa',
       image: null,
       createdAt: now,
       updatedAt: now,
@@ -251,7 +265,7 @@ export const e2eRoute = new Hono<{ Bindings: Env; Variables: ContextVars }>().po
       token,
       userId,
       activeOrganizationId: firmId,
-      twoFactorVerified: true,
+      twoFactorVerified: seed !== 'mfa',
       expiresAt,
       createdAt: now,
       updatedAt: now,
@@ -603,7 +617,7 @@ async function readSeedRequest(request: Request): Promise<E2ESeedRequest> {
     const role = (raw as { role?: unknown }).role
     const testId = (raw as { testId?: unknown }).testId
     return {
-      seed: seed === 'pulse' || seed === 'obligations' ? seed : 'empty',
+      seed: seed === 'pulse' || seed === 'obligations' || seed === 'mfa' ? seed : 'empty',
       role: isDemoRole(role) ? role : 'owner',
       ...(typeof testId === 'string' ? { testId } : {}),
     }
@@ -680,6 +694,7 @@ function buildStableSuffix(value: string | undefined): string {
 
 async function seedObligationQueue(db: ReturnType<typeof createDb>, firmId: string) {
   const repo = scoped(db, firmId)
+  const today = dateOnlyToUtcDate(dateInTimezone('America/New_York'))
   const arbor = {
     id: crypto.randomUUID(),
     name: 'Arbor & Vale LLC',
@@ -755,8 +770,8 @@ async function seedObligationQueue(db: ReturnType<typeof createDb>, firmId: stri
       clientId: foundry.id,
       taxType: 'ca_568',
       taxYear: 2026,
-      baseDueDate: new Date('2026-05-02T00:00:00.000Z'),
-      currentDueDate: new Date('2026-05-02T00:00:00.000Z'),
+      baseDueDate: today,
+      currentDueDate: today,
       status: 'pending',
       migrationBatchId: null,
     },

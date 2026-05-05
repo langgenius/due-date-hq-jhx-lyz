@@ -58,9 +58,15 @@ test('AC: E2E-SMOKE-INVITE renders the invite entry error without a token', asyn
   await expect(page.getByText(/Invite link is missing|邀请链接缺少参数/)).toBeVisible()
 })
 
-test('AC: E2E-SMOKE-MFA renders the two-factor challenge entry', async ({ page }) => {
-  await page.goto('/two-factor')
+test.describe('two-factor challenge', () => {
+  test.use({ authSeed: 'mfa' })
 
-  await expect(page.getByText(/Two-factor verification|两步验证/)).toBeVisible()
-  await expect(page.getByLabel(/Verification code|验证码/)).toBeVisible()
+  test('AC: E2E-SMOKE-MFA renders the two-factor challenge entry', async ({
+    authenticatedPage,
+  }) => {
+    await authenticatedPage.goto('/two-factor')
+
+    await expect(authenticatedPage.getByText(/Two-factor verification|两步验证/)).toBeVisible()
+    await expect(authenticatedPage.getByLabel(/Verification code|验证码/)).toBeVisible()
+  })
 })

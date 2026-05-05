@@ -40,7 +40,9 @@ Prefer accessible locators in this order:
 Real Google OAuth stays outside CI. Authenticated specs use `/api/e2e/session` to create a Better
 Auth user/session/firm in D1 and inject the returned signed cookie through the `authenticatedPage`
 fixture. The route is open only in local `ENV=development`; staging requires `E2E_SEED_TOKEN`;
-production returns 404.
+production returns 404. The fixture supports empty, obligations, Pulse, and MFA-challenge seeds; the
+MFA seed creates a signed session with `twoFactorEnabled=true` and `twoFactorVerified=false` so the
+challenge route is tested through the same loader gate users hit after login.
 
 Current specs intentionally cover shipped behavior only:
 

@@ -17,7 +17,7 @@ import { RulesConsolePage } from '../pages/rules-console-page'
 import { ObligationQueuePage } from '../pages/obligations-page'
 import { WorkloadPage } from '../pages/workload-page'
 
-type AuthSeedMode = 'empty' | 'obligations' | 'pulse'
+type AuthSeedMode = 'empty' | 'obligations' | 'pulse' | 'mfa'
 type AuthRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
 
 type E2EAuthSession = {
