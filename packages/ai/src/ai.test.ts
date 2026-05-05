@@ -3,6 +3,7 @@ import * as z from 'zod'
 import { createAI } from './index'
 import { redactMigrationInput } from './pii'
 import type { AiPorts, VectorMatch } from './ports'
+import { modelForPromptTier } from './router'
 
 const callGatewayMock = vi.hoisted(() => vi.fn())
 
@@ -18,7 +19,9 @@ const CONFIGURED_ENV = {
   AI_GATEWAY_ACCOUNT_ID: 'test-account',
   AI_GATEWAY_SLUG: 'duedatehq',
   AI_GATEWAY_API_KEY: 'test-key',
-  AI_GATEWAY_MODEL: 'test-model',
+  AI_GATEWAY_MODEL_FAST_JSON: 'fast-json-test-model',
+  AI_GATEWAY_MODEL_QUALITY_JSON: 'quality-json-test-model',
+  AI_GATEWAY_MODEL_REASONING: 'reasoning-test-model',
 }
 
 const OPENROUTER_ENV = {
@@ -26,7 +29,9 @@ const OPENROUTER_ENV = {
   AI_GATEWAY_SLUG: 'duedatehq',
   AI_GATEWAY_PROVIDER: 'openrouter',
   AI_GATEWAY_PROVIDER_API_KEY: 'test-openrouter-key',
-  AI_GATEWAY_MODEL: 'openai/gpt-5-mini',
+  AI_GATEWAY_MODEL_FAST_JSON: 'google/gemini-2.5-flash-lite',
+  AI_GATEWAY_MODEL_QUALITY_JSON: 'deepseek/deepseek-v3.2',
+  AI_GATEWAY_MODEL_REASONING: 'openai/gpt-5-mini',
 }
 
 describe('@duedatehq/ai', () => {
@@ -61,7 +66,9 @@ describe('@duedatehq/ai', () => {
       aiGatewayAccountId: 'test-account',
       aiGatewaySlug: 'duedatehq',
       aiGatewayApiKey: 'test-gateway-key',
-      aiGatewayModel: 'test-model',
+      aiGatewayModelFastJson: 'fast-json-test-model',
+      aiGatewayModelQualityJson: 'quality-json-test-model',
+      aiGatewayModelReasoning: 'reasoning-test-model',
     }
 
     await expect(ports.vectors.query([], { topK: 1 })).resolves.toEqual([match])
@@ -150,30 +157,25 @@ describe('@duedatehq/ai', () => {
     expect(request).not.toHaveProperty('gatewayApiKey')
   })
 
-  it('routes Solo to basic, Pro and Team to the same practice model, and Enterprise to custom', async () => {
+  it('routes prompts by model_tier instead of billing plan', async () => {
     callGatewayMock.mockResolvedValue({
       output: { ok: true },
       model: 'routed-model',
     })
-    const ai = createAI({
-      ...CONFIGURED_ENV,
-      AI_GATEWAY_MODEL_BASIC: 'basic-model',
-      AI_GATEWAY_MODEL_PRACTICE: 'practice-model',
-      AI_GATEWAY_MODEL_ENTERPRISE: 'enterprise-model',
-    })
+    const ai = createAI(CONFIGURED_ENV)
     const schema = z.object({ ok: z.boolean() })
 
     await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'solo' })
-    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'pro' })
-    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'team' })
-    await ai.runPrompt('normalizer-entity@v1', { values: ['LLC'] }, schema, { plan: 'firm' })
+    await ai.runPrompt('brief@v1', { summary: {}, sources: [] }, schema, { plan: 'firm' })
 
     expect(callGatewayMock.mock.calls.map((call) => call[0].model)).toEqual([
-      'basic-model',
-      'practice-model',
-      'practice-model',
-      'enterprise-model',
+      'fast-json-test-model',
+      'quality-json-test-model',
     ])
+  })
+
+  it('keeps the reasoning model as a task-tier route for future prompts', () => {
+    expect(modelForPromptTier(CONFIGURED_ENV, 'reasoning')).toBe('reasoning-test-model')
   })
 
   it('returns AI_BUDGET_EXCEEDED before calling the gateway when fair-use is exhausted', async () => {

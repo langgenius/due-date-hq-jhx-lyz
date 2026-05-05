@@ -438,7 +438,9 @@ AI_GATEWAY_ACCOUNT_ID=
 AI_GATEWAY_SLUG=duedatehq
 AI_GATEWAY_PROVIDER=openrouter
 AI_GATEWAY_PROVIDER_API_KEY=  # OpenRouter token；OpenRouter Provider Native 路径唯一必需 AI secret
-AI_GATEWAY_MODEL=openai/gpt-5-mini
+AI_GATEWAY_MODEL_FAST_JSON=google/gemini-2.5-flash-lite
+AI_GATEWAY_MODEL_QUALITY_JSON=deepseek/deepseek-v3.2
+AI_GATEWAY_MODEL_REASONING=openai/gpt-5-mini
 AI_GATEWAY_API_KEY=           # 仅 Authenticated Gateway / Unified provider 需要
 
 # ───────── Mail ─────────

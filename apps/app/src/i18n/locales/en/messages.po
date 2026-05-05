@@ -6672,8 +6672,8 @@ msgid "The rollover disposition for this row: create, review, duplicate, missing
 msgstr "The rollover disposition for this row: create, review, duplicate, missing rule, or missing due date."
 
 #: src/routes/billing.tsx
-msgid "The same practice AI tier as Pro, paired with team-scale management and review workflows."
-msgstr "The same practice AI tier as Pro, paired with team-scale management and review workflows."
+msgid "The same practice AI functionality as Pro, paired with team-scale management and review workflows."
+msgstr "The same practice AI functionality as Pro, paired with team-scale management and review workflows."
 
 #: src/routes/billing.success.tsx
 msgid "The secure checkout has redirected back to DueDateHQ. We are confirming the subscription."

@@ -89,7 +89,9 @@ AI_GATEWAY_ACCOUNT_ID=
 AI_GATEWAY_SLUG=duedatehq
 AI_GATEWAY_PROVIDER=openrouter
 AI_GATEWAY_PROVIDER_API_KEY=
-AI_GATEWAY_MODEL=openai/gpt-5-mini
+AI_GATEWAY_MODEL_FAST_JSON=google/gemini-2.5-flash-lite
+AI_GATEWAY_MODEL_QUALITY_JSON=deepseek/deepseek-v3.2
+AI_GATEWAY_MODEL_REASONING=openai/gpt-5-mini
 AI_GATEWAY_API_KEY=
 ```
 
@@ -97,10 +99,9 @@ AI_GATEWAY_API_KEY=
 - `AI_GATEWAY_PROVIDER=openrouter`：使用 Cloudflare AI Gateway 的 OpenRouter Provider Native
   路径。
 - `AI_GATEWAY_PROVIDER_API_KEY`：OpenRouter token；这是本路径唯一必需的密钥。
-- `AI_GATEWAY_MODEL`：经 Cloudflare AI Gateway 调用的 fallback 模型 id；由部署环境配置，
-  不写死在 prompt。
-- `AI_GATEWAY_MODEL_BASIC` / `AI_GATEWAY_MODEL_PRACTICE` / `AI_GATEWAY_MODEL_ENTERPRISE`：
-  可选的 plan-tier 模型覆盖；未配置时回退到 `AI_GATEWAY_MODEL`。
+- `AI_GATEWAY_MODEL_FAST_JSON` / `AI_GATEWAY_MODEL_QUALITY_JSON` /
+  `AI_GATEWAY_MODEL_REASONING`：按 prompt `model_tier` 路由的 provider 模型 id；由部署环境
+  配置，不写死在业务调用点。
 - `AI_GATEWAY_API_KEY`：仅在启用 Cloudflare Authenticated Gateway 或切回 Unified provider 时使用；
   OpenRouter Provider Native 默认留空。
 - 不再配置第三方 tracing SDK keys。
@@ -108,43 +109,46 @@ AI_GATEWAY_API_KEY=
 ### 2.3 模型选择
 
 模型 id 不在文档中写死成“永远最新”。实现时必须从 AI SDK / Gateway 当前可用模型清单确认，
-再写入 `packages/ai/src/router.ts`。
+再写入 Worker env；`packages/ai/src/router.ts` 只负责把 prompt `model_tier` 映射到 env key。
 
 当前策略：
 
 | 能力                          | 档位         | 说明                                                 |
 | ----------------------------- | ------------ | ---------------------------------------------------- |
 | Migration Mapper / Normalizer | fast-json    | 低温、结构化输出、低成本                             |
-| Client Risk Summary           | fast-text    | async cached sections、必须带 citation               |
-| Deadline Tip                  | fast-text    | async cached What / Why / Prepare、必须带 citation   |
+| Client Risk Summary           | quality-json | async cached sections、必须带 citation               |
+| Deadline Tip                  | quality-json | async cached What / Why / Prepare、必须带 citation   |
 | Smart Priority Explanation    | no-model     | 纯函数 factor breakdown，不调用 AI                   |
-| Weekly Brief                  | quality      | 后台 Queue 生成 3-5 句、带 citation、缓存 / 物化 24h |
+| Weekly Brief                  | quality-json | 后台 Queue 生成 3-5 句、带 citation、缓存 / 物化 24h |
 | Pulse Extract                 | quality-json | 官方公告结构化抽取，低置信进人工 review              |
 | Ask DueDateHQ                 | quality-json | NL → DSL，禁止直接 SQL                               |
+| Future complex reasoning      | reasoning    | 预留给需要长链推理或复杂 tool loop 的后台任务        |
 | Embedding                     | embedding    | 规则 chunk / pulse chunk 写入 Vectorize              |
 
-会员计划路由：
+会员计划控制功能和额度，不决定具体模型：
 
-| Plan       | AI tier    | 产品承诺                                                                   |
-| ---------- | ---------- | -------------------------------------------------------------------------- |
-| Solo       | basic      | 带来源的 preview 和轻量 AI 辅助。                                          |
-| Pro        | practice   | 完整 practice AI：brief、Pulse 摘要、客户风险摘要、deadline tip、迁移 AI。 |
-| Team       | practice   | 与 Pro 相同的 AI 能力；Team 差异来自团队管理、席位、批量运营和审计能力。   |
-| Enterprise | enterprise | 合同级模型路由、custom coverage、BYOK/provider 选项和审计级控制。          |
+| Plan       | 产品承诺                                                                   |
+| ---------- | -------------------------------------------------------------------------- |
+| Solo       | 带来源的 preview 和轻量 AI 辅助；额度更低。                                |
+| Pro        | 完整 practice AI：brief、Pulse 摘要、客户风险摘要、deadline tip、迁移 AI。 |
+| Team       | 与 Pro 相同的 AI 功能；Team 差异来自团队管理、席位、批量运营和审计能力。   |
+| Enterprise | custom coverage、BYOK/provider 选项和审计级控制。                          |
 
-Pro 和 Team 必须保持同一 AI tier。Team 可以因为包含更多席位而拥有更高的 aggregate
-fair-use 保护，但 Billing 文案不能暗示 Team 有更强模型或更深 AI 推理能力。
+Pro 和 Team 必须保持同一 AI 功能面。Team 可以因为包含更多席位而拥有更高的 aggregate
+fair-use 保护，但 Billing 文案不能暗示 Team 有更强模型或更深 AI 推理能力。具体 provider/model
+属于内部运行策略，不对用户承诺。
 
 实现约束：
 
-- Solo 只能使用 preview / basic AI。手动触发的非迁移 practice AI workflows（Dashboard
+- Solo 只能使用 preview / basic AI 功能。手动触发的非迁移 practice AI workflows（Dashboard
   brief、Client Risk Summary、Deadline Tip、Readiness Checklist）必须在 procedure 层拒绝，
   并在前端显示 Pro 升级入口。
-- Migration 是核心 activation flow：Solo 的 Mapper / Normalizer 必须调用 basic tier AI。
+- Migration 是核心 activation flow：Solo 的 Mapper / Normalizer 可以使用 AI，但受 Solo
+  migration 额度控制。
   新 practice 在创建后 7 天内、且尚未完成首次真实导入前，Solo migration 享有 onboarding
   credit（30 req / firm / day）；首次成功导入后或窗口结束后回到 Solo migration 标准额度
   （15 req / firm / day）。AI 不可用时才降级到 preset / dictionary fallback，并继续写入 trace。
-- Pro 的 Production Pulse 包含 needs-review 确认和 review request；Team 不改变 AI tier，
+- Pro 的 Production Pulse 包含 needs-review 确认和 review request；Team 不改变 AI 功能面，
   但解锁 `priorityPulseMatching`、`guidedMigrationReview`、`auditExport` 等更高阶运营和审计差异。
 
 ---
@@ -218,7 +222,7 @@ const aiGateway = createAiGateway({
 const openRouter = createOpenRouter({ apiKey: env.AI_GATEWAY_PROVIDER_API_KEY })
 
 const result = await generateText({
-  model: aiGateway(openRouter.chat(env.AI_GATEWAY_MODEL)),
+  model: aiGateway(openRouter.chat(env.AI_GATEWAY_MODEL_FAST_JSON)),
   output: Output.object({ schema }),
   system: prompt.text,
   prompt: JSON.stringify(redactedInput),
@@ -232,7 +236,8 @@ latency、guard result 写入内部 `ai_output` / `llm_log` 等价表，方便 a
 Deployment placement:
 
 - `apps/server/wrangler.toml` 存非 secret：`AI_GATEWAY_ACCOUNT_ID`、`AI_GATEWAY_SLUG`、
-  `AI_GATEWAY_PROVIDER=openrouter`、`AI_GATEWAY_MODEL`
+  `AI_GATEWAY_PROVIDER=openrouter`、`AI_GATEWAY_MODEL_FAST_JSON`、
+  `AI_GATEWAY_MODEL_QUALITY_JSON`、`AI_GATEWAY_MODEL_REASONING`
 - `apps/server/.dev.vars` 存本地 secret：`AI_GATEWAY_PROVIDER_API_KEY`
 - GitHub environment `due-date-hq-staging` 存部署 secret：`AI_GATEWAY_PROVIDER_API_KEY`
 - Cloudflare Worker runtime secret 由 CI 的 Wrangler `--secrets-file` 写入；不需要在前端或

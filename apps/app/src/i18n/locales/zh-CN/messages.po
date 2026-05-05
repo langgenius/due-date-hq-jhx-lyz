@@ -6672,8 +6672,8 @@ msgid "The rollover disposition for this row: create, review, duplicate, missing
 msgstr "该行的滚动处理结果：创建、复核、重复、缺少规则或缺少截止日。"
 
 #: src/routes/billing.tsx
-msgid "The same practice AI tier as Pro, paired with team-scale management and review workflows."
-msgstr "与 Pro 相同的事务所 AI 档位，并搭配团队规模的管理和复核工作流。"
+msgid "The same practice AI functionality as Pro, paired with team-scale management and review workflows."
+msgstr "与 Pro 相同的事务所 AI 功能，配合团队规模的管理与复核工作流。"
 
 #: src/routes/billing.success.tsx
 msgid "The secure checkout has redirected back to DueDateHQ. We are confirming the subscription."

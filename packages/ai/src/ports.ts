@@ -36,8 +36,7 @@ export interface AiPorts {
   aiGatewayAccountId: string
   aiGatewaySlug: string
   aiGatewayApiKey: string
-  aiGatewayModel: string
-  aiGatewayModelBasic?: string
-  aiGatewayModelPractice?: string
-  aiGatewayModelEnterprise?: string
+  aiGatewayModelFastJson: string
+  aiGatewayModelQualityJson: string
+  aiGatewayModelReasoning: string
 }

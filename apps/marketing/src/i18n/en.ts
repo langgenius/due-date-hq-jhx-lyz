@@ -620,7 +620,7 @@ const en: LandingCopy = {
         seats: '1 PRODUCTION PRACTICE · 10 SEATS',
         aiLabel: 'Same Practice AI as Pro · built for 10-seat operations',
         aiDescription:
-          'The same practice AI tier as Pro, paired with team-scale management and review workflows.',
+          'The same practice AI functionality as Pro, paired with team-scale management and review workflows.',
         aiFeatures: ['Same AI capability as Pro', 'Team-scale fair-use protection'],
         cta: 'Upgrade to Team',
         hrefKind: 'checkout',

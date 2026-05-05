@@ -159,6 +159,7 @@ jobs:
             'STRIPE_WEBHOOK_SECRET',
             'STRIPE_PRICE_PRO_MONTHLY',
             'STRIPE_PRICE_TEAM_MONTHLY',
+            'AI_GATEWAY_PROVIDER_API_KEY',
           ]
           const missing = required.filter((key) => !process.env[key])
           if (missing.length > 0) {

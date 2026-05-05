@@ -1,17 +1,13 @@
-import {
-  planAiTier,
-  type AiPlanTier,
-  type AiTaskKind,
-  type BillingPlan,
-} from '@duedatehq/core/plan-entitlements'
+import { type AiTaskKind, type BillingPlan } from '@duedatehq/core/plan-entitlements'
 import type { PromptName } from './prompter'
 
 export interface AiModelRoutingEnv {
-  AI_GATEWAY_MODEL?: string
-  AI_GATEWAY_MODEL_BASIC?: string
-  AI_GATEWAY_MODEL_PRACTICE?: string
-  AI_GATEWAY_MODEL_ENTERPRISE?: string
+  AI_GATEWAY_MODEL_FAST_JSON?: string
+  AI_GATEWAY_MODEL_QUALITY_JSON?: string
+  AI_GATEWAY_MODEL_REASONING?: string
 }
+
+export type AiModelTier = 'fast-json' | 'quality-json' | 'reasoning'
 
 export interface AiRoutingInput {
   plan?: BillingPlan
@@ -35,14 +31,13 @@ export function taskKindForPrompt(prompt: PromptName): AiTaskKind {
   return 'insight'
 }
 
-export function aiTierForPlan(plan: BillingPlan | undefined): AiPlanTier {
-  return plan ? planAiTier(plan) : 'practice'
+export function parseModelTier(value: string): AiModelTier | null {
+  if (value === 'fast-json' || value === 'quality-json' || value === 'reasoning') return value
+  return null
 }
 
-export function modelForAiTier(env: AiModelRoutingEnv, tier: AiPlanTier): string | undefined {
-  if (tier === 'basic') return env.AI_GATEWAY_MODEL_BASIC ?? env.AI_GATEWAY_MODEL
-  if (tier === 'enterprise') {
-    return env.AI_GATEWAY_MODEL_ENTERPRISE ?? env.AI_GATEWAY_MODEL_PRACTICE ?? env.AI_GATEWAY_MODEL
-  }
-  return env.AI_GATEWAY_MODEL_PRACTICE ?? env.AI_GATEWAY_MODEL
+export function modelForPromptTier(env: AiModelRoutingEnv, tier: AiModelTier): string | undefined {
+  if (tier === 'fast-json') return env.AI_GATEWAY_MODEL_FAST_JSON
+  if (tier === 'quality-json') return env.AI_GATEWAY_MODEL_QUALITY_JSON
+  return env.AI_GATEWAY_MODEL_REASONING
 }

@@ -11,8 +11,8 @@ import { redactMigrationInput } from './pii'
 import { PulseExtractOutputSchema, type PulseExtractInput, type PulseExtractOutput } from './pulse'
 import { loadPrompt, type PromptName } from './prompter'
 import {
-  aiTierForPlan,
-  modelForAiTier,
+  modelForPromptTier,
+  parseModelTier,
   taskKindForPrompt,
   type AiModelRoutingEnv,
   type AiRoutingInput,
@@ -113,8 +113,8 @@ export function createAI(env: AiEnv = {}) {
     const redacted = redactMigrationInput(input)
     const inputHash = await hashInput(redacted.input)
     const taskKind = routing.taskKind ?? taskKindForPrompt(name)
-    const aiTier = aiTierForPlan(routing.plan)
-    const selectedModel = modelForAiTier(env, aiTier)
+    const modelTier = parseModelTier(prompt.modelTier)
+    const selectedModel = modelTier ? modelForPromptTier(env, modelTier) : undefined
 
     if (
       !env.AI_GATEWAY_ACCOUNT_ID ||

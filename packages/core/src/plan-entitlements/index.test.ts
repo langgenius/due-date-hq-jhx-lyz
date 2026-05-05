@@ -4,7 +4,6 @@ import {
   getPlanEntitlements,
   isBillingPlan,
   planAiDailyRunLimit,
-  planAiTier,
   planHasFeature,
   planSeatLimit,
 } from './index'
@@ -22,17 +21,12 @@ describe('plan entitlements', () => {
     expect(activePracticeLimitForPlan('firm')).toBeNull()
   })
 
-  it('keeps Pro and Team on the same practice AI tier', () => {
-    expect(planAiTier('solo')).toBe('basic')
-    expect(planAiTier('pro')).toBe('practice')
-    expect(planAiTier('team')).toBe('practice')
-    expect(planAiTier('firm')).toBe('enterprise')
-    expect(planAiTier('team')).toBe(planAiTier('pro'))
-  })
-
-  it('uses higher aggregate fair-use limits without changing the Team AI tier', () => {
+  it('uses higher aggregate fair-use limits without changing Team AI functionality', () => {
     expect(planAiDailyRunLimit('team')).toBeGreaterThan(planAiDailyRunLimit('pro'))
-    expect(planAiTier('team')).toBe(planAiTier('pro'))
+    expect(planHasFeature('team', 'productionPulse')).toBe(planHasFeature('pro', 'productionPulse'))
+    expect(planHasFeature('team', 'productionMigrationAi')).toBe(
+      planHasFeature('pro', 'productionMigrationAi'),
+    )
   })
 
   it('separates team operations from practice AI', () => {

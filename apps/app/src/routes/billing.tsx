@@ -139,7 +139,7 @@ function usePlanCards(interval: BillingInterval): PlanCard[] {
       seats: t`10 seats included`,
       firms: t`1 production practice`,
       aiLabel: t`Same Practice AI as Pro`,
-      aiDescription: t`The same practice AI tier as Pro, paired with team-scale management and review workflows.`,
+      aiDescription: t`The same practice AI functionality as Pro, paired with team-scale management and review workflows.`,
       aiFeatures: [t`Same AI capability as Pro`, t`Team-scale fair-use protection`],
       description: t`For practices coordinating a larger operations team.`,
       features: [

@@ -56,9 +56,9 @@ usable entitlement.
 6. Members cannot create practices on behalf of a paid practice unless they are creating a separate
    practice they will own. That separate practice still counts against their own entitlement state.
 7. Invitations and member management remain seat-limited per active practice.
-8. Pro and Team use the same Practice AI tier. Team can have higher aggregate fair-use protection
-   because it includes more seats, but it must not be marketed as a stronger AI model tier.
-9. Enterprise may use custom AI routing, custom coverage, and audit-grade AI controls by contract.
+8. Pro and Team expose the same Practice AI functionality. Team can have higher aggregate fair-use
+   protection because it includes more seats, but it must not be marketed as a stronger AI model.
+9. Enterprise may use custom AI controls, custom coverage, and audit-grade AI terms by contract.
 
 ## Product Surfaces
 
@@ -88,7 +88,7 @@ Runtime gates must match that copy:
 - Pro unlocks Dashboard brief refresh, client risk summary refresh, deadline tip refresh,
   readiness checklist generation, production Pulse actions including needs-review confirmation and
   review requests, and guided import AI for live client data.
-- Team keeps the same Practice AI model tier as Pro, and adds Team-only operations such as
+- Team keeps the same Practice AI functionality as Pro, and adds Team-only operations such as
   priority Pulse matching, guided integration migration review, audit export, and
   larger team workload protection.
 

@@ -1,9 +1,7 @@
 export const PLAN_IDS = ['solo', 'pro', 'team', 'firm'] as const
-export const AI_PLAN_TIERS = ['basic', 'practice', 'enterprise'] as const
 export const AI_TASK_KINDS = ['migration', 'brief', 'pulse', 'insight', 'readiness'] as const
 
 export type BillingPlan = (typeof PLAN_IDS)[number]
-export type AiPlanTier = (typeof AI_PLAN_TIERS)[number]
 export type AiTaskKind = (typeof AI_TASK_KINDS)[number]
 
 export type PlanFeatureKey =
@@ -25,7 +23,6 @@ export interface PlanEntitlements {
   label: 'Solo' | 'Pro' | 'Team' | 'Enterprise'
   seatLimit: number
   activePracticeLimit: number | null
-  aiTier: AiPlanTier
   aiDailyRunLimit: number
   features: Record<PlanFeatureKey, boolean>
 }
@@ -54,7 +51,6 @@ export const PLAN_ENTITLEMENTS = {
     label: 'Solo',
     seatLimit: 1,
     activePracticeLimit: 1,
-    aiTier: 'basic',
     aiDailyRunLimit: 5,
     features: features([]),
   },
@@ -63,7 +59,6 @@ export const PLAN_ENTITLEMENTS = {
     label: 'Pro',
     seatLimit: 3,
     activePracticeLimit: 1,
-    aiTier: 'practice',
     aiDailyRunLimit: 50,
     features: features(['sharedDeadlineOperations', 'productionPulse', 'productionMigrationAi']),
   },
@@ -72,7 +67,6 @@ export const PLAN_ENTITLEMENTS = {
     label: 'Team',
     seatLimit: 10,
     activePracticeLimit: 1,
-    aiTier: 'practice',
     aiDailyRunLimit: 150,
     features: features([
       'sharedDeadlineOperations',
@@ -89,7 +83,6 @@ export const PLAN_ENTITLEMENTS = {
     label: 'Enterprise',
     seatLimit: 10,
     activePracticeLimit: null,
-    aiTier: 'enterprise',
     aiDailyRunLimit: 500,
     features: features([
       'sharedDeadlineOperations',
@@ -118,10 +111,6 @@ export function getPlanEntitlements(plan: BillingPlan): PlanEntitlements {
 
 export function planSeatLimit(plan: BillingPlan): number {
   return getPlanEntitlements(plan).seatLimit
-}
-
-export function planAiTier(plan: BillingPlan): AiPlanTier {
-  return getPlanEntitlements(plan).aiTier
 }
 
 export function planAiDailyRunLimit(plan: BillingPlan): number {
