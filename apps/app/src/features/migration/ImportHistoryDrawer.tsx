@@ -28,9 +28,11 @@ import {
 } from '@duedatehq/ui/components/ui/sheet'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
+import { usePracticeTimezone } from '@/features/firm/practice-timezone'
 import { PermissionInlineNotice, useFirmPermission } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 type ImportHistoryDrawerProps = {
   open: boolean
@@ -43,14 +45,9 @@ type PendingRecovery =
   | { kind: 'batch'; batchId: string }
   | { kind: 'client'; batchId: string; client: ClientPublic }
 
-function fmt(value: string | null): string {
+function formatMigrationDate(value: string | null, timeZone: string): string {
   if (!value) return '—'
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(new Date(value))
+  return formatDateTimeWithTimezone(value, timeZone)
 }
 
 function batchLabel(batch: MigrationBatch): string {
@@ -71,6 +68,7 @@ export function ImportHistoryDrawer({
   onViewClient,
 }: ImportHistoryDrawerProps) {
   const { t } = useLingui()
+  const practiceTimezone = usePracticeTimezone()
   const queryClient = useQueryClient()
   const permission = useFirmPermission()
   const canRevertMigration = permission.can('migration.revert')
@@ -235,10 +233,12 @@ export function ImportHistoryDrawer({
                             <Trans>Success</Trans>: {batch.successCount}
                           </span>
                           <span>
-                            <Trans>Applied</Trans>: {fmt(batch.appliedAt)}
+                            <Trans>Applied</Trans>:{' '}
+                            {formatMigrationDate(batch.appliedAt, practiceTimezone)}
                           </span>
                           <span>
-                            <Trans>Undo available until</Trans>: {fmt(batch.revertExpiresAt)}
+                            <Trans>Revert until</Trans>:{' '}
+                            {formatMigrationDate(batch.revertExpiresAt, practiceTimezone)}
                           </span>
                         </div>
                         <BatchClients
@@ -280,7 +280,7 @@ export function ImportHistoryDrawer({
                               disabled={!canRevertBatch || recoveryPending}
                             >
                               <RotateCcwIcon data-icon="inline-start" />
-                              <Trans>Undo full import</Trans>
+                              <Trans>Revert batch</Trans>
                             </Button>
                           )}
                         </div>
@@ -308,7 +308,7 @@ export function ImportHistoryDrawer({
               ) : pendingRecovery?.kind === 'draft' ? (
                 <Trans>Discard this draft import?</Trans>
               ) : (
-                <Trans>Undo this import batch?</Trans>
+                <Trans>Revert this import batch?</Trans>
               )}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-md">
@@ -345,7 +345,7 @@ export function ImportHistoryDrawer({
               ) : pendingRecovery?.kind === 'draft' ? (
                 <Trans>Discard draft</Trans>
               ) : (
-                <Trans>Undo full import</Trans>
+                <Trans>Revert batch</Trans>
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

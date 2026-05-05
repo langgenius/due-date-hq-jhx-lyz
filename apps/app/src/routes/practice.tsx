@@ -52,7 +52,8 @@ import {
 } from '@duedatehq/ui/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 import { ConceptHelp, ConceptLabel } from '@/features/concepts/concept-help'
-import { FirmTimezoneSelect, resolveUSFirmTimezone } from '@/features/firm/timezone-select'
+import { resolveUSFirmTimezone } from '@/features/firm/timezone-model'
+import { FirmTimezoneSelect } from '@/features/firm/timezone-select'
 import {
   PermissionInlineNotice,
   PermissionObscuredContent,

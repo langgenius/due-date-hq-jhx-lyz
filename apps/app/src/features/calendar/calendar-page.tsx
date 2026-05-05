@@ -43,6 +43,7 @@ import {
   canManageFirmCalendar,
 } from '@/features/calendar/calendar-model'
 import { useCurrentFirm } from '@/features/billing/use-billing-data'
+import { usePracticeTimezone } from '@/features/firm/practice-timezone'
 import { PermissionObscuredContent } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -225,6 +226,7 @@ function CalendarSubscriptionCard({
   onDisable: (id: string) => void
 }) {
   const { t } = useLingui()
+  const practiceTimezone = usePracticeTimezone()
   const activeSubscription =
     !config.locked && subscription?.status === 'active' && subscription.feedUrl
       ? subscription
@@ -302,14 +304,16 @@ function CalendarSubscriptionCard({
               <MetadataRow
                 label={t`Created`}
                 value={
-                  subscription ? formatDateTimeWithTimezone(subscription.createdAt) : t`Not enabled`
+                  subscription
+                    ? formatDateTimeWithTimezone(subscription.createdAt, practiceTimezone)
+                    : t`Not enabled`
                 }
               />
               <MetadataRow
                 label={t`Last accessed`}
                 value={
                   subscription?.lastAccessedAt
-                    ? formatDateTimeWithTimezone(subscription.lastAccessedAt)
+                    ? formatDateTimeWithTimezone(subscription.lastAccessedAt, practiceTimezone)
                     : t`Never`
                 }
               />

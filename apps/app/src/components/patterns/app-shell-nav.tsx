@@ -57,7 +57,8 @@ import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { canCreateAdditionalFirm, ownedActiveFirms, paidPlanActive } from '@/features/billing/model'
 import { usePulseListAlertsQueryOptions } from '@/features/pulse/api'
-import { DEFAULT_US_FIRM_TIMEZONE, FirmTimezoneSelect } from '@/features/firm/timezone-select'
+import { DEFAULT_US_FIRM_TIMEZONE } from '@/features/firm/timezone-model'
+import { FirmTimezoneSelect } from '@/features/firm/timezone-select'
 import { FIRM_SWITCHER_HOTKEY } from '@/components/patterns/keyboard-shell/display'
 import {
   useAppHotkey,

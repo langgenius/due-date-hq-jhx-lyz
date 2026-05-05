@@ -23,6 +23,7 @@ import {
   CardTitle,
 } from '@duedatehq/ui/components/ui/card'
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { usePracticeTimezone } from '@/features/firm/practice-timezone'
 import { formatDateTimeWithTimezone } from '@/lib/utils'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
@@ -33,6 +34,7 @@ import {
 
 export function AccountSecurityRoute() {
   const { t } = useLingui()
+  const practiceTimezone = usePracticeTimezone()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const statusQuery = useQuery(orpc.security.status.queryOptions({ input: undefined }))
@@ -277,7 +279,8 @@ export function AccountSecurityRoute() {
                     ) : null}
                   </div>
                   <p className="mt-1 font-mono text-xs text-text-muted">
-                    {session.ipAddress || '-'} · {formatDateTimeWithTimezone(session.createdAt)}
+                    {session.ipAddress || '-'} ·{' '}
+                    {formatDateTimeWithTimezone(session.createdAt, practiceTimezone)}
                   </p>
                 </div>
                 <Button

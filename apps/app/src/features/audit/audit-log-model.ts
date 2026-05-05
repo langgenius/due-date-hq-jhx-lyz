@@ -283,8 +283,9 @@ const DEFAULT_AUDIT_SUMMARY_LABELS: AuditSummaryLabels = {
 }
 
 const ISO_DATETIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/
+const DEFAULT_AUDIT_TIMEZONE = 'UTC'
 
-function formatStringValue(value: string, timeZone?: string): string {
+function formatStringValue(value: string, timeZone: string): string {
   return ISO_DATETIME_PATTERN.test(value) ? formatDateTimeWithTimezone(value, timeZone) : value
 }
 
@@ -293,7 +294,7 @@ function readRecord(value: unknown): Record<string, unknown> | null {
   return Object.fromEntries(Object.entries(value))
 }
 
-function stringifyScalar(value: unknown, labels: AuditSummaryLabels, timeZone?: string): string {
+function stringifyScalar(value: unknown, labels: AuditSummaryLabels, timeZone: string): string {
   if (value === null) return 'null'
   if (value === undefined) return labels.empty
   if (typeof value === 'string') return formatStringValue(value, timeZone)
@@ -301,7 +302,7 @@ function stringifyScalar(value: unknown, labels: AuditSummaryLabels, timeZone?: 
   return labels.object
 }
 
-function formatAuditJsonValue(value: unknown, timeZone?: string): unknown {
+function formatAuditJsonValue(value: unknown, timeZone: string): unknown {
   if (typeof value === 'string') return formatStringValue(value, timeZone)
   if (Array.isArray(value)) return value.map((entry) => formatAuditJsonValue(entry, timeZone))
   const record = readRecord(value)
@@ -316,7 +317,7 @@ function formatAuditJsonValue(value: unknown, timeZone?: string): unknown {
 export function summarizeAuditChange(
   event: Pick<AuditEventPublic, 'beforeJson' | 'afterJson'>,
   labels: AuditSummaryLabels = DEFAULT_AUDIT_SUMMARY_LABELS,
-  timeZone?: string,
+  timeZone = DEFAULT_AUDIT_TIMEZONE,
 ) {
   const before = readRecord(event.beforeJson)
   const after = readRecord(event.afterJson)
@@ -338,7 +339,7 @@ export function summarizeAuditChange(
   return labels.noChange
 }
 
-export function formatAuditJson(value: unknown, timeZone?: string): string {
+export function formatAuditJson(value: unknown, timeZone = DEFAULT_AUDIT_TIMEZONE): string {
   if (value === null || value === undefined) return 'null'
   return JSON.stringify(formatAuditJsonValue(value, timeZone), null, 2)
 }

@@ -27,10 +27,10 @@ export function inviterName(members: MemberPublic[], inviterId: string): string 
   return members.find((member) => member.userId === inviterId)?.name ?? inviterId
 }
 
-export function formatMemberDate(value: string): string {
-  return formatDateTimeWithTimezone(value)
+export function formatMemberDate(value: string, timeZone: string): string {
+  return formatDateTimeWithTimezone(value, timeZone)
 }
 
-export function formatInvitationDate(value: string): string {
-  return formatDateTimeWithTimezone(value)
+export function formatInvitationDate(value: string, timeZone: string): string {
+  return formatDateTimeWithTimezone(value, timeZone)
 }

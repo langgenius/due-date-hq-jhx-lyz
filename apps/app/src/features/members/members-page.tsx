@@ -67,6 +67,7 @@ import {
   useAppHotkey,
   useKeyboardShortcutsBlocked,
 } from '@/components/patterns/keyboard-shell/hooks'
+import { resolveUSFirmTimezone } from '@/features/firm/timezone-model'
 import { PermissionGate, useFirmPermission } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import {
@@ -134,10 +135,15 @@ export function MembersPageRoute() {
 
   if (!membersQuery.data) return null
 
-  return <MembersPage data={membersQuery.data} />
+  return (
+    <MembersPage
+      data={membersQuery.data}
+      firmTimezone={resolveUSFirmTimezone(permission.firm?.timezone)}
+    />
+  )
 }
 
-function MembersPage({ data }: { data: MembersListOutput }) {
+function MembersPage({ data, firmTimezone }: { data: MembersListOutput; firmTimezone: string }) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const [inviteOpen, setInviteOpen] = useState(false)
@@ -297,6 +303,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
         />
         <ActiveMembersTable
           members={data.members}
+          firmTimezone={firmTimezone}
           onRoleChange={(memberId, role) => updateRoleMutation.mutate({ memberId, role })}
           onSuspend={(member) => suspendMutation.mutate({ memberId: member.id })}
           onReactivate={(member) => reactivateMutation.mutate({ memberId: member.id })}
@@ -319,6 +326,7 @@ function MembersPage({ data }: { data: MembersListOutput }) {
         <PendingInvitationsTable
           invitations={data.invitations}
           members={data.members}
+          firmTimezone={firmTimezone}
           onResend={(invitation) => resendMutation.mutate({ invitationId: invitation.id })}
           onCancel={(invitation) => cancelMutation.mutate({ invitationId: invitation.id })}
           busy={resendMutation.isPending || cancelMutation.isPending}
@@ -456,6 +464,7 @@ function SectionHeader({
 
 function ActiveMembersTable({
   members,
+  firmTimezone,
   onRoleChange,
   onSuspend,
   onReactivate,
@@ -463,6 +472,7 @@ function ActiveMembersTable({
   busy,
 }: {
   members: MemberPublic[]
+  firmTimezone: string
   onRoleChange: (memberId: string, role: MemberManagedRole) => void
   onSuspend: (member: MemberPublic) => void
   onReactivate: (member: MemberPublic) => void
@@ -478,7 +488,7 @@ function ActiveMembersTable({
             <TableHead className="w-[280px]">Email</TableHead>
             <TableHead className="w-44">Role</TableHead>
             <TableHead className="w-32">Status</TableHead>
-            <TableHead className="w-28">Joined</TableHead>
+            <TableHead className="w-44">Joined</TableHead>
             <TableHead className="w-28">Last active</TableHead>
             <TableHead className="w-12" />
           </TableRow>
@@ -504,8 +514,8 @@ function ActiveMembersTable({
                 <TableCell className="py-1.5">
                   <MemberStatusPill status={member.status} />
                 </TableCell>
-                <TableCell className="py-1.5 font-mono text-xs text-text-muted">
-                  {formatMemberDate(member.createdAt)}
+                <TableCell className="py-1.5 font-mono text-xs whitespace-nowrap text-text-muted">
+                  {formatMemberDate(member.createdAt, firmTimezone)}
                 </TableCell>
                 <TableCell className="py-1.5 font-mono text-xs text-text-muted">
                   <Trans>Not recorded</Trans>
@@ -532,12 +542,14 @@ function ActiveMembersTable({
 function PendingInvitationsTable({
   invitations,
   members,
+  firmTimezone,
   onResend,
   onCancel,
   busy,
 }: {
   invitations: MemberInvitationPublic[]
   members: MemberPublic[]
+  firmTimezone: string
   onResend: (invitation: MemberInvitationPublic) => void
   onCancel: (invitation: MemberInvitationPublic) => void
   busy: boolean
@@ -579,7 +591,7 @@ function PendingInvitationsTable({
               </TableCell>
               <TableCell className="py-2 font-mono text-xs leading-4">
                 <span className="block text-text-secondary">
-                  <Trans>Sent {formatInvitationDate(invitation.createdAt)}</Trans>
+                  <Trans>Sent {formatInvitationDate(invitation.createdAt, firmTimezone)}</Trans>
                 </span>
                 <span
                   className={cn(
@@ -588,9 +600,13 @@ function PendingInvitationsTable({
                   )}
                 >
                   {invitation.status === 'expired' ? (
-                    <Trans>Expired {formatInvitationDate(invitation.expiresAt)}</Trans>
+                    <Trans>
+                      Expired {formatInvitationDate(invitation.expiresAt, firmTimezone)}
+                    </Trans>
                   ) : (
-                    <Trans>Expires {formatInvitationDate(invitation.expiresAt)}</Trans>
+                    <Trans>
+                      Expires {formatInvitationDate(invitation.expiresAt, firmTimezone)}
+                    </Trans>
                   )}
                 </span>
               </TableCell>
@@ -862,7 +878,8 @@ function InviteMemberDialog({
             </Select>
             <p className="text-xs leading-5 text-text-tertiary">
               <Trans>
-                Owner cannot be invited or changed here. Choose Manager, Preparer, or Coordinator.
+                Owner stays read-only. Managers can review work; preparers and coordinators have
+                scoped access.
               </Trans>
             </p>
           </div>

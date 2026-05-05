@@ -136,6 +136,7 @@ import {
 import { IsoDatePicker, isValidIsoDate } from '@/components/primitives/iso-date-picker'
 import { ConceptLabel } from '@/features/concepts/concept-help'
 import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
+import { usePracticeTimezone } from '@/features/firm/practice-timezone'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { useFirmPermission } from '@/features/permissions/permission-gate'
 import { billingPlanHref, paidPlanActive } from '@/features/billing/model'
@@ -2343,6 +2344,7 @@ function ObligationQueueDetailDrawer({
   practiceAiEnabled: boolean
 }) {
   const { t } = useLingui()
+  const practiceTimezone = usePracticeTimezone()
   const queryClient = useQueryClient()
   const [checklistDraft, setChecklistDraft] = useState<{
     obligationId: string
@@ -2943,7 +2945,7 @@ function ObligationQueueDetailDrawer({
                       label={<Trans>Decided at</Trans>}
                       value={
                         row.extensionDecidedAt
-                          ? new Date(row.extensionDecidedAt).toLocaleString()
+                          ? formatDateTimeWithTimezone(row.extensionDecidedAt, practiceTimezone)
                           : t`Not decided`
                       }
                     />
@@ -2986,6 +2988,7 @@ function ObligationQueueDetailDrawer({
                       isPreparing={deadlineTipPreparing}
                       isTimedOut={deadlineTipRefreshTimedOut}
                       canRefresh={practiceAiEnabled}
+                      practiceTimezone={practiceTimezone}
                       onRefresh={() => requestDeadlineTipMutation.mutate({ obligationId: row.id })}
                     />
                     <DetailRow
@@ -3030,7 +3033,7 @@ function ObligationQueueDetailDrawer({
                       label={<Trans>Calculated</Trans>}
                       value={
                         row.exposureCalculatedAt
-                          ? new Date(row.exposureCalculatedAt).toLocaleString()
+                          ? formatDateTimeWithTimezone(row.exposureCalculatedAt, practiceTimezone)
                           : t`Not calculated`
                       }
                     />
@@ -3110,7 +3113,13 @@ function ObligationQueueDetailDrawer({
                     </div>
                   ) : null}
                   {detail.evidence.length > 0 ? (
-                    detail.evidence.map((item) => <EvidenceInlineItem key={item.id} item={item} />)
+                    detail.evidence.map((item) => (
+                      <EvidenceInlineItem
+                        key={item.id}
+                        item={item}
+                        practiceTimezone={practiceTimezone}
+                      />
+                    ))
                   ) : (
                     <EmptyPanel>
                       <Trans>No evidence links are attached to this obligation.</Trans>
@@ -3136,7 +3145,11 @@ function ObligationQueueDetailDrawer({
                   </div>
                   {detail.auditEvents.length > 0 ? (
                     detail.auditEvents.map((event) => (
-                      <ObligationQueueAuditEventCard key={event.id} event={event} />
+                      <ObligationQueueAuditEventCard
+                        key={event.id}
+                        event={event}
+                        practiceTimezone={practiceTimezone}
+                      />
                     ))
                   ) : (
                     <EmptyPanel>
@@ -3235,6 +3248,7 @@ function DeadlineTipPanel({
   isPreparing,
   isTimedOut,
   canRefresh,
+  practiceTimezone,
   onRefresh,
 }: {
   insight: AiInsightPublic | null
@@ -3242,6 +3256,7 @@ function DeadlineTipPanel({
   isPreparing: boolean
   isTimedOut: boolean
   canRefresh: boolean
+  practiceTimezone: string
   onRefresh: () => void
 }) {
   const hasPreviousTip = Boolean(insight?.generatedAt)
@@ -3331,7 +3346,9 @@ function DeadlineTipPanel({
           ))}
           {insight.generatedAt ? (
             <span className="text-xs text-text-tertiary">
-              <Trans>Updated {formatDateTimeWithTimezone(insight.generatedAt)}</Trans>
+              <Trans>
+                Updated {formatDateTimeWithTimezone(insight.generatedAt, practiceTimezone)}
+              </Trans>
             </span>
           ) : null}
         </div>
@@ -3519,7 +3536,13 @@ function evidenceSourceLabel(sourceType: string): ReactNode {
   return sourceType
 }
 
-function EvidenceInlineItem({ item }: { item: ObligationQueueEvidenceItem }) {
+function EvidenceInlineItem({
+  item,
+  practiceTimezone,
+}: {
+  item: ObligationQueueEvidenceItem
+  practiceTimezone: string
+}) {
   const checklist =
     item.sourceType === 'readiness_checklist_ai'
       ? parseGeneratedReadinessChecklist(item.normalizedValue)
@@ -3534,7 +3557,7 @@ function EvidenceInlineItem({ item }: { item: ObligationQueueEvidenceItem }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-medium">{evidenceSourceLabel(item.sourceType)}</span>
         <span className="text-xs text-text-tertiary">
-          {new Date(item.appliedAt).toLocaleString()}
+          {formatDateTimeWithTimezone(item.appliedAt, practiceTimezone)}
         </span>
       </div>
       {checklist ? (
@@ -3686,7 +3709,13 @@ function ReadinessResponseStatusBadge({
   )
 }
 
-function ObligationQueueAuditEventCard({ event }: { event: ObligationQueueAuditEvent }) {
+function ObligationQueueAuditEventCard({
+  event,
+  practiceTimezone,
+}: {
+  event: ObligationQueueAuditEvent
+  practiceTimezone: string
+}) {
   const { t } = useLingui()
   const readinessLabels = useReadinessLabels()
 
@@ -3697,7 +3726,7 @@ function ObligationQueueAuditEventCard({ event }: { event: ObligationQueueAuditE
           {readinessAuditActionLabel(event.action) ?? event.action}
         </span>
         <span className="text-xs text-text-tertiary">
-          {new Date(event.createdAt).toLocaleString()}
+          {formatDateTimeWithTimezone(event.createdAt, practiceTimezone)}
         </span>
       </div>
       <p className="mt-1 text-xs text-text-secondary">

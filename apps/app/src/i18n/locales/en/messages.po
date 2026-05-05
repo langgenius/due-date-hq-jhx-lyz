@@ -1153,6 +1153,12 @@ msgstr "Change status"
 msgid "Change status for {0}"
 msgstr "Change status for {0}"
 
+#. placeholder {0}: before.node
+#. placeholder {1}: after.node
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Changed from {0} to {1}"
+msgstr "Changed from {0} to {1}"
+
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Checking {label}…"
 msgstr "Checking {label}…"
@@ -1262,6 +1268,11 @@ msgstr "Clear"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Clear search or filters to return to the full practice directory."
 msgstr "Clear search or filters to return to the full practice directory."
+
+#. placeholder {0}: before.node
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Cleared from {0}"
+msgstr "Cleared from {0}"
 
 #: src/features/members/members-page.tsx
 msgid "Click more to change role, suspend, or remove"
@@ -2525,12 +2536,12 @@ msgstr "Expected extended due date (reference only)"
 msgid "Expired"
 msgstr "Expired"
 
-#. placeholder {0}: formatInvitationDate(invitation.expiresAt)
+#. placeholder {0}: formatInvitationDate(invitation.expiresAt, firmTimezone)
 #: src/features/members/members-page.tsx
 msgid "Expired {0}"
 msgstr "Expired {0}"
 
-#. placeholder {0}: formatInvitationDate(invitation.expiresAt)
+#. placeholder {0}: formatInvitationDate(invitation.expiresAt, firmTimezone)
 #: src/features/members/members-page.tsx
 msgid "Expires {0}"
 msgstr "Expires {0}"
@@ -5981,7 +5992,7 @@ msgstr "Send request"
 msgid "Sending…"
 msgstr "Sending…"
 
-#. placeholder {0}: formatInvitationDate(invitation.createdAt)
+#. placeholder {0}: formatInvitationDate(invitation.createdAt, firmTimezone)
 #: src/features/members/members-page.tsx
 msgid "Sent {0}"
 msgstr "Sent {0}"
@@ -5990,6 +6001,11 @@ msgstr "Sent {0}"
 #: src/routes/account.security.tsx
 msgid "Session revoked"
 msgstr "Session revoked"
+
+#. placeholder {0}: after.node
+#: src/features/evidence/EvidenceDrawerProvider.tsx
+msgid "Set to {0}"
+msgstr "Set to {0}"
 
 #: src/routes/account.security.tsx
 msgid "Set up authenticator"
@@ -7014,7 +7030,7 @@ msgstr "Update the active practice's name and timezone."
 msgid "Updated"
 msgstr "Updated"
 
-#. placeholder {0}: formatDateTimeWithTimezone(insight.generatedAt)
+#. placeholder {0}: formatDateTimeWithTimezone(insight.generatedAt, practiceTimezone)
 #: src/routes/obligations.tsx
 msgid "Updated {0}"
 msgstr "Updated {0}"

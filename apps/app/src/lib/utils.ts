@@ -37,7 +37,7 @@ export function formatDate(value: string): string {
   return `${readPart(parts, 'year')}-${readPart(parts, 'month')}-${readPart(parts, 'day')}`
 }
 
-export function formatDateTimeWithTimezone(value: string, timeZone = localTimeZone()): string {
+export function formatDateTimeWithTimezone(value: string, timeZone: string): string {
   const date = new Date(value)
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone,

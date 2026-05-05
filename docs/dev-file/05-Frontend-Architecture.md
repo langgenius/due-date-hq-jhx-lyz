@@ -646,7 +646,13 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
   绝对 module id 的正则，不能用 `src/**/*.{ts,tsx}` 这类 picomatch brace glob
 - **富文本占位符**：`lingui.config.ts` 启用 `data-t` 与常见 tag 默认 placeholder 名，避免
   `<0>` / `<1>` 这类对译者不友好的占位符
-- **日期 / 金额** 用 `Intl.DateTimeFormat` / `Intl.NumberFormat`，不引 moment / dayjs
+- **日期 / 金额** 用 `Intl.DateTimeFormat` / `Intl.NumberFormat`，不引 moment / dayjs。
+  Protected app 内所有系统时间戳展示（created/updated/applied/generated/accessed 等 datetime）
+  必须使用 active practice profile 的 timezone：从 `_layout` 的 `PracticeTimezoneProvider`
+  通过 `usePracticeTimezone()` 读取，或从当前 firm data 显式传入 `formatDateTimeWithTimezone`。
+  `formatDateTimeWithTimezone(value, timeZone)` 不提供 browser-local 默认值；新增 datetime
+  展示必须显式传 timezone。例外是用户手动选择的 date-only 字段、due date / ETA / rule
+  effective date 等业务日期，继续用 `YYYY-MM-DD` / `formatDate`，不做 timezone 转换。
 - **复数 / 选择**用 Lingui 原生 `<Plural>` / `<Select>`（ICU MessageFormat），不额外装 `i18next-icu`
 
 ### 11.1 操作命令

@@ -92,6 +92,7 @@ import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { billingPlanHref, paidPlanActive } from '@/features/billing/model'
 import { useCurrentFirm } from '@/features/billing/use-billing-data'
+import { resolveUSFirmTimezone } from '@/features/firm/timezone-model'
 
 import {
   CLIENT_ENTITY_TYPES,
@@ -197,6 +198,9 @@ export function ClientFactsWorkspace({
 }: ClientFactsWorkspaceProps) {
   const { t } = useLingui()
   const queryClient = useQueryClient()
+  const { currentFirm } = useCurrentFirm()
+  const firmTimezone = resolveUSFirmTimezone(currentFirm?.timezone)
+  const practiceAiEnabled = paidPlanActive(currentFirm)
   const [openHeaderFilter, setOpenHeaderFilter] = useState<string | null>(null)
   const deleteClientMutation = useMutation(
     orpc.clients.delete.mutationOptions({
@@ -485,7 +489,7 @@ export function ClientFactsWorkspace({
         header: t`Updated`,
         cell: (info) => (
           <span className="font-mono tabular-nums">
-            {formatDateTimeWithTimezone(info.getValue<string>())}
+            {formatDateTimeWithTimezone(info.getValue<string>(), firmTimezone)}
           </span>
         ),
         meta: {
@@ -501,6 +505,7 @@ export function ClientFactsWorkspace({
       entityLabels,
       entityOptions,
       factsModel.readinessById,
+      firmTimezone,
       onClientFilterChange,
       onEntityFilterChange,
       onOwnerFilterChange,
@@ -665,6 +670,8 @@ export function ClientFactsWorkspace({
           client={activeClient}
           entityLabels={entityLabels}
           readiness={activeClient ? factsModel.readinessById.get(activeClient.id) : undefined}
+          firmTimezone={firmTimezone}
+          practiceAiEnabled={practiceAiEnabled}
           canDelete={canDelete}
           isDeleting={deleteClientMutation.isPending}
           onDelete={(clientId) => deleteClientMutation.mutate({ id: clientId })}
@@ -779,6 +786,8 @@ function ClientProfileSheet({
   client,
   entityLabels,
   readiness,
+  firmTimezone,
+  practiceAiEnabled,
   canDelete,
   isDeleting,
   onDelete,
@@ -788,6 +797,8 @@ function ClientProfileSheet({
   client: ClientPublic | null
   entityLabels: Record<ClientEntityType, string>
   readiness: ClientReadiness | undefined
+  firmTimezone: string
+  practiceAiEnabled: boolean
   canDelete: boolean
   isDeleting: boolean
   onDelete: (clientId: string) => void
@@ -795,8 +806,6 @@ function ClientProfileSheet({
   const { t } = useLingui()
   const queryClient = useQueryClient()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const { currentFirm } = useCurrentFirm()
-  const practiceAiEnabled = paidPlanActive(currentFirm)
   const insightClientId = client?.id ?? '00000000-0000-4000-8000-000000000000'
   const riskSummaryQuery = useQuery({
     ...orpc.clients.getRiskSummary.queryOptions({ input: { clientId: insightClientId } }),
@@ -840,10 +849,10 @@ function ClientProfileSheet({
     orpc.clients.requestRiskSummaryRefresh.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries({ queryKey: orpc.clients.getRiskSummary.key() })
-        toast.success(t`Risk summary refresh started`)
+        toast.success(t`Risk summary refresh queued`)
       },
       onError: (err) => {
-        toast.error(t`Couldn't start risk summary refresh`, {
+        toast.error(t`Couldn't queue risk summary`, {
           description: rpcErrorMessage(err) ?? t`Please try again.`,
         })
       },
@@ -861,7 +870,7 @@ function ClientProfileSheet({
             <Trans>Fact profile</Trans>
           </SheetTitle>
           <SheetDescription>
-            <Trans>Client facts, risk inputs, and saved AI summary.</Trans>
+            <Trans>Client facts, risk inputs, and cached AI summary.</Trans>
           </SheetDescription>
         </SheetHeader>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">
@@ -892,12 +901,12 @@ function ClientProfileSheet({
                 <DetailRow label={<Trans>Owner</Trans>} value={client.assigneeName ?? 'N/A'} />
                 <DetailRow
                   label={<Trans>Created</Trans>}
-                  value={formatDateTimeWithTimezone(client.createdAt)}
+                  value={formatDateTimeWithTimezone(client.createdAt, firmTimezone)}
                   mono
                 />
                 <DetailRow
                   label={<Trans>Updated</Trans>}
-                  value={formatDateTimeWithTimezone(client.updatedAt)}
+                  value={formatDateTimeWithTimezone(client.updatedAt, firmTimezone)}
                   mono
                 />
               </div>
@@ -921,6 +930,7 @@ function ClientProfileSheet({
                 isLoading={riskSummaryQuery.isLoading}
                 isRefreshing={requestRiskSummaryMutation.isPending}
                 canRefresh={practiceAiEnabled}
+                firmTimezone={firmTimezone}
                 onRefresh={() =>
                   requestRiskSummaryMutation.mutate({
                     clientId: client.id,
@@ -1312,12 +1322,14 @@ function ClientRiskSummaryPanel({
   isLoading,
   isRefreshing,
   canRefresh,
+  firmTimezone,
   onRefresh,
 }: {
   insight: AiInsightPublic | null
   isLoading: boolean
   isRefreshing: boolean
   canRefresh: boolean
+  firmTimezone: string
   onRefresh: () => void
 }) {
   return (
@@ -1367,7 +1379,7 @@ function ClientRiskSummaryPanel({
           ))}
           <span className="text-xs text-text-tertiary">
             {insight.generatedAt ? (
-              formatDateTimeWithTimezone(insight.generatedAt)
+              formatDateTimeWithTimezone(insight.generatedAt, firmTimezone)
             ) : (
               <Trans>Pending</Trans>
             )}

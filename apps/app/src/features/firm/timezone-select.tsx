@@ -2,11 +2,7 @@ import { useState } from 'react'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { CheckIcon, ChevronDownIcon } from 'lucide-react'
 
-import {
-  US_FIRM_TIMEZONE_OPTIONS,
-  US_FIRM_TIMEZONES,
-  type USFirmTimezone,
-} from '@duedatehq/contracts'
+import { US_FIRM_TIMEZONE_OPTIONS, type USFirmTimezone } from '@duedatehq/contracts'
 import {
   Command,
   CommandEmpty,
@@ -18,7 +14,9 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@duedatehq/ui/components/ui/popover'
 import { cn } from '@duedatehq/ui/lib/utils'
 
-export const DEFAULT_US_FIRM_TIMEZONE = 'America/New_York' satisfies USFirmTimezone
+import { isUSFirmTimezone } from './timezone-model'
+
+export { DEFAULT_US_FIRM_TIMEZONE, isUSFirmTimezone, resolveUSFirmTimezone } from './timezone-model'
 
 const TIMEZONE_GROUPS = [
   'Eastern',
@@ -32,14 +30,6 @@ const TIMEZONE_GROUPS = [
   'Samoa',
   'Wake',
 ] as const
-
-export function isUSFirmTimezone(value: string): value is USFirmTimezone {
-  return (US_FIRM_TIMEZONES as readonly string[]).includes(value)
-}
-
-export function resolveUSFirmTimezone(value: string | null | undefined): USFirmTimezone {
-  return value && isUSFirmTimezone(value) ? value : DEFAULT_US_FIRM_TIMEZONE
-}
 
 function timezoneOptionLabel(option: (typeof US_FIRM_TIMEZONE_OPTIONS)[number]): string {
   return `${option.region} (${option.value})`

@@ -16,7 +16,9 @@ import {
 } from '@duedatehq/ui/components/ui/table'
 
 import { usePulseDrawer } from '@/features/pulse/DrawerProvider'
+import { usePracticeTimezone } from '@/features/firm/practice-timezone'
 import { orpc } from '@/lib/rpc'
+import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 import {
   FilterChips,
@@ -32,6 +34,7 @@ const EMPTY_RULES: readonly TemporaryRule[] = []
 export function TemporaryRulesTab() {
   const { t } = useLingui()
   const { openDrawer } = usePulseDrawer()
+  const practiceTimezone = usePracticeTimezone()
   const [filter, setFilter] = useState<TemporaryRuleFilter>('all')
   const rulesQuery = useQuery(orpc.rules.listTemporaryRules.queryOptions({ input: undefined }))
   const rules = rulesQuery.data ?? EMPTY_RULES
@@ -99,7 +102,12 @@ export function TemporaryRulesTab() {
           </TableHeader>
           <TableBody>
             {filteredRules.map((rule) => (
-              <TemporaryRuleRow key={rule.id} rule={rule} onOpenPulse={openDrawer} />
+              <TemporaryRuleRow
+                key={rule.id}
+                rule={rule}
+                practiceTimezone={practiceTimezone}
+                onOpenPulse={openDrawer}
+              />
             ))}
           </TableBody>
         </Table>
@@ -110,9 +118,11 @@ export function TemporaryRulesTab() {
 
 function TemporaryRuleRow({
   rule,
+  practiceTimezone,
   onOpenPulse,
 }: {
   rule: TemporaryRule
+  practiceTimezone: string
   onOpenPulse: (alertId: string) => void
 }) {
   const { t } = useLingui()
@@ -147,7 +157,7 @@ function TemporaryRuleRow({
         <TemporaryRuleStatusBadge status={rule.status} />
       </TableCell>
       <TableCell className="px-0 py-2 font-mono text-xs tabular-nums text-text-tertiary">
-        {formatDateTime(rule.lastActivityAt)}
+        {formatDateTimeWithTimezone(rule.lastActivityAt, practiceTimezone)}
       </TableCell>
       <TableCell className="px-0 py-2">
         <div className="flex items-center justify-end gap-1 pr-2">
@@ -208,13 +218,4 @@ function formatScope(rule: TemporaryRule): string {
   const counties = rule.counties.length > 0 ? rule.counties.join(', ') : 'all counties'
   const forms = rule.affectedForms.length > 0 ? rule.affectedForms.join(', ') : 'all forms'
   return `${counties} · ${forms}`
-}
-
-function formatDateTime(value: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(new Date(value))
 }

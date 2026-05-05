@@ -9,17 +9,10 @@ import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui
 import { Button } from '@duedatehq/ui/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@duedatehq/ui/components/ui/card'
 import { Switch } from '@duedatehq/ui/components/ui/switch'
+import { usePracticeTimezone } from '@/features/firm/practice-timezone'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(new Date(value))
-}
+import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 function notificationTypeLabel(type: NotificationType): React.ReactNode {
   if (type === 'deadline_reminder') return <Trans>Deadline reminder</Trans>
@@ -32,6 +25,7 @@ function notificationTypeLabel(type: NotificationType): React.ReactNode {
 
 export function NotificationsPage() {
   const { t } = useLingui()
+  const practiceTimezone = usePracticeTimezone()
   const queryClient = useQueryClient()
   const notificationsQuery = useQuery(
     orpc.notifications.list.queryOptions({ input: { status: 'all', limit: 50 } }),
@@ -132,7 +126,7 @@ export function NotificationsPage() {
                     <p className="text-sm text-text-secondary">{item.body}</p>
                   </div>
                   <span className="shrink-0 font-mono text-xs tabular-nums text-text-tertiary">
-                    {formatDate(item.createdAt)}
+                    {formatDateTimeWithTimezone(item.createdAt, practiceTimezone)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">

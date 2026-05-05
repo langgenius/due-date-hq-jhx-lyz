@@ -1,7 +1,15 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ExternalLinkIcon, FileSearchIcon } from 'lucide-react'
-import { Trans, useLingui } from '@lingui/react/macro'
+import {
+  CheckCircle2Icon,
+  ExternalLinkIcon,
+  FileSearchIcon,
+  FileTextIcon,
+  RotateCcwIcon,
+  SparklesIcon,
+  UserCheckIcon,
+} from 'lucide-react'
+import { Trans } from '@lingui/react/macro'
 
 import type { AuditEventPublic, EvidencePublic } from '@duedatehq/contracts'
 import { Badge } from '@duedatehq/ui/components/ui/badge'
@@ -17,7 +25,7 @@ import {
 import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 
 import { orpc } from '@/lib/rpc'
-import { formatDateTimeWithTimezone } from '@/lib/utils'
+import { formatCents, formatDateTimeWithTimezone } from '@/lib/utils'
 import { buildAuditChangeView } from '@/features/audit/audit-change-view'
 import { useAuditActionLabels, useAuditChangeLabels } from '@/features/audit/audit-log-labels'
 import { formatAuditActionLabel } from '@/features/audit/audit-log-model'
@@ -26,6 +34,7 @@ import {
   type EvidenceDrawerContextValue,
   type OpenEvidenceInput,
 } from '@/features/evidence/EvidenceDrawerContext'
+import { usePracticeTimezone } from '@/features/firm/practice-timezone'
 import { useReadinessLabels, useStatusLabels } from '@/features/obligations/status-control'
 
 export function EvidenceDrawerProvider({ children }: { children: ReactNode }) {
@@ -75,7 +84,7 @@ function EvidenceDrawer({
         <SheetHeader className="border-b border-divider-subtle">
           <SheetTitle className="flex items-center gap-2">
             <FileSearchIcon className="size-4 text-text-accent" aria-hidden />
-            <Trans>Evidence chain</Trans>
+            <Trans>Evidence for this deadline</Trans>
           </SheetTitle>
           <SheetDescription>
             {request?.label ?? <Trans>Obligation evidence</Trans>}
@@ -100,14 +109,11 @@ function EvidenceSummary({ request }: { request: OpenEvidenceInput | null }) {
   return (
     <section className="grid gap-2 rounded-lg border border-divider-subtle p-3">
       <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-        <Trans>Obligation</Trans>
+        <Trans>Deadline</Trans>
       </span>
       <div className="text-sm font-medium text-text-primary">
         {request?.label ?? <Trans>Selected obligation</Trans>}
       </div>
-      {request ? (
-        <div className="break-all font-mono text-xs text-text-tertiary">{request.obligationId}</div>
-      ) : null}
     </section>
   )
 }
@@ -125,7 +131,7 @@ function EvidenceTimeline({
     <section className="grid gap-3">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-          <Trans>Source timeline</Trans>
+          <Trans>What this evidence says</Trans>
         </h3>
         <Badge variant="outline">{evidence.length}</Badge>
       </div>
@@ -150,7 +156,9 @@ function EvidenceTimeline({
 }
 
 function EvidenceCard({ item, focused }: { item: EvidencePublic; focused: boolean }) {
-  const { t } = useLingui()
+  const practiceTimezone = usePracticeTimezone()
+  const description = evidenceDescription(item)
+  const details = evidenceDetails(item)
   return (
     <article
       className={
@@ -159,30 +167,32 @@ function EvidenceCard({ item, focused }: { item: EvidencePublic; focused: boolea
           : 'grid gap-3 rounded-lg border border-divider-subtle p-3'
       }
     >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Badge variant="outline">{item.sourceType}</Badge>
-        <span className="font-mono text-xs text-text-tertiary">
-          {formatDateTimeWithTimezone(item.appliedAt)}
-        </span>
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-state-base-hover text-text-secondary">
+          <EvidenceSourceIcon sourceType={item.sourceType} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">{evidenceSourceLabel(item.sourceType)}</Badge>
+            <ConfidenceBadge confidence={item.confidence} />
+          </div>
+          <h4 className="mt-2 text-sm font-medium text-text-primary">
+            {evidenceHeadline(item.sourceType)}
+          </h4>
+          {description ? <p className="mt-1 text-sm text-text-secondary">{description}</p> : null}
+        </div>
       </div>
-      <dl className="grid gap-2 text-sm">
-        <EvidenceMetaRow label={t`Raw`} value={item.rawValue ?? t`Not recorded`} />
-        <EvidenceMetaRow label={t`Normalized`} value={item.normalizedValue ?? t`Not recorded`} />
-        <EvidenceMetaRow
-          label={t`Confidence`}
-          value={
-            item.confidence === null ? t`Not recorded` : `${Math.round(item.confidence * 100)}%`
-          }
-        />
-        <EvidenceMetaRow label={t`Model`} value={item.model ?? t`Deterministic`} />
-      </dl>
+      {details.length > 0 ? <EvidenceDetailList details={details} /> : null}
       {item.verbatimQuote ? (
-        <blockquote className="rounded-lg bg-severity-medium-tint px-3 py-2 text-sm text-text-primary">
-          {item.verbatimQuote}
-        </blockquote>
+        <div className="rounded-lg bg-severity-medium-tint px-3 py-2">
+          <p className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+            <Trans>Source excerpt</Trans>
+          </p>
+          <blockquote className="mt-1 text-sm text-text-primary">{item.verbatimQuote}</blockquote>
+        </div>
       ) : null}
-      <div className="flex flex-wrap items-center gap-2">
-        {item.sourceId ? <Badge variant="secondary">{item.sourceId}</Badge> : null}
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-tertiary">
+        <span>{formatDateTimeWithTimezone(item.appliedAt, practiceTimezone)}</span>
         {item.sourceUrl ? (
           <Button
             variant="ghost"
@@ -198,16 +208,376 @@ function EvidenceCard({ item, focused }: { item: EvidencePublic; focused: boolea
   )
 }
 
-function EvidenceMetaRow({ label, value }: { label: string; value: string }) {
+type EvidenceDetail = {
+  id: string
+  label: ReactNode
+  value: ReactNode
+}
+
+type ReadableValue = {
+  key: string
+  node: ReactNode
+}
+
+function EvidenceDetailList({ details }: { details: EvidenceDetail[] }) {
   return (
-    <div className="grid grid-cols-[96px_1fr] gap-3">
-      <dt className="text-xs font-medium uppercase tracking-wider text-text-tertiary">{label}</dt>
-      <dd className="break-words text-text-primary">{value}</dd>
+    <dl className="grid gap-2 rounded-lg bg-background-subtle p-3 text-sm">
+      {details.map((detail) => (
+        <EvidenceDetailRow key={detail.id} detail={detail} />
+      ))}
+    </dl>
+  )
+}
+
+function EvidenceDetailRow({ detail }: { detail: EvidenceDetail }) {
+  return (
+    <div className="grid gap-1 sm:grid-cols-[128px_1fr] sm:gap-3">
+      <dt className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+        {detail.label}
+      </dt>
+      <dd className="break-words text-text-primary">{detail.value}</dd>
     </div>
   )
 }
 
+function EvidenceSourceIcon({ sourceType }: { sourceType: string }) {
+  const className = 'size-4'
+  if (sourceType.includes('ai')) return <SparklesIcon className={className} aria-hidden />
+  if (sourceType.includes('client_response')) {
+    return <UserCheckIcon className={className} aria-hidden />
+  }
+  if (sourceType.includes('revert')) return <RotateCcwIcon className={className} aria-hidden />
+  if (sourceType === 'verified_rule') return <CheckCircle2Icon className={className} aria-hidden />
+  return <FileTextIcon className={className} aria-hidden />
+}
+
+function evidenceSourceLabel(sourceType: string): ReactNode {
+  if (sourceType === 'verified_rule') return <Trans>Verified rule</Trans>
+  if (sourceType === 'ai_mapper') return <Trans>Import mapping</Trans>
+  if (sourceType === 'ai_normalizer') return <Trans>Import cleanup</Trans>
+  if (sourceType === 'readiness_checklist_ai') return <Trans>Readiness checklist</Trans>
+  if (sourceType === 'readiness_client_response') return <Trans>Client response</Trans>
+  if (sourceType === 'penalty_override') return <Trans>Penalty input</Trans>
+  if (sourceType === 'extension_decision') return <Trans>Extension decision</Trans>
+  if (sourceType === 'pulse_apply') return <Trans>Rule update</Trans>
+  if (sourceType === 'pulse_revert') return <Trans>Rule update undone</Trans>
+  if (sourceType === 'migration_revert') return <Trans>Import undone</Trans>
+  if (sourceType === 'user_override') return <Trans>Manual note</Trans>
+  return humanizeToken(sourceType)
+}
+
+function evidenceHeadline(sourceType: string): ReactNode {
+  if (sourceType === 'verified_rule') return <Trans>An official rule supports this deadline.</Trans>
+  if (sourceType === 'ai_mapper') return <Trans>An imported column was matched to DueDateHQ.</Trans>
+  if (sourceType === 'ai_normalizer') return <Trans>An imported value was cleaned up.</Trans>
+  if (sourceType === 'readiness_checklist_ai') {
+    return <Trans>A readiness checklist was prepared.</Trans>
+  }
+  if (sourceType === 'readiness_client_response') {
+    return <Trans>The client answered readiness questions.</Trans>
+  }
+  if (sourceType === 'penalty_override') return <Trans>Penalty inputs were updated.</Trans>
+  if (sourceType === 'extension_decision') return <Trans>An extension decision was recorded.</Trans>
+  if (sourceType === 'pulse_apply') return <Trans>A rule change was applied.</Trans>
+  if (sourceType === 'pulse_revert') return <Trans>A rule change was undone.</Trans>
+  if (sourceType === 'migration_revert') return <Trans>An import was undone.</Trans>
+  return <Trans>Evidence was added to this deadline.</Trans>
+}
+
+function evidenceDescription(item: EvidencePublic): ReactNode {
+  if (item.sourceType === 'readiness_checklist_ai') {
+    const count = readJsonArray(item.normalizedValue)?.length ?? 0
+    if (count > 0) return <Trans>{count} checklist items were suggested.</Trans>
+  }
+  if (item.sourceType === 'readiness_client_response') {
+    const readiness = readRecordString(readJsonRecord(item.normalizedValue), 'readiness')
+    if (readiness) return <Trans>Latest readiness: {humanizeToken(readiness)}.</Trans>
+  }
+  if (item.sourceType === 'verified_rule') {
+    return <Trans>The source-backed rule matched the client facts for this obligation.</Trans>
+  }
+  return firstReadableValue(item.normalizedValue ?? item.rawValue)?.node ?? null
+}
+
+function evidenceDetails(item: EvidencePublic): EvidenceDetail[] {
+  if (item.sourceType === 'penalty_override') return penaltyInputDetails(item)
+  if (item.sourceType === 'readiness_client_response') return readinessResponseDetails(item)
+  if (item.sourceType === 'readiness_checklist_ai') return readinessChecklistDetails(item)
+
+  const raw = firstReadableValue(item.rawValue)
+  const normalized = firstReadableValue(item.normalizedValue)
+  if (raw && normalized && raw.key !== normalized.key) {
+    return [
+      { id: 'raw', label: <Trans>Original entry</Trans>, value: raw.node },
+      { id: 'normalized', label: <Trans>Recorded as</Trans>, value: normalized.node },
+    ]
+  }
+  if (normalized) {
+    return [{ id: 'normalized', label: <Trans>Recorded as</Trans>, value: normalized.node }]
+  }
+  if (raw) return [{ id: 'raw', label: <Trans>Recorded value</Trans>, value: raw.node }]
+  return []
+}
+
+function penaltyInputDetails(item: EvidencePublic): EvidenceDetail[] {
+  const before = readJsonRecord(item.rawValue)
+  const after = readJsonRecord(item.normalizedValue)
+  return [
+    changedValueDetail(
+      'estimated-tax-liability',
+      <Trans>Estimated tax liability</Trans>,
+      formatNullableCents(readRecordNumber(before, 'estimatedTaxLiabilityCents')),
+      formatNullableCents(readRecordNumber(after, 'estimatedTaxLiabilityCents')),
+    ),
+    changedValueDetail(
+      'owner-count',
+      <Trans>Owner count</Trans>,
+      formatNullableNumber(readRecordNumber(before, 'equityOwnerCount')),
+      formatNullableNumber(readRecordNumber(after, 'equityOwnerCount')),
+    ),
+  ].filter((detail): detail is EvidenceDetail => detail !== null)
+}
+
+function readinessChecklistDetails(item: EvidencePublic): EvidenceDetail[] {
+  const context = readJsonRecord(item.rawValue)
+  const taxType = readRecordString(context, 'taxType')
+  const currentDueDate = readRecordString(context, 'currentDueDate')
+  const details: Array<EvidenceDetail | null> = [
+    taxType ? { id: 'tax-type', label: <Trans>Tax type</Trans>, value: taxType } : null,
+    currentDueDate
+      ? { id: 'due-date', label: <Trans>Due date</Trans>, value: currentDueDate }
+      : null,
+  ]
+  return details.filter((detail): detail is EvidenceDetail => detail !== null)
+}
+
+function readinessResponseDetails(item: EvidencePublic): EvidenceDetail[] {
+  const responses = readJsonArray(item.rawValue)
+  if (!responses) return []
+  const readyCount = responses.filter(
+    (response) => readRecordString(response, 'status') === 'ready',
+  ).length
+  const blockedCount = responses.length - readyCount
+  const details: Array<EvidenceDetail | null> = [
+    {
+      id: 'ready-answers',
+      label: <Trans>Ready answers</Trans>,
+      value: `${readyCount} of ${responses.length}`,
+    },
+    blockedCount > 0
+      ? {
+          id: 'needs-follow-up',
+          label: <Trans>Needs follow-up</Trans>,
+          value: String(blockedCount),
+        }
+      : null,
+  ]
+  return details.filter((detail): detail is EvidenceDetail => detail !== null)
+}
+
+function changedValueDetail(
+  id: string,
+  label: ReactNode,
+  before: ReadableValue,
+  after: ReadableValue,
+): EvidenceDetail | null {
+  if (before.key === after.key) return null
+  if (before.key === 'not-set') {
+    return {
+      id,
+      label,
+      value: (
+        <span>
+          <Trans>Set to {after.node}</Trans>
+        </span>
+      ),
+    }
+  }
+  if (after.key === 'not-set') {
+    return {
+      id,
+      label,
+      value: (
+        <span>
+          <Trans>Cleared from {before.node}</Trans>
+        </span>
+      ),
+    }
+  }
+  return {
+    id,
+    label,
+    value: (
+      <span>
+        <Trans>
+          Changed from {before.node} to {after.node}
+        </Trans>
+      </span>
+    ),
+  }
+}
+
+function ConfidenceBadge({ confidence }: { confidence: number | null }) {
+  if (confidence === null) {
+    return (
+      <Badge variant="secondary">
+        <Trans>Recorded</Trans>
+      </Badge>
+    )
+  }
+  if (confidence >= 0.95) {
+    return (
+      <Badge variant="success">
+        <Trans>Confirmed</Trans>
+      </Badge>
+    )
+  }
+  if (confidence >= 0.8) {
+    return (
+      <Badge variant="info">
+        <Trans>High confidence</Trans>
+      </Badge>
+    )
+  }
+  if (confidence >= 0.5) {
+    return (
+      <Badge variant="warning">
+        <Trans>Review suggested</Trans>
+      </Badge>
+    )
+  }
+  return (
+    <Badge variant="destructive">
+      <Trans>Needs review</Trans>
+    </Badge>
+  )
+}
+
+function firstReadableValue(value: string | null): ReadableValue | null {
+  if (!value) return null
+  const trimmed = value.trim()
+  if (!trimmed) return null
+
+  const record = readJsonRecord(trimmed)
+  if (record) {
+    const summary = recordSummary(record)
+    return summary ? { key: `record:${summary}`, node: summary } : null
+  }
+
+  const array = readJsonArray(trimmed)
+  if (array) {
+    return {
+      key: `array:${array.length}`,
+      node: <Trans>{array.length} items recorded</Trans>,
+    }
+  }
+
+  return { key: trimmed, node: humanizeToken(trimmed) }
+}
+
+function readJsonRecord(value: string | null): Record<string, unknown> | null {
+  if (!value) return null
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (!isRecord(parsed)) return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function readJsonArray(value: string | null): Record<string, unknown>[] | null {
+  if (!value) return null
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (!Array.isArray(parsed)) return null
+    const records = parsed.filter(isRecord)
+    return records.length === parsed.length ? records : null
+  } catch {
+    return null
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function readRecordString(record: Record<string, unknown> | null, key: string): string | null {
+  const value = record?.[key]
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function readRecordNumber(record: Record<string, unknown> | null, key: string): number | null {
+  const value = record?.[key]
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function recordSummary(record: Record<string, unknown>): string | null {
+  const entries = Object.entries(record)
+    .filter(([, value]) => value !== null && value !== undefined && value !== '')
+    .slice(0, 3)
+  if (entries.length === 0) return null
+  return entries
+    .map(([key, value]) => `${humanizeFieldName(key)}: ${humanizeEvidenceFieldValue(key, value)}`)
+    .join(' · ')
+}
+
+function humanizeEvidenceFieldValue(key: string, value: unknown): string {
+  if (key === 'estimatedTaxLiabilityCents' && typeof value === 'number') {
+    return formatCents(value)
+  }
+  return humanizeEvidenceValue(value)
+}
+
+function humanizeEvidenceValue(value: unknown): string {
+  if (typeof value === 'number') return String(value)
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  if (typeof value === 'string') return humanizeToken(value)
+  if (Array.isArray(value)) return `${value.length} ${value.length === 1 ? 'item' : 'items'}`
+  if (isRecord(value)) return recordSummary(value) ?? 'Recorded'
+  return 'Recorded'
+}
+
+function humanizeFieldName(value: string): string {
+  if (value === 'estimatedTaxLiabilityCents') return 'Estimated tax liability'
+  if (value === 'equityOwnerCount') return 'Owner count'
+  if (value === 'currentDueDate') return 'Due date'
+  if (value === 'taxType') return 'Tax type'
+  if (value === 'entityType') return 'Entity type'
+  if (value === 'readiness') return 'Readiness'
+  return humanizeToken(value)
+}
+
+function humanizeToken(value: string): string {
+  const normalized = value
+    .replace(/[._-]+/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .trim()
+  if (!normalized) return value
+  return normalized
+    .split(/\s+/)
+    .map((word, index) => {
+      const lower = word.toLowerCase()
+      if (['ai', 'api', 'ein', 'id', 'ip', 'ssn', 'url'].includes(lower)) return lower.toUpperCase()
+      return index === 0 ? `${lower.charAt(0).toUpperCase()}${lower.slice(1)}` : lower
+    })
+    .join(' ')
+}
+
+function formatNullableCents(value: number | null): ReadableValue {
+  return value === null
+    ? { key: 'not-set', node: <Trans>Not set</Trans> }
+    : { key: String(value), node: formatCents(value) }
+}
+
+function formatNullableNumber(value: number | null): ReadableValue {
+  return value === null
+    ? { key: 'not-set', node: <Trans>Not set</Trans> }
+    : { key: String(value), node: String(value) }
+}
+
 function AuditTimeline({ events, loading }: { events: AuditEventPublic[]; loading: boolean }) {
+  const practiceTimezone = usePracticeTimezone()
   const actionLabels = useAuditActionLabels()
   const statusLabels = useStatusLabels()
   const readinessLabels = useReadinessLabels()
@@ -231,7 +601,7 @@ function AuditTimeline({ events, loading }: { events: AuditEventPublic[]; loadin
         <div className="grid gap-3">
           {events.map((event) => {
             const actionLabel = formatAuditActionLabel(event.action, actionLabels)
-            const changeView = buildAuditChangeView(event, changeLabels)
+            const changeView = buildAuditChangeView(event, changeLabels, practiceTimezone)
             return (
               <article
                 key={event.id}
@@ -240,7 +610,7 @@ function AuditTimeline({ events, loading }: { events: AuditEventPublic[]; loadin
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Badge variant="outline">{actionLabel}</Badge>
                   <span className="font-mono text-xs text-text-tertiary">
-                    {formatDateTimeWithTimezone(event.createdAt)}
+                    {formatDateTimeWithTimezone(event.createdAt, practiceTimezone)}
                   </span>
                 </div>
                 <p className="text-sm text-text-primary">{changeView.headline}</p>

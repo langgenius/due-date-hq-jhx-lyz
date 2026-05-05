@@ -9,6 +9,7 @@ import type { ThemePreference } from '@duedatehq/ui/theme'
 import { AppShell } from '@/components/patterns/app-shell'
 import { KeyboardProvider } from '@/components/patterns/keyboard-shell'
 import { EvidenceDrawerProvider } from '@/features/evidence/EvidenceDrawerProvider'
+import { PracticeTimezoneProvider } from '@/features/firm/practice-timezone'
 import { MigrationWizardProvider } from '@/features/migration/WizardProvider'
 import { PulseDrawerProvider } from '@/features/pulse/DrawerProvider'
 import type { AuthUser } from '@/lib/auth'
@@ -56,33 +57,11 @@ export function RootLayout() {
   const { themePreference, switchThemePreference } = useThemeSwitch()
 
   return (
-    <MigrationWizardProvider>
-      {/*
-        KeyboardProvider must live inside MigrationWizardProvider — it reads
-        the wizard `open` state to suppress global hotkeys while the wizard
-        is open. AppShell sits inside KeyboardProvider so the command-palette
-        / shortcut-help dialogs the keyboard shell mounts can portal over the
-        whole shell.
-
-        PulseDrawerProvider lives inside KeyboardProvider so the drawer's Sheet
-        can portal cleanly over the whole layout. It exposes `usePulseDrawer`
-        to the dashboard banner and Rules > Pulse Changes.
-      */}
-      <KeyboardProvider
-        themePreference={themePreference}
-        switchThemePreference={switchThemePreference}
-      >
-        <EvidenceDrawerProvider>
-          <PulseDrawerProvider>
-            <RootLayoutShell
-              user={user}
-              themePreference={themePreference}
-              switchThemePreference={switchThemePreference}
-            />
-          </PulseDrawerProvider>
-        </EvidenceDrawerProvider>
-      </KeyboardProvider>
-    </MigrationWizardProvider>
+    <RootLayoutShell
+      user={user}
+      themePreference={themePreference}
+      switchThemePreference={switchThemePreference}
+    />
   )
 }
 
@@ -109,15 +88,39 @@ function RootLayoutShell({
   }
 
   return (
-    <AppShell
-      user={user}
-      firm={firm}
-      firms={firmsQuery.data ?? [firm]}
-      route={route}
-      themePreference={themePreference}
-      switchThemePreference={switchThemePreference}
-      unreadNotificationCount={notificationsQuery.data?.count ?? 0}
-    />
+    <PracticeTimezoneProvider timezone={firm.timezone}>
+      <MigrationWizardProvider>
+        {/*
+          KeyboardProvider must live inside MigrationWizardProvider — it reads
+          the wizard `open` state to suppress global hotkeys while the wizard
+          is open. AppShell sits inside KeyboardProvider so the command-palette
+          / shortcut-help dialogs the keyboard shell mounts can portal over the
+          whole shell.
+
+          PulseDrawerProvider lives inside KeyboardProvider so the drawer's Sheet
+          can portal cleanly over the whole layout. It exposes `usePulseDrawer`
+          to the dashboard banner and Rules > Pulse Changes.
+        */}
+        <KeyboardProvider
+          themePreference={themePreference}
+          switchThemePreference={switchThemePreference}
+        >
+          <EvidenceDrawerProvider>
+            <PulseDrawerProvider>
+              <AppShell
+                user={user}
+                firm={firm}
+                firms={firmsQuery.data ?? [firm]}
+                route={route}
+                themePreference={themePreference}
+                switchThemePreference={switchThemePreference}
+                unreadNotificationCount={notificationsQuery.data?.count ?? 0}
+              />
+            </PulseDrawerProvider>
+          </EvidenceDrawerProvider>
+        </KeyboardProvider>
+      </MigrationWizardProvider>
+    </PracticeTimezoneProvider>
   )
 }
 

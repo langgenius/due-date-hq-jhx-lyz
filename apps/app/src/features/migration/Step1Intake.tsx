@@ -25,6 +25,9 @@ import { Textarea } from '@duedatehq/ui/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@duedatehq/ui/components/ui/tooltip'
 import { cn } from '@duedatehq/ui/lib/utils'
 
+import { usePracticeTimezone } from '@/features/firm/practice-timezone'
+import { formatDateTimeWithTimezone } from '@/lib/utils'
+
 import {
   INTEGRATION_PROVIDERS,
   PRESET_IDS,
@@ -121,6 +124,7 @@ export function Step1Intake({
   onParseError,
 }: Step1Props) {
   const { t } = useLingui()
+  const practiceTimezone = usePracticeTimezone()
   const pasteId = useId()
   const uploadHintId = useId()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -547,7 +551,8 @@ export function Step1Intake({
                 >
                   <span className="font-medium">{batch.source.replace('integration_', '')}</span>
                   <span className="font-mono text-xs text-text-tertiary tabular-nums">
-                    {batch.rowCount} rows · {new Date(batch.createdAt).toLocaleDateString()}
+                    {batch.rowCount} rows ·{' '}
+                    {formatDateTimeWithTimezone(batch.createdAt, practiceTimezone)}
                   </span>
                 </button>
               ))}

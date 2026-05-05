@@ -38,7 +38,7 @@ import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
 import { ConceptLabel } from '@/features/concepts/concept-help'
-import { resolveUSFirmTimezone } from '@/features/firm/timezone-select'
+import { resolveUSFirmTimezone } from '@/features/firm/timezone-model'
 import { PermissionGate, PermissionInlineNotice } from '@/features/permissions/permission-gate'
 
 import { AuditEventDrawer } from './audit-event-drawer'

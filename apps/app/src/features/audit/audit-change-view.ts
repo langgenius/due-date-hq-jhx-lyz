@@ -80,11 +80,12 @@ type AuditChangeContext = {
   before: Record<string, unknown> | null
   event: Pick<AuditEventPublic, 'action' | 'beforeJson' | 'afterJson'>
   labels: AuditChangeLabels
-  timeZone: string | undefined
+  timeZone: string
 }
 
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 const ISO_DATETIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/
+const DEFAULT_AUDIT_TIMEZONE = 'UTC'
 
 const TECHNICAL_FIELD_KEYS = new Set([
   'actorId',
@@ -654,7 +655,7 @@ function savedViewPresenter(context: AuditChangeContext): AuditChangeView {
 export function buildAuditChangeView(
   event: Pick<AuditEventPublic, 'action' | 'beforeJson' | 'afterJson'>,
   labels: AuditChangeLabels,
-  timeZone?: string,
+  timeZone = DEFAULT_AUDIT_TIMEZONE,
 ): AuditChangeView {
   const actionLabel = formatAuditActionLabel(event.action, labels.actionLabels)
   const context: AuditChangeContext = {
