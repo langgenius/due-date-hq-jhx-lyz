@@ -5,12 +5,16 @@
 - Replaced the single default AI model and plan-tier model overrides with task-tier env vars:
   `AI_GATEWAY_MODEL_FAST_JSON`, `AI_GATEWAY_MODEL_QUALITY_JSON`, and
   `AI_GATEWAY_MODEL_REASONING`.
-- Model selection now follows prompt `model_tier` metadata in `packages/ai`, not the billing plan.
-- Billing plans continue to control feature access and fair-use limits only.
+- Model selection follows prompt `model_tier` metadata in `packages/ai`; `fast-json` now has a
+  billing-plan override so Solo can stay on the stable low-cost model while paid plans use a newer
+  preview model.
+- Billing plans continue to control feature access and fair-use limits.
 
 ## Runtime mapping
 
 - `fast-json`: Migration mapper, entity normalizer, tax-type normalizer, readiness checklist.
+  Solo uses `AI_GATEWAY_MODEL_FAST_JSON_SOLO`; Pro, Team, and Enterprise use
+  `AI_GATEWAY_MODEL_FAST_JSON_PAID`; both fall back to `AI_GATEWAY_MODEL_FAST_JSON`.
 - `quality-json`: Dashboard brief, client risk summary, deadline tip, Pulse extract.
 - `reasoning`: reserved for future complex reasoning or tool-loop prompts.
 

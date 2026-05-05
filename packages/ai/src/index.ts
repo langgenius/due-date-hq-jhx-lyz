@@ -114,7 +114,7 @@ export function createAI(env: AiEnv = {}) {
     const inputHash = await hashInput(redacted.input)
     const taskKind = routing.taskKind ?? taskKindForPrompt(name)
     const modelTier = parseModelTier(prompt.modelTier)
-    const selectedModel = modelTier ? modelForPromptTier(env, modelTier) : undefined
+    const selectedModel = modelTier ? modelForPromptTier(env, modelTier, routing) : undefined
 
     if (
       !env.AI_GATEWAY_ACCOUNT_ID ||

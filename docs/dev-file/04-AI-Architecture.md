@@ -90,6 +90,8 @@ AI_GATEWAY_SLUG=duedatehq
 AI_GATEWAY_PROVIDER=openrouter
 AI_GATEWAY_PROVIDER_API_KEY=
 AI_GATEWAY_MODEL_FAST_JSON=google/gemini-2.5-flash-lite
+AI_GATEWAY_MODEL_FAST_JSON_SOLO=google/gemini-2.5-flash-lite
+AI_GATEWAY_MODEL_FAST_JSON_PAID=google/gemini-3.1-flash-lite-preview
 AI_GATEWAY_MODEL_QUALITY_JSON=deepseek/deepseek-v3.2
 AI_GATEWAY_MODEL_REASONING=openai/gpt-5-mini
 AI_GATEWAY_API_KEY=
@@ -99,9 +101,12 @@ AI_GATEWAY_API_KEY=
 - `AI_GATEWAY_PROVIDER=openrouter`：使用 Cloudflare AI Gateway 的 OpenRouter Provider Native
   路径。
 - `AI_GATEWAY_PROVIDER_API_KEY`：OpenRouter token；这是本路径唯一必需的密钥。
-- `AI_GATEWAY_MODEL_FAST_JSON` / `AI_GATEWAY_MODEL_QUALITY_JSON` /
-  `AI_GATEWAY_MODEL_REASONING`：按 prompt `model_tier` 路由的 provider 模型 id；由部署环境
-  配置，不写死在业务调用点。
+- `AI_GATEWAY_MODEL_FAST_JSON`：fast-json fallback 模型 id。
+- `AI_GATEWAY_MODEL_FAST_JSON_SOLO` / `AI_GATEWAY_MODEL_FAST_JSON_PAID`：fast-json 的
+  plan-aware override。Solo 继续使用 `google/gemini-2.5-flash-lite`；Pro、Team、Enterprise
+  使用 `google/gemini-3.1-flash-lite-preview`。
+- `AI_GATEWAY_MODEL_QUALITY_JSON` / `AI_GATEWAY_MODEL_REASONING`：按 prompt `model_tier` 路由的
+  provider 模型 id；由部署环境配置，不写死在业务调用点。
 - `AI_GATEWAY_API_KEY`：仅在启用 Cloudflare Authenticated Gateway 或切回 Unified provider 时使用；
   OpenRouter Provider Native 默认留空。
 - 不再配置第三方 tracing SDK keys。
@@ -109,7 +114,8 @@ AI_GATEWAY_API_KEY=
 ### 2.3 模型选择
 
 模型 id 不在文档中写死成“永远最新”。实现时必须从 AI SDK / Gateway 当前可用模型清单确认，
-再写入 Worker env；`packages/ai/src/router.ts` 只负责把 prompt `model_tier` 映射到 env key。
+再写入 Worker env；`packages/ai/src/router.ts` 负责把 prompt `model_tier` 映射到 env key，其中
+`fast-json` 会额外按 billing plan 选择 Solo / paid override。
 
 当前策略：
 
@@ -220,9 +226,10 @@ const aiGateway = createAiGateway({
   gateway: env.AI_GATEWAY_SLUG,
 })
 const openRouter = createOpenRouter({ apiKey: env.AI_GATEWAY_PROVIDER_API_KEY })
+const selectedModel = modelForPromptTier(env, prompt.modelTier, { plan: tenant.plan })
 
 const result = await generateText({
-  model: aiGateway(openRouter.chat(env.AI_GATEWAY_MODEL_FAST_JSON)),
+  model: aiGateway(openRouter.chat(selectedModel)),
   output: Output.object({ schema }),
   system: prompt.text,
   prompt: JSON.stringify(redactedInput),
@@ -237,6 +244,7 @@ Deployment placement:
 
 - `apps/server/wrangler.toml` 存非 secret：`AI_GATEWAY_ACCOUNT_ID`、`AI_GATEWAY_SLUG`、
   `AI_GATEWAY_PROVIDER=openrouter`、`AI_GATEWAY_MODEL_FAST_JSON`、
+  `AI_GATEWAY_MODEL_FAST_JSON_SOLO`、`AI_GATEWAY_MODEL_FAST_JSON_PAID`、
   `AI_GATEWAY_MODEL_QUALITY_JSON`、`AI_GATEWAY_MODEL_REASONING`
 - `apps/server/.dev.vars` 存本地 secret：`AI_GATEWAY_PROVIDER_API_KEY`
 - GitHub environment `due-date-hq-staging` 存部署 secret：`AI_GATEWAY_PROVIDER_API_KEY`

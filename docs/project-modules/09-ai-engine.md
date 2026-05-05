@@ -174,16 +174,18 @@ flowchart TB
 
 ## 会员 AI 分层
 
-| Plan       | 行为                                                               |
-| ---------- | ------------------------------------------------------------------ |
-| Solo       | 轻量功能面和较低隐藏 fair-use，用于 preview、基础迁移和来源摘要。  |
-| Pro        | 完整 practice AI 功能。                                            |
-| Team       | 与 Pro 相同 AI 功能；Team 差异来自席位、管理视图、批量运营和审计。 |
-| Enterprise | 定制 coverage、BYOK/provider 选项和审计级控制。                    |
+| Plan       | 行为                                                                   |
+| ---------- | ---------------------------------------------------------------------- |
+| Solo       | 轻量功能面和较低隐藏 fair-use；fast-json 走 Solo 模型。                |
+| Pro        | 完整 practice AI 功能；fast-json 走 paid preview 模型。                |
+| Team       | 与 Pro 相同 AI 功能；fast-json 同 Pro，差异来自席位和运营能力。        |
+| Enterprise | 定制 coverage、BYOK/provider 选项和审计级控制；默认 fast-json 同 Pro。 |
 
-模型不按 plan 路由。Prompt 的 `model_tier` 选择
-`AI_GATEWAY_MODEL_FAST_JSON`、`AI_GATEWAY_MODEL_QUALITY_JSON` 或
-`AI_GATEWAY_MODEL_REASONING`；plan 只控制功能可用性和 fair-use 额度。
+Prompt 的 `model_tier` 选择 `AI_GATEWAY_MODEL_FAST_JSON`、
+`AI_GATEWAY_MODEL_QUALITY_JSON` 或 `AI_GATEWAY_MODEL_REASONING`。其中 `fast-json`
+额外按 plan 覆盖：Solo 使用 `AI_GATEWAY_MODEL_FAST_JSON_SOLO`，Pro / Team / Enterprise
+使用 `AI_GATEWAY_MODEL_FAST_JSON_PAID`，未配置时回退到 `AI_GATEWAY_MODEL_FAST_JSON`。
+Plan 同时继续控制功能可用性和 fair-use 额度。
 
 ## 后续演进关注点
 
