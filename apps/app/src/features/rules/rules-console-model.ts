@@ -19,6 +19,7 @@ import {
 
 export const RULES_TAB_VALUES = [
   'coverage',
+  'review',
   'sources',
   'library',
   'pulse',
@@ -36,6 +37,10 @@ export type RulesTab = RulesConsoleSearchParams['tab']
 export type SourceHealthFilter = 'all' | RuleSource['healthStatus']
 export type RuleLibraryFilter =
   | 'all'
+  | 'active'
+  | 'pending_review'
+  | 'rejected'
+  | 'archived'
   | 'verified'
   | 'candidate'
   | 'applicability_review'
@@ -47,6 +52,7 @@ export type CoverageCellState = 'verified' | 'review' | 'none'
 // pay re-extraction cost for non-React modules).
 export const RULES_TABS: ReadonlyArray<{ value: RulesTab; count?: number }> = [
   { value: 'coverage' },
+  { value: 'review' },
   { value: 'sources' },
   { value: 'library' },
   { value: 'pulse' },
@@ -350,8 +356,16 @@ export function filterSources<T extends SourceHealthOnly>(
 export function countRulesByFilter(rules: readonly RuleFilterOnly[]) {
   return {
     all: rules.length,
-    verified: rules.filter((rule) => rule.status === 'verified').length,
-    candidate: rules.filter((rule) => rule.status === 'candidate').length,
+    active: rules.filter((rule) => rule.status === 'active' || rule.status === 'verified').length,
+    pending_review: rules.filter(
+      (rule) => rule.status === 'pending_review' || rule.status === 'candidate',
+    ).length,
+    rejected: rules.filter((rule) => rule.status === 'rejected').length,
+    archived: rules.filter((rule) => rule.status === 'archived').length,
+    verified: rules.filter((rule) => rule.status === 'active' || rule.status === 'verified').length,
+    candidate: rules.filter(
+      (rule) => rule.status === 'pending_review' || rule.status === 'candidate',
+    ).length,
     applicability_review: rules.filter((rule) => rule.ruleTier === 'applicability_review').length,
     exception: rules.filter((rule) => rule.ruleTier === 'exception').length,
   }
@@ -362,8 +376,17 @@ export function filterRules<T extends RuleFilterOnly>(
   filter: RuleLibraryFilter,
 ): T[] {
   if (filter === 'all') return [...rules]
-  if (filter === 'verified' || filter === 'candidate') {
+  if (
+    filter === 'active' ||
+    filter === 'pending_review' ||
+    filter === 'rejected' ||
+    filter === 'archived'
+  ) {
     return rules.filter((rule) => rule.status === filter)
+  }
+  if (filter === 'verified' || filter === 'candidate') {
+    const mapped = filter === 'verified' ? 'active' : 'pending_review'
+    return rules.filter((rule) => rule.status === mapped || rule.status === filter)
   }
   return rules.filter((rule) => rule.ruleTier === filter)
 }

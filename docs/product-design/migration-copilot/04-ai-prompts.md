@@ -443,7 +443,7 @@ export const NormalizerTaxTypesOutput = z.object({
 
 ### 3.5 后处理 + PostHog
 
-1. **字典优先合并**：AI SDK 输出与本地字典合并；冲突 → 取本地字典（字典是 ops-verified）
+1. **字典优先合并**：AI SDK 输出与本地字典合并；冲突 → 取本地字典（字典是 practice-reviewed）
 2. **写库**：
    - `migration_normalization`（每条归一一行）：`field / raw_value / normalized_value / confidence / model / prompt_version / reasoning / user_overridden`
    - `ai_output`（kind = `migration_normalize`）+ `llm_log`

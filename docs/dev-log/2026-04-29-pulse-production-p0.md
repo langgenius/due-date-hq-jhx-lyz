@@ -9,7 +9,7 @@ date: 2026-04-29
 
 The previous Pulse work closed the demo-visible alert/apply/revert loop, but the
 production path still had gaps around real source health, item-level extract
-snapshots, ops review, and email delivery.
+snapshots, practice review, and email delivery.
 
 ## Change
 

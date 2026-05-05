@@ -127,7 +127,7 @@ tab，因为它们共用同一 header。
 
 新增 12 条英文 message（`Verified rules` / `Candidates` / `Sources watched` /
 `Jurisdictions` / `JURISDICTION SUMMARY` / `JURISDICTION × ENTITY` /
-`reminder-ready across MVP scope` / `pending ops review` /
+`reminder-ready across MVP scope` / `pending practice review` /
 `official channels under monitor` /
 `{0} fully covered · {1} with open candidates` /
 `verified · candidate · sources · current state` /

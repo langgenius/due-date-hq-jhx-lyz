@@ -16,7 +16,7 @@ entity_types_covered:
   - other
 notes:
   - Pure lookup table; no model call; zero hallucination.
-  - Ops sign-off required before matrix is promoted from pending to verified.
+  - Practice owner/manager review required before matrix is promoted from pending to active.
   - When tax_types is missing on a client row, the Rule Engine reads (entity_type, state) to infer tax_types.
   - Every applied rule writes evidence_link with source_type=default_inference_by_entity_state and matrix_version.
 rules:
@@ -30,8 +30,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.ftb.ca.gov/file/business/types/limited-liability-company.html
         - https://www.irs.gov/businesses/small-businesses-self-employed/limited-liability-company-llc
@@ -47,8 +47,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.tax.ny.gov/bus/ptet/
         - https://www.tax.ny.gov/pdf/current_forms/it/it204lli.pdf
@@ -64,8 +64,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.ftb.ca.gov/file/business/types/corporations/s-corporations.html
         - https://www.irs.gov/forms-pubs/about-form-1120-s
@@ -81,8 +81,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.tax.ny.gov/bus/ct/s_corporation.htm
         - https://www.irs.gov/forms-pubs/about-form-1120-s
@@ -98,8 +98,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.ftb.ca.gov/file/business/types/partnership.html
         - https://www.irs.gov/forms-pubs/about-form-1065
@@ -115,8 +115,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.tax.ny.gov/forms/current_forms/it/it204i.htm
         - https://www.irs.gov/forms-pubs/about-form-1065
@@ -131,8 +131,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.ftb.ca.gov/file/business/types/corporations/index.html
         - https://www.irs.gov/forms-pubs/about-form-1120
@@ -147,8 +147,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.tax.ny.gov/bus/ct/article9a.htm
         - https://www.irs.gov/forms-pubs/about-form-1120
@@ -163,8 +163,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.ftb.ca.gov/file/personal/filing-situations/sole-proprietor.html
         - https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
@@ -179,8 +179,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.tax.ny.gov/pit/file/it201.htm
         - https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
@@ -195,8 +195,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.ftb.ca.gov/forms/2023/2023-541.pdf
         - https://www.irs.gov/forms-pubs/about-form-1041
@@ -211,8 +211,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.tax.ny.gov/forms/current_forms/it/it205i.htm
         - https://www.irs.gov/forms-pubs/about-form-1041
@@ -227,8 +227,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.ftb.ca.gov/forms/2023/2023-540.pdf
         - https://www.irs.gov/forms-pubs/about-form-1040
@@ -243,8 +243,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.tax.ny.gov/pit/file/it201.htm
         - https://www.irs.gov/forms-pubs/about-form-1040
@@ -258,10 +258,10 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
-        - pending-ops-verification
+        - pending-practice-review
     confidence: 0.5
     needs_review: true
 
@@ -273,10 +273,10 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
-        - pending-ops-verification
+        - pending-practice-review
     confidence: 0.5
     needs_review: true
 
@@ -307,6 +307,6 @@ fallback:
 
 phase0_expansion_hooks:
   - description: Add TX, FL, and WA × 8 entity types = 24 cells in v1.1, aligning Default Matrix with current Rules MVP coverage.
-    owner: rules_ops
-  - description: Add 50-state skeleton (coverage_status=skeleton) in v2.0 with placeholder tax_types + mandatory ops verification before activation.
-    owner: rules_ops
+    owner: practice_rule_owner
+  - description: Add 50-state skeleton (coverage_status=skeleton) in v2.0 with placeholder tax_types + mandatory practice owner/manager review before activation.
+    owner: practice_rule_owner

@@ -114,11 +114,13 @@ function StatCell({
 }
 
 function aggregateCoverage(rows: readonly RuleCoverageRow[]) {
-  const verified = rows.reduce((sum, row) => sum + row.verifiedRuleCount, 0)
-  const candidates = rows.reduce((sum, row) => sum + row.candidateCount, 0)
+  const active = rows.reduce((sum, row) => sum + (row.activeRuleCount ?? row.verifiedRuleCount), 0)
+  const pending = rows.reduce((sum, row) => sum + (row.pendingReviewCount ?? row.candidateCount), 0)
   const sources = rows.reduce((sum, row) => sum + row.sourceCount, 0)
-  const fullyCovered = rows.filter((row) => row.candidateCount === 0).length
-  return { verified, candidates, sources, fullyCovered, jurisdictions: rows.length }
+  const fullyCovered = rows.filter(
+    (row) => (row.pendingReviewCount ?? row.candidateCount) === 0,
+  ).length
+  return { active, pending, sources, fullyCovered, jurisdictions: rows.length }
 }
 
 export function CoverageTab() {
@@ -127,9 +129,9 @@ export function CoverageTab() {
   const coverageQuery = useQuery(orpc.rules.coverage.queryOptions({ input: undefined }))
 
   const coverageStatusLabels: Partial<Record<RuleJurisdiction, string>> = {
-    FED: t`4 verified · 1 candidate watch`,
-    CA: t`3 basic · 2 review`,
-    NY: t`3 basic · 4 review`,
+    FED: t`Practice review required`,
+    CA: t`Practice review required`,
+    NY: t`Practice review required`,
     TX: t`All review-flagged`,
     FL: t`Source-defined cal`,
     WA: t`Filing-frequency review`,
@@ -163,15 +165,15 @@ export function CoverageTab() {
       <SectionFrame>
         <div className="grid grid-cols-2 divide-y divide-divider-regular sm:grid-cols-4 sm:divide-x sm:divide-y-0">
           <StatCell
-            label={<ConceptLabel concept="verifiedRule">{t`Verified rules`}</ConceptLabel>}
-            value={stats.verified}
-            caption={t`reminder-ready across MVP scope`}
+            label={<ConceptLabel concept="verifiedRule">{t`Active rules`}</ConceptLabel>}
+            value={stats.active}
+            caption={t`accepted by this practice`}
           />
           <StatCell
-            label={<ConceptLabel concept="candidateRule">{t`Candidates`}</ConceptLabel>}
-            value={stats.candidates}
-            caption={t`pending firm review`}
-            {...(stats.candidates > 0 ? { emphasis: 'accent' as const } : {})}
+            label={<ConceptLabel concept="candidateRule">{t`Pending review`}</ConceptLabel>}
+            value={stats.pending}
+            caption={t`owner or manager approval required`}
+            {...(stats.pending > 0 ? { emphasis: 'accent' as const } : {})}
           />
           <StatCell
             label={<ConceptLabel concept="evidence">{t`Sources watched`}</ConceptLabel>}
@@ -181,13 +183,13 @@ export function CoverageTab() {
           <StatCell
             label={<ConceptLabel concept="coverage">{t`Jurisdictions`}</ConceptLabel>}
             value={stats.jurisdictions}
-            caption={t`${stats.fullyCovered} fully covered · ${stats.jurisdictions - stats.fullyCovered} with open candidates`}
+            caption={t`${stats.fullyCovered} fully active · ${stats.jurisdictions - stats.fullyCovered} with open reviews`}
           />
         </div>
       </SectionFrame>
 
       {/*
-        Two-column ops layout:
+        Two-column governance layout:
         - Left (col-span-6): per-jurisdiction summary — the substantive table
           where each row carries V/C/SRC counts plus the human-readable STATUS
           pill. This is the primary "what is the state per jurisdiction"
@@ -207,7 +209,7 @@ export function CoverageTab() {
               </SectionLabel>
             </div>
             <span className="text-xs text-text-tertiary">
-              <Trans>verified · candidate · sources · current state</Trans>
+              <Trans>active · pending · sources · current state</Trans>
             </span>
           </div>
           <SectionFrame>
@@ -216,8 +218,8 @@ export function CoverageTab() {
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-[64px]">JUR</TableHead>
                   <TableHead className="w-[90px]">NAME</TableHead>
-                  <TableHead className="w-[88px] text-right">VERIFIED</TableHead>
-                  <TableHead className="w-[96px] text-right">CANDIDATE</TableHead>
+                  <TableHead className="w-[88px] text-right">ACTIVE</TableHead>
+                  <TableHead className="w-[96px] text-right">PENDING</TableHead>
                   <TableHead className="w-[88px] text-right">SOURCES</TableHead>
                   <TableHead className="w-[260px]">STATUS</TableHead>
                 </TableRow>
@@ -232,7 +234,7 @@ export function CoverageTab() {
                       {jurisdictionLabel(row.jurisdiction)}
                     </TableCell>
                     <TableCell className="py-2 text-right font-mono text-xs tabular-nums">
-                      {row.verifiedRuleCount}
+                      {row.activeRuleCount ?? row.verifiedRuleCount}
                     </TableCell>
                     <TableCell
                       className={cn(
@@ -240,10 +242,12 @@ export function CoverageTab() {
                         // Candidate count tones the column blue only when there
                         // is at least one candidate (Figma 218:24); zero values
                         // stay muted to avoid drawing the eye to "nothing here".
-                        row.candidateCount > 0 ? 'text-status-review' : 'text-text-muted',
+                        (row.pendingReviewCount ?? row.candidateCount) > 0
+                          ? 'text-status-review'
+                          : 'text-text-muted',
                       )}
                     >
-                      {row.candidateCount}
+                      {row.pendingReviewCount ?? row.candidateCount}
                     </TableCell>
                     <TableCell className="py-2 text-right font-mono text-xs tabular-nums text-text-secondary">
                       {row.sourceCount}
@@ -253,7 +257,7 @@ export function CoverageTab() {
                         jurisdiction={row.jurisdiction}
                         label={
                           coverageStatusLabels[row.jurisdiction] ??
-                          t`Official sources · candidate rules`
+                          t`Official sources · pending templates`
                         }
                       />
                     </TableCell>

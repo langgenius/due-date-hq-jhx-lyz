@@ -2,50 +2,51 @@
 
 > 版本：v0.5（14 天 MVP · 2026-04-27）
 > 上游：`README.md` §2 / §4、`docs/report/DueDateHQ-MVP-Deadline-Rules-Plan.md` §3-§10
-> 目标：定义 rules 如何从官方来源采集、进入候选、人工核验、发布为结构化数据，并被 obligation / reminder / AI brief 消费
+> 目标：定义 rules 如何从官方来源采集为全局模板，并由每个 practice 审核为 active rules 后再被 obligation / reminder / risk 消费
 
 ## 1. 一句话设计
 
-Rules 采集不是“爬网页自动改日期”，而是一个带审计的内容运营工作流：
+Rules 采集不是“爬网页自动改日期”，而是一个带审计的 practice governance 工作流：
 
 ```text
 Official source
   -> source snapshot
-  -> parser / AI candidate
-  -> human verification
-  -> verified obligation_rule
+  -> parser / AI template draft
+  -> global rule template
+  -> practice owner/manager review
+  -> active practice_rule
   -> obligation generation / reminder / AI Tip
 ```
 
-MVP 的风险边界是：**AI 可以加速抽取，不能替代核验；candidate 可以提醒内部，不影响用户 deadline；verified rule 才能生成 obligation。**
+MVP 的风险边界是：**AI 可以加速抽取，不能替代 owner/manager 审核；pending template 可以预览影响，不影响用户 deadline；active practice rule 才能生成 obligation。**
 
 ## 1.1 当前代码实现
 
 第一版结构化数据已经落到 `packages/core/src/rules/index.ts`，以
 `@duedatehq/core/rules` 暴露，并通过 `rules.*` oRPC contract 接入 server。当前代码实现已经从 6 辖区 seed 扩展为 `FED + 50 states + DC` 的官方 source-connected registry：
 
-| Jurisdiction              | Sources | Verified rules | Candidates | 当前重点                                                                                                                                                                                   |
-| ------------------------- | ------- | -------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `FED`                     | 7       | 4              | 1          | 1065、1120-S、1120、corporate estimated tax、disaster relief candidate watch                                                                                                               |
-| `CA`                      | 6       | 5              | 2          | LLC Form 568、LLC annual tax、LLC estimated fee、100S、100；individual income candidates stay review-only                                                                                  |
-| `NY`                      | 7       | 7              | 2          | IT-204、IT-204-LL、CT-3、CT-3-S、PTET election / estimates / return-extension；individual income candidates stay review-only                                                               |
-| `TX`                      | 6       | 4              | 0          | franchise annual report、PIR/OIR、extension、no-tax-due threshold review                                                                                                                   |
-| `FL`                      | 4       | 2              | 2          | F-1120、corporate estimated tax；income-tax source candidates stay review-only                                                                                                             |
-| `WA`                      | 4       | 3              | 0          | combined excise monthly / quarterly / annual；WA DOR sources are manual-review degraded                                                                                                    |
-| 50 州 + `DC` precise seed | 49      | 0              | 89         | 只登记 tax-topic / filing FAQ / statute / due-date 级官方 source；estimated-tax candidate 只在同一 source 足够支撑时生成，未精确到领域的 tax agency / UI homepage source 不再进入 registry |
+| Jurisdiction              | Sources | Active practice rules | Pending templates | 当前重点                                                                                                                                                                                  |
+| ------------------------- | ------- | --------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FED`                     | 7       | 4                     | 1                 | 1065、1120-S、1120、corporate estimated tax、disaster relief pending template watch                                                                                                       |
+| `CA`                      | 6       | 5                     | 2                 | LLC Form 568、LLC annual tax、LLC estimated fee、100S、100；individual income templates stay review-only                                                                                  |
+| `NY`                      | 7       | 7                     | 2                 | IT-204、IT-204-LL、CT-3、CT-3-S、PTET election / estimates / return-extension；individual income templates stay review-only                                                               |
+| `TX`                      | 6       | 4                     | 0                 | franchise annual report、PIR/OIR、extension、no-tax-due threshold review                                                                                                                  |
+| `FL`                      | 4       | 2                     | 2                 | F-1120、corporate estimated tax；income-tax source templates stay review-only                                                                                                             |
+| `WA`                      | 4       | 3                     | 0                 | combined excise monthly / quarterly / annual；WA DOR sources are manual-review degraded                                                                                                   |
+| 50 州 + `DC` precise seed | 49      | 0                     | 89                | 只登记 tax-topic / filing FAQ / statute / due-date 级官方 source；estimated-tax template 只在同一 source 足够支撑时生成，未精确到领域的 tax agency / UI homepage source 不再进入 registry |
 
-代码里的 verified subset 仍只对已人工核验的规则生成 reminder-ready obligation。新增 50 州 + DC 规则先以 `candidate` + `source_defined_calendar` 落地：它们能出现在 Rules Console、Migration review 和 evidence trail 中，但不会自动生成用户提醒。Ops 可在 Rule detail 的 review 面板中基于官方 source excerpt、due-date logic、extension policy 和 coverage status 发布 firm-scoped verified decision。
+代码里的 seed/rule pack 现在只负责初始化全局模板和 demo 数据。新增 50 州 + DC 规则以 pending template / `source_defined_calendar` 落地：它们能出现在 Rules Console、Migration review 和 evidence trail 中，但不会自动生成用户提醒。每个 practice 的 owner 或 manager 可在 Rule detail / Review Queue 中基于官方 source excerpt、due-date logic、extension policy 和 coverage status 接受为本所 active rule。
 
 当前代码 registry 合计 80 个官方 source。Federal source 已从单一 Pub 509 + 7004
 扩展为 Pub 509、Form 1065 instructions、Form 1120-S instructions、Form 1120
 instructions、Form 7004 instructions、IRS disaster relief、FEMA early warning，避免
 只用综合日历解释具体表单 deadline。
 
-50 州 + DC 的 candidate source 不再使用 agency homepage。只有已经有 tax-topic、
-filing FAQ、statute 或 due-date 级官方页面的 individual income candidate 会生成；
-estimated-tax candidate 只在同一 source 明确覆盖 estimated payments 时生成。Fiduciary、
+50 州 + DC 的 template source 不再使用 agency homepage。只有已经有 tax-topic、
+filing FAQ、statute 或 due-date 级官方页面的 individual income template 会生成；
+estimated-tax template 只在同一 source 明确覆盖 estimated payments 时生成。Fiduciary、
 business-income/franchise、PTE/composite、sales/use、withholding 和 UI wage
-report 必须先登记精确到领域的官方 source，之后才能生成 source-backed candidate；
+report 必须先登记精确到领域的官方 source，之后才能生成 source-backed template；
 系统不会再用 broader tax agency 或 UI/workforce homepage 顶替。
 
 本轮核验后的降级规则：
@@ -74,7 +75,7 @@ Source 拉取命令：
 pnpm rules:check-sources
 ```
 
-该 repo-level ops script 会对 `html_watch` / `pdf_watch` / `api_watch` /
+该 repo-level source checker 会对 `html_watch` / `pdf_watch` / `api_watch` /
 `email_subscription` source 做机器拉取检查；`manual_review` source 明确输出 skipped。
 checker 不放在 `packages/core`，core 只保留纯规则数据、DueDateLogic 和 preview 计算。
 
@@ -91,7 +92,7 @@ checker 不放在 `packages/core`，core 只保留纯规则数据、DueDateLogic
 | `irs.i1120s.2025`            | [IRS Instructions for Form 1120-S](https://www.irs.gov/instructions/i1120s)                                            | instructions | S-Corp return due date、estimated tax payment pattern                 | HTML parse                   | 季度     |
 | `irs.i1120.2025`             | [IRS Instructions for Form 1120](https://www.irs.gov/instructions/i1120)                                               | instructions | C-Corp return due date、estimated tax payments                        | HTML parse                   | 季度     |
 | `irs.i7004.2025`             | [IRS Instructions for Form 7004](https://www.irs.gov/instructions/i7004)                                               | instructions | Business extension policy；重点标记 extension does not extend payment | HTML parse                   | 季度     |
-| `irs.disaster`               | [IRS Tax Relief in Disaster Situations](https://www.irs.gov/newsroom/tax-relief-in-disaster-situations)                | emergency    | disaster relief exception candidates                                  | HTML watch                   | 每日     |
+| `irs.disaster`               | [IRS Tax Relief in Disaster Situations](https://www.irs.gov/newsroom/tax-relief-in-disaster-situations)                | emergency    | disaster relief exception templates                                   | HTML watch                   | 每日     |
 | `fema.disaster_declarations` | [OpenFEMA Disaster Declarations Summaries](https://www.fema.gov/openfema-data-page/disaster-declarations-summaries-v2) | api          | early warning；只提示内部关注，不生成税务 deadline                    | API                          | 每日     |
 
 ### 2.2 California
@@ -101,7 +102,7 @@ checker 不放在 `packages/core`，core 只保留纯规则数据、DueDateLogic
 | `ca.ftb.business_due_dates` | [CA FTB Due dates: businesses](https://www.ftb.ca.gov/file/when-to-file/due-dates-business.html)    | due_dates | LLC、partnership、S-Corp、C-Corp return/payment/extension | HTML parse | 每周     |
 | `ca.ftb.llc_webpay`         | [CA LLC Web Pay payment types](https://webapp.ftb.ca.gov/webpay/help/llc)                           | payment   | LLC annual tax、estimated fee、extension payment          | HTML parse | 每周     |
 | `ca.ftb.efile_calendar`     | [CA FTB e-file calendars](https://www.ftb.ca.gov/tax-pros/efile/e-file-calendars.html)              | calendar  | calendar-year filing and extension dates                  | HTML parse | 每周     |
-| `ca.ftb.emergency_relief`   | [CA Emergency tax postponement](https://www.ftb.ca.gov/file/when-to-file/Emergency-tax-relief.html) | emergency | California disaster/emergency exception candidates        | HTML watch | 每日     |
+| `ca.ftb.emergency_relief`   | [CA Emergency tax postponement](https://www.ftb.ca.gov/file/when-to-file/Emergency-tax-relief.html) | emergency | California disaster/emergency exception templates         | HTML watch | 每日     |
 | `ca.ftb.tax_news`           | [CA FTB Tax News](https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/index.html)                    | news      | rule-change discovery for tax pros                        | HTML watch | 每周     |
 
 ### 2.3 New York
@@ -156,7 +157,7 @@ checker 不放在 `packages/core`，core 只保留纯规则数据、DueDateLogic
 | `fed.1120.return.2025`             | `annual_rolling` | C-Corp                                 | `federal_1120`               | 15th day of 4th month after tax year end; June 30 exception marked `applicability_review` | `irs.i1120.2025`                              |
 | `fed.1120.estimated_tax.2026`      | `annual_rolling` | C-Corp                                 | `federal_1120_estimated_tax` | 15th day of 4th, 6th, 9th, 12th months of tax year                                        | `irs.i1120.2025`                              |
 | `fed.7004.extension.business.2025` | `basic`          | partnership / S-Corp / C-Corp          | `federal_7004_extension`     | file by original return due date; extension applies to filing, not payment                | `irs.i7004.2025`                              |
-| `fed.disaster_relief.candidate`    | `exception`      | all                                    | `federal_disaster_relief`    | no automatic rule; candidate captures covered areas, dates, affected forms                | `irs.disaster` + `fema.disaster_declarations` |
+| `fed.disaster_relief.template`     | `exception`      | all                                    | `federal_disaster_relief`    | no automatic rule; template captures covered areas, dates, affected forms                 | `irs.disaster` + `fema.disaster_declarations` |
 
 ### 3.2 California rules
 
@@ -168,7 +169,7 @@ checker 不放在 `packages/core`，core 只保留纯规则数据、DueDateLogic
 | `ca.partnership.565.return.2025` | `annual_rolling` | Partnership | `ca_565_partnership`    | 15th day of 3rd month after close of tax year                | `ca.ftb.business_due_dates`                       |
 | `ca.corp.100.return.2025`        | `annual_rolling` | C-Corp      | `ca_100_franchise`      | FTB corporation row; calendar-year concrete date from source | `ca.ftb.business_due_dates`                       |
 | `ca.scorp.100s.return.2025`      | `annual_rolling` | S-Corp      | `ca_100s_franchise`     | FTB S-Corp row; calendar-year concrete date from source      | `ca.ftb.business_due_dates`                       |
-| `ca.emergency_relief.candidate`  | `exception`      | all         | `ca_emergency_relief`   | candidate only until FTB/IRS relief is verified              | `ca.ftb.emergency_relief`                         |
+| `ca.emergency_relief.template`   | `exception`      | all         | `ca_emergency_relief`   | review-only until FTB/IRS relief is accepted by the practice | `ca.ftb.emergency_relief`                         |
 
 ### 3.3 New York rules
 
@@ -193,13 +194,13 @@ checker 不放在 `packages/core`，core 只保留纯规则数据、DueDateLogic
 
 ### 3.5 Florida rules
 
-| Rule ID                            | Tier             | Entity      | Tax type                 | Due date logic                                                                                          | Source                                 |
-| ---------------------------------- | ---------------- | ----------- | ------------------------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| `fl.f1120.return.2025`             | `annual_rolling` | C-Corp      | `fl_f1120`               | generally later of statutory state rule and federal-related due date; calendar-year date from DOR table | `fl.cit_home` + `fl.cit_due_dates_pdf` |
-| `fl.f7004.extension.2025`          | `annual_rolling` | C-Corp      | `fl_f7004_extension`     | file extension with tentative payment by original Florida return due date                               | `fl.cit_home` + `fl.f7004`             |
-| `fl.f1065.return.2025`             | `annual_rolling` | Partnership | `fl_f1065`               | 1st day of 4th month after close                                                                        | `fl.cit_home`                          |
-| `fl.cit.estimated_tax.2026`        | `annual_rolling` | C-Corp      | `fl_cit_estimated_tax`   | tax-year-end table in DOR PDF                                                                           | `fl.cit_due_dates_pdf`                 |
-| `fl.tip.deadline_change.candidate` | `exception`      | all         | `fl_tip_deadline_change` | candidate only; review TIPs before publishing                                                           | `fl.tips`                              |
+| Rule ID                           | Tier             | Entity      | Tax type                 | Due date logic                                                                                          | Source                                 |
+| --------------------------------- | ---------------- | ----------- | ------------------------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `fl.f1120.return.2025`            | `annual_rolling` | C-Corp      | `fl_f1120`               | generally later of statutory state rule and federal-related due date; calendar-year date from DOR table | `fl.cit_home` + `fl.cit_due_dates_pdf` |
+| `fl.f7004.extension.2025`         | `annual_rolling` | C-Corp      | `fl_f7004_extension`     | file extension with tentative payment by original Florida return due date                               | `fl.cit_home` + `fl.f7004`             |
+| `fl.f1065.return.2025`            | `annual_rolling` | Partnership | `fl_f1065`               | 1st day of 4th month after close                                                                        | `fl.cit_home`                          |
+| `fl.cit.estimated_tax.2026`       | `annual_rolling` | C-Corp      | `fl_cit_estimated_tax`   | tax-year-end table in DOR PDF                                                                           | `fl.cit_due_dates_pdf`                 |
+| `fl.tip.deadline_change.template` | `exception`      | all         | `fl_tip_deadline_change` | review-only; review TIPs before accepting                                                               | `fl.tips`                              |
 
 ### 3.6 Washington rules
 
@@ -246,28 +247,27 @@ type RuleSource = {
 }
 ```
 
-### 4.2 RuleCandidate
+### 4.2 RuleTemplate
 
 ```ts
-type RuleCandidate = {
+type RuleTemplate = {
   id: string
   sourceId: string
+  version: number
   jurisdiction: string
-  rawSnapshotHash: string
-  extractionMethod: 'parser' | 'ai' | 'manual'
-  extractedPayload: unknown
-  diffSummary: string | null
-  status: 'pending_review' | 'rejected' | 'promoted'
-  reviewerNote: string | null
+  templateJson: unknown
+  status: 'available' | 'deprecated'
   createdAt: string
 }
 ```
 
-### 4.3 ObligationRule
+### 4.3 PracticeRule
 
 ```ts
-type ObligationRule = {
+type PracticeRule = {
   id: string
+  firmId: string
+  ruleId: string
   version: number
   jurisdiction: 'FED' | 'CA' | 'NY' | 'TX' | 'FL' | 'WA'
   taxYear: number
@@ -285,9 +285,10 @@ type ObligationRule = {
   evidence: RuleEvidence[]
   quality: RuleQualityChecklist
   coverageStatus: 'full' | 'skeleton' | 'manual'
-  status: 'candidate' | 'verified' | 'deprecated'
-  verifiedBy: string
-  verifiedAt: string
+  status: 'pending_review' | 'active' | 'rejected' | 'archived'
+  reviewedBy: string
+  reviewedAt: string
+  reviewNote: string
   nextReviewOn: string
 }
 ```
@@ -316,8 +317,8 @@ type RuleEvidence = {
 }
 ```
 
-Verified rule 至少要有一条 `authorityRole='basis'` 的 evidence。`watch` 和
-`early_warning` 只能推动 candidate review，不能单独发布 verified deadline。
+Active practice rule 至少要有一条 `authorityRole='basis'` 的 evidence。`watch` 和
+`early_warning` 只能推动 practice review task，不能单独启用 deadline。
 
 ### 4.5 DueDateLogic
 
@@ -374,12 +375,12 @@ type RuleQualityChecklist = {
   extensionPolicyHandled: boolean
   calendarVsFiscalSpecified: boolean
   weekendHolidayRolloverHandled: boolean
-  crossVerifiedOfficialSources: boolean
+  crossCheckedOfficialSources: boolean
   disasterExceptionChannelEstablished: boolean
 }
 ```
 
-Verified rule 默认要达到 6/6。允许 5/6 的唯一情况是 `ruleTier='applicability_review'`，并且用户侧必须显示 “Confirm applicability before acting”。
+Active practice rule 默认要达到 6/6。允许 5/6 的唯一情况是 `ruleTier='applicability_review'`，并且用户侧必须显示 “Confirm applicability before acting”。
 
 ### 4.7 ObligationGenerationPreview
 
@@ -411,39 +412,39 @@ type ObligationGenerationPreview = {
 
 生成规则：
 
-- 只消费 `status='verified'` 的 rule；`candidate` 只进内部 review。
+- 只消费 `practice_rule.status='active'` 的 rule；pending/rejected/archived 只进 preview 或 review queue。
 - Federal rule 对所有 state 生效；州 rule 必须匹配客户 state。
 - `entityApplicability='any_business'` 匹配业务实体，不匹配 individual/trust。
 - matrix tax type 与 rule tax type 通过显式 alias 表匹配，不能靠 AI 猜测。
 - `coverageStatus='manual'`、`ruleTier='applicability_review'`、`requiresApplicabilityReview=true`、`dueDate=null` 都会使 `reminderReady=false`。
 
-## 5. 获取与发布流程
+## 5. 获取与审核流程
 
 ### 5.1 基础规则采集
 
 1. Watcher 拉取 source HTML/PDF/API，并保存 snapshot hash。
 2. Parser 提取表格、标题、日期、原文段落。
-3. AI 可把长文转成 candidate payload，但输出必须带 locator 与 source excerpt。
-4. Ops 在 Rules Console 审核 candidate。
-5. Verified 后写入 `rule_review_decision`，runtime 将该 decision merge 回 Rules API 与 preview。
-6. 发布后的 verified decision 触发 obligation generation preview；Migration apply 同样消费 firm-scoped verified rules。
+3. AI 可把长文转成 template payload，但输出必须带 locator 与 source excerpt。
+4. 系统为每个 practice 创建 `practice_rule_review_task`。
+5. Owner/manager 在 Rules Console 审核 template；接受后写入 `practice_rule.status='active'`。
+6. Active practice rule 才进入 obligation generation preview；Migration apply、Annual rollover、reminder/risk 同样只消费 active practice rules。
 
 ### 5.2 Exception 采集
 
-1. IRS disaster / state emergency / FEMA source 变化生成 exception candidate。
-2. Candidate 必须包含 affected jurisdiction、counties、effective dates、affected forms、new due date、source excerpt。
-3. 没有 IRS 或州税局税务 relief 页面支撑时，只能保留 early warning，不能发布 overlay。
+1. IRS disaster / state emergency / FEMA source 变化生成 practice review task。
+2. Temporary rule 必须包含 affected jurisdiction、counties、effective dates、affected forms、new due date、source excerpt。
+3. 没有 IRS 或州税局税务 relief 页面支撑时，只能保留 early warning，不能启用 overlay。
 4. 发布 overlay 前显示 impacted obligations preview。
-5. 发布后才允许生成用户通知。
+5. Owner/manager 接受后才允许生成用户通知。
 
-### 5.3 发布状态机
+### 5.3 审核状态机
 
 ```text
 watch_changed
-  -> candidate_created
+  -> template_available
+  -> review_task_open
   -> pending_review
-  -> verified
-  -> published_decision
+  -> active
   -> consumed_by_obligations
 ```
 
@@ -456,36 +457,36 @@ pending_review -> needs_more_source
 
 ## 6. 通知消费边界
 
-| 通知类型                  | 触发源                                                | 接收者                      | 是否面向用户 | 是否改变 deadline     |
-| ------------------------- | ----------------------------------------------------- | --------------------------- | ------------ | --------------------- |
-| `rules.source.changed`    | source snapshot hash 变化                             | 内部 ops                    | 否           | 否                    |
-| `rules.candidate.created` | parser/AI 生成 candidate                              | 内部 ops                    | 否           | 否                    |
-| `rules.review.required`   | candidate 缺少 excerpt / cross-source / applicability | 内部 ops                    | 否           | 否                    |
-| `rules.published`         | verified rule 发布                                    | 内部 ops，可选用户侧 banner | 可选         | 触发 preview 后才改变 |
-| `obligations.previewed`   | verified rule pack 应用于客户事实                     | 用户/内部 review 页面       | 是           | 否                    |
-| `obligations.generated`   | `reminderReady=true` preview 写入 obligation          | 用户                        | 是           | 是                    |
-| `reminder.scheduled`      | obligation due in 30/7/1 days                         | 用户                        | 是           | 否                    |
+| 通知类型                | 触发源                                               | 接收者                                    | 是否面向用户 | 是否改变 deadline     |
+| ----------------------- | ---------------------------------------------------- | ----------------------------------------- | ------------ | --------------------- |
+| `rules.source.changed`  | source snapshot hash 变化                            | practice owner/manager                    | 否           | 否                    |
+| `rules.review.required` | template 缺少 excerpt / cross-source / applicability | practice owner/manager                    | 否           | 否                    |
+| `rules.accepted`        | practice rule accepted                               | practice owner/manager，可选用户侧 banner | 可选         | 触发 preview 后才改变 |
+| `obligations.previewed` | active practice rule 应用于客户事实                  | 用户/内部 review 页面                     | 是           | 否                    |
+| `obligations.generated` | `reminderReady=true` preview 写入 obligation         | 用户                                      | 是           | 是                    |
+| `reminder.scheduled`    | obligation due in 30/7/1 days                        | 用户                                      | 是           | 否                    |
 
-MVP 的用户提醒只消费 `obligation_instance`，不直接消费 `RuleCandidate`。
+MVP 的用户提醒只消费 `obligation_instance`，不直接消费 `rule_template` 或 `practice_rule_review_task`。
 
 ## 7. 验收标准
 
-- Source Registry 当前代码覆盖 Federal + 50 州 + DC；新增州源先进入 source signal / candidate review，不能直接显示为 reminder-ready verified coverage。
+- Source Registry 当前代码覆盖 Federal + 50 州 + DC；新增州源先进入 source signal / practice review，不能直接显示为 reminder-ready active coverage。
 - 初始 Rule Pack 至少包含本文件 §3 的 rule IDs。
-- 每条 verified rule 至少有 1 个 primary official source；高风险/extension/payment rule 需要 2 个 source 或明确 cross-check note。
+- 每条 active practice rule 至少有 1 个 primary official source；高风险/extension/payment rule 需要 2 个 source 或明确 cross-check note。
 - 每条 rule 都有 `dueDateLogic`、`eventType`、`ruleTier`、`qualityChecklist`。
-- 所有 exception 都先进入 candidate，不直接更新 obligation。
-- 用户提醒只来自 `reminderReady=true` preview 生成的 verified obligations。
+- 所有 exception 都先进入 practice review task，不直接更新 obligation。
+- 用户提醒只来自 `reminderReady=true` preview 生成的 active-rule obligations。
 - `rules.previewObligations` 必须返回 source/evidence/reviewReasons，页面不能只展示日期。
 
 ## 8. 变更记录
 
-| 版本 | 日期       | 作者  | 摘要                                                                        |
-| ---- | ---------- | ----- | --------------------------------------------------------------------------- |
-| v0.8 | 2026-05-04 | Codex | Pulse source promotion 覆盖 51 辖区，并收窄部分州 source。                  |
-| v0.7 | 2026-05-04 | Codex | 移除 agency-homepage 级 source，candidate generation 改为 precision-gated。 |
-| v0.6 | 2026-05-04 | Codex | 扩展 50 州 + DC source-backed candidates，并补 rules verify workflow。      |
-| v0.5 | 2026-04-27 | Codex | Source health checker 移出 core，改为 repo-level ops script。               |
-| v0.4 | 2026-04-27 | Codex | 新增 rule-to-obligation preview contract 与 reminderReady 边界。            |
-| v0.3 | 2026-04-27 | Codex | 官方来源复核后同步 source health、规则状态与 DueDateLogic DSL。             |
-| v0.1 | 2026-04-27 | Codex | 新增 MVP source registry、初始 rule pack、结构化模型和通知边界。            |
+| 版本 | 日期       | 作者  | 摘要                                                                                           |
+| ---- | ---------- | ----- | ---------------------------------------------------------------------------------------------- |
+| v0.9 | 2026-05-05 | Codex | 改为全局模板 + practice owner/manager active rule 模型，pending template 只能 preview/review。 |
+| v0.8 | 2026-05-04 | Codex | Pulse source promotion 覆盖 51 辖区，并收窄部分州 source。                                     |
+| v0.7 | 2026-05-04 | Codex | 移除 agency-homepage 级 source，template generation 改为 precision-gated。                     |
+| v0.6 | 2026-05-04 | Codex | 扩展 50 州 + DC source-backed templates，并补 rules review workflow。                          |
+| v0.5 | 2026-04-27 | Codex | Source health checker 移出 core，改为 repo-level source checker。                              |
+| v0.4 | 2026-04-27 | Codex | 新增 rule-to-obligation preview contract 与 reminderReady 边界。                               |
+| v0.3 | 2026-04-27 | Codex | 官方来源复核后同步 source health、规则状态与 DueDateLogic DSL。                                |
+| v0.1 | 2026-04-27 | Codex | 新增 MVP source registry、初始 rule pack、结构化模型和通知边界。                               |

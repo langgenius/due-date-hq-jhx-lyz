@@ -82,9 +82,9 @@ export type SourcePriority = 'critical' | 'high' | 'medium' | 'low'
 export type SourceHealthStatus = 'healthy' | 'degraded' | 'failing' | 'paused'
 
 export type RuleNotificationChannel =
-  | 'ops_source_change'
-  | 'candidate_review'
-  | 'publish_preview'
+  | 'source_change'
+  | 'practice_rule_review'
+  | 'practice_rule_preview'
   | 'user_deadline_reminder'
 
 export interface RuleSource {
@@ -881,7 +881,7 @@ export const STATE_OFFICIAL_SOURCES = STATE_RULE_SOURCE_SEEDS.flatMap<RuleSource
       priority: 'high',
       healthStatus: 'degraded',
       isEarlyWarning: false,
-      notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
+      notificationChannels: ['source_change', 'practice_rule_review', 'practice_rule_preview'],
       lastReviewedOn: VERIFIED_AT,
     })
   }
@@ -902,7 +902,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -916,7 +916,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -930,7 +930,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -944,7 +944,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -958,7 +958,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -972,7 +972,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_review', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -986,7 +986,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: true,
-    notificationChannels: ['ops_source_change', 'candidate_review'],
+    notificationChannels: ['source_change', 'practice_rule_review'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1000,7 +1000,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1014,7 +1014,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1028,7 +1028,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1042,7 +1042,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_review', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1056,7 +1056,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review'],
+    notificationChannels: ['source_change', 'practice_rule_review'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1070,7 +1070,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1084,7 +1084,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1098,7 +1098,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1112,7 +1112,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1126,7 +1126,7 @@ export const RULE_SOURCES = [
     priority: 'medium',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review'],
+    notificationChannels: ['source_change', 'practice_rule_review'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1140,7 +1140,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1154,7 +1154,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1168,7 +1168,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1182,7 +1182,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1196,7 +1196,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1210,7 +1210,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_review', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1224,7 +1224,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1238,7 +1238,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1252,7 +1252,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1266,7 +1266,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'healthy',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review'],
+    notificationChannels: ['source_change', 'practice_rule_review'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1280,7 +1280,7 @@ export const RULE_SOURCES = [
     priority: 'critical',
     healthStatus: 'degraded',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1294,7 +1294,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'degraded',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1308,7 +1308,7 @@ export const RULE_SOURCES = [
     priority: 'high',
     healthStatus: 'degraded',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review'],
+    notificationChannels: ['source_change', 'practice_rule_review'],
     lastReviewedOn: VERIFIED_AT,
   },
   {
@@ -1322,7 +1322,7 @@ export const RULE_SOURCES = [
     priority: 'medium',
     healthStatus: 'degraded',
     isEarlyWarning: false,
-    notificationChannels: ['ops_source_change', 'candidate_review', 'publish_preview'],
+    notificationChannels: ['source_change', 'practice_rule_review', 'practice_rule_preview'],
     lastReviewedOn: VERIFIED_AT,
   },
 ] as const satisfies readonly RuleSource[]
@@ -1357,7 +1357,7 @@ const SOURCE_EXCERPTS: Record<string, string> = {
   'ca.ftb_emergency_tax_relief':
     'FTB emergency tax relief page lists postponed deadlines for declared disasters; eligibility is per-event.',
   'ca.ftb_tax_news':
-    'FTB Tax News index; new entries trigger candidate review before any rule change.',
+    'FTB Tax News index; new entries trigger practice review before any rule change.',
   'ny.tax_calendar.2026':
     'If the due date of the return falls on a Saturday, Sunday, or legal holiday, it is due on the next business day.',
   'ny.ptet':
@@ -1386,12 +1386,12 @@ const SOURCE_EXCERPTS: Record<string, string> = {
   'fl.cit_due_dates_2026':
     'Florida DOR publishes a taxable-year-end due-date table for corporate income tax returns and estimated payments.',
   'fl.tips':
-    'Florida Tax Information Publications index; new entries trigger candidate review before any rule change.',
+    'Florida Tax Information Publications index; new entries trigger practice review before any rule change.',
   'wa.excise_due_dates_2026':
     '2026 Excise Tax Return Due Dates; manual review required (DOR blocks machine fetches).',
   'wa.bo': 'B&O tax applicability depends on business activity and assigned filing frequency.',
   'wa.news':
-    'WA DOR news releases index; new entries trigger candidate review before any rule change.',
+    'WA DOR news releases index; new entries trigger practice review before any rule change.',
   'wa.capital_gains_exception_2026':
     'Tax Year 2025 Capital Gains tax returns and payments are due May 1, 2026. A filing extension does not extend the due date for paying the capital gains tax.',
 }
@@ -1543,7 +1543,7 @@ function buildStateCandidateRule(
     requiresApplicabilityReview: true,
     dueDateLogic: {
       kind: 'source_defined_calendar',
-      description: `${seed.name} ${domain.title} requires official-source review before a concrete deadline can be published.`,
+      description: `${seed.name} ${domain.title} requires official-source review before a concrete deadline can be accepted.`,
       holidayRollover: 'source_adjusted',
     },
     extensionPolicy: {
@@ -1555,12 +1555,12 @@ function buildStateCandidateRule(
     evidence: [
       sourceEvidence(sourceId, domain.formName, domain.reviewReason, {
         authorityRole: 'watch',
-        sourceExcerpt: `${seed.name} official source registered for ${domain.title}; candidate rules require ops verification before customer reminders.`,
+        sourceExcerpt: `${seed.name} official source registered for ${domain.title}; templates require practice owner or manager acceptance before customer reminders.`,
       }),
     ],
     defaultTip: domain.reviewReason,
     quality: PENDING_REVIEW_QUALITY,
-    verifiedBy: 'ops.rules.pending_official_review',
+    verifiedBy: 'practice.owner_or_manager_required',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -1626,7 +1626,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Calendar-year partnership returns for tax year 2025 roll to March 16, 2026.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -1682,7 +1682,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Calendar-year 2025 S corporation returns roll to March 16, 2026.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -1737,7 +1737,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Calendar-year C corporation returns for tax year 2025 are due April 15, 2026.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -1785,7 +1785,7 @@ export const OBLIGATION_RULES = [
     defaultTip:
       'Treat estimated tax as payment-only; do not suppress it when a filing extension exists.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -1831,9 +1831,9 @@ export const OBLIGATION_RULES = [
       ),
     ],
     defaultTip:
-      'Route disaster relief changes to candidate review before any client reminder changes.',
+      'Route disaster relief changes to practice review before any client reminder changes.',
     quality: { ...VERIFIED_QUALITY, crossVerified: false },
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: '2026-05-04',
     version: 1,
@@ -1889,7 +1889,7 @@ export const OBLIGATION_RULES = [
     defaultTip:
       'Confirm LLC federal classification and owner type before applying Form 568 timing.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -1938,7 +1938,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Separate the LLC annual tax payment from the Form 568 filing deadline.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -1987,7 +1987,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Mark for review when California-source total income is unknown.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2031,7 +2031,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Calendar-year 2025 CA S corporation return rolls to March 16, 2026.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2075,7 +2075,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Calendar-year CA C corporation return is due April 15, 2026.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2125,7 +2125,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'NY calendar-year partnership returns for 2025 are due March 16, 2026.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2173,7 +2173,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Do not treat IT-204-LL as covered by a partnership filing extension.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2222,7 +2222,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Calendar-year NY C corporation returns are due April 15, 2026.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2271,7 +2271,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Calendar-year NY S corporation returns for 2025 are due March 16, 2026.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2318,7 +2318,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Confirm the client wants to make a PTET election before treating this as work.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2371,7 +2371,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Generate only after confirming the entity elected into PTET.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2415,7 +2415,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Only clients with a PTET election should receive this obligation.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2463,7 +2463,7 @@ export const OBLIGATION_RULES = [
     defaultTip:
       'Confirm whether the entity is subject to Texas franchise tax before generating reminders.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2510,7 +2510,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Use entity type to decide PIR vs OIR before showing client-facing language.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2558,7 +2558,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Confirm extension payment requirements before treating the report as extended.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2605,7 +2605,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Use this as a CPA review prompt, not as an automatic deadline.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2654,7 +2654,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Use the Florida taxable-year-end table before assigning a concrete due date.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2702,7 +2702,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Only generate when estimated Florida corporate income tax exceeds the threshold.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2764,7 +2764,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Confirm the client filing frequency before generating monthly excise reminders.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2812,7 +2812,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Use the quarterly schedule only after confirming filing frequency.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,
@@ -2855,7 +2855,7 @@ export const OBLIGATION_RULES = [
     ],
     defaultTip: 'Annual Washington excise return for 2026 is due April 15, 2027.',
     quality: VERIFIED_QUALITY,
-    verifiedBy: 'ops.rules.manual',
+    verifiedBy: 'practice.template_seed',
     verifiedAt: VERIFIED_AT,
     nextReviewOn: NEXT_PRE_SEASON_REVIEW,
     version: 1,

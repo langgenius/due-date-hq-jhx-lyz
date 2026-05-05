@@ -6,7 +6,7 @@ import { evidenceLink, type NewEvidenceLink } from './schema/audit'
  *
  * Evidence rows are append-oriented: we append a new row per decision,
  * never overwrite. `verified_at` / `verified_by` can be updated later by
- * the ops verification workflow (Phase 1); that path goes through a
+ * the practice rule review workflow; that path goes through a
  * different writer that we do not implement in Demo Sprint.
  *
  * Invariant: exactly one of `obligationInstanceId` or `aiOutputId` must

@@ -214,7 +214,7 @@ Schema、索引、目录结构**一次性覆盖到 Phase 1**：Firm / User / Mem
 - **Glass-Box Guard**：AI SDK 输出后置校验（citation 正则 + 黑名单 + PII 回填）
 - **Transactional Outbox**：Pulse Apply 与 Email Job 在同一 D1 事务内写入 `email_outbox` 表，由 Queue 消费者异步 flush
 - **migration_batch**：单次 Import 的事务边界；PK = `id`；挂载 `migration_mapping` / `migration_normalization` / `migration_error` / 生成的 `client[].migration_batch_id`；24h revert 窗口以 `applied_at + 24h` 表示（对齐 `../product-design/migration-copilot/01-mvp-and-journeys.md` §4 · ADR 0011 Decision I）
-- **Default Matrix**：`(entity_type × state) → tax_types[]` 的 ops 签字静态查表；Demo Sprint v1.0 覆盖 Federal + CA + NY × 8 实体 = 24 格；定义在 `../product-design/migration-copilot/05-default-matrix.v1.0.yaml`；运行期由 Rule Engine 读取并写 `evidence_link(source_type='default_inference_by_entity_state', matrix_version='v1.0')`
+- **Default Matrix**：`(entity_type × state) → tax_types[]` 的 practice-reviewed 静态查表；Demo Sprint v1.0 覆盖 Federal + CA + NY × 8 实体 = 24 格；定义在 `../product-design/migration-copilot/05-default-matrix.v1.0.yaml`；运行期由 Rule Engine 读取并写 `evidence_link(source_type='default_inference_by_entity_state', matrix_version='v1.0')`
 - **Live Genesis**：Import 完成后 4–6 秒的前端驱动动画，粒子弧线飞入 Penalty Radar + odometer 数字滚动；`prefers-reduced-motion` 降级为 200ms fade-in；规格详见 `../product-design/migration-copilot/07-live-genesis.md`
 - **confidence-badge**：Migration AI Mapper / Normalizer 输出的 3 档置信度徽章（≥ 0.95 / 0.80–0.94 / < 0.80）；与 severity / status 语义解耦——**数据质量类 `needs_review` 用 `severity-medium` 黄，工作流 Review 用 `status-review` 紫**（ADR 0011 Decision III 权威裁定；token 见 `../../DESIGN.md` `confidence-badge:`）
 

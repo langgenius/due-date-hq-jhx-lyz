@@ -142,7 +142,7 @@ export function ToneDot({ tone }: { tone: 'success' | 'warning' | 'review' | 'di
 export function CoverageCell({ state }: { state: CoverageCellState }) {
   const { t } = useLingui()
   const tone = state === 'verified' ? 'success' : state === 'review' ? 'warning' : 'disabled'
-  const label = state === 'verified' ? t`verified` : state === 'review' ? t`review` : t`no rule`
+  const label = state === 'verified' ? t`active` : state === 'review' ? t`review` : t`no rule`
   return (
     <span
       className={cn(
@@ -164,7 +164,7 @@ export function CoverageLegend() {
       <span className="inline-flex items-center gap-2">
         <ToneDot tone="success" />
         <ConceptLabel concept="verifiedRule">
-          <Trans>verified — reminder will fire</Trans>
+          <Trans>active — accepted by this practice</Trans>
         </ConceptLabel>
       </span>
       <span className="inline-flex items-center gap-2">

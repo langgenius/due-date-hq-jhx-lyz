@@ -3,9 +3,11 @@ import { describe, expect, it } from 'vitest'
 import type { AI } from '@duedatehq/ai'
 import { PulseExtractOutputSchema } from '@duedatehq/ai'
 import type { MappingTarget } from '@duedatehq/contracts'
+import { listObligationRules } from '@duedatehq/core/rules'
 import { validateNormalizedRows } from './_deterministic'
 import { PRESET_FALLBACK_CONFIDENCE, PRESET_VERSION } from './_preset-mappings'
 import { MigrationService, type MigrationDeps } from './_service'
+import { toContractRule } from '../rules/runtime'
 
 /**
  * MigrationService tests — exercise the orchestration (Step 1 → Step 3 →
@@ -19,6 +21,26 @@ import { MigrationService, type MigrationDeps } from './_service'
 const FIRM = 'firm-1'
 const OTHER_FIRM = 'firm-2'
 const USER = 'user-1'
+const RULE_REVIEWED_AT = new Date('2026-05-05T00:00:00.000Z')
+
+function activePracticeRuleRows(firmId: string) {
+  return listObligationRules({ includeCandidates: true })
+    .filter((rule) => rule.status === 'verified')
+    .map((rule) => ({
+      id: `practice_${rule.id}`,
+      firmId,
+      ruleId: rule.id,
+      templateId: rule.id,
+      templateVersion: rule.version,
+      status: 'active' as const,
+      ruleJson: { ...toContractRule(rule), status: 'active' as const },
+      reviewNote: null,
+      reviewedBy: USER,
+      reviewedAt: RULE_REVIEWED_AT,
+      createdAt: RULE_REVIEWED_AT,
+      updatedAt: RULE_REVIEWED_AT,
+    }))
+}
 
 interface MigrationBatchRow {
   id: string
@@ -701,6 +723,31 @@ function buildScopedRepo(firmId: string) {
     },
     rules: {
       firmId,
+      async upsertGlobalTemplates() {},
+      async listPracticeRules() {
+        return activePracticeRuleRows(firmId)
+      },
+      async listActivePracticeRules() {
+        return activePracticeRuleRows(firmId)
+      },
+      async getPracticeRule() {
+        return null
+      },
+      async upsertPracticeRule() {
+        return unexpectedRepoCall('rules.upsertPracticeRule')
+      },
+      async ensureReviewTasks() {
+        return []
+      },
+      async listReviewTasks() {
+        return []
+      },
+      async getReviewTask() {
+        return null
+      },
+      async decideReviewTask() {
+        return unexpectedRepoCall('rules.decideReviewTask')
+      },
       async listDecisions() {
         return []
       },

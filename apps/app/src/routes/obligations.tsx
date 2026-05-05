@@ -3550,7 +3550,7 @@ function parseReadinessResponseEvidence(
 }
 
 function evidenceSourceLabel(sourceType: string): ReactNode {
-  if (sourceType === 'verified_rule') return <Trans>Verified rule</Trans>
+  if (sourceType === 'verified_rule') return <Trans>Active practice rule</Trans>
   if (sourceType === 'penalty_override') return <Trans>Penalty input</Trans>
   if (sourceType === 'extension_decision') return <Trans>Extension decision</Trans>
   if (sourceType === 'pulse_apply') return <Trans>Rule update</Trans>

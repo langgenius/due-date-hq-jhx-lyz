@@ -581,7 +581,7 @@ describe('makePulseOpsRepo', () => {
     ).toBe(true)
   })
 
-  it('does not write synthetic ops actor ids into user foreign keys', async () => {
+  it('does not write synthetic system actor ids into user foreign keys', async () => {
     const approvedPulse = {
       id: 'pulse-approve',
       status: 'approved' as const,
@@ -591,25 +591,25 @@ describe('makePulseOpsRepo', () => {
     const approveDb = fakeDb([[], [approvedPulse], [approvedPulse], []])
     await makePulseOpsRepo(approveDb.db).approvePulse({
       pulseId: 'pulse-approve',
-      reviewedBy: 'ops-web',
+      reviewedBy: 'system-web',
     })
 
     const rejectDb = fakeDb([[{ id: 'pulse-reject', status: 'pending_review' }], [], []])
     await makePulseOpsRepo(rejectDb.db).rejectPulse({
       pulseId: 'pulse-reject',
-      reviewedBy: 'ops-web',
+      reviewedBy: 'system-web',
     })
 
     const quarantineDb = fakeDb([[{ id: 'pulse-quarantine', status: 'pending_review' }], [], []])
     await makePulseOpsRepo(quarantineDb.db).quarantinePulse({
       pulseId: 'pulse-quarantine',
-      actorId: 'ops-web',
+      actorId: 'system-web',
     })
 
     const revokeDb = fakeDb([[], [{ id: 'pulse-revoke', status: 'approved' }], []])
     await makePulseOpsRepo(revokeDb.db).revokeSourcePulses({
       sourceId: 'irs.disaster',
-      actorId: 'ops-web',
+      actorId: 'system-web',
     })
 
     for (const statements of [

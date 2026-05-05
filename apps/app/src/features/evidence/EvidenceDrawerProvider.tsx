@@ -252,7 +252,7 @@ function EvidenceSourceIcon({ sourceType }: { sourceType: string }) {
 }
 
 function evidenceSourceLabel(sourceType: string): ReactNode {
-  if (sourceType === 'verified_rule') return <Trans>Verified rule</Trans>
+  if (sourceType === 'verified_rule') return <Trans>Active practice rule</Trans>
   if (sourceType === 'ai_mapper') return <Trans>Import mapping</Trans>
   if (sourceType === 'ai_normalizer') return <Trans>Import cleanup</Trans>
   if (sourceType === 'readiness_checklist_ai') return <Trans>Readiness checklist</Trans>
@@ -267,7 +267,8 @@ function evidenceSourceLabel(sourceType: string): ReactNode {
 }
 
 function evidenceHeadline(sourceType: string): ReactNode {
-  if (sourceType === 'verified_rule') return <Trans>An official rule supports this deadline.</Trans>
+  if (sourceType === 'verified_rule')
+    return <Trans>An active practice rule supports this deadline.</Trans>
   if (sourceType === 'ai_mapper') return <Trans>An imported column was matched to DueDateHQ.</Trans>
   if (sourceType === 'ai_normalizer') return <Trans>An imported value was cleaned up.</Trans>
   if (sourceType === 'readiness_checklist_ai') {
@@ -294,7 +295,9 @@ function evidenceDescription(item: EvidencePublic): ReactNode {
     if (readiness) return <Trans>Latest readiness: {humanizeToken(readiness)}.</Trans>
   }
   if (item.sourceType === 'verified_rule') {
-    return <Trans>The source-backed rule matched the client facts for this obligation.</Trans>
+    return (
+      <Trans>The accepted source-backed rule matched the client facts for this obligation.</Trans>
+    )
   }
   return firstReadableValue(item.normalizedValue ?? item.rawValue)?.node ?? null
 }

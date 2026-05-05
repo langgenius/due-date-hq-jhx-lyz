@@ -245,6 +245,12 @@ export const PENALTY_AUDIT_ACTIONS = ['penalty.override'] as const
 export type PenaltyAuditAction = (typeof PENALTY_AUDIT_ACTIONS)[number]
 
 export const RULES_AUDIT_ACTIONS = [
+  'rules.accepted',
+  'rules.bulk_accepted',
+  'rules.rejected',
+  'rules.created',
+  'rules.updated',
+  'rules.archived',
   'rules.published',
   'rules.review.rejected',
   'obligation.annual_rollover.created',

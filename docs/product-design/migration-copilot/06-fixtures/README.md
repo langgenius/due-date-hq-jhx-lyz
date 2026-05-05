@@ -45,7 +45,7 @@
 - Account Type：仅使用 TaxDome 的 `Company` / `Individual` / `Other`，不再承载 LLC / S-Corp / Sole Proprietor 等内部 tax entity
 - Tax Entity Type：使用 Default Matrix 可归一值；sole-prop 行写作 `Sole Proprietor`，归一为内部枚举 `sole_prop`
 - Deadline：以 `2026-05-04` 为基准，5 条 overdue、1 条 today、8 条 30 天内、9 条 2026 下半年、7 条 2027 长期未来；日期格式使用 TaxDome US import 常见的 `MM/DD/YYYY`
-- 注意：`Deadline` 是 vendor calendar fixture column；当前 Migration import contract 仍由 `Tax Return Type` / Default Matrix / verified rules 生成正式 obligations，除非导入映射目标后续扩展出 due-date 字段
+- 注意：`Deadline` 是 vendor calendar fixture column；当前 Migration import contract 仍由 `Tax Return Type` / Default Matrix / active practice rules 生成正式 obligations，除非导入映射目标后续扩展出 due-date 字段
 - 验证：Preset 自动识别 + AI Mapping 置信度均值 ≥ 95% + EIN 识别率 = 100%（双指标 T-S2-01，见 [`../10-conflict-resolutions.md#3-t-s2-01-双指标口径`](../10-conflict-resolutions.md#3-t-s2-01-双指标口径)）
 
 #### `taxdome-exposure-3clients.csv`

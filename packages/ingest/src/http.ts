@@ -1,7 +1,7 @@
 import type { IngestCtx, RawSnapshot } from './types'
 
 export const DEFAULT_HEADERS = {
-  'User-Agent': 'DueDateHQ-PulseBot/1.0 (+https://duedatehq.com/bot; ops@duedatehq.com)',
+  'User-Agent': 'DueDateHQ-PulseBot/1.0 (+https://duedatehq.com/bot; support@duedatehq.com)',
   Accept: 'text/html,application/xhtml+xml,application/xml,application/rss+xml,application/json',
   'Accept-Language': 'en-US,en;q=0.9',
   'Cache-Control': 'no-cache',

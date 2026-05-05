@@ -42,8 +42,12 @@ test.describe('seeded Pulse alerts', () => {
     })
     await expect(arborEvidenceButton).toHaveText('1')
     await arborEvidenceButton.click()
-    const evidenceDrawer = authenticatedPage.getByRole('dialog', { name: 'Evidence chain' })
-    await expect(evidenceDrawer.getByText('pulse_apply')).toBeVisible()
+    const evidenceDrawer = authenticatedPage.getByRole('dialog', {
+      name: 'Evidence for this deadline',
+    })
+    await expect(evidenceDrawer).toContainText('Rule update')
+    await expect(evidenceDrawer).toContainText('A rule change was applied.')
+    await expect(evidenceDrawer).toContainText('Individuals and businesses in Los Angeles County')
     await evidenceDrawer.getByRole('button', { name: 'Close' }).click()
     await expect(obligationQueuePage.rowFor('Bright Studio S-Corp')).toContainText('2026-03-15')
 

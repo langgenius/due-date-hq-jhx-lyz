@@ -335,6 +335,31 @@ function buildScopedRepo(input: {
     },
     rules: {
       firmId: FIRM_ID,
+      async upsertGlobalTemplates() {},
+      async listPracticeRules() {
+        return []
+      },
+      async listActivePracticeRules() {
+        return []
+      },
+      async getPracticeRule() {
+        return null
+      },
+      async upsertPracticeRule() {
+        return unused('rules.upsertPracticeRule')
+      },
+      async ensureReviewTasks() {
+        return []
+      },
+      async listReviewTasks() {
+        return []
+      },
+      async getReviewTask() {
+        return null
+      },
+      async decideReviewTask() {
+        return unused('rules.decideReviewTask')
+      },
       async listDecisions() {
         return []
       },

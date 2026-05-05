@@ -570,7 +570,7 @@ Dashboard、Obligations、Rules > Pulse Changes 三处首屏顶部加 **View Sco
 | **P1-32** | **★ Rule Quality Badge**                      | 6 项 Checklist 可展开（filing/payment/extension/year/holiday/exception）（§6D.4）                                                            | Rules 核心          |
 | **P1-33** | **★ Cross-source Verification**               | 双源交叉验证 chip + 冲突 needs_review 流程（§6D.5）                                                                                          | Rules 核心          |
 | **P1-34** | **★ Rule Library `/rules` 公开页**            | 面向 CPA + SEO 的规则资产浏览页 + PDF/JSON 导出（§6D.7）                                                                                     | Rules 核心          |
-| **P1-35** | **★ Verification Rhythm**                     | 税季前 / 每周 / 每日 ops 节奏 + Dashboard Freshness Badge + 周一 Rhythm Report 邮件（§6D.6）                                                 | Rules 核心          |
+| **P1-35** | **★ Verification Rhythm**                     | 税季前 / 每周 / 每日 practice review 节奏 + Dashboard Freshness Badge + 周一 Rhythm Report 邮件（§6D.6）                                     | Rules 核心          |
 | **P1-36** | **★ PWA 壳（跨平台 Add-to-Dock + Web Push）** | manifest + service worker + Web Push；用户 1 键"Add to Dock / Home Screen" → Dock / Home 图标 + 独立窗口 + 离线缓存 + 跨设备推送（§7.8.1）   | Native 体验         |
 | P1-37     | macOS Menu Bar Widget（Phase 2）              | 常驻 menu bar 显示 `$ at risk · overdue count`；点击唤起主 Dashboard；Tauri/Swift ≈ 400KB 壳（§7.8.2）                                       | Phase 2 差异化      |
 
@@ -859,7 +859,7 @@ Tabs 之上加一行 scope 切换（Solo Plan 下该行不渲染）：
 │                                                    │
 │   Human verification                               │
 │   ──────────────────                                │
-│   Verified by  ops@duedatehq.com                   │
+│   Reviewed by  practice owner/manager              │
 │   Verified at  2026-04-12 09:21 PST                │
 │   Next review  2026-07-12                          │
 │   [✓ Human verified]                               │
@@ -923,7 +923,7 @@ CPA 可以点 `Report issue` 触发人工复核流。
 🟢 All watchers healthy · 15 sources · Last check 18 min ago
 ```
 
-hover 展开逐源 health + 下周 / 下季度的 ops review 时间点。
+hover 展开逐源 health + 下周 / 下季度的 practice review 时间点。
 
 ### 5.8 Rules > Pulse Changes（Pulse 历史）
 
@@ -989,7 +989,7 @@ Ops/Tax expert edits rule draft
 
 - 客户跨州不会提前通知我们；系统必须能吞任何 state code
 - 规则表留 `coverage_status: full | skeleton | manual` 三档，UI 层有差异提示
-- 骨架态下允许用户 `custom_deadline` 手录，并进入 ops 复核队列贡献规则
+- 骨架态下允许用户 `custom_deadline` 手录，并进入 practice owner/manager 复核队列贡献规则
 
 ### 6.2 Glass-Box AI Layer（证据绑定型 AI）
 
@@ -1094,7 +1094,7 @@ Raw announcement
 }
 ```
 
-所有 Pulse 条目默认 `requires_human_review = true`；由 ops 人工复核 → Approve → 才进入 Match + Feed。
+所有 Pulse 条目默认 `requires_human_review = true`；由 practice owner/manager 复核 → Approve → 才进入 Match + Feed。
 
 #### 6.3.3 Match Engine（S3-AC2 + AC4 批量调整）
 
@@ -1150,7 +1150,7 @@ Published: Apr 15, 2026
 Source: https://irs.gov/newsroom/... [Verify on IRS]
 ───────────────────────────────────────────────
 
-Summary (AI-generated, verified by DueDateHQ ops):
+Summary (AI-generated, verified by practice owner/manager):
   IRS extends filing deadlines for Los Angeles County to
   October 15, 2026, covering Form 1040, 1120-S, 1065.
 

@@ -128,7 +128,7 @@ function makeRule(overrides: Partial<ObligationRule> = {}): ObligationRule {
       crossVerified: true,
       exceptionChannel: true,
     },
-    verifiedBy: 'ops',
+    verifiedBy: 'practice-owner',
     verifiedAt: '2026-04-27',
     nextReviewOn: '2026-11-15',
     version: 3,
@@ -169,6 +169,7 @@ function makeScoped(input: {
     },
     obligations,
     rules: {
+      listActivePracticeRules: vi.fn(async () => []),
       listVerified: vi.fn(async () => []),
     },
     evidence: {

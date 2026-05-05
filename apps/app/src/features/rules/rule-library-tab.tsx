@@ -122,8 +122,13 @@ export function RuleLibraryTab() {
   const filterOptions = useMemo(
     () => [
       { value: 'all' as const, label: t`All`, count: counts.all },
-      { value: 'verified' as const, label: t`Verified`, count: counts.verified },
-      { value: 'candidate' as const, label: t`Candidate`, count: counts.candidate },
+      { value: 'active' as const, label: t`Active`, count: counts.active },
+      {
+        value: 'pending_review' as const,
+        label: t`Pending review`,
+        count: counts.pending_review,
+      },
+      { value: 'rejected' as const, label: t`Rejected`, count: counts.rejected },
       {
         value: 'applicability_review' as const,
         label: t`Applicability review`,
@@ -323,9 +328,15 @@ function RuleRow({
 
 function StatusCell({ status }: { status: StatusKey }) {
   const label = useRuleStatusLabels()
+  const tone =
+    status === 'active' || status === 'verified'
+      ? 'success'
+      : status === 'rejected' || status === 'archived'
+        ? 'disabled'
+        : 'review'
   return (
     <span className="inline-flex items-center gap-2 text-xs font-medium text-text-primary">
-      <ToneDot tone={status === 'candidate' ? 'review' : 'success'} />
+      <ToneDot tone={tone} />
       {label[status]}
     </span>
   )
@@ -373,8 +384,12 @@ function useRuleStatusLabels(): Record<StatusKey, string> {
   const { t } = useLingui()
   return useMemo(
     () => ({
-      verified: t`Verified`,
-      candidate: t`Candidate`,
+      active: t`Active`,
+      pending_review: t`Pending review`,
+      rejected: t`Rejected`,
+      archived: t`Archived`,
+      verified: t`Active`,
+      candidate: t`Pending review`,
       deprecated: t`Deprecated`,
     }),
     [t],

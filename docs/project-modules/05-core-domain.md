@@ -33,7 +33,7 @@
 - breakdown。
 - reason 和 explanation。
 
-当前规则覆盖 federal 1065/1120S owner-month、1120/estimated、CA、NY、FL、TX、WA 等 verified 场景；同时登记 50 州 + DC 官方税务与 UI/劳工来源，并为各州主税种生成 review-only candidate rules。Server runtime 可把 firm-scoped `rule_review_decision` merge 回 preview/generation，但 `packages/core` 仍保持纯函数与静态 seed 边界。`summarizePenaltyExposure` 可汇总总暴露金额和 top obligations。
+当前规则 seed 覆盖 federal 1065/1120S owner-month、1120/estimated、CA、NY、FL、TX、WA 等模板场景；同时登记 50 州 + DC 官方税务与 UI/劳工来源，并为各州主税种生成 review-only templates。Server runtime 只把当前 practice 的 active rules 送入 production preview/generation，`packages/core` 仍保持纯函数与静态 seed 边界。`summarizePenaltyExposure` 可汇总总暴露金额和 top obligations。
 
 ### 规则库与规则预览
 

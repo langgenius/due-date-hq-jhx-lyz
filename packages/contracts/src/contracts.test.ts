@@ -887,8 +887,9 @@ describe('@duedatehq/contracts', () => {
     expect(AuditActionSchema.parse('penalty.override')).toBe('penalty.override')
     expect(EvidenceSourceTypeSchema.parse('penalty_override')).toBe('penalty_override')
     expect(AuditActionSchema.parse('client.deleted')).toBe('client.deleted')
-    expect(AuditActionSchema.parse('rules.published')).toBe('rules.published')
-    expect(AuditActionSchema.parse('rules.review.rejected')).toBe('rules.review.rejected')
+    expect(AuditActionSchema.parse('rules.accepted')).toBe('rules.accepted')
+    expect(AuditActionSchema.parse('rules.bulk_accepted')).toBe('rules.bulk_accepted')
+    expect(AuditActionSchema.parse('rules.rejected')).toBe('rules.rejected')
     expect(AuditActionSchema.parse('obligation.annual_rollover.created')).toBe(
       'obligation.annual_rollover.created',
     )
@@ -1237,7 +1238,16 @@ describe('@duedatehq/contracts', () => {
       'listSources',
       'listRules',
       'listTemporaryRules',
+      'listReviewTasks',
       'listReviewDecisions',
+      'acceptTemplate',
+      'bulkAcceptTemplates',
+      'rejectTemplate',
+      'createCustomRule',
+      'updatePracticeRule',
+      'archivePracticeRule',
+      'previewRuleImpact',
+      'previewBulkRuleImpact',
       'verifyCandidate',
       'rejectCandidate',
       'coverage',
@@ -1255,7 +1265,7 @@ describe('@duedatehq/contracts', () => {
       priority: 'critical',
       healthStatus: 'healthy',
       isEarlyWarning: false,
-      notificationChannels: ['ops_source_change', 'publish_preview'],
+      notificationChannels: ['source_change', 'practice_rule_preview'],
       lastReviewedOn: '2026-04-27',
     })
     expect(source.jurisdiction).toBe('FED')
@@ -1380,7 +1390,7 @@ describe('@duedatehq/contracts', () => {
         crossVerified: true,
         exceptionChannel: true,
       },
-      verifiedBy: 'ops.rules.manual',
+      verifiedBy: 'practice.template_seed',
       verifiedAt: '2026-04-27',
       nextReviewOn: '2026-11-15',
       version: 1,

@@ -90,9 +90,9 @@ export const SourcePrioritySchema = z.enum(['critical', 'high', 'medium', 'low']
 export const SourceHealthStatusSchema = z.enum(['healthy', 'degraded', 'failing', 'paused'])
 
 export const RuleNotificationChannelSchema = z.enum([
-  'ops_source_change',
-  'candidate_review',
-  'publish_preview',
+  'source_change',
+  'practice_rule_review',
+  'practice_rule_preview',
   'user_deadline_reminder',
 ])
 
@@ -138,7 +138,22 @@ export const RuleTierSchema = z.enum([
   'exception',
   'applicability_review',
 ])
-export const RuleStatusSchema = z.enum(['candidate', 'verified', 'deprecated'])
+export const RuleTemplateStatusSchema = z.enum(['available', 'deprecated'])
+export type RuleTemplateStatus = z.infer<typeof RuleTemplateStatusSchema>
+export const PracticeRuleStatusSchema = z.enum(['pending_review', 'active', 'rejected', 'archived'])
+export type PracticeRuleStatus = z.infer<typeof PracticeRuleStatusSchema>
+export const RuleReviewTaskStatusSchema = z.enum(['open', 'accepted', 'rejected', 'superseded'])
+export type RuleReviewTaskStatus = z.infer<typeof RuleReviewTaskStatusSchema>
+export const RuleStatusSchema = z.enum([
+  'pending_review',
+  'active',
+  'rejected',
+  'archived',
+  'candidate',
+  'verified',
+  'deprecated',
+])
+export type RuleStatus = z.infer<typeof RuleStatusSchema>
 export const RuleRiskLevelSchema = z.enum(['low', 'med', 'high'])
 export const CoverageStatusSchema = z.enum(['full', 'skeleton', 'manual'])
 
@@ -263,6 +278,11 @@ export const RuleCoverageRowSchema = z.object({
   verifiedRuleCount: z.number().int().nonnegative(),
   candidateCount: z.number().int().nonnegative(),
   highPrioritySourceCount: z.number().int().nonnegative(),
+  activeRuleCount: z.number().int().nonnegative().optional(),
+  pendingReviewCount: z.number().int().nonnegative().optional(),
+  rejectedRuleCount: z.number().int().nonnegative().optional(),
+  archivedRuleCount: z.number().int().nonnegative().optional(),
+  customRuleCount: z.number().int().nonnegative().optional(),
 })
 export type RuleCoverageRow = z.infer<typeof RuleCoverageRowSchema>
 
@@ -327,6 +347,116 @@ export const RuleReviewDecisionSchema = z.object({
   reviewedAt: z.string().datetime(),
 })
 export type RuleReviewDecision = z.infer<typeof RuleReviewDecisionSchema>
+
+export const RuleReviewTaskReasonSchema = z.enum([
+  'new_template',
+  'source_changed',
+  'pulse_signal',
+  'custom_edit',
+  'annual_review',
+])
+export type RuleReviewTaskReason = z.infer<typeof RuleReviewTaskReasonSchema>
+
+export const RuleReviewTaskSchema = z.object({
+  id: z.string().min(1),
+  ruleId: z.string().min(1),
+  templateVersion: z.number().int().positive(),
+  status: RuleReviewTaskStatusSchema,
+  reason: RuleReviewTaskReasonSchema,
+  rule: ObligationRuleSchema,
+  reviewNote: z.string().nullable(),
+  reviewedBy: z.string().min(1).nullable(),
+  reviewedAt: z.string().datetime().nullable(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+})
+export type RuleReviewTask = z.infer<typeof RuleReviewTaskSchema>
+
+export const RuleReviewTaskListInputSchema = z
+  .object({
+    status: RuleReviewTaskStatusSchema.optional(),
+    jurisdiction: RuleJurisdictionSchema.optional(),
+  })
+  .optional()
+export type RuleReviewTaskListInput = z.infer<typeof RuleReviewTaskListInputSchema>
+
+const RuleVersionSelectionSchema = z.object({
+  ruleId: z.string().min(1),
+  expectedVersion: z.number().int().positive(),
+})
+export type RuleVersionSelection = z.infer<typeof RuleVersionSelectionSchema>
+
+export const RuleAcceptTemplateInputSchema = RuleVersionSelectionSchema.extend({
+  reviewNote: z.string().trim().min(1).max(1000),
+})
+export type RuleAcceptTemplateInput = z.infer<typeof RuleAcceptTemplateInputSchema>
+
+export const RuleBulkAcceptTemplatesInputSchema = z.object({
+  rules: z.array(RuleVersionSelectionSchema).min(1).max(100),
+  reviewNote: z.string().trim().min(1).max(1000),
+})
+export type RuleBulkAcceptTemplatesInput = z.infer<typeof RuleBulkAcceptTemplatesInputSchema>
+
+export const RuleBulkAcceptSkipSchema = z.object({
+  ruleId: z.string().min(1),
+  expectedVersion: z.number().int().positive().nullable(),
+  reason: z.enum([
+    'template_not_found',
+    'version_conflict',
+    'already_active',
+    'rejected',
+    'archived',
+    'invalid_template',
+  ]),
+})
+export type RuleBulkAcceptSkip = z.infer<typeof RuleBulkAcceptSkipSchema>
+
+export const RuleBulkAcceptTemplatesOutputSchema = z.object({
+  accepted: z.array(RuleReviewTaskSchema),
+  skipped: z.array(RuleBulkAcceptSkipSchema),
+})
+export type RuleBulkAcceptTemplatesOutput = z.infer<typeof RuleBulkAcceptTemplatesOutputSchema>
+
+export const RuleRejectTemplateInputSchema = RuleVersionSelectionSchema.extend({
+  reason: z.string().trim().min(1).max(1000),
+})
+export type RuleRejectTemplateInput = z.infer<typeof RuleRejectTemplateInputSchema>
+
+export const RuleCustomRuleInputSchema = z.object({
+  rule: ObligationRuleSchema,
+  reviewNote: z.string().trim().min(1).max(1000),
+})
+export type RuleCustomRuleInput = z.infer<typeof RuleCustomRuleInputSchema>
+
+export const RuleArchivePracticeRuleInputSchema = z.object({
+  ruleId: z.string().min(1),
+  reason: z.string().trim().min(1).max(1000),
+})
+export type RuleArchivePracticeRuleInput = z.infer<typeof RuleArchivePracticeRuleInputSchema>
+
+export const RuleImpactDistributionRowSchema = z.object({
+  key: z.string().min(1),
+  count: z.number().int().nonnegative(),
+})
+export type RuleImpactDistributionRow = z.infer<typeof RuleImpactDistributionRowSchema>
+
+export const RuleBulkImpactPreviewInputSchema = z.object({
+  rules: z.array(RuleVersionSelectionSchema).min(1).max(100),
+})
+export type RuleBulkImpactPreviewInput = z.infer<typeof RuleBulkImpactPreviewInputSchema>
+
+export const RuleBulkImpactPreviewSchema = z.object({
+  selectedCount: z.number().int().nonnegative(),
+  acceptReadyCount: z.number().int().nonnegative(),
+  skipped: z.array(RuleBulkAcceptSkipSchema),
+  jurisdictionCounts: z.array(RuleImpactDistributionRowSchema),
+  entityCounts: z.array(RuleImpactDistributionRowSchema),
+  formCounts: z.array(RuleImpactDistributionRowSchema),
+  reviewReasonCounts: z.array(RuleImpactDistributionRowSchema),
+  sourceCount: z.number().int().nonnegative(),
+  estimatedObligationCount: z.number().int().nonnegative(),
+})
+export type RuleBulkImpactPreview = z.infer<typeof RuleBulkImpactPreviewSchema>
 
 export const TemporaryRuleStatusSchema = z.enum(['active', 'reverted', 'retracted'])
 export type TemporaryRuleStatus = z.infer<typeof TemporaryRuleStatusSchema>
@@ -409,9 +539,22 @@ export const rulesContract = oc.router({
   listSources: oc.input(RuleSourcesListInputSchema).output(z.array(RuleSourceSchema)),
   listRules: oc.input(RulesListInputSchema).output(z.array(ObligationRuleSchema)),
   listTemporaryRules: oc.input(z.undefined()).output(z.array(TemporaryRuleSchema)),
+  listReviewTasks: oc.input(RuleReviewTaskListInputSchema).output(z.array(RuleReviewTaskSchema)),
   listReviewDecisions: oc
     .input(RulesReviewListInputSchema)
     .output(z.array(RuleReviewDecisionSchema)),
+  acceptTemplate: oc.input(RuleAcceptTemplateInputSchema).output(RuleReviewTaskSchema),
+  bulkAcceptTemplates: oc
+    .input(RuleBulkAcceptTemplatesInputSchema)
+    .output(RuleBulkAcceptTemplatesOutputSchema),
+  rejectTemplate: oc.input(RuleRejectTemplateInputSchema).output(RuleReviewTaskSchema),
+  createCustomRule: oc.input(RuleCustomRuleInputSchema).output(RuleReviewTaskSchema),
+  updatePracticeRule: oc.input(RuleCustomRuleInputSchema).output(RuleReviewTaskSchema),
+  archivePracticeRule: oc.input(RuleArchivePracticeRuleInputSchema).output(RuleReviewTaskSchema),
+  previewRuleImpact: oc.input(RuleVersionSelectionSchema).output(RuleBulkImpactPreviewSchema),
+  previewBulkRuleImpact: oc
+    .input(RuleBulkImpactPreviewInputSchema)
+    .output(RuleBulkImpactPreviewSchema),
   verifyCandidate: oc.input(RuleVerifyCandidateInputSchema).output(RuleReviewDecisionSchema),
   rejectCandidate: oc.input(RuleRejectCandidateInputSchema).output(RuleReviewDecisionSchema),
   coverage: oc.input(z.undefined()).output(z.array(RuleCoverageRowSchema)),

@@ -60,6 +60,7 @@ describe('rules console model', () => {
     expect(DEFAULT_RULES_TAB).toBe('coverage')
     expect(RULES_TAB_VALUES).toEqual([
       'coverage',
+      'review',
       'sources',
       'library',
       'pulse',
@@ -144,6 +145,8 @@ describe('rules console model', () => {
 
     expect(countRulesByFilter(rules)).toMatchObject({
       all: 3,
+      active: 2,
+      pending_review: 1,
       verified: 2,
       candidate: 1,
       applicability_review: 1,

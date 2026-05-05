@@ -905,7 +905,7 @@ async function seedPulse(db: ReturnType<typeof createDb>, firmId: string, userId
       sourceUrl: 'https://www.tax.ny.gov/pit/file/extension_of_time_to_file.htm',
       rawR2Key: 'demo/pulse/ny-dtf-confidence-warning.html',
       publishedAt: new Date('2026-04-13T17:00:00.000Z'),
-      aiSummary: 'NY DTF notice has low-confidence extraction and needs operator review.',
+      aiSummary: 'NY DTF notice has low-confidence extraction and needs practice review.',
       verbatimQuote:
         'Some due dates and filing obligations may vary by taxpayer circumstance and form type.',
       parsedJurisdiction: 'NY',
@@ -926,7 +926,7 @@ async function seedPulse(db: ReturnType<typeof createDb>, firmId: string, userId
       sourceUrl: 'https://floridarevenue.com/taxes/taxesfees/Pages/corporate.aspx',
       rawR2Key: 'demo/pulse/fl-dor-confidence-sub-50.html',
       publishedAt: new Date('2026-04-12T17:00:00.000Z'),
-      aiSummary: 'FL DOR bulletin has very-low-confidence extraction for operator review.',
+      aiSummary: 'FL DOR bulletin has very-low-confidence extraction for practice review.',
       verbatimQuote:
         'Corporate income tax filing dates may depend on entity status, fiscal year, and extension election.',
       parsedJurisdiction: 'FL',

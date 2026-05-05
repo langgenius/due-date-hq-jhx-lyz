@@ -84,19 +84,39 @@ const TAX_TYPE_DICT_VERSION = 'dictionary-tax-types@v1'
 const TAX_TYPE_DICT_CONFIDENCE = 0.85
 
 async function runtimeRulesForFirm(scoped: ScopedRepo): Promise<readonly CoreObligationRule[]> {
-  const byId = new Map(
-    listObligationRules({ includeCandidates: true }).map((rule) => [rule.id, rule]),
-  )
+  await ensureRuleReviewTasks(scoped)
+  return (await scoped.rules.listActivePracticeRules()).flatMap((row) => {
+    const parsed = ObligationRuleSchema.safeParse(row.ruleJson)
+    return parsed.success ? [toCoreRule(parsed.data)] : []
+  })
+}
 
-  for (const decision of await scoped.rules.listVerified()) {
-    const parsed = ObligationRuleSchema.safeParse(decision.ruleJson)
-    if (parsed.success) {
-      const rule: CoreObligationRule = toCoreRule(parsed.data)
-      byId.set(rule.id, rule)
+async function ensureRuleReviewTasks(scoped: ScopedRepo): Promise<void> {
+  const reviewedRows = await scoped.rules.listPracticeRules()
+  const reviewedByRuleId = new Map(reviewedRows.map((row) => [row.ruleId, row]))
+  const reviewTasks: Parameters<ScopedRepo['rules']['ensureReviewTasks']>[0] = []
+
+  for (const rule of listObligationRules({ includeCandidates: true })) {
+    if (rule.status === 'deprecated') continue
+    const reviewed = reviewedByRuleId.get(rule.id)
+    if (!reviewed) {
+      reviewTasks.push({
+        ruleId: rule.id,
+        templateVersion: rule.version,
+        reason: 'new_template',
+      })
+      continue
+    }
+    if (reviewed.status !== 'pending_review' && reviewed.templateVersion !== rule.version) {
+      reviewTasks.push({
+        ruleId: rule.id,
+        templateVersion: rule.version,
+        reason: 'source_changed',
+      })
     }
   }
 
-  return [...byId.values()]
+  await scoped.rules.ensureReviewTasks(reviewTasks)
 }
 
 const MapperOutputSchema = z.object({

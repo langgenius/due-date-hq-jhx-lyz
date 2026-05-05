@@ -327,21 +327,21 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 ### 13.4 职业责任保障
 
 - 购买专业责任险（E&O 保单），首年 $2M 保额
-- 数据准确度 SLA：99.5% verified rules 准确（基于 ops QA）
+- 数据准确度 SLA：99.5% verified rules 准确（基于 practice QA）
 - 错误赔偿条款：若因 DueDateHQ rule 错误导致客户罚款，最高赔偿当月订阅费 × 10 + 实际罚款（见 TOS）
 
 ### 13.5 Verification Rhythm 承诺（与 §6D.6 对齐）
 
 对外公开的规则运营节奏承诺（`/security` 页公示）：
 
-| 频率                    | 动作                           | 对象                              | 责任             |
-| ----------------------- | ------------------------------ | --------------------------------- | ---------------- |
-| **Every 30 min**        | IRS + CA FTB Newsroom scraping | Source Registry 高优先级源        | 自动 worker      |
-| **Every 60 min**        | NY / TX / FL / WA tax news     | 中优先级源                        | 自动 worker      |
-| **Daily**               | FEMA declarations              | Early warning（不生规则）         | 自动 worker      |
-| **Weekly (Fri 9am PT)** | Base rule re-check vs. source  | 所有 verified base rules          | ops 人工         |
-| **Quarterly**           | Full rule pack audit           | 全 rule library                   | ops 团队全员     |
-| **Before tax season**   | Comprehensive manual review    | 全 verified rules + 双人 sign-off | 高风险 rule 双人 |
+| 频率                    | 动作                           | 对象                              | 责任                     |
+| ----------------------- | ------------------------------ | --------------------------------- | ------------------------ |
+| **Every 30 min**        | IRS + CA FTB Newsroom scraping | Source Registry 高优先级源        | 自动 worker              |
+| **Every 60 min**        | NY / TX / FL / WA tax news     | 中优先级源                        | 自动 worker              |
+| **Daily**               | FEMA declarations              | Early warning（不生规则）         | 自动 worker              |
+| **Weekly (Fri 9am PT)** | Base rule re-check vs. source  | 所有 verified base rules          | practice owner/manager   |
+| **Quarterly**           | Full rule pack audit           | 全 rule library                   | practice owners/managers |
+| **Before tax season**   | Comprehensive manual review    | 全 verified rules + 双人 sign-off | 高风险 rule 双人         |
 
 所有 run 结果存档 `OpsCadence.last_report_s3_key`，可在 `/security` 页滚动显示最近 3 次 run 时间 + 结果。
 
@@ -397,7 +397,7 @@ Time (UTC + local)  |  Actor  |  Action  |  Entity  |  Before → After  |  IP /
 - AI 直接回答（未经人工复核）
 - 未注明官方出处的第三方 calendar
 
-上述来源可**作为发现线索**（进入 Source Registry 的 `source_type=discovery_hint`，仅触发 ops review 入口），但不会自动产出 rule。
+上述来源可**作为发现线索**（进入 Source Registry 的 `source_type=discovery_hint`，仅触发 practice review 入口），但不会自动产出 rule。
 
 ---
 

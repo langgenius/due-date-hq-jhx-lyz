@@ -141,8 +141,8 @@ export function Step4Preview({ summary }: Step4Props) {
         <AlertDescription>
           <Trans>
             The numbers above are computed from your confirmed mappings, tax type suggestions, and
-            verified rules. Import &amp; Generate will create clients, deadlines, evidence, and
-            audit records.
+            active practice rules. Import &amp; Generate will create clients, deadlines, evidence,
+            and audit records.
           </Trans>
         </AlertDescription>
       </Alert>

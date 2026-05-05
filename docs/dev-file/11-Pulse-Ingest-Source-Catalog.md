@@ -19,7 +19,7 @@
 | Source Adapter 工程契约（interface + 错误边界）            | Evidence Mode / 审计 → 见 06-Security-Compliance |
 | Phase 0 / Phase 1 / Phase 2 源扩展路线                     | UI 层 Pulse Banner / Drawer → 见 05-Frontend     |
 
-**一句话：** 本文是 Ops 和 Backend 扩源时的唯一源头事实（single source of truth for ingestion），避免每次加州都要重新翻 PRD。
+**一句话：** 本文是 Backend 和 rule governance 扩源时的唯一源头事实（single source of truth for ingestion），避免每次加州都要重新翻 PRD。
 
 ---
 
@@ -46,11 +46,11 @@
 - Rules registry 已登记 50 州 + DC 的官方 tax-topic、filing FAQ、statute、due-date
   与 income-tax 具体页面；promoted Pulse source 不再使用 tax agency homepage 或 generic
   individuals index。
-  `apps/server/src/jobs/pulse/rule-source-adapters.ts` 会把带 `candidate_review` 的 rule
+  `apps/server/src/jobs/pulse/rule-source-adapters.ts` 会把带 `practice_rule_review` 的 rule
   sources 接入 `pulse_source_state`。其中每个州/DC 的 high/critical official source 已升级为
   Pulse-producing adapter：写 `pulse_source_snapshot` 并进入 `pulse.extract`。medium/low 辅助源
-  仍只写 `pulse_source_signal`；Owner/Manager 可在 candidate rule verification 时把 open signal
-  标记为 `reviewed` 并关联到 firm-scoped review decision。
+  仍只写 `pulse_source_signal`；Owner/Manager 可在 practice rule review 时把 open signal
+  标记为 `reviewed` 并关联到 practice-scoped review task。
 
 ---
 
@@ -131,7 +131,7 @@
 ```ts
 // packages/ingest/http.ts
 export const DEFAULT_HEADERS = {
-  'User-Agent': 'DueDateHQ-PulseBot/1.0 (+https://duedatehq.com/bot; ops@duedatehq.com)',
+  'User-Agent': 'DueDateHQ-PulseBot/1.0 (+https://duedatehq.com/bot; support@duedatehq.com)',
   Accept: 'text/html,application/xhtml+xml,application/xml,application/rss+xml',
   'Accept-Language': 'en-US,en;q=0.9',
   'Cache-Control': 'no-cache',
@@ -155,7 +155,7 @@ export const RATE_LIMIT = {
 
 | 源类型                          | 风险                                                     | 预案                                                                                                                                               |
 | ------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `irs.disaster` / `irs.newsroom` | 几乎不封，但偶发 WAF 503                                 | 403/503 时退避 15min；连续 3 次失败 → Sentry + 邮件 ops；灾害延期以 `irs.disaster` 为准                                                            |
+| `irs.disaster` / `irs.newsroom` | 几乎不封，但偶发 WAF 503                                 | 403/503 时退避 15min；连续 3 次失败 → Sentry + owner/manager digest；灾害延期以 `irs.disaster` 为准                                                |
 | `ca.ftb.*` / `ca.cdtfa.news`    | 偶尔触发 Akamai Bot Manager                              | 加官方 `Referer`；失败降级到 `raw HTML fetch via Browserless (Phase 2)`                                                                            |
 | `ny.dtf.press`                  | HTML archive 结构可能调整                                | 不假设 RSS；HTML selector fallback + NY Email Services 兜底                                                                                        |
 | `tx.cpa.rss`                    | 官方新闻页可抓；GovDelivery topic feed robots-disallowed | 抓 Comptroller 官方 News Releases HTML 列表链接；GovDelivery 仅用于人工订阅 / inbound email，不作为 crawler endpoint；按 tax relevance filter 过滤 |
@@ -213,8 +213,8 @@ export const SOURCE_FETCHER: Record<SourceId, FetcherId> = {
 | HTTP 5xx / timeout      | worker 直接 catch                           | 退避 + 重试 3 次；失败 → Sentry                                               | `Last checked X min ago` 显示真实时间（诚实） |
 | HTTP 403 / 429（反爬）  | status code                                 | 退避 15min + 切 `browserless` fetcher（Phase 2）                              | 同上                                          |
 | 结构变更（selector 挂） | 解析后字段为空 / hash 长期不变              | worker 主动报 `selector-drift` 事件；降级 mock 数据（仅 Demo 环境）           | Banner 显示 `Source needs attention`          |
-| 内容污染（钓鱼页）      | AI SDK Extract `confidence < 0.3` 连续 3 次 | 该源打入 `quarantined` 状态，下次 cron 跳过，ops 人工复核                     | 源从 Feed 隐藏                                |
-| 法律下架（Takedown）    | ops 手动触发                                | 源 `disabled`，历史 Pulse 保留但打 `source_revoked` 标记，Evidence 链保留快照 | Evidence Drawer 显示 "Source no longer live"  |
+| 内容污染（钓鱼页）      | AI SDK Extract `confidence < 0.3` 连续 3 次 | 该源打入 `quarantined` 状态，下次 cron 跳过，创建 owner/manager review task   | 源从 Feed 隐藏                                |
+| 法律下架（Takedown）    | owner/manager 手动触发                      | 源 `disabled`，历史 Pulse 保留但打 `source_revoked` 标记，Evidence 链保留快照 | Evidence Drawer 显示 "Source no longer live"  |
 
 ### 5.2 可观测指标（上报到 07-DevOps-Testing）
 
@@ -228,7 +228,7 @@ pulse.ingest.confidence_avg_24h   (gauge,     label: source_id)
 **告警规则：**
 
 - `last_success_ts` 超过 4 小时（联邦源）/ 12 小时（州源）→ PagerDuty
-- `outcome=selector_drift` 任何一次 → Slack ops 频道
+- `outcome=selector_drift` 任何一次 → owner/manager digest + source review task
 - `confidence_avg_24h < 0.5` 连续 24h → 源 quarantine 自动触发
 
 ### 5.3 GovDelivery 邮件兜底（反爬的终极降级）

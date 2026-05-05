@@ -1,4 +1,12 @@
 export type RuleReviewDecisionStatus = 'verified' | 'rejected'
+export type PracticeRuleStatus = 'pending_review' | 'active' | 'rejected' | 'archived'
+export type PracticeRuleReviewTaskStatus = 'open' | 'accepted' | 'rejected' | 'superseded'
+export type PracticeRuleReviewTaskReason =
+  | 'new_template'
+  | 'source_changed'
+  | 'pulse_signal'
+  | 'custom_edit'
+  | 'annual_review'
 
 export interface RuleReviewDecisionRow {
   id: string
@@ -19,6 +27,87 @@ export interface RuleReviewDecisionInput {
   baseVersion: number
   status: RuleReviewDecisionStatus
   ruleJson: unknown
+  reviewNote: string | null
+  reviewedBy: string
+  reviewedAt?: Date
+}
+
+export interface RuleSourceTemplateInput {
+  id: string
+  jurisdiction: string
+  title: string
+  url: string
+  sourceType: string
+  acquisitionMethod: string
+  cadence: string
+  priority: string
+  healthStatus: string
+  isEarlyWarning: boolean
+  notificationChannels: string[]
+  lastReviewedOn: string
+  status: 'available' | 'deprecated'
+}
+
+export interface RuleTemplateInput {
+  id: string
+  jurisdiction: string
+  title: string
+  version: number
+  status: 'available' | 'deprecated'
+  ruleJson: unknown
+  sourceIds: string[]
+}
+
+export interface PracticeRuleRow {
+  id: string
+  firmId: string
+  ruleId: string
+  templateId: string | null
+  templateVersion: number
+  status: PracticeRuleStatus
+  ruleJson: unknown
+  reviewNote: string | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface PracticeRuleInput {
+  ruleId: string
+  templateId?: string | null
+  templateVersion: number
+  status: PracticeRuleStatus
+  ruleJson: unknown
+  reviewNote: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | null
+}
+
+export interface PracticeRuleReviewTaskRow {
+  id: string
+  firmId: string
+  ruleId: string
+  templateVersion: number
+  status: PracticeRuleReviewTaskStatus
+  reason: PracticeRuleReviewTaskReason
+  reviewNote: string | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface PracticeRuleReviewTaskInput {
+  ruleId: string
+  templateVersion: number
+  reason: PracticeRuleReviewTaskReason
+}
+
+export interface PracticeRuleReviewTaskDecisionInput {
+  ruleId: string
+  templateVersion: number
+  status: Exclude<PracticeRuleReviewTaskStatus, 'open'>
   reviewNote: string | null
   reviewedBy: string
   reviewedAt?: Date
@@ -51,6 +140,20 @@ export interface TemporaryRuleRow {
 
 export interface RulesRepo {
   readonly firmId: string
+  upsertGlobalTemplates(input: {
+    sources: RuleSourceTemplateInput[]
+    rules: RuleTemplateInput[]
+  }): Promise<void>
+  listPracticeRules(status?: PracticeRuleStatus): Promise<PracticeRuleRow[]>
+  listActivePracticeRules(): Promise<PracticeRuleRow[]>
+  getPracticeRule(ruleId: string): Promise<PracticeRuleRow | null>
+  upsertPracticeRule(input: PracticeRuleInput): Promise<PracticeRuleRow>
+  ensureReviewTasks(inputs: PracticeRuleReviewTaskInput[]): Promise<PracticeRuleReviewTaskRow[]>
+  listReviewTasks(input?: {
+    status?: PracticeRuleReviewTaskStatus
+  }): Promise<PracticeRuleReviewTaskRow[]>
+  getReviewTask(ruleId: string, templateVersion: number): Promise<PracticeRuleReviewTaskRow | null>
+  decideReviewTask(input: PracticeRuleReviewTaskDecisionInput): Promise<PracticeRuleReviewTaskRow>
   listDecisions(status?: RuleReviewDecisionStatus): Promise<RuleReviewDecisionRow[]>
   listVerified(): Promise<RuleReviewDecisionRow[]>
   listTemporaryRules(): Promise<TemporaryRuleRow[]>

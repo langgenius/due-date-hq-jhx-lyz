@@ -40,7 +40,7 @@ export const PULSE_SOURCE_SIGNAL_STATUSES = ['open', 'linked', 'reviewed', 'dism
 export type PulseSourceSignalStatus = (typeof PULSE_SOURCE_SIGNAL_STATUSES)[number]
 
 /**
- * pulse — global ops-reviewed regulatory announcement.
+ * pulse — source-backed regulatory announcement routed to practice review.
  *
  * Tenant state lives in pulse_firm_alert / pulse_application. Never infer a
  * firm's applied state from this table's `status`.

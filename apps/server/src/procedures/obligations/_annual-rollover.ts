@@ -68,16 +68,39 @@ async function listRuntimeRules(
 ): Promise<ObligationRule[]> {
   if (rules) return [...rules]
 
-  const mergedById = new Map(
-    listObligationRules({ includeCandidates: true }).map((rule) => [rule.id, rule]),
-  )
-  const decisions = await scoped.rules.listVerified()
-  for (const decision of decisions) {
-    if (!decision.ruleJson) continue
-    const parsed = ObligationRuleSchema.safeParse(decision.ruleJson)
-    if (parsed.success) mergedById.set(parsed.data.id, toCoreRule(parsed.data))
+  await ensureRuleReviewTasks(scoped)
+  return (await scoped.rules.listActivePracticeRules()).flatMap((row) => {
+    const parsed = ObligationRuleSchema.safeParse(row.ruleJson)
+    return parsed.success ? [toCoreRule(parsed.data)] : []
+  })
+}
+
+async function ensureRuleReviewTasks(scoped: ScopedRepo): Promise<void> {
+  const reviewedRows = await scoped.rules.listPracticeRules()
+  const reviewedByRuleId = new Map(reviewedRows.map((row) => [row.ruleId, row]))
+  const reviewTasks: Parameters<ScopedRepo['rules']['ensureReviewTasks']>[0] = []
+
+  for (const rule of listObligationRules({ includeCandidates: true })) {
+    if (rule.status === 'deprecated') continue
+    const reviewed = reviewedByRuleId.get(rule.id)
+    if (!reviewed) {
+      reviewTasks.push({
+        ruleId: rule.id,
+        templateVersion: rule.version,
+        reason: 'new_template',
+      })
+      continue
+    }
+    if (reviewed.status !== 'pending_review' && reviewed.templateVersion !== rule.version) {
+      reviewTasks.push({
+        ruleId: rule.id,
+        templateVersion: rule.version,
+        reason: 'source_changed',
+      })
+    }
   }
-  return [...mergedById.values()]
+
+  await scoped.rules.ensureReviewTasks(reviewTasks)
 }
 
 function groupSeedBuckets(

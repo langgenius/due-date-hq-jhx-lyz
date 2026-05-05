@@ -1,0 +1,1668 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DueDateHQ Pitch Deck</title>
+    <style>
+      :root {
+        --brand-blue: #0033ff;
+        --background-body: #f2f4f7;
+        --background-default: #ffffff;
+        --background-default-subtle: #fcfcfd;
+        --background-section: #f9fafb;
+        --background-subtle: #f2f4f7;
+        --text-primary: #101828;
+        --text-secondary: #354052;
+        --text-tertiary: #676f83;
+        --text-muted: #98a2b2;
+        --divider-subtle: rgb(16 24 40 / 0.04);
+        --divider-regular: rgb(16 24 40 / 0.08);
+        --divider-deep: rgb(16 24 40 / 0.14);
+        --state-base-hover: rgb(200 206 218 / 0.2);
+        --state-accent-hover: #eff4ff;
+        --accent-default: #155aef;
+        --accent-text: #004aeb;
+        --severity-critical: #d92d20;
+        --severity-critical-tint: #fef3f2;
+        --severity-high: #e04f16;
+        --severity-high-tint: #fef6ee;
+        --severity-medium: #dc6803;
+        --severity-medium-tint: #fffaeb;
+        --severity-neutral: #495464;
+        --status-done: #079455;
+        --status-done-soft: rgb(23 178 106 / 0.08);
+        --status-done-dot: #47cd89;
+        --status-review: #155aef;
+        --radius-sm: 4px;
+        --radius: 6px;
+        --radius-lg: 12px;
+        --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --font-mono: 'Geist Mono', 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--background-body);
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+        font-feature-settings: 'cv11', 'ss01';
+      }
+
+      body {
+        overflow: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .deck {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        grid-template-rows: auto 1fr auto;
+        width: 100%;
+        height: 100%;
+        padding: 34px 44px 26px;
+        background: var(--background-body);
+      }
+
+      .slide[data-active='true'] {
+        display: grid;
+      }
+
+      .slide-header,
+      .slide-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        min-height: 34px;
+      }
+
+      .brand-lockup {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        color: var(--text-tertiary);
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px;
+        margin: -4px;
+        color: var(--text-primary);
+        font-size: 13px;
+        font-weight: 700;
+        user-select: none;
+      }
+
+      .logo img {
+        width: 28px;
+        height: 28px;
+        display: block;
+        border-radius: 7px;
+      }
+
+      .logo-text {
+        letter-spacing: -0.01em;
+      }
+
+      .brand-separator {
+        width: 1px;
+        height: 20px;
+        background: var(--divider-deep);
+      }
+
+      .deck-meta,
+      .slide-number,
+      .source-line {
+        color: var(--text-tertiary);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .slide-body {
+        display: grid;
+        align-content: center;
+        gap: 28px;
+        min-height: 0;
+        padding: 20px 0 12px;
+      }
+
+      .slide-title {
+        max-width: 980px;
+        margin: 0;
+        color: var(--text-primary);
+        font-size: clamp(34px, 4.6vw, 58px);
+        font-weight: 700;
+        line-height: 1.04;
+        letter-spacing: -0.02em;
+      }
+
+      .slide:first-of-type .slide-title {
+        font-size: clamp(38px, 5.4vw, 68px);
+        line-height: 0.98;
+      }
+
+      .slide-title .accent {
+        color: var(--brand-blue);
+      }
+
+      .section-kicker {
+        color: var(--text-tertiary);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .lede {
+        max-width: 920px;
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 21px;
+        line-height: 1.45;
+      }
+
+      .tight-lede {
+        max-width: 760px;
+        font-size: 18px;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+        align-items: end;
+        gap: 42px;
+      }
+
+      .hero-panel {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+        background: var(--background-default);
+        border: 1px solid var(--divider-regular);
+        border-radius: var(--radius);
+      }
+
+      .hero-blank {
+        min-height: 260px;
+      }
+
+      .hero-row {
+        display: grid;
+        grid-template-columns: 132px 1fr;
+        gap: 16px;
+        padding: 12px 0;
+        border-top: 1px solid var(--divider-subtle);
+      }
+
+      .hero-row:first-child {
+        border-top: 0;
+      }
+
+      .hero-row strong {
+        color: var(--text-primary);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .hero-row span {
+        color: var(--text-secondary);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .feature-card {
+        min-width: 0;
+        padding: 18px;
+        background: var(--background-default);
+        border: 1px solid var(--divider-regular);
+        border-radius: var(--radius);
+      }
+
+      .feature-card h3 {
+        margin: 0 0 10px;
+        color: var(--text-primary);
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .feature-card p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .metric-strip {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .metric {
+        display: grid;
+        gap: 8px;
+        min-height: 132px;
+        padding: 16px;
+        background: var(--background-default);
+        border: 1px solid var(--divider-regular);
+        border-radius: var(--radius);
+      }
+
+      .metric-label {
+        color: var(--text-tertiary);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .metric-value {
+        font-family: var(--font-mono);
+        font-size: 42px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .metric-value.critical {
+        color: var(--severity-critical);
+      }
+
+      .metric-value.high {
+        color: var(--severity-high);
+      }
+
+      .metric-value.medium {
+        color: var(--severity-medium);
+      }
+
+      .metric-detail {
+        color: var(--text-secondary);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .app-table-wrap {
+        overflow: hidden;
+        background: var(--background-default);
+        border: 1px solid var(--divider-regular);
+        border-radius: var(--radius);
+      }
+
+      table.app-table {
+        width: 100%;
+        border-collapse: collapse;
+        caption-side: bottom;
+        color: var(--text-primary);
+        font-size: 11px;
+      }
+
+      .app-table caption {
+        padding: 10px 12px 12px;
+        color: var(--text-tertiary);
+        text-align: left;
+        font-size: 10px;
+        line-height: 1.4;
+      }
+
+      .app-table thead {
+        background: var(--background-section);
+      }
+
+      .app-table th {
+        height: 36px;
+        padding: 0 12px;
+        border-bottom: 1px solid var(--divider-regular);
+        color: var(--text-tertiary);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-align: left;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .app-table td {
+        height: 38px;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--divider-subtle);
+        color: var(--text-secondary);
+        vertical-align: middle;
+        white-space: nowrap;
+      }
+
+      .app-table tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .app-table tbody tr:hover {
+        background: var(--state-base-hover);
+      }
+
+      .app-table .client {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      .mono {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      .row-critical td {
+        background: var(--severity-critical-tint);
+      }
+
+      .row-high td {
+        background: var(--severity-high-tint);
+      }
+
+      .row-medium td {
+        background: var(--severity-medium-tint);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 22px;
+        padding: 2px 8px;
+        border: 1px solid var(--divider-regular);
+        border-radius: 999px;
+        background: var(--background-default);
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+
+      .badge.critical {
+        border-color: #fda29b;
+        background: var(--severity-critical-tint);
+        color: var(--severity-critical);
+      }
+
+      .badge.high {
+        border-color: #f7b27a;
+        background: var(--severity-high-tint);
+        color: var(--severity-high);
+      }
+
+      .badge.medium {
+        border-color: #fedf89;
+        color: var(--severity-medium);
+      }
+
+      .badge.info {
+        color: var(--accent-text);
+        background: var(--state-accent-hover);
+      }
+
+      .badge.success {
+        border-color: transparent;
+        background: var(--status-done-soft);
+        color: var(--status-done);
+      }
+
+      .badge.status-secondary {
+        border-color: transparent;
+        background: var(--background-subtle);
+        color: var(--text-secondary);
+      }
+
+      .badge.status-info {
+        border-color: transparent;
+        background: var(--state-accent-hover);
+        color: var(--accent-text);
+      }
+
+      .badge.status-warning {
+        border-color: transparent;
+        background: var(--severity-medium-tint);
+        color: var(--severity-medium);
+      }
+
+      .badge.status-success {
+        border-color: transparent;
+        background: var(--status-done-soft);
+        color: var(--status-done);
+      }
+
+      .badge.status-outline {
+        border-color: var(--divider-deep);
+        background: var(--background-default);
+        color: var(--text-secondary);
+      }
+
+      .badge.severity-critical,
+      .badge.severity-high {
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .badge.severity-critical {
+        border-color: transparent;
+        background: var(--severity-critical-tint);
+        color: var(--severity-critical);
+      }
+
+      .badge.severity-high {
+        border-color: transparent;
+        background: var(--severity-medium-tint);
+        color: var(--severity-medium);
+      }
+
+      .badge-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+
+      .badge-dot.dot-error {
+        background: var(--severity-critical);
+        box-shadow: 0 0 0 3px rgb(217 45 32 / 0.14);
+      }
+
+      .badge-dot.dot-warning {
+        background: var(--severity-medium);
+        box-shadow: 0 0 0 3px rgb(220 104 3 / 0.14);
+      }
+
+      .badge-dot.dot-normal {
+        background: var(--accent-default);
+        box-shadow: 0 0 0 3px rgb(21 90 239 / 0.14);
+      }
+
+      .badge-dot.dot-disabled {
+        background: var(--text-muted);
+        box-shadow: 0 0 0 3px rgb(152 162 178 / 0.14);
+      }
+
+      .badge-dot.dot-success {
+        background: var(--status-done-dot);
+        box-shadow:
+          0 2px 6px 0 rgb(23 178 106 / 0.25),
+          0 0 0 1px #ffffff;
+      }
+
+      .evidence-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 18px;
+        padding: 2px 6px;
+        border: 1px solid var(--divider-deep);
+        border-radius: 4px;
+        color: var(--text-tertiary);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .evidence-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 28px;
+        padding: 0 8px;
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .evidence-icon {
+        position: relative;
+        width: 12px;
+        height: 14px;
+        border: 1px solid currentColor;
+        border-radius: 2px;
+        opacity: 0.72;
+      }
+
+      .evidence-icon::after {
+        content: '';
+        position: absolute;
+        right: -3px;
+        bottom: -3px;
+        width: 5px;
+        height: 5px;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        background: var(--background-default);
+      }
+
+      .batch-summary {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        background: var(--background-default);
+        border: 1px solid var(--divider-regular);
+        border-radius: var(--radius);
+      }
+
+      .batch-summary h3 {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .batch-summary p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .batch-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .batch-stat {
+        min-height: 98px;
+        padding: 14px;
+        background: var(--background-section);
+        border: 1px solid var(--divider-subtle);
+        border-radius: var(--radius);
+      }
+
+      .batch-stat strong {
+        display: block;
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 28px;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .batch-stat span {
+        display: block;
+        margin-top: 8px;
+        color: var(--text-tertiary);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .process {
+        display: grid;
+        gap: 0;
+        background: var(--background-default);
+        border: 1px solid var(--divider-regular);
+        border-radius: var(--radius);
+      }
+
+      .process-row {
+        display: grid;
+        grid-template-columns: 72px 260px 1fr;
+        gap: 22px;
+        align-items: start;
+        padding: 17px 18px;
+        border-top: 1px solid var(--divider-subtle);
+      }
+
+      .process-row:first-child {
+        border-top: 0;
+      }
+
+      .step-num {
+        color: var(--brand-blue);
+        font-family: var(--font-mono);
+        font-size: 20px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .process-title {
+        color: var(--text-primary);
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .process-copy {
+        color: var(--text-secondary);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .arch {
+        display: grid;
+        grid-template-columns: 1fr 96px 1fr 96px 1fr;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .arch-node {
+        min-height: 124px;
+        padding: 18px;
+        background: var(--background-default);
+        border: 1px solid var(--divider-regular);
+        border-radius: var(--radius);
+      }
+
+      .arch-node h3 {
+        margin: 0 0 8px;
+        font-size: 17px;
+      }
+
+      .arch-node p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .arch-arrow {
+        height: 1px;
+        background: var(--divider-deep);
+        position: relative;
+      }
+
+      .arch-arrow::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        border-top: 1px solid var(--divider-deep);
+        border-right: 1px solid var(--divider-deep);
+        transform: translateY(-50%) rotate(45deg);
+      }
+
+      .quote-panel {
+        padding: 26px;
+        background: var(--text-primary);
+        color: #ffffff;
+        border-radius: var(--radius);
+      }
+
+      .quote-panel p {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        line-height: 1.18;
+        letter-spacing: -0.01em;
+      }
+
+      .quote-panel span {
+        display: block;
+        margin-top: 16px;
+        color: rgb(255 255 255 / 0.72);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .source-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .source-item {
+        display: grid;
+        gap: 8px;
+        padding: 14px;
+        background: var(--background-default);
+        border: 1px solid var(--divider-regular);
+        border-radius: var(--radius);
+      }
+
+      .source-item code {
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+
+      .source-item span {
+        color: var(--text-secondary);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .keyboard-hint {
+        display: none;
+      }
+
+      .progress {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 12;
+        height: 2px;
+        background: transparent;
+      }
+
+      .progress span {
+        display: block;
+        width: 0;
+        height: 100%;
+        background: var(--brand-blue);
+        transition: width 160ms ease;
+      }
+
+      @media (max-width: 900px) {
+        body {
+          overflow: auto;
+        }
+
+        .deck {
+          height: auto;
+          overflow: visible;
+        }
+
+        .slide,
+        .slide[data-active='true'] {
+          position: relative;
+          display: grid;
+          min-height: 100vh;
+        }
+
+        .hero-grid,
+        .grid-2,
+        .grid-3,
+        .grid-4,
+        .metric-strip,
+        .arch,
+        .source-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .arch-arrow {
+          display: none;
+        }
+
+        .keyboard-hint,
+        .progress {
+          display: none;
+        }
+      }
+
+      @media print {
+        @page {
+          size: 16in 9in;
+          margin: 0;
+        }
+
+        body {
+          overflow: visible;
+          background: #ffffff;
+        }
+
+        .deck {
+          width: auto;
+          height: auto;
+          overflow: visible;
+        }
+
+        .slide,
+        .slide[data-active='true'] {
+          position: relative;
+          display: grid;
+          width: 16in;
+          height: 9in;
+          page-break-after: always;
+        }
+
+        .keyboard-hint,
+        .progress {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck" aria-label="DueDateHQ pitch deck">
+      <section class="slide" data-active="true" aria-label="Cover">
+        <header class="slide-header">
+          <a class="logo" href="https://duedatehq.com" aria-label="DueDateHQ">
+            <img src="duedatehq-logo.svg" alt="DueDateHQ" />
+          </a>
+          <span class="deck-meta">DueDateHQ product presentation · 2026-05-05</span>
+        </header>
+        <div class="slide-body">
+          <div class="hero-grid">
+            <div>
+              <div class="section-kicker">DueDateHQ</div>
+              <h1 class="slide-title">
+                Deadline risk<br />
+                <span class="accent">control</span>
+              </h1>
+              <p class="lede">
+                我做的不是一个税务日历，而是 CPA
+                事务所每天打开的风险控制台：先看钱和截止日，再处理证据、客户、规则变更和审计链路。
+              </p>
+            </div>
+            <div class="hero-blank" aria-hidden="true"></div>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Positioning">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">Product thesis</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">产品判断</div>
+            <h2 class="slide-title">先解决的不是提醒，<span class="accent">是信任。</span></h2>
+          </div>
+          <div class="grid-3">
+            <article class="feature-card">
+              <h3>风险先于任务</h3>
+              <p>
+                Obligations
+                不是普通待办。它把截止窗口、预计风险、状态、证据缺口和智能优先级放到同一张表里。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>证据先于 AI</h3>
+              <p>
+                AI 不能直接“说服”CPA。每个规则、摘要、导入推断和 Pulse
+                变更都要挂证据标记或引用来源。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>闭环先于通知</h3>
+              <p>
+                Pulse
+                不是新闻提醒。它必须能从官方源进入复核队列，匹配受影响客户，批量应用，并写入审计与通知记录。
+              </p>
+            </article>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Demo data">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">Rules-backed sample · Brightline Demo CPA</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">真实样例状态</div>
+            <h2 class="slide-title">
+              数据不是口号，<span class="accent">是规则生成的状态。</span>
+            </h2>
+          </div>
+          <div class="metric-strip" role="list" aria-label="Demo dashboard metrics">
+            <div class="metric" role="listitem">
+              <span class="metric-label">未关闭义务</span>
+              <span class="metric-value">10</span>
+              <span class="metric-detail">Brightline Demo CPA 当前有 10 条未关闭申报义务。</span>
+            </div>
+            <div class="metric" role="listitem">
+              <span class="metric-label">本周到期</span>
+              <span class="metric-value critical">6</span>
+              <span class="metric-detail"
+                >以 2026-05-01 样例日期计算，包含已逾期和未来 7 天内到期的义务。</span
+              >
+            </div>
+            <div class="metric" role="listitem">
+              <span class="metric-label">待复核</span>
+              <span class="metric-value high">2</span>
+              <span class="metric-detail">两行处于待复核状态，等待 CPA 完成人工确认。</span>
+            </div>
+            <div class="metric" role="listitem">
+              <span class="metric-label">证据缺口</span>
+              <span class="metric-value medium">3</span>
+              <span class="metric-detail">三行缺少来源证据，必须先补证据再进入复核。</span>
+            </div>
+            <div class="metric" role="listitem">
+              <span class="metric-label">本周预计风险</span>
+              <span class="metric-value">$8,250</span>
+              <span class="metric-detail"
+                >本周窗口中可计算的预计风险合计，来自义务记录的金额字段。</span
+              >
+            </div>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Obligations table">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">Obligations table</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">Obligations view</div>
+            <h2 class="slide-title">
+              Obligations 把截止日风险<span class="accent">转成可执行队列。</span>
+            </h2>
+          </div>
+          <div class="app-table-wrap">
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Tax type</th>
+                  <th>Deadline</th>
+                  <th>Status</th>
+                  <th>Severity</th>
+                  <th class="text-right">Projected risk</th>
+                  <th>Evidence</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-critical">
+                  <td><span class="client">Lakeview Medical Partners</span></td>
+                  <td class="mono">federal_1065</td>
+                  <td class="mono">2026-05-01</td>
+                  <td>
+                    <span class="badge status-secondary"
+                      ><span class="badge-dot dot-disabled"></span>Not started</span
+                    >
+                  </td>
+                  <td>
+                    <span class="badge severity-critical"
+                      ><span class="badge-dot dot-error"></span>critical</span
+                    >
+                  </td>
+                  <td class="mono text-right">$4,300</td>
+                  <td>
+                    <span class="evidence-action"
+                      ><span class="evidence-icon" aria-hidden="true"></span>1 source</span
+                    >
+                  </td>
+                </tr>
+                <tr class="row-critical">
+                  <td><span class="client">Arbor &amp; Vale LLC</span></td>
+                  <td class="mono">ca_568</td>
+                  <td class="mono">2026-05-02</td>
+                  <td>
+                    <span class="badge status-info"
+                      ><span class="badge-dot dot-normal"></span>In progress</span
+                    >
+                  </td>
+                  <td>
+                    <span class="badge severity-critical"
+                      ><span class="badge-dot dot-error"></span>critical</span
+                    >
+                  </td>
+                  <td class="mono text-right">$900</td>
+                  <td>
+                    <span class="evidence-action"
+                      ><span class="evidence-icon" aria-hidden="true"></span>1 source</span
+                    >
+                  </td>
+                </tr>
+                <tr class="row-high">
+                  <td><span class="client">Northstar Dental Group</span></td>
+                  <td class="mono">ny_ct3s</td>
+                  <td class="mono">2026-05-04</td>
+                  <td>
+                    <span class="badge status-warning"
+                      ><span class="badge-dot dot-warning"></span>Needs review</span
+                    >
+                  </td>
+                  <td>
+                    <span class="badge severity-high"
+                      ><span class="badge-dot dot-warning"></span>high</span
+                    >
+                  </td>
+                  <td class="mono text-right">$1,200</td>
+                  <td>
+                    <span class="evidence-action"
+                      ><span class="evidence-icon" aria-hidden="true"></span>1 source</span
+                    >
+                  </td>
+                </tr>
+                <tr class="row-high">
+                  <td><span class="client">Copperline Studios Inc.</span></td>
+                  <td class="mono">tx_franchise_report</td>
+                  <td class="mono">2026-05-05</td>
+                  <td>
+                    <span class="badge status-outline"
+                      ><span class="badge-dot dot-warning"></span>Waiting on client</span
+                    >
+                  </td>
+                  <td>
+                    <span class="badge severity-high"
+                      ><span class="badge-dot dot-warning"></span>high</span
+                    >
+                  </td>
+                  <td class="mono text-right">$1,850</td>
+                  <td>
+                    <span class="evidence-action"
+                      ><span class="evidence-icon" aria-hidden="true"></span>1 source</span
+                    >
+                  </td>
+                </tr>
+                <tr class="row-critical">
+                  <td><span class="client">Cascade Florist</span></td>
+                  <td class="mono">federal_1040</td>
+                  <td class="mono">2026-04-29</td>
+                  <td>
+                    <span class="badge status-secondary"
+                      ><span class="badge-dot dot-disabled"></span>Not started</span
+                    >
+                  </td>
+                  <td>
+                    <span class="badge severity-critical"
+                      ><span class="badge-dot dot-error"></span>critical</span
+                    >
+                  </td>
+                  <td class="mono text-right">Needs input</td>
+                  <td>
+                    <span class="evidence-action"
+                      ><span class="evidence-icon" aria-hidden="true"></span>Needs evidence</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Migration Copilot">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">Client import loop</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">Migration Copilot</div>
+            <h2 class="slide-title">
+              从杂乱客户表到本周分诊，<span class="accent">一次导入就进入申报管理。</span>
+            </h2>
+          </div>
+          <div class="grid-2">
+            <div class="process">
+              <div class="process-row">
+                <span class="step-num">01</span>
+                <span class="process-title">Intake</span>
+                <span class="process-copy"
+                  >粘贴、CSV、预设样例和历史同步，都进入同一套导入向导。</span
+                >
+              </div>
+              <div class="process-row">
+                <span class="step-num">02</span>
+                <span class="process-title">Mapping</span>
+                <span class="process-copy"
+                  >AI Mapper 读取字段名和样本行，输出经过契约校验后再进入导入批次。</span
+                >
+              </div>
+              <div class="process-row">
+                <span class="step-num">03</span>
+                <span class="process-title">Normalize</span>
+                <span class="process-copy"
+                  >实体、州、税种和 EIN 进入归一化；错误行只进入错误列表，不污染最终客户表。</span
+                >
+              </div>
+              <div class="process-row">
+                <span class="step-num">04</span>
+                <span class="process-title">Apply + preheat</span>
+                <span class="process-copy"
+                  >应用后刷新 Clients、Obligations 和 Dashboard
+                  查询，让新数据马上进入本周分诊。</span
+                >
+              </div>
+            </div>
+            <div class="batch-summary">
+              <h3>Karbon 导入批次</h3>
+              <p>
+                这不是为了展示指标而放的表格，而是说明一份杂乱客户文件可以变成客户、
+                申报义务、置信度记录和可撤销批次。
+              </p>
+              <div class="batch-stat-grid" aria-label="Migration batch metrics">
+                <div class="batch-stat">
+                  <strong>4</strong>
+                  <span>raw rows</span>
+                </div>
+                <div class="batch-stat">
+                  <strong>3</strong>
+                  <span>clients created</span>
+                </div>
+                <div class="batch-stat">
+                  <strong>1</strong>
+                  <span>skipped row</span>
+                </div>
+                <div class="batch-stat">
+                  <strong>0.97</strong>
+                  <span>confidence</span>
+                </div>
+                <div class="batch-stat">
+                  <strong>24h</strong>
+                  <span>revert window</span>
+                </div>
+                <div class="batch-stat">
+                  <strong>applied</strong>
+                  <span>batch status</span>
+                </div>
+              </div>
+              <p class="mono">source = preset_karbon · file = karbon-may-import.csv</p>
+            </div>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Pulse">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">Rule change loop</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">Pulse pipeline</div>
+            <h2 class="slide-title">
+              官方源变化不是提醒，<span class="accent">是可撤销、可审计的截止日更新。</span>
+            </h2>
+          </div>
+          <div class="grid-2">
+            <div class="quote-panel">
+              <p>CA FTB 样例已把一条 LLC 截止日从 2026-04-30 更新到 2026-05-30。</p>
+              <span
+                >这条变更同时写入临时规则、义务应用记录、Pulse 应用记录、证据链接和审计事件。</span
+              >
+            </div>
+            <div class="app-table-wrap">
+              <table class="app-table">
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th>Jurisdiction</th>
+                    <th>Status</th>
+                    <th class="text-right">Confidence</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>IRS Disaster Relief</td>
+                    <td class="mono">CA</td>
+                    <td>
+                      <span class="badge status-success"
+                        ><span class="badge-dot dot-success"></span>Approved</span
+                      >
+                    </td>
+                    <td class="mono text-right">0.94</td>
+                  </tr>
+                  <tr>
+                    <td>CA FTB Newsroom</td>
+                    <td class="mono">CA</td>
+                    <td>
+                      <span class="badge status-success"
+                        ><span class="badge-dot dot-success"></span>Approved</span
+                      >
+                    </td>
+                    <td class="mono text-right">0.82</td>
+                  </tr>
+                  <tr>
+                    <td>NY DTF Advisory</td>
+                    <td class="mono">NY</td>
+                    <td>
+                      <span class="badge status-success"
+                        ><span class="badge-dot dot-success"></span>Approved</span
+                      >
+                    </td>
+                    <td class="mono text-right">0.58</td>
+                  </tr>
+                  <tr>
+                    <td>FL DOR Bulletin</td>
+                    <td class="mono">FL</td>
+                    <td>
+                      <span class="badge status-success"
+                        ><span class="badge-dot dot-success"></span>Approved</span
+                      >
+                    </td>
+                    <td class="mono text-right">0.46</td>
+                  </tr>
+                  <tr>
+                    <td>Ops Review · Quarantine Demo</td>
+                    <td class="mono">TX</td>
+                    <td>
+                      <span class="badge status-warning"
+                        ><span class="badge-dot dot-warning"></span>Pending review</span
+                      >
+                    </td>
+                    <td class="mono text-right">0.34</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Glass box AI">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">AI control boundary</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">AI 边界</div>
+            <h2 class="slide-title">AI 是加速器，<span class="accent">不是最终裁判。</span></h2>
+          </div>
+          <div class="grid-3">
+            <article class="feature-card">
+              <h3>无引用，不展示</h3>
+              <p>仪表摘要、截止日提示和客户风险摘要都必须带来源引用；校验失败就降级拒答。</p>
+            </article>
+            <article class="feature-card">
+              <h3>先检索，再生成</h3>
+              <p>提示词只能引用已检索片段；问答不直连 SQL，而是走自然语言到白名单查询。</p>
+            </article>
+            <article class="feature-card">
+              <h3>写入由人控制</h3>
+              <p>
+                AI 只产出结构化建议；导入应用、Pulse 应用和回滚都由服务端确定性流程加用户确认触发。
+              </p>
+            </article>
+          </div>
+          <div class="app-table-wrap">
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>AI job</th>
+                  <th>Mode</th>
+                  <th>Output rule</th>
+                  <th>Surface</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Migration Mapper / Normalizer</td>
+                  <td class="mono">fast-json</td>
+                  <td>Structured output with trace records</td>
+                  <td>Migration Copilot</td>
+                </tr>
+                <tr>
+                  <td>Pulse Extract</td>
+                  <td class="mono">quality-json</td>
+                  <td>Low confidence routes to manual review</td>
+                  <td>Rules &gt; Pulse Changes</td>
+                </tr>
+                <tr>
+                  <td>Smart Priority explanation</td>
+                  <td class="mono">deterministic</td>
+                  <td>Rule-factor breakdown</td>
+                  <td>Dashboard / Obligations</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Architecture">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">System architecture</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">Cloudflare-first 架构</div>
+            <h2 class="slide-title">
+              小团队可维护，<span class="accent">但边界按生产系统设计。</span>
+            </h2>
+          </div>
+          <div class="arch" aria-label="Architecture diagram">
+            <div class="arch-node">
+              <h3>Vite SPA</h3>
+              <p>
+                <span class="mono">apps/app</span> 是登录后产品界面；React Router data mode +
+                TanStack Query + oRPC client。
+              </p>
+            </div>
+            <div class="arch-arrow"></div>
+            <div class="arch-node">
+              <h3>Cloudflare Worker</h3>
+              <p>
+                <span class="mono">apps/server</span> 托管 SPA
+                assets、/rpc、/api/auth、webhooks、health，同一个部署产物。
+              </p>
+            </div>
+            <div class="arch-arrow"></div>
+            <div class="arch-node">
+              <h3>Native edge services</h3>
+              <p>D1、R2、Vectorize、KV、Queues、Cron 支撑数据、证据、RAG、budget 与后台任务。</p>
+            </div>
+          </div>
+          <div class="grid-4">
+            <article class="feature-card">
+              <h3>Contracts</h3>
+              <p>
+                <span class="mono">@duedatehq/contracts</span> 用 Zod + oRPC 共享前后端 API 形状。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Core</h3>
+              <p>
+                <span class="mono">@duedatehq/core</span> 保持不依赖基础设施，只承载纯领域逻辑。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>DB</h3>
+              <p>
+                Drizzle + D1；结构定义、数据访问、审计和证据写入都集中在
+                <span class="mono">@duedatehq/db</span>。
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>UI</h3>
+              <p>共享设计变量和基础组件，不让业务功能重复实现表格、状态标记和按钮。</p>
+            </article>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Security">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">Trust boundary</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">安全与合规</div>
+            <h2 class="slide-title">税务软件的差异化，<span class="accent">是信任边界。</span></h2>
+          </div>
+          <div class="app-table-wrap">
+            <table class="app-table">
+              <caption>
+                这些不是附录里的承诺，而是已经进入文档和代码结构的系统边界。
+              </caption>
+              <thead>
+                <tr>
+                  <th>Layer</th>
+                  <th>Implementation</th>
+                  <th>Why it matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Session and firm</td>
+                  <td>better-auth Organization + active firm</td>
+                  <td>每个用户都在明确的事务所上下文里操作。</td>
+                </tr>
+                <tr>
+                  <td>Tenant boundary</td>
+                  <td><span class="mono">scoped(db, firmId)</span></td>
+                  <td>业务数据默认带租户边界，不依赖前端传入 firmId。</td>
+                </tr>
+                <tr>
+                  <td>Static guardrails</td>
+                  <td><span class="mono">no-restricted-imports</span> in Vite+ lint</td>
+                  <td>接口过程不能直接导入数据库结构，避免绕过租户中间件。</td>
+                </tr>
+                <tr>
+                  <td>RBAC</td>
+                  <td>owner / manager / preparer / coordinator</td>
+                  <td>Pulse 应用、回滚、账单和审计导出有不同权限语义。</td>
+                </tr>
+                <tr>
+                  <td>Audit trail</td>
+                  <td><span class="mono">audit_event</span> actor + ip_hash + ua_hash</td>
+                  <td>“谁改了截止日”可以追溯，不只是页面提示。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="What stands out">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">Product strengths</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">Operating model</div>
+            <h2 class="slide-title">
+              DueDateHQ 把截止日风险<span class="accent">接入完整事务闭环。</span>
+            </h2>
+          </div>
+          <div class="grid-4">
+            <article class="feature-card">
+              <h3>Obligations control plane</h3>
+              <p>核心界面把状态、风险等级、预计风险和证据放进同一个可追责队列。</p>
+            </article>
+            <article class="feature-card">
+              <h3>Migration activation</h3>
+              <p>导入把旧客户表变成客户和申报义务，并预热 Dashboard 支撑第一周分诊。</p>
+            </article>
+            <article class="feature-card">
+              <h3>AI guardrails</h3>
+              <p>AI 只产出结构化建议和摘要；写入仍由确定性的服务端流程控制。</p>
+            </article>
+            <article class="feature-card">
+              <h3>Production-shaped architecture</h3>
+              <p>Cloudflare-first、oRPC 契约、D1 仓储、租户边界和测试，让系统能解释也能维护。</p>
+            </article>
+          </div>
+          <div class="quote-panel">
+            <p>产品主线很清楚：每个截止日都应该有风险、证据、责任人和审计记录。</p>
+            <span>Obligations、Migration Copilot 和 Pulse 是同一个可控事务流程的三个部分。</span>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+
+      <section class="slide" aria-label="Closing">
+        <header class="slide-header">
+          <span class="brand-lockup">
+            <span class="logo"><img src="duedatehq-logo.svg" alt="DueDateHQ" /></span>
+            <span class="brand-separator"></span>
+            <span>DueDateHQ</span>
+          </span>
+          <span class="deck-meta">Closing</span>
+        </header>
+        <div class="slide-body">
+          <div>
+            <div class="section-kicker">Product direction</div>
+            <h2 class="slide-title">
+              DueDateHQ 是 CPA 截止日工作的控制层，<span class="accent">不是另一个日历。</span>
+            </h2>
+          </div>
+          <div class="grid-4">
+            <article class="feature-card">
+              <h3>风险优先</h3>
+              <p>先看截止压力、预计风险、准备度和证据缺口，而不是先翻客户列表。</p>
+            </article>
+            <article class="feature-card">
+              <h3>导入优先</h3>
+              <p>从已有客户表启动事务所，而不是要求团队手工重建基础数据。</p>
+            </article>
+            <article class="feature-card">
+              <h3>规则可复核</h3>
+              <p>把官方源变化变成可复核、可撤销、可审计的截止日更新。</p>
+            </article>
+            <article class="feature-card">
+              <h3>信任内建</h3>
+              <p>租户边界、RBAC、证据和审计链路都放在核心流程里。</p>
+            </article>
+          </div>
+          <div class="quote-panel">
+            <p>DueDateHQ 让截止日工作可观察、可排序、可追责。</p>
+            <span>这是我为每周都在管理风险的 CPA 事务所做的产品。</span>
+          </div>
+        </div>
+        <footer class="slide-footer">
+          <span class="source-line" aria-hidden="true"></span>
+          <span class="slide-number"></span>
+        </footer>
+      </section>
+    </main>
+
+    <div class="keyboard-hint" aria-hidden="true"></div>
+    <div class="progress" aria-hidden="true"><span></span></div>
+
+    <script>
+      const slides = Array.from(document.querySelectorAll('.slide'))
+      const counters = Array.from(document.querySelectorAll('.slide-number'))
+      const progress = document.querySelector('.progress span')
+      let current = 0
+
+      counters.forEach((counter, index) => {
+        counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`
+      })
+
+      function showSlide(index) {
+        current = Math.max(0, Math.min(index, slides.length - 1))
+        slides.forEach((slide, slideIndex) => {
+          slide.dataset.active = slideIndex === current ? 'true' : 'false'
+        })
+        progress.style.width = `${((current + 1) / slides.length) * 100}%`
+        window.location.hash = `slide-${current + 1}`
+      }
+
+      function fromHash() {
+        const match = window.location.hash.match(/^#slide-(\d+)$/)
+        if (!match) return 0
+        return Math.max(0, Math.min(Number(match[1]) - 1, slides.length - 1))
+      }
+
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
+          event.preventDefault()
+          showSlide(current + 1)
+        }
+        if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+          event.preventDefault()
+          showSlide(current - 1)
+        }
+        if (event.key.toLowerCase() === 'p') {
+          window.print()
+        }
+      })
+
+      window.addEventListener('hashchange', () => showSlide(fromHash()))
+      showSlide(fromHash())
+    </script>
+  </body>
+</html>

@@ -93,7 +93,7 @@ export function createRuleSourceAdapter(source: RuleSource): SourceAdapter {
 }
 
 export function isRuleSourceAdapterEligible(source: RuleSource): boolean {
-  if (!source.notificationChannels.includes('candidate_review')) return false
+  if (!source.notificationChannels.includes('practice_rule_review')) return false
   if (EXISTING_ADAPTER_IDS.has(source.id)) return false
   return !SOURCE_INDEX_IDS.has(source.id)
 }

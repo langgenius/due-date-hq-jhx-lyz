@@ -68,12 +68,12 @@ packages/db/
 
 **Global vs tenant-scoped 边界（约束）：**
 
-| 类别         | 表                                                                                                                                                                  | `firm_id` 规则                                                                                        | 访问方式                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| 租户业务数据 | `client` / `obligation_instance` / `migration_*` / `audit_event` / `ai_output` / `llm_log` / `ai_insight_cache` / `dashboard_brief` / `email_outbox` / `saved_view` | `firm_id NOT NULL`                                                                                    | 只能经 `scoped(db, firmId)`                                        |
-| 全局规则资产 | `obligation_rule` / `rule_source` / `rule_chunk`                                                                                                                    | 不带 firm 或 `firm_id NULL`                                                                           | 只读公开/ops 路径；业务查询必须通过 rule id join 到租户 obligation |
-| 混合 overlay | `exception_rule`                                                                                                                                                    | `firm_id NULL` 表示 ops verified 全局 exception；`firm_id NOT NULL` 表示 firm custom/manual exception | 全局只读；firm custom 经 `scoped`                                  |
-| 应用记录     | `pulse_application` / `obligation_exception_application` / `evidence_link`                                                                                          | `firm_id NOT NULL`（即使可由 parent join 推导，也冗余存储）                                           | 只能经 `scoped`                                                    |
+| 类别         | 表                                                                                                                                                                  | `firm_id` 规则                                                                                       | 访问方式                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 租户业务数据 | `client` / `obligation_instance` / `migration_*` / `audit_event` / `ai_output` / `llm_log` / `ai_insight_cache` / `dashboard_brief` / `email_outbox` / `saved_view` | `firm_id NOT NULL`                                                                                   | 只能经 `scoped(db, firmId)`                                        |
+| 全局规则资产 | `obligation_rule` / `rule_source` / `rule_chunk`                                                                                                                    | 不带 firm 或 `firm_id NULL`                                                                          | 只读公开/ops 路径；业务查询必须通过 rule id join 到租户 obligation |
+| 混合 overlay | `exception_rule`                                                                                                                                                    | `firm_id NOT NULL` 表示 practice temporary/custom exception；不再使用全局生产 exception 作为生效依据 | 经 `scoped` 按 practice 隔离                                       |
+| 应用记录     | `pulse_application` / `obligation_exception_application` / `evidence_link`                                                                                          | `firm_id NOT NULL`（即使可由 parent join 推导，也冗余存储）                                          | 只能经 `scoped`                                                    |
 
 任何可由用户直接打开详情页的记录，都必须能用自身 `firm_id` 或父实体 join 证明归属；不允许只靠前端传来的 id 查询。
 
@@ -195,22 +195,22 @@ Drizzle schema: `packages/db/src/schema/clients.ts`；migration
 `0031_client_filing_profiles.sql`。每个客户可有多个 active filing state profile，同一客户同一州
 最多一个 active profile，且最多一个 active primary profile。
 
-| 字段                                               | 类型                                     | 备注                                                                       |
-| -------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------- |
-| `id` / `firm_id` / `client_id`                     | `text`                                   | tenant-scoped；`client_id` → `client.id`                                   |
-| `state`                                            | `text NOT NULL`                          | ISO 两位州码；联邦不是 profile，联邦义务用 `jurisdiction='FED'`            |
-| `counties_json`                                    | `text JSON string[] NOT NULL DEFAULT []` | Pulse county 匹配和 UI 列表；同州多 county 放同一个 profile                |
-| `tax_types_json`                                   | `text JSON string[] NOT NULL DEFAULT []` | 州级 tax type 归属；缺失时按 `entity × state` matrix / verified rules 推断 |
-| `is_primary`                                       | `integer boolean DEFAULT false`          | primary profile 写回 `client.state/county` 兼容字段                        |
-| `source ∈ (manual, imported, demo_seed, backfill)` | `text NOT NULL DEFAULT 'manual'`         | UI 显示来源与 review 状态                                                  |
-| `migration_batch_id`                               | `text NULL`                              | 导入 revert / single undo 一并删除 profile                                 |
-| `archived_at`                                      | `integer (ms) NULL`                      | 移除州时 archive，不物理删除历史义务                                       |
-| `created_at` / `updated_at`                        | `integer (ms)`                           |                                                                            |
+| 字段                                               | 类型                                     | 备注                                                                              |
+| -------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------- |
+| `id` / `firm_id` / `client_id`                     | `text`                                   | tenant-scoped；`client_id` → `client.id`                                          |
+| `state`                                            | `text NOT NULL`                          | ISO 两位州码；联邦不是 profile，联邦义务用 `jurisdiction='FED'`                   |
+| `counties_json`                                    | `text JSON string[] NOT NULL DEFAULT []` | Pulse county 匹配和 UI 列表；同州多 county 放同一个 profile                       |
+| `tax_types_json`                                   | `text JSON string[] NOT NULL DEFAULT []` | 州级 tax type 归属；缺失时按 `entity × state` matrix / active practice rules 推断 |
+| `is_primary`                                       | `integer boolean DEFAULT false`          | primary profile 写回 `client.state/county` 兼容字段                               |
+| `source ∈ (manual, imported, demo_seed, backfill)` | `text NOT NULL DEFAULT 'manual'`         | UI 显示来源与 review 状态                                                         |
+| `migration_batch_id`                               | `text NULL`                              | 导入 revert / single undo 一并删除 profile                                        |
+| `archived_at`                                      | `integer (ms) NULL`                      | 移除州时 archive，不物理删除历史义务                                              |
+| `created_at` / `updated_at`                        | `integer (ms)`                           |                                                                                   |
 
 Backfill 规则：现有 `client.state IS NOT NULL` 的客户创建一个 primary `backfill`
 profile；没有 state 的客户保持空 profile，Clients readiness 标记为 needs facts。
 `client.tax_types` 不再作为跨州事实；显式 tax type 只补充匹配州 profile，缺失的州级
-tax type 由 Default Matrix / verified rules 按州推断。
+tax type 由 Default Matrix / active practice rules 按州推断。
 
 **obligation_rule**（Rules-as-Asset 核心实体）
 
@@ -270,15 +270,15 @@ obligation 仍可手动标记 `not_applicable`。
 Drizzle schema: `packages/db/src/schema/overlay.ts`。Migration
 `0012_powerful_sinister_six.sql` starts the Pulse-backed due-date overlay path.
 
-| 字段                                                                           | 备注                                                                                 |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
-| `id` / `firm_id` / `source_pulse_id`                                           | `firm_id NULL` = 全局 ops verified；非 NULL = firm custom/manual；来源 Pulse 可 NULL |
-| `jurisdiction` / `counties[]` / `affected_forms[]` / `affected_entity_types[]` | JSON                                                                                 |
-| `override_type ∈ (extend_due_date, waive_penalty, ...)`                        |                                                                                      |
-| `override_value_json`                                                          |                                                                                      |
-| `effective_from` / `effective_until`                                           |                                                                                      |
-| `status ∈ (candidate, verified, applied, retracted, superseded)`               |                                                                                      |
-| `source_url` / `verbatim_quote`                                                |                                                                                      |
+| 字段                                                                           | 备注                                                |
+| ------------------------------------------------------------------------------ | --------------------------------------------------- |
+| `id` / `firm_id` / `source_pulse_id`                                           | `firm_id` 必须指向当前 practice；来源 Pulse 可 NULL |
+| `jurisdiction` / `counties[]` / `affected_forms[]` / `affected_entity_types[]` | JSON                                                |
+| `override_type ∈ (extend_due_date, waive_penalty, ...)`                        |                                                     |
+| `override_value_json`                                                          |                                                     |
+| `effective_from` / `effective_until`                                           |                                                     |
+| `status ∈ (candidate, verified, applied, retracted, superseded)`               |                                                     |
+| `source_url` / `verbatim_quote`                                                |                                                     |
 
 **obligation_exception_application**（多对多）
 
@@ -482,7 +482,7 @@ Activation Slice v1 新增 tenant-scoped `dashboard` repo，服务 `dashboard.lo
   动态计算，只把 overdue open obligations 计入 Dashboard `totalAccruedPenaltyCents`
 
 Penalty / exposure 金额只来自 obligation-level `penalty_facts_json`。Migration import 和
-maintenance backfill 可以用 explicit user input、demo fixture seed、verified rule metadata 或
+maintenance backfill 可以用 explicit user input、demo fixture seed、active practice rule metadata 或
 legacy client penalty fields 预填 facts；缺公式返回 `unsupported`，有公式但缺 facts 返回
 `needs_input`，不显示 fake `$0`。`clients.updatePenaltyInputs` 写 `penalty.override` audit 和
 `penalty_override` evidence，并重算该 client 下 open obligations。

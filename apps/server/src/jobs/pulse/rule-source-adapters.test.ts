@@ -13,7 +13,7 @@ describe('rule source adapters', () => {
   it('adds source-signal adapters for every candidate-review rule source without duplicating live adapters', () => {
     const liveIds = new Set(livePulseAdapters.map((adapter) => adapter.id))
     const candidateReviewSources = listRuleSources()
-      .filter((source) => source.notificationChannels.includes('candidate_review'))
+      .filter((source) => source.notificationChannels.includes('practice_rule_review'))
       .filter((source) => !liveIds.has(source.id))
       .filter(isRuleSourceAdapterEligible)
 

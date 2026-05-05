@@ -18,7 +18,7 @@ export const EXCEPTION_OVERRIDE_TYPES = ['extend_due_date', 'waive_penalty'] as 
 export type ExceptionOverrideType = (typeof EXCEPTION_OVERRIDE_TYPES)[number]
 
 /**
- * exception_rule — verified regulatory exception sourced from Pulse or ops.
+ * exception_rule — practice-scoped regulatory exception sourced from Pulse or custom review.
  *
  * `override_value_json` keeps the contract extensible, while `override_due_date`
  * gives D1 read models a cheap typed value for the current Phase 1 due-date

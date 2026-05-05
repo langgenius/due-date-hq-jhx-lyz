@@ -1,0 +1,11 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DueDateHQ">
+  <title>DueDateHQ</title>
+  <rect width="256" height="256" rx="54" fill="#071421"/>
+  <path d="M78 56V200" stroke="#D9E4F0" stroke-width="20" stroke-linecap="round"/>
+  <path d="M80 56H119C166 56 196 84 196 128C196 172 166 200 119 200H80" stroke="#D9E4F0" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M112 98H153" stroke="#B99B62" stroke-width="8" stroke-linecap="round"/>
+  <path d="M112 128H145" stroke="#D9E4F0" stroke-opacity="0.35" stroke-width="7" stroke-linecap="round"/>
+  <path d="M112 158H134" stroke="#D9E4F0" stroke-opacity="0.22" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="196" cy="128" r="15" fill="#35D5FF"/>
+  <circle cx="196" cy="128" r="26" stroke="#35D5FF" stroke-opacity="0.24" stroke-width="4"/>
+</svg>

@@ -149,6 +149,6 @@ pnpm check
 
 ## 后续 / 未闭环
 
-- Default Matrix v1.0 仍只覆盖 Federal + CA + NY demo cells。TX / FL / WA 已在 Rules MVP coverage 中，但 matrix 自动推断还需要 v1.1 扩展并逐格 ops sign-off。
+- Default Matrix v1.0 仍只覆盖 Federal + CA + NY demo cells。TX / FL / WA 已在 Rules MVP coverage 中，但 matrix 自动推断还需要 v1.1 扩展并逐格 practice review。
 - Rules Console 目前仍是只读壳。下一步如果做 detail drawer，应展示 `authorityRole`、`locator`、`sourceExcerpt`、`retrievedAt`、`sourceUpdatedOn`，不要只展示 source URL。
 - `EvidenceLink.verbatim_quote` 是旧审计存储字段。是否迁移为 `source_excerpt` 需要单独 ADR / migration，不应和本轮 rules typed asset 混在一起。

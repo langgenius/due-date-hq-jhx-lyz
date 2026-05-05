@@ -102,7 +102,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'obligation':
       return {
         title: t`Obligation`,
-        description: t`A specific compliance deadline generated from client facts and verified rules. It is more structured than a generic task.`,
+        description: t`A specific compliance deadline generated from client facts and active practice rules. It is more structured than a generic task.`,
       }
     case 'evidence':
       return {
@@ -121,8 +121,8 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
       }
     case 'verifiedRule':
       return {
-        title: t`Verified rule`,
-        description: t`A deadline rule that has been reviewed and can generate customer-facing reminders when it matches a client.`,
+        title: t`Active practice rule`,
+        description: t`A deadline rule accepted by this practice's owner or manager. It can generate customer-facing reminders when it matches a client.`,
       }
     case 'candidateRule':
       return {
@@ -157,7 +157,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'deadlineTip':
       return {
         title: t`Deadline Tip`,
-        description: t`A short explanation for one deadline, generated only from verified deadline context and source-backed evidence.`,
+        description: t`A short explanation for one deadline, generated only from active rule context and source-backed evidence.`,
       }
     case 'auditTrail':
       return {
@@ -172,7 +172,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'reminderReady':
       return {
         title: t`Reminder-ready`,
-        description: t`This obligation comes from a verified rule and can trigger the 30, 7, and 1-day reminder schedule.`,
+        description: t`This obligation comes from an active practice rule and can trigger the 30, 7, and 1-day reminder schedule.`,
       }
     case 'requiresReview':
       return {
@@ -182,7 +182,7 @@ function useConceptCopy(concept: ConceptId): ConceptCopy {
     case 'coverage':
       return {
         title: t`Coverage`,
-        description: t`The jurisdictions, entity types, and tax types currently backed by watched sources and verified rules.`,
+        description: t`The jurisdictions, entity types, and tax types currently backed by watched sources and active practice rules.`,
       }
     case 'practice':
       return {

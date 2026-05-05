@@ -16,7 +16,7 @@ function makeClient(overrides: Partial<ClientPublic> = {}): ClientPublic {
     state: 'CA',
     county: 'Alameda',
     entityType: 'llc',
-    email: 'ops@example.com',
+    email: 'owner@example.com',
     notes: null,
     assigneeId: 'user_casey',
     assigneeName: 'Casey',

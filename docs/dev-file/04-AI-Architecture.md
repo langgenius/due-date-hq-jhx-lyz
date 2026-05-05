@@ -362,7 +362,7 @@ User event (dashboard load / Ask / Apply)
 
 Vectorize 仍是检索层：
 
-- `rule_chunks`：verified rule 的官方来源切片；`firm_id = null`。
+- `rule_chunks`：active practice rule 的官方来源切片；按 practice scope 读取。
 - `pulse_chunks`：approved pulse 的 `verbatim_quote + summary`；firm-specific 应用解释带
   `firm_id`。
 - 检索时先取 global rule collection，再取 firm collection，合并 rerank；不要用 `firmId`

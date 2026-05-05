@@ -30,6 +30,12 @@ export const PulseAuditActions = [
 
 export const PenaltyAuditActions = ['penalty.override'] as const
 export const RulesAuditActions = [
+  'rules.accepted',
+  'rules.bulk_accepted',
+  'rules.rejected',
+  'rules.created',
+  'rules.updated',
+  'rules.archived',
   'rules.published',
   'rules.review.rejected',
   'obligation.annual_rollover.created',

@@ -11,9 +11,9 @@
 **一句话**：Default Tax Types Inference Matrix **v1.0 Demo Sprint 子集** = 3 辖区（federal 虚拟辖区 + CA + NY）× 8 实体类型 = **24 格**。
 
 - **兑现 S2-AC4**：导入后立即生成全年日历，**无需额外配置**（PRD Part1A §3.2 / Part1B §6A.10）
-- **不是 AI**：这是 ops 人工签字的**静态查表**（`./05-default-matrix.v1.0.yaml`），**纯函数**，**零幻觉**（PRD Part1B §6A.5）
+- **不是 AI**：这是 practice owner/manager review 的**静态查表**（`./05-default-matrix.v1.0.yaml`），**纯函数**，**零幻觉**（PRD Part1B §6A.5）
 - **触发时机**：AI Mapper 未识别 `client.tax_types` 列（常见于 QuickBooks / Karbon 的元数据导出），Rule Engine 以 `(entity_type, state)` 为键查本矩阵，写 `evidence_link(source_type='default_inference_by_entity_state', matrix_version='v1.0')`
-- **增强约束**：对外体验必须展示 coverage 状态，不能把 `ops_verified_by=pending` 的 Demo seed 包装成正式 verified。状态模型见 [`./11-agentic-enhancements.md#3-增强点-b--6-辖区信任路线coverage-transparency`](./11-agentic-enhancements.md#3-增强点-b--6-辖区信任路线coverage-transparency)。
+- **增强约束**：对外体验必须展示 coverage 状态，不能把 `practice_review_by=pending` 的 Demo seed 包装成正式 active coverage。状态模型见 [`./11-agentic-enhancements.md#3-增强点-b--6-辖区信任路线coverage-transparency`](./11-agentic-enhancements.md#3-增强点-b--6-辖区信任路线coverage-transparency)。
 
 ---
 
@@ -21,24 +21,24 @@
 
 查表键 = `(entity_type, state)`；结果 = `tax_types[]` + `evidence` + `confidence`。Federal 项由 `federal_overlay` 统一追加（见 [`./05-default-matrix.v1.0.yaml`](./05-default-matrix.v1.0.yaml) `federal_overlay` 段），Rule Engine 合并时去重。
 
-| #   | entity_type × state | 推断 tax_types[]                                                                | 证据 source_type                    | ops 签字 | matrix_version |
-| --- | ------------------- | ------------------------------------------------------------------------------- | ----------------------------------- | -------- | -------------- |
-| 1   | `llc × CA`          | `federal_1065_or_1040`, `ca_llc_franchise_min_800`, `ca_llc_fee_gross_receipts` | `default_inference_by_entity_state` | pending  | v1.0           |
-| 2   | `llc × NY`          | `federal_1065_or_1040`, `ny_llc_filing_fee`, `ny_ptet_optional`                 | `default_inference_by_entity_state` | pending  | v1.0           |
-| 3   | `s_corp × CA`       | `federal_1120s`, `ca_100s_franchise`, `ca_ptet_optional`                        | `default_inference_by_entity_state` | pending  | v1.0           |
-| 4   | `s_corp × NY`       | `federal_1120s`, `ny_ct3s`, `ny_ptet_optional`                                  | `default_inference_by_entity_state` | pending  | v1.0           |
-| 5   | `partnership × CA`  | `federal_1065`, `ca_565_partnership`, `ca_ptet_optional`                        | `default_inference_by_entity_state` | pending  | v1.0           |
-| 6   | `partnership × NY`  | `federal_1065`, `ny_it204`, `ny_ptet_optional`                                  | `default_inference_by_entity_state` | pending  | v1.0           |
-| 7   | `c_corp × CA`       | `federal_1120`, `ca_100_franchise`                                              | `default_inference_by_entity_state` | pending  | v1.0           |
-| 8   | `c_corp × NY`       | `federal_1120`, `ny_ct3`                                                        | `default_inference_by_entity_state` | pending  | v1.0           |
-| 9   | `sole_prop × CA`    | `federal_1040_sch_c`, `ca_540`                                                  | `default_inference_by_entity_state` | pending  | v1.0           |
-| 10  | `sole_prop × NY`    | `federal_1040_sch_c`, `ny_it201`                                                | `default_inference_by_entity_state` | pending  | v1.0           |
-| 11  | `trust × CA`        | `federal_1041`, `ca_541`                                                        | `default_inference_by_entity_state` | pending  | v1.0           |
-| 12  | `trust × NY`        | `federal_1041`, `ny_it205`                                                      | `default_inference_by_entity_state` | pending  | v1.0           |
-| 13  | `individual × CA`   | `federal_1040`, `ca_540`                                                        | `default_inference_by_entity_state` | pending  | v1.0           |
-| 14  | `individual × NY`   | `federal_1040`, `ny_it201`                                                      | `default_inference_by_entity_state` | pending  | v1.0           |
-| 15  | `other × CA`        | `federal` + `needs_review`                                                      | `default_inference_by_entity_state` | pending  | v1.0           |
-| 16  | `other × NY`        | `federal` + `needs_review`                                                      | `default_inference_by_entity_state` | pending  | v1.0           |
+| #   | entity_type × state | 推断 tax_types[]                                                                | 证据 source_type                    | practice review | matrix_version |
+| --- | ------------------- | ------------------------------------------------------------------------------- | ----------------------------------- | --------------- | -------------- |
+| 1   | `llc × CA`          | `federal_1065_or_1040`, `ca_llc_franchise_min_800`, `ca_llc_fee_gross_receipts` | `default_inference_by_entity_state` | pending         | v1.0           |
+| 2   | `llc × NY`          | `federal_1065_or_1040`, `ny_llc_filing_fee`, `ny_ptet_optional`                 | `default_inference_by_entity_state` | pending         | v1.0           |
+| 3   | `s_corp × CA`       | `federal_1120s`, `ca_100s_franchise`, `ca_ptet_optional`                        | `default_inference_by_entity_state` | pending         | v1.0           |
+| 4   | `s_corp × NY`       | `federal_1120s`, `ny_ct3s`, `ny_ptet_optional`                                  | `default_inference_by_entity_state` | pending         | v1.0           |
+| 5   | `partnership × CA`  | `federal_1065`, `ca_565_partnership`, `ca_ptet_optional`                        | `default_inference_by_entity_state` | pending         | v1.0           |
+| 6   | `partnership × NY`  | `federal_1065`, `ny_it204`, `ny_ptet_optional`                                  | `default_inference_by_entity_state` | pending         | v1.0           |
+| 7   | `c_corp × CA`       | `federal_1120`, `ca_100_franchise`                                              | `default_inference_by_entity_state` | pending         | v1.0           |
+| 8   | `c_corp × NY`       | `federal_1120`, `ny_ct3`                                                        | `default_inference_by_entity_state` | pending         | v1.0           |
+| 9   | `sole_prop × CA`    | `federal_1040_sch_c`, `ca_540`                                                  | `default_inference_by_entity_state` | pending         | v1.0           |
+| 10  | `sole_prop × NY`    | `federal_1040_sch_c`, `ny_it201`                                                | `default_inference_by_entity_state` | pending         | v1.0           |
+| 11  | `trust × CA`        | `federal_1041`, `ca_541`                                                        | `default_inference_by_entity_state` | pending         | v1.0           |
+| 12  | `trust × NY`        | `federal_1041`, `ny_it205`                                                      | `default_inference_by_entity_state` | pending         | v1.0           |
+| 13  | `individual × CA`   | `federal_1040`, `ca_540`                                                        | `default_inference_by_entity_state` | pending         | v1.0           |
+| 14  | `individual × NY`   | `federal_1040`, `ny_it201`                                                      | `default_inference_by_entity_state` | pending         | v1.0           |
+| 15  | `other × CA`        | `federal` + `needs_review`                                                      | `default_inference_by_entity_state` | pending         | v1.0           |
+| 16  | `other × NY`        | `federal` + `needs_review`                                                      | `default_inference_by_entity_state` | pending         | v1.0           |
 
 > 以上 16 条 `(entity, state)` 查表 + 8 条 federal-only overlay（每种 entity 一条 federal 兜底）= 24 个语义单元。YAML seed（见 [`./05-default-matrix.v1.0.yaml`](./05-default-matrix.v1.0.yaml)）把 federal overlay 独立成 `federal_overlay.by_entity_type`，避免 federal 项在 16 个 (entity, state) cell 之间重复书写。
 
@@ -54,7 +54,7 @@ function infer(entity_type, state):
   return { tax_types: dedup(cell.tax_types ++ fedset), needs_review: cell.needs_review ?? false }
 ```
 
-2026-05-04 update: runtime matrix now accepts 50 states + DC. CA/NY retain verified explicit
+2026-05-04 update: runtime matrix now accepts 50 states + DC. CA/NY retain source-backed explicit
 cells; other jurisdictions add source-backed review-only tax types from the full rules registry
 instead of falling back to federal-only.
 
@@ -79,18 +79,18 @@ instead of falling back to federal-only.
 **Phase 0 扩容路径**：
 
 - Phase 0 MVP（4 周全量）：补 TX / FL / WA，使 Default Matrix 与当前 Rules MVP coverage（Federal + CA/NY/TX/FL/WA）对齐
-- Phase 1：扩 **50 州骨架 × 8 实体 = 400 格**，`coverage_status=skeleton` 的格未经 ops 签字前标 `needs_review`
+- Phase 1：扩 **50 州骨架 × 8 实体 = 400 格**，`coverage_status=skeleton` 的格未经 practice owner/manager review 前标 `needs_review`
 
 ### 3.1 Coverage 状态裁定
 
 | 状态          | 使用时机                                                                              | UI 行为                                    | `confidence` 口径      |
 | ------------- | ------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------- |
-| `verified`    | ops 已签字，source_urls / verified_by / verified_at 完整                              | 可显示 `Verified coverage`                 | 查表项可为 1.0         |
-| `demo_seed`   | Demo Sprint CA / NY 种子，有来源但 `ops_verified_by=pending`                          | 显示 `Demo coverage · verify before pilot` | UI 不宣称正式 verified |
+| `active`      | practice owner/manager 已接受，source_urls / reviewed_by / reviewed_at 完整           | 可显示 `Active coverage`                   | 查表项可为 1.0         |
+| `demo_seed`   | Demo Sprint CA / NY 种子，有来源但 `practice_review_by=pending`                       | 显示 `Demo coverage · review before pilot` | UI 不宣称正式 active   |
 | `skeleton`    | TX / FL / WA 等当前 MVP 州在 Default Matrix v1.0 尚未展开，或未来扩州结构就位但未签字 | federal-only + `State review needed`       | 不生成州级 obligations |
 | `unsupported` | 未计划或无足够规则来源                                                                | 不生成州级 obligations                     | 不适用                 |
 
-Demo Sprint 的 CA / NY 允许在演示路径作为 `demo_seed` 默认生效；真实 pilot 前必须升为 `verified` 或降为 `skeleton`。TX / FL / WA 已进入当前 Rules MVP coverage，但本 Default Matrix v1.0 仍未自动推断对应 state tax types，页面必须显示 `State review needed`，不能把 matrix fallback 说成州级 obligation 已自动生成。
+Demo Sprint 的 CA / NY 允许在演示路径作为 `demo_seed` 默认生效；真实 pilot 前必须升为 `active` 或降为 `skeleton`。TX / FL / WA 已进入当前 Rules MVP coverage，但本 Default Matrix v1.0 仍未自动推断对应 state tax types，页面必须显示 `State review needed`，不能把 matrix fallback 说成州级 obligation 已自动生成。
 
 ---
 
@@ -118,8 +118,8 @@ rules:
     evidence:
       source_type: default_inference_by_entity_state
       matrix_version: v1.0
-      ops_verified_by: pending
-      ops_verified_at: pending
+      practice_review_by: pending
+      practice_reviewed_at: pending
       source_urls:
         - https://www.ftb.ca.gov/file/business/types/limited-liability-company.html
     confidence: 1.0
@@ -137,7 +137,7 @@ fallback:
 
 - 2 空格缩进；key 用 snake_case；不使用 YAML `!!` 类型注解（对齐本册写作约束）
 - 每条 rule 四要素：`key / tax_types / evidence / confidence`
-- `evidence.source_urls` 用真实 IRS / FTB / NYS DTF 官方页路径；**Demo Sprint 期间 `ops_verified_by = ops_verified_at = "pending"`**，Phase 0 起必须 ops 人工签字
+- `evidence.source_urls` 用真实 IRS / FTB / NYS DTF 官方页路径；**Demo Sprint 期间 `practice_review_by = practice_reviewed_at = "pending"`**，Phase 0 起必须 practice owner/manager review
 
 ---
 
@@ -160,7 +160,7 @@ fallback:
 - `source_type` = 固定字面量 `'default_inference_by_entity_state'`（对齐 `dev-file/03` §2.5 evidence_link 枚举）
 - `matrix_version` = `'v1.0'`（随 YAML 文件名同步升版）
 - `applied_by = 'system'`（矩阵是纯函数，不需用户动作触发）
-- `confidence = 1.0`（查表 + ops 签字 = 零幻觉；`other × *` 两格 confidence = 0.5 并标 `needs_review`）
+- `confidence = 1.0`（查表 + practice review = 零幻觉；`other × *` 两格 confidence = 0.5 并标 `needs_review`）
 
 ---
 
@@ -188,7 +188,7 @@ Suggested tax types (inferred from entity × state)
 
 | 扩展项                       | 阶段        | 备注                                                                                                |
 | ---------------------------- | ----------- | --------------------------------------------------------------------------------------------------- |
-| TX / FL / WA 辖区扩容        | Phase 0 MVP | 补 24 格（3 州 × 8 entity）；矩阵升到 v1.1；ops 必须逐格签字                                        |
+| TX / FL / WA 辖区扩容        | Phase 0 MVP | 补 24 格（3 州 × 8 entity）；矩阵升到 v1.1；practice owner/manager 必须逐格 review                  |
 | 50 州骨架                    | Phase 1     | `coverage_status=skeleton`，未签字前不推断、仅回退 federal_only                                     |
 | PTET optional 的 entity 适配 | Phase 0 MVP | 目前仅 `s_corp / partnership` 有 PTET；Phase 0 增加 `llc (treated as partnership)` 的自动 PTET 分支 |
 | Matrix v1.x 的 semver 约定   | Phase 0 起  | 新增格 → minor（v1.0 → v1.1）；已有格改变 tax_type 推断 → major（v1.x → v2.0）+ ADR                 |
@@ -198,7 +198,7 @@ Suggested tax types (inferred from entity × state)
 
 ## 变更记录
 
-| 版本 | 日期       | 作者       | 摘要                                                                                                           |
-| ---- | ---------- | ---------- | -------------------------------------------------------------------------------------------------------------- |
-| v1.0 | 2026-04-24 | Subagent D | 初稿：Federal + CA + NY × 8 实体 = 16 rules + federal_overlay + fallback；24 格语义口径 · YAML seed 对齐       |
-| v1.1 | 2026-04-24 | Codex      | 增补 coverage 状态裁定：verified / demo_seed / skeleton / unsupported，避免 pending seed 被包装成正式 verified |
+| 版本 | 日期       | 作者       | 摘要                                                                                                       |
+| ---- | ---------- | ---------- | ---------------------------------------------------------------------------------------------------------- |
+| v1.0 | 2026-04-24 | Subagent D | 初稿：Federal + CA + NY × 8 实体 = 16 rules + federal_overlay + fallback；24 格语义口径 · YAML seed 对齐   |
+| v1.1 | 2026-04-24 | Codex      | 增补 coverage 状态裁定：active / demo_seed / skeleton / unsupported，避免 pending seed 被包装成正式 active |

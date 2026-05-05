@@ -3,7 +3,7 @@
 ## What changed
 
 - Fixed `/api/ops/pulse/:pulseId/{approve,reject,quarantine}` when the ops workbench sends a
-  synthetic actor id such as `ops-web`.
+  synthetic actor id such as `system-web`.
 - `makePulseOpsRepo` now resolves ops actor ids against the real `user` table before writing
   `pulse.reviewed_by` or `audit_event.actor_id`. Unknown ops actor labels are kept in audit JSON
   context instead of being written into user foreign-key columns.
@@ -23,4 +23,4 @@
 - `pnpm exec vp check apps/server/src/routes/ops-pulse.ts apps/server/src/routes/ops-pulse.test.ts apps/app/src/features/pulse/OpsPulsePage.tsx docs/dev-log/2026-05-01-pulse-ops-action-fk.md`
 - `pnpm exec tsc -p apps/app/tsconfig.json --noEmit`
 - Local Wrangler HTTP verification returned `200 OK` for reject, approve, and quarantine using the
-  default `ops-web` actor id; demo seed was restored afterward with `pnpm db:seed:demo`.
+  default `system-web` actor id; demo seed was restored afterward with `pnpm db:seed:demo`.

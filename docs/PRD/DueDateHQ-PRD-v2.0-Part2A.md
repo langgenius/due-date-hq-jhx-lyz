@@ -637,7 +637,7 @@ RuleSource (Source Registry · P1-31 · §6D.3)
   name,                              -- e.g. "IRS Newsroom"
   url, source_type,                  -- newsroom|publication|due_dates|emergency_relief|fema
   cadence,                           -- 30m|60m|120m|daily|weekly|quarterly
-  owner_user_id,                     -- 负责 ops 成员
+  owner_user_id,                     -- 负责 practice 成员
   priority,                          -- critical|high|medium|low（低容错优先级）
   is_early_warning (bool),           -- FEMA 等只作预警不生规则
   last_checked_at, last_change_detected_at,

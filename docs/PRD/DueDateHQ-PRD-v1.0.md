@@ -483,7 +483,7 @@ State ∕ Entity ∕ Tax Type ∕ Status ∕ Readiness ∕ Assignee ∕ Verified
 │                                                    │
 │   Human verification                               │
 │   ──────────────────                                │
-│   Verified by  dueddatehq-ops                      │
+│   Verified by  practice-owner                      │
 │   Verified at  2026-04-12 09:21 PST                │
 │   Next review  2026-07-12                          │
 │   [✓ Human verified]                               │
@@ -702,12 +702,12 @@ Raw announcement
   ↓  Match engine
 Find clients WHERE state = CA AND (county IN [LA] OR county IS NULL) AND tax_type IN [...]
   ↓  Human review queue
-Flag → Ops reviews → Approve → Pulse goes live
+Flag → Practice owner/manager reviews → Approve → Pulse goes live
 ```
 
 **关键设计：**
 
-- 所有 Pulse 条目默认 `requires_human_review = true`；MVP 由 ops 人工点 Approve 才进入 Feed
+- 所有 Pulse 条目默认 `requires_human_review = true`；MVP 由 practice owner/manager 点 Approve 才进入 Feed
 - Demo 时预置 1 条 `IRS CA storm relief` 已审通过，使评委看到完整闭环
 
 #### 6.2.3 Apply 动作的原子事务

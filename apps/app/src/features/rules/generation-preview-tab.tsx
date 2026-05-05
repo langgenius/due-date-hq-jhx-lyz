@@ -258,7 +258,7 @@ export function AnnualRolloverPanel({ clients }: { clients: readonly ClientPubli
             <p className="mt-1 text-xs text-text-secondary">
               <Trans>
                 Preview closed source-year obligations, then create next-year obligations from
-                verified rules.
+                active practice rules.
               </Trans>
             </p>
           </div>
@@ -627,12 +627,12 @@ function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
         <RolloverMetric
           label={t`Will create`}
           value={result.summary.willCreateCount}
-          description={t`Rows that will create pending obligations because a verified target-year rule produced a concrete due date.`}
+          description={t`Rows that will create pending obligations because an active target-year practice rule produced a concrete due date.`}
         />
         <RolloverMetric
           label={t`Review`}
           value={result.summary.reviewCount}
-          description={t`Rows that will create review obligations because the verified rule requires CPA confirmation.`}
+          description={t`Rows that will create review obligations because the active practice rule requires CPA confirmation.`}
         />
         <RolloverMetric
           label={t`Duplicates`}
@@ -642,7 +642,7 @@ function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
         <RolloverMetric
           label={t`Skipped`}
           value={result.summary.skippedCount}
-          description={t`Rows that cannot be created, usually because the target year lacks a verified rule or concrete due date.`}
+          description={t`Rows that cannot be created, usually because the target year lacks an active practice rule or concrete due date.`}
         />
         <RolloverMetric
           label={t`Created`}
@@ -666,7 +666,7 @@ function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
           />
           <RolloverColumnHeader
             label={t`Due date`}
-            description={t`The concrete due date calculated from the verified target-year rule. A dash means nothing will be created.`}
+            description={t`The concrete due date calculated from the active target-year practice rule. A dash means nothing will be created.`}
           />
           <RolloverColumnHeader
             label={t`Target`}
@@ -674,7 +674,7 @@ function AnnualRolloverResults({ result }: { result: AnnualRolloverOutput }) {
           />
           <RolloverColumnHeader
             label={t`Rule / reason`}
-            description={t`The matched verified rule and period, or the reason this row is duplicate or skipped.`}
+            description={t`The matched active practice rule and period, or the reason this row is duplicate or skipped.`}
           />
           <RolloverColumnHeader
             label={t`Obligations`}
@@ -868,7 +868,7 @@ function targetStatusLabel(status: 'pending' | 'review', t: ReturnType<typeof us
 function skippedReasonLabel(reason: string | null, t: ReturnType<typeof useLingui>['t']): string {
   if (reason === 'client_state_missing') return t`Client state missing`
   if (reason === 'client_not_found') return t`Client not found`
-  if (reason === 'no_verified_rule_for_target_year') return t`No verified target-year rule`
+  if (reason === 'no_verified_rule_for_target_year') return t`No active target-year rule`
   if (reason === 'target_obligation_already_exists') return t`Target obligation already exists`
   if (reason === 'verified_rule_has_no_concrete_due_date') return t`No concrete due date`
   return reason ?? t`No rule matched`

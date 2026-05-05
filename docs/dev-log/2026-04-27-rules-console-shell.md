@@ -278,7 +278,7 @@ deleting the `Settings` container. Rejected because:
 - Source and rule detail drawers.
 - `obligation_instance` provenance migration.
 - Saved preview inputs and input comparison.
-- RBAC gating for owner/ops-only access.
+- RBAC gating for owner/owner/manager-only access.
 
 ## Validation
 

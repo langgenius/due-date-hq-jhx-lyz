@@ -18,7 +18,8 @@ test('AC: E2E-RULES-TABS persists implemented tab state', async ({
   await rulesConsolePage.goto()
 
   await expect(rulesConsolePage.coverageTab).toHaveAttribute('aria-selected', 'true')
-  await expect(authenticatedPage.getByText('Verified rules', { exact: true })).toBeVisible()
+  await expect(authenticatedPage.getByText('Active rules', { exact: true })).toBeVisible()
+  await expect(authenticatedPage.getByText('Pending review', { exact: true })).toBeVisible()
 
   await rulesConsolePage.sourcesTab.click()
   await expect(authenticatedPage).toHaveURL(/\/rules\?tab=sources$/)
@@ -29,8 +30,10 @@ test('AC: E2E-RULES-TABS persists implemented tab state', async ({
 
   await rulesConsolePage.libraryTab.click()
   await expect(authenticatedPage).toHaveURL(/\/rules\?tab=library$/)
-  await authenticatedPage.getByRole('button', { name: /^Verified\s+\d+$/ }).click()
-  await expect(authenticatedPage.getByText('fed.1065.return.2025')).toBeVisible()
+  await authenticatedPage.getByRole('button', { name: /^Pending review\s+\d+$/ }).click()
+  await expect(
+    authenticatedPage.getByText('al.individual_income_return.candidate.2026'),
+  ).toBeVisible()
 })
 
 test('AC: E2E-RULES-DETAIL opens a shipped rule detail drawer', async ({
@@ -39,16 +42,16 @@ test('AC: E2E-RULES-DETAIL opens a shipped rule detail drawer', async ({
 }) => {
   await rulesConsolePage.goto()
   await rulesConsolePage.libraryTab.click()
-  await authenticatedPage.getByRole('button', { name: /^Verified\s+\d+$/ }).click()
+  await authenticatedPage.getByRole('button', { name: /^Pending review\s+\d+$/ }).click()
   await authenticatedPage
     .getByRole('button', {
-      name: /Open rule detail: Federal Form 1065 return for partnerships/,
+      name: /Open rule detail: Alabama individual income tax return applicability/,
     })
     .click()
 
   await expect(
     authenticatedPage.getByRole('heading', {
-      name: 'Federal Form 1065 return for partnerships',
+      name: 'Alabama individual income tax return applicability',
     }),
   ).toBeVisible()
   await expect(authenticatedPage.getByText('Due date logic')).toBeVisible()

@@ -52,7 +52,7 @@ import { useSourceLookup } from './use-source-lookup'
  * Section order is fixed: Applicability → Due-date logic → Extension →
  * Review reasons (conditional) → Evidence → Verification footer. Quality
  * checklist + version compare are intentionally omitted for the read-only
- * MVP (P1 publish flow surface).
+ * MVP (P1 activation flow surface).
  */
 export function RuleDetailDrawer({
   rule,
@@ -100,11 +100,11 @@ function CandidateReviewSection({
   rule: ObligationRule
   sourceLookup: ReadonlyMap<string, RuleSource>
 }) {
-  if (rule.status !== 'candidate') return null
+  if (rule.status !== 'candidate' && rule.status !== 'pending_review') return null
   return <CandidateReviewForm rule={rule} sourceLookup={sourceLookup} />
 }
 
-type PublishMode = 'manual' | 'reminder_ready'
+type ActivationMode = 'manual' | 'reminder_ready'
 type ConcreteDueDateKind = 'fixed_date' | 'tax_year_end' | 'tax_year_begin'
 type HolidayRollover = 'source_adjusted' | 'next_business_day'
 type ReviewExtensionPolicy = ObligationRule['extensionPolicy']
@@ -120,7 +120,7 @@ const EXTENSION_METHOD_SUGGESTIONS = [
   'Texas franchise tax extension',
 ] as const
 
-function initialPublishMode(rule: ObligationRule): PublishMode {
+function initialActivationMode(rule: ObligationRule): ActivationMode {
   return rule.coverageStatus === 'full' && rule.dueDateLogic.kind !== 'source_defined_calendar'
     ? 'reminder_ready'
     : 'manual'
@@ -183,7 +183,9 @@ function CandidateReviewForm({
     primaryEvidence?.locator.heading ?? t`Official due date page`,
   )
   const [sourceExcerpt, setSourceExcerpt] = useState(primaryEvidence?.sourceExcerpt ?? '')
-  const [publishMode, setPublishMode] = useState<PublishMode>(() => initialPublishMode(rule))
+  const [activationMode, setActivationMode] = useState<ActivationMode>(() =>
+    initialActivationMode(rule),
+  )
   const [concreteDueDateKind, setConcreteDueDateKind] = useState<ConcreteDueDateKind>(() =>
     initialConcreteDueDateKind(rule),
   )
@@ -218,8 +220,8 @@ function CandidateReviewForm({
   const [reviewNote, setReviewNote] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
   const coverageStatus: ObligationRule['coverageStatus'] =
-    publishMode === 'manual' ? 'manual' : 'full'
-  const effectiveRequiresReview = publishMode === 'manual' ? true : requiresReview
+    activationMode === 'manual' ? 'manual' : 'full'
+  const effectiveRequiresReview = activationMode === 'manual' ? true : requiresReview
   const fixedDateInvalid = fixedDate.trim() !== '' && !isValidIsoDate(fixedDate.trim())
 
   const invalidateRules = () => {
@@ -231,10 +233,10 @@ function CandidateReviewForm({
     orpc.rules.verifyCandidate.mutationOptions({
       onSuccess: () => {
         invalidateRules()
-        toast.success(t`Candidate verified`)
+        toast.success(t`Rule accepted`)
       },
       onError: (error) => {
-        toast.error(t`Couldn't verify candidate`, {
+        toast.error(t`Couldn't accept rule`, {
           description: rpcErrorMessage(error) ?? t`Please check the review fields.`,
         })
       },
@@ -244,10 +246,10 @@ function CandidateReviewForm({
     orpc.rules.rejectCandidate.mutationOptions({
       onSuccess: () => {
         invalidateRules()
-        toast.success(t`Candidate rejected`)
+        toast.success(t`Rule rejected`)
       },
       onError: (error) => {
-        toast.error(t`Couldn't reject candidate`, {
+        toast.error(t`Couldn't reject rule`, {
           description: rpcErrorMessage(error) ?? t`Please add a review note.`,
         })
       },
@@ -259,7 +261,7 @@ function CandidateReviewForm({
     .filter((source): source is RuleSource => source !== undefined)
 
   const buildDueDateLogic = (): DueDateLogic | null => {
-    if (publishMode === 'manual') {
+    if (activationMode === 'manual') {
       return {
         kind: 'source_defined_calendar',
         description: sourceDefinedDescription(rule, sourceHeading.trim() || t`Official calendar`),
@@ -376,10 +378,10 @@ function CandidateReviewForm({
     <section className="flex flex-col gap-3 rounded-md border border-state-accent-active-alt bg-background-default px-3 py-3">
       <div className="flex items-center justify-between gap-3">
         <SectionLabel>
-          <Trans>Firm review</Trans>
+          <Trans>Practice review</Trans>
         </SectionLabel>
         <span className="text-xs text-status-review">
-          <Trans>Candidate</Trans>
+          <Trans>Pending review</Trans>
         </span>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
@@ -425,14 +427,14 @@ function CandidateReviewForm({
       </label>
       <div className="grid gap-2">
         <span className="text-xs font-medium uppercase text-text-tertiary">
-          <Trans>Publish mode</Trans>
+          <Trans>Activation mode</Trans>
         </span>
         <div className="grid gap-2 md:grid-cols-2">
           <label className="flex cursor-pointer gap-2 rounded-md border border-divider-regular p-3 text-sm">
             <input
               type="radio"
-              checked={publishMode === 'manual'}
-              onChange={() => setPublishMode('manual')}
+              checked={activationMode === 'manual'}
+              onChange={() => setActivationMode('manual')}
               className="mt-0.5 size-4"
             />
             <span className="grid gap-1">
@@ -440,15 +442,17 @@ function CandidateReviewForm({
                 <Trans>Manual review</Trans>
               </span>
               <span className="text-xs text-text-tertiary">
-                <Trans>Publish evidence, but generated deadlines still require CPA review.</Trans>
+                <Trans>
+                  Accept as evidence-backed, but generated deadlines still require CPA review.
+                </Trans>
               </span>
             </span>
           </label>
           <label className="flex cursor-pointer gap-2 rounded-md border border-divider-regular p-3 text-sm">
             <input
               type="radio"
-              checked={publishMode === 'reminder_ready'}
-              onChange={() => setPublishMode('reminder_ready')}
+              checked={activationMode === 'reminder_ready'}
+              onChange={() => setActivationMode('reminder_ready')}
               className="mt-0.5 size-4"
             />
             <span className="grid gap-1">
@@ -464,7 +468,7 @@ function CandidateReviewForm({
           </label>
         </div>
       </div>
-      {publishMode === 'reminder_ready' ? (
+      {activationMode === 'reminder_ready' ? (
         <div className="grid gap-3 rounded-md border border-divider-subtle bg-background-subtle p-3">
           <label className="flex flex-col gap-1 text-xs text-text-tertiary">
             <span>
@@ -653,7 +657,7 @@ function CandidateReviewForm({
             type="checkbox"
             checked={effectiveRequiresReview}
             onChange={(event) => setRequiresReview(event.target.checked)}
-            disabled={publishMode === 'manual'}
+            disabled={activationMode === 'manual'}
             className="size-4"
           />
           <span>
@@ -688,7 +692,7 @@ function CandidateReviewForm({
           onClick={submitVerify}
           disabled={verifyMutation.isPending || rejectMutation.isPending}
         >
-          <Trans>Verify candidate</Trans>
+          <Trans>Accept rule</Trans>
         </Button>
       </div>
     </section>
@@ -882,21 +886,21 @@ function RuleDrawerHeader({ rule }: { rule: ObligationRule }) {
 }
 
 function RuleStatusInline({ status }: { status: ObligationRule['status'] }) {
-  if (status === 'candidate') {
+  if (status === 'candidate' || status === 'pending_review') {
     return (
       <span className="inline-flex items-center gap-1.5 text-status-review">
         <ToneDot tone="review" />
         <ConceptLabel concept="candidateRule">
-          <Trans>Candidate</Trans>
+          <Trans>Pending review</Trans>
         </ConceptLabel>
       </span>
     )
   }
-  if (status === 'deprecated') {
+  if (status === 'deprecated' || status === 'archived' || status === 'rejected') {
     return (
       <span className="inline-flex items-center gap-1.5 text-text-tertiary">
         <ToneDot tone="disabled" />
-        <Trans>Deprecated</Trans>
+        {status === 'rejected' ? <Trans>Rejected</Trans> : <Trans>Inactive</Trans>}
       </span>
     )
   }
@@ -904,7 +908,7 @@ function RuleStatusInline({ status }: { status: ObligationRule['status'] }) {
     <span className="inline-flex items-center gap-1.5 text-text-secondary">
       <ToneDot tone="success" />
       <ConceptLabel concept="verifiedRule">
-        <Trans>Verified</Trans>
+        <Trans>Active</Trans>
       </ConceptLabel>
     </span>
   )
@@ -1033,13 +1037,19 @@ function ExtensionSection({ rule }: { rule: ObligationRule }) {
 }
 
 function ReviewReasonsSection({ rule }: { rule: ObligationRule }) {
-  if (rule.status !== 'candidate' && !rule.requiresApplicabilityReview) return null
+  if (
+    rule.status !== 'candidate' &&
+    rule.status !== 'pending_review' &&
+    !rule.requiresApplicabilityReview
+  ) {
+    return null
+  }
 
-  if (rule.status === 'candidate') {
+  if (rule.status === 'candidate' || rule.status === 'pending_review') {
     return (
       <section className="rounded-md border border-state-accent-active-alt bg-accent-tint px-3 py-2 text-xs">
         <p className="font-medium text-status-review">
-          <Trans>Candidate · never generates user reminders.</Trans>
+          <Trans>Pending review · never generates user reminders.</Trans>
         </p>
         <p className="mt-1 text-text-secondary">{rule.defaultTip}</p>
       </section>
@@ -1196,15 +1206,15 @@ function VerificationSection({ rule }: { rule: ObligationRule }) {
   return (
     <section className="flex flex-col gap-1.5 border-t border-divider-subtle pt-4">
       <SectionLabel>
-        <Trans>Verification</Trans>
+        <Trans>Practice review</Trans>
       </SectionLabel>
       <div className="grid grid-cols-[88px_1fr] gap-y-1 text-xs">
         <span className="text-text-tertiary">
-          <Trans>Verified by</Trans>
+          <Trans>Reviewed by</Trans>
         </span>
         <span className="font-mono text-text-secondary">{rule.verifiedBy}</span>
         <span className="text-text-tertiary">
-          <Trans>Verified at</Trans>
+          <Trans>Reviewed at</Trans>
         </span>
         <span className="font-mono text-text-secondary">{rule.verifiedAt}</span>
         <span className="text-text-tertiary">

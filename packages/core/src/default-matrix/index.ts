@@ -33,7 +33,7 @@ export interface InferTaxTypesResult {
   /** Reason code when needsReview = true; absent on happy path. */
   reason?: 'state_not_in_demo_sprint_seed' | 'state_rules_require_review' | 'entity_type_other'
   matrixVersion: MatrixVersion
-  /** Source URLs from ops sign-off; empty for fallback cells. */
+  /** Source URLs from practice review; empty for fallback cells. */
   sourceUrls: readonly string[]
   /** Per-cell static confidence (0..1). Fallback cells fall to 0.5. */
   confidence: number

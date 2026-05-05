@@ -32,6 +32,26 @@ export function toContractRule(rule: CoreObligationRule): ContractObligationRule
   }
 }
 
+export function toPracticeContractRule(
+  rule: CoreObligationRule,
+  status: ContractObligationRule['status'],
+  input: {
+    verifiedBy?: string
+    verifiedAt?: string
+    nextReviewOn?: string
+    version?: number
+  } = {},
+): ContractObligationRule {
+  return {
+    ...toContractRule(rule),
+    status,
+    verifiedBy: input.verifiedBy ?? rule.verifiedBy,
+    verifiedAt: input.verifiedAt ?? rule.verifiedAt,
+    nextReviewOn: input.nextReviewOn ?? rule.nextReviewOn,
+    version: input.version ?? rule.version,
+  }
+}
+
 function toCoreExtensionPolicy(policy: ContractObligationRule['extensionPolicy']): ExtensionPolicy {
   return {
     available: policy.available,
@@ -70,8 +90,15 @@ function toCoreEvidence(evidence: ContractObligationRule['evidence'][number]): R
 }
 
 export function toCoreRule(rule: ContractObligationRule): CoreObligationRule {
+  const status: CoreObligationRule['status'] =
+    rule.status === 'active' || rule.status === 'verified'
+      ? 'verified'
+      : rule.status === 'deprecated' || rule.status === 'archived'
+        ? 'deprecated'
+        : 'candidate'
   return {
     ...rule,
+    status,
     entityApplicability: [...rule.entityApplicability],
     dueDateLogic: rule.dueDateLogic,
     extensionPolicy: toCoreExtensionPolicy(rule.extensionPolicy),

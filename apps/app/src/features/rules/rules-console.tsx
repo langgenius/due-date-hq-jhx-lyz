@@ -10,6 +10,7 @@ import { PulseChangesTab } from '@/features/pulse/AlertsListPage'
 import { CoverageTab } from './coverage-tab'
 import { GenerationPreviewTab } from './generation-preview-tab'
 import { RuleLibraryTab } from './rule-library-tab'
+import { ReviewQueueTab } from './review-queue-tab'
 import { RulesPageHeader } from './rules-console-primitives'
 import { SourcesTab } from './sources-tab'
 import { TemporaryRulesTab } from './temporary-rules-tab'
@@ -21,7 +22,7 @@ import {
 } from './rules-console-model'
 
 /**
- * Rules Console — 4-tab read-only ops workbench.
+ * Rules Console — practice rule governance workbench.
  *
  * Layout invariants (revised 2026-04-28, supersedes the centered 880 px column
  * shipped in the original Figma 214:2 / 219:2 / 224:2 / 225:2 frames):
@@ -31,7 +32,7 @@ import {
  *  - Page content (header + panel) lives in a full-width column with the same
  *    24 px outer padding as the tab nav, so header + tables + tabs all share
  *    a single left anchor at `left = 24` from the SidebarInset edge.
- *    Rationale: Rules Console is an internal ops workbench (per
+ *    Rationale: Rules Console is a practice rule governance workbench (per
  *    `docs/product-design/rules/02-rules-console-product-design.md` §1) where
  *    every tab is a data table or matrix, not a settings form. The original
  *    "Settings page → max-w 880" rule from `DESIGN.md` §5.2 was tuned for
@@ -53,6 +54,7 @@ import {
 
 function RulesTabPanel({ activeTab }: { activeTab: RulesTab }) {
   if (activeTab === 'coverage') return <CoverageTab />
+  if (activeTab === 'review') return <ReviewQueueTab />
   if (activeTab === 'sources') return <SourcesTab />
   if (activeTab === 'library') return <RuleLibraryTab />
   if (activeTab === 'pulse') return <PulseChangesTab embedded />
@@ -73,6 +75,7 @@ export function RulesConsole() {
   const tabLabels = useMemo<Record<RulesTab, string>>(
     () => ({
       coverage: t`Coverage`,
+      review: t`Review Queue`,
       sources: t`Sources`,
       library: t`Rule Library`,
       pulse: t`Pulse Changes`,
@@ -84,9 +87,10 @@ export function RulesConsole() {
 
   const tabDescriptions = useMemo<Record<RulesTab, string>>(
     () => ({
-      coverage: t`Sources are official federal, state, and DC materials. Verified rules can generate reminder-ready obligations; candidate rules remain review-only until an owner or manager publishes source-backed dates.`,
-      sources: t`Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Failing or degraded sources never silently update verified rules; owners and managers review changes via the candidate flow before promotion.`,
-      library: t`Obligation rules include verified templates and review-only candidates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Candidate rows never trigger user reminders.`,
+      coverage: t`Sources are official federal, state, and DC materials. Only practice-accepted rules can generate reminder-ready obligations; pending templates remain review-only until an owner or manager accepts them.`,
+      review: t`Owner and manager workspace for practice rule approval. Filter pending templates, preview the selected impact, then accept only the checked rules with a batch review note.`,
+      sources: t`Official channels watched for rule changes — health, cadence, and acquisition method per source. Click any row to open the official page in a new tab. Source changes create practice review tasks; they never silently update active rules.`,
+      library: t`Obligation rules include active practice rules and review-only templates for 50 states plus DC. Click any row to open rule detail with due-date logic, extension policy, and evidence linked to official sources. Pending rows never trigger user reminders.`,
       pulse: t`Source-backed government changes that may affect client deadlines. Owners and managers review affected clients, apply temporary exceptions, dismiss noise, or revisit closed changes here.`,
       temporary: t`Applied Pulse exceptions that are currently changing obligation due dates. Review scope, source evidence, active obligation count, and open the Pulse detail when a temporary rule needs revert or follow-up.`,
       preview: t`Input client facts → dry-run rules engine → see which obligations would be created. Reminder-ready obligations fire 30 / 7 / 1-day reminders; requires-review items surface for CPA confirmation, never auto-reminded.`,
