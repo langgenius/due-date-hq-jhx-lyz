@@ -1321,6 +1321,7 @@ msgstr "客户邮箱已记录"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/clients.tsx
+#: src/routes/migration.new.tsx
 msgid "Client facts"
 msgstr "客户事实"
 
@@ -1344,6 +1345,10 @@ msgstr "客户导入已撤销"
 #: src/routes/practice.tsx
 msgid "Client importance"
 msgstr "客户重要性"
+
+#: src/routes/migration.new.tsx
+msgid "Client migration changes practice data, evidence, and audit records. Ask a practice owner or manager to run the import."
+msgstr "客户迁移会修改事务所数据、证据和审计记录。请让事务所 owner 或 manager 执行导入。"
 
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
@@ -1995,6 +2000,10 @@ msgstr "仪表盘"
 msgid "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
 msgstr "Dashboard brief、Pulse 摘要、客户风险摘要和生产迁移 AI。"
 
+#: src/routes/migration.new.tsx
+msgid "Dashboard risk"
+msgstr "Dashboard 风险"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Day of month"
 msgstr "月份中的日期"
@@ -2015,6 +2024,10 @@ msgstr "截止日期批次"
 #: src/features/audit/audit-log-labels.ts
 msgid "Deadline due date changed from {previous} to {next}"
 msgstr "截止日从 {previous} 变更为 {next}"
+
+#: src/routes/migration.new.tsx
+msgid "Deadline queue"
+msgstr "截止日队列"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Deadline readiness changed"
@@ -2827,6 +2840,10 @@ msgstr "生成清单"
 msgid "Generate deadlines"
 msgstr "生成截止日"
 
+#: src/routes/migration.new.tsx
+msgid "Generate your first deadline queue."
+msgstr "生成你的第一批截止日队列。"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Generating your deadline queue"
 msgstr "正在生成你的截止日队列"
@@ -2921,8 +2938,14 @@ msgstr "导入批次已创建"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
+#: src/routes/route-summary.ts
 msgid "Import clients"
 msgstr "导入客户"
+
+#. placeholder {0}: frameProps.step
+#: src/features/migration/WizardShell.tsx
+msgid "Import clients · Step {0} of 4"
+msgstr "导入客户 · 第 {0} 步 / 共 4 步"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Import clients · Step {step} of 4"
@@ -4406,6 +4429,10 @@ msgstr "Owner 授权"
 msgid "Owner count"
 msgstr "所有者数量"
 
+#: src/routes/migration.new.tsx
+msgid "Owner or manager access required"
+msgstr "需要 owner 或 manager 权限"
+
 #: src/features/permissions/permission-gate.tsx
 #: src/routes/billing.checkout.tsx
 msgid "Owner permission required"
@@ -4683,6 +4710,10 @@ msgstr "门户链接已复制"
 #: src/routes/route-summary.ts
 msgid "Practice"
 msgstr "事务所"
+
+#: src/routes/migration.new.tsx
+msgid "PRACTICE ACTIVATION"
+msgstr "事务所激活"
 
 #: src/routes/billing.tsx
 msgid "Practice AI included"
@@ -5390,6 +5421,7 @@ msgid "Return home"
 msgstr "返回首页"
 
 #: src/features/permissions/permission-gate.tsx
+#: src/routes/migration.new.tsx
 msgid "Return to dashboard"
 msgstr "返回仪表盘"
 
@@ -5994,6 +6026,10 @@ msgstr "设置你的事务所。"
 msgid "Setting up your practice…"
 msgstr "正在设置你的事务所…"
 
+#: src/routes/route-summary.ts
+msgid "Setup"
+msgstr "设置"
+
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Setup URI"
 msgstr "设置 URI"
@@ -6079,6 +6115,15 @@ msgstr "已登录"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signing out…"
 msgstr "正在退出…"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Skip"
+msgstr "跳过"
+
+#: src/features/migration/WizardShell.tsx
+#: src/routes/migration.new.tsx
+msgid "Skip for now"
+msgstr "暂时跳过"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Skipped"
@@ -7321,3 +7366,7 @@ msgstr "你的事务所已被停用，请联系支持团队恢复访问。"
 #: src/routes/billing.success.tsx
 msgid "Your practice plan is ready."
 msgstr "你的事务所计划已就绪。"
+
+#: src/routes/migration.new.tsx
+msgid "Your practice workspace is ready. Import a spreadsheet now to turn client facts into deadlines, evidence, and the first dashboard risk view. You can skip and import later from Dashboard, Clients, or Command Palette."
+msgstr "你的事务所工作区已准备好。现在导入电子表格，把客户事实转换成截止日、证据和第一版 Dashboard 风险视图。你也可以跳过，之后从 Dashboard、客户页或命令面板再导入。"

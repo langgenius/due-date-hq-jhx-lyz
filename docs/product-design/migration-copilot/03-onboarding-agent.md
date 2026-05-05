@@ -25,7 +25,9 @@
 
 ### 1.3 Demo Sprint 定位（本 Sprint 真正渲染的）
 
-- 空态首页**默认走传统 4 步向导**，即 `./02-ux-4step-wizard.md` Step 1。
+- Practice onboarding 完成后进入
+  [`/migration/new?source=onboarding`](./13-onboarding-activation-route.md)，route 顶部解释
+  为什么要导入客户，页面内直接承载传统 4 步向导（`./02-ux-4step-wizard.md` Step 1）。
 - Agent 入口从单纯 disabled 卡片升级为 **Agent-shaped setup shell 的产品入口位**：Demo Sprint 可以只展示确定性 shell / preview 状态并自动跳传统向导；完整多轮 Agent 不在本 Sprint 承诺内。增强边界见 [`./11-agentic-enhancements.md`](./11-agentic-enhancements.md)。
 - **不是 404**：preview 卡片必须能点、能回落；入口矩阵（`./01-mvp-and-journeys.md` §5）保持"首登强制 + 三处非强制"不变。
 - 埋点：`onboarding.agent.preview_card.clicked`（工程 log，口径同 [`./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层`](./10-conflict-resolutions.md#6-audit-action-命名与-ui-文案分层)），用来看 Pitch 现场有多少人对 AI 路径感兴趣 → 反哺 Phase 0 rollout 判断。

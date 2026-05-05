@@ -10,7 +10,7 @@ import { Button } from '@duedatehq/ui/components/ui/button'
 import { Input } from '@duedatehq/ui/components/ui/input'
 import { type AuthUser } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
-import { activateOrCreateOnboardingFirm } from './onboarding-firm-flow'
+import { activateOrCreateOnboardingFirm, postOnboardingTarget } from './onboarding-firm-flow'
 
 const MIN_NAME_LENGTH = 2
 
@@ -70,10 +70,7 @@ export function OnboardingRoute() {
     })
       .then(async (result) => {
         await queryClient.invalidateQueries({ queryKey: orpc.firms.key() })
-        await navigate(redirectTo, {
-          replace: true,
-          state: result.kind === 'created' ? { autoOpenMigration: true } : undefined,
-        })
+        await navigate(postOnboardingTarget(result, redirectTo), { replace: true })
       })
       .catch((err: unknown) => {
         const message = readErrorMessage(err, t`Please try again.`)

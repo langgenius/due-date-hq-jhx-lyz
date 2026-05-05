@@ -31,6 +31,7 @@ apps/app/
 │   │   ├── login.tsx             ← 登录页（path='/login'，loader 把已登录用户跳走，渲染在 EntryShell 内）
 │   │   ├── onboarding.tsx        ← 首登 firm 设置（path='/onboarding'，loader 校验有 session 且无 active org，渲染在 EntryShell 内）
 │   │   ├── dashboard.tsx         ← index
+│   │   ├── migration.new.tsx     ← 首登客户迁移 activation route（path='/migration/new'，EntryShell 内 route-level wizard）
 │   │   ├── obligations.tsx
 │   │   ├── calendar.tsx          ← Obligations 二级 Calendar sync 页（canonical `/obligations/calendar`；`/calendar` 旧链接重定向）
 │   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、Sheet 档案；使用 clients.listByFirm / clients.create）
@@ -139,8 +140,9 @@ feature 语义留在 members vertical 内。
 - 业务路由按 session/org 状态分成三个顶级 route group，并额外保留一个 public catch-all：
   - **EntryShell（pathless layout route，`Component: EntryShell`）** — 包 `/login` + `/onboarding` 共享同一套 header / footer / locale switcher chrome。子路由各自挂自己的 loader（`guestLoader` / `onboardingLoader`），EntryShell 自身不带 loader 也不带 path，详见 `apps/app/src/routes/_entry-layout.tsx`。**命名避开 "auth"：** `/login` 是 pre-auth、`/onboarding` 是 post-auth/pre-active-org，两者唯一共性是「在用户进 dashboard shell 之前要走完的过渡 surface」 → "entry"
     - `/login` — `guestLoader` 把已登录用户 `redirect(redirectTo)` 推出去；未登录用户先读取 `/api/auth-capabilities`，以 Google OAuth / One Tap 作为主入口，可选 Microsoft OAuth 在配置后显示；Email OTP 作为 `or` 分隔线下方的紧凑 fallback。用户开始填写邮箱后暂停 One Tap
-    - `/onboarding` — `onboardingLoader` 要求有 session 且无 `activeOrganizationId`；已有 active org 直接 `redirect(redirectTo)`，无 session 跳 `/login?redirectTo=/onboarding`
-      Onboarding 提交不直接调用 Better Auth organization client；它通过 DueDateHQ `firms` RPC gateway 先 `listMine` 查 active、非 deleted 的业务 firm，有则 `switchActive`，没有才 `create`。这样最后一个 firm soft-delete 后不会被 Better Auth 残留 organization 重新激活。
+  - `/onboarding` — `onboardingLoader` 要求有 session 且无 `activeOrganizationId`；已有 active org 直接 `redirect(redirectTo)`，无 session 跳 `/login?redirectTo=/onboarding`。新建 practice 成功后跳 `/migration/new?source=onboarding`，不再通过 dashboard `location.state` 自动弹 Migration dialog。
+  - `/migration/new` — `migrationActivationLoader` 要求有 session 且已有 `activeOrganizationId`；无 session 回 `/login`，无 active practice 回 `/onboarding`，MFA 未通过回 `/two-factor`。它仍渲染在 EntryShell 内，不挂 AppShell/sidebar；EntryShell 在该 route 隐藏 footer 并让主滚动区顶部对齐，避免 footer 挤压 wizard。`source=onboarding` 的 activation-complete 判断放在 loader：当前 practice 已有 open obligations 或 applied migration batch 时，在页面渲染前直接回 Dashboard；普通手动导入入口不做这个跳转。`Skip for now` 只出现在 route header；workbench header 在 route shell 内隐藏 close/skip 控件，但 Esc 仍走 discard confirmation。完成导入或 skip 后才进入 Dashboard shell。
+    Onboarding 提交不直接调用 Better Auth organization client；它通过 DueDateHQ `firms` RPC gateway 先 `listMine` 查 active、非 deleted 的业务 firm，有则 `switchActive`，没有才 `create`。这样最后一个 firm soft-delete 后不会被 Better Auth 残留 organization 重新激活。
   - `/` — 受保护路由组（`id: 'protected'`, `Component: RootLayout`），`protectedLoader` 未命中 session 时 `redirect('/login?redirectTo=...')`。`dashboard` / `/obligations` / `practice` / `rules` / `members` / `billing` 等都作为它的 children；不再保留 `/settings`、`/settings/*` 或历史 `/firm` 兼容路由。`/practice` 是 Practice profile 的唯一 URL。
     - `/billing` — 登录后账单中心，使用 1180px max-width 的 status + plan selection
       layout：上半区展示当前 practice plan / seat limit / active practice entitlement /
@@ -207,14 +209,14 @@ feature 语义留在 members vertical 内。
 
 ## 3. 状态管理分层（约束）
 
-| 层           | 工具                                         | 管什么                                                                                                   |
-| ------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Server state | **TanStack Query + `@orpc/tanstack-query`**  | 所有内部 RPC 消费必须走 `orpc.*.queryOptions()` / `mutationOptions()`；自动缓存 / 乐观 UI / invalidation |
-| URL state    | **nuqs** + `react-router` params             | 筛选 / 排序 / 可分享页码 / tab/subview / 抽屉打开项                                                      |
-| Form state   | **react-hook-form** + Zod（复用契约 schema） | 所有表单                                                                                                 |
-| UI state     | **Zustand**                                  | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store**                                       |
-| Hook helpers | **foxact**                                   | 只在 app 层用 deep import 引入明确收益的 hook，例如客户端 search debounce；不下沉到 `packages/ui`        |
-| Feature flag | **PostHog JS SDK**                           | 运行时开关                                                                                               |
+| 层           | 工具                                         | 管什么                                                                                                                                                                         |
+| ------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Server state | **TanStack Query + `@orpc/tanstack-query`**  | React surface 的内部 RPC 消费必须走 `orpc.*.queryOptions()` / `mutationOptions()`；route loader 可用 `orpc.*.call()` 做渲染前 redirect 判断；自动缓存 / 乐观 UI / invalidation |
+| URL state    | **nuqs** + `react-router` params             | 筛选 / 排序 / 可分享页码 / tab/subview / 抽屉打开项                                                                                                                            |
+| Form state   | **react-hook-form** + Zod（复用契约 schema） | 所有表单                                                                                                                                                                       |
+| UI state     | **Zustand**                                  | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store**                                                                                                             |
+| Hook helpers | **foxact**                                   | 只在 app 层用 deep import 引入明确收益的 hook，例如客户端 search debounce；不下沉到 `packages/ui`                                                                              |
+| Feature flag | **PostHog JS SDK**                           | 运行时开关                                                                                                                                                                     |
 
 Activation Slice v1 约束：Dashboard 不再维护本地 fake risk rows / queue stats / pulse items。
 `apps/app/src/routes/dashboard.tsx` 直接消费
@@ -265,7 +267,7 @@ const rpc: ContractRouterClient<AppContract> = createORPCClient(link)
 export const orpc = createTanstackQueryUtils(rpc)
 ```
 
-业务代码只 import `orpc`，并把官方 `queryOptions()` / `mutationOptions()` 直接传给 TanStack Query hooks：
+React surface 只 import `orpc`，并把官方 `queryOptions()` / `mutationOptions()` 直接传给 TanStack Query hooks：
 
 ```ts
 const mutation = useMutation(orpc.migration.createBatch.mutationOptions())
@@ -277,6 +279,10 @@ const query = useQuery(orpc.migration.getBatch.queryOptions({ input: { batchId }
 - 业务代码 import 或调用 raw `rpc.*` client。
 - 业务代码 import `@orpc/client` / `@orpc/client/*`。
 - 任何地方出现 `fetch('/rpc/...')` 裸调用。
+
+Route loader 允许用 `orpc.*.call()` 做必须在页面渲染前完成的 redirect gate，例如
+`/migration/new?source=onboarding` 的 activation-complete 判断；不要把这条例外扩展到 React
+component 或 event handler。
 
 读取型 RPC 优先 `useQuery`；需要由 route/section fallback 接管 loading 时用
 `useSuspenseQuery` 并放在明确的 Suspense 边界内。用户动作触发的写流程用
@@ -455,14 +461,14 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 **纪律**
 
-- **EntryShell（`/login` / `/onboarding`）不挂 AppShell** —— entry surface 是单列、无导航的过渡页
+- **EntryShell（`/login` / `/onboarding` / `/migration/new`）不挂 AppShell** —— entry surface 是单列、无导航的过渡页；`/migration/new` 是已有 active practice 但尚未进入 dashboard shell 的 activation step
 - **每一个 protected layout（当前的 RootLayout，未来的 Workload Console 等）通过 `<AppShell>` 拼装**，不要在 layout 文件里直接拷贝 `SidebarProvider + Sidebar + SidebarInset` 三件套
 - **Sidebar 不暴露 `collapsible` prop**：desktop 永远 220px，`<md` 自动 Sheet 折叠；这是产品决定不是配置项
 - **selected nav 视觉是 bg-only**（`bg-state-base-hover-alt` + `text-text-primary` + Inter Semi Bold）—— 严禁 accent border 或 accent-tint 出现在 selected 态，否则与 DESIGN §1.2「颜色只为风险服务」冲突。`SidebarMenuButton` 的 cva variants 里**根本不提供** `accent` 变体，把约束写进类型
 - **`navItems` 用一个 `useNavItems()` hook 拼装**，i18n 与权限过滤在 hook 内完成；items 形态 `{ href, label, icon, end?, badge?, tag?, disabledReason? }`。当前 sidebar IA 是 `Operations`（Dashboard / Obligations / Rules）、`Clients`（Clients facts）、`Practice`（Practice profile / Team workload / Members / Billing / Audit log）。Calendar sync 是 Obligations 的二级低频出口，canonical URL 是 `/obligations/calendar`，旧 `/calendar` 只做重定向；它不进入 sidebar 一级导航。Pulse Changes 合并到 Rules 的二级 tab，Rules 入口承载待处理 Pulse badge；右上角 `Bell` 只表达个人通知收件箱，避免把政府规则变更误导成普通消息提醒。Team workload 是付费 Practice surface：Solo 可见但禁用并显示 `Pro` hint，Pro/Enterprise 启用 `/workload`；未来 Owner / Manager 角色 gate 仍走同一个 hook，**不**拆 AppShell 的两个版本。
 - **Calendar sync 的 Apple 入口只对 HTTPS feed 生成 `webcal://`**：macOS Calendar 会对 `webcal://localhost:<port>` / `http://localhost:<port>` 订阅尝试 TLS 握手，本地明文 `wrangler dev` 端口会失败；本地 HTTP feed 显示解释 toast，staging/production HTTPS feed 才打开 Apple Calendar 直连。
 - **Practice switcher 可见 trigger 在 sidebar 顶部**（不是 PRD §3.2.6 原始的右上 dropdown）；`⌘⇧O` 全局快捷键保留，popover 锚定在 sidebar trigger 上。`Add practice` 是 plan-gated secondary creation action：在 active practice entitlement 内打开创建 dialog，超出 Solo / Pro 的 1 active practice 限制时打开 upgrade / contact-sales gate，而不是继续创建免费 Solo tenant。内部组件名和 RPC 仍可沿用 firm。
-- **Import clients / history 不做一等导航**：Import 是 activation/setup path，把 CPA 已有客户表带入 weekly triage；启动入口在 `/clients` 页面 header / empty state、Dashboard 空状态和 Command Palette action。Import history 是低频 batch recovery，放在 `/clients` header 的弱入口并打开右侧 drawer；历史 `/imports` URL 仅兼容重定向到 `/clients?importHistory=open`。Sidebar 不承载导入或导入历史。
+- **Import clients / history 不做一等导航**：Import 是 activation/setup path，把 CPA 已有客户表带入 weekly triage；首登新建 practice 后进入 EntryShell 下的 `/migration/new?source=onboarding`，用无卡片 route header 解释导入价值并提供 route-level wizard + skip。日常启动入口在 `/clients` 页面 header / empty state、Dashboard 空状态和 Command Palette action，并继续打开 dialog shell。Import history 是低频 batch recovery，放在 `/clients` header 的弱入口并打开右侧 drawer；历史 `/imports` URL 仅兼容重定向到 `/clients?importHistory=open`。Sidebar 不承载导入或导入历史。
 - **Plan status 入口在 sidebar footer**：`AppShell` 在 user menu 上方展示当前 practice 的 `Solo / Pro / Enterprise`、seat count 和 `Upgrade / Manage / View` 动作，统一链接 `/billing`。这只是 subscription 状态入口；完整 pricing / checkout / portal 和 active practice entitlement usage 仍在 Billing 页面。
 - **顶栏右侧仅承载 AppShell-owned utility**（`⌘K` kbd hint + 通知 bell），路由动作放在 body 内或 body 顶部 toolbar，**不**塞到 shell header 右侧
 - **Billing 不进入 route header**：pricing 和 subscription 属于 account / practice commerce 信息，不是当前 route 的 primary action。Header 右侧不展示 plan pill、upgrade button 或 pricing CTA，避免和 page toolbar、通知、Command Palette 竞争。

@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { SMART_PRIORITY_DEFAULT_PROFILE, type FirmPublic } from '@duedatehq/contracts'
-import { activateOrCreateOnboardingFirm, type OnboardingFirmGateway } from './onboarding-firm-flow'
+import {
+  ONBOARDING_MIGRATION_TARGET,
+  activateOrCreateOnboardingFirm,
+  postOnboardingTarget,
+  type OnboardingFirmGateway,
+} from './onboarding-firm-flow'
 
 function firm(overrides: Partial<FirmPublic> = {}): FirmPublic {
   return {
@@ -78,5 +83,17 @@ describe('activateOrCreateOnboardingFirm', () => {
     ).rejects.toThrow('list failed')
     expect(api.create).not.toHaveBeenCalled()
     expect(api.switchActive).not.toHaveBeenCalled()
+  })
+
+  it('routes newly created practices into the migration activation route', () => {
+    expect(postOnboardingTarget({ kind: 'created', firm: firm() }, '/')).toBe(
+      ONBOARDING_MIGRATION_TARGET,
+    )
+  })
+
+  it('preserves the original redirect when onboarding reused an existing practice', () => {
+    expect(postOnboardingTarget({ kind: 'reused', firm: firm() }, '/obligations')).toBe(
+      '/obligations',
+    )
   })
 })

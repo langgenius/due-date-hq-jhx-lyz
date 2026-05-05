@@ -32,6 +32,12 @@ stateDiagram-v2
   Step4_DryRunGenesis --> Entry : [Close]（动画前可关；动画中 Esc 失效）
 ```
 
+> 2026-05-05 裁定：`/migration/new?source=onboarding` 是首登 route-level activation
+> surface，挂在 EntryShell（无 AppShell / sidebar）下；页面顶部解释为什么要导入并提供 `Skip for now`；Dashboard、Clients、
+> Obligations 空态和 Command Palette 仍使用 dialog shell。两种 shell 复用同一套 reducer、
+> RPC 编排、Stepper、processing overlay 和 Step 1–4 组件，详见
+> [`./13-onboarding-activation-route.md`](./13-onboarding-activation-route.md)。
+
 | 步骤                     | 目标                                                                     | 退出条件                                           | AC 映射         | 本册锚点 |
 | ------------------------ | ------------------------------------------------------------------------ | -------------------------------------------------- | --------------- | -------- |
 | Step 1 Intake            | 选择数据入口（粘贴 / 上传 / Preset）；SSN 拦截；≤ 1000 行                | 粘贴或上传文件解析成功 + 至少 1 条非空行           | S2-AC1          | §4 本文  |
@@ -60,7 +66,9 @@ stateDiagram-v2
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- 形态：**全屏 modal**（非 drawer）；最大宽度 960px；背景 `{colors.surface-canvas}`；圆角 `{rounded.lg}`；阴影 Level 4 Modal（DueDateHQ-DESIGN §6 行 478）
+- 形态：默认是 **modal shell**（非 drawer）；首登 `/migration/new?source=onboarding`
+  使用 **route shell**。两者共享 960px workbench frame、Stepper、底栏和 processing overlay；
+  差异只在宿主外壳（Dialog vs EntryShell route page）。
 - 无障碍：`role="dialog"` + `aria-modal="true"` + `aria-labelledby="wizard-title"` + `aria-describedby="wizard-step-desc"`
 - 焦点陷阱（Focus trap）：Tab / Shift+Tab 在向导内循环，不逃出宿主页面
 - `Esc`：空白向导直接关闭；已有输入、选择、批次或 AI 结果时打开关闭确认（见 §3.2）

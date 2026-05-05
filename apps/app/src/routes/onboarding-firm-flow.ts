@@ -1,6 +1,7 @@
 import type { FirmCreateInput, FirmPublic } from '@duedatehq/contracts'
 
 const DEFAULT_FIRM_TIMEZONE = 'America/New_York'
+export const ONBOARDING_MIGRATION_TARGET = '/migration/new?source=onboarding'
 
 export interface OnboardingFirmGateway {
   listMine: () => Promise<FirmPublic[]>
@@ -29,4 +30,12 @@ export async function activateOrCreateOnboardingFirm(input: {
     timezone: DEFAULT_FIRM_TIMEZONE,
   })
   return { kind: 'created', firm }
+}
+
+export function postOnboardingTarget(
+  result: OnboardingFirmActivationResult,
+  redirectTo: string,
+): string {
+  if (result.kind === 'created') return ONBOARDING_MIGRATION_TARGET
+  return redirectTo
 }

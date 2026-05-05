@@ -1,0 +1,123 @@
+import { Trans } from '@lingui/react/macro'
+import { ArrowRightIcon, CheckCircle2Icon, FileSpreadsheetIcon, GaugeIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { useLoaderData, useNavigate } from 'react-router'
+import { HotkeysProvider } from '@tanstack/react-hotkeys'
+import type { FirmPublic } from '@duedatehq/contracts'
+
+import { Alert, AlertDescription, AlertTitle } from '@duedatehq/ui/components/ui/alert'
+import { Button } from '@duedatehq/ui/components/ui/button'
+import { Skeleton } from '@duedatehq/ui/components/ui/skeleton'
+import { Wizard } from '@/features/migration/Wizard'
+import { useFirmPermission } from '@/features/permissions/permission-gate'
+import type { AuthUser } from '@/lib/auth'
+
+type MigrationNewLoaderData = {
+  user: AuthUser
+  firm?: FirmPublic | null | undefined
+}
+
+export function MigrationNewRoute() {
+  const { firm } = useLoaderData<MigrationNewLoaderData>()
+  const navigate = useNavigate()
+  const permission = useFirmPermission(firm)
+  const canRunMigration = permission.can('migration.run')
+  const skipToDashboard = () => void navigate('/')
+
+  if (permission.isLoading) {
+    return (
+      <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 p-4 md:p-6">
+        <MigrationActivationIntro onSkip={skipToDashboard} />
+        <div className="rounded-xl border border-divider-regular bg-components-panel-bg p-4">
+          <Skeleton className="h-8 w-56" />
+          <Skeleton className="mt-4 h-52 w-full" />
+        </div>
+      </div>
+    )
+  }
+
+  if (!canRunMigration) {
+    return (
+      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-4 p-4 md:p-6">
+        <MigrationActivationIntro onSkip={skipToDashboard} />
+        <Alert variant="destructive">
+          <AlertTitle>
+            <Trans>Owner or manager access required</Trans>
+          </AlertTitle>
+          <AlertDescription>
+            <Trans>
+              Client migration changes practice data, evidence, and audit records. Ask a practice
+              owner or manager to run the import.
+            </Trans>
+          </AlertDescription>
+        </Alert>
+        <Button className="w-fit" onClick={skipToDashboard}>
+          <Trans>Return to dashboard</Trans>
+          <ArrowRightIcon data-icon="inline-end" />
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <HotkeysProvider>
+      <Wizard
+        open
+        variant="route"
+        intro={({ onSkip }) => <MigrationActivationIntro onSkip={onSkip} />}
+        onClose={skipToDashboard}
+      />
+    </HotkeysProvider>
+  )
+}
+
+function MigrationActivationIntro({ onSkip }: { onSkip: () => void }) {
+  return (
+    <header className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-accent-tint px-2.5 py-1 font-mono text-[11px] tracking-[0.16em] text-accent-text">
+            <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-accent-default" />
+            <Trans>PRACTICE ACTIVATION</Trans>
+          </span>
+          <ActivationOutcome
+            icon={<FileSpreadsheetIcon aria-hidden className="size-3.5" />}
+            label={<Trans>Client facts</Trans>}
+          />
+          <ActivationOutcome
+            icon={<CheckCircle2Icon aria-hidden className="size-3.5" />}
+            label={<Trans>Deadline queue</Trans>}
+          />
+          <ActivationOutcome
+            icon={<GaugeIcon aria-hidden className="size-3.5" />}
+            label={<Trans>Dashboard risk</Trans>}
+          />
+        </div>
+        <h1 className="mt-3 text-xl font-semibold tracking-tight text-text-primary">
+          <Trans>Generate your first deadline queue.</Trans>
+        </h1>
+        <p className="mt-1 max-w-4xl text-sm leading-relaxed text-text-secondary">
+          <Trans>
+            Your practice workspace is ready. Import a spreadsheet now to turn client facts into
+            deadlines, evidence, and the first dashboard risk view. You can skip and import later
+            from Dashboard, Clients, or Command Palette.
+          </Trans>
+        </p>
+      </div>
+
+      <Button variant="outline" size="sm" className="w-fit shrink-0" onClick={onSkip}>
+        <Trans>Skip for now</Trans>
+        <ArrowRightIcon data-icon="inline-end" />
+      </Button>
+    </header>
+  )
+}
+
+function ActivationOutcome({ icon, label }: { icon: ReactNode; label: ReactNode }) {
+  return (
+    <span className="inline-flex min-h-7 items-center gap-1.5 rounded-md border border-divider-subtle bg-background-body px-2 text-xs text-text-secondary">
+      <span className="text-text-accent">{icon}</span>
+      {label}
+    </span>
+  )
+}

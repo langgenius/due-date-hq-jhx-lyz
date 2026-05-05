@@ -7,10 +7,27 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const getSession = vi.hoisted(() => vi.fn())
+const listMineCall = vi.hoisted(() => vi.fn())
+const listBatchesCall = vi.hoisted(() => vi.fn())
 
 vi.mock('@/lib/auth', () => ({
   authClient: {
     getSession,
+  },
+}))
+
+vi.mock('@/lib/rpc', () => ({
+  orpc: {
+    firms: {
+      listMine: {
+        call: listMineCall,
+      },
+    },
+    migration: {
+      listBatches: {
+        call: listBatchesCall,
+      },
+    },
   },
 }))
 
@@ -20,6 +37,7 @@ const {
   dashboardAliasLoader,
   guestLoader,
   importsAliasLoader,
+  migrationActivationLoader,
   onboardingLoader,
   protectedLoader,
   pickSafeRedirect,
@@ -91,6 +109,10 @@ beforeEach(() => {
   window.localStorage.clear()
   document.documentElement.lang = ''
   activateLocale('en')
+  listMineCall.mockReset()
+  listMineCall.mockResolvedValue([])
+  listBatchesCall.mockReset()
+  listBatchesCall.mockResolvedValue({ batches: [] })
 })
 
 describe('pickSafeRedirect', () => {
@@ -300,6 +322,90 @@ describe('onboardingLoader', () => {
     getSession.mockResolvedValueOnce({ data: makeSession(null) })
     const result = await onboardingLoader(makeArgs('http://localhost/onboarding'))
     expect(result).toEqual({ user: { id: 'user_1', name: 'Alex Chen', email: 'alex@example.com' } })
+  })
+})
+
+describe('migrationActivationLoader', () => {
+  beforeEach(() => {
+    getSession.mockReset()
+  })
+
+  it('redirects unauthenticated users to login with the migration redirect target', async () => {
+    getSession.mockResolvedValueOnce({ data: null })
+    await expectRedirectTo(
+      migrationActivationLoader(makeArgs('http://localhost/migration/new?source=onboarding')),
+      '/login?redirectTo=%2Fmigration%2Fnew%3Fsource%3Donboarding',
+    )
+  })
+
+  it('redirects sessions without an active practice back to onboarding', async () => {
+    getSession.mockResolvedValueOnce({ data: makeSession(null) })
+    await expectRedirectTo(
+      migrationActivationLoader(makeArgs('http://localhost/migration/new?source=onboarding')),
+      '/onboarding?redirectTo=%2Fmigration%2Fnew%3Fsource%3Donboarding',
+    )
+  })
+
+  it('returns the user when the session is ready for activation import', async () => {
+    getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
+    const result = await migrationActivationLoader(makeArgs('http://localhost/migration/new'))
+    expect(result).toEqual({
+      user: { id: 'user_1', name: 'Alex Chen', email: 'alex@example.com' },
+      firm: undefined,
+    })
+    expect(listMineCall).not.toHaveBeenCalled()
+    expect(listBatchesCall).not.toHaveBeenCalled()
+  })
+
+  it('returns the user for onboarding-sourced activation when no activation data exists yet', async () => {
+    getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
+    listMineCall.mockResolvedValueOnce([{ isCurrent: true, openObligationCount: 0 }])
+    const result = await migrationActivationLoader(
+      makeArgs('http://localhost/migration/new?source=onboarding'),
+    )
+    expect(result).toEqual({
+      user: { id: 'user_1', name: 'Alex Chen', email: 'alex@example.com' },
+      firm: { isCurrent: true, openObligationCount: 0 },
+    })
+    expect(listMineCall).toHaveBeenCalledWith(
+      undefined,
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    )
+    expect(listBatchesCall).toHaveBeenCalledWith(
+      { status: 'applied', limit: 1 },
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    )
+  })
+
+  it('redirects onboarding-sourced activation once the current firm has obligations', async () => {
+    getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
+    listMineCall.mockResolvedValueOnce([{ isCurrent: true, openObligationCount: 3 }])
+    await expectRedirectTo(
+      migrationActivationLoader(makeArgs('http://localhost/migration/new?source=onboarding')),
+      '/',
+    )
+    expect(listBatchesCall).not.toHaveBeenCalled()
+  })
+
+  it('redirects onboarding-sourced activation after a migration has already applied', async () => {
+    getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
+    listBatchesCall.mockResolvedValueOnce({ batches: [{ id: 'batch_1' }] })
+    await expectRedirectTo(
+      migrationActivationLoader(makeArgs('http://localhost/migration/new?source=onboarding')),
+      '/',
+    )
+  })
+
+  it('keeps the route reachable when migration history lookup is forbidden', async () => {
+    getSession.mockResolvedValueOnce({ data: makeSession('firm_1') })
+    listBatchesCall.mockRejectedValueOnce(new Error('Forbidden'))
+    const result = await migrationActivationLoader(
+      makeArgs('http://localhost/migration/new?source=onboarding'),
+    )
+    expect(result).toEqual({
+      user: { id: 'user_1', name: 'Alex Chen', email: 'alex@example.com' },
+      firm: null,
+    })
   })
 })
 

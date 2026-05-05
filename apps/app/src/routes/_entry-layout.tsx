@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
 import { Trans } from '@lingui/react/macro'
 
 import brandMarkDark from '@duedatehq/ui/assets/brand/brand-favicon-dark.svg?url'
@@ -8,9 +8,10 @@ import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 
 // React Router v7 pathless layout route shared by every "entry" surface — the
 // pages users see between landing on the app and reaching the dashboard shell.
-// Today that means `/login` (pre-auth, `guestLoader`) and `/onboarding`
-// (post-auth, pre-active-org, `onboardingLoader`); future entries (magic link
-// landing, SSO consent, email verification, password reset) belong here too.
+// Today that means `/login` (pre-auth, `guestLoader`), `/onboarding`
+// (post-auth, pre-active-org, `onboardingLoader`), and `/migration/new`
+// (post-auth, active-practice, pre-dashboard activation); future entries
+// (magic link landing, SSO consent, email verification, password reset) belong here too.
 //
 // We deliberately don't call this "_auth-layout" — `/onboarding` runs *after*
 // authentication and only blocks until the user provisions a practice, so an
@@ -23,20 +24,29 @@ import { LocaleSwitcher } from '@/components/primitives/locale-switcher'
 // no loader, so the differing session-state gates of `/login` vs `/onboarding`
 // stay isolated. See `apps/app/src/router.tsx`.
 export function EntryShell() {
+  const location = useLocation()
+  const isMigrationActivation = location.pathname === '/migration/new'
+
   return (
-    <div className="flex min-h-screen flex-col bg-bg-canvas text-text-primary">
+    <div className="flex h-dvh flex-col overflow-hidden bg-bg-canvas text-text-primary">
       <EntryShellHeader />
-      <main className="flex flex-1 flex-col items-center justify-center px-6 py-12 lg:px-10">
+      <main
+        className={
+          isMigrationActivation
+            ? 'flex flex-1 flex-col items-center justify-start overflow-y-auto px-6 py-6 lg:px-10'
+            : 'flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-12 lg:px-10'
+        }
+      >
         <Outlet />
       </main>
-      <EntryShellFooter />
+      {isMigrationActivation ? null : <EntryShellFooter />}
     </div>
   )
 }
 
 function EntryShellHeader() {
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border-default px-6 lg:px-10">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-border-default px-6 lg:px-10">
       <div className="flex items-center gap-2 text-[13px]">
         <img
           src={brandMarkLight}
@@ -69,7 +79,7 @@ function EntryShellHeader() {
 
 function EntryShellFooter() {
   return (
-    <footer className="flex h-12 items-center justify-between border-t border-border-default px-6 font-mono text-[11px] text-text-muted lg:px-10">
+    <footer className="flex h-12 shrink-0 items-center justify-between border-t border-border-default px-6 font-mono text-[11px] text-text-muted lg:px-10">
       <span className="tabular-nums">
         <Trans>© {new Date().getFullYear()} DueDateHQ Inc.</Trans>
       </span>

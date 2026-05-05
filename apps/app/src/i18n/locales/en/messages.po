@@ -1321,6 +1321,7 @@ msgstr "Client email on file"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/clients.tsx
+#: src/routes/migration.new.tsx
 msgid "Client facts"
 msgstr "Client facts"
 
@@ -1344,6 +1345,10 @@ msgstr "Client import undone"
 #: src/routes/practice.tsx
 msgid "Client importance"
 msgstr "Client importance"
+
+#: src/routes/migration.new.tsx
+msgid "Client migration changes practice data, evidence, and audit records. Ask a practice owner or manager to run the import."
+msgstr "Client migration changes practice data, evidence, and audit records. Ask a practice owner or manager to run the import."
 
 #: src/features/clients/CreateClientDialog.tsx
 #: src/features/migration/mapping-target-labels.ts
@@ -1995,6 +2000,10 @@ msgstr "Dashboard"
 msgid "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
 msgstr "Dashboard briefs, Pulse summaries, client risk summaries, and production migration AI."
 
+#: src/routes/migration.new.tsx
+msgid "Dashboard risk"
+msgstr "Dashboard risk"
+
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Day of month"
 msgstr "Day of month"
@@ -2015,6 +2024,10 @@ msgstr "Deadline batch"
 #: src/features/audit/audit-log-labels.ts
 msgid "Deadline due date changed from {previous} to {next}"
 msgstr "Deadline due date changed from {previous} to {next}"
+
+#: src/routes/migration.new.tsx
+msgid "Deadline queue"
+msgstr "Deadline queue"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Deadline readiness changed"
@@ -2827,6 +2840,10 @@ msgstr "Generate checklist"
 msgid "Generate deadlines"
 msgstr "Generate deadlines"
 
+#: src/routes/migration.new.tsx
+msgid "Generate your first deadline queue."
+msgstr "Generate your first deadline queue."
+
 #: src/features/migration/WizardShell.tsx
 msgid "Generating your deadline queue"
 msgstr "Generating your deadline queue"
@@ -2921,8 +2938,14 @@ msgstr "Import batch created"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/routes/clients.tsx
+#: src/routes/route-summary.ts
 msgid "Import clients"
 msgstr "Import clients"
+
+#. placeholder {0}: frameProps.step
+#: src/features/migration/WizardShell.tsx
+msgid "Import clients · Step {0} of 4"
+msgstr "Import clients · Step {0} of 4"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Import clients · Step {step} of 4"
@@ -4406,6 +4429,10 @@ msgstr "Owner approved"
 msgid "Owner count"
 msgstr "Owner count"
 
+#: src/routes/migration.new.tsx
+msgid "Owner or manager access required"
+msgstr "Owner or manager access required"
+
 #: src/features/permissions/permission-gate.tsx
 #: src/routes/billing.checkout.tsx
 msgid "Owner permission required"
@@ -4683,6 +4710,10 @@ msgstr "Portal link copied"
 #: src/routes/route-summary.ts
 msgid "Practice"
 msgstr "Practice"
+
+#: src/routes/migration.new.tsx
+msgid "PRACTICE ACTIVATION"
+msgstr "PRACTICE ACTIVATION"
 
 #: src/routes/billing.tsx
 msgid "Practice AI included"
@@ -5390,6 +5421,7 @@ msgid "Return home"
 msgstr "Return home"
 
 #: src/features/permissions/permission-gate.tsx
+#: src/routes/migration.new.tsx
 msgid "Return to dashboard"
 msgstr "Return to dashboard"
 
@@ -5994,6 +6026,10 @@ msgstr "Set up your practice."
 msgid "Setting up your practice…"
 msgstr "Setting up your practice…"
 
+#: src/routes/route-summary.ts
+msgid "Setup"
+msgstr "Setup"
+
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Setup URI"
 msgstr "Setup URI"
@@ -6079,6 +6115,15 @@ msgstr "Signed in"
 #: src/components/patterns/app-shell-user-menu.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
+
+#: src/features/migration/WizardShell.tsx
+msgid "Skip"
+msgstr "Skip"
+
+#: src/features/migration/WizardShell.tsx
+#: src/routes/migration.new.tsx
+msgid "Skip for now"
+msgstr "Skip for now"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Skipped"
@@ -7321,3 +7366,7 @@ msgstr "Your practice is suspended. Contact support to restore access."
 #: src/routes/billing.success.tsx
 msgid "Your practice plan is ready."
 msgstr "Your practice plan is ready."
+
+#: src/routes/migration.new.tsx
+msgid "Your practice workspace is ready. Import a spreadsheet now to turn client facts into deadlines, evidence, and the first dashboard risk view. You can skip and import later from Dashboard, Clients, or Command Palette."
+msgstr "Your practice workspace is ready. Import a spreadsheet now to turn client facts into deadlines, evidence, and the first dashboard risk view. You can skip and import later from Dashboard, Clients, or Command Palette."

@@ -444,7 +444,7 @@ display timezone and may show UTC as secondary audit metadata.
 
 ### 4.9 Sidebar Navigation（AppShell sidebar）
 
-> **权威实现**：`@duedatehq/ui/components/ui/sidebar` 是项目自建的 thin primitives（**不是 shadcn `Sidebar` 注册组件**）。app 端在 [`apps/app/src/components/patterns/app-shell.tsx`](../../apps/app/src/components/patterns/app-shell.tsx) 复用，所有 protected layout 共享同一个 `<AppShell>`，entry shell（`/login` / `/onboarding`）不挂侧栏。
+> **权威实现**：`@duedatehq/ui/components/ui/sidebar` 是项目自建的 thin primitives（**不是 shadcn `Sidebar` 注册组件**）。app 端在 [`apps/app/src/components/patterns/app-shell.tsx`](../../apps/app/src/components/patterns/app-shell.tsx) 复用，所有 protected layout 共享同一个 `<AppShell>`，entry shell（`/login` / `/onboarding` / `/migration/new`）不挂侧栏。
 
 #### 为什么不是 shadcn
 
@@ -512,7 +512,11 @@ CTA、plan pill 或 route-specific action。
 `Import clients` 是 activation/setup path：把 CPA 已有客户表变成 weekly triage 的真实
 clients + obligations。它不是日常导航，也不是 sidebar footer utility。常驻入口放在
 `/clients` 页面 header 和 clients empty state；Dashboard 空状态可继续提示导入以生成真实
-risk；Command Palette 保留 `Import clients` action 作为 power-user 快捷入口。
+risk；Command Palette 保留 `Import clients` action 作为 power-user 快捷入口。首登新建
+practice 后进入 EntryShell 下的 `/migration/new?source=onboarding`，该 route 不挂
+AppShell/sidebar，用无卡片 route header 解释“为什么现在导入”并提供 `Skip for now`；
+下方 wizard 继续使用 Migration Copilot workbench frame。后续 operating surfaces 继续用
+dialog shell 打开同一套 wizard。
 
 `Import history` 是 batch recovery，不是客户资料修正入口。它在 `/clients` header 作为弱入口
 打开右侧 drawer，展示最近导入批次、批次撤销和单个 imported client undo；单个客户资料修正仍然

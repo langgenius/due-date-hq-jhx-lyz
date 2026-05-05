@@ -6,10 +6,12 @@ import {
   type LoaderFunctionArgs,
 } from 'react-router'
 import { NuqsAdapter } from 'nuqs/adapters/react-router/v7'
+import type { FirmPublic } from '@duedatehq/contracts'
 
 import { activateLocale } from '@/i18n/i18n'
 import { persistLocaleHandoffFromUrl } from '@/i18n/locales'
 import { authClient } from '@/lib/auth'
+import { orpc } from '@/lib/rpc'
 import { removeLocaleFromPath } from '@/i18n/query'
 import { EntryShell } from '@/routes/_entry-layout'
 import { RootLayout, ShellSkeleton } from '@/routes/_layout'
@@ -123,6 +125,49 @@ async function onboardingLoader(args: LoaderFunctionArgs) {
   return { user: session.user }
 }
 
+async function migrationActivationLoader(args: LoaderFunctionArgs) {
+  const session = await fetchSession(args)
+  const url = new URL(args.request.url)
+  const consumedLocale = applyRequestLocaleHandoff(url)
+  const pathAndQuery = pathAndQueryWithoutLocale(url)
+  if (!session) {
+    throw redirect(`/login?redirectTo=${encodeURIComponent(pathAndQuery || '/migration/new')}`)
+  }
+  if (!session.session.activeOrganizationId) {
+    throw redirect(`/onboarding?redirectTo=${encodeURIComponent(pathAndQuery || '/migration/new')}`)
+  }
+  if (needsTwoFactorVerification(session)) {
+    throw redirect(`/two-factor?redirectTo=${encodeURIComponent(pathAndQuery || '/migration/new')}`)
+  }
+  if (consumedLocale) throw replace(pathAndQueryWithoutLocale(url))
+  let firm: FirmPublic | null | undefined
+  if (url.searchParams.get('source') === 'onboarding') {
+    const activation = await readMigrationActivationGate(args.request)
+    firm = activation.firm
+    const hasCompletedActivation = activation.hasCompletedActivation
+    if (hasCompletedActivation) throw redirect('/')
+  }
+  return { user: session.user, firm }
+}
+
+async function readMigrationActivationGate(
+  request: Request,
+): Promise<{ firm: FirmPublic | null; hasCompletedActivation: boolean }> {
+  const firms = await orpc.firms.listMine.call(undefined, { signal: request.signal })
+  const firm = firms.find((item) => item.isCurrent) ?? firms[0] ?? null
+  if ((firm?.openObligationCount ?? 0) > 0) return { firm, hasCompletedActivation: true }
+
+  try {
+    const appliedBatches = await orpc.migration.listBatches.call(
+      { status: 'applied', limit: 1 },
+      { signal: request.signal },
+    )
+    return { firm, hasCompletedActivation: appliedBatches.batches.length > 0 }
+  } catch {
+    return { firm, hasCompletedActivation: false }
+  }
+}
+
 // Gate for every authenticated surface. Children read the user via
 // useRouteLoaderData(PROTECTED_ROUTE_ID) — never via a separate useSession call,
 // so session changes can't trigger a mid-render <Navigate>.
@@ -212,6 +257,17 @@ export function createAppRouter() {
                 const { OnboardingRoute } = await import('@/routes/onboarding')
 
                 return { Component: OnboardingRoute }
+              },
+            },
+            {
+              path: '/migration/new',
+              loader: migrationActivationLoader,
+              handle: routeHandle(routeSummaries.migrationNew),
+              HydrateFallback: EntryRouteHydrateFallback,
+              lazy: async () => {
+                const { MigrationNewRoute } = await import('@/routes/migration.new')
+
+                return { Component: MigrationNewRoute }
               },
             },
             {
@@ -422,6 +478,7 @@ export {
   calendarAliasLoader,
   guestLoader,
   importsAliasLoader,
+  migrationActivationLoader,
   onboardingLoader,
   protectedLoader,
   pickSafeRedirect,

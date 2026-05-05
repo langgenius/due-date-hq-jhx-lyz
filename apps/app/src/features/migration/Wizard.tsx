@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer, useState } from 'react'
+import { useCallback, useMemo, useReducer, useState, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useNavigate } from 'react-router'
@@ -35,7 +35,7 @@ import { Step1Intake } from './Step1Intake'
 import { Step2Mapping } from './Step2Mapping'
 import { Step3Normalize } from './Step3Normalize'
 import { Step4Preview } from './Step4Preview'
-import { WizardShell, type WizardTransitionState } from './WizardShell'
+import { WizardRouteShell, WizardShell, type WizardTransitionState } from './WizardShell'
 import {
   INITIAL_STATE,
   PROVIDER_TO_SOURCE,
@@ -50,6 +50,8 @@ import type { MatrixApplicationView } from './matrix-view'
 interface WizardProps {
   open: boolean
   onClose: () => void
+  variant?: 'dialog' | 'route'
+  intro?: ReactNode | ((actions: { onSkip: () => void }) => ReactNode)
 }
 
 type ObligationQueueCursor = NonNullable<ObligationQueueListInput['cursor']> | null
@@ -64,7 +66,7 @@ const OBLIGATION_QUEUE_PREFETCH_LIMIT = 50
  * The wizard auto-resets when `open` flips to false so the next entry starts
  * from a clean Step 1 instead of resuming a half-finished draft.
  */
-export function Wizard({ open, onClose }: WizardProps) {
+export function Wizard({ open, onClose, variant = 'dialog', intro }: WizardProps) {
   const { t } = useLingui()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -605,20 +607,18 @@ export function Wizard({ open, onClose }: WizardProps) {
     )
   }, [navigate, pendingRevert, revertMutation, t])
 
-  return (
-    <>
-      <WizardShell
-        open={open}
-        step={state.step}
-        busy={isMutating || state.isBusy}
-        transition={transition}
-        canContinue={canContinue}
-        continueLabel={continueLabel}
-        onContinue={onContinue}
-        onBack={onBack}
-        onClose={resetAndClose}
-        confirmOnClose={hasDiscardableWizardWork(state)}
-      >
+  const shellProps = {
+    step: state.step,
+    busy: isMutating || state.isBusy,
+    transition,
+    canContinue,
+    continueLabel,
+    onContinue,
+    onBack,
+    onClose: resetAndClose,
+    confirmOnClose: hasDiscardableWizardWork(state),
+    children: (
+      <>
         {state.step === 1 ? (
           <Step1Intake
             intake={state.intake}
@@ -664,7 +664,17 @@ export function Wizard({ open, onClose }: WizardProps) {
         ) : null}
 
         {state.step === 4 ? <Step4Preview summary={state.dryRun.summary} /> : null}
-      </WizardShell>
+      </>
+    ),
+  }
+
+  return (
+    <>
+      {variant === 'route' ? (
+        <WizardRouteShell intro={intro} {...shellProps} />
+      ) : (
+        <WizardShell open={open} {...shellProps} />
+      )}
 
       <AlertDialog
         open={pendingRevert !== null}

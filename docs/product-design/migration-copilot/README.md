@@ -34,21 +34,22 @@
 
 本册共 12 份子文档（01 ~ 12），路径全部相对于 `docs/product-design/migration-copilot/`。本 README 是总入口；任何实现 / 文案 / 数据定义分歧先读 `./10-conflict-resolutions.md`；任何“增强到更接近最终 AI Agent 形态”的问题先读 `./11-agentic-enhancements.md`；任何 DDL 前导入入库与 weekly triage 闭环问题先读 `./12-import-to-weekly-triage.md`。
 
-| #   | 路径                                                                 | 一句话用途                                                                                           | 主要读者                  |
-| --- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------- |
-| 00  | [`./README.md`](./README.md)                                         | 本册入口、前置阻塞门、裁定速查与维护约定                                                             | PM / Eng / Design         |
-| 01  | [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md)               | Demo Sprint MVP 范围 · AC × Test × P0 映射 · KPI 埋点 · S2 用户旅程 · 入口矩阵 · 权限与键盘基线      | PM / Eng / Design         |
-| 02  | [`./02-ux-4step-wizard.md`](./02-ux-4step-wizard.md)                 | 4 步向导（Intake / Mapping / Normalize / Dry-Run + Live Genesis）的像素级 UX 规格                    | Design / Frontend         |
-| 03  | [`./03-onboarding-agent.md`](./03-onboarding-agent.md)               | PRD §6A.11 Onboarding AI Agent 产品形态锁定（Demo Sprint 不实现，仅设计就位）                        | PM / Design / AI          |
-| 04  | [`./04-ai-prompts.md`](./04-ai-prompts.md)                           | Field Mapper / Normalizer Prompt 定稿 · 模型档位 · 占位符策略 · 成本控制                             | AI / Eng                  |
-| 05  | [`./05-default-matrix.md`](./05-default-matrix.md)                   | Default Tax Types Inference Matrix（Federal + CA + NY × 8 实体）Demo Sprint 子集 v1.0                | AI / Rules Ops / Eng      |
-| 06  | [`./06-fixtures/README.md`](./06-fixtures/README.md)                 | 5 套 Preset fixture + Agent demo fixture + 期望 mapping JSON（脱敏）                                 | Eng / QA                  |
-| 07  | [`./07-live-genesis.md`](./07-live-genesis.md)                       | Live Genesis 动效规格（时序 · 粒子参数 · `prefers-reduced-motion` 降级）                             | Design / Frontend         |
-| 08  | [`./08-migration-report-email.md`](./08-migration-report-email.md)   | Import 完成邮件模板（Subject + Body + Unsub）· Worker 薄字典口径 · 发送时机                          | Design / Eng / Compliance |
-| 09  | [`./09-design-system-deltas.md`](./09-design-system-deltas.md)       | Migration Copilot 对 `DESIGN.md` / `DueDateHQ-DESIGN.md` 的增量 token / 组件规格 + 回灌清单          | Design / Frontend         |
-| 10  | [`./10-conflict-resolutions.md`](./10-conflict-resolutions.md)       | **本册唯一的产品裁定权威来源**（6 条冲突详细理由 + ADR 交叉引用）                                    | 所有人（冲突时必读）      |
-| 11  | [`./11-agentic-enhancements.md`](./11-agentic-enhancements.md)       | 围绕 PRD 用户画像的增强点：Agent-shaped setup、5 MVP states 信任、Migration→Pulse 首周闭环、约束边界 | PM / Design / Eng / AI    |
-| 12  | [`./12-import-to-weekly-triage.md`](./12-import-to-weekly-triage.md) | DDL 前导入入库裁定：Paste / CSV → clients + obligations + evidence + audit → weekly triage           | PM / Eng / Design         |
+| #   | 路径                                                                         | 一句话用途                                                                                           | 主要读者                  |
+| --- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------- |
+| 00  | [`./README.md`](./README.md)                                                 | 本册入口、前置阻塞门、裁定速查与维护约定                                                             | PM / Eng / Design         |
+| 01  | [`./01-mvp-and-journeys.md`](./01-mvp-and-journeys.md)                       | Demo Sprint MVP 范围 · AC × Test × P0 映射 · KPI 埋点 · S2 用户旅程 · 入口矩阵 · 权限与键盘基线      | PM / Eng / Design         |
+| 02  | [`./02-ux-4step-wizard.md`](./02-ux-4step-wizard.md)                         | 4 步向导（Intake / Mapping / Normalize / Dry-Run + Live Genesis）的像素级 UX 规格                    | Design / Frontend         |
+| 03  | [`./03-onboarding-agent.md`](./03-onboarding-agent.md)                       | PRD §6A.11 Onboarding AI Agent 产品形态锁定（Demo Sprint 不实现，仅设计就位）                        | PM / Design / AI          |
+| 04  | [`./04-ai-prompts.md`](./04-ai-prompts.md)                                   | Field Mapper / Normalizer Prompt 定稿 · 模型档位 · 占位符策略 · 成本控制                             | AI / Eng                  |
+| 05  | [`./05-default-matrix.md`](./05-default-matrix.md)                           | Default Tax Types Inference Matrix（Federal + CA + NY × 8 实体）Demo Sprint 子集 v1.0                | AI / Rules Ops / Eng      |
+| 06  | [`./06-fixtures/README.md`](./06-fixtures/README.md)                         | 5 套 Preset fixture + Agent demo fixture + 期望 mapping JSON（脱敏）                                 | Eng / QA                  |
+| 07  | [`./07-live-genesis.md`](./07-live-genesis.md)                               | Live Genesis 动效规格（时序 · 粒子参数 · `prefers-reduced-motion` 降级）                             | Design / Frontend         |
+| 08  | [`./08-migration-report-email.md`](./08-migration-report-email.md)           | Import 完成邮件模板（Subject + Body + Unsub）· Worker 薄字典口径 · 发送时机                          | Design / Eng / Compliance |
+| 09  | [`./09-design-system-deltas.md`](./09-design-system-deltas.md)               | Migration Copilot 对 `DESIGN.md` / `DueDateHQ-DESIGN.md` 的增量 token / 组件规格 + 回灌清单          | Design / Frontend         |
+| 10  | [`./10-conflict-resolutions.md`](./10-conflict-resolutions.md)               | **本册唯一的产品裁定权威来源**（6 条冲突详细理由 + ADR 交叉引用）                                    | 所有人（冲突时必读）      |
+| 11  | [`./11-agentic-enhancements.md`](./11-agentic-enhancements.md)               | 围绕 PRD 用户画像的增强点：Agent-shaped setup、5 MVP states 信任、Migration→Pulse 首周闭环、约束边界 | PM / Design / Eng / AI    |
+| 12  | [`./12-import-to-weekly-triage.md`](./12-import-to-weekly-triage.md)         | DDL 前导入入库裁定：Paste / CSV → clients + obligations + evidence + audit → weekly triage           | PM / Eng / Design         |
+| 13  | [`./13-onboarding-activation-route.md`](./13-onboarding-activation-route.md) | Practice onboarding 之后的首登迁移 activation route：解释、跳过、route-level wizard 与后续入口闭环   | PM / Eng / Design         |
 
 > 说明：02 ~ 09 与 ADR 0011 由其他 subagent 产出；11 为基于 PRD 用户画像新增的增强设计入口，12 为 DDL 前导入入库闭环裁定。任何子文档新增 / 拆分 / 合并必须先改本 README §2 的清单再改子文档（见 §6 维护约定）。
 
@@ -118,3 +119,4 @@ ADR 样式参照 [`../../adr/0010-firm-profile-vs-organization.md`](../../adr/00
 | ---- | ---------- | ---------- | --------------------------------------------------------------------- |
 | v1.0 | 2026-04-24 | Subagent A | 本册初稿：定位 · 10 份子文档索引 · 前置契约 · 裁定速查                |
 | v1.1 | 2026-04-28 | Codex      | 新增 12-import-to-weekly-triage，固定 DDL 前导入到 weekly triage 闭环 |
+| v1.2 | 2026-05-05 | Codex      | 新增 13-onboarding-activation-route，固定首登 route-level 迁移交接    |
