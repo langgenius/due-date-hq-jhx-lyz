@@ -7159,8 +7159,6 @@ msgid "Updated {0}"
 msgstr "Updated {0}"
 
 #: src/components/patterns/app-shell.tsx
-#: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/obligations.tsx
 msgid "Upgrade"
 msgstr "Upgrade"
 
@@ -7169,6 +7167,7 @@ msgstr "Upgrade"
 msgid "Upgrade plan"
 msgstr "Upgrade plan"
 
+#: src/features/billing/upgrade-cta-button.tsx
 #: src/routes/billing.tsx
 msgid "Upgrade to Pro"
 msgstr "Upgrade to Pro"

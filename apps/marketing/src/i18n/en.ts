@@ -703,14 +703,14 @@ const en: LandingCopy = {
       meta: {
         title: 'DueDateHQ Rule Library — Source-backed tax deadline coverage',
         description:
-          'How DueDateHQ handles IRS and state tax deadline rules with source URLs, excerpts, verification timestamps, and human review.',
+          'How DueDateHQ turns IRS and state filing rules into reviewed, source-backed deadline workflows for CPA teams.',
         ogImage: '/og/home.en.png',
       },
       hero: {
         eyebrow: 'RULE LIBRARY',
-        title: 'Deadline rules are only useful when every claim has a source.',
+        title: 'How does a filing rule become trusted work for a CPA team?',
         description:
-          'DueDateHQ treats filing rules as evidence-backed product data. Each public-source signal is normalized into a rule workflow with official source context, a review state, and a clear boundary between software coverage and tax advice.',
+          'DueDateHQ keeps rules, source evidence, generated deadlines, Pulse changes, and human review in one workflow. A rule is useful only when the team can see the official source, the affected client context, and the action history.',
         note: 'Coverage pages describe software behavior, not professional tax advice.',
       },
       sections: [
@@ -755,23 +755,23 @@ const en: LandingCopy = {
       ],
       faqHeader: {
         eyebrow: 'FAQ',
-        title: 'Rule library questions.',
+        title: 'Rule workflow questions.',
       },
       faq: [
         {
-          question: 'Does DueDateHQ provide tax advice?',
+          question: 'Can my firm trust a deadline rule if AI helped process it?',
           answer:
-            'No. DueDateHQ describes software coverage and source handling. CPA teams should verify obligations against official IRS and state authority sources and apply professional judgment.',
+            'Only when the rule keeps official source context and a review state. DueDateHQ can use AI to summarize or classify, but the source and reviewer decision remain the trust boundary.',
         },
         {
-          question: 'What makes a rule evidence-backed?',
+          question: 'What happens before a rule affects Obligations or Dashboard triage?',
           answer:
-            'An evidence-backed rule keeps an official source URL, source excerpt, verification timestamp, and review status with the product workflow.',
+            'The rule needs source evidence, normalized filing context, and review status before it can generate or update deadline work. The product does not silently change client work from an unsupported signal.',
         },
         {
-          question: 'Can AI apply a filing rule automatically?',
+          question: 'How does DueDateHQ connect rule changes to the right clients?',
           answer:
-            'No. AI can assist with summarization and classification, but DueDateHQ keeps deadline changes behind source-backed review and human action.',
+            'It uses the firm’s client filing profiles, jurisdictions, tax types, and obligation records to route reviewed changes into Pulse, Obligations, and triage workflows for the clients that may be affected.',
         },
       ],
       cta: {
@@ -785,14 +785,14 @@ const en: LandingCopy = {
       meta: {
         title: 'DueDateHQ State Coverage — CA, NY, TX, FL, WA filing signals',
         description:
-          'Public state coverage for DueDateHQ Pulse monitoring across California, New York, Texas, Florida, and Washington filing-update signals.',
+          'Which state filing updates DueDateHQ monitors, how Pulse routes them into review, and how CPA teams decide client impact.',
         ogImage: '/og/home.en.png',
       },
       hero: {
         eyebrow: 'STATE COVERAGE',
-        title: 'Five state filing surfaces, one evidence-first monitoring model.',
+        title: 'Which state updates can become deadline work for my firm?',
         description:
-          'DueDateHQ v1 public coverage focuses on CA, NY, TX, FL, and WA. Coverage means the product monitors public state filing signals and routes changes into source-backed review workflows.',
+          'DueDateHQ v1 public coverage focuses on CA, NY, TX, FL, and WA. Coverage means public state signals can be monitored, matched against firm client context, and routed through Pulse review before they affect deadline operations.',
         note: 'Coverage is software monitoring scope; it is not a guarantee that every obligation applies to every firm.',
       },
       statesHeader: {
@@ -843,8 +843,8 @@ const en: LandingCopy = {
       ],
       sourceModel: {
         eyebrow: 'SOURCE MODEL',
-        title: 'What coverage means in DueDateHQ.',
-        body: 'Coverage starts with public monitoring, then routes candidate changes into source-backed review. A signal becomes actionable only when the source URL, excerpt, verification metadata, and review status are present.',
+        title: 'Coverage is a route from public signal to reviewed client impact.',
+        body: 'Coverage starts with public monitoring, then routes candidate changes into source-backed review. A signal becomes operational only when source evidence, client-matching context, reviewer decision, and audit history are present.',
         items: [
           {
             title: 'Public agency sources',
@@ -862,23 +862,23 @@ const en: LandingCopy = {
       },
       faqHeader: {
         eyebrow: 'FAQ',
-        title: 'State coverage questions.',
+        title: 'State monitoring questions.',
       },
       faq: [
         {
-          question: 'Does state coverage include all US jurisdictions?',
+          question: 'Which states does DueDateHQ monitor today?',
           answer:
             'No. v1 public coverage is limited to CA, NY, TX, FL, and WA. Additional jurisdictions require source review and coverage planning.',
         },
         {
-          question: 'Does coverage mean automatic compliance?',
+          question: 'How do state updates become work for my firm?',
           answer:
-            'No. Coverage describes monitoring scope and product workflow. CPA teams remain responsible for reviewing applicability and filing decisions.',
+            'A candidate update enters Pulse with source context, is reviewed for relevance, and can then be applied, dismissed, snoozed, or reverted with an audit trail.',
         },
         {
-          question: 'How are source changes surfaced?',
+          question: 'Does coverage mean the update applies to every client?',
           answer:
-            'Candidate changes are routed with source URL, excerpt, verification timestamp, and review status before they appear as operational work.',
+            'No. Coverage describes monitoring scope. Applicability depends on the firm’s client filing profiles, jurisdictions, tax types, and professional review.',
         },
       ],
     },
@@ -935,14 +935,14 @@ const en: LandingCopy = {
         ],
         faq: [
           {
-            question: 'Is DueDateHQ a California tax authority?',
+            question: 'What California signals can affect my client queue?',
             answer:
-              'No. DueDateHQ is software. CPA teams should verify California obligations against official FTB material.',
+              'FTB public updates, form instructions, filing calendars, and relief announcements can become review work when they may affect deadline timing or client applicability.',
           },
           {
-            question: 'Does this page list every California filing deadline?',
+            question: 'How does a California update become operational work?',
             answer:
-              'No. It describes the product monitoring model and source categories for California coverage.',
+              'DueDateHQ preserves the official source, keeps applicability clues, matches against firm client context, and requires review before the signal affects dashboard or Obligations work.',
           },
         ],
       },
@@ -998,14 +998,14 @@ const en: LandingCopy = {
         ],
         faq: [
           {
-            question: 'Does New York coverage include every tax type?',
+            question: 'What New York updates should an operations lead watch?',
             answer:
-              'No. Coverage describes monitored public filing signals and review workflows, not a complete legal taxonomy.',
+              'Public DTF updates, filing calendars, notices, and form-level changes are the signals most likely to create deadline review work.',
           },
           {
             question: 'Can a New York signal change client deadlines automatically?',
             answer:
-              'No. Candidate changes require source-backed review and human action before operational use.',
+              'No. Candidate changes require source-backed review, client-context matching, and human action before operational use.',
           },
         ],
       },
@@ -1061,14 +1061,14 @@ const en: LandingCopy = {
         ],
         faq: [
           {
-            question: 'Is Texas coverage only for franchise tax?',
+            question: 'Which Texas signals matter for deadline operations?',
             answer:
-              'No. Franchise-tax signals are an important public surface, but coverage is defined by monitored public filing updates and review workflows.',
+              'Franchise-tax updates are important, but the workflow also watches public filing notices, deadline movement, relief material, and entity-context signals.',
           },
           {
-            question: 'Does DueDateHQ file with Texas agencies?',
+            question: 'What happens after a Texas source signal is reviewed?',
             answer:
-              'No. DueDateHQ supports deadline operations and source review; filing decisions remain with the CPA firm.',
+              'Reviewed signals can become Obligations actions or triage context for affected clients; filing decisions remain with the CPA firm.',
           },
         ],
       },
@@ -1124,14 +1124,14 @@ const en: LandingCopy = {
         ],
         faq: [
           {
-            question: 'Can Florida updates appear in Pulse?',
+            question: 'Which Florida updates can appear in Pulse?',
             answer:
-              'Yes, reviewed public signals can surface through Pulse-style workflows when they may affect firm deadline operations.',
+              'Public DOR updates, notices, relief announcements, and filing-window changes can appear when they may affect firm deadline operations.',
           },
           {
-            question: 'Does DueDateHQ replace Florida source review?',
+            question: 'Does DueDateHQ decide Florida applicability for a client?',
             answer:
-              'No. It preserves source context and operationalizes review; it does not replace professional judgment.',
+              'No. It preserves source context and operationalizes review, but applicability still depends on client facts and professional judgment.',
           },
         ],
       },
@@ -1187,14 +1187,14 @@ const en: LandingCopy = {
         ],
         faq: [
           {
-            question: 'Does Washington coverage include private notices?',
+            question: 'What Washington signals does DueDateHQ route into review?',
             answer:
-              'No. Public coverage is based on public agency material, not client-specific private correspondence.',
+              'Public DOR updates, due-date notices, filing-window changes, and instruction updates can enter review when they affect operational timing.',
           },
           {
-            question: 'What should a firm do with a Washington signal?',
+            question: 'What should a firm do before acting on a Washington signal?',
             answer:
-              'Review the attached official source and determine applicability before changing client work.',
+              'Review the attached official source, inspect the matched client context, and determine applicability before changing client work.',
           },
         ],
       },

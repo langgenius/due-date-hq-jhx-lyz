@@ -35,7 +35,6 @@ import {
   PinIcon,
   SaveIcon,
   SearchIcon,
-  SparklesIcon,
   Trash2Icon,
   XIcon,
 } from 'lucide-react'
@@ -142,7 +141,8 @@ import { useEvidenceDrawer } from '@/features/evidence/EvidenceDrawerContext'
 import { usePracticeTimezone } from '@/features/firm/practice-timezone'
 import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { useFirmPermission } from '@/features/permissions/permission-gate'
-import { billingPlanHref, paidPlanActive } from '@/features/billing/model'
+import { paidPlanActive } from '@/features/billing/model'
+import { UpgradeCtaButton } from '@/features/billing/upgrade-cta-button'
 import { SmartPriorityBadge } from '@/features/priority/SmartPriorityBadge'
 import {
   ALL_STATUSES,
@@ -2694,15 +2694,7 @@ function ObligationQueueDetailDrawer({
                           )}
                         </Button>
                       ) : (
-                        <Button
-                          nativeButton={false}
-                          size="sm"
-                          variant="outline"
-                          render={<Link to={billingPlanHref('pro', 'monthly')} />}
-                        >
-                          <SparklesIcon data-icon="inline-start" />
-                          <Trans>Upgrade</Trans>
-                        </Button>
+                        <UpgradeCtaButton />
                       )}
                       <Button
                         size="sm"
@@ -3344,15 +3336,7 @@ function DeadlineTipPanel({
             {buttonLabel}
           </Button>
         ) : (
-          <Button
-            nativeButton={false}
-            size="sm"
-            variant="outline"
-            render={<Link to={billingPlanHref('pro', 'monthly')} />}
-          >
-            <SparklesIcon data-icon="inline-start" />
-            <Trans>Upgrade</Trans>
-          </Button>
+          <UpgradeCtaButton />
         )}
       </div>
       {isLoading ? (

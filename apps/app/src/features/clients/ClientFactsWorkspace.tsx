@@ -6,7 +6,6 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { Link } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   flexRender,
@@ -90,7 +89,8 @@ import {
 import { formatDateTimeWithTimezone } from '@/lib/utils'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-import { billingPlanHref, paidPlanActive } from '@/features/billing/model'
+import { paidPlanActive } from '@/features/billing/model'
+import { UpgradeCtaButton } from '@/features/billing/upgrade-cta-button'
 import { useCurrentFirm } from '@/features/billing/use-billing-data'
 import { resolveUSFirmTimezone } from '@/features/firm/timezone-model'
 
@@ -1355,15 +1355,7 @@ function ClientRiskSummaryPanel({
               {isRefreshing ? <Trans>Queued</Trans> : <Trans>Refresh</Trans>}
             </Button>
           ) : (
-            <Button
-              nativeButton={false}
-              variant="outline"
-              size="sm"
-              render={<Link to={billingPlanHref('pro', 'monthly')} />}
-            >
-              <SparklesIcon data-icon="inline-start" />
-              <Trans>Upgrade</Trans>
-            </Button>
+            <UpgradeCtaButton />
           )}
         </div>
       </div>

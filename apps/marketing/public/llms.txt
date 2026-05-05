@@ -6,7 +6,7 @@ DueDateHQ is a glass-box deadline intelligence workbench for US CPA practices. I
 
 - Homepage: https://duedatehq.com/
 - Pricing: https://duedatehq.com/pricing
-- Rule library: https://duedatehq.com/rules
+- Rule library: https://duedatehq.com/rules — answers how an IRS or state filing rule becomes reviewed, source-backed work for a CPA team.
 - State coverage: https://duedatehq.com/state-coverage
 - CPA deadline risk guide: https://duedatehq.com/guides/cpa-deadline-risk
 - Evidence-backed tax deadline software guide: https://duedatehq.com/guides/evidence-backed-tax-deadline-software

@@ -7159,8 +7159,6 @@ msgid "Updated {0}"
 msgstr "更新于 {0}"
 
 #: src/components/patterns/app-shell.tsx
-#: src/features/clients/ClientFactsWorkspace.tsx
-#: src/routes/obligations.tsx
 msgid "Upgrade"
 msgstr "升级"
 
@@ -7169,6 +7167,7 @@ msgstr "升级"
 msgid "Upgrade plan"
 msgstr "升级计划"
 
+#: src/features/billing/upgrade-cta-button.tsx
 #: src/routes/billing.tsx
 msgid "Upgrade to Pro"
 msgstr "升级到 Pro"
