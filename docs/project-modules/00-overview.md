@@ -257,7 +257,8 @@ pnpm db:seed:demo
 
 ## 后续演进关注点
 
-- 给 `packages/core/priority` 补齐 Smart Priority scoring，并在 Obligations/Dashboard 中形成一致解释。
+- 建立 rules/source registry、marketing state coverage 与 README 之间的自动一致性检查，避免 candidate registry 被误读为 verified public coverage。
+- 给外部集成、公开 API、Web Push/native 和合规认证类规划补充明确状态标签，确保用户文档与产品实现同步。
 - 明确 AI router/retriever/budget 的生产化边界，避免 prompt 和模型选择继续散落。
 - Pulse ingest 需要持续补 source-specific parser 测试，降低政府页面变更造成的静默失效。
 - Billing 当前处于活跃变更，应补齐合同、权限、审计和前端状态之间的文档同步。

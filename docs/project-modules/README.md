@@ -1,8 +1,8 @@
 # DueDateHQ 项目模块文档
 
-本目录面向新加入的研发、产品和架构评审者，按 monorepo 模块拆解 DueDateHQ 的当前实现。每份文档都覆盖模块职责、核心功能、创新点、技术实现、架构图、关键源码和后续演进关注点。
+本目录面向新加入的研发、产品和架构评审者，按 monorepo 模块拆解 DueDateHQ 的当前实现。每份文档都覆盖模块职责、核心功能、技术实现、架构图、关键源码和后续演进关注点。
 
-> 文档基于 2026-05-01 的本地代码快照整理。部分文件处于未提交状态，例如 billing/audit 相关代码；文档会按当前工作区实际状态描述。
+> 文档基于 2026-05-05 的当前代码和根 README 口径整理。对外表达以“已实现能力 + 明确边界”为准，不把候选规则、规划集成或未接入外部服务写成已可用生产能力。
 
 ## 阅读顺序
 
@@ -22,6 +22,14 @@
 14. [13-typescript-config-tooling.md](./13-typescript-config-tooling.md)：`packages/typescript-config` 与工程化脚本。
 15. [14-user-manual.md](./14-user-manual.md)：面向用户和跨职能读者的产品/技术模块使用手册。
 16. [15-tax-prep-workflow-gap-analysis.md](./15-tax-prep-workflow-gap-analysis.md)：参考 1040 报税服务线流程，对当前项目的产品/工程缺陷做差距分析。
+
+## 对外 README 口径
+
+- 根 [README.md](../../README.md) 使用英文，面向公开仓库和新贡献者。
+- 根 [README.zh-CN.md](../../README.zh-CN.md) 使用中文，内容与英文 README 对齐。
+- 当前公开州覆盖按 Federal + CA/NY/TX/FL/WA 表达；`FED + 50 states + DC` 的 broader source/candidate registry 不能等同于全量 verified coverage。
+- 第三方 provider API、公开 OpenAPI、PWA/native、SOC 2/WISP 认证等规划或可配置能力，只能在对应设计/架构文档中按未来态描述，不能在 README 中宣传为已完成。
+- 当前 workspace packages 仍为 `UNLICENSED`；公开发布前需要补充明确 license file。
 
 ## 模块地图
 
