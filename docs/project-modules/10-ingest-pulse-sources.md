@@ -46,6 +46,9 @@ signal 的 `officialSourceUrl` 必须指向具体公告、bulletin、declaration
 - WA DOR news/whats new。
 - MA DOR press。
 - FEMA declarations，T2 且默认不直接创建 Pulse。
+- Rules registry 中带 `practice_rule_review` 的来源只有在 `acquisitionMethod='html_watch'`
+  时才会通过 generic rule-source adapter 接入自动抓取；`manual_review`、`pdf_watch`、
+  `email_subscription`、`api_watch` 需要专用 adapter 或人工流程。
 - fixture adapter。
 
 ### Fetch helper
@@ -184,7 +187,8 @@ flowchart TB
 ## 当前限制
 
 - HTML/RSS 解析工具偏轻量，对复杂政府页面可能需要 source-specific parser。
-- Browserless/GovDelivery fetcher 需要部署环境配置支持。
+- Browserless/GovDelivery fetcher 需要部署环境配置支持；CA/WA/MA 等 WAF 风险源会优先使用
+  Browserless，未配置时会退回 Cloudflare fetch 并通过 source health 暴露给 ops。
 - 来源页面结构变化可能导致解析退化，需要 fixture tests 和监控。
 - FEMA 等 T2 来源默认不能直接创建 Pulse，需要人工或下游逻辑确认。
 

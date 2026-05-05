@@ -188,9 +188,48 @@ describe('@duedatehq/ingest', () => {
     })
   })
 
+  it('fetches FEMA declarations from the OpenFEMA API endpoint', async () => {
+    const fetchedUrls: string[] = []
+    const ctx: IngestCtx = {
+      async fetch(input) {
+        const url = String(input)
+        fetchedUrls.push(url)
+        if (url.endsWith('/robots.txt')) return new Response('', { status: 404 })
+        if (url.startsWith('https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries')) {
+          return new Response(sourceFixtureBodies['fema.declarations'], {
+            headers: { 'content-type': 'application/json' },
+          })
+        }
+        throw new Error(`unexpected fetch ${url}`)
+      },
+      async archiveRaw({ sourceId, externalId, fetchedAt, body }) {
+        return {
+          r2Key: `${sourceId}/${externalId}/${fetchedAt.toISOString()}.json`,
+          contentHash: await hashText(body),
+        }
+      },
+    }
+
+    const snapshots = await femaDeclarationsAdapter.fetch(ctx)
+    const items = await femaDeclarationsAdapter.parse(snapshots[0]!, ctx)
+
+    expect(fetchedUrls[0]).toBe('https://www.fema.gov/robots.txt')
+    expect(fetchedUrls[1]).toMatch(
+      /^https:\/\/www\.fema\.gov\/api\/open\/v2\/DisasterDeclarationsSummaries/,
+    )
+    expect(items[0]).toMatchObject({
+      sourceId: 'fema.declarations',
+      externalId: 'fema-9999',
+      officialSourceUrl: 'https://www.fema.gov/disaster/9999',
+    })
+  })
+
   it('routes browserless adapters through the configured fetch implementation', async () => {
     const selectFetch = createSourceFetcherRegistry(cloudflareFetch, { browserlessFetch })
 
+    await expect(selectFetch(caFtbNewsroomAdapter)('/').then((res) => res.text())).resolves.toBe(
+      'browserless',
+    )
     await expect(
       selectFetch({ ...nyDtfPressFixtureAdapter, fetcher: 'browserless' })('/'),
     ).resolves.toHaveProperty('ok', true)

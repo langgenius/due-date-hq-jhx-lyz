@@ -285,7 +285,10 @@ export async function runPulseIngest(
     adapters.map((adapter) => ingestAdapter(adapter, ctx, repo, env.PULSE_QUEUE, opts)),
   )
   const counts = sumCounts(results)
-  emitSourceIdleAlerts(await repo.listSourceStates())
+  const activeSourceIds = new Set(adapters.map((adapter) => adapter.id))
+  emitSourceIdleAlerts(
+    (await repo.listSourceStates()).filter((row) => activeSourceIds.has(row.sourceId)),
+  )
   recordPulseMetric('pulse.ingest.run_result', { ...counts })
   return counts
 }

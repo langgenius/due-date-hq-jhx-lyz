@@ -354,6 +354,10 @@ msgid "{sourceCount, plural, one {# source needs attention. Alerts remain review
 msgstr "{sourceCount, plural, other {# 个来源需处理。现有提醒仍可复核。}}"
 
 #: src/features/pulse/PulseAlertsBanner.tsx
+msgid "{sourceCount, plural, one {# source} other {# sources}}"
+msgstr "{sourceCount, plural, other {# 个来源}}"
+
+#: src/features/pulse/PulseAlertsBanner.tsx
 msgid "{totalImpact, plural, one {# client} other {# clients}}"
 msgstr "{totalImpact, plural, other {# 个客户}}"
 
@@ -6503,8 +6507,8 @@ msgid "SOURCE FILING YEAR"
 msgstr "来源申报年度"
 
 #: src/features/pulse/PulseAlertsBanner.tsx
-msgid "Source needs attention · {label}"
-msgstr "来源需要处理 · {label}"
+msgid "Source needs attention"
+msgstr "来源需要处理"
 
 #: src/routes/obligations.tsx
 msgid "Source or confirmation reference"

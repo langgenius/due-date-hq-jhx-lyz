@@ -6,7 +6,7 @@ import type { SourceAdapter } from '@duedatehq/ingest/types'
 import type { Env } from '../../env'
 import { createPoliteFetch, runPulseIngest } from './ingest'
 
-const { dbMocks, repoMocks } = vi.hoisted(() => {
+const { dbMocks, metricsMocks, repoMocks } = vi.hoisted(() => {
   const repo = {
     ensureSourceState: vi.fn(),
     getSourceState: vi.fn(),
@@ -18,6 +18,10 @@ const { dbMocks, repoMocks } = vi.hoisted(() => {
   }
   return {
     repoMocks: repo,
+    metricsMocks: {
+      emitSourceIdleAlerts: vi.fn(),
+      recordPulseMetric: vi.fn(),
+    },
     dbMocks: {
       createDb: vi.fn(() => ({})),
       makePulseOpsRepo: vi.fn(() => repo),
@@ -28,6 +32,11 @@ const { dbMocks, repoMocks } = vi.hoisted(() => {
 vi.mock('@duedatehq/db', () => ({
   createDb: dbMocks.createDb,
   makePulseOpsRepo: dbMocks.makePulseOpsRepo,
+}))
+
+vi.mock('./metrics', () => ({
+  emitSourceIdleAlerts: metricsMocks.emitSourceIdleAlerts,
+  recordPulseMetric: metricsMocks.recordPulseMetric,
 }))
 
 function env(queueSend = vi.fn()): Pick<Env, 'DB' | 'R2_PULSE' | 'PULSE_QUEUE'> {
@@ -83,6 +92,7 @@ function adapter(overrides: Partial<SourceAdapter> = {}): SourceAdapter {
 describe('runPulseIngest', () => {
   beforeEach(() => {
     Object.values(dbMocks).forEach((mock) => mock.mockClear())
+    Object.values(metricsMocks).forEach((mock) => mock.mockClear())
     Object.values(repoMocks).forEach((mock) => mock.mockReset())
     repoMocks.ensureSourceState.mockResolvedValue({
       enabled: true,
@@ -131,6 +141,33 @@ describe('runPulseIngest', () => {
         error: expect.stringContaining('selector_drift'),
       }),
     )
+  })
+
+  it('emits idle alerts only for sources still present in the active adapter set', async () => {
+    repoMocks.listSourceStates.mockResolvedValue([
+      {
+        sourceId: 'fema.declarations',
+        tier: 'T2',
+        jurisdiction: 'US',
+        enabled: true,
+        healthStatus: 'healthy',
+        lastSuccessAt: new Date('2026-04-30T00:00:00.000Z'),
+      },
+      {
+        sourceId: 'ca.income_tax',
+        tier: 'T1',
+        jurisdiction: 'CA',
+        enabled: true,
+        healthStatus: 'failing',
+        lastSuccessAt: null,
+      },
+    ])
+
+    await runPulseIngest(env(), [adapter()])
+
+    expect(metricsMocks.emitSourceIdleAlerts).toHaveBeenCalledWith([
+      expect.objectContaining({ sourceId: 'fema.declarations' }),
+    ])
   })
 })
 

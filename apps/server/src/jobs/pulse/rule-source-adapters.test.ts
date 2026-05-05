@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { listRuleSources, MVP_RULE_JURISDICTIONS } from '@duedatehq/core/rules'
+import { listRuleSources, type RuleSource } from '@duedatehq/core/rules'
 import { livePulseAdapters } from '@duedatehq/ingest/adapters'
 import {
   createRuleSourceAdapter,
@@ -10,10 +10,11 @@ import {
 } from './rule-source-adapters'
 
 describe('rule source adapters', () => {
-  it('adds source-signal adapters for every candidate-review rule source without duplicating live adapters', () => {
+  it('adds adapters only for automated candidate-review rule sources without duplicating live adapters', () => {
     const liveIds = new Set(livePulseAdapters.map((adapter) => adapter.id))
     const candidateReviewSources = listRuleSources()
       .filter((source) => source.notificationChannels.includes('practice_rule_review'))
+      .filter((source) => source.acquisitionMethod === 'html_watch')
       .filter((source) => !liveIds.has(source.id))
       .filter(isRuleSourceAdapterEligible)
 
@@ -25,44 +26,21 @@ describe('rule source adapters', () => {
     )
   })
 
-  it('covers every rules jurisdiction with at least one regulatory source adapter', () => {
-    const jurisdictions = new Set(
-      liveRegulatorySourceAdapters.map((adapter) => adapter.jurisdiction),
-    )
+  it('keeps manual-review and pdf-only sources out of the automated ingest set', () => {
+    const sourcesById = new Map(listRuleSources().map((source) => [source.id, source]))
+    const automatedIds = ruleSourceAdapters.map((adapter) => adapter.id)
 
-    for (const jurisdiction of MVP_RULE_JURISDICTIONS) {
-      if (jurisdiction === 'FED') continue
-      expect(jurisdictions.has(jurisdiction), `${jurisdiction} has no adapter`).toBe(true)
+    for (const sourceId of ['ca.income_tax', 'dc.income_tax', 'wa.capital_gains_exception_2026']) {
+      const source = sourcesById.get(sourceId)
+      expect(source?.acquisitionMethod, sourceId).toBe('manual_review')
+      expect(isRuleSourceAdapterEligible(source!), sourceId).toBe(false)
+      expect(isRuleSourcePulsePromoted(source!), sourceId).toBe(false)
+      expect(automatedIds, sourceId).not.toContain(sourceId)
     }
-  })
 
-  it('promotes every state jurisdiction to at least one Pulse-producing source adapter', () => {
-    const promotedJurisdictions = new Set(
-      liveRegulatorySourceAdapters
-        .filter((adapter) => adapter.canCreatePulse !== false)
-        .map((adapter) => adapter.jurisdiction),
-    )
-
-    for (const jurisdiction of MVP_RULE_JURISDICTIONS) {
-      if (jurisdiction === 'FED') continue
-      expect(
-        promotedJurisdictions.has(jurisdiction),
-        `${jurisdiction} has no promoted source`,
-      ).toBe(true)
-    }
-  })
-
-  it('uses generated rule-source adapters for the expanded state coverage, not only explicit adapters', () => {
-    const promotedGeneratedJurisdictions = new Set(
-      ruleSourceAdapters
-        .filter((adapter) => adapter.canCreatePulse !== false)
-        .map((adapter) => adapter.jurisdiction),
-    )
-
-    expect(promotedGeneratedJurisdictions.size).toBeGreaterThanOrEqual(45)
-    expect([...promotedGeneratedJurisdictions]).toEqual(
-      expect.arrayContaining(['AL', 'AK', 'DC', 'ND', 'WY']),
-    )
+    const pdfSource = sourcesById.get('fl.income_tax')
+    expect(pdfSource?.acquisitionMethod).toBe('pdf_watch')
+    expect(isRuleSourceAdapterEligible(pdfSource!)).toBe(false)
   })
 
   it('only promotes concrete basis sources from the rules registry into the extract queue', () => {
@@ -81,14 +59,16 @@ describe('rule source adapters', () => {
   })
 
   it('keeps lower-priority rule source adapters signal-only', () => {
-    const source = listRuleSources().find(
-      (candidate) =>
-        isRuleSourceAdapterEligible(candidate) &&
-        candidate.jurisdiction !== 'FED' &&
-        candidate.priority === 'medium',
-    )
-    expect(source).toBeDefined()
-    expect(isRuleSourcePulsePromoted(source!)).toBe(false)
-    expect(createRuleSourceAdapter(source!).canCreatePulse).toBe(false)
+    const basis = listRuleSources().find((candidate) => candidate.id === 'tx.franchise_forms_2026')
+    expect(basis).toBeDefined()
+    const source = {
+      ...basis!,
+      id: 'tx.medium_review_fixture',
+      priority: 'medium',
+    } satisfies RuleSource
+
+    expect(isRuleSourceAdapterEligible(source)).toBe(true)
+    expect(isRuleSourcePulsePromoted(source)).toBe(false)
+    expect(createRuleSourceAdapter(source).canCreatePulse).toBe(false)
   })
 })

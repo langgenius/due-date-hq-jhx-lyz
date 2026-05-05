@@ -44,13 +44,14 @@
   `signal_type='anticipated_pulse'`，不进入 Evidence Chain、不创建 firm alert。
 - FEMA 当前按 `canCreatePulse=false` 落地；它只能作为 IRS/州 T1 命中后的置信度辅助信号。
 - Rules registry 已登记 50 州 + DC 的官方 tax-topic、filing FAQ、statute、due-date
-  与 income-tax 具体页面；promoted Pulse source 不再使用 tax agency homepage 或 generic
-  individuals index。
-  `apps/server/src/jobs/pulse/rule-source-adapters.ts` 会把带 `practice_rule_review` 的 rule
-  sources 接入 `pulse_source_state`。其中每个州/DC 的 high/critical official source 已升级为
-  Pulse-producing adapter：写 `pulse_source_snapshot` 并进入 `pulse.extract`。medium/low 辅助源
-  仍只写 `pulse_source_signal`；Owner/Manager 可在 practice rule review 时把 open signal
-  标记为 `reviewed` 并关联到 practice-scoped review task。
+  与 income-tax 具体页面；这些来源先服务 Rules evidence / practice review，不等于都进入自动
+  Pulse 抓取。
+- `apps/server/src/jobs/pulse/rule-source-adapters.ts` 只会把带
+  `practice_rule_review` 且 `acquisitionMethod='html_watch'` 的 rule sources 接入
+  `pulse_source_state`。`manual_review`、`pdf_watch`、`email_subscription`、`api_watch`
+  需要专用 adapter 或人工流程，不能通过 generic HTML adapter 自动抓取。符合条件的
+  high/critical basis source 写 `pulse_source_snapshot` 并进入 `pulse.extract`；medium/low
+  辅助源仍只写 `pulse_source_signal`。
 
 ---
 
@@ -69,15 +70,15 @@
 
 | ID                 | State | 官方源                                                             | 协议                         | 频率    | 结构稳定性 | 反爬风险 |
 | ------------------ | ----- | ------------------------------------------------------------------ | ---------------------------- | ------- | ---------- | -------- |
-| `ca.ftb.newsroom`  | CA    | `https://www.ftb.ca.gov/about-ftb/newsroom/index.html`             | HTML list/detail + email     | 60 min  | 中         | 低       |
-| `ca.ftb.tax_news`  | CA    | `https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/index.html`    | HTML archive + email         | 60 min  | 中         | 低       |
-| `ca.cdtfa.news`    | CA    | `https://www.cdtfa.ca.gov/news/`                                   | HTML list/detail             | 120 min | 中         | 低       |
+| `ca.ftb.newsroom`  | CA    | `https://www.ftb.ca.gov/about-ftb/newsroom/index.html`             | HTML list/detail + email     | 60 min  | 中         | 中       |
+| `ca.ftb.tax_news`  | CA    | `https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/index.html`    | HTML archive + email         | 60 min  | 中         | 中       |
+| `ca.cdtfa.news`    | CA    | `https://www.cdtfa.ca.gov/news/`                                   | HTML list/detail             | 120 min | 中         | 中       |
 | `ny.dtf.press`     | NY    | `https://www.tax.ny.gov/press/`                                    | HTML yearly archive + email  | 120 min | 中         | 低       |
 | `tx.cpa.rss`       | TX    | `https://comptroller.texas.gov/about/media-center/news/`           | HTML list links              | 60 min  | 高         | 低       |
 | `fl.dor.tips`      | FL    | `https://floridarevenue.com/taxes/tips/Pages/default.aspx`         | HTML list/detail + email     | 120 min | 中         | 中       |
-| `wa.dor.news`      | WA    | `https://dor.wa.gov/about/news-releases`                           | HTML list/detail + subscribe | 120 min | 中         | 低       |
-| `wa.dor.whats_new` | WA    | `https://dor.wa.gov/about/whats-new`                               | HTML list/detail + subscribe | 120 min | 中         | 低       |
-| `ma.dor.press`     | MA    | `https://www.mass.gov/info-details/dor-press-releases-and-reports` | HTML list/detail + email     | 120 min | 中         | 低       |
+| `wa.dor.news`      | WA    | `https://dor.wa.gov/about/news-releases`                           | HTML list/detail + subscribe | 120 min | 中         | 中       |
+| `wa.dor.whats_new` | WA    | `https://dor.wa.gov/about/whats-new`                               | HTML list/detail + subscribe | 120 min | 中         | 中       |
+| `ma.dor.press`     | MA    | `https://www.mass.gov/info-details/dor-press-releases-and-reports` | HTML list/detail + email     | 120 min | 中         | 中       |
 
 > Scope note: 当前 MVP rules coverage 是 Federal + CA/NY/TX/FL/WA。`ma.dor.press`
 > 已作为 T1 ingest adapter 启用，但 MA rule-pack 尚未完成；不得在 product、marketing 或 Rules
@@ -153,14 +154,14 @@ export const RATE_LIMIT = {
 
 ### 4.2 按源分级的反爬预案
 
-| 源类型                          | 风险                                                     | 预案                                                                                                                                               |
-| ------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `irs.disaster` / `irs.newsroom` | 几乎不封，但偶发 WAF 503                                 | 403/503 时退避 15min；连续 3 次失败 → Sentry + owner/manager digest；灾害延期以 `irs.disaster` 为准                                                |
-| `ca.ftb.*` / `ca.cdtfa.news`    | 偶尔触发 Akamai Bot Manager                              | 加官方 `Referer`；失败降级到 `raw HTML fetch via Browserless (Phase 2)`                                                                            |
-| `ny.dtf.press`                  | HTML archive 结构可能调整                                | 不假设 RSS；HTML selector fallback + NY Email Services 兜底                                                                                        |
-| `tx.cpa.rss`                    | 官方新闻页可抓；GovDelivery topic feed robots-disallowed | 抓 Comptroller 官方 News Releases HTML 列表链接；GovDelivery 仅用于人工订阅 / inbound email，不作为 crawler endpoint；按 tax relevance filter 过滤 |
-| `fl.dor.tips` / `wa.dor.*`      | 中风险，页面结构年度改版                                 | 每条 selector 必须附 **selector fallback chain**（见 §6.2），失败 → 官方邮件兜底 / 人工录入                                                        |
-| `fema.*` / `weather.*`          | 官方 API，稳定                                           | 标准 REST + 指数退避                                                                                                                               |
+| 源类型                                      | 风险                                                     | 预案                                                                                                                                               |
+| ------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `irs.disaster` / `irs.newsroom`             | 几乎不封，但偶发 WAF 503                                 | 403/503 时退避 15min；连续 3 次失败 → Sentry + owner/manager digest；灾害延期以 `irs.disaster` 为准                                                |
+| `ca.ftb.*` / `ca.cdtfa.news`                | 偶尔触发 Akamai Bot Manager                              | 走可配置 `browserless` fetcher；未配置时只用 Cloudflare fetch 并按 source health 告警                                                              |
+| `ny.dtf.press`                              | HTML archive 结构可能调整                                | 不假设 RSS；HTML selector fallback + NY Email Services 兜底                                                                                        |
+| `tx.cpa.rss`                                | 官方新闻页可抓；GovDelivery topic feed robots-disallowed | 抓 Comptroller 官方 News Releases HTML 列表链接；GovDelivery 仅用于人工订阅 / inbound email，不作为 crawler endpoint；按 tax relevance filter 过滤 |
+| `fl.dor.tips` / `wa.dor.*` / `ma.dor.press` | 中风险，页面结构年度改版或 WAF 挑战                      | 每条 selector 必须附 **selector fallback chain**（见 §6.2），失败 → Browserless / 官方邮件兜底 / 人工录入                                          |
+| `fema.*` / `weather.*`                      | 官方 API，稳定                                           | 标准 REST + 指数退避                                                                                                                               |
 
 ### 4.3 Cloudflare Worker 出口 IP 的风险
 
@@ -343,13 +344,13 @@ unless the relevant Worker secret/routing is configured.
 
 ## 7. 分期路线（对齐 09 Demo Sprint Playbook）
 
-| 阶段                      | 源                                                                   | 工程量   | 成功标准                           |
-| ------------------------- | -------------------------------------------------------------------- | -------- | ---------------------------------- |
-| **Phase 0 · Demo Sprint** | `irs.disaster` + `tx.cpa.rss` + seeded `ny.dtf.press` fixture        | 已完成   | S3 场景能真实触发 + mock 兜底齐全  |
-| **Pilot hardening**       | `ca.ftb.*` + `ca.cdtfa.news` + real `ny.dtf.press` + FL/WA + FEMA T2 | 已落地   | Live catalog 可跑；FEMA 不出客户链 |
-| **Phase 1**               | GovDelivery inbound fallback + Browserless fallback                  | 已落地   | 可配置降级；默认关闭               |
-| **Phase 2**               | + `ma.dor.press` + 更多州 DOR                                        | 2 人周   | 15+ 源；10 源 ≥ 99% SLA            |
-| **Phase 3（商单触发）**   | Checkpoint / Bloomberg Tax / Avalara 商业 API                        | 谈单驱动 | 客户合同签字后再采购               |
+| 阶段                      | 源                                                                   | 工程量   | 成功标准                             |
+| ------------------------- | -------------------------------------------------------------------- | -------- | ------------------------------------ |
+| **Phase 0 · Demo Sprint** | `irs.disaster` + `tx.cpa.rss` + seeded `ny.dtf.press` fixture        | 已完成   | S3 场景能真实触发 + mock 兜底齐全    |
+| **Pilot hardening**       | `ca.ftb.*` + `ca.cdtfa.news` + real `ny.dtf.press` + FL/WA + FEMA T2 | 已落地   | Live catalog 可跑；FEMA 不出客户链   |
+| **Phase 1**               | GovDelivery inbound fallback + Browserless fallback                  | 已落地   | 可配置降级；WAF 源优先走 browserless |
+| **Phase 2**               | + `ma.dor.press` + 更多州 DOR                                        | 2 人周   | 15+ 源；10 源 ≥ 99% SLA              |
+| **Phase 3（商单触发）**   | Checkpoint / Bloomberg Tax / Avalara 商业 API                        | 谈单驱动 | 客户合同签字后再采购                 |
 
 ---
 

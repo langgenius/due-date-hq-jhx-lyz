@@ -22,6 +22,8 @@ const PULSE_BASIS_SOURCE_TYPES = new Set<RuleSource['sourceType']>([
   'emergency_relief',
   'form',
 ])
+const AUTOMATED_RULE_SOURCE_METHODS = new Set<RuleSource['acquisitionMethod']>(['html_watch'])
+
 function intervalForCadence(cadence: RuleSource['cadence']): number {
   const hour = 60 * 60 * 1000
   const day = 24 * hour
@@ -70,6 +72,7 @@ function parsedItemForSourceSnapshot(
 export function isRuleSourcePulsePromoted(source: RuleSource): boolean {
   return (
     source.jurisdiction !== 'FED' &&
+    AUTOMATED_RULE_SOURCE_METHODS.has(source.acquisitionMethod) &&
     PULSE_BASIS_SOURCE_TYPES.has(source.sourceType) &&
     (source.priority === 'critical' || source.priority === 'high')
   )
@@ -94,6 +97,7 @@ export function createRuleSourceAdapter(source: RuleSource): SourceAdapter {
 
 export function isRuleSourceAdapterEligible(source: RuleSource): boolean {
   if (!source.notificationChannels.includes('practice_rule_review')) return false
+  if (!AUTOMATED_RULE_SOURCE_METHODS.has(source.acquisitionMethod)) return false
   if (EXISTING_ADAPTER_IDS.has(source.id)) return false
   return !SOURCE_INDEX_IDS.has(source.id)
 }

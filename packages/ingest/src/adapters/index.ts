@@ -16,7 +16,7 @@ const WA_DOR_NEWS_URL = 'https://dor.wa.gov/about/news-releases'
 const WA_DOR_WHATS_NEW_URL = 'https://dor.wa.gov/about/whats-new'
 const MA_DOR_PRESS_URL = 'https://www.mass.gov/info-details/dor-press-releases-and-reports'
 const FEMA_API_URL =
-  'https://www.fema.gov/openfema-data-hub/arcgis/rest/services/public/DisasterDeclarationsSummaries_v2/FeatureServer/0/query?where=declarationDate%20%3E%3D%20CURRENT_TIMESTAMP%20-%2090&outFields=disasterNumber,state,declarationTitle,incidentType,declarationDate,incidentBeginDate,designatedArea&f=json&resultRecordCount=50&orderByFields=declarationDate%20DESC'
+  'https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$select=disasterNumber,state,declarationTitle,incidentType,declarationDate,incidentBeginDate,designatedArea&$orderby=declarationDate%20desc&$top=50&$metadata=off'
 
 function publishedAtFromText(text: string): Date {
   const match =
@@ -209,6 +209,7 @@ export const caFtbNewsroomAdapter: SourceAdapter = {
   tier: 'T1',
   cronIntervalMs: 60 * 60 * 1000,
   jurisdiction: 'CA',
+  fetcher: 'browserless',
   async fetch(ctx) {
     return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: CA_FTB_NEWSROOM_URL })]
   },
@@ -230,6 +231,7 @@ export const caFtbTaxNewsAdapter: SourceAdapter = {
   tier: 'T1',
   cronIntervalMs: 60 * 60 * 1000,
   jurisdiction: 'CA',
+  fetcher: 'browserless',
   async fetch(ctx) {
     return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: CA_FTB_TAX_NEWS_URL })]
   },
@@ -251,6 +253,7 @@ export const caCdtfaNewsAdapter: SourceAdapter = {
   tier: 'T1',
   cronIntervalMs: 120 * 60 * 1000,
   jurisdiction: 'CA',
+  fetcher: 'browserless',
   async fetch(ctx) {
     return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: CA_CDTFA_NEWS_URL })]
   },
@@ -359,6 +362,7 @@ export const maDorPressAdapter: SourceAdapter = {
   tier: 'T1',
   cronIntervalMs: 120 * 60 * 1000,
   jurisdiction: 'MA',
+  fetcher: 'browserless',
   async fetch(ctx) {
     return [await fetchTextSnapshot(ctx, { sourceId: this.id, url: MA_DOR_PRESS_URL })]
   },
@@ -375,17 +379,22 @@ export const maDorPressAdapter: SourceAdapter = {
   },
 }
 
-function isFemaFeature(value: unknown): value is {
-  attributes: Record<string, unknown>
-} {
-  if (typeof value !== 'object' || value === null || !('attributes' in value)) return false
-  const attributes = value.attributes
-  return typeof attributes === 'object' && attributes !== null
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
 }
 
-function femaFeaturesFromParsed(parsed: unknown): unknown[] {
-  if (typeof parsed !== 'object' || parsed === null || !('features' in parsed)) return []
-  return Array.isArray(parsed.features) ? parsed.features : []
+function femaRecordsFromParsed(parsed: unknown): Record<string, unknown>[] {
+  if (!isRecord(parsed)) return []
+
+  const records = parsed.DisasterDeclarationsSummaries
+  if (Array.isArray(records)) return records.filter(isRecord)
+
+  const features = parsed.features
+  if (!Array.isArray(features)) return []
+  return features.flatMap((feature) => {
+    if (!isRecord(feature) || !isRecord(feature.attributes)) return []
+    return [feature.attributes]
+  })
 }
 
 function femaDate(value: unknown): Date {
@@ -414,46 +423,41 @@ export const femaDeclarationsAdapter: SourceAdapter = {
     } catch {
       return []
     }
-    const features = femaFeaturesFromParsed(parsed)
-    return features
-      .filter(isFemaFeature)
-      .slice(0, 20)
-      .flatMap((feature) => {
-        const attrs = feature.attributes
-        const state = typeof attrs.state === 'string' ? attrs.state : 'US'
-        const area =
-          typeof attrs.designatedArea === 'string' ? attrs.designatedArea : 'affected area'
-        const title =
-          typeof attrs.declarationTitle === 'string'
-            ? attrs.declarationTitle
-            : `${state} FEMA disaster declaration`
-        const disasterNumber =
-          typeof attrs.disasterNumber === 'number' || typeof attrs.disasterNumber === 'string'
-            ? String(attrs.disasterNumber)
-            : null
-        if (!disasterNumber) return []
+    const records = femaRecordsFromParsed(parsed)
+    return records.slice(0, 20).flatMap((attrs) => {
+      const state = typeof attrs.state === 'string' ? attrs.state : 'US'
+      const area = typeof attrs.designatedArea === 'string' ? attrs.designatedArea : 'affected area'
+      const title =
+        typeof attrs.declarationTitle === 'string'
+          ? attrs.declarationTitle
+          : `${state} FEMA disaster declaration`
+      const disasterNumber =
+        typeof attrs.disasterNumber === 'number' || typeof attrs.disasterNumber === 'string'
+          ? String(attrs.disasterNumber)
+          : null
+      if (!disasterNumber) return []
 
-        const incidentType = typeof attrs.incidentType === 'string' ? attrs.incidentType : 'unknown'
-        const publishedAt = femaDate(attrs.declarationDate)
-        return {
-          sourceId: this.id,
-          externalId: `fema-${disasterNumber}`,
-          title,
-          publishedAt,
-          officialSourceUrl: `https://www.fema.gov/disaster/${encodeURIComponent(disasterNumber)}`,
-          jurisdiction: state,
-          rawText: textExcerpt(
-            [
-              title,
-              `State: ${state}`,
-              `Designated area: ${area}`,
-              `Incident type: ${incidentType}`,
-              `Declaration date: ${publishedAt.toISOString().slice(0, 10)}`,
-              `Incident begin date: ${femaDate(attrs.incidentBeginDate).toISOString().slice(0, 10)}`,
-            ].join('\n'),
-          ),
-        }
-      })
+      const incidentType = typeof attrs.incidentType === 'string' ? attrs.incidentType : 'unknown'
+      const publishedAt = femaDate(attrs.declarationDate)
+      return {
+        sourceId: this.id,
+        externalId: `fema-${disasterNumber}`,
+        title,
+        publishedAt,
+        officialSourceUrl: `https://www.fema.gov/disaster/${encodeURIComponent(disasterNumber)}`,
+        jurisdiction: state,
+        rawText: textExcerpt(
+          [
+            title,
+            `State: ${state}`,
+            `Designated area: ${area}`,
+            `Incident type: ${incidentType}`,
+            `Declaration date: ${publishedAt.toISOString().slice(0, 10)}`,
+            `Incident begin date: ${femaDate(attrs.incidentBeginDate).toISOString().slice(0, 10)}`,
+          ].join('\n'),
+        ),
+      }
+    })
   },
 }
 

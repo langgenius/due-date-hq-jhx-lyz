@@ -26,7 +26,7 @@ export const sourceFixtureBodies = {
   'ma.dor.press':
     '<main><a href="/news/massachusetts-dor-tax-relief">Massachusetts DOR tax relief deadline update</a></main>',
   'fema.declarations':
-    '{"features":[{"attributes":{"disasterNumber":9999,"state":"CA","declarationTitle":"California Severe Storms","incidentType":"Severe Storm","declarationDate":1776211200000,"incidentBeginDate":1776124800000,"designatedArea":"Los Angeles County"}}]}',
+    '{"DisasterDeclarationsSummaries":[{"disasterNumber":9999,"state":"CA","declarationTitle":"California Severe Storms","incidentType":"Severe Storm","declarationDate":"2026-04-15T00:00:00.000Z","incidentBeginDate":"2026-04-14T00:00:00.000Z","designatedArea":"Los Angeles County"}]}',
 } satisfies Record<SourceId, string>
 
 export async function snapshotFromFixture(input: {

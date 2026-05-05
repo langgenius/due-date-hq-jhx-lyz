@@ -349,7 +349,7 @@ function RetrySourceHealthButton({
           })
         } else if (updatedSource) {
           toast.warning(t`Source checked, but still needs attention`, {
-            description: updatedSource.lastError ?? updatedSource.label,
+            description: updatedSource.label,
           })
         } else {
           toast.success(t`Source checked`)
@@ -424,22 +424,19 @@ function WatchingLabel({ sources: _sources }: { sources: readonly PulseSourceHea
 }
 
 function AttentionLabel({ sources }: { sources: readonly PulseSourceHealth[] }) {
-  const label = sourceLabel(sources)
-  const error = sourceErrorLabel(sources)
+  const sourceCount = sources.length
+  const sourceDetails = sourceLabel(sources)
+
   return (
-    <span className="truncate text-text-secondary">
-      <Trans>Source needs attention · {label}</Trans>
-      {error ? (
-        <>
-          <span aria-hidden className="text-text-tertiary">
-            {' '}
-            ·{' '}
-          </span>
-          <span className="text-text-tertiary" title={error}>
-            {error}
-          </span>
-        </>
-      ) : null}
+    <span className="truncate text-text-secondary" title={sourceDetails}>
+      <Trans>Source needs attention</Trans>
+      <span aria-hidden className="text-text-tertiary">
+        {' '}
+        ·{' '}
+      </span>
+      <span className="font-mono tabular-nums text-text-primary">
+        <Plural value={sourceCount} one="# source" other="# sources" />
+      </span>
     </span>
   )
 }
@@ -471,14 +468,6 @@ function newestCheckedAt(sources: readonly PulseSourceHealth[]): string | null {
     }
   }
   return newest
-}
-
-function sourceErrorLabel(sources: readonly PulseSourceHealth[]): string | null {
-  const errors = sources
-    .map((source) => source.lastError?.trim())
-    .filter((error): error is string => Boolean(error))
-  if (errors.length === 0) return null
-  return errors.filter((error, index) => errors.indexOf(error) === index).join(' · ')
 }
 
 function newestPublishedAt(alerts: readonly PulseAlertPublic[]): string | null {
