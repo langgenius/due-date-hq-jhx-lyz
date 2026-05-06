@@ -1,0 +1,258 @@
+import {
+  listRuleSources,
+  previewObligationsFromRules,
+  STATE_RULE_JURISDICTIONS,
+  type ObligationGenerationPreview,
+  type ObligationRule,
+  type RuleGenerationState,
+} from '@duedatehq/core/rules'
+import {
+  buildPenaltyFactsFromLegacy,
+  estimateProjectedExposure,
+  PENALTY_FACTS_VERSION,
+} from '@duedatehq/core/penalty'
+import type { ClientRow } from '@duedatehq/ports/clients'
+import type { ClientFilingProfileRow } from '@duedatehq/ports/client-filing-profiles'
+import type { ObligationCreateInput } from '@duedatehq/ports/obligations'
+import type { ScopedRepo } from '@duedatehq/ports/scoped'
+
+interface GenerateForAcceptedRulesInput {
+  scoped: ScopedRepo
+  userId: string
+  rules: readonly ObligationRule[]
+  now?: Date
+  reason?: string | null
+}
+
+interface GenerateForAcceptedRulesSummary {
+  candidateCount: number
+  createdCount: number
+  duplicateCount: number
+  clientCount: number
+}
+
+const RULE_GENERATION_STATES = new Set<string>(STATE_RULE_JURISDICTIONS)
+
+function isRuleGenerationState(value: string | null | undefined): value is RuleGenerationState {
+  return typeof value === 'string' && RULE_GENERATION_STATES.has(value)
+}
+
+function defaultRuleDates(now: Date): { taxYearStart: string; taxYearEnd: string } {
+  const year = now.getUTCFullYear()
+  return {
+    taxYearStart: `${year}-01-01`,
+    taxYearEnd: `${year - 1}-12-31`,
+  }
+}
+
+function keyForGenerated(input: {
+  clientId: string
+  jurisdiction: string | null
+  ruleId: string
+  taxYear: number | null
+  rulePeriod: string
+}): string {
+  return [
+    input.clientId,
+    input.jurisdiction ?? '',
+    input.ruleId,
+    input.taxYear ?? '',
+    input.rulePeriod,
+  ].join('::')
+}
+
+function sourceUrlForPreview(
+  preview: ObligationGenerationPreview,
+  sourceById: ReadonlyMap<string, ReturnType<typeof listRuleSources>[number]>,
+): string | null {
+  const sourceId = preview.evidence[0]?.sourceId ?? preview.sourceIds[0]
+  return sourceId ? (sourceById.get(sourceId)?.url ?? null) : null
+}
+
+function buildCreateInput(input: {
+  client: ClientRow
+  profile: ClientFilingProfileRow
+  rule: ObligationRule
+  preview: ObligationGenerationPreview
+  now: Date
+}): ObligationCreateInput & { preview: ObligationGenerationPreview } {
+  const dueDate = new Date(`${input.preview.dueDate}T00:00:00.000Z`)
+  const penaltyFacts = buildPenaltyFactsFromLegacy({
+    taxType: input.preview.taxType,
+    estimatedTaxLiabilityCents: input.client.estimatedTaxLiabilityCents,
+    equityOwnerCount: input.client.equityOwnerCount,
+  })
+  const exposure = estimateProjectedExposure({
+    jurisdiction: input.preview.jurisdiction,
+    taxType: input.preview.taxType,
+    entityType: input.client.entityType,
+    dueDate,
+    asOfDate: input.now,
+    penaltyFactsJson: penaltyFacts,
+  })
+
+  return {
+    clientId: input.client.id,
+    clientFilingProfileId: input.preview.jurisdiction === 'FED' ? null : input.profile.id,
+    taxType: input.preview.taxType,
+    taxYear: input.rule.taxYear,
+    ruleId: input.rule.id,
+    ruleVersion: input.preview.ruleVersion,
+    rulePeriod: input.preview.period,
+    generationSource: input.client.migrationBatchId ? 'migration' : 'manual',
+    jurisdiction: input.preview.jurisdiction,
+    baseDueDate: dueDate,
+    currentDueDate: dueDate,
+    status: input.preview.requiresReview ? 'review' : 'pending',
+    migrationBatchId: input.client.migrationBatchId,
+    estimatedTaxDueCents: exposure.estimatedTaxDueCents,
+    estimatedExposureCents: exposure.estimatedExposureCents,
+    exposureStatus: exposure.status,
+    penaltyFactsJson: penaltyFacts,
+    penaltyFactsVersion: PENALTY_FACTS_VERSION,
+    penaltyBreakdownJson: exposure.breakdown,
+    penaltyFormulaVersion: exposure.formulaVersion,
+    missingPenaltyFactsJson: exposure.missingPenaltyFacts,
+    penaltySourceRefsJson: exposure.penaltySourceRefs,
+    penaltyFormulaLabel: exposure.penaltyFormulaLabel,
+    exposureCalculatedAt: input.now,
+    preview: input.preview,
+  }
+}
+
+export async function generateObligationsForAcceptedRules(
+  input: GenerateForAcceptedRulesInput,
+): Promise<GenerateForAcceptedRulesSummary> {
+  const now = input.now ?? new Date()
+  const rules = input.rules.filter((rule) => rule.status === 'verified')
+  if (rules.length === 0) {
+    return { candidateCount: 0, createdCount: 0, duplicateCount: 0, clientCount: 0 }
+  }
+
+  const clients = await input.scoped.clients.listByFirm()
+  if (clients.length === 0) {
+    return { candidateCount: 0, createdCount: 0, duplicateCount: 0, clientCount: 0 }
+  }
+
+  const profilesByClient = await input.scoped.filingProfiles.listByClients(
+    clients.map((client) => client.id),
+  )
+  const taxYears = [...new Set(rules.map((rule) => rule.taxYear))]
+  const duplicateRows = await input.scoped.obligations.listGeneratedByClientAndTaxYears({
+    clientIds: clients.map((client) => client.id),
+    taxYears,
+  })
+  const seenGeneratedKeys = new Set(
+    duplicateRows
+      .filter((row) => row.ruleId && row.taxYear !== null && row.rulePeriod)
+      .map((row) =>
+        keyForGenerated({
+          clientId: row.clientId,
+          jurisdiction: row.jurisdiction,
+          ruleId: row.ruleId!,
+          taxYear: row.taxYear,
+          rulePeriod: row.rulePeriod!,
+        }),
+      ),
+  )
+  const ruleById = new Map(rules.map((rule) => [rule.id, rule]))
+  const sourceById = new Map(listRuleSources().map((source) => [source.id, source]))
+  const dates = defaultRuleDates(now)
+  const createInputs: Array<ObligationCreateInput & { preview: ObligationGenerationPreview }> = []
+  const clientIdsWithCandidates = new Set<string>()
+  let candidateCount = 0
+  let duplicateCount = 0
+
+  for (const client of clients) {
+    const profiles = profilesByClient.get(client.id) ?? []
+    for (const profile of profiles) {
+      if (!isRuleGenerationState(profile.state) || profile.taxTypes.length === 0) continue
+
+      const previews = previewObligationsFromRules({
+        client: {
+          id: client.id,
+          entityType: client.entityType,
+          state: profile.state,
+          taxTypes: profile.taxTypes,
+          taxYearStart: dates.taxYearStart,
+          taxYearEnd: dates.taxYearEnd,
+        },
+        rules,
+      })
+
+      for (const preview of previews) {
+        const rule = ruleById.get(preview.ruleId)
+        if (!rule || !preview.dueDate) continue
+        candidateCount += 1
+        clientIdsWithCandidates.add(client.id)
+
+        const key = keyForGenerated({
+          clientId: client.id,
+          jurisdiction: preview.jurisdiction,
+          ruleId: rule.id,
+          taxYear: rule.taxYear,
+          rulePeriod: preview.period,
+        })
+        if (seenGeneratedKeys.has(key)) {
+          duplicateCount += 1
+          continue
+        }
+
+        seenGeneratedKeys.add(key)
+        createInputs.push(buildCreateInput({ client, profile, rule, preview, now }))
+      }
+    }
+  }
+
+  if (createInputs.length === 0) {
+    return {
+      candidateCount,
+      createdCount: 0,
+      duplicateCount,
+      clientCount: clientIdsWithCandidates.size,
+    }
+  }
+
+  const { ids } = await input.scoped.obligations.createBatch(createInputs)
+  await input.scoped.evidence.writeBatch(
+    createInputs.map((created, index) => ({
+      obligationInstanceId: ids[index] ?? null,
+      aiOutputId: null,
+      sourceType: 'verified_rule',
+      sourceId: created.preview.ruleId,
+      sourceUrl: sourceUrlForPreview(created.preview, sourceById),
+      verbatimQuote: created.preview.evidence[0]?.sourceExcerpt ?? null,
+      rawValue: created.preview.matchedTaxType,
+      normalizedValue: created.preview.taxType,
+      confidence: created.preview.reminderReady ? 1 : 0.7,
+      model: null,
+      matrixVersion: null,
+      verifiedAt: null,
+      verifiedBy: null,
+      appliedAt: now,
+      appliedBy: input.userId,
+    })),
+  )
+  await input.scoped.audit.write({
+    actorId: input.userId,
+    entityType: 'obligation_batch',
+    entityId: ids[0] ?? 'empty',
+    action: 'obligation.batch_created',
+    after: {
+      reason: 'rules.accepted',
+      ruleIds: rules.map((rule) => rule.id),
+      createdCount: ids.length,
+      duplicateCount,
+      clientCount: clientIdsWithCandidates.size,
+      createdObligationIds: ids,
+    },
+    reason: input.reason ?? 'Generated from newly accepted practice rules.',
+  })
+
+  return {
+    candidateCount,
+    createdCount: ids.length,
+    duplicateCount,
+    clientCount: clientIdsWithCandidates.size,
+  }
+}

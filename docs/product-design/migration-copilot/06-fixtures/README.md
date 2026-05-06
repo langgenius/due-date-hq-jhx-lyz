@@ -15,6 +15,7 @@
 | [`./taxdome-30clients.csv`](./taxdome-30clients.csv)                                   | 30                 | 10   | TaxDome account import · 真实 account 字段 + custom tax fields · 含 mixed deadline        | ≥ 95%                   | 100%                     | 0          |
 | [`./drake-30clients.csv`](./drake-30clients.csv)                                       | 30                 | 7    | Drake 导出 · 全字段 · 含 2 坏行触发 needs_review / normalize                              | ≥ 95%                   | 100%                     | 2          |
 | [`./karbon-20clients.csv`](./karbon-20clients.csv)                                     | 20                 | 5    | Karbon 导出 · 缺 tax_types 列 → 走 Default Matrix                                         | ≥ 85%                   | 100%                     | 1          |
+| [`./karbon-full-flow-demo.csv`](./karbon-full-flow-demo.csv)                           | 26                 | 12   | Karbon 现场演示 · Karbon 字段 + practice custom fields · 覆盖 mapping / normalize / rules | ≥ 85% fallback/manual   | 24/25 valid EIN rows     | 3          |
 | [`./quickbooks-20clients.csv`](./quickbooks-20clients.csv)                             | 20                 | 4    | QuickBooks 仅元数据 · state 全称需归一                                                    | ≥ 80%                   | 95%                      | 2          |
 | [`./file-in-time-30clients.csv`](./file-in-time-30clients.csv)                         | 30                 | 9    | File In Time 独有列（service / due date / status / staff / county）· 期望 preset 自动识别 | ≥ 90%                   | N/A（无 EIN 列）         | 0          |
 | [`./messy-excel-agent-demo.csv`](./messy-excel-agent-demo.csv)                         | 52                 | 11   | Agent Demo 现场演出 · entity 多种写法 / state 混用 / EIN 含空格 / 缺列 / 多余列           | 70 – 85%（故意低）      | 85 – 95%（故意部分失败） | ≥ 8        |
@@ -22,6 +23,10 @@
 | [`./integration-provider-json-samples.json`](./integration-provider-json-samples.json) | 8 provider records | JSON | JSON handoff 手工测试 · API/Zapier/转换后 report records                                  | N/A                     | 100%                     | 0          |
 
 **总 Preset fixture 行数 = 133** · **Agent demo 行数 = 52** · **Preset 列数合计 = 44**
+
+`karbon-full-flow-demo.csv` 是额外 live-demo fixture，不计入原始 Preset fixture 总数；它用于从空
+practice 现场演示 Karbon 导入后的规则激活、Default Matrix、normalization、skipped row、客户事实、
+obligations、dashboard exposure 和 evidence review。
 
 #### `integration-provider-json-samples.json`
 
@@ -69,6 +74,22 @@
 - 无 `State / Entity Type / Tax Types` 列 → 缺 `tax_types` 全量走 Default Matrix fallback（federal-only + needs_review）
 - **坏行 #1**：row 13（Meridian Bay Advisors）Country = `US / CA / Los Angeles County` → Country 列归一告警（不阻塞）
 - 验证：S2-AC4 在缺 tax_types 场景的**兜底路径**（全部客户进 `needs_review`，但导入不阻塞，Obligations 展示 federal 兜底 obligations + 黄色徽章）
+
+#### `karbon-full-flow-demo.csv`
+
+- 列：`Organization Name, Tax ID, Country, State, States, Entity Type, Client Owner & Manager, Email, Tax Types, Estimated Tax Liability, Equity Owner Count, Notes`
+- 26 行：LLC / S-Corp / Partnership / C-Corp / Sole Proprietor / Individual / Trust / Other 均覆盖；
+  辖区覆盖 CA / NY / TX / FL / WA，含 2 个 CA+NY multi-state rows。
+- Karbon 口径：前 8 列使用 Karbon preset/bulk client fields；`Tax Types`、`Estimated Tax Liability`、
+  `Equity Owner Count`、`Notes` 是 practice custom fields，Demo 时可让 AI Mapper 或手动 override
+  映射到 DueDateHQ 目标字段。
+- 故意坏行：
+  - row 8：`Tax ID=99 0004208` + `State=C.A.`，触发 EIN / state review，但 `States=CA` 仍允许继续。
+  - row 11：缺 `State / States`，导入客户但不生成 state-backed obligations。
+  - row 25：缺 `Organization Name`，Step 4 作为 skipped row 展示。
+- 现场演示顺序建议：先在 Rules 中 accept 需要的 FED / CA / NY / TX / FL / WA 规则，再用本 CSV 跑
+  Migration Wizard；保留部分 `Tax Types` 为空以展示 Default Matrix，TX / FL / WA 行用显式 tax types
+  展示 review-heavy state coverage。
 
 #### `quickbooks-20clients.csv`
 

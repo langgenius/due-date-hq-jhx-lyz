@@ -29,6 +29,7 @@ import type {
 import { requireTenant, type RpcContext } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
+import { generateObligationsForAcceptedRules } from './_obligation-generation'
 import { toContractRule, toCoreRule, toPracticeContractRule } from './runtime'
 
 const MAX_BULK_ACCEPT = 100
@@ -476,6 +477,7 @@ async function acceptTemplateRule(input: {
   reviewedAt: Date
   editedRule?: ObligationRule
   catalogSeeded?: boolean
+  generateObligations?: boolean
 }): Promise<RuleReviewTask> {
   const { scoped } = requireTenant(input.context)
   if (!input.catalogSeeded) await ensureGlobalTemplateCatalog(input.context)
@@ -510,7 +512,7 @@ async function acceptTemplateRule(input: {
     after: { status: 'active', version: activeRule.version },
     reason: input.reviewNote,
   })
-  return acceptedTaskForRule({
+  const task = await acceptedTaskForRule({
     context: input.context,
     rule: activeRule,
     status: 'accepted',
@@ -518,6 +520,16 @@ async function acceptTemplateRule(input: {
     reviewedBy: input.reviewedBy,
     reviewedAt: input.reviewedAt,
   })
+  if (input.generateObligations ?? true) {
+    await generateObligationsForAcceptedRules({
+      scoped,
+      userId: input.reviewedBy,
+      rules: [toCoreRule(activeRule)],
+      now: input.reviewedAt,
+      reason: input.reviewNote,
+    })
+  }
+  return task
 }
 
 async function rejectTemplateRule(input: {
@@ -699,9 +711,18 @@ const bulkAcceptTemplates = os.rules.bulkAcceptTemplates.handler(async ({ input,
         reviewedBy: userId,
         reviewedAt,
         catalogSeeded: true,
+        generateObligations: false,
       }),
     ),
   )
+
+  const generation = await generateObligationsForAcceptedRules({
+    scoped,
+    userId,
+    rules: acceptInputs,
+    now: reviewedAt,
+    reason: input.reviewNote,
+  })
 
   await scoped.audit.write({
     actorId: userId,
@@ -712,6 +733,7 @@ const bulkAcceptTemplates = os.rules.bulkAcceptTemplates.handler(async ({ input,
       acceptedCount: accepted.length,
       skippedCount: skipped.length,
       ruleIds: accepted.map((task) => task.ruleId),
+      generatedObligationCount: generation.createdCount,
     },
     reason: input.reviewNote,
   })

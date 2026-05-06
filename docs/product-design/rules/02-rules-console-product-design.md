@@ -332,10 +332,12 @@ Safety:
 
 - audit event: `rules.accepted`
 - notification: `rules.accepted`
-- optional job: `obligations.generate_from_rule_pack`
+- automatic generation: accepted rules are applied to existing client filing profiles and create
+  missing rule-backed obligations, with duplicate protection by client/rule/tax year/period
 - optional job: `reminders.reschedule`
 
-接受 rule 本身不自动运行 job；用户或 owner/manager 必须显式点击 “Generate obligations” 或运行 import/rollover。
+接受 rule 后不要求用户重新运行 import：若已有 clients 的 filing profile tax types 与新 active
+rule 匹配，系统会立即生成缺失 obligations；后续 reminder scheduling 仍由 reminder job 处理。
 
 ## 9. 用户侧消费设计
 
