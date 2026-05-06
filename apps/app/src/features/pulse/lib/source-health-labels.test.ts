@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import {
   enabledPulseSourceCount,
+  passiveSourcesNeedingAttention,
+  reviewableSourcesNeedingAttention,
   sourcesNeedingAttention,
   summarizePulseSources,
 } from './source-health-labels'
@@ -13,6 +15,7 @@ function source(
     healthStatus?: 'healthy' | 'degraded' | 'failing' | 'paused'
     label?: string
     lastCheckedAt?: string | null
+    tier?: 'T1' | 'T2' | 'T3'
   } = {},
 ) {
   return {
@@ -21,6 +24,7 @@ function source(
     enabled: options.enabled ?? true,
     healthStatus: options.healthStatus ?? 'healthy',
     lastCheckedAt: 'lastCheckedAt' in options ? options.lastCheckedAt : '2026-05-04T00:00:00.000Z',
+    tier: options.tier ?? 'T1',
   }
 }
 
@@ -60,5 +64,21 @@ describe('pulse source health labels', () => {
         source('irs.disaster', { healthStatus: 'healthy' }),
       ]).map((item) => item.sourceId),
     ).toEqual(['ca.ftb.newsroom', 'tx.cpa.rss'])
+  })
+
+  it('splits T1 source attention from passive lower-tier checks', () => {
+    const sources = [
+      source('irs.disaster', { healthStatus: 'degraded', tier: 'T1' }),
+      source('fema.declarations', { healthStatus: 'degraded', tier: 'T2' }),
+      source('aicpa.newsletter', { healthStatus: 'failing', tier: 'T3' }),
+    ]
+
+    expect(reviewableSourcesNeedingAttention(sources).map((item) => item.sourceId)).toEqual([
+      'irs.disaster',
+    ])
+    expect(passiveSourcesNeedingAttention(sources).map((item) => item.sourceId)).toEqual([
+      'fema.declarations',
+      'aicpa.newsletter',
+    ])
   })
 })

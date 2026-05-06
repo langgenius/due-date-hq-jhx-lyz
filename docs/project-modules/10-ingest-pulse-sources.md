@@ -208,5 +208,6 @@ flowchart TB
 
 - 为每个 live adapter 增加 fixture snapshot 和 parse 测试。
 - 记录 robots/cache 命中和 conditional fetch 指标。
-- 将 source health 暴露给 ops UI，并建立 stale/quarantined 来源处理流程。
+- 将 T1 source health 暴露给 Rules > Pulse Changes 的 owner/manager review 表；T2/T3 降级只作被动
+  监控提示，后续再补 ops 专用 stale/quarantined 处理流程。
 - 对同一公告跨来源重复出现的情况建立 dedupe 策略。

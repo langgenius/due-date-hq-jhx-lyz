@@ -5,7 +5,9 @@ const DEFAULT_MAX_SOURCE_LABELS = 5
 type PulseSourceHealthLabelInput = Pick<
   PulseSourceHealth,
   'enabled' | 'healthStatus' | 'label' | 'lastCheckedAt' | 'sourceId'
->
+> & {
+  tier?: PulseSourceHealth['tier']
+}
 
 export function summarizePulseSources(
   sources: readonly PulseSourceHealthLabelInput[],
@@ -34,6 +36,22 @@ export function sourcesNeedingAttention<T extends PulseSourceHealthLabelInput>(
       source.lastCheckedAt !== null &&
       (source.healthStatus === 'degraded' || source.healthStatus === 'failing'),
   )
+}
+
+export function reviewableSourcesNeedingAttention<T extends PulseSourceHealthLabelInput>(
+  sources: readonly T[],
+): T[] {
+  return sourcesNeedingAttention(sources).filter(isReviewablePulseSource)
+}
+
+export function passiveSourcesNeedingAttention<T extends PulseSourceHealthLabelInput>(
+  sources: readonly T[],
+): T[] {
+  return sourcesNeedingAttention(sources).filter((source) => !isReviewablePulseSource(source))
+}
+
+export function isReviewablePulseSource(source: PulseSourceHealthLabelInput): boolean {
+  return source.tier === 'T1'
 }
 
 function uniqueSourceLabels(sources: readonly PulseSourceHealthLabelInput[]): string[] {

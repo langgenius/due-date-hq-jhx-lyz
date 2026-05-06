@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { ChevronRightIcon, RefreshCwIcon } from 'lucide-react'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import type { PulseAlertPublic, PulseSourceHealth } from '@duedatehq/contracts'
@@ -21,7 +22,11 @@ import {
 } from './api'
 import { PulsingDot, type PulsingDotTone } from './components/PulsingDot'
 import { pulseErrorDescriptor } from './lib/error-mapping'
-import { sourcesNeedingAttention, summarizePulseSources } from './lib/source-health-labels'
+import {
+  reviewableSourcesNeedingAttention,
+  sourcesNeedingAttention,
+  summarizePulseSources,
+} from './lib/source-health-labels'
 
 // Pulse banner — a single-line "heartbeat" strip that lives at the top of
 // the dashboard. Calm by default (a green pulsing dot + the watcher list);
@@ -33,12 +38,15 @@ export function PulseAlertsBanner() {
   const alertsQuery = useQuery(usePulseListAlertsQueryOptions(5))
   const sourceHealthQuery = useQuery(usePulseSourceHealthQueryOptions())
   const permission = useFirmPermission()
+  const navigate = useNavigate()
   const alerts = alertsQuery.data?.alerts ?? []
   const sourceHealth = sourceHealthQuery.data?.sources ?? []
   const [hiddenSourceIssueKeys, setHiddenSourceIssueKeys] = useState(readHiddenSourceIssueKeys)
   const attentionSources = sourcesNeedingAttention(sourceHealth).filter(
     (source) => !hiddenSourceIssueKeys.includes(sourceIssueKey(source)),
   )
+  const reviewableAttentionSources = reviewableSourcesNeedingAttention(attentionSources)
+  const canReviewSourceHealth = permission.can('pulse.apply')
   const hasAlerts = alerts.length > 0
   const isChecking = alertsQuery.isLoading || (!hasAlerts && alertsQuery.isFetching)
   const refreshAction = (
@@ -64,22 +72,34 @@ export function PulseAlertsBanner() {
 
   if (!hasAlerts) {
     if (attentionSources.length > 0) {
+      const canShowSourceReview = canReviewSourceHealth && reviewableAttentionSources.length > 0
+      const labelSources = canShowSourceReview ? reviewableAttentionSources : attentionSources
       return (
         <PulseStrip
-          tone="warning"
+          tone={canShowSourceReview ? 'warning' : 'normal'}
           active
-          label={<AttentionLabel sources={attentionSources} />}
-          meta={<PulseMetaTimestamp iso={newestCheckedAt(attentionSources)} />}
+          label={
+            canShowSourceReview ? (
+              <AttentionLabel sources={reviewableAttentionSources} />
+            ) : (
+              <PassiveDegradedLabel />
+            )
+          }
+          meta={<PulseMetaTimestamp iso={newestCheckedAt(labelSources)} />}
           actions={
             <span className="flex items-center gap-1">
-              <RetrySourceHealthButton
-                source={attentionSources[0]}
-                isFetching={alertsQuery.isFetching || sourceHealthQuery.isFetching}
-                onRefresh={() => {
-                  void alertsQuery.refetch()
-                  void sourceHealthQuery.refetch()
-                }}
-              />
+              {refreshAction}
+              {canShowSourceReview ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    void navigate('/rules?tab=pulse&sourceReview=1#pulse-source-health')
+                  }}
+                >
+                  <Trans>Review sources</Trans>
+                </Button>
+              ) : null}
               {permission.can('pulse.apply') ? (
                 <HideSourceAttentionButton
                   sources={attentionSources}
@@ -326,59 +346,6 @@ function RefreshAlertsButton({
   )
 }
 
-function RetrySourceHealthButton({
-  source,
-  isFetching,
-  onRefresh,
-}: {
-  source: PulseSourceHealth | undefined
-  isFetching: boolean
-  onRefresh: () => void
-}) {
-  const { t } = useLingui()
-  const invalidate = usePulseInvalidation()
-  const retryMutation = useMutation(
-    orpc.pulse.retrySourceHealth.mutationOptions({
-      onSuccess: (data) => {
-        const updatedSource = data.sources.find(
-          (candidate) => candidate.sourceId === source?.sourceId,
-        )
-        if (updatedSource?.healthStatus === 'healthy') {
-          toast.success(t`Source recovered`, {
-            description: updatedSource.label,
-          })
-        } else if (updatedSource) {
-          toast.warning(t`Source checked, but still needs attention`, {
-            description: updatedSource.label,
-          })
-        } else {
-          toast.success(t`Source checked`)
-        }
-        invalidate()
-        onRefresh()
-      },
-      onError: (err) => {
-        toast.error(t`Please try again.`, {
-          description: rpcErrorMessage(err) ?? undefined,
-        })
-      },
-    }),
-  )
-
-  return (
-    <RefreshAlertsButton
-      isFetching={isFetching || retryMutation.isPending}
-      onRefresh={() => {
-        if (!source) {
-          onRefresh()
-          return
-        }
-        retryMutation.mutate({ sourceId: source.sourceId })
-      }}
-    />
-  )
-}
-
 function HideSourceAttentionButton({
   sources,
   onHide,
@@ -437,6 +404,14 @@ function AttentionLabel({ sources }: { sources: readonly PulseSourceHealth[] }) 
       <span className="font-mono tabular-nums text-text-primary">
         <Plural value={sourceCount} one="# source" other="# sources" />
       </span>
+    </span>
+  )
+}
+
+function PassiveDegradedLabel() {
+  return (
+    <span className="truncate text-text-secondary">
+      <Trans>Pulse source checks degraded · Monitoring continues</Trans>
     </span>
   )
 }
