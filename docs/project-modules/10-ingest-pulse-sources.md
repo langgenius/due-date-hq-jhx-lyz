@@ -138,6 +138,18 @@ flowchart LR
   Registry --> GovDelivery
 ```
 
+Browserless 配置由 server Worker 注入：
+
+- `PULSE_BROWSERLESS_URL`: Browserless `/content` endpoint，例如
+  `https://production-sfo.browserless.io/content`。
+- `PULSE_BROWSERLESS_TOKEN`: Browserless API token。本地可放入 `apps/server/.dev.vars`，线上必须用
+  `wrangler secret put PULSE_BROWSERLESS_TOKEN`。
+- `PULSE_BROWSERLESS_SOURCE_IDS`: 逗号分隔 source id override。无需改 adapter 代码即可把被
+  Cloudflare egress 拦截的来源切到 Browserless。
+
+`fl.dor.tips`、`wa.dor.news`、`wa.dor.whats_new` 当前 adapter 默认声明为 Browserless-backed；
+只要配置了 `PULSE_BROWSERLESS_URL`，这些来源会绕过 Worker 原生 fetch。
+
 ## 架构图
 
 ```mermaid

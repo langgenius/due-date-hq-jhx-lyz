@@ -1,9 +1,10 @@
 /* eslint-disable typescript-eslint/no-unsafe-type-assertion --
  * Focused Worker doubles only implement the Pulse ingest repo/R2/Queue surface.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SourceAdapter } from '@duedatehq/ingest/types'
 import type { Env } from '../../env'
+import { createBrowserlessFetch } from './browserless'
 import { createPoliteFetch, runPulseIngest } from './ingest'
 
 const { dbMocks, metricsMocks, repoMocks } = vi.hoisted(() => {
@@ -107,6 +108,10 @@ describe('runPulseIngest', () => {
     repoMocks.listSourceStates.mockResolvedValue([])
   })
 
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('keeps T2 adapters as source signals instead of queueing extract', async () => {
     const queueSend = vi.fn()
 
@@ -168,6 +173,103 @@ describe('runPulseIngest', () => {
     expect(metricsMocks.emitSourceIdleAlerts).toHaveBeenCalledWith([
       expect.objectContaining({ sourceId: 'fema.declarations' }),
     ])
+  })
+
+  it('routes configured source ids through Browserless without changing adapter code', async () => {
+    const fetchMock = vi.fn(async () => {
+      return new Response('<main>Browserless body</main>', {
+        headers: {
+          'content-type': 'text/html; charset=utf-8',
+          'x-response-code': '200',
+        },
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await runPulseIngest(
+      {
+        ...env(),
+        PULSE_BROWSERLESS_URL: 'https://browserless.test/content',
+        PULSE_BROWSERLESS_TOKEN: 'browserless-token',
+        PULSE_BROWSERLESS_SOURCE_IDS: 'ny.dtf.press',
+      },
+      [
+        adapter({
+          id: 'ny.dtf.press',
+          jurisdiction: 'NY',
+          async fetch(ctx) {
+            const response = await ctx.fetch('https://www.tax.ny.gov/press/')
+            return [
+              {
+                sourceId: 'ny.dtf.press',
+                fetchedAt: new Date('2026-04-30T00:00:00.000Z'),
+                contentHash: 'raw-hash',
+                r2Key: 'raw.html',
+                body: await response.text(),
+                contentType: response.headers.get('content-type'),
+                etag: null,
+                lastModified: null,
+              },
+            ]
+          },
+        }),
+      ],
+    )
+
+    expect(result).toMatchObject({ failures: 0, signals: 1 })
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://browserless.test/content?token=browserless-token',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"url":"https://www.tax.ny.gov/press/"'),
+      }),
+    )
+  })
+})
+
+describe('createBrowserlessFetch', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('uses the Browserless content token query parameter', async () => {
+    const fetchMock = vi.fn(async () => new Response('<main>ok</main>'))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const browserlessFetch = createBrowserlessFetch({
+      endpoint: 'https://browserless.test/content',
+      token: 'secret-token',
+    })
+
+    await browserlessFetch?.('https://example.test/source')
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://browserless.test/content?token=secret-token',
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+
+  it('maps target response codes reported by Browserless', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        return new Response('<html>blocked</html>', {
+          headers: {
+            'content-type': 'text/html; charset=utf-8',
+            'x-response-code': '403',
+          },
+        })
+      }),
+    )
+
+    const browserlessFetch = createBrowserlessFetch({
+      endpoint: 'https://browserless.test/content?token=existing-token',
+    })
+
+    const response = await browserlessFetch?.('https://blocked-state.test/')
+
+    expect(response?.status).toBe(403)
+    await expect(response?.text()).resolves.toContain('blocked')
   })
 })
 

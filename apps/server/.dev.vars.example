@@ -63,6 +63,20 @@ RESEND_WEBHOOK_SECRET=
 EMAIL_FROM=noreply@langgenius.app
 
 # ═════════════════════════════════════════════════════════════════════════════
+# [Optional] Pulse · Browserless fetcher for sources blocked from Cloudflare egress
+# ═════════════════════════════════════════════════════════════════════════════
+# Browserless hosted REST API:
+#   PULSE_BROWSERLESS_URL=https://production-sfo.browserless.io/content
+# PULSE_BROWSERLESS_TOKEN is local-only here. In staging/production use:
+#   wrangler secret put PULSE_BROWSERLESS_TOKEN
+# PULSE_BROWSERLESS_SOURCE_IDS can override source fetchers without code changes.
+# The current code also marks fl.dor.tips, wa.dor.news, and wa.dor.whats_new as
+# Browserless-backed by default when PULSE_BROWSERLESS_URL is configured.
+PULSE_BROWSERLESS_URL=
+PULSE_BROWSERLESS_TOKEN=
+PULSE_BROWSERLESS_SOURCE_IDS=
+
+# ═════════════════════════════════════════════════════════════════════════════
 # [Optional until billing test] Stripe · Better Auth subscription checkout
 # ═════════════════════════════════════════════════════════════════════════════
 # Local webhook test:

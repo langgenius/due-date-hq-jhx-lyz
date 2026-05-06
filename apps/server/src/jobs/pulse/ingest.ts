@@ -21,6 +21,16 @@ interface IngestCounts {
   failures: number
 }
 
+function parseSourceIdList(value: string | undefined): ReadonlySet<string> {
+  if (!value) return new Set()
+  return new Set(
+    value
+      .split(',')
+      .map((sourceId) => sourceId.trim())
+      .filter(Boolean),
+  )
+}
+
 function safePathPart(value: string): string {
   return (
     value
@@ -78,6 +88,17 @@ function nextCheckAt(from: Date, intervalMs: number): Date {
   return new Date(from.getTime() + intervalMs)
 }
 
+function resolveFetcherForAdapter(
+  adapter: SourceAdapter,
+  ctx: Pick<IngestCtx, 'browserlessFetch' | 'govdeliveryFetch'>,
+  browserlessSourceIds: ReadonlySet<string> | undefined,
+): NonNullable<SourceAdapter['fetcher']> {
+  if (browserlessSourceIds?.has(adapter.id) && ctx.browserlessFetch) return 'browserless'
+  if (adapter.fetcher === 'browserless') return ctx.browserlessFetch ? 'browserless' : 'cloudflare'
+  if (adapter.fetcher === 'govdelivery') return ctx.govdeliveryFetch ? 'govdelivery' : 'cloudflare'
+  return adapter.fetcher ?? 'cloudflare'
+}
+
 export function createPoliteFetch(fetchImpl: typeof fetch): typeof fetch {
   const locks = new Map<string, Promise<void>>()
   const lastFetchAt = new Map<string, number>()
@@ -116,7 +137,7 @@ async function ingestAdapter(
   ctx: IngestCtx,
   repo: ReturnType<typeof makePulseOpsRepo>,
   queue: Pick<Queue, 'send'>,
-  opts: { force?: boolean } = {},
+  opts: { force?: boolean; browserlessSourceIds?: ReadonlySet<string> } = {},
 ): Promise<IngestCounts> {
   const checkedAt = new Date()
   const state = await repo.ensureSourceState({
@@ -138,6 +159,7 @@ async function ingestAdapter(
     const cloudflareFetch: IngestCtx['fetch'] = (input, init) => ctx.fetch(input, init)
     const browserlessFetch = ctx.browserlessFetch
     const govdeliveryFetch = ctx.govdeliveryFetch
+    const effectiveFetcher = resolveFetcherForAdapter(adapter, ctx, opts.browserlessSourceIds)
     const sourceFetch = createSourceFetcherRegistry(cloudflareFetch, {
       ...(browserlessFetch
         ? { browserlessFetch: (input, init) => browserlessFetch(input, init) }
@@ -145,7 +167,7 @@ async function ingestAdapter(
       ...(govdeliveryFetch
         ? { govdeliveryFetch: (input, init) => govdeliveryFetch(input, init) }
         : {}),
-    })(adapter)
+    })({ ...adapter, fetcher: effectiveFetcher })
     const adapterCtx: IngestCtx = { ...ctx, fetch: sourceFetch }
     const rawSnapshots = await adapter.fetch(adapterCtx)
     const parsedGroups = await Promise.all(
@@ -225,7 +247,7 @@ async function ingestAdapter(
     recordPulseMetric('pulse.ingest.fetch_result', {
       sourceId: adapter.id,
       result: 'success',
-      fetcher: adapter.fetcher ?? 'cloudflare',
+      fetcher: effectiveFetcher,
       durationMs: Date.now() - startedAt,
       snapshots: counts.snapshots,
       signals: counts.signals,
@@ -243,7 +265,7 @@ async function ingestAdapter(
     recordPulseMetric('pulse.ingest.fetch_result', {
       sourceId: adapter.id,
       result: 'failure',
-      fetcher: adapter.fetcher ?? 'cloudflare',
+      fetcher: resolveFetcherForAdapter(adapter, ctx, opts.browserlessSourceIds),
       durationMs: Date.now() - checkedAt.getTime(),
       error: error instanceof Error ? error.message : 'Pulse ingest failed.',
     })
@@ -254,7 +276,12 @@ async function ingestAdapter(
 export async function runPulseIngest(
   env: Pick<
     Env,
-    'DB' | 'R2_PULSE' | 'PULSE_QUEUE' | 'PULSE_BROWSERLESS_URL' | 'PULSE_BROWSERLESS_TOKEN'
+    | 'DB'
+    | 'R2_PULSE'
+    | 'PULSE_QUEUE'
+    | 'PULSE_BROWSERLESS_URL'
+    | 'PULSE_BROWSERLESS_TOKEN'
+    | 'PULSE_BROWSERLESS_SOURCE_IDS'
   >,
   adapters: readonly SourceAdapter[] = liveRegulatorySourceAdapters,
   opts: { force?: boolean } = {},
@@ -271,6 +298,7 @@ export async function runPulseIngest(
     ...(env.PULSE_BROWSERLESS_URL ? { endpoint: env.PULSE_BROWSERLESS_URL } : {}),
     ...(env.PULSE_BROWSERLESS_TOKEN ? { token: env.PULSE_BROWSERLESS_TOKEN } : {}),
   })
+  const browserlessSourceIds = parseSourceIdList(env.PULSE_BROWSERLESS_SOURCE_IDS)
   const ctx: IngestCtx = {
     fetch: createPoliteFetch(fetch),
     ...(browserlessFetch ? { browserlessFetch } : {}),
@@ -282,7 +310,9 @@ export async function runPulseIngest(
   }
 
   const results = await Promise.all(
-    adapters.map((adapter) => ingestAdapter(adapter, ctx, repo, env.PULSE_QUEUE, opts)),
+    adapters.map((adapter) =>
+      ingestAdapter(adapter, ctx, repo, env.PULSE_QUEUE, { ...opts, browserlessSourceIds }),
+    ),
   )
   const counts = sumCounts(results)
   const activeSourceIds = new Set(adapters.map((adapter) => adapter.id))

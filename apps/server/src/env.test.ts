@@ -34,6 +34,20 @@ describe('validateServerEnv', () => {
     expect(env.RESEND_WEBHOOK_SECRET).toBe('whsec_test')
   })
 
+  it('preserves configurable Browserless Pulse fetcher settings', () => {
+    const env = validateServerEnv(
+      runtimeEnv({
+        PULSE_BROWSERLESS_URL: 'https://production-sfo.browserless.io/content',
+        PULSE_BROWSERLESS_TOKEN: 'browserless-token',
+        PULSE_BROWSERLESS_SOURCE_IDS: 'fl.dor.tips,wa.dor.news,wa.dor.whats_new',
+      }),
+    )
+
+    expect(env.PULSE_BROWSERLESS_URL).toBe('https://production-sfo.browserless.io/content')
+    expect(env.PULSE_BROWSERLESS_TOKEN).toBe('browserless-token')
+    expect(env.PULSE_BROWSERLESS_SOURCE_IDS).toBe('fl.dor.tips,wa.dor.news,wa.dor.whats_new')
+  })
+
   it('preserves Stripe billing settings when checkout is configured', () => {
     const env = validateServerEnv(
       runtimeEnv({

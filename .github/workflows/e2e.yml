@@ -43,6 +43,9 @@ jobs:
           EMAIL_FROM=noreply@duedatehq.test
           RESEND_API_KEY=
           RESEND_WEBHOOK_SECRET=
+          PULSE_BROWSERLESS_URL=
+          PULSE_BROWSERLESS_TOKEN=
+          PULSE_BROWSERLESS_SOURCE_IDS=
           AI_GATEWAY_ACCOUNT_ID=
           AI_GATEWAY_SLUG=duedatehq
           AI_GATEWAY_PROVIDER=openrouter

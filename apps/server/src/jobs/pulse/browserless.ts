@@ -15,29 +15,69 @@ function serializableHeaders(headers: RequestInit['headers']): HeadersInit | und
   return headers
 }
 
-function responseFromBrowserlessPayload(payload: unknown): Response | null {
+function browserlessEndpoint(config: BrowserlessConfig): string {
+  const endpoint = new URL(config.endpoint!)
+  if (config.token && !endpoint.searchParams.has('token')) {
+    endpoint.searchParams.set('token', config.token)
+  }
+  return endpoint.toString()
+}
+
+function browserlessStatus(response: Response): number {
+  const targetStatus = Number(response.headers.get('x-response-code'))
+  if (Number.isInteger(targetStatus) && targetStatus >= 200 && targetStatus <= 599) {
+    return targetStatus
+  }
+  return response.status
+}
+
+function responseInitFromBrowserless(response: Response, contentType: string): ResponseInit {
+  const status = browserlessStatus(response)
+  const headers = new Headers(response.headers)
+  headers.set('content-type', contentType)
+  return {
+    status,
+    headers,
+  }
+}
+
+function responseBodyForStatus(status: number, body: string): BodyInit | null {
+  return status === 204 || status === 304 ? null : body
+}
+
+function createBrowserlessResponse(
+  body: string,
+  response: Response,
+  contentType: string,
+): Response {
+  const init = responseInitFromBrowserless(response, contentType)
+  return new Response(responseBodyForStatus(init.status ?? response.status, body), init)
+}
+
+function responseFromBrowserlessPayload(payload: unknown, response: Response): Response | null {
   if (!isRecord(payload)) return null
   const html = typeof payload.html === 'string' ? payload.html : null
   const text = typeof payload.text === 'string' ? payload.text : null
   const body = html ?? text
   if (!body) return null
-  return new Response(body, {
-    headers: {
-      'content-type': html ? 'text/html; charset=utf-8' : 'text/plain; charset=utf-8',
-    },
-  })
+  return createBrowserlessResponse(
+    body,
+    response,
+    html ? 'text/html; charset=utf-8' : 'text/plain; charset=utf-8',
+  )
 }
 
 export function createBrowserlessFetch(config: BrowserlessConfig): IngestFetch | null {
   if (!config.endpoint) return null
+  const endpoint = browserlessEndpoint(config)
 
   return async (input, init) => {
     const targetUrl = input instanceof URL ? input.toString() : input
-    const response = await fetch(config.endpoint!, {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(config.token ? { Authorization: `Bearer ${config.token}` } : {}),
+        'Cache-Control': 'no-cache',
       },
       body: JSON.stringify({
         url: targetUrl,
@@ -49,10 +89,13 @@ export function createBrowserlessFetch(config: BrowserlessConfig): IngestFetch |
     const contentType = response.headers.get('content-type') ?? ''
     if (contentType.includes('application/json')) {
       const parsed: unknown = await response.json()
-      return (
-        responseFromBrowserlessPayload(parsed) ?? Response.json(parsed, { status: response.status })
-      )
+      const parsedResponse = responseFromBrowserlessPayload(parsed, response)
+      if (parsedResponse) return parsedResponse
+      const status = browserlessStatus(response)
+      if (status === 204 || status === 304) return new Response(null, { status })
+      return Response.json(parsed, { status })
     }
-    return response
+    const body = await response.text()
+    return createBrowserlessResponse(body, response, contentType || 'text/html')
   }
 }
