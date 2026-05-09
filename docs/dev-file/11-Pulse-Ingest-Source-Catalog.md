@@ -66,7 +66,7 @@
 | `irs.guidance` | IRS Guidance        | `https://www.irs.gov/newsroom/irs-guidance`                      | HTML list/detail | 120 min | 中         | Revenue Ruling / Procedure / Notice；比新闻稿更硬，但不进 Demo Sprint   |
 | `irs.tips`     | IRS Tax Tips        | `https://www.irs.gov/newsroom/irs-tax-tips`                      | HTML list/detail | 120 min | 中         | 补充信号，命中 Pulse 匹配的概率低，默认 `Signal` badge（T2）            |
 
-### 3.2 State Primary（DOR · T1，Phase 1 目标 5 州骨架）
+### 3.2 State Primary（DOR · T1，全辖区 source-backed 模型）
 
 | ID                 | State | 官方源                                                             | 协议                         | 频率    | 结构稳定性 | 反爬风险 |
 | ------------------ | ----- | ------------------------------------------------------------------ | ---------------------------- | ------- | ---------- | -------- |
@@ -80,9 +80,9 @@
 | `wa.dor.whats_new` | WA    | `https://dor.wa.gov/about/whats-new`                               | HTML list/detail + subscribe | 120 min | 中         | 中       |
 | `ma.dor.press`     | MA    | `https://www.mass.gov/info-details/dor-press-releases-and-reports` | HTML list/detail + email     | 120 min | 中         | 中       |
 
-> Scope note: 当前 MVP rules coverage 是 Federal + CA/NY/TX/FL/WA。`ma.dor.press`
-> 已作为 T1 ingest adapter 启用，但 MA rule-pack 尚未完成；不得在 product、marketing 或 Rules
-> Console 中表达为当前规则覆盖。
+> Scope note: 当前 rules coverage 是 `FED + 50 states + DC`。显式 live adapter 和由
+> Rules registry promoted 出来的 source-backed adapter 都可以进入 Pulse；candidate 仍需
+> practice review，不能在 product、marketing 或 Rules Console 中表达为 reminder-ready active rule。
 
 **适用性提示：**
 
@@ -170,7 +170,7 @@ export const RATE_LIMIT = {
 **缓解：**
 
 - **Phase 0 Demo**：2 源（IRS Disaster + TX Comptroller News Releases），直接从 Worker fetch
-- **Phase 1 5 州**：引入 `fetch` proxy 层，失败时 fallback 到 **Cloudflare Workers 官方的 egress 池 (`undici` + `fetcher` binding)**
+- **Phase 1 promoted state sources**：引入 `fetch` proxy 层，失败时 fallback 到 **Cloudflare Workers 官方的 egress 池 (`undici` + `fetcher` binding)**
 - **Phase 2 扩 15 源**：若仍被挑战，引入 **Browserless.io / ScrapingBee** 作为最后一跳（成本 ~$50/月，只对触发 WAF 的源走）
 
 **工程实现接口：**

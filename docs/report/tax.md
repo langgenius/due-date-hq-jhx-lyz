@@ -2,8 +2,8 @@
 
 更新时间：2026-04-21
 
-> Scope note: 本文件是 50 州税种研究材料，不代表 DueDateHQ 当前 MVP rules
-> coverage。当前 MVP rules coverage 是 Federal + CA/NY/TX/FL/WA；IL/MA 等州只可作为后续扩州研究材料引用。
+> Scope note: 本文件是 50 州税种研究材料。当前 DueDateHQ rules coverage 已扩展为
+> `FED + 50 states + DC`；本文件仍只作为税种研究背景，生产提醒以已复核 active rules 为准。
 
 ## 适用范围
 

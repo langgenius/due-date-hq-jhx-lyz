@@ -35,7 +35,7 @@
 | 日历能力               | ICS 单向订阅（P1）                                                 | 未做                                                     | **采纳 ICS 订阅，提升到 P1 首发**                                                            |
 | Default Tax Types 兜底 | §6A.3A 矩阵（优秀）                                                | 无                                                       | **保留并扩展到 50 州骨架**（§6A.5）                                                          |
 | Undo 时限              | 24h                                                                | 7 天                                                     | **融合**：全量 Revert 24h；单客户级 Undo 7 天（§6A.7）                                       |
-| 50 州覆盖策略          | MVP 只 5 州，其他黑名单                                            | 同                                                       | **保留 MVP 5 州**，但**规则表结构必须能承接 50 州**（§6.1.6）                                |
+| 50 州覆盖策略          | 早期草案只做有限州覆盖                                             | 同                                                       | **更新为 `FED + 50 states + DC` source-backed coverage**，candidate 仍需 review（§6.1.6）    |
 
 ### 0.2 v2.0 的产品一句话
 
@@ -512,10 +512,10 @@ Dashboard、Obligations、Rules > Pulse Changes 三处首屏顶部加 **View Sco
 | P0-2  | **Migration Copilot**                            | Paste-anywhere + CSV/Excel/Sheets + 5 个 Preset Profiles                                                                                                                                                        | S2-AC1         |
 | P0-3  | **AI Field Mapper**                              | AI SDK 读表头 + 前 5 行 → 字段映射 + 置信度 + 备选；显式识别 `name / ein / state / county / entity_type / tax_types / email / assignee / notes`                                                                 | S2-AC2         |
 | P0-4  | **AI Normalizer + Smart Suggestions**            | entity/state/tax_type 归一；模糊字段非阻塞 "Needs review"                                                                                                                                                       | S2-AC3         |
-| P0-5  | **Default Tax Types Inference**                  | 50 州骨架矩阵 × 8 实体类型（首发 6 州已签字，其余回退 Federal-only + `needs_review` 徽章）                                                                                                                      | S2-AC4         |
+| P0-5  | **Default Tax Types Inference**                  | `FED + 50 states + DC` runtime；显式矩阵之外回退到 state review-only tax types + `needs_review` 徽章                                                                                                            | S2-AC4         |
 | P0-6  | **Dry-Run + Import + Live Genesis + 24h Revert** | 事务化导入 + 动画 + 原子回滚                                                                                                                                                                                    | S2-AC5         |
 | P0-7  | Client CRUD + 手动添加                           | 字段 `name / ein / state / county / entity_type / tax_types / importance / estimated_annual_revenue / assignee / notes`                                                                                         | —              |
-| P0-8  | **Rule Engine v1（50 州骨架）**                  | Federal + CA/NY/TX/FL/WA（首发 5 MVP states × ~30 条规则 verified）；MA/IL 不在当前 MVP coverage；其他州 schema 占位 + 默认 Federal                                                                             | —              |
+| P0-8  | **Rule Engine v1（全辖区 source-backed）**       | `FED + 50 states + DC` rules/source registry；source-backed candidate review-only，practice-reviewed active rule 才能生成 reminder-ready obligation                                                             | —              |
 | P0-9  | Obligation Instances                             | `state × entity_type × tax_types` 生成全年 instances                                                                                                                                                            | S2-AC4         |
 | P0-10 | **Dashboard（Story S1 主屏）**                   | 顶栏 Penalty Radar + Pulse Banner + **三段时间 Tabs（This Week / This Month / Long-term）**                                                                                                                     | S1-AC1, S3-AC3 |
 | P0-11 | 倒计时徽章 + Days 列                             | 每个 obligation 显示精确到天的倒计时                                                                                                                                                                            | S1-AC2         |
@@ -536,7 +536,7 @@ Dashboard、Obligations、Rules > Pulse Changes 三处首屏顶部加 **View Sco
 
 | #         | 模块                                          | 关键能力                                                                                                                                     | AC 绑定             |
 | --------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| P1-1      | **Regulatory Pulse™ Ingest**                  | IRS + 5 州官方页面 / API / RSS / 邮件信号；24h SLA                                                                                           | S3-AC1              |
+| P1-1      | **Regulatory Pulse™ Ingest**                  | IRS + 全辖区 promoted official sources / API / RSS / 邮件信号；24h SLA                                                                       | S3-AC1              |
 | P1-2      | **Pulse AI Extraction**                       | 结构化字段 + source excerpt + confidence                                                                                                     | S3-AC1, S3-AC5      |
 | P1-3      | **Pulse Match Engine**                        | 四维匹配：state + county + entity_type + tax_type                                                                                            | S3-AC2              |
 | P1-4      | **Dashboard Pulse Banner**                    | 顶部 sticky Banner + 折叠历史 + Last-checked 指标                                                                                            | S3-AC3              |
@@ -576,7 +576,7 @@ Dashboard、Obligations、Rules > Pulse Changes 三处首屏顶部加 **View Sco
 
 ### 4.3 P2 — 明确不做（v2.0 范围外）
 
-完整 e-file 提交 / 税额计算 / 客户门户 / 文档存储 / eSignature / 短信 / Google/Outlook 日历双向同步 / 完整团队 RBAC / 多层级企业组织树 / 50 州完整真规则（当前只做 Federal + CA/NY/TX/FL/WA 首发）/ 原生移动 App / Drake / QuickBooks / TaxDome 深度集成 / 25+ 报告中心。
+完整 e-file 提交 / 税额计算 / 客户门户 / 文档存储 / eSignature / 短信 / Google/Outlook 日历双向同步 / 完整团队 RBAC / 多层级企业组织树 / 全辖区 active sign-off 自动化 / 原生移动 App / Drake / QuickBooks / TaxDome 深度集成 / 25+ 报告中心。
 
 > Billing update：Stripe checkout / billing portal / subscription cache 已提前落地；仍不做复杂 invoice
 > profile、Stripe Tax、coupon、self-serve multi-firm add-on 或 enterprise org hierarchy。
@@ -600,7 +600,7 @@ Dashboard、Obligations、Rules > Pulse Changes 三处首屏顶部加 **View Sco
 │  IRS CA storm relief → 12 of your clients affected              │
 │  [Review & Batch Adjust →]   [Snooze for 1h]   [Dismiss]        │
 │  (NY DOR PTET reminder → 3 clients · 2 more alerts ▾)            │
-│  Last checked: 18 min ago · Watching IRS + CA/NY/TX/FL/WA/MA     │
+│  Last checked: 18 min ago · Watching IRS + 50 states + DC        │
 ├──────────────────────────────────────────────────────────────────┤
 │  Triage Tabs (Story S1 三段时间分组)                             │  ← Layer 3 · Tabs
 │  [ This Week · 15 · $12,400 ]  [ This Month · 42 · $46k ]        │
@@ -676,7 +676,7 @@ Tabs 之上加一行 scope 切换（Solo Plan 下该行不渲染）：
 - 永远在 Layer 2；每条未处理 Alert 顶部横幅展示
 - 最多同时展示 1 条主 Banner + N 条折叠（"2 more alerts ▾"）
 - 每条 Banner：`source logo · title · impacted_count · [Review & Batch Adjust →] [Snooze 1h] [Dismiss]`
-- **"Last checked: X min ago · Watching IRS + CA/NY/TX/FL/WA/MA"** 始终显示（即使无新 Alert 也展示可信度信号）
+- **"Last checked: X min ago · Watching IRS + 50 states + DC"** 始终显示（即使无新 Alert 也展示可信度信号）
 - 点 `Review & Batch Adjust →` 进入 §5.4 Pulse Detail Drawer
 
 #### 5.1.5 Mobile 响应式
@@ -885,7 +885,7 @@ Tabs 之上加一行 scope 切换（Solo Plan 下该行不渲染）：
 展示所有已 verified 规则，每条含：
 `jurisdiction · entity · tax type · due-date logic · penalty_formula · source_title · source_url · source_excerpt · verified_by · verified_at · next_review_at · version · status · rule_tier · applicable_year · checklist(6/6) · cross_verified_sources[]`
 
-MVP 覆盖 Federal + 5 states（CA/NY/TX/FL/WA）约 30 条；MA/IL 不属于当前 MVP coverage。  
+MVP 覆盖 `FED + 50 states + DC` source-backed rules/candidates；candidate 仍需 practice review 才能成为 active coverage。  
 每条规则有 **Quality Badge（§6D.4）+ Cross-verified chip（§6D.5）**。  
 CPA 可以点 `Report issue` 触发人工复核流。  
 **不允许** CPA 编辑内置规则，但允许 `custom_deadline`（手动添加到某客户）。
@@ -985,7 +985,7 @@ Ops/Tax expert edits rule draft
   → User sees "1 rule updated recently" in Rules > Pulse Changes
 ```
 
-#### 6.1.6 为什么要 50 州骨架而非只 5 州
+#### 6.1.6 为什么要全辖区骨架而非有限州试点
 
 - 客户跨州不会提前通知我们；系统必须能吞任何 state code
 - 规则表留 `coverage_status: full | skeleton | manual` 三档，UI 层有差异提示

@@ -324,7 +324,7 @@ packages/db/
 │   └── types.ts
 ├── migrations/                      # drizzle-kit 生成
 ├── seed/
-│   ├── rules.ts                    # Legacy demo seed; current rules asset lives in packages/core (FED + CA/NY/TX/FL/WA)
+│   ├── rules.ts                    # Legacy demo seed; current rules asset lives in packages/core (FED + 50 states + DC)
 │   ├── demo.ts                     # Sarah firm + 30 clients + 2 pulses
 │   └── pulse-samples.ts
 ├── drizzle.config.ts

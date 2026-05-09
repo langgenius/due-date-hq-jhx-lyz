@@ -8,7 +8,7 @@ author: 'Codex'
 
 ## 背景
 
-Rules 之前只把 `FED/CA/NY/TX/FL/WA` 暴露给 contract、Rules Console 和 rule generation。用户要求扩展到美国所有州，并且必须接入各州官方数据源。
+Rules 之前只把早期有限辖区暴露给 contract、Rules Console 和 rule generation。用户要求扩展到美国所有州，并且必须接入各州官方数据源。
 
 ## 做了什么
 

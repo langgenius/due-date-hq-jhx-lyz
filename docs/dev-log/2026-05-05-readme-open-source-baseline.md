@@ -22,7 +22,7 @@ author: 'Codex'
 
 ## 为什么这样做
 
-README 面向第一读者，应优先说明项目是什么、为谁解决什么问题、当前产品覆盖到哪里、技术栈如何支撑，以及哪些事情不能被误解为生产承诺。本文档只写代码和文档能支撑的事实：当前公开覆盖按 Federal + CA/NY/TX/FL/WA 表达，50 州/DC registry 作为 source/candidate 基础存在，但不被包装成全量 verified coverage；真实第三方 API、公开 OpenAPI、PWA/native、认证类合规状态也不写成已完成。
+README 面向第一读者，应优先说明项目是什么、为谁解决什么问题、当前产品覆盖到哪里、技术栈如何支撑，以及哪些事情不能被误解为生产承诺。本文档只写代码和文档能支撑的事实：当前公开覆盖按 `FED + 50 states + DC` 表达；source-backed candidate 仍需 practice review，不能包装成全量 reminder-ready active coverage；真实第三方 API、公开 OpenAPI、PWA/native、认证类合规状态也不写成已完成。
 
 ## 验证
 

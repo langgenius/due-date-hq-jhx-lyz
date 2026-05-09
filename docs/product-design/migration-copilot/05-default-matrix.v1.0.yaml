@@ -306,7 +306,7 @@ fallback:
     needs_review_reason: state_not_in_demo_sprint_seed
 
 phase0_expansion_hooks:
-  - description: Add TX, FL, and WA × 8 entity types = 24 cells in v1.1, aligning Default Matrix with current Rules MVP coverage.
+  - description: Add explicit state/DC cells on top of the current review-only runtime coverage.
     owner: practice_rule_owner
   - description: Add 50-state skeleton (coverage_status=skeleton) in v2.0 with placeholder tax_types + mandatory practice owner/manager review before activation.
     owner: practice_rule_owner

@@ -55,7 +55,7 @@ the default tab.
 
 | Tab                | 目的                                                                           | 核心动作                                                   |
 | ------------------ | ------------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| Coverage           | 看 Federal + CA / NY / TX / FL / WA 的覆盖完整度                               | Drill into jurisdiction                                    |
+| Coverage           | 看 `FED + 50 states + DC` 的 source-backed 覆盖和 review/active 状态           | Drill into jurisdiction                                    |
 | Sources            | 看 source registry 健康度和最近变化                                            | Check now, view snapshot                                   |
 | Rules              | 查看 practice rules + templates；审核 pending templates 和 source-change tasks | Smart view, select, bulk preview, accept/reject, open rule |
 | Obligation Preview | 预览规则对客户 obligations 的影响                                              | Run preview / annual rollover preview                      |
@@ -80,7 +80,7 @@ the default tab.
 2. **Jurisdiction summary**（`xl:col-span-6`）
    - JUR · NAME · VERIFIED · CANDIDATE · SOURCES · STATUS（数字列右对齐，金融报表惯例）
    - NAME 固定 90px 并截断长辖区名，避免 summary 表挤压右侧 entity coverage 矩阵。
-   - STATUS pill 颜色规则不变：FED pending watch 用 `accent`，TX/FL/WA review 用 `severity-medium`，CA/NY basic+review 用 `background-subtle`
+   - STATUS pill 颜色规则不变：FED pending watch 用 `accent`，review-needed state rows 用 `severity-medium`，basic+review rows 用 `background-subtle`
 3. **Entity Coverage 矩阵**（`xl:col-span-6`）
    - 右上 segmented control 本地切换展示列，不写入 URL：
      - Business（默认）：LLC / Partnership / S-Corp / C-Corp / Sole prop
@@ -141,7 +141,7 @@ Review pending templates or create a custom practice rule before generating dead
 | 字段         | 说明                                                    |
 | ------------ | ------------------------------------------------------- |
 | Source       | 官方来源标题                                            |
-| Jurisdiction | federal / CA / NY / TX / FL / WA                        |
+| Jurisdiction | federal / 50 states / DC                                |
 | Type         | calendar / instructions / form / news / emergency / api |
 | Cadence      | daily / weekly / quarterly                              |
 | Health       | healthy / degraded / failing / paused                   |
@@ -241,7 +241,7 @@ selected pending templates
 | 字段         | 说明                                                         |
 | ------------ | ------------------------------------------------------------ |
 | Rule         | rule id + form/tax type                                      |
-| Jurisdiction | federal / CA / NY / TX / FL / WA                             |
+| Jurisdiction | federal / 50 states / DC                                     |
 | Entity       | LLC / S-Corp / Partnership / C-Corp                          |
 | Tier         | basic / annual_rolling / exception / applicability_review    |
 | Event        | filing / payment / extension / election / information_report |

@@ -9,6 +9,8 @@
   evidence, and records an `obligation.batch_created` audit event.
 - Bulk rule accept now runs generation once for the accepted set instead of once per rule, preserving
   duplicate protection by client, jurisdiction, rule, tax year, and period.
+- Rule accept UI paths now invalidate obligations, obligation facets, and dashboard queries so the
+  dynamic Priority list reflects generated obligations without requiring a manual refresh.
 
 ## Notes
 

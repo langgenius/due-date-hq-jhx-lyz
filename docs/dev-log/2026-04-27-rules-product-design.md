@@ -4,8 +4,8 @@
 
 The 14-day MVP needs a trustworthy rules foundation before deadline reminders,
 AI briefs, and jurisdiction coverage can feel credible. The current product
-direction covers Federal plus CA, NY, TX, FL, and WA, with rules treated as a
-verified internal asset rather than a user-editable setting.
+direction covers `FED + 50 states + DC`, with rules treated as a verified
+internal asset rather than a user-editable setting.
 
 ## Changes
 
@@ -18,7 +18,7 @@ verified internal asset rather than a user-editable setting.
 
 ## Product Decisions
 
-- The MVP rules scope is Federal plus CA, NY, TX, FL, and WA.
+- The MVP rules scope is `FED + 50 states + DC`, with candidates review-gated.
 - Rules use four tiers: basic deadline, annual rolling calendar, exception /
   relief candidate, and applicability review.
 - Only verified rules can generate user obligations and reminders.

@@ -438,14 +438,14 @@ onboarding.agent.fallback.triggered             ← 带 reason: timeout | loop |
 
 ### 8.2 彩排清单（Demo Sprint 彩排用）
 
-| 风险项                                 | 彩排动作                                                                                      | 回退方案                  |
-| -------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------- |
-| Agent 预置回复不触发                   | 换成 §2.2 wizard 截图叙事                                                                     | 直接走 4 步向导 live demo |
-| 网络异常导致 AI SDK 超时               | 走 fallback 第 1 行：`[Fallback] Switching to the guided wizard...`                           | 观众看不见差异            |
-| Cloudflare AI Gateway 不可用           | 走 fallback 第 4 行：`AI Copilot is temporarily unavailable`                                  | 展示 preset profile 路径  |
-| TX 不在 Default Matrix v1.0 demo seed  | Pitch 口播"Rules MVP 已覆盖 TX / FL / WA，Default Matrix 自动推断仍需 review"；现场用 CA 演示 | 无                        |
-| 观众报超出范围的数字（"5000 clients"） | Agent 继续正常响应（Mapper 5 行样本策略下规模无关）                                           | 无                        |
-| 观众试图跳过 preview 卡                | 卡片点击自动降级（§11）                                                                       | 无                        |
+| 风险项                                        | 彩排动作                                                                                          | 回退方案                  |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------- |
+| Agent 预置回复不触发                          | 换成 §2.2 wizard 截图叙事                                                                         | 直接走 4 步向导 live demo |
+| 网络异常导致 AI SDK 超时                      | 走 fallback 第 1 行：`[Fallback] Switching to the guided wizard...`                               | 观众看不见差异            |
+| Cloudflare AI Gateway 不可用                  | 走 fallback 第 4 行：`AI Copilot is temporarily unavailable`                                      | 展示 preset profile 路径  |
+| 非 CA/NY 州不在 Default Matrix v1.0 demo seed | Pitch 口播"Rules 已覆盖 FED + 50 states + DC，Default Matrix 自动推断仍需 review"；现场用 CA 演示 | 无                        |
+| 观众报超出范围的数字（"5000 clients"）        | Agent 继续正常响应（Mapper 5 行样本策略下规模无关）                                               | 无                        |
+| 观众试图跳过 preview 卡                       | 卡片点击自动降级（§11）                                                                           | 无                        |
 
 > Demo Sprint 本 Sprint **不做** Agent 真实 live demo；彩排清单的价值是"**万一** Phase 0 早期赶工接通 Agent，现场出问题时有 PRM（Pre-Recorded Mitigation）可切"。
 

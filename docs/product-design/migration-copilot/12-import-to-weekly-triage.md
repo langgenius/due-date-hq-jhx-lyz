@@ -56,7 +56,7 @@ DDL 前只保留三个入口：
 | 字段                                  | 级别 | 行为                                       |
 | ------------------------------------- | ---- | ------------------------------------------ |
 | `client.name`                         | 必填 | 缺失则跳过该行，坏行可见                   |
-| `client.state`                        | 推荐 | 有效 MVP 州才生成 state obligations        |
+| `client.state`                        | 推荐 | 有效州/DC 才生成 state obligations         |
 | `client.entity_type`                  | 推荐 | 缺失或不识别则用 `other`，进入 review 语义 |
 | `client.tax_types`                    | 可选 | 缺失时由 Default Matrix 推断               |
 | `client.ein`                          | 可选 | 格式不合法则不入库，不阻塞客户创建         |

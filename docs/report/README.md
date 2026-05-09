@@ -43,7 +43,7 @@
 
 - 单用户 SaaS 登录。
 - 手动添加客户。
-- Federal + CA / NY / TX / FL / WA 的人工确认 deadline 规则。
+- `FED + 50 states + DC` 的 source-backed deadline rules/candidates；生产提醒仍需人工确认 active rule。
 - 自动生成客户 deadline。
 - 首页 `Critical / High Priority / Upcoming` 优先级分诊。
 - 状态：`Not started / In progress / Completed / Extended`。

@@ -23,6 +23,8 @@ updates:
   - note: 'Normalized header meta and logo sizing across all slides and cleaned up architecture-slide tool-name capitalization.'
   - note: 'Changed the demo-data metric cards from one row to a two-row 3/2 layout.'
   - note: 'Added the project authors to the cover slide.'
+  - note: 'Removed pages 3-5 from the deck: Demo data, Obligations table, and Migration Copilot; the remaining deck has 9 slides.'
+  - note: 'Removed pages 6, 7, and 9 from the reduced deck: Security, AI cost model, and Product summary; the remaining deck has 6 slides.'
 ---
 
 # Pitch deck HTML
@@ -38,9 +40,10 @@ updates:
 - 新增 `docs/pitch-deck/duedatehq-logo.svg`，使用项目自己的 DueDateHQ brand mark；当前
   `index.html` 已内嵌该 mark，不再依赖旁边的 SVG 文件。
 - Deck 外壳使用简洁演示规则；产品 surface 使用 DueDateHQ 产品内的表格、状态标记、风险行和证据标记。
-- 当前版本收敛为 12 页，新增成本模型页和倒数第二页的下一阶段路线图。
-- 指标、客户行、导入批次、Pulse 记录、证据和审计口径来自 `mock/demo.sql`、
-  `apps/app/src/routes/dashboard.tsx`、`packages/db/src/repo/dashboard.ts` 和相关 dev-file。
+- 当前版本收敛为 6 页；已移除 Demo data、Obligations table、Migration Copilot、Security、AI
+  cost model 和 Product summary 页，保留下一阶段路线图作为结尾。
+- Pulse 记录、架构口径和路线图来自 `mock/demo.sql`、`docs/dev-file/*`、应用实现和相关
+  dev-log。
 
 ## 为什么这样做
 
@@ -87,6 +90,12 @@ hairline divider、mono tabular number 等产品语言。
   shadcn/ui 和 Lucide 等正式写法。
 - 根据第 3 页反馈，将 5 个 demo metric card 从一行五列改为两行布局：上排三张、下排两张。
 - 根据封面反馈，在首页主文案下方加入项目作者：姜涵煦、刘亦州。
+- 根据 2026-05-07 要求删除第 3/4/5 页后，用 Node 确认 slide 数为 9，顺序为
+  `Cover -> Positioning -> Pulse -> Glass box AI -> Architecture -> Security -> AI cost model -> Next-stage roadmap -> Product summary`。
+- 用 `HTMLParser` 校验 `docs/pitch-deck/index.html` 可解析。
+- 根据后续要求删除当前第 6/7/9 页后，用 Node 确认 slide 数为 6，顺序为
+  `Cover -> Positioning -> Pulse -> Glass box AI -> Architecture -> Next-stage roadmap`。
+- 用 `HTMLParser` 再次校验 `docs/pitch-deck/index.html` 可解析。
 
 ## 后续 / 未闭环
 

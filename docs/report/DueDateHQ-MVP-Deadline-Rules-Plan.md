@@ -10,7 +10,7 @@ Deadline rules 在 MVP 里不是用户功能，也不是某个页面的附属配
 
 MVP 要做到：
 
-- 形成 Federal + CA / NY / TX / FL / WA 的核心 business deadline rule pack。
+- 形成 `FED + 50 states + DC` 的 source-backed business deadline rule/candidate pack。
 - 每条 deadline 都来自官方来源，不使用博客、论坛或 AI 推断作为依据。
 - 每条规则能独立说明适用范围、截止时间逻辑、官方依据和验证状态。
 - 规则包可以被产品、内部审核、未来 API 或其他应用复用。
@@ -123,7 +123,7 @@ Federal 优先来源：
 
 ## 4. MVP 必做事项
 
-1. 人工整理 Federal + CA / NY / TX / FL / WA 核心 rules。
+1. 人工整理并复核 `FED + 50 states + DC` 核心 rules/candidates。
 2. 每条 rule 绑定官方 URL、来源标题、适用年份和验证时间。
 3. 每条 rule 至少一次人工验证；高风险 rule 尽量双人复核。
 4. 每条 verified rule 都能独立回溯到官方来源。
@@ -234,7 +234,7 @@ AI 在这里的角色是“提取候选”，不是“确认规则”。
 两周内建议：
 
 - Federal：优先从 IRS Publication 509、Tax Calendar、核心 form instructions 手工结构化。
-- CA / NY / TX / FL / WA：优先从州税局 due dates 页面和相关 form instructions 手工结构化。
+- 州/DC：优先从州税局 due dates 页面和相关 form instructions 手工结构化。
 - 临时 relief：只重点关注 IRS Disaster Relief、IRS Newswire、CA FTB Emergency Tax Relief。
 - 其他州级 news / subscription：先纳入 source registry，不承诺自动覆盖。
 
@@ -296,7 +296,7 @@ MVP 应该承诺：
 
 两周 MVP 里，规则资产成功的标准是：
 
-- Federal + CA / NY / TX / FL / WA core rule pack 可独立审阅。
+- `FED + 50 states + DC` core rule/candidate pack 可独立审阅。
 - 每条 verified rule 都有官方来源。
 - 每条 verified rule 都能说明适用范围和限制。
 - 临时 exception rule 有独立审核路径。

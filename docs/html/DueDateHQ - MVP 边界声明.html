@@ -942,8 +942,7 @@
                 使用自己的账号登录，客户数据保存在云端；MVP 只做单用户账号，不做团队版
               </li>
               <li>
-                <strong>州覆盖：</strong>联邦 + 5 个州（CA / NY / TX / FL /
-                WA），全部人工录入当年所有核心截止日
+                <strong>州覆盖：</strong>联邦 + 50 州 + DC，全部人工录入并复核当年核心截止日候选
               </li>
               <li>
                 <strong>客户档案：</strong>手动表单添加，字段：姓名 / 州 / 实体类型
@@ -976,7 +975,7 @@
               <span class="sub">Phase 2+</span>
             </div>
             <ul class="scope-list out">
-              <li>州覆盖扩展到 50 州（剩下 45 州）</li>
+              <li>全辖区 active sign-off 自动化</li>
               <li>CSV 导入（TaxDome / Drake / Karbon / QuickBooks）与字段智能识别</li>
               <li>AI 自动监控州税局公告、自动改截止日规则、自动判断灾害延期适用性</li>
               <li>多用户、团队权限、Team 版</li>
@@ -1011,13 +1010,13 @@
         </div>
 
         <div class="scope-note">
-          <strong>关于州覆盖：</strong>选 CA / NY / TX / FL / WA 这 5
-          个州不是随意——覆盖了"税复杂度高 (CA/NY)"、"无所得税但有其他税 (TX/FL/WA)"、"PTE 选举严苛
-          (NY)"、"灾害延期频繁 (CA/FL)"这几种 CPA 最常遇到的情境。目标是让 10 个种子用户中 ≥ 80%
-          至少有 2 个客户落在覆盖范围内——否则产品对用户"不可用"，MVP 数据失真。
+          <strong>关于州覆盖：</strong>当前口径覆盖联邦、50 州和
+          DC；不同州的复杂度、无所得税但有其他税、 PTE 选举和灾害延期都通过 review-only
+          候选规则进入人工复核。目标是让 10 个种子用户中 ≥ 80% 至少有 2
+          个客户落在覆盖范围内——否则产品对用户"不可用"，MVP 数据失真。
         </div>
         <div class="scope-note" style="margin-top: 12px">
-          <strong>关于数据维护：</strong>MVP 期间 100% 人工维护 5 州截止日，LLM
+          <strong>关于数据维护：</strong>MVP 期间人工维护并复核全辖区截止日候选，LLM
           不作为数据源、不改规则、不自动判定适用性。AI
           只基于已确认数据和来源链接生成摘要、Tips、每周 Brief。原因：2 周 build window +
           申报季前后任何自动化的错误都会被用户立刻发现。人工维护的可维护性不是这次要验证的——留给 MVP
@@ -1113,7 +1112,7 @@
                 border-radius: 50%;
               "
             ></span>
-            至少有 2 位客户落在 MVP 覆盖的 5 个州（CA/NY/TX/FL/WA）范围内
+            至少有 2 位客户落在 MVP 覆盖的美国州/DC 范围内
           </li>
           <li
             style="
@@ -1173,7 +1172,7 @@
           <div class="timeline-row">
             <div class="timeline-week">Week 1 · D4-D7</div>
             <div class="timeline-activity">
-              <strong>5 州数据人工录入（1-2 人 × 3 天）。</strong
+              <strong>全辖区候选数据人工录入与复核（1-2 人 × 3 天）。</strong
               >开发继续三段分组、筛选、状态切换，并为每条核心截止日补齐来源链接与 AI Tip
               输入素材。第一轮候选用户确认名单（10 人承诺）。
             </div>
@@ -1461,7 +1460,7 @@
               不说。这会让后续 $49 价位的真实验证失去信度，种子用户也无法作为普通付费漏斗的对照组。
             </li>
             <li>
-              <strong>"让 PoC 进生产" 的惯性</strong>——MVP 的 5 州数据 100% 人工录入，这是一个
+              <strong>"让 PoC 进生产" 的惯性</strong>——MVP 的全辖区候选数据人工录入，这是一个
               throwaway 决策。Build 结束后如果进入 Proceed，必须按 H-T01/T02
               正式路径重做自动化，不要把人工 PoC 直接扩展到 50 州。
             </li>

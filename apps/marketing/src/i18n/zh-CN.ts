@@ -228,7 +228,7 @@ const zhCN: LandingCopy = {
         headline: '一个 30 天窗口内会发布 14 条规则变更。你需要知道命中你客户的是哪 4 条。',
         body: 'Pulse 把每条 IRS 通知和 50 州申报变更压缩成一条仪表盘横幅，附 `source_excerpt`、`source_url` 和一键应用入口。',
         listTitle: '近 30 天规则变更',
-        listSummary: '14 条 · 5 个州',
+        listSummary: '14 条 · 50 州 + DC',
         rows: [
           { pill: 'CA-FTB', text: 'Form 540 截止日变更', date: 'Apr 25' },
           { pill: 'NY-DTF', text: 'MTA-305 附加费更新', date: 'Apr 22' },
@@ -750,14 +750,14 @@ const zhCN: LandingCopy = {
       ],
       cta: {
         title: '查看哪些州信号在覆盖范围内。',
-        body: '州覆盖页说明 DueDateHQ 首批监控的五个公开申报更新辖区。',
+        body: '州覆盖页说明 DueDateHQ 如何监控美国所有州和 DC 的公开申报更新。',
         primary: '查看州覆盖',
         secondary: '查看价格',
       },
     },
     stateCoverage: {
       meta: {
-        title: 'DueDateHQ 州覆盖 — CA、NY、TX、FL、WA 申报信号',
+        title: 'DueDateHQ 州覆盖 — 50 州和 DC 申报信号',
         description:
           'DueDateHQ 监控哪些州级申报更新，Pulse 如何把它们送入复核，以及 CPA 团队如何判断客户影响。',
         ogImage: '/og/home.zh-CN.png',
@@ -766,12 +766,12 @@ const zhCN: LandingCopy = {
         eyebrow: 'STATE COVERAGE',
         title: '哪些州级更新会变成事务所的截止日工作？',
         description:
-          'DueDateHQ v1 公开覆盖聚焦 CA、NY、TX、FL 和 WA。覆盖表示公开州级信号可以被监控、匹配事务所客户上下文，并在影响截止日运营前进入 Pulse 复核。',
+          'DueDateHQ 公开覆盖已经扩展到美国 50 州和 DC。覆盖表示公开州级信号可以被监控、匹配事务所客户上下文，并在影响截止日运营前进入 Pulse 复核。',
         note: '覆盖是软件监控范围，不代表每项义务都适用于每个事务所。',
       },
       statesHeader: {
         eyebrow: 'LIVE COVERAGE',
-        title: '首批公开覆盖的州。',
+        title: '已发布的州详情页。',
       },
       states: [
         {
@@ -842,7 +842,7 @@ const zhCN: LandingCopy = {
         {
           question: 'DueDateHQ 当前监控哪些州？',
           answer:
-            '不包含。v1 公开覆盖限制在 CA、NY、TX、FL 和 WA。新增辖区需要做来源复核和覆盖规划。',
+            'DueDateHQ 公开覆盖已经扩展到美国 50 州和 DC。带来源的候选规则仍需要复核后，才能成为可提醒的工作项。',
         },
         {
           question: '州级更新如何变成事务所工作？',
@@ -1359,7 +1359,7 @@ const zhCN: LandingCopy = {
   footer: {
     brand: 'DueDateHQ',
     tagline: '面向美国 CPA 团队的玻璃盒截止日智能。',
-    audience: 'For US CPA practices · 可审计 · 已上线 5 州',
+    audience: 'For US CPA practices · 可审计 · 50 州 + DC',
     columns: [
       {
         title: 'PRODUCT',

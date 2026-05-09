@@ -10,11 +10,12 @@ author: 'Codex'
 
 Rules 资产已经从早期 Demo Sprint seed 演进成当前 MVP 的核心信任资产，但仓库里还有三类漂移：
 
-1. 当前实现实际覆盖 `FED + CA/NY/TX/FL/WA`，marketing 却写成 `CA/NY/TX/FL/IL`。
+1. 当时实现和 marketing 的覆盖口径不一致。
 2. PRD、dev-file、migration-copilot 设计册里仍把 MA 写进 Phase 0 / MVP 当前覆盖。
 3. `RuleEvidence` 只有 `sourceId + locator + summary`，不能类型化表达官方来源角色、来源定位、核验日期和来源摘录。
 
-本轮裁定：当前产品和设计统一按 **Federal + 5 MVP states: CA, NY, TX, FL, WA** 表达。MA / IL 不属于当前 MVP coverage；IL 只保留在历史 50 州研究材料中，并加 scope note。
+本轮裁定已被 2026-05-04 全辖区覆盖更新取代：当前产品和设计统一按
+`FED + 50 states + DC` 表达；candidate 仍需 practice review。
 
 ## 权威来源收集
 
@@ -89,7 +90,7 @@ Federal verified rules 补充 form-specific evidence：
 已统一为：
 
 ```text
-Federal + 5 MVP states: CA / NY / TX / FL / WA
+FED + 50 states + DC
 ```
 
 已修正：
@@ -99,8 +100,8 @@ Federal + 5 MVP states: CA / NY / TX / FL / WA
 - Rules product design册：source count、evidence 字段、change log
 - PRD v2：P0 Rule Engine / MVP coverage / Default Matrix 描述
 - dev-file：Overview、Data Model、Project Structure、AI、Testing、Pulse catalog、Marketing architecture
-- Migration Copilot 设计册：明确 Default Matrix v1.0 是历史 Demo 子集；当前 Rules MVP 已覆盖 TX/FL/WA，但 matrix 自动推断仍需后续扩展
-- 50 州税种研究材料 `docs/report/tax.md` 顶部增加 scope note，说明 IL/MA 是后续扩州研究，不是当前 MVP coverage
+- Migration Copilot 设计册：明确 Default Matrix v1.0 是历史 Demo 子集；当前 Rules coverage 已覆盖 `FED + 50 states + DC`，matrix 自动推断仍需 review-only 路径
+- 50 州税种研究材料 `docs/report/tax.md` 顶部增加 scope note，说明生产提醒以已复核 active rules 为准
 
 ### 文案术语
 
@@ -149,6 +150,6 @@ pnpm check
 
 ## 后续 / 未闭环
 
-- Default Matrix v1.0 仍只覆盖 Federal + CA + NY demo cells。TX / FL / WA 已在 Rules MVP coverage 中，但 matrix 自动推断还需要 v1.1 扩展并逐格 practice review。
+- Default Matrix v1.0 仍只覆盖 Federal + CA + NY demo cells。其他州/DC 已在 Rules coverage 中，但 matrix 自动推断仍需要 review-only 状态并逐格 practice review。
 - Rules Console 目前仍是只读壳。下一步如果做 detail drawer，应展示 `authorityRole`、`locator`、`sourceExcerpt`、`retrievedAt`、`sourceUpdatedOn`，不要只展示 source URL。
 - `EvidenceLink.verbatim_quote` 是旧审计存储字段。是否迁移为 `source_excerpt` 需要单独 ADR / migration，不应和本轮 rules typed asset 混在一起。

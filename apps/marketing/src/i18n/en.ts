@@ -229,7 +229,7 @@ const en: LandingCopy = {
           '14 rule changes ship in a 30-day window. You need to know which 4 hit your clients.',
         body: 'Pulse condenses every IRS notice and 50-state filing change into a single dashboard banner with `source_excerpt`, `source_url`, and a one-click apply path.',
         listTitle: 'Rule changes, last 30 days',
-        listSummary: '14 changes · 5 states',
+        listSummary: '14 changes · 50 states + DC',
         rows: [
           { pill: 'CA-FTB', text: 'Form 540 deadline change', date: 'Apr 25' },
           { pill: 'NY-DTF', text: 'MTA-305 surcharge update', date: 'Apr 22' },
@@ -776,14 +776,14 @@ const en: LandingCopy = {
       ],
       cta: {
         title: 'See which state signals are in scope.',
-        body: 'State coverage explains the first five jurisdictions DueDateHQ monitors for public filing updates.',
+        body: 'State coverage explains how DueDateHQ monitors public filing updates across all states and DC.',
         primary: 'View state coverage',
         secondary: 'Open pricing',
       },
     },
     stateCoverage: {
       meta: {
-        title: 'DueDateHQ State Coverage — CA, NY, TX, FL, WA filing signals',
+        title: 'DueDateHQ State Coverage — 50-state and DC filing signals',
         description:
           'Which state filing updates DueDateHQ monitors, how Pulse routes them into review, and how CPA teams decide client impact.',
         ogImage: '/og/home.en.png',
@@ -792,12 +792,12 @@ const en: LandingCopy = {
         eyebrow: 'STATE COVERAGE',
         title: 'Which state updates can become deadline work for my firm?',
         description:
-          'DueDateHQ v1 public coverage focuses on CA, NY, TX, FL, and WA. Coverage means public state signals can be monitored, matched against firm client context, and routed through Pulse review before they affect deadline operations.',
+          'DueDateHQ public coverage spans all 50 states and DC. Coverage means public state signals can be monitored, matched against firm client context, and routed through Pulse review before they affect deadline operations.',
         note: 'Coverage is software monitoring scope; it is not a guarantee that every obligation applies to every firm.',
       },
       statesHeader: {
         eyebrow: 'LIVE COVERAGE',
-        title: 'States in the first public coverage set.',
+        title: 'Published state detail pages.',
       },
       states: [
         {
@@ -868,7 +868,7 @@ const en: LandingCopy = {
         {
           question: 'Which states does DueDateHQ monitor today?',
           answer:
-            'No. v1 public coverage is limited to CA, NY, TX, FL, and WA. Additional jurisdictions require source review and coverage planning.',
+            'DueDateHQ public coverage spans all 50 states and DC. Source-backed candidates still require review before they can become reminder-ready work.',
         },
         {
           question: 'How do state updates become work for my firm?',
@@ -1392,7 +1392,7 @@ const en: LandingCopy = {
   footer: {
     brand: 'DueDateHQ',
     tagline: 'Glass-box deadline intelligence for US CPA practices.',
-    audience: 'For US CPA practices · Audit-ready · 5 states live',
+    audience: 'For US CPA practices · Audit-ready · 50 states + DC',
     columns: [
       {
         title: 'PRODUCT',

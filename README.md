@@ -46,9 +46,9 @@ replacement for review by a CPA, EA, attorney, or other qualified professional.
 - **Marketing site**: static bilingual public site for product, pricing, rules, and
   state-coverage entry points.
 
-Current verified public coverage should be described as Federal plus CA, NY, TX,
-FL, and WA. The repository also contains broader state/DC source and candidate
-infrastructure, but candidates are not the same as verified reminder-ready rules.
+Current public coverage should be described as `FED + 50 states + DC`.
+State/DC sources and candidate rules are review-gated; candidates are not the same
+as verified reminder-ready rules.
 AI-assisted flows are used for mapping, extraction, summarization, and drafting
 inside guarded workflows; human review remains part of the product model.
 

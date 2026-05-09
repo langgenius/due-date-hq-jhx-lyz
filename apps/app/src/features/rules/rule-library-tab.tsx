@@ -216,6 +216,14 @@ export function RuleLibraryTab() {
     void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
   }
 
+  const invalidateAcceptedRuleOutputs = () => {
+    invalidateRules()
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.facets.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+  }
+
   const previewMutation = useMutation(
     orpc.rules.previewBulkRuleImpact.mutationOptions({
       onSuccess: (result) => setPreview(result),
@@ -229,7 +237,7 @@ export function RuleLibraryTab() {
   const bulkAcceptMutation = useMutation(
     orpc.rules.bulkAcceptTemplates.mutationOptions({
       onSuccess: (result) => {
-        invalidateRules()
+        invalidateAcceptedRuleOutputs()
         setSelectedRuleKeys([])
         setBulkDrawerOpen(false)
         setReviewNote('')

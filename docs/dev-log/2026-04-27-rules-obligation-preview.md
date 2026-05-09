@@ -23,7 +23,7 @@ write or reminder scheduling happens.
   obligations and reminder scheduling.
 - Tightened preview input contracts so client entity uses the real
   `EntityTypeSchema` rather than rule applicability values, and client state is
-  restricted to MVP states (`CA`, `NY`, `TX`, `FL`, `WA`).
+  restricted to `STATE_RULE_JURISDICTIONS`.
 
 ## Product Decisions
 

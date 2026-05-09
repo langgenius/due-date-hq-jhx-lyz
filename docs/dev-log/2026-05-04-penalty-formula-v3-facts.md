@@ -49,7 +49,7 @@ entered.
 ## Boundary
 
 This does not complete the requested `50 states + DC` generic state penalty formula catalog. The
-explicit CA/NY/TX/FL/WA formulas above are source-backed; remaining generic state programs still need
+explicit legacy state formulas above are source-backed; remaining generic state programs still need
 source-by-source official formula entry. Until then, those obligations return `unsupported` rather
 than an estimated or federal-derived amount.
 

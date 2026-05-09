@@ -20,6 +20,19 @@ That development-only helper signs in as `Sarah Martinez` and activates
 `Brightline Demo CPA`, then redirects to `APP_URL` from `apps/server/.dev.vars`
 (usually `http://localhost:5173`). It expects this seed to have run first.
 
+## Archive Solo Pulse Supplement
+
+`Archive Solo Practice` is intentionally blank in the main demo seed for import walkthroughs.
+To turn that practice into a Pulse demo workspace, run:
+
+```bash
+pnpm --dir apps/server exec wrangler d1 execute DB --local --config wrangler.toml --file ../../mock/archive-solo-pulse-demo.sql
+```
+
+The supplement is repeatable. It creates five Archive Solo clients and obligations plus four
+active Pulse changes covering `AI 96%`, `AI 82%`, `AI 63%`, and `AI 46%`; each Pulse affects at
+least one client, and the CA Pulse includes one missing-county row that requires review.
+
 ## Coverage
 
 - Dashboard: open obligations, due-this-week counts, exposure states, evidence gaps, and an AI brief.

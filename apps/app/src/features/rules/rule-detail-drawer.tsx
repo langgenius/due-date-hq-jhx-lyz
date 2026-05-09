@@ -98,10 +98,18 @@ function CandidateReviewForm({ rule }: { rule: ObligationRule }) {
     void queryClient.invalidateQueries({ queryKey: orpc.audit.key() })
   }
 
+  const invalidateAcceptedRuleOutputs = () => {
+    invalidateRules()
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.list.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.obligations.facets.key() })
+    void queryClient.invalidateQueries({ queryKey: orpc.dashboard.load.key() })
+  }
+
   const acceptMutation = useMutation(
     orpc.rules.acceptTemplate.mutationOptions({
       onSuccess: () => {
-        invalidateRules()
+        invalidateAcceptedRuleOutputs()
         toast.success(t`Rule accepted`)
       },
       onError: (error) => {

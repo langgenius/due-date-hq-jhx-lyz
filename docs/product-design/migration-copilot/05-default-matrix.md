@@ -70,27 +70,27 @@ instead of falling back to federal-only.
 
 ## 3. 未覆盖格回退
 
-| 情况                                    | 回退                                                                                                                                                               |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `state ∈ {TX, FL, WA, 其他非 CA/NY 州}` | Federal-only（按 entity_type 在 `federal_overlay.by_entity_type` 查）+ `needs_review` 徽章；TX/FL/WA 已有 Rules MVP coverage，但不在 Default Matrix v1.0 demo seed |
-| `entity_type = other`                   | `federal`（通用兜底）+ `needs_review` 徽章                                                                                                                         |
-| `(entity, state)` 都缺                  | `federal` + `needs_review`；UI 提示"请补全 entity_type / state 后重新推断"                                                                                         |
+| 情况                           | 回退                                                                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `state` 为非 CA/NY 的有效州/DC | Federal overlay + rules registry 生成的 state review-only tax types；显示 `needs_review`，不包装成自动 active obligation |
+| `entity_type = other`          | `federal`（通用兜底）+ `needs_review` 徽章                                                                               |
+| `(entity, state)` 都缺         | `federal` + `needs_review`；UI 提示"请补全 entity_type / state 后重新推断"                                               |
 
 **Phase 0 扩容路径**：
 
-- Phase 0 MVP（4 周全量）：补 TX / FL / WA，使 Default Matrix 与当前 Rules MVP coverage（Federal + CA/NY/TX/FL/WA）对齐
-- Phase 1：扩 **50 州骨架 × 8 实体 = 400 格**，`coverage_status=skeleton` 的格未经 practice owner/manager review 前标 `needs_review`
+- Phase 0 MVP（4 周全量）：Default Matrix runtime 已接受 `FED + 50 states + DC`，非显式格走 state review-only tax types
+- Phase 1：扩 **50 州 + DC × 8 实体** 的显式矩阵与 review SLA，未经 practice owner/manager review 前标 `needs_review`
 
 ### 3.1 Coverage 状态裁定
 
-| 状态          | 使用时机                                                                              | UI 行为                                    | `confidence` 口径      |
-| ------------- | ------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------- |
-| `active`      | practice owner/manager 已接受，source_urls / reviewed_by / reviewed_at 完整           | 可显示 `Active coverage`                   | 查表项可为 1.0         |
-| `demo_seed`   | Demo Sprint CA / NY 种子，有来源但 `practice_review_by=pending`                       | 显示 `Demo coverage · review before pilot` | UI 不宣称正式 active   |
-| `skeleton`    | TX / FL / WA 等当前 MVP 州在 Default Matrix v1.0 尚未展开，或未来扩州结构就位但未签字 | federal-only + `State review needed`       | 不生成州级 obligations |
-| `unsupported` | 未计划或无足够规则来源                                                                | 不生成州级 obligations                     | 不适用                 |
+| 状态          | 使用时机                                                                    | UI 行为                                    | `confidence` 口径      |
+| ------------- | --------------------------------------------------------------------------- | ------------------------------------------ | ---------------------- |
+| `active`      | practice owner/manager 已接受，source_urls / reviewed_by / reviewed_at 完整 | 可显示 `Active coverage`                   | 查表项可为 1.0         |
+| `demo_seed`   | Demo Sprint CA / NY 种子，有来源但 `practice_review_by=pending`             | 显示 `Demo coverage · review before pilot` | UI 不宣称正式 active   |
+| `skeleton`    | 有 source-backed candidate，但 Default Matrix 尚未显式展开或尚未签字        | `State review needed`                      | 不生成州级 obligations |
+| `unsupported` | 未计划或无足够规则来源                                                      | 不生成州级 obligations                     | 不适用                 |
 
-Demo Sprint 的 CA / NY 允许在演示路径作为 `demo_seed` 默认生效；真实 pilot 前必须升为 `active` 或降为 `skeleton`。TX / FL / WA 已进入当前 Rules MVP coverage，但本 Default Matrix v1.0 仍未自动推断对应 state tax types，页面必须显示 `State review needed`，不能把 matrix fallback 说成州级 obligation 已自动生成。
+Demo Sprint 的 CA / NY 允许在演示路径作为 `demo_seed` 默认生效；真实 pilot 前必须升为 `active` 或降为 `skeleton`。其他州/DC 已进入当前 Rules coverage，但本 Default Matrix v1.0 仍以 review-only tax types 表达，页面必须显示 `State review needed`，不能把 matrix fallback 说成州级 obligation 已自动生成。
 
 ---
 
@@ -188,7 +188,7 @@ Suggested tax types (inferred from entity × state)
 
 | 扩展项                       | 阶段        | 备注                                                                                                |
 | ---------------------------- | ----------- | --------------------------------------------------------------------------------------------------- |
-| TX / FL / WA 辖区扩容        | Phase 0 MVP | 补 24 格（3 州 × 8 entity）；矩阵升到 v1.1；practice owner/manager 必须逐格 review                  |
+| 全辖区显式矩阵扩容           | Phase 0 MVP | 在 review-only runtime 基础上补显式 state/DC cells；practice owner/manager 必须逐格 review          |
 | 50 州骨架                    | Phase 1     | `coverage_status=skeleton`，未签字前不推断、仅回退 federal_only                                     |
 | PTET optional 的 entity 适配 | Phase 0 MVP | 目前仅 `s_corp / partnership` 有 PTET；Phase 0 增加 `llc (treated as partnership)` 的自动 PTET 分支 |
 | Matrix v1.x 的 semver 约定   | Phase 0 起  | 新增格 → minor（v1.0 → v1.1）；已有格改变 tax_type 推断 → major（v1.x → v2.0）+ ADR                 |

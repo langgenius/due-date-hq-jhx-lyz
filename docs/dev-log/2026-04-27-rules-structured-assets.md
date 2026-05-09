@@ -3,21 +3,21 @@
 ## Context
 
 The rules product design now needs a project-level structured asset, not only a
-documented plan. The MVP scope remains Federal plus CA, NY, TX, FL, and WA.
+documented plan. The current scope is `FED + 50 states + DC`.
 
 ## Changes
 
 - Added `@duedatehq/core/rules` as the first pure domain rules asset.
 - Added a structured `RuleSource` registry with official source URLs, acquisition
   methods, watch cadence, priority, health status, and notification channels.
-- Added a structured `ObligationRule` seed pack with verified Federal, CA, NY,
-  TX, FL, and WA rules plus one Federal disaster relief candidate watch.
+- Added a structured `ObligationRule` seed pack with verified Federal/state
+  rules plus one Federal disaster relief candidate watch.
 - Added coverage and filtering helpers for Rules Console reads.
 - Added `packages/contracts/src/rules.ts` and `apps/server/src/procedures/rules/index.ts`
   so the rules asset is available through `rules.listSources`, `rules.listRules`,
   and `rules.coverage`.
 - Added tests that enforce official source hosts, unique IDs, source linkage,
-  MVP jurisdiction coverage, and the boundary that user reminders do not come
+  jurisdiction coverage, and the boundary that user reminders do not come
   directly from source watches or candidates.
 - Updated the rules product docs so they point to the implemented core asset.
 

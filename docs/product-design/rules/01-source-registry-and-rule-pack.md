@@ -81,7 +81,7 @@ checker 不放在 `packages/core`，core 只保留纯规则数据、DueDateLogic
 
 ## 2. Source Registry
 
-`RuleSource` 是规则采集的入口清单。没有登记到 registry 的来源，不视为 MVP 覆盖范围。
+`RuleSource` 是规则采集的入口清单。没有登记到 registry 的来源，不视为当前 rules 覆盖范围。
 
 ### 2.1 Federal
 

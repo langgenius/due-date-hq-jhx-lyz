@@ -87,8 +87,8 @@ obligations、dashboard exposure 和 evidence review。
   - row 8：`Tax ID=99 0004208` + `State=C.A.`，触发 EIN / state review，但 `States=CA` 仍允许继续。
   - row 11：缺 `State / States`，导入客户但不生成 state-backed obligations。
   - row 25：缺 `Organization Name`，Step 4 作为 skipped row 展示。
-- 现场演示顺序建议：先在 Rules 中 accept 需要的 FED / CA / NY / TX / FL / WA 规则，再用本 CSV 跑
-  Migration Wizard；保留部分 `Tax Types` 为空以展示 Default Matrix，TX / FL / WA 行用显式 tax types
+- 现场演示顺序建议：先在 Rules 中 accept 需要的 FED 和示例州规则，再用本 CSV 跑
+  Migration Wizard；保留部分 `Tax Types` 为空以展示 Default Matrix，非 CA/NY 行用显式 tax types
   展示 review-heavy state coverage。
 
 #### `quickbooks-20clients.csv`
@@ -118,7 +118,7 @@ obligations、dashboard exposure 和 evidence review。
   - **EIN 含空格 / 点 / 无分隔符**：`99 0000 503` / `99.0000504` / `990000506`（共 6 条非标 + 1 条缺失 + 45 条标准）
   - **Industry 多余列**：不在 DueDateHQ 9 字段 schema → 期望 Mapper 标 `IGNORE`
   - **Year Revenue 多余列**：同上 → 期望 `IGNORE`（将来映射到 `estimated_annual_revenue_band`，Phase 0 起；本 Sprint 不用）
-  - **辖区外（TX / FL / WA）8 行**：触发 Default Matrix fallback（federal-only + needs_review）
+  - **非 CA/NY 示例辖区 8 行**：触发 Default Matrix fallback（state review-only + needs_review）
   - **Non-profit 1 行**：`Org Type=Non-profit` → Normalizer 归一到 `other` + needs_review
   - **近全空行 1 行**：row 42（`Junction LLC (TEST)`）仅 Client / Contact / Email / Notes 有值 → 触发"缺必填 state/entity 阻塞"红色徽章（对齐 PRD §6A.3）
 - 验证：Agent Demo 现场"真的混乱"；可同时展示 Mapper 低置信度 / Normalizer 归一能力 / Matrix fallback / needs_review 队列 / 阻塞性缺失字段

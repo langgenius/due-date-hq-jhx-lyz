@@ -703,7 +703,7 @@ pnpm --dir apps/server exec wrangler d1 migrations apply DB --remote --config wr
   `migrations_dir` resolves consistently. They target the `DB` binding; the
   explicit `--local` / `--remote` flag selects Miniflare SQLite or Cloudflare
   D1.
-- Seed 脚本分环境：`db:seed:demo`（幂等）/ `db:seed:rules`（Federal + CA + NY 核心规则）/ `db:seed:pulse`（2 条示例）
+- Seed 脚本分环境：`db:seed:demo`（幂等）/ rules asset 由 `packages/core` 提供 `FED + 50 states + DC` 覆盖 / `db:seed:pulse`（示例信号）
 
 ---
 
@@ -751,11 +751,11 @@ interface WeekendHolidayPolicy {
 
 ### 9.1 规则覆盖（对齐 PRD §4.1 P0-8 / §6.1.2）
 
-| 阶段                                  | 覆盖辖区                         | 条目                                                                                                                                                           |
-| ------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Demo Sprint**（§09）                | Federal + CA + NY                | ~20 条 verified                                                                                                                                                |
-| **Phase 0 MVP 当前口径**（PRD §14.1） | Federal + CA + NY + TX + FL + WA | 当前 rule pack 已落地 25 条 verified + 1 条 Federal disaster candidate；MA/IL 不进入当前 MVP coverage，其他州 `coverage_status='skeleton'` + Federal-only 回退 |
-| **Phase 1 完整**（PRD §14.2）         | 50 州 full coverage              | 逐州 sign-off 后 `active=true`；无 schema 变更                                                                                                                 |
+| 阶段                                  | 覆盖辖区                    | 条目                                                                                                                                                         |
+| ------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Demo Sprint**（§09）                | Federal + CA + NY           | ~20 条 verified                                                                                                                                              |
+| **Phase 0 MVP 当前口径**（PRD §14.1） | `FED + 50 states + DC`      | 当前 rule/source registry 已覆盖全辖区；source-backed candidate 进入 review-only 路径，只有 practice-reviewed active rule 才能生成 reminder-ready obligation |
+| **Phase 1 完整**（PRD §14.2）         | 全辖区 active sign-off 强化 | 逐辖区完成更细 source snapshot、diff、review SLA 与 active 规则治理；无 schema 变更                                                                          |
 
 ### 9.2 Postgres 退路（极端场景，非预设路径）
 

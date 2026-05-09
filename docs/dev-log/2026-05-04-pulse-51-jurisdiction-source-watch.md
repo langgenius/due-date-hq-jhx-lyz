@@ -9,7 +9,7 @@ author: 'Codex'
 ## 背景
 
 Rules 已经扩到 `FED + 50 states + DC`，但 Pulse 的 customer-facing extract 队列不能只靠
-显式 live adapters（IRS、CA、NY、TX、FL、WA、MA、FEMA）表达覆盖范围。Pulse 必须把
+显式 legacy live adapters 表达覆盖范围。Pulse 必须把
 Rules registry 里的州级官方 source 接进 source-state / snapshot / extract 路径，并且
 promoted source 不能是 tax agency 首页、generic individuals page 或新闻收纳页。
 

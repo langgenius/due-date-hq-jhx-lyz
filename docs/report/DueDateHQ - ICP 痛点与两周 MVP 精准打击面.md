@@ -288,7 +288,7 @@ P0 功能：
 
 - Email magic link 或最简账号登录。
 - 手动添加客户：客户姓名、州、实体类型、适用税种。
-- Federal + CA / NY / TX / FL / WA 的人工确认 deadline 规则。
+- `FED + 50 states + DC` 的 source-backed deadline rules/candidates；生产提醒仍需人工确认 active rule。
 - 自动生成客户全年 deadline 列表。
 - 首页三段式分诊：
   - This Week
@@ -435,8 +435,7 @@ IRS Form 7004 Instructions · Human verified Apr 2026
 
 MVP 覆盖：
 
-- Federal。
-- CA / NY / TX / FL / WA。
+- `FED + 50 states + DC`。
 - LLC / S-Corp / Partnership。
 - 核心 filing、payment、estimated tax、extension、franchise/annual tax、PTE election 相关 deadline。
 
@@ -531,7 +530,7 @@ MVP 覆盖：
 
 这些都不是两周 MVP 能可信交付的东西。当前更稳的表达是：
 
-> 先人工维护 5 州核心 deadline，验证 CPA 是否愿意每周使用 AI 分诊看板；若成立，再单独验证 50 州覆盖和自动监控的技术/法律可行性。
+> 先人工维护并复核全辖区核心 deadline/candidate，验证 CPA 是否愿意每周使用 AI 分诊看板；若成立，再单独验证自动监控的技术/法律可行性。
 
 ### 11.2 File In Time 对比需要更准确
 
@@ -550,7 +549,7 @@ MVP 覆盖：
 
 - 单用户 SaaS。
 - 手动录入客户。
-- Federal + 5 州。
+- `FED + 50 states + DC`，candidate 仍需人工复核。
 - AI 只做解释和分诊增强。
 - 不做 CSV 导入、团队、门户、文档、Stripe、自动监控。
 - 首屏必须是 weekly triage，不是普通日历。
@@ -571,7 +570,7 @@ MVP 覆盖：
 
 ### 12.2 数据
 
-- 建立 Federal + CA / NY / TX / FL / WA 的 deadline rule sheet。
+- 建立 `FED + 50 states + DC` 的 deadline rule/candidate sheet。
 - 每条规则补 source URL、适用 entity、适用 tax type、original/extended deadline、人工确认人和确认日期。
 - 对 ambiguous rules 标记为 “manual review only”，不进入默认生成。
 
