@@ -47,7 +47,7 @@ content column.
   - `sources-tab.tsx` consumes `rules.listSources`.
   - `rule-library-tab.tsx` consumes `rules.listRules` with candidates included.
   - `generation-preview-tab.tsx` consumes `rules.previewObligations` using
-    React Hook Form + Zod for client facts.
+    TanStack Form + Zod Standard Schema for client facts.
   - `rules-console-model.ts` keeps tab metadata, filter logic, static coverage
     matrix labels, and preview form mapping out of render code.
   - `rules-console-model.test.ts` covers route-tab guards, preview mapping,

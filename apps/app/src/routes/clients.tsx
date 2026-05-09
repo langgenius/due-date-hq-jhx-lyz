@@ -2,13 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { AlertCircleIcon, FileClockIcon, FileSearchIcon } from 'lucide-react'
-import {
-  parseAsArrayOf,
-  parseAsString,
-  parseAsStringLiteral,
-  useQueryStates,
-  type inferParserType,
-} from 'nuqs'
+import { useQueryStates } from 'nuqs'
 import { toast } from 'sonner'
 
 import type { ClientCreateInput, ClientPublic } from '@duedatehq/contracts'
@@ -18,10 +12,15 @@ import { Button } from '@duedatehq/ui/components/ui/button'
 import { ClientFactsWorkspace } from '@/features/clients/ClientFactsWorkspace'
 import { CreateClientDialog } from '@/features/clients/CreateClientDialog'
 import {
-  CLIENT_ENTITY_TYPES,
-  CLIENT_READINESS_FILTERS,
-  CLIENT_SOURCE_FILTERS,
-  STATE_FILTER_ALL,
+  CLIENT_LIST_LIMIT,
+  clientsSearchParamsParsers,
+  normalizeClientIdFilters,
+  normalizeClientOwnerFilters,
+  normalizeClientStateFilters,
+  normalizeClientsQueryFilters,
+  nullableQueryArray,
+} from '@/features/clients/client-query-state'
+import {
   buildClientFactsModel,
   filterClients,
   isClientEntityType,
@@ -34,29 +33,6 @@ import { useMigrationWizard } from '@/features/migration/WizardProvider'
 import { useFirmPermission } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
-
-const CLIENT_LIST_LIMIT = 500
-const REPLACE_HISTORY_OPTIONS = { history: 'replace' } as const
-
-export const clientsSearchParamsParsers = {
-  q: parseAsString.withDefault('').withOptions(REPLACE_HISTORY_OPTIONS),
-  clients: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
-  entity: parseAsArrayOf(parseAsStringLiteral(CLIENT_ENTITY_TYPES))
-    .withDefault([])
-    .withOptions(REPLACE_HISTORY_OPTIONS),
-  state: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
-  readiness: parseAsArrayOf(parseAsStringLiteral(CLIENT_READINESS_FILTERS))
-    .withDefault([])
-    .withOptions(REPLACE_HISTORY_OPTIONS),
-  source: parseAsArrayOf(parseAsStringLiteral(CLIENT_SOURCE_FILTERS))
-    .withDefault([])
-    .withOptions(REPLACE_HISTORY_OPTIONS),
-  owner: parseAsArrayOf(parseAsString).withDefault([]).withOptions(REPLACE_HISTORY_OPTIONS),
-  client: parseAsString.withOptions(REPLACE_HISTORY_OPTIONS),
-  importHistory: parseAsStringLiteral(['open']).withOptions(REPLACE_HISTORY_OPTIONS),
-} as const
-
-export type ClientsSearchParams = inferParserType<typeof clientsSearchParamsParsers>
 
 const EMPTY_CLIENTS: ClientPublic[] = []
 
@@ -105,28 +81,19 @@ export function ClientsRoute() {
   )
   const clients = clientsQuery.data ?? EMPTY_CLIENTS
   const factsModel = useMemo(() => buildClientFactsModel(clients), [clients])
-  const clientIdQuery = useMemo(() => cleanStringFilters(clientFilter), [clientFilter])
-  const stateQuery = useMemo(
+  const filters = useMemo(
     () =>
-      cleanStringFilters(stateFilter)
-        .map((state) => state.toUpperCase())
-        .filter((state) => state !== STATE_FILTER_ALL),
-    [stateFilter],
-  )
-  const ownerQuery = useMemo(() => cleanStringFilters(ownerFilter), [ownerFilter])
-  const filteredClients = useMemo(
-    () =>
-      filterClients(clients, {
-        search: '',
-        clientFilters: clientIdQuery,
-        entityFilters: entityFilter,
-        stateFilters: stateQuery,
-        readinessFilters: readinessFilter,
-        sourceFilters: sourceFilter,
-        ownerFilters: ownerQuery,
+      normalizeClientsQueryFilters({
+        clients: clientFilter,
+        entity: entityFilter,
+        state: stateFilter,
+        readiness: readinessFilter,
+        source: sourceFilter,
+        owner: ownerFilter,
       }),
-    [clientIdQuery, clients, entityFilter, ownerQuery, readinessFilter, sourceFilter, stateQuery],
+    [clientFilter, entityFilter, ownerFilter, readinessFilter, sourceFilter, stateFilter],
   )
+  const filteredClients = useMemo(() => filterClients(clients, filters), [clients, filters])
   const activeClient =
     (selectedClientId ? filteredClients.find((client) => client.id === selectedClientId) : null) ??
     filteredClients[0] ??
@@ -158,9 +125,10 @@ export function ClientsRoute() {
 
   const handleClientFilterChange = useCallback(
     (values: string[]) => {
+      const clientIds = normalizeClientIdFilters(values)
       void setClientsQuery({
         q: null,
-        clients: values.length > 0 ? values : null,
+        clients: nullableQueryArray(clientIds),
         client: null,
       })
     },
@@ -172,7 +140,7 @@ export function ClientsRoute() {
       const typedEntities = values.filter(isClientEntityType)
       void setClientsQuery({
         q: null,
-        entity: typedEntities.length > 0 ? typedEntities : null,
+        entity: nullableQueryArray(typedEntities),
         client: null,
       })
     },
@@ -181,12 +149,10 @@ export function ClientsRoute() {
 
   const handleStateFilterChange = useCallback(
     (values: string[]) => {
-      const states = cleanStringFilters(values)
-        .map((state) => state.toUpperCase())
-        .filter((state) => state !== STATE_FILTER_ALL)
+      const states = normalizeClientStateFilters(values)
       void setClientsQuery({
         q: null,
-        state: states.length > 0 ? states : null,
+        state: nullableQueryArray(states),
         client: null,
       })
     },
@@ -198,7 +164,7 @@ export function ClientsRoute() {
       const typedReadiness = values.filter(isClientReadinessStatus)
       void setClientsQuery({
         q: null,
-        readiness: typedReadiness.length > 0 ? typedReadiness : null,
+        readiness: nullableQueryArray(typedReadiness),
         client: null,
       })
     },
@@ -210,7 +176,7 @@ export function ClientsRoute() {
       const typedSources = values.filter(isClientSourceType)
       void setClientsQuery({
         q: null,
-        source: typedSources.length > 0 ? typedSources : null,
+        source: nullableQueryArray(typedSources),
         client: null,
       })
     },
@@ -219,10 +185,10 @@ export function ClientsRoute() {
 
   const handleOwnerFilterChange = useCallback(
     (values: string[]) => {
-      const owners = cleanStringFilters(values)
+      const owners = normalizeClientOwnerFilters(values)
       void setClientsQuery({
         q: null,
-        owner: owners.length > 0 ? owners : null,
+        owner: nullableQueryArray(owners),
         client: null,
       })
     },
@@ -334,12 +300,12 @@ export function ClientsRoute() {
         factsModel={factsModel}
         entityLabels={entityLabels}
         isLoading={clientsQuery.isLoading}
-        clientFilter={clientIdQuery}
-        entityFilter={entityFilter}
-        stateFilter={stateQuery}
-        readinessFilter={readinessFilter}
-        sourceFilter={sourceFilter}
-        ownerFilter={ownerQuery}
+        clientFilter={filters.clientFilters}
+        entityFilter={filters.entityFilters}
+        stateFilter={filters.stateFilters}
+        readinessFilter={filters.readinessFilters}
+        sourceFilter={filters.sourceFilters}
+        ownerFilter={filters.ownerFilters}
         profileOpen={profileOpen}
         onClientFilterChange={handleClientFilterChange}
         onEntityFilterChange={handleEntityFilterChange}
@@ -356,14 +322,4 @@ export function ClientsRoute() {
       />
     </div>
   )
-}
-
-function cleanStringFilters(values: readonly string[], maxLength = 120): string[] {
-  return [
-    ...new Set(
-      values
-        .map((value) => value.trim())
-        .filter((value) => value.length > 0 && value.length <= maxLength),
-    ),
-  ]
 }

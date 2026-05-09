@@ -1,8 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm, useStore } from '@tanstack/react-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
   CalendarDaysIcon,
@@ -390,9 +389,14 @@ function GenerationPreviewForm({
     previewFormToInput(defaultValues),
   )
 
-  const form = useForm<PreviewFormValues>({
-    resolver: zodResolver(previewFormSchema),
+  const form = useForm({
     defaultValues,
+    validators: {
+      onSubmit: previewFormSchema,
+    },
+    onSubmit: ({ value }) => {
+      setPreviewInput(previewFormToInput(value))
+    },
   })
 
   const previewQuery = useQuery(
@@ -401,12 +405,18 @@ function GenerationPreviewForm({
     }),
   )
 
-  const clientIdValue = form.watch('clientId')
-  const entityTypeValue = form.watch('entityType')
-  const stateValue = form.watch('state')
-  const taxYearStart = form.watch('taxYearStart')
-  const taxYearEnd = form.watch('taxYearEnd')
-  const taxTypesValue = form.watch('taxTypes')
+  const clientIdValue = useStore(form.store, (state) => state.values.clientId)
+  const entityTypeValue = useStore(form.store, (state) => state.values.entityType)
+  const stateValue = useStore(form.store, (state) => state.values.state)
+  const taxYearStart = useStore(form.store, (state) => state.values.taxYearStart)
+  const taxYearEnd = useStore(form.store, (state) => state.values.taxYearEnd)
+  const taxTypesValue = useStore(form.store, (state) => state.values.taxTypes)
+  const taxYearInvalid = useStore(
+    form.store,
+    (state) =>
+      state.fieldMeta.taxYearStart?.isValid === false ||
+      state.fieldMeta.taxYearEnd?.isValid === false,
+  )
   const taxTypeChips = useMemo(
     () =>
       taxTypesValue
@@ -420,10 +430,6 @@ function GenerationPreviewForm({
     taxYearStart,
     taxYearEnd,
   })
-  const taxYearInvalid = Boolean(
-    form.formState.errors.taxYearStart || form.formState.errors.taxYearEnd,
-  )
-
   const groups = useMemo(() => groupPreviewRows(previewQuery.data ?? []), [previewQuery.data])
   const selectedClientLabel =
     clients.find((client) => client.id === clientIdValue)?.name ?? clientIdValue
@@ -433,9 +439,11 @@ function GenerationPreviewForm({
       <SectionFrame className="px-4 py-4">
         <form
           className="flex flex-col gap-4"
-          onSubmit={form.handleSubmit((values) => {
-            setPreviewInput(previewFormToInput(values))
-          })}
+          onSubmit={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            void form.handleSubmit()
+          }}
         >
           <div className="grid grid-cols-[220px_110px_110px_220px_120px] gap-3">
             <PreviewField label={t`CLIENT`}>
@@ -447,10 +455,7 @@ function GenerationPreviewForm({
                   onSelectClient(client.id)
                 }}
               >
-                <SelectTrigger
-                  className="h-8 w-full rounded-md font-mono text-xs"
-                  aria-invalid={Boolean(form.formState.errors.clientId)}
-                >
+                <SelectTrigger className="h-8 w-full rounded-md font-mono text-xs">
                   <SelectValue>{selectedClientLabel}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -479,10 +484,7 @@ function GenerationPreviewForm({
                 value={entityTypeValue}
                 onValueChange={(value) => {
                   if (isEntityOption(value)) {
-                    form.setValue('entityType', value, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    })
+                    form.setFieldValue('entityType', value)
                   }
                 }}
               >
@@ -505,10 +507,7 @@ function GenerationPreviewForm({
                 value={stateValue}
                 onValueChange={(value) => {
                   if (isGenerationState(value)) {
-                    form.setValue('state', value, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    })
+                    form.setFieldValue('state', value)
                   }
                 }}
               >
@@ -535,14 +534,8 @@ function GenerationPreviewForm({
                 invalid={taxYearInvalid}
                 onValueChange={(year) => {
                   const dates = previewCalendarYearToFormDates(year)
-                  form.setValue('taxYearStart', dates.taxYearStart, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                  form.setValue('taxYearEnd', dates.taxYearEnd, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
+                  form.setFieldValue('taxYearStart', dates.taxYearStart)
+                  form.setFieldValue('taxYearEnd', dates.taxYearEnd)
                 }}
               />
             </PreviewField>
@@ -573,7 +566,18 @@ function GenerationPreviewForm({
                   </span>
                 ))
               )}
-              <Input id="preview-tax-types" className="sr-only" {...form.register('taxTypes')} />
+              <form.Field name="taxTypes">
+                {(field) => (
+                  <Input
+                    id="preview-tax-types"
+                    name={field.name}
+                    value={field.state.value}
+                    className="sr-only"
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                  />
+                )}
+              </form.Field>
             </div>
             <span className="text-xs text-text-tertiary">
               {taxTypeSource === 'obligations' ? (

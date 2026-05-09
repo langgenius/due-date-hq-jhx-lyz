@@ -154,15 +154,6 @@ function roleLabel(role: DemoRole): string {
   return 'Coordinator'
 }
 
-function dateInTimezone(timezone: string, date = new Date()): string {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(date)
-}
-
 function dateOnlyToUtcDate(value: string): Date {
   return new Date(`${value}T00:00:00.000Z`)
 }
@@ -694,7 +685,7 @@ function buildStableSuffix(value: string | undefined): string {
 
 async function seedObligationQueue(db: ReturnType<typeof createDb>, firmId: string) {
   const repo = scoped(db, firmId)
-  const today = dateOnlyToUtcDate(dateInTimezone('America/New_York'))
+  const workloadAsOfDate = dateOnlyToUtcDate('2026-04-30')
   const arbor = {
     id: crypto.randomUUID(),
     name: 'Arbor & Vale LLC',
@@ -770,8 +761,8 @@ async function seedObligationQueue(db: ReturnType<typeof createDb>, firmId: stri
       clientId: foundry.id,
       taxType: 'ca_568',
       taxYear: 2026,
-      baseDueDate: today,
-      currentDueDate: today,
+      baseDueDate: workloadAsOfDate,
+      currentDueDate: workloadAsOfDate,
       status: 'pending',
       migrationBatchId: null,
     },

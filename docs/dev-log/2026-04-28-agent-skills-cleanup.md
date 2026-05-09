@@ -25,9 +25,8 @@ full organization/team flows instead of the P0 single-firm setup.
   while P0 intentionally keeps one firm owner and disables invitations.
 - `react-email` — future migration report email docs mention React Email, but
   runtime implementation has not adopted it yet.
-- `react-hook-form-zod` — generic install/version and shadcn Form guidance
-  conflict with catalog-managed dependencies and Base UI/shadcn `base-vega`
-  conventions.
+- `react-hook-form-zod` — retired by ADR 0020; app forms use TanStack Form with
+  Zod Standard Schema instead of a resolver package.
 - `swc-plugin-compatibility` — targets Next/Rspack SWC plugin failures; Lingui
   currently runs through Vite + Rolldown Babel macros.
 

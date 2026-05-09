@@ -213,14 +213,14 @@ feature 语义留在 members vertical 内。
 
 ## 3. 状态管理分层（约束）
 
-| 层           | 工具                                         | 管什么                                                                                                                                                                         |
-| ------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Server state | **TanStack Query + `@orpc/tanstack-query`**  | React surface 的内部 RPC 消费必须走 `orpc.*.queryOptions()` / `mutationOptions()`；route loader 可用 `orpc.*.call()` 做渲染前 redirect 判断；自动缓存 / 乐观 UI / invalidation |
-| URL state    | **nuqs** + `react-router` params             | 筛选 / 排序 / 可分享页码 / tab/subview / 抽屉打开项                                                                                                                            |
-| Form state   | **react-hook-form** + Zod（复用契约 schema） | 所有表单                                                                                                                                                                       |
-| UI state     | **Zustand**                                  | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store**                                                                                                             |
-| Hook helpers | **foxact**                                   | 只在 app 层用 deep import 引入明确收益的 hook，例如客户端 search debounce；不下沉到 `packages/ui`                                                                              |
-| Feature flag | **PostHog JS SDK**                           | 运行时开关                                                                                                                                                                     |
+| 层           | 工具                                        | 管什么                                                                                                                                                                         |
+| ------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Server state | **TanStack Query + `@orpc/tanstack-query`** | React surface 的内部 RPC 消费必须走 `orpc.*.queryOptions()` / `mutationOptions()`；route loader 可用 `orpc.*.call()` 做渲染前 redirect 判断；自动缓存 / 乐观 UI / invalidation |
+| URL state    | **nuqs** + `react-router` params            | 筛选 / 排序 / 可分享页码 / tab/subview / 抽屉打开项                                                                                                                            |
+| Form state   | **TanStack Form** + Zod Standard Schema     | 复杂 client-side 表单；简单 native submit 表单可保留本地 handler，不引入全局 form 状态                                                                                         |
+| UI state     | **Zustand**                                 | Cmd-K 开关 / drawer 堆栈 / Evidence Mode 目标；**不超 3 个 store**                                                                                                             |
+| Hook helpers | **foxact**                                  | 只在 app 层用 deep import 引入明确收益的 hook，例如客户端 search debounce；不下沉到 `packages/ui`                                                                              |
+| Feature flag | **PostHog JS SDK**                          | 运行时开关                                                                                                                                                                     |
 
 Activation Slice v1 约束：Dashboard 不再维护本地 fake risk rows / queue stats / pulse items。
 `apps/app/src/routes/dashboard.tsx` 直接消费
@@ -574,8 +574,12 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 
 ## 7. 表单
 
-- **react-hook-form + Zod**；Zod schema **必须** import 自 `packages/contracts`（前后端同源）
-- `@hookform/resolvers/zod` 做表单级校验
+- **TanStack Form + Zod Standard Schema**；复杂 client-side 表单使用
+  `@tanstack/react-form` 的 `useForm` / `form.Field` / `form.Subscribe`
+- 表单级校验直接把 Zod schema 挂到 `validators.onSubmit` / `validators.onChange`；不要引入
+  resolver 适配层
+- 与后端契约同源的表单必须优先 import `packages/contracts` schema；纯 UI draft schema 可以留在
+  feature model 内，但提交前仍需经过 contract schema 或 RPC contract 校验
 - Server error（oRPC 返回 `ORPCError`）映射到字段级 error 由统一 hook `useRpcMutation` 处理
 
 ---

@@ -58,8 +58,8 @@ DueDateHQ is a TypeScript pnpm monorepo deployed on Cloudflare.
 
 - **Apps**: Vite React SPA for the authenticated workbench, Cloudflare Worker API
   for the SaaS backend, and Astro for the marketing site.
-- **Frontend**: React 19, React Router 7, TanStack Query/Table/Virtual/Hotkeys,
-  Zustand, nuqs, react-hook-form, Zod, Lingui, Tailwind 4, Base UI, shadcn/ui
+- **Frontend**: React 19, React Router 7, TanStack Query/Table/Virtual/Hotkeys/Form,
+  Zustand, nuqs, Zod, Lingui, Tailwind 4, Base UI, shadcn/ui
   `base-vega`, and lucide-react.
 - **API and contracts**: Hono on Cloudflare Workers with oRPC contract-first
   boundaries shared through `packages/contracts`.

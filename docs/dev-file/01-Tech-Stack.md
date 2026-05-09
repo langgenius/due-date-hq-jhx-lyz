@@ -27,7 +27,7 @@
 | **服务端数据**          | TanStack Query 5 + oRPC tanstack-query adapter                                          | 乐观 UI + invalidation + 契约派生类型                                                                                                                                                |
 | **全局状态**            | Zustand 5                                                                               | 极少 UI state；不引 Redux                                                                                                                                                            |
 | **URL state**           | nuqs                                                                                    | 筛选 / 分页 / 抽屉开关持久到 URL                                                                                                                                                     |
-| **表单**                | react-hook-form + Zod                                                                   | 与 oRPC 契约共享 schema                                                                                                                                                              |
+| **表单**                | TanStack Form + Zod Standard Schema                                                     | 复杂 app 表单使用 `@tanstack/react-form`；校验直接挂 Zod schema，不再经过 resolver 适配层                                                                                            |
 | **动画**                | framer-motion + canvas-confetti + react-odometerjs                                      | Penalty Radar 游戏化 + Live Genesis                                                                                                                                                  |
 | **PDF**                 | @react-pdf/renderer（Phase 1）                                                          | Client PDF Report / Audit Package；Worker 可跑                                                                                                                                       |
 | **RPC 桥**              | **oRPC**（`@orpc/contract` + `@orpc/server` + `@orpc/client` + `@orpc/tanstack-query`） | Contract-first，端到端强类型；前后端解耦，AI 辅助编程下不易漂                                                                                                                        |
@@ -222,13 +222,12 @@ catalog:
 
   # ── state / form ──
   '@tanstack/react-query': 5.100.6
+  '@tanstack/react-form': 1.29.3
   '@tanstack/react-hotkeys': 0.10.0
   '@tanstack/react-table': 8.21.3
   '@tanstack/react-virtual': 3.13.24
   zustand: 5.0.12
   nuqs: 2.8.9
-  react-hook-form: 7.74.0
-  '@hookform/resolvers': 5.2.2
   zod: 4.3.6
 
   # ── animation ──

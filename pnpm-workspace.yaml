@@ -118,13 +118,12 @@ catalog:
 
   # ───────── state / form ─────────
   '@tanstack/react-query': 5.100.6
+  '@tanstack/react-form': 1.29.3
   '@tanstack/react-hotkeys': 0.10.0
   '@tanstack/react-table': 8.21.3
   '@tanstack/react-virtual': 3.13.24
   zustand: 5.0.12
   nuqs: 2.8.9
-  react-hook-form: 7.74.0
-  '@hookform/resolvers': 5.2.2
   zod: 4.3.6
 
   # ───────── animation ─────────

@@ -36,3 +36,4 @@ proposed | accepted | deprecated | superseded by #NNN
 - 0017-orpc-contract-first-rpc-api-boundary.md — oRPC contract-first with `/rpc` for internal SPA RPC and `/api` for auth/webhooks/future REST
 - 0018-d1-tenant-isolation-scoped-repo-ports.md — D1 tenant isolation through middleware, `scoped(db, firmId)`, lint rules, and `@duedatehq/ports/<domain>`
 - 0019-ai-sdk-gateway-glass-box-boundary.md — AI SDK + Cloudflare AI Gateway execution boundary with Glass-Box guard and no request-path Dashboard AI
+- 0020-tanstack-form-for-client-forms.md — TanStack Form for complex client-side forms, with Zod Standard Schema validation and no resolver layer

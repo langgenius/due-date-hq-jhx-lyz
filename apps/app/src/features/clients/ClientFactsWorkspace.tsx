@@ -132,12 +132,12 @@ type ClientFactsWorkspaceProps = {
   factsModel: ClientFactsModel
   entityLabels: Record<ClientEntityType, string>
   isLoading: boolean
-  clientFilter: string[]
-  entityFilter: ClientEntityType[]
-  stateFilter: string[]
-  readinessFilter: ClientReadinessStatus[]
-  sourceFilter: ClientSourceType[]
-  ownerFilter: string[]
+  clientFilter: readonly string[]
+  entityFilter: readonly ClientEntityType[]
+  stateFilter: readonly string[]
+  readinessFilter: readonly ClientReadinessStatus[]
+  sourceFilter: readonly ClientSourceType[]
+  ownerFilter: readonly string[]
   profileOpen: boolean
   onClientFilterChange: (value: string[]) => void
   onEntityFilterChange: (value: string[]) => void

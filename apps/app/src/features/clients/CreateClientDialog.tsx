@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Trans, useLingui } from '@lingui/react/macro'
+import { useForm, useStore } from '@tanstack/react-form'
 import { useQuery } from '@tanstack/react-query'
 import { PlusIcon } from 'lucide-react'
-import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import {
@@ -53,6 +52,7 @@ type ClientFormValues = {
 }
 
 type ClientFormField = keyof ClientFormValues
+type FormFieldError = { message?: string }
 
 const defaultClientFormValues: ClientFormValues = {
   name: '',
@@ -153,6 +153,18 @@ function contractPathToFormField(path: PropertyKey[]): ClientFormField | null {
   }
 }
 
+function fieldErrors(errors: readonly unknown[]): FormFieldError[] {
+  return errors.flatMap((error) => {
+    if (!error) return []
+    if (typeof error === 'string') return [{ message: error }]
+    if (typeof error === 'object' && 'message' in error) {
+      const message = error.message
+      return typeof message === 'string' ? [{ message }] : []
+    }
+    return []
+  })
+}
+
 export function CreateClientDialog({
   entityLabels,
   isPending,
@@ -165,12 +177,40 @@ export function CreateClientDialog({
   const { t } = useLingui()
   const [open, setOpen] = useState(false)
   const clientFormSchema = useMemo(() => createClientFormSchema(t), [t])
-  const form = useForm<ClientFormValues>({
-    resolver: zodResolver(clientFormSchema),
+  const form = useForm({
     defaultValues: defaultClientFormValues,
+    validators: {
+      onSubmit: clientFormSchema,
+    },
+    onSubmit: ({ value }) => {
+      const parsed = ClientCreateInputSchema.safeParse(formValuesToInput(value))
+      if (!parsed.success) {
+        parsed.error.issues.forEach((issue) => {
+          const field = contractPathToFormField(issue.path)
+          if (!field) return
+          form.setFieldMeta(field, (previous) => ({
+            ...previous,
+            isTouched: true,
+            errorMap: {
+              ...previous?.errorMap,
+              onSubmit: issue.message,
+            },
+          }))
+        })
+        return
+      }
+
+      onCreate(parsed.data, {
+        onSuccess: () => {
+          form.reset(defaultClientFormValues)
+          setOpen(false)
+        },
+      })
+    },
   })
-  const entityType = form.watch('entityType')
-  const assigneeId = form.watch('assigneeId')
+  const entityType = useStore(form.store, (state) => state.values.entityType)
+  const assigneeId = useStore(form.store, (state) => state.values.assigneeId)
+  const importanceWeight = useStore(form.store, (state) => state.values.importanceWeight)
   const assigneesQuery = useQuery({
     ...orpc.members.listAssignable.queryOptions({ input: undefined }),
     enabled: open,
@@ -186,7 +226,7 @@ export function CreateClientDialog({
         <PlusIcon data-icon="inline-start" />
         <Trans>New client</Trans>
       </DialogTrigger>
-      <DialogContent className="w-[640px] max-w-[calc(100vw-2rem)]">
+      <DialogContent className="w-160 max-w-[calc(100vw-2rem)]">
         <DialogHeader>
           <DialogTitle>
             <Trans>Create client</Trans>
@@ -197,37 +237,32 @@ export function CreateClientDialog({
         </DialogHeader>
         <form
           className="contents"
-          onSubmit={form.handleSubmit((values) => {
-            const parsed = ClientCreateInputSchema.safeParse(formValuesToInput(values))
-            if (!parsed.success) {
-              parsed.error.issues.forEach((issue) => {
-                const field = contractPathToFormField(issue.path)
-                if (field) form.setError(field, { message: issue.message, type: 'validate' })
-              })
-              return
-            }
-
-            onCreate(parsed.data, {
-              onSuccess: () => {
-                form.reset(defaultClientFormValues)
-                setOpen(false)
-              },
-            })
-          })}
+          onSubmit={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            void form.handleSubmit()
+          }}
         >
           <FieldGroup className="gap-4">
             <div className="grid gap-4 md:grid-cols-[1fr_180px]">
-              <Field>
-                <FieldLabel htmlFor="client-name">
-                  <Trans>Client name</Trans>
-                </FieldLabel>
-                <Input
-                  id="client-name"
-                  aria-invalid={Boolean(form.formState.errors.name)}
-                  {...form.register('name')}
-                />
-                <FieldError errors={[form.formState.errors.name]} />
-              </Field>
+              <form.Field name="name">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor="client-name">
+                      <Trans>Client name</Trans>
+                    </FieldLabel>
+                    <Input
+                      id="client-name"
+                      name={field.name}
+                      value={field.state.value}
+                      aria-invalid={!field.state.meta.isValid}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                    />
+                    <FieldError errors={fieldErrors(field.state.meta.errors)} />
+                  </Field>
+                )}
+              </form.Field>
               <Field>
                 <FieldLabel>
                   <Trans>Entity type</Trans>
@@ -236,10 +271,7 @@ export function CreateClientDialog({
                   value={entityType}
                   onValueChange={(value) => {
                     if (value && isClientEntityType(value)) {
-                      form.setValue('entityType', value, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
+                      form.setFieldValue('entityType', value)
                     }
                   }}
                 >
@@ -260,54 +292,86 @@ export function CreateClientDialog({
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              <Field>
-                <FieldLabel htmlFor="client-ein">
-                  <Trans>EIN</Trans>
-                </FieldLabel>
-                <Input
-                  id="client-ein"
-                  className="font-mono tabular-nums"
-                  placeholder="12-3456789"
-                  aria-invalid={Boolean(form.formState.errors.ein)}
-                  {...form.register('ein')}
-                />
-                <FieldError errors={[form.formState.errors.ein]} />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="client-state">
-                  <Trans>State</Trans>
-                </FieldLabel>
-                <Input
-                  id="client-state"
-                  className="font-mono uppercase tabular-nums"
-                  placeholder="CA"
-                  maxLength={2}
-                  aria-invalid={Boolean(form.formState.errors.state)}
-                  {...form.register('state')}
-                />
-                <FieldError errors={[form.formState.errors.state]} />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="client-county">
-                  <Trans>County</Trans>
-                </FieldLabel>
-                <Input id="client-county" {...form.register('county')} />
-              </Field>
+              <form.Field name="ein">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor="client-ein">
+                      <Trans>EIN</Trans>
+                    </FieldLabel>
+                    <Input
+                      id="client-ein"
+                      name={field.name}
+                      value={field.state.value}
+                      className="font-mono tabular-nums"
+                      placeholder="12-3456789"
+                      aria-invalid={!field.state.meta.isValid}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                    />
+                    <FieldError errors={fieldErrors(field.state.meta.errors)} />
+                  </Field>
+                )}
+              </form.Field>
+              <form.Field name="state">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor="client-state">
+                      <Trans>State</Trans>
+                    </FieldLabel>
+                    <Input
+                      id="client-state"
+                      name={field.name}
+                      value={field.state.value}
+                      className="font-mono uppercase tabular-nums"
+                      placeholder="CA"
+                      maxLength={2}
+                      aria-invalid={!field.state.meta.isValid}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                    />
+                    <FieldError errors={fieldErrors(field.state.meta.errors)} />
+                  </Field>
+                )}
+              </form.Field>
+              <form.Field name="county">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor="client-county">
+                      <Trans>County</Trans>
+                    </FieldLabel>
+                    <Input
+                      id="client-county"
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                    />
+                    <FieldError errors={fieldErrors(field.state.meta.errors)} />
+                  </Field>
+                )}
+              </form.Field>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <Field>
-                <FieldLabel htmlFor="client-email">
-                  <Trans>Email</Trans>
-                </FieldLabel>
-                <Input
-                  id="client-email"
-                  type="email"
-                  aria-invalid={Boolean(form.formState.errors.email)}
-                  {...form.register('email')}
-                />
-                <FieldError errors={[form.formState.errors.email]} />
-              </Field>
+              <form.Field name="email">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor="client-email">
+                      <Trans>Email</Trans>
+                    </FieldLabel>
+                    <Input
+                      id="client-email"
+                      name={field.name}
+                      value={field.state.value}
+                      type="email"
+                      aria-invalid={!field.state.meta.isValid}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                    />
+                    <FieldError errors={fieldErrors(field.state.meta.errors)} />
+                  </Field>
+                )}
+              </form.Field>
               <Field>
                 <FieldLabel htmlFor="client-assignee-trigger">
                   <Trans>Owner</Trans>
@@ -316,18 +380,11 @@ export function CreateClientDialog({
                   value={assigneeSelectValue}
                   onValueChange={(value) => {
                     const nextAssigneeId = value && value !== UNASSIGNED_ASSIGNEE_VALUE ? value : ''
-                    form.setValue('assigneeId', nextAssigneeId, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    })
+                    form.setFieldValue('assigneeId', nextAssigneeId)
                   }}
                   disabled={assigneesQuery.isLoading || assigneesQuery.isError}
                 >
-                  <SelectTrigger
-                    id="client-assignee-trigger"
-                    className="w-full"
-                    aria-invalid={Boolean(form.formState.errors.assigneeId)}
-                  >
+                  <SelectTrigger id="client-assignee-trigger" className="w-full">
                     <SelectValue>{assigneeSelectLabel}</SelectValue>
                   </SelectTrigger>
                   <SelectContent align="start">
@@ -341,7 +398,6 @@ export function CreateClientDialog({
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <FieldError errors={[form.formState.errors.assigneeId]} />
               </Field>
             </div>
 
@@ -351,21 +407,18 @@ export function CreateClientDialog({
                   <Trans>Client importance</Trans>
                 </FieldLabel>
                 <Select
-                  value={form.watch('importanceWeight')}
+                  value={importanceWeight}
                   onValueChange={(value) => {
                     if (value === '1' || value === '2' || value === '3') {
-                      form.setValue('importanceWeight', value, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
+                      form.setFieldValue('importanceWeight', value)
                     }
                   }}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue>
-                      {form.watch('importanceWeight') === '3'
+                      {importanceWeight === '3'
                         ? t`High`
-                        : form.watch('importanceWeight') === '1'
+                        : importanceWeight === '1'
                           ? t`Low`
                           : t`Medium`}
                     </SelectValue>
@@ -385,29 +438,48 @@ export function CreateClientDialog({
                   </SelectContent>
                 </Select>
               </Field>
-              <Field>
-                <FieldLabel htmlFor="client-late-filings">
-                  <Trans>Late filings, 12mo</Trans>
-                </FieldLabel>
-                <Input
-                  id="client-late-filings"
-                  type="number"
-                  min={0}
-                  max={99}
-                  className="font-mono tabular-nums"
-                  aria-invalid={Boolean(form.formState.errors.lateFilingCountLast12mo)}
-                  {...form.register('lateFilingCountLast12mo')}
-                />
-                <FieldError errors={[form.formState.errors.lateFilingCountLast12mo]} />
-              </Field>
+              <form.Field name="lateFilingCountLast12mo">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor="client-late-filings">
+                      <Trans>Late filings, 12mo</Trans>
+                    </FieldLabel>
+                    <Input
+                      id="client-late-filings"
+                      name={field.name}
+                      value={field.state.value}
+                      type="number"
+                      min={0}
+                      max={99}
+                      className="font-mono tabular-nums"
+                      aria-invalid={!field.state.meta.isValid}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                    />
+                    <FieldError errors={fieldErrors(field.state.meta.errors)} />
+                  </Field>
+                )}
+              </form.Field>
             </div>
 
-            <Field>
-              <FieldLabel htmlFor="client-notes">
-                <Trans>Notes</Trans>
-              </FieldLabel>
-              <Textarea id="client-notes" rows={3} {...form.register('notes')} />
-            </Field>
+            <form.Field name="notes">
+              {(field) => (
+                <Field>
+                  <FieldLabel htmlFor="client-notes">
+                    <Trans>Notes</Trans>
+                  </FieldLabel>
+                  <Textarea
+                    id="client-notes"
+                    name={field.name}
+                    value={field.state.value}
+                    rows={3}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                  />
+                  <FieldError errors={fieldErrors(field.state.meta.errors)} />
+                </Field>
+              )}
+            </form.Field>
           </FieldGroup>
 
           <DialogFooter>
