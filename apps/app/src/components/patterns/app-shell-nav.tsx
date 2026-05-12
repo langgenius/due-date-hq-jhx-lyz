@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, type SyntheticEvent, type ReactNode } from 'react'
-import { Link, NavLink } from 'react-router'
+import { Link, NavLink, useNavigate } from 'react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { msg } from '@lingui/core/macro'
@@ -55,6 +55,7 @@ import { cn } from '@duedatehq/ui/lib/utils'
 import { initialsFromName } from '@/lib/auth'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { resetPracticeScopedQueryCache } from '@/lib/query-cache'
 import { canCreateAdditionalFirm, ownedActiveFirms, paidPlanActive } from '@/features/billing/model'
 import { usePulseListAlertsQueryOptions } from '@/features/pulse/api'
 import { DEFAULT_US_FIRM_TIMEZONE } from '@/features/firm/timezone-model'
@@ -117,6 +118,7 @@ function firmMeta(firm: FirmPublic, i18n: I18n): string {
 
 function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPublic[] }) {
   const { i18n, t } = useLingui()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const shortcutsBlocked = useKeyboardShortcutsBlocked()
   const [switcherOpen, setSwitcherOpen] = useState(false)
@@ -124,7 +126,9 @@ function FirmSwitcherTrigger({ firm, firms }: { firm: FirmPublic; firms: FirmPub
   const switchMutation = useMutation(
     orpc.firms.switchActive.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries()
+        setSwitcherOpen(false)
+        void resetPracticeScopedQueryCache(queryClient)
+        void navigate('/', { replace: true })
       },
       onError: (err) => {
         toast.error(t`Could not switch practice.`, {
@@ -258,6 +262,7 @@ function AddFirmDialog({
   firms: FirmPublic[]
 }) {
   const { t } = useLingui()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [name, setName] = useState('')
   const [timezone, setTimezone] = useState<USFirmTimezone>(DEFAULT_US_FIRM_TIMEZONE)
@@ -271,7 +276,8 @@ function AddFirmDialog({
         setTimezone(DEFAULT_US_FIRM_TIMEZONE)
         setError(null)
         onOpenChange(false)
-        void queryClient.invalidateQueries()
+        void resetPracticeScopedQueryCache(queryClient)
+        void navigate('/', { replace: true })
       },
       onError: (err) => {
         setError(rpcErrorMessage(err) ?? t`Could not create practice.`)

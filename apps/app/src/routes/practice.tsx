@@ -60,6 +60,7 @@ import {
 } from '@/features/permissions/permission-gate'
 import { orpc } from '@/lib/rpc'
 import { rpcErrorMessage } from '@/lib/rpc-error'
+import { resetPracticeScopedQueryCache } from '@/lib/query-cache'
 
 const PRIORITY_FACTOR_KEYS = [
   'exposure',
@@ -248,7 +249,7 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
   const deleteMutation = useMutation(
     orpc.firms.softDeleteCurrent.mutationOptions({
       onSuccess: (result) => {
-        void queryClient.invalidateQueries()
+        void resetPracticeScopedQueryCache(queryClient)
         void navigate(result.nextFirmId ? '/' : '/onboarding', { replace: true })
       },
       onError: (err) => {

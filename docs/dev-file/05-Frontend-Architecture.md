@@ -157,6 +157,9 @@ feature 语义留在 members vertical 内。
       AppShell sidebar footer 只提供当前 plan + seat count 的轻量入口，不承载 pricing 对比；
       完整 Billing 页面必须同时说明 seats 和 practices 两个 entitlement 维度。
     - `/practice` — 当前 active practice profile，只编辑 practice name / timezone / soft-delete 当前 practice；timezone 使用受 contract 约束的美国 IANA 时区下拉（含州内差异区和美国属地），不再提供自由文本输入。它属于 Practice，不属于 user account profile。内部仍由 `firms.*` RPC 和 `firm_profile` 支撑。
+      Practice switch / create / soft-delete 是租户边界：成功后必须重置 TanStack Query cache 并
+      回到 Dashboard，不能只做 `invalidateQueries()` 后继续停留在旧 route，因为 oRPC query key
+      不包含 active firm id，后台 refetch 期间会继续显示上一 practice 的 server state。
     - `/rules` / `/members` / `/audit` — durable practice surfaces，分别承载规则覆盖、成员席位、审计证据。
     - `/billing/checkout?plan=pro&interval=monthly` — checkout 确认页，使用 1120px max-width
       的 plan summary + practice context 布局；未登录 deep link 继续复用
